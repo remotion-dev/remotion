@@ -1,4 +1,5 @@
-import React, {useContext, useMemo, useRef, useState} from 'react';
+import {CanvasInternals} from '@remotion/sdk';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
@@ -6,16 +7,16 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_12,
 	TRANSPARENT,
 } from '../helpers/colors';
+import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
-import {startPointerSession} from '../helpers/pointer-session';
+import {isMac} from '../helpers/is-mac';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
-import {ContextMenuForTarget} from './ContextMenu';
 import {
-	addEffectFromDragData,
-	getEffectDragData,
+	addEffectFromDrop,
 	hasEffectDragType,
-	hasExplicitEffectDragType,
+	isLutEffectDrop,
+	LUT_EFFECT_DROP_TARGET_ATTR,
 } from './effect-drag-and-drop';
 import {
 	forceSpecificCursor,
@@ -23,44 +24,48 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	applySelectedOutlineDragAxisLock,
 	clearSelectedOutlineDragOverrides,
-	getSelectedOutlineDragChanges,
-	getSelectedOutlineDragStates,
-	getSelectedOutlineDragValues,
-	isSelectedOutlineDragPastThreshold,
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
 import type {SelectedOutline} from './selected-outline-geometry';
 import {
-	getOutlineSelectionInteraction,
-	pointToString,
-} from './selected-outline-measurement';
-import {
-	findSelectedOutlineSnap,
 	getSelectedOutlineSnapTargets,
 	type SelectedOutlineSnapPoint,
 } from './selected-outline-snap';
-import {
-	translateFieldKey,
-	type SelectedOutlineContextMenuOpenHandler,
-	type SelectedOutlineDragTarget,
-	type SelectedOutlineLayoutTarget,
-	type SelectedOutlineTarget,
+import type {
+	SelectedOutlineDragTarget,
+	SelectedOutlineLayoutTarget,
+	SelectedOutlineTarget,
 } from './selected-outline-types';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from './Timeline/should-clear-selection-on-pointer-down';
 import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
 } from './Timeline/TimelineSelection';
+import {
+	isTimelineSelectionModifierEvent,
+	useCurrentTimelineSelectionStateAsRef,
+} from './Timeline/TimelineSelection';
+
+const {
+	CanvasOutlinePolygon,
+	getCanvasOutlineTranslateDragStates,
+	handleCanvasOutlinePointerDown,
+	startCanvasOutlineTranslateDrag,
+} = CanvasInternals;
+
+export const SELECTED_OUTLINE_KEY_ATTR =
+	'data-remotion-studio-selected-outline-key';
 
 const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
+	readonly containsSelection: boolean;
+	readonly directlySelected: boolean;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
@@ -68,7 +73,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly getTarget: () => SelectedOutlineTarget | undefined;
 	readonly hasTarget: boolean;
 	readonly hovered: boolean;
-	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
@@ -82,12 +86,16 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly onDoubleClickTarget: (
 		target: SelectedOutlineTarget,
 		button: number,
+		sequenceWasDragged: boolean,
 	) => boolean;
 	readonly scale: number;
 	readonly showSelectedOutline: boolean;
+	readonly translateWithCommandKey: boolean;
 }> = ({
 	compositionHeight,
 	compositionWidth,
+	containsSelection,
+	directlySelected,
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
@@ -95,7 +103,6 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	getTarget,
 	hasTarget,
 	hovered,
-	onContextMenuOpen,
 	outline,
 	onDraggingChange,
 	onHoverChange,
@@ -104,11 +111,16 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	onDoubleClickTarget,
 	scale,
 	showSelectedOutline,
+	translateWithCommandKey,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const dragAwareDoubleClick = useMemo(
+		() => createDragAwareDoubleClickTracker(),
+		[],
+	);
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -116,11 +128,25 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const polygonRef = useRef<SVGPolygonElement>(null);
-	const points = useMemo(
-		() => outline.points.map(pointToString).join(' '),
-		[outline.points],
-	);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
+	useEffect(() => {
+		if (!effectDropHovered) {
+			return;
+		}
+
+		const clearEffectDropHover = () => setEffectDropHovered(false);
+		document.addEventListener('drop', clearEffectDropHover, {capture: true});
+		document.addEventListener('dragend', clearEffectDropHover, {capture: true});
+		return () => {
+			document.removeEventListener('drop', clearEffectDropHover, {
+				capture: true,
+			});
+			document.removeEventListener('dragend', clearEffectDropHover, {
+				capture: true,
+			});
+		};
+	}, [effectDropHovered]);
 	const visible = showSelectedOutline || hovered;
 	const getEffectDropTarget = React.useCallback(() => {
 		if (
@@ -139,257 +165,171 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 		return {
 			clientId: previewServerState.clientId,
 			fileName: nodePath.absolutePath,
-			nodePath,
+			nodePathInfo: target.nodePathInfo,
 		};
 	}, [getLayoutTarget, previewServerState]);
 
 	const onPointerDown = React.useCallback(
 		(event: React.PointerEvent<SVGPolygonElement>) => {
 			const target = getTarget();
-			if (event.button !== 0 || target === undefined) {
+			const decision = handleCanvasOutlinePointerDown({
+				event,
+				polygon: polygonRef.current,
+				hasTarget: target !== undefined,
+				selected: target?.selected ?? false,
+				containsSelection,
+				translateWithCommandKey,
+				isMac,
+			});
+			if (decision === null || target === undefined) {
 				return;
 			}
 
-			const {drag, selected} = target;
-
-			event.preventDefault();
-			event.stopPropagation();
-
-			const interaction = getOutlineSelectionInteraction(event);
-			const shouldUpdateSelection =
-				!selected || interaction.shiftKey || interaction.toggleKey;
-			if (shouldUpdateSelection) {
+			const {drag} = target;
+			const {
+				interaction,
+				temporaryTranslate,
+				shouldUpdateSelection,
+				deferSelection,
+				dragExistingSelection,
+			} = decision;
+			if (!deferSelection && shouldUpdateSelection) {
 				onSelect(target.selection, interaction);
 			}
 
-			if (drag === null || interaction.shiftKey || interaction.toggleKey) {
+			if (
+				interaction.shiftKey ||
+				interaction.toggleKey ||
+				(drag === null && !deferSelection)
+			) {
 				return;
 			}
 
 			if (commitPendingInspectorFields()) {
+				if (deferSelection) {
+					onSelect(target.selection, interaction);
+				}
+
 				return;
 			}
 
-			const startPointerX = event.clientX;
-			const startPointerY = event.clientY;
-			const dragStates = getSelectedOutlineDragStates({
-				dragTargets: selected ? getAllDragTargets() : [drag],
-				getDragOverrides,
-				timelinePosition: getCurrentFrame(),
-			});
-			let lastValues = new Map<string, string>();
-			let currentPointerX = startPointerX;
-			let currentPointerY = startPointerY;
-			let axisLocked = false;
-			let dragStarted = false;
-			let snappingDisabled = event.metaKey || event.ctrlKey;
-			let snapTargets: ReturnType<typeof getSelectedOutlineSnapTargets> | null =
-				null;
+			const dragTargets = dragExistingSelection
+				? getAllDragTargets()
+				: drag === null
+					? []
+					: [drag];
+			if (dragTargets.length === 0) {
+				if (deferSelection) {
+					onSelect(target.selection, interaction);
+				}
 
-			const updateDragOverrides = () => {
-				const screenDeltaX = currentPointerX - startPointerX;
-				const screenDeltaY = currentPointerY - startPointerY;
-				if (!dragStarted) {
-					if (
-						!isSelectedOutlineDragPastThreshold({
-							deltaX: screenDeltaX,
-							deltaY: screenDeltaY,
-						})
-					) {
+				return;
+			}
+
+			const [{clientId}] = dragTargets;
+			startCanvasOutlineTranslateDrag({
+				event,
+				captureTarget: event.currentTarget,
+				dragStates: getCanvasOutlineTranslateDragStates({
+					dragTargets,
+					getDragOverrides: dragOverridesRef.current.getDragOverrides,
+					timelinePosition: getCurrentFrame(),
+				}),
+				scale,
+				snapping: editorSnapping
+					? {
+							outlines: dragExistingSelection
+								? getAllDragOutlines()
+								: [outline],
+							getTargets: () =>
+								getSelectedOutlineSnapTargets({
+									compositionHeight,
+									compositionWidth,
+									guides:
+										editorShowGuides && canvasContent?.type === 'composition'
+											? guidesList.filter(
+													(guide) =>
+														guide.compositionId === canvasContent.compositionId,
+												)
+											: [],
+								}),
+							onSnapPointsChange,
+							// Command already means "translate" in rotation mode.
+							modifierDisablesSnapping: !temporaryTranslate,
+						}
+					: null,
+				setDragOverrides,
+				clearDragOverrides,
+				onDragStart: () => {
+					onDraggingChange(true);
+					forceSpecificCursor('default');
+				},
+				onDragEnd: ({changes, dragged, released, session}) => {
+					dragAwareDoubleClick.endPointerGesture(dragged);
+					if (dragged) {
+						stopForcingSpecificCursor();
+						onDraggingChange(false);
+					}
+
+					if (changes.length === 0) {
+						if (deferSelection && !dragged && released) {
+							onSelect(target.selection, interaction);
+						}
+
 						return;
 					}
 
-					dragStarted = true;
-					onDraggingChange(true);
-					forceSpecificCursor('default');
-				}
+					const staticChanges = changes.filter(
+						(change): change is SelectedOutlineStaticDragChange =>
+							change.type === 'static',
+					);
+					const keyframedChanges = changes.filter(
+						(change): change is SelectedOutlineKeyframedDragChange =>
+							change.type === 'keyframed',
+					);
 
-				const axisLockedDirection = axisLocked
-					? Math.abs(screenDeltaX) >= Math.abs(screenDeltaY)
-						? 'horizontal'
-						: 'vertical'
-					: null;
-				const dragDelta = applySelectedOutlineDragAxisLock({
-					deltaX: screenDeltaX / scale,
-					deltaY: screenDeltaY / scale,
-					axisLocked,
-				});
-				let {deltaX, deltaY} = dragDelta;
-
-				if (editorSnapping && !snappingDisabled) {
-					snapTargets ??= getSelectedOutlineSnapTargets({
-						compositionHeight,
-						compositionWidth,
-						guides:
-							editorShowGuides && canvasContent?.type === 'composition'
-								? guidesList.filter(
-										(guide) =>
-											guide.compositionId === canvasContent.compositionId,
-									)
-								: [],
-					});
-					const snapResult = findSelectedOutlineSnap({
-						allowX: axisLockedDirection !== 'vertical',
-						allowY: axisLockedDirection !== 'horizontal',
-						deltaX,
-						deltaY,
-						outlines: selected ? getAllDragOutlines() : [outline],
-						scale,
-						targets: snapTargets,
-					});
-
-					if (snapResult.snapOffsetX !== null) {
-						deltaX += snapResult.snapOffsetX;
-					}
-
-					if (snapResult.snapOffsetY !== null) {
-						deltaY += snapResult.snapOffsetY;
-					}
-
-					onSnapPointsChange(snapResult.activeSnapPoints);
-				} else {
-					onSnapPointsChange([]);
-				}
-
-				lastValues = getSelectedOutlineDragValues({
-					dragStates,
-					deltaX,
-					deltaY,
-				});
-				for (const dragState of dragStates) {
-					const value = lastValues.get(dragState.key);
-					if (value === undefined) {
-						throw new Error('Expected drag value to be available');
-					}
-
-					if (dragState.target.propStatus.status === 'keyframed') {
-						setDragOverrides(
-							dragState.target.nodePath,
-							translateFieldKey,
-							Internals.makeKeyframedDragOverride({
-								status: dragState.target.propStatus,
-								frame: dragState.sourceFrame,
-								value,
-							}),
-						);
-					} else {
-						setDragOverrides(
-							dragState.target.nodePath,
-							translateFieldKey,
-							Internals.makeStaticDragOverride(value),
-						);
-					}
-				}
-			};
-
-			const onPointerMove = (moveEvent: PointerEvent) => {
-				moveEvent.preventDefault();
-				currentPointerX = moveEvent.clientX;
-				currentPointerY = moveEvent.clientY;
-				axisLocked = moveEvent.shiftKey;
-				snappingDisabled = moveEvent.metaKey || moveEvent.ctrlKey;
-				updateDragOverrides();
-			};
-
-			const onKeyChange = (keyEvent: KeyboardEvent) => {
-				if (keyEvent.key !== 'Shift') {
-					return;
-				}
-
-				const nextAxisLocked = keyEvent.type === 'keydown';
-				if (nextAxisLocked === axisLocked) {
-					return;
-				}
-
-				axisLocked = nextAxisLocked;
-				updateDragOverrides();
-			};
-
-			const onPointerUp = () => {
-				window.removeEventListener('keydown', onKeyChange);
-				window.removeEventListener('keyup', onKeyChange);
-				if (dragStarted) {
-					stopForcingSpecificCursor();
-					onSnapPointsChange([]);
-					onDraggingChange(false);
-				}
-
-				const changes = getSelectedOutlineDragChanges({
-					dragStates,
-					lastValues,
-				});
-
-				if (changes.length === 0) {
-					clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
-					return;
-				}
-
-				const staticChanges = changes.filter(
-					(change): change is SelectedOutlineStaticDragChange =>
-						change.type === 'static',
-				);
-				const keyframedChanges = changes.filter(
-					(change): change is SelectedOutlineKeyframedDragChange =>
-						change.type === 'keyframed',
-				);
-
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: drag.clientId,
-								undoLabel:
-									changes.length > 1
-										? 'Move selected sequences'
-										: 'Move sequence',
-								redoLabel:
-									changes.length > 1
-										? 'Move selected sequences back'
-										: 'Move sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
+					saveSequenceProps({
+						changes: staticChanges,
+						addedKeyframes: keyframedChanges,
+						movedKeyframes: null,
 						setPropStatuses,
-						clientId: drag.clientId,
-					}),
-				])
-					.catch((err) => {
-						showNotification(
-							`Could not save sequence props: ${
-								err instanceof Error ? err.message : String(err)
-							}`,
-							4000,
-						);
+						clientId,
+						undoLabel:
+							changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
+						redoLabel:
+							changes.length > 1
+								? 'Move selected sequences back'
+								: 'Move sequence back',
 					})
-					.finally(() => {
-						clearSelectedOutlineDragOverrides({clearDragOverrides, dragStates});
-					});
-			};
-
-			startPointerSession({
-				event,
-				target: event.currentTarget,
-				onMove: onPointerMove,
-				onEnd: onPointerUp,
+						.catch((err) => {
+							showNotification(
+								`Could not save sequence props: ${
+									err instanceof Error ? err.message : String(err)
+								}`,
+								4000,
+							);
+						})
+						.finally(() => {
+							clearSelectedOutlineDragOverrides({
+								clearDragOverrides,
+								dragStates: session.dragStates,
+							});
+						});
+				},
 			});
-			window.addEventListener('keydown', onKeyChange);
-			window.addEventListener('keyup', onKeyChange);
 		},
 		[
 			canvasContent,
 			clearDragOverrides,
 			compositionHeight,
 			compositionWidth,
+			containsSelection,
+			dragAwareDoubleClick,
 			editorShowGuides,
 			editorSnapping,
 			getAllDragOutlines,
 			getAllDragTargets,
-			getDragOverrides,
+			dragOverridesRef,
 			getTarget,
 			guidesList,
 			onDraggingChange,
@@ -399,24 +339,45 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			scale,
 			setPropStatuses,
 			setDragOverrides,
+			translateWithCommandKey,
 		],
 	);
 
-	const onDoubleClick = React.useCallback(
+	const performDoubleClick = React.useCallback(
 		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (isTimelineSelectionModifierEvent(event)) {
+				return;
+			}
+
 			const target = getTarget();
 			if (target === undefined) {
 				return;
 			}
 
-			if (!onDoubleClickTarget(target, event.button)) {
+			if (
+				!onDoubleClickTarget(
+					target,
+					event.button,
+					dragAwareDoubleClick.consumePointerGestureWasDragged(),
+				)
+			) {
 				return;
 			}
 
 			event.preventDefault();
 			event.stopPropagation();
 		},
-		[getTarget, onDoubleClickTarget],
+		[dragAwareDoubleClick, getTarget, onDoubleClickTarget],
+	);
+	const onClick = React.useCallback(
+		(event: React.MouseEvent<SVGPolygonElement>) => {
+			if (!dragAwareDoubleClick.acceptClickAsDoubleClick(event)) {
+				return;
+			}
+
+			performDoubleClick(event);
+		},
+		[dragAwareDoubleClick, performDoubleClick],
 	);
 
 	const onEffectDragOver = React.useCallback(
@@ -451,7 +412,10 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 
 	const onEffectDrop = React.useCallback(
 		async (event: React.DragEvent<SVGPolygonElement>) => {
-			if (!hasEffectDragType(event.dataTransfer)) {
+			if (
+				!hasEffectDragType(event.dataTransfer) &&
+				!isLutEffectDrop(event.nativeEvent)
+			) {
 				return;
 			}
 
@@ -460,64 +424,45 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 				return;
 			}
 
-			const dragData = getEffectDragData(event.dataTransfer);
-			if (!dragData) {
-				if (hasExplicitEffectDragType(event.dataTransfer)) {
-					event.preventDefault();
-					event.stopPropagation();
-					setEffectDropHovered(false);
-					showNotification('Could not read effect drag data', 3000);
-				}
-
-				return;
-			}
-
 			event.preventDefault();
 			event.stopPropagation();
 			setEffectDropHovered(false);
 
-			await addEffectFromDragData({
-				dragData,
+			await addEffectFromDrop({
+				dataTransfer: event.dataTransfer,
 				fileName: effectDrop.fileName,
-				nodePath: effectDrop.nodePath,
+				nodePathInfo: effectDrop.nodePathInfo,
 				clientId: effectDrop.clientId,
+				selectItems: currentSelection.current.selectItems,
 			});
 		},
-		[getEffectDropTarget],
+		[currentSelection, getEffectDropTarget],
 	);
 
 	return (
-		<>
-			<polygon
-				ref={polygonRef}
-				points={points}
-				fill={effectDropHovered ? TIMELINE_DROP_BLUE_ALPHA_12 : TRANSPARENT}
-				stroke={BLUE}
-				strokeOpacity={visible || effectDropHovered ? 1 : 0}
-				strokeWidth={2}
-				vectorEffect="non-scaling-stroke"
-				pointerEvents={hasTarget ? 'all' : undefined}
-				onPointerEnter={() => {
-					if (!dragging) {
-						onHoverChange(outline.key);
-					}
-				}}
-				onPointerLeave={() => {
-					if (!dragging) {
-						onHoverChange(null);
-					}
-				}}
-				onPointerDown={onPointerDown}
-				onDoubleClick={onDoubleClick}
-				onDragOver={onEffectDragOver}
-				onDragLeave={onEffectDragLeave}
-				onDrop={onEffectDrop}
-			/>
-			<ContextMenuForTarget
-				triggerRef={polygonRef}
-				getItems={onContextMenuOpen}
-			/>
-		</>
+		<CanvasOutlinePolygon
+			ref={polygonRef}
+			{...{
+				[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true',
+				[SELECTED_OUTLINE_KEY_ATTR]: outline.key,
+				[LUT_EFFECT_DROP_TARGET_ATTR]:
+					getEffectDropTarget() !== null ? 'true' : undefined,
+			}}
+			outline={outline}
+			directlySelected={directlySelected}
+			dragging={dragging}
+			fill={effectDropHovered ? TIMELINE_DROP_BLUE_ALPHA_12 : TRANSPARENT}
+			stroke={BLUE}
+			visible={visible || effectDropHovered}
+			interactive={hasTarget}
+			onHoverChange={onHoverChange}
+			onPointerDown={onPointerDown}
+			onPointerDownCapture={dragAwareDoubleClick.beginPointerGesture}
+			onClick={onClick}
+			onDragOver={onEffectDragOver}
+			onDragLeave={onEffectDragLeave}
+			onDrop={onEffectDrop}
+		/>
 	);
 };
 

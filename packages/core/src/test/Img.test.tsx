@@ -1,7 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {act, cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import React from 'react';
-import {BufferingContextReact} from '../buffering.js';
 import type {
 	EffectApplyParams,
 	EffectDefinition,
@@ -12,9 +11,11 @@ import type {RemotionEnvironment} from '../remotion-environment-context.js';
 import {RemotionEnvironmentContext} from '../remotion-environment-context.js';
 import type {SequenceContextType} from '../SequenceContext.js';
 import {SequenceContext} from '../SequenceContext.js';
+import {SetTimelineContext} from '../TimelineContext.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const drawImageCalls: unknown[][] = [];
+const imageCrossOrigins: Array<string | null> = [];
 const OriginalImage = globalThis.Image;
 
 const stub2dContext = () => ({
@@ -61,6 +62,7 @@ class MockImage {
 
 	public set src(src: string) {
 		this.currentSrc = src;
+		imageCrossOrigins.push(this.crossOrigin);
 		queueMicrotask(() => this.onload?.());
 	}
 }
@@ -96,6 +98,7 @@ const makeEffect = (
 
 beforeEach(() => {
 	drawImageCalls.length = 0;
+	imageCrossOrigins.length = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
 });
 
@@ -136,6 +139,7 @@ const renderImg = (
 };
 
 const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	playbackRate: 1,
 	absoluteFrom: 0,
 	cumulatedFrom: 0,
 	cumulatedNegativeFrom: 0,
@@ -154,25 +158,13 @@ const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
 const BufferingEvents: React.FC<{
 	readonly events: string[];
 }> = ({events}) => {
-	const manager = React.useContext(BufferingContextReact);
+	const {subscribeBuffering} = React.useContext(SetTimelineContext);
 
 	React.useLayoutEffect(() => {
-		if (!manager) {
-			throw new Error('Expected BufferingContextReact');
-		}
-
-		const buffering = manager.listenForBuffering(() => {
-			events.push('waiting');
+		return subscribeBuffering((state) => {
+			events.push(state.buffering ? 'waiting' : 'resume');
 		});
-		const resume = manager.listenForResume(() => {
-			events.push('resume');
-		});
-
-		return () => {
-			buffering.remove();
-			resume.remove();
-		};
-	}, [events, manager]);
+	}, [events, subscribeBuffering]);
 
 	return null;
 };
@@ -242,6 +234,68 @@ test('Img with an empty effects array still renders an img tag', () => {
 	renderImg(<Img ref={ref} src={testImgUrl} effects={[]} />);
 
 	expect(ref.current?.tagName).toBe('IMG');
+});
+
+test('<Img> forwards crossOrigin when effects use <CanvasImage>', async () => {
+	renderImg(
+		<Img
+			src={testImgUrl}
+			width={50}
+			height={50}
+			effects={[makeEffect()]}
+			crossOrigin="use-credentials"
+		/>,
+	);
+
+	await waitFor(() => {
+		expect(imageCrossOrigins).toEqual(['use-credentials']);
+	});
+});
+
+test('<Img> calls onImageError for native and canvas image failures', async () => {
+	const nativeError = {current: null as Error | null};
+	const {container, unmount} = renderImg(
+		<Img
+			src={testImgUrl}
+			maxRetries={0}
+			onImageError={(error) => {
+				nativeError.current = error;
+			}}
+		/>,
+	);
+
+	fireEvent.error(container.querySelector('img') as HTMLImageElement);
+	expect(nativeError.current).toBeInstanceOf(Error);
+	unmount();
+
+	class FailingImage extends MockImage {
+		public get src() {
+			return '';
+		}
+
+		public set src(_src: string) {
+			queueMicrotask(() => this.onerror?.());
+		}
+	}
+
+	globalThis.Image = FailingImage as unknown as typeof Image;
+	const canvasError = {current: null as Error | null};
+	renderImg(
+		<Img
+			src={testImgUrl}
+			width={50}
+			height={50}
+			effects={[makeEffect()]}
+			maxRetries={0}
+			onImageError={(error) => {
+				canvasError.current = error;
+			}}
+		/>,
+	);
+
+	await waitFor(() => {
+		expect(canvasError.current).toBeInstanceOf(Error);
+	});
 });
 
 test('<Img> does not decode again when premounting ends after loading', async () => {
@@ -420,6 +474,7 @@ test('Img with effects renders through the canvas image path', async () => {
 test('<Img> schema exposes src and crop but not fit', () => {
 	expect(imgSchema.src).toEqual({
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,
@@ -463,9 +518,9 @@ test('<Img> forwards crop props to the CanvasImage fallback', () => {
 
 test('<Img> keeps its component name in crop errors from the fallback', () => {
 	expect(() =>
-		renderImg(<Img cropLeft={1.1} effects={[makeEffect()]} src={testImgUrl} />),
+		renderImg(<Img cropLeft={101} effects={[makeEffect()]} src={testImgUrl} />),
 	).toThrow(
-		'The "cropLeft" prop of <Img /> must be between 0 and 1, but got 1.1.',
+		'The "cropLeft" prop of <Img /> must be between 0 and 1, but got 101. The crop range is 0 to 1, not 0 to 100.',
 	);
 });
 

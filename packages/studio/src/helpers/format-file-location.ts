@@ -3,19 +3,24 @@ type FileLocation = {
 	readonly line: number | null;
 };
 
+export type RelativeFileLocation = {
+	readonly filename: string;
+	readonly line: number;
+};
+
 const normalizeSlashes = (path: string) => path.replace(/\\/g, '/');
 
 const stripTrailingSlashes = (path: string) => path.replace(/\/+$/, '');
 
 const stripLeadingDotSlash = (path: string) => path.replace(/^\.\/+/, '');
 
-export const formatFileLocation = ({
+export const getRelativeFileLocation = ({
 	location,
 	root,
 }: {
 	readonly location: FileLocation | null;
 	readonly root: string;
-}) => {
+}): RelativeFileLocation | null => {
 	if (!location?.source || location.line === null) {
 		return null;
 	}
@@ -37,7 +42,25 @@ export const formatFileLocation = ({
 		? source.slice(normalizedRoot.length + 1)
 		: source;
 
-	return `${stripLeadingDotSlash(relativeSource)}:${location.line}`;
+	return {
+		filename: stripLeadingDotSlash(relativeSource),
+		line: location.line,
+	};
+};
+
+export const formatFileLocation = ({
+	location,
+	root,
+}: {
+	readonly location: FileLocation | null;
+	readonly root: string;
+}) => {
+	const relativeLocation = getRelativeFileLocation({location, root});
+	if (relativeLocation === null) {
+		return null;
+	}
+
+	return `${relativeLocation.filename}:${relativeLocation.line}`;
 };
 
 export const formatContextForAgents = ({

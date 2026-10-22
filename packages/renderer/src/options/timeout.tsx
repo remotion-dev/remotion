@@ -16,6 +16,7 @@ const cliFlag = 'timeout' as const;
 
 export const delayRenderTimeoutInMillisecondsOption = {
 	name: 'delayRender() timeout',
+	addedIn: '2.6.3',
 	cliFlag,
 	description: () => (
 		<>
@@ -31,7 +32,7 @@ export const delayRenderTimeoutInMillisecondsOption = {
 		</>
 	),
 	ssrName: 'timeoutInMilliseconds' as const,
-	docLink: 'https://www.remotion.dev/docs/timeout',
+	docLink: 'https://www.remotion.dev/docs/options/timeout',
 	type: 0 as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

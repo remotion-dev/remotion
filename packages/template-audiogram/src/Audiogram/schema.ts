@@ -1,4 +1,4 @@
-import { Caption } from "@remotion/captions";
+import type { Caption } from "@remotion/captions";
 import { zColor } from "@remotion/zod-types";
 import { z } from "zod";
 
@@ -31,22 +31,19 @@ export const audiogramSchema = z.object({
   // visualizer settings
   visualizer: visualizerSchema,
   // podcast data
-  coverImageUrl: z.string(),
-  titleText: z.string(),
   titleColor: zColor(),
   // captions settings
   captionsFileName: z
     .string()
-    .refine((s) => s.endsWith(".srt") || s.endsWith(".json"), {
+    .refine((value) => value.endsWith(".srt") || value.endsWith(".json"), {
       message: "Subtitles file must be a .srt or .json file",
     }),
   captionsTextColor: zColor(),
   onlyDisplayCurrentSentence: z.boolean(),
   // audio settings
   audioFileUrl: z.string(),
-  audioOffsetInSeconds: z.number().min(0),
 });
 
 export type AudiogramCompositionSchemaType = z.infer<typeof audiogramSchema> & {
-  captions: Caption[] | null;
+  readonly captions: Caption[] | null;
 };

@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatus,
 	PropStatuses,
@@ -9,8 +10,6 @@ import type {
 import {Internals} from 'remotion';
 import {
 	getTimelineSequenceSplitEligibility,
-	shouldHandleTimelineDuplicateShortcut,
-	shouldHandleTimelineSplitShortcut,
 	splitSelectedTimelineItems,
 } from '../components/Timeline/split-selected-timeline-item';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
@@ -19,7 +18,7 @@ import {makeRuntimeValueStore} from './make-runtime-value-store';
 const makeKey = (nodePath: SequenceNodePath): SequencePropsSubscriptionKey => ({
 	absolutePath: '/tmp/Comp.tsx',
 	nodePath,
-	sequenceKeys: [],
+	sequenceKeys: ['from', 'durationInFrames', 'trimBefore'],
 	effectKeys: [],
 	videoConfigValues: null,
 });
@@ -35,7 +34,10 @@ const makeNodePathInfo = (
 	supportsEffects: true,
 });
 
-const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
+const makeSequence = (
+	overrides: Partial<TSequence> = {},
+	overrideId = 'override',
+): TSequence =>
 	({
 		from: 10,
 		trimBefore: null,
@@ -45,7 +47,6 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		documentationLink: null,
 		parent: null,
 		showInTimeline: true,
-		nonce: [[0, 0]],
 		loopDisplay: undefined,
 		getStack: () => null,
 		premountDisplay: null,
@@ -53,14 +54,16 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 		controls: {
 			schema: {},
 			runtimeValues: makeRuntimeValueStore({}),
-			overrideId: 'override',
+			overrideId,
 			supportsEffects: true,
 			componentIdentity: null,
 			componentName: 'Sequence',
 		},
 		refForOutline: null,
 		effects: [],
+		effectRuntimeValues: null,
 		isInsideSeries: false,
+		sequencePlaybackRate: 1,
 		frozenFrame: null,
 		type: 'sequence',
 		...overrides,
@@ -68,6 +71,7 @@ const makeSequence = (overrides: Partial<TSequence> = {}): TSequence =>
 
 const staticNumber = (value: number): CanUpdateSequencePropStatus => ({
 	status: 'static',
+	keyframeDisplayOffsetAdjustment: null,
 	codeValue: value,
 });
 
@@ -156,6 +160,7 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 				controls: {
 					schema: {},
 					runtimeValues: makeRuntimeValueStore({}),
+					videoConfigValues: null,
 					overrideId: 'override',
 					supportsEffects: true,
 					componentIdentity: 'dev.remotion.remotion.Solid',
@@ -167,6 +172,28 @@ test('getTimelineSequenceSplitEligibility rejects non-editable sequence shapes',
 	).toEqual({
 		canSplit: true,
 		nodePathInfo: makeNodePathInfo(['body', 2]),
+	});
+});
+
+test('getTimelineSequenceSplitEligibility derives timing support from schema keys', () => {
+	const nodePathInfo = makeNodePathInfo(['body', 0]);
+	const withoutFrom = {
+		...nodePathInfo,
+		sequenceSubscriptionKey: {
+			...nodePathInfo.sequenceSubscriptionKey,
+			sequenceKeys: ['durationInFrames', 'trimBefore'],
+		},
+	};
+
+	expect(
+		getTimelineSequenceSplitEligibility({
+			selection: {type: 'sequence', nodePathInfo: withoutFrom},
+			sequence: makeSequence(),
+			splitFrame: 30,
+		}),
+	).toEqual({
+		canSplit: false,
+		reason: 'Sequence does not expose timing traits that can be split',
 	});
 });
 
@@ -185,19 +212,13 @@ test('getTimelineSequenceSplitEligibility rejects dynamic timing props', () => {
 	).toBe(false);
 });
 
-test('Cmd+D and Cmd+Shift+D shortcut gates are mutually exclusive', () => {
-	expect(shouldHandleTimelineDuplicateShortcut({shiftKey: false})).toBe(true);
-	expect(shouldHandleTimelineDuplicateShortcut({shiftKey: true})).toBe(false);
-	expect(shouldHandleTimelineSplitShortcut({shiftKey: false})).toBe(false);
-	expect(shouldHandleTimelineSplitShortcut({shiftKey: true})).toBe(true);
-});
-
 test('splitSelectedTimelineItems splits the selected sequence at the playhead', async () => {
 	const nodePathInfo = makeNodePathInfo(['body', 0]);
 	const propStatuses = {
 		[Internals.makeSequencePropsSubscriptionKey(
 			nodePathInfo.sequenceSubscriptionKey,
 		)]: {
+			durationDependentKeyframes: null,
 			canUpdate: true,
 			props: {
 				from: staticNumber(10),
@@ -210,20 +231,102 @@ test('splitSelectedTimelineItems splits the selected sequence at the playhead', 
 	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
 		[];
 
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const result = await splitSelectedTimelineItems({
 		selections: [{type: 'sequence', nodePathInfo}],
-		sequences: [makeSequence()],
-		overrideIdsToNodePaths: {
-			override: nodePathInfo.sequenceSubscriptionKey,
-		},
+		tracks: calculate({
+			sequences: [makeSequence()],
+			overrideIdsToNodePaths: {
+				override: nodePathInfo.sequenceSubscriptionKey,
+			},
+		}).tracks,
 		propStatuses,
 		splitFrame: 30,
-		splitSequence: (options) => {
-			splitCalls.push(options);
+		splitSequences: ({sequences: splitSequences}) => {
+			splitCalls.push(...splitSequences);
 			return Promise.resolve(true);
 		},
 	});
 
 	expect(result).toBe(true);
 	expect(splitCalls).toEqual([{nodePathInfo, splitFrame: 30}]);
+});
+
+test('splitSelectedTimelineItems batches multiple selected clips', async () => {
+	const first = makeNodePathInfo(['body', 0]);
+	const second = makeNodePathInfo(['body', 1]);
+	const firstSequence = makeSequence();
+	const secondSequence = makeSequence(
+		{id: 'second-sequence'},
+		'second-override',
+	);
+	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
+		[];
+
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const result = await splitSelectedTimelineItems({
+		selections: [
+			{type: 'sequence', nodePathInfo: first},
+			{type: 'sequence', nodePathInfo: second},
+		],
+		tracks: calculate({
+			sequences: [firstSequence, secondSequence],
+			overrideIdsToNodePaths: {
+				override: first.sequenceSubscriptionKey,
+				'second-override': second.sequenceSubscriptionKey,
+			},
+		}).tracks,
+		propStatuses: undefined,
+		splitFrame: 30,
+		splitSequences: ({sequences}) => {
+			splitCalls.push(...sequences);
+			return Promise.resolve(true);
+		},
+	});
+
+	expect(result).toBe(true);
+	expect(splitCalls).toEqual([
+		{nodePathInfo: first, splitFrame: 30},
+		{nodePathInfo: second, splitFrame: 30},
+	]);
+});
+
+test('splitSelectedTimelineItems skips ineligible clips and reports the partial split', async () => {
+	const eligible = makeNodePathInfo(['body', 0]);
+	const ineligible = makeNodePathInfo(['body', 1]);
+	const ineligibleSequence = makeSequence(
+		{from: 40, id: 'ineligible-sequence'},
+		'ineligible-override',
+	);
+	const splitCalls: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[] =
+		[];
+	const notifications: string[] = [];
+
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const result = await splitSelectedTimelineItems({
+		selections: [
+			{type: 'sequence', nodePathInfo: eligible},
+			{type: 'sequence', nodePathInfo: ineligible},
+		],
+		tracks: calculate({
+			sequences: [makeSequence(), ineligibleSequence],
+			overrideIdsToNodePaths: {
+				override: eligible.sequenceSubscriptionKey,
+				'ineligible-override': ineligible.sequenceSubscriptionKey,
+			},
+		}).tracks,
+		propStatuses: undefined,
+		splitFrame: 30,
+		splitSequences: ({sequences}) => {
+			splitCalls.push(...sequences);
+			return Promise.resolve(true);
+		},
+		notify: (message) => notifications.push(message),
+	});
+
+	expect(result).toBe(true);
+	expect(splitCalls).toEqual([{nodePathInfo: eligible, splitFrame: 30}]);
+	expect(notifications).toEqual([
+		'Split 1 clip. Skipped 1 clip that could not be split.',
+	]);
 });

@@ -96,6 +96,38 @@ test('seeking into the middle of a loop must replay the full segment on later it
 	);
 });
 
+// https://github.com/remotion-dev/remotion/issues/10655
+test('seeking into a silent audio tail must preserve the silence before looping', async () => {
+	const iterator = makeLoopingIterator({
+		audioSink: makeMockAudioSink(7),
+		seekTimeInSeconds: 8,
+		segmentEndInSeconds: 10,
+		loopStartInSeconds: 0,
+		maximumContinuousTimestamp: 22,
+	});
+
+	const chunks = await collect(iterator, 1000);
+
+	expect(chunks.map((c) => c.rawTimestamp)).toEqual([
+		0, 1, 2, 3, 4, 5, 6, 0, 1,
+	]);
+	expect(chunks.map((c) => c.timestamp)).toEqual([
+		10, 11, 12, 13, 14, 15, 16, 20, 21,
+	]);
+});
+
+test('a full loop pass without audio buffers must stop the iterator', async () => {
+	const iterator = makeLoopingIterator({
+		audioSink: makeMockAudioSink(0),
+		seekTimeInSeconds: 8,
+		segmentEndInSeconds: 10,
+		loopStartInSeconds: 0,
+		maximumContinuousTimestamp: 100,
+	});
+
+	expect(await collect(iterator, 1000)).toEqual([]);
+});
+
 test('looped audio with trimBefore must replay the trimmed segment', async () => {
 	const iterator = makeLoopingIterator({
 		audioSink: makeMockAudioSink(10),

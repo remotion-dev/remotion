@@ -1,25 +1,28 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
-	BrowserSafeApis,
 	ChromiumOptions,
-	DownloadBehavior,
 	StillImageFormat,
 	ToOptions,
-} from '@remotion/serverless-client';
-import {ServerlessRoutines} from '@remotion/serverless-client';
-import type {
-	CostsInfo,
-	OutNameInput,
-	Privacy,
-	ReceivedArtifact,
-	RenderStillFunctionResponsePayload,
-} from '@remotion/serverless-client';
-import {wrapWithErrorHandling} from '@remotion/serverless-client';
-import {awsImplementation, type AwsProvider} from './aws-provider';
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
+import type {DownloadBehavior} from 'remotion/no-react';
+import {callFunctionWithStreamingImplementation} from './call-lambda-streaming';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {DEFAULT_MAX_RETRIES} from './constants';
 import {getCloudwatchMethodUrl, getLambdaInsightsUrl} from './get-aws-urls';
 import {makeLambdaRenderStillPayload} from './make-lambda-payload';
 import type {AwsRegion} from './regions';
+import {
+	ServerlessRoutines,
+	type OutNameInput,
+	type Privacy,
+} from './shared-constants';
+import type {
+	CostsInfo,
+	ReceivedArtifact,
+	RenderStillFunctionResponsePayload,
+} from './types';
 import type {RequestHandler} from './types';
 
 type MandatoryParameters = {
@@ -36,7 +39,7 @@ type OptionalParameters = {
 	maxRetries: number;
 	envVariables: Record<string, string>;
 	frame: number;
-	outName: OutNameInput<AwsProvider> | null;
+	outName: OutNameInput | null;
 	chromiumOptions: ChromiumOptions;
 	downloadBehavior: DownloadBehavior;
 	forceWidth: number | null;
@@ -72,7 +75,7 @@ export type RenderStillOnLambdaOutput = {
 	bucketName: string;
 	renderId: string;
 	cloudWatchLogs: string;
-	artifacts: ReceivedArtifact<AwsProvider>[];
+	artifacts: ReceivedArtifact[];
 };
 
 const innerRenderStillOnLambda = async (
@@ -81,52 +84,75 @@ const innerRenderStillOnLambda = async (
 	const {functionName, region, onInit} = input;
 	try {
 		const payload = await makeLambdaRenderStillPayload(input);
-		const res = await new Promise<
-			RenderStillFunctionResponsePayload<AwsProvider>
-		>((resolve, reject) => {
-			awsImplementation
-				.callFunctionStreaming<ServerlessRoutines.still>({
+		const res = payload.streamed
+			? await new Promise<RenderStillFunctionResponsePayload>(
+					(resolve, reject) => {
+						callFunctionWithStreamingImplementation<ServerlessRoutines.still>({
+							functionName,
+							type: ServerlessRoutines.still,
+							payload,
+							region,
+							receivedStreamingPayload: ({message}) => {
+								if (message.type === 'render-id-determined') {
+									onInit?.({
+										renderId: message.payload.renderId,
+										cloudWatchLogs: getCloudwatchMethodUrl({
+											functionName,
+											method: ServerlessRoutines.still,
+											region,
+											rendererFunctionName: null,
+											renderId: message.payload.renderId,
+										}),
+										lambdaInsightsUrl: getLambdaInsightsUrl({
+											functionName,
+											region,
+										}),
+									});
+								}
+
+								if (message.type === 'error-occurred') {
+									reject(new Error(message.payload.error));
+								}
+
+								if (message.type === 'still-rendered') {
+									resolve(message.payload);
+								}
+							},
+							timeoutInTest: 120000,
+							retriesRemaining: input.maxRetries,
+							getBinaryPayloadSink: null,
+							requestHandler: input.requestHandler,
+						})
+							.then(() => {
+								reject(new Error('Expected response to be streamed'));
+							})
+							.catch((err) => {
+								reject(err);
+							});
+					},
+				)
+			: ((await callFunctionSyncImplementation<ServerlessRoutines.still>({
 					functionName,
 					type: ServerlessRoutines.still,
 					payload,
 					region,
-					receivedStreamingPayload: ({message}) => {
-						if (message.type === 'render-id-determined') {
-							onInit?.({
-								renderId: message.payload.renderId,
-								cloudWatchLogs: getCloudwatchMethodUrl({
-									functionName,
-									method: ServerlessRoutines.still,
-									region,
-									rendererFunctionName: null,
-									renderId: message.payload.renderId,
-								}),
-								lambdaInsightsUrl: getLambdaInsightsUrl({
-									functionName,
-									region,
-								}),
-							});
-						}
-
-						if (message.type === 'error-occurred') {
-							reject(new Error(message.payload.error));
-						}
-
-						if (message.type === 'still-rendered') {
-							resolve(message.payload);
-						}
-					},
 					timeoutInTest: 120000,
-					retriesRemaining: input.maxRetries,
 					requestHandler: input.requestHandler,
-				})
-				.then(() => {
-					reject(new Error('Expected response to be streamed'));
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
+				})) as unknown as RenderStillFunctionResponsePayload);
+
+		if (!payload.streamed) {
+			onInit?.({
+				renderId: res.renderId,
+				cloudWatchLogs: getCloudwatchMethodUrl({
+					functionName,
+					method: ServerlessRoutines.still,
+					region,
+					rendererFunctionName: null,
+					renderId: res.renderId,
+				}),
+				lambdaInsightsUrl: getLambdaInsightsUrl({functionName, region}),
+			});
+		}
 
 		return {
 			estimatedPrice: res.estimatedPrice,

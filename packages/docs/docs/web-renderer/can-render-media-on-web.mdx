@@ -47,6 +47,14 @@ _number - required_
 
 The height of the video in pixels.
 
+### `scale?`<AvailableFrom v="4.0.530" />
+
+_number — default `1`_
+
+Scales `width` and `height` before checking encoder support. Pass the composition dimensions and the same scale used for [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web), not already-scaled output dimensions.
+
+For H.264, H.265, and AV1, the scaled dimensions are automatically adjusted down to even values when necessary, using the same calculation as the render.
+
 ### `container?`
 
 _string_ <TsType type="WebRendererContainer" source="@remotion/web-renderer" />
@@ -87,11 +95,14 @@ If `true`, audio codec checks are skipped. Default is `false`.
 
 ### `videoBitrate?`
 
-_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
+_number | string | Quality_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" />
 
 The video bitrate. Can be a number (bits per second) or a quality preset: `"very-low"`, `"low"`, `"medium"`, `"high"`, `"very-high"`.
 
 Default is `"medium"`.
+
+Since v4.0.535, you can also pass a Mediabunny [`Quality`](/docs/web-renderer/render-media-on-web#mediabunny-quality) instance.
+Pass the same value to [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web) later on as well.
 
 ### `audioBitrate?`
 

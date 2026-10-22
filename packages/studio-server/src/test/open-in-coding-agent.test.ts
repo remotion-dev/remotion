@@ -18,31 +18,45 @@ import {
 } from '../helpers/coding-agent-registry';
 
 test('constructs macOS coding agent launch commands', () => {
+	const chatGPT = {
+		applicationPath: '/Applications/ChatGPT.app',
+		id: 'codex',
+		launchMode: 'direct',
+		name: 'ChatGPT',
+		nameWithType: 'ChatGPT',
+		platform: 'darwin',
+		terminal: null,
+	} as const;
+
 	expect(
 		getCodingAgentLaunchCommand({
-			codingAgent: {
-				applicationPath: '/Applications/ChatGPT.app',
-				iconDataUrl: null,
-				id: 'codex',
-				launchMode: 'direct',
-				name: 'Codex',
-				nameWithType: 'Codex',
-				platform: 'darwin',
-				terminal: null,
-			},
+			codingAgent: chatGPT,
 			projectPath: '/Users/test/My Project',
 		}),
 	).toEqual({
-		command: '/Applications/ChatGPT.app/Contents/Resources/codex',
-		args: ['app', '/Users/test/My Project'],
+		command: 'open',
+		args: ['codex://new?path=%2FUsers%2Ftest%2FMy+Project'],
 		cwd: null,
 	});
+	expect(
+		getCodingAgentLaunchCommands({
+			codingAgent: chatGPT,
+			projectPath: '/Users/test/My Project',
+			prompt: null,
+		}),
+	).toEqual([
+		{
+			command: 'open',
+			args: ['codex://new?path=%2FUsers%2Ftest%2FMy+Project'],
+			cwd: null,
+			waitForExit: false,
+		},
+	]);
 
 	expect(
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: '/Applications/Cursor.app',
-				iconDataUrl: null,
 				id: 'cursor',
 				launchMode: 'direct',
 				name: 'Cursor',
@@ -61,7 +75,6 @@ test('constructs macOS coding agent launch commands', () => {
 	for (const codingAgent of [
 		{
 			applicationPath: '/Applications/GitHub Copilot.app',
-			iconDataUrl: null,
 			id: 'copilot' as const,
 			launchMode: 'direct' as const,
 			name: 'GitHub Copilot',
@@ -71,7 +84,6 @@ test('constructs macOS coding agent launch commands', () => {
 		},
 		{
 			applicationPath: '/Applications/Claude.app',
-			iconDataUrl: null,
 			id: 'claude-code' as const,
 			launchMode: 'direct' as const,
 			name: 'Claude Code',
@@ -98,7 +110,6 @@ test('constructs Linux coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: '/usr/local/bin/codex',
-				iconDataUrl: null,
 				id: 'codex',
 				launchMode: 'terminal',
 				name: 'Codex',
@@ -125,7 +136,6 @@ test('constructs Linux coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: '/usr/bin/cursor',
-				iconDataUrl: null,
 				id: 'cursor',
 				launchMode: 'direct',
 				name: 'Cursor',
@@ -147,7 +157,6 @@ test('constructs Windows coding agent launch commands', () => {
 		getCodingAgentLaunchCommand({
 			codingAgent: {
 				applicationPath: 'C:\\Tools\\copilot.cmd',
-				iconDataUrl: null,
 				id: 'copilot',
 				launchMode: 'terminal',
 				name: 'GitHub Copilot',
@@ -186,11 +195,10 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/ChatGPT.app',
-				iconDataUrl: null,
 				id: 'codex',
 				launchMode: 'direct',
-				name: 'Codex',
-				nameWithType: 'Codex',
+				name: 'ChatGPT',
+				nameWithType: 'ChatGPT',
 				platform: 'darwin',
 				terminal: null,
 			},
@@ -212,7 +220,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/Cursor.app',
-				iconDataUrl: null,
 				id: 'cursor',
 				launchMode: 'direct',
 				name: 'Cursor',
@@ -244,7 +251,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/Claude.app',
-				iconDataUrl: null,
 				id: 'claude-code',
 				launchMode: 'direct',
 				name: 'Claude Code',
@@ -270,7 +276,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		getCodingAgentLaunchCommands({
 			codingAgent: {
 				applicationPath: '/Applications/GitHub Copilot.app',
-				iconDataUrl: null,
 				id: 'copilot',
 				launchMode: 'direct',
 				name: 'GitHub Copilot',
@@ -290,58 +295,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		},
 	]);
 });
-
-test.skipIf(process.platform === 'win32')(
-	'launches the project through the coding agent executable',
-	async () => {
-		const directory = mkdtempSync(
-			path.join(tmpdir(), 'remotion-coding-agent-launch-'),
-		);
-		const applicationPath = path.join(directory, 'ChatGPT.app');
-		const executable = path.join(
-			applicationPath,
-			'Contents',
-			'Resources',
-			'codex',
-		);
-		const output = path.join(path.dirname(executable), 'received.txt');
-		mkdirSync(path.dirname(executable), {recursive: true});
-		writeFileSync(
-			executable,
-			'#!/bin/sh\nprintf "%s\\n" "$@" > "$(dirname "$0")/received.txt"\n',
-		);
-		chmodSync(executable, 0o755);
-
-		try {
-			const success = await launchCodingAgent({
-				codingAgent: {
-					applicationPath,
-					iconDataUrl: null,
-					id: 'codex',
-					launchMode: 'direct',
-					name: 'Codex',
-					nameWithType: 'Codex',
-					platform: 'darwin',
-					terminal: null,
-				},
-				logLevel: 'error',
-				projectPath: '/Users/test/My Project',
-				prompt: null,
-			});
-			expect(success).toBe(true);
-
-			for (let attempt = 0; attempt < 100 && !existsSync(output); attempt++) {
-				await Bun.sleep(10);
-			}
-
-			expect(readFileSync(output, 'utf8')).toBe(
-				'app\n/Users/test/My Project\n',
-			);
-		} finally {
-			rmSync(directory, {force: true, recursive: true});
-		}
-	},
-);
 
 test.skipIf(process.platform === 'win32')(
 	'launches a terminal coding agent in the project directory',
@@ -369,7 +322,6 @@ test.skipIf(process.platform === 'win32')(
 			const success = await launchCodingAgent({
 				codingAgent: {
 					applicationPath,
-					iconDataUrl: null,
 					id: 'codex',
 					launchMode: 'terminal',
 					name: 'Codex',
@@ -383,13 +335,20 @@ test.skipIf(process.platform === 'win32')(
 			});
 			expect(success).toBe(true);
 
-			for (let attempt = 0; attempt < 100 && !existsSync(output); attempt++) {
+			const expectedOutput = `${realpathSync(projectPath)}\n`;
+			let receivedOutput = '';
+			for (let attempt = 0; attempt < 100; attempt++) {
+				if (existsSync(output)) {
+					receivedOutput = readFileSync(output, 'utf8');
+					if (receivedOutput === expectedOutput) {
+						break;
+					}
+				}
+
 				await Bun.sleep(10);
 			}
 
-			expect(readFileSync(output, 'utf8')).toBe(
-				`${realpathSync(projectPath)}\n`,
-			);
+			expect(receivedOutput).toBe(expectedOutput);
 		} finally {
 			rmSync(directory, {force: true, recursive: true});
 		}

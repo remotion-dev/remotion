@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 import {MediaPlayer} from '../media-player';
 
-test('setTrimBefore and setTrimAfter should update frame when paused', async () => {
+test('setTrimRange should atomically update trims when paused', async () => {
 	const player = new MediaPlayer({
 		canvas: null,
 		src: '/bigbuckbunny.mp4',
@@ -11,6 +11,7 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		trimBefore: undefined,
 		trimAfter: undefined,
 		playbackRate: 1,
+		toneFrequency: 1,
 		globalPlaybackRate: 1,
 		audioStreamIndex: 0,
 		fps: 30,
@@ -27,21 +28,22 @@ test('setTrimBefore and setTrimAfter should update frame when paused', async () 
 		tagType: 'video',
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
+		onError: null,
 	});
 
-	await player.initialize(0, false);
+	await player.initialize(0, false, 1);
 
 	const initialFrames = player.videoIteratorManager!.getFramesRendered();
-	await player.setTrimBefore(30, 0);
+	await player.setTrimRange(30, 90, 0);
 	expect(player.videoIteratorManager!.getFramesRendered()).toBeGreaterThan(
 		initialFrames,
 	);
 
-	const framesAfterTrimBefore =
-		player.videoIteratorManager!.getFramesRendered();
-	await player.setTrimAfter(90, 0);
-	expect(player.videoIteratorManager!.getFramesRendered()).toBe(
-		framesAfterTrimBefore,
+	const framesAfterFirstTrim = player.videoIteratorManager!.getFramesRendered();
+	await player.setTrimRange(120, 180, 0);
+	expect(player.videoIteratorManager!.getFramesRendered()).toBeGreaterThan(
+		framesAfterFirstTrim,
 	);
 
 	await player.dispose();

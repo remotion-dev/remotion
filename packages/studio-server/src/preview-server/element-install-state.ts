@@ -8,14 +8,16 @@ export type ElementInstallTarget = {
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
-	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
 	studioUrl: string;
 	updatedAt: number;
 };
 
-export type StudioProtocolTargetPurpose = 'install-element' | 'set-license-key';
+export type StudioProtocolTargetPurpose =
+	| 'install-element'
+	| 'set-license-key'
+	| 'add-element-library';
 
 const targetsByClientId = new Map<string, ElementInstallTarget>();
 
@@ -56,6 +58,8 @@ export const getElementInstallTargetByClientId = (clientId: string) => {
 export const getElementInstallTarget = (requestId: string | null) => {
 	const now = Date.now();
 	let bestTarget: ElementInstallTarget | null = null;
+	let unfocusedTarget: ElementInstallTarget | null = null;
+	let multipleUnfocusedTargets = false;
 
 	for (const [clientId, currentTarget] of targetsByClientId) {
 		if (now - currentTarget.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE) {
@@ -63,7 +67,16 @@ export const getElementInstallTarget = (requestId: string | null) => {
 			continue;
 		}
 
-		if (requestId !== null && currentTarget.requestId !== requestId) {
+		if (
+			(requestId !== null && currentTarget.requestId !== requestId) ||
+			currentTarget.readOnly
+		) {
+			continue;
+		}
+
+		if (currentTarget.lastFocusedAt === null) {
+			multipleUnfocusedTargets ||= unfocusedTarget !== null;
+			unfocusedTarget = currentTarget;
 			continue;
 		}
 
@@ -72,7 +85,7 @@ export const getElementInstallTarget = (requestId: string | null) => {
 		}
 	}
 
-	return bestTarget;
+	return bestTarget ?? (multipleUnfocusedTargets ? null : unfocusedTarget);
 };
 
 export const issueStudioProtocolTarget = ({
@@ -134,12 +147,11 @@ export const consumeStudioProtocolTarget = ({
 		return null;
 	}
 
-	if (purpose === 'set-license-key') {
+	if (purpose !== 'install-element') {
 		return issued.target;
 	}
 
 	if (
-		!current.canInstall ||
 		current.compositionFile !== issued.target.compositionFile ||
 		current.compositionId !== issued.target.compositionId
 	) {

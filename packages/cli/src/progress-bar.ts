@@ -342,7 +342,17 @@ export const makeRenderingAndStitchingProgress = ({
 	return {output, progress, message: getGuiProgressSubtitle(prog)};
 };
 
-const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
+export const getGuiProgressSubtitle = (
+	progress: AggregateRenderProgress,
+): string => {
+	if (progress.browser.error) {
+		return 'Failed to download browser';
+	}
+
+	if (!progress.browser.alreadyAvailable && progress.browser.doneIn === null) {
+		return `Downloading browser ${Math.round(progress.browser.progress * 100)}%`;
+	}
+
 	// Handle floating point inaccuracies
 	const bundlingProgress = progress.bundling?.progress || 0;
 	if (bundlingProgress < 0.99999) {

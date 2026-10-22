@@ -1,4 +1,3 @@
-import { parseMedia } from "@remotion/media-parser";
 import { CanvasLayout } from "../../config/layout";
 import {
   Cameras,
@@ -7,6 +6,7 @@ import {
   SelectableScene,
 } from "../../config/scenes";
 import { calculateSrt } from "../captions/srt/helpers/calculate-srt";
+import { getVideoMetadata } from "../helpers/get-video-metadata";
 import { getBRollDimensions } from "../layout/get-broll-dimensions";
 import { getVideoSceneLayout } from "../layout/get-layout";
 import { PLACEHOLDER_DURATION_IN_FRAMES } from "./empty-place-holder";
@@ -49,13 +49,9 @@ export const addMetadataToScene = async ({
     };
   }
 
-  const webcamMetadata = await parseMedia({
+  const webcamMetadata = await getVideoMetadata({
     src: cameras.webcam.src,
-    fields: {
-      durationInSeconds: true,
-      dimensions: true,
-    },
-    acknowledgeRemotionLicense: true,
+    includeDuration: true,
   });
 
   if (!webcamMetadata.dimensions) {
@@ -66,10 +62,9 @@ export const addMetadataToScene = async ({
   }
 
   const displayMetadata = cameras.display
-    ? await parseMedia({
+    ? await getVideoMetadata({
         src: cameras.display.src,
-        fields: { dimensions: true, durationInSeconds: true },
-        acknowledgeRemotionLicense: true,
+        includeDuration: false,
       })
     : null;
 

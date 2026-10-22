@@ -30,6 +30,7 @@ h6 {
 	word-spacing: -0.025em;
 	font-family: 'GTPlanar';
 	font-feature-settings: 'ss03' on;
+	text-wrap: balance;
 }
 
 @font-face {
@@ -63,18 +64,96 @@ h6 {
 	display: none;
 }
 
-@media (min-width: 1200px) {
-	.plugin-id-elements main > .container {
-		max-width: 1440px;
-	}
+.plugin-id-elements main > .container {
+	max-width: 1440px;
+}
 
-	.plugin-id-elements main > .container > .row > .col {
-		max-width: 100% !important;
-	}
+.plugin-id-elements main > .container > .row > .col {
+	max-width: 100% !important;
 }
 
 .plugin-id-elements .theme-doc-markdown > h1:first-child {
 	margin-bottom: 0.75rem;
+}
+
+/* The Elements library is also browsed inside Studio's iframe. */
+.studio-elements-embed .theme-announcement-bar,
+.studio-elements-embed .theme-doc-footer,
+.studio-elements-embed .pagination-nav {
+	display: none;
+}
+
+/* Let the embedding Studio supply the caption picker's background. */
+html:has(.studio-caption-picker),
+.studio-caption-picker {
+	--background: transparent;
+	--ifm-background-color: transparent;
+	background: transparent;
+}
+
+/* Caption selection needs previews, not documentation navigation. */
+.studio-caption-picker {
+	--doc-sidebar-width: 0px;
+	--ifm-navbar-height: 0px;
+}
+
+.studio-caption-picker .theme-doc-sidebar-container,
+.studio-caption-picker .theme-doc-toc-mobile,
+.studio-caption-picker .col:has(> .theme-doc-toc-desktop),
+.studio-caption-picker .theme-doc-breadcrumbs,
+.studio-caption-picker .navbar,
+.studio-caption-picker .caption-library-instructions,
+.studio-caption-picker
+	.theme-doc-markdown:has(.caption-library-instructions)
+	> header {
+	display: none;
+}
+
+.studio-caption-picker main > .container {
+	max-width: none;
+}
+
+.elements-embed-breadcrumbs {
+	display: flex;
+}
+
+.studio-elements-embed .elements-embed-breadcrumbs {
+	display: none;
+}
+
+@media (min-width: 997px) {
+	/* Keep empty sidebar space from pushing the category links above the viewport
+	   when the catalog footer comes into view. */
+	.plugin-id-elements .theme-doc-sidebar-container > div {
+		height: auto;
+	}
+
+	.plugin-id-elements .theme-doc-sidebar-container .menu {
+		max-height: calc(100vh - var(--ifm-navbar-height));
+	}
+
+	.studio-elements-embed {
+		--ifm-navbar-height: 0px;
+	}
+
+	html:has(.studio-elements-embed) {
+		scroll-padding-top: 0;
+	}
+
+	.studio-elements-embed .navbar {
+		display: none;
+	}
+}
+
+@media (max-width: 996px) {
+	/* Keep the mobile sidebar toggle for library navigation. */
+	.studio-elements-embed .navbar__items--right {
+		display: none;
+	}
+}
+
+.theme-doc-sidebar-item-link > hr {
+	background-color: var(--border-color);
 }
 
 :root {
@@ -95,6 +174,7 @@ h6 {
 
 [data-theme='light'] {
 	--background: #fff;
+	--ifm-background-color: #fff;
 	--footer-background: #fcfcfc;
 	--footer-border: #eaeaea;
 	--text-color: #000;
@@ -150,6 +230,10 @@ code {
 	font-feature-settings: 'ss03' on;
 	vertical-align: baseline;
 	padding: 0;
+}
+
+.theme-code-block {
+	box-shadow: none;
 }
 
 .code-container code {
@@ -261,6 +345,17 @@ code {
 	margin-left: 6px;
 	border-radius: 4px;
 	transform: none !important;
+}
+
+/* Keep dropdown carets beside their labels, including near the mobile breakpoint. */
+.navbar__item.dropdown > .navbar__link {
+	white-space: nowrap;
+}
+
+@media screen and (min-width: 997px) and (max-width: 1100px) {
+	.navbar {
+		--ifm-navbar-item-padding-horizontal: 0.5rem;
+	}
 }
 
 .header-github-link::before {

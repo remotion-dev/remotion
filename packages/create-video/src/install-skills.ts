@@ -1,21 +1,79 @@
+import {lstatSync, mkdirSync, realpathSync, symlinkSync} from 'node:fs';
+import path from 'node:path';
 import execa from 'execa';
+import type {SkillsInstallation} from './ask-skills';
 import {Log} from './log';
 
-export const installSkills = async (projectRoot: string) => {
+const quoteSkillArg = (arg: string) => {
+	return arg === '*' ? "'*'" : arg;
+};
+
+export const getSkillsAddArgs = (selection: SkillsInstallation): string[] => {
+	return [
+		'-y',
+		'--loglevel=error',
+		'skills@1.7.0',
+		'add',
+		'remotion-dev/skills',
+		'--agent',
+		'universal',
+		// `*` is the skills CLI's "every skill" selector. Naming only
+		// remotion-best-practices installed the router and skipped the rest.
+		...(selection === 'recommended' ? ['--skill', '*', '--yes'] : []),
+	];
+};
+
+export const installSkills = async (
+	projectRoot: string,
+	selection: SkillsInstallation,
+) => {
 	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+	const args = getSkillsAddArgs(selection);
 
 	try {
-		await execa(
-			command,
-			['-y', '--loglevel=error', 'skills@1.5.20', 'add', 'remotion-dev/skills'],
-			{
-				cwd: projectRoot,
-				stdio: 'inherit',
-			},
-		);
+		await execa(command, args, {
+			cwd: projectRoot,
+			stdio: 'inherit',
+		});
 	} catch (e) {
 		Log.error('Error installing skills:', e);
 		Log.error('You can install them manually by running:');
-		Log.error('  npx skills add remotion-dev/skills');
+		Log.error(`  npx ${args.map(quoteSkillArg).join(' ')}`);
+		return;
+	}
+
+	const agentsSkills = path.join(projectRoot, '.agents', 'skills');
+	const claudeSkills = path.join(projectRoot, '.claude', 'skills');
+	const existing = lstatSync(claudeSkills, {throwIfNoEntry: false});
+
+	if (existing) {
+		let pointsToAgentsSkills = false;
+		if (existing.isSymbolicLink()) {
+			try {
+				pointsToAgentsSkills =
+					realpathSync(claudeSkills) === realpathSync(agentsSkills);
+			} catch {
+				// An existing link with a missing target must be preserved.
+			}
+		}
+
+		if (!pointsToAgentsSkills) {
+			Log.warn(
+				'Could not link .claude/skills to .agents/skills because .claude/skills already exists.',
+			);
+		}
+
+		return;
+	}
+
+	try {
+		mkdirSync(path.dirname(claudeSkills), {recursive: true});
+		symlinkSync(
+			process.platform === 'win32' ? agentsSkills : '../.agents/skills',
+			claudeSkills,
+			process.platform === 'win32' ? 'junction' : 'dir',
+		);
+	} catch (e) {
+		Log.warn('Could not link .claude/skills to .agents/skills:', e);
 	}
 };

@@ -43,6 +43,7 @@ declare global {
 
 const RefreshRuntime = require('react-refresh/runtime');
 import RefreshHelpers from './helpers';
+import './notify-on-refresh';
 
 // Hook into ReactDOM initialization
 RefreshRuntime.injectIntoGlobalHook(self);

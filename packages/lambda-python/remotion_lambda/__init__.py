@@ -1,5 +1,7 @@
 # pylint: disable=missing-module-docstring
 from .models import (
+    RenderFramesParams,
+    ImageSequenceOutputPrefix,
     RenderMediaParams,
     RenderMediaProgress,
     RenderMediaResponse,
@@ -21,4 +23,6 @@ from .models import (
     Webhook,
 )
 from .remotionclient import RemotionClient
+from .asyncremotionclient import AsyncRemotionClient
 from .version import VERSION
+from .webhook import validate_webhook_signature

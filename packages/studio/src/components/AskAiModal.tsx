@@ -3,10 +3,11 @@ import React, {
 	useCallback,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from 'react';
-import {AbsoluteFill} from 'remotion';
+import {Internals} from 'remotion';
 import {ModalContainer} from './ModalContainer';
 import {ModalHeader} from './ModalHeader';
 
@@ -29,6 +30,17 @@ export const askAiModalRef = createRef<AskAiModalRef>();
 export const AskAiModal: React.FC = () => {
 	const [state, setState] = useState<State>('never-opened');
 	const iframe = useRef<HTMLIFrameElement>(null);
+
+	useLayoutEffect(() => {
+		if (!iframe.current || iframe.current.hasAttribute('src')) {
+			return;
+		}
+
+		// Studio is cross-origin isolated, while the embedded chatbot does not
+		// opt in to COEP. Set credentialless before loading the iframe.
+		iframe.current.setAttribute('credentialless', '');
+		iframe.current.src = 'https://www.remotion.dev/ai-embed';
+	}, [state]);
 
 	useImperativeHandle(
 		askAiModalRef,
@@ -90,7 +102,9 @@ export const AskAiModal: React.FC = () => {
 	}
 
 	return (
-		<AbsoluteFill style={{display: state === 'visible' ? 'block' : 'none'}}>
+		<Internals.AbsoluteFillElement
+			style={{display: state === 'visible' ? 'block' : 'none'}}
+		>
 			<ModalContainer
 				noZIndex={state === 'hidden'}
 				onOutsideClick={onQuit}
@@ -101,10 +115,9 @@ export const AskAiModal: React.FC = () => {
 					ref={iframe}
 					frameBorder={0}
 					style={container}
-					src="https://www.remotion.dev/ai-embed"
 					allow="clipboard-read; clipboard-write"
 				/>
 			</ModalContainer>
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };

@@ -6,6 +6,7 @@ let value: AudioContextLatencyCategory | null = null;
 
 export const audioLatencyHintOption = {
 	name: 'Audio Latency Hint',
+	addedIn: '4.0.303',
 	cliFlag,
 	description: () => (
 		<>
@@ -21,7 +22,7 @@ export const audioLatencyHintOption = {
 		</>
 	),
 	ssrName: 'audioLatencyHint' as const,
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media',
+	docLink: 'https://www.remotion.dev/docs/options/audio-latency-hint',
 	type: 'playback' as AudioContextLatencyCategory,
 	getValue: ({commandLine}) => {
 		const val = commandLine[cliFlag];
@@ -37,6 +38,10 @@ export const audioLatencyHintOption = {
 	},
 	setConfig: (profile: AudioContextLatencyCategory | null) => {
 		value = profile;
+	},
+	getConfigValue: () => value,
+	reset: () => {
+		value = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<AudioContextLatencyCategory | null>;

@@ -4,6 +4,7 @@ const cliFlag = 'version' as const;
 
 export const versionFlagOption = {
 	name: 'Version',
+	addedIn: '4.0.15',
 	cliFlag,
 	description: () => (
 		<>
@@ -11,7 +12,7 @@ export const versionFlagOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/upgrade#--version',
+	docLink: 'https://www.remotion.dev/docs/options/version',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

@@ -15,7 +15,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import {cancelRender, Internals, useDelayRender} from 'remotion';
+import {Internals, useDelayRender} from 'remotion';
 import {combineFloat32Arrays} from './combine-float32-arrays';
 import {getPartialAudioData} from './get-partial-audio-data';
 import {isRemoteAsset} from './is-remote-asset';
@@ -97,7 +97,7 @@ export const useWindowedAudioData = ({
 		};
 	}, [audioUtils]);
 
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const fetchMetadata = useCallback(
 		async (signal: AbortSignal) => {
@@ -112,10 +112,18 @@ export const useWindowedAudioData = ({
 
 			const input = new Input({
 				formats: ALL_FORMATS,
-				source: new UrlSource(
-					src,
-					initialRequestInit ? {requestInit: initialRequestInit} : undefined,
-				),
+				source: new UrlSource(src, {
+					handleUnhandledError: (error) => {
+						Internals.Log.warn(
+							{logLevel: 'info', tag: '@remotion/media-utils'},
+							`A speculative fetch for "${src}" failed:`,
+							error,
+						);
+					},
+					...(initialRequestInit
+						? {requestInit: initialRequestInit}
+						: undefined),
+				}),
 			});
 
 			const onAbort = () => {
@@ -192,7 +200,14 @@ export const useWindowedAudioData = ({
 				signal.removeEventListener('abort', onAbort);
 			}
 		},
-		[src, delayRender, continueRender, channelIndex, initialRequestInit],
+		[
+			src,
+			delayRender,
+			continueRender,
+			cancelRender,
+			channelIndex,
+			initialRequestInit,
+		],
 	);
 
 	useLayoutEffect(() => {
@@ -386,6 +401,7 @@ export const useWindowedAudioData = ({
 			cancelRender(err);
 		});
 	}, [
+		cancelRender,
 		fetchAndSetWaveformData,
 		audioUtils,
 		windowsToFetch,

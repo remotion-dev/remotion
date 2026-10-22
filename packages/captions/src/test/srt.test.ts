@@ -46,3 +46,70 @@ test('Should create captions', () => {
 	const serialized = serializeSrt({lines: captions.map((c) => [c])});
 	expect(serialized).toEqual(input);
 });
+
+test.each(['Left --> right\nAnother line', '00:00:03,000 --> 00:00:04,000'])(
+	'Keeps arrows in SRT caption text: %s',
+	(text) => {
+		const srt = `1\n00:00:00,000 --> 00:00:01,000\n${text}`;
+		const {captions} = parseSrt({input: srt});
+
+		expect(captions).toHaveLength(1);
+		expect(captions[0].text).toBe(text);
+		expect(serializeSrt({lines: [captions]})).toBe(srt);
+	},
+);
+
+test('Preserves exact milliseconds when parsing and serializing SRT', () => {
+	const srt = '1\n00:00:01,001 --> 00:00:01,003\nHello';
+	const {captions} = parseSrt({input: srt});
+
+	expect(captions[0]).toMatchObject({
+		startMs: 1001,
+		endMs: 1003,
+		timestampMs: 1002,
+	});
+	expect(serializeSrt({lines: [captions]})).toBe(srt);
+});
+
+test('Should start a new SRT cue after a forced page break', () => {
+	const serialized = serializeSrt({
+		lines: [
+			[
+				{
+					text: 'First line',
+					startMs: 0,
+					endMs: 500,
+					timestampMs: 250,
+					confidence: 1,
+					pageBreakAfter: true,
+				},
+				{
+					text: 'Second line',
+					startMs: 500,
+					endMs: 1000,
+					timestampMs: 750,
+					confidence: 1,
+				},
+			],
+		],
+	});
+
+	expect(serialized).toBe(
+		'1\n00:00:00,000 --> 00:00:00,500\nFirst line\n\n2\n00:00:00,500 --> 00:00:01,000\nSecond line',
+	);
+});
+
+test('Should parse CRLF and dot timestamps with leading blank lines', () => {
+	const srt = '\r\n  \r\n1\r\n00:00:00.000 --> 00:00:01.500\r\nHello\r\n';
+	const {captions} = parseSrt({input: srt});
+
+	expect(captions).toEqual([
+		{
+			confidence: 1,
+			endMs: 1500,
+			startMs: 0,
+			text: 'Hello',
+			timestampMs: 750,
+		},
+	]);
+});

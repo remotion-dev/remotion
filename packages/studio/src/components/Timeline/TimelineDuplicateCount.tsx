@@ -26,7 +26,7 @@ export const TimelineDuplicateCount: React.FC<{
 	const label = `${count} other programmatically duplicated ${count === 1 ? 'instance is' : 'instances are'} hidden`;
 
 	return (
-		<span style={badgeStyle} title={label} aria-label={label}>
+		<span role="group" style={badgeStyle} aria-label={label}>
 			+{count}
 		</span>
 	);

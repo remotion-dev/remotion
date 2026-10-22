@@ -22,16 +22,6 @@ export async function navigateToVisualControls(page: Page): Promise<void> {
 	await expect(page).toHaveURL(/visual-controls/, {timeout: 10_000});
 }
 
-export async function navigateToLostNodePathE2e(page: Page): Promise<void> {
-	await page.goto(`${STUDIO_URL}/lost-node-path-e2e`);
-	await expect(page).toHaveURL(/lost-node-path-e2e/, {timeout: 15_000});
-
-	await page.waitForFunction(
-		() => !document.body.innerText.includes('Loading...'),
-		{timeout: 30_000},
-	);
-}
-
 export async function openVisualControlsPanel(page: Page): Promise<void> {
 	await navigateToVisualControls(page);
 	await expect(page.getByText('Visual Controls', {exact: true})).toBeVisible({

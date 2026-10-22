@@ -8,10 +8,6 @@ import type {
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 
-const comboboxStyle: React.CSSProperties = {
-	marginLeft: 8,
-};
-
 export const TimelineEnumField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
@@ -67,10 +63,9 @@ export const TimelineEnumField: React.FC<{
 	return (
 		<Combobox
 			size="small"
-			title={field.key}
+			aria-label={field.key}
 			selectedId={current}
 			values={items}
-			style={comboboxStyle}
 		/>
 	);
 };

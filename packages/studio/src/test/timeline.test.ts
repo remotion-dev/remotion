@@ -1,31 +1,50 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 
 const getStack = () => null;
 
 const withoutKeyframeDisplayOffset = <
-	T extends {keyframeDisplayOffset: number; sequenceFrameOffset: number},
+	T extends {
+		keyframeDisplayOffset: number;
+		keyframePlaybackRate: number;
+		sequenceFrameOffset: number;
+		cascadedStart: number;
+		localStart: number;
+	},
 >(
 	tracks: T[],
 ) =>
-	tracks.map(({keyframeDisplayOffset, sequenceFrameOffset, ...track}) => {
-		expect(keyframeDisplayOffset).toBe(0);
-		expect(sequenceFrameOffset).toBe(0);
-		return track;
-	});
+	tracks.map(
+		({
+			keyframeDisplayOffset,
+			keyframePlaybackRate,
+			sequenceFrameOffset,
+			cascadedStart,
+			localStart,
+			...track
+		}) => {
+			expect(keyframeDisplayOffset).toBe(0);
+			expect(sequenceFrameOffset).toBe(0);
+			expect(cascadedStart).toBeGreaterThanOrEqual(0);
+			expect(typeof localStart).toBe('number');
+			return track;
+		},
+	);
 
 test('Should calculate timeline with no sequences', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [],
-	});
+	}).tracks;
 	expect(calculated).toEqual([]);
 });
 
 test('Should calculate a basic timeline', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -37,8 +56,8 @@ test('Should calculate a basic timeline', () => {
 				id: '0.1',
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -47,13 +66,17 @@ test('Should calculate a basic timeline', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -64,6 +87,7 @@ test('Should calculate a basic timeline', () => {
 				id: '0.1',
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				premountDisplay: null,
 				postmountDisplay: null,
 				controls: null,
@@ -72,8 +96,9 @@ test('Should calculate a basic timeline', () => {
 				refForOutline: null,
 				isInsideSeries: false,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		},
@@ -81,7 +106,8 @@ test('Should calculate a basic timeline', () => {
 });
 
 test('Should follow order of nesting', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -93,8 +119,8 @@ test('Should follow order of nesting', () => {
 				id: '0.2',
 				parent: '0.1',
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -103,6 +129,8 @@ test('Should follow order of nesting', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			{
@@ -118,19 +146,23 @@ test('Should follow order of nesting', () => {
 				loopDisplay: undefined,
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -144,18 +176,22 @@ test('Should follow order of nesting', () => {
 				loopDisplay: undefined,
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			depth: 0,
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 100,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -165,8 +201,8 @@ test('Should follow order of nesting', () => {
 				id: '0.2',
 				parent: '0.1',
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -175,6 +211,8 @@ test('Should follow order of nesting', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			depth: 1,
@@ -183,11 +221,14 @@ test('Should follow order of nesting', () => {
 });
 
 test('Should inherit loop display from parent for media tracks', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 				displayName: 'Loop',
 				documentationLink: null,
@@ -197,8 +238,8 @@ test('Should inherit loop display from parent for media tracks', () => {
 				id: 'loop',
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -220,8 +261,8 @@ test('Should inherit loop display from parent for media tracks', () => {
 				id: 'video',
 				parent: 'loop',
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'video',
-				nonce: [[0, 1]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -230,27 +271,31 @@ test('Should inherit loop display from parent for media tracks', () => {
 				controls: null,
 				loopDisplay: undefined,
 				src: 'video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
+				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
 				frozenMediaFrame: null,
 				mediaFrameAtSequenceZero: null,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 
 	expect(calculated[1].sequence.loopDisplay).toEqual({
 		durationInFrames: 100,
 		numberOfTimes: 3,
 		startOffset: -50,
+		phaseOffsetInFrames: 0,
+		mediaOffsetInFrames: 0,
 	});
 });
 
 test('Should calculate sequence frame offset for negative from values', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -262,8 +307,8 @@ test('Should calculate sequence frame offset for negative from values', () => {
 				id: 'trimmed',
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -272,17 +317,21 @@ test('Should calculate sequence frame offset for negative from values', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(37);
+	expect(calculated[0].cascadedStart).toBe(-37);
 });
 
 test('Should calculate sequence frame offset for trimBefore values', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -294,8 +343,8 @@ test('Should calculate sequence frame offset for trimBefore values', () => {
 				id: 'trimmed',
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -304,17 +353,20 @@ test('Should calculate sequence frame offset for trimBefore values', () => {
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(20);
 });
 
 test('Should account for a parent Sequence trimBefore in video thumbnails', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -326,8 +378,8 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				id: 'sequence',
 				parent: null,
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'sequence',
-				nonce: [[0, 0]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -336,6 +388,8 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 			},
 			{
@@ -347,8 +401,8 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				id: 'video',
 				parent: 'sequence',
 				showInTimeline: true,
+				timelineOrder: null,
 				type: 'video',
-				nonce: [[0, 1]],
 				getStack,
 				refForOutline: null,
 				isInsideSeries: false,
@@ -357,17 +411,18 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				controls: null,
 				loopDisplay: undefined,
 				effects: [],
+				effectRuntimeValues: null,
+				sequencePlaybackRate: 1,
 				frozenFrame: null,
 				frozenMediaFrame: null,
 				mediaFrameAtSequenceZero: 0,
 				src: 'https://remotion.media/video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
+				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
 			},
 		],
-	});
+	}).tracks;
 	const video = calculated.find((track) => track.sequence.type === 'video');
 
 	if (!video || video.sequence.type !== 'video') {
@@ -385,16 +440,17 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 });
 
 test('Should hide descendants of sequences with connected compositions', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const LinkedChild = () => null;
 	const makeSequence = ({
 		id,
 		parent,
-		nonce,
+		timelineOrder,
 		singleChildComponent,
 	}: {
 		id: string;
 		parent: string | null;
-		nonce: number;
+		timelineOrder: number;
 		singleChildComponent?: unknown;
 	}): TSequence => ({
 		controls: null,
@@ -402,13 +458,15 @@ test('Should hide descendants of sequences with connected compositions', () => {
 		documentationLink: null,
 		duration: 100,
 		effects: [],
+		effectRuntimeValues: null,
 		from: 0,
+		sequencePlaybackRate: 1,
 		frozenFrame: null,
 		getStack,
 		id,
 		isInsideSeries: false,
 		loopDisplay: undefined,
-		nonce: [[0, nonce]],
+		timelineOrder,
 		parent,
 		postmountDisplay: null,
 		premountDisplay: null,
@@ -422,21 +480,22 @@ test('Should hide descendants of sequences with connected compositions', () => {
 		componentFromProps: LinkedChild,
 	} as unknown as _InternalTypes['AnyComposition'];
 
-	const calculated = calculateTimeline({
+	const calculated = calculate({
 		compositions: [connectedComposition],
+		showConnectedCompositionChildren: true,
 		overrideIdsToNodePaths: {},
 		sequences: [
 			makeSequence({
 				id: 'linked',
 				parent: null,
-				nonce: 0,
+				timelineOrder: 0,
 				singleChildComponent: LinkedChild,
 			}),
-			makeSequence({id: 'child', parent: 'linked', nonce: 1}),
-			makeSequence({id: 'grandchild', parent: 'child', nonce: 2}),
-			makeSequence({id: 'sibling', parent: null, nonce: 3}),
+			makeSequence({id: 'child', parent: 'linked', timelineOrder: 1}),
+			makeSequence({id: 'grandchild', parent: 'child', timelineOrder: 2}),
+			makeSequence({id: 'sibling', parent: null, timelineOrder: 3}),
 		],
-	});
+	}).tracks;
 
 	expect(calculated.map((track) => track.sequence.id)).toEqual([
 		'linked',

@@ -17,6 +17,23 @@ test('Should slice waveform peaks based on timeline window', () => {
 	);
 });
 
+test('Should slice waveform peaks at the requested fidelity', () => {
+	const peaks = Float32Array.from({length: 2700}, (_, i) => i);
+
+	const sliced = sliceWaveformPeaks({
+		peaks,
+		startFrom: 30,
+		durationInFrames: 30,
+		fps: 30,
+		playbackRate: 1,
+		waveformSampleRate: 900,
+	});
+
+	expect(Array.from(sliced)).toEqual(
+		Array.from({length: 900}, (_, i) => i + 900),
+	);
+});
+
 test('Should return an empty waveform unchanged', () => {
 	const peaks = new Float32Array(0);
 

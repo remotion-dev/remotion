@@ -83,7 +83,7 @@ export const getAssetsForMarkup = async (
 								default: Markup as ComponentType<unknown>,
 							}),
 						),
-						nonce: [[0, 0]],
+						order: null,
 						defaultProps: undefined,
 						folderName: null,
 						parentFolderName: null,
@@ -116,6 +116,7 @@ export const getAssetsForMarkup = async (
 					initialCanvasContent={null}
 				>
 					<Internals.RemotionRootContexts
+						_experimentalKeepAudioContextAlive={false}
 						frameState={null}
 						audioEnabled
 						videoEnabled
@@ -126,9 +127,11 @@ export const getAssetsForMarkup = async (
 					>
 						<Internals.RenderAssetManagerProvider collectAssets={null}>
 							<Internals.CompositionManager.Provider value={value}>
-								<Internals.RenderAssetManager.Provider value={assetContext}>
-									<Markup />
-								</Internals.RenderAssetManager.Provider>
+								<Internals.VideoProvider>
+									<Internals.RenderAssetManager.Provider value={assetContext}>
+										<Markup />
+									</Internals.RenderAssetManager.Provider>
+								</Internals.VideoProvider>
 							</Internals.CompositionManager.Provider>
 						</Internals.RenderAssetManagerProvider>
 					</Internals.RemotionRootContexts>

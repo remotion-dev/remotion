@@ -7,7 +7,7 @@
 	},
 	"name": "@remotion/skills",
 	"private": true,
-	"version": "4.0.507",
+	"version": "4.0.538",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
@@ -18,7 +18,7 @@
 		"@remotion/shapes": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@remotion/cli": "workspace:*",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/google-fonts": "workspace:*"
 	}

@@ -1,4 +1,4 @@
-import {spawn} from 'node:child_process';
+import {execFileSync, spawn} from 'node:child_process';
 import {RenderInternals} from '@remotion/renderer';
 import {
 	extraPackages,
@@ -8,6 +8,7 @@ import {
 	type PackageInstallSpec,
 } from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
+import {getLocalPackageOverride} from '../../helpers/get-local-package-override';
 import {getInstallCommand} from '../../helpers/install-command';
 import {getPackageManagerSpawnOptions} from '../../helpers/package-manager-spawn-options';
 import type {ApiHandler} from '../api-types';
@@ -29,10 +30,14 @@ export const getPackageInstallSpec = (
 	return extraVersion === null ? name : `${name}@${extraVersion}`;
 };
 
-export const handleInstallPackage: ApiHandler<
-	InstallPackageRequest,
-	InstallPackageResponse
-> = async ({logLevel, remotionRoot, input: {dependencies}}) => {
+export const handleInstallPackage = async ({
+	logLevel,
+	remotionRoot,
+	input: {dependencies},
+	invalidateBundle,
+}: Parameters<ApiHandler<InstallPackageRequest, InstallPackageResponse>>[0] & {
+	readonly invalidateBundle: () => Promise<void>;
+}): Promise<InstallPackageResponse> => {
 	for (const dependency of dependencies) {
 		if (!isValidPackageName(dependency.name)) {
 			return Promise.reject(
@@ -68,12 +73,33 @@ export const handleInstallPackage: ApiHandler<
 		);
 	}
 
-	const packagesWithVersions = dependencies.map(getPackageInstallSpec);
+	const additionalArgs = ['--ignore-scripts'];
+	if (manager.manager === 'yarn') {
+		const version = execFileSync('yarn', ['--version'], {
+			...getPackageManagerSpawnOptions(),
+			cwd: remotionRoot,
+			encoding: 'utf8',
+			timeout: 10_000,
+		}).trim();
+		if (!/^1\./.test(version)) {
+			additionalArgs[0] = '--mode=skip-build';
+		}
+	}
+
+	const packagesWithVersions = dependencies.map((dependency) => {
+		const localPackageOverride = getLocalPackageOverride({
+			remotionRoot,
+			packageName: dependency.name,
+		});
+		return localPackageOverride === null
+			? getPackageInstallSpec(dependency)
+			: `${dependency.name}@${localPackageOverride}`;
+	});
 	const command = getInstallCommand({
 		manager: manager.manager,
 		packages: packagesWithVersions,
 		version: '',
-		additionalArgs: [],
+		additionalArgs,
 	});
 	RenderInternals.Log.info(
 		{indent: false, logLevel},
@@ -82,11 +108,15 @@ export const handleInstallPackage: ApiHandler<
 	const time = Date.now();
 	try {
 		await new Promise<void>((resolve, reject) => {
-			const cmd = spawn(
-				manager.manager,
-				command,
-				getPackageManagerSpawnOptions(),
-			);
+			const cmd = spawn(manager.manager, command, {
+				...getPackageManagerSpawnOptions(),
+				cwd: remotionRoot,
+				env: {
+					...process.env,
+					YARN_ENABLE_SCRIPTS: 'false',
+				},
+			});
+			let stderr = '';
 			cmd.on('error', reject);
 			cmd.stdout.on('data', (d: Buffer) =>
 				d
@@ -97,17 +127,26 @@ export const handleInstallPackage: ApiHandler<
 						RenderInternals.Log.info({indent: true, logLevel}, line),
 					),
 			);
-			cmd.stdout.on('end', resolve);
-			cmd.on('close', (code, signal) =>
-				code === 0
-					? resolve()
-					: reject(
-							new Error(
-								`Command exited with code ${code} and signal ${signal}`,
-							),
-						),
-			);
+			cmd.stderr.on('data', (data: Buffer) => {
+				stderr += data.toString();
+			});
+			cmd.on('close', (code, signal) => {
+				if (code === 0) {
+					resolve();
+					return;
+				}
+
+				const packageManagerError = stderr.trim();
+				reject(
+					new Error(
+						packageManagerError.length > 0
+							? `Package installation failed:\n${packageManagerError}`
+							: `Package installation failed: Command exited with code ${code} and signal ${signal}`,
+					),
+				);
+			});
 		});
+		await invalidateBundle();
 		RenderInternals.Log.info(
 			{indent: false, logLevel},
 			RenderInternals.chalk.gray('╰─ '),

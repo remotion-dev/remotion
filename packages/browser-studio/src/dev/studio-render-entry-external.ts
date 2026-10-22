@@ -1,8 +1,8 @@
 export const studioRenderEntryExternal = [
+	'@huggingface/transformers',
 	'@jridgewell/trace-mapping',
 	'@remotion/media-utils',
 	'@remotion/renderer',
-	'@remotion/timeline-utils',
 	'@remotion/web-renderer',
 	'@remotion/zod-types',
 	'mediabunny',

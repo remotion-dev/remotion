@@ -38,7 +38,7 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 	const ref = useRef<HTMLButtonElement>(null);
 	const {selected, onSelect, selectable, selectionItem} =
 		useTimelineKeyframeSelection(nodePathInfo, frame);
-	useTimelineMarqueeSelectableItem(selectionItem, ref);
+	useTimelineMarqueeSelectableItem(selectionItem, ref, null);
 	const {isKeyframeDragging} = useTimelineKeyframeDragState();
 	const visuallySelected =
 		selected || isKeyframeDragging({nodePathInfo, frame});
@@ -80,7 +80,6 @@ const TimelineKeyframeDiamondUnmemoized: React.FC<{
 			{...{[TIMELINE_MARQUEE_ITEM_ATTR]: true}}
 			type="button"
 			style={style}
-			title={`Keyframe at frame ${frame}`}
 			aria-label={`Select keyframe at frame ${frame}`}
 			onPointerDown={selectable ? onPointerDown : undefined}
 		>

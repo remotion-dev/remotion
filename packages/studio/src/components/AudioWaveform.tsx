@@ -1,39 +1,19 @@
 import {
 	drawBars,
-	getLoopDisplayWidth,
-	loadWaveformPeaks,
-	makeAudioWaveformWorker,
-	shouldTileLoopDisplay,
-	sliceWaveformPeaks,
-	type AudioWaveformWorkerOutgoingMessage,
-	type AudioWaveformWorkerRenderMessage,
-	type WaveformVolume,
+	subscribeToWaveformPeaks,
+	type WaveformDrawRange,
 } from '@remotion/timeline-utils';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals} from 'remotion';
-import {WHITE_ALPHA_70, WHITE_ALPHA_60} from '../helpers/colors';
-import {TIMELINE_BORDER} from '../helpers/timeline-layout';
+import {alignCanvasToDevicePixels} from '../helpers/align-canvas-to-device-pixels';
+import {BLACK_ALPHA_60, WHITE_ALPHA_60} from '../helpers/colors';
+import {TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM} from '../helpers/get-timeline-max-zoom';
+import {resolveStudioColor} from '../helpers/resolve-studio-color';
+import {getStudioPixelRatio} from '../helpers/studio-pixel-ratio';
+import type {TimelineVolume} from './Timeline/get-timeline-volume';
 
 const EMPTY_PEAKS = new Float32Array(0);
-
-// Recreate the canvas after Fast Refresh because an already transferred canvas
-// cannot be handed to OffscreenCanvas again.
-const canRetryCanvasTransfer = (err: unknown) => {
-	return err instanceof DOMException && err.name === 'InvalidStateError';
-};
-
-const canUseAudioWaveformWorker = () => {
-	if (
-		typeof Worker === 'undefined' ||
-		typeof OffscreenCanvas === 'undefined' ||
-		typeof HTMLCanvasElement === 'undefined'
-	) {
-		return false;
-	}
-
-	return 'transferControlToOffscreen' in HTMLCanvasElement.prototype;
-};
 
 const getContainerStyle = (height: number): React.CSSProperties => {
 	return {
@@ -43,79 +23,19 @@ const getContainerStyle = (height: number): React.CSSProperties => {
 		position: 'relative',
 		width: '100%',
 		height,
+		overflow: 'hidden',
 	};
-};
-
-const getWaveformErrorMessage = () => {
-	return new Error(
-		'No waveform available. The audio could not be decoded or may not support CORS.',
-	);
 };
 
 const waveformCanvasStyle: React.CSSProperties = {
 	pointerEvents: 'none',
-	width: '100%',
-	height: '100%',
+	flexShrink: 0,
+	position: 'relative',
 };
 
 const volumeCanvasStyle: React.CSSProperties = {
+	pointerEvents: 'none',
 	position: 'absolute',
-};
-
-const parseVolume = (volume: string | number): WaveformVolume => {
-	if (typeof volume === 'number') {
-		return volume;
-	}
-
-	return volume.split(',').map((v) => Number(v));
-};
-
-const drawLoopedWaveform = ({
-	canvas,
-	peaks,
-	volume,
-	visualizationWidth,
-	loopWidth,
-}: {
-	canvas: HTMLCanvasElement;
-	peaks: Float32Array;
-	volume: WaveformVolume;
-	visualizationWidth: number;
-	loopWidth: number;
-}) => {
-	const h = canvas.height;
-	const w = Math.ceil(visualizationWidth);
-	const targetCanvas = document.createElement('canvas');
-	targetCanvas.width = Math.max(1, Math.ceil(loopWidth));
-	targetCanvas.height = h;
-
-	drawBars({
-		canvas: targetCanvas,
-		peaks,
-		color: WHITE_ALPHA_60,
-		volume,
-		width: targetCanvas.width,
-	});
-
-	canvas.width = w;
-	canvas.height = h;
-
-	const ctx = canvas.getContext('2d');
-	if (!ctx) {
-		throw new Error('Failed to get canvas context');
-	}
-
-	const pattern = ctx.createPattern(targetCanvas, 'repeat-x');
-	if (!pattern) {
-		return;
-	}
-
-	pattern.setTransform(
-		new DOMMatrix().scaleSelf(loopWidth / targetCanvas.width, 1),
-	);
-	ctx.clearRect(0, 0, w, h);
-	ctx.fillStyle = pattern;
-	ctx.fillRect(0, 0, w, h);
 };
 
 const AudioWaveformInner: React.FC<{
@@ -124,228 +44,161 @@ const AudioWaveformInner: React.FC<{
 	readonly visualizationWidth: number;
 	readonly startFrom: number;
 	readonly durationInFrames: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly displayOffsetInFrames: number;
+	readonly displayDurationInFrames: number;
+	readonly volume: TimelineVolume;
+	readonly muted: boolean;
 	readonly playbackRate: number;
 	readonly loopDisplay: LoopDisplay | undefined;
+	readonly loopDisplayOffsetInFrames: number;
 }> = ({
 	src,
 	height,
 	startFrom,
 	durationInFrames,
+	displayOffsetInFrames,
+	displayDurationInFrames,
 	visualizationWidth,
 	volume,
-	doesVolumeChange,
+	muted,
 	playbackRate,
 	loopDisplay,
+	loopDisplayOffsetInFrames,
 }) => {
 	const [peaks, setPeaks] = useState<Float32Array | null>(null);
 	const [error, setError] = useState<Error | null>(null);
-	const [waveformCanvasKey, setWaveformCanvasKey] = useState(0);
-	const canUseWorkerPath = useMemo(() => canUseAudioWaveformWorker(), []);
 	const vidConf = Internals.useUnsafeVideoConfig();
 	if (vidConf === null) {
 		throw new Error('Expected video config');
 	}
 
+	const waveformSampleRate = Math.ceil(
+		vidConf.fps * TIMELINE_FRAME_WIDTH_AT_MAX_ZOOM,
+	);
+
 	const waveformCanvas = useRef<HTMLCanvasElement>(null);
 	const volumeCanvas = useRef<HTMLCanvasElement>(null);
-	const waveformWorker = useRef<Worker | null>(null);
-	const hasTransferredCanvas = useRef(false);
-	const latestRequestId = useRef(0);
-	const shouldRenderVolumeOverlay =
-		doesVolumeChange && typeof volume === 'string';
-	const parsedVolume = useMemo(() => parseVolume(volume), [volume]);
-
-	useEffect(() => {
-		if (canUseWorkerPath) {
-			return;
+	const shouldRenderVolumeOverlay = volume.type !== 'constant';
+	const visualizationMaxVolume = useMemo(() => {
+		if (volume.type === 'constant') {
+			return Math.max(1, volume.value);
 		}
 
-		const controller = new AbortController();
+		if (volume.type === 'linear') {
+			return volume.points.reduce(
+				(highest, point) => Math.max(highest, point.value),
+				1,
+			);
+		}
 
+		return volume.samples.reduce((highest, value) => {
+			return Number.isFinite(value) ? Math.max(highest, value) : highest;
+		}, 1);
+	}, [volume]);
+	const visibleVolume = useMemo((): TimelineVolume => {
+		if (muted) {
+			return {type: 'constant', value: 0};
+		}
+
+		if (volume.type !== 'sampled') {
+			return volume;
+		}
+
+		if (
+			!Number.isFinite(displayDurationInFrames) ||
+			displayDurationInFrames <= 0
+		) {
+			return {type: 'sampled', samples: []};
+		}
+
+		// Samples already cover the composition timeline, including media loops.
+		return {
+			type: 'sampled',
+			samples: volume.samples.slice(
+				Math.max(0, Math.floor(displayOffsetInFrames)),
+				Math.min(
+					volume.samples.length,
+					Math.ceil(displayOffsetInFrames + displayDurationInFrames),
+				),
+			),
+		};
+	}, [displayDurationInFrames, displayOffsetInFrames, muted, volume]);
+	const waveformVolume =
+		visibleVolume.type === 'constant' ? visibleVolume.value : 1;
+
+	// Layout effect so that a cache hit sets the peaks synchronously and the
+	// waveform is painted on the very first frame after mounting.
+	useLayoutEffect(() => {
 		setPeaks(null);
 		setError(null);
-		loadWaveformPeaks(src, controller.signal)
-			.then((p) => {
-				if (!controller.signal.aborted) {
-					setPeaks(p);
-				}
-			})
-			.catch((err) => {
-				if (!controller.signal.aborted) {
-					setError(err);
-				}
-			});
 
-		return () => controller.abort();
-	}, [canUseWorkerPath, src]);
-
-	useEffect(() => {
-		if (!canUseWorkerPath) {
-			return;
-		}
-
-		const canvasElement = waveformCanvas.current;
-		if (!canvasElement || hasTransferredCanvas.current) {
-			return;
-		}
-
-		const worker = makeAudioWaveformWorker();
-		let workerFailed = false;
-		waveformWorker.current = worker;
-		worker.addEventListener(
-			'message',
-			(event: MessageEvent<AudioWaveformWorkerOutgoingMessage>) => {
-				if (event.data.type === 'error') {
-					if (event.data.requestId !== latestRequestId.current) {
-						return;
-					}
-
-					setError(new Error(event.data.message));
-				}
-			},
-		);
-		worker.addEventListener('error', (event) => {
-			event.preventDefault();
-			workerFailed = true;
-
-			if (worker !== waveformWorker.current) {
-				return;
-			}
-
-			worker.terminate();
-			waveformWorker.current = null;
-			hasTransferredCanvas.current = false;
-			setError(getWaveformErrorMessage());
+		return subscribeToWaveformPeaks({
+			src,
+			waveformSampleRate,
+			onPeaks: (p) => setPeaks(p),
+			onError: (err) => setError(err),
 		});
+	}, [src, waveformSampleRate]);
 
-		let offscreen: OffscreenCanvas;
-		try {
-			offscreen = canvasElement.transferControlToOffscreen();
-		} catch (err) {
-			worker.terminate();
-			waveformWorker.current = null;
-			if (canRetryCanvasTransfer(err)) {
-				setWaveformCanvasKey((key) => key + 1);
-				return;
-			}
-
-			throw err;
-		}
-
-		hasTransferredCanvas.current = true;
-		worker.postMessage({type: 'init', canvas: offscreen}, [offscreen]);
-
-		return () => {
-			if (!workerFailed) {
-				worker.postMessage({type: 'dispose'});
-			}
-
-			worker.terminate();
-			waveformWorker.current = null;
-			hasTransferredCanvas.current = false;
+	const peakRange = useMemo((): WaveformDrawRange => {
+		const peaksPerFrame = (waveformSampleRate * playbackRate) / vidConf.fps;
+		const loop = loopDisplay !== undefined && loopDisplay.durationInFrames > 0;
+		return {
+			sourceStart: (startFrom / vidConf.fps) * waveformSampleRate,
+			sourceDuration:
+				(loop ? loopDisplay.durationInFrames : durationInFrames) *
+				peaksPerFrame,
+			displayStart:
+				(displayOffsetInFrames + loopDisplayOffsetInFrames) * peaksPerFrame,
+			displayDuration: displayDurationInFrames * peaksPerFrame,
+			loop,
 		};
-	}, [canUseWorkerPath, waveformCanvasKey]);
-
-	const portionPeaks = useMemo(() => {
-		if (canUseWorkerPath || !peaks) {
-			return null;
-		}
-
-		return sliceWaveformPeaks({
-			durationInFrames: shouldTileLoopDisplay(loopDisplay)
-				? loopDisplay.durationInFrames
-				: durationInFrames,
-			fps: vidConf.fps,
-			peaks,
-			playbackRate,
-			startFrom,
-		});
 	}, [
-		canUseWorkerPath,
+		displayDurationInFrames,
+		displayOffsetInFrames,
 		durationInFrames,
 		loopDisplay,
-		peaks,
+		loopDisplayOffsetInFrames,
 		playbackRate,
 		startFrom,
 		vidConf.fps,
+		waveformSampleRate,
 	]);
 
-	useEffect(() => {
+	// Drawing must happen in a layout effect: when the timeline zooms, the
+	// canvas CSS box resizes in the same commit, and painting the bitmap
+	// before the browser paints avoids showing a stretched stale waveform.
+	useLayoutEffect(() => {
 		const {current: canvasElement} = waveformCanvas;
 		if (!canvasElement) {
 			return;
 		}
 
-		const h = height;
-		const w = Math.ceil(visualizationWidth);
+		const pixelRatio = getStudioPixelRatio();
+		const {horizontalOffset} = alignCanvasToDevicePixels({
+			canvas: canvasElement,
+			cssHeight: height,
+			cssWidth: visualizationWidth,
+			pixelRatio,
+		});
+		const drawingWidth = visualizationWidth * pixelRatio;
 
-		if (canUseWorkerPath) {
-			const worker = waveformWorker.current;
-			if (!worker || !hasTransferredCanvas.current) {
-				return;
-			}
+		drawBars({
+			canvas: canvasElement,
+			peaks: peaks ?? EMPTY_PEAKS,
+			range: peakRange,
+			color: resolveStudioColor(
+				WHITE_ALPHA_60,
+				getComputedStyle(canvasElement),
+			),
+			volume: waveformVolume,
+			width: drawingWidth,
+			horizontalOffset,
+		});
+	}, [height, peakRange, peaks, visualizationWidth, waveformVolume]);
 
-			latestRequestId.current += 1;
-			setError(null);
-			const message: AudioWaveformWorkerRenderMessage = {
-				type: 'render',
-				requestId: latestRequestId.current,
-				src,
-				width: w,
-				height: h,
-				volume: parsedVolume,
-				startFrom,
-				durationInFrames,
-				fps: vidConf.fps,
-				playbackRate,
-				loopDisplay,
-			};
-			worker.postMessage(message);
-			return;
-		}
-
-		canvasElement.width = w;
-		canvasElement.height = h;
-
-		if (shouldTileLoopDisplay(loopDisplay)) {
-			drawLoopedWaveform({
-				canvas: canvasElement,
-				peaks: portionPeaks ?? EMPTY_PEAKS,
-				volume: parsedVolume,
-				visualizationWidth,
-				loopWidth: getLoopDisplayWidth({
-					visualizationWidth,
-					loopDisplay,
-				}),
-			});
-		} else {
-			drawBars({
-				canvas: canvasElement,
-				peaks: portionPeaks ?? EMPTY_PEAKS,
-				color: WHITE_ALPHA_60,
-				volume: parsedVolume,
-				width: w,
-			});
-		}
-	}, [
-		canUseWorkerPath,
-		durationInFrames,
-		height,
-		loopDisplay,
-		playbackRate,
-		parsedVolume,
-		portionPeaks,
-		src,
-		startFrom,
-		vidConf.fps,
-		visualizationWidth,
-		waveformCanvasKey,
-	]);
-
-	useEffect(() => {
-		if (!shouldRenderVolumeOverlay) {
+	useLayoutEffect(() => {
+		if (!shouldRenderVolumeOverlay || !peaks) {
 			return;
 		}
 
@@ -354,53 +207,115 @@ const AudioWaveformInner: React.FC<{
 			return;
 		}
 
-		const h = height;
+		const pixelRatio = getStudioPixelRatio();
+		const {
+			height: h,
+			horizontalOffset,
+			width: w,
+		} = alignCanvasToDevicePixels({
+			canvas: volumeCanvasElement,
+			cssHeight: height,
+			cssWidth: visualizationWidth,
+			pixelRatio,
+		});
+		const drawingWidth = visualizationWidth * pixelRatio;
 		const context = volumeCanvasElement.getContext('2d');
 		if (!context) {
 			return;
 		}
 
-		volumeCanvasElement.width = Math.ceil(visualizationWidth);
-		volumeCanvasElement.height = h;
-
-		context.clearRect(0, 0, visualizationWidth, h);
-		if (!Array.isArray(parsedVolume)) {
+		context.clearRect(0, 0, w, h);
+		if (visibleVolume.type === 'constant' || drawingWidth <= 0 || h <= 0) {
 			return;
 		}
 
+		context.setTransform(1, 0, 0, 1, horizontalOffset, 0);
 		context.beginPath();
-		context.moveTo(0, h);
-		parsedVolume.forEach((v, index) => {
-			const x =
-				parsedVolume.length <= 1
-					? 0
-					: (index / (parsedVolume.length - 1)) * visualizationWidth;
-			const y = (1 - v) * (h - TIMELINE_BORDER * 2) + 1;
-			if (index === 0) {
-				context.moveTo(x, y);
-			} else {
-				context.lineTo(x, y);
+		context.moveTo(0, 0);
+		if (visibleVolume.type === 'linear') {
+			for (const point of visibleVolume.points) {
+				context.lineTo(
+					((point.frame - displayOffsetInFrames) / displayDurationInFrames) *
+						drawingWidth,
+					Math.max(
+						0,
+						Math.min(h, (1 - point.value / visualizationMaxVolume) * h),
+					),
+				);
 			}
-		});
-		context.strokeStyle = WHITE_ALPHA_70;
-		context.stroke();
-	}, [height, parsedVolume, shouldRenderVolumeOverlay, visualizationWidth]);
+		} else {
+			// The canvas only spans the virtualized range. Sampling by its physical
+			// width keeps drawing work bounded to the visible part of the timeline.
+			const numberOfPoints = Math.min(
+				visibleVolume.samples.length,
+				Math.max(1, Math.ceil(drawingWidth)),
+			);
+			for (let point = 0; point < numberOfPoints; point++) {
+				const volumeIndex = Math.floor(
+					(point / numberOfPoints) * visibleVolume.samples.length,
+				);
+				const nextVolumeIndex = Math.floor(
+					((point + 1) / numberOfPoints) * visibleVolume.samples.length,
+				);
+				const firstFrame = Math.max(0, Math.floor(displayOffsetInFrames));
+				const x = Math.max(
+					0,
+					((firstFrame + volumeIndex - displayOffsetInFrames) /
+						displayDurationInFrames) *
+						drawingWidth,
+				);
+				const nextX =
+					point === numberOfPoints - 1
+						? drawingWidth
+						: Math.min(
+								drawingWidth,
+								((firstFrame + nextVolumeIndex - displayOffsetInFrames) /
+									displayDurationInFrames) *
+									drawingWidth,
+							);
+				const unclampedY =
+					(1 -
+						(visibleVolume.samples[volumeIndex] ?? 1) /
+							visualizationMaxVolume) *
+					h;
+				const y = Math.max(0, Math.min(h, unclampedY));
+				// Volume samples apply for one frame. Keep each value until the next
+				// frame boundary instead of blending a hold into a diagonal ramp.
+				context.lineTo(x, y);
+				context.lineTo(nextX, y);
+			}
+		}
+
+		context.lineTo(drawingWidth, 0);
+		context.closePath();
+		context.fillStyle = resolveStudioColor(
+			BLACK_ALPHA_60,
+			getComputedStyle(volumeCanvasElement),
+		);
+		context.fill();
+	}, [
+		displayDurationInFrames,
+		displayOffsetInFrames,
+		height,
+		peaks,
+		shouldRenderVolumeOverlay,
+		visualizationMaxVolume,
+		visibleVolume,
+		visualizationWidth,
+	]);
 
 	if (error) {
 		return null;
 	}
 
-	if (!canUseWorkerPath && !peaks) {
+	if (!peaks) {
 		return null;
 	}
 
 	return (
 		<div style={getContainerStyle(height)}>
-			<canvas
-				key={waveformCanvasKey}
-				ref={waveformCanvas}
-				style={waveformCanvasStyle}
-			/>
+			<canvas ref={waveformCanvas} style={waveformCanvasStyle} />
+			{/* Paint the volume shade over the waveform as well as its background. */}
 			{shouldRenderVolumeOverlay ? (
 				<canvas ref={volumeCanvas} style={volumeCanvasStyle} />
 			) : null}

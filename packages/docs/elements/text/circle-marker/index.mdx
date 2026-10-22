@@ -4,9 +4,9 @@ description: An animated hand-drawn circle around text.
 image: https://remotion.media/elements/text-circle-marker-preview.png
 ---
 
-import {elementDefinitions} from '@site/src/components/Elements/element-definitions';
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
 import {ElementPage} from '@site/src/components/Elements/ElementPage';
 
 # Circle Marker
 
-<ElementPage definition={elementDefinitions['text/circle-marker']} sourceFile="./circle-marker.tsx" />
+<ElementPage definition={getElementDefinition('text/circle-marker')} sourceFile="./circle-marker.tsx" />

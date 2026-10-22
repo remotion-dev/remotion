@@ -30,7 +30,7 @@ gh pr checks --watch --interval 30
 5. If all required checks pass and the PR is mergeable, merge it:
 
 ```bash
-gh pr merge --squash --delete-branch
+gh pr merge --merge --delete-branch
 ```
 
 If the repository or PR clearly requires another merge method, use that method instead.

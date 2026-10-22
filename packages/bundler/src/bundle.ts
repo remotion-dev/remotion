@@ -367,6 +367,13 @@ export const internalBundle = async (
 		}
 	}
 
+	const bundleOutput = path.join(outDir, NoReactInternals.bundleName);
+	if (!fs.existsSync(bundleOutput)) {
+		throw new Error(
+			`The bundler completed without emitting ${NoReactInternals.bundleName}.`,
+		);
+	}
+
 	const publicPath = getBundlePublicPath(actualArgs.publicPath);
 	const staticHash = getBundleStaticHash(publicPath);
 
@@ -412,7 +419,9 @@ export const internalBundle = async (
 	}
 
 	const html = indexHtml({
+		importMap: null,
 		staticHash,
+		outputHash: null,
 		publicPath,
 		editorName: null,
 		inputProps: null,
@@ -448,16 +457,24 @@ export const internalBundle = async (
 		logLevel: 'info',
 		mode: 'bundle',
 		audioLatencyHint: actualArgs.audioLatencyHint ?? 'playback',
+		experimentalKeepAudioContextAlive: false,
 		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
 		studioRuntimeConfig: {
+			preservePitchOnPlayback: true,
+			showLayerFrameNumbers: false,
+			showPremounting: null,
+			defaultPremountInSeconds: null,
+			sequenceActivityLimit: null,
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
+			canvasTabsEnabled: true,
 			defaultCodingAgent: null,
 			defaultEditor: null,
 			interactivityEnabled: actualArgs.interactivityEnabled,
 			keyboardShortcutsEnabled: actualArgs.keyboardShortcutsEnabled,
 			maxTimelineTracks: actualArgs.maxTimelineTracks,
 			publicLicenseKey: actualArgs.renderDefaults?.publicLicenseKey ?? null,
+			configFileStudioSettings: null,
 		},
 	});
 

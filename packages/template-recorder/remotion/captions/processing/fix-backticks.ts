@@ -14,16 +14,23 @@ export const fixBackticks = (_captions: Caption[]): Caption[] => {
     const caption = captions[i] as Caption;
     const previousCaption = captions[i - 1] ?? null;
 
-    if (caption.text.startsWith(". ")) {
+    if (caption.text.startsWith(". ") && !previousCaption?.pageBreakAfter) {
       const lastAddedCaption = newCaptions[newCaptions.length - 1] as Caption;
       lastAddedCaption.text += ".";
       caption.text = caption.text.slice(1);
     }
 
-    if (!caption.text.startsWith(" ") && previousCaption) {
+    if (
+      !caption.text.startsWith(" ") &&
+      previousCaption &&
+      !previousCaption.pageBreakAfter
+    ) {
       const lastAddedCaption = newCaptions[newCaptions.length - 1] as Caption;
       lastAddedCaption.text += caption.text;
       lastAddedCaption.endMs = caption.endMs;
+      if (caption.pageBreakAfter) {
+        lastAddedCaption.pageBreakAfter = true;
+      }
     } else {
       newCaptions.push(caption);
     }

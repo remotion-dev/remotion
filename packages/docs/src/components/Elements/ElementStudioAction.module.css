@@ -1,0 +1,70 @@
+.studioAction {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+	border-radius: 8px;
+	background: var(--blue-underlay);
+}
+
+.studioAction .buttonWithDragHandle {
+	border-top-right-radius: 0;
+	border-right-width: 0;
+	border-bottom-right-radius: 0;
+}
+
+.dragHandle {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	min-height: 46px;
+	flex: none;
+	border: 2px solid black;
+	border-bottom-width: 4px;
+	border-left: 1px solid rgb(0 0 0 / 30%);
+	border-radius: 0 8px 8px 0;
+	background: transparent;
+	color: white;
+	cursor: grab;
+	user-select: none;
+}
+
+.dragHandle::after {
+	position: absolute;
+	bottom: calc(100% + 4px);
+	right: 0;
+	z-index: 1;
+	max-width: calc(100vw - 16px);
+	padding: 6px 8px;
+	border-radius: 6px;
+	background: #15181b;
+	box-shadow: 0 -2px 8px rgb(0 0 0 / 50%);
+	color: rgb(255 255 255 / 90%);
+	content: attr(data-tooltip);
+	font-size: 12px;
+	line-height: 16px;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0s linear 800ms;
+	visibility: hidden;
+	white-space: nowrap;
+}
+
+.dragHandle:hover::after {
+	opacity: 1;
+	visibility: visible;
+}
+
+.dragHandle:hover {
+	background: rgb(0 0 0 / 8%);
+}
+
+.dragHandle:active {
+	cursor: grabbing;
+}
+
+.dragHandleIcon {
+	font-size: 1.5rem;
+	line-height: 1;
+}

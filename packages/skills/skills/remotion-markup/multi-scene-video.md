@@ -1,81 +1,21 @@
-If the video being created is a multi-scene video, it should be structured in a special way.
-Create a new folder and put each scene in a separate file.
+# Multi-scene videos
 
-```tsx
-// SceneA.tsx
-export const SceneA: React.FC = () => {
- return // ...
-}
-```
+Give each substantial scene its own component and connect it when it benefits
+from an independent editing timeline. Keep each instance's name, timing, and
+props inline in the parent.
 
-```tsx
-// SceneB.tsx
-export const SceneB: React.FC = () => {
-  return // ...
-} 
-```
+Choose the parent structure from the editing behavior:
 
-Install `@remotion/transitions` if not yet available:
+- For independent scene start times, use a named `Track` with explicit `from`
+  and `durationInFrames` on each scene. Its items must not overlap.
+- For scenes that should remain adjacent as their durations change, use
+  `TransitionSeries`. Keep each scene inside its own
+  `TransitionSeries.Sequence`, with duration and source trim on that boundary.
+  Add transitions when needed and account for their overlaps in the total
+  composition duration.
 
-```
-npx remotion add @remotion/transitions
-```
-
-// MyVideo.tsx
-```tsx
-import {TransitionSeries} from '@remotion/transitions';
-
-const MyVideo: React.FC = () => {
-  return (
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneA">
-        <SceneA />
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Sequence durationInFrames={4 * fps} name="SceneB">
-        <SceneB />
-      </TransitionSeries.Sequence>
-    </TransitionSeries>
-  )
-}
-```
-
-It could also make sense to register each scene individually in the root file so it can be edited there.
-If a composition with the same component is registered, one can double click the sequence in the main composition and jump to that composition.
-
-```tsx
-export const Root: React.FC = () => {
-  return (
-    <>
-      <Folder id="MyVideo-Scenes">
-        <Composition
-          id="Scene1"
-          component={Scene1}
-          durationInFrames={5 * fps}
-          fps={30}
-          width={1920}
-          height={1080}
-        />
-        <Composition
-          id="Scene2"
-          component={Scene2}
-          durationInFrames={5 * fps}
-          fps={30}
-          width={1920}
-          height={1080}
-        /> 
-      </Folder>
-      <Composition
-        id="MyVideo"
-        component={MyVideo}
-        durationInFrames={10 * fps}
-        fps={30}
-        width={1920}
-        height={1080}
-      /> 
-    </>
-  )
-}
-```
-
-This allows the user to trim the start and end of the durations visually and add [transitions](./transitions.md) later.
-Prefer inlining the `durationInFrames` values, because only then they are editable. It's okay if the value is redundant.
+Follow [editable timeline structure](../remotion-interactivity/timeline-structure.md)
+for a complete scene, parent, and registration example. See
+[transitions](transitions.md) for transition timing and presentations, and
+[connected compositions](connected-compositions.md) for extraction and
+verification in the full video.

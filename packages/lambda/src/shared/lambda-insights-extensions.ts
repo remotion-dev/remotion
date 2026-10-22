@@ -45,4 +45,8 @@ export const lambdaInsightsExtensions: {[region in AwsRegion]: string | null} =
 		'ap-southeast-4': null,
 		'ap-southeast-5': null,
 		'eu-central-2': null,
+		'cn-north-1':
+			'arn:aws-cn:lambda:cn-north-1:488211338238:layer:LambdaInsightsExtension-Arm64:4',
+		'cn-northwest-1':
+			'arn:aws-cn:lambda:cn-northwest-1:488211338238:layer:LambdaInsightsExtension-Arm64:4',
 	};

@@ -66,8 +66,8 @@ test('All agent plugin manifests should match the Remotion version', () => {
 		readFileSync(path.join(packagesRoot, 'core', 'package.json'), 'utf-8'),
 	).version;
 	const pluginManifestPaths = [
-		path.join('codex-plugin', 'plugin.json'),
-		path.join('codex-plugin', '.codex-plugin', 'plugin.json'),
+		path.join('agent-plugin', 'plugin.json'),
+		path.join('agent-plugin', '.codex-plugin', 'plugin.json'),
 		path.join('claude-code-plugin', '.claude-plugin', 'plugin.json'),
 		path.join('kimi-code-plugin', '.kimi-plugin', 'plugin.json'),
 	];

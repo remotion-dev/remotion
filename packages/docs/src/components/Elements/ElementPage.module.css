@@ -1,76 +1,92 @@
 .workbench {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 24px;
 	margin-top: 28px;
 	margin-bottom: 28px;
 }
 
-.previewColumn,
-.actionsColumn {
+/* Element details have their own actions instead of the generic docs footer. */
+:global(article):has(.workbench) > :global(.theme-doc-footer) {
+	display: none;
+}
+
+.previewColumn {
+	flex: 3 1 700px;
 	min-width: 0;
 }
 
-.previewAndSource {
+.actionsColumn {
+	container: actions-column / inline-size;
+	flex: 1 1 260px;
+	min-width: 0;
+}
+
+.previewSurface {
 	overflow: hidden;
 	border: 1px solid var(--ifm-color-emphasis-300);
 	border-radius: 12px;
 	background: var(--ifm-background-surface-color);
 }
 
-.sourceArea {
-	position: relative;
-	border-top: 1px solid var(--ifm-color-emphasis-300);
-	background: #282a36;
+.secondaryActions {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-top: 12px;
 }
 
-.sourceToggle {
-	border-radius: 8px;
-	font: inherit;
-	font-weight: 700;
-	min-height: 34px;
-	padding: 5px 10px;
-	font-size: 0.875rem;
-	border: 1px solid #4b4d57;
-	background: #18191f;
-	box-shadow: 0 2px 10px rgb(0 0 0 / 35%);
-	color: #fff;
-	cursor: pointer;
-}
-
-.sourceToggle:hover {
-	background: #23242c;
-}
-
-.sourceToggle:focus-visible,
+.secondaryAction:focus-visible,
+.sourceViewport:focus-visible,
 .contributor:focus-visible {
 	outline: 2px solid var(--ifm-color-primary);
 	outline-offset: 2px;
 }
 
-.sourceViewport {
-	height: 360px;
-	overflow: auto;
-	overscroll-behavior: contain;
-	background: #282a36;
-}
-
-.sourceViewportCollapsed {
-	height: 180px;
+.sourceDialog {
+	width: min(960px, calc(100vw - 32px));
+	max-width: none;
+	max-height: min(760px, calc(100dvh - 32px));
+	margin: auto;
+	padding: 0;
 	overflow: hidden;
-	pointer-events: none;
-	user-select: none;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 12px;
+	background: var(--ifm-background-surface-color);
+	color: var(--ifm-font-color-base);
 }
 
-.sourceReveal {
-	position: absolute;
-	inset: 0;
+.sourceDialog[open] {
+	display: flex;
+	flex-direction: column;
+}
+
+.sourceDialog::backdrop {
+	background: rgb(0 0 0 / 45%);
+}
+
+.sourceDialogHeader {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	background: linear-gradient(
-		to bottom,
-		rgb(40 42 54 / 5%) 0%,
-		rgb(40 42 54 / 72%) 58%,
-		#282a36 100%
-	);
+	justify-content: space-between;
+	gap: 16px;
+	flex: none;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.sourceDialogTitle {
+	min-width: 0;
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.sourceViewport {
+	min-height: 0;
+	overflow: auto;
+	background: #282a36;
 }
 
 .sourceViewport :global(.theme-code-block),
@@ -88,24 +104,101 @@
 	border-radius: 0 !important;
 }
 
-.useIt {
-	padding: 12px;
-	border: 1px solid var(--ifm-color-emphasis-300);
-	border-radius: 12px;
-	background: var(--ifm-background-surface-color);
-}
-
 .actionRow {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 10px;
+	flex-direction: column;
 }
 
+.secondaryAction {
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 8px;
+	min-width: 0;
+	min-height: 32px;
+	padding: 4px 0;
+	border: 0;
+	appearance: none;
+	background: transparent;
+	color: var(--ifm-color-emphasis-700);
+	cursor: pointer;
+	font: inherit;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.5;
+}
+
+.secondaryActionIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	flex: none;
+}
+
+.secondaryActionIcon svg {
+	flex: none;
+}
+
+.secondaryAction:hover {
+	color: var(--ifm-color-primary);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.studioGuidance {
+	margin-top: 12px;
+	padding: 12px;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 8px;
+	background: var(--ifm-color-emphasis-100);
+	font-size: 0.875rem;
+}
+
+.studioGuidanceTitle {
+	margin: 0;
+	font-weight: 600;
+}
+
+.studioGuidanceText {
+	margin: 8px 0 0;
+	line-height: 1.5;
+}
+
+.studioGuidanceSteps {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 10px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.studioGuidanceSteps li {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	line-height: 1.5;
+}
+
+.studioGuidanceSteps li > div {
+	flex: none;
+}
+
+.studioGuidanceSteps li > span {
+	min-width: 0;
+}
+
+.installingStatus,
 .successStatus,
 .errorStatus {
 	margin: 12px 0 0;
 	font-size: 0.875rem;
+}
+
+.installingStatus {
+	color: var(--ifm-color-emphasis-700);
 }
 
 .successStatus {
@@ -117,9 +210,7 @@
 }
 
 .details {
-	margin-top: 16px;
-	padding-top: 16px;
-	border-top: 1px solid var(--ifm-color-emphasis-200);
+	margin-top: 20px;
 }
 
 .description {
@@ -130,7 +221,7 @@
 }
 
 .metadata {
-	margin: 14px 0 0;
+	margin: 16px 0 0;
 	font-size: 0.8125rem;
 }
 
@@ -148,8 +239,8 @@
 
 .metadata dd {
 	margin: 0;
+	color: var(--ifm-color-emphasis-800);
 	font-variant-numeric: tabular-nums;
-	font-weight: 600;
 }
 
 .metadata > .dependenciesMetadata {
@@ -171,11 +262,6 @@
 	overflow-wrap: anywhere;
 }
 
-.dependencyList li::marker {
-	color: var(--ifm-color-primary);
-	font-size: 0.85em;
-}
-
 .dependencyList li + li {
 	margin-top: 4px;
 }
@@ -188,9 +274,7 @@
 }
 
 .contributors:not(:first-child) {
-	margin-top: 16px;
-	padding-top: 16px;
-	border-top: 1px solid var(--ifm-color-emphasis-200);
+	margin-top: 24px;
 }
 
 .contributorsLabel {
@@ -203,7 +287,7 @@
 .contributorList {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 12px;
+	gap: 8px;
 	min-width: 0;
 }
 
@@ -246,15 +330,7 @@
 	color: var(--ifm-color-emphasis-700);
 }
 
-@media (min-width: 1200px) {
-	.workbench {
-		display: grid;
-		grid-template-columns: minmax(0, 3fr) minmax(260px, 1fr);
-		align-items: start;
-		gap: 24px;
-	}
-
-	.actionsColumn .actionRow,
+@container actions-column (max-width: 400px) {
 	.actionsColumn .contributors,
 	.actionsColumn .contributorList {
 		align-items: stretch;
@@ -262,18 +338,16 @@
 	}
 }
 
+@media (pointer: coarse) {
+	.secondaryAction {
+		min-height: 48px;
+		padding: 8px;
+	}
+}
+
 @media (max-width: 600px) {
-	.sourceViewport {
-		height: 320px;
-	}
-
-	.sourceViewportCollapsed {
-		height: 160px;
-	}
-
-	.actionRow {
-		align-items: stretch;
-		flex-direction: column;
+	.secondaryAction {
+		font-size: 1rem;
 	}
 
 	.contributors {

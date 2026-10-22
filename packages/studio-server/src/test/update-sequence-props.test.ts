@@ -31,12 +31,12 @@ test('updateSequenceProps preserves video config multiplication expressions', as
 	const input = `import {Sequence, useVideoConfig} from 'remotion';
 
 export const Example: React.FC = () => {
-	const {fps} = useVideoConfig();
+	const {fps, durationInFrames: duration} = useVideoConfig();
 	return (
 		<Sequence
 			premountFor={(2 * fps) as number}
 			postmountFor={fps * 2}
-			durationInFrames={(2 * fps) as number}
+			durationInFrames={(duration * 0.5) as number}
 			from={2 * fps}
 			style={{opacity: 2 * fps}}
 		/>
@@ -60,10 +60,22 @@ export const Example: React.FC = () => {
 
 	expect(output).toContain('premountFor={2.5 * fps}');
 	expect(output).toContain('postmountFor={fps * 3}');
-	expect(output).toContain('durationInFrames={(2 * fps) as number}');
+	expect(output).toContain('durationInFrames={(duration * 0.5) as number}');
 	expect(output).toContain('from={0}');
 	expect(output).not.toContain('0 * fps');
 	expect(output).toContain('opacity: 4 * fps');
+
+	// Reuse the source after resizing its parent. The edit must use the current
+	// mounted instance's duration, rather than the context from the first read.
+	const resized = await updateSequenceProps({
+		input: output,
+		nodePath: lineColumnToNodePath(output, 6),
+		updates: [{key: 'durationInFrames', value: 216, defaultValue: null}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+		videoConfigValues: {...videoConfigValues, durationInFrames: 360},
+	});
+	expect(resized.output).toContain('durationInFrames={duration * 0.6}');
 });
 
 test('updateSequenceProps should update a number value', async () => {
@@ -490,7 +502,10 @@ test('updateSequenceProps should set boolean true as shorthand', async () => {
 		input: lightLeakInput,
 		nodePath: lineColumnToNodePath(lightLeakInput, 8),
 		updates: [{key: 'loop', value: true, defaultValue: false}],
-		schema: NoReactInternals.sequenceSchema,
+		schema: {
+			...NoReactInternals.sequenceSchema,
+			loop: {type: 'boolean', default: false},
+		},
 		prettierConfigOverride: null,
 	});
 
@@ -580,6 +595,145 @@ test('updateMultipleSequenceProps should update multiple nodes in one format pas
 	expect(results[1].oldValueStrings[0]).toBe('60');
 	expect(output.split('\n')[7]).toContain('hueShift={90}');
 	expect(output.split('\n')[8]).toContain('durationInFrames={120}');
+});
+
+test('updateMultipleSequenceProps rejects instead of throwing synchronously', async () => {
+	const promise = updateMultipleSequenceProps({
+		input: lightLeakInput,
+		changes: [
+			{
+				nodePath: ['program', 'body', 999],
+				updates: [{key: 'hueShift', value: 90, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(promise).toBeInstanceOf(Promise);
+	await expect(promise).rejects.toThrow(
+		'Could not find a JSX element at the specified line to update',
+	);
+});
+
+test('updateMultipleSequenceProps should not format a no-op edit', async () => {
+	const unformattedInput = lightLeakInput.replace(
+		'\t\t<AbsoluteFill',
+		' <AbsoluteFill',
+	);
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input: unformattedInput,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(unformattedInput, 8),
+				updates: [{key: 'hueShift', value: 30, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: null,
+	});
+
+	expect(output).toBe(unformattedInput);
+	expect(formatted).toBe(true);
+});
+
+test('updateMultipleSequenceProps should only format the edited opening element', async () => {
+	const input = `const unrelated    = {keep: "double quotes"};
+
+export const Example = () => {
+	return <Interactive.Div name = "Example">Text</Interactive.Div>;
+};
+`;
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 4),
+				updates: [{key: 'hidden', value: true, defaultValue: false}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: {singleQuote: true, useTabs: true},
+	});
+
+	expect(output).toBe(`const unrelated    = {keep: "double quotes"};
+
+export const Example = () => {
+	return <Interactive.Div name="Example" hidden>Text</Interactive.Div>;
+};
+`);
+	expect(formatted).toBe(true);
+});
+
+test('updateSequenceProps preserves non-Prettier source around the edited element', async () => {
+	const input = `const unrelated    = {keep:"this spacing"};
+
+export const Example = () => {
+    return <Interactive.Div name = "Example">Text</Interactive.Div>;
+};
+`;
+	const {output, formatted} = await updateSequenceProps({
+		input,
+		nodePath: lineColumnToNodePath(input, 4),
+		updates: [{key: 'hidden', value: true, defaultValue: false}],
+		schema: NoReactInternals.sequenceSchema,
+		prettierConfigOverride: null,
+		videoConfigValues: null,
+	});
+
+	expect(output).toBe(`const unrelated    = {keep:"this spacing"};
+
+export const Example = () => {
+    return <Interactive.Div name="Example" hidden>Text</Interactive.Div>;
+};
+`);
+	expect(formatted).toBe(true);
+});
+
+test('updateMultipleSequenceProps formats a multiline non-self-closing opening element without Prettier', async () => {
+	const input = `export const Example = () => {
+	return (
+		<Interactive.Div
+			name="Example"
+			style={{height: 8, scale: 1, width: 8}}
+		>
+			Text
+		</Interactive.Div>
+	);
+};
+`;
+	const {output, formatted} = await updateMultipleSequenceProps({
+		input,
+		changes: [
+			{
+				nodePath: lineColumnToNodePath(input, 3),
+				updates: [{key: 'style.scale', value: 1.353, defaultValue: null}],
+				schema: NoReactInternals.sequenceSchema,
+				videoConfigValues: null,
+			},
+		],
+		prettierConfigOverride: {singleQuote: true, useTabs: true},
+	});
+
+	expect(output).toBe(`export const Example = () => {
+	return (
+		<Interactive.Div
+			name="Example"
+			style={{
+				height: 8,
+				scale: 1.353,
+				width: 8
+			}}
+		>
+			Text
+		</Interactive.Div>
+	);
+};
+`);
+	expect(formatted).toBe(true);
 });
 
 test('updateSequenceProps should update JSX text children', async () => {

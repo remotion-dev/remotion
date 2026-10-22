@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.507",
+	"version": "4.0.538",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -16,8 +16,8 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsgo -w",
-		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -39,6 +39,11 @@
 			"module": "./dist/esm/barrel-distortion.mjs",
 			"import": "./dist/esm/barrel-distortion.mjs"
 		},
+		"./bevel-alpha": {
+			"types": "./dist/bevel-alpha.d.ts",
+			"module": "./dist/esm/bevel-alpha.mjs",
+			"import": "./dist/esm/bevel-alpha.mjs"
+		},
 		"./blur": {
 			"types": "./dist/blur.d.ts",
 			"module": "./dist/esm/blur.mjs",
@@ -48,6 +53,11 @@
 			"types": "./dist/burlap.d.ts",
 			"module": "./dist/esm/burlap.mjs",
 			"import": "./dist/esm/burlap.mjs"
+		},
+		"./fractal-noise": {
+			"types": "./dist/fractal-noise.d.ts",
+			"module": "./dist/esm/fractal-noise.mjs",
+			"import": "./dist/esm/fractal-noise.mjs"
 		},
 		"./flannel": {
 			"types": "./dist/flannel.d.ts",
@@ -69,6 +79,11 @@
 			"module": "./dist/esm/color-key.mjs",
 			"import": "./dist/esm/color-key.mjs"
 		},
+		"./color-correction": {
+			"types": "./dist/color-correction.d.ts",
+			"module": "./dist/esm/color-correction.mjs",
+			"import": "./dist/esm/color-correction.mjs"
+		},
 		"./brightness": {
 			"types": "./dist/brightness.d.ts",
 			"module": "./dist/esm/brightness.mjs",
@@ -83,6 +98,11 @@
 			"types": "./dist/contour-lines.d.ts",
 			"module": "./dist/esm/contour-lines.mjs",
 			"import": "./dist/esm/contour-lines.mjs"
+		},
+		"./cylinder": {
+			"types": "./dist/cylinder.d.ts",
+			"module": "./dist/esm/cylinder.mjs",
+			"import": "./dist/esm/cylinder.mjs"
 		},
 		"./drop-shadow": {
 			"types": "./dist/drop-shadow.d.ts",
@@ -103,6 +123,11 @@
 			"types": "./dist/evolve.d.ts",
 			"module": "./dist/esm/evolve.mjs",
 			"import": "./dist/esm/evolve.mjs"
+		},
+		"./exposure": {
+			"types": "./dist/exposure.d.ts",
+			"module": "./dist/esm/exposure.mjs",
+			"import": "./dist/esm/exposure.mjs"
 		},
 		"./fisheye": {
 			"types": "./dist/fisheye.d.ts",
@@ -189,6 +214,26 @@
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
+		"./lens-blur": {
+			"types": "./dist/lens-blur.d.ts",
+			"module": "./dist/esm/lens-blur.mjs",
+			"import": "./dist/esm/lens-blur.mjs"
+		},
+		"./levels": {
+			"types": "./dist/levels.d.ts",
+			"module": "./dist/esm/levels.mjs",
+			"import": "./dist/esm/levels.mjs"
+		},
+		"./long-shadows": {
+			"types": "./dist/long-shadows.d.ts",
+			"module": "./dist/esm/long-shadows.mjs",
+			"import": "./dist/esm/long-shadows.mjs"
+		},
+		"./lut": {
+			"types": "./dist/lut.d.ts",
+			"module": "./dist/esm/lut.mjs",
+			"import": "./dist/esm/lut.mjs"
+		},
 		"./light-leak": {
 			"types": "./dist/light-leak.d.ts",
 			"module": "./dist/esm/light-leak.mjs",
@@ -218,6 +263,16 @@
 			"types": "./dist/noise-displacement.d.ts",
 			"module": "./dist/esm/noise-displacement.mjs",
 			"import": "./dist/esm/noise-displacement.mjs"
+		},
+		"./outline": {
+			"types": "./dist/outline.d.ts",
+			"module": "./dist/esm/outline.mjs",
+			"import": "./dist/esm/outline.mjs"
+		},
+		"./page-turn": {
+			"types": "./dist/page-turn.d.ts",
+			"module": "./dist/esm/page-turn.mjs",
+			"import": "./dist/esm/page-turn.mjs"
 		},
 		"./paper": {
 			"types": "./dist/paper.d.ts",
@@ -269,6 +324,11 @@
 			"module": "./dist/esm/scale.mjs",
 			"import": "./dist/esm/scale.mjs"
 		},
+		"./shadows-highlights": {
+			"types": "./dist/shadows-highlights.d.ts",
+			"module": "./dist/esm/shadows-highlights.mjs",
+			"import": "./dist/esm/shadows-highlights.mjs"
+		},
 		"./shine": {
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
@@ -289,15 +349,30 @@
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
 		},
+		"./sphere": {
+			"types": "./dist/sphere.d.ts",
+			"module": "./dist/esm/sphere.mjs",
+			"import": "./dist/esm/sphere.mjs"
+		},
 		"./starburst": {
 			"types": "./dist/starburst.d.ts",
 			"module": "./dist/esm/starburst.mjs",
 			"import": "./dist/esm/starburst.mjs"
 		},
+		"./tear": {
+			"types": "./dist/tear.d.ts",
+			"module": "./dist/esm/tear.mjs",
+			"import": "./dist/esm/tear.mjs"
+		},
 		"./thermal-vision": {
 			"types": "./dist/thermal-vision.d.ts",
 			"module": "./dist/esm/thermal-vision.mjs",
 			"import": "./dist/esm/thermal-vision.mjs"
+		},
+		"./tile": {
+			"types": "./dist/tile.d.ts",
+			"module": "./dist/esm/tile.mjs",
+			"import": "./dist/esm/tile.mjs"
 		},
 		"./tint": {
 			"types": "./dist/tint.d.ts",
@@ -309,6 +384,11 @@
 			"module": "./dist/esm/translate.mjs",
 			"import": "./dist/esm/translate.mjs"
 		},
+		"./turbulent-displace": {
+			"types": "./dist/turbulent-displace.d.ts",
+			"module": "./dist/esm/turbulent-displace.mjs",
+			"import": "./dist/esm/turbulent-displace.mjs"
+		},
 		"./tv-signal-off": {
 			"types": "./dist/tv-signal-off.d.ts",
 			"module": "./dist/esm/tv-signal-off.mjs",
@@ -318,6 +398,11 @@
 			"types": "./dist/venetian-blinds.d.ts",
 			"module": "./dist/esm/venetian-blinds.mjs",
 			"import": "./dist/esm/venetian-blinds.mjs"
+		},
+		"./vibrance": {
+			"types": "./dist/vibrance.d.ts",
+			"module": "./dist/esm/vibrance.mjs",
+			"import": "./dist/esm/vibrance.mjs"
 		},
 		"./vignette": {
 			"types": "./dist/vignette.d.ts",
@@ -333,6 +418,11 @@
 			"types": "./dist/waves.d.ts",
 			"module": "./dist/esm/waves.mjs",
 			"import": "./dist/esm/waves.mjs"
+		},
+		"./white-balance": {
+			"types": "./dist/white-balance.d.ts",
+			"module": "./dist/esm/white-balance.mjs",
+			"import": "./dist/esm/white-balance.mjs"
 		},
 		"./white-noise": {
 			"types": "./dist/white-noise.d.ts",
@@ -356,11 +446,17 @@
 			"barrel-distortion": [
 				"dist/barrel-distortion.d.ts"
 			],
+			"bevel-alpha": [
+				"dist/bevel-alpha.d.ts"
+			],
 			"blur": [
 				"dist/blur.d.ts"
 			],
 			"burlap": [
 				"dist/burlap.d.ts"
+			],
+			"fractal-noise": [
+				"dist/fractal-noise.d.ts"
 			],
 			"flannel": [
 				"dist/flannel.d.ts"
@@ -374,6 +470,9 @@
 			"color-key": [
 				"dist/color-key.d.ts"
 			],
+			"color-correction": [
+				"dist/color-correction.d.ts"
+			],
 			"brightness": [
 				"dist/brightness.d.ts"
 			],
@@ -382,6 +481,9 @@
 			],
 			"contour-lines": [
 				"dist/contour-lines.d.ts"
+			],
+			"cylinder": [
+				"dist/cylinder.d.ts"
 			],
 			"drop-shadow": [
 				"dist/drop-shadow.d.ts"
@@ -394,6 +496,9 @@
 			],
 			"evolve": [
 				"dist/evolve.d.ts"
+			],
+			"exposure": [
+				"dist/exposure.d.ts"
 			],
 			"fisheye": [
 				"dist/fisheye.d.ts"
@@ -446,6 +551,18 @@
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
 			],
+			"lens-blur": [
+				"dist/lens-blur.d.ts"
+			],
+			"levels": [
+				"dist/levels.d.ts"
+			],
+			"long-shadows": [
+				"dist/long-shadows.d.ts"
+			],
+			"lut": [
+				"dist/lut.d.ts"
+			],
 			"light-leak": [
 				"dist/light-leak.d.ts"
 			],
@@ -463,6 +580,12 @@
 			],
 			"noise-displacement": [
 				"dist/noise-displacement.d.ts"
+			],
+			"outline": [
+				"dist/outline.d.ts"
+			],
+			"page-turn": [
+				"dist/page-turn.d.ts"
 			],
 			"paper": [
 				"dist/paper.d.ts"
@@ -494,6 +617,9 @@
 			"scale": [
 				"dist/scale.d.ts"
 			],
+			"shadows-highlights": [
+				"dist/shadows-highlights.d.ts"
+			],
 			"shine": [
 				"dist/shine.d.ts"
 			],
@@ -506,11 +632,20 @@
 			"speckle": [
 				"dist/speckle.d.ts"
 			],
+			"sphere": [
+				"dist/sphere.d.ts"
+			],
 			"starburst": [
 				"dist/starburst.d.ts"
 			],
+			"tear": [
+				"dist/tear.d.ts"
+			],
 			"thermal-vision": [
 				"dist/thermal-vision.d.ts"
+			],
+			"tile": [
+				"dist/tile.d.ts"
 			],
 			"tint": [
 				"dist/tint.d.ts"
@@ -518,11 +653,17 @@
 			"translate": [
 				"dist/translate.d.ts"
 			],
+			"turbulent-displace": [
+				"dist/turbulent-displace.d.ts"
+			],
 			"tv-signal-off": [
 				"dist/tv-signal-off.d.ts"
 			],
 			"venetian-blinds": [
 				"dist/venetian-blinds.d.ts"
+			],
+			"vibrance": [
+				"dist/vibrance.d.ts"
 			],
 			"vignette": [
 				"dist/vignette.d.ts"
@@ -536,6 +677,9 @@
 			"zigzag": [
 				"dist/zigzag.d.ts"
 			],
+			"white-balance": [
+				"dist/white-balance.d.ts"
+			],
 			"white-noise": [
 				"dist/white-noise.d.ts"
 			],
@@ -548,9 +692,10 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@vitest/browser-playwright": "catalog:",
+		"@webgpu/types": "0.1.74",
 		"eslint": "catalog:",
 		"vitest": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"remotion",

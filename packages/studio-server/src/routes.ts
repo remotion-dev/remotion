@@ -1,5 +1,9 @@
-import fs, {createWriteStream} from 'fs';
-import {createReadStream, existsSync, statSync} from 'node:fs';
+import {
+	createReadStream,
+	createWriteStream,
+	existsSync,
+	statSync,
+} from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
 import {URLSearchParams} from 'node:url';
@@ -13,15 +17,20 @@ import {RenderInternals} from '@remotion/renderer';
 import type {
 	ApiRoutes,
 	GitSource,
+	InstallPackageRequest,
+	InstallPackageResponse,
 	RenderDefaults,
 	RenderJob,
 	StudioRuntimeConfig,
+	UpdateConfigRequest,
+	UpdateConfigResponse,
 } from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
 import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
+import {openFileForWritingWithoutSymlinks} from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
@@ -30,9 +39,13 @@ import {getStaticFileFallbackHint} from './preview-server/get-static-file-fallba
 import {handleRequest} from './preview-server/handler';
 import type {LiveEventsServer} from './preview-server/live-events';
 import {fetchFolder, getFiles} from './preview-server/public-folder';
+import {handleAppIcon} from './preview-server/routes/app-icon';
+import {handleInstallPackage} from './preview-server/routes/install-dependency';
 import {getEditorName} from './preview-server/routes/open-in-editor';
+import {updateConfigHandler} from './preview-server/routes/update-config';
 import {serveStatic} from './preview-server/serve-static';
 import {handleStudioProtocolDiscovery} from './preview-server/studio-protocol/handle-discovery';
+import {handleStudioProtocolElementLibrary} from './preview-server/studio-protocol/handle-element-library';
 import {handleStudioProtocolInstall} from './preview-server/studio-protocol/handle-install';
 import {handleStudioProtocolLicenseKey} from './preview-server/studio-protocol/handle-license-key';
 import {handleStudioProtocolOptions} from './preview-server/studio-protocol/origin-policy';
@@ -40,6 +53,21 @@ import {validateSameOrigin} from './preview-server/validate-same-origin';
 import {reloadPreviouslySuppressedFiles} from './preview-server/watch-ignore-next-change';
 import type {RemotionConfigResponse} from './remotion-config-response';
 const loggedStaticFileHints = new Set<string>();
+const clientRenderOutputExtensions = new Set([
+	'aac',
+	'flac',
+	'jpeg',
+	'jpg',
+	'mkv',
+	'mov',
+	'mp3',
+	'mp4',
+	'ogg',
+	'png',
+	'wav',
+	'webm',
+	'webp',
+]);
 
 const static404 = (response: ServerResponse): Promise<void> => {
 	response.writeHead(404);
@@ -76,6 +104,7 @@ const handleRemotionConfig = (
 const handleFallback = async ({
 	remotionRoot,
 	hash,
+	outputHash,
 	response,
 	request,
 	getCurrentInputProps,
@@ -85,6 +114,7 @@ const handleFallback = async ({
 	getRenderDefaults,
 	getNumberOfAudioTags,
 	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
 	getPreviewSampleRate,
 	gitSource,
 	logLevel,
@@ -94,6 +124,7 @@ const handleFallback = async ({
 }: {
 	remotionRoot: string;
 	hash: string;
+	outputHash: string;
 	response: ServerResponse;
 	request: IncomingMessage;
 	publicDir: string;
@@ -103,6 +134,7 @@ const handleFallback = async ({
 	getRenderDefaults: () => RenderDefaults;
 	getNumberOfAudioTags: () => number;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	gitSource: GitSource | null;
 	logLevel: LogLevel;
@@ -158,7 +190,9 @@ const handleFallback = async ({
 
 	response.end(
 		BundlerInternals.indexHtml({
+			importMap: null,
 			staticHash: hash,
+			outputHash,
 			publicPath: '/',
 			editorName: displayName,
 			envVariables: getEnvVariables(),
@@ -187,6 +221,7 @@ const handleFallback = async ({
 			logLevel,
 			mode: 'dev',
 			audioLatencyHint: getAudioLatencyHint() ?? 'playback',
+			experimentalKeepAudioContextAlive: getExperimentalKeepAudioContextAlive(),
 			sampleRate: getPreviewSampleRate(),
 			studioRuntimeConfig: getStudioRuntimeConfig(),
 		}),
@@ -259,9 +294,15 @@ const handleAddAsset = ({
 			throw new Error(`Not allowed to write to ${relativeToPublicDir}`);
 		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: publicDir,
+			absolutePath,
+			exclusive: false,
+		});
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
@@ -297,10 +338,22 @@ const handleUploadOutput = ({
 		}
 
 		const absolutePath = resolveOutputPath(remotionRoot, filePath);
+		const extension = path.extname(absolutePath).slice(1).toLowerCase();
+		if (!clientRenderOutputExtensions.has(extension)) {
+			throw new Error(
+				`Not allowed to upload a .${extension || 'unknown'} file`,
+			);
+		}
 
-		fs.mkdirSync(path.dirname(absolutePath), {recursive: true});
-
-		const writeStream = createWriteStream(absolutePath);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: remotionRoot,
+			absolutePath,
+			exclusive: false,
+		});
+		const writeStream = createWriteStream(absolutePath, {
+			fd: fileDescriptor,
+			autoClose: true,
+		});
 		writeStream.on('close', () => {
 			res.end(JSON.stringify({success: true}));
 		});
@@ -380,12 +433,14 @@ export const handleRoutes = ({
 	gitSource,
 	binariesDirectory,
 	getAudioLatencyHint,
+	getExperimentalKeepAudioContextAlive,
 	getPreviewSampleRate,
 	enableCrossSiteIsolation,
 	getStudioRuntimeConfig,
 	getDefaultCodingAgent,
 	getDefaultEditor,
 	configFile,
+	invalidateBundle,
 }: {
 	staticHash: string;
 	staticHashPrefix: string;
@@ -407,12 +462,14 @@ export const handleRoutes = ({
 	gitSource: GitSource | null;
 	binariesDirectory: string | null;
 	getAudioLatencyHint: () => AudioContextLatencyCategory | null;
+	getExperimentalKeepAudioContextAlive: () => boolean;
 	getPreviewSampleRate: () => number | null;
 	enableCrossSiteIsolation: boolean;
 	getStudioRuntimeConfig: () => StudioRuntimeConfig;
 	getDefaultCodingAgent: () => DefaultCodingAgent | null;
 	getDefaultEditor: () => DefaultEditor | null;
 	configFile: string | null;
+	invalidateBundle: () => Promise<void>;
 }): Promise<void> => {
 	const url = new URL(request.url as string, 'http://localhost');
 
@@ -444,10 +501,19 @@ export const handleRoutes = ({
 		});
 	}
 
+	if (url.pathname.startsWith('/api/app-icon/')) {
+		return handleAppIcon({
+			pathname: url.pathname,
+			request,
+			response,
+		});
+	}
+
 	if (
 		url.pathname === '/api/studio-protocol' ||
 		url.pathname === '/api/studio-protocol/install' ||
-		url.pathname === '/api/studio-protocol/license-key'
+		url.pathname === '/api/studio-protocol/license-key' ||
+		url.pathname === '/api/studio-protocol/element-library'
 	) {
 		if (request.method === 'OPTIONS') {
 			return handleStudioProtocolOptions({
@@ -478,6 +544,18 @@ export const handleRoutes = ({
 			});
 		}
 
+		if (url.pathname === '/api/studio-protocol/element-library') {
+			return handleStudioProtocolElementLibrary({
+				configFile,
+				focusStudioTab: (studioUrl) => {
+					focusBrowserTab({url: studioUrl}).catch(() => undefined);
+				},
+				liveEventsServer,
+				request,
+				response,
+			});
+		}
+
 		return handleStudioProtocolInstall({
 			focusStudioTab: (studioUrl) => {
 				focusBrowserTab({url: studioUrl}).catch(() => undefined);
@@ -485,6 +563,41 @@ export const handleRoutes = ({
 			liveEventsServer,
 			request,
 			response,
+		});
+	}
+
+	if (url.pathname === '/api/update-config') {
+		return handleRequest<UpdateConfigRequest, UpdateConfigResponse>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) =>
+				updateConfigHandler({...params, getStudioRuntimeConfig}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
+		});
+	}
+
+	if (url.pathname === '/api/install-package') {
+		return handleRequest<InstallPackageRequest, InstallPackageResponse>({
+			remotionRoot,
+			entryPoint,
+			handler: (params) => handleInstallPackage({...params, invalidateBundle}),
+			request,
+			response,
+			logLevel,
+			methods,
+			binariesDirectory,
+			publicDir,
+			configFile,
+			getDefaultCodingAgent,
+			getDefaultEditor,
 		});
 	}
 
@@ -539,6 +652,7 @@ export const handleRoutes = ({
 			req: request,
 			res: response,
 			allowOutsidePublicFolder: false,
+			allowRemotionConvertCors: true,
 		});
 	}
 
@@ -559,6 +673,7 @@ export const handleRoutes = ({
 			req: request,
 			res: response,
 			allowOutsidePublicFolder: false,
+			allowRemotionConvertCors: false,
 		});
 	}
 
@@ -569,6 +684,7 @@ export const handleRoutes = ({
 	return handleFallback({
 		remotionRoot,
 		hash: staticHash,
+		outputHash,
 		response,
 		request,
 		getCurrentInputProps,
@@ -580,6 +696,7 @@ export const handleRoutes = ({
 		gitSource,
 		logLevel,
 		getAudioLatencyHint,
+		getExperimentalKeepAudioContextAlive,
 		getPreviewSampleRate,
 		enableCrossSiteIsolation,
 		getStudioRuntimeConfig,

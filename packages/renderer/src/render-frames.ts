@@ -17,7 +17,6 @@ import type {OnLog, Page} from './browser/BrowserPage';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -35,10 +34,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makePage} from './make-page';
-import {
-	nextFrameToRenderState,
-	partitionedNextFrameToRenderState,
-} from './next-frame-to-render';
+import {nextFrameToRenderState} from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
@@ -47,6 +43,10 @@ import type {optionsMap} from './options/options-map';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 import {renderFrameAndRetryTargetClose} from './render-frame-and-retry-target-close';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
@@ -85,7 +85,13 @@ type InternalRenderFramesOptions = {
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>);
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	onDownload: RenderMediaOnDownload | null;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -122,7 +128,13 @@ type InnerRenderFramesOptions = {
 	outputFramesInSequence: boolean;
 	everyNthFrame: number;
 	onBrowserLog: null | ((log: BrowserLog) => void);
-	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onFrameBuffer:
+		| null
+		| ((buffer: Buffer, frame: number) => void | Promise<void>);
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
 	timeoutInMilliseconds: number;
@@ -161,6 +173,11 @@ export type FrameAndAssets = {
 	inlineAudioAssets: InlineAudioAsset[];
 };
 
+export type AssetIndex = {
+	firstAssetBySrc: Map<string, AudioOrVideoAsset>;
+	firstArtifactFrameByFilename: Map<string, number>;
+};
+
 type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
@@ -195,7 +212,7 @@ export type RenderFramesOptions = Prettify<
 		puppeteerInstance?: HeadlessBrowser;
 		browserExecutable?: BrowserExecutable;
 		onBrowserLog?: (log: BrowserLog) => void;
-		onFrameBuffer?: (buffer: Buffer, frame: number) => void;
+		onFrameBuffer?: (buffer: Buffer, frame: number) => void | Promise<void>;
 		onDownload?: RenderMediaOnDownload;
 		timeoutInMilliseconds?: number;
 		chromiumOptions?: ChromiumOptions;
@@ -225,6 +242,8 @@ const innerRenderFrames = async ({
 	envVariables,
 	onBrowserLog,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onDownload,
 	pagesArray,
 	serveUrl,
@@ -304,8 +323,8 @@ const innerRenderFrames = async ({
 		resolvedConcurrency,
 	);
 
-	const makeNewPage = (frame: number, pageIndex: number) => {
-		return makePage({
+	const makeNewPage = async (frame: number, pageIndex: number) => {
+		const page = await makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
 			browserReplacer,
@@ -330,6 +349,8 @@ const innerRenderFrames = async ({
 			darkMode,
 			sampleRate,
 		});
+		await remotionSharedMemory?.ensurePage(page);
+		return page;
 	};
 
 	const getPool = async () => {
@@ -368,6 +389,10 @@ const innerRenderFrames = async ({
 	});
 
 	const assets: FrameAndAssets[] = [];
+	const assetIndex: AssetIndex = {
+		firstAssetBySrc: new Map(),
+		firstArtifactFrameByFilename: new Map(),
+	};
 	const stoppedSignal = {stopped: false};
 	cancelSignal?.(() => {
 		stoppedSignal.stopped = true;
@@ -387,24 +412,9 @@ const innerRenderFrames = async ({
 		...extraFramesToCaptureAssetsBackend,
 	];
 
-	const shouldUsePartitionedRendering = getShouldUsePartitionedRendering();
-
-	if (shouldUsePartitionedRendering) {
-		Log.info(
-			{indent, logLevel},
-			'Experimental: Using partitioned rendering (https://github.com/remotion-dev/remotion/pull/4830)',
-		);
-	}
-
-	const nextFrameToRender = shouldUsePartitionedRendering
-		? partitionedNextFrameToRenderState({
-				allFramesAndExtraFrames,
-				concurrencyOrFramesToRender,
-			})
-		: nextFrameToRenderState({
-				allFramesAndExtraFrames,
-				concurrencyOrFramesToRender,
-			});
+	const nextFrameToRender = nextFrameToRenderState({
+		allFramesAndExtraFrames,
+	});
 
 	const pattern = imageSequencePattern || `element-[frame].[ext]`;
 	const imageSequenceName = pattern
@@ -417,6 +427,7 @@ const innerRenderFrames = async ({
 				retriesLeft: MAX_RETRIES_PER_FRAME,
 				attempt: 1,
 				assets,
+				assetIndex,
 				binariesDirectory,
 				cancelSignal,
 				composition,
@@ -443,6 +454,8 @@ const innerRenderFrames = async ({
 				lastFrame,
 				makeNewPage,
 				onFrameBuffer,
+				onFrame,
+				remotionSharedMemory,
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern: pattern,
@@ -494,6 +507,8 @@ const internalRenderFramesRaw = ({
 	onBrowserLog,
 	onDownload,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onFrameUpdate,
 	onStart,
 	outputDir,
@@ -637,6 +652,8 @@ const internalRenderFramesRaw = ({
 					muted,
 					onBrowserLog,
 					onFrameBuffer,
+					onFrame,
+					remotionSharedMemory,
 					onFrameUpdate,
 					onStart,
 					outputDir,
@@ -663,7 +680,11 @@ const internalRenderFramesRaw = ({
 			}),
 		])
 			.then((res) => {
-				server?.compositor
+				if (!server || server.compositor.pid === null) {
+					return resolve(res);
+				}
+
+				server.compositor
 					.executeCommand('CloseAllVideos', {})
 					.then(() => {
 						Log.verbose(
@@ -840,6 +861,8 @@ export const renderFrames = (
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,
 		onFrameBuffer: onFrameBuffer ?? null,
+		onFrame: null,
+		remotionSharedMemory: null,
 		onFrameUpdate,
 		onStart,
 		outputDir,

@@ -1,0 +1,103 @@
+import {Video} from '@remotion/media';
+import {
+	AbsoluteFill,
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
+import {assetUrl} from './assets';
+import {CodeBRoll} from './CodeBRoll';
+import {NumberedChapter} from './NumberedChapter';
+
+export const Scene8: React.FC = () => {
+	const frame = useCurrentFrame();
+
+	return (
+		<AbsoluteFill>
+			<Interactive.Div
+				name="Presenter position"
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150],
+						['0% 0px', '-20% 0px', '-20% 0px', '0% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
+				<Video
+					name="Presenter video"
+					src={assetUrl('whats8.mov')}
+					trimBefore={81}
+					trimAfter={870}
+				/>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Chapter panel"
+				style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: '60%',
+					width: '40%',
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'hidden',
+					backgroundColor: 'white',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150],
+						['102% 0px', '0% 0px', '0% 0px', '102% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
+				<NumberedChapter chapterNumber={7} chapterTitle="Rspack" />
+			</Interactive.Div>
+			<CodeBRoll
+				name="Rspack configuration"
+				from={180}
+				durationInFrames={120}
+				code={`import { Config } from "@remotion/cli/config";
+import { enableTailwind } from "@remotion/tailwind-v4";
+
+Config.setVideoImageFormat("jpeg");
+Config.setOverwriteOutput(true);
+Config.overrideWebpackConfig(enableTailwind);
+Config.setExperimentalRspackEnabled(true);`}
+				previousCode={`import { Config } from "@remotion/cli/config";
+import { enableTailwind } from "@remotion/tailwind-v4";
+
+Config.setVideoImageFormat("jpeg");
+Config.setOverwriteOutput(true);
+Config.overrideWebpackConfig(enableTailwind);`}
+				lang="ts"
+				topExplainer="remotion.config.ts"
+			/>
+		</AbsoluteFill>
+	);
+};

@@ -32,7 +32,7 @@ Use it if you are not sure which specific skill to use.
 
 Create a new Remotion project or composition.
 
-> Example prompt: `/remotion-create Make an animated bar chart with 5 bars`
+> Example prompt: `/remotion-create Make a promo video for a record store`
 
 ### `/remotion-markup`
 

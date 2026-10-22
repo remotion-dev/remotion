@@ -1,0 +1,62 @@
+---
+image: /generated/articles-docs-lambda-aws-china-regions.png
+title: AWS China regions
+slug: /lambda/aws-china-regions
+crumb: 'Lambda'
+---
+
+# AWS China regions<AvailableFrom v="4.0.510" />
+
+Remotion Lambda supports these AWS China regions:
+
+- Beijing: `cn-north-1`
+- Ningxia: `cn-northwest-1`
+
+Use credentials from an AWS China account. AWS accounts and resources from the standard `aws` partition cannot be used in the `aws-cn` partition.
+
+## Custom Layers
+
+Remotion-hosted Lambda Layers are not available in AWS China regions. Build and publish the required Layers in the same AWS China region, then pass their version ARNs to [`deployFunction()`](/docs/lambda/deployfunction#customlayerarns):
+
+```ts twoslash title="deploy-lambda.ts"
+import {deployFunction} from '@remotion/lambda';
+
+await deployFunction({
+  region: 'cn-north-1',
+  timeoutInSeconds: 120,
+  memorySizeInMb: 2048,
+  createCloudWatchLogGroup: true,
+  customLayerArns: [
+    'arn:aws-cn:lambda:cn-north-1:123456789012:layer:custom-chromium:1',
+    'arn:aws-cn:lambda:cn-north-1:123456789012:layer:custom-fonts:1',
+  ],
+});
+```
+
+The Layer ARNs must start with `arn:aws-cn:` and match the selected region. See [Custom Layers](/docs/lambda/custom-layers) for build instructions and size limits.
+
+## IAM policies
+
+Generate policies for the `aws-cn` partition:
+
+```ts twoslash title="policies.ts"
+import {getRolePolicy, getUserPolicy} from '@remotion/lambda';
+
+const userPolicy = getUserPolicy({partition: 'aws-cn'});
+const rolePolicy = getRolePolicy({partition: 'aws-cn'});
+```
+
+The CLI selects the partition from the configured region:
+
+```sh title="Generate AWS China policies"
+npx remotion lambda policies user --region=cn-north-1
+npx remotion lambda policies role --region=cn-north-1
+```
+
+Permissions for custom Layer ARNs must be configured separately. See [Custom Layers](/docs/lambda/custom-layers#specify-custom-layers-while-deploying).
+
+## Rendering
+
+[`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) require no China-specific options.
+
+S3 and Console URLs use the AWS China domains, such as `amazonaws.com.cn` and `console.amazonaws.cn`. Estimated Lambda costs are returned in CNY.

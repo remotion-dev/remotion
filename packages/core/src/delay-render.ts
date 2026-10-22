@@ -2,11 +2,24 @@ import {
 	cancelRenderInternal,
 	getErrorStackWithMessage,
 } from './cancel-render.js';
+import {
+	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
+	DELAY_RENDER_RETRY_TOKEN,
+} from './delay-render-constants.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
 import type {LogLevel} from './log.js';
 import {Log} from './log.js';
 import type {RemotionEnvironment} from './remotion-environment-context.js';
 import {truthy} from './truthy.js';
+
+export {
+	DELAY_RENDER_CALLSTACK_TOKEN,
+	DELAY_RENDER_CLEAR_TOKEN,
+	DELAY_RENDER_RETRIES_LEFT,
+	DELAY_RENDER_RETRY_TOKEN,
+} from './delay-render-constants.js';
 
 export type DelayRenderScope = {
 	remotion_renderReady: boolean;
@@ -21,6 +34,7 @@ export type DelayRenderScope = {
 	remotion_attempt: number;
 	remotion_delayRenderHandles: number[];
 	remotion_cancelledError?: string;
+	remotion_cancelledErrorObject?: Error;
 };
 
 if (typeof window !== 'undefined') {
@@ -31,12 +45,6 @@ if (typeof window !== 'undefined') {
 
 	window.remotion_delayRenderHandles = [];
 }
-
-export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
-export const DELAY_RENDER_RETRIES_LEFT = 'Retries left: ';
-export const DELAY_RENDER_RETRY_TOKEN =
-	'- Rendering the frame will be retried.';
-export const DELAY_RENDER_CLEAR_TOKEN = 'handle was cleared after';
 
 const defaultTimeout = 30000;
 
@@ -75,10 +83,12 @@ export const delayRenderInternal = ({
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
 	if (environment.isRendering) {
-		const timeoutToUse =
+		const timeoutToUse = Math.max(
+			0,
 			(options?.timeoutInMilliseconds ??
 				scope.remotion_puppeteerTimeout ??
-				defaultTimeout) - 2000;
+				defaultTimeout) - 2000,
+		);
 		const retriesLeft = (options?.retries ?? 0) - (scope.remotion_attempt - 1);
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
@@ -98,9 +108,9 @@ export const delayRenderInternal = ({
 
 				// in client-side rendering, don't throw (would be uncaught from setTimeout)
 				if (environment.isClientSideRendering) {
-					scope.remotion_cancelledError = getErrorStackWithMessage(
-						Error(message),
-					);
+					const error = Error(message);
+					scope.remotion_cancelledErrorObject = error;
+					scope.remotion_cancelledError = getErrorStackWithMessage(error);
 				} else {
 					cancelRenderInternal(scope, Error(message));
 				}

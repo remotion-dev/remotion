@@ -14,6 +14,7 @@ const validateScale = (value: unknown) => {
 
 export const scaleOption = {
 	name: 'Scale',
+	addedIn: '2.6.7',
 	cliFlag,
 	description: () => (
 		<>
@@ -24,7 +25,7 @@ export const scaleOption = {
 		</>
 	),
 	ssrName: 'scale',
-	docLink: 'https://www.remotion.dev/docs/scaling',
+	docLink: 'https://www.remotion.dev/docs/options/scale',
 	type: 0 as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

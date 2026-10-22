@@ -10,7 +10,11 @@ export type SmartCollapsibleInspectorGroup = Extract<
 export type InspectorSectionActivity = 'active' | 'inactive' | 'unknown';
 
 type InspectorSectionPropStatus =
-	| {readonly status: 'static'; readonly codeValue: unknown}
+	| {
+			readonly status: 'static';
+			readonly keyframeDisplayOffsetAdjustment: number | null;
+			readonly codeValue: unknown;
+	  }
 	| {readonly status: 'computed' | 'keyframed'};
 
 const BORDER_KEYS = [

@@ -1,9 +1,12 @@
 import {cpSync, promises, rmSync} from 'node:fs';
 import path from 'node:path';
 import type {_InternalTypes} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
+import {getAacPrimingInputArgs} from './aac-priming';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {RenderAssetInfo} from './assets/download-map';
 import {cleanDownloadMap} from './assets/download-map';
+import type {OnLog} from './browser/BrowserPage';
 import {callFfNative} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
@@ -11,17 +14,25 @@ import {codecSupportsMedia} from './codec-supports-media';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {createAudio} from './create-audio';
 import {validateQualitySettings} from './crf';
+import {defaultOnLog} from './default-on-log';
 import {deleteDirectory} from './delete-directory';
 import {generateFfmpegArgs} from './ffmpeg-args';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {finalizeFastStart} from './finalize-fast-start';
 import {findRemotionRoot} from './find-closest-package-json';
+import {getCpuCount} from './get-cpu-count';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
+import {getFastStartMuxer} from './get-fast-start-muxer';
+import {getMp4BrandForExtension} from './get-mp4-brand';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makeMetadataArgs} from './make-metadata-args';
+import {getMaxLambdaMemory} from './memory/from-lambda-env';
+import {muxVideoAndAudio} from './mux-video-and-audio';
 import type {AudioCodec} from './options/audio-codec';
 import {resolveAudioCodec} from './options/audio-codec';
 import {DEFAULT_COLOR_SPACE, type ColorSpace} from './options/color-space';
@@ -74,6 +85,7 @@ type InternalStitchFramesToVideoOptions = {
 	binariesDirectory: string | null;
 	metadata: Record<string, string> | null;
 	sampleRate: number;
+	onLog: OnLog;
 } & ToOptions<typeof optionsMap.stitchFramesToVideo>;
 
 export type StitchFramesToVideoOptions = {
@@ -146,6 +158,7 @@ const innerStitchFramesToVideo = async (
 		metadata,
 		hardwareAcceleration,
 		sampleRate,
+		onLog,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
@@ -177,11 +190,13 @@ const innerStitchFramesToVideo = async (
 	const proResProfileName = getProResProfileName(codec, proResProfile);
 
 	const mediaSupport = codecSupportsMedia(codec);
+	const enforceAudioTrackForOutput =
+		enforceAudioTrack || Boolean(separateAudioTo);
 
 	const renderAudioEvaluation = getShouldRenderAudio({
 		assetsInfo,
 		codec,
-		enforceAudioTrack,
+		enforceAudioTrack: enforceAudioTrackForOutput,
 		muted,
 	});
 	if (renderAudioEvaluation === 'maybe') {
@@ -212,6 +227,36 @@ const innerStitchFramesToVideo = async (
 				assetsInfo.downloadMap.stitchFrames,
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
 			);
+	const outputExtension = (
+		getExtensionOfFilename(outputLocation) ??
+		getFileExtensionFromCodec(codec, resolvedAudioCodec)
+	).toLowerCase();
+	if (
+		codec === 'aac' &&
+		(outputExtension === 'mpg' || outputExtension === 'mpeg')
+	) {
+		const message =
+			'AAC output with .mpg or .mpeg extensions is not supported. Use .aac for raw ADTS AAC or .m4a for an MPEG-4 audio container.';
+		if (NoReactInternals.ENABLE_V5_BREAKING_CHANGES) {
+			throw new Error(message);
+		}
+
+		Log.warn(
+			{indent, logLevel},
+			`${message} Falling back to raw ADTS AAC while keeping the requested filename. This will throw an error in Remotion 5.0.`,
+		);
+	}
+
+	const fastStartMuxer = getFastStartMuxer(outputExtension);
+	// Fast Start reopens its output for an in-place second pass. Keep that work
+	// away from the public output path so Windows file observers cannot lock it.
+	const fastStartIntermediate =
+		fastStartMuxer === null
+			? null
+			: path.join(
+					assetsInfo.downloadMap.stitchFrames,
+					'fast-start-intermediate.remotion-in-progress',
+				);
 
 	Log.verbose(
 		{
@@ -304,6 +349,7 @@ const innerStitchFramesToVideo = async (
 					trimRightOffset: assetsInfo.trimRightOffset,
 					forSeamlessAacConcatenation: assetsInfo.forSeamlessAacConcatenation,
 					sampleRate,
+					enforceAudioTrack: enforceAudioTrackForOutput || !shouldRenderVideo,
 				})
 			: null;
 
@@ -326,7 +372,32 @@ const innerStitchFramesToVideo = async (
 			);
 		}
 
-		cpSync(audio, outputLocation ?? (tempFile as string));
+		let audioOnlyFile = audio;
+		if (getMp4BrandForExtension(outputExtension)) {
+			// Mux away from the public output path: Fast Start reopens the file
+			// for a second pass, which Windows file observers can lock.
+			audioOnlyFile = path.join(
+				assetsInfo.downloadMap.stitchFrames,
+				`audio-only.${outputExtension}`,
+			);
+			await muxVideoAndAudio({
+				videoOutput: null,
+				audioOutput: audio,
+				output: audioOnlyFile,
+				indent,
+				logLevel,
+				onProgress: () => undefined,
+				binariesDirectory,
+				fps,
+				cancelSignal: cancelSignal ?? undefined,
+				metadata,
+				numberOfGifLoops: null,
+				audioCodec: resolvedAudioCodec,
+				sampleRate,
+			});
+		}
+
+		cpSync(audioOnlyFile, outputLocation ?? (tempFile as string));
 		onProgress?.(Math.round(assetsInfo.chunkLengthInSeconds * fps));
 		deleteDirectory(path.dirname(audio));
 
@@ -348,16 +419,28 @@ const innerStitchFramesToVideo = async (
 		return Promise.resolve(file);
 	}
 
-	const resolvedHardwareAcceleration = resolveHardwareAcceleration({
-		codec,
-		hardwareAcceleration,
-		binariesDirectory,
-		indent: indent ?? false,
-		logLevel,
-		crf,
-		encodingMaxRate: maxRate,
-		encodingBufferSize: bufferSize,
-	});
+	if (separateAudioTo && !audio) {
+		throw new Error(
+			`\`separateAudioTo\` was set to ${JSON.stringify(
+				separateAudioTo,
+			)}, but this render included no audio. Audio output is disabled by the muted option or selected codec.`,
+		);
+	}
+
+	// Parallel encoding already resolved the encoder in the pre-stitcher.
+	const resolvedHardwareAcceleration = preEncodedFileLocation
+		? 'disable'
+		: resolveHardwareAcceleration({
+				codec,
+				hardwareAcceleration,
+				binariesDirectory,
+				indent: indent ?? false,
+				logLevel,
+				crf,
+				encodingMaxRate: maxRate,
+				encodingBufferSize: bufferSize,
+				onLog,
+			});
 
 	const ffmpegArgs = [
 		...(preEncodedFileLocation
@@ -372,7 +455,19 @@ const innerStitchFramesToVideo = async (
 						? ['-filter_complex', 'split[v],palettegen,[v]paletteuse']
 						: null,
 				]),
-		audio && !separateAudioTo ? ['-i', audio, '-c:a', 'copy'] : ['-an'],
+		audio && !separateAudioTo
+			? [
+					...getAacPrimingInputArgs({
+						audioCodec: resolvedAudioCodec,
+						sampleRate,
+						outputExtension,
+					}),
+					'-i',
+					audio,
+					'-c:a',
+					'copy',
+				]
+			: ['-an'],
 		numberOfGifLoops === null
 			? null
 			: ['-loop', convertNumberOfGifLoopsToFfmpegSyntax(numberOfGifLoops)],
@@ -391,13 +486,22 @@ const innerStitchFramesToVideo = async (
 			hardwareAcceleration: resolvedHardwareAcceleration,
 			indent,
 			logLevel,
+			cpuCount: getCpuCount(),
+			lambdaMemoryInBytes: getMaxLambdaMemory(),
 		}),
-		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
+		// VP8/VP9 store alpha in additional blocks. Stream copying cannot infer
+		// the alpha channel from the decoded pixel format, so retain its signal.
+		preEncodedFileLocation &&
+		(codec === 'vp8' || codec === 'vp9') &&
+		pixelFormat === 'yuva420p'
+			? ['-metadata:s:v:0', 'alpha_mode=1']
+			: null,
 		...makeMetadataArgs(metadata ?? {}),
-		force ? '-y' : null,
-		outputLocation ?? tempFile,
+		force || fastStartIntermediate ? '-y' : null,
+		fastStartIntermediate ? ['-f', fastStartMuxer] : null,
+		fastStartIntermediate ?? outputLocation ?? tempFile,
 	];
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
@@ -455,39 +559,10 @@ const innerStitchFramesToVideo = async (
 		}
 	});
 
-	if (separateAudioTo) {
-		if (!audio) {
-			throw new Error(
-				`\`separateAudioTo\` was set to ${JSON.stringify(
-					separateAudioTo,
-				)}, but this render included no audio`,
-			);
-		}
-
-		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
-		cpSync(audio, finalDestination);
-		rmSync(audio);
-	}
-
-	const result = await new Promise<Buffer | null>((resolve, reject) => {
+	await new Promise<void>((resolve, reject) => {
 		task.once('close', (code, signal) => {
 			if (code === 0) {
-				if (tempFile === null) {
-					cleanDownloadMap(assetsInfo.downloadMap);
-					return resolve(null);
-				}
-
-				promises
-					.readFile(tempFile)
-					.then((f) => {
-						resolve(f);
-					})
-					.catch((e) => {
-						reject(e);
-					})
-					.finally(() => {
-						cleanDownloadMap(assetsInfo.downloadMap);
-					});
+				resolve();
 			} else {
 				reject(
 					new Error(
@@ -499,6 +574,60 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 	});
+
+	if (separateAudioTo && audio) {
+		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
+		const separateAudioExtension =
+			getExtensionOfFilename(finalDestination)?.toLowerCase() ?? null;
+		let separateAudioFile = audio;
+		if (getMp4BrandForExtension(separateAudioExtension)) {
+			// Like audio-only renders: the ADTS stream is remuxed into the
+			// container, away from the public path because of Fast Start.
+			separateAudioFile = path.join(
+				assetsInfo.downloadMap.stitchFrames,
+				`separate-audio.${separateAudioExtension}`,
+			);
+			await muxVideoAndAudio({
+				videoOutput: null,
+				audioOutput: audio,
+				output: separateAudioFile,
+				indent,
+				logLevel,
+				onProgress: () => undefined,
+				binariesDirectory,
+				fps,
+				cancelSignal: cancelSignal ?? undefined,
+				metadata: null,
+				numberOfGifLoops: null,
+				audioCodec: resolvedAudioCodec,
+				sampleRate,
+			});
+		}
+
+		cpSync(separateAudioFile, finalDestination);
+		rmSync(audio);
+	}
+
+	if (fastStartIntermediate && fastStartMuxer) {
+		const destination = outputLocation ?? tempFile;
+		if (destination === null) {
+			throw new Error('Expected a Fast Start output destination');
+		}
+
+		await finalizeFastStart({
+			input: fastStartIntermediate,
+			output: path.resolve(remotionRoot, destination),
+			muxer: fastStartMuxer,
+			force,
+			indent,
+			logLevel,
+			binariesDirectory,
+			cancelSignal,
+		});
+	}
+
+	const result = tempFile === null ? null : await promises.readFile(tempFile);
+	cleanDownloadMap(assetsInfo.downloadMap);
 	assetsInfo.downloadMap.allowCleanup();
 
 	return result;
@@ -592,5 +721,6 @@ export const stitchFramesToVideo = ({
 		separateAudioTo: separateAudioTo ?? null,
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		sampleRate: sampleRate ?? 48000,
+		onLog: defaultOnLog,
 	});
 };

@@ -59,7 +59,7 @@ test('uses the shorter of trimAfter and an explicit duration', () => {
 	).toBe(120);
 });
 
-test('loop keeps the sequence unbounded despite trimAfter', () => {
+test('loop keeps the sequence unbounded', () => {
 	expect(
 		getDuration({loop: true, trimBefore: 30, trimAfter: 150}),
 	).toBeUndefined();
@@ -70,5 +70,5 @@ test('loop keeps the sequence unbounded despite trimAfter', () => {
 			trimBefore: 30,
 			trimAfter: 150,
 		}),
-	).toBe(180);
+	).toBeUndefined();
 });

@@ -5,12 +5,13 @@ import type {CalculateMetadataFunction} from './Composition.js';
 import type {DownloadBehavior} from './download-behavior.js';
 import type {EffectDefinition} from './effects/effect-types.js';
 import type {InteractivitySchema} from './interactivity-schema.js';
-import type {NonceHistory} from './nonce.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 } from './runtime-value-store.js';
+import type {TimelineTrackItem} from './timeline-track-context.js';
+import type {VideoConfigValues} from './video-config.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
@@ -25,7 +26,7 @@ export type TComposition<
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<Props>> | ComponentType<Props>;
 	componentFromProps?: unknown;
-	nonce: NonceHistory;
+	order: number | null;
 	schema: Schema | null;
 	calculateMetadata: CalculateMetadataFunction<
 		InferProps<Schema, Props>
@@ -72,12 +73,7 @@ type EnhancedTSequenceData =
 	| {
 			type: 'audio';
 			src: string;
-			// Volume is represented as a comma separated list - if it's a string
-			// React can more efficiently update and will not rerender if anonymous functions
-			// are passed.
-			// If not a function was passed, a number is being used
-			volume: string | number;
-			doesVolumeChange: boolean;
+			muted: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;
 			playbackRate: number;
@@ -86,8 +82,7 @@ type EnhancedTSequenceData =
 	| {
 			type: 'video';
 			src: string;
-			volume: string | number;
-			doesVolumeChange: boolean;
+			muted: boolean;
 			startMediaFrom: number;
 			mediaFrameAtSequenceZero: number | null;
 			playbackRate: number;
@@ -109,6 +104,7 @@ export type JsxComponentIdentity = string;
 export type SequenceRegistrationControls = {
 	schema: InteractivitySchema;
 	runtimeValues: RuntimeValueStore;
+	videoConfigValues: VideoConfigValues | null;
 	overrideId: string;
 	supportsEffects: boolean;
 	componentIdentity: JsxComponentIdentity | null;
@@ -120,22 +116,34 @@ export type SequenceControls = SequenceRegistrationControls & {
 };
 
 export type TSequence = {
+	/** This sequence's clock multiplier; ancestor rates are applied by the timeline. */
+	sequencePlaybackRate: number;
 	from: number;
 	trimBefore: number | null;
 	duration: number;
+	/** Infer the timeline display duration from children without changing playback. */
+	readonly autoDuration?: boolean | null;
+	/** Whether the wrapper can restore its duration from its scenes. */
+	readonly canInferDuration?: boolean | null;
+	/** Full scene duration in the parent clock, before container clipping. */
+	readonly unclippedDuration?: number | null;
 	id: string;
 	displayName: string;
 	documentationLink: string | null;
 	parent: string | null;
 	showInTimeline: boolean;
-	nonce: NonceHistory;
+	timelineOrder: number | null;
+	timelineTrack?: TimelineTrackItem;
 	loopDisplay: LoopDisplay | undefined;
 	getStack: () => string | null;
+	/** Read the committed child clock without updating timeline metadata each frame. */
+	getCurrentFrame?: (() => number) | null;
 	premountDisplay: number | null;
 	postmountDisplay: number | null;
 	controls: SequenceRegistrationControls | null;
 	refForOutline: React.RefObject<Element | null> | null;
 	effects: readonly EffectDefinition<unknown>[];
+	effectRuntimeValues: readonly RuntimeValueStore[] | null;
 	isInsideSeries: boolean;
 	frozenFrame: number | null;
 	singleChildComponent?: unknown;
@@ -152,6 +160,7 @@ export type AudioOrVideoAsset = {
 	toneFrequency: number;
 	audioStartFrame: number;
 	audioStreamIndex: number;
+	preservePitch: boolean | null;
 };
 
 export type InlineAudioAsset = {
@@ -159,6 +168,7 @@ export type InlineAudioAsset = {
 	id: string;
 	audio: Int16Array | number[];
 	frame: number;
+	startInVideo: number | null;
 	timestamp: number;
 	duration: number;
 	toneFrequency: number;

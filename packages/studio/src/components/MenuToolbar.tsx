@@ -1,24 +1,24 @@
 import type {SetStateAction} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
-import {cmdOrCtrlCharacter} from '../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
-import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
-import {useMenuStructure} from '../helpers/use-menu-structure';
-import {SearchIcon} from '../icons/search';
-import {SetSelectedModalContext} from '../state/modals';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineAction} from './InlineAction';
+import {useToolbarMenuStructure} from '../helpers/use-menu-structure';
 import {Row} from './layout';
 import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
+import {SettingsButton} from './SettingsButton';
 import {SidebarCollapserControl} from './SidebarCollapserControls';
+import {
+	CompositionToolbarMenuItem,
+	FileToolbarMenuItem,
+	MobileToolbarMenuItem,
+} from './ToolbarMenuItems';
 import {UndoRedoButtons} from './UndoRedoButtons';
-import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
@@ -38,17 +38,26 @@ const flex: React.CSSProperties = {
 	flex: 1,
 };
 
+const menuItems: React.CSSProperties = {
+	display: 'inline-flex',
+	height: 24,
+};
+
 export const MenuToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+}> = React.memo(({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const browserStudioOperations = getBrowserStudioOperations();
 	const canUndoAndRedo =
 		!readOnlyStudio ||
 		(previewServerState.type === 'connected' &&
 			browserStudioOperations !== null);
+	const showUpdates = canShowUpdates({
+		connectionStatus: previewServerState.type,
+		isBrowserStudio: browserStudioOperations !== null,
+		readOnlyStudio,
+	});
 
 	const mobileLayout = useMobileLayout();
 
@@ -73,6 +82,7 @@ export const MenuToolbar: React.FC<{
 						minWidth: '330px',
 					}),
 			display: 'flex',
+			flexShrink: 0,
 			alignItems: 'center',
 			justifyContent: 'flex-start',
 		};
@@ -98,11 +108,10 @@ export const MenuToolbar: React.FC<{
 		setSelected(null);
 	}, []);
 
-	const structure = useMenuStructure(closeMenu, readOnlyStudio);
+	const structure = useToolbarMenuStructure(closeMenu, readOnlyStudio);
 
-	const menus = useMemo(() => {
-		return structure.map((s) => s.id);
-	}, [structure]);
+	const menuIdsKey = structure.map((s) => s.id).join('|');
+	const menus = useMemo(() => menuIdsKey.split('|') as MenuId[], [menuIdsKey]);
 
 	const onPreviousMenu = useCallback(() => {
 		setSelected((s) => {
@@ -137,24 +146,6 @@ export const MenuToolbar: React.FC<{
 		e.stopPropagation();
 	}, []);
 
-	const openQuickSwitcher = useCallback(() => {
-		setSelectedModal({
-			type: 'quick-switcher',
-			mode: 'compositions',
-			invocationTimestamp: Date.now(),
-			assetSelection: null,
-			compositionSelection: null,
-		});
-	}, [setSelectedModal]);
-
-	const renderSearchIcon: RenderInlineAction = useCallback((color) => {
-		return <SearchIcon color={color} width={18} height={18} />;
-	}, []);
-
-	const searchTooltip = areKeyboardShortcutsDisabled()
-		? 'Quick Switcher'
-		: `Quick Switcher (${cmdOrCtrlCharacter}+K)`;
-
 	return (
 		<Row
 			align="center"
@@ -163,42 +154,71 @@ export const MenuToolbar: React.FC<{
 			onPointerDown={onPointerDown}
 		>
 			<div style={fixedWidthLeft}>
-				{mobileLayout ? (
-					<InlineAction
-						variant={null}
-						onClick={openQuickSwitcher}
-						renderAction={renderSearchIcon}
-						title={searchTooltip}
-					/>
-				) : (
-					<SidebarCollapserControl side="left" />
-				)}
-				{structure.map((s) => {
-					return (
-						<MenuItem
-							key={s.id}
-							selected={selected === s.id}
-							onItemSelected={itemClicked}
-							onItemHovered={itemHovered}
-							id={s.id}
-							label={s.label}
-							onItemQuit={onItemQuit}
-							menu={s}
-							onPreviousMenu={onPreviousMenu}
-							onNextMenu={onNextMenu}
-							leaveLeftPadding={s.leaveLeftPadding}
-						/>
-					);
-				})}
-				{readOnlyStudio || browserStudioOperations ? null : <UpdateCheck />}
+				<SidebarCollapserControl side="left" />
+				<div style={menuItems}>
+					{structure.map((s) => {
+						const props = {
+							selected: selected === s.id,
+							onItemSelected: itemClicked,
+							onItemHovered: itemHovered,
+							onItemQuit,
+							onPreviousMenu,
+							onNextMenu,
+						};
+						if (mobileLayout) {
+							return (
+								<MobileToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
+						if (s.id === 'file') {
+							return (
+								<FileToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
+						if (s.id === 'composition') {
+							return (
+								<CompositionToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
+						return (
+							<MenuItem
+								key={s.id}
+								{...props}
+								id={s.id}
+								label={s.label}
+								menu={s}
+								leaveLeftPadding={s.leaveLeftPadding}
+							/>
+						);
+					})}
+				</div>
 			</div>
 			{mobileLayout ? null : <div style={flex} />}
 			<MenuBuildIndicator mobileLayout={mobileLayout} />
 			<div style={flex} />
 			<div style={fixedWidthRight}>
 				{canUndoAndRedo ? <UndoRedoButtons /> : null}
+				<SettingsButton showUpdates={showUpdates} />
 				<SidebarCollapserControl side="right" />
 			</div>
 		</Row>
 	);
-};
+});

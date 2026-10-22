@@ -1,17 +1,20 @@
 import {getStudioEntryPoints} from '@remotion/studio-shared/studio-entry-points';
 import {ProgressPlugin, rspack} from '@rspack/core';
 import ReactRefreshPlugin from '@rspack/plugin-react-refresh';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 import type {
 	BundlerOverrideFn,
 	RspackConfiguration,
 	RspackOverrideFn,
 } from './override-types';
+import {getReactScanEntryPoint} from './react-scan-entry-point';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
 	getOutputConfig,
 	getResolveConfig,
 	getSharedModuleRules,
+	transformersImportMetaWarning,
 } from './shared-bundler-config';
 
 export type {RspackConfiguration, RspackOverrideFn} from './override-types';
@@ -78,19 +81,39 @@ export const rspackConfig = async ({
 		},
 	};
 
+	const sharedBaseConfig = getBaseConfig(environment, poll);
 	const baseConfig = {
-		...getBaseConfig(environment, poll),
+		...sharedBaseConfig,
+		optimization: {
+			...sharedBaseConfig.optimization,
+			// The optional dependency plugin removes expected resolution errors after
+			// compilation. Rspack must emit their throwing fallback chunks first.
+			emitOnErrors: true,
+		},
+		experiments: {
+			...sharedBaseConfig.experiments,
+			...(environment === 'development'
+				? // Makes the first HMR event faster.
+					{incremental: {buildChunkGraph: true}}
+				: {}),
+		},
+		ignoreWarnings: [transformersImportMetaWarning],
 		node: {
 			// Suppress the warning in `source-map`
 			__dirname: 'mock',
 			__filename: 'mock',
 		},
 		entry: getStudioEntryPoints({
-			fastRefreshRuntime: null,
-			environmentSetup: require.resolve('./setup-environment'),
-			sequenceStackTraces:
+			fastRefreshRuntime:
 				environment === 'development'
-					? require.resolve('./setup-sequence-stack-traces')
+					? require.resolve('./fast-refresh/notify-on-refresh.js')
+					: null,
+			reactScan: getReactScanEntryPoint(environment),
+			environmentSetup: require.resolve('./setup-environment'),
+			sequenceStackTraces: require.resolve('./setup-sequence-stack-traces'),
+			studioBootstrap:
+				environment === 'development'
+					? require.resolve('./setup-studio')
 					: null,
 			userDefinedComponent,
 			reactShim: require.resolve('../react-shim.js'),
@@ -102,6 +125,7 @@ export const rspackConfig = async ({
 				? [
 						new ReactRefreshPlugin({overlay: false}),
 						new rspack.HotModuleReplacementPlugin(),
+						new AllowOptionalDependenciesPlugin(),
 						...extraPlugins,
 					]
 				: [
@@ -113,12 +137,24 @@ export const rspackConfig = async ({
 								}
 							}
 						}),
+						new AllowOptionalDependenciesPlugin(),
 					],
 		output: getOutputConfig(environment),
 		resolve: getResolveConfig(),
 		module: {
 			rules: [
 				...getSharedModuleRules(),
+				...(environment === 'development'
+					? [
+							{
+								test: /[\\/]@rspack[\\/]plugin-react-refresh[\\/]client[\\/]refreshUtils\.js$/,
+								enforce: 'pre' as const,
+								use: [
+									require.resolve('./fast-refresh/zero-delay-rspack-refresh-loader.js'),
+								],
+							},
+						]
+					: []),
 				{
 					// Emscripten's main.js spawns Workers of itself via
 					// new Worker(new URL('./main.js', import.meta.url)).

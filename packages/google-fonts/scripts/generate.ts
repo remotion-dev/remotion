@@ -1,10 +1,15 @@
 import fs, {mkdirSync} from 'node:fs';
 import path from 'path';
 import limit from 'p-limit';
-import {FontInfo, extractInfoFromCss} from './extract-info-from-css';
+import {
+	FontInfo,
+	extractInfoFromCss,
+	extractVariableInfoFromCss,
+} from './extract-info-from-css';
 import {Font, googleFonts} from './google-fonts';
 import {
 	getCssLink,
+	getVariableCssLink,
 	quote,
 	removeWhitespace,
 	replaceDigitsWithWords,
@@ -63,8 +68,24 @@ const generate = async (font: Font) => {
 			version: font.version,
 			subsets: font.subsets,
 		});
+		const variableUrl = getVariableCssLink(font);
+		if (variableUrl && font.axes) {
+			const variableResponse = await fetch(variableUrl, {
+				headers: {
+					'User-Agent':
+						'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+				},
+			});
+			info.variable = extractVariableInfoFromCss({
+				axes: font.axes,
+				contents: await variableResponse.text(),
+				url: variableUrl,
+			});
+		}
 
-		let output = `import { loadFonts } from "./base";
+		let output = `import { loadFonts${
+			info.variable ? ', loadVariableFonts' : ''
+		} } from "./base";
 
 export const getInfo = () => (${JSON.stringify(info, null, 3)})
 
@@ -94,6 +115,32 @@ export const loadFont = <T extends keyof Variants>(
 };
 
 `;
+		if (info.variable) {
+			const styles = [
+				...new Set(info.variable.fontFaces.map((fontFace) => fontFace.style)),
+			];
+			output += `type VariableVariants = {\n`;
+			for (const style of styles) {
+				output += `  ${quote(style)}: {\n`;
+				output += `    subsets: ${font.subsets.map(quote).join(' | ')},\n`;
+				output += `  },\n`;
+			}
+
+			output += `};
+
+export const loadVariableFont = <T extends keyof VariableVariants>(
+  style: T,
+  options: {
+    subsets: VariableVariants[T]['subsets'][];
+    document?: Document;
+    ignoreTooManyRequestsWarning?: boolean;
+  }
+) => {
+  return loadVariableFonts(getInfo(), style, options);
+};
+
+`;
+		}
 
 		mkdirSync(OUTDIR, {recursive: true});
 		//  Save
@@ -118,9 +165,16 @@ if (!fs.existsSync(CSS_CACHE_DIR)) {
 let incompatibleFonts: string[] = [];
 
 const promises: Promise<unknown>[] = [];
+const requestedFamily = process.argv[2] ?? null;
+const fontsToGenerate = requestedFamily
+	? googleFonts.filter((font) => font.family === requestedFamily)
+	: googleFonts;
+if (fontsToGenerate.length === 0) {
+	throw new Error(`No Google Font named "${requestedFamily}" found`);
+}
 
 // Batch convert
-for (const font of googleFonts) {
+for (const font of fontsToGenerate) {
 	promises.push(
 		p(() => {
 			return generate(font);
@@ -130,9 +184,15 @@ for (const font of googleFonts) {
 
 await Promise.all(promises);
 
-await Bun.write(
-	__dirname + '/incompatible-fonts.ts',
-	`export const incompatibleFonts = ${JSON.stringify(incompatibleFonts, null, 2)};`,
-);
+if (!requestedFamily) {
+	await Bun.write(
+		__dirname + '/incompatible-fonts.ts',
+		`export const incompatibleFonts = ${JSON.stringify(
+			incompatibleFonts,
+			null,
+			2,
+		)};`,
+	);
+}
 
 console.log('- Generated fonts in ' + (Date.now() - date) + 'ms');

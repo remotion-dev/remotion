@@ -113,9 +113,7 @@ const calculateMetadata: CalculateMetadataFunction<
 > = async ({props}) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(props.src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(props.src),
   });
 
   const audioTrack = await input.getPrimaryAudioTrack();

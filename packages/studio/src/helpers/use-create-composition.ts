@@ -1,11 +1,15 @@
 import type {
-	RecastCodemod,
+	CanvasCaptureData,
+	NewCompositionAsset,
+	NewCompositionOptions,
 	SymbolicatedStackFrame,
 } from '@remotion/studio-shared';
 import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {useSelectComposition} from '../components/InitialCompositionLoader';
-import {applyCodemod} from '../components/RenderQueue/actions';
+import {addComposition} from '../components/RenderQueue/actions';
+import {slugifyName} from './slugify-name';
+import {getRoute} from './url-state';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -28,29 +32,16 @@ const toPascalCase = (value: string) => {
 	return candidate;
 };
 
-const waitForComposition = (compositionId: string) => {
-	return new Promise<void>((resolve) => {
-		const started = Date.now();
-		const interval = window.setInterval(() => {
-			const compositionNames = window.remotion_getCompositionNames?.() ?? [];
-			if (
-				compositionNames.includes(compositionId) ||
-				Date.now() - started > 10000
-			) {
-				window.clearInterval(interval);
-				resolve();
-			}
-		}, 100);
-	});
-};
-
 export const getUniqueCompositionName = (
 	compositions: _InternalTypes['AnyComposition'][],
+	preferredName: string | null,
 ) => {
+	const baseName =
+		preferredName === null ? 'NewComposition' : toPascalCase(preferredName);
 	let counter = 1;
 
 	while (true) {
-		const name = counter === 1 ? 'NewComposition' : `NewComposition${counter}`;
+		const name = counter === 1 ? baseName : `${baseName}${counter}`;
 		const err = validateCompositionName(name, compositions);
 		if (!err) {
 			return name;
@@ -68,6 +59,8 @@ export const useCreateComposition = ({
 	parentName,
 	selectedFrameRate,
 	size,
+	canvasCapture,
+	asset,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
 	durationInFrames: number;
@@ -79,13 +72,26 @@ export const useCreateComposition = ({
 		width: number;
 		height: number;
 	};
+	canvasCapture: {
+		readonly data: CanvasCaptureData;
+		readonly videoFileName: string;
+		readonly videoHeight: number;
+		readonly videoWidth: number;
+	} | null;
+	asset: NewCompositionAsset | null;
 }) => {
 	const selectComposition = useSelectComposition();
-	const componentName = useMemo(() => toPascalCase(newId), [newId]);
+	const compositionId = slugifyName(newId);
+	const componentName = useMemo(
+		() => toPascalCase(compositionId),
+		[compositionId],
+	);
 
 	const nameValidationMessage = useMemo(() => {
-		return validateCompositionName(newId, compositions);
-	}, [compositions, newId]);
+		return compositionId
+			? validateCompositionName(compositionId, compositions)
+			: 'Enter an ID containing letters or numbers.';
+	}, [compositionId, compositions]);
 
 	const widthValidationMessage = useMemo(() => {
 		return validateCompositionDimension('Width', size.width);
@@ -95,24 +101,36 @@ export const useCreateComposition = ({
 		return validateCompositionDimension('Height', size.height);
 	}, [size.height]);
 
-	const codemod: RecastCodemod = useMemo(() => {
+	const options: NewCompositionOptions = useMemo(() => {
 		return {
-			type: 'new-composition',
+			asset,
 			newDurationInFrames: Number(durationInFrames),
 			newFps: Number(selectedFrameRate),
 			newHeight: Number(size.height),
 			newWidth: Number(size.width),
-			newId,
+			newId: compositionId,
 			componentName,
 			componentImportPath: `./${componentName}`,
 			folderName,
 			parentName,
+			canvasCapture:
+				canvasCapture === null
+					? null
+					: {
+							data: canvasCapture.data,
+							keyframeFps: Number(selectedFrameRate),
+							videoFileName: canvasCapture.videoFileName,
+							videoHeight: canvasCapture.videoHeight,
+							videoWidth: canvasCapture.videoWidth,
+						},
 		};
 	}, [
+		asset,
+		canvasCapture,
 		componentName,
+		compositionId,
 		durationInFrames,
 		folderName,
-		newId,
 		parentName,
 		selectedFrameRate,
 		size.height,
@@ -132,18 +150,22 @@ export const useCreateComposition = ({
 			signal: AbortSignal;
 			symbolicatedStack: SymbolicatedStackFrame | null;
 		}) => {
-			const result = await applyCodemod({
-				codemod,
-				dryRun: false,
+			const result = await addComposition(
+				{
+					options,
+					symbolicatedStack,
+					undoRedoNavigation: {
+						undoRoute: getRoute(),
+						redoRoute: `/${compositionId}`,
+					},
+				},
 				signal,
-				symbolicatedStack,
-			});
+			);
 
 			if (result.success) {
-				await waitForComposition(newId);
 				selectComposition(
 					{
-						id: newId,
+						id: compositionId,
 						folderName,
 						parentFolderName: parentName,
 					},
@@ -153,11 +175,12 @@ export const useCreateComposition = ({
 
 			return result;
 		},
-		[codemod, folderName, newId, parentName, selectComposition],
+		[compositionId, folderName, options, parentName, selectComposition],
 	);
 
 	return {
-		codemod,
+		options,
+		compositionId,
 		createComposition,
 		heightValidationMessage,
 		nameValidationMessage,

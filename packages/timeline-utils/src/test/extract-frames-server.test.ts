@@ -1,5 +1,7 @@
 import {beforeAll, expect, test} from 'bun:test';
 import {registerMediabunnyServer} from '@mediabunny/server';
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import {Internals} from 'remotion';
 import {extractFrames} from '../extract-frames';
 import {ensureSlots, WEBCODECS_TIMESCALE} from '../render-frame-strip';
 
@@ -11,6 +13,19 @@ beforeAll(() => {
 });
 
 test('extractFrames decodes MP4 frames for the timeline film strip', async () => {
+	const source = new UrlSource(SAMPLE_MEDIA_URL);
+	let sourceReads = 0;
+	source.on('read', () => sourceReads++);
+	const input = new Input({formats: ALL_FORMATS, source});
+	const playbackLease = Internals.globalMediaResourceManager.acquire<Input>({
+		key: Internals.getMediabunnyInputResourceKey({
+			src: SAMPLE_MEDIA_URL,
+			credentials: null,
+			requestInitFingerprint: null,
+			revision: null,
+		}),
+		create: () => ({resource: input, dispose: () => input.dispose()}),
+	});
 	const filledSlots = new Map<number, number | undefined>();
 	const extractedSamples: Array<{
 		timestamp: number;
@@ -19,37 +34,42 @@ test('extractFrames decodes MP4 frames for the timeline film strip', async () =>
 		displayHeight: number;
 	}> = [];
 
-	await extractFrames({
-		src: SAMPLE_MEDIA_URL,
-		timestampsInSeconds: ({track, container, durationInSeconds}) => {
-			expect(track).toEqual({width: 1920, height: 1080});
-			expect(container).toBe('MP4');
-			expect(durationInSeconds).toBe(10);
+	try {
+		await extractFrames({
+			src: SAMPLE_MEDIA_URL,
+			timestampsInSeconds: ({track, container, durationInSeconds}) => {
+				expect(track).toEqual({width: 1920, height: 1080});
+				expect(container).toBe('MP4');
+				expect(durationInSeconds).toBe(10);
 
-			ensureSlots({
-				filledSlots,
-				naturalWidth: 180,
-				fromSeconds: 0,
-				toSeconds: 1,
-				aspectRatio: track.width / track.height,
-				frameHeight: 50,
-			});
+				ensureSlots({
+					filledSlots,
+					naturalWidth: 180,
+					fromSeconds: 0,
+					toSeconds: 1,
+					aspectRatio: track.width / track.height,
+					frameHeight: 50,
+				});
 
-			return Array.from(filledSlots.keys()).map(
-				(timestamp) => timestamp / WEBCODECS_TIMESCALE,
-			);
-		},
-		onVideoSample: (sample) => {
-			extractedSamples.push({
-				timestamp: sample.timestamp,
-				duration: sample.duration,
-				displayWidth: sample.displayWidth,
-				displayHeight: sample.displayHeight,
-			});
-			sample.close();
-		},
-	});
+				return Array.from(filledSlots.keys()).map(
+					(timestamp) => timestamp / WEBCODECS_TIMESCALE,
+				);
+			},
+			onVideoSample: (sample) => {
+				extractedSamples.push({
+					timestamp: sample.timestamp,
+					duration: sample.duration,
+					displayWidth: sample.displayWidth,
+					displayHeight: sample.displayHeight,
+				});
+				sample.close();
+			},
+		});
+	} finally {
+		playbackLease.release();
+	}
 
+	expect(sourceReads).toBeGreaterThan(0);
 	expect(extractedSamples.length).toBe(filledSlots.size);
 	expect(extractedSamples.length).toBeGreaterThan(1);
 

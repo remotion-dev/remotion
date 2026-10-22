@@ -1,7 +1,7 @@
-import {ESLintUtils} from '@typescript-eslint/utils';
 import rule from '../rules/volume-callback';
+import {createRuleTester} from './create-rule-tester';
 
-const ruleTester = new ESLintUtils.RuleTester({
+const ruleTester = createRuleTester({
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		ecmaFeatures: {
@@ -77,10 +77,7 @@ export const Re = () => {
   );
 }
           `,
-	],
-	invalid: [
-		{
-			code: `
+		`
 import {Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -91,14 +88,7 @@ export const Re = () => {
   );
 }
       `,
-			errors: [
-				{
-					messageId: 'VolumeCallback',
-				},
-			],
-		},
-		{
-			code: `
+		`
 import {Html5Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -109,14 +99,7 @@ export const Re = () => {
   );
 }
       `,
-			errors: [
-				{
-					messageId: 'VolumeCallback',
-				},
-			],
-		},
-		{
-			code: `
+		`
 import {Video, useCurrentFrame} from 'remotion';
 
 export const Re = () => {
@@ -127,11 +110,6 @@ export const Re = () => {
   );
 }
       `,
-			errors: [
-				{
-					messageId: 'VolumeCallback',
-				},
-			],
-		},
 	],
+	invalid: [],
 });

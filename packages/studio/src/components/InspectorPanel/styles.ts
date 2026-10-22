@@ -7,6 +7,7 @@ import {
 	WHITE,
 } from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 
 export const container: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -20,6 +21,7 @@ export const container: React.CSSProperties = {
 
 export const scrollableContainer: React.CSSProperties = {
 	...container,
+	overflowX: 'hidden',
 	overflowY: 'auto',
 };
 
@@ -28,18 +30,9 @@ export const compositionDefaultPropsSection: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-export const compositionVisualControlsSection: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-};
-
 export const inspectorOverviewSection: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
-};
-
-export const inspectorSectionDivider: React.CSSProperties = {
-	borderBottom: `1px solid ${LINE_COLOR}`,
 };
 
 export const sequenceHeaderDivider: React.CSSProperties = {
@@ -55,8 +48,9 @@ export const sectionHeader: React.CSSProperties = {
 	fontSize: 12,
 	fontWeight: 'bold',
 	lineHeight: '24px',
-	padding: `4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	padding: `4px 0 4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 export const inspectorSectionBody: React.CSSProperties = {
@@ -93,30 +87,6 @@ export const sectionHeaderRow: React.CSSProperties = {
 	minWidth: 0,
 };
 
-export const sectionHeaderTitle: React.CSSProperties = {
-	alignItems: 'center',
-	color: LIGHT_TEXT,
-	display: 'flex',
-	flexShrink: 0,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	fontWeight: 'bold',
-	lineHeight: '16px',
-	minHeight: 24,
-	minWidth: 0,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	userSelect: 'none',
-	whiteSpace: 'nowrap',
-};
-
-export const sectionHeaderStart: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'flex',
-	gap: 8,
-	minWidth: 0,
-};
-
 export const sectionHeaderEnd: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
@@ -149,6 +119,7 @@ export const selectedContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 	flex: 1,
 	minHeight: 0,
+	overflowX: 'hidden',
 	overflowY: 'auto',
 };
 
@@ -171,7 +142,7 @@ export const detailsWithInlineAction: React.CSSProperties = {
 	paddingBottom: INSPECTOR_PANEL_HORIZONTAL_PADDING,
 };
 
-export const inspectorActionSection: React.CSSProperties = {
+export const inspectorQuickActionsSection: React.CSSProperties = {
 	padding: '4px 0',
 };
 
@@ -188,6 +159,7 @@ export const detailRow: React.CSSProperties = {
 	display: 'flex',
 	gap: 12,
 	justifyContent: 'space-between',
+	minHeight: COMPACT_CONTROL_ROW_HEIGHT,
 };
 
 export const detailLabel: React.CSSProperties = {
@@ -198,6 +170,8 @@ export const detailLabel: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 

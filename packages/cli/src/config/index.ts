@@ -22,7 +22,7 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
-import {Log} from '../log';
+import type {StudioKeyboardShortcuts} from '@remotion/studio-shared';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -31,6 +31,12 @@ import {
 } from './buffer-state-delay-in-milliseconds';
 import type {Concurrency} from './concurrency';
 import {getConcurrency} from './concurrency';
+import type {AddElementLibraryOptions} from './element-libraries';
+import {
+	addElementLibrary,
+	getElementLibraries,
+	resetElementLibraries,
+} from './element-libraries';
 import {getEntryPoint, resetEntryPoint, setEntryPoint} from './entry-point';
 import {getDotEnvLocation} from './env-file';
 import {
@@ -39,6 +45,11 @@ import {
 	setFfmpegOverrideFunction,
 } from './ffmpeg-override';
 import {getShouldOutputImageSequence} from './image-sequence';
+import {
+	getKeyboardShortcuts,
+	resetKeyboardShortcuts,
+	setKeyboardShortcuts,
+} from './keyboard-shortcuts';
 import {getMetadata, resetMetadata, setMetadata} from './metadata';
 import {
 	getOutputLocation,
@@ -71,15 +82,18 @@ import {getWebpackCaching} from './webpack-caching';
 import {getWebpackPolling} from './webpack-poll';
 
 export type {
+	AddElementLibraryOptions,
 	BundlerOverrideFn,
 	Concurrency,
 	RspackConfiguration,
 	RspackOverrideFn,
+	StudioKeyboardShortcuts,
 	WebpackConfiguration,
 	WebpackOverrideFn,
 };
 
 const {
+	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	concurrencyOption,
 	offthreadVideoCacheSizeInBytesOption,
@@ -96,8 +110,10 @@ const {
 	videoCodecOption,
 	colorSpaceOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	deleteAfterOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	gopSizeOption,
@@ -124,11 +140,18 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
+	preservePitchOnPlaybackOption,
+	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
 	interactivityOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	forceNewStudioOption,
+	experimentalKeepAudioContextAliveOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -219,7 +242,14 @@ declare global {
 		 */
 		readonly setInteractivityEnabled: (enabled: boolean) => void;
 		/**
-		 * @deprecated HTML-in-canvas is now enabled by default when supported. This method is a no-op and can be removed.
+		 * Enable the tabs above the Remotion Studio canvas.
+		 * @param enabled Boolean whether to show the canvas tabs
+		 * @default true
+		 */
+		readonly setCanvasTabsEnabled: (enabled: boolean) => void;
+		/**
+		 * Allow the experimental HTML-in-canvas capture path in Studio client-side renders.
+		 * @default false
 		 */
 		readonly setAllowHtmlInCanvasEnabled: (enabled: boolean) => void;
 		/**
@@ -238,6 +268,12 @@ declare global {
 		 * @default 0
 		 */
 		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
+		/**
+		 * Keep the shared AudioContext running while the Remotion Studio is paused.
+		 * @param enabled Whether to keep the AudioContext alive.
+		 * @default false
+		 */
+		readonly setExperimentalKeepAudioContextAlive: (enabled: boolean) => void;
 		/**
 		 * Enable Webpack polling instead of file system listeners for hot reloading in the Studio.
 		 * This is useful if you are using a remote directory or a virtual machine.
@@ -539,6 +575,14 @@ declare global {
 		readonly setColorSpace: (colorSpace: ColorSpace) => void;
 
 		/**
+		 * Use JPEG or PNG screenshots instead of shared-memory capture.
+		 * Parallel encoding remains enabled. Default: false.
+		 */
+		readonly setDisableSharedMemoryCapture: (
+			disableSharedMemoryCapture: boolean,
+		) => void;
+
+		/**
 		 * Disallows the renderer from doing rendering frames and encoding at the same time.
 		 * This makes the rendering process more memory-efficient, but possibly slower.
 		 * Default: false
@@ -608,6 +652,17 @@ declare global {
 type FlatConfig = RemotionConfigObject &
 	RemotionBundlingOptions & {
 		/**
+		 * Add an Element Library to the Remotion Studio.
+		 */
+		addElementLibrary: (options: AddElementLibraryOptions) => void;
+		/**
+		 * Override keyboard shortcuts in the Remotion Studio.
+		 * Omitted actions use their default shortcut. Set an action to null to disable it.
+		 */
+		setKeyboardShortcuts: (shortcuts: StudioKeyboardShortcuts) => void;
+		/** Set the hidden Sequence Activity limit in Studio. Default: Infinity. Set to 0 to disable. */
+		setSequenceActivityLimit: (limit: number) => void;
+		/**
 		 * Set the audio codec to use for the output video.
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
@@ -623,15 +678,33 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setDefaultEditor: (editor: DefaultEditor) => void;
 		/**
+		 * Set the default premount duration in seconds in Remotion Studio.
+		 * Default: 2.
+		 */
+		setDefaultPremountInSeconds: (seconds: number) => void;
+		/**
+		 * Show premounting indicators in the Studio timeline.
+		 * @default false
+		 */
+		setShowPremounting: (show: boolean) => void;
+		/**
+		 * Show the current frame number inside sequence layers in the Studio timeline.
+		 * @default false
+		 */
+		setShowLayerFrameNumbers: (show: boolean) => void;
+		/**
 		 * Set the coding agent used by Remotion Studio.
 		 */
 		setDefaultCodingAgent: (codingAgent: DefaultCodingAgent) => void;
-
 		setDeleteAfter: (day: DeleteAfter | null) => void;
 		/**
 		 * Set whether S3 buckets should be allowed to expire.
 		 */
 		setEnableFolderExpiry: (value: boolean | null) => void;
+		/**
+		 * Allow `npx remotion lambda render` to cancel a render when Ctrl+C is pressed.
+		 */
+		setEnableCancellation: (value: boolean) => void;
 		/**
 		 * Set whether Lambda Insights should be enabled when deploying a function.
 		 */
@@ -687,6 +760,12 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setPreviewSampleRate: (sampleRate: number | null) => void;
 		/**
+		 * Preserve @remotion/media audio pitch when changing the Studio playback speed.
+		 * Does not affect clip-level speed changes or rendered output.
+		 * @default true
+		 */
+		setPreservePitchOnPlayback: (enabled: boolean) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -711,13 +790,6 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		Output: void;
 	};
-
-const setAllowHtmlInCanvasEnabled = (_enabled: boolean) => {
-	Log.warn(
-		{indent: false, logLevel: 'info'},
-		'Config.setAllowHtmlInCanvasEnabled() is now a no-op because HTML-in-canvas is enabled by default when supported. You can remove this option from your config file.',
-	);
-};
 
 export const Config: FlatConfig = {
 	get Bundling() {
@@ -750,13 +822,20 @@ export const Config: FlatConfig = {
 			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
+	addElementLibrary,
 	setMaxTimelineTracks: StudioServerInternals.setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
+	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
-	setAllowHtmlInCanvasEnabled,
+	setPreservePitchOnPlayback: preservePitchOnPlaybackOption.setConfig,
+	setCanvasTabsEnabled: canvasTabsOption.setConfig,
+	setSequenceActivityLimit: sequenceActivityLimitOption.setConfig,
+	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
 	setRspack: rspackOption.setConfig,
 	setExperimentalRspackEnabled: rspackOption.setConfig,
 	setNumberOfSharedAudioTags: numberOfSharedAudioTagsOption.setConfig,
+	setExperimentalKeepAudioContextAlive:
+		experimentalKeepAudioContextAliveOption.setConfig,
 	setWebpackPollingInMilliseconds: webpackPollOption.setConfig,
 	setShouldOpenBrowser: noOpenOption.setConfig,
 	setBufferStateDelayInMilliseconds,
@@ -831,8 +910,10 @@ export const Config: FlatConfig = {
 	setDeleteAfter: deleteAfterOption.setConfig,
 	setColorSpace: colorSpaceOption.setConfig,
 	setDisallowParallelEncoding: disallowParallelEncodingOption.setConfig,
+	setDisableSharedMemoryCapture: disableSharedMemoryCaptureOption.setConfig,
 	setBeepOnFinish: beepOnFinishOption.setConfig,
 	setEnableFolderExpiry: folderExpiryOption.setConfig,
+	setEnableCancellation: enableCancellationOption.setConfig,
 	setRepro: reproOption.setConfig,
 	setLambdaInsights: enableLambdaInsights.setConfig,
 	setBinariesDirectory: binariesDirectoryOption.setConfig,
@@ -845,6 +926,9 @@ export const Config: FlatConfig = {
 	setPublicLicenseKey: publicLicenseKeyOption.setConfig,
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
+	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
+	setShowPremounting: showPremountingOption.setConfig,
+	setShowLayerFrameNumbers: showLayerFrameNumbersOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
 	setIPv4: ipv4Option.setConfig,
 	setBundleOutDir: outDirOption.setConfig,
@@ -908,6 +992,8 @@ const resetConfigOptions = () => {
 	resetBrowserSafeConfigOptions();
 	StudioServerInternals.resetMaxTimelineTracks();
 	resetBufferStateDelayInMilliseconds();
+	resetElementLibraries();
+	resetKeyboardShortcuts();
 	resetEntryPoint();
 	resetFfmpegOverrideFunction();
 	resetMetadata();
@@ -941,6 +1027,8 @@ export const ConfigInternals = {
 	getEntryPoint,
 	getWebpackPolling,
 	getBufferStateDelayInMilliseconds,
+	getElementLibraries,
+	getKeyboardShortcuts,
 	getOutputCodecOrUndefined: BrowserSafeApis.getOutputCodecOrUndefined,
 	resetConfigOptions,
 };

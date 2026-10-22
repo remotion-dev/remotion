@@ -1,4 +1,5 @@
 import {cancelRender, continueRender, delayRender} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {FontFormat} from './get-font-format';
 import {getFontFormat} from './get-font-format';
 
@@ -52,7 +53,8 @@ export const loadFont = async (options: LoadFontOptions): Promise<void> => {
 	);
 	try {
 		const fontFormat = format ?? getFontFormat(url);
-		const font = new FontFace(family, `url('${url}') format('${fontFormat}')`, {
+		const fontData = await NoReactInternals.fetchFontData(url);
+		const font = new FontFace(family, fontData, {
 			ascentOverride,
 			descentOverride,
 			display,
@@ -68,6 +70,22 @@ export const loadFont = async (options: LoadFontOptions): Promise<void> => {
 		});
 		await font.load();
 		document.fonts.add(font);
+		NoReactInternals.registerFontFace({
+			ascentOverride: ascentOverride ?? null,
+			descentOverride: descentOverride ?? null,
+			display: display ?? null,
+			featureSettings: featureSettings ?? null,
+			fontFamily: family,
+			fontData,
+			fontUrl: url,
+			format: fontFormat,
+			lineGapOverride: lineGapOverride ?? null,
+			style: style ?? null,
+			weight: weight ?? null,
+			stretch: stretch ?? null,
+			unicodeRange: unicodeRange ?? null,
+			variant: variant ?? null,
+		});
 		continueRender(waitForFont);
 	} catch (err) {
 		cancelRender(err);

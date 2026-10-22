@@ -1,0 +1,65 @@
+---
+image: /generated/articles-docs-effects-white-balance.png
+slug: /effects/white-balance
+title: whiteBalance()
+sidebar_label: whiteBalance()
+crumb: '@remotion/effects'
+---
+
+# whiteBalance()<AvailableFrom v="4.0.508" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Corrects blue-to-amber temperature and green-to-magenta tint in footage and images.
+
+## Preview
+
+<EffectsDemo type="effects-white-balance" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {whiteBalance} from '@remotion/effects/white-balance';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        whiteBalance({
+          temperature: 0.2,
+          tint: -0.1,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+You can call `whiteBalance()` without arguments or pass an object with the following properties.
+
+### `temperature?`
+
+The temperature adjustment from `-1` to `1`. Negative values make the layer cooler and positive values make it warmer. Defaults to `0`.
+
+### `tint?`
+
+The tint adjustment from `-1` to `1`. Negative values shift the layer toward green and positive values shift it toward magenta. Defaults to `0`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`exposure()`](/docs/effects/exposure)
+- [`saturation()`](/docs/effects/saturation)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/white-balance.ts)

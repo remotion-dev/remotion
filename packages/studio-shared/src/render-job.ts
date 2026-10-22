@@ -54,6 +54,7 @@ export type BrowserDownloadState = {
 	progress: number;
 	doneIn: number | null;
 	alreadyAvailable: boolean;
+	error?: boolean;
 };
 
 export type BrowserProgressLog = {

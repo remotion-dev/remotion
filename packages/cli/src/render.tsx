@@ -23,6 +23,7 @@ const {
 	mutedOption,
 	colorSpaceOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -83,7 +84,7 @@ export const render = async (
 		);
 		Log.error(
 			{indent: false, logLevel},
-			'   npx remotion render [entry-point] [composition-name] [out-name]',
+			'   npx remotion render [entry-point] [composition-id] [out-name]',
 		);
 		Log.error(
 			{indent: false, logLevel},
@@ -171,6 +172,9 @@ export const render = async (
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
 	const colorSpace = colorSpaceOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
@@ -315,6 +319,7 @@ export const render = async (
 		numberOfGifLoops,
 		audioCodec,
 		disallowParallelEncoding,
+		disableSharedMemoryCapture,
 		offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes,
 		colorSpace,

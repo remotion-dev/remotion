@@ -150,11 +150,7 @@ export const VideoPlayerWithControls = forwardRef<
 					captions: {active: true, language: 'auto', update: true},
 				});
 
-				if (video.canPlayType('application/vnd.apple.mpegurl')) {
-					// This will run in safari, where HLS is supported natively
-					video.src = src;
-				} else if (Hls.isSupported()) {
-					// This will run in all other modern browsers
+				if (Hls.isSupported()) {
 					hls = new Hls();
 					hls.loadSource(src);
 					hls.attachMedia(video);
@@ -163,6 +159,8 @@ export const VideoPlayerWithControls = forwardRef<
 							videoError(new ErrorEvent('HLS.js fatal error'));
 						}
 					});
+				} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+					video.src = src;
 				} else {
 					console.error(
 						'This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API',

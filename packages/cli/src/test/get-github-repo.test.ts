@@ -1,4 +1,7 @@
 import {expect, test} from 'bun:test';
+import {execFileSync} from 'node:child_process';
+import {mkdirSync, mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {
 	getGifRef,
@@ -60,6 +63,81 @@ test('Should get Git Source', () => {
 	});
 	expect(git).not.toBeNull();
 	expect(git?.relativeFromGitRoot).toBe(`packages${path.sep}cli`);
+});
+
+test('Should get Git Source from a linked worktree', () => {
+	const temporaryDirectory = mkdtempSync(
+		path.join(tmpdir(), 'remotion-git-source-'),
+	);
+	const mainCheckout = path.join(temporaryDirectory, 'main');
+	const linkedWorktree = path.join(temporaryDirectory, 'linked');
+
+	try {
+		mkdirSync(mainCheckout);
+		execFileSync('git', ['-C', mainCheckout, 'init'], {stdio: 'ignore'});
+		writeFileSync(path.join(mainCheckout, 'README.md'), 'Remotion');
+		execFileSync('git', ['-C', mainCheckout, 'add', 'README.md'], {
+			stdio: 'ignore',
+		});
+		execFileSync(
+			'git',
+			[
+				'-C',
+				mainCheckout,
+				'-c',
+				'user.name=Remotion Test',
+				'-c',
+				'user.email=test@remotion.dev',
+				'commit',
+				'-m',
+				'Initial commit',
+			],
+			{stdio: 'ignore'},
+		);
+		execFileSync(
+			'git',
+			[
+				'-C',
+				mainCheckout,
+				'remote',
+				'add',
+				'origin',
+				'https://github.com/remotion-dev/remotion.git',
+			],
+			{stdio: 'ignore'},
+		);
+		execFileSync(
+			'git',
+			['-C', mainCheckout, 'worktree', 'add', '--detach', linkedWorktree],
+			{stdio: 'ignore'},
+		);
+		const remotionRoot = path.join(linkedWorktree, 'packages', 'example');
+		mkdirSync(remotionRoot, {recursive: true});
+		const commit = execFileSync('git', [
+			'-C',
+			linkedWorktree,
+			'rev-parse',
+			'HEAD',
+		])
+			.toString('utf-8')
+			.trim();
+
+		expect(
+			getGitSource({
+				remotionRoot,
+				disableGitSource: false,
+				logLevel: 'info',
+			}),
+		).toEqual({
+			name: 'remotion',
+			org: 'remotion-dev',
+			ref: commit,
+			relativeFromGitRoot: path.join('packages', 'example'),
+			type: 'github',
+		});
+	} finally {
+		rmSync(temporaryDirectory, {force: true, recursive: true});
+	}
 });
 
 test('Should recognize VERCEL', () => {

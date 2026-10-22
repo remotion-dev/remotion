@@ -11,17 +11,23 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {ScaleLockContext} from '../../state/scale-lock';
+import {ActionTooltip} from '../ActionTooltip';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {normalizeTimelineNumber} from './timeline-field-utils';
 import {timelineLayerIconContainer} from './TimelineLayerEye';
+import {Transform3DModeContext} from './Transform3DModeContext';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
+	textAlign: 'left',
+	width: 40,
 };
 
 const rightDraggerStyle: React.CSSProperties = {
 	paddingRight: 0,
+	textAlign: 'left',
+	width: 40,
 };
 
 const containerStyle: React.CSSProperties = {
@@ -105,6 +111,7 @@ const LinkToggle: React.FC<{
 	readonly linked: boolean;
 	readonly onToggle: () => void;
 }> = ({linked, onToggle}) => {
+	const label = linked ? 'Unlink scale axes' : 'Link scale axes';
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
 			if (e.button !== 0) {
@@ -118,26 +125,27 @@ const LinkToggle: React.FC<{
 	);
 
 	return (
-		<button
-			type="button"
-			style={toggleStyle}
-			onPointerDown={onPointerDown}
-			title={linked ? 'Unlink scale axes' : 'Link scale axes'}
-			aria-label={linked ? 'Unlink scale axes' : 'Link scale axes'}
-		>
-			{linked ? (
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 640 640"
-					style={linkIconStyle}
-				>
-					<path
-						fill={CURRENT_COLOR_LOWERCASE}
-						d="M32 320C32 214 118 128 224 128L288 128L288 192L224 192C153.3 192 96 249.3 96 320C96 390.7 153.3 448 224 448L288 448L288 512L224 512C118 512 32 426 32 320zM608 320C608 426 522 512 416 512L352 512L352 448L416 448C486.7 448 544 390.7 544 320C544 249.3 486.7 192 416 192L352 192L352 128L416 128C522 128 608 214 608 320zM224 288L448 288L448 352L192 352L192 288L224 288z"
-					/>
-				</svg>
-			) : null}
-		</button>
+		<ActionTooltip label={label} shortcut={null} delay={800} dismissOnClick>
+			<button
+				type="button"
+				style={toggleStyle}
+				onPointerDown={onPointerDown}
+				aria-label={label}
+			>
+				{linked ? (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 640 640"
+						style={linkIconStyle}
+					>
+						<path
+							fill={CURRENT_COLOR_LOWERCASE}
+							d="M32 320C32 214 118 128 224 128L288 128L288 192L224 192C153.3 192 96 249.3 96 320C96 390.7 153.3 448 224 448L288 448L288 512L224 512C118 512 32 426 32 320zM608 320C608 426 522 512 416 512L352 512L352 448L416 448C486.7 448 544 390.7 544 320C544 249.3 486.7 192 416 192L352 192L352 128L416 128C522 128 608 214 608 320zM224 288L448 288L448 352L192 352L192 288L224 288z"
+						/>
+					</svg>
+				) : null}
+			</button>
+		</ActionTooltip>
 	);
 };
 
@@ -160,13 +168,16 @@ export const TimelineScaleField: React.FC<{
 }) => {
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
+	const [dragZ, setDragZ] = useState<number | null>(null);
 	const dragStartRef = useRef<readonly [number, number] | null>(null);
 	const {getScaleLockState, setScaleLockState} = useContext(ScaleLockContext);
+	const transform3DMode = useContext(Transform3DModeContext);
 
 	const [codeX, codeY, codeZ] = useMemo(
 		() => NoReactInternals.parseScaleValue(effectiveValue),
 		[effectiveValue],
 	);
+	const show3D = transform3DMode || codeZ !== 1;
 
 	const defaultLinked = codeX === codeY;
 	const linked = getScaleLockState({
@@ -206,10 +217,10 @@ export const TimelineScaleField: React.FC<{
 	}, [codeX, codeY, dragX, dragY]);
 
 	const serialize = useCallback(
-		(x: number, y: number) => {
-			return NoReactInternals.serializeScaleValue([x, y, codeZ]);
+		(x: number, y: number, z = dragZ ?? codeZ) => {
+			return NoReactInternals.serializeScaleValue([x, y, z]);
 		},
-		[codeZ],
+		[codeZ, dragZ],
 	);
 
 	const onXChange = useCallback(
@@ -264,6 +275,7 @@ export const TimelineScaleField: React.FC<{
 				dragStartRef.current = null;
 				setDragX(null);
 				setDragY(null);
+				setDragZ(null);
 				onDragEnd();
 			};
 
@@ -312,6 +324,7 @@ export const TimelineScaleField: React.FC<{
 					dragStartRef.current = null;
 					setDragX(null);
 					setDragY(null);
+					setDragZ(null);
 				});
 			}
 		},
@@ -370,6 +383,7 @@ export const TimelineScaleField: React.FC<{
 				dragStartRef.current = null;
 				setDragX(null);
 				setDragY(null);
+				setDragZ(null);
 				onDragEnd();
 			};
 
@@ -418,6 +432,7 @@ export const TimelineScaleField: React.FC<{
 					dragStartRef.current = null;
 					setDragX(null);
 					setDragY(null);
+					setDragZ(null);
 				});
 			}
 		},
@@ -432,11 +447,65 @@ export const TimelineScaleField: React.FC<{
 		});
 	}, [field.key, linked, scaleLockNodePath, setScaleLockState]);
 
+	const onZChange = useCallback(
+		(newVal: number) => {
+			setDragZ(newVal);
+			onDragValueChange(serialize(dragX ?? codeX, dragY ?? codeY, newVal));
+		},
+		[codeX, codeY, dragX, dragY, onDragValueChange, serialize],
+	);
+
+	const onZChangeEnd = useCallback(
+		(newVal: number) => {
+			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, newVal);
+			const clearDragState = () => {
+				dragStartRef.current = null;
+				setDragX(null);
+				setDragY(null);
+				setDragZ(null);
+				onDragEnd();
+			};
+
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				onSave(newScale).finally(clearDragState);
+			} else {
+				clearDragState();
+			}
+		},
+		[
+			codeX,
+			codeY,
+			dragX,
+			dragY,
+			onDragEnd,
+			onSave,
+			propStatus.codeValue,
+			serialize,
+		],
+	);
+
+	const onZTextChange = useCallback(
+		(newVal: string) => {
+			const parsed = Number(newVal);
+			if (Number.isNaN(parsed)) {
+				return;
+			}
+
+			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, parsed);
+			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				setDragZ(parsed);
+				onSave(newScale).finally(() => setDragZ(null));
+			}
+		},
+		[codeX, codeY, dragX, dragY, onSave, propStatus.codeValue, serialize],
+	);
+
 	return (
 		<span style={containerStyle}>
 			<InputDragger
 				type="number"
 				value={dragX ?? codeX}
+				buttonStyle={leftDraggerStyle}
 				style={leftDraggerStyle}
 				status="ok"
 				small
@@ -449,11 +518,13 @@ export const TimelineScaleField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				allowStepMismatch
+				aria-label="Scale X"
 			/>
 			<div style={gapStyle} />
 			<InputDragger
 				type="number"
 				value={dragY ?? codeY}
+				buttonStyle={rightDraggerStyle}
 				style={rightDraggerStyle}
 				status="ok"
 				small
@@ -466,7 +537,31 @@ export const TimelineScaleField: React.FC<{
 				formatter={formatter}
 				rightAlign={false}
 				allowStepMismatch
+				aria-label="Scale Y"
 			/>
+			{show3D ? (
+				<>
+					<div style={gapStyle} />
+					<InputDragger
+						type="number"
+						value={dragZ ?? codeZ}
+						buttonStyle={rightDraggerStyle}
+						style={rightDraggerStyle}
+						status="ok"
+						small
+						onValueChange={onZChange}
+						onValueChangeEnd={onZChangeEnd}
+						onTextChange={onZTextChange}
+						min={min}
+						max={max}
+						step={step}
+						formatter={formatter}
+						rightAlign={false}
+						allowStepMismatch
+						aria-label="Scale Z"
+					/>
+				</>
+			) : null}
 			<LinkToggle linked={linked} onToggle={onToggleLink} />
 		</span>
 	);

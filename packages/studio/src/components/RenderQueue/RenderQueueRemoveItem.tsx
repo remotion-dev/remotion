@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {unregisterClientRender} from '../../api/save-render-output';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -14,7 +15,9 @@ export const RenderQueueRemoveItem: React.FC<{
 }> = ({job}) => {
 	const isClientJob = isClientRenderJob(job);
 	const {removeClientJob} = useContext(RenderQueueContext);
-	const {canvasContent} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const onClick: React.MouseEventHandler = useCallback(
@@ -22,6 +25,7 @@ export const RenderQueueRemoveItem: React.FC<{
 			e.stopPropagation();
 
 			if (isClientJob) {
+				const {canvasContent} = compositionManagerRef.current;
 				if (
 					canvasContent &&
 					canvasContent.type === 'output' &&
@@ -33,19 +37,20 @@ export const RenderQueueRemoveItem: React.FC<{
 
 				removeClientJob(job.id);
 				unregisterClientRender(job.id).catch(() => {});
-				showNotification('Removed job', 2000);
 				return;
 			}
 
-			removeRenderJob(job)
-				.then(() => {
-					showNotification('Removed job', 2000);
-				})
-				.catch((err) => {
-					showNotification(`Could not remove item: ${err.message}`, 2000);
-				});
+			removeRenderJob(job).catch((err) => {
+				showNotification(`Could not remove item: ${err.message}`, 2000);
+			});
 		},
-		[job, isClientJob, removeClientJob, canvasContent, setCanvasContent],
+		[
+			job,
+			isClientJob,
+			removeClientJob,
+			compositionManagerRef,
+			setCanvasContent,
+		],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {
@@ -74,10 +79,13 @@ export const RenderQueueRemoveItem: React.FC<{
 	);
 
 	return (
-		<InlineAction
-			renderAction={renderAction}
-			onClick={onClick}
-			variant={null}
-		/>
+		<ActionTooltip label="Clear" shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				aria-label="Clear"
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+			/>
+		</ActionTooltip>
 	);
 };

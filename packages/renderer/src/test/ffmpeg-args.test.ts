@@ -40,6 +40,8 @@ const makeArgs = ({
 		hardwareAcceleration,
 		indent: false,
 		logLevel: 'info',
+		cpuCount: 4,
+		lambdaMemoryInBytes: null,
 	}).flat();
 
 test('does not pass the default CRF option to hardware encoders', () => {

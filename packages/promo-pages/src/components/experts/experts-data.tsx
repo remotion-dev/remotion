@@ -165,28 +165,6 @@ export const experts: Expert[] = [
 		),
 	},
 	{
-		slug: 'alex-fernandez',
-		name: 'Alex Fernandez',
-		image: '/img/freelancers/alex.jpeg',
-		website: null,
-		x: null,
-		github: 'alexfernandez803',
-		linkedin: 'in/alex-f-17a5bb56/',
-		email: 'alex.frndz@gmail.com',
-		videocall: 'https://cal.com/remotion-expert-alex-fernandez',
-		discord: {
-			username: 'alex12345670000',
-			userId: '1046357837976182894',
-		},
-		since: new Date('2022-12-02').getTime(),
-		description: (
-			<div>
-				I am an experienced integration developer using Mulesoft, a backend
-				developer and on the side frontend and animation enthusiast.
-			</div>
-		),
-	},
-	{
 		slug: 'matthew-mcgillivray',
 		name: 'Matt McGillivray',
 		image: '/img/freelancers/umungo.png',
@@ -262,7 +240,7 @@ export const experts: Expert[] = [
 		github: 'rayBlock',
 		linkedin: 'in/raymond-lotmar/',
 		email: 'ray@blocklab.ch',
-		videocall: 'https://cal.com/remotion-expert-ray-lotmar',
+		videocall: 'https://cal.com/rayblock',
 		discord: {
 			username: 'ray_block',
 			userId: '402806969980944384',
@@ -795,6 +773,60 @@ export const experts: Expert[] = [
 				</a>
 				, is a tool designed to streamline professional video creation through
 				programmatic workflows.
+			</div>
+		),
+	},
+	{
+		slug: 'mark-santos',
+		name: 'Mark Santos',
+		image: '/img/freelancers/mark-santos.jpg',
+		website: 'https://www.markstudios.com',
+		x: 'markksantos',
+		github: 'markksantos',
+		linkedin: 'in/markksantos/',
+		email: 'contact@markstudios.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-10-09').getTime(),
+		description: (
+			<div>
+				I didn&apos;t plan to start a creative agency. I started editing because
+				I cared about making great content, and once I got good at it, people
+				kept coming back for more. That became Mark Studios. We use Remotion for
+				the captions and graphics in our clients&apos; YouTube videos.
+			</div>
+		),
+	},
+	{
+		slug: 'arif-ata-kosker',
+		name: 'Arif Ata Köşker',
+		image: '/img/freelancers/arif.png',
+		website: 'https://www.arifatakosker.com/en/is/remotion',
+		x: null,
+		github: 'Arif-Ata-Kosker',
+		linkedin: null,
+		email: 'arif@feastflows.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-10-14').getTime(),
+		description: (
+			<div>
+				I build automated video pipelines with Remotion. My{' '}
+				<a target={'_blank'} href="https://youtu.be/Dl5kunVp-2Y">
+					reel editor
+				</a>{' '}
+				turns a raw talking-head video into a ready-to-post video through one
+				pipeline: transcription, automatic cuts, face-tracked reframing,
+				word-level captions and loudness normalization, all rendered with
+				Remotion. I use it to edit my own content on{' '}
+				<a target={'_blank'} href="https://www.instagram.com/arifata.kosker/">
+					Instagram
+				</a>
+				.
+				<br />
+				I&apos;ve also built a prompt-to-video production pipeline and
+				data-driven motion graphics. I run FeastFlows, a software company for
+				restaurants.
 			</div>
 		),
 	},

@@ -1,7 +1,7 @@
 import type {MetadataTags} from 'mediabunny';
 import React from 'react';
 import {
-	parseIsMadeWithRemotion,
+	parseRemotionMetadata,
 	renderMetadataLabel,
 	renderMetadataValue,
 } from '~/lib/render-metadata-label';
@@ -28,7 +28,7 @@ export const MetadataDisplay: React.FC<{
 					return null;
 				}
 
-				const version = parseIsMadeWithRemotion(key, value);
+				const remotionMetadata = parseRemotionMetadata(key, value);
 
 				return (
 					<TableRow key={key}>
@@ -39,10 +39,10 @@ export const MetadataDisplay: React.FC<{
 						</TableCell>
 						<TableCell className="text-right">
 							<LimitedWidthLabel alt={key}>
-								{version ? (
+								{remotionMetadata ? (
 									<a
 										className="inline-flex flex-row items-center text-brand"
-										href={`https://github.com/remotion-dev/remotion/releases/v${version}`}
+										href={`https://github.com/remotion-dev/remotion/releases/v${remotionMetadata.version}`}
 										target="_blank"
 									>
 										<svg
@@ -55,7 +55,7 @@ export const MetadataDisplay: React.FC<{
 												className="fill-brand"
 											/>
 										</svg>
-										{version}
+										{remotionMetadata.version}
 									</a>
 								) : (
 									renderMetadataValue({

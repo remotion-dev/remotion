@@ -116,6 +116,93 @@ func main() {
 }
 ```
 
+## Rendering an image sequence<AvailableFrom v="4.0.535" />
+
+Use `RenderFramesOnLambda()` with `RenderFramesOptions`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
+```go title="render-frames.go"
+renderResponse, err := lambda_go_sdk.RenderFramesOnLambda(lambda_go_sdk.RenderFramesOptions{
+  ServeUrl: serveUrl,
+  FunctionName: functionName,
+  Region: region,
+  Composition: "main",
+  FrameRange: [2]int{0, 99},
+  FramesPerLambda: new(20),
+  OutputPrefix: "exports/my-sequence/",
+  ImageSequencePattern: "element-[frame].[ext]",
+})
+if err != nil {
+  log.Fatal(err)
+}
+
+fmt.Println(renderResponse.RenderId, renderResponse.BucketName)
+```
+
+Poll `GetRenderProgress()` until `Done` or `FatalErrorEncountered`. `FramesUploaded` reports uploaded frames, and `OutputSequence.ManifestUrl` points to the completed manifest. Pass an `ImageSequenceOutputPrefix` as `OutputPrefix` to select another bucket or provider.
+
+## Cancelling a render<AvailableFrom v="4.0.515" />
+
+Set `EnableCancellation` when starting the render, then pass its response to `CancelRenderOnLambda()`:
+
+```go title="cancel-render.go"
+renderResponse, err := lambda_go_sdk.RenderMediaOnLambda(lambda_go_sdk.RemotionOptions{
+  ServeUrl: serveUrl,
+  FunctionName: functionName,
+  Region: region,
+  Composition: "main",
+  EnableCancellation: true,
+})
+if err != nil {
+  log.Fatal(err)
+}
+
+err = lambda_go_sdk.CancelRenderOnLambda(lambda_go_sdk.CancelRenderOnLambdaInput{
+  Region: region,
+  BucketName: renderResponse.BucketName,
+  RenderId: renderResponse.RenderId,
+})
+if err != nil {
+  log.Fatal(err)
+}
+```
+
+## Verifying webhooks<AvailableFrom v="4.0.536" />
+
+If you [set up a webhook](/docs/lambda/webhooks) with a secret, Remotion signs every request so you can confirm it was sent by Remotion and that the body was not modified. The Go client ships `ValidateWebhookSignature()`, the equivalent of [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) in the JavaScript client.
+
+Pass the webhook secret, the raw request body exactly as it was received, and the `X-Remotion-Signature` header. It returns an error if the request cannot be verified and `nil` if it is authentic.
+
+```go title="webhook.go"
+func webhookHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "could not read body", http.StatusBadRequest)
+		return
+	}
+
+	err = lambda_go_sdk.ValidateWebhookSignature(
+		os.Getenv("REMOTION_WEBHOOK_SECRET"),
+		body,
+		r.Header.Get("X-Remotion-Signature"),
+	)
+	if err != nil {
+		http.Error(w, "invalid signature", http.StatusUnauthorized)
+		return
+	}
+
+	// The request is authentic. Parse the body only now.
+	var payload map[string]interface{}
+	if err := json.Unmarshal(body, &payload); err != nil {
+		http.Error(w, "could not parse payload", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+```
+
+Read the body first and verify before decoding it. The signature covers the exact bytes that were sent, so unmarshalling the JSON and re-marshalling it can reorder keys and change whitespace, which would make a genuine request fail the check.
+
 ## Changelog
 
 `v4.0.6`: The response payload structure has changed. See the history of this page to see the previous structure.

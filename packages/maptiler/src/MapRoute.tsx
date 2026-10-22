@@ -1,0 +1,366 @@
+import type {GeoJSONSource, Map as MapTilerMap} from '@maptiler/sdk';
+import {length as getLineLength, lineSliceAlong, lineString} from '@turf/turf';
+import {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+	type FC,
+} from 'react';
+import {
+	Interactive,
+	Freeze,
+	Sequence,
+	Internals,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+	type InteractivitySchema,
+	type SequenceControls,
+	useDelayRender,
+} from 'remotion';
+import {MapTilerContext} from './MapTilerContext';
+import {useMapPremounting} from './use-map-premounting';
+
+export type MapRouteFeature = {
+	type: 'Feature';
+	properties: {name: string; source: string};
+	geometry: {type: 'LineString'; coordinates: number[][]};
+};
+
+type MapRouteProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly controls?: SequenceControls;
+		readonly feature: MapRouteFeature;
+		readonly glow?: number;
+		readonly id: string;
+		readonly progress?: number;
+		readonly strokeColor?: string;
+		readonly strokeWidth?: number;
+	};
+
+const mapRouteSchema = {
+	...Interactive.baseSchema,
+	...{
+		premountFor: Interactive.premountSchema.premountFor,
+		postmountFor: Interactive.premountSchema.postmountFor,
+	},
+	glow: {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 0.72,
+		description: 'Glow intensity',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	progress: {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: 1,
+		description: 'Route drawing progress',
+		hiddenFromList: false,
+	},
+	strokeColor: {
+		type: 'color',
+		default: '#006cff',
+		description: 'Stroke color',
+	},
+	strokeWidth: {
+		type: 'number',
+		min: 0,
+		max: 50,
+		step: 1,
+		default: 9,
+		description: 'Stroke width',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+type MapRouteDrawingProps = Pick<
+	MapRouteProps,
+	'feature' | 'glow' | 'id' | 'progress' | 'strokeColor' | 'strokeWidth'
+>;
+
+const MapRouteDrawing = ({
+	feature,
+	glow = 0.72,
+	id,
+	progress = 1,
+	strokeColor = '#006cff',
+	strokeWidth = 9,
+}: MapRouteDrawingProps) => {
+	const {map} = useContext(MapTilerContext);
+	const {continueRender, delayRender} = useDelayRender();
+	const [readyMap, setReadyMap] = useState<MapTilerMap | null>(null);
+	const isReady = map !== null && readyMap === map;
+	useLayoutEffect(() => {
+		if (isReady) {
+			return;
+		}
+
+		const handle = delayRender(`Loading ${feature.properties.name} route`);
+		return () => continueRender(handle);
+	}, [continueRender, delayRender, feature.properties.name, isReady]);
+	const route = useMemo(
+		() => lineString(feature.geometry.coordinates),
+		[feature],
+	);
+	const routeLength = useMemo(() => getLineLength(route), [route]);
+	const sourceId = `${id}-route`;
+	const glowLayerId = `${id}-route-glow`;
+	const applyPremountVisibility = useMapPremounting(() => [
+		sourceId,
+		glowLayerId,
+	]);
+
+	useLayoutEffect(() => {
+		if (!map || !map.style) {
+			return;
+		}
+
+		if (!map.getSource(sourceId)) {
+			map.addSource(sourceId, {
+				data: lineSliceAlong(route, 0, 0.001),
+				type: 'geojson',
+			});
+		}
+
+		if (!map.getLayer(glowLayerId)) {
+			map.addLayer({
+				id: glowLayerId,
+				layout: {'line-cap': 'round', 'line-join': 'round'},
+				paint: {
+					'line-blur': 8,
+					'line-color': '#ffffff',
+					'line-opacity': glow,
+					'line-opacity-transition': {delay: 0, duration: 0},
+					'line-width': 22,
+				},
+				source: sourceId,
+				type: 'line',
+			});
+		}
+
+		map.setPaintProperty(
+			glowLayerId,
+			'line-opacity',
+			Math.min(1, Math.max(0, glow)),
+		);
+
+		if (!map.getLayer(sourceId)) {
+			map.addLayer({
+				id: sourceId,
+				layout: {'line-cap': 'round', 'line-join': 'round'},
+				paint: {
+					'line-color': strokeColor,
+					'line-color-transition': {delay: 0, duration: 0},
+					'line-opacity': 1,
+					'line-width': strokeWidth,
+					'line-width-transition': {delay: 0, duration: 0},
+				},
+				source: sourceId,
+				type: 'line',
+			});
+		}
+
+		map.setPaintProperty(sourceId, 'line-color', strokeColor);
+		map.setPaintProperty(sourceId, 'line-width', strokeWidth);
+
+		applyPremountVisibility();
+		const onIdle = () => setReadyMap(map);
+		map.once('idle', onIdle);
+		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+		};
+	}, [
+		applyPremountVisibility,
+		continueRender,
+		glow,
+		glowLayerId,
+		map,
+		route,
+		sourceId,
+		strokeColor,
+		strokeWidth,
+	]);
+
+	useLayoutEffect(() => {
+		if (!isReady || !map || !map.style) {
+			return;
+		}
+
+		const frameHandle = delayRender(`Drawing ${feature.properties.name} route`);
+
+		(map.getSource(sourceId) as GeoJSONSource).setData(
+			lineSliceAlong(
+				route,
+				0,
+				Math.max(0.001, routeLength * Math.min(1, Math.max(0, progress))),
+			),
+		);
+		const onIdle = () => continueRender(frameHandle);
+		map.once('idle', onIdle);
+		map.triggerRepaint();
+		return () => {
+			map.off('idle', onIdle);
+			continueRender(frameHandle);
+		};
+	}, [
+		continueRender,
+		delayRender,
+		feature.properties.name,
+		isReady,
+		map,
+		progress,
+		route,
+		routeLength,
+		sourceId,
+	]);
+
+	useEffect(() => {
+		if (!map) {
+			return;
+		}
+
+		return () => {
+			if (!map.style) {
+				return;
+			}
+
+			if (map.getLayer(sourceId)) {
+				map.removeLayer(sourceId);
+			}
+
+			if (map.getLayer(glowLayerId)) {
+				map.removeLayer(glowLayerId);
+			}
+
+			if (map.getSource(sourceId)) {
+				map.removeSource(sourceId);
+			}
+
+			map.triggerRepaint();
+		};
+	}, [glowLayerId, map, sourceId]);
+
+	return null;
+};
+
+const MapRouteBounds: FC<{readonly feature: MapRouteFeature}> = ({feature}) => {
+	const {map} = useContext(MapTilerContext);
+
+	if (!map) {
+		return <div />;
+	}
+
+	const points = feature.geometry.coordinates.map(([longitude, latitude]) =>
+		map.project([longitude, latitude]),
+	);
+	const left = Math.min(...points.map((point) => point.x));
+	const right = Math.max(...points.map((point) => point.x));
+	const top = Math.min(...points.map((point) => point.y));
+	const bottom = Math.max(...points.map((point) => point.y));
+
+	return (
+		<div
+			style={{
+				height: bottom - top,
+				left,
+				opacity: 0,
+				pointerEvents: 'none',
+				position: 'absolute',
+				top,
+				width: right - left,
+				zIndex: 1,
+			}}
+		/>
+	);
+};
+
+const MapRouteInner: FC<MapRouteProps> = ({
+	feature,
+	glow = 0.72,
+	id,
+	progress = 1,
+	strokeColor = '#006cff',
+	strokeWidth = 9,
+	durationInFrames,
+	from,
+	premountFor,
+	postmountFor,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	controls,
+}) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from ?? 0}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loop={loop}
+				durationInFrames={durationInFrames ?? Infinity}
+				freeze={freeze}
+				hidden={hidden}
+				name={name ?? `<${feature.properties.name}>`}
+				showInTimeline={showInTimeline ?? true}
+				controls={controls}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<>
+					<MapRouteDrawing
+						feature={feature}
+						glow={glow}
+						id={id}
+						progress={progress}
+						strokeColor={strokeColor}
+						strokeWidth={strokeWidth}
+					/>
+					<MapRouteBounds feature={feature} />
+				</>
+			</Sequence>
+		</Freeze>
+	);
+};
+
+export const MapRoute = Interactive.withSchema({
+	Component: MapRouteInner,
+	componentName: '<MapRoute>',
+	schema: mapRouteSchema,
+	supportsEffects: false,
+});

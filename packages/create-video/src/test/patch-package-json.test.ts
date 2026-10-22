@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {patchPackageJson} from '../patch-package-json';
 import type {PackageManager} from '../pkg-managers';
 
-const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun'];
+const packageManagers: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun', 'nub'];
 
 for (const packageManager of packageManagers) {
 	test(`Using ${packageManager} package manager provides the correct "packageManager" entry in package.json`, () => {
@@ -22,6 +22,9 @@ for (const packageManager of packageManagers) {
 			devDependencies: {
 				'@types/react': '^18.0.6',
 				'@remotion/eslint-config': '^2.0.0',
+			},
+			allowScripts: {
+				sharp: true,
 			},
 		};
 		let newPackageJson: typeof packageJson | null = null;
@@ -44,6 +47,10 @@ for (const packageManager of packageManagers) {
 			packageManager === 'bun' ? 'remotionb studio' : 'remotion studio';
 		expect(newPackageJson as unknown).toEqual({
 			...packageJson,
+			allowScripts: {
+				...packageJson.allowScripts,
+				...(packageManager === 'npm' ? {esbuild: false} : {}),
+			},
 			scripts: {
 				start: expectedStartScript,
 			},

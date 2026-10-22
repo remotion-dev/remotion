@@ -3,7 +3,6 @@ import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {
@@ -13,6 +12,8 @@ import {
 
 type Key = string;
 
+// The generated stack distinguishes Fast Refresh instances even when source maps
+// resolve both the old and new JSX nodes to the same line and column.
 const makeKey = ({
 	fileName,
 	line,
@@ -21,7 +22,8 @@ const makeKey = ({
 	sequenceKeys,
 	assetKeys,
 	effectKeys,
-	videoConfigValues,
+
+	stack,
 }: {
 	fileName: string;
 	line: number;
@@ -30,9 +32,10 @@ const makeKey = ({
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
-	videoConfigValues: VideoConfigValues;
+
+	stack: string | null;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${JSON.stringify(videoConfigValues)}`;
+	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${stack ?? ''}`;
 
 type SubscribeResult = Awaited<ReturnType<typeof subscribeToSequenceProps>>;
 
@@ -47,6 +50,29 @@ type Entry = {
 };
 
 const entries = new Map<Key, Entry>();
+const refreshListeners = new Map<string, Set<() => void>>();
+
+export const subscribeToSequencePropsRefresh = (
+	overrideId: string,
+	listener: () => void,
+): (() => void) => {
+	const listeners = refreshListeners.get(overrideId) ?? new Set();
+	listeners.add(listener);
+	refreshListeners.set(overrideId, listeners);
+
+	return () => {
+		listeners.delete(listener);
+		if (listeners.size === 0) {
+			refreshListeners.delete(overrideId);
+		}
+	};
+};
+
+export const refreshSequencePropsSubscription = (overrideId: string): void => {
+	for (const listener of refreshListeners.get(overrideId) ?? []) {
+		listener();
+	}
+};
 
 export const acquireSequencePropsSubscription = ({
 	fileName,
@@ -59,7 +85,8 @@ export const acquireSequencePropsSubscription = ({
 	clientId,
 	applyOnce,
 	applyEach,
-	videoConfigValues,
+
+	stack,
 }: {
 	fileName: string;
 	line: number;
@@ -71,7 +98,8 @@ export const acquireSequencePropsSubscription = ({
 	clientId: string;
 	applyOnce: ApplyResult;
 	applyEach: ApplyResult;
-	videoConfigValues: VideoConfigValues;
+
+	stack: string | null;
 }): {release: () => void} => {
 	const sequenceKeys = getAllSchemaKeys(schema);
 	const assetKeys = getAssetSchemaKeys(schema);
@@ -84,7 +112,8 @@ export const acquireSequencePropsSubscription = ({
 		sequenceKeys,
 		assetKeys,
 		effectKeys,
-		videoConfigValues,
+
+		stack,
 	});
 	let entry = entries.get(key);
 
@@ -99,7 +128,6 @@ export const acquireSequencePropsSubscription = ({
 			assetKeys,
 			effects: effectKeys,
 			clientId,
-			videoConfigValues,
 		});
 		const created: Entry = {
 			refCount: 0,
@@ -135,12 +163,18 @@ export const acquireSequencePropsSubscription = ({
 
 	entry.refCount++;
 	const acquired = entry;
-
-	acquired.promise.then(applyEach).catch(() => {
-		// Error already logged by the first acquirer.
-	});
-
 	let released = false;
+
+	acquired.promise
+		.then((result) => {
+			if (!released) {
+				applyEach(result);
+			}
+		})
+		.catch(() => {
+			// Error already logged by the first acquirer.
+		});
+
 	return {
 		release: () => {
 			if (released) {

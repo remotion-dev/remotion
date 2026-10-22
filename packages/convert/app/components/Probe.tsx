@@ -81,7 +81,7 @@ export const Probe: React.FC<{
 
 	const {
 		audioCodec,
-		fps,
+		frameRate,
 		tracks,
 		name,
 		container,
@@ -217,10 +217,13 @@ export const Probe: React.FC<{
 									size={size ?? null}
 									durationInSeconds={durationInSeconds}
 									audioCodec={audioCodec}
-									fps={fps}
+									frameRate={frameRate}
 									metadata={metadata}
 									isHdr={isHdr}
 									sampleRate={sampleRate}
+									audioTrack={
+										tracks?.find((track) => track.isAudioTrack()) ?? null
+									}
 								/>
 							) : selectedTrack.isVideoTrack() ? (
 								<VideoTrackOverview

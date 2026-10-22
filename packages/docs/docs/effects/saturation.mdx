@@ -21,18 +21,17 @@ Use it when you want to scale color intensity without overlaying a new color.
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {saturation} from '@remotion/effects/saturation';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[saturation({amount: 1.5})]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

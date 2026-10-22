@@ -12,7 +12,6 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {ComponentProp, ElementDragData} from '@remotion/studio-protocol';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -20,6 +19,7 @@ import type {
 	CanUpdateSequencePropsResponseFalse,
 	CanUpdateSequencePropsResponseTrue,
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropSource,
 	ExtrapolateType,
 	InteractivitySchema,
 	InterpolateOutputOption,
@@ -28,20 +28,89 @@ import type {
 	SequencePropsSubscriptionKey,
 	VideoConfigValues,
 } from 'remotion';
-import type {RecastCodemod, VisualControlChange} from './codemods';
+import type {
+	CompositionDestination,
+	NewCompositionOptions,
+	VisualControlChange,
+} from './codemods';
 import type {
 	EffectClipboardParam,
 	EffectClipboardPasteType,
 	EffectClipboardSnapshot,
 } from './effect-clipboard-data';
+import type {GitClientId} from './git-client';
 import type {PackageManager} from './package-manager';
 import type {ProjectInfo} from './project-info';
 import type {
 	CompletedClientRender,
 	RequiredChromiumOptions,
 } from './render-job';
+import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
+import type {TerminalId} from './terminal';
+
+export type ComponentPropValue =
+	| string
+	| number
+	| boolean
+	| null
+	| readonly ComponentPropValue[]
+	| Readonly<object>;
+
+export type ComponentProp = {
+	name: string;
+	value: ComponentPropValue;
+};
+
+export type EffectConfigValue =
+	| string
+	| number
+	| boolean
+	| null
+	| EffectConfig
+	| readonly EffectConfigValue[];
+
+export type EffectConfig = {
+	readonly [key: string]: EffectConfigValue;
+};
+
+export type EffectDefinition = {
+	readonly name: string;
+	readonly importPath: string;
+	readonly config: EffectConfig;
+};
+
+export type ElementInstallationMode = 'wrapped' | 'component-owned-sequence';
+
+export type ElementDependency =
+	| {
+			readonly name: `@remotion/${string}`;
+			readonly version: null;
+	  }
+	| {
+			readonly name: string;
+			readonly version: string;
+	  };
+
+export type InstallableElement = {
+	assets: Array<
+		| {path: string; type: 'url'; url: string}
+		| {path: string; type: 'base64'; data: string}
+	>;
+	dependencies: ElementDependency[];
+	durationInFrames: number | null;
+	initialProps: Readonly<Record<string, ComponentPropValue>> | null;
+	installationMode: ElementInstallationMode | null;
+	isCaptionStyle: boolean;
+	slug: string;
+	displayName: string;
+	sourceCode: string;
+	dimensions: {
+		height: number;
+		width: number;
+	} | null;
+};
 
 type KeyframeEasing = Extract<
 	CanUpdateSequencePropStatus,
@@ -67,6 +136,23 @@ export type OpenInCodingAgentRequest = {
 };
 
 export type OpenInCodingAgentResponse = {
+	success: boolean;
+};
+
+export type OpenInTerminalRequest = {
+	directory: string;
+	terminalId: TerminalId;
+};
+
+export type OpenInTerminalResponse = {
+	success: boolean;
+};
+
+export type OpenInGitClientRequest = {
+	gitClientId: GitClientId;
+};
+
+export type OpenInGitClientResponse = {
 	success: boolean;
 };
 
@@ -101,10 +187,16 @@ export type CopyStillToClipboardRequest = {
 	binariesDirectory: string | null;
 };
 
-type ReqAndRes<A, B> = {
-	Request: A;
-	Response: B;
-};
+class StudioOperation<Request, Response> {
+	// Type-only fields keep request/response contracts on the operation definition.
+	declare readonly Request: Request;
+	declare readonly Response: Response;
+	readonly mutatesSource: boolean;
+
+	constructor({mutatesSource}: {mutatesSource: boolean}) {
+		this.mutatesSource = mutatesSource;
+	}
+}
 
 type AddRenderRequestDynamicFields =
 	| {
@@ -207,6 +299,7 @@ export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
 	enumPaths: EnumPath[];
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type ApplyVisualControlRequest = {
@@ -228,25 +321,83 @@ export type UpdateDefaultPropsResponse =
 			stack: string;
 	  };
 
-export type ApplyCodemodRequest = {
-	codemod: RecastCodemod;
-	dryRun: boolean;
+export type UndoRedoNavigation = {
+	undoRoute: string;
+	redoRoute: string;
+};
+
+type CompositionEditRequest = {
 	symbolicatedStack: SymbolicatedStackFrame | null;
+	undoRedoNavigation: UndoRedoNavigation | null;
 };
 
-export type SimpleDiff = {
-	additions: number;
-	deletions: number;
+export type AddCompositionRequest = CompositionEditRequest & {
+	options: NewCompositionOptions;
 };
 
-export type ApplyCodemodResponse =
+export type DuplicateCompositionRequest = CompositionEditRequest & {
+	idToDuplicate: string;
+	newId: string;
+	newHeight: number | null;
+	newWidth: number | null;
+	newFps: number | null;
+	newDurationInFrames: number | null;
+	tag: 'Still' | 'Composition';
+};
+
+export type RenameCompositionRequest = CompositionEditRequest & {
+	idToRename: string;
+	newId: string;
+};
+
+export type UpdateCompositionMetadataRequest = CompositionEditRequest & {
+	idToUpdate: string;
+	newDurationInFrames: number | null;
+	newFps: number | null;
+	newHeight: number | null;
+	newWidth: number | null;
+};
+
+export type DeleteCompositionRequest = CompositionEditRequest & {
+	idToDelete: string;
+};
+
+export type MoveCompositionRequest = CompositionEditRequest & {
+	compositionId: string;
+	destination: CompositionDestination;
+};
+
+export type AddFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type RenameFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	newName: string;
+};
+
+export type UnwrapFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+};
+
+export type MoveFolderRequest = CompositionEditRequest & {
+	folderName: string;
+	parentName: string | null;
+	destination: CompositionDestination;
+};
+
+export type CompositionEditResponse =
 	| {
 			success: true;
-			diff: SimpleDiff;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
 			reason: string;
+			stack: string;
 	  };
 
 export type DeleteStaticFileRequest = {
@@ -289,6 +440,7 @@ export type CanUpdateDefaultPropsResponse =
 export type SubscribeToDefaultPropsRequest = {
 	compositionId: string;
 	clientId: string;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type SubscribeToDefaultPropsResponse = CanUpdateDefaultPropsResponse;
@@ -314,7 +466,6 @@ export type SubscribeToSequencePropsRequest = {
 	assetKeys: string[];
 	effects: string[][];
 	clientId: string;
-	videoConfigValues: VideoConfigValues;
 };
 
 export type SubscribeToSequencePropsResponse =
@@ -328,6 +479,14 @@ export type SubscribeToSequencePropsResponse =
 			status: CanUpdateSequencePropsResponseFalse;
 	  };
 
+export type SubscribeToSequencePropsBatchRequest = {
+	requests: SubscribeToSequencePropsRequest[];
+};
+
+export type SubscribeToSequencePropsBatchResponse = {
+	results: SubscribeToSequencePropsResponse[];
+};
+
 export type UnsubscribeFromSequencePropsRequest = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
@@ -335,6 +494,10 @@ export type UnsubscribeFromSequencePropsRequest = {
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
+};
+
+export type UnsubscribeFromSequencePropsBatchRequest = {
+	requests: UnsubscribeFromSequencePropsRequest[];
 };
 
 export type GoogleFontSourceEdit = {
@@ -345,10 +508,16 @@ export type GoogleFontSourceEdit = {
 	subsets: string[];
 };
 
-export type SaveSequencePropSourceEdit = {
-	type: 'google-font';
-	font: GoogleFontSourceEdit;
-};
+export type SaveSequencePropSourceEdit =
+	| {type: 'playback-rate'}
+	| {
+			type: 'google-font';
+			font: GoogleFontSourceEdit;
+	  }
+	| {
+			type: 'clipboard-param';
+			param: EffectClipboardParam;
+	  };
 
 export type SaveSequencePropEdit = {
 	fileName: string;
@@ -375,13 +544,23 @@ export type CaptionPatch = {
 		endMs: number;
 		timestampMs: number | null;
 		confidence: number | null;
+		pageBreakAfter: boolean | null;
 	};
+	insertAfter: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+		pageBreakAfter: boolean | null;
+	} | null;
 	changes: Partial<{
 		text: string;
 		startMs: number;
 		endMs: number;
 		timestampMs: number | null;
 		confidence: number | null;
+		pageBreakAfter: boolean;
 	}>;
 };
 
@@ -408,13 +587,12 @@ export type SaveSequencePropsRequest = {
 export type SaveSequencePropsResult = {
 	fileName: string;
 	nodePath: SequencePropsSubscriptionKey;
-	props: Record<string, CanUpdateSequencePropStatus>;
+	props: Record<string, CanUpdateSequencePropSource>;
 };
 
 export type SaveSequencePropsResponse =
 	| {
 			canUpdate: true;
-			props: Record<string, CanUpdateSequencePropStatus>;
 			results: SaveSequencePropsResult[];
 	  }
 	| {
@@ -471,13 +649,17 @@ export type AddEffectRequest = {
 	sequenceNodePath: SequencePropsSubscriptionKey;
 	effectName: string;
 	effectImportPath: string;
-	effectConfig: Record<string, unknown>;
+	effectConfig: EffectConfig;
 	clientId: string;
 };
 
 export type AddEffectResponse =
 	| {
 			success: true;
+			insertedEffect: {
+				effectIndex: number;
+				nodePath: SequencePropsSubscriptionKey['nodePath'];
+			};
 	  }
 	| {
 			success: false;
@@ -525,7 +707,7 @@ export type ReorderSequencePosition = 'before' | 'after';
 
 export type ReorderSequenceRequest = {
 	fileName: string;
-	sourceNodePath: SequencePropsSubscriptionKey;
+	sourceNodePaths: SequencePropsSubscriptionKey[];
 	targetNodePath: SequencePropsSubscriptionKey;
 	position: ReorderSequencePosition;
 	clientId: string;
@@ -534,6 +716,7 @@ export type ReorderSequenceRequest = {
 export type ReorderSequenceResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -636,6 +819,7 @@ export type AddKeyframesRequest = {
 
 export type AddKeyframesResponse = {
 	success: true;
+	nodePathMutation: SequenceNodePathMutation | null;
 };
 
 export type KeyframeSettings =
@@ -744,18 +928,19 @@ export type PasteEffectsResponse =
 			stack: string;
 	  };
 
-export type DeleteJsxNodeRequestItem = {
+export type DeleteNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DeleteJsxNodeRequest = {
-	nodes: DeleteJsxNodeRequestItem[];
+export type DeleteNodesRequest = {
+	nodes: DeleteNodesRequestItem[];
 };
 
-export type DeleteJsxNodeResponse =
+export type DeleteNodesResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -763,14 +948,19 @@ export type DeleteJsxNodeResponse =
 			stack: string;
 	  };
 
-export type DuplicateJsxNodeRequest = {
+export type DuplicateNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 };
 
-export type DuplicateJsxNodeResponse =
+export type DuplicateNodesRequest = {
+	nodes: DuplicateNodesRequestItem[];
+};
+
+export type DuplicateNodesResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -778,23 +968,154 @@ export type DuplicateJsxNodeResponse =
 			stack: string;
 	  };
 
-export type SplitJsxSequenceRequest = {
+export type NodeWrapper =
+	| 'AbsoluteFill'
+	| 'Sequence'
+	| 'HtmlInCanvas'
+	| 'HtmlInCanvasMotionBlur';
+
+export type WrapNodeRequest = {
+	fileName: string;
+	compositionId: string;
+	nodePath: SequenceNodePath;
+	wrapper: NodeWrapper | null;
+	width: number | null;
+	height: number | null;
+	timing: {
+		from: number;
+		durationInFrames: number;
+		trimBefore: number;
+	} | null;
+};
+
+export type WrapNodeResponse =
+	| {
+			success: true;
+			canWrap: boolean;
+			canWrapHtmlInCanvas: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type UnwrapNodeRequest = {
+	fileName: string;
+	compositionId: string;
+	nodePath: SequenceNodePath;
+	dryRun: boolean;
+};
+
+export type UnwrapNodeResponse =
+	| {
+			success: true;
+			canUnwrap: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type PrecomposeJsxNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
+};
+
+export type PrecomposeJsxNodesRequest = {
+	nodes: PrecomposeJsxNodesRequestItem[];
+	compositionFile: string;
+	compositionId: string;
+	existingCompositionIds: string[];
+	metadata: {
+		width: number;
+		height: number;
+		fps: number;
+		durationInFrames: number;
+	};
+	dryRun: boolean;
+};
+
+export type PrecomposeJsxNodesResponse =
+	| {
+			success: true;
+			canPrecompose: boolean;
+			reason: string | null;
+			nodePathMutation: SequenceNodePathMutation | null;
+			newCompositionId: string | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
+export type SplitSequencesRequestItem = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	sequenceKeys: string[];
 	splitFrame: number;
+	videoConfigValues: VideoConfigValues | null;
 };
 
-export type SplitJsxSequenceResponse =
+export type SplitSequencesRequest = {
+	sequences: SplitSequencesRequestItem[];
+};
+
+export type SplitSequencesResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
 			reason: string;
 			stack: string;
 	  };
+
+export type SplitVideoFromAudioRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+};
+
+export type SplitVideoFromAudioResponse =
+	| {
+			success: true;
+			nodePathMutation: SequenceNodePathMutation;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
+export type InsertBasicCaptionsRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	durationInFrames: number | null;
+	captions: {
+		text: string;
+		startMs: number;
+		endMs: number;
+		timestampMs: number | null;
+		confidence: number | null;
+		pageBreakAfter?: boolean;
+	}[];
+};
+
+export type InsertBasicCaptionsResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
+export type ReplaceVideoSourceRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	src: string;
+};
+
+export type ReplaceVideoSourceResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
 
 export type InsertableCompositionElement =
+	| {
+			type: 'text';
+			text: string;
+			fontSize: number;
+			color: string;
+			position: InsertableCompositionElementPosition | null;
+	  }
 	| {
 			type: 'solid';
 			width: number;
@@ -842,16 +1163,21 @@ export type InsertableCompositionElementPosition = {
 	y: number;
 };
 
-export type InsertJsxElementRequest = {
+export type InsertCompositionElementRequest = {
 	compositionFile: string;
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
 };
 
-export type InsertJsxElementResponse =
+export type InsertCompositionElementResponse =
 	| {
 			success: true;
+			insertedNodePath: Pick<
+				SequencePropsSubscriptionKey,
+				'absolutePath' | 'nodePath'
+			> | null;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -882,16 +1208,32 @@ export type ElementInstallExpectedFileState =
 			sourceHash: string;
 	  };
 
+export type ElementInstallDestination =
+	| {
+			type: 'selected-media';
+			compositionFile: string;
+	  }
+	| {
+			type: 'current-composition';
+			compositionFile: string;
+			compositionId: string;
+	  }
+	| {
+			type: 'new-composition';
+			compositionFile: string | null;
+	  };
+
 export type PrepareElementInstallRequest = {
-	compositionFile: string;
-	compositionId: string;
-	element: ElementDragData['element'];
+	installationName: string | null;
+	destination: ElementInstallDestination;
+	element: InstallableElement;
 };
 
 export type PrepareElementInstallResponse =
 	| {
 			success: true;
 			plan: {
+				compositionFile: string;
 				filePath: string;
 				expectedFileState: ElementInstallExpectedFileState;
 			};
@@ -903,14 +1245,30 @@ export type PrepareElementInstallResponse =
 	  };
 
 export type InsertElementRequest = {
-	compositionFile: string;
-	compositionId: string;
-	element: ElementDragData['element'];
+	installationName: string | null;
+	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
-};
+	undoRedoNavigation: UndoRedoNavigation | null;
+} & (
+	| {
+			captionTarget: InsertBasicCaptionsRequest;
+			compositionFile: null;
+			compositionId: null;
+			newComposition: null;
+	  }
+	| {
+			captionTarget: null;
+			compositionFile: string;
+			compositionId: string;
+			newComposition: {
+				options: NewCompositionOptions;
+				symbolicatedStack: SymbolicatedStackFrame | null;
+			} | null;
+	  }
+);
 
 export type InsertElementFileConflict = {
 	filePath: string;
@@ -921,6 +1279,7 @@ export type InsertElementFileConflict = {
 export type InsertElementResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 	  }
 	| {
 			success: false;
@@ -940,6 +1299,10 @@ export type ElementInstallSource =
 			origin: string;
 	  }
 	| {
+			type: 'browser-studio-link';
+			origin: string | null;
+	  }
+	| {
 			type: 'drag-and-drop';
 	  };
 
@@ -947,9 +1310,9 @@ export type ElementInstallRequest = {
 	id: string;
 	clientId: string;
 	createdAt: number;
-	compositionFile: string;
-	compositionId: string;
-	element: ElementDragData['element'];
+	compositionFile: string | null;
+	compositionId: string | null;
+	element: InstallableElement;
 	from: number | null;
 	position: InsertableCompositionElementPosition | null;
 	source: ElementInstallSource;
@@ -960,7 +1323,6 @@ export type UpdateElementInstallTargetRequest = {
 	clientId: string;
 	compositionFile: string | null;
 	compositionId: string | null;
-	canInstall: boolean;
 	lastFocusedAt: number | null;
 	readOnly: boolean;
 	studioUrl: string;
@@ -985,15 +1347,69 @@ export type UpdateAvailableResponse = {
 	latestVersion: string;
 	updateAvailable: boolean;
 	skillsUpdateAvailable: boolean;
-	remotionUpgradeSkillAvailable: boolean;
+	skillsUpdateDetails: {
+		outdatedSkills: {
+			name: string;
+			installedVersion: string | null;
+			reason: 'older-version' | 'missing-version' | 'invalid-version';
+		}[];
+	} | null;
 	timedOut: boolean;
 	packageManager: PackageManager | 'unknown';
+};
+
+export type GetReleaseNotesRequest = {
+	currentVersion: string;
+	latestVersion: string;
+};
+
+export type GetReleaseNotesResponse = {
+	hasMore: boolean;
+	releases: {
+		publishedAt: string | null;
+		releaseNotesHtml: string | null;
+		version: string;
+	}[];
+};
+
+export type GetRemotionSkillsInfoRequest = {};
+export type InstallRemotionSkillRequest = {
+	skill: string;
+};
+export type RemoveRemotionSkillRequest = {
+	skill: string;
+};
+export type UpgradeRemotionSkillRequest = {
+	skill: string;
+};
+export type OpenRemotionSkillRequest = {
+	skill: string;
+	scope: 'project' | 'global';
+};
+export type GetRemotionSkillsInfoResponse = {
+	studioServerStartedByAgent: boolean;
+	studioRestartSkill: 'remotion-studio' | 'remotion-best-practices' | null;
+	remotionUpgradeSkillAvailable: boolean;
+	remotionInteractivitySkillAvailable: boolean;
+	installations: {
+		name: string;
+		scope: 'project' | 'global';
+		version: string | null;
+		outdated: boolean;
+	}[];
+	skills: {
+		name: string;
+		installedInProject: boolean;
+		installedGlobally: boolean;
+	}[];
 };
 
 export type ProjectInfoRequest = {};
 export type ProjectInfoResponse = {
 	projectInfo: ProjectInfo;
 };
+
+export type ShutdownStudioResponse = {};
 
 export type RestartStudioRequest = {};
 export type RestartStudioResponse = {};
@@ -1010,6 +1426,7 @@ export type ConfigUpdate =
 	| {
 			setter: string;
 			type: 'delete';
+			value?: string;
 	  }
 	| {
 			setter: string;
@@ -1025,10 +1442,13 @@ export type UpdateConfigResponse =
 	| {success: true}
 	| {success: false; reason: string};
 
-export type GetDefaultEditorInfoRequest = {};
+export type GetDefaultEditorInfoRequest = {
+	recentlyUsedIds: readonly EditorPickerId[];
+};
 export type EditorPickerId = BuiltInEditor | 'custom';
 export type GetDefaultEditorInfoResponse = {
 	defaultEditor: EditorPickerId | null;
+	runningEditors: readonly EditorPickerId[] | null;
 	installedEditors: {
 		id: EditorPickerId;
 		name: string;
@@ -1036,15 +1456,34 @@ export type GetDefaultEditorInfoResponse = {
 	}[];
 };
 
-export type GetDefaultCodingAgentInfoRequest = {};
+export type GetDefaultCodingAgentInfoRequest = {
+	recentlyUsedIds: readonly DefaultCodingAgent[];
+};
 export type GetDefaultCodingAgentInfoResponse = {
 	defaultCodingAgent: DefaultCodingAgent | null;
+	runningCodingAgents: readonly DefaultCodingAgent[] | null;
 	installedCodingAgents: {
 		id: DefaultCodingAgent;
 		name: string;
 		nameWithType: string;
-		iconDataUrl: string | null;
 	}[];
+	installedTerminals: {
+		id: TerminalId;
+		name: string;
+	}[];
+	installedGitClients: {
+		id: GitClientId;
+		name: string;
+	}[];
+};
+
+export type GetAppInfoRequest = {
+	editor: GetDefaultEditorInfoRequest;
+	codingAgent: GetDefaultCodingAgentInfoRequest;
+};
+export type GetAppInfoResponse = {
+	editorInfo: GetDefaultEditorInfoResponse;
+	codingAgentInfo: GetDefaultCodingAgentInfoResponse;
 };
 
 export type PackageInstallSpec = {
@@ -1061,6 +1500,8 @@ export type UndoRequest = {};
 export type UndoResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
+			route: string | null;
 	  }
 	| {
 			success: false;
@@ -1071,6 +1512,8 @@ export type RedoRequest = {};
 export type RedoResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
+			route: string | null;
 	  }
 	| {
 			success: false;
@@ -1087,174 +1530,341 @@ export type LogStudioErrorResponse = {};
 
 // When adding a route, also update the Browser Studio parity checklist:
 // https://github.com/remotion-dev/remotion/issues/9807
-export type ApiRoutes = {
-	'/api/composition-component-info': ReqAndRes<
+export const studioOperations = {
+	'/api/shared-memory-capture-support': new StudioOperation<
+		{
+			browserExecutable: string | null;
+			chromeMode: ChromeMode;
+			chromiumOptions: RequiredChromiumOptions;
+		},
+		{supported: boolean}
+	>({mutatesSource: false}),
+	'/api/invalidate-bundle': new StudioOperation<
+		Record<string, never>,
+		{didInvalidate: boolean}
+	>({mutatesSource: true}),
+	'/api/composition-component-info': new StudioOperation<
 		CompositionComponentInfoRequest,
 		CompositionComponentInfoResponse
-	>;
-	'/api/cancel': ReqAndRes<CancelRenderRequest, CancelRenderResponse>;
-	'/api/render': ReqAndRes<AddRenderRequest, undefined>;
-	'/api/unsubscribe-from-file-existence': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/cancel': new StudioOperation<CancelRenderRequest, CancelRenderResponse>(
+		{mutatesSource: false},
+	),
+	'/api/render': new StudioOperation<AddRenderRequest, undefined>({
+		mutatesSource: false,
+	}),
+	'/api/unsubscribe-from-file-existence': new StudioOperation<
 		UnsubscribeFromFileExistenceRequest,
 		undefined
-	>;
-	'/api/subscribe-to-file-existence': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/subscribe-to-file-existence': new StudioOperation<
 		SubscribeToFileExistenceRequest,
 		SubscribeToFileExistenceResponse
-	>;
-	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
-	'/api/open-in-editor': ReqAndRes<OpenInEditorRequest, OpenInEditorResponse>;
-	'/api/open-in-coding-agent': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/remove-render': new StudioOperation<RemoveRenderRequest, undefined>({
+		mutatesSource: false,
+	}),
+	'/api/open-in-editor': new StudioOperation<
+		OpenInEditorRequest,
+		OpenInEditorResponse
+	>({mutatesSource: false}),
+	'/api/open-in-coding-agent': new StudioOperation<
 		OpenInCodingAgentRequest,
 		OpenInCodingAgentResponse
-	>;
-	'/api/default-coding-agent-info': ReqAndRes<
-		GetDefaultCodingAgentInfoRequest,
-		GetDefaultCodingAgentInfoResponse
-	>;
-	'/api/find-in-file': ReqAndRes<FindInFileRequest, FindInFileResponse>;
-	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
-	'/api/register-client-render': ReqAndRes<CompletedClientRender, void>;
-	'/api/unregister-client-render': ReqAndRes<{id: string}, void>;
-	'/api/update-default-props': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/app-info': new StudioOperation<GetAppInfoRequest, GetAppInfoResponse>({
+		mutatesSource: false,
+	}),
+	'/api/find-in-file': new StudioOperation<
+		FindInFileRequest,
+		FindInFileResponse
+	>({mutatesSource: false}),
+	'/api/open-in-file-explorer': new StudioOperation<
+		OpenInFileExplorerRequest,
+		void
+	>({mutatesSource: false}),
+	'/api/open-in-terminal': new StudioOperation<
+		OpenInTerminalRequest,
+		OpenInTerminalResponse
+	>({mutatesSource: false}),
+	'/api/open-in-git-client': new StudioOperation<
+		OpenInGitClientRequest,
+		OpenInGitClientResponse
+	>({mutatesSource: false}),
+	'/api/register-client-render': new StudioOperation<
+		CompletedClientRender,
+		void
+	>({mutatesSource: false}),
+	'/api/unregister-client-render': new StudioOperation<{id: string}, void>({
+		mutatesSource: false,
+	}),
+	'/api/update-default-props': new StudioOperation<
 		UpdateDefaultPropsRequest,
 		UpdateDefaultPropsResponse
-	>;
-	'/api/apply-visual-control-change': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/apply-visual-control-change': new StudioOperation<
 		ApplyVisualControlRequest,
 		ApplyVisualControlResponse
-	>;
-	'/api/subscribe-to-default-props': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/subscribe-to-default-props': new StudioOperation<
 		SubscribeToDefaultPropsRequest,
 		SubscribeToDefaultPropsResponse
-	>;
-	'/api/unsubscribe-from-default-props': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/unsubscribe-from-default-props': new StudioOperation<
 		UnsubscribeFromDefaultPropsRequest,
 		undefined
-	>;
-	'/api/subscribe-to-sequence-props': ReqAndRes<
-		SubscribeToSequencePropsRequest,
-		SubscribeToSequencePropsResponse
-	>;
-	'/api/unsubscribe-from-sequence-props': ReqAndRes<
-		UnsubscribeFromSequencePropsRequest,
+	>({mutatesSource: false}),
+	'/api/subscribe-to-sequence-props': new StudioOperation<
+		SubscribeToSequencePropsBatchRequest,
+		SubscribeToSequencePropsBatchResponse
+	>({mutatesSource: false}),
+	'/api/unsubscribe-from-sequence-props': new StudioOperation<
+		UnsubscribeFromSequencePropsBatchRequest,
 		undefined
-	>;
-	'/api/save-sequence-props': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/save-sequence-props': new StudioOperation<
 		SaveSequencePropsRequest,
 		SaveSequencePropsResponse
-	>;
-	'/api/save-effect-props': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/save-effect-props': new StudioOperation<
 		SaveEffectPropsRequest,
 		SaveEffectPropsResponse
-	>;
-	'/api/save-multiple-effect-props': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/save-multiple-effect-props': new StudioOperation<
 		SaveMultipleEffectPropsRequest,
 		SaveMultipleEffectPropsResponse
-	>;
-	'/api/add-effect': ReqAndRes<AddEffectRequest, AddEffectResponse>;
-	'/api/reorder-effect': ReqAndRes<ReorderEffectRequest, ReorderEffectResponse>;
-	'/api/duplicate-effect': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/add-effect': new StudioOperation<AddEffectRequest, AddEffectResponse>({
+		mutatesSource: true,
+	}),
+	'/api/reorder-effect': new StudioOperation<
+		ReorderEffectRequest,
+		ReorderEffectResponse
+	>({mutatesSource: true}),
+	'/api/duplicate-effect': new StudioOperation<
 		DuplicateEffectRequest,
 		DuplicateEffectResponse
-	>;
-	'/api/reorder-sequence': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/reorder-sequence': new StudioOperation<
 		ReorderSequenceRequest,
 		ReorderSequenceResponse
-	>;
-	'/api/delete-keyframes': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/delete-keyframes': new StudioOperation<
 		DeleteKeyframesRequest,
 		DeleteKeyframesResponse
-	>;
-	'/api/move-keyframes': ReqAndRes<MoveKeyframesRequest, MoveKeyframesResponse>;
-	'/api/add-sequence-keyframe': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/move-keyframes': new StudioOperation<
+		MoveKeyframesRequest,
+		MoveKeyframesResponse
+	>({mutatesSource: true}),
+	'/api/add-sequence-keyframe': new StudioOperation<
 		AddSequenceKeyframeRequest,
 		AddSequenceKeyframeResponse
-	>;
-	'/api/add-effect-keyframe': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/add-effect-keyframe': new StudioOperation<
 		AddEffectKeyframeRequest,
 		AddEffectKeyframeResponse
-	>;
-	'/api/add-keyframes': ReqAndRes<AddKeyframesRequest, AddKeyframesResponse>;
-	'/api/update-sequence-keyframe-settings': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/add-keyframes': new StudioOperation<
+		AddKeyframesRequest,
+		AddKeyframesResponse
+	>({mutatesSource: true}),
+	'/api/update-sequence-keyframe-settings': new StudioOperation<
 		UpdateSequenceKeyframeSettingsRequest,
 		UpdateSequenceKeyframeSettingsResponse
-	>;
-	'/api/update-effect-keyframe-settings': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/update-effect-keyframe-settings': new StudioOperation<
 		UpdateEffectKeyframeSettingsRequest,
 		UpdateEffectKeyframeSettingsResponse
-	>;
-	'/api/batch-update-keyframe-settings': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/batch-update-keyframe-settings': new StudioOperation<
 		BatchUpdateKeyframeSettingsRequest,
 		BatchUpdateKeyframeSettingsResponse
-	>;
-	'/api/delete-effect': ReqAndRes<DeleteEffectRequest, DeleteEffectResponse>;
-	'/api/paste-effects': ReqAndRes<PasteEffectsRequest, PasteEffectsResponse>;
-	'/api/delete-jsx-node': ReqAndRes<
-		DeleteJsxNodeRequest,
-		DeleteJsxNodeResponse
-	>;
-	'/api/duplicate-jsx-node': ReqAndRes<
-		DuplicateJsxNodeRequest,
-		DuplicateJsxNodeResponse
-	>;
-	'/api/split-jsx-sequence': ReqAndRes<
-		SplitJsxSequenceRequest,
-		SplitJsxSequenceResponse
-	>;
-	'/api/insert-jsx-element': ReqAndRes<
-		InsertJsxElementRequest,
-		InsertJsxElementResponse
-	>;
-	'/api/convert-figma-clipboard-to-svg': ReqAndRes<
+	>({mutatesSource: true}),
+	'/api/delete-effect': new StudioOperation<
+		DeleteEffectRequest,
+		DeleteEffectResponse
+	>({mutatesSource: true}),
+	'/api/paste-effects': new StudioOperation<
+		PasteEffectsRequest,
+		PasteEffectsResponse
+	>({mutatesSource: true}),
+	'/api/delete-nodes': new StudioOperation<
+		DeleteNodesRequest,
+		DeleteNodesResponse
+	>({mutatesSource: true}),
+	'/api/duplicate-nodes': new StudioOperation<
+		DuplicateNodesRequest,
+		DuplicateNodesResponse
+	>({mutatesSource: true}),
+	'/api/precompose-jsx-nodes': new StudioOperation<
+		PrecomposeJsxNodesRequest,
+		PrecomposeJsxNodesResponse
+	>({mutatesSource: true}),
+	'/api/unwrap-node': new StudioOperation<
+		UnwrapNodeRequest,
+		UnwrapNodeResponse
+	>({mutatesSource: true}),
+	'/api/wrap-node': new StudioOperation<WrapNodeRequest, WrapNodeResponse>({
+		mutatesSource: true,
+	}),
+	'/api/split-sequences': new StudioOperation<
+		SplitSequencesRequest,
+		SplitSequencesResponse
+	>({mutatesSource: true}),
+	'/api/split-video-from-audio': new StudioOperation<
+		SplitVideoFromAudioRequest,
+		SplitVideoFromAudioResponse
+	>({mutatesSource: true}),
+	'/api/insert-basic-captions': new StudioOperation<
+		InsertBasicCaptionsRequest,
+		InsertBasicCaptionsResponse
+	>({mutatesSource: true}),
+	'/api/replace-video-source': new StudioOperation<
+		ReplaceVideoSourceRequest,
+		ReplaceVideoSourceResponse
+	>({mutatesSource: true}),
+	'/api/insert-composition-element': new StudioOperation<
+		InsertCompositionElementRequest,
+		InsertCompositionElementResponse
+	>({mutatesSource: true}),
+	'/api/convert-figma-clipboard-to-svg': new StudioOperation<
 		ConvertFigmaClipboardToSvgRequest,
 		ConvertFigmaClipboardToSvgResponse
-	>;
-	'/api/insert-element': ReqAndRes<InsertElementRequest, InsertElementResponse>;
-	'/api/prepare-element-install': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/insert-element': new StudioOperation<
+		InsertElementRequest,
+		InsertElementResponse
+	>({mutatesSource: true}),
+	'/api/prepare-element-install': new StudioOperation<
 		PrepareElementInstallRequest,
 		PrepareElementInstallResponse
-	>;
-	'/api/update-element-install-target': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/update-element-install-target': new StudioOperation<
 		UpdateElementInstallTargetRequest,
 		UpdateElementInstallTargetResponse
-	>;
-	'/api/download-remote-asset': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/download-remote-asset': new StudioOperation<
 		DownloadRemoteAssetRequest,
 		DownloadRemoteAssetResponse
-	>;
-	'/api/update-available': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/update-available': new StudioOperation<
 		UpdateAvailableRequest,
 		UpdateAvailableResponse
-	>;
-	'/api/apply-codemod': ReqAndRes<ApplyCodemodRequest, ApplyCodemodResponse>;
-	'/api/project-info': ReqAndRes<ProjectInfoRequest, ProjectInfoResponse>;
-	'/api/delete-static-file': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/release-notes': new StudioOperation<
+		GetReleaseNotesRequest,
+		GetReleaseNotesResponse
+	>({mutatesSource: false}),
+	'/api/remotion-skills-info': new StudioOperation<
+		GetRemotionSkillsInfoRequest,
+		GetRemotionSkillsInfoResponse
+	>({mutatesSource: false}),
+	'/api/install-remotion-skill': new StudioOperation<
+		InstallRemotionSkillRequest,
+		GetRemotionSkillsInfoResponse
+	>({mutatesSource: false}),
+	'/api/remove-remotion-skill': new StudioOperation<
+		RemoveRemotionSkillRequest,
+		GetRemotionSkillsInfoResponse
+	>({mutatesSource: false}),
+	'/api/upgrade-remotion-skill': new StudioOperation<
+		UpgradeRemotionSkillRequest,
+		GetRemotionSkillsInfoResponse
+	>({mutatesSource: false}),
+	'/api/open-remotion-skill': new StudioOperation<
+		OpenRemotionSkillRequest,
+		void
+	>({mutatesSource: false}),
+	'/api/add-composition': new StudioOperation<
+		AddCompositionRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/duplicate-composition': new StudioOperation<
+		DuplicateCompositionRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/rename-composition': new StudioOperation<
+		RenameCompositionRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/update-composition-metadata': new StudioOperation<
+		UpdateCompositionMetadataRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/delete-composition': new StudioOperation<
+		DeleteCompositionRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/move-composition': new StudioOperation<
+		MoveCompositionRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/add-folder': new StudioOperation<
+		AddFolderRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/rename-folder': new StudioOperation<
+		RenameFolderRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/unwrap-folder': new StudioOperation<
+		UnwrapFolderRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/move-folder': new StudioOperation<
+		MoveFolderRequest,
+		CompositionEditResponse
+	>({mutatesSource: true}),
+	'/api/project-info': new StudioOperation<
+		ProjectInfoRequest,
+		ProjectInfoResponse
+	>({mutatesSource: false}),
+	'/api/delete-static-file': new StudioOperation<
 		DeleteStaticFileRequest,
 		DeleteStaticFileResponse
-	>;
-	'/api/rename-static-file': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/rename-static-file': new StudioOperation<
 		RenameStaticFileRequest,
 		RenameStaticFileResponse
-	>;
-	'/api/copy-render-output-to-asset': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/copy-render-output-to-asset': new StudioOperation<
 		CopyRenderOutputToAssetRequest,
 		CopyRenderOutputToAssetResponse
-	>;
-	'/api/restart-studio': ReqAndRes<RestartStudioRequest, RestartStudioResponse>;
-	'/api/update-config': ReqAndRes<UpdateConfigRequest, UpdateConfigResponse>;
-	'/api/default-editor-info': ReqAndRes<
-		GetDefaultEditorInfoRequest,
-		GetDefaultEditorInfoResponse
-	>;
-	'/api/install-package': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/upgrade-remotion': new StudioOperation<{version: string}, {}>({
+		mutatesSource: false,
+	}),
+	'/api/shutdown-studio': new StudioOperation<{}, ShutdownStudioResponse>({
+		mutatesSource: false,
+	}),
+	'/api/restart-studio': new StudioOperation<
+		RestartStudioRequest,
+		RestartStudioResponse
+	>({mutatesSource: false}),
+	'/api/update-config': new StudioOperation<
+		UpdateConfigRequest,
+		UpdateConfigResponse
+	>({mutatesSource: false}),
+	'/api/install-package': new StudioOperation<
 		InstallPackageRequest,
 		InstallPackageResponse
-	>;
-	'/api/undo': ReqAndRes<UndoRequest, UndoResponse>;
-	'/api/redo': ReqAndRes<RedoRequest, RedoResponse>;
-	'/api/log-studio-error': ReqAndRes<
+	>({mutatesSource: false}),
+	'/api/undo': new StudioOperation<UndoRequest, UndoResponse>({
+		mutatesSource: true,
+	}),
+	'/api/redo': new StudioOperation<RedoRequest, RedoResponse>({
+		mutatesSource: true,
+	}),
+	'/api/log-studio-error': new StudioOperation<
 		LogStudioErrorRequest,
 		LogStudioErrorResponse
+	>({mutatesSource: false}),
+};
+
+export type ApiRoutes = {
+	[Endpoint in keyof typeof studioOperations]: Pick<
+		(typeof studioOperations)[Endpoint],
+		'Request' | 'Response'
 	>;
 };

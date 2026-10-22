@@ -6,27 +6,45 @@ import {
 	makeRetryPayload,
 } from '../../helpers/retry-payload';
 import {SetSelectedModalContext} from '../../state/modals';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
+import type {CaptionJob} from './caption-job-types';
 import type {
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
 } from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
+import type {VideoMattingJob} from './video-matting-job-types';
 
 export const RenderQueueRepeatItem: React.FC<{
-	readonly job: AnyRenderJob;
+	readonly job: AnyRenderJob | CaptionJob | VideoMattingJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-
-	const isClientJob = isClientRenderJob(job);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
 
-			if (isClientJob) {
+			if (job.type === 'caption') {
+				setSelectedModal({
+					type: 'transcribe',
+					captionStyle: job.captionStyle,
+					src: job.src,
+					displayName: job.displayName,
+					audioStreamIndex: job.audioStreamIndex,
+					requestInit: job.requestInit,
+					target: job.target,
+				});
+			} else if (job.type === 'video-matting') {
+				setSelectedModal({
+					type: 'video-matting',
+					src: job.src,
+					displayName: job.displayName,
+					target: job.target,
+				});
+			} else if (isClientRenderJob(job)) {
 				const retryPayload = makeClientRetryPayload(
 					job as ClientStillRenderJob | ClientVideoRenderJob,
 				);
@@ -36,7 +54,7 @@ export const RenderQueueRepeatItem: React.FC<{
 				setSelectedModal(retryPayload);
 			}
 		},
-		[job, isClientJob, setSelectedModal],
+		[job, setSelectedModal],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {
@@ -61,10 +79,13 @@ export const RenderQueueRepeatItem: React.FC<{
 	);
 
 	return (
-		<InlineAction
-			onClick={onClick}
-			renderAction={renderAction}
-			variant={null}
-		/>
+		<ActionTooltip label="Retry" shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				aria-label="Retry"
+				onClick={onClick}
+				renderAction={renderAction}
+				variant={null}
+			/>
+		</ActionTooltip>
 	);
 };

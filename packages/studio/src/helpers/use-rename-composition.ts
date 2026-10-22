@@ -1,11 +1,9 @@
-import type {
-	RecastCodemod,
-	SymbolicatedStackFrame,
-} from '@remotion/studio-shared';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
 import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
-import {applyCodemod} from '../components/RenderQueue/actions';
-import {pushUrl} from './url-state';
+import {renameComposition as renameCompositionApi} from '../components/RenderQueue/actions';
+import {slugifyName} from './slugify-name';
+import {getRoute, pushUrl} from './url-state';
 import {validateCompositionName} from './validate-new-comp-data';
 
 export const useRenameComposition = ({
@@ -19,35 +17,24 @@ export const useRenameComposition = ({
 }) => {
 	const getValidationMessage = useCallback(
 		(value: string) => {
-			if (value === currentId) {
+			const slug = slugifyName(value);
+			if (slug === currentId) {
 				return null;
 			}
 
-			return validateCompositionName(value, compositions);
+			return slug
+				? validateCompositionName(slug, compositions)
+				: 'Enter an ID containing letters or numbers.';
 		},
 		[compositions, currentId],
 	);
 
-	const getCodemod = useCallback(
-		(value: string): RecastCodemod => {
-			return {
-				type: 'rename-composition',
-				idToRename: currentId,
-				newId: value,
-			};
-		},
-		[currentId],
-	);
-
+	const compositionId = slugifyName(newId);
 	const validationMessage = useMemo(() => {
 		return getValidationMessage(newId);
 	}, [getValidationMessage, newId]);
 
-	const codemod = useMemo(() => {
-		return getCodemod(newId);
-	}, [getCodemod, newId]);
-
-	const valid = validationMessage === null && currentId !== newId;
+	const valid = validationMessage === null && currentId !== compositionId;
 
 	const renameComposition = useCallback(
 		async ({
@@ -59,24 +46,31 @@ export const useRenameComposition = ({
 			signal: AbortSignal;
 			symbolicatedStack: SymbolicatedStackFrame | null;
 		}) => {
-			const result = await applyCodemod({
-				codemod: getCodemod(newCompositionId),
-				dryRun: false,
+			const nextCompositionId = slugifyName(newCompositionId);
+			const result = await renameCompositionApi(
+				{
+					idToRename: currentId,
+					newId: nextCompositionId,
+					symbolicatedStack,
+					undoRedoNavigation: {
+						undoRoute: getRoute(),
+						redoRoute: `/${nextCompositionId}`,
+					},
+				},
 				signal,
-				symbolicatedStack,
-			});
+			);
 
 			if (result.success) {
-				pushUrl(`/${newCompositionId}`);
+				pushUrl(`/${nextCompositionId}`);
 			}
 
 			return result;
 		},
-		[getCodemod],
+		[currentId],
 	);
 
 	return {
-		codemod,
+		compositionId,
 		getValidationMessage,
 		renameComposition,
 		valid,

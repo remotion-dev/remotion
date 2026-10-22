@@ -3,12 +3,17 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {
+	useKeyboardShortcutAriaKeyShortcuts,
+	useKeyboardShortcutLabel,
+} from '../helpers/use-keyboard-shortcut-label';
 import {JumpToStart} from '../icons/jump-to-start';
 import {Pause} from '../icons/pause';
 import {Play} from '../icons/play';
 import {StepBack} from '../icons/step-back';
 import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
+import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
 import {getCurrentDuration} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
@@ -26,7 +31,33 @@ const iconButton: React.CSSProperties = {
 	width: 14,
 };
 
-export const PlayPause: React.FC<{
+const browserMediaControlsBehavior = {
+	mode: 'register-media-session',
+} as const;
+
+const PlaybackManager: React.FC<{
+	readonly playbackRate: number;
+	readonly loop: boolean;
+	readonly muted: boolean;
+	readonly inFrame: number | null;
+	readonly outFrame: number | null;
+	readonly getCurrentFrame: () => number;
+}> = ({playbackRate, loop, muted, inFrame, outFrame, getCurrentFrame}) => {
+	PlayerInternals.usePlayback({
+		loop,
+		playbackRate,
+		moveToBeginningWhenEnded: true,
+		inFrame,
+		outFrame,
+		getCurrentFrame,
+		browserMediaControlsBehavior,
+		muted,
+	});
+
+	return null;
+};
+
+const PlayPauseInner: React.FC<{
 	readonly playbackRate: number;
 	readonly loop: boolean;
 	readonly bufferStateDelayInMilliseconds: number;
@@ -53,22 +84,15 @@ export const PlayPause: React.FC<{
 		emitter,
 		getCurrentFrame,
 	} = PlayerInternals.usePlayerMethods();
-	const [playing] = Internals.Timeline.usePlayingState();
-
-	PlayerInternals.usePlayback({
-		loop,
-		playbackRate,
-		moveToBeginningWhenEnded: true,
-		inFrame,
-		outFrame,
-		getCurrentFrame,
-		browserMediaControlsBehavior: {
-			mode: 'register-media-session',
-		},
-		muted,
-	});
+	const playing = Internals.usePlaying();
 
 	const isStill = useIsStill();
+	const jumpToBeginningShortcut = useKeyboardShortcutLabel('jumpToBeginning');
+	const jumpToBeginningAriaShortcut =
+		useKeyboardShortcutAriaKeyShortcuts('jumpToBeginning');
+	const playPauseShortcut = useKeyboardShortcutLabel('playPause');
+	const playPauseAriaShortcut =
+		useKeyboardShortcutAriaKeyShortcuts('playPause');
 
 	useEffect(() => {
 		if (isStill) {
@@ -149,36 +173,32 @@ export const PlayPause: React.FC<{
 		});
 		const space = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: ' ',
+			action: 'playPause',
 			callback: onSpace,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const enter = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'enter',
+			action: 'pauseAndReturnToPlaybackStart',
 			callback: onEnter,
-			commandCtrlKey: false,
 			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const a = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'a',
+			action: 'jumpToBeginning',
 			callback: jumpToStart,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 		const e = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'e',
+			action: 'jumpToEnd',
 			callback: jumpToEnd,
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -246,56 +266,97 @@ export const PlayPause: React.FC<{
 
 	return (
 		<>
+			<PlaybackManager
+				loop={loop}
+				playbackRate={playbackRate}
+				muted={muted}
+				inFrame={inFrame}
+				outFrame={outFrame}
+				getCurrentFrame={getCurrentFrame}
+			/>
 			{hideNavigationControls ? null : (
-				<ControlButton
-					aria-label="Jump to beginning"
-					title="Jump to beginning"
-					disabled={!videoConfig}
-					onClick={jumpToStart}
+				<ActionTooltip
+					label="Go to beginning"
+					shortcut={jumpToBeginningShortcut}
+					delay={800}
+					dismissOnClick
 				>
-					{(color) => <JumpToStart style={backStyle} color={color} />}
-				</ControlButton>
+					<ControlButton
+						aria-label="Go to beginning"
+						aria-keyshortcuts={jumpToBeginningAriaShortcut || undefined}
+						disabled={!videoConfig}
+						onClick={jumpToStart}
+					>
+						{(color) => <JumpToStart style={backStyle} color={color} />}
+					</ControlButton>
+				</ActionTooltip>
 			)}
 			{hideNavigationControls ? null : (
-				<ControlButton
-					aria-label="Step back one frame"
-					title="Step back one frame"
-					disabled={!videoConfig}
-					onClick={oneFrameBack}
+				<ActionTooltip
+					label="Previous frame"
+					shortcut="←"
+					delay={800}
+					dismissOnClick
 				>
-					{(color) => <StepBack style={forwardBackStyle} color={color} />}
-				</ControlButton>
+					<ControlButton
+						aria-label="Go back 1 frame"
+						aria-keyshortcuts="ArrowLeft"
+						disabled={!videoConfig}
+						onClick={oneFrameBack}
+					>
+						{(color) => <StepBack style={forwardBackStyle} color={color} />}
+					</ControlButton>
+				</ActionTooltip>
 			)}
 
-			<ControlButton
-				aria-label={playing ? 'Pause' : 'Play'}
-				title={playing ? 'Pause' : 'Play'}
-				onClick={playing ? pause : play}
-				disabled={!videoConfig}
+			<ActionTooltip
+				label={playing ? 'Pause' : 'Play'}
+				shortcut={playPauseShortcut}
+				delay={800}
+				dismissOnClick={false}
 			>
-				{(color) =>
-					playing ? (
-						showBufferIndicator ? (
-							<PlayerInternals.BufferingIndicator type="studio" color={color} />
+				<ControlButton
+					aria-label={playing ? 'Pause' : 'Play'}
+					aria-keyshortcuts={playPauseAriaShortcut || undefined}
+					onClick={playing ? pause : play}
+					disabled={!videoConfig}
+				>
+					{(color) =>
+						playing ? (
+							showBufferIndicator ? (
+								<PlayerInternals.BufferingIndicator
+									type="studio"
+									color={color}
+								/>
+							) : (
+								<Pause style={iconButton} color={color} />
+							)
 						) : (
-							<Pause style={iconButton} color={color} />
+							<Play style={iconButton} color={color} />
 						)
-					) : (
-						<Play style={iconButton} color={color} />
-					)
-				}
-			</ControlButton>
+					}
+				</ControlButton>
+			</ActionTooltip>
 
 			{hideNavigationControls ? null : (
-				<ControlButton
-					aria-label="Step forward one frame"
-					title="Step forward one frame"
-					disabled={!videoConfig}
-					onClick={oneFrameForward}
+				<ActionTooltip
+					label="Next frame"
+					shortcut="→"
+					delay={800}
+					dismissOnClick
 				>
-					{(color) => <StepForward style={forwardBackStyle} color={color} />}
-				</ControlButton>
+					<ControlButton
+						aria-label="Go forward 1 frame"
+						aria-keyshortcuts="ArrowRight"
+						disabled={!videoConfig}
+						onClick={oneFrameForward}
+					>
+						{(color) => <StepForward style={forwardBackStyle} color={color} />}
+					</ControlButton>
+				</ActionTooltip>
 			)}
 		</>
 	);
 };
+
+export const PlayPause = React.memo(PlayPauseInner);

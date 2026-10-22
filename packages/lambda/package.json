@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.507",
+	"version": "4.0.538",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"scripts": {
@@ -12,7 +12,7 @@
 		"lint": "eslint src",
 		"testlambda": "exit 0",
 		"test": "bun test src/test/unit",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"makeruntime": "bun build.ts",
 		"prepublishOnly": "bun build.ts && bun ensure-version-match.js"
 	},
@@ -31,8 +31,8 @@
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/lambda-client": "workspace:*",
+		"@remotion/licensing": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"@remotion/serverless": "workspace:*",
 		"@remotion/streaming": "workspace:*",
 		"@smithy/abort-controller": "4.0.1",
 		"remotion": "workspace:*",
@@ -51,7 +51,7 @@
 		"next": "catalog:",
 		"pureimage": "0.4.13",
 		"@types/node": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"
@@ -78,6 +78,12 @@
 			"require": "./dist/policies.js",
 			"module": "./dist/esm/policies.mjs",
 			"import": "./dist/esm/policies.mjs"
+		},
+		"./internal/help": {
+			"types": "./dist/cli/help.d.ts",
+			"require": "./dist/cli/help.js",
+			"module": "./dist/cli/help.js",
+			"import": "./dist/cli/help.js"
 		}
 	},
 	"typesVersions": {
@@ -87,6 +93,9 @@
 			],
 			"policies": [
 				"./dist/policies.d.ts"
+			],
+			"internal/help": [
+				"./dist/cli/help.d.ts"
 			]
 		}
 	},

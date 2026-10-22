@@ -1,4 +1,4 @@
-import {expect, test} from 'bun:test';
+import {expect, spyOn, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -76,6 +76,118 @@ test('saveSequenceProps does not suppress HMR for Google Font source edits', () 
 	).toBe(false);
 });
 
+test('saveSequenceProps pastes a keyframed property into source', async () => {
+	clearUndoStackForTests();
+	const cleanupFileWatcher = setFileWatcherRegistry(
+		createFileWatcherRegistry(),
+	);
+	const cleanupLiveEvents = setLiveEventsListener({
+		addNewClientListener: () => () => undefined,
+		closeConnections: () => Promise.resolve(),
+		router: () => Promise.resolve(),
+		sendEventToClient: () => undefined,
+		sendEventToClientId: () => true,
+	});
+	const dir = mkdtempSync(join(tmpdir(), 'remotion-save-sequence-props-'));
+	const fileName = 'Comp.tsx';
+	const filePath = join(dir, fileName);
+	const input = `import {AbsoluteFill} from 'remotion';
+
+export const Comp = () => {
+	return <AbsoluteFill style={{rotate: '0deg'}} />;
+};
+`;
+	const nodePath = {
+		absolutePath: fileName,
+		nodePath: lineColumnToNodePath(input, 4),
+		sequenceKeys: ['style.rotate'],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+	const consoleSpy = spyOn(console, 'log').mockImplementation(() => undefined);
+
+	try {
+		writeFileSync(filePath, input);
+		await saveSequencePropsHandler({
+			input: {
+				edits: [
+					{
+						fileName,
+						nodePath,
+						key: 'style.rotate',
+						value: {type: 'undefined'},
+						defaultValue: JSON.stringify('0deg'),
+						schema: NoReactInternals.sequenceSchema,
+						sourceEdit: {
+							type: 'clipboard-param',
+							param: {
+								type: 'keyframed',
+								interpolationFunction: 'interpolate',
+								keyframes: [
+									{frame: 0, value: '0deg'},
+									{frame: 30, value: '90deg'},
+								],
+								easing: [{type: 'linear'}],
+								clamping: {left: 'extend', right: 'extend'},
+							},
+						},
+					},
+				],
+				addedKeyframes: null,
+				movedKeyframes: null,
+				clientId: 'test-client',
+				undoLabel: 'Paste property',
+				redoLabel: 'Reapply property paste',
+			},
+			entryPoint: '',
+			remotionRoot: dir,
+			request: {} as never,
+			response: {} as never,
+			logLevel: 'trace',
+			methods: {
+				addJob: () => undefined,
+				cancelJob: () => undefined,
+				removeJob: () => undefined,
+			},
+			publicDir: '',
+			binariesDirectory: null,
+			configFile: null,
+			getDefaultCodingAgent: () => null,
+			getDefaultEditor: () => null,
+		});
+
+		const output = readFileSync(filePath, 'utf-8');
+		expect(output).toMatch(
+			/import \{[^}]*\binterpolate\b[^}]*\} from 'remotion';/,
+		);
+		expect(output).toMatch(
+			/import \{[^}]*\buseCurrentFrame\b[^}]*\} from 'remotion';/,
+		);
+		expect(output).toContain('const frame = useCurrentFrame();');
+		expect(output).toContain(
+			"rotate: interpolate(frame, [0, 30], ['0deg', '90deg'])",
+		);
+		const completionLog = consoleSpy.mock.calls
+			.map((call) => call.join(' '))
+			.find((line) => line.includes('Comp.tsx:4'));
+		expect(completionLog).toMatch(/^\[\d+ms\] /);
+		expect(completionLog).toContain('Comp.tsx:4');
+		expect(getUndoStack()).toHaveLength(1);
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
+		expect(readFileSync(filePath, 'utf-8')).toBe(input);
+	} finally {
+		clearUndoStackForTests();
+		cleanupLiveEvents();
+		cleanupFileWatcher();
+		consoleSpy.mockRestore();
+		rmSync(dir, {force: true, recursive: true});
+	}
+});
+
 test('saveSequenceProps forwards element schemas to the codemod', () => {
 	const change = convertSequencePropEditToCodemodChange({
 		nodePath: {
@@ -100,6 +212,7 @@ test('saveSequenceProps forwards element schemas to the codemod', () => {
 				value: 7,
 				defaultValue: 5,
 				googleFont: null,
+				clipboardParam: null,
 			},
 		],
 		schema: starSchema,
@@ -166,8 +279,10 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 									endMs: 1000,
 									timestampMs: 500,
 									confidence: null,
+									pageBreakAfter: null,
 								},
-								changes: {text: 'Updated'},
+								insertAfter: null,
+								changes: {text: 'Updated', pageBreakAfter: true},
 							},
 						],
 					},
@@ -196,10 +311,15 @@ test('saveSequenceProps saves inline caption patches as an undoable source edit'
 		});
 
 		expect(readFileSync(filePath, 'utf-8')).toContain("text: 'Updated'");
+		expect(readFileSync(filePath, 'utf-8')).toContain('pageBreakAfter: true');
 		expect(getUndoStack()).toHaveLength(1);
 		expect(getUndoStack()[0]?.suppressHmrOnFileRestore).toBe(false);
 
-		expect(popUndo()).toEqual({success: true});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();
@@ -308,7 +428,11 @@ export const Comp = () => {
 		expect(output).toContain('interpolate(frame, [10, 30], [0, 1])');
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();
@@ -423,7 +547,11 @@ export const Comp = () => {
 		expect(output).toContain("['3px 4px', '23px 44px']");
 		expect(getUndoStack()).toHaveLength(1);
 
-		expect(popUndo()).toEqual({success: true});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: null,
+		});
 		expect(readFileSync(filePath, 'utf-8')).toBe(input);
 	} finally {
 		clearUndoStackForTests();

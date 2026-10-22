@@ -44,7 +44,8 @@ You are responsible for the use of Apple Emojis in your project.
 
 ### Unavailable emojis
 
-Since the Lambda runtime can only be 250MB, and the space has to be shared with Chrome and other fonts, we had to remove some emojis from the font.  
+Lambda has a [250 MiB uncompressed deployment limit](/docs/lambda/custom-layers). Since Chrome and other fonts share this space, some emojis have been removed from the font.
+
 The following emojis are removed:
 
 - All "Facing Right" emojis of existing emojis: "🏃‍➡️" Person Running Facing Right is **not available**, but "🏃" Person Running is

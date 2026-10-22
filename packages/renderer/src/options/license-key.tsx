@@ -6,6 +6,7 @@ const cliFlag = 'license-key' as const;
 
 export const licenseKeyOption = {
 	name: 'License key',
+	addedIn: '4.0.409',
 	cliFlag,
 	description: () => (
 		<>
@@ -14,7 +15,7 @@ export const licenseKeyOption = {
 		</>
 	),
 	ssrName: 'licenseKey' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/license-key',
 	type: null as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

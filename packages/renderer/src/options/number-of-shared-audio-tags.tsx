@@ -1,11 +1,13 @@
 import type {AnyRemotionOption} from './option';
 
 let numberOfSharedAudioTags = 0;
+let configuredNumberOfSharedAudioTags: number | null = null;
 
 const cliFlag = 'number-of-shared-audio-tags' as const;
 
 export const numberOfSharedAudioTagsOption = {
 	name: 'Number of shared audio tags',
+	addedIn: '3.3.2',
 	cliFlag,
 	description: () => (
 		<>
@@ -17,7 +19,7 @@ export const numberOfSharedAudioTagsOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setnumberofsharedaudiotags',
+	docLink: 'https://www.remotion.dev/docs/options/number-of-shared-audio-tags',
 	type: 0 as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
@@ -34,6 +36,12 @@ export const numberOfSharedAudioTagsOption = {
 	},
 	setConfig(value: number) {
 		numberOfSharedAudioTags = value;
+		configuredNumberOfSharedAudioTags = value;
+	},
+	getConfigValue: () => configuredNumberOfSharedAudioTags,
+	reset: () => {
+		numberOfSharedAudioTags = 0;
+		configuredNumberOfSharedAudioTags = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<number>;

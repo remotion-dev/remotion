@@ -13,7 +13,7 @@ if (changedFiles.length === 0) {
 	process.exit(0);
 }
 
-const formatPackageNames = new Set<string>();
+const formatPackageDirs = new Set<string>();
 const lintPackageNames = new Set<string>();
 
 for (const file of changedFiles) {
@@ -32,7 +32,7 @@ for (const file of changedFiles) {
 	const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf-8'));
 
 	if (pkgJson.scripts?.format) {
-		formatPackageNames.add(pkgJson.name);
+		formatPackageDirs.add(path.resolve('packages', dir));
 	}
 
 	if (pkgJson.scripts?.lint) {
@@ -40,12 +40,10 @@ for (const file of changedFiles) {
 	}
 }
 
-if (formatPackageNames.size > 0) {
-	const formatFilters = [...formatPackageNames].flatMap((name) => [
-		'--filter',
-		name,
-	]);
-	await $`bun run ${formatFilters} format`;
+if (formatPackageDirs.size > 0) {
+	for (const dir of formatPackageDirs) {
+		await $`bun run --cwd ${dir} format`;
+	}
 
 	// Re-stage originally staged files so formatting changes are included in this commit
 	if (stagedFiles.length > 0) {

@@ -1,4 +1,5 @@
 import {TraceMap, type SourceMapInput} from '@jridgewell/trace-mapping';
+import {Internals} from 'remotion';
 import {getOriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {
 	getLocationOfFunctionCall,
@@ -7,12 +8,26 @@ import {
 
 const traceMapCache: Partial<Record<string, TraceMap>> = {};
 const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
-const browserStudioOriginalSourcePrefix = 'browser-studio-original://';
-const studioOriginalSourcePrefix = 'studio-original://';
+const traceMapsByOriginalSource = new Map<string, TraceMap>();
+const sourceMapFilesCache = new WeakMap<TraceMap, Record<string, string>>();
 
-const getSourceMapCache = async (fileName: string) => {
+const isInternalSource = (source: string | null): boolean => {
+	if (source === null) {
+		return false;
+	}
+
+	const normalizedSource = source.replaceAll('\\', '/');
+	// Generated and Remotion runtime files are not authored sequence locations.
+	return (
+		/(?:^|\/)node_modules\//.test(normalizedSource) ||
+		/(?:^|\/)dist\/(?:[^/]+\/)*[^/]+\.(?:cjs|mjs|js)$/.test(normalizedSource) ||
+		/(?:^|\/)(?:packages\/)?core\/src\//.test(normalizedSource)
+	);
+};
+
+const getSourceMapCache = (fileName: string): Promise<TraceMap> => {
 	if (traceMapCache[fileName]) {
-		return traceMapCache[fileName];
+		return Promise.resolve(traceMapCache[fileName]);
 	}
 
 	if (traceMapPromises[fileName]) {
@@ -24,6 +39,14 @@ const getSourceMapCache = async (fileName: string) => {
 		.then((json) => {
 			const map = new TraceMap(json as SourceMapInput);
 			traceMapCache[fileName] = map;
+			for (let index = 0; index < map.sources.length; index++) {
+				const source = map.sources[index];
+				const content = map.sourcesContent?.[index];
+				if (source !== null && typeof content === 'string') {
+					traceMapsByOriginalSource.set(source, map);
+				}
+			}
+
 			return map;
 		})
 		.finally(() => {
@@ -31,6 +54,32 @@ const getSourceMapCache = async (fileName: string) => {
 		});
 
 	return traceMapPromises[fileName];
+};
+
+export const getSourceMapFilesForSource = (
+	source: string,
+): Record<string, string> | null => {
+	const map = traceMapsByOriginalSource.get(source);
+	if (!map) {
+		return null;
+	}
+
+	const cached = sourceMapFilesCache.get(map);
+	if (cached) {
+		return cached;
+	}
+
+	const files: Record<string, string> = {};
+	for (let index = 0; index < map.sources.length; index++) {
+		const fileName = map.sources[index];
+		const content = map.sourcesContent?.[index];
+		if (fileName !== null && typeof content === 'string') {
+			files[fileName] = content;
+		}
+	}
+
+	sourceMapFilesCache.set(map, files);
+	return files;
 };
 
 export const getOriginalLocationFromStack = async (
@@ -46,18 +95,17 @@ export const getOriginalLocationFromStack = async (
 		return null;
 	}
 
-	const originalSourcePrefix = [
-		browserStudioOriginalSourcePrefix,
-		studioOriginalSourcePrefix,
-	].find((prefix) => location.fileName.startsWith(prefix));
+	// Bundlers that record the JSX source location skip symbolication.
+	const originalSource = Internals.parseOriginalSourceStack(stack);
+	if (originalSource) {
+		if (isInternalSource(originalSource.fileName)) {
+			return null;
+		}
 
-	if (originalSourcePrefix) {
 		return {
-			column: location.columnNumber,
-			line: location.lineNumber,
-			source: decodeURIComponent(
-				location.fileName.slice(originalSourcePrefix.length),
-			),
+			column: originalSource.column,
+			line: originalSource.line,
+			source: originalSource.fileName,
 		};
 	}
 
@@ -67,5 +115,5 @@ export const getOriginalLocationFromStack = async (
 		location.lineNumber as number,
 		location.columnNumber as number,
 	);
-	return originalPosition;
+	return isInternalSource(originalPosition.source) ? null : originalPosition;
 };

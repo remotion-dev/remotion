@@ -1,17 +1,20 @@
+export {studioOperations} from './api-requests';
 export {splitAnsi, stripAnsi} from './ansi';
+export type {TerminalId} from './terminal';
+export type {GitClientId} from './git-client';
 export {
 	AddEffectKeyframeRequest,
 	AddEffectKeyframeResponse,
 	AddEffectRequest,
 	AddEffectResponse,
+	AddCompositionRequest,
+	AddFolderRequest,
 	AddKeyframesRequest,
 	AddKeyframesResponse,
 	AddRenderRequest,
 	AddSequenceKeyframeRequest,
 	AddSequenceKeyframeResponse,
 	ApiRoutes,
-	ApplyCodemodRequest,
-	ApplyCodemodResponse,
 	ApplyVisualControlRequest,
 	ApplyVisualControlResponse,
 	BatchUpdateEffectKeyframeSettings,
@@ -25,6 +28,8 @@ export {
 	CaptionPatch,
 	CompositionComponentInfoRequest,
 	CompositionComponentInfoResponse,
+	CompositionEditResponse,
+	ComponentProp,
 	ConvertFigmaClipboardToSvgRequest,
 	ConvertFigmaClipboardToSvgResponse,
 	CopyRenderOutputToAssetRequest,
@@ -34,9 +39,10 @@ export {
 	DeleteEffectRequest,
 	DeleteEffectRequestItem,
 	DeleteEffectResponse,
-	DeleteJsxNodeRequest,
-	DeleteJsxNodeRequestItem,
-	DeleteJsxNodeResponse,
+	DeleteCompositionRequest,
+	DeleteNodesRequest,
+	DeleteNodesRequestItem,
+	DeleteNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
 	DeleteSequenceKeyframe,
@@ -47,31 +53,60 @@ export {
 	DuplicateEffectRequest,
 	DuplicateEffectRequestItem,
 	DuplicateEffectResponse,
-	DuplicateJsxNodeRequest,
-	DuplicateJsxNodeResponse,
+	DuplicateCompositionRequest,
+	PrecomposeJsxNodesRequest,
+	PrecomposeJsxNodesRequestItem,
+	PrecomposeJsxNodesResponse,
+	DuplicateNodesRequest,
+	DuplicateNodesRequestItem,
+	DuplicateNodesResponse,
+	NodeWrapper,
+	UnwrapNodeRequest,
+	UnwrapNodeResponse,
+	WrapNodeRequest,
+	WrapNodeResponse,
 	EditorPickerId,
+	EffectDefinition,
+	ElementInstallDestination,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	ElementInstallSource,
 	FindInFileRequest,
 	FindInFileResponse,
+	GetAppInfoRequest,
+	GetAppInfoResponse,
 	GetDefaultCodingAgentInfoRequest,
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoRequest,
 	GetDefaultEditorInfoResponse,
+	GetRemotionSkillsInfoRequest,
+	GetRemotionSkillsInfoResponse,
+	InstallRemotionSkillRequest,
+	RemoveRemotionSkillRequest,
+	UpgradeRemotionSkillRequest,
+	OpenRemotionSkillRequest,
+	GetReleaseNotesRequest,
+	GetReleaseNotesResponse,
 	GoogleFontSourceEdit,
 	InsertElementFileConflict,
+	InsertBasicCaptionsRequest,
+	InsertBasicCaptionsResponse,
+	ReplaceVideoSourceRequest,
+	ReplaceVideoSourceResponse,
 	InsertElementRequest,
 	InsertElementResponse,
-	InsertJsxElementRequest,
-	InsertJsxElementResponse,
+	InsertCompositionElementRequest,
+	InsertCompositionElementResponse,
 	InsertableCompositionElement,
 	InsertableCompositionElementPosition,
+	InstallableElement,
 	InstallPackageRequest,
 	InstallPackageResponse,
 	LogStudioErrorRequest,
 	LogStudioErrorResponse,
 	MoveEffectKeyframe,
+	MoveCompositionRequest,
+	MoveFolderRequest,
 	MoveKeyframesRequest,
 	MoveKeyframesResponse,
 	MoveSequenceKeyframe,
@@ -80,6 +115,10 @@ export {
 	OpenInEditorRequest,
 	OpenInEditorResponse,
 	OpenInFileExplorerRequest,
+	OpenInGitClientRequest,
+	OpenInGitClientResponse,
+	OpenInTerminalRequest,
+	OpenInTerminalResponse,
 	PackageInstallSpec,
 	PasteEffectsRequest,
 	PasteEffectsResponse,
@@ -89,6 +128,8 @@ export {
 	ProjectInfoResponse,
 	RedoRequest,
 	RedoResponse,
+	RenameCompositionRequest,
+	RenameFolderRequest,
 	RemoveRenderRequest,
 	RenameStaticFileRequest,
 	RenameStaticFileResponse,
@@ -99,6 +140,7 @@ export {
 	ReorderSequenceResponse,
 	RestartStudioRequest,
 	RestartStudioResponse,
+	ShutdownStudioResponse,
 	SaveEffectPropsRequest,
 	SaveEffectPropsResponse,
 	SaveInlineCaptionPatchesRequest,
@@ -111,22 +153,29 @@ export {
 	SaveSequencePropsRequest,
 	SaveSequencePropsResponse,
 	SaveSequencePropsResult,
-	SimpleDiff,
-	SplitJsxSequenceRequest,
-	SplitJsxSequenceResponse,
+	SplitSequencesRequest,
+	SplitSequencesRequestItem,
+	SplitSequencesResponse,
+	SplitVideoFromAudioRequest,
+	SplitVideoFromAudioResponse,
 	SubscribeToDefaultPropsRequest,
 	SubscribeToDefaultPropsResponse,
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
+	SubscribeToSequencePropsBatchRequest,
+	SubscribeToSequencePropsBatchResponse,
 	SubscribeToSequencePropsRequest,
 	SubscribeToSequencePropsResponse,
+	UndoRedoNavigation,
 	UndoRequest,
 	UndoResponse,
 	UnsubscribeFromDefaultPropsRequest,
 	UnsubscribeFromFileExistenceRequest,
+	UnsubscribeFromSequencePropsBatchRequest,
 	UnsubscribeFromSequencePropsRequest,
 	UpdateAvailableRequest,
 	UpdateAvailableResponse,
+	UpdateCompositionMetadataRequest,
 	UpdateConfigRequest,
 	UpdateConfigResponse,
 	UpdateDefaultPropsRequest,
@@ -137,20 +186,57 @@ export {
 	UpdateElementInstallTargetResponse,
 	UpdateSequenceKeyframeSettingsRequest,
 	UpdateSequenceKeyframeSettingsResponse,
+	UnwrapFolderRequest,
 	type AddEffectKeyframe,
 	type AddSequenceKeyframe,
 	type ConfigUpdate,
 	type ConfigValue,
 	type KeyframeSettings,
 } from './api-requests';
-export type {BrowserStudioOperations} from './browser-studio-operations';
-export type {ApplyVisualControlCodemod, RecastCodemod} from './codemods';
-export {compositionDragDataToSymbolicatedStack} from './composition-drag-data';
+export type {
+	BrowserStudioKeyframeOperations,
+	BrowserStudioEffectOperations,
+	BrowserStudioInstallPackagesResponse,
+	BrowserStudioOperations,
+	BrowserStudioPackageInstallationOperations,
+} from './browser-studio-operations';
+export type {
+	CanvasCaptureData,
+	CanvasCaptureMouseMovement,
+	CanvasCapturePointerClick,
+} from './canvas-capture';
+export {
+	CANVAS_CAPTURE_METADATA_TAG,
+	parseCanvasCaptureData,
+} from './canvas-capture';
+export type {
+	SequenceNodePathMutation,
+	SequenceNodePathRemapping,
+} from './sequence-node-path-mutation';
+export type {
+	CompositionDestination,
+	CompositionOrFolder,
+	NewCompositionAsset,
+	NewCompositionOptions,
+} from './codemods';
+export {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from './react-refresh-event';
+export {hasSequenceTimingTraits} from './has-sequence-timing-traits';
 export {
 	getConfigFileChangeMessage,
 	type ConfigFileChangeType,
 } from './config-file-change';
 export {configMethodLifecycles} from './config-method-lifecycles';
+export {
+	studioKeyboardShortcutActions,
+	type StudioKeyboardShortcut,
+	type StudioKeyboardShortcutAction,
+	type StudioKeyboardShortcuts,
+	type StudioKeyboardShortcutValue,
+	validateStudioKeyboardShortcuts,
+} from './keyboard-shortcuts';
 export {DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS} from './default-buffer-state-delay-in-milliseconds';
 export {
 	detectFileType,
@@ -159,6 +245,13 @@ export {
 	type FileType,
 	type ImageFileType,
 } from './detect-file-type';
+export {
+	getRemoteAssetElement,
+	getRemoteAssetFilename,
+	maxRemoteAssetSize,
+	remoteAssetAcceptHeader,
+	remoteAssetDownloadTimeout,
+} from './remote-asset';
 export {
 	parseEasingClipboardData,
 	parseEasingClipboardDataResult,
@@ -195,6 +288,12 @@ export {
 	type EffectPropClipboardData,
 	type EffectPropClipboardDataParseResult,
 } from './effect-clipboard-data';
+export {
+	parseSequencePropClipboardData,
+	parseSequencePropClipboardDataResult,
+	type SequencePropClipboardData,
+	type SequencePropClipboardDataParseResult,
+} from './sequence-prop-clipboard-data';
 export {EventSourceEvent} from './event-source-event';
 export {formatBytes} from './format-bytes';
 export {getAllSchemaKeys, getAssetSchemaKeys} from './get-all-keys';
@@ -204,6 +303,7 @@ export {
 	getLocationFromBuildError,
 } from './get-location-from-build-error';
 export {getProjectName} from './get-project-name';
+export {getPreferredApp, preferredFallbackEditorIds} from './get-preferred-app';
 export type {GitSource} from './git-source';
 export {
 	HotMiddlewareMessage,
@@ -236,8 +336,11 @@ export {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	getKeyframeOutputTypeForSchemaField,
+	isInteractivitySchemaFieldHoldOnly,
 	isInteractivitySchemaFieldKeyframable,
 	isKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 	keyframeInterpolationFunctions,
 	type KeyframeInterpolationFunction,
@@ -312,7 +415,11 @@ export {
 	type StudioEntryPointPaths,
 } from './studio-entry-points';
 export {studioHtml, type StudioHtmlOptions} from './studio-html';
-export type {StudioRuntimeConfig} from './studio-runtime-config';
+export type {
+	ConfigFileStudioSettings,
+	StudioElementLibrary,
+	StudioRuntimeConfig,
+} from './studio-runtime-config';
 export {
 	BORDER_RADIUS_LONGHAND_KEYS,
 	BORDER_RADIUS_SHORTHAND_KEY,
@@ -321,6 +428,7 @@ export {
 
 export type {VisualControlChange} from './codemods';
 export {
+	addKeyframeToPropStatus,
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
 } from './optimistic-add-keyframe';
@@ -329,6 +437,7 @@ export {
 	optimisticDeleteEffectKeyframes,
 	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
+	removeKeyframeFromPropStatus,
 } from './optimistic-delete-keyframe';
 export {
 	canMoveKeyframesWithoutCollisions,
@@ -340,6 +449,7 @@ export {
 export {optimisticUpdateForEffectPropStatuses} from './optimistic-update-for-effect-prop-statuses';
 export {optimisticUpdateForPropStatuses} from './optimistic-update-for-prop-statuses';
 export {
+	applyKeyframeSettingsToStatus,
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,
 } from './optimistic-update-keyframe-settings';
@@ -347,4 +457,7 @@ export {
 	stringifySequenceExpandedRowKey,
 	stringifySequenceSubscriptionKey,
 } from './stringify-sequence-subscription-key';
-export {isUrl} from './url';
+export {isUrl, normalizeHttpUrl} from './url';
+
+export {emptyCompositionComponent} from './empty-composition-component';
+export {assetCompositionComponent} from './asset-composition-component';

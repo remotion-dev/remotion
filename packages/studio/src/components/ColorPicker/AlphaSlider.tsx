@@ -5,7 +5,10 @@ import {
 	COLOR_PICKER_ALPHA_TRANSPARENT,
 	COLOR_PICKER_HANDLE_SHADOW,
 } from '../../helpers/colors';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {
 	CHECKER_BACKGROUND_COLOR,
 	CHECKER_BACKGROUND_IMAGE,
@@ -85,16 +88,15 @@ export const AlphaSlider: React.FC<{
 			updateFromEvent(e.clientX, false);
 			let lastClientX = e.clientX;
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event: e.nativeEvent,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: (ev) => {
 					lastClientX = ev.clientX;
 					updateFromEvent(ev.clientX, false);
 				},
 				onEnd: (reason, ev) => {
-					const shouldUseEndEvent =
-						reason === 'pointerup' || reason === 'buttons-released';
+					const shouldUseEndEvent = isPointerSessionRelease(reason, ev);
 					updateFromEvent(
 						shouldUseEndEvent && ev ? ev.clientX : lastClientX,
 						true,

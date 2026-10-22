@@ -4,6 +4,7 @@ import {LIGHT_TEXT, WHITE_ALPHA_25} from '../../helpers/colors';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {ensureFrameIsInViewport} from '../Timeline/timeline-scroll-logic';
 import {TimelineKeyframeDiamondIcon} from '../Timeline/TimelineKeyframeDiamondIcon';
 import {TimelineKeyframeEasingLineVisual} from '../Timeline/TimelineKeyframeEasingLine';
 import {
@@ -142,11 +143,6 @@ const TimelineNavigatorItem: React.FC<{
 			type="button"
 			style={buttonStyle}
 			onClick={onClick}
-			title={
-				item.type === 'keyframe'
-					? `Keyframe at frame ${item.selection.frame}`
-					: `Easing from frame ${item.selection.fromFrame} to ${item.selection.toFrame}`
-			}
 			aria-label={
 				item.type === 'keyframe'
 					? `Select keyframe at frame ${item.selection.frame}`
@@ -180,7 +176,7 @@ export const KeyframeEasingNavigator: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 }> = ({currentSelection, includeEasings, keyframes, nodePathInfo}) => {
 	const {isSelected, selectItems} = useTimelineSelection();
-	const setFrame = Internals.useTimelineSetFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const videoConfig = useVideoConfig();
 	const items = useMemo(
 		() =>
@@ -209,22 +205,27 @@ export const KeyframeEasingNavigator: React.FC<{
 		[selectItems],
 	);
 	const seekToItem = useCallback(
-		(item: NavigatorItem) => {
+		(item: NavigatorItem, direction: 'fit-left' | 'fit-right') => {
 			const frame = getNavigatorItemPlayheadFrame(item);
-			setFrame((current) => {
+			seekFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
 			});
+			ensureFrameIsInViewport({
+				direction,
+				durationInFrames: videoConfig.durationInFrames,
+				frame,
+			});
 		},
-		[setFrame, videoConfig.id],
+		[seekFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 	const selectPrevious = useCallback(() => {
 		if (previousItem === null) {
 			return;
 		}
 
-		seekToItem(previousItem);
+		seekToItem(previousItem, 'fit-left');
 		selectItem(previousItem);
 	}, [previousItem, seekToItem, selectItem]);
 	const selectNext = useCallback(() => {
@@ -232,7 +233,7 @@ export const KeyframeEasingNavigator: React.FC<{
 			return;
 		}
 
-		seekToItem(nextItem);
+		seekToItem(nextItem, 'fit-right');
 		selectItem(nextItem);
 	}, [nextItem, seekToItem, selectItem]);
 
@@ -246,7 +247,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				variant={null}
 				disabled={previousItem === null}
 				onClick={selectPrevious}
-				title="Previous animation item"
+				aria-label="Previous animation item"
 				renderAction={(color) => (
 					<NavigationChevron
 						color={previousItem === null ? disabledChevronColor : color}
@@ -283,7 +284,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				variant={null}
 				disabled={nextItem === null}
 				onClick={selectNext}
-				title="Next animation item"
+				aria-label="Next animation item"
 				renderAction={(color) => (
 					<NavigationChevron
 						color={nextItem === null ? disabledChevronColor : color}

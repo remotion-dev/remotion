@@ -1,18 +1,30 @@
+import type {BrowserCompilerProject as SourceProject} from '@remotion/browser-bundler/compiler';
+import type {StudioElementPayload} from '@remotion/studio-protocol';
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 
-export type VirtualProject = {
-	rootDir: string;
-	entryPoint: string;
-	files: Record<string, string>;
-	publicFiles?: Record<string, Uint8Array | string>;
+export type VirtualProject = SourceProject & {
+	publicFiles?: Record<string, VirtualProjectPublicFile>;
+	publicFileStorage?: BrowserStudioProjectStorage;
 };
 
-export type VirtualFileSystem = {
-	readFile: (path: string) => Promise<string> | string;
-	writeFile: (path: string, contents: string) => Promise<void> | void;
-	exists: (path: string) => Promise<boolean> | boolean;
-	listFiles: () => Promise<string[]> | string[];
+export type BrowserStudioProjectStorage = {
+	directoryName: string;
+	type: 'opfs';
 };
+
+export type BrowserStudioStoredPublicFile = {
+	key: string;
+	lastModified: number;
+	sizeInBytes: number;
+	type: 'stored';
+};
+
+export type VirtualProjectPublicFile =
+	| Uint8Array
+	| string
+	| BrowserStudioStoredPublicFile;
+
+export type {VirtualFileSystem} from '@remotion/browser-bundler';
 
 export type BrowserStudioDependencyResolution =
 	| string
@@ -52,23 +64,42 @@ export type CompileState =
 export type BrowserStudioProps = {
 	project: VirtualProject;
 	readOnly: boolean;
+	initialElement: {
+		payload: StudioElementPayload;
+		sourceOrigin: string | null;
+	} | null;
 	iframeSrc?: string;
-	workspacePackageBaseUrl?: string;
+	showExperimentalNotice?: boolean;
+	remotionPackageSource?: BrowserStudioRemotionPackageSource;
 	dependencyResolver?: BrowserStudioDependencyResolver;
 	onCompileStateChange?: (state: CompileState) => void;
 	onProjectChange?: (project: VirtualProject) => void;
 };
+
+export type BrowserStudioRemotionPackageSource =
+	| {
+			readonly type: 'workspace';
+			readonly baseUrl: string;
+			readonly commit: string;
+	  }
+	| {
+			readonly type: 'release';
+			readonly baseUrl: string;
+			readonly version: string;
+	  };
 
 export type BrowserStudioWorkerCompileRequest =
 	| {
 			type: 'init';
 			project: VirtualProject;
 			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
-			workspacePackageBaseUrl: string | null;
+			remotionPackageSource: BrowserStudioRemotionPackageSource | null;
+			useVendorBundle: boolean;
 	  }
 	| {
 			type: 'update-project';
 			project: VirtualProject;
+			dependencyResolutions: Record<string, BrowserStudioDependencyResolution>;
 	  };
 
 export type BrowserStudioHmrAsset = {
@@ -81,6 +112,12 @@ export type BrowserStudioWorkerCompileResponse =
 			type: 'initial-compiled';
 			bundle: string;
 			warnings: string[];
+	  }
+	| {
+			type: 'load-progress';
+			asset: 'rspack-wasm';
+			loadedBytes: number;
+			totalBytes: number | null;
 	  }
 	| {
 			type: 'building';

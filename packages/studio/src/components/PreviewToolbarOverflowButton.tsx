@@ -2,10 +2,15 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {Checkmark} from '../icons/Checkmark';
 import {EllipsisIcon} from '../icons/ellipsis';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorShowOutlinesContext} from '../state/editor-outlines';
+import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
+import {EditorShowRulersContext} from '../state/editor-rulers';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import {toggleLoop} from './LoopToggle';
@@ -21,6 +26,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	readonly showFullscreen: boolean;
 	readonly showPlaybackRate: boolean;
 	readonly showLoop: boolean;
+	readonly showCanvasViewControls: boolean;
 	readonly showCompositionControls: boolean;
 	readonly playbackRate: number;
 	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
@@ -30,6 +36,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	showFullscreen,
 	showPlaybackRate,
 	showLoop,
+	showCanvasViewControls,
 	showCompositionControls,
 	playbackRate,
 	setPlaybackRate,
@@ -37,9 +44,23 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	setLoop,
 }) => {
 	const keyboardShortcutsDisabled = areKeyboardShortcutsDisabled();
+	const fullscreenShortcut = useKeyboardShortcutLabel('enterFullscreen');
+	const loopShortcut = useKeyboardShortcutLabel('toggleLoop');
+	const outlinesShortcut = useKeyboardShortcutLabel('toggleOutlines');
+	const pixelGridShortcut = useKeyboardShortcutLabel('togglePixelGrid');
+	const checkerboardShortcut = useKeyboardShortcutLabel('toggleCheckerboard');
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
 	const {editorShowOutlines, setEditorShowOutlines} = useContext(
 		EditorShowOutlinesContext,
+	);
+	const {editorShowGuides, setEditorShowGuides} = useContext(
+		EditorShowGuidesContext,
+	);
+	const {editorShowRulers, setEditorShowRulers} = useContext(
+		EditorShowRulersContext,
+	);
+	const {editorShowPixelGrid, setEditorShowPixelGrid} = useContext(
+		EditorShowPixelGridContext,
 	);
 	const {
 		items: previewSizeItems,
@@ -114,8 +135,28 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Loop',
 				value: 'loop',
 				onClick: () => toggleLoop(setLoop),
-				keyHint: null,
+				keyHint:
+					keyboardShortcutsDisabled || loopShortcut === ''
+						? null
+						: loopShortcut,
 				leftItem: loop ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			});
+		}
+
+		if (showCanvasViewControls) {
+			items.push({
+				type: 'item',
+				id: 'checkerboard',
+				label: 'Transparency as checkerboard',
+				value: 'checkerboard',
+				onClick: () => setCheckerboard((current) => !current),
+				keyHint:
+					keyboardShortcutsDisabled || checkerboardShortcut === ''
+						? null
+						: checkerboardShortcut,
+				leftItem: checkerboard ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
 			});
@@ -124,23 +165,54 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		if (showCompositionControls) {
 			items.push({
 				type: 'item',
-				id: 'checkerboard',
-				label: 'Transparency as checkerboard',
-				value: 'checkerboard',
-				onClick: () => setCheckerboard((current) => !current),
-				keyHint: keyboardShortcutsDisabled ? null : 'T',
-				leftItem: checkerboard ? <Checkmark /> : null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-			});
-			items.push({
-				type: 'item',
 				id: 'outlines',
 				label: 'Outlines',
 				value: 'outlines',
 				onClick: () => setEditorShowOutlines((current) => !current),
-				keyHint: null,
+				keyHint: keyboardShortcutsDisabled ? null : outlinesShortcut || null,
 				leftItem: editorShowOutlines ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			});
+		}
+
+		if (showCanvasViewControls) {
+			items.push({
+				type: 'item',
+				id: 'rulers',
+				label: 'Rulers',
+				value: 'rulers',
+				onClick: () => setEditorShowRulers((current) => !current),
+				keyHint: null,
+				leftItem: editorShowRulers ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			});
+		}
+
+		if (showCompositionControls) {
+			items.push({
+				type: 'item',
+				id: 'guides',
+				label: 'Guides',
+				value: 'guides',
+				onClick: () => setEditorShowGuides((current) => !current),
+				keyHint: null,
+				leftItem: editorShowGuides ? <Checkmark /> : null,
+				subMenu: null,
+				quickSwitcherLabel: null,
+			});
+		}
+
+		if (showCanvasViewControls) {
+			items.push({
+				type: 'item',
+				id: 'pixel-grid',
+				label: 'Pixel Grid',
+				value: 'pixel-grid',
+				onClick: () => setEditorShowPixelGrid((current) => !current),
+				keyHint: keyboardShortcutsDisabled ? null : pixelGridShortcut || null,
+				leftItem: editorShowPixelGrid ? <Checkmark /> : null,
 				subMenu: null,
 				quickSwitcherLabel: null,
 			});
@@ -153,7 +225,10 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				label: 'Fullscreen',
 				value: 'fullscreen',
 				onClick: () => clickButton('fullscreen-toggle'),
-				keyHint: keyboardShortcutsDisabled ? null : 'F',
+				keyHint:
+					keyboardShortcutsDisabled || fullscreenShortcut === ''
+						? null
+						: fullscreenShortcut,
 				leftItem: null,
 				subMenu: null,
 				quickSwitcherLabel: null,
@@ -162,6 +237,9 @@ export const PreviewToolbarOverflowButton: React.FC<{
 
 		return items;
 	}, [
+		checkerboardShortcut,
+		fullscreenShortcut,
+		loopShortcut,
 		previewSizeItems,
 		playbackRateItems,
 		selectedPlaybackRate,
@@ -169,12 +247,21 @@ export const PreviewToolbarOverflowButton: React.FC<{
 		showFullscreen,
 		showLoop,
 		showPlaybackRate,
+		showCanvasViewControls,
 		showCompositionControls,
 		loop,
 		checkerboard,
+		editorShowGuides,
 		editorShowOutlines,
+		outlinesShortcut,
+		pixelGridShortcut,
+		editorShowRulers,
+		editorShowPixelGrid,
 		setCheckerboard,
+		setEditorShowGuides,
 		setEditorShowOutlines,
+		setEditorShowRulers,
+		setEditorShowPixelGrid,
 		setLoop,
 		zoomable,
 		keyboardShortcutsDisabled,
@@ -185,12 +272,19 @@ export const PreviewToolbarOverflowButton: React.FC<{
 	}
 
 	return (
-		<InlineDropdown
-			variant={null}
-			renderAction={renderAction}
-			values={values}
-			title="More actions"
-			unhoveredColor={WHITE_ALPHA_80}
-		/>
+		<ActionTooltip
+			label="View options"
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineDropdown
+				variant={null}
+				renderAction={renderAction}
+				values={values}
+				aria-label="More actions"
+				unhoveredColor={WHITE_ALPHA_80}
+			/>
+		</ActionTooltip>
 	);
 };

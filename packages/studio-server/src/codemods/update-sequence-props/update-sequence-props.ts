@@ -1,24 +1,21 @@
 import {
+	updateMultipleNodeProps,
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
 	type SequencePropUpdate,
-	updateMultipleSequenceProps as updateMultipleSequencePropsUnformatted,
-	updateSequencePropsAst,
-} from '@remotion/studio-codemods';
+} from '@remotion/codemods';
 import type {
 	InteractivitySchema,
 	SequenceNodePath,
 	VideoConfigValues,
 } from 'remotion';
-import {formatFileContent} from '../format-file-content';
 
 export {
 	type RemovedProp,
 	type SequencePropsNodeUpdate,
 	type SequencePropsNodeUpdateResult,
 	type SequencePropUpdate,
-	updateSequencePropsAst,
 };
 
 type PrettierConfigOverride = Record<string, unknown> | null;
@@ -37,7 +34,7 @@ type UpdateSequencePropsResult = {
 	removedProps: RemovedProp[];
 };
 
-export const updateMultipleSequenceProps = async ({
+export const updateMultipleSequenceProps = ({
 	input,
 	changes,
 	prettierConfigOverride,
@@ -46,14 +43,24 @@ export const updateMultipleSequenceProps = async ({
 	changes: SequencePropsNodeUpdate[];
 	prettierConfigOverride: PrettierConfigOverride;
 }): Promise<UpdateMultipleSequencePropsResult> => {
-	const {output: unformattedOutput, results} =
-		updateMultipleSequencePropsUnformatted({input, changes});
-	const {output, formatted} = await formatFileContent({
-		input: unformattedOutput,
-		prettierConfigOverride,
-	});
+	return Promise.resolve().then(() => {
+		const result = updateMultipleNodeProps({
+			project: {files: {'source.tsx': input}, rootDir: '/'},
+			changes: changes.map(
+				({nodePath, updates, schema, videoConfigValues}) => ({
+					node: {filePath: 'source.tsx', nodePath},
+					updates,
+					schema,
+					videoConfig: videoConfigValues ?? undefined,
+				}),
+			),
+			prettierConfigOverride,
+		});
+		const output = result.changes[0]?.nextContents ?? input;
+		const {results} = result;
 
-	return {output, formatted, results};
+		return {output, formatted: true, results};
+	});
 };
 
 export const updateSequenceProps = async ({
@@ -71,18 +78,21 @@ export const updateSequenceProps = async ({
 	prettierConfigOverride: PrettierConfigOverride;
 	videoConfigValues: VideoConfigValues | null;
 }): Promise<UpdateSequencePropsResult> => {
-	const {serialized, oldValueStrings, logLine, removedProps} =
-		updateSequencePropsAst({
-			input,
-			nodePath,
-			updates,
-			schema,
-			videoConfigValues,
-		});
-	const {output, formatted} = await formatFileContent({
-		input: serialized,
+	const {output, results} = await updateMultipleSequenceProps({
+		input,
+		changes: [{nodePath, updates, schema, videoConfigValues}],
 		prettierConfigOverride,
 	});
+	const result = results[0];
+	if (!result) {
+		throw new Error('Expected sequence prop update result');
+	}
 
-	return {output, oldValueStrings, formatted, logLine, removedProps};
+	return {
+		output,
+		oldValueStrings: result.oldValueStrings,
+		formatted: true,
+		logLine: result.logLine,
+		removedProps: result.removedProps,
+	};
 };

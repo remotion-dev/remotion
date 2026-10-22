@@ -17,23 +17,28 @@ export type ImageFormat =
 export const DEFAULT_VIDEO_IMAGE_FORMAT: VideoImageFormat = 'jpeg';
 export const DEFAULT_STILL_IMAGE_FORMAT: StillImageFormat = 'png';
 
+export const validateVideoImageFormat = (
+	videoImageFormat: VideoImageFormat,
+) => {
+	if (!validVideoImageFormats.includes(videoImageFormat)) {
+		throw new TypeError(
+			`Value ${videoImageFormat} is not valid as an image format.`,
+		);
+	}
+};
+
 // By returning a value, we improve testability as we can specifically test certain branches
 export const validateSelectedPixelFormatAndImageFormatCombination = (
 	pixelFormat: PixelFormat | undefined,
 	videoImageFormat: VideoImageFormat,
 ): 'none' | 'valid' => {
+	validateVideoImageFormat(videoImageFormat);
 	if (videoImageFormat === 'none') {
 		return 'none';
 	}
 
 	if (typeof pixelFormat === 'undefined') {
 		return 'valid';
-	}
-
-	if (!validVideoImageFormats.includes(videoImageFormat)) {
-		throw new TypeError(
-			`Value ${videoImageFormat} is not valid as an image format.`,
-		);
 	}
 
 	if (pixelFormat !== 'yuva420p' && pixelFormat !== 'yuva444p10le') {

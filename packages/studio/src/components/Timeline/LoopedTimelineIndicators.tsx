@@ -1,30 +1,62 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
-import {Flex} from '../layout';
+import {Internals} from 'remotion';
 import {LoopedIndicator} from './LoopedIndicator';
 
 const row: React.CSSProperties = {
-	flexDirection: 'row',
+	overflow: 'hidden',
 };
 
 export const LoopedTimelineIndicator: React.FC<{
 	readonly loops: number;
-}> = ({loops}) => {
-	const leftOver = loops % 1;
+	readonly phase: number;
+	readonly fullWidth: number;
+	readonly visibleOffset: number;
+	readonly visibleWidth: number;
+}> = ({loops, phase, fullWidth, visibleOffset, visibleWidth}) => {
+	if (loops + phase <= 1 || fullWidth <= 0 || visibleWidth <= 0) {
+		return null;
+	}
+
+	const loopWidth = fullWidth / loops;
+	const phaseWidth = phase * loopWidth;
+	const lastBoundaryIndex = Math.ceil(loops + phase) - 1;
+	const firstVisibleBoundaryIndex = Math.max(
+		1,
+		Math.floor((visibleOffset + phaseWidth) / loopWidth),
+	);
+	const lastVisibleBoundaryIndex = Math.min(
+		lastBoundaryIndex,
+		Math.ceil((visibleOffset + visibleWidth + phaseWidth) / loopWidth),
+	);
+	const visibleBoundaryCount = Math.max(
+		0,
+		lastVisibleBoundaryIndex - firstVisibleBoundaryIndex + 1,
+	);
+	const boundaries = new Array(visibleBoundaryCount)
+		.fill(true)
+		.map(
+			(_, index) =>
+				(firstVisibleBoundaryIndex + index) * loopWidth - phaseWidth,
+		);
+
 	return (
-		<AbsoluteFill style={row}>
-			{new Array(Math.floor(loops)).fill(true).map((_l, i) => {
+		<Internals.AbsoluteFillElement style={row}>
+			{boundaries.map((boundary) => {
 				return (
-					<React.Fragment
-						// eslint-disable-next-line
-						key={i}
+					<div
+						key={boundary}
+						style={{
+							position: 'absolute',
+							display: 'flex',
+							left: boundary - visibleOffset,
+							top: 0,
+							bottom: 0,
+						}}
 					>
-						<Flex />
-						{i === loops - 1 ? null : <LoopedIndicator />}
-					</React.Fragment>
+						<LoopedIndicator />
+					</div>
 				);
 			})}
-			{leftOver > 0 ? <div style={{flex: leftOver}} /> : null}
-		</AbsoluteFill>
+		</Internals.AbsoluteFillElement>
 	);
 };

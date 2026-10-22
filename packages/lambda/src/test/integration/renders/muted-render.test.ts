@@ -2,13 +2,20 @@ import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
-import {LambdaClientInternals} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless';
-import {mockImplementation} from '../../mocks/mock-implementation';
+import {makeProgressString} from '../../../cli/commands/render/progress';
+import {useFakeAws} from '../../mocks/fake-aws';
+import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
 import {simulateLambdaRender} from '../simulate-lambda-render';
 
-test('Should make muted render audio', async () => {
+useFakeAws();
+
+// Browser startup, rendering, audio encoding, and output probing can exceed 5 seconds.
+test('Should directly render final media with one Lambda', async () => {
 	const {close, file, progress, renderId} = await simulateLambdaRender({
 		codec: 'h264',
 		composition: 'framer',
@@ -17,7 +24,8 @@ test('Should make muted render audio', async () => {
 		logLevel: 'verbose',
 		region: 'eu-central-1',
 		inputProps: {},
-		muted: true,
+		muted: false,
+		concurrency: 1,
 	});
 
 	const tmpfile = path.join(tmpdir(), 'out.mp4');
@@ -32,22 +40,43 @@ test('Should make muted render audio', async () => {
 
 	const out = await RenderInternals.callFf({
 		bin: 'ffprobe',
-		args: [tmpfile],
+		args: [
+			'-v',
+			'error',
+			'-show_entries',
+			'stream=codec_type',
+			'-of',
+			'json',
+			tmpfile,
+		],
 		indent: false,
 		binariesDirectory: null,
 		cancelSignal: undefined,
 		logLevel: 'error',
 	});
 
-	expect(out.stdout).not.toContain('Audio');
+	expect(out.stdout).toContain('"codec_type": "video"');
+	expect(out.stdout).toContain('"codec_type": "audio"');
+	expect(getMockInvocationTypesForRender(renderId)).toEqual([
+		ServerlessRoutines.launch,
+	]);
+	expect(progress.renderMetadata?.estimatedTotalLambdaInvokations).toBe(1);
+	expect(progress.renderMetadata?.estimatedRenderLambdaInvokations).toBe(0);
+	expect(progress.timeToCombine).toBeNull();
+	const progressString = makeProgressString({
+		downloadInfo: null,
+		overall: progress,
+	});
+	expect(progressString).toContain('Invoked lambdas');
+	expect(progressString).not.toContain('1/0');
 
 	unlinkSync(tmpfile);
 
-	const files = await mockImplementation.listObjects({
+	const files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
-		prefix: rendersPrefix(renderId),
+		prefix: LambdaClientInternals.rendersPrefix(renderId),
 		forcePathStyle: false,
 		requestHandler: null,
 	});
@@ -58,15 +87,14 @@ test('Should make muted render audio', async () => {
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		renderId,
-		providerSpecifics: mockImplementation,
 		forcePathStyle: false,
 	});
 
-	const expectFiles = await mockImplementation.listObjects({
+	const expectFiles = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
-		prefix: rendersPrefix(renderId),
+		prefix: LambdaClientInternals.rendersPrefix(renderId),
 		forcePathStyle: false,
 		requestHandler: null,
 	});
@@ -74,4 +102,4 @@ test('Should make muted render audio', async () => {
 	expect(expectFiles.length).toBe(0);
 
 	await close();
-});
+}, 60000);

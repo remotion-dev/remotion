@@ -1,29 +1,59 @@
-import React, {createContext, useCallback, useMemo, useState} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {flushSync} from 'react-dom';
 import {
 	getCurrentDuration,
 	getCurrentFrame,
 } from '../components/Timeline/imperative-state';
+import {scrollableRef} from '../components/Timeline/timeline-refs';
 import {prepareToPreserveTimelineCursor} from '../components/Timeline/timeline-scroll-logic';
+import {syncTimelineViewport} from '../components/Timeline/TimelineViewport';
 import {getZoomFromLocalStorage} from '../components/ZoomPersistor';
-
-export const TIMELINE_MIN_ZOOM = 1;
-export const TIMELINE_MAX_ZOOM = 5;
+import {
+	clampTimelineZoom,
+	getTimelineZoom,
+} from '../helpers/get-timeline-max-zoom';
 
 export type TimelineSetZoomOptions = {
 	anchorFrame: number | null;
 	anchorContentX: number | null;
 };
 
-export const TimelineZoomCtx = createContext<{
+type TimelineZoomContextValue = {
 	zoom: Record<string, number>;
 	setZoom: (
-		compositionId: string,
+		videoId: string,
 		prev: (prevZoom: number) => number,
 		options?: TimelineSetZoomOptions,
 	) => void;
-}>({
+};
+
+export const TimelineZoomCtx = createContext<TimelineZoomContextValue>({
 	zoom: {},
+	setZoom: () => {
+		throw new Error('has no context');
+	},
+});
+
+export const TimelineZoomActiveContext = createContext(false);
+
+export const TimelineZoomImperativeContext = createContext<
+	Pick<TimelineZoomContextValue, 'setZoom'> & {
+		getZoom: (videoId: string) => number | null;
+		beginZoom: () => void;
+		endZoom: () => void;
+	}
+>({
+	getZoom: () => null,
+	beginZoom: () => undefined,
+	endZoom: () => undefined,
 	setZoom: () => {
 		throw new Error('has no context');
 	},
@@ -32,13 +62,47 @@ export const TimelineZoomCtx = createContext<{
 export const TimelineZoomContext: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
+	const [isZooming, setIsZooming] = useState(false);
+	const zoomHeld = useRef(false);
+	const zoomIdleTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const endZoom = useCallback(() => {
+		zoomHeld.current = false;
+		if (zoomIdleTimeout.current !== null) {
+			clearTimeout(zoomIdleTimeout.current);
+			zoomIdleTimeout.current = null;
+		}
+
+		setIsZooming(false);
+	}, []);
+	const beginZoom = useCallback(() => {
+		zoomHeld.current = true;
+		if (zoomIdleTimeout.current !== null) {
+			clearTimeout(zoomIdleTimeout.current);
+			zoomIdleTimeout.current = null;
+		}
+
+		setIsZooming(true);
+	}, []);
+	useEffect(() => {
+		window.addEventListener('blur', endZoom);
+		return () => {
+			window.removeEventListener('blur', endZoom);
+			if (zoomIdleTimeout.current !== null) {
+				clearTimeout(zoomIdleTimeout.current);
+			}
+		};
+	}, [endZoom]);
 	const [zoom, setZoomState] = useState<Record<string, number>>(() =>
 		getZoomFromLocalStorage(),
 	);
+	const zoomRef = useRef(zoom);
+	useLayoutEffect(() => {
+		zoomRef.current = zoom;
+	}, [zoom]);
 
 	const setZoom = useCallback(
 		(
-			compositionId: string,
+			videoId: string,
 			callback: (prevZoomLevel: number) => number,
 			options?: TimelineSetZoomOptions,
 		) => {
@@ -51,25 +115,42 @@ export const TimelineZoomContext: React.FC<{
 			});
 
 			flushSync(() => {
+				setIsZooming(true);
 				setZoomState((prevZoomMap) => {
-					const newZoomWithFloatingPointErrors = Math.min(
-						TIMELINE_MAX_ZOOM,
-						Math.max(
-							TIMELINE_MIN_ZOOM,
-							callback(prevZoomMap[compositionId] ?? TIMELINE_MIN_ZOOM),
-						),
-					);
-					const newZoom = Math.round(newZoomWithFloatingPointErrors * 10) / 10;
+					const durationInFrames = getCurrentDuration();
+					const timelineViewportWidth = scrollableRef.current?.clientWidth ?? 0;
+					const previousZoom = getTimelineZoom({
+						durationInFrames,
+						timelineViewportWidth,
+						zoom: prevZoomMap[videoId] ?? null,
+					});
+					const newZoom = clampTimelineZoom({
+						zoom: callback(previousZoom),
+						durationInFrames,
+						timelineViewportWidth,
+					});
 
-					return {...prevZoomMap, [compositionId]: newZoom};
+					return {...prevZoomMap, [videoId]: newZoom};
 				});
 			});
 
 			// The new scroll range exists now, so the browser will not clamp the offset
 			// against the previous width.
 			preserveTimelineCursor();
+			// A large zoom can move beyond the old horizontal render window. Commit
+			// the new window before the browser paints the new scroll position.
+			flushSync(syncTimelineViewport);
+			// Wheel events and zoom buttons have no explicit interaction end.
+			// Slider drags and native pinch gestures keep the interaction held.
+			if (zoomIdleTimeout.current !== null) {
+				clearTimeout(zoomIdleTimeout.current);
+			}
+
+			if (!zoomHeld.current) {
+				zoomIdleTimeout.current = setTimeout(endZoom, 150);
+			}
 		},
-		[],
+		[endZoom],
 	);
 
 	const value = useMemo(() => {
@@ -78,10 +159,22 @@ export const TimelineZoomContext: React.FC<{
 			setZoom,
 		};
 	}, [zoom, setZoom]);
+	const imperativeValue = useMemo(() => {
+		return {
+			getZoom: (videoId: string) => zoomRef.current[videoId] ?? null,
+			setZoom,
+			beginZoom,
+			endZoom,
+		};
+	}, [beginZoom, endZoom, setZoom]);
 
 	return (
 		<TimelineZoomCtx.Provider value={value}>
-			{children}
+			<TimelineZoomImperativeContext.Provider value={imperativeValue}>
+				<TimelineZoomActiveContext.Provider value={isZooming}>
+					{children}
+				</TimelineZoomActiveContext.Provider>
+			</TimelineZoomImperativeContext.Provider>
 		</TimelineZoomCtx.Provider>
 	);
 };

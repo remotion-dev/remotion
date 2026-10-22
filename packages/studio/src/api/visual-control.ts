@@ -1,5 +1,5 @@
-import {useSyncExternalStore} from 'react';
 import {getRemotionEnvironment} from 'remotion';
+import {useSyncExternalStore} from '../helpers/use-sync-external-store';
 import {visualControlStore} from '../visual-controls/visual-control-store';
 import {
 	visualControlRef,

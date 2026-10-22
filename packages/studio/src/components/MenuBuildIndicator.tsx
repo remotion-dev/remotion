@@ -2,24 +2,30 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {Spacing} from './layout';
-import {MenuCompositionName} from './MenuCompositionName';
 import {Spinner} from './Spinner';
 
 const cwd: React.CSSProperties = {
 	fontSize: 13,
-	opacity: 0.8,
+	color: WHITE_ALPHA_80,
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
 const spinnerSize = 14;
 
 const spinner: React.CSSProperties = {
+	opacity: 0.8,
 	position: 'relative',
 	width: spinnerSize,
+};
+
+const openInEditor: React.CSSProperties = {
+	display: 'flex',
+	opacity: 0.8,
 };
 
 const noSpinner: React.CSSProperties = {
@@ -55,11 +61,18 @@ export const MenuBuildIndicator: React.FC<{
 	}, []);
 
 	return (
-		<div style={cwd} title={window.remotion_cwd}>
+		<div role="group" style={cwd} aria-label={window.remotion_cwd}>
 			<Spacing x={mobileLayout ? 0.5 : 2} />
 			{window.remotion_projectName}
-			<MenuCompositionName />
-			<InspectorOpenInEditor location={folderLocation} />
+			<Spacing x={0.5} />
+			<div style={openInEditor}>
+				<InspectorOpenInEditor
+					annotationName={null}
+					location={folderLocation}
+					locationType="folder"
+					showTooltips
+				/>
+			</div>
 			{mobileLayout ? null : <Spacing x={0.5} />}
 			{mobileLayout ? (
 				isBuilding ? (

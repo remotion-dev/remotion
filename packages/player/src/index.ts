@@ -1,10 +1,15 @@
 import './_check-rsc.js';
 import {BufferingIndicator} from './BufferingIndicator.js';
 import {calculateCanvasTransformation} from './calculate-scale.js';
+import {
+	CanvasContentContext,
+	CanvasOverlayContext,
+} from './canvas-overlay-context.js';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {CallbackListener, PlayerEventTypes} from './event-emitter.js';
 import {PlayerEmitter} from './event-emitter.js';
+import {TimelineSequenceObserverContext} from './timeline-sequence-observer-context.js';
 import {useHoverState} from './use-hover-state.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayerMethods} from './use-player-methods.js';
@@ -45,4 +50,7 @@ export const PlayerInternals = {
 	updateAllElementsSizes,
 	PlayerEmitterProvider,
 	BufferingIndicator,
+	TimelineSequenceObserverContext,
+	CanvasOverlayContext,
+	CanvasContentContext,
 };

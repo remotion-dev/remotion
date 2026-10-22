@@ -9,9 +9,10 @@ import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';
 import {displayCrashLogs} from '../helpers/cloudrun-crash-logs';
 import {Log} from '../log';
+import {STILL_COMMAND} from './command-names';
 import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
-export const STILL_COMMAND = 'still';
+export {STILL_COMMAND} from './command-names';
 
 const {
 	offthreadVideoCacheSizeInBytesOption,
@@ -127,7 +128,7 @@ export const stillCommand = async (
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
+				'Passing the shorthand serve URL without a composition ID is currently not supported.\n Make sure to pass a composition ID after the shorthand serve URL or pass the complete serveURL without a composition ID to choose between all compositions.',
 			);
 		}
 

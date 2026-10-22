@@ -17,6 +17,18 @@ export type FontInfo = {
 	unicodeRanges: Record<string, string>;
 	fonts: Record<string, Record<string, Record<string, string>>>;
 	subsets: string[];
+	variable?: {
+		axes: Record<string, {min: number; max: number}>;
+		fontFaces: {
+			style: string;
+			weight: string;
+			stretch: string | null;
+			subset: string;
+			unicodeRange: string;
+			src: string;
+		}[];
+		url: string;
+	};
 };
 
 export type GoogleFont = {
@@ -36,6 +48,18 @@ export type GoogleFont = {
 		fontFamily: FontInfo['fontFamily'];
 		fonts: FontInfo['fonts'];
 		unicodeRanges: FontInfo['unicodeRanges'];
+		waitUntilDone: () => Promise<undefined>;
+	};
+	loadVariableFont?: (
+		style: string,
+		options: {
+			subsets: string[];
+			document?: Document;
+			ignoreTooManyRequestsWarning?: boolean;
+		},
+	) => {
+		fontFamily: FontInfo['fontFamily'];
+		axes: Record<string, {min: number; max: number}>;
 		waitUntilDone: () => Promise<undefined>;
 	};
 };
@@ -640,6 +664,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Asap Condensed',
 		importName: 'AsapCondensed',
 		load: () => import('./AsapCondensed') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Asap Sharp',
+		importName: 'AsapSharp',
+		load: () => import('./AsapSharp') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Asar',
@@ -1427,6 +1456,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Bytesized') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Caacupe One',
+		importName: 'CaacupeOne',
+		load: () => import('./CaacupeOne') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Cabin',
 		importName: 'Cabin',
 		load: () => import('./Cabin') as Promise<GoogleFont>,
@@ -1750,6 +1784,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Cinzel Decorative',
 		importName: 'CinzelDecorative',
 		load: () => import('./CinzelDecorative') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Clarity City',
+		importName: 'ClarityCity',
+		load: () => import('./ClarityCity') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Clicker Script',
@@ -3562,6 +3601,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./IslandMoments') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Isometra',
+		importName: 'Isometra',
+		load: () => import('./Isometra') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Istok Web',
 		importName: 'IstokWeb',
 		load: () => import('./IstokWeb') as Promise<GoogleFont>,
@@ -4032,6 +4076,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Kreon') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Kripa',
+		importName: 'Kripa',
+		load: () => import('./Kripa') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Kristi',
 		importName: 'Kristi',
 		load: () => import('./Kristi') as Promise<GoogleFont>,
@@ -4300,6 +4349,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Libre Bodoni',
 		importName: 'LibreBodoni',
 		load: () => import('./LibreBodoni') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Libre Caslon Condensed',
+		importName: 'LibreCaslonCondensed',
+		load: () => import('./LibreCaslonCondensed') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Libre Caslon Display',
@@ -7723,6 +7777,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./ScopeOne') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Scoutie Sans',
+		importName: 'ScoutieSans',
+		load: () => import('./ScoutieSans') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Seaweed Script',
 		importName: 'SeaweedScript',
 		load: () => import('./SeaweedScript') as Promise<GoogleFont>,
@@ -8731,6 +8790,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'VT323',
 		importName: 'VT323',
 		load: () => import('./VT323') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Valley Sans',
+		importName: 'ValleySans',
+		load: () => import('./ValleySans') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Vampiro One',

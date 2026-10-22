@@ -24,14 +24,6 @@ export const seekToTime = ({
 		};
 	}
 
-	seek({
-		logLevel,
-		mediaRef: element,
-		time: desiredTime,
-		why: 'Seeking during rendering',
-		mountTime,
-	});
-
 	let cancel: number;
 	let cancelSeeked: null | (() => void) = null;
 	const prom = new Promise<number>((resolve) => {
@@ -60,6 +52,18 @@ export const seekToTime = ({
 		cancelSeeked = () => {
 			element.removeEventListener('seeked', onDone);
 		};
+	});
+
+	// Register both listeners before seeking. The compositor can present the
+	// frame while the main thread is still setting currentTime. Registering a
+	// video frame callback afterwards would wait for another frame, which a
+	// paused video will never produce.
+	seek({
+		logLevel,
+		mediaRef: element,
+		time: desiredTime,
+		why: 'Seeking during rendering',
+		mountTime,
 	});
 
 	return {

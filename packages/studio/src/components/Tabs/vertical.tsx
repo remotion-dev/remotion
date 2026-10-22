@@ -1,11 +1,17 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {
+	CURRENT_COLOR,
 	WHITE_ALPHA_06,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
 } from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useZIndex} from '../../state/z-index';
+import {ActionTooltip} from '../ActionTooltip';
+
+const compactTabBreakpoint = 700;
 
 const selectorButton: React.CSSProperties = {
 	border: 'none',
@@ -16,53 +22,71 @@ const selectorButton: React.CSSProperties = {
 	flexDirection: 'row',
 	fontFamily: 'sans-serif',
 	fontSize: 14,
-	color: 'inherit',
 	alignItems: 'center',
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
 
+const compactSelectorButton: React.CSSProperties = {
+	width: 42,
+	paddingLeft: 12,
+	paddingRight: 4,
+};
+
 export const VerticalTab: React.FC<{
-	readonly children: React.ReactNode;
+	readonly children: string;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly style?: React.CSSProperties;
 	readonly selected: boolean;
-}> = ({children, onClick, renderIcon, style, selected}) => {
-	const [hovered, setHovered] = useState(false);
+	readonly autoFocus?: boolean;
+}> = ({children, onClick, renderIcon, style, selected, autoFocus}) => {
 	const {tabIndex} = useZIndex();
-
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
-	}, []);
-
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
-
-	const color = selected || hovered ? WHITE : LIGHT_TEXT;
+	const isCompact = useBreakpoint(compactTabBreakpoint);
 
 	const definiteStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...selectorButton,
-			backgroundColor: selected || hovered ? WHITE_ALPHA_06 : TRANSPARENT,
-			color,
+			...hoverableStyle({
+				idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
 			boxShadow: 'none',
 			...style,
+			...(isCompact ? compactSelectorButton : null),
 		};
-	}, [color, hovered, selected, style]);
+	}, [isCompact, selected, style]);
 
-	return (
+	const button = (
 		<button
+			aria-label={children}
+			autoFocus={autoFocus}
 			style={definiteStyle}
+			className={HOVERABLE_CLASS_NAME}
 			type="button"
 			onClick={onClick}
 			tabIndex={tabIndex}
-			onPointerLeave={onPointerLeave}
-			onPointerEnter={onPointerEnter}
 		>
-			{renderIcon ? renderIcon(color) : null}
-			{children}
+			{renderIcon ? renderIcon(CURRENT_COLOR) : null}
+			{isCompact ? null : children}
 		</button>
+	);
+
+	if (!isCompact) {
+		return button;
+	}
+
+	return (
+		<ActionTooltip
+			label={children}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+			side="right"
+		>
+			{button}
+		</ActionTooltip>
 	);
 };

@@ -29,12 +29,6 @@ import {
 	getCompletedClientRenders,
 	removeCompletedClientRender,
 } from './client-render-queue';
-import {applyCodemodToFile} from './codemods/apply-codemod-to-file';
-import {
-	formatOutput,
-	parseAndApplyCodemod,
-} from './codemods/duplicate-composition';
-import {updateDefaultProps} from './codemods/update-default-props';
 import {
 	detectOutdatedRemotionSkills,
 	parseRemotionSkillVersion,
@@ -50,9 +44,14 @@ import {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 } from './helpers/get-installed-dependencies';
+import {
+	getLocalPackageOverride,
+	localPackageRootKey,
+} from './helpers/get-local-package-override';
 import {getInstallCommand} from './helpers/install-command';
 import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
 import {
+	getConfiguredMaxTimelineTracks,
 	getMaxTimelineTracks,
 	resetMaxTimelineTracks,
 	setMaxTimelineTracks,
@@ -85,6 +84,7 @@ export const StudioServerInternals = {
 	lockFilePaths,
 	getPackageManager,
 	getMaxTimelineTracks,
+	getConfiguredMaxTimelineTracks,
 	setMaxTimelineTracks,
 	resetMaxTimelineTracks,
 	getLatestRemotionVersion,
@@ -94,13 +94,11 @@ export const StudioServerInternals = {
 	setFileWatcherRegistry,
 	AnsiDiff,
 	formatBytes,
-	parseAndApplyCodemod,
-	applyCodemodToFile,
-	formatOutput,
-	updateDefaultProps,
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 	getInstallCommand,
+	getLocalPackageOverride,
+	localPackageRootKey,
 	getPackageManagerSpawnOptions,
 	addCompletedClientRender,
 	getCompletedClientRenders,

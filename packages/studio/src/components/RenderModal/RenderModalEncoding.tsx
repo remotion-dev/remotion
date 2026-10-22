@@ -350,7 +350,7 @@ export const RenderModalEncoding: React.FC<{
 							<Combobox
 								values={pixelFormatOptions}
 								selectedId={pixelFormat}
-								title="Pixel Format"
+								aria-label="Pixel Format"
 							/>
 						</div>
 					</div>
@@ -364,7 +364,7 @@ export const RenderModalEncoding: React.FC<{
 							<Combobox
 								values={colorSpaceOptions}
 								selectedId={colorSpace}
-								title="Color Space"
+								aria-label="Color Space"
 							/>
 						</div>
 					</div>
@@ -378,7 +378,7 @@ export const RenderModalEncoding: React.FC<{
 							</div>
 							<div style={rightRow}>
 								<Combobox
-									title={x264Preset as string}
+									aria-label={x264Preset as string}
 									selectedId={x264Preset as string}
 									values={x264PresetOptions}
 								/>
@@ -420,7 +420,7 @@ export const RenderModalEncoding: React.FC<{
 						</div>
 						<div style={rightRow}>
 							<Combobox
-								title={hardwareAcceleration as string}
+								aria-label={hardwareAcceleration as string}
 								selectedId={hardwareAcceleration as string}
 								values={hardwareAccelerationValues}
 							/>

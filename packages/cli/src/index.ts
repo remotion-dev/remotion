@@ -9,12 +9,21 @@ import {defaultBrowserDownloadProgress} from './browser-download-bar';
 import {bundleCommand} from './bundle';
 import {chalk} from './chalk';
 import {checkForNpmRunFlagPass} from './check-for-npm-run-flag-pass';
-import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
-import {cloudrunCommand} from './cloudrun-command';
+import {
+	cleanupBeforeQuit,
+	handleCtrlC,
+	registerCtrlCHandler,
+} from './cleanup-before-quit';
+import {cloudrunCommand, tryPrintCloudrunHelp} from './cloudrun-command';
+import {getCommandHelp, makeCommandHelpOption} from './command-help';
 import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
+import {
+	experimentalCodemodCommand,
+	printExperimentalCodemodHelp,
+} from './experimental-codemod';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
@@ -23,8 +32,9 @@ import {getGitSource} from './get-github-repository';
 import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
 import {makeHyperlink} from './hyperlinks/make-link';
+import {importCanvasCapture} from './import-canvas-capture';
 import {initializeCli} from './initialize-cli';
-import {lambdaCommand} from './lambda-command';
+import {lambdaCommand, tryPrintLambdaHelp} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
@@ -54,6 +64,31 @@ const {packageManagerOption, skipSkillsOption, versionFlagOption} =
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
+	const helpPath =
+		command === 'help' && (args.length > 0 || !parsedCli.help)
+			? args
+			: parsedCli._;
+	if (parsedCli.help || command === 'help') {
+		const [helpCommand, ...helpArgs] = helpPath;
+		if (helpCommand === 'experimental-codemod') {
+			printExperimentalCodemodHelp('info');
+			return;
+		}
+
+		if (helpCommand === 'lambda' || helpCommand === 'cloudrun') {
+			const helpRemotionRoot = RenderInternals.findRemotionRoot();
+			const printed =
+				helpCommand === 'lambda'
+					? tryPrintLambdaHelp(helpRemotionRoot, helpArgs, 'info')
+					: tryPrintCloudrunHelp(helpRemotionRoot, helpArgs, 'info');
+			if (printed) {
+				return;
+			}
+		}
+
+		printHelp('info', helpPath);
+		return;
+	}
 
 	const packageManager = packageManagerOption.getValue({
 		commandLine: parsedCli,
@@ -150,23 +185,24 @@ export const cli = async () => {
 				cwd: process.cwd(),
 				environment: process.env,
 			});
+		} else if (command === 'experimental-codemod') {
+			await experimentalCodemodCommand(
+				remotionRoot,
+				process.argv.slice(2),
+				logLevel,
+			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
 			await browserCommand(args, logLevel);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
-		} else if (command === 'help') {
-			printHelp(logLevel);
-			process.exit(0);
-		} else if (parsedCli.help) {
-			printHelp(logLevel);
 		} else {
 			if (command) {
 				Log.error({indent: false, logLevel}, `Command ${command} not found.`);
 			}
 
-			printHelp(logLevel);
+			printHelp(logLevel, []);
 			process.exit(1);
 		}
 	} catch (err) {
@@ -181,6 +217,7 @@ export const cli = async () => {
 };
 
 export const CliInternals = {
+	importCanvasCapture,
 	createOverwriteableCliOutput,
 	chalk,
 	makeProgressBar,
@@ -207,4 +244,8 @@ export const CliInternals = {
 	makeHyperlink,
 	supportsHyperlink,
 	getGitSource,
+	getCommandHelp,
+	makeCommandHelpOption,
+	handleCtrlC,
+	registerCtrlCHandler,
 };

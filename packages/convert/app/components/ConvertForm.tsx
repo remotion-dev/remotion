@@ -24,7 +24,7 @@ import {VideoCodecSelection} from './VideoCodecSelection';
 
 export const ConvertForm: React.FC<{
 	readonly container: OutputContainer;
-	readonly setContainer: React.Dispatch<React.SetStateAction<OutputContainer>>;
+	readonly setContainer: (container: OutputContainer) => void;
 	readonly supportedConfigs: SupportedConfigs | null;
 	readonly videoConfigIndexSelection: Record<number, string>;
 	readonly audioConfigIndexSelection: Record<number, string>;

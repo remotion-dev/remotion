@@ -7,7 +7,7 @@ import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {Log} from '../../log';
 
-export const SITES_RMALL_COMMAND = 'rmall';
+export {SITES_RMALL_COMMAND} from '../command-names';
 
 export const sitesRmallSubcommand = async (logLevel: LogLevel) => {
 	const allRegions = parsedCloudrunCli['all-regions'];

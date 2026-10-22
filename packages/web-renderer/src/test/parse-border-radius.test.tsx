@@ -65,10 +65,10 @@ test('should parse four values', () => {
 		height: 200,
 	});
 	expect(result).toEqual({
-		topLeft: {horizontal: 90.9090909090909, vertical: 192.30769230769232}, // 100% of width, 100% of height (clamped)
-		topRight: {horizontal: 9.09090909090909, vertical: 10},
-		bottomRight: {horizontal: 32, vertical: 32},
-		bottomLeft: {horizontal: 8, vertical: 7.6923076923076925},
+		topLeft: {horizontal: 90.9090909090909, vertical: 181.8181818181818}, // 100% of width, 100% of height (clamped)
+		topRight: {horizontal: 9.09090909090909, vertical: 9.09090909090909},
+		bottomRight: {horizontal: 29.09090909090909, vertical: 29.09090909090909},
+		bottomLeft: {horizontal: 7.2727272727272725, vertical: 7.2727272727272725},
 	});
 });
 
@@ -79,10 +79,10 @@ test('should parse mixed percentages and pixels', () => {
 		height: 200,
 	});
 	expect(result).toEqual({
-		topLeft: {horizontal: 6.25, vertical: 6.451612903225806},
-		topRight: {horizontal: 93.75, vertical: 181.8181818181818}, // 150% of width, 150% of height (clamped)
-		bottomRight: {horizontal: 16.666666666666668, vertical: 18.181818181818183},
-		bottomLeft: {horizontal: 83.33333333333334, vertical: 193.54838709677418}, // 150% of width, 150% of height (clamped)
+		topLeft: {horizontal: 5.555555555555555, vertical: 5.555555555555555},
+		topRight: {horizontal: 83.33333333333334, vertical: 166.66666666666669}, // 150% of width, 150% of height (clamped)
+		bottomRight: {horizontal: 16.666666666666668, vertical: 16.666666666666668},
+		bottomLeft: {horizontal: 83.33333333333334, vertical: 166.66666666666669}, // 150% of width, 150% of height (clamped)
 	});
 });
 
@@ -224,5 +224,19 @@ test('should parse large percentage values that will need clamping', () => {
 		topRight: {horizontal: 50, vertical: 50},
 		bottomRight: {horizontal: 50, vertical: 50},
 		bottomLeft: {horizontal: 50, vertical: 50},
+	});
+});
+
+test('should proportionally clamp a large pixel radius on a wide box', () => {
+	const result = parseBorderRadius({
+		borderRadius: '999px',
+		width: 200,
+		height: 50,
+	});
+	expect(result).toEqual({
+		topLeft: {horizontal: 25, vertical: 25},
+		topRight: {horizontal: 25, vertical: 25},
+		bottomRight: {horizontal: 25, vertical: 25},
+		bottomLeft: {horizontal: 25, vertical: 25},
 	});
 });

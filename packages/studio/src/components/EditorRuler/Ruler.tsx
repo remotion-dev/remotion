@@ -7,10 +7,11 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
+import {BACKGROUND, SHADOW_BLACK} from '../../helpers/colors';
 import {getRulerGuideHighlight} from '../../helpers/editor-guide-selection';
 import {drawMarkingOnRulerCanvas} from '../../helpers/editor-ruler';
 import {getRulerCanvasSize} from '../../helpers/ruler-canvas-size';
+import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {EditorShowGuidesContext} from '../../state/editor-guides';
 import {forceSpecificCursor} from '../ForceSpecificCursor';
 import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from '../Timeline/should-clear-selection-on-pointer-down';
@@ -29,6 +30,7 @@ interface RulerProps {
 	readonly markingGaps: number;
 	readonly orientation: 'horizontal' | 'vertical';
 	readonly size: Size;
+	readonly canCreateGuides: boolean;
 	readonly onPointerSessionStart: (
 		event: React.PointerEvent<HTMLCanvasElement>,
 		guideId: string,
@@ -47,6 +49,7 @@ const Ruler: React.FC<RulerProps> = ({
 	size,
 	markingGaps,
 	orientation,
+	canCreateGuides,
 	onPointerSessionStart,
 }) => {
 	const rulerCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -67,7 +70,8 @@ const Ruler: React.FC<RulerProps> = ({
 		throw new Error('Video config not set');
 	}
 
-	const cursor = isVerticalRuler ? 'ew-resize' : 'ns-resize';
+	const guideCursor = isVerticalRuler ? 'ew-resize' : 'ns-resize';
+	const cursor = canCreateGuides ? guideCursor : 'default';
 
 	const guideHighlight = useMemo(
 		() =>
@@ -84,6 +88,7 @@ const Ruler: React.FC<RulerProps> = ({
 		orientation,
 		size,
 	});
+	const pixelRatio = getStudioPixelRatio();
 
 	useEffect(() => {
 		drawMarkingOnRulerCanvas({
@@ -95,8 +100,8 @@ const Ruler: React.FC<RulerProps> = ({
 			orientation,
 			rulerCanvasRef,
 			guideHighlight,
-			canvasHeight: rulerHeight * window.devicePixelRatio,
-			canvasWidth: rulerWidth * window.devicePixelRatio,
+			canvasHeight: rulerHeight * pixelRatio,
+			canvasWidth: rulerWidth * pixelRatio,
 		});
 	}, [
 		scale,
@@ -109,6 +114,7 @@ const Ruler: React.FC<RulerProps> = ({
 		size,
 		rulerHeight,
 		rulerWidth,
+		pixelRatio,
 	]);
 
 	const rulerStyle: React.CSSProperties = useMemo(
@@ -119,8 +125,7 @@ const Ruler: React.FC<RulerProps> = ({
 			height: rulerHeight,
 			left: isVerticalRuler ? 0 : 'unset',
 			top: isVerticalRuler ? 'unset' : 0,
-			borderBottom: isVerticalRuler ? undefined : '1px solid ' + RULER_COLOR,
-			borderRight: isVerticalRuler ? '1px solid ' + RULER_COLOR : undefined,
+			boxShadow: SHADOW_BLACK,
 			cursor,
 		}),
 		[rulerWidth, rulerHeight, cursor, isVerticalRuler],
@@ -129,7 +134,7 @@ const Ruler: React.FC<RulerProps> = ({
 	const onPointerDown: React.PointerEventHandler<HTMLCanvasElement> =
 		useCallback(
 			(e: React.PointerEvent<HTMLCanvasElement>) => {
-				if (e.button !== 0) {
+				if (!canCreateGuides || e.button !== 0) {
 					return;
 				}
 
@@ -137,7 +142,7 @@ const Ruler: React.FC<RulerProps> = ({
 				// Prevent deselection of currently selected items
 				e.stopPropagation();
 				shouldCreateGuideRef.current = true;
-				forceSpecificCursor(cursor);
+				forceSpecificCursor(guideCursor);
 				const guideId = makeGuideId();
 				setEditorShowGuides(() => true);
 				setDraggingGuideId(() => guideId);
@@ -163,17 +168,20 @@ const Ruler: React.FC<RulerProps> = ({
 				orientation,
 				originOffset,
 				unsafeVideoConfig.id,
-				cursor,
+				guideCursor,
 				onPointerSessionStart,
+				canCreateGuides,
 			],
 		);
 
 	return (
 		<canvas
 			ref={rulerCanvasRef}
-			width={rulerWidth * window.devicePixelRatio}
-			height={rulerHeight * window.devicePixelRatio}
+			width={rulerWidth * pixelRatio}
+			height={rulerHeight * pixelRatio}
 			style={rulerStyle}
+			aria-label={`${isVerticalRuler ? 'Vertical' : 'Horizontal'} ruler`}
+			aria-readonly={!canCreateGuides}
 			{...{[PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR]: 'true'}}
 			onPointerDown={onPointerDown}
 		/>

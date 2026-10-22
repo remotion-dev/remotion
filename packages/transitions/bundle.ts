@@ -25,6 +25,7 @@ const presentations = [
 	'cross-zoom',
 	'swap',
 	'push-cut',
+	'blur-slide',
 ];
 
 const output = await build({
@@ -36,6 +37,7 @@ const output = await build({
 		'remotion',
 		'remotion/no-react',
 		'react',
+		'react-dom',
 		'react/jsx-runtime',
 		'react/jsx-runtime',
 		'react/jsx-dev-runtime',

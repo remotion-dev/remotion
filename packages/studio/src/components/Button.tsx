@@ -1,14 +1,26 @@
 import React, {forwardRef, useMemo} from 'react';
-import {INPUT_BACKGROUND, BLACK_ALPHA_60, WHITE} from '../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	getBackgroundFromHoverState,
+} from '../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../helpers/hoverable';
+
 const button: React.CSSProperties = {
-	border: `1px solid ${BLACK_ALPHA_60}`,
-	borderRadius: 4,
-	backgroundColor: INPUT_BACKGROUND,
 	appearance: 'none',
+	border: 'none',
+	borderRadius: 6,
+	cursor: 'default',
 	fontFamily: 'inherit',
 	fontSize: 14,
-	color: WHITE,
 	flexDirection: 'row',
+	margin: 0,
+	padding: 0,
 };
 
 export type ButtonProps = {
@@ -19,7 +31,7 @@ export type ButtonProps = {
 	readonly style?: React.CSSProperties;
 	readonly buttonContainerStyle?: React.CSSProperties;
 	readonly autoFocus?: boolean;
-	readonly title?: string;
+	readonly 'aria-label'?: string;
 	readonly id?: string;
 	readonly onPointerDown?: React.PointerEventHandler<HTMLButtonElement>;
 };
@@ -31,7 +43,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 	{
 		children,
 		onClick,
-		title,
+		'aria-label': ariaLabel,
 		disabled,
 		size = 'default',
 		style,
@@ -43,18 +55,30 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 	ref,
 ) => {
 	const combined = useMemo(() => {
+		const idleBackground = style?.backgroundColor ?? TRANSPARENT;
+		const idleColor = style?.color ?? LIGHT_TEXT;
+
 		return {
 			...button,
+			...hoverableStyle({
+				idleBackground,
+				hoverBackground:
+					disabled || style?.backgroundColor
+						? idleBackground
+						: getBackgroundFromHoverState({hovered: true, selected: false}),
+				idleColor,
+				hoverColor: disabled || style?.color ? idleColor : WHITE,
+			}),
 			...(size === 'compact' ? {fontSize: 12} : null),
 			...(size === 'condensed' ? {fontSize: 11} : null),
 			...(style ?? {}),
 		};
-	}, [size, style]);
+	}, [disabled, size, style]);
 	const buttonContainer: React.CSSProperties = useMemo(() => {
 		return {
 			padding:
 				size === 'condensed' ? '2px 7px' : size === 'compact' ? '5px 8px' : 10,
-			cursor: disabled ? 'inherit' : 'pointer',
+			cursor: 'default',
 			fontSize: size === 'condensed' ? 11 : size === 'compact' ? 12 : 14,
 			lineHeight:
 				size === 'condensed' ? '14px' : size === 'compact' ? '14px' : undefined,
@@ -66,6 +90,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 	return (
 		<button
 			ref={ref}
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 			id={id}
 			style={combined}
 			type="button"
@@ -73,7 +98,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 			onClick={onClick}
 			onPointerDown={onPointerDown}
 			autoFocus={autoFocus}
-			title={title}
+			aria-label={ariaLabel}
 		>
 			<div className="css-reset" style={buttonContainer}>
 				{children}

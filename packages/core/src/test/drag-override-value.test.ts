@@ -12,6 +12,7 @@ import {
 
 const makeKeyframedStatus = (): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
+	keyframeDisplayOffsetAdjustment: null,
 	interpolationFunction: 'interpolate',
 	keyframes: [
 		{frame: 0, value: 2},
@@ -114,6 +115,32 @@ test('makeKeyframedDragOverride uses linear easing outside the keyframe range', 
 	});
 });
 
+test('makeKeyframedDragOverride can use hold easing outside the keyframe range', () => {
+	const status: CanUpdateSequencePropStatusKeyframed = {
+		...makeKeyframedStatus(),
+		keyframes: [{frame: 0, value: 'default'}],
+		easing: [],
+	};
+	const override = makeKeyframedDragOverride({
+		status,
+		frame: 60,
+		value: 'ne-resize',
+		defaultEasing: {type: 'step1'},
+	});
+
+	expect(override).toEqual({
+		type: 'keyframed',
+		status: {
+			...status,
+			keyframes: [
+				{frame: 0, value: 'default'},
+				{frame: 60, value: 'ne-resize'},
+			],
+			easing: [{type: 'step1'}],
+		},
+	});
+});
+
 test('makeKeyframedDragOverride replaces an existing keyframe without changing easing length', () => {
 	const override = makeKeyframedDragOverride({
 		status: makeKeyframedStatus(),
@@ -134,7 +161,7 @@ test('makeKeyframedDragOverride replaces an existing keyframe without changing e
 	});
 });
 
-test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides at the current frame', () => {
+test('computeEffectiveSchemaValuesDotNotation resolves existing keyframes even when authoring is disabled', () => {
 	const status = makeKeyframedStatus();
 	const {merged} = computeEffectiveSchemaValuesDotNotation({
 		schema: {
@@ -142,6 +169,7 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 				type: 'number',
 				default: 1,
 				hiddenFromList: false,
+				keyframable: false,
 			},
 		},
 		currentValue: {opacity: 2},
@@ -159,6 +187,22 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 	});
 
 	expect(merged.opacity).toBe(3);
+	expect(
+		computeEffectiveSchemaValuesDotNotation({
+			schema: {
+				opacity: {
+					type: 'number',
+					default: 1,
+					hiddenFromList: false,
+					keyframable: false,
+				},
+			},
+			currentValue: {opacity: 2},
+			overrideValues: {},
+			propStatus: {opacity: status},
+			frame: 30,
+		}).merged.opacity,
+	).toBe(3);
 });
 
 test('computeEffectiveSchemaValuesDotNotation resolves static file tokens for asset fields', () => {
@@ -175,6 +219,7 @@ test('computeEffectiveSchemaValuesDotNotation resolves static file tokens for as
 		propStatus: {
 			src: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'remotion-file:folder/new%20image.png',
 			},
 		},
@@ -189,6 +234,7 @@ test('getEffectiveVisualModeValue resolves static string drag overrides', () => 
 		getEffectiveVisualModeValue({
 			propStatus: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'Old',
 			},
 			dragOverrideValue: makeStaticDragOverride('New'),
@@ -202,6 +248,7 @@ test('getEffectiveVisualModeValue resolves static string drag overrides', () => 
 		getEffectiveVisualModeValue({
 			propStatus: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'Old',
 			},
 			dragOverrideValue: makeStaticDragOverride(''),
@@ -219,6 +266,7 @@ test('getEffectiveVisualModeValue resolves keyframed drag overrides at the sourc
 		getEffectiveVisualModeValue({
 			propStatus: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 2,
 			},
 			dragOverrideValue: makeKeyframedDragOverride({

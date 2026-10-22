@@ -1,7 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {act, cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
-import {BufferingContextReact} from '../buffering.js';
 import {canvasImageSchema} from '../canvas-image/CanvasImage.js';
 import {CanvasImage} from '../canvas-image/index.js';
 import type {TSequence} from '../CompositionManager.js';
@@ -13,9 +12,11 @@ import type {
 import {Internals} from '../internals.js';
 import type {SequenceContextType} from '../SequenceContext.js';
 import {SequenceContext} from '../SequenceContext.js';
-import type {SequenceManagerContext} from '../SequenceManager.js';
-import {SequenceManager} from '../SequenceManager.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
+import {SequenceManagerProvider} from '../SequenceManager.js';
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 type DrawImageCall = {
 	readonly canvas: HTMLCanvasElement;
@@ -24,6 +25,7 @@ type DrawImageCall = {
 
 const drawImageCalls: DrawImageCall[] = [];
 let imageLoadCount = 0;
+const imageCrossOrigins: Array<string | null> = [];
 
 const stub2dContext = (canvas: HTMLCanvasElement) => ({
 	canvas,
@@ -71,6 +73,7 @@ class MockImage {
 	public set src(src: string) {
 		this.currentSrc = src;
 		imageLoadCount++;
+		imageCrossOrigins.push(this.crossOrigin);
 		queueMicrotask(() => this.onload?.());
 	}
 }
@@ -111,6 +114,7 @@ const studioEnv = {
 };
 
 const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
+	playbackRate: 1,
 	absoluteFrom: 0,
 	cumulatedFrom: 0,
 	cumulatedNegativeFrom: 0,
@@ -129,25 +133,13 @@ const makeSequenceContext = (premounting: boolean): SequenceContextType => ({
 const BufferingEvents: React.FC<{
 	readonly events: string[];
 }> = ({events}) => {
-	const manager = React.useContext(BufferingContextReact);
+	const {subscribeBuffering} = React.useContext(Internals.SetTimelineContext);
 
 	React.useLayoutEffect(() => {
-		if (!manager) {
-			throw new Error('Expected BufferingContextReact');
-		}
-
-		const buffering = manager.listenForBuffering(() => {
-			events.push('waiting');
+		return subscribeBuffering((state) => {
+			events.push(state.buffering ? 'waiting' : 'resume');
 		});
-		const resume = manager.listenForResume(() => {
-			events.push('resume');
-		});
-
-		return () => {
-			buffering.remove();
-			resume.remove();
-		};
-	}, [events, manager]);
+	}, [events, subscribeBuffering]);
 
 	return null;
 };
@@ -182,28 +174,15 @@ const SequenceRegistrationWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 }> = ({children, onRegisterSequence}) => {
-	const registerSequence = React.useCallback(
-		(sequence: TSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-	const unregisterSequence = React.useCallback(() => undefined, []);
-	const sequenceManagerContext: SequenceManagerContext = React.useMemo(
-		() => ({
-			registerSequence,
-			unregisterSequence,
-			sequences: [],
-		}),
-		[registerSequence, unregisterSequence],
-	);
-
 	return (
 		<WrapSequenceContext>
 			<Internals.RemotionEnvironmentContext value={studioEnv}>
-				<SequenceManager.Provider value={sequenceManagerContext}>
+				<SequenceManagerProvider>
+					<ObserveSequenceRegistrations
+						onRegisterSequence={onRegisterSequence}
+					/>
 					{children}
-				</SequenceManager.Provider>
+				</SequenceManagerProvider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
 	);
@@ -212,6 +191,7 @@ const SequenceRegistrationWrapper: React.FC<{
 beforeEach(() => {
 	drawImageCalls.length = 0;
 	imageLoadCount = 0;
+	imageCrossOrigins.length = 0;
 	globalThis.Image = MockImage as unknown as typeof Image;
 	resetDelayRenderState();
 });
@@ -240,6 +220,21 @@ test('<CanvasImage> renders a canvas element with the decoded image dimensions',
 	});
 });
 
+test('<CanvasImage> forwards crossOrigin to its image loader', async () => {
+	render(
+		<WrapSequenceContext>
+			<CanvasImage
+				src="https://example.com/authenticated.png"
+				crossOrigin="use-credentials"
+			/>
+		</WrapSequenceContext>,
+	);
+
+	await waitFor(() => {
+		expect(imageCrossOrigins).toEqual(['use-credentials']);
+	});
+});
+
 test('<CanvasImage> forwards a canvas ref', async () => {
 	const ref = React.createRef<HTMLCanvasElement>();
 
@@ -256,10 +251,10 @@ test('<CanvasImage> forwards a canvas ref', async () => {
 	});
 });
 
-test('<CanvasImage> registers its canvas as the outline ref', async () => {
+test('<CanvasImage> registers an automatic canvas outline', async () => {
 	const registeredSequences: TSequence[] = [];
 
-	render(
+	const {container} = render(
 		<SequenceRegistrationWrapper
 			onRegisterSequence={(sequence) => {
 				registeredSequences.push(sequence);
@@ -269,14 +264,23 @@ test('<CanvasImage> registers its canvas as the outline ref', async () => {
 		</SequenceRegistrationWrapper>,
 	);
 
-	await waitFor(() => {
-		expect(registeredSequences[0]?.refForOutline?.current?.tagName).toBe(
-			'CANVAS',
-		);
-	});
+	await waitFor(() => expect(registeredSequences).toHaveLength(1));
+	expect(container.querySelector('canvas')).not.toBeNull();
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
 
-test('<CanvasImage> exposes non-keyframable premounting schema fields', () => {
+test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {
+	expect(canvasImageSchema.src).toEqual({
+		type: 'asset',
+		assetType: 'image',
+		default: undefined,
+		description: 'Source',
+		keyframable: false,
+	});
 	expect(canvasImageSchema.premountFor.keyframable).toBe(false);
 	expect(canvasImageSchema.postmountFor.keyframable).toBe(false);
 });

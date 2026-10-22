@@ -1,5 +1,5 @@
 import type React from 'react';
-import {useContext, useLayoutEffect} from 'react';
+import {useContext, useLayoutEffect, useRef} from 'react';
 import type {LogLevel} from 'remotion';
 import {Internals} from 'remotion';
 import type {MediaPlayer} from './media-player';
@@ -16,6 +16,7 @@ export const useCommonEffects = ({
 	effectiveMuted,
 	userPreferredVolume,
 	playbackRate,
+	toneFrequency,
 	globalPlaybackRate,
 	fps,
 	sequenceOffset,
@@ -38,6 +39,7 @@ export const useCommonEffects = ({
 	readonly effectiveMuted: boolean;
 	readonly userPreferredVolume: number;
 	readonly playbackRate: number;
+	readonly toneFrequency: number;
 	readonly globalPlaybackRate: number;
 	readonly fps: number;
 	readonly sequenceOffset: number;
@@ -75,7 +77,11 @@ export const useCommonEffects = ({
 		const {remove} = sharedAudioContext.audioSyncAnchorEmitter.subscribe(
 			(event) => {
 				if (event === 'changed') {
-					mediaPlayerRef.current?.audioSyncAnchorChanged();
+					mediaPlayerRef.current
+						?.audioSyncAnchorChanged(currentTimeRef.current)
+						.catch(() => {
+							// Might be disposed
+						});
 				}
 			},
 		);
@@ -83,7 +89,7 @@ export const useCommonEffects = ({
 		return () => {
 			remove();
 		};
-	}, [sharedAudioContext, mediaPlayerRef]);
+	}, [sharedAudioContext, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -91,17 +97,8 @@ export const useCommonEffects = ({
 			return;
 		}
 
-		mediaPlayer.setTrimBefore(trimBefore, currentTimeRef.current);
-	}, [trimBefore, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
-
-	useLayoutEffect(() => {
-		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
-			return;
-		}
-
-		mediaPlayer.setTrimAfter(trimAfter, currentTimeRef.current);
-	}, [trimAfter, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+		mediaPlayer.setTrimRange(trimBefore, trimAfter, currentTimeRef.current);
+	}, [trimAfter, trimBefore, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -127,6 +124,15 @@ export const useCommonEffects = ({
 
 		mediaPlayer.setPlaybackRate(playbackRate, currentTimeRef.current);
 	}, [playbackRate, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
+
+	useLayoutEffect(() => {
+		const mediaPlayer = mediaPlayerRef.current;
+		if (!mediaPlayer || !mediaPlayerReady) {
+			return;
+		}
+
+		mediaPlayer.setToneFrequency(toneFrequency, currentTimeRef.current);
+	}, [toneFrequency, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
@@ -197,16 +203,58 @@ export const useCommonEffects = ({
 		mediaPlayer.setSequenceOffset(sequenceOffset, currentTimeRef.current);
 	}, [sequenceOffset, mediaPlayerReady, mediaPlayerRef, currentTimeRef]);
 
+	const {seek} = useContext(Internals.SetTimelineContext);
+	const revision = seek?.revision.current ?? null;
+	const lastRequest = useRef<{
+		player: MediaPlayer;
+		time: number;
+		revision: number | null;
+		isPremounting: boolean;
+		muted: boolean;
+	} | null>(null);
+
 	useLayoutEffect(() => {
 		const mediaPlayer = mediaPlayerRef.current;
 		if (!mediaPlayer || !mediaPlayerReady) return;
 
-		mediaPlayer.seekTo(currentTime).catch(() => {
-			// Might be disposed
-		});
+		// Pausing or buffering at the same target must not supersede an in-flight
+		// playback request with a scrub. A same-frame explicit seek still counts.
+		const previous = lastRequest.current;
+		if (
+			previous?.player === mediaPlayer &&
+			previous.time === currentTime &&
+			previous.revision === revision &&
+			previous.isPremounting === isPremounting &&
+			previous.muted === effectiveMuted
+		) {
+			return;
+		}
+
+		lastRequest.current = {
+			player: mediaPlayer,
+			time: currentTime,
+			revision,
+			isPremounting,
+			muted: effectiveMuted,
+		};
+		mediaPlayer
+			.seekTo(currentTime, revision === null ? null : {revision, playing})
+			.catch(() => {
+				// Might be disposed
+			});
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
 			`[${label}] Updating target time to ${currentTime.toFixed(3)}s`,
 		);
-	}, [currentTime, logLevel, mediaPlayerReady, label, mediaPlayerRef]);
+	}, [
+		currentTime,
+		effectiveMuted,
+		isPremounting,
+		logLevel,
+		mediaPlayerReady,
+		label,
+		mediaPlayerRef,
+		playing,
+		revision,
+	]);
 };

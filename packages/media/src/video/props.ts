@@ -2,6 +2,7 @@ import type React from 'react';
 import type {
 	EffectDefinitionAndStack,
 	EffectsProp,
+	EffectsOutputSize,
 	InteractiveBaseProps,
 	InteractiveCropProps,
 	InteractivePremountProps,
@@ -24,6 +25,10 @@ export type VideoObjectFit =
 	| 'none'
 	| 'scale-down';
 
+export type MaxCanvasSinkFrameSize =
+	| {width: number; height?: number}
+	| {width?: number; height: number};
+
 export type FallbackOffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	transparent?: boolean;
@@ -42,6 +47,9 @@ type MandatoryVideoProps = {
 
 type OuterVideoProps = {
 	trimBefore: number | undefined;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter: number | undefined;
 };
 
@@ -51,6 +59,8 @@ type OptionalVideoProps = {
 	loopVolumeCurveBehavior: LoopVolumeCurveBehavior;
 	onVideoFrame: OnVideoFrame | undefined;
 	playbackRate: number;
+	/** Keep the original pitch when changing playback speed. Default: false. */
+	preservePitch: boolean;
 	muted: boolean;
 	delayRenderRetries: number | null;
 	delayRenderTimeoutInMilliseconds: number | null;
@@ -60,6 +70,9 @@ type OptionalVideoProps = {
 	audioStreamIndex: number;
 	disallowFallbackToOffthreadVideo: boolean;
 	fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter: number | undefined;
 	trimBefore: number | undefined;
 	toneFrequency: number;
@@ -74,8 +87,10 @@ type OptionalVideoProps = {
 	credentials: RequestCredentials | undefined;
 	requestInit: MediaRequestInit | undefined;
 	objectFit: VideoObjectFit;
+	maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
 	_experimentalInitiallyDrawCachedFrame: boolean;
 	effects: EffectsProp;
+	effectsOutputSize: EffectsOutputSize | null;
 };
 
 export type NativeVideoProps = Omit<
@@ -89,8 +104,10 @@ export type NativeVideoProps = Omit<
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects'> &
+	Omit<OptionalVideoProps, 'effects' | 'preservePitch' | 'audioStreamIndex'> &
 	NativeVideoProps & {
+		preservePitch: boolean | null;
+		audioStreamIndex: number | null;
 		effects: EffectDefinitionAndStack<unknown>[];
 		_remotionInternalStack: string | undefined;
 	};

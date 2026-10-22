@@ -9,9 +9,9 @@ import React, {
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
-	useMediaStartsAt,
+	Html5MediaTrimContext,
 } from '../audio/use-audio-frame.js';
-import {cancelRender} from '../cancel-render.js';
+import {useMediaAudioState} from '../audio/use-media-audio-state.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from '../default-css.js';
 import type {delayRender as delayRenderGlobal} from '../delay-render.js';
 import {Img} from '../Img.js';
@@ -22,6 +22,7 @@ import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useAudioEnabled} from '../use-media-enabled.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
@@ -53,7 +54,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	// https://discord.com/channels/809501355504959528/844143007183667220/1311639632496033813
 	crossOrigin,
 	audioStreamIndex,
-	preservePitch: _preservePitch,
+	preservePitch,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -62,7 +63,8 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	const volumePropsFrame = useFrameForVolumeProp(loopVolumeCurveBehavior);
 	const videoConfig = useUnsafeVideoConfig();
 	const sequenceContext = useContext(SequenceContext);
-	const mediaStartsAt = useMediaStartsAt();
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
+	const audioStartFrame = useContext(Html5MediaTrimContext);
 
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -86,10 +88,6 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		],
 	);
 
-	if (!videoConfig) {
-		throw new Error('No video config found');
-	}
-
 	const volume = evaluateVolume({
 		volume: volumeProp,
 		frame: volumePropsFrame,
@@ -97,21 +95,23 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	});
 
 	warnAboutTooHighVolume(volume);
+	const audioEnabled = useAudioEnabled();
+	const {shouldUseAudio} = useMediaAudioState({
+		muted,
+		volume,
+		audioEnabled,
+	});
+
+	if (!videoConfig) {
+		throw new Error('No video config found');
+	}
 
 	useEffect(() => {
 		if (!src) {
 			throw new Error('No src passed');
 		}
 
-		if (!window.remotion_audioEnabled) {
-			return;
-		}
-
-		if (muted) {
-			return;
-		}
-
-		if (volume <= 0) {
+		if (!shouldUseAudio) {
 			return;
 		}
 
@@ -121,19 +121,19 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			id,
 			frame: absoluteFrame,
 			volume,
-			mediaFrame: frame,
-			playbackRate,
+			// Render assets use composition frames; source trimming stays in media frames.
+			mediaFrame:
+				audioStartFrame + (frame - audioStartFrame) / sequencePlaybackRate,
+			playbackRate: playbackRate * sequencePlaybackRate,
 			toneFrequency,
-			audioStartFrame: Math.max(
-				0,
-				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
-			),
+			audioStartFrame,
 			audioStreamIndex,
+			preservePitch: preservePitch ?? true,
 		});
 
 		return () => unregisterRenderAsset(id);
 	}, [
-		muted,
+		shouldUseAudio,
 		src,
 		registerRenderAsset,
 		id,
@@ -143,8 +143,10 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		absoluteFrame,
 		playbackRate,
 		toneFrequency,
-		sequenceContext?.cumulatedNegativeFrom,
+		audioStartFrame,
+		sequencePlaybackRate,
 		audioStreamIndex,
+		preservePitch,
 	]);
 
 	const currentTime = useMemo(() => {
@@ -152,10 +154,10 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			getExpectedMediaFrameUncorrected({
 				frame,
 				playbackRate: playbackRate || 1,
-				startFrom: -mediaStartsAt,
+				startFrom: audioStartFrame,
 			}) / videoConfig.fps
 		);
-	}, [frame, mediaStartsAt, playbackRate, videoConfig.fps]);
+	}, [frame, audioStartFrame, playbackRate, videoConfig.fps]);
 
 	const actualSrc = useMemo(() => {
 		return getOffthreadVideoSource({
@@ -167,7 +169,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	}, [toneMapped, currentTime, src, transparent]);
 
 	const [imageSrc, setImageSrc] = useState<SrcAndHandle | null>(null);
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	useLayoutEffect(() => {
 		if (!window.remotion_videoEnabled) {
@@ -263,6 +265,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		delayRenderTimeoutInMilliseconds,
 		onError,
 		continueRender,
+		cancelRender,
 		delayRender,
 	]);
 
@@ -273,7 +276,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 			} else {
 				cancelRender('Failed to load image with src ' + imageSrc);
 			}
-		}, [imageSrc, onError]);
+		}, [imageSrc, onError, cancelRender]);
 
 	const className = useMemo(() => {
 		return [OBJECTFIT_CONTAIN_CLASS_NAME, props.className]

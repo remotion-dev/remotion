@@ -1,7 +1,7 @@
 import React, {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {ContextMenuForTarget} from './ContextMenu';
 import {
@@ -10,7 +10,7 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineRotationDragOverrides,
+	clearSelectedOutlineDragOverrides,
 	getSelectedOutlineRotationDragChanges,
 	getSelectedOutlineRotationDragStates,
 	getSelectedOutlineRotationDragValues,
@@ -36,7 +36,6 @@ import {
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {svgPointToClientPoint} from './svg-point-to-client-point';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -49,28 +48,34 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	readonly getAllRotationDragTargets: () => readonly SelectedOutlineRotationDragTarget[];
 	readonly corner: SelectedOutlineRotationCorner;
 	readonly dragging: boolean;
+	readonly handlePoint: {readonly x: number; readonly y: number};
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
+	readonly radius: number;
 	readonly target: SelectedOutlineTarget | undefined;
 }> = ({
 	getAllRotationDragTargets,
 	corner,
 	dragging,
+	handlePoint,
 	outline,
 	onDraggingChange,
 	onContextMenuOpen,
+	onContextMenuOpenChange,
 	onHoverChange,
 	onSelect,
+	radius,
 	target,
 }) => {
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -78,6 +83,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const rotationDrag = target?.rotationDrag ?? null;
 	const selected = target?.selected ?? false;
+	const containsSelection = target?.containsSelection ?? false;
 	const circleRef = useRef<SVGCircleElement>(null);
 	const cornerInfo = useMemo(
 		() => getSelectedOutlineRotationCornerInfo(outline.points, corner),
@@ -99,7 +105,8 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			}
 
 			const interaction = getOutlineSelectionInteraction(event);
-			const shouldUpdateSelection = !selected || interaction.toggleKey;
+			const shouldUpdateSelection =
+				(!selected && !containsSelection) || interaction.toggleKey;
 			if (shouldUpdateSelection && target !== undefined) {
 				onSelect(target.selection, {
 					shiftKey: false,
@@ -127,7 +134,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			);
 			const dragStates = getSelectedOutlineRotationDragStates({
 				dragTargets: selected ? getAllRotationDragTargets() : [rotationDrag],
-				getDragOverrides,
+				getDragOverrides: dragOverridesRef.current.getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
 			let previousAngle = getAngleDegrees(center, {
@@ -242,7 +249,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 				});
 
 				if (changes.length === 0) {
-					clearSelectedOutlineRotationDragOverrides({
+					clearSelectedOutlineDragOverrides({
 						clearDragOverrides,
 						dragStates,
 					});
@@ -258,31 +265,21 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 						change.type === 'keyframed',
 				);
 
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: rotationDrag.clientId,
-								undoLabel:
-									changes.length > 1
-										? 'Rotate selected sequences'
-										: 'Rotate sequence',
-								redoLabel:
-									changes.length > 1
-										? 'Rotate selected sequences back'
-										: 'Rotate sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
-						setPropStatuses,
-						clientId: rotationDrag.clientId,
-					}),
-				])
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: rotationDrag.clientId,
+					undoLabel:
+						changes.length > 1
+							? 'Rotate selected sequences'
+							: 'Rotate sequence',
+					redoLabel:
+						changes.length > 1
+							? 'Rotate selected sequences back'
+							: 'Rotate sequence back',
+				})
 					.catch((err) => {
 						showNotification(
 							`Could not save sequence props: ${
@@ -292,16 +289,16 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 						);
 					})
 					.finally(() => {
-						clearSelectedOutlineRotationDragOverrides({
+						clearSelectedOutlineDragOverrides({
 							clearDragOverrides,
 							dragStates,
 						});
 					});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -310,9 +307,10 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 		},
 		[
 			clearDragOverrides,
+			containsSelection,
 			cornerInfo,
 			editorSnapping,
-			getDragOverrides,
+			dragOverridesRef,
 			getAllRotationDragTargets,
 			onDraggingChange,
 			outline.dimensions,
@@ -335,14 +333,18 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 		<>
 			<circle
 				ref={circleRef}
-				cx={cornerInfo.point.x}
-				cy={cornerInfo.point.y}
-				r={12}
+				cx={handlePoint.x}
+				cy={handlePoint.y}
+				r={radius}
 				fill={TRANSPARENT}
 				stroke={TRANSPARENT}
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="all"
 				cursor={cornerInfo.cursor}
+				data-remotion-studio-rotation-corner={corner}
+				data-remotion-studio-rotation-corner-contains-selection={
+					containsSelection
+				}
 				onPointerEnter={() => {
 					if (!dragging) {
 						onHoverChange(outline.key);
@@ -358,6 +360,7 @@ export const SelectedOutlineRotationCornerHandle: React.FC<{
 			<ContextMenuForTarget
 				triggerRef={circleRef}
 				getItems={onContextMenuOpen}
+				onOpenChange={onContextMenuOpenChange}
 			/>
 		</>
 	);

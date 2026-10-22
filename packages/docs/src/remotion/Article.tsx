@@ -1,7 +1,10 @@
+import {fitText} from '@remotion/layout-utils';
 import React from 'react';
 import {AbsoluteFill, Img} from 'remotion';
 import {articles} from '../data/articles';
 import './font.css';
+
+const titleWidth = 980;
 
 export const Article: React.FC<{
 	readonly articleRelativePath: string;
@@ -11,11 +14,18 @@ export const Article: React.FC<{
 		return null;
 	}
 
-	const longestTitle = Math.max(
-		...article.title.split(' ').map((p) => p.length),
+	const longestTitlePart = article.title
+		.split(' ')
+		.reduce((longest, part) => (part.length > longest.length ? part : longest));
+	const fontSize = Math.min(
+		longestTitlePart.length > 20 ? 70 : 80,
+		fitText({
+			fontFamily: 'GTPlanar',
+			fontWeight: 700,
+			text: longestTitlePart,
+			withinWidth: titleWidth,
+		}).fontSize,
 	);
-
-	const fontSize = longestTitle > 20 ? 70 : 80;
 
 	return (
 		<AbsoluteFill

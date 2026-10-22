@@ -1,12 +1,23 @@
+import type {
+	CanvasSelectionInteraction,
+	CanvasSelectionItem,
+	CanvasSelectionSnapshot,
+} from '@remotion/sdk';
 import {
-	canEditEasingForInterpolationFunction,
+	CanvasInternals,
+	getCanvasSelectionItemKey,
+	useCanvasSelection,
+} from '@remotion/sdk';
+import {
 	stringifySequenceExpandedRowKey,
+	type SequenceNodePathMutation,
 } from '@remotion/studio-shared';
 import React, {
 	createContext,
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -18,6 +29,10 @@ import {
 	type GetEffectDragOverrides,
 	type PropStatuses,
 } from 'remotion';
+import {
+	canUseEffectOperations,
+	canUseKeyframeOperations,
+} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -37,15 +52,21 @@ import {
 	isStudioInteractivityEnabled,
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
 	TIMELINE_PADDING,
-	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {useBreakpoint} from '../../helpers/use-breakpoint';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {SIDEBAR_RESPONSIVE_BREAKPOINTS} from '../../helpers/use-responsive-sidebar-status';
+import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
+import {SidebarContext} from '../../state/sidebar';
 import {useZIndex} from '../../state/z-index';
 import {
 	ExpandedTracksGetterContext,
@@ -53,19 +74,51 @@ import {
 	type GetIsExpanded,
 } from '../ExpandedTracksProvider';
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
-import {getNodeHasKeyframes, getNodeKeyframes} from './get-node-keyframes';
-import {getTimelineEasingSegments} from './get-timeline-easing-segments';
+import {
+	getNodeCanEditEasing,
+	getNodeHasKeyframes,
+	getNodeKeyframes,
+} from './get-node-keyframes';
 import {getCurrentFrame} from './imperative-state';
+import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
-import {timelineVerticalScroll} from './timeline-refs';
+import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
+import {
+	EDGE_SCROLL_VERTICAL_INCREMENT,
+	SCROLL_INCREMENT,
+	startTimelineEdgeAutoScroll,
+} from './timeline-scroll-logic';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
+import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {TimelineWidthContext} from './TimelineWidthProvider';
+
+const {
+	EMPTY_CANVAS_SELECTION,
+	getCanvasSelectionAfterInteraction,
+	getCanvasSequenceSelectionKey,
+	getKeyframeSegments,
+	useCanvasSelectionController,
+} = CanvasInternals;
+
+const emptyDragOverrideSnapshot = {};
+const getDragOverrideSnapshot = (overrides: Record<string, unknown>): object =>
+	Object.keys(overrides).length === 0 ? emptyDragOverrideSnapshot : overrides;
+
+type SelectableTrackCache = {
+	readonly track: TimelineTrackData;
+	readonly expanded: boolean;
+	readonly dragOverride: object | null;
+	readonly effectOverrides: readonly object[];
+	readonly items: TimelineSelection[];
+};
 
 export const TIMELINE_SELECTED_BACKGROUND = TIMELINE_SELECTED_BACKGROUND_COLOR;
+export const TIMELINE_EXPANDED_SELECTED_BACKGROUND = BACKGROUND;
 export const TIMELINE_HOVER_BACKGROUND = WHITE_ALPHA_05;
 export const TIMELINE_SELECTED_LABEL_BACKGROUND =
 	TIMELINE_SELECTED_LABEL_BACKGROUND_COLOR;
@@ -106,6 +159,7 @@ export const getTimelineSelectedTrackHighlightStyle = (
 	position: 'absolute',
 	top: 0,
 	width: timelineWidth,
+	minWidth: `calc(100% + ${TIMELINE_PADDING * 2}px)`,
 });
 
 export const getTimelineRowHighlightBackground = ({
@@ -113,14 +167,16 @@ export const getTimelineRowHighlightBackground = ({
 	selected,
 	containsSelection,
 	hovered,
+	selectedBackground,
 }: {
 	readonly showSelectedBackground: boolean;
 	readonly selected: boolean;
 	readonly containsSelection: boolean;
 	readonly hovered: boolean;
+	readonly selectedBackground: string;
 }): string | undefined => {
 	if (showSelectedBackground && (selected || containsSelection)) {
-		return TIMELINE_SELECTED_BACKGROUND;
+		return selectedBackground;
 	}
 
 	return hovered ? TIMELINE_HOVER_BACKGROUND : undefined;
@@ -129,57 +185,14 @@ export const getTimelineRowHighlightBackground = ({
 export const TIMELINE_BACKGROUND = TIMELINE_BACKGROUND_COLOR;
 export const TIMELINE_TICKS_BACKGROUND = BACKGROUND;
 
-export type TimelineSelection =
-	| {
-			readonly type: 'guide';
-			readonly guideId: string;
-	  }
-	| {
-			readonly type: 'sequence';
-			readonly nodePathInfo: SequenceNodePathInfo;
-	  }
-	| {
-			readonly type: 'sequence-prop';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly key: string;
-	  }
-	| {
-			readonly type: 'sequence-all-effects';
-			readonly nodePathInfo: SequenceNodePathInfo;
-	  }
-	| {
-			readonly type: 'sequence-effect';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly i: number;
-	  }
-	| {
-			readonly type: 'sequence-effect-prop';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly i: number;
-			readonly key: string;
-	  }
-	| {
-			readonly type: 'keyframe';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly frame: number;
-	  }
-	| {
-			readonly type: 'easing';
-			readonly nodePathInfo: SequenceNodePathInfo;
-			readonly fromFrame: number;
-			readonly toFrame: number;
-			readonly segmentIndex: number;
-	  };
+export type TimelineSelection = CanvasSelectionItem;
 
 export type TimelineEasingSelection = Extract<
 	TimelineSelection,
 	{type: 'easing'}
 >;
 
-export type TimelineSelectionInteraction = {
-	readonly shiftKey: boolean;
-	readonly toggleKey: boolean;
-};
+export type TimelineSelectionInteraction = CanvasSelectionInteraction;
 
 export const isTimelineSelectionModifierEvent = ({
 	shiftKey,
@@ -209,15 +222,10 @@ export const shouldSelectTimelineRowOnPointerDown = ({
 	);
 };
 
-export type TimelineSelectionState = {
-	readonly selectedItems: readonly TimelineSelection[];
-	readonly anchor: TimelineSelection | null;
-};
+export type TimelineSelectionState = CanvasSelectionSnapshot;
 
-export const EMPTY_TIMELINE_SELECTION_STATE: TimelineSelectionState = {
-	selectedItems: [],
-	anchor: null,
-};
+export const EMPTY_TIMELINE_SELECTION_STATE: TimelineSelectionState =
+	EMPTY_CANVAS_SELECTION;
 
 export type TimelineMarqueeRect = {
 	readonly left: number;
@@ -233,162 +241,8 @@ export type TimelineMarqueeSelectionCandidate = {
 	readonly rect: TimelineMarqueeRect;
 };
 
-const getTimelineSelectionType = (item: TimelineSelection) => item.type;
-
-const areTimelineSelectionTypesCompatible = (
-	firstType: TimelineSelection['type'],
-	secondType: TimelineSelection['type'],
-): boolean => {
-	if (firstType === secondType) {
-		return true;
-	}
-
-	return (
-		(firstType === 'sequence-prop' && secondType === 'sequence-effect-prop') ||
-		(firstType === 'sequence-effect-prop' && secondType === 'sequence-prop') ||
-		(firstType === 'keyframe' && secondType === 'easing') ||
-		(firstType === 'easing' && secondType === 'keyframe')
-	);
-};
-
-const isTimelineSelectionCompatibleWithType = (
-	item: TimelineSelection,
-	type: TimelineSelection['type'],
-) => areTimelineSelectionTypesCompatible(getTimelineSelectionType(item), type);
-
-const getTimelineSelectionAnchor = (
-	selectedItems: readonly TimelineSelection[],
-	previousAnchor: TimelineSelection | null,
-	targetType: TimelineSelection['type'],
-) => {
-	if (
-		previousAnchor &&
-		getTimelineSelectionType(previousAnchor) === targetType
-	) {
-		return previousAnchor;
-	}
-
-	for (let i = selectedItems.length - 1; i >= 0; i--) {
-		const candidate = selectedItems[i];
-		if (getTimelineSelectionType(candidate) === targetType) {
-			return candidate;
-		}
-	}
-
-	return null;
-};
-
-const getRangeSelection = ({
-	anchor,
-	clickedItem,
-	allSelectableItems,
-}: {
-	readonly anchor: TimelineSelection;
-	readonly clickedItem: TimelineSelection;
-	readonly allSelectableItems: readonly TimelineSelection[];
-}): readonly TimelineSelection[] => {
-	const anchorKey = getTimelineSelectionKey(anchor);
-	const clickedKey = getTimelineSelectionKey(clickedItem);
-	const orderedOfType = allSelectableItems.filter(
-		(item) => getTimelineSelectionType(item) === clickedItem.type,
-	);
-	const anchorIndex = orderedOfType.findIndex(
-		(item) => getTimelineSelectionKey(item) === anchorKey,
-	);
-	const clickedIndex = orderedOfType.findIndex(
-		(item) => getTimelineSelectionKey(item) === clickedKey,
-	);
-
-	if (anchorIndex === -1 || clickedIndex === -1) {
-		return [clickedItem];
-	}
-
-	const [from, to] =
-		anchorIndex < clickedIndex
-			? [anchorIndex, clickedIndex]
-			: [clickedIndex, anchorIndex];
-	return orderedOfType.slice(from, to + 1);
-};
-
-export const getTimelineSelectionAfterInteraction = ({
-	currentState,
-	clickedItem,
-	interaction,
-	allSelectableItems,
-}: {
-	readonly currentState: TimelineSelectionState;
-	readonly clickedItem: TimelineSelection;
-	readonly interaction: TimelineSelectionInteraction;
-	readonly allSelectableItems: readonly TimelineSelection[];
-}): TimelineSelectionState => {
-	const {selectedItems, anchor: previousAnchor} = currentState;
-	const clickedType = getTimelineSelectionType(clickedItem);
-	if (clickedType === 'guide') {
-		return {
-			selectedItems: [clickedItem],
-			anchor: clickedItem,
-		};
-	}
-
-	const nextAnchor = getTimelineSelectionAnchor(
-		selectedItems,
-		previousAnchor,
-		clickedType,
-	);
-	const clickedKey = getTimelineSelectionKey(clickedItem);
-
-	if (interaction.shiftKey && nextAnchor) {
-		return {
-			selectedItems: getRangeSelection({
-				anchor: nextAnchor,
-				clickedItem,
-				allSelectableItems,
-			}),
-			anchor: nextAnchor,
-		};
-	}
-
-	if (interaction.toggleKey) {
-		const compatibleItems = selectedItems.filter((item) =>
-			isTimelineSelectionCompatibleWithType(item, clickedType),
-		);
-		const existingKeySet = new Set(
-			compatibleItems.map(getTimelineSelectionKey),
-		);
-		if (existingKeySet.has(clickedKey)) {
-			const toggledSelection = compatibleItems.filter(
-				(item) => getTimelineSelectionKey(item) !== clickedKey,
-			);
-			return {
-				selectedItems: toggledSelection,
-				anchor: toggledSelection.length === 0 ? null : clickedItem,
-			};
-		}
-
-		const selectableOrderMap = new Map(
-			allSelectableItems
-				.filter((item) =>
-					isTimelineSelectionCompatibleWithType(item, clickedType),
-				)
-				.map((item, index) => [getTimelineSelectionKey(item), index] as const),
-		);
-		const extendedSelection = [...compatibleItems, clickedItem].sort((a, b) => {
-			return (
-				(selectableOrderMap.get(getTimelineSelectionKey(a)) ?? 0) -
-				(selectableOrderMap.get(getTimelineSelectionKey(b)) ?? 0)
-			);
-		});
-		return {
-			selectedItems: extendedSelection,
-			anchor: clickedItem,
-		};
-	}
-
-	return {
-		selectedItems: [clickedItem],
-		anchor: clickedItem,
-	};
-};
+export const getTimelineSelectionAfterInteraction =
+	getCanvasSelectionAfterInteraction;
 
 export const getAvailableTimelineSelectionState = ({
 	availableKeys,
@@ -608,6 +462,10 @@ export const extendTimelineMarqueeSelection = ({
 
 type TimelineSelectionContextValue = {
 	readonly canSelect: boolean;
+	readonly inspectorRevealRequest: TimelineSelectionRevealRequest | null;
+	readonly revealRequest: TimelineSelectionRevealRequest | null;
+	readonly consumeRevealRequest: (token: number) => void;
+	readonly consumeInspectorRevealRequest: (token: number) => void;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (
@@ -624,40 +482,50 @@ type TimelineSelectionContextValue = {
 		item: TimelineSelection,
 		getRect: () => DOMRect | null,
 	) => () => void;
-	readonly registerFocusableItem: (
-		item: TimelineSelection,
-		getElement: () => Element | null,
-	) => () => void;
-	readonly getMarqueeSelection: (
-		marqueeRect: TimelineMarqueeRect,
-		lockedSelectionKind: TimelineMarqueeSelectionKind | null,
-	) => {
-		readonly lockedSelectionKind: TimelineMarqueeSelectionKind | null;
-		readonly selectedItems: readonly TimelineSelection[];
-	};
+	readonly getMarqueeSelectionCandidates: () => readonly TimelineMarqueeSelectionCandidate[];
 	readonly containsSelection: (nodePathInfo: SequenceNodePathInfo) => boolean;
+	readonly remapSelectionNodePaths: (
+		mutations: readonly SequenceNodePathMutation[],
+	) => void;
 	readonly clearSelection: () => void;
 };
 
 const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	canSelect: false,
+	inspectorRevealRequest: null,
+	revealRequest: null,
+	consumeRevealRequest: () => undefined,
+	consumeInspectorRevealRequest: () => undefined,
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
 	selectItems: () => undefined,
 	registerMarqueeSelectableItem: () => () => undefined,
-	registerFocusableItem: () => () => undefined,
-	getMarqueeSelection: () => ({
-		lockedSelectionKind: null,
-		selectedItems: [],
-	}),
+	getMarqueeSelectionCandidates: () => [],
 	containsSelection: () => false,
+	remapSelectionNodePaths: () => undefined,
 	clearSelection: () => undefined,
 };
+
+const TimelineSelectionCanSelectContext = createContext(false);
 
 const TimelineSelectionContext = createContext<TimelineSelectionContextValue>(
 	defaultTimelineSelectionContextValue,
 );
+
+type TimelineRowSelectionContextValue = Pick<
+	TimelineSelectionContextValue,
+	| 'canSelect'
+	| 'clearSelection'
+	| 'registerMarqueeSelectableItem'
+	| 'selectItem'
+> & {
+	readonly getSnapshot: () => TimelineSelectionState;
+	readonly subscribe: (listener: () => void) => () => void;
+};
+
+const TimelineRowSelectionContext =
+	createContext<TimelineRowSelectionContextValue | null>(null);
 
 const EMPTY_SELECTABLE_TIMELINE_ITEMS: readonly TimelineSelection[] = [];
 
@@ -682,20 +550,14 @@ export const TimelineSelectionOrderProvider: React.FC<{
 const CurrentTimelineSelectionContext =
 	createContext<React.RefObject<TimelineSelectionContextValue> | null>(null);
 
-const TIMELINE_SELECTION_REVEAL_RETRY_COUNT = 2;
-
 type TimelineSelectionOptions = {
 	readonly reveal?: boolean;
+	readonly revealInInspector?: boolean;
 };
 
 type TimelineSelectionRevealRequest = {
-	readonly key: string;
+	readonly item: TimelineSelection;
 	readonly token: number;
-};
-
-type TimelineFocusableItem = {
-	readonly getElement: () => Element | null;
-	readonly order: number;
 };
 
 const parseEffectIndex = (effectIndex: string): number | null => {
@@ -750,65 +612,134 @@ export const getTimelineSelectionFromNodePathInfo = (
 	return null;
 };
 
-export const getTimelineSelectionKey = (item: TimelineSelection): string => {
-	switch (item.type) {
-		case 'guide':
-			return `guide.${item.guideId}`;
-		case 'sequence':
-			return `${getTimelineSequenceSelectionKey(item.nodePathInfo)}.sequence`;
-		case 'sequence-prop':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-prop.${item.key}`;
-		case 'sequence-all-effects':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-all-effects`;
-		case 'sequence-effect':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-effect.${item.i}`;
-		case 'sequence-effect-prop':
-			return `${getTimelineSequenceSelectionKey(
-				item.nodePathInfo,
-			)}.sequence-effect-prop.${item.i}.${item.key}`;
-		case 'keyframe':
-			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.keyframe.${
-				item.frame
-			}`;
-		case 'easing':
-			return `${timelineNodePathInfoToKey(item.nodePathInfo)}.easing.${
-				item.segmentIndex
-			}`;
-		default:
-			throw new Error(
-				`Unexpected timeline selection type: ${item satisfies never}`,
-			);
+export const getTimelineSelectionKey = getCanvasSelectionItemKey;
+
+const multiSelectedSequenceNodePathInfosByItems = new WeakMap<
+	readonly TimelineSelection[],
+	readonly SequenceNodePathInfo[] | null
+>();
+
+export const getMultiSelectedSequenceNodePathInfos = (
+	selectedItems: readonly TimelineSelection[],
+): readonly SequenceNodePathInfo[] | null => {
+	const cached = multiSelectedSequenceNodePathInfosByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
 	}
+
+	// All selected clips and labels can share the same action targets.
+	const nodePathInfos =
+		selectedItems.length < 2 ||
+		selectedItems.some((item) => item.type !== 'sequence')
+			? null
+			: selectedItems.flatMap((item) =>
+					item.type === 'sequence' ? [item.nodePathInfo] : [],
+				);
+	multiSelectedSequenceNodePathInfosByItems.set(selectedItems, nodePathInfos);
+	return nodePathInfos;
 };
 
-const nodePathDescendsFrom = (
-	descendant: SequenceNodePathInfo,
-	ancestor: SequenceNodePathInfo,
+const selectedKeysByItems = new WeakMap<
+	readonly TimelineSelection[],
+	ReadonlySet<string>
+>();
+
+const getTimelineSelectedKeys = (
+	selectedItems: readonly TimelineSelection[],
+): ReadonlySet<string> => {
+	const cached = selectedKeysByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	// Share membership checks across rows without retaining old selections.
+	const keys = new Set(selectedItems.map(getTimelineSelectionKey));
+	selectedKeysByItems.set(selectedItems, keys);
+	return keys;
+};
+
+const containedRowsByItems = new WeakMap<
+	readonly TimelineSelection[],
+	{
+		readonly ancestorRows: ReadonlyMap<
+			string,
+			ReadonlyMap<number, ReadonlySet<string>>
+		>;
+		readonly animationRows: ReadonlySet<string>;
+	}
+>();
+
+const timelineRowContainsSelection = (
+	nodePathInfo: SequenceNodePathInfo,
+	selectedItems: readonly TimelineSelection[],
 ): boolean => {
+	let index = containedRowsByItems.get(selectedItems);
+	if (index === undefined) {
+		const ancestorRows = new Map<string, Map<number, Set<string>>>();
+		const animationRows = new Set<string>();
+		for (const item of selectedItems) {
+			if (item.type === 'guide') {
+				continue;
+			}
+
+			if (item.type === 'keyframe' || item.type === 'easing') {
+				animationRows.add(timelineNodePathInfoToKey(item.nodePathInfo));
+			}
+
+			const {
+				auxiliaryKeys,
+				sequenceSubscriptionKey,
+				index: instanceIndex,
+			} = item.nodePathInfo;
+			// NaN never matched the strict instance-index comparison.
+			if (auxiliaryKeys.length === 0 || Number.isNaN(instanceIndex)) {
+				continue;
+			}
+
+			const sequenceKey = stringifySequenceExpandedRowKey(
+				sequenceSubscriptionKey,
+			);
+			let instances = ancestorRows.get(sequenceKey);
+			if (instances === undefined) {
+				instances = new Map();
+				ancestorRows.set(sequenceKey, instances);
+			}
+
+			let prefixes = instances.get(instanceIndex);
+			if (prefixes === undefined) {
+				prefixes = new Set();
+				instances.set(instanceIndex, prefixes);
+			}
+
+			// Only strict ancestors contain a selected row. Preserve auxiliary
+			// segments separately: a property name can itself contain a dot.
+			for (let length = 0; length < auxiliaryKeys.length; length++) {
+				prefixes.add(JSON.stringify(auxiliaryKeys.slice(0, length)));
+			}
+		}
+
+		index = {ancestorRows, animationRows};
+		containedRowsByItems.set(selectedItems, index);
+	}
+
 	if (
-		stringifySequenceExpandedRowKey(descendant.sequenceSubscriptionKey) !==
-		stringifySequenceExpandedRowKey(ancestor.sequenceSubscriptionKey)
+		index.animationRows.size > 0 &&
+		index.animationRows.has(timelineNodePathInfoToKey(nodePathInfo))
 	) {
+		return true;
+	}
+
+	if (index.ancestorRows.size === 0) {
 		return false;
 	}
 
-	if (descendant.index !== ancestor.index) {
-		return false;
-	}
-
-	// Must be strictly deeper than `ancestor` (i.e. a descendant), not the same row.
-	if (descendant.auxiliaryKeys.length <= ancestor.auxiliaryKeys.length) {
-		return false;
-	}
-
-	return ancestor.auxiliaryKeys.every(
-		(key, i) => descendant.auxiliaryKeys[i] === key,
+	return (
+		index.ancestorRows
+			.get(
+				stringifySequenceExpandedRowKey(nodePathInfo.sequenceSubscriptionKey),
+			)
+			?.get(nodePathInfo.index)
+			?.has(JSON.stringify(nodePathInfo.auxiliaryKeys)) ?? false
 	);
 };
 
@@ -827,47 +758,113 @@ export const getSelectableTimelineSequenceSelections = (
 	});
 };
 
-const getTimelineTreeNodeCanEditEasing = ({
-	node,
-	nodePathInfo,
+const getSelectableTimelineItemsForTrack = ({
+	getDragOverrides,
+	getEffectDragOverrides,
+	getIsExpanded,
 	propStatuses,
+	selectedRowKeys,
+	track,
+	timelinePosition,
 }: {
-	readonly node: TimelineTreeNode;
-	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly getDragOverrides: GetDragOverrides;
+	readonly getEffectDragOverrides: GetEffectDragOverrides;
+	readonly getIsExpanded: GetIsExpanded;
 	readonly propStatuses: PropStatuses;
-}) => {
-	if (node.kind !== 'field' || node.field === null) {
-		return false;
+	readonly selectedRowKeys: ReadonlySet<string>;
+	readonly track: TimelineTrackData;
+	readonly timelinePosition: number;
+}): TimelineSelection[] => {
+	const {nodePathInfo} = track;
+	if (nodePathInfo === null) {
+		return [];
 	}
 
-	if (node.field.kind === 'sequence-field') {
-		const sequencePropStatus = Internals.getPropStatusesCtx(
-			propStatuses,
-			nodePathInfo.sequenceSubscriptionKey,
-		)?.[node.field.key];
-		return (
-			sequencePropStatus?.status === 'keyframed' &&
-			canEditEasingForInterpolationFunction(
-				sequencePropStatus.interpolationFunction,
-			)
-		);
+	const sequenceSelection = getTimelineSelectionFromNodePathInfo(nodePathInfo);
+	if (sequenceSelection === null) {
+		return [];
 	}
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	if (track.sequence.timelineTrack || !getIsExpanded(nodePathInfo)) {
+		return [sequenceSelection];
+	}
+
+	const tree = buildTimelineTree({
+		sequence: track.sequence,
+		nodePathInfo,
+		getDragOverrides,
+		getEffectDragOverrides,
 		propStatuses,
-		nodePath: nodePathInfo.sequenceSubscriptionKey,
-		effectIndex: node.field.effectIndex,
+		includeTextContent: false,
+		includeSourceControls: false,
+		runtimeValues: null,
 	});
-	const effectPropStatus =
-		effectStatus.type === 'can-update-effect'
-			? effectStatus.props[node.field.key]
-			: null;
-	return (
-		effectPropStatus?.status === 'keyframed' &&
-		canEditEasingForInterpolationFunction(
-			effectPropStatus.interpolationFunction,
-		)
-	);
+	const filteredTree = filterTimelineExpandedTree({
+		nodes: tree,
+		shouldShowNode: (node) =>
+			isTimelineExpandedNodeSelected({
+				nodePathInfo: node.nodePathInfo,
+				selectedRowKeys,
+			}) ||
+			getNodeHasKeyframes({
+				node,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				propStatuses,
+				getDragOverrides,
+				getEffectDragOverrides,
+			}),
+	});
+	const visibleTreeRows = flattenVisibleTreeNodes({
+		nodes: filteredTree,
+		getIsExpanded,
+	});
+
+	return [
+		sequenceSelection,
+		...visibleTreeRows.flatMap(({node}): TimelineSelection[] => {
+			const rowSelection = getTimelineSelectionFromNodePathInfo(
+				node.nodePathInfo,
+			);
+			if (rowSelection === null) {
+				return [];
+			}
+
+			const keyframes = getNodeKeyframes({
+				node,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				propStatuses,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+				getDragOverrides,
+				getEffectDragOverrides,
+				timelinePosition,
+			});
+			const keyframeSelections = keyframes.map(
+				(keyframe): TimelineSelection => ({
+					type: 'keyframe',
+					nodePathInfo: node.nodePathInfo,
+					frame: keyframe.frame,
+				}),
+			);
+			const easingSelections = getNodeCanEditEasing({
+				node,
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+				propStatuses,
+			})
+				? getKeyframeSegments(keyframes).map(
+						(segment): TimelineSelection => ({
+							type: 'easing',
+							nodePathInfo: node.nodePathInfo,
+							fromFrame: segment.fromFrame,
+							toFrame: segment.toFrame,
+							segmentIndex: segment.segmentIndex,
+						}),
+					)
+				: [];
+
+			return [rowSelection, ...easingSelections, ...keyframeSelections];
+		}),
+	];
 };
 
 export const getSelectableTimelineItems = ({
@@ -888,110 +885,26 @@ export const getSelectableTimelineItems = ({
 	readonly timelinePosition: number;
 }): TimelineSelection[] => {
 	const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
-
-	return timeline.flatMap((track): TimelineSelection[] => {
-		const {nodePathInfo} = track;
-		if (nodePathInfo === null) {
-			return [];
-		}
-
-		const sequenceSelection =
-			getTimelineSelectionFromNodePathInfo(nodePathInfo);
-		if (sequenceSelection === null) {
-			return [];
-		}
-
-		if (!getIsExpanded(nodePathInfo)) {
-			return [sequenceSelection];
-		}
-
-		const tree = buildTimelineTree({
-			sequence: track.sequence,
-			nodePathInfo,
+	return timeline.flatMap((track) =>
+		getSelectableTimelineItemsForTrack({
 			getDragOverrides,
 			getEffectDragOverrides,
-			propStatuses,
-			includeTextContent: false,
-			includeSourceControls: false,
-			runtimeValues: null,
-		});
-		const filteredTree = filterTimelineExpandedTree({
-			nodes: tree,
-			shouldShowNode: (node) =>
-				isTimelineExpandedNodeSelected({
-					nodePathInfo: node.nodePathInfo,
-					selectedRowKeys,
-				}) ||
-				getNodeHasKeyframes({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					propStatuses,
-					getDragOverrides,
-					getEffectDragOverrides,
-				}),
-		});
-		const visibleTreeRows = flattenVisibleTreeNodes({
-			nodes: filteredTree,
 			getIsExpanded,
-		});
-
-		return [
-			sequenceSelection,
-			...visibleTreeRows.flatMap(({node}): TimelineSelection[] => {
-				const rowSelection = getTimelineSelectionFromNodePathInfo(
-					node.nodePathInfo,
-				);
-				if (rowSelection === null) {
-					return [];
-				}
-
-				const keyframes = getNodeKeyframes({
-					node,
-					nodePath: nodePathInfo.sequenceSubscriptionKey,
-					propStatuses,
-					keyframeDisplayOffset: track.keyframeDisplayOffset,
-					getDragOverrides,
-					getEffectDragOverrides,
-					timelinePosition,
-				});
-				const keyframeSelections = keyframes.map(
-					(keyframe): TimelineSelection => ({
-						type: 'keyframe',
-						nodePathInfo: node.nodePathInfo,
-						frame: keyframe.frame,
-					}),
-				);
-				const easingSelections = getTimelineTreeNodeCanEditEasing({
-					node,
-					nodePathInfo,
-					propStatuses,
-				})
-					? getTimelineEasingSegments(keyframes).map(
-							(segment): TimelineSelection => ({
-								type: 'easing',
-								nodePathInfo: node.nodePathInfo,
-								fromFrame: segment.fromFrame,
-								toFrame: segment.toFrame,
-								segmentIndex: segment.segmentIndex,
-							}),
-						)
-					: [];
-
-				return [rowSelection, ...easingSelections, ...keyframeSelections];
-			}),
-		];
-	});
+			propStatuses,
+			selectedRowKeys,
+			track,
+			timelinePosition,
+		}),
+	);
 };
 
-export const getTimelineSequenceSelectionKey = (
-	nodePathInfo: SequenceNodePathInfo,
-): string => timelineNodePathInfoToKey({...nodePathInfo, auxiliaryKeys: []});
+export const getTimelineSequenceSelectionKey = getCanvasSequenceSelectionKey;
 
 export const TimelineSelectAllKeybindings: React.FC<{
 	readonly timeline: readonly TimelineTrackData[];
 }> = ({timeline}) => {
 	const keybindings = useKeybinding();
-	const {canSelect} = useTimelineSelection();
+	const canSelect = useTimelineSelectionCanSelect();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const selectableSequenceSelections = useMemo(
@@ -1008,7 +921,7 @@ export const TimelineSelectAllKeybindings: React.FC<{
 
 		const selectAll = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'a',
+			action: 'selectAllSequenceRows',
 			callback: () => {
 				const latestSelectableSequenceSelections =
 					selectableSequenceSelectionsRef.current;
@@ -1020,7 +933,6 @@ export const TimelineSelectAllKeybindings: React.FC<{
 					latestSelectableSequenceSelections,
 				);
 			},
-			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -1034,6 +946,50 @@ export const TimelineSelectAllKeybindings: React.FC<{
 	return null;
 };
 
+const fieldsSelectingSequenceOnEscape = new Set([
+	'cropLeft',
+	'cropRight',
+	'cropTop',
+	'cropBottom',
+	'style.rotate',
+]);
+
+export const getTimelineSequenceSelectionForEscape = (
+	selectedItems: readonly TimelineSelection[],
+): Extract<TimelineSelection, {type: 'sequence'}> | null => {
+	if (selectedItems.length !== 1) {
+		return null;
+	}
+
+	const [selectedItem] = selectedItems;
+	let fieldKey: string | null = null;
+	if (selectedItem.type === 'sequence-prop') {
+		fieldKey = selectedItem.key;
+	} else if (
+		selectedItem.type === 'keyframe' ||
+		selectedItem.type === 'easing'
+	) {
+		const field = parseKeyframeFieldFromNodePath(
+			selectedItem.nodePathInfo.auxiliaryKeys,
+		);
+		fieldKey = field?.type === 'sequence' ? field.fieldKey : null;
+	} else {
+		return null;
+	}
+
+	if (!fieldsSelectingSequenceOnEscape.has(fieldKey ?? '')) {
+		return null;
+	}
+
+	return {
+		type: 'sequence',
+		nodePathInfo: {
+			...selectedItem.nodePathInfo,
+			auxiliaryKeys: [],
+		},
+	};
+};
+
 const TimelineEscapeKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -1043,8 +999,17 @@ const TimelineEscapeKeybindings: React.FC = () => {
 			event: 'keydown',
 			key: 'Escape',
 			callback: (event) => {
-				const {selectedItems, clearSelection} = currentSelection.current;
+				const {selectedItems, clearSelection, selectItems} =
+					currentSelection.current;
 				if (selectedItems.length === 0) {
+					return;
+				}
+
+				const sequenceSelection =
+					getTimelineSequenceSelectionForEscape(selectedItems);
+				if (sequenceSelection) {
+					selectItems([sequenceSelection]);
+					event.preventDefault();
 					return;
 				}
 
@@ -1075,26 +1040,138 @@ export const TimelineSelectableItemsProvider: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {selectedItems} = useTimelineSelection();
-	const selectableItems = useMemo(
-		() =>
-			getSelectableTimelineItems({
-				getDragOverrides,
-				getEffectDragOverrides,
-				getIsExpanded,
-				propStatuses,
-				selectedItems,
-				timeline,
-				timelinePosition: getCurrentFrame(),
-			}),
-		[
-			getDragOverrides,
-			getEffectDragOverrides,
-			getIsExpanded,
+	const previousSelectionRef = useRef<{
+		readonly timeline: readonly TimelineTrackData[];
+		readonly propStatuses: PropStatuses;
+		readonly selectedItems: readonly TimelineSelection[];
+		readonly getIsExpanded: GetIsExpanded;
+		readonly timelinePosition: number;
+		readonly items: TimelineSelection[];
+		readonly byId: Map<string, SelectableTrackCache>;
+		readonly expandedEntries: readonly SelectableTrackCache[];
+	} | null>(null);
+	const selection = useMemo(() => {
+		const previous = previousSelectionRef.current;
+		const timelinePosition = getCurrentFrame();
+		if (
+			previous !== null &&
+			previous.timeline === timeline &&
+			previous.propStatuses === propStatuses &&
+			previous.selectedItems === selectedItems &&
+			previous.getIsExpanded === getIsExpanded &&
+			previous.timelinePosition === timelinePosition &&
+			previous.expandedEntries.every((entry) => {
+				const nodePath = entry.track.nodePathInfo?.sequenceSubscriptionKey;
+				if (nodePath === undefined) {
+					return false;
+				}
+
+				return (
+					entry.dragOverride ===
+						getDragOverrideSnapshot(getDragOverrides(nodePath)) &&
+					entry.effectOverrides.every(
+						(value, index) =>
+							value ===
+							getDragOverrideSnapshot(getEffectDragOverrides(nodePath, index)),
+					)
+				);
+			})
+		) {
+			return previous;
+		}
+
+		const invalidateAll =
+			previous === null ||
+			previous.propStatuses !== propStatuses ||
+			previous.selectedItems !== selectedItems ||
+			previous.getIsExpanded !== getIsExpanded ||
+			previous.timelinePosition !== timelinePosition;
+		const selectedRowKeys = getSelectedTimelineExpandedRowKeys(selectedItems);
+		const byId = new Map<string, SelectableTrackCache>();
+		const expandedEntries: SelectableTrackCache[] = [];
+		let changed = previous === null || previous.timeline !== timeline;
+		const items: TimelineSelection[] = [];
+
+		for (const track of timeline) {
+			const nodePath = track.nodePathInfo?.sequenceSubscriptionKey ?? null;
+			const expanded =
+				track.nodePathInfo !== null && getIsExpanded(track.nodePathInfo);
+			let dragOverride: object | null = null;
+			if (expanded && nodePath !== null) {
+				dragOverride = getDragOverrideSnapshot(getDragOverrides(nodePath));
+			}
+
+			const effectOverrides =
+				expanded && nodePath !== null
+					? track.sequence.effects.map((_, index) =>
+							getDragOverrideSnapshot(getEffectDragOverrides(nodePath, index)),
+						)
+					: [];
+			const old = previous?.byId.get(track.sequence.id);
+			const canReuse =
+				!invalidateAll &&
+				old?.track === track &&
+				old.expanded === expanded &&
+				(!expanded ||
+					(old.dragOverride === dragOverride &&
+						old.effectOverrides.length === effectOverrides.length &&
+						old.effectOverrides.every(
+							(value, index) => value === effectOverrides[index],
+						)));
+			const trackItems = canReuse
+				? old.items
+				: getSelectableTimelineItemsForTrack({
+						getDragOverrides,
+						getEffectDragOverrides,
+						getIsExpanded,
+						propStatuses,
+						selectedRowKeys,
+						track,
+						timelinePosition,
+					});
+			if (!canReuse) {
+				changed = true;
+			}
+
+			const entry: SelectableTrackCache = {
+				track,
+				expanded,
+				dragOverride,
+				effectOverrides,
+				items: trackItems,
+			};
+			byId.set(track.sequence.id, entry);
+			if (expanded) {
+				expandedEntries.push(entry);
+			}
+
+			for (const item of trackItems) {
+				items.push(item);
+			}
+		}
+
+		return {
+			timeline,
 			propStatuses,
 			selectedItems,
-			timeline,
-		],
-	);
+			getIsExpanded,
+			timelinePosition,
+			byId,
+			expandedEntries,
+			items: changed ? items : previous!.items,
+		};
+	}, [
+		getDragOverrides,
+		getEffectDragOverrides,
+		getIsExpanded,
+		propStatuses,
+		selectedItems,
+		timeline,
+	]);
+	useLayoutEffect(() => {
+		previousSelectionRef.current = selection;
+	}, [selection]);
+	const selectableItems = selection.items;
 
 	return (
 		<TimelineSelectionOrderProvider items={selectableItems}>
@@ -1111,14 +1188,17 @@ export const TimelineSelectionProvider: React.FC<{
 	const timelineSelectionScope =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
+	const {setRightSidebarTemporaryExpansion, sidebarCollapsedStateRight} =
+		useContext(SidebarContext);
+	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS.right);
 	const canSelect =
 		isStudioSelectionEnabled() &&
 		(previewServerState.type === 'connected' ||
 			window.remotion_isReadOnlyStudio);
-	const [selectedItems, setSelectedItems] = useState<
-		readonly TimelineSelection[]
-	>([]);
-	const selectionAnchor = useRef<TimelineSelection | null>(null);
+	const keyframeOperationsAvailable = canUseKeyframeOperations();
+	const effectOperationsAvailable = canUseEffectOperations();
+	const selectionController = useCanvasSelectionController();
+	const selectionState = useCanvasSelection(selectionController);
 	const selectionScope = useRef<string | null>(null);
 	const marqueeSelectableItems = useRef(
 		new Map<
@@ -1131,115 +1211,95 @@ export const TimelineSelectionProvider: React.FC<{
 		>(),
 	);
 	const marqueeRegistrationCounter = useRef(0);
-	const focusableItems = useRef(
-		new Map<string, Map<number, TimelineFocusableItem>>(),
-	);
-	const focusableRegistrationCounter = useRef(0);
 	const [revealRequest, setRevealRequest] =
 		useState<TimelineSelectionRevealRequest | null>(null);
+	const revealTokenCounter = useRef(0);
+	const [inspectorRevealRequest, setInspectorRevealRequest] =
+		useState<TimelineSelectionRevealRequest | null>(null);
+	const inspectorRevealTokenCounter = useRef(0);
 
 	useEffect(() => {
 		if (!canSelect) {
 			selectionScope.current = null;
-			selectionAnchor.current = null;
+			setInspectorRevealRequest(null);
 			setRevealRequest(null);
-			setSelectedItems([]);
+			selectionController.clear();
 		}
-	}, [canSelect]);
+	}, [canSelect, selectionController]);
 
 	const canSelectItem = useCallback(
 		(item: TimelineSelection) =>
 			canSelect &&
-			(!window.remotion_isReadOnlyStudio || item.type === 'sequence'),
-		[canSelect],
-	);
-
-	const getCurrentAvailableSelectionState = useCallback(
-		(currentSelectedItems: readonly TimelineSelection[]) => {
-			if (selectionScope.current !== timelineSelectionScope) {
-				return EMPTY_TIMELINE_SELECTION_STATE;
-			}
-
-			return {
-				selectedItems: currentSelectedItems,
-				anchor: selectionAnchor.current,
-			};
-		},
-		[timelineSelectionScope],
+			(!window.remotion_isReadOnlyStudio ||
+				keyframeOperationsAvailable ||
+				(effectOperationsAvailable && item.type === 'sequence-effect') ||
+				item.type === 'sequence'),
+		[canSelect, effectOperationsAvailable, keyframeOperationsAvailable],
 	);
 
 	const availableSelectionState =
-		getCurrentAvailableSelectionState(selectedItems);
+		selectionScope.current === timelineSelectionScope
+			? selectionState
+			: EMPTY_TIMELINE_SELECTION_STATE;
 	const availableSelectedItems = availableSelectionState.selectedItems;
-
-	const revealSelectionKey = useCallback((selectedKey: string) => {
-		let cancelled = false;
-		let animationFrame: number | null = null;
-
-		const reveal = (attempt: number) => {
-			if (cancelled) {
-				return;
-			}
-
-			const scrollParent = timelineVerticalScroll.current;
-			const focusableRegistrations = focusableItems.current.get(selectedKey);
-			const focusableElement =
-				scrollParent && focusableRegistrations
-					? [...focusableRegistrations.values()]
-							.sort((a, b) => a.order - b.order)
-							.map((registered) => registered.getElement())
-							.find(
-								(element): element is Element =>
-									element !== null && scrollParent.contains(element),
-							)
-					: null;
-			const rect =
-				focusableElement?.getBoundingClientRect() ??
-				marqueeSelectableItems.current.get(selectedKey)?.getRect();
-
-			if (!scrollParent || !rect) {
-				if (attempt < TIMELINE_SELECTION_REVEAL_RETRY_COUNT) {
-					animationFrame = requestAnimationFrame(() => reveal(attempt + 1));
-				}
-
-				return;
-			}
-
-			const parentRect = scrollParent.getBoundingClientRect();
-			if (rect.top >= parentRect.top && rect.bottom <= parentRect.bottom) {
-				return;
-			}
-
-			const elementCenter = rect.top + rect.height / 2;
-			const parentCenter = parentRect.top + parentRect.height / 2;
-			scrollParent.scrollTop += elementCenter - parentCenter;
-		};
-
-		animationFrame = requestAnimationFrame(() => reveal(0));
-
-		return () => {
-			cancelled = true;
-			if (animationFrame !== null) {
-				cancelAnimationFrame(animationFrame);
-			}
-		};
-	}, []);
-
+	const previousSelectedSequenceKeys = useRef<ReadonlySet<string>>(new Set());
 	useEffect(() => {
-		if (revealRequest === null) {
-			return;
-		}
+		const selectedSequenceKeys = new Set(
+			availableSelectedItems
+				.filter((item) => item.type === 'sequence')
+				.map(getTimelineSelectionKey),
+		);
+		const sequenceWasSelected = [...selectedSequenceKeys].some(
+			(key) => !previousSelectedSequenceKeys.current.has(key),
+		);
+		previousSelectedSequenceKeys.current = selectedSequenceKeys;
 
-		return revealSelectionKey(revealRequest.key);
-	}, [revealRequest, revealSelectionKey]);
+		if (
+			sequenceWasSelected &&
+			isNarrowLayout &&
+			sidebarCollapsedStateRight === 'responsive'
+		) {
+			setRightSidebarTemporaryExpansion(true);
+		}
+	}, [
+		availableSelectedItems,
+		isNarrowLayout,
+		setRightSidebarTemporaryExpansion,
+		sidebarCollapsedStateRight,
+	]);
+	const getAvailableSelectionState = useCallback(
+		() =>
+			selectionScope.current === timelineSelectionScope
+				? selectionController.getSnapshot()
+				: EMPTY_TIMELINE_SELECTION_STATE,
+		[selectionController, timelineSelectionScope],
+	);
 
 	const requestRevealSelectionItem = useCallback((item: TimelineSelection) => {
-		const key = getTimelineSelectionKey(item);
-		setRevealRequest((previousRequest) => ({
-			key,
-			token: (previousRequest?.token ?? 0) + 1,
-		}));
+		revealTokenCounter.current += 1;
+		setRevealRequest({
+			item,
+			token: revealTokenCounter.current,
+		});
 	}, []);
+	const consumeRevealRequest = useCallback((token: number) => {
+		setRevealRequest((current) => (current?.token === token ? null : current));
+	}, []);
+	const consumeInspectorRevealRequest = useCallback((token: number) => {
+		setInspectorRevealRequest((current) =>
+			current?.token === token ? null : current,
+		);
+	}, []);
+	const requestRevealSelectionItemInInspector = useCallback(
+		(item: TimelineSelection) => {
+			inspectorRevealTokenCounter.current += 1;
+			setInspectorRevealRequest({
+				item,
+				token: inspectorRevealTokenCounter.current,
+			});
+		},
+		[],
+	);
 
 	const expandParentsForSelectionItems = useCallback(
 		(items: readonly TimelineSelection[]) => {
@@ -1266,33 +1326,17 @@ export const TimelineSelectionProvider: React.FC<{
 	);
 
 	useEffect(() => {
-		setSelectedItems((currentSelectedItems) => {
-			const nextState =
-				selectionScope.current === timelineSelectionScope
-					? {
-							selectedItems: currentSelectedItems,
-							anchor: selectionAnchor.current,
-						}
-					: EMPTY_TIMELINE_SELECTION_STATE;
+		if (selectionScope.current === timelineSelectionScope) {
+			return;
+		}
 
-			selectionScope.current = timelineSelectionScope;
-			selectionAnchor.current = nextState.anchor;
-
-			if (
-				nextState.selectedItems.length === currentSelectedItems.length &&
-				nextState.selectedItems.every(
-					(item, index) => item === currentSelectedItems[index],
-				)
-			) {
-				return currentSelectedItems;
-			}
-
-			return nextState.selectedItems;
-		});
-	}, [timelineSelectionScope]);
+		selectionScope.current = timelineSelectionScope;
+		setRevealRequest(null);
+		selectionController.clear();
+	}, [selectionController, timelineSelectionScope]);
 
 	const selectedKeys = useMemo(
-		() => new Set(availableSelectedItems.map(getTimelineSelectionKey)),
+		() => getTimelineSelectedKeys(availableSelectedItems),
 		[availableSelectedItems],
 	);
 
@@ -1321,31 +1365,29 @@ export const TimelineSelectionProvider: React.FC<{
 			expandParentsForSelectionItem(item);
 			if (options.reveal) {
 				requestRevealSelectionItem(item);
+			} else {
+				setRevealRequest(null);
 			}
 
-			setSelectedItems((currentSelectedItems) => {
-				const currentSelectionState =
-					getCurrentAvailableSelectionState(currentSelectedItems);
+			if (options.revealInInspector) {
+				requestRevealSelectionItemInInspector(item);
+			} else {
+				setInspectorRevealRequest(null);
+			}
 
-				const nextState = getTimelineSelectionAfterInteraction({
-					currentState: {
-						selectedItems: currentSelectionState.selectedItems,
-						anchor: currentSelectionState.anchor,
-					},
-					clickedItem: item,
-					interaction,
-					allSelectableItems,
-				});
-				selectionScope.current = timelineSelectionScope;
-				selectionAnchor.current = nextState.anchor;
-				return nextState.selectedItems;
-			});
+			if (selectionScope.current !== timelineSelectionScope) {
+				selectionController.clear();
+			}
+
+			selectionScope.current = timelineSelectionScope;
+			selectionController.select(item, interaction, allSelectableItems);
 		},
 		[
 			canSelectItem,
 			expandParentsForSelectionItem,
-			getCurrentAvailableSelectionState,
+			requestRevealSelectionItemInInspector,
 			requestRevealSelectionItem,
+			selectionController,
 			timelineSelectionScope,
 		],
 	);
@@ -1364,19 +1406,27 @@ export const TimelineSelectionProvider: React.FC<{
 			}
 
 			selectionScope.current = timelineSelectionScope;
-			selectionAnchor.current =
-				items.length === 0 ? null : items[items.length - 1];
 			expandParentsForSelectionItems(items);
 			if (options.reveal && items.length === 1) {
 				requestRevealSelectionItem(items[0]);
+			} else {
+				setRevealRequest(null);
 			}
 
-			setSelectedItems(items);
+			if (options.revealInInspector && items.length === 1) {
+				requestRevealSelectionItemInInspector(items[0]);
+			} else {
+				setInspectorRevealRequest(null);
+			}
+
+			selectionController.setSelectedItems(items);
 		},
 		[
 			canSelectItem,
 			expandParentsForSelectionItems,
+			requestRevealSelectionItemInInspector,
 			requestRevealSelectionItem,
+			selectionController,
 			timelineSelectionScope,
 		],
 	);
@@ -1398,129 +1448,189 @@ export const TimelineSelectionProvider: React.FC<{
 		[],
 	);
 
-	const registerFocusableItem = useCallback(
-		(item: TimelineSelection, getElement: () => Element | null) => {
-			const key = getTimelineSelectionKey(item);
-			const registrationOrder = focusableRegistrationCounter.current;
-			focusableRegistrationCounter.current += 1;
-			const registrations =
-				focusableItems.current.get(key) ??
-				new Map<number, TimelineFocusableItem>();
-			registrations.set(registrationOrder, {
-				getElement,
-				order: registrationOrder,
-			});
-			focusableItems.current.set(key, registrations);
-			return () => {
-				const latestRegistrations = focusableItems.current.get(key);
-				latestRegistrations?.delete(registrationOrder);
-				if (latestRegistrations?.size === 0) {
-					focusableItems.current.delete(key);
+	const getMarqueeSelectionCandidates = useCallback(() => {
+		return [...marqueeSelectableItems.current.values()]
+			.sort((a, b) => a.order - b.order)
+			.flatMap((candidate): TimelineMarqueeSelectionCandidate[] => {
+				if (!canSelectItem(candidate.item)) {
+					return [];
 				}
-			};
-		},
-		[],
-	);
 
-	const getMarqueeSelectionForRect = useCallback(
-		(
-			marqueeRect: TimelineMarqueeRect,
-			lockedSelectionKind: TimelineMarqueeSelectionKind | null,
-		) => {
-			const candidates = [...marqueeSelectableItems.current.values()]
-				.sort((a, b) => a.order - b.order)
-				.flatMap((candidate): TimelineMarqueeSelectionCandidate[] => {
-					if (!canSelectItem(candidate.item)) {
-						return [];
-					}
+				const rect = candidate.getRect();
+				if (rect === null) {
+					return [];
+				}
 
-					const rect = candidate.getRect();
-					if (rect === null) {
-						return [];
-					}
-
-					return [
-						{
-							item: candidate.item,
-							rect: {
-								bottom: rect.bottom,
-								left: rect.left,
-								right: rect.right,
-								top: rect.top,
-							},
-						},
-					];
-				});
-
-			return getTimelineMarqueeSelection({
-				candidates,
-				lockedSelectionKind,
-				marqueeRect,
+				return [{item: candidate.item, rect}];
 			});
-		},
-		[canSelectItem],
-	);
+	}, [canSelectItem]);
 
 	const clearSelection = useCallback(() => {
 		selectionScope.current = null;
-		selectionAnchor.current = null;
-		setSelectedItems([]);
-	}, []);
+		setInspectorRevealRequest(null);
+		setRevealRequest(null);
+		selectionController.clear();
+	}, [selectionController]);
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			return availableSelectedItems.some(
-				(selected) =>
-					selected.type !== 'guide' &&
-					nodePathDescendsFrom(selected.nodePathInfo, nodePathInfo),
-			);
+			return timelineRowContainsSelection(nodePathInfo, availableSelectedItems);
 		},
 		[availableSelectedItems],
+	);
+
+	const remapSelectionNodePaths = useCallback(
+		(mutations: readonly SequenceNodePathMutation[]) => {
+			const remapItem = (
+				item: TimelineSelection | null,
+			): TimelineSelection | null => {
+				if (item === null || item.type === 'guide') {
+					return item;
+				}
+
+				const {sequenceSubscriptionKey} = item.nodePathInfo;
+				let {nodePath} = sequenceSubscriptionKey;
+				let wasRemapped = false;
+
+				for (const mutation of mutations) {
+					const file = mutation.files.find(
+						(candidate) =>
+							candidate.absolutePath === sequenceSubscriptionKey.absolutePath,
+					);
+					if (!file) {
+						continue;
+					}
+
+					const nodePathString = JSON.stringify(nodePath);
+					const remapping = file.remappings.find(
+						(candidate) =>
+							candidate.oldNodePath !== null &&
+							JSON.stringify(candidate.oldNodePath) === nodePathString,
+					);
+					if (!remapping) {
+						continue;
+					}
+
+					wasRemapped = true;
+					if (remapping.newNodePath === null) {
+						return null;
+					}
+
+					nodePath = remapping.newNodePath;
+				}
+
+				if (!wasRemapped) {
+					return item;
+				}
+
+				return {
+					...item,
+					nodePathInfo: {
+						...item.nodePathInfo,
+						sequenceSubscriptionKey: {
+							...sequenceSubscriptionKey,
+							nodePath,
+						},
+					},
+				};
+			};
+
+			const snapshot = selectionController.getSnapshot();
+			const selectedItems = snapshot.selectedItems
+				.map(remapItem)
+				.filter((item): item is TimelineSelection => item !== null);
+			const anchor = remapItem(snapshot.anchor);
+
+			if (
+				selectedItems.some(
+					(item, index) => item !== snapshot.selectedItems[index],
+				) ||
+				selectedItems.length !== snapshot.selectedItems.length ||
+				anchor !== snapshot.anchor
+			) {
+				selectionController.setSnapshot({selectedItems, anchor});
+			}
+		},
+		[selectionController],
 	);
 
 	const value = useMemo(
 		(): TimelineSelectionContextValue => ({
 			canSelect,
+			inspectorRevealRequest,
+			revealRequest,
+			consumeRevealRequest,
+			consumeInspectorRevealRequest,
 			selectedItems: availableSelectedItems,
 			isSelected,
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
-			registerFocusableItem,
-			getMarqueeSelection: getMarqueeSelectionForRect,
+			getMarqueeSelectionCandidates,
 			containsSelection,
+			remapSelectionNodePaths,
 			clearSelection,
 		}),
 		[
 			canSelect,
+			inspectorRevealRequest,
+			revealRequest,
+			consumeRevealRequest,
+			consumeInspectorRevealRequest,
 			availableSelectedItems,
 			isSelected,
 			selectItem,
 			selectItems,
 			registerMarqueeSelectableItem,
-			registerFocusableItem,
-			getMarqueeSelectionForRect,
+			getMarqueeSelectionCandidates,
 			containsSelection,
+			remapSelectionNodePaths,
 			clearSelection,
 		],
 	);
 	const currentSelection = useRef(value);
 	currentSelection.current = value;
+	const rowSelectionContextValue = useMemo(
+		(): TimelineRowSelectionContextValue => ({
+			canSelect,
+			clearSelection,
+			getSnapshot: getAvailableSelectionState,
+			registerMarqueeSelectableItem,
+			selectItem,
+			subscribe: selectionController.subscribe,
+		}),
+		[
+			canSelect,
+			clearSelection,
+			getAvailableSelectionState,
+			registerMarqueeSelectableItem,
+			selectItem,
+			selectionController.subscribe,
+		],
+	);
 
 	return (
-		<CurrentTimelineSelectionContext.Provider value={currentSelection}>
-			<TimelineSelectionContext.Provider value={value}>
-				{children}
-				<TimelineEscapeKeybindings />
-				{isStudioInteractivityEnabled() ? (
-					<>
-						<TimelineClipboardKeybindings />
-						<TimelineDeleteKeybindings />
-					</>
-				) : null}
-			</TimelineSelectionContext.Provider>
-		</CurrentTimelineSelectionContext.Provider>
+		<TimelineSelectionCanSelectContext.Provider value={canSelect}>
+			<CurrentTimelineSelectionContext.Provider value={currentSelection}>
+				<TimelineRowSelectionContext.Provider value={rowSelectionContextValue}>
+					<TimelineSelectionContext.Provider value={value}>
+						{children}
+						<TimelineEscapeKeybindings />
+						{isStudioInteractivityEnabled() ? (
+							<>
+								<TimelineClipboardKeybindings />
+								<TimelineDeleteKeybindings />
+							</>
+						) : null}
+					</TimelineSelectionContext.Provider>
+				</TimelineRowSelectionContext.Provider>
+			</CurrentTimelineSelectionContext.Provider>
+		</TimelineSelectionCanSelectContext.Provider>
 	);
+};
+
+export const useTimelineSelectionCanSelect = () => {
+	return useContext(TimelineSelectionCanSelectContext);
 };
 
 export const useTimelineSelection = () => {
@@ -1542,8 +1652,7 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, getMarqueeSelection, selectedItems, selectItems} =
-		useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -1551,6 +1660,12 @@ export const useTimelineMarqueeSelection = () => {
 
 	const onPointerDownCapture = useCallback(
 		(event: React.PointerEvent<HTMLDivElement>) => {
+			const {
+				canSelect,
+				getMarqueeSelectionCandidates,
+				selectedItems,
+				selectItems,
+			} = currentSelection.current;
 			if (!isHighestContext) {
 				return;
 			}
@@ -1576,15 +1691,19 @@ export const useTimelineMarqueeSelection = () => {
 
 			const {currentTarget: target} = event;
 
+			const scrollable = scrollableRef.current;
+			const verticalScroll = timelineVerticalScroll.current;
+			const initialScrollLeft = scrollable?.scrollLeft ?? 0;
+			const initialScrollTop = verticalScroll?.scrollTop ?? 0;
+
 			const initialBounds = target.getBoundingClientRect();
-			const marqueeBounds: TimelineMarqueeRect = {
-				bottom: initialBounds.bottom,
-				left: initialBounds.left,
-				right: initialBounds.right,
-				top: initialBounds.top,
-			};
 			const start = getClampedTimelineMarqueePoint({
-				bounds: marqueeBounds,
+				bounds: {
+					bottom: initialBounds.bottom,
+					left: initialBounds.left,
+					right: initialBounds.right,
+					top: initialBounds.top,
+				},
 				x: event.clientX,
 				y: event.clientY,
 			});
@@ -1597,25 +1716,77 @@ export const useTimelineMarqueeSelection = () => {
 
 			let hasDragged = false;
 			let lockedSelectionKind: TimelineMarqueeSelectionKind | null = null;
+			let lastClientX = event.clientX;
+			let lastClientY = event.clientY;
 			const extendSelection = event.metaKey || event.ctrlKey;
 			const selectionBeforeMarquee = selectedItems;
-
-			const cleanup = () => {
-				document.body.style.userSelect = previousUserSelect;
-				document.body.style.webkitUserSelect = previousWebkitUserSelect;
-				setMarqueeRect(null);
+			// Keep content-space bounds for this drag even after virtualization
+			// unmounts an item. Refresh mounted items as scrolling reveals them.
+			const candidates = new Map<string, TimelineMarqueeSelectionCandidate>();
+			const refreshCandidates = () => {
+				const scrollLeft = scrollable?.scrollLeft ?? 0;
+				const scrollTop = verticalScroll?.scrollTop ?? 0;
+				for (const candidate of getMarqueeSelectionCandidates()) {
+					candidates.set(getTimelineSelectionKey(candidate.item), {
+						item: candidate.item,
+						rect: {
+							left: candidate.rect.left + scrollLeft,
+							right: candidate.rect.right + scrollLeft,
+							top: candidate.rect.top + scrollTop,
+							bottom: candidate.rect.bottom + scrollTop,
+						},
+					});
+				}
 			};
 
+			refreshCandidates();
+
 			const updateSelection = (clientX: number, clientY: number) => {
+				lastClientX = clientX;
+				lastClientY = clientY;
+
+				// The container moves when the timeline scrolls vertically, so read
+				// the bounds live. Restrict them to the visible viewport of the
+				// vertical scroller so the fixed-positioned marquee cannot paint
+				// outside the visible timeline area.
+				const liveBounds = target.getBoundingClientRect();
+				const verticalRect = verticalScroll?.getBoundingClientRect() ?? null;
+				const bounds: TimelineMarqueeRect = {
+					bottom:
+						verticalRect === null
+							? liveBounds.bottom
+							: Math.min(liveBounds.bottom, verticalRect.bottom),
+					left: liveBounds.left,
+					right: liveBounds.right,
+					top:
+						verticalRect === null
+							? liveBounds.top
+							: Math.max(liveBounds.top, verticalRect.top),
+				};
+
+				// The anchor is fixed to timeline content, not to the screen:
+				// compensate for any scrolling that happened since pointerdown so the
+				// marquee keeps covering the originally spanned content while
+				// edge auto-scrolling. It is deliberately not clamped to the bounds -
+				// it may sit outside the viewport, and the selection should still
+				// include everything between it and the pointer.
+				const scrollDeltaX = (scrollable?.scrollLeft ?? 0) - initialScrollLeft;
+				const scrollDeltaY =
+					(verticalScroll?.scrollTop ?? 0) - initialScrollTop;
+				const anchorX = startX - scrollDeltaX;
+				const anchorY = startY - scrollDeltaY;
+
 				const current = getClampedTimelineMarqueePoint({
-					bounds: marqueeBounds,
+					bounds,
 					x: clientX,
 					y: clientY,
 				});
 				if (
 					!hasDragged &&
-					Math.max(Math.abs(current.x - startX), Math.abs(current.y - startY)) <
-						3
+					Math.max(
+						Math.abs(current.x - anchorX),
+						Math.abs(current.y - anchorY),
+					) < 3
 				) {
 					return;
 				}
@@ -1624,12 +1795,29 @@ export const useTimelineMarqueeSelection = () => {
 				const rect = getNormalizedTimelineMarqueeRect({
 					currentX: current.x,
 					currentY: current.y,
-					startX,
-					startY,
+					startX: anchorX,
+					startY: anchorY,
 				});
-				const nextSelection = getMarqueeSelection(rect, lockedSelectionKind);
+				refreshCandidates();
+				const scrollLeft = scrollable?.scrollLeft ?? 0;
+				const scrollTop = verticalScroll?.scrollTop ?? 0;
+				const nextSelection = getTimelineMarqueeSelection({
+					candidates: [...candidates.values()],
+					lockedSelectionKind,
+					marqueeRect: {
+						left: rect.left + scrollLeft,
+						right: rect.right + scrollLeft,
+						top: rect.top + scrollTop,
+						bottom: rect.bottom + scrollTop,
+					},
+				});
 				lockedSelectionKind = nextSelection.lockedSelectionKind;
-				setMarqueeRect(rect);
+				setMarqueeRect({
+					bottom: Math.min(rect.bottom, bounds.bottom),
+					left: Math.max(rect.left, bounds.left),
+					right: Math.min(rect.right, bounds.right),
+					top: Math.max(rect.top, bounds.top),
+				});
 				selectItems(
 					extendSelection
 						? extendTimelineMarqueeSelection({
@@ -1640,19 +1828,49 @@ export const useTimelineMarqueeSelection = () => {
 				);
 			};
 
-			const onPointerMove = (moveEvent: PointerEvent) => {
-				updateSelection(moveEvent.clientX, moveEvent.clientY);
+			const autoScroll = startTimelineEdgeAutoScroll({
+				includeHorizontal: true,
+				includeVertical: true,
+				verticalTopOffset: 0,
+				onTick: (directions) => {
+					if (scrollable && directions.x !== null) {
+						scrollable.scrollLeft +=
+							directions.x === 'left' ? -SCROLL_INCREMENT : SCROLL_INCREMENT;
+					}
+
+					if (verticalScroll && directions.y !== null) {
+						verticalScroll.scrollTop +=
+							directions.y === 'up'
+								? -EDGE_SCROLL_VERTICAL_INCREMENT
+								: EDGE_SCROLL_VERTICAL_INCREMENT;
+					}
+
+					updateSelection(lastClientX, lastClientY);
+				},
+			});
+
+			const cleanup = () => {
+				autoScroll.stop();
+				document.body.style.userSelect = previousUserSelect;
+				document.body.style.webkitUserSelect = previousWebkitUserSelect;
+				setMarqueeRect(null);
 			};
 
-			startPointerSession({
+			const onPointerMove = (moveEvent: PointerEvent) => {
+				updateSelection(moveEvent.clientX, moveEvent.clientY);
+				// Only auto-scroll for an actual marquee drag, not a plain click
+				// near an edge
+				if (hasDragged) {
+					autoScroll.update(moveEvent);
+				}
+			};
+
+			startCapturedPointerSession({
 				event,
-				target,
+				captureTarget: target,
 				onMove: onPointerMove,
 				onEnd: (reason, endEvent) => {
-					if (
-						(reason === 'pointerup' || reason === 'buttons-released') &&
-						endEvent
-					) {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						updateSelection(endEvent.clientX, endEvent.clientY);
 					}
 
@@ -1660,13 +1878,7 @@ export const useTimelineMarqueeSelection = () => {
 				},
 			});
 		},
-		[
-			canSelect,
-			getMarqueeSelection,
-			isHighestContext,
-			selectedItems,
-			selectItems,
-		],
+		[currentSelection, isHighestContext],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
@@ -1675,48 +1887,171 @@ export const useTimelineMarqueeSelection = () => {
 export const useTimelineMarqueeSelectableItem = (
 	item: TimelineSelection | null,
 	ref: React.RefObject<Element | null>,
+	horizontalBounds: {readonly cropLeft: number; readonly width: number} | null,
 ) => {
-	const {registerMarqueeSelectableItem} = useTimelineSelection();
-
-	useEffect(() => {
-		if (item === null) {
-			return;
-		}
-
-		return registerMarqueeSelectableItem(
-			item,
-			() => ref.current?.getBoundingClientRect() ?? null,
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	const sceneRange = useContext(TimelineSceneRangeContext);
+	const timelineWidth = useContext(TimelineWidthContext);
+	const video = Internals.useUnsafeVideoConfig();
+	if (selectionContext === null) {
+		throw new Error(
+			'useTimelineMarqueeSelectableItem must be used inside TimelineSelectionProvider',
 		);
-	}, [item, ref, registerMarqueeSelectableItem]);
-};
+	}
 
-export const useTimelineFocusableItem = (
-	item: TimelineSelection | null,
-	ref: React.RefObject<Element | null>,
-) => {
-	const {registerFocusableItem} = useTimelineSelection();
+	const {registerMarqueeSelectableItem} = selectionContext;
 
 	useEffect(() => {
 		if (item === null) {
 			return;
 		}
 
-		return registerFocusableItem(item, () => ref.current);
-	}, [item, ref, registerFocusableItem]);
+		return registerMarqueeSelectableItem(item, () => {
+			const rect = ref.current?.getBoundingClientRect() ?? null;
+			if (rect === null) {
+				return rect;
+			}
+
+			// Sequence bars are cropped to the horizontal render window. Hit-test
+			// the full sequence so scrolling does not change its selectable bounds.
+			let left = rect.left - (horizontalBounds?.cropLeft ?? 0);
+			let right = left + (horizontalBounds?.width ?? rect.width);
+			if (sceneRange !== null) {
+				const scrollable = scrollableRef.current;
+				if (scrollable === null || timelineWidth === null || video === null) {
+					return null;
+				}
+
+				// CSS scene clipping also hides postmount tails and out-of-scene
+				// keyframes. They must not be selectable in the neighboring scene.
+				const frameWidth =
+					(timelineWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+				const origin =
+					scrollable.getBoundingClientRect().left +
+					TIMELINE_PADDING -
+					scrollable.scrollLeft;
+				left = Math.max(
+					left,
+					origin + Math.max(0, sceneRange.from) * frameWidth,
+				);
+				right = Math.min(
+					right,
+					origin +
+						Math.min(video.durationInFrames, sceneRange.end) * frameWidth,
+				);
+				if (right <= left) {
+					return null;
+				}
+			}
+
+			return new DOMRect(left, rect.top, right - left, rect.height);
+		});
+	}, [
+		horizontalBounds,
+		item,
+		ref,
+		registerMarqueeSelectableItem,
+		sceneRange,
+		timelineWidth,
+		video,
+	]);
 };
 
 export const useTimelineRowSelection = (
 	nodePathInfo: SequenceNodePathInfo | null,
+	revealInInspector = false,
 ) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
-	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineSelection | null =>
 			getTimelineSelectionFromNodePathInfo(nodePathInfo),
 		[nodePathInfo],
 	);
+	return useTimelineSelectionItem({
+		revealInInspector,
+		selectionItem,
+		useSelectionOrder: true,
+	});
+};
 
-	const selected = selectionItem === null ? false : isSelected(selectionItem);
+export const useIsPremountingSelected = (
+	nodePathInfo: SequenceNodePathInfo | null,
+): boolean => {
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useIsPremountingSelected must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	const sequenceSelectionKey = useMemo(
+		() =>
+			nodePathInfo === null
+				? null
+				: getTimelineSequenceSelectionKey(nodePathInfo),
+		[nodePathInfo],
+	);
+	const getIsPremountingSelected = useCallback(() => {
+		if (sequenceSelectionKey === null) {
+			return false;
+		}
+
+		return selectionContext
+			.getSnapshot()
+			.selectedItems.some(
+				(item) =>
+					item.type === 'sequence-prop' &&
+					item.key === 'premountFor' &&
+					getTimelineSequenceSelectionKey(item.nodePathInfo) ===
+						sequenceSelectionKey,
+			);
+	}, [selectionContext, sequenceSelectionKey]);
+
+	return useSyncExternalStore(
+		selectionContext.subscribe,
+		getIsPremountingSelected,
+		getIsPremountingSelected,
+	);
+};
+
+const useTimelineSelectionItem = <
+	TSelectionItem extends TimelineSelection | null,
+>({
+	revealInInspector,
+	selectionItem,
+	useSelectionOrder,
+}: {
+	readonly revealInInspector: boolean;
+	readonly selectionItem: TSelectionItem;
+	readonly useSelectionOrder: boolean;
+}) => {
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useTimelineSelectionItem must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
+	const selectionItemKey = useMemo(
+		() =>
+			selectionItem === null ? null : getTimelineSelectionKey(selectionItem),
+		[selectionItem],
+	);
+	const getSelectedState = useCallback((): TimelineSelectionState | null => {
+		if (selectionItemKey === null) {
+			return null;
+		}
+
+		const snapshot = selectionContext.getSnapshot();
+		return getTimelineSelectedKeys(snapshot.selectedItems).has(selectionItemKey)
+			? snapshot
+			: null;
+	}, [selectionContext, selectionItemKey]);
+	const selectedState = useSyncExternalStore(
+		selectionContext.subscribe,
+		getSelectedState,
+		getSelectedState,
+	);
 
 	const onSelect = useCallback(
 		(interaction?: TimelineSelectionInteraction) => {
@@ -1724,21 +2059,32 @@ export const useTimelineRowSelection = (
 				return;
 			}
 
-			selectItem(
+			selectionContext.selectItem(
 				selectionItem,
 				interaction,
-				selectableTimelineItemsRef.current,
-				{reveal: true},
+				useSelectionOrder ? selectableTimelineItemsRef.current : undefined,
+				{revealInInspector},
 			);
 		},
-		[selectItem, selectableTimelineItemsRef, selectionItem],
+		[
+			revealInInspector,
+			selectableTimelineItemsRef,
+			selectionContext,
+			selectionItem,
+			useSelectionOrder,
+		],
 	);
 
 	return {
+		clearSelection: selectionContext.clearSelection,
 		onSelect,
-		selectable: canSelect && selectionItem !== null,
+		selectable: selectionContext.canSelect && selectionItem !== null,
+		selectedItems:
+			selectedState?.selectedItems ??
+			EMPTY_TIMELINE_SELECTION_STATE.selectedItems,
+		selectItem: selectionContext.selectItem,
 		selectionItem,
-		selected,
+		selected: selectedState !== null,
 	};
 };
 
@@ -1746,8 +2092,6 @@ export const useTimelineKeyframeSelection = (
 	nodePathInfo: SequenceNodePathInfo,
 	frame: number,
 ) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
-	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineSelection => ({
 			type: 'keyframe',
@@ -1756,26 +2100,11 @@ export const useTimelineKeyframeSelection = (
 		}),
 		[nodePathInfo, frame],
 	);
-
-	const selected = isSelected(selectionItem);
-
-	const onSelect = useCallback(
-		(interaction?: TimelineSelectionInteraction) => {
-			selectItem(
-				selectionItem,
-				interaction,
-				selectableTimelineItemsRef.current,
-			);
-		},
-		[selectItem, selectableTimelineItemsRef, selectionItem],
-	);
-
-	return {
-		onSelect,
-		selectable: canSelect,
+	return useTimelineSelectionItem({
+		revealInInspector: false,
 		selectionItem,
-		selected,
-	};
+		useSelectionOrder: true,
+	});
 };
 
 export const useTimelineEasingSelection = ({
@@ -1789,8 +2118,6 @@ export const useTimelineEasingSelection = ({
 	readonly toFrame: number;
 	readonly segmentIndex: number;
 }) => {
-	const {canSelect, isSelected, selectItem} = useTimelineSelection();
-	const selectableTimelineItemsRef = useContext(SelectableTimelineItemsContext);
 	const selectionItem = useMemo(
 		(): TimelineEasingSelection => ({
 			type: 'easing',
@@ -1801,31 +2128,14 @@ export const useTimelineEasingSelection = ({
 		}),
 		[nodePathInfo, fromFrame, segmentIndex, toFrame],
 	);
-
-	const selected = isSelected(selectionItem);
-
-	const onSelect = useCallback(
-		(interaction?: TimelineSelectionInteraction) => {
-			selectItem(
-				selectionItem,
-				interaction,
-				selectableTimelineItemsRef.current,
-			);
-		},
-		[selectItem, selectableTimelineItemsRef, selectionItem],
-	);
-
-	return {
-		onSelect,
-		selectable: canSelect,
-		selected,
+	return useTimelineSelectionItem({
+		revealInInspector: false,
 		selectionItem,
-	};
+		useSelectionOrder: true,
+	});
 };
 
 export const useTimelineGuideSelection = (guideId: string) => {
-	const {canSelect, clearSelection, isSelected, selectItem} =
-		useTimelineSelection();
 	const selectionItem = useMemo(
 		(): TimelineSelection => ({
 			type: 'guide',
@@ -1833,36 +2143,50 @@ export const useTimelineGuideSelection = (guideId: string) => {
 		}),
 		[guideId],
 	);
-
-	const selected = isSelected(selectionItem);
-
-	const onSelect = useCallback(() => {
-		selectItem(selectionItem);
-	}, [selectItem, selectionItem]);
-
-	return {
-		clearSelection,
-		onSelect,
-		selectable: canSelect,
-		selected,
+	return useTimelineSelectionItem({
+		revealInInspector: false,
 		selectionItem,
-	};
+		useSelectionOrder: false,
+	});
 };
 
 export const useTimelineRowContainsSelection = (
 	nodePathInfo: SequenceNodePathInfo | null,
 ): boolean => {
-	const {containsSelection} = useTimelineSelection();
-	if (nodePathInfo === null) {
-		return false;
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useTimelineRowContainsSelection must be used inside TimelineSelectionProvider',
+		);
 	}
 
-	return containsSelection(nodePathInfo);
+	const getContainsSelection = useCallback(() => {
+		if (nodePathInfo === null) {
+			return false;
+		}
+
+		return timelineRowContainsSelection(
+			nodePathInfo,
+			selectionContext.getSnapshot().selectedItems,
+		);
+	}, [nodePathInfo, selectionContext]);
+
+	return useSyncExternalStore(
+		selectionContext.subscribe,
+		getContainsSelection,
+		getContainsSelection,
+	);
 };
 
 export const useTimelineRowHighlightBackground = (
 	nodePathInfo: SequenceNodePathInfo | null,
-	hovered = false,
+	{
+		hovered,
+		selectedBackground,
+	}: {
+		readonly hovered: boolean;
+		readonly selectedBackground: string;
+	},
 ): string | undefined => {
 	const {selected} = useTimelineRowSelection(nodePathInfo);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
@@ -1871,5 +2195,6 @@ export const useTimelineRowHighlightBackground = (
 		selected,
 		containsSelection,
 		hovered,
+		selectedBackground,
 	});
 };

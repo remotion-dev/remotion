@@ -18,13 +18,11 @@ Remotion and your React app use different bundler configurations. Therefore, if 
 
 Use one of our starter templates:
 
-- [Next.js (App dir)](/templates/next)
-- [Next.js (App dir, no TailwindCSS)](/templates/next-no-tailwind)
-- [Next.js (Pages dir)](/templates/next-pages-dir)
-- [Next.js (App dir, Rendering in Vercel Sandbox instead Lambda)](/templates/vercel)
+- [Next.js](/templates/next)
+- [Next.js (Vercel Sandbox)](/templates/vercel)
 - [React Router 7 (Remix)](/templates/react-router)
 
-which have the Player and Lambda already set up.
+which have the Player and cloud rendering already set up.
 
 ## Manual setup
 
@@ -94,17 +92,17 @@ export const MyComp: React.FC<{text: string}> = ({text}) => {
 
 Your list of videos (`remotion/Root.tsx` in the example) could look like this:
 
-```tsx twoslash
+```tsx twoslash title="src/remotion/Root.tsx"
 // @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
 export const MyComp = () => <></>;
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import {Composition} from 'remotion';
 import {MyComp} from './MyComp';
 
-export const MyVideo = () => {
+export const RemotionRoot = () => {
   return (
     <>
       <Composition component={MyComp} durationInFrames={120} width={1920} height={1080} fps={30} id="my-comp" defaultProps={{text: 'World'}} />
@@ -115,15 +113,16 @@ export const MyVideo = () => {
 
 Your index file (`remotion/index.ts` in the example) could look like this:
 
-```tsx twoslash
+```tsx twoslash title="src/remotion/index.ts"
 // @filename: ./Root.tsx
-export const MyVideo: React.FC<{text: string}> = () => <></>;
+export const RemotionRoot = () => <></>;
 
+// @filename: index.ts
 // ---cut---
 import {registerRoot} from 'remotion';
-import {MyVideo} from './Video';
+import {RemotionRoot} from './Root';
 
-registerRoot(MyVideo);
+registerRoot(RemotionRoot);
 ```
 
 :::tip

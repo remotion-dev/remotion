@@ -1,6 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {checkCredentials} from '../shared/check-credentials';
+import {setIsCli} from '../shared/is-cli';
 import {parsedCloudrunCli} from './args';
 import {PERMISSIONS_COMMAND, permissionsCommand} from './commands/permissions';
 import {REGIONS_COMMAND, regionsCommand} from './commands/regions';
@@ -18,8 +20,12 @@ const matchCommand = (
 	logLevel: LogLevel,
 ) => {
 	if (parsedCloudrunCli.help || args.length === 0 || args[0] === 'help') {
-		printHelp(logLevel);
+		printHelp(args[0] === 'help' ? args.slice(1) : args, logLevel);
 		quit(0);
+	}
+
+	if (args[0] !== REGIONS_COMMAND) {
+		checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
@@ -52,7 +58,7 @@ const matchCommand = (
 	}
 
 	Log.error({indent: false, logLevel}, `Command ${args[0]} not found.`);
-	printHelp(logLevel);
+	printHelp([], logLevel);
 	quit(1);
 };
 
@@ -61,6 +67,8 @@ export const executeCommand = async (
 	remotionRoot: string,
 	logLevel: LogLevel,
 ) => {
+	setIsCli(true);
+
 	try {
 		await matchCommand(args, remotionRoot, logLevel);
 	} catch (err) {

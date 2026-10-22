@@ -1,14 +1,20 @@
+import type {VideoConfigValues} from 'remotion';
 import {
 	type CanUpdateSequencePropStatus,
 	type CanUpdateSequencePropsResponse,
 	type InteractivitySchema,
 	type InteractivitySchemaField,
 } from 'remotion';
-import {LINEAR_KEYFRAME_EASING} from './keyframe-easing-presets';
+import {
+	HOLD_KEYFRAME_EASING,
+	LINEAR_KEYFRAME_EASING,
+} from './keyframe-easing-presets';
 import {
 	getKeyframeInterpolationFunction,
+	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
 } from './keyframe-interpolation-function';
+import {updateSourcePropStatus} from './update-source-prop-status';
 
 const getEasingIndexToDuplicate = ({
 	insertedKeyframeIndex,
@@ -29,7 +35,11 @@ const getEasingIndexToDuplicate = ({
 	return Math.min(insertedKeyframeIndex - 1, easingLength - 1);
 };
 
-const addKeyframeToPropStatus = ({
+/**
+ * The status of a prop after adding a keyframe: a keyframed prop gets the
+ * keyframe inserted or replaced, a static prop becomes keyframed.
+ */
+export const addKeyframeToPropStatus = ({
 	status,
 	fieldKey,
 	frame,
@@ -43,6 +53,12 @@ const addKeyframeToPropStatus = ({
 	schema: InteractivitySchema | null;
 }): CanUpdateSequencePropStatus => {
 	if (status.status === 'keyframed') {
+		const defaultEasing = isSchemaFieldHoldOnly({
+			schema,
+			key: fieldKey,
+		})
+			? HOLD_KEYFRAME_EASING
+			: LINEAR_KEYFRAME_EASING;
 		const existingIndex = status.keyframes.findIndex(
 			(kf) => kf.frame === frame,
 		);
@@ -71,11 +87,11 @@ const addKeyframeToPropStatus = ({
 		});
 		const easingToDuplicate =
 			easingIndexToDuplicate === null
-				? LINEAR_KEYFRAME_EASING
+				? defaultEasing
 				: easing[easingIndexToDuplicate];
 		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 		while (easing.length < keyframes.length - 1) {
-			easing.push(LINEAR_KEYFRAME_EASING);
+			easing.push(defaultEasing);
 		}
 
 		return {
@@ -90,6 +106,13 @@ const addKeyframeToPropStatus = ({
 
 		return {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: status.keyframeDisplayOffsetAdjustment,
+			...(status.keyframePlaybackRateAdjustment === undefined
+				? {}
+				: {
+						keyframePlaybackRateAdjustment:
+							status.keyframePlaybackRateAdjustment,
+					}),
 			interpolationFunction: getKeyframeInterpolationFunction({
 				schema,
 				key: fieldKey,
@@ -142,24 +165,28 @@ const getMissingPropStatus = ({
 	if (field && field.type !== 'hidden' && field.default !== undefined) {
 		return {
 			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
 			codeValue: field.default,
 		};
 	}
 
 	return {
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: undefined,
 	};
 };
 
 export const optimisticAddSequenceKeyframe = ({
 	previous,
+	videoConfigValues,
 	fieldKey,
 	frame,
 	value,
 	schema,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	fieldKey: string;
 	frame: number;
 	value: unknown;
@@ -181,12 +208,17 @@ export const optimisticAddSequenceKeyframe = ({
 		...previous,
 		props: {
 			...previous.props,
-			[fieldKey]: addKeyframeToPropStatus({
-				status,
-				fieldKey,
-				frame,
-				value,
-				schema: schema ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					addKeyframeToPropStatus({
+						status: evaluatedStatus,
+						fieldKey,
+						frame,
+						value,
+						schema: schema ?? null,
+					}),
 			}),
 		},
 	};
@@ -194,6 +226,7 @@ export const optimisticAddSequenceKeyframe = ({
 
 export const optimisticAddEffectKeyframe = ({
 	previous,
+	videoConfigValues,
 	effectIndex,
 	fieldKey,
 	frame,
@@ -201,6 +234,7 @@ export const optimisticAddEffectKeyframe = ({
 	schema,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	effectIndex: number;
 	fieldKey: string;
 	frame: number;
@@ -235,12 +269,17 @@ export const optimisticAddEffectKeyframe = ({
 		...target,
 		props: {
 			...target.props,
-			[fieldKey]: addKeyframeToPropStatus({
-				status,
-				fieldKey,
-				frame,
-				value,
-				schema: schema ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					addKeyframeToPropStatus({
+						status: evaluatedStatus,
+						fieldKey,
+						frame,
+						value,
+						schema: schema ?? null,
+					}),
 			}),
 		},
 	};

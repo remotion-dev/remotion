@@ -30,12 +30,12 @@ export const SrtPreviewLine: React.FC<{
   return (
     <div style={container}>
       <div style={inner}>
-        {segment.captions.map((caption) => {
+        {segment.captions.map((caption, index) => {
           return (
             <SrtSingleCaption
+              key={`${caption.startMs}-${index}`}
               caption={caption}
-              key={caption.startMs}
-            ></SrtSingleCaption>
+            />
           );
         })}
       </div>

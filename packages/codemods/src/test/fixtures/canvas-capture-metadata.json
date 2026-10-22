@@ -1,0 +1,679 @@
+{
+	"captureMetadata": {
+		"density": 6
+	},
+	"mouseMovements": [
+		{
+			"timeInSeconds": 0.191,
+			"canvasX": -2016.9375,
+			"canvasY": -1677.375,
+			"cursor": "default"
+		},
+		{
+			"timeInSeconds": 2.1282000007629396,
+			"canvasX": 1813.96875,
+			"canvasY": 948.3515625,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.14560000038147,
+			"canvasX": 1805.4375,
+			"canvasY": 937.0078125,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.1602000007629396,
+			"canvasX": 1784.15625,
+			"canvasY": 916.828125,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.1783000001907347,
+			"canvasX": 1742.671875,
+			"canvasY": 874.78125,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.1958000001907347,
+			"canvasX": 1703.2734375,
+			"canvasY": 833.9765625,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.2077000007629395,
+			"canvasX": 1641.6328125,
+			"canvasY": 781.8515625,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.2319000005722045,
+			"canvasX": 1571.3203125,
+			"canvasY": 718.875,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.245300000190735,
+			"canvasX": 1543.59375,
+			"canvasY": 684.09375,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 2.2624000005722045,
+			"canvasX": 1540.0546875,
+			"canvasY": 674.390625,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.2975,
+			"canvasX": 1537.40625,
+			"canvasY": 647.2734375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.3132000007629396,
+			"canvasX": 1535.53125,
+			"canvasY": 576.1640625,
+			"cursor": "ns-resize"
+		},
+		{
+			"timeInSeconds": 2.3282000007629393,
+			"canvasX": 1528.7109375,
+			"canvasY": 533.8125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.363,
+			"canvasX": 1505.953125,
+			"canvasY": 496.6875,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.3797000007629396,
+			"canvasX": 1502.2734375,
+			"canvasY": 488.625,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.3951000003814698,
+			"canvasX": 1500.46875,
+			"canvasY": 484.7109375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.411800000190735,
+			"canvasX": 1498.3359375,
+			"canvasY": 481.78125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.4289000005722046,
+			"canvasX": 1498.0078125,
+			"canvasY": 481.359375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.4739000005722045,
+			"canvasX": 1498.0078125,
+			"canvasY": 480.9375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.4905,
+			"canvasX": 1497.7734375,
+			"canvasY": 478.7109375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.507300000190735,
+			"canvasX": 1497.0234375,
+			"canvasY": 475.78125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.523800000190735,
+			"canvasX": 1496.4609375,
+			"canvasY": 473.90625,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.54060000038147,
+			"canvasX": 1496.2734375,
+			"canvasY": 473.53125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.7743000001907347,
+			"canvasX": 1494.1171875,
+			"canvasY": 473.3203125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.7912000007629394,
+			"canvasX": 1487.0625,
+			"canvasY": 472.4296875,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.81310000038147,
+			"canvasX": 1464.1875,
+			"canvasY": 470.53125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.8302000007629395,
+			"canvasX": 1450.828125,
+			"canvasY": 469.546875,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.8444000005722048,
+			"canvasX": 1437.984375,
+			"canvasY": 468.609375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.861300000190735,
+			"canvasX": 1429.9453125,
+			"canvasY": 468.4453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.8787000007629393,
+			"canvasX": 1421.015625,
+			"canvasY": 468.4453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.8962000007629394,
+			"canvasX": 1414.171875,
+			"canvasY": 468.4453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.9127000007629396,
+			"canvasX": 1390.8984375,
+			"canvasY": 468.4453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.928800000190735,
+			"canvasX": 1367.4609375,
+			"canvasY": 469.2421875,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.9456000003814697,
+			"canvasX": 1346.53125,
+			"canvasY": 471.0234375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.9624000005722047,
+			"canvasX": 1335.4921875,
+			"canvasY": 471.3984375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.9789000005722044,
+			"canvasX": 1324.9921875,
+			"canvasY": 471.9375,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 2.9956000003814696,
+			"canvasX": 1313.53125,
+			"canvasY": 472.171875,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.0124000005722045,
+			"canvasX": 1302,
+			"canvasY": 472.171875,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.0297000007629395,
+			"canvasX": 1299.140625,
+			"canvasY": 472.171875,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.0464000005722047,
+			"canvasX": 1297.828125,
+			"canvasY": 472.453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.2335,
+			"canvasX": 1297.1953125,
+			"canvasY": 472.453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.2477000007629395,
+			"canvasX": 1293.4921875,
+			"canvasY": 472.453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.2647000007629394,
+			"canvasX": 1290.65625,
+			"canvasY": 472.453125,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.279800000190735,
+			"canvasX": 1284.1171875,
+			"canvasY": 473.0390625,
+			"cursor": "pointer"
+		},
+		{
+			"timeInSeconds": 3.2961000003814696,
+			"canvasX": 1270.8515625,
+			"canvasY": 473.296875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.3129000005722045,
+			"canvasX": 1266,
+			"canvasY": 473.296875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.807800000190735,
+			"canvasX": 1256.3203125,
+			"canvasY": 473.203125,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.8244000005722047,
+			"canvasX": 1233.421875,
+			"canvasY": 470.6953125,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.841300000190735,
+			"canvasX": 1222.7578125,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.87160000038147,
+			"canvasX": 1185.609375,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.897,
+			"canvasX": 1147.1953125,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.9249000005722046,
+			"canvasX": 1139.8125,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.9512000007629395,
+			"canvasX": 1118.4375,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 3.9809000005722046,
+			"canvasX": 1096.40625,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.00760000038147,
+			"canvasX": 1049.6484375,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.033800000190735,
+			"canvasX": 1015.875,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.0555,
+			"canvasX": 1002.8203125,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.0745,
+			"canvasX": 980.4375,
+			"canvasY": 470.15625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.091700000762939,
+			"canvasX": 971.859375,
+			"canvasY": 470.0390625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.114,
+			"canvasX": 954.140625,
+			"canvasY": 469.3359375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.1412000007629395,
+			"canvasX": 944.25,
+			"canvasY": 469.3359375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.1578000001907345,
+			"canvasX": 937.21875,
+			"canvasY": 469.0546875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.174400000572205,
+			"canvasX": 931.5,
+			"canvasY": 468.609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.19110000038147,
+			"canvasX": 926.34375,
+			"canvasY": 468.609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.207800000190735,
+			"canvasX": 923.4375,
+			"canvasY": 468.609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.2245,
+			"canvasX": 916.6171875,
+			"canvasY": 468.609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.241200000762939,
+			"canvasX": 911.109375,
+			"canvasY": 468.0703125,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.257800000190735,
+			"canvasX": 910.875,
+			"canvasY": 468.0234375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.37510000038147,
+			"canvasX": 911.6015625,
+			"canvasY": 468.0234375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.391900000572204,
+			"canvasX": 916.4296875,
+			"canvasY": 468.796875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.4085,
+			"canvasX": 924.6796875,
+			"canvasY": 469.640625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.425200000762939,
+			"canvasX": 934.125,
+			"canvasY": 469.640625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.441300000190735,
+			"canvasX": 955.734375,
+			"canvasY": 470.015625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.457800000190735,
+			"canvasX": 978.328125,
+			"canvasY": 471.1640625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.4745,
+			"canvasX": 999.703125,
+			"canvasY": 472.6640625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.4926000003814694,
+			"canvasX": 1022.765625,
+			"canvasY": 473.6015625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.52220000076294,
+			"canvasX": 1069.78125,
+			"canvasY": 474.5390625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.5419000005722046,
+			"canvasX": 1087.546875,
+			"canvasY": 474.609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.569,
+			"canvasX": 1129.828125,
+			"canvasY": 475.59375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.592800000190735,
+			"canvasX": 1142.390625,
+			"canvasY": 475.59375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.616900000572205,
+			"canvasX": 1149.4453125,
+			"canvasY": 475.0546875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.642,
+			"canvasX": 1158.8671875,
+			"canvasY": 474.75,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.66360000038147,
+			"canvasX": 1203,
+			"canvasY": 473.5546875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.691800000190735,
+			"canvasX": 1244.15625,
+			"canvasY": 473.625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.716700000762939,
+			"canvasX": 1274.4609375,
+			"canvasY": 474.9609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.73860000038147,
+			"canvasX": 1284.9375,
+			"canvasY": 474.9609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.75810000038147,
+			"canvasX": 1297.2421875,
+			"canvasY": 474.9609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.774700000762939,
+			"canvasX": 1311.7734375,
+			"canvasY": 474.9609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.7919000005722046,
+			"canvasX": 1332,
+			"canvasY": 474.9609375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.815300000190735,
+			"canvasX": 1379.3203125,
+			"canvasY": 473.90625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.8386000003814695,
+			"canvasX": 1396.2421875,
+			"canvasY": 473.90625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.864700000762939,
+			"canvasX": 1419.75,
+			"canvasY": 473.90625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.888800000190735,
+			"canvasX": 1432.2421875,
+			"canvasY": 473.90625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.9145,
+			"canvasX": 1452.796875,
+			"canvasY": 473.90625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.9381000003814695,
+			"canvasX": 1465.9453125,
+			"canvasY": 474.4921875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.96420000076294,
+			"canvasX": 1488.3046875,
+			"canvasY": 474.6796875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 4.987900000572204,
+			"canvasX": 1499.2265625,
+			"canvasY": 474.6796875,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 5.014700000762939,
+			"canvasX": 1515.0703125,
+			"canvasY": 475.9453125,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 5.038900000572204,
+			"canvasX": 1523.1328125,
+			"canvasY": 475.9453125,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 5.0644000005722045,
+			"canvasX": 1544.1796875,
+			"canvasY": 477.234375,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 5.08920000076294,
+			"canvasX": 1553.53125,
+			"canvasY": 477.5390625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 5.114800000190735,
+			"canvasX": 1555.2421875,
+			"canvasY": 477.5390625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 5.42910000038147,
+			"canvasX": 1550.8125,
+			"canvasY": 477.5390625,
+			"cursor": "e-resize"
+		},
+		{
+			"timeInSeconds": 5.458900000572204,
+			"canvasX": 1473.4453125,
+			"canvasY": 451.6171875,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 5.47560000038147,
+			"canvasX": 1317.140625,
+			"canvasY": 374.5078125,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 5.50010000038147,
+			"canvasX": 606.6796875,
+			"canvasY": -3.4921875,
+			"cursor": "auto"
+		},
+		{
+			"timeInSeconds": 5.5255,
+			"canvasX": -4.3828125,
+			"canvasY": -360.3046875,
+			"cursor": "default"
+		},
+		{
+			"timeInSeconds": 5.5421000003814695,
+			"canvasX": -1121.0859375,
+			"canvasY": -1115.859375,
+			"cursor": "default"
+		},
+		{
+			"timeInSeconds": 5.56560000038147,
+			"canvasX": -2614.3125,
+			"canvasY": -2067.7265625,
+			"cursor": "default"
+		}
+	],
+	"pointerClicks": [
+		{
+			"timeInSeconds": 2.622300000190735,
+			"type": "pointer-down"
+		},
+		{
+			"timeInSeconds": 2.7137000007629393,
+			"type": "pointer-up"
+		},
+		{
+			"timeInSeconds": 3.6594000005722047,
+			"type": "pointer-down"
+		},
+		{
+			"timeInSeconds": 5.351,
+			"type": "pointer-up"
+		}
+	]
+}

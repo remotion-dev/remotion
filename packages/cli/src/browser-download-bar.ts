@@ -69,11 +69,33 @@ export const defaultBrowserDownloadProgress = ({
 				? 'Chrome for Testing'
 				: 'Headless Shell';
 
+		const startedAt = Date.now();
+		let doneIn: number | null = null;
+
+		// Must fire in both logger modes - the Studio UI relies on it to display
+		// the download progress (https://github.com/remotion-dev/remotion/issues/10228).
+		const updateDownloadState = (progress: {
+			alreadyAvailable: boolean;
+			percent: number;
+		}) => {
+			if (progress.percent === 1) {
+				doneIn = Date.now() - startedAt;
+			}
+
+			onProgress({
+				alreadyAvailable: progress.alreadyAvailable,
+				progress: progress.percent,
+				doneIn,
+			});
+		};
+
 		if (updatesDontOverwrite) {
 			let lastProgress = 0;
 			return {
 				version: null,
 				onProgress: (progress) => {
+					updateDownloadState(progress);
+
 					if (progress.downloadedBytes > lastProgress + 10_000_000) {
 						lastProgress = progress.downloadedBytes;
 
@@ -102,21 +124,10 @@ export const defaultBrowserDownloadProgress = ({
 			logLevel,
 		});
 
-		const startedAt = Date.now();
-		let doneIn: number | null = null;
-
 		return {
 			version: null,
 			onProgress: (progress) => {
-				if (progress.percent === 1) {
-					doneIn = Date.now() - startedAt;
-				}
-
-				onProgress({
-					alreadyAvailable: progress.alreadyAvailable,
-					progress: progress.percent,
-					doneIn,
-				});
+				updateDownloadState(progress);
 
 				cliOutput.update(
 					makeDownloadProgress({

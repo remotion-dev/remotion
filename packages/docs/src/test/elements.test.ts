@@ -1,25 +1,45 @@
-import {describe, expect, test} from 'bun:test';
+import {describe, expect, mock, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
+import {createRequire} from 'module';
 import path from 'path';
+import {pathToFileURL} from 'url';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
+import * as jsxRuntime from 'react/jsx-runtime';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
+	getRemotionElementSourceMap,
 } from '../../plugins/element-source-utils';
 import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
+import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
+import {elementRegistry} from '../components/Elements/element-registry';
 import {
 	getElementCompositionId,
+	getElementDefinition,
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
-import {ElementLibrary} from '../components/Elements/ElementLibrary';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 import {Seo} from '../components/Seo';
+
+// Docusaurus generates these aliases at build time.
+mock.module('@docusaurus/Link', () => ({
+	default: ({to, ...props}: React.ComponentProps<'a'> & {to: string}) =>
+		React.createElement('a', {...props, href: to}),
+}));
+
+const collectedAnchors = new Set<string>();
+mock.module('@docusaurus/useBrokenLinks', () => ({
+	default: () => ({
+		collectAnchor: (anchor: string) => collectedAnchors.add(anchor),
+	}),
+}));
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
@@ -30,11 +50,7 @@ const staticElementsRoot = path.join(
 	'static',
 	'elements',
 );
-const elementSidebars = readFileSync(
-	path.join(__dirname, '..', '..', 'elements-sidebars.ts'),
-	'utf8',
-);
-const elementDefinitionList = Object.values(elementDefinitions);
+const elementDefinitionList = elementDefinitions;
 const exactVersionPattern =
 	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
@@ -76,22 +92,19 @@ const findElements = (root: string): Element[] => {
 	return elements;
 };
 
-const getRelativeTsxPath = (tsxPath: string, mdxPath: string) => {
-	const relative = path.relative(path.dirname(mdxPath), tsxPath);
-	return relative.startsWith('.') ? relative : `./${relative}`;
-};
-
 const productionElements = findElements(elementsRoot);
 const allElements = [...productionElements, ...findElements(templateRoot)];
 
 describe('Elements must follow the colocated single-file format', () => {
-	test('at least one element exists', () => {
-		expect(allElements.length).toBeGreaterThan(0);
-	});
-
 	test('remark plugin nests source inside ElementPage', () => {
 		const element = allElements[0];
-		const sourceFile = getRelativeTsxPath(element.tsxPath, element.mdxPath);
+		const relativeSourceFile = path.relative(
+			path.dirname(element.mdxPath),
+			element.tsxPath,
+		);
+		const sourceFile = relativeSourceFile.startsWith('.')
+			? relativeSourceFile
+			: `./${relativeSourceFile}`;
 		const elementPage = {
 			type: 'mdxJsxFlowElement',
 			name: 'ElementPage',
@@ -106,7 +119,7 @@ describe('Elements must follow the colocated single-file format', () => {
 		};
 		const tree = {type: 'root', children: [elementPage]};
 
-		remarkElementSource()(tree, {path: element.mdxPath});
+		remarkElementSource({elementRegistry})(tree, {path: element.mdxPath});
 
 		expect(tree.children).toHaveLength(1);
 		expect(elementPage.children).toHaveLength(1);
@@ -150,32 +163,6 @@ describe('Elements must follow the colocated single-file format', () => {
 			const tsx = readFileSync(element.tsxPath, 'utf8');
 			const mdx = readFileSync(element.mdxPath, 'utf8');
 
-			test('source file is an Element, not a composition', () => {
-				expect(tsx).not.toContain('export const durationInFrames');
-				expect(tsx).not.toContain('export const fps');
-				expect(tsx).not.toContain('export const width');
-				expect(tsx).not.toContain('export const height');
-				expect(tsx).not.toContain('export const RemotionRoot');
-				expect(tsx).not.toMatch(/<Composition(?:\s|\/?>)/);
-			});
-
-			test('MDX uses the ElementPage template', () => {
-				expect(mdx).toContain('ElementPage');
-			});
-
-			test('MDX references the source file from ElementPage', () => {
-				const relativeTsxPath = getRelativeTsxPath(
-					element.tsxPath,
-					element.mdxPath,
-				);
-
-				expect(mdx).toContain(`sourceFile="${relativeTsxPath}"`);
-				expect(mdx).not.toContain('<ElementSource');
-				expect(mdx).not.toContain('<RemotionElementSource');
-				expect(mdx).not.toContain('remotion-element-source');
-				expect(mdx).not.toContain(tsx.trim());
-			});
-
 			test('ElementPage sourceFile expands to the source file', () => {
 				const expanded = expandElementSourceReferences({
 					raw: mdx,
@@ -186,56 +173,158 @@ describe('Elements must follow the colocated single-file format', () => {
 					`\`\`\`tsx twoslash title="${path.basename(element.tsxPath)}"\n${tsx.trim()}\n\`\`\``,
 				);
 			});
-
-			test('MDX does not duplicate source metadata for drag payloads', () => {
-				expect(mdx).not.toContain('?raw');
-				expect(mdx).not.toContain('sourceCode=');
-				expect(mdx).not.toContain('componentName=');
-				expect(mdx).not.toMatch(/export const \w+Source = /);
-			});
-
-			test('Element drag file name is derived from the definition slug', () => {
-				expect(mdx).not.toContain('fileName=');
-
-				if (element.mdxPath.startsWith(templateRoot)) {
-					return;
-				}
-
-				const definition = elementDefinitionList.find(
-					(entry) => entry.slug === element.name,
-				);
-				expect(definition).toBeDefined();
-
-				const lastSlugSegment = definition?.slug.split('/').at(-1);
-				expect(lastSlugSegment).toBeTruthy();
-				expect(lastSlugSegment).toBe(lastSlugSegment?.toLowerCase());
-				expect(lastSlugSegment).not.toContain('..');
-			});
 		});
 	}
 });
 
-describe('Element library', () => {
-	test('renders every definition and filters the real category entry points', () => {
+describe('Element MDX pages', () => {
+	test('resolves each page definition through its real MDX expression', async () => {
+		// Use the same MDX compiler as Docusaurus.
+		const requireFromDocusaurus = createRequire(
+			require.resolve('@docusaurus/core/package.json'),
+		);
+		const requireFromMdxLoader = createRequire(
+			requireFromDocusaurus.resolve('@docusaurus/mdx-loader'),
+		);
+		const {evaluate} = requireFromMdxLoader('@mdx-js/mdx');
+		for (const element of productionElements) {
+			const source = readFileSync(element.mdxPath, 'utf8')
+				.replace(/^---[\s\S]*?---\s*/, '')
+				// Keep the page's imports and definition expression real; replace only the
+				// Docusaurus UI, which requires its build-generated module aliases.
+				.replace(/import \{ElementPage\} from '[^']+';/, '')
+				.replaceAll(
+					'@site/',
+					pathToFileURL(path.join(elementsRoot, '..')).href + '/',
+				);
+			const {default: Page} = await evaluate(source, {
+				...jsxRuntime,
+				baseUrl: pathToFileURL(element.mdxPath),
+			});
+			const markup = renderToStaticMarkup(
+				React.createElement(Page, {
+					components: {
+						ElementPage: ({
+							definition,
+						}: {
+							readonly definition: (typeof elementDefinitions)[number];
+						}) => {
+							expect(definition.slug).toBe(element.name);
+							return React.createElement('span', null, definition.displayName);
+						},
+					},
+				}),
+			);
+			expect(markup).toContain(getElementDefinition(element.name).displayName);
+		}
+	});
+});
+
+describe('Element Library', () => {
+	test('injects source files into the overview and rejects missing sources', () => {
+		const completeSourceCodeBySlug = getRemotionElementSourceMap({
+			elementsRoot,
+		});
+		expect(Object.keys(completeSourceCodeBySlug).sort()).toEqual(
+			productionElements.map((element) => element.name).sort(),
+		);
+		for (const element of productionElements) {
+			expect(completeSourceCodeBySlug[element.name]).toBe(
+				readFileSync(element.tsxPath, 'utf8').trimEnd(),
+			);
+		}
+
+		const makeLibraryNode = (category: string | null) => ({
+			type: 'mdxJsxFlowElement',
+			name: 'ElementLibrary',
+			attributes: [
+				{
+					type: 'mdxJsxAttribute',
+					name: 'category',
+					value:
+						category === null
+							? {
+									type: 'mdxJsxAttributeValueExpression',
+									value: 'null',
+								}
+							: category,
+				},
+			],
+			children: [],
+		});
+		const getInjectedSourceCodeBySlug = (node: {
+			attributes: readonly {readonly name?: string; readonly value?: unknown}[];
+		}) => {
+			const attribute = node.attributes.find(
+				(candidate) => candidate.name === 'sourceCodeBySlug',
+			);
+			if (
+				typeof attribute?.value !== 'object' ||
+				attribute.value === null ||
+				!('value' in attribute.value) ||
+				typeof attribute.value.value !== 'string'
+			) {
+				throw new Error('ElementLibrary source map was not injected');
+			}
+
+			return JSON.parse(attribute.value.value) as Record<string, string>;
+		};
+
+		const overview = makeLibraryNode(null);
+		remarkElementSource({elementRegistry})(
+			{type: 'root', children: [overview]},
+			{path: path.join(elementsRoot, 'index.mdx')},
+		);
+		expect(getInjectedSourceCodeBySlug(overview)).toEqual(
+			completeSourceCodeBySlug,
+		);
+
+		const missingSource = makeLibraryNode(null);
+		expect(() =>
+			remarkElementSource({
+				elementRegistry: {
+					...elementRegistry,
+					'missing/source': {
+						category: 'text',
+						displayName: 'Missing Source',
+					},
+				},
+			})(
+				{type: 'root', children: [missingSource]},
+				{path: path.join(elementsRoot, 'index.mdx')},
+			),
+		).toThrow('Missing source pages: missing/source.');
+	});
+
+	test('renders cards and filters the real category entry points', async () => {
+		const {ElementLibrary} =
+			await import('../components/Elements/ElementLibrary');
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		collectedAnchors.clear();
 		const overviewMarkup = renderToStaticMarkup(
-			React.createElement(ElementLibrary, {category: null}),
+			React.createElement(ElementLibrary, {
+				category: null,
+				sourceCodeBySlug,
+			}),
 		);
 		const sections = getElementLibrarySections(null);
 
 		for (const definition of elementDefinitionList) {
-			expect(
-				overviewMarkup.split(`>${definition.displayName}</h3>`),
-			).toHaveLength(2);
-			expect(overviewMarkup).toContain(definition.description);
+			expect(overviewMarkup).toContain(definition.displayName);
 			expect(overviewMarkup).toContain(definition.preview.posterUrl);
 			expect(overviewMarkup).toContain(getElementDocumentationUrl(definition));
 		}
 
-		expect(overviewMarkup).not.toContain('.mp4');
-
 		for (const section of sections) {
+			const headingId = getElementCategoryHeadingId(section.category);
+			expect(overviewMarkup).toContain(`id="${headingId}"`);
+			expect(collectedAnchors.has(headingId)).toBe(true);
+
 			const categoryMarkup = renderToStaticMarkup(
-				React.createElement(ElementLibrary, {category: section.category}),
+				React.createElement(ElementLibrary, {
+					category: section.category,
+					sourceCodeBySlug,
+				}),
 			);
 			const categoryIndex = readFileSync(
 				path.join(elementsRoot, section.category, 'index.mdx'),
@@ -255,6 +344,151 @@ describe('Element library', () => {
 				} else {
 					expect(categoryMarkup).not.toContain(definition.displayName);
 				}
+			}
+		}
+	});
+
+	test('installs visualizer audio and subscribe sounds locally without breaking remote-URL installs', () => {
+		const sources = getRemotionElementSourceMap({elementsRoot});
+		for (const slug of [
+			'audio/oscilloscope',
+			'audio/waveform-progress',
+			'audio/mirrored-spectrum',
+		] as const) {
+			const definition = getElementDefinition(slug);
+			const legacy = createElementPayloadFromDefinition({
+				definition,
+				sourceCode: sources[slug],
+				installAssets: false,
+			});
+			const modern = createElementPayloadFromDefinition({
+				definition,
+				sourceCode: sources[slug],
+				installAssets: true,
+			});
+			expect(legacy.version).toBe(1);
+			expect(legacy.element.initialProps).toMatchObject({
+				src: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+			});
+			expect(modern.version).toBe(2);
+			expect(modern.element.assets).toEqual([
+				{
+					path: 'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
+					type: 'url',
+					url: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+				},
+			]);
+			expect(modern.element.initialProps).toMatchObject({
+				src: {
+					__remotion_element_asset:
+						'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
+				},
+			});
+		}
+
+		const nudgeSlug = 'youtube/youtube-subscribe-nudge';
+		const nudgeDefinition = getElementDefinition(nudgeSlug);
+		const nudgeLegacy = createElementPayloadFromDefinition({
+			definition: nudgeDefinition,
+			sourceCode: sources[nudgeSlug],
+			installAssets: false,
+		});
+		const nudgeModern = createElementPayloadFromDefinition({
+			definition: nudgeDefinition,
+			sourceCode: sources[nudgeSlug],
+			installAssets: true,
+		});
+		expect(nudgeLegacy.version).toBe(1);
+		expect(nudgeLegacy.element.assets).toEqual([]);
+		expect(nudgeLegacy.element.initialProps).toMatchObject({
+			clickSrc: 'https://remotion.media/mouse-click.wav',
+			dingSrc: 'https://remotion.media/ding.wav',
+		});
+		expect(nudgeModern.version).toBe(2);
+		expect(nudgeModern.element.assets).toEqual(
+			expect.arrayContaining([
+				{
+					path: 'elements/youtube-subscribe-nudge/ding.wav',
+					type: 'url',
+					url: 'https://remotion.media/ding.wav',
+				},
+				{
+					path: 'elements/youtube-subscribe-nudge/mouse-click.wav',
+					type: 'url',
+					url: 'https://remotion.media/mouse-click.wav',
+				},
+				{
+					path: 'elements/youtube-subscribe-nudge/remotion-logo.png',
+					type: 'url',
+					url: 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+				},
+			]),
+		);
+		expect(nudgeModern.element.initialProps).toMatchObject({
+			clickSrc: {
+				__remotion_element_asset:
+					'elements/youtube-subscribe-nudge/mouse-click.wav',
+			},
+			dingSrc: {
+				__remotion_element_asset: 'elements/youtube-subscribe-nudge/ding.wav',
+			},
+			avatarSrc: {
+				__remotion_element_asset:
+					'elements/youtube-subscribe-nudge/remotion-logo.png',
+			},
+		});
+		expect(nudgeModern.element.sourceCode).toContain('src={clickSrc}');
+		expect(nudgeModern.element.sourceCode).toContain('src={dingSrc}');
+		expect(nudgeModern.element.sourceCode).toContain('src={avatarSrc}');
+	});
+
+	test('creates canonical drag payloads for every gallery Element', () => {
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		for (const definition of elementDefinitionList) {
+			const {slug} = definition;
+			const sourceCode = sourceCodeBySlug[slug];
+			const payload = createElementPayloadFromDefinition({
+				definition,
+				sourceCode,
+				installAssets: false,
+			});
+
+			expect(payload).toMatchObject({
+				type: 'remotion-element',
+				version: 1,
+				durationInFrames: definition.durationInFrames,
+				element: {
+					assets: [],
+					dependencies: definition.dependencies,
+					displayName: definition.displayName,
+					durationInFrames: definition.durationInFrames,
+					installationMode: definition.installationMode,
+					slug,
+					sourceCode,
+				},
+			});
+			const expectedDimensions =
+				definition.elementWidth !== null && definition.elementHeight !== null
+					? {
+							width: definition.elementWidth,
+							height: definition.elementHeight,
+						}
+					: null;
+			expect(payload.element.dimensions).toEqual(expectedDimensions);
+			expect(payload.element.initialProps).toEqual(definition.initialProps);
+
+			if (definition.assets.length > 0) {
+				const assetPayload = createElementPayloadFromDefinition({
+					definition,
+					sourceCode,
+					installAssets: true,
+				});
+				expect(assetPayload.version).toBe(2);
+				expect(assetPayload.element.assets).toEqual(definition.assets);
+				expect(assetPayload.element.initialProps).toEqual({
+					...definition.initialProps,
+					...definition.installationProps,
+				});
 			}
 		}
 	});
@@ -304,6 +538,25 @@ describe('Element social previews', () => {
 });
 
 describe('Element preview definitions', () => {
+	test('does not publish local preview URLs', () => {
+		const localPreviewUrls = elementDefinitionList
+			.flatMap((definition) => [
+				{
+					slug: definition.slug,
+					type: 'poster',
+					url: definition.preview.posterUrl,
+				},
+				{
+					slug: definition.slug,
+					type: 'video',
+					url: definition.preview.videoUrl,
+				},
+			])
+			.filter(({url}) => url.startsWith('/'));
+
+		expect(localPreviewUrls).toEqual([]);
+	});
+
 	test('contains every production Element exactly once', () => {
 		const elementSlugs = productionElements
 			.map((element) => element.name)
@@ -311,56 +564,9 @@ describe('Element preview definitions', () => {
 		const definitionSlugs = elementDefinitionList
 			.map((definition) => definition.slug)
 			.sort();
-		const definitionKeys = Object.keys(elementDefinitions).sort();
 
-		expect(definitionKeys).toEqual(elementSlugs);
 		expect(definitionSlugs).toEqual(elementSlugs);
 		expect(new Set(definitionSlugs).size).toBe(definitionSlugs.length);
-
-		for (const [slug, definition] of Object.entries(elementDefinitions)) {
-			expect(definition.slug).toBe(slug);
-		}
-	});
-
-	test('publishes caption treatments as separate Elements', () => {
-		const captionSlugs = elementDefinitionList
-			.map((definition) => definition.slug)
-			.filter((slug) => slug.startsWith('captions/'))
-			.sort();
-
-		expect(captionSlugs).toEqual([
-			'captions/moving-pill-captions',
-			'captions/popping-word-captions',
-			'captions/word-highlight-captions',
-		]);
-
-		for (const slug of captionSlugs) {
-			const element = productionElements.find((entry) => entry.name === slug);
-			if (!element) {
-				throw new Error(`Missing caption Element for ${slug}`);
-			}
-
-			const source = readFileSync(element.tsxPath, 'utf8');
-			expect(source).not.toContain('readonly mode');
-			expect(source).not.toContain('TimedCaptionsMode');
-			expect(source).not.toContain("translate: '109.5px -36px'");
-		}
-	});
-
-	test('only caption Elements use a component-owned Sequence', () => {
-		const componentOwnedSequenceSlugs = new Set([
-			'captions/moving-pill-captions',
-			'captions/popping-word-captions',
-			'captions/word-highlight-captions',
-		]);
-
-		for (const definition of elementDefinitionList) {
-			expect(definition.installationMode).toBe(
-				componentOwnedSequenceSlugs.has(definition.slug)
-					? 'component-owned-sequence'
-					: 'wrapped',
-			);
-		}
 	});
 
 	test('declares every external source dependency centrally with a valid version', () => {
@@ -427,55 +633,43 @@ describe('Element preview definitions', () => {
 	});
 
 	test('keeps displayed Element dimensions separate from preview dimensions', () => {
-		const adaptiveDefinition = elementDefinitions['backgrounds/paper-texture'];
-		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
-			'Adapts to composition',
+		const adaptiveDefinition = getElementDefinition(
+			'backgrounds/paper-texture',
 		);
+		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe('Flexible');
 		expect(getElementPreviewDimensions(adaptiveDefinition)).toEqual({
 			height: 1080,
 			width: 1920,
 		});
 
-		const fixedDefinition = elementDefinitions['overlays/lower-third'];
-		expect(getElementDimensionsLabel(fixedDefinition)).toBe('680 × 138px');
+		const fixedDefinition = getElementDefinition('overlays/name-lower-third');
+		expect(getElementDimensionsLabel(fixedDefinition)).toBe('534 × 132px');
 		expect(getElementPreviewDimensions(fixedDefinition)).toEqual({
-			height: 738,
-			width: 1280,
+			height: 732,
+			width: 1134,
 		});
 	});
 
-	test('dimensionless Solid backgrounds use composition dimensions', () => {
-		for (const slug of [
-			'backgrounds/paper-texture',
-			'backgrounds/rotating-starburst',
-		] as const) {
-			const definition = elementDefinitions[slug];
-			const element = productionElements.find((entry) => entry.name === slug);
-			if (!element) {
-				throw new Error(`Could not find Element source for ${slug}`);
-			}
-
-			const source = readFileSync(element.tsxPath, 'utf8');
-			expect(definition.elementWidth).toBe(null);
-			expect(definition.elementHeight).toBe(null);
-			expect(source).toContain('useVideoConfig()');
-			expect(source).not.toContain(`width={${definition.width}}`);
-			expect(source).not.toContain(`height={${definition.height}}`);
-		}
-	});
-
-	test('uses stable composition IDs and flat review or published preview paths', () => {
+	test('uses stable composition IDs and valid review or published preview paths', () => {
 		const compositionIds = elementDefinitionList.map((definition) =>
 			getElementCompositionId(definition.slug),
 		);
 		expect(new Set(compositionIds).size).toBe(compositionIds.length);
 
 		for (const definition of elementDefinitionList) {
-			const assetSlug = definition.slug.replaceAll('/', '-');
+			// Preserve preview URLs published before an Element slug changes.
+			const assetSlug =
+				definition.slug === 'youtube/youtube-end-card'
+					? 'overlays-social-endcard'
+					: definition.slug.replaceAll('/', '-');
 			const localPosterUrl = `/elements/${assetSlug}-preview.png`;
 			const localVideoUrl = `/elements/${assetSlug}-preview.mp4`;
-			const publicPosterUrl = `https://remotion.media${localPosterUrl}`;
-			const publicVideoUrl = `https://remotion.media${localVideoUrl}`;
+			const publicPosterUrlPattern = new RegExp(
+				`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.png$`,
+			);
+			const publicVideoUrlPattern = new RegExp(
+				`^https://remotion\\.media/elements/${assetSlug}-preview(?:-([a-f0-9-]+))?\\.mp4$`,
+			);
 			const posterPath = path.join(
 				staticElementsRoot,
 				`${assetSlug}-preview.png`,
@@ -489,12 +683,10 @@ describe('Element preview definitions', () => {
 			if (usesReviewUrls) {
 				expect(String(definition.preview.videoUrl)).toBe(localVideoUrl);
 
-				const isSubmitted = elementSidebars.includes(
-					`'${definition.slug}/index'`,
-				);
-				expect(existsSync(posterPath)).toBe(isSubmitted);
-				expect(existsSync(videoPath)).toBe(isSubmitted);
-				if (isSubmitted) {
+				const isRegistered = definition.slug in elementRegistry;
+				expect(existsSync(posterPath)).toBe(isRegistered);
+				expect(existsSync(videoPath)).toBe(isRegistered);
+				if (isRegistered) {
 					const poster = readFileSync(posterPath);
 					const video = readFileSync(videoPath);
 					expect(Array.from(poster.subarray(0, 8))).toEqual([
@@ -506,33 +698,18 @@ describe('Element preview definitions', () => {
 					).toBeLessThanOrEqual(10 * 1024 * 1024);
 				}
 			} else {
-				expect(String(definition.preview.posterUrl)).toBe(publicPosterUrl);
-				expect(String(definition.preview.videoUrl)).toBe(publicVideoUrl);
+				const publicPosterUrlMatch = String(definition.preview.posterUrl).match(
+					publicPosterUrlPattern,
+				);
+				const publicVideoUrlMatch = String(definition.preview.videoUrl).match(
+					publicVideoUrlPattern,
+				);
+				expect(publicPosterUrlMatch).not.toBeNull();
+				expect(publicVideoUrlMatch).not.toBeNull();
+				expect(publicPosterUrlMatch?.[1]).toBe(publicVideoUrlMatch?.[1]);
 				expect(existsSync(posterPath)).toBe(false);
 				expect(existsSync(videoPath)).toBe(false);
 			}
 		}
-	});
-
-	test('the Element template includes explicit defaults and local preview URLs', () => {
-		const template = readFileSync(path.join(templateRoot, 'index.mdx'), 'utf8');
-		expect(template).toContain("installationMode: 'wrapped'");
-		expect(template).toContain(
-			'image: /elements/category-element-title-preview.png',
-		);
-		expect(template).toContain(
-			"posterUrl: '/elements/category-element-title-preview.png'",
-		);
-		expect(template).toContain(
-			"videoUrl: '/elements/category-element-title-preview.mp4'",
-		);
-	});
-
-	test('registers Element compositions in a Folder', () => {
-		const root = readFileSync(
-			path.join(__dirname, '..', 'remotion', 'Root.tsx'),
-			'utf8',
-		);
-		expect(root).toContain('<Folder name="elements">');
 	});
 });

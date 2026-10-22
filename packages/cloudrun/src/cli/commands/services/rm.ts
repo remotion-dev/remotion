@@ -10,7 +10,7 @@ import {Log} from '../../log';
 import {displayServiceInfo, SERVICES_COMMAND} from './index';
 import {SERVICES_LS_SUBCOMMAND} from './ls';
 
-export const SERVICES_RM_SUBCOMMAND = 'rm';
+export {SERVICES_RM_SUBCOMMAND} from '../command-names';
 
 export const servicesRmCommand = async (args: string[], logLevel: LogLevel) => {
 	if (args.length === 0) {

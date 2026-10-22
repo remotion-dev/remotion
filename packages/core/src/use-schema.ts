@@ -1,9 +1,13 @@
 import {findPropsToDelete} from './find-props-to-delete.js';
 import {
+	getFrameInKeyframedStatusClock,
 	getEffectiveVisualModeValue,
 	resolveDragOverrideValue,
 } from './get-effective-visual-mode-value.js';
-import {FILE_TOKEN} from './input-props-serialization.js';
+import {
+	FILE_TOKEN,
+	resolveFileTokenToUrl,
+} from './input-props-serialization.js';
 import type {
 	InteractivitySchema,
 	InteractivitySchemaField,
@@ -14,44 +18,60 @@ import type {
 	CanUpdateSequencePropsResponse,
 	SequencePropsSubscriptionKey,
 } from './SequenceManager.js';
+import type {VideoConfigValues} from './video-config.js';
 
-export type CanUpdateSequencePropStatusStatic = {
+export type CanUpdateSequencePropStatusStatic<Numeric = number> = {
 	status: 'static';
 	codeValue: unknown;
+	keyframeDisplayOffsetAdjustment: Numeric | null;
+	/** Multiplies the element's local frame to recover the source frame clock. */
+	keyframePlaybackRateAdjustment?: Numeric;
+	/** False when the source frame clock cannot be represented by the Studio. */
+	canKeyframe?: false;
 	numericExpression?: VideoConfigNumericExpression;
 };
 
-export type CanUpdateSequencePropStatusKeyframe = {
-	frame: number;
+export type CanUpdateSequencePropStatusKeyframe<Numeric = number> = {
+	frame: Numeric;
 	value: unknown;
 	frameExpression?: VideoConfigNumericExpression;
 };
 
+/** Source bindings remain independent of the configuration of a mounted instance. */
+export type VideoConfigNumericBinding =
+	| {type: 'video-config'; field: keyof VideoConfigValues}
+	| {type: 'constant'; value: number};
+
 export type VideoConfigNumericExpression =
-	| {
-			type: 'literal';
-			value: number;
-	  }
+	| {type: 'literal'; value: number}
 	| {
 			type: 'video-config-value';
 			identifier: string;
-			value: number;
+			binding: VideoConfigNumericBinding;
 	  }
 	| {
 			type: 'video-config-multiplication';
 			identifier: string;
+			binding: VideoConfigNumericBinding;
 			multiplier: number;
-			multiplicand: number;
 			factorPosition: 'left' | 'right';
-			value: number;
 	  }
 	| {
 			type: 'video-config-subtraction';
 			identifier: string;
-			minuend: number;
+			binding: VideoConfigNumericBinding;
 			subtrahend: number;
-			value: number;
+	  }
+	| {
+			type: 'binary';
+			operator: '+' | '-' | '*' | '/';
+			left: SourceNumericValue;
+			right: SourceNumericValue;
 	  };
+
+export type SourceNumericValue = number | VideoConfigNumericExpression;
+export type CanUpdateSequencePropSource =
+	CanUpdateSequencePropStatus<SourceNumericValue>;
 
 export type CanUpdateSequencePropStatusLinearEasing = {
 	type: 'linear';
@@ -115,16 +135,26 @@ export type CanUpdateSequencePropStatusClamping = {
 
 export type CanUpdateSequencePropStatusInterpolationFunction =
 	| 'interpolate'
-	| 'interpolateColors';
+	| 'interpolateColors'
+	| 'interpolatePaths';
 
 export type CanUpdateSequencePropStatusComputed = {
 	status: 'computed';
 };
 
-export type CanUpdateSequencePropStatusKeyframed = {
+export type CanUpdateSequencePropStatusKeyframed<Numeric = number> = {
 	status: 'keyframed';
 	interpolationFunction: CanUpdateSequencePropStatusInterpolationFunction;
-	keyframes: CanUpdateSequencePropStatusKeyframe[];
+	/**
+	 * Subtracted after applying keyframePlaybackRateAdjustment to the controlled
+	 * element's local frame when evaluating the interpolation.
+	 * This is non-zero when the useCurrentFrame() call is outside a timing
+	 * element that wraps the controlled element.
+	 */
+	keyframeDisplayOffsetAdjustment: Numeric | null;
+	/** Defaults to 1 for statuses produced without a playback rate conversion. */
+	keyframePlaybackRateAdjustment?: Numeric;
+	keyframes: CanUpdateSequencePropStatusKeyframe<Numeric>[];
 	easing: CanUpdateSequencePropStatusEasing[];
 	clamping: CanUpdateSequencePropStatusClamping;
 	posterize: number | undefined;
@@ -134,9 +164,9 @@ export type CanUpdateSequencePropStatusKeyframed = {
 export type CanUpdateSequencePropStatusFalse =
 	CanUpdateSequencePropStatusComputed;
 
-export type CanUpdateSequencePropStatus =
-	| CanUpdateSequencePropStatusStatic
-	| CanUpdateSequencePropStatusKeyframed
+export type CanUpdateSequencePropStatus<Numeric = number> =
+	| CanUpdateSequencePropStatusStatic<Numeric>
+	| CanUpdateSequencePropStatusKeyframed<Numeric>
 	| CanUpdateSequencePropStatusFalse;
 
 export type DragOverrideValue =
@@ -182,10 +212,12 @@ export const makeKeyframedDragOverride = ({
 	status,
 	frame,
 	value,
+	defaultEasing = DEFAULT_LINEAR_EASING,
 }: {
 	status: CanUpdateSequencePropStatusKeyframed;
 	frame: number;
 	value: unknown;
+	defaultEasing?: CanUpdateSequencePropStatusEasing;
 }): DragOverrideValue => {
 	const existingIndex = status.keyframes.findIndex(
 		(keyframe) => keyframe.frame === frame,
@@ -210,13 +242,13 @@ export const makeKeyframedDragOverride = ({
 		});
 		const easingToDuplicate =
 			easingIndexToDuplicate === null
-				? DEFAULT_LINEAR_EASING
+				? defaultEasing
 				: easing[easingIndexToDuplicate];
 		easing.splice(insertedKeyframeIndex, 0, easingToDuplicate);
 	}
 
 	while (easing.length < keyframes.length - 1) {
-		easing.push(DEFAULT_LINEAR_EASING);
+		easing.push(defaultEasing);
 	}
 
 	if (easing.length > keyframes.length - 1) {
@@ -298,9 +330,20 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 
 		let value: unknown;
 		if (status === null) {
-			value = currentValue[key];
+			// Without a source status (for example outside the Studio), an
+			// override still previews on top of the runtime value.
+			const dragOverride = resolveDragOverrideValue({
+				dragOverrideValue: overrideValues[key],
+				frame,
+			});
+			value =
+				dragOverride.type === 'resolved'
+					? dragOverride.value
+					: currentValue[key];
 		} else if (isKeyframedStatus(status)) {
-			if (field?.type === 'array' || field?.keyframable === false) {
+			// keyframable controls authoring new keyframes in Studio. Existing
+			// keyframes still need to follow the preview clock and drag overrides.
+			if (field?.type === 'array') {
 				value = currentValue[key];
 			} else {
 				const dragOverride = resolveDragOverrideValue({
@@ -312,7 +355,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 				} else if (frame !== null) {
 					const interpolated = interpolateKeyframedStatus({
 						forceSpringAllowTail: null,
-						frame,
+						frame: getFrameInKeyframedStatusClock({frame, status}),
 						status,
 					});
 					value = interpolated ?? currentValue[key];
@@ -337,7 +380,7 @@ export const computeEffectiveSchemaValuesDotNotation = ({
 			typeof value === 'string' &&
 			value.startsWith(FILE_TOKEN)
 		) {
-			value = `${window.remotion_staticBase}/${value.slice(FILE_TOKEN.length)}`;
+			value = resolveFileTokenToUrl(value);
 		}
 
 		if (value === undefined) {

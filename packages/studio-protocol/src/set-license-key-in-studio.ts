@@ -1,15 +1,17 @@
+import * as z from 'zod/mini';
 import {isValidPublicLicenseKey} from './license-key';
 import type {StudioProtocolFetcher} from './studio-discovery';
 import {
 	discoverStudios,
 	fetchWithTimeout,
-	focusedStudioMaxAge,
 	getSetLicenseKeyCapability,
-	hasLegacyStudio,
 	isAbortError,
 	studioProtocolProbePorts,
 } from './studio-discovery';
-import {isRecord} from './validation';
+import {
+	isAwaitingConfirmationResponse,
+	parseStudioProtocolError,
+} from './studio-response';
 
 export type SetLicenseKeyInStudioErrorCode =
 	| 'invalid-license-key'
@@ -54,6 +56,22 @@ export type StudioProtocolSetLicenseKeyRequest = {
 	readonly licenseKey: string;
 };
 
+const studioProtocolSetLicenseKeyRequestSchema = z.object({
+	operation: z.literal('set-license-key'),
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	targetId: z.string().check(z.minLength(1)),
+	licenseKey: z.string(),
+});
+
+export const parseStudioProtocolSetLicenseKeyRequest = (
+	value: unknown,
+): StudioProtocolSetLicenseKeyRequest | null => {
+	const parsed = z.safeParse(studioProtocolSetLicenseKeyRequestSchema, value);
+
+	return parsed.success ? parsed.data : null;
+};
+
 export const setLicenseKeyInStudioWithDependencies = async (
 	licenseKey: string,
 	dependencies: SetLicenseKeyInStudioDependencies,
@@ -67,6 +85,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	const discovery = await discoverStudios(dependencies);
+
 	if (discovery.studios.length === 0) {
 		if (discovery.foundUnsupportedProtocol) {
 			return {
@@ -74,15 +93,6 @@ export const setLicenseKeyInStudioWithDependencies = async (
 				code: 'unsupported-protocol',
 				message:
 					'The running Remotion Studio uses an unsupported Studio Protocol version.',
-			};
-		}
-
-		if (await hasLegacyStudio(dependencies)) {
-			return {
-				success: false,
-				code: 'studio-upgrade-required',
-				message:
-					'This Remotion Studio cannot set a license key through Studio Protocol. Upgrade Remotion to 4.0.504 or newer.',
 			};
 		}
 
@@ -104,8 +114,10 @@ export const setLicenseKeyInStudioWithDependencies = async (
 
 	const supportedStudios = discovery.studios.flatMap((studio) => {
 		const capability = getSetLicenseKeyCapability(studio.descriptor);
+
 		return capability === null ? [] : [{...studio, capability}];
 	});
+
 	if (supportedStudios.length === 0) {
 		return {
 			success: false,
@@ -116,25 +128,28 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	const now = dependencies.now();
+
 	const configurable = supportedStudios
-		.filter(({capability}) => {
-			const {target} = capability;
-			return (
-				target !== null &&
-				target.expiresAt > now &&
-				now - target.lastFocusedAt < focusedStudioMaxAge
-			);
+		.flatMap((studio) => {
+			const {target} = studio.capability;
+
+			if (target === null || target.expiresAt <= now) {
+				return [];
+			}
+
+			return [{...studio, target}];
 		})
 		.sort((a, b) => {
-			const focusDifference =
-				b.capability.target!.lastFocusedAt - a.capability.target!.lastFocusedAt;
+			const focusDifference = b.target.lastFocusedAt - a.target.lastFocusedAt;
+
 			return focusDifference === 0
 				? b.discoveredAt - a.discoveredAt
 				: focusDifference;
 		});
+
 	const selected = configurable[0];
-	const selectedTarget = selected?.capability.target;
-	if (!selected || selectedTarget === null || selectedTarget === undefined) {
+
+	if (!selected) {
 		return {
 			success: false,
 			code: 'no-configurable-target',
@@ -143,14 +158,16 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	let response: Response;
+
 	try {
 		const requestBody = {
 			operation: 'set-license-key',
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			targetId: selectedTarget.id,
+			targetId: selected.target.id,
 			licenseKey,
 		} satisfies StudioProtocolSetLicenseKeyRequest;
+
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
 			url: `${selected.origin}/api/studio-protocol/license-key`,
@@ -162,6 +179,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		});
 	} catch (error) {
 		const timedOut = isAbortError(error);
+
 		return {
 			success: false,
 			code: timedOut ? 'request-timed-out' : 'network-error',
@@ -172,6 +190,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	let result: unknown;
+
 	try {
 		result = await response.json();
 	} catch {
@@ -182,13 +201,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		};
 	}
 
-	if (
-		response.ok &&
-		isRecord(result) &&
-		result.protocol === 'remotion-studio-protocol' &&
-		result.protocolVersion === 1 &&
-		result.status === 'awaiting-confirmation'
-	) {
+	if (response.ok && isAwaitingConfirmationResponse(result)) {
 		return {
 			success: true,
 			status: 'awaiting-confirmation',
@@ -200,23 +213,18 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		};
 	}
 
-	if (
-		isRecord(result) &&
-		result.status === 'error' &&
-		isRecord(result.error) &&
-		typeof result.error.code === 'string' &&
-		typeof result.error.message === 'string'
-	) {
-		const {code, message} = result.error;
+	const protocolError = parseStudioProtocolError(result);
+
+	if (protocolError !== null) {
 		return {
 			success: false,
 			code:
-				code === 'target-expired'
+				protocolError.code === 'target-expired'
 					? 'target-expired'
-					: code === 'no-config-file'
+					: protocolError.code === 'no-config-file'
 						? 'no-config-file'
 						: 'request-rejected',
-			message,
+			message: protocolError.message,
 		};
 	}
 

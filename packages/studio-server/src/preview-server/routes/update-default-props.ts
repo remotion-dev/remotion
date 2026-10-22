@@ -1,32 +1,33 @@
 import {readFileSync} from 'node:fs';
+import {setCompositionDefaultProps} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 } from '@remotion/studio-shared';
-import {
-	getCompositionDefaultPropsLine,
-	updateDefaultProps,
-} from '../../codemods/update-default-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
-import {getProjectInfo} from '../project-info';
 import {
 	printUndoHint,
 	pushToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
-import {checkIfTypeScriptFile} from './can-update-default-props';
-import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	checkIfTypeScriptFile,
+	getDefaultPropsFile,
+} from './can-update-default-props';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse
 > = ({
-	input: {compositionId, defaultProps, enumPaths},
+	input: {compositionId, defaultProps, enumPaths, symbolicatedStack},
 	remotionRoot,
 	entryPoint,
 	logLevel,
@@ -37,27 +38,30 @@ export const updateDefaultPropsHandler: ApiHandler<
 				{indent: false, logLevel},
 				`[update-default-props] Received request for compositionId="${compositionId}"`,
 			);
-			const projectInfo = await getProjectInfo(remotionRoot, entryPoint);
-			if (!projectInfo.rootFile) {
-				throw new Error('Cannot find root file in project');
-			}
-
-			checkIfTypeScriptFile(projectInfo.rootFile);
-
-			const fileContents = readFileSync(projectInfo.rootFile, 'utf-8');
-			const logLine = getCompositionDefaultPropsLine({
-				input: fileContents,
-				compositionId,
+			const compositionFile = await getDefaultPropsFile({
+				symbolicatedStack,
+				remotionRoot,
+				entryPoint,
 			});
-			const {output, formatted} = await updateDefaultProps({
+
+			checkIfTypeScriptFile(compositionFile);
+
+			const fileContents = readFileSync(compositionFile, 'utf-8');
+			const result = setCompositionDefaultProps({
+				project: {
+					files: {[compositionFile]: fileContents},
+					rootDir: remotionRoot,
+				},
+				compositionFile,
 				compositionId,
-				input: fileContents,
-				newDefaultProps: JSON.parse(defaultProps),
+				defaultProps: JSON.parse(defaultProps),
 				enumPaths,
 			});
+			const {logLine} = result;
+			const output = result.changes[0]?.nextContents ?? fileContents;
 
 			pushToUndoStack({
-				filePath: projectInfo.rootFile,
+				filePath: compositionFile,
 				oldContents: fileContents,
 				newContents: null,
 				logLevel,
@@ -69,23 +73,26 @@ export const updateDefaultPropsHandler: ApiHandler<
 				},
 				entryType: 'default-props',
 				suppressHmrOnFileRestore: true,
+				nodePathRemappings: null,
 			});
-			suppressUndoStackInvalidation(projectInfo.rootFile);
-			suppressBundlerUpdateForFile(projectInfo.rootFile);
-			writeFileAndNotifyFileWatchers(projectInfo.rootFile, output, undefined);
+			suppressUndoStackInvalidation(compositionFile);
+			suppressBundlerUpdateForFile(compositionFile);
+			writeFileAndNotifyFileWatchers({
+				file: compositionFile,
+				content: output,
+				originatorClientId: undefined,
+				metadata: null,
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
-				absolutePath: projectInfo.rootFile,
+				absolutePath: compositionFile,
 				line: logLine,
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Updated default props for "${compositionId}"`,
 			);
-			if (!formatted) {
-				warnAboutPrettierOnce(logLevel);
-			}
 
 			printUndoHint(logLevel);
 

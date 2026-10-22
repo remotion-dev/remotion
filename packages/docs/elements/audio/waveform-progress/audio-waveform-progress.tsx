@@ -1,0 +1,193 @@
+import {Audio} from '@remotion/media';
+import {getWaveformPortion, useWindowedAudioData} from '@remotion/media-utils';
+import React, {useId, useMemo} from 'react';
+import {
+	Interactive,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+} from 'remotion';
+
+type AudioWaveformProgressProps = InteractiveTransformProps & {
+	readonly amplitude?: number;
+	readonly src?: string;
+	readonly barGap?: number;
+	readonly numberOfBars?: number;
+	readonly playedColor?: string;
+	readonly unplayedColor?: string;
+};
+
+const audioWaveformProgressSchema = {
+	src: {
+		type: 'asset',
+		assetType: 'audio',
+		default:
+			'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+		description: 'Source',
+		keyframable: false,
+	},
+	playedColor: {
+		type: 'color',
+		default: '#2563eb',
+		description: 'Played color',
+	},
+	unplayedColor: {
+		type: 'color',
+		default: '#cbd5e1',
+		description: 'Unplayed color',
+	},
+	numberOfBars: {
+		type: 'number',
+		min: 12,
+		max: 96,
+		step: 1,
+		default: 64,
+		description: 'Number of bars',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	barGap: {
+		type: 'number',
+		min: 0,
+		max: 8,
+		step: 1,
+		default: 5,
+		description: 'Gap between bars',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	amplitude: {
+		type: 'number',
+		min: 0.25,
+		max: 2,
+		step: 0.05,
+		default: 1,
+		description: 'Amplitude',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+const AudioWaveformProgressContent: React.FC<{
+	readonly amplitude: number;
+	readonly src: string;
+	readonly barGap: number;
+	readonly numberOfBars: number;
+	readonly playedColor: string;
+	readonly unplayedColor: string;
+}> = ({amplitude, src, barGap, numberOfBars, playedColor, unplayedColor}) => {
+	const frame = useCurrentFrame();
+	const {durationInFrames, fps} = useVideoConfig();
+	const durationInSeconds = durationInFrames / fps;
+	const {audioData, dataOffsetInSeconds} = useWindowedAudioData({
+		fps,
+		frame: 0,
+		src,
+		windowInSeconds: durationInSeconds,
+	});
+	const gradientId = `audio-waveform-progress-${useId().replaceAll(':', '')}`;
+	const roundedNumberOfBars = Math.max(
+		12,
+		Math.min(96, Math.round(numberOfBars)),
+	);
+	const waveform = useMemo(() => {
+		if (!audioData) {
+			return [];
+		}
+
+		return getWaveformPortion({
+			audioData,
+			dataOffsetInSeconds,
+			durationInSeconds,
+			numberOfSamples: roundedNumberOfBars,
+			startTimeInSeconds: 0,
+		});
+	}, [audioData, dataOffsetInSeconds, durationInSeconds, roundedNumberOfBars]);
+	const progress = Math.max(
+		0,
+		Math.min(1, frame / Math.max(1, durationInFrames - 1)),
+	);
+	const resolvedBarGap = Math.max(0, Math.min(8, barGap));
+	const barWidth =
+		(884 - resolvedBarGap * (roundedNumberOfBars - 1)) / roundedNumberOfBars;
+
+	return (
+		<>
+			<Audio showInTimeline={false} src={src} />
+			<svg height={300} viewBox="0 0 900 300" width={900}>
+				<defs>
+					<linearGradient
+						id={gradientId}
+						gradientUnits="userSpaceOnUse"
+						x1={8}
+						x2={892}
+						y1={0}
+						y2={0}
+					>
+						<stop offset="0%" stopColor={playedColor} />
+						<stop offset={`${progress * 100}%`} stopColor={playedColor} />
+						<stop offset={`${progress * 100}%`} stopColor={unplayedColor} />
+						<stop offset="100%" stopColor={unplayedColor} />
+					</linearGradient>
+				</defs>
+				{waveform.map((sample, index) => {
+					const barHeight = Math.max(
+						10,
+						Math.min(210, Math.sqrt(sample.amplitude) * 210 * amplitude),
+					);
+
+					return (
+						<rect
+							key={sample.index}
+							fill={`url(#${gradientId})`}
+							height={barHeight}
+							rx={Math.min(barWidth / 2, barHeight / 2)}
+							width={barWidth}
+							x={8 + index * (barWidth + resolvedBarGap)}
+							y={150 - barHeight / 2}
+						/>
+					);
+				})}
+			</svg>
+		</>
+	);
+};
+
+const AudioWaveformProgressInner: React.FC<AudioWaveformProgressProps> = ({
+	amplitude = 1,
+	src = 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+	barGap = 5,
+	numberOfBars = 64,
+	playedColor = '#2563eb',
+	style,
+	unplayedColor = '#cbd5e1',
+}) => {
+	const {durationInFrames} = useVideoConfig();
+
+	return (
+		<div
+			style={{
+				boxSizing: 'border-box',
+				height: 300,
+				width: 900,
+				...style,
+			}}
+		>
+			<AudioWaveformProgressContent
+				key={`${src}-${durationInFrames}`}
+				amplitude={amplitude}
+				src={src}
+				barGap={barGap}
+				numberOfBars={numberOfBars}
+				playedColor={playedColor}
+				unplayedColor={unplayedColor}
+			/>
+		</div>
+	);
+};
+
+export const AudioWaveformProgress = Interactive.create({
+	Component: AudioWaveformProgressInner,
+	componentName: '<AudioWaveformProgress>',
+	schema: audioWaveformProgressSchema,
+});

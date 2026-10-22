@@ -28,6 +28,7 @@ const makeKeyframedStatus = (
 	keyframes: {readonly frame: number; readonly value: number}[],
 ): CanUpdateSequencePropStatusKeyframed => ({
 	status: 'keyframed',
+	keyframeDisplayOffsetAdjustment: null,
 	interpolationFunction: 'interpolate',
 	keyframes,
 	easing: [{type: 'linear'}, {type: 'linear'}],
@@ -42,6 +43,7 @@ test('derives easing selection endpoints from current keyframes', () => {
 	expect(
 		getEasingSelectionFromCurrentKeyframes({
 			keyframeDisplayOffset: 3,
+			keyframePlaybackRate: 1,
 			nodePathInfo,
 			propStatus: makeKeyframedStatus([
 				{frame: 0, value: 0},
@@ -65,6 +67,7 @@ test('returns null when selected easing segment no longer exists', () => {
 	expect(
 		getEasingSelectionFromCurrentKeyframes({
 			keyframeDisplayOffset: 0,
+			keyframePlaybackRate: 1,
 			nodePathInfo,
 			propStatus: makeKeyframedStatus([{frame: 0, value: 0}]),
 			segmentIndex: 0,

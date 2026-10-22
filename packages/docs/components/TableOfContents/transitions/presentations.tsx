@@ -9,6 +9,7 @@ import {pushCut} from '@remotion/transitions/push-cut';
 import {slide} from '@remotion/transitions/slide';
 import {wipe} from '@remotion/transitions/wipe';
 import React from 'react';
+import {BlurSlideTocPreview} from '../../transitions/blur-slide-toc-preview';
 import {BookFlipTocPreview} from '../../transitions/book-flip-toc-preview';
 import {CrossZoomTocPreview} from '../../transitions/cross-zoom-toc-preview';
 import {CrosswarpTocPreview} from '../../transitions/crosswarp-toc-preview';
@@ -306,6 +307,18 @@ export const Presentations: React.FC<{
 						</strong>
 						<HtmlInCanvasLabel />
 						<div>Swap scenes with perspective and reflections</div>
+					</div>
+				</div>
+			</TOCItem>
+			<TOCItem link="/docs/transitions/presentations/blur-slide">
+				<div style={row}>
+					<BlurSlideTocPreview />
+					<div style={{flex: 1, marginLeft: 10}}>
+						<strong>
+							<code>{'blurSlide()'}</code>
+						</strong>
+						<HtmlInCanvasLabel />
+						<div>Whip both scenes sideways with a motion blur</div>
 					</div>
 				</div>
 			</TOCItem>

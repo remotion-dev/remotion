@@ -1,6 +1,7 @@
 import type {CropRectangle} from 'mediabunny';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {normalizeVideoRotation} from '~/lib/calculate-new-dimensions-from-dimensions';
+import {parseCanvasCaptureCursorData} from '~/lib/canvas-capture-metadata';
 import type {Source} from '~/lib/convert-state';
 import {getDefaultVideoEditState} from '~/lib/default-ui';
 import {isAudioOnly} from '~/lib/is-audio-container';
@@ -8,7 +9,7 @@ import type {RouteAction} from '~/seo';
 import {BackButton} from './BackButton';
 import ConvertUI from './ConvertUi';
 import {Footer} from './Footer';
-import {VideoPlayer} from './MediaPlayer';
+import {getPlayerFps, VideoPlayer} from './MediaPlayer';
 import {Page} from './Page';
 import {Probe} from './Probe';
 import Transcribe from './transcribe/App';
@@ -37,6 +38,7 @@ export const FileAvailable: React.FC<{
 	const probeResult = useProbe({
 		src,
 	});
+	const playerFps = getPlayerFps(probeResult.fps);
 
 	const [userRotation, setRotation] = useState(90);
 	const [flipHorizontal, setFlipHorizontal] = useState(true);
@@ -51,6 +53,9 @@ export const FileAvailable: React.FC<{
 	});
 	const [trimInFrame, setTrimInFrame] = useState<number | null>(null);
 	const [trimOutFrame, setTrimOutFrame] = useState<number | null>(null);
+	const [showCursor, setShowCursor] = useState(true);
+	const [cursorScale, setCursorScale] = useState(1);
+	const [cursorPressedScale, setCursorPressedScale] = useState(0.8);
 
 	const [waveform, setWaveform] = useState<number[]>([]);
 
@@ -67,6 +72,9 @@ export const FileAvailable: React.FC<{
 	}, []);
 	const isAudio = isAudioOnly({tracks: probeResult.tracks});
 	const [playbackTime, setPlaybackTime] = useState(0);
+	const cursorData = useMemo(() => {
+		return parseCanvasCaptureCursorData(probeResult.metadata);
+	}, [probeResult.metadata]);
 
 	return (
 		<Page className="lg:justify-center pt-6 pb-10 px-4 lg:flex">
@@ -89,10 +97,14 @@ export const FileAvailable: React.FC<{
 							unclampedRect={cropOperation}
 							dimensions={probeResult.dimensions}
 							durationInSeconds={probeResult.durationInSeconds}
-							fps={probeResult.fps}
+							fps={playerFps}
 							rotation={actualUserRotation}
 							mirrorHorizontal={flipHorizontal && videoEditState.mirror}
 							mirrorVertical={flipVertical && videoEditState.mirror}
+							cursorData={cursorData}
+							showCursor={showCursor}
+							cursorScale={cursorScale}
+							cursorPressedScale={cursorPressedScale}
 							onPlaybackTimeChange={setPlaybackTime}
 						/>
 						<div className="h-8" />
@@ -138,7 +150,7 @@ export const FileAvailable: React.FC<{
 											setTrim={setEnableTrim}
 											trimInFrame={trimInFrame}
 											trimOutFrame={trimOutFrame}
-											fps={probeResult.fps}
+											fps={playerFps}
 											setVideoEditState={setVideoEditState}
 											userRotation={actualUserRotation}
 											setRotation={setRotation}
@@ -151,6 +163,13 @@ export const FileAvailable: React.FC<{
 											name={probeResult.name}
 											input={probeResult.input}
 											cropRect={cropOperation}
+											cursorData={cursorData}
+											showCursor={showCursor}
+											setShowCursor={setShowCursor}
+											cursorScale={cursorScale}
+											setCursorScale={setCursorScale}
+											cursorPressedScale={cursorPressedScale}
+											setCursorPressedScale={setCursorPressedScale}
 										/>
 									</div>
 								) : null}

@@ -30,6 +30,7 @@ type TNotification = {
 };
 
 type CreatedNotification = {
+	dismiss: () => void;
 	replaceContent: (
 		newContent: React.ReactNode,
 		durationInMs: number | null,
@@ -71,6 +72,14 @@ export const NotificationCenter: React.FC = () => {
 			});
 
 			return {
+				dismiss: () => {
+					setNotifications((oldNotifications) => {
+						return oldNotifications.filter(
+							(notificationToFilter) =>
+								notificationToFilter.id !== notification.id,
+						);
+					});
+				},
 				replaceContent: (
 					newContent: React.ReactNode,
 					durationInMs: number | null,

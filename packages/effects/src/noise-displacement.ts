@@ -67,6 +67,7 @@ const noiseDisplacementSchema = {
 		min: 1,
 		max: MAX_PASSES,
 		step: 1,
+		integer: true,
 		default: DEFAULT_PASSES,
 		description: 'Passes',
 		hiddenFromList: false,

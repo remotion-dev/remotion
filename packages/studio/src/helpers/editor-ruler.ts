@@ -1,7 +1,14 @@
 import type {Size} from '@remotion/player';
 import {MINIMUM_VISIBLE_CANVAS_SIZE} from '../state/editor-rulers';
-import {BACKGROUND, BACKGROUND__TRANSPARENT, RULER_COLOR} from './colors';
+import {
+	BACKGROUND,
+	BACKGROUND__TRANSPARENT,
+	LIGHT_TEXT,
+	WHITE_ALPHA_15,
+} from './colors';
 import type {RulerGuideHighlight} from './editor-guide-selection';
+import {resolveStudioColor} from './resolve-studio-color';
+import {getStudioPixelRatio} from './studio-pixel-ratio';
 
 type Orientation = 'horizontal' | 'vertical';
 
@@ -31,12 +38,14 @@ const drawLabel = ({
 const drawGradient = ({
 	orientation,
 	context,
+	computedStyle,
 	originDistance,
 	canvasHeight,
 	canvasWidth,
 }: {
 	orientation: Orientation;
 	context: CanvasRenderingContext2D;
+	computedStyle: CSSStyleDeclaration;
 	originDistance: number;
 	canvasHeight: number;
 	canvasWidth: number;
@@ -49,10 +58,15 @@ const drawGradient = ({
 	const endY =
 		orientation === 'horizontal' ? canvasHeight : originDistance + size / 2;
 	const grd = context.createLinearGradient(startX, startY, endX, endY);
-	grd.addColorStop(0, BACKGROUND__TRANSPARENT);
-	grd.addColorStop(0.25, BACKGROUND);
-	grd.addColorStop(0.75, BACKGROUND);
-	grd.addColorStop(1, BACKGROUND__TRANSPARENT);
+	const background = resolveStudioColor(BACKGROUND, computedStyle);
+	const transparentBackground = resolveStudioColor(
+		BACKGROUND__TRANSPARENT,
+		computedStyle,
+	);
+	grd.addColorStop(0, transparentBackground);
+	grd.addColorStop(0.25, background);
+	grd.addColorStop(0.75, background);
+	grd.addColorStop(1, transparentBackground);
 
 	context.fillStyle = grd;
 	context.fillRect(startX, startY, endX - startX, endY - startY);
@@ -63,6 +77,7 @@ const drawGuide = ({
 	scale,
 	startMarking,
 	context,
+	computedStyle,
 	canvasHeight,
 	canvasWidth,
 	orientation,
@@ -72,12 +87,14 @@ const drawGuide = ({
 	scale: number;
 	startMarking: number;
 	context: CanvasRenderingContext2D;
+	computedStyle: CSSStyleDeclaration;
 	canvasHeight: number;
 	canvasWidth: number;
 	orientation: Orientation;
 	originOffset: number;
 }) => {
-	const {guide, color} = guideHighlight;
+	const {guide} = guideHighlight;
+	const color = resolveStudioColor(guideHighlight.color, computedStyle);
 	const originDistance =
 		rulerValueToPosition({
 			value: guide.position,
@@ -85,10 +102,12 @@ const drawGuide = ({
 			scale,
 		}) +
 		originOffset -
-		startMarking * scale;
+		startMarking * scale +
+		0.5;
 	drawGradient({
 		canvasHeight,
 		context,
+		computedStyle,
 		orientation,
 		originDistance,
 		canvasWidth,
@@ -157,19 +176,23 @@ export const drawMarkingOnRulerCanvas = ({
 
 	const context = canvas.getContext('2d');
 	if (!context) return;
+	const computedStyle = getComputedStyle(canvas);
+	const tickColor = resolveStudioColor(WHITE_ALPHA_15, computedStyle);
+	const labelColor = resolveStudioColor(LIGHT_TEXT, computedStyle);
 
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
 
-	context.scale(window.devicePixelRatio, window.devicePixelRatio);
+	const pixelRatio = getStudioPixelRatio();
+	context.scale(pixelRatio, pixelRatio);
 
 	context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-	context.strokeStyle = RULER_COLOR;
+	context.strokeStyle = tickColor;
 	context.lineWidth = 1;
 	context.beginPath();
 	points.forEach((point) => {
-		context.strokeStyle = RULER_COLOR;
+		context.strokeStyle = tickColor;
 		context.lineWidth = 1;
 		const originDistance = point.position + originOffset - startMarking * scale;
 		context.beginPath();
@@ -196,19 +219,20 @@ export const drawMarkingOnRulerCanvas = ({
 		context.stroke();
 		context.font = '10px Arial, Helvetica, sans-serif';
 		context.textAlign = 'left';
-		context.fillStyle = RULER_COLOR;
+		context.fillStyle = labelColor;
 
 		drawLabel({
 			orientation,
 			context,
 			label: point.value.toString(),
 			originDistance,
-			color: RULER_COLOR,
+			color: labelColor,
 		});
 	});
 
 	if (guideHighlight && orientation !== guideHighlight.guide.orientation) {
 		drawGuide({
+			computedStyle,
 			canvasHeight,
 			canvasWidth,
 			context,

@@ -274,6 +274,11 @@ class PHPClient
         return $this->handleLambdaResponseRender($result);
     }
 
+    public function renderFramesOnLambda(RenderFramesParams $render): RenderMediaOnLambdaResponse
+    {
+        return $this->renderMediaOnLambda($render);
+    }
+
     public function makeRenderProgressPayload(string $renderId, string $bucketName, string $logLevel = "info", $forcePathStyle = false)
     {
         return json_encode([
@@ -292,6 +297,59 @@ class PHPClient
         $payload = $this->makeRenderProgressPayload($renderId, $bucketName, $logLevel, $forcePathStyle);
         $result = $this->invokeLambdaFunction($payload);
         return $this->handleLambdaResponseProgress($result);
+    }
+
+    public function cancelRenderOnLambda(string $renderId, string $bucketName): void
+    {
+        try {
+            $progress = json_decode(
+                $this->readProgressFromS3($bucketName, "renders/{$renderId}/progress.json"),
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+        } catch (\Throwable $exception) {
+            throw new Exception("Could not read progress for render {$renderId}: {$exception->getMessage()}", 0, $exception);
+        }
+
+        if (($progress['cancellationEnabled'] ?? false) !== true) {
+            throw new InvalidArgumentException(
+                "Cannot cancel render {$renderId}: The render was not started with enableCancellation: true."
+            );
+        }
+
+        try {
+            $this->writeCancellationToS3(
+                $bucketName,
+                "renders/{$renderId}/cancel.json",
+                json_encode(
+                    ['cancelledAt' => (int) floor(microtime(true) * 1000)],
+                    JSON_THROW_ON_ERROR
+                )
+            );
+        } catch (\Throwable $exception) {
+            throw new Exception("Could not cancel render {$renderId}: {$exception->getMessage()}", 0, $exception);
+        }
+    }
+
+    protected function readProgressFromS3(string $bucketName, string $key): string
+    {
+        $result = $this->createS3Client()->getObject([
+            'Bucket' => $bucketName,
+            'Key' => $key,
+        ]);
+
+        return (string) $result['Body'];
+    }
+
+    protected function writeCancellationToS3(string $bucketName, string $key, string $body): void
+    {
+        $this->createS3Client()->putObject([
+            'Bucket' => $bucketName,
+            'Key' => $key,
+            'Body' => $body,
+            'ContentType' => 'application/json',
+        ]);
     }
 
     private function invokeLambdaFunction(string $payload)
@@ -350,6 +408,10 @@ class PHPClient
         $classResponse->outBucket = $response['outBucket'];
         $classResponse->outKey = $response['outKey'];
         $classResponse->outputFile = $response['outputFile'];
+        $classResponse->separateAudio = $response['separateAudio'] ?? null;
+        $classResponse->outputSequence = $response['outputSequence'] ?? null;
+        $classResponse->framesUploaded = $response['framesUploaded'] ?? null;
+        $classResponse->framesRendered = $response['framesRendered'] ?? null;
         $classResponse->overallProgress = $response['overallProgress'];
         $classResponse->renderSize = $response['renderSize'];
         $classResponse->timeToFinish = $response['timeToFinish'];

@@ -1,17 +1,25 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 	useRef,
 } from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../helpers/hoverable';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {renderFrame} from '../state/render-frame';
+import {ActionTooltip} from './ActionTooltip';
 import {Flex, Spacing} from './layout';
 import {InputDragger} from './NewComposition/InputDragger';
+import {TimelineTickFormatContext} from './Timeline/TimelineTickFormatProvider';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 
 const text: React.CSSProperties = {
@@ -25,7 +33,7 @@ const text: React.CSSProperties = {
 };
 
 const currentTimeTypography: React.CSSProperties = {
-	color: WHITE,
+	color: LIGHT_TEXT,
 	display: 'inline-block',
 	fontSize: 14,
 	fontVariantNumeric: 'tabular-nums',
@@ -36,16 +44,37 @@ const currentTimeTypography: React.CSSProperties = {
 
 const currentTimeInputStyle: React.CSSProperties = {
 	...currentTimeTypography,
-	padding: '4px 6px 4px 0',
+	padding: 0,
 };
 
-const currentTimeButtonStyle: React.CSSProperties = {
-	paddingLeft: 0,
+const currentTimeStack: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'flex-start',
+	lineHeight: 1,
+	padding: '5px 7px 5px 1px',
 	transform: 'translateY(-1px)',
 };
 
+const currentTimeButtonStyle = {
+	display: 'block',
+	padding: 0,
+	border: 'none',
+	lineHeight: '21px',
+	'--remotion-studio-blue-hovered': WHITE,
+} as React.CSSProperties;
+
 const currentTimeSubtitle: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: TRANSPARENT,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
+	background: TRANSPARENT,
+	border: 'none',
+	padding: 0,
+	cursor: 'default',
 	display: 'block',
 	fontFamily: 'monospace',
 	fontSize: 10,
@@ -55,8 +84,41 @@ const currentTimeSubtitle: React.CSSProperties = {
 	textAlign: 'left',
 };
 
-export const TimeValue: React.FC = () => {
+const CurrentTimeInput: React.FC<{
+	readonly buttonRef: React.Ref<HTMLButtonElement>;
+	readonly onTextChange: (value: string) => void;
+	readonly onValueChange: (value: number) => void;
+	readonly formatter: (value: string | number) => string;
+}> = ({buttonRef, onTextChange, onValueChange, formatter}) => {
 	const frame = useCurrentFrame();
+
+	return (
+		<InputDragger
+			ref={buttonRef}
+			aria-label={String(frame)}
+			value={frame}
+			onTextChange={onTextChange}
+			onValueChange={onValueChange}
+			formatter={formatter}
+			formatterStyle={currentTimeTypography}
+			buttonStyle={currentTimeButtonStyle}
+			rightAlign={false}
+			status="ok"
+			style={currentTimeInputStyle}
+		/>
+	);
+};
+
+const CurrentFrame: React.FC = () => {
+	const frame = useCurrentFrame();
+	return frame;
+};
+
+export const TimeValue = React.memo(() => {
+	const {showFrames, setShowFrames} = useContext(TimelineTickFormatContext);
+	const toggleTickFormat = useCallback(() => {
+		setShowFrames((previous) => !previous);
+	}, [setShowFrames]);
 	const config = Internals.useUnsafeVideoConfig();
 	const isStill = useIsStill();
 	const {seek, play, pause, toggle} = PlayerInternals.usePlayerMethods();
@@ -81,10 +143,6 @@ export const TimeValue: React.FC = () => {
 		},
 		[config],
 	);
-	const formatterSubtitle = useCallback(
-		(value: string | number) => String(value),
-		[],
-	);
 	useImperativeHandle(
 		Internals.timeValueRef,
 		() => ({
@@ -101,12 +159,11 @@ export const TimeValue: React.FC = () => {
 
 	useEffect(() => {
 		const gKey = keybindings.registerKeybinding({
-			event: 'keypress',
-			key: 'g',
+			event: 'keydown',
+			action: 'goToFrame',
 			callback: () => {
 				ref.current?.click();
 			},
-			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -127,25 +184,35 @@ export const TimeValue: React.FC = () => {
 
 	return (
 		<div style={text}>
-			<InputDragger
-				ref={ref}
-				aria-label={String(frame)}
-				value={frame}
-				onTextChange={onTextChange}
-				onValueChange={onValueChange}
-				formatter={formatter}
-				formatterStyle={currentTimeTypography}
-				formatterSubtitle={formatterSubtitle}
-				formatterSubtitleStyle={currentTimeSubtitle}
-				buttonStyle={currentTimeButtonStyle}
-				rightAlign={false}
-				status="ok"
-				style={currentTimeInputStyle}
-			/>
+			<div style={currentTimeStack}>
+				<CurrentTimeInput
+					buttonRef={ref}
+					onTextChange={onTextChange}
+					onValueChange={onValueChange}
+					formatter={formatter}
+				/>
+				<ActionTooltip
+					label="Toggle time format"
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+				>
+					<button
+						type="button"
+						className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+						style={currentTimeSubtitle}
+						onClick={toggleTickFormat}
+						aria-label="Show timeline ticks as frames"
+						aria-pressed={showFrames}
+					>
+						<CurrentFrame />
+					</button>
+				</ActionTooltip>
+			</div>
 			<Spacing x={2} />
 			<Flex />
 			<TimelineZoomControls sliderMaxWidth={80} />
 			<Spacing x={0.5} />
 		</div>
 	);
-};
+});

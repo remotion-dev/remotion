@@ -3,14 +3,16 @@ import {
 	StudioProtocolInternals,
 	type MakeDragDataInput,
 } from '@remotion/studio-protocol';
+import {makeCompositionDragData} from '../components/composition-drag-data';
 import {
 	getEffectDragData,
 	hasEffectDragType,
 } from '../components/effect-drag-and-drop';
 
-const makeDataTransfer = (
-	constructed: ReturnType<typeof StudioProtocolInternals.makeDragData>,
-): DataTransfer => {
+const makeDataTransfer = (constructed: {
+	readonly mimeType: string;
+	readonly payload: string;
+}): DataTransfer => {
 	return {
 		types: [constructed.mimeType],
 		getData: (type: string) =>
@@ -47,14 +49,6 @@ const nonEffectInputs: MakeDragDataInput[] = [
 		props: [],
 	},
 	{
-		type: 'composition',
-		compositionFile: null,
-		compositionId: 'Comp',
-		width: null,
-		height: null,
-		durationInFrames: null,
-	},
-	{
 		type: 'element',
 		dependencies: [],
 		dimensions: null,
@@ -75,6 +69,18 @@ for (const input of nonEffectInputs) {
 		).toBe(false);
 	});
 }
+
+test('does not treat composition drags as effect drags', () => {
+	const composition = makeCompositionDragData({
+		compositionFile: null,
+		compositionId: 'Comp',
+		width: null,
+		height: null,
+		durationInFrames: null,
+	});
+
+	expect(hasEffectDragType(makeDataTransfer(composition))).toBe(false);
+});
 
 test('does not treat remote asset imports as effect drags', () => {
 	expect(

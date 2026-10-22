@@ -120,7 +120,7 @@ export async function startStudio(): Promise<void> {
 					origin: STUDIO_URL,
 					localStorage: [
 						{
-							name: 'remotion.sidebarRightCollapsing',
+							name: 'remotion.sidebarRightCollapsing.v2',
 							value: 'expanded',
 						},
 					],

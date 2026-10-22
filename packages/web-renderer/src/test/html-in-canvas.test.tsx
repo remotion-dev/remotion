@@ -1,22 +1,439 @@
-import {Internals} from 'remotion';
+import {Player} from '@remotion/player';
+import {createRoot} from 'react-dom/client';
+import {HtmlInCanvas, Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {createScaffold} from '../create-scaffold';
 import {
-	setForceDisableHtmlInCanvasForTesting,
+	drawWithHtmlInCanvas,
+	setupHtmlInCanvas,
 	supportsNativeHtmlInCanvas,
-	supportsNestedHtmlInCanvas,
+	teardownHtmlInCanvas,
 } from '../html-in-canvas';
+import {makeInternalState} from '../internal-state';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
-import {nestedHtmlInCanvas} from './fixtures/nested-html-in-canvas';
-import {testImage} from './utils';
+import {createLayer, type HtmlInCanvasLayerOutcome} from '../take-screenshot';
+import {backgroundColor} from './fixtures/background-color';
+import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
+import {
+	htmlInCanvasBackends,
+	htmlInCanvasFrameMatrix,
+	htmlInCanvasNestedFrames,
+} from './fixtures/html-in-canvas-frames';
 
-setForceDisableHtmlInCanvasForTesting(false);
+const readPixels = (
+	source: CanvasImageSource,
+	width: number,
+	height: number,
+) => {
+	const canvas = document.createElement('canvas');
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext('2d')!;
+	ctx.fillStyle = 'red';
+	ctx.fillRect(0, 0, width, height);
+	ctx.drawImage(source, 0, 0);
+	return ctx.getImageData(0, 0, width, height).data;
+};
 
-test('captures three nested HTML-in-canvas effect layers natively', async () => {
-	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
+const countDifferentPixels = (a: Uint8ClampedArray, b: Uint8ClampedArray) => {
+	expect(a.length).toBe(b.length);
+	let different = 0;
+	for (let i = 0; i < a.length; i += 4) {
+		if (
+			a[i] !== b[i] ||
+			a[i + 1] !== b[i + 1] ||
+			a[i + 2] !== b[i + 2] ||
+			a[i + 3] !== b[i + 3]
+		) {
+			different++;
+		}
+	}
+
+	return different;
+};
+
+test('can evict WebGL contexts after native capture without crashing', async (t) => {
+	if (!supportsNativeHtmlInCanvas()) {
+		t.skip();
+		return;
+	}
+
+	const wrapper = document.createElement('div');
+	const element = document.createElement('div');
+	element.style.cssText = 'width:100px;height:100px;background:rgb(255,0,0)';
+	wrapper.appendChild(element);
+	document.body.appendChild(wrapper);
+	const contexts: WebGL2RenderingContext[] = [];
+	const addContext = () => {
+		const canvas = document.createElement('canvas');
+		canvas.width = 32;
+		canvas.height = 32;
+		wrapper.appendChild(canvas);
+		const gl = canvas.getContext('webgl2', {preserveDrawingBuffer: true})!;
+		gl.clearColor(1, 0, 0, 1);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		contexts.push(gl);
+	};
+
+	const htmlInCanvasContext = setupHtmlInCanvas({
+		wrapper,
+		div: element,
+		width: 100,
+		height: 100,
+	})!;
+
+	try {
+		// Fill Chromium's desktop WebGL context budget before compositor commit.
+		for (let i = 0; i < 16; i++) {
+			addContext();
+		}
+
+		await new Promise<void>((resolve) => {
+			requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+		});
+		const captured = await drawWithHtmlInCanvas({
+			htmlInCanvasContext,
+			element,
+			scaledWidth: 100,
+			scaledHeight: 100,
+			signal: null,
+		});
+		const lostBefore = contexts.filter((gl) => gl.isContextLost()).length;
+		// Without a task boundary in waitForPaint, this continuation still runs
+		// inside compositor commit. Evicting a texture layer crashes Chromium.
+		for (let i = 0; i < 4; i++) {
+			addContext();
+		}
+
+		expect(contexts.filter((gl) => gl.isContextLost()).length).toBeGreaterThan(
+			lostBefore,
+		);
+		expect(Array.from(captured.getImageData(10, 10, 1, 1).data)).toEqual([
+			255, 0, 0, 255,
+		]);
+	} finally {
+		for (const gl of contexts) {
+			gl.getExtension('WEBGL_lose_context')?.loseContext();
+		}
+
+		teardownHtmlInCanvas({htmlInCanvasContext, wrapper, div: element});
+		wrapper.remove();
+	}
+});
+
+for (const allowHtmlInCanvas of [false, true]) {
+	test(
+		`captures nested custom paint and effects, native=${allowHtmlInCanvas}`,
+		{timeout: 60_000},
+		async (t) => {
+			if (!HtmlInCanvas.isNestingSupported()) {
+				t.skip();
+				return;
+			}
+
+			let captured = 48;
+			await renderMediaOnWeb({
+				composition: htmlInCanvasNestedFrames,
+				inputProps: {
+					backend: '2d',
+					preserveDrawingBuffer: false,
+					mountAt: 50,
+					pixelDensity: 2,
+				},
+				allowHtmlInCanvas,
+				licenseKey: 'free-license',
+				logLevel: 'error',
+				frameRange: [48, 55],
+				container: 'webm',
+				videoCodec: 'vp9',
+				hardwareAcceleration: 'prefer-software',
+				muted: true,
+				onFrame: (frame) => {
+					const pixels = readPixels(frame, 100, 100);
+					const color =
+						captured < 50
+							? [0, 0, 0, 255]
+							: [255 - ((captured * 37 + 17) % 255), 255, 255, 255];
+					const index = (10 * 100 + 10) * 4;
+					// The invert filter can round a channel by one; a stale frame differs by 37.
+					expect(
+						Math.max(
+							...color.map((value, channel) =>
+								Math.abs(pixels[index + channel] - value),
+							),
+						),
+						`nested frame ${captured}`,
+					).toBeLessThanOrEqual(1);
+					captured++;
+					return frame;
+				},
+			});
+			expect(captured).toBe(56);
+		},
+	);
+
+	for (const mountAt of [0, 50]) {
+		test(
+			`captures all custom backends at mount ${mountAt}, native=${allowHtmlInCanvas} (#12074)`,
+			{timeout: 60_000},
+			async (t) => {
+				if (!supportsNativeHtmlInCanvas()) {
+					t.skip();
+					return;
+				}
+
+				const start = Math.max(0, mountAt - 2);
+				const {width, height} = htmlInCanvasFrameMatrix;
+				let captured = start;
+				await renderMediaOnWeb({
+					composition: htmlInCanvasFrameMatrix,
+					inputProps: {mountAt, pixelDensity: 2},
+					allowHtmlInCanvas,
+					licenseKey: 'free-license',
+					logLevel: 'error',
+					frameRange: [start, mountAt + 5],
+					container: 'webm',
+					videoCodec: 'vp9',
+					hardwareAcceleration: 'prefer-software',
+					muted: true,
+					onFrame: (frame) => {
+						const pixels = readPixels(frame, width, height);
+						const color =
+							captured < mountAt
+								? [255, 255, 255, 255]
+								: [(captured * 37 + 17) % 255, 0, 0, 255];
+						for (const [
+							column,
+							{backend, preserveDrawingBuffer},
+						] of htmlInCanvasBackends.entries()) {
+							const label = `${backend}, preserve=${preserveDrawingBuffer}, frame ${captured}`;
+							const left = column * 100;
+							const index = (10 * width + left + 10) * 4;
+							expect(Array.from(pixels.slice(index, index + 4)), label).toEqual(
+								color,
+							);
+							if (backend === 'incremental' && captured >= mountAt) {
+								const retained = (10 * width + left + 50) * 4;
+								expect(
+									Array.from(pixels.slice(retained, retained + 4)),
+									`retained pixels: ${label}`,
+								).toEqual([0, 0, 255, 255]);
+							}
+
+							const right = (10 * width + left + 70) * 4;
+							expect(
+								Array.from(pixels.slice(right, right + 4)),
+								`resized frame: ${label}`,
+							).toEqual(
+								captured >= mountAt && (captured === 1 || captured === 51)
+									? backend === 'incremental'
+										? [0, 0, 255, 255]
+										: color
+									: [255, 255, 255, 255],
+							);
+						}
+
+						captured++;
+						return frame;
+					},
+				});
+				expect(captured).toBe(mountAt + 6);
+			},
+		);
+	}
+
+	for (const offset of [false, true]) {
+		test(
+			`captures custom blur in stills and every video frame (#${offset ? 12053 : 9917}, native=${allowHtmlInCanvas})`,
+			{timeout: 60_000},
+			async (t) => {
+				if (!supportsNativeHtmlInCanvas()) {
+					t.skip();
+					return;
+				}
+
+				const {width, height} = htmlInCanvasBlur;
+				const container = document.createElement('div');
+				document.body.appendChild(container);
+				const root = createRoot(container);
+				let painted: Uint8ClampedArray | null = null;
+				const onPainted = (canvas: OffscreenCanvas) => {
+					painted = readPixels(canvas, width, height);
+				};
+
+				let preview: Uint8ClampedArray;
+				try {
+					root.render(
+						<Player
+							acknowledgeRemotionLicense
+							component={htmlInCanvasBlur.component}
+							compositionWidth={width}
+							compositionHeight={height}
+							fps={30}
+							durationInFrames={60}
+							inputProps={{filter: 'blur(8px)', offset, onPainted}}
+							style={{width, height}}
+						/>,
+					);
+					await vi.waitFor(() => {
+						expect(painted).not.toBeNull();
+						expect(
+							painted!.filter((value, i) => i % 4 === 0 && value < 250).length,
+						).toBeGreaterThan(1000);
+						const canvas = container.querySelector('canvas');
+						expect(canvas).not.toBeNull();
+						expect(
+							countDifferentPixels(
+								readPixels(canvas!, width, height),
+								painted!,
+							),
+						).toBe(0);
+					});
+					preview = readPixels(
+						container.querySelector('canvas')!,
+						width,
+						height,
+					);
+				} finally {
+					root.unmount();
+					container.remove();
+				}
+
+				const options = {
+					composition: htmlInCanvasBlur,
+					inputProps: {filter: 'blur(8px)', offset, onPainted: null},
+					allowHtmlInCanvas,
+					licenseKey: 'free-license',
+					isProduction: false,
+					logLevel: 'error',
+					delayRenderTimeoutInMilliseconds: 10_000,
+				} as const;
+				const unblurred = await renderStillOnWeb({
+					...options,
+					inputProps: {...options.inputProps, filter: 'none'},
+					frame: 0,
+				});
+				expect(
+					countDifferentPixels(
+						readPixels(await unblurred.canvas(), width, height),
+						preview,
+					),
+				).toBeGreaterThan(1000);
+				// The original still failure was intermittent; each capture mounts anew.
+				for (let attempt = 0; attempt < 6; attempt++) {
+					const still = await renderStillOnWeb({...options, frame: 0});
+					expect(
+						countDifferentPixels(
+							readPixels(await still.canvas(), width, height),
+							preview,
+						),
+						`still ${attempt}`,
+					).toBe(0);
+				}
+
+				let frameCount = 0;
+				await renderMediaOnWeb({
+					...options,
+					frameRange: [0, 2],
+					container: 'webm',
+					videoCodec: 'vp9',
+					hardwareAcceleration: 'prefer-software',
+					muted: true,
+					onFrame: (frame) => {
+						expect(
+							countDifferentPixels(readPixels(frame, width, height), preview),
+							`video frame ${frameCount}`,
+						).toBe(0);
+						frameCount++;
+						return frame;
+					},
+				});
+				expect(frameCount).toBe(3);
+			},
+		);
+	}
+}
+
+test('uses the DOM composer by default', async () => {
+	const contextPrototype =
+		CanvasRenderingContext2D.prototype as CanvasRenderingContext2D & {
+			drawElementImage?: () => void;
+		};
+	const originalDrawElementImage = Object.getOwnPropertyDescriptor(
+		contextPrototype,
+		'drawElementImage',
+	);
+	const originalRequestPaint = Object.getOwnPropertyDescriptor(
+		HTMLCanvasElement.prototype,
+		'requestPaint',
+	);
+	Object.defineProperty(contextPrototype, 'drawElementImage', {
+		configurable: true,
+		value: () => undefined,
+	});
+	Object.defineProperty(HTMLCanvasElement.prototype, 'requestPaint', {
+		configurable: true,
+		value(this: HTMLCanvasElement) {
+			this.dispatchEvent(new Event('paint'));
+		},
+	});
+	const warn = vi
+		.spyOn(Internals.Log, 'warn')
+		.mockImplementation(() => undefined);
+
+	try {
+		const result = await renderStillOnWeb({
+			composition: backgroundColor,
+			frame: 0,
+			inputProps: {},
+			licenseKey: 'free-license',
+		});
+		const canvas = await result.canvas();
+		const context = canvas.getContext('2d');
+		if (!context) {
+			throw new Error('Could not get canvas context');
+		}
+
+		expect(Array.from(context.getImageData(100, 100, 1, 1).data)).toEqual([
+			255, 0, 0, 255,
+		]);
+		expect(
+			warn.mock.calls.some((call) =>
+				call.some(
+					(value) =>
+						typeof value === 'string' &&
+						value.includes('Using Chromium experimental HTML-in-canvas'),
+				),
+			),
+		).toBe(false);
+	} finally {
+		warn.mockRestore();
+		if (originalDrawElementImage) {
+			Object.defineProperty(
+				contextPrototype,
+				'drawElementImage',
+				originalDrawElementImage,
+			);
+		} else {
+			Reflect.deleteProperty(contextPrototype, 'drawElementImage');
+		}
+
+		if (originalRequestPaint) {
+			Object.defineProperty(
+				HTMLCanvasElement.prototype,
+				'requestPaint',
+				originalRequestPaint,
+			);
+		} else {
+			Reflect.deleteProperty(HTMLCanvasElement.prototype, 'requestPaint');
+		}
+	}
+});
+
+test('uses native HTML-in-canvas only when explicitly enabled', async () => {
+	if (!supportsNativeHtmlInCanvas()) {
 		return;
 	}
 
@@ -25,13 +442,14 @@ test('captures three nested HTML-in-canvas effect layers natively', async () => 
 		.mockImplementation(() => undefined);
 
 	try {
-		const nested = await renderStillOnWeb({
-			composition: nestedHtmlInCanvas,
+		const result = await renderStillOnWeb({
+			allowHtmlInCanvas: true,
+			composition: backgroundColor,
 			frame: 0,
 			inputProps: {},
 			licenseKey: 'free-license',
 		});
-		const blob = await nested.blob({format: 'png'});
+		await result.canvas();
 
 		expect(
 			warn.mock.calls.some((call) =>
@@ -42,83 +460,77 @@ test('captures three nested HTML-in-canvas effect layers natively', async () => 
 				),
 			),
 		).toBe(true);
-
-		await testImage({blob, testId: 'nested-html-in-canvas'});
 	} finally {
 		warn.mockRestore();
 	}
 });
 
-test('captures three nested HTML-in-canvas effect layers across video frames', async () => {
-	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
-		return;
+test('does not create a nested HTML-in-canvas capture before Chrome 157', async () => {
+	const userAgent = vi
+		.spyOn(navigator, 'userAgent', 'get')
+		.mockReturnValue('Chrome/156.0.0.0');
+	const element = document.createElement('div');
+	const nestedLayoutCanvas = document.createElement(
+		'canvas',
+	) as HTMLCanvasElement & {
+		layoutSubtree?: boolean;
+	};
+	nestedLayoutCanvas.layoutSubtree = true;
+	element.appendChild(nestedLayoutCanvas);
+	document.body.appendChild(element);
+
+	const outerLayoutCanvas = document.createElement('canvas');
+	const context = outerLayoutCanvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get canvas context');
 	}
 
-	await renderMediaOnWeb({
-		composition: nestedHtmlInCanvas,
-		inputProps: {},
-		licenseKey: 'free-license',
-		muted: true,
-	});
-});
-
-test('retries a transient missing nested paint record during a client-side render', async () => {
-	const supportsNesting = await supportsNestedHtmlInCanvas();
-	if (!supportsNesting) {
-		return;
-	}
-
-	const descriptor = Object.getOwnPropertyDescriptor(
-		HTMLCanvasElement.prototype,
-		'captureElementImage',
-	);
-	if (!descriptor || typeof descriptor.value !== 'function') {
-		throw new Error('Expected captureElementImage() to be available');
-	}
-
-	const originalCapture = descriptor.value as (
-		this: HTMLCanvasElement,
-		element: Element,
-	) => ElementImage;
-	let simulatedMissingRecord = false;
-
-	Object.defineProperty(HTMLCanvasElement.prototype, 'captureElementImage', {
-		...descriptor,
-		value(this: HTMLCanvasElement, element: Element) {
-			const ancestorCanvas = this.parentElement?.closest('canvas');
-			if (!simulatedMissingRecord && ancestorCanvas) {
-				simulatedMissingRecord = true;
-				throw new DOMException(
-					'No cached paint record for element',
-					'InvalidStateError',
-				);
-			}
-
-			return originalCapture.call(this, element);
-		},
+	const drawElementImage = vi.fn();
+	Object.assign(context, {drawElementImage});
+	let outcome: HtmlInCanvasLayerOutcome | null = null;
+	const internalState = makeInternalState({
+		signal: null,
+		maskImageTimeoutInMilliseconds: 30_000,
 	});
 
 	try {
-		await renderMediaOnWeb({
-			composition: nestedHtmlInCanvas,
-			inputProps: {},
-			licenseKey: 'free-license',
-			muted: true,
+		await createLayer({
+			cutout: new DOMRect(0, 0, 10, 10),
+			element,
+			htmlInCanvasContext: {
+				ctx: context as CanvasRenderingContext2D & {
+					drawElementImage: typeof drawElementImage;
+				},
+				layoutCanvas: outerLayoutCanvas,
+				wasDrawable: false,
+			},
+			internalState,
+			logLevel: 'error',
+			onHtmlInCanvasLayerOutcome: (newOutcome) => {
+				outcome = newOutcome;
+			},
+			onlyBackgroundClipText: false,
+			scale: 1,
+			waitForPageResponsiveness: null,
+		});
+
+		expect(drawElementImage).not.toHaveBeenCalled();
+		expect(outcome).toEqual({
+			native: false,
+			reason:
+				'The composition contains an <HtmlInCanvas> element. Nested HTML-in-canvas capture requires Chrome 157 or newer, so the built-in DOM composer is used.',
+			shouldWarn: false,
 		});
 	} finally {
-		Object.defineProperty(
-			HTMLCanvasElement.prototype,
-			'captureElementImage',
-			descriptor,
-		);
+		userAgent.mockRestore();
+		internalState[Symbol.dispose]();
+		element.remove();
 	}
-
-	expect(simulatedMissingRecord).toBe(true);
 });
 
 test('keeps a scaffold without HTML-in-canvas hidden', () => {
 	const scaffold = createScaffold({
+		sampleRate: null,
 		Component: () => null,
 		audioEnabled: false,
 		defaultCodec: null,
@@ -154,6 +566,7 @@ test('keeps a scaffold without HTML-in-canvas hidden', () => {
 
 test('keeps the DOM composer scaffold paintable', () => {
 	const scaffold = createScaffold({
+		sampleRate: null,
 		Component: () => (
 			<canvas
 				ref={(node) => {
@@ -194,41 +607,5 @@ test('keeps the DOM composer scaffold paintable', () => {
 		expect(getComputedStyle(scaffold.div).visibility).toBe('visible');
 	} finally {
 		scaffold[Symbol.dispose]();
-	}
-});
-
-test('uses the DOM composer when native HTML-in-canvas does not support nesting', async () => {
-	if (!supportsNativeHtmlInCanvas()) {
-		return;
-	}
-
-	setForceDisableHtmlInCanvasForTesting(true);
-	const warn = vi
-		.spyOn(Internals.Log, 'warn')
-		.mockImplementation(() => undefined);
-
-	try {
-		const result = await renderStillOnWeb({
-			composition: nestedHtmlInCanvas,
-			frame: 0,
-			inputProps: {},
-			licenseKey: 'free-license',
-		});
-
-		expect(
-			warn.mock.calls.some((call) =>
-				call.some(
-					(value) =>
-						typeof value === 'string' &&
-						value.includes('Using Chromium experimental HTML-in-canvas'),
-				),
-			),
-		).toBe(false);
-
-		const blob = await result.blob({format: 'png'});
-		await testImage({blob, testId: 'nested-html-in-canvas'});
-	} finally {
-		setForceDisableHtmlInCanvasForTesting(false);
-		warn.mockRestore();
 	}
 });

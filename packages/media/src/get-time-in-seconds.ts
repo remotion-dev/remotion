@@ -39,9 +39,16 @@ export const getTimeInSeconds = ({
 			})
 		: Infinity;
 
+	const sourceFrames = unloopedTimeInSeconds * playbackRate * fps;
+	const loopedFrames = sourceFrames % loopDurationInFrames;
+	// At an exact loop boundary, accumulated floating point error can put the
+	// remainder just below the loop end and incorrectly display its final frame.
+	const roundingTolerance =
+		Number.EPSILON * Math.max(1, Math.abs(sourceFrames)) * 4;
 	const timeInSeconds = loop
-		? ((unloopedTimeInSeconds * playbackRate * fps) % loopDurationInFrames) /
-			fps
+		? (Math.abs(loopDurationInFrames - loopedFrames) < roundingTolerance
+				? 0
+				: loopedFrames) / fps
 		: unloopedTimeInSeconds * playbackRate;
 
 	if ((trimAfter ?? null) !== null && !loop) {

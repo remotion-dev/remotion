@@ -1,26 +1,16 @@
 type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 	drawElementImage: (
-		element: Element | ElementImage,
+		element: Element,
 		dx: number,
 		dy: number,
 		dwidth: number,
 		dheight: number,
-	) => DOMMatrix;
+	) => void;
 };
 
 type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
-	captureElementImage?: (element: Element) => ElementImage;
 	layoutSubtree?: boolean;
 	requestPaint?: () => void;
-};
-
-let nestedHtmlInCanvasSupport: Promise<boolean> | null = null;
-let forceDisableHtmlInCanvasForTesting = false;
-
-export const setForceDisableHtmlInCanvasForTesting = (
-	forceDisable: boolean,
-) => {
-	forceDisableHtmlInCanvasForTesting = forceDisable;
 };
 
 export const supportsNativeHtmlInCanvas = (): boolean => {
@@ -34,172 +24,22 @@ export const supportsNativeHtmlInCanvas = (): boolean => {
 	return typeof ctx?.drawElementImage === 'function';
 };
 
-const runNestedHtmlInCanvasProbe = (): Promise<boolean> => {
-	if (!supportsNativeHtmlInCanvas() || !document.body) {
-		return Promise.resolve(false);
-	}
-
-	const outer = document.createElement('canvas') as HTMLCanvasWithLayoutSubtree;
-	const inner = document.createElement('canvas') as HTMLCanvasWithLayoutSubtree;
-	const outerTarget = document.createElement('div');
-	const innerTarget = document.createElement('div');
-	const outerCtx = outer.getContext('2d') as Canvas2DWithDrawElement | null;
-	const innerCtx = inner.getContext('2d') as Canvas2DWithDrawElement | null;
-	const density = devicePixelRatio;
-	const canvasSize = Math.ceil(4 * density);
-
-	if (
-		!outerCtx ||
-		!innerCtx ||
-		typeof outer.requestPaint !== 'function' ||
-		typeof inner.requestPaint !== 'function'
-	) {
-		return Promise.resolve(false);
-	}
-
-	outer.layoutSubtree = true;
-	inner.layoutSubtree = true;
-	outer.width = canvasSize;
-	outer.height = canvasSize;
-	inner.width = canvasSize;
-	inner.height = canvasSize;
-
-	Object.assign(outer.style, {
-		display: 'block',
-		height: '4px',
-		left: '0',
-		pointerEvents: 'none',
-		position: 'fixed',
-		top: '0',
-		visibility: 'visible',
-		width: '4px',
-		zIndex: '2147483647',
-	});
-	Object.assign(inner.style, {
-		display: 'block',
-		height: '4px',
-		width: '4px',
-	});
-	Object.assign(outerTarget.style, {
-		display: 'block',
-		height: '4px',
-		width: '4px',
-	});
-	Object.assign(innerTarget.style, {
-		backgroundColor: 'rgb(255, 0, 0)',
-		display: 'block',
-		height: '4px',
-		width: '4px',
-	});
-
-	inner.appendChild(innerTarget);
-	outerTarget.appendChild(inner);
-	outer.appendChild(outerTarget);
-	document.body.appendChild(outer);
-
-	return new Promise<boolean>((resolve) => {
-		let innerPainted = false;
-		let settled = false;
-		let timeout: number | null = null;
-
-		const settle = (supported: boolean) => {
-			if (settled) {
-				return;
-			}
-
-			settled = true;
-			if (timeout !== null) {
-				window.clearTimeout(timeout);
-			}
-
-			outer.remove();
-			resolve(supported);
-		};
-
-		timeout = window.setTimeout(() => settle(false), 1000);
-
-		inner.addEventListener('paint', () => {
-			try {
-				innerCtx.reset();
-				innerCtx.scale(density, density);
-				const transform = innerCtx.drawElementImage(innerTarget, 0, 0, 4, 4);
-				innerTarget.style.transform = transform.toString();
-				innerPainted = true;
-			} catch {
-				settle(false);
-			}
-		});
-
-		outer.addEventListener('paint', () => {
-			if (!innerPainted) {
-				return;
-			}
-
-			try {
-				outerCtx.reset();
-				outerCtx.scale(density, density);
-				if (typeof outer.captureElementImage !== 'function') {
-					settle(false);
-					return;
-				}
-
-				const elementImage = outer.captureElementImage(outerTarget);
-				const transform = outerCtx.drawElementImage(elementImage, 0, 0, 4, 4);
-				elementImage.close();
-				outerTarget.style.transform = transform.toString();
-				const sampleCoordinate = Math.floor(canvasSize / 2);
-				const pixel = outerCtx.getImageData(
-					sampleCoordinate,
-					sampleCoordinate,
-					1,
-					1,
-				).data;
-				settle(
-					pixel[0] > 200 && pixel[1] < 20 && pixel[2] < 20 && pixel[3] > 200,
-				);
-			} catch {
-				settle(false);
-			}
-		});
-
-		// Request both paints in the same rendering update. Nested layout canvases
-		// dispatch their paint events deepest-first, so the inner bitmap is ready
-		// when the outer canvas captures its subtree.
-		inner.requestPaint!();
-		outer.requestPaint!();
-	});
-};
-
-export const supportsNestedHtmlInCanvas = (): Promise<boolean> => {
-	if (forceDisableHtmlInCanvasForTesting) {
-		return Promise.resolve(false);
-	}
-
-	if (!nestedHtmlInCanvasSupport) {
-		nestedHtmlInCanvasSupport = runNestedHtmlInCanvasProbe();
-	}
-
-	return nestedHtmlInCanvasSupport;
-};
-
-const countLayoutSubtreeCanvases = (element: HTMLElement): number => {
-	return Array.from(element.querySelectorAll('canvas')).filter(
-		(canvas) => (canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true,
-	).length;
-};
-
 export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
-	return countLayoutSubtreeCanvases(element) > 0;
+	return Array.from(element.querySelectorAll('canvas')).some(
+		(canvas) =>
+			(canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true ||
+			canvas.getAttribute('content') === 'drawable',
+	);
 };
 
 export type HtmlInCanvasContext = {
 	layoutCanvas: HTMLCanvasWithLayoutSubtree;
 	ctx: Canvas2DWithDrawElement;
+	wasDrawable: boolean;
 };
 
 /**
- * Sets up a persistent layoutsubtree canvas that wraps the scaffold div.
- * The div becomes a direct child of the canvas, which is required for drawElementImage.
+ * Sets up a persistent drawable canvas that wraps the scaffold div.
  * Must be called once before rendering begins; the canvas stays in the DOM for the
  * lifetime of the render.
  */
@@ -221,6 +61,7 @@ export const setupHtmlInCanvas = ({
 	const layoutCanvas = document.createElement(
 		'canvas',
 	) as HTMLCanvasWithLayoutSubtree;
+	layoutCanvas.setAttribute('content', 'drawable');
 	layoutCanvas.layoutSubtree = true;
 
 	layoutCanvas.width = width;
@@ -247,19 +88,61 @@ export const setupHtmlInCanvas = ({
 		return null;
 	}
 
+	const wasDrawable = div.hasAttribute('drawable');
+	div.setAttribute('drawable', '');
 	wrapper.removeChild(div);
 	layoutCanvas.appendChild(div);
 	wrapper.appendChild(layoutCanvas);
 
-	return {layoutCanvas, ctx: maybeCtx};
+	return {layoutCanvas, ctx: maybeCtx, wasDrawable};
 };
 
 const waitForPaint = (
 	layoutCanvas: HTMLCanvasWithLayoutSubtree,
+	signal: AbortSignal | null,
 ): Promise<void> => {
-	return new Promise((resolve) => {
-		layoutCanvas.addEventListener('paint', () => resolve(), {once: true});
-		layoutCanvas.requestPaint!();
+	return new Promise((resolve, reject) => {
+		let paintTimer: ReturnType<typeof setTimeout> | null = null;
+		let onPaint: () => void = () => undefined;
+		let onAbort: () => void = () => undefined;
+
+		const cleanup = () => {
+			layoutCanvas.removeEventListener('paint', onPaint);
+			signal?.removeEventListener('abort', onAbort);
+			if (paintTimer !== null) {
+				clearTimeout(paintTimer);
+			}
+		};
+
+		onAbort = () => {
+			cleanup();
+			reject(signal!.reason);
+		};
+
+		onPaint = () => {
+			// Chromium dispatches paint during compositor commit. Resume in a new task
+			// so WebGL context eviction cannot destroy a texture layer during commit.
+			// Remove this workaround once the Chromium fix ships in supported Chrome versions.
+			// https://github.com/remotion-dev/remotion/issues/12293
+			paintTimer = setTimeout(() => {
+				cleanup();
+				resolve();
+			}, 0);
+		};
+
+		if (signal?.aborted) {
+			onAbort();
+			return;
+		}
+
+		layoutCanvas.addEventListener('paint', onPaint, {once: true});
+		signal?.addEventListener('abort', onAbort, {once: true});
+		try {
+			layoutCanvas.requestPaint!();
+		} catch (error) {
+			cleanup();
+			reject(error);
+		}
 	});
 };
 
@@ -275,15 +158,13 @@ export const drawWithHtmlInCanvas = async ({
 	element,
 	scaledWidth,
 	scaledHeight,
-	waitForRenderReady,
-	useElementImage,
+	signal,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
-	waitForRenderReady: () => Promise<void>;
-	useElementImage: boolean;
+	signal: AbortSignal | null;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
@@ -295,36 +176,10 @@ export const drawWithHtmlInCanvas = async ({
 		layoutCanvas.height = scaledHeight;
 	}
 
-	await waitForPaint(layoutCanvas);
-	// Each nested layout canvas needs one paint to run its async effect and a
-	// second paint to propagate the completed bitmap to its parent. One final
-	// cycle records the fully composed tree on the web renderer's root canvas.
-	const nestedPaintCycles = useElementImage
-		? countLayoutSubtreeCanvases(element) * 2 + 1
-		: 0;
-	for (let i = 0; i < nestedPaintCycles; i++) {
-		await new Promise<void>((resolve) =>
-			requestAnimationFrame(() => resolve()),
-		);
-		await waitForRenderReady();
-		await waitForPaint(layoutCanvas);
-	}
+	await waitForPaint(layoutCanvas, signal);
 
 	ctx.reset();
-	if (useElementImage) {
-		if (typeof layoutCanvas.captureElementImage !== 'function') {
-			throw new Error('canvas.captureElementImage() is unavailable');
-		}
-
-		const elementImage = layoutCanvas.captureElementImage(element);
-		try {
-			ctx.drawElementImage(elementImage, 0, 0, scaledWidth, scaledHeight);
-		} finally {
-			elementImage.close();
-		}
-	} else {
-		ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
-	}
+	ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
 
 	const offscreen = new OffscreenCanvas(scaledWidth, scaledHeight);
 	const offCtx = offscreen.getContext('2d');
@@ -345,8 +200,11 @@ export const teardownHtmlInCanvas = ({
 	wrapper: HTMLDivElement;
 	div: HTMLDivElement;
 }) => {
-	const {layoutCanvas} = htmlInCanvasContext;
+	const {layoutCanvas, wasDrawable} = htmlInCanvasContext;
 	layoutCanvas.removeChild(div);
 	wrapper.removeChild(layoutCanvas);
 	wrapper.appendChild(div);
+	if (!wasDrawable) {
+		div.removeAttribute('drawable');
+	}
 };

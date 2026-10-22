@@ -1,11 +1,19 @@
 import {beforeAll, expect, test} from 'bun:test';
 import path from 'path';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {getWebhookCalls, resetWebhookCalls} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {
+	getWebhookCalls,
+	resetWebhookCalls,
+	useFakeAws,
+} from '../mocks/fake-aws';
 import {waitUntilDone} from './wait-until-done';
+
+useFakeAws();
 
 beforeAll(async () => {
 	await ensureBrowser();
@@ -34,10 +42,12 @@ test(
 			forceIPv4: false,
 		});
 
-		const res = await mockImplementation.callFunctionSync({
+		const res = await LambdaClientInternals.callFunctionSyncImplementation({
 			type: ServerlessRoutines.start,
 			payload: {
+				enableCancellation: false,
 				type: ServerlessRoutines.start,
+				output: {type: 'media'},
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
@@ -55,11 +65,13 @@ test(
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',
+				separateAudioTo: null,
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
 				x264Preset: null,
 				gopSize: null,
+				disableSharedMemoryCapture: false,
 				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 40000,
@@ -136,6 +148,8 @@ test(
 			outputUrl: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
 			lambdaErrors: [],
 			outputFile: 'https://s3.mock-region-1.amazonaws.com/bucket/mock.mp4',
+			separateAudio: null,
+			outputSequence: null,
 		});
 		await close();
 	},
@@ -160,12 +174,14 @@ test(
 
 		resetWebhookCalls();
 
-		await mockImplementation.callFunctionSync({
+		await LambdaClientInternals.callFunctionSyncImplementation({
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			type: ServerlessRoutines.launch,
 			payload: {
+				enableCancellation: false,
 				type: ServerlessRoutines.launch,
+				output: {type: 'media'},
 				mediaCacheSizeInBytes: null,
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
@@ -186,11 +202,13 @@ test(
 				logLevel: 'warn',
 				maxRetries: 3,
 				outName: 'out.mp4',
+				separateAudioTo: null,
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: null,
 				x264Preset: null,
 				gopSize: null,
+				disableSharedMemoryCapture: false,
 				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 3000,

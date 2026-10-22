@@ -1,11 +1,13 @@
 import type {AnyRemotionOption} from './option';
 
 let interactivityEnabled = true;
+let configuredInteractivityEnabled: boolean | null = null;
 
 const cliFlag = 'disable-interactivity' as const;
 
 export const interactivityOption = {
 	name: 'Disable or enable Studio interactivity',
+	addedIn: '4.0.487',
 	cliFlag,
 	description: () => (
 		<>
@@ -16,7 +18,7 @@ export const interactivityOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setinteractivityenabled',
+	docLink: 'https://www.remotion.dev/docs/options/disable-interactivity',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
@@ -34,6 +36,12 @@ export const interactivityOption = {
 	},
 	setConfig(value) {
 		interactivityEnabled = value;
+		configuredInteractivityEnabled = value;
+	},
+	getConfigValue: () => configuredInteractivityEnabled,
+	reset: () => {
+		interactivityEnabled = true;
+		configuredInteractivityEnabled = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

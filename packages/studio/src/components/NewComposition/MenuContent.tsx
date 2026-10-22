@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import {BLACK_ALPHA_60} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
+import {observeHover} from '../../helpers/observe-hover';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -62,12 +63,16 @@ export const MenuContent: React.FC<{
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const inheritedMenuTreeId = useContext(MenuTreeContext);
-	const localMenuTreeId = useRef(getNextMenuTreeId());
-	const menuTreeId = inheritedMenuTreeId ?? localMenuTreeId.current;
+	const [localMenuTreeId] = useState(getNextMenuTreeId);
+	const menuTreeId = inheritedMenuTreeId ?? localMenuTreeId;
 	const isMobileLayout = useMobileLayout();
 
 	const [subMenuActivated, setSubMenuActivated] =
 		useState<SubMenuActivated>(false);
+	const subMenuActivatedRef = useRef(subMenuActivated);
+	useEffect(() => {
+		subMenuActivatedRef.current = subMenuActivated;
+	}, [subMenuActivated]);
 	const typeaheadQueryRef = useRef('');
 	const typeaheadTimeoutRef = useRef<number | null>(null);
 
@@ -390,17 +395,15 @@ export const MenuContent: React.FC<{
 			return;
 		}
 
-		const onPointerLeave = () => {
-			if (subMenuActivated) {
-				return;
-			}
-
-			setSelectedItem(null);
-		};
-
-		current.addEventListener('pointerleave', onPointerLeave);
-		return () => current.removeEventListener('pointerleave', onPointerLeave);
-	}, [onHide, subMenuActivated]);
+		return observeHover({
+			element: current,
+			onHoverChange: (hovered) => {
+				if (!hovered && !subMenuActivatedRef.current) {
+					setSelectedItem(null);
+				}
+			},
+		});
+	}, []);
 
 	return (
 		<MenuTreeContext.Provider value={menuTreeId}>

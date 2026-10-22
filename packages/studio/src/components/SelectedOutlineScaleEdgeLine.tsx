@@ -1,7 +1,7 @@
 import React, {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {ContextMenuForTarget} from './ContextMenu';
 import {
 	forceSpecificCursor,
@@ -9,7 +9,7 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineScaleDragOverrides,
+	clearSelectedOutlineDragOverrides,
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
@@ -30,7 +30,6 @@ import {
 	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -43,9 +42,11 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	readonly getAllScaleDragTargets: () => readonly SelectedOutlineScaleDragTarget[];
 	readonly dragging: boolean;
 	readonly edge: SelectedOutlineScaleEdge;
+	readonly hitWidth: number;
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 	readonly onContextMenuOpen: SelectedOutlineContextMenuOpenHandler;
+	readonly onContextMenuOpenChange: (open: boolean) => void;
 	readonly onHoverChange: (key: string | null) => void;
 	readonly onSelect: (
 		item: TimelineSelection,
@@ -56,21 +57,24 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	getAllScaleDragTargets,
 	dragging,
 	edge,
+	hitWidth,
 	outline,
 	onDraggingChange,
 	onContextMenuOpen,
+	onContextMenuOpenChange,
 	onHoverChange,
 	onSelect,
 	target,
 }) => {
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
+	const containsSelection = target?.containsSelection ?? false;
 	const lineRef = useRef<SVGLineElement>(null);
 	const edgeInfo = useMemo(
 		() => getSelectedOutlineScaleEdgeInfo(outline.points, edge),
@@ -88,7 +92,9 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 
 			const interaction = getOutlineSelectionInteraction(event);
 			const shouldUpdateSelection =
-				!selected || interaction.shiftKey || interaction.toggleKey;
+				(!selected && !containsSelection) ||
+				interaction.shiftKey ||
+				interaction.toggleKey;
 			if (shouldUpdateSelection && target !== undefined) {
 				onSelect(target.selection, interaction);
 			}
@@ -104,7 +110,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 			const startPointer = {x: event.clientX, y: event.clientY};
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? getAllScaleDragTargets() : [scaleDrag],
-				getDragOverrides,
+				getDragOverrides: dragOverridesRef.current.getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
 			let lastValues = new Map<string, number | string>();
@@ -182,7 +188,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				});
 
 				if (changes.length === 0) {
-					clearSelectedOutlineScaleDragOverrides({
+					clearSelectedOutlineDragOverrides({
 						clearDragOverrides,
 						dragStates,
 					});
@@ -198,31 +204,19 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 						change.type === 'keyframed',
 				);
 
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: scaleDrag.clientId,
-								undoLabel:
-									changes.length > 1
-										? 'Scale selected sequences'
-										: 'Scale sequence',
-								redoLabel:
-									changes.length > 1
-										? 'Scale selected sequences back'
-										: 'Scale sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
-						setPropStatuses,
-						clientId: scaleDrag.clientId,
-					}),
-				])
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: scaleDrag.clientId,
+					undoLabel:
+						changes.length > 1 ? 'Scale selected sequences' : 'Scale sequence',
+					redoLabel:
+						changes.length > 1
+							? 'Scale selected sequences back'
+							: 'Scale sequence back',
+				})
 					.catch((err) => {
 						showNotification(
 							`Could not save sequence props: ${
@@ -232,25 +226,26 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 						);
 					})
 					.finally(() => {
-						clearSelectedOutlineScaleDragOverrides({
+						clearSelectedOutlineDragOverrides({
 							clearDragOverrides,
 							dragStates,
 						});
 					});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
 		},
 		[
 			clearDragOverrides,
+			containsSelection,
 			getAllScaleDragTargets,
 			edgeInfo,
-			getDragOverrides,
+			dragOverridesRef,
 			onDraggingChange,
 			onSelect,
 			scaleDrag,
@@ -274,10 +269,15 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				x2={edgeInfo.end.x}
 				y2={edgeInfo.end.y}
 				stroke={TRANSPARENT}
-				strokeWidth={12}
+				strokeWidth={hitWidth}
+				strokeLinecap="butt"
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="stroke"
 				cursor={edgeInfo.cursor}
+				data-remotion-studio-scale-edge={edge}
+				data-remotion-studio-scale-edge-contains-selection={
+					target?.containsSelection ?? false
+				}
 				onPointerEnter={() => {
 					if (!dragging) {
 						onHoverChange(outline.key);
@@ -290,7 +290,11 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				}}
 				onPointerDown={onPointerDown}
 			/>
-			<ContextMenuForTarget triggerRef={lineRef} getItems={onContextMenuOpen} />
+			<ContextMenuForTarget
+				triggerRef={lineRef}
+				getItems={onContextMenuOpen}
+				onOpenChange={onContextMenuOpenChange}
+			/>
 		</>
 	);
 };

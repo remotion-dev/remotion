@@ -2,19 +2,25 @@ import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {
 	CompositionComponentInfoResponse,
 	EditorPickerId,
+	GitClientId,
+	OpenInTerminalResponse,
 	SymbolicatedStackFrame,
+	TerminalId,
 } from '@remotion/studio-shared';
-import {useEffect, useSyncExternalStore} from 'react';
+import {useEffect} from 'react';
 import {callApi} from '../components/call-api';
+import {getSourceMapFilesForSource} from '../components/Timeline/TimelineStack/get-stack';
 import type {
 	CodePosition,
 	OriginalPosition,
 } from '../error-overlay/react-overlay/utils/get-source-map';
+import {codingAgentHistory, editorHistory} from '../state/recently-used-apps';
 import {getBrowserStudioOperations} from './browser-studio-operations';
+import {useSyncExternalStore} from './use-sync-external-store';
 
-export const openInEditor = (
+export const openInEditor = async (
 	stack: SymbolicatedStackFrame,
-	editorId: EditorPickerId | null,
+	editorId: EditorPickerId,
 ) => {
 	const {
 		originalFileName,
@@ -24,7 +30,7 @@ export const openInEditor = (
 		originalScriptCode,
 	} = stack;
 
-	return callApi('/api/open-in-editor', {
+	const response = await callApi('/api/open-in-editor', {
 		editorId,
 		stack: {
 			originalFileName,
@@ -34,18 +40,42 @@ export const openInEditor = (
 			originalScriptCode,
 		},
 	});
+	if (response.success) {
+		editorHistory.remember(editorId);
+	}
+
+	return response;
 };
 
-export const openInCodingAgent = (
+export const openInCodingAgent = async (
 	codingAgentId: DefaultCodingAgent,
 	prompt: string | null,
 ) => {
-	return callApi('/api/open-in-coding-agent', {codingAgentId, prompt});
+	const response = await callApi('/api/open-in-coding-agent', {
+		codingAgentId,
+		prompt,
+	});
+	if (response.success) {
+		codingAgentHistory.remember(codingAgentId);
+	}
+
+	return response;
+};
+
+export const openInTerminal = (
+	terminalId: TerminalId,
+	directory: string,
+): Promise<OpenInTerminalResponse> => {
+	return callApi('/api/open-in-terminal', {directory, terminalId});
+};
+
+export const openInGitClient = (gitClientId: GitClientId) => {
+	return callApi('/api/open-in-git-client', {gitClientId});
 };
 
 export const openOriginalPositionInEditor = async (
 	originalPosition: OriginalPosition,
-	editorId: EditorPickerId | null,
+	editorId: EditorPickerId,
 ) => {
 	const response = await openInEditor(
 		{
@@ -62,13 +92,13 @@ export const openOriginalPositionInEditor = async (
 	}
 };
 
-export const openOriginalPositionInEditorAtProperty = async ({
+export const findOriginalPositionInFileAtProperty = async ({
 	originalPosition,
 	property,
 }: {
 	originalPosition: CodePosition;
 	property: string;
-}) => {
+}): Promise<CodePosition> => {
 	const request = {
 		fileName: originalPosition.source,
 		lineNumber: originalPosition.line,
@@ -80,14 +110,28 @@ export const openOriginalPositionInEditorAtProperty = async ({
 		? await browserStudioOperations.findInFile(request)
 		: await callApi('/api/find-in-file', request);
 
-	await openOriginalPositionInEditor(
-		{
-			source: originalPosition.source,
-			line: position.lineNumber,
-			column: position.columnNumber,
-		},
-		null,
-	);
+	return {
+		source: originalPosition.source,
+		line: position.lineNumber,
+		column: position.columnNumber,
+	};
+};
+
+export const openOriginalPositionInEditorAtProperty = async ({
+	editorId,
+	originalPosition,
+	property,
+}: {
+	editorId: EditorPickerId;
+	originalPosition: CodePosition;
+	property: string;
+}) => {
+	const position = await findOriginalPositionInFileAtProperty({
+		originalPosition,
+		property,
+	});
+
+	await openOriginalPositionInEditor(position, editorId);
 };
 
 type ResolvedCompositionComponentInfo = {
@@ -207,7 +251,27 @@ export const loadCompositionComponentInfo = async ({
 		const browserStudioOperations = getBrowserStudioOperations();
 		const body = browserStudioOperations
 			? await browserStudioOperations.getCompositionComponentInfo(request)
-			: await callApi('/api/composition-component-info', request);
+			: typeof window !== 'undefined' && window.remotion_isReadOnlyStudio
+				? await (async () => {
+						const files = getSourceMapFilesForSource(compositionFile);
+						if (files === null) {
+							throw new Error(
+								`Could not find source map contents for ${compositionFile}`,
+							);
+						}
+
+						const {resolveCompositionComponentLocation} =
+							await import('@remotion/codemods/resolve-composition-component-location');
+						return {
+							canAddSequence: false,
+							location: resolveCompositionComponentLocation({
+								compositionFile,
+								compositionId,
+								project: {files, rootDir: '.'},
+							}),
+						};
+					})()
+				: await callApi('/api/composition-component-info', request);
 
 		const result = {
 			location: body.location,
@@ -246,13 +310,15 @@ export const preloadCompositionComponentInfo = ({
 export const openCompositionComponentInEditor = async ({
 	compositionFile,
 	compositionId,
+	editorId,
 }: {
 	compositionFile: string;
 	compositionId: string;
+	editorId: EditorPickerId;
 }) => {
 	const info = await loadCompositionComponentInfo({
 		compositionFile,
 		compositionId,
 	});
-	await openOriginalPositionInEditor(info.location, null);
+	await openOriginalPositionInEditor(info.location, editorId);
 };

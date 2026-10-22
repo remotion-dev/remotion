@@ -1,6 +1,7 @@
 import {grayscale} from '@remotion/effects/grayscale';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {fontFamily, loadFont} from '@remotion/google-fonts/GeistMono';
+import {MacOSCursor} from '@remotion/mac-cursors';
 import React from 'react';
 import {
 	Easing,
@@ -11,7 +12,6 @@ import {
 	staticFile,
 	useCurrentFrame,
 } from 'remotion';
-import {CursorGlyph} from './CanvasCapturePreview';
 import {
 	EffectHeader,
 	EffectProperties,
@@ -421,7 +421,7 @@ const ShowcaseCursor: React.FC<{
 				transform: `translate(${point.x}px, ${point.y}px) scale(${clickScale})`,
 			}}
 		>
-			<CursorGlyph cursor={getCursor(frame)} scale={1} cursorScale={2.5} />
+			<MacOSCursor cursor={getCursor(frame)} style={{scale: 2.5}} />
 		</div>
 	);
 };

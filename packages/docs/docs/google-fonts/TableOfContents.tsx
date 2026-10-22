@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>loadFont()</strong>
 					<div>Load a Google Font</div>
 				</TOCItem>
+				<TOCItem link="/docs/google-fonts/load-variable-font">
+					<strong>loadVariableFont()</strong>
+					<div>Load a variable Google Font</div>
+				</TOCItem>
 				<TOCItem link="/docs/google-fonts/get-available-fonts">
 					<strong>getAvailableFonts()</strong>
 					<div>Static list of available fonts</div>
@@ -21,6 +25,10 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/google-fonts/load-font-from-info">
 					<strong>loadFontFromInfo()</strong>
 					<div>Load a Google Font based on metadata</div>
+				</TOCItem>
+				<TOCItem link="/docs/google-fonts/load-variable-font-from-info">
+					<strong>loadVariableFontFromInfo()</strong>
+					<div>Load a variable Google Font based on metadata</div>
 				</TOCItem>
 			</Grid>
 		</div>

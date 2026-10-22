@@ -1,4 +1,5 @@
 import {spawn} from 'child_process';
+import {defaultDocsBuildConcurrency} from './build-concurrency';
 
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 const lowMemoryBuild =
@@ -47,7 +48,18 @@ const run = (
 		const start = performance.now();
 		console.log(`[docs build] Starting ${label}...`);
 		const child = spawn(command, args, {
-			env: {...process.env, ...env},
+			env: {
+				...process.env,
+				// Rspack, SWC and Lightning CSS use Rayon for native parallel work.
+				...(!isVercel
+					? {
+							RAYON_NUM_THREADS:
+								process.env.RAYON_NUM_THREADS ??
+								String(defaultDocsBuildConcurrency),
+						}
+					: null),
+				...env,
+			},
 			shell: false,
 			stdio: 'inherit',
 		});
@@ -99,10 +111,11 @@ const docusaurusEnv = {
 	DOCUSAURUS_PERF_LOGGER:
 		process.env.DOCUSAURUS_PERF_LOGGER ?? (isVercel ? 'true' : undefined),
 	NODE_OPTIONS: appendNodeOption(`--max-old-space-size=${nodeOldSpaceSize}`),
+	DOCUSAURUS_SSG_WORKER_THREAD_COUNT:
+		process.env.DOCUSAURUS_SSG_WORKER_THREAD_COUNT ??
+		String(lowMemoryBuild ? 1 : defaultDocsBuildConcurrency),
 	...(lowMemoryBuild
 		? {
-				DOCUSAURUS_SSG_WORKER_THREAD_COUNT:
-					process.env.DOCUSAURUS_SSG_WORKER_THREAD_COUNT ?? '1',
 				DOCUSAURUS_SSG_WORKER_THREAD_RECYCLER_MAX_MEMORY:
 					process.env.DOCUSAURUS_SSG_WORKER_THREAD_RECYCLER_MAX_MEMORY ??
 					String(512 * 1024 * 1024),
@@ -114,6 +127,13 @@ const docusaurusEnv = {
 		: null),
 };
 
+const twoslashEnv = lowMemoryBuild
+	? {
+			TWOSLASH_WORKER_COUNT: process.env.TWOSLASH_WORKER_COUNT ?? '2',
+			TWOSLASH_RECYCLE_LIMIT_BYTES:
+				process.env.TWOSLASH_RECYCLE_LIMIT_BYTES ?? String(1024 * 1024 * 1024),
+		}
+	: {};
 const docusaurusBuild = lowMemoryBuild
 	? {
 			command: 'node',
@@ -124,14 +144,26 @@ const docusaurusBuild = lowMemoryBuild
 			args: ['docusaurus', 'build'],
 		};
 
+await run('generate option docs', 'bun', ['generate-option-docs.ts']);
 await run('copy raw docs', 'bun', ['copy-raw-docs.ts']);
 await run('fetch prompt submissions', 'bun', ['fetch-prompt-submissions.ts']);
+await run('prepare Browser Studio workspace', 'bun', [
+	'prepare-browser-studio-workspace.ts',
+]);
+await run('prewarm twoslash', 'bun', ['prewarm-twoslash.ts'], twoslashEnv);
 await run(
 	'Docusaurus build',
 	docusaurusBuild.command,
 	docusaurusBuild.args,
 	docusaurusEnv,
 );
+await run('validate generated JavaScript', 'bun', [
+	'validate-built-javascript.ts',
+]);
+await run('build standalone Browser Studio', 'bun', [
+	'build-browser-studio-standalone.ts',
+]);
 await run('copy convert assets', 'bun', ['copy-convert.ts']);
+await run('copy Vibe Code editor', 'bun', ['copy-experimental-sdk.ts']);
 await run('generate asset manifest', 'bun', ['generate-asset-manifest.ts']);
 await run('count generated pages', 'bun', ['count-pages.ts']);

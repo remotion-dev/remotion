@@ -8,6 +8,13 @@ type Bug = {
 
 export const bugs: Bug[] = [
 	{
+		title: 'Keyframed Visual Mode edits snap back',
+		description:
+			'Keyframed Visual Mode edits would revert to their previous runtime value after releasing the pointer. The edit was saved to the source, but only became visible after restarting the Studio. Upgrade to 4.0.512.',
+		link: 'https://remotion.dev/changelog',
+		versions: ['4.0.510'],
+	},
+	{
 		title: 'TransitionSeries.Sequence timing is broken',
 		description:
 			'TransitionSeries.Sequence could render all children from frame 0 and overlap. Upgrade to 4.0.473.',

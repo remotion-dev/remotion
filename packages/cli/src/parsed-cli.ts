@@ -8,16 +8,19 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
 
 const {
+	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	beepOnFinishOption,
 	colorSpaceOption,
 	concurrencyOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	offthreadVideoCacheSizeInBytesOption,
 	encodingBufferSizeOption,
 	encodingMaxRateOption,
 	deleteAfterOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	numberOfGifLoopsOption,
 	x264Option,
@@ -31,8 +34,14 @@ const {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
+	preservePitchOnPlaybackOption,
+	showPremountingOption,
 	publicLicenseKeyOption,
 	forceNewStudioOption,
+	experimentalKeepAudioContextAliveOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	pixelFormatOption,
@@ -50,6 +59,7 @@ const {
 	packageManagerOption,
 	webpackPollOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	interactivityOption,
 	imageSequencePatternOption,
 	scaleOption,
@@ -82,9 +92,12 @@ const {
 	previewSampleRateOption,
 	rspackOption,
 	skipSkillsOption,
-} = BrowserSafeApis.options;
+}: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
+	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
+		typeof allowHtmlInCanvasOption
+	> | null;
 	[browserExecutableOption.cliFlag]: TypeOfOption<
 		typeof browserExecutableOption
 	>;
@@ -102,6 +115,18 @@ export type CommandLineOptions = {
 		typeof defaultCodingAgentOption
 	>;
 	[defaultEditorOption.cliFlag]: TypeOfOption<typeof defaultEditorOption>;
+	[defaultPremountInSecondsOption.cliFlag]: TypeOfOption<
+		typeof defaultPremountInSecondsOption
+	>;
+	[preservePitchOnPlaybackOption.cliFlag]: TypeOfOption<
+		typeof preservePitchOnPlaybackOption
+	> | null;
+	[showLayerFrameNumbersOption.cliFlag]: TypeOfOption<
+		typeof showLayerFrameNumbersOption
+	> | null;
+	[showPremountingOption.cliFlag]: TypeOfOption<
+		typeof showPremountingOption
+	> | null;
 	[disableWebSecurityOption.cliFlag]: TypeOfOption<
 		typeof disableWebSecurityOption
 	> | null;
@@ -110,10 +135,19 @@ export type CommandLineOptions = {
 	[numberOfSharedAudioTagsOption.cliFlag]: TypeOfOption<
 		typeof numberOfSharedAudioTagsOption
 	>;
+	[experimentalKeepAudioContextAliveOption.cliFlag]: TypeOfOption<
+		typeof experimentalKeepAudioContextAliveOption
+	> | null;
+	[sequenceActivityLimitOption.cliFlag]: TypeOfOption<
+		typeof sequenceActivityLimitOption
+	>;
 	[offthreadVideoCacheSizeInBytesOption.cliFlag]: TypeOfOption<
 		typeof offthreadVideoCacheSizeInBytesOption
 	>;
 	[colorSpaceOption.cliFlag]: TypeOfOption<typeof colorSpaceOption>;
+	[disableSharedMemoryCaptureOption.cliFlag]: TypeOfOption<
+		typeof disableSharedMemoryCaptureOption
+	> | null;
 	[disallowParallelEncodingOption.cliFlag]: TypeOfOption<
 		typeof disallowParallelEncodingOption
 	> | null;
@@ -157,6 +191,7 @@ export type CommandLineOptions = {
 	[keyboardShortcutsOption.cliFlag]: TypeOfOption<
 		typeof keyboardShortcutsOption
 	> | null;
+	[canvasTabsOption.cliFlag]: TypeOfOption<typeof canvasTabsOption> | null;
 	[interactivityOption.cliFlag]: TypeOfOption<
 		typeof interactivityOption
 	> | null;
@@ -182,6 +217,9 @@ export type CommandLineOptions = {
 	[ipv4Option.cliFlag]: TypeOfOption<typeof ipv4Option> | null;
 	[deleteAfterOption.cliFlag]: TypeOfOption<typeof deleteAfterOption>;
 	[folderExpiryOption.cliFlag]: TypeOfOption<typeof folderExpiryOption>;
+	[enableCancellationOption.cliFlag]: TypeOfOption<
+		typeof enableCancellationOption
+	> | null;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
 		typeof enableMultiprocessOnLinuxOption
 	>;
@@ -205,6 +243,10 @@ export type CommandLineOptions = {
 };
 
 export const BooleanFlags = [
+	preservePitchOnPlaybackOption.cliFlag,
+	showLayerFrameNumbersOption.cliFlag,
+	showPremountingOption.cliFlag,
+	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
 	imageSequenceOption.cliFlag,
 	'help',
@@ -217,15 +259,19 @@ export const BooleanFlags = [
 	ignoreCertificateErrorsOption.cliFlag,
 	headlessOption.cliFlag,
 	keyboardShortcutsOption.cliFlag,
+	canvasTabsOption.cliFlag,
 	interactivityOption.cliFlag,
 	ipv4Option.cliFlag,
 	beepOnFinishOption.cliFlag,
 	disableGitSourceOption.cliFlag,
 	disallowParallelEncodingOption.cliFlag,
+	disableSharedMemoryCaptureOption.cliFlag,
 	forSeamlessAacConcatenationOption.cliFlag,
+	enableCancellationOption.cliFlag,
 	reproOption.cliFlag,
 	isProductionOption.cliFlag,
 	forceNewStudioOption.cliFlag,
+	experimentalKeepAudioContextAliveOption.cliFlag,
 	bundleCacheOption.cliFlag,
 	rspackOption.cliFlag,
 	skipSkillsOption.cliFlag,
@@ -234,6 +280,10 @@ export const BooleanFlags = [
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
 	default: {
+		[preservePitchOnPlaybackOption.cliFlag]: null,
+		[showLayerFrameNumbersOption.cliFlag]: null,
+		[showPremountingOption.cliFlag]: null,
+		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,
 		[bundleCacheOption.cliFlag]: null,
 		[darkModeOption.cliFlag]: null,
@@ -242,14 +292,18 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[ignoreCertificateErrorsOption.cliFlag]: null,
 		[headlessOption.cliFlag]: null,
 		[keyboardShortcutsOption.cliFlag]: null,
+		[canvasTabsOption.cliFlag]: null,
 		[interactivityOption.cliFlag]: null,
 		[ipv4Option.cliFlag]: null,
 		[beepOnFinishOption.cliFlag]: null,
 		[disallowParallelEncodingOption.cliFlag]: null,
+		[disableSharedMemoryCaptureOption.cliFlag]: null,
 		[reproOption.cliFlag]: null,
 		[isProductionOption.cliFlag]: null,
 		[forceNewStudioOption.cliFlag]: null,
+		[experimentalKeepAudioContextAliveOption.cliFlag]: null,
 		[mutedOption.cliFlag]: null,
+		[enableCancellationOption.cliFlag]: null,
 		[rspackOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {

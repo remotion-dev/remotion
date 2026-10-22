@@ -5,11 +5,7 @@ import {
 	stringifySequenceSubscriptionKey,
 	type SubscribeToSequencePropsResponse,
 } from '@remotion/studio-shared';
-import type {
-	JsxComponentIdentity,
-	SequenceNodePath,
-	VideoConfigValues,
-} from 'remotion';
+import type {JsxComponentIdentity, SequenceNodePath} from 'remotion';
 import {installFileWatcher} from '../file-watcher';
 import {JsxElementIdentityMismatchError} from './jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './jsx-element-not-found-at-location-error';
@@ -24,6 +20,10 @@ import {
 type WatcherInfo = {
 	unwatch: () => void;
 	refCount: number;
+	currentNodePath: Extract<
+		SubscribeToSequencePropsResponse,
+		{success: true}
+	>['nodePath'];
 };
 
 const sequencePropsWatchers: Record<string, Record<string, WatcherInfo>> = {};
@@ -34,36 +34,36 @@ const getWatcherKey = (
 		nodePath: SequenceNodePath;
 		sequenceKeys: string[];
 		effectKeys: string[][];
-		videoConfigValues: VideoConfigValues | null;
 	},
 	assetKeys: string[],
-) =>
-	`${stringifySequenceSubscriptionKey(nodePath)}:${assetKeys.join('\0')}:${JSON.stringify(nodePath.videoConfigValues)}`;
+) => `${stringifySequenceSubscriptionKey(nodePath)}:${assetKeys.join('\0')}`;
 
 const getSequencePropsStatus = ({
 	fileName,
 	line,
 	column,
 	preferredNodePath,
+	resolvedNodePath,
 	componentIdentity,
 	keys,
 	assetKeys,
 	effects,
 	remotionRoot,
 	logLevel,
-	videoConfigValues,
+	fileContentsCache,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
 	preferredNodePath: SequenceNodePath | null;
+	resolvedNodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	assetKeys: string[];
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	videoConfigValues: VideoConfigValues;
+	fileContentsCache: Map<string, string> | null;
 }): SubscribeToSequencePropsResponse => {
 	if (preferredNodePath) {
 		try {
@@ -75,7 +75,7 @@ const getSequencePropsStatus = ({
 				assetKeys,
 				effects,
 				remotionRoot,
-				videoConfigValues,
+				fileContentsCache,
 			});
 			return {
 				status: fromNodePath,
@@ -84,7 +84,7 @@ const getSequencePropsStatus = ({
 					nodePath: preferredNodePath,
 					sequenceKeys: keys,
 					effectKeys: effects,
-					videoConfigValues,
+					videoConfigValues: null,
 				},
 				success: true,
 			};
@@ -114,7 +114,7 @@ const getSequencePropsStatus = ({
 					assetKeys,
 					effects,
 					remotionRoot,
-					videoConfigValues,
+					fileContentsCache,
 				});
 			} catch (error) {
 				if (
@@ -136,10 +136,44 @@ const getSequencePropsStatus = ({
 					nodePath: cachedNodePath,
 					sequenceKeys: keys,
 					effectKeys: effects,
-					videoConfigValues,
+					videoConfigValues: null,
 				},
 				success: true,
 			};
+		}
+	}
+
+	if (resolvedNodePath) {
+		try {
+			return {
+				status: computeSequencePropsStatus({
+					fileName,
+					nodePath: resolvedNodePath,
+					componentIdentity,
+					keys,
+					assetKeys,
+					effects,
+					remotionRoot,
+					fileContentsCache,
+				}),
+				nodePath: {
+					absolutePath: path.resolve(remotionRoot, fileName),
+					nodePath: resolvedNodePath,
+					sequenceKeys: keys,
+					effectKeys: effects,
+					videoConfigValues: null,
+				},
+				success: true,
+			};
+		} catch (error) {
+			if (
+				!(
+					error instanceof JsxElementIdentityMismatchError ||
+					error instanceof JsxElementNotFoundAtLocationError
+				)
+			) {
+				throw error;
+			}
 		}
 	}
 
@@ -153,7 +187,7 @@ const getSequencePropsStatus = ({
 		effects,
 		remotionRoot,
 		logLevel,
-		videoConfigValues,
+		fileContentsCache,
 	});
 
 	return status;
@@ -164,6 +198,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line,
 	column,
 	nodePath: preferredNodePath,
+	resolvedNodePath = null,
 	componentIdentity,
 	keys,
 	assetKeys,
@@ -171,12 +206,13 @@ export const subscribeToSequencePropsWatchers = ({
 	remotionRoot,
 	clientId,
 	logLevel,
-	videoConfigValues,
+	fileContentsCache,
 }: {
 	fileName: string;
 	line: number;
 	column: number;
 	nodePath: SequenceNodePath | null;
+	resolvedNodePath?: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
 	assetKeys: string[];
@@ -184,20 +220,21 @@ export const subscribeToSequencePropsWatchers = ({
 	remotionRoot: string;
 	clientId: string;
 	logLevel: LogLevel;
-	videoConfigValues: VideoConfigValues;
+	fileContentsCache: Map<string, string> | null;
 }): SubscribeToSequencePropsResponse => {
 	const initialResult = getSequencePropsStatus({
 		fileName,
 		line,
 		column,
 		preferredNodePath,
+		resolvedNodePath,
 		componentIdentity,
 		keys,
 		assetKeys,
 		effects,
 		remotionRoot,
 		logLevel,
-		videoConfigValues,
+		fileContentsCache,
 	});
 
 	if (!initialResult.success) {
@@ -206,18 +243,28 @@ export const subscribeToSequencePropsWatchers = ({
 
 	const absolutePath = path.resolve(remotionRoot, fileName);
 
-	// Cache the resolved nodePath for future lookups with stale source maps
-	setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
+	// A preferred path may have been remapped while these coordinates still
+	// come from the previous bundle. Caching that pair can make a later mount
+	// at the same location inherit a different sibling's props after Refresh.
+	// Only a location-based subscription can establish a location cache entry.
+	if (preferredNodePath === null) {
+		setCachedNodePath(fileName, line, column, initialResult.nodePath.nodePath);
+	}
 
 	const {nodePath} = initialResult;
 	const watcherKey = getWatcherKey(nodePath, assetKeys);
 
-	// If a watcher already exists for this key, just bump the ref count
-	if (sequencePropsWatchers[clientId]?.[watcherKey]) {
-		sequencePropsWatchers[clientId][watcherKey].refCount++;
+	const existingWatcher = sequencePropsWatchers[clientId]?.[watcherKey];
+	if (existingWatcher) {
+		existingWatcher.refCount++;
 		return initialResult;
 	}
 
+	const watcherInfo: WatcherInfo = {
+		unwatch: () => undefined,
+		refCount: 1,
+		currentNodePath: nodePath,
+	};
 	const {unwatch} = installFileWatcher({
 		file: absolutePath,
 		existenceOnly: false,
@@ -226,19 +273,21 @@ export const subscribeToSequencePropsWatchers = ({
 				return;
 			}
 
-			if (event.originatorClientId === clientId) {
+			// Even the editing client needs the saved expression: its optimistic
+			// numeric value only describes the instance that initiated the edit.
+
+			if (event.type === 'changed' && event.skipSequencePropsUpdate) {
 				return;
 			}
 
 			try {
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
-					nodePath: nodePath.nodePath,
+					nodePath: watcherInfo.currentNodePath.nodePath,
 					componentIdentity,
 					keys,
 					assetKeys,
 					effects,
-					videoConfigValues,
 				});
 				const previousEffectChain = result.effects.map(
 					(effect) => effect.canUpdate && effect.callee,
@@ -260,7 +309,7 @@ export const subscribeToSequencePropsWatchers = ({
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
 						fileName,
-						nodePath,
+						nodePath: watcherInfo.currentNodePath,
 						result,
 					});
 				});
@@ -284,12 +333,13 @@ export const subscribeToSequencePropsWatchers = ({
 			}
 		},
 	});
+	watcherInfo.unwatch = unwatch;
 
 	if (!sequencePropsWatchers[clientId]) {
 		sequencePropsWatchers[clientId] = {};
 	}
 
-	sequencePropsWatchers[clientId][watcherKey] = {unwatch, refCount: 1};
+	sequencePropsWatchers[clientId][watcherKey] = watcherInfo;
 
 	return initialResult;
 };
@@ -302,7 +352,6 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	sequenceKeys,
 	assetKeys,
 	effectKeys,
-	videoConfigValues,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -311,7 +360,6 @@ export const unsubscribeFromSequencePropsWatchers = ({
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
-	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const absolutePath = path.resolve(remotionRoot, fileName);
 	const watcherKey = getWatcherKey(
@@ -320,7 +368,6 @@ export const unsubscribeFromSequencePropsWatchers = ({
 			nodePath,
 			sequenceKeys,
 			effectKeys,
-			videoConfigValues,
 		},
 		assetKeys,
 	);

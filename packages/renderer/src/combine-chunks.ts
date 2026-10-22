@@ -1,6 +1,6 @@
 // Combine multiple video chunks, useful for decentralized rendering
 
-import {rmSync} from 'node:fs';
+import {copyFileSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {
 	canConcatAudioSeamlessly,
@@ -13,7 +13,9 @@ import {combineVideoStreamsSeamlessly} from './combine-video-streams-seamlessly'
 import type {SingleFrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
+import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
+import {getMp4BrandForExtension} from './get-mp4-brand';
 import {isAudioCodec} from './is-audio-codec';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -66,21 +68,6 @@ type AllCombineChunksOptions = MandatoryCombineChunksOptions &
 export type CombineChunksOptions = MandatoryCombineChunksOptions &
 	Partial<OptionalCombineChunksOptions>;
 
-const codecSupportsFastStart: {[key in Codec]: boolean} = {
-	'h264-mkv': false,
-	'h264-ts': false,
-	h264: true,
-	h265: true,
-	av1: true,
-	aac: false,
-	gif: false,
-	mp3: false,
-	prores: false,
-	vp8: false,
-	vp9: false,
-	wav: false,
-};
-
 const REMOTION_FILELIST_TOKEN = 'remotion-filelist';
 
 export const internalCombineChunks = async ({
@@ -104,12 +91,12 @@ export const internalCombineChunks = async ({
 	frameRange,
 	compositionDurationInFrames,
 	sampleRate,
+	separateAudioTo,
 }: AllCombineChunksOptions & {
 	indent: boolean;
+	separateAudioTo: string | null;
 }) => {
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
-
-	const filelistDir = tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const shouldCreateVideo = !isAudioCodec(codec);
 
@@ -117,11 +104,16 @@ export const internalCombineChunks = async ({
 		setting: audioCodec,
 		codec,
 		preferLossless,
-		separateAudioTo: null,
+		separateAudioTo,
 	});
 
 	const shouldCreateAudio =
 		resolvedAudioCodec !== null && audioFiles.length > 0;
+	if (separateAudioTo !== null && (!shouldCreateAudio || !shouldCreateVideo)) {
+		throw new Error(
+			'Separate audio requires a video render with audio chunks.',
+		);
+	}
 
 	const seamlessVideo = canConcatVideoSeamlessly(codec);
 	const realFrameRange = getRealFrameRange(
@@ -137,11 +129,12 @@ export const internalCombineChunks = async ({
 		realFrameRange,
 		everyNthFrame,
 	).length;
+	const filelistDir = tmpDir(REMOTION_FILELIST_TOKEN);
 
 	const videoOutput = shouldCreateVideo
 		? join(
 				filelistDir,
-				`video.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
+				`video.${getFileExtensionFromCodec(codec, separateAudioTo === null ? resolvedAudioCodec : null)}`,
 			)
 		: null;
 
@@ -187,56 +180,55 @@ export const internalCombineChunks = async ({
 					: 'normally'
 		}`,
 	);
-	await Promise.all(
-		[
-			shouldCreateAudio && audioOutput
-				? createCombinedAudio({
-						audioBitrate,
-						filelistDir,
-						files: audioFiles,
-						indent,
-						logLevel,
-						output: audioOutput,
-						resolvedAudioCodec,
-						seamless: seamlessAudio,
-						chunkDurationInSeconds,
-						addRemotionMetadata: !shouldCreateVideo,
-						binariesDirectory,
-						fps,
-						cancelSignal,
-						onProgress: (frames) => {
-							concatenatedAudio = frames;
-							updateProgress();
-						},
-						sampleRate,
-					})
-				: null,
-
-			shouldCreateVideo && !seamlessVideo && videoOutput
-				? combineVideoStreams({
-						codec,
-						filelistDir,
-						fps,
-						indent,
-						logLevel,
-						numberOfGifLoops,
-						output: videoOutput,
-						files: videoFiles,
-						addRemotionMetadata: !shouldCreateAudio,
-						binariesDirectory,
-						cancelSignal,
-						onProgress: (frames) => {
-							concatenatedVideo = frames;
-							updateProgress();
-						},
-					})
-				: null,
-		].filter(truthy),
-	);
-
 	try {
+		await Promise.all(
+			[
+				shouldCreateAudio && audioOutput
+					? createCombinedAudio({
+							audioBitrate,
+							filelistDir,
+							files: audioFiles,
+							indent,
+							logLevel,
+							output: audioOutput,
+							resolvedAudioCodec,
+							seamless: seamlessAudio,
+							chunkDurationInSeconds,
+							addRemotionMetadata: !shouldCreateVideo,
+							binariesDirectory,
+							fps,
+							cancelSignal,
+							onProgress: (frames) => {
+								concatenatedAudio = frames;
+								updateProgress();
+							},
+							sampleRate,
+						})
+					: null,
+
+				shouldCreateVideo && !seamlessVideo && videoOutput
+					? combineVideoStreams({
+							codec,
+							filelistDir,
+							fps,
+							indent,
+							logLevel,
+							numberOfGifLoops,
+							output: videoOutput,
+							files: videoFiles,
+							addRemotionMetadata: !shouldCreateAudio,
+							binariesDirectory,
+							cancelSignal,
+							onProgress: (frames) => {
+								concatenatedVideo = frames;
+								updateProgress();
+							},
+						})
+					: null,
+			].filter(truthy),
+		);
 		await muxVideoAndAudio({
-			audioOutput,
+			audioOutput: separateAudioTo === null ? audioOutput : null,
 			indent,
 			logLevel,
 			onProgress: (frames) => {
@@ -250,15 +242,38 @@ export const internalCombineChunks = async ({
 			binariesDirectory,
 			fps,
 			cancelSignal,
-			addFaststart: codecSupportsFastStart[codec],
 			metadata,
 			numberOfGifLoops,
+			audioCodec: resolvedAudioCodec,
+			sampleRate,
 		});
+		if (separateAudioTo !== null && audioOutput !== null) {
+			const extension =
+				getExtensionOfFilename(separateAudioTo)?.toLowerCase() ?? null;
+			if (getMp4BrandForExtension(extension)) {
+				await muxVideoAndAudio({
+					videoOutput: null,
+					audioOutput,
+					output: separateAudioTo,
+					indent,
+					logLevel,
+					onProgress: () => undefined,
+					binariesDirectory,
+					fps,
+					cancelSignal,
+					metadata: null,
+					numberOfGifLoops: null,
+					audioCodec: resolvedAudioCodec,
+					sampleRate,
+				});
+			} else {
+				copyFileSync(audioOutput, separateAudioTo);
+			}
+		}
+
 		onProgress({totalProgress: 1, frames: numberOfFrames});
-		rmSync(filelistDir, {recursive: true});
-	} catch (err) {
-		rmSync(filelistDir, {recursive: true});
-		throw err;
+	} finally {
+		rmSync(filelistDir, {recursive: true, force: true});
 	}
 };
 
@@ -284,5 +299,6 @@ export const combineChunks = (options: CombineChunksOptions) => {
 		frameRange: options.frameRange ?? null,
 		compositionDurationInFrames: options.compositionDurationInFrames,
 		sampleRate: options.sampleRate ?? 48000,
+		separateAudioTo: null,
 	});
 };

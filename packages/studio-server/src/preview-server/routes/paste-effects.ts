@@ -16,7 +16,10 @@ import {
 } from '../undo-stack';
 import {attrName} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const getPastedEffectDescription = (effectLabels: string[]): string => {
 	if (effectLabels.length === 1) {
@@ -83,9 +86,15 @@ export const pasteEffectsHandler: ApiHandler<
 				},
 				entryType: 'paste-effects',
 				suppressHmrOnFileRestore: false,
+				nodePathRemappings: null,
 			});
 			suppressUndoStackInvalidation(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
 
 			const locationLabel = formatLogFileLocation({
 				remotionRoot,
@@ -94,7 +103,7 @@ export const pasteEffectsHandler: ApiHandler<
 			});
 			RenderInternals.Log.info(
 				{indent: false, logLevel},
-				`${RenderInternals.chalk.blueBright(`${locationLabel}`)} Pasted ${attrName(effectDescription)}`,
+				`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} Pasted ${attrName(effectDescription)}`,
 			);
 			if (!formatted) {
 				warnAboutPrettierOnce(logLevel);

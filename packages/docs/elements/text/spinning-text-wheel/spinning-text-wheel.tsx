@@ -1,0 +1,144 @@
+import {loadFont} from '@remotion/google-fonts/MonaSans';
+import React from 'react';
+import {
+	Interactive,
+	interpolate,
+	spring,
+	useCurrentFrame,
+	useVideoConfig,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+} from 'remotion';
+
+loadFont('normal', {
+	weights: ['700'],
+	subsets: ['latin'],
+});
+
+type SpinningTextWheelProps = InteractiveTransformProps & {
+	readonly items?: string;
+};
+
+const spinningTextWheelSchema = {
+	items: {
+		type: 'string',
+		default: 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
+		description: 'Items (selected first, one per line)',
+	},
+	...Interactive.textSchema,
+	'style.color': {
+		...Interactive.textSchema['style.color'],
+		default: '#182033',
+	},
+	'style.fontFamily': {
+		...Interactive.textSchema['style.fontFamily'],
+		default: 'Mona Sans',
+	},
+	'style.fontSize': {
+		...Interactive.textSchema['style.fontSize'],
+		default: 65,
+	},
+	'style.fontWeight': {
+		...Interactive.textSchema['style.fontWeight'],
+		default: 700,
+	},
+	'style.lineHeight': {
+		...Interactive.textSchema['style.lineHeight'],
+		default: 1,
+	},
+} as const satisfies InteractivitySchema;
+
+const SpinningTextWheelInner: React.FC<SpinningTextWheelProps> = ({
+	items = 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
+	style,
+}) => {
+	const frame = useCurrentFrame();
+	const {durationInFrames, fps} = useVideoConfig();
+	const values = items
+		.split('\n')
+		.map((item) => item.trim())
+		.filter(Boolean);
+	const progress = spring({
+		fps,
+		frame,
+		config: {
+			mass: 10,
+			damping: 200,
+			stiffness: 200,
+		},
+		durationInFrames: durationInFrames * 0.75,
+		durationRestThreshold: 0.0001,
+	});
+	const rotation = interpolate(progress, [0, 1], [1, 0]);
+
+	return (
+		<div
+			style={{
+				color: '#182033',
+				fontFamily: 'Mona Sans',
+				fontSize: 65,
+				fontWeight: 700,
+				height: 200,
+				lineHeight: 1,
+				maskImage:
+					'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
+				overflow: 'hidden',
+				WebkitMaskImage:
+					'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, transparent 100%)',
+				perspective: 10000,
+				position: 'relative',
+				width: 400,
+				...style,
+			}}
+		>
+			{values.map((value, index) => {
+				const wheelIndex = index / values.length + rotation;
+				const angle = wheelIndex * Math.PI * 2;
+				const rotateX = wheelIndex * 360;
+
+				return (
+					<div
+						key={`${index}-${value}`}
+						style={{
+							alignItems: 'center',
+							backfaceVisibility: 'hidden',
+							display: 'flex',
+							height: '100%',
+							justifyContent: 'center',
+							left: 0,
+							opacity:
+								index === 0
+									? interpolate(progress, [0.88, 1], [0.28, 1], {
+											extrapolateLeft: 'clamp',
+											extrapolateRight: 'clamp',
+										})
+									: 0.28,
+							position: 'absolute',
+							top: 0,
+							perspective: 1000,
+							transform: `translateZ(${Math.cos(angle) * 100}px) translateY(${Math.sin(angle) * 100}px) rotateX(${rotateX}deg)`,
+							width: '100%',
+						}}
+					>
+						<div
+							style={{
+								backfaceVisibility: 'hidden',
+								textAlign: 'center',
+								transform: `rotateX(${-rotateX}deg)`,
+								width: '100%',
+							}}
+						>
+							{value}
+						</div>
+					</div>
+				);
+			})}
+		</div>
+	);
+};
+
+export const SpinningTextWheel = Interactive.create({
+	Component: SpinningTextWheelInner,
+	componentName: '<SpinningTextWheel>',
+	schema: spinningTextWheelSchema,
+});

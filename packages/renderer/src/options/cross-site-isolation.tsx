@@ -1,11 +1,13 @@
 import type {AnyRemotionOption} from './option';
 
 let enableCrossSiteIsolation = false;
+let configuredEnableCrossSiteIsolation: boolean | null = null;
 
 const cliFlag = 'cross-site-isolation' as const;
 
 export const enableCrossSiteIsolationOption = {
 	name: 'Enable Cross-Site Isolation',
+	addedIn: '4.0.306',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,7 +17,7 @@ export const enableCrossSiteIsolationOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setenablecrosssiteisolation',
+	docLink: 'https://www.remotion.dev/docs/options/cross-site-isolation',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
@@ -32,6 +34,12 @@ export const enableCrossSiteIsolationOption = {
 	},
 	setConfig(value) {
 		enableCrossSiteIsolation = value;
+		configuredEnableCrossSiteIsolation = value;
+	},
+	getConfigValue: () => configuredEnableCrossSiteIsolation,
+	reset: () => {
+		enableCrossSiteIsolation = false;
+		configuredEnableCrossSiteIsolation = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

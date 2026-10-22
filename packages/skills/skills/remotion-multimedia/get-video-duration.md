@@ -17,9 +17,7 @@ import { Input, ALL_FORMATS, UrlSource } from "mediabunny";
 export const getVideoDuration = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -46,15 +44,18 @@ const duration = await getVideoDuration(staticFile("video.mp4"));
 
 ## In Node.js and Bun
 
-Use `FileSource` instead of `UrlSource`:
+Use `FilePathSource` instead of `UrlSource` to read a file from disk:
 
 ```tsx
-import { Input, ALL_FORMATS, FileSource } from "mediabunny";
+import { Input, ALL_FORMATS, FilePathSource } from "mediabunny";
 
 const input = new Input({
   formats: ALL_FORMATS,
-  source: new FileSource(file), // File object from input or drag-drop
+  source: new FilePathSource("video.mp4"),
 });
 
 const durationInSeconds = await input.computeDuration();
+input.dispose(); // Closes the file handle
 ```
+
+For a `File` from a file input or drag and drop, use `new BlobSource(file)` instead.

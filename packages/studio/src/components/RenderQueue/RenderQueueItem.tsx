@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
@@ -15,6 +16,7 @@ import type {ClientRenderJob} from './client-side-render-types';
 import {isRestoredClientJob} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
+import {RENDER_QUEUE_ITEM_SELECTED_CLASSNAME} from './item-style';
 import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
 import {
 	RenderQueueCopyToClipboard,
@@ -63,8 +65,6 @@ const subtitle: React.CSSProperties = {
 	overflow: 'hidden',
 };
 
-const SELECTED_CLASSNAME = '__remotion_selected_classname';
-
 export const RenderQueueItem: React.FC<{
 	readonly job: AnyRenderJob;
 	readonly selected: boolean;
@@ -74,6 +74,7 @@ export const RenderQueueItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {canDrag, isDragging, onDragEnd, onDragStart} =
 		useRenderOutputFileDrag(job);
 
@@ -102,7 +103,7 @@ export const RenderQueueItem: React.FC<{
 
 	const scrollCurrentIntoView = useCallback(() => {
 		document
-			.querySelector(`.${SELECTED_CLASSNAME}`)
+			.querySelector(`.${RENDER_QUEUE_ITEM_SELECTED_CLASSNAME}`)
 			?.scrollIntoView({behavior: 'smooth'});
 	}, []);
 
@@ -200,7 +201,7 @@ export const RenderQueueItem: React.FC<{
 			draggable={canDrag}
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
-			className={selected ? SELECTED_CLASSNAME : undefined}
+			className={selected ? RENDER_QUEUE_ITEM_SELECTED_CLASSNAME : undefined}
 		>
 			<RenderQueueItemStatus job={job} />
 			<Spacing x={1} />
@@ -229,13 +230,13 @@ export const RenderQueueItem: React.FC<{
 					{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
 					{job.status === 'running' ? (
 						<RenderQueueCancelButton job={job} />
-					) : (
+					) : isBrowserStudio ? null : (
 						<RenderQueueRemoveItem job={job} />
 					)}
 					{job.status === 'done' ? (
 						clientBlobInfo ? (
 							<RenderQueueDownloadItem job={job as ClientRenderJob} />
-						) : (
+						) : isBrowserStudio ? null : (
 							<RenderQueueOpenInFinderItem job={job} />
 						)
 					) : null}

@@ -55,7 +55,7 @@ test('pasteEffects appends a copied effect to a target sequence', async () => {
 	});
 
 	expect(effectLabels).toEqual(['tint()']);
-	expect(output).toContain('blur({radius: 5})');
+	expect(output).toMatch(/blur\(\{\s*radius: 5,?\s*\}\)/);
 	expect(output).toMatch(/tint\(\{\s*color: ['"]red['"],?\s*\}\)/);
 });
 

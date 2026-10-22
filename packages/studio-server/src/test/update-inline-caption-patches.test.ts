@@ -1,6 +1,8 @@
 import {expect, test} from 'bun:test';
-import {updateInlineCaptionPatches} from '../codemods/update-inline-caption-patches';
+import {CodemodsInternals} from '@remotion/codemods';
 import {lineColumnToNodePath} from './test-utils';
+
+const {updateInlineCaptionPatches} = CodemodsInternals;
 
 const input = `import {TimedCaptions} from './TimedCaptions';
 
@@ -42,7 +44,9 @@ test('updates only the patched inline caption fields', () => {
 					endMs: 2000,
 					text: 'Second',
 					timestampMs: 1500,
+					pageBreakAfter: null,
 				},
+				insertAfter: null,
 				changes: {startMs: 1100, endMs: 2100},
 			},
 		],
@@ -55,6 +59,83 @@ test('updates only the patched inline caption fields', () => {
 			"text: 'Second',\n\t\t\t\t\tstartMs: 1100,\n\t\t\t\t\tendMs: 2100,",
 		),
 	);
+});
+
+test('adds and updates pageBreakAfter on inline captions', () => {
+	const added = updateInlineCaptionPatches({
+		input,
+		nodePath: lineColumnToNodePath(input, 5),
+		patches: [
+			{
+				index: 0,
+				before: {
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+					pageBreakAfter: null,
+				},
+				insertAfter: null,
+				changes: {pageBreakAfter: true},
+			},
+		],
+	});
+
+	expect(added.changedFields).toEqual([['pageBreakAfter']]);
+	expect(added.output).toContain(
+		'\t\t\t\t\tconfidence: null,\n\t\t\t\t\tpageBreakAfter: true,',
+	);
+
+	const updated = updateInlineCaptionPatches({
+		input: added.output,
+		nodePath: lineColumnToNodePath(added.output, 5),
+		patches: [
+			{
+				index: 0,
+				before: {
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+					pageBreakAfter: true,
+				},
+				insertAfter: null,
+				changes: {pageBreakAfter: false},
+			},
+		],
+	});
+
+	expect(updated.output).toContain('pageBreakAfter: false,');
+});
+
+test('adds pageBreakAfter to a single-line inline caption', () => {
+	const singleLineInput = `export const Example = () => {
+	return <TimedCaptions captions={[{text: 'First', startMs: 0, endMs: 1000, timestampMs: 500, confidence: null}]} />;
+};
+`;
+	const {output} = updateInlineCaptionPatches({
+		input: singleLineInput,
+		nodePath: lineColumnToNodePath(singleLineInput, 2),
+		patches: [
+			{
+				index: 0,
+				before: {
+					text: 'First',
+					startMs: 0,
+					endMs: 1000,
+					timestampMs: 500,
+					confidence: null,
+					pageBreakAfter: null,
+				},
+				insertAfter: null,
+				changes: {pageBreakAfter: true},
+			},
+		],
+	});
+
+	expect(output).toContain('confidence: null, pageBreakAfter: true}]}');
 });
 
 test('rejects a queued patch whose source caption has changed', () => {
@@ -71,7 +152,9 @@ test('rejects a queued patch whose source caption has changed', () => {
 						endMs: 1000,
 						timestampMs: 500,
 						confidence: null,
+						pageBreakAfter: null,
 					},
+					insertAfter: null,
 					changes: {endMs: 900},
 				},
 			],
@@ -98,7 +181,9 @@ test('rejects captions wrapped in a satisfies expression', () => {
 						endMs: 1000,
 						timestampMs: 500,
 						confidence: null,
+						pageBreakAfter: null,
 					},
+					insertAfter: null,
 					changes: {text: 'Updated'},
 				},
 			],

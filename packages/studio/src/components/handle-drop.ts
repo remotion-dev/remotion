@@ -14,7 +14,6 @@ import {getElementDragData} from './element-drag-and-drop';
 import {enqueueElementInstallRequest} from './element-install-request';
 import {
 	getElementPositionForDrop,
-	getFromForDrop,
 	hasSvgFile,
 	importAssets,
 	importRemoteAsset,
@@ -35,6 +34,7 @@ export const handleDrop = async ({
 	event,
 	fps,
 	from,
+	localFiles,
 	preferCompositionStart,
 }: {
 	chooseSvgImportMode: () => Promise<SvgImportMode | null>;
@@ -45,10 +45,11 @@ export const handleDrop = async ({
 	event: DragEvent;
 	fps: number;
 	from: number | null;
+	localFiles: File[] | null;
 	preferCompositionStart: boolean;
 }) => {
-	if (isFileDragEvent(event)) {
-		const files = Array.from(event.dataTransfer?.files ?? []);
+	if (localFiles !== null || isFileDragEvent(event)) {
+		const files = localFiles ?? Array.from(event.dataTransfer?.files ?? []);
 		if (files.length === 0) {
 			return;
 		}
@@ -135,12 +136,14 @@ export const handleDrop = async ({
 			createdAt: Date.now(),
 			compositionFile,
 			compositionId,
-			element: element.element,
-			from: getFromForDrop({
-				durationInFrames: element.element.durationInFrames,
-				from,
-				preferCompositionStart,
-			}),
+			element: {
+				...element.element,
+				durationInFrames: element.element.durationInFrames ?? null,
+				initialProps: element.element.initialProps ?? null,
+				installationMode: element.element.installationMode ?? null,
+				isCaptionStyle: element.element.isCaptionStyle ?? false,
+			},
+			from,
 			position: getElementPositionForDrop({
 				dimensions: element.element.dimensions,
 				dropPosition,

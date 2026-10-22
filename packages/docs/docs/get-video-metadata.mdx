@@ -70,6 +70,12 @@ await getVideoMetadata('https://example.com/remote-audio.webm'); /* {
 This function is memoizing the results it returns.
 If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed. To clear the cache, you have to reload the page.
 
+## Compatibility
+
+<CompatibilityTable chrome="Supported codecs" firefox="Supported codecs" safari="Supported codecs" nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+Supported media formats depend on the browser. During server-side rendering, this API runs inside Chromium.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/media-utils/src/get-video-metadata.ts)

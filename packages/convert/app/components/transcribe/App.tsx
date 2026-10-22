@@ -1,8 +1,14 @@
-import type {DownloadWhisperModelParams} from '@remotion/whisper-web';
-import React, {useState} from 'react';
+import {
+	clearStaleModels,
+	getAvailableModels,
+	isWhisperModelCached,
+	type WhisperWebGpuModel,
+} from '@remotion/whisper-webgpu';
+import React, {useEffect, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import Display from './display';
-import DownloadModel from './downloadModel';
+import type {WhisperLanguage} from './languages';
+import ModelSelector from './modelSelector';
 import type {TranscriptionState} from './state';
 import TranscribeAudio from './transcribeAudio';
 
@@ -14,18 +20,77 @@ const Transcribe: React.FC<{
 	const [state, setState] = useState<TranscriptionState>({type: 'idle'});
 
 	const [selectedModel, setSelectedModel] =
-		useState<DownloadWhisperModelParams['model']>('tiny.en');
+		useState<WhisperWebGpuModel>('tiny.en');
+	const [selectedLanguage, setSelectedLanguage] =
+		useState<WhisperLanguage>('en');
+	const [cachedModels, setCachedModels] = useState<WhisperWebGpuModel[] | null>(
+		null,
+	);
+	const [staleModelsCleared, setStaleModelsCleared] = useState(false);
+	const selectedModelInfo = getAvailableModels().find(
+		(model) => model.name === selectedModel,
+	);
+
+	useEffect(() => {
+		let cancelled = false;
+		clearStaleModels()
+			.catch(() => undefined)
+			.then(() => {
+				if (!cancelled) {
+					setStaleModelsCleared(true);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!staleModelsCleared) {
+			return;
+		}
+
+		if (state.type !== 'idle' && state.type !== 'error') {
+			return;
+		}
+
+		let cancelled = false;
+		Promise.all(
+			getAvailableModels().map(async ({name: modelName}) => {
+				const cached = await isWhisperModelCached({
+					model: modelName,
+				}).catch(() => false);
+				return cached ? modelName : null;
+			}),
+		).then((models) => {
+			if (!cancelled) {
+				setCachedModels(
+					models.filter((model): model is WhisperWebGpuModel => model !== null),
+				);
+			}
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [staleModelsCleared, state.type]);
 
 	return (
 		<>
 			<div className="h-8 lg:h-0 lg:w-8" />
 			<div className="w-full lg:w-[350px]">
-				{state.type === 'idle' || state.type === 'initializing' ? (
+				{state.type === 'idle' ||
+				state.type === 'initializing' ||
+				state.type === 'error' ? (
 					<>
-						<DownloadModel
+						<ModelSelector
 							selectedModel={selectedModel}
 							setSelectedModel={setSelectedModel}
+							selectedLanguage={selectedLanguage}
+							setSelectedLanguage={setSelectedLanguage}
 							disabled={state.type === 'initializing'}
+							cachedModels={cachedModels}
 						/>
 						<div className="h-4" />
 					</>
@@ -33,13 +98,18 @@ const Transcribe: React.FC<{
 				<TranscribeAudio
 					source={src}
 					selectedModel={selectedModel}
+					language={selectedModelInfo?.multilingual ? selectedLanguage : null}
 					name={name}
 					state={state}
 					setState={setState}
 				/>
 				{state.type === 'transcribing' ? <div className="h-4" /> : null}
-				{state.type === 'done' || state.type === 'transcribing' ? (
-					<Display result={state.result} time={playbackTime} />
+				{state.type === 'done' ? (
+					<Display
+						result={state.result}
+						time={playbackTime}
+						whisperWebGpuOutput={state.whisperWebGpuOutput}
+					/>
 				) : null}
 			</div>
 		</>

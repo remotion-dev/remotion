@@ -9,9 +9,6 @@
 	"include": ["src"],
 	"references": [
 		{
-			"path": "../studio-protocol"
-		},
-		{
 			"path": "../renderer"
 		}
 	]

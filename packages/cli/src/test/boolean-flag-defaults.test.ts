@@ -6,6 +6,7 @@ const {
 	beepOnFinishOption,
 	disableWebSecurityOption,
 	disallowParallelEncodingOption,
+	enableCancellationOption,
 	forceNewStudioOption,
 	headlessOption,
 	ignoreCertificateErrorsOption,
@@ -28,6 +29,7 @@ test('config-backed boolean flags default to null when absent', () => {
 	expect(parsedCli[ipv4Option.cliFlag]).toEqual(null);
 	expect(parsedCli[beepOnFinishOption.cliFlag]).toEqual(null);
 	expect(parsedCli[disallowParallelEncodingOption.cliFlag]).toEqual(null);
+	expect(parsedCli[enableCancellationOption.cliFlag]).toEqual(null);
 	expect(parsedCli[reproOption.cliFlag]).toEqual(null);
 	expect(parsedCli[isProductionOption.cliFlag]).toEqual(null);
 	expect(parsedCli[forceNewStudioOption.cliFlag]).toEqual(null);

@@ -1,4 +1,8 @@
 import {createComposition, createStill} from './api/create-composition';
+import {CodingAgentIcon} from './components/CodingAgentIcon';
+import {EditorIcon} from './icons/editor';
+import {FinderIcon} from './icons/finder';
+import {TerminalIcon} from './icons/terminal';
 
 export {
 	deleteStaticFile,
@@ -12,6 +16,7 @@ export {pause} from './api/pause';
 export {play} from './api/play';
 export {reevaluateComposition} from './api/reevaluate-composition';
 export {restartStudio} from './api/restart-studio';
+export {shutDownStudio} from './api/shut-down-studio';
 export {saveDefaultProps} from './api/save-default-props';
 export {seek} from './api/seek';
 export {toggle} from './api/toggle';
@@ -22,6 +27,10 @@ export {watchStaticFile} from './api/watch-static-file';
 export {writeStaticFile} from './api/write-static-file';
 
 export const StudioInternals = {
+	CodingAgentIcon,
+	EditorIcon,
+	FinderIcon,
+	TerminalIcon,
 	createComposition,
 	createStill,
 };

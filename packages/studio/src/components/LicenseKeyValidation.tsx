@@ -1,7 +1,7 @@
 import React from 'react';
 import {FAIL_COLOR} from '../helpers/colors';
 import {CheckCircleFilled} from '../icons/check-circle-filled';
-import {InspectorInlineAction} from './InspectorPanel/common';
+import {InspectorQuickAction} from './InspectorPanel/common';
 
 const LICENSE_KEY_LENGTH = 55;
 const LICENSE_KEY_PREFIX = 'rm_pub_';
@@ -140,21 +140,21 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 
 	return (
 		<div>
-			<InspectorInlineAction
+			<InspectorQuickAction
 				disabled={false}
 				onClick={() => window.open(usageUrl, '_blank', 'noopener,noreferrer')}
 				renderIcon={(color) => (
 					<CheckCircleFilled style={{...iconStyle, fill: color}} />
 				)}
 				style={actionStyle}
-				title="View license usage"
+				aria-label="View license usage"
 			>
 				<span style={actionContent}>
 					<span style={actionText}>Belongs to {details.projectName}</span>
 					<span style={actionLabel}>View usage</span>
 				</span>
-			</InspectorInlineAction>
-			<InspectorInlineAction
+			</InspectorQuickAction>
+			<InspectorQuickAction
 				disabled={false}
 				onClick={() => window.open(projectUrl, '_blank', 'noopener,noreferrer')}
 				renderIcon={(color) =>
@@ -165,7 +165,7 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 					)
 				}
 				style={actionStyle}
-				title="Manage Company License"
+				aria-label="Manage Company License"
 			>
 				<span style={actionContent}>
 					<span style={hasActiveLicense ? actionText : inactiveLicenseText}>
@@ -175,7 +175,7 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 					</span>
 					<span style={actionLabel}>Manage</span>
 				</span>
-			</InspectorInlineAction>
+			</InspectorQuickAction>
 		</div>
 	);
 };

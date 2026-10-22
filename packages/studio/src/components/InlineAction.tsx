@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -13,12 +13,13 @@ export type RenderInlineAction = (color: string) => React.ReactNode;
 
 export type InlineActionProps = Omit<
 	React.ButtonHTMLAttributes<HTMLButtonElement>,
-	'children' | 'onClick' | 'style'
+	'children' | 'onClick' | 'style' | 'title'
 > & {
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderAction: RenderInlineAction;
+	readonly hoveredColor?: string;
 	readonly unhoveredColor?: string;
-	readonly variant: 'compact' | null;
+	readonly variant: 'compact' | 'modal-header' | null;
 	readonly style?: React.CSSProperties;
 };
 
@@ -26,21 +27,37 @@ export const InlineAction = ({
 	renderAction,
 	onClick,
 	disabled,
-	title,
+	hoveredColor = WHITE,
 	unhoveredColor = LIGHT_TEXT,
 	variant,
 	style: customStyle,
 	className,
+	onPointerDown: onPointerDownProp,
 	...buttonProps
 }: InlineActionProps) => {
 	const {tabIndex} = useZIndex();
+	const onPointerDown = useCallback(
+		(event: React.PointerEvent<HTMLButtonElement>) => {
+			onPointerDownProp?.(event);
+			if (event.button !== 0) {
+				return;
+			}
+
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+
+			event.preventDefault();
+		},
+		[onPointerDownProp],
+	);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			border: 'none',
-			height: 24,
-			width: variant === 'compact' ? 14 : 24,
-			padding: 0,
+			height: variant === 'modal-header' ? 30 : 24,
+			width: variant === 'compact' ? 14 : variant === 'modal-header' ? 30 : 24,
+			padding: variant === 'modal-header' ? 3 : 0,
 			display: 'inline-flex',
 			justifyContent: 'center',
 			alignItems: 'center',
@@ -53,11 +70,11 @@ export const InlineAction = ({
 					? TRANSPARENT
 					: getBackgroundFromHoverState({hovered: true, selected: false}),
 				idleColor: unhoveredColor,
-				hoverColor: disabled ? unhoveredColor : WHITE,
+				hoverColor: disabled ? unhoveredColor : hoveredColor,
 			}),
 			...customStyle,
 		};
-	}, [customStyle, disabled, unhoveredColor, variant]);
+	}, [customStyle, disabled, hoveredColor, unhoveredColor, variant]);
 
 	return (
 		<button
@@ -70,10 +87,9 @@ export const InlineAction = ({
 			}
 			disabled={disabled}
 			onClick={onClick}
+			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
-			title={title}
-			aria-label={buttonProps['aria-label'] ?? title}
 		>
 			{renderAction(CURRENT_COLOR)}
 		</button>

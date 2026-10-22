@@ -30,6 +30,10 @@ payload = get_render_media_on_lambda_payload(
 )
 
 raise "Expected the current SDK to default overwrite to false" unless payload[:overwrite] == false
+raise "Expected cancellation to default to false" unless payload[:enableCancellation] == false
+
+cancellable_payload = get_render_media_on_lambda_payload(codec: "h264", enable_cancellation: true)
+raise "Expected cancellation to be enabled" unless cancellable_payload[:enableCancellation] == true
 
 # Print as JSON
 puts JSON.generate(payload)

@@ -1,8 +1,12 @@
 import {
 	optimisticAddEffectKeyframe,
 	optimisticAddSequenceKeyframe,
+	type AddEffectKeyframeRequest,
+	type AddKeyframesRequest,
+	type AddSequenceKeyframeRequest,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {callApi} from '../call-api';
 import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
@@ -19,6 +23,39 @@ export type AddSequenceKeyframeChange = {
 
 export type AddEffectKeyframeChange = AddSequenceKeyframeChange & {
 	effectIndex: number;
+};
+
+const addSequenceKeyframe = (request: AddSequenceKeyframeRequest) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/add-sequence-keyframe', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.addSequenceKeyframe(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
+};
+
+const addEffectKeyframe = (request: AddEffectKeyframeRequest) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/add-effect-keyframe', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.addEffectKeyframe(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
+};
+
+const addKeyframes = (request: AddKeyframesRequest) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/add-keyframes', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.addKeyframes(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
 };
 
 const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
@@ -59,6 +96,7 @@ export const callAddSequenceKeyframe = ({
 		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticAddSequenceKeyframe({
+				videoConfigValues: nodePath.videoConfigValues,
 				previous: prev,
 				fieldKey,
 				frame: sourceFrame,
@@ -66,7 +104,7 @@ export const callAddSequenceKeyframe = ({
 				schema,
 			}),
 		apiCall: () =>
-			callApi('/api/add-sequence-keyframe', {
+			addSequenceKeyframe({
 				fileName,
 				nodePath,
 				key: fieldKey,
@@ -104,6 +142,7 @@ export const callAddKeyframes = ({
 			keyframes.reduce(
 				(current, keyframe) =>
 					optimisticAddSequenceKeyframe({
+						videoConfigValues: keyframe.nodePath.videoConfigValues,
 						previous: current,
 						fieldKey: keyframe.fieldKey,
 						frame: keyframe.sourceFrame,
@@ -125,6 +164,7 @@ export const callAddKeyframes = ({
 			keyframes.reduce(
 				(current, keyframe) =>
 					optimisticAddEffectKeyframe({
+						videoConfigValues: keyframe.nodePath.videoConfigValues,
 						previous: current,
 						effectIndex: keyframe.effectIndex,
 						fieldKey: keyframe.fieldKey,
@@ -137,7 +177,7 @@ export const callAddKeyframes = ({
 		);
 	}
 
-	return callApi('/api/add-keyframes', {
+	return addKeyframes({
 		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,
 			nodePath: keyframe.nodePath,
@@ -185,6 +225,7 @@ export const callAddEffectKeyframe = ({
 		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticAddEffectKeyframe({
+				videoConfigValues: nodePath.videoConfigValues,
 				previous: prev,
 				effectIndex,
 				fieldKey,
@@ -195,7 +236,7 @@ export const callAddEffectKeyframe = ({
 		applyServerResponse: (prev, response) =>
 			applyEffectResponseToPropStatuses({previous: prev, response}),
 		apiCall: () =>
-			callApi('/api/add-effect-keyframe', {
+			addEffectKeyframe({
 				fileName,
 				sequenceNodePath: nodePath,
 				effectIndex,

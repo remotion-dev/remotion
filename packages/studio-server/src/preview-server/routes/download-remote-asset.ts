@@ -4,77 +4,20 @@ import {isIP} from 'node:net';
 import path from 'node:path';
 import {
 	detectFileType,
+	getRemoteAssetElement,
+	getRemoteAssetFilename,
 	isImageFileType,
+	maxRemoteAssetSize,
+	remoteAssetAcceptHeader,
+	remoteAssetDownloadTimeout,
 	type DownloadRemoteAssetRequest,
 	type DownloadRemoteAssetResponse,
-	type ImageFileType,
-	type InsertableCompositionElement,
 } from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
 import {validateSameOrigin} from '../validate-same-origin';
 
-const maxRemoteAssetSize = 50 * 1024 * 1024;
-const remoteAssetDownloadTimeout = 15000;
 const maxRemoteAssetRedirects = 5;
-const remoteAssetAcceptHeader =
-	'image/png,image/apng,image/jpeg,image/webp,image/bmp,image/gif';
-
-const extensionsForFileType: Record<ImageFileType['type'], string[]> = {
-	png: ['png'],
-	apng: ['png', 'apng'],
-	jpeg: ['jpg', 'jpeg'],
-	webp: ['webp'],
-	bmp: ['bmp'],
-	gif: ['gif'],
-};
-
-const safeDecodeURIComponent = (value: string) => {
-	try {
-		return decodeURIComponent(value);
-	} catch {
-		return value;
-	}
-};
-
-const sanitizeAssetFilename = (filename: string) => {
-	return Array.from(filename)
-		.map((character) => {
-			const charCode = character.charCodeAt(0);
-			return charCode <= 31 || '<>:"/\\|?*'.includes(character)
-				? '-'
-				: character;
-		})
-		.join('')
-		.trim()
-		.replace(/^[. ]+|[. ]+$/g, '');
-};
-
-export const getRemoteAssetFilename = ({
-	fileType,
-	url,
-}: {
-	fileType: ImageFileType;
-	url: URL;
-}) => {
-	const basename = safeDecodeURIComponent(path.posix.basename(url.pathname));
-	const sanitized = sanitizeAssetFilename(basename);
-	const filenameWithoutFallback = sanitized === '' ? 'image' : sanitized;
-	const extensions = extensionsForFileType[fileType.type];
-	const extension = path
-		.extname(filenameWithoutFallback)
-		.slice(1)
-		.toLowerCase();
-
-	if (extensions.includes(extension)) {
-		return filenameWithoutFallback;
-	}
-
-	const withoutExtension = extension
-		? filenameWithoutFallback.slice(0, -(extension.length + 1))
-		: filenameWithoutFallback;
-	const safeName = withoutExtension === '' ? 'image' : withoutExtension;
-	return `${safeName}.${extensions[0]}`;
-};
+export {getRemoteAssetFilename};
 
 const isForbiddenIpv4Address = (address: string) => {
 	const parts = address.split('.').map((part) => Number(part));
@@ -159,9 +102,11 @@ const ensureRemoteUrlIsAllowed = async (url: URL) => {
 };
 
 const fetchRemoteAsset = async ({
+	acceptHeader,
 	signal,
 	url,
 }: {
+	acceptHeader: string | null;
 	signal: AbortSignal;
 	url: URL;
 }) => {
@@ -171,9 +116,7 @@ const fetchRemoteAsset = async ({
 		await ensureRemoteUrlIsAllowed(currentUrl);
 
 		const response = await fetch(currentUrl, {
-			headers: {
-				accept: remoteAssetAcceptHeader,
-			},
+			headers: acceptHeader === null ? undefined : {accept: acceptHeader},
 			redirect: 'manual',
 			signal,
 		});
@@ -201,19 +144,21 @@ const fetchRemoteAsset = async ({
 const readRemoteAsset = async ({
 	response,
 	abort,
+	maxSize,
 }: {
 	response: Response;
 	abort: () => void;
+	maxSize: number;
 }) => {
 	const contentLength = response.headers.get('content-length');
-	if (contentLength !== null && Number(contentLength) > maxRemoteAssetSize) {
+	if (contentLength !== null && Number(contentLength) > maxSize) {
 		abort();
 		throw new Error('Remote asset exceeds the 50MB size limit');
 	}
 
 	if (!response.body) {
 		const buffer = await response.arrayBuffer();
-		if (buffer.byteLength > maxRemoteAssetSize) {
+		if (buffer.byteLength > maxSize) {
 			throw new Error('Remote asset exceeds the 50MB size limit');
 		}
 
@@ -235,7 +180,7 @@ const readRemoteAsset = async ({
 		}
 
 		size += value.byteLength;
-		if (size > maxRemoteAssetSize) {
+		if (size > maxSize) {
 			abort();
 			await reader.cancel();
 			throw new Error('Remote asset exceeds the 50MB size limit');
@@ -254,43 +199,40 @@ const readRemoteAsset = async ({
 	return result;
 };
 
-export const downloadRemoteAssetHandler: ApiHandler<
-	DownloadRemoteAssetRequest,
-	DownloadRemoteAssetResponse
-> = async ({input, publicDir, request}) => {
-	validateSameOrigin(request);
-
-	if (typeof input.url !== 'string') {
-		throw new Error('No `url` provided');
-	}
-
+export const downloadRemoteAssetBytes = async ({
+	acceptHeader,
+	maxSize,
+	url,
+}: {
+	acceptHeader: string | null;
+	maxSize: number;
+	url: URL;
+}) => {
 	if (typeof fetch !== 'function') {
 		throw new Error(
 			'Downloading remote assets requires Node.js 18 or newer. Drag a local file instead.',
 		);
 	}
 
-	const url = new URL(input.url);
-
 	const controller = new AbortController();
-	const timeout = setTimeout(() => {
-		controller.abort();
-	}, remoteAssetDownloadTimeout);
-
-	let contents: Uint8Array;
+	const timeout = setTimeout(
+		() => controller.abort(),
+		remoteAssetDownloadTimeout,
+	);
 	try {
 		const response = await fetchRemoteAsset({
+			acceptHeader,
 			signal: controller.signal,
 			url,
 		});
-
 		if (!response.ok) {
 			throw new Error(`Could not download remote asset: ${response.status}`);
 		}
 
-		contents = await readRemoteAsset({
+		return await readRemoteAsset({
 			response,
 			abort: () => controller.abort(),
+			maxSize,
 		});
 	} catch (err) {
 		if (err instanceof Error && err.name === 'AbortError') {
@@ -301,6 +243,24 @@ export const downloadRemoteAssetHandler: ApiHandler<
 	} finally {
 		clearTimeout(timeout);
 	}
+};
+
+export const downloadRemoteAssetHandler: ApiHandler<
+	DownloadRemoteAssetRequest,
+	DownloadRemoteAssetResponse
+> = async ({input, publicDir, request}) => {
+	validateSameOrigin(request);
+
+	if (typeof input.url !== 'string') {
+		throw new Error('No `url` provided');
+	}
+
+	const url = new URL(input.url);
+	const contents = await downloadRemoteAssetBytes({
+		acceptHeader: remoteAssetAcceptHeader,
+		maxSize: maxRemoteAssetSize,
+		url,
+	});
 
 	const fileType = detectFileType(contents);
 	if (!isImageFileType(fileType)) {
@@ -334,21 +294,7 @@ export const downloadRemoteAssetHandler: ApiHandler<
 		writeFileSync(absolutePath, contents);
 	}
 
-	const element: InsertableCompositionElement = {
-		type: 'asset',
-		assetType:
-			fileType.type === 'gif'
-				? 'gif'
-				: fileType.type === 'apng' ||
-					  (fileType.type === 'webp' && fileType.animated)
-					? 'animated-image'
-					: 'image',
-		src: assetPath,
-		srcType: 'static',
-		dimensions: fileType.dimensions,
-		durationInFrames: null,
-		position: null,
-	};
+	const element = getRemoteAssetElement({assetPath, fileType});
 
 	return {
 		assetPath,

@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	AddSequenceKeyframe,
@@ -11,7 +12,7 @@ import type {
 	SaveSequencePropsResult,
 } from '@remotion/studio-shared';
 import {getAllSchemaKeys, getAssetSchemaKeys} from '@remotion/studio-shared';
-import {updateInlineCaptionPatches} from '../../codemods/update-inline-caption-patches';
+import type {SequenceNodePath} from 'remotion';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -34,6 +35,8 @@ import {computeSequencePropsStatusFromContent} from './can-update-sequence-props
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
+
+const {updateInlineCaptionPatches} = CodemodsInternals;
 
 type ResolvedSequencePropEdit = {
 	index: number;
@@ -83,6 +86,25 @@ const stringifySequencePropEditValue = (value: unknown): string => {
 	return JSON.stringify(value);
 };
 
+const stringifySequencePropSourceEdit = (
+	sourceEdit: SaveSequencePropEdit['sourceEdit'],
+	fallbackValue: unknown,
+): string => {
+	if (sourceEdit?.type !== 'clipboard-param') {
+		return stringifySequencePropEditValue(fallbackValue);
+	}
+
+	if (sourceEdit.param.type === 'static') {
+		return stringifySequencePropEditValue(sourceEdit.param.value);
+	}
+
+	return `${sourceEdit.param.interpolationFunction}(frame, ${JSON.stringify(
+		sourceEdit.param.keyframes.map((keyframe) => keyframe.frame),
+	)}, ${JSON.stringify(
+		sourceEdit.param.keyframes.map((keyframe) => keyframe.value),
+	)})`;
+};
+
 type SequencePropUndoSnapshot = {
 	filePath: string;
 	oldContents: string;
@@ -95,6 +117,7 @@ type SequencePropEditResult = {
 	logLine: number;
 	removedProps: RemovedProp[];
 	formatted: boolean;
+	newNodePath: SequenceNodePath;
 };
 
 type SequenceKeyframeLog = {
@@ -149,8 +172,15 @@ export const convertSequencePropEditToCodemodChange = (
 				key: edit.key,
 				value: edit.value,
 				defaultValue: edit.defaultValue,
+				...(edit.sourceEdit?.type === 'playback-rate'
+					? {retimeKeyframes: true}
+					: {}),
 				googleFont:
 					edit.sourceEdit?.type === 'google-font' ? edit.sourceEdit.font : null,
+				clipboardParam:
+					edit.sourceEdit?.type === 'clipboard-param'
+						? edit.sourceEdit.param
+						: null,
 			},
 		],
 		schema: edit.schema,
@@ -236,7 +266,10 @@ export const saveSequencePropsHandler: ApiHandler<
 				nodePath: edit.nodePath,
 				key: edit.key,
 				value: parsedValue,
-				valueString: stringifySequencePropEditValue(parsedValue),
+				valueString: stringifySequencePropSourceEdit(
+					edit.sourceEdit,
+					parsedValue,
+				),
 				defaultValue: parsedDefaultValue,
 				defaultValueString:
 					parsedDefaultValue !== null
@@ -326,6 +359,7 @@ export const saveSequencePropsHandler: ApiHandler<
 		const snapshots: SequencePropUndoSnapshot[] = [];
 		const outputByPath = new Map<string, string>();
 		const resultByIndex = new Map<number, SequencePropEditResult>();
+		const updatedNodePaths = new Map<string, SequenceNodePath>();
 		const sequenceKeyframeLogs: SequenceKeyframeLog[] = [];
 		const captionPatchLogs: CaptionPatchLog[] = [];
 		const effectKeyframeLogs: EffectKeyframeLog[] = [];
@@ -358,7 +392,12 @@ export const saveSequencePropsHandler: ApiHandler<
 						logLine: result.logLine,
 						removedProps: result.removedProps,
 						formatted,
+						newNodePath: result.newNodePath,
 					});
+					updatedNodePaths.set(
+						`${absolutePath}:${JSON.stringify(edit.nodePath.nodePath)}`,
+						result.newNodePath,
+					);
 				}
 			}
 
@@ -558,12 +597,16 @@ export const saveSequencePropsHandler: ApiHandler<
 			shouldSuppressHmrForSequencePropEdits(edits);
 
 		pushTransactionToUndoStack({
-			snapshots,
+			snapshots: snapshots.map((snapshot) => ({
+				...snapshot,
+				nodePathRemappings: null,
+			})),
 			logLevel,
 			remotionRoot,
 			description: {undoMessage, redoMessage},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: suppressHmr,
+			undoRedoNavigation: null,
 		});
 
 		for (const [absolutePath, output] of outputByPath) {
@@ -572,7 +615,12 @@ export const saveSequencePropsHandler: ApiHandler<
 				suppressBundlerUpdateForFile(absolutePath);
 			}
 
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
 		}
 
 		for (const {edits: groupEdits, fileRelativeToRoot} of editGroups.values()) {
@@ -664,14 +712,19 @@ export const saveSequencePropsHandler: ApiHandler<
 				throw new Error('Could not compute sequence prop edit status');
 			}
 
-			const newStatus = computeSequencePropsStatusFromContent({
-				fileContents: output,
+			const statusInput = {
 				keys: getAllSchemaKeys(target.schema),
 				assetKeys: getAssetSchemaKeys(target.schema),
-				nodePath: target.nodePath.nodePath,
+				nodePath:
+					updatedNodePaths.get(
+						`${absolutePath}:${JSON.stringify(target.nodePath.nodePath)}`,
+					) ?? target.nodePath.nodePath,
 				componentIdentity: null,
 				effects: [],
-				videoConfigValues: target.nodePath.videoConfigValues,
+			};
+			const newStatus = computeSequencePropsStatusFromContent({
+				...statusInput,
+				fileContents: output,
 			});
 
 			return {
@@ -687,7 +740,6 @@ export const saveSequencePropsHandler: ApiHandler<
 
 		return {
 			canUpdate: true,
-			props: firstResult.props,
 			results,
 		};
 	});

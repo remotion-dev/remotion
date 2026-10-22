@@ -1,26 +1,31 @@
-import {
-	canMoveKeyframesWithoutCollisions,
-	moveKeyframesInPropStatus,
-} from '@remotion/studio-shared';
+import {CanvasInternals} from '@remotion/sdk';
 import type React from 'react';
 import {useCallback, useContext} from 'react';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
-	DragOverrideValue,
 	InteractivitySchema,
-	OverrideIdToNodePaths,
 	PropStatuses,
 	SequencePropsSubscriptionKey,
-	TSequence,
 } from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {startPointerSession} from '../../helpers/pointer-session';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {callMoveKeyframes} from './call-move-keyframe';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
-import {getBoundedKeyframeDragDelta} from './get-bounded-keyframe-drag-delta';
+import {
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	getTimelineKeyframeDragKey,
@@ -35,6 +40,13 @@ import {
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
 
+const {
+	canMoveCanvasKeyframes,
+	getBoundedKeyframeDragDelta,
+	getCanvasKeyframeMove,
+	getMovedCanvasKeyframeOverride,
+} = CanvasInternals;
+
 type TimelineKeyframeDragTargetBase = {
 	readonly displayFrame: number;
 	readonly fieldKey: string;
@@ -44,6 +56,7 @@ type TimelineKeyframeDragTargetBase = {
 	readonly propStatus: CanUpdateSequencePropStatusKeyframed;
 	readonly schema: InteractivitySchema;
 	readonly sourceFrame: number;
+	readonly keyframePlaybackRate: number;
 };
 
 type TimelineKeyframeDragTarget =
@@ -207,14 +220,12 @@ const getTimelineKeyframeDragTarget = ({
 	propStatuses,
 	displayFrame,
 	nodePathInfo,
-	overrideIdsToNodePaths,
-	sequences,
+	tracks,
 }: {
 	readonly propStatuses: PropStatuses;
 	readonly displayFrame: number;
 	readonly nodePathInfo: SequenceNodePathInfo;
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
-	readonly sequences: TSequence[];
+	readonly tracks: readonly TimelineTrackData[];
 }): TimelineKeyframeDragTarget | null => {
 	const field = parseKeyframeFieldFromNodePath(nodePathInfo.auxiliaryKeys);
 	if (field === null) {
@@ -222,8 +233,7 @@ const getTimelineKeyframeDragTarget = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo,
 	});
 	const sequence = track?.sequence ?? null;
@@ -231,8 +241,10 @@ const getTimelineKeyframeDragTarget = ({
 		return null;
 	}
 
-	const sourceFrame = displayFrame - (track?.keyframeDisplayOffset ?? 0);
-	const nodePath = nodePathInfo.sequenceSubscriptionKey;
+	const nodePath = {
+		...nodePathInfo.sequenceSubscriptionKey,
+		videoConfigValues: sequence.controls.videoConfigValues,
+	};
 	const fileName = nodePath.absolutePath;
 	const sequenceStatus = getCodeValueForTarget({propStatuses, nodePath});
 	if (!sequenceStatus?.canUpdate) {
@@ -248,14 +260,28 @@ const getTimelineKeyframeDragTarget = ({
 			return null;
 		}
 
-		const effectPropStatus = effectStatus.props[field.fieldKey];
+		const effectPropStatus = Internals.evaluateSourcePropStatuses(
+			effectStatus.props,
+			nodePath.videoConfigValues,
+		)[field.fieldKey];
 		if (effectPropStatus?.status !== 'keyframed') {
 			return null;
 		}
 
+		const effectSourceFrame = getKeyframeSourceFrame({
+			displayFrame,
+			propStatus: effectPropStatus,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: effectPropStatus,
+				keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+				keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+			}),
+			keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+		});
+
 		if (
 			!effectPropStatus.keyframes.some(
-				(keyframe) => keyframe.frame === sourceFrame,
+				(keyframe) => keyframe.frame === effectSourceFrame,
 			)
 		) {
 			return null;
@@ -271,14 +297,29 @@ const getTimelineKeyframeDragTarget = ({
 			nodePathInfo,
 			propStatus: effectPropStatus,
 			schema: effect.schema,
-			sourceFrame,
+			sourceFrame: effectSourceFrame,
+			keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
 		};
 	}
 
-	const sequencePropStatus = sequenceStatus.props[field.fieldKey];
+	const sequencePropStatus = Internals.evaluateSourcePropStatuses(
+		sequenceStatus.props,
+		nodePath.videoConfigValues,
+	)[field.fieldKey];
 	if (sequencePropStatus?.status !== 'keyframed') {
 		return null;
 	}
+
+	const sourceFrame = getKeyframeSourceFrame({
+		displayFrame,
+		propStatus: sequencePropStatus,
+		keyframeDisplayOffset: getKeyframeDisplayOffset({
+			propStatus: sequencePropStatus,
+			keyframeDisplayOffset: track?.keyframeDisplayOffset ?? 0,
+			keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+		}),
+		keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
+	});
 
 	if (
 		!sequencePropStatus.keyframes.some(
@@ -298,6 +339,7 @@ const getTimelineKeyframeDragTarget = ({
 		propStatus: sequencePropStatus,
 		schema: sequence.controls.schema,
 		sourceFrame,
+		keyframePlaybackRate: track?.keyframePlaybackRate ?? 1,
 	};
 };
 
@@ -322,18 +364,6 @@ const groupTargets = (targets: readonly TimelineKeyframeDragTarget[]) => {
 	return [...groups.values()];
 };
 
-const getMovesForGroup = ({
-	group,
-	delta,
-}: {
-	readonly group: readonly TimelineKeyframeDragTarget[];
-	readonly delta: number;
-}) =>
-	group.map((target) => ({
-		fromFrame: target.sourceFrame,
-		toFrame: target.sourceFrame + delta,
-	}));
-
 const canMoveTimelineKeyframeDragTargets = ({
 	targets,
 	delta,
@@ -341,43 +371,9 @@ const canMoveTimelineKeyframeDragTargets = ({
 	readonly targets: readonly TimelineKeyframeDragTarget[];
 	readonly delta: number;
 }) =>
-	groupTargets(targets).every((group) => {
-		const [first] = group;
-		if (!first) {
-			return true;
-		}
-
-		return canMoveKeyframesWithoutCollisions({
-			status: first.propStatus,
-			moves: getMovesForGroup({group, delta}),
-		});
-	});
-
-const makeMovedKeyframedDragOverride = ({
-	group,
-	delta,
-}: {
-	readonly group: readonly TimelineKeyframeDragTarget[];
-	readonly delta: number;
-}): DragOverrideValue => {
-	const [first] = group;
-	if (!first) {
-		throw new Error('Expected a keyframe drag target');
-	}
-
-	const movedStatus = moveKeyframesInPropStatus({
-		status: first.propStatus,
-		moves: getMovesForGroup({group, delta}),
-	});
-	if (movedStatus.status !== 'keyframed') {
-		throw new Error('Expected keyframed status');
-	}
-
-	return {
-		type: 'keyframed',
-		status: movedStatus,
-	};
-};
+	groupTargets(targets).every((group) =>
+		canMoveCanvasKeyframes({targets: group, delta}),
+	);
 
 const applyDragOverrides = ({
 	delta,
@@ -400,7 +396,7 @@ const applyDragOverrides = ({
 			continue;
 		}
 
-		const override = makeMovedKeyframedDragOverride({group, delta});
+		const override = getMovedCanvasKeyframeOverride({targets: group, delta});
 		if (first.type === 'sequence') {
 			setDragOverrides(first.nodePath, first.fieldKey, override);
 			continue;
@@ -489,9 +485,10 @@ export const useTimelineKeyframeDrag = ({
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -552,20 +549,25 @@ export const useTimelineKeyframeDrag = ({
 			let lastDelta = 0;
 			const propStatuses = propStatusesRef.current;
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 
 			const resolveDragTargets = () => {
 				if (dragTargets !== null) {
 					return dragTargets;
 				}
 
+				const {tracks} = calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				});
 				dragTargets = keyframesToDrag
 					.map((keyframe) =>
 						getTimelineKeyframeDragTarget({
 							propStatuses,
 							displayFrame: keyframe.frame,
 							nodePathInfo: keyframe.nodePathInfo,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							sequences,
+							tracks,
 						}),
 					)
 					.filter(
@@ -693,8 +695,7 @@ export const useTimelineKeyframeDrag = ({
 							fileName: target.fileName,
 							nodePath: target.nodePath,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					effectKeyframes: targets
@@ -710,8 +711,7 @@ export const useTimelineKeyframeDrag = ({
 							nodePath: target.nodePath,
 							effectIndex: target.effectIndex,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					setPropStatuses,
@@ -725,12 +725,12 @@ export const useTimelineKeyframeDrag = ({
 				clearDraggedKeyframes();
 			};
 
-			stopPointerSession = startPointerSession({
+			stopPointerSession = startCapturedPointerSession({
 				event: e,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: onPointerMove,
-				onEnd: (reason) => {
-					if (reason === 'pointerup' || reason === 'buttons-released') {
+				onEnd: (reason, endEvent) => {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						onPointerUp();
 					} else {
 						onPointerCancel();
@@ -746,7 +746,8 @@ export const useTimelineKeyframeDrag = ({
 			frame,
 			nodePathInfo,
 			onSelect,
-			overrideIdToNodePathMappings,
+			calculateTimeline,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			previewServerState,
 			selectable,
@@ -776,9 +777,10 @@ export const useTimelineEasingKeyframeDrag = ({
 	const videoConfig = useVideoConfig();
 	const timelineWidth = useContext(TimelineWidthContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
@@ -831,20 +833,25 @@ export const useTimelineEasingKeyframeDrag = ({
 			let lastDelta = 0;
 			const propStatuses = propStatusesRef.current;
 			const sequences = sequencesRef.current;
+			const overrideIdToNodePathMappings =
+				overrideIdToNodePathMappingsRef.current;
 
 			const resolveDragTargets = () => {
 				if (dragTargets !== null) {
 					return dragTargets;
 				}
 
+				const {tracks} = calculateTimeline({
+					sequences,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				});
 				dragTargets = keyframesToDrag
 					.map((keyframe) =>
 						getTimelineKeyframeDragTarget({
 							propStatuses,
 							displayFrame: keyframe.frame,
 							nodePathInfo: keyframe.nodePathInfo,
-							overrideIdsToNodePaths: overrideIdToNodePathMappings,
-							sequences,
+							tracks,
 						}),
 					)
 					.filter(
@@ -971,8 +978,7 @@ export const useTimelineEasingKeyframeDrag = ({
 							fileName: target.fileName,
 							nodePath: target.nodePath,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					effectKeyframes: targets
@@ -988,8 +994,7 @@ export const useTimelineEasingKeyframeDrag = ({
 							nodePath: target.nodePath,
 							effectIndex: target.effectIndex,
 							fieldKey: target.fieldKey,
-							fromFrame: target.sourceFrame,
-							toFrame: target.sourceFrame + lastDelta,
+							...getCanvasKeyframeMove(target, lastDelta),
 							schema: target.schema,
 						})),
 					setPropStatuses,
@@ -1003,12 +1008,12 @@ export const useTimelineEasingKeyframeDrag = ({
 				clearDraggedKeyframes();
 			};
 
-			stopPointerSession = startPointerSession({
+			stopPointerSession = startCapturedPointerSession({
 				event: e,
-				target: e.currentTarget,
+				captureTarget: e.currentTarget,
 				onMove: onPointerMove,
-				onEnd: (reason) => {
-					if (reason === 'pointerup' || reason === 'buttons-released') {
+				onEnd: (reason, endEvent) => {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						onPointerUp();
 					} else {
 						onPointerCancel();
@@ -1022,7 +1027,8 @@ export const useTimelineEasingKeyframeDrag = ({
 			clearDraggedKeyframes,
 			currentSelection,
 			onSelect,
-			overrideIdToNodePathMappings,
+			calculateTimeline,
+			overrideIdToNodePathMappingsRef,
 			propStatusesRef,
 			previewServerState,
 			selectable,

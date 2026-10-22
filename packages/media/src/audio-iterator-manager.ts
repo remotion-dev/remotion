@@ -6,13 +6,13 @@ import {
 import type {LogLevel} from 'remotion';
 import {Internals, type ScheduleAudioNodeResult} from 'remotion';
 import {
-	ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT,
 	isAlreadyQueued,
 	makeAudioIterator,
 	type AudioIterator,
 	type QueuedPeriod,
 } from './audio/audio-preview-iterator';
 import {getScheduledTime} from './audio/get-scheduled-time';
+import {pitchShiftAudioIterator} from './audio/pitch-shift';
 import {
 	processNext,
 	StaleWaiterError,
@@ -77,14 +77,10 @@ export const audioIteratorManager = ({
 	getMediaEndTimestamp,
 	getStartTime,
 	initialMuted,
+	initialVolume,
+	toneFrequency,
 	drawDebugOverlay,
-	initialPlaybackRate,
-	initialTrimBefore,
-	initialTrimAfter,
-	initialSequenceOffset,
-	initialSequenceDurationInFrames,
-	initialLoop,
-	initialFps,
+	onError,
 }: {
 	audioTrack: InputAudioTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -94,30 +90,27 @@ export const audioIteratorManager = ({
 	getMediaEndTimestamp: () => number;
 	getStartTime: () => number;
 	initialMuted: boolean;
+	initialVolume: number;
+	toneFrequency: number;
 	drawDebugOverlay: () => void;
-	initialPlaybackRate: number;
-	initialTrimBefore: number | undefined;
-	initialTrimAfter: number | undefined;
-	initialSequenceOffset: number;
-	initialSequenceDurationInFrames: number;
-	initialLoop: boolean;
-	initialFps: number;
+	onError: (error: Error) => void;
 }) => {
 	let muted = initialMuted;
-	let currentVolume = 1;
-	let currentSeek = {
-		// do not prevent first seek
-		time: -1,
-		playbackRate: initialPlaybackRate,
-		trimBefore: initialTrimBefore,
-		trimAfter: initialTrimAfter,
-		sequenceOffset: initialSequenceOffset,
-		sequenceDurationInFrames: initialSequenceDurationInFrames,
-		loop: initialLoop,
-		fps: initialFps,
-	};
+	let currentVolume = Math.max(0, initialVolume);
+	let currentToneFrequency = toneFrequency;
+	let currentSeek: {
+		time: number;
+		playbackRate: number;
+		trimBefore: number | undefined;
+		trimAfter: number | undefined;
+		sequenceOffset: number;
+		sequenceDurationInFrames: number;
+		loop: boolean;
+		fps: number;
+	} | null = null;
 
 	const gainNode = sharedAudioContext.audioContext.createGain();
+	gainNode.gain.value = muted ? 0 : currentVolume;
 	gainNode.connect(sharedAudioContext.gainNode);
 
 	const audioSink = new AudioBufferSink(audioTrack);
@@ -218,11 +211,7 @@ export const audioIteratorManager = ({
 		audioBufferIterator.addQueuedAudioNode({
 			node,
 			timestamp: mediaTimestamp,
-			buffer,
 			sourceDurationInSeconds,
-			scheduledTime: started.scheduledTime,
-			playbackRate,
-			scheduledAtAnchor: sharedAudioContext.audioSyncAnchor.value,
 		});
 	};
 
@@ -271,7 +260,10 @@ export const audioIteratorManager = ({
 			logLevel,
 			originalUnloopedMediaTimestamp: buffer.buffer.timestamp,
 			sourceOffsetInSeconds: buffer.sourceOffsetInSeconds,
-			sourceDurationInSeconds: buffer.sourceDurationInSeconds,
+			sourceDurationInSeconds: Math.min(
+				buffer.sourceDurationInSeconds,
+				sequenceEndTime - buffer.timelineTimestamp,
+			),
 		});
 
 		drawDebugOverlay();
@@ -298,7 +290,10 @@ export const audioIteratorManager = ({
 		) => number | null;
 		playbackRate: number;
 		scheduleAudioNode: ScheduleAudioNode;
-		onScheduled: (sourceDurationInSeconds: number) => void;
+		onScheduled: (
+			sourceDurationInSeconds: number,
+			timelineTimestamp: number,
+		) => void;
 		onDone: () => void;
 		onDestroyed: () => void;
 		logLevel: LogLevel;
@@ -346,7 +341,10 @@ export const audioIteratorManager = ({
 					return;
 				}
 
-				onScheduled(result.value.sourceDurationInSeconds);
+				onScheduled(
+					result.value.sourceDurationInSeconds,
+					result.value.timelineTimestamp,
+				);
 				notifyNodeScheduled();
 
 				onAudioChunk({
@@ -384,7 +382,16 @@ export const audioIteratorManager = ({
 					return;
 				}
 
-				throw e;
+				// A non-destructive seek can stale the nonce while retaining this
+				// iterator. Only ignore errors when the iterator was replaced.
+				if (iterator.isDestroyed()) {
+					onDestroyed();
+					return;
+				}
+
+				iterator.destroy();
+				onDestroyed();
+				onError(e as Error);
 			},
 		});
 	};
@@ -412,10 +419,12 @@ export const audioIteratorManager = ({
 		) => number | null;
 		logLevel: LogLevel;
 		loop: boolean;
-		unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+		unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean | void;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
-		if (muted) {
+		// Audio iterators only schedule forward. Studio's reverse playback must
+		// stay silent instead of producing negative AudioBufferSourceNode offsets.
+		if (muted || playbackRate <= 0) {
 			return;
 		}
 
@@ -437,7 +446,7 @@ export const audioIteratorManager = ({
 
 		const maximumContinuousTimestamp =
 			startFromSecond + getSequenceDurationInSeconds() * playbackRate;
-		const source = loop
+		const unshiftedSource = loop
 			? makeLoopingIterator({
 					audioSink,
 					seekTimeInSeconds: startFromSecond,
@@ -450,6 +459,10 @@ export const audioIteratorManager = ({
 					timeToSeek: startFromSecond,
 					maximumTimestamp,
 				});
+		const source = pitchShiftAudioIterator({
+			iterator: unshiftedSource,
+			toneFrequency: currentToneFrequency,
+		});
 		const iterator = makeAudioIterator({
 			startFromSecond,
 			iterator: source,
@@ -458,7 +471,7 @@ export const audioIteratorManager = ({
 		audioIteratorsCreated++;
 		audioBufferIterator = iterator;
 
-		let bufferedDuration = 0;
+		let bufferedUntil = startFromSecond;
 		let hasUnblockedPlayback = false;
 		const unblockPlayback = () => {
 			if (hasUnblockedPlayback) {
@@ -475,12 +488,17 @@ export const audioIteratorManager = ({
 			getTargetTime,
 			playbackRate,
 			scheduleAudioNode,
-			onScheduled: (sourceDurationInSeconds) => {
-				bufferedDuration += sourceDurationInSeconds;
+			onScheduled: (sourceDurationInSeconds, timelineTimestamp) => {
+				bufferedUntil = Math.max(
+					bufferedUntil,
+					timelineTimestamp + sourceDurationInSeconds,
+				);
+				const bufferedDuration = bufferedUntil - startFromSecond;
 				// Need to schedule a bit into the future to unblock the buffer state,
 				// otherwise we might be scheduling too late. This must be based on
-				// duration, not chunk count, because large PCM chunks can exceed the
-				// scheduling horizon before enough chunks are queued:
+				// timeline coverage, not audible duration or chunk count: silence is
+				// already safe to play, and large PCM chunks can exceed the scheduling
+				// horizon before enough chunks are queued:
 				// https://github.com/remotion-dev/remotion/issues/9394
 				if (hasEnoughAudioToStartPlayback(bufferedDuration)) {
 					unblockPlayback();
@@ -539,6 +557,7 @@ export const audioIteratorManager = ({
 		}
 
 		if (
+			currentSeek !== null &&
 			currentSeek.time === newTime &&
 			currentSeek.playbackRate === playbackRate &&
 			currentSeek.trimBefore === trimBefore &&
@@ -546,7 +565,8 @@ export const audioIteratorManager = ({
 			currentSeek.sequenceOffset === sequenceOffset &&
 			currentSeek.sequenceDurationInFrames === sequenceDurationInFrames &&
 			currentSeek.loop === loop &&
-			currentSeek.fps === fps
+			currentSeek.fps === fps &&
+			(muted || (audioBufferIterator && !audioBufferIterator.isDestroyed()))
 		) {
 			return;
 		}
@@ -579,15 +599,16 @@ export const audioIteratorManager = ({
 						})
 					: newTime;
 			const queuedPeriod = audioBufferIterator.getQueuedPeriod();
+			// Queued timestamps are in media seconds, so convert the Player's
+			// AudioContext tolerance using the combined media and Player rate.
+			const anchorTolerance =
+				Internals.getAudioSyncAnchorTolerance(sharedAudioContext.audioContext) *
+				Math.abs(playbackRate);
 			// If there is a missing period, but we'd have no chance to schedule nodes,
 			// then let's not bother. Let's just leave the gap.
 			const queuedPeriodMinusLatency: QueuedPeriod | null = queuedPeriod
 				? {
-						from:
-							queuedPeriod.from -
-							ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT -
-							sharedAudioContext.audioContext.baseLatency -
-							sharedAudioContext.audioContext.outputLatency,
+						from: queuedPeriod.from - anchorTolerance,
 						until: queuedPeriod.until,
 					}
 				: null;
@@ -602,12 +623,19 @@ export const audioIteratorManager = ({
 			}
 
 			const currentIteratorTimestamp = audioBufferIterator.guessNextTimestamp();
+			const iteratorHasAdvancedThroughSilence =
+				loop &&
+				currentAnchor !== null &&
+				unloopedNewTime >= currentAnchor.unloopedStartInSeconds &&
+				currentIteratorTimestamp >= timeToCheck;
 			if (
-				currentIteratorTimestamp < timeToCheck &&
-				Math.abs(currentIteratorTimestamp - timeToCheck) < 1
+				iteratorHasAdvancedThroughSilence ||
+				(currentIteratorTimestamp < timeToCheck &&
+					Math.abs(currentIteratorTimestamp - timeToCheck) < 1)
 			) {
 				processNext();
-				// iterator is less than 1 second behind, we will just let it run
+				// The iterator has either advanced beyond the current time, meaning
+				// the gap is known silence, or is less than 1 second behind. Let it run.
 				return;
 			}
 		}
@@ -639,18 +667,35 @@ export const audioIteratorManager = ({
 			// getCurrentAnchor() cannot hand out a stale mapping (from a previous
 			// rate/trim) during the window before a new iterator is started.
 			currentAnchor = null;
+			currentSeek = null;
 			unblockCurrentDelayHandle();
 		},
 		seek,
 		getAudioIteratorsCreated: () => audioIteratorsCreated,
 		getTotalAudioScheduledInSeconds: () => totalAudioScheduledInSeconds,
 		setMuted: (newMuted: boolean) => {
+			if (muted === newMuted) {
+				return;
+			}
+
 			muted = newMuted;
 			gainNode.gain.value = muted ? 0 : currentVolume;
+			if (muted) {
+				audioBufferIterator?.destroy();
+				audioBufferIterator = null;
+				currentAnchor = null;
+				unblockCurrentDelayHandle();
+			}
+
+			// An unmute at the same frame still needs a fresh iterator.
+			currentSeek = null;
 		},
 		setVolume: (volume: number) => {
 			currentVolume = Math.max(0, volume);
 			gainNode.gain.value = muted ? 0 : currentVolume;
+		},
+		setToneFrequency: (newToneFrequency: number) => {
+			currentToneFrequency = newToneFrequency;
 		},
 		scheduleAudioChunk,
 		waitForNScheduledNodes,

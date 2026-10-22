@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-effects-levels.png
+slug: /effects/levels
+title: levels()
+sidebar_label: levels()
+crumb: '@remotion/effects'
+---
+
+# levels()<AvailableFrom v="4.0.508" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Sets the black point, white point, and midtone gamma in one tonal adjustment.
+
+## Preview
+
+<EffectsDemo type="effects-levels" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {levels} from '@remotion/effects/levels';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        levels({
+          blackPoint: 0.05,
+          whitePoint: 0.95,
+          gamma: 1.2,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+You can call `levels()` without arguments or pass an object with the following properties.
+
+### `blackPoint?`
+
+The input value mapped to black, from `0` to `1`. Values below it are clipped to black. Defaults to `0`.
+
+The black point must be less than the white point. Moving the points close together produces a steep tonal stretch.
+
+### `whitePoint?`
+
+The input value mapped to white, from `0` to `1`. Values above it are clipped to white. Defaults to `1`.
+
+The white point must be greater than the black point.
+
+### `gamma?`
+
+The midtone gamma from `0.01` to `10`. Values below `1` darken midtones and values above `1` brighten them. Defaults to `1`.
+
+The effect remaps unpremultiplied sRGB channel values, then applies the gamma curve.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`contrast()`](/docs/effects/contrast)
+- [`exposure()`](/docs/effects/exposure)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/levels.ts)

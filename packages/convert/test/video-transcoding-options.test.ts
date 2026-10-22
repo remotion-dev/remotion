@@ -2,12 +2,13 @@ import {expect, test} from 'bun:test';
 import type {InputTrack} from 'mediabunny';
 import {Mp4OutputFormat} from 'mediabunny';
 import {getSupportedConfigs} from '../app/components/get-supported-configs';
+import {prioritizeInputVideoCodec} from '../app/lib/can-transcode-or-copy';
 
-const makeVideoTrack = () =>
+const makeVideoTrack = (codec = 'avc') =>
 	({
 		id: 0,
-		codec: 'avc',
-		getCodec: () => Promise.resolve('avc'),
+		codec,
+		getCodec: () => Promise.resolve(codec),
 		rotation: 0,
 		displayHeight: 1080,
 		displayWidth: 1920,
@@ -48,4 +49,13 @@ test('disables video copy when a video edit is enabled', async () => {
 			return operation.type === 'copy';
 		}),
 	).toBe(false);
+});
+
+test('prefers the input video codec when it is supported', () => {
+	expect(
+		prioritizeInputVideoCodec({
+			inputVideoCodec: 'vp8',
+			supportedCodecs: ['vp9', 'av1', 'vp8'],
+		}),
+	).toEqual(['vp8', 'vp9', 'av1']);
 });

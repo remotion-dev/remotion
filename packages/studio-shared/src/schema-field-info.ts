@@ -226,11 +226,14 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	color: true,
 	enum: true,
 	'font-family': true,
+	'font-weight': true,
 	hidden: false,
 	number: true,
 	'rotation-css': true,
 	'rotation-degrees': true,
 	scale: true,
+	'svg-path': true,
+	string: true,
 	'text-content': true,
 	'transform-origin': true,
 	translate: true,
@@ -286,6 +289,10 @@ const getSchemaFieldRowHeight = ({
 				value,
 			}) * SCHEMA_FIELD_ROW_HEIGHT
 		);
+	}
+
+	if (fieldSchema.type === 'asset' && fieldSchema.assetType === 'image') {
+		return 56;
 	}
 
 	return SCHEMA_FIELD_ROW_HEIGHT;
@@ -370,7 +377,11 @@ export const getFieldsToShow = ({
 				return null;
 			}
 
-			if (fieldSchema.type === 'text-content' && !includeTextContent) {
+			if (
+				(fieldSchema.type === 'string' ||
+					fieldSchema.type === 'text-content') &&
+				!includeTextContent
+			) {
 				return null;
 			}
 

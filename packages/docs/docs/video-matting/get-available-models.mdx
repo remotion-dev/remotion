@@ -1,0 +1,64 @@
+---
+image: /generated/articles-docs-video-matting-get-available-models.png
+title: getAvailableModels()
+crumb: '@remotion/video-matting'
+---
+
+# getAvailableModels()<AvailableFrom v="4.0.523" />
+
+Returns metadata for the models supported by [`separateVideoLayers()`](/docs/video-matting/separate-video-layers).
+
+```ts twoslash title="models.ts"
+import {getAvailableModels} from '@remotion/video-matting';
+
+const models = getAvailableModels();
+console.log(models);
+```
+
+| Name        | Purpose                     | WebGPU download size | Status                           |
+| ----------- | --------------------------- | -------------------- | -------------------------------- |
+| `modnet`    | People                      | 25.9 MB              | Default                          |
+| `ben2-base` | General foreground subjects | 219.1 MB             | Experimental and higher-resource |
+
+The [`modnet` model](https://huggingface.co/Xenova/modnet) is Apache-2.0 licensed.  
+The [`ben2-base` model](https://huggingface.co/onnx-community/BEN2-ONNX) is the MIT-licensed BEN2 Base export.
+
+## Model hosting
+
+The `modelId` values identify the upstream Hugging Face models.  
+
+We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face directly.  
+We mirrored the models to `remotion.media`, keeping them byte-identical.  
+We also notified Hugging Face and they are investigating the issue. We may migrate back to the official hosting in the future.
+
+
+## Return value
+
+Returns an array with the following properties:
+
+### name
+
+The model name accepted by APIs in this package.
+
+### modelId
+
+The upstream Hugging Face model identifier. This is provenance metadata, not the runtime download location.
+
+### purpose
+
+A short description of the subjects the model is intended to separate.
+
+### webGpuDownloadSize
+
+The total size in bytes of all runtime files downloaded for WebGPU.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`isVideoMattingModelCached()`](/docs/video-matting/is-video-matting-model-cached)
+- [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model)
+- [`loadVideoMattingModel()`](/docs/video-matting/load-video-matting-model)
+- [`removeVideoMattingModel()`](/docs/video-matting/remove-video-matting-model)

@@ -1,25 +1,38 @@
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
-import {compositionDragDataToSymbolicatedStack} from '@remotion/studio-shared';
-import type {DragEvent, KeyboardEvent, MouseEvent} from 'react';
+import type {
+	CompositionDestination,
+	CompositionOrFolder,
+} from '@remotion/studio-shared';
+import type {
+	DragEvent,
+	KeyboardEvent,
+	MouseEvent,
+	MutableRefObject,
+} from 'react';
 import React, {
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import {type _InternalTypes} from 'remotion';
-import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {
-	BACKGROUND,
+	CURRENT_COLOR,
 	LIGHT_TEXT,
+	TIMELINE_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_12,
 	TRANSPARENT,
 	WHITE,
 	WHITE_ALPHA_06,
-	WHITE_ALPHA_12,
 } from '../helpers/colors';
-import {getFolderId} from '../helpers/get-folder-id';
+import {
+	HOVERABLE_CLASS_NAME,
+	HOVER_GROUP_CLASS_NAME,
+	hoverableStyle,
+} from '../helpers/hoverable';
 import {noop} from '../helpers/noop';
 import {
 	markCompositionSidebarScrollFromRowClick,
@@ -27,7 +40,16 @@ import {
 } from '../helpers/sidebar-scroll-into-view';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {SetSelectedModalContext} from '../state/modals';
+import {makeCompositionDragData} from './composition-drag-data';
 import {getCompositionContextMenuItems} from './composition-menu-items';
+import {
+	compositionSelectorDragDataToSymbolicatedStack,
+	hasCompositionSelectorDragData,
+	makeCompositionSelectorDragData,
+	parseCompositionSelectorDragData,
+	type CompositionSelectorActiveDrag,
+	type CompositionSelectorDragData,
+} from './composition-selector-drag-data';
 import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
@@ -35,9 +57,10 @@ import {getFolderMenuItems} from './folder-menu-items';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {applyCodemod} from './RenderQueue/actions';
+import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
+import {useOpenInMenuApps} from './use-open-in-menu-apps';
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 2,
@@ -49,15 +72,16 @@ const itemStyle: React.CSSProperties = {
 	cursor: 'default',
 	alignItems: 'center',
 	marginBottom: 1,
-	marginLeft: 4,
+	marginLeft: 8,
+	marginRight: 4,
 	appearance: 'none',
 	border: 'none',
 	borderRadius: 4,
-	width: 'calc(100% - 4px)',
+	width: 'calc(100% - 12px)',
 	textAlign: 'left',
-	backgroundColor: BACKGROUND,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const labelStyle: React.CSSProperties = {
@@ -74,6 +98,106 @@ const iconStyle: React.CSSProperties = {
 	width: 18,
 	height: 18,
 	flexShrink: 0,
+};
+
+const reorderWrapper: React.CSSProperties = {
+	position: 'relative',
+};
+
+const folderDropTargetStyle: React.CSSProperties = {
+	backgroundColor: TIMELINE_DROP_BLUE_ALPHA_12,
+	boxShadow: `inset 0 0 0 1px ${TIMELINE_BLUE}`,
+	borderRadius: 4,
+};
+
+const reorderLineBase: React.CSSProperties = {
+	backgroundColor: TIMELINE_BLUE,
+	height: 2,
+	left: 0,
+	pointerEvents: 'none',
+	position: 'absolute',
+	right: 0,
+	zIndex: 1,
+};
+
+const folderAutoExpansionDelay = 700;
+
+type DropPosition = 'before' | 'inside' | 'after';
+
+const itemToDescriptor = (
+	item: CompositionSelectorItemType,
+): CompositionOrFolder => {
+	return item.type === 'composition'
+		? {type: 'composition', compositionId: item.composition.id}
+		: {
+				type: 'folder',
+				folderName: item.folderName,
+				parentName: item.parentName,
+			};
+};
+
+const itemsAreEqual = (
+	left: CompositionOrFolder,
+	right: CompositionOrFolder,
+) => {
+	if (left.type === 'composition') {
+		return (
+			right.type === 'composition' && left.compositionId === right.compositionId
+		);
+	}
+
+	return (
+		right.type === 'folder' &&
+		left.folderName === right.folderName &&
+		left.parentName === right.parentName
+	);
+};
+
+const getFolderPath = ({
+	folderName,
+	parentName,
+}: {
+	readonly folderName: string;
+	readonly parentName: string | null;
+}) => {
+	return [parentName, folderName].filter(Boolean).join('/');
+};
+
+const wouldMoveFolderIntoItself = ({
+	activeDrag,
+	destinationParentFolderPath,
+}: {
+	readonly activeDrag: CompositionSelectorActiveDrag;
+	readonly destinationParentFolderPath: string | null;
+}) => {
+	if (
+		activeDrag.item.type !== 'folder' ||
+		destinationParentFolderPath === null
+	) {
+		return false;
+	}
+
+	const sourceFolderPath = getFolderPath(activeDrag.item);
+	return (
+		destinationParentFolderPath === sourceFolderPath ||
+		destinationParentFolderPath.startsWith(`${sourceFolderPath}/`)
+	);
+};
+
+const canMoveIntoFolder = ({
+	activeDrag,
+	destinationFolderPath,
+}: {
+	readonly activeDrag: CompositionSelectorActiveDrag;
+	readonly destinationFolderPath: string;
+}) => {
+	return (
+		activeDrag.parentFolderPath !== destinationFolderPath &&
+		!wouldMoveFolderIntoItself({
+			activeDrag,
+			destinationParentFolderPath: destinationFolderPath,
+		})
+	);
 };
 
 export type CompositionSelectorItemType =
@@ -105,7 +229,16 @@ export const CompositionSelectorItem: React.FC<{
 		parentName: string | null,
 	) => void;
 	readonly clearRootDragHover: () => void;
+	readonly canReorder: boolean;
+	readonly folderDropTarget: string | null;
+	readonly setFolderDropTarget: React.Dispatch<
+		React.SetStateAction<string | null>
+	>;
 	readonly level: number;
+	readonly activeDragRef: MutableRefObject<CompositionSelectorActiveDrag | null>;
+	readonly parentFolderPath: string | null;
+	readonly previousSibling: CompositionSelectorItemType | null;
+	readonly nextSibling: CompositionSelectorItemType | null;
 }> = ({
 	item,
 	level,
@@ -114,6 +247,13 @@ export const CompositionSelectorItem: React.FC<{
 	selectComposition,
 	toggleFolder,
 	clearRootDragHover,
+	canReorder,
+	folderDropTarget,
+	setFolderDropTarget,
+	activeDragRef,
+	parentFolderPath,
+	previousSibling,
+	nextSibling,
 }) => {
 	const selected = useMemo(() => {
 		if (item.type === 'composition') {
@@ -122,16 +262,55 @@ export const CompositionSelectorItem: React.FC<{
 
 		return false;
 	}, [item, currentComposition]);
-	const [hovered, setHovered] = useState(false);
-	const onPointerEnter = useCallback(() => {
-		setHovered(true);
+	const [isDragging, setIsDragging] = useState(false);
+	const [dropPosition, setDropPosition] = useState<DropPosition | null>(null);
+	const dropPositionRef = useRef<DropPosition | null>(null);
+	const folderExpansionTimer = useRef<number | null>(null);
+	const folderExpansionRequested = useRef(false);
+
+	const cancelFolderExpansion = useCallback(() => {
+		if (folderExpansionTimer.current !== null) {
+			window.clearTimeout(folderExpansionTimer.current);
+			folderExpansionTimer.current = null;
+		}
+	}, []);
+	const updateDropPosition = useCallback((position: DropPosition | null) => {
+		dropPositionRef.current = position;
+		setDropPosition(position);
 	}, []);
 
-	const onPointerLeave = useCallback(() => {
-		setHovered(false);
-	}, []);
-	const [isDragging, setIsDragging] = useState(false);
-	const [dragHovered, setDragHovered] = useState(false);
+	useEffect(() => {
+		return cancelFolderExpansion;
+	}, [cancelFolderExpansion]);
+
+	const folderIsExpanded = item.type === 'folder' && item.expanded;
+	const folderPath = item.type === 'folder' ? getFolderPath(item) : null;
+	const highlightedFolderStyle =
+		folderPath !== null && folderDropTarget === folderPath
+			? folderDropTargetStyle
+			: undefined;
+	const onFolderDragLeave = useCallback(
+		(event: DragEvent<HTMLDivElement>) => {
+			if (
+				event.relatedTarget instanceof Node &&
+				event.currentTarget.contains(event.relatedTarget)
+			) {
+				return;
+			}
+
+			setFolderDropTarget((current) =>
+				current === folderPath ? null : current,
+			);
+			cancelFolderExpansion();
+		},
+		[cancelFolderExpansion, folderPath, setFolderDropTarget],
+	);
+	useEffect(() => {
+		if (folderIsExpanded) {
+			folderExpansionRequested.current = false;
+			cancelFolderExpansion();
+		}
+	}, [cancelFolderExpansion, folderIsExpanded]);
 
 	const compositionRowRef = useRef<HTMLAnchorElement>(null);
 	const compositionId =
@@ -149,23 +328,32 @@ export const CompositionSelectorItem: React.FC<{
 	}, [compositionId, selected]);
 
 	const style: React.CSSProperties = useMemo(() => {
+		const idleBackground = selected ? WHITE_ALPHA_06 : TRANSPARENT;
 		return {
 			...itemStyle,
-			backgroundColor: dragHovered
-				? WHITE_ALPHA_12
-				: hovered || selected
-					? WHITE_ALPHA_06
-					: TRANSPARENT,
-			paddingLeft: 12 + level * 8,
+			...hoverableStyle({
+				idleBackground,
+				hoverBackground: WHITE_ALPHA_06,
+				idleColor: selected ? WHITE : LIGHT_TEXT,
+				hoverColor: WHITE,
+			}),
+			paddingLeft: 12 + level * 11,
 		};
-	}, [dragHovered, hovered, level, selected]);
+	}, [level, selected]);
 
-	const label = useMemo(() => {
+	const reorderLineStyle = useMemo((): React.CSSProperties | null => {
+		if (
+			!canReorder ||
+			(dropPosition !== 'before' && dropPosition !== 'after')
+		) {
+			return null;
+		}
+
 		return {
-			...labelStyle,
-			color: selected || hovered ? WHITE : LIGHT_TEXT,
+			...reorderLineBase,
+			...(dropPosition === 'before' ? {top: -1} : {bottom: -1}),
 		};
-	}, [hovered, selected]);
+	}, [canReorder, dropPosition]);
 
 	const onClick = useCallback(
 		(evt: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => {
@@ -182,7 +370,7 @@ export const CompositionSelectorItem: React.FC<{
 
 	const onKeyDown = useCallback(
 		(evt: React.KeyboardEvent<HTMLElement>) => {
-			if (evt.key === 'Enter' || evt.key === ' ') {
+			if (evt.key === 'Enter') {
 				onClick(evt);
 			}
 		},
@@ -190,8 +378,7 @@ export const CompositionSelectorItem: React.FC<{
 	);
 
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
+	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const resolvedLocation = useResolvedStack(
 		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
@@ -203,6 +390,7 @@ export const CompositionSelectorItem: React.FC<{
 				composition: item.composition,
 				connectionStatus,
 				includeCompositionManagementItems: true,
+				openInApps,
 				resolvedLocation,
 				setSelectedModal,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
@@ -212,70 +400,357 @@ export const CompositionSelectorItem: React.FC<{
 		return getFolderMenuItems({
 			closeMenu: noop,
 			connectionStatus,
+			editorId: openInApps.defaultEditorId,
+			editorName: openInApps.defaultEditorName,
 			folder: item.folder,
 			resolvedLocation,
 			setSelectedModal,
 			readOnlyStudio: window.remotion_isReadOnlyStudio,
 		});
-	}, [connectionStatus, item, resolvedLocation, setSelectedModal]);
+	}, [connectionStatus, item, openInApps, resolvedLocation, setSelectedModal]);
 
-	const onCompositionDragStart = useCallback(
+	const onItemDragStart = useCallback(
 		(event: DragEvent<HTMLElement>) => {
-			if (item.type !== 'composition' || window.remotion_isReadOnlyStudio) {
+			if (window.remotion_isReadOnlyStudio) {
 				event.preventDefault();
 				return;
 			}
 
+			const itemDescriptor = itemToDescriptor(item);
+			activeDragRef.current = {
+				item: itemDescriptor,
+				parentFolderPath,
+			};
 			setIsDragging(true);
 			event.dataTransfer.effectAllowed = 'copyMove';
-			const dragData = StudioProtocolInternals.makeDragData({
-				type: 'composition',
-				compositionFile: resolvedLocation?.source ?? null,
-				compositionId: item.composition.id,
-				width: item.composition.width ?? null,
-				height: item.composition.height ?? null,
-				durationInFrames: item.composition.durationInFrames ?? null,
+			const selectorDragData = makeCompositionSelectorDragData({
+				item: itemDescriptor,
+				sourceFile: resolvedLocation?.source ?? null,
 			});
-			event.dataTransfer.setData(dragData.mimeType, dragData.payload);
-		},
-		[item, resolvedLocation?.source],
-	);
-	const onCompositionDragEnd = useCallback(() => {
-		setIsDragging(false);
-	}, []);
+			event.dataTransfer.setData(
+				selectorDragData.mimeType,
+				selectorDragData.payload,
+			);
 
-	const onFolderDragOver = useCallback(
-		(event: DragEvent<HTMLElement>) => {
+			if (item.type === 'composition') {
+				const browserStudioOperations = getBrowserStudioOperations();
+				const compositionDragData = makeCompositionDragData({
+					compositionFile:
+						browserStudioOperations === null
+							? (resolvedLocation?.source ?? null)
+							: browserStudioOperations.getCompositionFile(item.composition.id),
+					compositionId: item.composition.id,
+					width: item.composition.width ?? null,
+					height: item.composition.height ?? null,
+					durationInFrames: item.composition.durationInFrames ?? null,
+				});
+				event.dataTransfer.setData(
+					compositionDragData.mimeType,
+					compositionDragData.payload,
+				);
+			}
+		},
+		[activeDragRef, item, parentFolderPath, resolvedLocation?.source],
+	);
+	const onItemDragEnd = useCallback(() => {
+		activeDragRef.current = null;
+		setFolderDropTarget(null);
+		cancelFolderExpansion();
+		setIsDragging(false);
+		updateDropPosition(null);
+	}, [
+		activeDragRef,
+		cancelFolderExpansion,
+		setFolderDropTarget,
+		updateDropPosition,
+	]);
+
+	const getDropPosition = useCallback(
+		(event: DragEvent<HTMLElement>): DropPosition | null => {
+			const activeDrag = activeDragRef.current;
+			if (activeDrag === null) {
+				return null;
+			}
+
+			if (!canReorder) {
+				return null;
+			}
+
+			const {top, height} = event.currentTarget.getBoundingClientRect();
+			const progress = height === 0 ? 0.5 : (event.clientY - top) / height;
+			const position =
+				item.type === 'composition'
+					? progress < 0.5
+						? 'before'
+						: 'after'
+					: progress < 0.25
+						? 'before'
+						: progress > 0.75
+							? 'after'
+							: 'inside';
+			const target = itemToDescriptor(item);
+			if (itemsAreEqual(activeDrag.item, target)) {
+				return null;
+			}
+
 			if (
-				item.type !== 'folder' ||
-				window.remotion_isReadOnlyStudio ||
-				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
-					?.type !== 'composition'
+				position === 'before' &&
+				previousSibling !== null &&
+				itemsAreEqual(activeDrag.item, itemToDescriptor(previousSibling))
+			) {
+				return null;
+			}
+
+			if (
+				position === 'after' &&
+				nextSibling !== null &&
+				itemsAreEqual(activeDrag.item, itemToDescriptor(nextSibling))
+			) {
+				return null;
+			}
+
+			if (position === 'inside' && item.type === 'folder') {
+				return canMoveIntoFolder({
+					activeDrag,
+					destinationFolderPath: getFolderPath(item),
+				})
+					? position
+					: null;
+			}
+
+			return wouldMoveFolderIntoItself({
+				activeDrag,
+				destinationParentFolderPath: parentFolderPath,
+			})
+				? null
+				: position;
+		},
+		[
+			activeDragRef,
+			canReorder,
+			item,
+			nextSibling,
+			parentFolderPath,
+			previousSibling,
+		],
+	);
+
+	const scheduleFolderExpansion = useCallback(() => {
+		if (
+			item.type !== 'folder' ||
+			item.expanded ||
+			folderExpansionTimer.current !== null ||
+			folderExpansionRequested.current
+		) {
+			return;
+		}
+
+		const activeDrag = activeDragRef.current;
+		if (
+			activeDrag === null ||
+			!canMoveIntoFolder({
+				activeDrag,
+				destinationFolderPath: getFolderPath(item),
+			})
+		) {
+			return;
+		}
+
+		folderExpansionTimer.current = window.setTimeout(() => {
+			folderExpansionTimer.current = null;
+			const currentActiveDrag = activeDragRef.current;
+			if (
+				currentActiveDrag === null ||
+				!canMoveIntoFolder({
+					activeDrag: currentActiveDrag,
+					destinationFolderPath: getFolderPath(item),
+				})
 			) {
 				return;
+			}
+
+			folderExpansionRequested.current = true;
+			toggleFolder(item.folderName, item.parentName);
+		}, folderAutoExpansionDelay);
+	}, [activeDragRef, item, toggleFolder]);
+
+	const onRowDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (
+				window.remotion_isReadOnlyStudio ||
+				!hasCompositionSelectorDragData(event.dataTransfer.types)
+			) {
+				return;
+			}
+
+			const position = getDropPosition(event);
+			if (position === null) {
+				cancelFolderExpansion();
+				updateDropPosition(null);
+				setFolderDropTarget(null);
+				event.stopPropagation();
+
+				return;
+			}
+
+			setFolderDropTarget(position === 'inside' ? folderPath : null);
+
+			if (position === 'inside') {
+				scheduleFolderExpansion();
+			} else {
+				cancelFolderExpansion();
 			}
 
 			event.preventDefault();
 			event.stopPropagation();
 			event.dataTransfer.dropEffect = 'move';
 			clearRootDragHover();
-			setDragHovered(true);
+			updateDropPosition(position);
 		},
-		[clearRootDragHover, item],
+		[
+			cancelFolderExpansion,
+			clearRootDragHover,
+			folderPath,
+			getDropPosition,
+			scheduleFolderExpansion,
+			setFolderDropTarget,
+			updateDropPosition,
+		],
 	);
 
-	const onFolderDragLeave = useCallback(() => {
-		setDragHovered(false);
-	}, []);
+	const onRowDragLeave = useCallback(() => {
+		cancelFolderExpansion();
+		updateDropPosition(null);
+	}, [cancelFolderExpansion, updateDropPosition]);
+
+	const moveItem = useCallback(
+		async ({
+			destination,
+			dragData,
+		}: {
+			destination: CompositionDestination;
+			dragData: CompositionSelectorDragData;
+		}) => {
+			try {
+				const {item: source} = dragData;
+				const {signal} = new AbortController();
+				const common = {
+					destination,
+					symbolicatedStack:
+						compositionSelectorDragDataToSymbolicatedStack(dragData),
+					undoRedoNavigation: null,
+				};
+				const result = await (source.type === 'composition'
+					? moveComposition(
+							{...common, compositionId: source.compositionId},
+							signal,
+						)
+					: moveFolder(
+							{
+								...common,
+								folderName: source.folderName,
+								parentName: source.parentName,
+							},
+							signal,
+						));
+
+				if (!result.success) {
+					showNotification(result.reason, 4000);
+					return;
+				}
+
+				if (
+					destination.type === 'folder' &&
+					item.type === 'folder' &&
+					!item.expanded
+				) {
+					toggleFolder(item.folderName, item.parentName);
+				}
+			} catch (error) {
+				showNotification(
+					error instanceof Error ? error.message : String(error),
+					4000,
+				);
+			}
+		},
+		[item, toggleFolder],
+	);
+
+	const onRowDrop = useCallback(
+		async (event: DragEvent<HTMLElement>) => {
+			cancelFolderExpansion();
+			const dragData = parseCompositionSelectorDragData(event.dataTransfer);
+			const position = canReorder ? dropPositionRef.current : null;
+			if (dragData === null) {
+				return;
+			}
+
+			if (position === null) {
+				event.stopPropagation();
+
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			clearRootDragHover();
+			updateDropPosition(null);
+			setFolderDropTarget(null);
+			await moveItem({
+				dragData,
+				destination:
+					position === 'inside' && item.type === 'folder'
+						? {
+								type: 'folder',
+								folderName: item.folderName,
+								parentName: item.parentName,
+							}
+						: {
+								type: position === 'before' ? 'before' : 'after',
+								target: itemToDescriptor(item),
+							},
+			});
+		},
+		[
+			cancelFolderExpansion,
+			canReorder,
+			clearRootDragHover,
+			item,
+			moveItem,
+			setFolderDropTarget,
+			updateDropPosition,
+		],
+	);
 
 	const onFolderChildListDragOver = useCallback(
 		(event: DragEvent<HTMLElement>) => {
 			if (
 				item.type !== 'folder' ||
 				window.remotion_isReadOnlyStudio ||
-				StudioProtocolInternals.getDragPreviewMetadata(event.dataTransfer.types)
-					?.type !== 'composition'
+				!hasCompositionSelectorDragData(event.dataTransfer.types)
 			) {
+				return;
+			}
+
+			if (
+				!canReorder &&
+				event.target instanceof Element &&
+				event.target.closest('[data-composition-folder]') !==
+					event.currentTarget
+			) {
+				return;
+			}
+
+			const activeDrag = activeDragRef.current;
+			if (
+				activeDrag === null ||
+				!canMoveIntoFolder({
+					activeDrag,
+					destinationFolderPath: getFolderPath(item),
+				})
+			) {
+				setFolderDropTarget(null);
+				event.stopPropagation();
 				return;
 			}
 
@@ -283,124 +758,134 @@ export const CompositionSelectorItem: React.FC<{
 			event.stopPropagation();
 			event.dataTransfer.dropEffect = 'move';
 			clearRootDragHover();
+			setFolderDropTarget(getFolderPath(item));
+			if (!canReorder) {
+				scheduleFolderExpansion();
+			}
 		},
-		[clearRootDragHover, item],
+		[
+			activeDragRef,
+			canReorder,
+			clearRootDragHover,
+			item,
+			scheduleFolderExpansion,
+			setFolderDropTarget,
+		],
 	);
 
-	const onFolderDrop = useCallback(
+	const onFolderChildListDrop = useCallback(
 		async (event: DragEvent<HTMLElement>) => {
 			if (item.type !== 'folder' || window.remotion_isReadOnlyStudio) {
 				return;
 			}
 
-			const parsed = StudioProtocolInternals.parseDragData(event.dataTransfer);
-			if (parsed?.type !== 'composition') {
+			if (
+				!canReorder &&
+				event.target instanceof Element &&
+				event.target.closest('[data-composition-folder]') !==
+					event.currentTarget
+			) {
 				return;
 			}
 
-			const compositionDragData = parsed.data;
+			const dragData = parseCompositionSelectorDragData(event.dataTransfer);
+			if (dragData === null) {
+				return;
+			}
+
+			const activeDrag = activeDragRef.current;
+			if (
+				activeDrag === null ||
+				!canMoveIntoFolder({
+					activeDrag,
+					destinationFolderPath: getFolderPath(item),
+				})
+			) {
+				event.stopPropagation();
+				return;
+			}
 
 			event.preventDefault();
 			event.stopPropagation();
 			clearRootDragHover();
-			setDragHovered(false);
-
-			const isAlreadyDirectChild = item.items.some((child) => {
-				return (
-					child.type === 'composition' &&
-					child.composition.id === compositionDragData.compositionId
-				);
+			setFolderDropTarget(null);
+			cancelFolderExpansion();
+			await moveItem({
+				dragData,
+				destination: {
+					type: 'folder',
+					folderName: item.folderName,
+					parentName: item.parentName,
+				},
 			});
-			if (isAlreadyDirectChild) {
-				return;
-			}
-
-			const folderId = getFolderId({
-				folderName: item.folderName,
-				parentName: item.parentName,
-			});
-			const notification = showNotification(
-				`Moving ${compositionDragData.compositionId}...`,
-				null,
-			);
-			const controller = new AbortController();
-
-			try {
-				const result = await applyCodemod({
-					codemod: {
-						type: 'move-composition-to-folder',
-						idToMove: compositionDragData.compositionId,
-						folderName: item.folderName,
-						parentName: item.parentName,
-					},
-					dryRun: false,
-					signal: controller.signal,
-					symbolicatedStack:
-						compositionDragDataToSymbolicatedStack(compositionDragData),
-				});
-
-				notification.replaceContent(
-					result.success
-						? `Moved ${compositionDragData.compositionId} to ${folderId}`
-						: result.reason,
-					result.success ? 2000 : 4000,
-				);
-				if (result.success && !item.expanded) {
-					toggleFolder(item.folderName, item.parentName);
-				}
-			} catch (err) {
-				notification.replaceContent(
-					err instanceof Error ? err.message : String(err),
-					4000,
-				);
-			}
 		},
-		[clearRootDragHover, item, toggleFolder],
+		[
+			activeDragRef,
+			cancelFolderExpansion,
+			canReorder,
+			clearRootDragHover,
+			item,
+			moveItem,
+			setFolderDropTarget,
+		],
 	);
 
 	if (item.type === 'folder') {
 		return (
-			<>
+			<div
+				data-composition-folder={folderPath}
+				style={highlightedFolderStyle}
+				onDragLeave={onFolderDragLeave}
+				onDragOverCapture={canReorder ? undefined : onFolderChildListDragOver}
+				onDropCapture={canReorder ? undefined : onFolderChildListDrop}
+			>
 				<ContextMenu getItems={getContextMenuItems}>
-					<Row align="center">
-						<div
-							style={style}
-							className="__remotion-composition-selector-item"
-							onPointerEnter={onPointerEnter}
-							onPointerLeave={onPointerLeave}
-							tabIndex={tabIndex}
-							onClick={onClick}
-							onKeyDown={onKeyDown}
-							onDragOver={onFolderDragOver}
-							onDragLeave={onFolderDragLeave}
-							onDrop={onFolderDrop}
-							title={item.folderName}
-							role="button"
-						>
-							{item.expanded ? (
-								<ExpandedFolderIcon
-									style={iconStyle}
-									color={hovered || selected ? WHITE : LIGHT_TEXT}
+					<div style={reorderWrapper}>
+						{reorderLineStyle ? (
+							<div data-composition-reorder-line style={reorderLineStyle} />
+						) : null}
+						<Row align="center">
+							<div
+								style={style}
+								className={`__remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
+								tabIndex={tabIndex}
+								onClick={onClick}
+								onKeyDown={onKeyDown}
+								draggable={!window.remotion_isReadOnlyStudio}
+								onDragStart={onItemDragStart}
+								onDragEnd={onItemDragEnd}
+								onDragOver={canReorder ? onRowDragOver : undefined}
+								onDragLeave={canReorder ? onRowDragLeave : undefined}
+								onDrop={canReorder ? onRowDrop : undefined}
+								aria-label={item.folderName}
+								role="button"
+								aria-expanded={item.expanded}
+							>
+								{item.expanded ? (
+									<ExpandedFolderIcon style={iconStyle} color={CURRENT_COLOR} />
+								) : (
+									<CollapsedFolderIcon
+										color={CURRENT_COLOR}
+										style={iconStyle}
+									/>
+								)}
+								<Spacing x={1} />
+								<div style={labelStyle}>{item.folderName}</div>
+								<CompositionContextButton
+									getItems={getContextMenuItems}
+									visible
+									readOnlyStudio={window.remotion_isReadOnlyStudio}
 								/>
-							) : (
-								<CollapsedFolderIcon
-									color={hovered || selected ? WHITE : LIGHT_TEXT}
-									style={iconStyle}
-								/>
-							)}
-							<Spacing x={1} />
-							<div style={label}>{item.folderName}</div>
-							<Spacing x={0.5} />
-							<CompositionContextButton
-								getItems={getContextMenuItems}
-								visible={hovered}
-							/>
-						</div>
-					</Row>
+							</div>
+						</Row>
+					</div>
 				</ContextMenu>
 				{item.expanded ? (
-					<div onDragOver={onFolderChildListDragOver} onDrop={onFolderDrop}>
-						{item.items.map((childItem) => {
+					<div
+						onDragOver={onFolderChildListDragOver}
+						onDrop={onFolderChildListDrop}
+					>
+						{item.items.map((childItem, index) => {
 							return (
 								<CompositionSelectorItem
 									key={childItem.key + childItem.type}
@@ -411,52 +896,71 @@ export const CompositionSelectorItem: React.FC<{
 									level={level + 1}
 									toggleFolder={toggleFolder}
 									clearRootDragHover={clearRootDragHover}
+									canReorder={canReorder}
+									folderDropTarget={folderDropTarget}
+									setFolderDropTarget={setFolderDropTarget}
+									activeDragRef={activeDragRef}
+									parentFolderPath={folderPath}
+									previousSibling={index === 0 ? null : item.items[index - 1]}
+									nextSibling={
+										index === item.items.length - 1
+											? null
+											: item.items[index + 1]
+									}
 								/>
 							);
 						})}
 					</div>
 				) : null}
-			</>
+			</div>
 		);
 	}
 
 	return (
 		<ContextMenu getItems={getContextMenuItems}>
-			<Row align="center">
-				<a
-					ref={compositionRowRef}
-					style={style}
-					onPointerEnter={onPointerEnter}
-					onPointerLeave={onPointerLeave}
-					tabIndex={tabIndex}
-					onClick={onClick}
-					onKeyDown={onKeyDown}
-					draggable={!window.remotion_isReadOnlyStudio}
-					onDragStart={onCompositionDragStart}
-					onDragEnd={onCompositionDragEnd}
-					type="button"
-					title={item.composition.id}
-					className="__remotion-composition __remotion-composition-selector-item"
-					data-compname={item.composition.id}
-				>
-					<CompositionOrStillIcon
-						composition={item.composition}
-						color={hovered || selected ? WHITE : LIGHT_TEXT}
-						style={iconStyle}
-					/>
-					<Spacing x={1} />
-					<div style={label}>{item.composition.id}</div>
-					<Spacing x={0.5} />
-					<CompositionContextButton
-						getItems={getContextMenuItems}
-						visible={hovered && !isDragging}
-					/>
-					<SidebarRenderButton
-						visible={hovered && !isDragging}
-						composition={item.composition}
-					/>
-				</a>
-			</Row>
+			<div style={reorderWrapper}>
+				{reorderLineStyle ? (
+					<div data-composition-reorder-line style={reorderLineStyle} />
+				) : null}
+				<Row align="center">
+					<a
+						ref={compositionRowRef}
+						style={style}
+						tabIndex={tabIndex}
+						onClick={onClick}
+						onKeyDown={onKeyDown}
+						draggable={!window.remotion_isReadOnlyStudio}
+						onDragStart={onItemDragStart}
+						onDragEnd={onItemDragEnd}
+						onDragOver={canReorder ? onRowDragOver : undefined}
+						onDragLeave={canReorder ? onRowDragLeave : undefined}
+						onDrop={canReorder ? onRowDrop : undefined}
+						type="button"
+						aria-label={item.composition.id}
+						className={`__remotion-composition __remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
+						data-compname={item.composition.id}
+						data-annotation-composition-id={item.composition.id}
+					>
+						<CompositionOrStillIcon
+							composition={item.composition}
+							color={CURRENT_COLOR}
+							style={iconStyle}
+						/>
+						<Spacing x={1} />
+						<div style={labelStyle}>{item.composition.id}</div>
+						<CompositionContextButton
+							getItems={getContextMenuItems}
+							visible={!isDragging}
+							readOnlyStudio={window.remotion_isReadOnlyStudio}
+						/>
+						<SidebarRenderButton
+							visible={!isDragging}
+							composition={item.composition}
+							readOnlyStudio={window.remotion_isReadOnlyStudio}
+						/>
+					</a>
+				</Row>
+			</div>
 		</ContextMenu>
 	);
 };

@@ -12,11 +12,35 @@ import {
 	updateConfigHandler,
 } from '../preview-server/routes/update-config';
 
+const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
+	preservePitchOnPlayback: true,
+	showLayerFrameNumbers: false,
+	showPremounting: null,
+	defaultPremountInSeconds: null,
+	sequenceActivityLimit: null,
+	askAIEnabled: false,
+	bufferStateDelayInMilliseconds: null,
+	canvasTabsEnabled: true,
+	configFileStudioSettings: null,
+	defaultCodingAgent: null,
+	defaultEditor: null,
+	elementLibraries: elementLibraryUrls.map((url) => ({
+		displayName: null,
+		url,
+		captionStylesUrl: null,
+	})),
+	interactivityEnabled: true,
+	keyboardShortcutsEnabled: true,
+	maxTimelineTracks: null,
+	publicLicenseKey: null,
+});
+
 const apiHandlerContext = {
 	binariesDirectory: null,
 	entryPoint: '',
 	getDefaultCodingAgent: () => null,
 	getDefaultEditor: () => null,
+	getStudioRuntimeConfig: () => studioRuntimeConfig([]),
 	logLevel: 'error' as const,
 	methods: {
 		addJob: () => undefined,
@@ -31,6 +55,7 @@ const apiHandlerContext = {
 test('updates multiple config settings in one rewrite', () => {
 	expect(
 		updateConfigFile({
+			existingElementLibraryUrls: [],
 			configContents: [
 				"import {Config} from '@remotion/cli/config';",
 				"Config.setDefaultEditor('vscode');",
@@ -67,6 +92,7 @@ test('updates multiple config settings in one rewrite', () => {
 test('writes JSON-compatible config values safely', () => {
 	expect(
 		updateConfigFile({
+			existingElementLibraryUrls: [],
 			configContents: "import {Config} from '@remotion/cli/config';",
 			updates: [
 				{
@@ -91,6 +117,7 @@ test('writes JSON-compatible config values safely', () => {
 test('escapes line separators before writing a config value', () => {
 	expect(
 		updateConfigFile({
+			existingElementLibraryUrls: [],
 			configContents: "import {Config} from '@remotion/cli/config';",
 			updates: [
 				{
@@ -109,7 +136,165 @@ test('escapes line separators before writing a config value', () => {
 	);
 });
 
-test('persists an arbitrary valid config setter through the route', async () => {
+test('adds Element Libraries without replacing or duplicating existing calls', () => {
+	const configContents = [
+		"import {Config} from '@remotion/cli/config';",
+		'// Keep this library and comment.',
+		"Config.addElementLibrary({url: 'https://existing.example.com/'});",
+		'Config.setOverwriteOutput(true);',
+		'',
+	].join('\n');
+	const updated = updateConfigFile({
+		configContents,
+		existingElementLibraryUrls: [],
+		updates: [
+			{
+				setter: 'addElementLibrary',
+				type: 'set',
+				value: {
+					url: 'https://new.example.com/library',
+					displayName: " O'Reilly \\ Library\u2028Name ",
+				},
+			},
+		],
+	});
+
+	expect(updated).toContain('// Keep this library and comment.');
+	expect(updated).toContain(
+		"Config.addElementLibrary({url: 'https://existing.example.com/'});",
+	);
+	expect(updated).toContain('Config.setOverwriteOutput(true);');
+	expect(updated).toContain("'url': 'https://new.example.com/library'");
+	expect(updated).toContain(
+		"'displayName': 'O\\'Reilly \\\\ Library\\u2028Name'",
+	);
+
+	const repeated = updateConfigFile({
+		configContents: updated,
+		existingElementLibraryUrls: [],
+		updates: [
+			{
+				setter: 'addElementLibrary',
+				type: 'set',
+				value: {url: 'https://new.example.com/library'},
+			},
+		],
+	});
+	expect(repeated).toBe(updated);
+	expect(repeated.match(/Config\.addElementLibrary/g)).toHaveLength(2);
+
+	expect(
+		updateConfigFile({
+			configContents,
+			existingElementLibraryUrls: [],
+			updates: [
+				{
+					setter: 'addElementLibrary',
+					type: 'set',
+					value: {url: 'https://existing.example.com'},
+				},
+			],
+		}),
+	).toBe(configContents);
+});
+
+test('uses runtime Element Libraries for dynamic config deduplication and skips no-op writes', async () => {
+	const directory = mkdtempSync(join(tmpdir(), 'remotion-config-update-'));
+	const configFile = join(directory, 'remotion.config.ts');
+	const configContents = [
+		"import {Config} from '@remotion/cli/config';",
+		"const existing = {url: 'https://dynamic.example.com/'};",
+		'Config.addElementLibrary(existing);',
+		'',
+	].join('\n');
+	writeFileSync(configFile, configContents);
+	const fileWatcherRegistry = createFileWatcherRegistry();
+	const cleanupFileWatcher = setFileWatcherRegistry(fileWatcherRegistry);
+	let configChangeEvent: FileChangeEvent | null = null;
+	const {unwatch} = fileWatcherRegistry.installFileWatcher({
+		existenceOnly: false,
+		file: configFile,
+		onChange: (event) => {
+			configChangeEvent = event;
+		},
+	});
+
+	try {
+		const duplicateResponse = await updateConfigHandler({
+			...apiHandlerContext,
+			configFile,
+			getStudioRuntimeConfig: () =>
+				studioRuntimeConfig(['https://dynamic.example.com/']),
+			input: {
+				clientId: 'settings-client',
+				updates: [
+					{
+						setter: 'addElementLibrary',
+						type: 'set',
+						value: {url: 'https://dynamic.example.com'},
+					},
+				],
+			},
+			remotionRoot: directory,
+		});
+		expect(duplicateResponse).toEqual({success: true});
+		expect(readFileSync(configFile, 'utf8')).toBe(configContents);
+		expect(configChangeEvent).toBe(null);
+
+		const additionResponse = await updateConfigHandler({
+			...apiHandlerContext,
+			configFile,
+			input: {
+				clientId: 'settings-client',
+				updates: [
+					{
+						setter: 'addElementLibrary',
+						type: 'set',
+						value: {
+							url: 'https://new.example.com',
+							displayName: ' New library ',
+						},
+					},
+				],
+			},
+			remotionRoot: directory,
+		});
+		expect(additionResponse).toEqual({success: true});
+		const addedContents = readFileSync(configFile, 'utf8');
+		expect(addedContents).toContain("'url': 'https://new.example.com/'");
+		expect(addedContents).toContain("'displayName': 'New library'");
+		expect(configChangeEvent).toMatchObject({
+			originatorClientId: 'settings-client',
+			type: 'changed',
+		});
+
+		configChangeEvent = null;
+		const repeatedResponse = await updateConfigHandler({
+			...apiHandlerContext,
+			configFile,
+			input: {
+				clientId: 'settings-client',
+				updates: [
+					{
+						setter: 'addElementLibrary',
+						type: 'set',
+						value: {url: 'https://new.example.com'},
+					},
+				],
+			},
+			remotionRoot: directory,
+		});
+		expect(repeatedResponse).toEqual({success: true});
+		expect(readFileSync(configFile, 'utf8')).toBe(addedContents);
+		expect(configChangeEvent).toBe(null);
+	} finally {
+		unwatch();
+		cleanupFileWatcher();
+		rmSync(directory, {force: true, recursive: true});
+	}
+});
+
+test('persists Studio keyboard shortcuts through the config route', async () => {
 	const directory = mkdtempSync(join(tmpdir(), 'remotion-config-update-'));
 	const configFile = join(directory, 'remotion.config.ts');
 	const fileWatcherRegistry = createFileWatcherRegistry();
@@ -126,7 +311,7 @@ test('persists an arbitrary valid config setter through the route', async () => 
 		configFile,
 		[
 			"import {Config} from '@remotion/cli/config';",
-			'Config.setOverwriteOutput(false);',
+			"Config.setKeyboardShortcuts({playPause: {key: 'Space'}});",
 			'',
 		].join('\n'),
 	);
@@ -137,27 +322,31 @@ test('persists an arbitrary valid config setter through the route', async () => 
 			configFile,
 			input: {
 				clientId: 'settings-client',
-				updates: [{setter: 'setOverwriteOutput', type: 'set', value: true}],
+				updates: [
+					{
+						setter: 'setKeyboardShortcuts',
+						type: 'set',
+						value: {
+							playPause: {key: 'p'},
+							render: null,
+						},
+					},
+				],
 			},
 			remotionRoot: directory,
 		});
 
 		expect(response).toEqual({success: true});
-		expect(readFileSync(configFile, 'utf8')).toBe(
-			[
-				"import {Config} from '@remotion/cli/config';",
-				'Config.setOverwriteOutput(true);',
-				'',
-			].join('\n'),
-		);
+		const updatedConfig = readFileSync(configFile, 'utf8');
+		expect(updatedConfig).toContain('Config.setKeyboardShortcuts({');
+		expect(updatedConfig).toContain("'playPause': {");
+		expect(updatedConfig).toContain("'key': 'p'");
+		expect(updatedConfig).toContain("'render': null");
 		expect(configChangeEvent as FileChangeEvent | null).toEqual({
-			content: [
-				"import {Config} from '@remotion/cli/config';",
-				'Config.setOverwriteOutput(true);',
-				'',
-			].join('\n'),
+			content: updatedConfig,
 			originatorClientId: 'settings-client',
 			type: 'changed',
+			skipSequencePropsUpdate: false,
 		});
 	} finally {
 		unwatch();
@@ -174,6 +363,13 @@ test('rejects invalid updates without changing the config', async () => {
 
 	try {
 		for (const updates of [
+			[
+				{
+					setter: 'setKeyboardShortcuts',
+					type: 'set' as const,
+					value: {notAnAction: {key: 'p'}},
+				},
+			],
 			[
 				{
 					setter: 'setNotARealOption',
@@ -200,6 +396,23 @@ test('rejects invalid updates without changing the config', async () => {
 					setter: 'setPublicLicenseKey',
 					type: 'set' as const,
 					value: 'private-key',
+				},
+			],
+			[
+				{
+					setter: 'addElementLibrary',
+					type: 'set' as const,
+					value: {url: 'file:///tmp/library'},
+				},
+			],
+			[
+				{
+					setter: 'addElementLibrary',
+					type: 'set' as const,
+					value: {
+						url: 'https://library.example.com',
+						displayName: '  ',
+					},
 				},
 			],
 		]) {

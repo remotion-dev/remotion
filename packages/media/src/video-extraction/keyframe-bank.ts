@@ -3,6 +3,7 @@ import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {renderTimestampRange} from '../render-timestamp-range';
+import {makeSerializedQueue} from '../serialized-queue';
 import {getAllocationSize} from './get-allocation-size';
 
 // duration can be wrong! we shall not rely on it, but calculate it ourselves
@@ -47,15 +48,20 @@ export const makeKeyframeBank = async ({
 	logLevel: parentLogLevel,
 	src,
 	videoSampleSink,
+	timeResolution,
 	initialTimestampRequest,
 }: {
 	logLevel: LogLevel;
 	src: string;
 	videoSampleSink: VideoSampleSink;
+	timeResolution: number;
 	initialTimestampRequest: number;
 }) => {
+	// Snap to the track's own timestamp grid: WebM stores milliseconds, so frame 62
+	// at 30fps (2.0667s) is stored at 2.067s and must not seek into the previous GOP.
+	// MP4 timescales like 30000 keep fractional keyframes such as 61061/30000 exact.
 	const sampleIterator = videoSampleSink.samples(
-		roundTo4Digits(initialTimestampRequest),
+		Math.round(initialTimestampRequest * timeResolution) / timeResolution,
 	);
 
 	const frames: Record<number, VideoSampleWithoutDuration> = {};
@@ -199,6 +205,15 @@ export const makeKeyframeBank = async ({
 		fps: number,
 	) => {
 		while (!hasDecodedEnoughForTimestamp(timestampInSeconds)) {
+			// Windows hardware decoders can stop producing frames when too many
+			// decoded VideoFrames are still open. Free frames outside the safe
+			// window before asking the decoder for another one.
+			deleteFramesBeforeTimestamp({
+				logLevel: parentLogLevel,
+				timestampInSeconds:
+					timestampInSeconds - getSafeWindowOfMonotonicity(fps),
+			});
+
 			const sample = await sampleIterator.next();
 
 			if (sample.value) {
@@ -285,7 +300,7 @@ export const makeKeyframeBank = async ({
 		return lastUsed;
 	};
 
-	let queue = Promise.resolve<unknown>(undefined);
+	const enqueue = makeSerializedQueue();
 
 	const firstFrame = await sampleIterator.next();
 	if (!firstFrame.value) {
@@ -387,22 +402,18 @@ export const makeKeyframeBank = async ({
 	const keyframeBank: KeyframeBank = {
 		getFrameFromTimestamp: (timestamp: number, fps: number) => {
 			pendingOperations++;
-			queue = queue
-				.then(() => getFrameFromTimestamp(timestamp, fps))
-				.finally(() => {
+			return enqueue(() => getFrameFromTimestamp(timestamp, fps)).finally(
+				() => {
 					pendingOperations--;
-				});
-			return queue as Promise<VideoSample | null>;
+				},
+			);
 		},
 		prepareForDeletion,
 		hasTimestampInSecond: (timestamp: number, fps: number) => {
 			pendingOperations++;
-			queue = queue
-				.then(() => hasTimestampInSecond(timestamp, fps))
-				.finally(() => {
-					pendingOperations--;
-				});
-			return queue as Promise<boolean>;
+			return enqueue(() => hasTimestampInSecond(timestamp, fps)).finally(() => {
+				pendingOperations--;
+			});
 		},
 		addFrame,
 		deleteFramesBeforeTimestamp,

@@ -5,6 +5,7 @@ import {AssetInspector} from './InspectorPanel/AssetInspector';
 import {InspectorMessage} from './InspectorPanel/common';
 import {CompositionInspector} from './InspectorPanel/CompositionInspector';
 import {getSameSequenceInspectorSelection} from './InspectorPanel/inspector-selection';
+import {MultiSequenceInspector} from './InspectorPanel/MultiSequenceInspector';
 import {SelectedInspector} from './InspectorPanel/SelectedInspector';
 import {container} from './InspectorPanel/styles';
 import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
@@ -45,12 +46,19 @@ export const InspectorPanel: React.FC<{
 	if (selectedItems.length > 1) {
 		if (sameSequenceInspectorSelection) {
 			return (
-				<div style={container}>
-					<SelectedInspector
-						selection={sameSequenceInspectorSelection}
-						readOnlyStudio={readOnlyStudio}
-					/>
-				</div>
+				<SelectedInspector
+					selection={sameSequenceInspectorSelection}
+					readOnlyStudio={readOnlyStudio}
+				/>
+			);
+		}
+
+		if (selectedItems.every((item) => item.type === 'sequence')) {
+			return (
+				<MultiSequenceInspector
+					selections={selectedItems}
+					readOnlyStudio={readOnlyStudio}
+				/>
 			);
 		}
 
@@ -64,11 +72,9 @@ export const InspectorPanel: React.FC<{
 	}
 
 	return (
-		<div style={container}>
-			<SelectedInspector
-				selection={selectedItems[0]}
-				readOnlyStudio={readOnlyStudio}
-			/>
-		</div>
+		<SelectedInspector
+			selection={selectedItems[0]}
+			readOnlyStudio={readOnlyStudio}
+		/>
 	);
 };

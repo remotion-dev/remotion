@@ -8,14 +8,14 @@ import React, {
 	useState,
 } from 'react';
 import {
+	BLACK_ALPHA_60,
 	FAIL_COLOR,
 	INPUT_BACKGROUND,
-	WHITE_ALPHA_05,
-	BLACK_ALPHA_60,
 	SELECTED_BACKGROUND,
 	WARNING_COLOR,
 	WHITE,
 } from '../../helpers/colors';
+import {INPUT_HOVER_CLASS_NAME} from '../../helpers/hoverable';
 import {useZIndex} from '../../state/z-index';
 
 export type RemInputStatus = 'error' | 'warning' | 'ok';
@@ -56,11 +56,9 @@ const compactInputStyle: React.CSSProperties = {
 export const getInputBorderColor = ({
 	status,
 	isFocused,
-	isHovered,
 }: {
 	status: 'error' | 'warning' | 'ok';
 	isFocused: boolean;
-	isHovered: boolean;
 }) =>
 	status === 'warning'
 		? WARNING_COLOR
@@ -68,16 +66,13 @@ export const getInputBorderColor = ({
 			? FAIL_COLOR
 			: isFocused
 				? SELECTED_BACKGROUND
-				: isHovered
-					? WHITE_ALPHA_05
-					: BLACK_ALPHA_60;
+				: `var(--remotion-studio-input-hover-border, ${BLACK_ALPHA_60})`;
 
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	Props
 > = ({status, rightAlign, small = false, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
-	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const {tabIndex} = useZIndex();
 
@@ -87,11 +82,11 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			...inputBaseStyle,
 			...(small ? compactInputStyle : null),
 			width: '100%',
-			borderColor: getInputBorderColor({isFocused, isHovered, status}),
+			borderColor: getInputBorderColor({isFocused, status}),
 			textAlign: rightAlign ? 'right' : 'left',
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, rightAlign, props.style, small, status]);
+	}, [isFocused, rightAlign, props.style, small, status]);
 
 	useImperativeHandle(ref, () => {
 		return inputRef.current as HTMLInputElement;
@@ -106,23 +101,25 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 
 		const onFocus = () => setIsFocused(true);
 		const onBlur = () => setIsFocused(false);
-		const onMouseEnter = () => setIsHovered(true);
-		const onMouseLeave = () => setIsHovered(false);
 
 		current.addEventListener('focus', onFocus);
 		current.addEventListener('blur', onBlur);
-		current.addEventListener('mouseenter', onMouseEnter);
-		current.addEventListener('mouseleave', onMouseLeave);
 
 		return () => {
 			current.removeEventListener('focus', onFocus);
 			current.removeEventListener('blur', onBlur);
-			current.removeEventListener('mouseenter', onMouseEnter);
-			current.removeEventListener('mouseleave', onMouseLeave);
 		};
 	}, [inputRef]);
 
-	return <input ref={inputRef} tabIndex={tabIndex} {...props} style={style} />;
+	return (
+		<input
+			ref={inputRef}
+			tabIndex={tabIndex}
+			{...props}
+			className={`${INPUT_HOVER_CLASS_NAME} ${props.className ?? ''}`}
+			style={style}
+		/>
+	);
 };
 
 export const RemotionInput = forwardRef(RemInputForwardRef);

@@ -58,49 +58,42 @@ function clampBorderRadius({
 	width: number;
 	height: number;
 }): BorderRadiusCorners {
-	// According to CSS spec, if the sum of border radii on adjacent corners
-	// exceeds the length of the edge, they should be proportionally reduced
-	const clamped = {
-		topLeft: {...borderRadius.topLeft},
-		topRight: {...borderRadius.topRight},
-		bottomRight: {...borderRadius.bottomRight},
-		bottomLeft: {...borderRadius.bottomLeft},
+	// CSS scales all radii by the same factor when any adjacent pair overlaps.
+	// This preserves circular corners for pill shapes such as border-radius: 999px.
+	const topHorizontal =
+		borderRadius.topLeft.horizontal + borderRadius.topRight.horizontal;
+	const bottomHorizontal =
+		borderRadius.bottomLeft.horizontal + borderRadius.bottomRight.horizontal;
+	const leftVertical =
+		borderRadius.topLeft.vertical + borderRadius.bottomLeft.vertical;
+	const rightVertical =
+		borderRadius.topRight.vertical + borderRadius.bottomRight.vertical;
+	const factor = Math.min(
+		1,
+		topHorizontal === 0 ? 1 : width / topHorizontal,
+		bottomHorizontal === 0 ? 1 : width / bottomHorizontal,
+		leftVertical === 0 ? 1 : height / leftVertical,
+		rightVertical === 0 ? 1 : height / rightVertical,
+	);
+
+	return {
+		topLeft: {
+			horizontal: borderRadius.topLeft.horizontal * factor,
+			vertical: borderRadius.topLeft.vertical * factor,
+		},
+		topRight: {
+			horizontal: borderRadius.topRight.horizontal * factor,
+			vertical: borderRadius.topRight.vertical * factor,
+		},
+		bottomRight: {
+			horizontal: borderRadius.bottomRight.horizontal * factor,
+			vertical: borderRadius.bottomRight.vertical * factor,
+		},
+		bottomLeft: {
+			horizontal: borderRadius.bottomLeft.horizontal * factor,
+			vertical: borderRadius.bottomLeft.vertical * factor,
+		},
 	};
-
-	// Check top edge
-	const topSum = clamped.topLeft.horizontal + clamped.topRight.horizontal;
-	if (topSum > width) {
-		const factor = width / topSum;
-		clamped.topLeft.horizontal *= factor;
-		clamped.topRight.horizontal *= factor;
-	}
-
-	// Check right edge
-	const rightSum = clamped.topRight.vertical + clamped.bottomRight.vertical;
-	if (rightSum > height) {
-		const factor = height / rightSum;
-		clamped.topRight.vertical *= factor;
-		clamped.bottomRight.vertical *= factor;
-	}
-
-	// Check bottom edge
-	const bottomSum =
-		clamped.bottomRight.horizontal + clamped.bottomLeft.horizontal;
-	if (bottomSum > width) {
-		const factor = width / bottomSum;
-		clamped.bottomRight.horizontal *= factor;
-		clamped.bottomLeft.horizontal *= factor;
-	}
-
-	// Check left edge
-	const leftSum = clamped.bottomLeft.vertical + clamped.topLeft.vertical;
-	if (leftSum > height) {
-		const factor = height / leftSum;
-		clamped.bottomLeft.vertical *= factor;
-		clamped.topLeft.vertical *= factor;
-	}
-
-	return clamped;
 }
 
 export function parseBorderRadius({

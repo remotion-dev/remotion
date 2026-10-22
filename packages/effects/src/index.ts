@@ -1,5 +1,6 @@
 export {checkerboard, type CheckerboardParams} from './checkerboard.js';
 export {pattern, type PatternOrigin, type PatternParams} from './pattern.js';
+export {tile, type TileParams} from './tile.js';
 export {rings, type RingsCenter, type RingsParams} from './rings.js';
 export {
 	starburst,

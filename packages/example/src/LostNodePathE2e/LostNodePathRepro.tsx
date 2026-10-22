@@ -1,7 +1,12 @@
 import {halftone} from '@remotion/effects/halftone';
 import {tint} from '@remotion/effects/tint';
-import React from 'react';
-import {AbsoluteFill, Internals, Sequence, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Interactive,
+	Internals,
+	Sequence,
+	useVideoConfig,
+} from 'remotion';
 import {SimpleSvg} from './SimpleSvg';
 
 export const LostNodePathRepro: React.FC = () => {
@@ -17,6 +22,16 @@ export const LostNodePathRepro: React.FC = () => {
 
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			<Interactive.Div name="Eyebrow" style={{textTransform: 'uppercase'}}>
+				Performance overview
+			</Interactive.Div>
+			<Interactive.Div name="Title">Regional growth</Interactive.Div>
+			<Interactive.Div name="Chart">
+				<Interactive.Div name="Bars">Bars remain visible</Interactive.Div>
+				{[0, 25, 50, 75, 100].map((tick) => (
+					<Interactive.Div key={tick} name={`${tick}% gridline`} />
+				))}
+			</Interactive.Div>
 			<Sequence
 				durationInFrames={durationInFrames}
 				_remotionInternalEffects={memoizedEffects}

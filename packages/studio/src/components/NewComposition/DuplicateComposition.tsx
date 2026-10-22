@@ -1,8 +1,7 @@
-import type {RecastCodemod} from '@remotion/studio-shared';
 import type {ChangeEventHandler} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {pushUrl} from '../../helpers/url-state';
+import {getRoute, pushUrl} from '../../helpers/url-state';
 import {
 	validateCompositionDimension,
 	validateCompositionName,
@@ -15,10 +14,10 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
-import {applyCodemod} from '../RenderQueue/actions';
-import {CodemodFooter} from './CodemodFooter';
+import {duplicateComposition} from '../RenderQueue/actions';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
@@ -190,16 +189,15 @@ const DuplicateCompositionLoaded: React.FC<{
 		compWidthErrMessage === null &&
 		compHeightErrMessage === null;
 
-	const codemod: RecastCodemod = useMemo(() => {
+	const duplicateRequest = useMemo(() => {
 		return {
-			type: 'duplicate-composition',
 			idToDuplicate: resolved.result.id,
 			newDurationInFrames: hadDurationDefined ? Number(durationInFrames) : null,
 			newFps: hadFpsDefined ? Number(selectedFrameRate) : null,
 			newHeight: hadDimensionsDefined ? Number(size.height) : null,
 			newWidth: hadDimensionsDefined ? Number(size.width) : null,
 			newId,
-			tag: type === 'still' ? 'Still' : 'Composition',
+			tag: type === 'still' ? ('Still' as const) : ('Composition' as const),
 		};
 	}, [
 		durationInFrames,
@@ -234,7 +232,7 @@ const DuplicateCompositionLoaded: React.FC<{
 							<div style={label}>Type</div>
 							<div style={rightRow}>
 								<Combobox
-									title="Type of composition"
+									aria-label="Type of composition"
 									style={comboBoxStyle}
 									values={typeValues}
 									selectedId={type}
@@ -367,23 +365,26 @@ const DuplicateCompositionLoaded: React.FC<{
 					) : null}
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						loadingNotification={'Duplicating...'}
 						errorNotification={'Could not duplicate composition'}
-						successNotification={`Duplicated ${unresolved.id} as ${newId}`}
 						genericSubmitLabel={'Duplicate'}
 						submitLabel={({relativeRootPath}) => `Add to ${relativeRootPath}`}
-						codemod={codemod}
 						stack={compositionStack}
 						valid={valid}
 						onSuccess={onDuplicateSuccess}
-						applyCodemod={({signal, symbolicatedStack}) =>
-							applyCodemod({
-								codemod,
-								dryRun: false,
+						applyEdit={({signal, symbolicatedStack}) =>
+							duplicateComposition(
+								{
+									...duplicateRequest,
+									symbolicatedStack,
+									undoRedoNavigation: {
+										undoRoute: getRoute(),
+										redoRoute: `/${newId}`,
+									},
+								},
 								signal,
-								symbolicatedStack,
-							})
+							)
 						}
 					/>
 				</ModalFooterContainer>

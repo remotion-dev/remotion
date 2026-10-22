@@ -1,5 +1,9 @@
-import type {RefObject} from 'react';
-import {useContext, useMemo} from 'react';
+import {createContext, useContext} from 'react';
+import {
+	SequenceActivityAbsoluteTimeContext,
+	SequenceActivityDormantContext,
+	SequenceActivityTimelineContext,
+} from './sequence-activity-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -17,6 +21,12 @@ export type PlayableMediaTag = {
 };
 
 type CurrentTimePerComposition = Record<string, number>;
+
+// Reading TimelineContext and ignoring its value would still schedule frame
+// updates. Inactive subscribers must read a separate, never-changing context.
+const UnsubscribedTimelineContext = createContext<TimelineContextValue | null>(
+	null,
+);
 
 const makeKey = () => {
 	return `remotion.time-all`;
@@ -55,10 +65,15 @@ export const clampFrameToCompositionRange = (
 };
 
 const useTimelinePositionFromContext = (
-	state: TimelineContextValue,
+	state: TimelineContextValue | null,
 ): number => {
 	const videoConfig = useVideo();
 	const env = useRemotionEnvironment();
+	const dormant = useContext(SequenceActivityDormantContext);
+
+	if (state === null) {
+		return 0;
+	}
 
 	if (!videoConfig) {
 		return typeof window === 'undefined'
@@ -70,11 +85,18 @@ const useTimelinePositionFromContext = (
 		state.frame[videoConfig.id] ??
 		(env.isPlayer ? 0 : getFrameForComposition(videoConfig.id));
 
-	return clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
+	// A discovery clock can be beyond the composition end, for example when a
+	// nested scene is trimmed by its parent. Keep its initial local frame intact.
+	return dormant
+		? unclamped
+		: clampFrameToCompositionRange(unclamped, videoConfig.durationInFrames);
 };
 
 export const useTimelineContext = (): TimelineContextValue => {
-	const state = useContext(TimelineContext);
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		dormant ? SequenceActivityTimelineContext : TimelineContext,
+	);
 	if (state === null) {
 		throw new Error(
 			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
@@ -100,8 +122,36 @@ export const useTimelinePosition = (): number => {
 	return useTimelinePositionFromContext(state);
 };
 
+export const useTimelinePositionWithOptionalSubscription = (
+	subscribe: boolean,
+): number => {
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		subscribe
+			? dormant
+				? SequenceActivityTimelineContext
+				: TimelineContext
+			: UnsubscribedTimelineContext,
+	);
+	const frame = useTimelinePositionFromContext(state);
+	if (subscribe && state === null) {
+		throw new Error(
+			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
+		);
+	}
+
+	return frame;
+};
+
+export const useIsInsideFreeze = (): boolean => {
+	return useTimelineContext().isInsideFreeze;
+};
+
 export const useAbsoluteTimelinePosition = (): number => {
-	const state = useContext(AbsoluteTimeContext);
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		dormant ? SequenceActivityAbsoluteTimeContext : AbsoluteTimeContext,
+	);
 	if (state === null) {
 		throw new Error(
 			'AbsoluteTimeContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
@@ -111,25 +161,19 @@ export const useAbsoluteTimelinePosition = (): number => {
 	return useTimelinePositionFromContext(state);
 };
 
-export const useTimelineSetFrame = (): ((
+// Playback and frame persistence only. Navigation must use useTimelineSeekFrame.
+export const useTimelineSetFrameWithoutSeek = (): ((
 	u: React.SetStateAction<Record<string, number>>,
 ) => void) => {
-	const {setFrame} = useContext(SetTimelineContext);
-	return setFrame;
+	const {setFrameWithoutSeek} = useContext(SetTimelineContext);
+	return setFrameWithoutSeek;
 };
 
-type PlayingReturnType = readonly [
-	boolean,
-	(u: React.SetStateAction<boolean>) => void,
-	RefObject<boolean>,
-];
-
-export const usePlayingState = (): PlayingReturnType => {
-	const {playing, imperativePlaying} = useTimelineContext();
-	const {setPlaying} = useContext(SetTimelineContext);
-
-	return useMemo(
-		() => [playing, setPlaying, imperativePlaying],
-		[imperativePlaying, playing, setPlaying],
-	);
+// Explicit navigation only. Rendering and thumbnails have no seek revision.
+export const useTimelineSeekFrame = () => {
+	const {seek, setFrameWithoutSeek} = useContext(SetTimelineContext);
+	return seek?.seekFrame ?? setFrameWithoutSeek;
 };
+
+export {usePlaying} from './use-playing.js';
+export {useBuffering} from './use-buffering.js';

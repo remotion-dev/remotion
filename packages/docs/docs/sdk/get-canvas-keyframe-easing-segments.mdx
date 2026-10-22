@@ -1,0 +1,107 @@
+---
+image: /generated/articles-docs-sdk-get-canvas-keyframe-easing-segments.png
+title: getCanvasKeyframeEasingSegments()
+crumb: '@remotion/sdk'
+---
+
+# getCanvasKeyframeEasingSegments()<AvailableFrom v="4.0.530" />
+
+Describes the segments between the keyframes of a prop on the composition timeline, so a timeline can draw the line between two keyframes and let users select it to edit its easing.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```tsx twoslash title="EasingLines.tsx"
+// @moduleResolution: bundler
+import {
+  getCanvasKeyframeEasingSegments,
+  type CanvasKeyframeEasingSegment,
+  type TimelineTrackData,
+} from '@remotion/sdk';
+import type {CanUpdateSequencePropStatus, InteractivitySchema} from 'remotion';
+declare const track: TimelineTrackData;
+declare const schema: InteractivitySchema;
+declare const propStatus: CanUpdateSequencePropStatus;
+declare const pixelsPerFrame: number;
+declare const select: (segment: CanvasKeyframeEasingSegment) => void;
+// ---cut---
+export const EasingLines = () => {
+  const segments = getCanvasKeyframeEasingSegments({
+    track,
+    schema,
+    key: 'style.opacity',
+    propStatus,
+  });
+  return (
+    <div style={{position: 'relative'}}>
+      {segments.map((segment) => (
+        <button
+          key={segment.segmentIndex}
+          title={segment.easing.type}
+          style={{
+            position: 'absolute',
+            left: segment.fromFrame * pixelsPerFrame,
+            width: (segment.toFrame - segment.fromFrame) * pixelsPerFrame,
+          }}
+          onClick={() => select(segment)}
+        />
+      ))}
+    </div>
+  );
+};
+```
+
+A prop with `n` keyframes has `n - 1` segments. No segments are returned when the easing of the prop cannot be edited: boolean, enum and integer fields hold their value until the next keyframe, and the interpolation function must accept an easing. The [Remotion Studio](/docs/studio) draws its easing lines from the same data.
+
+## Parameters
+
+An object with the following properties:
+
+### track
+
+The `TimelineTrackData` of the sequence from [`controller.timeline`](/docs/sdk/create-canvas-controller#timeline). Its `keyframeDisplayOffset` and `keyframePlaybackRate` place the segments on the composition timeline.
+
+### schema
+
+The interactivity schema of the element, from [`track.sequence.controls`](/docs/sdk/create-canvas-controller#sequencecontrols). It decides whether the field holds its value between keyframes.
+
+### key
+
+The schema key of the prop in dot notation, for example `'style.opacity'`.
+
+### propStatus
+
+How the prop is written in the source, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it. `null` or a status other than `'keyframed'` yields no segments.
+
+## Return value
+
+An array of `CanvasKeyframeEasingSegment` objects, ordered like the keyframes.
+
+### segmentIndex
+
+Indexes the easing of the prop; the segment after the first keyframe has index `0`. Pass it to [`getCanvasKeyframeEasingChange()`](/docs/sdk/get-canvas-keyframe-easing-change) and use it in an `easing` selection item.
+
+### fromFrame
+
+The composition frame of the keyframe that starts the segment, as [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes) reports it.
+
+### toFrame
+
+The composition frame of the keyframe that ends the segment.
+
+### easing
+
+The current `CanvasKeyframeEasing` of the segment: `{type: 'linear'}`, `{type: 'step1'}` for a hold, `{type: 'bezier', x1, y1, x2, y2}` or `{type: 'spring', damping, mass, stiffness, overshootClamping, allowTail, durationRestThreshold}`. Segments without an easing in the source are linear.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframeEasingChange()`](/docs/sdk/get-canvas-keyframe-easing-change)
+- [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes)
+- [`Easing`](/docs/easing)

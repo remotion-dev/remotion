@@ -3,31 +3,10 @@ import ReactDOM from 'react-dom/client';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {NoRegisterRoot} from './components/NoRegisterRoot';
-import {startErrorOverlay} from './error-overlay/entry-basic';
-import {BACKGROUND_HEX} from './helpers/colors';
-import {enableHotMiddleware} from './hot-middleware-client/client';
+import {initializeStudioPreview} from './initialize-studio-preview';
 import {Studio} from './Studio';
 
-Internals.CSSUtils.injectCSS(
-	Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),
-);
-
-declare global {
-	interface Window {
-		__remotionOverlayStarted: boolean;
-	}
-}
-
-if (!window.__remotionOverlayStarted) {
-	window.__remotionOverlayStarted = true;
-	try {
-		startErrorOverlay();
-		enableHotMiddleware();
-	} catch (err) {
-		// eslint-disable-next-line no-console
-		console.error('Failed to initialize error overlay', err);
-	}
-}
+initializeStudioPreview();
 
 let root: ReturnType<typeof ReactDOM.createRoot> | null = null;
 

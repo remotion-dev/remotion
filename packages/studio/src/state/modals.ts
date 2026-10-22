@@ -11,7 +11,13 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
-import type {PackageManager, RenderDefaults} from '@remotion/studio-shared';
+import type {
+	CanvasCaptureData,
+	ElementInstallExpectedFileState,
+	ElementInstallRequest,
+	NodeWrapper,
+	RenderDefaults,
+} from '@remotion/studio-shared';
 import type {
 	RenderStillOnWebImageFormat,
 	WebRendererAudioCodec,
@@ -28,7 +34,8 @@ import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {Bug, UpdateInfo} from '../components/UpdateCheck';
+import type {useTimelineSelection} from '../components/Timeline/TimelineSelection';
+import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -52,6 +59,7 @@ export type WebRenderModalState = {
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
 	initialMediaCacheSizeInBytes: number | null;
+	initialAllowHtmlInCanvas: boolean;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
@@ -131,8 +139,80 @@ export type SvgImportDialogState = {
 export type AddEffectModalState = {
 	type: 'add-effect';
 	fileName: string;
-	nodePath: SequencePropsSubscriptionKey;
+	nodePathInfo: SequenceNodePathInfo;
 	clientId: string;
+	selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
+};
+
+export type AssetSelectionModalState = {
+	readonly type: 'asset-selection';
+	readonly assetType: 'audio' | 'video' | 'image';
+	readonly initialUrl: string | null;
+	readonly invocationTimestamp: number;
+	readonly assetSelection: {
+		readonly initialQuery: string;
+		readonly fileTypes: null;
+		readonly onSelectFile: () => void;
+		readonly onSelected: (asset: StaticFile) => void;
+	};
+	readonly onSelectedUrl: (url: string) => void;
+};
+
+export type TranscriptionModalState = {
+	type: 'transcribe';
+	captionStyle: ElementInstallRequest | null;
+	src: string;
+	displayName: string;
+	audioStreamIndex: number | null;
+	requestInit: Omit<RequestInit, 'signal'> | null;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+		durationInFrames: number | null;
+	} | null;
+};
+
+export type VideoMattingModalState = {
+	type: 'video-matting';
+	src: string;
+	displayName: string;
+	target: {
+		fileName: string;
+		nodePath: SequencePropsSubscriptionKey;
+	} | null;
+};
+
+export type CanvasCaptureImport = {
+	readonly data: CanvasCaptureData;
+	readonly durationInSeconds: number;
+	readonly file: File;
+	readonly height: number;
+	readonly width: number;
+};
+
+export type ElementInstallPlan = {
+	readonly compositionFile: string;
+	readonly expectedFileState: ElementInstallExpectedFileState;
+	readonly filePath: string;
+};
+
+export type ElementLibraryModalState = {
+	readonly type: 'element-library';
+	readonly name: string;
+	readonly url: string;
+};
+
+export type ElementInstallModalState = {
+	readonly type: 'element-install';
+	readonly currentPlan: ElementInstallPlan | null;
+	readonly missingPackages: string[];
+	readonly newPlan: ElementInstallPlan;
+	readonly library: ElementLibraryModalState | null;
+	readonly onCancel: () => void;
+	readonly onClose: () => void;
+	readonly request: ElementInstallRequest;
+	readonly sourceIsUnverified: boolean;
+	readonly sourceLabel: string;
 };
 
 export type ModalState =
@@ -141,6 +221,7 @@ export type ModalState =
 			folderName: string | null;
 			parentName: string | null;
 			stack: string | null;
+			canvasCapture: CanvasCaptureImport | null;
 	  }
 	| {
 			type: 'new-folder';
@@ -181,7 +262,17 @@ export type ModalState =
 	  }
 	| {
 			type: 'settings';
-			initialTab: 'apps' | 'license';
+			initialStudioPane: 'elements' | 'general' | null;
+			initialTab:
+				| 'apps'
+				| 'rendering'
+				| 'studio'
+				| 'packages'
+				| 'models'
+				| 'shortcuts'
+				| 'skills'
+				| 'updates'
+				| 'license';
 			initialPublicLicenseKey: string | null;
 	  }
 	| RenderModalState
@@ -191,13 +282,60 @@ export type ModalState =
 			jobId: string;
 	  }
 	| {
-			type: 'update';
-			info: UpdateInfo;
-			knownBugs: Bug[];
+			type: 'queue-job-error';
+			title: string;
+			error: {
+				message: string;
+				stack: string | null;
+			};
 	  }
 	| {
-			type: 'install-packages';
-			packageManager: PackageManager;
+			type: 'fix-computed-value';
+			prop: string;
+			location: {
+				source: string;
+				line: number;
+				column: number;
+			};
+	  }
+	| {
+			type: 'precompose-refactor';
+			targets: {
+				fileName: string;
+				displayName: string | null;
+				line: number | null;
+			}[];
+	  }
+	| {
+			type: 'generate-with-agent';
+			location: {
+				source: string;
+				line: number;
+			} | null;
+	  }
+	| {
+			type: 'wrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+			wrapper: NodeWrapper;
+	  }
+	| {
+			type: 'unwrap-refactor';
+			displayName: string | null;
+			location: {
+				source: string;
+				line: number;
+			};
+	  }
+	| {
+			type: 'browser-studio-experimental-notice';
+	  }
+	| {
+			type: 'html-in-canvas-unavailable';
+			action: 'effects' | 'motion-blur';
 	  }
 	| {
 			type: 'quick-switcher';
@@ -205,6 +343,11 @@ export type ModalState =
 			invocationTimestamp: number;
 			assetSelection: {
 				initialQuery: string;
+				fileTypes: {
+					extensions: string[];
+					description: string;
+					importLabel: string;
+				} | null;
 				onSelectFile: () => void;
 				onSelected: (asset: StaticFile) => void;
 			} | null;
@@ -213,7 +356,12 @@ export type ModalState =
 				onSelected: (composition: _InternalTypes['AnyComposition']) => void;
 			} | null;
 	  }
+	| ElementLibraryModalState
+	| ElementInstallModalState
 	| AddEffectModalState
+	| AssetSelectionModalState
+	| TranscriptionModalState
+	| VideoMattingModalState
 	| ConfirmationDialogState
 	| SvgImportDialogState;
 

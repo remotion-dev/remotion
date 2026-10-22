@@ -1,17 +1,18 @@
 import {useCallback, useContext, useEffect, useRef, type FC} from 'react';
 import {Internals} from 'remotion';
+import {getTimelineZoom} from '../../helpers/get-timeline-max-zoom';
 import {useIsVideoComposition} from '../../helpers/is-current-selected-still';
 import {EditorZoomGesturesContext} from '../../state/editor-zoom-gestures';
-import {TIMELINE_MIN_ZOOM, TimelineZoomCtx} from '../../state/timeline-zoom';
+import {TimelineZoomImperativeContext} from '../../state/timeline-zoom';
 import {scrollableRef, timelineVerticalScroll} from './timeline-refs';
 import {viewportClientXToScrollContentX} from './timeline-scroll-logic';
 
 /**
- * Maps wheel deltaY to zoom delta. Must be large enough that typical ctrl+wheel
- * pinch steps change `TimelineZoomCtx` zoom by at least one 0.1 step after
- * `Math.round(z * 10) / 10` in `timeline-zoom.tsx` (0.005 was too small).
+ * Maps wheel deltaY to a multiplicative zoom change. Must be large enough that
+ * typical ctrl+wheel pinch steps change `TimelineZoomCtx` zoom by at least one
+ * 0.1 step after rounding in `clampTimelineZoom` (0.005 was too small at 1x).
  */
-const ZOOM_WHEEL_DELTA = 0.06;
+const ZOOM_WHEEL_SENSITIVITY = 0.06;
 
 type WebKitGestureEvent = UIEvent & {
 	scale: number;
@@ -22,12 +23,21 @@ type WebKitGestureEvent = UIEvent & {
 export const TimelinePinchZoom: FC = () => {
 	const isVideoComposition = useIsVideoComposition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {zoom, setZoom} = useContext(TimelineZoomCtx);
+	const {getZoom, setZoom, beginZoom, endZoom} = useContext(
+		TimelineZoomImperativeContext,
+	);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 
-	const zoomRef = useRef(zoom);
-	zoomRef.current = zoom;
+	const getCurrentTimelineZoom = useCallback(
+		(compositionId: string) => {
+			return getTimelineZoom({
+				durationInFrames: videoConfig?.durationInFrames ?? 1,
+				timelineViewportWidth: scrollableRef.current?.clientWidth ?? 0,
+				zoom: getZoom(compositionId),
+			});
+		},
+		[getZoom, videoConfig?.durationInFrames],
+	);
 
 	const pinchBaseZoomRef = useRef<number | null>(null);
 	const suppressWheelFromWebKitPinchRef = useRef(false);
@@ -57,10 +67,6 @@ export const TimelinePinchZoom: FC = () => {
 				return;
 			}
 
-			if (!canvasContent || canvasContent.type !== 'composition') {
-				return;
-			}
-
 			const scrollEl = scrollableRef.current;
 			if (!scrollEl) {
 				return;
@@ -81,18 +87,12 @@ export const TimelinePinchZoom: FC = () => {
 			}
 
 			setZoom(
-				canvasContent.compositionId,
-				(z) => z - scaledDeltaY * ZOOM_WHEEL_DELTA,
+				videoConfig.id,
+				(z) => z * Math.exp(-scaledDeltaY * ZOOM_WHEEL_SENSITIVITY),
 				{anchorFrame: null, anchorContentX},
 			);
 		},
-		[
-			editorZoomGestures,
-			isVideoComposition,
-			videoConfig,
-			canvasContent,
-			setZoom,
-		],
+		[editorZoomGestures, isVideoComposition, videoConfig, setZoom],
 	);
 
 	const supportsWebKitPinch =
@@ -117,6 +117,10 @@ export const TimelinePinchZoom: FC = () => {
 		}
 
 		const endWebKitPinch = () => {
+			if (pinchBaseZoomRef.current !== null) {
+				endZoom();
+			}
+
 			pinchBaseZoomRef.current = null;
 			suppressWheelFromWebKitPinchRef.current = false;
 		};
@@ -131,10 +135,6 @@ export const TimelinePinchZoom: FC = () => {
 				return;
 			}
 
-			if (!canvasContent || canvasContent.type !== 'composition') {
-				return;
-			}
-
 			const scrollEl = scrollableRef.current;
 			if (!scrollEl) {
 				return;
@@ -143,8 +143,8 @@ export const TimelinePinchZoom: FC = () => {
 			e.preventDefault();
 			suppressWheelFromWebKitPinchRef.current = true;
 
-			pinchBaseZoomRef.current =
-				zoomRef.current[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM;
+			pinchBaseZoomRef.current = getCurrentTimelineZoom(videoConfig.id);
+			beginZoom();
 		};
 
 		const onGestureChange = (event: Event) => {
@@ -156,10 +156,6 @@ export const TimelinePinchZoom: FC = () => {
 				!videoConfig ||
 				videoConfig.durationInFrames < 2
 			) {
-				return;
-			}
-
-			if (!canvasContent || canvasContent.type !== 'composition') {
 				return;
 			}
 
@@ -175,7 +171,7 @@ export const TimelinePinchZoom: FC = () => {
 				scrollEl,
 			});
 
-			setZoom(canvasContent.compositionId, () => base * e.scale, {
+			setZoom(videoConfig.id, () => base * e.scale, {
 				anchorFrame: null,
 				anchorContentX,
 			});
@@ -191,6 +187,7 @@ export const TimelinePinchZoom: FC = () => {
 		el.addEventListener('gesturecancel', onGestureEnd);
 
 		return () => {
+			endWebKitPinch();
 			el.removeEventListener('gesturestart', onGestureStart);
 			el.removeEventListener('gesturechange', onGestureChange);
 			el.removeEventListener('gestureend', onGestureEnd);
@@ -201,8 +198,10 @@ export const TimelinePinchZoom: FC = () => {
 		supportsWebKitPinch,
 		isVideoComposition,
 		videoConfig,
-		canvasContent,
+		getCurrentTimelineZoom,
 		setZoom,
+		beginZoom,
+		endZoom,
 	]);
 
 	useEffect(() => {
@@ -213,6 +212,10 @@ export const TimelinePinchZoom: FC = () => {
 
 		const onTouchStart = (event: TouchEvent) => {
 			if (event.touches.length !== 2) {
+				if (touchPinchRef.current !== null) {
+					endZoom();
+				}
+
 				touchPinchRef.current = null;
 				return;
 			}
@@ -222,10 +225,6 @@ export const TimelinePinchZoom: FC = () => {
 				!videoConfig ||
 				videoConfig.durationInFrames < 2
 			) {
-				return;
-			}
-
-			if (!canvasContent || canvasContent.type !== 'composition') {
 				return;
 			}
 
@@ -240,9 +239,9 @@ export const TimelinePinchZoom: FC = () => {
 
 			touchPinchRef.current = {
 				initialDistance,
-				initialZoom:
-					zoomRef.current[canvasContent.compositionId] ?? TIMELINE_MIN_ZOOM,
+				initialZoom: getCurrentTimelineZoom(videoConfig.id),
 			};
+			beginZoom();
 		};
 
 		const onTouchMove = (event: TouchEvent) => {
@@ -253,10 +252,6 @@ export const TimelinePinchZoom: FC = () => {
 				!videoConfig ||
 				videoConfig.durationInFrames < 2
 			) {
-				return;
-			}
-
-			if (!canvasContent || canvasContent.type !== 'composition') {
 				return;
 			}
 
@@ -277,7 +272,7 @@ export const TimelinePinchZoom: FC = () => {
 				scrollEl,
 			});
 
-			setZoom(canvasContent.compositionId, () => pinch.initialZoom * ratio, {
+			setZoom(videoConfig.id, () => pinch.initialZoom * ratio, {
 				anchorFrame: null,
 				anchorContentX,
 			});
@@ -285,6 +280,10 @@ export const TimelinePinchZoom: FC = () => {
 
 		const onTouchEnd = (event: TouchEvent) => {
 			if (event.touches.length < 2) {
+				if (touchPinchRef.current !== null) {
+					endZoom();
+				}
+
 				touchPinchRef.current = null;
 			}
 		};
@@ -295,6 +294,11 @@ export const TimelinePinchZoom: FC = () => {
 		el.addEventListener('touchcancel', onTouchEnd);
 
 		return () => {
+			if (touchPinchRef.current !== null) {
+				touchPinchRef.current = null;
+				endZoom();
+			}
+
 			el.removeEventListener('touchstart', onTouchStart);
 			el.removeEventListener('touchmove', onTouchMove);
 			el.removeEventListener('touchend', onTouchEnd);
@@ -304,8 +308,10 @@ export const TimelinePinchZoom: FC = () => {
 		editorZoomGestures,
 		isVideoComposition,
 		videoConfig,
-		canvasContent,
+		getCurrentTimelineZoom,
 		setZoom,
+		beginZoom,
+		endZoom,
 	]);
 
 	return null;

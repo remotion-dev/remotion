@@ -1,7 +1,7 @@
 import {
 	type CanUpdateEffectPropsResponse,
 	type CanUpdateSequencePropsResponse,
-	type CanUpdateSequencePropStatus,
+	type CanUpdateSequencePropSource,
 	type InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
@@ -35,9 +35,13 @@ export const optimisticUpdateForEffectPropStatuses = ({
 		return previous;
 	}
 
-	const props: Record<string, CanUpdateSequencePropStatus> = {
+	const props: Record<string, CanUpdateSequencePropSource> = {
 		...target.props,
-		[fieldKey]: {status: 'static', codeValue: value},
+		[fieldKey]: {
+			status: 'static',
+			keyframeDisplayOffsetAdjustment: null,
+			codeValue: value,
+		},
 	};
 
 	if (schema[fieldKey]?.type === 'enum') {

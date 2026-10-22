@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {deleteEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DeleteEffectRequest,
 	DeleteEffectResponse,
 } from '@remotion/studio-shared';
-import {deleteEffects} from '../../codemods/delete-effect';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -16,7 +16,10 @@ import {
 } from '../undo-stack';
 import {strikeThroughOrRemovedPrefix} from './log-updates/formatting';
 import {warnAboutPrettierOnce} from './log-updates/log-update';
-import {withSourceFileWriteQueue} from './source-file-write-queue';
+import {
+	getCodemodTimingPrefix,
+	withSourceFileWriteQueue,
+} from './source-file-write-queue';
 
 const getDeletedEffectDescription = (effectLabels: string[]): string => {
 	if (effectLabels.length === 1) {
@@ -57,22 +60,20 @@ export const deleteEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, formatted, effectLabels, logLines} =
-						await deleteEffects({
-							input: fileContents,
-							effects: fileItems.map((item) =>
-								item.type === 'single-effect'
-									? {
-											type: 'single-effect',
-											sequenceNodePath: item.sequenceNodePath.nodePath,
-											effectIndex: item.effectIndex,
-										}
-									: {
-											type: 'all-effects',
-											sequenceNodePath: item.sequenceNodePath.nodePath,
-										},
-							),
-						});
+					const result = await deleteEffects({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						effects: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.sequenceNodePath.nodePath,
+							effectIndex:
+								item.type === 'all-effects' ? null : item.effectIndex,
+						})),
+					});
+					const output = result.changes[0]?.nextContents ?? fileContents;
+					const {formatted, effectLabels, logLines} = result.editDetails[0];
 
 					return {
 						absolutePath,
@@ -104,13 +105,15 @@ export const deleteEffectHandler: ApiHandler<
 					},
 					entryType: 'delete-effect',
 					suppressHmrOnFileRestore: false,
+					nodePathRemappings: null,
 				});
 				suppressUndoStackInvalidation(update.absolutePath);
-				writeFileAndNotifyFileWatchers(
-					update.absolutePath,
-					update.output,
-					undefined,
-				);
+				writeFileAndNotifyFileWatchers({
+					file: update.absolutePath,
+					content: update.output,
+					originatorClientId: undefined,
+					metadata: null,
+				});
 
 				const locationLabel = formatLogFileLocation({
 					remotionRoot,
@@ -119,7 +122,7 @@ export const deleteEffectHandler: ApiHandler<
 				});
 				RenderInternals.Log.info(
 					{indent: false, logLevel},
-					`${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${strikeThroughOrRemovedPrefix(deletedEffectDescription)}`,
+					`${getCodemodTimingPrefix(logLevel)}${RenderInternals.chalk.blueBright(`${locationLabel}`)} ${strikeThroughOrRemovedPrefix(deletedEffectDescription)}`,
 				);
 				if (!update.formatted) {
 					warnAboutPrettierOnce(logLevel);

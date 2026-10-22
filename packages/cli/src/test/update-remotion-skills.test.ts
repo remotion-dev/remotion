@@ -93,7 +93,7 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify({args: pr
 			{
 				args: [
 					'--loglevel=error',
-					'skills',
+					'skills@1.7.0',
 					'update',
 					...remotionSkillNames,
 					'--project',

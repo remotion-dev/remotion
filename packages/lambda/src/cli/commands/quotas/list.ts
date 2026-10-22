@@ -17,6 +17,7 @@ import {INCREASE_SUBCOMMAND} from './increase';
 
 export const quotasListCommand = async (logLevel: LogLevel) => {
 	const region = getAwsRegion();
+	const {consoleDomain} = LambdaClientInternals.getAwsRegionMetadata(region);
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(`Region = ${region}`),
@@ -76,7 +77,7 @@ export const quotasListCommand = async (logLevel: LogLevel) => {
 		);
 		Log.warn(
 			{indent: false, logLevel},
-			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`,
+			`https://${region}.${consoleDomain}/support/home#/case/?displayId=${openCase.CaseId}`,
 		);
 	}
 

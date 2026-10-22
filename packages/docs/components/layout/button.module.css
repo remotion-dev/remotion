@@ -1,4 +1,5 @@
 .buttoncontainer {
+	position: relative;
 	border-radius: 8px;
 	font-weight: bold;
 	appearance: none;
@@ -13,10 +14,35 @@
 	transition: background-color 0.1s;
 }
 
-.buttoncontainer:not([disabled]):hover {
-	background-color: var(--hover-color) !important;
+.buttonContent {
+	display: inline-flex;
+	align-items: center;
 }
 
-.buttoncontainer[draggable='true']:active {
-	cursor: grabbing !important;
+.buttonContentLoading {
+	opacity: 0;
+}
+
+.spinnerOverlay {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.spinner {
+	display: block;
+	width: 20px;
+	height: 20px;
+}
+
+.buttonSmall .spinner {
+	width: 14px;
+	height: 14px;
+	opacity: 0.65;
+}
+
+.buttoncontainer:not([disabled]):hover {
+	background-color: var(--hover-color) !important;
 }

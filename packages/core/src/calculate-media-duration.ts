@@ -21,7 +21,27 @@ export const calculateMediaDuration = ({
 		duration -= trimBefore;
 	}
 
-	const actualDuration = duration / playbackRate;
+	return duration / playbackRate;
+};
 
-	return Number(actualDuration.toFixed(10));
+export const getMediaTrimAfter = ({
+	durationInFrames,
+	trimAfter,
+	trimBefore,
+}: {
+	readonly durationInFrames: number | undefined;
+	readonly trimAfter: number | undefined;
+	readonly trimBefore: number | undefined;
+}) => {
+	const durationAsTrimAfter =
+		durationInFrames === undefined
+			? undefined
+			: (trimBefore ?? 0) + durationInFrames;
+	if (durationAsTrimAfter === undefined) {
+		return trimAfter;
+	}
+
+	return trimAfter === undefined
+		? durationAsTrimAfter
+		: Math.min(trimAfter, durationAsTrimAfter);
 };

@@ -1,15 +1,13 @@
 /* eslint-disable react/require-default-props */
 import {
 	forwardRef,
-	useCallback,
-	useEffect,
+	useLayoutEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
-	type RefObject,
 } from 'react';
-import type {EffectDefinitionAndStack} from 'remotion';
+import type {EffectDefinitionAndStack, EffectsOutputSize} from 'remotion';
 import {Internals, useDelayRender} from 'remotion';
 import type {GifFillMode} from './props';
 import {useElementSize} from './use-element-size';
@@ -110,7 +108,7 @@ type Props = {
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
-	readonly refForOutline?: RefObject<HTMLElement | null>;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
 export const Canvas = forwardRef(
@@ -124,7 +122,7 @@ export const Canvas = forwardRef(
 			className,
 			style,
 			effects,
-			refForOutline,
+			effectsOutputSize,
 		}: Props,
 		ref,
 	) => {
@@ -149,7 +147,7 @@ export const Canvas = forwardRef(
 			return document.createElement('canvas');
 		}, []);
 
-		const chainState = useEffectChainState();
+		const chainState = useEffectChainState(effectsOutputSize);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 		const size = useElementSize(canvasRef);
@@ -157,17 +155,7 @@ export const Canvas = forwardRef(
 		useImperativeHandle(ref, () => {
 			return canvasRef.current as HTMLCanvasElement;
 		}, []);
-		const canvasCallbackRef = useCallback(
-			(canvas: HTMLCanvasElement | null) => {
-				canvasRef.current = canvas;
-				if (refForOutline) {
-					refForOutline.current = canvas;
-				}
-			},
-			[refForOutline],
-		);
-
-		useEffect(() => {
+		useLayoutEffect(() => {
 			if (!size) {
 				return;
 			}
@@ -312,7 +300,7 @@ export const Canvas = forwardRef(
 
 		return (
 			<canvas
-				ref={canvasCallbackRef}
+				ref={canvasRef}
 				className={className}
 				style={style}
 				width={width ?? size?.width}

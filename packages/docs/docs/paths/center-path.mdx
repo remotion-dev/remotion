@@ -4,7 +4,9 @@ title: centerPath()
 crumb: "@remotion/paths"
 ---
 
-_Part of the [`@remotion/paths`](/docs/paths) package. Available from v4.0.486_
+# centerPath()<AvailableFrom v="4.0.486" />
+
+_Part of the [`@remotion/paths`](/docs/paths) package._
 
 Translates an SVG path so that the center of the [bounding box](/docs/paths/get-bounding-box) is at a target point.
 
@@ -37,6 +39,10 @@ const newPath = centerPath("M 10 10 L 20 20", { x: 100, y: 50 }); // M 95 45 L 1
 Returns a new `string` containing the translated path.
 
 This function will throw if the SVG path is invalid.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
 
 ## See also
 

@@ -1,22 +1,21 @@
-import type {OverrideIdToNodePaths, PropStatuses, TSequence} from 'remotion';
-import {Internals} from 'remotion';
-import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
-import {callApi} from '../call-api';
+import type {PropStatuses} from 'remotion';
+import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
+import type {
+	SequenceNodePathInfo,
+	TimelineTrackData,
+} from '../../helpers/get-timeline-sequence-sort-key';
+import {getSourceMutationRevision} from '../../helpers/source-mutation-queue';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
+import {deleteNodes} from '../delete-nodes-api';
+import {deleteEffects as deleteEffectsApi} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	deleteSelectedKeyframe,
-	deleteSelectedKeyframes,
-} from './delete-selected-keyframe';
-import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
-import {getEasingSelectionAfterKeyframeDelete} from './get-easing-selection-after-keyframe-delete';
-import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
+import {deleteSelectedKeyframes} from './delete-selected-keyframe';
 import type {SetPropStatuses} from './save-sequence-prop';
 import {
+	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
 	type TimelineSelection,
 } from './TimelineSelection';
-import {canEditEasingForInterpolationFunction} from './update-selected-easing';
 
 const confirmDeletingDuplicatedSequences = (
 	nodePathInfos: SequenceNodePathInfo[],
@@ -58,7 +57,7 @@ export const deleteSequencesFromSource = async (
 		return false;
 	}
 
-	return callApi('/api/delete-jsx-node', {
+	const deletion = deleteNodes({
 		nodes: nodePathInfos.map((nodePathInfo) => {
 			const nodePath = nodePathInfo.sequenceSubscriptionKey;
 
@@ -67,17 +66,19 @@ export const deleteSequencesFromSource = async (
 				nodePath: nodePath.nodePath,
 			};
 		}),
-	})
+	});
+	const revision = getSourceMutationRevision();
+	return deletion
 		.then((result) => {
 			if (!result.success) {
 				showNotification(result.reason, 4000);
 			}
 
-			return true;
+			return result.success && revision === getSourceMutationRevision();
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
-			return true;
+			return false;
 		});
 };
 
@@ -98,8 +99,11 @@ const deleteEffects = (
 		return Promise.resolve(false);
 	}
 
-	return callApi(
-		'/api/delete-effect',
+	if (!canUseEffectOperations()) {
+		return Promise.resolve(false);
+	}
+
+	return deleteEffectsApi(
 		effects.map((effect) => {
 			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
 			return effect.type === 'single-effect'
@@ -118,15 +122,6 @@ const deleteEffects = (
 	)
 		.then((result) => {
 			if (result.success) {
-				const singleEffect = effects[0];
-				showNotification(
-					effects.length === 1 && singleEffect?.type === 'single-effect'
-						? 'Removed effect from source file'
-						: effects.length === 1
-							? 'Removed effects from source file'
-							: 'Removed effects from source files',
-					2000,
-				);
 				return true;
 			}
 
@@ -137,61 +132,6 @@ const deleteEffects = (
 			showNotification((err as Error).message, 4000);
 			return false;
 		});
-};
-
-export const deleteSelectedTimelineItem = ({
-	selection,
-	sequences,
-	overrideIdsToNodePaths,
-	setPropStatuses,
-	clientId,
-	confirm,
-}: {
-	selection: TimelineSelection;
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	setPropStatuses: SetPropStatuses;
-	clientId: string;
-	confirm: ConfirmationDialogFunction;
-}): Promise<boolean> | null => {
-	if (selection.type === 'keyframe') {
-		const promise = deleteSelectedKeyframe({
-			nodePathInfo: selection.nodePathInfo,
-			frame: selection.frame,
-			sequences,
-			overrideIdsToNodePaths,
-			setPropStatuses,
-			clientId,
-		});
-		return promise?.then(() => true) ?? null;
-	}
-
-	switch (selection.type) {
-		case 'guide':
-			return null;
-		case 'sequence':
-			return deleteSequencesFromSource([selection.nodePathInfo], confirm);
-		case 'sequence-effect':
-			return deleteEffects([
-				{
-					type: 'single-effect',
-					nodePathInfo: selection.nodePathInfo,
-					effectIndex: selection.i,
-				},
-			]);
-		case 'sequence-prop':
-		case 'sequence-effect-prop':
-		case 'easing':
-			return null;
-		case 'sequence-all-effects':
-			return deleteEffects([
-				{type: 'all-effects', nodePathInfo: selection.nodePathInfo},
-			]);
-		default:
-			throw new Error(
-				`Unexpected timeline selection type: ${selection satisfies never}`,
-			);
-	}
 };
 
 const isSequenceRowSelection = (
@@ -237,135 +177,22 @@ const getSequenceSelectionAfterDeletingEffect = (
 	};
 };
 
-const getEasingSelectionAfterDeletingKeyframes = ({
-	selections,
-	sequences,
-	overrideIdsToNodePaths,
-	propStatuses,
-	timelinePosition,
-}: {
-	readonly selections: readonly TimelineSelection[];
-	readonly sequences: TSequence[] | undefined;
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths | undefined;
-	readonly propStatuses: PropStatuses | undefined;
-	readonly timelinePosition: number | undefined;
-}): TimelineSelection | null => {
-	if (
-		sequences === undefined ||
-		overrideIdsToNodePaths === undefined ||
-		propStatuses === undefined ||
-		timelinePosition === undefined
-	) {
-		return null;
-	}
-
-	const keyframeSelections = selections.filter(isKeyframeSelection);
-	if (keyframeSelections.length !== 1) {
-		return null;
-	}
-
-	const [selection] = keyframeSelections;
-	if (!selection) {
-		return null;
-	}
-
-	const field = parseKeyframeFieldFromNodePath(
-		selection.nodePathInfo.auxiliaryKeys,
-	);
-	if (field === null) {
-		return null;
-	}
-
-	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
-		nodePathInfo: selection.nodePathInfo,
-	});
-	if (!track || !track.sequence.controls) {
-		return null;
-	}
-
-	const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
-	const sourceFrame = selection.frame - track.keyframeDisplayOffset;
-
-	if (field.type === 'sequence') {
-		const sequencePropStatus = Internals.getPropStatusesCtx(
-			propStatuses,
-			nodePath,
-		)?.[field.fieldKey];
-		if (
-			sequencePropStatus?.status !== 'keyframed' ||
-			!canEditEasingForInterpolationFunction(
-				sequencePropStatus.interpolationFunction,
-			)
-		) {
-			return null;
-		}
-
-		return getEasingSelectionAfterKeyframeDelete({
-			deletedSourceFrames: [sourceFrame],
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
-			nodePathInfo: selection.nodePathInfo,
-			propStatus: sequencePropStatus,
-			timelinePosition,
-		});
-	}
-
-	const effectStatus = Internals.getEffectPropStatusesCtx({
-		propStatuses,
-		nodePath,
-		effectIndex: field.effectIndex,
-	});
-	const effectPropStatus =
-		effectStatus.type === 'can-update-effect'
-			? effectStatus.props[field.fieldKey]
-			: null;
-	if (
-		effectPropStatus?.status !== 'keyframed' ||
-		!canEditEasingForInterpolationFunction(
-			effectPropStatus.interpolationFunction,
-		)
-	) {
-		return null;
-	}
-
-	return getEasingSelectionAfterKeyframeDelete({
-		deletedSourceFrames: [sourceFrame],
-		keyframeDisplayOffset: track.keyframeDisplayOffset,
-		nodePathInfo: selection.nodePathInfo,
-		propStatus: effectPropStatus,
-		timelinePosition,
-	});
-};
-
 export const getTimelineSelectionAfterDeletingItems = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
-	propStatuses,
-	timelinePosition,
 }: {
 	readonly selections: readonly TimelineSelection[];
-	readonly sequences?: TSequence[];
-	readonly overrideIdsToNodePaths?: OverrideIdToNodePaths;
-	readonly propStatuses?: PropStatuses;
-	readonly timelinePosition?: number;
 }): readonly TimelineSelection[] => {
-	const easingSelection = getEasingSelectionAfterDeletingKeyframes({
-		selections,
-		sequences,
-		overrideIdsToNodePaths,
-		propStatuses,
-		timelinePosition,
-	});
-	if (easingSelection !== null) {
-		return [easingSelection];
-	}
-
 	const nextSelections = new Map<string, TimelineSelection>();
 
 	for (const selection of selections) {
-		const nextSelection = getSequenceSelectionAfterDeletingEffect(selection);
+		if (selection.type === 'easing') {
+			continue;
+		}
+
+		const nextSelection =
+			selection.type === 'keyframe'
+				? getTimelineSelectionFromNodePathInfo(selection.nodePathInfo)
+				: getSequenceSelectionAfterDeletingEffect(selection);
 		if (!nextSelection) {
 			return [];
 		}
@@ -407,8 +234,7 @@ const containsOnlyKeyframesAndEasings = (
 
 export const deleteSelectedTimelineItems = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	setPropStatuses,
 	clientId,
 	confirm,
@@ -416,8 +242,7 @@ export const deleteSelectedTimelineItems = ({
 	timelinePosition,
 }: {
 	selections: readonly TimelineSelection[];
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
@@ -440,8 +265,7 @@ export const deleteSelectedTimelineItems = ({
 				nodePathInfo: selection.nodePathInfo,
 				frame: selection.frame,
 			})),
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			setPropStatuses,
 			clientId,
 			propStatuses,

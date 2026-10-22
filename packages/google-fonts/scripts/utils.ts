@@ -41,3 +41,39 @@ export const getCssLink = (font: Font) => {
 
 	return url;
 };
+
+export const getVariableCssLink = (font: Font) => {
+	if (!font.axes || font.axes.length === 0) {
+		return null;
+	}
+
+	const hasItalic = font.variants.includes('italic');
+	const hasNormal = font.variants.some(
+		(variant) => !variant.endsWith('italic'),
+	);
+	const axes = font.axes
+		.filter((axis) => axis.tag !== 'ital')
+		.map((axis) => ({
+			tag: axis.tag,
+			value:
+				axis.start === axis.end
+					? String(axis.start)
+					: `${axis.start}..${axis.end}`,
+		}));
+	if (hasItalic) {
+		axes.push({tag: 'ital', value: ''});
+	}
+
+	axes.sort((a, b) => a.tag.localeCompare(b.tag, 'en-US'));
+	const styles = hasItalic ? (hasNormal ? [0, 1] : [1]) : [null];
+	const tuples = styles.map((italic) =>
+		axes
+			.map((axis) => (axis.tag === 'ital' ? String(italic) : axis.value))
+			.join(','),
+	);
+
+	return `https://fonts.googleapis.com/css2?family=${font.family.replace(
+		/ /g,
+		'+',
+	)}:${axes.map((axis) => axis.tag).join(',')}@${tuples.join(';')}`;
+};

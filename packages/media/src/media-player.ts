@@ -17,9 +17,9 @@ import {
 	getScheduledTime,
 	getTrimStartForAudioNode,
 } from './audio/get-scheduled-time';
+import {processNext} from './audio/sort-by-priority';
 import {drawPreviewOverlay} from './debug-overlay/preview-overlay';
-import {getDurationOrCompute} from './get-duration-or-compute';
-import {acquireSharedInput, releaseSharedInput} from './get-shared-input';
+import {acquireSharedInput} from './get-shared-input';
 import {calculateEndTime, getTimeInSeconds} from './get-time-in-seconds';
 import {resolveAudioTrack} from './helpers/resolve-audio-track';
 import {isNetworkError} from './is-type-of-error';
@@ -30,15 +30,24 @@ import type {MediaRequestInit} from './request-init';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 import type {VideoIteratorManager} from './video-iterator-manager';
 import {videoIteratorManager} from './video-iterator-manager';
+import type {MaxCanvasSinkFrameSize} from './video/props';
 
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
-	| {type: 'unknown-container-format'}
-	| {type: 'cannot-decode'}
+	| {type: 'unknown-container-format'; error: Error}
+	| {type: 'cannot-decode'; error: Error}
 	| {type: 'cannot-decode-prores'}
-	| {type: 'network-error'}
+	| {type: 'network-error'; error: Error}
 	| {type: 'no-tracks'}
 	| {type: 'disposed'};
+
+export type MediaSeekIntent =
+	| {readonly revision: number; readonly playing: boolean}
+	// An internal resync after media configuration changes, not a timeline seek.
+	// Invalidate the satisfied revision so the next video request cannot be
+	// mistaken for continuous playback. This does not always restart the iterator.
+	| 'discontinuity'
+	| null;
 
 export class MediaPlayer {
 	private tagType: 'audio' | 'video';
@@ -51,15 +60,20 @@ export class MediaPlayer {
 	private src: string;
 	private logLevel: LogLevel;
 	private playbackRate: number;
+	private toneFrequency: number;
 	private globalPlaybackRate: number;
 	private audioStreamIndex: number | null;
 
 	private sharedAudioContext: SharedAudioContextForMediaPlayer | null;
 
 	audioIteratorManager: AudioIteratorManager | null = null;
+	private muted = false;
+	private unsupportedAudioError: Error | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
+	private lastSeekIntent: MediaSeekIntent = null;
+	private satisfiedSeekRevision: number | null = null;
 	private loop = false;
 	private fps: number;
 
@@ -83,10 +97,14 @@ export class MediaPlayer {
 		height: number,
 	) => EffectChainState | null;
 
+	private maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+
 	private initializationPromise: Promise<MediaPlayerInitResult> | null = null;
 
 	private premountAwareDelayPlayback: PremountAwareDelayPlayback;
 	private seekPromiseChain: Promise<unknown> = Promise.resolve();
+	private terminalError: Error | null = null;
+	private onError: ((error: Error) => void) | null;
 
 	constructor({
 		canvas,
@@ -97,6 +115,7 @@ export class MediaPlayer {
 		trimBefore,
 		trimAfter,
 		playbackRate,
+		toneFrequency,
 		globalPlaybackRate,
 		audioStreamIndex,
 		fps,
@@ -113,6 +132,8 @@ export class MediaPlayer {
 		tagType,
 		getEffects,
 		getEffectChainState,
+		maxCanvasSinkFrameSize,
+		onError,
 	}: {
 		canvas: HTMLCanvasElement | OffscreenCanvas | null;
 		src: string;
@@ -122,6 +143,7 @@ export class MediaPlayer {
 		trimBefore: number | undefined;
 		trimAfter: number | undefined;
 		playbackRate: number;
+		toneFrequency: number;
 		globalPlaybackRate: number;
 		audioStreamIndex: number | null;
 		fps: number;
@@ -141,12 +163,15 @@ export class MediaPlayer {
 			width: number,
 			height: number,
 		) => EffectChainState | null;
+		maxCanvasSinkFrameSize: MaxCanvasSinkFrameSize | null;
+		onError: ((error: Error) => void) | null;
 	}) {
 		this.canvas = canvas ?? null;
 		this.src = src;
 		this.logLevel = logLevel;
 		this.sharedAudioContext = sharedAudioContext;
 		this.playbackRate = playbackRate;
+		this.toneFrequency = toneFrequency;
 		this.globalPlaybackRate = globalPlaybackRate;
 		this.loop = loop;
 		this.trimBefore = trimBefore;
@@ -167,22 +192,24 @@ export class MediaPlayer {
 		// Reuse a shared, reference-counted Input per (src, credentials,
 		// requestInit) so mounting a new range does not re-parse the container or
 		// cold-seek — the byte cache and demuxer state stay warm across ranges.
-		const {input, cacheKey} = acquireSharedInput({
+		const {input, getDuration, release} = acquireSharedInput({
 			src: this.src,
 			credentials,
 			requestInit,
 			logLevel,
 		});
 		this.input = input;
-		this.inputCacheKey = cacheKey;
+		this.getDuration = getDuration;
+		this.releaseInput = release;
 		this.tagType = tagType;
 		this.getEffects = getEffects;
 		this.getEffectChainState = getEffectChainState;
+		this.maxCanvasSinkFrameSize = maxCanvasSinkFrameSize;
+		this.onError = onError;
 
 		if (canvas) {
 			const context = canvas.getContext('2d', {
 				alpha: true,
-				desynchronized: true,
 			}) as OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
 
 			if (!context) {
@@ -196,8 +223,8 @@ export class MediaPlayer {
 	}
 
 	private input: Input;
-	// Key into the shared-input cache; released (ref count decremented) on dispose.
-	private inputCacheKey: string;
+	private getDuration: () => Promise<number>;
+	private releaseInput: () => void;
 	// Per-player disposal flag. The Input is now shared and reference counted, so
 	// `this.input.disposed` no longer tells us whether THIS player was disposed
 	// (the Input stays alive while other players hold it). This flag tracks our
@@ -208,11 +235,29 @@ export class MediaPlayer {
 		return this.disposed || this.input.disposed === true;
 	}
 
+	private reportTerminalError(error: Error): void {
+		if (this.terminalError || this.isDisposalError()) {
+			return;
+		}
+
+		this.terminalError = error;
+		this.playing = false;
+		this.audioIteratorManager?.destroyIterator();
+		this.videoIteratorManager?.destroy();
+		this.onError?.(error);
+	}
+
 	public initialize(
 		startTimeUnresolved: number,
 		initialMuted: boolean,
+		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
-		const promise = this._initialize(startTimeUnresolved, initialMuted);
+		this.muted = initialMuted;
+		const promise = this._initialize(
+			startTimeUnresolved,
+			initialMuted,
+			initialVolume,
+		);
 		this.initializationPromise = promise;
 		this.seekPromiseChain = promise;
 		return promise;
@@ -255,6 +300,7 @@ export class MediaPlayer {
 	private async _initialize(
 		startTimeUnresolved: number,
 		initialMuted: boolean,
+		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
 		using _ = this.delayPlaybackHandleIfNotPremounting();
 		try {
@@ -281,11 +327,11 @@ export class MediaPlayer {
 					error,
 				);
 
-				return {type: 'unknown-container-format'};
+				return {type: 'unknown-container-format', error: err};
 			}
 
 			const [durationInSeconds, videoTrack, audioTracks] = await Promise.all([
-				getDurationOrCompute(this.input),
+				this.getDuration(),
 				this.input.getPrimaryVideoTrack(),
 				this.input.getAudioTracks(),
 			]);
@@ -327,7 +373,12 @@ export class MediaPlayer {
 						return {type: 'cannot-decode-prores'};
 					}
 
-					return {type: 'cannot-decode'};
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode video track ${videoTrack.id} (${videoTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
@@ -335,6 +386,7 @@ export class MediaPlayer {
 				}
 
 				this.videoIteratorManager = await videoIteratorManager({
+					getIsDisposed: () => this.isDisposalError(),
 					videoTrack,
 					delayPlaybackHandleIfNotPremounting:
 						this.delayPlaybackHandleIfNotPremounting,
@@ -349,7 +401,12 @@ export class MediaPlayer {
 					getIsLooping: () => this.loop,
 					getEffects: this.getEffects,
 					getEffectChainState: this.getEffectChainState,
+					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
+			}
+
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
 			}
 
 			const startTime = this.getTrimmedTime(startTimeUnresolved);
@@ -374,34 +431,43 @@ export class MediaPlayer {
 				}
 
 				const canDecode = await audioTrack.canDecode();
-				if (!canDecode) {
-					return {type: 'cannot-decode'};
+				if (!canDecode && !this.muted) {
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
 				}
 
-				this.audioIteratorManager = audioIteratorManager({
-					audioTrack,
-					delayPlaybackHandleIfNotPremounting:
-						this.delayPlaybackHandleIfNotPremounting,
-					sharedAudioContext: this.sharedAudioContext,
-					getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
-					getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
-					getStartTime: () => this.getStartTime(),
-					initialMuted,
-					drawDebugOverlay: this.drawDebugOverlay,
-					initialPlaybackRate: this.playbackRate * this.globalPlaybackRate,
-					getSequenceDurationInSeconds: () =>
-						this.getSequenceDurationInSeconds(),
-					initialTrimBefore: this.trimBefore,
-					initialTrimAfter: this.trimAfter,
-					initialSequenceOffset: this.sequenceOffset,
-					initialSequenceDurationInFrames: this.sequenceDurationInFrames,
-					initialLoop: this.loop,
-					initialFps: this.fps,
-				});
+				if (canDecode) {
+					this.audioIteratorManager = audioIteratorManager({
+						audioTrack,
+						delayPlaybackHandleIfNotPremounting:
+							this.delayPlaybackHandleIfNotPremounting,
+						sharedAudioContext: this.sharedAudioContext,
+						getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
+						getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
+						getStartTime: () => this.getStartTime(),
+						initialMuted,
+						initialVolume,
+						toneFrequency: this.toneFrequency,
+						drawDebugOverlay: this.drawDebugOverlay,
+						onError: (error) => this.reportTerminalError(error),
+						getSequenceDurationInSeconds: () =>
+							this.getSequenceDurationInSeconds(),
+					});
+				} else {
+					// Muted video can draw without an audio decoder. Report the
+					// unavailable audio if the caller later requests sound.
+					this.unsupportedAudioError = new Error(
+						`Cannot decode audio for ${this.src}.`,
+					);
+				}
 			}
 
 			const nonce = this.nonceManager.createAsyncOperation();
@@ -440,6 +506,10 @@ export class MediaPlayer {
 				);
 			}
 
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
+			}
+
 			return {type: 'success', durationInSeconds};
 		} catch (error) {
 			const err = error as Error;
@@ -450,7 +520,7 @@ export class MediaPlayer {
 					`[MediaPlayer] Network/CORS error for ${this.src}`,
 					err,
 				);
-				return {type: 'network-error'};
+				return {type: 'network-error', error: err};
 			}
 
 			Internals.Log.error(
@@ -465,6 +535,7 @@ export class MediaPlayer {
 	private seekToWithQueue = async (
 		newTime: number,
 		unloopedNewTime: number,
+		intent: MediaSeekIntent,
 	) => {
 		const nonce = this.nonceManager.createAsyncOperation();
 		await this.seekPromiseChain;
@@ -473,26 +544,38 @@ export class MediaPlayer {
 			newTime,
 			unloopedNewTime,
 			nonce,
+			intent,
 		);
 		await this.seekPromiseChain;
 	};
 
-	public async seekTo(time: number): Promise<void> {
+	public async seekTo(time: number, intent: MediaSeekIntent): Promise<void> {
+		if (this.terminalError || this.isDisposalError()) {
+			return;
+		}
+
 		const newTime = this.getTrimmedTime(time);
 
 		if (newTime === null) {
 			throw new Error(`should have asserted that the time is not null`);
 		}
 
-		await this.seekToWithQueue(newTime, time);
+		this.lastSeekIntent = intent;
+		if (intent === 'discontinuity') {
+			// A mapping change may supersede a queued timeline request.
+			this.satisfiedSeekRevision = null;
+		}
+
+		await this.seekToWithQueue(newTime, time, intent);
 	}
 
 	private async seekToDoNotCallDirectly(
 		newTime: number,
 		unloopedNewTime: number,
 		nonce: Nonce,
+		intent: MediaSeekIntent,
 	): Promise<void> {
-		if (nonce.isStale()) {
+		if (nonce.isStale() || this.terminalError || this.isDisposalError()) {
 			return;
 		}
 
@@ -504,6 +587,12 @@ export class MediaPlayer {
 					fps: this.fps,
 					playbackRate: this.playbackRate,
 					isPlaying: this.playing,
+					continuousPlayback:
+						intent === null
+							? null
+							: intent !== 'discontinuity' &&
+								intent.playing &&
+								intent.revision === this.satisfiedSeekRevision,
 				}),
 				this.audioIteratorManager?.seek({
 					newTime,
@@ -524,17 +613,24 @@ export class MediaPlayer {
 						this.sharedAudioContext!.audioContext.currentTime,
 				}),
 			]);
+			// Superseded work must not consume an explicit seek boundary.
+			if (!nonce.isStale() && intent !== null && intent !== 'discontinuity') {
+				this.satisfiedSeekRevision = intent.revision;
+			}
 		} catch (error) {
 			if (this.isDisposalError()) {
 				return;
 			}
 
-			throw error;
+			// Seeks are serialized: a newer nonce does not replace the iterator
+			// whose read failed. Ignoring the error would leave queued seeks using
+			// an exhausted iterator and displaying its last frame indefinitely.
+			this.reportTerminalError(error as Error);
 		}
 	}
 
 	public play(): void {
-		if (this.playing) {
+		if (this.playing || this.terminalError) {
 			return;
 		}
 
@@ -557,6 +653,12 @@ export class MediaPlayer {
 	}
 
 	public setMuted(muted: boolean): void {
+		this.muted = muted;
+		if (!muted && this.unsupportedAudioError) {
+			this.reportTerminalError(this.unsupportedAudioError);
+			return;
+		}
+
 		this.audioIteratorManager?.setMuted(muted);
 	}
 
@@ -582,25 +684,16 @@ export class MediaPlayer {
 		});
 	}
 
-	public async setTrimBefore(
+	public async setTrimRange(
 		trimBefore: number | undefined,
-		unloopedTimeInSeconds: number,
-	): Promise<void> {
-		if (this.trimBefore !== trimBefore) {
-			this.trimBefore = trimBefore;
-			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
-		}
-	}
-
-	public async setTrimAfter(
 		trimAfter: number | undefined,
 		unloopedTimeInSeconds: number,
 	): Promise<void> {
-		if (this.trimAfter !== trimAfter) {
+		if (this.trimBefore !== trimBefore || this.trimAfter !== trimAfter) {
+			this.trimBefore = trimBefore;
 			this.trimAfter = trimAfter;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -617,7 +710,23 @@ export class MediaPlayer {
 		if (previousRate !== rate) {
 			this.playbackRate = rate;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
+		}
+	}
+
+	public async setToneFrequency(
+		toneFrequency: number,
+		unloopedTimeInSeconds: number,
+	): Promise<void> {
+		if (this.toneFrequency !== toneFrequency) {
+			this.toneFrequency = toneFrequency;
+			if (!this.audioIteratorManager) {
+				return;
+			}
+
+			this.audioIteratorManager.setToneFrequency(toneFrequency);
+			this.audioIteratorManager.destroyIterator();
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -629,7 +738,7 @@ export class MediaPlayer {
 		if (previousRate !== rate) {
 			this.globalPlaybackRate = rate;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -641,16 +750,18 @@ export class MediaPlayer {
 		if (previousFps !== fps) {
 			this.fps = fps;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
 	public setIsPremounting(isPremounting: boolean): void {
 		this.premountAwareDelayPlayback.setIsPremounting(isPremounting);
+		processNext();
 	}
 
 	public setIsPostmounting(isPostmounting: boolean): void {
 		this.premountAwareDelayPlayback.setIsPostmounting(isPostmounting);
+		processNext();
 	}
 
 	public async setLoop(
@@ -661,7 +772,7 @@ export class MediaPlayer {
 		if (previousLoop !== loop) {
 			this.loop = loop;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -673,7 +784,7 @@ export class MediaPlayer {
 		if (previousOffset !== offset) {
 			this.sequenceOffset = offset;
 			this.audioIteratorManager?.destroyIterator();
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -684,7 +795,7 @@ export class MediaPlayer {
 		const previousDuration = this.sequenceDurationInFrames;
 		if (previousDuration !== sequenceDurationInFrames) {
 			this.sequenceDurationInFrames = sequenceDurationInFrames;
-			await this.seekTo(unloopedTimeInSeconds);
+			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
 
@@ -697,6 +808,9 @@ export class MediaPlayer {
 		}
 
 		this.disposed = true;
+		// Cancel pending paints before waiting for initialization to settle.
+		this.nonceManager.createAsyncOperation();
+		this.videoIteratorManager?.destroy();
 
 		if (this.initializationPromise) {
 			try {
@@ -709,13 +823,11 @@ export class MediaPlayer {
 			}
 		}
 
-		// Mark all async operations as stale
-		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroyIterator();
 		// Release our reference to the shared Input; it is only disposed once the
 		// last MediaPlayer using this src releases it.
-		releaseSharedInput(this.inputCacheKey);
+		this.releaseInput();
 	}
 
 	private getTargetTime = (
@@ -848,11 +960,23 @@ export class MediaPlayer {
 		}
 	};
 
-	public audioSyncAnchorChanged = () => {
+	public audioSyncAnchorChanged = async (unloopedTimeInSeconds: number) => {
 		if (!this.audioIteratorManager) {
 			return;
 		}
 
 		this.audioIteratorManager.destroyIterator();
+		// An anchor can change while paused, when no frame update will restart
+		// scheduling. Refill the queue against the new anchor immediately.
+		// Re-anchoring is not navigation. Preserve the captured revision so an
+		// outstanding explicit seek still takes the restart path, but don't let
+		// an audio-clock pause turn ordinary video catch-up into a scrub.
+		const intent = this.lastSeekIntent;
+		await this.seekTo(
+			unloopedTimeInSeconds,
+			intent !== null && intent !== 'discontinuity'
+				? {...intent, playing: true}
+				: intent,
+		);
 	};
 }

@@ -118,9 +118,9 @@ Start the playback from a specific frame. Default `0`. Once the player is mounte
 
 If you use an [`<Html5Audio />`](/docs/html5-audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
 
-This option controls how many audio tags are being rendered, the default is `5`. If you mount more audio tags than shared audio tags are available, then an error will be thrown.
+This option controls how many shared audio tags are rendered. In Remotion 4.0, the default is `5`. In Remotion 5.0, the default is `0`. If you mount more audio tags than shared audio tags are available, an error will be thrown.
 
-If you'd like to opt out of this behavior, you can pass `0` to mount native audio tags simultaneously as you mount Remotion's [`<Html5Audio />`](/docs/html5-audio) tags.
+Pass a value greater than `0` to enable this behavior. With `0`, each [`<Html5Audio />`](/docs/html5-audio) mounts its own native `<audio>` element when it appears.
 
 Once you have set this prop, you cannot change it anymore or an error will be thrown.
 
@@ -152,6 +152,18 @@ A number between -10 and 10 (excluding 0) for the speed that the Player will run
 A `playbackRate` of `2` means the video plays twice as fast. A playbackRate of `0.5` means the video plays twice as slow. A playbackRate of `-1` means the video plays in reverse. Note that the media tags ([`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<Html5Audio>`](/docs/html5-audio), [`<Html5Video>`](/docs/html5-video), [`<OffthreadVideo>`](/docs/offthreadvideo)) cannot be played in reverse, this is a browser limitation.
 
 Default `1`.
+
+### `preservePitch?`<AvailableFrom v="4.0.538" />
+
+Preserves audio pitch when changing the Player's [`playbackRate`](#playbackrate). Defaults to `false`.
+
+Applies to [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`. `toneFrequency` remains an independent pitch multiplier.
+
+For example, with `<Player playbackRate={2} preservePitch>`, a clip authored at normal speed keeps its original pitch. A clip with `playbackRate={2}` still has twice the original pitch unless that clip also has `preservePitch` enabled.
+
+This prop does not affect native media components (`<Html5Audio>`, `<Html5Video>`, `<OffthreadVideo>`) or native fallbacks. Those retain their own `preservePitch` behavior. It does not affect rendering.
+
+The Studio has a separate [preserve-pitch-on-playback setting](/docs/options/preserve-pitch-on-playback), which defaults to `true`.
 
 ### `errorFallback?`
 
@@ -412,6 +424,12 @@ Either `player-size` (default) or `composition-size`:
 - `player-size`: The poster will be rendered in the size of the player. This is useful if you want to render for example a Play button with constant size.
 - `composition-size`: The poster will be rendered in the size of the composition and scaled to the size of the Player. This is useful if you want to render a freeze frame of the video as a poster.
 
+### `defaultPremountInSeconds?`<AvailableFrom v="4.0.535" />
+
+The default [premount duration](/docs/player/premounting) in seconds for timed components inside the Player. Defaults to `0` in v4 and `2` in v5.
+Must be a finite, non-negative number. The duration is converted to frames using `fps` and rounded to the nearest frame.
+An explicit [`premountFor`](/docs/sequence#premountfor) prop takes precedence, including `premountFor={0}` to disable premounting for a component.
+
 ### `bufferStateDelayInMilliseconds`<AvailableFrom v="4.0.111"/>
 
 After the Player has entered a [buffer state](/docs/player/buffer-state), it will wait for this amount of time before showing the buffering UI.  
@@ -482,6 +500,30 @@ If you pass this prop, the Player **does not** read the starting volume from `lo
   component={MyVideo}
   // ... other props
   initialVolume={0.8}
+/>
+```
+
+### `_experimentalKeepAudioContextAlive?`<AvailableFrom v="4.0.508" />
+
+<ExperimentalBadge>
+<p>We are currently testing this prop. We might either remove the functionality or rename the prop to a stable name.</p>
+</ExperimentalBadge>
+
+Keeps the [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext) running while the Player is paused, instead of suspending it. Pausing lowers the gain to zero rather than stopping the context, so the next `play()` does not have to wait for the context to come back up.
+
+This is meant for editor-style applications (video editors, DAW-like tools) that play and pause many times per session, where the delay of resuming the context on every play is noticeable. For a Player that is played a few times, leave this off.
+
+The context is started when the Player mounts if the browser's autoplay policy allows it, otherwise on the first click or key press. It is suspended again when the Player unmounts.
+
+The value cannot be changed after the Player mounts. Doing so throws an error.
+
+**Example:**
+
+```tsx title="MyPlayer.tsx"
+<Player
+  component={MyVideo}
+  // ... other props
+  _experimentalKeepAudioContextAlive
 />
 ```
 
@@ -924,6 +966,12 @@ const MyApp: React.FC = () => {
   return <Player fps={30} component={Component} durationInFrames={100} compositionWidth={1080} compositionHeight={1080} errorFallback={errorFallback} />;
 };
 ```
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering="" serverSideRendering="" player="" studio="" hideServers />
+
+This component previews a composition in a web app. To export it, pass the composition to a [rendering API](/docs/renderer).
 
 ## See also
 

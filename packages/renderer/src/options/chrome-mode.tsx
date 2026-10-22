@@ -14,6 +14,7 @@ let configSelection: ChromeMode | null = null;
 export const chromeModeOption = {
 	cliFlag,
 	name: 'Chrome Mode',
+	addedIn: '4.0.248',
 	ssrName: 'chromeMode',
 	description: () => {
 		return (
@@ -33,7 +34,7 @@ export const chromeModeOption = {
 			</>
 		);
 	},
-	docLink: 'https://www.remotion.dev/chrome-for-testing',
+	docLink: 'https://www.remotion.dev/docs/options/chrome-mode',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			if (

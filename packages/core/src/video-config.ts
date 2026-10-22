@@ -17,3 +17,8 @@ export type VideoConfig = {
 	defaultProResProfile: ProResProfile | null;
 	defaultSampleRate: number | null;
 };
+
+export type VideoConfigValues = Pick<
+	VideoConfig,
+	'durationInFrames' | 'fps' | 'height' | 'width'
+>;

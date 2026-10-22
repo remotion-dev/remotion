@@ -1,3 +1,4 @@
+import {stripAnsi} from '@remotion/studio-shared';
 import React from 'react';
 import {BLUE} from '../../helpers/colors';
 import {didUnmountReactApp} from '../react-overlay';
@@ -14,6 +15,7 @@ const title: React.CSSProperties = {
 
 const left: React.CSSProperties = {
 	flex: 1,
+	paddingLeft: 14,
 	paddingRight: 14,
 	fontWeight: 'bold',
 	maxWidth: '100%',
@@ -44,16 +46,17 @@ export const ErrorTitle: React.FC<{
 	return (
 		<div style={title} className="css-reset">
 			<div style={left}>
-				<span style={errName}>{name}</span>
-				<br />
 				<div style={row}>
+					<span style={errName}>{stripAnsi(name)}</span>
 					{symbolicating ? (
 						<>
-							<Symbolicating />
 							<div style={spacer} />
+							<Symbolicating />
 						</>
 					) : null}
-					<ErrorMessage message={message} />
+				</div>
+				<div style={row}>
+					<ErrorMessage message={stripAnsi(message)} />
 				</div>
 			</div>
 			{didUnmountReactApp() ? null : canHaveDismissButton ? (

@@ -11,6 +11,7 @@ test('Should be able to extract a frame', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
 		durationInSeconds: 1 / 30,
@@ -57,17 +58,18 @@ test('Should be able to extract a frame', async () => {
 	// bits = 16
 	// sampleRate = 48000
 	// 1 / 30 * 2 * 2 * 48000 = 6400
-	// we round down start and round up duration
-	expect(audio.data.byteLength).toBe(6404);
+	expect(audio.data.byteLength).toBe(6400);
 
 	const cacheStats = keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(1);
+	frame.close();
 });
 
 test('Should be able to extract the last frame', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1_000_000,
 		durationInSeconds: 1 / 30,
@@ -112,6 +114,7 @@ test('Should be able to extract the last frame', async () => {
 
 	const cacheStats = keyframeManager.getCacheStats();
 	expect(cacheStats.count).toBe(1);
+	frame.close();
 });
 
 test('Should manage the cache', async (t) => {
@@ -123,7 +126,8 @@ test('Should manage the cache', async (t) => {
 	keyframeManager.clearAll('info');
 
 	for (let i = 0; i < 50; i++) {
-		await extractFrameAndAudio({
+		const result = await extractFrameAndAudio({
+			sampleRate: 48000,
 			src: `/bigbuckbunny.mp4?i=${i}`,
 			timeInSeconds: 1,
 			durationInSeconds: 1 / 30,
@@ -140,6 +144,9 @@ test('Should manage the cache', async (t) => {
 			credentials: undefined,
 			mediaCache: globalMediaCache,
 		});
+		if (result.type === 'success') {
+			result.frame?.close();
+		}
 	}
 
 	const cacheStats = keyframeManager.getCacheStats();
@@ -155,6 +162,7 @@ test('Should be apply volume correctly', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: '/bigbuckbunny.mp4',
 		timeInSeconds: 1,
 		durationInSeconds: 1 / 30,
@@ -215,6 +223,7 @@ test('Should be able to loop', async () => {
 	keyframeManager.clearAll('info');
 
 	const result = await extractFrameAndAudio({
+		sampleRate: 48000,
 		src: `/bigbuckbunny.mp4`,
 		timeInSeconds: 10000001,
 		durationInSeconds: 1 / 30,
@@ -255,4 +264,5 @@ test('Should be able to loop', async () => {
 	const {frame} = result;
 
 	assert(frame);
+	frame.close();
 });

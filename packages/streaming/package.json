@@ -3,14 +3,15 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/streaming"
 	},
 	"name": "@remotion/streaming",
-	"version": "4.0.507",
+	"version": "4.0.538",
 	"description": "Utilities for streaming data between programs",
 	"main": "dist",
 	"scripts": {
 		"lint": "eslint src",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"test": "bun test src",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -24,7 +25,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"exports": {
 		"./package.json": "./package.json",

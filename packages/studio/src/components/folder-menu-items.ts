@@ -1,7 +1,12 @@
+import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {formatFileLocation} from '../helpers/format-file-location';
+import {copyText} from '../helpers/copy-text';
+import {
+	formatContextForAgents,
+	formatFileLocation,
+} from '../helpers/format-file-location';
 import {getFolderId} from '../helpers/get-folder-id';
 import {openOriginalPositionInEditor} from '../helpers/open-in-editor';
 import type {PreviewServerConnectionState} from '../helpers/preview-server-events';
@@ -16,6 +21,8 @@ export const getFolderMenuItems = ({
 	readOnlyStudio,
 	resolvedLocation,
 	setSelectedModal,
+	editorId,
+	editorName,
 }: {
 	closeMenu: () => void;
 	connectionStatus: PreviewServerConnectionState['type'];
@@ -23,8 +30,9 @@ export const getFolderMenuItems = ({
 	readOnlyStudio: boolean;
 	resolvedLocation: ResolvedStackLocation | null;
 	setSelectedModal: (value: SetStateAction<ModalState | null>) => void;
+	editorId: EditorPickerId | null;
+	editorName: string | null;
 }): ComboboxValue[] => {
-	const editorName = window.remotion_editorName;
 	const folderId = getFolderId({
 		folderName: folder.name,
 		parentName: folder.parent,
@@ -33,8 +41,13 @@ export const getFolderMenuItems = ({
 		location: resolvedLocation,
 		root: window.remotion_cwd,
 	});
+	const contextForAgents = formatContextForAgents({
+		location: resolvedLocation,
+		name: folderId,
+		root: window.remotion_cwd,
+	});
 	const showInEditorDisabled =
-		connectionStatus !== 'connected' || !resolvedLocation;
+		!editorId || connectionStatus !== 'connected' || !resolvedLocation;
 	const copyFileLocationDisabled = !fileLocation;
 	const codemodDisabled = readOnlyStudio || !folder.stack;
 
@@ -47,12 +60,12 @@ export const getFolderMenuItems = ({
 					leftItem: null,
 					onClick: async () => {
 						closeMenu();
-						if (!resolvedLocation) {
+						if (!resolvedLocation || !editorId) {
 							return;
 						}
 
 						try {
-							await openOriginalPositionInEditor(resolvedLocation, null);
+							await openOriginalPositionInEditor(resolvedLocation, editorId);
 						} catch (err) {
 							showNotification((err as Error).message, 2000);
 						}
@@ -65,6 +78,30 @@ export const getFolderMenuItems = ({
 				}
 			: null,
 		{
+			id: 'copy-context-for-agents',
+			keyHint: null,
+			label: `Copy context for agents`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!contextForAgents) {
+					return;
+				}
+
+				copyText(contextForAgents).catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						1000,
+					);
+				});
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-context-for-agents',
+			disabled: !contextForAgents,
+		},
+		{
 			id: 'copy-folder-file-location',
 			keyHint: null,
 			label: `Copy file location`,
@@ -75,8 +112,7 @@ export const getFolderMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard
-					.writeText(fileLocation)
+				copyText(fileLocation)
 					.then(() => {
 						showNotification('Copied file location to clipboard', 1000);
 					})
@@ -93,12 +129,31 @@ export const getFolderMenuItems = ({
 			value: 'copy-folder-file-location',
 			disabled: copyFileLocationDisabled,
 		},
-		editorName || fileLocation
-			? {
-					type: 'divider' as const,
-					id: 'show-folder-in-editor-divider',
-				}
-			: null,
+		{
+			id: 'copy-folder-id',
+			keyHint: null,
+			label: `Copy ID`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				copyText(folderId)
+					.then(() => {
+						showNotification('Copied to clipboard', 1000);
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not copy to clipboard: ${(err as Error).message}`,
+							1000,
+						);
+					});
+			},
+			quickSwitcherLabel: 'Copy folder ID',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-folder-id',
+			disabled: false,
+		},
+		{type: 'divider' as const, id: 'show-folder-in-editor-divider'},
 		{
 			id: 'new-composition-in-folder',
 			keyHint: null,
@@ -111,12 +166,32 @@ export const getFolderMenuItems = ({
 					folderName: folder.name,
 					parentName: folder.parent,
 					stack: folder.stack,
+					canvasCapture: null,
 				});
 			},
 			quickSwitcherLabel: 'New composition in folder...',
 			subMenu: null,
 			type: 'item' as const,
 			value: 'new-composition-in-folder',
+			disabled: codemodDisabled,
+		},
+		{
+			id: 'new-folder-in-folder',
+			keyHint: null,
+			label: `New folder...`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				setSelectedModal({
+					type: 'new-folder',
+					parentName: folderId,
+					stack: folder.stack,
+				});
+			},
+			quickSwitcherLabel: 'New folder in folder...',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'new-folder-in-folder',
 			disabled: codemodDisabled,
 		},
 		{
@@ -158,35 +233,6 @@ export const getFolderMenuItems = ({
 			type: 'item' as const,
 			value: 'delete-folder',
 			disabled: codemodDisabled,
-		},
-		{
-			type: 'divider' as const,
-			id: 'copy-folder-id-divider',
-		},
-		{
-			id: 'copy-folder-id',
-			keyHint: null,
-			label: `Copy ID`,
-			leftItem: null,
-			onClick: () => {
-				closeMenu();
-				navigator.clipboard
-					.writeText(folderId)
-					.then(() => {
-						showNotification('Copied to clipboard', 1000);
-					})
-					.catch((err) => {
-						showNotification(
-							`Could not copy to clipboard: ${(err as Error).message}`,
-							1000,
-						);
-					});
-			},
-			quickSwitcherLabel: 'Copy folder ID',
-			subMenu: null,
-			type: 'item' as const,
-			value: 'copy-folder-id',
-			disabled: false,
 		},
 	].filter(NoReactInternals.truthy);
 };

@@ -1,39 +1,12 @@
-import type {
-	CanUpdateSequencePropStatus,
-	CanUpdateSequencePropStatusFalse,
-} from 'remotion';
+import {CanvasInternals} from '@remotion/sdk';
 
-export const getComputedStatusLabel: (
-	propStatus: CanUpdateSequencePropStatusFalse,
-) => string = (propStatus) => {
-	if (propStatus.status === 'computed') {
-		return 'computed';
-	}
+export type {KeyframeSourceFrame} from '@remotion/sdk';
 
-	throw new Error(
-		`Unsupported prop status: ${propStatus.status satisfies never}`,
-	);
-};
-
-export const getTimelineKeyframes = (
-	propStatus: CanUpdateSequencePropStatus | null | undefined,
-	keyframeDisplayOffset = 0,
-): {frame: number; value: unknown}[] => {
-	if (!propStatus) {
-		return [];
-	}
-
-	if (propStatus.status !== 'keyframed') {
-		return [];
-	}
-
-	const {keyframes} = propStatus;
-	if (keyframeDisplayOffset === 0) {
-		return keyframes;
-	}
-
-	return keyframes.map((keyframe) => ({
-		...keyframe,
-		frame: keyframe.frame + keyframeDisplayOffset,
-	}));
-};
+export const {
+	getKeyframeDisplayOffset,
+	getKeyframeLocalFrame,
+	getKeyframePlaybackRate,
+	getKeyframeSourceFrame,
+	getTimelineKeyframes,
+	resolveKeyframeSourceFrame,
+}: typeof CanvasInternals = CanvasInternals;

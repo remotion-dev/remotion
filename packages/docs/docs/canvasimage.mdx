@@ -14,13 +14,13 @@ Drawback: Assets must support CORS.
 Use [`<Img>`](/docs/img) if you want a component based on the regular `<img>` tag.
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+import {CanvasImage, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage src={staticFile('image.png')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -66,6 +66,10 @@ The HTML `id` attribute to apply to the `<canvas>` element.
 ### `style?`
 
 Inline styles to apply to the `<canvas>` element.
+
+### `crossOrigin?`<AvailableFrom v="4.0.526" />
+
+Controls the CORS mode used by the internal image loader. Supports `"anonymous"` and `"use-credentials"`. Defaults to `"anonymous"`.
 
 ### `cropLeft?`<AvailableFrom v="4.0.500" />
 

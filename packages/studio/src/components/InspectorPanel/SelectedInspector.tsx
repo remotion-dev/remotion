@@ -6,8 +6,9 @@ import {GuideInspector} from './GuideInspector';
 import {isSequenceSectionSelection} from './inspector-selection';
 import {KeyframeInspector} from './KeyframeInspector';
 import {SequenceSelectionInspector} from './SequenceSelectionInspector';
+import {container} from './styles';
 
-export const SelectedInspector: React.FC<{
+const SelectedInspectorContent: React.FC<{
 	readonly selection: TimelineSelection;
 	readonly readOnlyStudio: boolean;
 }> = ({selection, readOnlyStudio}) => {
@@ -33,4 +34,18 @@ export const SelectedInspector: React.FC<{
 	}
 
 	return <InspectorMessage>Inspector unavailable</InspectorMessage>;
+};
+
+export const SelectedInspector: React.FC<{
+	readonly selection: TimelineSelection;
+	readonly readOnlyStudio: boolean;
+}> = ({selection, readOnlyStudio}) => {
+	return (
+		<div style={container}>
+			<SelectedInspectorContent
+				selection={selection}
+				readOnlyStudio={readOnlyStudio}
+			/>
+		</div>
+	);
 };

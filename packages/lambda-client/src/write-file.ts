@@ -1,15 +1,15 @@
-/* eslint-disable no-console */
 import type {ObjectCannedACL, PutObjectCommandInput} from '@aws-sdk/client-s3';
-import {PutObjectCommand} from '@aws-sdk/client-s3';
+import {
+	AbortMultipartUploadCommand,
+	PutObjectCommand,
+} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
-import type {
-	CustomCredentials,
-	WriteFileInput,
-} from '@remotion/serverless-client';
 import mimeTypes from 'mime-types';
-import type {AwsProvider} from './aws-provider';
+/* eslint-disable no-console */
+import type {WriteFileInput} from './aws-operations';
 import {getContentDispositionHeader} from './content-disposition-header';
 import {getS3Client} from './get-s3-client';
+import type {CustomCredentials} from './shared-constants';
 
 // Files larger than 100MB will use multipart upload
 const MULTIPART_THRESHOLD = 100 * 1024 * 1024; // 5MB in bytes
@@ -26,10 +26,12 @@ const tryLambdaWriteFile = async ({
 	forcePathStyle,
 	storageClass,
 	requestHandler,
-}: WriteFileInput<AwsProvider>): Promise<void> => {
+	metadata,
+	ifNotExists,
+}: WriteFileInput & {ifNotExists: boolean}): Promise<void> => {
 	const client = getS3Client({
 		region,
-		customCredentials: customCredentials as CustomCredentials<AwsProvider>,
+		customCredentials: customCredentials as CustomCredentials,
 		forcePathStyle,
 		requestHandler,
 	});
@@ -50,6 +52,8 @@ const tryLambdaWriteFile = async ({
 		ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 		ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		StorageClass: storageClass ?? undefined,
+		IfNoneMatch: ifNotExists ? '*' : undefined,
+		Metadata: metadata ?? undefined,
 	};
 
 	// Determine file size
@@ -71,22 +75,60 @@ const tryLambdaWriteFile = async ({
 			partSize: 5 * 1024 * 1024, // chunk size of 5MB
 		});
 
-		await upload.done();
+		try {
+			await upload.done();
+		} catch (err) {
+			const status = (err as {$metadata: {httpStatusCode: number} | undefined})
+				.$metadata?.httpStatusCode;
+			// lib-storage does not abort when CompleteMultipartUpload rejects a condition.
+			if (
+				ifNotExists &&
+				upload.uploadId &&
+				(status === 412 || status === 409)
+			) {
+				await client
+					.send(
+						new AbortMultipartUploadCommand({
+							Bucket: bucketName,
+							Key: key,
+							UploadId: upload.uploadId,
+							ExpectedBucketOwner: params.ExpectedBucketOwner,
+						}),
+					)
+					.catch(() => {
+						// A write-only policy may not allow cleanup. Preserve the upload error.
+					});
+			}
+
+			throw err;
+		}
 	} else {
 		// Use regular PutObject for small files
 		await client.send(new PutObjectCommand(params));
 	}
 };
 
-export const lambdaWriteFileImplementation = async (
-	params: WriteFileInput<AwsProvider> & {
+const writeFileWithRetries = async (
+	params: WriteFileInput & {
 		retries?: number;
+		ifNotExists: boolean;
 	},
 ): Promise<void> => {
 	const remainingRetries = params.retries ?? 2;
 	try {
 		await tryLambdaWriteFile(params);
 	} catch (err) {
+		if (
+			params.ifNotExists &&
+			(err as {$metadata: {httpStatusCode: number} | undefined}).$metadata
+				?.httpStatusCode === 412
+		) {
+			throw new Error(
+				`Output file "${params.key}" in bucket "${params.bucketName}" already exists. Delete it before re-rendering, or set the 'overwrite' option in renderMediaOnLambda() to overwrite it.`,
+				{cause: err},
+			);
+		}
+
 		// A failed upload may have consumed a Readable, and we cannot recreate it here.
 		// Retrying it could upload an empty body and mask the original error.
 		const bodyCanBeRetried =
@@ -104,9 +146,31 @@ export const lambdaWriteFileImplementation = async (
 		console.warn(err);
 		console.warn(`Retrying (${remainingRetries} retries remaining)...`);
 
-		return lambdaWriteFileImplementation({
+		return writeFileWithRetries({
 			...params,
 			retries: remainingRetries - 1,
 		});
 	}
 };
+
+export const lambdaWriteFileImplementation = (
+	params: WriteFileInput & {retries?: number},
+): Promise<void> => writeFileWithRetries({...params, ifNotExists: false});
+
+export const lambdaWriteFileIfNotExistsImplementation = (
+	params: WriteFileInput,
+): Promise<void> => {
+	if (params.customCredentials !== null) {
+		throw new Error('Conditional output uploads are only supported for AWS S3');
+	}
+
+	return writeFileWithRetries({...params, ifNotExists: true});
+};
+
+// Only S3 itself is trusted to honor atomic create-only uploads;
+// custom S3-compatible output providers may not.
+export const supportsConditionalOutput = ({
+	customCredentials,
+}: {
+	customCredentials: CustomCredentials | null;
+}): boolean => customCredentials === null;

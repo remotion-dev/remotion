@@ -104,13 +104,17 @@ Remotion supports 6 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9`, `av1
 Click on a browser compatibility link to see exactly which browsers are supported on caniuse.com.
 :::
 
-* AV1 is not available on [Remotion Lambda](/docs/lambda) or Linux ARM64 GNU.
+- AV1 is not available on [Remotion Lambda](/docs/lambda) or Linux ARM64 GNU.
 
 AV1 can achieve very small file sizes, but encoding is significantly slower than H.264 and H.265. Some runtimes ship only the essential codecs to stay lean, so `AV1` output is not available on Remotion Lambda or Linux ARM64 GNU.
 
-You can set a config using [`Config.setCodec()` in the config file](/docs/config#setcodec) or the [`--codec`](/docs/cli) CLI flag.
+Set the [codec option](/docs/options/codec).
 
 [Hardware acceleration](/docs/hardware-acceleration) is available from Remotion 4.0.228.
+
+## Parallel encoding
+
+Remotion can encode video frames while other frames are still being rendered. See [Parallel encoding](/docs/parallel-encoding) for when it is enabled, memory usage and how to opt out.
 
 ## Controlling quality using the CRF setting
 
@@ -159,7 +163,7 @@ Be cautious: Every codec has it's own range of acceptable values and a different
   </tr>
 </table>
 
-You can [set a CRF in the config file using the `Config.setCrf()`](/docs/config#setcrf) function or use the [`--crf`](/docs/cli/render#--jpeg-quality) command line flag.
+Set the [CRF option](/docs/options/crf).
 
 :::note
 If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot set a `crf`.
@@ -167,11 +171,7 @@ If you enable [hardware acceleration](/docs/hardware-acceleration), you cannot s
 
 ## Controlling quality using `--video-bitrate` and `--audio-bitrate`
 
-Use the following options to set the video and audio bitrate:
-
-- In the Studio: Set video and audio bitrate in the Render Dialog
-- In the CLI: Use the [`--video-bitrate`](/docs/cli/render#--video-bitrate) and [`--audio-bitrate`](/docs/cli/render#--audio-bitrate) flags
-- In SSR, Lambda and Cloud Run APIs: Use the [`videoBitrate`](/docs/renderer/render-media#videobitrate) and [`audioBitrate`](/docs/renderer/render-media#audiobitrate) options.
+Use the [video bitrate](/docs/options/video-bitrate) and [audio bitrate](/docs/options/audio-bitrate) options, or set them in the Studio Render Dialog.
 
 This option is incompatible with other quality options.
 
@@ -179,7 +179,7 @@ This option is incompatible with other quality options.
 
 _Applies only to `prores` codec_.
 
-For ProRes, there is no CRF option, but there are profiles which you can set using the [`--prores-profile` flag](/docs/cli/render#--prores-profile), the [`proResProfile`](/docs/renderer/render-media#proresprofile) render option, or the [`setProResProfile()`](/docs/config#setproresprofile) config file option.
+For ProRes, there is no CRF option. Use the [ProRes profile option](/docs/options/prores-profile).
 
 See [Rendering ProRes](/docs/prores#choosing-a-prores-profile) for all profile values and alpha channel support.
 
@@ -195,7 +195,7 @@ You can also [render your video as a GIF](/docs/render-as-gif).
 
 _available from v3.3.42_
 
-Using the [`--audio-codec`](/docs/config#setaudiocodec) flag, you can set the format of the audio that is embedded in the video. Not all codec and audio codec combinations are supported and certain combinations require a certain file extension and container format.
+Using the [`--audio-codec`](/docs/options/audio-codec) flag, you can set the format of the audio that is embedded in the video. Not all codec and audio codec combinations are supported and certain combinations require a certain file extension and container format.
 
 The container format will be automatically derived based on the file extension.
 

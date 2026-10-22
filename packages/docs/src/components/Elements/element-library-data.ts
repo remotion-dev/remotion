@@ -2,9 +2,9 @@ import {
 	elementDefinitions,
 	type ElementDefinition,
 } from './element-definitions';
+import {elementCategories as registeredCategories} from './element-registry';
 
-type RegisteredElementDefinition =
-	(typeof elementDefinitions)[keyof typeof elementDefinitions];
+type RegisteredElementDefinition = (typeof elementDefinitions)[number];
 
 export type ElementCategory = RegisteredElementDefinition['category'];
 
@@ -14,28 +14,21 @@ export type ElementLibrarySection = {
 	readonly label: string;
 };
 
-const compareStrings = (a: string, b: string) => {
-	if (a < b) {
-		return -1;
-	}
-
-	if (a > b) {
-		return 1;
-	}
-
-	return 0;
-};
-
-const elementCategories = Array.from(
-	new Set(Object.values(elementDefinitions).map(({category}) => category)),
-).sort(compareStrings) as ElementCategory[];
+// Use the sidebar's category order for the gallery as well.
+const elementCategories = registeredCategories
+	.map(({category}) => category)
+	.filter((category) =>
+		elementDefinitions.some((definition) => definition.category === category),
+	);
 
 export const getElementCategoryLabel = (category: ElementCategory) => {
-	return category
-		.split('-')
-		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-		.join(' ');
+	return (
+		registeredCategories.find((entry) => entry.category === category)?.label ??
+		category
+	);
 };
+
+export {getElementCategoryHeadingId} from './element-registry';
 
 export const isElementCategory = (
 	category: string,
@@ -47,13 +40,12 @@ export const getElementLibrarySections = (
 	category: ElementCategory | null,
 ): readonly ElementLibrarySection[] => {
 	const categories = category === null ? elementCategories : [category];
-	const definitions = Object.values(elementDefinitions);
 
 	return categories.map((currentCategory) => ({
 		category: currentCategory,
-		definitions: definitions
-			.filter((definition) => definition.category === currentCategory)
-			.sort((a, b) => compareStrings(a.displayName, b.displayName)),
+		definitions: elementDefinitions.filter(
+			(definition) => definition.category === currentCategory,
+		),
 		label: getElementCategoryLabel(currentCategory),
 	}));
 };

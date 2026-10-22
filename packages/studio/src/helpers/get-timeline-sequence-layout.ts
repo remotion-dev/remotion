@@ -1,8 +1,6 @@
 import type {VideoConfig} from 'remotion';
 import {TIMELINE_PADDING} from './timeline-layout';
 
-export const SEQUENCE_BORDER_WIDTH = 1;
-
 const getWidthOfTrack = ({
 	durationInFrames,
 	timelineDuration,
@@ -22,12 +20,13 @@ const getWidthOfTrack = ({
 			? fullWidth
 			: (spatialDuration / timelineDuration) * fullWidth;
 
-	return Math.max(0, base - SEQUENCE_BORDER_WIDTH + nonNegativeMarginLeft);
+	return Math.max(0, base + nonNegativeMarginLeft);
 };
 
 export const getTimelineSequenceLayout = ({
 	durationInFrames,
 	startFrom,
+	cascadedStart,
 	maxMediaDuration,
 	startFromMedia,
 	video,
@@ -37,6 +36,7 @@ export const getTimelineSequenceLayout = ({
 }: {
 	durationInFrames: number;
 	startFrom: number;
+	cascadedStart: number;
 	startFromMedia: number;
 	maxMediaDuration: number | null;
 	video: VideoConfig;
@@ -47,6 +47,7 @@ export const getTimelineSequenceLayout = ({
 	const maxMediaSequenceDuration =
 		(maxMediaDuration ?? Infinity) - startFromMedia;
 	const timelineDuration = video.durationInFrames ?? 1;
+	const fullWidth = windowWidth - TIMELINE_PADDING * 2;
 
 	const spatialDuration = Math.max(
 		0,
@@ -64,9 +65,20 @@ export const getTimelineSequenceLayout = ({
 	);
 
 	const marginLeft =
-		timelineDuration <= 0
-			? 0
-			: (startFrom / timelineDuration) * (windowWidth - TIMELINE_PADDING * 2);
+		timelineDuration <= 0 ? 0 : (startFrom / timelineDuration) * fullWidth;
+
+	const naturalNegativeStartWidth =
+		timelineDuration > 0 &&
+		startFrom === 0 &&
+		cascadedStart < 0 &&
+		durationInFrames > 0
+			? Math.max(0, (-cascadedStart / timelineDuration) * fullWidth)
+			: 0;
+	const negativeStartWidth = Math.min(
+		TIMELINE_PADDING,
+		naturalNegativeStartWidth,
+	);
+	const negativeStartClipped = naturalNegativeStartWidth > TIMELINE_PADDING;
 
 	const nonNegativeMarginLeft = Math.min(marginLeft, 0);
 
@@ -107,9 +119,13 @@ export const getTimelineSequenceLayout = ({
 		: null;
 
 	return {
-		marginLeft: Math.max(marginLeft, 0) - (premountWidth ?? 0),
-		width: width + (premountWidth ?? 0) + (postmountWidth ?? 0),
+		marginLeft:
+			Math.max(marginLeft, 0) - negativeStartWidth - (premountWidth ?? 0),
+		width:
+			width + negativeStartWidth + (premountWidth ?? 0) + (postmountWidth ?? 0),
 		naturalWidth: naturalWidth + (premountWidth ?? 0) + (postmountWidth ?? 0),
+		negativeStartWidth,
+		negativeStartClipped,
 		premountWidth,
 		postmountWidth,
 	};

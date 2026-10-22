@@ -10,12 +10,15 @@ import {
 	TIMELINE_BACKGROUND,
 	useTimelineMarqueeSelection,
 } from './TimelineSelection';
+import {TimelineSnapIndicator} from './TimelineSnapIndicator';
+import {TimelineViewportProvider} from './TimelineViewport';
 
 const outer: React.CSSProperties = {
 	width: '100%',
 	height: '100%',
 	overflowX: 'auto',
 	overflowY: 'hidden',
+	overscrollBehaviorX: 'none',
 	position: 'relative',
 	backgroundColor: TIMELINE_BACKGROUND,
 };
@@ -48,8 +51,11 @@ export const TimelineScrollable: React.FC<{
 			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
 			onPointerDownCapture={onPointerDownCapture}
 		>
-			<div style={containerStyle}>{children}</div>
+			<TimelineViewportProvider scrollable={scrollableRef}>
+				<div style={containerStyle}>{children}</div>
+			</TimelineViewportProvider>
 			<TimelineAssetDropIndicator />
+			<TimelineSnapIndicator />
 			{marqueeRect === null ? null : (
 				<div
 					style={{

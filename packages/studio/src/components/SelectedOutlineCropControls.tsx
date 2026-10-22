@@ -1,11 +1,7 @@
 import React, {useContext, useLayoutEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {
-	BLUE,
-	SELECTED_OUTLINE_DROP_SHADOW,
-	TRANSPARENT,
-} from '../helpers/colors';
-import {startPointerSession} from '../helpers/pointer-session';
+import {BLUE, TRANSPARENT} from '../helpers/colors';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -32,8 +28,8 @@ import {
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {getUvCoordinateForPoint} from './selected-outline-uv';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
+import {resolveKeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 
 const CROP_HANDLE_THICKNESS = 5;
@@ -274,7 +270,10 @@ const CropHandle: React.FC<{
 						field.propStatus.status === 'keyframed'
 							? Internals.makeKeyframedDragOverride({
 									status: field.propStatus,
-									frame: cropDrag.sourceFrame,
+									frame: resolveKeyframeSourceFrame(
+										cropDrag.sourceFrame,
+										field.propStatus,
+									),
 									value,
 								})
 							: Internals.makeStaticDragOverride(value),
@@ -310,25 +309,15 @@ const CropHandle: React.FC<{
 						change.type === 'keyframed',
 				);
 
-				const promise =
-					staticChanges.length === 0
-						? callAddKeyframes({
-								sequenceKeyframes: keyframedChanges,
-								effectKeyframes: [],
-								setPropStatuses,
-								clientId: cropDrag.clientId,
-							})
-						: saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: keyframedChanges,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: cropDrag.clientId,
-								undoLabel: 'Crop sequence',
-								redoLabel: 'Crop sequence back',
-							});
-
-				promise
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: cropDrag.clientId,
+					undoLabel: 'Crop sequence',
+					redoLabel: 'Crop sequence back',
+				})
 					.catch((err) => {
 						showNotification(
 							`Could not save crop: ${
@@ -342,9 +331,9 @@ const CropHandle: React.FC<{
 					});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -385,7 +374,6 @@ const CropHandle: React.FC<{
 				strokeLinecap="butt"
 				vectorEffect="non-scaling-stroke"
 				pointerEvents="none"
-				style={{filter: SELECTED_OUTLINE_DROP_SHADOW}}
 			/>
 		</>
 	);

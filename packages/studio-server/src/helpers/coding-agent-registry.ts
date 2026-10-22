@@ -1,10 +1,11 @@
 import {execFile, spawn} from 'node:child_process';
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
 import type {DefaultCodingAgent, LogLevel} from '@remotion/renderer';
 import {defaultCodingAgentIds, RenderInternals} from '@remotion/renderer';
+import {getRunningProcesses, isAppRunning} from './running-processes';
 
 const execFilePromise = promisify(execFile);
 
@@ -13,7 +14,6 @@ export type InstalledCodingAgent = {
 	name: string;
 	nameWithType: string;
 	applicationPath: string;
-	iconDataUrl: string | null;
 	platform: SupportedCodingAgentPlatform;
 	launchMode: 'direct' | 'terminal';
 	terminal: InstalledTerminal | null;
@@ -278,11 +278,6 @@ const findMacApplications = async (
 	}
 };
 
-const getBundledCodingAgentIconDataUrl = (id: DefaultCodingAgent): string =>
-	`data:image/png;base64,${readFileSync(
-		path.join(__dirname, '..', '..', 'web', 'coding-agent-icons', `${id}.png`),
-	).toString('base64')}`;
-
 const defaultDiscoveryContext: CodingAgentDiscoveryContext = {
 	platform: process.platform,
 	env: process.env,
@@ -363,7 +358,7 @@ export const discoverAvailableCodingAgents = async (
 						path: context.env.ComSpec ?? context.env.COMSPEC ?? 'cmd.exe',
 					}
 				: null;
-	const installedCodingAgents: Omit<InstalledCodingAgent, 'iconDataUrl'>[] = [];
+	const installedCodingAgents: InstalledCodingAgent[] = [];
 	for (const id of defaultCodingAgentIds) {
 		const definition = codingAgentDefinitions[id];
 		if (platform === 'darwin') {
@@ -390,8 +385,8 @@ export const discoverAvailableCodingAgents = async (
 						applicationPath,
 						id,
 						launchMode: 'direct',
-						name: definition.name,
-						nameWithType: definition.nameWithType,
+						name: id === 'codex' ? 'ChatGPT' : definition.name,
+						nameWithType: id === 'codex' ? 'ChatGPT' : definition.nameWithType,
 						platform,
 						terminal: null,
 					});
@@ -427,10 +422,7 @@ export const discoverAvailableCodingAgents = async (
 		}
 	}
 
-	return installedCodingAgents.map((codingAgent) => ({
-		...codingAgent,
-		iconDataUrl: getBundledCodingAgentIconDataUrl(codingAgent.id),
-	}));
+	return installedCodingAgents;
 };
 
 let availableCodingAgents: Promise<readonly InstalledCodingAgent[]> | null =
@@ -443,6 +435,35 @@ export const getAvailableCodingAgents = () => {
 	return availableCodingAgents;
 };
 
+export const getRunningCodingAgents = async (
+	installedCodingAgents: readonly InstalledCodingAgent[],
+): Promise<readonly DefaultCodingAgent[]> => {
+	if (installedCodingAgents.length === 0) {
+		return [];
+	}
+
+	const processes = await getRunningProcesses();
+	if (processes === null) {
+		return [];
+	}
+
+	return installedCodingAgents
+		.filter((agent) =>
+			isAppRunning({
+				processes,
+				executablePath: agent.applicationPath,
+				commands:
+					agent.platform === 'darwin'
+						? []
+						: codingAgentDefinitions[agent.id][agent.platform].flatMap(
+								(variant) => variant.commands,
+							),
+				platform: agent.platform,
+			}),
+		)
+		.map((agent) => agent.id);
+};
+
 export const getCodingAgentLaunchCommand = ({
 	codingAgent,
 	projectPath,
@@ -452,15 +473,17 @@ export const getCodingAgentLaunchCommand = ({
 }): {command: string; args: string[]; cwd: string | null} => {
 	if (codingAgent.platform === 'darwin') {
 		switch (codingAgent.id) {
-			case 'codex':
+			case 'codex': {
+				const deepLink = new URL('codex://new');
+				deepLink.searchParams.set('path', projectPath);
+
 				return {
-					command: path.posix.join(
-						codingAgent.applicationPath,
-						'Contents/Resources/codex',
-					),
-					args: ['app', projectPath],
+					command: 'open',
+					args: [deepLink.toString()],
 					cwd: null,
 				};
+			}
+
 			case 'cursor':
 				return {
 					command: path.posix.join(

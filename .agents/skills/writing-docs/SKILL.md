@@ -42,6 +42,7 @@ crumb: '@remotion/my-package'
 
 - **Keep it brief**: Developers don't like to read. Extra words cause information loss.
 - **Link to terminology**: Use [terminology](/docs/terminology) page for Remotion-specific terms.
+- **Do not bold terms**: Write terms as plain text, code spans, or links as appropriate. Do not use bold formatting to introduce a term.
 - **Avoid emotions**: Remove filler like "Great! Let's move on..." - it adds no information.
 - **Separate into paragraphs**: Break up long sections.
 - **Address as "you"**: Not "we".
@@ -95,11 +96,11 @@ console.log('Hello');
 
 ### Steps
 
-Formatting around `<Step>` is delicate. Keep one step per line, add a space after `</Step>`, and preserve an explicit line break (`<br/>` or `<br />`) when the steps are written as a compact inline list. Do not write `<Step>1</Step>Add...` without a space.
+Keep one `<Step>` per line and add a space after `</Step>`. Use an explicit line break (`<br/>` or `<br />`) when consecutive steps should appear on separate lines. Do not add Markdown bullet markers solely to wrap steps in a `<ul>`.
 
 ```md
-- <Step>1</Step> First step
-- <Step>2</Step> Second step
+<Step>1</Step> First step<br />
+<Step>2</Step> Second step
 ```
 
 ### Experimental badge

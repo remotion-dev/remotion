@@ -10,15 +10,23 @@ import React, {
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {random} from '../random.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
+import {
+	RenderAssetManager,
+	type RenderAssetManagerContext,
+} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useAudioEnabled} from '../use-media-enabled.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import type {RemotionAudioProps} from './props.js';
-import {useFrameForVolumeProp} from './use-audio-frame.js';
+import {
+	Html5MediaTrimContext,
+	useFrameForVolumeProp,
+} from './use-audio-frame.js';
+import {useMediaAudioState} from './use-media-audio-state.js';
 
 type AudioForRenderingProps = RemotionAudioProps & {
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
@@ -27,11 +35,17 @@ type AudioForRenderingProps = RemotionAudioProps & {
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	AudioForRenderingProps
+	AudioForRenderingProps &
+		Pick<
+			RenderAssetManagerContext,
+			'registerRenderAsset' | 'unregisterRenderAsset'
+		>
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
 	const {
+		registerRenderAsset,
+		unregisterRenderAsset,
 		volume: volumeProp,
 		playbackRate,
 		allowAmplificationDuringRender,
@@ -47,7 +61,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopVolumeCurveBehavior,
 		pauseWhenBuffering,
 		audioStreamIndex,
-		preservePitch: _preservePitch,
+		preservePitch,
 		...nativeProps
 	} = props;
 
@@ -57,8 +71,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
-	const {registerRenderAsset, unregisterRenderAsset} =
-		useContext(RenderAssetManager);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
+	const audioStartFrame = useContext(Html5MediaTrimContext);
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -83,6 +97,12 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaVolume: 1,
 	});
 	warnAboutTooHighVolume(volume);
+	const audioEnabled = useAudioEnabled();
+	const {shouldUseAudio} = useMediaAudioState({
+		muted: props.muted ?? false,
+		volume,
+		audioEnabled,
+	});
 
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLVideoElement;
@@ -93,15 +113,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			throw new Error('No src passed');
 		}
 
-		if (!window.remotion_audioEnabled) {
-			return;
-		}
-
-		if (props.muted) {
-			return;
-		}
-
-		if (volume <= 0) {
+		if (!shouldUseAudio) {
 			return;
 		}
 
@@ -111,18 +123,18 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			id,
 			frame: absoluteFrame,
 			volume,
-			mediaFrame: frame,
-			playbackRate: props.playbackRate ?? 1,
+			// Render assets use composition frames; source trimming stays in media frames.
+			mediaFrame:
+				audioStartFrame + (frame - audioStartFrame) / sequencePlaybackRate,
+			playbackRate: (props.playbackRate ?? 1) * sequencePlaybackRate,
 			toneFrequency: toneFrequency ?? 1,
-			audioStartFrame: Math.max(
-				0,
-				-(sequenceContext?.cumulatedNegativeFrom ?? 0),
-			),
+			audioStartFrame,
 			audioStreamIndex: audioStreamIndex ?? 0,
+			preservePitch: preservePitch ?? true,
 		});
 		return () => unregisterRenderAsset(id);
 	}, [
-		props.muted,
+		shouldUseAudio,
 		props.src,
 		registerRenderAsset,
 		absoluteFrame,
@@ -134,8 +146,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		playbackRate,
 		props.playbackRate,
 		toneFrequency,
-		sequenceContext?.cumulatedNegativeFrom,
+		audioStartFrame,
+		sequencePlaybackRate,
 		audioStreamIndex,
+		preservePitch,
 	]);
 
 	const {src} = props;
@@ -201,8 +215,26 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	return <audio ref={audioRef} {...nativeProps} onError={onNativeError} />;
 };
 
-export const AudioForRendering = forwardRef(
-	AudioForRenderingRefForwardingFunction,
-) as ForwardRefExoticComponent<
+// Asset collection updates the context, but the audio component only needs its callbacks.
+const MemoAudioForRendering = React.memo(
+	forwardRef(AudioForRenderingRefForwardingFunction),
+);
+
+export const AudioForRendering = forwardRef<
+	HTMLAudioElement,
+	AudioForRenderingProps
+>((props, ref) => {
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
+
+	return (
+		<MemoAudioForRendering
+			{...props}
+			ref={ref}
+			registerRenderAsset={registerRenderAsset}
+			unregisterRenderAsset={unregisterRenderAsset}
+		/>
+	);
+}) as ForwardRefExoticComponent<
 	AudioForRenderingProps & RefAttributes<HTMLAudioElement>
 >;

@@ -1,0 +1,140 @@
+---
+image: /generated/articles-docs-gsap-use-gsap-timeline.png
+id: use-gsap-timeline
+title: useGsapTimeline()
+crumb: '@remotion/gsap'
+---
+
+# useGsapTimeline()<AvailableFrom v="4.0.517" />
+
+_Part of the [`@remotion/gsap`](/docs/gsap) package._
+
+Builds a paused GSAP timeline and seeks it to the current frame of the Remotion timeline.
+
+## Example
+
+```tsx twoslash title="MyComposition.tsx"
+import {useGsapTimeline} from '@remotion/gsap';
+import React from 'react';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComposition: React.FC = () => {
+  const scope = useGsapTimeline<HTMLDivElement>(({timeline, selector}) => {
+    timeline
+      .from(selector('[data-title]'), {
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      })
+      .to(selector('[data-badge]'), {
+        rotation: 360,
+        duration: 2,
+        ease: 'none',
+      });
+  });
+
+  return (
+    <AbsoluteFill ref={scope} style={{background: '#000', color: '#fff'}}>
+      <h1 data-title>Hello GSAP</h1>
+      <div data-badge style={{width: 60, height: 60, background: '#B8FF5A'}} />
+    </AbsoluteFill>
+  );
+};
+```
+
+## API
+
+### `build`
+
+A synchronous function that receives a build context and adds tweens to the timeline. It runs once on mount and again whenever [`dependencies`](#dependencies) change.
+
+#### `timeline`
+
+A `gsap.core.Timeline` that is owned by the hook and already paused at time zero. Add tweens using the regular GSAP API: `to()`, `from()`, `fromTo()`, `set()`, `add()`, labels, position parameters, staggers, keyframes, repeats, yoyo and nested timelines all work.
+
+#### `scope`
+
+The mounted element attached to the returned ref.
+
+#### `selector`
+
+A GSAP selector function restricted to descendants of `scope`.
+
+### `options?`
+
+#### `dependencies?`
+
+An array of values, like the dependency list of `useEffect()`. When one of them changes, the hook reverts the previous timeline and runs the builder again. Default: the timeline is built once per mount.
+
+```tsx twoslash title="Rebuilding on prop changes"
+import {useGsapTimeline} from '@remotion/gsap';
+import React from 'react';
+
+export const Title: React.FC<{distance: number}> = ({distance}) => {
+  const scope = useGsapTimeline<HTMLDivElement>(
+    ({timeline, selector}) => {
+      timeline.to(selector('[data-box]'), {x: distance, duration: 1});
+    },
+    {dependencies: [distance]},
+  );
+
+  return (
+    <div ref={scope}>
+      <div data-box />
+    </div>
+  );
+};
+```
+
+## Return value
+
+A ref object. Attach it to the HTML or SVG element that scopes the timeline.
+
+## Rules for builders
+
+The hook rejects patterns that would break deterministic rendering. Each of these throws an error during the build:
+
+### No playback or seeking
+
+The hook blocks `play()`, `resume()`, `restart()`, `reverse()`, `paused(false)`, `seek()`, `time()`, `progress()`, `tweenTo()` and similar methods. Remotion owns the clock; the hook performs all seeking.
+
+### No callbacks
+
+The hook rejects `onStart`, `onUpdate`, `onComplete` and other callbacks, as well as `timeline.call()`, `timeline.eventCallback()` and `timeline.then()`. A render may visit frames in any order and split them across multiple browser instances, so callbacks would not fire in a meaningful sequence. Derive state from the timeline instead.
+
+### Synchronous builders only
+
+Builders must not return a Promise. Load data before rendering, for example with [`delayRender()`](/docs/delay-render) or [`calculateMetadata()`](/docs/calculate-metadata).
+
+### Only element targets
+
+Tweens must target DOM or SVG elements. Tweening plain objects animates in the Player but freezes in stills and renders, because nothing re-reads the object after a frame seek. Derive numeric values with [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) instead.
+
+### No unseeded randomness
+
+The hook rejects `"random(...)"` string values, `stagger: {from: 'random'}` and `repeatRefresh: true` because GSAP resolves them with unseeded `Math.random()`, which differs between render processes. Derive stable values from data or Remotion's [`random()`](/docs/random).
+
+Function-based values like `y: (index) => index * 20` cannot be inspected. Derive them from the index or other stable inputs, never from `Math.random()` or the current time.
+
+### No stray animations
+
+Animations created inside the builder must be attached to the provided timeline. The hook rejects freestanding `gsap.to()` calls and `gsap.delayedCall()`, which advance on the wall clock. A plain zero-duration `gsap.set()` for static state is allowed.
+
+## Performance
+
+For determinism, every frame renders the timeline forward from time zero instead of stepping incrementally. This is imperceptible for typical timelines; a timeline with many hundreds of tweens pays the cost on every frame.
+
+## GSAP plugins
+
+The package does not support GSAP plugins yet. Plugins that depend on user interaction or asynchronous work, like ScrollTrigger and Draggable, are not meaningful in a rendered video.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [Source code for this hook](https://github.com/remotion-dev/remotion/blob/main/packages/gsap/src/use-gsap-timeline.ts)
+- [`@remotion/gsap`](/docs/gsap)
+- [Third party integrations](/docs/third-party)

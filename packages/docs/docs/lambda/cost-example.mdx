@@ -27,16 +27,16 @@ Rendering the [`HelloWorld`](https://github.com/remotion-dev/template-helloworld
 
 ## Rendering a 1 minute Video in the same S3 bucket
 
-```tsx twoslash title="OffthreadRemoteVideo.tsx"
+The video examples use Mediabunny's [`computeFrameRateMetrics()`](https://mediabunny.dev/api/InputVideoTrack#computeframeratemetrics) method to account for constant and variable frame rate videos.
+
+```tsx twoslash title="src/Root.tsx"
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -47,8 +47,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -57,7 +62,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from 'react';
 import {Video} from '@remotion/media';
@@ -69,10 +74,11 @@ const src = staticFile('bigbuckbunny.mp4');
 
 export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
   const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+  const compositionFps = fps ?? 30;
 
   return {
-    durationInFrames: Math.round(durationInSeconds * fps!), // 1440
-    fps: fps!,
+    durationInFrames: Math.round(durationInSeconds * compositionFps), // 1440
+    fps: compositionFps,
     width: dimensions!.width,
     height: dimensions!.height,
   };
@@ -82,12 +88,9 @@ export const Component = () => {
   return <Video src={src} />;
 };
 
-export const VideoFromFileComp = () => {
+export const RemotionRoot = () => {
   return <Composition component={Component} id="VideoFromFile" calculateMetadata={calculateMetadataFn} />;
 };
-
-// In Root.tsx:
-// <VideoFromFileComp />
 ```
 
 [This](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/bigbuckbunny.mp4) is the video file used.
@@ -99,16 +102,14 @@ Rendering a video inside your video increases the cost significantly.
 
 ## Rendering a 10 minute Remote HD Video
 
-```tsx twoslash title="OffthreadRemoteVideo.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -119,8 +120,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -129,7 +135,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from 'react';
 import {Video} from '@remotion/media';
@@ -141,10 +147,11 @@ const src = 'https://remotion.media/BigBuckBunny.mp4';
 
 export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
   const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+  const compositionFps = fps ?? 30;
 
   return {
-    durationInFrames: Math.round(durationInSeconds * fps!), // 14315
-    fps: fps!,
+    durationInFrames: Math.round(durationInSeconds * compositionFps), // 14315
+    fps: compositionFps,
     width: dimensions!.width,
     height: dimensions!.height,
   };
@@ -154,12 +161,9 @@ export const Component = () => {
   return <Video src={src} />;
 };
 
-export const NewVideoComp = () => {
+export const RemotionRoot = () => {
   return <Composition component={Component} id="NewVideo" calculateMetadata={calculateMetadataFn} />;
 };
-
-// In Root.tsx:
-// <NewVideoComp />
 ```
 
 **Cold Lambda**: $0.108, 60.98sec  
@@ -167,16 +171,14 @@ export const NewVideoComp = () => {
 
 ## Rendering a 10 second Remote 4K Video
 
-```tsx twoslash title="OffthreadRemoteVideo.tsx"
+```tsx twoslash title="src/Root.tsx"
 // @filename: get-media-metadata.ts
 import {Input, ALL_FORMATS, UrlSource} from 'mediabunny';
 
 export const getMediaMetadata = async (src: string) => {
   const input = new Input({
     formats: ALL_FORMATS,
-    source: new UrlSource(src, {
-      getRetryDelay: () => null,
-    }),
+    source: new UrlSource(src),
   });
 
   const durationInSeconds = await input.computeDuration();
@@ -187,8 +189,13 @@ export const getMediaMetadata = async (src: string) => {
         height: videoTrack.displayHeight,
       }
     : null;
-  const packetStats = await videoTrack?.computePacketStats();
-  const fps = packetStats?.averagePacketRate ?? null;
+  const frameRateMetrics = videoTrack
+    ? await videoTrack.computeFrameRateMetrics()
+    : null;
+  const fps =
+    frameRateMetrics === null || frameRateMetrics.probedPacketCount < 2
+      ? null
+      : frameRateMetrics.bestGuessFrameRate;
 
   return {
     durationInSeconds,
@@ -197,7 +204,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from 'react';
 import {Video} from '@remotion/media';
@@ -209,10 +216,11 @@ const src = 'https://videos.pexels.com/video-files/5530402/5530402-uhd_3840_2160
 
 export const calculateMetadataFn: CalculateMetadataFunction<Record<string, unknown>> = async () => {
   const {durationInSeconds, dimensions, fps} = await getMediaMetadata(src);
+  const compositionFps = fps ?? 30;
 
   return {
-    durationInFrames: Math.round(durationInSeconds * fps!),
-    fps: fps!,
+    durationInFrames: Math.round(durationInSeconds * compositionFps),
+    fps: compositionFps,
     width: dimensions!.width,
     height: dimensions!.height,
   };
@@ -222,12 +230,9 @@ export const Component = () => {
   return <Video src={src} />;
 };
 
-export const NewVideoComp = () => {
+export const RemotionRoot = () => {
   return <Composition component={Component} id="NewVideo" calculateMetadata={calculateMetadataFn} />;
 };
-
-// In Root.tsx:
-// <NewVideoComp />
 ```
 
 **Cold Lambda**: $0.014, 53.09sec  

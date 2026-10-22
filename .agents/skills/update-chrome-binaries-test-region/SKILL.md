@@ -23,11 +23,11 @@ For the test phase (`--region=eu-central-1`), only `eu-central-1` is updated; ot
 
 ## Update Chrome references
 
-Ask the user for both the Chrome version, such as `149.0.7790.0`, and the corresponding Playwright revision. If the user does not provide the Playwright revision, look it up in `https://github.com/microsoft/playwright/blob/main/packages/playwright-core/browsers.json` by matching `browserVersion`.
+Use the Chrome version supplied by the user, such as `157.0.8080.0`. Default downloads no longer use a Playwright revision. Verify the same Chrome version is available for all supported platforms in [Google's Chrome for Testing download metadata](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json). If an exact match is unavailable, choose the closest available version and keep its version/cache marker accurate. Explicit numeric Playwright revision overrides on Linux ARM64 remain supported.
 
 Update:
 
-- `packages/renderer/src/browser/get-chrome-download-url.ts`: `TESTED_VERSION`, `PLAYWRIGHT_VERSION`, the trailing `// <version>` comment on the `PLAYWRIGHT_VERSION` line, and the two hard-coded `https://remotion.media/chromium-headless-shell-amazon-linux-{arm64,x64}-<version>.zip` URLs.
+- `packages/renderer/src/browser/get-chrome-download-url.ts`: `TESTED_VERSION`. The Remotion and Google CDN URLs use this version, including the Amazon Linux builds and Linux ARM64 fallbacks. Verify all five Remotion archives and both Google browser modes for Linux x64/ARM64, macOS x64/ARM64 and Windows x64. Check `BrowserFetcher.ts` executable paths against the archive layout when changing providers.
 - Before changing URLs, verify the new binaries exist with `curl -sI` against the new hard-coded URLs and the templated `chromium-headless-shell-linux-{arm64,x64}-<version>.zip?clearcache` URLs that follow `TESTED_VERSION`. Continue only when all return HTTP 200; otherwise ask the user to upload the missing builds to `remotion.media`.
 - `packages/lambda/src/admin/make-layer-public.ts`: the `Chromium <version>, compiled from source.` license string passed to `PublishLayerVersionCommand`.
 - `packages/docs/docs/lambda/runtime.mdx`: prepend a new row to the "Chrome" version table for the next Remotion release. Determine the next version from `packages/core/package.json` and increment the patch.

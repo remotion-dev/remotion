@@ -1,7 +1,14 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {Guide, GuideState} from '../state/editor-guides';
 import {
 	EditorShowGuidesContext,
+	EditorShowGuidesRefContext,
 	loadEditorShowGuidesOption,
 	loadGuidesList,
 	persistEditorShowGuidesOption,
@@ -54,10 +61,16 @@ export const ShowGuidesProvider: React.FC<{
 		draggingGuideId,
 		hoveredGuideId,
 	]);
+	const guideStateRef = useRef(editorShowGuidesCtx);
+	useLayoutEffect(() => {
+		guideStateRef.current = editorShowGuidesCtx;
+	}, [editorShowGuidesCtx]);
 
 	return (
-		<EditorShowGuidesContext.Provider value={editorShowGuidesCtx}>
-			{children}
-		</EditorShowGuidesContext.Provider>
+		<EditorShowGuidesRefContext.Provider value={guideStateRef}>
+			<EditorShowGuidesContext.Provider value={editorShowGuidesCtx}>
+				{children}
+			</EditorShowGuidesContext.Provider>
+		</EditorShowGuidesRefContext.Provider>
 	);
 };

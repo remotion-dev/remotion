@@ -24,6 +24,12 @@ const registerAudioEncoder = async (codec: AudioCodec) => {
 	if (codec === 'ac3' || codec === 'eac3') {
 		const {registerAc3Encoder} = await import('@mediabunny/ac3');
 		registerAc3Encoder();
+		return;
+	}
+
+	if (codec === 'dts') {
+		const {registerDtsEncoder} = await import('@mediabunny/dts');
+		registerDtsEncoder();
 	}
 };
 

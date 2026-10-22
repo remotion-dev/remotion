@@ -1,0 +1,93 @@
+---
+image: /generated/articles-docs-default-props-inference.png
+id: default-props-inference
+title: Inferring controls from default props
+sidebar_label: Inferring controls
+crumb: 'How To'
+---
+
+# Inferring controls from default props<AvailableFrom v="4.0.516" />
+
+If a [`<Composition>`](/docs/composition) has [`defaultProps`](/docs/composition#defaultprops) but no [`schema`](/docs/composition#schema), the Remotion Studio infers controls from the values in `defaultProps`.
+
+```tsx twoslash title="src/Root.tsx"
+import {Composition} from 'remotion';
+
+type Props = {
+  title: string;
+  color: string;
+  showLogo: boolean;
+};
+
+const MyComponent: React.FC<Props> = () => null;
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <Composition
+      id="my-video"
+      component={MyComponent}
+      durationInFrames={150}
+      fps={30}
+      width={1920}
+      height={1080}
+      defaultProps={{
+        title: 'Hello',
+        color: '#0b84ff',
+        showLogo: true,
+      }}
+    />
+  );
+};
+```
+
+This creates a text control for `title`, a color control for `color` and a checkbox for `showLogo`. The `schema` prop is not required.
+
+## Inference rules
+
+| Value in `defaultProps`                              | Inferred control                                                          |
+| ---------------------------------------------------- | ------------------------------------------------------------------------- |
+| String                                               | Text input                                                                |
+| CSS color                                            | Color picker                                                              |
+| Value returned by [`staticFile()`](/docs/staticfile) | Asset picker                                                              |
+| Number                                               | Number input                                                              |
+| Boolean                                              | Checkbox                                                                  |
+| `Date`                                               | Date and time input                                                       |
+| Plain object                                         | Nested controls                                                           |
+| Non-empty array                                      | Array editor, if every item matches the type inferred from the first item |
+
+Color inference requires [`@remotion/zod-types`](/docs/zod-types). A string is treated as a color if its property name contains `color` and its value is a valid CSS color, or if it uses unambiguous CSS color syntax such as `#`, `rgb()`, `hsl()` or `oklch()`.
+
+Nested values are inferred recursively.
+
+## Values without an editable control
+
+The Studio does not infer an editable control for:
+
+- `null`
+- `undefined`
+- Empty arrays
+- Arrays whose items do not match the inferred type
+- Class instances and other values whose type is not recognized
+
+A property named `type` is inferred as a literal and is not editable. This prevents changing a discriminator without defining the object shapes for its other possible values.
+
+Use an explicit [Zod schema](/docs/schemas) if one of these values should be editable.
+
+## When to define a schema
+
+If you pass a `schema` to [`<Composition>`](/docs/composition), Remotion uses it instead of inferring controls from `defaultProps`.
+
+Define a schema when you need:
+
+- Runtime validation
+- Enums, unions, optional values or nullable values
+- Number constraints such as `.min()`, `.max()` and `.step()`
+- Descriptions
+- Specialized controls such as [`zTextarea()`](/docs/zod-types/z-textarea) and [`zMatrix()`](/docs/zod-types/z-matrix)
+
+## See also
+
+- [Visual editing](/docs/visual-editing)
+- [Defining a schema](/docs/schemas)
+- [Passing props](/docs/passing-props)
+- [`<Composition>`](/docs/composition)

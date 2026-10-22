@@ -1,30 +1,18 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
 import React from 'react';
+import {setComponentIdentityResolver} from '../component-identity.js';
 import type {AnyComposition} from '../CompositionManager.js';
-import {
-	CompositionSetters,
-	type CompositionManagerSetters,
-} from '../CompositionManagerContext.js';
+import {CompositionRegistryProvider} from '../CompositionRegistryProvider.js';
 import {Internals} from '../internals.js';
 import {Still} from '../Still.js';
 
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	setComponentIdentityResolver(null);
+});
 
 const AnyComp: React.FC = () => null;
-
-const makeCompositionSetters = (
-	onRegisterComposition: (composition: AnyComposition) => void,
-): CompositionManagerSetters => ({
-	registerComposition: (composition) => {
-		onRegisterComposition(composition as AnyComposition);
-	},
-	unregisterComposition: () => undefined,
-	registerFolder: () => undefined,
-	unregisterFolder: () => undefined,
-	setCanvasContent: () => undefined,
-	onlyRenderComposition: null,
-});
 
 test('Still gets automatic stack traces added', () => {
 	expect(Internals.getComponentsToAddStacksTo()).toContain(Still);
@@ -32,13 +20,13 @@ test('Still gets automatic stack traces added', () => {
 
 test('Still forwards its stack to the registered composition', async () => {
 	const stillStack = 'Error\n    at StillCallsite (Root.tsx:10:2)';
-	const registeredCompositions: AnyComposition[] = [];
+	let registeredCompositions: readonly AnyComposition[] = [];
 
 	render(
-		<CompositionSetters.Provider
-			value={makeCompositionSetters((composition) => {
-				registeredCompositions.push(composition);
-			})}
+		<CompositionRegistryProvider
+			onSnapshot={(snapshot) => {
+				registeredCompositions = snapshot.compositions;
+			}}
 		>
 			<Still
 				id="still-stack-test"
@@ -49,10 +37,37 @@ test('Still forwards its stack to the registered composition', async () => {
 					_remotionInternalStack: stillStack,
 				} as {readonly _remotionInternalStack: string})}
 			/>
-		</CompositionSetters.Provider>,
+		</CompositionRegistryProvider>,
 	);
 
 	await waitFor(() => {
 		expect(registeredCompositions[0]?.stack).toBe(stillStack);
+	});
+});
+
+test('Still registers the stable component identity', async () => {
+	const family = {};
+	let registeredCompositions: readonly AnyComposition[] = [];
+	setComponentIdentityResolver((component) => {
+		return component === AnyComp ? family : component;
+	});
+
+	render(
+		<CompositionRegistryProvider
+			onSnapshot={(snapshot) => {
+				registeredCompositions = snapshot.compositions;
+			}}
+		>
+			<Still
+				id="still-component-identity-test"
+				component={AnyComp}
+				width={100}
+				height={100}
+			/>
+		</CompositionRegistryProvider>,
+	);
+
+	await waitFor(() => {
+		expect(registeredCompositions[0]?.componentFromProps).toBe(family);
 	});
 });

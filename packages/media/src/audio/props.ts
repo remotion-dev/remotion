@@ -20,10 +20,15 @@ export type FallbackHtml5AudioProps = {
 export type AudioProps = {
 	src: string;
 	trimBefore?: number;
+	/**
+	 * @deprecated Use `durationInFrames` instead. See https://github.com/remotion-dev/remotion/pull/11685
+	 */
 	trimAfter?: number;
 	volume?: VolumeProp;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	playbackRate?: number;
+	/** Keep the original pitch when changing playback speed. Default: false. */
+	preservePitch?: boolean;
 	muted?: boolean;
 	style?: React.CSSProperties;
 	logLevel?: LogLevel;

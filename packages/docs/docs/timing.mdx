@@ -1,0 +1,147 @@
+---
+image: /generated/articles-docs-timing.png
+id: timing
+title: Timing and trimming
+crumb: 'Getting started'
+---
+
+import {TimingTimeline} from '../components/TimingTimeline';
+
+All Remotion [components](/docs/components) share the same timing props.
+
+## `from`: Move an item
+
+`from` moves an item on the timeline.  
+By default, its children start at frame `0` when it appears:
+
+<TimingTimeline from={30} trimBefore={0} playbackRate={1} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div from={30}>
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `trimBefore`: Trim the beginning
+
+`trimBefore` trims the beginning of an item.
+
+<TimingTimeline from={30} trimBefore={15} playbackRate={1} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div from={30} trimBefore={15}>
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `durationInFrames`: Set the duration
+
+`durationInFrames` selects how many frames of the child timeline are shown, starting at `trimBefore`.
+
+<TimingTimeline from={30} durationInFrames={30} trimBefore={45} playbackRate={1} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div
+    from={30}
+    trimBefore={45}
+    durationInFrames={30}
+  >
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `playbackRate`: Change speed of an item
+
+<TimingTimeline from={30} durationInFrames={60} trimBefore={15} playbackRate={2} loop={false} />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div
+    from={30}
+    trimBefore={15}
+    durationInFrames={60}
+    playbackRate={2}
+  >
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+## `loop`: Repeat an item
+
+`loop` repeats the range selected by `trimBefore` and `durationInFrames` until the parent ends.
+
+<TimingTimeline from={30} durationInFrames={60} trimBefore={45} playbackRate={2} loop />
+
+```tsx twoslash title="MyComposition.tsx"
+import {Interactive, useCurrentFrame} from 'remotion';
+
+const Counter = () => <div>{useCurrentFrame()}</div>;
+
+export const MyComposition = () => (
+  <Interactive.Div
+    from={30}
+    trimBefore={45}
+    durationInFrames={60}
+    playbackRate={2}
+    loop
+  >
+    <Counter />
+  </Interactive.Div>
+);
+```
+
+To loop an item, `durationInFrames` must be set.  
+The following components are exempt: [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), [`<Lottie>`](/docs/lottie/lottie), [`<Gif>`](/docs/gif/gif), and [`<AnimatedImage>`](/docs/animatedimage), because they have an intrinsic duration.
+
+## Order of operations
+
+The timing props as applying to the content in this order:
+
+1. `from` positions the item in its parent timeline.
+2. `trimBefore` sets the first frame in the child timeline.
+3. `durationInFrames` selects the child range.
+4. `playbackRate` stretches or compresses the selected range.
+5. `loop` repeats the selected range until the parent ends.
+
+## Formula
+
+Timing props affect what child components retrieve when they call [`useCurrentFrame()`](/docs/use-current-frame).  
+The formula is as follows:
+
+```md
+trimBefore + (frame - from) * playbackRate
+```
+
+If the item loops:
+
+```md
+trimBefore + ((frame - from) * playbackRate) % durationInFrames
+```
+
+## See also
+
+- [`<Sequence>`](/docs/sequence)
+- [`<Loop>`](/docs/loop)

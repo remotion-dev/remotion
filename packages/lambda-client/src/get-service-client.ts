@@ -4,12 +4,14 @@ import {LambdaClient} from '@aws-sdk/client-lambda';
 import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
-import type {CustomCredentials} from '@remotion/serverless-client';
-import {MAX_FUNCTIONS_PER_RENDER, random} from '@remotion/serverless-client';
-import type {AwsProvider} from './aws-provider';
+import {random} from 'remotion/no-react';
 import {checkCredentials} from './check-credentials';
 import {getCredentials} from './get-credentials';
 import {getEnvVariable} from './get-env-variable';
+import {
+	MAX_FUNCTIONS_PER_RENDER,
+	type CustomCredentials,
+} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type ServiceMapping = {
@@ -26,13 +28,11 @@ const getCredentialsHash = ({
 	region,
 	service,
 	forcePathStyle,
-	requestHandler,
 }: {
 	region: string;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	service: keyof ServiceMapping;
 	forcePathStyle: boolean;
-	requestHandler: RequestHandler | null;
 }): string => {
 	const hashComponents: {[key: string]: unknown} = {};
 
@@ -70,7 +70,6 @@ const getCredentialsHash = ({
 	hashComponents.region = region;
 	hashComponents.service = service;
 	hashComponents.forcePathStyle = forcePathStyle;
-	hashComponents.requestHandler = requestHandler;
 
 	return random(JSON.stringify(hashComponents)).toString().replace('0.', '');
 };
@@ -87,6 +86,24 @@ const _clients: Partial<
 	>
 > = {};
 
+// Custom handlers cannot be serialized into the cache key; key by identity instead
+const _clientsWithCustomHandler = new WeakMap<
+	object,
+	Partial<Record<string, ServiceMapping[keyof ServiceMapping]>>
+>();
+
+const getCustomHandlerClientCache = (requestHandler: object) => {
+	const existing = _clientsWithCustomHandler.get(requestHandler);
+	if (existing) {
+		return existing;
+	}
+
+	const created: Partial<Record<string, ServiceMapping[keyof ServiceMapping]>> =
+		{};
+	_clientsWithCustomHandler.set(requestHandler, created);
+	return created;
+};
+
 export function getServiceClient<T extends keyof ServiceMapping>({
 	region,
 	service,
@@ -96,7 +113,7 @@ export function getServiceClient<T extends keyof ServiceMapping>({
 }: {
 	region: string;
 	service: T;
-	customCredentials: CustomCredentials<AwsProvider> | null;
+	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
 	requestHandler: RequestHandler | null;
 }): ServiceMapping[T] {
@@ -133,10 +150,13 @@ export function getServiceClient<T extends keyof ServiceMapping>({
 		customCredentials,
 		service,
 		forcePathStyle,
-		requestHandler,
 	});
 
-	if (!_clients[key]) {
+	const cache = requestHandler
+		? getCustomHandlerClientCache(requestHandler)
+		: _clients;
+
+	if (!cache[key]) {
 		checkCredentials();
 
 		const lambdaOptions =
@@ -148,12 +168,8 @@ export function getServiceClient<T extends keyof ServiceMapping>({
 					}
 				: undefined;
 
-		// Merge custom requestHandler with lambda options
-		const finalRequestHandler = requestHandler
-			? lambdaOptions
-				? {...requestHandler, ...lambdaOptions}
-				: requestHandler
-			: lambdaOptions;
+		// Spreading a handler instance (e.g. NodeHttpHandler) would strip its prototype
+		const finalRequestHandler = requestHandler ?? lambdaOptions;
 
 		const client = customCredentials
 			? new Client({
@@ -187,8 +203,8 @@ export function getServiceClient<T extends keyof ServiceMapping>({
 			return client as ServiceMapping[T];
 		}
 
-		_clients[key] = client;
+		cache[key] = client;
 	}
 
-	return _clients[key] as ServiceMapping[T];
+	return cache[key] as ServiceMapping[T];
 }

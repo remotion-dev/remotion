@@ -1,17 +1,19 @@
 import type {AnyRemotionOption} from './option';
 
 let keyboardShortcutsEnabled = true;
+let configuredKeyboardShortcutsEnabled: boolean | null = null;
 
 const cliFlag = 'disable-keyboard-shortcuts' as const;
 
 export const keyboardShortcutsOption = {
 	name: 'Disable or Enable keyboard shortcuts',
+	addedIn: '3.2.11',
 	cliFlag,
 	description: () => (
 		<>Enable or disable keyboard shortcuts in the Remotion Studio.</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setkeyboardshortcutsenabled',
+	docLink: 'https://www.remotion.dev/docs/options/disable-keyboard-shortcuts',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
@@ -29,6 +31,12 @@ export const keyboardShortcutsOption = {
 	},
 	setConfig(value) {
 		keyboardShortcutsEnabled = value;
+		configuredKeyboardShortcutsEnabled = value;
+	},
+	getConfigValue: () => configuredKeyboardShortcutsEnabled,
+	reset: () => {
+		keyboardShortcutsEnabled = true;
+		configuredKeyboardShortcutsEnabled = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

@@ -1,12 +1,22 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
 	SplitterOrientation,
 	TSplitterContext,
 } from './SplitterContext';
-import {getClampedSplitterFlex, SplitterContext} from './SplitterContext';
+import {
+	getSplitterFlexBounds,
+	SplitterContext,
+	SplitterLayoutContext,
+} from './SplitterContext';
 import {SPLITTER_HANDLE_SIZE} from './SplitterHandle';
 
 const containerRow: React.CSSProperties = {
@@ -47,10 +57,15 @@ export const SplitterContainer: React.FC<{
 	minAntiFlexerSize,
 	id,
 }) => {
+	const parentLayout = useContext(SplitterLayoutContext);
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
 	const [flexValue, setFlexValue] = useState(
 		initialTimelineFlex ?? defaultFlex,
 	);
+
+	const [collapsedDuringDrag, setCollapsedDuringDrag] = useState<
+		'left' | 'right' | null
+	>(null);
 
 	const ref = useRef<HTMLDivElement>(null);
 	const isDragging = useRef<SplitterDragState>(false);
@@ -62,9 +77,8 @@ export const SplitterContainer: React.FC<{
 		? (orientation === 'vertical' ? size.width : size.height) -
 			SPLITTER_HANDLE_SIZE
 		: null;
-	const effectiveFlexValue = getClampedSplitterFlex({
+	const flexBounds = getSplitterFlexBounds({
 		availableSize,
-		flexValue,
 		maxAntiFlexerSize,
 		maxFlex,
 		maxFlexerSize,
@@ -72,10 +86,28 @@ export const SplitterContainer: React.FC<{
 		minFlex,
 		minFlexerSize,
 	});
+	let effectiveFlexValue = Math.min(
+		flexBounds.maxFlex,
+		Math.max(flexBounds.minFlex, flexValue),
+	);
+	if (availableSize !== null && availableSize > 0) {
+		// Keep panel boundaries on whole pixels so toolbar icons stay crisp.
+		const minimumSize = Math.ceil(flexBounds.minFlex * availableSize);
+		const maximumSize = Math.floor(flexBounds.maxFlex * availableSize);
+		if (minimumSize <= maximumSize) {
+			effectiveFlexValue =
+				Math.min(
+					maximumSize,
+					Math.max(minimumSize, Math.round(flexValue * availableSize)),
+				) / availableSize;
+		}
+	}
 
 	const value: TSplitterContext = useMemo(() => {
 		return {
 			flexValue: effectiveFlexValue,
+			collapsedDuringDrag,
+			setCollapsedDuringDrag,
 			ref,
 			setFlexValue,
 			isDragging,
@@ -92,6 +124,7 @@ export const SplitterContainer: React.FC<{
 		};
 	}, [
 		defaultFlex,
+		collapsedDuringDrag,
 		effectiveFlexValue,
 		id,
 		maxFlex,
@@ -105,24 +138,44 @@ export const SplitterContainer: React.FC<{
 		ref,
 	]);
 
-	useEffect(() => {
-		const frame = requestAnimationFrame(() => {
-			PlayerInternals.updateAllElementsSizes();
-		});
+	const childCount = React.Children.toArray(children).length;
+	const layout = useMemo(
+		() => ({
+			parentLayout,
+			effectiveFlexValue,
+			collapsedDuringDrag,
+			orientation,
+			width: size?.width,
+			height: size?.height,
+			childCount,
+		}),
+		[
+			parentLayout,
+			effectiveFlexValue,
+			collapsedDuringDrag,
+			orientation,
+			size?.width,
+			size?.height,
+			childCount,
+		],
+	);
+	const refreshSize = size?.refresh;
 
-		return () => {
-			cancelAnimationFrame(frame);
-		};
-	});
+	useLayoutEffect(() => {
+		// Remeasure this splitter when its own or an ancestor's layout changes.
+		refreshSize?.();
+	}, [layout, refreshSize]);
 
 	return (
-		<SplitterContext.Provider value={value}>
-			<div
-				ref={ref}
-				style={orientation === 'horizontal' ? containerColumn : containerRow}
-			>
-				{children}
-			</div>
-		</SplitterContext.Provider>
+		<SplitterLayoutContext.Provider value={layout}>
+			<SplitterContext.Provider value={value}>
+				<div
+					ref={ref}
+					style={orientation === 'horizontal' ? containerColumn : containerRow}
+				>
+					{children}
+				</div>
+			</SplitterContext.Provider>
+		</SplitterLayoutContext.Provider>
 	);
 };

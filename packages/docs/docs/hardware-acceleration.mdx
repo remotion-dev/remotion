@@ -24,7 +24,7 @@ If you want the render to fail if hardware acceleration is not possible, set the
 
 ### In SSR APIs
 
-Use the [`hardwareAcceleration`](/docs/renderer/render-media#hardwareacceleration) option in the [`renderMedia()`](/docs/renderer/render-media) function.
+Use the [`hardwareAcceleration`](/docs/options/hardware-acceleration) option in the [`renderMedia()`](/docs/renderer/render-media) function.
 
 ```tsx twoslash {8}
 const serveUrl = '/path/to/bundle';
@@ -56,7 +56,7 @@ await renderMedia({
 
 ### In the CLI
 
-Use the [`--hardware-acceleration`](/docs/cli/render#--hardware-acceleration) option in the `npx remotion render` command.
+Use the [`--hardware-acceleration`](/docs/options/hardware-acceleration) option in the `npx remotion render` command.
 
 ```bash
 npx remotion render MyComp --codec prores --hardware-acceleration if-possible
@@ -88,12 +88,13 @@ To use hardware-accelerated encoding on Linux and Windows, you need:
 - NVIDIA drivers installed (version 525+ recommended)
 - FFmpeg compiled with `h264_nvenc` or `hevc_nvenc` encoder support
 
-The FFmpeg binaries bundled with Remotion include NVENC support on Linux x64 only. NVENC on Linux ARM64 is not supported. On Windows, point Remotion to an FFmpeg build that includes NVENC using [`--binaries-directory`](/docs/cli/render#--binaries-directory) or [`binariesDirectory`](/docs/renderer/render-media#binariesdirectory).
+The FFmpeg binaries bundled with Remotion include the `h264_nvenc` and `hevc_nvenc` encoders on Linux x64 and Windows x64. The bundled Linux ARM64 binaries do not include NVENC support.
+
+The presence of these encoders in FFmpeg does not guarantee hardware acceleration. A compatible NVIDIA GPU and driver are still required.
 
 Set `--hardware-acceleration if-possible` and Remotion will use NVENC if the configured FFmpeg build supports it.
 
 Note that NVENC encoding is only available for H.264 and H.265 codecs. Other codecs will fall back to software encoding.
-
 
 ## Controlling quality using `--video-bitrate`
 
@@ -102,7 +103,7 @@ We recommend that you use the `--video-bitrate` flag to control the file size.
 
 We find that `--video-bitrate=8M` achieves a similar file size than software encoding when exporting a H.264 Full HD video.
 
-The [`crf` option](/docs/encoding#controlling-quality-using-the-crf-setting) is not compatible with hardware-accelerated encoders. Instead, use the [`--video-bitrate`](/docs/cli/render#--video-bitrate) flag to control the quality and file size of the output video.
+The [`crf` option](/docs/options/crf) is not compatible with hardware-accelerated encoders. Instead, use the [`--video-bitrate`](/docs/options/video-bitrate) flag to control the quality and file size of the output video.
 
 ## Tell if hardware acceleration is being used
 

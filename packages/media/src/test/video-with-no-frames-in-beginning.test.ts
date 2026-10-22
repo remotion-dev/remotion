@@ -27,6 +27,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	}
 
 	const manager = await videoIteratorManager({
+		getIsDisposed: () => false,
 		getIsLooping: () => false,
 		getLoopSegmentMediaEndTimestamp: () => {
 			throw new Error('not implemented');
@@ -46,6 +47,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 		getOnVideoFrameCallback: () => null,
 		getEffects: () => [],
 		getEffectChainState: () => null,
+		maxCanvasSinkFrameSize: null,
 	});
 
 	const nonceManager = makeNonceManager();
@@ -53,6 +55,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
 	await manager.seek({
 		newTime: 0.03,
+		continuousPlayback: null,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
@@ -60,6 +63,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	});
 	await manager.seek({
 		newTime: 1,
+		continuousPlayback: null,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
@@ -67,6 +71,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 	});
 	await manager.seek({
 		newTime: 2,
+		continuousPlayback: null,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
@@ -78,6 +83,7 @@ test('in preview, should properly buffer and draw frames', async (t) => {
 
 	await manager.seek({
 		newTime: 4.5,
+		continuousPlayback: null,
 		nonce: nonceManager.createAsyncOperation(),
 		fps: 30,
 		playbackRate: 1,
@@ -125,14 +131,12 @@ test('same goes for audio', async () => {
 		getSequenceDurationInSeconds: () => 10,
 		getStartTime: () => 0,
 		initialMuted: false,
+		initialVolume: 1,
+		toneFrequency: 1,
 		drawDebugOverlay: () => {},
-		initialPlaybackRate: 1,
-		initialTrimBefore: undefined,
-		initialTrimAfter: undefined,
-		initialSequenceOffset: 0,
-		initialSequenceDurationInFrames: 10,
-		initialLoop: false,
-		initialFps: 30,
+		onError: (error) => {
+			throw error;
+		},
 	});
 
 	const nonceManager = makeNonceManager();

@@ -414,6 +414,34 @@ test('sampleRate cannot be changed dynamically', () => {
 	);
 });
 
+test('_experimentalKeepAudioContextAlive cannot be changed dynamically', () => {
+	const initial = (
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+		/>
+	);
+	const changed = (
+		<Player
+			compositionWidth={500}
+			compositionHeight={400}
+			fps={30}
+			durationInFrames={500}
+			component={HelloWorld}
+			_experimentalKeepAudioContextAlive
+		/>
+	);
+
+	const {rerender} = render(initial);
+
+	expect(() => rerender(changed)).toThrow(
+		/`_experimentalKeepAudioContextAlive` cannot be changed dynamically/,
+	);
+});
+
 test('invalid sampleRate should give errors', () => {
 	expect(() => {
 		render(

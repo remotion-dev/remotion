@@ -65,10 +65,15 @@ type RegisterUsageEventMandatoryOptions = {
 type OptionalRegisterUsageEventOptional = {
 	isStill: boolean;
 	isProduction: boolean;
+	/** Automatically generated when omitted and reused across request retries. */
+	idempotencyKey: string;
 };
 
 type InternalRegisterUsageEventOptions = RegisterUsageEventMandatoryOptions &
-	OptionalRegisterUsageEventOptional & {licenseKey: string | null};
+	Omit<OptionalRegisterUsageEventOptional, 'idempotencyKey'> & {
+		licenseKey: string | null;
+		idempotencyKey?: string | null;
+	};
 
 type RegisterUsageEventOptions = RegisterUsageEventMandatoryOptions &
 	EitherApiKeyOrLicenseKey &
@@ -81,7 +86,15 @@ export const internalRegisterUsageEvent = async ({
 	isStill,
 	isProduction,
 	licenseKey,
+	idempotencyKey,
 }: InternalRegisterUsageEventOptions): Promise<RegisterUsageEventResponse> => {
+	// Reuse the same key for every retry, including requests whose response
+	// was lost after the server recorded the event. randomUUID is unavailable
+	// in browsers on insecure origins, so keep those environments working too.
+	const eventIdempotencyKey =
+		idempotencyKey ??
+		globalThis.crypto?.randomUUID?.() ??
+		`${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
 	let lastError: Error | undefined;
 	const totalAttempts = DEFAULT_MAX_RETRIES + 1;
 
@@ -101,6 +114,7 @@ export const internalRegisterUsageEvent = async ({
 					succeeded,
 					isStill,
 					isProduction,
+					idempotencyKey: eventIdempotencyKey,
 				}),
 				headers: {
 					'Content-Type': 'application/json',

@@ -3,12 +3,12 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.507",
+	"version": "4.0.538",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts",
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts",
 		"generate": "bun --env-file=.env scripts/update-font-db.ts",
 		"test": "bun test test",
 		"formatting": "oxfmt src --check",
@@ -22,7 +22,7 @@
 		"@types/css-font-loading-module": "0.0.14",
 		"@types/prettier": "2.7.2",
 		"postcss": "8.5.23",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"types": "dist/cjs/index.d.ts",
 	"typesVersions": {
@@ -386,6 +386,9 @@
 			],
 			"AsapCondensed": [
 				"dist/cjs/AsapCondensed.d.ts"
+			],
+			"AsapSharp": [
+				"dist/cjs/AsapSharp.d.ts"
 			],
 			"Asar": [
 				"dist/cjs/Asar.d.ts"
@@ -858,6 +861,9 @@
 			"Bytesized": [
 				"dist/cjs/Bytesized.d.ts"
 			],
+			"CaacupeOne": [
+				"dist/cjs/CaacupeOne.d.ts"
+			],
 			"Cabin": [
 				"dist/cjs/Cabin.d.ts"
 			],
@@ -1052,6 +1058,9 @@
 			],
 			"CinzelDecorative": [
 				"dist/cjs/CinzelDecorative.d.ts"
+			],
+			"ClarityCity": [
+				"dist/cjs/ClarityCity.d.ts"
 			],
 			"ClickerScript": [
 				"dist/cjs/ClickerScript.d.ts"
@@ -2139,6 +2148,9 @@
 			"IslandMoments": [
 				"dist/cjs/IslandMoments.d.ts"
 			],
+			"Isometra": [
+				"dist/cjs/Isometra.d.ts"
+			],
 			"IstokWeb": [
 				"dist/cjs/IstokWeb.d.ts"
 			],
@@ -2421,6 +2433,9 @@
 			"Kreon": [
 				"dist/cjs/Kreon.d.ts"
 			],
+			"Kripa": [
+				"dist/cjs/Kripa.d.ts"
+			],
 			"Kristi": [
 				"dist/cjs/Kristi.d.ts"
 			],
@@ -2582,6 +2597,9 @@
 			],
 			"LibreBodoni": [
 				"dist/cjs/LibreBodoni.d.ts"
+			],
+			"LibreCaslonCondensed": [
+				"dist/cjs/LibreCaslonCondensed.d.ts"
 			],
 			"LibreCaslonDisplay": [
 				"dist/cjs/LibreCaslonDisplay.d.ts"
@@ -4635,6 +4653,9 @@
 			"ScopeOne": [
 				"dist/cjs/ScopeOne.d.ts"
 			],
+			"ScoutieSans": [
+				"dist/cjs/ScoutieSans.d.ts"
+			],
 			"SeaweedScript": [
 				"dist/cjs/SeaweedScript.d.ts"
 			],
@@ -5240,6 +5261,9 @@
 			],
 			"VT323": [
 				"dist/cjs/VT323.d.ts"
+			],
+			"ValleySans": [
+				"dist/cjs/ValleySans.d.ts"
 			],
 			"VampiroOne": [
 				"dist/cjs/VampiroOne.d.ts"

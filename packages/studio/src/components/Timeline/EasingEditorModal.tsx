@@ -1,8 +1,8 @@
 import {
-	HOLD_KEYFRAME_EASING,
-	KEYFRAME_EASING_PRESETS,
-	LINEAR_KEYFRAME_EASING,
-} from '@remotion/studio-shared';
+	canvasKeyframeEasingPresets,
+	type CanvasKeyframeEasingPreset,
+} from '@remotion/sdk';
+import {HOLD_KEYFRAME_EASING} from '@remotion/studio-shared';
 import React, {
 	useCallback,
 	useContext,
@@ -13,6 +13,7 @@ import React, {
 } from 'react';
 import type {InteractivitySchemaField} from 'remotion';
 import {Easing, Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	BACKGROUND,
@@ -26,7 +27,10 @@ import {
 	WHITE_ALPHA_35,
 	WHITE_ALPHA_72,
 } from '../../helpers/colors';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -58,11 +62,6 @@ type SpringNumberKey =
 type EasingGraphLabels = {
 	readonly start: string;
 	readonly end: string;
-};
-type EasingPreset = {
-	readonly id: string;
-	readonly label: string;
-	readonly easing: TimelineEasingValue;
 };
 
 const SVG_WIDTH = 560;
@@ -99,15 +98,6 @@ const DEFAULT_SPRING_EASING: SpringEasing = {
 	overshootClamping: false,
 	stiffness: 100,
 };
-const EDITOR_EASING_PRESETS: readonly EasingPreset[] = [
-	{
-		id: 'linear',
-		label: 'Linear',
-		easing: LINEAR_KEYFRAME_EASING,
-	},
-	...KEYFRAME_EASING_PRESETS,
-];
-
 const SPRING_LIMITS: Record<
 	SpringNumberKey,
 	{
@@ -177,8 +167,6 @@ const presetButtonBase: React.CSSProperties = {
 
 const presetPreviewSvgStyle: React.CSSProperties = {
 	display: 'block',
-	height: PRESET_PREVIEW_HEIGHT,
-	width: PRESET_PREVIEW_WIDTH,
 };
 
 const coordinatesGridBase: React.CSSProperties = {
@@ -557,6 +545,45 @@ const getPresetPreviewPath = (easing: TimelineEasingValue) => {
 	return points.join(' ');
 };
 
+export const EasingPresetPreview: React.FC<{
+	readonly color: string;
+	readonly easing: TimelineEasingValue;
+	readonly height?: number;
+	readonly nonScalingStroke?: boolean;
+	readonly strokeWidth?: number;
+	readonly width?: number;
+}> = ({
+	color,
+	easing,
+	height = PRESET_PREVIEW_HEIGHT,
+	nonScalingStroke = false,
+	strokeWidth = 2,
+	width = PRESET_PREVIEW_WIDTH,
+}) => {
+	const path = useMemo(() => getPresetPreviewPath(easing), [easing]);
+
+	return (
+		<svg
+			width={width}
+			height={height}
+			viewBox={`0 0 ${PRESET_PREVIEW_WIDTH} ${PRESET_PREVIEW_HEIGHT}`}
+			style={presetPreviewSvgStyle}
+			aria-hidden="true"
+			focusable={false}
+		>
+			<path
+				d={path}
+				fill="none"
+				stroke={color}
+				strokeWidth={strokeWidth}
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				vectorEffect={nonScalingStroke ? 'non-scaling-stroke' : undefined}
+			/>
+		</svg>
+	);
+};
+
 const pointFromBezier = (bezier: CubicBezierTuple, handle: HandleIndex) => {
 	const x = handle === 0 ? bezier[0] : bezier[2];
 	const y = handle === 0 ? bezier[1] : bezier[3];
@@ -621,7 +648,11 @@ const EasingGraphScaffold: React.FC<{
 				width={topLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				<div style={getEasingGraphLabelStyle('left')} title={labels.end}>
+				<div
+					role="group"
+					style={getEasingGraphLabelStyle('left')}
+					aria-label={labels.end}
+				>
 					{labels.end}
 				</div>
 			</foreignObject>
@@ -636,7 +667,11 @@ const EasingGraphScaffold: React.FC<{
 				width={bottomLabelWidth}
 				height={EASING_GRAPH_LABEL_HEIGHT}
 			>
-				<div style={getEasingGraphLabelStyle('right')} title={labels.start}>
+				<div
+					role="group"
+					style={getEasingGraphLabelStyle('right')}
+					aria-label={labels.start}
+				>
 					{labels.start}
 				</div>
 			</foreignObject>
@@ -648,14 +683,10 @@ const EasingPresetButton: React.FC<{
 	readonly currentEasing: TimelineEasingValue;
 	readonly disabled: boolean;
 	readonly onClick: (easing: TimelineEasingValue) => void;
-	readonly preset: EasingPreset;
+	readonly preset: CanvasKeyframeEasingPreset;
 }> = ({currentEasing, disabled, onClick, preset}) => {
 	const selected = areEasingsEqual(currentEasing, preset.easing);
 	const [hovered, setHovered] = useState(false);
-	const path = useMemo(
-		() => getPresetPreviewPath(preset.easing),
-		[preset.easing],
-	);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
 	}, []);
@@ -679,30 +710,16 @@ const EasingPresetButton: React.FC<{
 		<button
 			type="button"
 			style={style}
-			title={preset.label}
 			aria-label={`Apply ${preset.label} easing`}
 			disabled={disabled}
 			onClick={handleClick}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 		>
-			<svg
-				width={PRESET_PREVIEW_WIDTH}
-				height={PRESET_PREVIEW_HEIGHT}
-				viewBox={`0 0 ${PRESET_PREVIEW_WIDTH} ${PRESET_PREVIEW_HEIGHT}`}
-				style={presetPreviewSvgStyle}
-				aria-hidden="true"
-				focusable={false}
-			>
-				<path
-					d={path}
-					fill="none"
-					stroke={selected || hovered ? WHITE : LIGHT_TEXT}
-					strokeWidth={2}
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				/>
-			</svg>
+			<EasingPresetPreview
+				color={selected || hovered ? WHITE : LIGHT_TEXT}
+				easing={preset.easing}
+			/>
 		</button>
 	);
 };
@@ -712,12 +729,14 @@ export type EasingEditorState = {
 	selections: TimelineSelection[];
 };
 
-export const EasingEditor: React.FC<{
+const EasingEditorUnmemoized: React.FC<{
 	readonly state: EasingEditorState;
+	readonly easingUpdate: SelectedEasingUpdate;
 	readonly renderHeader?: (
 		modeItems: SegmentedControlItem[],
 	) => React.ReactNode;
-}> = ({state, renderHeader}) => {
+}> = ({state, easingUpdate, renderHeader}) => {
+	const calculateTimeline = useTimelineCalculator();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const propStatusesRef = useContext(
@@ -745,7 +764,6 @@ export const EasingEditor: React.FC<{
 	const springRef = useRef(spring);
 	const liveOverrideVersionRef = useRef(0);
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
-	const [activeHandle, setActiveHandle] = useState<HandleIndex | null>(null);
 
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
@@ -760,11 +778,14 @@ export const EasingEditor: React.FC<{
 	const getCurrentEasingUpdates = useCallback(() => {
 		return getSelectedEasingUpdates({
 			selections: state.selections,
-			sequences: sequencesRef.current,
-			overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			tracks: calculateTimeline({
+				sequences: sequencesRef.current,
+				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+			}).tracks,
 			propStatuses: propStatusesRef.current,
 		});
 	}, [
+		calculateTimeline,
 		overrideIdToNodePathMappings,
 		propStatusesRef,
 		sequencesRef,
@@ -811,11 +832,10 @@ export const EasingEditor: React.FC<{
 			pendingOverrideTargetsRef.current = updates;
 
 			for (const update of updates) {
-				const dragOverrideValue = makeEasingDragOverride({
-					status: update.propStatus,
-					segmentIndex: update.segmentIndex,
-					easing,
-				});
+				const dragOverrideValue = makeEasingDragOverride({update, easing});
+				if (dragOverrideValue === null) {
+					continue;
+				}
 
 				if (update.type === 'sequence') {
 					setDragOverrides(update.nodePath, update.fieldKey, dragOverrideValue);
@@ -869,8 +889,10 @@ export const EasingEditor: React.FC<{
 
 			const promise = updateSelectedTimelineEasings({
 				selections: state.selections,
-				sequences: sequencesRef.current,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				tracks: calculateTimeline({
+					sequences: sequencesRef.current,
+					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				}).tracks,
 				propStatuses: propStatusesRef.current,
 				setPropStatuses,
 				clientId: previewServerState.clientId,
@@ -889,6 +911,7 @@ export const EasingEditor: React.FC<{
 				});
 		},
 		[
+			calculateTimeline,
 			clearPendingEasingDragOverrides,
 			getCurrentEasingUpdates,
 			overrideIdToNodePathMappings,
@@ -1086,16 +1109,15 @@ export const EasingEditor: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
-			setActiveHandle(handle);
 			updateHandleFromPointer(handle, event);
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: (moveEvent) => {
 					updateHandleFromPointer(handle, moveEvent);
 				},
-				onEnd: (reason) => {
-					if (reason === 'pointerup' || reason === 'buttons-released') {
+				onEnd: (reason, endEvent) => {
+					if (isPointerSessionRelease(reason, endEvent)) {
 						commitEasing(
 							serializeBezier(bezierRef.current),
 							liveOverrideVersionRef.current,
@@ -1106,8 +1128,6 @@ export const EasingEditor: React.FC<{
 						bezierRef.current = bezierBeforeDrag;
 						setBezier(bezierBeforeDrag);
 					}
-
-					setActiveHandle(null);
 				},
 			});
 		},
@@ -1159,7 +1179,7 @@ export const EasingEditor: React.FC<{
 	);
 
 	const disabled = previewServerState.type !== 'connected';
-	const graphLabels = getEasingGraphLabels(getCurrentEasingUpdates());
+	const graphLabels = getEasingGraphLabels([easingUpdate]);
 	const currentEasing = useMemo(() => {
 		if (mode === 'spring') {
 			return serializeSpring(spring);
@@ -1211,7 +1231,7 @@ export const EasingEditor: React.FC<{
 					renderHeader ? inspectorPresetButtonsWrapper : presetButtonsWrapper
 				}
 			>
-				{EDITOR_EASING_PRESETS.map((preset) => (
+				{canvasKeyframeEasingPresets.map((preset) => (
 					<EasingPresetButton
 						key={preset.id}
 						currentEasing={currentEasing}
@@ -1260,7 +1280,7 @@ export const EasingEditor: React.FC<{
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
 							pointerEvents={disabled ? 'none' : 'all'}
-							cursor={activeHandle === 0 ? 'grabbing' : 'default'}
+							cursor="default"
 							onPointerDown={(event) => onHandlePointerDown(0, event)}
 						/>
 						<circle
@@ -1272,7 +1292,7 @@ export const EasingEditor: React.FC<{
 							strokeWidth={2}
 							vectorEffect="non-scaling-stroke"
 							pointerEvents={disabled ? 'none' : 'all'}
-							cursor={activeHandle === 1 ? 'grabbing' : 'default'}
+							cursor="default"
 							onPointerDown={(event) => onHandlePointerDown(1, event)}
 						/>
 					</svg>
@@ -1543,3 +1563,5 @@ export const EasingEditor: React.FC<{
 		</div>
 	);
 };
+
+export const EasingEditor = React.memo(EasingEditorUnmemoized);

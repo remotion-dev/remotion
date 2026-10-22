@@ -40,7 +40,7 @@ test('should return error for invalid codec/container combination', async () => 
 	expect(containerMismatchIssue?.severity).toBe('error');
 });
 
-test('should return error for H264 with odd dimensions', async () => {
+test('should adjust odd H264 dimensions', async () => {
 	const result = await canRenderMediaOnWeb({
 		container: 'mp4',
 		videoCodec: 'h264',
@@ -48,16 +48,13 @@ test('should return error for H264 with odd dimensions', async () => {
 		height: 1080,
 	});
 
-	expect(result.canRender).toBe(false);
 	const dimensionIssue = result.issues.find(
 		(i) => i.type === 'invalid-dimensions',
 	);
-	expect(dimensionIssue).toBeDefined();
-	expect(dimensionIssue?.severity).toBe('error');
-	expect(dimensionIssue?.message).toContain('1921x1080');
+	expect(dimensionIssue).toBeUndefined();
 });
 
-test('should return error for H265 with odd dimensions', async () => {
+test('should adjust odd H265 dimensions', async () => {
 	const result = await canRenderMediaOnWeb({
 		container: 'mp4',
 		videoCodec: 'h265',
@@ -65,11 +62,10 @@ test('should return error for H265 with odd dimensions', async () => {
 		height: 1081, // Odd height
 	});
 
-	expect(result.canRender).toBe(false);
 	const dimensionIssue = result.issues.find(
 		(i) => i.type === 'invalid-dimensions',
 	);
-	expect(dimensionIssue).toBeDefined();
+	expect(dimensionIssue).toBeUndefined();
 });
 
 test('should allow VP8 with odd dimensions', async () => {

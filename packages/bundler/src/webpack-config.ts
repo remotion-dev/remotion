@@ -11,12 +11,14 @@ import type {
 	WebpackConfiguration,
 	WebpackOverrideFn,
 } from './override-types';
+import {getReactScanEntryPoint} from './react-scan-entry-point';
 import {
 	computeHashAndFinalConfig,
 	getBaseConfig,
 	getOutputConfig,
 	getResolveConfig,
 	getSharedModuleRules,
+	transformersImportMetaWarning,
 } from './shared-bundler-config';
 import esbuild = require('esbuild');
 export type {WebpackConfiguration, WebpackOverrideFn} from './override-types';
@@ -63,15 +65,18 @@ export const webpackConfig = async ({
 
 	const baseConfig: WebpackConfiguration = {
 		...getBaseConfig(environment, poll),
+		ignoreWarnings: [transformersImportMetaWarning],
 		entry: getStudioEntryPoints({
 			fastRefreshRuntime:
 				environment === 'development'
 					? require.resolve('./fast-refresh/runtime.js')
 					: null,
+			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
-			sequenceStackTraces:
+			sequenceStackTraces: require.resolve('./setup-sequence-stack-traces'),
+			studioBootstrap:
 				environment === 'development'
-					? require.resolve('./setup-sequence-stack-traces')
+					? require.resolve('./setup-studio')
 					: null,
 			userDefinedComponent,
 			reactShim: require.resolve('../react-shim.js'),

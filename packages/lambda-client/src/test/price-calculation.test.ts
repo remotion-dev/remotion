@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {estimatePriceFromMetadata} from '@remotion/serverless-client';
-import {awsImplementation} from '../aws-provider';
+import {estimatePrice} from '../estimate-price';
+import {estimatePriceFromMetadata} from '../estimate-price-from-bucket';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
@@ -9,6 +9,9 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 	const price = estimatePriceFromMetadata({
 		memorySizeInMb: 1024,
 		renderMetadata: {
+			separateAudioTo: null,
+			separateAudioOutputFileIsConditional: null,
+			outputFileIsConditional: null,
 			audioBitrate: null,
 			codec: 'h264',
 			compositionId: 'react-svg',
@@ -56,8 +59,26 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			},
 		],
 		region: 'eu-central-1',
-		providerSpecifics: awsImplementation,
 		fatalErrorTimestamp: null,
 	});
 	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);
+});
+
+test('China prices use CNY ARM duration, request, and regional storage rates', () => {
+	const input = {
+		memorySizeInMb: 1024,
+		diskSizeInMb: 10240,
+		lambdasInvoked: 100,
+		durationInMilliseconds: 1_000_000,
+	};
+	const beijing = estimatePrice({...input, region: 'cn-north-1'});
+	const ningxia = estimatePrice({...input, region: 'cn-northwest-1'});
+
+	expect(beijing).toBe(0.09312);
+	expect(ningxia).toBe(0.09288);
+	expect(beijing).toBeGreaterThan(ningxia);
+
+	expect(
+		estimatePrice({...input, diskSizeInMb: 512, region: 'cn-north-1'}),
+	).toBe(0.09094);
 });

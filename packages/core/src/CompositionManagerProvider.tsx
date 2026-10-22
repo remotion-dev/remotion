@@ -5,21 +5,30 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type {AnyZodObject} from './any-zod-type.js';
-import type {TComposition} from './CompositionManager';
+import {
+	getFolderOrderId,
+	type CommittedCompositionSnapshot,
+} from './committed-metadata.js';
 import {compositionsRef, type AnyComposition} from './CompositionManager';
 import type {
+	AssetPreviewMetadata,
 	CanvasContent,
 	CompositionManagerContext,
 	CompositionManagerSetters,
 } from './CompositionManagerContext';
 import {
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 } from './CompositionManagerContext';
 import type {BaseMetadata} from './CompositionManagerContext.js';
+import {CompositionRegistryProvider} from './CompositionRegistryProvider.js';
 import type {TFolder} from './Folder';
-import type {NonceHistory} from './nonce.js';
+import {
+	createRegistryStore,
+	reconcileRegistryEntries,
+} from './registry-store.js';
+import {useSyncExternalStore} from './use-sync-external-store.js';
 
 export const CompositionManagerProvider = ({
 	children,
@@ -34,105 +43,118 @@ export const CompositionManagerProvider = ({
 	readonly initialCompositions: AnyComposition[];
 	readonly initialCanvasContent: CanvasContent | null;
 }) => {
-	const [folders, setFolders] = useState<TFolder[]>([]);
+	const committedKeysRef = useRef<ReadonlySet<string>>(new Set());
+	const flushSnapshotRef = useRef<(() => void) | null>(null);
+	const committedDescriptorsRef = useRef<
+		ReadonlyMap<string, AnyComposition | TFolder>
+	>(new Map());
+	const [registrationError, setRegistrationError] = useState<Error | null>(
+		null,
+	);
+	const [registry] = useState(() =>
+		createRegistryStore<{
+			compositions: AnyComposition[];
+			folders: TFolder[];
+		}>({
+			compositions: initialCompositions.map((composition, order) => ({
+				...composition,
+				order,
+			})),
+			folders: [],
+		}),
+	);
+	const {compositions, folders} = useSyncExternalStore(
+		registry.subscribe,
+		registry.getSnapshot,
+		registry.getSnapshot,
+	);
 	const [canvasContent, setCanvasContent] = useState<CanvasContent | null>(
 		initialCanvasContent,
 	);
-	const [compositions, setCompositions] =
-		useState<AnyComposition[]>(initialCompositions);
-
-	// CompositionManagerProvider state
-	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
-
-	const updateCompositions = useCallback(
-		(updateComps: (comp: AnyComposition[]) => AnyComposition[]) => {
-			setCompositions((comps) => {
-				const updated = updateComps(comps);
-				currentcompositionsRef.current = updated;
-				return updated;
-			});
-		},
-		[],
-	);
-
-	const registerComposition = useCallback(
-		<Schema extends AnyZodObject, Props extends Record<string, unknown>>(
-			comp: TComposition<Schema, Props>,
-		) => {
-			updateCompositions((comps) => {
-				if (comps.find((c) => c.id === comp.id)) {
-					throw new Error(
-						`Multiple composition with id ${comp.id} are registered.`,
+	const [currentAssetMetadata, setCurrentAssetMetadata] =
+		useState<AssetPreviewMetadata | null>(null);
+	const onCommitRegistrations = useCallback(
+		(pending: CommittedCompositionSnapshot) => {
+			const previousKeys = committedKeysRef.current;
+			const previousDescriptors = committedDescriptorsRef.current;
+			const existingIds = new Set(
+				registry
+					.getSnapshot()
+					.compositions.map((composition) => composition.id),
+			);
+			const descriptors = new Map<string, AnyComposition | TFolder>();
+			for (const composition of pending.compositions) {
+				const key = `composition:${composition.id}`;
+				if (
+					descriptors.has(key) ||
+					(!previousKeys.has(key) && existingIds.has(composition.id))
+				) {
+					setRegistrationError(
+						new Error(
+							`Multiple composition with id ${composition.id} are registered.`,
+						),
 					);
+					return;
 				}
 
-				return [...comps, comp] as AnyComposition[];
+				descriptors.set(key, composition);
+			}
+
+			for (const folder of pending.folders) {
+				descriptors.set(`folder:${getFolderOrderId(folder)}`, folder);
+			}
+
+			const nextKeys = new Set(descriptors.keys());
+			const order = new Map(pending.orderIds.map((id, index) => [id, index]));
+			committedKeysRef.current = nextKeys;
+			committedDescriptorsRef.current = descriptors;
+			registry.setSnapshot((current) => {
+				const nextCompositions = reconcileRegistryEntries({
+					current: current.compositions,
+					entries: pending.compositions,
+					previousDescriptors,
+					previousKeys,
+					nextKeys,
+					getKey: (composition) => `composition:${composition.id}`,
+					order,
+					orderProperty: 'order',
+				});
+				const nextFolders = reconcileRegistryEntries({
+					current: current.folders,
+					entries: pending.folders,
+					previousDescriptors,
+					previousKeys,
+					nextKeys,
+					getKey: (folder) => `folder:${getFolderOrderId(folder)}`,
+					order,
+					orderProperty: 'order',
+				});
+				return nextCompositions === current.compositions &&
+					nextFolders === current.folders
+					? current
+					: {compositions: nextCompositions, folders: nextFolders};
 			});
 		},
-		[updateCompositions],
-	);
-
-	const unregisterComposition = useCallback((id: string) => {
-		setCompositions((comps) => {
-			return comps.filter((c) => c.id !== id);
-		});
-	}, []);
-
-	const registerFolder = useCallback(
-		(
-			name: string,
-			parent: string | null,
-			nonce: NonceHistory,
-			stack: string | null,
-		) => {
-			setFolders((prevFolders) => {
-				return [
-					...prevFolders,
-					{
-						name,
-						parent,
-						nonce,
-						stack,
-					},
-				];
-			});
-		},
-		[],
-	);
-
-	const unregisterFolder = useCallback(
-		(name: string, parent: string | null) => {
-			setFolders((prevFolders) => {
-				return prevFolders.filter(
-					(p) => !(p.name === name && p.parent === parent),
-				);
-			});
-		},
-		[],
+		[registry],
 	);
 
 	useImperativeHandle(compositionsRef, () => {
 		return {
-			getCompositions: () => currentcompositionsRef.current,
+			getCompositions: () => {
+				flushSnapshotRef.current?.();
+				return registry.getSnapshot().compositions;
+			},
 		};
-	}, []);
+	}, [registry]);
 
-	const compositionManagerSetters = useMemo((): CompositionManagerSetters => {
-		return {
-			registerComposition,
-			unregisterComposition,
-			registerFolder,
-			unregisterFolder,
+	const compositionManagerSetters = useMemo(
+		(): CompositionManagerSetters => ({
 			setCanvasContent,
+			setCurrentAssetMetadata,
 			onlyRenderComposition,
-		};
-	}, [
-		registerComposition,
-		registerFolder,
-		unregisterComposition,
-		unregisterFolder,
-		onlyRenderComposition,
-	]);
+		}),
+		[onlyRenderComposition],
+	);
 
 	const compositionManagerContextValue =
 		useMemo((): CompositionManagerContext => {
@@ -140,15 +162,36 @@ export const CompositionManagerProvider = ({
 				compositions,
 				folders,
 				currentCompositionMetadata,
+				currentAssetMetadata,
 				canvasContent,
 			};
-		}, [compositions, folders, currentCompositionMetadata, canvasContent]);
+		}, [
+			compositions,
+			folders,
+			currentCompositionMetadata,
+			currentAssetMetadata,
+			canvasContent,
+		]);
+
+	const compositionManagerRef = useRef(compositionManagerContextValue);
+	compositionManagerRef.current = compositionManagerContextValue;
+
+	if (registrationError !== null) {
+		throw registrationError;
+	}
 
 	return (
-		<CompositionManager.Provider value={compositionManagerContextValue}>
-			<CompositionSetters.Provider value={compositionManagerSetters}>
-				{children}
-			</CompositionSetters.Provider>
-		</CompositionManager.Provider>
+		<CompositionRegistryProvider
+			ref={flushSnapshotRef}
+			onSnapshot={onCommitRegistrations}
+		>
+			<CompositionManager.Provider value={compositionManagerContextValue}>
+				<CompositionManagerRefContext.Provider value={compositionManagerRef}>
+					<CompositionSetters.Provider value={compositionManagerSetters}>
+						{children}
+					</CompositionSetters.Provider>
+				</CompositionManagerRefContext.Provider>
+			</CompositionManager.Provider>
+		</CompositionRegistryProvider>
 	);
 };

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Experts"
+  short_description: "Maintain Remotion experts and homepage videos"
+  default_prompt: "Use $experts to update Remotion expert data and regenerate the homepage experts videos."

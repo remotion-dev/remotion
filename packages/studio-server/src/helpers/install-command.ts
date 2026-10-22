@@ -19,12 +19,14 @@ export const getInstallCommand = ({
 			'--save-exact',
 			'--no-fund',
 			'--no-audit',
+			'--loglevel=error',
 			...additionalArgs,
 			...pkgList,
 		],
 		pnpm: ['i', ...additionalArgs, ...pkgList],
 		yarn: ['add', '--exact', ...additionalArgs, ...pkgList],
 		bun: ['i', ...additionalArgs, ...pkgList],
+		nub: ['add', ...additionalArgs, ...pkgList],
 	};
 
 	return commands[manager];

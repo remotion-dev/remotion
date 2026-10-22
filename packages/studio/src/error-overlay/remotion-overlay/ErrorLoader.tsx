@@ -1,5 +1,7 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
+import {loadSyntaxHighlightedSource} from '../../components/LazySyntaxHighlightedSource';
+import {registerCurrentError} from '../current-error';
 import {wasErrorLoggedByServer} from '../error-origin';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
@@ -16,7 +18,7 @@ const container: React.CSSProperties = {
 	marginLeft: 'auto',
 	marginRight: 'auto',
 	fontFamily: 'SF Pro Text, sans-serif',
-	paddingTop: '5vh',
+	paddingTop: 14,
 	boxSizing: 'border-box',
 };
 
@@ -93,11 +95,25 @@ export const ErrorLoader: React.FC<{
 	});
 
 	useEffect(() => {
-		getErrorRecord(error)
-			.then((record) => {
+		let cancelled = false;
+		setState({type: 'loading'});
+		const highlighting = loadSyntaxHighlightedSource();
+		const symbolication = getErrorRecord(error);
+		const unregister = registerCurrentError({error, symbolication});
+		symbolication
+			.then(async (record) => {
+				if (cancelled) {
+					return;
+				}
+
 				if (record) {
 					if (shouldLogError(error)) {
 						logSymbolicatedStudioError(record);
+					}
+
+					await highlighting;
+					if (cancelled) {
+						return;
 					}
 
 					setState({
@@ -115,6 +131,10 @@ export const ErrorLoader: React.FC<{
 				}
 			})
 			.catch((err) => {
+				if (cancelled) {
+					return;
+				}
+
 				if (shouldLogError(error)) {
 					logStudioError(error);
 				}
@@ -124,6 +144,11 @@ export const ErrorLoader: React.FC<{
 					type: 'error',
 				});
 			});
+
+		return () => {
+			cancelled = true;
+			unregister();
+		};
 	}, [error]);
 
 	if (state.type === 'loading') {
@@ -132,7 +157,7 @@ export const ErrorLoader: React.FC<{
 				<ErrorTitle
 					symbolicating
 					name={error.name}
-					message={error.message}
+					message={getLocationFromBuildError(error)?.message ?? error.message}
 					canHaveDismissButton={canHaveDismissButton}
 				/>
 			</div>

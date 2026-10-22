@@ -6,11 +6,11 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {BACKGROUND, RULER_COLOR} from '../../helpers/colors';
+import {BACKGROUND, WHITE_ALPHA_15} from '../../helpers/colors';
 import {getRulerPoints, getRulerScaleRange} from '../../helpers/editor-ruler';
 import type {AssetMetadata} from '../../helpers/get-asset-metadata';
 import type {Dimensions} from '../../helpers/is-current-selected-still';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {startCapturedPointerSession} from '../../helpers/pointer-session';
 import {useStudioCanvasDimensions} from '../../helpers/use-studio-canvas-dimensions';
 import {
 	EditorShowGuidesContext,
@@ -26,15 +26,14 @@ import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
-import {useTimelineSelection} from '../Timeline/TimelineSelection';
+import {useCurrentTimelineSelectionStateAsRef} from '../Timeline/TimelineSelection';
 import Ruler from './Ruler';
 
 const originBlockStyles: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	left: 0,
-	borderBottom: '1px solid ' + RULER_COLOR,
-	borderRight: '1px solid ' + RULER_COLOR,
+	boxShadow: `inset -1px -1px 0 ${WHITE_ALPHA_15}`,
 	width: `${RULER_WIDTH}px`,
 	height: `${RULER_WIDTH}px`,
 	background: BACKGROUND,
@@ -45,7 +44,14 @@ export const EditorRulers: React.FC<{
 	readonly contentDimensions: Dimensions | 'none' | null;
 	readonly assetMetadata: AssetMetadata | null;
 	readonly containerRef: React.RefObject<HTMLDivElement | null>;
-}> = ({contentDimensions, canvasSize, assetMetadata, containerRef}) => {
+	readonly canCreateGuides: boolean;
+}> = ({
+	contentDimensions,
+	canvasSize,
+	assetMetadata,
+	containerRef,
+	canCreateGuides,
+}) => {
 	const {scale, canvasPosition} = useStudioCanvasDimensions({
 		canvasSize,
 		contentDimensions,
@@ -60,7 +66,7 @@ export const EditorRulers: React.FC<{
 		moveGuidePointerRef,
 		setDraggingGuideId,
 	} = useContext(EditorShowGuidesContext);
-	const {clearSelection, selectedItems} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const rulerMarkingGaps = useMemo(() => {
 		const minimumGap = MINIMUM_RULER_MARKING_GAP_PX;
@@ -223,11 +229,12 @@ export const EditorRulers: React.FC<{
 				return newGuides;
 			});
 
-			const deletedGuideWasSelected = selectedItems.some(
-				(item) => item.type === 'guide' && item.guideId === guideId,
-			);
+			const deletedGuideWasSelected =
+				currentSelection.current.selectedItems.some(
+					(item) => item.type === 'guide' && item.guideId === guideId,
+				);
 			if (shouldDeleteGuide && deletedGuideWasSelected) {
-				clearSelection();
+				currentSelection.current.clearSelection();
 			}
 
 			shouldDeleteGuideRef.current = false;
@@ -236,12 +243,11 @@ export const EditorRulers: React.FC<{
 			setDraggingGuideId(() => null);
 		},
 		[
-			clearSelection,
+			currentSelection,
 			shouldCreateGuideRef,
 			shouldDeleteGuideRef,
 			setDraggingGuideId,
 			setGuidesList,
-			selectedItems,
 		],
 	);
 
@@ -260,9 +266,9 @@ export const EditorRulers: React.FC<{
 
 	const onPointerSessionStart = useCallback(
 		(event: React.PointerEvent<HTMLCanvasElement>, guideId: string) => {
-			startPointerSession({
+			startCapturedPointerSession({
 				event: event.nativeEvent,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: (moveEvent) => onMouseMove(moveEvent, guideId),
 				onEnd: () => finishGuideInteraction(guideId),
 			});
@@ -272,8 +278,8 @@ export const EditorRulers: React.FC<{
 
 	return (
 		<>
-			<div style={originBlockStyles} />
 			<Ruler
+				canCreateGuides={canCreateGuides}
 				orientation="horizontal"
 				scale={scale}
 				points={horizontalRulerPoints}
@@ -284,6 +290,7 @@ export const EditorRulers: React.FC<{
 				onPointerSessionStart={onPointerSessionStart}
 			/>
 			<Ruler
+				canCreateGuides={canCreateGuides}
 				orientation="vertical"
 				scale={scale}
 				points={verticalRulerPoints}
@@ -293,6 +300,7 @@ export const EditorRulers: React.FC<{
 				size={canvasSize}
 				onPointerSessionStart={onPointerSessionStart}
 			/>
+			<div style={originBlockStyles} />
 		</>
 	);
 };

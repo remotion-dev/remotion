@@ -6,6 +6,7 @@ const cliFlag = 'disable-web-security' as const;
 
 export const disableWebSecurityOption = {
 	name: 'Disable web security',
+	addedIn: '2.6.5',
 	cliFlag,
 	description: () => (
 		<>
@@ -14,8 +15,7 @@ export const disableWebSecurityOption = {
 		</>
 	),
 	ssrName: 'disableWebSecurity' as const,
-	docLink:
-		'https://www.remotion.dev/docs/chromium-flags#--disable-web-security',
+	docLink: 'https://www.remotion.dev/docs/options/disable-web-security',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

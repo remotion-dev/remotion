@@ -1,0 +1,49 @@
+---
+image: /generated/articles-docs-studio-shut-down-studio.png
+title: shutDownStudio()
+crumb: "@remotion/studio"
+---
+
+# shutDownStudio()<AvailableFrom v="4.0.521" />
+
+Gracefully shuts down the [Remotion Studio](/docs/studio) server. Start Studio again from your terminal to reconnect.
+
+```tsx twoslash title="ShutDownButton.tsx"
+import { shutDownStudio } from "@remotion/studio";
+
+export const ShutDownButton: React.FC = () => {
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await shutDownStudio();
+          console.log("Studio is shutting down");
+        } catch (err) {
+          console.error(err);
+        }
+      }}
+    >
+      Shut down Studio
+    </button>
+  );
+};
+```
+
+## Requirements
+
+This function is only available in a writable Studio with a running server. It throws outside Studio, in Browser Studio, or in a read-only Studio.
+
+## Return value
+
+Returns a promise that resolves to an empty object when the server acknowledges the shutdown request. The connection closes as Studio shuts down. The promise rejects if the request fails.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio hideServers />
+
+## See also
+
+- [`restartStudio()`](/docs/studio/restart-studio)
+- [WebMCP](/docs/ai/webmcp)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/studio/src/api/shut-down-studio.ts)

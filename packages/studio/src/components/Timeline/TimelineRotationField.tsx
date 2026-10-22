@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
@@ -9,13 +9,30 @@ import {InputDragger} from '../NewComposition/InputDragger';
 import {
 	draggerStyle,
 	getTimelineDisplayDecimalPlaces,
+	leftAlignedDraggerStyle,
 	normalizeTimelineNumber,
 } from './timeline-field-utils';
 import {formatTimelineRotationFieldValue} from './timeline-rotation-field-utils';
 import {
-	parseCssRotationToDegrees,
+	type CssRotationEuler,
+	parseCssRotationToEuler,
 	serializeCssRotation,
+	serializeCssRotationFromEuler,
 } from './timeline-rotation-utils';
+import {Transform3DModeContext} from './Transform3DModeContext';
+
+const containerStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	gap: 4,
+};
+
+const compactDraggerStyle: React.CSSProperties = {
+	paddingLeft: 2,
+	paddingRight: 2,
+};
+
+const ROTATION_LABELS = ['X', 'Y', 'Z'] as const;
 
 export const TimelineRotationField: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -33,15 +50,27 @@ export const TimelineRotationField: React.FC<{
 	onDragEnd,
 }) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
+	const [dragRotation, setDragRotation] = useState<CssRotationEuler | null>(
+		null,
+	);
+	const transform3DMode = useContext(Transform3DModeContext);
 	const isCssRotation = field.fieldSchema.type === 'rotation-css';
+	const cssRotation = useMemo(
+		() =>
+			isCssRotation
+				? parseCssRotationToEuler(String(effectiveValue ?? '0deg'))
+				: ([0, 0, 0] as const),
+		[effectiveValue, isCssRotation],
+	);
+	const show3D =
+		isCssRotation &&
+		(transform3DMode || cssRotation[0] !== 0 || cssRotation[1] !== 0);
 
-	const degrees = useMemo(() => {
-		if (isCssRotation) {
-			return parseCssRotationToDegrees(String(effectiveValue ?? '0deg'));
-		}
-
-		return typeof effectiveValue === 'number' ? effectiveValue : 0;
-	}, [effectiveValue, isCssRotation]);
+	const degrees = isCssRotation
+		? cssRotation[2]
+		: typeof effectiveValue === 'number'
+			? effectiveValue
+			: 0;
 
 	const configuredStep =
 		field.fieldSchema.type === 'rotation-css' ||
@@ -68,12 +97,19 @@ export const TimelineRotationField: React.FC<{
 	);
 
 	const serializeValue = useCallback(
-		(value: number) => {
-			return isCssRotation
-				? serializeCssRotation(value, decimalPlaces)
-				: normalizeTimelineNumber(value);
-		},
+		(value: number) =>
+			isCssRotation
+				? serializeCssRotation(value, Math.max(6, decimalPlaces))
+				: normalizeTimelineNumber(value),
 		[decimalPlaces, isCssRotation],
+	);
+	const serializeRotation = useCallback(
+		(rotation: CssRotationEuler) =>
+			serializeCssRotationFromEuler({
+				rotation,
+				decimalPlaces: Math.max(6, decimalPlaces),
+			}),
+		[decimalPlaces],
 	);
 
 	const onValueChange = useCallback(
@@ -127,10 +163,83 @@ export const TimelineRotationField: React.FC<{
 		[decimalPlaces, field.fieldSchema],
 	);
 
-	return (
+	const onRotationValueChange = useCallback(
+		(rotationIndex: number, newValue: number) => {
+			const nextRotation = [...(dragRotation ?? cssRotation)] as [
+				number,
+				number,
+				number,
+			];
+			nextRotation[rotationIndex] = newValue;
+			setDragRotation(nextRotation);
+			onDragValueChange(serializeRotation(nextRotation));
+		},
+		[cssRotation, dragRotation, onDragValueChange, serializeRotation],
+	);
+
+	const onRotationValueChangeEnd = useCallback(
+		(rotationIndex: number, newValue: number) => {
+			const nextRotation = [...(dragRotation ?? cssRotation)] as [
+				number,
+				number,
+				number,
+			];
+			nextRotation[rotationIndex] = newValue;
+			const newRotation = serializeRotation(nextRotation);
+			const clearDragState = () => {
+				setDragRotation(null);
+				onDragEnd();
+			};
+
+			if (newRotation !== propStatus.codeValue) {
+				onSave(newRotation).finally(clearDragState);
+			} else {
+				clearDragState();
+			}
+		},
+		[
+			cssRotation,
+			dragRotation,
+			onDragEnd,
+			onSave,
+			propStatus.codeValue,
+			serializeRotation,
+		],
+	);
+
+	const onRotationTextChange = useCallback(
+		(rotationIndex: number, newValue: string) => {
+			const parsed = Number(newValue);
+			if (Number.isNaN(parsed)) {
+				return;
+			}
+
+			const nextRotation = [...(dragRotation ?? cssRotation)] as [
+				number,
+				number,
+				number,
+			];
+			nextRotation[rotationIndex] = parsed;
+			const newRotation = serializeRotation(nextRotation);
+			if (newRotation !== propStatus.codeValue) {
+				setDragRotation(nextRotation);
+				onSave(newRotation).finally(() => setDragRotation(null));
+			}
+		},
+		[
+			cssRotation,
+			dragRotation,
+			onSave,
+			propStatus.codeValue,
+			serializeRotation,
+		],
+	);
+
+	const angleDragger = (
 		<InputDragger
 			type="number"
 			value={dragValue ?? degrees}
+			buttonStyle={leftAlignedDraggerStyle}
 			style={draggerStyle}
 			status="ok"
 			small
@@ -142,6 +251,43 @@ export const TimelineRotationField: React.FC<{
 			step={step}
 			formatter={formatter}
 			rightAlign={false}
+			allowStepMismatch
+			aria-label={isCssRotation ? 'Rotation Z' : 'Rotation angle'}
 		/>
 	);
+
+	if (show3D) {
+		return (
+			<span style={containerStyle}>
+				{ROTATION_LABELS.map((rotationLabel, rotationIndex) => (
+					<InputDragger
+						key={rotationLabel}
+						type="number"
+						value={(dragRotation ?? cssRotation)[rotationIndex]}
+						buttonStyle={compactDraggerStyle}
+						status="ok"
+						small
+						onValueChange={(newValue) =>
+							onRotationValueChange(rotationIndex, newValue)
+						}
+						onValueChangeEnd={(newValue) =>
+							onRotationValueChangeEnd(rotationIndex, newValue)
+						}
+						onTextChange={(newValue) =>
+							onRotationTextChange(rotationIndex, newValue)
+						}
+						min={-Infinity}
+						max={Infinity}
+						step={step}
+						formatter={formatter}
+						rightAlign={false}
+						allowStepMismatch
+						aria-label={`Rotation ${rotationLabel}`}
+					/>
+				))}
+			</span>
+		);
+	}
+
+	return angleDragger;
 };

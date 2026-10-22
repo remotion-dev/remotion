@@ -1,0 +1,26 @@
+# Remotion Canvas Capture
+
+Remotion Canvas Capture records an area—or a whole webpage—as a
+high-resolution H.264 MP4 or VP9 WebM using Chromium's experimental
+HTML-in-canvas implementation.
+
+## Install
+
+Canvas Capture requires Chrome 157.0.8080.0 or newer with Canvas Draw Element enabled.
+
+Chrome 155 and newer can install the extension and display the browser setup requirements. In a supported Chrome version,
+open `chrome://flags/#canvas-draw-element`, enable Canvas Draw Element, and restart
+Chrome. The recorder shows a setup warning if the required APIs are unavailable;
+this does not necessarily mean the flag is disabled.
+
+Follow the [Canvas Capture installation guide](https://www.remotion.dev/docs/canvas-capture/installation).
+
+## Development
+
+This repository contains the built Chrome extension and is generated from the
+[`packages/canvas-capture-extension`](https://github.com/remotion-dev/remotion/tree/main/packages/canvas-capture-extension)
+package in the Remotion monorepo. Changes made directly in this repository will
+be overwritten by the release pipeline.
+
+Please report issues and contribute changes in the
+[`remotion-dev/remotion`](https://github.com/remotion-dev/remotion) repository.

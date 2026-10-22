@@ -1,14 +1,57 @@
 import {
 	optimisticUpdateEffectKeyframeSettings,
 	optimisticUpdateSequenceKeyframeSettings,
+	type BatchUpdateKeyframeSettingsRequest,
 	type KeyframeSettings,
+	type UpdateEffectKeyframeSettingsRequest,
+	type UpdateSequenceKeyframeSettingsRequest,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
+
+const updateSequenceKeyframeSettings = (
+	request: UpdateSequenceKeyframeSettingsRequest,
+) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/update-sequence-keyframe-settings', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.updateSequenceKeyframeSettings(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
+};
+
+const updateEffectKeyframeSettings = (
+	request: UpdateEffectKeyframeSettingsRequest,
+) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/update-effect-keyframe-settings', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.updateEffectKeyframeSettings(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
+};
+
+const batchUpdateKeyframeSettings = (
+	request: BatchUpdateKeyframeSettingsRequest,
+) => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (!browserStudioOperations) {
+		return callApi('/api/batch-update-keyframe-settings', request);
+	}
+
+	return browserStudioOperations.keyframes
+		? browserStudioOperations.keyframes.batchUpdateKeyframeSettings(request)
+		: Promise.reject(new Error('Keyframe editing is unavailable'));
+};
 
 export const callUpdateSequenceKeyframeSettings = ({
 	fileName,
@@ -37,7 +80,7 @@ export const callUpdateSequenceKeyframeSettings = ({
 				settings,
 			}),
 		apiCall: () =>
-			callApi('/api/update-sequence-keyframe-settings', {
+			updateSequenceKeyframeSettings({
 				fileName,
 				nodePath,
 				key: fieldKey,
@@ -81,7 +124,7 @@ export const callUpdateEffectKeyframeSettings = ({
 		applyServerResponse: (prev, response) =>
 			applyEffectResponseToPropStatuses({previous: prev, response}),
 		apiCall: () =>
-			callApi('/api/update-effect-keyframe-settings', {
+			updateEffectKeyframeSettings({
 				fileName,
 				sequenceNodePath: nodePath,
 				effectIndex,
@@ -138,7 +181,7 @@ export const callBatchUpdateKeyframeSettings = ({
 		);
 	}
 
-	return callApi('/api/batch-update-keyframe-settings', {
+	return batchUpdateKeyframeSettings({
 		sequenceKeyframes: sequenceKeyframes.map((update) => ({
 			fileName: update.fileName,
 			nodePath: update.nodePath,

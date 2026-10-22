@@ -1,0 +1,4 @@
+interface:
+  display_name: "Offload R2 Assets"
+  short_description: "Host assets on R2 and retain ignored copies"
+  default_prompt: "Use $offload-r2 to host these assets on remotion.media while keeping ignored local copies."

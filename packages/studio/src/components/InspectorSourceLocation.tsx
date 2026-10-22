@@ -2,7 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {BACKGROUND, LIGHT_COLOR, LIGHT_TEXT} from '../helpers/colors';
 import {formatFileLocation} from '../helpers/format-file-location';
-import {InspectorInlineAction} from './InspectorPanel/common';
+import {InspectorQuickAction} from './InspectorPanel/common';
 import {getOriginalSourceAttribution} from './Timeline/TimelineStack/source-attribution';
 
 const sourceLocationStyle: React.CSSProperties = {
@@ -25,8 +25,15 @@ const sourceLocationStyle: React.CSSProperties = {
 	textAlign: 'left',
 	textDecoration: 'none',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 	width: 'fit-content',
+};
+
+const quickActionStyle: React.CSSProperties = {
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const sourceLocationLabelStyle: React.CSSProperties = {
@@ -38,6 +45,8 @@ const sourceLocationLabelStyle: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -46,7 +55,7 @@ export const InspectorSourceLocation: React.FC<{
 	readonly canOpen: boolean;
 	readonly onOpen: () => void;
 	readonly renderIcon?: (color: string) => React.ReactNode;
-	readonly size?: 'default' | 'inline-action';
+	readonly size?: 'default' | 'quick-action';
 }> = ({location, canOpen, onOpen, renderIcon, size = 'default'}) => {
 	const [hovered, setHovered] = useState(false);
 
@@ -98,17 +107,17 @@ export const InspectorSourceLocation: React.FC<{
 		return null;
 	}
 
-	if (size === 'inline-action') {
+	if (size === 'quick-action') {
 		return (
-			<InspectorInlineAction
+			<InspectorQuickAction
 				disabled={!canOpen}
 				onClick={onClick}
 				renderIcon={(iconColor) => renderIcon?.(iconColor)}
-				size="compact"
-				title={fileLocation ?? undefined}
+				style={quickActionStyle}
+				aria-label={fileLocation ?? undefined}
 			>
 				{label}
-			</InspectorInlineAction>
+			</InspectorQuickAction>
 		);
 	}
 
@@ -116,7 +125,7 @@ export const InspectorSourceLocation: React.FC<{
 		<button
 			type="button"
 			style={style}
-			title={fileLocation ?? undefined}
+			aria-label={fileLocation ?? undefined}
 			onClick={onClick}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}

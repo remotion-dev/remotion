@@ -1,56 +1,85 @@
+import {linearTiming, TransitionSeries} from '@remotion/transitions';
 import React from 'react';
-import {AbsoluteFill, Composition, Folder, useCurrentScale} from 'remotion';
+import {Composition, Folder, Solid} from 'remotion';
 import {BarChart} from './BarChart';
+import {
+	CAPTIONS_DURATION_IN_FRAMES,
+	CAPTIONS_HEIGHT,
+} from './CaptionsTester/AnimatedCaptions';
+import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
+import {MissingCaptionsComposition} from './CaptionsTester/MissingCaptionsComposition';
 import {EffectKeyframeE2e} from './EffectKeyframeE2e';
 import {
 	ErrorOverlayRepro,
 	UnsymbolicatedErrorOverlayRepro,
 } from './ErrorOverlayE2e/ErrorOverlayRepro';
+import {HiddenClipDragPreview} from './HiddenClipDragPreview';
 import {HookOrderChangeE2e} from './HookOrderChangeE2e/HookOrderChangeRepro';
 import {Issue8216} from './Issue8216/Issue8216';
 import {LightLeakExample} from './LightLeak';
-import {LostNodePathRepro} from './LostNodePathE2e/LostNodePathRepro';
+import {MacCursorsExample} from './MacCursors';
+import {MovingPillCaptionsComposition} from './MovingPillCaptionsComposition';
 import {NewVideoComp} from './NewVideo';
 import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {SequencePlaybackRateE2e} from './SequencePlaybackRateE2e';
+import {SourceSubscriptionChurn} from './SourceSubscriptionChurn';
+import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {VisualControls} from './VisualControls';
+import {VisualMode3D} from './VisualMode3D';
+import {AffineFrameClock} from './VisualModeTests/AffineFrameClock';
+import {FontWeightControls} from './VisualModeTests/FontWeightControls';
+import {InteractiveHtmlElements} from './VisualModeTests/InteractiveComponents';
+import {OutlineSelectionCases} from './VisualModeTests/OutlineSelectionCases';
+import {SequenceShiftRepro} from './VisualModeTests/SequenceShiftRepro';
 
-const UseCurrentScaleOnLoad: React.FC = () => {
-	const scale = useCurrentScale();
-	const measuredElement = React.useRef<HTMLDivElement>(null);
-	const [correctedWidth, setCorrectedWidth] = React.useState<number | null>(
-		null,
-	);
-
-	React.useLayoutEffect(() => {
-		if (!measuredElement.current) {
-			return;
-		}
-
-		setCorrectedWidth(
-			Math.round(measuredElement.current.getBoundingClientRect().width / scale),
-		);
-	}, [scale]);
-
-	return (
-		<AbsoluteFill>
-			<div ref={measuredElement} style={{width: 100}} />
-			<div data-testid="use-current-scale-corrected-width">
-				{correctedWidth}
-			</div>
-		</AbsoluteFill>
-	);
-};
+const TransitionCursorE2e = () => (
+	<TransitionSeries>
+		<TransitionSeries.Sequence name="Outgoing scene" durationInFrames={90}>
+			<Solid color="blue" width={1280} height={720} />
+		</TransitionSeries.Sequence>
+		<TransitionSeries.Transition
+			timing={linearTiming({durationInFrames: 30})}
+		/>
+		<TransitionSeries.Sequence name="Incoming scene" durationInFrames={90}>
+			<Solid color="red" width={1280} height={720} />
+		</TransitionSeries.Sequence>
+	</TransitionSeries>
+);
 
 export const E2eTestRoot: React.FC = () => {
 	return (
 		<>
 			<Composition
-				id="use-current-scale-on-load"
-				component={UseCurrentScaleOnLoad}
-				width={1920}
-				height={1080}
+				id="transition-cursor"
+				component={TransitionCursorE2e}
+				durationInFrames={150}
 				fps={30}
-				durationInFrames={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="hidden-clip-drag-preview"
+				component={HiddenClipDragPreview}
+				durationInFrames={300}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="SourceSubscriptionChurn"
+				component={SourceSubscriptionChurn}
+				durationInFrames={600}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
+			<Composition
+				id="sequence-playback-rate"
+				component={SequencePlaybackRateE2e}
+				width={1200}
+				height={630}
+				fps={30}
+				durationInFrames={120}
 			/>
 			<Folder name="Schema">
 				<Composition
@@ -87,6 +116,30 @@ export const E2eTestRoot: React.FC = () => {
 				width={1280}
 				height={720}
 			/>
+			<Composition
+				id="captions-inspector-e2e"
+				component={AnimatedCaptionsComposition}
+				durationInFrames={CAPTIONS_DURATION_IN_FRAMES}
+				fps={30}
+				width={1080}
+				height={CAPTIONS_HEIGHT}
+			/>
+			<Composition
+				id="default-captions-inspector-e2e"
+				component={MovingPillCaptionsComposition}
+				durationInFrames={210}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="missing-captions-inspector-e2e"
+				component={MissingCaptionsComposition}
+				durationInFrames={30}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
 			<Folder name="visual-controls">
 				<Composition
 					id="visual-controls"
@@ -113,16 +166,14 @@ export const E2eTestRoot: React.FC = () => {
 				fps={30}
 				durationInFrames={90}
 			/>
-			<Folder name="lost-node-path">
-				<Composition
-					id="lost-node-path-e2e"
-					component={LostNodePathRepro}
-					width={1920}
-					height={1080}
-					fps={30}
-					durationInFrames={90}
-				/>
-			</Folder>
+			<Composition
+				id="mac-cursors"
+				component={MacCursorsExample}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
 			<Folder name="error-overlay">
 				<Composition
 					id="error-overlay-e2e"
@@ -149,6 +200,62 @@ export const E2eTestRoot: React.FC = () => {
 				component={Issue8216}
 				width={1280}
 				height={720}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="visual-mode-3d"
+				component={VisualMode3D}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={120}
+			/>
+			<Composition
+				id="affine-frame-clock"
+				component={AffineFrameClock}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={60}
+			/>
+			<Composition
+				id="font-weight-controls"
+				component={FontWeightControls}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="outline-selection-cases"
+				component={OutlineSelectionCases}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={2340}
+			/>
+			<Composition
+				id="sequence-shift-repro"
+				component={SequenceShiftRepro}
+				width={1280}
+				height={720}
+				fps={30}
+				durationInFrames={60}
+			/>
+			<Composition
+				id="timeline-negative-start"
+				component={TimelineNegativeFromResize}
+				width={1080}
+				height={1080}
+				fps={30}
+				durationInFrames={90}
+			/>
+			<Composition
+				id="interactive-html-elements"
+				component={InteractiveHtmlElements}
+				width={1080}
+				height={1080}
 				fps={30}
 				durationInFrames={90}
 			/>

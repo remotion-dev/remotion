@@ -1,6 +1,7 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 import {FastRefreshContext} from '../../fast-refresh-context';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getVisualControlEditedValue} from '../../visual-controls/get-current-edited-value';
 import {
 	SetVisualControlsContext,
@@ -48,6 +49,17 @@ export const VisualControlHandle: React.FC<{
 	const saveToFile = useCallback(
 		(updater: (old: unknown) => unknown) => {
 			if (disableSave) {
+				return;
+			}
+
+			// Saving visual control changes goes through
+			// /api/apply-visual-control-change, which Browser Studio does not
+			// support.
+			if (getBrowserStudioOperations()) {
+				showNotification(
+					'Saving visual control changes is not supported in Browser Studio',
+					4000,
+				);
 				return;
 			}
 

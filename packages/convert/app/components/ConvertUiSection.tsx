@@ -12,7 +12,11 @@ export const ConvertUiSection: React.FC<{
 
 	return (
 		<div className="flex flex-row items-center">
-			<Switch active={active} onToggle={onToggle} />
+			<Switch
+				active={active}
+				onToggle={onToggle}
+				aria-label={typeof children === 'string' ? children : undefined}
+			/>
 			<div className="w-2" />
 			<div className="font-semibold tracking-tight text-ellipsis font-brand overflow-x-hidden text-xl">
 				{children}

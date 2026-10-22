@@ -259,7 +259,23 @@ pub fn scale_and_make_bitmap(
         Flags::BILINEAR,
     )?;
 
-    if get_native_colorspace(native_frame) == color::Space::BT709
+    if native_frame.src_range == color::Range::JPEG {
+        // Full-range input. swscale assumes limited range for every pixel
+        // format except the deprecated "J" ones (yuvj420p, ...), and 10/12-bit
+        // and most 4:2:2/4:4:4 formats have no "J" variant. Without this, a
+        // full-range yuv420p10le/yuv420p12le video gets its range expanded a
+        // second time: highlights clip and blacks crush.
+        // The matrix is the tagged one; untagged stays swscale's default
+        // (BT.601), which is what "J" formats got before this change.
+        scaler.set_colorspace_details(
+            native_frame.colorspace,
+            color::Range::JPEG,
+            color::Range::JPEG,
+            0,
+            1 << 16,
+            1 << 16,
+        )?;
+    } else if get_native_colorspace(native_frame) == color::Space::BT709
         && (native_frame.src_range == color::Range::MPEG
             || native_frame.src_range == color::Range::Unspecified)
     {

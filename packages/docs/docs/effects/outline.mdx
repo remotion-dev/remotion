@@ -1,0 +1,89 @@
+---
+image: /generated/articles-docs-effects-outline.png
+slug: /effects/outline
+title: outline()
+sidebar_label: outline()
+crumb: '@remotion/effects'
+---
+
+# outline()<AvailableFrom v="4.0.515" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Draws a solid outline around the non-transparent pixels of a canvas-based component such as [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) or [`<Solid>`](/docs/solid).
+
+## Preview
+
+<EffectsDemo type="effects-outline" />
+
+The preview applies [`colorKey()`](/docs/effects/color-key) before `outline()` so the outline follows the subject after the green background has been removed.
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {colorKey} from '@remotion/effects/color-key';
+import {outline} from '@remotion/effects/outline';
+import {Video} from '@remotion/media';
+import {AbsoluteFill} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  return (
+    <AbsoluteFill style={{backgroundColor: '#15171e'}}>
+      <Video
+        src="https://remotion.media/greenscreen.mp4"
+        effects={[
+          colorKey({similarity: 0.45}),
+          outline({width: 12, edgeSimplification: 12, color: '#00ffff'}),
+        ]}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Effects run in array order. Place `outline()` after an effect that creates transparency, such as [`colorKey()`](/docs/effects/color-key), to outline the resulting alpha silhouette.
+
+## API
+
+All parameters are optional. You can call `outline()` without arguments.
+
+### width?
+
+Width of the outline in pixels. Defaults to `8`. Must be at least `0`.
+
+### edgeSimplification?
+
+Pixel tolerance used to simplify the alpha contour into straight edges. Larger values remove more contour points and make the outline more polygonal. `0` disables simplification and is the default.
+
+The source remains unchanged. With `outlineOnly: true`, the simplified contour is used for the filled mask as well.
+
+Values above `0` extract and simplify the alpha contour on the CPU for every frame, which is more expensive than the default outline.
+
+### color?
+
+Color of the outline. Accepts any CSS color string. Defaults to white.
+
+### opacity?
+
+Opacity of the outline from `0` to `1`. Defaults to `1`.
+
+### outlineOnly?
+
+When `true`, replaces the source with a filled mask in the outline color. The mask includes both the original alpha silhouette and the outline around it. Defaults to `false`.
+
+### disabled?
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`outline()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+The outline is clipped at the canvas boundary. Leave transparent space around the source if the outline should extend beyond its current bounds.
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`colorKey()`](/docs/effects/color-key)
+- [`dropShadow()`](/docs/effects/drop-shadow)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/outline.ts)

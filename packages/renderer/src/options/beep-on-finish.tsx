@@ -1,11 +1,13 @@
 import type {AnyRemotionOption} from './option';
 
 let beepOnFinish = false;
+let configuredBeepOnFinish: boolean | null = null;
 
 const cliFlag = 'beep-on-finish' as const;
 
 export const beepOnFinishOption = {
 	name: 'Beep on finish',
+	addedIn: '4.0.84',
 	cliFlag,
 	description: () => (
 		<>
@@ -13,7 +15,7 @@ export const beepOnFinishOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setbeeponfinish',
+	docLink: 'https://www.remotion.dev/docs/options/beep-on-finish',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
@@ -37,6 +39,12 @@ export const beepOnFinishOption = {
 	},
 	setConfig(value) {
 		beepOnFinish = value;
+		configuredBeepOnFinish = value;
+	},
+	getConfigValue: () => configuredBeepOnFinish,
+	reset: () => {
+		beepOnFinish = false;
+		configuredBeepOnFinish = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

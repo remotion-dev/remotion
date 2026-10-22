@@ -9,6 +9,9 @@ import type {ResizeOperation} from './resizing/mode';
 import {normalizeVideoRotation} from './rotate-and-resize-video-frame';
 import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const canCopyVideoTrack = ({
 	outputContainer,
 	rotationToApply,

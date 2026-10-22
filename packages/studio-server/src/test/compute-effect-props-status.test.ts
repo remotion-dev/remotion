@@ -60,10 +60,12 @@ test('computeEffectPropStatus reports static props as canUpdate=true with codeVa
 
 	expect(result.props.color).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'red',
 	});
 	expect(result.props.opacity).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 0.5,
 	});
 	expect(result.importPath).toBe('@remotion/effects/tint');
@@ -88,6 +90,7 @@ test('computeEffectPropStatus reports computed props', () => {
 	expect(result.props.color).toEqual({status: 'computed'});
 	expect(result.props.opacity).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 0.5,
 	});
 });
@@ -112,6 +115,7 @@ test('computeEffectPropStatus reports keyframes for inline interpolated effect p
 
 	expect(result.props.amount).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0.2},
@@ -144,6 +148,7 @@ test('computeEffectPropStatus reports output for inline interpolated effect prop
 
 	expect(result.props.amount).toEqual({
 		status: 'keyframed',
+		keyframeDisplayOffsetAdjustment: null,
 		interpolationFunction: 'interpolate',
 		keyframes: [
 			{frame: 0, value: 0.2},
@@ -206,10 +211,12 @@ test('computeEffectPropStatus reports unset props as undefined codeValue', () =>
 
 	expect(result.props.color).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: 'red',
 	});
 	expect(result.props.opacity).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: undefined,
 	});
 });
@@ -232,6 +239,7 @@ test('computeEffectPropStatus reports static array props', () => {
 
 	expect(result.props.colors).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: ['red', 'blue'],
 	});
 });
@@ -330,6 +338,7 @@ test('computeEffectPropStatus treats zero-arg effect as editable with undefined 
 
 	expect(result.props.amount).toEqual({
 		status: 'static',
+		keyframeDisplayOffsetAdjustment: null,
 		codeValue: undefined,
 	});
 });

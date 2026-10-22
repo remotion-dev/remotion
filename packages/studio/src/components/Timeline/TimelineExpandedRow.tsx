@@ -23,6 +23,7 @@ import {TimelineRowChrome} from './TimelineRowChrome';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
+	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {TimelineSequencePropItem} from './TimelineSequencePropItem';
@@ -31,6 +32,7 @@ const rowLabel: React.CSSProperties = {
 	fontSize: 12,
 	color: WHITE_ALPHA_80,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 type TimelineExpandedRowProps = {
@@ -44,7 +46,8 @@ type TimelineExpandedRowProps = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly schema: InteractivitySchema;
 	readonly keyframeDisplayOffset: number;
-	readonly keyframeControlsMode?: TimelineKeyframeControlsMode;
+	readonly keyframePlaybackRate: number;
+	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
 };
 
 const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
@@ -58,11 +61,14 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 	nodePath,
 	schema,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 	keyframeControlsMode,
 }) => {
 	const rowDepth =
 		(rowDepthBase ?? getExpandedRowDepth({nestedDepth, treeDepth: 0})) + depth;
+	const isInspector = keyframeControlsMode === 'inspector';
 	const selection = useTimelineRowSelection(node.nodePathInfo);
+	const containsSelection = useTimelineRowContainsSelection(node.nodePathInfo);
 	const labelStyle = React.useMemo(
 		(): React.CSSProperties => ({
 			...rowLabel,
@@ -91,6 +97,8 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePath={nodePath}
 					validatedLocation={validatedLocation}
 					rowDepth={rowDepth}
+					labelNextToToggle={isInspector}
+					revealInInspector={!isInspector}
 					getIsExpanded={getIsExpanded}
 					toggleTrack={toggleTrack}
 				/>
@@ -116,11 +124,11 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				}}
 				selected={selection.selected}
 				selectable={selection.selectable}
-				selectionItem={selection.selectionItem}
 				onSelect={selection.onSelect}
 				showSelectedBackground
-				containsSelection={false}
+				containsSelection={containsSelection}
 				outerHeight={null}
+				showBottomBorder={false}
 			>
 				<span style={labelStyle}>{node.label}</span>
 			</TimelineRowChrome>
@@ -133,11 +141,14 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				<TimelineEffectPropItem
 					field={node.field}
 					validatedLocation={validatedLocation}
-					rowDepth={rowDepth}
+					rowDepth={isInspector ? rowDepth - 1 : rowDepth}
 					nodePath={nodePath}
 					nodePathInfo={node.nodePathInfo}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode={keyframeControlsMode}
+					revealInInspector={!isInspector}
+					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);
 		}
@@ -152,7 +163,9 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					nodePathInfo={node.nodePathInfo}
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode={keyframeControlsMode}
+					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);
 		}
@@ -172,11 +185,11 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 			}}
 			selected={selection.selected}
 			selectable={selection.selectable}
-			selectionItem={selection.selectionItem}
 			onSelect={selection.onSelect}
 			showSelectedBackground
 			containsSelection={false}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<span style={labelStyle}>{node.label}</span>
 		</TimelineRowChrome>

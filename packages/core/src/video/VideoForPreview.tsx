@@ -12,21 +12,29 @@ import type {IsExact} from '../audio/props.js';
 import {SharedAudioContext} from '../audio/shared-audio-tags.js';
 import {makeSharedElementSourceNode} from '../audio/shared-element-source-node.js';
 import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {useMediaAudioState} from '../audio/use-media-audio-state.js';
+import {
+	CommittedMetadataProvider,
+	type CommittedMetadata,
+} from '../committed-metadata.js';
 import {getCrossOriginValue} from '../get-cross-origin-value.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {playbackLogging} from '../playback-logging.js';
 import {usePreload} from '../prefetch.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
-import {useMediaInTimeline} from '../use-media-in-timeline.js';
+import {
+	scheduleMediaSourceCleanup,
+	useMediaDuration,
+} from '../use-media-duration.js';
+import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {VERSION} from '../version.js';
-import {
-	usePlayerMutedState,
-	useMediaVolumeState,
-} from '../volume-position-state.js';
+import {useMediaVolumeState} from '../volume-position-state.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
 import {useEmitVideoFrame} from './emit-video-frame.js';
@@ -52,7 +60,11 @@ type Expected = Omit<
 
 const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
-	VideoForPreviewProps
+	VideoForPreviewProps & {
+		readonly timelineId: string;
+		readonly userPreferredVolume: number;
+		readonly isMutedForPlayback: boolean;
+	}
 > = (props, ref) => {
 	const context = useContext(SharedAudioContext);
 	if (!context) {
@@ -85,14 +97,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	// But useInsertionEffect will fire before other effects, meaning the
 	// nodes might still be used. Using rAF to ensure it's after other effects.
 	effectToUse(() => {
-		return () => {
-			requestAnimationFrame(() => {
-				sharedSource?.cleanup();
-			});
-		};
+		return scheduleMediaSourceCleanup.bind(null, sharedSource?.cleanup ?? null);
 	}, [sharedSource]);
 
 	const {
+		timelineId,
+		userPreferredVolume,
+		isMutedForPlayback,
 		volume,
 		muted,
 		playbackRate,
@@ -129,15 +140,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		throw new Error('typecheck error');
 	}
 
-	const volumePropFrame = useFrameForVolumeProp(
-		loopVolumeCurveBehavior ?? 'repeat',
-	);
 	const {fps, durationInFrames} = useVideoConfig();
 	const parentSequence = useContext(SequenceContext);
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
-
-	const [timelineId] = useState(() => String(Math.random()));
 
 	if (typeof acceptableTimeShift !== 'undefined') {
 		throw new Error(
@@ -145,39 +151,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const [mediaVolume] = useMediaVolumeState();
-	const [playerMuted] = usePlayerMutedState();
-
-	const userPreferredVolume = evaluateVolume({
-		frame: volumePropFrame,
-		volume,
-		mediaVolume,
-	});
-
 	warnAboutTooHighVolume(userPreferredVolume);
-
-	const getStack = useCallback(() => {
-		return _remotionInternalStack ?? null;
-	}, [_remotionInternalStack]);
-
-	useMediaInTimeline({
-		volume,
-		mediaVolume,
-		mediaType: 'video',
-		src,
-		playbackRate: props.playbackRate ?? 1,
-		displayName: name ?? null,
-		id: timelineId,
-		getStack,
-		showInTimeline,
-		premountDisplay: parentSequence?.premountDisplay ?? null,
-		postmountDisplay: parentSequence?.postmountDisplay ?? null,
-		loopDisplay: undefined,
-		documentationLink: onlyWarnForMediaSeekingError
-			? 'https://www.remotion.dev/docs/offthreadvideo'
-			: 'https://www.remotion.dev/docs/html5-video',
-		refForOutline: videoRef,
-	});
 
 	// putting playback before useVolume
 	// because volume looks at playbackrate
@@ -290,32 +264,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [onError, src]);
 
-	const currentOnDurationCallback =
-		useRef<VideoForPreviewProps['onDuration']>(onDuration);
-	currentOnDurationCallback.current = onDuration;
-
 	useEmitVideoFrame({ref: videoRef, onVideoFrame});
 
-	useEffect(() => {
-		const {current} = videoRef;
-		if (!current) {
-			return;
-		}
-
-		if (current.duration) {
-			currentOnDurationCallback.current?.(src as string, current.duration);
-			return;
-		}
-
-		const onLoadedMetadata = () => {
-			currentOnDurationCallback.current?.(src as string, current.duration);
-		};
-
-		current.addEventListener('loadedmetadata', onLoadedMetadata);
-		return () => {
-			current.removeEventListener('loadedmetadata', onLoadedMetadata);
-		};
-	}, [src]);
+	useMediaDuration(videoRef, onDuration, src as string, false);
 
 	useEffect(() => {
 		const {current} = videoRef;
@@ -350,11 +301,11 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isClientSideRendering: false,
 	});
 
-	return (
+	const video = (
 		<video
 			{...nativeProps}
 			ref={videoRef}
-			muted={muted || playerMuted || userPreferredVolume <= 0}
+			muted={isMutedForPlayback}
 			playsInline
 			src={actualSrc}
 			loop={_remotionInternalNativeLoopPassed}
@@ -364,8 +315,92 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			controls={false}
 		/>
 	);
+
+	return video;
 };
 
-export const VideoForPreview = forwardRef(
+const VideoForPreviewContent = forwardRef(
 	VideoForDevelopmentRefForwardingFunction,
 );
+
+const VideoForPreviewRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLVideoElement,
+	VideoForPreviewProps
+> = (props, ref) => {
+	const {
+		volume,
+		muted,
+		playbackRate,
+		src,
+		name,
+		_remotionInternalStack,
+		showInTimeline,
+		loopVolumeCurveBehavior,
+		onlyWarnForMediaSeekingError,
+	} = props;
+	const [timelineId] = useState(() => String(Math.random()));
+	const parentSequence = useContext(SequenceContext);
+	const {isStudio} = useRemotionEnvironment();
+	const [mediaVolume] = useMediaVolumeState();
+	const volumePropFrame = useFrameForVolumeProp(
+		loopVolumeCurveBehavior ?? 'repeat',
+	);
+	const userPreferredVolume = evaluateVolume({
+		frame: volumePropFrame,
+		volume,
+		mediaVolume,
+	});
+	const {isMutedForTimeline, isMutedForPlayback} = useMediaAudioState({
+		muted: muted ?? false,
+		volume: userPreferredVolume,
+		audioEnabled: true,
+	});
+	const getStack = useCallback(() => {
+		return _remotionInternalStack ?? null;
+	}, [_remotionInternalStack]);
+
+	const {automaticOutlineRef, registration} = useMediaInTimelineRegistration({
+		mediaType: 'video',
+		src,
+		playbackRate: playbackRate ?? 1,
+		displayName: name ?? null,
+		id: timelineId,
+		getStack,
+		showInTimeline,
+		premountDisplay: parentSequence?.premountDisplay ?? null,
+		postmountDisplay: parentSequence?.postmountDisplay ?? null,
+		loopDisplay: undefined,
+		documentationLink: onlyWarnForMediaSeekingError
+			? 'https://www.remotion.dev/docs/offthreadvideo'
+			: 'https://www.remotion.dev/docs/html5-video',
+		muted: isMutedForTimeline,
+	});
+
+	const metadata = useMemo<CommittedMetadata | null>(
+		() =>
+			isStudio || automaticOutlineRef || registration !== null
+				? {
+						type: 'sequence',
+						id: timelineId,
+						value: registration,
+						outlineChildrenRef: automaticOutlineRef,
+					}
+				: null,
+		[automaticOutlineRef, isStudio, registration, timelineId],
+	);
+	return (
+		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
+			<SequenceContent>
+				<VideoForPreviewContent
+					{...props}
+					ref={ref}
+					timelineId={timelineId}
+					userPreferredVolume={userPreferredVolume}
+					isMutedForPlayback={isMutedForPlayback}
+				/>
+			</SequenceContent>
+		</CommittedMetadataProvider>
+	);
+};
+
+export const VideoForPreview = forwardRef(VideoForPreviewRefForwardingFunction);

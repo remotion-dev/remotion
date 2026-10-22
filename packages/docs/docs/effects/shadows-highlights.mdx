@@ -1,0 +1,67 @@
+---
+image: /generated/articles-docs-effects-shadows-highlights.png
+slug: /effects/shadows-highlights
+title: shadowsHighlights()
+sidebar_label: shadowsHighlights()
+crumb: '@remotion/effects'
+---
+
+# shadowsHighlights()<AvailableFrom v="4.0.508" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adjusts dark and bright tonal regions independently while preserving hue.
+
+## Preview
+
+<EffectsDemo type="effects-shadows-highlights" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {shadowsHighlights} from '@remotion/effects/shadows-highlights';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        shadowsHighlights({
+          shadows: 0.2,
+          highlights: -0.15,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+You can call `shadowsHighlights()` without arguments or pass an object with the following properties.
+
+### `shadows?`
+
+The shadow adjustment from `-1` to `1`. Positive values lift dark regions by up to one stop, and negative values suppress them. Defaults to `0`.
+
+### `highlights?`
+
+The highlight adjustment from `-1` to `1`. Positive values brighten light regions by up to one stop, and negative values recover them. Defaults to `0`.
+
+The effect uses overlapping smooth tonal weights derived from unpremultiplied sRGB luminance. It applies the resulting exposure gain in linear light, without a spatial filter that could create halos.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`exposure()`](/docs/effects/exposure)
+- [`levels()`](/docs/effects/levels)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/shadows-highlights.ts)

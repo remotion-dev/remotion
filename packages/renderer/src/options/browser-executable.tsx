@@ -7,6 +7,7 @@ const cliFlag = 'browser-executable' as const;
 
 export const browserExecutableOption = {
 	name: 'Browser executable',
+	addedIn: '1.5.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -18,7 +19,7 @@ export const browserExecutableOption = {
 		</>
 	),
 	ssrName: 'browserExecutable' as const,
-	docLink: 'https://www.remotion.dev/docs/config#setbrowserexecutable',
+	docLink: 'https://www.remotion.dev/docs/options/browser-executable',
 	type: null as BrowserExecutable,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

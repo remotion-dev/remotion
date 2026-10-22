@@ -28,7 +28,7 @@ void main() {
 	float r = dist / max(uRadius, 0.0001);
 
 	if (r > 1.0 || uFieldOfView <= 0.0001) {
-		fragColor = vec4(0.0);
+		fragColor = texture(uSource, vUv);
 		return;
 	}
 

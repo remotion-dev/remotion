@@ -1,11 +1,13 @@
 import type {AnyRemotionOption} from './option';
 
 let askAIEnabled = true;
+let configuredAskAIEnabled: boolean | null = null;
 
 const cliFlag = 'disable-ask-ai' as const;
 
 export const askAIOption = {
 	name: 'Disable or Enable the Ask AI option',
+	addedIn: '4.0.407',
 	cliFlag,
 	description: () => (
 		<>
@@ -14,7 +16,7 @@ export const askAIOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setaskaienabled',
+	docLink: 'https://www.remotion.dev/docs/options/disable-ask-ai',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
@@ -32,6 +34,12 @@ export const askAIOption = {
 	},
 	setConfig(value) {
 		askAIEnabled = value;
+		configuredAskAIEnabled = value;
+	},
+	getConfigValue: () => configuredAskAIEnabled,
+	reset: () => {
+		askAIEnabled = true;
+		configuredAskAIEnabled = null;
 	},
 	id: cliFlag,
 } satisfies AnyRemotionOption<boolean>;

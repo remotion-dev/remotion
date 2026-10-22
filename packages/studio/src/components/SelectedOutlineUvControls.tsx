@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, SELECTED_OUTLINE_UV_DROP_SHADOW, WHITE} from '../helpers/colors';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {startPointerSession} from '../helpers/pointer-session';
+import {startCapturedPointerSession} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {
 	forceSpecificCursor,
@@ -43,6 +43,10 @@ import {
 	type UvCoordinate,
 } from './selected-outline-uv';
 import {callAddEffectKeyframe} from './Timeline/call-add-keyframe';
+import {
+	resolveKeyframeSourceFrame,
+	type KeyframeSourceFrame,
+} from './Timeline/get-timeline-keyframes';
 import {saveEffectProp} from './Timeline/save-effect-prop';
 import type {
 	TimelineSelection,
@@ -193,7 +197,7 @@ const saveNumericEffectField = ({
 	readonly setPropStatuses: React.ContextType<
 		typeof Internals.VisualModeSettersContext
 	>['setPropStatuses'];
-	readonly sourceFrame: number;
+	readonly sourceFrame: KeyframeSourceFrame;
 }): void => {
 	const defaultValue = fieldDefaultToString(field.fieldDefault);
 	if (
@@ -213,7 +217,7 @@ const saveNumericEffectField = ({
 				nodePath,
 				effectIndex,
 				fieldKey: field.fieldKey,
-				sourceFrame,
+				sourceFrame: resolveKeyframeSourceFrame(sourceFrame, field.propStatus),
 				value: lastValue,
 				schema,
 				setPropStatuses,
@@ -355,7 +359,10 @@ const SelectedUvEllipseStartHandle: React.FC<{
 					field.propStatus.status === 'keyframed'
 						? Internals.makeKeyframedDragOverride({
 								status: field.propStatus,
-								frame: control.handle.sourceFrame,
+								frame: resolveKeyframeSourceFrame(
+									control.handle.sourceFrame,
+									field.propStatus,
+								),
 								value: nextValue,
 							})
 						: Internals.makeStaticDragOverride(nextValue),
@@ -398,9 +405,9 @@ const SelectedUvEllipseStartHandle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -501,7 +508,10 @@ const SelectedUvEllipseResizeHandle: React.FC<{
 					field.propStatus.status === 'keyframed'
 						? Internals.makeKeyframedDragOverride({
 								status: field.propStatus,
-								frame: control.handle.sourceFrame,
+								frame: resolveKeyframeSourceFrame(
+									control.handle.sourceFrame,
+									field.propStatus,
+								),
 								value: nextValue,
 							})
 						: Internals.makeStaticDragOverride(nextValue),
@@ -544,9 +554,9 @@ const SelectedUvEllipseResizeHandle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -693,7 +703,10 @@ const SelectedUvEllipseRotationHandle: React.FC<{
 					field.propStatus.status === 'keyframed'
 						? Internals.makeKeyframedDragOverride({
 								status: field.propStatus,
-								frame: control.handle.sourceFrame,
+								frame: resolveKeyframeSourceFrame(
+									control.handle.sourceFrame,
+									field.propStatus,
+								),
 								value: nextValue,
 							})
 						: Internals.makeStaticDragOverride(nextValue),
@@ -763,9 +776,9 @@ const SelectedUvEllipseRotationHandle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -914,7 +927,10 @@ const SelectedUvHandleCircle: React.FC<{
 					handle.propStatus.status === 'keyframed'
 						? Internals.makeKeyframedDragOverride({
 								status: handle.propStatus,
-								frame: handle.sourceFrame,
+								frame: resolveKeyframeSourceFrame(
+									handle.sourceFrame,
+									handle.propStatus,
+								),
 								value: nextValue,
 							})
 						: Internals.makeStaticDragOverride(nextValue),
@@ -979,7 +995,10 @@ const SelectedUvHandleCircle: React.FC<{
 							nodePath: handle.nodePath,
 							effectIndex: handle.effectIndex,
 							fieldKey: handle.fieldKey,
-							sourceFrame: handle.sourceFrame,
+							sourceFrame: resolveKeyframeSourceFrame(
+								handle.sourceFrame,
+								handle.propStatus,
+							),
 							value: lastValue,
 							schema: handle.schema,
 							setPropStatuses,
@@ -1002,9 +1021,9 @@ const SelectedUvHandleCircle: React.FC<{
 				});
 			};
 
-			startPointerSession({
+			startCapturedPointerSession({
 				event,
-				target: event.currentTarget,
+				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
 				onEnd: onPointerUp,
 			});
@@ -1074,7 +1093,11 @@ const useSelectedOutlineUvTarget = (
 				nodePath: layoutTarget.nodePathInfo.sequenceSubscriptionKey,
 				selectedEffects: selectedEffectsBySequenceKey.get(layoutTarget.key),
 				sequence: layoutTarget.sequence,
-				sourceFrame: timelinePosition - layoutTarget.keyframeDisplayOffset,
+				sourceFrame: {
+					displayFrame: timelinePosition,
+					keyframeDisplayOffset: layoutTarget.keyframeDisplayOffset,
+					keyframePlaybackRate: layoutTarget.keyframePlaybackRate,
+				},
 			}),
 		};
 	}, [

@@ -1,11 +1,13 @@
 import {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
-	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	getHtmlInCanvasUnsupportedMessage,
 	HtmlInCanvas,
 	Internals,
 	useDelayRender,
+	useRemotionEnvironment,
 	type EffectsProp,
+	type EffectsOutputSize,
 } from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
@@ -13,7 +15,7 @@ import type {
 	TransitionPresentationComponentProps,
 } from './types';
 
-export const HtmlInCanvasPresentation = <
+const HtmlInCanvasPresentationWithSupport = <
 	TPassedProps extends Record<string, unknown>,
 >({
 	children,
@@ -23,16 +25,14 @@ export const HtmlInCanvasPresentation = <
 	presentationDirection,
 	shader,
 	effects,
+	effectsOutputSize,
 	passedProps,
 	bothEnteringAndExiting,
 }: TransitionPresentationComponentProps<TPassedProps> & {
 	readonly shader: HtmlInCanvasShader<TPassedProps>;
-	readonly effects?: EffectsProp;
+	readonly effects: EffectsProp | null;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 }) => {
-	if (!HtmlInCanvas.isSupported()) {
-		throw new Error(HTML_IN_CANVAS_UNSUPPORTED_MESSAGE);
-	}
-
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
@@ -71,6 +71,7 @@ export const HtmlInCanvasPresentation = <
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: null,
+		videoConfigValues: null,
 	});
 
 	const effectsRef = useRef(memoizedEffects);
@@ -102,8 +103,8 @@ export const HtmlInCanvasPresentation = <
 		};
 	}, [instance]);
 
-	const chainState = Internals.useEffectChainState();
-	const {delayRender, continueRender} = useDelayRender();
+	const chainState = Internals.useEffectChainState(effectsOutputSize);
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
 		async (prevImage, nextImage, progress) => {
@@ -113,55 +114,66 @@ export const HtmlInCanvasPresentation = <
 			}
 
 			const handle = delayRender('onPaint');
-			const clearOutput = () => {
-				const context = outputCanvas.getContext('2d');
-				if (!context) {
-					throw new Error('Failed to create output canvas context');
+			try {
+				const clearOutput = () => {
+					const context = outputCanvas.getContext('2d');
+					if (!context) {
+						throw new Error('Failed to create output canvas context');
+					}
+
+					context.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+				};
+
+				if (!prevImage && !nextImage) {
+					instance.clear();
+					clearOutput();
+					continueRender(handle);
+					return;
 				}
 
-				context.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
-			};
+				const width = prevImage?.width ?? nextImage?.width ?? 0;
+				const height = prevImage?.height ?? nextImage?.height ?? 0;
 
-			if (!prevImage && !nextImage) {
-				instance.clear();
-				clearOutput();
+				if (width === 0 || height === 0) {
+					instance.clear();
+					clearOutput();
+					continueRender(handle);
+					return;
+				}
+
+				shaderCanvas.width = width;
+				shaderCanvas.height = height;
+
+				instance.draw({
+					prevImage,
+					nextImage,
+					width,
+					height,
+					time: progress,
+					passedProps: passedPropsRef.current,
+				});
+
+				await Internals.runEffectChain({
+					state: chainState.get(width, height)!,
+					source: shaderCanvas,
+					effects: effectsRef.current ?? [],
+					width,
+					height,
+					output: outputCanvas,
+				});
 				continueRender(handle);
-				return;
+			} catch (error) {
+				cancelRender(error);
 			}
-
-			const width = prevImage?.width ?? nextImage?.width ?? 0;
-			const height = prevImage?.height ?? nextImage?.height ?? 0;
-
-			if (width === 0 || height === 0) {
-				instance.clear();
-				clearOutput();
-				continueRender(handle);
-				return;
-			}
-
-			shaderCanvas.width = width;
-			shaderCanvas.height = height;
-
-			instance.draw({
-				prevImage,
-				nextImage,
-				width,
-				height,
-				time: progress,
-				passedProps: passedPropsRef.current,
-			});
-
-			await Internals.runEffectChain({
-				state: chainState.get(width, height)!,
-				source: shaderCanvas,
-				effects: effectsRef.current ?? [],
-				width,
-				height,
-				output: outputCanvas,
-			});
-			continueRender(handle);
 		},
-		[chainState, continueRender, delayRender, instance, shaderCanvas],
+		[
+			cancelRender,
+			chainState,
+			continueRender,
+			delayRender,
+			instance,
+			shaderCanvas,
+		],
 	);
 
 	const passThrough =
@@ -174,13 +186,35 @@ export const HtmlInCanvasPresentation = <
 
 		const canvas = canvasRef.current;
 		if (!canvas) {
+			return;
+		}
+
+		if (canvas.getAttribute('content') !== 'drawable') {
+			canvas.setAttribute('content', 'drawable');
+		}
+
+		if (canvas.layoutSubtree !== true) {
+			canvas.layoutSubtree = true;
+		}
+
+		const firstChild = canvas.firstElementChild;
+		if (firstChild && !firstChild.hasAttribute('drawable')) {
+			firstChild.setAttribute('drawable', '');
+		}
+	});
+
+	useLayoutEffect(() => {
+		if (passThrough) {
+			return;
+		}
+
+		const canvas = canvasRef.current;
+		if (!canvas) {
 			throw new Error('Canvas not found');
 		}
 
-		canvas.layoutSubtree = true;
-
 		const onPaint = () => {
-			const firstChild = canvas.firstChild as HTMLElement;
+			const firstChild = canvas.firstElementChild;
 			const captureCanvas = captureCanvasRef.current;
 			const captureContext = captureContextRef.current;
 
@@ -217,7 +251,7 @@ export const HtmlInCanvasPresentation = <
 		}
 
 		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough, memoizedEffects]);
+	}, [presentationProgress, passThrough, memoizedEffects, chainState]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -267,13 +301,49 @@ export const HtmlInCanvasPresentation = <
 	}
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill showInTimeline={false}>
 			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
 				{children}
 			</canvas>
 			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>
 	);
+};
+
+export const HtmlInCanvasPresentation = <
+	TPassedProps extends Record<string, unknown>,
+>(
+	props: TransitionPresentationComponentProps<TPassedProps> & {
+		readonly shader: HtmlInCanvasShader<TPassedProps>;
+		readonly effects: EffectsProp | null;
+		readonly effectsOutputSize: EffectsOutputSize | null;
+	},
+) => {
+	const {isRendering} = useRemotionEnvironment();
+	if (!HtmlInCanvas.isSupported()) {
+		if (isRendering) {
+			throw new Error(getHtmlInCanvasUnsupportedMessage());
+		}
+
+		const visible =
+			props.presentationDirection === 'entering'
+				? props.presentationProgress >= 0.5
+				: props.presentationProgress < 0.5;
+		return (
+			<Internals.HtmlInCanvasFallback
+				label="Transition is not visible"
+				style={{
+					position: 'absolute',
+					inset: 0,
+					visibility: visible ? 'visible' : 'hidden',
+				}}
+			>
+				{props.children}
+			</Internals.HtmlInCanvasFallback>
+		);
+	}
+
+	return <HtmlInCanvasPresentationWithSupport {...props} />;
 };
 
 export type HtmlInCanvasShaderDrawParams<Props> = {
@@ -300,17 +370,21 @@ export const makeHtmlInCanvasPresentation = <
 >(
 	shader: HtmlInCanvasShader<TPassedProps>,
 ) => {
-	type AugmentedProps = TPassedProps & {effects?: EffectsProp};
+	type AugmentedProps = TPassedProps & {
+		effects?: EffectsProp;
+		effectsOutputSize?: EffectsOutputSize;
+	};
 	const CompWithShader: React.FC<
 		TransitionPresentationComponentProps<AugmentedProps>
 	> = (props) => {
 		const {passedProps, ...otherProps} = props;
-		const {effects, ...restPassedProps} = props.passedProps;
+		const {effects, effectsOutputSize, ...restPassedProps} = props.passedProps;
 		return (
 			<HtmlInCanvasPresentation
 				shader={shader}
 				passedProps={restPassedProps as TPassedProps}
-				effects={effects}
+				effects={effects ?? null}
+				effectsOutputSize={effectsOutputSize ?? null}
 				{...otherProps}
 			/>
 		);

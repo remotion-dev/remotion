@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import type {File} from '@babel/types';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	SaveMultipleEffectPropsEdit,
@@ -15,7 +16,10 @@ import {
 } from '../../codemods/update-effect-props/update-effect-props';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
-import {getVideoConfigIdentifierValues} from '../../helpers/video-config-values';
+import {
+	getVideoConfigIdentifiers,
+	resolveVideoConfigIdentifierValues,
+} from '../../helpers/video-config-values';
 import type {ApiHandler} from '../api-types';
 import {
 	printUndoHint,
@@ -150,7 +154,10 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 		}
 
 		pushTransactionToUndoStack({
-			snapshots,
+			snapshots: snapshots.map((snapshot) => ({
+				...snapshot,
+				nodePathRemappings: null,
+			})),
 			logLevel,
 			remotionRoot,
 			description: {
@@ -159,12 +166,18 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 			},
 			entryType: 'effect-props',
 			suppressHmrOnFileRestore: true,
+			undoRedoNavigation: null,
 		});
 
 		for (const [absolutePath, output] of outputByPath) {
 			suppressUndoStackInvalidation(absolutePath);
 			suppressBundlerUpdateForFile(absolutePath);
-			writeFileAndNotifyFileWatchers(absolutePath, output, clientId);
+			writeFileAndNotifyFileWatchers({
+				file: absolutePath,
+				content: output,
+				originatorClientId: clientId,
+				metadata: null,
+			});
 		}
 
 		for (const index of edits.keys()) {
@@ -202,6 +215,12 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 				]),
 			).values(),
 		];
+		const statusAsts = new Map<string, File>();
+		// Share binding analysis, but resolve each target's video configuration below.
+		const statusIdentifiers = new Map<
+			string,
+			ReturnType<typeof getVideoConfigIdentifiers>
+		>();
 		const results: SaveMultipleEffectPropsResult[] = statusTargets.map(
 			(edit) => {
 				const {absolutePath} = resolveFileInsideProject({
@@ -214,27 +233,42 @@ export const saveMultipleEffectPropsHandler: ApiHandler<
 					throw new Error('Could not compute effect prop edit status');
 				}
 
-				const ast = parseAst(output);
+				let ast = statusAsts.get(absolutePath);
+				if (!ast) {
+					ast = parseAst(output);
+					statusAsts.set(absolutePath, ast);
+				}
+
 				const jsx = findJsxElementAtNodePath(
 					ast,
 					edit.sequenceNodePath.nodePath,
 				);
-				const status = jsx
-					? computeEffectPropStatus({
-							ast,
-							jsx,
-							effectIndex: edit.effectIndex,
-							keys: getAllSchemaKeys(edit.schema),
-							videoConfigValues: getVideoConfigIdentifierValues({
-								ast,
-								videoConfigValues: edit.sequenceNodePath.videoConfigValues,
-							}),
-						})
-					: {
-							canUpdate: false as const,
-							effectIndex: edit.effectIndex,
-							reason: 'not-found' as const,
-						};
+				let status: SaveMultipleEffectPropsResult['status'];
+				if (jsx) {
+					const keys = getAllSchemaKeys(edit.schema);
+					let identifiers = statusIdentifiers.get(absolutePath);
+					if (!identifiers) {
+						identifiers = getVideoConfigIdentifiers({ast});
+						statusIdentifiers.set(absolutePath, identifiers);
+					}
+
+					status = computeEffectPropStatus({
+						ast,
+						jsx,
+						effectIndex: edit.effectIndex,
+						keys,
+						videoConfigValues: resolveVideoConfigIdentifierValues({
+							identifiers,
+							videoConfigValues: edit.sequenceNodePath.videoConfigValues,
+						}),
+					});
+				} else {
+					status = {
+						canUpdate: false,
+						effectIndex: edit.effectIndex,
+						reason: 'not-found',
+					};
+				}
 
 				return {
 					fileName: edit.fileName,

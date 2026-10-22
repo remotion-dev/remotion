@@ -283,17 +283,23 @@ const runPackageManagerCommand = async ({
 		stdio: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')
 			? 'inherit'
 			: 'ignore',
+		...StudioServerInternals.getPackageManagerSpawnOptions(),
 	});
 
-	await new Promise<void>((resolve) => {
+	await new Promise<void>((resolve, reject) => {
+		task.on('error', (err) => {
+			reject(err);
+		});
 		task.on('close', (code) => {
 			if (code === 0) {
 				resolve();
 			} else if (RenderInternals.isEqualOrBelowLogLevel(logLevel, 'info')) {
-				throw new Error('Failed to upgrade Remotion, see logs above');
+				reject(new Error('Failed to upgrade Remotion, see logs above'));
 			} else {
-				throw new Error(
-					'Failed to upgrade Remotion, run with --log=info info to see logs',
+				reject(
+					new Error(
+						'Failed to upgrade Remotion, run with --log=info info to see logs',
+					),
 				);
 			}
 		});

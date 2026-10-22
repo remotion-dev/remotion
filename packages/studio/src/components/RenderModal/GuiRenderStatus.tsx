@@ -5,7 +5,8 @@ import type {
 	StitchingProgressInput,
 } from '@remotion/studio-shared';
 import React, {useCallback, useMemo} from 'react';
-import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {openInFileExplorer} from '../RenderQueue/actions';
 import {CircularProgress} from '../RenderQueue/CircularProgress';
@@ -52,27 +53,62 @@ const BundlingProgress: React.FC<{
 	);
 };
 
+const failIconStyle: React.CSSProperties = {
+	width: 16,
+	height: 16,
+};
+
+const FailIcon: React.FC = () => {
+	return (
+		<svg style={failIconStyle} viewBox="0 0 512 512">
+			<path
+				fill={FAIL_COLOR}
+				d="M0 160V352L160 512H352L512 352V160L352 0H160L0 160zm353.9 32l-17 17-47 47 47 47 17 17L320 353.9l-17-17-47-47-47 47-17 17L158.1 320l17-17 47-47-47-47-17-17L192 158.1l17 17 47 47 47-47 17-17L353.9 192z"
+			/>
+		</svg>
+	);
+};
+
 const BrowserSetupProgress: React.FC<{
 	readonly progress: number;
 	readonly doneIn: number | null;
 	readonly alreadyAvailable: boolean;
+	readonly error?: boolean;
 	readonly startedBundling: boolean;
 	//	to ensure it only shows already available if we have moved to the next step
-}> = ({progress, doneIn, startedBundling, alreadyAvailable}) => {
+}> = ({progress, doneIn, startedBundling, alreadyAvailable, error}) => {
+	if (error) {
+		return (
+			<div style={progressItem}>
+				<FailIcon />
+				<Spacing x={1} />
+				<div style={label}>Failed to download Headless Shell</div>
+			</div>
+		);
+	}
+
+	// Before the first download callback or the bundling phase, we don't know
+	// yet whether the browser is available - don't show a success state.
+	const stillChecking = alreadyAvailable && progress === 0 && !startedBundling;
+
 	return (
 		<div style={progressItem}>
-			{progress === 1 || alreadyAvailable ? (
+			{stillChecking ? (
+				<CircularProgress progress={0} />
+			) : progress === 1 || alreadyAvailable ? (
 				<SuccessIcon />
 			) : (
 				<CircularProgress progress={progress} />
 			)}
 			<Spacing x={1} />
 			<div style={label}>
-				{alreadyAvailable && startedBundling
-					? 'Headless browser already available'
-					: progress === 1
-						? 'Downloaded Headless Shell'
-						: `Downloading Headless Shell ${Math.round(progress * 100)}%`}
+				{stillChecking
+					? 'Checking for Headless Shell'
+					: alreadyAvailable && startedBundling
+						? 'Headless browser already available'
+						: progress === 1
+							? 'Downloaded Headless Shell'
+							: `Downloading Headless Shell ${Math.round(progress * 100)}%`}
 			</div>
 			{doneIn ? <div style={right}>{doneIn}ms</div> : null}
 		</div>
@@ -154,6 +190,7 @@ const DownloadsProgress: React.FC<{
 const OpenFile: React.FC<{
 	readonly job: RenderJob;
 }> = ({job}) => {
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const labelStyle = useMemo(() => {
 		return {
 			...label,
@@ -174,9 +211,13 @@ const OpenFile: React.FC<{
 		<div style={progressItem}>
 			<SuccessIcon />
 			<Spacing x={1} />
-			<button style={labelStyle} type="button" onClick={onClick}>
-				{job.outName}
-			</button>
+			{isBrowserStudio ? (
+				<div style={labelStyle}>{job.outName}</div>
+			) : (
+				<button style={labelStyle} type="button" onClick={onClick}>
+					{job.outName}
+				</button>
+			)}
 			<div style={right}>
 				<RenderQueueOpenInFinderItem job={job} />
 			</div>

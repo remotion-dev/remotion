@@ -1,4 +1,4 @@
-import {isRecord} from './validation';
+import * as z from 'zod/mini';
 
 export type StudioProtocolTarget = {
 	readonly id: string;
@@ -6,8 +6,15 @@ export type StudioProtocolTarget = {
 	readonly lastFocusedAt: number;
 };
 
-export type StudioProtocolInstallTarget = StudioProtocolTarget & {
-	readonly compositionId: string;
+export type StudioProtocolInstallTarget = Omit<
+	StudioProtocolTarget,
+	'lastFocusedAt'
+> & {
+	readonly lastFocusedAt: number | null;
+	/**
+	 * @deprecated The installation destination is chosen in Studio. Use the opaque target id to request installation instead.
+	 */
+	readonly compositionId: string | null;
 };
 
 export type StudioProtocolInstallCapability = {
@@ -22,9 +29,15 @@ export type StudioProtocolSetLicenseKeyCapability = {
 	readonly target: StudioProtocolTarget | null;
 };
 
+export type StudioProtocolAddElementLibraryCapability = {
+	readonly type: 'add-element-library';
+	readonly target: StudioProtocolTarget | null;
+};
+
 export type StudioProtocolCapability =
 	| StudioProtocolInstallCapability
-	| StudioProtocolSetLicenseKeyCapability;
+	| StudioProtocolSetLicenseKeyCapability
+	| StudioProtocolAddElementLibraryCapability;
 
 export type StudioProtocolDescriptor = {
 	readonly protocol: 'remotion-studio-protocol';
@@ -48,8 +61,79 @@ export type StudioProtocolDiscoveryDependencies = {
 export const studioProtocolProbePorts = [
 	3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009,
 ];
-export const focusedStudioMaxAge = 5 * 60 * 1000;
+
 const requestTimeout = 2_000;
+
+const targetSchema = z.looseObject({
+	id: z.string().check(z.minLength(1)),
+	expiresAt: z.number(),
+	lastFocusedAt: z.number(),
+});
+
+const installTargetSchema = z.looseObject({
+	id: z.string().check(z.minLength(1)),
+	expiresAt: z.number(),
+	lastFocusedAt: z.nullable(z.number()),
+	compositionId: z.nullable(z.string().check(z.minLength(1))),
+});
+
+const installCapabilitySchema = z.looseObject({
+	type: z.literal('install-element'),
+	payloadType: z.literal('remotion-element'),
+	payloadVersions: z.array(z.number()),
+	target: z.nullable(installTargetSchema),
+});
+
+const setLicenseKeyCapabilitySchema = z.looseObject({
+	type: z.literal('set-license-key'),
+	target: z.nullable(targetSchema),
+});
+
+const addElementLibraryCapabilitySchema = z.looseObject({
+	type: z.literal('add-element-library'),
+	target: z.nullable(targetSchema),
+});
+
+const capabilitySchema = z.union([
+	installCapabilitySchema,
+	setLicenseKeyCapabilitySchema,
+	addElementLibraryCapabilitySchema,
+]);
+
+const descriptorEnvelopeSchema = z.looseObject({
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.literal(1),
+	studioVersion: z.string(),
+	projectName: z.nullable(z.string()),
+	capabilities: z.array(z.unknown()),
+});
+
+const descriptorSchema = z
+	.looseObject({
+		protocol: z.literal('remotion-studio-protocol'),
+		protocolVersion: z.literal(1),
+		studioVersion: z.string(),
+		projectName: z.nullable(z.string()),
+		capabilities: z.array(capabilitySchema),
+	})
+	.check(
+		z.refine((descriptor) => {
+			const capabilityTypes = descriptor.capabilities.map(
+				(capability) => capability.type,
+			);
+
+			return new Set(capabilityTypes).size === capabilityTypes.length;
+		}),
+	);
+
+const protocolEnvelopeSchema = z.looseObject({
+	protocol: z.literal('remotion-studio-protocol'),
+});
+
+const protocolVersionEnvelopeSchema = z.looseObject({
+	protocol: z.literal('remotion-studio-protocol'),
+	protocolVersion: z.unknown(),
+});
 
 export const fetchWithTimeout = async ({
 	fetchFn,
@@ -62,6 +146,7 @@ export const fetchWithTimeout = async ({
 }) => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), requestTimeout);
+
 	try {
 		return await fetchFn(url, {
 			...(options ?? {}),
@@ -72,72 +157,36 @@ export const fetchWithTimeout = async ({
 	}
 };
 
-const isNullableString = (value: unknown): value is string | null =>
-	value === null || typeof value === 'string';
-
-const isTarget = (value: unknown): value is StudioProtocolTarget =>
-	isRecord(value) &&
-	typeof value.id === 'string' &&
-	value.id.length > 0 &&
-	typeof value.expiresAt === 'number' &&
-	Number.isFinite(value.expiresAt) &&
-	typeof value.lastFocusedAt === 'number' &&
-	Number.isFinite(value.lastFocusedAt);
-
-const isInstallTarget = (
-	value: unknown,
-): value is StudioProtocolInstallTarget => {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	const {compositionId} = value;
-	return (
-		isTarget(value) &&
-		typeof compositionId === 'string' &&
-		compositionId.length > 0
-	);
-};
-
-const isCapability = (value: unknown): value is StudioProtocolCapability => {
-	if (!isRecord(value)) {
-		return false;
-	}
-
-	if (value.type === 'install-element') {
-		return (
-			value.payloadType === 'remotion-element' &&
-			Array.isArray(value.payloadVersions) &&
-			value.payloadVersions.every((version) => typeof version === 'number') &&
-			(value.target === null || isInstallTarget(value.target))
-		);
-	}
-
-	return (
-		value.type === 'set-license-key' &&
-		(value.target === null || isTarget(value.target))
-	);
-};
-
 export const isStudioProtocolDescriptor = (
 	value: unknown,
-): value is StudioProtocolDescriptor => {
-	if (
-		!isRecord(value) ||
-		value.protocol !== 'remotion-studio-protocol' ||
-		value.protocolVersion !== 1 ||
-		typeof value.studioVersion !== 'string' ||
-		!isNullableString(value.projectName) ||
-		!Array.isArray(value.capabilities) ||
-		!value.capabilities.every(isCapability)
-	) {
-		return false;
+): value is StudioProtocolDescriptor =>
+	z.safeParse(descriptorSchema, value).success;
+
+export const parseStudioProtocolDescriptor = (
+	value: unknown,
+): StudioProtocolDescriptor | null => {
+	const envelope = z.safeParse(descriptorEnvelopeSchema, value);
+
+	if (!envelope.success) {
+		return null;
 	}
 
-	const capabilityTypes = value.capabilities.map(
-		(capability) => capability.type,
-	);
-	return new Set(capabilityTypes).size === capabilityTypes.length;
+	const capabilities: StudioProtocolCapability[] = [];
+
+	for (const capability of envelope.data.capabilities) {
+		const parsedCapability = z.safeParse(capabilitySchema, capability);
+
+		if (parsedCapability.success) {
+			capabilities.push(parsedCapability.data);
+		}
+	}
+
+	const descriptor = z.safeParse(descriptorSchema, {
+		...envelope.data,
+		capabilities,
+	});
+
+	return descriptor.success ? descriptor.data : null;
 };
 
 export const getInstallCapability = (
@@ -156,6 +205,14 @@ export const getSetLicenseKeyCapability = (
 			capability.type === 'set-license-key',
 	) ?? null;
 
+export const getAddElementLibraryCapability = (
+	descriptor: StudioProtocolDescriptor,
+): StudioProtocolAddElementLibraryCapability | null =>
+	descriptor.capabilities.find(
+		(capability): capability is StudioProtocolAddElementLibraryCapability =>
+			capability.type === 'add-element-library',
+	) ?? null;
+
 export type DiscoveredStudio = {
 	readonly descriptor: StudioProtocolDescriptor;
 	readonly discoveredAt: number;
@@ -171,15 +228,16 @@ export const discoverStudios = async (
 }> => {
 	let foundUnsupportedProtocol = false;
 	let foundInvalidResponse = false;
+	const {fetchFn} = dependencies;
+
 	const studios = await Promise.all(
 		dependencies.ports.map(async (port): Promise<DiscoveredStudio | null> => {
 			const origin = `http://localhost:${port}`;
 			let response: Response;
+
 			try {
-				response = await fetchWithTimeout({
-					fetchFn: dependencies.fetchFn,
-					options: {cache: 'no-store'},
-					url: `${origin}/api/studio-protocol`,
+				response = await fetchFn(`${origin}/api/studio-protocol`, {
+					cache: 'no-store',
 				});
 			} catch {
 				return null;
@@ -190,29 +248,46 @@ export const discoverStudios = async (
 			}
 
 			let value: unknown;
+
 			try {
 				value = await response.json();
 			} catch {
-				foundInvalidResponse = true;
 				return null;
 			}
 
-			if (
-				isRecord(value) &&
-				value.protocol === 'remotion-studio-protocol' &&
-				value.protocolVersion !== 1
-			) {
+			const protocolEnvelope = z.safeParse(protocolEnvelopeSchema, value);
+
+			if (!protocolEnvelope.success) {
+				return null;
+			}
+
+			const protocolVersionEnvelope = z.safeParse(
+				protocolVersionEnvelopeSchema,
+				value,
+			);
+
+			if (!protocolVersionEnvelope.success) {
+				foundInvalidResponse = true;
+
+				return null;
+			}
+
+			if (protocolVersionEnvelope.data.protocolVersion !== 1) {
 				foundUnsupportedProtocol = true;
+
 				return null;
 			}
 
-			if (!isStudioProtocolDescriptor(value)) {
+			const descriptor = parseStudioProtocolDescriptor(value);
+
+			if (descriptor === null) {
 				foundInvalidResponse = true;
+
 				return null;
 			}
 
 			return {
-				descriptor: value,
+				descriptor,
 				discoveredAt: dependencies.now(),
 				origin,
 			};
@@ -228,30 +303,5 @@ export const discoverStudios = async (
 	};
 };
 
-export const hasLegacyStudio = async (
-	dependencies: StudioProtocolDiscoveryDependencies,
-): Promise<boolean> => {
-	const results = await Promise.all(
-		dependencies.ports.map(async (port) => {
-			try {
-				const response = await fetchWithTimeout({
-					fetchFn: dependencies.fetchFn,
-					options: {cache: 'no-store'},
-					url: `http://localhost:${port}/api/element-install-target`,
-				});
-				if (!response.ok) {
-					return false;
-				}
-
-				const value: unknown = await response.json();
-				return isRecord(value) && value.type === 'remotion-studio';
-			} catch {
-				return false;
-			}
-		}),
-	);
-	return results.some(Boolean);
-};
-
-export const isAbortError = (error: unknown): boolean =>
-	error instanceof Error && error.name === 'AbortError';
+export const isAbortError = (cause: unknown): boolean =>
+	cause instanceof Error && cause.name === 'AbortError';

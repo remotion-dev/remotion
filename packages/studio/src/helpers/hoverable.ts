@@ -1,5 +1,11 @@
 import type React from 'react';
-import {TRANSPARENT} from './colors';
+import {
+	BLACK_ALPHA_60,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_05,
+} from './colors';
 
 // Purely visual hover styling must be driven by CSS `:hover` rather than
 // React state: When the Studio runs in an <iframe> (like in Browser Studio),
@@ -7,15 +13,25 @@ import {TRANSPARENT} from './colors';
 // frame, which would leave a state-driven hover background stuck forever.
 // CSS `:hover` is maintained by the browser and self-corrects.
 // https://github.com/remotion-dev/remotion/issues/9886
+// For behavior that needs JavaScript (tooltips and delayed menus),
+// use observeHover so missed leave events are reconciled too.
 
 export const HOVERABLE_CLASS_NAME = '__remotion-hoverable';
 export const HOVER_GROUP_CLASS_NAME = '__remotion-hover-group';
 export const HOVER_GROUP_REVEAL_CLASS_NAME = '__remotion-hover-group-reveal';
+export const HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME =
+	'__remotion-hover-group-reveal-keep-space';
+export const FOCUS_VISIBLE_ONLY_CLASS_NAME = '__remotion-focus-visible-only';
+export const INPUT_HOVER_CLASS_NAME = '__remotion-input-hover';
 
-const BG_VARIABLE = '--remotion-hoverable-bg';
-const HOVER_BG_VARIABLE = '--remotion-hoverable-hover-bg';
-const COLOR_VARIABLE = '--remotion-hoverable-color';
-const HOVER_COLOR_VARIABLE = '--remotion-hoverable-hover-color';
+const BG_VARIABLE = '--remotion-studio-hoverable-bg';
+const HOVER_BG_VARIABLE = '--remotion-studio-hoverable-hover-bg';
+const COLOR_VARIABLE = '--remotion-studio-hoverable-color';
+const HOVER_COLOR_VARIABLE = '--remotion-studio-hoverable-hover-color';
+
+export const NO_HOVER_BACKGROUND_STYLE = {
+	[HOVER_BG_VARIABLE]: TRANSPARENT,
+} as React.CSSProperties;
 
 // To disable the hover effect (e.g. for a disabled control), pass the idle
 // values as the hover values.
@@ -47,6 +63,8 @@ export const hoverableStyle = ({
 const hoverable = `.${HOVERABLE_CLASS_NAME}.${HOVERABLE_CLASS_NAME}`;
 const hoverGroup = `.${HOVER_GROUP_CLASS_NAME}`;
 const reveal = `.${HOVER_GROUP_REVEAL_CLASS_NAME}.${HOVER_GROUP_REVEAL_CLASS_NAME}`;
+const revealKeepSpace = `.${HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME}.${HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME}`;
+const inputHover = `.${INPUT_HOVER_CLASS_NAME}`;
 
 export const makeHoverableCSS = () => `
   ${hoverable} {
@@ -58,25 +76,61 @@ export const makeHoverableCSS = () => `
     color: var(${COLOR_VARIABLE}, inherit);
   }
 
+  ${hoverGroup} ${reveal} {
+    flex-shrink: 0;
+  }
+
+  ${inputHover} {
+    --remotion-studio-input-hover-border: ${BLACK_ALPHA_60};
+    --remotion-studio-input-hover-icon: var(--remotion-studio-input-idle-icon, ${LIGHT_TEXT});
+  }
+
   @media (hover: hover) {
-    ${hoverable}:hover,
-    ${hoverGroup}:hover ${hoverable} {
+    ${inputHover}:hover {
+      --remotion-studio-input-hover-border: ${WHITE_ALPHA_05};
+      --remotion-studio-input-hover-icon: ${WHITE};
+    }
+
+    ${hoverable}:hover {
       background-color: var(${HOVER_BG_VARIABLE}, var(${BG_VARIABLE}, ${TRANSPARENT}));
     }
 
     ${hoverable}:hover,
-    ${hoverable}:hover *,
-    ${hoverGroup}:hover ${hoverable},
-    ${hoverGroup}:hover ${hoverable} * {
+    ${hoverable}:hover * {
       color: var(${HOVER_COLOR_VARIABLE}, var(${COLOR_VARIABLE}, inherit));
+    }
+
+    /* An outer hoverable must not put a nested inline action into its hover
+       state. The nested action should only use its hover color when the
+       pointer is over the action itself. */
+    ${hoverable}:hover ${hoverable}:not(:hover),
+    ${hoverable}:hover ${hoverable}:not(:hover) * {
+      color: var(${COLOR_VARIABLE}, inherit);
     }
 
     ${hoverGroup} ${reveal} {
       opacity: 0;
+      width: 0;
+      overflow: hidden;
     }
 
-    ${hoverGroup}:hover ${reveal} {
+    ${hoverGroup}:hover ${reveal},
+    ${hoverGroup}:has([aria-expanded="true"]) ${reveal} {
       opacity: 1;
+      width: auto;
+      overflow: visible;
+    }
+
+    ${hoverGroup} ${revealKeepSpace} {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    ${hoverGroup}:hover ${revealKeepSpace},
+    ${hoverGroup}:focus-within ${revealKeepSpace},
+    ${hoverGroup}:has([aria-expanded="true"]) ${revealKeepSpace} {
+      opacity: 1;
+      pointer-events: auto;
     }
   }
 `;

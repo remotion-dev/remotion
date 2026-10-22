@@ -1,7 +1,7 @@
 import React, {
-	useCallback,
 	useContext,
 	useLayoutEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -13,7 +13,7 @@ import type {
 	CanvasImageProps,
 } from './canvas-image/props.js';
 import type {SequenceControls} from './CompositionManager.js';
-import type {EffectsProp} from './effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
@@ -24,7 +24,7 @@ import type {
 } from './Interactive.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutPlaybackRate,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -33,6 +33,8 @@ import {
 	type InteractivitySchema,
 } from './interactivity-schema.js';
 import {usePreload} from './prefetch.js';
+import {resolveSequenceDuration} from './resolve-sequence-duration.js';
+import {SequenceContent} from './sequence-activity-context.js';
 import {Sequence} from './Sequence.js';
 import {SequenceContext} from './SequenceContext.js';
 import {truncateSrcForLabel} from './truncate-src-for-label.js';
@@ -62,11 +64,13 @@ export type ImgProps = NativeImgProps & {
 	readonly delayRenderRetries?: number;
 	readonly delayRenderTimeoutInMilliseconds?: number;
 	readonly onImageFrame?: (imageElement: HTMLImageElement) => void;
+	readonly onImageError?: (error: Error) => void;
 	readonly src: string;
 	readonly effects?: EffectsProp;
+	readonly effectsOutputSize?: EffectsOutputSize;
 	readonly showInTimeline?: boolean;
 	readonly name?: string;
-} & InteractiveBaseProps &
+} & Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractiveCropProps &
 	InteractivePremountProps;
 
@@ -82,9 +86,11 @@ type ImgContentProps = Omit<
 	| 'showInTimeline'
 	| 'from'
 	| 'trimBefore'
+	| 'loop'
 	| 'durationInFrames'
 	| 'freeze'
 	| 'effects'
+	| 'effectsOutputSize'
 	| 'premountFor'
 	| 'postmountFor'
 	| 'styleWhilePremounted'
@@ -93,12 +99,226 @@ type ImgContentProps = Omit<
 	| 'cropRight'
 	| 'cropTop'
 	| 'cropBottom'
-> & {
-	readonly refForOutline: React.RefObject<HTMLElement | null>;
+>;
+
+// Bind only the inputs each persistent callback needs. A render-scope closure
+// can otherwise keep replaced handlers alive, even when it never calls them.
+const setImageRef = (
+	imageRef: React.RefObject<HTMLImageElement | null>,
+	ref: React.Ref<HTMLImageElement> | null,
+	img: HTMLImageElement | null,
+) => {
+	imageRef.current = img;
+	if (typeof ref === 'function') {
+		ref(img);
+	} else if (ref) {
+		ref.current = img;
+	}
+};
+
+const retryImage = (
+	imageRef: React.RefObject<HTMLImageElement | null>,
+	timeout: number,
+) => {
+	if (!imageRef.current) {
+		return;
+	}
+
+	const currentSrc = imageRef.current.src;
+
+	setTimeout(() => {
+		if (!imageRef.current) {
+			// Component has been unmounted, do not retry
+			return;
+		}
+
+		const newSrc = imageRef.current?.src;
+		if (newSrc !== currentSrc) {
+			// src has changed, do not retry
+			return;
+		}
+
+		imageRef.current.removeAttribute('src');
+		imageRef.current.setAttribute('src', newSrc);
+	}, timeout);
+};
+
+const handleImageError = (
+	{
+		errors,
+		imageRef,
+		onError,
+		onImageError,
+		maxRetries,
+		cancelRender,
+		retryIn,
+	}: {
+		errors: React.RefObject<Record<string, number>>;
+		imageRef: React.RefObject<HTMLImageElement | null>;
+		onError: NonNullable<ImgProps['onError']> | null;
+		onImageError: NonNullable<ImgProps['onImageError']> | null;
+		maxRetries: number;
+		cancelRender: ReturnType<typeof useDelayRender>['cancelRender'];
+		retryIn: (timeout: number) => void;
+	},
+	e: React.SyntheticEvent<HTMLImageElement, Event>,
+) => {
+	if (!errors.current) {
+		return;
+	}
+
+	errors.current[imageRef.current?.src as string] =
+		(errors.current[imageRef.current?.src as string] ?? 0) + 1;
+	if (
+		(onError || onImageError) &&
+		(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
+	) {
+		onError?.(e);
+		onImageError?.(
+			new Error(
+				'Error loading image with src: ' +
+					truncateSrcForLabel(imageRef.current?.src as string),
+			),
+		);
+		return;
+	}
+
+	if ((errors.current[imageRef.current?.src as string] ?? 0) <= maxRetries) {
+		const backoff = exponentialBackoff(
+			errors.current[imageRef.current?.src as string] ?? 0,
+		);
+		// eslint-disable-next-line no-console
+		console.warn(
+			`Could not load image with source ${truncateSrcForLabel(
+				imageRef.current?.src as string,
+			)}, retrying again in ${backoff}ms`,
+		);
+
+		retryIn(backoff);
+		return;
+	}
+
+	try {
+		cancelRender(
+			'Error loading image with src: ' +
+				truncateSrcForLabel(imageRef.current?.src as string),
+		);
+	} catch {
+		// cancelRender() intentionally throws after storing the error in scope.
+		// In async image callbacks, we rely on the stored error for renderer propagation.
+	}
+};
+
+// Keep the loading cleanup outside the render scope too: it can outlive many
+// handler replacements while the source and onImageFrame stay unchanged.
+const loadImage = ({
+	imageRef,
+	errors,
+	actualSrc,
+	delayRenderRetries,
+	delayRenderTimeoutInMilliseconds,
+	onImageFrame,
+	delayRender,
+	continueRender,
+	setIsLoading,
+}: {
+	imageRef: React.RefObject<HTMLImageElement | null>;
+	errors: React.RefObject<Record<string, number>>;
+	actualSrc: string;
+	delayRenderRetries: number | null;
+	delayRenderTimeoutInMilliseconds: number | null;
+	onImageFrame: NonNullable<ImgProps['onImageFrame']> | null;
+	delayRender: ReturnType<typeof useDelayRender>['delayRender'];
+	continueRender: ReturnType<typeof useDelayRender>['continueRender'];
+	setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+	if (window.process?.env?.NODE_ENV === 'test') {
+		if (imageRef.current) {
+			imageRef.current.src = actualSrc;
+		}
+
+		return;
+	}
+
+	const {current} = imageRef;
+	if (!current) {
+		return;
+	}
+
+	setIsLoading(true);
+	const newHandle = delayRender(
+		'Loading <Img> with src=' + truncateSrcForLabel(actualSrc),
+		{
+			retries: delayRenderRetries ?? undefined,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+		},
+	);
+
+	let unmounted = false;
+
+	const onComplete = () => {
+		// the decode() promise isn't cancelable -- it may still resolve after unmounting
+		if (unmounted) {
+			continueRender(newHandle);
+			return;
+		}
+
+		if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
+			delete errors.current[imageRef.current?.src as string];
+			// eslint-disable-next-line no-console
+			console.info(
+				`Retry successful - ${truncateSrcForLabel(
+					imageRef.current?.src as string,
+				)} is now loaded`,
+			);
+		}
+
+		if (current) {
+			onImageFrame?.(current);
+		}
+
+		setIsLoading(false);
+		continueRender(newHandle);
+	};
+
+	if (!imageRef.current) {
+		onComplete();
+		return;
+	}
+
+	current.src = actualSrc;
+	current
+		.decode()
+		.then(onComplete)
+		.catch((err) => {
+			// fall back to onload event if decode() fails
+			// eslint-disable-next-line no-console
+			console.warn(err);
+
+			// HTMLImageElement.complete is also true for broken images (e.g. 404),
+			// so only treat it as loaded if intrinsic dimensions are available.
+			if (
+				current.complete &&
+				current.naturalWidth > 0 &&
+				current.naturalHeight > 0
+			) {
+				onComplete();
+			} else {
+				current.addEventListener('load', onComplete);
+			}
+		});
+
+	// If tag gets unmounted, clear pending handles because image is not going to load
+	return () => {
+		unmounted = true;
+		current.removeEventListener('load', onComplete);
+		continueRender(newHandle);
+	};
 };
 
 const ImgContent: React.FC<ImgContentProps> = ({
 	onError,
+	onImageError,
 	maxRetries = 2,
 	src,
 	pauseWhenLoading,
@@ -108,7 +328,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	crossOrigin,
 	decoding,
 	ref,
-	refForOutline,
 	...props
 }) => {
 	const imageRef = useRef<HTMLImageElement>(null);
@@ -123,94 +342,31 @@ const ImgContent: React.FC<ImgContentProps> = ({
 		throw new Error('typecheck error');
 	}
 
-	const imageCallbackRef = useCallback(
-		(img: HTMLImageElement | null) => {
-			imageRef.current = img;
-			refForOutline.current = img;
-
-			if (typeof ref === 'function') {
-				ref(img);
-			} else if (ref) {
-				ref.current = img;
-			}
-		},
-		[ref, refForOutline],
+	const imageCallbackRef = useMemo(
+		() => setImageRef.bind(null, imageRef, ref ?? null),
+		[ref],
 	);
 
 	const actualSrc = usePreload(src as string);
 
-	const retryIn = useCallback((timeout: number) => {
-		if (!imageRef.current) {
-			return;
-		}
-
-		const currentSrc = imageRef.current.src;
-
-		setTimeout(() => {
-			if (!imageRef.current) {
-				// Component has been unmounted, do not retry
-				return;
-			}
-
-			const newSrc = imageRef.current?.src;
-			if (newSrc !== currentSrc) {
-				// src has changed, do not retry
-				return;
-			}
-
-			imageRef.current.removeAttribute('src');
-			imageRef.current.setAttribute('src', newSrc);
-		}, timeout);
-	}, []);
+	const retryIn = useMemo(() => retryImage.bind(null, imageRef), []);
 
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const isPremounting = Boolean(sequenceContext?.premounting);
 	const isPostmounting = Boolean(sequenceContext?.postmounting);
 
-	const didGetError = useCallback(
-		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			if (!errors.current) {
-				return;
-			}
-
-			errors.current[imageRef.current?.src as string] =
-				(errors.current[imageRef.current?.src as string] ?? 0) + 1;
-			if (
-				onError &&
-				(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
-			) {
-				onError(e);
-				return;
-			}
-
-			if (
-				(errors.current[imageRef.current?.src as string] ?? 0) <= maxRetries
-			) {
-				const backoff = exponentialBackoff(
-					errors.current[imageRef.current?.src as string] ?? 0,
-				);
-				// eslint-disable-next-line no-console
-				console.warn(
-					`Could not load image with source ${truncateSrcForLabel(
-						imageRef.current?.src as string,
-					)}, retrying again in ${backoff}ms`,
-				);
-
-				retryIn(backoff);
-				return;
-			}
-
-			try {
-				cancelRender(
-					'Error loading image with src: ' +
-						truncateSrcForLabel(imageRef.current?.src as string),
-				);
-			} catch {
-				// cancelRender() intentionally throws after storing the error in scope.
-				// In async image callbacks, we rely on the stored error for renderer propagation.
-			}
-		},
-		[cancelRender, maxRetries, onError, retryIn],
+	const didGetError = useMemo(
+		() =>
+			handleImageError.bind(null, {
+				errors,
+				imageRef,
+				onError: onError ?? null,
+				onImageError: onImageError ?? null,
+				maxRetries,
+				cancelRender,
+				retryIn,
+			}),
+		[cancelRender, maxRetries, onError, onImageError, retryIn],
 	);
 
 	if (typeof window !== 'undefined') {
@@ -229,98 +385,31 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			pauseWhenLoading,
 		]);
 
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			if (window.process?.env?.NODE_ENV === 'test') {
-				if (imageRef.current) {
-					imageRef.current.src = actualSrc;
-				}
-
-				return;
-			}
-
-			const {current} = imageRef;
-			if (!current) {
-				return;
-			}
-
-			setIsLoading(true);
-			const newHandle = delayRender(
-				'Loading <Img> with src=' + truncateSrcForLabel(actualSrc),
-				{
-					retries: delayRenderRetries ?? undefined,
-					timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
-				},
-			);
-
-			let unmounted = false;
-
-			const onComplete = () => {
-				// the decode() promise isn't cancelable -- it may still resolve after unmounting
-				if (unmounted) {
-					continueRender(newHandle);
-					return;
-				}
-
-				if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
-					delete errors.current[imageRef.current?.src as string];
-					// eslint-disable-next-line no-console
-					console.info(
-						`Retry successful - ${truncateSrcForLabel(
-							imageRef.current?.src as string,
-						)} is now loaded`,
-					);
-				}
-
-				if (current) {
-					onImageFrame?.(current);
-				}
-
-				setIsLoading(false);
-				continueRender(newHandle);
-			};
-
-			if (!imageRef.current) {
-				onComplete();
-				return;
-			}
-
-			current.src = actualSrc;
-			current
-				.decode()
-				.then(onComplete)
-				.catch((err) => {
-					// fall back to onload event if decode() fails
-					// eslint-disable-next-line no-console
-					console.warn(err);
-
-					// HTMLImageElement.complete is also true for broken images (e.g. 404),
-					// so only treat it as loaded if intrinsic dimensions are available.
-					if (
-						current.complete &&
-						current.naturalWidth > 0 &&
-						current.naturalHeight > 0
-					) {
-						onComplete();
-					} else {
-						current.addEventListener('load', onComplete);
-					}
-				});
-
-			// If tag gets unmounted, clear pending handles because image is not going to load
-			return () => {
-				unmounted = true;
-				current.removeEventListener('load', onComplete);
-				continueRender(newHandle);
-			};
-		}, [
-			actualSrc,
-			delayRenderRetries,
-			delayRenderTimeoutInMilliseconds,
-			onImageFrame,
-			continueRender,
-			delayRender,
-		]);
+		// Binding prevents production minification from inlining this scope
+		// back into the component and retaining unrelated handlers.
+		// eslint-disable-next-line react-hooks/rules-of-hooks, react-hooks/exhaustive-deps
+		useLayoutEffect(
+			loadImage.bind(null, {
+				imageRef,
+				errors,
+				actualSrc,
+				delayRenderRetries: delayRenderRetries ?? null,
+				delayRenderTimeoutInMilliseconds:
+					delayRenderTimeoutInMilliseconds ?? null,
+				onImageFrame: onImageFrame ?? null,
+				delayRender,
+				continueRender,
+				setIsLoading,
+			}),
+			[
+				actualSrc,
+				delayRenderRetries,
+				delayRenderTimeoutInMilliseconds,
+				onImageFrame,
+				continueRender,
+				delayRender,
+			],
+		);
 	}
 
 	const {isClientSideRendering, isRendering} = useRemotionEnvironment();
@@ -345,9 +434,8 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	);
 };
 
-type NativeImgInnerProps = Omit<ImgProps, 'effects'> & {
+type NativeImgInnerProps = Omit<ImgProps, 'effects' | 'effectsOutputSize'> & {
 	readonly controls: SequenceControls | undefined;
-	readonly outlineRef: React.RefObject<HTMLElement | null>;
 };
 
 const NativeImgInner: React.FC<NativeImgInnerProps> = ({
@@ -357,6 +445,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	src,
 	from,
 	trimBefore,
+	loop,
 	durationInFrames,
 	freeze,
 	premountFor,
@@ -369,12 +458,19 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	cropTop,
 	cropBottom,
 	controls,
-	outlineRef: refForOutline,
 	...props
 }) => {
 	if (!src) {
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
+
+	const isMedia = useMemo(
+		() => ({
+			type: 'image' as const,
+			src,
+		}),
+		[src],
+	);
 
 	const {
 		effectivePostmountFor,
@@ -386,7 +482,11 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		premountingStyle,
 	} = usePremounting({
 		from: from ?? 0,
-		durationInFrames: durationInFrames ?? Infinity,
+		durationInFrames: resolveSequenceDuration({
+			durationInFrames,
+			playbackRate: undefined,
+			loop,
+		}),
 		premountFor: premountFor ?? null,
 		postmountFor: postmountFor ?? null,
 		style: style ?? null,
@@ -404,15 +504,20 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 	});
 
 	return (
-		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+		<Freeze
+			frame={freezeFrame}
+			active={isPremountingOrPostmounting}
+			_remotionInternalIsPremounting={premountingActive}
+		>
 			<Sequence
 				layout="none"
 				from={from ?? 0}
 				trimBefore={trimBefore}
-				durationInFrames={durationInFrames ?? Infinity}
+				loop={loop}
+				durationInFrames={durationInFrames}
 				freeze={freeze}
 				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
-				_remotionInternalIsMedia={{type: 'image', src}}
+				_remotionInternalIsMedia={isMedia}
 				_remotionInternalPremountDisplay={effectivePremountFor || null}
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
@@ -421,14 +526,10 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 				controls={controls}
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
-				outlineRef={refForOutline}
 			>
-				<ImgContent
-					src={src}
-					refForOutline={refForOutline}
-					style={croppedStyle ?? undefined}
-					{...props}
-				/>
+				<SequenceContent>
+					<ImgContent src={src} style={croppedStyle ?? undefined} {...props} />
+				</SequenceContent>
 			</Sequence>
 		</Freeze>
 	);
@@ -437,18 +538,18 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 const CanvasImageWithPrivateProps = CanvasImage as React.ComponentType<
 	CanvasImageProps & {
 		readonly controls?: SequenceControls | undefined;
-		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	}
 >;
 
 export const imgSchema = {
 	src: {
 		type: 'asset',
+		assetType: 'image',
 		default: undefined,
 		description: 'Source',
 		keyframable: false,
 	},
-	...baseSchema,
+	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
 	...premountSchema,
 	...transformSchema,
@@ -459,7 +560,6 @@ export const imgSchema = {
 
 const imgCanvasFallbackIncompatibleProps = new Set([
 	'alt',
-	'crossOrigin',
 	'decoding',
 	'fetchPriority',
 	'loading',
@@ -538,6 +638,7 @@ const ImgInner: React.FC<
 	}
 > = ({
 	effects = [],
+	effectsOutputSize,
 	ref,
 	hidden,
 	name,
@@ -565,9 +666,9 @@ const ImgInner: React.FC<
 	maxRetries,
 	delayRenderRetries,
 	delayRenderTimeoutInMilliseconds,
+	onImageError,
 	...props
 }) => {
-	const refForOutline = useRef<HTMLElement | null>(null);
 	const shouldPauseWhenLoading = resolveV5Default(pauseWhenLoading);
 
 	if (effects.length === 0) {
@@ -601,7 +702,7 @@ const ImgInner: React.FC<
 				maxRetries={maxRetries}
 				delayRenderRetries={delayRenderRetries}
 				delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-				outlineRef={refForOutline}
+				onImageError={onImageError}
 			/>
 		);
 	}
@@ -629,6 +730,7 @@ const ImgInner: React.FC<
 			height={canvasHeight}
 			fit={canvasFit}
 			effects={effects}
+			effectsOutputSize={effectsOutputSize}
 			className={className}
 			style={style}
 			cropLeft={cropLeft}
@@ -636,6 +738,7 @@ const ImgInner: React.FC<
 			cropTop={cropTop}
 			cropBottom={cropBottom}
 			id={id}
+			onError={onImageError}
 			pauseWhenLoading={shouldPauseWhenLoading}
 			maxRetries={maxRetries}
 			delayRenderRetries={delayRenderRetries}
@@ -654,7 +757,6 @@ const ImgInner: React.FC<
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/img"
 			_remotionInternalCropComponentName="<Img />"
 			controls={controls}
-			outlineRef={refForOutline}
 			{...canvasProps}
 		/>
 	);

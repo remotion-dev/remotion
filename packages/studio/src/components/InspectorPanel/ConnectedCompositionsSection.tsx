@@ -1,7 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {getConnectedCompositions} from '../../helpers/get-connected-compositions';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {noop} from '../../helpers/noop';
@@ -11,7 +10,9 @@ import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
-import {InspectorInlineAction} from './common';
+import {useOpenInMenuApps} from '../use-open-in-menu-apps';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {InspectorQuickAction} from './common';
 
 const compositionIconStyle: React.CSSProperties = {
 	height: 18,
@@ -48,14 +49,21 @@ export const ConnectedCompositionsSection: React.FC<{
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 }> = ({connectedCompositions}) => {
 	return (
-		<div style={compositionListStyle}>
-			{connectedCompositions.map((composition) => (
-				<ConnectedCompositionRow
-					key={composition.id}
-					composition={composition}
-				/>
-			))}
-		</div>
+		<CollapsibleInspectorSection
+			bodyPaddingBottom={0}
+			collapsible
+			label="Connected compositions"
+			sectionId="connected-compositions"
+		>
+			<div style={compositionListStyle}>
+				{connectedCompositions.map((composition) => (
+					<ConnectedCompositionRow
+						key={composition.id}
+						composition={composition}
+					/>
+				))}
+			</div>
+		</CollapsibleInspectorSection>
 	);
 };
 
@@ -64,8 +72,7 @@ const ConnectedCompositionRow: React.FC<{
 }> = ({composition}) => {
 	const selectComposition = useSelectComposition();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
+	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const resolvedLocation = useResolvedStack(composition.stack);
 	const getContextMenuItems = useCallback(
 		() =>
@@ -74,11 +81,18 @@ const ConnectedCompositionRow: React.FC<{
 				composition,
 				connectionStatus,
 				includeCompositionManagementItems: false,
+				openInApps,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
 				resolvedLocation,
 				setSelectedModal,
 			}),
-		[composition, connectionStatus, resolvedLocation, setSelectedModal],
+		[
+			composition,
+			connectionStatus,
+			openInApps,
+			resolvedLocation,
+			setSelectedModal,
+		],
 	);
 
 	return (
@@ -86,7 +100,7 @@ const ConnectedCompositionRow: React.FC<{
 			getItems={getContextMenuItems}
 			style={compositionContextMenuStyle}
 		>
-			<InspectorInlineAction
+			<InspectorQuickAction
 				disabled={false}
 				onClick={() => selectComposition(composition, true)}
 				renderIcon={(color) => (
@@ -97,8 +111,13 @@ const ConnectedCompositionRow: React.FC<{
 					/>
 				)}
 			>
-				{composition.id}
-			</InspectorInlineAction>
+				<span
+					data-annotation-composition-id={composition.id}
+					style={{font: 'inherit'}}
+				>
+					{composition.id}
+				</span>
+			</InspectorQuickAction>
 		</ContextMenu>
 	);
 };

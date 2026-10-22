@@ -1,3 +1,4 @@
+import {allowHtmlInCanvasOption} from './allow-html-in-canvas';
 import {apiKeyOption} from './api-key';
 import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
@@ -8,6 +9,7 @@ import {binariesDirectoryOption} from './binaries-directory';
 import {browserOption} from './browser';
 import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
+import {canvasTabsOption} from './canvas-tabs';
 import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {concurrencyOption} from './concurrency';
@@ -17,10 +19,13 @@ import {enableCrossSiteIsolationOption} from './cross-site-isolation';
 import {darkModeOption} from './dark-mode';
 import {defaultCodingAgentOption} from './default-coding-agent';
 import {defaultEditorOption} from './default-editor';
+import {defaultPremountInSecondsOption} from './default-premount-in-seconds';
 import {deleteAfterOption} from './delete-after';
 import {disableGitSourceOption} from './disable-git-source';
+import {disableSharedMemoryCaptureOption} from './disable-shared-memory-capture';
 import {disableWebSecurityOption} from './disable-web-security';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
+import {enableCancellationOption} from './enable-cancellation';
 import {enableLambdaInsights} from './enable-lambda-insights';
 import {enableMultiprocessOnLinuxOption} from './enable-multiprocess-on-linux';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
@@ -28,6 +33,7 @@ import {encodingMaxRateOption} from './encoding-max-rate';
 import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
+import {experimentalKeepAudioContextAliveOption} from './experimental-keep-audio-context-alive';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -66,6 +72,7 @@ import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {preservePitchOnPlaybackOption} from './preserve-pitch-on-playback';
 import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
 import {proResProfileOption} from './prores-profile';
@@ -78,6 +85,9 @@ import {runsOption} from './runs';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {sequenceActivityLimitOption} from './sequence-activity-limit';
+import {showLayerFrameNumbersOption} from './show-layer-frame-numbers';
+import {showPremountingOption} from './show-premounting';
 import {skipSkillsOption} from './skip-skills';
 import {stillFrameOption} from './still-frame';
 import {stillImageFormatOption} from './still-image-format';
@@ -94,6 +104,10 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	preservePitchOnPlaybackOption,
+	showLayerFrameNumbersOption,
+	showPremountingOption,
+	allowHtmlInCanvasOption,
 	audioCodecOption,
 	benchmarkConcurrenciesOption,
 	browserExecutableOption,
@@ -114,7 +128,9 @@ export const allOptions = {
 	deleteAfterOption,
 	disableWebSecurityOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	folderExpiryOption,
+	enableCancellationOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	gopSizeOption,
@@ -156,13 +172,17 @@ export const allOptions = {
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,
+	defaultPremountInSecondsOption,
 	publicLicenseKeyOption,
 	isProductionOption,
 	askAIOption,
 	interactivityOption,
 	keyboardShortcutsOption,
+	canvasTabsOption,
 	framesOption,
 	forceNewStudioOption,
+	experimentalKeepAudioContextAliveOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	stillImageFormatOption,

@@ -1,9 +1,24 @@
-export type {
+import type {
 	ArtifactAsset,
-	AudioOrVideoAsset,
+	AudioOrVideoAsset as InternalAudioOrVideoAsset,
 	InlineAudioAsset,
-	TRenderAsset,
 } from './CompositionManager';
+import {
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
+} from './evaluate-source-expressions.js';
+import {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
+export type {ArtifactAsset, InlineAudioAsset} from './CompositionManager';
+
+// Older consumers can still supply assets without a pitch preference.
+export type AudioOrVideoAsset = Omit<
+	InternalAudioOrVideoAsset,
+	'preservePitch'
+> & {
+	preservePitch?: boolean | null;
+};
+
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset | InlineAudioAsset;
 export type {DownloadBehavior} from './download-behavior';
 export {
 	assertValidInterpolateEasingOption,
@@ -13,20 +28,31 @@ export {
 export type {
 	EasingFunction,
 	ExtrapolateType,
-	InterpolateOutputOption,
 	InterpolateOptions,
+	InterpolateOutputOption,
+	InterpolateOutputType,
 } from './interpolate';
 export {random} from './random.js';
 export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
 import {
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
+	validateDefaultPremountInSeconds,
+} from './default-premount-in-seconds';
+import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,
 	DELAY_RENDER_RETRIES_LEFT,
 	DELAY_RENDER_RETRY_TOKEN,
-} from './delay-render';
+} from './delay-render-constants';
 import {findPropsToDelete} from './find-props-to-delete';
+import {
+	fetchFontData,
+	getRegisteredFontFaces,
+	registerFontFace,
+} from './font-face-registry';
 import {
 	deserializeJSONWithSpecialTypes,
 	serializeJSONWithSpecialTypes,
@@ -48,6 +74,12 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	validateDefaultPremountInSeconds,
+	evaluateSourceNumericValue,
+	evaluateSourcePropStatuses,
 	processColor,
 	truthy,
 	validateFps,
@@ -78,4 +110,7 @@ export const NoReactInternals = {
 	sequenceSchema,
 	parseScaleValue,
 	serializeScaleValue,
+	getRegisteredFontFaces,
+	registerFontFace,
+	fetchFontData,
 };

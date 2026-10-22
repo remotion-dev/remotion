@@ -2,20 +2,19 @@ import type {ChildProcessWithoutNullStreams} from 'child_process';
 import {spawn} from 'child_process';
 import {existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync} from 'fs';
 import {createRequire} from 'module';
-import {availableParallelism, cpus, totalmem} from 'os';
+import {totalmem} from 'os';
 import {basename, dirname, join, resolve} from 'path';
 import {createInterface} from 'readline';
 import {Glob} from 'bun';
 import {
 	createTwoslashCacheContext,
-	garbageCollectSharedTwoslashCache,
 	getTwoslashCacheKey,
 	getTwoslashLocalCachePath,
 	getTwoslashVersions,
-	publishLocalTwoslashCacheEntry,
 	readTwoslashCacheEntry,
 } from '../docusaurus-plugin/src/twoslash-cache';
 import {isTwoslashEnabled} from '../docusaurus-plugin/src/twoslash-enabled';
+import {defaultDocsBuildConcurrency} from './build-concurrency';
 import {expandElementSourceReferences} from './plugins/element-source-utils';
 
 const DOCS_ROOT = resolve(import.meta.dirname);
@@ -31,11 +30,6 @@ const GIB = 1024 * 1024 * 1024;
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 const lowMemoryBuild =
 	isVercel || process.env.REMOTION_DOCS_LOW_MEMORY_BUILD === '1';
-const cpuCount =
-	typeof availableParallelism === 'function'
-		? availableParallelism()
-		: cpus().length;
-const cpuCap = Math.max(1, cpuCount - 1);
 // Each worker holds a TypeScript language service that can grow to >1GB.
 // Cap the worker count so the combined RSS leaves room for the OS and
 // other processes on low-memory machines.
@@ -48,7 +42,7 @@ const NUM_WORKERS =
 		? Math.max(1, workerCountOverride)
 		: lowMemoryBuild
 			? 2
-			: Math.min(cpuCap, memCap);
+			: Math.min(defaultDocsBuildConcurrency, memCap);
 
 // Per-worker RSS threshold after which a worker is replaced with a fresh
 // process. Derived from a global budget that leaves 25% of memory for the OS
@@ -109,17 +103,6 @@ function computeCacheLocation(
 ): {key: string; path: string} {
 	const key = getTwoslashCacheKey({code, lang, context: cacheContext});
 	return {key, path: getTwoslashLocalCachePath(cacheContext, key)};
-}
-
-function publishLocalCacheEntries(validCachePaths: Set<string>): void {
-	for (const cachePath of validCachePaths) {
-		publishLocalTwoslashCacheEntry({
-			context: cacheContext,
-			key: basename(cachePath, '.json'),
-		});
-	}
-
-	garbageCollectSharedTwoslashCache(cacheContext);
 }
 
 function addIncludes(
@@ -421,7 +404,6 @@ async function main() {
 	const uncachedBlocks = [...uniqueBlocks.values()];
 
 	if (uncachedBlocks.length === 0) {
-		publishLocalCacheEntries(validCachePaths);
 		const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
 		console.log(`All twoslash blocks are cached (${elapsed}s to scan)`);
 		return;
@@ -603,9 +585,14 @@ async function main() {
 		if (unfinished.length > 0) {
 			const requeue: TwoslashBlock[] = [];
 			for (const item of unfinished) {
-				// Workers publish cache files using an atomic rename, so an existing
-				// final path is complete even when the completion message was lost.
-				if (existsSync(item.cachePath)) {
+				// Workers publish cache files using an atomic rename, so a valid final
+				// entry is complete even when the completion message was lost.
+				if (
+					readTwoslashCacheEntry({
+						context: cacheContext,
+						key: basename(item.cachePath, '.json'),
+					}) !== null
+				) {
 					recordResult({cachePath: item.cachePath, ms: 0});
 					continue;
 				}
@@ -792,7 +779,6 @@ async function main() {
 		process.exit(1);
 	}
 
-	publishLocalCacheEntries(validCachePaths);
 	process.exit(0);
 }
 

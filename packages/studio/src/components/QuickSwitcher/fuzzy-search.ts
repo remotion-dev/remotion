@@ -4,7 +4,7 @@ export function fuzzySearch(
 	query: string,
 	dataset: TQuickSwitcherResult[],
 ): TQuickSwitcherResult[] {
-	const q = query ? query.trim().toLowerCase() : '';
+	const q = query.trim().toLowerCase().replace(/[\s-]/g, '');
 
 	const matchingIndices: number[] = [];
 	if (q.length === 0) {

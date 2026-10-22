@@ -1,5 +1,10 @@
-import {useCallback, useMemo, useSyncExternalStore} from 'react';
-import type {SequenceRegistrationControls} from 'remotion';
+import {CanvasInternals} from '@remotion/sdk';
+import {useCallback, useMemo} from 'react';
+import {
+	type RuntimeValueStore,
+	type SequenceRegistrationControls,
+} from 'remotion';
+import {useSyncExternalStore} from './use-sync-external-store';
 
 const EMPTY_RUNTIME_VALUES: Readonly<Record<string, unknown>> = {};
 const EMPTY_RUNTIME_VALUE_STORE = {
@@ -22,7 +27,14 @@ export const useRuntimeValue = (
 	controls: SequenceRegistrationControls | null,
 	key: string,
 ): unknown => {
-	const store = controls?.runtimeValues ?? EMPTY_RUNTIME_VALUE_STORE;
+	return useRuntimeStoreValue(controls?.runtimeValues ?? null, key);
+};
+
+export const useRuntimeStoreValue = (
+	storeOrNull: RuntimeValueStore | null,
+	key: string,
+): unknown => {
+	const store = storeOrNull ?? EMPTY_RUNTIME_VALUE_STORE;
 	const getSnapshot = useCallback(() => store.getSnapshot()[key], [key, store]);
 
 	return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
@@ -70,46 +82,6 @@ export const useRuntimeValueSelector = <T>({
 	);
 };
 
-export const useRuntimeValueSnapshots = (
-	controls: readonly SequenceRegistrationControls[],
-): readonly Readonly<Record<string, unknown>>[] => {
-	const stores = useMemo(
-		() => controls.map((control) => control.runtimeValues),
-		[controls],
-	);
-	const aggregateStore = useMemo(() => {
-		let lastSnapshots = stores.map((store) => store.getSnapshot());
-		const getSnapshot = () => {
-			const nextSnapshots = stores.map((store) => store.getSnapshot());
-			if (
-				nextSnapshots.length === lastSnapshots.length &&
-				nextSnapshots.every(
-					(snapshot, index) => snapshot === lastSnapshots[index],
-				)
-			) {
-				return lastSnapshots;
-			}
-
-			lastSnapshots = nextSnapshots;
-			return lastSnapshots;
-		};
-
-		return {
-			getSnapshot,
-			subscribe: (listener: () => void) => {
-				const unsubscribers = stores.map((store) => store.subscribe(listener));
-				return () => {
-					for (const unsubscribe of unsubscribers) {
-						unsubscribe();
-					}
-				};
-			},
-		};
-	}, [stores]);
-
-	return useSyncExternalStore(
-		aggregateStore.subscribe,
-		aggregateStore.getSnapshot,
-		aggregateStore.getSnapshot,
-	);
-};
+export const {
+	useCanvasRuntimeValueSnapshots: useRuntimeValueSnapshots,
+}: typeof CanvasInternals = CanvasInternals;

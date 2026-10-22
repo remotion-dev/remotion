@@ -1,6 +1,6 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {cleanup, render, waitFor} from '@testing-library/react';
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {Internals} from 'remotion';
 import {Gif, gifSchema} from '../Gif';
 import {manuallyManagedGifCache} from '../gif-cache';
@@ -23,6 +23,12 @@ test('Gif exposes background, border, and crop controls', () => {
 	expect('cropRight' in gifSchema).toBe(true);
 	expect('cropTop' in gifSchema).toBe(true);
 	expect('cropBottom' in gifSchema).toBe(true);
+	expect(gifSchema.loop).toEqual({
+		type: 'boolean',
+		default: false,
+		description: 'Loop',
+		keyframable: false,
+	});
 });
 
 class MockWorker {
@@ -81,7 +87,7 @@ const compositionContext = {
 			height: 1080,
 			width: 1920,
 			parentFolderName: null,
-			nonce: [[0, 0]],
+			order: null,
 			calculateMetadata: null,
 			schema: null,
 			stack: null,
@@ -89,6 +95,7 @@ const compositionContext = {
 	],
 	folders: [],
 	canvasContent: {type: 'composition' as const, compositionId: 'comp'},
+	currentAssetMetadata: null,
 	currentCompositionMetadata: {
 		defaultCodec: null,
 		defaultOutName: null,
@@ -106,8 +113,8 @@ const compositionContext = {
 
 const timelineContext = {
 	frame: {},
-	playing: false,
-	imperativePlaying: {current: false},
+	isPlaying: () => false,
+	isInsideFreeze: false,
 	audioAndVideoTags: {current: []},
 } as React.ContextType<typeof Internals.TimelineContext>;
 
@@ -121,27 +128,41 @@ const logContext = {
 	mountTime: 0,
 } as React.ContextType<typeof Internals.LogLevelContext>;
 
+const ObserveSequenceRegistrations: React.FC<{
+	readonly onRegisterSequence: (sequence: RegisteredSequence) => void;
+}> = ({onRegisterSequence}) => {
+	const registry = React.useContext(Internals.SequenceRegistryContext);
+	const previous = React.useRef(
+		new Map<
+			string,
+			ReturnType<typeof Internals.useSequenceManagerSequences>[number]
+		>(),
+	);
+	React.useEffect(() => {
+		if (registry === null) throw new Error('Sequence registry has not mounted');
+		const observe = () => {
+			const sequences = registry.getSnapshot();
+			const changed = sequences.filter(
+				(sequence) => previous.current.get(sequence.id) !== sequence,
+			);
+			previous.current = new Map(
+				sequences.map((sequence) => [sequence.id, sequence]),
+			);
+			changed.forEach(onRegisterSequence);
+		};
+
+		const unsubscribe = registry.subscribe(observe);
+		observe();
+		return unsubscribe;
+	}, [onRegisterSequence, registry]);
+	return null;
+};
+
 const SequenceRegistrationWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: RegisteredSequence) => void;
 	readonly currentFrame?: number;
 }> = ({children, onRegisterSequence, currentFrame = 0}) => {
-	const registerSequence = useCallback(
-		(sequence: RegisteredSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-	const unregisterSequence = useCallback(() => undefined, []);
-	const sequenceManagerContext = useMemo(
-		() =>
-			({
-				registerSequence,
-				unregisterSequence,
-				sequences: [],
-			}) as React.ContextType<typeof Internals.SequenceManager>,
-		[registerSequence, unregisterSequence],
-	);
 	const currentTimelineContext = useMemo(
 		() => ({...timelineContext, frame: {comp: currentFrame}}),
 		[currentFrame],
@@ -161,15 +182,18 @@ const SequenceRegistrationWrapper: React.FC<{
 								<Internals.RemotionEnvironmentContext.Provider
 									value={studioEnvironment}
 								>
-									<Internals.SequenceManager.Provider
-										value={sequenceManagerContext}
-									>
+									<Internals.SequenceManagerProvider>
+										<ObserveSequenceRegistrations
+											onRegisterSequence={onRegisterSequence}
+										/>
 										<Internals.CompositionManager.Provider
 											value={compositionContext}
 										>
-											{children}
+											<Internals.VideoProvider>
+												{children}
+											</Internals.VideoProvider>
 										</Internals.CompositionManager.Provider>
-									</Internals.SequenceManager.Provider>
+									</Internals.SequenceManagerProvider>
 								</Internals.RemotionEnvironmentContext.Provider>
 							</Internals.PlaybackRateContext.Provider>
 						</Internals.TimelineContext.Provider>
@@ -200,9 +224,33 @@ afterEach(() => {
 	globalThis.Worker = OriginalWorker;
 	HTMLCanvasElement.prototype.getContext = originalGetContext;
 	manuallyManagedGifCache.clear();
+	window.origin = 'http://localhost:3000';
 });
 
-test('<Gif> registers its canvas as the outline ref', async () => {
+test('<Gif> resolves media sources when its origin is opaque', async () => {
+	window.origin = 'null';
+	MockWorker.instances = 0;
+	manuallyManagedGifCache.set(
+		getGifCacheKey({
+			resolvedSrc: 'http://localhost:3000/test.gif',
+			requestInit: undefined,
+		}),
+		gifState,
+	);
+
+	const {container} = render(
+		<SequenceRegistrationWrapper onRegisterSequence={() => undefined}>
+			<Gif src="/test.gif" />
+		</SequenceRegistrationWrapper>,
+	);
+
+	await waitFor(() => {
+		expect(container.querySelector('canvas')).toBeInstanceOf(HTMLCanvasElement);
+	});
+	expect(MockWorker.instances).toBe(0);
+});
+
+test('<Gif> registers an automatic canvas outline', async () => {
 	const registeredSequences: RegisteredSequence[] = [];
 	const ref = React.createRef<HTMLCanvasElement>();
 
@@ -216,17 +264,13 @@ test('<Gif> registers its canvas as the outline ref', async () => {
 		</SequenceRegistrationWrapper>,
 	);
 
-	await waitFor(() => {
-		expect(registeredSequences[0]?.refForOutline?.current).toBeInstanceOf(
-			HTMLCanvasElement,
-		);
-	});
-
-	const refForOutline = registeredSequences[0]
-		.refForOutline as React.RefObject<HTMLCanvasElement | null>;
-	expect(ref.current).toBe(refForOutline.current);
+	await waitFor(() => expect(ref.current).toBeInstanceOf(HTMLCanvasElement));
+	expect(
+		Internals.SequenceOutlineInternals.getNodes(
+			registeredSequences[0].refForOutline!,
+		),
+	).toEqual([]);
 });
-
 test('<Gif> exposes non-keyframable premounting schema fields', () => {
 	expect(gifSchema.premountFor).toMatchObject({keyframable: false});
 	expect(gifSchema.postmountFor).toMatchObject({keyframable: false});

@@ -1,0 +1,38 @@
+{
+	"name": "@remotion/typescript-tools",
+	"version": "4.0.538",
+	"private": true,
+	"description": "Isolated TypeScript 5 compiler API tools for the monorepo.",
+	"license": "UNLICENSED",
+	"exports": {
+		"./package.json": "./package.json",
+		"./typescript": {
+			"types": "./typescript.d.ts",
+			"default": "./typescript.js"
+		},
+		"./eslint-plugin": {
+			"types": "./eslint-plugin.d.ts",
+			"default": "./eslint-plugin.js"
+		},
+		"./eslint-parser": {
+			"types": "./eslint-parser.d.ts",
+			"default": "./eslint-parser.js"
+		},
+		"./twoslash": {
+			"types": "./twoslash.d.ts",
+			"default": "./twoslash.mjs"
+		},
+		"./shiki-twoslash": {
+			"types": "./shiki-twoslash.d.ts",
+			"default": "./shiki-twoslash.mjs"
+		}
+	},
+	"dependencies": {
+		"@shikijs/twoslash": "3.22.0",
+		"@typescript-eslint/eslint-plugin": "8.71.2",
+		"@typescript-eslint/parser": "8.71.2",
+		"eslint": "catalog:",
+		"twoslash": "0.3.6",
+		"typescript": "5.9.3"
+	}
+}

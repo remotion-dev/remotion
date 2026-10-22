@@ -7,75 +7,49 @@ import type {
 	OpenGlRenderer,
 	X264Preset,
 } from '@remotion/renderer';
+import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
 import type {RenderStillOnWebImageFormat} from '@remotion/web-renderer';
 import type {SVGProps} from 'react';
-import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
-import ReactDOM from 'react-dom';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	TRANSPARENT,
-	WHITE,
-	WHITE_ALPHA_80,
-	getBackgroundFromHoverState,
-} from '../helpers/colors';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SetSelectedModalContext} from '../state/modals';
-import {HigherZIndex, useZIndex} from '../state/z-index';
+import {callApi} from './call-api';
+import {useConfirmationDialog} from './ConfirmationDialog';
 import {Row, Spacing} from './layout';
-import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './Menu/is-menu-item';
-import {getPortal} from './Menu/portals';
-import {
-	fullScreenOverlay,
-	menuContainerTowardsBottom,
-	menuContainerTowardsTop,
-	outerPortal,
-} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {MenuContent} from './NewComposition/MenuContent';
+import {showNotification} from './Notifications/NotificationCenter';
+import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
+import {useDownloadProject} from './use-download-project';
 
-const splitButtonContainer: React.CSSProperties = {
-	display: 'inline-flex',
-	flexDirection: 'row',
-	alignItems: 'center',
-	borderRadius: 3,
-	gap: 1,
-	overflow: 'hidden',
-};
-
-const mainButtonStyle: React.CSSProperties = {
-	paddingLeft: 7,
-	paddingRight: 7,
-	paddingTop: 7,
-	paddingBottom: 7,
-	background: TRANSPARENT,
-	border: 'none',
-	borderRadius: '3px 0 0 3px',
-	color: WHITE,
-	cursor: 'default',
-	display: 'flex',
-	alignItems: 'center',
+const serverRenderInstructions: React.CSSProperties = {
+	fontFamily: 'sans-serif',
 	fontSize: 14,
-	fontFamily: 'inherit',
+	lineHeight: 1.5,
+	margin: '0 0 16px',
 };
 
-const dropdownTriggerStyle: React.CSSProperties = {
-	paddingLeft: 6,
-	paddingRight: 6,
-	paddingTop: 7,
-	paddingBottom: 7,
-	background: TRANSPARENT,
-	border: 'none',
-	borderRadius: '0 3px 3px 0',
-	color: WHITE,
-	cursor: 'default',
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
+const serverRenderCommands: React.CSSProperties = {
+	fontFamily: 'monospace',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+	padding: 12,
+	backgroundColor: 'rgba(255, 255, 255, 0.05)',
+	borderRadius: 4,
+	userSelect: 'text',
+};
+
+const segmentedButtonStyle: React.CSSProperties = {
+	height: 28,
 };
 
 const mainButtonContent: React.CSSProperties = {
@@ -97,22 +71,23 @@ const label: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const compactSplitButtonSegmentHeight = 24;
-
-const compactMainButtonStyle: React.CSSProperties = {
-	...mainButtonStyle,
-	boxSizing: 'border-box',
-	height: compactSplitButtonSegmentHeight,
-	padding: '0 4px',
-	fontSize: 12,
+const compactMainSegmentStyle: React.CSSProperties = {
+	padding: '0 6px',
 };
 
-const compactDropdownTriggerStyle: React.CSSProperties = {
-	...dropdownTriggerStyle,
-	boxSizing: 'border-box',
-	height: compactSplitButtonSegmentHeight,
+const defaultMainSegmentStyle: React.CSSProperties = {
+	fontFamily: 'inherit',
+	fontSize: 14,
+	padding: '0 7px',
+};
+
+const compactDropdownSegmentStyle: React.CSSProperties = {
 	padding: 0,
 	width: 20,
+};
+
+const defaultDropdownSegmentStyle: React.CSSProperties = {
+	padding: '0 6px',
 };
 
 const compactMainButtonContent: React.CSSProperties = {
@@ -158,76 +133,43 @@ const RenderButtonInner: React.FC<{
 	const [preferredRenderType, setPreferredRenderType] = useState<RenderType>(
 		() => getInitialRenderType(readOnlyStudio),
 	);
-	const [dropdownOpened, setDropdownOpened] = useState(false);
-	const [hovered, setHovered] = useState(false);
-	const dropdownRef = useRef<HTMLButtonElement>(null);
-	const containerRef = useRef<HTMLDivElement>(null);
-	const {currentZIndex} = useZIndex();
-
-	const size = PlayerInternals.useElementSize(dropdownRef, {
-		triggerOnWindowResize: true,
-		shouldApplyCssTransforms: true,
-	});
-
-	const refresh = size?.refresh;
-
-	const onPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLButtonElement>) => {
-			// Prevent deselection of currently selected items
-			e.stopPropagation();
-			setDropdownOpened((o) => {
-				if (!o) {
-					refresh?.();
-				}
-
-				return !o;
-			});
-		},
-		[refresh],
-	);
-
-	const onMenuPointerDown = useCallback(
-		(e: React.PointerEvent<HTMLDivElement>) => {
-			// Prevent deselection of currently selected items
-			e.stopPropagation();
-		},
-		[],
-	);
-
-	const onClickDropdown = useCallback(
-		(e: React.MouseEvent) => {
-			e.stopPropagation();
-			const isKeyboardInitiated = e.detail === 0;
-			if (!isKeyboardInitiated) {
-				return;
-			}
-
-			setDropdownOpened((o) => {
-				if (!o) {
-					refresh?.();
-
-					window.addEventListener(
-						'pointerup',
-						(evt) => {
-							if (!isMenuItem(evt.target as HTMLElement)) {
-								setDropdownOpened(false);
-							}
-						},
-						{
-							once: true,
-						},
-					);
-				}
-
-				return !o;
-			});
-		},
-		[refresh],
-	);
 
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
-	const canServerRender = connectionStatus === 'connected';
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const canServerRender = connectionStatus === 'connected' && !isBrowserStudio;
+	const confirm = useConfirmationDialog();
+	const downloadProject = useDownloadProject();
+	const openServerRenderHandoff = useCallback(async () => {
+		if (downloadProject === null) {
+			return;
+		}
+
+		const confirmed = await confirm({
+			title: 'Server-side render',
+			message: (
+				<>
+					<p style={serverRenderInstructions}>
+						Render on your computer for full Remotion compatibility and more
+						export formats, including ProRes.
+					</p>
+					<p style={serverRenderInstructions}>
+						Download and unzip, then run in the project folder (Node.js
+						required):
+					</p>
+					<pre style={serverRenderCommands}>{'npm install\nnpm run dev'}</pre>
+					<p style={{...serverRenderInstructions, marginBottom: 0}}>
+						In the Studio that opens, select your composition and click Render.
+					</p>
+				</>
+			),
+			confirmLabel: 'Download project',
+			cancelLabel: 'Cancel',
+		});
+		if (confirmed) {
+			await downloadProject();
+		}
+	}, [confirm, downloadProject]);
 
 	const renderType: RenderType = useMemo(() => {
 		if (readOnlyStudio) {
@@ -236,14 +178,18 @@ const RenderButtonInner: React.FC<{
 				: 'client-render';
 		}
 
-		if (connectionStatus === 'disconnected') {
+		if (connectionStatus === 'disconnected' || isBrowserStudio) {
 			return 'client-render';
 		}
 
 		return preferredRenderType;
-	}, [connectionStatus, preferredRenderType, readOnlyStudio]);
+	}, [connectionStatus, isBrowserStudio, preferredRenderType, readOnlyStudio]);
 
-	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
+	const renderShortcut = useKeyboardShortcutLabel('render');
+	const shortcut =
+		areKeyboardShortcutsDisabled() || renderShortcut === ''
+			? ''
+			: `(${renderShortcut})`;
 	const tooltip =
 		renderType === 'render-command'
 			? 'Copy a CLI command to render this composition ' + shortcut
@@ -260,6 +206,7 @@ const RenderButtonInner: React.FC<{
 	}, [controlSize]);
 
 	const video = Internals.useVideo();
+	const {canvasContent} = useContext(Internals.CompositionManager);
 	const {getCurrentFrame} = PlayerInternals.usePlayerMethods();
 
 	const {props} = useContext(Internals.EditorPropsContext);
@@ -339,7 +286,7 @@ const RenderButtonInner: React.FC<{
 		[video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame],
 	);
 
-	const openClientRenderModal = useCallback(() => {
+	const openClientRenderModal = useCallback(async () => {
 		if (!video) {
 			return null;
 		}
@@ -348,6 +295,38 @@ const RenderButtonInner: React.FC<{
 
 		if (!defaults) {
 			throw new TypeError('Expected defaults');
+		}
+
+		if (!readOnlyStudio && !isBrowserStudio) {
+			let onReconciliation: (() => void) | null = null;
+			const nextReconciliation = new Promise<void>((resolve) => {
+				onReconciliation = resolve;
+				window.addEventListener(
+					REACT_REFRESH_FINISHED_EVENT,
+					onReconciliation,
+					{once: true},
+				);
+			});
+
+			try {
+				const {didInvalidate} = await callApi('/api/invalidate-bundle', {});
+				if (didInvalidate) {
+					await nextReconciliation;
+				}
+			} catch (error) {
+				showNotification(
+					`Could not prepare client-side render: ${(error as Error).message}`,
+					4000,
+				);
+				return null;
+			} finally {
+				if (onReconciliation) {
+					window.removeEventListener(
+						REACT_REFRESH_FINISHED_EVENT,
+						onReconciliation,
+					);
+				}
+			}
 		}
 
 		setSelectedModal({
@@ -373,9 +352,19 @@ const RenderButtonInner: React.FC<{
 			initialTransparent: null,
 			initialMuted: null,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
 			initialPageResponsiveness: 'medium',
 		});
-	}, [video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame]);
+	}, [
+		video,
+		readOnlyStudio,
+		isBrowserStudio,
+		setSelectedModal,
+		props,
+		inFrame,
+		outFrame,
+		getCurrentFrame,
+	]);
 
 	const onClick = useCallback(() => {
 		if (renderType === 'render-command') {
@@ -390,10 +379,6 @@ const RenderButtonInner: React.FC<{
 		}
 	}, [renderType, openServerRenderModal, openClientRenderModal]);
 
-	const onHideDropdown = useCallback(() => {
-		setDropdownOpened(false);
-	}, []);
-
 	const handleRenderTypeChange = useCallback(
 		(newType: RenderType) => {
 			setPreferredRenderType(newType);
@@ -402,8 +387,6 @@ const RenderButtonInner: React.FC<{
 			} catch {
 				// localStorage might not be available
 			}
-
-			setDropdownOpened(false);
 
 			if (newType === 'server-render') {
 				openServerRenderModal(false);
@@ -416,12 +399,12 @@ const RenderButtonInner: React.FC<{
 		[openClientRenderModal, openServerRenderModal],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
-		if (readOnlyStudio) {
+		if (readOnlyStudio && !isBrowserStudio) {
 			return [
 				{
 					type: 'item' as const,
 					id: 'client-render',
-					label: 'Render on web',
+					label: 'Render in browser',
 					value: 'client-render',
 					onClick: () => handleRenderTypeChange('client-render'),
 					keyHint: null,
@@ -444,17 +427,25 @@ const RenderButtonInner: React.FC<{
 		}
 
 		return [
-			{
-				type: 'item' as const,
-				id: 'server-render',
-				label: 'Server-side render',
-				value: 'server-render',
-				onClick: () => handleRenderTypeChange('server-render'),
-				keyHint: null,
-				leftItem: null,
-				subMenu: null,
-				quickSwitcherLabel: null,
-			},
+			...(canServerRender || isBrowserStudio
+				? [
+						{
+							type: 'item' as const,
+							id: 'server-render',
+							label: isBrowserStudio
+								? 'Server-side render...'
+								: 'Server-side render',
+							value: 'server-render',
+							onClick: isBrowserStudio
+								? openServerRenderHandoff
+								: () => handleRenderTypeChange('server-render'),
+							keyHint: null,
+							leftItem: null,
+							subMenu: null,
+							quickSwitcherLabel: null,
+						},
+					]
+				: []),
 			{
 				type: 'item' as const,
 				id: 'client-render',
@@ -467,80 +458,94 @@ const RenderButtonInner: React.FC<{
 				quickSwitcherLabel: null,
 			},
 		];
-	}, [handleRenderTypeChange, readOnlyStudio]);
-
-	const spaceToBottom = useMemo(() => {
-		const margin = 10;
-		if (size && dropdownOpened) {
-			return size.windowSize.height - (size.top + size.height) - margin;
-		}
-
-		return 0;
-	}, [dropdownOpened, size]);
-
-	const spaceToTop = useMemo(() => {
-		const margin = 10;
-		if (size && dropdownOpened) {
-			return size.top - margin;
-		}
-
-		return 0;
-	}, [dropdownOpened, size]);
-
-	const derivedMaxHeight = useMemo(() => {
-		return spaceToTop > spaceToBottom ? spaceToTop : spaceToBottom;
-	}, [spaceToBottom, spaceToTop]);
-
-	const portalStyle = useMemo((): React.CSSProperties | null => {
-		if (!dropdownOpened || !size) {
-			return null;
-		}
-
-		const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
-		return {
-			...(verticalLayout === 'top'
-				? {
-						...menuContainerTowardsBottom,
-						top: size.top + size.height,
-					}
-				: {
-						...menuContainerTowardsTop,
-						bottom: size.windowSize.height - size.top,
-					}),
-			right: size.windowSize.width - size.left - size.width,
-		};
-	}, [dropdownOpened, size, spaceToBottom, spaceToTop]);
-
-	const containerStyle = useMemo((): React.CSSProperties => {
-		return {
-			...splitButtonContainer,
-			borderRadius: controlSize === 'compact' ? 3 : 4,
-			opacity: 1,
-			cursor: 'default',
-		};
-	}, [controlSize]);
+	}, [
+		canServerRender,
+		handleRenderTypeChange,
+		isBrowserStudio,
+		openServerRenderHandoff,
+		readOnlyStudio,
+	]);
 
 	const renderLabel =
 		renderType === 'server-render'
 			? 'Render'
 			: renderType === 'render-command'
 				? 'Render via CLI'
-				: 'Render on web';
+				: 'Render in browser';
 	const showRenderLabel = !narrow || renderType !== 'server-render';
-	const mainHovered = hovered && !dropdownOpened;
-	const mainForegroundColor = mainHovered ? WHITE : WHITE_ALPHA_80;
-	const dropdownForegroundColor =
-		hovered || dropdownOpened ? WHITE : WHITE_ALPHA_80;
-	const mainSegmentBackground = getBackgroundFromHoverState({
-		hovered: mainHovered,
-		selected: false,
-	});
-	const dropdownSegmentBackground = getBackgroundFromHoverState({
-		hovered,
-		selected: dropdownOpened,
-	});
+	const segments = useMemo((): SegmentedButtonSegment[] => {
+		const buttonSegments: SegmentedButtonSegment[] = [
+			{
+				ariaLabel: showRenderLabel ? tooltip : renderLabel,
+				buttonId: 'render-modal-button',
+				disabled: false,
+				idleColor: WHITE_ALPHA_80,
+				onClick,
+				onPointerDown: null,
+				renderContent: (color) => (
+					<Row
+						align="center"
+						style={
+							controlSize === 'compact'
+								? compactMainButtonContent
+								: mainButtonContent
+						}
+					>
+						<ThinRenderIcon fill={color} svgProps={iconStyle} />
+						{showRenderLabel ? (
+							<>
+								<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
+								<span style={controlSize === 'compact' ? compactLabel : label}>
+									{renderLabel}
+								</span>
+							</>
+						) : null}
+					</Row>
+				),
+				segmentId: 'render',
+				style:
+					controlSize === 'compact'
+						? compactMainSegmentStyle
+						: defaultMainSegmentStyle,
+				tooltipLabel: showRenderLabel ? null : renderLabel,
+				type: 'action',
+			},
+		];
 
-	if (!video) {
+		if (dropdownValues.length > 1) {
+			buttonSegments.push({
+				ariaLabel: 'Select render type',
+				buttonId: null,
+				disabled: false,
+				idleColor: WHITE_ALPHA_80,
+				leaveLeftSpace: false,
+				onOpenChange: null,
+				renderContent: (color) => <CaretDown color={color} />,
+				segmentId: 'render-type',
+				selectedId: renderType,
+				style:
+					controlSize === 'compact'
+						? compactDropdownSegmentStyle
+						: defaultDropdownSegmentStyle,
+				tooltipLabel: null,
+				type: 'menu',
+				values: dropdownValues,
+			});
+		}
+
+		return buttonSegments;
+	}, [
+		controlSize,
+		dropdownValues,
+		iconStyle,
+		onClick,
+		renderLabel,
+		renderType,
+		showRenderLabel,
+		tooltip,
+	]);
+
+	if (!video || canvasContent?.type !== 'composition') {
 		return null;
 	}
 
@@ -565,95 +570,7 @@ const RenderButtonInner: React.FC<{
 				onClick={() => openServerRenderModal(true)}
 				type="button"
 			/>
-			<div
-				ref={containerRef}
-				style={containerStyle}
-				title={tooltip}
-				onPointerEnter={() => setHovered(true)}
-				onPointerLeave={() => setHovered(false)}
-			>
-				<button
-					type="button"
-					aria-label={renderLabel}
-					style={{
-						...(controlSize === 'compact'
-							? compactMainButtonStyle
-							: mainButtonStyle),
-						backgroundColor: mainSegmentBackground,
-						color: mainForegroundColor,
-					}}
-					onClick={onClick}
-					id="render-modal-button"
-				>
-					<Row
-						align="center"
-						style={
-							controlSize === 'compact'
-								? compactMainButtonContent
-								: mainButtonContent
-						}
-					>
-						<ThinRenderIcon fill={mainForegroundColor} svgProps={iconStyle} />
-						{showRenderLabel ? (
-							<>
-								<Spacing x={controlSize === 'compact' ? 0.75 : 1} />
-								<span
-									style={{
-										...(controlSize === 'compact' ? compactLabel : label),
-										color: mainForegroundColor,
-									}}
-								>
-									{renderLabel}
-								</span>
-							</>
-						) : null}
-					</Row>
-				</button>
-				<button
-					ref={dropdownRef}
-					type="button"
-					style={{
-						...(controlSize === 'compact'
-							? compactDropdownTriggerStyle
-							: dropdownTriggerStyle),
-						backgroundColor: dropdownSegmentBackground,
-						color: dropdownForegroundColor,
-					}}
-					className={MENU_INITIATOR_CLASSNAME}
-					onPointerDown={onPointerDown}
-					onClick={onClickDropdown}
-				>
-					<CaretDown color={dropdownForegroundColor} />
-				</button>
-			</div>
-			{portalStyle
-				? ReactDOM.createPortal(
-						<div style={fullScreenOverlay}>
-							<div style={outerPortal} className="css-reset">
-								<HigherZIndex
-									onOutsideClick={onHideDropdown}
-									onEscape={onHideDropdown}
-								>
-									<div style={portalStyle} onPointerDown={onMenuPointerDown}>
-										<MenuContent
-											onNextMenu={() => {}}
-											onPreviousMenu={() => {}}
-											values={dropdownValues}
-											onHide={onHideDropdown}
-											leaveLeftSpace={false}
-											preselectIndex={dropdownValues.findIndex(
-												(v) => v.id === renderType,
-											)}
-											topItemCanBeUnselected={false}
-											fixedHeight={derivedMaxHeight}
-										/>
-									</div>
-								</HigherZIndex>
-							</div>
-						</div>,
-						getPortal(currentZIndex),
-					)
-				: null}
+			<SegmentedButton segments={segments} style={segmentedButtonStyle} />
 		</>
 	);
 };

@@ -8,9 +8,10 @@ test('effect picker search ranks exact effect names first', () => {
 		query: 'noise()',
 	});
 
-	expect(results.map((item) => item.label).slice(0, 3)).toEqual([
+	expect(results.map((item) => item.label).slice(0, 4)).toEqual([
 		'noise()',
 		'noiseDisplacement()',
+		'fractalNoise()',
 		'whiteNoise()',
 	]);
 	expect(results.map((item) => item.label)).not.toContain('brightness()');
@@ -39,7 +40,7 @@ test('effect picker search preserves table-of-contents order for empty queries',
 			items: EFFECT_CATALOG,
 			query: '',
 		})
-			.slice(0, 3)
+			.slice(0, 4)
 			.map((item) => item.label),
-	).toEqual(['brightness()', 'contrast()', 'colorKey()']);
+	).toEqual(['brightness()', 'contrast()', 'colorCorrection()', 'colorKey()']);
 });

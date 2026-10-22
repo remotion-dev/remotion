@@ -1,0 +1,574 @@
+import {
+	config as maptilerConfig,
+	MapStyle,
+	Map as MapTilerMap,
+	type MapOptions,
+} from '@maptiler/sdk';
+import '@maptiler/sdk/style.css';
+import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
+import {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {
+	Interactive,
+	useDelayRender,
+	type InteractiveBaseProps,
+	type InteractiveCropProps,
+	type InteractivePremountProps,
+	type InteractiveTransformProps,
+	type InteractivitySchema,
+	type SequenceControls,
+} from 'remotion';
+import {MapTilerContext} from './MapTilerContext';
+
+export type MapViewportMapOptions = Omit<
+	MapOptions,
+	| 'apiKey'
+	| 'bearing'
+	| 'center'
+	| 'container'
+	| 'fadeDuration'
+	| 'interactive'
+	| 'language'
+	| 'padding'
+	| 'pitch'
+	| 'projection'
+	| 'style'
+	| 'terrain'
+	| 'terrainExaggeration'
+	| 'zoom'
+>;
+
+export type MapAdministrativeBorders = 'all' | 'country-only' | 'none';
+
+export type MapViewportProps = InteractiveBaseProps &
+	InteractiveCropProps &
+	InteractivePremountProps &
+	InteractiveTransformProps & {
+		readonly apiKey: string | null;
+		readonly backgroundColor?: string;
+		readonly bearing?: number;
+		readonly centerLatitude?: number;
+		readonly centerLongitude?: number;
+		readonly children?: ReactNode;
+		readonly controls?: SequenceControls;
+		readonly language?: MapOptions['language'];
+		readonly mapOptions?: MapViewportMapOptions;
+		readonly mapStyle?: MapOptions['style'];
+		readonly onMapReady?: (map: MapTilerMap) => void;
+		readonly paddingBottom?: number;
+		readonly paddingLeft?: number;
+		readonly paddingRight?: number;
+		readonly paddingTop?: number;
+		readonly pitch?: number;
+		readonly projection?: MapOptions['projection'];
+		readonly showLabels?: boolean;
+		readonly administrativeBorders?: MapAdministrativeBorders;
+		readonly terrain?: boolean;
+		readonly terrainExaggeration?: number;
+		readonly zoom?: number;
+	};
+
+const stripStyleLayers = ({
+	administrativeBorders,
+	map,
+	showLabels,
+}: {
+	readonly administrativeBorders: MapAdministrativeBorders;
+	readonly map: MapTilerMap;
+	readonly showLabels: boolean;
+}) => {
+	for (const layer of [...(map.getStyle().layers ?? [])]) {
+		const shouldRemoveLabel = !showLabels && layer.type === 'symbol';
+		const shouldRemoveAdministrativeBorder =
+			administrativeBorders === 'none'
+				? /border/i.test(layer.id)
+				: administrativeBorders === 'country-only' &&
+					/other border/i.test(layer.id);
+		if (shouldRemoveLabel || shouldRemoveAdministrativeBorder) {
+			map.removeLayer(layer.id);
+		}
+	}
+};
+
+const mapViewportSchema = {
+	// Keep the existing inspector field order. Interactive.withSchema() adds
+	// these fields again without changing their insertion position.
+	...Interactive.baseSchema,
+	...Interactive.premountSchema,
+	centerLongitude: {
+		type: 'number',
+		min: -180,
+		max: 180,
+		step: 0.0001,
+		default: 0,
+		description: 'Center longitude',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	centerLatitude: {
+		type: 'number',
+		min: -90,
+		max: 90,
+		step: 0.0001,
+		default: 0,
+		description: 'Center latitude',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	zoom: {
+		type: 'number',
+		min: 0,
+		max: 22,
+		step: 0.01,
+		default: 4,
+		description: 'Zoom',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	bearing: {
+		type: 'number',
+		min: -360,
+		max: 360,
+		step: 1,
+		default: 0,
+		description: 'Bearing',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	pitch: {
+		type: 'number',
+		min: 0,
+		max: 85,
+		step: 1,
+		default: 0,
+		description: 'Pitch',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingTop: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Top camera padding',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingRight: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Right camera padding',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingBottom: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Bottom camera padding',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	paddingLeft: {
+		type: 'number',
+		min: 0,
+		max: 2000,
+		step: 1,
+		default: 0,
+		description: 'Left camera padding',
+		hiddenFromList: false,
+		keyframable: true,
+	},
+	backgroundColor: {
+		type: 'color',
+		default: '#dfe7e2',
+		description: 'Background color',
+	},
+} as const satisfies InteractivitySchema;
+
+const MissingApiKey = () => {
+	return (
+		<div
+			style={{
+				alignItems: 'center',
+				color: '#171a1f',
+				display: 'flex',
+				flexDirection: 'column',
+				fontFamily: 'Arial, sans-serif',
+				inset: 0,
+				justifyContent: 'center',
+				padding: 100,
+				position: 'absolute',
+				textAlign: 'center',
+			}}
+		>
+			<div style={{fontSize: 64, fontWeight: 700}}>MapTiler key needed</div>
+			<div style={{fontSize: 32, lineHeight: 1.4, marginTop: 24}}>
+				Pass an apiKey prop to &lt;MapViewport&gt;.
+			</div>
+		</div>
+	);
+};
+
+type MapViewportContentProps = Omit<
+	MapViewportProps,
+	| keyof InteractiveBaseProps
+	| keyof InteractiveCropProps
+	| keyof InteractivePremountProps
+	| keyof InteractiveTransformProps
+	| 'controls'
+> & {
+	readonly style?: CSSProperties;
+};
+
+const MapViewportContent: FC<MapViewportContentProps> = ({
+	apiKey,
+	style,
+	backgroundColor = '#dfe7e2',
+	bearing = 0,
+	centerLatitude = 0,
+	centerLongitude = 0,
+	children,
+	language,
+	mapOptions,
+	mapStyle = MapStyle.BASIC,
+	onMapReady,
+	paddingBottom = 0,
+	paddingLeft = 0,
+	paddingRight = 0,
+	paddingTop = 0,
+	pitch = 0,
+	projection,
+	showLabels = true,
+	administrativeBorders = 'all',
+	terrain = false,
+	terrainExaggeration = 1,
+	zoom = 4,
+}) => {
+	const mapContainerRef = useRef<HTMLDivElement>(null);
+	const mapRef = useRef<MapTilerMap | null>(null);
+	const initialCameraRef = useRef({
+		bearing,
+		centerLatitude,
+		centerLongitude,
+		paddingBottom,
+		paddingLeft,
+		paddingRight,
+		paddingTop,
+		pitch,
+		zoom,
+	});
+	const initialMapOptionsRef = useRef({
+		administrativeBorders,
+		language,
+		mapOptions,
+		mapStyle,
+		projection,
+		showLabels,
+		terrain,
+		terrainExaggeration,
+	});
+	const lastMapStyleRef = useRef(mapStyle);
+	const lastLayerVisibilityRef = useRef({
+		administrativeBorders,
+		showLabels,
+	});
+	const onMapReadyRef = useRef(onMapReady);
+	onMapReadyRef.current = onMapReady;
+	const {continueRender, delayRender} = useDelayRender();
+	const [loadedMap, setLoadedMap] = useState<{
+		map: MapTilerMap;
+		handle: number;
+	} | null>(null);
+	const map = loadedMap?.map.style ? loadedMap.map : null;
+	const [cameraRevision, setCameraRevision] = useState(0);
+	const [styleRevision, setStyleRevision] = useState(0);
+	const contextValue = useMemo(
+		() => ({cameraRevision, map, styleRevision}),
+		[cameraRevision, map, styleRevision],
+	);
+
+	useLayoutEffect(() => {
+		if (!apiKey) {
+			return;
+		}
+
+		if (!mapContainerRef.current || mapRef.current) {
+			return;
+		}
+
+		const loadingHandle = delayRender('Loading MapTiler map');
+		let cancelled = false;
+		const initialCamera = initialCameraRef.current;
+		const initialOptions = initialMapOptionsRef.current;
+		lastMapStyleRef.current = initialOptions.mapStyle;
+		lastLayerVisibilityRef.current = {
+			administrativeBorders: initialOptions.administrativeBorders,
+			showLabels: initialOptions.showLabels,
+		};
+		maptilerConfig.telemetry = false;
+		// Keep MapTiler's logo and attribution visible:
+		// https://docs.maptiler.com/guides/map-design/attribution/remove-attribution/
+		const mapInstance = new MapTilerMap({
+			fullscreenControl: false,
+			geolocateControl: false,
+			navigationControl: false,
+			scaleControl: false,
+			terrainControl: false,
+			...initialOptions.mapOptions,
+			apiKey,
+			bearing: initialCamera.bearing,
+			canvasContextAttributes: {
+				...initialOptions.mapOptions?.canvasContextAttributes,
+				preserveDrawingBuffer: true,
+			},
+			center: [initialCamera.centerLongitude, initialCamera.centerLatitude],
+			container: mapContainerRef.current,
+			fadeDuration: 0,
+			interactive: false,
+			language: initialOptions.language,
+			pitch: initialCamera.pitch,
+			projection: initialOptions.projection,
+			style: initialOptions.mapStyle,
+			terrain: initialOptions.terrain,
+			terrainExaggeration: initialOptions.terrainExaggeration,
+			zoom: initialCamera.zoom,
+		});
+		mapInstance.setPadding({
+			bottom: initialCamera.paddingBottom,
+			left: initialCamera.paddingLeft,
+			right: initialCamera.paddingRight,
+			top: initialCamera.paddingTop,
+		});
+		mapRef.current = mapInstance;
+
+		mapInstance.on('load', () => {
+			if (cancelled) {
+				return;
+			}
+
+			stripStyleLayers({
+				administrativeBorders: initialOptions.administrativeBorders,
+				map: mapInstance,
+				showLabels: initialOptions.showLabels,
+			});
+
+			mapInstance.once('idle', () => {
+				if (cancelled) {
+					return;
+				}
+
+				setLoadedMap({map: mapInstance, handle: loadingHandle});
+				onMapReadyRef.current?.(mapInstance);
+			});
+			mapInstance.triggerRepaint();
+		});
+
+		return () => {
+			cancelled = true;
+			setLoadedMap(null);
+			mapInstance.remove();
+			mapRef.current = null;
+			continueRender(loadingHandle);
+		};
+	}, [apiKey, continueRender, delayRender]);
+
+	useLayoutEffect(() => {
+		if (loadedMap) {
+			continueRender(loadedMap.handle);
+		}
+	}, [continueRender, loadedMap]);
+
+	useLayoutEffect(() => {
+		if (!map || !map.style) {
+			return;
+		}
+
+		const currentCenter = map.getCenter();
+		const currentPadding = map.getPadding();
+		const cameraIsCurrent =
+			Math.abs(currentCenter.lng - centerLongitude) < 0.0000001 &&
+			Math.abs(currentCenter.lat - centerLatitude) < 0.0000001 &&
+			Math.abs(map.getZoom() - zoom) < 0.0000001 &&
+			Math.abs(map.getBearing() - bearing) < 0.0000001 &&
+			Math.abs(map.getPitch() - pitch) < 0.0000001 &&
+			Math.abs((currentPadding.top ?? 0) - paddingTop) < 0.0000001 &&
+			Math.abs((currentPadding.right ?? 0) - paddingRight) < 0.0000001 &&
+			Math.abs((currentPadding.bottom ?? 0) - paddingBottom) < 0.0000001 &&
+			Math.abs((currentPadding.left ?? 0) - paddingLeft) < 0.0000001;
+
+		if (cameraIsCurrent) {
+			return;
+		}
+
+		const cameraHandle = delayRender('Updating MapTiler camera');
+		let hasFinished = false;
+		const finish = () => {
+			if (hasFinished) {
+				return;
+			}
+
+			hasFinished = true;
+			continueRender(cameraHandle);
+		};
+
+		const onIdle = () => finish();
+
+		map.once('idle', onIdle);
+		map.jumpTo({
+			bearing,
+			center: [centerLongitude, centerLatitude],
+			padding: {
+				bottom: paddingBottom,
+				left: paddingLeft,
+				right: paddingRight,
+				top: paddingTop,
+			},
+			pitch,
+			zoom,
+		});
+		setCameraRevision((revision) => revision + 1);
+		map.triggerRepaint();
+
+		return () => {
+			map.off('idle', onIdle);
+			finish();
+		};
+	}, [
+		bearing,
+		centerLatitude,
+		centerLongitude,
+		continueRender,
+		delayRender,
+		map,
+		paddingBottom,
+		paddingLeft,
+		paddingRight,
+		paddingTop,
+		pitch,
+		zoom,
+	]);
+
+	useLayoutEffect(() => {
+		if (
+			!map ||
+			!map.style ||
+			(lastMapStyleRef.current === mapStyle &&
+				lastLayerVisibilityRef.current.showLabels === showLabels &&
+				lastLayerVisibilityRef.current.administrativeBorders ===
+					administrativeBorders)
+		) {
+			return;
+		}
+
+		const styleHandle = delayRender('Updating MapTiler style');
+		let hasFinished = false;
+		const finish = () => {
+			if (hasFinished) {
+				return;
+			}
+
+			hasFinished = true;
+			lastMapStyleRef.current = mapStyle;
+			lastLayerVisibilityRef.current = {
+				administrativeBorders,
+				showLabels,
+			};
+			setStyleRevision((revision) => revision + 1);
+			continueRender(styleHandle);
+		};
+
+		const onStyleLoad = () => {
+			stripStyleLayers({administrativeBorders, map, showLabels});
+			map.once('idle', finish);
+			map.triggerRepaint();
+		};
+
+		map.once('style.load', onStyleLoad);
+		map.setStyle(mapStyle ?? null);
+		map.triggerRepaint();
+
+		return () => {
+			map.off('style.load', onStyleLoad);
+			map.off('idle', finish);
+			finish();
+		};
+	}, [
+		administrativeBorders,
+		continueRender,
+		delayRender,
+		map,
+		mapStyle,
+		showLabels,
+	]);
+
+	useLayoutEffect(() => {
+		if (map?.style && language) {
+			map.setLanguage(language);
+			map.triggerRepaint();
+		}
+	}, [language, map]);
+
+	useLayoutEffect(() => {
+		if (!map || !map.style) {
+			return;
+		}
+
+		if (terrain) {
+			map.enableTerrain(terrainExaggeration);
+		} else {
+			map.disableTerrain();
+		}
+
+		map.triggerRepaint();
+	}, [map, terrain, terrainExaggeration]);
+
+	useLayoutEffect(() => {
+		if (map?.style && projection) {
+			map.setProjection(projection, {persist: true});
+			map.triggerRepaint();
+		}
+	}, [map, projection]);
+
+	return (
+		<div
+			style={{
+				backgroundColor,
+				inset: 0,
+				overflow: 'hidden',
+				position: 'absolute',
+				...style,
+			}}
+		>
+			{apiKey ? (
+				<>
+					<div
+						ref={mapContainerRef}
+						style={{
+							inset: 0,
+							position: 'absolute',
+						}}
+					/>
+					<MapTilerContext.Provider value={contextValue}>
+						{children}
+					</MapTilerContext.Provider>
+				</>
+			) : (
+				<MissingApiKey />
+			)}
+		</div>
+	);
+};
+
+export const MapViewport: ComponentType<MapViewportProps> =
+	Interactive.withSchema({
+		Component: MapViewportContent,
+		componentName: '<MapViewport>',
+		schema: mapViewportSchema,
+		wrapInSequence: true,
+	});

@@ -8,24 +8,37 @@ import {
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
-import {startPointerSession} from '../../helpers/pointer-session';
+import {
+	isPointerSessionRelease,
+	startCapturedPointerSession,
+} from '../../helpers/pointer-session';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
+import {MENU_TOOLBAR_HEIGHT} from '../menu-toolbar-height';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {MenuContent} from '../NewComposition/MenuContent';
 import {MENU_INITIATOR_CLASSNAME, isMenuItem} from './is-menu-item';
 import {getPortal} from './portals';
 import {menuContainerTowardsBottom, outerPortal} from './styles';
 
+const MENU_ITEM_HEIGHT = 24;
+const MENU_ITEM_VERTICAL_MARGIN = (MENU_TOOLBAR_HEIGHT - MENU_ITEM_HEIGHT) / 2;
+
 const container: React.CSSProperties = {
+	alignItems: 'center',
+	boxSizing: 'border-box',
+	display: 'inline-flex',
 	fontSize: 13,
-	paddingLeft: 10,
-	paddingRight: 10,
+	height: MENU_ITEM_HEIGHT,
+	justifyContent: 'center',
+	paddingLeft: 8,
+	paddingRight: 8,
 	cursor: 'default',
-	paddingTop: 6,
-	paddingBottom: 6,
+	paddingTop: 0,
+	paddingBottom: 0,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 	border: 'none',
+	borderRadius: 3,
 };
 
 export type MenuId =
@@ -98,7 +111,7 @@ export const MenuItem: React.FC<{
 		return {
 			...menuContainerTowardsBottom,
 			left: size.left,
-			top: size.top + size.height,
+			top: size.top + size.height + MENU_ITEM_VERTICAL_MARGIN,
 		};
 	}, [selected, size]);
 
@@ -119,14 +132,11 @@ export const MenuItem: React.FC<{
 
 				onItemSelected(id);
 
-				startPointerSession({
+				startCapturedPointerSession({
 					event: e.nativeEvent,
-					target: e.currentTarget,
+					captureTarget: e.currentTarget,
 					onEnd: (reason, evt) => {
-						if (
-							(reason === 'pointerup' || reason === 'buttons-released') &&
-							evt
-						) {
+						if (isPointerSessionRelease(reason, evt)) {
 							const target = document.elementFromPoint(
 								evt.clientX,
 								evt.clientY,
@@ -168,7 +178,7 @@ export const MenuItem: React.FC<{
 	const outerStyle = useMemo(() => {
 		return {
 			...outerPortal,
-			top: (size?.top ?? 0) + (size?.height ?? 0),
+			top: (size?.top ?? 0) + (size?.height ?? 0) + MENU_ITEM_VERTICAL_MARGIN,
 		};
 	}, [size]);
 

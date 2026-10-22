@@ -20,141 +20,135 @@ test('Ensure max characters per line', () => {
 		},
 	];
 
-	// TODO: This creates captions that are not nice!
 	expect(ensureMaxCharactersPerLine({captions, maxCharsPerLine: 42})).toEqual({
 		segments: [
 			[
-				{
-					text: ' This',
-					startMs: 3000,
-					endMs: 6000,
-					confidence: 1,
-					timestampMs: 4500,
-				},
-				{
-					text: 'is',
-					startMs: 3000,
-					endMs: 6000,
-					confidence: 1,
-					timestampMs: 4500,
-				},
-				{
-					text: 'a',
-					startMs: 3000,
-					endMs: 6000,
-					confidence: 1,
-					timestampMs: 4500,
-				},
-				{
-					text: 'demonstration',
-					startMs: 3000,
-					endMs: 6000,
-					confidence: 1,
-					timestampMs: 4500,
-				},
-				{
-					text: 'of',
-					startMs: 3000,
-					endMs: 6000,
-					confidence: 1,
-					timestampMs: 4500,
-				},
-				{
-					text: 'SRT',
-					startMs: 3000,
-					endMs: 6000,
-					confidence: 1,
-					timestampMs: 4500,
-				},
-				{
-					text: 'subtitles.',
-					startMs: 3000,
-					endMs: 6000,
-					confidence: 1,
-					timestampMs: 4500,
-				},
-				{
-					text: ' You',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
+				' This',
+				' is',
+				' a',
+				' demonstration',
+				' of',
+				' SRT',
+				' subtitles.',
+			].map((text) => ({...captions[0], text})),
+			[' You', ' can', ' use', ' SRT', ' files', ' to', ' add'].map((text) => ({
+				...captions[1],
+				text,
+			})),
+			[' subtitles', ' to', ' your', ' videos.'].map((text) => ({
+				...captions[1],
+				text,
+			})),
+		],
+	});
+});
+
+test('Preserves spaces between words within a caption', () => {
+	const caption: Caption = {
+		text: 'Hello world again',
+		startMs: 0,
+		endMs: 1000,
+		timestampMs: 500,
+		confidence: 1,
+	};
+	const {segments} = ensureMaxCharactersPerLine({
+		captions: [caption],
+		maxCharsPerLine: 100,
+	});
+
+	expect(
+		segments[0]
+			.map((word) => word.text)
+			.join('')
+			.trim(),
+	).toBe(caption.text);
+});
+
+test('Does not emit empty segments before oversized words', () => {
+	const first: Caption = {
+		text: ' extraordinary',
+		startMs: 0,
+		endMs: 1000,
+		timestampMs: 500,
+		confidence: 1,
+		pageBreakAfter: true,
+	};
+	const second: Caption = {
+		text: ' caption',
+		startMs: 1000,
+		endMs: 2000,
+		timestampMs: 1500,
+		confidence: 1,
+	};
+
+	expect(
+		ensureMaxCharactersPerLine({
+			captions: [first, second],
+			maxCharsPerLine: 4,
+		}),
+	).toEqual({segments: [[first], [second]]});
+});
+
+test('Does not emit standalone whitespace captions', () => {
+	const captions: Caption[] = [
+		{
+			confidence: 1,
+			endMs: 1000,
+			startMs: 0,
+			text: " Using Remotion's TikTok template,",
+			timestampMs: 500,
+		},
+	];
+
+	expect(ensureMaxCharactersPerLine({captions, maxCharsPerLine: 20})).toEqual({
+		segments: [
+			[
+				{...captions[0], text: ' Using'},
+				{...captions[0], text: " Remotion's"},
 			],
 			[
-				{
-					text: 'can',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
-				{
-					text: 'use',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
-				{
-					text: 'SRT',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
-				{
-					text: 'files',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
-				{
-					text: 'to',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
-				{
-					text: 'add',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
-				{
-					text: 'subtitles',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
+				{...captions[0], text: ' TikTok'},
+				{...captions[0], text: ' template,'},
 			],
+		],
+	});
+});
+
+test('Preserves a forced page break on the final split word', () => {
+	const firstCaption: Caption = {
+		confidence: 1,
+		endMs: 1000,
+		startMs: 0,
+		text: ' Hello there',
+		timestampMs: 500,
+		pageBreakAfter: true,
+	};
+	const secondCaption: Caption = {
+		confidence: 1,
+		endMs: 2000,
+		startMs: 1000,
+		text: ' Remotion',
+		timestampMs: 1500,
+	};
+
+	expect(
+		ensureMaxCharactersPerLine({
+			captions: [firstCaption, secondCaption],
+			maxCharsPerLine: 100,
+		}),
+	).toEqual({
+		segments: [
 			[
 				{
-					text: 'to',
-					startMs: 7000,
-					endMs: 10500,
 					confidence: 1,
-					timestampMs: 8750,
+					endMs: 1000,
+					startMs: 0,
+					text: ' Hello',
+					timestampMs: 500,
 				},
-				{
-					text: 'your',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
-				{
-					text: 'videos.',
-					startMs: 7000,
-					endMs: 10500,
-					confidence: 1,
-					timestampMs: 8750,
-				},
+				{...firstCaption, text: ' there'},
 			],
+			[{...secondCaption, text: ' Remotion'}],
 		],
 	});
 });

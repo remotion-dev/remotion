@@ -1,10 +1,42 @@
+import * as z from 'zod/mini';
 import {
 	isComponentIdentifier,
 	type ComponentDimensions,
 } from './component-drag-data';
-import {isRecord, isValidPackageName} from './validation';
+import {isValidPackageName} from './validation';
 
 export type ElementInstallationMode = 'wrapped' | 'component-owned-sequence';
+
+const maxElementAssets = 100;
+export const maxElementAssetBytes = 50 * 1024 * 1024;
+
+export type ElementAsset =
+	| {
+			readonly path: string;
+			readonly type: 'url';
+			readonly url: string;
+	  }
+	| {
+			readonly path: string;
+			readonly type: 'base64';
+			readonly data: string;
+	  };
+
+export type StaticFileRef = {
+	readonly __remotion_element_asset: string;
+};
+
+export type ElementInitialPropValue =
+	| string
+	| number
+	| boolean
+	| null
+	| readonly ElementInitialPropValue[]
+	| Readonly<object>;
+
+export type ElementInitialProps = Readonly<
+	Record<string, ElementInitialPropValue>
+>;
 
 export type ElementDependency =
 	| {
@@ -18,11 +50,14 @@ export type ElementDependency =
 
 export type ElementDragData = {
 	type: 'remotion-element';
-	version: 1;
+	version: 1 | 2;
 	element: {
+		assets: ElementAsset[];
 		dependencies: ElementDependency[];
 		durationInFrames?: number;
+		initialProps: ElementInitialProps | null;
 		installationMode?: ElementInstallationMode;
+		isCaptionStyle?: boolean;
 		slug: string;
 		displayName: string;
 		sourceCode: string;
@@ -30,38 +65,55 @@ export type ElementDragData = {
 	};
 };
 
-export const isLowercaseElementFileName = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' &&
-		value.length > 0 &&
-		value.length < 120 &&
-		value === value.toLowerCase() &&
-		value.endsWith('.tsx') &&
-		!value.includes('/') &&
-		!value.includes('\\') &&
-		!value.includes('\0') &&
-		!value.includes('..') &&
-		/^[a-z0-9][a-z0-9.-]*\.tsx$/.test(value)
+const lowercaseElementFileNameSchema = z
+	.string()
+	.check(
+		z.refine(
+			(value) =>
+				value.length > 0 &&
+				value.length < 120 &&
+				value === value.toLowerCase() &&
+				value.endsWith('.tsx') &&
+				!value.includes('/') &&
+				!value.includes('\\') &&
+				!value.includes('\0') &&
+				!value.includes('..') &&
+				/^[a-z0-9][a-z0-9.-]*\.tsx$/.test(value),
+		),
 	);
-};
 
-const isSlug = (value: unknown): value is string => {
-	return (
-		typeof value === 'string' &&
-		value.length > 0 &&
-		value.length < 120 &&
-		/^[a-z0-9][a-z0-9/-]*$/.test(value) &&
-		!value.includes('..') &&
-		!value.includes('//')
+const slugSchema = z
+	.string()
+	.check(
+		z.refine(
+			(value) =>
+				value.length > 0 &&
+				value.length < 120 &&
+				/^[a-z0-9][a-z0-9/-]*$/.test(value) &&
+				!value.includes('..') &&
+				!value.includes('//'),
+		),
 	);
-};
+
+export const isLowercaseElementFileName = (value: unknown): value is string =>
+	z.safeParse(lowercaseElementFileNameSchema, value).success;
 
 export const makeElementFileNameFromSlug = (slug: string) => {
-	if (!isSlug(slug)) return null;
+	if (!z.safeParse(slugSchema, slug).success) {
+		return null;
+	}
+
 	const lastSegment = slug.split('/').at(-1);
-	if (!lastSegment) return null;
+
+	if (!lastSegment) {
+		return null;
+	}
+
 	const fileName = `${lastSegment}.element.tsx`;
-	return isLowercaseElementFileName(fileName) ? fileName : null;
+
+	return z.safeParse(lowercaseElementFileNameSchema, fileName).success
+		? fileName
+		: null;
 };
 
 export const getElementComponentNameFromSourceCode = (sourceCode: string) => {
@@ -70,8 +122,13 @@ export const getElementComponentNameFromSourceCode = (sourceCode: string) => {
 			/export\s+(?:const|function)\s+([A-Z_$][A-Za-z0-9_$]*)\b/g,
 		),
 	).map((match) => match[1]);
+
 	const uniqueComponentNames = Array.from(new Set(componentNames));
-	if (uniqueComponentNames.length !== 1) return null;
+
+	if (uniqueComponentNames.length !== 1) {
+		return null;
+	}
+
 	return isComponentIdentifier(uniqueComponentNames[0])
 		? uniqueComponentNames[0]
 		: null;
@@ -83,40 +140,50 @@ const packagesProvidedByRemotionProjects = new Set([
 	'remotion',
 ]);
 
-const isExactVersion = (value: unknown): value is string =>
-	typeof value === 'string' &&
-	/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(
-		value,
+const exactVersionSchema = z
+	.string()
+	.check(
+		z.regex(
+			/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/,
+		),
 	);
 
+const elementDependencyEnvelopeSchema = z.looseObject({
+	name: z.string().check(z.refine(isValidPackageName)),
+	version: z.unknown(),
+});
+
 const getElementDependencyError = (value: unknown): string | null => {
-	if (
-		!isRecord(value) ||
-		typeof value.name !== 'string' ||
-		!isValidPackageName(value.name)
-	) {
+	const parsed = z.safeParse(elementDependencyEnvelopeSchema, value);
+
+	if (!parsed.success) {
 		return `Invalid Element dependency: ${JSON.stringify(value)}`;
 	}
 
-	if (packagesProvidedByRemotionProjects.has(value.name)) {
-		return `${JSON.stringify(value.name)} is provided by Remotion projects and must not be declared as an Element dependency.`;
+	if (packagesProvidedByRemotionProjects.has(parsed.data.name)) {
+		return `${JSON.stringify(parsed.data.name)} is provided by Remotion projects and must not be declared as an Element dependency.`;
 	}
 
-	if (value.name.startsWith('@remotion/')) {
-		return value.version === null
+	if (parsed.data.name.startsWith('@remotion/')) {
+		return parsed.data.version === null
 			? null
-			: `Remotion Element dependency ${JSON.stringify(value.name)} must use version: null.`;
+			: `Remotion Element dependency ${JSON.stringify(parsed.data.name)} must use version: null.`;
 	}
 
-	return isExactVersion(value.version)
+	return z.safeParse(exactVersionSchema, parsed.data.version).success
 		? null
-		: `Non-Remotion Element dependency ${JSON.stringify(value.name)} must declare an exact version.`;
+		: `Non-Remotion Element dependency ${JSON.stringify(parsed.data.name)} must declare an exact version.`;
 };
+
+const elementDependencySchema = elementDependencyEnvelopeSchema.check(
+	z.refine((value) => getElementDependencyError(value) === null),
+);
 
 export function assertElementDependency(
 	value: unknown,
 ): asserts value is ElementDependency {
 	const error = getElementDependencyError(value);
+
 	if (error !== null) {
 		throw new TypeError(error);
 	}
@@ -124,116 +191,444 @@ export function assertElementDependency(
 
 export const isElementDependency = (
 	value: unknown,
-): value is ElementDependency => getElementDependencyError(value) === null;
+): value is ElementDependency =>
+	z.safeParse(elementDependencySchema, value).success;
+
+const windowsReservedNames = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
+
+const strictBase64Regex =
+	/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+
+export const isValidElementAssetPath = (assetPath: string) => {
+	if (assetPath.length === 0 || assetPath.length > 1024) {
+		return false;
+	}
+
+	if (assetPath.startsWith('/') || assetPath.includes('\\')) {
+		return false;
+	}
+
+	return assetPath.split('/').every((segment) => {
+		if (segment === '' || segment === '.' || segment === '..') {
+			return false;
+		}
+
+		if (/[<>:"|?*]/.test(segment) || /[. ]$/.test(segment)) {
+			return false;
+		}
+
+		if (
+			Array.from(segment).some((character) => character.charCodeAt(0) <= 31)
+		) {
+			return false;
+		}
+
+		return !windowsReservedNames.test(segment);
+	});
+};
+
+const isValidElementAssetUrl = (value: string) => {
+	try {
+		const url = new URL(value);
+
+		return (
+			(url.protocol === 'http:' || url.protocol === 'https:') &&
+			url.username === '' &&
+			url.password === ''
+		);
+	} catch {
+		return false;
+	}
+};
+
+const elementAssetSchema = z.union([
+	z.strictObject({
+		path: z.string().check(z.refine(isValidElementAssetPath)),
+		type: z.literal('url'),
+		url: z.string().check(z.refine(isValidElementAssetUrl)),
+	}),
+	z.strictObject({
+		path: z.string().check(z.refine(isValidElementAssetPath)),
+		type: z.literal('base64'),
+		data: z.string().check(z.regex(strictBase64Regex)),
+	}),
+]);
+
+const elementAssetsSchema = z
+	.array(elementAssetSchema)
+	.check(z.maxLength(maxElementAssets));
+
+export function assertElementAssets(
+	value: unknown,
+): asserts value is ElementAsset[] {
+	const parsed = z.safeParse(elementAssetsSchema, value);
+
+	if (!parsed.success) {
+		throw new TypeError('Invalid Element assets');
+	}
+
+	const paths = new Set<string>();
+	let embeddedBytes = 0;
+
+	for (const asset of parsed.data) {
+		const assetPath = asset.path.toLowerCase();
+
+		if (
+			[...paths].some(
+				(existingPath) =>
+					existingPath === assetPath ||
+					existingPath.startsWith(`${assetPath}/`) ||
+					assetPath.startsWith(`${existingPath}/`),
+			)
+		) {
+			throw new TypeError(
+				`Element asset destination conflicts with another asset: ${asset.path}`,
+			);
+		}
+
+		paths.add(assetPath);
+
+		if (asset.type === 'base64') {
+			embeddedBytes += (asset.data.length / 4) * 3;
+
+			if (asset.data.endsWith('==')) {
+				embeddedBytes -= 2;
+			} else if (asset.data.endsWith('=')) {
+				embeddedBytes -= 1;
+			}
+		}
+	}
+
+	if (embeddedBytes > maxElementAssetBytes) {
+		throw new TypeError('Element assets exceed the 50MB aggregate limit');
+	}
+}
+
+const dimensionsSchema = z.object({
+	width: z.number().check(z.positive()),
+	height: z.number().check(z.positive()),
+});
+
+const elementInstallationModeSchema = z.union([
+	z.literal('wrapped'),
+	z.literal('component-owned-sequence'),
+]);
+
+const durationSchema = z
+	.number()
+	.check(z.int(), z.positive(), z.lte(100_000_000));
+
+const elementInitialPropsSchema = z.record(z.string(), z.unknown());
+const initialPropNameRegex = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
+
+const componentOwnedInstallationProps = new Set([
+	'durationInFrames',
+	'from',
+	'name',
+]);
+
+const isJsonCompatibleValue = (
+	value: unknown,
+	seen: Set<object>,
+): value is ElementInitialPropValue => {
+	if (
+		value === null ||
+		typeof value === 'string' ||
+		typeof value === 'boolean'
+	) {
+		return true;
+	}
+
+	if (typeof value === 'number') {
+		return Number.isFinite(value);
+	}
+
+	if (typeof value !== 'object' || seen.has(value)) {
+		return false;
+	}
+
+	if (!Array.isArray(value)) {
+		// Plain objects from another realm have a different Object.prototype.
+		const prototype = Object.getPrototypeOf(value);
+
+		if (prototype !== null && Object.getPrototypeOf(prototype) !== null) {
+			return false;
+		}
+	}
+
+	seen.add(value);
+
+	const values = Array.isArray(value) ? value : Object.values(value);
+	const valid = values.every((item) => isJsonCompatibleValue(item, seen));
+
+	seen.delete(value);
+
+	return valid;
+};
+
+export const isElementInitialProps = (
+	value: unknown,
+): value is ElementInitialProps | null => {
+	if (value === null) {
+		return true;
+	}
+
+	if (typeof value !== 'object' || Array.isArray(value)) {
+		return false;
+	}
+
+	if (!Object.keys(value).every((key) => initialPropNameRegex.test(key))) {
+		return false;
+	}
+
+	return isJsonCompatibleValue(value, new Set());
+};
+
+const elementAssetPathSchema = z
+	.string()
+	.check(z.refine(isValidElementAssetPath));
+
+export const staticFileRef = (path: string): StaticFileRef => {
+	if (!z.safeParse(elementAssetPathSchema, path).success) {
+		throw new TypeError('staticFileRef() requires a safe Element asset path');
+	}
+
+	return {__remotion_element_asset: path};
+};
+
+export const isStaticFileRef = (value: unknown): value is StaticFileRef => {
+	if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+		return false;
+	}
+
+	if (Object.keys(value).length !== 1) {
+		return false;
+	}
+
+	if (
+		!Object.hasOwn(value, '__remotion_element_asset') ||
+		!('__remotion_element_asset' in value)
+	) {
+		return false;
+	}
+
+	return z.safeParse(elementAssetPathSchema, value.__remotion_element_asset)
+		.success;
+};
+
+export function assertElementAssetReferences({
+	assets,
+	initialProps,
+}: {
+	assets: readonly {readonly path: string}[];
+	initialProps: ElementInitialProps | null;
+}): void {
+	const paths = new Set(assets.map((asset) => asset.path));
+	const seen = new Set<object>();
+
+	const visit = (value: ElementInitialPropValue): void => {
+		if (value === null || typeof value !== 'object') {
+			return;
+		}
+
+		if (Object.hasOwn(value, '__remotion_element_asset')) {
+			if (!isStaticFileRef(value)) {
+				throw new TypeError('Invalid staticFileRef() in initialProps');
+			}
+
+			if (!paths.has(value.__remotion_element_asset)) {
+				throw new TypeError(
+					`staticFileRef() path ${JSON.stringify(value.__remotion_element_asset)} is not declared in the Element assets`,
+				);
+			}
+
+			return;
+		}
+
+		if (seen.has(value)) {
+			throw new TypeError(
+				'Element initialProps must not contain circular references',
+			);
+		}
+
+		seen.add(value);
+		Object.values(value).forEach(visit);
+		seen.delete(value);
+	};
+
+	Object.values(initialProps ?? {}).forEach(visit);
+}
+
+export const hasValidElementInitialPropsForInstallationMode = ({
+	initialProps,
+	installationMode,
+}: {
+	initialProps: ElementInitialProps | null;
+	installationMode: ElementInstallationMode | undefined;
+}) => {
+	if (
+		installationMode !== 'component-owned-sequence' ||
+		initialProps === null
+	) {
+		return true;
+	}
+
+	if (
+		Object.keys(initialProps).some((name) =>
+			componentOwnedInstallationProps.has(name),
+		)
+	) {
+		return false;
+	}
+
+	const {style} = initialProps;
+
+	if (style === undefined) {
+		return true;
+	}
+
+	if (style === null || Array.isArray(style)) {
+		return false;
+	}
+
+	return typeof style === 'object';
+};
 
 export const makeElementDragData = ({
+	assets,
 	dependencies,
 	dimensions,
 	displayName,
 	durationInFrames,
+	initialProps,
 	slug,
 	sourceCode,
 	installationMode,
+	isCaptionStyle,
 }: Omit<ElementDragData['element'], 'dependencies'> & {
 	dependencies: ElementDependency[];
 }): ElementDragData => {
+	assertElementAssets(assets);
+	assertElementAssetReferences({assets, initialProps});
+
 	for (const dependency of dependencies) {
 		assertElementDependency(dependency);
 	}
 
+	const uniqueDependencies = new Map(
+		dependencies.map((dependency) => [dependency.name, dependency]),
+	);
+
+	const element: ElementDragData['element'] = {
+		assets: [...assets],
+		dependencies: Array.from(uniqueDependencies.values()),
+		dimensions,
+		displayName,
+		initialProps,
+		slug,
+		sourceCode,
+	};
+
+	if (durationInFrames !== undefined) {
+		element.durationInFrames = durationInFrames;
+	}
+
+	if (installationMode !== undefined) {
+		element.installationMode = installationMode;
+	}
+
+	if (isCaptionStyle !== undefined) {
+		element.isCaptionStyle = isCaptionStyle;
+	}
+
 	return {
 		type: 'remotion-element',
-		version: 1,
-		element: {
-			dependencies: Array.from(
-				new Map(
-					dependencies.map(
-						(dependency) => [dependency.name, dependency] as const,
-					),
-				).values(),
-			),
-			dimensions,
-			displayName,
-			...(durationInFrames === undefined ? {} : {durationInFrames}),
-			...(installationMode === undefined ? {} : {installationMode}),
-			slug,
-			sourceCode,
-		},
+		version: assets.length === 0 ? 1 : 2,
+		element,
 	};
 };
 
-const isDimensions = (value: unknown): value is ComponentDimensions =>
-	isRecord(value) &&
-	typeof value.width === 'number' &&
-	Number.isFinite(value.width) &&
-	value.width > 0 &&
-	typeof value.height === 'number' &&
-	Number.isFinite(value.height) &&
-	value.height > 0;
-
-const isElementInstallationMode = (
-	value: unknown,
-): value is ElementInstallationMode =>
-	value === 'wrapped' || value === 'component-owned-sequence';
-
-const isDuration = (value: unknown): value is number =>
-	typeof value === 'number' &&
-	Number.isInteger(value) &&
-	value > 0 &&
-	value <= 100_000_000;
+const elementDragDataSchema = z.object({
+	type: z.literal('remotion-element'),
+	version: z.union([z.literal(1), z.literal(2)]),
+	element: z.object({
+		assets: z.optional(z.array(z.unknown())),
+		dependencies: z.array(z.unknown()).check(z.maxLength(100)),
+		durationInFrames: z.optional(durationSchema),
+		initialProps: z.optional(z.nullable(elementInitialPropsSchema)),
+		installationMode: z.optional(elementInstallationModeSchema),
+		isCaptionStyle: z.optional(z.boolean()),
+		slug: slugSchema,
+		displayName: z.string().check(z.minLength(1), z.maxLength(119)),
+		sourceCode: z
+			.string()
+			.check(
+				z.refine(
+					(value) =>
+						value.trim().length > 0 &&
+						value.length < 200_000 &&
+						getElementComponentNameFromSourceCode(value) !== null,
+				),
+			),
+		dimensions: z.optional(z.nullable(dimensionsSchema)),
+	}),
+});
 
 export const parseElementDragData = (value: string): ElementDragData | null => {
 	try {
-		const parsed: unknown = JSON.parse(value);
+		const parsed = z.safeParse(elementDragDataSchema, JSON.parse(value));
+
 		if (
-			!isRecord(parsed) ||
-			parsed.type !== 'remotion-element' ||
-			parsed.version !== 1 ||
-			!isRecord(parsed.element)
-		)
+			!parsed.success ||
+			makeElementFileNameFromSlug(parsed.data.element.slug) === null
+		) {
 			return null;
-		const {
+		}
+
+		const assets = parsed.data.element.assets ?? [];
+
+		try {
+			assertElementAssets(assets);
+		} catch {
+			return null;
+		}
+
+		const dependencies: ElementDependency[] = [];
+
+		for (const dependency of parsed.data.element.dependencies) {
+			if (!isElementDependency(dependency)) {
+				return null;
+			}
+
+			dependencies.push(dependency);
+		}
+
+		const initialProps = parsed.data.element.initialProps ?? null;
+
+		if (
+			!isElementInitialProps(initialProps) ||
+			!hasValidElementInitialPropsForInstallationMode({
+				initialProps,
+				installationMode: parsed.data.element.installationMode,
+			})
+		) {
+			return null;
+		}
+
+		const result = makeElementDragData({
+			assets,
 			dependencies,
-			dimensions,
-			displayName,
-			durationInFrames,
-			slug,
-			sourceCode,
-			installationMode,
-		} = parsed.element;
-		const validDependencies =
-			Array.isArray(dependencies) && dependencies.length <= 100
-				? dependencies
-				: null;
-		if (
-			!isSlug(slug) ||
-			typeof displayName !== 'string' ||
-			displayName.length === 0 ||
-			displayName.length >= 120 ||
-			typeof sourceCode !== 'string' ||
-			sourceCode.trim().length === 0 ||
-			sourceCode.length >= 200000 ||
-			getElementComponentNameFromSourceCode(sourceCode) === null ||
-			makeElementFileNameFromSlug(slug) === null ||
-			validDependencies === null ||
-			!validDependencies.every(isElementDependency) ||
-			(durationInFrames !== undefined && !isDuration(durationInFrames)) ||
-			(installationMode !== undefined &&
-				!isElementInstallationMode(installationMode)) ||
-			(dimensions !== undefined &&
-				dimensions !== null &&
-				!isDimensions(dimensions))
-		)
-			return null;
-		return makeElementDragData({
-			dependencies: validDependencies,
-			dimensions: dimensions ?? null,
-			displayName,
-			durationInFrames,
-			slug,
-			sourceCode,
-			installationMode,
+			dimensions: parsed.data.element.dimensions ?? null,
+			displayName: parsed.data.element.displayName,
+			durationInFrames: parsed.data.element.durationInFrames,
+			initialProps,
+			slug: parsed.data.element.slug,
+			sourceCode: parsed.data.element.sourceCode,
+			installationMode: parsed.data.element.installationMode,
+			isCaptionStyle: parsed.data.element.isCaptionStyle,
 		});
+
+		return result.version === parsed.data.version ? result : null;
 	} catch {
 		return null;
 	}

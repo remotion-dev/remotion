@@ -44,6 +44,7 @@ test('a long frame duration can satisfy requests beyond the jump threshold', asy
 		logLevel: 'error',
 		src: 'long-duration-frame.mp4',
 		videoSampleSink: makeVideoSampleSink(samples),
+		timeResolution: 1000,
 		initialTimestampRequest: 0,
 	});
 
@@ -52,6 +53,57 @@ test('a long frame duration can satisfy requests beyond the jump threshold', asy
 
 	bank.prepareForDeletion('error', 'test');
 	samples[1].close();
+});
+
+test('releases old frames before requesting more decoder output', async () => {
+	let openFrames = 0;
+	const sink: VideoSampleSink = {
+		getSample() {
+			return Promise.reject(new Error('Not implemented'));
+		},
+		async *samples() {
+			for (let i = 0; i < 20; i++) {
+				if (openFrames >= 8) {
+					throw new Error('Decoder ran out of output surfaces');
+				}
+
+				openFrames++;
+				const sample = makeSample({timestamp: i / 30, duration: 1 / 30});
+				const originalClose = sample.close.bind(sample);
+				let closed = false;
+				sample.close = () => {
+					if (!closed) {
+						closed = true;
+						openFrames--;
+					}
+
+					originalClose();
+				};
+
+				yield sample;
+			}
+		},
+		async *samplesAtTimestamps() {
+			yield* [];
+		},
+	};
+
+	const bank = await makeKeyframeBank({
+		logLevel: 'error',
+		src: 'limited-decoder-surfaces.mp4',
+		videoSampleSink: sink,
+		timeResolution: 1000,
+		initialTimestampRequest: 0,
+	});
+
+	for (let i = 0; i < 12; i++) {
+		expect((await bank.getFrameFromTimestamp(i / 30, 30))?.timestamp).toBe(
+			i / 30,
+		);
+	}
+
+	bank.prepareForDeletion('error', 'test');
+	expect(openFrames).toBe(0);
 });
 
 test('uses next sample timestamp instead of reported duration while rendering', async () => {
@@ -64,6 +116,7 @@ test('uses next sample timestamp instead of reported duration while rendering', 
 		logLevel: 'error',
 		src: 'wrong-duration-frame.mp4',
 		videoSampleSink: makeVideoSampleSink(samples),
+		timeResolution: 1000,
 		initialTimestampRequest: 0,
 	});
 

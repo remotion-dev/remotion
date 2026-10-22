@@ -1,35 +1,42 @@
-import {useContext, useMemo} from 'react';
-import {Internals} from 'remotion';
+import {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import {Internals, type PropStatuses} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
-	getTimelineLayerHeight,
 	getTreeRowHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
 import {useRuntimeValueSnapshots} from '../../helpers/use-runtime-values';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {getNodeHasKeyframes} from './get-node-keyframes';
-import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
+import {getTimelineSequenceHeight} from './timeline-track-groups';
 import {useTimelineSelection} from './TimelineSelection';
-import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 
-export const useTimelineHeight = ({
-	shown,
-	hasBeenCut,
-	isStill,
+const emptyDragOverrideSnapshot = {};
+const getDragOverrideSnapshot = (overrides: Record<string, unknown>): object =>
+	Object.keys(overrides).length === 0 ? emptyDragOverrideSnapshot : overrides;
+
+type HeightTrackCache = {
+	readonly track: TimelineTrackData;
+	readonly expanded: boolean;
+	readonly runtimeValues: Readonly<Record<string, unknown>> | null;
+	readonly dragOverride: object | null;
+	readonly effectOverrides: readonly object[];
+	readonly height: number;
+};
+
+export const useTimelineTrackHeights = ({
+	timeline,
 }: {
-	shown: TimelineTrackData[];
-	hasBeenCut: boolean;
-	isStill: boolean;
-}): number => {
+	timeline: readonly TimelineTrackData[];
+}): readonly number[] => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -45,7 +52,7 @@ export const useTimelineHeight = ({
 	);
 	const expandedControls = useMemo(
 		() =>
-			shown.flatMap((track) => {
+			timeline.flatMap((track) => {
 				if (
 					!previewServerConnected ||
 					track.nodePathInfo === null ||
@@ -57,7 +64,7 @@ export const useTimelineHeight = ({
 
 				return [track.sequence.controls];
 			}),
-		[getIsExpanded, previewServerConnected, shown],
+		[getIsExpanded, previewServerConnected, timeline],
 	);
 	const runtimeValueSnapshots = useRuntimeValueSnapshots(expandedControls);
 	const runtimeValuesByStore = useMemo(
@@ -71,15 +78,94 @@ export const useTimelineHeight = ({
 		[expandedControls, runtimeValueSnapshots],
 	);
 
-	return useMemo(() => {
-		const tracksHeight = shown.reduce((acc, track) => {
+	const previousHeightsRef = useRef<{
+		readonly timeline: readonly TimelineTrackData[];
+		readonly entries: readonly HeightTrackCache[];
+		readonly expandedEntries: readonly HeightTrackCache[];
+		readonly heights: readonly number[];
+		readonly propStatuses: PropStatuses;
+		readonly selectedRowKeys: ReadonlySet<string>;
+		readonly getIsExpanded: typeof getIsExpanded;
+		readonly previewServerConnected: boolean;
+		readonly runtimeValuesByStore: typeof runtimeValuesByStore;
+	} | null>(null);
+	const result = useMemo(() => {
+		const previous = previousHeightsRef.current;
+		if (
+			previous !== null &&
+			previous.timeline === timeline &&
+			previous.propStatuses === propStatuses &&
+			previous.selectedRowKeys === selectedRowKeys &&
+			previous.getIsExpanded === getIsExpanded &&
+			previous.previewServerConnected === previewServerConnected &&
+			previous.runtimeValuesByStore === runtimeValuesByStore &&
+			previous.expandedEntries.every((entry) => {
+				const nodePath = entry.track.nodePathInfo?.sequenceSubscriptionKey;
+				if (nodePath === undefined) {
+					return false;
+				}
+
+				return (
+					entry.dragOverride ===
+						getDragOverrideSnapshot(getDragOverrides(nodePath)) &&
+					entry.effectOverrides.every(
+						(value, index) =>
+							value ===
+							getDragOverrideSnapshot(getEffectDragOverrides(nodePath, index)),
+					)
+				);
+			})
+		) {
+			return previous;
+		}
+
+		const invalidateExpanded =
+			previous === null ||
+			previous.propStatuses !== propStatuses ||
+			previous.selectedRowKeys !== selectedRowKeys ||
+			previous.getIsExpanded !== getIsExpanded;
+		const entries = timeline.map((track, index): HeightTrackCache => {
 			const isExpanded =
 				previewServerConnected &&
 				track.nodePathInfo !== null &&
 				getIsExpanded(track.nodePathInfo);
+			const nodePath = track.nodePathInfo?.sequenceSubscriptionKey ?? null;
+			const runtimeValues =
+				isExpanded && track.sequence.controls
+					? (runtimeValuesByStore.get(track.sequence.controls.runtimeValues) ??
+						null)
+					: null;
+			let dragOverride: object | null = null;
+			if (isExpanded && nodePath !== null) {
+				dragOverride = getDragOverrideSnapshot(getDragOverrides(nodePath));
+			}
+
+			const effectOverrides =
+				isExpanded && nodePath !== null
+					? track.sequence.effects.map((_, effectIndex) =>
+							getDragOverrideSnapshot(
+								getEffectDragOverrides(nodePath, effectIndex),
+							),
+						)
+					: [];
+			const old = previous?.entries[index];
+			if (
+				old?.track === track &&
+				old.expanded === isExpanded &&
+				(!isExpanded ||
+					(!invalidateExpanded &&
+						old.runtimeValues === runtimeValues &&
+						old.dragOverride === dragOverride &&
+						old.effectOverrides.length === effectOverrides.length &&
+						old.effectOverrides.every(
+							(value, effectIndex) => value === effectOverrides[effectIndex],
+						)))
+			) {
+				return old;
+			}
+
 			const layerHeight =
-				getTimelineLayerHeight(track.sequence.type) +
-				TIMELINE_ITEM_BORDER_BOTTOM;
+				getTimelineSequenceHeight(track.sequence) + TIMELINE_ITEM_BORDER_BOTTOM;
 			const expandedHeight = (() => {
 				if (!isExpanded || track.nodePathInfo === null) {
 					return 0;
@@ -94,11 +180,7 @@ export const useTimelineHeight = ({
 					propStatuses,
 					includeTextContent: false,
 					includeSourceControls: false,
-					runtimeValues: track.sequence.controls
-						? (runtimeValuesByStore.get(
-								track.sequence.controls.runtimeValues,
-							) ?? null)
-						: null,
+					runtimeValues,
 				});
 				const filteredTree = filterTimelineExpandedTree({
 					nodes: tree,
@@ -131,19 +213,36 @@ export const useTimelineHeight = ({
 				const separators = Math.max(0, flat.length - 1);
 				return totalRowsHeight + separators + TIMELINE_ITEM_BORDER_BOTTOM;
 			})();
-			return acc + layerHeight + expandedHeight;
-		}, 0);
-
-		return (
-			tracksHeight +
-			TIMELINE_ITEM_BORDER_BOTTOM +
-			(hasBeenCut ? MAX_TIMELINE_TRACKS_NOTICE_HEIGHT : 0) +
-			(isStill ? 0 : TIMELINE_TIME_INDICATOR_HEIGHT)
-		);
+			return {
+				track,
+				expanded: isExpanded,
+				runtimeValues,
+				dragOverride,
+				effectOverrides,
+				height: layerHeight + expandedHeight,
+			};
+		});
+		const expandedEntries = entries.filter((entry) => entry.expanded);
+		const heights = entries.map((entry) => entry.height);
+		const stableHeights =
+			previous !== null &&
+			previous.heights.length === heights.length &&
+			heights.every((height, index) => previous.heights[index] === height)
+				? previous.heights
+				: heights;
+		return {
+			timeline,
+			entries,
+			expandedEntries,
+			heights: stableHeights,
+			propStatuses,
+			selectedRowKeys,
+			getIsExpanded,
+			previewServerConnected,
+			runtimeValuesByStore,
+		};
 	}, [
-		shown,
-		hasBeenCut,
-		isStill,
+		timeline,
 		previewServerConnected,
 		getIsExpanded,
 		propStatuses,
@@ -152,4 +251,9 @@ export const useTimelineHeight = ({
 		selectedRowKeys,
 		runtimeValuesByStore,
 	]);
+	useLayoutEffect(() => {
+		previousHeightsRef.current = result;
+	}, [result]);
+
+	return result.heights;
 };

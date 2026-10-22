@@ -97,7 +97,7 @@ export const SchemaLabel: React.FC<{
 				labelContent
 			)}
 			{displayedDescription ? (
-				<InfoBubble title="Field description" horizontalAlignment="right">
+				<InfoBubble aria-label="Field description" horizontalAlignment="right">
 					<div style={descriptionStyle}>{displayedDescription}</div>
 				</InfoBubble>
 			) : null}

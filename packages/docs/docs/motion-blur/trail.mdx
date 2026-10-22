@@ -7,12 +7,14 @@ crumb: 'Motion blur'
 
 import {TrailExample} from '../../components/TrailExample/TrailExample';
 
+# &lt;Trail&gt;<AvailableFrom v="3.2.39" />
+
 ```twoslash include example
 const BlueSquare: React.FC = () => <div></div>
 // - BlueSquare
 ```
 
-_available from v3.2.39, previously called `<MotionBlur>`_
+_Previously called `<MotionBlur>`._
 
 The `<Trail>` component duplicates it's children and adds a time offset to each layer in order to create a trail effect.
 
@@ -74,6 +76,10 @@ export const MyComposition = () => {
     },
   ]}
 />
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
 
 ## See also
 

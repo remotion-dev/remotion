@@ -2,9 +2,10 @@ import path from 'path';
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {
-	AwsProvider,
-	getRenderProgress,
 	LambdaClientInternals,
+	getRenderProgress,
+	type EnhancedErrorInfo,
+	type ServerlessCodec,
 } from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
@@ -18,8 +19,6 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
-import {validatePrivacy, type ServerlessCodec} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
 import {sleep} from '../../../shared/sleep';
@@ -34,9 +33,10 @@ import {
 import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+import {RENDER_COMMAND} from '../command-names';
 import {makeProgressString} from './progress';
 
-export const RENDER_COMMAND = 'render';
+export {RENDER_COMMAND} from '../command-names';
 
 const {
 	x264Option,
@@ -46,6 +46,7 @@ const {
 	scaleOption,
 	crfOption,
 	gopSizeOption,
+	disableSharedMemoryCaptureOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	mutedOption,
@@ -78,18 +79,18 @@ const {
 	overrideFpsOption,
 	overrideDurationOption,
 	sampleRateOption,
+	enableCancellationOption,
+	separateAudioOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
 	args,
 	remotionRoot,
 	logLevel,
-	providerSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -123,7 +124,13 @@ export const renderCommand = async ({
 		);
 	}
 
+	const shouldOutputImageSequence =
+		Boolean(CliInternals.parsedCli.sequence) ||
+		ConfigInternals.getShouldOutputImageSequence(null);
 	const singleFrameRange = frameRange as SingleFrameRange | null;
+	const enableCancellation = enableCancellationOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const height = overrideHeightOption.getValue({
 		commandLine: CliInternals.parsedCli,
@@ -179,6 +186,9 @@ export const renderCommand = async ({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const crf = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gopSize = gopSizeOption.getValue({
@@ -269,7 +279,7 @@ export const renderCommand = async ({
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
+				'Passing the shorthand serve URL without a composition ID is currently not supported.\n Make sure to pass a composition ID after the shorthand serve URL or pass the complete serveURL without a composition ID to choose between all compositions.',
 			);
 		}
 
@@ -327,7 +337,9 @@ export const renderCommand = async ({
 		composition = compositionId;
 	}
 
-	const outName = parsedLambdaCli['out-name'];
+	const outName = shouldOutputImageSequence
+		? (parsedLambdaCli['output-prefix'] ?? parsedLambdaCli['out-name'])
+		: parsedLambdaCli['out-name'];
 	const s3OutputProvider = getS3OutputProviderFromCli({
 		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
 		region: parsedLambdaCli['s3-output-provider-region'],
@@ -340,26 +352,31 @@ export const renderCommand = async ({
 		s3OutputProvider,
 	});
 	const downloadName = args[2] ?? null;
+	const separateAudioTo = separateAudioOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
-	const {value: codec, source: reason} = videoCodecOption.getValue(
-		{
-			commandLine: CliInternals.parsedCli,
-		},
-		{
-			downloadName,
-			outName: outName ?? null,
-			configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-			uiCodec: null,
-			compositionCodec: null,
-		},
-	);
+	const {value: codec, source: reason} = shouldOutputImageSequence
+		? {value: null, source: 'image sequence'}
+		: videoCodecOption.getValue(
+				{
+					commandLine: CliInternals.parsedCli,
+				},
+				{
+					downloadName,
+					outName: outName ?? null,
+					configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+					uiCodec: null,
+					compositionCodec: null,
+				},
+			);
 
 	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue(
 		{
 			commandLine: CliInternals.parsedCli,
 		},
 		{
-			codec,
+			codec: codec ?? undefined,
 			uiVideoImageFormat: null,
 			compositionDefaultVideoImageFormat: null,
 		},
@@ -368,27 +385,48 @@ export const renderCommand = async ({
 		throw new Error('Expected image format to be resolved');
 	}
 
-	const functionName = await findFunctionName({logLevel, providerSpecifics});
+	const functionName = await findFunctionName({logLevel});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
-	validatePrivacy(privacy, true);
+	LambdaClientInternals.validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
+	const rendererFunctionName =
+		parsedLambdaCli['renderer-function-name'] ?? null;
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
 	const res = await LambdaClientInternals.internalRenderMediaOnLambdaRaw({
+		enableCancellation,
 		functionName,
 		serveUrl,
 		inputProps,
-		codec: codec as ServerlessCodec,
+		codec: shouldOutputImageSequence ? null : (codec as ServerlessCodec),
+		output: shouldOutputImageSequence
+			? {
+					type: 'sequence',
+					outputPrefix:
+						typeof resolvedOutName === 'object' && resolvedOutName !== null
+							? {
+									bucketName: resolvedOutName.bucketName,
+									keyPrefix: resolvedOutName.key,
+									s3OutputProvider: resolvedOutName.s3OutputProvider,
+								}
+							: resolvedOutName,
+					imageSequencePattern:
+						BrowserSafeApis.options.imageSequencePatternOption.getValue({
+							commandLine: CliInternals.parsedCli,
+						}).value,
+				}
+			: {type: 'media'},
 		imageFormat,
 		crf: crf ?? undefined,
 		gopSize,
+		disableSharedMemoryCapture,
 		envVariables,
 		pixelFormat,
 		proResProfile,
@@ -402,6 +440,7 @@ export const renderCommand = async ({
 		logLevel,
 		frameRange: singleFrameRange,
 		outName: resolvedOutName,
+		separateAudioTo,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,
@@ -425,7 +464,7 @@ export const renderCommand = async ({
 					customData: webhookCustomData,
 				}
 			: null,
-		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,
+		rendererFunctionName,
 		forceBucketName: parsedLambdaCli['force-bucket-name'] ?? null,
 		audioCodec,
 		deleteAfter: deleteAfter ?? null,
@@ -449,6 +488,44 @@ export const renderCommand = async ({
 		sampleRate,
 	});
 
+	const unregisterCtrlCHandler = CliInternals.registerCtrlCHandler(async () => {
+		if (!enableCancellation) {
+			Log.info(
+				{indent: false, logLevel},
+				'Stopped waiting. The Lambda render is still running.',
+			);
+			Log.info(
+				{indent: false, logLevel},
+				'Use --enable-cancellation to allow Ctrl+C to cancel it.',
+			);
+			return 130;
+		}
+
+		Log.info({indent: false, logLevel}, 'Cancelling Lambda render...');
+		try {
+			await LambdaClientInternals.internalCancelRenderOnLambda({
+				bucketName: res.bucketName,
+				region,
+				renderId: res.renderId,
+				forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+				requestHandler: null,
+			});
+		} catch (err) {
+			Log.error(
+				{indent: false, logLevel},
+				`Could not cancel the Lambda render: ${err instanceof Error ? err.message : String(err)}`,
+			);
+			Log.info(
+				{indent: false, logLevel},
+				'The Lambda render may still be running.',
+			);
+			return 1;
+		}
+
+		Log.info({indent: false, logLevel}, 'Cancellation signal sent.');
+		return 130;
+	});
+
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
@@ -461,13 +538,19 @@ export const renderCommand = async ({
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: `https://${getAwsRegion()}.console.aws.amazon.com/s3/buckets/${res.bucketName}/?region=${getAwsRegion()}`})}`,
+			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: LambdaClientInternals.getS3BucketUrl({region: getAwsRegion(), bucketName: res.bucketName})})}`,
 		),
 	);
+	if (enableCancellation) {
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray('Press Ctrl+C to cancel the render.'),
+		);
+	}
 	Log.info(
 		{indent: false, logLevel},
 		CliInternals.chalk.gray(
-			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: `https://${getAwsRegion()}.console.aws.amazon.com/lambda/home#/functions/${functionName}?tab=code`})}`,
+			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: LambdaClientInternals.getLambdaFunctionUrl({region: getAwsRegion(), functionName})})}`,
 		),
 	);
 	Log.info(
@@ -488,19 +571,26 @@ export const renderCommand = async ({
 			})}`,
 		),
 	);
-	Log.info(
-		{
-			indent: false,
-			logLevel,
-		},
-		CliInternals.chalk.gray(
-			`${CliInternals.makeHyperlink({
-				text: 'Codec',
-				fallback: 'Codec',
-				url: 'https://remotion.dev/docs/encoding',
-			})}: ${codec} (${reason})`,
-		),
-	);
+	if (shouldOutputImageSequence) {
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(`Image format: ${imageFormat}`),
+		);
+	} else {
+		Log.info(
+			{
+				indent: false,
+				logLevel,
+			},
+			CliInternals.chalk.gray(
+				`${CliInternals.makeHyperlink({
+					text: 'Codec',
+					fallback: 'Codec',
+					url: 'https://remotion.dev/docs/encoding',
+				})}: ${codec} (${reason})`,
+			),
+		);
+	}
 
 	Log.verbose(
 		{indent: false, logLevel},
@@ -510,11 +600,15 @@ export const renderCommand = async ({
 			url: res.cloudWatchMainLogs,
 			fallback: res.cloudWatchMainLogs,
 		}),
-		CliInternals.makeHyperlink({
-			text: `Renderer functions`,
-			url: res.cloudWatchLogs,
-			fallback: res.cloudWatchLogs,
-		}),
+		...(concurrency === 1 && rendererFunctionName === null
+			? []
+			: [
+					CliInternals.makeHyperlink({
+						text: `Renderer functions`,
+						url: res.cloudWatchLogs,
+						fallback: res.cloudWatchLogs,
+					}),
+				]),
 	);
 	Log.verbose(
 		{indent: false, logLevel},
@@ -577,11 +671,13 @@ export const renderCommand = async ({
 		);
 
 		if (newStatus.done) {
+			unregisterCtrlCHandler();
 			let downloadOrNothing;
 
 			if (downloadName) {
 				const downloadStart = Date.now();
 				const download = await internalDownloadMedia({
+					output: 'main',
 					bucketName: res.bucketName,
 					outPath: downloadName,
 					region: getAwsRegion(),
@@ -600,7 +696,6 @@ export const renderCommand = async ({
 							false,
 						);
 					},
-					providerSpecifics: providerSpecifics,
 					forcePathStyle: parsedLambdaCli['force-path-style'],
 					signal: new AbortController().signal,
 					customCredentials: s3OutputProvider,
@@ -620,21 +715,32 @@ export const renderCommand = async ({
 				);
 			}
 
+			const outputUrl = newStatus.outputSequence
+				? `${LambdaClientInternals.getS3BucketUrl({
+						region: getAwsRegion(),
+						bucketName: newStatus.outputSequence.bucketName,
+					})}&prefix=${encodeURIComponent(newStatus.outputSequence.keyPrefix)}`
+				: (newStatus.outputFile as string);
+
 			Log.info({indent: false, logLevel});
-			Log.info(
-				{indent: false, logLevel},
-				CliInternals.chalk.blue('+ S3 '.padEnd(CliInternals.LABEL_WIDTH)),
-				CliInternals.chalk.blue(
-					CliInternals.makeHyperlink({
-						fallback: newStatus.outputFile as string,
-						text: newStatus.outKey as string,
-						url: newStatus.outputFile as string,
-					}),
-				),
-				CliInternals.chalk.gray(
-					CliInternals.formatBytes(newStatus.outputSizeInBytes as number),
-				),
-			);
+			const separateAudio = newStatus.separateAudio ?? null;
+			for (const output of [
+				...(separateAudio === null ? [] : [separateAudio]),
+				{
+					url: outputUrl,
+					key:
+						newStatus.outputSequence?.keyPrefix ?? (newStatus.outKey as string),
+					sizeInBytes: newStatus.outputSizeInBytes as number,
+				},
+			]) {
+				Log.info(
+					{indent: false, logLevel},
+					CliInternals.chalk.blue(
+						`${(separateAudio === null ? '+ S3' : '+').padEnd(CliInternals.LABEL_WIDTH)} ${CliInternals.makeHyperlink({fallback: output.url, text: output.key, url: output.url})}`,
+					),
+					CliInternals.chalk.gray(CliInternals.formatBytes(output.sizeInBytes)),
+				);
+			}
 
 			if (downloadOrNothing) {
 				const relativeOutputPath = path.relative(
@@ -688,6 +794,7 @@ export const renderCommand = async ({
 		}
 
 		if (newStatus.fatalErrorEncountered) {
+			unregisterCtrlCHandler();
 			Log.error({indent: false, logLevel}, '\n');
 			const uniqueErrors: EnhancedErrorInfo[] = [];
 			for (const err of newStatus.errors) {

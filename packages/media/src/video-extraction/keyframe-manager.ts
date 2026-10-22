@@ -2,6 +2,7 @@ import type {VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
 import {renderTimestampRange} from '../render-timestamp-range';
+import {makeSerializedQueue} from '../serialized-queue';
 import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 
 // A bank that was returned within the last N requests for the same src is
@@ -251,11 +252,13 @@ export const makeKeyframeManager = ({
 	const getKeyframeBankOrRefetch = async ({
 		timestamp,
 		videoSampleSink,
+		timeResolution,
 		src,
 		logLevel,
 	}: {
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
+		timeResolution: number;
 		src: string;
 		logLevel: LogLevel;
 	}): Promise<KeyframeBank | null> => {
@@ -275,6 +278,7 @@ export const makeKeyframeManager = ({
 			);
 			const newKeyframeBank = await makeKeyframeBank({
 				videoSampleSink,
+				timeResolution,
 				logLevel,
 				src,
 				initialTimestampRequest: timestamp,
@@ -309,6 +313,7 @@ export const makeKeyframeManager = ({
 		// Then refetch
 		const replacementKeybank = await makeKeyframeBank({
 			videoSampleSink,
+			timeResolution,
 			initialTimestampRequest: timestamp,
 			logLevel,
 			src,
@@ -324,6 +329,7 @@ export const makeKeyframeManager = ({
 	const requestKeyframeBank = async ({
 		timestamp,
 		videoSampleSink,
+		timeResolution,
 		src,
 		logLevel,
 		maxCacheSize,
@@ -331,6 +337,7 @@ export const makeKeyframeManager = ({
 	}: {
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
+		timeResolution: number;
 		src: string;
 		logLevel: LogLevel;
 		maxCacheSize: number;
@@ -354,6 +361,7 @@ export const makeKeyframeManager = ({
 		const keyframeBank = await getKeyframeBankOrRefetch({
 			timestamp,
 			videoSampleSink,
+			timeResolution,
 			src,
 			logLevel,
 		});
@@ -390,12 +398,13 @@ export const makeKeyframeManager = ({
 		clearAll(logLevel);
 	};
 
-	let queue = Promise.resolve<unknown>(undefined);
+	const enqueue = makeSerializedQueue();
 
 	return {
 		requestKeyframeBank: ({
 			timestamp,
 			videoSampleSink,
+			timeResolution,
 			src,
 			logLevel,
 			maxCacheSize,
@@ -403,22 +412,23 @@ export const makeKeyframeManager = ({
 		}: {
 			timestamp: number;
 			videoSampleSink: VideoSampleSink;
+			timeResolution: number;
 			src: string;
 			logLevel: LogLevel;
 			maxCacheSize: number;
 			fps: number;
 		}) => {
-			queue = queue.then(() =>
+			return enqueue(() =>
 				requestKeyframeBank({
 					timestamp,
 					videoSampleSink,
+					timeResolution,
 					src,
 					logLevel,
 					maxCacheSize,
 					fps,
 				}),
 			);
-			return queue as Promise<KeyframeBank | null>;
 		},
 		getCacheStats,
 		clearAll,

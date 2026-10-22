@@ -4,6 +4,7 @@ import CodeBlock from '@theme/CodeBlock';
 import TabItem from '@theme/TabItem';
 // @ts-expect-error
 import Tabs from '@theme/Tabs';
+import {extraPackages} from '@remotion/studio-shared';
 import React from 'react';
 import {VERSION} from 'remotion';
 
@@ -54,12 +55,18 @@ export const Installation: React.FC<{
 	}
 
 	const pkgList = pkg.split(' ');
+	const extraPackageVersions = new Map(
+		extraPackages.map(({name, version}) => [name, version]),
+	);
 
-	const allRemotionOnly = pkgList.every(
-		(p) => p.startsWith('@remotion/') || p === 'remotion',
+	const allSupportedByRemotionCli = pkgList.every(
+		(p) =>
+			p.startsWith('@remotion/') ||
+			p === 'remotion' ||
+			extraPackageVersions.has(p),
 	);
 	const showRemotionCli =
-		allRemotionOnly &&
+		allSupportedByRemotionCli &&
 		!pkgList.includes('remotion') &&
 		!pkgList.includes('@remotion/cli');
 
@@ -67,6 +74,10 @@ export const Installation: React.FC<{
 		.map((p) => {
 			if (p.startsWith('@remotion') || p === 'remotion') {
 				return `${p}@${VERSION}`;
+			}
+
+			if (allSupportedByRemotionCli && extraPackageVersions.has(p)) {
+				return `${p}@${extraPackageVersions.get(p)}`;
 			}
 
 			return p;

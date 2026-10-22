@@ -1,205 +1,73 @@
-import type {
-	_InternalTypes,
-	LoopDisplay,
-	OverrideIdToNodePaths,
-	TSequence,
-} from 'remotion';
-import {getConnectedCompositions} from './get-connected-compositions';
-import {
-	getCascadedStart,
-	getCascadedStartWithTrim,
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-} from './get-sequence-visible-range';
-import {getTimelineNestedLevel} from './get-timeline-nestedness';
-import type {
-	TimelineTrackData,
-	TimelineTrackWithOriginalTimings,
-} from './get-timeline-sequence-sort-key';
-import {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
-import {sortItemsByNonceHistory} from './sort-by-nonce-history';
-import {timelineSequenceNodePathToKey} from './timeline-node-path-key';
+import {CanvasInternals} from '@remotion/sdk';
+import {useContext, useMemo, type ContextType} from 'react';
+import {Internals} from 'remotion';
 
-const getInheritedLoopDisplay = (
-	sequence: TSequence,
-	sequences: TSequence[],
-): LoopDisplay | undefined => {
-	if (sequence.loopDisplay) {
-		return sequence.loopDisplay;
-	}
+type TimelineCalculator = ReturnType<
+	typeof CanvasInternals.createTimelineCalculator
+>;
+type TimelineInput = Parameters<TimelineCalculator>[0];
+type Compositions = NonNullable<TimelineInput['compositions']>;
+const emptyCompositions: Compositions = [];
+const calculatorsByRegistry = new WeakMap<
+	NonNullable<ContextType<typeof Internals.SequenceRegistryContext>>,
+	TimelineCalculator
+>();
 
-	if (!sequence.parent) {
-		return undefined;
-	}
-
-	const parent = sequences.find((s) => s.id === sequence.parent);
-	if (!parent) {
-		return undefined;
-	}
-
-	return getInheritedLoopDisplay(parent, sequences);
-};
-
-export const calculateTimeline = ({
-	sequences,
-	overrideIdsToNodePaths,
-	compositions = [],
-}: {
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
-	compositions?: readonly _InternalTypes['AnyComposition'][];
-}): TimelineTrackData[] => {
-	const sortedSequences = sortItemsByNonceHistory(sequences);
-	const tracks: TimelineTrackWithOriginalTimings[] = [];
-
-	if (sortedSequences.length === 0) {
-		return [];
-	}
-
-	const connectedCompositionsBySequenceId = new Map<
-		string,
-		readonly _InternalTypes['AnyComposition'][]
-	>();
-	for (const sequence of sortedSequences) {
-		const connectedCompositions = getConnectedCompositions({
-			compositions,
-			singleChildComponent: sequence.singleChildComponent,
-		});
-		if (connectedCompositions.length > 0) {
-			connectedCompositionsBySequenceId.set(sequence.id, connectedCompositions);
-		}
-	}
-
-	const sequencesById = new Map(
-		sortedSequences.map((sequence) => [sequence.id, sequence]),
-	);
-	const timelineSequences = sortedSequences.filter((sequence) => {
-		let parentId = sequence.parent;
-		while (parentId !== null) {
-			if (connectedCompositionsBySequenceId.has(parentId)) {
-				return false;
-			}
-
-			parentId = sequencesById.get(parentId)?.parent ?? null;
+export const useTimelineCalculator = (): TimelineCalculator => {
+	const registry = useContext(Internals.SequenceRegistryContext);
+	return useMemo(() => {
+		const existing =
+			registry === null ? null : calculatorsByRegistry.get(registry);
+		if (existing) {
+			return existing;
 		}
 
-		return true;
-	});
-
-	for (let i = 0; i < timelineSequences.length; i++) {
-		const sequence = timelineSequences[i];
-		const cascadedStart = getCascadedStart(sequence, sortedSequences);
-		const cascadedStartWithTrim = getCascadedStartWithTrim(
-			sequence,
-			sortedSequences,
-		);
-		const effectiveFrom =
-			sequence.trimBefore === null
-				? sequence.from
-				: sequence.from - sequence.trimBefore;
-
-		const visibleStart = getTimelineVisibleStart(sequence, sortedSequences);
-		const visibleDuration = getTimelineVisibleDuration(
-			sequence,
-			sortedSequences,
-		);
-
-		const overrideId = sequence.controls?.overrideId ?? null;
-		const nodePath = overrideId ? overrideIdsToNodePaths[overrideId] : null;
-		const hasKeyframeRows =
-			sequence.controls !== null || sequence.effects.length > 0;
-		const connectedCompositions =
-			connectedCompositionsBySequenceId.get(sequence.id) ?? [];
-
-		tracks.push({
-			...(connectedCompositions.length > 0 ? {connectedCompositions} : {}),
-			sequence: {
-				...sequence,
-				from: visibleStart,
-				duration: visibleDuration,
-				loopDisplay:
-					sequence.type === 'audio' || sequence.type === 'video'
-						? getInheritedLoopDisplay(sequence, sortedSequences)
-						: sequence.loopDisplay,
-			},
-			depth: getTimelineNestedLevel(sequence, sortedSequences, 0),
-			cascadedStart,
-			cascadedDuration: sequence.duration,
-			keyframeDisplayOffset: hasKeyframeRows
-				? cascadedStartWithTrim - effectiveFrom
-				: 0,
-			sequenceFrameOffset: visibleStart - cascadedStartWithTrim,
-			nodePathInfo: nodePath
-				? {
-						sequenceSubscriptionKey: nodePath,
-						auxiliaryKeys: [],
-						index: 0,
-						numberOfSequencesWithThisNodePath: 0,
-						supportsEffects: sequence.controls?.supportsEffects === true,
-					}
-				: null,
-		});
-	}
-
-	const nonceRanks = new Map<string, number>();
-	for (let i = 0; i < tracks.length; i++) {
-		nonceRanks.set(tracks[i].sequence.id, i);
-	}
-
-	const sortedTracks: TimelineTrackData[] = tracks
-		.sort((a, b) => {
-			const sortKeyA = getTimelineSequenceSortKey(a, tracks, nonceRanks);
-			const sortKeyB = getTimelineSequenceSortKey(b, tracks, nonceRanks);
-			return sortKeyA.localeCompare(sortKeyB);
-		})
-		.map((track) => {
-			const {cascadedDuration, cascadedStart, ...cleanTrack} = track;
-			return cleanTrack;
-		});
-
-	const nodePathIndexCounters = new Map<string, number>();
-
-	return sortedTracks
-		.map((track): TimelineTrackData => {
-			if (track.nodePathInfo === null) {
-				return track;
+		// Consumers in one preview share retained models. Different composition
+		// visibility settings need independent models of the same registrations.
+		const calculatorsByConfiguration = new WeakMap<
+			TimelineInput['overrideIdsToNodePaths'],
+			WeakMap<Compositions, Map<boolean, TimelineCalculator>>
+		>();
+		const calculate: TimelineCalculator = (input) => {
+			const compositions = input.compositions?.length
+				? input.compositions
+				: emptyCompositions;
+			const showConnectedCompositionChildren =
+				input.showConnectedCompositionChildren ?? false;
+			let byCompositions = calculatorsByConfiguration.get(
+				input.overrideIdsToNodePaths,
+			);
+			if (!byCompositions) {
+				byCompositions = new WeakMap();
+				calculatorsByConfiguration.set(
+					input.overrideIdsToNodePaths,
+					byCompositions,
+				);
 			}
 
-			const key = timelineSequenceNodePathToKey(
-				track.nodePathInfo.sequenceSubscriptionKey,
-			);
-			const index = nodePathIndexCounters.get(key) ?? 0;
-			nodePathIndexCounters.set(key, index + 1);
-			return {
-				...track,
-				nodePathInfo: {
-					sequenceSubscriptionKey: track.nodePathInfo.sequenceSubscriptionKey,
-					auxiliaryKeys: track.nodePathInfo.auxiliaryKeys,
-					index,
-					numberOfSequencesWithThisNodePath: 0,
-					supportsEffects: track.nodePathInfo.supportsEffects,
-				},
-			};
-		})
-		.map((track) => {
-			if (track.nodePathInfo === null) {
-				return track;
+			let byVisibility = byCompositions.get(compositions);
+			if (!byVisibility) {
+				byVisibility = new Map();
+				byCompositions.set(compositions, byVisibility);
 			}
 
-			const key = timelineSequenceNodePathToKey(
-				track.nodePathInfo.sequenceSubscriptionKey,
-			);
+			let calculator = byVisibility.get(showConnectedCompositionChildren);
+			if (!calculator) {
+				calculator = CanvasInternals.createTimelineCalculator();
+				byVisibility.set(showConnectedCompositionChildren, calculator);
+			}
 
-			return {
-				...track,
-				nodePathInfo: {
-					sequenceSubscriptionKey: track.nodePathInfo.sequenceSubscriptionKey,
-					auxiliaryKeys: track.nodePathInfo.auxiliaryKeys,
-					index: track.nodePathInfo.index,
-					numberOfSequencesWithThisNodePath:
-						nodePathIndexCounters.get(key) ?? 0,
-					supportsEffects: track.nodePathInfo.supportsEffects,
-				},
-			};
-		});
+			return calculator({
+				...input,
+				compositions,
+				showConnectedCompositionChildren,
+			});
+		};
+
+		if (registry !== null) {
+			calculatorsByRegistry.set(registry, calculate);
+		}
+
+		return calculate;
+	}, [registry]);
 };

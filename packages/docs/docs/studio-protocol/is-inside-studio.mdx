@@ -1,0 +1,61 @@
+---
+image: /generated/articles-docs-studio-protocol-is-inside-studio.png
+title: 'isInsideStudio()'
+crumb: '@remotion/studio-protocol'
+---
+
+# isInsideStudio()<AvailableFrom v="4.0.518" />
+
+Checks whether your site is in Studio's Element Library modal. Use it to hide redundant UI, such as a "Drag into Studio" handle.
+
+## Example
+
+```tsx twoslash title="ElementActions.tsx"
+import {isInsideStudio} from '@remotion/studio-protocol';
+import {useLayoutEffect, useState} from 'react';
+
+export const ElementActions = () => {
+  const [insideStudio, setInsideStudio] = useState<boolean | null>(null);
+
+  useLayoutEffect(() => {
+    setInsideStudio(isInsideStudio());
+  }, []);
+
+  return insideStudio === false ? <button>Drag into Studio</button> : null;
+};
+```
+
+Starting with `null` hides the action until the check runs, preventing a flash. It then appears on top-level sites.
+
+## Avoiding flickering on the first load
+
+HTML painted before your client code runs can briefly show unnecessary UI inside Studio, such as a navbar or an Element drag handle.
+
+For request-time SSR, check `remotion-studio=true` in the request URL before rendering. Use the same result for the initial client render to avoid hydration mismatches. The server cannot detect the iframe.
+
+For pre-rendered pages, or when you cannot adapt HTML on the server, put an inline script immediately after `<body>`, before the affected UI is parsed. In the browser, `isInsideStudio()` is equivalent to:
+
+```ts twoslash title="Before-paint check"
+if (
+  new URLSearchParams(window.location.search).get('remotion-studio') === 'true' ||
+  window.parent !== window
+) {
+  // Adapt your UI for Studio before it is painted.
+}
+```
+
+## Return value
+
+Returns `true` when the URL contains `remotion-studio=true` or the page is inside any iframe, even if client-side navigation removes the marker. Returns `false` outside a browser, including during SSR, because there is no `window`.
+
+This is a UI hint, not proof of Studio identity or a security boundary.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering={false} player={false} studio={false} hideServers />
+
+## See also
+
+- [Building Element Libraries](/docs/elements/libraries)
+- [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
+- [Studio Protocol security](/docs/studio-protocol/security)

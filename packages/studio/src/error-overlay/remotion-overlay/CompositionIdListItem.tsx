@@ -41,7 +41,7 @@ export const CompositionIdListItem: React.FC<{
 				...(hover ? listItemHoverStyle : {}),
 				...(isActive ? listItemActiveStyle : {}),
 			}}
-			title={id}
+			aria-label={id}
 		>
 			{id}
 		</div>

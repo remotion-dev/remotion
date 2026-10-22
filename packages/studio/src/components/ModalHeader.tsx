@@ -14,8 +14,12 @@ const container: React.CSSProperties = {
 };
 
 const titleStyle: React.CSSProperties = {
-	fontSize: 14,
 	color: WHITE,
+	fontSize: 14,
+	minWidth: 0,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const icon: React.CSSProperties = {
@@ -24,9 +28,10 @@ const icon: React.CSSProperties = {
 };
 
 export const ModalHeader: React.FC<{
+	readonly rightAction?: React.ReactNode;
 	readonly title: string;
 	readonly onClose?: () => void;
-}> = ({title, onClose}) => {
+}> = ({rightAction, title, onClose}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 
 	const onPress = useCallback(() => {
@@ -37,7 +42,12 @@ export const ModalHeader: React.FC<{
 		<div style={container}>
 			<div style={titleStyle}>{title}</div>
 			<Flex />
-			<CancelButton style={icon} onPress={onClose ?? onPress} />
+			{rightAction}
+			<CancelButton
+				aria-label="Close dialog"
+				style={icon}
+				onPress={onClose ?? onPress}
+			/>
 		</div>
 	);
 };

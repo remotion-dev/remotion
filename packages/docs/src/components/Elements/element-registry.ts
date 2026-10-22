@@ -1,0 +1,207 @@
+export const elementCategories = [
+	{category: 'audio', label: 'Audio'},
+	{category: 'backgrounds', label: 'Backgrounds'},
+	{category: 'captions', label: 'Captions'},
+	{category: 'data', label: 'Charts & Data'},
+	{category: 'commerce', label: 'Effects'},
+	{category: 'layouts', label: 'Layouts'},
+	{category: 'maps', label: 'Maps'},
+	{category: 'overlays', label: 'Overlays'},
+	{category: 'storytelling', label: 'Storytelling'},
+	{category: 'text', label: 'Text Effects'},
+	{category: 'youtube', label: 'YouTube'},
+] as const;
+
+export type ElementCategory = (typeof elementCategories)[number]['category'];
+
+export const getElementCategoryHeadingId = (category: ElementCategory) => {
+	return `element-category-${category}`;
+};
+
+export const elementRegistry = {
+	'audio/oscilloscope': {
+		category: 'audio',
+		displayName: 'Oscilloscope',
+	},
+	'audio/waveform-progress': {
+		category: 'audio',
+		displayName: 'Voice Note',
+	},
+	'audio/mirrored-spectrum': {
+		category: 'audio',
+		displayName: 'Mirrored Spectrum',
+	},
+	'backgrounds/liquid-contours': {
+		category: 'backgrounds',
+		displayName: 'Liquid Contours',
+	},
+	'backgrounds/moving-waves': {
+		category: 'backgrounds',
+		displayName: 'Moving Waves',
+	},
+	'backgrounds/moving-zigzags': {
+		category: 'backgrounds',
+		displayName: 'Moving Zigzags',
+	},
+	'backgrounds/notebook-paper': {
+		category: 'backgrounds',
+		displayName: 'Notebook Paper',
+	},
+	'backgrounds/paper-texture': {
+		category: 'backgrounds',
+		displayName: 'Paper Texture',
+	},
+	'backgrounds/rotating-starburst': {
+		category: 'backgrounds',
+		displayName: 'Rotating Starburst',
+	},
+	'captions/basic-captions': {
+		category: 'captions',
+		displayName: 'Basic Captions',
+	},
+	'captions/rounded-captions': {
+		category: 'captions',
+		displayName: 'Rounded Captions',
+	},
+	'captions/moving-pill-captions': {
+		category: 'captions',
+		displayName: 'Moving Pill Captions',
+	},
+	'captions/popping-word-captions': {
+		category: 'captions',
+		displayName: 'Popping Word Captions',
+	},
+	'captions/word-highlight-captions': {
+		category: 'captions',
+		displayName: 'Word Highlight Captions',
+	},
+	'commerce/product-collection': {
+		category: 'layouts',
+		displayName: 'Rotating Cards',
+	},
+	'commerce/product-discount-callout': {
+		category: 'commerce',
+		displayName: 'Wiggling Callout',
+	},
+	'commerce/peel': {
+		category: 'commerce',
+		displayName: 'Peel',
+	},
+	'commerce/shine': {
+		category: 'commerce',
+		displayName: 'Shine',
+	},
+	'commerce/tear': {
+		category: 'commerce',
+		displayName: 'Tear apart',
+	},
+	'data/horizontal-bar-chart': {
+		category: 'data',
+		displayName: 'Horizontal Bar Chart',
+	},
+	'data/line-chart': {
+		category: 'data',
+		displayName: 'Line Chart',
+	},
+	'data/number-counter': {
+		category: 'data',
+		displayName: 'Number Counter',
+	},
+	'data/pie-chart': {
+		category: 'data',
+		displayName: 'Pie Chart',
+	},
+	'data/vertical-bar-chart': {
+		category: 'data',
+		displayName: 'Vertical Bar Chart',
+	},
+	'layouts/picture-in-picture-transition': {
+		category: 'layouts',
+		displayName: 'Picture in Picture Transition',
+	},
+	'layouts/slide-to-split-screen': {
+		category: 'layouts',
+		displayName: 'Slide to Split Screen',
+	},
+	'maps/map-flyover': {
+		category: 'maps',
+		displayName: 'A-to-B Map Flyover',
+	},
+	'maps/spinning-globe': {
+		category: 'maps',
+		displayName: 'Spinning Globe',
+	},
+	'maps/watercolor-map': {
+		category: 'maps',
+		displayName: 'Watercolor Map',
+	},
+	'overlays/location-lower-third': {
+		category: 'overlays',
+		displayName: 'Location Lower Third',
+	},
+	'overlays/name-lower-third': {
+		category: 'overlays',
+		displayName: 'Name Lower Third',
+	},
+	'overlays/social-safe-zones': {
+		category: 'overlays',
+		displayName: 'Social Safe Zones',
+	},
+	'storytelling/on-screen-messages': {
+		category: 'storytelling',
+		displayName: 'On-Screen Messages',
+	},
+	'storytelling/polaroid-pictures': {
+		category: 'storytelling',
+		displayName: 'Polaroid Pictures',
+	},
+	'storytelling/speed-lines': {
+		category: 'storytelling',
+		displayName: 'Speed Lines',
+	},
+	'text/news-article-highlight': {
+		category: 'storytelling',
+		displayName: 'News Article Highlight',
+	},
+	'text/circle-marker': {
+		category: 'text',
+		displayName: 'Circle Marker',
+	},
+	'text/crossed-off': {
+		category: 'text',
+		displayName: 'Crossed Off',
+	},
+	'text/cylinder-text': {
+		category: 'text',
+		displayName: 'Cylinder Text',
+	},
+	'text/spinning-text-wheel': {
+		category: 'text',
+		displayName: 'Spinning Text Wheel',
+	},
+	'text/strike-through': {
+		category: 'text',
+		displayName: 'Strike Through',
+	},
+	'text/text-marker': {
+		category: 'text',
+		displayName: 'Text Marker',
+	},
+	'youtube/youtube-comment-highlight': {
+		category: 'youtube',
+		displayName: 'YouTube Comment Highlight',
+	},
+	'youtube/youtube-end-card': {
+		category: 'youtube',
+		displayName: 'YouTube End Card',
+	},
+	'youtube/youtube-subscribe-nudge': {
+		category: 'youtube',
+		displayName: 'YouTube Subscribe Nudge',
+	},
+} as const satisfies Record<
+	string,
+	{readonly category: ElementCategory; readonly displayName: string}
+>;
+
+export type ElementSlug = keyof typeof elementRegistry;

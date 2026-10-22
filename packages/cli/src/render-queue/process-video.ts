@@ -13,6 +13,7 @@ const {
 	browserExecutableOption,
 	bundleCacheOption,
 	sampleRateOption,
+	disableSharedMemoryCaptureOption,
 } = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
@@ -56,6 +57,9 @@ export const processVideoJob = async ({
 		job.type === 'video'
 			? job.sampleRate
 			: sampleRateOption.getValue({commandLine: parsedCli}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
 	await renderVideoFlow({
@@ -110,6 +114,7 @@ export const processVideoJob = async ({
 		encodingMaxRate: job.type === 'video' ? job.encodingMaxRate : null,
 		numberOfGifLoops: job.type === 'video' ? job.numberOfGifLoops : null,
 		audioCodec: job.type === 'video' ? job.audioCodec : null,
+		disableSharedMemoryCapture,
 		disallowParallelEncoding:
 			job.type === 'video' ? job.disallowParallelEncoding : false,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,

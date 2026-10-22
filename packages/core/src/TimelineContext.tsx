@@ -1,27 +1,25 @@
 import type {RefObject} from 'react';
 import React, {
 	createContext,
+	useCallback,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import {createRuntimeValueStore} from './runtime-value-store.js';
 import {
 	getInitialFrameState,
 	type PlayableMediaTag,
 } from './timeline-position-state';
 import {useDelayRender} from './use-delay-render';
+import {useRemotionEnvironment} from './use-remotion-environment';
+import {useTimelineSeek, type TimelineSeek} from './use-timeline-seek';
 
 export type TimelineContextValue = {
 	frame: Record<string, number>;
-	playing: boolean;
-	imperativePlaying: RefObject<boolean>;
-	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
-};
-
-export type TimelineImperativeContextValue = {
-	frameRef: RefObject<Record<string, number>>;
-	imperativePlaying: RefObject<boolean>;
+	isPlaying: () => boolean;
+	isInsideFreeze: boolean;
 	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
 };
 
@@ -30,24 +28,51 @@ export type PlaybackRateContextValue = {
 	setPlaybackRate: (u: React.SetStateAction<number>) => void;
 };
 
+export type PlayingState = Readonly<{
+	playing: boolean;
+}>;
+
+export type BufferingState = Readonly<{
+	buffering: boolean;
+}>;
+
 export type SetTimelineContextValue = {
-	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
+	// Null in rendering and thumbnails, which do not publish preview seek intent.
+	seek: TimelineSeek | null;
+	// Playback and persistence only. Navigation must use seek.seekFrame.
+	setFrameWithoutSeek: (
+		u: React.SetStateAction<Record<string, number>>,
+	) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
+	setBuffering: (buffering: boolean) => void;
+	subscribePlaying: (listener: (state: PlayingState) => void) => () => void;
+	subscribeBuffering: (listener: (state: BufferingState) => void) => () => void;
+	isPlaying: () => boolean;
+	isBuffering: () => boolean;
+	frameRef: RefObject<Record<string, number>>;
+	audioAndVideoTags: RefObject<PlayableMediaTag[]>;
+};
+
+const missingSetTimelineContext = (): never => {
+	throw new Error(
+		'SetTimelineContext is missing. This is likely caused by a Remotion version mismatch.',
+	);
 };
 
 export const SetTimelineContext = createContext<SetTimelineContextValue>({
-	setFrame: () => {
-		throw new Error('default');
-	},
-	setPlaying: () => {
-		throw new Error('default');
-	},
+	seek: null,
+	setFrameWithoutSeek: missingSetTimelineContext,
+	setPlaying: missingSetTimelineContext,
+	setBuffering: missingSetTimelineContext,
+	subscribePlaying: () => () => undefined,
+	subscribeBuffering: () => () => undefined,
+	isPlaying: () => false,
+	isBuffering: missingSetTimelineContext,
+	frameRef: {current: {}},
+	audioAndVideoTags: {current: []},
 });
 
 export const TimelineContext = createContext<TimelineContextValue | null>(null);
-
-export const TimelineImperativeContext =
-	createContext<TimelineImperativeContextValue | null>(null);
 
 export const PlaybackRateContext =
 	createContext<PlaybackRateContextValue | null>(null);
@@ -60,8 +85,14 @@ export const TimelineContextProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frameState: Record<string, number> | null;
 }> = ({children, frameState}) => {
-	const [playing, setPlaying] = useState<boolean>(false);
-	const imperativePlaying = useRef<boolean>(false);
+	const playingStore = useMemo(
+		() => createRuntimeValueStore({playing: false}),
+		[],
+	);
+	const bufferingStore = useMemo(
+		() => createRuntimeValueStore({buffering: false}),
+		[],
+	);
 
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
@@ -69,9 +100,21 @@ export const TimelineContextProvider: React.FC<{
 		getInitialFrameState(),
 	);
 
+	const timelineSeek = useTimelineSeek(setFrame);
+	const {isStudio} = useRemotionEnvironment();
+	const seek = isStudio ? timelineSeek : null;
 	const frame = frameState ?? _frame;
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
+
+	const readIsPlaying = useCallback(
+		() => playingStore.store.getSnapshot().playing,
+		[playingStore],
+	);
+	const readIsBuffering = useCallback(
+		() => bufferingStore.store.getSnapshot().buffering,
+		[bufferingStore],
+	);
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -113,20 +156,11 @@ export const TimelineContextProvider: React.FC<{
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
 			frame,
-			playing,
-			imperativePlaying,
+			isPlaying: readIsPlaying,
+			isInsideFreeze: false,
 			audioAndVideoTags,
 		};
-	}, [frame, playing]);
-
-	const timelineImperativeContextValue =
-		useMemo((): TimelineImperativeContextValue => {
-			return {
-				frameRef,
-				imperativePlaying,
-				audioAndVideoTags,
-			};
-		}, []);
+	}, [frame, readIsPlaying]);
 
 	const playbackRateContextValue = useMemo((): PlaybackRateContextValue => {
 		return {
@@ -137,23 +171,37 @@ export const TimelineContextProvider: React.FC<{
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
-			setFrame,
-			setPlaying,
+			setFrameWithoutSeek: setFrame,
+			seek,
+			setPlaying: (updater) => {
+				const current = playingStore.store.getSnapshot().playing;
+				const next = typeof updater === 'function' ? updater(current) : updater;
+				if (current !== next) {
+					playingStore.setSnapshot({playing: next});
+				}
+			},
+			setBuffering: (buffering) => {
+				if (readIsBuffering() !== buffering) {
+					bufferingStore.setSnapshot({buffering});
+				}
+			},
+			subscribePlaying: playingStore.store.subscribe,
+			subscribeBuffering: bufferingStore.store.subscribe,
+			isPlaying: readIsPlaying,
+			isBuffering: readIsBuffering,
+			frameRef,
+			audioAndVideoTags,
 		};
-	}, []);
+	}, [bufferingStore, playingStore, readIsBuffering, readIsPlaying, seek]);
 
 	return (
 		<AbsoluteTimeContext.Provider value={timelineContextValue}>
 			<PlaybackRateContext.Provider value={playbackRateContextValue}>
-				<TimelineImperativeContext.Provider
-					value={timelineImperativeContextValue}
-				>
-					<TimelineContext.Provider value={timelineContextValue}>
-						<SetTimelineContext.Provider value={setTimelineContextValue}>
-							{children}
-						</SetTimelineContext.Provider>
-					</TimelineContext.Provider>
-				</TimelineImperativeContext.Provider>
+				<TimelineContext.Provider value={timelineContextValue}>
+					<SetTimelineContext.Provider value={setTimelineContextValue}>
+						{children}
+					</SetTimelineContext.Provider>
+				</TimelineContext.Provider>
 			</PlaybackRateContext.Provider>
 		</AbsoluteTimeContext.Provider>
 	);

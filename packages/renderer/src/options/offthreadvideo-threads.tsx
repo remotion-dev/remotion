@@ -10,6 +10,7 @@ const cliFlag = 'offthreadvideo-video-threads' as const;
 
 export const offthreadVideoThreadsOption = {
 	name: 'OffthreadVideo threads',
+	addedIn: '4.0.261',
 	cliFlag,
 	description: () => (
 		<>
@@ -23,7 +24,7 @@ export const offthreadVideoThreadsOption = {
 		</>
 	),
 	ssrName: 'offthreadVideoThreads' as const,
-	docLink: 'https://www.remotion.dev/docs/offthreadvideo',
+	docLink: 'https://www.remotion.dev/docs/options/offthreadvideo-video-threads',
 	type: 0 as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -9,7 +9,7 @@ const getLabelToMatch = (value: ComboboxValue): string | null => {
 		return value.label;
 	}
 
-	return null;
+	return value.quickSwitcherLabel;
 };
 
 export const findTypeaheadMenuItem = ({

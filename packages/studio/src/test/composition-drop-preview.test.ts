@@ -26,6 +26,7 @@ test('centers a composition drop preview under the pointer', () => {
 			preview: {
 				compositionDimensions: {width: 640, height: 360},
 				dropPosition: {centerX: 960, centerY: 540},
+				snapPoints: [],
 			},
 		}),
 	).toEqual({
@@ -48,6 +49,7 @@ test('previews an equal-sized composition at the drop position', () => {
 			preview: {
 				compositionDimensions: destinationDimensions,
 				dropPosition: {centerX: 200, centerY: 300},
+				snapPoints: [],
 			},
 		}),
 	).toEqual({
@@ -85,8 +87,9 @@ test('snaps the dragged right edge to the destination left edge', () => {
 			compositionDimensions: {width: 640, height: 360},
 			destinationDimensions,
 			dropPosition: {centerX: -315, centerY: 540},
+			guides: [],
 			scale: 1,
-		}),
+		}).dropPosition,
 	).toEqual({centerX: -320, centerY: 540});
 });
 
@@ -96,7 +99,8 @@ test('snaps the dragged left edge to the destination right edge', () => {
 			compositionDimensions: {width: 640, height: 360},
 			destinationDimensions,
 			dropPosition: {centerX: 2235, centerY: 540},
+			guides: [],
 			scale: 1,
-		}),
+		}).dropPosition,
 	).toEqual({centerX: 2240, centerY: 540});
 });

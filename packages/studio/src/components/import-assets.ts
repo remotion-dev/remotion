@@ -1,28 +1,30 @@
-import {
-	type ComponentDragData,
-	type CompositionDragData,
-	type ComponentProp,
-	type ElementDragData,
-} from '@remotion/studio-protocol';
+import type {ComponentDragData} from '@remotion/studio-protocol';
 import {
 	detectFileType,
 	getRequiredPackageForInsertableElement,
 	isUrl,
+	type ComponentProp,
 	type DownloadRemoteAssetResponse,
 	type ElementInstallExpectedFileState,
 	type FileType,
 	type InsertableCompositionElement,
 	type InsertableCompositionElementPosition,
+	type InsertElementRequest,
+	type InstallableElement,
 } from '@remotion/studio-shared';
 import {Internals, staticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getStaticFiles} from '../api/get-static-files';
 import {writeStaticFile} from '../api/write-static-file';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {formatFigmaClipboardErrorNotification} from '../helpers/clipboard-figma';
+import {requestInsertedElementSelection} from '../helpers/inserted-element-selection';
 import {installRequiredPackages} from '../helpers/install-required-package';
 import type {Dimensions} from '../helpers/is-current-selected-still';
 import {getMediaMetadata} from '../helpers/use-media-metadata';
 import {callApi} from './call-api';
+import type {CompositionDragData} from './composition-drag-data';
+import {installElement} from './element-install-api';
 import {showNotification} from './Notifications/NotificationCenter';
 
 export type InsertElementDropPosition = {
@@ -82,6 +84,7 @@ export const getAssetElement = ({
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp'
 	) {
@@ -169,7 +172,7 @@ export const getAssetElementFromPath = (
 		return null;
 	}
 
-	if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg'].includes(extension)) {
+	if (['png', 'jpg', 'jpeg', 'jxl', 'webp', 'bmp', 'svg'].includes(extension)) {
 		return {
 			type: 'asset',
 			assetType: 'image',
@@ -254,38 +257,6 @@ export const getAssetElementForDroppedFile = ({
 const isSvgFile = (file: File) => file.name.toLowerCase().endsWith('.svg');
 
 export const hasSvgFile = (files: File[]) => files.some(isSvgFile);
-
-const getAssetLabel = (element: InsertableCompositionElement) => {
-	if (element.type !== 'asset') {
-		throw new Error('Expected asset element');
-	}
-
-	if (element.assetType === 'image') {
-		return '<CanvasImage>';
-	}
-
-	if (element.assetType === 'video') {
-		return '<Video>';
-	}
-
-	if (element.assetType === 'gif') {
-		return '<Gif>';
-	}
-
-	if (element.assetType === 'animated-image') {
-		return '<AnimatedImage>';
-	}
-
-	if (element.assetType === 'audio') {
-		return '<Audio>';
-	}
-
-	throw new Error('Unsupported asset type');
-};
-
-const getComponentLabel = (component: ComponentDragData['component']) => {
-	return `<${component.componentName}>`;
-};
 
 const getCenteredPosition = ({
 	dimensions,
@@ -481,6 +452,7 @@ const getFileMetadata = async ({
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp' ||
 		fileType.type === 'apng' ||
@@ -540,7 +512,7 @@ const getStaticAssetMetadata = (
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
+		['png', 'jpg', 'jpeg', 'jxl', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
 			extension,
 		)
 	) {
@@ -647,15 +619,23 @@ const getAssetElementFromStaticAsset = async (
 	return getAssetElementFromPath(assetPath);
 };
 
-export const pickFilesToImport = ({
-	multiple = true,
-}: {
-	readonly multiple?: boolean;
-} = {}): Promise<File[]> => {
+export const pickFilesToImport = (
+	{
+		multiple = true,
+		accept,
+	}: {
+		readonly multiple?: boolean;
+		readonly accept: string | null;
+	} = {accept: null},
+): Promise<File[]> => {
 	return new Promise((resolve) => {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.multiple = multiple;
+		if (accept !== null) {
+			input.accept = accept;
+		}
+
 		input.style.display = 'none';
 
 		let didResolve = false;
@@ -679,17 +659,6 @@ export const pickFilesToImport = ({
 		document.body.appendChild(input);
 		input.click();
 	});
-};
-
-const notifyInsertedAssets = (insertedLabels: string[]) => {
-	if (insertedLabels.length === 1) {
-		showNotification(`Added ${insertedLabels[0]} to source file`, 2000);
-	} else if (insertedLabels.length > 1) {
-		showNotification(
-			`Added ${insertedLabels.length} assets to source file`,
-			2000,
-		);
-	}
 };
 
 const notifyUnsupportedFiles = (unsupportedFiles: string[]) => {
@@ -718,16 +687,22 @@ const insertCompositionElement = async ({
 	from: number | null;
 }) => {
 	const requiredPackage = getRequiredPackageForInsertableElement(element);
-	await installRequiredPackages(
-		requiredPackage ? [{name: requiredPackage, version: null}] : [],
-	);
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations === null) {
+		await installRequiredPackages(
+			requiredPackage ? [{name: requiredPackage, version: null}] : [],
+		);
+	}
 
-	const result = await callApi('/api/insert-jsx-element', {
+	const request = {
 		compositionFile,
 		compositionId,
 		element,
 		from,
-	});
+	};
+	const result = browserStudioOperations
+		? await browserStudioOperations.insertCompositionElement(request)
+		: await callApi('/api/insert-composition-element', request);
 
 	if (!result.success) {
 		showNotification(result.reason, 4000);
@@ -740,6 +715,11 @@ const insertCompositionElement = async ({
 const downloadRemoteAsset = (
 	url: string,
 ): Promise<DownloadRemoteAssetResponse> => {
+	const browserStudioOperations = getBrowserStudioOperations();
+	if (browserStudioOperations) {
+		return browserStudioOperations.downloadRemoteAsset({url});
+	}
+
 	return callApi('/api/download-remote-asset', {url});
 };
 
@@ -788,7 +768,6 @@ export const importAssets = async ({
 		return;
 	}
 
-	const insertedLabels: string[] = [];
 	const addedStaticFiles: string[] = [];
 	const unsupportedFiles: string[] = [];
 	const notifyAddedStaticFiles = () => {
@@ -835,7 +814,6 @@ export const importAssets = async ({
 					return;
 				}
 
-				insertedLabels.push('<Interactive.Svg>');
 				continue;
 			}
 
@@ -896,12 +874,9 @@ export const importAssets = async ({
 				notifyAddedStaticFiles();
 				return;
 			}
-
-			insertedLabels.push(getAssetLabel(element));
 		}
 
 		notifyAddedStaticFiles();
-		notifyInsertedAssets(insertedLabels);
 		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
@@ -926,6 +901,16 @@ export const importFigmaClipboard = async ({
 	dropPosition: InsertElementDropPosition | null;
 	html: string;
 }) => {
+	// Figma clipboard conversion requires the SVGR-based pipeline in
+	// @remotion/studio-server, which Browser Studio does not support.
+	if (getBrowserStudioOperations()) {
+		showNotification(
+			'Importing Figma clipboard data is not supported in Browser Studio',
+			4000,
+		);
+		return;
+	}
+
 	try {
 		const converted = await callApi('/api/convert-figma-clipboard-to-svg', {
 			html,
@@ -982,7 +967,7 @@ export const insertSvgMarkup = async ({
 			dimensions = null;
 		}
 
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: null,
@@ -996,10 +981,6 @@ export const insertSvgMarkup = async ({
 				}),
 			},
 		});
-
-		if (inserted) {
-			notifyInsertedAssets(['<Interactive.Svg>']);
-		}
 	} catch (error) {
 		showNotification(
 			`Could not add SVG: ${
@@ -1053,7 +1034,7 @@ export const importRemoteAsset = async ({
 					fps,
 				})
 			: null;
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1072,12 +1053,6 @@ export const importRemoteAsset = async ({
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		notifyInsertedAssets([getAssetLabel(element)]);
 	} catch (error) {
 		showNotification(
 			`Could not add remote asset: ${
@@ -1123,7 +1098,7 @@ export const insertRemoteAudio = async ({
 			position: null,
 		};
 
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			element,
@@ -1133,12 +1108,6 @@ export const insertRemoteAudio = async ({
 				preferCompositionStart,
 			}),
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		notifyInsertedAssets([getAssetLabel(element)]);
 	} catch (error) {
 		showNotification(
 			`Could not add sound effect: ${
@@ -1172,7 +1141,6 @@ export const insertExistingAssets = async ({
 		return;
 	}
 
-	const insertedLabels: string[] = [];
 	const unsupportedFiles: string[] = [];
 
 	try {
@@ -1218,11 +1186,8 @@ export const insertExistingAssets = async ({
 			if (!inserted) {
 				return;
 			}
-
-			insertedLabels.push(getAssetLabel(element));
 		}
 
-		notifyInsertedAssets(insertedLabels);
 		notifyUnsupportedFiles(unsupportedFiles);
 	} catch (error) {
 		showNotification(
@@ -1250,7 +1215,7 @@ export const insertComponent = async ({
 	preferCompositionStart: boolean | null;
 }) => {
 	try {
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1270,15 +1235,6 @@ export const insertComponent = async ({
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		showNotification(
-			`Added ${getComponentLabel(component)} to source file`,
-			2000,
-		);
 	} catch (error) {
 		showNotification(
 			`Could not add component: ${
@@ -1337,7 +1293,7 @@ export const insertComposition = async ({
 			width: calculated.width,
 			height: calculated.height,
 		};
-		const inserted = await insertCompositionElement({
+		await insertCompositionElement({
 			compositionFile,
 			compositionId,
 			from: getFromForDrop({
@@ -1360,15 +1316,6 @@ export const insertComposition = async ({
 				}),
 			},
 		});
-
-		if (!inserted) {
-			return;
-		}
-
-		showNotification(
-			`Added ${composition.compositionId} to ${compositionId}`,
-			2000,
-		);
 	} catch (error) {
 		showNotification(
 			`Could not add composition: ${
@@ -1380,6 +1327,7 @@ export const insertComposition = async ({
 };
 
 export const insertElement = async ({
+	installationName,
 	compositionFile,
 	compositionId,
 	element,
@@ -1387,19 +1335,28 @@ export const insertElement = async ({
 	position,
 	from,
 	overwriteExisting,
+	undoRedoNavigation,
+	newComposition,
 }: {
+	installationName: string | null;
 	compositionFile: string;
 	compositionId: string;
-	element: ElementDragData['element'];
+	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState;
 	position: InsertableCompositionElementPosition | null;
 	from: number | null;
 	overwriteExisting: boolean;
+	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
+	newComposition: InsertElementRequest['newComposition'];
 }) => {
 	try {
-		await installRequiredPackages(element.dependencies);
+		if (getBrowserStudioOperations() === null) {
+			await installRequiredPackages(element.dependencies);
+		}
 
-		const response = await callApi('/api/insert-element', {
+		const response = await installElement({
+			captionTarget: null,
+			installationName,
 			compositionFile,
 			compositionId,
 			element,
@@ -1407,6 +1364,8 @@ export const insertElement = async ({
 			from,
 			overwriteExisting,
 			position,
+			undoRedoNavigation,
+			newComposition,
 		});
 
 		if (!response.success) {
@@ -1415,10 +1374,15 @@ export const insertElement = async ({
 					? response.reason
 					: `Element file changed: ${response.conflict.filePath}`;
 			showNotification(`Could not add Element: ${reason}`, 4000);
-			return;
+			return false;
 		}
 
-		showNotification(`Added ${element.displayName} to source file`, 2000);
+		requestInsertedElementSelection({
+			compositionId,
+			nodePath: null,
+			notification: `Installed ${element.displayName}`,
+		});
+		return true;
 	} catch (error) {
 		showNotification(
 			`Could not add Element: ${
@@ -1426,5 +1390,6 @@ export const insertElement = async ({
 			}`,
 			4000,
 		);
+		return false;
 	}
 };

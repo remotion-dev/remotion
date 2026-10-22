@@ -6,6 +6,7 @@ let currentPackageManager: string | null = null;
 
 export const packageManagerOption = {
 	name: 'Package Manager',
+	addedIn: '3.2.33',
 	cliFlag,
 	description: () => {
 		return (
@@ -14,12 +15,12 @@ export const packageManagerOption = {
 				auto-detect the package manager based on your lockfile.
 				<br />
 				Acceptable values are <code>npm</code>, <code>yarn</code>,{' '}
-				<code>pnpm</code> and <code>bun</code>.
+				<code>pnpm</code>, <code>bun</code> and <code>nub</code>.
 			</>
 		);
 	},
 	ssrName: 'packageManager' as const,
-	docLink: 'https://www.remotion.dev/docs/cli/upgrade#--package-manager',
+	docLink: 'https://www.remotion.dev/docs/options/package-manager',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

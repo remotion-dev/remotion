@@ -6,10 +6,12 @@ import {
 } from '../optimistic-update-keyframe-settings';
 
 const previous: CanUpdateSequencePropsResponse = {
+	durationDependentKeyframes: null,
 	canUpdate: true,
 	props: {
 		scale: {
 			status: 'keyframed',
+			keyframeDisplayOffsetAdjustment: null,
 			interpolationFunction: 'interpolate',
 			keyframes: [
 				{frame: 0, value: 1},
@@ -31,6 +33,7 @@ const previous: CanUpdateSequencePropsResponse = {
 			props: {
 				amount: {
 					status: 'keyframed',
+					keyframeDisplayOffsetAdjustment: null,
 					interpolationFunction: 'interpolate',
 					keyframes: [
 						{frame: 0, value: 0.2},

@@ -1,21 +1,22 @@
-import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import React, {useContext, useLayoutEffect} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
+import {
+	getDefaultOpenInTarget,
+	openGitSource,
+} from '../helpers/get-git-menu-item';
 import {getSequenceDoubleClickAction} from '../helpers/get-sequence-double-click-action';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
 	openInCodingAgent as launchCodingAgent,
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
-import {timelineSequenceNodePathToKey} from '../helpers/timeline-node-path-key';
+import {getFieldsToShow} from '../helpers/timeline-layout';
 import {SetSelectedModalContext} from '../state/modals';
-import {
-	useIsTimelineSequenceHovered,
-	useSetTimelineSequenceHover,
-} from '../state/timeline-sequence-hover';
-import {callApi} from './call-api';
+import {SidebarContext} from '../state/sidebar';
+import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
@@ -23,39 +24,42 @@ import type {SelectedOutline} from './selected-outline-geometry';
 import {type SelectedOutlineSnapPoint} from './selected-outline-snap';
 import {
 	cropFieldKeys,
+	rotateFieldKey,
+	type SelectedOutlineContextMenuOpenHandler,
 	type SelectedOutlineDragTarget,
 	type SelectedOutlineLayoutTarget,
-	type SelectedOutlineRotationDragTarget,
-	type SelectedOutlineScaleDragTarget,
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
-import {SelectedOutlineCropControls} from './SelectedOutlineCropControls';
+import {SelectedOutlineCanvasRotation} from './SelectedOutlineCanvasRotation';
 import {SelectedOutlinePolygon} from './SelectedOutlinePolygon';
-import {SelectedOutlineRotationCornerHandle} from './SelectedOutlineRotationCornerHandle';
-import {SelectedOutlineScaleEdgeLine} from './SelectedOutlineScaleEdgeLine';
 import {disableSequenceInteractivity} from './Timeline/disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './Timeline/duplicate-selected-timeline-item';
-import {getSequenceContextMenuItems} from './Timeline/get-sequence-context-menu-items';
+import {
+	findCopyableFrameElement,
+	getSequenceContextMenuItems,
+} from './Timeline/get-sequence-context-menu-items';
+import {getSequenceUnwrapMenuItem} from './Timeline/get-sequence-unwrap-menu-item';
 import {getTimelineAssetLinkInfo} from './Timeline/timeline-asset-link';
-import type {
-	TimelineSelection,
-	TimelineSelectionInteraction,
+import {
+	getTimelineSequenceSelectionKey,
+	type TimelineSelection,
+	type TimelineSelectionInteraction,
+	useCurrentTimelineSelectionStateAsRef,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {useDeleteTimelineItems} from './Timeline/use-delete-timeline-items';
 import {
-	canUseEditorPicker,
 	useDefaultCodingAgentInfo,
-	useDefaultEditorInfo,
+	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
 type SelectedOutlineElementProps = {
 	readonly compositionHeight: number;
 	readonly compositionWidth: number;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
-	readonly getAllRotationDragTargets: () => readonly SelectedOutlineRotationDragTarget[];
-	readonly getAllScaleDragTargets: () => readonly SelectedOutlineScaleDragTarget[];
 	readonly getLatestTargetByKey: (
 		key: string,
 	) => SelectedOutlineTarget | undefined;
@@ -69,6 +73,10 @@ type SelectedOutlineElementProps = {
 		item: TimelineSelection,
 		interaction: TimelineSelectionInteraction,
 	) => void;
+	readonly registerContextMenuOpen: (
+		key: string,
+		handler: SelectedOutlineContextMenuOpenHandler | null,
+	) => void;
 	readonly scale: number;
 };
 
@@ -80,82 +88,56 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
-	getAllRotationDragTargets,
-	getAllScaleDragTargets,
 	getLatestTargetByKey,
 	layoutTarget,
 	outline,
 	onDraggingChange,
 	onSnapPointsChange,
 	onSelect,
+	registerContextMenuOpen,
 	scale,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const canConfigureApps = canUseEditorPicker(
-		previewServerState.type === 'connected',
-	);
-	const editorInfo = useDefaultEditorInfo(canConfigureApps);
+	const {
+		canConfigureApps,
+		canOpenInEditor: editorAvailable,
+		defaultEditorId,
+		editorInfo,
+	} = useEditorOpening(previewServerState.type === 'connected');
 	const codingAgentInfo = useDefaultCodingAgentInfo(canConfigureApps);
+	const defaultOpenInTarget = getDefaultOpenInTarget({
+		canOpenInEditor: editorAvailable,
+	});
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const {getDragOverrides} = useContext(
+		Internals.VisualModeDragOverridesContext,
+	);
+	const {
+		setRightSidebarTemporaryExpansion,
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
 	const updateResolvedStackTrace = useContext(
 		Internals.SequenceStackTracesUpdateContext,
 	);
 	const confirm = useConfirmationDialog();
+	const deleteTimelineItems = useDeleteTimelineItems();
 	const selectAsset = useSelectAsset();
 	const selectComposition = useSelectComposition();
-	const {compositions} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const setHoveredSequence = useSetTimelineSequenceHover();
-	const targetRef = useRef(layoutTarget);
-	useLayoutEffect(() => {
-		targetRef.current = layoutTarget;
-	}, [layoutTarget]);
-	const getTarget = React.useCallback(() => {
-		const currentTarget = targetRef.current;
-		if (currentTarget === undefined) {
-			return undefined;
-		}
-
-		return getLatestTargetByKey(currentTarget.key);
-	}, [getLatestTargetByKey]);
-	const getLayoutTarget = React.useCallback(() => targetRef.current, []);
-	const hoveredNodePathKey = useMemo(
-		() =>
-			layoutTarget === undefined
-				? null
-				: timelineSequenceNodePathToKey(
-						layoutTarget.nodePathInfo.sequenceSubscriptionKey,
-					),
-		[layoutTarget],
-	);
-	const hovered = useIsTimelineSequenceHovered(hoveredNodePathKey);
-	const controlTarget =
-		layoutTarget !== undefined && (layoutTarget.containsSelection || hovered)
-			? getLatestTargetByKey(layoutTarget.key)
-			: undefined;
-	const onHoverChange = React.useCallback(
-		(key: string | null) => {
-			setHoveredSequence((currentHover) => {
-				if (key !== null) {
-					const hoverTarget = targetRef.current;
-					if (hoverTarget === undefined || hoverTarget.key !== key) {
-						return currentHover;
-					}
-
-					return {
-						key,
-						nodePathKey: timelineSequenceNodePathToKey(
-							hoverTarget.nodePathInfo.sequenceSubscriptionKey,
-						),
-						source: 'canvas',
-					};
-				}
-
-				return currentHover?.source === 'canvas' ? null : currentHover;
-			});
-		},
-		[setHoveredSequence],
-	);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
+	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
+		useSelectedOutlineControlTarget({
+			getLatestTargetByKey,
+			layoutTarget,
+		});
 
 	const resolveOriginalLocation = React.useCallback(
 		async (resolveTarget: SelectedOutlineTarget) => {
@@ -181,17 +163,73 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	);
 
 	const onDoubleClickTarget = React.useCallback(
-		(doubleClickTarget: SelectedOutlineTarget, button: number) => {
+		(
+			doubleClickTarget: SelectedOutlineTarget,
+			button: number,
+			sequenceWasDragged: boolean,
+		) => {
 			const connectedCompositions = getConnectedCompositions({
-				compositions,
+				compositions: compositionManagerRef.current.compositions,
 				singleChildComponent: doubleClickTarget.sequence.singleChildComponent,
 			});
+			const nodePath = doubleClickTarget.nodePathInfo.sequenceSubscriptionKey;
+			const childrenField = doubleClickTarget.sequence.controls
+				? getFieldsToShow({
+						schema: doubleClickTarget.sequence.controls.schema,
+						currentRuntimeValueDotNotation:
+							doubleClickTarget.sequence.controls.runtimeValues.getSnapshot(),
+						getDragOverrides,
+						propStatuses: propStatusesRef.current,
+						nodePath,
+						includeTextContent: true,
+					})?.find((field) => field.key === 'children')?.fieldSchema
+				: null;
+			const childrenStatus = Internals.getPropStatusesCtx(
+				propStatusesRef.current,
+				nodePath,
+			)?.children;
+			if (
+				button === 0 &&
+				!sequenceWasDragged &&
+				connectedCompositions.length !== 1 &&
+				previewServerState.type === 'connected' &&
+				isStudioInteractivityEnabled() &&
+				currentSelection.current.canSelect &&
+				(childrenField?.type === 'string' ||
+					childrenField?.type === 'text-content') &&
+				childrenStatus?.status === 'static'
+			) {
+				if (sidebarCollapsedStateRight === 'collapsed') {
+					setSidebarCollapsedState({left: null, right: 'expanded'});
+				} else if (sidebarCollapsedStateRight === 'responsive') {
+					setRightSidebarTemporaryExpansion(true);
+				}
+
+				currentSelection.current.selectItems(
+					[
+						{
+							type: 'sequence-prop',
+							nodePathInfo: {
+								...doubleClickTarget.nodePathInfo,
+								auxiliaryKeys: [
+									...doubleClickTarget.nodePathInfo.auxiliaryKeys,
+									'controls',
+									'children',
+								],
+							},
+							key: 'children',
+						},
+					],
+					{revealInInspector: true},
+				);
+				return true;
+			}
+
 			const action = getSequenceDoubleClickAction({
 				button,
-				canOpenInEditor:
-					previewServerState.type === 'connected' &&
-					Boolean(window.remotion_editorName),
+				canOpenSource: defaultOpenInTarget !== null,
 				numberOfConnectedCompositions: connectedCompositions.length,
+				sequenceWasDragged,
 			});
 
 			if (action === null) {
@@ -203,27 +241,42 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				return true;
 			}
 
-			const openTargetInEditor = async () => {
+			const openTargetSource = async () => {
 				const originalLocation =
 					await resolveOriginalLocation(doubleClickTarget);
 				if (originalLocation === null) {
 					return;
 				}
 
-				await openOriginalPositionInEditor(originalLocation, null);
+				if (defaultOpenInTarget === 'editor' && defaultEditorId !== null) {
+					await openOriginalPositionInEditor(originalLocation, defaultEditorId);
+					return;
+				}
+
+				if (defaultOpenInTarget === 'git-source') {
+					openGitSource({folder: false, location: originalLocation});
+				}
 			};
 
-			openTargetInEditor().catch((err) => {
+			openTargetSource().catch((err) => {
 				showNotification((err as Error).message, 2000);
 			});
 
 			return true;
 		},
 		[
-			compositions,
+			compositionManagerRef,
+			currentSelection,
+			defaultEditorId,
+			defaultOpenInTarget,
+			getDragOverrides,
 			previewServerState.type,
+			propStatusesRef,
 			resolveOriginalLocation,
 			selectComposition,
+			setRightSidebarTemporaryExpansion,
+			setSidebarCollapsedState,
+			sidebarCollapsedStateRight,
 		],
 	);
 
@@ -250,9 +303,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				? contextMenuTarget.sequence.src
 				: null;
 		const assetLinkInfo = mediaSrc ? getTimelineAssetLinkInfo(mediaSrc) : null;
-		const canOpenInEditor = Boolean(
-			window.remotion_editorName && originalLocation,
-		);
+		const canOpenInEditor = Boolean(originalLocation && editorAvailable);
 		const sourceEditingEnabled = isStudioInteractivityEnabled();
 		const disableInteractivityDisabled =
 			!sourceEditingEnabled || !contextMenuTarget.sequence.showInTimeline;
@@ -267,11 +318,36 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
 		const canCrop = contextMenuTarget.canCrop && !sourceEditDisabled;
+		const canRotate = !sourceEditDisabled && outline.path === null;
+		const outlineElement =
+			contextMenuTarget.sequence.refForOutline?.current ?? null;
+		const {canvasContent} = compositionManagerRef.current;
+		const unwrapMenuItem = getSequenceUnwrapMenuItem({
+			sequence: contextMenuTarget.sequence,
+			sourceLocation:
+				originalLocation?.source && originalLocation.line !== null
+					? {source: originalLocation.source, line: originalLocation.line}
+					: null,
+			setSelectedModal,
+			canEditSource:
+				!sourceEditDisabled && previewServerState.type === 'connected',
+			compositionId:
+				canvasContent?.type === 'composition'
+					? canvasContent.compositionId
+					: null,
+			isTransition:
+				contextMenuTarget.sequence.timelineTrack?.role === 'transition',
+			nodePath,
+		});
 
 		return getSequenceContextMenuItems({
 			assetLinkInfo,
 			canOpenInEditor,
 			codingAgentInfo,
+			copyImageElement:
+				contextMenuTarget.sequence.type === 'image'
+					? outlineElement
+					: findCopyableFrameElement(outlineElement),
 			deleteDisabled: sourceEditDisabled,
 			disableInteractivityDisabled,
 			duplicateDisabled: sourceEditDisabled || isProgrammaticallyDuplicated,
@@ -282,48 +358,24 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				? () => {
 						setSelectedModal({
 							type: 'settings',
+							initialStudioPane: null,
 							initialTab: 'apps',
 							initialPublicLicenseKey:
 								window.remotion_renderDefaults?.publicLicenseKey ?? null,
 						});
 					}
 				: null,
-			onDeleteSequenceFromSource: async () => {
+			onDeleteSequenceFromSource: () => {
 				if (sourceEditDisabled || previewServerState.type !== 'connected') {
 					return;
 				}
 
-				if (
-					contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath > 1
-				) {
-					const shouldDelete = await confirm({
-						title: 'Delete sequence?',
-						message:
-							'This sequence is programmatically duplicated ' +
-							contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath +
-							' times in the code. Deleting removes all instances. Continue?',
-						confirmLabel: 'Delete',
-					});
-					if (!shouldDelete) {
-						return;
-					}
-				}
-
-				try {
-					const result = await callApi('/api/delete-jsx-node', {
-						nodes: [
-							{
-								fileName: nodePath.absolutePath,
-								nodePath: nodePath.nodePath,
-							},
-						],
-					});
-					if (!result.success) {
-						showNotification(result.reason, 4000);
-					}
-				} catch (err) {
-					showNotification((err as Error).message, 4000);
-				}
+				deleteTimelineItems([
+					{
+						type: 'sequence',
+						nodePathInfo: contextMenuTarget.nodePathInfo,
+					},
+				]);
 			},
 			onDisableSequenceInteractivity: () => {
 				if (
@@ -362,11 +414,12 @@ const SelectedOutlineElementUnmemoized: React.FC<
 					});
 			},
 			openInEditor: (editorId) => {
-				if (!originalLocation) {
+				const resolvedEditorId = editorId ?? defaultEditorId;
+				if (!originalLocation || !resolvedEditorId || !editorAvailable) {
 					return;
 				}
 
-				openOriginalPositionInEditor(originalLocation, editorId).catch(
+				openOriginalPositionInEditor(originalLocation, resolvedEditorId).catch(
 					(err) => {
 						showNotification((err as Error).message, 2000);
 					},
@@ -376,91 +429,142 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			selectAsset,
 			sequence: contextMenuTarget.sequence,
 			sourceActions: sourceEditingEnabled
-				? [
-						...(contextMenuTarget.nodePathInfo.supportsEffects
-							? [
-									{
-										type: 'item' as const,
-										id: 'add-effect',
-										keyHint: null,
-										label: 'Add effect...',
-										leftItem: null,
-										disabled: !canAddEffect,
-										onClick: () => {
-											if (
-												!canAddEffect ||
-												previewServerState.type !== 'connected'
-											) {
-												return;
-											}
+				? {
+						rename: null,
+						timing: [],
+						appearance: [
+							{
+								type: 'item' as const,
+								id: 'crop',
+								keyHint: null,
+								label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
+								leftItem: null,
+								disabled: !canCrop,
+								onClick: () => {
+									if (!canCrop) {
+										return;
+									}
 
-											setSelectedModal({
-												type: 'add-effect',
-												clientId: previewServerState.clientId,
-												fileName: nodePath.absolutePath,
-												nodePath,
-											});
+									onSelect(
+										{
+											type: 'sequence-prop',
+											nodePathInfo: {
+												...contextMenuTarget.nodePathInfo,
+												auxiliaryKeys: ['controls', cropFieldKeys.left],
+											},
+											key: cropFieldKeys.left,
 										},
-										quickSwitcherLabel: null,
-										subMenu: null,
-										value: 'add-effect',
-									},
-								]
-							: []),
-						{
-							type: 'item' as const,
-							id: 'crop',
-							keyHint: null,
-							label: isProgrammaticallyDuplicated ? 'Crop all' : 'Crop',
-							leftItem: null,
-							disabled: !canCrop,
-							onClick: () => {
-								if (!canCrop) {
-									return;
-								}
-
-								onSelect(
-									{
-										type: 'sequence-prop',
-										nodePathInfo: {
-											...contextMenuTarget.nodePathInfo,
-											auxiliaryKeys: ['controls', cropFieldKeys.left],
-										},
-										key: cropFieldKeys.left,
-									},
-									{shiftKey: false, toggleKey: false},
-								);
+										{shiftKey: false, toggleKey: false},
+									);
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'crop',
 							},
-							quickSwitcherLabel: null,
-							subMenu: null,
-							value: 'crop',
-						},
-						{
-							type: 'divider' as const,
-							id: 'crop-divider',
-						},
-					]
-				: [],
+							{
+								type: 'item' as const,
+								id: 'rotate',
+								keyHint: null,
+								label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
+								leftItem: null,
+								disabled: !canRotate,
+								onClick: () => {
+									if (!canRotate) {
+										return;
+									}
+
+									setManuallyEnabled(
+										getTimelineSequenceSelectionKey(
+											contextMenuTarget.nodePathInfo,
+										),
+										true,
+									);
+									onSelect(
+										{
+											type: 'sequence-prop',
+											nodePathInfo: {
+												...contextMenuTarget.nodePathInfo,
+												auxiliaryKeys: ['controls', rotateFieldKey],
+											},
+											key: rotateFieldKey,
+										},
+										{shiftKey: false, toggleKey: false},
+									);
+								},
+								quickSwitcherLabel: null,
+								subMenu: null,
+								value: 'rotate',
+							},
+							...(contextMenuTarget.nodePathInfo.supportsEffects
+								? [
+										{
+											type: 'item' as const,
+											id: 'add-effect',
+											keyHint: null,
+											label: 'Add effect...',
+											leftItem: null,
+											disabled: !canAddEffect,
+											onClick: () => {
+												if (
+													!canAddEffect ||
+													previewServerState.type !== 'connected'
+												) {
+													return;
+												}
+
+												setSelectedModal({
+													type: 'add-effect',
+													clientId: previewServerState.clientId,
+													fileName: nodePath.absolutePath,
+													nodePathInfo: contextMenuTarget.nodePathInfo,
+													selectItems: currentSelection.current.selectItems,
+												});
+											},
+											quickSwitcherLabel: null,
+											subMenu: null,
+											value: 'add-effect',
+										},
+									]
+								: []),
+						],
+						unwrap: unwrapMenuItem,
+					}
+				: null,
 		});
 	}, [
 		canConfigureApps,
+		compositionManagerRef,
 		codingAgentInfo,
 		confirm,
+		deleteTimelineItems,
 		editorInfo,
 		getTarget,
 		onSelect,
+		defaultEditorId,
+		editorAvailable,
 		previewServerState,
 		resolveOriginalLocation,
+		setManuallyEnabled,
 		selectAsset,
+		currentSelection,
 		setSelectedModal,
 		setPropStatuses,
+		outline.path,
 	]);
+	useLayoutEffect(() => {
+		registerContextMenuOpen(outline.key, onContextMenuOpen);
+		return () => {
+			registerContextMenuOpen(outline.key, null);
+		};
+	}, [onContextMenuOpen, outline.key, registerContextMenuOpen]);
 
 	return (
 		<>
 			<SelectedOutlinePolygon
 				compositionHeight={compositionHeight}
 				compositionWidth={compositionWidth}
+				containsSelection={layoutTarget?.containsSelection === true}
+				directlySelected={layoutTarget?.selected === true}
 				dragging={dragging}
 				getAllDragOutlines={getAllDragOutlines}
 				getAllDragTargets={getAllDragTargets}
@@ -469,7 +573,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				hasTarget={layoutTarget !== undefined}
 				hovered={hovered}
 				outline={outline}
-				onContextMenuOpen={onContextMenuOpen}
 				onDraggingChange={onDraggingChange}
 				onHoverChange={onHoverChange}
 				onSnapPointsChange={onSnapPointsChange}
@@ -477,48 +580,22 @@ const SelectedOutlineElementUnmemoized: React.FC<
 				onDoubleClickTarget={onDoubleClickTarget}
 				scale={scale}
 				showSelectedOutline={layoutTarget?.showSelectedOutline ?? false}
+				translateWithCommandKey={
+					layoutTarget?.selectedForRotation === true &&
+					Boolean(controlTarget?.rotationDrag)
+				}
 			/>
-			<SelectedOutlineCropControls
-				outline={outline}
-				onDraggingChange={onDraggingChange}
-				target={controlTarget}
-			/>
-			{controlTarget?.cropDrag === null &&
-			(layoutTarget?.containsSelection || hovered)
-				? (['top', 'right', 'bottom', 'left'] as const).map((edge) => (
-						<SelectedOutlineScaleEdgeLine
-							key={edge}
-							getAllScaleDragTargets={getAllScaleDragTargets}
-							dragging={dragging}
-							edge={edge}
-							outline={outline}
-							onContextMenuOpen={onContextMenuOpen}
-							onDraggingChange={onDraggingChange}
-							onHoverChange={onHoverChange}
-							onSelect={onSelect}
-							target={controlTarget}
-						/>
-					))
-				: null}
-			{controlTarget?.cropDrag === null &&
-			(layoutTarget?.containsSelection || hovered)
-				? (
-						['top-left', 'top-right', 'bottom-right', 'bottom-left'] as const
-					).map((corner) => (
-						<SelectedOutlineRotationCornerHandle
-							key={corner}
-							getAllRotationDragTargets={getAllRotationDragTargets}
-							corner={corner}
-							dragging={dragging}
-							outline={outline}
-							onContextMenuOpen={onContextMenuOpen}
-							onDraggingChange={onDraggingChange}
-							onHoverChange={onHoverChange}
-							onSelect={onSelect}
-							target={controlTarget}
-						/>
-					))
-				: null}
+			{layoutTarget?.selectedForRotation &&
+			controlTarget?.rotationDrag &&
+			outline.path === null ? (
+				<SelectedOutlineCanvasRotation
+					getLatestTargetByKey={getLatestTargetByKey}
+					layoutTarget={layoutTarget}
+					onDraggingChange={onDraggingChange}
+					outline={outline}
+					transform3DMode={controlTarget.rotationDrag.transform3DMode}
+				/>
+			) : null}
 		</>
 	);
 };

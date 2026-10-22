@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -7,7 +7,6 @@ import {
 	DEFAULT_TIMEOUT,
 } from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../../api/deploy-function';
 import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
@@ -22,18 +21,20 @@ export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
 export const functionsDeploySubcommand = async ({
 	logLevel,
-	providerSpecifics,
-	fullClientSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 }) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
 	const memorySizeInMb = parsedLambdaCli.memory ?? DEFAULT_MEMORY_SIZE;
 	const diskSizeInMb = parsedLambdaCli.disk ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB;
 	const customRoleArn = parsedLambdaCli['custom-role-arn'] ?? undefined;
+	const customLayerArns =
+		parsedLambdaCli['custom-layer-arns'] === undefined
+			? null
+			: parsedLambdaCli['custom-layer-arns']
+					.split(',')
+					.map((arn) => arn.trim());
 	const createCloudWatchLogGroup = !parsedLambdaCli['disable-cloudwatch'];
 	const enableLambdaInsights =
 		parsedLambdaCli['enable-lambda-insights'] ?? false;
@@ -70,6 +71,7 @@ Version = ${VERSION}
 CloudWatch Logging Enabled = ${createCloudWatchLogGroup}
 CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 Lambda Insights Enabled = ${enableLambdaInsights}
+Custom Layers = ${customLayerArns === null ? 'Not specified' : customLayerArns.length}
 
 				`.trim(),
 			),
@@ -102,14 +104,13 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		cloudWatchLogRetentionPeriodInDays,
 		diskSizeInMb,
 		customRoleArn,
+		customLayerArns,
 		enableLambdaInsights,
 		indent: false,
 		logLevel,
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference,
-		providerSpecifics,
-		fullClientSpecifics,
 		requestHandler: null,
 	});
 	if (CliInternals.quietFlagProvided()) {

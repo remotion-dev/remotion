@@ -18,14 +18,6 @@ const payloads = [
 		props: [{name: 'radius', value: 100}],
 	}),
 	StudioProtocolInternals.makeDragData({
-		type: 'composition',
-		compositionId: 'MyVideo',
-		compositionFile: 'src/Root.tsx',
-		width: null,
-		height: null,
-		durationInFrames: null,
-	}),
-	StudioProtocolInternals.makeDragData({
 		type: 'effect',
 		name: 'brightness',
 		importPath: '@remotion/effects/brightness',

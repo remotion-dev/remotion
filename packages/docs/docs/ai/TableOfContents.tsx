@@ -19,7 +19,11 @@ export const TableOfContents: React.FC = () => {
 				</TOCItem>
 				<TOCItem link="/docs/ai/plugins">
 					<strong>{'Plugins'}</strong>
-					<div>Use Remotion with Codex, Claude Code, Cursor or Kimi Code</div>
+					<div>Use Remotion with AI coding agents</div>
+				</TOCItem>
+				<TOCItem link="/docs/ai/webmcp">
+					<strong>{'WebMCP'}</strong>
+					<div>Control Remotion Studio with an AI agent</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/chatbot">
 					<strong>{'Chatbot'}</strong>
@@ -28,10 +32,6 @@ export const TableOfContents: React.FC = () => {
 				<TOCItem link="/docs/ai/bolt">
 					<strong>{'Bolt.new'}</strong>
 					<div>Use Bolt.new to prompt Remotion videos</div>
-				</TOCItem>
-				<TOCItem link="/docs/ai/system-prompt">
-					<strong>{'System Prompt'}</strong>
-					<div>to teach LLMs Remotion rules</div>
 				</TOCItem>
 				<TOCItem link="/docs/ai/generate">
 					<strong>{'Code generation with LLMs'}</strong>

@@ -1,69 +1,73 @@
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
-import type {
-	CallFunctionAsync,
-	CallFunctionOptions,
-	CallFunctionStreaming,
-	CallFunctionSync,
-	MessageTypeId,
-	OnMessage,
-	OrError,
-	ServerlessReturnValues,
-	ServerlessRoutines,
-	StreamingMessage,
-} from '@remotion/serverless';
 import {
-	formatMap,
-	innerHandler,
-	messageTypeIdToMessageType,
-	ResponseStream,
-	streamWriter,
-} from '@remotion/serverless';
+	LambdaClientInternals,
+	type CallFunctionAsync,
+	type CallFunctionOptions,
+	type CallFunctionStreaming,
+	type CallFunctionSync,
+	type GetBinaryPayloadSink,
+	type MessageTypeId,
+	type OnMessage,
+	type OrError,
+	type ServerlessReturnValues,
+	type ServerlessRoutines,
+	type StreamingMessage,
+} from '@remotion/lambda-client';
 import {makeStreamer} from '@remotion/streaming';
 import {Log} from '../../cli/log';
-import {mockServerImplementation} from '../mock-implementation';
-import {mockImplementation} from './mock-implementation';
+import {innerHandler} from '../../functions/inner-routine';
+import {ResponseStream} from '../../functions/streaming/response-stream';
+import {streamWriter} from '../../functions/streaming/stream-writer';
+import {trackMockInvocation} from './mock-invocations';
 
-export const getMockCallFunctionStreaming: CallFunctionStreaming<
-	AwsProvider
-> = async <T extends ServerlessRoutines>(
-	params: CallFunctionOptions<T, AwsProvider> & {
-		receivedStreamingPayload: OnMessage<AwsProvider>;
+export const getMockCallFunctionStreaming: CallFunctionStreaming = async <
+	T extends ServerlessRoutines,
+>(
+	params: CallFunctionOptions<T> & {
+		receivedStreamingPayload: OnMessage;
 		retriesRemaining: number;
+		getBinaryPayloadSink: GetBinaryPayloadSink | null;
 	},
 ) => {
+	trackMockInvocation(params.payload);
 	const responseStream = new ResponseStream();
 
-	const {onData, clear} = makeStreamer((status, messageTypeId, data) => {
-		const messageType = messageTypeIdToMessageType(
-			messageTypeId as MessageTypeId,
-		);
-		const innerPayload =
-			formatMap[messageType] === 'json'
-				? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
-				: data;
+	const {onData, clear} = makeStreamer(
+		(status, messageTypeId, data) => {
+			const messageType = LambdaClientInternals.messageTypeIdToMessageType(
+				messageTypeId as MessageTypeId,
+			);
+			const innerPayload =
+				LambdaClientInternals.formatMap[messageType] === 'json'
+					? LambdaClientInternals.parseJsonOrThrowSource(data, messageType)
+					: data;
 
-		const message: StreamingMessage<AwsProvider> = {
-			successType: status,
-			message: {
-				type: messageType,
-				payload: innerPayload,
-			},
-		};
+			const message: StreamingMessage = {
+				successType: status,
+				message: {
+					type: messageType,
+					payload: innerPayload,
+				},
+			};
 
-		params.receivedStreamingPayload(message);
-	});
+			params.receivedStreamingPayload(message);
+		},
+		params.getBinaryPayloadSink
+			? LambdaClientInternals.binaryPayloadSinkForStreamer(
+					params.getBinaryPayloadSink,
+				)
+			: null,
+	);
 
 	Log.verbose(
 		{indent: false, logLevel: params.payload.logLevel},
 		'Called Lambda function',
 		params.payload,
 	);
-	await innerHandler<AwsProvider>({
+	await innerHandler({
 		params: params.payload,
 		responseWriter: {
-			write(message) {
-				onData(message);
-				return Promise.resolve();
+			async write(message) {
+				await onData(message);
 			},
 			end() {
 				clear();
@@ -71,32 +75,29 @@ export const getMockCallFunctionStreaming: CallFunctionStreaming<
 			},
 		},
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
-		providerSpecifics: mockImplementation,
-		insideFunctionSpecifics: mockServerImplementation,
 	});
 
 	responseStream._finish();
 	responseStream.end();
 };
 
-export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
+export const getMockCallFunctionAsync: CallFunctionAsync = async <
 	T extends ServerlessRoutines,
 >(
-	params: CallFunctionOptions<T, AwsProvider>,
+	params: CallFunctionOptions<T>,
 ) => {
+	trackMockInvocation(params.payload);
 	const responseStream = new ResponseStream();
-	await innerHandler<AwsProvider>({
+	await innerHandler({
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
-		providerSpecifics: mockImplementation,
-		insideFunctionSpecifics: mockServerImplementation,
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
 	});
@@ -105,22 +106,20 @@ export const getMockCallFunctionAsync: CallFunctionAsync<AwsProvider> = async <
 	responseStream.end();
 };
 
-export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
+export const getMockCallFunctionSync: CallFunctionSync = async <
 	T extends ServerlessRoutines,
 >(
-	params: CallFunctionOptions<T, AwsProvider>,
-): Promise<ServerlessReturnValues<AwsProvider>[T]> => {
+	params: CallFunctionOptions<T>,
+): Promise<ServerlessReturnValues[T]> => {
 	const responseStream = new ResponseStream();
-	await innerHandler<AwsProvider>({
+	await innerHandler({
 		context: {
-			invokedFunctionArn: 'arn:fake:1234:1234:124',
+			expectedBucketOwner: '124',
 			getRemainingTimeInMillis: () => params.timeoutInTest ?? 120000,
-			awsRequestId: 'fake',
+			requestId: 'fake',
 		},
 		params: params.payload,
 		responseWriter: streamWriter(responseStream),
-		providerSpecifics: mockImplementation,
-		insideFunctionSpecifics: mockServerImplementation,
 	});
 
 	responseStream._finish();
@@ -128,7 +127,7 @@ export const getMockCallFunctionSync: CallFunctionSync<AwsProvider> = async <
 
 	const parsed = JSON.parse(
 		new TextDecoder().decode(responseStream.getBufferedData()),
-	) as OrError<Awaited<ServerlessReturnValues<AwsProvider>[T]>>;
+	) as OrError<Awaited<ServerlessReturnValues[T]>>;
 	if (parsed.type === 'error') {
 		throw new Error(parsed.message);
 	}

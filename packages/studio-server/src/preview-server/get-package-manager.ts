@@ -31,6 +31,12 @@ export const lockFilePaths: LockfilePath[] = [
 		startCommand: 'pnpm exec remotion studio',
 	},
 	{
+		path: 'nub.lock',
+		manager: 'nub',
+		installCommand: 'nub add',
+		startCommand: 'nubx remotion studio',
+	},
+	{
 		path: 'bun.lock',
 		manager: 'bun',
 		installCommand: 'bun i',

@@ -27,7 +27,6 @@ export const Component = () => {
 const getTranslateStatus = (translateValue: string) => {
 	const input = makeComponent(translateValue);
 	const result = computeSequencePropsStatusFromContent({
-		videoConfigValues: null,
 		fileContents: input,
 		nodePath: lineColumnToNodePath(input, 7),
 		componentIdentity: null,
@@ -69,10 +68,12 @@ test('Should be able to update translate with negative pixel values', () => {
 	expect(status.codeValue).toBe('-50px 100px');
 });
 
-// Unsupported: three values (x, y, z)
-test('Should not support translate with three values', () => {
-	const status = getTranslateStatus('0px 100px 200px');
-	expect(status.status).toBe('computed');
+// Supported: three values (x, y, z)
+test('Should be able to update translate with three pixel values', () => {
+	const status = getTranslateStatus('3px 59.1px -170.6px');
+	expect(status.status).toBe('static');
+	assert(status.status === 'static');
+	expect(status.codeValue).toBe('3px 59.1px -170.6px');
 });
 
 // Unsupported: global CSS values

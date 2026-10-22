@@ -10,6 +10,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
+	Slider,
 	Switch,
 	Tabs,
 	TabsContent,
@@ -33,6 +34,7 @@ const Explainer: React.FC<{
 export const DesignPage: React.FC = () => {
 	const [count, setCount] = useState<number>(10);
 	const [active, setActive] = useState<boolean>(false);
+	const [sliderValue, setSliderValue] = useState<number>(50);
 
 	const [submitButtonActive, setSubmitButtonActive] = useState<boolean>(true);
 	const [submitButtonPrimaryActive, setSubmitButtonPrimaryActive] =
@@ -186,6 +188,13 @@ export const DesignPage: React.FC = () => {
 				/>
 				<br /> <h2 className="text-brand">&lt;Switch /&gt;</h2>
 				<Switch active={active} onToggle={() => setActive((e) => !e)} />
+				<br /> <h2 className="text-brand">&lt;Slider /&gt;</h2>
+				<Explainer>Range input</Explainer>
+				<Slider
+					aria-label="Example value"
+					value={sliderValue}
+					onChange={setSliderValue}
+				/>
 				<br /> <h2 className="text-brand">&lt;Card /&gt;</h2>
 				<Card className="px-4 py-4">
 					<h3 className="text-text">Card</h3>

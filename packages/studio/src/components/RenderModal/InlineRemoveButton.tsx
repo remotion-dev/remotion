@@ -1,5 +1,6 @@
 import {useCallback} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 
@@ -27,10 +28,13 @@ export const InlineRemoveButton: React.FC<{
 	}, []);
 
 	return (
-		<InlineAction
-			renderAction={renderAction}
-			onClick={onClick}
-			variant={null}
-		/>
+		<ActionTooltip label="Remove" shortcut={null} delay={800} dismissOnClick>
+			<InlineAction
+				renderAction={renderAction}
+				onClick={onClick}
+				variant={null}
+				aria-label="Remove"
+			/>
+		</ActionTooltip>
 	);
 };

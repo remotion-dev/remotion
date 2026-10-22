@@ -1,3 +1,4 @@
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
@@ -9,13 +10,20 @@ import {withSourceFileWriteQueue} from './source-file-write-queue';
 export const prepareElementInstallHandler: ApiHandler<
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse
-> = ({input, remotionRoot}) =>
+> = ({entryPoint, input, remotionRoot}) =>
 	withSourceFileWriteQueue(async () => {
 		try {
-			const plan = await getElementInstallPlan({...input, remotionRoot});
+			StudioProtocolInternals.assertElementAssets(input.element.assets);
+			StudioProtocolInternals.assertElementAssetReferences(input.element);
+			const plan = await getElementInstallPlan({
+				...input,
+				entryPoint,
+				remotionRoot,
+			});
 			return {
 				success: true,
 				plan: {
+					compositionFile: plan.destinationCompositionFileName,
 					expectedFileState: plan.expectedFileState,
 					filePath: plan.filePath,
 				},

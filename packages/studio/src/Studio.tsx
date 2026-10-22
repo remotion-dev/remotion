@@ -1,13 +1,25 @@
+import {interpolatePaths} from '@remotion/paths';
 import React, {useLayoutEffect} from 'react';
 import {createPortal} from 'react-dom';
 import {Internals} from 'remotion';
 import {Editor} from './components/Editor';
 import {EditorContexts} from './components/EditorContexts';
 import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
+import {PlaybackPitchSettingsProvider} from './components/PlaybackPitchSettingsProvider';
+import {SequenceActivitySettingsProvider} from './components/SequenceActivitySettingsProvider';
 import {StaticFilesProvider} from './components/use-static-files';
 import {FastRefreshProvider} from './FastRefreshProvider';
 import {injectCSS} from './helpers/inject-css';
 import {ResolveCompositionConfigInStudio} from './ResolveCompositionConfigInStudio';
+import {CompositionListProvider} from './state/composition-list';
+
+Internals.setInterpolatePaths(interpolatePaths);
+
+declare global {
+	interface Window {
+		remotion_experimentalKeepAudioContextAlive: boolean | undefined;
+	}
+}
 
 const getServerDisconnectedDomElement = () => {
 	return document.getElementById('server-disconnected-overlay');
@@ -32,11 +44,16 @@ const StudioInner: React.FC<{
 				numberOfAudioTags={window.remotion_numberOfAudioTags}
 				audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
 				previewSampleRate={window.remotion_previewSampleRate}
+				_experimentalKeepAudioContextAlive={
+					window.remotion_experimentalKeepAudioContextAlive ?? false
+				}
 			>
 				<StaticFilesProvider>
 					<ResolveCompositionConfigInStudio>
 						<EditorContexts>
-							<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+							<CompositionListProvider>
+								<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+							</CompositionListProvider>
 							{readOnly
 								? null
 								: createPortal(
@@ -57,11 +74,16 @@ export const Studio: React.FC<{
 }> = ({rootComponent, readOnly}) => {
 	useLayoutEffect(() => {
 		injectCSS();
+		window.remotion_studioStartup?.dismiss();
 	}, []);
 
 	return (
 		<FastRefreshProvider>
-			<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+			<SequenceActivitySettingsProvider>
+				<PlaybackPitchSettingsProvider>
+					<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+				</PlaybackPitchSettingsProvider>
+			</SequenceActivitySettingsProvider>
 		</FastRefreshProvider>
 	);
 };

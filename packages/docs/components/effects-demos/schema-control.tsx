@@ -401,6 +401,27 @@ const SchemaControlInput = ({
 		);
 	}
 
+	if (field.type === 'font-weight') {
+		const currentValue = value ?? getDefaultValueFromSchema(field);
+		return (
+			<input
+				onChange={(e) => {
+					setValue(
+						typeof currentValue === 'number'
+							? Number(e.target.value)
+							: e.target.value,
+					);
+				}}
+				style={textInputStyle}
+				type={typeof currentValue === 'number' ? 'number' : 'text'}
+				value={getStringOrNumberValue(
+					currentValue,
+					getDefaultValueFromSchema(field),
+				)}
+			/>
+		);
+	}
+
 	if (field.type === 'hidden') {
 		return null;
 	}

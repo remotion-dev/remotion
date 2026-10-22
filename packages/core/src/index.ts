@@ -21,12 +21,12 @@ import {
 import {Folder, type TFolder} from './Folder.js';
 import type {StaticFile} from './get-static-files.js';
 import type {
-	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	AssetFieldSchema,
 	CaptionsFieldSchema,
-	InteractivitySchemaField,
 	InteractivitySchema,
+	InteractivitySchemaField,
 } from './interactivity-schema.js';
 import {useIsPlayer} from './is-player.js';
 import type {LogLevel} from './log.js';
@@ -62,6 +62,7 @@ declare global {
 		};
 		remotion_delayRenderHandles: number[];
 		remotion_cancelledError: string | undefined;
+		remotion_cancelledErrorObject: Error | undefined;
 		remotion_getCompositionNames: () => string[];
 		// Fallback list of seen composition IDs, populated as early as possible by <Composition>
 		remotion_seenCompositionIds: string[];
@@ -71,6 +72,7 @@ declare global {
 		) => Promise<VideoConfigWithSerializedProps>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
+		remotion_outputsBase: string | null;
 		remotion_staticFiles: StaticFile[];
 		remotion_publicPath: string;
 		remotion_publicFolderExists: string | null;
@@ -106,6 +108,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isStudio: boolean;
 		remotion_isReadOnlyStudio: boolean;
+		remotion_enableSequenceStackTraces: (() => void) | null;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
 		siteVersion: '11';
@@ -155,6 +158,7 @@ export {
 	type EffectDescriptor,
 	type EffectFactory,
 	type EffectsProp,
+	type EffectsOutputSize,
 } from './effects/index.js';
 /**
  * @description Renders a solid-color rectangle on a `<canvas>`.
@@ -169,6 +173,7 @@ export {Solid} from './effects/Solid.js';
 export type {SolidProps} from './effects/Solid.js';
 export {
 	HTML_IN_CANVAS_UNSUPPORTED_MESSAGE,
+	getHtmlInCanvasUnsupportedMessage,
 	HtmlInCanvas,
 	isHtmlInCanvasSupported,
 	type HtmlInCanvasOnInit,
@@ -226,12 +231,12 @@ export {
 	EasingFunction,
 	ExtrapolateType,
 	interpolate,
-	InterpolateOutputOption,
 	InterpolateOptions,
+	InterpolateOutputOption,
+	InterpolateOutputType,
 	random,
 	RandomSeed,
 } from './no-react';
-export type {NonceHistory} from './nonce.js';
 export {prefetch, PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';
@@ -247,6 +252,7 @@ export * from './spring/index.js';
 export {staticFile} from './static-file.js';
 export * from './Still.js';
 export type {PlayableMediaTag} from './timeline-position-state.js';
+export {Track, type TrackProps} from './Track.js';
 export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
 export {
@@ -279,12 +285,10 @@ export {watchStaticFile} from './watch-static-file.js';
 export const Experimental = {
 	/**
 	 * @description This is a special component that will cause Remotion to only partially capture the frame of the video.
-	 * @see [Documentation](https://www.remotion.dev/docs/clipper)
 	 */
 	Clipper,
 	/**
 	 * @description This is a special component, that, when rendered, will skip rendering the frame altogether.
-	 * @see [Documentation](https://www.remotion.dev/docs/null)
 	 */
 	Null,
 	useIsPlayer,
@@ -346,18 +350,18 @@ export type _InternalTypes = {
 
 export type {
 	AnyComposition,
-	AssetFieldSchema,
 	ArrayFieldSchema,
 	ArrayItemFieldSchema,
+	AssetFieldSchema,
 	CaptionsFieldSchema,
 	DelayRenderScope,
+	InteractivitySchema,
+	InteractivitySchemaField,
 	JsxComponentIdentity,
 	LoopDisplay,
 	RuntimeValueSnapshot,
 	RuntimeValueStore,
 	SequenceControls,
 	SequenceRegistrationControls,
-	InteractivitySchemaField,
-	InteractivitySchema,
 	UseBufferState,
 };

@@ -6,6 +6,7 @@ import {ConfigInternals} from './config';
 import {parsedCli} from './parsed-cli';
 
 const {
+	allowHtmlInCanvasOption,
 	x264Option,
 	gopSizeOption,
 	audioBitrateOption,
@@ -15,6 +16,7 @@ const {
 	scaleOption,
 	jpegQualityOption,
 	videoBitrateOption,
+	crfOption,
 	enforceAudioOption,
 	mutedOption,
 	colorSpaceOption,
@@ -43,6 +45,8 @@ const {
 	stillImageFormatOption,
 	videoImageFormatOption,
 	sampleRateOption,
+	browserExecutableOption,
+	disableSharedMemoryCaptureOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
@@ -81,6 +85,7 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const videoBitrate = videoBitrateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const crf = crfOption.getValue({commandLine: parsedCli}).value ?? null;
 	const enforceAudioTrack = enforceAudioOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -158,9 +163,22 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const userAgent = userAgentOption.getValue({commandLine: parsedCli}).value;
 	const metadata = ConfigInternals.getMetadata();
 	const outputLocation = ConfigInternals.getOutputLocation();
+	const allowHtmlInCanvas = allowHtmlInCanvasOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
+	const configFileRenderDefaults = {
+		codec: defaultCodec ?? null,
+		proResProfile:
+			proResProfileOption.getValue({commandLine: {}}).value ?? null,
+		stillImageFormat:
+			stillImageFormatOption.getValue({commandLine: {}}).value ?? null,
+		videoImageFormat:
+			videoImageFormatOption.getValue({commandLine: {}}).value ?? null,
+		x264Preset: x264Option.getValue({commandLine: {}}).value ?? null,
+	};
 
 	return {
 		darkMode,
@@ -168,6 +186,7 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		scale: defaultScale ?? 1,
 		logLevel,
 		codec: defaultCodec ?? 'h264',
+		crf,
 		concurrency,
 		maxConcurrency,
 		minConcurrency,
@@ -207,6 +226,16 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		mediaCacheSizeInBytes,
 		publicLicenseKey,
 		outputLocation,
+		allowHtmlInCanvas,
 		sampleRate: sampleRateOption.getValue({commandLine: parsedCli}).value,
+		configFileRenderDefaults,
+		sharedMemoryCapture: {
+			browserExecutable: browserExecutableOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			disabled: disableSharedMemoryCaptureOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+		},
 	};
 };

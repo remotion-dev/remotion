@@ -64,9 +64,12 @@ export const MyComponent: React.FC<Props> = () => {
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/react": "19.2.7",
     "@types/web": "0.0.166",
-    "eslint": "9.19.0",
+    "eslint": "10.12.0",
     "prettier": "3.8.1",
     "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "private": true
 }
@@ -100,6 +103,7 @@ import { Config } from "@remotion/cli/config";
 Config.setRspack(true);
 Config.setVideoImageFormat("jpeg");
 Config.setOverwriteOutput(true);
+Config.setDefaultPremountInSeconds(2);
 `,
 } as const;
 

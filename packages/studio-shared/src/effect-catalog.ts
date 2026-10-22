@@ -1,11 +1,11 @@
-import type {EffectDragData} from '@remotion/studio-protocol';
+import type {EffectDefinition} from './api-requests';
 
 export type EffectCatalogItem = {
 	readonly id: string;
 	readonly category: string;
 	readonly label: string;
 	readonly description: string;
-	readonly effect: EffectDragData['effect'];
+	readonly effect: EffectDefinition;
 };
 
 export type EffectCatalogCategory = {
@@ -60,6 +60,18 @@ export const getEffectCatalogCategories = (
 	return categories;
 };
 
+const DEFAULT_LUT_CONTENT = `TITLE "Teal and orange"
+LUT_3D_SIZE 2
+
+0.02 0.05 0.08
+0.95 0.12 0.06
+0.02 0.8 0.4
+1 0.9 0.18
+0.08 0.18 0.9
+0.95 0.2 0.75
+0.15 0.88 0.92
+1 0.92 0.78`;
+
 export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 	{
 		id: 'effects-brightness',
@@ -84,6 +96,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-color-correction',
+		category: 'Color',
+		label: 'colorCorrection()',
+		description: 'Combined primary color adjustments',
+		effect: {
+			name: 'colorCorrection',
+			importPath: '@remotion/effects/color-correction',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-color-key',
 		category: 'Color',
 		label: 'colorKey()',
@@ -104,6 +127,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'duotone',
 			importPath: '@remotion/effects/duotone',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-exposure',
+		category: 'Color',
+		label: 'exposure()',
+		description: 'Stop-based exposure adjustment',
+		effect: {
+			name: 'exposure',
+			importPath: '@remotion/effects/exposure',
 			config: {},
 		},
 	},
@@ -141,6 +175,30 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-levels',
+		category: 'Color',
+		label: 'levels()',
+		description: 'Black point, white point, and gamma',
+		effect: {
+			name: 'levels',
+			importPath: '@remotion/effects/levels',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-lut',
+		category: 'Color',
+		label: 'lut()',
+		description: 'Apply an inline 3D Cube LUT',
+		effect: {
+			name: 'lut',
+			importPath: '@remotion/effects/lut',
+			config: {
+				content: DEFAULT_LUT_CONTENT,
+			},
+		},
+	},
+	{
 		id: 'effects-saturation',
 		category: 'Color',
 		label: 'saturation()',
@@ -148,6 +206,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'saturation',
 			importPath: '@remotion/effects/saturation',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-shadows-highlights',
+		category: 'Color',
+		label: 'shadowsHighlights()',
+		description: 'Recover dark and bright tonal regions',
+		effect: {
+			name: 'shadowsHighlights',
+			importPath: '@remotion/effects/shadows-highlights',
 			config: {},
 		},
 	},
@@ -162,6 +231,28 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				color: '#1ec8ff',
 			},
+		},
+	},
+	{
+		id: 'effects-white-balance',
+		category: 'Color',
+		label: 'whiteBalance()',
+		description: 'Temperature and tint correction',
+		effect: {
+			name: 'whiteBalance',
+			importPath: '@remotion/effects/white-balance',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-vibrance',
+		category: 'Color',
+		label: 'vibrance()',
+		description: 'Selective saturation adjustment',
+		effect: {
+			name: 'vibrance',
+			importPath: '@remotion/effects/vibrance',
+			config: {},
 		},
 	},
 	{
@@ -208,6 +299,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				radius: 40,
 			},
+		},
+	},
+	{
+		id: 'effects-lens-blur',
+		category: 'Blur & Shadow',
+		label: 'lensBlur()',
+		description: 'Camera defocus with shaped bokeh',
+		effect: {
+			name: 'lensBlur',
+			importPath: '@remotion/effects/lens-blur',
+			config: {},
 		},
 	},
 	{
@@ -269,6 +371,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-long-shadows',
+		category: 'Blur & Shadow',
+		label: 'longShadows()',
+		description: 'Solid directional shadow or faux extrusion',
+		effect: {
+			name: 'longShadows',
+			importPath: '@remotion/effects/long-shadows',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-glow',
 		category: 'Blur & Shadow',
 		label: 'glow()',
@@ -277,6 +390,20 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			name: 'glow',
 			importPath: '@remotion/effects/glow',
 			config: {},
+		},
+	},
+	{
+		id: 'effects-outline',
+		category: 'Blur & Shadow',
+		label: 'outline()',
+		description: 'Solid alpha outline effect',
+		effect: {
+			name: 'outline',
+			importPath: '@remotion/effects/outline',
+			config: {
+				width: 12,
+				color: '#00ffff',
+			},
 		},
 	},
 	{
@@ -300,6 +427,13 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			importPath: '@remotion/effects/evolve',
 			config: {},
 		},
+	},
+	{
+		id: 'effects-tear',
+		category: 'Reveal',
+		label: 'tear()',
+		description: 'Progressive zigzag tear with outward rotation',
+		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
 	},
 	{
 		id: 'effects-venetian-blinds',
@@ -334,6 +468,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				scale: 1,
 			},
+		},
+	},
+	{
+		id: 'effects-tile',
+		category: 'Transform',
+		label: 'tile()',
+		description: 'Repeat the visible source bounds',
+		effect: {
+			name: 'tile',
+			importPath: '@remotion/effects/tile',
+			config: {},
 		},
 	},
 	{
@@ -408,6 +553,39 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-page-turn',
+		category: 'Distort',
+		label: 'pageTurn()',
+		description: 'Curl a page with a shaded fold and paper back',
+		effect: {
+			name: 'pageTurn',
+			importPath: '@remotion/effects/page-turn',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-sphere',
+		category: 'Distort',
+		label: 'sphere()',
+		description: 'Wrap content around a rotating sphere',
+		effect: {
+			name: 'sphere',
+			importPath: '@remotion/effects/sphere',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-cylinder',
+		category: 'Distort',
+		label: 'cylinder()',
+		description: 'Wrap content around a rotating cylinder',
+		effect: {
+			name: 'cylinder',
+			importPath: '@remotion/effects/cylinder',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-wave',
 		category: 'Distort',
 		label: 'wave()',
@@ -430,6 +608,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-turbulent-displace',
+		category: 'Distort',
+		label: 'turbulentDisplace()',
+		description: 'Evolving turbulent, bulge and twist distortion',
+		effect: {
+			name: 'turbulentDisplace',
+			importPath: '@remotion/effects/turbulent-displace',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-burlap',
 		category: 'Stylize',
 		label: 'burlap()',
@@ -437,6 +626,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'burlap',
 			importPath: '@remotion/effects/burlap',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-bevel-alpha',
+		category: 'Stylize',
+		label: 'bevelAlpha()',
+		description: 'Light and shade the edges of text and shapes',
+		effect: {
+			name: 'bevelAlpha',
+			importPath: '@remotion/effects/bevel-alpha',
 			config: {},
 		},
 	},
@@ -645,6 +845,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'vignette',
 			importPath: '@remotion/effects/vignette',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-fractal-noise',
+		category: 'Generate',
+		label: 'fractalNoise()',
+		description: 'Evolving fractal noise textures',
+		effect: {
+			name: 'fractalNoise',
+			importPath: '@remotion/effects/fractal-noise',
 			config: {},
 		},
 	},

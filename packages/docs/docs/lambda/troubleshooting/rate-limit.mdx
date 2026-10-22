@@ -31,13 +31,44 @@ By default, the concurrency limit is 1000 functions per region, however in some 
 
 According to AWS, "some accounts" which are new to AWS Lambda might get a very low concurrency limit such as 10 when they first start with AWS Lambda. In that case, increase the limit via the AWS console or the Remotion CLI (see below).
 
-### Workaround
+### Render with one function
 
-If you want to test Remotion Lambda while you are waiting for AWS to approve a higher concurrency limit, you can pass a higher number to [`framesPerLambda`](/docs/lambda/rendermediaonlambda#framesperlambda).
+From <AvailableFrom v="4.0.517" inline />, you can set `concurrency` to `1` to render the video on the main function.
 
-For example: If your account currently has a concurrency limit of 10 and you want to render a composition with 900 frames, you can set `framesPerLambda` to `100`.  
-9 Lambda renderer functions will be spawned: `900 / 100 = 9`.  
-An additional Lambda function will be spawned for orchestration, meaning a total of 10 Lambda functions will be used, keeping yourself within your limit.
+While waiting for AWS to approve a higher limit, use:
+
+```bash title="Terminal"
+npx remotion lambda render <serve-url> <composition-id> --concurrency=1
+```
+
+```ts twoslash title="render.ts"
+import {renderMediaOnLambda} from '@remotion/lambda/client';
+
+await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  serveUrl: 'https://example.com',
+  composition: 'MyVideo',
+  codec: 'h264',
+  concurrency: 1,
+});
+```
+
+A progress request may briefly use one additional invocation.
+
+This is slower than distributed rendering, but it is useful for testing Remotion Lambda on accounts with a low concurrency limit.
+
+### Use limited distributed rendering
+
+You can also set `concurrency` below your account limit. Leave capacity for the launch function, progress requests, other renders, and unrelated Lambda functions in the same region.
+
+For an account limit of 10, this command uses up to eight renderer functions and one launch function, leaving one invocation available for progress:
+
+```bash title="Terminal"
+npx remotion lambda render <serve-url> <composition-id> --concurrency=8
+```
+
+Use a lower value if other Lambda workloads share the quota. Request a quota increase for production workloads that need higher concurrency.
 
 ## See your limits
 

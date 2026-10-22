@@ -1,0 +1,96 @@
+.content {
+	padding: 16.8px;
+}
+
+.copyButton:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.description {
+	margin: 12px 0 0;
+}
+
+.installAction {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.installAction > :first-child {
+	width: min(258px, calc(100% - 128px));
+	flex: none;
+}
+
+.dragCallout {
+	position: relative;
+	top: -10px;
+	left: -5px;
+	width: 120px;
+	height: 46px;
+	flex: none;
+	color: var(--text-color);
+	pointer-events: none;
+}
+
+.dragCalloutLine {
+	position: absolute;
+	top: 6px;
+	left: 0;
+	width: 47px;
+	height: 30px;
+}
+
+.dragCalloutLabel {
+	position: absolute;
+	top: 0;
+	left: 52px;
+	width: 68px;
+	font-family: 'GTPlanar';
+	font-size: 15px;
+	line-height: 1.15;
+}
+
+.dragCalloutScale {
+	animation: drag-callout-scale 300ms ease-in-out;
+	transform-origin: 4px 18px;
+}
+
+@keyframes drag-callout-scale {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(0.96);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dragCalloutScale {
+		animation: none;
+	}
+}
+
+.hint,
+.copyHint {
+	margin: 16px 0 0;
+}
+
+.copyHint {
+	margin-top: 0;
+}
+
+.copyButton {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--ifm-link-color);
+	cursor: pointer;
+	font: inherit;
+	text-decoration: none;
+}

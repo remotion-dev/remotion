@@ -10,6 +10,7 @@ export type TimeUpdaterRef = {
 export const UpdateTime: React.FC<{
 	readonly children: React.ReactNode;
 	readonly audioEnabled: boolean;
+	readonly sampleRate: number | null;
 	readonly videoEnabled: boolean;
 	readonly logLevel: LogLevel;
 	readonly compId: string;
@@ -18,6 +19,7 @@ export const UpdateTime: React.FC<{
 }> = ({
 	children,
 	audioEnabled,
+	sampleRate,
 	videoEnabled,
 	logLevel,
 	compId,
@@ -36,12 +38,13 @@ export const UpdateTime: React.FC<{
 
 	return (
 		<Internals.RemotionRootContexts
+			_experimentalKeepAudioContextAlive={false}
 			audioEnabled={audioEnabled}
 			videoEnabled={videoEnabled}
 			logLevel={logLevel}
 			numberOfAudioTags={0}
 			audioLatencyHint="interactive"
-			previewSampleRate={null}
+			previewSampleRate={sampleRate}
 			frameState={{
 				[compId]: frame,
 			}}

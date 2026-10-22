@@ -1,11 +1,11 @@
 import React, {useMemo} from 'react';
-import {LIGHT_GRAY, WHITE} from '../../helpers/colors';
+import {LIGHT_GRAY, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {CaretDown} from '../../icons/caret';
 
 const arrowButton: React.CSSProperties = {
 	background: 'none',
 	border: 'none',
-	color: WHITE,
-	cursor: 'pointer',
 	padding: 0,
 	display: 'flex',
 	alignItems: 'center',
@@ -16,16 +16,22 @@ const arrowButton: React.CSSProperties = {
 	fontSize: 8,
 	marginRight: 4,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	outline: 'none',
 	lineHeight: 1,
 };
 
 const arrowSpacer: React.CSSProperties = {
 	...arrowButton,
-	cursor: 'default',
 };
 
-const svgStyle: React.CSSProperties = {display: 'block'};
+const stopPropagation = (
+	e:
+		| React.MouseEvent<HTMLButtonElement>
+		| React.PointerEvent<HTMLButtonElement>,
+) => {
+	e.stopPropagation();
+};
 
 export const TimelineExpandArrowButton: React.FC<{
 	readonly isExpanded: boolean;
@@ -41,22 +47,16 @@ export const TimelineExpandArrowButton: React.FC<{
 		[onClick],
 	);
 
-	const stopPropagation = React.useCallback(
-		(
-			e:
-				| React.MouseEvent<HTMLButtonElement>
-				| React.PointerEvent<HTMLButtonElement>,
-		) => {
-			e.stopPropagation();
-		},
-		[],
-	);
-
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...arrowButton,
-			transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-			cursor: disabled ? 'default' : 'pointer',
+			...hoverableStyle({
+				idleBackground: TRANSPARENT,
+				hoverBackground: TRANSPARENT,
+				idleColor: LIGHT_GRAY,
+				hoverColor: disabled ? LIGHT_GRAY : WHITE,
+			}),
+			transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
 			opacity: disabled ? 0.5 : 1,
 		};
 	}, [isExpanded, disabled]);
@@ -64,6 +64,7 @@ export const TimelineExpandArrowButton: React.FC<{
 	return (
 		<button
 			type="button"
+			className={`${HOVERABLE_CLASS_NAME} __remotion-timeline-expand-arrow-button`}
 			style={style}
 			onClick={handleClick}
 			onDoubleClick={stopPropagation}
@@ -72,9 +73,7 @@ export const TimelineExpandArrowButton: React.FC<{
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>
-			<svg width="12" height="12" viewBox="0 0 8 8" style={svgStyle}>
-				<path d="M2 1L6 4L2 7Z" fill={LIGHT_GRAY} />
-			</svg>
+			<CaretDown />
 		</button>
 	);
 };

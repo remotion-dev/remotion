@@ -24,7 +24,10 @@ server.registerTool(
 	},
 	async ({query}: {query: string}) => {
 		const res = await fetch(
-			`${HOST}/mcp/67cad4626afeae106c6ffb50?query=${query}`,
+			`${HOST}/mcp/67cad4626afeae106c6ffb50?query=${encodeURIComponent(query)}`,
+			{
+				signal: AbortSignal.timeout(10_000),
+			},
 		);
 		return {content: [{type: 'text' as const, text: await res.text()}]};
 	},

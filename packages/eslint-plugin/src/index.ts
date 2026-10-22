@@ -41,7 +41,6 @@ const recommendedRuleConfig = {
 	'@remotion/even-dimensions': 'error',
 	'@remotion/duration-in-frames': 'error',
 	'@remotion/from-0': 'error',
-	'@remotion/volume-callback': 'error',
 	'@remotion/use-gif-component': 'error',
 	'@remotion/staticfile-no-relative': 'error',
 	'@remotion/staticfile-no-remote': 'error',

@@ -288,7 +288,10 @@ export const moveKeyframes = async ({
 	}
 
 	pushTransactionToUndoStack({
-		snapshots,
+		snapshots: snapshots.map((snapshot) => ({
+			...snapshot,
+			nodePathRemappings: null,
+		})),
 		logLevel,
 		remotionRoot,
 		description: getBatchDescription({totalKeyframes, firstKeyframe}),
@@ -299,16 +302,18 @@ export const moveKeyframes = async ({
 					? 'sequence-props'
 					: 'effect-props',
 		suppressHmrOnFileRestore: true,
+		undoRedoNavigation: null,
 	});
 
 	for (const snapshot of snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
 		suppressBundlerUpdateForFile(snapshot.filePath);
-		writeFileAndNotifyFileWatchers(
-			snapshot.filePath,
-			snapshot.newContents,
-			clientId,
-		);
+		writeFileAndNotifyFileWatchers({
+			file: snapshot.filePath,
+			content: snapshot.newContents,
+			originatorClientId: clientId,
+			metadata: null,
+		});
 	}
 
 	for (const log of sequenceLogs) {

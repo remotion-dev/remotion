@@ -82,3 +82,41 @@ test("join captions correctly", () => {
     },
   ]);
 });
+
+test("does not join captions across a forced page break", () => {
+  const captions = fixBackticks([
+    {
+      text: " `dev`",
+      endMs: 6.96,
+      startMs: 0,
+      confidence: null,
+      timestampMs: 0,
+      pageBreakAfter: true,
+    },
+    {
+      text: ". It",
+      endMs: 8.36,
+      startMs: 0,
+      confidence: null,
+      timestampMs: 0,
+    },
+  ]);
+
+  expect(captions).toEqual([
+    {
+      text: " `dev`",
+      endMs: 6.96,
+      startMs: 0,
+      confidence: null,
+      timestampMs: 0,
+      pageBreakAfter: true,
+    },
+    {
+      text: ". It",
+      endMs: 8.36,
+      startMs: 0,
+      confidence: null,
+      timestampMs: 0,
+    },
+  ]);
+});

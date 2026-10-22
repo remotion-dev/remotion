@@ -5,10 +5,12 @@ import {optimisticUpdateForPropStatuses} from '../optimistic-update-for-prop-sta
 
 test('optimisticUpdateForPropStatuses should return the correct response', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.opacity': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 0.5,
 			},
 		},
@@ -22,10 +24,12 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 	});
 
 	expect(updated).toEqual({
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.opacity': {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 0.6,
 			},
 		},
@@ -39,10 +43,12 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 		schema: NoReactInternals.sequenceSchema,
 	});
 	expect(layout).toEqual({
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			layout: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'none',
 			},
 		},
@@ -52,10 +58,12 @@ test('optimisticUpdateForPropStatuses should return the correct response', () =>
 
 test('optimisticUpdateForPropStatuses should use undefined for removed default values', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			name: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: 'hehe',
 			},
 		},
@@ -71,10 +79,12 @@ test('optimisticUpdateForPropStatuses should use undefined for removed default v
 	});
 
 	expect(updated).toEqual({
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			name: {
 				status: 'static',
+				keyframeDisplayOffsetAdjustment: null,
 				codeValue: undefined,
 			},
 		},

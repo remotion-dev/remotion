@@ -1,13 +1,13 @@
 import type React from 'react';
 import type {ImageFit} from '../calculate-image-fit.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
 	InteractivePremountProps,
 } from '../Interactive.js';
 
-type CanvasImageSequenceProps = InteractiveBaseProps &
+type CanvasImageSequenceProps = Omit<InteractiveBaseProps, 'playbackRate'> &
 	InteractiveCropProps &
 	InteractivePremountProps;
 
@@ -19,10 +19,12 @@ export type CanvasImageCanvasProps = Omit<
 export type CanvasImageProps = CanvasImageSequenceProps &
 	CanvasImageCanvasProps & {
 		readonly src: string;
+		readonly crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'];
 		readonly width?: number;
 		readonly height?: number;
 		readonly fit?: ImageFit;
 		readonly effects?: EffectsProp;
+		readonly effectsOutputSize?: EffectsOutputSize;
 		readonly className?: string;
 		readonly style?: React.CSSProperties;
 		readonly id?: string;
@@ -39,9 +41,4 @@ export type CanvasImageProps = CanvasImageSequenceProps &
 		 * @deprecated For internal use only.
 		 */
 		readonly _remotionInternalCropComponentName?: string;
-		/**
-		 * A React ref pointing to the element that Remotion Studio should use for
-		 * drawing the selection outline in the preview.
-		 */
-		readonly outlineRef?: React.RefObject<HTMLElement | null> | null;
 	};

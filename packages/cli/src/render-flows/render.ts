@@ -118,6 +118,7 @@ export const renderVideoFlow = async ({
 	audioCodec,
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
+	disableSharedMemoryCapture,
 	offthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
 	colorSpace,
@@ -191,6 +192,7 @@ export const renderVideoFlow = async ({
 	numberOfGifLoops: NumberOfGifLoops;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
+	disableSharedMemoryCapture: boolean;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	colorSpace: ColorSpace | null;
@@ -255,13 +257,23 @@ export const renderVideoFlow = async ({
 		logLevel,
 		quiet: quietFlagProvided(),
 	});
-	await RenderInternals.internalEnsureBrowser({
-		browserExecutable,
-		indent,
-		logLevel,
-		onBrowserDownload,
-		chromeMode,
-	});
+	try {
+		await RenderInternals.internalEnsureBrowser({
+			browserExecutable,
+			indent,
+			logLevel,
+			onBrowserDownload,
+			chromeMode,
+		});
+	} catch (err) {
+		updateBrowserProgress({
+			progress: browserState.progress,
+			doneIn: null,
+			alreadyAvailable: false,
+			error: true,
+		});
+		throw err;
+	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -300,7 +312,9 @@ export const renderVideoFlow = async ({
 		};
 
 		onProgress({
-			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			message: progress.error
+				? `Failed to download ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'}`
+				: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
 			value: 0,
 			...aggregateRenderProgress,
 		});
@@ -646,6 +660,8 @@ export const renderVideoFlow = async ({
 			sampleRate: resolvedSampleRate,
 			onBrowserLog: null,
 			onFrameBuffer: null,
+			onFrame: null,
+			remotionSharedMemory: null,
 			logLevel,
 			serializedResolvedPropsWithCustomSchema:
 				NoReactInternals.serializeJSONWithSpecialTypes({
@@ -762,6 +778,7 @@ export const renderVideoFlow = async ({
 		preferLossless: false,
 		imageFormat,
 		disallowParallelEncoding,
+		disableSharedMemoryCapture,
 		onBrowserLog: null,
 		onStart: () => undefined,
 		serializedResolvedPropsWithCustomSchema:

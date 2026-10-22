@@ -19,6 +19,7 @@ export const getHardwareAcceleration = () => {
 
 export const hardwareAccelerationOption = {
 	name: 'Hardware Acceleration',
+	addedIn: '4.0.228',
 	cliFlag,
 	description: () =>
 		`
@@ -31,7 +32,7 @@ export const hardwareAccelerationOption = {
 			available, then the render will fail.
 		`,
 	ssrName: 'hardwareAcceleration',
-	docLink: 'https://www.remotion.dev/docs/encoding',
+	docLink: 'https://www.remotion.dev/docs/options/hardware-acceleration',
 	type: 'disable' as HardwareAccelerationOption,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

@@ -6,6 +6,7 @@ const cliFlag = 'force-new' as const;
 
 export const forceNewStudioOption = {
 	name: 'Force New Studio',
+	addedIn: '4.0.421',
 	cliFlag,
 	description: () => (
 		<>
@@ -14,7 +15,7 @@ export const forceNewStudioOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setforcenewstudioenabled',
+	docLink: 'https://www.remotion.dev/docs/options/force-new',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

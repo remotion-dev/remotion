@@ -19,8 +19,8 @@ export const normalizeInstructions = (
 			moveX = instruction.x;
 			moveY = instruction.y;
 		} else if (instruction.type === 'm') {
-			moveX += instruction.dx;
-			moveY += instruction.dy;
+			moveX = x + instruction.dx;
+			moveY = y + instruction.dy;
 		}
 
 		if (

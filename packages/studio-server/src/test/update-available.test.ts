@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {isUpdateAvailable} from '../preview-server/update-available';
 
-test('reports outdated project skills when Remotion itself is up to date', async () => {
+test('only reports installed outdated project skills', async () => {
 	const remotionRoot = mkdtempSync(
 		path.join(tmpdir(), 'remotion-studio-skills-update-'),
 	);
@@ -19,47 +19,42 @@ test('reports outdated project skills when Remotion itself is up to date', async
 		mkdirSync(skillDirectory, {recursive: true});
 		writeFileSync(
 			path.join(skillDirectory, 'SKILL.md'),
-			'---\nname: remotion-best-practices\nversion: 4.0.501\n---\n',
+			'---\nname: remotion-best-practices\nversion: 4.0.502\n---\n',
 		);
 
-		const result = await isUpdateAvailable({
+		const currentResult = await isUpdateAvailable({
 			remotionRoot,
 			currentVersion: '4.0.502',
 			logLevel: 'error',
 			getLatestVersion: () => Promise.resolve('4.0.502'),
 		});
 
-		expect(result).toMatchObject({
+		expect(currentResult).toMatchObject({
+			currentVersion: '4.0.502',
+			latestVersion: '4.0.502',
+			updateAvailable: false,
+			skillsUpdateAvailable: false,
+			timedOut: false,
+		});
+
+		writeFileSync(
+			path.join(skillDirectory, 'SKILL.md'),
+			'---\nname: remotion-best-practices\nversion: 4.0.501\n---\n',
+		);
+
+		const outdatedResult = await isUpdateAvailable({
+			remotionRoot,
+			currentVersion: '4.0.502',
+			logLevel: 'error',
+			getLatestVersion: () => Promise.resolve('4.0.502'),
+		});
+
+		expect(outdatedResult).toMatchObject({
 			currentVersion: '4.0.502',
 			latestVersion: '4.0.502',
 			updateAvailable: false,
 			skillsUpdateAvailable: true,
-			remotionUpgradeSkillAvailable: false,
 			timedOut: false,
-		});
-
-		const upgradeSkillDirectory = path.join(
-			remotionRoot,
-			'.agents',
-			'skills',
-			'remotion-upgrade',
-		);
-		mkdirSync(upgradeSkillDirectory, {recursive: true});
-		writeFileSync(
-			path.join(upgradeSkillDirectory, 'SKILL.md'),
-			'---\nname: remotion-upgrade\nversion: 4.0.501\n---\n',
-		);
-
-		const resultWithUpgradeSkill = await isUpdateAvailable({
-			remotionRoot,
-			currentVersion: '4.0.502',
-			logLevel: 'error',
-			getLatestVersion: () => Promise.resolve('4.0.502'),
-		});
-
-		expect(resultWithUpgradeSkill).toMatchObject({
-			skillsUpdateAvailable: true,
-			remotionUpgradeSkillAvailable: true,
 		});
 	} finally {
 		rmSync(remotionRoot, {recursive: true, force: true});

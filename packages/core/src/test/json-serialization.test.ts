@@ -41,3 +41,17 @@ test('Map used', () => {
 	});
 	expect(mapUsed).toEqual(true);
 });
+
+test('an empty static base does not turn every string into a file', () => {
+	const result = serializeJSONWithSpecialTypes({
+		data: {color: '#91EAE4', title: 'Welcome to Remotion'},
+		indent: 2,
+		staticBase: '',
+	});
+
+	expect(result.customFileUsed).toBe(false);
+	expect(JSON.parse(result.serializedString)).toEqual({
+		color: '#91EAE4',
+		title: 'Welcome to Remotion',
+	});
+});

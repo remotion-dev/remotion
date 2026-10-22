@@ -22,7 +22,7 @@ const runSkillsCommand = ({
 }) => {
 	return new Promise<void>((resolve, reject) => {
 		const cliPath = path.join(__dirname, '..', '..', 'remotion-cli.js');
-		const child = spawn(process.execPath, [cliPath, 'skills', ...args], {
+		const child = spawn('node', [cliPath, 'skills', ...args], {
 			env: {
 				...process.env,
 				PATH: `${fakeNpxDirectory}${path.delimiter}${process.env.PATH}`,
@@ -100,14 +100,14 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify(process.a
 
 		expect(addArguments).toEqual([
 			'--loglevel=error',
-			'skills@1.5.20',
+			'skills@1.7.0',
 			'add',
 			'remotion-dev/skills',
 			'--yes',
 		]);
 		expect(updateArguments).toEqual([
 			'--loglevel=error',
-			'skills',
+			'skills@1.7.0',
 			'update',
 			...remotionSkillNames,
 			'--yes',

@@ -1,20 +1,25 @@
 import {barrelDistortion} from '@remotion/effects/barrel-distortion';
+import {bevelAlpha} from '@remotion/effects/bevel-alpha';
 import {blur} from '@remotion/effects/blur';
 import {brightness} from '@remotion/effects/brightness';
 import {burlap} from '@remotion/effects/burlap';
 import {checkerboard} from '@remotion/effects/checkerboard';
 import {chromaticAberration} from '@remotion/effects/chromatic-aberration';
+import {colorCorrection} from '@remotion/effects/color-correction';
 import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
 import {cornerPin} from '@remotion/effects/corner-pin';
+import {cylinder} from '@remotion/effects/cylinder';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {duotone} from '@remotion/effects/duotone';
 import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
+import {exposure} from '@remotion/effects/exposure';
 import {fisheye} from '@remotion/effects/fisheye';
 import {flannel} from '@remotion/effects/flannel';
+import {fractalNoise} from '@remotion/effects/fractal-noise';
 import {glow} from '@remotion/effects/glow';
 import {grayscale} from '@remotion/effects/grayscale';
 import {gridlines} from '@remotion/effects/gridlines';
@@ -22,6 +27,8 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {lensBlur} from '@remotion/effects/lens-blur';
+import {levels} from '@remotion/effects/levels';
 import {lightLeak} from '@remotion/effects/light-leak';
 import {lightTrail} from '@remotion/effects/light-trail';
 import {linearGradient} from '@remotion/effects/linear-gradient';
@@ -30,9 +37,13 @@ import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
+import {longShadows} from '@remotion/effects/long-shadows';
+import {lut} from '@remotion/effects/lut';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
+import {outline} from '@remotion/effects/outline';
+import {pageTurn} from '@remotion/effects/page-turn';
 import {paper} from '@remotion/effects/paper';
 import {pattern} from '@remotion/effects/pattern';
 import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
@@ -45,39 +56,51 @@ import {roughenEdges} from '@remotion/effects/roughen-edges';
 import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
+import {shadowsHighlights} from '@remotion/effects/shadows-highlights';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
 import {speckle} from '@remotion/effects/speckle';
+import {sphere} from '@remotion/effects/sphere';
 import {starburst} from '@remotion/effects/starburst';
+import {tear} from '@remotion/effects/tear';
 import {thermalVision} from '@remotion/effects/thermal-vision';
+import {tile} from '@remotion/effects/tile';
 import {tint} from '@remotion/effects/tint';
 import {uvTranslate, xyTranslate} from '@remotion/effects/translate';
+import {turbulentDisplace} from '@remotion/effects/turbulent-displace';
 import {tvSignalOff} from '@remotion/effects/tv-signal-off';
 import {venetianBlinds} from '@remotion/effects/venetian-blinds';
+import {vibrance} from '@remotion/effects/vibrance';
 import {vignette} from '@remotion/effects/vignette';
 import {wave} from '@remotion/effects/wave';
 import {waves} from '@remotion/effects/waves';
+import {whiteBalance} from '@remotion/effects/white-balance';
 import {whiteNoise} from '@remotion/effects/white-noise';
 import {zigzag} from '@remotion/effects/zigzag';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
 import {EffectsBarrelDistortionPreview} from '../effects/effects-barrel-distortion-preview';
+import {EffectsBevelAlphaPreview} from '../effects/effects-bevel-alpha-preview';
 import {EffectsBlurPreview} from '../effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../effects/effects-burlap-preview';
 import {EffectsCheckerboardPreview} from '../effects/effects-checkerboard-preview';
 import {EffectsChromaticAberrationPreview} from '../effects/effects-chromatic-aberration-preview';
+import {EffectsColorCorrectionPreview} from '../effects/effects-color-correction-preview';
 import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../effects/effects-corner-pin-preview';
+import {EffectsCylinderPreview} from '../effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
+import {EffectsExposurePreview} from '../effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
+import {EffectsFractalNoisePreview} from '../effects/effects-fractal-noise-preview';
 import {EffectsGlowPreview} from '../effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../effects/effects-gridlines-preview';
@@ -85,6 +108,8 @@ import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsLensBlurPreview} from '../effects/effects-lens-blur-preview';
+import {EffectsLevelsPreview} from '../effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
 import {
 	EffectsLightTrailPreview,
@@ -96,12 +121,22 @@ import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-pro
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
+import {
+	EffectsLongShadowsPreview,
+	LONG_SHADOWS_PREVIEW_PARAMS,
+} from '../effects/effects-long-shadows-preview';
+import {
+	EffectsLutPreview,
+	LUT_PREVIEW_CONTENT,
+} from '../effects/effects-lut-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
 	NOISE_DISPLACEMENT_PREVIEW_PARAMS,
 } from '../effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../effects/effects-noise-preview';
+import {EffectsOutlinePreview} from '../effects/effects-outline-preview';
+import {EffectsPageTurnPreview} from '../effects/effects-page-turn-preview';
 import {
 	EffectsPaletteMapPreview,
 	paletteMap,
@@ -124,6 +159,7 @@ import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-previ
 import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
+import {EffectsShadowsHighlightsPreview} from '../effects/effects-shadows-highlights-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -131,21 +167,27 @@ import {
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
+import {EffectsSpherePreview} from '../effects/effects-sphere-preview';
 import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
 } from '../effects/effects-starburst-preview';
+import {EffectsTearPreview} from '../effects/effects-tear-preview';
 import {EffectsThermalVisionPreview} from '../effects/effects-thermal-vision-preview';
+import {EffectsTilePreview} from '../effects/effects-tile-preview';
 import {EffectsTintPreview} from '../effects/effects-tint-preview';
 import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../effects/effects-translate-preview';
+import {EffectsTurbulentDisplacePreview} from '../effects/effects-turbulent-displace-preview';
 import {EffectsTvSignalOffPreview} from '../effects/effects-tv-signal-off-preview';
 import {EffectsVenetianBlindsPreview} from '../effects/effects-venetian-blinds-preview';
+import {EffectsVibrancePreview} from '../effects/effects-vibrance-preview';
 import {EffectsVignettePreview} from '../effects/effects-vignette-preview';
 import {EffectsWavePreview} from '../effects/effects-wave-preview';
 import {EffectsWavesPreview} from '../effects/effects-waves-preview';
+import {EffectsWhiteBalancePreview} from '../effects/effects-white-balance-preview';
 import {EffectsWhiteNoisePreview} from '../effects/effects-white-noise-preview';
 import {EffectsZigzagPreview} from '../effects/effects-zigzag-preview';
 import {EffectsZoomBlurPreview} from '../effects/effects-zoom-blur-preview';
@@ -170,7 +212,83 @@ const shrinkwrapDemoSchema = {
 	},
 } as const;
 
+const cylinderDemoSchema = cylinder().definition.schema;
+
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-bevel-alpha',
+		effectName: 'bevelAlpha',
+		effectImportPath: '@remotion/effects/bevel-alpha',
+		comp: EffectsBevelAlphaPreview,
+		schema: bevelAlpha().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-lens-blur',
+		effectName: 'lensBlur',
+		effectImportPath: '@remotion/effects/lens-blur',
+		comp: EffectsLensBlurPreview,
+		schema: lensBlur().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-turbulent-displace',
+		effectName: 'turbulentDisplace',
+		effectImportPath: '@remotion/effects/turbulent-displace',
+		comp: EffectsTurbulentDisplacePreview,
+		schema: turbulentDisplace().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-fractal-noise',
+		effectName: 'fractalNoise',
+		effectImportPath: '@remotion/effects/fractal-noise',
+		comp: EffectsFractalNoisePreview,
+		schema: fractalNoise().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-page-turn',
+		effectName: 'pageTurn',
+		effectImportPath: '@remotion/effects/page-turn',
+		comp: EffectsPageTurnPreview,
+		schema: pageTurn().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-sphere',
+		effectName: 'sphere',
+		effectImportPath: '@remotion/effects/sphere',
+		comp: EffectsSpherePreview,
+		schema: sphere().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-cylinder',
+		effectName: 'cylinder',
+		effectImportPath: '@remotion/effects/cylinder',
+		comp: EffectsCylinderPreview,
+		schema: {
+			...cylinderDemoSchema,
+			radius: {
+				...cylinderDemoSchema.radius,
+				type: 'number',
+				default: 340,
+				hiddenFromList: false,
+			},
+			rotationX: {
+				...cylinderDemoSchema.rotationX,
+				type: 'rotation-degrees',
+				default: 52,
+			},
+			rotationZ: {
+				...cylinderDemoSchema.rotationZ,
+				type: 'rotation-degrees',
+				default: -18,
+			},
+		},
+	},
 	{
 		...defaults,
 		id: 'effects-brightness',
@@ -226,6 +344,24 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-outline',
+		effectName: 'outline',
+		effectImportPath: '@remotion/effects/outline',
+		comp: EffectsOutlinePreview,
+		schema: outline().definition.schema,
+		durationInFrames: 150,
+		autoPlay: true,
+	},
+	{
+		...defaults,
+		id: 'effects-color-correction',
+		effectName: 'colorCorrection',
+		effectImportPath: '@remotion/effects/color-correction',
+		comp: EffectsColorCorrectionPreview,
+		schema: colorCorrection().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-duotone',
 		effectName: 'duotone',
 		effectImportPath: '@remotion/effects/duotone',
@@ -242,6 +378,41 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-exposure',
+		effectName: 'exposure',
+		effectImportPath: '@remotion/effects/exposure',
+		comp: EffectsExposurePreview,
+		schema: exposure().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-white-balance',
+		effectName: 'whiteBalance',
+		effectImportPath: '@remotion/effects/white-balance',
+		comp: EffectsWhiteBalancePreview,
+		schema: whiteBalance().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-vibrance',
+		effectName: 'vibrance',
+		effectImportPath: '@remotion/effects/vibrance',
+		comp: EffectsVibrancePreview,
+		schema: vibrance().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tear',
+		effectName: 'tear',
+		effectImportPath: '@remotion/effects/tear',
+		comp: EffectsTearPreview,
+		schema: {
+			...tear().definition.schema,
+			progress: {...tear().definition.schema.progress, max: 2},
+		},
+	},
+	{
+		...defaults,
 		id: 'effects-venetian-blinds',
 		effectName: 'venetianBlinds',
 		effectImportPath: '@remotion/effects/venetian-blinds',
@@ -255,6 +426,15 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/drop-shadow',
 		comp: EffectsDropShadowPreview,
 		schema: dropShadow().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-long-shadows',
+		effectName: 'longShadows',
+		effectImportPath: '@remotion/effects/long-shadows',
+		comp: EffectsLongShadowsPreview,
+		schema: longShadows().definition.schema,
+		initialValues: LONG_SHADOWS_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
@@ -290,11 +470,41 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-levels',
+		effectName: 'levels',
+		effectImportPath: '@remotion/effects/levels',
+		comp: EffectsLevelsPreview,
+		schema: levels().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-lut',
+		effectName: 'lut',
+		effectImportPath: '@remotion/effects/lut',
+		comp: EffectsLutPreview,
+		schema: {
+			...lut({content: LUT_PREVIEW_CONTENT}).definition.schema,
+			content: {type: 'hidden'},
+		},
+		initialValues: {
+			content: LUT_PREVIEW_CONTENT,
+		},
+	},
+	{
+		...defaults,
 		id: 'effects-saturation',
 		effectName: 'saturation',
 		effectImportPath: '@remotion/effects/saturation',
 		comp: EffectsSaturationPreview,
 		schema: saturation().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shadows-highlights',
+		effectName: 'shadowsHighlights',
+		effectImportPath: '@remotion/effects/shadows-highlights',
+		comp: EffectsShadowsHighlightsPreview,
+		schema: shadowsHighlights().definition.schema,
 	},
 	{
 		...defaults,
@@ -478,6 +688,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/scale',
 		comp: EffectsScalePreview,
 		schema: scale({scale: 1}).definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-tile',
+		effectName: 'tile',
+		effectImportPath: '@remotion/effects/tile',
+		comp: EffectsTilePreview,
+		schema: tile().definition.schema,
 	},
 	{
 		...defaults,

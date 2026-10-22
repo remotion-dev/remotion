@@ -5,6 +5,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {EffectsOutputSize} from 'remotion';
 import type {
 	EffectDefinitionAndStack,
 	LogLevel,
@@ -23,7 +24,6 @@ import {
 } from 'remotion';
 import {useMaxMediaCacheSize, useRenderMediaCache} from '../caches';
 import {applyVolume} from '../convert-audiodata/apply-volume';
-import {getTargetSampleRate} from '../convert-audiodata/resample-audiodata';
 import {frameForVolumeProp} from '../looped-frame';
 import {type MediaOnError, callOnErrorAndResolve} from '../on-error';
 import {ProResDecoderNotEnabledError} from '../prores-error';
@@ -50,10 +50,11 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly delayRenderRetries: number | null;
 	readonly delayRenderTimeoutInMilliseconds: number | null;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
-	readonly audioStreamIndex: number;
+	readonly audioStreamIndex: number | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly _remotionInternalStack: string | undefined;
 	readonly toneFrequency: number;
+	readonly preservePitch: boolean | null;
 	readonly trimBeforeValue: number | undefined;
 	readonly trimAfterValue: number | undefined;
 	readonly headless: boolean;
@@ -62,6 +63,7 @@ type InnerVideoProps = NativeVideoProps & {
 	readonly requestInit: MediaRequestInit | undefined;
 	readonly objectFit: VideoObjectFit;
 	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
 type FallbackToOffthreadVideo = {
@@ -86,6 +88,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	disallowFallbackToOffthreadVideo,
 	_remotionInternalStack,
 	toneFrequency,
+	preservePitch,
 	trimAfterValue,
 	trimBeforeValue,
 	headless,
@@ -94,12 +97,15 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	requestInit,
 	objectFit: objectFitProp,
 	effects,
+	effectsOutputSize,
 	...props
 }) => {
 	if (!src) {
 		throw new TypeError('No `src` was passed to <Video>.');
 	}
 
+	const audioContext = useContext(Internals.SharedAudioContext);
+	const sampleRate = audioContext?.sampleRate ?? 48000;
 	const frame = useCurrentFrame();
 	const absoluteFrame = Internals.useTimelinePosition();
 
@@ -109,6 +115,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	);
 	const startsAt = Internals.useMediaStartsAt();
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
+	const startInVideo = sequenceContext
+		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
+		: 0;
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -136,10 +146,15 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 	const audioEnabled = Internals.useAudioEnabled();
 	const videoEnabled = Internals.useVideoEnabled();
+	const {isMutedForPlayback, shouldUseAudio} = Internals.useMediaAudioState({
+		muted,
+		volume: null,
+		audioEnabled,
+	});
 
 	const maxCacheSize = useMaxMediaCacheSize(logLevel);
 	const mediaCache = useRenderMediaCache(logLevel);
-	const effectChainState = Internals.useEffectChainState();
+	const effectChainState = Internals.useEffectChainState(effectsOutputSize);
 
 	const [error, setError] = useState<Error | null>(null);
 
@@ -164,9 +179,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			);
 		}
 
-		const timestamp = frame / fps;
+		const timestamp = frame / sequencePlaybackRate / fps;
 		const durationInSeconds = 1 / fps;
 
+		let cancelled = false;
 		const newHandle = delayRender(
 			`Extracting frame at time ${timestamp} from ${src}`,
 			{
@@ -175,25 +191,14 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			},
 		);
 
-		const shouldRenderAudio = (() => {
-			if (!audioEnabled) {
-				return false;
-			}
-
-			if (muted) {
-				return false;
-			}
-
-			return true;
-		})();
-
 		extractFrameViaBroadcastChannel({
+			sampleRate,
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate,
+			playbackRate: playbackRate * sequencePlaybackRate,
 			logLevel,
-			includeAudio: shouldRenderAudio,
+			includeAudio: shouldUseAudio,
 			includeVideo: videoEnabled,
 			isClientSideRendering: environment.isClientSideRendering,
 			loop,
@@ -207,7 +212,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			mediaCache,
 		})
 			.then(async (result) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					if (result.type === 'success') {
 						result.frame?.close();
 					}
@@ -252,6 +257,20 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					});
 				};
 
+				if (
+					(result.type === 'unknown-container-format' ||
+						result.type === 'network-error') &&
+					result.error
+				) {
+					handleError(
+						result.error,
+						result.error,
+						`Failed to read ${src}: ${result.error.message}, falling back to <OffthreadVideo>`,
+						null,
+					);
+					return;
+				}
+
 				if (result.type === 'unknown-container-format') {
 					handleError(
 						new Error(`Unknown container format ${src}.`),
@@ -266,10 +285,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 
 				if (result.type === 'cannot-decode') {
 					handleError(
-						new Error(`Cannot decode ${src}.`),
-						new Error(
-							`Cannot render video "${src}": The video could not be decoded by the browser.`,
-						),
+						result.error,
+						new Error(`Cannot render video "${src}": ${result.error.message}`, {
+							cause: result.error,
+						}),
 						`Cannot decode ${src}, falling back to <OffthreadVideo>`,
 						result.durationInSeconds,
 					);
@@ -343,7 +362,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 								height: imageBitmap.height,
 							});
 
-							if (!completed || mediaCache.isDisposed()) {
+							if (!completed || cancelled || mediaCache.isDisposed()) {
 								imageBitmap.close();
 								return;
 							}
@@ -374,6 +393,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fps,
 					frame,
 					startsAt,
+					playbackRate,
+					trimBefore: trimBeforeValue,
+					trimAfter: trimAfterValue,
 				});
 
 				const volume = Internals.evaluateVolume({
@@ -393,17 +415,19 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 							? audio.data
 							: Array.from(audio.data),
 						frame: absoluteFrame,
+						startInVideo,
 						timestamp: audio.timestamp,
-						duration:
-							(audio.numberOfFrames / getTargetSampleRate()) * 1_000_000,
-						toneFrequency,
+						duration: audio.durationInMicroSeconds,
+						toneFrequency:
+							toneFrequency /
+							(preservePitch ? playbackRate * sequencePlaybackRate : 1),
 					});
 				}
 
 				continueRender(newHandle);
 			})
 			.catch((err) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -411,10 +435,12 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			});
 
 		return () => {
+			cancelled = true;
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};
 	}, [
+		sampleRate,
 		absoluteFrame,
 		continueRender,
 		delayRender,
@@ -427,11 +453,13 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		logLevel,
 		loop,
 		loopVolumeCurveBehavior,
-		muted,
+		shouldUseAudio,
 		onVideoFrame,
 		playbackRate,
+		sequencePlaybackRate,
 		registerRenderAsset,
 		src,
+		startInVideo,
 		startsAt,
 		unregisterRenderAsset,
 		volumeProp,
@@ -439,9 +467,9 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		audioStreamIndex,
 		disallowFallbackToOffthreadVideo,
 		toneFrequency,
+		preservePitch,
 		trimAfterValue,
 		trimBeforeValue,
-		audioEnabled,
 		videoEnabled,
 		maxCacheSize,
 		cancelRender,
@@ -475,7 +503,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 				{...props}
 				src={src}
 				playbackRate={playbackRate ?? 1}
-				muted={muted ?? false}
+				muted={isMutedForPlayback}
 				acceptableTimeShiftInSeconds={
 					fallbackOffthreadVideoProps?.acceptableTimeShiftInSeconds
 				}
@@ -504,9 +532,12 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fallbackOffthreadVideoProps?.pauseWhenBuffering ?? false
 				}
 				trimAfter={trimAfterValue}
+				durationInFrames={undefined}
 				trimBefore={trimBeforeValue}
 				useWebAudioApi={fallbackOffthreadVideoProps?.useWebAudioApi ?? false}
-				preservePitch={fallbackOffthreadVideoProps?.preservePitch ?? true}
+				preservePitch={
+					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch ?? true
+				}
 				startFrom={undefined}
 				endAt={undefined}
 				_remotionInternalStack={_remotionInternalStack}

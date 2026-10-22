@@ -3,7 +3,7 @@ import path from 'node:path';
 import {Log} from './log';
 import type {Template} from './templates';
 
-export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | 'nub';
 
 const shouldUseBun = (): boolean => {
 	if (
@@ -41,6 +41,10 @@ const shouldUsePnpm = (): boolean => {
 };
 
 export const selectPackageManager = (): PackageManager => {
+	if (process.env.npm_config_user_agent?.includes('nub/')) {
+		return 'nub';
+	}
+
 	if (shouldUseYarn()) {
 		return 'yarn';
 	}
@@ -58,7 +62,7 @@ export const selectPackageManager = (): PackageManager => {
 
 export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'npm') {
-		return `npm i`;
+		return `npm i --loglevel=error`;
 	}
 
 	if (manager === 'yarn') {
@@ -72,6 +76,12 @@ export const getInstallCommand = (manager: PackageManager) => {
 	if (manager === 'bun') {
 		return `bun install`;
 	}
+
+	if (manager === 'nub') {
+		return `nub install`;
+	}
+
+	throw new TypeError('unknown package manager');
 };
 
 const getStartCommand = (manager: PackageManager) => {
@@ -90,6 +100,10 @@ const getStartCommand = (manager: PackageManager) => {
 	if (manager === 'bun') {
 		return `bun run dev`;
 	}
+
+	if (manager === 'nub') {
+		return `nub run dev`;
+	}
 };
 
 export const getRunCommand = (manager: PackageManager) => {
@@ -107,6 +121,10 @@ export const getRunCommand = (manager: PackageManager) => {
 
 	if (manager === 'bun') {
 		return `bun run`;
+	}
+
+	if (manager === 'nub') {
+		return `nub run`;
 	}
 
 	throw new TypeError('unknown package manager');
@@ -129,6 +147,10 @@ export const getRenderCommand = (manager: PackageManager) => {
 		return `bunx remotion render`;
 	}
 
+	if (manager === 'nub') {
+		return `nubx remotion render`;
+	}
+
 	throw new TypeError('unknown package manager');
 };
 
@@ -149,15 +171,18 @@ export const getUpgradeCommand = (manager: PackageManager) => {
 		return `bunx remotion upgrade`;
 	}
 
+	if (manager === 'nub') {
+		return `nubx remotion upgrade`;
+	}
+
 	throw new TypeError('unknown package manager');
 };
 
 export const getDevCommand = (manager: PackageManager, template: Template) => {
 	if (
 		template.cliId === 'react-router' ||
-		template.cliId === 'next' ||
-		template.cliId === 'next-no-tailwind' ||
-		template.cliId === 'next-pages-dir'
+		template.cliId === 'element-library' ||
+		template.cliId === 'next'
 	) {
 		return `${getRunCommand(manager)} dev`;
 	}

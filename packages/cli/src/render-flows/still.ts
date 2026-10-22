@@ -180,7 +180,9 @@ export const renderStillFlow = async ({
 	function updateBrowserProgress(progress: BrowserDownloadState) {
 		aggregate.browser = progress;
 		onProgress({
-			message: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
+			message: progress.error
+				? `Failed to download ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'}`
+				: `Downloading ${chromeMode === 'chrome-for-testing' ? 'Chrome for Testing' : 'Headless Shell'} ${Math.round(progress.progress * 100)}%`,
 			value: 0,
 			...aggregate,
 		});
@@ -193,13 +195,23 @@ export const renderStillFlow = async ({
 		onProgress: updateBrowserProgress,
 	});
 
-	await RenderInternals.internalEnsureBrowser({
-		browserExecutable,
-		indent,
-		logLevel,
-		onBrowserDownload,
-		chromeMode,
-	});
+	try {
+		await RenderInternals.internalEnsureBrowser({
+			browserExecutable,
+			indent,
+			logLevel,
+			onBrowserDownload,
+			chromeMode,
+		});
+	} catch (err) {
+		updateBrowserProgress({
+			progress: aggregate.browser.progress,
+			doneIn: null,
+			alreadyAvailable: false,
+			error: true,
+		});
+		throw err;
+	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,

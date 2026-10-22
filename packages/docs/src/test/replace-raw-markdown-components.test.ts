@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {readFileSync} from 'fs';
 import path from 'path';
+import {getRemotionElementSourceMap} from '../../plugins/element-source-utils';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {
 	getElementDocumentationUrl,
@@ -36,11 +37,16 @@ test('expands the actual Element overview into categorized Markdown', () => {
 	});
 
 	expect(output).not.toContain('ElementLibrary');
+	expect(output).not.toContain('sourceCodeBySlug');
+	const sourceCodeBySlug = getRemotionElementSourceMap({
+		elementsRoot: path.dirname(sourcePath),
+	});
+	expect(output).not.toContain(sourceCodeBySlug['backgrounds/liquid-contours']);
 	for (const section of getElementLibrarySections(null)) {
 		expect(output).toContain(`## ${section.label}`);
 	}
 
-	for (const definition of Object.values(elementDefinitions)) {
+	for (const definition of elementDefinitions) {
 		expect(output).toContain(
 			`[${definition.displayName}](${getElementDocumentationUrl(definition)})`,
 		);
@@ -66,7 +72,7 @@ test('expands the actual Element category indexes without unrelated entries', ()
 		});
 
 		expect(output).not.toContain('ElementLibrary');
-		for (const definition of Object.values(elementDefinitions)) {
+		for (const definition of elementDefinitions) {
 			const elementLink = `[${definition.displayName}](${getElementDocumentationUrl(definition)})`;
 			if (definition.category === section.category) {
 				expect(output).toContain(elementLink);

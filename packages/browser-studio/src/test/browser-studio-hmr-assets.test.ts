@@ -61,5 +61,5 @@ test('fails clearly when Rspack asks for a missing HMR script', () => {
 
 	expect(() =>
 		manager.bridge.resolveScriptUrl('missing.hot-update.js'),
-	).toThrow('Missing Browser Studio HMR asset: missing.hot-update.js');
+	).toThrow('Missing browser HMR asset: missing.hot-update.js');
 });

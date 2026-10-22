@@ -10,12 +10,16 @@ import {
 	Internals,
 	type CanUpdateSequencePropStatus,
 	type InteractivitySchema,
-	type OverrideIdToNodePaths,
 	type PropStatuses,
 	type SequencePropsSubscriptionKey,
-	type TSequence,
 } from 'remotion';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {
+	getKeyframePlaybackRate,
+	getKeyframeDisplayOffset,
+	getKeyframeSourceFrame,
+} from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import type {TimelineSelection} from './TimelineSelection';
 
@@ -35,6 +39,7 @@ type ResolvedKeyframeField = {
 	readonly fieldType: KeyframeClipboardFieldType | null;
 	readonly propStatus: CanUpdateSequencePropStatus;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 };
 
 const getKeyframeClipboardFieldType = ({
@@ -76,13 +81,11 @@ const getKeyframeFieldIdentity = (
 
 const resolveKeyframeField = ({
 	selection,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selection: TimelineSelection;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): ResolvedKeyframeField | null => {
 	if (
@@ -100,8 +103,7 @@ const resolveKeyframeField = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo: selection.nodePathInfo,
 	});
 	if (!track || track.nodePathInfo === null) {
@@ -133,7 +135,12 @@ const resolveKeyframeField = ({
 				fieldKey: identity.fieldKey,
 			}),
 			propStatus: sequencePropStatus,
-			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframePlaybackRate: track.keyframePlaybackRate,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: sequencePropStatus,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			}),
 		};
 	}
 
@@ -161,7 +168,12 @@ const resolveKeyframeField = ({
 			fieldKey: identity.fieldKey,
 		}),
 		propStatus: effectPropStatus,
-		keyframeDisplayOffset: track.keyframeDisplayOffset,
+		keyframePlaybackRate: track.keyframePlaybackRate,
+		keyframeDisplayOffset: getKeyframeDisplayOffset({
+			propStatus: effectPropStatus,
+			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframePlaybackRate: track.keyframePlaybackRate,
+		}),
 	};
 };
 
@@ -193,13 +205,11 @@ const areResolvedFieldsEqual = (
 
 export const getKeyframeClipboardDataFromSelections = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selections: readonly TimelineSelection[];
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): KeyframeClipboardData | null => {
 	const keyframeSelections = selections.filter(
@@ -221,8 +231,7 @@ export const getKeyframeClipboardDataFromSelections = ({
 		selection,
 		resolved: resolveKeyframeField({
 			selection,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			propStatuses,
 		}),
 	}));
@@ -245,7 +254,12 @@ export const getKeyframeClipboardDataFromSelections = ({
 
 	const keyframes: {readonly frame: number; readonly value: unknown}[] = [];
 	for (const {selection} of resolvedFields) {
-		const sourceFrame = selection.frame - firstResolved.keyframeDisplayOffset;
+		const sourceFrame = getKeyframeSourceFrame({
+			displayFrame: selection.frame,
+			keyframeDisplayOffset: firstResolved.keyframeDisplayOffset,
+			keyframePlaybackRate: firstResolved.keyframePlaybackRate,
+			propStatus: keyframedPropStatus,
+		});
 		const keyframe = keyframedPropStatus.keyframes.find(
 			(item) => item.frame === sourceFrame,
 		);
@@ -289,8 +303,7 @@ export const getKeyframeClipboardDataFromSelections = ({
 	for (const easingSelection of easingSelections) {
 		const resolved = resolveKeyframeField({
 			selection: easingSelection,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			propStatuses,
 		});
 		if (
@@ -314,7 +327,12 @@ export const getKeyframeClipboardDataFromSelections = ({
 		},
 		keyframes: keyframes.map((keyframe) => {
 			return {
-				frameOffset: keyframe.frame - firstFrame,
+				frameOffset:
+					(keyframe.frame - firstFrame) /
+					getKeyframePlaybackRate(
+						firstResolved.propStatus,
+						firstResolved.keyframePlaybackRate,
+					),
 				value: keyframe.value,
 			};
 		}),
@@ -344,7 +362,7 @@ export type PasteKeyframeTarget =
 			readonly type: 'none' | 'multiple' | 'uncopyable' | 'incompatible';
 	  };
 
-const isKeyframeValueCompatible = ({
+export const isKeyframeValueCompatible = ({
 	value,
 	fieldType,
 }: {
@@ -381,15 +399,13 @@ export const getPasteKeyframeTarget = ({
 	selectedItems,
 	payload,
 	timelinePosition,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 }: {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly payload: KeyframeClipboardData;
 	readonly timelinePosition: number;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }): PasteKeyframeTarget => {
 	if (selectedItems.length === 0) {
@@ -418,8 +434,7 @@ export const getPasteKeyframeTarget = ({
 	const resolvedFields = resolvedSelectedItems.map((item) =>
 		resolveKeyframeField({
 			selection: item,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			propStatuses,
 		}),
 	);
@@ -437,8 +452,12 @@ export const getPasteKeyframeTarget = ({
 	}
 
 	const keyframes = payload.keyframes.map((keyframe) => ({
-		sourceFrame:
-			timelinePosition - resolved.keyframeDisplayOffset + keyframe.frameOffset,
+		sourceFrame: getKeyframeSourceFrame({
+			displayFrame: timelinePosition + keyframe.frameOffset,
+			keyframeDisplayOffset: resolved.keyframeDisplayOffset,
+			keyframePlaybackRate: resolved.keyframePlaybackRate,
+			propStatus: resolved.propStatus,
+		}),
 		value: keyframe.value,
 	}));
 	const firstFrame = keyframes[0]?.sourceFrame;

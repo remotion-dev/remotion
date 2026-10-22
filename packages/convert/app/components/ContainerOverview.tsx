@@ -9,10 +9,12 @@ import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
 import {formatBytes} from '~/lib/format-bytes';
 import {formatSeconds} from '~/lib/format-seconds';
+import type {VideoFrameRate} from '~/lib/get-video-frame-rate';
 import {
 	renderHumanReadableAudioCodec,
 	renderHumanReadableVideoCodec,
 } from '~/lib/render-codec-label';
+import {AudioVolumeRow} from './AudioVolumeRow';
 import {MetadataDisplay} from './MetadataTable';
 import {Skeleton} from './ui/skeleton';
 
@@ -22,12 +24,13 @@ export const ContainerOverview: React.FC<{
 	readonly videoCodec: InputVideoTrack['codec'] | null;
 	readonly audioCodec: InputAudioTrack['codec'] | null | undefined;
 	readonly size: number | null;
-	readonly fps: number | null | undefined;
+	readonly frameRate: VideoFrameRate | null | undefined;
 	readonly container: InputFormat | null;
 	readonly isHdr: boolean | undefined;
 	readonly metadata: MetadataTags | null;
 	readonly isAudioOnly: boolean;
 	readonly sampleRate: number | null;
+	readonly audioTrack: InputAudioTrack | null;
 }> = ({
 	container,
 	dimensions,
@@ -35,11 +38,12 @@ export const ContainerOverview: React.FC<{
 	durationInSeconds,
 	audioCodec,
 	size,
-	fps,
+	frameRate,
 	isHdr,
 	metadata,
 	isAudioOnly,
 	sampleRate,
+	audioTrack,
 }) => {
 	return (
 		<Table className="table-fixed">
@@ -96,10 +100,12 @@ export const ContainerOverview: React.FC<{
 					<TableRow>
 						<TableCell className="font-brand">Frame Rate</TableCell>
 						<TableCell className="text-right">
-							{fps === undefined ? (
+							{frameRate === undefined ? (
 								<Skeleton className="h-3 w-[100px] inline-block" />
-							) : fps ? (
-								<>{fps.toFixed(2)} FPS</>
+							) : frameRate?.type === 'variable' ? (
+								<>Variable</>
+							) : frameRate?.type === 'constant' ? (
+								<>{frameRate.rate.toFixed(2)} FPS</>
 							) : (
 								'N/A'
 							)}
@@ -152,6 +158,7 @@ export const ContainerOverview: React.FC<{
 						</TableCell>
 					</TableRow>
 				)}
+				{audioTrack ? <AudioVolumeRow track={audioTrack} /> : null}
 				{metadata ? <MetadataDisplay metadata={metadata} /> : null}
 			</TableBody>
 		</Table>

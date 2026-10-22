@@ -9,15 +9,17 @@ type TimelineExpandedTrackKeyframesProps = {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 };
 
 const TimelineExpandedTrackKeyframesInner: React.FC<
 	TimelineExpandedTrackKeyframesProps
-> = ({nodePathInfo, sequence, keyframeDisplayOffset}) => {
+> = ({nodePathInfo, sequence, keyframeDisplayOffset, keyframePlaybackRate}) => {
 	const {rows, expandedHeight} = useExpandedTrackKeyframeRows({
 		sequence,
 		nodePathInfo,
 		keyframeDisplayOffset,
+		keyframePlaybackRate,
 	});
 
 	return (
@@ -42,6 +44,7 @@ const areTimelineExpandedTrackKeyframesPropsEqual = (
 ) => {
 	return (
 		first.keyframeDisplayOffset === second.keyframeDisplayOffset &&
+		first.keyframePlaybackRate === second.keyframePlaybackRate &&
 		first.sequence.controls?.schema === second.sequence.controls?.schema &&
 		first.sequence.controls?.runtimeValues ===
 			second.sequence.controls?.runtimeValues &&

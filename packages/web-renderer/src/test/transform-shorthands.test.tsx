@@ -2,6 +2,7 @@ import {test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {issue10441TransformShorthands} from './fixtures/transforms/issue-10441-transform-shorthands';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
 import {transformWithAxisRotate} from './fixtures/transforms/transform-with-axis-rotate';
 import {transformWithMultiComponentScale} from './fixtures/transforms/transform-with-multi-component-scale';
@@ -9,6 +10,21 @@ import {transformWithRotate} from './fixtures/transforms/transform-with-rotate';
 import {transformWithScale} from './fixtures/transforms/transform-with-scale';
 import {transformWithTranslate} from './fixtures/transforms/transform-with-translate';
 import {testImage} from './utils';
+
+test('Should combine vector-axis rotate, translate, and scale shorthands', async () => {
+	await page.viewport(2160, 2160);
+
+	const blob = await (
+		await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: issue10441TransformShorthands,
+			frame: 0,
+			inputProps: {},
+		})
+	).blob({format: 'png'});
+
+	await testImage({blob, testId: 'issue-10441-transform-shorthands'});
+});
 
 test('Should combine transform property with scale shorthand', async () => {
 	await page.viewport(1080, 1080);

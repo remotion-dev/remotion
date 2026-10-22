@@ -6,10 +6,12 @@ use stdClass;
 
 class RenderParams
 {
+    protected $enableCancellation = false;
     protected $data = null;
     protected $bucketName = null;
     protected $region = null;
     protected $outName = null;
+    protected $separateAudioTo = null;
     protected $composition = null;
     protected $serverUrl = null;
     protected $framesPerLambda = null;
@@ -63,6 +65,7 @@ class RenderParams
     protected $isProduction = null;
     protected $sampleRate = 48000;
     protected $gopSize = null;
+    protected $disableSharedMemoryCapture = false;
 
     public function __construct(
         ?array  $data = null,
@@ -114,7 +117,10 @@ class RenderParams
         ?bool   $forcePathStyle = false,
         ?array  $metadata = null,
         ?bool   $isProduction = null,
-        ?int    $gopSize = null
+        ?int    $gopSize = null,
+        ?bool   $enableCancellation = false,
+        bool    $disableSharedMemoryCapture = false,
+        string|array|null $separateAudioTo = null
     )
     {
         if ($chromiumOptions === null) {
@@ -137,6 +143,7 @@ class RenderParams
         $this->logLevel = $logLevel;
         $this->frameRange = $frameRange;
         $this->outName = $outName;
+        $this->separateAudioTo = $separateAudioTo;
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
         $this->scale = $scale;
         $this->everyNthFrame = $everyNthFrame;
@@ -171,6 +178,8 @@ class RenderParams
         $this->forcePathStyle = $forcePathStyle;
         $this->isProduction = $isProduction;
         $this->gopSize = $gopSize;
+        $this->enableCancellation = $enableCancellation;
+        $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
     }
 
     private array $inputProps = array();
@@ -178,6 +187,7 @@ class RenderParams
     public function serializeParams()
     {
         $parameters = [
+            'enableCancellation' => $this->getEnableCancellation(),
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
             'composition' => $this->getComposition(),
@@ -192,6 +202,7 @@ class RenderParams
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
+            'separateAudioTo' => $this->getSeparateAudioTo(),
             'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
             'chromiumOptions' => $this->getChromiumOptions() === null ? new stdClass() : $this->getChromiumOptions(),
             'scale' => $this->getScale(),
@@ -223,9 +234,11 @@ class RenderParams
             'storageClass' => $this->getStorageClass(),
             'x264Preset' => $this->getX264Preset(),
             'gopSize' => $this->getGopSize(),
+            'disableSharedMemoryCapture' => $this->getDisableSharedMemoryCapture(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
             'isProduction' => $this->getIsProduction(),
+            'output' => ['type' => 'media'],
             'type' => 'start'
         ];
 
@@ -272,6 +285,18 @@ class RenderParams
         }
 
         return $parameters;
+    }
+
+    public function getEnableCancellation()
+    {
+        return $this->enableCancellation;
+    }
+
+    public function setEnableCancellation($enableCancellation)
+    {
+        $this->enableCancellation = $enableCancellation;
+
+        return $this;
     }
 
     public function getForcePathStyle()
@@ -636,6 +661,11 @@ class RenderParams
         $this->outName = $outName;
     }
 
+    public function setSeparateAudioTo(string|array|null $separateAudioTo)
+    {
+        $this->separateAudioTo = $separateAudioTo;
+    }
+
     public function setTimeoutInMilliseconds($timeoutInMilliseconds)
     {
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
@@ -685,6 +715,11 @@ class RenderParams
     public function getOutName()
     {
         return $this->outName;
+    }
+
+    public function getSeparateAudioTo(): string|array|null
+    {
+        return $this->separateAudioTo;
     }
 
     public function getTimeoutInMilliseconds()
@@ -1019,6 +1054,17 @@ class RenderParams
     public function setGopSize($gopSize)
     {
         $this->gopSize = $gopSize;
+        return $this;
+    }
+
+    public function getDisableSharedMemoryCapture()
+    {
+        return $this->disableSharedMemoryCapture;
+    }
+
+    public function setDisableSharedMemoryCapture(bool $disableSharedMemoryCapture)
+    {
+        $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
         return $this;
     }
 

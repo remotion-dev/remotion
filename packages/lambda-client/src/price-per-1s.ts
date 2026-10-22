@@ -2,42 +2,29 @@
 
 import type {AwsRegion} from './regions';
 
+type Price = {
+	rateCode?: string;
+	price: string;
+};
+
 export const pricing: {
 	[key in AwsRegion]: {
-		'Lambda Duration': {
-			rateCode: string;
-			price: string;
-		};
-		'Lambda Duration-Provisioned': {
-			rateCode: string;
-			price: string;
-		};
-		'Lambda Provisioned-Concurrency': {
-			rateCode: string;
-			price: string;
-		};
-		'Lambda Requests': {
-			rateCode: string;
-			price: string;
-		};
-		'Lambda Duration-ARM': {
-			rateCode: string;
-			price: string;
-		};
-		'Lambda Requests-ARM': {
-			rateCode: string;
-			price: string;
-		};
-		'Lambda Storage-Duration': {
-			rateCode: string;
-			price: string;
-		};
-		'Lambda Storage-Duration-ARM': {
-			rateCode: string;
-			price: string;
-		};
+		'Lambda Requests': Price;
+		'Lambda Duration-ARM': Price;
+		'Lambda Storage-Duration-ARM': Price;
+		[key: string]: Price;
 	};
 } = {
+	'cn-north-1': {
+		'Lambda Requests': {price: '0.00000136'},
+		'Lambda Duration-ARM': {price: '0.000090800'},
+		'Lambda Storage-Duration-ARM': {price: '0.0000002303'},
+	},
+	'cn-northwest-1': {
+		'Lambda Requests': {price: '0.00000136'},
+		'Lambda Duration-ARM': {price: '0.000090800'},
+		'Lambda Storage-Duration-ARM': {price: '0.0000002049'},
+	},
 	'af-south-1': {
 		'Lambda Duration-Provisioned': {
 			rateCode: 'X7CK6KFXNWY9RF6Z.JRTCKXETXF.6YS6EN2CT7',

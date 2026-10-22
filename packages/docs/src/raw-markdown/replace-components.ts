@@ -7,6 +7,7 @@ import {
 	isElementCategory,
 	type ElementCategory,
 } from '../components/Elements/element-library-data';
+import {thirdPartyElementLibraries} from '../components/Elements/third-party-element-library-data';
 
 export type RawMarkdownComponentReplacement = {
 	readonly componentName: string;
@@ -137,6 +138,13 @@ const getInstallationMarkdown = (pkg: string) => {
 };
 
 const studioApiPath = path.join('docs', 'studio', 'api.mdx');
+const thirdPartyElementsPath = path.resolve(
+	__dirname,
+	'..',
+	'..',
+	'elements',
+	'libraries.mdx',
+);
 
 const renderElementLibraryMarkdown = (attributes: string) => {
 	const categoryAttribute = getStringAttribute({
@@ -180,6 +188,21 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 			render: ({attributes}) => renderElementLibraryMarkdown(attributes),
 			removeImport:
 				/^import\s+\{\s*ElementLibrary\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ElementLibrary['"];?\s*\n/m,
+		},
+		{
+			componentName: 'ThirdPartyElementLibraries',
+			appliesTo: (sourcePath) =>
+				path.resolve(sourcePath) === thirdPartyElementsPath,
+			render: () =>
+				thirdPartyElementLibraries
+					.map(
+						(library) =>
+							`- [${library.displayName}](${library.browseUrl})\n  - Element Library: \`${library.libraryUrl}\``,
+					)
+					.join('\n'),
+			removeImport:
+				/^import\s+\{\s*ThirdPartyElementLibraries\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ThirdPartyElementLibraries['"];?\s*\n/m,
+			required: true,
 		},
 		{
 			componentName: 'Installation',

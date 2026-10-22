@@ -28,7 +28,7 @@ export const FpsCounter: React.FC<{
 	readonly playbackSpeed: number;
 }> = ({playbackSpeed}) => {
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const [playing] = Internals.Timeline.usePlayingState();
+	const playing = Internals.usePlaying();
 	const frame = Internals.Timeline.useTimelinePosition();
 
 	const [marker, rerender] = useState({});

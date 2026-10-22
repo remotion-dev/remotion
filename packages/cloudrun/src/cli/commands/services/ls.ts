@@ -5,7 +5,7 @@ import {getServices} from '../../../api/get-services';
 import {getGcpRegion} from '../../get-gcp-region';
 import {Log} from '../../log';
 
-export const SERVICES_LS_SUBCOMMAND = 'ls';
+export {SERVICES_LS_SUBCOMMAND} from '../command-names';
 
 export const servicesLsCommand = async (logLevel: LogLevel) => {
 	const region = getGcpRegion();

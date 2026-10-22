@@ -1,7 +1,9 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {
+	StudioProtocolInternals,
+	type StudioElementPayload,
+} from '@remotion/studio-protocol';
 import type {ElementInstallRequest} from '@remotion/studio-shared';
-import {z} from 'zod';
 import type {getElementInstallTarget} from '../element-install-state';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
@@ -14,14 +16,6 @@ import {writeStudioProtocolError} from './protocol-response';
 
 type FocusStudioTab = (studioUrl: string) => void;
 
-const studioProtocolInstallRequestSchema = z.object({
-	operation: z.literal('install-element'),
-	protocol: z.literal('remotion-studio-protocol'),
-	protocolVersion: z.literal(1),
-	targetId: z.string(),
-	payload: z.unknown(),
-});
-
 // A valid payload may contain 250,000 JSON characters. Allow room for its
 // UTF-8 representation and the protocol envelope while keeping memory bounded.
 const MAX_STUDIO_PROTOCOL_INSTALL_BODY_SIZE = 1_000_000;
@@ -33,23 +27,25 @@ const deliverElementInstall = ({
 	origin,
 	target,
 }: {
-	readonly element: ElementInstallRequest['element'];
+	readonly element: StudioElementPayload['element'];
 	readonly focusStudioTab: FocusStudioTab;
 	readonly liveEventsServer: LiveEventsServer;
 	readonly origin: string;
 	readonly target: NonNullable<ReturnType<typeof getElementInstallTarget>>;
 }): boolean => {
-	if (target.compositionFile === null || target.compositionId === null) {
-		return false;
-	}
-
 	const installRequest: ElementInstallRequest = {
 		id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
 		clientId: target.clientId,
 		createdAt: Date.now(),
 		compositionFile: target.compositionFile,
 		compositionId: target.compositionId,
-		element,
+		element: {
+			...element,
+			durationInFrames: element.durationInFrames ?? null,
+			initialProps: element.initialProps ?? null,
+			installationMode: element.installationMode ?? null,
+			isCaptionStyle: element.isCaptionStyle ?? false,
+		},
 		from: null,
 		position: null,
 		source: {
@@ -81,7 +77,7 @@ export const handleStudioProtocolInstall = async ({
 	readonly response: ServerResponse;
 }): Promise<void> => {
 	setStudioProtocolCorsHeaders({request, response});
-	const requestOrigin = getAllowedStudioProtocolOrigin(request.headers.origin);
+	const requestOrigin = getAllowedStudioProtocolOrigin(request);
 	if (requestOrigin === null) {
 		writeStudioProtocolError({
 			code: 'unsupported-origin',
@@ -127,24 +123,18 @@ export const handleStudioProtocolInstall = async ({
 		return;
 	}
 
-	const parsedRequest = studioProtocolInstallRequestSchema.safeParse(body);
-	if (!parsedRequest.success) {
+	const parsedRequest =
+		StudioProtocolInternals.parseStudioProtocolInstallRequest(body);
+	if (parsedRequest.status !== 'valid') {
 		writeStudioProtocolError({
-			code: 'unsupported-protocol',
-			message: 'Invalid Remotion Studio Protocol request.',
-			response,
-			status: 400,
-		});
-		return;
-	}
-
-	const payload = StudioProtocolInternals.parseStudioElementPayload(
-		parsedRequest.data.payload,
-	);
-	if (payload === null) {
-		writeStudioProtocolError({
-			code: 'invalid-payload',
-			message: 'Invalid Element payload.',
+			code:
+				parsedRequest.status === 'invalid-payload'
+					? 'invalid-payload'
+					: 'unsupported-protocol',
+			message:
+				parsedRequest.status === 'invalid-payload'
+					? 'Invalid Element payload.'
+					: 'Invalid Remotion Studio Protocol request.',
 			response,
 			status: 400,
 		});
@@ -155,7 +145,7 @@ export const handleStudioProtocolInstall = async ({
 		now: Date.now(),
 		origin: requestOrigin,
 		purpose: 'install-element',
-		targetId: parsedRequest.data.targetId,
+		targetId: parsedRequest.request.targetId,
 	});
 	if (target === null) {
 		writeStudioProtocolError({
@@ -169,7 +159,7 @@ export const handleStudioProtocolInstall = async ({
 
 	if (
 		!deliverElementInstall({
-			element: payload.element,
+			element: parsedRequest.request.payload.element,
 			focusStudioTab,
 			liveEventsServer,
 			origin: requestOrigin,

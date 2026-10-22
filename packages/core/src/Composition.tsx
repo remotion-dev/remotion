@@ -1,5 +1,5 @@
 import type {ComponentType} from 'react';
-import React, {Suspense, useCallback, useContext, useEffect} from 'react';
+import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import type {z} from 'zod';
 import type {AnyZodObject} from './any-zod-type.js';
@@ -8,15 +8,20 @@ import {
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
 import type {Codec} from './codec.js';
+import {
+	CommittedMetadataProvider,
+	type CommittedMetadata,
+} from './committed-metadata.js';
+import {resolveComponentIdentity} from './component-identity.js';
+import {useCommittedCompositionEntry} from './composition-registry-fallback.js';
 import {CompositionRenderErrorContext} from './composition-render-error-context.js';
 import {CompositionErrorBoundary} from './CompositionErrorBoundary.js';
-import type {TComposition} from './CompositionManager.js';
+import type {AnyComposition, TComposition} from './CompositionManager.js';
 import {CompositionSetters} from './CompositionManagerContext.js';
 import {FolderContext} from './Folder.js';
 import {serializeThenDeserializeInStudio} from './input-props-serialization.js';
 import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
-import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import type {ProResProfile} from './prores-profile.js';
@@ -142,10 +147,6 @@ const InnerComposition = <
 }: CompositionProps<Schema, Props> & {
 	readonly _remotionInternalStack?: string;
 }) => {
-	const compManager = useContext(CompositionSetters);
-
-	const {registerComposition, unregisterComposition} = compManager;
-
 	const video = useVideo();
 
 	const lazy = useLazyComponent<Props>({
@@ -153,8 +154,6 @@ const InnerComposition = <
 		componentName: 'Composition',
 		noSuspense: false,
 	});
-
-	const nonce = useNonce();
 
 	const isPlayer = useIsPlayer();
 	const environment = useRemotionEnvironment();
@@ -185,9 +184,11 @@ const InnerComposition = <
 		(compProps as {readonly _remotionInternalStack?: string})
 			._remotionInternalStack ?? null;
 	const componentFromProps =
-		'component' in compProps ? compProps.component : null;
+		'component' in compProps
+			? resolveComponentIdentity(compProps.component)
+			: null;
 
-	useEffect(() => {
+	const registration = useMemo(() => {
 		// Ensure it's a URL safe id
 		if (!id) {
 			throw new Error('No id for composition passed.');
@@ -195,7 +196,7 @@ const InnerComposition = <
 
 		validateCompositionId(id);
 		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
-		registerComposition<Schema, Props>({
+		return {
 			durationInFrames: durationInFrames ?? undefined,
 			fps: fps ?? undefined,
 			height: height ?? undefined,
@@ -206,17 +207,13 @@ const InnerComposition = <
 			defaultProps: serializeThenDeserializeInStudio(
 				(defaultProps ?? {}) as z.output<Schema> & Props,
 			) as InferProps<Schema, Props>,
-			nonce: nonce.get(),
+			order: null,
 			parentFolderName: parentName,
 			componentFromProps,
 			schema: schema ?? null,
 			calculateMetadata: compProps.calculateMetadata ?? null,
 			stack,
-		} as TComposition<Schema, Props>);
-
-		return () => {
-			unregisterComposition(id);
-		};
+		} as TComposition<Schema, Props> as unknown as AnyComposition;
 	}, [
 		durationInFrames,
 		fps,
@@ -226,30 +223,29 @@ const InnerComposition = <
 		folderName,
 		defaultProps,
 		width,
-		nonce,
 		parentName,
 		componentFromProps,
 		schema,
 		compProps.calculateMetadata,
 		stack,
-		registerComposition,
-		unregisterComposition,
 	]);
+
+	const metadata = useMemo<Extract<CommittedMetadata, {type: 'composition'}>>(
+		() => ({type: 'composition', id, value: registration}),
+		[id, registration],
+	);
+	useCommittedCompositionEntry(metadata);
 
 	const resolved = useResolvedVideoConfig(id);
 
-	const {setError, clearError} = useContext(CompositionRenderErrorContext);
-
-	const onError = useCallback(
-		(error: Error) => {
-			setError(error);
-		},
-		[setError],
+	const {setError: onError, clearError: onClear} = useContext(
+		CompositionRenderErrorContext,
 	);
-
-	const onClear = useCallback(() => {
-		clearError();
-	}, [clearError]);
+	const wrapRegistration = (content: React.ReactNode) => (
+		<CommittedMetadataProvider value={null} _remotionCommitMetadata={metadata}>
+			{content}
+		</CommittedMetadataProvider>
+	);
 
 	if (
 		environment.isStudio &&
@@ -263,23 +259,25 @@ const InnerComposition = <
 			(resolved.type !== 'success' &&
 				resolved.type !== 'success-and-refreshing')
 		) {
-			return null;
+			return wrapRegistration(null);
 		}
 
-		return createPortal(
-			<CanUseRemotionHooksProvider>
-				<CompositionErrorBoundary onError={onError} onClear={onClear}>
-					<Suspense fallback={<Loading />}>
-						<Comp
-							{
-								// eslint-disable-next-line @typescript-eslint/no-explicit-any
-								...((resolved.result.props ?? {}) as any)
-							}
-						/>
-					</Suspense>
-				</CompositionErrorBoundary>
-			</CanUseRemotionHooksProvider>,
-			portalNode(),
+		return wrapRegistration(
+			createPortal(
+				<CanUseRemotionHooksProvider>
+					<CompositionErrorBoundary onError={onError} onClear={onClear}>
+						<Suspense fallback={<Loading />}>
+							<Comp
+								{
+									// eslint-disable-next-line @typescript-eslint/no-explicit-any
+									...((resolved.result.props ?? {}) as any)
+								}
+							/>
+						</Suspense>
+					</CompositionErrorBoundary>
+				</CanUseRemotionHooksProvider>,
+				portalNode(),
+			),
 		);
 	}
 
@@ -295,25 +293,27 @@ const InnerComposition = <
 			(resolved.type !== 'success' &&
 				resolved.type !== 'success-and-refreshing')
 		) {
-			return null;
+			return wrapRegistration(null);
 		}
 
-		return createPortal(
-			<CanUseRemotionHooksProvider>
-				<Suspense fallback={<Fallback />}>
-					<Comp
-						{
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							...((resolved.result.props ?? {}) as any)
-						}
-					/>
-				</Suspense>
-			</CanUseRemotionHooksProvider>,
-			portalNode(),
+		return wrapRegistration(
+			createPortal(
+				<CanUseRemotionHooksProvider>
+					<Suspense fallback={<Fallback />}>
+						<Comp
+							{
+								// eslint-disable-next-line @typescript-eslint/no-explicit-any
+								...((resolved.result.props ?? {}) as any)
+							}
+						/>
+					</Suspense>
+				</CanUseRemotionHooksProvider>,
+				portalNode(),
+			),
 		);
 	}
 
-	return null;
+	return wrapRegistration(null);
 };
 
 /*

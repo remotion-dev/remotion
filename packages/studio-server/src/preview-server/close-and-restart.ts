@@ -1,14 +1,16 @@
-const resolveFunctions: ((value: void) => void | PromiseLike<void>)[] = [];
+type StudioAction = 'restart' | 'shutdown';
+const resolveFunctions: ((value: StudioAction) => void)[] = [];
 
 export const noOpUntilRestart = () => {
-	return new Promise<void>((resolve) => {
+	return new Promise<StudioAction>((resolve) => {
 		resolveFunctions.push(resolve);
 	});
 };
 
 export const signalRestart = () => {
-	resolveFunctions.forEach((f) => {
-		f();
-	});
-	resolveFunctions.length = 0;
+	resolveFunctions.splice(0).forEach((resolve) => resolve('restart'));
+};
+
+export const signalShutdown = () => {
+	resolveFunctions.splice(0).forEach((resolve) => resolve('shutdown'));
 };

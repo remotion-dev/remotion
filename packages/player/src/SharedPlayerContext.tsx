@@ -10,11 +10,9 @@ import type {
 	PlaybackRateContextValue,
 	RemotionEnvironment,
 	SetMediaVolumeContextValue,
-	TimelineImperativeContextValue,
 	TimelineContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
-import {CoreTimelineImperativeContextProvider} from './timeline-imperative-context.js';
 import {getPreferredVolume, persistVolume} from './volume-persistence.js';
 
 export const PLAYER_COMP_ID = 'player-comp';
@@ -23,6 +21,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly children: React.ReactNode;
 	readonly timelineContext: TimelineContextValue;
 	readonly playbackRateContext: PlaybackRateContextValue;
+	readonly preservePitch: boolean;
 	readonly fps: number;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;
@@ -37,10 +36,12 @@ export const SharedPlayerContexts: React.FC<{
 	readonly initialVolume?: number;
 	readonly inputProps: Record<string, unknown>;
 	readonly audioEnabled: boolean;
+	readonly _experimentalKeepAudioContextAlive: boolean;
 }> = ({
 	children,
 	timelineContext,
 	playbackRateContext,
+	preservePitch,
 	fps,
 	compositionHeight,
 	compositionWidth,
@@ -55,6 +56,7 @@ export const SharedPlayerContexts: React.FC<{
 	initialVolume,
 	inputProps,
 	audioEnabled,
+	_experimentalKeepAudioContextAlive,
 }) => {
 	const persistVolumeToStorage = initialVolume === undefined;
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
@@ -69,7 +71,7 @@ export const SharedPlayerContexts: React.FC<{
 					width: compositionWidth,
 					fps,
 					id: PLAYER_COMP_ID,
-					nonce: [[0, 777]],
+					order: null,
 					folderName: null,
 					parentFolderName: null,
 					schema: null,
@@ -78,6 +80,7 @@ export const SharedPlayerContexts: React.FC<{
 				},
 			],
 			folders: [],
+			currentAssetMetadata: null,
 			currentCompositionMetadata: {
 				defaultCodec: null,
 				defaultOutName: null,
@@ -157,58 +160,50 @@ export const SharedPlayerContexts: React.FC<{
 		};
 	}, []);
 
-	const frameRef = useRef(timelineContext.frame);
-	frameRef.current = timelineContext.frame;
-	const timelineImperativeContextValue =
-		useMemo((): TimelineImperativeContextValue => {
-			return {
-				frameRef,
-				imperativePlaying: timelineContext.imperativePlaying,
-				audioAndVideoTags: timelineContext.audioAndVideoTags,
-			};
-		}, [timelineContext.audioAndVideoTags, timelineContext.imperativePlaying]);
-
 	return (
 		<Internals.RemotionEnvironmentContext.Provider value={env}>
 			<Internals.LogLevelContext.Provider value={logLevelContext}>
 				<Internals.CanUseRemotionHooksProvider>
 					<Internals.AbsoluteTimeContext.Provider value={timelineContext}>
 						<Internals.PlaybackRateContext.Provider value={playbackRateContext}>
-							<CoreTimelineImperativeContextProvider
-								value={timelineImperativeContextValue}
-							>
+							<Internals.PlaybackPitchContext.Provider value={preservePitch}>
 								<Internals.TimelineContext.Provider value={timelineContext}>
 									<Internals.CompositionManager.Provider
 										value={compositionManagerContext}
 									>
-										<Internals.PrefetchProvider>
-											<Internals.DurationsContextProvider>
-												<Internals.MediaVolumeContext.Provider
-													value={mediaVolumeContextValue}
-												>
-													<Internals.SetMediaVolumeContext.Provider
-														value={setMediaVolumeContextValue}
+										<Internals.VideoProvider>
+											<Internals.PrefetchProvider>
+												<Internals.DurationsContextProvider>
+													<Internals.MediaVolumeContext.Provider
+														value={mediaVolumeContextValue}
 													>
-														<Internals.BufferingProvider>
-															<Internals.SharedAudioContextProvider
-																audioLatencyHint={audioLatencyHint}
-																audioEnabled={shouldCreateAudioContext}
-																previewSampleRate={sampleRate}
-															>
-																<Internals.SharedAudioTagsContextProvider
-																	numberOfAudioTags={numberOfSharedAudioTags}
+														<Internals.SetMediaVolumeContext.Provider
+															value={setMediaVolumeContextValue}
+														>
+															<Internals.BufferingProvider>
+																<Internals.SharedAudioContextProvider
+																	audioLatencyHint={audioLatencyHint}
+																	audioEnabled={shouldCreateAudioContext}
+																	previewSampleRate={sampleRate}
+																	_experimentalKeepAudioContextAlive={
+																		_experimentalKeepAudioContextAlive
+																	}
 																>
-																	{children}
-																</Internals.SharedAudioTagsContextProvider>
-															</Internals.SharedAudioContextProvider>
-														</Internals.BufferingProvider>
-													</Internals.SetMediaVolumeContext.Provider>
-												</Internals.MediaVolumeContext.Provider>
-											</Internals.DurationsContextProvider>
-										</Internals.PrefetchProvider>
+																	<Internals.SharedAudioTagsContextProvider
+																		numberOfAudioTags={numberOfSharedAudioTags}
+																	>
+																		{children}
+																	</Internals.SharedAudioTagsContextProvider>
+																</Internals.SharedAudioContextProvider>
+															</Internals.BufferingProvider>
+														</Internals.SetMediaVolumeContext.Provider>
+													</Internals.MediaVolumeContext.Provider>
+												</Internals.DurationsContextProvider>
+											</Internals.PrefetchProvider>
+										</Internals.VideoProvider>
 									</Internals.CompositionManager.Provider>
 								</Internals.TimelineContext.Provider>
-							</CoreTimelineImperativeContextProvider>
+							</Internals.PlaybackPitchContext.Provider>
 						</Internals.PlaybackRateContext.Provider>
 					</Internals.AbsoluteTimeContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>

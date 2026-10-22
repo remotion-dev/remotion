@@ -40,12 +40,14 @@ test('undo and redo restore every file in a transaction', () => {
 					oldContents: 'old first',
 					newContents: 'new first',
 					logLine: 1,
+					nodePathRemappings: null,
 				},
 				{
 					filePath: secondFile,
 					oldContents: 'old second',
 					newContents: 'new second',
 					logLine: 1,
+					nodePathRemappings: null,
 				},
 			],
 			logLevel: 'error',
@@ -56,13 +58,25 @@ test('undo and redo restore every file in a transaction', () => {
 			},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: true,
+			undoRedoNavigation: {
+				undoRoute: '/Before',
+				redoRoute: '/After',
+			},
 		});
 
-		expect(popUndo()).toEqual({success: true});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: '/Before',
+		});
 		expect(readFileSync(firstFile, 'utf-8')).toBe('old first');
 		expect(readFileSync(secondFile, 'utf-8')).toBe('old second');
 
-		expect(popRedo()).toEqual({success: true});
+		expect(popRedo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: '/After',
+		});
 		expect(readFileSync(firstFile, 'utf-8')).toBe('new first');
 		expect(readFileSync(secondFile, 'utf-8')).toBe('new second');
 	} finally {

@@ -1,4 +1,4 @@
-import type {InputFormat, UrlSourceOptions} from 'mediabunny';
+import type {InputFormat} from 'mediabunny';
 import {
 	ALL_FORMATS,
 	AudioSampleSink,
@@ -22,10 +22,13 @@ import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-times
 
 type VideoSinks = {
 	sampleSink: VideoSampleSink;
+	timeResolution: number;
 };
 
 type AudioSinks = {
 	sampleSink: AudioSampleSink;
+	sampleRate: number;
+	numberOfChannels: number;
 };
 
 export type AudioSinkResult =
@@ -43,24 +46,6 @@ export type VideoSinkResult =
 	| 'unknown-container-format'
 	| 'network-error';
 
-const getRetryDelay = (() => {
-	return null;
-}) satisfies UrlSourceOptions['getRetryDelay'];
-
-const getFormatOrNullOrNetworkError = async (
-	input: Input,
-): Promise<InputFormat | 'network-error' | null> => {
-	try {
-		return await input.getFormat();
-	} catch (err) {
-		if (isNetworkError(err as Error)) {
-			return 'network-error';
-		}
-
-		return null;
-	}
-};
-
 export const makeSinks = (
 	src: string,
 	logLevel: LogLevel,
@@ -71,17 +56,32 @@ export const makeSinks = (
 	const input = new Input({
 		formats: ALL_FORMATS,
 		source: new UrlSource(src, {
-			getRetryDelay,
+			handleUnhandledError: (error) => {
+				Internals.Log.warn(
+					{logLevel, tag: '@remotion/media'},
+					`A speculative fetch for "${src}" failed:`,
+					error,
+				);
+			},
 			maxCacheSize: getMaxSourceCacheSize(logLevel),
 			...(resolvedRequestInit ? {requestInit: resolvedRequestInit} : undefined),
 		}),
 	});
 	const getSinks = async () => {
-		const format = await getFormatOrNullOrNetworkError(input);
+		let format: InputFormat | null = null;
+		let formatDetectionError: Error | null = null;
+		try {
+			format = await input.getFormat();
+		} catch (error) {
+			formatDetectionError = error as Error;
+		}
+
+		const isNetworkFailure =
+			formatDetectionError !== null && isNetworkError(formatDetectionError);
 		const isMatroska = format === MATROSKA || format === WEBM;
 
 		const getVideoSinks = async (): Promise<VideoSinkResult> => {
-			if (format === 'network-error') {
+			if (isNetworkFailure) {
 				return 'network-error';
 			}
 
@@ -138,6 +138,7 @@ export const makeSinks = (
 
 			return {
 				sampleSink,
+				timeResolution: await videoTrack.getTimeResolution(),
 			};
 		};
 
@@ -160,12 +161,12 @@ export const makeSinks = (
 		const getAudioSinks = async (
 			index: number | null,
 		): Promise<AudioSinkResult> => {
-			if (format === null) {
-				return 'unknown-container-format';
+			if (isNetworkFailure) {
+				return 'network-error';
 			}
 
-			if (format === 'network-error') {
-				return 'network-error';
+			if (format === null) {
+				return 'unknown-container-format';
 			}
 
 			const [videoTrack, audioTracks] = await Promise.all([
@@ -191,6 +192,8 @@ export const makeSinks = (
 
 			return {
 				sampleSink: new AudioSampleSink(audioTrack),
+				sampleRate: await audioTrack.getSampleRate(),
+				numberOfChannels: await audioTrack.getNumberOfChannels(),
 			};
 		};
 
@@ -205,6 +208,7 @@ export const makeSinks = (
 		};
 
 		return {
+			formatDetectionError,
 			getVideo: () => getVideoSinksPromise(),
 			getAudio: (index: number | null) => getAudioSinksPromise(index),
 			actualMatroskaTimestamps: rememberActualMatroskaTimestamps(isMatroska),

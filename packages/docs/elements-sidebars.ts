@@ -1,74 +1,47 @@
 // @ts-expect-error
 import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
+import {
+	elementCategories,
+	elementRegistry,
+	getElementCategoryHeadingId,
+} from './src/components/Elements/element-registry';
 
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
-		'index',
-		'guidelines',
-		'submit-an-element',
+		{
+			type: 'category',
+			label: 'Elements',
+			className: 'elements-sidebar-root catalog-sidebar-root',
+			link: {type: 'doc', id: 'index'},
+			collapsible: false,
+			items: [
+				...elementCategories.map(({category, label}) => ({
+					type: 'category' as const,
+					label,
+					link: {type: 'doc' as const, id: `${category}/index`},
+					className: 'elements-sidebar-category',
+					customProps: {
+						catalogHref: `/elements/#${getElementCategoryHeadingId(category)}`,
+					},
+					collapsible: false,
+					// Keep membership for breadcrumbs, sidebar assignment, and active highlighting.
+					// The sidebar renderer displays only the category link.
+					items: Object.entries(elementRegistry)
+						.filter(([, metadata]) => metadata.category === category)
+						.map(([slug]) => `${slug}/index`),
+				})),
+			],
+		},
 		{
 			type: 'html',
-			value:
-				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
+			value: '<hr />',
+			className: 'catalog-sidebar-divider',
 			defaultStyle: true,
 		},
 		{
-			type: 'category',
-			label: 'Backgrounds',
-			link: {type: 'doc', id: 'backgrounds/index'},
-			collapsed: false,
-			items: [
-				'backgrounds/liquid-contours/index',
-				'backgrounds/notebook-paper/index',
-				'backgrounds/paper-texture/index',
-				'backgrounds/rotating-starburst/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Captions',
-			link: {type: 'doc', id: 'captions/index'},
-			collapsed: false,
-			items: [
-				'captions/moving-pill-captions/index',
-				'captions/popping-word-captions/index',
-				'captions/word-highlight-captions/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Data',
-			link: {type: 'doc', id: 'data/index'},
-			collapsed: false,
-			items: [
-				'data/horizontal-bar-chart/index',
-				'data/number-counter/index',
-				'data/product-offer/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Overlays',
-			link: {type: 'doc', id: 'overlays/index'},
-			collapsed: false,
-			items: [
-				'overlays/location-lower-third/index',
-				'overlays/lower-third/index',
-				'overlays/social-endcard/index',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Text',
-			link: {type: 'doc', id: 'text/index'},
-			collapsed: false,
-			items: [
-				'text/circle-marker/index',
-				'text/crossed-off/index',
-				'text/news-article-headline-highlight/index',
-				'text/strike-through/index',
-				'text/text-marker/index',
-			],
+			type: 'doc',
+			id: 'libraries',
+			className: 'catalog-sidebar-libraries',
 		},
 	],
 };

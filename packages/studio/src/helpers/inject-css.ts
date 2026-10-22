@@ -1,6 +1,7 @@
 import {Internals} from 'remotion';
 import {DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 import {
+	BACKGROUND,
 	BLACK,
 	BLUE,
 	BLUE_HOVERED,
@@ -8,7 +9,8 @@ import {
 	TRANSPARENT,
 	WHITE,
 } from './colors';
-import {makeHoverableCSS} from './hoverable';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
+import {prismVscDarkPlus} from './prism-vsc-dark-plus';
 
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 2;
@@ -16,8 +18,6 @@ const makeDefaultGlobalCSS = () => {
 
 	return `
 	  html {
-	    --remotion-cli-internals-blue: ${BLUE};
-	    --remotion-cli-internals-blue-hovered: ${BLUE_HOVERED};
 	    overscroll-behavior-y: none;
 	  }
 
@@ -25,6 +25,31 @@ const makeDefaultGlobalCSS = () => {
     overscroll-behavior-y: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
+  }
+
+  html.__remotion-slide-forward,
+  html.__remotion-slide-backward {
+    view-transition-name: none;
+    --remotion-slide-distance: 15%;
+  }
+
+  html.__remotion-slide-backward {
+    --remotion-slide-distance: -15%;
+  }
+
+  html.__remotion-slide-forward::view-transition,
+  html.__remotion-slide-backward::view-transition {
+    pointer-events: none;
+  }
+
+  @keyframes remotion-slide-out {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(calc(-1 * var(--remotion-slide-distance))); }
+  }
+
+  @keyframes remotion-slide-in {
+    from { opacity: 0; transform: translateX(var(--remotion-slide-distance)); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   .remotion-splitter {
@@ -64,22 +89,26 @@ const makeDefaultGlobalCSS = () => {
 
   input:focus,
   textarea:focus,
-  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch):not(.__remotion-inspector-section-title),
+  button:focus:not(.__remotion_input_dragger):not(.__remotion_color_swatch):not(.__remotion-inspector-section-title):not(.${FOCUS_VISIBLE_ONLY_CLASS_NAME}):not(.__remotion-timeline-expand-arrow-button),
   a:focus {
 	    outline: none;
 	    box-shadow: ${FOCUS_BOX_SHADOW};
 	  }
 
   .__remotion-composition-selector-item:focus,
-  .__remotion-inspector-inline-action:focus,
-  .__remotion-inspector-section-title:focus {
+  .__remotion-inspector-quick-action:focus,
+  .__remotion-inspector-section-title:focus,
+  .${FOCUS_VISIBLE_ONLY_CLASS_NAME}:focus,
+  .__remotion-timeline-expand-arrow-button:focus {
     outline: none;
     box-shadow: none;
   }
 
   .__remotion-composition-selector-item:focus-visible,
-  .__remotion-inspector-inline-action:focus-visible,
-  .__remotion-inspector-section-title:focus-visible {
+  .__remotion-inspector-quick-action:focus-visible,
+  .__remotion-inspector-section-title:focus-visible,
+  .${FOCUS_VISIBLE_ONLY_CLASS_NAME}:focus-visible,
+  .__remotion-timeline-expand-arrow-button:focus-visible {
     box-shadow: ${FOCUS_BOX_SHADOW};
   }
 
@@ -100,7 +129,7 @@ const makeDefaultGlobalCSS = () => {
 
 	  .__remotion_thumb {
 	    appearance: none;
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 100%;
 	    left: 0;
@@ -115,13 +144,13 @@ const makeDefaultGlobalCSS = () => {
 	  }
 
 	  .__remotion_thumb::-moz-range-track {
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 6px;
 	  }
 
 	  .__remotion_thumb::-webkit-slider-runnable-track {
-	    background: transparent;
+	    background: ${TRANSPARENT};
 	    border: 0;
 	    height: 6px;
 	  }
@@ -153,12 +182,39 @@ const makeDefaultGlobalCSS = () => {
 	  }
 
 	.__remotion_input_dragger:hover > span:first-child {
-    color: var(--remotion-cli-internals-blue-hovered) !important;
+    color: ${BLUE_HOVERED} !important;
+  }
+
+  .__remotion_input_dragger_input::selection {
+    background-color: #4E4E4E;
   }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
-    color: var(--remotion-cli-internals-blue) !important;
+    color: ${BLUE} !important;
     transition: color 0.2s ease-in-out;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar {
+    height: 0;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .__remotion-horizontal-scrollbar.__remotion-canvas-tabs::-webkit-scrollbar-track {
+    background-color: ${BACKGROUND};
+  }
+
+  @-moz-document url-prefix() {
+    .__remotion-horizontal-scrollbar.__remotion-canvas-tabs {
+      scrollbar-width: none;
+    }
+
+    .__remotion-horizontal-scrollbar.__remotion-canvas-tabs:hover {
+      scrollbar-width: thin;
+      scrollbar-color: ${BLACK} ${BACKGROUND};
+    }
   }
 
   ${makeHoverableCSS()}
@@ -172,6 +228,7 @@ export const injectCSS = () => {
 		return;
 	}
 
+	Internals.CSSUtils.injectCSS(prismVscDarkPlus);
 	Internals.CSSUtils.injectCSS(makeDefaultGlobalCSS());
 	injected = true;
 };

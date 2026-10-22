@@ -13,16 +13,17 @@ const cliFlag = 'buffer-size' as const;
 
 export const encodingBufferSizeOption = {
 	name: 'FFmpeg -bufsize flag',
+	addedIn: '4.0.78',
 	cliFlag,
 	description: () => (
 		<>
 			The value for the <code>-bufsize</code> flag of FFmpeg. Should be used in
-			conjunction with the encoding max rate flag.
+			conjunction with the encoding max rate flag. With the VP8, VP9 and AV1
+			codecs, a video bitrate must also be set.
 		</>
 	),
 	ssrName: 'encodingBufferSize' as const,
-	docLink:
-		'https://www.remotion.dev/docs/renderer/render-media#encodingbuffersize',
+	docLink: 'https://www.remotion.dev/docs/options/buffer-size',
 	type: '' as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

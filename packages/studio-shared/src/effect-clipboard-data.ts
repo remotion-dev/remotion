@@ -148,7 +148,9 @@ const normalizeEasing = (
 	};
 };
 
-const normalizeParam = (param: EffectClipboardParam): EffectClipboardParam => {
+export const normalizeEffectClipboardParam = (
+	param: EffectClipboardParam,
+): EffectClipboardParam => {
 	if (param.type === 'static') {
 		return param;
 	}
@@ -167,7 +169,7 @@ const normalizeSnapshot = (
 		params: Object.fromEntries(
 			Object.entries(snapshot.params).map(([key, param]) => [
 				key,
-				normalizeParam(param),
+				normalizeEffectClipboardParam(param),
 			]),
 		),
 	};
@@ -187,7 +189,7 @@ const isClamping = (value: unknown): value is EffectClipboardClamping => {
 	);
 };
 
-const isEffectClipboardParam = (
+export const isEffectClipboardParam = (
 	value: unknown,
 ): value is EffectClipboardParam => {
 	if (!isRecord(value)) {
@@ -360,7 +362,7 @@ export const parseEffectPropClipboardDataResult = (
 					importPath: parsed.effect.importPath,
 				},
 				key: parsed.key,
-				param: normalizeParam(parsed.param),
+				param: normalizeEffectClipboardParam(parsed.param),
 			},
 		};
 	} catch {
