@@ -83,6 +83,7 @@ export const videoIteratorManager = async ({
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let currentSeek: number | null = null;
+	let lastPaintedEffects: EffectDefinitionAndStack<unknown>[] = [];
 	let destroyed = false;
 	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
 
@@ -136,6 +137,7 @@ export const videoIteratorManager = async ({
 
 		if (context && canvas) {
 			const effects = getEffects();
+			lastPaintedEffects = effects;
 			const chainState = getEffectChainState(canvas.width, canvas.height);
 			if (
 				effects.length > 0 &&
@@ -305,7 +307,14 @@ export const videoIteratorManager = async ({
 		) {
 			// A loop can map a new composition frame to the same media time
 			// while its effect parameters have changed.
-			await redrawCurrentFrame();
+			const effects = getEffects();
+			if (
+				effects !== lastPaintedEffects &&
+				(effects.length > 0 || lastPaintedEffects.length > 0)
+			) {
+				await redrawCurrentFrame();
+			}
+
 			return;
 		}
 
