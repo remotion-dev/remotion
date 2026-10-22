@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {BLACK, TRANSPARENT, WHITE_ALPHA_72} from '../../helpers/colors';
+import {ActionTooltip} from '../ActionTooltip';
 import {
 	getTimelineColor,
 	getTimelineSelectedLabelStyle,
@@ -176,7 +177,6 @@ export const TimelineSequenceName: React.FC<{
 			<div
 				className="remotion-timeline-sequence-name-measure"
 				data-name={text}
-				title={text}
 				style={{
 					...style,
 					backgroundColor: undefined,
@@ -184,8 +184,12 @@ export const TimelineSequenceName: React.FC<{
 					clipPath: chevronSlot === 'occupied' ? 'inset(0)' : undefined,
 				}}
 			>
-				<div
-					style={{
+				<ActionTooltip
+					label={editableDisplayName}
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+					triggerStyle={{
 						...getTimelineSelectedLabelStyle(selected, false),
 						alignItems: 'center',
 						boxShadow: style.boxShadow,
@@ -209,14 +213,22 @@ export const TimelineSequenceName: React.FC<{
 					}}
 				>
 					<span style={nameTextStyle}>{text}</span>
-				</div>
+				</ActionTooltip>
 			</div>
 		);
 	}
 
 	return (
-		<div role="group" aria-label={text} style={style}>
-			<span style={nameTextStyle}>{text}</span>
-		</div>
+		<ActionTooltip
+			label={editableDisplayName}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+			triggerStyle={style}
+		>
+			<span role="group" aria-label={text} style={nameTextStyle}>
+				{text}
+			</span>
+		</ActionTooltip>
 	);
 };

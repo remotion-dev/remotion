@@ -1782,7 +1782,10 @@ const TimelineSequenceItemInner: React.FC<{
 							minWidth: 0,
 						}}
 					>
-						<TimelineMediaInfo src={mediaSrc} />
+						<TimelineMediaInfo
+							src={mediaSrc}
+							isImage={sequence.type === 'image'}
+						/>
 					</div>
 				) : null}
 			</div>
