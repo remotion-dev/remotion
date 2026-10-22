@@ -131,4 +131,6 @@ const AbsoluteFillElementRefForwarding: React.ForwardRefRenderFunction<
 	return <div ref={ref} style={actualStyle} {...other} />;
 };
 
-export const AbsoluteFillElement = forwardRef(AbsoluteFillElementRefForwarding);
+export const AbsoluteFillElement = React.memo(
+	forwardRef(AbsoluteFillElementRefForwarding),
+);

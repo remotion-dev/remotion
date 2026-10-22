@@ -407,6 +407,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="LicenseQuestionsGraphic"
 					component={LicenseQuestionsGraphic}
+					defaultProps={{lineColor: 'black'}}
 					durationInFrames={180}
 					fps={30}
 					width={1080}
