@@ -57,24 +57,29 @@ export const TimelineMediaInfo: React.FC<{
 	const mediaMetadata = useMediaMetadata(isImage ? null : metadataSrc);
 	const imageMetadata = useImageMetadata(isImage ? metadataSrc : null);
 	const onPointerEnter = useCallback(() => setRequestedSrc(src), [src]);
-	const metadataLines: string[] = [];
+	const visualDetails: string[] = [];
+	const fileDetails: string[] = [];
 	if (mediaMetadata && Number.isFinite(mediaMetadata.duration)) {
-		metadataLines.push(formatMediaDuration(mediaMetadata.duration));
+		fileDetails.push(formatMediaDuration(mediaMetadata.duration));
 	}
 
 	const dimensions = isImage ? imageMetadata : mediaMetadata;
 	if (dimensions?.width && dimensions.height) {
-		metadataLines.push(`${dimensions.width} × ${dimensions.height}`);
+		visualDetails.push(`${dimensions.width} × ${dimensions.height}`);
 	}
 
 	if (mediaMetadata?.fps && Number.isFinite(mediaMetadata.fps)) {
-		metadataLines.push(`${Number(mediaMetadata.fps.toFixed(2))} fps`);
+		visualDetails.push(`${Number(mediaMetadata.fps.toFixed(2))} fps`);
 	}
 
 	const format = isImage ? imageMetadata?.format : mediaMetadata?.format;
 	if (format) {
-		metadataLines.push(format);
+		(isImage ? visualDetails : fileDetails).push(format);
 	}
+
+	const metadataLines = [visualDetails, fileDetails]
+		.filter((details) => details.length > 0)
+		.map((details) => details.join(' · '));
 
 	const source =
 		linkInfo?.kind === 'local'
