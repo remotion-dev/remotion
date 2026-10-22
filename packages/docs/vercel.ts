@@ -65,6 +65,34 @@ export const config: VercelConfig = {
 		]),
 	],
 	redirects: [
+		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/studio/creating-elements.md', '/docs/elements.md', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/docs/studio/element-libraries',
+			'/docs/elements/libraries',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect(
+			'/docs/studio/element-libraries.md',
+			'/docs/elements/libraries.md',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/studio-protocol/component-library-integration',
+			'/docs/elements/libraries',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/studio-protocol/component-library-integration.md',
+			'/docs/elements/libraries.md',
+			{permanent: true},
+		),
 		routes.redirect('/docs/reusability', '/docs/composing', {
 			permanent: true,
 		}),
@@ -90,14 +118,12 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/experimental_new', '/new', {permanent: true}),
-		routes.redirect('/elements/guidelines', '/docs/studio/creating-elements', {
+		routes.redirect('/elements/guidelines', '/docs/elements', {
 			permanent: true,
 		}),
-		routes.redirect(
-			'/elements/guidelines.md',
-			'/docs/studio/creating-elements.md',
-			{permanent: true},
-		),
+		routes.redirect('/elements/guidelines.md', '/docs/elements.md', {
+			permanent: true,
+		}),
 		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
 			permanent: true,
 		}),

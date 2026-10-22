@@ -12,7 +12,7 @@ import type {
 	SequenceControls,
 } from './CompositionManager.js';
 import {deleteNestedKey} from './delete-nested-key.js';
-import {getPropStatusesCtx} from './effects/use-memoized-effects.js';
+import {getPropStatusesForSequenceStatus} from './effects/use-memoized-effects.js';
 import {
 	getStackForControls,
 	setStackForControls,
@@ -33,7 +33,7 @@ import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
 	useDragOverridesForNodePath,
-	VisualModePropStatusesContext,
+	usePropStatusForNodePath,
 } from './SequenceManager.js';
 import {useCurrentFrameWithOptionalSubscription} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -255,8 +255,6 @@ export const withInteractivitySchema = <
 		}
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const {propStatuses} = useContext(VisualModePropStatusesContext);
-		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const videoConfig = useUnsafeVideoConfig();
@@ -333,15 +331,11 @@ export const withInteractivitySchema = <
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const dragOverrides = useDragOverridesForNodePath(nodePath);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const sequenceStatus = usePropStatusForNodePath(nodePath);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const propStatus = useMemo(
-			() =>
-				nodePath === null
-					? undefined
-					: getPropStatusesCtx(propStatuses, {
-							...nodePath,
-							videoConfigValues,
-						}),
-			[nodePath, propStatuses, videoConfigValues],
+			() => getPropStatusesForSequenceStatus(sequenceStatus, videoConfigValues),
+			[sequenceStatus, videoConfigValues],
 		);
 		// Runtime props already update through their owner. Only overrides with
 		// keyframes need this wrapper to subscribe to the advancing clock.

@@ -35,7 +35,7 @@ Do these steps to add an Element:
 
 The detail page, preview renderer, and Studio use the same source files. The gallery uses rendered previews. It does not use live Players.
 
-See the [Element guidelines](https://www.remotion.dev/docs/studio/creating-elements), [interactivity documentation](https://www.remotion.dev/docs/studio/interactivity), and [library integration guide](https://www.remotion.dev/docs/studio-protocol/component-library-integration) for layout, assets, dependencies, and installation requirements.
+See the [Element guidelines](https://www.remotion.dev/docs/elements), [interactivity documentation](https://www.remotion.dev/docs/studio/interactivity), and [library integration guide](https://www.remotion.dev/docs/elements/libraries) for layout, assets, dependencies, and installation requirements.
 
 ## Element lint rules
 

@@ -1,3 +1,3 @@
 import {RenderInternals} from '@remotion/renderer';
 
-export const {chalk} = RenderInternals;
+export const {chalk}: typeof RenderInternals = RenderInternals;

@@ -7,9 +7,9 @@
 	margin-bottom: 28px;
 }
 
-.catalogLink {
-	flex-basis: 100%;
-	font-size: 0.875rem;
+/* Element details have their own actions instead of the generic docs footer. */
+:global(article):has(.workbench) > :global(.theme-doc-footer) {
+	display: none;
 }
 
 .previewColumn {

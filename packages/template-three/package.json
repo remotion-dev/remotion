@@ -21,7 +21,7 @@
     "remotion": "workspace:*",
     "three": "0.178.0",
     "zod": "4.5.4",
-    "mediabunny": "1.61.6"
+    "mediabunny": "1.62.0"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",

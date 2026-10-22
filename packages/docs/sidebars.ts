@@ -322,6 +322,7 @@ const sidebars: SidebarsConfig = {
 				'effects/light-trail',
 				'effects/lines',
 				'effects/liquid-contours',
+				'effects/long-shadows',
 				'effects/lut',
 				'effects/mirror',
 				'effects/noise',
@@ -854,7 +855,6 @@ const sidebars: SidebarsConfig = {
 				id: 'studio-protocol/index',
 			},
 			items: [
-				'studio-protocol/component-library-integration',
 				'studio-protocol/create-element-payload',
 				'studio-protocol/static-file-ref',
 				'studio-protocol/build-open-in-remotion-new-url',
@@ -1457,7 +1457,6 @@ const sidebars: SidebarsConfig = {
 			label: 'Studio',
 			items: [
 				'studio/studio',
-				'studio/browse-elements',
 				'studio/open-in-editor',
 				'studio/shortcuts',
 				'studio/quick-switcher',
@@ -1465,10 +1464,10 @@ const sidebars: SidebarsConfig = {
 				'studio/interactivity',
 				'studio/interactivity-best-practices',
 				'studio/make-component-interactive',
-				'studio/creating-elements',
 				'studio/deploy-static',
 				'studio/deploy-server',
 				'studio/remotion-dev-new',
+				'studio/browse-elements',
 			],
 		},
 		{
@@ -1595,6 +1594,15 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'category',
+			label: 'Elements',
+			link: {
+				type: 'doc',
+				id: 'elements',
+			},
+			items: ['elements', 'elements/libraries'],
+		},
+		{
 			type: 'html',
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
@@ -1635,6 +1643,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/live-streaming',
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
+				'miscellaneous/no-remotion-app',
 			],
 		},
 		{

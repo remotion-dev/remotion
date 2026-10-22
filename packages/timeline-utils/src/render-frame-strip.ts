@@ -261,12 +261,30 @@ export const fillWithCachedFrames = ({
 	horizontalOffset: number;
 }) => {
 	const prefix = getFrameDatabaseKeyPrefix(src);
-	const candidates = Array.from(frameDatabase.entries())
-		.filter(([key]) => key.startsWith(prefix))
-		.map(([, candidate]) => candidate);
+	let candidates: NonNullable<ReturnType<typeof frameDatabase.get>>[] | null =
+		null;
 	const targets = Array.from(filledSlots.keys());
 
 	for (const timestamp of targets) {
+		const filledDistance = getFilledDistance({
+			src,
+			filled: filledSlots.get(timestamp),
+			slot: timestamp,
+		});
+		// A frame covering this slot cannot be improved by another cached frame.
+		if (filledDistance === 0) {
+			continue;
+		}
+
+		if (candidates === null) {
+			candidates = [];
+			for (const [key, candidate] of frameDatabase) {
+				if (key.startsWith(prefix)) {
+					candidates.push(candidate);
+				}
+			}
+		}
+
 		let best: (typeof candidates)[number] | undefined;
 		let bestDistance = Infinity;
 		for (const candidate of candidates) {
@@ -279,6 +297,9 @@ export const fillWithCachedFrames = ({
 			if (distance < bestDistance) {
 				bestDistance = distance;
 				best = candidate;
+				if (distance === 0) {
+					break;
+				}
 			}
 		}
 
@@ -286,13 +307,7 @@ export const fillWithCachedFrames = ({
 			continue;
 		}
 
-		if (
-			getFilledDistance({
-				src,
-				filled: filledSlots.get(timestamp),
-				slot: timestamp,
-			}) <= bestDistance
-		) {
+		if (filledDistance <= bestDistance) {
 			continue;
 		}
 

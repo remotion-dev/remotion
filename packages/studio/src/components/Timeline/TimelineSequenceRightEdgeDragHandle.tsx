@@ -43,7 +43,10 @@ import type {
 	MoveEffectKeyframeChange,
 	MoveSequenceKeyframeChange,
 } from './call-move-keyframe';
-import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {
+	createTrackLookupForNodePathInfo,
+	findTrackForNodePathInfo,
+} from './find-track-for-node-path-info';
 import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {
 	getKeyframedSequenceDragTargets,
@@ -1043,9 +1046,14 @@ export const getTimelineSequenceDurationDragTargets = ({
 			? selectedSequenceItems.map((item) => item.nodePathInfo)
 			: [draggedNodePathInfo];
 	const targets = new Map<string, TimelineSequenceDurationDragTarget>();
+	const findTrack =
+		targetNodePathInfos.length > 1
+			? createTrackLookupForNodePathInfo(tracks)
+			: (nodePathInfo: SequenceNodePathInfo) =>
+					findTrackForNodePathInfo({tracks, nodePathInfo});
 
 	for (const nodePathInfo of targetNodePathInfos) {
-		const track = findTrackForNodePathInfo({tracks, nodePathInfo});
+		const track = findTrack(nodePathInfo);
 		const originalSequence = track
 			? sequences.find((sequence) => sequence.id === track.sequence.id)
 			: null;
@@ -1260,9 +1268,14 @@ export const getTimelineSequenceLeftEdgeDragTargets = ({
 				? selectedSequenceItems.map((item) => item.nodePathInfo)
 				: [draggedNodePathInfo];
 	const targets = new Map<string, TimelineSequenceLeftEdgeDragTarget>();
+	const findTrack =
+		targetNodePathInfos.length > 1
+			? createTrackLookupForNodePathInfo(tracks)
+			: (nodePathInfo: SequenceNodePathInfo) =>
+					findTrackForNodePathInfo({tracks, nodePathInfo});
 
 	for (const nodePathInfo of targetNodePathInfos) {
-		const track = findTrackForNodePathInfo({tracks, nodePathInfo});
+		const track = findTrack(nodePathInfo);
 		const originalSequence = track
 			? sequences.find((sequence) => sequence.id === track.sequence.id)
 			: null;
@@ -1862,8 +1875,13 @@ export const getTimelineSequenceFromDragTargets = ({
 	const sequencesById = new Map(
 		sequences.map((sequence) => [sequence.id, sequence]),
 	);
+	const findTrack =
+		targetNodePathInfos.length > 1
+			? createTrackLookupForNodePathInfo(tracks)
+			: (nodePathInfo: SequenceNodePathInfo) =>
+					findTrackForNodePathInfo({tracks, nodePathInfo});
 	const selectedSequences = targetNodePathInfos.flatMap((nodePathInfo) => {
-		const track = findTrackForNodePathInfo({tracks, nodePathInfo});
+		const track = findTrack(nodePathInfo);
 		const originalSequence = track
 			? sequencesById.get(track.sequence.id)
 			: undefined;

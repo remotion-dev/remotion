@@ -152,7 +152,7 @@ const InnerVideo: React.FC<
 		return (
 			<VideoForRendering
 				{...props}
-				audioStreamIndex={audioStreamIndex ?? 0}
+				audioStreamIndex={audioStreamIndex ?? null}
 				className={className}
 				delayRenderRetries={delayRenderRetries ?? null}
 				delayRenderTimeoutInMilliseconds={
@@ -207,7 +207,7 @@ const InnerVideo: React.FC<
 		<VideoForPreview
 			{...props}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
-			audioStreamIndex={audioStreamIndex ?? 0}
+			audioStreamIndex={audioStreamIndex ?? null}
 			className={className}
 			logLevel={logLevel}
 			loop={loop}
@@ -430,7 +430,7 @@ const VideoInner: React.FC<
 				<Internals.SequenceContent>
 					<InnerVideo
 						{...props}
-						audioStreamIndex={audioStreamIndex ?? 0}
+						audioStreamIndex={audioStreamIndex ?? null}
 						className={className}
 						delayRenderRetries={delayRenderRetries ?? null}
 						delayRenderTimeoutInMilliseconds={

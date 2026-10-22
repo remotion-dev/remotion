@@ -2,7 +2,21 @@ import {continueRender, delayRender} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {resolveFontSubsetKeys} from './resolve-font-subsets';
 
-const loadedFonts: Record<string, Promise<void> | undefined> = {};
+const loadedFontsByDocument = new WeakMap<
+	Document,
+	Record<string, Promise<void> | undefined>
+>();
+
+const getLoadedFontsForDocument = (targetDocument: Document) => {
+	const cached = loadedFontsByDocument.get(targetDocument);
+	if (cached) {
+		return cached;
+	}
+
+	const loadedFonts: Record<string, Promise<void> | undefined> = {};
+	loadedFontsByDocument.set(targetDocument, loadedFonts);
+	return loadedFonts;
+};
 
 export type FontInfo = {
 	fontFamily: string;
@@ -126,6 +140,8 @@ export const loadFonts = (
 				`The font ${meta.fontFamily} does not have a style ${style}`,
 			);
 		}
+		const targetDocument = options?.document ?? document;
+		const loadedFonts = getLoadedFontsForDocument(targetDocument);
 		const weights = options?.weights ?? Object.keys(meta.fonts[style]);
 		for (const weight of weights) {
 			if (!meta.fonts[style][weight]) {
@@ -230,7 +246,7 @@ export const loadFonts = (
 
 				const promise = Promise.all([tryToLoad(), previousAdded]).then(
 					([{fontFace, fontData}]) => {
-						(options?.document ?? document).fonts.add(fontFace);
+						targetDocument.fonts.add(fontFace);
 						registerFont(fontData);
 						continueRender(handle);
 					},
@@ -322,6 +338,8 @@ export const loadVariableFonts = (
 			font.subset,
 			font.src,
 		].join('-');
+		const targetDocument = options.document ?? document;
+		const loadedFonts = getLoadedFontsForDocument(targetDocument);
 		const previousPromise = loadedFonts[fontKey];
 		if (previousPromise) {
 			promises.push(previousPromise);
@@ -390,7 +408,7 @@ export const loadVariableFonts = (
 
 		const promise = Promise.all([tryToLoad(), previousAdded]).then(
 			([{fontFace, fontData}]) => {
-				(options.document ?? document).fonts.add(fontFace);
+				targetDocument.fonts.add(fontFace);
 				registerFont(fontData);
 				continueRender(handle);
 			},

@@ -1095,7 +1095,7 @@ export const launchHandler = async ({
 	};
 
 	const runCleanupTasks = () => {
-		const prom = Promise.all(cleanupTasks)
+		const prom = Promise.all(cleanupTasks.map((task) => task()))
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},

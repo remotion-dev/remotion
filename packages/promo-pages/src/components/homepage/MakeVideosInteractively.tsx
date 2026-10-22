@@ -37,26 +37,28 @@ export const MakeVideosInteractively: React.FC<{
 				'flex min-w-0 basis-0 flex-col justify-start items-start min-[900px]:mt-0 flex-1'
 			}
 		>
-			<div className="flex aspect-square w-full items-start">
-				{showVideo && src ? (
-					<video
-						src={src}
-						autoPlay
-						muted
-						playsInline
-						loop
-						preload="metadata"
-						style={{
-							width: 500,
-							maxWidth: '100%',
-							maxHeight: '100%',
-							borderRadius: 7,
-							overflow: 'hidden',
-						}}
-						className="object-contain"
-					/>
-				) : null}
-			</div>
+			{showVideo ? (
+				<div className="flex aspect-square w-full items-start">
+					{src ? (
+						<video
+							src={src}
+							autoPlay
+							muted
+							playsInline
+							loop
+							preload="metadata"
+							style={{
+								width: 500,
+								maxWidth: '100%',
+								maxHeight: '100%',
+								borderRadius: 7,
+								overflow: 'hidden',
+							}}
+							className="object-contain"
+						/>
+					) : null}
+				</div>
+			) : null}
 			<div className="font-brand">
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 					{title}

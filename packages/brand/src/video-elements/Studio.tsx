@@ -80,6 +80,22 @@ export const studioReferenceSchema = z.object({
 
 export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
 
+export type StudioTimeline = {
+	readonly labelWidth: number;
+	readonly sourceLabelWidth: number;
+	readonly pixelsPerFrame: number;
+	readonly imageSrc: string;
+	readonly width: number;
+	readonly height: number;
+	readonly mediaLabels: readonly {
+		readonly top: number;
+		readonly height: number;
+		readonly left: number;
+		readonly name: string;
+		readonly assetName: string;
+	}[];
+};
+
 export type StudioProps = InteractiveBaseProps & {
 	readonly compositionName: string;
 	readonly compositionWidth: number;
@@ -90,6 +106,7 @@ export type StudioProps = InteractiveBaseProps & {
 	readonly responsivenessProgress: number;
 	readonly showTimelineZoom: boolean;
 	readonly timelineOffset: number;
+	readonly timeline: StudioTimeline | null;
 	readonly viewportHeight: number | null;
 	readonly viewportWidth: number;
 };
@@ -251,7 +268,9 @@ const MenuToolbar: React.FC<{
 	);
 };
 
-const LeftSidebar: React.FC = () => {
+const LeftSidebar: React.FC<{readonly compositionName: string}> = ({
+	compositionName,
+}) => {
 	return (
 		<Interactive.Div
 			name="Compositions sidebar"
@@ -424,11 +443,13 @@ const LeftSidebar: React.FC = () => {
 							whiteSpace: 'nowrap',
 						}}
 					>
-						SocialMediaAnnouncements
+						{compositionName === 'WhatsNew'
+							? 'WhatsNew'
+							: 'SocialMediaAnnouncements'}
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
-					name="Outro composition"
+					name={`${compositionName} composition`}
 					style={{
 						alignItems: 'center',
 						backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -453,7 +474,7 @@ const LeftSidebar: React.FC = () => {
 							whiteSpace: 'nowrap',
 						}}
 					>
-						Outro
+						{compositionName}
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
@@ -602,7 +623,9 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					<VideoIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>Root.tsx:127</span>
+					<span style={{marginLeft: 8}}>
+						{compositionName === 'WhatsNew' ? 'Root.tsx:27' : 'Root.tsx:127'}
+					</span>
 				</Interactive.Div>
 				<Interactive.Div
 					name="Scene source"
@@ -614,7 +637,11 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					<BracesIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>Scene11.tsx:11</span>
+					<span style={{marginLeft: 8}}>
+						{compositionName === 'WhatsNew'
+							? 'WhatsNew.tsx:23'
+							: 'Scene11.tsx:11'}
+					</span>
 				</Interactive.Div>
 			</div>
 			<Interactive.Div name="Metadata heading">
@@ -690,45 +717,49 @@ const RightSidebar: React.FC<{
 					</Interactive.Div>
 				</div>
 			</Interactive.Div>
-			<Interactive.Div
-				name="Platform label"
-				style={{
-					color: LIGHT_TEXT,
-					fontFamily: 'monospace',
-					fontSize: 12,
-					lineHeight: '23px',
-					paddingLeft: 10,
-					position: 'relative',
-					top: 1,
-				}}
-			>
-				platform:
-			</Interactive.Div>
-			<Interactive.Div
-				name="Platform selector"
-				style={{
-					alignItems: 'center',
-					backgroundColor: INPUT_BACKGROUND,
-					border: '1px solid rgba(0, 0, 0, 0.65)',
-					borderRadius: 4,
-					boxSizing: 'border-box',
-					color: WHITE,
-					display: 'flex',
-					fontSize: 11,
-					height: 20,
-					marginLeft: 10,
-					paddingLeft: 5,
-					width: 60,
-				}}
-			>
-				youtube
-				<CaretIcon
-					color={LIGHT_TEXT}
-					direction="down"
-					size={9}
-					style={{marginLeft: 'auto', marginRight: 3}}
-				/>
-			</Interactive.Div>
+			{compositionName === 'WhatsNew' ? null : (
+				<>
+					<Interactive.Div
+						name="Platform label"
+						style={{
+							color: LIGHT_TEXT,
+							fontFamily: 'monospace',
+							fontSize: 12,
+							lineHeight: '23px',
+							paddingLeft: 10,
+							position: 'relative',
+							top: 1,
+						}}
+					>
+						platform:
+					</Interactive.Div>
+					<Interactive.Div
+						name="Platform selector"
+						style={{
+							alignItems: 'center',
+							backgroundColor: INPUT_BACKGROUND,
+							border: '1px solid rgba(0, 0, 0, 0.65)',
+							borderRadius: 4,
+							boxSizing: 'border-box',
+							color: WHITE,
+							display: 'flex',
+							fontSize: 11,
+							height: 20,
+							marginLeft: 10,
+							paddingLeft: 5,
+							width: 60,
+						}}
+					>
+						youtube
+						<CaretIcon
+							color={LIGHT_TEXT}
+							direction="down"
+							size={9}
+							style={{marginLeft: 'auto', marginRight: 3}}
+						/>
+					</Interactive.Div>
+				</>
+			)}
 			<div style={{height: 7}} />
 			<Interactive.Div name="Actions heading">
 				<InspectorSectionTitle>Actions</InspectorSectionTitle>
@@ -1290,6 +1321,7 @@ const Timeline: React.FC<{
 	readonly height: number;
 	readonly showZoom: boolean;
 	readonly timelineOffset: number;
+	readonly timeline: StudioTimeline | null;
 	readonly width: number;
 }> = ({
 	durationInFrames,
@@ -1298,6 +1330,7 @@ const Timeline: React.FC<{
 	height,
 	showZoom,
 	timelineOffset,
+	timeline,
 	width,
 }) => {
 	const labelWidth = Math.min(
@@ -1330,6 +1363,262 @@ const Timeline: React.FC<{
 		{length: Math.floor(durationInFrames / 5) + 1},
 		(_, index) => index * 5,
 	);
+	if (timeline) {
+		const trackViewportWidth = Math.max(1, width - timeline.labelWidth);
+		const capturedPlayhead = frame * timeline.pixelsPerFrame;
+		const scrollLeft = Math.max(0, capturedPlayhead - trackViewportWidth * 0.9);
+		return (
+			<Interactive.Div
+				name="Timeline"
+				style={{
+					height,
+					width,
+					overflow: 'hidden',
+					position: 'relative',
+					backgroundColor: TIMELINE_BACKGROUND,
+				}}
+			>
+				<div
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						width: timeline.labelWidth,
+						height,
+						overflow: 'hidden',
+						backgroundColor: '#202428',
+					}}
+				>
+					<Img
+						src={timeline.imageSrc}
+						showInTimeline={false}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: timeline.width,
+							height: timeline.height,
+							maxWidth: 'none',
+						}}
+					/>
+					{timeline.mediaLabels.map((label) => (
+						<div
+							key={label.name}
+							style={{
+								position: 'absolute',
+								top: label.top,
+								height: label.height,
+								left: 32,
+								right: 2,
+								backgroundColor: '#202428',
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'center',
+								paddingLeft: label.left - 32,
+								fontFamily: 'Arial, Helvetica, sans-serif',
+								fontSize: 12,
+							}}
+						>
+							<div
+								style={{
+									height: 16,
+									lineHeight: '16px',
+									color: '#d2d3d4',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									paddingRight: 10,
+									maskImage:
+										'linear-gradient(to right, black calc(100% - 10px), transparent)',
+								}}
+							>
+								{label.name}
+							</div>
+							<div
+								style={{
+									height: 14,
+									lineHeight: '14px',
+									marginTop: -2,
+									paddingLeft: 2,
+									paddingRight: 10,
+									color: 'rgba(255, 255, 255, 0.3)',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									maskImage:
+										'linear-gradient(to right, black calc(100% - 10px), transparent)',
+								}}
+							>
+								{label.assetName}
+							</div>
+						</div>
+					))}
+					<div
+						style={{
+							position: 'absolute',
+							right: 0,
+							top: 0,
+							width: 2,
+							height,
+							backgroundColor: BACKGROUND,
+						}}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							width: '100%',
+							height: 40,
+							backgroundColor: BACKGROUND,
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								right: 7,
+								top: 10,
+								display: 'flex',
+								alignItems: 'center',
+								gap: 5,
+								color: LIGHT_TEXT,
+							}}
+						>
+							<CanvasZoomOutIcon size={17} />
+							<div
+								style={{
+									width: 40,
+									height: 4,
+									backgroundColor: '#353a3e',
+									borderRadius: 4,
+									position: 'relative',
+								}}
+							>
+								<div
+									style={{
+										position: 'absolute',
+										left: 15,
+										top: -3,
+										width: 10,
+										height: 10,
+										borderRadius: '50%',
+										backgroundColor: WHITE,
+									}}
+								/>
+							</div>
+							<CanvasZoomIcon size={17} />
+						</div>
+					</div>
+				</div>
+				<div
+					style={{
+						position: 'absolute',
+						left: timeline.labelWidth,
+						top: 0,
+						width: trackViewportWidth,
+						height,
+						overflow: 'hidden',
+					}}
+				>
+					<Img
+						src={timeline.imageSrc}
+						showInTimeline={false}
+						style={{
+							position: 'absolute',
+							left: -timeline.sourceLabelWidth - scrollLeft,
+							top: 0,
+							width: timeline.width,
+							height: timeline.height,
+							maxWidth: 'none',
+						}}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							height: 40,
+							width: '100%',
+							backgroundColor: BACKGROUND,
+							overflow: 'hidden',
+						}}
+					>
+						{ticks.map((tick) => (
+							<React.Fragment key={tick}>
+								<div
+									style={{
+										position: 'absolute',
+										top: 0,
+										left: tick * timeline.pixelsPerFrame - scrollLeft,
+										width: 1,
+										height:
+											tick % (timelineFps * 5) === 0
+												? 15
+												: tick % timelineFps === 0
+													? 5
+													: 2,
+										backgroundColor: '#3b4145',
+									}}
+								/>
+								{tick > 0 && tick % (timelineFps * 5) === 0 ? (
+									<div
+										style={{
+											position: 'absolute',
+											top: 5,
+											left: tick * timeline.pixelsPerFrame - scrollLeft + 7,
+											color: LIGHT_TEXT,
+											fontSize: 12,
+											whiteSpace: 'nowrap',
+										}}
+									>
+										00:{String(tick / timelineFps).padStart(2, '0')}.00
+									</div>
+								) : null}
+							</React.Fragment>
+						))}
+					</div>
+					<div
+						style={{
+							position: 'absolute',
+							left: capturedPlayhead - scrollLeft,
+							top: 0,
+							bottom: 0,
+							width: 1,
+							backgroundColor: PLAYHEAD,
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								left: -8,
+								top: 3,
+								width: 17,
+								height: 16,
+								backgroundColor: PLAYHEAD,
+								clipPath: 'polygon(0 0, 100% 0, 100% 50%, 50% 100%, 0 50%)',
+							}}
+						/>
+					</div>
+				</div>
+				<div
+					style={{
+						position: 'absolute',
+						left: 2,
+						top: 2,
+						width: 100,
+						height: 38,
+						backgroundColor: BACKGROUND,
+						paddingLeft: 6,
+						boxSizing: 'border-box',
+						color: LIGHT_TEXT,
+						fontFamily: 'monospace',
+					}}
+				>
+					<div style={{fontSize: 14, lineHeight: '22px'}}>{timecode}</div>
+					<div style={{fontSize: 10, lineHeight: '12px'}}>{frame}</div>
+				</div>
+			</Interactive.Div>
+		);
+	}
+
 	// Mirrors the layer tree the real Studio shows for the Outro composition.
 	const layers: {
 		name: string;
@@ -1653,6 +1942,7 @@ const StudioInner: React.FC<
 	showInTimeline,
 	showTimelineZoom,
 	timelineOffset,
+	timeline,
 	trimAfter,
 	trimBefore,
 	loop,
@@ -1662,9 +1952,9 @@ const StudioInner: React.FC<
 	const {height: videoHeight, fps} = useVideoConfig();
 	const height = viewportHeight ?? videoHeight;
 	const width = viewportWidth;
-	const topPanelHeight = Math.round(
-		(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
-	);
+	const topPanelHeight = timeline
+		? height - MENU_HEIGHT - SPLITTER_SIZE - timeline.height
+		: Math.round((height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO);
 	const timelineHeight = height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
 	const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
 	const leftSidebarWidth = Math.min(
@@ -1675,15 +1965,12 @@ const StudioInner: React.FC<
 		350,
 		Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
 	);
-	const sidebarProgress = interpolate(
-		responsivenessProgress,
-		[0, 0.2],
-		[0, 1],
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		},
-	);
+	const sidebarProgress = timeline
+		? responsivenessProgress
+		: interpolate(responsivenessProgress, [0, 0.2], [0, 1], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			});
 	const leftSidebarOccupiedWidth =
 		(leftSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
 	const rightSidebarOccupiedWidth =
@@ -1751,7 +2038,7 @@ const StudioInner: React.FC<
 								}}
 							>
 								<div style={{width: leftSidebarWidth}}>
-									<LeftSidebar />
+									<LeftSidebar compositionName={compositionName} />
 								</div>
 								<Interactive.Div
 									name="Left sidebar splitter"
@@ -1809,6 +2096,7 @@ const StudioInner: React.FC<
 					style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}}
 				/>
 				<Timeline
+					timeline={timeline}
 					durationInFrames={durationInFrames}
 					fps={fps}
 					frame={frame}
@@ -1846,6 +2134,7 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 			responsivenessProgress={responsivenessProgress}
 			showTimelineZoom
 			timelineOffset={0}
+			timeline={null}
 			viewportHeight={null}
 			viewportWidth={viewportWidth}
 		/>
@@ -1901,6 +2190,7 @@ export const StudioDeviceFrame: React.FC<StudioReferenceProps> = ({
 					height={macBookHeight}
 					left={0}
 					showCameraNotch={false}
+					showShadow
 					top={0}
 					width={macBookWidth}
 				>

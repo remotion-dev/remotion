@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.537",
+	"version": "4.0.538",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -16,8 +16,8 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsgo -w",
-		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -223,6 +223,11 @@
 			"types": "./dist/levels.d.ts",
 			"module": "./dist/esm/levels.mjs",
 			"import": "./dist/esm/levels.mjs"
+		},
+		"./long-shadows": {
+			"types": "./dist/long-shadows.d.ts",
+			"module": "./dist/esm/long-shadows.mjs",
+			"import": "./dist/esm/long-shadows.mjs"
 		},
 		"./lut": {
 			"types": "./dist/lut.d.ts",
@@ -552,6 +557,9 @@
 			"levels": [
 				"dist/levels.d.ts"
 			],
+			"long-shadows": [
+				"dist/long-shadows.d.ts"
+			],
 			"lut": [
 				"dist/lut.d.ts"
 			],
@@ -683,11 +691,11 @@
 	"homepage": "https://www.remotion.dev/docs/effects/api",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@typescript/native-preview": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
 		"@webgpu/types": "0.1.74",
 		"eslint": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"remotion",

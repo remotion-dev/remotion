@@ -64,6 +64,11 @@ import {
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
 import {
+	EffectsLongShadowsPreview,
+	LongShadowsTextSource,
+	LONG_SHADOWS_PREVIEW_PARAMS,
+} from '../../components/effects/effects-long-shadows-preview';
+import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
 } from '../../components/effects/effects-lut-preview';
@@ -634,6 +639,19 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'vertical',
 						slats: 14,
 					}}
+				/>
+				<Still
+					id="effects-long-shadows-text-source"
+					component={LongShadowsTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-long-shadows-preview"
+					component={EffectsLongShadowsPreview}
+					width={1280}
+					height={720}
+					defaultProps={LONG_SHADOWS_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-drop-shadow-preview"

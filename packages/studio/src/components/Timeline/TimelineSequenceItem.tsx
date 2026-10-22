@@ -108,6 +108,7 @@ import {TimelineLayerEye, TimelineLayerEyeSpacer} from './TimelineLayerEye';
 import {TimelineMediaInfo} from './TimelineMediaInfo';
 import {TimelineRowChrome} from './TimelineRowChrome';
 import {
+	getMultiSelectedSequenceNodePathInfos,
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
@@ -409,19 +410,9 @@ const TimelineSequenceItemInner: React.FC<{
 	const {onSelect, selectable, selected, selectedItems, selectItem} =
 		useTimelineRowSelection(nodePathInfo);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
-	const selectedSequenceNodePathInfos = useMemo(() => {
-		if (
-			!selected ||
-			selectedItems.length < 2 ||
-			selectedItems.some((item) => item.type !== 'sequence')
-		) {
-			return null;
-		}
-
-		return selectedItems.flatMap((item) =>
-			item.type === 'sequence' ? [item.nodePathInfo] : [],
-		);
-	}, [selected, selectedItems]);
+	const selectedSequenceNodePathInfos = selected
+		? getMultiSelectedSequenceNodePathInfos(selectedItems)
+		: null;
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	useEffect(() => {
@@ -1121,6 +1112,32 @@ const TimelineSequenceItemInner: React.FC<{
 		() => getTimelineSequenceHeight(sequence) + TIMELINE_ITEM_BORDER_BOTTOM,
 		[sequence],
 	);
+	const stackMediaName = Boolean(mediaSrc);
+	const namesStyle = useMemo(
+		(): React.CSSProperties => ({
+			...labelContainerStyle,
+			...(stackMediaName
+				? {
+						alignItems: 'stretch',
+						flexDirection: 'column',
+						justifyContent: 'center',
+					}
+				: {}),
+		}),
+		[stackMediaName],
+	);
+	const nameRowStyle = useMemo(
+		(): React.CSSProperties =>
+			stackMediaName
+				? {
+						display: 'flex',
+						alignItems: 'center',
+						height: 16,
+						minWidth: 0,
+					}
+				: {display: 'contents'},
+		[stackMediaName],
+	);
 
 	const connectedCompositionIconStyle = useMemo(
 		(): React.CSSProperties => ({
@@ -1135,14 +1152,14 @@ const TimelineSequenceItemInner: React.FC<{
 
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
-			height: TIMELINE_LIST_ITEM_ROW_HEIGHT,
+			height: stackMediaName ? 30 : TIMELINE_LIST_ITEM_ROW_HEIGHT,
 			color: WHITE,
 			fontFamily: 'Arial, Helvetica, sans-serif',
 			wordBreak: 'break-all',
 			textAlign: 'left',
 			flexShrink: 0,
 		};
-	}, []);
+	}, [stackMediaName]);
 
 	const rowStyle = useMemo((): React.CSSProperties => {
 		return effectDropHovered
@@ -1726,37 +1743,50 @@ const TimelineSequenceItemInner: React.FC<{
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 		>
-			<div style={labelContainerStyle}>
-				{connectedCompositions.length > 0 ? (
-					<>
-						<CompositionOrStillIcon
-							color={getTimelineColor(false, false)}
-							composition={connectedCompositions[0]}
-							style={connectedCompositionIconStyle}
-						/>
-						<Spacing x={0.5} />
-					</>
-				) : null}
-				<TimelineSequenceLabel
-					displayName={timelineDisplayName}
-					fallbackDisplayName={fallbackDisplayName}
-					selected={selected}
-					containsSelection={containsSelection}
-					editing={isRenaming}
-					onCancelEditing={onCancelRenaming}
-					onSaveName={onSaveName}
-					numberOfHiddenDuplicates={numberOfHiddenDuplicates}
-					canHaveExpandableContent={hasExpandableContent}
-					disabled={!previewInteractive}
-					isExpanded={isExpanded}
-					nodePathInfo={nodePathInfo}
-					selectedItems={selectedItems}
-					sequence={sequence}
-				/>
+			<div style={namesStyle}>
+				<div style={nameRowStyle}>
+					{connectedCompositions.length > 0 ? (
+						<>
+							<CompositionOrStillIcon
+								color={getTimelineColor(false, false)}
+								composition={connectedCompositions[0]}
+								style={connectedCompositionIconStyle}
+							/>
+							<Spacing x={0.5} />
+						</>
+					) : null}
+					<TimelineSequenceLabel
+						displayName={timelineDisplayName}
+						fallbackDisplayName={fallbackDisplayName}
+						selected={selected}
+						containsSelection={containsSelection}
+						editing={isRenaming}
+						onCancelEditing={onCancelRenaming}
+						onSaveName={onSaveName}
+						numberOfHiddenDuplicates={numberOfHiddenDuplicates}
+						canHaveExpandableContent={hasExpandableContent}
+						disabled={!previewInteractive}
+						isExpanded={isExpanded}
+						nodePathInfo={nodePathInfo}
+						selectedItems={selectedItems}
+						sequence={sequence}
+					/>
+				</div>
 				{mediaSrc ? (
-					<>
-						<Spacing x={0.5} /> <TimelineMediaInfo src={mediaSrc} />
-					</>
+					<div
+						style={{
+							display: 'flex',
+							height: 14,
+							marginTop: -2,
+							paddingLeft: 2,
+							minWidth: 0,
+						}}
+					>
+						<TimelineMediaInfo
+							src={mediaSrc}
+							isImage={sequence.type === 'image'}
+						/>
+					</div>
 				) : null}
 			</div>
 		</TimelineRowChrome>

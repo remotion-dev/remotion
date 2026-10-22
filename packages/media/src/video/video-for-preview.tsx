@@ -72,7 +72,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
-	readonly audioStreamIndex: number;
+	readonly audioStreamIndex: number | null;
 	readonly debugOverlay: boolean;
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
@@ -388,7 +388,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 					if (result.type === 'cannot-decode') {
 						handleError(
-							new Error(`Cannot decode ${preloadedSrc}.`),
+							result.error,
 							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
 						return;

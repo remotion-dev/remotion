@@ -104,9 +104,10 @@ export type NativeVideoProps = Omit<
 
 export type InnerVideoProps = MandatoryVideoProps &
 	OuterVideoProps &
-	Omit<OptionalVideoProps, 'effects' | 'preservePitch'> &
+	Omit<OptionalVideoProps, 'effects' | 'preservePitch' | 'audioStreamIndex'> &
 	NativeVideoProps & {
 		preservePitch: boolean | null;
+		audioStreamIndex: number | null;
 		effects: EffectDefinitionAndStack<unknown>[];
 		_remotionInternalStack: string | undefined;
 	};

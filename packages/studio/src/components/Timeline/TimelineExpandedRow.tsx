@@ -165,7 +165,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 					keyframeDisplayOffset={keyframeDisplayOffset}
 					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode={keyframeControlsMode}
-					runtimeValue={node.runtimeValue}
+					runtimeValueStore={node.runtimeValueStore}
 				/>
 			);
 		}

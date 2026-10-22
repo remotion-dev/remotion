@@ -26,7 +26,7 @@ export const {
 	cropCanvasOutlinePoints: cropOutlinePoints,
 	getTransformedSvgViewportPoints,
 	measureCanvasOutlineTargets: measureOutlineTargets,
-} = CanvasInternals;
+}: typeof CanvasInternals = CanvasInternals;
 
 export const pointToString = (point: OutlinePoint) => `${point.x},${point.y}`;
 

@@ -28,7 +28,7 @@ import {
 export const {
 	getCanvasOutlinePoint: getUvHandlePosition,
 	getCanvasOutlineUv: getUvCoordinateForPoint,
-} = CanvasInternals;
+}: typeof CanvasInternals = CanvasInternals;
 
 export type UvCoordinate = readonly [number, number];
 

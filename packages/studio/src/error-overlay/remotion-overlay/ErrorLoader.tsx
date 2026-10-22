@@ -1,5 +1,6 @@
 import {getLocationFromBuildError} from '@remotion/studio-shared';
 import React, {useEffect, useState} from 'react';
+import {loadSyntaxHighlightedSource} from '../../components/LazySyntaxHighlightedSource';
 import {registerCurrentError} from '../current-error';
 import {wasErrorLoggedByServer} from '../error-origin';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
@@ -94,13 +95,25 @@ export const ErrorLoader: React.FC<{
 	});
 
 	useEffect(() => {
+		let cancelled = false;
+		setState({type: 'loading'});
+		const highlighting = loadSyntaxHighlightedSource();
 		const symbolication = getErrorRecord(error);
 		const unregister = registerCurrentError({error, symbolication});
 		symbolication
-			.then((record) => {
+			.then(async (record) => {
+				if (cancelled) {
+					return;
+				}
+
 				if (record) {
 					if (shouldLogError(error)) {
 						logSymbolicatedStudioError(record);
+					}
+
+					await highlighting;
+					if (cancelled) {
+						return;
 					}
 
 					setState({
@@ -118,6 +131,10 @@ export const ErrorLoader: React.FC<{
 				}
 			})
 			.catch((err) => {
+				if (cancelled) {
+					return;
+				}
+
 				if (shouldLogError(error)) {
 					logStudioError(error);
 				}
@@ -128,7 +145,10 @@ export const ErrorLoader: React.FC<{
 				});
 			});
 
-		return unregister;
+		return () => {
+			cancelled = true;
+			unregister();
+		};
 	}, [error]);
 
 	if (state.type === 'loading') {
