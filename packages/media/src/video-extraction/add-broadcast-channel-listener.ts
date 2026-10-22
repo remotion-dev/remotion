@@ -19,6 +19,7 @@ export type MessageFromMainTab =
 	  }
 	| {
 			type: 'response-cannot-decode';
+			error: Error;
 			id: string;
 			durationInSeconds: number | null;
 	  }
@@ -122,8 +123,12 @@ export const addBroadcastChannelListener = () => {
 					});
 
 					if (result.type === 'cannot-decode') {
+						// This transport is used by the server's Chromium rendering tabs,
+						// whose structured clone preserves Error causes, including DOMExceptions.
+						// Firefox/Safari client-side rendering bypasses this channel entirely.
 						const cannotDecodeResponse: MessageFromMainTab = {
 							type: 'response-cannot-decode',
+							error: result.error,
 							id: data.id,
 							durationInSeconds: result.durationInSeconds,
 						};

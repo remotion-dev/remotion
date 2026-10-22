@@ -1,5 +1,6 @@
 import {Card} from '@remotion/design';
 import React from 'react';
+import {CUSTOMER_COUNT_LOWER_BOUND} from '../../customer-count';
 
 const SwissIcon: React.FC = () => {
 	return (
@@ -234,10 +235,12 @@ export const TrustSection: React.FC = () => {
 			<Card className="text-left px-4 py-6">
 				<UsersIcon />
 				<div className="h-4" />
-				<div className="font-brand font-bold text-2xl mb-2">400+ customers</div>
+				<div className="font-brand font-bold text-2xl mb-2">
+					{CUSTOMER_COUNT_LOWER_BOUND}+ customers
+				</div>
 				<div className="font-brand">
-					More than 400 companies trust Remotion, from small businesses to FAANG
-					/ MANGOS.
+					More than {CUSTOMER_COUNT_LOWER_BOUND} companies trust Remotion, from
+					small businesses to FAANG / MANGOS.
 				</div>
 			</Card>
 			<Card className="text-left px-4 py-6">
@@ -266,7 +269,7 @@ export const TrustSection: React.FC = () => {
 				<StarIcon />
 				<div className="h-4" />
 				<div className="font-brand font-bold text-2xl mb-2">
-					65,000+ GitHub stars
+					66,000+ GitHub stars
 				</div>
 				<div className="font-brand">
 					One of the most popular media projects on GitHub. Trusted by the

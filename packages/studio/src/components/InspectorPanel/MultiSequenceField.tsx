@@ -46,6 +46,7 @@ export const MultiSequenceField: React.FC<{
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const batchSetters = useContext(Internals.VisualModeBatchSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [editingMixed, setEditingMixed] = useState(false);
 	const statuses = targets.map(
@@ -101,22 +102,34 @@ export const MultiSequenceField: React.FC<{
 	}, [clearDragOverrides]);
 	const preview = useCallback(
 		(nextValues: unknown[]) => {
-			if (!editable) {
+			if (!editable || targets.length === 0) {
 				return;
 			}
 
 			const clamped = targets.map((target, index) =>
 				clampTimingValue(target.nodePath, field.key, nextValues[index]),
 			);
-			for (const [index, target] of targets.entries()) {
-				setDragOverrides(
-					target.nodePath,
-					field.key,
-					Internals.makeStaticDragOverride(clamped[index]),
-				);
+			const updates = targets.map((target, index) => ({
+				nodePath: target.nodePath,
+				key: field.key,
+				value: Internals.makeStaticDragOverride(clamped[index]),
+			}));
+			if (batchSetters) {
+				batchSetters.setDragOverridesBatch(updates);
+			} else {
+				for (const update of updates) {
+					setDragOverrides(update.nodePath, update.key, update.value);
+				}
 			}
 		},
-		[clampTimingValue, editable, field.key, setDragOverrides, targets],
+		[
+			batchSetters,
+			clampTimingValue,
+			editable,
+			field.key,
+			setDragOverrides,
+			targets,
+		],
 	);
 	const save = useCallback(
 		async (

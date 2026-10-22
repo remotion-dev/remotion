@@ -108,9 +108,9 @@ export const delayRenderInternal = ({
 
 				// in client-side rendering, don't throw (would be uncaught from setTimeout)
 				if (environment.isClientSideRendering) {
-					scope.remotion_cancelledError = getErrorStackWithMessage(
-						Error(message),
-					);
+					const error = Error(message);
+					scope.remotion_cancelledErrorObject = error;
+					scope.remotion_cancelledError = getErrorStackWithMessage(error);
 				} else {
 					cancelRenderInternal(scope, Error(message));
 				}

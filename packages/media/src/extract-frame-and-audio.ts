@@ -119,6 +119,7 @@ export const extractFrameAndAudio = async ({
 		if (video?.type === 'cannot-decode') {
 			return {
 				type: 'cannot-decode',
+				error: video.error,
 				durationInSeconds: video.durationInSeconds,
 			};
 		}
@@ -156,6 +157,9 @@ export const extractFrameAndAudio = async ({
 		if (audio === 'cannot-decode') {
 			return {
 				type: 'cannot-decode',
+				error: new Error(
+					`The ${audioStreamIndex === null ? 'automatically selected audio track' : `audio track at index ${audioStreamIndex}`} in ${src} could not be decoded by the browser.`,
+				),
 				durationInSeconds:
 					video?.type === 'success' ? video.durationInSeconds : null,
 			};

@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Img, Interactive, staticFile} from 'remotion';
+import {AbsoluteFill, Img, Interactive} from 'remotion';
 import {z} from 'zod';
 import {
 	AlertCircleIcon,
@@ -66,7 +66,7 @@ const Header: React.FC = () => {
 					marginLeft: 10,
 				}}
 			>
-				Capture Remotion outro screenshot
+				Update WhatsNew timeline
 			</div>
 			<MoreIcon
 				size={15}
@@ -233,17 +233,12 @@ const Conversation: React.FC = () => {
 				}}
 			>
 				<div style={{translate: '1px 0'}}>
-					I want to make a screenshot of the ChatGPT UI.
+					I updated the timeline for the WhatsNew composition.
 				</div>
-				<div>
-					on my next prompt, I am going to ask you to &quot;Create an endcard
-					showing
-				</div>
-				<div style={{translate: '1px 0'}}>Remotion socials.&quot;</div>
-				<div>
-					then you reply as you normally would, and you render and show a
-				</div>
-				<div>screenshot of 11-Outro composition</div>
+				<div>Keep the chapters, video clips, captions and sound effects</div>
+				<div style={{translate: '1px 0'}}>together in the timeline.</div>
+				<div>Then render the updated composition and show a</div>
+				<div>screenshot of the preview.</div>
 			</Interactive.Div>
 
 			<StatusDivider top={188}>Worked for 6s</StatusDivider>
@@ -261,8 +256,7 @@ const Conversation: React.FC = () => {
 				}}
 			>
 				<div>
-					Got it. On your next prompt, I’ll create the Remotion socials endcard,
-					render a screenshot of the{' '}
+					Got it. I’ll use the updated timeline and render a preview, from the{' '}
 					<CodePill
 						height={15}
 						horizontalAlign={-1}
@@ -270,7 +264,7 @@ const Conversation: React.FC = () => {
 						verticalAlign={1}
 						width={67}
 					>
-						11-Outro
+						WhatsNew
 					</CodePill>
 				</div>
 				<div style={{translate: '0 -1px'}}>
@@ -295,7 +289,7 @@ const Conversation: React.FC = () => {
 					width: 295,
 				}}
 			>
-				Create an endcard showing Remotion socials.
+				Show the endcard preview.
 			</Interactive.Div>
 
 			<StatusDivider top={381}>Worked for 1m 31s</StatusDivider>
@@ -318,15 +312,15 @@ const Conversation: React.FC = () => {
 					horizontalAlign={0}
 					textTranslateY={0}
 					verticalAlign={0}
-					width={42}
+					width={68}
 				>
-					Outro
+					WhatsNew
 				</CodePill>
-				<span> composition at frame 655.</span>
+				<span> endcard preview.</span>
 			</Interactive.Div>
 
 			<Interactive.Div
-				name="Rendered end card"
+				name="Rendered WhatsNew preview"
 				style={{
 					backgroundColor: '#1f1f1f',
 					border: '1px solid #3b3b3b',
@@ -343,7 +337,7 @@ const Conversation: React.FC = () => {
 			>
 				<Img
 					height={142}
-					src={staticFile('codex-ui/chapter11-outro-655.png')}
+					src="https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg"
 					style={{left: 0, position: 'absolute', top: 0}}
 					width={253}
 				/>

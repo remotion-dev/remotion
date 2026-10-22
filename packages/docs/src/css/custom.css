@@ -152,16 +152,6 @@ html:has(.studio-caption-picker),
 	}
 }
 
-.elements-sidebar-root > .menu__list {
-	padding-left: 0;
-}
-
-.elements-sidebar-root
-	> .menu__list-item-collapsible:not(.menu__list-item-collapsible--active)
-	> .menu__link--active {
-	color: var(--ifm-menu-color);
-}
-
 .theme-doc-sidebar-item-link > hr {
 	background-color: var(--border-color);
 }

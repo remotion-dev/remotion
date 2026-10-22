@@ -7,4 +7,4 @@ export const {
 	observePointerRelease,
 	startCapturedPointerSession,
 	startDeferredCapturedPointerSession,
-} = CanvasInternals;
+}: typeof CanvasInternals = CanvasInternals;

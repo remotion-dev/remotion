@@ -371,6 +371,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-long-shadows',
+		category: 'Blur & Shadow',
+		label: 'longShadows()',
+		description: 'Solid directional shadow or faux extrusion',
+		effect: {
+			name: 'longShadows',
+			importPath: '@remotion/effects/long-shadows',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-glow',
 		category: 'Blur & Shadow',
 		label: 'glow()',

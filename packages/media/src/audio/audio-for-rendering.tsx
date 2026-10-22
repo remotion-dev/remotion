@@ -196,10 +196,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 				if (result.type === 'cannot-decode') {
 					await handleError(
-						new Error(`Cannot decode ${src}.`),
-						new Error(
-							`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
-						),
+						result.error,
+						new Error(`Cannot render audio "${src}": ${result.error.message}`, {
+							cause: result.error,
+						}),
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
 					return;

@@ -306,7 +306,7 @@ const AudioForPreviewAssertedShowing: React.FC<NewAudioForPreviewProps> = ({
 					}
 
 					if (result.type === 'cannot-decode') {
-						await reportError(new Error(`Cannot decode ${preloadedSrc}.`));
+						await reportError(result.error);
 						return;
 					}
 

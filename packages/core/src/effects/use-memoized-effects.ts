@@ -13,11 +13,12 @@ import {OverrideIdsToNodePathsGettersContext} from '../sequence-node-path.js';
 import type {
 	CannotUpdateEffectReason,
 	CannotUpdateSequenceReason,
+	CanUpdateSequencePropsResponse,
 } from '../SequenceManager.js';
 import {
 	makeSequencePropsSubscriptionKey,
 	useEffectDragOverridesForNodePath,
-	VisualModePropStatusesContext,
+	usePropStatusForNodePath,
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
 import {useCurrentFrameWithOptionalSubscription} from '../use-current-frame.js';
@@ -239,16 +240,15 @@ type EffectStatus =
 			props: Record<string, CanUpdateSequencePropStatus>;
 	  };
 
-export const getEffectPropStatusesCtx = ({
-	propStatuses,
-	nodePath,
+const getEffectStatusForSequenceStatus = ({
+	status,
 	effectIndex,
+	videoConfigValues,
 }: {
-	propStatuses: PropStatuses;
-	nodePath: SequencePropsSubscriptionKey;
+	status: CanUpdateSequencePropsResponse | null;
 	effectIndex: number;
+	videoConfigValues: VideoConfigValues | null;
 }): EffectStatus => {
-	const status = propStatuses[makeSequencePropsSubscriptionKey(nodePath)];
 	if (!status) {
 		return {type: 'cannot-update-sequence', reason: 'not-found'};
 	}
@@ -268,15 +268,30 @@ export const getEffectPropStatusesCtx = ({
 
 	return {
 		type: 'can-update-effect',
-		props: evaluateSourcePropStatuses(effect.props, nodePath.videoConfigValues),
+		props: evaluateSourcePropStatuses(effect.props, videoConfigValues),
 	};
 };
 
-export const getPropStatusesCtx = (
-	propStatuses: PropStatuses,
-	nodePath: SequencePropsSubscriptionKey,
+export const getEffectPropStatusesCtx = ({
+	propStatuses,
+	nodePath,
+	effectIndex,
+}: {
+	propStatuses: PropStatuses;
+	nodePath: SequencePropsSubscriptionKey;
+	effectIndex: number;
+}): EffectStatus => {
+	return getEffectStatusForSequenceStatus({
+		status: propStatuses[makeSequencePropsSubscriptionKey(nodePath)] ?? null,
+		effectIndex,
+		videoConfigValues: nodePath.videoConfigValues,
+	});
+};
+
+export const getPropStatusesForSequenceStatus = (
+	status: CanUpdateSequencePropsResponse | null,
+	videoConfigValues: VideoConfigValues | null,
 ) => {
-	const status = propStatuses[makeSequencePropsSubscriptionKey(nodePath)];
 	if (!status) {
 		return undefined;
 	}
@@ -285,7 +300,17 @@ export const getPropStatusesCtx = (
 		return undefined;
 	}
 
-	return evaluateSourcePropStatuses(status.props, nodePath.videoConfigValues);
+	return evaluateSourcePropStatuses(status.props, videoConfigValues);
+};
+
+export const getPropStatusesCtx = (
+	propStatuses: PropStatuses,
+	nodePath: SequencePropsSubscriptionKey,
+) => {
+	return getPropStatusesForSequenceStatus(
+		propStatuses[makeSequencePropsSubscriptionKey(nodePath)] ?? null,
+		nodePath.videoConfigValues,
+	);
 };
 
 export type GetPropStatusesType = typeof getPropStatusesCtx;
@@ -314,8 +339,6 @@ export const useMemoizedEffects = ({
 		readonly effects: EffectDefinitionAndStack<unknown>[];
 	} | null>(null);
 
-	const {propStatuses} = useContext(VisualModePropStatusesContext);
-
 	const {overrideIdToNodePathMappings} = useContext(
 		OverrideIdsToNodePathsGettersContext,
 	);
@@ -326,6 +349,7 @@ export const useMemoizedEffects = ({
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
 	const effectDragOverrides = useEffectDragOverridesForNodePath(nodePath);
+	const sequenceStatus = usePropStatusForNodePath(nodePath);
 
 	const effectPropStatuses = useMemo(
 		() =>
@@ -334,14 +358,14 @@ export const useMemoizedEffects = ({
 					return null;
 				}
 
-				const status = getEffectPropStatusesCtx({
-					propStatuses,
-					nodePath: {...nodePath, videoConfigValues},
+				const status = getEffectStatusForSequenceStatus({
+					status: sequenceStatus,
 					effectIndex,
+					videoConfigValues,
 				});
 				return status.type === 'can-update-effect' ? status.props : null;
 			}),
-		[effects.length, nodePath, propStatuses, videoConfigValues],
+		[effects.length, nodePath, sequenceStatus, videoConfigValues],
 	);
 	const animatedEffects = useMemo(
 		() =>

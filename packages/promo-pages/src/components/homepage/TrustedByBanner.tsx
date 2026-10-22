@@ -1,3 +1,4 @@
+import {CUSTOMER_COUNT_LOWER_BOUND} from '../../customer-count';
 import {MakeVideosLinks} from './MakeVideosLinks';
 
 const TrustedByBanner = () => {
@@ -148,7 +149,8 @@ const TrustedByBanner = () => {
 					In good company
 				</h2>
 				<p className="text-balance leading-relaxed">
-					Over 300 customers put their trust into Remotion.
+					Over {CUSTOMER_COUNT_LOWER_BOUND} customers put their trust into
+					Remotion.
 				</p>
 				<MakeVideosLinks
 					links={[
