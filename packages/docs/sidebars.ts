@@ -1643,6 +1643,7 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/live-streaming',
 				'miscellaneous/pexels',
 				'lovable-for-motion-graphics',
+				'miscellaneous/no-remotion-app',
 			],
 		},
 		{
@@ -1688,7 +1689,6 @@ const sidebars: SidebarsConfig = {
 				'miscellaneous/cross-origin-isolation',
 				'cors-issues',
 				'react-native',
-				'miscellaneous/no-remotion-app',
 				'detect-remotion',
 			],
 		},
