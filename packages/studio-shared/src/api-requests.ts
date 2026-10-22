@@ -299,6 +299,7 @@ export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
 	enumPaths: EnumPath[];
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type ApplyVisualControlRequest = {
@@ -439,6 +440,7 @@ export type CanUpdateDefaultPropsResponse =
 export type SubscribeToDefaultPropsRequest = {
 	compositionId: string;
 	clientId: string;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type SubscribeToDefaultPropsResponse = CanUpdateDefaultPropsResponse;

@@ -28,6 +28,7 @@ export type Template = {
 		| 'blank'
 		| 'next'
 		| 'react-router'
+		| 'element-library'
 		| 'three'
 		| 'still'
 		| 'audiogram'
@@ -276,6 +277,30 @@ export const FEATURED_TEMPLATES: Template[] = [
 		allowEnableTailwind: false,
 		contributedBy: null,
 		showStackblitz: true,
+	},
+	{
+		homePageLabel: 'Element Library',
+		shortName: 'Element Library',
+		org: 'remotion-dev',
+		repoName: 'template-element-library',
+		description: 'Build and publish your own Remotion Element library',
+		longerDescription:
+			'A React Router and Tailwind CSS website with four editable Elements, including captions, an authoring Studio, and installation through the Studio Protocol.',
+		promoBanner: {
+			width: 1200,
+			height: 800,
+			src: '/img/element-library-template.png',
+		},
+		cliId: 'element-library' as const,
+		type: 'image' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+		previewURL: null,
+		previewLabel: null,
+		templateInMonorepo: 'template-element-library',
+		allowEnableTailwind: false,
+		contributedBy: null,
+		showStackblitz: false,
 	},
 	{
 		homePageLabel: '3D',

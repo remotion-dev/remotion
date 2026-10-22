@@ -7,7 +7,7 @@ import type {
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 
-export const {findSearchPosition} = CodemodsInternals;
+export const {findSearchPosition}: typeof CodemodsInternals = CodemodsInternals;
 
 export const findInFileHandler: ApiHandler<
 	FindInFileRequest,

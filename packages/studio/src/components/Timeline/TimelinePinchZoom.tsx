@@ -23,7 +23,9 @@ type WebKitGestureEvent = UIEvent & {
 export const TimelinePinchZoom: FC = () => {
 	const isVideoComposition = useIsVideoComposition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {getZoom, setZoom} = useContext(TimelineZoomImperativeContext);
+	const {getZoom, setZoom, beginZoom, endZoom} = useContext(
+		TimelineZoomImperativeContext,
+	);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 
 	const getCurrentTimelineZoom = useCallback(
@@ -115,6 +117,10 @@ export const TimelinePinchZoom: FC = () => {
 		}
 
 		const endWebKitPinch = () => {
+			if (pinchBaseZoomRef.current !== null) {
+				endZoom();
+			}
+
 			pinchBaseZoomRef.current = null;
 			suppressWheelFromWebKitPinchRef.current = false;
 		};
@@ -138,6 +144,7 @@ export const TimelinePinchZoom: FC = () => {
 			suppressWheelFromWebKitPinchRef.current = true;
 
 			pinchBaseZoomRef.current = getCurrentTimelineZoom(videoConfig.id);
+			beginZoom();
 		};
 
 		const onGestureChange = (event: Event) => {
@@ -180,6 +187,7 @@ export const TimelinePinchZoom: FC = () => {
 		el.addEventListener('gesturecancel', onGestureEnd);
 
 		return () => {
+			endWebKitPinch();
 			el.removeEventListener('gesturestart', onGestureStart);
 			el.removeEventListener('gesturechange', onGestureChange);
 			el.removeEventListener('gestureend', onGestureEnd);
@@ -192,6 +200,8 @@ export const TimelinePinchZoom: FC = () => {
 		videoConfig,
 		getCurrentTimelineZoom,
 		setZoom,
+		beginZoom,
+		endZoom,
 	]);
 
 	useEffect(() => {
@@ -202,6 +212,10 @@ export const TimelinePinchZoom: FC = () => {
 
 		const onTouchStart = (event: TouchEvent) => {
 			if (event.touches.length !== 2) {
+				if (touchPinchRef.current !== null) {
+					endZoom();
+				}
+
 				touchPinchRef.current = null;
 				return;
 			}
@@ -227,6 +241,7 @@ export const TimelinePinchZoom: FC = () => {
 				initialDistance,
 				initialZoom: getCurrentTimelineZoom(videoConfig.id),
 			};
+			beginZoom();
 		};
 
 		const onTouchMove = (event: TouchEvent) => {
@@ -265,6 +280,10 @@ export const TimelinePinchZoom: FC = () => {
 
 		const onTouchEnd = (event: TouchEvent) => {
 			if (event.touches.length < 2) {
+				if (touchPinchRef.current !== null) {
+					endZoom();
+				}
+
 				touchPinchRef.current = null;
 			}
 		};
@@ -275,6 +294,11 @@ export const TimelinePinchZoom: FC = () => {
 		el.addEventListener('touchcancel', onTouchEnd);
 
 		return () => {
+			if (touchPinchRef.current !== null) {
+				touchPinchRef.current = null;
+				endZoom();
+			}
+
 			el.removeEventListener('touchstart', onTouchStart);
 			el.removeEventListener('touchmove', onTouchMove);
 			el.removeEventListener('touchend', onTouchEnd);
@@ -286,6 +310,8 @@ export const TimelinePinchZoom: FC = () => {
 		videoConfig,
 		getCurrentTimelineZoom,
 		setZoom,
+		beginZoom,
+		endZoom,
 	]);
 
 	return null;

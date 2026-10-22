@@ -1,25 +1,29 @@
-import {ServerlessRoutines} from '@remotion/serverless';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
-import {mockImplementation} from '../mocks/mock-implementation';
 
 export const waitUntilDone = async (bucketName: string, renderId: string) => {
 	while (true) {
-		const progress = await mockImplementation.callFunctionSync({
-			type: ServerlessRoutines.status,
-			payload: {
+		const progress = await LambdaClientInternals.callFunctionSyncImplementation(
+			{
 				type: ServerlessRoutines.status,
-				bucketName,
-				renderId,
-				version: VERSION,
-				logLevel: 'error',
-				forcePathStyle: false,
-				s3OutputProvider: null,
+				payload: {
+					type: ServerlessRoutines.status,
+					bucketName,
+					renderId,
+					version: VERSION,
+					logLevel: 'error',
+					forcePathStyle: false,
+					s3OutputProvider: null,
+				},
+				functionName: 'remotion-dev-lambda',
+				region: 'eu-central-1',
+				timeoutInTest: 120000,
+				requestHandler: null,
 			},
-			functionName: 'remotion-dev-lambda',
-			region: 'eu-central-1',
-			timeoutInTest: 120000,
-			requestHandler: null,
-		});
+		);
 		if (progress.done) {
 			return progress;
 		}

@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/mcp"
 	},
 	"name": "@remotion/mcp",
-	"version": "4.0.536",
+	"version": "4.0.538",
 	"description": "Remotion's Model Context Protocol",
 	"main": "dist/esm/index.mjs",
 	"type": "module",
@@ -15,7 +15,7 @@
 	},
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
 		"dist"
@@ -23,7 +23,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>, Pramod Kumar <pramodkumar.damam73@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
-		"@modelcontextprotocol/sdk": "1.31.0",
+		"@modelcontextprotocol/sdk": "1.32.0",
 		"zod": "catalog:"
 	},
 	"peerDependencies": {},
@@ -31,7 +31,7 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"@types/command-line-args": "5.2.3",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"remotion",

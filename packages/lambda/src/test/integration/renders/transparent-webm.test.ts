@@ -4,9 +4,10 @@ import os from 'node:os';
 import path from 'node:path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
 import {ensureBrowser, RenderInternals} from '@remotion/renderer';
-import {rendersPrefix} from '@remotion/serverless';
-import {mockImplementation} from '../../mocks/mock-implementation';
+import {useFakeAws} from '../../mocks/fake-aws';
 import {simulateLambdaRender} from '../simulate-lambda-render';
+
+useFakeAws();
 
 beforeAll(async () => {
 	await ensureBrowser();
@@ -51,11 +52,11 @@ test(
 		expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
 		fs.unlinkSync(out);
 
-		const files = await mockImplementation.listObjects({
+		const files = await LambdaClientInternals.lambdaLsImplementation({
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});
@@ -66,15 +67,14 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			renderId,
-			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 		});
 
-		const expectFiles = await mockImplementation.listObjects({
+		const expectFiles = await LambdaClientInternals.lambdaLsImplementation({
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});

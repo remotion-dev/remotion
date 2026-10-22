@@ -562,6 +562,7 @@ registerRoot(Root);`,
 		await operations.subscribeToDefaultProps({
 			clientId: 'browser-studio',
 			compositionId: 'MyComp',
+			symbolicatedStack: null,
 		}),
 	).toEqual({
 		canUpdate: true,
@@ -1716,12 +1717,14 @@ export const Root = () => {
 	await operations.subscribeToDefaultProps({
 		clientId: 'browser-studio',
 		compositionId: 'MyComp',
+		symbolicatedStack: null,
 	});
 
 	const result = await operations.updateDefaultProps({
 		compositionId: 'MyComp',
 		defaultProps: JSON.stringify({title: 'Updated', count: 2}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 	expect(result).toEqual({success: true});
 	expect(getProject().files[fileName]).toContain(
@@ -1741,6 +1744,7 @@ export const Root = () => {
 		compositionId: 'Unknown',
 		defaultProps: JSON.stringify({}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 	expect(missingDefaultProps).toEqual({
 		success: false,
@@ -1785,6 +1789,7 @@ export const Root = () => (
 			count: 2,
 		}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 
 	expect(result).toEqual({success: true});
@@ -1805,6 +1810,7 @@ test('adds missing composition defaultProps and restores them through undo and r
 		compositionId: 'MyComp',
 		defaultProps: JSON.stringify({title: 'Hello'}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 	expect(result).toEqual({success: true});
 	const updatedFiles = getProject().files;

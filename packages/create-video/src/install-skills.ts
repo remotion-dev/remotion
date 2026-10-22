@@ -4,12 +4,12 @@ import execa from 'execa';
 import type {SkillsInstallation} from './ask-skills';
 import {Log} from './log';
 
-export const installSkills = async (
-	projectRoot: string,
-	selection: SkillsInstallation,
-) => {
-	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-	const args = [
+const quoteSkillArg = (arg: string) => {
+	return arg === '*' ? "'*'" : arg;
+};
+
+export const getSkillsAddArgs = (selection: SkillsInstallation): string[] => {
+	return [
 		'-y',
 		'--loglevel=error',
 		'skills@1.7.0',
@@ -17,10 +17,18 @@ export const installSkills = async (
 		'remotion-dev/skills',
 		'--agent',
 		'universal',
-		...(selection === 'recommended'
-			? ['--skill', 'remotion-best-practices', '--yes']
-			: []),
+		// `*` is the skills CLI's "every skill" selector. Naming only
+		// remotion-best-practices installed the router and skipped the rest.
+		...(selection === 'recommended' ? ['--skill', '*', '--yes'] : []),
 	];
+};
+
+export const installSkills = async (
+	projectRoot: string,
+	selection: SkillsInstallation,
+) => {
+	const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+	const args = getSkillsAddArgs(selection);
 
 	try {
 		await execa(command, args, {
@@ -30,7 +38,7 @@ export const installSkills = async (
 	} catch (e) {
 		Log.error('Error installing skills:', e);
 		Log.error('You can install them manually by running:');
-		Log.error(`  npx ${args.join(' ')}`);
+		Log.error(`  npx ${args.map(quoteSkillArg).join(' ')}`);
 		return;
 	}
 

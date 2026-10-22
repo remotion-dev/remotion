@@ -1,0 +1,143 @@
+---
+image: /generated/articles-docs-effects-lens-blur.png
+slug: /effects/lens-blur
+title: lensBlur()
+sidebar_label: lensBlur()
+crumb: '@remotion/effects'
+---
+
+# lensBlur()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Defocuses an image through a circular or polygonal aperture. Bright points spread into bokeh with the selected iris shape.
+
+Apply it to canvas-based components such as [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage), and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). It uses the component's source image without a separate blur map.
+
+## Preview
+
+<Demo type="lens-blur" />
+
+## Controls
+
+<EffectsDemo type="effects-lens-blur" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {lensBlur} from '@remotion/effects/lens-blur';
+import {HtmlInCanvas, Interactive, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <HtmlInCanvas
+      width={1280}
+      height={720}
+      effects={[
+        lensBlur({
+          radius: interpolate(frame, [0, 40], [40, 0], {
+            extrapolateRight: 'clamp',
+          }),
+          irisShape: 'hexagon',
+          samples: 512,
+        }),
+      ]}
+    >
+      <Interactive.Div
+        name="Focus text"
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontFamily: 'Arial, Helvetica, sans-serif',
+          fontSize: 180,
+          fontWeight: 900,
+        }}
+      >
+        FOCUS
+      </Interactive.Div>
+    </HtmlInCanvas>
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. All numeric values must be finite.
+
+### `radius?`
+
+Blur radius in pixels. Must be non-negative. Defaults to `10`.
+
+At `0`, the source is unchanged, including when highlight controls are enabled.
+
+### `irisShape?`
+
+Shape of the aperture. One of `'triangle'`, `'square'`, `'pentagon'`, `'hexagon'`, `'heptagon'`, `'octagon'`, `'nonagon'`, `'decagon'`, or `'circle'`. Defaults to `'hexagon'`.
+
+### `irisRoundness?`
+
+Rounds a polygonal iris toward a circle. Ranges from `0` (polygon) to `1` (circle). Defaults to `0`. Has no effect when `irisShape` is `'circle'`.
+
+### `irisRotation?`
+
+Clockwise rotation of the iris in degrees. Defaults to `0`.
+
+### `irisAspectRatio?`
+
+Horizontal stretch of the aperture. Values above `1` produce wider bokeh; values below `1` produce taller bokeh. Must be greater than `0`. Defaults to `1`.
+
+### `highlightGain?`
+
+Additional brightness applied to highlights before averaging them across the aperture. Ranges from `0` to `1`. Defaults to `0`.
+
+At `1`, qualifying highlights contribute five times their original brightness. Alpha is blurred without a brightness boost.
+
+### `highlightThreshold?`
+
+Minimum source luminance that receives `highlightGain`. Ranges from `0` to `1`. Defaults to `1`.
+
+### `highlightSaturation?`
+
+Color saturation of the added highlight brightness. Ranges from `0` (white) to `1` (source color). Defaults to `1`.
+
+### `repeatEdgePixels?`
+
+When `true`, samples outside the source repeat its edge pixels. When `false`, those samples are transparent. Defaults to `false`.
+
+The result stays within the source canvas. Leave padding around content if the blur should extend beyond its edges.
+
+### `samples?`
+
+Number of samples across the aperture. Must be an integer from `16` to `2048`. Defaults to `256`.
+
+Higher values reduce grain around small highlights and large blur radii, and take longer to render. The sample pattern is deterministic.
+
+### `linearLight?`
+
+When `true`, averages colors in linear light, then converts the result back to sRGB. This keeps transitions between bright and dark pixels brighter. Defaults to `false`.
+
+The highlight threshold is evaluated on the source's sRGB luminance in either mode.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`lensBlur()` uses WebGL2. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`blur()`](/docs/effects/blur)
+- [`zoomBlur()`](/docs/effects/zoom-blur)
+- [`@remotion/effects`](/docs/effects/api)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/lens-blur/index.ts)

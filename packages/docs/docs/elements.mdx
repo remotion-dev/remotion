@@ -1,0 +1,78 @@
+---
+image: /generated/articles-docs-elements.png
+title: Creating Elements
+description: Design reusable Remotion Elements for any Element library.
+---
+
+# Creating Elements
+
+An Element is a reusable video building block written as a React component, such as an animated title, background, chart, or caption style. Browse the [Elements catalog](/elements) to see examples.
+
+When you [add an Element in Studio](/docs/studio/browse-elements), Studio copies its source code into your project and installs its dependencies. You can edit the copied code to change how it looks and behaves, or use its Inspector controls if it exposes them.
+
+This guide covers how to design and build Elements for the official catalog or your own Element Library. To let users install Elements from your library's website, see [Building Element Libraries](/docs/elements/libraries).
+
+## Design
+
+### Use real videos as references
+
+If you use AI to build an Element, it often designs it like a website component, sized and styled for a page rather than a video. Use published videos as a reference instead: video usually needs larger, simpler graphics.
+
+### Keep it focused
+
+Users add Elements to their own projects and combine them into a larger video. This works best when each Element does one thing. An Element that bundles several things, such as a title with its own background, is harder to fit in.
+
+### Animate overlays in and out
+
+Give overlays, such as lower thirds, an entrance and an exit animation.
+
+Animate the parts inside the Element, not its position on screen. Studio sets the position, so the user can move the Element and the animation moves with it.
+
+## Build
+
+### Make it portable
+
+- Avoid global styles and layout side effects.
+- Don't make the Element fill the whole frame unless it's a background.
+- Set a text color on the Element itself. Otherwise it inherits the page's color, including through `currentColor`, which changes between light and dark themes.
+- Avoid project-specific branding or footage, and make colors easy to change.
+
+### Dependencies
+
+Minimize dependencies, and declare them as described in the [`dependencies` field](/docs/studio-protocol/create-element-payload#dependencies).
+
+### Assets
+
+Include assets that should be copied into the user's project, as described in the [asset handling guidance](/docs/elements/libraries#asset-handling). Use Google Fonts for non-websafe fonts.
+
+## Integrate with Studio
+
+### Choose an installation mode
+
+Where possible, expose the Element's layers so users can edit them with [Studio interactivity](/docs/studio/interactivity). Pick an installation mode based on what users should see in Studio.
+
+#### Separate editable layers
+
+`installationMode: 'wrapped'` is the default. Studio wraps the component in a [`<Sequence>`](/docs/sequence) that sets its placement and duration, and the layers inside stay editable through their `Interactive` call sites.
+
+Size the Element to its smallest useful bounding box. If it adapts to the composition, set both dimensions to `null`.
+
+#### One interactive object
+
+Use `installationMode: 'component-owned-sequence'` when editing the internal parts doesn't make sense, for example for generative effects, canvas drawings, or a single image overlay.
+
+Wrap the exported component in [`Interactive.create()`](/docs/interactive-create) and export it directly, without another wrapper. The component must accept a `style` prop and apply it to its visual root. Check in Studio that it shows up as one layer that users can move and trim.
+
+Don't use this mode just to hide markup, and don't add padding just for the gallery preview.
+
+### Expose useful controls
+
+Users get a copy of the Element's source and can edit it directly, so the `Interactive` schema doesn't need to expose every detail. Add controls with [`Interactive.create()`](/docs/interactive-create) where they make the Element easier to edit. Controls can tune the look, but shouldn't switch between unrelated styles.
+
+Give editable objects clear names. Use a generic name such as `Container` for the main object, and add child controls only for parts users edit separately. See the [interactivity best practices](/docs/studio/interactivity-best-practices).
+
+### Initial props
+
+If the Element needs starter props, provide [`initialProps`](/docs/studio-protocol/create-element-payload#initialprops) in its library metadata. For `component-owned-sequence`, this can provide defaults for Inspector controls. Otherwise, users can edit the installed source directly.
+
+To submit an Element to the official gallery, read the [contribution guide](/docs/contributing/elements).

@@ -157,18 +157,16 @@ export const getCanvasActiveOutlineTargets = <
 	);
 };
 
-/** Builds selection state shared by canvas instances of the same source. */
-export const getCanvasOutlineLayoutTargets = ({
+/** Reuse source metadata within one immutable outline and selection snapshot. */
+export const createCanvasOutlineLayoutTargetLookup = ({
 	selectableOutlines,
 	selectedSequenceKeys,
 	sequenceKeysContainingSelection,
-	targetKey,
 }: {
 	readonly selectableOutlines: readonly CanvasSelectableOutline[];
 	readonly selectedSequenceKeys: ReadonlySet<string>;
 	readonly sequenceKeysContainingSelection: ReadonlySet<string>;
-	readonly targetKey: string | null;
-}): CanvasOutlineLayoutTarget[] => {
+}) => {
 	const firstNodePathInfoBySourceNode = new Map<string, SequenceNodePathInfo>();
 	const selectedSourceNodeKeys = new Set<string>();
 	for (const {key, nodePathInfo} of selectableOutlines) {
@@ -185,28 +183,40 @@ export const getCanvasOutlineLayoutTargets = ({
 		}
 	}
 
-	return selectableOutlines.flatMap((selectableOutline) => {
-		const {key, nodePathInfo, sequence} = selectableOutline;
-		if (targetKey !== null && targetKey !== key) {
-			return [];
+	let outlinesByKey: Map<string, CanvasSelectableOutline[]> | null = null;
+	return (targetKey: string | null): CanvasOutlineLayoutTarget[] => {
+		let matchingOutlines = selectableOutlines;
+		if (targetKey !== null) {
+			// Bulk layout calculations do not need a per-key index.
+			if (outlinesByKey === null) {
+				outlinesByKey = new Map();
+				for (const outline of selectableOutlines) {
+					const matches = outlinesByKey.get(outline.key) ?? [];
+					matches.push(outline);
+					outlinesByKey.set(outline.key, matches);
+				}
+			}
+
+			matchingOutlines = outlinesByKey.get(targetKey) ?? [];
 		}
 
-		if (sequence.refForOutline === null) {
-			throw new Error('Expected sequence to have a ref for outline');
-		}
+		return matchingOutlines.map((selectableOutline) => {
+			const {key, nodePathInfo, sequence} = selectableOutline;
+			if (sequence.refForOutline === null) {
+				throw new Error('Expected sequence to have a ref for outline');
+			}
 
-		const nodePathKey = timelineSequenceNodePathToKey(
-			nodePathInfo.sequenceSubscriptionKey,
-		);
-		const selectionNodePathInfo =
-			firstNodePathInfoBySourceNode.get(nodePathKey);
-		if (selectionNodePathInfo === undefined) {
-			throw new Error('Expected a first sequence for the source node');
-		}
+			const nodePathKey = timelineSequenceNodePathToKey(
+				nodePathInfo.sequenceSubscriptionKey,
+			);
+			const selectionNodePathInfo =
+				firstNodePathInfoBySourceNode.get(nodePathKey);
+			if (selectionNodePathInfo === undefined) {
+				throw new Error('Expected a first sequence for the source node');
+			}
 
-		const containsSelection = sequenceKeysContainingSelection.has(key);
-		return [
-			{
+			const containsSelection = sequenceKeysContainingSelection.has(key);
+			return {
 				...selectableOutline,
 				nodePathKey,
 				ref: sequence.refForOutline,
@@ -218,9 +228,28 @@ export const getCanvasOutlineLayoutTargets = ({
 					type: 'sequence' as const,
 					nodePathInfo: selectionNodePathInfo,
 				},
-			},
-		];
-	});
+			};
+		});
+	};
+};
+
+/** Builds selection state shared by canvas instances of the same source. */
+export const getCanvasOutlineLayoutTargets = ({
+	selectableOutlines,
+	selectedSequenceKeys,
+	sequenceKeysContainingSelection,
+	targetKey,
+}: {
+	readonly selectableOutlines: readonly CanvasSelectableOutline[];
+	readonly selectedSequenceKeys: ReadonlySet<string>;
+	readonly sequenceKeysContainingSelection: ReadonlySet<string>;
+	readonly targetKey: string | null;
+}): CanvasOutlineLayoutTarget[] => {
+	return createCanvasOutlineLayoutTargetLookup({
+		selectableOutlines,
+		selectedSequenceKeys,
+		sequenceKeysContainingSelection,
+	})(targetKey);
 };
 
 /** Activation keeps frame subscriptions out of an idle outline overlay. */

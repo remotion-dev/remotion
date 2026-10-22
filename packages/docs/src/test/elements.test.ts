@@ -15,6 +15,7 @@ import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
@@ -27,10 +28,17 @@ import {
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 import {Seo} from '../components/Seo';
 
-// Docusaurus generates this alias at build time. These checks only inspect SSR markup.
+// Docusaurus generates these aliases at build time.
 mock.module('@docusaurus/Link', () => ({
 	default: ({to, ...props}: React.ComponentProps<'a'> & {to: string}) =>
 		React.createElement('a', {...props, href: to}),
+}));
+
+const collectedAnchors = new Set<string>();
+mock.module('@docusaurus/useBrokenLinks', () => ({
+	default: () => ({
+		collectAnchor: (anchor: string) => collectedAnchors.add(anchor),
+	}),
 }));
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
@@ -292,6 +300,7 @@ describe('Element Library', () => {
 		const {ElementLibrary} =
 			await import('../components/Elements/ElementLibrary');
 		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		collectedAnchors.clear();
 		const overviewMarkup = renderToStaticMarkup(
 			React.createElement(ElementLibrary, {
 				category: null,
@@ -307,6 +316,10 @@ describe('Element Library', () => {
 		}
 
 		for (const section of sections) {
+			const headingId = getElementCategoryHeadingId(section.category);
+			expect(overviewMarkup).toContain(`id="${headingId}"`);
+			expect(collectedAnchors.has(headingId)).toBe(true);
+
 			const categoryMarkup = renderToStaticMarkup(
 				React.createElement(ElementLibrary, {
 					category: section.category,

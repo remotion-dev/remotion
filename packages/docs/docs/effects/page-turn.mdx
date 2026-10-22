@@ -1,0 +1,100 @@
+---
+image: /generated/articles-docs-effects-page-turn.png
+slug: /effects/page-turn
+title: pageTurn()
+sidebar_label: pageTurn()
+crumb: '@remotion/effects'
+---
+
+# pageTurn()<AvailableFrom v="4.0.537" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Curls canvas content like a sheet of paper, with a shaded fold and a configurable back. Animate the fold position to peel the page away and reveal content underneath.
+
+<Demo type="page-turn-demo" />
+
+## Preview
+
+<EffectsDemo type="effects-page-turn" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {pageTurn} from '@remotion/effects/page-turn';
+import React from 'react';
+import {CanvasImage, interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <CanvasImage
+      src="https://remotion.media/transition-bg-blue.jpg"
+      width={1280}
+      height={720}
+      fit="cover"
+      effects={[
+        pageTurn({
+          foldPosition: interpolate(frame, [0, 90], [
+            [1.4, 0.5],
+            [-0.5, 0.5],
+          ], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
+          foldDirection: -75,
+          foldRadius: 85,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+### `foldPosition?`
+
+A point on the fold line, as `[x, y]` fractions of the canvas dimensions. Defaults to `[0.7, 0.7]`. Values outside `0`–`1` let the page start flat or disappear completely.
+
+### `foldDirection?`
+
+Angle of the fold line in degrees. Defaults to `315`. At `0`, the line is horizontal and the bottom edge curls upward. At `-90`, the line is vertical and the right edge curls leftward.
+
+### `foldRadius?`
+
+Radius of the curl in pixels. Must be greater than `0`. Defaults to `60`. Larger values produce a wider, softer bend.
+
+### `lightDirection?`
+
+Direction of the light in degrees, controlling shading on the front of the fold. Defaults to `-45`.
+
+### `render?`
+
+Which faces to show: `'both'`, `'front'`, or `'back'`. Defaults to `'both'`. When both faces are enabled, the curled back of the page is drawn over the front. Transparent areas of the back reveal the front underneath.
+
+### `backPageOpacity?`
+
+Visibility of the source image on the back, from `0` to `1`. Defaults to `0.25`. At `0`, the back uses `paperColor`. At `1`, the original image shows through fully. This does not change the page's alpha.
+
+### `paperColor?`
+
+CSS color used for the back of the page. Defaults to `'#ffffff'`. A transparent color reduces the paper tint.
+
+### `disabled?`
+
+When `true`, skips the effect. Defaults to `false`.
+
+## Requirements
+
+`pageTurn()` requires WebGPU. See [Using WebGL and WebGPU during renders](/docs/webgl) for rendering configuration. HTML content inside [`<HtmlInCanvas>`](/docs/html-in-canvas) also requires HTML-in-canvas support.
+
+The curl stays within the canvas bounds. Leave space around the page if you need the curled edge to extend beyond the original page rectangle. The back reuses the source image; a separate back image is not supported.
+
+## See also
+
+- [`cylinder()`](/docs/effects/cylinder)
+- [`cornerPin()`](/docs/effects/corner-pin)
+- [`@remotion/effects`](/docs/effects/api)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/page-turn/index.ts)
