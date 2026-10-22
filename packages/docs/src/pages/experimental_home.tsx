@@ -1,3 +1,4 @@
+import Head from '@docusaurus/Head';
 import {useColorMode} from '@docusaurus/theme-common';
 import '@remotion/promo-pages/dist/Homepage.css';
 import {NewLanding} from '@remotion/promo-pages/dist/Homepage.js';
@@ -19,7 +20,10 @@ const Inner: React.FC = () => {
 
 const ExperimentalHomepage: React.FC = () => {
 	return (
-		<Layout noIndex>
+		<Layout>
+			<Head>
+				<meta name="robots" content="noindex, nofollow" />
+			</Head>
 			<Inner />
 		</Layout>
 	);
