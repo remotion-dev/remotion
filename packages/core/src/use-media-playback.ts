@@ -68,6 +68,7 @@ export const useMediaPlayback = ({
 	onlyWarnForMediaSeekingError,
 	acceptableTimeshift,
 	pauseWhenBuffering,
+	retainAudioDuringBuffering,
 	isPremounting,
 	isPostmounting,
 	onAutoPlayError,
@@ -80,6 +81,7 @@ export const useMediaPlayback = ({
 	onlyWarnForMediaSeekingError: boolean;
 	acceptableTimeshift: number | null;
 	pauseWhenBuffering: boolean;
+	retainAudioDuringBuffering: boolean | null;
 	isPremounting: boolean;
 	isPostmounting: boolean;
 	onAutoPlayError: null | (() => void);
@@ -100,7 +102,8 @@ export const useMediaPlayback = ({
 		env.isPlayer &&
 		!env.isRendering &&
 		mediaType === 'audio' &&
-		pauseWhenBuffering;
+		pauseWhenBuffering &&
+		retainAudioDuringBuffering === true;
 	const {seek: timelineSeek} = useContext(SetTimelineContext);
 	const subscribeToSeek = useCallback(
 		(listener: () => void) =>
@@ -126,6 +129,7 @@ export const useMediaPlayback = ({
 		absoluteFrame: number;
 		playerBuffering: boolean;
 		holding: boolean;
+		resumeFrom: number | null;
 	} | null>(null);
 
 	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
@@ -305,13 +309,39 @@ export const useMediaPlayback = ({
 			!isMediaTagBufferingOrStalled &&
 			Math.abs(current.currentTime - desiredUnclampedTime) <=
 				acceptableTimeShiftButLessThanDuration;
-		const holding =
+		let holding =
 			canRetainAudio &&
 			!recoveryWasInterrupted &&
 			(previousRecovery.holding ||
-				(playerBuffering &&
-					!previousRecovery.playerBuffering &&
-					current.currentTime > desiredUnclampedTime));
+				// Retain small lags too: a new wait must not skip unheard audio.
+				(playerBuffering && !previousRecovery.playerBuffering));
+		// play() can clear paused before the native clock starts advancing.
+		// Retain recovery until that clock progresses, then restore normal sync.
+		let resumeFrom = playerBuffering
+			? null
+			: (previousRecovery?.resumeFrom ?? null);
+
+		if (
+			holding &&
+			!playerBuffering &&
+			resumeFrom !== null &&
+			!current.paused &&
+			current.currentTime > resumeFrom
+		) {
+			holding = false;
+		}
+
+		if (
+			holding &&
+			!playerBuffering &&
+			current.currentTime <= desiredUnclampedTime &&
+			current.paused &&
+			resumeFrom === null
+		) {
+			resumeFrom = current.currentTime;
+		}
+
+		if (!holding) resumeFrom = null;
 		bufferingRecovery.current = {
 			src,
 			seekRevision,
@@ -321,6 +351,7 @@ export const useMediaPlayback = ({
 			absoluteFrame,
 			playerBuffering,
 			holding,
+			resumeFrom,
 		};
 
 		// Another media element can freeze the timeline after audio has advanced.
@@ -333,6 +364,7 @@ export const useMediaPlayback = ({
 				action = {
 					type: 'play-and-seek',
 					shouldBeTime: desiredUnclampedTime,
+					// The executor seeks only when why is non-null.
 					why: null,
 					playReason: 'timeline caught up with retained audio after buffering',
 					bufferUntilFirstFrame: false,

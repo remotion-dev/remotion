@@ -14,7 +14,10 @@ afterEach(() => {
 	Object.defineProperties(HTMLMediaElement.prototype, originalDescriptors);
 });
 
-const setup = (pauseWhenBuffering = true) => {
+const setup = (
+	pauseWhenBuffering = true,
+	retainAudioDuringBuffering: boolean | null = true,
+) => {
 	const player = createRef<PlayerRef>();
 	const audio = createRef<HTMLAudioElement>();
 	const times = new WeakMap<HTMLMediaElement, number>();
@@ -59,11 +62,14 @@ const setup = (pauseWhenBuffering = true) => {
 	let timeline!: React.ContextType<typeof Internals.SetTimelineContext>;
 	let setSource!: (source: string) => void;
 	let setLocalRate!: (rate: number) => void;
+	let setRetention!: (enabled: boolean) => void;
 	const Composition = () => {
 		buffer = useBufferState();
 		timeline = useContext(Internals.SetTimelineContext);
 		const [source, changeSource] = useState('voice.mp3');
 		const [rate, changeRate] = useState(1);
+		const [retention, changeRetention] = useState(retainAudioDuringBuffering);
+		setRetention = changeRetention;
 		setSource = changeSource;
 		setLocalRate = changeRate;
 		return (
@@ -72,6 +78,7 @@ const setup = (pauseWhenBuffering = true) => {
 				src={source}
 				playbackRate={rate}
 				pauseWhenBuffering={pauseWhenBuffering}
+				{...(retention === null ? {} : {retainAudioDuringBuffering: retention})}
 				showInTimeline={false}
 			/>
 		);
@@ -109,10 +116,13 @@ const setup = (pauseWhenBuffering = true) => {
 	});
 	return {
 		player,
+		isBuffering: () => timeline.isBuffering(),
 		audio,
 		writes,
+		nativePause: () => paused.set(audio.current!, true),
 		advanceAudio,
 		changeSource: (source: string) => act(() => setSource(source)),
+		changeRetention: (enabled: boolean) => act(() => setRetention(enabled)),
 		changeLocalRate: (rate: number) => act(() => setLocalRate(rate)),
 		setReadyState: (state: number) => {
 			readyState = state;
@@ -234,3 +244,83 @@ test('preserves behavior when pauseWhenBuffering is disabled', () => {
 	const s = setup(false);
 	expect(s.audio.current!.currentTime).toBe(10);
 });
+
+test('keeps recovery through a second wait before the resumed native clock advances', () => {
+	const s = setup();
+	s.resume();
+	s.advanceTimeline(310);
+	expect(s.audio.current!.paused).toBe(false);
+	// play() has cleared paused, but output/currentTime has not advanced yet.
+	s.advanceTimeline(316);
+	s.waitAgain();
+	expect(s.writes).toEqual([]);
+});
+
+test('returns to ordinary synchronization after native audio has resumed progressing', () => {
+	const s = setup();
+	s.resume();
+	s.advanceTimeline(310);
+	s.advanceAudio(10.4);
+	s.advanceTimeline(312);
+	// A later native pause is no longer part of the original buffering recovery.
+	s.nativePause();
+	s.advanceTimeline(319);
+	expect(s.audio.current!.currentTime).toBeCloseTo(319 / 30, 6);
+});
+
+test('retains a small audio lag at a later wait after recovery has ended', () => {
+	const s = setup();
+	s.resume();
+	s.advanceTimeline(310);
+	s.advanceAudio(10.4);
+	s.advanceTimeline(312);
+	s.advanceTimeline(318);
+	s.waitAgain();
+	expect(s.writes).toEqual([]);
+});
+
+test.each([true, false])(
+	'keeps own-audio buffering controlled by pauseWhenBuffering=%s',
+	(enabled) => {
+		const s = setup(enabled);
+		s.resume();
+		s.setReadyState(2);
+		act(() => s.audio.current!.dispatchEvent(new Event('waiting')));
+		expect(s.isBuffering()).toBe(enabled);
+		s.setReadyState(4);
+		act(() => s.audio.current!.dispatchEvent(new Event('canplay')));
+		expect(s.isBuffering()).toBe(false);
+	},
+);
+
+test.each([null, false])(
+	'preserves legacy synchronization when retainAudioDuringBuffering=%s',
+	(enabled) => {
+		const s = setup(true, enabled);
+		expect(s.audio.current!.currentTime).toBe(10);
+		expect(s.writes).toEqual([10]);
+		expect(s.audio.current!.hasAttribute('retainaudioduringbuffering')).toBe(
+			false,
+		);
+	},
+);
+
+test('disabling retention during recovery restores ordinary synchronization', () => {
+	const s = setup();
+	s.changeRetention(false);
+	expect(s.audio.current!.currentTime).toBe(10);
+});
+
+test.each([null, false])(
+	'keeps own-audio buffering active with retention=%s',
+	(enabled) => {
+		const s = setup(true, enabled);
+		s.resume();
+		s.setReadyState(2);
+		act(() => s.audio.current!.dispatchEvent(new Event('waiting')));
+		expect(s.isBuffering()).toBe(true);
+		s.setReadyState(4);
+		act(() => s.audio.current!.dispatchEvent(new Event('canplay')));
+		expect(s.isBuffering()).toBe(false);
+	},
+);
