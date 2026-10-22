@@ -720,7 +720,7 @@ const findNodePath = (
 		visitNode(p) {
 			if (p.node === target) {
 				found = p as unknown as recast.types.NodePath;
-				return false;
+				return this.abort();
 			}
 
 			return this.traverse(p);
@@ -863,16 +863,19 @@ type ResolvedCurrentFrameExpression = {
 
 const resolveCurrentFrameExpression = ({
 	node,
+	nodePath,
 	ast,
 	seenDeclarations,
 }: {
 	node: Expression;
+	nodePath: recast.types.NodePath | null;
 	ast: File;
 	seenDeclarations: Set<object>;
 }): ResolvedCurrentFrameExpression | null => {
 	if (node.type === 'TSAsExpression') {
 		return resolveCurrentFrameExpression({
 			node: node.expression as Expression,
+			nodePath: nodePath?.get('expression') ?? null,
 			ast,
 			seenDeclarations,
 		});
@@ -886,6 +889,7 @@ const resolveCurrentFrameExpression = ({
 		if (rightValue !== null && Number.isFinite(rightValue)) {
 			const resolvedLeft = resolveCurrentFrameExpression({
 				node: node.left as Expression,
+				nodePath: nodePath?.get('left') ?? null,
 				ast,
 				seenDeclarations,
 			});
@@ -904,6 +908,7 @@ const resolveCurrentFrameExpression = ({
 			if (leftValue !== null && Number.isFinite(leftValue)) {
 				const resolvedRight = resolveCurrentFrameExpression({
 					node: node.right as Expression,
+					nodePath: nodePath?.get('right') ?? null,
 					ast,
 					seenDeclarations,
 				});
@@ -923,7 +928,6 @@ const resolveCurrentFrameExpression = ({
 		return null;
 	}
 
-	const nodePath = findNodePath(ast, node);
 	const bindingScope = nodePath?.scope?.lookup(node.name);
 	if (!nodePath || !bindingScope) {
 		return null;
@@ -932,6 +936,7 @@ const resolveCurrentFrameExpression = ({
 	let matchingDeclarations = 0;
 	let matchingDeclaration: object | null = null;
 	let initializer: Expression | null = null;
+	let initializerPath: recast.types.NodePath | null = null;
 	let isConstDeclaration = false;
 	recast.types.visit(bindingScope.path, {
 		visitVariableDeclarator(p) {
@@ -949,6 +954,7 @@ const resolveCurrentFrameExpression = ({
 			if (init) {
 				matchingDeclaration = p.node;
 				initializer = init as Expression;
+				initializerPath = p.get('init');
 				isConstDeclaration =
 					declaration.type === 'VariableDeclaration' &&
 					declaration.kind === 'const';
@@ -979,6 +985,7 @@ const resolveCurrentFrameExpression = ({
 	nextSeenDeclarations.add(matchingDeclaration);
 	return resolveCurrentFrameExpression({
 		node: initializer,
+		nodePath: initializerPath,
 		ast,
 		seenDeclarations: nextSeenDeclarations,
 	});
@@ -1008,6 +1015,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	const nodePath = findNodePath(ast, node);
 	const resolved = resolveCurrentFrameExpression({
 		node,
+		nodePath,
 		ast,
 		seenDeclarations: new Set(),
 	});

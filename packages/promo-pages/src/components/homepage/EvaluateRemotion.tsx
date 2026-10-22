@@ -1,11 +1,19 @@
 import React from 'react';
+import {useColorMode} from './layout/use-color-mode';
 import {MakeVideosLinks} from './MakeVideosLinks';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
 const EvaluateRemotionSection: React.FC = () => {
+	const {colorMode} = useColorMode();
 	const licenseVideoSrc = useTransparentVideoSource({
-		fallbackVideoSrc: '/img/license-questions.mp4',
-		videoSrc: '/img/license-questions.webm',
+		fallbackVideoSrc:
+			colorMode === 'dark'
+				? '/img/license-questions-dark.mp4'
+				: '/img/license-questions.mp4',
+		videoSrc:
+			colorMode === 'dark'
+				? '/img/license-questions-dark.webm'
+				: '/img/license-questions.webm',
 	});
 	const expertsVideoSrc = useTransparentVideoSource({
 		fallbackVideoSrc: '/img/experts-graphic.mp4',
