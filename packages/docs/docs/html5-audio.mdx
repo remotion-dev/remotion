@@ -229,6 +229,8 @@ In the [Remotion Studio](/docs/terminology/studio) or in the [Remotion Player](/
 
 If set to `true` and the audio is buffering, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false` in Remotion 4.0 and `true` in Remotion 5.0.
 
+With this option enabled, audio that has advanced slightly ahead of the Player when another media element buffers retains its position. After buffering ends, the audio remains paused until the timeline catches up, avoiding replaying audio that has already been heard. This can add a brief pause after the Player resumes. Explicit seeks and larger timing differences still use the normal synchronization behavior.
+
 ### `showInTimeline?`<AvailableFrom v="4.0.122"/>
 
 If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
