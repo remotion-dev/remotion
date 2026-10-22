@@ -10,8 +10,23 @@ const getComparableWebcamPosition = (
   sceneAndMetaData: VideoSceneAndMetadata,
   canvasLayout: CanvasLayout,
 ): WebcamPositionForComparison => {
-  if (canvasLayout !== "square") {
+  if (canvasLayout !== "square" && canvasLayout !== "portrait") {
     return sceneAndMetaData.webcamPosition;
+  }
+
+  if (canvasLayout === "portrait") {
+    if (!sceneAndMetaData.videos.display) {
+      return "center";
+    }
+
+    if (
+      sceneAndMetaData.webcamPosition === "bottom-left" ||
+      sceneAndMetaData.webcamPosition === "bottom-right"
+    ) {
+      return "bottom";
+    }
+
+    return "top";
   }
 
   if (sceneAndMetaData.videos.display) {
