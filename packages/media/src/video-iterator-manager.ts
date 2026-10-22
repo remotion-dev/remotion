@@ -303,6 +303,9 @@ export const videoIteratorManager = async ({
 			currentSeek !== null &&
 			roundTo4Digits(currentSeek) === roundTo4Digits(newTime)
 		) {
+			// A loop can map a new composition frame to the same media time
+			// while its effect parameters have changed.
+			await redrawCurrentFrame();
 			return;
 		}
 
