@@ -6,9 +6,13 @@ import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 const lineStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
-	textOverflow: 'ellipsis',
+	paddingRight: 10,
+	maskImage: 'linear-gradient(to right, black calc(100% - 10px), transparent)',
+	WebkitMaskImage:
+		'linear-gradient(to right, black calc(100% - 10px), transparent)',
 	minWidth: 0,
 	fontSize: 12,
+	lineHeight: '14px',
 	color: WHITE_ALPHA_30,
 	display: 'inline-block',
 };
@@ -24,7 +28,6 @@ const useAssetLink = (src: string) => {
 			display: 'inline-block',
 			overflow: 'hidden',
 			whiteSpace: 'pre',
-			textOverflow: 'ellipsis',
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		}),

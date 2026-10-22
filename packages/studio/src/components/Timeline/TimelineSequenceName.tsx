@@ -13,6 +13,20 @@ const LABEL_FONT_FAMILY = 'Arial, Helvetica, sans-serif';
 // 4px gap + 12px chevron + 4px chevron margin.
 const CHEVRON_SLOT_WIDTH = 20;
 
+const nameTextStyle: React.CSSProperties = {
+	fontFamily: LABEL_FONT_FAMILY,
+	fontSize: 12,
+	lineHeight: 'normal',
+	color: 'inherit',
+	minWidth: 0,
+	paddingRight: 10,
+	maskImage: 'linear-gradient(to right, black calc(100% - 10px), transparent)',
+	WebkitMaskImage:
+		'linear-gradient(to right, black calc(100% - 10px), transparent)',
+	overflow: 'hidden',
+	whiteSpace: 'nowrap',
+};
+
 const getTruncatedDisplayName = (displayName: string): string => {
 	if (displayName.length > MAX_DISPLAY_NAME_LENGTH) {
 		return displayName.slice(0, MAX_DISPLAY_NAME_LENGTH) + '...';
@@ -57,7 +71,6 @@ export const TimelineSequenceName: React.FC<{
 			overflow: chevronSlot === 'none' ? 'hidden' : 'visible',
 			position: chevronSlot === 'none' ? undefined : 'relative',
 			whiteSpace: 'nowrap',
-			textOverflow: 'ellipsis',
 			color: getTimelineColor(selected, false),
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
@@ -184,16 +197,18 @@ export const TimelineSequenceName: React.FC<{
 						height: '100%',
 						left: 0,
 						lineHeight: 'normal',
-						maxWidth: `calc(100% + ${CHEVRON_SLOT_WIDTH}px)`,
+						maxWidth:
+							chevronSlot === 'occupied'
+								? 'calc(100% + 4px)'
+								: `calc(100% + ${CHEVRON_SLOT_WIDTH}px)`,
 						overflow: 'hidden',
 						position: 'absolute',
-						textOverflow: 'ellipsis',
 						top: 0,
 						whiteSpace: 'nowrap',
 						width: 'max-content',
 					}}
 				>
-					{text}
+					<span style={nameTextStyle}>{text}</span>
 				</div>
 			</div>
 		);
@@ -201,7 +216,7 @@ export const TimelineSequenceName: React.FC<{
 
 	return (
 		<div role="group" aria-label={text} style={style}>
-			{text}
+			<span style={nameTextStyle}>{text}</span>
 		</div>
 	);
 };

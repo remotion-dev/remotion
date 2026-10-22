@@ -287,6 +287,7 @@ export const TIMELINE_LAYER_HEIGHT_VIDEO =
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT + TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT;
 
 export const TIMELINE_LAYER_HEIGHT_AUDIO = 34;
+export const TIMELINE_LAYER_HEIGHT_IMAGE = 34;
 export const TIMELINE_LAYER_HEIGHT_DEFAULT = 21;
 // The horizontal row inside a timeline list item (eye + arrow + label).
 export const TIMELINE_LIST_ITEM_ROW_HEIGHT = 21;
@@ -300,6 +301,10 @@ export const getTimelineLayerHeight = (
 
 	if (type === 'audio') {
 		return TIMELINE_LAYER_HEIGHT_AUDIO;
+	}
+
+	if (type === 'image') {
+		return TIMELINE_LAYER_HEIGHT_IMAGE;
 	}
 
 	return TIMELINE_LAYER_HEIGHT_DEFAULT;
