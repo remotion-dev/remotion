@@ -115,7 +115,7 @@ export const RenderModalOutputName = ({
 												variant={null}
 												onClick={openExistingOutput}
 												renderAction={renderOpenIcon}
-												title={`Open in ${fileManagerName}`}
+												aria-label={`Open in ${fileManagerName}`}
 											/>
 										)}
 										Exists, will be overwritten

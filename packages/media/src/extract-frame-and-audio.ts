@@ -44,8 +44,27 @@ export const extractFrameAndAudio = async ({
 	requestInit?: MediaRequestInit;
 	mediaCache: MediaCache;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
+	let extractedFrame: VideoFrame | null = null;
 	try {
-		const [video, audio] = await Promise.all([
+		if (includeVideo || includeAudio) {
+			const sink = await mediaCache.sinkManager.getSink(
+				src,
+				logLevel,
+				credentials,
+				requestInit,
+			);
+			// Handle format detection before extraction, including duration reads for loops.
+			if (sink.formatDetectionError) {
+				return {
+					type: isNetworkError(sink.formatDetectionError)
+						? 'network-error'
+						: 'unknown-container-format',
+					error: sink.formatDetectionError,
+				};
+			}
+		}
+
+		const [videoResult, audioResult] = await Promise.allSettled([
 			includeVideo
 				? extractFrame({
 						src,
@@ -83,9 +102,24 @@ export const extractFrameAndAudio = async ({
 				: null,
 		]);
 
+		// Wait for both branches before releasing a frame: audio can reject
+		// while video extraction is still producing its owned VideoFrame.
+		if (videoResult.status === 'rejected') {
+			throw videoResult.reason;
+		}
+
+		const video = videoResult.value;
+		extractedFrame = video?.type === 'success' ? video.frame : null;
+		if (audioResult.status === 'rejected') {
+			throw audioResult.reason;
+		}
+
+		const audio = audioResult.value;
+
 		if (video?.type === 'cannot-decode') {
 			return {
 				type: 'cannot-decode',
+				error: video.error,
 				durationInSeconds: video.durationInSeconds,
 			};
 		}
@@ -98,7 +132,7 @@ export const extractFrameAndAudio = async ({
 		}
 
 		if (video?.type === 'unknown-container-format') {
-			return {type: 'unknown-container-format'};
+			return {type: 'unknown-container-format', error: null};
 		}
 
 		if (video?.type === 'cannot-decode-alpha') {
@@ -109,20 +143,23 @@ export const extractFrameAndAudio = async ({
 		}
 
 		if (video?.type === 'network-error') {
-			return {type: 'network-error'};
+			return {type: 'network-error', error: null};
 		}
 
 		if (audio === 'unknown-container-format') {
-			return {type: 'unknown-container-format'};
+			return {type: 'unknown-container-format', error: null};
 		}
 
 		if (audio === 'network-error') {
-			return {type: 'network-error'};
+			return {type: 'network-error', error: null};
 		}
 
 		if (audio === 'cannot-decode') {
 			return {
 				type: 'cannot-decode',
+				error: new Error(
+					`The ${audioStreamIndex === null ? 'automatically selected audio track' : `audio track at index ${audioStreamIndex}`} in ${src} could not be decoded by the browser.`,
+				),
 				durationInSeconds:
 					video?.type === 'success' ? video.durationInSeconds : null,
 			};
@@ -142,9 +179,11 @@ export const extractFrameAndAudio = async ({
 	} catch (err) {
 		const error = err as Error;
 		if (isNetworkError(error)) {
-			return {type: 'network-error'};
+			return {type: 'network-error', error};
 		}
 
 		throw err;
+	} finally {
+		extractedFrame?.close();
 	}
 };

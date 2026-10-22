@@ -19,21 +19,32 @@ loadFont('normal', {
 });
 
 export const MacBookScreen: React.FC<{
+	readonly borderRadius: number | null;
 	readonly children: React.ReactNode;
 	readonly height: number;
 	readonly left: number;
 	readonly showCameraNotch: boolean;
+	readonly showShadow: boolean;
 	readonly top: number;
 	readonly width: number;
-}> = ({children, height, left, showCameraNotch, top, width}) => {
+}> = ({
+	borderRadius,
+	children,
+	height,
+	left,
+	showCameraNotch,
+	showShadow,
+	top,
+	width,
+}) => {
 	return (
 		<Interactive.Div
 			name="Desktop / screen"
 			style={{
 				backgroundColor: '#101114',
 				border: '1px solid #35373d',
-				borderRadius: 36,
-				boxShadow: '0 42px 90px rgba(15, 22, 35, 0.24)',
+				borderRadius: borderRadius ?? 36,
+				boxShadow: showShadow ? '0 42px 90px rgba(15, 22, 35, 0.24)' : 'none',
 				height,
 				left,
 				overflow: 'hidden',
@@ -101,9 +112,11 @@ export const MacBookAppScene = () => {
 export const MacBookDesktopScene = () => {
 	return (
 		<MacBookScreen
+			borderRadius={null}
 			height={863}
 			left={282}
 			showCameraNotch
+			showShadow
 			top={70}
 			width={1356}
 		>
@@ -557,17 +570,15 @@ export const MacBookLoopScene = () => {
 			<AbsoluteFill>
 				<MacBookScene />
 			</AbsoluteFill>
-			<Sequence
+			<AbsoluteFill
 				durationInFrames={25}
 				freeze={0}
 				from={775}
-				layout="none"
 				name="Beginning crossfade"
+				style={{opacity: incomingOpacity}}
 			>
-				<AbsoluteFill style={{opacity: incomingOpacity}}>
-					<MacBookScene />
-				</AbsoluteFill>
-			</Sequence>
+				<MacBookScene />
+			</AbsoluteFill>
 		</>
 	);
 };

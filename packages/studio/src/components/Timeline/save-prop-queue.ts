@@ -3,6 +3,7 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {getSourceMutationRevision} from '../../helpers/source-mutation-queue';
 import {showNotification} from '../Notifications/NotificationCenter';
 
 type SetPropStatuses = (
@@ -73,20 +74,18 @@ export const enqueueSavePropChange = <TResponse>({
 	});
 
 	const myQueue = q;
-	const next = myQueue.chain.then(async () => {
-		if (myQueue.cancelled) {
-			return;
-		}
-
+	const request = new Promise<TResponse>((resolve) => resolve(apiCall()));
+	const revision = getSourceMutationRevision();
+	const next = Promise.resolve().then(async () => {
 		try {
-			const response = await apiCall();
+			const response = await request;
 			if (myQueue.cancelled) {
 				return;
 			}
 
 			// If nothing more is queued, reset baseline so the next round starts fresh.
 			if (myQueue.chain === next) {
-				if (applyServerResponse) {
+				if (applyServerResponse && revision === getSourceMutationRevision()) {
 					setPropStatuses(nodePath, (prev) =>
 						applyServerResponse(prev, response),
 					);

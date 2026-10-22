@@ -1,32 +1,32 @@
 import type React from 'react';
-import {useContext, useEffect} from 'react';
+import {memo, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {useConfirmationDialog} from '../ConfirmationDialog';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {duplicateSelectedTimelineItems} from './duplicate-selected-timeline-item';
 import {getCurrentFrame} from './imperative-state';
-import {
-	shouldHandleTimelineSplitShortcut,
-	splitSelectedTimelineItems,
-} from './split-selected-timeline-item';
+import {splitSelectedTimelineItems} from './split-selected-timeline-item';
 import {
 	useCurrentTimelineSelectionStateAsRef,
-	useTimelineSelection,
+	useTimelineSelectionCanSelect,
 } from './TimelineSelection';
 import {useDeleteTimelineItems} from './use-delete-timeline-items';
 
-export const TimelineDeleteKeybindings: React.FC = () => {
+const TimelineDeleteKeybindingsUnmemoized: React.FC = () => {
 	const keybindings = useKeybinding();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {canSelect} = useTimelineSelection();
+	const canSelect = useTimelineSelectionCanSelect();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
 	const deleteTimelineItems = useDeleteTimelineItems();
@@ -69,12 +69,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		});
 		const split = keybindings.registerKeybinding({
 			event: 'keydown',
-			key: 'd',
-			callback: (event) => {
-				if (!shouldHandleTimelineSplitShortcut(event)) {
-					return;
-				}
-
+			action: 'splitSequences',
+			callback: () => {
 				const {selectedItems} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
@@ -82,8 +78,10 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				const splitPromise = splitSelectedTimelineItems({
 					selections: selectedItems,
-					sequences: sequencesRef.current,
-					overrideIdsToNodePaths: overrideIdToNodePathMappings,
+					tracks: calculateTimeline({
+						sequences: sequencesRef.current,
+						overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
+					}).tracks,
 					propStatuses: propStatusesRef.current,
 					splitFrame: getCurrentFrame(),
 				});
@@ -94,7 +92,6 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 				splitPromise.catch(() => undefined);
 			},
-			commandCtrlKey: true,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
@@ -111,7 +108,8 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 		currentSelection,
 		deleteTimelineItems,
 		keybindings,
-		overrideIdToNodePathMappings,
+		calculateTimeline,
+		overrideIdToNodePathMappingsRef,
 		propStatusesRef,
 		previewServerState,
 		sequencesRef,
@@ -119,3 +117,7 @@ export const TimelineDeleteKeybindings: React.FC = () => {
 
 	return null;
 };
+
+export const TimelineDeleteKeybindings = memo(
+	TimelineDeleteKeybindingsUnmemoized,
+);

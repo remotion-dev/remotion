@@ -48,7 +48,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from 'react';
 import {Composition} from 'remotion';
@@ -142,7 +142,7 @@ export const getMediaMetadata = async (src: string) => {
   };
 };
 
-// @filename: index.tsx
+// @filename: Root.tsx
 // ---cut---
 import {useEffect, useState} from 'react';
 import {Composition, continueRender, delayRender} from 'remotion';
@@ -151,7 +151,7 @@ const VideoTesting: React.FC = () => null;
 // ---cut---
 import {getMediaMetadata} from './get-media-metadata';
 
-export const Index: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   const [handle] = useState(() => delayRender());
   const [metadata, setMetadata] = useState({
     durationInFrames: 1,

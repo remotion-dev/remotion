@@ -62,7 +62,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 ```tsx
 import {useEffect, useRef, useState} from 'react';
-import {AbsoluteFill, useDelayRender, useVideoConfig} from 'remotion';
+import {useDelayRender, useVideoConfig} from 'remotion';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -110,9 +110,9 @@ export const MyComposition = () => {
 	}, [continueRender, loadingHandle]);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<div ref={containerRef} style={{width, height, position: 'absolute'}} />
-		</AbsoluteFill>
+		</>
 	);
 };
 ```

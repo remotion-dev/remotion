@@ -13,8 +13,9 @@ import {TimelineEmptyState} from './Timeline/TimelineEmptyState';
 import {TimelineKeyframeDragStateProvider} from './Timeline/TimelineKeyframeDragState';
 import {
 	TimelineSelectionProvider,
-	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 } from './Timeline/TimelineSelection';
+import {TimelineTickFormatProvider} from './Timeline/TimelineTickFormatProvider';
 import {WebMcp} from './WebMcp';
 
 const noop = () => undefined;
@@ -29,7 +30,7 @@ const container: React.CSSProperties = {
 const StudioClearSelectionArea: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {clearSelection} = useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -37,9 +38,9 @@ const StudioClearSelectionArea: React.FC<{
 				return;
 			}
 
-			clearSelection();
+			currentSelection.current.clearSelection();
 		},
-		[clearSelection],
+		[currentSelection],
 	);
 
 	return (
@@ -90,18 +91,20 @@ export const EditorContent: React.FC<{
 	);
 
 	return (
-		<TimelineSelectionProvider>
-			<WebMcp />
-			<Transform3DModeStateProvider>
-				<StudioClearSelectionArea>
-					<InitialCompositionLoader />
-					<MenuToolbar readOnlyStudio={readOnlyStudio} />
-					<GlobalKeybindings />
-					<TimelineKeyframeDragStateProvider>
-						{content}
-					</TimelineKeyframeDragStateProvider>
-				</StudioClearSelectionArea>
-			</Transform3DModeStateProvider>
-		</TimelineSelectionProvider>
+		<TimelineTickFormatProvider>
+			<TimelineSelectionProvider>
+				<WebMcp />
+				<Transform3DModeStateProvider>
+					<StudioClearSelectionArea>
+						<InitialCompositionLoader />
+						<MenuToolbar readOnlyStudio={readOnlyStudio} />
+						<GlobalKeybindings />
+						<TimelineKeyframeDragStateProvider>
+							{content}
+						</TimelineKeyframeDragStateProvider>
+					</StudioClearSelectionArea>
+				</Transform3DModeStateProvider>
+			</TimelineSelectionProvider>
+		</TimelineTickFormatProvider>
 	);
 };

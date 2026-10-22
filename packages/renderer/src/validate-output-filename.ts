@@ -1,3 +1,4 @@
+import {NoReactInternals} from 'remotion/no-react';
 import type {Codec} from './codec';
 import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
@@ -13,7 +14,7 @@ export const validateOutputFilename = <T extends Codec>({
 }: {
 	codec: T;
 	audioCodecSetting: AudioCodec | null;
-	extension: string;
+	extension: string | null;
 	preferLossless: boolean;
 	separateAudioTo: string | null;
 }) => {
@@ -22,6 +23,20 @@ export const validateOutputFilename = <T extends Codec>({
 			`The codec "${codec}" is not supported. Supported codecs are: ${Object.keys(
 				defaultFileExtensionMap,
 			).join(', ')}`,
+		);
+	}
+
+	// File extensions are case-insensitive: `out.MP4` is a valid MP4 output.
+	const normalizedExtension =
+		extension === null ? null : extension.toLowerCase();
+
+	if (
+		NoReactInternals.ENABLE_V5_BREAKING_CHANGES &&
+		codec === 'aac' &&
+		(normalizedExtension === 'mpg' || normalizedExtension === 'mpeg')
+	) {
+		throw new Error(
+			'AAC output with .mpg or .mpeg extensions is not supported. Use .aac for raw ADTS AAC or .m4a for an MPEG-4 audio container.',
 		);
 	}
 
@@ -34,7 +49,7 @@ export const validateOutputFilename = <T extends Codec>({
 	});
 
 	if (resolvedAudioCodec === null) {
-		if (extension !== map.default) {
+		if (normalizedExtension !== map.default) {
 			throw new TypeError(
 				`When using the ${codec} codec, the output filename must end in .${map.default}.`,
 			);
@@ -55,7 +70,7 @@ export const validateOutputFilename = <T extends Codec>({
 		].possible;
 
 	if (
-		!acceptableExtensions.includes(extension as FileExtension) &&
+		!acceptableExtensions.includes(normalizedExtension as FileExtension) &&
 		!separateAudioTo
 	) {
 		throw new TypeError(

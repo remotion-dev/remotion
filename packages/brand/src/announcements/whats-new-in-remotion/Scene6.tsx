@@ -1,26 +1,15 @@
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Sequence, interpolate, useVideoConfig} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Interactive,
+	Sequence,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 import {assetUrl} from './assets';
-import {SILENCES} from './Composition';
 import {NumberedChapter} from './NumberedChapter';
-import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
-import {UpperReference} from './UpperReference';
 import {WebRendererDemo} from './WebRendererDemo';
-
-const FILE = 'whats6.mov';
-
-const CSS_PROPERTIES = [
-	'border-style',
-	'border-width',
-	'border-color',
-	'box-shadow',
-	'text-shadow',
-	'font-style',
-	'object-fit',
-	'filter',
-	'paint-order',
-	'-webkit-text-stroke',
-];
 
 const CssPropertyList: React.FC = () => {
 	return (
@@ -32,7 +21,8 @@ const CssPropertyList: React.FC = () => {
 				padding: '0 40px',
 			}}
 		>
-			<div
+			<Interactive.Div
+				name="New CSS properties heading"
 				style={{
 					display: 'flex',
 					alignItems: 'center',
@@ -47,74 +37,346 @@ const CssPropertyList: React.FC = () => {
 				}}
 			>
 				New CSS Properties
-			</div>
-			{CSS_PROPERTIES.map((prop, i) => (
-				<div
-					key={prop}
-					style={{
-						flex: 1,
-						display: 'flex',
-						alignItems: 'center',
-						fontFamily: 'GT Planar',
-						fontSize: 28,
-						fontWeight: 500,
-						color: '#333',
-						borderBottom:
-							i < CSS_PROPERTIES.length - 1 ? '1px solid #e0e0e0' : 'none',
-						paddingLeft: 24,
-					}}
-				>
-					{prop}
-				</div>
-			))}
+			</Interactive.Div>
+			<Interactive.Div
+				name="border-style"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				border-style
+			</Interactive.Div>
+			<Interactive.Div
+				name="border-width"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				border-width
+			</Interactive.Div>
+			<Interactive.Div
+				name="border-color"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				border-color
+			</Interactive.Div>
+			<Interactive.Div
+				name="box-shadow"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				box-shadow
+			</Interactive.Div>
+			<Interactive.Div
+				name="text-shadow"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				text-shadow
+			</Interactive.Div>
+			<Interactive.Div
+				name="font-style"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				font-style
+			</Interactive.Div>
+			<Interactive.Div
+				name="object-fit"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				object-fit
+			</Interactive.Div>
+			<Interactive.Div
+				name="filter"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				filter
+			</Interactive.Div>
+			<Interactive.Div
+				name="paint-order"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: '1px solid #e0e0e0',
+					paddingLeft: 24,
+				}}
+			>
+				paint-order
+			</Interactive.Div>
+			<Interactive.Div
+				name="-webkit-text-stroke"
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					fontFamily: 'GT Planar',
+					fontSize: 28,
+					fontWeight: 500,
+					color: '#333',
+					borderBottom: 'none',
+					paddingLeft: 24,
+				}}
+			>
+				-webkit-text-stroke
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };
 
 export const Scene6: React.FC = () => {
-	const {fps} = useVideoConfig();
-	const silence = SILENCES[FILE];
-	const trimBefore = Math.floor(silence.leadingEnd * fps);
-	const trimAfter = Math.ceil(silence.trailingStart * fps);
-	const sceneDuration = silence.trailingStart - silence.leadingEnd;
-	const listStartAt = sceneDuration - 3 - 1; // 5s before end, minus 1s for slide-in
-
-	const overlayProgress = useSlideInProgress({startAt: 0.5, holdDuration: 2.5});
-	const overlay2Progress = useSlideInProgress({startAt: listStartAt});
-	const combinedProgress = Math.max(overlayProgress, overlay2Progress);
-	const videoX = interpolate(combinedProgress, [0, 1], [0, -20]);
+	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill style={{transform: `translateX(${videoX}%)`}}>
+			<Interactive.Div
+				name="Presenter position"
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150, 759.6, 789.6, 894.6, 924.6],
+						[
+							'0% 0px',
+							'-20% 0px',
+							'-20% 0px',
+							'0% 0px',
+							'0% 0px',
+							'-20% 0px',
+							'-20% 0px',
+							'0% 0px',
+						],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+								Easing.linear,
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<Video
-					src={assetUrl(FILE)}
-					trimBefore={trimBefore}
-					trimAfter={trimAfter}
+					name="Presenter video"
+					src={assetUrl('whats6.mov')}
+					trimBefore={69}
+					trimAfter={950}
 				/>
-			</AbsoluteFill>
-			<SlideInOverlay startAt={0.5} holdDuration={2.5}>
+			</Interactive.Div>
+			<Interactive.Div
+				name="Chapter panel"
+				style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: '60%',
+					width: '40%',
+					display: 'flex',
+					flexDirection: 'column',
+					overflow: 'hidden',
+					backgroundColor: 'white',
+					translate: interpolate(
+						frame,
+						[15, 45, 120, 150],
+						['102% 0px', '0% 0px', '0% 0px', '102% 0px'],
+						{
+							easing: [
+								Easing.out(Easing.cubic),
+								Easing.linear,
+								Easing.in(Easing.cubic),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
 				<NumberedChapter chapterNumber={5} chapterTitle="Web Renderer Update" />
-			</SlideInOverlay>
+			</Interactive.Div>
 			<Sequence
+				name="Web renderer demo"
 				from={180}
-				durationInFrames={Math.round(15 * fps)}
+				durationInFrames={450}
 				premountFor={30}
 			>
 				<WebRendererDemo />
 			</Sequence>
-			<Sequence from={190} layout="none">
-				<UpperReference
-					text="Fun fact: This video was edited with Claude Code and rendered completely client-side!"
-					fontSize={30}
-					maxWidth={800}
-					durationInFrames={Math.round(5 * fps)}
-				/>
+			<Sequence name="Web renderer note" from={190} layout="none">
+				<AbsoluteFill
+					style={{
+						padding: 70,
+						justifyContent: 'flex-start',
+						alignItems: 'flex-start',
+					}}
+				>
+					<Interactive.Div
+						name="Client-side rendering reference"
+						style={{
+							backgroundColor: 'white',
+							fontFamily: 'GT Planar',
+							padding: '24px 44px',
+							fontSize: 30,
+							top: 70,
+							borderRadius: 18,
+							boxShadow: '0 0 30px rgba(0, 0, 0, 0.1)',
+							fontWeight: 'bold',
+							maxWidth: 800,
+							translate: interpolate(
+								frame,
+								[190, 213, 325, 348],
+								['0px -400px', '0px 0px', '0px 0px', '0px -400px'],
+								{
+									easing: [
+										Easing.spring({damping: 200}),
+										Easing.linear,
+										Easing.spring({damping: 200}),
+									],
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								},
+							),
+							rotate: interpolate(
+								frame,
+								[190, 213, 325, 348],
+								['9deg', '0deg', '0deg', '9deg'],
+								{
+									easing: [
+										Easing.spring({damping: 200}),
+										Easing.linear,
+										Easing.spring({damping: 200}),
+									],
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								},
+							),
+						}}
+					>
+						Fun fact: This video was edited with Claude Code and rendered
+						completely client-side!
+					</Interactive.Div>
+				</AbsoluteFill>
 			</Sequence>
-			<Sequence from={Math.round(listStartAt * fps)} layout="none">
-				<SlideInOverlay startAt={0}>
+			<Sequence name="Supported CSS properties" from={760} layout="none">
+				<Interactive.Div
+					name="Details panel"
+					style={{
+						position: 'absolute',
+						top: 0,
+						bottom: 0,
+						left: '60%',
+						width: '40%',
+						display: 'flex',
+						flexDirection: 'column',
+						overflow: 'hidden',
+						backgroundColor: 'white',
+						translate: interpolate(
+							frame,
+							[760, 790, 895, 925],
+							['102% 0px', '0% 0px', '0% 0px', '102% 0px'],
+							{
+								easing: [
+									Easing.out(Easing.cubic),
+									Easing.linear,
+									Easing.in(Easing.cubic),
+								],
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						),
+					}}
+				>
 					<CssPropertyList />
-				</SlideInOverlay>
+				</Interactive.Div>
 			</Sequence>
 		</AbsoluteFill>
 	);

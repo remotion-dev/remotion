@@ -5,15 +5,24 @@ import type {
 	StudioKeyboardShortcutAction,
 	StudioKeyboardShortcuts,
 } from '@remotion/studio-shared';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	BLACK_ALPHA_60,
 	BORDER_WHITE_ALPHA_12,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
+	TRANSPARENT,
 	WHITE,
 } from '../helpers/colors';
+import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {getStudioAskAIEnabled} from '../helpers/studio-runtime-config';
 import {CaretDown} from '../icons/caret';
 import {Checkbox} from './Checkbox';
@@ -28,6 +37,7 @@ import {
 	keyboardShortcutsOverlap,
 	shortcutFromKeyboardEvent,
 } from './keyboard-shortcuts';
+import {KeyboardShortcutLabel} from './KeyboardShortcutLabel';
 import {Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {ValidationMessage} from './NewComposition/ValidationMessage';
@@ -120,7 +130,7 @@ const key: React.CSSProperties = {
 
 const chordButton: React.CSSProperties = {
 	alignItems: 'center',
-	background: 'transparent',
+	background: TRANSPARENT,
 	border: 0,
 	cursor: 'pointer',
 	display: 'flex',
@@ -164,7 +174,7 @@ const ShortcutChords: React.FC<{
 					<span style={chord}>
 						{keys.map((keyboardKey) => (
 							<kbd key={keyboardKey} style={key}>
-								{keyboardKey}
+								<KeyboardShortcutLabel shortcut={keyboardKey} style={null} />
 							</kbd>
 						))}
 					</span>
@@ -177,6 +187,12 @@ const ShortcutChords: React.FC<{
 export const KeyboardShortcutsSettings: React.FC = () => {
 	const {error: settingsError, revision, studioRuntimeConfig} = useSettings();
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const canEdit = canEditStudioConfig({
+		isBrowserStudio,
+		previewServerConnected: previewServerState.type === 'connected',
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
 	const [enabled, setEnabled] = useState(true);
 	const [configuredShortcuts, setConfiguredShortcuts] =
 		useState<StudioKeyboardShortcuts>({});
@@ -247,7 +263,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 
 	const ready = studioRuntimeConfig !== null && syncedRevision === revision;
 	useAutoSaveConfig({
-		enabled: ready && !isBrowserStudio,
+		enabled: ready && canEdit,
 		onError: setError,
 		ready,
 		syncRevision: syncedRevision,
@@ -260,7 +276,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 
 	return (
 		<div style={container}>
-			{isBrowserStudio ? null : (
+			{canEdit ? (
 				<>
 					<p style={dividerLabel}>General</p>
 					<label style={optionRow}>
@@ -274,7 +290,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 						</div>
 					</label>
 				</>
-			)}
+			) : null}
 			{visibleShortcutGroups.map((group, groupIndex) => (
 				<div key={group.name}>
 					<p style={shortcutSectionTitle}>{group.name}</p>
@@ -376,7 +392,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 									}
 								>
 									<span style={actionName}>{shortcut.action}</span>
-									{shortcut.actionId === null || isBrowserStudio ? (
+									{shortcut.actionId === null || !canEdit ? (
 										<>
 											<span style={shortcutCell}>
 												<ShortcutChords values={shortcutValues} />
@@ -460,7 +476,7 @@ export const KeyboardShortcutsSettings: React.FC = () => {
 											<span style={actionCell}>
 												<InlineDropdown
 													renderAction={(color) => <CaretDown color={color} />}
-													title={`Actions for ${shortcut.action}`}
+													aria-label={`Actions for ${shortcut.action}`}
 													values={shortcutMenuItems}
 													variant="compact"
 												/>

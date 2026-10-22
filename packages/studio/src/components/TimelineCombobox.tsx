@@ -21,6 +21,7 @@ const label: React.CSSProperties = {
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -29,7 +30,7 @@ type SelectionItem = Extract<ComboboxValue, {type: 'item'}>;
 export const TimelineCombobox: React.FC<{
 	readonly values: ComboboxValue[];
 	readonly selectedId: string | number;
-	readonly title: string;
+	readonly 'aria-label': string;
 	readonly tooltipDelay: number | null;
 	readonly labelWidth?: number;
 	readonly renderLeftItem?: RenderInlineAction;
@@ -37,7 +38,7 @@ export const TimelineCombobox: React.FC<{
 }> = ({
 	values,
 	selectedId,
-	title,
+	'aria-label': ariaLabel,
 	tooltipDelay,
 	labelWidth = 32,
 	renderLeftItem,
@@ -48,7 +49,7 @@ export const TimelineCombobox: React.FC<{
 		| undefined;
 	const segments: SegmentedButtonSegment[] = [
 		{
-			ariaLabel: title,
+			ariaLabel,
 			buttonId: null,
 			disabled: false,
 			idleColor: unhoveredIconColor,
@@ -64,7 +65,8 @@ export const TimelineCombobox: React.FC<{
 					) : null}
 					{selected ? (
 						<div
-							title={
+							role="group"
+							aria-label={
 								tooltipDelay === null && typeof selected.label === 'string'
 									? selected.label
 									: undefined
@@ -81,7 +83,6 @@ export const TimelineCombobox: React.FC<{
 			segmentId: 'selector',
 			selectedId,
 			style: {fontFamily: 'inherit', padding: '0 4px'},
-			title: tooltipDelay === null ? title : null,
 			tooltipLabel: null,
 			type: 'menu',
 			values,
@@ -89,18 +90,14 @@ export const TimelineCombobox: React.FC<{
 	];
 
 	const button = (
-		<SegmentedButton
-			segments={segments}
-			style={segmentedButtonStyle}
-			title={null}
-		/>
+		<SegmentedButton segments={segments} style={segmentedButtonStyle} />
 	);
 
 	return tooltipDelay === null ? (
 		button
 	) : (
 		<ActionTooltip
-			label={title}
+			label={ariaLabel}
 			shortcut={null}
 			delay={tooltipDelay}
 			dismissOnClick

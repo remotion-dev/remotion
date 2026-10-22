@@ -299,11 +299,12 @@ const LeftSide = () => {
 	);
 };
 
-export const YouTubeEndCard = () => {
+const YouTubeEndCardInner: React.FC = () => {
 	return (
 		<AbsoluteFill
 			style={{backgroundColor: '#FAFAFA', color: 'black'}}
 			name="Container"
+			showInTimeline={false}
 		>
 			<LeftSide />
 			<Interactive.Div
@@ -331,3 +332,8 @@ export const YouTubeEndCard = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const YouTubeEndCard = Interactive.create({
+	Component: YouTubeEndCardInner,
+	layout: 'absolute-fill',
+});

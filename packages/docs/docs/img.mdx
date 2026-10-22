@@ -16,13 +16,13 @@ If you use `<Img>`, Remotion will ensure that the image is loaded before renderi
 [Put an image into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.
 
 ```tsx twoslash
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Img src={staticFile('hi.png')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -30,13 +30,13 @@ export const MyComp: React.FC = () => {
 You can also load a remote image:
 
 ```tsx twoslash
-import {AbsoluteFill, Img} from 'remotion';
+import {Img} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Img src={'https://picsum.photos/200/300'} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -48,21 +48,21 @@ Apply [effects](/docs/effects/api) to the image.
 When `effects` is omitted or an empty array, `<Img>` renders a native `<img>` element. When at least one effect is passed, `<Img>` renders through [`<CanvasImage>`](/docs/canvasimage) and outputs a `<canvas>`.
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {Img, staticFile} from 'remotion';
 import {blur} from '@remotion/effects/blur';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Img src={staticFile('hi.png')} effects={[blur({radius: 8})]} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
 
 Because the element becomes a `<canvas>`, native image props that require an `<img>` element cannot be used with non-empty `effects`.
 
-The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `fetchPriority`, `useMap`, `crossOrigin`, `onLoad`, `onError`, `onImageFrame` and `alt`.
+The unsupported props include `ref`, `srcSet`, `sizes`, `loading`, `decoding`, `fetchPriority`, `useMap`, `onLoad`, `onError`, `onImageFrame` and `alt`.
 
 Canvas-compatible props such as `aria-*`, `data-*`, `role`, `title`, `tabIndex` and pointer or mouse event handlers are forwarded to the underlying `<canvas>`.
 When [`effects`](#effects) is a non-empty array, `style.objectFit` controls how the image is drawn into the canvas. Supported values are `"fill"`, `"contain"` and `"cover"`.
@@ -88,18 +88,18 @@ Crops the image from the bottom by a ratio between `0` and `1`. See [`cropBottom
 To use the `<Img>` tag in a resilient way, handle the error that occurs when an image can not be loaded:
 
 ```tsx twoslash
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Img
         src={staticFile('hi.png')}
         onError={(event) => {
           // Handle image loading error here
         }}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```
@@ -107,6 +107,18 @@ export const MyComp: React.FC = () => {
 If an error occurs, the component must be unmounted or the `src` must be replaced, otherwise the render will time out.
 
 From `v3.3.82`, the image load will first be retried before `onError` is thrown.
+
+### `onImageError?`<AvailableFrom v="4.0.526" />
+
+Called with an `Error` when the image cannot be loaded after all retries are exhausted.
+
+Unlike the native [`onError`](#onerror) prop, `onImageError` works both when `<Img>` renders an `<img>` and when [`effects`](#effects) make it render through `<CanvasImage>`.
+
+### `crossOrigin?`<AvailableFrom v="4.0.526" />
+
+Controls the CORS mode used to load the image. Supports `"anonymous"` and `"use-credentials"`.
+
+Unlike other native image props, `crossOrigin` also works when [`effects`](#effects) make `<Img>` render through `<CanvasImage>`.
 
 ### `maxRetries`<AvailableFrom v="3.3.82"/>
 
@@ -153,13 +165,13 @@ You can still wrap `<Img>` in an outer [`<Sequence>`](/docs/sequence). Timing [c
 :::
 
 ```tsx twoslash title="Clip starting at frame 30, lasting 90 frames"
-import {AbsoluteFill, Img, staticFile} from 'remotion';
+import {Img, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Img from={30} durationInFrames={90} src={staticFile('hi.png')} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

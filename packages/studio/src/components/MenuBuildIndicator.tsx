@@ -2,7 +2,6 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {WHITE_ALPHA_80} from '../helpers/colors';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {Spacing} from './layout';
-import {MenuCompositionName} from './MenuCompositionName';
 import {Spinner} from './Spinner';
 
 const cwd: React.CSSProperties = {
@@ -12,6 +11,7 @@ const cwd: React.CSSProperties = {
 	alignItems: 'center',
 	justifyContent: 'center',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -61,13 +61,13 @@ export const MenuBuildIndicator: React.FC<{
 	}, []);
 
 	return (
-		<div style={cwd} title={window.remotion_cwd}>
+		<div role="group" style={cwd} aria-label={window.remotion_cwd}>
 			<Spacing x={0.5} />
 			{window.remotion_projectName}
-			<MenuCompositionName />
-			<Spacing x={1} />
+			<Spacing x={0.5} />
 			<div style={openInEditor}>
 				<InspectorOpenInEditor
+					annotationName={null}
 					location={folderLocation}
 					locationType="folder"
 					showTooltips

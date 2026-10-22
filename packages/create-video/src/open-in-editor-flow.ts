@@ -1,4 +1,3 @@
-import path from 'node:path';
 import {Log} from './log';
 import {
 	getDisplayNameForEditor,
@@ -7,6 +6,7 @@ import {
 	isVsCodeDerivative,
 	launchEditor,
 } from './open-in-editor';
+import {findReadme} from './patch-readme';
 import prompts from './prompts';
 
 export const openInEditorFlow = async (projectRoot: string) => {
@@ -36,14 +36,15 @@ export const openInEditorFlow = async (projectRoot: string) => {
 			vsCodeNewWindow: true,
 			lineNumber: 1,
 		});
-		if (isVsCodeDerivative(guiEditor.command)) {
+		const readme = findReadme(projectRoot);
+		if (readme !== null && isVsCodeDerivative(guiEditor.command)) {
 			await new Promise((resolve) => {
 				setTimeout(resolve, 1000);
 			});
 			await launchEditor({
 				colNumber: 1,
 				editor: guiEditor,
-				fileName: path.join(projectRoot, 'README.md'),
+				fileName: readme,
 				vsCodeNewWindow: false,
 				lineNumber: 1,
 			});

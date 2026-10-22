@@ -53,7 +53,7 @@ You can also return `defaultCodec: "prores"` from [`calculateMetadata()`](/docs/
 
 ## Choosing a ProRes profile
 
-Use the [`--prores-profile`](/docs/cli/render#--prores-profile) CLI flag, the [`proResProfile`](/docs/renderer/render-media#proresprofile) option, [`Config.setProResProfile()`](/docs/config#setproresprofile), or `defaultProResProfile` from [`calculateMetadata()`](/docs/calculate-metadata).
+Use the [ProRes profile option](/docs/options/prores-profile), or `defaultProResProfile` from [`calculateMetadata()`](/docs/calculate-metadata).
 
 ```bash title="Terminal"
 npx remotion render MyComp out/video.mov --codec=prores --prores-profile=hq
@@ -85,7 +85,7 @@ await renderMedia({
 | `"4444-xq"`      | `5`            | 500 Mbps            | Yes           |
 
 Higher profiles produce larger files.
-ProRes does not support [`crf`](/docs/cli/render#--crf), and [`videoBitrate`](/docs/cli/render#--video-bitrate) is ignored.
+ProRes does not support [`crf`](/docs/options/crf), and [`videoBitrate`](/docs/options/video-bitrate) is ignored.
 
 ## Transparent ProRes
 

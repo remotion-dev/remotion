@@ -16,17 +16,29 @@ import {
 const NumericAxis: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly values: unknown[];
+	readonly forceMixed: boolean;
+	readonly inherited: boolean;
 	readonly axis: 0 | 1 | 2 | null;
 	readonly onPreview: (values: unknown[]) => void;
 	readonly onSave: (values: unknown[]) => Promise<void>;
 	readonly onClear: () => void;
-}> = ({field, values, axis, onPreview, onSave, onClear}) => {
+}> = ({
+	field,
+	values,
+	forceMixed,
+	inherited,
+	axis,
+	onPreview,
+	onSave,
+	onClear,
+}) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
 	const initialValues = useRef<unknown[] | null>(null);
 	const coordinates = values.map((value) =>
 		axis === null ? Number(value) : (parseTranslate(String(value))[axis] ?? 0),
 	);
-	const mixed = coordinates.some((value) => value !== coordinates[0]);
+	const mixed =
+		forceMixed || coordinates.some((value) => value !== coordinates[0]);
 	const schema = field.fieldSchema;
 	const step = 'step' in schema ? (schema.step ?? 1) : 1;
 	const decimalPlaces = getTimelineDisplayDecimalPlaces({
@@ -101,29 +113,39 @@ const NumericAxis: React.FC<{
 		>
 			<InputDragger
 				type="number"
+				aria-description="Type to set all values; drag to adjust each value"
 				value={dragValue ?? coordinates[0]}
 				aria-label={
 					axis === null
 						? (field.description ?? field.key)
 						: `Offset ${['X', 'Y', 'Z'][axis]}`
 				}
-				title="Type to set all values; drag to adjust each value"
 				status="ok"
 				small
 				rightAlign={false}
 				min={min}
 				max={max}
 				step={step}
+				allowStepMismatch
+				integerOnly={schema.type === 'number' && schema.integer === true}
 				snapToStep={axis === null}
 				dragDecimalPlaces={decimalPlaces}
 				dragSensitivity={axis === null ? 1 : 3}
 				buttonStyle={{paddingLeft: 0}}
 				style={{width: 70}}
-				formatter={(value) =>
-					mixed && dragValue === null
-						? 'Mixed'
-						: formatTimelineFieldValueForDisplay({fieldSchema: schema, value})
-				}
+				formatter={(value) => {
+					if (mixed && dragValue === null) {
+						return 'Mixed';
+					}
+
+					const formatted = formatTimelineFieldValueForDisplay({
+						fieldSchema: schema,
+						value,
+					});
+					return inherited && dragValue === null
+						? `Default (${formatted})`
+						: formatted;
+				}}
 				onTextChange={noop}
 				onValueChange={(value, source) => {
 					initialValues.current ??= values;
@@ -145,6 +167,8 @@ const NumericAxis: React.FC<{
 export const MultiSequenceNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly values: unknown[];
+	readonly forceMixed: boolean;
+	readonly inherited: boolean;
 	readonly onPreview: (values: unknown[]) => void;
 	readonly onSave: (values: unknown[]) => Promise<void>;
 	readonly onClear: () => void;

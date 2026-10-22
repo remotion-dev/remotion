@@ -86,7 +86,7 @@ export const TimelineFontWeightField: React.FC<{
 		return (
 			<Combobox
 				size="small"
-				title={field.key}
+				aria-label={field.key}
 				selectedId={String(currentValue)}
 				values={keywordItems}
 			/>

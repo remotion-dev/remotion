@@ -64,7 +64,7 @@ const after = (frame: number | null) => {};
 5. Update implementation logic:
    - Replace truthy checks when `0`, `''`, or `false` are valid values.
    - Prefer `value !== null` over `value` for nullable numbers/strings/booleans.
-   - Keep tests and fixtures explicit; do not make large fixtures `Partial<T>` only to dodge the new field.
+   - When updating existing tests or fixtures, keep them explicit; do not make large fixtures `Partial<T>` only to dodge the new field.
 
 6. For public candidates, preserve backwards compatibility:
    - Keep the new field optional in the public type.
@@ -82,4 +82,4 @@ const after = (frame: number | null) => {};
 - Every internal caller passes either a real value or `null`.
 - Public APIs remain backwards-compatible.
 - Nullable checks do not treat valid falsy values as absent.
-- Tests cover at least one explicit `null` path when behavior depends on absence.
+- Verify an explicit `null` path with existing checks or manual verification when behavior depends on absence.

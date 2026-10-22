@@ -66,9 +66,10 @@ export type MakeEffectDragDataInput = EffectDragData['effect'] & {
 
 export type MakeElementDragDataInput = Omit<
 	ElementDragData['element'],
-	'initialProps'
+	'assets' | 'initialProps'
 > & {
 	readonly type: 'element';
+	readonly assets?: ElementDragData['element']['assets'];
 	readonly durationInFrames: number;
 	readonly initialProps?: ElementDragData['element']['initialProps'];
 };
@@ -234,6 +235,7 @@ export const makeDragData = ((
 		case 'element':
 			return construct(
 				makeElementDragData({
+					assets: input.assets ?? [],
 					dependencies: input.dependencies,
 					dimensions: input.dimensions,
 					displayName: input.displayName,
@@ -242,6 +244,7 @@ export const makeDragData = ((
 					slug: input.slug,
 					sourceCode: input.sourceCode,
 					installationMode: input.installationMode,
+					isCaptionStyle: input.isCaptionStyle,
 				}),
 				{
 					type: input.type,
@@ -282,21 +285,26 @@ const dimensionsMatch = (
 export const parseDragData = (
 	source: SerializedDragData | DragDataTransfer,
 ): ParsedDragData | null => {
-	const {mimeType, payload} =
-		'types' in source
-			? (() => {
-					const candidate = getDragPreviewMetadata(source.types);
-					if (candidate === null) {
-						return {mimeType: '', payload: ''};
-					}
+	let serialized: SerializedDragData;
 
-					return {
-						mimeType: candidate.mimeType,
-						payload: source.getData(candidate.mimeType),
-					};
-				})()
-			: source;
+	if ('types' in source) {
+		const candidate = getDragPreviewMetadata(source.types);
+
+		if (candidate === null) {
+			return null;
+		}
+
+		serialized = {
+			mimeType: candidate.mimeType,
+			payload: source.getData(candidate.mimeType),
+		};
+	} else {
+		serialized = source;
+	}
+
+	const {mimeType, payload} = serialized;
 	const preview = parseDragMimeType(mimeType);
+
 	if (preview === null) {
 		return null;
 	}
@@ -310,6 +318,7 @@ export const parseDragData = (
 
 		case 'component': {
 			const data = parseComponentDragData(payload);
+
 			if (
 				data === null ||
 				!dimensionsMatch(preview, data.component.dimensions)
@@ -328,6 +337,7 @@ export const parseDragData = (
 
 		case 'element': {
 			const data = parseElementDragData(payload);
+
 			if (!data || !dimensionsMatch(preview, data.element.dimensions)) {
 				return null;
 			}

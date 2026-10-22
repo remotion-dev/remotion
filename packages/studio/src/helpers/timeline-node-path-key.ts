@@ -1,7 +1,9 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 
-export {timelineSequenceNodePathToKey} from '@remotion/canvas';
+export const {timelineSequenceNodePathToKey}: typeof CanvasInternals =
+	CanvasInternals;
 
 export const timelineNodePathInfoToKey = (info: SequenceNodePathInfo): string =>
 	[

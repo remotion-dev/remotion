@@ -10,9 +10,8 @@ import {useTransformations} from './transformation-context';
 export const Face: React.FC<{
 	children: React.ReactNode;
 	depth: number;
-	outlineRef?: React.RefObject<HTMLDivElement | null>;
 	type: 'front' | 'back';
-}> = ({children, depth, outlineRef, type}) => {
+}> = ({children, depth, type}) => {
 	const {width, height} = useRect();
 
 	const frontFace = reduceMatrices([
@@ -23,7 +22,6 @@ export const Face: React.FC<{
 
 	return (
 		<div
-			ref={outlineRef}
 			style={{
 				transform: makeMatrix3dTransform(frontFace),
 				display: 'flex',

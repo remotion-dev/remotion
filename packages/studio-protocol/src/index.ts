@@ -1,12 +1,17 @@
 import {
 	addElementLibraryToStudioWithDependencies,
 	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolIframeAddElementLibraryRequest,
 } from './add-element-library-to-studio';
 import {
 	makeBrowserStudioUrl,
 	openInBrowserStudio,
 	parseBrowserStudioHash,
 } from './browser-studio-link';
+import {
+	isStudioProtocolCaptionStyleSubscription,
+	parseStudioProtocolCaptionStyleSelection,
+} from './caption-style-selection';
 import {
 	areComponentProps,
 	isComponentIdentifier,
@@ -15,6 +20,9 @@ import {
 import {makeDragData, parseDragData} from './drag-data';
 import {getDragPreviewMetadata} from './drag-preview-metadata';
 import {
+	assertElementAssetReferences,
+	assertElementAssets,
+	isStaticFileRef,
 	getElementComponentNameFromSourceCode,
 	makeElementFileNameFromSlug,
 } from './element-drag-data';
@@ -26,6 +34,7 @@ import {
 	parseStudioProtocolInstallRequest,
 } from './install-in-studio';
 import {isValidPublicLicenseKey} from './license-key';
+import {resolveElementAssets} from './resolve-element-assets';
 import {
 	parseStudioProtocolSetLicenseKeyRequest,
 	setLicenseKeyInStudio,
@@ -38,12 +47,19 @@ export {
 	type AddElementLibraryToStudioInput,
 	type AddElementLibraryToStudioResult,
 } from './add-element-library-to-studio';
+
 export type {AssetDragData} from './asset-drag-data';
+
+export type {StudioCaptionStyleSelection} from './caption-style-selection';
+
+export {buildOpenInRemotionNewUrl} from './browser-studio-link';
+
 export type {
 	ComponentDimensions,
 	ComponentDragData,
 	ComponentProp,
 } from './component-drag-data';
+
 export type {
 	ConstructedDragData,
 	DragDataTransfer,
@@ -58,6 +74,7 @@ export type {
 	RemotionDragData,
 	SerializedDragData,
 } from './drag-data';
+
 export type {
 	AssetDragPreviewMetadata,
 	ComponentDragPreviewMetadata,
@@ -68,32 +85,47 @@ export type {
 	RenderOutputDragPreviewMetadata,
 	SfxDragPreviewMetadata,
 } from './drag-preview-metadata';
+
 export {setStudioDragData} from './drag-transport';
+
 export type {
 	EffectConfig,
 	EffectConfigValue,
 	EffectDragData,
 } from './effect-drag-data';
+
+export {staticFileRef} from './element-drag-data';
+
 export type {
+	ElementAsset,
+	StaticFileRef,
 	ElementDependency,
 	ElementDragData,
 	ElementInitialProps,
 	ElementInitialPropValue,
 	ElementInstallationMode,
 } from './element-drag-data';
-export type {RenderOutputDragData} from './render-output-drag-data';
+
 export {
 	createElementPayload,
 	type CreateElementPayloadInput,
 	type StudioElementPayload,
 } from './element-payload';
+
 export {
 	installInStudio,
 	type InstallInStudioErrorCode,
 	type InstallInStudioResult,
 } from './install-in-studio';
+
 export {isInsideStudio} from './is-inside-studio';
+
+export {subscribeToCaptionStyleSelection} from './subscribe-to-caption-style-selection';
+
+export type {RenderOutputDragData} from './render-output-drag-data';
+
 export type {SfxDragData} from './sfx-drag-data';
+
 export type {
 	StudioProtocolDescriptor,
 	StudioProtocolInstallTarget,
@@ -102,12 +134,16 @@ export type {
 export const StudioProtocolInternals = {
 	addElementLibraryToStudioWithDependencies,
 	areComponentProps,
+	assertElementAssetReferences,
+	assertElementAssets,
+	isStaticFileRef,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,
 	isComponentIdentifier,
 	isComponentImportPath,
 	installInStudioWithDependencies,
 	isAllowedStudioProtocolPageOrigin,
+	isStudioProtocolCaptionStyleSubscription,
 	isValidPublicLicenseKey,
 	makeBrowserStudioUrl,
 	makeDragData,
@@ -117,9 +153,12 @@ export const StudioProtocolInternals = {
 	parseDragData,
 	parseStudioElementPayload,
 	parseStudioProtocolAddElementLibraryRequest,
+	parseStudioProtocolIframeAddElementLibraryRequest,
 	parseStudioProtocolIframeInstallRequest,
+	parseStudioProtocolCaptionStyleSelection,
 	parseStudioProtocolDescriptor,
 	parseStudioProtocolInstallRequest,
 	parseStudioProtocolSetLicenseKeyRequest,
+	resolveElementAssets,
 	setLicenseKeyInStudio,
 };

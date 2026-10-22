@@ -3,7 +3,7 @@ import {
 	makeMockCompositionManagerContext,
 	makeTimelineContext,
 } from '@remotion/test-utils';
-import React, {useCallback, useMemo} from 'react';
+import React, {useMemo} from 'react';
 import {createRoot} from 'react-dom/client';
 import {
 	Internals,
@@ -47,6 +47,55 @@ const visualModeSetters = {
 	setPropStatuses: () => undefined,
 };
 
+const ObserveSequenceRegistrations: React.FC<{
+	readonly onRegisterSequence: (sequence: RegisteredSequence) => void;
+}> = ({onRegisterSequence}) => {
+	const registry = React.useContext(Internals.SequenceRegistryContext);
+	const previous = React.useRef(
+		new Map<
+			string,
+			ReturnType<typeof Internals.useSequenceManagerSequences>[number]
+		>(),
+	);
+	React.useEffect(() => {
+		if (registry === null) throw new Error('Sequence registry has not mounted');
+		const observe = () => {
+			const sequences = registry.getSnapshot();
+			const changed = sequences.filter(
+				(sequence) => previous.current.get(sequence.id) !== sequence,
+			);
+			previous.current = new Map(
+				sequences.map((sequence) => [sequence.id, sequence]),
+			);
+			changed.forEach(onRegisterSequence);
+		};
+
+		const unsubscribe = registry.subscribe(observe);
+		observe();
+		return unsubscribe;
+	}, [onRegisterSequence, registry]);
+	return null;
+};
+
+const ApplyVisualModeOverrides: React.FC<{
+	readonly mappings: OverrideIdToNodePaths;
+	readonly overrides: DragOverrides;
+}> = ({mappings, overrides}) => {
+	const setters = React.useContext(Internals.VisualModeBatchSettersContext);
+	React.useLayoutEffect(() => {
+		if (setters === null)
+			throw new Error('Visual mode setters have not mounted');
+		setters.setDragOverridesBatch(
+			Object.values(mappings).flatMap((nodePath) =>
+				Object.entries(
+					overrides[Internals.makeSequencePropsSubscriptionKey(nodePath)] ?? {},
+				).map(([key, value]) => ({nodePath, key, value})),
+			),
+		);
+	}, [mappings, overrides, setters]);
+	return null;
+};
+
 const SequenceTestWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly frame?: number;
@@ -62,38 +111,17 @@ const SequenceTestWrapper: React.FC<{
 	propStatuses,
 	dragOverrides,
 }) => {
-	const registerSequence = useCallback(
-		(sequence: RegisteredSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-
-	const sequenceContext = useMemo(
-		() => ({
-			registerSequence,
-			unregisterSequence: () => undefined,
-			updateSequence: registerSequence,
-			sequences: [],
-		}),
-		[registerSequence],
-	);
 	const visualModePropStatuses = useMemo(
 		() => ({propStatuses}),
 		[propStatuses],
 	);
-	const visualModeDragOverrides = useMemo(
+	const visualModePropStatusesSubscription = useMemo(
 		() => ({
-			getDragOverrides: (
-				nodePath: Parameters<
-					typeof Internals.makeSequencePropsSubscriptionKey
-				>[0],
-			) =>
-				dragOverrides[Internals.makeSequencePropsSubscriptionKey(nodePath)] ??
-				{},
-			getEffectDragOverrides: () => ({}),
+			subscribe: () => () => undefined,
+			getSnapshot: (key: string | null) =>
+				key === null ? null : (propStatuses[key] ?? null),
 		}),
-		[dragOverrides],
+		[propStatuses],
 	);
 	const overrideIdToNodePathContext = useMemo(
 		() => ({overrideIdToNodePathMappings}),
@@ -106,29 +134,38 @@ const SequenceTestWrapper: React.FC<{
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<Internals.TimelineContext.Provider
-						value={makeTimelineContext(frame)}
-					>
-						<Internals.OverrideIdsToNodePathsGettersContext.Provider
-							value={overrideIdToNodePathContext}
+					<Internals.VideoProvider>
+						<Internals.TimelineContext.Provider
+							value={makeTimelineContext(frame)}
 						>
-							<Internals.SequenceManager.Provider value={sequenceContext}>
-								<Internals.VisualModePropStatusesContext.Provider
-									value={visualModePropStatuses}
-								>
-									<Internals.VisualModeDragOverridesContext.Provider
-										value={visualModeDragOverrides}
+							<Internals.OverrideIdsToNodePathsGettersContext.Provider
+								value={overrideIdToNodePathContext}
+							>
+								<Internals.SequenceManagerProvider>
+									<ApplyVisualModeOverrides
+										mappings={overrideIdToNodePathMappings}
+										overrides={dragOverrides}
+									/>
+									<ObserveSequenceRegistrations
+										onRegisterSequence={onRegisterSequence}
+									/>
+									<Internals.VisualModePropStatusesSubscriptionContext.Provider
+										value={visualModePropStatusesSubscription}
 									>
-										<Internals.VisualModeSettersContext.Provider
-											value={visualModeSetters}
+										<Internals.VisualModePropStatusesContext.Provider
+											value={visualModePropStatuses}
 										>
-											{children}
-										</Internals.VisualModeSettersContext.Provider>
-									</Internals.VisualModeDragOverridesContext.Provider>
-								</Internals.VisualModePropStatusesContext.Provider>
-							</Internals.SequenceManager.Provider>
-						</Internals.OverrideIdsToNodePathsGettersContext.Provider>
-					</Internals.TimelineContext.Provider>
+											<Internals.VisualModeSettersContext.Provider
+												value={visualModeSetters}
+											>
+												{children}
+											</Internals.VisualModeSettersContext.Provider>
+										</Internals.VisualModePropStatusesContext.Provider>
+									</Internals.VisualModePropStatusesSubscriptionContext.Provider>
+								</Internals.SequenceManagerProvider>
+							</Internals.OverrideIdsToNodePathsGettersContext.Provider>
+						</Internals.TimelineContext.Provider>
+					</Internals.VideoProvider>
 				</Internals.CompositionManager.Provider>
 			</Internals.CanUseRemotionHooksProvider>
 		</Internals.RemotionEnvironmentContext>
@@ -405,6 +442,7 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 		},
 		propStatuses: {
 			[subscriptionKey]: {
+				durationDependentKeyframes: null,
 				canUpdate: true as const,
 				props: {
 					durationInFrames: {

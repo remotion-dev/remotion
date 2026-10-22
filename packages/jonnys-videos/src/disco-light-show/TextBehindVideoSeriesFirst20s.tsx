@@ -1,28 +1,29 @@
 import {Video} from '@remotion/media';
 import {
+	Interactive,
 	Composition,
 	Easing,
 	interpolate,
 	useCurrentFrame,
-	Sequence,
 } from 'remotion';
 import {asset} from './assets';
 import {Clip5} from './Clip5';
 
 export const TEXT_BEHIND_VIDEO_SERIES_FIRST_20S_DURATION_IN_FRAMES = 190;
 
-export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
+const TextBehindVideoSeriesFirst20sCompositionInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<>
-			<Sequence
-				name="Clip5"
+			<Clip5
+				name="Lower party footage"
 				width={1080}
 				height={1920}
 				durationInFrames={300}
 				style={{
 					position: 'absolute',
+					overflow: 'visible',
 					scale: 1.59,
 					translate: interpolate(
 						frame,
@@ -31,30 +32,20 @@ export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: [Easing.inOut(Easing.cubic)],
 						},
 					),
 				}}
 				from={-1}
-			>
-				<Clip5 />
-			</Sequence>
-			<Sequence
-				name="Clip5-copy"
+			/>
+			<Clip5
+				name="Upper party footage"
 				width={1080}
 				height={1920}
 				durationInFrames={300}
 				style={{
 					position: 'absolute',
+					overflow: 'visible',
 					scale: 1.328,
 					translate: interpolate(
 						frame,
@@ -63,60 +54,35 @@ export const TextBehindVideoSeriesFirst20sComposition: React.FC = () => {
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
+							easing: [Easing.inOut(Easing.cubic)],
 						},
 					),
 				}}
 				from={-1}
-			>
-				<Clip5 />
-			</Sequence>
-			<Sequence showInTimeline={false}>
-				<Video
-					src={asset('text-behind-video-series-first-20s.mp4')}
-					style={{
-						position: 'absolute',
-						translate: '-420px 311.8px',
-						width: 1920,
-						height: 1080,
-						scale: interpolate(frame, [9, 14, 19], [0, 0.585, 0.594], {
+			/>
+			<Video
+				name="Text behind video"
+				src={asset('text-behind-video-series-first-20s.mp4')}
+				style={{
+					position: 'absolute',
+					translate: interpolate(
+						frame,
+						[9, 19],
+						['1500px 311.8px', '-420px 311.8px'],
+						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
-							output: 'perceptual-scale',
-							easing: [
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-								Easing.spring({
-									damping: 200,
-									mass: 1,
-									stiffness: 100,
-									allowTail: true,
-									durationRestThreshold: 0.02,
-									overshootClamping: false,
-								}),
-							],
-						}),
-					}}
-					muted
-					durationInFrames={190}
-					trimBefore={31}
-				/>
-			</Sequence>
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
+					width: 1920,
+					height: 1080,
+					scale: 0.594,
+				}}
+				muted
+				durationInFrames={190}
+				trimBefore={31}
+			/>
 		</>
 	);
 };
@@ -133,3 +99,8 @@ export const TextBehindVideoSeriesFirst20s: React.FC = () => {
 		/>
 	);
 };
+
+export const TextBehindVideoSeriesFirst20sComposition = Interactive.create({
+	Component: TextBehindVideoSeriesFirst20sCompositionInner,
+	layout: 'absolute-fill',
+});

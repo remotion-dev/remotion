@@ -1,6 +1,13 @@
-import {useContext, useEffect, useRef} from 'react';
+import {useContext, useEffect, useLayoutEffect, useMemo, useRef} from 'react';
 import type {TSequence} from './CompositionManager.js';
-import {SequenceManager} from './SequenceManager.js';
+import {
+	DisableSequenceRegistrationContext,
+	SequenceCommitRegistrationContext,
+	SequenceManagerActionsContext,
+} from './SequenceManager.js';
+
+const useIsomorphicLayoutEffect =
+	typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export const useSequenceRegistration = ({
 	getSequence,
@@ -9,12 +16,27 @@ export const useSequenceRegistration = ({
 	getSequence: (() => TSequence) | null;
 	id: string;
 }) => {
-	const {registerSequence, unregisterSequence, updateSequence} =
-		useContext(SequenceManager);
+	const {registerSequence, unregisterSequence, updateSequence} = useContext(
+		SequenceManagerActionsContext,
+	);
+	const registrationDisabled = useContext(DisableSequenceRegistrationContext);
+	const commitRegistrationEnabled = useContext(
+		SequenceCommitRegistrationContext,
+	);
 	const getSequenceRef = useRef(getSequence);
-	getSequenceRef.current = getSequence;
+	useIsomorphicLayoutEffect(() => {
+		getSequenceRef.current = getSequence;
+	}, [getSequence]);
 	const lastRegisteredGetterRef = useRef<(() => TSequence) | null>(null);
-	const registrationEnabled = getSequence !== null;
+	const registrationEnabled =
+		getSequence !== null && !registrationDisabled && !commitRegistrationEnabled;
+	const registration = useMemo(
+		() =>
+			commitRegistrationEnabled && !registrationDisabled && getSequence !== null
+				? getSequence()
+				: null,
+		[commitRegistrationEnabled, getSequence, registrationDisabled],
+	);
 
 	useEffect(() => {
 		if (!registrationEnabled) {
@@ -35,10 +57,14 @@ export const useSequenceRegistration = ({
 		};
 	}, [id, registerSequence, registrationEnabled, unregisterSequence]);
 
-	useEffect(() => {
+	// Commit fallback metadata with the synchronous preview update, so continuous input
+	// cannot leave lower-priority registration updates pending between commits.
+	useIsomorphicLayoutEffect(() => {
 		if (
+			commitRegistrationEnabled ||
+			registrationDisabled ||
 			getSequence === null ||
-			updateSequence === null ||
+			lastRegisteredGetterRef.current === null ||
 			lastRegisteredGetterRef.current === getSequence
 		) {
 			return;
@@ -46,5 +72,12 @@ export const useSequenceRegistration = ({
 
 		updateSequence(getSequence());
 		lastRegisteredGetterRef.current = getSequence;
-	}, [getSequence, updateSequence]);
+	}, [
+		commitRegistrationEnabled,
+		getSequence,
+		registrationDisabled,
+		updateSequence,
+	]);
+
+	return registration;
 };

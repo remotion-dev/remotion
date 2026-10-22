@@ -143,11 +143,6 @@ const TimelineNavigatorItem: React.FC<{
 			type="button"
 			style={buttonStyle}
 			onClick={onClick}
-			title={
-				item.type === 'keyframe'
-					? `Keyframe at frame ${item.selection.frame}`
-					: `Easing from frame ${item.selection.fromFrame} to ${item.selection.toFrame}`
-			}
 			aria-label={
 				item.type === 'keyframe'
 					? `Select keyframe at frame ${item.selection.frame}`
@@ -181,7 +176,7 @@ export const KeyframeEasingNavigator: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 }> = ({currentSelection, includeEasings, keyframes, nodePathInfo}) => {
 	const {isSelected, selectItems} = useTimelineSelection();
-	const setFrame = Internals.useTimelineSetFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const videoConfig = useVideoConfig();
 	const items = useMemo(
 		() =>
@@ -212,7 +207,7 @@ export const KeyframeEasingNavigator: React.FC<{
 	const seekToItem = useCallback(
 		(item: NavigatorItem, direction: 'fit-left' | 'fit-right') => {
 			const frame = getNavigatorItemPlayheadFrame(item);
-			setFrame((current) => {
+			seekFrame((current) => {
 				const next = {...current, [videoConfig.id]: frame};
 				Internals.persistCurrentFrame(next);
 				return next;
@@ -223,7 +218,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				frame,
 			});
 		},
-		[setFrame, videoConfig.durationInFrames, videoConfig.id],
+		[seekFrame, videoConfig.durationInFrames, videoConfig.id],
 	);
 	const selectPrevious = useCallback(() => {
 		if (previousItem === null) {
@@ -252,7 +247,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				variant={null}
 				disabled={previousItem === null}
 				onClick={selectPrevious}
-				title="Previous animation item"
+				aria-label="Previous animation item"
 				renderAction={(color) => (
 					<NavigationChevron
 						color={previousItem === null ? disabledChevronColor : color}
@@ -289,7 +284,7 @@ export const KeyframeEasingNavigator: React.FC<{
 				variant={null}
 				disabled={nextItem === null}
 				onClick={selectNext}
-				title="Next animation item"
+				aria-label="Next animation item"
 				renderAction={(color) => (
 					<NavigationChevron
 						color={nextItem === null ? disabledChevronColor : color}

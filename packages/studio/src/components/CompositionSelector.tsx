@@ -8,7 +8,11 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {BACKGROUND, TIMELINE_BLUE} from '../helpers/colors';
+import {
+	BACKGROUND,
+	TIMELINE_BLUE,
+	TIMELINE_DROP_BLUE_ALPHA_12,
+} from '../helpers/colors';
 import {
 	createFolderTree,
 	sortFolderTreeAlphabetically,
@@ -28,7 +32,7 @@ import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
-import {applyCodemod} from './RenderQueue/actions';
+import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
 export const useCompositionNavigation = () => {
@@ -144,7 +148,9 @@ const getAutoScrollSpeed = ({
 	return 0;
 };
 
-export const CompositionSelector: React.FC = () => {
+export const CompositionSelector: React.FC<{
+	readonly onCompositionSelected: (() => void) | null;
+}> = ({onCompositionSelected}) => {
 	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
 	);
@@ -169,6 +175,18 @@ export const CompositionSelector: React.FC = () => {
 		setSelectedModal,
 	]);
 	const [rootDragHovered, setRootDragHovered] = useState(false);
+	const [folderDropTarget, setFolderDropTarget] = useState<string | null>(null);
+	const listStyle = useMemo((): React.CSSProperties => {
+		if (rootDragHovered && compositionSortOrder === 'alphabetical') {
+			return {
+				...list,
+				backgroundColor: TIMELINE_DROP_BLUE_ALPHA_12,
+				boxShadow: `inset 0 0 0 1px ${TIMELINE_BLUE}`,
+			};
+		}
+
+		return list;
+	}, [compositionSortOrder, rootDragHovered]);
 	const activeDragRef = useRef<CompositionSelectorActiveDrag | null>(null);
 	const listRef = useRef<HTMLDivElement>(null);
 	const autoScrollAnimation = useRef<number | null>(null);
@@ -176,6 +194,13 @@ export const CompositionSelector: React.FC = () => {
 
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
+	const onSelectComposition = useCallback(
+		(composition: Parameters<typeof selectComposition>[0], push: boolean) => {
+			selectComposition(composition, push);
+			onCompositionSelected?.();
+		},
+		[onCompositionSelected, selectComposition],
+	);
 
 	const items = useMemo(() => {
 		const tree = createFolderTree(compositions, folders, foldersExpanded);
@@ -281,6 +306,8 @@ export const CompositionSelector: React.FC = () => {
 			return;
 		}
 
+		setFolderDropTarget(null);
+
 		if (
 			activeDragRef.current === null ||
 			activeDragRef.current.parentFolderPath === null
@@ -334,33 +361,35 @@ export const CompositionSelector: React.FC = () => {
 			event.stopPropagation();
 			stopCompositionListAutoScroll();
 			setRootDragHovered(false);
-			const notification = showNotification(
-				`Moving ${dragData.item.type === 'composition' ? dragData.item.compositionId : dragData.item.folderName}...`,
-				null,
-			);
 			const controller = new AbortController();
 
 			try {
-				const result = await applyCodemod({
-					codemod: {
-						type: 'move-composition-or-folder',
-						source: dragData.item,
-						destination: {type: 'root'},
-					},
-					dryRun: false,
-					signal: controller.signal,
+				const source = dragData.item;
+				const common = {
+					destination: {type: 'root'} as const,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
-				});
-
-				if (result.success) {
-					notification.dismiss();
-				} else {
-					notification.replaceContent(result.reason, 4000);
+					undoRedoNavigation: null,
+				};
+				const result = await (source.type === 'composition'
+					? moveComposition(
+							{...common, compositionId: source.compositionId},
+							controller.signal,
+						)
+					: moveFolder(
+							{
+								...common,
+								folderName: source.folderName,
+								parentName: source.parentName,
+							},
+							controller.signal,
+						));
+				if (!result.success) {
+					showNotification(result.reason, 4000);
 				}
-			} catch (err) {
-				notification.replaceContent(
-					err instanceof Error ? err.message : String(err),
+			} catch (error) {
+				showNotification(
+					error instanceof Error ? error.message : String(error),
 					4000,
 				);
 			}
@@ -383,7 +412,7 @@ export const CompositionSelector: React.FC = () => {
 			<div
 				ref={listRef}
 				className="__remotion-vertical-scrollbar"
-				style={list}
+				style={listStyle}
 				onDragOverCapture={onCompositionListDragOverCapture}
 				onDragEndCapture={stopCompositionListAutoScroll}
 				onDragOver={onRootDragOver}
@@ -401,10 +430,12 @@ export const CompositionSelector: React.FC = () => {
 									? canvasContent.compositionId
 									: null
 							}
-							selectComposition={selectComposition}
+							selectComposition={onSelectComposition}
 							toggleFolder={toggleFolder}
 							clearRootDragHover={clearRootDragHover}
 							canReorder={compositionSortOrder === 'registration'}
+							folderDropTarget={folderDropTarget}
+							setFolderDropTarget={setFolderDropTarget}
 							tabIndex={tabIndex}
 							item={c}
 							activeDragRef={activeDragRef}
@@ -414,7 +445,7 @@ export const CompositionSelector: React.FC = () => {
 						/>
 					);
 				})}
-				{rootDragHovered ? (
+				{rootDragHovered && compositionSortOrder === 'registration' ? (
 					<div data-composition-root-reorder-line style={rootReorderLine} />
 				) : null}
 			</div>

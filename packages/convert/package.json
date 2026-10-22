@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/convert",
-	"version": "4.0.524",
+	"version": "4.0.538",
 	"private": true,
 	"type": "module",
 	"author": "Jonny Burger <jonny@remotion.dev>, Hunain Ahmed <junaidhunain6@gmail.com>",
@@ -8,11 +8,12 @@
 		"build-page": "remix vite:build",
 		"build-spa": "remix vite:build -c vite-spa.config.ts && bun build-service-worker.ts",
 		"dev": "remix vite:dev",
-		"typecheck": "tsc",
+		"typecheck": "bun check",
 		"test": "bun test test",
-		"lint": "tsc && eslint --cache --cache-location ./node_modules/.cache/eslint app"
+		"lint": "bun check && eslint --cache --cache-location ./node_modules/.cache/eslint app"
 	},
 	"dependencies": {
+		"@remotion/studio-shared": "workspace:*",
 		"@mediabunny/mp3-encoder": "catalog:",
 		"@mediabunny/aac-encoder": "catalog:",
 		"@mediabunny/flac-encoder": "catalog:",
@@ -68,7 +69,7 @@
 		"eslint": "catalog:",
 		"postcss": "8.5.23",
 		"tailwindcss": "4.2.0",
-		"vite": "6.4.3",
+		"vite": "6.4.4",
 		"vite-tsconfig-paths": "4.3.2"
 	},
 	"engines": {

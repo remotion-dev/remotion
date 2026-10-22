@@ -3,12 +3,25 @@ import type {
 	MouseEventHandler,
 	PointerEventHandler,
 } from 'react';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {interpolate} from 'remotion';
-import {BLUE, TRANSPARENT} from '../../helpers/colors';
+import {
+	BLUE,
+	BLUE_HOVERED,
+	TRANSPARENT,
+	WHITE_ALPHA_10,
+} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {
 	isPointerSessionRelease,
+	observePointerRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
@@ -20,7 +33,7 @@ import {
 import type {RemInputStatus} from './RemInput';
 import {RemotionInput, inputBaseStyle} from './RemInput';
 
-type Props = InputHTMLAttributes<HTMLInputElement> & {
+type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'title'> & {
 	readonly onValueChange: (newVal: number, source: 'input' | 'drag') => void;
 	readonly onValueChangeEnd?: (
 		newVal: number,
@@ -36,9 +49,17 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	readonly rightAlign: boolean;
 	readonly small?: boolean;
 	readonly allowStepMismatch?: boolean;
+	readonly integerOnly?: boolean;
 	readonly snapToStep?: boolean;
 	readonly dragDecimalPlaces?: number;
 	readonly dragSensitivity?: number;
+};
+
+type TextEditing = {
+	readonly format: (value: number | string) => string;
+	readonly parse: (text: string) => number | null;
+	readonly invalidMessage: string;
+	readonly onCancel: () => void;
 };
 
 type InputDraggerValidationResult =
@@ -51,14 +72,24 @@ type InputDraggerValidationResult =
 			readonly message: string;
 	  };
 
-export const inputDraggerContainerStyle: React.CSSProperties = {
+const inputDraggerStyle: React.CSSProperties = {
 	...inputBaseStyle,
+	lineHeight: 1.5,
+	padding: '4px 6px',
+	fontVariantNumeric: 'tabular-nums',
+};
+
+export const inputDraggerContainerStyle: React.CSSProperties = {
+	...inputDraggerStyle,
 	backgroundColor: TRANSPARENT,
 	borderColor: TRANSPARENT,
 	display: 'inline-block',
-	lineHeight: 1.5,
 	outline: 'none',
-	padding: '4px 6px',
+};
+
+const containerStyle: React.CSSProperties = {
+	display: 'inline-flex',
+	position: 'relative',
 };
 
 const compactInputDraggerStyle: React.CSSProperties = {
@@ -332,11 +363,13 @@ export const validateInputDraggerValue = ({
 	min,
 	step,
 	value,
+	integerOnly = false,
 }: {
 	readonly max: React.InputHTMLAttributes<HTMLInputElement>['max'];
 	readonly min: React.InputHTMLAttributes<HTMLInputElement>['min'];
 	readonly step: React.InputHTMLAttributes<HTMLInputElement>['step'];
 	readonly value: string;
+	readonly integerOnly?: boolean;
 }): InputDraggerValidationResult => {
 	const parsed = parseInputDraggerNumber(value);
 	if (parsed === null) {
@@ -359,6 +392,13 @@ export const validateInputDraggerValue = ({
 		return {
 			valid: false,
 			message: `Value must be less than or equal to ${numericMax}.`,
+		};
+	}
+
+	if (integerOnly && !Number.isInteger(parsed)) {
+		return {
+			valid: false,
+			message: 'Value must be an integer.',
 		};
 	}
 
@@ -488,7 +528,7 @@ export const deriveInputDraggerValueDiff = ({
 
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
-	Props
+	Props & {readonly textEditing: TextEditing | null}
 > = (
 	{
 		onValueChange,
@@ -508,10 +548,12 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		rightAlign,
 		small,
 		allowStepMismatch = false,
+		integerOnly = false,
 		snapToStep = true,
 		dragDecimalPlaces,
 		dragSensitivity = 1,
 		type: _type,
+		textEditing,
 		...props
 	},
 	ref,
@@ -519,7 +561,56 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const [inputFallback, setInputFallback] = useState(false);
 	const [dragging, setDragging] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
+	const displayRef = useRef<HTMLSpanElement>(null);
 	const pointerDownRef = useRef(false);
+	const editingDisplayValueRef = useRef('');
+	const editingPaddingRightRef = useRef<string | null>(null);
+	const formattedInputValueRef = useRef<{text: string; value: number} | null>(
+		null,
+	);
+	const startEditing = useCallback(() => {
+		editingDisplayValueRef.current = formatter(value as number | string);
+		const text =
+			textEditing?.format(value as number | string) ?? String(value ?? '');
+		editingPaddingRightRef.current = null;
+		const display = displayRef.current;
+		if (
+			rightAlign &&
+			display?.firstChild &&
+			display.parentElement &&
+			editingDisplayValueRef.current.startsWith(text) &&
+			editingDisplayValueRef.current !== text
+		) {
+			// Keep numbers in place when their display-only unit (such as fps) disappears.
+			const suffix = document.createRange();
+			suffix.selectNodeContents(display);
+			suffix.setStart(display.firstChild, text.length);
+			const {paddingRight} = window.getComputedStyle(display.parentElement);
+			editingPaddingRightRef.current = `calc(${paddingRight} + ${suffix.getBoundingClientRect().width}px)`;
+		}
+
+		formattedInputValueRef.current = {
+			text,
+			value: deriveInputDraggerDragStartValue({min: _min, value}),
+		};
+		setInputFallback(true);
+	}, [_min, formatter, rightAlign, textEditing, value]);
+	const parseText = useCallback(
+		(text: string) => {
+			// Preserve the exact value when a rounded display is left untouched.
+			if (
+				textEditing !== null &&
+				text === formattedInputValueRef.current?.text
+			) {
+				return formattedInputValueRef.current.value;
+			}
+
+			return textEditing === null
+				? parseInputDraggerNumber(text)
+				: textEditing.parse(text);
+		},
+		[textEditing],
+	);
 	const deriveStep = useMemo(() => {
 		return deriveInputDraggerStep({
 			min: _min,
@@ -527,11 +618,11 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			step: _step,
 		});
 	}, [_min, _step, snapToStep]);
-	const validationStep = allowStepMismatch ? 'any' : deriveStep;
+	const validationStep = allowStepMismatch || integerOnly ? 'any' : deriveStep;
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
-			color: dragging ? 'var(--remotion-cli-internals-blue-hovered)' : BLUE,
+			color: dragging ? BLUE_HOVERED : BLUE,
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
@@ -550,21 +641,24 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 		const wasActivatedByInputDragger = consumeInputDraggerActivationRequest();
 		if (small || wasActivatedByInputDragger) {
-			setInputFallback(true);
+			startEditing();
 		}
-	}, [small]);
+	}, [small, startEditing]);
 
-	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
-		if (!getClickLock()) {
-			e.stopPropagation();
-		}
+	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
+			if (!getClickLock()) {
+				e.stopPropagation();
+			}
 
-		if (getClickLock()) {
-			return;
-		}
+			if (getClickLock()) {
+				return;
+			}
 
-		setInputFallback(true);
-	}, []);
+			startEditing();
+		},
+		[startEditing],
+	);
 
 	const onKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
@@ -574,21 +668,23 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 			e.preventDefault();
 			e.stopPropagation();
-			setInputFallback(true);
+			startEditing();
 		},
-		[],
+		[startEditing],
 	);
 
 	const onEscape = useCallback(() => {
+		textEditing?.onCancel();
 		setInputFallback(false);
-	}, []);
+	}, [textEditing]);
 
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			e.target.setCustomValidity('');
-			const parsed = parseInputDraggerNumber(e.target.value);
+			const parsed = parseText(e.target.value);
 			if (
 				parsed !== null &&
+				(!integerOnly || Number.isInteger(parsed)) &&
 				isInputDraggerValueInRange({
 					max: _max,
 					min: _min,
@@ -598,7 +694,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				onValueChange(parsed, 'input');
 			}
 		},
-		[_max, _min, onValueChange],
+		[_max, _min, integerOnly, onValueChange, parseText],
 	);
 
 	const onBlur = useCallback(() => {
@@ -612,11 +708,13 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			return;
 		}
 
+		const parsed = parseText(newValue);
 		const validation = validateInputDraggerValue({
 			max: _max,
 			min: _min,
 			step: validationStep,
-			value: newValue,
+			value: parsed === null ? '' : String(parsed),
+			integerOnly,
 		});
 
 		if (validation.valid) {
@@ -625,10 +723,23 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 			setInputFallback(false);
 		} else {
-			fallbackRef.current.setCustomValidity(validation.message);
+			fallbackRef.current.setCustomValidity(
+				parsed === null && textEditing !== null
+					? textEditing.invalidMessage
+					: validation.message,
+			);
 			fallbackRef.current.reportValidity();
 		}
-	}, [_max, _min, onEscape, onValueChangeEnd, validationStep]);
+	}, [
+		_max,
+		_min,
+		integerOnly,
+		onEscape,
+		onValueChangeEnd,
+		parseText,
+		textEditing,
+		validationStep,
+	]);
 
 	const onInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
@@ -648,26 +759,47 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				}
 
 				e.preventDefault();
-				const parsedInputValue = parseInputDraggerNumber(e.currentTarget.value);
+				const parsedInputValue = parseText(e.currentTarget.value);
 				const currentValue =
 					parsedInputValue ??
 					deriveInputDraggerDragStartValue({
 						min: _min,
 						value,
 					});
-				const nextValue = deriveInputDraggerArrowValue({
+				const steppedValue = deriveInputDraggerArrowValue({
 					direction: e.key === 'ArrowUp' ? 1 : -1,
 					max: _max,
 					min: _min,
 					step: deriveStep,
 					value: currentValue,
 				});
+				const nextValue = integerOnly ? Math.round(steppedValue) : steppedValue;
+				if (
+					integerOnly &&
+					!isInputDraggerValueInRange({max: _max, min: _min, value: nextValue})
+				) {
+					return;
+				}
 
-				e.currentTarget.value = String(nextValue);
+				e.currentTarget.value =
+					textEditing?.format(nextValue) ?? String(nextValue);
+				formattedInputValueRef.current = {
+					text: e.currentTarget.value,
+					value: nextValue,
+				};
 				e.currentTarget.setCustomValidity('');
 				onValueChange(nextValue, 'input');
 			},
-			[_max, _min, deriveStep, onValueChange, value],
+			[
+				_max,
+				_min,
+				deriveStep,
+				integerOnly,
+				onValueChange,
+				parseText,
+				textEditing,
+				value,
+			],
 		);
 
 	const roundToStep = (val: number, stepSize: number) => {
@@ -713,11 +845,19 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 					xDistance,
 				});
 				const newValue = Math.min(max, Math.max(min, dragStartValue + diff));
-				const nextValue = snapToStep
+				const steppedValue = snapToStep
 					? roundToStep(newValue, step)
 					: dragDecimalPlaces === undefined
 						? newValue
 						: roundToDecimalPlaces(newValue, dragDecimalPlaces);
+				const nextValue = integerOnly ? Math.round(steppedValue) : steppedValue;
+				if (
+					integerOnly &&
+					!isInputDraggerValueInRange({max: _max, min: _min, value: nextValue})
+				) {
+					return;
+				}
+
 				lastDragValue = nextValue;
 				onValueChange(nextValue, 'drag');
 			};
@@ -746,6 +886,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			_min,
 			_max,
 			value,
+			integerOnly,
 			onValueChange,
 			onValueChangeEnd,
 			snapToStep,
@@ -754,76 +895,156 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		],
 	);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (inputFallback) {
+			fallbackRef.current?.focus({preventScroll: true});
 			fallbackRef.current?.select();
 		}
 	}, [inputFallback]);
 
-	if (inputFallback) {
-		return (
-			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
-				<RemotionInput
-					ref={fallbackRef}
-					autoFocus
-					onKeyDown={onInputKeyDown}
-					onBlur={onBlur}
-					onChange={onInputChange}
-					min={_min}
-					max={_max}
-					step={validationStep}
-					defaultValue={value}
-					status={status}
-					rightAlign={rightAlign}
-					small={small}
-					{...props}
-					style={
-						small
-							? {
-									...compactInputDraggerStyle,
-									display: 'block',
-									...inputStyle,
-								}
-							: inputStyle
-					}
-					type="text"
-				/>
-			</HigherZIndex>
-		);
-	}
+	useEffect(() => {
+		if (!inputFallback) {
+			return;
+		}
 
-	return (
-		<button
-			ref={ref}
-			type="button"
-			aria-label={props['aria-label']}
-			title={props.title}
-			className={'__remotion_input_dragger'}
-			style={
-				buttonStyle
-					? {
-							...(small
-								? compactInputDraggerContainerStyle
-								: inputDraggerContainerStyle),
-							...buttonStyle,
-						}
-					: small
-						? compactInputDraggerContainerStyle
-						: inputDraggerContainerStyle
+		const commitWithoutClickThrough = (event: PointerEvent) => {
+			const input = fallbackRef.current;
+			if (
+				event.button !== 0 ||
+				input === null ||
+				document.activeElement !== input ||
+				input.contains(event.target as Node)
+			) {
+				return;
 			}
-			onClick={onClick}
-			onFocus={onFocus}
-			onKeyDown={onKeyDown}
-			onPointerDown={onPointerDown}
-		>
-			<span style={span}>{formatter(value as string | number)}</span>
-			{formatterSubtitle ? (
-				<span style={formatterSubtitleStyle}>
-					{formatterSubtitle(value as string | number)}
+
+			// Commit before timeline selection handlers can hide the edited row.
+			event.preventDefault();
+			event.stopImmediatePropagation();
+
+			const stopClick = (clickEvent: MouseEvent) => {
+				clickEvent.preventDefault();
+				clickEvent.stopImmediatePropagation();
+			};
+
+			window.addEventListener('click', stopClick, {capture: true, once: true});
+			observePointerRelease({
+				event,
+				onEnd: () => {
+					// The click follows pointerup, even though blurring unmounts the input.
+					setTimeout(() => {
+						window.removeEventListener('click', stopClick, true);
+					}, 0);
+				},
+			});
+			input.blur();
+		};
+
+		window.addEventListener('pointerdown', commitWithoutClickThrough, true);
+		return () => {
+			window.removeEventListener(
+				'pointerdown',
+				commitWithoutClickThrough,
+				true,
+			);
+		};
+	}, [inputFallback]);
+
+	// The first flex item determines the inline baseline, so keep the button first.
+	return (
+		<span style={{...containerStyle, width: inputStyle?.width}}>
+			<button
+				ref={ref}
+				type="button"
+				aria-label={props['aria-label']}
+				aria-hidden={inputFallback}
+				tabIndex={inputFallback ? -1 : undefined}
+				className={'__remotion_input_dragger'}
+				style={{
+					...(small
+						? compactInputDraggerContainerStyle
+						: inputDraggerContainerStyle),
+					textAlign: rightAlign ? 'right' : 'left',
+					...buttonStyle,
+					width: inputStyle?.width === undefined ? buttonStyle?.width : '100%',
+					// Reserve the same space while the editor is absolutely positioned above it.
+					visibility: inputFallback ? 'hidden' : undefined,
+				}}
+				onClick={onClick}
+				onFocus={onFocus}
+				onKeyDown={onKeyDown}
+				onPointerDown={onPointerDown}
+			>
+				<span ref={displayRef} style={span}>
+					{inputFallback
+						? editingDisplayValueRef.current
+						: formatter(value as string | number)}
 				</span>
+				{formatterSubtitle ? (
+					<span style={formatterSubtitleStyle}>
+						{formatterSubtitle(value as string | number)}
+					</span>
+				) : null}
+			</button>
+			{inputFallback ? (
+				<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
+					<RemotionInput
+						ref={fallbackRef}
+						onKeyDown={onInputKeyDown}
+						onBlur={onBlur}
+						onChange={onInputChange}
+						min={_min}
+						max={_max}
+						step={validationStep}
+						defaultValue={formattedInputValueRef.current?.text ?? value}
+						status={status}
+						rightAlign={rightAlign}
+						small={small}
+						{...props}
+						className={`__remotion_input_dragger_input ${props.className ?? ''}`}
+						style={{
+							...inputDraggerStyle,
+							...(small ? compactInputDraggerStyle : null),
+							...buttonStyle,
+							...formatterStyle,
+							userSelect: 'text',
+							WebkitUserSelect: 'text',
+							...inputStyle,
+							backgroundColor: TRANSPARENT,
+							borderRadius: 3,
+							paddingTop: 0,
+							paddingBottom: 0,
+							outline: 'none',
+							boxShadow: 'none',
+							...(status === 'ok' ? {borderColor: WHITE_ALPHA_10} : null),
+							...(editingPaddingRightRef.current === null
+								? null
+								: {paddingRight: editingPaddingRightRef.current}),
+							display: 'block',
+							position: 'absolute',
+							left: 0,
+							top: '50%',
+							transform: 'translateY(-50%)',
+							width: '100%',
+							height: 'auto',
+						}}
+						type="text"
+					/>
+				</HigherZIndex>
 			) : null}
-		</button>
+		</span>
 	);
 };
 
-export const InputDragger = React.forwardRef(InputDraggerForwardRefFn);
+export const InputDraggerWithTextEditing = React.forwardRef(
+	InputDraggerForwardRefFn,
+);
+
+const InputDraggerWithoutTextEditing: React.ForwardRefRenderFunction<
+	HTMLButtonElement,
+	Props
+> = (props, ref) => (
+	<InputDraggerWithTextEditing {...props} ref={ref} textEditing={null} />
+);
+
+export const InputDragger = React.forwardRef(InputDraggerWithoutTextEditing);

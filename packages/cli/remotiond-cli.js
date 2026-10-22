@@ -1,4 +1,4 @@
-#!/usr/bin/env deno --allow-env --allow-read --allow-write --allow-net --allow-run --allow-sys
+#!/usr/bin/env deno --allow-env --allow-read --allow-write --allow-net --allow-run --allow-sys --allow-ffi
 const {cli} = require('./dist/index');
 
 // Just like "remotion", but it uses Bun

@@ -8,6 +8,7 @@ const cliFlag = 'every-nth-frame' as const;
 
 export const everyNthFrameOption = {
 	name: 'Every nth frame',
+	addedIn: '3.1.0',
 	cliFlag,
 	description: () => (
 		<>
@@ -18,7 +19,7 @@ export const everyNthFrameOption = {
 		</>
 	),
 	ssrName: 'everyNthFrame' as const,
-	docLink: 'https://www.remotion.dev/docs/config#seteverynthframe',
+	docLink: 'https://www.remotion.dev/docs/options/every-nth-frame',
 	type: DEFAULT_EVERY_NTH_FRAME as number,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

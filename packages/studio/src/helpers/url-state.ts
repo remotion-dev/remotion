@@ -1,5 +1,7 @@
 type UrlHandling = 'query-string' | 'spa';
 
+export const closedAllCanvasTabsStorageKey = 'remotion.closedAllCanvasTabs';
+
 const getUrlHandlingType = (): UrlHandling => {
 	if (window.remotion_isReadOnlyStudio || window.remotion_browserStudio) {
 		return 'query-string';
@@ -37,6 +39,11 @@ export const clearUrl = () => {
 };
 
 export const reloadUrl = () => {
+	if (window.remotion_browserStudioReload) {
+		window.remotion_browserStudioReload();
+		return;
+	}
+
 	window.location.reload();
 };
 

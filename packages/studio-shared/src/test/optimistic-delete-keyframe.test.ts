@@ -9,6 +9,7 @@ import {
 
 test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easing segment', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.opacity': {
@@ -30,6 +31,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 30,
@@ -53,6 +55,7 @@ test('optimisticDeleteSequenceKeyframe removes the matching keyframe and an easi
 
 test('optimisticDeleteSequenceKeyframe preserves the left segment easing when removing a middle keyframe', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.opacity': {
@@ -79,6 +82,7 @@ test('optimisticDeleteSequenceKeyframe preserves the left segment easing when re
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 38,
@@ -101,6 +105,7 @@ test('optimisticDeleteSequenceKeyframe preserves the left segment easing when re
 
 test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static value', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			width: {
@@ -118,6 +123,7 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'width',
 		frame: 12,
@@ -136,6 +142,7 @@ test('optimisticDeleteSequenceKeyframe converts the last keyframe to a static va
 
 test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.opacity': {
@@ -153,6 +160,7 @@ test('optimisticDeleteSequenceKeyframe is a no-op when no keyframe matches', () 
 	};
 
 	const updated = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 99,
@@ -170,6 +178,7 @@ test('optimisticDeleteSequenceKeyframe is a no-op when sequence is not updateabl
 	};
 
 	const result = optimisticDeleteSequenceKeyframe({
+		videoConfigValues: null,
 		previous,
 		fieldKey: 'style.opacity',
 		frame: 0,
@@ -180,6 +189,7 @@ test('optimisticDeleteSequenceKeyframe is a no-op when sequence is not updateabl
 
 test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			width: {
@@ -201,6 +211,7 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 	};
 
 	const updated = optimisticDeleteSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{fieldKey: 'width', frame: 0},
@@ -223,6 +234,7 @@ test('optimisticDeleteSequenceKeyframes deletes multiple keyframes in one pass',
 
 test('optimisticDeleteSequenceKeyframes uses the playhead value when deleting all keyframes', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			width: {
@@ -243,6 +255,7 @@ test('optimisticDeleteSequenceKeyframes uses the playhead value when deleting al
 	};
 
 	const updated = optimisticDeleteSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{
@@ -267,6 +280,7 @@ test('optimisticDeleteSequenceKeyframes uses the playhead value when deleting al
 
 test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target effect', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -295,6 +309,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 	};
 
 	const updated = optimisticDeleteEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -321,6 +336,7 @@ test('optimisticDeleteEffectKeyframe removes the matching keyframe on the target
 
 test('optimisticDeleteEffectKeyframe converts the last keyframe on the target effect to a static value', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -346,6 +362,7 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 	};
 
 	const updated = optimisticDeleteEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -370,12 +387,14 @@ test('optimisticDeleteEffectKeyframe converts the last keyframe on the target ef
 
 test('optimisticDeleteEffectKeyframe is a no-op when effect index not found', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [],
 	};
 
 	const result = optimisticDeleteEffectKeyframe({
+		videoConfigValues: null,
 		previous,
 		effectIndex: 0,
 		fieldKey: 'amount',
@@ -387,6 +406,7 @@ test('optimisticDeleteEffectKeyframe is a no-op when effect index not found', ()
 
 test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -416,6 +436,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 	};
 
 	const updated = optimisticDeleteEffectKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{effectIndex: 0, fieldKey: 'amount', frame: 0},
@@ -443,6 +464,7 @@ test('optimisticDeleteEffectKeyframes deletes multiple keyframes in one pass', (
 
 test('optimisticDeleteEffectKeyframes uses the playhead value when deleting all keyframes', () => {
 	const previous: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {},
 		effects: [
@@ -471,6 +493,7 @@ test('optimisticDeleteEffectKeyframes uses the playhead value when deleting all 
 	};
 
 	const updated = optimisticDeleteEffectKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{

@@ -58,13 +58,25 @@ test('undo and redo restore every file in a transaction', () => {
 			},
 			entryType: 'sequence-props',
 			suppressHmrOnFileRestore: true,
+			undoRedoNavigation: {
+				undoRoute: '/Before',
+				redoRoute: '/After',
+			},
 		});
 
-		expect(popUndo()).toEqual({success: true, nodePathMutation: null});
+		expect(popUndo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: '/Before',
+		});
 		expect(readFileSync(firstFile, 'utf-8')).toBe('old first');
 		expect(readFileSync(secondFile, 'utf-8')).toBe('old second');
 
-		expect(popRedo()).toEqual({success: true, nodePathMutation: null});
+		expect(popRedo()).toEqual({
+			success: true,
+			nodePathMutation: null,
+			route: '/After',
+		});
 		expect(readFileSync(firstFile, 'utf-8')).toBe('new first');
 		expect(readFileSync(secondFile, 'utf-8')).toBe('new second');
 	} finally {

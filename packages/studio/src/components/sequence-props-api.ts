@@ -15,32 +15,28 @@ type PendingSequencePropsSubscription = {
 	reject: (error: unknown) => void;
 };
 
+type PendingSequencePropsUnsubscription = {
+	request: UnsubscribeFromSequencePropsRequest;
+	resolve: (response: undefined) => void;
+	reject: (error: unknown) => void;
+};
+
 let pendingSequencePropsSubscriptions: PendingSequencePropsSubscription[] = [];
 let sequencePropsSubscriptionTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingSequencePropsUnsubscriptions: PendingSequencePropsUnsubscription[] =
+	[];
+let sequencePropsUnsubscriptionTimer: ReturnType<typeof setTimeout> | null =
+	null;
 
 const flushSequencePropsSubscriptions = () => {
 	sequencePropsSubscriptionTimer = null;
 	const pending = pendingSequencePropsSubscriptions;
 	pendingSequencePropsSubscriptions = [];
-	const firstRequest = pending[0].request;
 
 	callApi('/api/subscribe-to-sequence-props', {
-		...firstRequest,
 		requests: pending.map(({request}) => request),
 	}).then(
 		(response: SubscribeToSequencePropsBatchResponse) => {
-			if (!Array.isArray(response.results)) {
-				pending[0].resolve(response as SubscribeToSequencePropsResponse);
-				const error = new Error(
-					'Legacy single subscription response received for a batched request',
-				);
-				for (const item of pending.slice(1)) {
-					item.reject(error);
-				}
-
-				return;
-			}
-
 			if (response.results.length !== pending.length) {
 				const error = new Error(
 					`Expected ${pending.length} sequence prop subscription results, got ${response.results.length}`,
@@ -96,7 +92,33 @@ export const unsubscribeFromSequenceProps = (
 	request: UnsubscribeFromSequencePropsRequest,
 ): Promise<undefined> => {
 	const browserStudioOperations = getBrowserStudioOperations();
-	return browserStudioOperations
-		? browserStudioOperations.unsubscribeFromSequenceProps(request)
-		: callApi('/api/unsubscribe-from-sequence-props', request);
+	if (browserStudioOperations) {
+		return browserStudioOperations.unsubscribeFromSequenceProps(request);
+	}
+
+	return new Promise((resolve, reject) => {
+		pendingSequencePropsUnsubscriptions.push({request, resolve, reject});
+		if (sequencePropsUnsubscriptionTimer === null) {
+			sequencePropsUnsubscriptionTimer = setTimeout(() => {
+				sequencePropsUnsubscriptionTimer = null;
+				const pending = pendingSequencePropsUnsubscriptions;
+				pendingSequencePropsUnsubscriptions = [];
+
+				callApi('/api/unsubscribe-from-sequence-props', {
+					requests: pending.map((item) => item.request),
+				}).then(
+					() => {
+						for (const item of pending) {
+							item.resolve(undefined);
+						}
+					},
+					(error) => {
+						for (const item of pending) {
+							item.reject(error);
+						}
+					},
+				);
+			}, 0);
+		}
+	});
 };

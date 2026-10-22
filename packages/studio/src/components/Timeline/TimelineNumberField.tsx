@@ -69,19 +69,23 @@ export const TimelineNumberField: React.FC<{
 		field.fieldSchema.type === 'font-weight' && currentValue % 100 === 0
 			? 100
 			: (configuredStep ?? 1);
-	const allowStepMismatch =
-		field.fieldSchema.type === 'font-weight' ||
-		field.group === 'crop' ||
-		('kind' in field && field.kind === 'effect-field');
+	const integerOnly =
+		field.fieldSchema.type === 'number' && field.fieldSchema.integer === true;
+	const inherited =
+		field.key === 'premountFor' &&
+		field.fieldSchema.default === undefined &&
+		propStatus.codeValue === undefined &&
+		dragValue === null;
 
 	const formatter = useCallback(
 		(v: number | string) => {
-			return formatTimelineFieldValueForDisplay({
+			const formatted = formatTimelineFieldValueForDisplay({
 				fieldSchema: field.fieldSchema,
 				value: v,
 			});
+			return inherited ? `Default (${formatted})` : formatted;
 		},
-		[field.fieldSchema],
+		[field.fieldSchema, inherited],
 	);
 
 	return (
@@ -115,7 +119,8 @@ export const TimelineNumberField: React.FC<{
 			}
 			formatter={formatter}
 			rightAlign={false}
-			allowStepMismatch={allowStepMismatch}
+			allowStepMismatch
+			integerOnly={integerOnly}
 		/>
 	);
 };

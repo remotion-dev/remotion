@@ -26,12 +26,14 @@ const sourceLocationStyle: React.CSSProperties = {
 	textDecoration: 'none',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 	width: 'fit-content',
 };
 
 const quickActionStyle: React.CSSProperties = {
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const sourceLocationLabelStyle: React.CSSProperties = {
@@ -43,6 +45,8 @@ const sourceLocationLabelStyle: React.CSSProperties = {
 	minWidth: 0,
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -110,7 +114,7 @@ export const InspectorSourceLocation: React.FC<{
 				onClick={onClick}
 				renderIcon={(iconColor) => renderIcon?.(iconColor)}
 				style={quickActionStyle}
-				title={fileLocation ?? undefined}
+				aria-label={fileLocation ?? undefined}
 			>
 				{label}
 			</InspectorQuickAction>
@@ -121,7 +125,7 @@ export const InspectorSourceLocation: React.FC<{
 		<button
 			type="button"
 			style={style}
-			title={fileLocation ?? undefined}
+			aria-label={fileLocation ?? undefined}
 			onClick={onClick}
 			onPointerEnter={() => setHovered(true)}
 			onPointerLeave={() => setHovered(false)}

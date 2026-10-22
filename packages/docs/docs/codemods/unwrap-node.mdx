@@ -1,0 +1,76 @@
+---
+image: /generated/articles-docs-codemods-unwrap-node.png
+title: 'unwrapNode()'
+crumb: '@remotion/codemods'
+---
+
+# unwrapNode()<AvailableFrom v="4.0.537" />
+
+Removes a JSX element while keeping its children. Use it to unwrap components such as [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur), or [`<Track>`](/docs/track).
+
+The wrapper's props and behavior, including timing, layout, and effects, are removed. Its children keep their own props. Imports are left unchanged.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="unwrap-node.ts"
+import {getNodes, unwrapNode, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+
+const node = getNodes({project, filePath: 'src/Video.tsx'}).find(
+  (candidate) => candidate.tagName === 'HtmlInCanvas',
+);
+
+if (node) {
+  const result = unwrapNode({project, node});
+  console.log(result.changes);
+}
+```
+
+Children become siblings in the wrapper's parent. When the wrapper is an expression, such as a component's return value, a single JSX child replaces it directly. Multiple children, text, or expression children are enclosed in a fragment to keep the source valid.
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### node
+
+The reference of the element to unwrap. See [node references](/docs/codemods#node-references). The element must have a closing tag.
+
+## Return value
+
+### changes
+
+An array of `{filePath, previousContents, nextContents}` file changes.
+
+### nodePathRemappings
+
+Mappings for removed and moved JSX nodes. The wrapper has a `null` new path, and its children receive updated paths where needed. See [node references](/docs/codemods#node-references).
+
+### childNodePath
+
+The new path of the first JSX element inside the wrapper's children, or `null` if there is none.
+
+### logLine
+
+The one-based line of the wrapper's opening tag in the input source.
+
+## Errors
+
+Throws when the node cannot be found or has no closing tag. Failed edits leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/unwrap-node.ts)
+- [`wrapNode()`](/docs/codemods/wrap-node)
+- [`deleteNodes()`](/docs/codemods/delete-nodes)

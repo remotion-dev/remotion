@@ -4,7 +4,7 @@
 
 This is a Next.js template for building programmatic video apps, with [`@remotion/player`](https://remotion.dev/player) and [`@remotion/lambda`](https://remotion.dev/lambda) built in.
 
-This template uses the Next.js App directory, with TailwindCSS. There is a [Non-TailwindCSS version](https://github.com/remotion-dev/template-next-app-dir), and a [Pages directory version](https://github.com/remotion-dev/template-next-pages-dir) of this template available.
+Tailwind CSS is included.
 
 <img src="https://github.com/remotion-dev/template-next/assets/1629785/c9c2e5ca-2637-4ec8-8e40-a8feb5740d88" />
 
@@ -19,7 +19,7 @@ npm i
 afterwards. Alternatively, use this command to scaffold a project:
 
 ```
-npx create-video@latest --next-tailwind
+npx create-video@latest --next
 ```
 
 ## Commands

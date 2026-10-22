@@ -37,6 +37,7 @@ const row: React.CSSProperties = {
 	padding: '4px 8px',
 	textAlign: 'left',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	width: 'calc(100% + 16px)',
 };
 

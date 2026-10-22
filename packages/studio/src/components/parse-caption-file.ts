@@ -1,4 +1,12 @@
-import type {Caption} from '@remotion/captions';
+import {parseSrt, type Caption} from '@remotion/captions';
+import {
+	detectElevenLabsTranscriptFormat,
+	elevenLabsTranscriptToCaptions,
+} from '@remotion/elevenlabs';
+import {
+	isOpenAiWhisperTranscript,
+	openAiWhisperApiToCaptions,
+} from '@remotion/openai-whisper';
 
 const isObject = (value: unknown): value is Record<string, unknown> => {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -15,21 +23,55 @@ export const parseCaptionFile = ({
 	fileName: string;
 	contents: string;
 }): Caption[] => {
-	if (!fileName.toLowerCase().endsWith('.json')) {
-		throw new Error('Unsupported caption file. Choose a .json file.');
+	const name = fileName.toLowerCase();
+	if (!name.endsWith('.json') && !name.endsWith('.srt')) {
+		throw new Error('Unsupported caption file. Choose a .json or .srt file.');
 	}
 
 	let parsed: unknown;
-	try {
-		parsed = JSON.parse(contents);
-	} catch (error) {
-		throw new Error(
-			`Invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
-		);
+	let canonical = false;
+	if (name.endsWith('.srt')) {
+		parsed = parseSrt({input: contents, strict: true}).captions;
+	} else {
+		try {
+			parsed = JSON.parse(contents.replace(/^\uFEFF/, ''));
+		} catch (error) {
+			throw new Error(
+				`Invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+			);
+		}
+
+		if (Array.isArray(parsed)) {
+			canonical = true;
+		} else {
+			const elevenLabs = detectElevenLabsTranscriptFormat(parsed);
+			const whisper = isOpenAiWhisperTranscript(parsed);
+			if (elevenLabs && whisper) {
+				throw new Error(
+					'Ambiguous transcript: matches both ElevenLabs and OpenAI Whisper signatures. Remove conflicting provider fields.',
+				);
+			}
+
+			if (elevenLabs) {
+				parsed = elevenLabsTranscriptToCaptions({transcript: parsed}).captions;
+			} else if (whisper) {
+				parsed = openAiWhisperApiToCaptions({transcription: parsed}).captions;
+			} else {
+				throw new Error(
+					'Unsupported JSON shape. Expected Remotion Caption[], ElevenLabs Speech-to-Text or segmented JSON, or OpenAI Whisper verbose JSON with timed words or segments.',
+				);
+			}
+		}
 	}
 
 	if (!Array.isArray(parsed)) {
 		throw new Error('Expected a Remotion Caption[] JSON array.');
+	}
+
+	if (!canonical && parsed.length === 0) {
+		throw new Error(
+			'No timed captions found. Export word or segment timestamps, or choose a caption file with timed cues.',
+		);
 	}
 
 	let previousStart: number | null = null;

@@ -8,6 +8,7 @@ const cliFlag = 'enforce-audio-track' as const;
 
 export const enforceAudioOption = {
 	name: 'Enforce Audio Track',
+	addedIn: '3.2.1',
 	cliFlag,
 	description: (mode) => (
 		<>
@@ -41,7 +42,7 @@ export const enforceAudioOption = {
 		</>
 	),
 	ssrName: 'enforceAudioTrack',
-	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack-',
+	docLink: 'https://www.remotion.dev/docs/options/enforce-audio-track',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {

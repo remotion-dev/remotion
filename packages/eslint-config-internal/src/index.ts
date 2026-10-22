@@ -1,8 +1,8 @@
 import {createRequire} from 'node:module';
 import {FlatCompat} from '@eslint/eslintrc';
 import js from '@eslint/js';
-import typescriptPlugin from '@typescript-eslint/eslint-plugin';
-import parser from '@typescript-eslint/parser';
+import parser from '@remotion/typescript-tools/eslint-parser';
+import typescriptPlugin from '@remotion/typescript-tools/eslint-plugin';
 
 const require = createRequire(import.meta.url);
 const __dirname = new URL('.', import.meta.url).pathname;
@@ -11,6 +11,7 @@ const {configs, rules: reactRules} = require('eslint-plugin-react');
 
 import {Linter} from 'eslint';
 import {rules} from './base.js';
+import {noMixedRenderScope} from './no-mixed-render-scope.js';
 
 const compat = new FlatCompat({
 	recommendedConfig: js.configs.recommended,
@@ -41,6 +42,11 @@ export const remotionFlatConfig = ({
 			}
 		: {},
 	plugins: {
+		'remotion-internal': {
+			rules: {
+				'no-mixed-render-scope': noMixedRenderScope,
+			},
+		},
 		...(react
 			? {
 					react: {
@@ -53,7 +59,10 @@ export const remotionFlatConfig = ({
 		'@typescript-eslint': typescriptPlugin,
 		...(react ? compat.plugins('react-hooks')[0].plugins : {}),
 	},
-	rules: rules({react}),
+	rules: {
+		...rules({react}),
+		'remotion-internal/no-mixed-render-scope': 'error',
+	},
 	files: [
 		'src/**/*.ts',
 		'src/**/*.tsx',

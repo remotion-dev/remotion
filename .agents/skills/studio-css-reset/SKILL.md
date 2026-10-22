@@ -1,63 +1,25 @@
 ---
 name: studio-css-reset
-description: Diagnose and fix Remotion Studio UI bugs caused by the global CSS reset. Use when nested text or SVG icons have incorrect color, typography, sizing, hover states, or truncation in packages/studio.
+description: Style Remotion Studio UI inside `.css-reset` containers without relying on inherited reset properties.
 ---
 
-# Studio CSS Reset
+# Studio CSS reset
 
-Remotion Studio's reset targets both the reset container and every descendant. A child does not necessarily inherit the visual styles of its parent: the reset may give that child its own computed value instead.
+Studio uses `.css-reset` containers to limit the effect of user styles on its UI. The bundler injects this rule in `packages/bundler/src/setup-environment.ts`:
 
-## Diagnose the affected element
-
-Inspect the element that actually paints the pixels, not only its parent:
-
-- For text, inspect the `span`, `div`, or other text wrapper.
-- For SVG icons, inspect the painted `path`, `circle`, or `rect` as well as the outer `svg`.
-- Compare computed styles in every relevant state: idle, hovered, selected, focused, and disabled.
-- Check whether the value comes from an inline style, SVG presentation attribute, inheritance, or the `.css-reset, .css-reset *` rule.
-
-## Apply explicit local styles
-
-Do not assume that styling the row, button, or outer SVG is enough.
-
-For text wrappers, explicitly set the visual properties the component depends on, such as:
-
-```tsx
-const labelStyle: React.CSSProperties = {
-	fontFamily: 'inherit',
-	fontSize: 13,
-	lineHeight: 'normal',
-	color: 'inherit',
-};
+```css
+.css-reset, .css-reset * {
+  font-size: 16px;
+  line-height: 1.5;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  background: transparent;
+  box-sizing: border-box;
+}
 ```
 
-Use `color: 'inherit'` only when the styled element directly paints the text. It does not protect deeper descendants that receive their own reset value.
+The rule applies to each reset container and every descendant, but only to the properties shown. It does not cover elements outside those containers or prevent a stronger user CSS rule from winning.
 
-For SVG icons, remember that `fill="currentColor"` resolves against the computed `color` of the painted SVG element. If the reset sets `color: white` on the inner `<path>`, setting `color: 'inherit'` only on the outer `<svg>` will not fix it. Pass the concrete state color to the component that renders the painted element:
+## Must-follow rule
 
-```tsx
-<AssetFileIcon color={hovered || selected ? WHITE : LIGHT_TEXT} />
-```
-
-Prefer a concrete `fill`, `stroke`, or color prop when the icon has state-dependent colors. Use `currentColor` only after confirming that the painted descendants inherit the intended color.
-
-## Preserve compact row layout
-
-When adding icon-and-label markup:
-
-- Give icons fixed dimensions and `flexShrink: 0`.
-- Give labels `minWidth: 0`, `overflow: 'hidden'`, `textOverflow: 'ellipsis'`, and `whiteSpace: 'nowrap'` when truncation is required.
-- Confirm that wrappers do not change row height, spacing, or the ellipsis behavior.
-
-Prefer fixing a shared Studio component once when the same row or icon pattern is reused.
-
-## Verify the result
-
-Do not stop after checking that the code compiles. In a running Studio, inspect the computed style of the element that paints the pixels in both idle and interactive states. Confirm that labels and icons change together and that selection does not mask a broken hover state.
-
-For Studio code changes, run at least:
-
-```bash
-bunx turbo run make --filter='@remotion/studio'
-bunx turbo run lint test --filter='@remotion/studio'
-```
+Do not rely on inheritance for a property in this reset. Each descendant receives its own reset value, so styling a parent alone will not style nested text or SVG shapes. Set the needed value on the element that renders it, or use a CSS selector that explicitly styles that descendant.

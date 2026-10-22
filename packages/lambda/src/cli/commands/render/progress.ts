@@ -1,8 +1,10 @@
 import {CliInternals} from '@remotion/cli';
+import {
+	LambdaClientInternals,
+	type ReceivedArtifact,
+} from '@remotion/lambda-client';
 import type {RenderProgress} from '@remotion/lambda-client/constants';
 import {RenderInternals} from '@remotion/renderer';
-import type {CloudProvider, ReceivedArtifact} from '@remotion/serverless';
-import {truthy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 
 type LambdaInvokeProgress = {
@@ -76,7 +78,7 @@ const makeInvokeProgress = (overall: RenderProgress) => {
 const makeRenderProgress = (progress: RenderProgress) => {
 	const framesEncoded = progress.encodingStatus?.framesEncoded ?? 0;
 	const totalFrames =
-		progress.renderMetadata && progress.renderMetadata.type === 'video'
+		progress.renderMetadata && progress.renderMetadata.type !== 'still'
 			? RenderInternals.getFramesToRender(
 					progress.renderMetadata.frameRange,
 					progress.renderMetadata.everyNthFrame,
@@ -100,7 +102,7 @@ const makeRenderProgress = (progress: RenderProgress) => {
 			? frames
 			: CliInternals.chalk.gray(`${progress.timeToRenderFrames}ms`),
 	]
-		.filter(truthy)
+		.filter(LambdaClientInternals.truthy)
 		.join(' ');
 
 	const second = [
@@ -115,14 +117,31 @@ const makeRenderProgress = (progress: RenderProgress) => {
 				: `${framesEncoded}/${totalFrames}`
 			: CliInternals.chalk.gray(`${progress.timeToEncode}ms`),
 	]
-		.filter(truthy)
+		.filter(LambdaClientInternals.truthy)
 		.join(' ');
 
+	if (progress.renderMetadata?.type === 'sequence') {
+		const framesUploaded = progress.framesUploaded ?? 0;
+		const uploadedFrames = `${framesUploaded}/${totalFrames ?? '?'}`;
+		return [
+			first,
+			[
+				'Uploading frames'.padEnd(CliInternals.LABEL_WIDTH),
+				CliInternals.makeProgressBar(
+					framesUploaded / (totalFrames ?? 1),
+					false,
+				),
+				totalFrames === framesUploaded
+					? CliInternals.chalk.gray(uploadedFrames)
+					: uploadedFrames,
+			].join(' '),
+		];
+	}
 	return [first, second];
 };
 
 function getTotalFrames(status: RenderProgress): number | null {
-	return status.renderMetadata && status.renderMetadata.type === 'video'
+	return status.renderMetadata && status.renderMetadata.type !== 'still'
 		? RenderInternals.getFramesToRender(
 				status.renderMetadata.frameRange,
 				status.renderMetadata.everyNthFrame,
@@ -154,7 +173,7 @@ const makeCombinationProgress = (prog: RenderProgress) => {
 
 const makeDownloadProgress = (downloadInfo: DownloadedInfo) => {
 	return [
-		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} video`.padEnd(
+		`${downloadInfo.doneIn === null ? 'Downloading' : 'Downloaded'} output`.padEnd(
 			CliInternals.LABEL_WIDTH,
 			' ',
 		),
@@ -210,9 +229,7 @@ const makeTopRow = (overall: RenderProgress) => {
 
 const ARTIFACTS_SHOWN = 5;
 
-export const makeArtifactProgress = <Provider extends CloudProvider>(
-	artifactProgress: ReceivedArtifact<Provider>[],
-) => {
+export const makeArtifactProgress = (artifactProgress: ReceivedArtifact[]) => {
 	if (artifactProgress.length === 0) {
 		return null;
 	}
@@ -235,7 +252,7 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 				),
 			].join(' ');
 		})
-		.filter(truthy)
+		.filter(LambdaClientInternals.truthy)
 		.join('\n');
 
 	const moreSizeCombined = artifactProgress
@@ -248,7 +265,7 @@ export const makeArtifactProgress = <Provider extends CloudProvider>(
 					`${' '.repeat(CliInternals.LABEL_WIDTH)} ${artifactProgress.length - ARTIFACTS_SHOWN} more artifact${artifactProgress.length - ARTIFACTS_SHOWN === 1 ? '' : 's'} ${CliInternals.formatBytes(moreSizeCombined)}`,
 				)
 			: null;
-	return [artifacts, more].filter(truthy).join('\n');
+	return [artifacts, more].filter(LambdaClientInternals.truthy).join('\n');
 };
 
 export const makeProgressString = ({
@@ -263,7 +280,9 @@ export const makeProgressString = ({
 		makeEvaluationProgress(overall),
 		...makeInvokeProgress(overall),
 		...makeRenderProgress(overall),
-		makeCombinationProgress(overall),
+		overall.renderMetadata?.type === 'sequence'
+			? null
+			: makeCombinationProgress(overall),
 		downloadInfo ? makeDownloadProgress(downloadInfo) : null,
 		makeArtifactProgress(overall.artifacts),
 	]

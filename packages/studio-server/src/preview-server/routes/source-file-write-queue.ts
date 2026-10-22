@@ -12,7 +12,7 @@ export const getCodemodTimingPrefix = (logLevel: LogLevel) => {
 };
 
 export const withSourceFileWriteQueue = <T>(
-	fn: () => Promise<T>,
+	fn: () => Promise<T> | T,
 ): Promise<T> => {
 	const run = () => codemodStartTime.run(Date.now(), fn);
 	const next = chain.then(run, run);

@@ -17,8 +17,8 @@ const descriptor = ({
 	projectName,
 	targetId,
 }: {
-	readonly compositionId: string;
-	readonly lastFocusedAt: number;
+	readonly compositionId: string | null;
+	readonly lastFocusedAt: number | null;
 	readonly projectName: string;
 	readonly targetId: string;
 }) => ({
@@ -56,21 +56,24 @@ const dependencies = {
 
 test('delivers the payload when a newer Studio advertises an unknown capability', async () => {
 	const requests: Array<{url: string; options?: RequestInit}> = [];
+
 	const newestStudio = descriptor({
-		compositionId: 'Main',
-		lastFocusedAt: 950_000,
+		compositionId: null,
+		lastFocusedAt: 400_000,
 		projectName: 'Newest project',
 		targetId: 'newest-target',
 	});
+
 	const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
 		const url = String(input);
 		requests.push({url, options});
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
 					descriptor({
 						compositionId: 'Older',
-						lastFocusedAt: 900_000,
+						lastFocusedAt: null,
 						projectName: 'Older project',
 						targetId: 'older-target',
 					}),
@@ -113,7 +116,7 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 		status: 'awaiting-confirmation',
 		target: {
 			projectName: 'Newest project',
-			compositionId: 'Main',
+			compositionId: null,
 			studioOrigin: 'http://localhost:3001',
 			studioVersion: '4.0.502',
 		},
@@ -131,9 +134,128 @@ test('delivers the payload when a newer Studio advertises an unknown capability'
 	});
 });
 
+test('requires a Studio that supports asset payloads', async () => {
+	const payload = createElementPayload({
+		dependencies: [],
+		dimensions: null,
+		displayName: 'Asset Element',
+		durationInFrames: 30,
+		slug: 'asset-element',
+		sourceCode: 'export const AssetElement = () => null;',
+		assets: [{path: 'asset.bin', type: 'base64', data: 'AA=='}],
+	});
+
+	const result = await installInStudioWithDependencies(payload, {
+		...dependencies,
+		fetchFn: () =>
+			Promise.resolve(
+				jsonResponse(
+					descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 999_000,
+						projectName: 'Old Studio',
+						targetId: 'old-target',
+					}),
+				),
+			),
+	});
+
+	expect(result).toMatchObject({
+		success: false,
+		code: 'studio-upgrade-required',
+	});
+});
+
+test('sends remote URLs to a focused v1 Studio and local asset references to a focused v2 Studio', async () => {
+	const legacyPayload = createElementPayload({
+		dependencies: [],
+		dimensions: null,
+		displayName: 'Audio Element',
+		durationInFrames: 30,
+		slug: 'audio-element',
+		sourceCode: 'export const AudioElement = () => null;',
+		initialProps: {audioSrc: 'https://remotion.media/audio.mp3'},
+	});
+
+	const assetPayload = createElementPayload({
+		dependencies: [],
+		dimensions: null,
+		displayName: 'Audio Element',
+		durationInFrames: 30,
+		slug: 'audio-element',
+		sourceCode: 'export const AudioElement = () => null;',
+		assets: [
+			{path: 'audio.mp3', type: 'url', url: 'https://remotion.media/audio.mp3'},
+		],
+		initialProps: {audioSrc: {__remotion_element_asset: 'audio.mp3'}},
+	});
+
+	for (const supportsAssets of [false, true]) {
+		const requests: unknown[] = [];
+
+		const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
+			const url = String(input);
+
+			if (url.endsWith('/api/studio-protocol/install')) {
+				requests.push(JSON.parse(String(options?.body)));
+
+				return Promise.resolve(
+					jsonResponse({
+						protocol: 'remotion-studio-protocol',
+						protocolVersion: 1,
+						status: 'awaiting-confirmation',
+					}),
+				);
+			}
+
+			return Promise.resolve(
+				jsonResponse({
+					...descriptor({
+						compositionId: 'Main',
+						lastFocusedAt: 999_000,
+						projectName: 'Studio',
+						targetId: 'target',
+					}),
+					capabilities: [
+						{
+							type: 'install-element',
+							payloadType: 'remotion-element',
+							payloadVersions: supportsAssets ? [1, 2] : [1],
+							target: {
+								id: 'target',
+								expiresAt: 1_010_000,
+								compositionId: 'Main',
+								lastFocusedAt: 999_000,
+							},
+						},
+					],
+				}),
+			);
+		};
+
+		const result = await installInStudioWithDependencies(
+			assetPayload,
+			{...dependencies, fetchFn, ports: [3000]},
+			legacyPayload,
+		);
+
+		expect(result.success).toBe(true);
+		expect(requests).toEqual([
+			{
+				operation: 'install-element',
+				protocol: 'remotion-studio-protocol',
+				protocolVersion: 1,
+				targetId: 'target',
+				payload: supportsAssets ? assetPayload : legacyPayload,
+			},
+		]);
+	}
+});
+
 test('distinguishes a compatible Studio without an installable target', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse({
@@ -169,17 +291,18 @@ test('distinguishes a compatible Studio without an installable target', async ()
 	).toEqual({
 		success: false,
 		code: 'no-installable-target',
-		message:
-			'Focus a composition in a Remotion Studio that is not read-only, then try again.',
+		message: 'Focus Remotion Studio, then try again.',
 	});
 });
 
 test('returns an actionable result when no Studio is running', async () => {
 	const requests: string[] = [];
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: (input) => {
 			requests.push(String(input));
+
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
 	});
@@ -187,7 +310,7 @@ test('returns an actionable result when no Studio is running', async () => {
 	expect(result).toEqual({
 		success: false,
 		code: 'no-compatible-studio',
-		message: 'Start Remotion Studio and open a composition, then try again.',
+		message: 'Start Remotion Studio, then try again.',
 	});
 	expect(requests).toEqual([
 		'http://localhost:3000/api/studio-protocol',
@@ -210,20 +333,23 @@ test('ignores a non-Studio development server on a probed port', async () => {
 	expect(result).toEqual({
 		success: false,
 		code: 'no-compatible-studio',
-		message: 'Start Remotion Studio and open a composition, then try again.',
+		message: 'Start Remotion Studio, then try again.',
 	});
 });
 
 test('reports when loopback network access is explicitly denied after discovery', async () => {
 	const events: string[] = [];
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: (input) => {
 			events.push(String(input));
+
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
 		permissionQueryFn: ({name}) => {
 			events.push(`permission:${name}`);
+
 			return Promise.resolve({state: 'denied'});
 		},
 	});
@@ -243,11 +369,13 @@ test('reports when loopback network access is explicitly denied after discovery'
 
 test('uses the legacy local network permission alias when necessary', async () => {
 	const queriedPermissions: string[] = [];
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: () => Promise.resolve(new Response(null, {status: 404})),
 		permissionQueryFn: ({name}) => {
 			queriedPermissions.push(name);
+
 			if (name === 'loopback-network') {
 				return Promise.reject(new TypeError('Unsupported permission name'));
 			}
@@ -282,7 +410,7 @@ test('keeps the generic result when permission is not definitively denied', asyn
 		expect(result).toEqual({
 			success: false,
 			code: 'no-compatible-studio',
-			message: 'Start Remotion Studio and open a composition, then try again.',
+			message: 'Start Remotion Studio, then try again.',
 		});
 	}
 });
@@ -295,6 +423,7 @@ test('waits for Studio discovery while local network permission is pending', asy
 	) {
 		expect(this).toBeUndefined();
 		const url = String(input);
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return new Promise<Response>((resolve, reject) => {
 				const timeout = setTimeout(() => {
@@ -309,6 +438,7 @@ test('waits for Studio discovery while local network permission is pending', asy
 						),
 					);
 				}, 2100);
+
 				options?.signal?.addEventListener(
 					'abort',
 					() => {
@@ -381,12 +511,13 @@ test('reports malformed Studio Protocol data as an invalid response', async () =
 test('returns a structured error when the selected target expired', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
+
 		if (url.endsWith('/api/studio-protocol')) {
 			return Promise.resolve(
 				jsonResponse(
 					descriptor({
 						compositionId: 'Main',
-						lastFocusedAt: 950_000,
+						lastFocusedAt: null,
 						projectName: 'Project',
 						targetId: 'expired-target',
 					}),
@@ -423,6 +554,7 @@ test('returns a structured error when the selected target expired', async () => 
 test('reports a truncated install response as invalid', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
@@ -462,10 +594,12 @@ test('reports a truncated install response as invalid', async () => {
 
 test('does not probe Studio from a non-loopback HTTP origin', async () => {
 	let requests = 0;
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: () => {
 			requests++;
+
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
 		pageOrigin: 'http://example.com',

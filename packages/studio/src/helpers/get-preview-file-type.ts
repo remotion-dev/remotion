@@ -4,6 +4,7 @@ export type AssetFileType =
 	| 'video'
 	| 'image'
 	| 'json'
+	| 'lut'
 	| 'txt'
 	| 'other';
 
@@ -27,6 +28,7 @@ export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 	const imageExtensions = [
 		'jpg',
 		'jpeg',
+		'jxl',
 		'png',
 		'apng',
 		'gif',
@@ -59,6 +61,10 @@ export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 
 	if (fileExtension === 'json') {
 		return 'json';
+	}
+
+	if (fileExtension === 'cube') {
+		return 'lut';
 	}
 
 	if (fileExtension === 'txt') {

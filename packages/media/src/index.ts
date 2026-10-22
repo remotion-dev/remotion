@@ -16,6 +16,7 @@ export {MediaErrorAction} from './on-error';
 export type {MediaRequestInit} from './request-init';
 export {
 	FallbackOffthreadVideoProps,
+	MaxCanvasSinkFrameSize,
 	VideoObjectFit,
 	VideoProps,
 } from './video/props';

@@ -1,44 +1,47 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
-	_InternalTypes,
 	AudioCodec,
-	BrowserSafeApis,
 	ChromiumOptions,
 	ColorSpace,
-	DeleteAfter,
-	DownloadBehavior,
 	LogLevel,
-	OutNameInput,
 	PixelFormat,
-	Privacy,
-	ServerlessCodec,
 	SingleFrameRange,
-	ServerlessPayloads,
-	ServerlessStartPayload,
-	ServerlessStatusPayload,
 	ToOptions,
 	VideoImageFormat,
-	WebhookOption,
 	X264Preset,
-} from '@remotion/serverless-client';
+} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {_InternalTypes} from 'remotion';
+import {NoReactInternals, type DownloadBehavior} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
 import {
 	compressInputProps,
-	ENABLE_V5_BREAKING_CHANGES,
 	getNeedsToUpload,
 	serializeOrThrow,
-	ServerlessRoutines,
-	validateDownloadBehavior,
-	VERSION,
-} from '@remotion/serverless-client';
-import {validateWebhook} from '@remotion/serverless-client';
-import type {AwsProvider} from './aws-provider';
-import {awsImplementation} from './aws-provider';
+} from './compress-props';
 import type {GetRenderProgressInput} from './get-render-progress';
+import {getSizeInBytes} from './get-size-in-bytes';
+import type {ServerlessRenderOutput} from './image-sequence';
 import type {AwsRegion} from './regions';
 import type {RenderStillOnLambdaNonNullInput} from './render-still-on-lambda';
+import {getRendererFunctionTransport} from './renderer-transport';
+import {
+	ServerlessRoutines,
+	type DeleteAfter,
+	type OutNameInput,
+	type OutNameInputWithKey,
+	type Privacy,
+	type ServerlessCodec,
+	type ServerlessPayloads,
+	type ServerlessStartPayload,
+	type ServerlessStatusPayload,
+	type WebhookOption,
+} from './shared-constants';
 import type {RequestHandler} from './types';
+import {validateDownloadBehavior} from './validate-download-behavior';
 import {validateLambdaCodec} from './validate-lambda-codec';
 import {validateServeUrl} from './validate-serveurl';
+import {validateWebhook} from './validate-webhook';
 
 export type InnerRenderMediaOnLambdaInput = {
 	enableCancellation: boolean;
@@ -47,7 +50,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps: Record<string, unknown>;
-	codec: ServerlessCodec;
+	codec: ServerlessCodec | null;
+	output: ServerlessRenderOutput;
 	imageFormat: VideoImageFormat;
 	crf: number | undefined;
 	envVariables: Record<string, string>;
@@ -62,7 +66,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	concurrency: number | null;
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
-	outName: OutNameInput<AwsProvider> | null;
+	outName: OutNameInput | null;
+	separateAudioTo: OutNameInputWithKey | null;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -104,6 +109,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	concurrency,
 	forceBucketName: bucketName,
 	codec,
+	output,
 	composition,
 	serveUrl,
 	imageFormat,
@@ -115,10 +121,12 @@ export const makeLambdaRenderMediaPayload = async ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	disableSharedMemoryCapture,
 	maxRetries,
 	privacy,
 	logLevel,
 	outName,
+	separateAudioTo,
 	timeoutInMilliseconds,
 	chromiumOptions,
 	scale,
@@ -152,10 +160,15 @@ export const makeLambdaRenderMediaPayload = async ({
 	requestHandler,
 	isProduction,
 	sampleRate,
-}: InnerRenderMediaOnLambdaInput): Promise<
-	ServerlessStartPayload<AwsProvider>
-> => {
-	const actualCodec = validateLambdaCodec(codec);
+}: InnerRenderMediaOnLambdaInput): Promise<ServerlessStartPayload> => {
+	const actualCodec = codec === null ? null : validateLambdaCodec(codec);
+
+	if ((output.type === 'sequence') !== (actualCodec === null)) {
+		throw new Error(
+			'Image sequence renders must omit the codec. Media renders require a codec.',
+		);
+	}
+
 	validateServeUrl(serveUrl);
 	validateDownloadBehavior(downloadBehavior);
 	validateWebhook(webhook);
@@ -171,14 +184,12 @@ export const makeLambdaRenderMediaPayload = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'video-or-audio',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables)),
 			],
-			providerSpecifics: awsImplementation,
 		}),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
-		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: privacy === 'no-acl',
 		requestHandler: requestHandler ?? null,
@@ -193,6 +204,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		serveUrl,
 		inputProps: serialized,
 		codec: actualCodec,
+		output,
 		imageFormat,
 		crf: crf ?? null,
 		envVariables,
@@ -200,12 +212,14 @@ export const makeLambdaRenderMediaPayload = async ({
 		proResProfile: proResProfile ?? null,
 		x264Preset,
 		gopSize,
+		disableSharedMemoryCapture,
 		jpegQuality,
 		maxRetries,
 		privacy,
 		logLevel,
 		frameRange,
 		outName,
+		separateAudioTo,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		scale,
@@ -215,7 +229,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		downloadBehavior,
 		muted,
 		version: VERSION,
-		overwrite: overwrite ?? ENABLE_V5_BREAKING_CHANGES,
+		overwrite: overwrite ?? NoReactInternals.ENABLE_V5_BREAKING_CHANGES,
 		audioBitrate: audioBitrate ?? null,
 		videoBitrate: videoBitrate ?? null,
 		encodingBufferSize: encodingBufferSize ?? null,
@@ -249,7 +263,7 @@ export const getRenderProgressPayload = ({
 	s3OutputProvider,
 	logLevel,
 	forcePathStyle,
-}: GetRenderProgressInput): ServerlessStatusPayload<AwsProvider> => {
+}: GetRenderProgressInput): ServerlessStatusPayload => {
 	return {
 		type: ServerlessRoutines.status,
 		bucketName,
@@ -293,7 +307,7 @@ export const makeLambdaRenderStillPayload = async ({
 	mediaCacheSizeInBytes,
 	isProduction,
 }: RenderStillOnLambdaNonNullInput): Promise<
-	ServerlessPayloads<AwsProvider>[ServerlessRoutines.still]
+	ServerlessPayloads[ServerlessRoutines.still]
 > => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -303,14 +317,12 @@ export const makeLambdaRenderStillPayload = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'still',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables)),
 			],
-			providerSpecifics: awsImplementation,
 		}),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
-		providerSpecifics: awsImplementation,
 		forcePathStyle,
 		skipPutAcl: privacy === 'no-acl',
 		requestHandler,
@@ -343,9 +355,7 @@ export const makeLambdaRenderStillPayload = async ({
 		offthreadVideoCacheSizeInBytes,
 		deleteAfter,
 		type: ServerlessRoutines.still,
-		streamed:
-			awsImplementation.getRendererFunctionTransport(region) ===
-			'response-streaming',
+		streamed: getRendererFunctionTransport(region) === 'response-streaming',
 		forcePathStyle,
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,

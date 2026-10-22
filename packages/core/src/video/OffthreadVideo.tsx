@@ -1,4 +1,6 @@
 import React, {useCallback} from 'react';
+import {Html5MediaTrimContext} from '../audio/use-audio-frame.js';
+import {getMediaTrimAfter} from '../calculate-media-duration.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Sequence} from '../Sequence.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
@@ -8,6 +10,7 @@ import {
 	resolveTrimProps,
 	validateMediaTrimProps,
 } from '../validate-start-from-props.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
 import type {
 	AllOffthreadVideoProps,
@@ -25,6 +28,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		endAt,
 		trimBefore,
 		trimAfter,
+		durationInFrames,
 		name,
 		pauseWhenBuffering,
 		_remotionInternalStack,
@@ -51,6 +55,12 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 	}
 
 	validateMediaTrimProps({startFrom, endAt, trimBefore, trimAfter});
+	if (durationInFrames !== undefined) {
+		validateDurationInFrames(durationInFrames, {
+			component: 'of the <OffthreadVideo /> component',
+			allowFloats: true,
+		});
+	}
 
 	const {trimBeforeValue, trimAfterValue} = resolveTrimProps({
 		startFrom,
@@ -58,31 +68,45 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 		trimBefore,
 		trimAfter,
 	});
+	const effectiveTrimAfter = getMediaTrimAfter({
+		durationInFrames,
+		trimAfter: trimAfterValue,
+		trimBefore: trimBeforeValue,
+	});
 
 	if (
 		typeof trimBeforeValue !== 'undefined' ||
-		typeof trimAfterValue !== 'undefined'
+		typeof effectiveTrimAfter !== 'undefined'
 	) {
 		return (
-			<Sequence
-				layout="none"
-				from={0 - (trimBeforeValue ?? 0)}
-				showInTimeline={false}
-				durationInFrames={trimAfterValue}
-				name={name}
-			>
-				<InnerOffthreadVideo
-					pauseWhenBuffering={shouldPauseWhenBuffering}
-					{...otherProps}
-					trimAfter={undefined}
-					name={undefined}
-					showInTimeline={showInTimeline}
-					trimBefore={undefined}
-					_remotionInternalStack={undefined}
-					startFrom={undefined}
-					endAt={undefined}
-				/>
-			</Sequence>
+			<Html5MediaTrimContext.Provider value={trimBeforeValue ?? 0}>
+				<Sequence
+					layout="none"
+					from={0 - (trimBeforeValue ?? 0)}
+					showInTimeline={false}
+					durationInFrames={
+						effectiveTrimAfter === undefined
+							? undefined
+							: (trimBeforeValue ?? 0) +
+								(effectiveTrimAfter - (trimBeforeValue ?? 0)) /
+									(props.playbackRate ?? 1)
+					}
+					name={name}
+				>
+					<InnerOffthreadVideo
+						pauseWhenBuffering={shouldPauseWhenBuffering}
+						{...otherProps}
+						trimAfter={undefined}
+						durationInFrames={undefined}
+						name={undefined}
+						showInTimeline={showInTimeline}
+						trimBefore={undefined}
+						_remotionInternalStack={undefined}
+						startFrom={undefined}
+						endAt={undefined}
+					/>
+				</Sequence>
+			</Html5MediaTrimContext.Provider>
 		);
 	}
 
@@ -94,6 +118,7 @@ export const InnerOffthreadVideo: React.FC<AllOffthreadVideoProps> = (
 				pauseWhenBuffering={shouldPauseWhenBuffering}
 				{...otherProps}
 				trimAfter={undefined}
+				durationInFrames={undefined}
 				name={undefined}
 				showInTimeline={showInTimeline}
 				trimBefore={undefined}
@@ -159,6 +184,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 	toneMapped,
 	transparent,
 	trimAfter,
+	durationInFrames,
 	trimBefore,
 	useWebAudioApi,
 	volume,
@@ -205,6 +231,7 @@ export const OffthreadVideo: React.FC<RemotionOffthreadVideoProps> = ({
 			toneMapped={toneMapped ?? true}
 			transparent={transparent ?? false}
 			trimAfter={trimAfter}
+			durationInFrames={durationInFrames}
 			trimBefore={trimBefore}
 			useWebAudioApi={useWebAudioApi ?? false}
 			volume={volume}

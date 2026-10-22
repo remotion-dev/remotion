@@ -1,6 +1,5 @@
 import React, {useContext, useMemo} from 'react';
 import {interpolateColors, random} from 'remotion';
-import {RED} from '../../helpers/colors';
 import {SplitterContext} from './SplitterContext';
 
 export const SplitterElement: React.FC<{
@@ -58,7 +57,7 @@ export const SplitterElement: React.FC<{
 			backgroundColor: interpolateColors(
 				random(context.flexValue),
 				[0, 1],
-				[RED, 'blue'],
+				['red', 'blue'],
 			),
 		};
 	}, [context.flexValue, type]);

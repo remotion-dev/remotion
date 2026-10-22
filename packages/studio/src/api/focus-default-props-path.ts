@@ -1,6 +1,7 @@
 import {
 	DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME,
 	DEFAULT_PROPS_PATH_CLASSNAME,
+	expandDefaultPropsEditorRef,
 } from '../components/RenderModal/SchemaEditor/scroll-to-default-props-path';
 import type {JSONPath} from '../components/RenderModal/SchemaEditor/zod-types';
 
@@ -27,7 +28,13 @@ export const focusDefaultPropsPath = ({
 		};
 	}
 
-	query.scrollIntoView({behavior: scrollBehavior});
+	const scrollToField = () => query.scrollIntoView({behavior: scrollBehavior});
+	if (expandDefaultPropsEditorRef.current === null) {
+		scrollToField();
+	} else {
+		expandDefaultPropsEditorRef.current(scrollToField);
+	}
+
 	query.classList.add(DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME);
 	return {
 		success: true,

@@ -6,6 +6,7 @@ const cliFlag = 'disallow-parallel-encoding' as const;
 
 export const disallowParallelEncodingOption = {
 	name: 'Disallow parallel encoding',
+	addedIn: '3.2.29',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,7 +16,7 @@ export const disallowParallelEncodingOption = {
 		</>
 	),
 	ssrName: 'disallowParallelEncoding',
-	docLink: 'https://www.remotion.dev/docs/config#setdisallowparallelencoding',
+	docLink: 'https://www.remotion.dev/docs/options/disallow-parallel-encoding',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {

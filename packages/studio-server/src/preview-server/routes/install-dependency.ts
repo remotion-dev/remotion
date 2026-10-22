@@ -8,6 +8,7 @@ import {
 	type PackageInstallSpec,
 } from '@remotion/studio-shared';
 import {VERSION} from 'remotion/version';
+import {getLocalPackageOverride} from '../../helpers/get-local-package-override';
 import {getInstallCommand} from '../../helpers/install-command';
 import {getPackageManagerSpawnOptions} from '../../helpers/package-manager-spawn-options';
 import type {ApiHandler} from '../api-types';
@@ -85,7 +86,15 @@ export const handleInstallPackage = async ({
 		}
 	}
 
-	const packagesWithVersions = dependencies.map(getPackageInstallSpec);
+	const packagesWithVersions = dependencies.map((dependency) => {
+		const localPackageOverride = getLocalPackageOverride({
+			remotionRoot,
+			packageName: dependency.name,
+		});
+		return localPackageOverride === null
+			? getPackageInstallSpec(dependency)
+			: `${dependency.name}@${localPackageOverride}`;
+	});
 	const command = getInstallCommand({
 		manager: manager.manager,
 		packages: packagesWithVersions,
@@ -107,6 +116,7 @@ export const handleInstallPackage = async ({
 					YARN_ENABLE_SCRIPTS: 'false',
 				},
 			});
+			let stderr = '';
 			cmd.on('error', reject);
 			cmd.stdout.on('data', (d: Buffer) =>
 				d
@@ -117,16 +127,24 @@ export const handleInstallPackage = async ({
 						RenderInternals.Log.info({indent: true, logLevel}, line),
 					),
 			);
-			cmd.stdout.on('end', resolve);
-			cmd.on('close', (code, signal) =>
-				code === 0
-					? resolve()
-					: reject(
-							new Error(
-								`Command exited with code ${code} and signal ${signal}`,
-							),
-						),
-			);
+			cmd.stderr.on('data', (data: Buffer) => {
+				stderr += data.toString();
+			});
+			cmd.on('close', (code, signal) => {
+				if (code === 0) {
+					resolve();
+					return;
+				}
+
+				const packageManagerError = stderr.trim();
+				reject(
+					new Error(
+						packageManagerError.length > 0
+							? `Package installation failed:\n${packageManagerError}`
+							: `Package installation failed: Command exited with code ${code} and signal ${signal}`,
+					),
+				);
+			});
 		});
 		await invalidateBundle();
 		RenderInternals.Log.info(

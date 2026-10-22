@@ -7,6 +7,7 @@ import {
 	NO_HOVER_BACKGROUND_STYLE,
 } from '../helpers/hoverable';
 import {EllipsisIcon} from '../icons/ellipsis';
+import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineDropdown} from './InlineDropdown';
 import {Spacing} from './layout';
@@ -46,13 +47,21 @@ export const CompositionContextButton: React.FC<{
 	return (
 		<div className={HOVER_GROUP_REVEAL_CLASS_NAME} style={revealStyle}>
 			<Spacing x={0.5} />
-			<InlineDropdown
-				renderAction={renderAction}
-				getItems={getItems}
-				variant={null}
-				style={NO_HOVER_BACKGROUND_STYLE}
-				className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-			/>
+			<ActionTooltip
+				label="More actions"
+				shortcut={null}
+				delay={800}
+				dismissOnClick
+			>
+				<InlineDropdown
+					renderAction={renderAction}
+					getItems={getItems}
+					variant={null}
+					style={NO_HOVER_BACKGROUND_STYLE}
+					className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+					aria-label="More actions"
+				/>
+			</ActionTooltip>
 		</div>
 	);
 };

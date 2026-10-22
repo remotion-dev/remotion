@@ -83,7 +83,8 @@ class TestRemotionClient(TestCase):
         self.assertIsNotNone(render_params)
         self.assertIsNotNone(render_params.input_props)
         print(
-            client.construct_render_request(
+            "REMOTION_PAYLOAD:"
+            + client.construct_render_request(
                 render_params=render_params, render_type="video-or-audio"
             )
         )

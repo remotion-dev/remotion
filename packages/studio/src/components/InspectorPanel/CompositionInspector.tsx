@@ -1,27 +1,25 @@
 import React, {
-	useCallback,
 	useContext,
 	useEffect,
+	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
 import type {_InternalTypes} from 'remotion';
-import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {LIGHT_TEXT} from '../../helpers/colors';
-import {downloadBlob} from '../../helpers/download-blob';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
 import {CloudDownloadIcon} from '../../icons/cloud-download';
+import {FontFileIcon} from '../../icons/font';
 import {PicIcon} from '../../icons/frame';
 import {SolidIcon} from '../../icons/solid';
+import {SparklesIcon} from '../../icons/sparkles';
 import {FilmIcon} from '../../icons/video';
 import {VisualControlsContext} from '../../visual-controls/VisualControls';
-import {useConfirmationDialog} from '../ConfirmationDialog';
 import {DefaultPropsEditor} from '../DefaultPropsEditor';
 import {useZodIfPossible, useZodTypesIfPossible} from '../get-zod-if-possible';
-import {LicenseExplanation} from '../LicenseExplanation';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
-import {showNotification} from '../Notifications/NotificationCenter';
 import {ObserveDefaultPropsContext} from '../ObserveDefaultPropsContext';
 import {
 	type DataEditorMode,
@@ -29,144 +27,98 @@ import {
 	useDataEditorWarningVisibility,
 } from '../RenderModal/DataEditor';
 import {resolveCompositionSchema} from '../RenderModal/SchemaEditor/infer-zod-schema-from-value';
+import {expandDefaultPropsEditorRef} from '../RenderModal/SchemaEditor/scroll-to-default-props-path';
 import type {AnyZodSchema} from '../RenderModal/SchemaEditor/zod-schema-type';
 import {getZodSchemaType} from '../RenderModal/SchemaEditor/zod-schema-type';
 import type {UpdaterFunction} from '../RenderModal/SchemaEditor/ZodSwitch';
 import {WarningIndicatorButton} from '../RenderModal/WarningIndicatorButton';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {useDownloadProject} from '../use-download-project';
 import {VisualControlsContent} from '../VisualControls/VisualControlsContent';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {CollapsibleInspectorSectionHeader} from './CollapsibleInspectorSectionHeader';
 import {
-	InspectorQuickActionsSection,
 	InspectorDefaultPropsWarnings,
 	InspectorQuickAction,
+	InspectorQuickActionsSection,
+	InspectorSectionBody,
 	InspectorSectionHeader,
+	inspectorActionIconStyle,
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
 } from './common';
 import {CompositionInspectorHeader} from './CompositionInspectorHeader';
 import {CompositionMetadata} from './CompositionMetadata';
 import {ElementLibraryButton} from './ElementLibraryButton';
 import {
 	compositionDefaultPropsSection,
-	compositionVisualControlsSection,
 	defaultPropsWarningContainer,
 	inspectorOverviewSection,
 	scrollableContainer,
-	sectionHeaderEnd,
 	sectionHeaderRow,
-	sectionHeaderStart,
-	sectionHeaderTitle,
 } from './styles';
 import {useCompositionActions} from './use-composition-actions';
-
-const actionIconStyle: React.CSSProperties = {
-	height: 18,
-	width: 18,
-};
-
-const downloadLicenseAgreement: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: 1.5,
-	marginBottom: 0,
-	marginTop: 20,
-};
-
-const downloadLicenseLink: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 14,
-	lineHeight: '21px',
-};
+import {useInspectorSectionExpanded} from './use-inspector-section-expanded';
 
 const CompositionActions: React.FC = () => {
 	const {
 		canInsertAsset,
 		canInsertComposition,
 		canInsertSolid,
+		canInsertText,
 		canShowInsertAsset,
 		canShowInsertComposition,
 		canShowInsertSolid,
+		canShowInsertText,
 		insertAsset,
 		insertComposition,
 		insertSolid,
+		insertText,
+		generateWithAgent,
+		canShowGenerateWithAgent,
 	} = useCompositionActions();
-	const downloadProject = getBrowserStudioOperations()?.downloadProject ?? null;
-	const confirm = useConfirmationDialog();
-
-	const onDownloadProject = useCallback(async () => {
-		if (downloadProject === null) {
-			return;
-		}
-
-		const accepted = await confirm({
-			title: 'Download project',
-			message: (
-				<>
-					<LicenseExplanation />
-					<p style={downloadLicenseAgreement}>
-						By downloading this project, you agree to comply with the{' '}
-						<a
-							href="https://remotion.dev/license"
-							rel="noopener noreferrer"
-							style={downloadLicenseLink}
-							target="_blank"
-						>
-							license
-						</a>
-						.
-					</p>
-				</>
-			),
-			confirmLabel: 'Accept and download',
-			cancelLabel: 'Cancel',
-		});
-		if (!accepted) {
-			return;
-		}
-
-		try {
-			const {data, fileName} = await downloadProject();
-			const arrayBuffer = data.buffer.slice(
-				data.byteOffset,
-				data.byteOffset + data.byteLength,
-			) as ArrayBuffer;
-			downloadBlob(
-				new Blob([arrayBuffer], {type: 'application/zip'}),
-				fileName,
-			);
-		} catch (error) {
-			showNotification(
-				`Could not download project: ${
-					error instanceof Error ? error.message : String(error)
-				}`,
-				2000,
-			);
-		}
-	}, [confirm, downloadProject]);
+	const downloadProject = useDownloadProject();
 
 	if (
 		!canShowInsertAsset &&
 		!canShowInsertComposition &&
 		!canShowInsertSolid &&
+		!canShowInsertText &&
+		!canShowGenerateWithAgent &&
 		downloadProject === null
 	) {
 		return null;
 	}
 
 	return (
-		<>
-			<InspectorSectionHeader>Actions</InspectorSectionHeader>
+		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
+			collapsible
+			label="Actions"
+			sectionId="composition-actions"
+		>
 			<InspectorQuickActionsSection>
 				{canShowInsertSolid ? (
 					<InspectorQuickAction
 						disabled={!canInsertSolid}
 						onClick={insertSolid}
 						renderIcon={(color) => (
-							<SolidIcon color={color} style={actionIconStyle} />
+							<SolidIcon color={color} style={inspectorActionIconStyle} />
 						)}
 					>
 						Add Solid
+					</InspectorQuickAction>
+				) : null}
+				{canShowInsertText ? (
+					<InspectorQuickAction
+						disabled={!canInsertText}
+						onClick={insertText}
+						renderIcon={(color) => (
+							<FontFileIcon color={color} style={inspectorActionIconStyle} />
+						)}
+					>
+						Add text
 					</InspectorQuickAction>
 				) : null}
 				{canShowInsertAsset ? (
@@ -174,7 +126,7 @@ const CompositionActions: React.FC = () => {
 						disabled={!canInsertAsset}
 						onClick={insertAsset}
 						renderIcon={(color) => (
-							<PicIcon color={color} style={actionIconStyle} />
+							<PicIcon color={color} style={inspectorActionIconStyle} />
 						)}
 					>
 						Add asset...
@@ -185,26 +137,44 @@ const CompositionActions: React.FC = () => {
 						disabled={!canInsertComposition}
 						onClick={insertComposition}
 						renderIcon={(color) => (
-							<FilmIcon color={color} style={actionIconStyle} />
+							<FilmIcon color={color} style={inspectorActionIconStyle} />
 						)}
 					>
 						Add composition...
+					</InspectorQuickAction>
+				) : null}
+				{canShowGenerateWithAgent ? (
+					<InspectorQuickAction
+						disabled={false}
+						iconContainerStyle={largeInspectorActionIconContainerStyle}
+						onClick={generateWithAgent}
+						renderIcon={(color) => (
+							<SparklesIcon
+								color={color}
+								style={largeInspectorActionIconStyle}
+							/>
+						)}
+					>
+						Generate with agent...
 					</InspectorQuickAction>
 				) : null}
 				{canShowInsertAsset ? <ElementLibraryButton /> : null}
 				{downloadProject ? (
 					<InspectorQuickAction
 						disabled={false}
-						onClick={onDownloadProject}
+						onClick={downloadProject}
 						renderIcon={(color) => (
-							<CloudDownloadIcon color={color} style={actionIconStyle} />
+							<CloudDownloadIcon
+								color={color}
+								style={inspectorActionIconStyle}
+							/>
 						)}
 					>
 						Download project
 					</InspectorQuickAction>
 				) : null}
 			</InspectorQuickActionsSection>
-		</>
+		</CollapsibleInspectorSection>
 	);
 };
 
@@ -219,6 +189,30 @@ const CompositionDefaultPropsSection: React.FC<{
 	const canSaveDefaultProps = useContext(ObserveDefaultPropsContext);
 	const [defaultPropsMode, setDefaultPropsMode] =
 		useState<DataEditorMode>('schema');
+	const [expanded, setExpanded] = useInspectorSectionExpanded(
+		'composition-default-props',
+	);
+	const pendingScroll = useRef<(() => void) | null>(null);
+	useImperativeHandle(
+		expandDefaultPropsEditorRef,
+		() => (onExpanded) => {
+			if (expanded) {
+				onExpanded();
+				return;
+			}
+
+			pendingScroll.current = onExpanded;
+			setExpanded(true);
+		},
+		[expanded, setExpanded],
+	);
+	useLayoutEffect(() => {
+		if (expanded && pendingScroll.current !== null) {
+			const scroll = pendingScroll.current;
+			pendingScroll.current = null;
+			scroll();
+		}
+	}, [expanded]);
 	const compositionId = composition.id;
 
 	useEffect(() => {
@@ -267,58 +261,65 @@ const CompositionDefaultPropsSection: React.FC<{
 		defaultProps: currentDefaultProps,
 		mode: defaultPropsMode,
 		propsEditType: 'default-props',
-		showCannotSaveDefaultPropsWarning: canShowDefaultPropsSection,
+		showCannotSaveDefaultPropsWarning:
+			canShowDefaultPropsSection && !readOnlyStudio,
 	});
 
-	if (readOnlyStudio || !canShowDefaultPropsSection) {
+	if (!canShowDefaultPropsSection) {
 		return null;
 	}
 
 	return (
 		<div style={compositionDefaultPropsSection}>
 			<InspectorSectionHeader>
-				<div style={sectionHeaderRow}>
-					<div style={sectionHeaderStart}>
-						<span style={sectionHeaderTitle}>Default Props</span>
-						<SegmentedControl
-							items={defaultPropsModeItems}
-							needsWrapping={false}
-							size="compact"
-						/>
-					</div>
-					<div style={sectionHeaderEnd}>
-						{defaultPropsWarnings.length > 0 ? (
-							<WarningIndicatorButton
-								setShowWarning={setShowWarning}
-								showWarning={showWarning}
-								warningCount={defaultPropsWarnings.length}
-								size="compact"
-							/>
-						) : null}
-					</div>
-				</div>
+				<CollapsibleInspectorSectionHeader
+					action={
+						expanded ? (
+							<div style={sectionHeaderRow}>
+								<SegmentedControl
+									items={defaultPropsModeItems}
+									needsWrapping={false}
+									size="compact"
+								/>
+								{defaultPropsWarnings.length > 0 ? (
+									<WarningIndicatorButton
+										setShowWarning={setShowWarning}
+										showWarning={showWarning}
+										warningCount={defaultPropsWarnings.length}
+										size="compact"
+									/>
+								) : null}
+							</div>
+						) : null
+					}
+					expanded={expanded}
+					label={readOnlyStudio ? 'Props' : 'Default Props'}
+					onToggle={() => setExpanded(!expanded)}
+				/>
 			</InspectorSectionHeader>
-			{defaultPropsWarnings.length > 0 && showWarning ? (
-				<div style={defaultPropsWarningContainer}>
-					<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
-				</div>
-			) : null}
-			<DefaultPropsEditor
-				key={composition.id}
-				unresolvedComposition={composition}
-				defaultProps={currentDefaultProps}
-				setDefaultProps={setDefaultProps}
-				propsEditType="default-props"
-				schemaErrorMode="compact"
-				layout="inspector"
-				mode={defaultPropsMode}
-				onModeChange={setDefaultPropsMode}
-				hideModeControls={canShowDefaultPropsSection}
-				warnings={defaultPropsWarnings}
-				showWarning={false}
-				setShowWarning={setShowWarning}
-				hideWarningButton
-			/>
+			<InspectorSectionBody expanded={expanded} paddingBottom={8}>
+				{defaultPropsWarnings.length > 0 && showWarning ? (
+					<div style={defaultPropsWarningContainer}>
+						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />
+					</div>
+				) : null}
+				<DefaultPropsEditor
+					key={composition.id}
+					unresolvedComposition={composition}
+					defaultProps={currentDefaultProps}
+					setDefaultProps={setDefaultProps}
+					propsEditType="default-props"
+					schemaErrorMode="compact"
+					layout="inspector"
+					mode={defaultPropsMode}
+					onModeChange={setDefaultPropsMode}
+					hideModeControls={canShowDefaultPropsSection}
+					warnings={defaultPropsWarnings}
+					showWarning={false}
+					setShowWarning={setShowWarning}
+					hideWarningButton
+				/>
+			</InspectorSectionBody>
 		</div>
 	);
 };
@@ -337,10 +338,14 @@ const CompositionVisualControlsSection: React.FC<{
 	}
 
 	return (
-		<div style={compositionVisualControlsSection}>
-			<InspectorSectionHeader>Visual Controls</InspectorSectionHeader>
+		<CollapsibleInspectorSection
+			bodyPaddingBottom={8}
+			collapsible
+			label="Visual Controls"
+			sectionId="composition-visual-controls"
+		>
 			<VisualControlsContent />
-		</div>
+		</CollapsibleInspectorSection>
 	);
 };
 
@@ -356,12 +361,18 @@ export const CompositionInspector: React.FC<{
 		<div style={scrollableContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={inspectorOverviewSection}>
 				<CompositionInspectorHeader />
-				<InspectorSectionHeader>Metadata</InspectorSectionHeader>
-				<CompositionMetadata
-					compositionId={composition.id}
-					disabled={readOnlyStudio || previewServerState.type !== 'connected'}
-					stack={composition.stack}
-				/>
+				<CollapsibleInspectorSection
+					bodyPaddingBottom={8}
+					collapsible
+					label="Metadata"
+					sectionId="composition-metadata"
+				>
+					<CompositionMetadata
+						compositionId={composition.id}
+						disabled={readOnlyStudio || previewServerState.type !== 'connected'}
+						stack={composition.stack}
+					/>
+				</CollapsibleInspectorSection>
 			</div>
 			<CompositionDefaultPropsSection
 				composition={composition}

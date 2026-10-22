@@ -11,21 +11,25 @@ import React, {
 	forwardRef,
 	useEffect,
 	useImperativeHandle,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import type {
 	EffectsProp,
+	EffectsOutputSize,
 	InteractiveBaseProps,
+	InteractivePremountProps,
 	InteractiveCropProps,
 	SequenceControls,
 	InteractivitySchema,
 } from 'remotion';
 import {
+	Freeze,
+	Sequence,
 	Internals,
 	Interactive,
-	Sequence,
 	useCurrentFrame,
 	useDelayRender,
 	useVideoConfig,
@@ -58,10 +62,12 @@ type RemotionRiveCanvasOwnProps = {
 	readonly className?: string;
 	readonly style?: React.CSSProperties;
 	readonly effects?: EffectsProp;
+	readonly effectsOutputSize?: EffectsOutputSize;
 };
 
 export type RemotionRiveCanvasProps = RemotionRiveCanvasOwnProps &
 	InteractiveBaseProps &
+	InteractivePremountProps &
 	InteractiveCropProps;
 
 export type RiveCanvasRef = {
@@ -98,6 +104,7 @@ const riveAlignmentVariants: Record<
 
 export const riveCanvasSchema: InteractivitySchema = {
 	...Internals.baseSchema,
+	...Internals.premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'contain',
@@ -119,12 +126,13 @@ export const riveCanvasSchema: InteractivitySchema = {
 
 type RemotionRiveCanvasContentProps = Omit<
 	RemotionRiveCanvasOwnProps,
-	'effects'
+	'effects' | 'effectsOutputSize'
 > & {
 	readonly fit: RemotionRiveCanvasFit;
 	readonly alignment: RemotionRiveCanvasAlignment;
 	readonly enableRiveAssetCdn: boolean;
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
 	readonly canvasRef: React.RefObject<HTMLCanvasElement | null>;
 };
@@ -145,6 +153,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		className,
 		style,
 		effects,
+		effectsOutputSize,
 		controls,
 		canvasRef,
 	},
@@ -152,10 +161,13 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 ) => {
 	const {width, fps, height} = useVideoConfig();
 	const frame = useCurrentFrame();
-	const [riveCanvasInstance, setRiveCanvas] = useState<RiveCanvas | null>(null);
+	const [loadedRuntime, setLoadedRuntime] = useState<{
+		instance: RiveCanvas;
+		handle: number;
+	} | null>(null);
+	const riveCanvasInstance = loadedRuntime?.instance ?? null;
 	const [err, setError] = useState<Error | null>(null);
 	const {delayRender, continueRender} = useDelayRender();
-	const [handle] = useState(() => delayRender());
 	const lastFrame = useRef<number>(0);
 
 	// Rive draws to this offscreen-style canvas; the effect chain then
@@ -168,11 +180,12 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		return document.createElement('canvas');
 	}, []);
 
-	const chainState = useEffectChainState();
+	const chainState = useEffectChainState(effectsOutputSize);
 
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: controls?.overrideId ?? null,
+		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 
 	if (err) {
@@ -184,6 +197,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		renderer: CanvasRenderer;
 		artboard: Artboard;
 		file: File;
+		handle: number;
 	} | null>(null);
 
 	useImperativeHandle(ref, () => {
@@ -203,34 +217,47 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		};
 	}, [rive, riveCanvasInstance]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		const handle = delayRender('Loading Rive runtime');
+		let cancelled = false;
 		riveCanvas({
 			locateFile: () =>
 				'https://unpkg.com/@rive-app/canvas-advanced@2.31.5/rive.wasm',
 		})
 			.then((riveInstance) => {
-				setRiveCanvas(riveInstance);
-				continueRender(handle);
+				if (!cancelled) {
+					setLoadedRuntime({instance: riveInstance, handle});
+				}
 			})
 			.catch((newErr) => {
-				setError(newErr);
+				if (!cancelled) {
+					setError(newErr);
+				}
 			});
-	}, [handle, continueRender]);
+		return () => {
+			cancelled = true;
+			continueRender(handle);
+		};
+	}, [delayRender, continueRender]);
 
-	useEffect(() => {
-		if (!riveCanvasInstance || !sourceCanvas) {
+	useLayoutEffect(() => {
+		if (!riveCanvasInstance || !sourceCanvas || !loadedRuntime) {
 			return;
 		}
 
+		const handle = delayRender(`Loading <RemotionRiveCanvas src="${src}"/>`);
+		continueRender(loadedRuntime.handle);
+		let cancelled = false;
+		const controller = new AbortController();
 		sourceCanvas.width = width;
 		sourceCanvas.height = height;
 
 		const renderer = riveCanvasInstance.makeRenderer(sourceCanvas);
 
-		fetch(new Request(src))
+		fetch(new Request(src), {signal: controller.signal})
 			.then((f) => f.arrayBuffer())
 			.then((b) => {
-				riveCanvasInstance
+				return riveCanvasInstance
 					.load(
 						new Uint8Array(b),
 						assetLoader
@@ -241,6 +268,10 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 						enableRiveAssetCdn,
 					)
 					.then((file) => {
+						if (cancelled) {
+							return;
+						}
+
 						const artboard =
 							typeof artboardName === 'string'
 								? file.artboardByName(artboardName)
@@ -260,12 +291,20 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 							artboard,
 							renderer,
 							file,
+							handle,
 						});
 					});
 			})
 			.catch((newErr) => {
-				setError(newErr);
+				if (!cancelled) {
+					setError(newErr);
+				}
 			});
+		return () => {
+			cancelled = true;
+			controller.abort();
+			continueRender(handle);
+		};
 	}, [
 		animationIndex,
 		artboardName,
@@ -277,6 +316,9 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		sourceCanvas,
 		width,
 		height,
+		loadedRuntime,
+		delayRender,
+		continueRender,
 	]);
 
 	useEffect(() => {
@@ -285,7 +327,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		}
 	}, [onLoad, rive]);
 
-	React.useEffect(() => {
+	useLayoutEffect(() => {
 		if (!riveCanvasInstance || !rive) {
 			return;
 		}
@@ -353,6 +395,7 @@ const RemotionRiveCanvasContentForwardRefFunction: React.ForwardRefRenderFunctio
 		const effectChainHandle = delayRender(
 			`Rendering frame at ${frame} of <RemotionRiveCanvas src="${src}"/>`,
 		);
+		continueRender(rive.handle);
 
 		let cancelled = false;
 
@@ -437,11 +480,18 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		className,
 		style,
 		effects = [],
+		effectsOutputSize,
 		controls,
 		durationInFrames,
 		name,
 		from,
+		premountFor,
+		postmountFor,
+		styleWhilePremounted,
+		styleWhilePostmounted,
 		trimBefore,
+		playbackRate,
+		loop,
 		freeze,
 		showInTimeline,
 		hidden,
@@ -457,52 +507,78 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: style ?? null,
+		styleWhilePremounted: styleWhilePremounted ?? null,
+		styleWhilePostmounted: styleWhilePostmounted ?? null,
+		hideWhilePremounted: 'opacity',
+	});
 	const croppedStyle = Internals.useCropStyle({
 		cropLeft,
 		cropRight,
 		cropTop,
 		cropBottom,
-		style: style ?? null,
+		style: premountingStyle,
 		componentName: '<RemotionRiveCanvas />',
 	});
 
 	return (
-		<Sequence
-			layout="none"
-			from={from}
-			trimBefore={trimBefore}
-			freeze={freeze}
-			hidden={hidden}
-			showInTimeline={showInTimeline}
-			name={name ?? '<RemotionRiveCanvas>'}
-			_remotionInternalDocumentationLink={
-				name === undefined
-					? 'https://www.remotion.dev/docs/rive/remotionrivecanvas'
-					: undefined
-			}
-			durationInFrames={durationInFrames}
-			controls={controls}
-			_remotionInternalEffects={memoizedEffectDefinitions}
-			outlineRef={canvasRef}
-			{...props}
-		>
-			<RemotionRiveCanvasContent
-				ref={ref}
-				src={src}
-				fit={fit}
-				alignment={alignment}
-				artboard={artboard}
-				animation={animation}
-				onLoad={onLoad}
-				assetLoader={assetLoader}
-				enableRiveAssetCdn={enableRiveAssetCdn}
-				className={className}
-				style={croppedStyle ?? undefined}
-				effects={effects}
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loop={loop}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline}
+				name={name ?? '<RemotionRiveCanvas>'}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/rive/remotionrivecanvas"
+				durationInFrames={durationInFrames}
 				controls={controls}
-				canvasRef={canvasRef}
-			/>
-		</Sequence>
+				_remotionInternalEffects={memoizedEffectDefinitions}
+				{...props}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<RemotionRiveCanvasContent
+					ref={ref}
+					src={src}
+					fit={fit}
+					alignment={alignment}
+					artboard={artboard}
+					animation={animation}
+					onLoad={onLoad}
+					assetLoader={assetLoader}
+					enableRiveAssetCdn={enableRiveAssetCdn}
+					className={className}
+					style={croppedStyle ?? undefined}
+					effects={effects}
+					effectsOutputSize={effectsOutputSize ?? null}
+					controls={controls}
+					canvasRef={canvasRef}
+				/>
+			</Sequence>
+		</Freeze>
 	);
 };
 

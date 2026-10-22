@@ -5,11 +5,12 @@ import {
 	Easing,
 	Img,
 	Interactive,
-	Sequence,
 	interpolate,
+	Sequence,
 	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
+	type InteractiveBaseProps,
 	type InteractivitySchema,
 	type SequenceControls,
 } from 'remotion';
@@ -52,6 +53,7 @@ const BACKGROUND = '#1f2428';
 const INPUT_BACKGROUND = '#2f363d';
 const LIGHT_TEXT = '#A6A7A9';
 const TOOLBAR_FOREGROUND = '#d2d3d4';
+const MENU_BAR_ICON_COLOR = '#d8d8d8';
 const WHITE = '#ffffff';
 const BLUE = '#0b84f3';
 const TIMELINE_BACKGROUND = '#15181B';
@@ -65,6 +67,8 @@ const LEFT_SIDEBAR_RATIO = 0.1605;
 const RIGHT_SIDEBAR_RATIO = 0.222;
 const TOP_PANEL_RATIO = 0.662;
 const TIMELINE_LABEL_RATIO = 0.2611;
+const TIMELINE_LABEL_MIN_WIDTH = 250;
+const TIMELINE_LABEL_MAX_WIDTH = 350;
 const REFERENCE_COMPOSITION_WIDTH = 1920;
 const REFERENCE_COMPOSITION_HEIGHT = 1080;
 const DIALOGUE_AUDIO = 'https://remotion.media/dialogue.wav';
@@ -76,7 +80,23 @@ export const studioReferenceSchema = z.object({
 
 export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
 
-export type StudioProps = {
+export type StudioTimeline = {
+	readonly labelWidth: number;
+	readonly sourceLabelWidth: number;
+	readonly pixelsPerFrame: number;
+	readonly imageSrc: string;
+	readonly width: number;
+	readonly height: number;
+	readonly mediaLabels: readonly {
+		readonly top: number;
+		readonly height: number;
+		readonly left: number;
+		readonly name: string;
+		readonly assetName: string;
+	}[];
+};
+
+export type StudioProps = InteractiveBaseProps & {
 	readonly compositionName: string;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;
@@ -84,11 +104,15 @@ export type StudioProps = {
 	readonly durationInFrames: number;
 	readonly frame: number;
 	readonly responsivenessProgress: number;
+	readonly showTimelineZoom: boolean;
+	readonly timelineOffset: number;
+	readonly timeline: StudioTimeline | null;
 	readonly viewportHeight: number | null;
 	readonly viewportWidth: number;
 };
 
 const studioInteractivitySchema = {
+	...Interactive.baseSchema,
 	viewportWidth: {
 		type: 'number',
 		default: 1600,
@@ -179,7 +203,7 @@ const MenuToolbar: React.FC<{
 				<Interactive.Div name="Left sidebar toggle" style={{marginRight: 4}}>
 					<IconButton>
 						<SidebarIcon
-							color={LIGHT_TEXT}
+							color={MENU_BAR_ICON_COLOR}
 							expanded={responsivenessProgress < 0.5}
 							side="left"
 							size={16}
@@ -188,102 +212,32 @@ const MenuToolbar: React.FC<{
 				</Interactive.Div>
 				<Interactive.Div name="Remotion menu">
 					<IconButton width={30}>
-						<RemotionGlyph color={TOOLBAR_FOREGROUND} size={14} />
+						<RemotionGlyph color={MENU_BAR_ICON_COLOR} size={14} />
 					</IconButton>
 				</Interactive.Div>
 				<Interactive.Div
-					name="File menu"
+					name="Composition breadcrumb"
 					style={{
 						alignItems: 'center',
+						color: 'rgba(255, 255, 255, 0.8)',
 						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
+						gap: 5,
+						marginLeft: 8,
+						whiteSpace: 'nowrap',
 					}}
 				>
-					File
-				</Interactive.Div>
-				<Interactive.Div
-					name="View menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					View
-				</Interactive.Div>
-				<Interactive.Div
-					name="Composition menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					Composition
-				</Interactive.Div>
-				<Interactive.Div
-					name="Tools menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					Tools
-				</Interactive.Div>
-				<Interactive.Div
-					name="Help menu"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 24,
-						paddingLeft: 8,
-						paddingRight: 8,
-					}}
-				>
-					Help
+					<span style={{letterSpacing: 0.08}}>brand / {compositionName}</span>
+					<span style={{color: '#1594f6', display: 'flex'}}>
+						<VscodeIcon size={16} />
+					</span>
+					<CaretIcon
+						color="#5a6065"
+						direction="down"
+						size={13}
+						style={{position: 'relative', left: 4, scale: '0.84 1'}}
+					/>
 				</Interactive.Div>
 			</div>
-			<Interactive.Div
-				name="Composition breadcrumb"
-				style={{
-					alignItems: 'center',
-					color: 'rgba(255, 255, 255, 0.8)',
-					display: 'flex',
-					gap: 5,
-					left: '50%',
-					position: 'absolute',
-					translate: '-50% 0',
-					whiteSpace: 'nowrap',
-				}}
-			>
-				<span
-					style={{
-						letterSpacing: 0.08,
-						position: 'relative',
-						left: -8,
-					}}
-				>
-					brand / {compositionName}
-				</span>
-				<span style={{color: '#1594f6', display: 'flex'}}>
-					<VscodeIcon size={16} />
-				</span>
-				<CaretIcon
-					color="#5a6065"
-					direction="down"
-					size={13}
-					style={{position: 'relative', left: 4, scale: '0.84 1'}}
-				/>
-			</Interactive.Div>
 			<div
 				style={{
 					alignItems: 'center',
@@ -296,13 +250,13 @@ const MenuToolbar: React.FC<{
 			>
 				<Interactive.Div name="Settings">
 					<IconButton>
-						<SettingsIcon color={LIGHT_TEXT} size={16} />
+						<SettingsIcon color={MENU_BAR_ICON_COLOR} size={16} />
 					</IconButton>
 				</Interactive.Div>
 				<Interactive.Div name="Right sidebar toggle">
 					<IconButton>
 						<SidebarIcon
-							color={LIGHT_TEXT}
+							color={MENU_BAR_ICON_COLOR}
 							expanded={responsivenessProgress < 0.5}
 							side="right"
 							size={16}
@@ -314,7 +268,9 @@ const MenuToolbar: React.FC<{
 	);
 };
 
-const LeftSidebar: React.FC = () => {
+const LeftSidebar: React.FC<{readonly compositionName: string}> = ({
+	compositionName,
+}) => {
 	return (
 		<Interactive.Div
 			name="Compositions sidebar"
@@ -487,11 +443,13 @@ const LeftSidebar: React.FC = () => {
 							whiteSpace: 'nowrap',
 						}}
 					>
-						SocialMediaAnnouncements
+						{compositionName === 'WhatsNew'
+							? 'WhatsNew'
+							: 'SocialMediaAnnouncements'}
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
-					name="Chapter 11 outro composition"
+					name={`${compositionName} composition`}
 					style={{
 						alignItems: 'center',
 						backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -516,7 +474,7 @@ const LeftSidebar: React.FC = () => {
 							whiteSpace: 'nowrap',
 						}}
 					>
-						Chapter11-Outro
+						{compositionName}
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
@@ -643,7 +601,7 @@ const RightSidebar: React.FC<{
 			</div>
 			<div style={{padding: '4px 0'}}>
 				<Interactive.Div
-					name="Composition name"
+					name="Composition ID"
 					style={{
 						alignItems: 'center',
 						color: WHITE,
@@ -665,7 +623,9 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					<VideoIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>Root.tsx:127</span>
+					<span style={{marginLeft: 8}}>
+						{compositionName === 'WhatsNew' ? 'Root.tsx:27' : 'Root.tsx:127'}
+					</span>
 				</Interactive.Div>
 				<Interactive.Div
 					name="Scene source"
@@ -677,7 +637,11 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					<BracesIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>Scene11.tsx:11</span>
+					<span style={{marginLeft: 8}}>
+						{compositionName === 'WhatsNew'
+							? 'WhatsNew.tsx:23'
+							: 'Scene11.tsx:11'}
+					</span>
 				</Interactive.Div>
 			</div>
 			<Interactive.Div name="Metadata heading">
@@ -753,45 +717,49 @@ const RightSidebar: React.FC<{
 					</Interactive.Div>
 				</div>
 			</Interactive.Div>
-			<Interactive.Div
-				name="Platform label"
-				style={{
-					color: LIGHT_TEXT,
-					fontFamily: 'monospace',
-					fontSize: 12,
-					lineHeight: '23px',
-					paddingLeft: 10,
-					position: 'relative',
-					top: 1,
-				}}
-			>
-				platform:
-			</Interactive.Div>
-			<Interactive.Div
-				name="Platform selector"
-				style={{
-					alignItems: 'center',
-					backgroundColor: INPUT_BACKGROUND,
-					border: '1px solid rgba(0, 0, 0, 0.65)',
-					borderRadius: 4,
-					boxSizing: 'border-box',
-					color: WHITE,
-					display: 'flex',
-					fontSize: 11,
-					height: 20,
-					marginLeft: 10,
-					paddingLeft: 5,
-					width: 60,
-				}}
-			>
-				youtube
-				<CaretIcon
-					color={LIGHT_TEXT}
-					direction="down"
-					size={9}
-					style={{marginLeft: 'auto', marginRight: 3}}
-				/>
-			</Interactive.Div>
+			{compositionName === 'WhatsNew' ? null : (
+				<>
+					<Interactive.Div
+						name="Platform label"
+						style={{
+							color: LIGHT_TEXT,
+							fontFamily: 'monospace',
+							fontSize: 12,
+							lineHeight: '23px',
+							paddingLeft: 10,
+							position: 'relative',
+							top: 1,
+						}}
+					>
+						platform:
+					</Interactive.Div>
+					<Interactive.Div
+						name="Platform selector"
+						style={{
+							alignItems: 'center',
+							backgroundColor: INPUT_BACKGROUND,
+							border: '1px solid rgba(0, 0, 0, 0.65)',
+							borderRadius: 4,
+							boxSizing: 'border-box',
+							color: WHITE,
+							display: 'flex',
+							fontSize: 11,
+							height: 20,
+							marginLeft: 10,
+							paddingLeft: 5,
+							width: 60,
+						}}
+					>
+						youtube
+						<CaretIcon
+							color={LIGHT_TEXT}
+							direction="down"
+							size={9}
+							style={{marginLeft: 'auto', marginRight: 3}}
+						/>
+					</Interactive.Div>
+				</>
+			)}
 			<div style={{height: 7}} />
 			<Interactive.Div name="Actions heading">
 				<InspectorSectionTitle>Actions</InspectorSectionTitle>
@@ -932,7 +900,9 @@ const PreviewCanvas: React.FC<{
 	);
 };
 
-const PreviewToolbar: React.FC = () => {
+const PreviewToolbar: React.FC<{
+	readonly responsivenessProgress: number;
+}> = ({responsivenessProgress}) => {
 	return (
 		<Interactive.Div
 			name="Preview toolbar"
@@ -954,6 +924,10 @@ const PreviewToolbar: React.FC = () => {
 					display: 'flex',
 					height: 28,
 					left: 16,
+					opacity: interpolate(responsivenessProgress, [0.4, 0.6], [1, 0], {
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					}),
 					position: 'absolute',
 				}}
 			>
@@ -1000,84 +974,110 @@ const PreviewToolbar: React.FC = () => {
 					translate: '-50% 0',
 				}}
 			>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Jump to start">
-					<IconButton>
-						<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<Interactive.Div name="Step backward">
-					<IconButton>
-						<StepBackIcon color={TOOLBAR_FOREGROUND} size={16} />
-					</IconButton>
-				</Interactive.Div>
+				<div
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						opacity: interpolate(responsivenessProgress, [0.4, 0.6], [1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						position: 'absolute',
+						right: '100%',
+					}}
+				>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Jump to start">
+						<IconButton>
+							<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Step backward">
+						<IconButton>
+							<StepBackIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+				</div>
 				<Interactive.Div name="Play">
 					<IconButton>
 						<PlayIcon color={TOOLBAR_FOREGROUND} size={14} />
 					</IconButton>
 				</Interactive.Div>
-				<Interactive.Div name="Step forward">
-					<IconButton>
-						<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Loop playback">
-					<IconButton active>
-						<LoopIcon color={BLUE} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 6}} />
-				<Interactive.Div name="Volume">
-					<IconButton>
-						<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Set in point">
-					<IconButton width={18}>
-						<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-					</IconButton>
-				</Interactive.Div>
-				<Interactive.Div name="Set out point">
-					<IconButton width={18}>
-						<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Transparency grid">
-					<IconButton active>
-						<CheckerboardIcon color={BLUE} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 2}} />
-				<Interactive.Div name="Canvas outline">
-					<IconButton active>
-						<OutlineIcon color={BLUE} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 2}} />
-				<Interactive.Div name="Rulers">
-					<IconButton>
-						<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 2}} />
-				<Interactive.Div name="Snapping">
-					<IconButton active>
-						<MagnetIcon
-							color={BLUE}
-							size={18}
-							style={{position: 'relative', top: 1}}
-						/>
-					</IconButton>
-				</Interactive.Div>
-				<div style={{width: 16}} />
-				<Interactive.Div name="Fullscreen">
-					<IconButton>
-						<FullscreenIcon color={TOOLBAR_FOREGROUND} size={18} />
-					</IconButton>
-				</Interactive.Div>
+				<div
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						opacity: interpolate(responsivenessProgress, [0.4, 0.6], [1, 0], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+						left: '100%',
+						position: 'absolute',
+					}}
+				>
+					<Interactive.Div name="Step forward">
+						<IconButton>
+							<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Loop playback">
+						<IconButton active>
+							<LoopIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 6}} />
+					<Interactive.Div name="Volume">
+						<IconButton>
+							<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Set in point">
+						<IconButton width={18}>
+							<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Set out point">
+						<IconButton width={18}>
+							<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Transparency grid">
+						<IconButton active>
+							<CheckerboardIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 2}} />
+					<Interactive.Div name="Canvas outline">
+						<IconButton active>
+							<OutlineIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 2}} />
+					<Interactive.Div name="Rulers">
+						<IconButton>
+							<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 2}} />
+					<Interactive.Div name="Snapping">
+						<IconButton active>
+							<MagnetIcon
+								color={BLUE}
+								size={18}
+								style={{position: 'relative', top: 1}}
+							/>
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 16}} />
+					<Interactive.Div name="Fullscreen">
+						<IconButton>
+							<FullscreenIcon color={TOOLBAR_FOREGROUND} size={18} />
+						</IconButton>
+					</Interactive.Div>
+				</div>
 			</div>
 			<div
 				style={{
@@ -1319,10 +1319,33 @@ const Timeline: React.FC<{
 	readonly fps: number;
 	readonly frame: number;
 	readonly height: number;
+	readonly showZoom: boolean;
+	readonly timelineOffset: number;
+	readonly timeline: StudioTimeline | null;
 	readonly width: number;
-}> = ({durationInFrames, fps, frame, height, width}) => {
-	const labelWidth = Math.round(width * TIMELINE_LABEL_RATIO);
+}> = ({
+	durationInFrames,
+	fps,
+	frame,
+	height,
+	showZoom,
+	timelineOffset,
+	timeline,
+	width,
+}) => {
+	const labelWidth = Math.min(
+		width,
+		Math.max(
+			TIMELINE_LABEL_MIN_WIDTH,
+			Math.min(
+				TIMELINE_LABEL_MAX_WIDTH,
+				Math.round(width * TIMELINE_LABEL_RATIO),
+			),
+		),
+	);
 	const trackWidth = width - labelWidth;
+	const timelineContentOffset =
+		timelineOffset + TIMELINE_LABEL_MAX_WIDTH - labelWidth;
 	const pixelsPerFrame = 1.29;
 	const sequenceWidth = durationInFrames * pixelsPerFrame;
 	const trackLeft = 19;
@@ -1340,7 +1363,320 @@ const Timeline: React.FC<{
 		{length: Math.floor(durationInFrames / 5) + 1},
 		(_, index) => index * 5,
 	);
-	const rows = [46, 22, 22];
+	if (timeline) {
+		const trackViewportWidth = Math.max(1, width - timeline.labelWidth);
+		const capturedPlayhead = frame * timeline.pixelsPerFrame;
+		const scrollLeft = Math.max(0, capturedPlayhead - trackViewportWidth * 0.9);
+		return (
+			<Interactive.Div
+				name="Timeline"
+				style={{
+					height,
+					width,
+					overflow: 'hidden',
+					position: 'relative',
+					backgroundColor: TIMELINE_BACKGROUND,
+				}}
+			>
+				<div
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						width: timeline.labelWidth,
+						height,
+						overflow: 'hidden',
+						backgroundColor: '#202428',
+					}}
+				>
+					<Img
+						src={timeline.imageSrc}
+						showInTimeline={false}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: timeline.width,
+							height: timeline.height,
+							maxWidth: 'none',
+						}}
+					/>
+					{timeline.mediaLabels.map((label) => (
+						<div
+							key={label.name}
+							style={{
+								position: 'absolute',
+								top: label.top,
+								height: label.height,
+								left: 32,
+								right: 2,
+								backgroundColor: '#202428',
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'center',
+								paddingLeft: label.left - 32,
+								fontFamily: 'Arial, Helvetica, sans-serif',
+								fontSize: 12,
+							}}
+						>
+							<div
+								style={{
+									height: 16,
+									lineHeight: '16px',
+									color: '#d2d3d4',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									paddingRight: 10,
+									maskImage:
+										'linear-gradient(to right, black calc(100% - 10px), transparent)',
+								}}
+							>
+								{label.name}
+							</div>
+							<div
+								style={{
+									height: 14,
+									lineHeight: '14px',
+									marginTop: -2,
+									paddingLeft: 2,
+									paddingRight: 10,
+									color: 'rgba(255, 255, 255, 0.3)',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									maskImage:
+										'linear-gradient(to right, black calc(100% - 10px), transparent)',
+								}}
+							>
+								{label.assetName}
+							</div>
+						</div>
+					))}
+					<div
+						style={{
+							position: 'absolute',
+							right: 0,
+							top: 0,
+							width: 2,
+							height,
+							backgroundColor: BACKGROUND,
+						}}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							width: '100%',
+							height: 40,
+							backgroundColor: BACKGROUND,
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								right: 7,
+								top: 10,
+								display: 'flex',
+								alignItems: 'center',
+								gap: 5,
+								color: LIGHT_TEXT,
+							}}
+						>
+							<CanvasZoomOutIcon size={17} />
+							<div
+								style={{
+									width: 40,
+									height: 4,
+									backgroundColor: '#353a3e',
+									borderRadius: 4,
+									position: 'relative',
+								}}
+							>
+								<div
+									style={{
+										position: 'absolute',
+										left: 15,
+										top: -3,
+										width: 10,
+										height: 10,
+										borderRadius: '50%',
+										backgroundColor: WHITE,
+									}}
+								/>
+							</div>
+							<CanvasZoomIcon size={17} />
+						</div>
+					</div>
+				</div>
+				<div
+					style={{
+						position: 'absolute',
+						left: timeline.labelWidth,
+						top: 0,
+						width: trackViewportWidth,
+						height,
+						overflow: 'hidden',
+					}}
+				>
+					<Img
+						src={timeline.imageSrc}
+						showInTimeline={false}
+						style={{
+							position: 'absolute',
+							left: -timeline.sourceLabelWidth - scrollLeft,
+							top: 0,
+							width: timeline.width,
+							height: timeline.height,
+							maxWidth: 'none',
+						}}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							height: 40,
+							width: '100%',
+							backgroundColor: BACKGROUND,
+							overflow: 'hidden',
+						}}
+					>
+						{ticks.map((tick) => (
+							<React.Fragment key={tick}>
+								<div
+									style={{
+										position: 'absolute',
+										top: 0,
+										left: tick * timeline.pixelsPerFrame - scrollLeft,
+										width: 1,
+										height:
+											tick % (timelineFps * 5) === 0
+												? 15
+												: tick % timelineFps === 0
+													? 5
+													: 2,
+										backgroundColor: '#3b4145',
+									}}
+								/>
+								{tick > 0 && tick % (timelineFps * 5) === 0 ? (
+									<div
+										style={{
+											position: 'absolute',
+											top: 5,
+											left: tick * timeline.pixelsPerFrame - scrollLeft + 7,
+											color: LIGHT_TEXT,
+											fontSize: 12,
+											whiteSpace: 'nowrap',
+										}}
+									>
+										00:{String(tick / timelineFps).padStart(2, '0')}.00
+									</div>
+								) : null}
+							</React.Fragment>
+						))}
+					</div>
+					<div
+						style={{
+							position: 'absolute',
+							left: capturedPlayhead - scrollLeft,
+							top: 0,
+							bottom: 0,
+							width: 1,
+							backgroundColor: PLAYHEAD,
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								left: -8,
+								top: 3,
+								width: 17,
+								height: 16,
+								backgroundColor: PLAYHEAD,
+								clipPath: 'polygon(0 0, 100% 0, 100% 50%, 50% 100%, 0 50%)',
+							}}
+						/>
+					</div>
+				</div>
+				<div
+					style={{
+						position: 'absolute',
+						left: 2,
+						top: 2,
+						width: 100,
+						height: 38,
+						backgroundColor: BACKGROUND,
+						paddingLeft: 6,
+						boxSizing: 'border-box',
+						color: LIGHT_TEXT,
+						fontFamily: 'monospace',
+					}}
+				>
+					<div style={{fontSize: 14, lineHeight: '22px'}}>{timecode}</div>
+					<div style={{fontSize: 10, lineHeight: '12px'}}>{frame}</div>
+				</div>
+			</Interactive.Div>
+		);
+	}
+
+	// Mirrors the layer tree the real Studio shows for the Outro composition.
+	const layers: {
+		name: string;
+		secondary: string | null;
+		depth: number;
+		expanded: boolean | null;
+		track: 'filmstrip' | 'sequence' | 'avatar';
+	}[] = [
+		{
+			name: 'Presenter video',
+			secondary: 'whats11.mov',
+			depth: 0,
+			expanded: null,
+			track: 'filmstrip',
+		},
+		{
+			name: 'Endcard',
+			secondary: null,
+			depth: 0,
+			expanded: true,
+			track: 'sequence',
+		},
+		{
+			name: 'Remotion avatar',
+			secondary: 'remotion-avatar.png',
+			depth: 1,
+			expanded: null,
+			track: 'avatar',
+		},
+		{
+			name: 'Call to action button',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+		{
+			name: 'X channel',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+		{
+			name: 'Instagram channel',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+		{
+			name: 'LinkedIn channel',
+			secondary: null,
+			depth: 1,
+			expanded: null,
+			track: 'sequence',
+		},
+	];
 
 	return (
 		<Interactive.Div
@@ -1395,65 +1731,66 @@ const Timeline: React.FC<{
 							{frame}
 						</div>
 					</Interactive.Div>
-					<div
-						style={{
-							alignItems: 'center',
-							display: 'flex',
-							gap: 4,
-							left: 217,
-							position: 'absolute',
-							top: 7,
-						}}
-					>
-						<Interactive.Div name="Timeline zoom out">
-							<IconButton>
-								<CanvasZoomOutIcon color={TOOLBAR_FOREGROUND} size={20} />
-							</IconButton>
-						</Interactive.Div>
-						<Interactive.Div
-							name="Timeline zoom control"
+					{showZoom ? (
+						<div
 							style={{
-								backgroundColor: '#353a3e',
-								borderRadius: 8,
-								height: 6,
-								position: 'relative',
-								width: 80,
+								alignItems: 'center',
+								display: 'flex',
+								gap: 4,
+								left: 217,
+								position: 'absolute',
+								top: 7,
 							}}
 						>
-							<div
+							<Interactive.Div name="Timeline zoom out">
+								<IconButton>
+									<CanvasZoomOutIcon color={TOOLBAR_FOREGROUND} size={20} />
+								</IconButton>
+							</Interactive.Div>
+							<Interactive.Div
+								name="Timeline zoom control"
 								style={{
-									backgroundColor: WHITE,
-									borderRadius: '50%',
-									height: 14,
-									left: 0,
-									position: 'absolute',
-									top: -4,
-									width: 14,
+									backgroundColor: '#353a3e',
+									borderRadius: 8,
+									height: 6,
+									position: 'relative',
+									width: 80,
 								}}
-							/>
-						</Interactive.Div>
-						<Interactive.Div name="Timeline zoom in">
-							<IconButton>
-								<CanvasZoomIcon color={TOOLBAR_FOREGROUND} size={20} />
-							</IconButton>
-						</Interactive.Div>
-					</div>
+							>
+								<div
+									style={{
+										backgroundColor: WHITE,
+										borderRadius: '50%',
+										height: 14,
+										left: 0,
+										position: 'absolute',
+										top: -4,
+										width: 14,
+									}}
+								/>
+							</Interactive.Div>
+							<Interactive.Div name="Timeline zoom in">
+								<IconButton>
+									<CanvasZoomIcon color={TOOLBAR_FOREGROUND} size={20} />
+								</IconButton>
+							</Interactive.Div>
+						</div>
+					) : null}
 				</div>
-				<Interactive.Div name="Video clip layer" style={{height: rows[0]}}>
-					<TimelineRowLabel depth={0} secondary="whats11.mov">
-						&lt;Video&gt;
-					</TimelineRowLabel>
-				</Interactive.Div>
-				<Interactive.Div name="Endcard layer" style={{height: rows[1]}}>
-					<TimelineRowLabel depth={0} expanded>
-						Endcard
-					</TimelineRowLabel>
-				</Interactive.Div>
-				<Interactive.Div name="Avatar image layer" style={{height: rows[2]}}>
-					<TimelineRowLabel depth={1} secondary="remotion-avatar.png">
-						&lt;Img&gt;
-					</TimelineRowLabel>
-				</Interactive.Div>
+				{layers.map((layer) => (
+					<div
+						key={layer.name}
+						style={{height: layer.track === 'filmstrip' ? 46 : 22}}
+					>
+						<TimelineRowLabel
+							depth={layer.depth}
+							expanded={layer.expanded ?? undefined}
+							secondary={layer.secondary ?? undefined}
+						>
+							{layer.name}
+						</TimelineRowLabel>
+					</div>
+				))}
 			</Interactive.Div>
 			<Interactive.Div
 				name="Timeline tracks"
@@ -1486,7 +1823,8 @@ const Timeline: React.FC<{
 											: tick % timelineFps === 0
 												? 5
 												: 2,
-									left: trackLeft + tick * pixelsPerFrame,
+									left:
+										timelineContentOffset + trackLeft + tick * pixelsPerFrame,
 									position: 'absolute',
 									top: 0,
 									width: 2,
@@ -1497,7 +1835,11 @@ const Timeline: React.FC<{
 									style={{
 										color: 'rgba(255, 255, 255, 0.55)',
 										fontSize: 12,
-										left: trackLeft + tick * pixelsPerFrame + 9,
+										left:
+											timelineContentOffset +
+											trackLeft +
+											tick * pixelsPerFrame +
+											9,
 										position: 'absolute',
 										top: 3,
 									}}
@@ -1508,49 +1850,57 @@ const Timeline: React.FC<{
 						</React.Fragment>
 					))}
 				</Interactive.Div>
-				<div style={{height: rows[0], paddingLeft: trackLeft}}>
-					<Interactive.Div
-						name="Video filmstrip"
-						style={{height: 45, width: sequenceWidth}}
-					>
-						<Filmstrip height={45} width={sequenceWidth} />
-					</Interactive.Div>
-				</div>
-				<div style={{height: rows[1], paddingLeft: trackLeft}}>
-					<Interactive.Div
-						name="Endcard sequence"
+				{layers.map((layer) => (
+					<div
+						key={layer.name}
 						style={{
-							backgroundColor: '#0d69bd',
-							border: '1px solid #327cbf',
-							borderRadius: 2,
-							boxSizing: 'border-box',
-							color: '#8bc5f0',
-							fontFamily: 'monospace',
-							fontSize: 11,
-							height: 21,
-							lineHeight: '19px',
-							overflow: 'hidden',
-							paddingLeft: 5,
-							width: sequenceWidth,
+							height: layer.track === 'filmstrip' ? 46 : 22,
+							paddingLeft: trackLeft,
+							translate: `${timelineContentOffset}px 0`,
 						}}
 					>
-						{frame}
-					</Interactive.Div>
-				</div>
-				<div style={{height: rows[2], paddingLeft: trackLeft}}>
-					<Interactive.Div
-						name="Avatar strip"
-						style={{height: 21, width: sequenceWidth}}
-					>
-						<AvatarStrip height={21} width={sequenceWidth} />
-					</Interactive.Div>
-				</div>
+						{layer.track === 'filmstrip' ? (
+							<Interactive.Div
+								name="Video filmstrip"
+								style={{height: 45, width: sequenceWidth}}
+							>
+								<Filmstrip height={45} width={sequenceWidth} />
+							</Interactive.Div>
+						) : layer.track === 'avatar' ? (
+							<Interactive.Div
+								name="Avatar strip"
+								style={{height: 21, width: sequenceWidth}}
+							>
+								<AvatarStrip height={21} width={sequenceWidth} />
+							</Interactive.Div>
+						) : (
+							<div
+								style={{
+									backgroundColor: '#0d69bd',
+									border: '1px solid #327cbf',
+									borderRadius: 2,
+									boxSizing: 'border-box',
+									color: '#8bc5f0',
+									fontFamily: 'monospace',
+									fontSize: 11,
+									height: 21,
+									lineHeight: '19px',
+									overflow: 'hidden',
+									paddingLeft: 5,
+									width: sequenceWidth,
+								}}
+							>
+								{frame}
+							</div>
+						)}
+					</div>
+				))}
 				<Interactive.Div
 					name="Timeline playhead"
 					style={{
 						backgroundColor: PLAYHEAD,
 						bottom: 0,
-						left: playheadLeft,
+						left: timelineContentOffset + playheadLeft,
 						position: 'absolute',
 						top: 0,
 						width: 1,
@@ -1574,178 +1924,191 @@ const Timeline: React.FC<{
 	);
 };
 
-const StudioInner = React.forwardRef<
-	HTMLDivElement,
+const StudioInner: React.FC<
 	StudioProps & {readonly controls: SequenceControls | undefined}
->(
-	(
-		{
-			compositionName,
-			compositionWidth,
-			compositionHeight,
-			content,
-			controls,
-			durationInFrames,
-			frame,
-			responsivenessProgress,
-			viewportHeight,
-			viewportWidth,
-		},
-		ref,
-	) => {
-		const outlineRef = React.useRef<HTMLDivElement>(null);
-		React.useImperativeHandle(
-			ref,
-			() => outlineRef.current as HTMLDivElement,
-			[],
-		);
-		const {height: videoHeight, fps} = useVideoConfig();
-		const height = viewportHeight ?? videoHeight;
-		const width = viewportWidth;
-		const topPanelHeight = Math.round(
-			(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
-		);
-		const timelineHeight =
-			height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
-		const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
-		const leftSidebarWidth = Math.min(
-			350,
-			Math.round(width * LEFT_SIDEBAR_RATIO),
-		);
-		const rightSidebarWidth = Math.min(
-			350,
-			Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
-		);
-		const leftSidebarOccupiedWidth =
-			(leftSidebarWidth + SPLITTER_SIZE) * (1 - responsivenessProgress);
-		const rightSidebarOccupiedWidth =
-			(rightSidebarWidth + SPLITTER_SIZE) * (1 - responsivenessProgress);
-		const canvasWidth = Math.max(
-			17,
-			width - leftSidebarOccupiedWidth - rightSidebarOccupiedWidth,
-		);
+> = ({
+	compositionName,
+	compositionWidth,
+	compositionHeight,
+	content,
+	controls,
+	durationInFrames,
+	from,
+	freeze,
+	frame,
+	hidden,
+	name,
+	responsivenessProgress,
+	showInTimeline,
+	showTimelineZoom,
+	timelineOffset,
+	timeline,
+	trimAfter,
+	trimBefore,
+	loop,
+	viewportHeight,
+	viewportWidth,
+}) => {
+	const {height: videoHeight, fps} = useVideoConfig();
+	const height = viewportHeight ?? videoHeight;
+	const width = viewportWidth;
+	const topPanelHeight = timeline
+		? height - MENU_HEIGHT - SPLITTER_SIZE - timeline.height
+		: Math.round((height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO);
+	const timelineHeight = height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
+	const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
+	const leftSidebarWidth = Math.min(
+		350,
+		Math.round(width * LEFT_SIDEBAR_RATIO),
+	);
+	const rightSidebarWidth = Math.min(
+		350,
+		Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
+	);
+	const sidebarProgress = timeline
+		? responsivenessProgress
+		: interpolate(responsivenessProgress, [0, 0.2], [0, 1], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			});
+	const leftSidebarOccupiedWidth =
+		(leftSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
+	const rightSidebarOccupiedWidth =
+		(rightSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
+	const canvasWidth = Math.max(
+		17,
+		width - leftSidebarOccupiedWidth - rightSidebarOccupiedWidth,
+	);
 
-		return (
-			<Sequence
-				controls={controls}
-				layout="none"
-				name="<Studio>"
-				outlineRef={outlineRef}
+	return (
+		<Sequence
+			controls={controls}
+			durationInFrames={durationInFrames}
+			freeze={freeze}
+			from={from ?? 0}
+			hidden={hidden}
+			layout="none"
+			name={name ?? '<Studio>'}
+			showInTimeline={showInTimeline ?? true}
+			trimAfter={trimAfter}
+			trimBefore={trimBefore}
+			loop={loop}
+		>
+			<div
+				style={{
+					backgroundColor: BACKGROUND,
+					color: WHITE,
+					display: 'flex',
+					flexDirection: 'column',
+					fontFamily: 'Arial, Helvetica, sans-serif',
+					fontSize: 13,
+					fontWeight: 400,
+					height,
+					left: 0,
+					lineHeight: 1.5,
+					overflow: 'hidden',
+					position: 'absolute',
+					top: 0,
+					width,
+				}}
 			>
-				<div
-					ref={outlineRef}
-					style={{
-						backgroundColor: BACKGROUND,
-						color: WHITE,
-						display: 'flex',
-						flexDirection: 'column',
-						fontFamily: 'Arial, Helvetica, sans-serif',
-						fontSize: 13,
-						fontWeight: 400,
-						height,
-						left: 0,
-						lineHeight: 1.5,
-						overflow: 'hidden',
-						position: 'absolute',
-						top: 0,
-						width,
-					}}
-				>
-					<MenuToolbar
-						compositionName={compositionName}
-						responsivenessProgress={responsivenessProgress}
-					/>
-					<div style={{height: topPanelHeight, width}}>
-						<div style={{display: 'flex', height: canvasRowHeight, width}}>
+				<MenuToolbar
+					compositionName={compositionName}
+					responsivenessProgress={responsivenessProgress}
+				/>
+				<div style={{height: topPanelHeight, width}}>
+					<div style={{display: 'flex', height: canvasRowHeight, width}}>
+						<div
+							style={{
+								flexShrink: 0,
+								height: canvasRowHeight,
+								overflow: 'hidden',
+								position: 'relative',
+								width: leftSidebarOccupiedWidth,
+							}}
+						>
 							<div
 								style={{
-									flexShrink: 0,
+									display: 'flex',
 									height: canvasRowHeight,
-									overflow: 'hidden',
-									position: 'relative',
-									width: leftSidebarOccupiedWidth,
+									left: 0,
+									position: 'absolute',
+									translate: `${-sidebarProgress * (leftSidebarWidth + SPLITTER_SIZE)}px 0px`,
+									width: leftSidebarWidth + SPLITTER_SIZE,
 								}}
 							>
-								<div
-									style={{
-										display: 'flex',
-										height: canvasRowHeight,
-										left: 0,
-										position: 'absolute',
-										translate: `${-responsivenessProgress * (leftSidebarWidth + SPLITTER_SIZE)}px 0px`,
-										width: leftSidebarWidth + SPLITTER_SIZE,
-									}}
-								>
-									<div style={{width: leftSidebarWidth}}>
-										<LeftSidebar />
-									</div>
-									<Interactive.Div
-										name="Left sidebar splitter"
-										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
-									/>
+								<div style={{width: leftSidebarWidth}}>
+									<LeftSidebar compositionName={compositionName} />
 								</div>
+								<Interactive.Div
+									name="Left sidebar splitter"
+									style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+								/>
 							</div>
-							<PreviewCanvas
-								canvasHeight={canvasRowHeight}
-								canvasWidth={canvasWidth}
-								compositionHeight={compositionHeight}
-								compositionWidth={compositionWidth}
-								content={content}
-								durationInFrames={durationInFrames}
-								frame={frame}
-							/>
+						</div>
+						<PreviewCanvas
+							canvasHeight={canvasRowHeight}
+							canvasWidth={canvasWidth}
+							compositionHeight={compositionHeight}
+							compositionWidth={compositionWidth}
+							content={content}
+							durationInFrames={durationInFrames}
+							frame={frame}
+						/>
+						<div
+							style={{
+								flexShrink: 0,
+								height: canvasRowHeight,
+								overflow: 'hidden',
+								position: 'relative',
+								width: rightSidebarOccupiedWidth,
+							}}
+						>
 							<div
 								style={{
-									flexShrink: 0,
+									display: 'flex',
 									height: canvasRowHeight,
-									overflow: 'hidden',
-									position: 'relative',
-									width: rightSidebarOccupiedWidth,
+									left: 0,
+									position: 'absolute',
+									width: rightSidebarWidth + SPLITTER_SIZE,
 								}}
 							>
-								<div
-									style={{
-										display: 'flex',
-										height: canvasRowHeight,
-										left: 0,
-										position: 'absolute',
-										width: rightSidebarWidth + SPLITTER_SIZE,
-									}}
-								>
-									<Interactive.Div
-										name="Right sidebar splitter"
-										style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+								<Interactive.Div
+									name="Right sidebar splitter"
+									style={{backgroundColor: SPLITTER, width: SPLITTER_SIZE}}
+								/>
+								<div style={{width: rightSidebarWidth}}>
+									<RightSidebar
+										compositionHeight={compositionHeight}
+										compositionName={compositionName}
+										compositionWidth={compositionWidth}
+										durationInFrames={durationInFrames}
+										fps={fps}
 									/>
-									<div style={{width: rightSidebarWidth}}>
-										<RightSidebar
-											compositionHeight={compositionHeight}
-											compositionName={compositionName}
-											compositionWidth={compositionWidth}
-											durationInFrames={durationInFrames}
-											fps={fps}
-										/>
-									</div>
 								</div>
 							</div>
 						</div>
-						<PreviewToolbar />
 					</div>
-					<Interactive.Div
-						name="Timeline splitter"
-						style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}}
-					/>
-					<Timeline
-						durationInFrames={durationInFrames}
-						fps={fps}
-						frame={frame}
-						height={timelineHeight}
-						width={width}
-					/>
+					<PreviewToolbar responsivenessProgress={responsivenessProgress} />
 				</div>
-			</Sequence>
-		);
-	},
-);
+				<Interactive.Div
+					name="Timeline splitter"
+					style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}}
+				/>
+				<Timeline
+					timeline={timeline}
+					durationInFrames={durationInFrames}
+					fps={fps}
+					frame={frame}
+					height={timelineHeight}
+					showZoom={showTimelineZoom}
+					timelineOffset={timelineOffset}
+					width={width}
+				/>
+			</div>
+		</Sequence>
+	);
+};
 
 StudioInner.displayName = '<Studio>';
 
@@ -1763,12 +2126,15 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 	return (
 		<Studio
 			compositionHeight={REFERENCE_COMPOSITION_HEIGHT}
-			compositionName="Chapter11-Outro"
+			compositionName="Outro"
 			compositionWidth={REFERENCE_COMPOSITION_WIDTH}
 			content={<Scene11 platform="youtube" />}
 			durationInFrames={742}
 			frame={655}
 			responsivenessProgress={responsivenessProgress}
+			showTimelineZoom
+			timelineOffset={0}
+			timeline={null}
 			viewportHeight={null}
 			viewportWidth={viewportWidth}
 		/>
@@ -1820,9 +2186,11 @@ export const StudioDeviceFrame: React.FC<StudioReferenceProps> = ({
 				}}
 			>
 				<MacBookScreen
+					borderRadius={null}
 					height={macBookHeight}
 					left={0}
 					showCameraNotch={false}
+					showShadow
 					top={0}
 					width={macBookWidth}
 				>

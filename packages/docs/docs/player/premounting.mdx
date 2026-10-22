@@ -8,132 +8,160 @@ crumb: '@remotion/player'
 import {NoPremounting} from '../../components/Premounting/NoPremounting';
 import {Premounting} from '../../components/Premounting/Premounting';
 
-# Premounting<AvailableFrom v="4.0.140"/>
+# Premounting<AvailableFrom v="4.0.140" />
 
-Remotion only ever renders the current frame.  
-This means when a video or another asset is about to come up, it is not loaded by default.
-
-<NoPremounting />
-
-:::note
-Even though the video is soon about to appear, it is not yet loaded
-because Remotion only ever renders the current time.
-:::
+Premounting mounts a component before it appears, giving images, videos, and animations time to load and initialize.
+It applies in the [Player](/docs/player/player) and [Studio](/docs/studio), and has no effect during rendering.
 
 ## What is premounting?
 
-Premounting is the practice of mounting a component containing assets earlier to allow assets some time to load before they appear.
+Without premounting, a component mounts when its time range begins. Its assets may still be loading when they should become visible:
+
+<NoPremounting />
+
+With premounting, the component mounts earlier, stays hidden, and waits at its first frame until its time range begins:
 
 <Premounting />
 
-:::note
-The video is mounted earlier to give it some time to load.<br />
-It carries the style <code>opacity: 0</code> to make it invisible.
-It's time defined by{' '}<a href="/docs/use-current-frame"><code>useCurrentFrame()</code></a>{' '}is frozen at <code>0</code>.
-:::
+## Default premounting in Studio<AvailableFrom v="4.0.535" />
 
-## Premounting components
+The [Remotion Studio](/docs/studio) premounts components automatically from v4.0.535 for 2 seconds.
 
-From [v5.0](/docs/5-0-migration), all [`<Sequence>`](/docs/sequence) components are premounted for 1 second (`fps` frames) by default.
-You can opt out by passing `premountFor={0}`.
+Configure this with [`Config.setDefaultPremountInSeconds()`](/docs/config#setdefaultpremountinseconds) or the Studio settings.
 
-In v4, add the [`premountFor`](/docs/sequence#premountfor) prop to the [`<Sequence>`](/docs/sequence) component to enable premounting.
+Open Settings in the top-right corner of Studio. Under Playback, change "Default premount in seconds". Premounting indicators are hidden by default.
 
-[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from `@remotion/media` accept `premountFor` directly from <AvailableFrom v="4.0.495" inline />. They remain layoutless, carry `display: none` while premounted and register the premounted range in the Studio timeline.
+<img src="/img/studio-premount-settings.png" width={760} alt="Studio settings with Show premounting in timeline unchecked and Default premount in seconds set to Default (2)" />
 
-The number you pass is the number in frames you premount the component for.
+## Default premounting in the Player
 
-```tsx twoslash title="Premounted.tsx"
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
+The [Player](/docs/player) does not premount by default.
 
+In [Remotion 5.0](/docs/5-0-migration#default-premount-duration-is-now-2-seconds), it will premount for 2 seconds by default.
+
+Pass the [`defaultPremountInSeconds`](/docs/player/player#defaultpremountinseconds) prop to override this default:
+
+```tsx twoslash title="MyPlayer.tsx"
+import {Player} from '@remotion/player';
+
+const MyComposition: React.FC = () => null;
 // ---cut---
-const MyComp: React.FC = () => {
+export const MyPlayer: React.FC = () => {
   return (
-    <Video
-      from={100}
-      premountFor={100}
-      src={staticFile('bigbuckbunny.mp4')}
+    <Player
+      component={MyComposition}
+      durationInFrames={150}
+      fps={30}
+      compositionWidth={1920}
+      compositionHeight={1080}
+      defaultPremountInSeconds={2}
     />
   );
 };
 ```
 
-In the [Remotion Studio](/docs/studio), a premounted component is indicated with diagonal stripes:
+An [explicit `premountFor`](#individually-premount-items) overrides the default. Pass `premountFor={0}` to disable premounting for a component.
 
-<img src="/img/premount.png" />
-<br />
-<br />
+## Components which support premounting
 
-A premounted [`<Sequence>`](/docs/sequence) does carry the styles `opacity: 0` and `pointer-events: none`.
+The following components support premounting:
 
-It is not possible to premount a [`<Sequence>`](/docs/sequence) with `layout="none"` because such a sequence does not have a container to apply the styles to.
+- [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from `@remotion/media`
+- [`<Img>`](/docs/img), [`<AnimatedImage>`](/docs/animatedimage), [`<Gif>`](/docs/gif/gif)
+- [`<Lottie>`](/docs/lottie/lottie), [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas)
+- [`<AbsoluteFill>`](/docs/absolute-fill), [`Interactive` HTML and SVG components](/docs/interactive), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), [`<Solid>`](/docs/solid)
+- [`<Series>`](/docs/series), [`<Series.Sequence>`](/docs/series#premountfor), [`<TransitionSeries>`](/docs/transitions/transitionseries), [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries)
+- [Shape components](/docs/shapes), [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor), [rough-notation components](/docs/rough-notation/api)
+- [`<ThreeCanvas>`](/docs/three-canvas), [`<ThreeWebGPUCanvas>`](/docs/three-webgpu-canvas)
+- [`<Sequence>`](/docs/sequence)
 
-## With `<Series>` and `<TransitionSeries>`
+## Individually premount items
 
-`premountFor` is also available on [`<Series.Sequence>`](/docs/series) and [`<TransitionSeries.Sequence>`](/docs/transitions/transitionseries).  
-It is not yet possible to premount a whole [`<Series>`](/docs/series) or [`<TransitionSeries>`](/docs/transitions/transitionseries).
+Use [`premountFor`](/docs/img#premountfor) to individually control the premounting duration in frames for each component.
 
-## Custom premount component
+Containers with a `layout` prop must use `layout="absolute-fill"` for premounting to work.
 
-Premounting can also be implemented yourself with the public Remotion APIs.  
-Use the following component like you would `<Sequence>`:
+Example: Image mounts at frame 30 and becomes visible at frame 60:
 
-```tsx twoslash title="PremountedSequence.tsx"
-import React, {forwardRef, useMemo} from 'react';
-import {Freeze, Sequence, SequenceProps, useCurrentFrame, useRemotionEnvironment} from 'remotion';
+```tsx twoslash title="PremountedImage.tsx"
+import {Img, staticFile} from 'remotion';
 
-export type PremountedSequenceProps = SequenceProps & {
-  premountFor: number;
-};
-
-const PremountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
-  HTMLDivElement,
-  {
-    premountFor: number;
-  } & SequenceProps
-> = ({premountFor, ...props}, ref) => {
-  const frame = useCurrentFrame();
-
-  if (props.layout === 'none') {
-    throw new Error('`<Premount>` does not support layout="none"');
-  }
-
-  const env = useRemotionEnvironment();
-
-  const {style: passedStyle, from = 0, ...otherProps} = props;
-  const active = frame < from && frame >= from - premountFor && !env.isRendering;
-
-  const style: React.CSSProperties = useMemo(() => {
-    return {
-      ...passedStyle,
-      opacity: active ? 0 : 1,
-      // @ts-ignore Only in the docs - it will not give a type error in a Remotion project
-      pointerEvents: active ? 'none' : (passedStyle?.pointerEvents ?? 'auto'),
-    };
-  }, [active, passedStyle]);
-
+export const PremountedImage: React.FC = () => {
   return (
-    <Freeze frame={from} active={active}>
-      <Sequence ref={ref} name={`<PremountedSequence premountFor={${premountFor}}>`} from={from} style={style} {...otherProps} />
-    </Freeze>
+    <Img
+      from={60}
+      premountFor={30}
+      src={staticFile('logo.png')}
+      width={200}
+    />
   );
 };
-
-export const PremountedSequence = forwardRef(PremountedSequenceRefForwardingFunction);
 ```
 
-:::note
-One caveat of this custom component: In a premounted sequence, the native buffer state can still be triggered.  
-It is your task to disable triggering the native buffer state (e.g. set [`pauseWhenBuffering`](/docs/media/video#pausewhenbuffering) to `false`) when in a premounted sequence.
-You can achieve this for example by using a React context.
-:::
+## Seeing if a component is premounted
+
+Enable premounting indicators with [`Config.setShowPremounting(true)`](/docs/config#setshowpremounting) or check "Show premounting in timeline" under Settings → Studio → Interface.
+
+Diagonal stripes indicate the premounted range:
+
+<img src="/img/studio-premount-indicators.jpg" alt="Studio timeline with diagonal stripes before each sequence and 0 (Premounted) at the current frame" />
+
+To inspect one component while indicators are disabled, select it in the timeline and click "Premount For" under Layout in the Inspector. Its premounted range stays visible while the property is selected.
+
+<img src="/img/studio-premount-selected.png" width={710} alt="Premount For selected in the timeline, revealing diagonal stripes and the 0 (Premounted) label for the sequence" />
+
+Premounting is not shown for items that share a timeline track with other items.
+
+If you are outside the Studio, there is no indication.
+
+Use the developer tools in the browser to see if an item is mounted to the DOM.
+
+## Premounting a whole scene
+
+Create a scene with [`Interactive.create()`](/docs/interactive-create) and `layout: 'absolute-fill'`, then set `premountFor` to prepare its children together:
+
+```tsx twoslash title="PremountedScene.tsx"
+import {Img, Interactive, staticFile} from 'remotion';
+
+const Scene = Interactive.create({
+  Component: () => (
+    <>
+      <Img src={staticFile('logo.png')} width={200} />
+      <h1>Welcome</h1>
+    </>
+  ),
+  componentName: 'Scene',
+  layout: 'absolute-fill',
+});
+
+export const PremountedScene: React.FC = () => {
+  return (
+    <Scene
+      from={60}
+      durationInFrames={90}
+      premountFor={30}
+    />
+  );
+};
+```
+
+The image and heading mount at frame 30, become visible at frame 60, and unmount at frame 150.
+
+A child can only premount while its parent is mounted. Premount the outer container when its children need to load before the scene starts.
+
+For custom components, see [Make a component interactive](/docs/studio/make-component-interactive).
 
 ## Usage together with the buffer state
 
-If you also use the [buffer state](/docs/player/buffer-state), [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media), as well as [`<Html5Audio>`](/docs/html5-audio#pausewhenbuffering), [`<Html5Video>`](/docs/html5-video#pausewhenbuffering), [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering), and [`<Img>`](/docs/img#pausewhenloading), are aware of premounting and don't trigger the buffer state while in a premounted [`<Sequence>`](/docs/sequence).
+Loading an invisible component should not pause playback. Components that support the [buffer state](/docs/player/buffer-state), such as [`<Video>`](/docs/media/video), [`<Audio>`](/docs/media/audio), and [`<Img>`](/docs/img#pausewhenloading), do not trigger it while premounted. This also applies to [`<Html5Audio>`](/docs/html5-audio#pausewhenbuffering), [`<Html5Video>`](/docs/html5-video#pausewhenbuffering), and [`<OffthreadVideo>`](/docs/offthreadvideo#pausewhenbuffering) inside a premounted scene.
 
-Otherwise it would lead to pausing playback while a scene is not even visible yet.
+If an asset is still loading when it becomes visible, it can trigger the buffer state according to its buffering settings.
+
+## Postmounting
+
+In addition to [`premountFor`](#individually-premount-items), there is also [`postmountFor`](/docs/img#postmountfor), which keeps the component mounted after it has ended.
+
+The use case for this is if you want to optimize reverse seeking or playback.
 
 ## See also
 

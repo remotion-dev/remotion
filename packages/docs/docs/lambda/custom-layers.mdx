@@ -17,40 +17,43 @@ In some advanced use cases, you want to replace certain parts of the stack:
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
 
-Also consider that the AWS Lambda layers cumulatively may not exceed 250MB extracted, so you need to sacrifice an equal amount of other files.
+[AWS Lambda limits](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html) the combined uncompressed size of the function ZIP and all attached layers to 250 MiB.
 
 If you just want to add fonts, we recommend to use [Web fonts](/docs/fonts) instead.
 
-## Default layers<AvailableFrom v="4.0.205"/>
+## Default layers<AvailableFrom v="4.0.534"/>
 
 Consider using our layer options before creating a custom stack:
 
+The following uncompressed sizes apply to Remotion v4.0.534, which uses Chromium 157.0.8080.0. 1 MiB is 1,048,576 bytes.
+
+For older Remotion versions, see [the archived default-layer documentation from v4.0.533](https://github.com/remotion-dev/remotion/blob/4f5677ad3527d6758ad2fc218249d07a4a583fb9/packages/docs/docs/lambda/custom-layers.mdx#L24-L54).
+
 With the default option (`--runtime-preference=cjk` or no option):
 
-| Item         | Size     |
-| ------------ | -------- |
-| chromium     | 196 MB   |
-| emoji-google | 9.9 MB   |
-| fonts        | 1.9 MB   |
-| cjk          | 16 MB    |
-| **Total**    | 223.8 MB |
+| Item         | Size       |
+| ------------ | ---------- |
+| chromium     | 188.96 MiB |
+| emoji-google | 4.76 MiB   |
+| fonts        | 1.87 MiB   |
+| cjk          | 14.07 MiB  |
+| Total layers | 209.66 MiB |
 
 With the option [`--runtime-preference=apple-emojis`](/docs/lambda/deployfunction#runtimepreference):
 
-| Item        | Size     |
-| ----------- | -------- |
-| chromium    | 196 MB   |
-| emoji-apple | 45 MB    |
-| fonts       | 1.9 MB   |
-| **Total**   | 242.9 MB |
+| Item         | Size       |
+| ------------ | ---------- |
+| chromium     | 188.96 MiB |
+| emoji-apple  | 8.57 MiB   |
+| fonts        | 1.87 MiB   |
+| Total layers | 199.40 MiB |
 
 :::note
-Numbers are currently outdated since the last Chromium update.
+For Remotion v4.0.534, the totals above exclude the function ZIP, which also counts toward the 250 MiB limit. Any custom layers also count toward the same limit.
 :::
 
 :::note
-Note that by enabling the Apple Emojis, to stay under the 250 MB limit, support for CJK (Chinese, Japanese, Korean) characters will be removed.  
-Google Emojis are also removed.
+Enabling Apple Emojis replaces the Google Emoji and CJK (Chinese, Japanese, Korean) layers. Load additional fonts as [Web fonts](/docs/fonts) if you need CJK characters with Apple Emojis.
 :::
 
 ## Ensure Remotion version
@@ -66,7 +69,7 @@ The folders `chromium` and `fonts` contain the binaries for the ARM version. The
 
 Put the files that you want in the corresponding folders - for example, add the Apple Emoji Font `AppleColorEmoji.ttf` into the `fonts/.fonts/NotoSans/` folder.
 
-Since the AWS Lambda layers may not exceed 250MB extracted, we need to sacrifice an equal amount of other files - for example by removing `fonts/.fonts/NotoColorEmoji.ttf` and `fonts/.fonts/NotoSansCJKjp-Regular.otf`.
+Keep the function ZIP and all layers within the combined 250 MiB uncompressed limit. Remove other files if needed, such as `fonts/.fonts/NotoColorEmoji.ttf` and `fonts/.fonts/NotoSansCJKjp-Regular.otf`.
 
 You can see the size of the folders by running:
 

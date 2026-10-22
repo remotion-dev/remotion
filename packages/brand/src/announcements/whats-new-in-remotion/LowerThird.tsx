@@ -1,42 +1,14 @@
 import React from 'react';
 import {
 	AbsoluteFill,
+	Easing,
+	Interactive,
 	interpolate,
-	spring,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
-import {BLUE} from './NumberedChapter';
 
-type LowerThirdProps = {
-	readonly name: string;
-	readonly title: string;
-	readonly durationInFrames?: number;
-};
-
-export const LowerThird: React.FC<LowerThirdProps> = ({
-	name,
-	title,
-	durationInFrames,
-}) => {
-	const {fps} = useVideoConfig();
+export const LowerThird: React.FC = () => {
 	const frame = useCurrentFrame();
-
-	const entry = spring({
-		fps,
-		frame,
-		config: {damping: 200},
-	});
-
-	const exit = durationInFrames
-		? spring({
-				fps,
-				frame: frame - durationInFrames + 15,
-				config: {damping: 200},
-			})
-		: 0;
-
-	const progress = entry - exit;
 
 	return (
 		<AbsoluteFill
@@ -46,7 +18,8 @@ export const LowerThird: React.FC<LowerThirdProps> = ({
 				alignItems: 'flex-start',
 			}}
 		>
-			<div
+			<Interactive.Div
+				name="Presenter card"
 				style={{
 					backgroundColor: 'white',
 					fontFamily: 'GT Planar',
@@ -54,16 +27,54 @@ export const LowerThird: React.FC<LowerThirdProps> = ({
 					padding: '24px 44px',
 					borderRadius: 18,
 					boxShadow: '0 0 30px rgba(0, 0, 0, 0.1)',
-					transform: `translateY(${interpolate(progress, [0, 1], [400, 0])}px) rotateZ(${interpolate(progress, [0, 1], [-Math.PI * 0.03, 0])}rad)`,
+					translate: interpolate(
+						frame,
+						[0, 23, 84, 107],
+						['0px 400px', '0px 0px', '0px 0px', '0px 400px'],
+						{
+							easing: [
+								Easing.spring({damping: 200}),
+								Easing.linear,
+								Easing.spring({damping: 200}),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+					rotate: interpolate(
+						frame,
+						[0, 23, 84, 107],
+						['-5.4deg', '0deg', '0deg', '-5.4deg'],
+						{
+							easing: [
+								Easing.spring({damping: 200}),
+								Easing.linear,
+								Easing.spring({damping: 200}),
+							],
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
 				}}
 			>
-				<div style={{fontSize: 50, fontWeight: 700, color: '#111'}}>{name}</div>
-				<div
-					style={{fontSize: 36, fontWeight: 400, marginTop: -12, color: BLUE}}
+				<Interactive.Div
+					name="Presenter name"
+					style={{fontSize: 50, fontWeight: 700, color: '#111'}}
 				>
-					{title}
-				</div>
-			</div>
+					Jonny Burger
+				</Interactive.Div>
+				<Interactive.Div
+					name="Presenter role"
+					style={{
+						fontSize: 36,
+						fontWeight: 400,
+						marginTop: -12,
+						color: '#4290f5',
+					}}
+				>
+					Chief Hacker, Remotion
+				</Interactive.Div>
+			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };

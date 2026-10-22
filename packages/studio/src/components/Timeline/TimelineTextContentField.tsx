@@ -1,4 +1,5 @@
-import React, {useCallback, useRef} from 'react';
+import {parsePath} from '@remotion/paths';
+import React, {useCallback, useRef, useState} from 'react';
 import type {
 	CanUpdateSequencePropStatusStatic,
 	SequencePropsSubscriptionKey,
@@ -26,6 +27,19 @@ const textAreaStyle: React.CSSProperties = {
 	} satisfies React.CSSProperties & {fieldSizing: 'content'}),
 };
 
+const isValidPathData = (value: string): boolean => {
+	if (value.trim() === '') {
+		return true;
+	}
+
+	try {
+		parsePath(value);
+		return true;
+	} catch {
+		return false;
+	}
+};
+
 export const TimelineTextContentField: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly effectiveValue: unknown;
@@ -44,6 +58,7 @@ export const TimelineTextContentField: React.FC<{
 	propStatus,
 }) => {
 	const inputRef = useRef<HTMLTextAreaElement>(null);
+	const [valid, setValid] = useState(true);
 	const currentValue = String(effectiveValue ?? '');
 	const draftRef = useRef({
 		dirty: false,
@@ -73,6 +88,11 @@ export const TimelineTextContentField: React.FC<{
 		}
 
 		const value = inputRef.current?.value ?? draftRef.current.value;
+		if (field.typeName === 'svg-path' && !isValidPathData(value)) {
+			latestRef.current.onDragEnd();
+			return false;
+		}
+
 		const savedValue = String(latestRef.current.codeValue ?? '');
 		draftRef.current = {
 			dirty: false,
@@ -94,7 +114,7 @@ export const TimelineTextContentField: React.FC<{
 			.catch(() => undefined);
 
 		return true;
-	}, []);
+	}, [field.typeName]);
 
 	const setInputRef = useCallback(
 		(element: HTMLTextAreaElement | null) => {
@@ -124,9 +144,13 @@ export const TimelineTextContentField: React.FC<{
 				dirty: true,
 				value,
 			};
-			latestRef.current.onDragValueChange(value);
+			const nextValid = field.typeName !== 'svg-path' || isValidPathData(value);
+			setValid(nextValid);
+			if (nextValid) {
+				latestRef.current.onDragValueChange(value);
+			}
 		},
-		[],
+		[field.typeName],
 	);
 
 	const onKeyDownCapture = useCallback(
@@ -138,6 +162,7 @@ export const TimelineTextContentField: React.FC<{
 					value: savedValue,
 				};
 				event.currentTarget.value = savedValue;
+				setValid(true);
 				latestRef.current.onDragEnd();
 				event.currentTarget.blur();
 			}
@@ -149,7 +174,8 @@ export const TimelineTextContentField: React.FC<{
 		<RemTextarea
 			key={String(propStatus.codeValue ?? '')}
 			ref={setInputRef}
-			status="ok"
+			status={valid ? 'ok' : 'error'}
+			aria-invalid={!valid}
 			small
 			defaultValue={currentValue}
 			onBlur={commitPending}

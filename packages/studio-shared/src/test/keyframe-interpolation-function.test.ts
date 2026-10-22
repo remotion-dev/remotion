@@ -4,6 +4,7 @@ import {Interactive} from 'remotion';
 import {
 	canEditEasingForInterpolationFunction,
 	getKeyframeInterpolationFunctionForSchemaField,
+	getKeyframeOutputTypeForSchemaField,
 	isInteractivitySchemaFieldKeyframable,
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
@@ -106,7 +107,7 @@ test('isSchemaFieldKeyframable rejects explicitly disabled fields', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'playbackRate'})).toBe(false);
 });
 
-test('isSchemaFieldKeyframable rejects boolean fields', () => {
+test('boolean fields are keyframable and hold-only', () => {
 	const schema = {
 		loop: {
 			type: 'boolean',
@@ -114,7 +115,8 @@ test('isSchemaFieldKeyframable rejects boolean fields', () => {
 		},
 	} satisfies InteractivitySchema;
 
-	expect(isSchemaFieldKeyframable({schema, key: 'loop'})).toBe(false);
+	expect(isSchemaFieldKeyframable({schema, key: 'loop'})).toBe(true);
+	expect(isSchemaFieldHoldOnly({schema, key: 'loop'})).toBe(true);
 });
 
 test('isSchemaFieldKeyframable rejects font-family fields', () => {
@@ -131,6 +133,31 @@ test('isSchemaFieldKeyframable rejects font-family fields', () => {
 	);
 });
 
+test('font-weight fields use interpolate keyframes', () => {
+	const schema = {
+		'style.fontWeight': {
+			type: 'font-weight',
+			default: 400,
+		},
+	} satisfies InteractivitySchema;
+
+	expect(isSchemaFieldKeyframable({schema, key: 'style.fontWeight'})).toBe(
+		true,
+	);
+	expect(
+		getKeyframeInterpolationFunctionForSchemaField({
+			schema,
+			key: 'style.fontWeight',
+		}),
+	).toBe('interpolate');
+	expect(
+		getKeyframeOutputTypeForSchemaField({
+			schema,
+			key: 'style.fontWeight',
+		}),
+	).toBe('font-weight');
+});
+
 test('isSchemaFieldKeyframable rejects asset fields', () => {
 	const schema = {
 		src: {
@@ -143,7 +170,7 @@ test('isSchemaFieldKeyframable rejects asset fields', () => {
 	expect(isSchemaFieldKeyframable({schema, key: 'src'})).toBe(false);
 });
 
-test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
+test('boolean fields in enum variants are keyframable and hold-only', () => {
 	const schema = {
 		layout: {
 			type: 'enum',
@@ -160,7 +187,8 @@ test('isSchemaFieldKeyframable rejects boolean fields in enum variants', () => {
 		},
 	} satisfies InteractivitySchema;
 
-	expect(isSchemaFieldKeyframable({schema, key: 'horizontal'})).toBe(false);
+	expect(isSchemaFieldKeyframable({schema, key: 'horizontal'})).toBe(true);
+	expect(isSchemaFieldHoldOnly({schema, key: 'horizontal'})).toBe(true);
 });
 
 test('isSchemaFieldKeyframable finds keyframable fields in enum variants', () => {
@@ -198,4 +226,37 @@ test('transform-origin fields use interpolate keyframes', () => {
 			key: 'style.transformOrigin',
 		}),
 	).toBe('interpolate');
+	expect(
+		getKeyframeOutputTypeForSchemaField({
+			schema,
+			key: 'style.transformOrigin',
+		}),
+	).toBe('transform-origin');
+});
+
+test('CSS transform schema fields expose their interpolation output types', () => {
+	const schema = {
+		'style.scale': {
+			type: 'scale',
+			default: 1,
+		},
+		'style.translate': {
+			type: 'translate',
+			default: '0px',
+		},
+		'style.rotate': {
+			type: 'rotation-css',
+			default: '0deg',
+		},
+	} satisfies InteractivitySchema;
+
+	expect(
+		getKeyframeOutputTypeForSchemaField({schema, key: 'style.scale'}),
+	).toBe('scale');
+	expect(
+		getKeyframeOutputTypeForSchemaField({schema, key: 'style.translate'}),
+	).toBe('translate');
+	expect(
+		getKeyframeOutputTypeForSchemaField({schema, key: 'style.rotate'}),
+	).toBe('rotate');
 });

@@ -1,3 +1,4 @@
+import './symbol-async-dispose';
 import {
 	BufferTarget,
 	Output,
@@ -14,6 +15,16 @@ import {
 } from './web-fs-target';
 
 type VideoLayerMediabunnyTarget = BufferTarget | StreamTarget;
+
+const withAsyncDispose = (
+	result: Pick<VideoLayerOutput, 'getBlob' | 'dispose'>,
+): VideoLayerOutput => {
+	Object.defineProperty(result, Symbol.asyncDispose, {
+		enumerable: false,
+		value: result.dispose,
+	});
+	return result as VideoLayerOutput;
+};
 
 export type CreatedVideoLayerOutput<F extends OutputFormat> = {
 	output: Output<F, VideoLayerMediabunnyTarget>;
@@ -233,7 +244,7 @@ export const createVideoLayerOutput = async <F extends OutputFormat>({
 				finalized = true;
 
 				if (outputMode === 'writable') {
-					return {
+					return withAsyncDispose({
 						dispose: () => Promise.resolve(),
 						getBlob: () =>
 							Promise.reject(
@@ -241,7 +252,7 @@ export const createVideoLayerOutput = async <F extends OutputFormat>({
 									'getBlob() is unavailable when outputWritable is used',
 								),
 							),
-					};
+					});
 				}
 
 				if (outputMode === 'web-fs') {
@@ -251,7 +262,7 @@ export const createVideoLayerOutput = async <F extends OutputFormat>({
 
 					let blobPromise: Promise<Blob> | null = null;
 
-					return {
+					return withAsyncDispose({
 						dispose: discard,
 						getBlob: () => {
 							blobPromise ??= (async () => {
@@ -262,14 +273,14 @@ export const createVideoLayerOutput = async <F extends OutputFormat>({
 
 							return blobPromise;
 						},
-					};
+					});
 				}
 
 				if (!(target instanceof BufferTarget)) {
 					throw new Error('Expected an in-memory output target');
 				}
 
-				return {
+				return withAsyncDispose({
 					dispose: () => Promise.resolve(),
 					getBlob: () => {
 						if (target.buffer === null) {
@@ -278,7 +289,7 @@ export const createVideoLayerOutput = async <F extends OutputFormat>({
 
 						return Promise.resolve(new Blob([target.buffer], {type: mimeType}));
 					},
-				};
+				});
 			} catch (error) {
 				await Promise.allSettled([cancelMediabunnyOutput(), discard()]);
 				throw error;

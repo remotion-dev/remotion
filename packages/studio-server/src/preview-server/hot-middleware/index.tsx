@@ -7,10 +7,9 @@
 import type {webpack} from '@remotion/bundler';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {HotMiddlewareMessage, ModuleMap} from '@remotion/studio-shared';
+import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {logHmrTiming} from '../hmr-timing';
 import type {LiveEventsServer} from '../live-events';
-import type {WebpackStats} from './types';
 
 declare global {
 	const __webpack_hash__: unknown;
@@ -173,56 +172,18 @@ function publishStats(
 	statsResult: webpack.Stats,
 	publishHmr: (hmrEvent: HotMiddlewareMessage) => void,
 ) {
-	const stats = statsResult.toJson({
-		all: false,
-		cached: true,
-		children: true,
-		modules: true,
-		timings: true,
-		hash: true,
+	// Studio uses a single compiler. Child compilations must not replace the
+	// parent compilation's hash in the HMR message.
+	publishHmr({
+		name: statsResult.compilation.name ?? '',
+		action,
+		time: statsResult.endTime - statsResult.startTime,
+		hash: statsResult.hash,
+		// Build diagnostics are printed by the dev middleware.
+		warnings: [],
+		errors: [],
+		// Module names only label browser console messages. The client already
+		// falls back to module IDs, which are named in development builds.
+		modules: {},
 	});
-	// For multi-compiler, stats will be an object with a 'children' array of stats
-	const bundles = extractBundles(stats);
-	bundles.forEach((_stats: WebpackStats) => {
-		let name = _stats.name || '';
-
-		// Fallback to compilation name in case of 1 bundle (if it exists)
-		if (bundles.length === 1 && !name && statsResult.compilation) {
-			name = statsResult.compilation.name || '';
-		}
-
-		publishHmr({
-			name,
-			action,
-			time: _stats.time,
-			hash: _stats.hash,
-			warnings: _stats.warnings || [],
-			errors: _stats.errors || [],
-			modules: buildModuleMap(_stats.modules),
-		});
-	});
-}
-
-function extractBundles(stats: WebpackStats) {
-	// Stats has modules, single bundle
-	if (stats.modules) return [stats];
-
-	// Stats has children, multiple bundles
-	if (stats.children?.length) return stats.children;
-
-	// Not sure, assume single
-	return [stats];
-}
-
-function buildModuleMap(modules: WebpackStats['modules']): ModuleMap {
-	const map: {[key: string]: string} = {};
-	if (!modules) {
-		return map;
-	}
-
-	modules.forEach((module) => {
-		const id = module.id as string;
-		map[id] = module.name as string;
-	});
-	return map;
 }

@@ -11,6 +11,7 @@ import type {
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {ScaleLockContext} from '../../state/scale-lock';
+import {ActionTooltip} from '../ActionTooltip';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {normalizeTimelineNumber} from './timeline-field-utils';
@@ -110,6 +111,7 @@ const LinkToggle: React.FC<{
 	readonly linked: boolean;
 	readonly onToggle: () => void;
 }> = ({linked, onToggle}) => {
+	const label = linked ? 'Unlink scale axes' : 'Link scale axes';
 	const onPointerDown = useCallback(
 		(e: React.PointerEvent<HTMLButtonElement>) => {
 			if (e.button !== 0) {
@@ -123,26 +125,27 @@ const LinkToggle: React.FC<{
 	);
 
 	return (
-		<button
-			type="button"
-			style={toggleStyle}
-			onPointerDown={onPointerDown}
-			title={linked ? 'Unlink scale axes' : 'Link scale axes'}
-			aria-label={linked ? 'Unlink scale axes' : 'Link scale axes'}
-		>
-			{linked ? (
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 640 640"
-					style={linkIconStyle}
-				>
-					<path
-						fill={CURRENT_COLOR_LOWERCASE}
-						d="M32 320C32 214 118 128 224 128L288 128L288 192L224 192C153.3 192 96 249.3 96 320C96 390.7 153.3 448 224 448L288 448L288 512L224 512C118 512 32 426 32 320zM608 320C608 426 522 512 416 512L352 512L352 448L416 448C486.7 448 544 390.7 544 320C544 249.3 486.7 192 416 192L352 192L352 128L416 128C522 128 608 214 608 320zM224 288L448 288L448 352L192 352L192 288L224 288z"
-					/>
-				</svg>
-			) : null}
-		</button>
+		<ActionTooltip label={label} shortcut={null} delay={800} dismissOnClick>
+			<button
+				type="button"
+				style={toggleStyle}
+				onPointerDown={onPointerDown}
+				aria-label={label}
+			>
+				{linked ? (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 640 640"
+						style={linkIconStyle}
+					>
+						<path
+							fill={CURRENT_COLOR_LOWERCASE}
+							d="M32 320C32 214 118 128 224 128L288 128L288 192L224 192C153.3 192 96 249.3 96 320C96 390.7 153.3 448 224 448L288 448L288 512L224 512C118 512 32 426 32 320zM608 320C608 426 522 512 416 512L352 512L352 448L416 448C486.7 448 544 390.7 544 320C544 249.3 486.7 192 416 192L352 192L352 128L416 128C522 128 608 214 608 320zM224 288L448 288L448 352L192 352L192 288L224 288z"
+						/>
+					</svg>
+				) : null}
+			</button>
+		</ActionTooltip>
 	);
 };
 

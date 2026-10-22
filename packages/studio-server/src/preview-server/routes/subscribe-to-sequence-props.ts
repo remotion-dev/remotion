@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type {
 	SubscribeToSequencePropsBatchRequest,
 	SubscribeToSequencePropsBatchResponse,
@@ -11,56 +12,59 @@ export const subscribeToSequenceProps: ApiHandler<
 	SubscribeToSequencePropsBatchRequest,
 	SubscribeToSequencePropsBatchResponse
 > = ({input, remotionRoot, logLevel}) => {
-	const requests = input.requests ?? [input];
-	const unresolvedByFile = new Map<
-		string,
-		{index: number; line: number; column: number}[]
-	>();
-	for (const [index, request] of requests.entries()) {
-		if (request.nodePath !== null) {
-			continue;
-		}
-
-		const unresolved = unresolvedByFile.get(request.fileName) ?? [];
-		unresolved.push({index, line: request.line, column: request.column});
-		unresolvedByFile.set(request.fileName, unresolved);
+	// Source contents are shared only within this synchronous subscription batch.
+	const fileContentsCache = new Map<string, string>();
+	const requestsByFile = new Map<string, number[]>();
+	for (const [index, request] of input.requests.entries()) {
+		const absolutePath = path.resolve(remotionRoot, request.fileName);
+		const indexes = requestsByFile.get(absolutePath) ?? [];
+		indexes.push(index);
+		requestsByFile.set(absolutePath, indexes);
 	}
 
-	const resolvedNodePaths = new Map<number, SequenceNodePath>();
-	for (const [fileName, unresolved] of unresolvedByFile) {
-		try {
-			const nodePaths = resolveSequencePropsNodePathsFromFilename({
-				fileName,
-				targets: unresolved,
-				remotionRoot,
-			});
-			for (const [index, nodePath] of nodePaths.entries()) {
-				if (nodePath) {
-					resolvedNodePaths.set(unresolved[index].index, nodePath);
+	const results: SubscribeToSequencePropsBatchResponse['results'] = [];
+	// Finish each file before moving on so large batches do not evict and
+	// repeatedly parse the same source snapshot from the bounded AST cache.
+	for (const indexes of requestsByFile.values()) {
+		const unresolved = indexes
+			.filter((index) => input.requests[index].nodePath === null)
+			.map((index) => ({
+				index,
+				line: input.requests[index].line,
+				column: input.requests[index].column,
+			}));
+		const resolvedNodePaths = new Map<number, SequenceNodePath>();
+		if (unresolved.length > 0) {
+			try {
+				const nodePaths = resolveSequencePropsNodePathsFromFilename({
+					fileName: input.requests[indexes[0]].fileName,
+					targets: unresolved,
+					remotionRoot,
+					fileContentsCache,
+				});
+				for (const [index, nodePath] of nodePaths.entries()) {
+					if (nodePath) {
+						resolvedNodePaths.set(unresolved[index].index, nodePath);
+					}
 				}
+			} catch {
+				// Let each subscription produce its usual not-found response.
 			}
-		} catch {
-			// Let each subscription produce its usual not-found response.
 		}
-	}
 
-	const results = requests.map(
-		(
-			{
+		for (const index of indexes) {
+			const {
 				fileName,
 				line,
 				column,
 				nodePath,
 				componentIdentity,
 				keys,
-				assetKeys = [],
+				assetKeys,
 				effects,
 				clientId,
-				videoConfigValues,
-			},
-			index,
-		) =>
-			subscribeToSequencePropsWatchers({
+			} = input.requests[index];
+			results[index] = subscribeToSequencePropsWatchers({
 				fileName,
 				line,
 				column,
@@ -72,12 +76,12 @@ export const subscribeToSequenceProps: ApiHandler<
 				effects,
 				remotionRoot,
 				clientId,
-				videoConfigValues,
+
 				logLevel,
-			}),
-	);
-	return Promise.resolve({
-		...results[0],
-		results,
-	});
+				fileContentsCache,
+			});
+		}
+	}
+
+	return Promise.resolve({results});
 };

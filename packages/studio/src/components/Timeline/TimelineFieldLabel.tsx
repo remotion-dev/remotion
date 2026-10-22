@@ -15,6 +15,7 @@ const fieldNameBase: React.CSSProperties = {
 	lineHeight: `${TIMELINE_STACKED_FIELD_HEADER_HEIGHT}px`,
 	color: WHITE_ALPHA_80,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
@@ -56,7 +57,7 @@ export const TimelineFieldLabel: React.FC<{
 
 	return (
 		<div style={labelRowStyle}>
-			<span style={fieldNameStyle} title={label}>
+			<span role="group" style={fieldNameStyle} aria-label={label}>
 				{label}
 			</span>
 		</div>

@@ -1,3 +1,4 @@
+import * as Mediabunny from 'mediabunny';
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import * as ReactDomClient from 'react-dom/client';
@@ -9,6 +10,7 @@ import * as RemotionNoReact from 'remotion/no-react';
 import * as RemotionVersion from 'remotion/version';
 
 let studioPromise: Promise<void> | null = null;
+let initializeStudioPreview: (() => void) | null = null;
 const makeMutableNamespace = <Namespace extends object>(
 	namespace: Namespace,
 ): Namespace => ({
@@ -36,6 +38,7 @@ Object.defineProperty(globalThis, '__webpack_hash__', {
 });
 
 globalThis.remotion_browserStudioVendor = {
+	mediabunny: makeMutableNamespace(Mediabunny),
 	react: makeMutableNamespace(React),
 	reactDom: makeMutableNamespace(ReactDom),
 	reactDomClient: makeMutableNamespace(ReactDomClient),
@@ -45,6 +48,13 @@ globalThis.remotion_browserStudioVendor = {
 	remotion: makeMutableNamespace(Remotion),
 	remotionNoReact: makeMutableNamespace(RemotionNoReact),
 	remotionVersion: makeMutableNamespace(RemotionVersion),
+	initializeStudioPreview: () => {
+		if (!initializeStudioPreview) {
+			throw new Error('Browser Studio preview bootstrap was not loaded');
+		}
+
+		initializeStudioPreview();
+	},
 	startStudio: () => {
 		studioPromise ??= import('@remotion/studio/previewEntry').then(
 			() => undefined,
@@ -53,7 +63,13 @@ globalThis.remotion_browserStudioVendor = {
 	},
 };
 
-export const initializeBrowserStudioVendor = (projectBundleUrl: string) => {
+export const initializeBrowserStudioVendor = async (
+	projectBundleUrl: string,
+) => {
+	// Load the bootstrap after installing the HMR proxy, then let the project's
+	// early entry call it synchronously once its HMR runtime is available.
+	const bootstrap = await import('@remotion/studio/previewBootstrap');
+	initializeStudioPreview = bootstrap.initializeStudioPreview;
 	return import(projectBundleUrl);
 };
 
@@ -79,6 +95,7 @@ declare global {
 	};
 	// eslint-disable-next-line no-var
 	var remotion_browserStudioVendor: {
+		mediabunny: typeof Mediabunny;
 		react: typeof React;
 		reactDom: typeof ReactDom;
 		reactDomClient: typeof ReactDomClient;
@@ -88,6 +105,7 @@ declare global {
 		remotion: typeof Remotion;
 		remotionNoReact: typeof RemotionNoReact;
 		remotionVersion: typeof RemotionVersion;
+		initializeStudioPreview: () => void;
 		startStudio: () => Promise<void>;
 	};
 }

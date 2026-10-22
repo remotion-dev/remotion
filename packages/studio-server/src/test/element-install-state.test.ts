@@ -16,7 +16,7 @@ const updateTarget = ({
 }: {
 	readonly clientId?: string;
 	readonly compositionId?: string | null;
-	readonly lastFocusedAt?: number;
+	readonly lastFocusedAt?: number | null;
 	readonly readOnly?: boolean;
 	readonly requestId?: string | null;
 }) => {
@@ -37,6 +37,17 @@ test('uses the most recently focused Studio target even when older tabs keep upd
 	updateTarget({clientId: 'older-tab', lastFocusedAt: 1000, requestId: null});
 	updateTarget({clientId: 'focused-tab', lastFocusedAt: 2000, requestId: null});
 	updateTarget({clientId: 'older-tab', lastFocusedAt: 1000, requestId: null});
+	updateTarget({
+		clientId: 'read-only-tab',
+		lastFocusedAt: 3000,
+		readOnly: true,
+		requestId: null,
+	});
+	updateTarget({
+		clientId: 'never-focused-tab',
+		lastFocusedAt: null,
+		requestId: null,
+	});
 
 	expect(getElementInstallTarget(null)?.clientId).toBe('focused-tab');
 });

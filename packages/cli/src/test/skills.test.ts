@@ -100,14 +100,14 @@ appendFileSync(process.env.REMOTION_SKILLS_TEST_OUTPUT, JSON.stringify(process.a
 
 		expect(addArguments).toEqual([
 			'--loglevel=error',
-			'skills@1.5.26',
+			'skills@1.7.0',
 			'add',
 			'remotion-dev/skills',
 			'--yes',
 		]);
 		expect(updateArguments).toEqual([
 			'--loglevel=error',
-			'skills',
+			'skills@1.7.0',
 			'update',
 			...remotionSkillNames,
 			'--yes',

@@ -11,6 +11,9 @@ import {
 } from './from-web-file';
 import type {MediaParserReaderInterface} from './reader';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const webReader: MediaParserReaderInterface = {
 	read: (params) => {
 		if (params.src instanceof Blob) {

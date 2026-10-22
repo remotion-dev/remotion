@@ -60,6 +60,18 @@ export const getEffectCatalogCategories = (
 	return categories;
 };
 
+const DEFAULT_LUT_CONTENT = `TITLE "Teal and orange"
+LUT_3D_SIZE 2
+
+0.02 0.05 0.08
+0.95 0.12 0.06
+0.02 0.8 0.4
+1 0.9 0.18
+0.08 0.18 0.9
+0.95 0.2 0.75
+0.15 0.88 0.92
+1 0.92 0.78`;
+
 export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 	{
 		id: 'effects-brightness',
@@ -174,6 +186,19 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-lut',
+		category: 'Color',
+		label: 'lut()',
+		description: 'Apply an inline 3D Cube LUT',
+		effect: {
+			name: 'lut',
+			importPath: '@remotion/effects/lut',
+			config: {
+				content: DEFAULT_LUT_CONTENT,
+			},
+		},
+	},
+	{
 		id: 'effects-saturation',
 		category: 'Color',
 		label: 'saturation()',
@@ -277,6 +302,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-lens-blur',
+		category: 'Blur & Shadow',
+		label: 'lensBlur()',
+		description: 'Camera defocus with shaped bokeh',
+		effect: {
+			name: 'lensBlur',
+			importPath: '@remotion/effects/lens-blur',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-linear-progressive-blur',
 		category: 'Blur & Shadow',
 		label: 'linearProgressiveBlur()',
@@ -331,6 +367,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'dropShadow',
 			importPath: '@remotion/effects/drop-shadow',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-long-shadows',
+		category: 'Blur & Shadow',
+		label: 'longShadows()',
+		description: 'Solid directional shadow or faux extrusion',
+		effect: {
+			name: 'longShadows',
+			importPath: '@remotion/effects/long-shadows',
 			config: {},
 		},
 	},
@@ -506,6 +553,39 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-page-turn',
+		category: 'Distort',
+		label: 'pageTurn()',
+		description: 'Curl a page with a shaded fold and paper back',
+		effect: {
+			name: 'pageTurn',
+			importPath: '@remotion/effects/page-turn',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-sphere',
+		category: 'Distort',
+		label: 'sphere()',
+		description: 'Wrap content around a rotating sphere',
+		effect: {
+			name: 'sphere',
+			importPath: '@remotion/effects/sphere',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-cylinder',
+		category: 'Distort',
+		label: 'cylinder()',
+		description: 'Wrap content around a rotating cylinder',
+		effect: {
+			name: 'cylinder',
+			importPath: '@remotion/effects/cylinder',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-wave',
 		category: 'Distort',
 		label: 'wave()',
@@ -528,6 +608,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-turbulent-displace',
+		category: 'Distort',
+		label: 'turbulentDisplace()',
+		description: 'Evolving turbulent, bulge and twist distortion',
+		effect: {
+			name: 'turbulentDisplace',
+			importPath: '@remotion/effects/turbulent-displace',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-burlap',
 		category: 'Stylize',
 		label: 'burlap()',
@@ -535,6 +626,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'burlap',
 			importPath: '@remotion/effects/burlap',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-bevel-alpha',
+		category: 'Stylize',
+		label: 'bevelAlpha()',
+		description: 'Light and shade the edges of text and shapes',
+		effect: {
+			name: 'bevelAlpha',
+			importPath: '@remotion/effects/bevel-alpha',
 			config: {},
 		},
 	},
@@ -743,6 +845,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'vignette',
 			importPath: '@remotion/effects/vignette',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-fractal-noise',
+		category: 'Generate',
+		label: 'fractalNoise()',
+		description: 'Evolving fractal noise textures',
+		effect: {
+			name: 'fractalNoise',
+			importPath: '@remotion/effects/fractal-noise',
 			config: {},
 		},
 	},

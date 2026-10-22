@@ -6,7 +6,12 @@ import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
 import {SetSelectedModalContext} from '../../state/modals';
 import {handleCanvasCaptureDrop} from '../canvas-capture-drop';
 import {isFileDragEvent, isSupportedDropEvent} from '../drop-handler-data';
-import {getEffectDragData} from '../effect-drag-and-drop';
+import {
+	getEffectDragData,
+	isEffectDragOverTarget,
+	isLutEffectDrop,
+} from '../effect-drag-and-drop';
+import {getElementDragData, hasElementDragType} from '../element-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
@@ -53,14 +58,15 @@ export const useTimelineAssetDrop = () => {
 
 	const previewInteractive =
 		previewServerState.type === 'connected' && isStudioInteractivityEnabled();
-	const canInsertAsset =
+	const canReceiveElementDrop =
 		previewInteractive &&
 		!window.remotion_isReadOnlyStudio &&
-		compositionComponentInfo?.canAddSequence === true &&
 		currentCompositionId !== null &&
 		compositionFile !== null &&
 		videoConfig !== null &&
 		!isAddingAsset;
+	const canInsertAsset =
+		canReceiveElementDrop && compositionComponentInfo?.canAddSequence === true;
 
 	const getDropFrame = useCallback(
 		(event: DragEvent) => {
@@ -97,9 +103,22 @@ export const useTimelineAssetDrop = () => {
 				return;
 			}
 
+			if (isEffectDragOverTarget(event)) {
+				event.preventDefault();
+				dataTransfer.dropEffect = 'copy';
+				setAssetDropFrame(null);
+				return;
+			}
+
+			const canDropElementIntoNewComposition =
+				compositionComponentInfo?.canAddSequence === false &&
+				canReceiveElementDrop &&
+				hasElementDragType(dataTransfer);
+
 			event.preventDefault();
 			event.stopPropagation();
-			dataTransfer.dropEffect = canInsertAsset ? 'copy' : 'none';
+			dataTransfer.dropEffect =
+				canInsertAsset || canDropElementIntoNewComposition ? 'copy' : 'none';
 			const scrollable = scrollableRef.current;
 			const shouldShowDropFrame =
 				canInsertAsset &&
@@ -107,7 +126,12 @@ export const useTimelineAssetDrop = () => {
 				isEventTargetInsideElement(event, scrollable);
 			setAssetDropFrame(shouldShowDropFrame ? getDropFrame(event) : null);
 		},
-		[canInsertAsset, getDropFrame],
+		[
+			canInsertAsset,
+			canReceiveElementDrop,
+			compositionComponentInfo?.canAddSequence,
+			getDropFrame,
+		],
 	);
 
 	const onAssetDrop = useCallback(
@@ -121,6 +145,11 @@ export const useTimelineAssetDrop = () => {
 				!isSupportedDropEvent(event) ||
 				!isEventTargetInsideElement(event, timeline)
 			) {
+				return;
+			}
+
+			if (isLutEffectDrop(event)) {
+				event.preventDefault();
 				return;
 			}
 
@@ -152,15 +181,19 @@ export const useTimelineAssetDrop = () => {
 
 			event.preventDefault();
 			event.stopPropagation();
+			const canDropElementIntoNewComposition =
+				compositionComponentInfo?.canAddSequence === false &&
+				canReceiveElementDrop &&
+				getElementDragData(dataTransfer) !== null;
 			if (
-				!canInsertAsset ||
+				(!canInsertAsset && !canDropElementIntoNewComposition) ||
 				currentCompositionId === null ||
 				compositionFile === null ||
 				videoConfig === null
 			) {
 				if (compositionComponentInfo?.canAddSequence === false) {
 					showNotification(
-						'Cannot insert items into this composition component',
+						'Cannot insert this item: This composition component cannot accept a new <Sequence>.',
 						3000,
 					);
 				}
@@ -199,6 +232,7 @@ export const useTimelineAssetDrop = () => {
 		},
 		[
 			canInsertAsset,
+			canReceiveElementDrop,
 			chooseSvgImportMode,
 			compositionComponentInfo?.canAddSequence,
 			compositionFile,

@@ -7,12 +7,12 @@ crumb: 'Realistic camera effect'
 
 import {CameraMotionBlurExample} from '../../components/CameraMotionBlurExample/CameraMotionBlurExample';
 
+# &lt;CameraMotionBlur&gt;<AvailableFrom v="3.2.39" />
+
 ```twoslash include example
 const RainbowSquare: React.FC = () => <div></div>
 // - RainbowSquare
 ```
-
-<AvailableFrom v="3.2.39" />
 
 The `<CameraMotionBlur>` produces natural looking motion blur similar to what would be produced by
 a film camera.
@@ -98,6 +98,12 @@ export const MyComposition = () => {
 ## Demo
 
 <CameraMotionBlurExample />
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+
+The default [client-side renderer](/docs/client-side-rendering/limitations#unsupported-styles) does not support the `mix-blend-mode` used by this component. Use [HTML-in-canvas capture](/docs/client-side-rendering/html-in-canvas) to render it client-side.
 
 ## See also
 

@@ -7,6 +7,7 @@ let currentImageSequencePattern: string | null = null;
 // Option for --image-sequence-pattern
 export const imageSequencePatternOption = {
 	name: 'Image Sequence Pattern',
+	addedIn: '4.0.313',
 	cliFlag,
 	ssrName: 'imageSequencePattern',
 	description: () => (
@@ -16,9 +17,16 @@ export const imageSequencePatternOption = {
 			extension.
 		</>
 	),
-	docLink: null,
+	docLink: 'https://www.remotion.dev/docs/options/image-sequence-pattern',
 	type: 'string' as string | null,
 	getValue: ({commandLine}) => {
+		if (commandLine[cliFlag] !== undefined) {
+			return {
+				value: commandLine[cliFlag] as string,
+				source: 'cli',
+			};
+		}
+
 		if (currentImageSequencePattern !== null) {
 			return {
 				value: currentImageSequencePattern,
@@ -27,8 +35,8 @@ export const imageSequencePatternOption = {
 		}
 
 		return {
-			value: commandLine[cliFlag] as string,
-			source: 'cli',
+			value: null,
+			source: 'default',
 		};
 	},
 	setConfig: (pattern: string | null) => {

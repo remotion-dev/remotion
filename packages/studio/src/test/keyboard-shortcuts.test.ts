@@ -35,6 +35,7 @@ test('includes main-row and numeric-keypad zoom-in shortcuts', () => {
 		{key: '+', shift: true},
 		{key: '+'},
 	]);
+	expect(defaultKeyboardShortcuts.selectVolumeProp).toEqual([{key: 'v'}]);
 });
 
 test('matches shortcut modifiers', () => {
@@ -99,11 +100,17 @@ test('keeps shifted shortcuts distinct from their plain-key actions', () => {
 		['o', 'setOutPoint', 'toggleOutlines'],
 		['r', 'render', 'toggleRulersAndGuides'],
 		['r', 'selectRotateProp', 'toggleRulersAndGuides'],
+		['d', 'duplicateSequences', 'splitSequences'],
 	] as const) {
 		const plainShortcut = defaultKeyboardShortcuts[plainAction][0];
 		const shiftedShortcut = defaultKeyboardShortcuts[shiftedAction][0];
 		for (const shiftKey of [false, true]) {
 			const keyEvent = event({
+				...(plainShortcut.commandOrControl
+					? isMac
+						? {metaKey: true}
+						: {ctrlKey: true}
+					: {}),
 				key: shiftKey ? key.toUpperCase() : key,
 				shiftKey,
 			});

@@ -79,6 +79,9 @@ const prepare = async (options?: {
 		initialVolume: 1,
 		toneFrequency: 1,
 		drawDebugOverlay: () => {},
+		onError: (error) => {
+			throw error;
+		},
 	});
 
 	const scheduledChunks: number[] = [];

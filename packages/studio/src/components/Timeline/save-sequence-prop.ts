@@ -139,8 +139,11 @@ export const saveSequenceProps = ({
 		return enqueueSavePropChange({
 			nodePath: change.nodePath,
 			setPropStatuses,
+			// Font edits prepare their assets inside the source-mutation queue.
+			// Keep the current value until that preparation and persistence finish.
 			applyOptimistic: (prev) =>
-				change.sourceEdit?.type === 'clipboard-param'
+				change.sourceEdit?.type === 'clipboard-param' ||
+				change.sourceEdit?.type === 'google-font'
 					? prev
 					: optimisticUpdateForPropStatuses({
 							previous: prev,
@@ -181,6 +184,7 @@ export const saveSequenceProps = ({
 	for (const keyframe of keyframesToAdd) {
 		setPropStatuses(keyframe.nodePath, (prev) =>
 			optimisticAddSequenceKeyframe({
+				videoConfigValues: keyframe.nodePath.videoConfigValues,
 				previous: prev,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.sourceFrame,
@@ -191,7 +195,10 @@ export const saveSequenceProps = ({
 	}
 
 	for (const change of changes) {
-		if (change.sourceEdit?.type === 'clipboard-param') {
+		if (
+			change.sourceEdit?.type === 'clipboard-param' ||
+			change.sourceEdit?.type === 'google-font'
+		) {
 			continue;
 		}
 

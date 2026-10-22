@@ -2,6 +2,7 @@ export const loadModelForJob = async <Model extends string>({
 	isModelCached,
 	loadModel,
 	model,
+	signal,
 	progressSpan,
 	progressStart,
 	updateProgress,
@@ -12,12 +13,16 @@ export const loadModelForJob = async <Model extends string>({
 		onProgress: (progress: number | null) => void,
 	) => Promise<unknown>;
 	model: Model;
+	signal: AbortSignal;
 	progressSpan: number;
 	progressStart: number;
 	updateProgress: (progress: {message: string; value: number}) => void;
 }) => {
+	signal.throwIfAborted();
 	const cached = await isModelCached(model);
+	signal.throwIfAborted();
 	await loadModel(model, (progress) => {
+		signal.throwIfAborted();
 		const percentage =
 			progress === null ? '' : ` ${Math.round(progress * 100)}%`;
 		updateProgress({
@@ -25,4 +30,5 @@ export const loadModelForJob = async <Model extends string>({
 			value: progressStart + (progress ?? 0) * progressSpan,
 		});
 	});
+	signal.throwIfAborted();
 };

@@ -29,10 +29,11 @@ export const CloseUp6Preview = () => {
 			]}
 		>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 3180,
 					height: 1848,
-					translate: '-278.8px -460.1px',
+					translate: '-328.8px -360.1px',
 					scale: 1.484,
 					rotate: '0.942927 0.209821 -0.25858 42.59793deg',
 					transformOrigin: '56.16% 78.11%',
@@ -585,7 +586,7 @@ export const CloseUp6Preview = () => {
 export const CloseUp6 = () => {
 	return (
 		<Composition
-			id="CloseUp6"
+			id="RotationControl"
 			component={CloseUp6Preview}
 			width={1920}
 			height={1080}

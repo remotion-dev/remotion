@@ -1,5 +1,6 @@
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
+import {AiPromptRecordingComposition} from './AiPromptRecordingComposition';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
@@ -11,11 +12,14 @@ import {
 	ApplicationVideoEditor,
 	Applications,
 } from './Applications';
+import {AudioWaveform} from './AudioWaveform';
+import {BasicsShowcaseCompositions} from './BasicsShowcase';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {CanvasCaptureAnnouncement} from './CanvasCaptureAnnouncement/CanvasCaptureAnnouncement';
 import {CanvasCaptureShort} from './CanvasCaptureShort/CanvasCaptureShort';
+import {CaptionsRecordingComposition} from './CaptionsRecordingComposition';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
 import {CloseUp3} from './CloseUp3';
@@ -25,16 +29,21 @@ import {CloseUp6} from './CloseUp6';
 import {CloseUp7} from './CloseUp7';
 import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
+import {ColorCorrectionDemo} from './ColorCorrectionDemo';
+import {ColorCorrectionRecordingComposition} from './ColorCorrectionRecordingComposition';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {Composition3DRotation} from './Composition3DRotation';
+import {CompositionList} from './CompositionList';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
 	DesignSystemsResponsive,
 	designSystemsResponsiveDurationInFrames,
 } from './DesignSystemsResponsive';
+import {DocsAnimationCompositions} from './DocsAnimations/Root';
 import {
 	DocsPagesShowcase,
 	INSTAGRAM_POST_HEIGHT,
@@ -74,12 +83,25 @@ import {
 	ZigzagLinearBlurShowcase,
 	zigzagLinearBlurShowcaseDurationInFrames,
 } from './effects/ZigzagLinearBlurShowcase';
+import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {
 	ExpertsGraphic,
 	expertsGraphicDurationInFrames,
 } from './HomepageAssets/ExpertsGraphic';
+import {ExploreRemotionAI} from './HomepageAssets/ExploreRemotion/AI';
+import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
+import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
+import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
+import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
+import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
+import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
+import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
+import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
+import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
+import {ExploreRemotionTransitions} from './HomepageAssets/ExploreRemotion/Transitions';
+import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
@@ -97,9 +119,16 @@ import {
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
 import './index.css';
+import {KeyframeMove} from './KeyframeMove';
 import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
+import {NestingCompositions} from './NestingCompositions';
+import {ParameterizationRecordingComposition} from './ParameterizationRecordingComposition';
+import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
+import {QuickSwitcher} from './QuickSwitcher';
+import {RenderModalCodec} from './RenderModalCodec';
+import {RenderOnWeb} from './RenderOnWeb';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
@@ -110,6 +139,7 @@ import {
 	htmlInCanvasAllEffectsDefaultProps,
 	htmlInCanvasAllEffectsSchema,
 } from './Showcase/HtmlInCanvasAllEffects';
+import {MotionBlurSlideIn} from './Showcase/MotionBlurSlideIn';
 import {
 	Skills2AnnouncementComposition,
 	skills2AnnouncementSchema,
@@ -122,6 +152,13 @@ import {Skills2Router} from './Skills2Router';
 import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
 import {SvgLogoCompositions} from './SvgLogos';
+import {TimelineAudioRollingEditComposition} from './TimelineAudioRollingEditComposition';
+import {TimelineLayoutReveal} from './TimelineLayoutReveal';
+import {TimelineLeftDragComposition} from './TimelineLeftDragComposition';
+import {TimelineSourceOnlyTrimComposition} from './TimelineSourceOnlyTrimComposition';
+import {TimelineSourceOnlyTrimWideComposition} from './TimelineSourceOnlyTrimWideComposition';
+import {TimelineVideoRollingEditComposition} from './TimelineVideoRollingEditComposition';
+import {TransitionsRecordingComposition} from './TransitionsRecordingComposition';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
 	FlyingCardsLeft,
@@ -146,6 +183,7 @@ import {StudioCodeHandoff} from './video-elements/StudioCodeHandoff';
 import {TextEditor, textEditorSchema} from './video-elements/TextEditor';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
 import {UpperThird, upperThirdSchema} from './video-elements/UpperThird';
+import {VideoPlayback} from './VideoPlayback';
 import {
 	MacBookAppScene,
 	MacBookDesktopScene,
@@ -157,6 +195,23 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Composition
+				id="ColorCorrectionDemo"
+				component={ColorCorrectionDemo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<DocsAnimationCompositions />
+			<Composition
+				id="TimelineLayoutReveal"
+				component={TimelineLayoutReveal}
+				width={2560}
+				height={1600}
+				fps={60}
+				durationInFrames={720}
+			/>
 			<Folder name="Logo">
 				<Folder name="AnimatedLogo">
 					<Composition
@@ -243,6 +298,104 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="HomepageAssets">
+				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionColorCorrection"
+						component={ExploreRemotionColorCorrection}
+						durationInFrames={180}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionTransitions"
+						component={ExploreRemotionTransitions}
+						durationInFrames={263}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionEffects"
+						component={ExploreRemotionEffects}
+						durationInFrames={513}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionParameterization"
+						component={ExploreRemotionParameterization}
+						durationInFrames={204}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionAI"
+						component={ExploreRemotionAI}
+						durationInFrames={222}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionCaptions"
+						component={ExploreRemotionCaptions}
+						durationInFrames={612}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotion3DRotation"
+						component={ExploreRemotion3DRotation}
+						durationInFrames={1115}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionQuickSwitcher"
+						component={ExploreRemotionQuickSwitcher}
+						durationInFrames={419}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionCompositionList"
+						component={ExploreRemotionCompositionList}
+						durationInFrames={120}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionAudioWaveform"
+						component={ExploreRemotionAudioWaveform}
+						durationInFrames={200}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionRenderModalCodec"
+						component={ExploreRemotionRenderModalCodec}
+						durationInFrames={127}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionVideoPlayback"
+						component={ExploreRemotionVideoPlayback}
+						durationInFrames={120}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+				</Folder>
 				<Composition
 					id="ExpertsGraphic"
 					component={ExpertsGraphic}
@@ -254,6 +407,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="LicenseQuestionsGraphic"
 					component={LicenseQuestionsGraphic}
+					defaultProps={{lineColor: 'black'}}
 					durationInFrames={180}
 					fps={30}
 					width={1080}
@@ -383,6 +537,15 @@ export const RemotionRoot: React.FC = () => {
 
 			<Folder name="Showcases">
 				<Composition
+					id="MotionBlurSlideIn"
+					component={MotionBlurSlideIn}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
+					defaultProps={{text: 'Remotion'}}
+				/>
+				<Composition
 					id="SoundEffectShowcases"
 					component={SfxShowcase}
 					width={1080}
@@ -405,22 +568,14 @@ export const RemotionRoot: React.FC = () => {
 
 			<Folder name="VideoElements">
 				<Composition
-					id="StudioCodeHandoff"
-					component={StudioCodeHandoff}
-					durationInFrames={240}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
 					id="CodexUI"
 					component={Codex}
 					durationInFrames={1}
 					fps={30}
-					width={1081}
+					width={785}
 					height={928}
 					schema={codexSchema}
-					defaultProps={{height: 928, width: 1081}}
+					defaultProps={{borderRadius: 6, height: 928, width: 785}}
 					calculateMetadata={({props}) => ({
 						height: props.height,
 						width: props.width,
@@ -431,10 +586,11 @@ export const RemotionRoot: React.FC = () => {
 					component={TextEditor}
 					durationInFrames={1}
 					fps={30}
-					width={1287}
-					height={1250}
+					width={720}
+					height={822}
 					schema={textEditorSchema}
 					defaultProps={{
+						borderRadius: 6,
 						code: `import {Video} from '@remotion/media';
 import {interpolate, useVideoConfig} from 'remotion';
 import {assetUrl} from './assets';
@@ -475,11 +631,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 };
 `,
 						fileName: 'Scene11.tsx',
-						height: 1250,
+						height: 822,
 						highlightedLines: '39',
-						width: 1287,
+						width: 720,
 					}}
-					calculateMetadata={({props}) => ({height: props.height, width: props.width})}
+					calculateMetadata={({props}) => ({
+						height: props.height,
+						width: props.width,
+					})}
 				/>
 				<Composition
 					id="StudioUI"
@@ -489,10 +648,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					width={1600}
 					height={900}
 					schema={studioReferenceSchema}
-					defaultProps={{
-						viewportWidth: 1600,
-						responsivenessProgress: 0,
-					}}
+					defaultProps={{viewportWidth: 1600, responsivenessProgress: 0}}
 					calculateMetadata={({props}) => ({width: props.viewportWidth})}
 				/>
 				<Composition
@@ -507,6 +663,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 						viewportWidth: 1600,
 						responsivenessProgress: 0,
 					}}
+				/>
+				<Composition
+					id="StudioCodeHandoff"
+					component={StudioCodeHandoff}
+					durationInFrames={360}
+					fps={30}
+					width={1874}
+					height={1020}
 				/>
 				<Composition
 					id="StepGuide"
@@ -694,6 +858,7 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 			</Folder>
 
 			<Folder name="CloseUps">
+				<BasicsShowcaseCompositions />
 				<CloseUp1 />
 				<CloseUp2 />
 				<CloseUp3 />
@@ -710,6 +875,58 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					width={1920}
 					height={1080}
 				/>
+				<RenderModalCodec />
+				<AudioWaveform />
+				<VideoPlayback />
+				<CompositionList />
+				<QuickSwitcher />
+				<Composition3DRotation />
+				<KeyframeMove />
+				<PitchCorrection />
+				<RenderOnWeb />
+				<Composition
+					id="TimelineLeftDrag"
+					component={TimelineLeftDragComposition}
+					durationInFrames={271}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="TimelineAudioRollingEdit"
+					component={TimelineAudioRollingEditComposition}
+					durationInFrames={430}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="TimelineVideoRollingEdit"
+					component={TimelineVideoRollingEditComposition}
+					durationInFrames={204}
+					fps={60}
+					width={2560}
+					height={1312}
+				/>
+				<Composition
+					id="TimelineSourceOnlyTrim"
+					component={TimelineSourceOnlyTrimComposition}
+					durationInFrames={420}
+					fps={60}
+					width={2440}
+					height={1440}
+				/>
+				<Composition
+					id="TimelineSourceOnlyTrimWide"
+					component={TimelineSourceOnlyTrimWideComposition}
+					durationInFrames={431}
+					fps={60}
+					width={1920}
+					height={1080}
+				/>
+				<Folder name="NestingCompositions">
+					<NestingCompositions />
+				</Folder>
 			</Folder>
 
 			<Folder name="StudioAssets">
@@ -996,6 +1213,54 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					height={1080}
 				/>
 			</Folder>
+			<Composition
+				id="CaptionsRecording"
+				component={CaptionsRecordingComposition}
+				durationInFrames={612}
+				fps={60}
+				width={1902}
+				height={1440}
+			/>
+			<Composition
+				id="AiPromptRecording"
+				component={AiPromptRecordingComposition}
+				durationInFrames={748}
+				fps={60}
+				width={1494}
+				height={1440}
+			/>
+			<Composition
+				id="ParameterizationRecording"
+				component={ParameterizationRecordingComposition}
+				durationInFrames={933}
+				fps={60}
+				width={2032}
+				height={1440}
+			/>
+			<Composition
+				id="EffectsRecording"
+				component={EffectsRecordingComposition}
+				durationInFrames={513}
+				fps={60}
+				width={1568}
+				height={1440}
+			/>
+			<Composition
+				id="TransitionsRecording"
+				component={TransitionsRecordingComposition}
+				durationInFrames={263}
+				fps={60}
+				width={1918}
+				height={1440}
+			/>
+			<Composition
+				id="ColorCorrectionRecording"
+				component={ColorCorrectionRecordingComposition}
+				durationInFrames={485}
+				fps={60}
+				width={1620}
+				height={1440}
+			/>
 		</>
 	);
 };

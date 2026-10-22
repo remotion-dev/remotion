@@ -10,6 +10,7 @@ import {TimelineRowLayoutContext} from './TimelineRowLayoutContext';
 import type {TimelineSelectionInteraction} from './TimelineSelection';
 import {
 	getTimelineRowHighlightBackground,
+	isTimelineSelectionModifierEvent,
 	TIMELINE_SELECTED_BACKGROUND,
 } from './TimelineSelection';
 
@@ -77,6 +78,7 @@ export const TimelineRowChrome: React.FC<{
 	// bottom track separator. The background highlight and click target span the
 	// outer (used by sequence rows whose layer is taller than the chrome row).
 	readonly outerHeight: number | null;
+	readonly showBottomBorder: boolean;
 	readonly onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
 	readonly onDrop?: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -97,6 +99,7 @@ export const TimelineRowChrome: React.FC<{
 	containsSelection,
 	hovered = false,
 	outerHeight,
+	showBottomBorder,
 	onDragLeave,
 	onDragOver,
 	onDrop,
@@ -129,10 +132,12 @@ export const TimelineRowChrome: React.FC<{
 		(e: React.PointerEvent<HTMLDivElement>) => {
 			if (e.button === 0) {
 				e.stopPropagation();
-				onSelect({
-					shiftKey: e.shiftKey,
-					toggleKey: e.metaKey || e.ctrlKey,
-				});
+				if (isTimelineSelectionModifierEvent(e)) {
+					onSelect({
+						shiftKey: e.shiftKey,
+						toggleKey: e.metaKey || e.ctrlKey,
+					});
+				}
 			}
 		},
 		[onSelect],
@@ -148,7 +153,7 @@ export const TimelineRowChrome: React.FC<{
 		[onSelect, selected],
 	);
 
-	const performDoubleClickIfNotInteractive = useCallback(
+	const onClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			const {target} = e;
 			if (
@@ -163,19 +168,21 @@ export const TimelineRowChrome: React.FC<{
 				return;
 			}
 
-			onDoubleClick?.(e);
-		},
-		[onDoubleClick],
-	);
-	const onClick = useCallback(
-		(e: React.MouseEvent<HTMLDivElement>) => {
+			if (
+				selectable &&
+				e.button === 0 &&
+				!isTimelineSelectionModifierEvent(e)
+			) {
+				onSelect();
+			}
+
 			if (!doubleClickTracker.acceptClickAsDoubleClick(e)) {
 				return;
 			}
 
-			performDoubleClickIfNotInteractive(e);
+			onDoubleClick?.(e);
 		},
-		[doubleClickTracker, performDoubleClickIfNotInteractive],
+		[doubleClickTracker, onDoubleClick, onSelect, selectable],
 	);
 
 	const highlightBackground = getTimelineRowHighlightBackground({
@@ -210,13 +217,13 @@ export const TimelineRowChrome: React.FC<{
 
 		return {
 			height: outerHeight,
-			borderBottom: `1px solid ${TIMELINE_TRACK_SEPARATOR}`,
+			borderBottom: `1px solid ${showBottomBorder ? TIMELINE_TRACK_SEPARATOR : 'transparent'}`,
 			display: 'flex',
 			flexDirection: 'column',
 			justifyContent: 'center',
 			backgroundColor: highlightBackground,
 		};
-	}, [outerHeight, highlightBackground]);
+	}, [outerHeight, highlightBackground, showBottomBorder]);
 
 	const chrome = (
 		<>

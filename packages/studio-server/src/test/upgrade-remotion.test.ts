@@ -18,7 +18,7 @@ import {handleRequest} from '../preview-server/handler';
 
 // Run the actual upgrade CLI, replacing only the external package manager.
 test.skipIf(process.platform === 'win32')(
-	'Studio upgrades through the CLI, reports installation failures, and acknowledges shutdown',
+	'Studio upgrades through the CLI, reports installation failures, and acknowledges restart',
 	async () => {
 		const root = await mkdtemp(path.join(tmpdir(), 'studio-upgrade-'));
 		const previousPath = process.env.PATH;
@@ -57,8 +57,8 @@ if (process.argv[2] === 'view') {
 		process.env.PATH = `${bin}${path.delimiter}${previousPath}`;
 		const server = createServer((request, response) => {
 			const handler =
-				request.url === '/api/shutdown-studio'
-					? allApiRoutes['/api/shutdown-studio']
+				request.url === '/api/restart-studio'
+					? allApiRoutes['/api/restart-studio']
 					: allApiRoutes['/api/upgrade-remotion'];
 			handleRequest({
 				request,
@@ -117,12 +117,12 @@ if (process.argv[2] === 'view') {
 			expect(
 				await request('/api/upgrade-remotion', {version: '4.0.521'}),
 			).toEqual({success: true, data: {}});
-			const shutdown = noOpUntilRestart();
-			expect(await request('/api/shutdown-studio', {})).toEqual({
+			const restart = noOpUntilRestart();
+			expect(await request('/api/restart-studio', {})).toEqual({
 				success: true,
 				data: {},
 			});
-			expect(await shutdown).toBe('shutdown');
+			expect(await restart).toBe('restart');
 		} finally {
 			process.env.PATH = previousPath;
 			server.closeAllConnections();

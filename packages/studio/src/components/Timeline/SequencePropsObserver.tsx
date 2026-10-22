@@ -1,5 +1,9 @@
-import {type EventSourceEvent} from '@remotion/studio-shared';
-import {useContext, useEffect, useLayoutEffect, useRef} from 'react';
+import {
+	REACT_REFRESH_STARTED_EVENT,
+	type EventSourceEvent,
+} from '@remotion/studio-shared';
+import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {flushSync} from 'react-dom';
 import type {
 	SequencePropsStatusRemapping,
 	SequencePropsSubscriptionKey,
@@ -9,6 +13,7 @@ import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
+import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
 import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
 import {useTimelineSelection} from './TimelineSelection';
 
@@ -29,6 +34,28 @@ export const SequencePropsObserver = () => {
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
+	const [fastRefreshStarts, setFastRefreshStarts] = useState(0);
+	useEffect(() => {
+		const handleReactRefreshStarted = () => {
+			// Apply source-node remappings immediately before React commits the
+			// refreshed tree. This keeps the old tree paired with the old statuses
+			// and the new tree paired with the remapped statuses in the same task.
+			flushSync(() => {
+				setFastRefreshStarts((starts) => starts + 1);
+			});
+		};
+
+		window.addEventListener(
+			REACT_REFRESH_STARTED_EVENT,
+			handleReactRefreshStarted,
+		);
+		return () => {
+			window.removeEventListener(
+				REACT_REFRESH_STARTED_EVENT,
+				handleReactRefreshStarted,
+			);
+		};
+	}, []);
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
 	);
@@ -39,7 +66,11 @@ export const SequencePropsObserver = () => {
 				return;
 			}
 
-			setPropStatuses(event.nodePath, () => event.result);
+			// Every save re-sends all subscribed nodes of the file. Keep unchanged
+			// statuses so their consumers do not rerender.
+			setPropStatuses(event.nodePath, (prev) =>
+				deepEqual(prev, event.result) ? prev : event.result,
+			);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
@@ -56,6 +87,52 @@ export const SequencePropsObserver = () => {
 		}
 
 		remapSelectionNodePaths(mutations);
+
+		// Each edit can remap many siblings. Index paths once before matching
+		// them against every mounted override ID.
+		const indexedMutations = mutations.map((mutation) =>
+			mutation.files.map((file) => {
+				const byOldPath = new Map<string, (typeof file.remappings)[number]>();
+				const byNewPath = new Map<string, (typeof file.remappings)[number]>();
+				const insertedPaths = new Set<string>();
+				const updatedPaths = new Set<string>();
+				for (const remapping of file.remappings) {
+					const oldPath =
+						remapping.oldNodePath === null
+							? null
+							: JSON.stringify(remapping.oldNodePath);
+					const newPath =
+						remapping.newNodePath === null
+							? null
+							: JSON.stringify(remapping.newNodePath);
+
+					// Preserve the first match when multiple remappings share a path.
+					if (oldPath !== null && !byOldPath.has(oldPath)) {
+						byOldPath.set(oldPath, remapping);
+					}
+
+					if (newPath !== null && !byNewPath.has(newPath)) {
+						byNewPath.set(newPath, remapping);
+					}
+
+					if (oldPath === null && newPath !== null) {
+						insertedPaths.add(newPath);
+					}
+
+					if (oldPath !== null && oldPath === newPath) {
+						updatedPaths.add(oldPath);
+					}
+				}
+
+				return {
+					absolutePath: file.absolutePath,
+					byOldPath,
+					byNewPath,
+					insertedPaths,
+					updatedPaths,
+				};
+			}),
+		);
 
 		const statusRemappings: SequencePropsStatusRemapping[] = [];
 		const overrideUpdates: Array<{
@@ -74,44 +151,41 @@ export const SequencePropsObserver = () => {
 			let runtimeNodePathNeedsRefresh = false;
 			const previousNodePathString = JSON.stringify(previousNodePath.nodePath);
 
-			for (const mutation of mutations) {
-				for (const file of mutation.files) {
+			for (const files of indexedMutations) {
+				for (const file of files) {
 					if (file.absolutePath !== previousNodePath.absolutePath) {
 						continue;
 					}
 
-					// Prop statuses follow source nodes to their new paths. Override IDs,
-					// however, follow React's runtime instances. Structural edits may reuse
-					// the instance already at a path, so only remove mappings from paths
-					// which are sources without also being destinations.
-					const runtimeNodePathIsSource = file.remappings.some(
-						(item) =>
-							item.oldNodePath !== null &&
-							JSON.stringify(item.oldNodePath) === previousNodePathString,
+					// Source nodes and React's runtime instances can move independently.
+					// Override IDs follow runtime instances, which may be reused when the
+					// same JSX component takes over an old path. A different component remounts,
+					// so move the old mapping with its source node and resubscribe instead.
+					const runtimeNodePathSource = file.byOldPath.get(
+						previousNodePathString,
 					);
-					const runtimeNodePathIsDestination = file.remappings.some(
-						(item) =>
-							item.newNodePath !== null &&
-							JSON.stringify(item.newNodePath) === previousNodePathString,
+					const runtimeNodePathDestination = file.byNewPath.get(
+						previousNodePathString,
 					);
-					const runtimeNodePathWasInserted = file.remappings.some(
-						(item) =>
-							item.oldNodePath === null &&
-							item.newNodePath !== null &&
-							JSON.stringify(item.newNodePath) === previousNodePathString,
+					const replacementComponentMatches =
+						runtimeNodePathSource?.oldJsxName === undefined ||
+						runtimeNodePathDestination?.newJsxName === undefined ||
+						runtimeNodePathSource.oldJsxName ===
+							runtimeNodePathDestination.newJsxName;
+					const runtimeNodePathWasInserted = file.insertedPaths.has(
+						previousNodePathString,
 					);
-					const runtimeNodePathWasUpdated = file.remappings.some(
-						(item) =>
-							item.oldNodePath !== null &&
-							item.newNodePath !== null &&
-							JSON.stringify(item.oldNodePath) === previousNodePathString &&
-							JSON.stringify(item.newNodePath) === previousNodePathString,
+					const runtimeNodePathWasUpdated = file.updatedPaths.has(
+						previousNodePathString,
 					);
-					if (runtimeNodePathIsSource) {
-						runtimeNodePathExists = runtimeNodePathIsDestination;
+					if (runtimeNodePathSource) {
+						runtimeNodePathExists = Boolean(
+							runtimeNodePathDestination && replacementComponentMatches,
+						);
 						runtimeNodePathNeedsRefresh =
-							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
-					} else if (runtimeNodePathIsDestination) {
+							runtimeNodePathExists &&
+							(runtimeNodePathWasInserted || runtimeNodePathWasUpdated);
+					} else if (runtimeNodePathDestination) {
 						runtimeNodePathExists = true;
 						runtimeNodePathNeedsRefresh =
 							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
@@ -121,11 +195,7 @@ export const SequencePropsObserver = () => {
 						continue;
 					}
 
-					const remapping = file.remappings.find(
-						(item) =>
-							item.oldNodePath !== null &&
-							JSON.stringify(item.oldNodePath) === JSON.stringify(nodePath),
-					);
+					const remapping = file.byOldPath.get(JSON.stringify(nodePath));
 					if (!remapping) {
 						continue;
 					}
@@ -145,19 +215,30 @@ export const SequencePropsObserver = () => {
 			}
 
 			const nextNodePath = wasDeleted ? null : {...previousNodePath, nodePath};
+			const nodePathChanged =
+				JSON.stringify(nodePath) !== previousNodePathString;
 			const previousStatusKey =
 				Internals.makeSequencePropsSubscriptionKey(previousNodePath);
 			statusRemappings.push({
 				previousNodePath,
 				nodePath: nextNodePath,
-				result: propStatusesRef.current[previousStatusKey] ?? null,
+				// A reused runtime instance still renders the old JSX until Refresh.
+				// Let it use its JSX values instead of a shifted sibling's source props.
+				result: nodePathChanged
+					? null
+					: (propStatusesRef.current[previousStatusKey] ?? null),
 			});
 
 			overrideUpdates.push({
 				overrideId,
-				nodePath: runtimeNodePathExists ? previousNodePath : null,
+				nodePath: runtimeNodePathExists ? previousNodePath : nextNodePath,
 			});
-			if (runtimeNodePathExists && runtimeNodePathNeedsRefresh) {
+			if (
+				!wasDeleted &&
+				(nodePathChanged ||
+					!runtimeNodePathExists ||
+					runtimeNodePathNeedsRefresh)
+			) {
 				overrideIdsToRefresh.add(overrideId);
 			}
 		}
@@ -184,6 +265,7 @@ export const SequencePropsObserver = () => {
 		}
 	}, [
 		fastRefreshes,
+		fastRefreshStarts,
 		migrateExpandedTracksForSubscriptionKey,
 		propStatusesRef,
 		remapSelectionNodePaths,

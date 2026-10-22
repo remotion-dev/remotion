@@ -1,7 +1,9 @@
+import type {VideoConfigValues} from 'remotion';
 import {
 	type CanUpdateSequencePropsResponse,
 	type CanUpdateSequencePropStatus,
 } from 'remotion';
+import {updateSourcePropStatus} from './update-source-prop-status';
 
 const getEasingIndexToRemove = ({
 	removedKeyframeIndex,
@@ -21,7 +23,11 @@ const getEasingIndexToRemove = ({
 	return removedKeyframeIndex;
 };
 
-const removeKeyframeFromPropStatus = ({
+/**
+ * The status of a prop after removing the keyframe at `frame`. Removing the
+ * last keyframe leaves a static prop.
+ */
+export const removeKeyframeFromPropStatus = ({
 	status,
 	frame,
 	valueWhenLastKeyframeDeleted,
@@ -44,6 +50,12 @@ const removeKeyframeFromPropStatus = ({
 		return {
 			status: 'static',
 			keyframeDisplayOffsetAdjustment: status.keyframeDisplayOffsetAdjustment,
+			...(status.keyframePlaybackRateAdjustment === undefined
+				? {}
+				: {
+						keyframePlaybackRateAdjustment:
+							status.keyframePlaybackRateAdjustment,
+					}),
 			codeValue:
 				valueWhenLastKeyframeDeleted === null
 					? status.keyframes[index].value
@@ -72,11 +84,13 @@ const removeKeyframeFromPropStatus = ({
 
 export const optimisticDeleteSequenceKeyframe = ({
 	previous,
+	videoConfigValues,
 	fieldKey,
 	frame,
 	valueWhenLastKeyframeDeleted,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	fieldKey: string;
 	frame: number;
 	valueWhenLastKeyframeDeleted?: unknown;
@@ -94,10 +108,15 @@ export const optimisticDeleteSequenceKeyframe = ({
 		...previous,
 		props: {
 			...previous.props,
-			[fieldKey]: removeKeyframeFromPropStatus({
-				status,
-				frame,
-				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					removeKeyframeFromPropStatus({
+						status: evaluatedStatus,
+						frame,
+						valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+					}),
 			}),
 		},
 	};
@@ -105,9 +124,11 @@ export const optimisticDeleteSequenceKeyframe = ({
 
 export const optimisticDeleteSequenceKeyframes = ({
 	previous,
+	videoConfigValues,
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	keyframes: {
 		fieldKey: string;
 		frame: number;
@@ -118,6 +139,7 @@ export const optimisticDeleteSequenceKeyframes = ({
 		(current, keyframe) =>
 			optimisticDeleteSequenceKeyframe({
 				previous: current,
+				videoConfigValues,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.frame,
 				valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
@@ -128,12 +150,14 @@ export const optimisticDeleteSequenceKeyframes = ({
 
 export const optimisticDeleteEffectKeyframe = ({
 	previous,
+	videoConfigValues,
 	effectIndex,
 	fieldKey,
 	frame,
 	valueWhenLastKeyframeDeleted,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	effectIndex: number;
 	fieldKey: string;
 	frame: number;
@@ -164,10 +188,15 @@ export const optimisticDeleteEffectKeyframe = ({
 		...target,
 		props: {
 			...target.props,
-			[fieldKey]: removeKeyframeFromPropStatus({
-				status,
-				frame,
-				valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+			[fieldKey]: updateSourcePropStatus({
+				source: status,
+				videoConfigValues,
+				update: (evaluatedStatus) =>
+					removeKeyframeFromPropStatus({
+						status: evaluatedStatus,
+						frame,
+						valueWhenLastKeyframeDeleted: valueWhenLastKeyframeDeleted ?? null,
+					}),
 			}),
 		},
 	};
@@ -183,9 +212,11 @@ export const optimisticDeleteEffectKeyframe = ({
 
 export const optimisticDeleteEffectKeyframes = ({
 	previous,
+	videoConfigValues,
 	keyframes,
 }: {
 	previous: CanUpdateSequencePropsResponse;
+	videoConfigValues: VideoConfigValues | null;
 	keyframes: {
 		effectIndex: number;
 		fieldKey: string;
@@ -197,6 +228,7 @@ export const optimisticDeleteEffectKeyframes = ({
 		(current, keyframe) =>
 			optimisticDeleteEffectKeyframe({
 				previous: current,
+				videoConfigValues,
 				effectIndex: keyframe.effectIndex,
 				fieldKey: keyframe.fieldKey,
 				frame: keyframe.frame,

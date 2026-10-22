@@ -4,24 +4,32 @@ import type {
 	SourceSpecification,
 } from '@maptiler/sdk';
 import {useContext, useEffect, useRef, type ReactNode} from 'react';
-import {useDelayRender} from 'remotion';
+import {
+	Freeze,
+	Sequence,
+	Internals,
+	useDelayRender,
+	type InteractiveBaseProps,
+	type InteractivePremountProps,
+} from 'remotion';
 import {delayMapRender} from './delay-map-render';
 import {MapTilerContext} from './MapTilerContext';
 
-export type MapSourceProps = {
-	readonly children?: ReactNode;
-	readonly id: string;
-	readonly source: SourceSpecification;
-};
+export type MapSourceProps = InteractiveBaseProps &
+	Pick<InteractivePremountProps, 'premountFor' | 'postmountFor'> & {
+		readonly children?: ReactNode;
+		readonly id: string;
+		readonly source: SourceSpecification;
+	};
 
-export const MapSource = ({children, id, source}: MapSourceProps) => {
+const MapSourceContent = ({children, id, source}: MapSourceProps) => {
 	const {map, styleRevision} = useContext(MapTilerContext);
 	const sourceRef = useRef(source);
 	const {continueRender, delayRender} = useDelayRender();
 	sourceRef.current = source;
 
 	useEffect(() => {
-		if (!map) {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -47,6 +55,10 @@ export const MapSource = ({children, id, source}: MapSourceProps) => {
 			map.off('idle', finish);
 			finish();
 
+			if (!map.style) {
+				return;
+			}
+
 			for (const layer of map.getStyle().layers ?? []) {
 				if (
 					'source' in layer &&
@@ -66,7 +78,7 @@ export const MapSource = ({children, id, source}: MapSourceProps) => {
 	}, [continueRender, delayRender, id, map, styleRevision]);
 
 	useEffect(() => {
-		if (!map || source.type !== 'geojson') {
+		if (!map || !map.style || source.type !== 'geojson') {
 			return;
 		}
 
@@ -85,4 +97,64 @@ export const MapSource = ({children, id, source}: MapSourceProps) => {
 	}, [continueRender, delayRender, id, map, source]);
 
 	return children;
+};
+
+export const MapSource = ({
+	from,
+	durationInFrames,
+	trimBefore,
+	playbackRate,
+	loop,
+	freeze,
+	hidden,
+	name,
+	showInTimeline,
+	premountFor,
+	postmountFor,
+	...props
+}: MapSourceProps) => {
+	const {
+		effectivePremountFor,
+		effectivePostmountFor,
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+	} = Internals.usePremounting({
+		from: from ?? 0,
+		durationInFrames: Internals.resolveSequenceDuration({
+			durationInFrames,
+			playbackRate,
+			loop,
+		}),
+		premountFor: premountFor ?? null,
+		postmountFor: postmountFor ?? null,
+		style: null,
+		styleWhilePremounted: null,
+		styleWhilePostmounted: null,
+		hideWhilePremounted: 'opacity',
+	});
+
+	return (
+		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Sequence
+				layout="none"
+				from={from}
+				durationInFrames={durationInFrames}
+				trimBefore={trimBefore}
+				playbackRate={playbackRate}
+				loop={loop}
+				freeze={freeze}
+				hidden={hidden}
+				showInTimeline={showInTimeline ?? false}
+				name={name ?? '<MapSource>'}
+				_remotionInternalPremountDisplay={effectivePremountFor || null}
+				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+			>
+				<MapSourceContent {...props} />
+			</Sequence>
+		</Freeze>
+	);
 };

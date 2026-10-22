@@ -39,6 +39,7 @@ type RenderMediaOnVercelBaseOptions = {
 	preferLossless?: boolean;
 	enforceAudioTrack?: boolean;
 	disallowParallelEncoding?: boolean;
+	disableSharedMemoryCapture?: boolean;
 	concurrency?: number | string | null;
 	metadata?: Record<string, string> | null;
 	licenseKey?: string | null;
@@ -110,6 +111,7 @@ const internalRenderMediaOnVercel = async (
 		preferLossless = false,
 		enforceAudioTrack = false,
 		disallowParallelEncoding = false,
+		disableSharedMemoryCapture = false,
 		concurrency,
 		metadata,
 		licenseKey,
@@ -164,6 +166,7 @@ const internalRenderMediaOnVercel = async (
 		preferLossless,
 		enforceAudioTrack,
 		disallowParallelEncoding,
+		disableSharedMemoryCapture,
 		concurrency: concurrency ?? null,
 		metadata: metadata ?? null,
 		licenseKey: licenseKey ?? null,

@@ -6,6 +6,7 @@ let currentSampleRate: number = 48000;
 
 export const sampleRateOption = {
 	name: 'Sample Rate',
+	addedIn: '4.0.448',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,7 +16,7 @@ export const sampleRateOption = {
 		</>
 	),
 	ssrName: 'sampleRate' as const,
-	docLink: 'https://www.remotion.dev/docs/sample-rate',
+	docLink: 'https://www.remotion.dev/docs/options/sample-rate',
 	type: 48000 as number,
 	getValue: (
 		{commandLine}: {commandLine: Record<string, unknown>},

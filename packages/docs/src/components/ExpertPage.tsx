@@ -158,6 +158,28 @@ export default () => {
 				<h3>About me</h3>
 				<p style={description}>{expert.description}</p>
 				<h3>Socials</h3>
+				{expert.website ? (
+					<a style={socialLink} href={expert.website} target={'_blank'}>
+						<div style={socialRow}>
+							<div style={socialIconContainer}>
+								<svg
+									style={socialIcon}
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentcolor"
+									strokeWidth={2}
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<circle cx="12" cy="12" r="10" />
+									<path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+								</svg>
+							</div>
+							{new URL(expert.website).hostname.replace(/^www\./, '')}
+						</div>
+					</a>
+				) : null}
 				{expert.github ? (
 					<a
 						style={socialLink}

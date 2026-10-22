@@ -1,5 +1,7 @@
 import {fontFamily, loadFont} from '@remotion/google-fonts/Caveat';
+import React from 'react';
 import {
+	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
@@ -13,16 +15,15 @@ loadFont('normal', {
 	subsets: ['latin'],
 });
 
-export const PolaroidPictures = () => {
+const PolaroidPicturesInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 
 	return (
-		<div
+		<AbsoluteFill
+			name="Polaroid drift"
 			style={{
 				color: '#2d2620',
-				height: 640,
-				position: 'relative',
 				scale: interpolate(frame, [58, durationInFrames - 32], [1, 1.035], {
 					easing: Easing.inOut(Easing.quad),
 					extrapolateLeft: 'clamp',
@@ -39,7 +40,6 @@ export const PolaroidPictures = () => {
 						extrapolateRight: 'clamp',
 					},
 				),
-				width: 1480,
 				willChange: 'transform',
 			}}
 		>
@@ -497,6 +497,11 @@ export const PolaroidPictures = () => {
 					scene C
 				</Interactive.Div>
 			</Interactive.Div>
-		</div>
+		</AbsoluteFill>
 	);
 };
+
+export const PolaroidPictures = Interactive.create({
+	Component: PolaroidPicturesInner,
+	layout: 'absolute-fill',
+});

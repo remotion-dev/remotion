@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
-import {BLACK_HEX, BLUE, LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
 	TimelineFieldOnDragValueChange,
@@ -52,7 +52,7 @@ export const TimelineColorField: React.FC<{
 		typeof effectiveValue === 'string'
 			? effectiveValue
 			: field.fieldSchema.type === 'color'
-				? (field.fieldSchema.default ?? BLACK_HEX)
+				? (field.fieldSchema.default ?? '#000')
 				: '';
 
 	const onChange = useCallback(
@@ -80,7 +80,7 @@ export const TimelineColorField: React.FC<{
 				<button
 					type="button"
 					style={setButtonStyle}
-					title={`Set ${field.description ?? field.key} to gray`}
+					aria-label={`Set ${field.description ?? field.key} to gray`}
 					onClick={() => onChangeComplete(DEFAULT_SET_COLOR)}
 				>
 					Set
@@ -100,7 +100,7 @@ export const TimelineColorField: React.FC<{
 				height={SWATCH_HEIGHT}
 				disabled={false}
 				name={field.key}
-				title={currentValue}
+				aria-label={currentValue}
 			/>
 		</span>
 	);

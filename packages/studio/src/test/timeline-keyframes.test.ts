@@ -1,17 +1,19 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	SequencePropsSubscriptionKey,
 	TSequence,
 } from 'remotion';
 import {Internals, type PropStatuses} from 'remotion';
+import {getInspectorKeyframeSourceFrame} from '../components/InspectorPanel/keyframe-inspector-frame';
 import {findTrackForNodePathInfo} from '../components/Timeline/find-track-for-node-path-info';
-import {getBoundedKeyframeDragDelta} from '../components/Timeline/get-bounded-keyframe-drag-delta';
 import {getNodeKeyframes} from '../components/Timeline/get-node-keyframes';
-import {getTimelineEasingSegments} from '../components/Timeline/get-timeline-easing-segments';
-import {getTimelineKeyframes} from '../components/Timeline/get-timeline-keyframes';
+import {
+	getKeyframeDisplayOffset,
+	getTimelineKeyframes,
+} from '../components/Timeline/get-timeline-keyframes';
 import {getTimelineKeyframeDragKey} from '../components/Timeline/TimelineKeyframeDragState';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 import {
 	getSchemaFieldGroup,
 	type TimelineTreeNode,
@@ -64,6 +66,7 @@ const makeSequence = ({
 	timelineOrder: number;
 }): TSequence => ({
 	type: 'sequence',
+	sequencePlaybackRate: 1,
 	from,
 	trimBefore,
 	duration: 120,
@@ -124,7 +127,6 @@ const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
 		fieldSchema: numberFieldSchema,
 		group: getSchemaFieldGroup(key),
 	},
-	runtimeValue: null,
 	runtimeValueStore: null,
 });
 
@@ -154,7 +156,6 @@ const makeEffectFieldNode = (
 		},
 		group: getSchemaFieldGroup(key),
 	},
-	runtimeValue: null,
 	runtimeValueStore: null,
 });
 
@@ -162,6 +163,7 @@ const makePropStatuses = (
 	nodePath: SequencePropsSubscriptionKey,
 ): PropStatuses => ({
 	[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			'style.scale': makeKeyframedStatus(),
@@ -181,7 +183,8 @@ const makePropStatuses = (
 });
 
 test('keyframe display offsets follow the parent sequence context', () => {
-	const timeline = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const timeline = calculate({
 		sequences: [
 			makeSequence({
 				id: 'root-style',
@@ -228,7 +231,7 @@ test('keyframe display offsets follow the parent sequence context', () => {
 			'own-from': makeNodePath('own-from'),
 			grandchild: makeNodePath('grandchild'),
 		},
-	});
+	}).tracks;
 
 	const getOffset = (id: string): number => {
 		const track = timeline.find((t) => t.sequence.id === id);
@@ -270,7 +273,89 @@ test('keyframe display offsets follow the parent sequence context', () => {
 	]);
 });
 
+test('keyframes retain their source frames across nested rates and trimmed clocks', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const nodePath = makeNodePath('child');
+	const timeline = calculate({
+		sequences: [
+			{
+				...makeSequence({
+					id: 'outer',
+					from: 30,
+					trimBefore: 10,
+					timelineOrder: 0,
+				}),
+				sequencePlaybackRate: 2,
+			},
+			{
+				...makeSequence({
+					id: 'inner',
+					from: 20,
+					trimBefore: 3,
+					parent: 'outer',
+					timelineOrder: 1,
+				}),
+				sequencePlaybackRate: 0.75,
+			},
+			{
+				...makeSequence({
+					id: 'child',
+					from: 5,
+					trimBefore: null,
+					parent: 'inner',
+					overrideId: 'child',
+					timelineOrder: 2,
+				}),
+				sequencePlaybackRate: 3,
+			},
+		],
+		overrideIdsToNodePaths: {child: nodePath},
+	}).tracks;
+	const track = timeline.find(
+		(candidate) => candidate.sequence.id === 'child',
+	)!;
+	const status = {
+		...makeKeyframedStatus(),
+		keyframeDisplayOffsetAdjustment: -6,
+	};
+	const propStatuses: PropStatuses = {
+		[Internals.makeSequencePropsSubscriptionKey(nodePath)]: {
+			durationDependentKeyframes: null,
+			canUpdate: true,
+			props: {'style.scale': status},
+			effects: [],
+		},
+	};
+	const keyframes = getNodeKeyframes({
+		node: makeSequenceFieldNode('style.scale'),
+		nodePath,
+		propStatuses,
+		keyframeDisplayOffset: track.keyframeDisplayOffset,
+		keyframePlaybackRate: track.keyframePlaybackRate,
+		getDragOverrides: () => ({}),
+		getEffectDragOverrides: () => ({}),
+		timelinePosition: 49,
+	});
+
+	expect(keyframes).toEqual([
+		{frame: 29, value: 2},
+		{frame: 69, value: 4},
+	]);
+	expect(
+		getInspectorKeyframeSourceFrame({
+			displayFrame: 49,
+			keyframeDisplayOffset: getKeyframeDisplayOffset({
+				propStatus: status,
+				keyframeDisplayOffset: track.keyframeDisplayOffset,
+				keyframePlaybackRate: track.keyframePlaybackRate,
+			}),
+			keyframePlaybackRate: track.keyframePlaybackRate,
+		}),
+	).toBe(30);
+});
+
 test('track lookup survives effect key changes', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const sequences = [
 		makeSequence({
 			id: 'sequence',
@@ -287,10 +372,12 @@ test('track lookup survives effect key changes', () => {
 	const staleNodePath = makeNodePathWithEffectKeys('sequence', [['blur']]);
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths: {
-			sequence: currentNodePath,
-		},
+		tracks: calculate({
+			sequences,
+			overrideIdsToNodePaths: {
+				sequence: currentNodePath,
+			},
+		}).tracks,
 		nodePathInfo: {
 			sequenceSubscriptionKey: staleNodePath,
 			auxiliaryKeys: [],
@@ -300,11 +387,12 @@ test('track lookup survives effect key changes', () => {
 		},
 	});
 
-	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toBe(currentNodePath);
+	expect(track?.nodePathInfo?.sequenceSubscriptionKey).toEqual(currentNodePath);
 });
 
 test('keyframe display offsets account for parent trimBefore', () => {
-	const timeline = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const timeline = calculate({
 		sequences: [
 			makeSequence({
 				id: 'parent',
@@ -324,7 +412,7 @@ test('keyframe display offsets account for parent trimBefore', () => {
 		overrideIdsToNodePaths: {
 			child: makeNodePath('child'),
 		},
-	});
+	}).tracks;
 
 	const child = timeline.find((t) => t.sequence.id === 'child');
 	expect(child?.keyframeDisplayOffset).toBe(-20);
@@ -352,7 +440,8 @@ test('keyframe display offsets account for parent trimBefore', () => {
 });
 
 test('keyframe display offsets respect the useCurrentFrame coordinate space', () => {
-	const timeline = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const timeline = calculate({
 		sequences: [
 			makeSequence({
 				id: 'timing-wrapper',
@@ -372,7 +461,7 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 		overrideIdsToNodePaths: {
 			'controlled-element': makeNodePath('controlled-element'),
 		},
-	});
+	}).tracks;
 	const controlledElement = timeline.find(
 		(track) => track.sequence.id === 'controlled-element',
 	);
@@ -399,71 +488,6 @@ test('keyframe display offsets respect the useCurrentFrame coordinate space', ()
 	]);
 });
 
-test('timeline easing segments connect adjacent display keyframes', () => {
-	const status: CanUpdateSequencePropStatusKeyframed = {
-		...makeKeyframedStatus(),
-		keyframes: [
-			{frame: 0, value: 2},
-			{frame: 30, value: 3},
-			{frame: 60, value: 4},
-		],
-		easing: [{type: 'linear'}, {type: 'linear'}],
-	};
-
-	expect(getTimelineEasingSegments(getTimelineKeyframes(status, 30))).toEqual([
-		{fromFrame: 30, toFrame: 60, segmentIndex: 0},
-		{fromFrame: 60, toFrame: 90, segmentIndex: 1},
-	]);
-});
-
-test('bounded keyframe drag delta stays inside the composition timeline', () => {
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets: [{displayFrame: 10}],
-			delta: -20,
-			durationInFrames: 100,
-		}),
-	).toBe(-10);
-
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets: [{displayFrame: 90}],
-			delta: 20,
-			durationInFrames: 100,
-		}),
-	).toBe(9);
-});
-
-test('bounded keyframe drag delta allows negative source frames when display frames stay in range', () => {
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets: [{displayFrame: 30}],
-			delta: -30,
-			durationInFrames: 100,
-		}),
-	).toBe(-30);
-});
-
-test('bounded keyframe drag delta clamps multi-selection at the first timeline edge', () => {
-	const targets = [{displayFrame: 20}, {displayFrame: 95}];
-
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets,
-			delta: -30,
-			durationInFrames: 100,
-		}),
-	).toBe(-20);
-
-	expect(
-		getBoundedKeyframeDragDelta({
-			targets,
-			delta: 10,
-			durationInFrames: 100,
-		}),
-	).toBe(4);
-});
-
 test('getNodeKeyframes shows a temporary sequence keyframe from drag overrides', () => {
 	const nodePath = makeNodePath('sequence');
 
@@ -473,6 +497,7 @@ test('getNodeKeyframes shows a temporary sequence keyframe from drag overrides',
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({
 				'style.scale': Internals.makeStaticDragOverride(3),
 			}),
@@ -495,6 +520,7 @@ test('getNodeKeyframes shows a temporary effect keyframe from drag overrides', (
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({}),
 			getEffectDragOverrides: () => ({
 				amount: Internals.makeStaticDragOverride(5),
@@ -516,6 +542,7 @@ test('getNodeKeyframes shows sequence keyframes from keyframed drag overrides', 
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({
 				'style.scale': Internals.makeKeyframedDragOverride({
 					status: makeKeyframedStatus(),
@@ -542,6 +569,7 @@ test('getNodeKeyframes replaces existing keyframes from keyframed drag overrides
 			nodePath,
 			propStatuses: makePropStatuses(nodePath),
 			keyframeDisplayOffset: 30,
+			keyframePlaybackRate: 1,
 			getDragOverrides: () => ({}),
 			getEffectDragOverrides: () => ({
 				amount: Internals.makeKeyframedDragOverride({

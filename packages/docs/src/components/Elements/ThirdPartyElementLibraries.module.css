@@ -1,0 +1,128 @@
+.library {
+	container: third-party-libraries / inline-size;
+}
+
+.list {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
+	align-items: start;
+	margin: 0 0 var(--ifm-leading);
+	padding: 0;
+	list-style: none;
+}
+
+.list > .card {
+	position: relative;
+	min-width: 0;
+	margin: 0;
+}
+
+.preview {
+	position: relative;
+	display: flex;
+	aspect-ratio: 1200 / 630;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	border-radius: 8px;
+	background: var(--ifm-color-emphasis-100);
+}
+
+.previewImage {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.content {
+	min-width: 0;
+	padding: 18px 0;
+}
+
+.libraryTitle {
+	min-width: 0;
+	margin: 0;
+	overflow-wrap: anywhere;
+	font-family: 'GTPlanar';
+	font-size: 1.125rem;
+	font-weight: 400;
+	text-align: left;
+	text-wrap: balance;
+}
+
+.card .libraryLink,
+.card .libraryLink:hover,
+.card .libraryLink:visited {
+	color: var(--ifm-font-color-base);
+	text-decoration: none;
+}
+
+.libraryLink::after {
+	position: absolute;
+	inset: 0;
+	border-radius: 8px;
+	content: '';
+}
+
+.libraryLink:hover {
+	color: var(--ifm-font-color-base);
+	text-decoration: none;
+}
+
+.libraryLink:focus-visible {
+	outline: none;
+}
+
+.libraryLink:focus-visible::after {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.addAction {
+	position: absolute;
+	right: 12px;
+	bottom: 12px;
+	z-index: 1;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.card:hover .addAction,
+.card:focus-within .addAction {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+@media (hover: none), (pointer: coarse) {
+	.addAction {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+:global([data-theme='dark']) .addAction {
+	--blue-underlay: var(--ifm-color-primary);
+}
+
+@container third-party-libraries (min-width: 440px) {
+	.list {
+		grid-template-columns: repeat(2, minmax(0, 320px));
+	}
+}
+
+@container third-party-libraries (min-width: 640px) {
+	.list {
+		grid-template-columns: repeat(3, minmax(0, 320px));
+		gap: 24px;
+	}
+
+	.content {
+		padding: 16px 0;
+	}
+
+	.libraryTitle {
+		font-size: 1rem;
+	}
+}

@@ -6,8 +6,8 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
 import type {_InternalTypes} from 'remotion';
+import {Internals} from 'remotion';
 import type {StaticFile} from '../../api/get-static-files';
 import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {createFolderTree} from '../../helpers/create-folder-tree';
@@ -66,6 +66,7 @@ const modeItem: React.CSSProperties = {
 	fontSize: 13,
 	cursor: 'pointer',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const modeInactive: React.CSSProperties = {
@@ -101,6 +102,13 @@ const container: React.CSSProperties = {
 const results: React.CSSProperties = {
 	overflowY: 'auto',
 	height: 300,
+};
+
+const fileTypeDescription: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 12,
+	lineHeight: '16px',
+	padding: '0 16px 12px',
 };
 
 const stripQuery = (query: string) => {
@@ -163,6 +171,11 @@ export const QuickSwitcherContent: React.FC<{
 	readonly readOnlyStudio: boolean;
 	readonly assetSelection: {
 		readonly initialQuery: string;
+		readonly fileTypes: {
+			readonly extensions: string[];
+			readonly description: string;
+			readonly importLabel: string;
+		} | null;
 		readonly onSelectFile: () => void;
 		readonly onSelected: (asset: StaticFile) => void;
 	} | null;
@@ -211,7 +224,7 @@ export const QuickSwitcherContent: React.FC<{
 	const selectAsset = useSelectAsset();
 
 	const closeMenu = useCallback(() => undefined, []);
-	const actions = useMenuStructure(closeMenu, readOnlyStudio, false);
+	const actions = useMenuStructure(closeMenu, readOnlyStudio);
 	const [docResults, setDocResults] = useState<AlgoliaState>({type: 'initial'});
 
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -256,24 +269,34 @@ export const QuickSwitcherContent: React.FC<{
 		if (mode === 'assets') {
 			const assetResults = fuzzySearch(
 				assetSearch.query,
-				assetSearch.assets.map((asset) => {
-					return {
-						id: 'asset-' + asset.name,
-						title: asset.name,
-						type: 'asset',
-						fileType: getPreviewFileType(asset.name),
-						onSelected: () => {
-							if (assetSelection !== null) {
-								assetSelection.onSelected(asset);
-							} else {
-								selectAsset(asset.name);
-								pushUrl(`/assets/${asset.name}`);
-							}
+				assetSearch.assets
+					.filter((asset) => {
+						return (
+							assetSelection === null ||
+							assetSelection.fileTypes === null ||
+							assetSelection.fileTypes.extensions.some((extension) =>
+								asset.name.toLowerCase().endsWith(extension),
+							)
+						);
+					})
+					.map((asset) => {
+						return {
+							id: 'asset-' + asset.name,
+							title: asset.name,
+							type: 'asset',
+							fileType: getPreviewFileType(asset.name),
+							onSelected: () => {
+								if (assetSelection !== null) {
+									assetSelection.onSelected(asset);
+								} else {
+									selectAsset(asset.name);
+									pushUrl(`/assets/${asset.name}`);
+								}
 
-							setSelectedModal(null);
-						},
-					};
-				}),
+								setSelectedModal(null);
+							},
+						};
+					}),
 			);
 
 			if (assetSelection === null) {
@@ -283,7 +306,7 @@ export const QuickSwitcherContent: React.FC<{
 			return [
 				{
 					id: 'select-file',
-					title: 'Import file...',
+					title: assetSelection.fileTypes?.importLabel ?? 'Import file...',
 					type: 'select-file',
 					onSelected: () => {
 						assetSelection.onSelectFile();
@@ -504,7 +527,9 @@ export const QuickSwitcherContent: React.FC<{
 	const showEmptyDocSearch = mode === 'docs' && actualQuery.trim() === '';
 	const placeholder =
 		mode === 'assets'
-			? 'Search assets...'
+			? assetSelection?.fileTypes
+				? 'Search transcripts...'
+				: 'Search assets...'
 			: mode === 'commands'
 				? 'Search actions...'
 				: mode === 'docs'
@@ -567,6 +592,11 @@ export const QuickSwitcherContent: React.FC<{
 					rightAlign={false}
 				/>
 			</div>
+			{assetSelection?.fileTypes ? (
+				<div style={fileTypeDescription}>
+					{assetSelection.fileTypes.description}
+				</div>
+			) : null}
 			<div style={results} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{showEmptyDocSearch ||
 				showSearchLoadingState ? null : resultsArray.length === 0 ? (

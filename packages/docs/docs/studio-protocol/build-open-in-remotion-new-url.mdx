@@ -1,0 +1,66 @@
+---
+image: /generated/articles-docs-studio-protocol-build-open-in-remotion-new-url.png
+title: 'buildOpenInRemotionNewUrl()'
+crumb: '@remotion/studio-protocol'
+---
+
+# buildOpenInRemotionNewUrl()<AvailableFrom v="4.0.527" />
+
+Builds a URL that opens an Element in the browser-based editor at [remotion.dev/new](https://www.remotion.dev/new).
+
+## Example
+
+```tsx twoslash title="OpenInRemotion.tsx"
+import {
+  buildOpenInRemotionNewUrl,
+  createElementPayload,
+} from '@remotion/studio-protocol';
+
+const payload = createElementPayload({
+  displayName: 'My Element',
+  slug: 'my-element',
+  sourceCode: `
+export const MyElement = () => {
+  return <div>Hello world</div>;
+};
+`,
+  dependencies: [],
+  dimensions: {width: 900, height: 260},
+  durationInFrames: 90,
+});
+
+export const OpenInRemotion = () => {
+  return (
+    <a
+      href={buildOpenInRemotionNewUrl({payload})}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Open in Remotion
+    </a>
+  );
+};
+```
+
+## Arguments
+
+Pass an object with the following property.
+
+### payload
+
+The value returned by [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+
+## Return value
+
+A URL string pointing to remotion.dev/new. The Element payload is encoded in the URL fragment.
+
+The function throws a `TypeError` if the payload is invalid or too large.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)

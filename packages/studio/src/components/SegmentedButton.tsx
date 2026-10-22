@@ -14,6 +14,7 @@ import {
 } from '../helpers/hoverable';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
+import {Checkmark} from '../icons/Checkmark';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {ActionTooltip} from './ActionTooltip';
 import {MENU_INITIATOR_CLASSNAME} from './Menu/is-menu-item';
@@ -37,7 +38,6 @@ type SegmentedButtonSegmentCommon = {
 	readonly renderContent: (color: string) => React.ReactNode;
 	readonly segmentId: string;
 	readonly style: React.CSSProperties | null;
-	readonly title: string | null;
 	readonly tooltipLabel: string | null;
 };
 
@@ -189,7 +189,6 @@ const SegmentedButtonAction: React.FC<{
 			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
-			title={segment.title ?? undefined}
 			type="button"
 		>
 			{segment.renderContent(CURRENT_COLOR)}
@@ -349,7 +348,6 @@ const SegmentedButtonMenu: React.FC<{
 			onPointerDown={onPointerDown}
 			style={style}
 			tabIndex={tabIndex}
-			title={segment.title ?? undefined}
 			type="button"
 		>
 			{segment.renderContent(CURRENT_COLOR)}
@@ -386,13 +384,13 @@ const SegmentedButtonMenu: React.FC<{
 											onHide={onHide}
 											onNextMenu={noop}
 											onPreviousMenu={noop}
-											preselectIndex={
-												segment.selectedId === null
-													? false
-													: segment.values.findIndex(
-															(value) => value.id === segment.selectedId,
-														)
-											}
+											preselectIndex={segment.values.findIndex(
+												(value) =>
+													value.type === 'item' &&
+													value.id === segment.selectedId &&
+													React.isValidElement(value.leftItem) &&
+													value.leftItem.type === Checkmark,
+											)}
 											topItemCanBeUnselected={false}
 											values={segment.values}
 										/>
@@ -410,10 +408,9 @@ const SegmentedButtonMenu: React.FC<{
 export const SegmentedButton: React.FC<{
 	readonly segments: SegmentedButtonSegment[];
 	readonly style: React.CSSProperties | null;
-	readonly title: string | null;
-}> = ({segments, style, title}) => {
+}> = ({segments, style}) => {
 	return (
-		<div style={{...containerStyle, ...style}} title={title ?? undefined}>
+		<div style={{...containerStyle, ...style}}>
 			{segments.map((segment, index) => {
 				if (segment.type === 'action') {
 					return (

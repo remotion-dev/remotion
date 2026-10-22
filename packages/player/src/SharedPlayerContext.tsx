@@ -21,6 +21,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly children: React.ReactNode;
 	readonly timelineContext: TimelineContextValue;
 	readonly playbackRateContext: PlaybackRateContextValue;
+	readonly preservePitch: boolean;
 	readonly fps: number;
 	readonly compositionWidth: number;
 	readonly compositionHeight: number;
@@ -40,6 +41,7 @@ export const SharedPlayerContexts: React.FC<{
 	children,
 	timelineContext,
 	playbackRateContext,
+	preservePitch,
 	fps,
 	compositionHeight,
 	compositionWidth,
@@ -164,40 +166,44 @@ export const SharedPlayerContexts: React.FC<{
 				<Internals.CanUseRemotionHooksProvider>
 					<Internals.AbsoluteTimeContext.Provider value={timelineContext}>
 						<Internals.PlaybackRateContext.Provider value={playbackRateContext}>
-							<Internals.TimelineContext.Provider value={timelineContext}>
-								<Internals.CompositionManager.Provider
-									value={compositionManagerContext}
-								>
-									<Internals.PrefetchProvider>
-										<Internals.DurationsContextProvider>
-											<Internals.MediaVolumeContext.Provider
-												value={mediaVolumeContextValue}
-											>
-												<Internals.SetMediaVolumeContext.Provider
-													value={setMediaVolumeContextValue}
-												>
-													<Internals.BufferingProvider>
-														<Internals.SharedAudioContextProvider
-															audioLatencyHint={audioLatencyHint}
-															audioEnabled={shouldCreateAudioContext}
-															previewSampleRate={sampleRate}
-															_experimentalKeepAudioContextAlive={
-																_experimentalKeepAudioContextAlive
-															}
+							<Internals.PlaybackPitchContext.Provider value={preservePitch}>
+								<Internals.TimelineContext.Provider value={timelineContext}>
+									<Internals.CompositionManager.Provider
+										value={compositionManagerContext}
+									>
+										<Internals.VideoProvider>
+											<Internals.PrefetchProvider>
+												<Internals.DurationsContextProvider>
+													<Internals.MediaVolumeContext.Provider
+														value={mediaVolumeContextValue}
+													>
+														<Internals.SetMediaVolumeContext.Provider
+															value={setMediaVolumeContextValue}
 														>
-															<Internals.SharedAudioTagsContextProvider
-																numberOfAudioTags={numberOfSharedAudioTags}
-															>
-																{children}
-															</Internals.SharedAudioTagsContextProvider>
-														</Internals.SharedAudioContextProvider>
-													</Internals.BufferingProvider>
-												</Internals.SetMediaVolumeContext.Provider>
-											</Internals.MediaVolumeContext.Provider>
-										</Internals.DurationsContextProvider>
-									</Internals.PrefetchProvider>
-								</Internals.CompositionManager.Provider>
-							</Internals.TimelineContext.Provider>
+															<Internals.BufferingProvider>
+																<Internals.SharedAudioContextProvider
+																	audioLatencyHint={audioLatencyHint}
+																	audioEnabled={shouldCreateAudioContext}
+																	previewSampleRate={sampleRate}
+																	_experimentalKeepAudioContextAlive={
+																		_experimentalKeepAudioContextAlive
+																	}
+																>
+																	<Internals.SharedAudioTagsContextProvider
+																		numberOfAudioTags={numberOfSharedAudioTags}
+																	>
+																		{children}
+																	</Internals.SharedAudioTagsContextProvider>
+																</Internals.SharedAudioContextProvider>
+															</Internals.BufferingProvider>
+														</Internals.SetMediaVolumeContext.Provider>
+													</Internals.MediaVolumeContext.Provider>
+												</Internals.DurationsContextProvider>
+											</Internals.PrefetchProvider>
+										</Internals.VideoProvider>
+									</Internals.CompositionManager.Provider>
+								</Internals.TimelineContext.Provider>
+							</Internals.PlaybackPitchContext.Provider>
 						</Internals.PlaybackRateContext.Provider>
 					</Internals.AbsoluteTimeContext.Provider>
 				</Internals.CanUseRemotionHooksProvider>

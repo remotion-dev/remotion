@@ -40,7 +40,6 @@ export const AppLaunchButton: React.FC<{
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly size: 'compact' | 'default';
 	readonly style: React.CSSProperties | null;
-	readonly title: string;
 }> = ({
 	actionButtonId,
 	ariaLabel,
@@ -53,7 +52,6 @@ export const AppLaunchButton: React.FC<{
 	onClick,
 	size,
 	style,
-	title,
 }) => {
 	const items = useMemo(() => {
 		return [
@@ -79,7 +77,6 @@ export const AppLaunchButton: React.FC<{
 					size === 'default'
 						? defaultMainSegmentStyle
 						: compactMainSegmentStyle,
-				title,
 				tooltipLabel: null,
 				type: 'action',
 			},
@@ -100,7 +97,6 @@ export const AppLaunchButton: React.FC<{
 							segmentId: 'another-app',
 							selectedId: null,
 							style: dropdownSegmentStyle,
-							title: menuAriaLabel,
 							tooltipLabel: null,
 							type: 'menu' as const,
 							values: items,
@@ -118,14 +114,12 @@ export const AppLaunchButton: React.FC<{
 		menuButtonId,
 		onClick,
 		size,
-		title,
 	]);
 
 	return (
 		<SegmentedButton
 			segments={segments}
 			style={{...(size === 'default' ? {height: 41} : null), ...style}}
-			title={null}
 		/>
 	);
 };

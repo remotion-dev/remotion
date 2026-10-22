@@ -1,7 +1,6 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
-	cancelRender,
 	Html5Audio,
 	Internals,
 	random,
@@ -33,6 +32,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	name,
 	disallowFallbackToHtml5Audio,
 	toneFrequency,
+	preservePitch,
 	trimAfter,
 	trimBefore,
 	onError,
@@ -64,11 +64,12 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const {fps} = videoConfig;
 
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
 	const [initialRequestInit] = useState(requestInit);
 
 	const sequenceContext = useContext(Internals.SequenceContext);
+	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const startInVideo = sequenceContext
 		? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
 		: 0;
@@ -99,7 +100,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 	});
 
 	useLayoutEffect(() => {
-		const timestamp = frame / fps;
+		const timestamp = frame / sequencePlaybackRate / fps;
 		const durationInSeconds = 1 / fps;
 
 		if (!shouldUseAudio) {
@@ -110,6 +111,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			return;
 		}
 
+		let cancelled = false;
 		const newHandle = delayRender(`Extracting audio for frame ${frame}`, {
 			retries: delayRenderRetries ?? undefined,
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
@@ -120,7 +122,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			src,
 			timeInSeconds: timestamp,
 			durationInSeconds,
-			playbackRate: playbackRate ?? 1,
+			playbackRate: (playbackRate ?? 1) * sequencePlaybackRate,
 			logLevel,
 			includeAudio: shouldUseAudio,
 			includeVideo: false,
@@ -136,7 +138,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			mediaCache,
 		})
 			.then((result) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -164,6 +166,19 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					setReplaceWithHtml5Audio(true);
 				};
 
+				if (
+					(result.type === 'unknown-container-format' ||
+						result.type === 'network-error') &&
+					result.error
+				) {
+					handleError(
+						result.error,
+						result.error,
+						`Failed to read ${src}: ${result.error.message}, falling back to <Html5Audio>`,
+					);
+					return;
+				}
+
 				if (result.type === 'unknown-container-format') {
 					handleError(
 						new Error(`Unknown container format ${src}.`),
@@ -177,10 +192,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 				if (result.type === 'cannot-decode') {
 					handleError(
-						new Error(`Cannot decode ${src}.`),
-						new Error(
-							`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
-						),
+						result.error,
+						new Error(`Cannot render audio "${src}": ${result.error.message}`, {
+							cause: result.error,
+						}),
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
 					return;
@@ -218,6 +233,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 					fps,
 					frame,
 					startsAt,
+					playbackRate: playbackRate ?? 1,
+					trimBefore,
+					trimAfter,
 				});
 				const volume = Internals.evaluateVolume({
 					volume: volumeProp,
@@ -239,14 +257,16 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 						startInVideo,
 						timestamp: audio.timestamp,
 						duration: audio.durationInMicroSeconds,
-						toneFrequency: toneFrequency ?? 1,
+						toneFrequency:
+							(toneFrequency ?? 1) /
+							(preservePitch ? (playbackRate ?? 1) * sequencePlaybackRate : 1),
 					});
 				}
 
 				continueRender(newHandle);
 			})
 			.catch((error) => {
-				if (mediaCache.isDisposed()) {
+				if (cancelled || mediaCache.isDisposed()) {
 					return;
 				}
 
@@ -254,6 +274,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 			});
 
 		return () => {
+			cancelled = true;
 			continueRender(newHandle);
 			unregisterRenderAsset(id);
 		};
@@ -261,6 +282,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		sampleRate,
 		absoluteFrame,
 		continueRender,
+		cancelRender,
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
@@ -274,6 +296,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		loopVolumeCurveBehavior,
 		shouldUseAudio,
 		playbackRate,
+		sequencePlaybackRate,
 		registerRenderAsset,
 		src,
 		startInVideo,
@@ -282,6 +305,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		volumeProp,
 		audioStreamIndex,
 		toneFrequency,
+		preservePitch,
 		trimAfter,
 		trimBefore,
 		replaceWithHtml5Audio,
@@ -311,7 +335,9 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 				acceptableTimeShiftInSeconds={
 					fallbackHtml5AudioProps?.acceptableTimeShiftInSeconds
 				}
-				preservePitch={fallbackHtml5AudioProps?.preservePitch ?? true}
+				preservePitch={
+					fallbackHtml5AudioProps?.preservePitch ?? preservePitch ?? true
+				}
 				name={name}
 				showInTimeline={showInTimeline}
 			/>

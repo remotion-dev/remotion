@@ -1,8 +1,8 @@
 import {paper} from '@remotion/effects/paper';
 import React from 'react';
-import {interpolate, Solid, useCurrentFrame} from 'remotion';
+import {Interactive, interpolate, Solid, useCurrentFrame} from 'remotion';
 
-export const PaperTexture: React.FC = () => {
+const PaperTextureInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -24,3 +24,8 @@ export const PaperTexture: React.FC = () => {
 		/>
 	);
 };
+
+export const PaperTexture = Interactive.create({
+	Component: PaperTextureInner,
+	layout: 'absolute-fill',
+});

@@ -135,9 +135,8 @@ const TimelineDragHandlerInner: React.FC = () => {
 		shouldApplyCssTransforms: true,
 	});
 	const {isHighestContext} = useZIndex();
-	const setFrame = Internals.useTimelineSetFrame();
+	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 
-	const width = getTimelineContentWidth();
 	const left = size?.left ?? 0;
 
 	const [dragging, setDragging] = useState<
@@ -180,7 +179,9 @@ const TimelineDragHandlerInner: React.FC = () => {
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
 				durationInFrames: videoConfig.durationInFrames,
-				width,
+				// Composition switches render before the new timeline width is
+				// committed. Read the live width when seeking, not during render.
+				width: getTimelineContentWidth(),
 				extrapolate: 'clamp',
 			});
 			seek(frame);
@@ -194,7 +195,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			e.currentTarget.setPointerCapture?.(e.pointerId);
 			pause();
 		},
-		[isHighestContext, videoConfig, left, width, seek, isPlaying, pause],
+		[isHighestContext, videoConfig, left, seek, isPlaying, pause],
 	);
 
 	const onEdgeScrollTick = useCallback(
@@ -203,6 +204,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 				return;
 			}
 
+			const width = getTimelineContentWidth();
 			const nextFrame =
 				directions.x === 'left'
 					? getFrameWhileScrollingLeft({
@@ -234,7 +236,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			redrawTimelineSliderFast.current?.draw(nextFrame);
 			seek(nextFrame);
 		},
-		[videoConfig, width, seek],
+		[videoConfig, seek],
 	);
 
 	const onPointerMoveScrubbing = useCallback(
@@ -260,13 +262,13 @@ const TimelineDragHandlerInner: React.FC = () => {
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
 				durationInFrames: videoConfig.durationInFrames,
-				width,
+				width: getTimelineContentWidth(),
 				extrapolate: 'clamp',
 			});
 
 			seek(frame);
 		},
-		[videoConfig, dragging.dragging, left, width, seek],
+		[videoConfig, dragging.dragging, left, seek],
 	);
 
 	const onPointerUpScrubbing = useCallback(
@@ -290,11 +292,11 @@ const TimelineDragHandlerInner: React.FC = () => {
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
 				durationInFrames: videoConfig.durationInFrames,
-				width,
+				width: getTimelineContentWidth(),
 				extrapolate: 'clamp',
 			});
 
-			setFrame((c) => {
+			seekFrame((c) => {
 				if (c[videoConfig.id] === frame) {
 					return c;
 				}
@@ -308,7 +310,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 				play();
 			}
 		},
-		[dragging, left, play, videoConfig, setFrame, width],
+		[dragging, left, play, videoConfig, seekFrame],
 	);
 
 	const onPointerCancelScrubbing = useCallback(() => {

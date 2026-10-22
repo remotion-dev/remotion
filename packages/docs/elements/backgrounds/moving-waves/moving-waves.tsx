@@ -1,8 +1,8 @@
 import {waves} from '@remotion/effects/waves';
 import React from 'react';
-import {Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Interactive, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const MovingWaves: React.FC = () => {
+const MovingWavesInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, height, width} = useVideoConfig();
 
@@ -27,3 +27,8 @@ export const MovingWaves: React.FC = () => {
 		/>
 	);
 };
+
+export const MovingWaves = Interactive.create({
+	Component: MovingWavesInner,
+	layout: 'absolute-fill',
+});

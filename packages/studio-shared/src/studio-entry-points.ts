@@ -3,6 +3,7 @@ export type StudioEntryPointPaths = {
 	reactScan: string | null;
 	environmentSetup: string;
 	sequenceStackTraces: string | null;
+	studioBootstrap: string | null;
 	userDefinedComponent: string;
 	reactShim: string;
 	studioRenderEntry: string;
@@ -13,6 +14,7 @@ export const getStudioEntryPoints = ({
 	reactScan,
 	environmentSetup,
 	sequenceStackTraces,
+	studioBootstrap,
 	userDefinedComponent,
 	reactShim,
 	studioRenderEntry,
@@ -24,6 +26,7 @@ export const getStudioEntryPoints = ({
 		reactScan,
 		environmentSetup,
 		sequenceStackTraces,
+		studioBootstrap,
 		userDefinedComponent,
 		reactShim,
 		studioRenderEntry,

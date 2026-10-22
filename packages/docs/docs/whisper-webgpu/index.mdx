@@ -1,12 +1,12 @@
 ---
 image: /generated/articles-docs-whisper-webgpu-index.png
 title: '@remotion/whisper-webgpu'
-crumb: 'Transcribe audio in browser'
+crumb: 'Transcribe audio locally'
 ---
 
 # @remotion/whisper-webgpu<AvailableFrom v="4.0.518" />
 
-Transcribe audio locally in the browser using timestamped Whisper models and WebGPU through [Transformers.js](https://huggingface.co/docs/transformers.js), and convert the result to [`@remotion/captions`](/docs/captions).
+Transcribe audio locally in the browser or Node.js using timestamped Whisper models and WebGPU through [Transformers.js](https://huggingface.co/docs/transformers.js), and convert the result to [`@remotion/captions`](/docs/captions).
 
 import {TableOfContents} from './table-of-contents';
 
@@ -17,28 +17,33 @@ import {TableOfContents} from './table-of-contents';
 ## Example
 
 ```ts twoslash title="transcribe.ts"
-import {clearStaleModels, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
+import {clearStaleModels, downloadWhisperModel, resampleTo16Khz, toCaptions, transcribe} from '@remotion/whisper-webgpu';
 
-await clearStaleModels();
+export const transcribeFile = async (file: File) => {
+  await clearStaleModels();
+  await downloadWhisperModel({model: 'small.en'});
 
-const file = new File([], 'audio.wav');
-const channelWaveform = await resampleTo16Khz({file});
+  const channelWaveform = await resampleTo16Khz({file});
+  const transcription = await transcribe({
+    channelWaveform,
+    model: 'small.en',
+    language: 'en',
+  });
 
-const transcription = await transcribe({
-  channelWaveform,
-  model: 'small.en',
-  language: 'en',
-});
-
-const {captions} = toCaptions({whisperWebGpuOutput: transcription});
-console.log(captions);
+  const {captions} = toCaptions({whisperWebGpuOutput: transcription});
+  return captions;
+};
 ```
-
-The model is downloaded on the first call and cached by the browser. Call [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model) first to display model download progress.
 
 ## Model hosting
 
-We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face. Therefore, we mirrored the models to `remotion.media`, keeping them byte-identical.
+We noticed that hosting the models on R2 leads to faster downloading than through Hugging Face directly.  
+We mirrored the models to `remotion.media`, keeping them byte-identical.  
+We also notified Hugging Face and they are investigating the issue. We may migrate back to the official hosting in the future.
+
+## On the server
+
+See [`@remotion/whisper-webgpu` in Node.js](/docs/whisper-webgpu/node) for a complete Node.js example.
 
 ## APIs
 
@@ -46,7 +51,8 @@ We noticed that hosting the models on R2 leads to faster downloading than throug
 
 ## Requirements
 
-WebGPU requires HTTPS in production or `localhost` during development. Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to check for a usable adapter.
+You obviously need a GPU.  
+Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to determine if it is supported.
 
 ## License
 

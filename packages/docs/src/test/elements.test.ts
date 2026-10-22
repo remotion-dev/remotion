@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'bun:test';
+import {describe, expect, mock, test} from 'bun:test';
 import {existsSync, readdirSync, readFileSync, statSync} from 'fs';
 import {createRequire} from 'module';
 import path from 'path';
@@ -6,7 +6,6 @@ import {pathToFileURL} from 'url';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import * as jsxRuntime from 'react/jsx-runtime';
-import elementSidebars from '../../elements-sidebars';
 import {
 	expandElementSourceReferences,
 	getRemotionElementDependencies,
@@ -16,6 +15,7 @@ import remarkElementSource from '../../plugins/remark-element-source';
 import {elementDefinitions} from '../components/Elements/element-definitions';
 import {createElementPayloadFromDefinition} from '../components/Elements/element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 } from '../components/Elements/element-library-data';
@@ -25,9 +25,21 @@ import {
 	getElementDefinition,
 	getElementDimensionsLabel,
 } from '../components/Elements/element-utils';
-import {ElementLibrary} from '../components/Elements/ElementLibrary';
 import {getElementPreviewDimensions} from '../components/Elements/ElementPreviewComposition';
 import {Seo} from '../components/Seo';
+
+// Docusaurus generates these aliases at build time.
+mock.module('@docusaurus/Link', () => ({
+	default: ({to, ...props}: React.ComponentProps<'a'> & {to: string}) =>
+		React.createElement('a', {...props, href: to}),
+}));
+
+const collectedAnchors = new Set<string>();
+mock.module('@docusaurus/useBrokenLinks', () => ({
+	default: () => ({
+		collectAnchor: (anchor: string) => collectedAnchors.add(anchor),
+	}),
+}));
 
 const elementsRoot = path.join(__dirname, '..', '..', 'elements');
 const templateRoot = path.join(__dirname, '..', '..', 'elements-template');
@@ -208,8 +220,8 @@ describe('Element MDX pages', () => {
 	});
 });
 
-describe('Element library', () => {
-	test('injects the exact source files needed by each listing', () => {
+describe('Element Library', () => {
+	test('injects source files into the overview and rejects missing sources', () => {
 		const completeSourceCodeBySlug = getRemotionElementSourceMap({
 			elementsRoot,
 		});
@@ -267,20 +279,6 @@ describe('Element library', () => {
 			completeSourceCodeBySlug,
 		);
 
-		const storytelling = makeLibraryNode('storytelling');
-		remarkElementSource({elementRegistry})(
-			{type: 'root', children: [storytelling]},
-			{path: path.join(elementsRoot, 'storytelling', 'index.mdx')},
-		);
-		expect(getInjectedSourceCodeBySlug(storytelling)).toEqual({
-			'storytelling/on-screen-messages':
-				completeSourceCodeBySlug['storytelling/on-screen-messages'],
-			'storytelling/polaroid-pictures':
-				completeSourceCodeBySlug['storytelling/polaroid-pictures'],
-			'text/news-article-highlight':
-				completeSourceCodeBySlug['text/news-article-highlight'],
-		});
-
 		const missingSource = makeLibraryNode(null);
 		expect(() =>
 			remarkElementSource({
@@ -298,8 +296,11 @@ describe('Element library', () => {
 		).toThrow('Missing source pages: missing/source.');
 	});
 
-	test('renders cards and filters the real category entry points', () => {
+	test('renders cards and filters the real category entry points', async () => {
+		const {ElementLibrary} =
+			await import('../components/Elements/ElementLibrary');
 		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		collectedAnchors.clear();
 		const overviewMarkup = renderToStaticMarkup(
 			React.createElement(ElementLibrary, {
 				category: null,
@@ -315,6 +316,10 @@ describe('Element library', () => {
 		}
 
 		for (const section of sections) {
+			const headingId = getElementCategoryHeadingId(section.category);
+			expect(overviewMarkup).toContain(`id="${headingId}"`);
+			expect(collectedAnchors.has(headingId)).toBe(true);
+
 			const categoryMarkup = renderToStaticMarkup(
 				React.createElement(ElementLibrary, {
 					category: section.category,
@@ -343,17 +348,109 @@ describe('Element library', () => {
 		}
 	});
 
-	test('creates canonical fixed-size and adaptive drag payloads', () => {
-		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+	test('installs visualizer audio and subscribe sounds locally without breaking remote-URL installs', () => {
+		const sources = getRemotionElementSourceMap({elementsRoot});
 		for (const slug of [
-			'overlays/name-lower-third',
-			'backgrounds/paper-texture',
+			'audio/oscilloscope',
+			'audio/waveform-progress',
+			'audio/mirrored-spectrum',
 		] as const) {
 			const definition = getElementDefinition(slug);
+			const legacy = createElementPayloadFromDefinition({
+				definition,
+				sourceCode: sources[slug],
+				installAssets: false,
+			});
+			const modern = createElementPayloadFromDefinition({
+				definition,
+				sourceCode: sources[slug],
+				installAssets: true,
+			});
+			expect(legacy.version).toBe(1);
+			expect(legacy.element.initialProps).toMatchObject({
+				src: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+			});
+			expect(modern.version).toBe(2);
+			expect(modern.element.assets).toEqual([
+				{
+					path: 'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
+					type: 'url',
+					url: 'https://remotion.media/elements/remotion-made-this-picture-move.mp3',
+				},
+			]);
+			expect(modern.element.initialProps).toMatchObject({
+				src: {
+					__remotion_element_asset:
+						'elements/audio-oscilloscope/remotion-made-this-picture-move.mp3',
+				},
+			});
+		}
+
+		const nudgeSlug = 'youtube/youtube-subscribe-nudge';
+		const nudgeDefinition = getElementDefinition(nudgeSlug);
+		const nudgeLegacy = createElementPayloadFromDefinition({
+			definition: nudgeDefinition,
+			sourceCode: sources[nudgeSlug],
+			installAssets: false,
+		});
+		const nudgeModern = createElementPayloadFromDefinition({
+			definition: nudgeDefinition,
+			sourceCode: sources[nudgeSlug],
+			installAssets: true,
+		});
+		expect(nudgeLegacy.version).toBe(1);
+		expect(nudgeLegacy.element.assets).toEqual([]);
+		expect(nudgeLegacy.element.initialProps).toMatchObject({
+			clickSrc: 'https://remotion.media/mouse-click.wav',
+			dingSrc: 'https://remotion.media/ding.wav',
+		});
+		expect(nudgeModern.version).toBe(2);
+		expect(nudgeModern.element.assets).toEqual(
+			expect.arrayContaining([
+				{
+					path: 'elements/youtube-subscribe-nudge/ding.wav',
+					type: 'url',
+					url: 'https://remotion.media/ding.wav',
+				},
+				{
+					path: 'elements/youtube-subscribe-nudge/mouse-click.wav',
+					type: 'url',
+					url: 'https://remotion.media/mouse-click.wav',
+				},
+				{
+					path: 'elements/youtube-subscribe-nudge/remotion-logo.png',
+					type: 'url',
+					url: 'https://remotion.media/elements/social-endcard-remotion-logo.png',
+				},
+			]),
+		);
+		expect(nudgeModern.element.initialProps).toMatchObject({
+			clickSrc: {
+				__remotion_element_asset:
+					'elements/youtube-subscribe-nudge/mouse-click.wav',
+			},
+			dingSrc: {
+				__remotion_element_asset: 'elements/youtube-subscribe-nudge/ding.wav',
+			},
+			avatarSrc: {
+				__remotion_element_asset:
+					'elements/youtube-subscribe-nudge/remotion-logo.png',
+			},
+		});
+		expect(nudgeModern.element.sourceCode).toContain('src={clickSrc}');
+		expect(nudgeModern.element.sourceCode).toContain('src={dingSrc}');
+		expect(nudgeModern.element.sourceCode).toContain('src={avatarSrc}');
+	});
+
+	test('creates canonical drag payloads for every gallery Element', () => {
+		const sourceCodeBySlug = getRemotionElementSourceMap({elementsRoot});
+		for (const definition of elementDefinitionList) {
+			const {slug} = definition;
 			const sourceCode = sourceCodeBySlug[slug];
 			const payload = createElementPayloadFromDefinition({
 				definition,
 				sourceCode,
+				installAssets: false,
 			});
 
 			expect(payload).toMatchObject({
@@ -361,6 +458,7 @@ describe('Element library', () => {
 				version: 1,
 				durationInFrames: definition.durationInFrames,
 				element: {
+					assets: [],
 					dependencies: definition.dependencies,
 					displayName: definition.displayName,
 					durationInFrames: definition.durationInFrames,
@@ -377,6 +475,21 @@ describe('Element library', () => {
 						}
 					: null;
 			expect(payload.element.dimensions).toEqual(expectedDimensions);
+			expect(payload.element.initialProps).toEqual(definition.initialProps);
+
+			if (definition.assets.length > 0) {
+				const assetPayload = createElementPayloadFromDefinition({
+					definition,
+					sourceCode,
+					installAssets: true,
+				});
+				expect(assetPayload.version).toBe(2);
+				expect(assetPayload.element.assets).toEqual(definition.assets);
+				expect(assetPayload.element.initialProps).toEqual({
+					...definition.initialProps,
+					...definition.installationProps,
+				});
+			}
 		}
 	});
 });
@@ -421,46 +534,6 @@ describe('Element social previews', () => {
 				'<meta property="og:video:height" content="420"/>',
 			);
 		}
-	});
-});
-
-describe('Elements sidebar', () => {
-	test('lists every registered Element exactly once', () => {
-		const sidebar = elementSidebars.elementsSidebar;
-		if (!Array.isArray(sidebar)) {
-			throw new Error('Elements sidebar must be an array');
-		}
-
-		const elementsCategory = sidebar[0];
-		if (
-			typeof elementsCategory !== 'object' ||
-			elementsCategory === null ||
-			elementsCategory.type !== 'category' ||
-			!Array.isArray(elementsCategory.items)
-		) {
-			throw new Error('Elements sidebar must have an Elements root category');
-		}
-
-		const listedElementPages = elementsCategory.items.flatMap((item) => {
-			if (
-				typeof item !== 'object' ||
-				item === null ||
-				item.type !== 'category' ||
-				!Array.isArray(item.items)
-			) {
-				return [];
-			}
-
-			return item.items.filter((child) => typeof child === 'string');
-		});
-		const registeredElementPages = Object.keys(elementRegistry).map(
-			(slug) => `${slug}/index`,
-		);
-
-		expect([...listedElementPages].sort()).toEqual(
-			registeredElementPages.sort(),
-		);
-		expect(new Set(listedElementPages).size).toBe(listedElementPages.length);
 	});
 });
 
@@ -563,9 +636,7 @@ describe('Element preview definitions', () => {
 		const adaptiveDefinition = getElementDefinition(
 			'backgrounds/paper-texture',
 		);
-		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe(
-			'Adapts to composition',
-		);
+		expect(getElementDimensionsLabel(adaptiveDefinition)).toBe('Flexible');
 		expect(getElementPreviewDimensions(adaptiveDefinition)).toEqual({
 			height: 1080,
 			width: 1920,

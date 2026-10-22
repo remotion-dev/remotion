@@ -1,11 +1,14 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_BLUE, WHITE_ALPHA_80} from '../../helpers/colors';
-import {formatContextForAgents} from '../../helpers/format-file-location';
+import {
+	formatContextForAgents,
+	formatFileLocation,
+} from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	EXPANDED_SECTION_PADDING_RIGHT,
@@ -14,8 +17,10 @@ import {
 import {ContextMenu} from '../ContextMenu';
 import {deleteEffects, reorderEffect} from '../effect-operations-api';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
+import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
+import {useSettings} from '../SettingsContext';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {saveEffectProp} from './save-effect-prop';
 import {
@@ -45,6 +50,7 @@ const rowLabel: React.CSSProperties = {
 	fontSize: 12,
 	color: WHITE_ALPHA_80,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 };
 
 const rowStyle: React.CSSProperties = {
@@ -144,6 +150,14 @@ export const TimelineEffectItem: React.FC<{
 	toggleTrack,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const {remotionSkillsInfo} = useSettings();
+	const markupSkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-markup',
+	);
+	const markupSkillAvailable = Boolean(
+		markupSkill?.installedInProject || markupSkill?.installedGlobally,
+	);
 	const previewConnected = previewServerState.type === 'connected';
 	const canMutateEffects = canUseEffectOperations();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -225,11 +239,45 @@ export const TimelineEffectItem: React.FC<{
 		}
 
 		const items: ComboboxValue[] = [
+			...(previewConnected && documentationLink
+				? [
+						{
+							type: 'item' as const,
+							id: 'open-effect-docs',
+							keyHint: null,
+							label: 'Open effect docs',
+							leftItem: null,
+							disabled: false,
+							onClick: () => {
+								window.open(documentationLink, '_blank', 'noopener,noreferrer');
+							},
+							quickSwitcherLabel: null,
+							subMenu: null,
+							value: 'open-effect-docs',
+						},
+					]
+				: []),
 			getCopyContextForAgentsMenuItem({
 				contextForAgents: formatContextForAgents({
 					location: validatedLocation,
 					name: `Effect "${label}"`,
 					root: window.remotion_cwd,
+				}),
+			}),
+			...getAnnotateWithChatGPTMenuItems({
+				id: 'annotate-effect',
+				getTarget: () => annotationTarget.current,
+				initialComment: markupSkillAvailable ? '$remotion-markup' : null,
+				getMetadata: () => ({
+					layer: nodePath.nodePath.join('.'),
+					layerKeys: JSON.stringify(nodePath.sequenceKeys),
+					effect: label,
+					effectIndex,
+					source:
+						formatFileLocation({
+							location: validatedLocation,
+							root: window.remotion_cwd,
+						}) ?? validatedLocation.source,
 				}),
 			}),
 		];
@@ -242,27 +290,6 @@ export const TimelineEffectItem: React.FC<{
 			type: 'divider',
 			id: 'copy-context-for-agents-divider',
 		});
-
-		if (documentationLink) {
-			items.push({
-				type: 'item',
-				id: 'open-effect-docs',
-				keyHint: null,
-				label: 'Open effect docs',
-				leftItem: null,
-				disabled: false,
-				onClick: () => {
-					window.open(documentationLink, '_blank', 'noopener,noreferrer');
-				},
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: 'open-effect-docs',
-			});
-			items.push({
-				type: 'divider',
-				id: 'open-effect-docs-divider',
-			});
-		}
 
 		items.push({
 			type: 'item',
@@ -288,6 +315,9 @@ export const TimelineEffectItem: React.FC<{
 		deleteDisabled,
 		documentationLink,
 		label,
+		effectIndex,
+		markupSkillAvailable,
+		nodePath,
 		onDeleteEffectFromSource,
 		previewConnected,
 		selection,
@@ -512,9 +542,10 @@ export const TimelineEffectItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<div style={labelContainerStyle}>
-				<span title={label} style={labelStyle}>
+				<span role="group" aria-label={label} style={labelStyle}>
 					{label}
 				</span>
 				<TimelineExpandArrowButton
@@ -544,9 +575,9 @@ export const TimelineEffectItem: React.FC<{
 		row
 	);
 
-	return previewConnected ? (
-		<ContextMenu getItems={getContextMenuItems}>{draggableRow}</ContextMenu>
-	) : (
-		draggableRow
+	return (
+		<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
+			{draggableRow}
+		</ContextMenu>
 	);
 };

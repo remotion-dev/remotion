@@ -6,7 +6,7 @@ sidebar_label: Rendering from PHP
 crumb: '@remotion/lambda'
 ---
 
-_available from v3.3.96_
+# Triggering renders from PHP<AvailableFrom v="3.3.96" />
 
 To trigger a Lambda render using PHP, install the `remotion/lambda` package using `composer`. Use the same version as the `remotion` version you are using from NPM and pin the version by removing the `^` character in your `composer.json`.
 
@@ -87,6 +87,27 @@ while (!$renderProgressResponse->done) {
 print_r("Render is done!\n");
 ```
 
+## Rendering an image sequence<AvailableFrom v="4.0.535" />
+
+Use `renderFramesOnLambda()` with `RenderFramesParams`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+
+```php title="render-frames.php"
+use Remotion\LambdaPhp\RenderFramesParams;
+
+$params = new RenderFramesParams(
+  composition: 'main',
+  frameRange: [0, 99],
+  framesPerLambda: 20,
+  outputPrefix: 'exports/my-sequence/',
+  imageSequencePattern: 'element-[frame].[ext]',
+);
+
+$renderResponse = $client->renderFramesOnLambda($params);
+print_r($renderResponse);
+```
+
+Poll `getRenderProgress()` until `done` or `fatalErrorEncountered`. `framesUploaded` reports uploaded frames, and `outputSequence['manifestUrl']` points to the completed manifest. `outputPrefix` also accepts an array with `bucketName`, `keyPrefix`, and optional `s3OutputProvider`.
+
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 
 Enable cancellation before starting the render, then call `cancelRenderOnLambda()`:
@@ -102,6 +123,32 @@ $client->cancelRenderOnLambda(
   $renderResponse->bucketName
 );
 ```
+
+## Verifying webhooks<AvailableFrom v="4.0.538" />
+
+If you [set up a webhook](/docs/lambda/webhooks) with a secret, Remotion signs every request so you can confirm it was sent by Remotion and that the body was not modified. The PHP client ships `WebhookSignature::validate()`, the equivalent of [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) in the JavaScript client.
+
+Pass the webhook secret, the raw request body exactly as it was received, and the `X-Remotion-Signature` header. It throws if the request cannot be verified and returns nothing if it is authentic.
+
+```php title="webhook.php"
+use Remotion\LambdaPhp\WebhookSignature;
+
+$secret = getenv('REMOTION_WEBHOOK_SECRET');
+$body = file_get_contents('php://input');
+
+WebhookSignature::validate(
+  $secret,
+  $body,
+  $_SERVER['HTTP_X_REMOTION_SIGNATURE'] ?? null
+);
+
+// The request is authentic. Decode the body only now.
+$payload = json_decode($body, true);
+
+http_response_code(200);
+```
+
+Read the body first and verify before decoding it. The signature covers the exact bytes that were sent, so decoding and re-encoding the body can change whitespace and how numbers are serialized, which would make a genuine request fail the check. Pass the body as it arrived (`file_get_contents('php://input')`) rather than a decoded array.
 
 ## Changelog
 

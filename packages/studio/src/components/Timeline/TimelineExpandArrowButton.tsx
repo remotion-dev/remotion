@@ -16,12 +16,21 @@ const arrowButton: React.CSSProperties = {
 	fontSize: 8,
 	marginRight: 4,
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	outline: 'none',
 	lineHeight: 1,
 };
 
 const arrowSpacer: React.CSSProperties = {
 	...arrowButton,
+};
+
+const stopPropagation = (
+	e:
+		| React.MouseEvent<HTMLButtonElement>
+		| React.PointerEvent<HTMLButtonElement>,
+) => {
+	e.stopPropagation();
 };
 
 export const TimelineExpandArrowButton: React.FC<{
@@ -36,17 +45,6 @@ export const TimelineExpandArrowButton: React.FC<{
 			onClick();
 		},
 		[onClick],
-	);
-
-	const stopPropagation = React.useCallback(
-		(
-			e:
-				| React.MouseEvent<HTMLButtonElement>
-				| React.PointerEvent<HTMLButtonElement>,
-		) => {
-			e.stopPropagation();
-		},
-		[],
 	);
 
 	const style: React.CSSProperties = useMemo(() => {

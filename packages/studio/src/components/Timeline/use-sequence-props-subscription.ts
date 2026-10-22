@@ -7,12 +7,13 @@ import type {
 	JsxComponentIdentity,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
+import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {
 	acquireSequencePropsSubscription,
 	subscribeToSequencePropsRefresh,
@@ -27,7 +28,6 @@ export const useSequencePropsSubscription = ({
 	effects,
 	preferMappedNodePath,
 	stack,
-	videoConfigValues,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
@@ -36,24 +36,22 @@ export const useSequencePropsSubscription = ({
 	originalLocation: OriginalPosition | null;
 	preferMappedNodePath: boolean;
 	stack: string | null;
-	videoConfigValues: VideoConfigValues | null;
 }) => {
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setOverrideIdToNodePath} = useContext(
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
 	);
 
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
+	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const [refreshToken, setRefreshToken] = useState(0);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
-	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
-	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 	const effectsSignature = useMemo(
 		() =>
@@ -88,14 +86,16 @@ export const useSequencePropsSubscription = ({
 	}, [overrideId]);
 
 	useEffect(() => {
+		// Optimistic deletion can remount siblings with stacks from the old source.
+		// Wait for HMR before resolving those locations against the updated file.
 		if (
+			pendingDeletions.size > 0 ||
 			!clientId ||
 			!locationSource ||
 			!shouldSubscribeToSourceFile(locationSource) ||
 			!locationLine ||
 			locationColumn === null ||
-			!schema ||
-			videoConfigValues === null
+			!schema
 		) {
 			return;
 		}
@@ -115,13 +115,16 @@ export const useSequencePropsSubscription = ({
 				: null,
 			clientId,
 			stack,
-			videoConfigValues,
+
 			applyOnce: (result) => {
 				if (!result.success) {
 					return;
 				}
 
-				setPropStatuses(result.nodePath, () => result.status);
+				// Edits that shift source lines resubscribe every following node.
+				setPropStatuses(result.nodePath, (prev) =>
+					deepEqual(prev, result.status) ? prev : result.status,
+				);
 			},
 			applyEach: (result) => {
 				if (!result.success) {
@@ -165,12 +168,13 @@ export const useSequencePropsSubscription = ({
 		locationSource,
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
+		overrideIdToNodePathMappingsRef,
 		preferMappedNodePath,
+		pendingDeletions,
 		refreshToken,
 		schema,
 		setPropStatuses,
 		setOverrideIdToNodePath,
 		stack,
-		videoConfigValues,
 	]);
 };

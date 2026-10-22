@@ -31,7 +31,6 @@ import {
 	NO_HOVER_BACKGROUND_STYLE,
 	hoverableStyle,
 } from '../helpers/hoverable';
-import {openInRemotionConvert} from '../helpers/open-in-remotion-convert';
 import {
 	markAssetSidebarScrollFromRowClick,
 	maybeScrollAssetSidebarRowIntoView,
@@ -44,9 +43,14 @@ import {getCachedImageMetadata} from '../helpers/use-image-metadata';
 import {getCachedMediaMetadata} from '../helpers/use-media-metadata';
 import {EllipsisIcon} from '../icons/ellipsis';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
-import {SetSelectedModalContext} from '../state/modals';
+import {ActionTooltip} from './ActionTooltip';
+import {
+	getAssetActionAvailability,
+	useAssetContextMenuItems,
+} from './asset-context-menu';
 import {AssetFileIcon} from './AssetFileIcon';
 import {ContextMenu} from './ContextMenu';
+import {LUT_ASSET_DRAG_TYPE} from './effect-drag-and-drop';
 import {getAssetElementFromPath} from './import-assets';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
@@ -54,9 +58,12 @@ import {InlineDropdown} from './InlineDropdown';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {getOpenInNewWindowMenuItem} from './open-in-new-window';
 import {openInFileExplorer} from './RenderQueue/actions';
-import {useDeleteAsset} from './use-delete-asset';
+
+export {
+	getAssetActionAvailability,
+	getAssetContextMenuItems,
+} from './asset-context-menu';
 
 const iconStyle: React.CSSProperties = {
 	width: 18,
@@ -114,29 +121,6 @@ const renderContextMenuAction: RenderInlineAction = (color) => {
 	return <EllipsisIcon svgProps={ellipsisIconStyle} fill={color} />;
 };
 
-export const getAssetActionAvailability = ({
-	browserStudioCanMutateAssets,
-	readOnlyStudio,
-	connectionStatus,
-	publicFolderExists,
-}: {
-	browserStudioCanMutateAssets: boolean | null;
-	readOnlyStudio: boolean;
-	connectionStatus: 'init' | 'connected' | 'disconnected';
-	publicFolderExists: string | null;
-}) => {
-	return {
-		mutationsDisabled:
-			browserStudioCanMutateAssets !== true &&
-			(readOnlyStudio || connectionStatus !== 'connected'),
-		fileExplorerDisabled:
-			browserStudioCanMutateAssets !== null ||
-			publicFolderExists === null ||
-			readOnlyStudio ||
-			connectionStatus !== 'connected',
-	};
-};
-
 export const getCanDragAsset = ({
 	readOnlyStudio,
 	relativePath,
@@ -144,138 +128,11 @@ export const getCanDragAsset = ({
 	readOnlyStudio: boolean;
 	relativePath: string;
 }) => {
-	return !readOnlyStudio && getAssetElementFromPath(relativePath) !== null;
-};
-
-export const getAssetContextMenuItems = ({
-	relativePath,
-	fileManagerName,
-	copyFileName,
-	copyStaticFilePath,
-	copyAbsolutePath,
-	openAssetInConvert,
-	openAssetInExplorer,
-	renameAsset,
-	deleteAsset,
-	fileExplorerAvailable,
-	fileExplorerDisabled,
-	mutationsDisabled,
-}: {
-	relativePath: string;
-	fileManagerName: string;
-	copyFileName: () => void;
-	copyStaticFilePath: () => void;
-	copyAbsolutePath: (() => void) | null;
-	openAssetInConvert: () => void;
-	openAssetInExplorer: () => void;
-	renameAsset: () => void;
-	deleteAsset: () => void;
-	fileExplorerAvailable: boolean;
-	fileExplorerDisabled: boolean;
-	mutationsDisabled: boolean;
-}): ComboboxValue[] => {
-	const previewFileType = getPreviewFileType(relativePath);
-	const canOpenInConvert =
-		previewFileType === 'audio' || previewFileType === 'video';
-	const items: (ComboboxValue | null)[] = [
-		getOpenInNewWindowMenuItem(`/assets/${relativePath}`),
-		canOpenInConvert
-			? {
-					id: 'open-asset-in-convert',
-					keyHint: null,
-					label: 'Open in Remotion Convert',
-					leftItem: null,
-					onClick: openAssetInConvert,
-					quickSwitcherLabel: 'Open asset in Remotion Convert',
-					subMenu: null,
-					type: 'item',
-					value: 'open-asset-in-convert',
-				}
-			: null,
-		{
-			type: 'divider',
-			id: 'open-in-new-window-divider',
-		},
-		{
-			id: 'copy-asset-file-name',
-			keyHint: null,
-			label: 'Copy file name',
-			leftItem: null,
-			onClick: copyFileName,
-			quickSwitcherLabel: 'Copy asset file name',
-			subMenu: null,
-			type: 'item',
-			value: 'copy-asset-file-name',
-		},
-		{
-			id: 'copy-asset-static-file-path',
-			keyHint: null,
-			label: 'Copy staticFile() path',
-			leftItem: null,
-			onClick: copyStaticFilePath,
-			quickSwitcherLabel: 'Copy staticFile() path',
-			subMenu: null,
-			type: 'item',
-			value: 'copy-asset-static-file-path',
-		},
-		copyAbsolutePath
-			? {
-					id: 'copy-asset-absolute-path',
-					keyHint: null,
-					label: 'Copy absolute path',
-					leftItem: null,
-					onClick: copyAbsolutePath,
-					quickSwitcherLabel: 'Copy asset absolute path',
-					subMenu: null,
-					type: 'item',
-					value: 'copy-asset-absolute-path',
-				}
-			: null,
-		{
-			type: 'divider',
-			id: 'asset-file-actions-divider',
-		},
-		fileExplorerAvailable
-			? {
-					id: 'open-asset-in-explorer',
-					keyHint: null,
-					label: `Show in ${fileManagerName}`,
-					leftItem: null,
-					onClick: openAssetInExplorer,
-					quickSwitcherLabel: `Show asset in ${fileManagerName}`,
-					subMenu: null,
-					type: 'item',
-					value: 'open-asset-in-explorer',
-					disabled: fileExplorerDisabled,
-				}
-			: null,
-		{
-			id: 'rename-asset',
-			keyHint: null,
-			label: 'Rename...',
-			leftItem: null,
-			onClick: renameAsset,
-			quickSwitcherLabel: 'Rename asset...',
-			subMenu: null,
-			type: 'item',
-			value: 'rename-asset',
-			disabled: mutationsDisabled,
-		},
-		{
-			id: 'delete-asset',
-			keyHint: null,
-			label: 'Delete...',
-			leftItem: null,
-			onClick: deleteAsset,
-			quickSwitcherLabel: 'Delete asset...',
-			subMenu: null,
-			type: 'item',
-			value: 'delete-asset',
-			disabled: mutationsDisabled,
-		},
-	];
-
-	return items.filter(NoReactInternals.truthy);
+	return (
+		!readOnlyStudio &&
+		(getAssetElementFromPath(relativePath) !== null ||
+			getPreviewFileType(relativePath) === 'lut')
+	);
 };
 
 export const getAssetFolderContextMenuItems = ({
@@ -403,7 +260,7 @@ const AssetFolderItem: React.FC<{
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			paddingLeft: 4 + level * 8,
+			paddingLeft: 12 + (level - 1) * 11,
 			...hoverableStyle({
 				idleBackground: TRANSPARENT,
 				hoverBackground: WHITE_ALPHA_06,
@@ -504,10 +361,11 @@ const AssetFolderItem: React.FC<{
 			<ContextMenu getItems={getContextMenuItems}>
 				<Row align="center">
 					<div
+						role="group"
 						style={folderStyle}
 						className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 						tabIndex={tabIndex}
-						title={item.name}
+						aria-label={item.name}
 						onClick={onClick}
 						onDragEnter={(event) => {
 							if (!isAssetUploadDragEvent(event)) {
@@ -538,14 +396,21 @@ const AssetFolderItem: React.FC<{
 							style={inlineActionsStyle}
 						>
 							<Spacing x={0.5} />
-							<InlineDropdown
-								variant={null}
-								title="More actions"
-								renderAction={renderContextMenuAction}
-								getItems={getContextMenuItems}
-								style={NO_HOVER_BACKGROUND_STYLE}
-								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-							/>
+							<ActionTooltip
+								label="More actions"
+								shortcut={null}
+								delay={800}
+								dismissOnClick
+							>
+								<InlineDropdown
+									variant={null}
+									aria-label="More actions"
+									renderAction={renderContextMenuAction}
+									getItems={getContextMenuItems}
+									style={NO_HOVER_BACKGROUND_STYLE}
+									className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+								/>
+							</ActionTooltip>
 						</div>
 					</div>
 				</Row>
@@ -640,19 +505,18 @@ const AssetSelectorItem: React.FC<{
 	readonly parentFolder: string;
 	readonly readOnlyStudio: boolean;
 }> = ({item, tabIndex, level, parentFolder, readOnlyStudio}) => {
-	const fileManagerName = getFileManagerName(
-		window.remotion_fileSystemPlatform,
-	);
 	const [isDragging, setIsDragging] = useState(false);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 
 	const relativePath = useMemo(() => {
 		return parentFolder ? parentFolder + '/' + item.name : item.name;
 	}, [parentFolder, item.name]);
+	const {fileExplorerDisabled, fileManagerName, getContextMenuItems} =
+		useAssetContextMenuItems({
+			relativePath,
+			readOnlyStudio,
+		});
 	const previewFileType = useMemo(() => {
 		return getPreviewFileType(relativePath);
 	}, [relativePath]);
@@ -724,6 +588,9 @@ const AssetSelectorItem: React.FC<{
 				durationInSeconds,
 			});
 			e.dataTransfer.setData(dragData.mimeType, dragData.payload);
+			if (previewFileType === 'lut') {
+				e.dataTransfer.setData(LUT_ASSET_DRAG_TYPE, '');
+			}
 		},
 		[canDragAsset, previewFileType, relativePath],
 	);
@@ -741,53 +608,13 @@ const AssetSelectorItem: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			paddingLeft: 12 + level * 8,
+			paddingLeft: 12 + level * 11,
 		};
 	}, [level, selected]);
 
 	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIcon style={revealIconStyle} color={color} />;
 	}, []);
-
-	const copyFileName = useCallback(() => {
-		copyText(item.name)
-			.then(() => {
-				showNotification(`Copied '${item.name}' to clipboard`, 1000);
-			})
-			.catch((err) => {
-				showNotification(`Could not copy: ${err.message}`, 2000);
-			});
-	}, [item.name]);
-
-	const copyStaticFilePath = useCallback(() => {
-		const content = `staticFile("${relativePath}")`;
-		copyText(content)
-			.then(() => {
-				showNotification(`Copied '${content}' to clipboard`, 1000);
-			})
-			.catch((err) => {
-				showNotification(`Could not copy: ${err.message}`, 2000);
-			});
-	}, [relativePath]);
-
-	const copyAbsolutePath = useCallback(() => {
-		if (window.remotion_publicFolderExists === null) {
-			return;
-		}
-
-		const content = `${window.remotion_publicFolderExists}/${relativePath}`;
-		copyText(content)
-			.then(() => {
-				showNotification(`Copied '${content}' to clipboard`, 1000);
-			})
-			.catch((err) => {
-				showNotification(`Could not copy: ${err.message}`, 2000);
-			});
-	}, [relativePath]);
-
-	const openAssetInConvert = useCallback(() => {
-		openInRemotionConvert({relativePath});
-	}, [relativePath]);
 
 	const openAssetInExplorer = useCallback(() => {
 		if (!window.remotion_publicFolderExists) {
@@ -801,53 +628,6 @@ const AssetSelectorItem: React.FC<{
 			showNotification(`Could not open file: ${err.message}`, 2000);
 		});
 	}, [relativePath]);
-
-	const {mutationsDisabled, fileExplorerDisabled} = getAssetActionAvailability({
-		browserStudioCanMutateAssets:
-			getBrowserStudioOperations() === null ? null : true,
-		readOnlyStudio,
-		connectionStatus,
-		publicFolderExists: window.remotion_publicFolderExists,
-	});
-
-	const deleteAsset = useDeleteAsset(relativePath);
-
-	const renameAsset = useCallback(() => {
-		setSelectedModal({
-			type: 'rename-static-file',
-			relativePath,
-		});
-	}, [relativePath, setSelectedModal]);
-
-	const getContextMenuItems = useCallback((): ComboboxValue[] => {
-		return getAssetContextMenuItems({
-			relativePath,
-			fileManagerName,
-			copyFileName,
-			copyStaticFilePath,
-			copyAbsolutePath:
-				window.remotion_publicFolderExists === null ? null : copyAbsolutePath,
-			openAssetInConvert,
-			openAssetInExplorer,
-			renameAsset,
-			deleteAsset,
-			fileExplorerAvailable: getBrowserStudioOperations() === null,
-			fileExplorerDisabled,
-			mutationsDisabled,
-		});
-	}, [
-		copyFileName,
-		copyStaticFilePath,
-		copyAbsolutePath,
-		deleteAsset,
-		fileExplorerDisabled,
-		fileManagerName,
-		mutationsDisabled,
-		openAssetInConvert,
-		openAssetInExplorer,
-		renameAsset,
-		relativePath,
-	]);
 
 	const revealInExplorer: React.MouseEventHandler<HTMLButtonElement> =
 		useCallback(
@@ -863,6 +643,7 @@ const AssetSelectorItem: React.FC<{
 			<Row align="center">
 				<div
 					ref={rowRef}
+					role="group"
 					style={style}
 					className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 					onClick={onClick}
@@ -870,7 +651,7 @@ const AssetSelectorItem: React.FC<{
 					onDragStart={onDragStart}
 					onDragEnd={onDragEnd}
 					tabIndex={tabIndex}
-					title={item.name}
+					aria-label={item.name}
 				>
 					<AssetFileIcon
 						fileType={previewFileType}
@@ -885,25 +666,39 @@ const AssetSelectorItem: React.FC<{
 							style={inlineActionsStyle}
 						>
 							<Spacing x={0.5} />
-							<InlineDropdown
-								variant={null}
-								title="More actions"
-								renderAction={renderContextMenuAction}
-								getItems={getContextMenuItems}
-								style={NO_HOVER_BACKGROUND_STYLE}
-								className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-							/>
+							<ActionTooltip
+								label="More actions"
+								shortcut={null}
+								delay={800}
+								dismissOnClick
+							>
+								<InlineDropdown
+									variant={null}
+									aria-label="More actions"
+									renderAction={renderContextMenuAction}
+									getItems={getContextMenuItems}
+									style={NO_HOVER_BACKGROUND_STYLE}
+									className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+								/>
+							</ActionTooltip>
 							{fileExplorerDisabled ? null : (
 								<>
 									<Spacing x={0.5} />
-									<InlineAction
-										variant={null}
-										title={`Show in ${fileManagerName}`}
-										renderAction={renderFileExplorerAction}
-										onClick={revealInExplorer}
-										style={NO_HOVER_BACKGROUND_STYLE}
-										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-									/>
+									<ActionTooltip
+										label={`Show in ${fileManagerName}`}
+										shortcut={null}
+										delay={800}
+										dismissOnClick
+									>
+										<InlineAction
+											variant={null}
+											aria-label={`Show in ${fileManagerName}`}
+											renderAction={renderFileExplorerAction}
+											onClick={revealInExplorer}
+											style={NO_HOVER_BACKGROUND_STYLE}
+											className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+										/>
+									</ActionTooltip>
 								</>
 							)}
 						</div>

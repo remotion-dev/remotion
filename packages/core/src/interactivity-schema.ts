@@ -10,6 +10,7 @@ export type NumberFieldSchema = {
 	min?: number;
 	max?: number;
 	step?: number;
+	integer?: boolean;
 	default: number | null | undefined;
 	description?: string;
 	hiddenFromList: boolean;
@@ -98,11 +99,24 @@ export type ColorFieldSchema = {
 	keyframable?: boolean;
 };
 
-export type TextContentFieldSchema = {
-	type: 'text-content';
+export type StringFieldSchema = {
+	type: 'string';
 	default: string;
 	description?: string;
 	keyframable?: false;
+};
+
+/** @deprecated Use StringFieldSchema with type: 'string' instead. */
+export type TextContentFieldSchema = Omit<StringFieldSchema, 'type'> & {
+	/** @deprecated Use 'string' instead. */
+	type: 'text-content';
+};
+
+export type SvgPathFieldSchema = {
+	type: 'svg-path';
+	default: string | undefined;
+	description?: string;
+	keyframable?: boolean;
 };
 
 export type FontFamilyFieldSchema = {
@@ -116,7 +130,7 @@ export type FontWeightFieldSchema = {
 	type: 'font-weight';
 	default: number | string | undefined;
 	description?: string;
-	keyframable?: false;
+	keyframable?: boolean;
 };
 
 export type AssetFieldSchema = {
@@ -217,7 +231,9 @@ export type VisibleFieldSchema =
 	| ScaleFieldSchema
 	| UvCoordinateFieldSchema
 	| ColorFieldSchema
+	| StringFieldSchema
 	| TextContentFieldSchema
+	| SvgPathFieldSchema
 	| FontFamilyFieldSchema
 	| FontWeightFieldSchema
 	| AssetFieldSchema
@@ -313,7 +329,6 @@ export const textSchema = {
 		type: 'font-weight',
 		default: 400,
 		description: 'Font weight',
-		keyframable: false,
 	},
 	'style.fontStyle': {
 		type: 'enum',
@@ -470,19 +485,27 @@ export const svgPaintSchema = {
 	...svgStrokeSchema,
 } as const satisfies InteractivitySchema;
 
-export const textContentSchema = {
+/**
+ * Controls for children content. Currently uses a string field, but the field
+ * type may evolve to support richer content.
+ */
+export const childrenSchema: {children: InteractivitySchemaField} = {
 	children: {
-		type: 'text-content',
+		type: 'string',
 		default: '',
 		description: 'Text',
 		keyframable: false,
 	},
-} as const satisfies InteractivitySchema;
+};
+
+/** @deprecated Use childrenSchema instead. */
+export const textContentSchema = childrenSchema;
 
 export const premountSchema = {
 	premountFor: {
 		type: 'number',
-		default: 0,
+		// Omission inherits the preview's default; zero explicitly disables it.
+		default: undefined,
 		description: 'Premount For',
 		min: 0,
 		step: 1,
@@ -603,6 +626,43 @@ export const trimBeforeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+// Packed timeline containers expose timing through the inspector.
+export const sequenceTimingSchema = {
+	from: {
+		...fromField,
+		description: 'From',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	durationInFrames: {
+		...durationInFramesField,
+		description: 'Duration',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+	trimBefore: {
+		...trimBeforeField,
+		description: 'Trim before',
+		hiddenFromList: false,
+		keyframable: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export const trimAfterField = {
+	type: 'number',
+	default: undefined,
+	min: 1,
+	step: 1,
+	hiddenFromList: true,
+} as const satisfies InteractivitySchemaField;
+
+export const loopField = {
+	type: 'boolean',
+	default: false,
+	description: 'Loop',
+	keyframable: false,
+} as const satisfies InteractivitySchemaField;
+
 export const freezeField = {
 	type: 'number',
 	default: null,
@@ -610,7 +670,29 @@ export const freezeField = {
 	hiddenFromList: true,
 } as const satisfies InteractivitySchemaField;
 
+const playbackRateField = {
+	type: 'number',
+	default: 1,
+	min: 0.01,
+	step: 0.1,
+	description: 'Playback rate',
+	hiddenFromList: false,
+	keyframable: false,
+} as const satisfies InteractivitySchemaField;
+
 export const baseSchema = {
+	durationInFrames: durationInFramesField,
+	from: fromField,
+	trimBefore: trimBeforeField,
+	playbackRate: playbackRateField,
+	freeze: freezeField,
+	hidden: hiddenField,
+	name: sequenceNameField,
+	showInTimeline: showInTimelineField,
+} as const satisfies InteractivitySchema;
+
+// For static images: speed does not change what they show.
+export const baseSchemaWithoutPlaybackRate = {
 	durationInFrames: durationInFramesField,
 	from: fromField,
 	trimBefore: trimBeforeField,
@@ -636,6 +718,7 @@ export const sequenceSchema = {
 export const baseSchemaWithoutFrom = {
 	durationInFrames: durationInFramesField,
 	trimBefore: trimBeforeField,
+	playbackRate: playbackRateField,
 	freeze: freezeField,
 	hidden: hiddenField,
 	name: sequenceNameField,

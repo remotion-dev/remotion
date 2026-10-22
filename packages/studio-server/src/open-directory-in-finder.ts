@@ -1,5 +1,5 @@
-import {spawn} from 'node:child_process';
-import {platform} from 'node:os';
+import childProcess from 'node:child_process';
+import os from 'node:os';
 import path from 'node:path';
 import {NoReactInternals} from 'remotion/no-react';
 
@@ -9,13 +9,17 @@ export const openDirectoryInFinder = (
 ) => {
 	const resolved = path.resolve(allowedDirectory, dirToOpen);
 
-	const relativeToProcessCwd = path.relative(allowedDirectory, resolved);
-	if (relativeToProcessCwd.startsWith('..')) {
-		throw new Error(`Not allowed to open ${relativeToProcessCwd}`);
+	const relativeToAllowedDirectory = path.relative(allowedDirectory, resolved);
+	if (
+		relativeToAllowedDirectory === '..' ||
+		relativeToAllowedDirectory.startsWith(`..${path.sep}`) ||
+		path.isAbsolute(relativeToAllowedDirectory)
+	) {
+		throw new Error(`Not allowed to open ${relativeToAllowedDirectory}`);
 	}
 
-	if (platform() === 'win32') {
-		const proc = spawn('explorer.exe', ['/select,', resolved]);
+	if (os.platform() === 'win32') {
+		const proc = childProcess.spawn('explorer.exe', ['/select,', resolved]);
 
 		return new Promise<void>((resolve, reject) => {
 			proc.on('exit', (code) => {
@@ -33,11 +37,11 @@ export const openDirectoryInFinder = (
 		});
 	}
 
-	const command = platform() === 'darwin' ? 'open' : 'xdg-open';
+	const command = os.platform() === 'darwin' ? 'open' : 'xdg-open';
 
-	const p = spawn(
+	const p = childProcess.spawn(
 		command,
-		[platform() === 'darwin' ? '-R' : null, dirToOpen].filter(
+		[os.platform() === 'darwin' ? '-R' : null, resolved].filter(
 			NoReactInternals.truthy,
 		),
 	);

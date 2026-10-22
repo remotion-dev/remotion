@@ -232,6 +232,8 @@ const TIMELINE_SCHEMA_FIELD_TYPE_SUPPORT = {
 	'rotation-css': true,
 	'rotation-degrees': true,
 	scale: true,
+	'svg-path': true,
+	string: true,
 	'text-content': true,
 	'transform-origin': true,
 	translate: true,
@@ -375,7 +377,11 @@ export const getFieldsToShow = ({
 				return null;
 			}
 
-			if (fieldSchema.type === 'text-content' && !includeTextContent) {
+			if (
+				(fieldSchema.type === 'string' ||
+					fieldSchema.type === 'text-content') &&
+				!includeTextContent
+			) {
 				return null;
 			}
 

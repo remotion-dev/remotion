@@ -17,6 +17,7 @@ test('selects the keyframe when the playhead is on a keyframe', () => {
 		getAnimationItemSelectionForSourceFrame({
 			includeEasings: true,
 			keyframeDisplayOffset: 100,
+			keyframePlaybackRate: 1,
 			keyframes: [{frame: 10}, {frame: 30}],
 			nodePathInfo,
 			sourceFrame: 10,
@@ -33,6 +34,7 @@ test('selects the easing when the playhead is between two keyframes', () => {
 		getAnimationItemSelectionForSourceFrame({
 			includeEasings: true,
 			keyframeDisplayOffset: 100,
+			keyframePlaybackRate: 1,
 			keyframes: [{frame: 10}, {frame: 30}, {frame: 50}],
 			nodePathInfo,
 			sourceFrame: 35,
@@ -51,6 +53,7 @@ test('does not select an easing when easing editing is unavailable', () => {
 		getAnimationItemSelectionForSourceFrame({
 			includeEasings: false,
 			keyframeDisplayOffset: 100,
+			keyframePlaybackRate: 1,
 			keyframes: [{frame: 10}, {frame: 30}],
 			nodePathInfo,
 			sourceFrame: 20,
@@ -63,6 +66,7 @@ test('selects the first keyframe before the keyframe chain', () => {
 		getAnimationItemSelectionForSourceFrame({
 			includeEasings: true,
 			keyframeDisplayOffset: 100,
+			keyframePlaybackRate: 1,
 			keyframes: [{frame: 10}, {frame: 30}],
 			nodePathInfo,
 			sourceFrame: 0,
@@ -79,6 +83,7 @@ test('selects the last keyframe after the keyframe chain', () => {
 		getAnimationItemSelectionForSourceFrame({
 			includeEasings: true,
 			keyframeDisplayOffset: 100,
+			keyframePlaybackRate: 1,
 			keyframes: [{frame: 10}, {frame: 30}],
 			nodePathInfo,
 			sourceFrame: 40,

@@ -147,7 +147,7 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 					<CheckCircleFilled style={{...iconStyle, fill: color}} />
 				)}
 				style={actionStyle}
-				title="View license usage"
+				aria-label="View license usage"
 			>
 				<span style={actionContent}>
 					<span style={actionText}>Belongs to {details.projectName}</span>
@@ -165,7 +165,7 @@ export const LicenseKeyDetailsDisplay: React.FC<{
 					)
 				}
 				style={actionStyle}
-				title="Manage Company License"
+				aria-label="Manage Company License"
 			>
 				<span style={actionContent}>
 					<span style={hasActiveLicense ? actionText : inactiveLicenseText}>

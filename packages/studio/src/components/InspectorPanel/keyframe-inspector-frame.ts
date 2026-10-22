@@ -15,9 +15,11 @@ export const clampInspectorKeyframeDisplayFrame = ({
 export const getInspectorKeyframeSourceFrame = ({
 	displayFrame,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
 }: {
 	readonly displayFrame: number;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
 }) => {
-	return displayFrame - keyframeDisplayOffset;
+	return (displayFrame - keyframeDisplayOffset) * keyframePlaybackRate;
 };

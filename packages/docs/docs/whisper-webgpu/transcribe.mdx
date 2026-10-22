@@ -8,9 +8,12 @@ crumb: '@remotion/whisper-webgpu'
 
 Transcribes a 16kHz mono waveform and returns words with start and end timestamps.
 
-```ts twoslash title="transcribe.ts"
-import {resampleTo16Khz, transcribe} from '@remotion/whisper-webgpu';
+The downloaded model is loaded automatically if needed.
 
+```ts twoslash title="transcribe.ts"
+import {downloadWhisperModel, resampleTo16Khz, transcribe} from '@remotion/whisper-webgpu';
+
+await downloadWhisperModel({model: 'small.en'});
 const file = new File([], 'audio.wav');
 const channelWaveform = await resampleTo16Khz({file});
 
@@ -76,7 +79,31 @@ Prevents a generated token sequence of this length from occurring more than once
 
 ### onModelLoadProgress?
 
-Called while the model is loaded. To load independently, use [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model).
+Called while a previously downloaded model is initialized. Call [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) first to download the files and receive download progress.
+
+### signal?<AvailableFrom v="4.0.528" />
+
+An [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) for canceling transcription.  
+Calling `abort()` on its controller stops token generation and rejects the promise with the signal's reason.  
+A GPU operation already in progress must finish first.  
+No partial transcript is returned.
+
+```ts twoslash title="cancel-transcription.ts"
+import {transcribe} from '@remotion/whisper-webgpu';
+
+declare const channelWaveform: Float32Array;
+// ---cut---
+const controller = new AbortController();
+document.querySelector('button')?.addEventListener('click', () => {
+  controller.abort();
+});
+
+const result = await transcribe({
+  channelWaveform,
+  model: 'small.en',
+  signal: controller.signal,
+});
+```
 
 ## Return value
 
@@ -86,7 +113,7 @@ Word-level timestamps are returned after transcription completes. [Transformers.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

@@ -1,7 +1,13 @@
 // This file is not compiled by Typescript, but by ESBuild
 // to keep the dynamic import
 
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react';
 // @ts-expect-error
 // eslint-disable-next-line react/no-deprecated
 import type {render} from 'react-dom';
@@ -26,6 +32,7 @@ import {
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {BACKGROUND_HEX, TRANSPARENT, WHITE} from './helpers/colors';
+import {studioCssVariables} from './helpers/studio-css-variables';
 
 let currentBundleMode: BundleState = {
 	type: 'index',
@@ -39,6 +46,7 @@ const getBundleMode = () => {
 	return currentBundleMode;
 };
 
+Internals.CSSUtils.injectCSS(studioCssVariables);
 Internals.CSSUtils.injectCSS(
 	Internals.CSSUtils.makeDefaultPreviewCSS(null, BACKGROUND_HEX),
 );
@@ -103,13 +111,22 @@ const GetVideoComposition: React.FC<{
 
 	const portalContainer = useRef<HTMLDivElement>(null);
 	const {delayRender, continueRender} = useDelayRender();
-	const [handle] = useState(() =>
-		delayRender(`Waiting for Composition "${state.compositionName}"`),
-	);
+	const handle = useRef<number | null>(null);
+	const isReady = useRef(false);
+	useLayoutEffect(() => {
+		if (isReady.current) {
+			return;
+		}
 
-	useEffect(() => {
-		return () => continueRender(handle);
-	}, [handle, continueRender]);
+		const newHandle = delayRender(
+			`Waiting for Composition "${state.compositionName}"`,
+		);
+		handle.current = newHandle;
+		return () => {
+			continueRender(newHandle);
+			handle.current = null;
+		};
+	}, [continueRender, delayRender, state.compositionName]);
 
 	useEffect(() => {
 		if (compositions.length === 0) {
@@ -148,12 +165,16 @@ const GetVideoComposition: React.FC<{
 		}
 
 		current.appendChild(Internals.portalNode());
-		continueRender(handle);
+		isReady.current = true;
+		if (handle.current !== null) {
+			continueRender(handle.current);
+			handle.current = null;
+		}
 
 		return () => {
 			current.removeChild(Internals.portalNode());
 		};
-	}, [canvasContent, handle, continueRender]);
+	}, [canvasContent, continueRender]);
 
 	if (!currentCompositionMetadata) {
 		return null;

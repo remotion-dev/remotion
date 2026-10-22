@@ -3,17 +3,19 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.524",
+	"version": "4.0.538",
 	"private": true,
 	"sideEffects": [
 		"*.css"
 	],
 	"scripts": {
 		"dev": "remotion studio",
+		"dev:studio-code-handoff": "remotion studio src/studio-code-handoff/index.ts",
 		"bundle": "remotion bundle --rspack --public-path /brand/",
 		"capture-docs": "bun scripts/capture-doc-pages.ts",
 		"lint": "eslint src",
-		"render-homepage-assets": "./render-homepage-assets.sh"
+		"render-homepage-assets": "./render-homepage-assets.sh",
+		"render-docs-animations": "bash render-docs-animations.sh"
 	},
 	"dependencies": {
 		"@mediabunny/prores": "catalog:"
@@ -30,6 +32,7 @@
 		"@remotion/mac-cursors": "workspace:*",
 		"@remotion/media": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
+		"@remotion/motion-blur": "workspace:*",
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/rough-notation": "workspace:*",
@@ -42,7 +45,7 @@
 		"@remotion/transitions": "workspace:*",
 		"@types/opentype.js": "1.3.4",
 		"@types/styled-components": "5.1.34",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"codehike": "1.0.4",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",

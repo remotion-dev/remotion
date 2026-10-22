@@ -29,7 +29,7 @@ npx remotion render src/index.ts my-comp --codec=mp3
 
 ### `renderMedia()`
 
-To render only the audio via the server-side rendering APIs, use [`renderMedia()`](/docs/renderer/render-media) and set the [`codec`](/docs/renderer/render-media#codec) to an audio codec.
+To render only the audio via the server-side rendering APIs, use [`renderMedia()`](/docs/renderer/render-media) and set the [`codec`](/docs/options/codec) to an audio codec.
 
 ```tsx twoslash title="render.js"
 import {bundle} from '@remotion/bundler';
@@ -84,7 +84,7 @@ await renderMedia({
 
 ### `renderMediaOnLambda()`
 
-To render only the audio via Lambda, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and set the [`codec`](/docs/lambda/rendermediaonlambda#codec) to an audio codec and [`imageFormat`](/docs/lambda/rendermediaonlambda#imageformat) to `none`.
+To render only the audio via Lambda, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and set the [`codec`](/docs/options/codec) to an audio codec and [`imageFormat`](/docs/options/video-image-format) to `none`.
 
 ```tsx twoslash
 import {renderMediaOnLambda} from '@remotion/lambda';
@@ -103,7 +103,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 
 ### `renderMediaOnVercel()`
 
-To render only the audio via Vercel, use [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel) and set the [`codec`](/docs/vercel/render-media-on-vercel#codec) to an audio codec and [`imageFormat`](/docs/vercel/render-media-on-vercel#imageformat) to `none`.
+To render only the audio via Vercel, use [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel) and set the [`codec`](/docs/options/codec) to an audio codec and [`imageFormat`](/docs/options/video-image-format) to `none`.
 
 ```tsx twoslash
 // @module: es2022
@@ -123,7 +123,7 @@ const {sandboxFilePath} = await renderMediaOnVercel({
 
 ### Lambda CLI
 
-To render via the Lambda CLI, use the [`npx remotion lambda render`](/docs/lambda/cli/render) command and pass the [`--codec`](/docs/lambda/cli/render#--codec) flag:
+To render via the Lambda CLI, use the [`npx remotion lambda render`](/docs/lambda/cli/render) command and pass the [`--codec`](/docs/options/codec) flag:
 
 ```sh
 npx remotion lambda render --codec=mp3 https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw my-comp
@@ -141,7 +141,7 @@ npx remotion render --muted
 
 ### `renderMedia()`
 
-Pass [`muted: true`](/docs/renderer/render-media#muted) to [`renderMedia()`](/docs/renderer/render-media) to mute a render.
+Pass [`muted: true`](/docs/options/muted) to [`renderMedia()`](/docs/renderer/render-media) to mute a render.
 
 ```tsx twoslash title="render.js"
 import {bundle} from '@remotion/bundler';
@@ -197,7 +197,7 @@ await renderMedia({
 
 ### `renderMediaOnLambda()`
 
-Pass [`muted: true`](/docs/lambda/rendermediaonlambda#muted) to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to mute the render.
+Pass [`muted: true`](/docs/options/muted) to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) to mute the render.
 
 ```tsx twoslash
 import {renderMediaOnLambda} from '@remotion/lambda';
@@ -216,7 +216,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 
 ### `renderMediaOnVercel()`
 
-Pass [`muted: true`](/docs/vercel/render-media-on-vercel#muted) to [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel) to mute the render.
+Pass [`muted: true`](/docs/options/muted) to [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel) to mute the render.
 
 ```tsx twoslash
 // @module: es2022
@@ -236,7 +236,7 @@ const {sandboxFilePath} = await renderMediaOnVercel({
 
 ### Lambda CLI
 
-Pass [`--muted`](/docs/lambda/cli/render#--muted) to [`npx remotion lambda render`](/docs/lambda/cli/render) to mute a render when using the Lambda Command Line.
+Pass [`--muted`](/docs/options/muted) to [`npx remotion lambda render`](/docs/lambda/cli/render) to mute a render when using the Lambda Command Line.
 
 ```sh
 npx remotion lambda render --muted https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw my-comp

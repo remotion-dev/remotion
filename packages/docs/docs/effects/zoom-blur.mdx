@@ -19,7 +19,7 @@ A radial zoom blur that smears pixels away from a configurable center point. It 
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
 
@@ -30,7 +30,7 @@ export const MyComp: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -40,7 +40,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

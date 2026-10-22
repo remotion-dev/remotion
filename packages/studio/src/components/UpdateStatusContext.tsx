@@ -9,7 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import {VERSION} from 'remotion';
-import {shutDownStudio} from '../api/shut-down-studio';
+import {restartStudio} from '../api/restart-studio';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
@@ -24,18 +24,13 @@ export type Bug = {
 	versions: string[];
 };
 
-type UpgradeState =
-	| 'idle'
-	| 'upgrading'
-	| 'upgraded'
-	| 'shutting-down'
-	| 'shutdown';
+type UpgradeState = 'idle' | 'upgrading' | 'upgraded' | 'restarting';
 
 type UpdateStatusContextValue = {
 	readonly upgradeState: UpgradeState;
 	readonly upgradeError: string | null;
 	readonly upgrade: (version: string) => Promise<void>;
-	readonly shutdown: () => Promise<void>;
+	readonly restart: () => Promise<void>;
 	readonly error: string | null;
 	readonly info: UpdateAvailableResponse | null;
 	readonly knownBugs: Bug[] | null;
@@ -47,7 +42,8 @@ const UpdateStatusContext = createContext<UpdateStatusContextValue | null>(
 
 export const UpdateStatusProvider: React.FC<{
 	readonly children: React.ReactNode;
-}> = ({children}) => {
+	readonly skillsRevision: number;
+}> = ({children, skillsRevision}) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [upgradeState, setUpgradeState] = useState<UpgradeState>('idle');
 	const [upgradeError, setUpgradeError] = useState<string | null>(null);
@@ -70,17 +66,16 @@ export const UpdateStatusProvider: React.FC<{
 			busy.current = false;
 		}
 	}, []);
-	const shutdown = useCallback(async () => {
+	const restart = useCallback(async () => {
 		if (busy.current) {
 			return;
 		}
 
 		busy.current = true;
-		setUpgradeState('shutting-down');
+		setUpgradeState('restarting');
 		setUpgradeError(null);
 		try {
-			await shutDownStudio();
-			setUpgradeState('shutdown');
+			await restartStudio();
 		} catch (err) {
 			setUpgradeError((err as Error).message);
 			setUpgradeState('upgraded');
@@ -141,7 +136,7 @@ export const UpdateStatusProvider: React.FC<{
 			updateController.abort();
 			bugsController.abort();
 		};
-	}, [showUpdates]);
+	}, [showUpdates, skillsRevision]);
 
 	const value = useMemo<UpdateStatusContextValue>(() => {
 		return {
@@ -151,9 +146,9 @@ export const UpdateStatusProvider: React.FC<{
 			upgradeState,
 			upgradeError,
 			upgrade,
-			shutdown,
+			restart,
 		};
-	}, [error, info, knownBugs, upgradeState, upgradeError, upgrade, shutdown]);
+	}, [error, info, knownBugs, upgradeState, upgradeError, upgrade, restart]);
 
 	return (
 		<UpdateStatusContext.Provider value={value}>

@@ -1,4 +1,4 @@
-import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
+import {ALL_FORMATS, BlobSource, EncodedPacketSink, Input} from 'mediabunny';
 import {expect, test} from 'vitest';
 import type {RenderMediaOnWebProgress} from '../render-media-on-web';
 import {renderMediaOnWeb} from '../render-media-on-web';
@@ -111,5 +111,61 @@ test('frameRange starting from non-zero should produce correct duration', async 
 	});
 
 	const duration = await input.computeDuration();
-	expect(duration).toBeCloseTo(expectedDuration, 1);
+	expect(duration).toBeCloseTo(expectedDuration, 5);
 });
+
+test.for([
+	{frames: 1, fps: 30, replaceFrame: false},
+	{frames: 2, fps: 30, replaceFrame: true},
+	{frames: 61, fps: 30, replaceFrame: false},
+	{frames: 7, fps: 24, replaceFrame: false},
+	{frames: 7, fps: 60, replaceFrame: false},
+])(
+	'should preserve the final MP4 sample duration for $frames frames at $fps fps (replacement: $replaceFrame)',
+	async ({frames, fps, replaceFrame}, t) => {
+		if (t.task.file.projectName === 'webkit') {
+			t.skip();
+			return;
+		}
+
+		const result = await renderMediaOnWeb({
+			composition: {
+				component: () => null,
+				id: 'final-sample-duration-test',
+				width: 160,
+				height: 96,
+				fps,
+				durationInFrames: frames,
+			},
+			inputProps: {},
+			container: 'mp4',
+			videoCodec: 'h264',
+			muted: true,
+			outputTarget: 'arraybuffer',
+			licenseKey: 'free-license',
+			onFrame: replaceFrame
+				? (frame) => new VideoFrame(frame, {timestamp: frame.timestamp})
+				: undefined,
+		});
+
+		using input = new Input({
+			formats: ALL_FORMATS,
+			source: new BlobSource(await result.getBlob()),
+		});
+		const track = await input.getPrimaryVideoTrack();
+		if (!track) {
+			throw new Error('Expected a video track');
+		}
+
+		expect(await track.computeDuration()).toBeCloseTo(frames / fps, 5);
+		let packetCount = 0;
+		let finalDuration: number | null = null;
+		for await (const packet of new EncodedPacketSink(track).packets()) {
+			packetCount++;
+			finalDuration = packet.duration;
+		}
+
+		expect(packetCount).toBe(frames);
+		expect(finalDuration).toBeCloseTo(1 / fps, 5);
+	},
+);

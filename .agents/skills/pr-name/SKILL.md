@@ -62,12 +62,12 @@ Useful title shapes include:
 Examples:
 
 ```
-`@remotion/studio-protocol`: Add `addElementLibraryToStudio()` for adding Element libraries to the config
+`@remotion/studio-protocol`: Add `addElementLibraryToStudio()` for adding Element Libraries to the config
 `@remotion/web-renderer`: Add a `metadata` option to `renderMediaOnWeb()` using Mediabunny's `MetadataTags`
 `@remotion/studio`: Remove Asset Inspector quick action scrollbar
 ```
 
-The first example is better than "Add Element catalogs to Studio" because it
+The first example is better than "Add libraries to Studio" because it
 names the main API and explains its purpose. The Studio CSS example deliberately
 describes the visible result instead of the CSS file or overflow rule that
 implemented it.

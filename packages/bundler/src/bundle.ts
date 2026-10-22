@@ -421,6 +421,7 @@ export const internalBundle = async (
 	const html = indexHtml({
 		importMap: null,
 		staticHash,
+		outputHash: null,
 		publicPath,
 		editorName: null,
 		inputProps: null,
@@ -459,8 +460,14 @@ export const internalBundle = async (
 		experimentalKeepAudioContextAlive: false,
 		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
 		studioRuntimeConfig: {
+			preservePitchOnPlayback: true,
+			showLayerFrameNumbers: false,
+			showPremounting: null,
+			defaultPremountInSeconds: null,
+			sequenceActivityLimit: null,
 			askAIEnabled: actualArgs.askAIEnabled,
 			bufferStateDelayInMilliseconds: actualArgs.bufferStateDelayInMilliseconds,
+			canvasTabsEnabled: true,
 			defaultCodingAgent: null,
 			defaultEditor: null,
 			interactivityEnabled: actualArgs.interactivityEnabled,

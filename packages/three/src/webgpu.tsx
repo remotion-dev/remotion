@@ -134,6 +134,7 @@ export const ThreeWebGPUCanvas = (props: ThreeWebGPUCanvasProps) => {
 			gl={createWebGPURenderer}
 			FrameRenderer={WebGPUFrameRenderer}
 			advanceOnCreated={false}
+			documentationLink="https://www.remotion.dev/docs/three-webgpu-canvas"
 		/>
 	);
 };

@@ -58,6 +58,8 @@ export const getElementInstallTargetByClientId = (clientId: string) => {
 export const getElementInstallTarget = (requestId: string | null) => {
 	const now = Date.now();
 	let bestTarget: ElementInstallTarget | null = null;
+	let unfocusedTarget: ElementInstallTarget | null = null;
+	let multipleUnfocusedTargets = false;
 
 	for (const [clientId, currentTarget] of targetsByClientId) {
 		if (now - currentTarget.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE) {
@@ -65,7 +67,16 @@ export const getElementInstallTarget = (requestId: string | null) => {
 			continue;
 		}
 
-		if (requestId !== null && currentTarget.requestId !== requestId) {
+		if (
+			(requestId !== null && currentTarget.requestId !== requestId) ||
+			currentTarget.readOnly
+		) {
+			continue;
+		}
+
+		if (currentTarget.lastFocusedAt === null) {
+			multipleUnfocusedTargets ||= unfocusedTarget !== null;
+			unfocusedTarget = currentTarget;
 			continue;
 		}
 
@@ -74,7 +85,7 @@ export const getElementInstallTarget = (requestId: string | null) => {
 		}
 	}
 
-	return bestTarget;
+	return bestTarget ?? (multipleUnfocusedTargets ? null : unfocusedTarget);
 };
 
 export const issueStudioProtocolTarget = ({

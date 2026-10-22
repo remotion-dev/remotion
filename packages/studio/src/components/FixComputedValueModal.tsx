@@ -1,19 +1,29 @@
-import React, {useCallback} from 'react';
-import {BLACK_ALPHA_30, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
-import {copyText} from '../helpers/copy-text';
-import {useCopyFeedback} from '../helpers/use-copy-feedback';
-import {CopyIcon} from '../icons/copy';
-import {SkillsIcon} from '../icons/skills';
+import type {SymbolicatedStackFrame} from '@remotion/studio-shared';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
+import {resolveFileSource} from '../error-overlay/react-overlay/effects/resolve-file-source';
+import {OpenInEditor} from '../error-overlay/remotion-overlay/OpenInEditor';
+import {StackElement} from '../error-overlay/remotion-overlay/StackFrame';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {LIGHT_TEXT} from '../helpers/colors';
+import {getCodexAnnotation} from '../helpers/get-codex-annotation';
+import {findOriginalPositionInFileAtProperty} from '../helpers/open-in-editor';
+import {requestCodexAnnotation} from '../helpers/request-codex-annotation';
 import type {ModalState} from '../state/modals';
-import {CodingAgentButton} from './CodingAgentButton';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineAction} from './InlineAction';
+import {AgentPrompt} from './AgentPrompt';
+import {ModalButton} from './ModalButton';
 import {getMaxModalHeight, getMaxModalWidth} from './ModalContainer';
-import {ModalFooterContainer} from './ModalFooter';
 import {ModalHeader} from './ModalHeader';
 import {DismissableModal} from './NewComposition/DismissableModal';
-import {showNotification} from './Notifications/NotificationCenter';
 import {useSettings} from './SettingsContext';
+import {useEditorOpening} from './use-default-editor-info';
+import {useDownloadProject} from './use-download-project';
 
 const panelStyle: React.CSSProperties = {
 	borderRadius: 6,
@@ -38,54 +48,15 @@ const text: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
-const commandField: React.CSSProperties = {
-	alignItems: 'flex-start',
-	background: BLACK_ALPHA_30,
-	borderRadius: 6,
-	boxSizing: 'border-box',
-	display: 'flex',
-	gap: 8,
+const sourcePreviewContainer: React.CSSProperties = {
+	marginBottom: 16,
+	marginTop: 4,
+};
+
+const sourcePreviewStatus: React.CSSProperties = {
+	...text,
+	marginBottom: 16,
 	marginTop: 10,
-	padding: '8px 8px 8px 10px',
-	width: '100%',
-};
-
-const code: React.CSSProperties = {
-	color: WHITE,
-	flex: 1,
-	fontFamily: 'monospace',
-	fontSize: 13,
-	lineHeight: 1.5,
-	margin: 0,
-	minWidth: 0,
-	overflowWrap: 'anywhere',
-	whiteSpace: 'pre-wrap',
-};
-
-const copyAction: React.CSSProperties = {
-	flexShrink: 0,
-};
-
-const skillsIcon: React.CSSProperties = {
-	display: 'inline-block',
-	height: 18,
-	width: 18,
-	marginRight: 6,
-	verticalAlign: 'middle',
-};
-
-const copyIcon: React.CSSProperties = {
-	flexShrink: 0,
-	height: 12,
-	width: 12,
-};
-
-const footer: React.CSSProperties = {
-	display: 'flex',
-	flex: 'none',
-	minWidth: 0,
-	padding: '12px 16px',
-	justifyContent: 'flex-end',
 };
 
 type FixComputedValueModalState = Extract<
@@ -93,119 +64,179 @@ type FixComputedValueModalState = Extract<
 	{type: 'fix-computed-value'}
 >;
 
+type SourcePreviewState =
+	| {
+			type: 'loading';
+	  }
+	| {
+			type: 'loaded';
+			stack: SymbolicatedStackFrame;
+	  }
+	| {
+			type: 'error';
+			message: string;
+	  };
+
 export const FixComputedValueModal: React.FC<{
 	readonly state: FixComputedValueModalState;
 }> = ({state}) => {
-	const {codingAgentInfo} = useSettings();
-	const skillName = '/remotion-interactivity';
-	const promptDetails = ` ${state.context} make "${state.prop}" interactive`;
-	const prompt = `${skillName}${promptDetails}`;
-	const installCommand = 'npx remotion skills add';
-	const hasCodingAgent =
-		(codingAgentInfo?.installedCodingAgents.length ?? 0) > 0;
-	const {copied: promptCopied, markCopied: markPromptCopied} =
-		useCopyFeedback();
-	const {copied: installCommandCopied, markCopied: markInstallCommandCopied} =
-		useCopyFeedback();
-
-	const onCopyPrompt = useCallback(() => {
-		copyText(prompt)
-			.then(markPromptCopied)
-			.catch((err) => {
-				showNotification(`Could not copy: ${err.message}`, 2000);
-			});
-	}, [markPromptCopied, prompt]);
-
-	const onCopyInstallCommand = useCallback(() => {
-		copyText(installCommand)
-			.then(markInstallCommandCopied)
-			.catch((err) => {
-				showNotification(`Could not copy: ${err.message}`, 2000);
-			});
-	}, [installCommand, markInstallCommandCopied]);
-
-	const renderPromptCopyAction: RenderInlineAction = useCallback(
-		(color) => {
-			return <CopyIcon copied={promptCopied} color={color} style={copyIcon} />;
-		},
-		[promptCopied],
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {remotionSkillsInfo} = useSettings();
+	const annotationTarget = useRef<HTMLDivElement>(null);
+	const interactivitySkill = remotionSkillsInfo?.skills.find(
+		({name}) => name === 'remotion-interactivity',
 	);
-	const renderInstallCommandCopyAction: RenderInlineAction = useCallback(
-		(color) => {
-			return (
-				<CopyIcon
-					copied={installCommandCopied}
-					color={color}
-					style={copyIcon}
-				/>
-			);
-		},
-		[installCommandCopied],
+	const interactivitySkillAvailable = Boolean(
+		interactivitySkill?.installedInProject ||
+		interactivitySkill?.installedGlobally,
 	);
+	const {canOpenInEditor, defaultEditorId, defaultEditorName} =
+		useEditorOpening(previewServerState.type === 'connected');
+	const [sourcePreview, setSourcePreview] = useState<SourcePreviewState>({
+		type: 'loading',
+	});
+	const promptLocation =
+		sourcePreview.type === 'loaded'
+			? `${sourcePreview.stack.originalFileName}:${sourcePreview.stack.originalLineNumber}:${sourcePreview.stack.originalColumnNumber}`
+			: `${state.location.source}:${state.location.line}:${state.location.column}`;
+	const promptDetails = ` ${promptLocation} make "${state.prop}" interactive`;
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const downloadProject = useDownloadProject();
+	const canAnnotate =
+		!isBrowserStudio &&
+		sourcePreview.type === 'loaded' &&
+		!window.remotion_isReadOnlyStudio &&
+		getCodexAnnotation() !== null;
+	const onSendToChatGPT = useCallback(() => {
+		requestCodexAnnotation({
+			target: annotationTarget.current,
+			initialComment: interactivitySkillAvailable
+				? '$remotion-interactivity Make this computed value interactive.'
+				: 'Make this computed value interactive.',
+			metadata: {property: state.prop, source: promptLocation},
+		});
+	}, [interactivitySkillAvailable, promptLocation, state.prop]);
+	const canOpenSourceInEditor =
+		sourcePreview.type === 'loaded' &&
+		canOpenInEditor &&
+		defaultEditorId !== null &&
+		defaultEditorName !== null;
+
+	useEffect(() => {
+		let cancelled = false;
+		setSourcePreview({type: 'loading'});
+
+		findOriginalPositionInFileAtProperty({
+			originalPosition: state.location,
+			property: state.prop.split('.').at(-1) ?? state.prop,
+		})
+			.then((position) => {
+				return resolveFileSource(
+					{
+						columnNumber: position.column,
+						fileName: position.source,
+						lineNumber: position.line,
+						message: `Computed value "${state.prop}"`,
+					},
+					1,
+				);
+			})
+			.then((stack) => {
+				if (!cancelled) {
+					setSourcePreview({type: 'loaded', stack});
+				}
+			})
+			.catch((err: unknown) => {
+				if (!cancelled) {
+					setSourcePreview({
+						type: 'error',
+						message: err instanceof Error ? err.message : String(err),
+					});
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [state.location, state.prop]);
 
 	return (
 		<DismissableModal panelStyle={panelStyle}>
 			<ModalHeader title="Fix computed value" />
 			<div style={container}>
-				{state.remotionInteractivitySkillAvailable ? null : (
-					<>
-						<div style={text}>First, install the Remotion Agent Skills:</div>
-						<div style={commandField}>
-							<pre style={code}>{installCommand}</pre>
-							<InlineAction
-								style={copyAction}
-								variant={null}
-								onClick={onCopyInstallCommand}
-								renderAction={renderInstallCommandCopyAction}
-								title="Copy command"
-							/>
-						</div>
-					</>
+				<div style={text}>
+					This value cannot be interactively edited because it is computed:
+				</div>
+				{sourcePreview.type === 'loaded' ? (
+					<div ref={annotationTarget} style={sourcePreviewContainer}>
+						<StackElement
+							collapsible={false}
+							defaultFunctionName={null}
+							editorId={canOpenInEditor ? defaultEditorId : null}
+							fontSize={13}
+							headerAction={
+								canOpenSourceInEditor ? (
+									<OpenInEditor
+										canHaveKeyboardShortcuts={false}
+										editorId={defaultEditorId}
+										editorName={defaultEditorName}
+										size="compact"
+										stack={sourcePreview.stack}
+									/>
+								) : null
+							}
+							horizontalSpacing={0}
+							isFirst
+							lineNumberWidth={
+								String(
+									Math.max(
+										0,
+										...(sourcePreview.stack.originalScriptCode ?? []).map(
+											(line) => line.lineNumber,
+										),
+									),
+								).length
+							}
+							s={sourcePreview.stack}
+						/>
+					</div>
+				) : (
+					<div style={sourcePreviewStatus}>
+						{sourcePreview.type === 'loading'
+							? 'Loading code preview...'
+							: `Could not load code preview: ${sourcePreview.message}`}
+					</div>
 				)}
-				<div
-					style={{
-						...text,
-						marginTop: state.remotionInteractivitySkillAvailable ? 0 : 16,
-					}}
-				>
-					{state.remotionInteractivitySkillAvailable
-						? 'Paste this prompt into your coding agent to make this value editable in Studio:'
-						: 'Then, paste this prompt into your coding agent:'}
-				</div>
-				<div style={commandField}>
-					<pre style={code}>
-						<SkillsIcon color={BLUE} style={skillsIcon} aria-hidden />
-						<span
-							style={{
-								color: BLUE,
-								fontFamily: 'inherit',
-								fontSize: 'inherit',
-								lineHeight: 'inherit',
-							}}
-						>
-							{skillName}
-						</span>
-						{promptDetails}
-					</pre>
-					<InlineAction
-						style={copyAction}
-						variant={null}
-						onClick={onCopyPrompt}
-						renderAction={renderPromptCopyAction}
-						title="Copy prompt"
+				{isBrowserStudio ? (
+					<>
+						<div style={text}>
+							This value requires a code change to become editable. Code editing
+							and agent-assisted refactoring are unavailable in
+							remotion.dev/new. Download the project to continue locally.
+						</div>
+						{downloadProject ? (
+							<div style={{marginTop: 16}}>
+								<ModalButton onClick={downloadProject}>
+									Download project
+								</ModalButton>
+							</div>
+						) : null}
+					</>
+				) : (
+					<AgentPrompt
+						action={
+							canAnnotate ? (
+								<ModalButton size="compact" onClick={onSendToChatGPT}>
+									Send to ChatGPT
+								</ModalButton>
+							) : null
+						}
+						availableText="Use this prompt to make this value editable:"
+						promptDetails={promptDetails}
+						skillId="remotion-interactivity"
 					/>
-				</div>
+				)}
 			</div>
-			{hasCodingAgent ? (
-				<ModalFooterContainer style={footer}>
-					<CodingAgentButton
-						label="Open in"
-						prompt={prompt}
-						size="compact"
-						style={null}
-					/>
-				</ModalFooterContainer>
-			) : null}
 		</DismissableModal>
 	);
 };

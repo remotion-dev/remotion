@@ -3,10 +3,13 @@ import {
 	getProjectId,
 	isInCloudTask,
 } from '../../functions/helpers/is-in-cloud-task';
+import {checkCredentials} from '../../shared/check-credentials';
 
 const {LoggingServiceV2Client} = v2;
 
 export const getCloudLoggingClient = () => {
+	checkCredentials();
+
 	if (isInCloudTask()) {
 		return new LoggingServiceV2Client({
 			projectId: getProjectId(),

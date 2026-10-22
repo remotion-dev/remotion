@@ -1,9 +1,15 @@
 import type {StudioRuntimeConfig} from '@remotion/studio-shared';
+import {NoReactInternals} from 'remotion/no-react';
 
 export const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
+	preservePitchOnPlayback: true,
+	showLayerFrameNumbers: false,
+	showPremounting: null,
+	defaultPremountInSeconds: null,
 	askAIEnabled: false,
+	sequenceActivityLimit: null,
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,
@@ -11,6 +17,7 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	keyboardShortcutsEnabled: true,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
+	canvasTabsEnabled: true,
 	configFileStudioSettings: null,
 };
 
@@ -47,4 +54,28 @@ export const getStudioBufferStateDelayInMilliseconds = () => {
 		getStudioRuntimeConfig().bufferStateDelayInMilliseconds ??
 		DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS
 	);
+};
+
+export const getStudioDefaultPremountInSeconds = () => {
+	return (
+		getStudioRuntimeConfig().defaultPremountInSeconds ??
+		NoReactInternals.DEFAULT_STUDIO_PREMOUNT_IN_SECONDS
+	);
+};
+
+export const getStudioShowPremounting = () => {
+	return getStudioRuntimeConfig().showPremounting ?? false;
+};
+
+export const getStudioShowLayerFrameNumbers = () => {
+	return getStudioRuntimeConfig().showLayerFrameNumbers;
+};
+
+export const getStudioSequenceActivitySettings = () => {
+	const config = getStudioRuntimeConfig();
+	return {
+		limit:
+			config.sequenceActivityLimit ??
+			NoReactInternals.DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	};
 };

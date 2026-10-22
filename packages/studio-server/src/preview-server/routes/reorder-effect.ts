@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {reorderEffect} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	ReorderEffectRequest,
 	ReorderEffectResponse,
 } from '@remotion/studio-shared';
-import {reorderEffect} from '../../codemods/reorder-effect';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -43,12 +43,17 @@ export const reorderEffectHandler: ApiHandler<
 			});
 
 			const fileContents = readFileSync(absolutePath, 'utf-8');
-			const {output, formatted, effectLabel, logLine} = await reorderEffect({
-				input: fileContents,
-				sequenceNodePath: sequenceNodePath.nodePath,
-				fromIndex,
+			const result = await reorderEffect({
+				project: {files: {[absolutePath]: fileContents}, rootDir: remotionRoot},
+				effect: {
+					filePath: absolutePath,
+					nodePath: sequenceNodePath.nodePath,
+					effectIndex: fromIndex,
+				},
 				toIndex,
 			});
+			const output = result.changes[0]?.nextContents ?? fileContents;
+			const {formatted, effectLabel, logLine} = result.editDetails[0];
 
 			pushToUndoStack({
 				filePath: absolutePath,

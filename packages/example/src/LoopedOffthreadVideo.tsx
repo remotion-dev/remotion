@@ -1,4 +1,4 @@
-import {mediaParserController, parseMedia} from '@remotion/media-parser';
+import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
 import React, {useEffect, useState} from 'react';
 import {
 	cancelRender,
@@ -18,27 +18,32 @@ const LoopedOffthreadVideo: React.FC<RemotionOffthreadVideoProps> = (props) => {
 	const {fps} = useVideoConfig();
 
 	useEffect(() => {
-		const controller = mediaParserController();
+		const input = new Input({
+			formats: ALL_FORMATS,
+			source: new UrlSource(props.src),
+		});
+		let cancelled = false;
 
-		parseMedia({
-			src: props.src,
-			acknowledgeRemotionLicense: true,
-			controller,
-			fields: {
-				slowDurationInSeconds: true,
-			},
-		})
-			.then(({slowDurationInSeconds}) => {
-				setDuration(slowDurationInSeconds);
+		input
+			.computeDuration()
+			.then((durationInSeconds) => {
+				if (cancelled) {
+					return;
+				}
+				setDuration(durationInSeconds);
 				continueRender(handle);
 			})
 			.catch((err) => {
-				cancelRender(err);
-			});
+				if (!cancelled) {
+					cancelRender(err);
+				}
+			})
+			.finally(() => input.dispose());
 
 		return () => {
+			cancelled = true;
 			continueRender(handle);
-			controller.abort();
+			input.dispose();
 		};
 	}, [handle, props.src]);
 

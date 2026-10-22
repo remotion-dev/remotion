@@ -20,13 +20,13 @@ const fps = 30;
 
 type Section = {
   trimBefore: number;
-  trimAfter: number;
+  durationInFrames: number;
 };
 
 export const SAMPLE_SECTIONS: Section[] = [
-  {trimBefore: 0, trimAfter: 5 * fps},
-  {trimBefore: 7 * fps, trimAfter: 10 * fps},
-  {trimBefore: 13 * fps, trimAfter: 18 * fps},
+  {trimBefore: 0, durationInFrames: 5 * fps},
+  {trimBefore: 7 * fps, durationInFrames: 3 * fps},
+  {trimBefore: 13 * fps, durationInFrames: 5 * fps},
 ];
 
 type Props = {
@@ -35,7 +35,7 @@ type Props = {
 
 export const calculateMetadata: CalculateMetadataFunction<Props> = ({props}) => {
   const durationInFrames = props.sections.reduce((acc, section) => {
-    return acc + section.trimAfter - section.trimBefore;
+    return acc + section.durationInFrames;
   }, 0);
 
   return {
@@ -54,9 +54,13 @@ export const JumpCuts: React.FC<Props> = ({sections}) => {
           // Premount the next segment for 1.5 seconds so it can preload before it starts playing
           premountFor={Math.round(1.5 * videoFps)}
           key={i}
-          durationInFrames={section.trimAfter - section.trimBefore}
+          durationInFrames={section.durationInFrames}
         >
-          <Video trimBefore={section.trimBefore} trimAfter={section.trimAfter} src={staticFile('time.mp4')} />
+          <Video
+            trimBefore={section.trimBefore}
+            durationInFrames={section.durationInFrames}
+            src={staticFile('time.mp4')}
+          />
         </Series.Sequence>
       ))}
     </Series>

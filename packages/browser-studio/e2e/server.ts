@@ -87,6 +87,18 @@ Bun.serve({
 			});
 		}
 
+		if (url.pathname === '/source-expressions.tsx') {
+			return new Response(
+				Bun.file(
+					path.join(
+						workspacePackagesDir,
+						'example/src/SourceSubscriptionChurn.tsx',
+					),
+				),
+				{headers},
+			);
+		}
+
 		if (url.pathname === '/frame.html') {
 			return new Response(document('', null), {
 				headers: {...headers, 'Content-Type': 'text/html'},

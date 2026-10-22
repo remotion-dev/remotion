@@ -19,6 +19,8 @@ type GlState = {
 	uTex: WebGLUniformLocation | null;
 	uTime: WebGLUniformLocation | null;
 	texture: WebGLTexture;
+	textureWidth: number;
+	textureHeight: number;
 	vao: WebGLVertexArrayObject;
 };
 
@@ -117,7 +119,16 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 		gl.enableVertexAttribArray(locUv);
 		gl.vertexAttribPointer(locUv, 2, gl.FLOAT, false, 16, 8);
 
-		gpuRef.current = {gl, program, uTex, uTime, texture, vao};
+		gpuRef.current = {
+			gl,
+			program,
+			uTex,
+			uTime,
+			texture,
+			textureWidth: 0,
+			textureHeight: 0,
+			vao,
+		};
 
 		return () => {
 			gl.deleteProgram(program);
@@ -141,14 +152,39 @@ export const HtmlInCanvasDocsMinimalWebGL: React.FC = () => {
 
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, gpu.texture);
-			gl.texElementImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				elementImage,
-			);
+			if (typeof gl.texElementSubImage2D === 'function') {
+				const imageWidth = Math.max(1, Math.ceil(elementImage.width));
+				const imageHeight = Math.max(1, Math.ceil(elementImage.height));
+				if (
+					gpu.textureWidth !== imageWidth ||
+					gpu.textureHeight !== imageHeight
+				) {
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA8,
+						imageWidth,
+						imageHeight,
+						0,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						null,
+					);
+					gpu.textureWidth = imageWidth;
+					gpu.textureHeight = imageHeight;
+				}
+
+				gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, elementImage);
+			} else {
+				gl.texElementImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					elementImage,
+				);
+			}
 
 			if (gpu.uTex) {
 				gl.uniform1i(gpu.uTex, 0);

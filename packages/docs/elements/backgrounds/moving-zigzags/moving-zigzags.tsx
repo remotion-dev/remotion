@@ -1,8 +1,8 @@
 import {zigzag} from '@remotion/effects/zigzag';
 import React from 'react';
-import {Solid, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Interactive, Solid, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const MovingZigzags: React.FC = () => {
+const MovingZigzagsInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames, height, width} = useVideoConfig();
 
@@ -26,3 +26,8 @@ export const MovingZigzags: React.FC = () => {
 		/>
 	);
 };
+
+export const MovingZigzags = Interactive.create({
+	Component: MovingZigzagsInner,
+	layout: 'absolute-fill',
+});

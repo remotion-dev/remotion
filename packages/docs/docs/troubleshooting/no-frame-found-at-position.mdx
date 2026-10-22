@@ -18,7 +18,7 @@ It means that the cache which is kept for serving frames for [`<OffthreadVideo>`
 
 The most likely cause is that the memory available for the OffthreadVideo cache is too small and any frames that are being extracted are being evicted from the cache immediately.
 
-Consider increasing the memory available of your machine, or allowing the OffthreadVideo cache to be bigger by setting the [`offthreadVideoCacheSizeInBytes`](/docs/renderer/render-media#offthreadvideocachesizeinbytes) prop to a higher value. Only set this to a value that is lower than the memory actually available, otherwise the system might kill the process.
+Consider increasing the memory available of your machine, or allowing the OffthreadVideo cache to be bigger by setting the [`offthreadVideoCacheSizeInBytes`](/docs/options/offthreadvideo-cache-size-in-bytes) prop to a higher value. Only set this to a value that is lower than the memory actually available, otherwise the system might kill the process.
 
 ## Video has a gap
 

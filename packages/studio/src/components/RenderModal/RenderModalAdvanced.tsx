@@ -451,7 +451,7 @@ export const RenderModalAdvanced: React.FC<{
 					<Combobox
 						values={chromeModeOptions}
 						selectedId={chromeModeOption}
-						title="Chrome mode"
+						aria-label="Chrome mode"
 					/>
 				</div>
 			</div>
@@ -465,7 +465,7 @@ export const RenderModalAdvanced: React.FC<{
 					<Combobox
 						values={openGlOptions}
 						selectedId={openGlOption}
-						title="OpenGl option"
+						aria-label="OpenGl option"
 					/>
 				</div>
 			</div>

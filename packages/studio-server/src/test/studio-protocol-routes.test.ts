@@ -1,7 +1,6 @@
 import {expect, test} from 'bun:test';
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
-import {createServer} from 'node:http';
-import {connect} from 'node:net';
+import {createServer, request as httpRequest} from 'node:http';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {createElementPayload} from '@remotion/studio-protocol';
@@ -34,24 +33,15 @@ const sendUnfinishedOversizedInstallRequest = (
 	readonly statusCode: number;
 }> => {
 	return new Promise((resolve, reject) => {
-		const parsedUrl = new URL(url);
-		let responseText = '';
 		let settled = false;
-		const socket = connect(Number(parsedUrl.port), parsedUrl.hostname, () => {
-			socket.write(
-				`POST ${parsedUrl.pathname} HTTP/1.1\r\nHost: ${parsedUrl.host}\r\nOrigin: http://localhost:4000\r\nContent-Type: application/json\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n`,
-			);
-
-			const writeChunk = (chunk: string) => {
-				socket.write(`${chunk.length.toString(16)}\r\n${chunk}\r\n`);
-			};
-
-			writeChunk('{"padding":"');
-			for (let index = 0; index < 65; index++) {
-				writeChunk('x'.repeat(16_384));
-			}
-			// Deliberately omit the terminating zero-length chunk. The server must
-			// respond once the streaming limit is exceeded, before the body ends.
+		const clientRequest = httpRequest(url, {
+			method: 'POST',
+			headers: {
+				Origin: 'http://localhost:4000',
+				'Content-Type': 'application/json',
+				'Transfer-Encoding': 'chunked',
+				Connection: 'close',
+			},
 		});
 		const rejectOnce = (error: Error) => {
 			if (settled) {
@@ -60,7 +50,7 @@ const sendUnfinishedOversizedInstallRequest = (
 
 			settled = true;
 			clearTimeout(timeout);
-			socket.destroy();
+			clientRequest.destroy();
 			reject(error);
 		};
 
@@ -68,42 +58,48 @@ const sendUnfinishedOversizedInstallRequest = (
 			() => rejectOnce(new Error('Studio did not reject the unfinished body')),
 			5_000,
 		);
-		socket.on('data', (chunk: Buffer) => {
-			responseText += chunk.toString('utf8');
-		});
-		socket.on('error', rejectOnce);
-		socket.on('end', () => {
-			if (settled) {
-				return;
-			}
+		clientRequest.on('error', rejectOnce);
+		clientRequest.on('response', (response) => {
+			let responseText = '';
+			response.setEncoding('utf8');
+			response.on('data', (chunk: string) => {
+				responseText += chunk;
+			});
+			response.on('error', rejectOnce);
+			response.on('end', () => {
+				if (settled) {
+					return;
+				}
 
-			settled = true;
-			clearTimeout(timeout);
-			try {
-				const [headerText] = responseText.split('\r\n\r\n');
-				const headerLines = headerText!.split('\r\n');
-				const statusCode = Number(headerLines[0]!.split(' ')[1]);
-				const corsHeader = headerLines
-					.find((line) =>
-						line.toLowerCase().startsWith('access-control-allow-origin:'),
-					)
-					?.slice('access-control-allow-origin:'.length)
-					.trim();
-				const jsonStart = responseText.indexOf('{');
-				const jsonEnd = responseText.lastIndexOf('}');
-				resolve({
-					body: JSON.parse(responseText.slice(jsonStart, jsonEnd + 1)),
-					corsHeader,
-					statusCode,
-				});
-			} catch (error) {
-				reject(error);
-			}
+				if (!response.complete || response.statusCode === undefined) {
+					rejectOnce(new Error('Studio returned an incomplete HTTP response'));
+					return;
+				}
+
+				settled = true;
+				clearTimeout(timeout);
+				clientRequest.destroy();
+				try {
+					resolve({
+						body: JSON.parse(responseText),
+						corsHeader: response.headers['access-control-allow-origin'],
+						statusCode: response.statusCode,
+					});
+				} catch (error) {
+					reject(error);
+				}
+			});
 		});
+		clientRequest.write('{"padding":"');
+		for (let index = 0; index < 65; index++) {
+			clientRequest.write('x'.repeat(16_384));
+		}
+		// Deliberately omit end(), keeping the chunked request unfinished. Resolve
+		// on the complete HTTP response, without waiting for the connection to close.
 	});
 };
 
-test('discovers an exact Studio target and delivers one install request over HTTP', async () => {
+test('discovers a sole unfocused Studio without a composition and delivers one install request over HTTP', async () => {
 	clearElementInstallStateForTests();
 	const deliveredEvents: EventSourceEvent[] = [];
 	const liveEventsServer: LiveEventsServer = {
@@ -118,11 +114,11 @@ test('discovers an exact Studio target and delivers one install request over HTT
 			updateElementInstallTarget({
 				requestId: event.requestId,
 				clientId: 'focused-studio-tab',
-				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
-				compositionId: 'Main',
-				lastFocusedAt: Date.now(),
+				compositionFile: null,
+				compositionId: null,
+				lastFocusedAt: null,
 				readOnly: false,
-				studioUrl: 'http://localhost:3000/Main',
+				studioUrl: 'http://localhost:3000',
 			});
 		},
 		sendEventToClientId: (clientId, event) => {
@@ -203,13 +199,19 @@ test('discovers an exact Studio target and delivers one install request over HTT
 					type: 'install-element';
 					target: {
 						id: string;
-						compositionId: string;
+						compositionId: string | null;
+						lastFocusedAt: number | null;
 					};
 				},
 			];
 		};
 		const installTarget = descriptor.capabilities[0].target;
-		expect(installTarget.compositionId).toBe('Main');
+		expect(installTarget.compositionId).toBe(null);
+		expect(installTarget.lastFocusedAt).toBe(null);
+		expect(descriptor.capabilities.slice(1)).toMatchObject([
+			{target: null},
+			{target: null},
+		]);
 
 		const installBody = {
 			operation: 'install-element',
@@ -314,8 +316,8 @@ test('discovers an exact Studio target and delivers one install request over HTT
 			type: 'element-install-request',
 			request: {
 				clientId: 'focused-studio-tab',
-				compositionFile: '/tmp/protocol-project/src/Composition.tsx',
-				compositionId: 'Main',
+				compositionFile: null,
+				compositionId: null,
 				element: {displayName: 'Lower Third'},
 				source: {
 					type: 'studio-protocol',
@@ -349,7 +351,7 @@ test('discovers an exact Studio target and delivers one install request over HTT
 	}
 });
 
-test('delivers an Element catalog request without changing config before confirmation', async () => {
+test('delivers an Element Library request without changing config before confirmation', async () => {
 	clearElementInstallStateForTests();
 	const deliveredEvents: EventSourceEvent[] = [];
 	const focusedUrls: string[] = [];
@@ -429,7 +431,7 @@ test('delivers an Element catalog request without changing config before confirm
 		}
 
 		const origin = `http://127.0.0.1:${address.port}`;
-		const requestOrigin = 'https://catalog.example.com';
+		const requestOrigin = 'https://library.example.com';
 		const preflight = await fetch(
 			`${origin}/api/studio-protocol/element-library`,
 			{method: 'OPTIONS', headers: {Origin: requestOrigin}},
@@ -459,13 +461,13 @@ test('delivers an Element catalog request without changing config before confirm
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
 			targetId,
-			url: 'https://new.example.com/catalog',
-			displayName: '  New catalog  ',
+			url: 'https://new.example.com/library',
+			displayName: '  New library  ',
 		};
 
 		for (const invalidBody of [
 			{...body, protocolVersion: 2},
-			{...body, url: 'file:///tmp/catalog'},
+			{...body, url: 'file:///tmp/library'},
 			{...body, displayName: '  '},
 		]) {
 			const invalidResponse = await fetch(
@@ -513,8 +515,9 @@ test('delivers an Element catalog request without changing config before confirm
 		expect(deliveredEvents).toEqual([
 			{
 				type: 'element-library-add-request',
-				url: 'https://new.example.com/catalog',
-				displayName: 'New catalog',
+				captionStylesUrl: null,
+				url: 'https://new.example.com/library',
+				displayName: 'New library',
 				origin: requestOrigin,
 			},
 		]);

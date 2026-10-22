@@ -1,8 +1,13 @@
-import type {InteractivitySchemaField, InteractivitySchema} from 'remotion';
+import type {
+	InteractivitySchema,
+	InteractivitySchemaField,
+	InterpolateOutputType,
+} from 'remotion';
 
 export const keyframeInterpolationFunctions = [
 	'interpolate',
 	'interpolateColors',
+	'interpolatePaths',
 ] as const;
 
 export type KeyframeInterpolationFunction =
@@ -13,17 +18,19 @@ export type KeyframeInterpolationFunction =
 const KEYFRAME_FIELD_TYPE_SUPPORT = {
 	array: false,
 	asset: false,
-	boolean: false,
+	boolean: true,
 	'remotion-captions': false,
 	color: true,
 	enum: true,
 	'font-family': false,
-	'font-weight': false,
+	'font-weight': true,
 	hidden: true,
 	number: true,
 	'rotation-css': true,
 	'rotation-degrees': true,
 	scale: true,
+	'svg-path': true,
+	string: false,
 	'text-content': false,
 	'transform-origin': true,
 	translate: true,
@@ -38,17 +45,19 @@ type KeyframeInterpolationStrategy =
 const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	array: 'unsupported',
 	asset: 'unsupported',
-	boolean: 'unsupported',
+	boolean: 'interpolate',
 	'remotion-captions': 'unsupported',
 	color: 'interpolateColors',
 	enum: 'interpolate',
 	'font-family': 'unsupported',
-	'font-weight': 'unsupported',
+	'font-weight': 'interpolate',
 	hidden: 'infer',
 	number: 'infer',
 	'rotation-css': 'interpolate',
 	'rotation-degrees': 'infer',
 	scale: 'interpolate',
+	'svg-path': 'interpolatePaths',
+	string: 'unsupported',
 	'text-content': 'unsupported',
 	'transform-origin': 'interpolate',
 	translate: 'interpolate',
@@ -58,9 +67,35 @@ const KEYFRAME_FIELD_TYPE_INTERPOLATION = {
 	KeyframeInterpolationStrategy
 >;
 
+const KEYFRAME_FIELD_TYPE_OUTPUT_TYPE = {
+	array: null,
+	asset: null,
+	boolean: null,
+	'remotion-captions': null,
+	color: null,
+	enum: null,
+	'font-family': null,
+	'font-weight': 'font-weight',
+	hidden: null,
+	number: null,
+	'rotation-css': 'rotate',
+	'rotation-degrees': null,
+	scale: 'scale',
+	'svg-path': null,
+	string: null,
+	'text-content': null,
+	'transform-origin': 'transform-origin',
+	translate: 'translate',
+	'uv-coordinate': null,
+} as const satisfies Record<
+	InteractivitySchemaField['type'],
+	InterpolateOutputType | null
+>;
+
 const KEYFRAME_INTERPOLATION_EASING_SUPPORT = {
 	interpolate: true,
 	interpolateColors: true,
+	interpolatePaths: true,
 } as const satisfies Record<KeyframeInterpolationFunction, boolean>;
 
 export const isKeyframeInterpolationFunction = (
@@ -126,6 +161,18 @@ export const isSchemaFieldKeyframable = ({
 	return isInteractivitySchemaFieldKeyframable(field);
 };
 
+export const isInteractivitySchemaFieldHoldOnly = (
+	field: InteractivitySchemaField | undefined,
+): boolean => {
+	return (
+		(field?.type === 'boolean' && field.keyframable !== false) ||
+		(field?.type === 'enum' && field.keyframable === true) ||
+		(field?.type === 'number' &&
+			field.integer === true &&
+			field.keyframable !== false)
+	);
+};
+
 export const isSchemaFieldHoldOnly = ({
 	schema,
 	key,
@@ -133,8 +180,9 @@ export const isSchemaFieldHoldOnly = ({
 	schema: InteractivitySchema | null;
 	key: string;
 }): boolean => {
-	const field = schema ? findFieldInSchema(schema, key) : undefined;
-	return field?.type === 'enum' && field.keyframable === true;
+	return isInteractivitySchemaFieldHoldOnly(
+		schema ? findFieldInSchema(schema, key) : undefined,
+	);
 };
 
 export const getKeyframeInterpolationFunctionForSchemaField = ({
@@ -152,6 +200,17 @@ export const getKeyframeInterpolationFunctionForSchemaField = ({
 
 	const strategy = KEYFRAME_FIELD_TYPE_INTERPOLATION[field.type];
 	return strategy === 'infer' || strategy === 'unsupported' ? null : strategy;
+};
+
+export const getKeyframeOutputTypeForSchemaField = ({
+	schema,
+	key,
+}: {
+	schema: InteractivitySchema | null;
+	key: string;
+}): InterpolateOutputType | null => {
+	const field = schema ? findFieldInSchema(schema, key) : undefined;
+	return field ? KEYFRAME_FIELD_TYPE_OUTPUT_TYPE[field.type] : null;
 };
 
 export const getKeyframeInterpolationFunction = ({

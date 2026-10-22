@@ -3,53 +3,45 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 import {
 	elementCategories,
 	elementRegistry,
+	getElementCategoryHeadingId,
 } from './src/components/Elements/element-registry';
-
-// Keep navigation alphabetical; the library uses the curated definitions array order.
-const compareStrings = (a: string, b: string) => {
-	if (a < b) {
-		return -1;
-	}
-
-	if (a > b) {
-		return 1;
-	}
-
-	return 0;
-};
 
 const sidebars: SidebarsConfig = {
 	elementsSidebar: [
 		{
 			type: 'category',
 			label: 'Elements',
-			className: 'elements-sidebar-root',
+			className: 'elements-sidebar-root catalog-sidebar-root',
 			link: {type: 'doc', id: 'index'},
-			collapsible: true,
-			collapsed: false,
+			collapsible: false,
 			items: [
-				'libraries',
-				'contributing',
-				{
-					type: 'html',
-					value:
-						'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
-					defaultStyle: true,
-				},
 				...elementCategories.map(({category, label}) => ({
 					type: 'category' as const,
 					label,
 					link: {type: 'doc' as const, id: `${category}/index`},
-					collapsible: true,
-					collapsed: true,
+					className: 'elements-sidebar-category',
+					customProps: {
+						catalogHref: `/elements/#${getElementCategoryHeadingId(category)}`,
+					},
+					collapsible: false,
+					// Keep membership for breadcrumbs, sidebar assignment, and active highlighting.
+					// The sidebar renderer displays only the category link.
 					items: Object.entries(elementRegistry)
 						.filter(([, metadata]) => metadata.category === category)
-						.sort(([, a], [, b]) =>
-							compareStrings(a.displayName, b.displayName),
-						)
 						.map(([slug]) => `${slug}/index`),
 				})),
 			],
+		},
+		{
+			type: 'html',
+			value: '<hr />',
+			className: 'catalog-sidebar-divider',
+			defaultStyle: true,
+		},
+		{
+			type: 'doc',
+			id: 'libraries',
+			className: 'catalog-sidebar-libraries',
 		},
 	],
 };

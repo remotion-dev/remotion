@@ -84,6 +84,7 @@ export const getAssetElement = ({
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp'
 	) {
@@ -171,7 +172,7 @@ export const getAssetElementFromPath = (
 		return null;
 	}
 
-	if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg'].includes(extension)) {
+	if (['png', 'jpg', 'jpeg', 'jxl', 'webp', 'bmp', 'svg'].includes(extension)) {
 		return {
 			type: 'asset',
 			assetType: 'image',
@@ -451,6 +452,7 @@ const getFileMetadata = async ({
 	if (
 		fileType.type === 'png' ||
 		fileType.type === 'jpeg' ||
+		fileType.type === 'jxl' ||
 		fileType.type === 'webp' ||
 		fileType.type === 'bmp' ||
 		fileType.type === 'apng' ||
@@ -510,7 +512,7 @@ const getStaticAssetMetadata = (
 
 	if (
 		extension &&
-		['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
+		['png', 'jpg', 'jpeg', 'jxl', 'webp', 'bmp', 'gif', 'apng', 'svg'].includes(
 			extension,
 		)
 	) {
@@ -692,10 +694,15 @@ const insertCompositionElement = async ({
 		);
 	}
 
-	const request = {compositionFile, compositionId, element, from};
+	const request = {
+		compositionFile,
+		compositionId,
+		element,
+		from,
+	};
 	const result = browserStudioOperations
-		? await browserStudioOperations.insertJsxElement(request)
-		: await callApi('/api/insert-jsx-element', request);
+		? await browserStudioOperations.insertCompositionElement(request)
+		: await callApi('/api/insert-composition-element', request);
 
 	if (!result.success) {
 		showNotification(result.reason, 4000);
@@ -1328,6 +1335,7 @@ export const insertElement = async ({
 	position,
 	from,
 	overwriteExisting,
+	undoRedoNavigation,
 	newComposition,
 }: {
 	installationName: string | null;
@@ -1338,6 +1346,7 @@ export const insertElement = async ({
 	position: InsertableCompositionElementPosition | null;
 	from: number | null;
 	overwriteExisting: boolean;
+	undoRedoNavigation: InsertElementRequest['undoRedoNavigation'];
 	newComposition: InsertElementRequest['newComposition'];
 }) => {
 	try {
@@ -1346,6 +1355,7 @@ export const insertElement = async ({
 		}
 
 		const response = await installElement({
+			captionTarget: null,
 			installationName,
 			compositionFile,
 			compositionId,
@@ -1354,6 +1364,7 @@ export const insertElement = async ({
 			from,
 			overwriteExisting,
 			position,
+			undoRedoNavigation,
 			newComposition,
 		});
 

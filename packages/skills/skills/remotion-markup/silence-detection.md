@@ -55,7 +55,7 @@ When multiple silences are nearly contiguous at the start or end (gap < 0.2s), t
 
 ## Using with Remotion's `<Video>` component
 
-Apply the detected trim points using `trimBefore` and `trimAfter` (values are in frames):
+Apply the detected trim points using `trimBefore` and `durationInFrames` (values are in frames):
 
 ```tsx
 import { Video } from "@remotion/media";
@@ -66,6 +66,6 @@ const { fps } = useVideoConfig();
 <Video
   src={staticFile("video.mov")}
   trimBefore={Math.floor(leadingEnd * fps)}
-  trimAfter={Math.ceil(trailingStart * fps)}
+  durationInFrames={Math.ceil(trailingStart * fps) - Math.floor(leadingEnd * fps)}
 />
 ```

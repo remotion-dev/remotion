@@ -73,6 +73,22 @@ npx remotion lambda render --codec=mp3 testbed my-comp
 
 ## Flags
 
+### `--sequence`<AvailableFrom v="4.0.535" />
+
+Render an image sequence using [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda). Defaults to PNG. The optional output location is a local directory into which the images and manifest are downloaded.
+
+```sh title="Render an image sequence"
+bunx remotion lambda render testbed my-comp out/frames --sequence
+```
+
+### `--output-prefix`<AvailableFrom v="4.0.535" />
+
+Storage prefix for an image sequence. Defaults to `renders/<renderId>/frames/`. A trailing `/` is added if needed. Use `--overwrite` to replace existing output files.
+
+### `--image-sequence-pattern`<AvailableFrom v="4.0.535" />
+
+Filename pattern for a sequence. Defaults to `element-[frame].[ext]`. `[frame]` is the zero-padded composition frame number and `[ext]` is the selected image format.
+
 ### `--region`
 
 The [AWS region](/docs/lambda/region-selection) to select. Both project and function should be in this region.
@@ -140,6 +156,12 @@ Cannot be used together with `--frames-per-lambda`. Use only one of them.
 ### `--concurrency-per-lambda`<AvailableFrom v="3.0.30" />
 
 By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
+### `--disable-shared-memory-capture`<AvailableFrom v="4.0.534" />
+
+<Options cli id="disable-shared-memory-capture" />
+
+See [Shared-memory capture](/docs/shared-memory-capture).
 
 ### `--jpeg-quality`
 
@@ -226,6 +248,16 @@ A number describing how long the render may take to resolve all [`delayRender()`
 ### `--out-name`
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
+
+### `--separate-audio-to`<AvailableFrom v="4.0.535" />
+
+Save the mixed audio as a separate file in the render bucket and omit the audio track from the video. The value is a the output name, such as `audio.wav`, which will then be saved under `renders/{renderId}/audio.wav`.
+
+```bash title="Render separate video and audio outputs"
+bunx remotion lambda render <serve-url> <composition-id> --codec=h264 --out-name=video.mp4 --separate-audio-to=audio.wav
+```
+
+See [`separateAudioTo`](/docs/lambda/rendermediaonlambda#separateaudioto) for supported formats and restrictions.
 
 ### `--s3-output-provider-endpoint`
 
@@ -348,7 +380,7 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 
 <Options cli id="color-space" />
 
-### `--prefer-lossless`<AvailableFrom v="4.0.110"/>
+### `--prefer-lossless`<AvailableFrom v="4.0.123"/>
 
 <Options cli id="prefer-lossless" />
 

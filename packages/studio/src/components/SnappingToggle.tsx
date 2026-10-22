@@ -35,7 +35,6 @@ export const SnappingToggle: React.FC = () => {
 			dismissOnClick={false}
 		>
 			<ControlButton
-				title=""
 				aria-label={accessibilityLabel}
 				aria-pressed={editorSnapping}
 				aria-keyshortcuts={
@@ -46,7 +45,7 @@ export const SnappingToggle: React.FC = () => {
 			>
 				{(color) => (
 					<MagnetIcon
-						style={{width: 18, height: 18, transform: 'translateY(1px)'}}
+						style={{width: 18, height: 18}}
 						color={editorSnapping ? BLUE : color}
 						aria-hidden="true"
 						focusable="false"

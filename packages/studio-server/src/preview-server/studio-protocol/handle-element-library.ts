@@ -1,5 +1,6 @@
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import {normalizeHttpUrl} from '@remotion/studio-shared';
 import {consumeStudioProtocolTarget} from '../element-install-state';
 import type {LiveEventsServer} from '../live-events';
 import {parseRequestBody, RequestBodyTooLargeError} from '../parse-body';
@@ -41,7 +42,7 @@ export const handleStudioProtocolElementLibrary = async ({
 	if (request.method !== 'POST') {
 		writeStudioProtocolError({
 			code: 'method-not-allowed',
-			message: 'Use POST to add an Element catalog.',
+			message: 'Use POST to add an Element Library.',
 			response,
 			status: 405,
 		});
@@ -96,7 +97,21 @@ export const handleStudioProtocolElementLibrary = async ({
 	} catch {
 		writeStudioProtocolError({
 			code: 'invalid-url',
-			message: 'The Element catalog URL must be an absolute HTTP or HTTPS URL.',
+			message: 'The Element Library URL must be an absolute HTTP or HTTPS URL.',
+			response,
+			status: 400,
+		});
+		return;
+	}
+
+	const captionStylesUrl =
+		parsedRequest.captionStylesUrl === null
+			? null
+			: normalizeHttpUrl(parsedRequest.captionStylesUrl);
+	if (parsedRequest.captionStylesUrl !== null && captionStylesUrl === null) {
+		writeStudioProtocolError({
+			code: 'invalid-url',
+			message: 'The caption styles URL must be an absolute HTTP or HTTPS URL.',
 			response,
 			status: 400,
 		});
@@ -107,7 +122,7 @@ export const handleStudioProtocolElementLibrary = async ({
 	if (displayName === '') {
 		writeStudioProtocolError({
 			code: 'invalid-display-name',
-			message: 'The Element catalog display name must not be empty.',
+			message: 'The Element Library display name must not be empty.',
 			response,
 			status: 400,
 		});
@@ -142,6 +157,7 @@ export const handleStudioProtocolElementLibrary = async ({
 
 	const delivered = liveEventsServer.sendEventToClientId(target.clientId, {
 		type: 'element-library-add-request',
+		captionStylesUrl,
 		url: normalizedUrl,
 		displayName,
 		origin: requestOrigin,

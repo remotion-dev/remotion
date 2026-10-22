@@ -28,6 +28,29 @@ Every HTML and SVG element such as `<div>` can be turned interactive using `Inte
 
 This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
 
+## Give every independently editable item its own node
+
+The Studio performs static analysis and allows editing the properties of nodes..
+
+For every clip, scene, layer or sequence that should be editable on its own,
+write a separate JSX node and keep its editable props on that node.
+
+```tsx title="Separate source nodes"
+<Series>
+  <Series.Sequence name="Introduction" durationInFrames={90}>
+    <Introduction />
+  </Series.Sequence>
+  <Series.Sequence name="Demo" durationInFrames={150}>
+    <Demo />
+  </Series.Sequence>
+</Series>
+```
+
+A `.map()` or another programmatic loop would display all nodes together as one item the Studio, allowing all properties to be edited collectively.  
+That is appropriate for repeated output that is intentionally controlled as one template, such as visualization bars or
+particles.  
+It is not appropriate when the instances need independent names, timing, ordering, deletion or duplication in the Studio.
+
 ## Give interactive elements a descriptive name
 
 Add a `name` prop to elements to make them easily identifyable.

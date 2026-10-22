@@ -15,7 +15,10 @@ import {
 	callAddSequenceKeyframe,
 } from '../Timeline/call-add-keyframe';
 import {EasingEditor} from '../Timeline/EasingEditorModal';
-import {getKeyframeDisplayOffset} from '../Timeline/get-timeline-keyframes';
+import {
+	getKeyframePlaybackRate,
+	getKeyframeDisplayOffset,
+} from '../Timeline/get-timeline-keyframes';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -57,10 +60,6 @@ export const EasingInspector: React.FC<{
 	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {sequences} = useContext(Internals.SequenceManager);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -77,11 +76,10 @@ export const EasingInspector: React.FC<{
 		() =>
 			getSelectedEasingUpdate({
 				selection,
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				tracks: track ? [track] : [],
 				propStatuses,
 			}),
-		[overrideIdToNodePathMappings, propStatuses, selection, sequences],
+		[propStatuses, selection, track],
 	);
 	const initialEasing = easingUpdate?.currentEasing ?? null;
 	const easingDetails = useMemo<EasingInspectorDetails | null>(() => {
@@ -171,6 +169,7 @@ export const EasingInspector: React.FC<{
 
 		return getEasingSelectionFromCurrentKeyframes({
 			keyframeDisplayOffset: track.keyframeDisplayOffset,
+			keyframePlaybackRate: track.keyframePlaybackRate,
 			nodePathInfo: selection.nodePathInfo,
 			propStatus: easingUpdate.propStatus,
 			segmentIndex: easingUpdate.segmentIndex,
@@ -182,6 +181,7 @@ export const EasingInspector: React.FC<{
 			: getKeyframeDisplayOffset({
 					propStatus: easingUpdate.propStatus,
 					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
 				});
 
 	const state = useMemo(() => {
@@ -230,12 +230,19 @@ export const EasingInspector: React.FC<{
 				return;
 			}
 
-			const sourceFrame = timelinePosition - easingKeyframeDisplayOffset;
+			const sourceFrame =
+				(timelinePosition - easingKeyframeDisplayOffset) *
+				getKeyframePlaybackRate(
+					easingUpdate.propStatus,
+					track.keyframePlaybackRate,
+				);
 			const value = Internals.getEffectiveVisualModeValue({
 				propStatus: easingUpdate.propStatus,
 				dragOverrideValue: easingDetails.dragOverrideValue,
 				defaultValue: easingDetails.defaultValue,
-				frame: sourceFrame,
+				frame:
+					(timelinePosition - track.keyframeDisplayOffset) *
+					track.keyframePlaybackRate,
 				shouldResortToDefaultValueIfUndefined: true,
 			});
 			const keyframeSelection = {
@@ -291,7 +298,7 @@ export const EasingInspector: React.FC<{
 				<InspectorBackAction
 					disabled={parentSelection === null}
 					onClick={onSelectParent}
-					title="Back to property"
+					aria-label="Back to property"
 				>
 					{fieldLabel}
 				</InspectorBackAction>
@@ -301,7 +308,13 @@ export const EasingInspector: React.FC<{
 						includeEasings
 						keyframes={easingUpdate.propStatus.keyframes.map((keyframe) => ({
 							...keyframe,
-							frame: keyframe.frame + easingKeyframeDisplayOffset,
+							frame:
+								keyframe.frame /
+									getKeyframePlaybackRate(
+										easingUpdate.propStatus,
+										track.keyframePlaybackRate,
+									) +
+								easingKeyframeDisplayOffset,
 						}))}
 						nodePathInfo={selection.nodePathInfo}
 					/>
@@ -335,6 +348,7 @@ export const EasingInspector: React.FC<{
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
+				easingUpdate={easingUpdate}
 				renderHeader={renderHeader}
 			/>
 			<KeyframeSettings update={easingUpdate} />

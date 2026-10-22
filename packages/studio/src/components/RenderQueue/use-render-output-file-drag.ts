@@ -1,11 +1,24 @@
 import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {DragEventHandler} from 'react';
 import {useCallback, useEffect, useMemo, useState} from 'react';
+import type {CanvasContent} from 'remotion';
 import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
 
 const MAXIMUM_SAFE_FILE_DRAG_SIZE = 500 * 1024 * 1024;
+export const RENDER_OUTPUT_TAB_DRAG_MIME_TYPE =
+	'application/vnd.remotion.render-output-tab';
+let draggedOutput: {jobId: string; content: CanvasContent} | null = null;
+
+export const getDraggedRenderOutputCanvasContent = (
+	dataTransfer: DataTransfer,
+): CanvasContent | null => {
+	return dataTransfer.getData(RENDER_OUTPUT_TAB_DRAG_MIME_TYPE) ===
+		draggedOutput?.jobId
+		? (draggedOutput?.content ?? null)
+		: null;
+};
 
 const getFilename = (outName: string) => {
 	return outName.split(/[/\\]/).at(-1) ?? outName;
@@ -103,6 +116,7 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 
 	const onDragStart: DragEventHandler<HTMLDivElement> = useCallback(
 		(event) => {
+			draggedOutput = null;
 			if (!canDrag) {
 				event.preventDefault();
 				return;
@@ -135,20 +149,43 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 					event.dataTransfer.setData(dragData.mimeType, dragData.payload);
 				}
 
+				event.dataTransfer.setData(RENDER_OUTPUT_TAB_DRAG_MIME_TYPE, job.id);
 				event.dataTransfer.setData(
 					'DownloadURL',
 					`${mimeType}:${filename}:${source}`,
 				);
+				if (isClientRenderJob(job) && job.getBlob) {
+					draggedOutput = {
+						jobId: job.id,
+						content: {
+							type: 'output-blob',
+							displayName: job.outName,
+							getBlob: job.getBlob,
+							width: job.metadata.width,
+							height: job.metadata.height,
+							sizeInBytes: job.metadata.sizeInBytes,
+						},
+					};
+				} else {
+					draggedOutput = {
+						jobId: job.id,
+						content: {type: 'output', path: `/${job.outName}`},
+					};
+				}
+
 				setIsDragging(true);
 			} catch {
 				event.preventDefault();
 			}
 		},
-		[canDrag, clientFile, job.outName],
+		[canDrag, clientFile, job],
 	);
 	const onDragEnd = useCallback(() => {
 		setIsDragging(false);
-	}, []);
+		if (draggedOutput?.jobId === job.id) {
+			draggedOutput = null;
+		}
+	}, [job.id]);
 
 	return {canDrag, isDragging, onDragEnd, onDragStart};
 };

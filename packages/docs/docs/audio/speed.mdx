@@ -16,14 +16,14 @@ You can use the [`playbackRate`](/docs/media/audio#playbackrate) prop to control
 - Google Chrome supports playback rates between `0.0625` and `16`.
 
 ```tsx twoslash {6} title="MyComp.tsx"
-import {AbsoluteFill, staticFile} from 'remotion';
+import {staticFile} from 'remotion';
 import {Audio} from '@remotion/media';
 
 export const MyComposition = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Audio src={staticFile('audio.mp3')} playbackRate={2} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

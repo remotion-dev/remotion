@@ -266,6 +266,7 @@ const BrowserStudioContent: React.FC = () => {
 			}
 			project={projectState.project}
 			readOnly={false}
+			showExperimentalNotice
 			remotionPackageSource={{
 				baseUrl: new URL(
 					`/__remotion_browser_studio_workspace__/commits/${__BROWSER_STUDIO_WORKSPACE_COMMIT__}/`,

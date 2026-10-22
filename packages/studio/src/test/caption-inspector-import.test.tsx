@@ -53,7 +53,7 @@ test('imports captions from a JSON file in the public folder', async () => {
 			</SetSelectedModalContext.Provider>,
 		);
 
-		fireEvent.click(screen.getByRole('button', {name: 'Import captions'}));
+		fireEvent.click(screen.getByRole('button', {name: 'Import transcript'}));
 		const modal = selectedModal as ModalState | null;
 		if (modal?.type !== 'quick-switcher' || modal.assetSelection === null) {
 			throw new Error('Expected asset Quick Switcher to open');
@@ -61,7 +61,12 @@ test('imports captions from a JSON file in the public folder', async () => {
 
 		const {assetSelection} = modal;
 
-		expect(assetSelection.initialQuery).toBe('type:json');
+		expect(assetSelection.initialQuery).toBe('');
+		expect(assetSelection.fileTypes?.extensions).toEqual(['.json', '.srt']);
+		expect(assetSelection.fileTypes?.description).toContain('ElevenLabs');
+		expect(
+			screen.getByLabelText('Import captions file').getAttribute('accept'),
+		).toBe('.json,.srt');
 		await act(async () => {
 			await (assetSelection.onSelected({
 				lastModified: 0,

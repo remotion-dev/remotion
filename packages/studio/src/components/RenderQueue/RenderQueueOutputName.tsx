@@ -26,7 +26,7 @@ export const RenderQueueOutputName: React.FC<{
 	};
 
 	return (
-		<span style={style} title={getTitle()}>
+		<span role="group" style={style} aria-label={getTitle()}>
 			{job.outName}
 		</span>
 	);

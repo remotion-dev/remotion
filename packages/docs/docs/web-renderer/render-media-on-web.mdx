@@ -90,6 +90,8 @@ _number_
 
 <Options id="scale" />
 
+Pass the same `scale` to [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web) when checking support.
+
 ### `onProgress?`
 
 _function_ <TsType type="RenderMediaOnWebProgressCallback" source="@remotion/web-renderer" href="/docs/web-renderer/types#rendermediaonwebprogresscallback" />
@@ -135,7 +137,7 @@ This option is best effort. Long synchronous browser or graphics operations may 
 
 ### `videoBitrate?`
 
-_number | string_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererquality" />
+_number | string | Quality_ <TsType type="WebRendererQuality" source="@remotion/web-renderer" href="/docs/web-renderer/types#webrendererquality" />
 
 Controls the quality and file size of the output video. Can be either a number representing the bitrate in bits per second, or one of the preset quality levels:
 
@@ -144,6 +146,36 @@ Controls the quality and file size of the output video. Can be either a number r
 - `"medium"`: Balanced file size and quality (default)
 - `"high"`: Larger file size, higher quality
 - `"very-high"`: Largest file size, highest quality
+
+#### Mediabunny `Quality`<AvailableFrom v="4.0.535" />
+
+You can also pass a Mediabunny [`Quality`](https://mediabunny.dev/guide/media-sources#encoding-quality) instance directly.
+Remotion's string presets use bitrate encoding.
+Passing `new Quality('high')` lets Mediabunny choose how to encode the video. You don't need to set `preferBitrate: false`:
+
+```tsx twoslash title="Use Mediabunny quality selection"
+const Component: React.FC = () => null;
+
+// ---cut---
+import {renderMediaOnWeb} from '@remotion/web-renderer';
+import {Quality} from 'mediabunny';
+
+await renderMediaOnWeb({
+  composition: {
+    component: Component,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+    id: 'my-composition',
+  },
+  videoBitrate: new Quality('high'),
+});
+```
+
+A browser may accept the configuration but still fail during encoding or introduce a large startup delay. See [known WebCodecs issues](/docs/mediabunny/webcodecs-bugs).
+
+Pass the same `Quality` instance to [`canRenderMediaOnWeb()`](/docs/web-renderer/can-render-media-on-web) or [`getEncodableVideoCodecs()`](/docs/web-renderer/get-encodable-video-codecs) when checking support.
 
 ### `hardwareAcceleration?`
 

@@ -10,19 +10,17 @@ export const ControlButton = (
 		React.ButtonHTMLAttributes<HTMLButtonElement>,
 		'children' | 'onClick' | 'title'
 	> & {
-		readonly title: string;
 		readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 		readonly children: React.ReactNode | RenderInlineAction;
 	},
 ) => {
-	const {children, onClick, title, ...buttonProps} = props;
+	const {children, onClick, ...buttonProps} = props;
 	const renderAction: RenderInlineAction =
 		typeof children === 'function' ? children : () => children;
 
 	return (
 		<InlineAction
 			{...buttonProps}
-			title={title}
 			onClick={onClick}
 			renderAction={renderAction}
 			variant={null}

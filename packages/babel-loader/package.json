@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/babel-loader"
 	},
 	"name": "@remotion/babel-loader",
-	"version": "4.0.524",
+	"version": "4.0.538",
 	"description": "Babel loader for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"files": [
 		"dist"
@@ -35,7 +35,7 @@
 		"remotion": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

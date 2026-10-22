@@ -25,10 +25,13 @@
 			"path": "./packages/bundler"
 		},
 		{
+			"path": "./packages/browser-bundler"
+		},
+		{
 			"path": "./packages/browser-studio"
 		},
 		{
-			"path": "./packages/canvas"
+			"path": "./packages/sdk"
 		},
 		{
 			"path": "./packages/cloudrun"
@@ -154,12 +157,6 @@
 			"path": "./packages/template-electron"
 		},
 		{
-			"path": "./packages/template-next-pages"
-		},
-		{
-			"path": "./packages/template-next-app"
-		},
-		{
 			"path": "./packages/template-next-app-tailwind"
 		},
 		{
@@ -173,6 +170,9 @@
 		},
 		{
 			"path": "./packages/template-react-router"
+		},
+		{
+			"path": "./packages/template-element-library"
 		},
 		{
 			"path": "./packages/template-tiktok"
@@ -193,6 +193,9 @@
 			"path": "./packages/template-prompt-to-motion-graphics"
 		},
 		{
+			"path": "./packages/template-vibe-code"
+		},
+		{
 			"path": "./packages/template-stargazer"
 		},
 		{
@@ -205,7 +208,7 @@
 			"path": "./packages/studio"
 		},
 		{
-			"path": "./packages/studio-codemods"
+			"path": "./packages/codemods"
 		},
 		{
 			"path": "./packages/studio-server"
@@ -230,12 +233,6 @@
 		},
 		{
 			"path": "./packages/streaming"
-		},
-		{
-			"path": "./packages/serverless"
-		},
-		{
-			"path": "./packages/serverless-client"
 		},
 		{
 			"path": "./packages/docusaurus-plugin"

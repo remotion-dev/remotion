@@ -19,15 +19,14 @@ A contrast adjustment effect that can be applied to canvas-based components such
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {contrast} from '@remotion/effects/contrast';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video src="https://remotion.media/video.mp4" effects={[contrast({amount: 1.25})]} />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

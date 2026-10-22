@@ -2,6 +2,7 @@ import {scale} from '@remotion/effects/scale';
 import {tear} from '@remotion/effects/tear';
 import React from 'react';
 import {
+	Interactive,
 	CanvasImage,
 	Easing,
 	HtmlInCanvas,
@@ -9,7 +10,7 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-export const Tear: React.FC = () => {
+const TearInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -64,3 +65,8 @@ export const Tear: React.FC = () => {
 		</HtmlInCanvas>
 	);
 };
+
+export const Tear = Interactive.create({
+	Component: TearInner,
+	layout: 'absolute-fill',
+});

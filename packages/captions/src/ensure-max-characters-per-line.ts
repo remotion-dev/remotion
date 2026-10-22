@@ -10,7 +10,7 @@ const splitWords = (inputCaptions: Caption[]): Caption[] => {
 		for (let j = 0; j < words.length; j++) {
 			const word = words[j];
 			captions.push({
-				text: j === 0 ? ` ${word}` : word,
+				text: ` ${word}`,
 				startMs: w.startMs,
 				endMs: w.endMs,
 				confidence: w.confidence,
@@ -54,8 +54,9 @@ export const ensureMaxCharactersPerLine = ({
 			filledCharactersInLine > maxCharsPerLine / 2;
 
 		if (
-			filledCharactersInLine + w.text.length > maxCharsPerLine ||
-			preventOrphanWord
+			currentSegment.length > 0 &&
+			(filledCharactersInLine + w.text.length > maxCharsPerLine ||
+				preventOrphanWord)
 		) {
 			segments.push(currentSegment);
 			currentSegment = [];

@@ -4,6 +4,7 @@ import type {ElementDefinition} from './element-definitions';
 import {getElementDefinition} from './element-utils';
 
 export const ELEMENT_PREVIEW_BACKGROUND = '#eef1f4';
+export const ELEMENT_PREVIEW_DARK_BACKGROUND = '#20262f';
 
 export const getElementPreviewDimensions = (definition: ElementDefinition) => {
 	const hasElementDimensions =
@@ -37,14 +38,22 @@ export const ElementPreviewComposition: React.FC<{
 		definition.initialProps ?? {},
 	);
 
-	if (!hasElementDimensions) {
+	// Elements without fixed dimensions fill their own composition size,
+	// which is centered if it differs from the preview size.
+	if (
+		!hasElementDimensions &&
+		definition.width === width &&
+		definition.height === height
+	) {
 		return element;
 	}
 
+	const contentWidth = elementWidth ?? definition.width;
+	const contentHeight = elementHeight ?? definition.height;
 	const scale = Math.min(
 		1,
-		(width - safeArea * 2) / elementWidth,
-		(height - safeArea * 2) / elementHeight,
+		(width - safeArea * 2) / contentWidth,
+		(height - safeArea * 2) / contentHeight,
 	);
 
 	return (
@@ -55,23 +64,23 @@ export const ElementPreviewComposition: React.FC<{
 			}}
 			showInTimeline={false}
 		>
-			<Sequence height={elementHeight} layout="none" width={elementWidth}>
+			<Sequence height={contentHeight} layout="none" width={contentWidth}>
 				<div
 					style={{
-						height: elementHeight * scale,
+						height: contentHeight * scale,
 						position: 'relative',
-						width: elementWidth * scale,
+						width: contentWidth * scale,
 					}}
 				>
 					<div
 						style={{
-							height: elementHeight,
+							height: contentHeight,
 							left: 0,
 							position: 'absolute',
 							top: 0,
 							transform: `scale(${scale})`,
 							transformOrigin: 'top left',
-							width: elementWidth,
+							width: contentWidth,
 						}}
 					>
 						{element}
@@ -85,11 +94,16 @@ export const ElementPreviewComposition: React.FC<{
 export const ElementAssetComposition: React.FC<{
 	readonly slug: string;
 }> = ({slug}) => {
-	const definition = getElementDefinition(slug);
+	const definition: ElementDefinition = getElementDefinition(slug);
 
 	return (
 		<AbsoluteFill
-			style={{backgroundColor: ELEMENT_PREVIEW_BACKGROUND}}
+			style={{
+				backgroundColor:
+					definition.preview.backgroundTheme === 'dark'
+						? ELEMENT_PREVIEW_DARK_BACKGROUND
+						: ELEMENT_PREVIEW_BACKGROUND,
+			}}
 			showInTimeline={false}
 		>
 			<ElementPreviewComposition definition={definition} />

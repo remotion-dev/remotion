@@ -31,6 +31,33 @@ export const InspectorQuickActionsSection: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={inspectorQuickActionsSection}>{children}</div>;
 
+const collapsedSectionBody: React.CSSProperties = {
+	...inspectorSectionBody,
+	display: 'none',
+};
+
+export const InspectorSectionBody: React.FC<{
+	readonly children: React.ReactNode;
+	readonly expanded: boolean;
+	readonly paddingBottom: number;
+}> = ({children, expanded, paddingBottom}) => {
+	if (children === null) {
+		return null;
+	}
+
+	return (
+		<div
+			hidden={!expanded}
+			style={{
+				...(expanded ? inspectorSectionBody : collapsedSectionBody),
+				paddingBottom,
+			}}
+		>
+			{children}
+		</div>
+	);
+};
+
 export const InspectorSection: React.FC<{
 	readonly children: React.ReactNode;
 	readonly header: React.ReactNode;
@@ -38,9 +65,9 @@ export const InspectorSection: React.FC<{
 	return (
 		<>
 			<InspectorSectionHeader>{header}</InspectorSectionHeader>
-			{children === null ? null : (
-				<div style={inspectorSectionBody}>{children}</div>
-			)}
+			<InspectorSectionBody expanded paddingBottom={8}>
+				{children}
+			</InspectorSectionBody>
 		</>
 	);
 };
@@ -68,15 +95,15 @@ export const InspectorBackAction: React.FC<{
 	readonly children: React.ReactNode;
 	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
-	readonly title: string;
-}> = ({children, disabled, onClick, title}) => {
+	readonly 'aria-label': string;
+}> = ({children, disabled, onClick, 'aria-label': ariaLabel}) => {
 	return (
 		<div style={inspectorQuickActionsSection}>
 			<InspectorQuickAction
 				disabled={disabled}
 				onClick={onClick}
 				renderIcon={(color) => <BackArrow color={color} />}
-				title={title}
+				aria-label={ariaLabel}
 			>
 				{children}
 			</InspectorQuickAction>
@@ -147,16 +174,37 @@ const inlineLabelText: React.CSSProperties = {
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
 	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
-const inlineLabelIcon: React.CSSProperties = {
+const INSPECTOR_ACTION_ICON_SIZE = 18;
+
+export const inspectorActionIconStyle: React.CSSProperties = {
+	display: 'block',
+	height: INSPECTOR_ACTION_ICON_SIZE,
+	width: INSPECTOR_ACTION_ICON_SIZE,
+};
+
+export const inspectorActionIconContainerStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexShrink: 0,
-	height: 18,
+	height: INSPECTOR_ACTION_ICON_SIZE,
 	justifyContent: 'center',
-	width: 18,
+	width: INSPECTOR_ACTION_ICON_SIZE,
+};
+
+export const largeInspectorActionIconStyle: React.CSSProperties = {
+	height: 22,
+	width: 22,
+};
+
+export const largeInspectorActionIconContainerStyle: React.CSSProperties = {
+	height: 22,
+	marginLeft: -2,
+	marginRight: -2,
+	width: 22,
 };
 
 export type InspectorQuickActionProps = {
@@ -167,7 +215,7 @@ export type InspectorQuickActionProps = {
 	readonly renderIcon?: (color: string) => React.ReactNode;
 	readonly size?: 'default' | 'compact';
 	readonly style?: React.CSSProperties;
-	readonly title?: string;
+	readonly 'aria-label'?: string;
 };
 
 export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
@@ -178,7 +226,7 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 	renderIcon,
 	size = 'default',
 	style,
-	title,
+	'aria-label': ariaLabel,
 }) => {
 	const showsHover = !disabled && onClick !== null;
 	const buttonStyle = React.useMemo(
@@ -201,7 +249,9 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 	const mainContent = (
 		<>
 			{renderIcon ? (
-				<span style={{...inlineLabelIcon, ...iconContainerStyle}}>
+				<span
+					style={{...inspectorActionIconContainerStyle, ...iconContainerStyle}}
+				>
 					{renderIcon(CURRENT_COLOR)}
 				</span>
 			) : null}
@@ -214,13 +264,18 @@ export const InspectorQuickAction: React.FC<InspectorQuickActionProps> = ({
 			type="button"
 			disabled={disabled}
 			style={buttonStyle}
-			title={title}
+			aria-label={ariaLabel}
 			onClick={onClick}
 		>
 			{mainContent}
 		</button>
 	) : (
-		<div className={HOVERABLE_CLASS_NAME} style={buttonStyle} title={title}>
+		<div
+			className={HOVERABLE_CLASS_NAME}
+			style={buttonStyle}
+			aria-label={ariaLabel}
+			role="group"
+		>
 			{mainContent}
 		</div>
 	);

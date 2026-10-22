@@ -21,7 +21,7 @@ Previously, installing FFmpeg required 7 steps on Windows and took several minut
 
 <FfmpegVideo />
 
-When deploying Remotion on a server, you can now also let Remotion install FFmpeg for you using the [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) API or the [`npx remotion install ffmpeg`](/docs/cli/install) command. Learn more about [FFmpeg auto-install](/docs/ffmpeg) here.
+When deploying Remotion on a server, you can now also let Remotion install FFmpeg for you using the [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) API or the `npx remotion install ffmpeg` command.
 
 ## New `@remotion/google-fonts` package
 
@@ -135,7 +135,7 @@ We now allow you to skip the output name, in this case the render would land in 
 npx remotion render src/index.tsx my-comp
 ```
 
-You can also omit the composition name and Remotion will ask which composition to render:
+You can also omit the composition ID and Remotion will ask which composition to render:
 
 ```bash
 npx remotion render src/index.tsx

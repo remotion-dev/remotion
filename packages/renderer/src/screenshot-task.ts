@@ -2,6 +2,11 @@ import fs from 'node:fs';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
+import {setScreenshotBackground} from './screenshot-background';
 
 export const screenshotTask = async ({
 	format,
@@ -12,6 +17,7 @@ export const screenshotTask = async ({
 	path,
 	jpegQuality,
 	scale,
+	remotionSharedMemory,
 }: {
 	page: Page;
 	format: StillImageFormat;
@@ -21,7 +27,8 @@ export const screenshotTask = async ({
 	width: number;
 	height: number;
 	scale: number;
-}): Promise<Buffer> => {
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
+}): Promise<CapturedFrame> => {
 	const client = page._client();
 	const target = page.target();
 
@@ -29,11 +36,7 @@ export const screenshotTask = async ({
 		targetId: target._targetId,
 	});
 
-	if (omitBackground) {
-		await client.send('Emulation.setDefaultBackgroundColorOverride', {
-			color: {r: 0, g: 0, b: 0, a: 0},
-		});
-	}
+	await setScreenshotBackground(page, omitBackground);
 
 	const cap = startPerfMeasure('capture');
 	try {
@@ -63,26 +66,53 @@ export const screenshotTask = async ({
 				!process.env.DISABLE_FROM_SURFACE || height > 8192 || width > 8192;
 			const scaleFactor = fromSurface ? 1 : scale;
 
-			const {value} = await client.send('Page.captureScreenshot', {
-				format,
-				quality: jpegQuality,
-				clip: {
-					x: 0,
-					y: 0,
-					height: height * scaleFactor,
-					scale: 1,
-					width: width * scaleFactor,
-				},
-				captureBeyondViewport: true,
-				optimizeForSpeed: true,
-				fromSurface,
-			});
+			const reservation = await remotionSharedMemory?.acquire(page);
+			let value;
+			try {
+				({value} = await client.send('Page.captureScreenshot', {
+					format,
+					quality: jpegQuality,
+					clip: {
+						x: 0,
+						y: 0,
+						height: height * scaleFactor,
+						scale: 1,
+						width: width * scaleFactor,
+					},
+					captureBeyondViewport: true,
+					optimizeForSpeed: true,
+					fromSurface,
+					remotionFrameSlot: reservation?.slot,
+					remotionFrameId: reservation?.frameId,
+					remotionFastViewport: reservation ? true : undefined,
+				}));
+			} catch (error) {
+				reservation?.fail();
+				throw error;
+			}
+
+			if (reservation) {
+				if (value.data !== '' || !value.remotionFrame) {
+					await reservation.discardPublished();
+					throw new Error(
+						'Chromium did not return a Remotion shared-memory frame.',
+					);
+				}
+
+				const rawFrame = await reservation.publish(value.remotionFrame);
+				stopPerfMeasure(cap);
+
+				// Keep the background configured until pool cleanup. Encoded
+				// screenshots restore it below, including thumbnails on this page.
+				return rawFrame;
+			}
+
 			result = value;
 		}
 
 		stopPerfMeasure(cap);
 		if (omitBackground) {
-			await client.send('Emulation.setDefaultBackgroundColorOverride');
+			await setScreenshotBackground(page, false);
 		}
 
 		const buffer = Buffer.from(result.data, 'base64');

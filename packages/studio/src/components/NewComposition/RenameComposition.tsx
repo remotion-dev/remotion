@@ -16,7 +16,7 @@ import {
 	ResolveCompositionBeforeModal,
 	ResolvedCompositionContext,
 } from '../RenderModal/ResolveCompositionBeforeModal';
-import {CodemodFooter} from './CodemodFooter';
+import {CompositionEditFooter} from './CompositionEditFooter';
 import {DismissableModal} from './DismissableModal';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {RemotionInput} from './RemInput';
@@ -60,7 +60,6 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 	);
 
 	const {
-		codemod,
 		compositionId,
 		renameComposition,
 		valid,
@@ -115,23 +114,21 @@ const RenameCompositionLoaded: React.FC<{}> = () => {
 					</div>
 				</div>
 				<ModalFooterContainer>
-					<CodemodFooter
+					<CompositionEditFooter
 						loadingNotification={'Renaming...'}
 						errorNotification={'Could not rename composition'}
 						genericSubmitLabel={'Rename'}
 						submitLabel={({relativeRootPath}) => `Modify ${relativeRootPath}`}
-						codemod={codemod}
 						stack={compositionStack}
 						valid={valid}
 						onSuccess={null}
-						applyCodemod={({signal, symbolicatedStack}) =>
+						applyEdit={({signal, symbolicatedStack}) =>
 							renameComposition({
 								newCompositionId: newId,
 								signal,
 								symbolicatedStack,
 							})
 						}
-						applyCodemodForPreview={null}
 					/>
 				</ModalFooterContainer>
 			</form>

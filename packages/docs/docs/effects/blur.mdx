@@ -19,18 +19,17 @@ A Gaussian blur that can be applied to canvas-based components such as [`<Video>
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {blur} from '@remotion/effects/blur';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[blur({radius: 8})]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

@@ -1,11 +1,13 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
-export const Clip1: React.FC = () => {
+const Clip1Inner: React.FC = () => {
 	return (
 		<>
 			<Video
+				name="Party wide shot"
 				src={asset('clip1-source.mp4')}
 				style={{
 					position: 'absolute',
@@ -21,3 +23,8 @@ export const Clip1: React.FC = () => {
 		</>
 	);
 };
+
+export const Clip1 = Interactive.create({
+	Component: Clip1Inner,
+	layout: 'absolute-fill',
+});

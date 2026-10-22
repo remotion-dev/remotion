@@ -6,7 +6,7 @@ crumb: '@remotion/whisper-webgpu'
 
 # isWhisperModelCached()<AvailableFrom v="4.0.518" />
 
-Checks whether all files needed for a timestamped Whisper model from `remotion.media` are present in the browser cache. The check does not download or initialize the model.
+Checks whether all files needed for a timestamped Whisper model from `remotion.media` are present in the persistent Transformers.js cache. The check does not download or initialize the model.
 
 ```ts twoslash title="model-cache.ts"
 import {isWhisperModelCached} from '@remotion/whisper-webgpu';
@@ -26,14 +26,15 @@ One of the names returned by [`getAvailableModels()`](/docs/whisper-webgpu/get-a
 
 A `Promise<boolean>` resolving to `true` if every required model file is cached.
 
-Models cached from Hugging Face by versions before 4.0.522 do not satisfy this check. Loading the model downloads and caches a new copy from `remotion.media`.
+Models cached from Hugging Face by versions before 4.0.522 do not satisfy this check. Use [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model) to download and cache a copy from `remotion.media`.
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 
 - [`getAvailableModels()`](/docs/whisper-webgpu/get-available-models)
+- [`downloadWhisperModel()`](/docs/whisper-webgpu/download-whisper-model)
 - [`loadWhisperModel()`](/docs/whisper-webgpu/load-whisper-model)
 - [`removeWhisperModel()`](/docs/whisper-webgpu/remove-whisper-model)

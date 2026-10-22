@@ -4,6 +4,7 @@ const cliFlag = 'webhook-custom-data' as const;
 
 export const webhookCustomDataOption = {
 	name: 'Webhook custom data',
+	addedIn: '4.0.25',
 	cliFlag,
 	description: (type) => (
 		<>
@@ -15,7 +16,7 @@ export const webhookCustomDataOption = {
 		</>
 	),
 	ssrName: 'customData' as const,
-	docLink: 'https://www.remotion.dev/docs/lambda/webhooks',
+	docLink: 'https://www.remotion.dev/docs/options/webhook-custom-data',
 	type: {} as Record<string, unknown> | null,
 	getValue: () => {
 		throw new Error('Option resolution not implemented');

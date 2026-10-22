@@ -60,7 +60,7 @@ The maximum number of service instances that can be create by GCP in response to
 | &lt;5.0.0        | 100     |
 | &gt;=5.0.0       | 5       |
 
-In Remotion 5.0, the [default is reduced](/docs/5-0-migration#cloud-run-services-use-a-lower-maximum-instance-count) because the previous value exceeded the Cloud Run quota on some GCP accounts and caused deployments to fail.  
+In Remotion 5.0, the [default is reduced](/docs/5-0-migration#cloud-run-services-use-a-lower-maximum-instance-count) because the previous value exceeded the Cloud Run quota on some GCP accounts and caused deployments to fail.
 
 [Read more about the maximum instance limit here](/docs/cloudrun/instancecount#maximum-instance-count)
 
@@ -93,6 +93,10 @@ An object with the following values:
 - `shortName` (_string_): The name of the service just created, as it appears in the console.
 - `uri` (_string_): The endpoint of the service just created.
 - `alreadyExists`: (_boolean_): Whether the creation was skipped because the service already existed.
+
+## Compatibility
+
+<CompatibilityTable chrome={false} firefox={false} safari={false} nodejs bun serverlessFunctions="Node.js runtime" clientSideRendering="" serverSideRendering="" player="" studio="" hideBrowsers />
 
 ## See also
 

@@ -14,6 +14,7 @@ import {
 	getOutputConfig,
 	getResolveConfig,
 	getSharedModuleRules,
+	transformersImportMetaWarning,
 } from './shared-bundler-config';
 
 export type {RspackConfiguration, RspackOverrideFn} from './override-types';
@@ -96,14 +97,7 @@ export const rspackConfig = async ({
 					{incremental: {buildChunkGraph: true}}
 				: {}),
 		},
-		// Remove once https://github.com/huggingface/transformers.js/issues/1759 is resolved.
-		ignoreWarnings: [
-			{
-				module:
-					/[\\/]@huggingface[\\/]transformers[\\/]dist[\\/]transformers\.web\.js$/,
-				message: /Accessing import\.meta directly is unsupported/,
-			},
-		],
+		ignoreWarnings: [transformersImportMetaWarning],
 		node: {
 			// Suppress the warning in `source-map`
 			__dirname: 'mock',
@@ -117,6 +111,10 @@ export const rspackConfig = async ({
 			reactScan: getReactScanEntryPoint(environment),
 			environmentSetup: require.resolve('./setup-environment'),
 			sequenceStackTraces: require.resolve('./setup-sequence-stack-traces'),
+			studioBootstrap:
+				environment === 'development'
+					? require.resolve('./setup-studio')
+					: null,
 			userDefinedComponent,
 			reactShim: require.resolve('../react-shim.js'),
 			studioRenderEntry: entry,

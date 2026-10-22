@@ -6,7 +6,7 @@ crumb: '@remotion/whisper-webgpu'
 
 # canUseWhisperWebGpu()<AvailableFrom v="4.0.518" />
 
-Asynchronously checks whether WebGPU can be used in the current browser. WebGPU, a usable adapter, and a secure context (or localhost) is required.
+Asynchronously checks whether WebGPU transcription is supported in the current environment.
 
 ```ts twoslash title="support.ts"
 import {canUseWhisperWebGpu} from '@remotion/whisper-webgpu';
@@ -43,7 +43,7 @@ If `supported` is `false`, a human-readable explanation of why WebGPU transcript
 
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio hideServers />
+<CompatibilityTable chrome firefox safari nodejs={true} bun={true} serverlessFunctions={false} clientSideRendering={false} serverSideRendering player studio />
 
 ## See also
 

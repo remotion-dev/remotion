@@ -1,10 +1,10 @@
 import {readFileSync} from 'node:fs';
+import {duplicateEffects} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	DuplicateEffectRequest,
 	DuplicateEffectResponse,
 } from '@remotion/studio-shared';
-import {duplicateEffects} from '../../codemods/duplicate-effect';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
@@ -60,14 +60,19 @@ export const duplicateEffectHandler: ApiHandler<
 					});
 
 					const fileContents = readFileSync(absolutePath, 'utf-8');
-					const {output, formatted, effectLabels, logLines} =
-						await duplicateEffects({
-							input: fileContents,
-							effects: fileItems.map((item) => ({
-								sequenceNodePath: item.sequenceNodePath.nodePath,
-								effectIndex: item.effectIndex,
-							})),
-						});
+					const result = await duplicateEffects({
+						project: {
+							files: {[absolutePath]: fileContents},
+							rootDir: remotionRoot,
+						},
+						effects: fileItems.map((item) => ({
+							filePath: absolutePath,
+							nodePath: item.sequenceNodePath.nodePath,
+							effectIndex: item.effectIndex,
+						})),
+					});
+					const output = result.changes[0]?.nextContents ?? fileContents;
+					const {formatted, effectLabels, logLines} = result.editDetails[0];
 
 					return {
 						absolutePath,

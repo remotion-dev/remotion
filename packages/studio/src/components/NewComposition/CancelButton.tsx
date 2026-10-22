@@ -1,25 +1,42 @@
 import type {SVGProps} from 'react';
 import React from 'react';
-import {CURRENT_COLOR, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {
+	CURRENT_COLOR,
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_06,
+} from '../../helpers/colors';
+import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	HOVERABLE_CLASS_NAME,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {useZIndex} from '../../state/z-index';
 
 const style: React.CSSProperties = {
 	appearance: 'none',
 	border: 'none',
-	backgroundColor: TRANSPARENT,
-	color: WHITE,
-	cursor: 'pointer',
+	borderRadius: 4,
+	cursor: 'default',
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
+	padding: 3,
+	...hoverableStyle({
+		idleBackground: TRANSPARENT,
+		hoverBackground: WHITE_ALPHA_06,
+		idleColor: LIGHT_TEXT,
+		hoverColor: WHITE,
+	}),
 };
 
 export const CancelIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 	return (
-		<svg viewBox="0 0 320 512" {...props}>
+		<svg viewBox="0 0 640 640" {...props}>
 			<path
 				fill={CURRENT_COLOR}
-				d="M207.6 256l107.72-107.72c6.23-6.23 6.23-16.34 0-22.58l-25.03-25.03c-6.23-6.23-16.34-6.23-22.58 0L160 208.4 52.28 100.68c-6.23-6.23-16.34-6.23-22.58 0L4.68 125.7c-6.23 6.23-6.23 16.34 0 22.58L112.4 256 4.68 363.72c-6.23 6.23-6.23 16.34 0 22.58l25.03 25.03c6.23 6.23 16.34 6.23 22.58 0L160 303.6l107.72 107.72c6.23 6.23 16.34 6.23 22.58 0l25.03-25.03c6.23-6.23 6.23-16.34 0-22.58L207.6 256z"
+				d="M507.3 155.3C513.5 149.1 513.5 138.9 507.3 132.7C501.1 126.5 490.9 126.5 484.7 132.7L320 297.4L155.3 132.7C149.1 126.5 138.9 126.5 132.7 132.7C126.5 138.9 126.5 149.1 132.7 155.3L297.4 320L132.7 484.7C126.5 490.9 126.5 501.1 132.7 507.3C138.9 513.5 149.1 513.5 155.3 507.3L320 342.6L484.7 507.3C490.9 513.5 501.1 513.5 507.3 507.3C513.5 501.1 513.5 490.9 507.3 484.7L342.6 320L507.3 155.3z"
 			/>
 		</svg>
 	);
@@ -28,11 +45,19 @@ export const CancelIcon: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 export const CancelButton: React.FC<
 	SVGProps<SVGSVGElement> & {
 		readonly onPress: () => void;
+		readonly 'aria-label': string;
 	}
-> = ({onPress, ...props}) => {
+> = ({onPress, 'aria-label': ariaLabel, ...props}) => {
 	const {tabIndex} = useZIndex();
 	return (
-		<button tabIndex={tabIndex} style={style} type="button" onClick={onPress}>
+		<button
+			aria-label={ariaLabel}
+			className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+			tabIndex={tabIndex}
+			style={style}
+			type="button"
+			onClick={onPress}
+		>
 			<CancelIcon {...props} />
 		</button>
 	);

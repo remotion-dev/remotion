@@ -1,6 +1,26 @@
-// Unmodified prism-themes@1.9.0/themes/prism-vsc-dark-plus.css, stored as a
-// string for Studio’s CSS injection (including Browser Studio, which has no
-// CSS loader).
+import {
+	PRISM_BACKGROUND,
+	PRISM_CLASS_NAME_COLOR,
+	PRISM_COMMENT_COLOR,
+	PRISM_CONTROL_FLOW_COLOR,
+	PRISM_FUNCTION_COLOR,
+	PRISM_INLINE_COLOR,
+	PRISM_KEYWORD_COLOR,
+	PRISM_LINE_HIGHLIGHT_BACKGROUND,
+	PRISM_LINE_HIGHLIGHT_BORDER_COLOR,
+	PRISM_NUMBER_COLOR,
+	PRISM_REGEX_COLOR,
+	PRISM_SELECTION_BACKGROUND,
+	PRISM_SELECTOR_COLOR,
+	PRISM_STRING_COLOR,
+	PRISM_TEXT_COLOR,
+	PRISM_VARIABLE_COLOR,
+	RULER_COLOR,
+} from './colors';
+
+// Adapted from prism-themes@1.9.0/themes/prism-vsc-dark-plus.css to use the
+// Studio palette. Stored as a string for CSS injection (including Browser
+// Studio, which has no CSS loader).
 /*
 The MIT License (MIT)
 
@@ -26,7 +46,7 @@ SOFTWARE.
 */
 export const prismVscDarkPlus = `pre[class*="language-"],
 code[class*="language-"] {
-	color: #d4d4d4;
+	color: ${PRISM_TEXT_COLOR};
 	font-size: 13px;
 	text-shadow: none;
 	font-family: Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace;
@@ -50,7 +70,7 @@ code[class*="language-"]::selection,
 pre[class*="language-"] *::selection,
 code[class*="language-"] *::selection {
 	text-shadow: none;
-	background: #264F78;
+	background: ${PRISM_SELECTION_BACKGROUND};
 }
 
 @media print {
@@ -64,14 +84,14 @@ pre[class*="language-"] {
 	padding: 1em;
 	margin: .5em 0;
 	overflow: auto;
-	background: #1e1e1e;
+	background: ${PRISM_BACKGROUND};
 }
 
 :not(pre) > code[class*="language-"] {
 	padding: .1em .3em;
 	border-radius: .3em;
-	color: #db4c69;
-	background: #1e1e1e;
+	color: ${PRISM_INLINE_COLOR};
+	background: ${PRISM_BACKGROUND};
 }
 /*********************************************************
 * Tokens
@@ -81,22 +101,22 @@ pre[class*="language-"] {
 }
 
 .token.doctype .token.doctype-tag {
-	color: #569CD6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.doctype .token.name {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.comment,
 .token.prolog {
-	color: #6a9955;
+	color: ${PRISM_COMMENT_COLOR};
 }
 
 .token.punctuation,
 .language-html .language-css .token.punctuation,
 .language-html .language-javascript .token.punctuation {
-	color: #d4d4d4;
+	color: ${PRISM_TEXT_COLOR};
 }
 
 .token.property,
@@ -107,7 +127,7 @@ pre[class*="language-"] {
 .token.symbol,
 .token.inserted,
 .token.unit {
-	color: #b5cea8;
+	color: ${PRISM_NUMBER_COLOR};
 }
 
 .token.selector,
@@ -116,7 +136,7 @@ pre[class*="language-"] {
 .token.char,
 .token.builtin,
 .token.deleted {
-	color: #ce9178;
+	color: ${PRISM_STRING_COLOR};
 }
 
 .language-css .token.string.url {
@@ -125,53 +145,53 @@ pre[class*="language-"] {
 
 .token.operator,
 .token.entity {
-	color: #d4d4d4;
+	color: ${PRISM_TEXT_COLOR};
 }
 
 .token.operator.arrow {
-	color: #569CD6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.atrule {
-	color: #ce9178;
+	color: ${PRISM_STRING_COLOR};
 }
 
 .token.atrule .token.rule {
-	color: #c586c0;
+	color: ${PRISM_CONTROL_FLOW_COLOR};
 }
 
 .token.atrule .token.url {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.atrule .token.url .token.function {
-	color: #dcdcaa;
+	color: ${PRISM_FUNCTION_COLOR};
 }
 
 .token.atrule .token.url .token.punctuation {
-	color: #d4d4d4;
+	color: ${PRISM_TEXT_COLOR};
 }
 
 .token.keyword {
-	color: #569CD6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.keyword.module,
 .token.keyword.control-flow {
-	color: #c586c0;
+	color: ${PRISM_CONTROL_FLOW_COLOR};
 }
 
 .token.function,
 .token.function .token.maybe-class-name {
-	color: #dcdcaa;
+	color: ${PRISM_FUNCTION_COLOR};
 }
 
 .token.regex {
-	color: #d16969;
+	color: ${PRISM_REGEX_COLOR};
 }
 
 .token.important {
-	color: #569cd6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.italic {
@@ -179,80 +199,80 @@ pre[class*="language-"] {
 }
 
 .token.constant {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.class-name,
 .token.maybe-class-name {
-	color: #4ec9b0;
+	color: ${PRISM_CLASS_NAME_COLOR};
 }
 
 .token.console {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.parameter {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.interpolation {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.punctuation.interpolation-punctuation {
-	color: #569cd6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.boolean {
-	color: #569cd6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.property,
 .token.variable,
 .token.imports .token.maybe-class-name,
 .token.exports .token.maybe-class-name {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.selector {
-	color: #d7ba7d;
+	color: ${PRISM_SELECTOR_COLOR};
 }
 
 .token.escape {
-	color: #d7ba7d;
+	color: ${PRISM_SELECTOR_COLOR};
 }
 
 .token.tag {
-	color: #569cd6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.tag .token.punctuation {
-	color: #808080;
+	color: ${RULER_COLOR};
 }
 
 .token.cdata {
-	color: #808080;
+	color: ${RULER_COLOR};
 }
 
 .token.attr-name {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 .token.attr-value,
 .token.attr-value .token.punctuation {
-	color: #ce9178;
+	color: ${PRISM_STRING_COLOR};
 }
 
 .token.attr-value .token.punctuation.attr-equals {
-	color: #d4d4d4;
+	color: ${PRISM_TEXT_COLOR};
 }
 
 .token.entity {
-	color: #569cd6;
+	color: ${PRISM_KEYWORD_COLOR};
 }
 
 .token.namespace {
-	color: #4ec9b0;
+	color: ${PRISM_CLASS_NAME_COLOR};
 }
 /*********************************************************
 * Language Specific
@@ -266,25 +286,25 @@ pre[class*="language-typescript"],
 code[class*="language-typescript"],
 pre[class*="language-tsx"],
 code[class*="language-tsx"] {
-	color: #9cdcfe;
+	color: ${PRISM_VARIABLE_COLOR};
 }
 
 pre[class*="language-css"],
 code[class*="language-css"] {
-	color: #ce9178;
+	color: ${PRISM_STRING_COLOR};
 }
 
 pre[class*="language-html"],
 code[class*="language-html"] {
-	color: #d4d4d4;
+	color: ${PRISM_TEXT_COLOR};
 }
 
 .language-regex .token.anchor {
-	color: #dcdcaa;
+	color: ${PRISM_FUNCTION_COLOR};
 }
 
 .language-html .token.punctuation {
-	color: #808080;
+	color: ${RULER_COLOR};
 }
 /*********************************************************
 * Line highlighting
@@ -295,8 +315,8 @@ pre[class*="language-"] > code[class*="language-"] {
 }
 
 .line-highlight.line-highlight {
-	background: #f7ebc6;
-	box-shadow: inset 5px 0 0 #f7d87c;
+	background: ${PRISM_LINE_HIGHLIGHT_BACKGROUND};
+	box-shadow: inset 5px 0 0 ${PRISM_LINE_HIGHLIGHT_BORDER_COLOR};
 	z-index: 0;
 }
 `;

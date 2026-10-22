@@ -22,11 +22,11 @@ Use it for speed streaks, luminous text trails and fast-moving logo smears.
 
 ```tsx twoslash title="MyComp.tsx"
 import {lightTrail} from '@remotion/effects/light-trail';
-import {AbsoluteFill, CanvasImage, staticFile} from 'remotion';
+import {CanvasImage, staticFile} from 'remotion';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <CanvasImage
         src={staticFile('logo.png')}
         width={1280}
@@ -43,7 +43,7 @@ export const MyComp: React.FC = () => {
           }),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

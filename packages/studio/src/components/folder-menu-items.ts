@@ -2,6 +2,7 @@ import type {EditorPickerId} from '@remotion/studio-shared';
 import type {SetStateAction} from 'react';
 import type {ResolvedStackLocation, _InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {copyText} from '../helpers/copy-text';
 import {
 	formatContextForAgents,
 	formatFileLocation,
@@ -87,7 +88,7 @@ export const getFolderMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard.writeText(contextForAgents).catch((err) => {
+				copyText(contextForAgents).catch((err) => {
 					showNotification(
 						`Could not copy to clipboard: ${(err as Error).message}`,
 						1000,
@@ -111,8 +112,7 @@ export const getFolderMenuItems = ({
 					return;
 				}
 
-				navigator.clipboard
-					.writeText(fileLocation)
+				copyText(fileLocation)
 					.then(() => {
 						showNotification('Copied file location to clipboard', 1000);
 					})
@@ -129,12 +129,31 @@ export const getFolderMenuItems = ({
 			value: 'copy-folder-file-location',
 			disabled: copyFileLocationDisabled,
 		},
-		editorName || fileLocation
-			? {
-					type: 'divider' as const,
-					id: 'show-folder-in-editor-divider',
-				}
-			: null,
+		{
+			id: 'copy-folder-id',
+			keyHint: null,
+			label: `Copy ID`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				copyText(folderId)
+					.then(() => {
+						showNotification('Copied to clipboard', 1000);
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not copy to clipboard: ${(err as Error).message}`,
+							1000,
+						);
+					});
+			},
+			quickSwitcherLabel: 'Copy folder ID',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-folder-id',
+			disabled: false,
+		},
+		{type: 'divider' as const, id: 'show-folder-in-editor-divider'},
 		{
 			id: 'new-composition-in-folder',
 			keyHint: null,
@@ -214,35 +233,6 @@ export const getFolderMenuItems = ({
 			type: 'item' as const,
 			value: 'delete-folder',
 			disabled: codemodDisabled,
-		},
-		{
-			type: 'divider' as const,
-			id: 'copy-folder-id-divider',
-		},
-		{
-			id: 'copy-folder-id',
-			keyHint: null,
-			label: `Copy ID`,
-			leftItem: null,
-			onClick: () => {
-				closeMenu();
-				navigator.clipboard
-					.writeText(folderId)
-					.then(() => {
-						showNotification('Copied to clipboard', 1000);
-					})
-					.catch((err) => {
-						showNotification(
-							`Could not copy to clipboard: ${(err as Error).message}`,
-							1000,
-						);
-					});
-			},
-			quickSwitcherLabel: 'Copy folder ID',
-			subMenu: null,
-			type: 'item' as const,
-			value: 'copy-folder-id',
-			disabled: false,
 		},
 	].filter(NoReactInternals.truthy);
 };

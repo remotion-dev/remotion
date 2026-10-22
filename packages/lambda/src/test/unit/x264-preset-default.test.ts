@@ -1,22 +1,24 @@
 import {expect, test} from 'bun:test';
-import type {AwsProvider} from '@remotion/lambda-client';
-import type {
-	ProviderSpecifics,
-	ServerlessPayload,
-	ServerlessStartPayload,
-} from '@remotion/serverless';
-import {ServerlessRoutines, startHandler, VERSION} from '@remotion/serverless';
+import {
+	ServerlessRoutines,
+	type ServerlessPayload,
+	type ServerlessStartPayload,
+} from '@remotion/lambda-client';
 import {NoReactInternals} from 'remotion/no-react';
-import {serverAwsImplementation} from '../../functions/aws-server-implementation';
-import {mockServerImplementation} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {VERSION} from 'remotion/version';
+import {startHandler} from '../../functions/handlers/start';
+import {DEFAULT_X264_PRESET} from '../../functions/helpers/default-x264-preset';
+import {fakeAws, useFakeAws} from '../mocks/fake-aws';
+
+useFakeAws();
 
 const makeStartPayload = ({
 	codec,
 	x264Preset,
-}: Pick<ServerlessStartPayload<AwsProvider>, 'codec' | 'x264Preset'>) => {
+}: Pick<ServerlessStartPayload, 'codec' | 'x264Preset'>) => {
 	return {
 		type: ServerlessRoutines.start,
+		output: {type: 'media'},
 		rendererFunctionName: null,
 		serveUrl: 'https://example.com',
 		composition: 'test-composition',
@@ -32,12 +34,14 @@ const makeStartPayload = ({
 		proResProfile: null,
 		x264Preset,
 		gopSize: null,
+		disableSharedMemoryCapture: false,
 		jpegQuality: 80,
 		maxRetries: 1,
 		privacy: 'public',
 		logLevel: 'error',
 		frameRange: null,
 		outName: null,
+		separateAudioTo: null,
 		timeoutInMilliseconds: 30_000,
 		chromiumOptions: {},
 		scale: 1,
@@ -71,18 +75,15 @@ const makeStartPayload = ({
 		storageClass: null,
 		isProduction: true,
 		sampleRate: 48_000,
-	} satisfies ServerlessStartPayload<AwsProvider>;
+	} satisfies ServerlessStartPayload;
 };
 
 test('resolves the Lambda x264 preset at the runtime boundary', async () => {
-	const launchedPayloads: ServerlessPayload<AwsProvider>[] = [];
-	const providerSpecifics = {
-		...mockImplementation,
-		callFunctionAsync: ({payload}) => {
-			launchedPayloads.push(payload);
-			return Promise.resolve();
-		},
-	} satisfies ProviderSpecifics<AwsProvider>;
+	const launchedPayloads: ServerlessPayload[] = [];
+	fakeAws().callFunctionAsync.mockImplementation(({payload}) => {
+		launchedPayloads.push(payload);
+		return Promise.resolve();
+	});
 
 	for (const payload of [
 		makeStartPayload({codec: 'h264', x264Preset: null}),
@@ -96,8 +97,6 @@ test('resolves the Lambda x264 preset at the runtime boundary', async () => {
 				timeoutInMilliseconds: 120_000,
 				renderId: 'test-render',
 			},
-			providerSpecifics,
-			insideFunctionSpecifics: mockServerImplementation,
 		});
 	}
 
@@ -109,7 +108,7 @@ test('resolves the Lambda x264 preset at the runtime boundary', async () => {
 		return payload;
 	});
 
-	expect(serverAwsImplementation.defaultX264Preset).toBe(
+	expect(DEFAULT_X264_PRESET).toBe(
 		NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? 'veryfast' : null,
 	);
 	expect(launchPayloads[0].x264Preset).toBe(

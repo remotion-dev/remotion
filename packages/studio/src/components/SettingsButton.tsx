@@ -1,6 +1,8 @@
 import React, {useCallback, useContext} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {WARNING_COLOR, WHITE_ALPHA_80} from '../helpers/colors';
+import {canEditStudioConfig} from '../helpers/settings-tab-availability';
 import {GearIcon} from '../icons/gear';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
@@ -12,6 +14,7 @@ export const SettingsButton: React.FC<{
 	readonly showUpdates: boolean;
 }> = ({showUpdates}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {info, knownBugs} = useUpdateStatus();
 	const updateAvailable =
 		showUpdates &&
@@ -19,19 +22,26 @@ export const SettingsButton: React.FC<{
 	const hasBugfixesAvailable =
 		showUpdates &&
 		Boolean(info?.updateAvailable && knownBugs && knownBugs.length > 0);
+	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const canEditConfig = canEditStudioConfig({
+		isBrowserStudio,
+		previewServerConnected: previewServerState.type === 'connected',
+		readOnlyStudio: window.remotion_isReadOnlyStudio,
+	});
 
 	const openModal = useCallback(() => {
 		setSelectedModal({
 			type: 'settings',
+			initialStudioPane: null,
 			initialTab: updateAvailable
 				? 'updates'
-				: getBrowserStudioOperations() === null
+				: canEditConfig
 					? 'studio'
 					: 'shortcuts',
 			initialPublicLicenseKey:
 				window.remotion_renderDefaults?.publicLicenseKey ?? null,
 		});
-	}, [setSelectedModal, updateAvailable]);
+	}, [canEditConfig, setSelectedModal, updateAvailable]);
 
 	const renderGearIcon: RenderInlineAction = useCallback((color) => {
 		return <GearIcon color={color} width={16} height={16} />;
@@ -70,7 +80,6 @@ export const SettingsButton: React.FC<{
 				onClick={openModal}
 				renderAction={updateAvailable ? renderUpdateIcon : renderGearIcon}
 				unhoveredColor={hasBugfixesAvailable ? WARNING_COLOR : WHITE_ALPHA_80}
-				title=""
 				aria-label={label}
 			/>
 		</ActionTooltip>

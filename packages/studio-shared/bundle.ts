@@ -8,6 +8,10 @@ await buildPackage({
 	external: 'dependencies',
 	entrypoints: [
 		{
+			path: 'src/canvas-capture-handoff.ts',
+			target: 'browser',
+		},
+		{
 			path: 'src/index.ts',
 			target: 'browser',
 		},

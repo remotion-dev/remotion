@@ -10,7 +10,7 @@ import type {KeyframeEasing} from './keyframe-easing-presets';
 const KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT = {
 	array: false,
 	asset: false,
-	boolean: false,
+	boolean: true,
 	'remotion-captions': false,
 	color: true,
 	enum: false,
@@ -21,6 +21,8 @@ const KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT = {
 	'rotation-css': true,
 	'rotation-degrees': true,
 	scale: true,
+	'svg-path': true,
+	string: false,
 	'text-content': false,
 	'transform-origin': true,
 	translate: true,

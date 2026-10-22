@@ -1,5 +1,6 @@
 import type {PreviewSize} from 'remotion';
 import {calculateStudioScale} from '../helpers/studio-fit-padding';
+import type {Guide} from '../state/editor-guides';
 import {
 	getCompositionPositionForDrop,
 	type InsertElementDropPosition,
@@ -8,6 +9,7 @@ import type {SelectedOutline} from './selected-outline-geometry';
 import {
 	findSelectedOutlineSnap,
 	getSelectedOutlineSnapTargets,
+	type SelectedOutlineSnapPoint,
 } from './selected-outline-snap';
 
 type Dimensions = {
@@ -23,6 +25,7 @@ type CanvasSize = {
 export type CompositionDropPreview = {
 	readonly compositionDimensions: Dimensions;
 	readonly dropPosition: InsertElementDropPosition;
+	readonly snapPoints: readonly SelectedOutlineSnapPoint[];
 };
 
 export type CompositionDropPreviewBox = {
@@ -36,13 +39,18 @@ export const snapCompositionDropPosition = ({
 	compositionDimensions,
 	destinationDimensions,
 	dropPosition,
+	guides,
 	scale,
 }: {
 	readonly compositionDimensions: Dimensions;
 	readonly destinationDimensions: Dimensions;
 	readonly dropPosition: InsertElementDropPosition;
+	readonly guides: readonly Guide[];
 	readonly scale: number;
-}): InsertElementDropPosition => {
+}): {
+	readonly dropPosition: InsertElementDropPosition;
+	readonly snapPoints: readonly SelectedOutlineSnapPoint[];
+} => {
 	const left = dropPosition.centerX - compositionDimensions.width / 2;
 	const top = dropPosition.centerY - compositionDimensions.height / 2;
 	const right = left + compositionDimensions.width;
@@ -51,6 +59,7 @@ export const snapCompositionDropPosition = ({
 		key: 'composition-drop-preview',
 		dimensions: compositionDimensions,
 		uncroppedPoints: null,
+		path: null,
 		points: [
 			{x: left * scale, y: top * scale},
 			{x: right * scale, y: top * scale},
@@ -68,13 +77,16 @@ export const snapCompositionDropPosition = ({
 		targets: getSelectedOutlineSnapTargets({
 			compositionHeight: destinationDimensions.height,
 			compositionWidth: destinationDimensions.width,
-			guides: [],
+			guides,
 		}),
 	});
 
 	return {
-		centerX: dropPosition.centerX + (snap.snapOffsetX ?? 0),
-		centerY: dropPosition.centerY + (snap.snapOffsetY ?? 0),
+		dropPosition: {
+			centerX: dropPosition.centerX + (snap.snapOffsetX ?? 0),
+			centerY: dropPosition.centerY + (snap.snapOffsetY ?? 0),
+		},
+		snapPoints: snap.activeSnapPoints,
 	};
 };
 

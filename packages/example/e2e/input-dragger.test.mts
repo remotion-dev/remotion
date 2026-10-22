@@ -82,6 +82,11 @@ test.describe('Input dragger', () => {
 
 		await expect
 			.poll(() => fs.readFileSync(rootFile, 'utf-8'))
-			.toBe(originalSource.replace('width={1280}', `width={${draggedWidth}}`));
+			.toBe(
+				originalSource.replace(
+					/(id="AnimatedBarChart"[\s\S]*?)width=\{1280\}/,
+					(_, prefix: string) => `${prefix}width={${draggedWidth}}`,
+				),
+			);
 	});
 });

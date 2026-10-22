@@ -6,7 +6,8 @@ import {
 	optimisticMoveSequenceKeyframes,
 } from '../optimistic-move-keyframe';
 
-const previous: CanUpdateSequencePropsResponse = {
+const previous: CanUpdateSequencePropsResponse<number> = {
+	durationDependentKeyframes: null,
 	canUpdate: true,
 	props: {
 		scale: {
@@ -51,6 +52,7 @@ const previous: CanUpdateSequencePropsResponse = {
 
 test('optimisticMoveSequenceKeyframes moves multiple keyframes in one field', () => {
 	const updated = optimisticMoveSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{fieldKey: 'scale', fromFrame: 0, toFrame: 10},
@@ -77,6 +79,7 @@ test('optimisticMoveSequenceKeyframes moves multiple keyframes in one field', ()
 
 test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyframe', () => {
 	const updated = optimisticMoveSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [{fieldKey: 'scale', fromFrame: 0, toFrame: 30}],
 	});
@@ -100,6 +103,7 @@ test('optimisticMoveSequenceKeyframes resorts when moving past an adjacent keyfr
 
 test('optimisticMoveSequenceKeyframes replaces an existing keyframe', () => {
 	const updated = optimisticMoveSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [{fieldKey: 'scale', fromFrame: 0, toFrame: 20}],
 	});
@@ -139,6 +143,7 @@ test('canMoveKeyframesWithoutCollisions allows moving onto a frame vacated by an
 
 test('optimisticMoveSequenceKeyframes allows moving keyframes before frame 0', () => {
 	const updated = optimisticMoveSequenceKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [{fieldKey: 'scale', fromFrame: 0, toFrame: -12}],
 	});
@@ -161,6 +166,7 @@ test('optimisticMoveSequenceKeyframes allows moving keyframes before frame 0', (
 
 test('optimisticMoveEffectKeyframes moves effect keyframes', () => {
 	const updated = optimisticMoveEffectKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{effectIndex: 0, fieldKey: 'amount', fromFrame: 0, toFrame: 12},
@@ -189,6 +195,7 @@ test('optimisticMoveEffectKeyframes moves effect keyframes', () => {
 
 test('optimisticMoveEffectKeyframes replaces an existing keyframe', () => {
 	const updated = optimisticMoveEffectKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{effectIndex: 0, fieldKey: 'amount', fromFrame: 0, toFrame: 20},
@@ -215,6 +222,7 @@ test('optimisticMoveEffectKeyframes replaces an existing keyframe', () => {
 
 test('optimisticMoveEffectKeyframes allows moving keyframes beyond the sequence range', () => {
 	const updated = optimisticMoveEffectKeyframes({
+		videoConfigValues: null,
 		previous,
 		keyframes: [
 			{effectIndex: 0, fieldKey: 'amount', fromFrame: 20, toFrame: 140},

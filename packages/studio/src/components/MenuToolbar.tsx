@@ -5,17 +5,7 @@ import {canShowUpdates} from '../helpers/can-show-updates';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BACKGROUND, BORDER_BLACK, WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
-import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
-import {
-	useKeyboardShortcutAriaKeyShortcuts,
-	useKeyboardShortcutLabel,
-} from '../helpers/use-keyboard-shortcut-label';
-import {useMenuStructure} from '../helpers/use-menu-structure';
-import {SearchIcon} from '../icons/search';
-import {SetSelectedModalContext} from '../state/modals';
-import {ActionTooltip} from './ActionTooltip';
-import type {RenderInlineAction} from './InlineAction';
-import {InlineAction} from './InlineAction';
+import {useToolbarMenuStructure} from '../helpers/use-menu-structure';
 import {Row} from './layout';
 import {MENU_TOOLBAR_HEIGHT} from './menu-toolbar-height';
 import type {MenuId} from './Menu/MenuItem';
@@ -23,6 +13,11 @@ import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
 import {SettingsButton} from './SettingsButton';
 import {SidebarCollapserControl} from './SidebarCollapserControls';
+import {
+	CompositionToolbarMenuItem,
+	FileToolbarMenuItem,
+	MobileToolbarMenuItem,
+} from './ToolbarMenuItems';
 import {UndoRedoButtons} from './UndoRedoButtons';
 
 const row: React.CSSProperties = {
@@ -64,10 +59,9 @@ const fixedWidthLeft: React.CSSProperties = {
 
 export const MenuToolbar: React.FC<{
 	readonly readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
+}> = React.memo(({readOnlyStudio}) => {
 	const [selected, setSelected] = useState<string | null>(null);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const browserStudioOperations = getBrowserStudioOperations();
 	const canUndoAndRedo =
 		!readOnlyStudio ||
@@ -101,11 +95,10 @@ export const MenuToolbar: React.FC<{
 		setSelected(null);
 	}, []);
 
-	const structure = useMenuStructure(closeMenu, readOnlyStudio, true);
+	const structure = useToolbarMenuStructure(closeMenu, readOnlyStudio);
 
-	const menus = useMemo(() => {
-		return structure.map((s) => s.id);
-	}, [structure]);
+	const menuIdsKey = structure.map((s) => s.id).join('|');
+	const menus = useMemo(() => menuIdsKey.split('|') as MenuId[], [menuIdsKey]);
 
 	const onPreviousMenu = useCallback(() => {
 		setSelected((s) => {
@@ -140,25 +133,6 @@ export const MenuToolbar: React.FC<{
 		e.stopPropagation();
 	}, []);
 
-	const openQuickSwitcher = useCallback(() => {
-		setSelectedModal({
-			type: 'quick-switcher',
-			mode: 'compositions',
-			invocationTimestamp: Date.now(),
-			assetSelection: null,
-			compositionSelection: null,
-		});
-	}, [setSelectedModal]);
-
-	const renderSearchIcon: RenderInlineAction = useCallback((color) => {
-		return <SearchIcon color={color} width={18} height={18} />;
-	}, []);
-
-	const quickSwitcherShortcut = useKeyboardShortcutLabel('quickSwitcher');
-	const quickSwitcherAriaShortcut =
-		useKeyboardShortcutAriaKeyShortcuts('quickSwitcher');
-	const shortcutsDisabled = areKeyboardShortcutsDisabled();
-
 	return (
 		<Row
 			align="center"
@@ -167,42 +141,57 @@ export const MenuToolbar: React.FC<{
 			onPointerDown={onPointerDown}
 		>
 			<div style={fixedWidthLeft}>
-				{mobileLayout ? (
-					<ActionTooltip
-						label="Quick switcher"
-						shortcut={shortcutsDisabled ? null : quickSwitcherShortcut}
-						delay={800}
-						dismissOnClick
-					>
-						<InlineAction
-							variant={null}
-							onClick={openQuickSwitcher}
-							renderAction={renderSearchIcon}
-							aria-label="Quick switcher"
-							aria-keyshortcuts={
-								shortcutsDisabled
-									? undefined
-									: quickSwitcherAriaShortcut || undefined
-							}
-						/>
-					</ActionTooltip>
-				) : (
-					<SidebarCollapserControl side="left" />
-				)}
+				<SidebarCollapserControl side="left" />
 				<div style={menuItems}>
 					{structure.map((s) => {
+						const props = {
+							selected: selected === s.id,
+							onItemSelected: itemClicked,
+							onItemHovered: itemHovered,
+							onItemQuit,
+							onPreviousMenu,
+							onNextMenu,
+						};
+						if (mobileLayout) {
+							return (
+								<MobileToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
+						if (s.id === 'file') {
+							return (
+								<FileToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
+						if (s.id === 'composition') {
+							return (
+								<CompositionToolbarMenuItem
+									key={s.id}
+									{...props}
+									closeMenu={closeMenu}
+									readOnlyStudio={readOnlyStudio}
+								/>
+							);
+						}
+
 						return (
 							<MenuItem
 								key={s.id}
-								selected={selected === s.id}
-								onItemSelected={itemClicked}
-								onItemHovered={itemHovered}
+								{...props}
 								id={s.id}
 								label={s.label}
-								onItemQuit={onItemQuit}
 								menu={s}
-								onPreviousMenu={onPreviousMenu}
-								onNextMenu={onNextMenu}
 								leaveLeftPadding={s.leaveLeftPadding}
 							/>
 						);
@@ -218,4 +207,4 @@ export const MenuToolbar: React.FC<{
 			</div>
 		</Row>
 	);
-};
+});

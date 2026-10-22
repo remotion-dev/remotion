@@ -19,6 +19,10 @@ import {
 	calculateOuter,
 	calculateOuterStyle,
 } from './calculate-scale.js';
+import {
+	CanvasContentContext,
+	CanvasOverlayContext,
+} from './canvas-overlay-context.js';
 import {ErrorBoundary} from './error-boundary.js';
 import {RenderWarningIfBlacklist} from './license-blacklist.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
@@ -185,6 +189,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	);
 
 	const {playerMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	const canvasOverlay = useContext(CanvasOverlayContext);
+	const canvasContentRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		player.emitter.dispatchVolumeChange(mediaVolume);
@@ -334,6 +340,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, [canvasSize, config]);
 
 	const scale = layout?.scale ?? 1;
+	const canvasContent = useMemo(
+		() => ({rootRef: canvasContentRef, scale}),
+		[scale],
+	);
 	const initialScaleIgnored = useRef(false);
 
 	useEffect(() => {
@@ -656,16 +666,19 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				onDoubleClick={doubleClickToFullscreen ? handleDoubleClick : undefined}
 			>
 				<div
+					ref={canvasContentRef}
 					style={containerStyle}
 					className={playerCssClassname(overrideInternalClassName)}
 				>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<Internals.CurrentScaleContext.Provider value={currentScale}>
-								<VideoComponent
-									{...(video?.props ?? {})}
-									{...(inputProps ?? {})}
-								/>
+								<CanvasOverlayContext.Provider value={null}>
+									<VideoComponent
+										{...(video?.props ?? {})}
+										{...(inputProps ?? {})}
+									/>
+								</CanvasOverlayContext.Provider>
 							</Internals.CurrentScaleContext.Provider>
 						</ErrorBoundary>
 					) : null}
@@ -686,6 +699,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					) : null}
 				</div>
 				<RenderWarningIfBlacklist />
+				<CanvasContentContext.Provider value={canvasContent}>
+					{canvasOverlay}
+				</CanvasContentContext.Provider>
 			</div>
 			{shouldShowPoster && posterFillMode === 'player-size' ? (
 				<div

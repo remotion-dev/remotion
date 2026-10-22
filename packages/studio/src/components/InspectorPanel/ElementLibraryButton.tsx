@@ -7,21 +7,12 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {SegmentedButtonSegment} from '../SegmentedButton';
 import {SegmentedButton} from '../SegmentedButton';
 import {useSettings} from '../SettingsContext';
-import {InspectorQuickAction} from './common';
+import {
+	largeInspectorActionIconContainerStyle,
+	largeInspectorActionIconStyle,
+} from './common';
 
 const noElementLibraries = [] as const;
-
-const browseElementsIconStyle: React.CSSProperties = {
-	height: 22,
-	width: 22,
-};
-
-const browseElementsIconContainerStyle: React.CSSProperties = {
-	height: 22,
-	marginLeft: -2,
-	marginRight: -2,
-	width: 22,
-};
 
 const elementLibraryDropdownStyle: React.CSSProperties = {
 	borderRadius: 4,
@@ -35,7 +26,7 @@ const elementLibraryDropdownSegmentStyle: React.CSSProperties = {
 	gap: 8,
 	justifyContent: 'flex-start',
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
-	width: '100%',
+	flex: 1,
 };
 
 const elementLibraryDropdownLabelStyle: React.CSSProperties = {
@@ -47,6 +38,8 @@ const elementLibraryDropdownLabelStyle: React.CSSProperties = {
 	overflow: 'hidden',
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
 };
 
@@ -79,6 +72,15 @@ export const ElementLibraryButton: React.FC = () => {
 			'https://www.remotion.dev/elements',
 		);
 	}, [openElementLibrary]);
+	const openElementLibrarySettings = useCallback(() => {
+		setSelectedModal({
+			type: 'settings',
+			initialStudioPane: 'elements',
+			initialTab: 'studio',
+			initialPublicLicenseKey:
+				window.remotion_renderDefaults?.publicLicenseKey ?? null,
+		});
+	}, [setSelectedModal]);
 
 	const elementLibraryDropdownSegments = useMemo<SegmentedButtonSegment[]>(
 		() => [
@@ -87,14 +89,12 @@ export const ElementLibraryButton: React.FC = () => {
 				buttonId: null,
 				disabled: false,
 				idleColor: LIGHT_TEXT,
-				leaveLeftSpace: false,
-				onOpenChange: null,
 				renderContent: (color) => (
 					<>
-						<span style={browseElementsIconContainerStyle}>
+						<span style={largeInspectorActionIconContainerStyle}>
 							<BrowseElementsIcon
 								color={color}
-								style={browseElementsIconStyle}
+								style={largeInspectorActionIconStyle}
 							/>
 						</span>
 						<span style={elementLibraryDropdownLabelStyle}>
@@ -106,10 +106,11 @@ export const ElementLibraryButton: React.FC = () => {
 					</>
 				),
 				segmentId: 'element-library',
-				selectedId: null,
 				style: elementLibraryDropdownSegmentStyle,
-				title: 'Choose an Element library to browse inside Studio.',
 				tooltipLabel: null,
+				leaveLeftSpace: false,
+				onOpenChange: null,
+				selectedId: null,
 				type: 'menu',
 				values: [
 					{
@@ -142,33 +143,37 @@ export const ElementLibraryButton: React.FC = () => {
 							value: library.url,
 						};
 					}),
+					{
+						id: 'element-library-settings-divider',
+						type: 'divider',
+					},
+					{
+						disabled: false,
+						id: 'manage-element-libraries',
+						keyHint: null,
+						label: 'Add element library...',
+						leftItem: null,
+						onClick: openElementLibrarySettings,
+						quickSwitcherLabel: null,
+						subMenu: null,
+						type: 'item',
+						value: 'manage-element-libraries',
+					},
 				],
 			},
 		],
-		[elementLibraries, openElementLibrary, openElementsLibrary],
+		[
+			elementLibraries,
+			openElementLibrary,
+			openElementLibrarySettings,
+			openElementsLibrary,
+		],
 	);
 
-	if (elementLibraries.length > 0) {
-		return (
-			<SegmentedButton
-				segments={elementLibraryDropdownSegments}
-				style={elementLibraryDropdownStyle}
-				title={null}
-			/>
-		);
-	}
-
 	return (
-		<InspectorQuickAction
-			disabled={false}
-			iconContainerStyle={browseElementsIconContainerStyle}
-			onClick={openElementsLibrary}
-			renderIcon={(color) => (
-				<BrowseElementsIcon color={color} style={browseElementsIconStyle} />
-			)}
-			title="Browse the Remotion Elements library inside Studio."
-		>
-			Browse Elements
-		</InspectorQuickAction>
+		<SegmentedButton
+			segments={elementLibraryDropdownSegments}
+			style={elementLibraryDropdownStyle}
+		/>
 	);
 };

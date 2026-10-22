@@ -1,17 +1,15 @@
 import {
 	forwardRef,
-	useCallback,
 	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
-	type RefObject,
 } from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import {runEffectChain} from '../effects/run-effect-chain.js';
 import {useEffectChainState} from '../effects/use-effect-chain-state.js';
 import {
@@ -22,7 +20,7 @@ import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
 import {
 	backgroundSchema,
-	baseSchema,
+	baseSchemaWithoutPlaybackRate,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -31,6 +29,8 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
+import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -49,7 +49,7 @@ export const canvasImageSchema = {
 		description: 'Source',
 		keyframable: false,
 	},
-	...baseSchema,
+	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
 	...premountSchema,
 	fit: {
@@ -79,6 +79,42 @@ type PendingLoadDelay = {
 	continued: boolean;
 };
 
+const continueImageLoadDelay = (
+	pendingLoadDelayRef: React.MutableRefObject<PendingLoadDelay | null>,
+	setIsLoadPending: React.Dispatch<React.SetStateAction<boolean>>,
+	continueRender: ReturnType<typeof useDelayRender>['continueRender'],
+	{markAsReady}: {readonly markAsReady: boolean},
+) => {
+	const pending = pendingLoadDelayRef.current;
+	if (!pending || pending.continued) {
+		return;
+	}
+
+	pending.continued = true;
+	if (markAsReady) {
+		setIsLoadPending(false);
+	}
+
+	continueRender(pending.handle);
+	pendingLoadDelayRef.current = null;
+};
+
+const setCanvasRef = (
+	setOutputCanvas: React.Dispatch<
+		React.SetStateAction<HTMLCanvasElement | null>
+	>,
+	ref: React.ForwardedRef<HTMLCanvasElement>,
+	canvas: HTMLCanvasElement | null,
+) => {
+	setOutputCanvas(canvas);
+
+	if (typeof ref === 'function') {
+		ref(canvas);
+	} else if (ref) {
+		ref.current = canvas;
+	}
+};
+
 const makeAbortError = () => {
 	if (typeof DOMException !== 'undefined') {
 		return new DOMException('Image loading was aborted', 'AbortError');
@@ -92,9 +128,11 @@ const makeAbortError = () => {
 const loadImage = ({
 	src,
 	signal,
+	crossOrigin,
 }: {
 	readonly src: string;
 	readonly signal: AbortSignal;
+	readonly crossOrigin: CanvasImageProps['crossOrigin'];
 }): Promise<LoadedImage> => {
 	return new Promise((resolve, reject) => {
 		const image = new Image();
@@ -160,7 +198,7 @@ const loadImage = ({
 			return;
 		}
 
-		image.crossOrigin = 'anonymous';
+		image.crossOrigin = crossOrigin || 'anonymous';
 		image.src = src;
 	});
 };
@@ -186,6 +224,7 @@ const waitForNextFrame = ({
 type CanvasImageContentProps = Pick<
 	CanvasImageProps,
 	| 'className'
+	| 'crossOrigin'
 	| 'delayRenderRetries'
 	| 'delayRenderTimeoutInMilliseconds'
 	| 'fit'
@@ -199,8 +238,8 @@ type CanvasImageContentProps = Pick<
 	| 'width'
 > & {
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
-	readonly refForOutline: RefObject<HTMLElement | null> | null;
 } & CanvasImageCanvasProps;
 
 const CanvasImageContent = forwardRef<
@@ -210,10 +249,12 @@ const CanvasImageContent = forwardRef<
 	(
 		{
 			src,
+			crossOrigin,
 			width,
 			height,
 			fit = 'fill',
 			effects,
+			effectsOutputSize,
 			controls,
 			onError,
 			className,
@@ -223,7 +264,6 @@ const CanvasImageContent = forwardRef<
 			maxRetries = 2,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
-			refForOutline,
 			...canvasProps
 		},
 		ref,
@@ -235,10 +275,11 @@ const CanvasImageContent = forwardRef<
 		);
 		const [loadedImage, setLoadedImage] = useState<LoadedImage | null>(null);
 		const actualSrc = usePreload(src);
-		const chainState = useEffectChainState();
+		const chainState = useEffectChainState(effectsOutputSize);
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
 		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
@@ -246,21 +287,15 @@ const CanvasImageContent = forwardRef<
 		const isPremounting = Boolean(sequenceContext?.premounting);
 		const isPostmounting = Boolean(sequenceContext?.postmounting);
 
-		const continuePendingLoadDelay = useCallback(
-			({markAsReady}: {readonly markAsReady: boolean}) => {
-				const pending = pendingLoadDelayRef.current;
-				if (!pending || pending.continued) {
-					return;
-				}
-
-				pending.continued = true;
-				if (markAsReady) {
-					setIsLoadPending(false);
-				}
-
-				continueRender(pending.handle);
-				pendingLoadDelayRef.current = null;
-			},
+		// Bound callbacks keep only these inputs, including after minification.
+		const continuePendingLoadDelay = useMemo(
+			() =>
+				continueImageLoadDelay.bind(
+					null,
+					pendingLoadDelayRef,
+					setIsLoadPending,
+					continueRender,
+				),
 			[continueRender],
 		);
 
@@ -272,20 +307,9 @@ const CanvasImageContent = forwardRef<
 			return document.createElement('canvas');
 		}, []);
 
-		const canvasRef = useCallback(
-			(canvas: HTMLCanvasElement | null) => {
-				setOutputCanvas(canvas);
-				if (refForOutline) {
-					refForOutline.current = canvas;
-				}
-
-				if (typeof ref === 'function') {
-					ref(canvas);
-				} else if (ref) {
-					ref.current = canvas;
-				}
-			},
-			[ref, refForOutline],
+		const canvasRef = useMemo(
+			() => setCanvasRef.bind(null, setOutputCanvas, ref),
+			[ref],
 		);
 
 		useLayoutEffect(() => {
@@ -329,7 +353,7 @@ const CanvasImageContent = forwardRef<
 			};
 
 			const attemptLoad = () => {
-				loadImage({src: actualSrc, signal: controller.signal})
+				loadImage({src: actualSrc, signal: controller.signal, crossOrigin})
 					.then((image) => {
 						if (cancelled) {
 							return;
@@ -379,6 +403,7 @@ const CanvasImageContent = forwardRef<
 			actualSrc,
 			cancelRender,
 			continuePendingLoadDelay,
+			crossOrigin,
 			delayRender,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
@@ -522,10 +547,12 @@ const CanvasImageInner = forwardRef<
 	(
 		{
 			src,
+			crossOrigin,
 			width,
 			height,
 			fit,
 			effects = [],
+			effectsOutputSize,
 			className,
 			style,
 			id,
@@ -537,6 +564,7 @@ const CanvasImageInner = forwardRef<
 			durationInFrames,
 			from,
 			trimBefore,
+			loop,
 			freeze,
 			premountFor,
 			postmountFor,
@@ -552,7 +580,6 @@ const CanvasImageInner = forwardRef<
 			controls,
 			_remotionInternalDocumentationLink,
 			_remotionInternalCropComponentName,
-			outlineRef,
 			...canvasProps
 		},
 		ref,
@@ -560,6 +587,14 @@ const CanvasImageInner = forwardRef<
 		if (!src) {
 			throw new Error('No "src" prop was passed to <CanvasImage>.');
 		}
+
+		const isMedia = useMemo(
+			() => ({
+				type: 'image' as const,
+				src,
+			}),
+			[src],
+		);
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
@@ -576,7 +611,11 @@ const CanvasImageInner = forwardRef<
 			premountingStyle,
 		} = usePremounting({
 			from: from ?? 0,
-			durationInFrames: durationInFrames ?? Infinity,
+			durationInFrames: resolveSequenceDuration({
+				durationInFrames,
+				playbackRate: undefined,
+				loop,
+			}),
 			premountFor: premountFor ?? null,
 			postmountFor: postmountFor ?? null,
 			style: style ?? null,
@@ -594,12 +633,17 @@ const CanvasImageInner = forwardRef<
 		});
 
 		return (
-			<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
+			<Freeze
+				frame={freezeFrame}
+				active={isPremountingOrPostmounting}
+				_remotionInternalIsPremounting={premountingActive}
+			>
 				<Sequence
 					layout="none"
 					from={from ?? 0}
 					trimBefore={trimBefore}
-					durationInFrames={durationInFrames ?? Infinity}
+					loop={loop}
+					durationInFrames={durationInFrames}
 					freeze={freeze}
 					hidden={hidden}
 					showInTimeline={showInTimeline ?? true}
@@ -610,32 +654,36 @@ const CanvasImageInner = forwardRef<
 					}
 					controls={controls}
 					_remotionInternalEffects={memoizedEffectDefinitions}
-					_remotionInternalIsMedia={{type: 'image', src}}
+					_remotionInternalIsMedia={isMedia}
 					_remotionInternalPremountDisplay={effectivePremountFor || null}
 					_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
-					outlineRef={outlineRef ?? actualRef}
 				>
-					<CanvasImageContent
-						ref={actualRef}
-						src={src}
-						width={width}
-						height={height}
-						fit={fit}
-						effects={effects}
-						controls={controls}
-						className={className}
-						style={croppedStyle ?? undefined}
-						id={id}
-						onError={onError}
-						pauseWhenLoading={pauseWhenLoading}
-						maxRetries={maxRetries}
-						delayRenderRetries={delayRenderRetries}
-						delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-						refForOutline={outlineRef ?? null}
-						{...canvasProps}
-					/>
+					<SequenceContent>
+						<CanvasImageContent
+							ref={actualRef}
+							src={src}
+							crossOrigin={crossOrigin}
+							width={width}
+							height={height}
+							fit={fit}
+							effects={effects}
+							effectsOutputSize={effectsOutputSize ?? null}
+							controls={controls}
+							className={className}
+							style={croppedStyle ?? undefined}
+							id={id}
+							onError={onError}
+							pauseWhenLoading={pauseWhenLoading}
+							maxRetries={maxRetries}
+							delayRenderRetries={delayRenderRetries}
+							delayRenderTimeoutInMilliseconds={
+								delayRenderTimeoutInMilliseconds
+							}
+							{...canvasProps}
+						/>
+					</SequenceContent>
 				</Sequence>
 			</Freeze>
 		);

@@ -5,6 +5,7 @@ import {FileIcon} from '../icons/file';
 import {FontFileIcon} from '../icons/font';
 import {PicIcon} from '../icons/frame';
 import {JsonFileIcon} from '../icons/json';
+import {LutFileIcon} from '../icons/lut';
 import {VideoFileIcon} from '../icons/video';
 
 type AssetFileIconProps = SVGProps<SVGSVGElement> & {
@@ -19,6 +20,7 @@ const iconByFileType: Record<
 	font: FontFileIcon,
 	image: PicIcon,
 	json: JsonFileIcon,
+	lut: LutFileIcon,
 	other: FileIcon,
 	txt: FileIcon,
 	video: VideoFileIcon,

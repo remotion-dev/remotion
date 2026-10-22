@@ -12,7 +12,7 @@ test('Studio render defaults keep the startup log level', () => {
 	expect(getRenderDefaults('warn').logLevel).toBe('warn');
 });
 
-test('Element library configuration must be valid', () => {
+test('Element Library configuration must be valid', () => {
 	ConfigInternals.resetConfigOptions();
 
 	expect(() => Config.addElementLibrary({url: '/elements'})).toThrow(
@@ -82,6 +82,7 @@ test('reset config options restores defaults before reloading config', async () 
 	Config.setBufferStateDelayInMilliseconds(200);
 	Config.setAskAIEnabled(false);
 	Config.setAudioLatencyHint('interactive');
+	Config.setPreservePitchOnPlayback(false);
 	Config.setBeepOnFinish(true);
 	Config.setEnableCrossSiteIsolation(true);
 	Config.setInteractivityEnabled(false);
@@ -117,6 +118,7 @@ test('reset config options restores defaults before reloading config', async () 
 		{
 			displayName: 'Example Elements',
 			url: 'https://example.com/elements',
+			captionStylesUrl: null,
 		},
 	]);
 	expect(ConfigInternals.getKeyboardShortcuts()).toEqual({
@@ -138,6 +140,11 @@ test('reset config options restores defaults before reloading config', async () 
 	).toBe('cursor');
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBe(200);
 	expect(BrowserSafeApis.options.askAIOption.getConfigValue()).toBe(false);
+	expect(
+		BrowserSafeApis.options.preservePitchOnPlaybackOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe(false);
 	expect(BrowserSafeApis.options.audioLatencyHintOption.getConfigValue()).toBe(
 		'interactive',
 	);
@@ -213,6 +220,14 @@ test('reset config options restores defaults before reloading config', async () 
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBeNull();
 	expect(BrowserSafeApis.options.askAIOption.getConfigValue()).toBeNull();
 	expect(
+		BrowserSafeApis.options.preservePitchOnPlaybackOption.getConfigValue(),
+	).toBeNull();
+	expect(
+		BrowserSafeApis.options.preservePitchOnPlaybackOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe(true);
+	expect(
 		BrowserSafeApis.options.audioLatencyHintOption.getConfigValue(),
 	).toBeNull();
 	expect(
@@ -276,6 +291,12 @@ test('CLI app flags take precedence over the configured defaults', () => {
 		arguments: ['--goto', '%TARGET_PATH%:%LINE_NUMBER%:%COLUMN_NUMBER%'],
 	});
 	Config.setExperimentalKeepAudioContextAlive(false);
+	Config.setPreservePitchOnPlayback(true);
+	expect(
+		BrowserSafeApis.options.preservePitchOnPlaybackOption.getValue({
+			commandLine: {'preserve-pitch-on-playback': false},
+		}),
+	).toEqual({source: 'cli', value: false});
 
 	expect(
 		BrowserSafeApis.options.experimentalKeepAudioContextAliveOption.getValue({

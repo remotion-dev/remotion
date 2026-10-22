@@ -1,0 +1,80 @@
+---
+image: /generated/articles-docs-effects-lut.png
+slug: /effects/lut
+title: lut()
+sidebar_label: lut()
+crumb: '@remotion/effects'
+---
+
+# lut()<AvailableFrom v="4.0.526" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Applies an inline 3D color lookup table in the `.cube` format.
+
+## Preview
+
+<EffectsDemo type="effects-lut" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {lut} from '@remotion/effects/lut';
+import {Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        lut({
+          content: `
+            TITLE "Warm"
+            LUT_3D_SIZE 2
+            0 0 0
+            1 0.1 0
+            0 0.9 0.1
+            1 0.9 0.1
+            0 0.1 0.8
+            1 0.2 0.7
+            0 0.9 0.8
+            1 0.9 0.8
+          `
+        })
+      ]}
+    />
+  );
+};
+```
+
+## Supported Cube format
+
+`lut()` supports 3D `.cube` files with:
+
+- `LUT_3D_SIZE`, with a size from `2` to `256`
+- `TITLE`
+- `DOMAIN_MIN` and `DOMAIN_MAX`
+- Empty lines and `#` comments
+
+The content must contain the cube of `LUT_3D_SIZE` color rows. 1D LUTs are not supported.
+
+## API
+
+### `content`
+
+The complete `.cube` file as a string. Inline the content in your source code or import it as text using your bundler.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering serverSideRendering player studio hideServers />
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`colorCorrection()`](/docs/effects/color-correction)
+- [`levels()`](/docs/effects/levels)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/lut.ts)

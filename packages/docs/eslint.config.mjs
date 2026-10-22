@@ -10,6 +10,9 @@ export default {
 		'components/**/*.tsx',
 		'standalone/**/*.ts',
 		'standalone/**/*.tsx',
+		'generate-option-docs.ts',
+		'option-description.ts',
+		'option-references.ts',
 	],
 	rules: {
 		...config.rules,

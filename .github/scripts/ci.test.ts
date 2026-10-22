@@ -100,7 +100,6 @@ describe('CI plan generation', () => {
 	test.each([
 		['lambda', 'testlambda'],
 		['nextjs', 'testnextjs'],
-		['browser', 'testwebcodecs'],
 		['browser', 'teste2e'],
 		['webrenderer', 'testwebrenderer'],
 		['webrenderer', 'testbrowserstudio'],

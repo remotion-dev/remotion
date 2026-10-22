@@ -3,29 +3,50 @@ import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {ModelsSettings} from '../components/ModelsSettings';
 import {WHISPER_WEBGPU_PACKAGE} from '../components/Transcription/whisper-webgpu-capability';
 import {VIDEO_MATTING_PACKAGE} from '../components/VideoMatting/video-matting-capability';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
 
 const originalInstalledPackages = window.remotion_installedPackages;
 const originalIsStudio = window.remotion_isStudio;
+const originalIsReadOnlyStudio = window.remotion_isReadOnlyStudio;
 const originalStaticBase = window.remotion_staticBase;
 
 afterEach(() => {
 	cleanup();
 	window.remotion_installedPackages = originalInstalledPackages;
 	window.remotion_isStudio = originalIsStudio;
+	window.remotion_isReadOnlyStudio = originalIsReadOnlyStudio;
 	window.remotion_staticBase = originalStaticBase;
 });
+
+const renderModelsSettings = (previewServerConnected: boolean) => {
+	return render(
+		<StudioServerConnectionCtx.Provider
+			value={{
+				configFileChangeRevision: 0,
+				previewServerState: previewServerConnected
+					? {type: 'connected', clientId: 'test-client'}
+					: {type: 'disconnected'},
+				restartRequired: false,
+				subscribeToEvent: () => () => undefined,
+			}}
+		>
+			<ModelsSettings />
+		</StudioServerConnectionCtx.Provider>,
+	);
+};
 
 test('offers to install missing model packages and loads models in place', async () => {
 	window.remotion_installedPackages = [];
 	window.remotion_isStudio = true;
+	window.remotion_isReadOnlyStudio = false;
 	window.remotion_staticBase = '';
 	const fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(
 		new Response(JSON.stringify({success: true, data: {}})),
 	);
 
 	try {
-		const {getAllByRole, getByRole} = render(<ModelsSettings />);
+		const {getAllByRole, getByRole} = renderModelsSettings(true);
 		expect(getAllByRole('button', {name: 'Install'})).toHaveLength(2);
 
 		fireEvent.click(getAllByRole('button', {name: 'Install'})[0]);
@@ -44,4 +65,19 @@ test('offers to install missing model packages and loads models in place', async
 	} finally {
 		fetchSpy.mockRestore();
 	}
+});
+
+test('does not offer package installation while Studio is detached', () => {
+	window.remotion_installedPackages = [];
+	window.remotion_isStudio = true;
+	window.remotion_isReadOnlyStudio = false;
+
+	const {getAllByText, queryAllByRole} = renderModelsSettings(false);
+
+	expect(queryAllByRole('button', {name: 'Install'})).toHaveLength(0);
+	expect(
+		getAllByText(
+			'Reconnect the Studio server to install this package and manage its models.',
+		),
+	).toHaveLength(2);
 });

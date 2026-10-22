@@ -158,6 +158,61 @@ test('encodingMaxRate', () => {
 	);
 });
 
+describe('encodingMaxRate and encodingBufferSize need videoBitrate for vp8, vp9 and av1', () => {
+	const settings = {
+		videoBitrate: null,
+		encodingMaxRate: '1M',
+		encodingBufferSize: '2M',
+		hardwareAcceleration: 'if-possible' as const,
+		hardwareAccelerated: false,
+	};
+
+	(['vp8', 'vp9', 'av1'] as Codec[]).forEach((codec) =>
+		test(`${codec} without videoBitrate throws`, () =>
+			expect(() =>
+				validateQualitySettings({...settings, crf: null, codec}),
+			).toThrow(
+				`The ${codec} codec needs "videoBitrate" when "encodingMaxRate" or "encodingBufferSize" is set.`,
+			)),
+	);
+
+	test('vp9 with only encodingBufferSize or an explicit crf throws', () => {
+		expect(() =>
+			validateQualitySettings({
+				...settings,
+				crf: null,
+				codec: 'vp9',
+				encodingMaxRate: null,
+			}),
+		).toThrow(/The vp9 codec needs "videoBitrate"/);
+		expect(() =>
+			validateQualitySettings({...settings, crf: 30, codec: 'vp9'}),
+		).toThrow(/The vp9 codec needs "videoBitrate"/);
+	});
+
+	test('vp9 with videoBitrate is allowed', () =>
+		expect(
+			validateQualitySettings({
+				...settings,
+				crf: null,
+				codec: 'vp9',
+				videoBitrate: '1M',
+			}),
+		).toEqual(['-b:v', '1M', '-bufsize', '2M', '-maxrate', '1M']));
+
+	(['h264', 'h265'] as Codec[]).forEach((codec) =>
+		test(`${codec} still caps the crf`, () =>
+			expect(validateQualitySettings({...settings, crf: null, codec})).toEqual([
+				'-crf',
+				String(getDefaultCrfForCodec(codec)),
+				'-bufsize',
+				'2M',
+				'-maxrate',
+				'1M',
+			])),
+	);
+});
+
 describe('crf tests getValidCrfRanges invalid input', () => {
 	// input codec
 	const invalidInputs = ['abc', '', 3, undefined];

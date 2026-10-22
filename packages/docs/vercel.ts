@@ -11,8 +11,12 @@ const browserStudioAssetHeaders = [
 ];
 
 export const config: VercelConfig = {
+	// Vercel extracts these commands before evaluating this file; keep them literal
+	// and the dashboard Install Command in sync. Avoid its preinstalled Bun.
+	installCommand:
+		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
 	buildCommand:
-		'cd .. && timeout 20m bunx turbo run build-docs --no-update-notifier --concurrency=2',
+		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
 		routes.header('/assets/(.*)', browserStudioAssetHeaders),
 		routes.header(
@@ -41,31 +45,101 @@ export const config: VercelConfig = {
 			},
 		]),
 		routes.header('/new(.*)', browserStudioIsolationHeaders),
+		...['/new', '/new/', '/new.html', '/new/index.html'].map((source) =>
+			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
+		),
+		// The Vibe Code editor compiles with the browser bundler, which needs
+		// cross-origin isolation for the editor, its preview iframe and the
+		// compiler worker.
+		routes.header('/experimental_sdk(.*)', browserStudioIsolationHeaders),
+		...[
+			'/experimental_sdk',
+			'/experimental_sdk/',
+			'/experimental_sdk/index.html',
+		].map((source) =>
+			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
+		),
 		routes.header('/convert/assets/(.*)', [
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
 	],
 	redirects: [
-		routes.redirect('/experimental_new', '/new', {permanent: true}),
+		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/studio/creating-elements.md', '/docs/elements.md', {
+			permanent: true,
+		}),
 		routes.redirect(
-			'/elements/guidelines',
-			'/elements/contributing#element-guidelines',
+			'/docs/studio/element-libraries',
+			'/docs/elements/libraries',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect(
+			'/docs/studio/element-libraries.md',
+			'/docs/elements/libraries.md',
 			{permanent: true},
 		),
 		routes.redirect(
-			'/elements/guidelines.md',
-			'/elements/contributing.md#element-guidelines',
+			'/docs/studio-protocol/component-library-integration',
+			'/docs/elements/libraries',
+			{permanent: true},
+		),
+		routes.redirect(
+			'/docs/studio-protocol/component-library-integration.md',
+			'/docs/elements/libraries.md',
+			{permanent: true},
+		),
+		routes.redirect('/docs/reusability', '/docs/composing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/reusability.md', '/docs/composing.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/the-fundamentals', '/docs/idea', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/the-fundamentals.md', '/docs/idea.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview', '/docs/your-first-video', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/preview.md', '/docs/your-first-video.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/order-of-operations', '/docs/timing', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/order-of-operations.md', '/docs/timing.md', {
+			permanent: true,
+		}),
+		routes.redirect('/experimental_new', '/new', {permanent: true}),
+		routes.redirect('/elements/guidelines', '/docs/elements', {
+			permanent: true,
+		}),
+		routes.redirect('/elements/guidelines.md', '/docs/elements.md', {
+			permanent: true,
+		}),
+		routes.redirect('/elements/contributing', '/docs/contributing/elements', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/elements/contributing.md',
+			'/docs/contributing/elements.md',
 			{permanent: true},
 		),
 		routes.redirect(
 			'/elements/submit-an-element',
-			'/elements/contributing#submit-an-element',
+			'/docs/contributing/elements',
 			{permanent: true},
 		),
 		routes.redirect(
 			'/elements/submit-an-element.md',
-			'/elements/contributing.md#submit-an-element',
+			'/docs/contributing/elements.md',
 			{permanent: true},
 		),
 		routes.redirect(
@@ -121,6 +195,9 @@ export const config: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/issues/new/choose',
 			{permanent: false},
 		),
+		routes.redirect('/inbox', 'https://github.com/remotion-dev/inbox/issues', {
+			permanent: false,
+		}),
 		routes.redirect(
 			'/vision',
 			'https://github.com/remotion-dev/remotion/issues/9081',
@@ -135,6 +212,8 @@ export const config: VercelConfig = {
 		routes.redirect('/paths', '/docs/paths', {permanent: false}),
 		routes.redirect('/shapes', '/docs/shapes', {permanent: false}),
 		routes.redirect('/api', '/docs/api', {permanent: false}),
+		routes.redirect('/why', '/docs/why', {permanent: false}),
+		routes.redirect('/options', '/docs/options', {permanent: false}),
 		routes.redirect('/terminology', '/docs/terminology', {permanent: false}),
 		routes.redirect(
 			'/hacktoberfest',
@@ -142,6 +221,12 @@ export const config: VercelConfig = {
 			{permanent: false},
 		),
 		routes.redirect('/motion-blur', '/docs/motion-blur', {permanent: false}),
+		routes.redirect('/docs/motion-blur-guide', '/docs/motion-blur', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/motion-blur-guide.md', '/docs/motion-blur.md', {
+			permanent: true,
+		}),
 		routes.redirect('/noise', '/docs/noise', {permanent: false}),
 		routes.redirect(
 			'/docs/get-audio-duration',
@@ -364,7 +449,10 @@ export const config: VercelConfig = {
 		routes.redirect('/editor-starter', '/docs/editor-starter', {
 			permanent: false,
 		}),
-		routes.redirect('/docs/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/docs/system-prompt', '/system-prompt.txt', {
+			permanent: false,
+		}),
+		routes.redirect('/docs/ai/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/media-parser/', '/docs/media-parser', {
@@ -437,7 +525,7 @@ export const config: VercelConfig = {
 		routes.redirect('/docs/miscellaneous/vercel', '/docs/vercel', {
 			permanent: false,
 		}),
-		routes.redirect('/system-prompt', '/docs/ai/system-prompt', {
+		routes.redirect('/system-prompt', '/system-prompt.txt', {
 			permanent: false,
 		}),
 		routes.redirect('/investors', '/docs/investors', {permanent: false}),
@@ -452,10 +540,14 @@ export const config: VercelConfig = {
 			permanent: true,
 		}),
 		routes.redirect('/terms', '/docs/terms', {permanent: true}),
+		routes.redirect('/terms.pdf', '/docs/terms.pdf', {permanent: true}),
 		routes.redirect('/privacy', '/docs/privacy', {permanent: true}),
+		routes.redirect('/privacy.pdf', '/docs/privacy.pdf', {permanent: true}),
 		routes.redirect('/telemetry', '/docs/telemetry', {permanent: true}),
 		routes.redirect('/dpa', '/docs/dpa', {permanent: true}),
+		routes.redirect('/dpa.pdf', '/docs/dpa.pdf', {permanent: true}),
 		routes.redirect('/dpia', '/docs/dpia', {permanent: true}),
+		routes.redirect('/dpia.pdf', '/docs/dpia.pdf', {permanent: true}),
 		routes.redirect('/docs/license/terms', '/docs/terms', {permanent: true}),
 		routes.redirect('/docs/license/privacy', '/docs/privacy', {
 			permanent: true,

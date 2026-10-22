@@ -18,6 +18,8 @@ afterEach(() => {
 
 let createdAudioContexts = 0;
 let resumeCalls = 0;
+let suspendCalls = 0;
+let pendingResumes: (() => void)[] = [];
 let animationFrameId = 0;
 let animationFrames = new Map<number, FrameRequestCallback>();
 
@@ -52,13 +54,19 @@ class FrozenAudioContext {
 	}
 
 	suspend() {
+		suspendCalls++;
 		this.state = 'suspended';
 		return Promise.resolve();
 	}
 
 	resume() {
 		resumeCalls++;
-		return new Promise<void>(() => undefined);
+		return new Promise<void>((resolve) => {
+			pendingResumes.push(() => {
+				this.state = 'running';
+				resolve();
+			});
+		});
 	}
 
 	getOutputTimestamp() {
@@ -73,24 +81,19 @@ class FrozenAudioContext {
 	}
 }
 
-const sequenceManager = {
-	registerSequence: () => undefined,
-	unregisterSequence: () => undefined,
-	updateSequence: null,
-	sequences: [],
-};
-
 const AudioComposition = () => {
 	return (
-		<Internals.SequenceManager.Provider value={sequenceManager}>
+		<Internals.SequenceManagerProvider>
 			<Html5Audio src="audio.mp3" />
-		</Internals.SequenceManager.Provider>
+		</Internals.SequenceManagerProvider>
 	);
 };
 
 beforeEach(() => {
 	createdAudioContexts = 0;
 	resumeCalls = 0;
+	suspendCalls = 0;
+	pendingResumes = [];
 	animationFrameId = 0;
 	animationFrames = new Map<number, FrameRequestCallback>();
 	globalThis.AudioContext =
@@ -147,12 +150,47 @@ test.serial(
 		expect(resumeCalls).toBe(1);
 		expect(animationFrames.size).toBe(1);
 
+		const suspendsBeforePause = suspendCalls;
 		await act(async () => {
 			playerRef.current?.pause();
 			await Promise.resolve();
 		});
 		expect(playerRef.current?.isPlaying()).toBe(false);
 		expect(animationFrames.size).toBe(0);
+		// A pending native resume must settle before it is safe to suspend.
+		expect(suspendCalls).toBe(suspendsBeforePause);
+		await act(async () => {
+			pendingResumes.shift()!();
+			await Promise.resolve();
+		});
+		expect(suspendCalls).toBe(suspendsBeforePause + 1);
+
+		await act(async () => {
+			playerRef.current?.play();
+			await Promise.resolve();
+		});
+		await act(async () => {
+			playerRef.current?.pause();
+			await Promise.resolve();
+		});
+		await act(async () => {
+			playerRef.current?.play();
+			await Promise.resolve();
+		});
+		// Resume is still called synchronously; a newer Play cancels the
+		// deferred suspension belonging to the preceding Pause.
+		expect(resumeCalls).toBe(3);
+		await act(async () => {
+			pendingResumes.splice(0).forEach((resolve) => resolve());
+			await Promise.resolve();
+		});
+		expect(suspendCalls).toBe(suspendsBeforePause + 1);
+		expect(playerRef.current?.isPlaying()).toBe(true);
+		await act(async () => {
+			playerRef.current?.pause();
+			await Promise.resolve();
+		});
+		expect(suspendCalls).toBe(suspendsBeforePause + 2);
 	},
 );
 

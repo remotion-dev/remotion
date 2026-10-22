@@ -19,7 +19,7 @@ export const CloseUp2Preview = () => {
 			width={3214}
 			height={1690}
 			style={{
-				translate: '1312px -910.1px',
+				translate: '1172px -890.1px',
 				scale: 2.01,
 				rotate: interpolate(
 					frame,
@@ -46,6 +46,7 @@ export const CloseUp2Preview = () => {
 			]}
 		>
 			<AbsoluteFill
+				name="Canvas Capture"
 				style={{
 					width: 3214,
 					height: 1690,
@@ -675,7 +676,7 @@ export const CloseUp2Preview = () => {
 export const CloseUp2 = () => {
 	return (
 		<Composition
-			id="CloseUp2"
+			id="TrimClipBeginning"
 			component={CloseUp2Preview}
 			width={1920}
 			height={1080}

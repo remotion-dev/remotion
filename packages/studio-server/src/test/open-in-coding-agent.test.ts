@@ -18,24 +18,40 @@ import {
 } from '../helpers/coding-agent-registry';
 
 test('constructs macOS coding agent launch commands', () => {
+	const chatGPT = {
+		applicationPath: '/Applications/ChatGPT.app',
+		id: 'codex',
+		launchMode: 'direct',
+		name: 'ChatGPT',
+		nameWithType: 'ChatGPT',
+		platform: 'darwin',
+		terminal: null,
+	} as const;
+
 	expect(
 		getCodingAgentLaunchCommand({
-			codingAgent: {
-				applicationPath: '/Applications/ChatGPT.app',
-				id: 'codex',
-				launchMode: 'direct',
-				name: 'Codex',
-				nameWithType: 'Codex',
-				platform: 'darwin',
-				terminal: null,
-			},
+			codingAgent: chatGPT,
 			projectPath: '/Users/test/My Project',
 		}),
 	).toEqual({
-		command: '/Applications/ChatGPT.app/Contents/Resources/codex',
-		args: ['app', '/Users/test/My Project'],
+		command: 'open',
+		args: ['codex://new?path=%2FUsers%2Ftest%2FMy+Project'],
 		cwd: null,
 	});
+	expect(
+		getCodingAgentLaunchCommands({
+			codingAgent: chatGPT,
+			projectPath: '/Users/test/My Project',
+			prompt: null,
+		}),
+	).toEqual([
+		{
+			command: 'open',
+			args: ['codex://new?path=%2FUsers%2Ftest%2FMy+Project'],
+			cwd: null,
+			waitForExit: false,
+		},
+	]);
 
 	expect(
 		getCodingAgentLaunchCommand({
@@ -181,8 +197,8 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 				applicationPath: '/Applications/ChatGPT.app',
 				id: 'codex',
 				launchMode: 'direct',
-				name: 'Codex',
-				nameWithType: 'Codex',
+				name: 'ChatGPT',
+				nameWithType: 'ChatGPT',
 				platform: 'darwin',
 				terminal: null,
 			},
@@ -279,64 +295,6 @@ test('prefills editable macOS coding agents without submitting to Copilot', () =
 		},
 	]);
 });
-
-test.skipIf(process.platform === 'win32')(
-	'launches the project through the coding agent executable',
-	async () => {
-		const directory = mkdtempSync(
-			path.join(tmpdir(), 'remotion-coding-agent-launch-'),
-		);
-		const applicationPath = path.join(directory, 'ChatGPT.app');
-		const executable = path.join(
-			applicationPath,
-			'Contents',
-			'Resources',
-			'codex',
-		);
-		const output = path.join(path.dirname(executable), 'received.txt');
-		mkdirSync(path.dirname(executable), {recursive: true});
-		writeFileSync(
-			executable,
-			'#!/bin/sh\nprintf "%s\\n" "$@" > "$(dirname "$0")/received.txt"\n',
-		);
-		chmodSync(executable, 0o755);
-
-		try {
-			const success = await launchCodingAgent({
-				codingAgent: {
-					applicationPath,
-					id: 'codex',
-					launchMode: 'direct',
-					name: 'Codex',
-					nameWithType: 'Codex',
-					platform: 'darwin',
-					terminal: null,
-				},
-				logLevel: 'error',
-				projectPath: '/Users/test/My Project',
-				prompt: null,
-			});
-			expect(success).toBe(true);
-
-			const expectedOutput = 'app\n/Users/test/My Project\n';
-			let receivedOutput = '';
-			for (let attempt = 0; attempt < 100; attempt++) {
-				if (existsSync(output)) {
-					receivedOutput = readFileSync(output, 'utf8');
-					if (receivedOutput === expectedOutput) {
-						break;
-					}
-				}
-
-				await Bun.sleep(10);
-			}
-
-			expect(receivedOutput).toBe(expectedOutput);
-		} finally {
-			rmSync(directory, {force: true, recursive: true});
-		}
-	},
-);
 
 test.skipIf(process.platform === 'win32')(
 	'launches a terminal coding agent in the project directory',

@@ -19,6 +19,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {BrowserMediaControlsBehavior} from './browser-mediasession.js';
 import {PlayerEmitterProvider} from './EmitterProvider.js';
 import type {RenderMuteButton} from './MediaVolumeSlider.js';
@@ -68,6 +69,11 @@ export type PlayerProps<
 	readonly spaceKeyToPlayOrPause?: boolean;
 	readonly numberOfSharedAudioTags?: number;
 	readonly playbackRate?: number;
+	/**
+	 * Preserve @remotion/media audio pitch when changing the Player playback rate.
+	 * @default false
+	 */
+	readonly preservePitch?: boolean;
 	readonly renderLoading?: RenderLoading;
 	readonly moveToBeginningWhenEnded?: boolean;
 	readonly className?: string;
@@ -92,6 +98,7 @@ export type PlayerProps<
 	readonly showPlaybackRateControl?: boolean | number[];
 	readonly posterFillMode?: PosterFillMode;
 	readonly bufferStateDelayInMilliseconds?: number;
+	readonly defaultPremountInSeconds?: number;
 	readonly hideControlsWhenPointerDoesntMove?: boolean | number;
 	readonly overflowVisible?: boolean;
 	readonly browserMediaControlsBehavior?: BrowserMediaControlsBehavior;
@@ -123,11 +130,20 @@ export const componentOrNullIfLazy = <Props,>(
 const TimelineSequenceObserverComponent: React.FC<{
 	readonly onTimelineSequenceChange: TimelineSequenceObserver;
 }> = ({onTimelineSequenceChange}) => {
-	const {sequences} = React.useContext(Internals.SequenceManager);
+	const registry = React.useContext(Internals.SequenceRegistryContext);
 
-	useEffect(() => {
-		onTimelineSequenceChange(sequences);
-	}, [onTimelineSequenceChange, sequences]);
+	useLayoutEffect(() => {
+		if (registry === null) {
+			throw new Error(
+				'Timeline sequence observer requires a sequence registry',
+			);
+		}
+
+		const publish = () => onTimelineSequenceChange(registry.getSnapshot());
+		const unsubscribe = registry.subscribe(publish);
+		publish();
+		return unsubscribe;
+	}, [onTimelineSequenceChange, registry]);
 
 	return null;
 };
@@ -152,9 +168,12 @@ const PlayerFn = <
 		doubleClickToFullscreen = false,
 		spaceKeyToPlayOrPause = true,
 		moveToBeginningWhenEnded = true,
-		numberOfSharedAudioTags = 5,
+		numberOfSharedAudioTags = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+			? 0
+			: 5,
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
+		preservePitch = false,
 		renderLoading,
 		className,
 		showPosterWhenUnplayed,
@@ -176,6 +195,7 @@ const PlayerFn = <
 		showPlaybackRateControl = false,
 		posterFillMode = 'player-size',
 		bufferStateDelayInMilliseconds,
+		defaultPremountInSeconds = NoReactInternals.DEFAULT_PREMOUNT_IN_SECONDS,
 		hideControlsWhenPointerDoesntMove = true,
 		overflowVisible = false,
 		renderMuteButton,
@@ -193,6 +213,8 @@ const PlayerFn = <
 	}: PlayerProps<Schema, Props>,
 	ref: RefObject<PlayerRef>,
 ) => {
+	NoReactInternals.validateDefaultPremountInSeconds(defaultPremountInSeconds);
+
 	if (typeof window !== 'undefined') {
 		window.remotion_isPlayer = true;
 	}
@@ -243,6 +265,7 @@ const PlayerFn = <
 	const [frame, setFrame] = useState<Record<string, number>>(() => ({
 		[PLAYER_COMP_ID]: initialFrame ?? 0,
 	}));
+	const seek = Internals.useTimelineSeek(setFrame);
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 	const rootRef = useRef<PlayerRef>(null);
@@ -303,6 +326,12 @@ const PlayerFn = <
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
 			`'controls' must be a boolean or undefined but got '${typeof controls}' instead`,
+		);
+	}
+
+	if (typeof preservePitch !== 'boolean') {
+		throw new TypeError(
+			`'preservePitch' must be a boolean but got '${typeof preservePitch}' instead`,
 		);
 	}
 
@@ -442,7 +471,8 @@ const PlayerFn = <
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
-			setFrame,
+			setFrameWithoutSeek: setFrame,
+			seek,
 			setPlaying: (updater) => {
 				const current = playingStore.store.getSnapshot().playing;
 				const next = typeof updater === 'function' ? updater(current) : updater;
@@ -464,6 +494,7 @@ const PlayerFn = <
 		};
 	}, [
 		bufferingStore,
+		seek,
 		setFrame,
 		frameRef,
 		playingStore,
@@ -501,6 +532,7 @@ const PlayerFn = <
 				<SharedPlayerContexts
 					timelineContext={timelineContextValue}
 					playbackRateContext={playbackRateContextValue}
+					preservePitch={preservePitch}
 					component={component}
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}
@@ -577,19 +609,21 @@ const PlayerFn = <
 		</Internals.IsPlayerContextProvider>
 	);
 
-	if (!onTimelineSequenceChange) {
-		return player;
-	}
-
 	return (
-		<Internals.SequenceRegistrationContext.Provider value>
-			<Internals.SequenceManagerProvider>
-				<TimelineSequenceObserverComponent
-					onTimelineSequenceChange={onTimelineSequenceChange}
-				/>
-				{player}
-			</Internals.SequenceManagerProvider>
-		</Internals.SequenceRegistrationContext.Provider>
+		<Internals.DefaultPremountContext.Provider value={defaultPremountInSeconds}>
+			{onTimelineSequenceChange ? (
+				<Internals.SequenceRegistrationContext.Provider value>
+					<Internals.SequenceManagerProvider>
+						<TimelineSequenceObserverComponent
+							onTimelineSequenceChange={onTimelineSequenceChange}
+						/>
+						{player}
+					</Internals.SequenceManagerProvider>
+				</Internals.SequenceRegistrationContext.Provider>
+			) : (
+				player
+			)}
+		</Internals.DefaultPremountContext.Provider>
 	);
 };
 

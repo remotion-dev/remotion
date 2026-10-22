@@ -1,7 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {getConnectedCompositions} from '../../helpers/get-connected-compositions';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {noop} from '../../helpers/noop';
@@ -11,8 +10,9 @@ import {CompositionOrStillIcon} from '../CompositionOrStillIcon';
 import {ContextMenu} from '../ContextMenu';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
-import {useEditorOpening} from '../use-default-editor-info';
-import {InspectorQuickAction, InspectorSectionHeader} from './common';
+import {useOpenInMenuApps} from '../use-open-in-menu-apps';
+import {CollapsibleInspectorSection} from './CollapsibleInspectorSection';
+import {InspectorQuickAction} from './common';
 
 const compositionIconStyle: React.CSSProperties = {
 	height: 18,
@@ -49,8 +49,12 @@ export const ConnectedCompositionsSection: React.FC<{
 	readonly connectedCompositions: readonly _InternalTypes['AnyComposition'][];
 }> = ({connectedCompositions}) => {
 	return (
-		<>
-			<InspectorSectionHeader>Connected compositions</InspectorSectionHeader>
+		<CollapsibleInspectorSection
+			bodyPaddingBottom={0}
+			collapsible
+			label="Connected compositions"
+			sectionId="connected-compositions"
+		>
 			<div style={compositionListStyle}>
 				{connectedCompositions.map((composition) => (
 					<ConnectedCompositionRow
@@ -59,7 +63,7 @@ export const ConnectedCompositionsSection: React.FC<{
 					/>
 				))}
 			</div>
-		</>
+		</CollapsibleInspectorSection>
 	);
 };
 
@@ -68,11 +72,7 @@ const ConnectedCompositionRow: React.FC<{
 }> = ({composition}) => {
 	const selectComposition = useSelectComposition();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const connectionStatus = useContext(StudioServerConnectionCtx)
-		.previewServerState.type;
-	const {defaultEditorId, defaultEditorName} = useEditorOpening(
-		connectionStatus === 'connected',
-	);
+	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const resolvedLocation = useResolvedStack(composition.stack);
 	const getContextMenuItems = useCallback(
 		() =>
@@ -80,9 +80,8 @@ const ConnectedCompositionRow: React.FC<{
 				closeMenu: noop,
 				composition,
 				connectionStatus,
-				editorId: defaultEditorId,
-				editorName: defaultEditorName,
 				includeCompositionManagementItems: false,
+				openInApps,
 				readOnlyStudio: window.remotion_isReadOnlyStudio,
 				resolvedLocation,
 				setSelectedModal,
@@ -90,8 +89,7 @@ const ConnectedCompositionRow: React.FC<{
 		[
 			composition,
 			connectionStatus,
-			defaultEditorId,
-			defaultEditorName,
+			openInApps,
 			resolvedLocation,
 			setSelectedModal,
 		],
@@ -113,7 +111,12 @@ const ConnectedCompositionRow: React.FC<{
 					/>
 				)}
 			>
-				{composition.id}
+				<span
+					data-annotation-composition-id={composition.id}
+					style={{font: 'inherit'}}
+				>
+					{composition.id}
+				</span>
 			</InspectorQuickAction>
 		</ContextMenu>
 	);

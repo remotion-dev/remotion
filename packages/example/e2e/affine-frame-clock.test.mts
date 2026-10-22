@@ -69,16 +69,18 @@ test.describe('affine frame clock keyframes', () => {
 		);
 
 		const affineFrameClock = page.locator(
-			'[data-timeline-marquee-item][title="Affine frame clock"]',
+			'[data-timeline-marquee-item][aria-label="Affine frame clock"]',
 		);
-		const rotation = page.getByTitle('Rotation', {exact: true}).first();
+		const rotation = page
+			.getByRole('group', {name: 'Rotation', exact: true})
+			.first();
 		await expect(async () => {
 			await affineFrameClock.click();
 			await expect(rotation).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 30_000});
 		await rotation.click();
 		const firstKeyframe = page
-			.getByTitle('Keyframe at frame 0', {exact: true})
+			.getByRole('button', {name: 'Select keyframe at frame 0', exact: true})
 			.last();
 		await expect(firstKeyframe).toBeVisible({timeout: 15_000});
 		await firstKeyframe.click();
@@ -126,7 +128,9 @@ test.describe('affine frame clock keyframes', () => {
 		await currentFrameInput.fill('50');
 		await currentFrameInput.press('Enter');
 
-		const offset = page.getByTitle('Offset', {exact: true}).first();
+		const offset = page
+			.getByRole('group', {name: 'Offset', exact: true})
+			.first();
 		await offset.click();
 		const offsetRow = offset.locator(
 			'xpath=ancestor::div[.//button[@aria-label="Add keyframe"]][1]',

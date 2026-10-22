@@ -1,0 +1,471 @@
+[
+	{
+		"text": "I'm",
+		"startMs": 160,
+		"endMs": 400,
+		"timestampMs": 280,
+		"confidence": null
+	},
+	{
+		"text": " going",
+		"startMs": 400,
+		"endMs": 540,
+		"timestampMs": 470,
+		"confidence": null
+	},
+	{
+		"text": " to",
+		"startMs": 540,
+		"endMs": 540,
+		"timestampMs": 540,
+		"confidence": null
+	},
+	{
+		"text": " try",
+		"startMs": 540,
+		"endMs": 580,
+		"timestampMs": 560,
+		"confidence": null
+	},
+	{
+		"text": " to",
+		"startMs": 580,
+		"endMs": 700,
+		"timestampMs": 640,
+		"confidence": null
+	},
+	{
+		"text": " demonstrate",
+		"startMs": 700,
+		"endMs": 840,
+		"timestampMs": 770,
+		"confidence": null
+	},
+	{
+		"text": " it",
+		"startMs": 840,
+		"endMs": 1380,
+		"timestampMs": 1110,
+		"confidence": null
+	},
+	{
+		"text": " to",
+		"startMs": 1380,
+		"endMs": 1560,
+		"timestampMs": 1470,
+		"confidence": null
+	},
+	{
+		"text": " you.",
+		"startMs": 1560,
+		"endMs": 1560,
+		"timestampMs": 1560,
+		"confidence": null
+	},
+	{
+		"text": " Yeah.",
+		"startMs": 2220,
+		"endMs": 2500,
+		"timestampMs": 2360,
+		"confidence": null
+	},
+	{
+		"text": " Okay,",
+		"startMs": 3640,
+		"endMs": 3720,
+		"timestampMs": 3680,
+		"confidence": null
+	},
+	{
+		"text": " there",
+		"startMs": 3800,
+		"endMs": 3980,
+		"timestampMs": 3890,
+		"confidence": null
+	},
+	{
+		"text": " is",
+		"startMs": 3980,
+		"endMs": 4280,
+		"timestampMs": 4130,
+		"confidence": null
+	},
+	{
+		"text": " one",
+		"startMs": 4280,
+		"endMs": 4700,
+		"timestampMs": 4490,
+		"confidence": null
+	},
+	{
+		"text": " technique",
+		"startMs": 4700,
+		"endMs": 5020,
+		"timestampMs": 4860,
+		"confidence": null
+	},
+	{
+		"text": " with",
+		"startMs": 5020,
+		"endMs": 5260,
+		"timestampMs": 5140,
+		"confidence": null
+	},
+	{
+		"text": " which",
+		"startMs": 5260,
+		"endMs": 5400,
+		"timestampMs": 5330,
+		"confidence": null
+	},
+	{
+		"text": " you",
+		"startMs": 5400,
+		"endMs": 5680,
+		"timestampMs": 5540,
+		"confidence": null
+	},
+	{
+		"text": " can",
+		"startMs": 5680,
+		"endMs": 6340,
+		"timestampMs": 6010,
+		"confidence": null
+	},
+	{
+		"text": " brake.",
+		"startMs": 6340,
+		"endMs": 6960,
+		"timestampMs": 6650,
+		"confidence": null
+	},
+	{
+		"text": " I'm",
+		"startMs": 7140,
+		"endMs": 7320,
+		"timestampMs": 7230,
+		"confidence": null
+	},
+	{
+		"text": " going",
+		"startMs": 7320,
+		"endMs": 7500,
+		"timestampMs": 7410,
+		"confidence": null
+	},
+	{
+		"text": " to",
+		"startMs": 7500,
+		"endMs": 7700,
+		"timestampMs": 7600,
+		"confidence": null
+	},
+	{
+		"text": " try",
+		"startMs": 7700,
+		"endMs": 7840,
+		"timestampMs": 7770,
+		"confidence": null
+	},
+	{
+		"text": " to",
+		"startMs": 7840,
+		"endMs": 8140,
+		"timestampMs": 7990,
+		"confidence": null
+	},
+	{
+		"text": " demonstrate",
+		"startMs": 8140,
+		"endMs": 8500,
+		"timestampMs": 8320,
+		"confidence": null
+	},
+	{
+		"text": " it",
+		"startMs": 8500,
+		"endMs": 8680,
+		"timestampMs": 8590,
+		"confidence": null
+	},
+	{
+		"text": " to",
+		"startMs": 8680,
+		"endMs": 8900,
+		"timestampMs": 8790,
+		"confidence": null
+	},
+	{
+		"text": " you.",
+		"startMs": 8900,
+		"endMs": 9000,
+		"timestampMs": 8950,
+		"confidence": null
+	},
+	{
+		"text": " So",
+		"startMs": 10080,
+		"endMs": 10400,
+		"timestampMs": 10240,
+		"confidence": null
+	},
+	{
+		"text": " essentially",
+		"startMs": 10400,
+		"endMs": 10900,
+		"timestampMs": 10650,
+		"confidence": null
+	},
+	{
+		"text": " you",
+		"startMs": 10900,
+		"endMs": 12380,
+		"timestampMs": 11640,
+		"confidence": null
+	},
+	{
+		"text": " accelerate,",
+		"startMs": 12380,
+		"endMs": 12600,
+		"timestampMs": 12490,
+		"confidence": null
+	},
+	{
+		"text": " you",
+		"startMs": 12600,
+		"endMs": 12860,
+		"timestampMs": 12730,
+		"confidence": null
+	},
+	{
+		"text": " start",
+		"startMs": 12860,
+		"endMs": 13120,
+		"timestampMs": 12990,
+		"confidence": null
+	},
+	{
+		"text": " going",
+		"startMs": 13120,
+		"endMs": 13520,
+		"timestampMs": 13320,
+		"confidence": null
+	},
+	{
+		"text": " downhill,",
+		"startMs": 13520,
+		"endMs": 13700,
+		"timestampMs": 13610,
+		"confidence": null
+	},
+	{
+		"text": " hope",
+		"startMs": 13800,
+		"endMs": 13940,
+		"timestampMs": 13870,
+		"confidence": null
+	},
+	{
+		"text": " it's",
+		"startMs": 13940,
+		"endMs": 14080,
+		"timestampMs": 14010,
+		"confidence": null
+	},
+	{
+		"text": " going",
+		"startMs": 14080,
+		"endMs": 14220,
+		"timestampMs": 14150,
+		"confidence": null
+	},
+	{
+		"text": " to",
+		"startMs": 14220,
+		"endMs": 14220,
+		"timestampMs": 14220,
+		"confidence": null
+	},
+	{
+		"text": " be",
+		"startMs": 14220,
+		"endMs": 14400,
+		"timestampMs": 14310,
+		"confidence": null
+	},
+	{
+		"text": " well.",
+		"startMs": 14400,
+		"endMs": 15000,
+		"timestampMs": 14700,
+		"confidence": null
+	},
+	{
+		"text": " And",
+		"startMs": 16820,
+		"endMs": 17040,
+		"timestampMs": 16930,
+		"confidence": null
+	},
+	{
+		"text": " now",
+		"startMs": 17040,
+		"endMs": 17280,
+		"timestampMs": 17160,
+		"confidence": null
+	},
+	{
+		"text": " you",
+		"startMs": 17280,
+		"endMs": 18100,
+		"timestampMs": 17690,
+		"confidence": null
+	},
+	{
+		"text": " go",
+		"startMs": 18100,
+		"endMs": 18500,
+		"timestampMs": 18300,
+		"confidence": null
+	},
+	{
+		"text": " wide.",
+		"startMs": 18500,
+		"endMs": 19000,
+		"timestampMs": 18750,
+		"confidence": null
+	},
+	{
+		"text": " And",
+		"startMs": 19740,
+		"endMs": 19840,
+		"timestampMs": 19790,
+		"confidence": null
+	},
+	{
+		"text": " if",
+		"startMs": 19840,
+		"endMs": 19940,
+		"timestampMs": 19890,
+		"confidence": null
+	},
+	{
+		"text": " you",
+		"startMs": 19940,
+		"endMs": 20060,
+		"timestampMs": 20000,
+		"confidence": null
+	},
+	{
+		"text": " go",
+		"startMs": 20060,
+		"endMs": 20520,
+		"timestampMs": 20290,
+		"confidence": null
+	},
+	{
+		"text": " wide,",
+		"startMs": 20520,
+		"endMs": 21700,
+		"timestampMs": 21110,
+		"confidence": null
+	},
+	{
+		"text": " you're",
+		"startMs": 22100,
+		"endMs": 22980,
+		"timestampMs": 22540,
+		"confidence": null
+	},
+	{
+		"text": " automatically",
+		"startMs": 22980,
+		"endMs": 23480,
+		"timestampMs": 23230,
+		"confidence": null
+	},
+	{
+		"text": " start",
+		"startMs": 23480,
+		"endMs": 23840,
+		"timestampMs": 23660,
+		"confidence": null
+	},
+	{
+		"text": " braking.",
+		"startMs": 23840,
+		"endMs": 24000,
+		"timestampMs": 23920,
+		"confidence": null
+	},
+	{
+		"text": " Let's",
+		"startMs": 24760,
+		"endMs": 25000,
+		"timestampMs": 24880,
+		"confidence": null
+	},
+	{
+		"text": " try",
+		"startMs": 25000,
+		"endMs": 25340,
+		"timestampMs": 25170,
+		"confidence": null
+	},
+	{
+		"text": " again",
+		"startMs": 25340,
+		"endMs": 27200,
+		"timestampMs": 26270,
+		"confidence": null
+	},
+	{
+		"text": " Tada",
+		"startMs": 41020,
+		"endMs": 41740,
+		"timestampMs": 41380,
+		"confidence": null
+	},
+	{
+		"text": "!!",
+		"startMs": 41740,
+		"endMs": 50940,
+		"timestampMs": 46340,
+		"confidence": null
+	},
+	{
+		"text": " And",
+		"startMs": 53860,
+		"endMs": 54060,
+		"timestampMs": 53960,
+		"confidence": null
+	},
+	{
+		"text": " that's",
+		"startMs": 54060,
+		"endMs": 54280,
+		"timestampMs": 54170,
+		"confidence": null
+	},
+	{
+		"text": " how",
+		"startMs": 54280,
+		"endMs": 54440,
+		"timestampMs": 54360,
+		"confidence": null
+	},
+	{
+		"text": " you",
+		"startMs": 54440,
+		"endMs": 54620,
+		"timestampMs": 54530,
+		"confidence": null
+	},
+	{
+		"text": " brake.",
+		"startMs": 54620,
+		"endMs": 57385,
+		"timestampMs": 56003,
+		"confidence": null
+	}
+]

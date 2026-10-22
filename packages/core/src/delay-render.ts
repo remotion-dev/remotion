@@ -34,6 +34,7 @@ export type DelayRenderScope = {
 	remotion_attempt: number;
 	remotion_delayRenderHandles: number[];
 	remotion_cancelledError?: string;
+	remotion_cancelledErrorObject?: Error;
 };
 
 if (typeof window !== 'undefined') {
@@ -82,10 +83,12 @@ export const delayRenderInternal = ({
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
 	if (environment.isRendering) {
-		const timeoutToUse =
+		const timeoutToUse = Math.max(
+			0,
 			(options?.timeoutInMilliseconds ??
 				scope.remotion_puppeteerTimeout ??
-				defaultTimeout) - 2000;
+				defaultTimeout) - 2000,
+		);
 		const retriesLeft = (options?.retries ?? 0) - (scope.remotion_attempt - 1);
 		scope.remotion_delayRenderTimeouts[handle] = {
 			label: label ?? null,
@@ -105,9 +108,9 @@ export const delayRenderInternal = ({
 
 				// in client-side rendering, don't throw (would be uncaught from setTimeout)
 				if (environment.isClientSideRendering) {
-					scope.remotion_cancelledError = getErrorStackWithMessage(
-						Error(message),
-					);
+					const error = Error(message);
+					scope.remotion_cancelledErrorObject = error;
+					scope.remotion_cancelledError = getErrorStackWithMessage(error);
 				} else {
 					cancelRenderInternal(scope, Error(message));
 				}

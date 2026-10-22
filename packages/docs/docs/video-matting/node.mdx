@@ -1,0 +1,58 @@
+---
+image: /generated/articles-docs-video-matting-node.png
+title: 'Using @remotion/video-matting in Node.js'
+crumb: '@remotion/video-matting'
+---
+
+# Using @remotion/video-matting in Node.js<AvailableFrom v="4.0.528" />
+
+You can use `@remotion/video-matting` in Node.js to separate a local video into an opaque base and a transparent foreground.
+
+Register [`@mediabunny/server`](https://mediabunny.dev/guide/extensions/server) to enable video decoding, VP9 encoding with alpha, and audio processing. A browser or canvas polyfill is not required.
+
+## Installation
+
+<Installation pkg="@remotion/video-matting @huggingface/transformers mediabunny @mediabunny/server" />
+
+## Setup
+
+```ts twoslash title="video-matting-setup.ts"
+import {registerMediabunnyServer} from '@mediabunny/server';
+import {canUseVideoMatting} from '@remotion/video-matting';
+
+registerMediabunnyServer();
+
+const model = 'modnet';
+const support = await canUseVideoMatting({model});
+if (!support.supported) {
+  throw new Error(support.detailedReason);
+}
+
+```
+
+[`separateVideoLayers()`](/docs/video-matting/separate-video-layers) accepts local file paths, `file:` URLs, remote URLs, and `Blob` inputs. Outputs are held in memory by default. Use `outputWritable` to stream large outputs; handle each chunk's `position` because writes are not necessarily append-only.
+
+## Model cache
+
+Model files use the Transformers.js filesystem cache. To choose the directory, set `env.cacheDir` before downloading or loading models:
+
+```ts twoslash title="model-cache.ts"
+import {env} from '@huggingface/transformers';
+import {resolve} from 'node:path';
+
+env.cacheDir = resolve('.cache/video-matting');
+```
+
+[`removeVideoMattingModel()`](/docs/video-matting/remove-video-matting-model) removes cached files. Disposing a loaded model releases its memory and keeps the downloaded files.
+
+## Requirements
+
+A compatible GPU is required. Transformers.js uses ONNX Runtime's native WebGPU provider in Node.js. [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting) runs a tiny inference to check support, including fp16 computation for `ben2-base`.
+
+The native ONNX Runtime dependency does not support Linux arm64. GPU availability also depends on the host and its drivers; a typical serverless environment does not provide a GPU.
+
+## See also
+
+- [`separateVideoLayers()`](/docs/video-matting/separate-video-layers)
+- [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model)
+- [`disposeVideoMattingModel()`](/docs/video-matting/dispose-video-matting-model)

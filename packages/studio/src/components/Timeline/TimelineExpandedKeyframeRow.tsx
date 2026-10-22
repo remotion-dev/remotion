@@ -1,3 +1,4 @@
+import {CanvasInternals} from '@remotion/sdk';
 import React, {useContext} from 'react';
 import {areSequenceNodePathInfosEqual} from '../../helpers/are-sequence-node-path-infos-equal';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
@@ -5,7 +6,6 @@ import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
-import {getTimelineEasingSegments} from './get-timeline-easing-segments';
 import type {getTimelineKeyframes} from './get-timeline-keyframes';
 import {TimelineKeyframeDiamond} from './TimelineKeyframeDiamond';
 import {TimelineKeyframeEasingLine} from './TimelineKeyframeEasingLine';
@@ -15,6 +15,8 @@ import {
 	useTimelineRowHighlightBackground,
 } from './TimelineSelection';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+
+const {getKeyframeSegments} = CanvasInternals;
 
 const rowClipper: React.CSSProperties = {
 	boxSizing: 'border-box',
@@ -53,9 +55,7 @@ const TimelineExpandedKeyframeRowUnmemoized: React.FC<
 			selectedBackground: TIMELINE_EXPANDED_SELECTED_BACKGROUND,
 		},
 	);
-	const easingSegments = canEditEasing
-		? getTimelineEasingSegments(keyframes)
-		: [];
+	const easingSegments = canEditEasing ? getKeyframeSegments(keyframes) : [];
 
 	return (
 		<>

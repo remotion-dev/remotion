@@ -4,6 +4,7 @@ import {
 	continueRender,
 	continueRenderInternal,
 	delayRender,
+	delayRenderInternal,
 } from '../delay-render.js';
 
 describe('Ready Manager tests', () => {
@@ -63,5 +64,36 @@ describe('Ready Manager tests', () => {
 
 		expect(scope.remotion_delayRenderTimeouts[unknownHandle]).toBeDefined();
 		clearTimeout(timeout);
+	});
+
+	test('delayRender timeout cannot be negative', async () => {
+		const scope: DelayRenderScope = {
+			remotion_attempt: 1,
+			remotion_delayRenderHandles: [],
+			remotion_delayRenderTimeouts: {},
+			remotion_puppeteerTimeout: 30_000,
+			remotion_renderReady: true,
+		};
+
+		delayRenderInternal({
+			environment: {
+				isClientSideRendering: true,
+				isPlayer: false,
+				isReadOnlyStudio: false,
+				isRendering: true,
+				isStudio: false,
+			},
+			label: 'Loading data',
+			options: {
+				timeoutInMilliseconds: 1000,
+			},
+			scope,
+		});
+
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		expect(scope.remotion_cancelledError).toContain(
+			'was called but not cleared after 0ms',
+		);
 	});
 });

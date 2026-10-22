@@ -53,6 +53,12 @@ test('installs an Element from a website into a clean Studio project', async ({
 	const temporaryProject = fs.mkdtempSync(
 		path.join(os.tmpdir(), 'remotion-studio-protocol-'),
 	);
+	const installedAsset = path.join(
+		temporaryProject,
+		'public',
+		'protocol-element',
+		'data.bin',
+	);
 	fs.cpSync(path.join(packagesDirectory, 'template-blank'), temporaryProject, {
 		recursive: true,
 	});
@@ -72,6 +78,14 @@ export const MyComposition = () => {
 				width={1280}
 				height={720}
 			/>
+			<Composition
+				id="DirectCanvas"
+				component={DirectCanvas}
+				durationInFrames={60}
+				fps={30}
+				width={1280}
+				height={720}
+			/>
 			<CloseupFolder />
 		</>
 	);
@@ -79,6 +93,10 @@ export const MyComposition = () => {
 
 export const MyComponent = () => {
 	return <AbsoluteFill></AbsoluteFill>;
+};
+
+export const DirectCanvas = () => {
+	return <canvas width={1280} height={720} />;
 };
 `,
 	);
@@ -111,7 +129,7 @@ const CloseupPlaceholder = () => {
 	const externalLibraryUrl = 'https://external-elements.example.com/library';
 	const reloadedExternalLibraryUrl =
 		'https://second-elements.example.com/components';
-	const protocolLibraryUrl = 'https://protocol-catalog.example.com/library';
+	const protocolLibraryUrl = 'https://protocol-library.example.com/library';
 	const configFile = path.join(temporaryProject, 'remotion.config.ts');
 	fs.appendFileSync(
 		configFile,
@@ -156,6 +174,11 @@ const CloseupPlaceholder = () => {
 		path.join(packagesDirectory, 'studio-protocol', 'dist', 'esm', 'index.mjs'),
 		'utf8',
 	);
+	const protocolElementSource = `export const ProtocolElement = ({assetSrc}: {assetSrc: string}) => (
+	<div data-asset={assetSrc}>
+		Installed through protocol
+	</div>
+);`;
 	const senderServer = createServer((request, response) => {
 		if (request.url === '/protocol.js') {
 			response.writeHead(200, {'Content-Type': 'text/javascript'});
@@ -166,21 +189,35 @@ const CloseupPlaceholder = () => {
 		response.writeHead(200, {'Content-Type': 'text/html'});
 		response.end(`<!doctype html>
 			<button id="install">Install in Studio</button>
-			<button id="add-library">Add catalog to Studio</button>
+			<button id="add-library">Add Element Library to Studio</button>
 			<button id="license">Configure license in Studio</button>
 			<p id="environment"></p>
 			<p id="status"></p>
 			<script type="module">
-				import {addElementLibraryToStudio, createElementPayload, installInStudio, isInsideStudio, StudioProtocolInternals} from '/protocol.js';
+				import {addElementLibraryToStudio, createElementPayload, staticFileRef, installInStudio, isInsideStudio, setStudioDragData, StudioProtocolInternals} from '/protocol.js';
 				document.querySelector('#environment').textContent = isInsideStudio() ? 'Inside Remotion Studio' : 'Outside Remotion Studio';
 				const payload = createElementPayload({
 					displayName: 'Protocol Element',
 					slug: 'protocol-element',
-					sourceCode: 'export const ProtocolElement = () => <div>Installed through protocol</div>;',
+					sourceCode: ${JSON.stringify(protocolElementSource)},
 					dependencies: [],
 					dimensions: {width: 640, height: 120},
 					durationInFrames: 30,
+					initialProps: {assetSrc: staticFileRef('protocol-element/data.bin')},
+					assets: [{
+						path: 'protocol-element/data.bin',
+						type: 'base64',
+						data: 'AAEC',
+					}],
 				});
+				const dragHandle = document.createElement('div');
+				dragHandle.id = 'drag-element';
+				dragHandle.draggable = true;
+				dragHandle.textContent = 'Drag into Studio';
+				document.body.appendChild(dragHandle);
+				dragHandle.ondragstart = (event) => {
+					setStudioDragData({dataTransfer: event.dataTransfer, payload});
+				};
 				document.querySelector('#install').onclick = async () => {
 					document.querySelector('#status').textContent = '';
 					const result = await installInStudio({payload});
@@ -190,7 +227,7 @@ const CloseupPlaceholder = () => {
 					document.querySelector('#status').textContent = '';
 					const result = await addElementLibraryToStudio({
 						url: '${protocolLibraryUrl}',
-						displayName: 'Protocol Catalog',
+						displayName: 'Protocol Library',
 					});
 					document.querySelector('#status').textContent = JSON.stringify(result);
 				};
@@ -287,7 +324,13 @@ const CloseupPlaceholder = () => {
 			studioPage.getByRole('button', {name: '45', exact: true}),
 		).toBeVisible();
 
-		await studioPage.locator('[data-sidebar-toggle="right"]').click();
+		const expandRightSidebar = studioPage.getByRole('button', {
+			name: 'Expand right sidebar',
+		});
+		if (await expandRightSidebar.isVisible()) {
+			await expandRightSidebar.click();
+		}
+
 		const browseElements = studioPage.getByRole('button', {
 			name: 'Browse Elements',
 		});
@@ -307,7 +350,7 @@ const CloseupPlaceholder = () => {
 		await officialLibraryItem.click();
 
 		const officialElementsIframe = studioPage.locator(
-			'iframe[title="Remotion Elements library"]',
+			'iframe[aria-label="Remotion Elements library"]',
 		);
 		await expect(officialElementsIframe).toBeVisible();
 		expect(officialLibraryRequests).toEqual([
@@ -330,7 +373,7 @@ const CloseupPlaceholder = () => {
 		).toBeVisible({timeout: 30_000});
 		await externalLibraryItem.click();
 		const elementsIframe = studioPage.locator(
-			`iframe[title="${externalLibraryLabel} library"]`,
+			`iframe[aria-label="${externalLibraryLabel} library"]`,
 		);
 		await expect(elementsIframe).toBeVisible();
 		await expect(elementsIframe).toHaveAttribute(
@@ -343,7 +386,7 @@ const CloseupPlaceholder = () => {
 		]);
 		expect(context.pages()).toHaveLength(2);
 		const elementsFrame = studioPage.frameLocator(
-			`iframe[title="${externalLibraryLabel} library"]`,
+			`iframe[aria-label="${externalLibraryLabel} library"]`,
 		);
 		await expect(
 			elementsFrame.getByText('Inside Remotion Studio', {exact: true}),
@@ -359,6 +402,13 @@ const CloseupPlaceholder = () => {
 			name: 'Install Protocol Element',
 		});
 		await expect(dialog).toBeVisible();
+		await dialog.getByRole('button', {name: 'Cancel'}).click();
+		await expect(dialog).toHaveCount(0);
+		await expect(elementsIframe).toBeVisible();
+		expect(externalLibraryRequests).toHaveLength(1);
+		expect(fs.existsSync(installedAsset)).toBe(false);
+		await installInStudio.click();
+		await expect(dialog).toBeVisible();
 		const currentDestination = dialog.getByRole('button', {
 			name: 'Current composition',
 		});
@@ -366,8 +416,35 @@ const CloseupPlaceholder = () => {
 			name: 'New composition',
 		});
 		await expect(currentDestination).toHaveAttribute('aria-pressed', 'true');
+		let releaseNewCompositionPreflight = () => {};
+		const newCompositionPreflightGate = new Promise<void>((resolve) => {
+			releaseNewCompositionPreflight = resolve;
+		});
+		let newCompositionPreflightIsPending = false;
+		await studioPage.route('**/api/prepare-element-install', async (route) => {
+			const body = route.request().postDataJSON();
+			if (
+				!newCompositionPreflightIsPending &&
+				body.installationName === 'protocol-element' &&
+				body.destination.type === 'new-composition'
+			) {
+				newCompositionPreflightIsPending = true;
+				await newCompositionPreflightGate;
+			}
+
+			await route.continue();
+		});
 		await currentDestination.press('ArrowRight');
 		await expect(newDestination).toHaveAttribute('aria-pressed', 'true');
+		await expect.poll(() => newCompositionPreflightIsPending).toBe(true);
+		await expect(dialog.getByText('Destination', {exact: true})).toBeVisible();
+		const addToControl = dialog.getByText('Add to', {exact: true});
+		const addToPositionWhilePending = (await addToControl.boundingBox())?.y;
+		expect(addToPositionWhilePending).toBeDefined();
+		releaseNewCompositionPreflight();
+		await expect(dialog.getByText('Destination', {exact: true})).toBeVisible();
+		const addToPositionWhenReady = (await addToControl.boundingBox())?.y;
+		expect(addToPositionWhenReady).toBe(addToPositionWhilePending);
 		await newDestination.press('ArrowLeft');
 		await expect(currentDestination).toHaveAttribute('aria-pressed', 'true');
 		await expect(dialog.getByText(senderUrl, {exact: true})).toBeVisible();
@@ -375,9 +452,10 @@ const CloseupPlaceholder = () => {
 		await expect(
 			decoyStudioPage.getByText('Install Protocol Element', {exact: true}),
 		).toHaveCount(0);
-		await expect(elementsIframe).toHaveCount(0);
+		await expect(elementsIframe).toBeVisible();
 		expect(studioProtocolRequests).toEqual([]);
 		await dialog.getByRole('button', {name: /Install/}).click();
+		await expect(elementsIframe).toHaveCount(0);
 		await expect(
 			studioPage
 				.getByRole('group', {name: 'Inspector source location'})
@@ -393,17 +471,16 @@ const CloseupPlaceholder = () => {
 			'protocol-element.element.tsx',
 		);
 		await waitForFile(elementFile);
-		expect(fs.readFileSync(elementFile, 'utf8')).toContain(
-			'export const ProtocolElement',
-		);
+		const installedElementSource = fs.readFileSync(elementFile, 'utf8');
+		expect(installedElementSource).toBe(protocolElementSource);
 		const compositionSource = fs.readFileSync(
 			path.join(temporaryProject, 'src', 'Composition.tsx'),
 			'utf8',
 		);
-		expect(compositionSource).toContain('ProtocolElement');
 		expect(compositionSource).toContain('protocol-element.element');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 		expect(compositionSource).toMatch(
-			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s*\/>\s*<\/Sequence>/,
+			/<Sequence\b(?=[^>]*\bfrom=\{45\})(?=[^>]*\bdurationInFrames=\{30\})[^>]*>\s*<ProtocolElement\s+assetSrc=\{staticFile\(["']protocol-element\/data\.bin["']\)\}\s*\/>\s*<\/Sequence>/,
 		);
 
 		const suppliedSource = fs.readFileSync(elementFile, 'utf8');
@@ -421,6 +498,92 @@ const CloseupPlaceholder = () => {
 		await studioPage.mouse.click(500, 300);
 		const senderPage = await context.newPage();
 		await senderPage.goto(senderUrl);
+
+		const elementDragData = await senderPage
+			.locator('#drag-element')
+			.evaluate((dragHandle) => {
+				const dataTransfer = new DataTransfer();
+				dragHandle.dispatchEvent(
+					new DragEvent('dragstart', {
+						bubbles: true,
+						cancelable: true,
+						dataTransfer,
+					}),
+				);
+				return Array.from(dataTransfer.types, (type) => ({
+					data: dataTransfer.getData(type),
+					type,
+				}));
+			});
+		expect(
+			elementDragData.some(({type}) =>
+				type.startsWith('application/vnd.remotion.drag+json;v=1;type=element'),
+			),
+		).toBe(true);
+
+		await studioPage.bringToFront();
+		const directCanvasInfo = studioPage.waitForResponse(
+			(response) =>
+				new URL(response.url()).pathname ===
+					'/api/composition-component-info' &&
+				response.request().postDataJSON().compositionId === 'DirectCanvas',
+		);
+		await studioPage.getByText('DirectCanvas', {exact: true}).first().click();
+		expect(await (await directCanvasInfo).json()).toMatchObject({
+			data: {canAddSequence: false},
+			success: true,
+		});
+
+		const dropElementOn = async (selector: string) => {
+			await studioPage.locator(selector).evaluate((target, dragData) => {
+				const dataTransfer = new DataTransfer();
+				for (const {data, type} of dragData) {
+					dataTransfer.setData(type, data);
+				}
+
+				for (const type of ['dragover', 'drop']) {
+					target.dispatchEvent(
+						new DragEvent(type, {
+							bubbles: true,
+							cancelable: true,
+							dataTransfer,
+						}),
+					);
+				}
+			}, elementDragData);
+		};
+		const expectNewCompositionFallback = async () => {
+			const fallbackDialog = studioPage.getByRole('dialog', {
+				name: 'Install Protocol Element',
+			});
+			await expect(fallbackDialog).toBeVisible();
+			await expect(
+				fallbackDialog.getByRole('button', {name: 'Current composition'}),
+			).toBeDisabled();
+			await expect(
+				fallbackDialog.getByRole('button', {name: 'New composition'}),
+			).toHaveAttribute('aria-pressed', 'true');
+			await expect(
+				fallbackDialog.getByText(
+					'Studio could not find a safe place in “DirectCanvas” to insert the Element. Install it into a new composition instead.',
+					{exact: true},
+				),
+			).toBeVisible();
+			await expect(
+				fallbackDialog.getByText('Unverified drag-and-drop payload', {
+					exact: true,
+				}),
+			).toBeVisible();
+			await fallbackDialog.getByRole('button', {name: 'Cancel'}).click();
+			await expect(fallbackDialog).toBeHidden();
+		};
+
+		await dropElementOn('.remotion-studio-composition-container');
+		await expectNewCompositionFallback();
+		await dropElementOn('[data-timeline-scrollable="true"]');
+		await expectNewCompositionFallback();
+
+		await studioPage.getByText('MyComp', {exact: true}).first().click();
 		await senderPage.getByRole('button', {name: 'Install in Studio'}).click();
 		await studioPage.bringToFront();
 		const newCompositionDialog = studioPage.getByRole('dialog', {
@@ -445,15 +608,38 @@ const CloseupPlaceholder = () => {
 		await newCompositionDialog
 			.getByRole('button', {name: 'New composition', exact: true})
 			.click();
+		await expect(
+			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
+		).toBeChecked();
+		let releaseCurrentCompositionPreflight = () => {};
+		const currentCompositionPreflightGate = new Promise<void>((resolve) => {
+			releaseCurrentCompositionPreflight = resolve;
+		});
+		let currentCompositionPreflightIsPending = false;
+		await studioPage.route('**/api/prepare-element-install', async (route) => {
+			const body = route.request().postDataJSON();
+			if (
+				!currentCompositionPreflightIsPending &&
+				body.installationName === 'protocol-element' &&
+				body.destination.type === 'current-composition'
+			) {
+				currentCompositionPreflightIsPending = true;
+				await currentCompositionPreflightGate;
+			}
+
+			await route.continue();
+		});
 		await newCompositionDialog
 			.getByRole('button', {name: 'Current composition', exact: true})
 			.click();
+		await expect.poll(() => currentCompositionPreflightIsPending).toBe(true);
 		await expect(
 			newCompositionDialog.getByRole('radio', {name: 'Create a copy'}),
 		).toBeChecked();
 		await expect(
 			newCompositionDialog.getByLabel('Installation name'),
 		).toHaveValue('protocol-element-copy-3');
+		releaseCurrentCompositionPreflight();
 		const independentFile = path.join(
 			temporaryProject,
 			'src',
@@ -470,9 +656,16 @@ const CloseupPlaceholder = () => {
 			await waitForFile(independentFile);
 			await route.fulfill({response});
 		});
+		const destinationRow = newCompositionDialog
+			.getByText('Destination', {exact: true})
+			.locator('..');
+		await expect(destinationRow).toContainText('.element.tsx');
+		const destinationBeforeTyping = await destinationRow.textContent();
+		expect(destinationBeforeTyping).not.toBeNull();
 		await newCompositionDialog
 			.getByLabel('Installation name')
 			.fill('speaker-name');
+		await expect(destinationRow).toHaveText(destinationBeforeTyping!);
 		await expect(
 			newCompositionDialog.getByRole('button', {name: /^Install/}),
 		).toBeEnabled();
@@ -548,7 +741,7 @@ const CloseupPlaceholder = () => {
 		await newCompositionDialog
 			.getByPlaceholder('Composition ID')
 			.fill('ProtocolElementScene');
-		await newCompositionDialog.getByTitle('Folder').click();
+		await newCompositionDialog.getByRole('button', {name: 'Folder'}).click();
 		await studioPage
 			.getByRole('button', {name: 'Closeup', exact: true})
 			.last()
@@ -630,13 +823,22 @@ const CloseupPlaceholder = () => {
 		).toContainText('Protocol Element', {timeout: 30_000});
 
 		await studioPage.getByRole('button', {name: /^Undo/}).click();
+		await expect(studioPage).toHaveURL(`${studioUrl}/MyComp`, {
+			timeout: 30_000,
+		});
+		await expect(studioPage).toHaveTitle(/MyComp/);
 		await expect.poll(() => fs.existsSync(newCompositionFile)).toBe(false);
 		expect(fs.existsSync(newCompositionElementFile)).toBe(false);
 		expect(
 			fs.readFileSync(path.join(closeupDirectory, 'Closeup.tsx'), 'utf8'),
 		).not.toContain('id="ProtocolElementScene"');
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.getByRole('button', {name: /^Redo/}).click();
+		await expect(studioPage).toHaveURL(`${studioUrl}/ProtocolElementScene`, {
+			timeout: 30_000,
+		});
+		await expect(studioPage).toHaveTitle(/ProtocolElementScene/);
 		await expect.poll(() => fs.existsSync(newCompositionFile)).toBe(true);
 		expect(fs.existsSync(newCompositionElementFile)).toBe(true);
 		expect(
@@ -648,6 +850,7 @@ const CloseupPlaceholder = () => {
 		expect(fs.readFileSync(newCompositionElementFile, 'utf8')).toContain(
 			'export const ProtocolElement',
 		);
+		expect(fs.readFileSync(installedAsset)).toEqual(Buffer.from([0, 1, 2]));
 
 		await studioPage.bringToFront();
 		await studioPage.keyboard.press('Escape');
@@ -674,9 +877,9 @@ const CloseupPlaceholder = () => {
 		await senderPage.locator('#status').evaluate((element) => {
 			element.textContent = '';
 		});
-		const configBeforeCatalogConfirmation = fs.readFileSync(configFile, 'utf8');
+		const configBeforeLibraryConfirmation = fs.readFileSync(configFile, 'utf8');
 		await senderPage
-			.getByRole('button', {name: 'Add catalog to Studio'})
+			.getByRole('button', {name: 'Add Element Library to Studio'})
 			.click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
@@ -686,38 +889,37 @@ const CloseupPlaceholder = () => {
 		);
 
 		await studioPage.bringToFront();
-		const addCatalogDialog = studioPage.getByRole('dialog');
+		const addLibraryDialog = studioPage.getByRole('dialog');
 		await expect(
-			addCatalogDialog.getByText('Add Element catalog', {exact: true}),
+			addLibraryDialog.getByText('Add Element Library', {exact: true}),
 		).toBeVisible();
 		await expect(
-			addCatalogDialog.getByText(senderUrl, {exact: true}),
+			addLibraryDialog.getByText(
+				`${senderUrl.replace(/^https?:\/\//, '')} wants to add ${protocolLibraryUrl.replace(/^https?:\/\//, '')} as an Element library to ${path.basename(temporaryProject)}.`,
+				{exact: true},
+			),
 		).toBeVisible();
-		await expect(
-			addCatalogDialog.getByText(protocolLibraryUrl, {exact: true}),
-		).toBeVisible();
-		const catalogDetails = addCatalogDialog.getByLabel('Catalog details');
-		await expect(
-			catalogDetails.getByText('Display name', {exact: true}),
-		).toBeVisible();
-		await expect(
-			catalogDetails.getByText('Protocol Catalog', {exact: true}),
-		).toBeVisible();
-		await expect(decoyStudioPage.getByText('Add Element catalog')).toHaveCount(
+		await expect(decoyStudioPage.getByText('Add Element Library')).toHaveCount(
 			0,
 		);
 		expect(fs.readFileSync(configFile, 'utf8')).toBe(
-			configBeforeCatalogConfirmation,
+			configBeforeLibraryConfirmation,
 		);
-		await addCatalogDialog.getByRole('button', {name: /^Add catalog/}).click();
+		await addLibraryDialog
+			.getByRole('button', {name: /^Add Element Library/})
+			.click();
 		await expect
 			.poll(() => fs.readFileSync(configFile, 'utf8'), {timeout: 30_000})
 			.toContain(protocolLibraryUrl);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await browseElements.click();
 		await expect(
 			studioPage.getByRole('button', {
-				name: 'Protocol Catalog',
+				name: 'Protocol Library',
 				exact: true,
 			}),
 		).toBeVisible({timeout: 30_000});
@@ -727,7 +929,7 @@ const CloseupPlaceholder = () => {
 		await studioPage.mouse.click(500, 300);
 		await senderPage.bringToFront();
 		await senderPage
-			.getByRole('button', {name: 'Add catalog to Studio'})
+			.getByRole('button', {name: 'Add Element Library to Studio'})
 			.click();
 		await senderPage.waitForFunction(
 			() => document.querySelector('#status')?.textContent !== '',
@@ -735,7 +937,7 @@ const CloseupPlaceholder = () => {
 		await studioPage.bringToFront();
 		await studioPage
 			.getByRole('dialog')
-			.getByRole('button', {name: /^Add catalog/})
+			.getByRole('button', {name: /^Add Element Library/})
 			.click();
 		await expect
 			.poll(
@@ -745,6 +947,10 @@ const CloseupPlaceholder = () => {
 				{timeout: 30_000},
 			)
 			.toBe(1);
+		await expect(studioPage.getByLabel('Protocol Library library')).toBeVisible(
+			{timeout: 30_000},
+		);
+		await studioPage.keyboard.press('Escape');
 
 		await studioPage.bringToFront();
 		await studioPage.mouse.click(500, 300);

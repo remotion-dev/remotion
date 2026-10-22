@@ -12,6 +12,7 @@ const cliFlag = 'for-seamless-aac-concatenation' as const;
 
 export const forSeamlessAacConcatenationOption = {
 	name: 'For seamless AAC concatenation',
+	addedIn: '4.0.123',
 	cliFlag,
 	description: () => (
 		<>
@@ -23,7 +24,8 @@ export const forSeamlessAacConcatenationOption = {
 			yet for to concatenate the audio chunks.
 		</>
 	),
-	docLink: 'https://remotion.dev/docs/renderer',
+	docLink:
+		'https://www.remotion.dev/docs/options/for-seamless-aac-concatenation',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag]) {
 			return {

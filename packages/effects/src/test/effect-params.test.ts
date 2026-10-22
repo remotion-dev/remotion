@@ -37,6 +37,7 @@ import {linearProgressiveBlur} from '../linear-progressive-blur/index.js';
 import {linearProgressivePixelate} from '../linear-progressive-pixelate/index.js';
 import {lines} from '../lines.js';
 import {liquidContours, liquidContoursSchema} from '../liquid-contours.js';
+import {lut} from '../lut/index.js';
 import {mirror} from '../mirror.js';
 import {
 	noiseDisplacement,
@@ -98,6 +99,18 @@ const expectDefaultBlueColorArrayControl = (schema: {
 		keyframable: false,
 	});
 };
+
+const IDENTITY_LUT = `TITLE "Identity"
+LUT_3D_SIZE 2
+
+0 0 0
+1 0 0
+0 1 0
+1 1 0
+0 0 1
+1 0 1
+0 1 1
+1 1 1`;
 
 test('public UV coordinates convert to shader UV coordinates', () => {
 	expect(publicUvToShaderUv([0, 0])).toEqual([0, 1]);
@@ -197,6 +210,9 @@ test('@remotion/effects expose documentation links', () => {
 	);
 	expect(liquidContours().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/liquid-contours',
+	);
+	expect(lut({content: IDENTITY_LUT}).definition.documentationLink).toBe(
+		'https://www.remotion.dev/docs/effects/lut',
 	);
 	expect(linearGradient().definition.documentationLink).toBe(
 		'https://www.remotion.dev/docs/effects/linear-gradient',
@@ -338,6 +354,7 @@ test('@remotion/effects expose API names as Studio labels', () => {
 	expect(contrast().definition.label).toBe('contrast()');
 	expect(contourLines().definition.label).toBe('contourLines()');
 	expect(liquidContours().definition.label).toBe('liquidContours()');
+	expect(lut({content: IDENTITY_LUT}).definition.label).toBe('lut()');
 	expect(duotone().definition.label).toBe('duotone()');
 	expect(evolve().definition.label).toBe('evolve()');
 	expect(exposure().definition.label).toBe('exposure()');
@@ -1175,6 +1192,37 @@ test('levels() parameters produce distinct effect keys', () => {
 		new Set([neutral.effectKey, clipped.effectKey, brighterMidtones.effectKey])
 			.size,
 	).toBe(3);
+});
+
+test('lut() accepts valid inline Cube content', () => {
+	expect(() => lut({content: IDENTITY_LUT})).not.toThrow();
+});
+
+test('lut() requires content', () => {
+	expect(() => lut({} as Parameters<typeof lut>[0])).toThrow(
+		'"content" must be a non-empty string, but got undefined',
+	);
+	expect(() => lut({content: ''})).toThrow(
+		'"content" must be a non-empty string, but got ""',
+	);
+});
+
+test('lut() rejects invalid Cube content', () => {
+	expect(() =>
+		lut({
+			content: `LUT_3D_SIZE 2
+0 0 0`,
+		}),
+	).toThrow('expected 8 color rows for LUT_3D_SIZE 2, but got 1');
+});
+
+test('lut() content produces distinct effect keys', () => {
+	const identity = lut({content: IDENTITY_LUT});
+	const warm = lut({
+		content: IDENTITY_LUT.replace('1 1 1', '1 0.8 0.6'),
+	});
+
+	expect(identity.effectKey).not.toBe(warm.effectKey);
 });
 
 test('shadowsHighlights() accepts default params', () => {

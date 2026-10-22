@@ -21,12 +21,17 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {
+	useRuntimeValue,
+	useRuntimeValueSelector,
+} from '../helpers/use-runtime-values';
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
+import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
@@ -36,12 +41,13 @@ import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
-import {sectionHeaderRow, sectionHeaderTitle} from './InspectorPanel/styles';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
 	getBorderRadiusConversionChanges,
 } from './Timeline/border-radius-representation';
+import {requestFocusInspectorField} from './Timeline/focus-inspector-field';
+import {getCurrentFps, getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {
 	getTimelineAssetLinkInfo,
@@ -79,22 +85,9 @@ const container: React.CSSProperties = {
 	fontSize: 12,
 };
 
-const emptyState: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	lineHeight: 1.4,
-	padding: '0 12px',
-};
-
 const plusIcon: React.CSSProperties = {
 	width: 15,
 	height: 15,
-};
-
-const effectsHeaderTitle: React.CSSProperties = {
-	...sectionHeaderTitle,
-	flexShrink: 1,
 };
 
 const borderRadiusToggleIcon: React.CSSProperties = {
@@ -209,7 +202,7 @@ const persistInspectorCollapsedKeys = (keys: ReadonlySet<string>): void => {
 };
 
 type InspectorSectionExpansionOverrides = Readonly<Record<string, boolean>>;
-type AdditionalInspectorSectionId = 'captions';
+type AdditionalInspectorSectionId = 'captions' | 'effects';
 
 const loadInspectorSectionExpansionOverrides =
 	(): InspectorSectionExpansionOverrides => {
@@ -316,6 +309,8 @@ export const InspectorSequenceSection: React.FC<{
 	readonly validatedLocation: CodePosition;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly keyframeDisplayOffset: number;
+	readonly keyframePlaybackRate: number;
+	readonly sequenceFrameOffset: number;
 	readonly renderTransformControls: () => React.ReactNode;
 }> = ({
 	sequence,
@@ -323,15 +318,22 @@ export const InspectorSequenceSection: React.FC<{
 	validatedLocation,
 	nodePathInfo,
 	keyframeDisplayOffset,
+	keyframePlaybackRate,
+	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
-	const {tree, propStatuses, runtimeValues} = useTimelineExpandedTree({
+	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
 		includeSourceControls: true,
 	});
-	const {inspectorRevealRequest, selectedItems} = useTimelineSelection();
+	const {
+		consumeInspectorRevealRequest,
+		inspectorRevealRequest,
+		selectedItems,
+		selectItems,
+	} = useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -350,6 +352,15 @@ export const InspectorSequenceSection: React.FC<{
 		inspectorRevealItemKey === selectedEffectKey
 			? (inspectorRevealRequest?.token ?? null)
 			: null;
+	const captionsInspectorRef = useRef<HTMLDivElement>(null);
+	const onInitialCaptionScrollRef = useRef<(() => void) | null>(null);
+	const handledCaptionSelection = useRef<readonly TimelineSelection[] | null>(
+		null,
+	);
+	const pendingCaptionScroll = useRef<{
+		readonly selection: readonly TimelineSelection[];
+		readonly index: number;
+	} | null>(null);
 	const selectedEffectRowRef = useRef<HTMLDivElement>(null);
 	const scrolledInspectorRevealToken = useRef<number | null>(null);
 	const [collapsedKeys, setCollapsedKeys] = useState<ReadonlySet<string>>(
@@ -374,10 +385,15 @@ export const InspectorSequenceSection: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
-	const mediaSrc = getTimelineAssetSrcFromSchema(
-		sequence.controls,
-		runtimeValues,
+	const selectMediaSrc = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			getTimelineAssetSrcFromSchema(sequence.controls, values),
+		[sequence.controls],
 	);
+	const mediaSrc = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectMediaSrc,
+	});
 	const getSourceAction = useCallback(
 		(src: string): InspectorSourceAction | null => {
 			const linkInfo = getTimelineAssetLinkInfo(src);
@@ -396,7 +412,7 @@ export const InspectorSequenceSection: React.FC<{
 							style={assetSelectorIcon}
 						/>
 					),
-					title: linkInfo.assetPath,
+					'aria-label': linkInfo.assetPath,
 				};
 			}
 
@@ -412,7 +428,7 @@ export const InspectorSequenceSection: React.FC<{
 					),
 					disabled: false,
 					onClick: () => openTimelineAssetLink(linkInfo, selectAsset),
-					title: linkInfo.href,
+					'aria-label': linkInfo.href,
 				};
 			}
 
@@ -453,32 +469,71 @@ export const InspectorSequenceSection: React.FC<{
 		});
 	}, []);
 
-	const {controlRows, effectRows} = useMemo(() => {
+	const isAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId): boolean => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			return sectionExpansionOverrides[expansionKey] ?? true;
+		},
+		[nodePathInfo, sectionExpansionOverrides],
+	);
+	const setAdditionalSectionExpanded = useCallback(
+		(sectionId: AdditionalInspectorSectionId, expanded: boolean) => {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId,
+			});
+			setSectionExpansionOverrides((previous) => {
+				if (previous[expansionKey] === expanded) {
+					return previous;
+				}
+
+				const next = {...previous, [expansionKey]: expanded};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+		},
+		[nodePathInfo],
+	);
+	const toggleAdditionalSection = useCallback(
+		(sectionId: AdditionalInspectorSectionId) => {
+			setAdditionalSectionExpanded(
+				sectionId,
+				!isAdditionalSectionExpanded(sectionId),
+			);
+		},
+		[isAdditionalSectionExpanded, setAdditionalSectionExpanded],
+	);
+	const effectsExpanded = isAdditionalSectionExpanded('effects');
+	const {controlRows, effectRows, hasEffects} = useMemo(() => {
 		const controlNodes: TimelineTreeNode[] = [];
-		let effectsRoot: TimelineTreeNode | null = null;
+		let root: Extract<TimelineTreeNode, {kind: 'group'}> | null = null;
 
 		for (const node of tree) {
 			if (isEffectsRoot(node)) {
-				effectsRoot = node;
+				root = node;
 			} else {
 				controlNodes.push(node);
 			}
 		}
 
 		return {
+			hasEffects: root !== null && root.children.length > 0,
 			controlRows: flattenVisibleTreeNodes({
 				nodes: controlNodes,
 				getIsExpanded,
 			}),
 			effectRows:
-				effectsRoot === null
+				root === null || !effectsExpanded
 					? []
 					: flattenVisibleTreeNodes({
-							nodes: effectsRoot.children,
+							nodes: root.children,
 							getIsExpanded,
 						}),
 		};
-	}, [getIsExpanded, tree]);
+	}, [effectsExpanded, getIsExpanded, tree]);
 
 	useEffect(() => {
 		if (
@@ -504,6 +559,7 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
+		setAdditionalSectionExpanded('effects', true);
 		const parentKeys: string[] = [];
 		let {depth} = rows[targetIndex];
 		for (let i = targetIndex - 1; i >= 0 && depth > 0; i--) {
@@ -526,7 +582,12 @@ export const InspectorSequenceSection: React.FC<{
 			persistInspectorCollapsedKeys(next);
 			return next;
 		});
-	}, [inspectorRevealToken, selectedEffectKey, tree]);
+	}, [
+		inspectorRevealToken,
+		selectedEffectKey,
+		setAdditionalSectionExpanded,
+		tree,
+	]);
 
 	useEffect(() => {
 		if (inspectorRevealToken === null) {
@@ -560,20 +621,26 @@ export const InspectorSequenceSection: React.FC<{
 		propStatuses,
 		nodePathInfo.sequenceSubscriptionKey,
 	);
-	const automaticallyEnabled3DTransform = useMemo(() => {
-		return [
-			'style.translate',
-			'style.scale',
-			'style.rotate',
-			'style.transformOrigin',
-		].some((fieldKey) =>
-			propStatusHas3DTransformValue({
-				fieldKey,
-				propStatus: sequencePropStatuses?.[fieldKey],
-				runtimeValue: runtimeValues[fieldKey],
-			}),
-		);
-	}, [runtimeValues, sequencePropStatuses]);
+	const selectAutomaticallyEnabled3DTransform = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			[
+				'style.translate',
+				'style.scale',
+				'style.rotate',
+				'style.transformOrigin',
+			].some((fieldKey) =>
+				propStatusHas3DTransformValue({
+					fieldKey,
+					propStatus: sequencePropStatuses?.[fieldKey],
+					runtimeValue: values[fieldKey],
+				}),
+			),
+		[sequencePropStatuses],
+	);
+	const automaticallyEnabled3DTransform = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectAutomaticallyEnabled3DTransform,
+	});
 	const show3DTransformControls =
 		automaticallyEnabled3DTransform || manuallyEnabled3DTransform;
 	const onToggle3DTransform = useCallback(() => {
@@ -652,6 +719,64 @@ export const InspectorSequenceSection: React.FC<{
 			sectionExpansionOverrides,
 		],
 	);
+	useEffect(() => {
+		if (
+			readOnlyStudio ||
+			!isStudioInteractivityEnabled() ||
+			inspectorRevealRequest?.item.type !== 'sequence-prop' ||
+			inspectorRevealRequest.item.key !== 'children' ||
+			selectedItems.length !== 1 ||
+			getTimelineSelectionKey(selectedItems[0]) !==
+				getTimelineSelectionKey(inspectorRevealRequest.item) ||
+			getTimelineSequenceSelectionKey(
+				inspectorRevealRequest.item.nodePathInfo,
+			) !== sequenceKey
+		) {
+			return;
+		}
+
+		const group = controlGroups.find((candidate) =>
+			candidate.rows.some(
+				({node}) => node.kind === 'field' && node.field?.key === 'children',
+			),
+		);
+		if (!group) {
+			return;
+		}
+
+		if (!isControlGroupExpanded(group)) {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId: group.id,
+			});
+			setSectionExpansionOverrides((previous) => {
+				const next = {...previous, [expansionKey]: true};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+			return;
+		}
+
+		// Ref registration happens during commit, including when expanding Text
+		// mounted the textarea. Consume the request so later remounts do not focus it.
+		if (
+			requestFocusInspectorField({
+				fieldKey: 'children',
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+			})
+		) {
+			consumeInspectorRevealRequest(inspectorRevealRequest.token);
+		}
+	}, [
+		consumeInspectorRevealRequest,
+		controlGroups,
+		inspectorRevealRequest,
+		isControlGroupExpanded,
+		nodePathInfo,
+		readOnlyStudio,
+		selectedItems,
+		sequenceKey,
+	]);
 	const toggleControlGroup = useCallback(
 		(group: InspectorControlGroup) => {
 			const expansionKey = getInspectorSectionExpansionKey({
@@ -666,31 +791,6 @@ export const InspectorSequenceSection: React.FC<{
 			});
 		},
 		[isControlGroupExpanded, nodePathInfo],
-	);
-	const isAdditionalSectionExpanded = useCallback(
-		(sectionId: AdditionalInspectorSectionId): boolean => {
-			const expansionKey = getInspectorSectionExpansionKey({
-				nodePathInfo,
-				sectionId,
-			});
-			return sectionExpansionOverrides[expansionKey] ?? true;
-		},
-		[nodePathInfo, sectionExpansionOverrides],
-	);
-	const toggleAdditionalSection = useCallback(
-		(sectionId: AdditionalInspectorSectionId) => {
-			const expansionKey = getInspectorSectionExpansionKey({
-				nodePathInfo,
-				sectionId,
-			});
-			const nextExpanded = !isAdditionalSectionExpanded(sectionId);
-			setSectionExpansionOverrides((previous) => {
-				const next = {...previous, [expansionKey]: nextExpanded};
-				persistInspectorSectionExpansionOverrides(next);
-				return next;
-			});
-		},
-		[isAdditionalSectionExpanded, nodePathInfo],
 	);
 	const captionsExpanded = isAdditionalSectionExpanded('captions');
 	const visibleControlRows = controlGroups.flatMap((group) => {
@@ -718,13 +818,106 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
-	const inlineCaptions = hasCaptionsSchema
-		? Array.isArray(runtimeValues.captions)
-			? (runtimeValues.captions as Caption[])
-			: []
-		: null;
-	const showEffectsSection =
-		nodePathInfo.supportsEffects || effectRows.length > 0;
+	const runtimeCaptions = useRuntimeValue(
+		hasCaptionsSchema ? sequence.controls : null,
+		'captions',
+	);
+	const inlineCaptions = useMemo(
+		() =>
+			hasCaptionsSchema
+				? Array.isArray(runtimeCaptions)
+					? (runtimeCaptions as Caption[])
+					: []
+				: null,
+		[hasCaptionsSchema, runtimeCaptions],
+	);
+	const {
+		getCurrentFrame: getCommittedSequenceFrame,
+		frozenFrame: sequenceFrozenFrame,
+		from: sequenceFrom,
+		sequencePlaybackRate,
+	} = sequence;
+	const getSequenceFrame = useCallback(
+		() =>
+			getCommittedSequenceFrame?.() ??
+			sequenceFrozenFrame ??
+			(getCurrentFrame() - sequenceFrom) * sequencePlaybackRate +
+				sequenceFrameOffset,
+		[
+			getCommittedSequenceFrame,
+			sequenceFrozenFrame,
+			sequenceFrom,
+			sequencePlaybackRate,
+			sequenceFrameOffset,
+		],
+	);
+	useEffect(() => {
+		if (handledCaptionSelection.current === selectedItems) {
+			return;
+		}
+
+		pendingCaptionScroll.current = null;
+		if (
+			selectedItems.length !== 1 ||
+			selectedItems[0].type !== 'sequence' ||
+			getTimelineSequenceSelectionKey(selectedItems[0].nodePathInfo) !==
+				sequenceKey ||
+			inlineCaptions === null
+		) {
+			handledCaptionSelection.current = selectedItems;
+			return;
+		}
+
+		if (inlineCaptions.length === 0) {
+			return;
+		}
+
+		handledCaptionSelection.current = selectedItems;
+		const timeMs = (getSequenceFrame() / getCurrentFps()) * 1000;
+		const index = inlineCaptions.findIndex(
+			(caption) => caption.startMs <= timeMs && caption.endMs > timeMs,
+		);
+		if (index === -1) {
+			return;
+		}
+
+		pendingCaptionScroll.current = {selection: selectedItems, index};
+		setAdditionalSectionExpanded('captions', true);
+	}, [
+		getSequenceFrame,
+		inlineCaptions,
+		selectedItems,
+		sequenceKey,
+		setAdditionalSectionExpanded,
+	]);
+
+	const revealPendingCaption = useCallback(() => {
+		const pending = pendingCaptionScroll.current;
+		if (
+			!captionsExpanded ||
+			pending === null ||
+			pending.selection !== selectedItems
+		) {
+			return;
+		}
+
+		const input = captionsInspectorRef.current?.querySelector<HTMLInputElement>(
+			`[data-caption-index="${pending.index}"]`,
+		);
+		if (!input) {
+			return;
+		}
+
+		input.scrollIntoView({block: 'center'});
+		onInitialCaptionScrollRef.current?.();
+		pendingCaptionScroll.current = null;
+	}, [captionsExpanded, selectedItems]);
+
+	useEffect(() => {
+		revealPendingCaption();
+	}, [inlineCaptions, revealPendingCaption]);
+
+	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
 	const canAddEffect =
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
@@ -736,17 +929,22 @@ export const InspectorSequenceSection: React.FC<{
 			return;
 		}
 
+		setAdditionalSectionExpanded('effects', true);
+
 		setSelectedModal({
 			type: 'add-effect',
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
-			nodePath: nodePathInfo.sequenceSubscriptionKey,
+			nodePathInfo,
+			selectItems,
 		});
 	}, [
 		canAddEffect,
-		nodePathInfo.sequenceSubscriptionKey,
+		nodePathInfo,
 		previewServerState,
+		setAdditionalSectionExpanded,
 		setSelectedModal,
+		selectItems,
 		validatedLocation.source,
 	]);
 
@@ -786,64 +984,88 @@ export const InspectorSequenceSection: React.FC<{
 		validatedLocation.source,
 	]);
 
+	const borderRadiusActionLabel =
+		borderRadiusConversion === null
+			? borderRadiusUsesShorthand
+				? 'A static border radius is required to use individual corners'
+				: 'All four corners must have the same static value'
+			: borderRadiusUsesShorthand
+				? 'Use individual corner radii'
+				: 'Use one border radius value';
 	const borderRadiusAction = borderRadiusGroup ? (
-		<InlineAction
-			variant={null}
-			disabled={
-				borderRadiusConversion === null ||
-				previewServerState.type !== 'connected'
-			}
-			onClick={onConvertBorderRadius}
-			title={
-				borderRadiusConversion === null
-					? borderRadiusUsesShorthand
-						? 'A static border radius is required to use individual corners'
-						: 'All four corners must have the same static value'
-					: borderRadiusUsesShorthand
-						? 'Use individual corner radii'
-						: 'Use one border radius value'
-			}
-			renderAction={(color) =>
-				borderRadiusUsesShorthand ? (
-					<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
-				) : (
-					<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
-				)
-			}
-		/>
+		<ActionTooltip
+			label={borderRadiusActionLabel}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineAction
+				variant={null}
+				disabled={
+					borderRadiusConversion === null ||
+					previewServerState.type !== 'connected'
+				}
+				onClick={onConvertBorderRadius}
+				aria-label={borderRadiusActionLabel}
+				renderAction={(color) =>
+					borderRadiusUsesShorthand ? (
+						<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
+					) : (
+						<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
+					)
+				}
+			/>
+		</ActionTooltip>
 	) : null;
 
+	const transform3DActionLabel = automaticallyEnabled3DTransform
+		? '3D controls are required by the current transform values'
+		: show3DTransformControls
+			? 'Hide 3D controls'
+			: 'Show 3D controls';
 	const transform3DAction = (
-		<InlineAction
-			variant={null}
-			disabled={automaticallyEnabled3DTransform}
-			onClick={onToggle3DTransform}
-			title={
-				automaticallyEnabled3DTransform
-					? '3D controls are required by the current transform values'
-					: show3DTransformControls
-						? 'Hide 3D transform controls'
-						: 'Show 3D transform controls'
-			}
-			hoveredColor={show3DTransformControls ? BLUE : undefined}
-			unhoveredColor={show3DTransformControls ? BLUE : LIGHT_TEXT}
-			renderAction={(color) => (
-				<CubeIcon color={color} style={transform3DToggleIcon} />
-			)}
-		/>
+		<ActionTooltip
+			label={transform3DActionLabel}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
+			<InlineAction
+				variant={null}
+				disabled={automaticallyEnabled3DTransform}
+				onClick={onToggle3DTransform}
+				aria-label={transform3DActionLabel}
+				hoveredColor={show3DTransformControls ? BLUE : undefined}
+				unhoveredColor={show3DTransformControls ? BLUE : LIGHT_TEXT}
+				renderAction={(color) => (
+					<CubeIcon color={color} style={transform3DToggleIcon} />
+				)}
+			/>
+		</ActionTooltip>
 	);
 
 	const effectsHeader = (
-		<div style={sectionHeaderRow}>
-			<div style={effectsHeaderTitle}>Effects</div>
-			<InlineAction
-				variant={null}
-				disabled={!canAddEffect}
-				onClick={onAddEffect}
-				title={canAddEffect ? 'Add effect' : undefined}
-				renderAction={(color) => <Plus color={color} style={plusIcon} />}
-			/>
-		</div>
+		<CollapsibleInspectorSectionHeader
+			action={
+				<ActionTooltip
+					label="Add effect"
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+				>
+					<InlineAction
+						variant={null}
+						disabled={!canAddEffect}
+						onClick={onAddEffect}
+						aria-label="Add effect"
+						renderAction={(color) => <Plus color={color} style={plusIcon} />}
+					/>
+				</ActionTooltip>
+			}
+			expanded={effectsExpanded}
+			label="Effects"
+			onToggle={hasEffects ? () => toggleAdditionalSection('effects') : null}
+		/>
 	);
 
 	const renderRow = ({node, depth}: FlatTreeRow) => {
@@ -863,6 +1085,7 @@ export const InspectorSequenceSection: React.FC<{
 					nodePath={nodePathInfo.sequenceSubscriptionKey}
 					schema={schema}
 					keyframeDisplayOffset={keyframeDisplayOffset}
+					keyframePlaybackRate={keyframePlaybackRate}
 					keyframeControlsMode="inspector"
 				/>
 			</TimelineRowLayoutContext.Provider>
@@ -889,18 +1112,29 @@ export const InspectorSequenceSection: React.FC<{
 		);
 	};
 
+	const captionsInspector = inlineCaptions ? (
+		<div key={sequenceKey} ref={captionsInspectorRef}>
+			<InlineCaptionInspector
+				captions={inlineCaptions}
+				controls={sequence.controls}
+				expanded={captionsExpanded}
+				getSequenceFrame={getSequenceFrame}
+				nodePath={nodePathInfo.sequenceSubscriptionKey}
+				onCaptionsRendered={revealPendingCaption}
+				onInitialCaptionScrollRef={onInitialCaptionScrollRef}
+				onToggle={() => toggleAdditionalSection('captions')}
+				readOnlyStudio={readOnlyStudio}
+				validatedLocation={validatedLocation}
+			/>
+		</div>
+	) : null;
+
 	if (
 		controlRows.length === 0 &&
 		!showEffectsSection &&
 		inlineCaptions === null
 	) {
-		return (
-			<div style={container}>
-				<InspectorSection header="Controls">
-					<div style={emptyState}>No schema</div>
-				</InspectorSection>
-			</div>
-		);
+		return null;
 	}
 
 	return (
@@ -909,37 +1143,29 @@ export const InspectorSequenceSection: React.FC<{
 				{controlRows.length > 0 ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
 						{controlGroupsWithoutLayout.map((group) => (
-							<InspectorSection
-								key={group.id}
-								header={renderControlGroupHeader(group)}
-							>
-								{isControlGroupExpanded(group) ? (
-									group.id === 'transforms' ? (
-										<Transform3DModeContext.Provider
-											value={show3DTransformControls}
-										>
-											{renderTransformControls()}
-											{group.rows.map(renderRow)}
-										</Transform3DModeContext.Provider>
-									) : (
-										group.rows.map(renderRow)
-									)
-								) : null}
-							</InspectorSection>
+							<React.Fragment key={group.id}>
+								{group.id === 'transforms' ? captionsInspector : null}
+								<InspectorSection header={renderControlGroupHeader(group)}>
+									{isControlGroupExpanded(group) ? (
+										group.id === 'transforms' ? (
+											<Transform3DModeContext.Provider
+												value={show3DTransformControls}
+											>
+												{renderTransformControls()}
+												{group.rows.map(renderRow)}
+											</Transform3DModeContext.Provider>
+										) : (
+											group.rows.map(renderRow)
+										)
+									) : null}
+								</InspectorSection>
+							</React.Fragment>
 						))}
 					</TimelineSelectionOrderProvider>
 				) : null}
-				{inlineCaptions ? (
-					<InlineCaptionInspector
-						captions={inlineCaptions}
-						controls={sequence.controls}
-						expanded={captionsExpanded}
-						nodePath={nodePathInfo.sequenceSubscriptionKey}
-						onToggle={() => toggleAdditionalSection('captions')}
-						readOnlyStudio={readOnlyStudio}
-						validatedLocation={validatedLocation}
-					/>
-				) : null}
+				{controlGroupsWithoutLayout.every((group) => group.id !== 'transforms')
+					? captionsInspector
+					: null}
 				{showEffectsSection ? (
 					<InspectorSection header={effectsHeader}>
 						{effectRows.length > 0 ? (

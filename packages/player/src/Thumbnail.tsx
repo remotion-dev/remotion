@@ -115,7 +115,8 @@ const ThumbnailFn = <
 	frameRef.current = timelineState.frame;
 	const setTimelineContext: SetTimelineContextValue = useMemo(() => {
 		return {
-			setFrame: () => undefined,
+			setFrameWithoutSeek: () => undefined,
+			seek: null,
 			setPlaying: () => undefined,
 			setBuffering: (buffering) => {
 				if (bufferingStore.store.getSnapshot().buffering !== buffering) {
@@ -151,6 +152,7 @@ const ThumbnailFn = <
 				<SharedPlayerContexts
 					timelineContext={timelineState}
 					playbackRateContext={playbackRateContext}
+					preservePitch={false}
 					component={Component}
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}

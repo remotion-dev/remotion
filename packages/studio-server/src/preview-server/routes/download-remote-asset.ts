@@ -102,9 +102,11 @@ const ensureRemoteUrlIsAllowed = async (url: URL) => {
 };
 
 const fetchRemoteAsset = async ({
+	acceptHeader,
 	signal,
 	url,
 }: {
+	acceptHeader: string | null;
 	signal: AbortSignal;
 	url: URL;
 }) => {
@@ -114,9 +116,7 @@ const fetchRemoteAsset = async ({
 		await ensureRemoteUrlIsAllowed(currentUrl);
 
 		const response = await fetch(currentUrl, {
-			headers: {
-				accept: remoteAssetAcceptHeader,
-			},
+			headers: acceptHeader === null ? undefined : {accept: acceptHeader},
 			redirect: 'manual',
 			signal,
 		});
@@ -144,19 +144,21 @@ const fetchRemoteAsset = async ({
 const readRemoteAsset = async ({
 	response,
 	abort,
+	maxSize,
 }: {
 	response: Response;
 	abort: () => void;
+	maxSize: number;
 }) => {
 	const contentLength = response.headers.get('content-length');
-	if (contentLength !== null && Number(contentLength) > maxRemoteAssetSize) {
+	if (contentLength !== null && Number(contentLength) > maxSize) {
 		abort();
 		throw new Error('Remote asset exceeds the 50MB size limit');
 	}
 
 	if (!response.body) {
 		const buffer = await response.arrayBuffer();
-		if (buffer.byteLength > maxRemoteAssetSize) {
+		if (buffer.byteLength > maxSize) {
 			throw new Error('Remote asset exceeds the 50MB size limit');
 		}
 
@@ -178,7 +180,7 @@ const readRemoteAsset = async ({
 		}
 
 		size += value.byteLength;
-		if (size > maxRemoteAssetSize) {
+		if (size > maxSize) {
 			abort();
 			await reader.cancel();
 			throw new Error('Remote asset exceeds the 50MB size limit');
@@ -197,43 +199,40 @@ const readRemoteAsset = async ({
 	return result;
 };
 
-export const downloadRemoteAssetHandler: ApiHandler<
-	DownloadRemoteAssetRequest,
-	DownloadRemoteAssetResponse
-> = async ({input, publicDir, request}) => {
-	validateSameOrigin(request);
-
-	if (typeof input.url !== 'string') {
-		throw new Error('No `url` provided');
-	}
-
+export const downloadRemoteAssetBytes = async ({
+	acceptHeader,
+	maxSize,
+	url,
+}: {
+	acceptHeader: string | null;
+	maxSize: number;
+	url: URL;
+}) => {
 	if (typeof fetch !== 'function') {
 		throw new Error(
 			'Downloading remote assets requires Node.js 18 or newer. Drag a local file instead.',
 		);
 	}
 
-	const url = new URL(input.url);
-
 	const controller = new AbortController();
-	const timeout = setTimeout(() => {
-		controller.abort();
-	}, remoteAssetDownloadTimeout);
-
-	let contents: Uint8Array;
+	const timeout = setTimeout(
+		() => controller.abort(),
+		remoteAssetDownloadTimeout,
+	);
 	try {
 		const response = await fetchRemoteAsset({
+			acceptHeader,
 			signal: controller.signal,
 			url,
 		});
-
 		if (!response.ok) {
 			throw new Error(`Could not download remote asset: ${response.status}`);
 		}
 
-		contents = await readRemoteAsset({
+		return await readRemoteAsset({
 			response,
 			abort: () => controller.abort(),
+			maxSize,
 		});
 	} catch (err) {
 		if (err instanceof Error && err.name === 'AbortError') {
@@ -244,6 +243,24 @@ export const downloadRemoteAssetHandler: ApiHandler<
 	} finally {
 		clearTimeout(timeout);
 	}
+};
+
+export const downloadRemoteAssetHandler: ApiHandler<
+	DownloadRemoteAssetRequest,
+	DownloadRemoteAssetResponse
+> = async ({input, publicDir, request}) => {
+	validateSameOrigin(request);
+
+	if (typeof input.url !== 'string') {
+		throw new Error('No `url` provided');
+	}
+
+	const url = new URL(input.url);
+	const contents = await downloadRemoteAssetBytes({
+		acceptHeader: remoteAssetAcceptHeader,
+		maxSize: maxRemoteAssetSize,
+		url,
+	});
 
 	const fileType = detectFileType(contents);
 	if (!isImageFileType(fileType)) {

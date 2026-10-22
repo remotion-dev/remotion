@@ -32,12 +32,31 @@ export const canUseVideoMatting = async ({
 }: CanUseVideoMattingOptions = {}): Promise<CanUseVideoMattingResult> => {
 	const modelInfo = getVideoMattingModelInfo(model);
 
+	if (
+		typeof window === 'undefined' &&
+		typeof process !== 'undefined' &&
+		process.release?.name === 'node'
+	) {
+		try {
+			const {probeNodeWebGpu} = await import('./probe-node-webgpu');
+			await probeNodeWebGpu({requiresShaderF16: modelInfo.requiresShaderF16});
+			return {supported: true};
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			return {
+				supported: false,
+				reason: VideoMattingUnsupportedReason.WebGpuUnavailable,
+				detailedReason: `ONNX Runtime could not run WebGPU inference for "${model}": ${message}`,
+			};
+		}
+	}
+
 	if (typeof window === 'undefined' && typeof OffscreenCanvas === 'undefined') {
 		return {
 			supported: false,
 			reason: VideoMattingUnsupportedReason.WindowUndefined,
 			detailedReason:
-				'No browser window or worker canvas environment is available. @remotion/video-matting is intended for browser environments.',
+				'No browser, worker canvas, or Node.js environment is available.',
 		};
 	}
 

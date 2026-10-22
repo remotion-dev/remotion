@@ -21,14 +21,13 @@ Place [`scale()`](/docs/effects/scale) before `tile()` to expand a texture beyon
 ## Example
 
 ```tsx twoslash title="MyComp.tsx"
-import {AbsoluteFill} from 'remotion';
 import {Video} from '@remotion/media';
 import {tile} from '@remotion/effects/tile';
 import {scale} from '@remotion/effects/scale';
 
 export const MyComp: React.FC = () => {
   return (
-    <AbsoluteFill>
+    <>
       <Video
         src="https://remotion.media/video.mp4"
         effects={[
@@ -36,7 +35,7 @@ export const MyComp: React.FC = () => {
           tile(),
         ]}
       />
-    </AbsoluteFill>
+    </>
   );
 };
 ```

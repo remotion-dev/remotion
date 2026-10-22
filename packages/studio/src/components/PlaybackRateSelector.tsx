@@ -76,7 +76,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 
 	return (
 		<TimelineCombobox
-			title={accessibilityLabel}
+			aria-label={accessibilityLabel}
 			tooltipDelay={800}
 			labelWidth={30}
 			selectedId={selectedId}

@@ -1,9 +1,8 @@
-import {useMemo, type FC} from 'react';
+import {memo, useMemo, type FC} from 'react';
 import type {
 	EffectDefinition,
 	JsxComponentIdentity,
 	InteractivitySchema,
-	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
@@ -15,16 +14,8 @@ export const SubscribeToNodePaths: FC<{
 	readonly schema: InteractivitySchema;
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
-	readonly videoConfigValues: VideoConfigValues | null;
-}> = ({
-	overrideId,
-	componentIdentity,
-	schema,
-	getStack,
-	effects,
-	videoConfigValues,
-}) => {
-	const {resolvedLocation, stack, preferMappedNodePath} =
+}> = memo(({overrideId, componentIdentity, schema, getStack, effects}) => {
+	const {resolvedLocation, stack, preferMappedNodePath, stackIsResolved} =
 		useResolveStackAndReactToChange(getStack, overrideId);
 
 	const effectSubscriptions = useMemo<InteractivitySchema[]>(() => {
@@ -40,11 +31,12 @@ export const SubscribeToNodePaths: FC<{
 		componentIdentity,
 		schema,
 		effects: effectSubscriptions,
-		originalLocation: resolvedLocation,
+		// The inspector can retain its old location during refresh, but subscribing
+		// with it could target a different JSX node in the updated source.
+		originalLocation: stackIsResolved ? resolvedLocation : null,
 		preferMappedNodePath,
 		stack,
-		videoConfigValues,
 	});
 
 	return null;
-};
+});

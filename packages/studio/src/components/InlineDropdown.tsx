@@ -1,11 +1,16 @@
 import {PlayerInternals} from '@remotion/player';
-import {useCallback, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {WHITE} from '../helpers/colors';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {noop} from '../helpers/noop';
 import {HigherZIndex, useZIndex} from '../state/z-index';
 import {InlineAction, type InlineActionProps} from './InlineAction';
+import {
+	getNextMenuTreeId,
+	isNodeInMenuTree,
+	MenuTreeContext,
+} from './Menu/menu-tree-context';
 import {getPortal} from './Menu/portals';
 import {
 	MAX_MENU_WIDTH,
@@ -35,51 +40,30 @@ const container: React.CSSProperties = {
 	height: 24,
 };
 
-export const InlineDropdown = ({
+const InlineDropdownMenu = ({
+	triggerRef,
+	opened,
 	values,
-	getItems,
-	onOpenChange,
-	unhoveredColor,
-	...props
-}: Omit<InlineActionProps, 'onClick'> & {
-	readonly values?: ComboboxValue[];
-	readonly getItems?: () => ComboboxValue[];
-	readonly onOpenChange?: (open: boolean) => void;
+	menuTreeId,
+	currentZIndex,
+	onHide,
+}: {
+	readonly triggerRef: React.RefObject<HTMLDivElement | null>;
+	readonly opened: Extract<OpenState, {type: 'open'}>;
+	readonly values: ComboboxValue[];
+	readonly menuTreeId: number;
+	readonly currentZIndex: number;
+	readonly onHide: () => void;
 }) => {
-	const ref = useRef<HTMLDivElement>(null);
-	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
-
-	const {currentZIndex} = useZIndex();
-
-	const size = PlayerInternals.useElementSize(ref, {
+	const size = PlayerInternals.useElementSize(triggerRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
 
 	const isMobileLayout = useMobileLayout();
 
-	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-		(e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			const invocationValues = getItems?.() ?? values ?? [];
-			if (invocationValues.length === 0) {
-				return;
-			}
-
-			setOpened({
-				type: 'open',
-				left: e.clientX,
-				top: e.clientY,
-				values: invocationValues,
-			});
-			onOpenChange?.(true);
-		},
-		[getItems, onOpenChange, values],
-	);
-
 	const spaceToBottom = useMemo(() => {
-		if (size && opened.type === 'open') {
+		if (size) {
 			return size.windowSize.height - opened.top;
 		}
 
@@ -87,7 +71,7 @@ export const InlineDropdown = ({
 	}, [opened, size]);
 
 	const spaceToTop = useMemo(() => {
-		if (size && opened.type === 'open') {
+		if (size) {
 			return opened.top;
 		}
 
@@ -95,10 +79,6 @@ export const InlineDropdown = ({
 	}, [opened, size]);
 
 	const portalStyle = useMemo(() => {
-		if (opened.type === 'not-open') {
-			return;
-		}
-
 		if (!size) {
 			return;
 		}
@@ -134,10 +114,111 @@ export const InlineDropdown = ({
 		};
 	}, [opened, size, isMobileLayout, spaceToTop, spaceToBottom]);
 
+	if (!portalStyle) {
+		return null;
+	}
+
+	return ReactDOM.createPortal(
+		<div style={fullScreenOverlay}>
+			<div style={outerPortal} className="css-reset">
+				<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
+					<div
+						data-remotion-menu-tree-id={menuTreeId}
+						style={portalStyle}
+						onPointerDown={(event) => event.stopPropagation()}
+					>
+						<MenuTreeContext.Provider value={menuTreeId}>
+							<MenuContent
+								onNextMenu={noop}
+								onPreviousMenu={noop}
+								values={values}
+								onHide={onHide}
+								leaveLeftSpace
+								preselectIndex={false}
+								topItemCanBeUnselected={false}
+								fixedHeight={null}
+							/>
+						</MenuTreeContext.Provider>
+					</div>
+				</HigherZIndex>
+			</div>
+		</div>,
+		getPortal(currentZIndex),
+	);
+};
+
+export const InlineDropdown = ({
+	values,
+	getItems,
+	onOpenChange,
+	unhoveredColor,
+	...props
+}: Omit<InlineActionProps, 'onClick'> & {
+	readonly values?: ComboboxValue[];
+	readonly getItems?: () => ComboboxValue[];
+	readonly onOpenChange?: (open: boolean) => void;
+}) => {
+	const ref = useRef<HTMLDivElement>(null);
+	const [menuTreeId] = useState(getNextMenuTreeId);
+	const [opened, setOpened] = useState<OpenState>({type: 'not-open'});
+
+	const {currentZIndex} = useZIndex();
+
+	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			const invocationValues = getItems?.() ?? values ?? [];
+			if (invocationValues.length === 0) {
+				return;
+			}
+
+			setOpened({
+				type: 'open',
+				left: e.clientX,
+				top: e.clientY,
+				values: invocationValues,
+			});
+			onOpenChange?.(true);
+		},
+		[getItems, onOpenChange, values],
+	);
+
 	const onHide = useCallback(() => {
 		setOpened({type: 'not-open'});
 		onOpenChange?.(false);
 	}, [onOpenChange]);
+
+	useEffect(() => {
+		if (opened.type === 'not-open') {
+			return;
+		}
+
+		const dismissWithoutClickThrough = (event: PointerEvent) => {
+			if (event.button !== 0) {
+				return;
+			}
+
+			const target = event.target as Node;
+			if (isNodeInMenuTree(target, menuTreeId)) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			event.stopImmediatePropagation();
+			onHide();
+		};
+
+		window.addEventListener('pointerdown', dismissWithoutClickThrough, true);
+		return () => {
+			window.removeEventListener(
+				'pointerdown',
+				dismissWithoutClickThrough,
+				true,
+			);
+		};
+	}, [menuTreeId, onHide, opened.type]);
 
 	return (
 		<>
@@ -146,31 +227,19 @@ export const InlineDropdown = ({
 					onClick={onClick}
 					unhoveredColor={opened.type === 'open' ? WHITE : unhoveredColor}
 					{...props}
+					aria-expanded={opened.type === 'open'}
 				/>
 			</div>
-			{portalStyle && opened.type === 'open'
-				? ReactDOM.createPortal(
-						<div style={fullScreenOverlay}>
-							<div style={outerPortal} className="css-reset">
-								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-									<div style={portalStyle}>
-										<MenuContent
-											onNextMenu={noop}
-											onPreviousMenu={noop}
-											values={opened.values ?? values ?? []}
-											onHide={onHide}
-											leaveLeftSpace
-											preselectIndex={false}
-											topItemCanBeUnselected={false}
-											fixedHeight={null}
-										/>
-									</div>
-								</HigherZIndex>
-							</div>
-						</div>,
-						getPortal(currentZIndex),
-					)
-				: null}
+			{opened.type === 'open' ? (
+				<InlineDropdownMenu
+					triggerRef={ref}
+					opened={opened}
+					values={opened.values ?? values ?? []}
+					menuTreeId={menuTreeId}
+					currentZIndex={currentZIndex}
+					onHide={onHide}
+				/>
+			) : null}
 		</>
 	);
 };

@@ -61,7 +61,8 @@ Use [`calculateMetadata`](./calculate-metadata.md) to measure the [audio duratio
 import { CalculateMetadataFunction, staticFile } from "remotion";
 import { getAudioDuration } from "./get-audio-duration";
 
-const FPS = 30;
+// Match the fps on this composition's <Composition> registration.
+const compositionFps = 30;
 
 const SCENE_AUDIO_FILES = [
   "voiceover/my-comp/scene-01-intro.mp3",
@@ -77,7 +78,7 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
   );
 
   const sceneDurations = durations.map((durationInSeconds) => {
-    return durationInSeconds * FPS;
+    return durationInSeconds * compositionFps;
   });
 
   return {
@@ -87,6 +88,9 @@ export const calculateMetadata: CalculateMetadataFunction<Props> = async ({
 ```
 
 The computed `sceneDurations` are passed into the component via a `voiceover` prop so the component knows how long each scene should be.
+`calculateMetadata` runs outside the composition component, so it cannot call
+`useVideoConfig()`. Inside the component, use `const {fps} = useVideoConfig()`
+for timing props instead of reusing `compositionFps`.
 
 If the composition uses [`<TransitionSeries>`](./transitions.md), subtract the overlap from total duration: [./transitions.md#calculating-total-composition-duration](./transitions.md#calculating-total-composition-duration)
 

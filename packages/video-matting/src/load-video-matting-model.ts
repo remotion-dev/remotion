@@ -1,3 +1,5 @@
+import './symbol-async-dispose';
+import type {RawImage} from '@huggingface/transformers';
 import {
 	getHostedVideoMattingModelId,
 	getVideoMattingModelInfo,
@@ -17,7 +19,10 @@ export type OnVideoMattingModelLoadProgress = (
 	progress: VideoMattingModelLoadProgress,
 ) => void;
 
-export type VideoMattingImageSource = HTMLCanvasElement | OffscreenCanvas;
+export type VideoMattingImageSource =
+	| HTMLCanvasElement
+	| OffscreenCanvas
+	| VideoMattingPipelineResult;
 
 export type VideoMattingPipelineResult = {
 	data: Uint8ClampedArray<ArrayBuffer>;
@@ -38,7 +43,9 @@ type TransformerPipelineResult = {
 };
 
 type TransformerPipeline = {
-	(image: VideoMattingImageSource): Promise<TransformerPipelineResult>;
+	(
+		image: HTMLCanvasElement | OffscreenCanvas | RawImage,
+	): Promise<TransformerPipelineResult>;
 	dispose: () => Promise<void>;
 };
 
@@ -54,6 +61,7 @@ type LoadedVideoMattingPipelineState = {
 	onIdle: Array<() => void>;
 	progressListeners: Set<OnVideoMattingModelLoadProgress>;
 	lastProgress: VideoMattingModelLoadProgress | null;
+	retainedLoadHandles: number;
 };
 
 const pipelines = new Map<VideoMattingModel, LoadedVideoMattingPipelineState>();
@@ -61,10 +69,11 @@ const disposals = new Map<VideoMattingModel, Promise<void>>();
 
 export type LoadVideoMattingModelOptions = {
 	model: VideoMattingModel;
+	signal?: AbortSignal;
 	onProgress?: OnVideoMattingModelLoadProgress;
 };
 
-export type LoadVideoMattingModelResult = {
+export type LoadVideoMattingModelResult = AsyncDisposable & {
 	alreadyLoaded: boolean;
 };
 
@@ -147,6 +156,7 @@ const getOrCreateVideoMattingPipeline = ({
 		onIdle: [],
 		progressListeners: new Set(),
 		lastProgress: null,
+		retainedLoadHandles: 0,
 	};
 	const pendingDisposal = disposals.get(model) ?? null;
 
@@ -160,54 +170,33 @@ const getOrCreateVideoMattingPipeline = ({
 				AutoModelForImageSegmentation,
 				AutoProcessor,
 				BackgroundRemovalPipeline,
+				ModelRegistry,
+				RawImage,
 			}) => {
 				const hostedModelId = getHostedVideoMattingModelId(model);
-				const totalBytes = modelInfo.webGpuDownloadSize;
-				const loadedByFile = new Map<string, number>();
-				let lastProgress = 0;
-				let lastLoadedBytes = 0;
+				if (
+					!(await ModelRegistry.is_pipeline_cached(
+						'background-removal',
+						hostedModelId,
+						{device: 'webgpu', dtype: modelInfo.dtype},
+					))
+				) {
+					throw new Error(
+						`The video matting model "${model}" is not downloaded. Call downloadVideoMattingModel() first.`,
+					);
+				}
 
 				notifyProgress(state, {
-					status: 'loading',
+					status: 'initializing',
 					file: null,
-					progress: 0,
-					loadedBytes: 0,
-					totalBytes,
+					progress: null,
+					loadedBytes: null,
+					totalBytes: null,
 				});
 
 				const pretrainedOptions = {
 					device: 'webgpu' as const,
 					dtype: modelInfo.dtype,
-					progress_callback: (event: unknown) => {
-						const record = event as Record<string, unknown>;
-						if (
-							record.status === 'progress' &&
-							typeof record.file === 'string' &&
-							typeof record.loaded === 'number' &&
-							Number.isFinite(record.loaded)
-						) {
-							loadedByFile.set(
-								record.file,
-								Math.max(loadedByFile.get(record.file) ?? 0, record.loaded),
-							);
-							const loadedBytes = [...loadedByFile.values()].reduce(
-								(sum, loaded) => sum + loaded,
-								0,
-							);
-							lastProgress = Math.max(
-								lastProgress,
-								Math.min(loadedBytes / totalBytes, 0.99),
-							);
-							lastLoadedBytes = Math.max(lastLoadedBytes, loadedBytes);
-							notifyProgress(state, {
-								status: 'loading',
-								file: null,
-								progress: lastProgress,
-								loadedBytes: Math.min(lastLoadedBytes, totalBytes),
-								totalBytes,
-							});
-						}
-					},
 				};
 				const transformerProcessor = await AutoProcessor.from_pretrained(
 					hostedModelId,
@@ -232,13 +221,22 @@ const getOrCreateVideoMattingPipeline = ({
 						status: 'ready',
 						file: null,
 						progress: 1,
-						loadedBytes: totalBytes,
-						totalBytes,
+						loadedBytes: null,
+						totalBytes: null,
 					});
 
 					const loadedPipeline: LoadedPipeline = {
 						run: async (image) => {
-							const result = await loadedTransformerPipeline(image);
+							const result = await loadedTransformerPipeline(
+								'data' in image
+									? new RawImage(
+											image.data,
+											image.width,
+											image.height,
+											image.channels,
+										)
+									: image,
+							);
 							if (result.channels !== 4) {
 								throw new Error(
 									`The video matting model "${model}" returned ${result.channels} channels instead of RGBA.`,
@@ -311,57 +309,6 @@ const subscribeToProgress = (
 	};
 };
 
-export const loadVideoMattingModel = async ({
-	model,
-	onProgress,
-}: LoadVideoMattingModelOptions): Promise<LoadVideoMattingModelResult> => {
-	const {state, alreadyLoaded} = getOrCreateVideoMattingPipeline({model});
-	const unsubscribe = subscribeToProgress(state, onProgress);
-	try {
-		await state.loading;
-	} finally {
-		unsubscribe();
-	}
-
-	return {alreadyLoaded};
-};
-
-export const withLoadedVideoMattingPipeline = async <ReturnValue>({
-	model,
-	onProgress,
-	signal,
-	run,
-}: {
-	model: VideoMattingModel;
-	onProgress?: OnVideoMattingModelLoadProgress;
-	signal: AbortSignal | null;
-	run: (pipeline: LoadedVideoMattingPipeline) => Promise<ReturnValue>;
-}): Promise<ReturnValue> => {
-	const {state} = getOrCreateVideoMattingPipeline({model});
-	const unsubscribe = subscribeToProgress(state, onProgress);
-	state.pendingUses++;
-	let isActive = false;
-	try {
-		const loaded = await waitForLoadingOrAbort({
-			loading: state.loading,
-			signal,
-		});
-		state.pendingUses--;
-		state.activeUses++;
-		isActive = true;
-		return await run(loaded.run);
-	} finally {
-		unsubscribe();
-		if (isActive) {
-			state.activeUses--;
-		} else {
-			state.pendingUses--;
-		}
-
-		notifyIfIdle(state);
-	}
-};
-
 export type DisposeVideoMattingModelOptions = {
 	model?: VideoMattingModel;
 };
@@ -415,4 +362,92 @@ export const disposeVideoMattingModel = async ({
 	}
 
 	await Promise.all(pending.values());
+};
+
+export const loadVideoMattingModel = async ({
+	model,
+	signal,
+	onProgress,
+}: LoadVideoMattingModelOptions): Promise<LoadVideoMattingModelResult> => {
+	signal?.throwIfAborted();
+	const {state, alreadyLoaded} = getOrCreateVideoMattingPipeline({model});
+	state.pendingUses++;
+	const unsubscribe = subscribeToProgress(state, onProgress);
+	try {
+		await waitForLoadingOrAbort({
+			loading: state.loading,
+			signal: signal ?? null,
+		});
+		signal?.throwIfAborted();
+		state.retainedLoadHandles++;
+	} finally {
+		unsubscribe();
+		state.pendingUses--;
+		notifyIfIdle(state);
+		if (
+			signal?.aborted &&
+			state.pendingUses === 0 &&
+			state.activeUses === 0 &&
+			state.retainedLoadHandles === 0 &&
+			pipelines.get(model) === state
+		) {
+			// GPU initialization cannot be interrupted. Release the unused model
+			// once it finishes without delaying the canceled caller.
+			disposeVideoMattingModel({model}).catch(() => undefined);
+		}
+	}
+
+	let released = false;
+	const result = {alreadyLoaded} as LoadVideoMattingModelResult;
+	Object.defineProperty(result, Symbol.asyncDispose, {
+		enumerable: false,
+		value: async () => {
+			if (released) {
+				return;
+			}
+
+			released = true;
+			state.retainedLoadHandles--;
+			if (state.retainedLoadHandles === 0 && pipelines.get(model) === state) {
+				await disposeVideoMattingModel({model});
+			}
+		},
+	});
+	return result;
+};
+
+export const withLoadedVideoMattingPipeline = async <ReturnValue>({
+	model,
+	onProgress,
+	signal,
+	run,
+}: {
+	model: VideoMattingModel;
+	onProgress?: OnVideoMattingModelLoadProgress;
+	signal: AbortSignal | null;
+	run: (pipeline: LoadedVideoMattingPipeline) => Promise<ReturnValue>;
+}): Promise<ReturnValue> => {
+	const {state} = getOrCreateVideoMattingPipeline({model});
+	const unsubscribe = subscribeToProgress(state, onProgress);
+	state.pendingUses++;
+	let isActive = false;
+	try {
+		const loaded = await waitForLoadingOrAbort({
+			loading: state.loading,
+			signal,
+		});
+		state.pendingUses--;
+		state.activeUses++;
+		isActive = true;
+		return await run(loaded.run);
+	} finally {
+		unsubscribe();
+		if (isActive) {
+			state.activeUses--;
+		} else {
+			state.pendingUses--;
+		}
+
+		notifyIfIdle(state);
+	}
 };

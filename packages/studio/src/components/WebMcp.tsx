@@ -1,5 +1,13 @@
+import {CanvasInternals} from '@remotion/sdk';
 import {isValidPackageName} from '@remotion/studio-shared';
-import {useContext, useEffect, useMemo, useRef, type FC} from 'react';
+import {
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	type FC,
+	type MutableRefObject,
+} from 'react';
 import {Internals, staticFile} from 'remotion';
 import {installPackages} from '../api/install-package';
 import {pause} from '../api/pause';
@@ -8,7 +16,7 @@ import {restartStudio} from '../api/restart-studio';
 import {seek} from '../api/seek';
 import {shutDownStudio} from '../api/shut-down-studio';
 import {getCurrentError} from '../error-overlay/current-error';
-import {calculateTimeline} from '../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {
 	formatContextForAgents,
@@ -33,6 +41,7 @@ import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {useSelectComposition} from './InitialCompositionLoader';
+import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {
 	isOptionalPackageInstalled,
 	markOptionalPackageInstalled,
@@ -42,20 +51,18 @@ import {
 	validatePublicOutputName,
 } from './public-output-name';
 import {RenderQueueContext} from './RenderQueue/context';
-import {
-	getSequencesWithSelectableOutlines,
-	measureOutlineTargets,
-} from './selected-outline-measurement';
-import {findTrackForNodePathInfo} from './Timeline/find-track-for-node-path-info';
+import {measureOutlineTargets} from './selected-outline-measurement';
 import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
 import {scrollableRef} from './Timeline/timeline-refs';
 import {
 	getTimelineSelectionFromNodePathInfo,
+	useCurrentTimelineSelectionStateAsRef,
 	useTimelineSelection,
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
+import {useCompactSeries} from './Timeline/use-compact-series';
 import {useResolveStackAndReactToChange} from './Timeline/use-resolved-stack-react-to-change';
 import {
 	getDefaultCaptionOutputName,
@@ -185,41 +192,13 @@ const resolveAssetPath = ({
 	return resolvedAssetPath;
 };
 
-export const WebMcp: FC = () => {
-	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
-	const staticFiles = useStaticFiles();
-	const {canSelect, clearSelection, selectedItems, selectItems} =
-		useTimelineSelection();
-	const {canvasContent, compositions, currentCompositionMetadata, folders} =
-		useContext(Internals.CompositionManager);
-	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
-		Internals.usePlaybackRate();
-	const {isPlaying} = Internals.Timeline.useTimelineContext();
-	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
-	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
-	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
-		useContext(TimelineZoomCtx);
-	const selectComposition = useSelectComposition();
-	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
-		useContext(EditorShowGuidesContext);
-	const {sequences} = useContext(Internals.SequenceManager);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
+const WebMcpSelectionSync: FC<{
+	readonly currentSelectionRef: MutableRefObject<string | null>;
+	readonly selectedSequenceRef: MutableRefObject<WebMcpSequence | null>;
+}> = ({currentSelectionRef, selectedSequenceRef}) => {
+	const {selectedItems} = useTimelineSelection();
 	const selectedItem = selectedItems.length === 1 ? selectedItems[0] : null;
-	const track = useMemo(() => {
-		if (selectedItem === null || selectedItem.type === 'guide') {
-			return null;
-		}
-
-		return (
-			findTrackForNodePathInfo({
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				nodePathInfo: selectedItem.nodePathInfo,
-			}) ?? null
-		);
-	}, [overrideIdToNodePathMappings, selectedItem, sequences]);
+	const track = useTrackForSelection(selectedItem);
 	const {resolvedLocation, stack} = useResolveStackAndReactToChange(
 		track?.sequence.getStack ?? getNoStack,
 		track?.sequence.controls?.overrideId ??
@@ -230,19 +209,12 @@ export const WebMcp: FC = () => {
 	const currentResolvedLocation =
 		stack === currentStack ? resolvedLocation : null;
 	const currentSelection = useMemo(() => {
-		if (selectedItems.length === 0) {
-			return null;
-		}
-
-		if (selectedItems.length > 1) {
-			return null;
-		}
-
-		if (selectedItem === null || selectedItem.type === 'guide') {
-			return null;
-		}
-
-		if (track === null) {
+		if (
+			selectedItems.length !== 1 ||
+			selectedItem === null ||
+			selectedItem.type === 'guide' ||
+			track === null
+		) {
 			return null;
 		}
 
@@ -280,18 +252,39 @@ export const WebMcp: FC = () => {
 			root: window.remotion_cwd,
 		});
 	}, [currentResolvedLocation, selectedItem, selectedItems.length, track]);
-	const currentSelectionRef = useRef(currentSelection);
 	currentSelectionRef.current = currentSelection;
-	const selectedSequence = useMemo(
-		() => (track === null ? null : serializeSequence(track)),
-		[track],
+	selectedSequenceRef.current =
+		track === null ? null : serializeSequence(track);
+
+	return null;
+};
+
+export const WebMcp: FC = () => {
+	const calculateTimeline = useTimelineCalculator();
+	const compactSeries = useCompactSeries();
+	const compactSeriesRef = useRef(compactSeries);
+	compactSeriesRef.current = compactSeries;
+	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
+	const staticFiles = useStaticFiles();
+	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
+	const currentSelectionRef = useRef<string | null>(null);
+	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
+	const {canvasContent, compositions, currentCompositionMetadata, folders} =
+		useContext(Internals.CompositionManager);
+	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
+		Internals.usePlaybackRate();
+	const {isPlaying} = Internals.Timeline.useTimelineContext();
+	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
+	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
+		useContext(TimelineZoomCtx);
+	const selectComposition = useSelectComposition();
+	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
+		useContext(EditorShowGuidesContext);
+	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const {overrideIdToNodePathMappings} = useContext(
+		Internals.OverrideIdsToNodePathsGettersContext,
 	);
-	const selectedSequenceRef = useRef(selectedSequence);
-	selectedSequenceRef.current = selectedSequence;
-	const selectedItemsRef = useRef(selectedItems);
-	selectedItemsRef.current = selectedItems;
-	const canSelectRef = useRef(canSelect);
-	canSelectRef.current = canSelect;
 	const currentCompositionDefinition = useMemo(() => {
 		if (canvasContent?.type !== 'composition') {
 			return null;
@@ -327,8 +320,6 @@ export const WebMcp: FC = () => {
 	currentCompositionDefinitionRef.current = currentCompositionDefinition;
 	const compositionsRef = useRef(compositions);
 	compositionsRef.current = compositions;
-	const sequencesRef = useRef(sequences);
-	sequencesRef.current = sequences;
 	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const foldersRef = useRef(folders);
@@ -372,7 +363,8 @@ export const WebMcp: FC = () => {
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				compositions: compositionsRef.current,
-			}).filter((timelineTrack) =>
+				showConnectedCompositionChildren: compactSeriesRef.current,
+			}).tracks.filter((timelineTrack) =>
 				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
 			);
 		};
@@ -603,6 +595,7 @@ export const WebMcp: FC = () => {
 						}
 
 						const jobId = addCaptionJob({
+							captionStyle: null,
 							audioStreamIndex: null,
 							chunkLengthInSeconds,
 							displayName,
@@ -612,6 +605,7 @@ export const WebMcp: FC = () => {
 							model: model.name,
 							noRepeatNgramSize,
 							outName: outputPath,
+							target: null,
 							repetitionPenalty,
 							requestInit: null,
 							src,
@@ -627,10 +621,10 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
-					name: 'separate_video_layers',
-					title: 'Separate Studio video layers',
+					name: 'remove_video_background',
+					title: 'Remove video background',
 					description:
-						'Separate a video asset from the public folder into background and foreground WebM files and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
+						'Remove the background from a video asset in the public folder and add the work to the Jobs queue. If assetPath is omitted, the asset currently open in Studio is used.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -639,15 +633,10 @@ export const WebMcp: FC = () => {
 								description:
 									'Optional path relative to public/. Defaults to the asset currently open in Studio.',
 							},
-							baseOutputPath: {
+							outputPath: {
 								type: 'string',
 								description:
-									'Optional background output path relative to public/.',
-							},
-							foregroundOutputPath: {
-								type: 'string',
-								description:
-									'Optional foreground output path relative to public/.',
+									'Optional transparent video output path relative to public/.',
 							},
 							model: {
 								type: 'string',
@@ -655,8 +644,8 @@ export const WebMcp: FC = () => {
 							},
 							audio: {
 								type: 'string',
-								enum: ['base', 'foreground', 'both', 'none'],
-								default: 'base',
+								enum: ['keep', 'none'],
+								default: 'keep',
 							},
 							videoBitrate: {
 								oneOf: [
@@ -683,7 +672,7 @@ export const WebMcp: FC = () => {
 							staticFiles: staticFilesRef.current,
 						});
 						if (getPreviewFileType(assetPath) !== 'video') {
-							throw new Error('The separation asset must be a video.');
+							throw new Error('The input asset must be a video.');
 						}
 
 						const videoMatting = await import('@remotion/video-matting');
@@ -699,14 +688,9 @@ export const WebMcp: FC = () => {
 							throw new Error(`Unknown video matting model: ${modelName}.`);
 						}
 
-						const audio = input.audio ?? 'base';
-						if (
-							audio !== 'base' &&
-							audio !== 'foreground' &&
-							audio !== 'both' &&
-							audio !== 'none'
-						) {
-							throw new Error('audio must be base, foreground, both, or none.');
+						const audio = input.audio ?? 'keep';
+						if (audio !== 'keep' && audio !== 'none') {
+							throw new Error('audio must be keep or none.');
 						}
 
 						const videoBitrate = input.videoBitrate ?? 'very-high';
@@ -730,52 +714,31 @@ export const WebMcp: FC = () => {
 							displayName,
 							'video',
 						);
-						const baseOutputPath =
-							input.baseOutputPath ?? `${baseName}-base.webm`;
-						const foregroundOutputPath =
-							input.foregroundOutputPath ?? `${baseName}-foreground.webm`;
-						if (
-							typeof baseOutputPath !== 'string' ||
-							typeof foregroundOutputPath !== 'string'
-						) {
-							throw new Error('Output paths must be strings.');
+						const outputPath =
+							input.outputPath ?? `${baseName}-no-background.webm`;
+						if (typeof outputPath !== 'string') {
+							throw new Error('Output path must be a string.');
 						}
 
-						const baseError = validatePublicOutputName({
+						const outputError = validatePublicOutputName({
 							extension: '.webm',
-							outName: baseOutputPath,
+							outName: outputPath,
 						});
-						const foregroundError = validatePublicOutputName({
-							extension: '.webm',
-							outName: foregroundOutputPath,
-						});
-						if (baseError !== null || foregroundError !== null) {
-							throw new Error(
-								baseError ?? foregroundError ?? 'Invalid output path.',
-							);
-						}
-
-						if (
-							baseOutputPath.normalize('NFC').toLowerCase() ===
-							foregroundOutputPath.normalize('NFC').toLowerCase()
-						) {
-							throw new Error(
-								'Background and foreground outputs must be different.',
-							);
+						if (outputError !== null) {
+							throw new Error(outputError);
 						}
 
 						const jobId = addVideoMattingJob({
 							audio,
-							baseOutName: baseOutputPath,
 							displayName,
-							foregroundOutName: foregroundOutputPath,
+							outName: outputPath,
 							model,
 							src,
+							target: null,
 							videoBitrate,
 						});
 						return {
-							baseOutputPath,
-							foregroundOutputPath,
+							outputPath,
 							jobId,
 							success: true,
 						};
@@ -881,13 +844,13 @@ export const WebMcp: FC = () => {
 					name: 'select_composition',
 					title: 'Select Studio composition',
 					description:
-						'Open a registered composition in Remotion Studio by name.',
+						'Open a registered composition in Remotion Studio by ID.',
 					inputSchema: {
 						type: 'object',
 						properties: {
 							compositionName: {
 								type: 'string',
-								description: 'The name of the composition to open.',
+								description: 'The ID of the composition to open.',
 							},
 						},
 						required: ['compositionName'],
@@ -971,7 +934,7 @@ export const WebMcp: FC = () => {
 							throw new Error('No composition is currently selected.');
 						}
 
-						if (!canSelectRef.current) {
+						if (!timelineSelectionRef.current.canSelect) {
 							throw new Error('Studio sequence selection is unavailable.');
 						}
 
@@ -991,7 +954,9 @@ export const WebMcp: FC = () => {
 							throw new Error(`Sequence ${sequenceId} cannot be selected.`);
 						}
 
-						selectItems([selection], {reveal: true});
+						timelineSelectionRef.current.selectItems([selection], {
+							reveal: true,
+						});
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
 							selectedSequence: serializeSequence(timelineTrack),
@@ -1005,7 +970,7 @@ export const WebMcp: FC = () => {
 					name: 'get_composition',
 					title: 'Get Studio composition',
 					description:
-						'Read the name, source stack, duration, dimensions, frame rate, and current frame of the composition open in Remotion Studio. All fields are null when the canvas is not showing a composition.',
+						'Read the ID, source stack, duration, dimensions, frame rate, and current frame of the composition open in Remotion Studio. All fields are null when the canvas is not showing a composition.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1102,27 +1067,20 @@ export const WebMcp: FC = () => {
 						}
 
 						const currentFrame = getCurrentFrame();
-						const selectableOutlines = getSequencesWithSelectableOutlines({
-							sequences: sequencesRef.current,
-							overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
-							compositions: compositionsRef.current,
-							timelinePosition: currentFrame,
-						});
+						const selectableOutlines =
+							CanvasInternals.getCanvasSelectableOutlines({
+								tracks: calculateTimeline({
+									sequences: sequencesRef.current,
+									overrideIdsToNodePaths:
+										overrideIdToNodePathMappingsRef.current,
+									compositions: compositionsRef.current,
+								}).tracks,
+								timelinePosition: currentFrame,
+								resolveSequenceNodePathInfo: null,
+							});
 						const portalNode = Internals.portalNode();
 						const portalRect = portalNode.getBoundingClientRect();
-						const metadata = currentCompositionMetadataRef.current;
-						const compositionWidth =
-							metadata?.width ?? composition.width ?? portalNode.offsetWidth;
-						const compositionHeight =
-							metadata?.height ?? composition.height ?? portalNode.offsetHeight;
-						const scaleX = portalRect.width / compositionWidth;
-						const scaleY = portalRect.height / compositionHeight;
-						if (
-							!Number.isFinite(scaleX) ||
-							scaleX === 0 ||
-							!Number.isFinite(scaleY) ||
-							scaleY === 0
-						) {
+						if (portalRect.width === 0 || portalRect.height === 0) {
 							throw new Error('The Studio canvas is not ready to be measured.');
 						}
 
@@ -1174,10 +1132,7 @@ export const WebMcp: FC = () => {
 									outline.sequence.displayName ||
 									outline.sequence.controls?.componentName ||
 									null;
-								const points = measurement.points.map((point) => ({
-									x: point.x / scaleX,
-									y: point.y / scaleY,
-								}));
+								const {points} = measurement;
 								const xValues = points.map((point) => point.x);
 								const yValues = points.map((point) => point.y);
 								const left = Math.min(...xValues);
@@ -1293,8 +1248,8 @@ export const WebMcp: FC = () => {
 							currentSelection: currentSelectionRef.current,
 							currentContent: currentContentRef.current,
 							selectionType:
-								selectedItemsRef.current.length === 1
-									? selectedItemsRef.current[0].type
+								timelineSelectionRef.current.selectedItems.length === 1
+									? timelineSelectionRef.current.selectedItems[0].type
 									: null,
 							selectedSequence: selectedSequenceRef.current,
 						}),
@@ -1489,11 +1444,12 @@ export const WebMcp: FC = () => {
 						setGuidesList(() => nextGuides);
 						persistGuidesList(nextGuides);
 
-						const removedGuideWasSelected = selectedItemsRef.current.some(
-							(item) => item.type === 'guide' && item.guideId === guideId,
-						);
+						const removedGuideWasSelected =
+							timelineSelectionRef.current.selectedItems.some(
+								(item) => item.type === 'guide' && item.guideId === guideId,
+							);
 						if (removedGuideWasSelected) {
-							clearSelection();
+							timelineSelectionRef.current.clearSelection();
 						}
 
 						return Promise.resolve({
@@ -1797,16 +1753,22 @@ export const WebMcp: FC = () => {
 	}, [
 		addCaptionJob,
 		addVideoMattingJob,
-		clearSelection,
+		calculateTimeline,
 		isPlaying,
 		selectComposition,
-		selectItems,
+		sequencesRef,
 		setEditorShowGuides,
 		setGuidesList,
 		setPlaybackRate,
 		setPlayerMuted,
 		setTimelineZoom,
+		timelineSelectionRef,
 	]);
 
-	return null;
+	return (
+		<WebMcpSelectionSync
+			currentSelectionRef={currentSelectionRef}
+			selectedSequenceRef={selectedSequenceRef}
+		/>
+	);
 };

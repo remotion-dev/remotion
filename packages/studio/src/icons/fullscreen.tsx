@@ -3,11 +3,23 @@ import type {SVGProps} from 'react';
 export const FullscreenIcon = ({
 	color,
 	...props
-}: SVGProps<SVGSVGElement> & {readonly color: string}) => (
-	<svg viewBox="0 0 448 512" {...props}>
-		<path
-			fill={color}
-			d="M136 32c13.3 0 24 10.7 24 24s-10.7 24-24 24l-88 0 0 88c0 13.3-10.7 24-24 24S0 181.3 0 168L0 56C0 42.7 10.7 32 24 32l112 0zM0 344c0-13.3 10.7-24 24-24s24 10.7 24 24l0 88 88 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 480c-13.3 0-24-10.7-24-24L0 344zM424 32c13.3 0 24 10.7 24 24l0 112c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-88-88 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l112 0zM400 344c0-13.3 10.7-24 24-24s24 10.7 24 24l0 112c0 13.3-10.7 24-24 24l-112 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l88 0 0-88z"
-		/>
-	</svg>
-);
+}: SVGProps<SVGSVGElement> & {readonly color: string}) => {
+	const size =
+		typeof props.style?.height === 'number' ? props.style.height : 18;
+	const inset = Math.floor(size / 8) + 0.5;
+	const oppositeEdge = size - inset;
+	const cornerLength = Math.floor(size / 4);
+
+	return (
+		<svg viewBox={`0 0 ${size} ${size}`} {...props}>
+			<path
+				fill="none"
+				stroke={color}
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				d={`M${inset + cornerLength} ${inset}H${inset}v${cornerLength}M${inset} ${oppositeEdge - cornerLength}v${cornerLength}h${cornerLength}M${oppositeEdge - cornerLength} ${inset}h${cornerLength}v${cornerLength}M${oppositeEdge} ${oppositeEdge - cornerLength}v${cornerLength}h${-cornerLength}`}
+			/>
+		</svg>
+	);
+};

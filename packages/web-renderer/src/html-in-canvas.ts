@@ -5,7 +5,7 @@ type Canvas2DWithDrawElement = CanvasRenderingContext2D & {
 		dy: number,
 		dwidth: number,
 		dheight: number,
-	) => DOMMatrix;
+	) => void;
 };
 
 type HTMLCanvasWithLayoutSubtree = HTMLCanvasElement & {
@@ -26,18 +26,20 @@ export const supportsNativeHtmlInCanvas = (): boolean => {
 
 export const containsLayoutSubtreeCanvas = (element: HTMLElement): boolean => {
 	return Array.from(element.querySelectorAll('canvas')).some(
-		(canvas) => (canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true,
+		(canvas) =>
+			(canvas as HTMLCanvasWithLayoutSubtree).layoutSubtree === true ||
+			canvas.getAttribute('content') === 'drawable',
 	);
 };
 
 export type HtmlInCanvasContext = {
 	layoutCanvas: HTMLCanvasWithLayoutSubtree;
 	ctx: Canvas2DWithDrawElement;
+	wasDrawable: boolean;
 };
 
 /**
- * Sets up a persistent layoutsubtree canvas that wraps the scaffold div.
- * The div becomes a direct child of the canvas, which is required for drawElementImage.
+ * Sets up a persistent drawable canvas that wraps the scaffold div.
  * Must be called once before rendering begins; the canvas stays in the DOM for the
  * lifetime of the render.
  */
@@ -59,6 +61,7 @@ export const setupHtmlInCanvas = ({
 	const layoutCanvas = document.createElement(
 		'canvas',
 	) as HTMLCanvasWithLayoutSubtree;
+	layoutCanvas.setAttribute('content', 'drawable');
 	layoutCanvas.layoutSubtree = true;
 
 	layoutCanvas.width = width;
@@ -85,19 +88,61 @@ export const setupHtmlInCanvas = ({
 		return null;
 	}
 
+	const wasDrawable = div.hasAttribute('drawable');
+	div.setAttribute('drawable', '');
 	wrapper.removeChild(div);
 	layoutCanvas.appendChild(div);
 	wrapper.appendChild(layoutCanvas);
 
-	return {layoutCanvas, ctx: maybeCtx};
+	return {layoutCanvas, ctx: maybeCtx, wasDrawable};
 };
 
 const waitForPaint = (
 	layoutCanvas: HTMLCanvasWithLayoutSubtree,
+	signal: AbortSignal | null,
 ): Promise<void> => {
-	return new Promise((resolve) => {
-		layoutCanvas.addEventListener('paint', () => resolve(), {once: true});
-		layoutCanvas.requestPaint!();
+	return new Promise((resolve, reject) => {
+		let paintTimer: ReturnType<typeof setTimeout> | null = null;
+		let onPaint: () => void = () => undefined;
+		let onAbort: () => void = () => undefined;
+
+		const cleanup = () => {
+			layoutCanvas.removeEventListener('paint', onPaint);
+			signal?.removeEventListener('abort', onAbort);
+			if (paintTimer !== null) {
+				clearTimeout(paintTimer);
+			}
+		};
+
+		onAbort = () => {
+			cleanup();
+			reject(signal!.reason);
+		};
+
+		onPaint = () => {
+			// Chromium dispatches paint during compositor commit. Resume in a new task
+			// so WebGL context eviction cannot destroy a texture layer during commit.
+			// Remove this workaround once the Chromium fix ships in supported Chrome versions.
+			// https://github.com/remotion-dev/remotion/issues/12293
+			paintTimer = setTimeout(() => {
+				cleanup();
+				resolve();
+			}, 0);
+		};
+
+		if (signal?.aborted) {
+			onAbort();
+			return;
+		}
+
+		layoutCanvas.addEventListener('paint', onPaint, {once: true});
+		signal?.addEventListener('abort', onAbort, {once: true});
+		try {
+			layoutCanvas.requestPaint!();
+		} catch (error) {
+			cleanup();
+			reject(error);
+		}
 	});
 };
 
@@ -113,11 +158,13 @@ export const drawWithHtmlInCanvas = async ({
 	element,
 	scaledWidth,
 	scaledHeight,
+	signal,
 }: {
 	htmlInCanvasContext: HtmlInCanvasContext;
 	element: HTMLElement;
 	scaledWidth: number;
 	scaledHeight: number;
+	signal: AbortSignal | null;
 }): Promise<OffscreenCanvasRenderingContext2D> => {
 	const {ctx, layoutCanvas} = htmlInCanvasContext;
 
@@ -129,7 +176,7 @@ export const drawWithHtmlInCanvas = async ({
 		layoutCanvas.height = scaledHeight;
 	}
 
-	await waitForPaint(layoutCanvas);
+	await waitForPaint(layoutCanvas, signal);
 
 	ctx.reset();
 	ctx.drawElementImage(element, 0, 0, scaledWidth, scaledHeight);
@@ -153,8 +200,11 @@ export const teardownHtmlInCanvas = ({
 	wrapper: HTMLDivElement;
 	div: HTMLDivElement;
 }) => {
-	const {layoutCanvas} = htmlInCanvasContext;
+	const {layoutCanvas, wasDrawable} = htmlInCanvasContext;
 	layoutCanvas.removeChild(div);
 	wrapper.removeChild(layoutCanvas);
 	wrapper.appendChild(div);
+	if (!wasDrawable) {
+		div.removeAttribute('drawable');
+	}
 };

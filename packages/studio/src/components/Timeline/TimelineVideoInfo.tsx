@@ -9,21 +9,29 @@ import {
 	getAspectRatioFromCache,
 	getFrameDatabaseKeyPrefix,
 	getLoopDisplaySegments,
+	getSlotsToExtract,
 	getTimestampFromFrameDatabaseKey,
+	hydrateThumbnailsFromPersistentCache,
 	makeFrameDatabaseKey,
+	mediaDurationCache,
 	resizeVideoFrame,
+	snapCanvasPositionToDevicePixel,
 	WEBCODECS_TIMESCALE,
+	writeThumbnailToPersistentCache,
 } from '@remotion/timeline-utils';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import type {LoopDisplay} from 'remotion';
 import {Internals, useVideoConfig} from 'remotion';
+import {alignCanvasToDevicePixels} from '../../helpers/align-canvas-to-device-pixels';
 import {BLACK_ALPHA_30} from '../../helpers/colors';
+import {getStudioPixelRatio} from '../../helpers/studio-pixel-ratio';
 import {
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT,
 	TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {getTimelineMediaStartFrame} from './get-timeline-media-start-frame';
+import type {TimelineVolume} from './get-timeline-volume';
 import {getTimelineVideoFilmstripTimes} from './timeline-video-filmstrip-times';
 
 const outerStyle: React.CSSProperties = {
@@ -56,12 +64,12 @@ const TimelineVideoInfoSegment: React.FC<{
 	readonly tiledLoop: {
 		readonly displayDurationInFrames: number;
 		readonly displayOffsetInFrames: number;
+		readonly loopDisplayOffsetInFrames: number;
 		readonly loopDisplay: LoopDisplay;
 		readonly loopWidth: number;
 	} | null;
 	readonly playbackRate: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly volume: TimelineVolume;
 	readonly muted: boolean;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
@@ -76,14 +84,13 @@ const TimelineVideoInfoSegment: React.FC<{
 	tiledLoop,
 	playbackRate,
 	volume,
-	doesVolumeChange,
 	muted,
 	frozenMediaFrame,
 	extendLastFrame,
 }) => {
 	const {fps} = useVideoConfig();
 	const resolvedSrc = Internals.usePreload(src);
-	const ref = useRef<HTMLDivElement>(null);
+	const ref = useRef<HTMLCanvasElement>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const aspectRatio = useRef<number | null>(getAspectRatioFromCache(src));
 	const mediaStartFrame =
@@ -96,37 +103,54 @@ const TimelineVideoInfoSegment: React.FC<{
 		sourceOffsetInFrames * playbackRate;
 
 	// for rendering frames
-	useEffect(() => {
-		if (error) {
+	useLayoutEffect(() => {
+		const {current: canvas} = ref;
+		if (!canvas) {
 			return;
 		}
 
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const controller = new AbortController();
-		const pixelRatio = window.devicePixelRatio;
-
-		const canvas = document.createElement('canvas');
-		canvas.width = Math.ceil(visualizationWidth * pixelRatio);
-		canvas.height = Math.ceil(TIMELINE_LAYER_FILMSTRIP_HEIGHT * pixelRatio);
-		canvas.style.width = canvas.width / pixelRatio + 'px';
-		canvas.style.height = canvas.height / pixelRatio + 'px';
 		const ctx = canvas.getContext('2d');
 		if (!ctx) {
 			return;
 		}
 
-		current.appendChild(canvas);
+		if (error) {
+			ctx.resetTransform();
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			return;
+		}
+
+		const controller = new AbortController();
+		const pixelRatio = getStudioPixelRatio();
+		const {horizontalOffset} = alignCanvasToDevicePixels({
+			canvas,
+			cssHeight: TIMELINE_LAYER_FILMSTRIP_HEIGHT,
+			cssWidth: visualizationWidth,
+			pixelRatio,
+		});
+		ctx.setTransform(1, 0, 0, 1, horizontalOffset, 0);
+
+		const clearCanvas = () => {
+			ctx.save();
+			ctx.resetTransform();
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.restore();
+		};
 
 		const drawRepeatedFrame = (frame: VideoFrame) => {
 			const thumbnailWidth = Math.max(1, frame.displayWidth);
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			clearCanvas();
 			for (let x = 0; x < canvas.width; x += thumbnailWidth) {
-				ctx.drawImage(frame, x, 0, thumbnailWidth, canvas.height);
+				const left = snapCanvasPositionToDevicePixel({
+					horizontalOffset,
+					position: x,
+				});
+				const right = snapCanvasPositionToDevicePixel({
+					horizontalOffset,
+					position: x + thumbnailWidth,
+				});
+				ctx.drawImage(frame, left, 0, right - left, canvas.height);
 			}
 		};
 
@@ -173,83 +197,108 @@ const TimelineVideoInfoSegment: React.FC<{
 
 			if (cachedFrame) {
 				drawRepeatedFrame(cachedFrame);
-
-				return () => {
-					current.removeChild(canvas);
-				};
+				return;
 			}
 
-			extractFrames({
-				repeatLastFrame: extendLastFrame,
-				timestampsInSeconds: ({
-					track,
-				}: {
-					track: {height: number; width: number};
-				}) => {
-					aspectRatio.current = track.width / track.height;
-					aspectRatioCache.set(src, aspectRatio.current);
-
-					return [times.timestampInSeconds];
-				},
-				src: resolvedSrc,
-				onVideoSample: (sample) => {
-					let frame: VideoFrame | undefined;
-					try {
-						frame = sample.toVideoFrame();
-						const scale = canvas.height / frame.displayHeight;
-
-						const transformed = resizeVideoFrame({
-							frame,
-							scale,
-						});
-
-						if (transformed !== frame) {
-							frame.close();
-						}
-
-						frame = undefined;
-
-						const databaseKey = makeFrameDatabaseKey(
-							src,
-							transformed.timestamp,
-						);
-
-						addFrameToCache(databaseKey, transformed);
-						drawRepeatedFrame(transformed);
-					} catch (e) {
-						if (frame) {
-							frame.close();
-						}
-
-						throw e;
-					} finally {
-						sample.close();
+			hydrateThumbnailsFromPersistentCache({
+				src,
+				height: canvas.height,
+				getTimestamps: () => [timestamp],
+			})
+				.then(() => {
+					if (controller.signal.aborted) {
+						return;
 					}
-				},
-				signal: controller.signal,
-			}).catch((e: unknown) => {
-				setError(e as Error);
-			});
+
+					const persistedFrame = getCachedFrozenFrame(timestamp);
+					if (persistedFrame) {
+						drawRepeatedFrame(persistedFrame);
+						return;
+					}
+
+					return extractFrames({
+						repeatLastFrame: extendLastFrame,
+						timestampsInSeconds: ({
+							track,
+							durationInSeconds,
+						}: {
+							track: {height: number; width: number};
+							durationInSeconds: number | null;
+						}) => {
+							aspectRatio.current = track.width / track.height;
+							aspectRatioCache.set(src, aspectRatio.current);
+							if (durationInSeconds !== null) {
+								mediaDurationCache.set(src, durationInSeconds);
+							}
+
+							return [times.timestampInSeconds];
+						},
+						src: resolvedSrc,
+						onVideoSample: (sample) => {
+							let frame: VideoFrame | undefined;
+							try {
+								frame = sample.toVideoFrame();
+								const scale = canvas.height / frame.displayHeight;
+
+								const transformed = resizeVideoFrame({
+									frame,
+									scale,
+								});
+
+								if (transformed !== frame) {
+									frame.close();
+								}
+
+								frame = undefined;
+
+								const databaseKey = makeFrameDatabaseKey(
+									src,
+									transformed.timestamp,
+								);
+
+								addFrameToCache(databaseKey, transformed);
+								writeThumbnailToPersistentCache({src, frame: transformed});
+
+								drawRepeatedFrame(transformed);
+							} catch (e) {
+								if (frame) {
+									frame.close();
+								}
+
+								throw e;
+							} finally {
+								sample.close();
+							}
+						},
+						signal: controller.signal,
+					});
+				})
+				.catch((e: unknown) => {
+					setError(e as Error);
+				});
 
 			return () => {
 				controller.abort();
-				current.removeChild(canvas);
 			};
 		}
 
 		const targetCanvas = tiledLoop ? document.createElement('canvas') : canvas;
-		targetCanvas.width = tiledLoop
-			? Math.max(1, Math.ceil(tiledLoop.loopWidth * pixelRatio))
-			: canvas.width;
-		targetCanvas.height = canvas.height;
+		if (tiledLoop) {
+			targetCanvas.width = Math.max(
+				1,
+				Math.ceil(tiledLoop.loopWidth * pixelRatio),
+			);
+			targetCanvas.height = canvas.height;
+		}
+
 		const targetCtx = tiledLoop ? targetCanvas.getContext('2d') : ctx;
 		if (!targetCtx) {
-			current.removeChild(canvas);
 			return;
 		}
 
 		// desired-timestamp -> filled-timestamp
 		const filledSlots = new Map<number, number | undefined>();
+		const frameDrawOffset = tiledLoop ? 0 : horizontalOffset;
 
 		const {fromSeconds, toSeconds} = times;
 		// Keep the time-to-pixel scale independent of the integer canvas backing size.
@@ -267,7 +316,8 @@ const TimelineVideoInfoSegment: React.FC<{
 			}
 
 			const phase =
-				(tiledLoop.displayOffsetInFrames %
+				((tiledLoop.displayOffsetInFrames +
+					tiledLoop.loopDisplayOffsetInFrames) %
 					tiledLoop.loopDisplay.durationInFrames) *
 				((tiledLoop.loopWidth * pixelRatio) /
 					tiledLoop.loopDisplay.durationInFrames);
@@ -281,12 +331,17 @@ const TimelineVideoInfoSegment: React.FC<{
 					0,
 				]),
 			);
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			clearCanvas();
 			ctx.fillStyle = pattern;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 		};
 
-		if (aspectRatio.current !== null) {
+		// Returns whether every slot could be filled with a frame from memory.
+		const fillWithFramesInMemory = () => {
+			if (aspectRatio.current === null) {
+				return false;
+			}
+
 			ensureSlots({
 				filledSlots,
 				naturalWidth: targetWidth,
@@ -305,126 +360,171 @@ const TimelineVideoInfoSegment: React.FC<{
 				fromSeconds,
 				devicePixelRatio: 1,
 				frameHeight: canvas.height,
+				horizontalOffset: frameDrawOffset,
 			});
 			repeatTarget();
-			const unfilled = Array.from(filledSlots.keys()).filter(
-				(timestamp) => filledSlots.get(timestamp) === undefined,
-			);
 
-			// Don't extract frames if all slots are filled
-			if (unfilled.length === 0) {
-				return () => {
-					current.removeChild(canvas);
-				};
-			}
+			return getSlotsToExtract({filledSlots, src}).length === 0;
+		};
+
+		// Don't extract frames if every slot has a fitting frame
+		if (fillWithFramesInMemory()) {
+			return;
 		}
 
-		extractFrames({
-			repeatLastFrame: extendLastFrame,
-			timestampsInSeconds: ({
-				track,
-			}: {
-				track: {height: number; width: number};
-			}) => {
-				aspectRatio.current = track.width / track.height;
-				aspectRatioCache.set(src, aspectRatio.current);
+		hydrateThumbnailsFromPersistentCache({
+			src,
+			height: canvas.height,
+			getTimestamps: () => {
+				// A persisted source also restores its aspect ratio.
+				if (aspectRatio.current === null) {
+					aspectRatio.current = getAspectRatioFromCache(src);
+				}
+
+				if (aspectRatio.current === null) {
+					return [];
+				}
 
 				ensureSlots({
 					filledSlots,
+					naturalWidth: targetWidth,
 					fromSeconds,
 					toSeconds,
-					naturalWidth: targetWidth,
 					aspectRatio: aspectRatio.current,
 					frameHeight: canvas.height,
 				});
-				fillWithCachedFrames({
-					ctx: targetCtx,
-					naturalWidth: targetWidth,
-					filledSlots,
-					src,
-					segmentDuration: toSeconds - fromSeconds,
-					fromSeconds,
-					devicePixelRatio: 1,
-					frameHeight: canvas.height,
-				});
-				repeatTarget();
-
-				return Array.from(filledSlots.keys())
-					.filter((timestamp) => filledSlots.get(timestamp) === undefined)
-					.map((timestamp) => timestamp / WEBCODECS_TIMESCALE);
+				return Array.from(filledSlots.keys());
 			},
-			src: resolvedSrc,
-			onVideoSample: (sample) => {
-				let frame: VideoFrame | undefined;
-				try {
-					frame = sample.toVideoFrame();
-					const scale = canvas.height / frame.displayHeight;
-
-					const transformed = resizeVideoFrame({
-						frame,
-						scale,
-					});
-
-					if (transformed !== frame) {
-						frame.close();
-					}
-
-					frame = undefined;
-
-					const databaseKey = makeFrameDatabaseKey(src, transformed.timestamp);
-
-					addFrameToCache(databaseKey, transformed);
-					if (aspectRatio.current === null) {
-						throw new Error('Aspect ratio is not set');
-					}
-
-					ensureSlots({
-						filledSlots,
-						fromSeconds,
-						toSeconds,
-						naturalWidth: targetWidth,
-						aspectRatio: aspectRatio.current,
-						frameHeight: canvas.height,
-					});
-					fillFrameWhereItFits({
-						ctx: targetCtx,
-						filledSlots,
-						visualizationWidth: targetWidth,
-						frame: transformed,
-						segmentDuration: toSeconds - fromSeconds,
-						fromSeconds,
-						devicePixelRatio: 1,
-						frameHeight: canvas.height,
-					});
-					repeatTarget();
-				} catch (e) {
-					if (frame) {
-						frame.close();
-					}
-
-					throw e;
-				} finally {
-					sample.close();
-				}
-			},
-			signal: controller.signal,
 		})
 			.then(() => {
 				if (controller.signal.aborted) {
 					return;
 				}
 
-				fillWithCachedFrames({
-					ctx: targetCtx,
-					naturalWidth: targetWidth,
-					filledSlots,
-					src,
-					segmentDuration: toSeconds - fromSeconds,
-					fromSeconds,
-					devicePixelRatio: 1,
-					frameHeight: canvas.height,
+				if (fillWithFramesInMemory()) {
+					return;
+				}
+
+				return extractFrames({
+					repeatLastFrame: extendLastFrame,
+					timestampsInSeconds: ({
+						track,
+						durationInSeconds,
+					}: {
+						track: {height: number; width: number};
+						durationInSeconds: number | null;
+					}) => {
+						aspectRatio.current = track.width / track.height;
+						aspectRatioCache.set(src, aspectRatio.current);
+						if (durationInSeconds !== null) {
+							mediaDurationCache.set(src, durationInSeconds);
+						}
+
+						ensureSlots({
+							filledSlots,
+							fromSeconds,
+							toSeconds,
+							naturalWidth: targetWidth,
+							aspectRatio: aspectRatio.current,
+							frameHeight: canvas.height,
+						});
+						fillWithCachedFrames({
+							ctx: targetCtx,
+							naturalWidth: targetWidth,
+							filledSlots,
+							src,
+							segmentDuration: toSeconds - fromSeconds,
+							fromSeconds,
+							devicePixelRatio: 1,
+							frameHeight: canvas.height,
+							horizontalOffset: frameDrawOffset,
+						});
+						repeatTarget();
+
+						return getSlotsToExtract({filledSlots, src}).map(
+							(timestamp) => timestamp / WEBCODECS_TIMESCALE,
+						);
+					},
+					src: resolvedSrc,
+					onVideoSample: (sample) => {
+						let frame: VideoFrame | undefined;
+						try {
+							frame = sample.toVideoFrame();
+							const scale = canvas.height / frame.displayHeight;
+
+							const transformed = resizeVideoFrame({
+								frame,
+								scale,
+							});
+
+							if (transformed !== frame) {
+								frame.close();
+							}
+
+							frame = undefined;
+
+							const databaseKey = makeFrameDatabaseKey(
+								src,
+								transformed.timestamp,
+							);
+
+							addFrameToCache(databaseKey, transformed);
+							if (aspectRatio.current === null) {
+								throw new Error('Aspect ratio is not set');
+							}
+
+							writeThumbnailToPersistentCache({src, frame: transformed});
+
+							ensureSlots({
+								filledSlots,
+								fromSeconds,
+								toSeconds,
+								naturalWidth: targetWidth,
+								aspectRatio: aspectRatio.current,
+								frameHeight: canvas.height,
+							});
+							fillFrameWhereItFits({
+								ctx: targetCtx,
+								src,
+								filledSlots,
+								visualizationWidth: targetWidth,
+								frame: transformed,
+								segmentDuration: toSeconds - fromSeconds,
+								fromSeconds,
+								devicePixelRatio: 1,
+								frameHeight: canvas.height,
+								horizontalOffset: frameDrawOffset,
+							});
+							repeatTarget();
+						} catch (e) {
+							if (frame) {
+								frame.close();
+							}
+
+							throw e;
+						} finally {
+							sample.close();
+						}
+					},
+					signal: controller.signal,
+				}).then(() => {
+					if (controller.signal.aborted) {
+						return;
+					}
+
+					fillWithCachedFrames({
+						ctx: targetCtx,
+						naturalWidth: targetWidth,
+						filledSlots,
+						src,
+						segmentDuration: toSeconds - fromSeconds,
+						fromSeconds,
+						devicePixelRatio: 1,
+						frameHeight: canvas.height,
+						horizontalOffset: frameDrawOffset,
+					});
+					repeatTarget();
 				});
-				repeatTarget();
 			})
 			.catch((e: unknown) => {
 				setError(e as Error);
@@ -432,7 +532,6 @@ const TimelineVideoInfoSegment: React.FC<{
 
 		return () => {
 			controller.abort();
-			current.removeChild(canvas);
 		};
 	}, [
 		durationInFrames,
@@ -473,7 +572,9 @@ const TimelineVideoInfoSegment: React.FC<{
 
 	return (
 		<div style={segmentStyle}>
-			<div ref={ref} style={filmstripStyle} />
+			<div style={filmstripStyle}>
+				<canvas ref={ref} />
+			</div>
 			<div style={audioStyle}>
 				<AudioWaveform
 					src={src}
@@ -482,11 +583,11 @@ const TimelineVideoInfoSegment: React.FC<{
 					startFrom={mediaStartFrame}
 					durationInFrames={durationInFrames}
 					displayOffsetInFrames={tiledLoop?.displayOffsetInFrames ?? 0}
+					loopDisplayOffsetInFrames={tiledLoop?.loopDisplayOffsetInFrames ?? 0}
 					displayDurationInFrames={
 						tiledLoop?.displayDurationInFrames ?? durationInFrames
 					}
 					volume={volume}
-					doesVolumeChange={doesVolumeChange}
 					muted={muted}
 					playbackRate={playbackRate}
 					loopDisplay={tiledLoop?.loopDisplay}
@@ -505,11 +606,7 @@ const getVisibleSegments = ({
 	readonly displayOffsetInFrames: number;
 	readonly loopDisplay: LoopDisplay | undefined;
 }) => {
-	if (
-		!loopDisplay ||
-		loopDisplay.numberOfTimes <= 1 ||
-		loopDisplay.durationInFrames <= 0
-	) {
+	if (!loopDisplay || loopDisplay.durationInFrames <= 0) {
 		return [
 			{
 				key: 'single',
@@ -543,11 +640,11 @@ const TimelineVideoInfoInner: React.FC<{
 	readonly mediaFrameAtSequenceZero: number | null;
 	readonly sequenceFrameOffset: number;
 	readonly playbackRate: number;
-	readonly volume: string | number;
-	readonly doesVolumeChange: boolean;
+	readonly volume: TimelineVolume;
 	readonly muted: boolean;
 	readonly marginLeft: number;
 	readonly loopDisplay: LoopDisplay | undefined;
+	readonly loopDisplayOffsetInFrames: number;
 	readonly frozenMediaFrame: number | null;
 	readonly extendLastFrame: boolean;
 }> = ({
@@ -560,10 +657,10 @@ const TimelineVideoInfoInner: React.FC<{
 	sequenceFrameOffset,
 	playbackRate,
 	volume,
-	doesVolumeChange,
 	muted,
 	marginLeft,
 	loopDisplay,
+	loopDisplayOffsetInFrames,
 	frozenMediaFrame,
 	extendLastFrame,
 }) => {
@@ -583,12 +680,14 @@ const TimelineVideoInfoInner: React.FC<{
 		return {
 			displayDurationInFrames,
 			displayOffsetInFrames,
+			loopDisplayOffsetInFrames,
 			loopDisplay,
 			loopWidth,
 		};
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,
+		loopDisplayOffsetInFrames,
 		loopDisplay,
 		loopWidth,
 		shouldTileLoop,
@@ -600,33 +699,44 @@ const TimelineVideoInfoInner: React.FC<{
 
 		return getVisibleSegments({
 			displayDurationInFrames,
-			displayOffsetInFrames,
+			displayOffsetInFrames: displayOffsetInFrames + loopDisplayOffsetInFrames,
 			loopDisplay,
 		});
 	}, [
 		displayDurationInFrames,
 		displayOffsetInFrames,
+		loopDisplayOffsetInFrames,
 		loopDisplay,
 		shouldTileLoop,
 	]);
 	const getSegmentVolume = (
 		segmentDisplayOffsetInFrames: number,
 		segmentDurationInFrames: number,
-	) => {
-		if (typeof volume === 'number') {
+	): TimelineVolume => {
+		if (volume.type === 'constant') {
 			return volume;
 		}
 
-		const values = volume.split(',');
-		return values
-			.slice(
+		if (volume.type === 'linear') {
+			return {
+				type: 'linear',
+				points: volume.points.map((point) => ({
+					frame: point.frame - segmentDisplayOffsetInFrames,
+					value: point.value,
+				})),
+			};
+		}
+
+		return {
+			type: 'sampled',
+			samples: volume.samples.slice(
 				Math.max(0, Math.floor(segmentDisplayOffsetInFrames)),
 				Math.min(
-					values.length,
+					volume.samples.length,
 					Math.ceil(segmentDisplayOffsetInFrames + segmentDurationInFrames),
 				),
-			)
-			.join(',');
+			),
+		};
 	};
 
 	return (
@@ -643,7 +753,6 @@ const TimelineVideoInfoInner: React.FC<{
 					tiledLoop={tiledLoop}
 					playbackRate={playbackRate}
 					volume={volume}
-					doesVolumeChange={doesVolumeChange}
 					muted={muted}
 					frozenMediaFrame={frozenMediaFrame}
 					extendLastFrame={extendLastFrame}
@@ -662,10 +771,9 @@ const TimelineVideoInfoInner: React.FC<{
 						tiledLoop={null}
 						playbackRate={playbackRate}
 						volume={getSegmentVolume(
-							segment.sourceOffsetInFrames,
+							segment.displayOffsetInFrames - loopDisplayOffsetInFrames,
 							segment.durationInFrames,
 						)}
-						doesVolumeChange={doesVolumeChange}
 						muted={muted}
 						frozenMediaFrame={frozenMediaFrame}
 						extendLastFrame={extendLastFrame}

@@ -3,6 +3,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -24,6 +25,7 @@ import {
 	hoverableStyle,
 } from '../helpers/hoverable';
 import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
+import {getRoute} from '../helpers/url-state';
 import {useCreateComposition} from '../helpers/use-create-composition';
 import {validateCompositionName} from '../helpers/validate-new-comp-data';
 import type {
@@ -95,28 +97,6 @@ const sectionTitleStyle: React.CSSProperties = {
 	lineHeight: 1.5,
 };
 
-const metadataStyle: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-	gap: 8,
-	margin: 0,
-};
-
-const metadataRowStyle: React.CSSProperties = {
-	display: 'grid',
-	gridTemplateColumns: '120px minmax(0, 1fr)',
-	alignItems: 'baseline',
-	gap: 12,
-};
-
-const metadataTermStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	fontWeight: 500,
-	lineHeight: 1.5,
-};
-
 const metadataDescriptionStyle: React.CSSProperties = {
 	margin: 0,
 	minWidth: 0,
@@ -144,13 +124,6 @@ const requestSourceDescriptionStyle: React.CSSProperties = {
 const unverifiedRequestSourceStyle: React.CSSProperties = {
 	...requestSourceDescriptionStyle,
 	color: WARNING_COLOR,
-};
-
-const codeStyle: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'monospace',
-	fontSize: 13,
-	lineHeight: 1.5,
 };
 
 const overwriteStyle: React.CSSProperties = {
@@ -205,14 +178,6 @@ const warningDescriptionStyle: React.CSSProperties = {
 	fontSize: 13,
 	fontWeight: 400,
 	lineHeight: 1.5,
-};
-
-const browseElementsStyle: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'inherit',
-	fontSize: 'inherit',
-	fontWeight: 600,
-	lineHeight: 'inherit',
 };
 
 const sourceDetailsStyle: React.CSSProperties = {
@@ -294,41 +259,29 @@ const makeSourceControlsVisible = (sourceCode: string) => {
 };
 
 export const ElementLibraryAddConfirmation: React.FC<{
-	readonly displayName: string | null;
 	readonly origin: string;
 	readonly url: string;
-}> = ({displayName, origin, url}) => {
+	readonly captionStylesUrl: string | null;
+}> = ({origin, url, captionStylesUrl}) => {
 	return (
-		<div style={container}>
-			<dl style={metadataStyle} aria-label="Catalog details">
-				{displayName === null ? null : (
-					<div style={metadataRowStyle}>
-						<dt style={metadataTermStyle}>Display name</dt>
-						<dd style={metadataDescriptionStyle}>{displayName}</dd>
-					</div>
-				)}
-				<div style={metadataRowStyle}>
-					<dt style={metadataTermStyle}>Request source</dt>
-					<dd style={metadataDescriptionStyle}>{origin}</dd>
-				</div>
-				<div style={metadataRowStyle}>
-					<dt style={metadataTermStyle}>Catalog URL</dt>
-					<dd style={metadataDescriptionStyle}>
-						<code style={codeStyle}>{url}</code>
-					</dd>
-				</div>
-			</dl>
-
-			<div style={warningStyle}>
-				<WarningTriangle style={warningIconStyle} />
-				<p style={warningDescriptionStyle}>
-					This adds the catalog to{' '}
-					<strong style={browseElementsStyle}>Browse Elements</strong> when
-					nothing is selected on the canvas. It is saved in{' '}
-					<code style={codeStyle}>remotion.config.ts</code>.
-				</p>
-			</div>
-		</div>
+		<p
+			style={{
+				color: LIGHT_TEXT,
+				fontFamily: 'sans-serif',
+				fontSize: 13,
+				fontWeight: 400,
+				lineHeight: 1.5,
+				margin: 0,
+				overflowWrap: 'anywhere',
+			}}
+		>
+			{origin.replace(/^https?:\/\//, '')} wants to add{' '}
+			{url.replace(/^https?:\/\//, '')} as an Element library to{' '}
+			{window.remotion_projectName ?? 'this Studio project'}.
+			{captionStylesUrl === null ? null : (
+				<> Caption styles will be loaded from {captionStylesUrl}.</>
+			)}
+		</p>
 	);
 };
 
@@ -336,7 +289,7 @@ type PreparedElementInstallation = {
 	basePlan: ElementInstallPlan;
 	name: string;
 	refresh: number;
-	plan: ElementInstallPlan & {filePath: string};
+	plan: ElementInstallPlan;
 };
 
 type NewCompositionPlanState =
@@ -362,15 +315,29 @@ export const ElementInstallConfirmation: React.FC<{
 		currentPlan,
 		missingPackages,
 		newPlan,
+		onCancel,
 		onClose,
 		request,
 		sourceIsUnverified,
 		sourceLabel,
 	} = state;
+	const isOfficialRemotionSource =
+		request.source.type === 'studio-protocol' &&
+		request.source.origin === 'https://www.remotion.dev';
 	const sourcePreview = useMemo(
 		() => makeSourceControlsVisible(request.element.sourceCode),
 		[request.element.sourceCode],
 	);
+	const currentDestination = useMemo(() => {
+		if (request.compositionFile === null || request.compositionId === null) {
+			return null;
+		}
+
+		return {
+			compositionFile: request.compositionFile,
+			compositionId: request.compositionId,
+		};
+	}, [request.compositionFile, request.compositionId]);
 	const config = Internals.useUnsafeVideoConfig();
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
@@ -520,13 +487,14 @@ export const ElementInstallConfirmation: React.FC<{
 	}, [folderCompositionFile, newPlan, request.element, selectedFolderStack]);
 
 	const {
-		codemod: newCompositionCodemod,
+		options: newCompositionOptions,
 		compositionId: newCompositionId,
 		heightValidationMessage,
 		nameValidationMessage,
 		valid: newCompositionValuesAreValid,
 		widthValidationMessage,
 	} = useCreateComposition({
+		asset: null,
 		canvasCapture: null,
 		compositions,
 		durationInFrames: newCompositionValues.durationInFrames,
@@ -576,38 +544,99 @@ export const ElementInstallConfirmation: React.FC<{
 	}
 
 	const requestedName = input.name;
-	const [preparation, setPreparation] = useState<{
-		basePlan: ElementInstallPlan;
-		refresh: number;
-		requestedName: string | null;
-		installation: PreparedElementInstallation | null;
-		error: string | null;
-	} | null>(null);
+	const [preparations, setPreparations] = useState<
+		Array<{
+			basePlan: ElementInstallPlan;
+			refresh: number;
+			requestedName: string | null;
+			installation: PreparedElementInstallation | null;
+			error: string | null;
+		}>
+	>([]);
 	const currentPreparation =
-		preparation?.basePlan === selectedPlan &&
-		preparation?.refresh === refreshPlan &&
-		preparation?.requestedName === requestedName
-			? preparation
-			: null;
+		preparations.find(
+			(preparation) =>
+				preparation.basePlan === selectedPlan &&
+				preparation.refresh === refreshPlan &&
+				preparation.requestedName === requestedName,
+		) ?? null;
 	const preparedInstallation = currentPreparation?.installation ?? null;
 	const planError = currentPreparation?.error ?? null;
 	const installationName =
 		requestedName ?? preparedInstallation?.name ?? elementBaseName;
-	const [existingInstallation, setExistingInstallation] =
-		useState<PreparedElementInstallation | null>(null);
+	const [existingInstallations, setExistingInstallations] = useState<
+		PreparedElementInstallation[]
+	>([]);
 	const existingDestination =
-		existingInstallation?.basePlan === selectedPlan &&
-		existingInstallation?.refresh === refreshPlan
-			? existingInstallation
-			: null;
+		existingInstallations.find(
+			(installation) =>
+				installation.basePlan === selectedPlan &&
+				installation.refresh === refreshPlan,
+		) ?? null;
 	const overwriteExisting =
 		existingDestination !== null &&
 		input.overwritePlan === existingDestination.plan;
 	const activePlan = overwriteExisting
 		? existingDestination.plan
 		: (preparedInstallation?.plan ?? null);
+	const [displayedPlans, setDisplayedPlans] = useState<
+		Array<{
+			basePlan: ElementInstallPlan;
+			refresh: number;
+			plan: ElementInstallPlan;
+		}>
+	>([]);
+	const rememberedDisplayedPlan =
+		displayedPlans.find(
+			(displayed) =>
+				displayed.basePlan === selectedPlan &&
+				displayed.refresh === refreshPlan,
+		)?.plan ?? null;
+	const displayedPlan = activePlan ?? rememberedDisplayedPlan ?? selectedPlan;
+	useLayoutEffect(() => {
+		if (activePlan === null || selectedPlan === null) {
+			return;
+		}
+
+		setDisplayedPlans((previous) => {
+			const existing = previous.find(
+				(displayed) =>
+					displayed.basePlan === selectedPlan &&
+					displayed.refresh === refreshPlan,
+			);
+			if (existing?.plan === activePlan) {
+				return previous;
+			}
+
+			return [
+				...previous.filter(
+					(displayed) =>
+						displayed.basePlan !== selectedPlan ||
+						displayed.refresh !== refreshPlan,
+				),
+				{basePlan: selectedPlan, refresh: refreshPlan, plan: activePlan},
+			];
+		});
+	}, [activePlan, refreshPlan, selectedPlan]);
 	useEffect(() => {
 		if (selectedPlan === null) {
+			return;
+		}
+
+		const destination =
+			mode === 'current-composition'
+				? currentDestination === null
+					? null
+					: {
+							type: 'current-composition' as const,
+							compositionFile: currentDestination.compositionFile,
+							compositionId: currentDestination.compositionId,
+						}
+				: {
+						type: 'new-composition' as const,
+						compositionFile: selectedPlan.compositionFile,
+					};
+		if (destination === null) {
 			return;
 		}
 
@@ -618,17 +647,7 @@ export const ElementInstallConfirmation: React.FC<{
 			while (true) {
 				const result = await prepareElementInstall({
 					installationName: candidate,
-					destination:
-						mode === 'current-composition'
-							? {
-									type: 'current-composition',
-									compositionFile: request.compositionFile,
-									compositionId: request.compositionId,
-								}
-							: {
-									type: 'new-composition',
-									compositionFile: selectedPlan.compositionFile,
-								},
+					destination,
 					element: request.element,
 				});
 				if (canceled) return;
@@ -641,11 +660,14 @@ export const ElementInstallConfirmation: React.FC<{
 					plan: result.plan,
 				};
 				if (result.plan.expectedFileState.exists) {
-					setExistingInstallation((previous) =>
-						previous?.basePlan === selectedPlan &&
-						previous.refresh === refreshPlan
+					setExistingInstallations((previous) =>
+						previous.some(
+							(installation) =>
+								installation.basePlan === selectedPlan &&
+								installation.refresh === refreshPlan,
+						)
 							? previous
-							: prepared,
+							: [...previous, prepared],
 					);
 					if (requestedName === null) {
 						candidate = `${elementBaseName}-copy${copyNumber === 1 ? '' : `-${copyNumber}`}`;
@@ -654,24 +676,40 @@ export const ElementInstallConfirmation: React.FC<{
 					}
 				}
 
-				setPreparation({
-					basePlan: selectedPlan,
-					refresh: refreshPlan,
-					requestedName,
-					installation: prepared,
-					error: null,
-				});
+				setPreparations((previous) => [
+					...previous.filter(
+						(preparation) =>
+							preparation.basePlan !== selectedPlan ||
+							preparation.refresh !== refreshPlan ||
+							preparation.requestedName !== requestedName,
+					),
+					{
+						basePlan: selectedPlan,
+						refresh: refreshPlan,
+						requestedName,
+						installation: prepared,
+						error: null,
+					},
+				]);
 				return;
 			}
 		})().catch((error) => {
 			if (!canceled) {
-				setPreparation({
-					basePlan: selectedPlan,
-					refresh: refreshPlan,
-					requestedName,
-					installation: null,
-					error: error instanceof Error ? error.message : String(error),
-				});
+				setPreparations((previous) => [
+					...previous.filter(
+						(preparation) =>
+							preparation.basePlan !== selectedPlan ||
+							preparation.refresh !== refreshPlan ||
+							preparation.requestedName !== requestedName,
+					),
+					{
+						basePlan: selectedPlan,
+						refresh: refreshPlan,
+						requestedName,
+						installation: null,
+						error: error instanceof Error ? error.message : String(error),
+					},
+				]);
 			}
 		});
 		return () => {
@@ -681,6 +719,7 @@ export const ElementInstallConfirmation: React.FC<{
 		elementBaseName,
 		requestedName,
 		mode,
+		currentDestination,
 		refreshPlan,
 		request,
 		selectedPlan,
@@ -708,7 +747,7 @@ export const ElementInstallConfirmation: React.FC<{
 					? !activePlan.expectedFileState.exists
 					: requestedName !== null))) &&
 		(mode === 'current-composition'
-			? currentPlan !== null
+			? currentPlan !== null && currentDestination !== null
 			: newCompositionValuesAreValid &&
 				folderTargetIsReady &&
 				selectedNewCompositionPlan !== null);
@@ -718,27 +757,41 @@ export const ElementInstallConfirmation: React.FC<{
 			return;
 		}
 
+		const destination =
+			mode === 'new-composition'
+				? {
+						compositionFile: selectedPlan.compositionFile,
+						compositionId: newCompositionId,
+					}
+				: currentDestination;
+		if (destination === null) {
+			return;
+		}
+
 		setSubmitting(true);
 		const installed = await insertElement({
 			installationName: overwriteExisting
 				? (existingDestination?.name ?? installationName)
 				: installationName,
-			compositionFile:
-				mode === 'new-composition'
-					? selectedPlan.compositionFile
-					: request.compositionFile,
-			compositionId:
-				mode === 'new-composition' ? newCompositionId : request.compositionId,
+			compositionFile: destination.compositionFile,
+			compositionId: destination.compositionId,
 			element: request.element,
 			// The insert operation revalidates this even if the name preflight is pending.
 			expectedFileState: activePlan?.expectedFileState ?? {exists: false},
 			from: mode === 'new-composition' ? null : request.from,
 			overwriteExisting,
 			position: mode === 'new-composition' ? null : request.position,
+			undoRedoNavigation:
+				mode === 'new-composition'
+					? {
+							undoRoute: getRoute(),
+							redoRoute: `/${newCompositionId}`,
+						}
+					: null,
 			newComposition:
 				mode === 'new-composition'
 					? {
-							codemod: newCompositionCodemod,
+							options: newCompositionOptions,
 							symbolicatedStack:
 								selectedFolderStack === null ? null : folderSymbolicatedStack,
 						}
@@ -767,9 +820,10 @@ export const ElementInstallConfirmation: React.FC<{
 		installationName,
 		overwriteExisting,
 		canSubmit,
+		currentDestination,
 		folderSymbolicatedStack,
 		mode,
-		newCompositionCodemod,
+		newCompositionOptions,
 		newCompositionId,
 		onClose,
 		request,
@@ -782,9 +836,9 @@ export const ElementInstallConfirmation: React.FC<{
 
 	const cancel = useCallback(() => {
 		if (!submitting) {
-			onClose();
+			onCancel();
 		}
-	}, [onClose, submitting]);
+	}, [onCancel, submitting]);
 
 	const destinationOptions = useMemo(
 		() => [
@@ -840,14 +894,18 @@ export const ElementInstallConfirmation: React.FC<{
 						</dd>
 					</dl>
 
-					{activePlan ? (
-						<dl style={requestSourceStyle}>
-							<dt style={sectionTitleStyle}>Destination</dt>
-							<dd style={requestSourceDescriptionStyle}>
-								{activePlan.filePath}
-							</dd>
-						</dl>
-					) : null}
+					<dl
+						style={{
+							...requestSourceStyle,
+							visibility: displayedPlan === null ? 'hidden' : 'visible',
+						}}
+						aria-hidden={displayedPlan === null}
+					>
+						<dt style={sectionTitleStyle}>Destination</dt>
+						<dd style={requestSourceDescriptionStyle}>
+							{displayedPlan?.filePath ?? '\u00A0'}
+						</dd>
+					</dl>
 
 					<div style={destinationControlStyle}>
 						<div style={sectionTitleStyle}>Add to</div>
@@ -860,7 +918,7 @@ export const ElementInstallConfirmation: React.FC<{
 						</div>
 					</div>
 
-					{currentPlan === null ? (
+					{currentPlan === null && request.compositionId !== null ? (
 						<div style={warningStyle} role="status">
 							<WarningTriangle style={warningIconStyle} />
 							<p style={warningDescriptionStyle}>
@@ -1003,12 +1061,14 @@ export const ElementInstallConfirmation: React.FC<{
 						</section>
 					) : null}
 
-					<div style={warningStyle}>
-						<WarningTriangle style={warningIconStyle} />
-						<p style={warningDescriptionStyle}>
-							Installed code can access your files and network.
-						</p>
-					</div>
+					{isOfficialRemotionSource ? null : (
+						<div style={warningStyle}>
+							<WarningTriangle style={warningIconStyle} />
+							<p style={warningDescriptionStyle}>
+								Installed code can access your files and network.
+							</p>
+						</div>
+					)}
 
 					<details style={sourceDetailsStyle}>
 						<summary

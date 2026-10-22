@@ -20,10 +20,6 @@ export const validateCompositionDimension = (
 	dimension: 'Width' | 'Height',
 	value: number,
 ): string | null => {
-	if (Number(value) % 2 !== 0) {
-		return `${dimension} should be divisible by 2, since H264 codec doesn't support odd dimensions.`;
-	}
-
 	if (Number.isNaN(Number(value))) {
 		return 'Invalid number.';
 	}

@@ -29,7 +29,7 @@ Use `staticFile()` to reference an `.srt` file in your `public` folder, then fet
 
 ```tsx
 import { useState, useEffect, useCallback } from "react";
-import { AbsoluteFill, staticFile, useDelayRender } from "remotion";
+import { staticFile, useDelayRender } from "remotion";
 import { parseSrt } from "@remotion/captions";
 import type { Caption } from "@remotion/captions";
 
@@ -59,9 +59,9 @@ export const MyComponent: React.FC = () => {
   }
 
   return (
-    <AbsoluteFill>
+    <>
       {/* Use captions here */}
-    </AbsoluteFill>
+    </>
   );
 };
 ```

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import {expect} from '@playwright/test';
-import type {Locator, Page} from '@playwright/test';
+import type {Page} from '@playwright/test';
 import {LOGS_FILE, STUDIO_URL} from './constants.mts';
 
 export async function navigateToSchemaTest(page: Page): Promise<void> {
@@ -20,32 +20,6 @@ export async function navigateToSchemaTest(page: Page): Promise<void> {
 export async function navigateToVisualControls(page: Page): Promise<void> {
 	await page.goto(`${STUDIO_URL}/visual-controls`);
 	await expect(page).toHaveURL(/visual-controls/, {timeout: 10_000});
-}
-
-export async function navigateToLostNodePathE2e(page: Page): Promise<void> {
-	await page.goto(`${STUDIO_URL}/lost-node-path-e2e`);
-	await expect(page).toHaveURL(/lost-node-path-e2e/, {timeout: 15_000});
-
-	await page.waitForFunction(
-		() => !document.body.innerText.includes('Loading...'),
-		{timeout: 30_000},
-	);
-}
-
-export async function retryCanvasInteractionUntilOutlineIsVisible({
-	interaction,
-	outline,
-	page,
-}: {
-	interaction: () => Promise<void>;
-	outline: Locator;
-	page: Page;
-}): Promise<void> {
-	await expect(async () => {
-		await page.mouse.move(0, 0);
-		await interaction();
-		await expect(outline.first()).toBeVisible({timeout: 1_000});
-	}).toPass({timeout: 30_000});
 }
 
 export async function openVisualControlsPanel(page: Page): Promise<void> {

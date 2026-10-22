@@ -7,10 +7,11 @@ const cliFlag = 'height' as const;
 
 export const overrideHeightOption = {
 	name: 'Override Height',
+	addedIn: '3.2.40',
 	cliFlag,
 	description: () => <>Overrides the height of the composition.</>,
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#overrideheight',
+	docLink: 'https://www.remotion.dev/docs/options/height',
 	type: null as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

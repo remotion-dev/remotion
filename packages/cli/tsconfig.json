@@ -12,6 +12,7 @@
 	"references": [
 		{"path": "../core"},
 		{"path": "../bundler"},
+		{"path": "../codemods"},
 		{"path": "../renderer"},
 		{"path": "../player"},
 		{"path": "../media-utils"},

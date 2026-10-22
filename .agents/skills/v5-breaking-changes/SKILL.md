@@ -67,9 +67,8 @@ Before finishing, check that:
 1. With the flag left as `false as const`, v4 runtime behavior and public types remain compatible.
 2. Changing only the central flag to `true as const` selects both the v5 runtime path and v5 public types.
 3. Runtime validation agrees with the conditional TypeScript API.
-4. Focused tests cover both versioned outcomes where practical.
-5. The migration guide includes the user-facing change.
-6. Focused builds, tests, linting, and formatting pass for every affected package.
+4. The migration guide includes the user-facing change.
+5. Focused builds, existing tests, linting, and formatting pass for every affected package.
 
 Do not commit the flag flipped merely to test v5. Restore it to `false as const` on the shared v4/main line.
 

@@ -12,6 +12,7 @@ import {
 	WHITE,
 } from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import {studioCssVariables} from '../helpers/studio-css-variables';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
 import type {RenderInlineAction} from './InlineAction';
@@ -102,6 +103,12 @@ const releaseNotesTitle: React.CSSProperties = {
 	width: '100%',
 };
 
+const releaseNotesTitleLink: React.CSSProperties = {
+	...text,
+	cursor: 'pointer',
+	textDecoration: 'none',
+};
+
 const commands: {
 	[key in UpdateAvailableResponse['packageManager']]: string;
 } = {
@@ -158,6 +165,7 @@ const RenderedReleaseNotes: React.FC<{
 		}
 
 		return `<!doctype html><html><head><base href="https://github.com/remotion-dev/remotion/" target="_blank"><style>
+			${studioCssVariables}
 			:root { color-scheme: dark; }
 			html, body { overflow: hidden; }
 			body { background: ${BACKGROUND}; color: ${LIGHT_TEXT}; font-family: sans-serif; font-size: 13px; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
@@ -200,10 +208,17 @@ const RenderedReleaseNotes: React.FC<{
 	return (
 		<>
 			<div style={releaseNotesTitle}>
-				v{release.version}
-				{formattedReleaseDate === null
-					? null
-					: ` \u2013\u00a0${formattedReleaseDate}`}
+				<a
+					style={releaseNotesTitleLink}
+					href={`https://github.com/remotion-dev/remotion/releases/tag/v${release.version}`}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					v{release.version}
+					{formattedReleaseDate === null
+						? null
+						: ` \u2013\u00a0${formattedReleaseDate}`}
+				</a>
 			</div>
 			{document === null ? (
 				<div style={text}>
@@ -225,7 +240,7 @@ const RenderedReleaseNotes: React.FC<{
 					scrolling="no"
 					srcDoc={document}
 					style={{...releaseNotesFrame, height}}
-					title={`Release notes for Remotion v${release.version}`}
+					aria-label={`Release notes for Remotion v${release.version}`}
 				/>
 			)}
 		</>
@@ -234,15 +249,8 @@ const RenderedReleaseNotes: React.FC<{
 
 export const UpdatesSettings: React.FC = () => {
 	const {remotionSkillsInfo} = useSettings();
-	const {
-		error,
-		info,
-		knownBugs,
-		upgradeState,
-		upgradeError,
-		upgrade,
-		shutdown,
-	} = useUpdateStatus();
+	const {error, info, knownBugs, upgradeState, upgradeError, upgrade, restart} =
+		useUpdateStatus();
 	const [releaseNotes, setReleaseNotes] = useState<
 		| (GetReleaseNotesResponse & {
 				currentVersion: string;
@@ -331,19 +339,19 @@ export const UpdatesSettings: React.FC = () => {
 				<div style={text}>
 					{upgradeState === 'upgrading'
 						? 'This may take a few minutes. You can follow the progress in your terminal.'
-						: upgradeState === 'shutdown'
-							? 'Studio is shutting down. Run your Studio start command again in the terminal to use the new version.'
-							: 'Restart Studio to use the new version. Shut down the server below, then run your Studio start command again in the terminal.'}
+						: upgradeState === 'restarting'
+							? 'Studio is restarting with the new version.'
+							: 'Restart Studio to use the new version.'}
 				</div>
-				{upgradeState === 'upgraded' || upgradeState === 'shutting-down' ? (
+				{upgradeState === 'upgraded' || upgradeState === 'restarting' ? (
 					<div style={{marginTop: 12}}>
 						<ModalButton
-							onClick={shutdown}
-							disabled={upgradeState === 'shutting-down'}
+							onClick={restart}
+							disabled={upgradeState === 'restarting'}
 						>
-							{upgradeState === 'shutting-down'
-								? 'Shutting down...'
-								: 'Shut down Studio'}
+							{upgradeState === 'restarting'
+								? 'Restarting...'
+								: 'Restart Studio'}
 						</ModalButton>
 					</div>
 				) : null}
@@ -416,6 +424,35 @@ export const UpdatesSettings: React.FC = () => {
 					align="flex-start"
 				/>
 			) : null}
+			{info.skillsUpdateAvailable ? (
+				<>
+					<div style={title}>Remotion Agent Skills are out of date:</div>
+					{info.skillsUpdateDetails ? (
+						<ul
+							style={{
+								...text,
+								listStyleType: 'disc',
+								margin: 0,
+								paddingLeft: 20,
+							}}
+						>
+							{info.skillsUpdateDetails.outdatedSkills.map((skill) => (
+								<li
+									key={skill.name}
+									style={{...text, display: 'list-item', listStyleType: 'disc'}}
+								>
+									{skill.name}:{' '}
+									{skill.reason === 'missing-version'
+										? `The installed version is missing or could not be read. Update to match Remotion v${info.currentVersion}.`
+										: skill.reason === 'invalid-version'
+											? `The installed version "${skill.installedVersion}" is invalid. Update to match Remotion v${info.currentVersion}.`
+											: `Installed v${skill.installedVersion} is older than Remotion v${info.currentVersion}.`}
+								</li>
+							))}
+						</ul>
+					) : null}
+				</>
+			) : null}
 			{hasKnownBugs && info.updateAvailable ? (
 				<>
 					<div style={title}>
@@ -432,8 +469,8 @@ export const UpdatesSettings: React.FC = () => {
 				</div>
 			) : (
 				<div style={titleBeforeCommand}>
-					Your Remotion Agent Skills are out of date. Run the following{' '}
-					{updateActionType}:
+					Run the following {updateActionType} in this project to update your
+					skills:
 				</div>
 			)}
 			<div style={commandField}>
@@ -442,7 +479,7 @@ export const UpdatesSettings: React.FC = () => {
 					variant={null}
 					onClick={onClick}
 					renderAction={renderCopyAction}
-					title="Copy command"
+					aria-label="Copy command"
 				/>
 			</div>
 			{info.updateAvailable ? (
@@ -455,7 +492,16 @@ export const UpdatesSettings: React.FC = () => {
 				releaseNotes.latestVersion === info.latestVersion ? (
 					releaseNotes.releases.length === 0 ? (
 						<>
-							<div style={releaseNotesTitle}>v{info.latestVersion}</div>
+							<div style={releaseNotesTitle}>
+								<a
+									style={releaseNotesTitleLink}
+									href={`https://github.com/remotion-dev/remotion/releases/tag/v${info.latestVersion}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									v{info.latestVersion}
+								</a>
+							</div>
 							<div style={text}>
 								Release notes could not be loaded.{' '}
 								<a

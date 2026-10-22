@@ -1,5 +1,5 @@
 import React from 'react';
-import {fontSize} from './code-font';
+import {Interactive} from 'remotion';
 
 export const PADDING_X = 83;
 export const TOP_EXPLAINER_HEIGHT = 100;
@@ -8,13 +8,14 @@ export const TopExplainer: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<div
+		<Interactive.Div
+			name="Code example heading"
 			style={{
 				color: '#080D15',
 				fontFamily: 'GT Planar',
 				height: 100,
 				borderBottom: '2px solid rgba(0, 0, 0, 0.1)',
-				fontSize,
+				fontSize: 34,
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
@@ -23,6 +24,6 @@ export const TopExplainer: React.FC<{
 			}}
 		>
 			{children}
-		</div>
+		</Interactive.Div>
 	);
 };

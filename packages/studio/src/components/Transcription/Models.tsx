@@ -1,8 +1,8 @@
 import {
 	clearStaleModels,
+	downloadWhisperModel,
 	getAvailableModels,
 	isWhisperModelCached,
-	loadWhisperModel,
 	removeWhisperModel,
 	type WhisperWebGpuModel,
 } from '@remotion/whisper-webgpu';
@@ -25,7 +25,7 @@ export const Models: React.FC<{
 			model: WhisperWebGpuModel,
 			onProgress: (progress: number | null) => void,
 		) =>
-			loadWhisperModel({
+			downloadWhisperModel({
 				model,
 				onProgress: (progress) => onProgress(progress.progress),
 			}),

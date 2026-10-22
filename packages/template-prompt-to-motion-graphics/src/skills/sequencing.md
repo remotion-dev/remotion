@@ -33,40 +33,40 @@ import { Sequence } from "remotion";
 </Sequence>
 ```
 
-## Series for Sequential Playback
+## TransitionSeries for Sequential Playback
 
-Use Series when elements should play one after another without overlap.
+Use TransitionSeries when elements should play one after another without overlap.
 
 ```tsx
-import { Series } from "remotion";
+import { TransitionSeries } from "@remotion/transitions";
 
-<Series>
-  <Series.Sequence durationInFrames={45}>
+<TransitionSeries>
+  <TransitionSeries.Sequence durationInFrames={45}>
     <Intro />
-  </Series.Sequence>
-  <Series.Sequence durationInFrames={60}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <MainContent />
-  </Series.Sequence>
-  <Series.Sequence durationInFrames={30}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence durationInFrames={30}>
     <Outro />
-  </Series.Sequence>
-</Series>;
+  </TransitionSeries.Sequence>
+</TransitionSeries>;
 ```
 
-## Series with Offset for Overlap
+## TransitionSeries with Offset for Overlap
 
 Use negative offset for overlapping sequences:
 
 ```tsx
-<Series>
-  <Series.Sequence durationInFrames={60}>
+<TransitionSeries>
+  <TransitionSeries.Sequence durationInFrames={60}>
     <SceneA />
-  </Series.Sequence>
-  <Series.Sequence offset={-15} durationInFrames={60}>
+  </TransitionSeries.Sequence>
+  <TransitionSeries.Sequence offset={-15} durationInFrames={60}>
     {/* Starts 15 frames before SceneA ends */}
     <SceneB />
-  </Series.Sequence>
-</Series>
+  </TransitionSeries.Sequence>
+</TransitionSeries>
 ```
 
 ## Staggered Element Entrances

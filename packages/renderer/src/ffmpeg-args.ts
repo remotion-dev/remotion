@@ -23,6 +23,8 @@ const firstEncodingStepOnly = ({
 	encodingBufferSize,
 	hardwareAcceleration,
 	hardwareAccelerated,
+	cpuCount,
+	lambdaMemoryInBytes,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -36,6 +38,8 @@ const firstEncodingStepOnly = ({
 	encodingBufferSize: string | null;
 	hardwareAcceleration: HardwareAccelerationOption;
 	hardwareAccelerated: boolean;
+	cpuCount: number;
+	lambdaMemoryInBytes: number | null;
 }): string[][] => {
 	if (hasPreencoded || codec === 'gif') {
 		return [];
@@ -50,6 +54,16 @@ const firstEncodingStepOnly = ({
 		// Without explicitly disabling auto-alt-ref,
 		// transparent WebM generation doesn't work
 		pixelFormat === 'yuva420p' ? ['-auto-alt-ref', '0'] : null,
+		// Without row-based multithreading, libvpx only splits VP9 work by
+		// tile columns (4 at 1080p), which leaves most cores idle. It is slower
+		// with 2 CPUs outside Lambda. On Lambda, it is faster with the default
+		// 2048 MB allocation even though only 2 CPUs are reported.
+		codec === 'vp9' &&
+		(cpuCount > 2 ||
+			(lambdaMemoryInBytes !== null &&
+				lambdaMemoryInBytes >= 2048 * 1024 * 1024))
+			? ['-row-mt', '1']
+			: null,
 		x264Preset ? ['-preset', x264Preset] : null,
 		gopSize === null ? null : ['-g', String(gopSize)],
 		// Apply a fixed a timescale across all environments:
@@ -82,6 +96,8 @@ export const generateFfmpegArgs = ({
 	hardwareAcceleration,
 	indent,
 	logLevel,
+	cpuCount,
+	lambdaMemoryInBytes,
 }: {
 	hasPreencoded: boolean;
 	proResProfileName: string | null;
@@ -97,6 +113,8 @@ export const generateFfmpegArgs = ({
 	hardwareAcceleration: HardwareAccelerationOption;
 	indent: boolean;
 	logLevel: LogLevel;
+	cpuCount: number;
+	lambdaMemoryInBytes: number | null;
 }): string[][] => {
 	const encoderSettings = getCodecName({
 		codec,
@@ -141,7 +159,10 @@ export const generateFfmpegArgs = ({
 						? []
 						: // https://www.canva.dev/blog/engineering/a-journey-through-colour-space-with-ffmpeg/
 							// "Color range" section
-							['-vf', 'zscale=matrix=709:matrixin=709:range=limited'],
+							[
+								'-vf',
+								'zscale=matrix=709:range=limited:primariesin=709:primaries=709:transferin=709:transfer=709',
+							],
 				]
 			: resolvedColorSpace === 'bt2020-ncl'
 				? [
@@ -178,6 +199,8 @@ export const generateFfmpegArgs = ({
 			gopSize,
 			hardwareAcceleration,
 			hardwareAccelerated,
+			cpuCount,
+			lambdaMemoryInBytes,
 		}),
 	].filter(truthy);
 };

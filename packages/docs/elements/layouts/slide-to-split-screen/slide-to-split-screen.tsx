@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Img,
 	Interactive,
@@ -11,7 +10,7 @@ import {
 
 const DIVIDER_WIDTH = 15;
 
-export const SlideToSplitScreen: React.FC = () => {
+const SlideToSplitScreenInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const {height, width} = useVideoConfig();
 	const bPanelWidth = width * 0.4;
@@ -28,16 +27,14 @@ export const SlideToSplitScreen: React.FC = () => {
 	});
 
 	return (
-		<AbsoluteFill
-			style={{
-				overflow: 'hidden',
-			}}
-		>
+		<>
 			<div
 				style={{
 					height,
+					left: 0,
 					overflow: 'hidden',
 					position: 'absolute',
+					top: 0,
 					width: interpolate(splitProgress, [0, 1], [width, aPanelWidth]),
 				}}
 			>
@@ -80,6 +77,7 @@ export const SlideToSplitScreen: React.FC = () => {
 					height,
 					position: 'absolute',
 					right: 0,
+					top: 0,
 					translate: `${(1 - splitProgress) * (bPanelWidth + DIVIDER_WIDTH)}px 0px`,
 					width: bPanelWidth + DIVIDER_WIDTH,
 					willChange: 'transform',
@@ -123,6 +121,11 @@ export const SlideToSplitScreen: React.FC = () => {
 					<div style={{position: 'relative'}}>B</div>
 				</Interactive.Div>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const SlideToSplitScreen = Interactive.create({
+	Component: SlideToSplitScreenInner,
+	layout: 'absolute-fill',
+});

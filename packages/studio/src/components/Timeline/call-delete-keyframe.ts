@@ -71,6 +71,7 @@ export const callDeleteSequenceKeyframe = ({
 		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticDeleteSequenceKeyframe({
+				videoConfigValues: nodePath.videoConfigValues,
 				previous: prev,
 				fieldKey,
 				frame: sourceFrame,
@@ -117,6 +118,7 @@ export const callDeleteEffectKeyframe = ({
 		setPropStatuses,
 		applyOptimistic: (prev) =>
 			optimisticDeleteEffectKeyframe({
+				videoConfigValues: nodePath.videoConfigValues,
 				previous: prev,
 				effectIndex,
 				fieldKey,
@@ -164,6 +166,7 @@ export const callDeleteKeyframes = ({
 
 		setPropStatuses(firstKeyframe.nodePath, (prev) =>
 			optimisticDeleteSequenceKeyframes({
+				videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
 					fieldKey: keyframe.fieldKey,
@@ -182,6 +185,7 @@ export const callDeleteKeyframes = ({
 
 		setPropStatuses(firstKeyframe.nodePath, (prev) =>
 			optimisticDeleteEffectKeyframes({
+				videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
 				previous: prev,
 				keyframes: keyframes.map((keyframe) => ({
 					effectIndex: keyframe.effectIndex,

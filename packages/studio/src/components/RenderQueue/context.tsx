@@ -99,6 +99,8 @@ type RenderQueueContextType = {
 	) => void;
 	markCaptionJobDone: (jobId: string, captionCount: number) => void;
 	markCaptionJobFailed: (jobId: string, error: Error) => void;
+	markCaptionJobCancelled: (jobId: string) => void;
+	markCaptionJobSaving: (jobId: string) => void;
 	removeCaptionJob: (jobId: string) => void;
 	setProcessCaptionJobCallback: (
 		callback: ((job: CaptionJob) => Promise<void>) | null,
@@ -110,6 +112,8 @@ type RenderQueueContextType = {
 	) => void;
 	markVideoMattingJobDone: (jobId: string) => void;
 	markVideoMattingJobFailed: (jobId: string, error: Error) => void;
+	markVideoMattingJobCancelled: (jobId: string) => void;
+	markVideoMattingJobSaving: (jobId: string) => void;
 	removeVideoMattingJob: (jobId: string) => void;
 	setProcessVideoMattingJobCallback: (
 		callback: ((job: VideoMattingJob) => Promise<void>) | null,
@@ -141,12 +145,16 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	updateCaptionJobProgress: noop,
 	markCaptionJobDone: noop,
 	markCaptionJobFailed: noop,
+	markCaptionJobCancelled: noop,
+	markCaptionJobSaving: noop,
 	removeCaptionJob: noop,
 	setProcessCaptionJobCallback: noop,
 	addVideoMattingJob: noopString,
 	updateVideoMattingJobProgress: noop,
 	markVideoMattingJobDone: noop,
 	markVideoMattingJobFailed: noop,
+	markVideoMattingJobCancelled: noop,
+	markVideoMattingJobSaving: noop,
 	removeVideoMattingJob: noop,
 	setProcessVideoMattingJobCallback: noop,
 	getAbortController: () => new AbortController(),
@@ -179,10 +187,16 @@ export const RenderQueueContextProvider: React.FC<{
 				job.status === 'saving',
 		) ||
 		captionJobs.some(
-			(job) => job.status === 'idle' || job.status === 'running',
+			(job) =>
+				job.status === 'idle' ||
+				job.status === 'running' ||
+				job.status === 'saving',
 		) ||
 		videoMattingJobs.some(
-			(job) => job.status === 'idle' || job.status === 'running',
+			(job) =>
+				job.status === 'idle' ||
+				job.status === 'running' ||
+				job.status === 'saving',
 		);
 	const [currentlyProcessing, setCurrentlyProcessing] = useState<string | null>(
 		null,
@@ -273,7 +287,10 @@ export const RenderQueueContextProvider: React.FC<{
 								status: 'running',
 								progress: {
 									detail: null,
-									message: 'Starting video matting...',
+									message:
+										'outName' in job
+											? 'Starting background removal...'
+											: 'Starting video matting...',
 									value: 0,
 								},
 							}
@@ -485,8 +502,9 @@ export const RenderQueueContextProvider: React.FC<{
 		(jobId: string, progress: CaptionJobProgress): void => {
 			setCaptionJobs((prev) =>
 				prev.map((job) =>
-					job.id === jobId
-						? ({...job, status: 'running', progress} as CaptionJob)
+					job.id === jobId &&
+					(job.status === 'running' || job.status === 'saving')
+						? ({...job, progress} as CaptionJob)
 						: job,
 				),
 			);
@@ -496,6 +514,7 @@ export const RenderQueueContextProvider: React.FC<{
 
 	const markCaptionJobDone = useCallback(
 		(jobId: string, captionCount: number): void => {
+			deleteAbortController(jobId);
 			setCaptionJobs((prev) =>
 				prev.map((job) =>
 					job.id === jobId
@@ -510,6 +529,7 @@ export const RenderQueueContextProvider: React.FC<{
 
 	const markCaptionJobFailed = useCallback(
 		(jobId: string, error: Error): void => {
+			deleteAbortController(jobId);
 			setCaptionJobs((prev) =>
 				prev.map((job) =>
 					job.id === jobId
@@ -526,13 +546,37 @@ export const RenderQueueContextProvider: React.FC<{
 		[],
 	);
 
+	const markCaptionJobCancelled = useCallback((jobId: string): void => {
+		deleteAbortController(jobId);
+		setCaptionJobs((prev) =>
+			prev.map((job) =>
+				job.id === jobId ? {...job, status: 'cancelled'} : job,
+			),
+		);
+		setCurrentlyProcessing((current) => (current === jobId ? null : current));
+	}, []);
+
+	const markCaptionJobSaving = useCallback((jobId: string): void => {
+		setCaptionJobs((prev) =>
+			prev.map((job) =>
+				job.id === jobId && job.status === 'running'
+					? {...job, status: 'saving'}
+					: job,
+			),
+		);
+	}, []);
+
 	const removeCaptionJob = useCallback((jobId: string): void => {
 		setCaptionJobs((prev) => {
 			const jobToRemove = prev.find((job) => job.id === jobId);
-			if (jobToRemove?.status === 'running') {
+			if (
+				jobToRemove?.status === 'running' ||
+				jobToRemove?.status === 'saving'
+			) {
 				return prev;
 			}
 
+			deleteAbortController(jobId);
 			return prev.filter((job) => job.id !== jobId);
 		});
 	}, []);
@@ -569,7 +613,10 @@ export const RenderQueueContextProvider: React.FC<{
 		(jobId: string, progress: VideoMattingJobProgress): void => {
 			setVideoMattingJobs((prev) =>
 				prev.map((job) =>
-					job.id === jobId ? {...job, status: 'running', progress} : job,
+					job.id === jobId &&
+					(job.status === 'running' || job.status === 'saving')
+						? {...job, progress}
+						: job,
 				),
 			);
 		},
@@ -577,6 +624,7 @@ export const RenderQueueContextProvider: React.FC<{
 	);
 
 	const markVideoMattingJobDone = useCallback((jobId: string): void => {
+		deleteAbortController(jobId);
 		setVideoMattingJobs((prev) =>
 			prev.map((job) => (job.id === jobId ? {...job, status: 'done'} : job)),
 		);
@@ -585,6 +633,7 @@ export const RenderQueueContextProvider: React.FC<{
 
 	const markVideoMattingJobFailed = useCallback(
 		(jobId: string, error: Error): void => {
+			deleteAbortController(jobId);
 			setVideoMattingJobs((prev) =>
 				prev.map((job) =>
 					job.id === jobId
@@ -601,13 +650,37 @@ export const RenderQueueContextProvider: React.FC<{
 		[],
 	);
 
+	const markVideoMattingJobCancelled = useCallback((jobId: string): void => {
+		deleteAbortController(jobId);
+		setVideoMattingJobs((prev) =>
+			prev.map((job) =>
+				job.id === jobId ? {...job, status: 'cancelled'} : job,
+			),
+		);
+		setCurrentlyProcessing((current) => (current === jobId ? null : current));
+	}, []);
+
+	const markVideoMattingJobSaving = useCallback((jobId: string): void => {
+		setVideoMattingJobs((prev) =>
+			prev.map((job) =>
+				job.id === jobId && job.status === 'running'
+					? {...job, status: 'saving'}
+					: job,
+			),
+		);
+	}, []);
+
 	const removeVideoMattingJob = useCallback((jobId: string): void => {
 		setVideoMattingJobs((prev) => {
 			const jobToRemove = prev.find((job) => job.id === jobId);
-			if (jobToRemove?.status === 'running') {
+			if (
+				jobToRemove?.status === 'running' ||
+				jobToRemove?.status === 'saving'
+			) {
 				return prev;
 			}
 
+			deleteAbortController(jobId);
 			return prev.filter((job) => job.id !== jobId);
 		});
 	}, []);
@@ -676,12 +749,16 @@ export const RenderQueueContextProvider: React.FC<{
 			updateCaptionJobProgress,
 			markCaptionJobDone,
 			markCaptionJobFailed,
+			markCaptionJobCancelled,
+			markCaptionJobSaving,
 			removeCaptionJob,
 			setProcessCaptionJobCallback,
 			addVideoMattingJob,
 			updateVideoMattingJobProgress,
 			markVideoMattingJobDone,
 			markVideoMattingJobFailed,
+			markVideoMattingJobCancelled,
+			markVideoMattingJobSaving,
 			removeVideoMattingJob,
 			setProcessVideoMattingJobCallback,
 			getAbortController,
@@ -706,12 +783,16 @@ export const RenderQueueContextProvider: React.FC<{
 		updateCaptionJobProgress,
 		markCaptionJobDone,
 		markCaptionJobFailed,
+		markCaptionJobCancelled,
+		markCaptionJobSaving,
 		removeCaptionJob,
 		setProcessCaptionJobCallback,
 		addVideoMattingJob,
 		updateVideoMattingJobProgress,
 		markVideoMattingJobDone,
 		markVideoMattingJobFailed,
+		markVideoMattingJobCancelled,
+		markVideoMattingJobSaving,
 		removeVideoMattingJob,
 		setProcessVideoMattingJobCallback,
 	]);

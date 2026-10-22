@@ -1,5 +1,5 @@
 import type {TimelineLoopDisplay} from '../loop-display';
-import {getLoopDisplaySegments, shouldTileLoopDisplay} from '../loop-display';
+import {getLoopDisplaySegments} from '../loop-display';
 import {sliceWaveformPeaks} from './slice-waveform-peaks';
 
 export const sliceVisibleWaveformPeaks = ({
@@ -23,10 +23,7 @@ export const sliceVisibleWaveformPeaks = ({
 	readonly startFrom: number;
 	readonly waveformSampleRate?: number;
 }) => {
-	if (
-		!shouldTileLoopDisplay(loopDisplay) ||
-		loopDisplay.durationInFrames <= 0
-	) {
+	if (!loopDisplay || loopDisplay.durationInFrames <= 0) {
 		return sliceWaveformPeaks({
 			durationInFrames: Math.min(
 				displayDurationInFrames,
