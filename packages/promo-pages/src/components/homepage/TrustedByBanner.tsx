@@ -148,7 +148,7 @@ const TrustedByBanner = () => {
 					In good company
 				</h2>
 				<p className="text-balance leading-relaxed">
-					Over 300 customers put their trust into Remotion.
+					Over 800 customers put their trust into Remotion.
 				</p>
 				<MakeVideosLinks
 					links={[
