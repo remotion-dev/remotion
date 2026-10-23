@@ -5,11 +5,26 @@ title: Color correction
 crumb: 'Designing visuals'
 ---
 
-Color correction is possible in Remotion and is implemented using [effects](/docs/effects).
+Color correction in Remotion is implemented using [effects](/docs/effects).
 
 ## `colorCorrection()` effect
 
-Use the [`colorCorrection()`](/docs/effects/color-correction) effect to combine common adjustments in one effect:
+Use the [`colorCorrection()`](/docs/effects/color-correction) effect to combine common adjustments in one effect.
+
+<video
+  src="https://remotion.media/studio/effects/color-correction-demo-20261023.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  controls
+  preload="metadata"
+  aria-label="Adjusting color correction controls in Remotion Studio"
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+<details>
+<summary>Show code</summary>
 
 ```tsx twoslash title="MyComp.tsx"
 import {colorCorrection} from '@remotion/effects/color-correction';
@@ -32,13 +47,28 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-This is useful if you would like to have interactive controls in the Remotion Studio allowing you to live-preview multiple adjustments at once.
+</details>
 
 Individual effects such as [`brightness()`](/docs/effects/brightness), [`contrast()`](/docs/effects/contrast), and [`saturation()`](/docs/effects/saturation) are also available.
 
 ## `levels()` effect
 
-Use [`levels()`](/docs/effects/levels) to set the darkest and brightest input values and adjust midtone brightness with gamma. This is useful for expanding the tonal range of a washed-out image:
+Use [`levels()`](/docs/effects/levels) to set the darkest and brightest input values and adjust midtone brightness with gamma. This is useful for expanding the tonal range of a washed-out image.
+
+<video
+  src="https://remotion.media/studio/effects/levels-demo-20261023.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  controls
+  preload="metadata"
+  aria-label="Adjusting Levels handles in Remotion Studio"
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+<details>
+<summary>Show code</summary>
 
 ```tsx twoslash title="MyComp.tsx"
 import {levels} from '@remotion/effects/levels';
@@ -56,13 +86,28 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-From <AvailableFrom v="4.0.537" inline />, `outputBlack` and `outputWhite` let you compress or invert the output range, and `channel` selects RGB, red, green, or blue.
+</details>
 
 ## `curves()` effect<AvailableFrom v="4.0.537" />
 
-Use [`curves()`](/docs/effects/curves) to target specific tonal ranges with `[input, output]` control points. Coordinates range from `0` to `1`.
+Use [`curves()`](/docs/effects/curves) to adjust brightness and contrast with more control over shadows, midtones, and highlights.
 
-Provide `2` to `32` points with strictly increasing input values; output values may decrease. Points connect smoothly by default, or with straight segments using `interpolation: 'linear'`.
+The left side of the graph controls darker areas, and the right side controls brighter areas. Add a point and drag it up to brighten those areas, or down to darken them.
+
+<video
+  src="https://remotion.media/studio/effects/curves-demo-20261023.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  controls
+  preload="metadata"
+  aria-label="Adding and dragging curve points in Remotion Studio"
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
+/>
+
+<details>
+<summary>Show code</summary>
 
 This S-shaped curve darkens shadows and brightens highlights. The second effect lifts blue in the shadows:
 
@@ -86,24 +131,33 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-## Editing Levels and Curves in Studio<AvailableFrom v="4.0.537" />
+</details>
 
-Both effects show a live input histogram. In the Levels panel, drag the input, gamma, and output handles. In the Curves panel, add, drag, or delete control points, or edit their input and output values numerically.
+## `lut()` effect
 
-Levels numeric values and the Curves `amount` can be keyframed in Studio. To animate curve points, update `points` in code using [`useCurrentFrame()`](/docs/use-current-frame).
+Use [`lut()`](/docs/effects/lut) to apply a ready-made color grade from a `.cube` file, also known as a look-up table (LUT).
 
-## LUTs
+In Studio, drag a `.cube` file from your computer or the Assets panel onto a video in the canvas or timeline.
 
-LUTs (Look-up tables) are a popular way to define color adjustments for a video.
-You can find many of them online.
+<video
+  src="https://remotion.media/studio/lut-drop-demo-v1.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  controls
+  aria-label="Dragging a Cube LUT onto a video in Remotion Studio"
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
+/>
 
-Use [`lut()`](/docs/effects/lut) to apply an existing 3D color grade in the `.cube` format.
+<details>
+<summary>Show code</summary>
+
 Pass the file contents as a string:
 
 ```tsx twoslash title="MyComp.tsx"
 import {lut} from '@remotion/effects/lut';
 import {Video} from '@remotion/media';
-
 
 export const MyComp: React.FC = () => {
   return (
@@ -122,39 +176,21 @@ export const MyComp: React.FC = () => {
             1 0.2 0.7
             0 0.9 0.8
             1 0.9 0.8
-          `
-        })
+          `,
+        }),
       ]}
     />
   );
 };
 ```
 
+</details>
+
+You can also preview `.cube` files in your [public folder](/docs/assets) by clicking on them in the Assets panel.
+
 ## Combining adjustments
 
 Effects are applied in array order. Place `colorCorrection()` before `lut()` to make primary adjustments before applying the final grade.
-
-Stack `levels()` or `curves()` effects to combine an RGB adjustment with individual red, green, or blue adjustments, using `channel` on each effect. The channel selector changes which channels that effect adjusts; separate effects keep separate adjustments.
-
-## Previewing LUTs in the Studio
-
-You can drop `.cube` files into your [public folder](/docs/assets) and preview LUTs by clicking on them in the Assets panel.
-
-## Applying LUTs in the Studio<AvailableFrom v="4.0.535" />
-
-Drag a 3D `.cube` file from your computer or the Assets panel onto a video in the canvas or timeline.
-Studio adds a [`lut()`](/docs/effects/lut) effect to the video's source code and opens its inspector.
-
-<video
-  src="https://remotion.media/studio/lut-drop-demo-v1.mp4"
-  autoPlay
-  loop
-  muted
-  playsInline
-  controls
-  aria-label="Dragging a Cube LUT onto a video in Remotion Studio"
-  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)'}}
-/>
 
 ## See also
 

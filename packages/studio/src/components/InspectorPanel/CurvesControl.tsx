@@ -1,9 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
 import {ContextMenu} from '../ContextMenu';
-import {InputDragger} from '../NewComposition/InputDragger';
 
 export type CurvePoints = readonly (readonly [number, number])[];
 
@@ -55,7 +53,6 @@ export const CurvesControl: React.FC<{
 	onCancel,
 }) => {
 	const graph = useRef<HTMLDivElement>(null);
-	const numericPreview = useRef(false);
 	const onCancelRef = useRef(onCancel);
 	onCancelRef.current = onCancel;
 	const [selection, setSelection] = useState(0);
@@ -72,7 +69,6 @@ export const CurvesControl: React.FC<{
 	const cancel = useCallback(() => {
 		const {current} = drag;
 		drag.current = null;
-		numericPreview.current = false;
 		if (current && graph.current?.hasPointerCapture(current.pointerId)) {
 			graph.current.releasePointerCapture(current.pointerId);
 		}
@@ -81,12 +77,12 @@ export const CurvesControl: React.FC<{
 	}, []);
 
 	useEffect(() => {
-		if (!editable && (drag.current || numericPreview.current)) cancel();
+		if (!editable && drag.current) cancel();
 	}, [cancel, editable]);
 
 	useEffect(() => {
 		const onBlur = () => {
-			if (drag.current || numericPreview.current) cancel();
+			if (drag.current) cancel();
 		};
 
 		const onVisibilityChange = () => {
@@ -184,8 +180,6 @@ export const CurvesControl: React.FC<{
 				(1 - nextPoints[pointIndex][1]) * rect.height,
 		};
 	};
-
-	const bounds = pointBounds(points, selected);
 
 	return (
 		<div style={{padding: '6px 16px 8px', opacity: editable ? 1 : 0.55}}>
@@ -392,68 +386,6 @@ export const CurvesControl: React.FC<{
 					background: `linear-gradient(to right, #000, ${color})`,
 				}}
 			/>
-			<div
-				style={{display: 'flex', alignItems: 'center', gap: 8, marginTop: 8}}
-				inert={!editable}
-				onKeyDownCapture={(event) => {
-					if (event.key === 'Escape' && numericPreview.current) cancel();
-				}}
-				onPointerCancel={() => {
-					if (numericPreview.current) cancel();
-				}}
-				onLostPointerCapture={(event) => {
-					if (event.buttons !== 0 && numericPreview.current) cancel();
-				}}
-			>
-				{(['Input', 'Output'] as const).map((label, axis) => (
-					<React.Fragment key={label}>
-						<span style={{fontSize: 11, color: LIGHT_TEXT}}>{label}</span>
-						<InputDragger
-							key={`${selected}-${label}`}
-							aria-label={`Curve point ${label.toLowerCase()}`}
-							type="number"
-							value={points[selected][axis]}
-							disabled={!editable}
-							min={axis === 0 ? bounds.min : 0}
-							max={axis === 0 ? bounds.max : 1}
-							step={0.001}
-							dragSensitivity={0.001}
-							dragDecimalPlaces={3}
-							allowStepMismatch
-							small
-							status="ok"
-							rightAlign={false}
-							style={{width: 50}}
-							buttonStyle={{width: 50}}
-							onValueChange={(value) => {
-								numericPreview.current = true;
-								onChange(
-									movePoint(
-										points,
-										selected,
-										axis === 0 ? value : points[selected][0],
-										axis === 1 ? value : points[selected][1],
-									),
-									false,
-								);
-							}}
-							onValueChangeEnd={(value) => {
-								numericPreview.current = false;
-								onChange(
-									movePoint(
-										points,
-										selected,
-										axis === 0 ? value : points[selected][0],
-										axis === 1 ? value : points[selected][1],
-									),
-									true,
-								);
-							}}
-							onTextChange={() => undefined}
-						/>
-					</React.Fragment>
-				))}
-			</div>
 		</div>
 	);
 };

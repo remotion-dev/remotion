@@ -266,6 +266,11 @@ import {LevelsEffect} from './EffectsTestbed/Levels';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
+import {
+	ColorCorrectionStudioDemo,
+	CurvesStudioDemo,
+	LevelsStudioDemo,
+} from './EffectsTestbed/StudioDemos';
 import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
@@ -2362,6 +2367,32 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="Effects">
+				<Folder name="Studio-demos">
+					<Composition
+						id="ColorCorrectionStudioDemo"
+						component={ColorCorrectionStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="LevelsStudioDemo"
+						component={LevelsStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="CurvesStudioDemo"
+						component={CurvesStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+				</Folder>
 				<Composition
 					id="curves-effect"
 					component={CurvesEffect}
