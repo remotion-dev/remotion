@@ -71,7 +71,8 @@ const textUnitWrapper: React.CSSProperties = {
 
 export const FreePricing: React.FC<{
 	readonly termsHref: string;
-}> = ({termsHref}) => {
+	readonly faqHref: string;
+}> = ({termsHref, faqHref}) => {
 	const mobileLayout = useMobileLayout();
 
 	return (
@@ -102,10 +103,6 @@ export const FreePricing: React.FC<{
 						}
 						checked={false}
 					/>
-					<PricingBulletPoint
-						text="Must upgrade when your organization grows"
-						checked={false}
-					/>
 				</div>
 				<div
 					className={cn(
@@ -120,11 +117,11 @@ export const FreePricing: React.FC<{
 						}}
 					>
 						<a
-							target="_blank"
-							href="https://www.remotion.dev/docs"
+							target={faqHref.startsWith('http') ? '_blank' : undefined}
+							href={faqHref}
 							className="font-brand text-brand flex flex-row items-center gap-1 no-underline"
 						>
-							No sign up needed - get started{' '}
+							Check eligibility{' '}
 							<svg
 								style={icon}
 								xmlns="http://www.w3.org/2000/svg"
@@ -304,9 +301,7 @@ export const CompanyPricing: React.FC = () => {
 
 	return (
 		<Container>
-			<Audience>
-				Required for collaborations and companies of 4+ people
-			</Audience>
+			<Audience>Required if you do not qualify for the Free License</Audience>
 			<Title>Company License</Title>
 			<PricingBulletPoint text="Create and automate" checked />
 			<PricingBulletPoint text="Commercial use allowed" checked />

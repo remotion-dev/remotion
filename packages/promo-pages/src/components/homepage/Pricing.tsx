@@ -10,7 +10,7 @@ export const Pricing: React.FC<{
 	faqHref = '/docs/license/faq',
 	faqLabel = 'License FAQ',
 	licenseHref = 'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
-	termsHref = '/docs/license/terms',
+	termsHref = '/docs/terms',
 }) => {
 	const faqLinkTarget = useMemo(() => {
 		return faqHref.startsWith('http') ? '_blank' : undefined;
@@ -33,7 +33,7 @@ export const Pricing: React.FC<{
 				marginBottom: 40,
 			}}
 		>
-			<FreePricing termsHref={termsHref} />
+			<FreePricing termsHref={termsHref} faqHref={faqHref} />
 			<CompanyPricing />
 			<EnterpriseLicense />
 			<div
