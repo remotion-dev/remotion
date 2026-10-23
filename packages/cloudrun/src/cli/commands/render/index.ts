@@ -58,6 +58,7 @@ const {
 	overrideDurationOption,
 	sampleRateOption,
 	concurrencyOption,
+	preferLosslessOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async (
@@ -369,6 +370,9 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const sampleRate = sampleRateOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const preferLossless = preferLosslessOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	const res = await internalRenderMediaOnCloudrun({
 		cloudRunUrl,
@@ -412,7 +416,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		// config file, just when explicitly set
 		concurrency: concurrency.source === 'cli' ? concurrency.value : null,
 		enforceAudioTrack,
-		preferLossless: false,
+		preferLossless,
 		offthreadVideoCacheSizeInBytes,
 		colorSpace,
 		indent: false,

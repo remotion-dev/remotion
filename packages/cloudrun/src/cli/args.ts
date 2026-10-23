@@ -4,6 +4,7 @@ import type {GcpRegion} from '../pricing/gcp-regions';
 
 const CloudrunBooleanFlags = [
 	...CliInternals.BooleanFlags,
+	'prefer-lossless',
 	'force',
 	'f',
 	'yes',
