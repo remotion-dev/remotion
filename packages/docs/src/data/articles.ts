@@ -3961,6 +3961,15 @@ export const articles = [
 		slug: 'effects/shadows-highlights',
 	},
 	{
+		id: 'effects/shatter',
+		title: 'shatter()',
+		relativePath: 'docs/effects/shatter.mdx',
+		compId: 'articles-docs-effects-shatter',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/shatter',
+	},
+	{
 		id: 'effects/shine',
 		title: 'shine()',
 		relativePath: 'docs/effects/shine.mdx',

@@ -819,6 +819,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-shatter',
+		category: 'Stylize',
+		label: 'shatter()',
+		description: 'Break the source into tumbling fragments',
+		effect: {
+			name: 'shatter',
+			importPath: '@remotion/effects/shatter',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-shine',
 		category: 'Stylize',
 		label: 'shine()',

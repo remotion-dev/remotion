@@ -58,6 +58,7 @@ import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shadowsHighlights} from '@remotion/effects/shadows-highlights';
+import {shatter} from '@remotion/effects/shatter';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
@@ -162,6 +163,7 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -550,6 +552,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/thermal-vision',
 		comp: EffectsThermalVisionPreview,
 		schema: thermalVision().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shatter',
+		effectName: 'shatter',
+		effectImportPath: '@remotion/effects/shatter',
+		comp: EffectsShatterPreview,
+		schema: shatter().definition.schema,
 	},
 	{
 		...defaults,

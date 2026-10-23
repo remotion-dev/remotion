@@ -111,6 +111,7 @@ import {EffectsSaturationPreview} from '../../components/effects/effects-saturat
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../../components/effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../../components/effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -1235,6 +1236,30 @@ export const RemotionRoot: React.FC = () => {
 						offset: 0,
 						amplitude: 40,
 						wavelength: 160,
+					}}
+				/>
+				<Still
+					id="effects-shatter-preview"
+					component={EffectsShatterPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						time: 0.5,
+						pattern: 'bricks',
+						repetitions: 10,
+						direction: 0,
+						origin: [0.5, 0.5],
+						center: [0.5, 0.5],
+						radius: 0.4,
+						depth: 0.1,
+						strength: 5,
+						rotationSpeed: 0.2,
+						randomness: 0.1,
+						viscosity: 0.1,
+						massVariance: 0.3,
+						gravity: 3,
+						seed: 0,
+						extrusionDepth: 0.05,
 					}}
 				/>
 				<Still
