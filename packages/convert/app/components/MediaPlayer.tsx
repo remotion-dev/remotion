@@ -341,15 +341,13 @@ export function VideoPlayer({
 					/>
 				) : (
 					<div
-						className="bg-slate-100 text-muted-foreground flex items-center justify-center text-sm"
+						className="bg-slate-100 rounded-[inherit]"
 						style={{
 							aspectRatio: dimensions
 								? `${dimensions.width} / ${dimensions.height}`
 								: '16 / 9',
 						}}
-					>
-						Loading preview...
-					</div>
+					/>
 				)}
 				{!isAudio && crop && playerDimensions ? (
 					<CropUI
