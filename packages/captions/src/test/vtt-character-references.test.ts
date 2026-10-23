@@ -19,9 +19,7 @@ test('Should decode escaped ampersands and angle brackets', () => {
 test('Should decode other named character references', () => {
 	expect(parseCueText('Hello&nbsp;World')).toBe('Hello\u00A0World');
 	expect(parseCueText('&lrm;Hi&rlm;')).toBe('\u200EHi\u200F');
-	expect(parseCueText('&quot;Hi&quot; &apos;there&apos;')).toBe(
-		`"Hi" 'there'`,
-	);
+	expect(parseCueText('&quot;Hi&quot; &apos;there&apos;')).toBe(`"Hi" 'there'`);
 });
 
 test('Should decode numeric character references', () => {
