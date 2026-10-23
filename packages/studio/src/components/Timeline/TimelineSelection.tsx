@@ -11,6 +11,7 @@ import {
 import {
 	stringifySequenceExpandedRowKey,
 	type SequenceNodePathMutation,
+	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import React, {
 	createContext,
@@ -1481,6 +1482,13 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const remapSelectionNodePaths = useCallback(
 		(mutations: readonly SequenceNodePathMutation[]) => {
+			const remappingIndexes = new Map<
+				SequenceNodePathMutation['files'][number],
+				{
+					nextIndex: number;
+					byOldPath: Map<string, SequenceNodePathRemapping>;
+				}
+			>();
 			const remapItem = (
 				item: TimelineSelection | null,
 			): TimelineSelection | null => {
@@ -1502,11 +1510,34 @@ export const TimelineSelectionProvider: React.FC<{
 					}
 
 					const nodePathString = JSON.stringify(nodePath);
-					const remapping = file.remappings.find(
-						(candidate) =>
-							candidate.oldNodePath !== null &&
-							JSON.stringify(candidate.oldNodePath) === nodePathString,
-					);
+					let index = remappingIndexes.get(file);
+					if (index === undefined) {
+						index = {nextIndex: 0, byOldPath: new Map()};
+						remappingIndexes.set(file, index);
+					}
+
+					let remapping = index.byOldPath.get(nodePathString);
+					// Share each scanned prefix across selected items and the anchor.
+					while (
+						remapping === undefined &&
+						index.nextIndex < file.remappings.length
+					) {
+						const candidate = file.remappings[index.nextIndex++];
+						if (candidate.oldNodePath === null) {
+							continue;
+						}
+
+						const oldPath = JSON.stringify(candidate.oldNodePath);
+						// Keep the original first-match behavior for duplicate paths.
+						if (!index.byOldPath.has(oldPath)) {
+							index.byOldPath.set(oldPath, candidate);
+						}
+
+						if (oldPath === nodePathString) {
+							remapping = candidate;
+						}
+					}
+
 					if (!remapping) {
 						continue;
 					}

@@ -19,6 +19,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from './TimelineSelection';
+import {useTimelineStructureSelector} from './use-timeline-structure-selector';
 
 export const useTimelineSequenceHasExpandableContent = ({
 	sequence,
@@ -131,11 +132,12 @@ export const useTimelineSequenceHasExpandableContent = ({
 		],
 	);
 
-	return useRuntimeValueSelector({
+	return useTimelineStructureSelector({
 		// Runtime values can change active enum fields, but cannot introduce a
 		// selection or keyframes. Most code-animated tracks need no subscription.
 		controls: canHaveExpandableContent ? sequence.controls : null,
 		selector: selectHasExpandableContent,
+		isEqual: null,
 	});
 };
 

@@ -207,7 +207,8 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						))}
 					</div>
 					<div style={{color: '#999999', fontSize: 12 * scale}}>
-						{fileName} — brand
+						{fileName} —{' '}
+						{fileName === 'WhatsNew.tsx' ? 'announcements' : 'brand'}
 					</div>
 					<div
 						style={{
