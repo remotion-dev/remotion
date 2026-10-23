@@ -306,9 +306,9 @@ export const constructFromInstructions = (
 		if (instruction.type === 'q') {
 			if (instruction.cpdx === 0 && instruction.cpdy === 0) {
 				const linearCurve = makeLinearPosition({
-					x0: cur[0] + instruction.cpdx,
-					x1: cur[0] + instruction.cpdy,
-					y0: cur[1] + instruction.dx,
+					x0: cur[0],
+					x1: cur[0] + instruction.dx,
+					y0: cur[1],
 					y1: cur[1] + instruction.dy,
 				});
 				totalLength += linearCurve.getTotalLength();
