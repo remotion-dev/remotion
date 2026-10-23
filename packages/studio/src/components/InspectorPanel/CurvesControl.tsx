@@ -1,27 +1,11 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
-import {
-	FOCUS_VISIBLE_ONLY_CLASS_NAME,
-	HOVERABLE_CLASS_NAME,
-	hoverableStyle,
-} from '../../helpers/hoverable';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
+import {ContextMenu} from '../ContextMenu';
 import {InputDragger} from '../NewComposition/InputDragger';
 
 export type CurvePoints = readonly (readonly [number, number])[];
-
-const actionStyle: React.CSSProperties = {
-	...hoverableStyle({
-		idleBackground: TRANSPARENT,
-		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
-	fontSize: 11,
-	padding: '3px 0',
-	border: 'none',
-	cursor: 'default',
-};
 
 const pointBounds = (points: CurvePoints, index: number) => ({
 	min:
@@ -210,7 +194,6 @@ export const CurvesControl: React.FC<{
 				tabIndex={-1}
 				role="group"
 				aria-label="Curves graph"
-				title="Click to add a point. Drag to move. Alt-click or Delete to remove."
 				style={{
 					position: 'relative',
 					aspectRatio: '1',
@@ -302,15 +285,10 @@ export const CurvesControl: React.FC<{
 					/>
 				</svg>
 				{points.map((point, index) => (
-					<button
+					<ContextMenu
 						// Preserve focus while a point moves; insertion selects the new point.
 						// eslint-disable-next-line react/no-array-index-key
 						key={index}
-						type="button"
-						disabled={!editable}
-						aria-label={`Curve point ${index + 1}, input ${point[0]}, output ${point[1]}`}
-						aria-pressed={selected === index}
-						className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 						style={{
 							position: 'absolute',
 							left: `${point[0] * 100}%`,
@@ -318,63 +296,93 @@ export const CurvesControl: React.FC<{
 							transform: 'translate(-50%, -50%)',
 							width: 18,
 							height: 18,
-							padding: 5,
-							border: 'none',
-							cursor: 'default',
-							touchAction: 'none',
 						}}
-						onPointerDown={(event) => beginDrag(event, index)}
-						onFocus={() => setSelection(index)}
-						onClick={() => setSelection(index)}
-						onKeyDown={(event) => {
-							if (event.key === 'Delete' || event.key === 'Backspace') {
-								event.preventDefault();
-								event.stopPropagation();
-								removePoint(index);
-								return;
-							}
-
-							if (
-								!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(
-									event.key,
-								)
-							)
-								return;
-							event.preventDefault();
-							event.stopPropagation();
-							const delta = event.shiftKey ? 0.1 : 0.01;
-							onChange(
-								movePoint(
-									points,
-									index,
-									point[0] +
-										(event.key === 'ArrowRight'
-											? delta
-											: event.key === 'ArrowLeft'
-												? -delta
-												: 0),
-									point[1] +
-										(event.key === 'ArrowUp'
-											? delta
-											: event.key === 'ArrowDown'
-												? -delta
-												: 0),
-								),
-								true,
-							);
+						getItems={() => {
+							setSelection(index);
+							return [
+								{
+									type: 'item',
+									id: 'remove-curve-point',
+									label: 'Remove point',
+									keyHint: '⌫',
+									leftItem: null,
+									disabled: !editable || points.length <= 2,
+									onClick: () => removePoint(index),
+									quickSwitcherLabel: null,
+									subMenu: null,
+									value: 'remove-curve-point',
+								},
+							];
 						}}
 					>
-						<span
+						<button
+							type="button"
+							disabled={!editable}
+							aria-label={`Curve point ${index + 1}, input ${point[0]}, output ${point[1]}`}
+							aria-pressed={selected === index}
+							className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 							style={{
 								display: 'block',
-								width: 8,
-								height: 8,
-								backgroundColor: selected === index ? color : '#202024',
-								border: `1px solid ${color}`,
-								boxShadow: '0 0 0 1px #151519',
+								width: 18,
+								height: 18,
+								padding: 5,
+								border: 'none',
+								cursor: 'default',
+								touchAction: 'none',
 							}}
-						/>
-					</button>
+							onPointerDown={(event) => beginDrag(event, index)}
+							onFocus={() => setSelection(index)}
+							onClick={() => setSelection(index)}
+							onKeyDown={(event) => {
+								if (event.key === 'Delete' || event.key === 'Backspace') {
+									event.preventDefault();
+									event.stopPropagation();
+									removePoint(index);
+									return;
+								}
+
+								if (
+									!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(
+										event.key,
+									)
+								)
+									return;
+								event.preventDefault();
+								event.stopPropagation();
+								const delta = event.shiftKey ? 0.1 : 0.01;
+								onChange(
+									movePoint(
+										points,
+										index,
+										point[0] +
+											(event.key === 'ArrowRight'
+												? delta
+												: event.key === 'ArrowLeft'
+													? -delta
+													: 0),
+										point[1] +
+											(event.key === 'ArrowUp'
+												? delta
+												: event.key === 'ArrowDown'
+													? -delta
+													: 0),
+									),
+									true,
+								);
+							}}
+						>
+							<span
+								style={{
+									display: 'block',
+									width: 8,
+									height: 8,
+									backgroundColor: selected === index ? color : '#202024',
+									border: `1px solid ${color}`,
+									boxShadow: '0 0 0 1px #151519',
+								}}
+							/>
+						</button>
+					</ContextMenu>
 				))}
 			</div>
 			<div
@@ -445,65 +453,6 @@ export const CurvesControl: React.FC<{
 						/>
 					</React.Fragment>
 				))}
-			</div>
-			<div style={{display: 'flex', gap: 14, marginTop: 3}}>
-				<button
-					type="button"
-					disabled={!editable || points.length >= 32}
-					className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-					style={actionStyle}
-					onClick={() => {
-						let index = 0;
-						for (let i = 1; i < points.length - 1; i++) {
-							if (
-								points[i + 1][0] - points[i][0] >
-								points[index + 1][0] - points[index][0]
-							)
-								index = i;
-						}
-
-						const x = (points[index][0] + points[index + 1][0]) / 2;
-						if (x <= points[index][0] || x >= points[index + 1][0]) return;
-						setSelection(index + 1);
-						onChange(
-							[
-								...points.slice(0, index + 1),
-								[x, sample(x)],
-								...points.slice(index + 1),
-							],
-							true,
-						);
-					}}
-				>
-					Add point
-				</button>
-				<button
-					type="button"
-					disabled={!editable || points.length <= 2}
-					className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-					style={actionStyle}
-					onClick={() => removePoint(selected)}
-				>
-					Remove point
-				</button>
-				<button
-					type="button"
-					disabled={!editable}
-					className={`${HOVERABLE_CLASS_NAME} ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
-					style={{...actionStyle, marginLeft: 'auto'}}
-					onClick={() => {
-						setSelection(0);
-						onChange(
-							[
-								[0, 0],
-								[1, 1],
-							],
-							true,
-						);
-					}}
-				>
-					Reset
-				</button>
 			</div>
 		</div>
 	);

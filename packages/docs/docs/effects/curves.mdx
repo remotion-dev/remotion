@@ -45,7 +45,7 @@ export const MyComp: React.FC = () => {
 
 ## Editing in Studio
 
-The Curves panel shows an input histogram behind the curve. Click the graph to add a point, drag a point to move it, or edit its input and output values numerically. Select a point to delete it, or reset the curve to a straight line.
+The Curves panel shows an input histogram behind the curve. Click the graph to add a point, drag a point to move it, or edit its input and output values numerically. Right-click a point and choose Remove point, or select it and press Delete.
 
 Use the Channel dropdown above the graph to adjust RGB, red, green, or blue. Stack multiple `curves()` effects to combine adjustments to different channels. Effects are applied in array order.
 
@@ -73,7 +73,7 @@ The color channels to adjust: `'rgb'`, `'red'`, `'green'`, or `'blue'`. Defaults
 
 How to connect the control points: `'smooth'` or `'linear'`. Defaults to `'smooth'`.
 
-`'smooth'` creates a smooth curve that passes through the control points without overshooting their output values. `'linear'` connects adjacent points with straight lines.
+`'smooth'` uses a smooth cubic spline that follows the control points in the graph. It can overshoot between points; output values are clamped to `0`–`1`. `'linear'` connects adjacent points with straight lines.
 
 ### `amount?`
 
