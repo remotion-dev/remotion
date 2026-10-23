@@ -63,6 +63,7 @@ An array of [`Caption`](/docs/captions/caption) items.
 - Cue settings after the timestamps (such as `align:start position:10%`) are ignored.
 - `NOTE`, `STYLE` and `REGION` blocks are skipped.
 - Multi-line cue text is joined with `\n`.
+- Character references in the cue text such as `&amp;`, `&lt;`, `&gt;`, `&nbsp;` and numeric references like `&#233;` are decoded.
 
 ## Compatibility
 
