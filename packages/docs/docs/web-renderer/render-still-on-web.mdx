@@ -9,7 +9,7 @@ crumb: '@remotion/web-renderer'
 
 _Part of the `@remotion/web-renderer` package._
 
-Renders one or more frames in the browser.
+Renders a single frame in the browser. To capture multiple frames without remounting the composition, use [`renderFramesOnWeb()`](/docs/web-renderer/render-frames-on-web).
 
 If you want to render a video instead, use [`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web).
 
@@ -55,31 +55,9 @@ An object describing a composition. The object should have the following propert
 
 ### `frame`
 
-_number | number[]_
+_number_
 
-Which frame or frames of the composition should be rendered. Frames are zero-indexed.
-
-From v4.0.536, pass a non-empty array to capture multiple frames in one call. The composition mounts once, seeks to each requested frame in ascending order, and waits for pending [`delayRender()`](/docs/delay-render) handles before each capture. Results follow the input order, including duplicates. The composition unmounts when the batch finishes or fails.
-
-```tsx twoslash title="Capture multiple frames"
-import {renderStillOnWeb} from '@remotion/web-renderer';
-
-const stills = await renderStillOnWeb({
-  composition: {
-    component: () => null,
-    durationInFrames: 100,
-    fps: 30,
-    width: 1920,
-    height: 1080,
-    id: 'my-composition',
-  },
-  frame: [0, 30, 90],
-});
-
-const pngBlobs = await Promise.all(stills.map((still) => still.blob({format: 'png'})));
-```
-
-Each result holds its own captured pixels and can be encoded after the batch finishes. Cancelling or failing any frame rejects the entire call.
+Which frame of the composition should be rendered. Frames are zero-indexed.
 
 ### `inputProps?`
 
@@ -187,7 +165,7 @@ _boolean — default `false`_
 
 ## Return value
 
-Returns a promise that resolves to a <TsType type="RenderStillOnWebResult" source="@remotion/web-renderer" href="/docs/web-renderer/types#renderstillonwebresult" /> once the frame has been painted to an internal canvas. When `frame` is an array, the promise resolves to an array of these results in the same order.
+Returns a promise that resolves to a <TsType type="RenderStillOnWebResult" source="@remotion/web-renderer" href="/docs/web-renderer/types#renderstillonwebresult" /> once the frame has been painted to an internal canvas.
 
 ### `internalState`
 

@@ -1,8 +1,8 @@
 import {Artifact, useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import type {EmittedArtifact} from '../artifact';
+import {renderFramesOnWeb, renderStillOnWeb} from '../index';
 import {renderMediaOnWeb} from '../render-media-on-web';
-import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
 test('should be able to render an artifact for still', async () => {
@@ -171,7 +171,7 @@ test('batch stills allow the same artifact filename on separate frames', async (
 
 	const artifacts: EmittedArtifact[] = [];
 
-	await renderStillOnWeb({
+	await renderFramesOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,
@@ -181,7 +181,7 @@ test('batch stills allow the same artifact filename on separate frames', async (
 			fps: 30,
 			durationInFrames: 30,
 		},
-		frame: [10, 0, 20],
+		frames: [10, 0, 20],
 		onArtifact: (artifact) => artifacts.push(artifact),
 	});
 	expect(

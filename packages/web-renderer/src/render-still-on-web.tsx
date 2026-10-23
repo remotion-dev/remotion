@@ -3,6 +3,7 @@ import {
 	type CalculateMetadataFunction,
 	type LogLevel,
 } from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import type {$ZodObject} from 'zod/v4/core';
 import type {WebRendererOnArtifact} from './artifact';
 import {handleArtifacts} from './artifact';
@@ -30,14 +31,13 @@ export type {
 type MandatoryRenderStillOnWebOptions<
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
-	Frame extends number | number[] = number | number[],
 > = {
-	frame: Frame;
+	frame: number;
 } & {
 	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
 };
 
-type OptionalRenderStillOnWebOptions<Schema extends $ZodObject> = {
+type OptionalRenderImagesOnWebOptions<Schema extends $ZodObject> = {
 	delayRenderTimeoutInMilliseconds: number;
 	logLevel: LogLevel;
 	schema: Schema | undefined;
@@ -50,46 +50,55 @@ type OptionalRenderStillOnWebOptions<Schema extends $ZodObject> = {
 	allowHtmlInCanvas: boolean;
 };
 
-type InternalRenderStillOnWebOptions<
+type InternalRenderImagesOnWebOptions<
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
-> = MandatoryRenderStillOnWebOptions<Schema, Props> &
-	OptionalRenderStillOnWebOptions<Schema> &
+> = {
+	frames: number[];
+} & {
+	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
+} & OptionalRenderImagesOnWebOptions<Schema> &
 	InputPropsIfHasProps<Schema, Props>;
 
 export type RenderStillOnWebOptions<
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
-	Frame extends number | number[] = number,
-> = MandatoryRenderStillOnWebOptions<Schema, Props, Frame> &
-	Partial<OptionalRenderStillOnWebOptions<Schema>> &
+> = MandatoryRenderStillOnWebOptions<Schema, Props> &
+	Partial<OptionalRenderImagesOnWebOptions<Schema>> &
 	InputPropsIfHasProps<Schema, Props>;
 
-async function internalRenderStillOnWeb<
+export type RenderFramesOnWebOptions<
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
->({
-	frame,
-	delayRenderTimeoutInMilliseconds,
-	logLevel,
-	inputProps,
-	schema,
-	mediaCacheSizeInBytes,
-	composition,
-	signal,
-	onArtifact,
-	licenseKey,
-	scale,
-	isProduction,
-	allowHtmlInCanvas,
-}: InternalRenderStillOnWebOptions<Schema, Props>) {
+> = {
+	frames: number[];
+} & {
+	composition: CompositionCalculateMetadataOrExplicit<Schema, Props>;
+} & Partial<OptionalRenderImagesOnWebOptions<Schema>> &
+	InputPropsIfHasProps<Schema, Props>;
+
+async function internalRenderImagesOnWeb<
+	Schema extends $ZodObject,
+	Props extends Record<string, unknown>,
+>(
+	{
+		frames: requestedFrames,
+		delayRenderTimeoutInMilliseconds,
+		logLevel,
+		inputProps,
+		schema,
+		mediaCacheSizeInBytes,
+		composition,
+		signal,
+		onArtifact,
+		licenseKey,
+		scale,
+		isProduction,
+		allowHtmlInCanvas,
+	}: InternalRenderImagesOnWebOptions<Schema, Props>,
+	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
+) {
 	validateScale(scale);
-	const frames = (Array.isArray(frame) ? frame : [frame])
-		.map((requestedFrame, index) => ({frame: requestedFrame, index}))
-		.sort((a, b) => a.frame - b.frame);
-	if (frames.length === 0) {
-		throw new Error('renderStillOnWeb() requires at least one frame');
-	}
 
 	const onHtmlInCanvasLayerOutcome = (outcome: HtmlInCanvasLayerOutcome) => {
 		if (outcome.native) {
@@ -120,8 +129,16 @@ async function internalRenderStillOnWeb<
 		compositionWidth: composition.width ?? null,
 	});
 
+	const frames =
+		apiName === 'renderFramesOnWeb'
+			? NoReactInternals.validateSelectedFrames({
+					frames: requestedFrames,
+					durationInFrames: resolved.durationInFrames,
+				})
+			: requestedFrames;
+
 	if (signal?.aborted) {
-		return Promise.reject(new Error('renderStillOnWeb() was cancelled'));
+		return Promise.reject(new Error(`${apiName}() was cancelled`));
 	}
 
 	using internalState = makeInternalState({
@@ -144,7 +161,7 @@ async function internalRenderStillOnWeb<
 		durationInFrames: resolved.durationInFrames,
 		fps: resolved.fps,
 		schema: schema ?? null,
-		initialFrame: frames[0].frame,
+		initialFrame: frames[0],
 		defaultCodec: resolved.defaultCodec,
 		defaultOutName: resolved.defaultOutName,
 		useHtmlInCanvas: allowHtmlInCanvas,
@@ -189,7 +206,7 @@ async function internalRenderStillOnWeb<
 			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 			scope: delayRenderScope,
 			signal,
-			apiName: 'renderStillOnWeb',
+			apiName,
 			internalState: null,
 			keepalive: null,
 		});
@@ -198,19 +215,19 @@ async function internalRenderStillOnWeb<
 
 	try {
 		const results: RenderStillOnWebResult[] = [];
-		for (const [index, request] of frames.entries()) {
+		for (const [index, frame] of frames.entries()) {
 			if (signal?.aborted) {
-				throw new Error('renderStillOnWeb() was cancelled');
+				throw new Error(`${apiName}() was cancelled`);
 			}
 
 			if (index > 0) {
-				timeUpdater.current!.update(request.frame);
+				timeUpdater.current!.update(frame);
 			}
 
 			await waitForRenderReady();
 
 			if (signal?.aborted) {
-				throw new Error('renderStillOnWeb() was cancelled');
+				throw new Error(`${apiName}() was cancelled`);
 			}
 
 			const capturedFrame = await createLayer({
@@ -233,33 +250,30 @@ async function internalRenderStillOnWeb<
 			if (onArtifact) {
 				await handleArtifacts().handle({
 					imageData: canvas,
-					frame: request.frame,
+					frame,
 					assets,
 					onArtifact,
 				});
 			}
 
-			results[request.index] = createRenderStillOnWebResult({
-				canvas,
-				internalState,
-			});
+			results.push(createRenderStillOnWebResult({canvas, internalState}));
 		}
 
 		sendUsageEvent({
 			licenseKey: licenseKey ?? null,
 			succeeded: true,
-			apiName: 'renderStillOnWeb',
+			apiName,
 			isStill: true,
 			isProduction,
 		});
 
-		return Array.isArray(frame) ? results : results[0];
+		return results;
 	} catch (err) {
 		if (!signal?.aborted) {
 			sendUsageEvent({
 				succeeded: false,
 				licenseKey: licenseKey ?? null,
-				apiName: 'renderStillOnWeb',
+				apiName,
 				isStill: true,
 				isProduction,
 			}).catch((err2) => {
@@ -275,36 +289,58 @@ async function internalRenderStillOnWeb<
 	}
 }
 
-export const renderStillOnWeb = <
+const renderImagesOnWeb = <
 	Schema extends $ZodObject,
 	Props extends Record<string, unknown>,
-	Frame extends number | number[] = number,
 >(
-	options: RenderStillOnWebOptions<Schema, Props, Frame>,
-): Promise<
-	Frame extends number[] ? RenderStillOnWebResult[] : RenderStillOnWebResult
-> => {
+	options: RenderFramesOnWebOptions<Schema, Props>,
+	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
+): Promise<RenderStillOnWebResult[]> => {
 	onlyOneStillRenderAtATimeQueue.ref = onlyOneStillRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
-			internalRenderStillOnWeb<Schema, Props>({
-				...options,
-				delayRenderTimeoutInMilliseconds:
-					options.delayRenderTimeoutInMilliseconds ?? 30000,
-				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
-				schema: options.schema ?? undefined,
-				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
-				signal: options.signal ?? null,
-				onArtifact: options.onArtifact ?? null,
-				// Must allow undefined to print warning
-				licenseKey: options.licenseKey ?? null,
-				scale: options.scale ?? 1,
-				isProduction: options.isProduction ?? true,
-				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
-			}),
+			internalRenderImagesOnWeb<Schema, Props>(
+				{
+					...options,
+					delayRenderTimeoutInMilliseconds:
+						options.delayRenderTimeoutInMilliseconds ?? 30000,
+					logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
+					schema: options.schema ?? undefined,
+					mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+					signal: options.signal ?? null,
+					onArtifact: options.onArtifact ?? null,
+					// Must allow undefined to print warning
+					licenseKey: options.licenseKey ?? null,
+					scale: options.scale ?? 1,
+					isProduction: options.isProduction ?? true,
+					allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
+				},
+				apiName,
+			),
 		);
 
 	return onlyOneStillRenderAtATimeQueue.ref as Promise<
-		Frame extends number[] ? RenderStillOnWebResult[] : RenderStillOnWebResult
+		RenderStillOnWebResult[]
 	>;
+};
+
+export const renderStillOnWeb = <
+	Schema extends $ZodObject,
+	Props extends Record<string, unknown>,
+>(
+	options: RenderStillOnWebOptions<Schema, Props>,
+): Promise<RenderStillOnWebResult> => {
+	return renderImagesOnWeb<Schema, Props>(
+		{...options, frames: [options.frame]},
+		'renderStillOnWeb',
+	).then((results) => results[0]);
+};
+
+export const renderFramesOnWeb = <
+	Schema extends $ZodObject,
+	Props extends Record<string, unknown>,
+>(
+	options: RenderFramesOnWebOptions<Schema, Props>,
+): Promise<RenderStillOnWebResult[]> => {
+	return renderImagesOnWeb<Schema, Props>(options, 'renderFramesOnWeb');
 };

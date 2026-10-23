@@ -10545,6 +10545,15 @@ export const articles = [
 		slug: 'web-renderer/render-media-on-web',
 	},
 	{
+		id: 'render-frames-on-web',
+		title: 'renderFramesOnWeb()',
+		relativePath: 'docs/web-renderer/render-frames-on-web.mdx',
+		compId: 'articles-docs-web-renderer-render-frames-on-web',
+		crumb: '@remotion/web-renderer',
+		noAi: false,
+		slug: 'web-renderer/render-frames-on-web',
+	},
+	{
 		id: 'render-still-on-web',
 		title: 'renderStillOnWeb()',
 		relativePath: 'docs/web-renderer/render-still-on-web.mdx',

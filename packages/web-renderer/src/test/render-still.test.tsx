@@ -2,9 +2,9 @@ import {useEffect, useState} from 'react';
 import {flushSync} from 'react-dom';
 import {useCurrentFrame, useDelayRender} from 'remotion';
 import {expect, expectTypeOf, test} from 'vitest';
+import {renderFramesOnWeb, renderStillOnWeb} from '../index';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import type {RenderStillOnWebResult} from '../render-still-on-web';
-import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {testImage} from './utils';
 
@@ -176,7 +176,7 @@ test('captures sparse frames without remounting and waits for each seek', async 
 		);
 	};
 
-	const results = await renderStillOnWeb({
+	const results = await renderFramesOnWeb({
 		licenseKey: 'free-license',
 		composition: {
 			component: Component,
@@ -190,7 +190,7 @@ test('captures sparse frames without remounting and waits for each seek', async 
 				return {};
 			},
 		},
-		frame: [20, 0, 10, 20],
+		frames: [20, 0, 10],
 		inputProps: {},
 	});
 	expectTypeOf(results).toEqualTypeOf<RenderStillOnWebResult[]>();
@@ -208,7 +208,6 @@ test('captures sparse frames without remounting and waits for each seek', async 
 	}
 
 	expect(pixels).toEqual([
-		[20, 0, 0, 255],
 		[0, 0, 0, 255],
 		[10, 0, 0, 255],
 		[20, 0, 0, 255],
@@ -252,16 +251,16 @@ test.each(['abort', 'error'] as const)(
 			durationInFrames: 30,
 		};
 		await expect(
-			renderStillOnWeb({
+			renderFramesOnWeb({
 				licenseKey: 'free-license',
 				composition,
-				frame: [0, 10, 20],
+				frames: [0, 10, 20],
 				signal: controller.signal,
 				inputProps: {},
 			}),
 		).rejects.toThrow(
 			failure === 'abort'
-				? 'renderStillOnWeb() was cancelled'
+				? 'renderFramesOnWeb() was cancelled'
 				: 'Batch frame failed',
 		);
 		expect(unmounts).toBe(1);
@@ -278,29 +277,42 @@ test.each(['abort', 'error'] as const)(
 	},
 );
 
-test('rejects an empty frame array before mounting', async () => {
-	let mounts = 0;
-	const Component: React.FC = () => {
-		useEffect(() => {
-			mounts++;
-		}, []);
-		return null;
-	};
+test.each([
+	{frames: [], message: 'at least one frame'},
+	{frames: [1, 1], message: 'duplicate frames'},
+	{frames: [-1], message: 'non-negative numbers'},
+	{frames: [0.5], message: 'only integers'},
+	{frames: [NaN], message: 'finite numbers'},
+	{frames: [Infinity], message: 'finite numbers'},
+	{frames: [30], message: 'out of range'},
+	{frames: ['1'] as unknown as number[], message: 'only numbers'},
+	{frames: 1 as unknown as number[], message: 'must be an array'},
+])(
+	'renderFramesOnWeb rejects $message before mounting (#12326)',
+	async ({frames, message}) => {
+		let mounts = 0;
+		const Component: React.FC = () => {
+			useEffect(() => {
+				mounts++;
+			}, []);
+			return null;
+		};
 
-	await expect(
-		renderStillOnWeb({
-			licenseKey: 'free-license',
-			composition: {
-				component: Component,
-				id: 'empty-batch',
-				width: 10,
-				height: 10,
-				fps: 30,
-				durationInFrames: 30,
-			},
-			frame: [],
-			inputProps: {},
-		}),
-	).rejects.toThrow('renderStillOnWeb() requires at least one frame');
-	expect(mounts).toBe(0);
-});
+		await expect(
+			renderFramesOnWeb({
+				licenseKey: 'free-license',
+				composition: {
+					component: Component,
+					id: 'empty-batch',
+					width: 10,
+					height: 10,
+					fps: 30,
+					durationInFrames: 30,
+				},
+				frames,
+				inputProps: {},
+			}),
+		).rejects.toThrow(message);
+		expect(mounts).toBe(0);
+	},
+);
