@@ -61,6 +61,7 @@ import {
 	timeValueRef,
 } from './EditorProps.js';
 import {createEffect} from './effects/create-effect.js';
+import {subscribeToEffectSource} from './effects/effect-source-observer.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -538,6 +539,7 @@ export const Internals = {
 	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
 	createEffect,
 	createWebGLContextError,

@@ -37,6 +37,7 @@ import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
+import {LevelsEditor} from './InspectorPanel/LevelsEditor';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -1164,6 +1165,28 @@ export const InspectorSequenceSection: React.FC<{
 											ref={selected ? selectedEffectRowRef : null}
 										>
 											{renderRow(row)}
+											{row.node.kind === 'field' &&
+											row.node.field?.kind === 'effect-field' &&
+											row.node.field.key === 'channel' &&
+											sequence.effects[row.node.field.effectIndex]?.type ===
+												'remotion/levels' ? (
+												<LevelsEditor
+													multipleInstances={
+														nodePathInfo.numberOfSequencesWithThisNodePath > 1
+													}
+													nodePath={nodePathInfo.sequenceSubscriptionKey}
+													effectIndex={row.node.field.effectIndex}
+													schema={row.node.field.effectSchema}
+													validatedLocation={validatedLocation}
+													runtimeValueStore={
+														sequence.effectRuntimeValues?.[
+															row.node.field.effectIndex
+														] ?? null
+													}
+													keyframeDisplayOffset={keyframeDisplayOffset}
+													keyframePlaybackRate={keyframePlaybackRate}
+												/>
+											) : null}
 										</div>
 									);
 								})}

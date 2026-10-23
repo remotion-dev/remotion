@@ -356,7 +356,14 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsLevelsPreview}
 					width={1280}
 					height={720}
-					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
+					defaultProps={{
+						blackPoint: 0.1,
+						whitePoint: 0.9,
+						gamma: 1.4,
+						outputBlack: 0.03,
+						outputWhite: 0.95,
+						channel: 'rgb',
+					}}
 				/>
 				<Still
 					id="effects-lut-preview"

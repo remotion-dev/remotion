@@ -20,12 +20,14 @@ import {
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
 import {useCurrentFrame} from '../use-current-frame.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {
 	type CanUpdateSequencePropStatus,
 	type DragOverrideValue,
 	type PropStatuses,
 } from '../use-schema.js';
 import type {VideoConfigValues} from '../video-config.js';
+import {useEffectSourceInspection} from './effect-source-observer.js';
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
@@ -283,6 +285,7 @@ export const useMemoizedEffects = ({
 	videoConfigValues: VideoConfigValues | null;
 }): EffectDefinitionAndStack<unknown>[] => {
 	const previousRef = useRef<EffectDefinitionAndStack<unknown>[] | null>(null);
+	const {isStudio} = useRemotionEnvironment();
 
 	const {propStatuses} = useContext(VisualModePropStatusesContext);
 	const frame = useCurrentFrame();
@@ -350,5 +353,10 @@ export const useMemoizedEffects = ({
 	useCacheCommitEffect(() => {
 		previousRef.current = next;
 	}, [next]);
-	return next;
+	return useEffectSourceInspection(
+		next,
+		isStudio && nodePath !== null
+			? makeSequencePropsSubscriptionKey({...nodePath, videoConfigValues})
+			: null,
+	);
 };
