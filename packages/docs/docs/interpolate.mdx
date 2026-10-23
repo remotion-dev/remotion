@@ -274,6 +274,14 @@ interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'identity'}); // 1.5
 interpolate(1.5, [0, 1], [0, 2], {extrapolateRight: 'wrap'}); // 1
 ```
 
+From <AvailableFrom v="4.0.539" inline />, `wrap` repeats the entire input range when there are more than two keyframes:
+
+```tsx twoslash title="Looping all keyframes"
+import {interpolate} from 'remotion';
+// ---cut---
+interpolate(35, [0, 10, 30], [0, 100, 200], {extrapolateRight: 'wrap'}); // 50, same as input 5
+```
+
 ### easing?
 
 _Default_: `(x) => x`
