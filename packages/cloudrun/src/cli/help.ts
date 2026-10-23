@@ -193,6 +193,7 @@ const renderOptions = options(
 		'offthreadvideo-cache-size-in-bytes',
 		'offthreadvideo-video-threads',
 		'color-space',
+		'prefer-lossless',
 		'metadata',
 		'sample-rate',
 	],
