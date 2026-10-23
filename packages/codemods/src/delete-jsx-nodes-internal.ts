@@ -72,6 +72,77 @@ export const getJsxElementTagLabel = (element: JSXElement): string => {
 	return `<${jsxOpeningNameToString(element.openingElement.name)}>`;
 };
 
+const TRANSITION_SERIES_SEQUENCE = 'TransitionSeries.Sequence';
+const TRANSITION_SERIES_CONNECTORS = [
+	'TransitionSeries.Transition',
+	'TransitionSeries.Overlay',
+];
+
+const getJsxElementName = (element: JSXElement): string => {
+	return jsxOpeningNameToString(element.openingElement.name);
+};
+
+// A <TransitionSeries> must alternate between sequences and
+// transitions/overlays. Deleting a sequence on its own would leave two
+// transitions or overlays next to each other, which <TransitionSeries> rejects
+// at render time. So a deleted sequence takes the transition or overlay that
+// follows it along, or the one before it if it was the last sequence.
+export const findTransitionSeriesConnectorToDelete = (
+	jsxPath: recast.types.NodePath,
+): recast.types.NodePath | null => {
+	const element = jsxPath.node as JSXElement;
+	if (
+		!namedTypes.JSXElement.check(element) ||
+		getJsxElementName(element) !== TRANSITION_SERIES_SEQUENCE
+	) {
+		return null;
+	}
+
+	const childrenPath = jsxPath.parentPath;
+	const parent = childrenPath?.node;
+	if (
+		!childrenPath ||
+		!Array.isArray(childrenPath.value) ||
+		!(
+			namedTypes.JSXElement.check(parent) ||
+			namedTypes.JSXFragment.check(parent)
+		)
+	) {
+		return null;
+	}
+
+	const children = childrenPath.value as JSXElement['children'];
+	const index = children.indexOf(element);
+	if (index === -1) {
+		return null;
+	}
+
+	const isConnector = (child: JSXElement['children'][number]) =>
+		namedTypes.JSXElement.check(child) &&
+		TRANSITION_SERIES_CONNECTORS.includes(getJsxElementName(child));
+
+	const findElementIndex = (from: number, step: 1 | -1): number | null => {
+		for (let i = from; i >= 0 && i < children.length; i += step) {
+			const child = children[i];
+			if (namedTypes.JSXText.check(child) && child.value.trim() === '') {
+				continue;
+			}
+
+			return isConnector(child) ? i : null;
+		}
+
+		return null;
+	};
+
+	const connectorIndex =
+		findElementIndex(index + 1, 1) ?? findElementIndex(index - 1, -1);
+	if (connectorIndex === null) {
+		return null;
+	}
+
+	return childrenPath.get(connectorIndex);
+};
+
 export const findJsxElementPathForDeletion = (
 	ast: File,
 	nodePath: SequenceNodePath,
@@ -569,6 +640,26 @@ export const deleteNodes = ({
 				1,
 		};
 	});
+
+	for (const {jsxPath} of [...pathsToDelete]) {
+		const connectorPath = findTransitionSeriesConnectorToDelete(jsxPath);
+		if (
+			!connectorPath ||
+			pathsToDelete.some((entry) => entry.jsxPath.node === connectorPath.node)
+		) {
+			continue;
+		}
+
+		const connector = connectorPath.node as JSXElement;
+		pathsToDelete.push({
+			jsxPath: connectorPath,
+			nodeLabel: getJsxElementTagLabel(connector),
+			logLine:
+				connector.openingElement.loc?.start.line ??
+				connector.loc?.start.line ??
+				1,
+		});
+	}
 
 	const sourceEdits = pathsToDelete.map(({jsxPath}) =>
 		getNodeSourceEdit({input, jsxPath}),

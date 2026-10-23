@@ -240,13 +240,41 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const flattedChildren = useMemo(() => {
-		return flattenChildren(children).filter(
-			(child) =>
-				!Internals.OptimisticSequenceDeletion.isElementDeleted(
-					child,
-					pendingDeletions,
-				),
+		const flattened = flattenChildren(children);
+		const deleted = flattened.map((child) =>
+			Internals.OptimisticSequenceDeletion.isElementDeleted(
+				child,
+				pendingDeletions,
+			),
 		);
+		// A deleted sequence takes the transition or overlay next to it along
+		// (the following one, or the previous one for the last sequence), like
+		// the source codemod does. Otherwise two transitions or overlays would
+		// sit next to each other until the source file is reloaded.
+		const isConnector = (child: React.ReactNode) =>
+			React.isValidElement(child) &&
+			(child.type === TransitionSeriesTransition ||
+				child.type === SeriesOverlay);
+		flattened.forEach((child, i) => {
+			if (
+				!deleted[i] ||
+				!React.isValidElement(child) ||
+				child.type !== SeriesSequence
+			) {
+				return;
+			}
+
+			const next = i + 1 < flattened.length ? i + 1 : null;
+			const previous = i > 0 ? i - 1 : null;
+			if (next !== null && isConnector(flattened[next])) {
+				// Same choice as the codemod: the following connector goes, and if
+				// it is part of the deletion already, nothing else is removed.
+				deleted[next] = true;
+			} else if (previous !== null && isConnector(flattened[previous])) {
+				deleted[previous] = true;
+			}
+		});
+		return flattened.filter((_, i) => !deleted[i]);
 	}, [children, pendingDeletions]);
 	const hasOverlay = flattedChildren.some(
 		(child) => React.isValidElement(child) && child.type === SeriesOverlay,
