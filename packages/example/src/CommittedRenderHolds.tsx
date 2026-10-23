@@ -215,6 +215,8 @@ const Panel = () => {
 	const width = COMMITTED_HOLDS_TILE_WIDTH;
 	const height = COMMITTED_HOLDS_TILE_HEIGHT;
 	const gif = staticFile('committed-render-holds/colors.gif');
+	const supportsImageDecoder = typeof ImageDecoder !== 'undefined';
+	const ImageComponent = supportsImageDecoder ? AnimatedImage : Gif;
 	return (
 		<div
 			style={{
@@ -235,11 +237,23 @@ const Panel = () => {
 			<Tile title="Gif · intrinsic duration">
 				<Gif src={gif} loop width={width} height={height} fit="fill" />
 			</Tile>
-			<Tile title="AnimatedImage">
-				<AnimatedImage src={gif} width={width} height={height} fit="fill" />
+			<Tile
+				title={
+					supportsImageDecoder
+						? 'AnimatedImage'
+						: 'AnimatedImage · Gif fallback'
+				}
+			>
+				<ImageComponent src={gif} width={width} height={height} fit="fill" />
 			</Tile>
-			<Tile title="AnimatedImage · intrinsic duration">
-				<AnimatedImage
+			<Tile
+				title={
+					supportsImageDecoder
+						? 'AnimatedImage · intrinsic duration'
+						: 'Gif fallback · intrinsic duration'
+				}
+			>
+				<ImageComponent
 					src={gif}
 					loop
 					width={width}
