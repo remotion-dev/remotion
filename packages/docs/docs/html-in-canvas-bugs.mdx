@@ -1,0 +1,27 @@
+---
+image: /generated/articles-docs-html-in-canvas-bugs.png
+title: HTML-in-canvas Bugs
+crumb: 'Issue Tracker'
+sidebar_label: HTML-in-canvas Bugs
+---
+
+This page tracks browser bugs and limitations affecting [HTML-in-canvas](/docs/html-in-canvas) that our community has reported.
+
+## Browser reports
+
+| Issue                                                                                                                      | Product | Filed by     | Status                |
+| -------------------------------------------------------------------------------------------------------------------------- | ------- | ------------ | --------------------- |
+| [HTML-in-canvas does crash page on WebGL context loss](https://issues.chromium.org/issues/575053149)                       | Chrome  | @JonnyBurger | Open                  |
+| [A canvas with opacity: 0 can crash HTML-in-canvas](https://issues.chromium.org/issues/575053148)                          | Chrome  | @JonnyBurger | Fixed in 158.0.8118.0 |
+| [HTML-in-canvas does not handle object-fit CSS property well](https://issues.chromium.org/issues/570832069)                | Chrome  | @JonnyBurger | Open                  |
+| [Nested HTML-in-canvas renders differently based on window.devicePixelRatio](https://issues.chromium.org/issues/540532973) | Chrome  | @JonnyBurger | Fixed in 157.0.8080.0 |
+| [Relax restriction disallowing nested HTML-in-canvas](https://github.com/WICG/html-in-canvas/issues/120)                   | Chrome  | @JonnyBurger | Fixed in 157.0.8080.0 |
+
+Chrome build numbers identify the first build containing the fix and may refer to Canary before it reaches Stable. Where only a Chrome milestone is confirmed, only the major version is listed.
+
+## See also
+
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas)
+- [HTML-in-canvas for client-side rendering](/docs/client-side-rendering/html-in-canvas)
+- [WebCodecs Bugs](/docs/mediabunny/webcodecs-bugs)

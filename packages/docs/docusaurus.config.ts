@@ -329,6 +329,9 @@ const config: Config = {
 		[
 			'classic',
 			{
+				sitemap: {
+					ignorePatterns: ['/experimental_home'],
+				},
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',

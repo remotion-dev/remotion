@@ -145,7 +145,7 @@ function calculateSignature(payload: string, secret?: string) {
 
 In your webhook endpoint, the `payload` parameter is the request body and the `secret` parameter is your webhook secret.
 
-Instead of validating the signature yourself, you can use the [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) function to throw an error if the signature is invalid.
+Instead of validating the signature yourself, you can use the [`validateWebhookSignature()`](/docs/lambda/validatewebhooksignature) function to throw an error if the signature is invalid. The Lambda SDKs for [Go](/docs/lambda/go#verifying-webhooks), [Python](/docs/lambda/python#verifying-webhooks), [PHP](/docs/lambda/php#verifying-webhooks) and [Ruby](/docs/lambda/ruby#verifying-webhooks) ship equivalent helpers that take the raw request body, and `validateWebhookSignature()` accepts the raw request body as well.
 
 ## Example webhook endpoint (Express)
 

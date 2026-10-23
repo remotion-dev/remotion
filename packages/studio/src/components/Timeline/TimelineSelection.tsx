@@ -11,6 +11,7 @@ import {
 import {
 	stringifySequenceExpandedRowKey,
 	type SequenceNodePathMutation,
+	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import React, {
 	createContext,
@@ -614,40 +615,134 @@ export const getTimelineSelectionFromNodePathInfo = (
 
 export const getTimelineSelectionKey = getCanvasSelectionItemKey;
 
-const nodePathDescendsFrom = (
-	descendant: SequenceNodePathInfo,
-	ancestor: SequenceNodePathInfo,
-): boolean => {
-	if (
-		stringifySequenceExpandedRowKey(descendant.sequenceSubscriptionKey) !==
-		stringifySequenceExpandedRowKey(ancestor.sequenceSubscriptionKey)
-	) {
-		return false;
+const multiSelectedSequenceNodePathInfosByItems = new WeakMap<
+	readonly TimelineSelection[],
+	readonly SequenceNodePathInfo[] | null
+>();
+
+export const getMultiSelectedSequenceNodePathInfos = (
+	selectedItems: readonly TimelineSelection[],
+): readonly SequenceNodePathInfo[] | null => {
+	const cached = multiSelectedSequenceNodePathInfosByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
 	}
 
-	if (descendant.index !== ancestor.index) {
-		return false;
-	}
-
-	// Must be strictly deeper than `ancestor` (i.e. a descendant), not the same row.
-	if (descendant.auxiliaryKeys.length <= ancestor.auxiliaryKeys.length) {
-		return false;
-	}
-
-	return ancestor.auxiliaryKeys.every(
-		(key, i) => descendant.auxiliaryKeys[i] === key,
-	);
+	// All selected clips and labels can share the same action targets.
+	const nodePathInfos =
+		selectedItems.length < 2 ||
+		selectedItems.some((item) => item.type !== 'sequence')
+			? null
+			: selectedItems.flatMap((item) =>
+					item.type === 'sequence' ? [item.nodePathInfo] : [],
+				);
+	multiSelectedSequenceNodePathInfosByItems.set(selectedItems, nodePathInfos);
+	return nodePathInfos;
 };
+
+const selectedKeysByItems = new WeakMap<
+	readonly TimelineSelection[],
+	ReadonlySet<string>
+>();
+
+const getTimelineSelectedKeys = (
+	selectedItems: readonly TimelineSelection[],
+): ReadonlySet<string> => {
+	const cached = selectedKeysByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	// Share membership checks across rows without retaining old selections.
+	const keys = new Set(selectedItems.map(getTimelineSelectionKey));
+	selectedKeysByItems.set(selectedItems, keys);
+	return keys;
+};
+
+const containedRowsByItems = new WeakMap<
+	readonly TimelineSelection[],
+	{
+		readonly ancestorRows: ReadonlyMap<
+			string,
+			ReadonlyMap<number, ReadonlySet<string>>
+		>;
+		readonly animationRows: ReadonlySet<string>;
+	}
+>();
 
 const timelineRowContainsSelection = (
 	nodePathInfo: SequenceNodePathInfo,
-	selection: TimelineSelection,
-): boolean =>
-	selection.type !== 'guide' &&
-	(nodePathDescendsFrom(selection.nodePathInfo, nodePathInfo) ||
-		((selection.type === 'keyframe' || selection.type === 'easing') &&
-			timelineNodePathInfoToKey(selection.nodePathInfo) ===
-				timelineNodePathInfoToKey(nodePathInfo)));
+	selectedItems: readonly TimelineSelection[],
+): boolean => {
+	let index = containedRowsByItems.get(selectedItems);
+	if (index === undefined) {
+		const ancestorRows = new Map<string, Map<number, Set<string>>>();
+		const animationRows = new Set<string>();
+		for (const item of selectedItems) {
+			if (item.type === 'guide') {
+				continue;
+			}
+
+			if (item.type === 'keyframe' || item.type === 'easing') {
+				animationRows.add(timelineNodePathInfoToKey(item.nodePathInfo));
+			}
+
+			const {
+				auxiliaryKeys,
+				sequenceSubscriptionKey,
+				index: instanceIndex,
+			} = item.nodePathInfo;
+			// NaN never matched the strict instance-index comparison.
+			if (auxiliaryKeys.length === 0 || Number.isNaN(instanceIndex)) {
+				continue;
+			}
+
+			const sequenceKey = stringifySequenceExpandedRowKey(
+				sequenceSubscriptionKey,
+			);
+			let instances = ancestorRows.get(sequenceKey);
+			if (instances === undefined) {
+				instances = new Map();
+				ancestorRows.set(sequenceKey, instances);
+			}
+
+			let prefixes = instances.get(instanceIndex);
+			if (prefixes === undefined) {
+				prefixes = new Set();
+				instances.set(instanceIndex, prefixes);
+			}
+
+			// Only strict ancestors contain a selected row. Preserve auxiliary
+			// segments separately: a property name can itself contain a dot.
+			for (let length = 0; length < auxiliaryKeys.length; length++) {
+				prefixes.add(JSON.stringify(auxiliaryKeys.slice(0, length)));
+			}
+		}
+
+		index = {ancestorRows, animationRows};
+		containedRowsByItems.set(selectedItems, index);
+	}
+
+	if (
+		index.animationRows.size > 0 &&
+		index.animationRows.has(timelineNodePathInfoToKey(nodePathInfo))
+	) {
+		return true;
+	}
+
+	if (index.ancestorRows.size === 0) {
+		return false;
+	}
+
+	return (
+		index.ancestorRows
+			.get(
+				stringifySequenceExpandedRowKey(nodePathInfo.sequenceSubscriptionKey),
+			)
+			?.get(nodePathInfo.index)
+			?.has(JSON.stringify(nodePathInfo.auxiliaryKeys)) ?? false
+	);
+};
 
 export const getSelectableTimelineSequenceSelections = (
 	tracks: readonly Pick<TimelineTrackData, 'nodePathInfo'>[],
@@ -1243,7 +1338,7 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [selectionController, timelineSelectionScope]);
 
 	const selectedKeys = useMemo(
-		() => new Set(availableSelectedItems.map(getTimelineSelectionKey)),
+		() => getTimelineSelectedKeys(availableSelectedItems),
 		[availableSelectedItems],
 	);
 
@@ -1381,15 +1476,20 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			return availableSelectedItems.some((selected) =>
-				timelineRowContainsSelection(nodePathInfo, selected),
-			);
+			return timelineRowContainsSelection(nodePathInfo, availableSelectedItems);
 		},
 		[availableSelectedItems],
 	);
 
 	const remapSelectionNodePaths = useCallback(
 		(mutations: readonly SequenceNodePathMutation[]) => {
+			const remappingIndexes = new Map<
+				SequenceNodePathMutation['files'][number],
+				{
+					nextIndex: number;
+					byOldPath: Map<string, SequenceNodePathRemapping>;
+				}
+			>();
 			const remapItem = (
 				item: TimelineSelection | null,
 			): TimelineSelection | null => {
@@ -1411,11 +1511,34 @@ export const TimelineSelectionProvider: React.FC<{
 					}
 
 					const nodePathString = JSON.stringify(nodePath);
-					const remapping = file.remappings.find(
-						(candidate) =>
-							candidate.oldNodePath !== null &&
-							JSON.stringify(candidate.oldNodePath) === nodePathString,
-					);
+					let index = remappingIndexes.get(file);
+					if (index === undefined) {
+						index = {nextIndex: 0, byOldPath: new Map()};
+						remappingIndexes.set(file, index);
+					}
+
+					let remapping = index.byOldPath.get(nodePathString);
+					// Share each scanned prefix across selected items and the anchor.
+					while (
+						remapping === undefined &&
+						index.nextIndex < file.remappings.length
+					) {
+						const candidate = file.remappings[index.nextIndex++];
+						if (candidate.oldNodePath === null) {
+							continue;
+						}
+
+						const oldPath = JSON.stringify(candidate.oldNodePath);
+						// Keep the original first-match behavior for duplicate paths.
+						if (!index.byOldPath.has(oldPath)) {
+							index.byOldPath.set(oldPath, candidate);
+						}
+
+						if (oldPath === nodePathString) {
+							remapping = candidate;
+						}
+					}
+
 					if (!remapping) {
 						continue;
 					}
@@ -1952,9 +2075,7 @@ const useTimelineSelectionItem = <
 		}
 
 		const snapshot = selectionContext.getSnapshot();
-		return snapshot.selectedItems.some(
-			(item) => getTimelineSelectionKey(item) === selectionItemKey,
-		)
+		return getTimelineSelectedKeys(snapshot.selectedItems).has(selectionItemKey)
 			? snapshot
 			: null;
 	}, [selectionContext, selectionItemKey]);
@@ -2076,11 +2197,10 @@ export const useTimelineRowContainsSelection = (
 			return false;
 		}
 
-		return selectionContext
-			.getSnapshot()
-			.selectedItems.some((selected) =>
-				timelineRowContainsSelection(nodePathInfo, selected),
-			);
+		return timelineRowContainsSelection(
+			nodePathInfo,
+			selectionContext.getSnapshot().selectedItems,
+		);
 	}, [nodePathInfo, selectionContext]);
 
 	return useSyncExternalStore(

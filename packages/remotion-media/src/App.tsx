@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import variants from '../variants.json';
 import {getCategoryLabel} from './llms';
+import {Navbar} from './Navbar';
 
 const CopyLink = ({href}: {readonly href: string}) => {
 	const [copied, setCopied] = React.useState(false);
@@ -211,44 +212,47 @@ export function App() {
 	}, []);
 
 	return (
-		<main className="max-w-[960px] w-full m-auto mt-4 px-4 mb-20">
-			<h1 className="text-2xl font-bold mt-10 mb-2 font-brand">
-				Free audio and video files for testing
-			</h1>
-			<div className="text-neutral-500 font-brand mt-1 mb-8">
-				<p className="mb-3">
-					remotion.media is a CORS-enabled catalog of sample media files. Use
-					them to test media players, parsers, WebCodecs, transcoding, and
-					upload pipelines.
-				</p>
-				<p>
-					Browse {variants.length} fixtures across codecs, containers,
-					resolutions, frame rates, durations, sample rates, sound effects, and
-					HLS. Every file is available at{' '}
-					<code className="font-brand text-brand">
-						remotion.media/[filename]
-					</code>
-					. Files may be used royalty-free and without attribution. You can also
-					pass this website to an AI agent to receive a Markdown version of the
-					catalog.
-				</p>
-			</div>
-			<div className="flex gap-8 items-start">
-				<Sidebar
-					activeCategory={activeCategory}
-					showBackToTop={showBackToTop}
-				/>
-				<div className="flex-1 min-w-0">
-					{Object.entries(groups).map(([category, categoryVariants]) => (
-						<CategoryGroup
-							key={category}
-							category={category}
-							variants={categoryVariants}
-						/>
-					))}
+		<>
+			<Navbar />
+			<main className="max-w-[960px] w-full m-auto mt-4 px-4 mb-20">
+				<h1 className="text-2xl font-bold mt-10 mb-2 font-brand">
+					Free audio and video files for testing
+				</h1>
+				<div className="text-neutral-500 font-brand mt-1 mb-8">
+					<p className="mb-3">
+						remotion.media is a CORS-enabled catalog of sample media files. Use
+						them to test media players, parsers, WebCodecs, transcoding, and
+						upload pipelines.
+					</p>
+					<p>
+						Browse {variants.length} fixtures across codecs, containers,
+						resolutions, frame rates, durations, sample rates, sound effects,
+						and HLS. Every file is available at{' '}
+						<code className="font-brand text-brand">
+							remotion.media/[filename]
+						</code>
+						. Files may be used royalty-free and without attribution. You can
+						also pass this website to an AI agent to receive a Markdown version
+						of the catalog.
+					</p>
 				</div>
-			</div>
-		</main>
+				<div className="flex gap-8 items-start">
+					<Sidebar
+						activeCategory={activeCategory}
+						showBackToTop={showBackToTop}
+					/>
+					<div className="flex-1 min-w-0">
+						{Object.entries(groups).map(([category, categoryVariants]) => (
+							<CategoryGroup
+								key={category}
+								category={category}
+								variants={categoryVariants}
+							/>
+						))}
+					</div>
+				</div>
+			</main>
+		</>
 	);
 }
 

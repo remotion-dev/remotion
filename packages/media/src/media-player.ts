@@ -35,7 +35,7 @@ import type {MaxCanvasSinkFrameSize} from './video/props';
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'; error: Error}
-	| {type: 'cannot-decode'}
+	| {type: 'cannot-decode'; error: Error}
 	| {type: 'cannot-decode-prores'}
 	| {type: 'network-error'; error: Error}
 	| {type: 'no-tracks'}
@@ -67,6 +67,8 @@ export class MediaPlayer {
 	private sharedAudioContext: SharedAudioContextForMediaPlayer | null;
 
 	audioIteratorManager: AudioIteratorManager | null = null;
+	private muted = false;
+	private unsupportedAudioError: Error | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
@@ -250,6 +252,7 @@ export class MediaPlayer {
 		initialMuted: boolean,
 		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
+		this.muted = initialMuted;
 		const promise = this._initialize(
 			startTimeUnresolved,
 			initialMuted,
@@ -370,7 +373,12 @@ export class MediaPlayer {
 						return {type: 'cannot-decode-prores'};
 					}
 
-					return {type: 'cannot-decode'};
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode video track ${videoTrack.id} (${videoTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
@@ -423,30 +431,43 @@ export class MediaPlayer {
 				}
 
 				const canDecode = await audioTrack.canDecode();
-				if (!canDecode) {
-					return {type: 'cannot-decode'};
+				if (!canDecode && !this.muted) {
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
 				}
 
-				this.audioIteratorManager = audioIteratorManager({
-					audioTrack,
-					delayPlaybackHandleIfNotPremounting:
-						this.delayPlaybackHandleIfNotPremounting,
-					sharedAudioContext: this.sharedAudioContext,
-					getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
-					getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
-					getStartTime: () => this.getStartTime(),
-					initialMuted,
-					initialVolume,
-					toneFrequency: this.toneFrequency,
-					drawDebugOverlay: this.drawDebugOverlay,
-					onError: (error) => this.reportTerminalError(error),
-					getSequenceDurationInSeconds: () =>
-						this.getSequenceDurationInSeconds(),
-				});
+				if (canDecode) {
+					this.audioIteratorManager = audioIteratorManager({
+						audioTrack,
+						delayPlaybackHandleIfNotPremounting:
+							this.delayPlaybackHandleIfNotPremounting,
+						sharedAudioContext: this.sharedAudioContext,
+						getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
+						getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
+						getStartTime: () => this.getStartTime(),
+						initialMuted,
+						initialVolume,
+						toneFrequency: this.toneFrequency,
+						drawDebugOverlay: this.drawDebugOverlay,
+						onError: (error) => this.reportTerminalError(error),
+						getSequenceDurationInSeconds: () =>
+							this.getSequenceDurationInSeconds(),
+					});
+				} else {
+					// Muted video can draw without an audio decoder. Report the
+					// unavailable audio if the caller later requests sound.
+					this.unsupportedAudioError = new Error(
+						`Cannot decode audio for ${this.src}.`,
+					);
+				}
 			}
 
 			const nonce = this.nonceManager.createAsyncOperation();
@@ -632,6 +653,12 @@ export class MediaPlayer {
 	}
 
 	public setMuted(muted: boolean): void {
+		this.muted = muted;
+		if (!muted && this.unsupportedAudioError) {
+			this.reportTerminalError(this.unsupportedAudioError);
+			return;
+		}
+
 		this.audioIteratorManager?.setMuted(muted);
 	}
 

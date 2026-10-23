@@ -1,7 +1,12 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useLayoutEffect, useMemo, useRef} from 'react';
+import type {TSequence} from 'remotion';
 import {TIMELINE_TRACK_SEPARATOR} from '../../helpers/colors';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
 import {getTimelineSceneRange} from './get-timeline-scene-range';
+import {
+	getTimelineTransitionRangesByStart,
+	type TimelineTransitionRange,
+} from './get-timeline-transition-ranges';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {
 	TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
@@ -15,15 +20,93 @@ const noConnectedCompositions = [] as const;
 const primaryRowHeight =
 	TIMELINE_PACKED_TRACK_HEIGHT + TIMELINE_ITEM_BORDER_BOTTOM;
 
+// Reorder feedback only changes the indicator. Keep each clip's context and
+// contents stable while its item, neighbors, and row geometry are unchanged.
+const TimelinePackedTrackItem: React.FC<{
+	readonly item: TimelineTrackWithDisplayGroup;
+	readonly previous: TSequence | null;
+	readonly next: TSequence | null;
+	readonly transitionRangesByStart: ReadonlyMap<
+		number,
+		TimelineTransitionRange
+	>;
+	readonly top: number;
+	readonly height: number;
+}> = React.memo(
+	({item, previous, next, transitionRangesByStart, top, height}) => {
+		const parentSceneRange = useContext(TimelineSceneRangeContext);
+		return (
+			<TimelineSceneRangeContext.Provider
+				value={
+					item.sequence.timelineTrack?.role === 'clip'
+						? getTimelineSceneRange({
+								sequence: item.sequence,
+								transitionRangesByStart,
+								previous,
+								next,
+								// The containing row already clips the parent transition.
+								range: parentSceneRange
+									? {
+											...parentSceneRange,
+											transitionInEnd: null,
+											transitionOutStart: null,
+										}
+									: null,
+							})
+						: parentSceneRange
+				}
+			>
+				<div
+					data-timeline-track-item-id={item.sequence.id}
+					style={{
+						position: 'absolute',
+						zIndex:
+							item.sequence.timelineTrack?.role === 'transition'
+								? 1
+								: item.sequence.controls?.componentIdentity ===
+									  'dev.remotion.transitions.TransitionSeries.Sequence'
+									? undefined
+									: 0,
+						top,
+						left: 0,
+						// The clip supplies its own pixel width. Empty row space must
+						// not intercept clicks on other clips or the marquee.
+						width: 0,
+						height: height - TIMELINE_ITEM_BORDER_BOTTOM,
+					}}
+				>
+					<TimelineSequence
+						s={item.sequence}
+						labelStartFrame={null}
+						cascadedStart={item.cascadedStart}
+						localStart={item.localStart}
+						parentVisibleStart={item.parentVisibleStart}
+						parentVisibleEnd={item.parentVisibleEnd}
+						connectedCompositions={
+							item.connectedCompositions ?? noConnectedCompositions
+						}
+						nodePathInfo={item.nodePathInfo}
+						keyframeDisplayOffset={item.keyframeDisplayOffset}
+						keyframePlaybackRate={item.keyframePlaybackRate}
+						sequenceFrameOffset={item.sequenceFrameOffset}
+					/>
+				</div>
+			</TimelineSceneRangeContext.Provider>
+		);
+	},
+);
+
 export const TimelinePackedTrack: React.FC<{
 	readonly track: TimelineTrackWithDisplayGroup;
 	readonly items: readonly TimelineTrackWithDisplayGroup[];
 	readonly auxiliaryRowOffsets: readonly number[];
 	readonly auxiliaryRows: readonly (readonly TimelineTrackWithDisplayGroup[])[];
 }> = ({track, items, auxiliaryRows, auxiliaryRowOffsets}) => {
-	const parentSceneRange = useContext(TimelineSceneRangeContext);
 	const {dropIndicatorLeft, onClickCapture, onPointerDownCapture} =
 		useSeriesReorder(items);
+	const previousTransitionRangesRef = useRef<
+		readonly TimelineTransitionRange[]
+	>([]);
 	const {rows, transitionRanges} = useMemo(() => {
 		const clips = items
 			.filter((item) => item.sequence.timelineTrack?.role === 'clip')
@@ -31,6 +114,23 @@ export const TimelinePackedTrack: React.FC<{
 		const transitions = items
 			.filter((item) => item.sequence.timelineTrack?.role === 'transition')
 			.sort((a, b) => a.sequence.from - b.sequence.from);
+		const nextTransitionRanges = transitions.map(({sequence}) => ({
+			id: sequence.id,
+			from: sequence.from,
+			end: sequence.from + sequence.duration,
+		}));
+		const previousTransitionRanges = previousTransitionRangesRef.current;
+		// A clip edit need not invalidate the transition context of every sibling.
+		const stableTransitionRanges =
+			previousTransitionRanges.length === nextTransitionRanges.length &&
+			nextTransitionRanges.every(
+				(range, index) =>
+					range.id === previousTransitionRanges[index].id &&
+					range.from === previousTransitionRanges[index].from &&
+					range.end === previousTransitionRanges[index].end,
+			)
+				? previousTransitionRanges
+				: nextTransitionRanges;
 		return {
 			rows: [[...clips, ...transitions], ...auxiliaryRows].map(
 				(row, index) => ({
@@ -42,13 +142,16 @@ export const TimelinePackedTrack: React.FC<{
 							: TIMELINE_PACKED_AUXILIARY_ROW_HEIGHT,
 				}),
 			),
-			transitionRanges: transitions.map(({sequence}) => ({
-				id: sequence.id,
-				from: sequence.from,
-				end: sequence.from + sequence.duration,
-			})),
+			transitionRanges: stableTransitionRanges,
 		};
 	}, [auxiliaryRows, auxiliaryRowOffsets, items]);
+	useLayoutEffect(() => {
+		previousTransitionRangesRef.current = transitionRanges;
+	}, [transitionRanges]);
+	const transitionRangesByStart = useMemo(
+		() => getTimelineTransitionRangesByStart(transitionRanges),
+		[transitionRanges],
+	);
 
 	return (
 		<div
@@ -88,67 +191,19 @@ export const TimelinePackedTrack: React.FC<{
 			{/* Keep clips under the same parent when timing edits move them to another row. */}
 			{rows.flatMap((row) =>
 				row.items.map((item, index) => (
-					<TimelineSceneRangeContext.Provider
+					<TimelinePackedTrackItem
 						key={item.sequence.id}
-						value={
-							item.sequence.timelineTrack?.role === 'clip'
-								? getTimelineSceneRange({
-										sequence: item.sequence,
-										transitionRanges,
-										previous: row.items[index - 1]?.sequence ?? null,
-										next:
-											row.items[index + 1]?.sequence.timelineTrack?.role ===
-											'clip'
-												? row.items[index + 1].sequence
-												: null,
-										// The containing row already clips the parent transition.
-										range: parentSceneRange
-											? {
-													...parentSceneRange,
-													transitionInEnd: null,
-													transitionOutStart: null,
-												}
-											: null,
-									})
-								: parentSceneRange
+						item={item}
+						previous={row.items[index - 1]?.sequence ?? null}
+						next={
+							row.items[index + 1]?.sequence.timelineTrack?.role === 'clip'
+								? row.items[index + 1].sequence
+								: null
 						}
-					>
-						<div
-							data-timeline-track-item-id={item.sequence.id}
-							style={{
-								position: 'absolute',
-								zIndex:
-									item.sequence.timelineTrack?.role === 'transition'
-										? 1
-										: item.sequence.controls?.componentIdentity ===
-											  'dev.remotion.transitions.TransitionSeries.Sequence'
-											? undefined
-											: 0,
-								top: row.top,
-								left: 0,
-								// The clip supplies its own pixel width. Empty row space must
-								// not intercept clicks on other clips or the marquee.
-								width: 0,
-								height: row.height - TIMELINE_ITEM_BORDER_BOTTOM,
-							}}
-						>
-							<TimelineSequence
-								s={item.sequence}
-								labelStartFrame={null}
-								cascadedStart={item.cascadedStart}
-								localStart={item.localStart}
-								parentVisibleStart={item.parentVisibleStart}
-								parentVisibleEnd={item.parentVisibleEnd}
-								connectedCompositions={
-									item.connectedCompositions ?? noConnectedCompositions
-								}
-								nodePathInfo={item.nodePathInfo}
-								keyframeDisplayOffset={item.keyframeDisplayOffset}
-								keyframePlaybackRate={item.keyframePlaybackRate}
-								sequenceFrameOffset={item.sequenceFrameOffset}
-							/>
-						</div>
-					</TimelineSceneRangeContext.Provider>
+						transitionRangesByStart={transitionRangesByStart}
+						top={row.top}
+						height={row.height}
+					/>
 				)),
 			)}
 			{dropIndicatorLeft === null ? null : (
