@@ -31,6 +31,7 @@ import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
 import {ColorCorrectionDemo} from './ColorCorrectionDemo';
 import {ColorCorrectionRecordingComposition} from './ColorCorrectionRecordingComposition';
+import {ColorCorrectionStudioRecordingComposition} from './ColorCorrectionStudioRecordingComposition';
 import {
 	WhatIsRemotion,
 	whatIsRemotionCalculateMetadata,
@@ -38,6 +39,7 @@ import {
 } from './Compose/WhatIsRemotion';
 import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
+import {CurvesStudioRecordingComposition} from './CurvesStudioRecordingComposition';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
 	DesignSystemsResponsive,
@@ -120,6 +122,7 @@ import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
 import './index.css';
 import {KeyframeMove} from './KeyframeMove';
+import {LevelsStudioRecordingComposition} from './LevelsStudioRecordingComposition';
 import {Logo} from './Logo';
 import {LogoHorn, calculateLogoHornMetadata} from './LogoHorn';
 import {NestingCompositions} from './NestingCompositions';
@@ -1260,6 +1263,30 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				fps={60}
 				width={1620}
 				height={1440}
+			/>
+			<Composition
+				id="ColorCorrectionStudioRecording"
+				component={ColorCorrectionStudioRecordingComposition}
+				durationInFrames={569}
+				fps={60}
+				width={2560}
+				height={1350}
+			/>
+			<Composition
+				id="LevelsStudioRecording"
+				component={LevelsStudioRecordingComposition}
+				durationInFrames={658}
+				fps={60}
+				width={2558}
+				height={1440}
+			/>
+			<Composition
+				id="CurvesStudioRecording"
+				component={CurvesStudioRecordingComposition}
+				durationInFrames={656}
+				fps={60}
+				width={2560}
+				height={1428}
 			/>
 		</>
 	);

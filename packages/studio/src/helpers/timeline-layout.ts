@@ -93,6 +93,7 @@ export const buildTimelineTree = ({
 	propStatuses,
 	includeTextContent,
 	includeSourceControls,
+	includeInspectorOnlyFields,
 	runtimeValues,
 }: {
 	sequence: TSequence;
@@ -102,6 +103,7 @@ export const buildTimelineTree = ({
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
 	includeSourceControls: boolean;
+	includeInspectorOnlyFields: boolean;
 	runtimeValues: Readonly<Record<string, unknown>> | null;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
@@ -161,7 +163,13 @@ export const buildTimelineTree = ({
 					nodePath: sequenceSubscriptionKey,
 					propStatuses,
 					getEffectDragOverrides,
-				});
+				}).filter(
+					// The Curves inspector preserves input order; the generic array editor cannot.
+					(field) =>
+						includeInspectorOnlyFields ||
+						effect.type !== 'remotion/curves' ||
+						field.key !== 'points',
+				);
 				return {
 					kind: 'group',
 					nodePathInfo: {
@@ -264,6 +272,7 @@ export const getExpandedTrackHeight = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});

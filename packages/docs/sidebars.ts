@@ -295,6 +295,7 @@ const sidebars: SidebarsConfig = {
 				'effects/contrast',
 				'effects/contour-lines',
 				'effects/corner-pin',
+				'effects/curves',
 				'effects/cylinder',
 				'effects/dot-grid',
 				'effects/drop-shadow',

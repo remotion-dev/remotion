@@ -20,6 +20,7 @@ import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../../components/effects/effects-curves-preview';
 import {
 	CylinderTextSource,
 	EffectsCylinderPreview,
@@ -411,6 +412,23 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{amount: 1.5}}
 				/>
 				<Still
+					id="effects-curves-preview"
+					component={EffectsCurvesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						points: [
+							[0, 0],
+							[0.25, 0.12],
+							[0.75, 0.88],
+							[1, 1],
+						],
+						channel: 'rgb',
+						interpolation: 'smooth',
+						amount: 1,
+					}}
+				/>
+				<Still
 					id="effects-color-key-preview"
 					component={EffectsColorKeyPreview}
 					width={1280}
@@ -587,7 +605,14 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsLevelsPreview}
 					width={1280}
 					height={720}
-					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
+					defaultProps={{
+						blackPoint: 0.1,
+						whitePoint: 0.9,
+						gamma: 1.4,
+						outputBlack: 0.03,
+						outputWhite: 0.95,
+						channel: 'rgb',
+					}}
 				/>
 				<Still
 					id="effects-lut-preview"
