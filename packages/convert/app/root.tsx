@@ -1,5 +1,6 @@
 import {Links, Outlet, Scripts, ScrollRestoration} from '@remix-run/react';
 import {ForceSpecificCursor} from './components/crop-ui/force-specific-cursor';
+import {Navbar} from './components/Navbar';
 import './tailwind.css';
 import {DEFAULT_FAVICON} from './lib/default-favicon';
 import {getDescription} from './seo';
@@ -32,7 +33,12 @@ export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 };
 
 const App = () => {
-	return <Outlet />;
+	return (
+		<>
+			<Navbar />
+			<Outlet />
+		</>
+	);
 };
 
 export default App;

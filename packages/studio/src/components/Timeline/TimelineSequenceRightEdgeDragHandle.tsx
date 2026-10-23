@@ -1119,12 +1119,7 @@ export const getTimelineSequenceDurationDragTargets = ({
 				sequences,
 				timelineDurationInFrames,
 			});
-			const minimumDuration = Math.max(
-				(track.sequence.from + 1 - track.cascadedStart) *
-					track.keyframePlaybackRate,
-				getMinimumSequenceDuration({sequence: originalSequence, sequences}),
-				timingLimits.minimumDuration,
-			);
+			const {minimumDuration} = timingLimits;
 			const initialDuration = mediaDurationDragLimits
 				? mediaDurationDragLimits.initialDuration * track.keyframePlaybackRate
 				: originalSequence.autoDuration

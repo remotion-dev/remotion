@@ -87,13 +87,59 @@ html {
 	}
 }
 
-.explore-video {
-	opacity: 0.3;
-	transition: opacity 300ms;
+.explore-tile {
+	background-color: #1f2428;
+	color: white;
+	transition:
+		background-color 300ms,
+		color 300ms;
 }
 
-.group:hover .explore-video {
+.explore-video {
+	opacity: 0.3;
+	filter: brightness(1) contrast(1) saturate(1);
+	transition:
+		opacity 300ms,
+		filter 300ms;
+}
+
+.explore-video ~ .explore-title {
+	text-shadow:
+		0 1px 2px #000,
+		0 2px 8px #000,
+		0 0 16px #000;
+	transition: text-shadow 300ms;
+}
+
+[data-theme='light'] .explore-tile {
+	background-color: #f3f5f7;
+	color: white;
+}
+
+[data-theme='light'] .explore-video {
+	opacity: 0.35;
+	filter: brightness(1.6) contrast(0.5) saturate(0.65);
+}
+
+[data-theme='light'] .explore-title {
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.explore-tile:hover {
+	background-color: #1f2428;
+	color: white;
+}
+
+.explore-tile:hover .explore-video {
 	opacity: 1;
+	filter: brightness(1) contrast(1) saturate(1);
+}
+
+.explore-tile:hover .explore-video ~ .explore-title {
+	text-shadow:
+		0 1px 2px #000,
+		0 2px 8px #000,
+		0 0 16px #000;
 }
 
 @keyframes click {

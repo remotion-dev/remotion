@@ -94,7 +94,7 @@ export function ApplicationVideoEditor({
 											bottom: 32,
 											color: '#000000',
 											fontSize: 30,
-											fontWeight: 700,
+											fontWeight: 900,
 											left: 25,
 											letterSpacing: -1.2,
 											lineHeight: 0.88,

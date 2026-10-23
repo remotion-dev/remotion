@@ -84,9 +84,7 @@ export function spring({
 	});
 
 	const inner = config.overshootClamping
-		? to >= from
-			? Math.min(spr.current, to)
-			: Math.max(spr.current, to)
+		? Math.min(spr.current, 1)
 		: spr.current;
 
 	const interpolated =
