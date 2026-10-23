@@ -13,6 +13,16 @@ import {TextEditor} from './TextEditor';
 import {whatsNewTimeline} from './WhatsNewTimeline';
 
 const windowBorderRadius = 6;
+// Match the one-pixel border in VS Code's 720px reference layout.
+const windowOutline = {
+	border: `${667 / 720}px solid #454545`,
+	borderRadius: windowBorderRadius,
+	boxSizing: 'border-box',
+	inset: 0,
+	pointerEvents: 'none',
+	position: 'absolute',
+	zIndex: 2,
+} as const;
 const screenInset = 6;
 const deviceBezel = 18;
 const transitionEasing = Easing.bezier(0.42, 0, 0.58, 1);
@@ -106,7 +116,7 @@ export const StudioCodeHandoff: React.FC = () => {
 import {TransitionSeries} from '@remotion/transitions';
 import {IntroScene} from './scenes/Intro';
 import {LightLeaksScene} from './scenes/LightLeaks';
-import {SoundEffectsScene} from './scenes/SoundEffects';
+import {OutroScene} from './scenes/Outro';
 
 export const WhatsNew = () => {
   return (
@@ -114,21 +124,21 @@ export const WhatsNew = () => {
       <TransitionSeries name="Chapters">
         <TransitionSeries.Sequence
           name="Intro"
-          durationInFrames={208}
+          durationInFrames={250}
         >
           <IntroScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Sequence
           name="Light leaks"
-          durationInFrames={720}
+          durationInFrames={864}
         >
           <LightLeaksScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Sequence
-          name="Sound effects"
-          durationInFrames={1152}
+          name="Outro"
+          durationInFrames={180}
         >
-          <SoundEffectsScene />
+          <OutroScene />
         </TransitionSeries.Sequence>
       </TransitionSeries>
       <Audio name="Score" src="score.wav" />
@@ -169,6 +179,7 @@ export const WhatsNew = () => {
 								height={748}
 								width={667}
 							/>
+							<Interactive.Div name="Window border" style={windowOutline} />
 						</Interactive.Div>
 
 						<Interactive.Div
@@ -196,8 +207,8 @@ export const WhatsNew = () => {
 										style={{width: '100%', height: '100%'}}
 									/>
 								}
-								durationInFrames={7328}
-								frame={900}
+								durationInFrames={1294}
+								frame={1234}
 								timeline={whatsNewTimeline}
 								responsivenessProgress={responsivenessProgress}
 								showTimelineZoom={false}
@@ -205,6 +216,7 @@ export const WhatsNew = () => {
 								viewportHeight={748}
 								viewportWidth={studioWidth}
 							/>
+							<Interactive.Div name="Window border" style={windowOutline} />
 						</Interactive.Div>
 					</Interactive.Div>
 				</MacBookScreen>
