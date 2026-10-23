@@ -24,6 +24,44 @@ const parseVttTimestamp = (time: string): number => {
 	);
 };
 
+const namedCharacterReferences = new Map<string, string>([
+	['amp', '&'],
+	['lt', '<'],
+	['gt', '>'],
+	['quot', '"'],
+	['apos', "'"],
+	['nbsp', '\u00A0'],
+	['lrm', '\u200E'],
+	['rlm', '\u200F'],
+]);
+
+// Cue text must escape `&` and `<` as character references,
+// so they need to be decoded to get the plain text.
+const decodeCharacterReferences = (text: string): string => {
+	return text.replace(
+		/&(#[xX][0-9a-fA-F]+|#\d+|[a-zA-Z]+);/g,
+		(match, reference: string) => {
+			if (reference.startsWith('#')) {
+				const isHex = reference[1] === 'x' || reference[1] === 'X';
+				const codePoint = isHex
+					? parseInt(reference.slice(2), 16)
+					: parseInt(reference.slice(1), 10);
+				if (
+					codePoint === 0 ||
+					codePoint > 0x10ffff ||
+					(codePoint >= 0xd800 && codePoint <= 0xdfff)
+				) {
+					return match;
+				}
+
+				return String.fromCodePoint(codePoint);
+			}
+
+			return namedCharacterReferences.get(reference) ?? match;
+		},
+	);
+};
+
 export type ParseVttInput = {
 	input: string;
 };
@@ -91,7 +129,7 @@ export const parseVtt = ({input}: ParseVttInput): ParseVttOutput => {
 		}
 
 		captions.push({
-			text: text.join('\n').trimEnd(),
+			text: decodeCharacterReferences(text.join('\n').trimEnd()),
 			startMs,
 			endMs,
 			timestampMs: (startMs + endMs) / 2,
