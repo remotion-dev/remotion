@@ -66,8 +66,7 @@ export const readFile = async (
 			);
 		}
 
-		const {origin} = new URL(url);
-		const redirectUrl = new URL(response.headers.location, origin).toString();
+		const redirectUrl = new URL(response.headers.location, url).toString();
 
 		request.destroy();
 		response.destroy();

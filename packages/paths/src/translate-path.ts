@@ -8,7 +8,16 @@ export const translateSegments = (
 	x: number,
 	y: number,
 ) => {
-	return segments.map((segment): Instruction => {
+	return segments.map((segment, index): Instruction => {
+		// An initial relative moveto is relative to the origin.
+		if (segment.type === 'm' && index === 0) {
+			return {
+				type: 'm',
+				dx: segment.dx + x,
+				dy: segment.dy + y,
+			};
+		}
+
 		// Shift coords only for commands with absolute values
 		if (
 			segment.type === 'a' ||

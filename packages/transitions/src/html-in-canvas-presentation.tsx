@@ -303,7 +303,8 @@ const HtmlInCanvasPresentationWithSupport = <
 	return (
 		<AbsoluteFill showInTimeline={false}>
 			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
-				{children}
+				{/* Keep the drawable element mounted while async children load. */}
+				<div style={canvasSubtreeStyle}>{children}</div>
 			</canvas>
 			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>

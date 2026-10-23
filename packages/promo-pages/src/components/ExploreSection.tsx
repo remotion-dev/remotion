@@ -23,7 +23,7 @@ export const ExploreSection: React.FC = () => {
 				We explode the world of video creation into pieces and let you assemble
 				them.
 			</p>
-			<div className="grid grid-cols-2 border-t border-l border-[#353b40] min-[700px]:grid-cols-3">
+			<div className="grid grid-cols-2 gap-3 min-[700px]:grid-cols-3 min-[900px]:grid-cols-4">
 				{[
 					'Video',
 					'Audio',
@@ -44,7 +44,7 @@ export const ExploreSection: React.FC = () => {
 				].map((item) => (
 					<div
 						key={item}
-						className="group relative flex aspect-square items-end overflow-hidden border-r border-b border-[#353b40] bg-[#1f2428] p-3 text-white min-[900px]:p-6"
+						className="explore-tile group relative flex aspect-square items-end overflow-hidden rounded-lg p-3 min-[900px]:p-6"
 						onPointerEnter={(event) => {
 							const video = event.currentTarget.querySelector('video');
 							if (video) {
@@ -75,15 +75,7 @@ export const ExploreSection: React.FC = () => {
 							</video>
 						) : null}
 						<h3
-							className="relative z-10 m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-2xl"
-							style={
-								videoSources[item]
-									? {
-											textShadow:
-												'0 1px 2px #000, 0 2px 8px #000, 0 0 16px #000',
-										}
-									: undefined
-							}
+							className="explore-title relative z-10 m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-2xl"
 						>
 							{item}
 						</h3>

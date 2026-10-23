@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {ExploreSection} from './ExploreSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
@@ -29,11 +29,12 @@ export const NewLanding: React.FC<{
 	readonly experimental: boolean;
 }> = ({colorMode, setColorMode, experimental}) => {
 	const studioHandoffVideoRef = useRef<HTMLVideoElement>(null);
+	const [studioHandoffReady, setStudioHandoffReady] = useState(false);
 	const studioHandoffSrc = useTransparentVideoSource({
 		videoSrc:
-			'https://remotion.media/homepage/studio-handoff-code-first-6459a975d00d.webm',
+			'https://remotion.media/homepage/studio-handoff-window-borders-83b81de1b9fe.webm',
 		fallbackVideoSrc:
-			'https://remotion.media/homepage/studio-handoff-code-first-6459a975d00d.mp4',
+			'https://remotion.media/homepage/studio-handoff-window-borders-83b81de1b9fe.mp4',
 	});
 
 	return (
@@ -86,10 +87,26 @@ export const NewLanding: React.FC<{
 										zIndex: -1,
 									}}
 								/>
+								{studioHandoffReady ? null : (
+									<div
+										aria-hidden
+										className="absolute inset-0 overflow-hidden pointer-events-none"
+									>
+										<div
+											style={{
+												width: '100%',
+												aspectRatio: '1874 / 1075',
+												backgroundColor: '#101114',
+												borderRadius: '2.16% / 3.77%',
+											}}
+										/>
+									</div>
+								)}
 								<video
 									ref={studioHandoffVideoRef}
 									src={studioHandoffSrc ?? undefined}
-									poster="https://remotion.media/homepage/studio-handoff-code-first-6459a975d00d.webp"
+									onLoadedData={() => setStudioHandoffReady(true)}
+									onEmptied={() => setStudioHandoffReady(false)}
 									autoPlay
 									muted
 									loop
@@ -99,6 +116,7 @@ export const NewLanding: React.FC<{
 									height={1020}
 									aria-label="Remotion Studio, Codex and VS Code working together"
 									className="block aspect-[1874/1020] h-auto w-full"
+									style={{opacity: studioHandoffReady ? 1 : 0}}
 								/>
 							</div>
 						) : null}
@@ -122,8 +140,16 @@ export const NewLanding: React.FC<{
 							<MakeVideosProgrammatically
 								title="Parameterization"
 								description="Organize your assets and connect your data."
-								videoSrc="/img/design-systems.webm"
-								fallbackVideoSrc="/img/design-systems.mp4"
+								videoSrc={
+									experimental
+										? 'https://remotion.media/homepage/design-systems-border-9871af1c4d7f.webm'
+										: '/img/design-systems.webm'
+								}
+								fallbackVideoSrc={
+									experimental
+										? 'https://remotion.media/homepage/design-systems-border-9871af1c4d7f.mp4'
+										: '/img/design-systems.mp4'
+								}
 								links={[
 									{
 										label: 'Parameterization',
@@ -135,6 +161,16 @@ export const NewLanding: React.FC<{
 							<MakeVideosAgentically
 								title="Batch rendering"
 								description="Render millions of videos on your own infrastructure."
+								videoSrc={
+									experimental
+										? 'https://remotion.media/homepage/render-progress-flush-e9ec7d39c5f8.webm'
+										: '/img/render-progress.webm'
+								}
+								fallbackVideoSrc={
+									experimental
+										? 'https://remotion.media/homepage/render-progress-flush-e9ec7d39c5f8.mp4'
+										: '/img/render-progress.mp4'
+								}
 								links={[
 									{
 										label: 'Server-side rendering',
@@ -149,8 +185,16 @@ export const NewLanding: React.FC<{
 							<MakeVideosInteractively
 								title="Applications"
 								description="Publish a simple tool or a complex video editor."
-								videoSrc="/img/applications.webm"
-								fallbackVideoSrc="/img/applications.mp4"
+								videoSrc={
+									experimental
+										? 'https://remotion.media/homepage/applications-outline-input-e966e757a1ae.webm'
+										: '/img/applications.webm'
+								}
+								fallbackVideoSrc={
+									experimental
+										? 'https://remotion.media/homepage/applications-outline-input-e966e757a1ae.mp4'
+										: '/img/applications.mp4'
+								}
 								links={[
 									{label: 'Player', href: '/docs/player'},
 									{label: 'Editor Starter', href: '/editor-starter'},
