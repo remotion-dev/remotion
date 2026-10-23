@@ -407,6 +407,7 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="LicenseQuestionsGraphic"
 					component={LicenseQuestionsGraphic}
+					defaultProps={{lineColor: 'black'}}
 					durationInFrames={180}
 					fps={30}
 					width={1080}
@@ -666,10 +667,10 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				<Composition
 					id="StudioCodeHandoff"
 					component={StudioCodeHandoff}
-					durationInFrames={240}
+					durationInFrames={360}
 					fps={30}
-					width={1920}
-					height={1080}
+					width={1874}
+					height={1020}
 				/>
 				<Composition
 					id="StepGuide"

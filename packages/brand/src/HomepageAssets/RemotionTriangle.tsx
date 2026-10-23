@@ -85,7 +85,7 @@ export const RemotionTriangle: React.FC<{
 					fill="none"
 					height={outlineBounds.y2 - outlineBounds.y1}
 					stroke="#0d99ff"
-					strokeWidth={5}
+					strokeWidth={6}
 					vectorEffect="non-scaling-stroke"
 					width={outlineBounds.x2 - outlineBounds.x1}
 					x={outlineBounds.x1}
@@ -95,7 +95,7 @@ export const RemotionTriangle: React.FC<{
 					fill="white"
 					height={40}
 					stroke="#0d99ff"
-					strokeWidth={5}
+					strokeWidth={6}
 					vectorEffect="non-scaling-stroke"
 					width={40}
 					x={outlineBounds.x1 - 20}
@@ -105,7 +105,7 @@ export const RemotionTriangle: React.FC<{
 					fill="white"
 					height={40}
 					stroke="#0d99ff"
-					strokeWidth={5}
+					strokeWidth={6}
 					vectorEffect="non-scaling-stroke"
 					width={40}
 					x={outlineBounds.x2 - 20}
@@ -115,7 +115,7 @@ export const RemotionTriangle: React.FC<{
 					fill="white"
 					height={40}
 					stroke="#0d99ff"
-					strokeWidth={5}
+					strokeWidth={6}
 					vectorEffect="non-scaling-stroke"
 					width={40}
 					x={outlineBounds.x1 - 20}
@@ -125,7 +125,7 @@ export const RemotionTriangle: React.FC<{
 					fill="white"
 					height={40}
 					stroke="#0d99ff"
-					strokeWidth={5}
+					strokeWidth={6}
 					vectorEffect="non-scaling-stroke"
 					width={40}
 					x={outlineBounds.x2 - 20}

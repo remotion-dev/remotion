@@ -28,19 +28,21 @@ export const MakeVideosProgrammatically: React.FC<{
 
 	return (
 		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
-			<div className="flex aspect-square w-full items-start">
-				{showVideo && src ? (
-					<video
-						src={src}
-						muted
-						autoPlay
-						playsInline
-						loop
-						preload="metadata"
-						className="relative max-h-full max-w-full cursor-default! object-contain min-[900px]:mb-0 min-[900px]:mt-0"
-					/>
-				) : null}
-			</div>
+			{showVideo ? (
+				<div className="flex aspect-square w-full items-start">
+					{src ? (
+						<video
+							src={src}
+							muted
+							autoPlay
+							playsInline
+							loop
+							preload="metadata"
+							className="relative max-h-full max-w-full cursor-default! object-contain min-[900px]:mb-0 min-[900px]:mt-0"
+						/>
+					) : null}
+				</div>
+			) : null}
 			<div className="font-brand">
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
 					{title}

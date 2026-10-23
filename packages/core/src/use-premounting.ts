@@ -4,8 +4,8 @@ import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {getSequenceBoundaryTolerance} from './get-sequence-boundary-tolerance.js';
 import {PremountContext} from './PremountContext.js';
 import {SequenceContext} from './SequenceContext.js';
-import {useTimelinePosition} from './timeline-position-state.js';
-import {useCurrentFrame} from './use-current-frame.js';
+import {useTimelinePositionWithOptionalSubscription} from './timeline-position-state.js';
+import {useCurrentFrameWithOptionalSubscription} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useVideoConfig} from './use-video-config.js';
 
@@ -29,18 +29,23 @@ export const usePremounting = ({
 	readonly hideWhilePremounted: 'opacity' | 'display-none';
 }) => {
 	const parentPremountContext = useContext(PremountContext);
-	const frame =
-		useCurrentFrame() - parentPremountContext.premountFramesRemaining;
 	const environment = useRemotionEnvironment();
 	const {fps} = useVideoConfig();
 	const defaultPremountInSeconds = useContext(DefaultPremountContext);
 	const effectivePremountFor =
 		premountFor ?? Math.round(defaultPremountInSeconds * fps);
 	const effectivePostmountFor = postmountFor ?? 0;
+	// Premounting is disabled during rendering and cannot activate with empty ranges.
+	const needsFrame =
+		!environment.isRendering &&
+		(effectivePremountFor !== 0 || effectivePostmountFor !== 0);
+	const frame =
+		useCurrentFrameWithOptionalSubscription(needsFrame) -
+		parentPremountContext.premountFramesRemaining;
 	const endExclusive = from + durationInFrames;
 	const sequenceContext = useContext(SequenceContext);
 	const boundaryTolerance = getSequenceBoundaryTolerance({
-		absoluteFrame: useTimelinePosition(),
+		absoluteFrame: useTimelinePositionWithOptionalSubscription(needsFrame),
 		cumulatedFrom: sequenceContext
 			? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
 			: 0,

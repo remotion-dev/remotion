@@ -729,12 +729,13 @@ export type EasingEditorState = {
 	selections: TimelineSelection[];
 };
 
-export const EasingEditor: React.FC<{
+const EasingEditorUnmemoized: React.FC<{
 	readonly state: EasingEditorState;
+	readonly easingUpdate: SelectedEasingUpdate;
 	readonly renderHeader?: (
 		modeItems: SegmentedControlItem[],
 	) => React.ReactNode;
-}> = ({state, renderHeader}) => {
+}> = ({state, easingUpdate, renderHeader}) => {
 	const calculateTimeline = useTimelineCalculator();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
@@ -1178,7 +1179,7 @@ export const EasingEditor: React.FC<{
 	);
 
 	const disabled = previewServerState.type !== 'connected';
-	const graphLabels = getEasingGraphLabels(getCurrentEasingUpdates());
+	const graphLabels = getEasingGraphLabels([easingUpdate]);
 	const currentEasing = useMemo(() => {
 		if (mode === 'spring') {
 			return serializeSpring(spring);
@@ -1562,3 +1563,5 @@ export const EasingEditor: React.FC<{
 		</div>
 	);
 };
+
+export const EasingEditor = React.memo(EasingEditorUnmemoized);

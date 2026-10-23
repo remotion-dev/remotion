@@ -9,7 +9,7 @@ import {getNodeProps} from './get-node-props';
 import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
-	getUpdatedNodeReference,
+	getUpdatedNodeReferences,
 	type NodeReference,
 	type NodeSourceEdit,
 } from './node-references';
@@ -130,9 +130,11 @@ export const updateMultipleNodeProps = <Project extends CodemodProject>({
 		...result,
 		results,
 		formatted: true,
-		updatedNodes: changes.map(({node}) =>
-			getUpdatedNodeReference({project, ...result, node}),
-		),
+		updatedNodes: getUpdatedNodeReferences({
+			project,
+			...result,
+			nodes: changes.map(({node}) => node),
+		}),
 	};
 };
 
