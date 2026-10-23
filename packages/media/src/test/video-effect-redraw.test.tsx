@@ -8,7 +8,7 @@ import {Video} from '../video/video';
 import {findLargestCanvas, waitFor} from './player-frame-accuracy-utils';
 
 test.each([false, true])(
-	'coalesces frame/effect updates and preserves paused edits (one-frame loop: %s)',
+	'coalesces frame/effect updates and preserves paused edits and resizing (one-frame loop: %s)',
 	async (singleFrameLoop) => {
 		const applications: number[] = [];
 		const effect = createEffect<{frame: number; tint: number}, null>({
@@ -24,11 +24,17 @@ test.each([false, true])(
 			apply: ({target, width, height, params}) => {
 				applications.push(params.frame);
 				const ctx = target.getContext('2d')!;
-				ctx.fillStyle = `rgb(${params.frame + params.tint}, 0, 0)`;
+				ctx.fillStyle = `rgb(${params.frame + params.tint}, ${width - 160}, 0)`;
 				ctx.fillRect(0, 0, width, height);
 			},
 		});
-		const Composition = ({tint}: {readonly tint: number}) => {
+		const Composition = ({
+			tint,
+			effectFrame,
+		}: {
+			readonly tint: number;
+			readonly effectFrame: number | null;
+		}) => {
 			const frame = useCurrentFrame();
 			return (
 				<Video
@@ -36,7 +42,10 @@ test.each([false, true])(
 					muted
 					trimAfter={singleFrameLoop ? 1 : undefined}
 					loop={singleFrameLoop}
-					effects={[effect({frame, tint})]}
+					effects={[effect({frame: effectFrame ?? frame, tint})]}
+					effectsOutputSize={
+						effectFrame === null ? null : {width: 160 + frame * 16, height: 90}
+					}
 				/>
 			);
 		};
@@ -45,13 +54,13 @@ test.each([false, true])(
 		document.body.appendChild(container);
 		const root = createRoot(container);
 		const ref = React.createRef<PlayerRef>();
-		const render = (tint: number) =>
+		const render = (tint: number, effectFrame: number | null = null) =>
 			flushSync(() =>
 				root.render(
 					<Player
 						ref={ref}
 						component={Composition}
-						inputProps={{tint}}
+						inputProps={{tint, effectFrame}}
 						compositionWidth={320}
 						compositionHeight={180}
 						durationInFrames={300}
@@ -61,9 +70,9 @@ test.each([false, true])(
 					/>,
 				),
 			);
-		const red = () =>
+		const pixel = () =>
 			findLargestCanvas(container).getContext('2d')!.getImageData(0, 0, 1, 1)
-				.data[0];
+				.data;
 		try {
 			render(0);
 			await waitFor(() => applications.length > 0);
@@ -72,12 +81,22 @@ test.each([false, true])(
 				await waitFor(() => applications.includes(frame));
 				await new Promise((resolve) => setTimeout(resolve, 30));
 				expect(applications.filter((value) => value === frame)).toHaveLength(1);
-				expect(red()).toBe(frame);
+				expect(pixel()[0]).toBe(frame);
 			}
 
 			render(100);
-			await waitFor(() => red() === 105);
+			await waitFor(() => pixel()[0] === 105);
 			expect(ref.current!.getCurrentFrame()).toBe(5);
+
+			// Keep effect parameters fixed while the next frame changes only the
+			// effect resolution, including when the media timestamp stays at zero.
+			render(100, 5);
+			await waitFor(() => pixel()[1] === 80);
+			const applicationsBeforeResize = applications.length;
+			flushSync(() => ref.current!.seekTo(6));
+			await waitFor(() => pixel()[1] === 96);
+			expect(pixel()[0]).toBe(105);
+			expect(applications).toHaveLength(applicationsBeforeResize + 1);
 		} finally {
 			root.unmount();
 			container.remove();
