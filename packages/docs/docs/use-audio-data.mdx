@@ -83,6 +83,8 @@ Only the `requestInit` from the **first** render is used; updates on later rende
 
 `AudioData | null` - An object containing audio data (see documentation of [`getAudioData()`](/docs/get-audio-data)) or `null` if the data has not been loaded.
 
+From <AvailableFrom v="4.0.539" inline />, when `src` or `sampleRate` changes, results and errors from the previous pending request are ignored. Unmounting the component also releases its pending render delay.
+
 ## Example
 
 ```tsx twoslash
