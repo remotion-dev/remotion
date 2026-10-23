@@ -2,13 +2,21 @@ import React, {useEffect, useState} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 
-export const LevelsHistogram: React.FC<{
+export const EffectHistogram: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly effectIndex: number;
 	readonly channel: 'rgb' | 'red' | 'green' | 'blue';
 	readonly disabled: boolean;
 	readonly multipleInstances: boolean;
-}> = ({nodePath, effectIndex, channel, disabled, multipleInstances}) => {
+	readonly height: number | string;
+}> = ({
+	nodePath,
+	effectIndex,
+	channel,
+	disabled,
+	multipleInstances,
+	height,
+}) => {
 	const sequenceKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
 	const playing = Internals.usePlaying();
 	const [histogram, setHistogram] = useState<{
@@ -86,8 +94,8 @@ export const LevelsHistogram: React.FC<{
 							continue;
 						}
 
-						const height = (bins[i] / maximum) * 78;
-						path += `M${i} 80v-${height.toFixed(2)}h1V80z`;
+						const barHeight = (bins[i] / maximum) * 78;
+						path += `M${i} 80v-${barHeight.toFixed(2)}h1V80z`;
 					}
 
 					setHistogram({path, available: true});
@@ -121,7 +129,7 @@ export const LevelsHistogram: React.FC<{
 		<div
 			style={{
 				position: 'relative',
-				height: 80,
+				height,
 				backgroundColor: '#151519',
 				border: '1px solid #45454b',
 			}}

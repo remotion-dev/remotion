@@ -120,6 +120,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-curves',
+		category: 'Color',
+		label: 'curves()',
+		description: 'Adjust RGB or individual channels with a tonal curve',
+		effect: {
+			name: 'curves',
+			importPath: '@remotion/effects/curves',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-duotone',
 		category: 'Color',
 		label: 'duotone()',

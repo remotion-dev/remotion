@@ -20,12 +20,12 @@ import {
 	getKeyframeSourceFrame,
 } from '../Timeline/get-timeline-keyframes';
 import {saveEffectProp} from '../Timeline/save-effect-prop';
+import {EffectHistogram} from './EffectHistogram';
 import {
 	LevelsControl,
 	type LevelsField,
 	type LevelsValues,
 } from './LevelsControl';
-import {LevelsHistogram} from './LevelsHistogram';
 
 export const LevelsEditor: React.FC<{
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -202,7 +202,8 @@ export const LevelsEditor: React.FC<{
 			onChange={onChange}
 			onCancel={() => clearEffectDragOverrides(nodePath, effectIndex)}
 			histogram={
-				<LevelsHistogram
+				<EffectHistogram
+					height={80}
 					nodePath={nodePath}
 					effectIndex={effectIndex}
 					channel={channel}

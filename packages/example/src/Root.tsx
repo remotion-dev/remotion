@@ -257,6 +257,7 @@ import {
 	canvasCapturePreviewDefaultProps,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CurvesEffect} from './EffectsTestbed/Curves';
 import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
@@ -2352,6 +2353,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="Effects">
+				<Composition
+					id="curves-effect"
+					component={CurvesEffect}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
 				<Composition
 					id="levels-effect"
 					component={LevelsEffect}

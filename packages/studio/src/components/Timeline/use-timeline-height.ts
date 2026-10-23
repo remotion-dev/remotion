@@ -180,6 +180,7 @@ export const useTimelineTrackHeights = ({
 					propStatuses,
 					includeTextContent: false,
 					includeSourceControls: false,
+					includeInspectorOnlyFields: false,
 					runtimeValues,
 				});
 				const filteredTree = filterTimelineExpandedTree({

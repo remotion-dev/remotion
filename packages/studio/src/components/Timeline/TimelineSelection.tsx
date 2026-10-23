@@ -703,6 +703,7 @@ const getSelectableTimelineItemsForTrack = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const filteredTree = filterTimelineExpandedTree({

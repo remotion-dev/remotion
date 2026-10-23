@@ -107,6 +107,7 @@ export const useExpandedTrackKeyframeRows = ({
 				propStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				includeInspectorOnlyFields: false,
 				runtimeValues,
 			}),
 		[

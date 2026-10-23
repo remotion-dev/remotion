@@ -33,6 +33,7 @@ import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSection} from './InspectorPanel/common';
+import {CurvesEditor} from './InspectorPanel/CurvesEditor';
 import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
@@ -324,6 +325,7 @@ export const InspectorSequenceSection: React.FC<{
 		nodePathInfo,
 		includeTextContent: true,
 		includeSourceControls: true,
+		includeInspectorOnlyFields: true,
 	});
 	const {
 		consumeInspectorRevealRequest,
@@ -1164,7 +1166,28 @@ export const InspectorSequenceSection: React.FC<{
 											key={getInspectorExpansionKey(row.node.nodePathInfo)}
 											ref={selected ? selectedEffectRowRef : null}
 										>
-											{renderRow(row)}
+											{row.node.kind === 'field' &&
+											row.node.field?.kind === 'effect-field' &&
+											row.node.field.key === 'points' &&
+											sequence.effects[row.node.field.effectIndex]?.type ===
+												'remotion/curves' ? (
+												<CurvesEditor
+													multipleInstances={
+														nodePathInfo.numberOfSequencesWithThisNodePath > 1
+													}
+													nodePath={nodePathInfo.sequenceSubscriptionKey}
+													effectIndex={row.node.field.effectIndex}
+													schema={row.node.field.effectSchema}
+													validatedLocation={validatedLocation}
+													runtimeValueStore={
+														sequence.effectRuntimeValues?.[
+															row.node.field.effectIndex
+														] ?? null
+													}
+												/>
+											) : (
+												renderRow(row)
+											)}
 											{row.node.kind === 'field' &&
 											row.node.field?.kind === 'effect-field' &&
 											row.node.field.key === 'channel' &&

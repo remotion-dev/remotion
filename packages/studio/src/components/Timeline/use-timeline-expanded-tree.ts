@@ -54,6 +54,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				includeInspectorOnlyFields: false,
 				runtimeValues,
 			});
 
@@ -96,11 +97,13 @@ export const useTimelineExpandedTree = ({
 	nodePathInfo,
 	includeTextContent,
 	includeSourceControls,
+	includeInspectorOnlyFields,
 }: {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly includeTextContent: boolean;
 	readonly includeSourceControls: boolean;
+	readonly includeInspectorOnlyFields: boolean;
 }) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
@@ -123,6 +126,7 @@ export const useTimelineExpandedTree = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent,
 				includeSourceControls,
+				includeInspectorOnlyFields,
 				runtimeValues,
 			}),
 		[
@@ -133,6 +137,7 @@ export const useTimelineExpandedTree = ({
 			visualModePropStatuses,
 			includeTextContent,
 			includeSourceControls,
+			includeInspectorOnlyFields,
 			runtimeValues,
 		],
 	);

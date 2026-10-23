@@ -14,6 +14,7 @@ import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../../components/effects/effects-curves-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
@@ -296,6 +297,23 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 1.5}}
+				/>
+				<Still
+					id="effects-curves-preview"
+					component={EffectsCurvesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						points: [
+							[0, 0],
+							[0.25, 0.12],
+							[0.75, 0.88],
+							[1, 1],
+						],
+						channel: 'rgb',
+						interpolation: 'smooth',
+						amount: 1,
+					}}
 				/>
 				<Still
 					id="effects-color-key-preview"
