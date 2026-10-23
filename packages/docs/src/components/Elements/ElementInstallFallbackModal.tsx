@@ -95,11 +95,6 @@ export const ElementInstallFallbackModal: React.FC<{
 			<p className={styles.hint}>
 				Not working? Drag the button into your Studio instead.
 			</p>
-			<p className={styles.hint}>
-				Safari may block this website from connecting to localhost. In your
-				Studio, choose <strong>Browse Elements → Remotion Elements</strong> and
-				install from there instead.
-			</p>
 			<p className={styles.copyHint}>
 				You can also{' '}
 				<button
