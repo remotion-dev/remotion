@@ -392,6 +392,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/effects', '/docs/effects', {permanent: false}),
+		routes.redirect('/color-correction', '/docs/color-correction', {
+			permanent: false,
+		}),
 		routes.redirect('/design-systems', '/docs/design-systems', {
 			permanent: false,
 		}),
