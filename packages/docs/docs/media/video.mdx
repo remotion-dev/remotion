@@ -417,7 +417,7 @@ The callback is called with a [`CanvasImageSource`](https://developer.mozilla.or
 
 ### `audioStreamIndex?`
 
-Select the audio stream to use. The default is `0`.
+Select the audio stream to use by its zero-based index. If omitted, Remotion automatically selects a decodable audio track paired with the video, preferring the primary track when supported. An explicit index is always honored, even if that track cannot be decoded.
 
 ```tsx twoslash
 import {Video} from '@remotion/media';

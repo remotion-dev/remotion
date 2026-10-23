@@ -22,7 +22,9 @@ export type EffectDragData = {
 	};
 };
 
-const effectConfigSchema = z.record(z.string(), z.json());
+// TypeScript 7.1 beta cannot expand Zod's recursive JSON schema internals.
+const jsonSchema = z.json() as unknown as z.ZodMiniType<z.JSONType, z.JSONType>;
+const effectConfigSchema = z.record(z.string(), jsonSchema);
 
 const effectDragDataSchema = z.object({
 	type: z.literal('remotion-effect'),

@@ -15,7 +15,13 @@ if (
 const Inner: React.FC = () => {
 	const {colorMode, setColorMode} = useColorMode();
 
-	return <NewLanding colorMode={colorMode} setColorMode={setColorMode} />;
+	return (
+		<NewLanding
+			colorMode={colorMode}
+			setColorMode={setColorMode}
+			experimental={false}
+		/>
+	);
 };
 
 const Homepage: React.FC = () => {

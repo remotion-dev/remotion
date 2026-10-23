@@ -1,6 +1,6 @@
+import {$} from 'bun';
 import {copyFileSync, existsSync, mkdirSync} from 'fs';
 import path from 'path';
-import {$} from 'bun';
 
 const audioCodecs = [
 	'aac',
@@ -34,7 +34,7 @@ type Category = (typeof categories)[number];
 
 type VideoVariant = {
 	videoCodec: VideoCodec;
-	audioCodec: AudioCodec;
+	audioCodec: AudioCodec | 'alac (default) / aac';
 	container: Container | 'm3u8';
 	fileNames: string[];
 	size: number;
@@ -617,6 +617,16 @@ variants.push({
 	container: 'mp4',
 	fileNames: [shortAudioFileName],
 	size: shortAudioStat.size,
+	category: 'edge-cases',
+});
+
+// Already hosted in R2; retain the synthetic audio-fallback fixture in the catalog.
+variants.push({
+	videoCodec: 'h264',
+	audioCodec: 'alac (default) / aac',
+	container: 'mov',
+	fileNames: ['media-tests/unsupported-primary-alac-aac-v1.mov'],
+	size: 30234,
 	category: 'edge-cases',
 });
 

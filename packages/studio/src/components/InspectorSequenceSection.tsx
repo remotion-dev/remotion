@@ -21,6 +21,10 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {
+	useRuntimeValue,
+	useRuntimeValueSelector,
+} from '../helpers/use-runtime-values';
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
@@ -318,7 +322,7 @@ export const InspectorSequenceSection: React.FC<{
 	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
-	const {tree, propStatuses, runtimeValues} = useTimelineExpandedTree({
+	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
@@ -381,10 +385,15 @@ export const InspectorSequenceSection: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
-	const mediaSrc = getTimelineAssetSrcFromSchema(
-		sequence.controls,
-		runtimeValues,
+	const selectMediaSrc = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			getTimelineAssetSrcFromSchema(sequence.controls, values),
+		[sequence.controls],
 	);
+	const mediaSrc = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectMediaSrc,
+	});
 	const getSourceAction = useCallback(
 		(src: string): InspectorSourceAction | null => {
 			const linkInfo = getTimelineAssetLinkInfo(src);
@@ -612,20 +621,26 @@ export const InspectorSequenceSection: React.FC<{
 		propStatuses,
 		nodePathInfo.sequenceSubscriptionKey,
 	);
-	const automaticallyEnabled3DTransform = useMemo(() => {
-		return [
-			'style.translate',
-			'style.scale',
-			'style.rotate',
-			'style.transformOrigin',
-		].some((fieldKey) =>
-			propStatusHas3DTransformValue({
-				fieldKey,
-				propStatus: sequencePropStatuses?.[fieldKey],
-				runtimeValue: runtimeValues[fieldKey],
-			}),
-		);
-	}, [runtimeValues, sequencePropStatuses]);
+	const selectAutomaticallyEnabled3DTransform = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			[
+				'style.translate',
+				'style.scale',
+				'style.rotate',
+				'style.transformOrigin',
+			].some((fieldKey) =>
+				propStatusHas3DTransformValue({
+					fieldKey,
+					propStatus: sequencePropStatuses?.[fieldKey],
+					runtimeValue: values[fieldKey],
+				}),
+			),
+		[sequencePropStatuses],
+	);
+	const automaticallyEnabled3DTransform = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectAutomaticallyEnabled3DTransform,
+	});
 	const show3DTransformControls =
 		automaticallyEnabled3DTransform || manuallyEnabled3DTransform;
 	const onToggle3DTransform = useCallback(() => {
@@ -803,14 +818,18 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const runtimeCaptions = useRuntimeValue(
+		hasCaptionsSchema ? sequence.controls : null,
+		'captions',
+	);
 	const inlineCaptions = useMemo(
 		() =>
 			hasCaptionsSchema
-				? Array.isArray(runtimeValues.captions)
-					? (runtimeValues.captions as Caption[])
+				? Array.isArray(runtimeCaptions)
+					? (runtimeCaptions as Caption[])
 					: []
 				: null,
-		[hasCaptionsSchema, runtimeValues.captions],
+		[hasCaptionsSchema, runtimeCaptions],
 	);
 	const {
 		getCurrentFrame: getCommittedSequenceFrame,

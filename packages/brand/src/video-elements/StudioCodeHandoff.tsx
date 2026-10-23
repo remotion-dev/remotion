@@ -2,54 +2,68 @@ import {
 	AbsoluteFill,
 	Easing,
 	Interactive,
-	Sequence,
+	Img,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
-import {Scene11} from '../announcements/whats-new-in-remotion/Scene11';
 import {MacBookScreen} from '../WebMCPPromo/MacBookScene';
 import {Codex} from './Codex';
 import {Studio} from './Studio';
 import {TextEditor} from './TextEditor';
+import {whatsNewTimeline} from './WhatsNewTimeline';
 
 const windowBorderRadius = 6;
+// Match the one-pixel border in VS Code's 720px reference layout.
+const windowOutline = {
+	border: `${667 / 720}px solid #454545`,
+	borderRadius: windowBorderRadius,
+	boxSizing: 'border-box',
+	inset: 0,
+	pointerEvents: 'none',
+	position: 'absolute',
+	zIndex: 2,
+} as const;
 const screenInset = 6;
 const deviceBezel = 18;
+const transitionEasing = Easing.bezier(0.42, 0, 0.58, 1);
 
 export const StudioCodeHandoff: React.FC = () => {
 	const frame = useCurrentFrame();
-	const studioLeft = interpolate(frame, [60, 100, 140, 180], [6, 679, 679, 6], {
-		easing: [
-			Easing.bezier(0.16, 1, 0.3, 1),
-			Easing.linear,
-			Easing.bezier(0.16, 1, 0.3, 1),
-		],
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
-	const studioWidth = interpolate(frame, [140, 180], [667, 1340], {
-		easing: Easing.bezier(0.16, 1, 0.3, 1),
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-	});
+	const studioLeft = interpolate(
+		frame,
+		[165, 225, 270, 330],
+		[6, 679, 679, 6],
+		{
+			easing: [transitionEasing, Easing.linear, transitionEasing],
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const responsivenessProgress = interpolate(
+		frame,
+		[60, 120, 165, 225],
+		[1, 0, 0, 1],
+		{
+			easing: [transitionEasing, Easing.linear, transitionEasing],
+			extrapolateLeft: 'clamp',
+			extrapolateRight: 'clamp',
+		},
+	);
+	const studioWidth = 1340 - 673 * responsivenessProgress;
 
 	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: '#d9d9d9',
-			}}
-		>
+		<AbsoluteFill>
 			<Interactive.Div
 				name="Device frame"
 				style={{
 					height: 796,
-					left: 92.5,
+					left: 69.5,
 					position: 'absolute',
-					scale: 1.34,
-					top: 42.5,
-					transformOrigin: '0 0',
+					scale: 1.35,
+					top: -17.5,
 					width: 1388,
-					translate: '-62.5px 57.4px',
+					translate: '173.5px 240.2px',
+					transformOrigin: '50% 80%',
 				}}
 			>
 				<MacBookScreen
@@ -57,13 +71,14 @@ export const StudioCodeHandoff: React.FC = () => {
 					height={796}
 					left={0}
 					showCameraNotch={false}
+					showShadow={false}
 					top={0}
 					width={1388}
 				>
 					<Interactive.Div
 						name="Screen viewport"
 						style={{
-							backgroundColor: '#f8fafc',
+							backgroundColor: 'transparent',
 							borderRadius: windowBorderRadius + screenInset,
 							height: 760,
 							left: 18,
@@ -84,10 +99,10 @@ export const StudioCodeHandoff: React.FC = () => {
 								top: 6,
 								translate: interpolate(
 									frame,
-									[60, 100],
-									['679px 0px', '1358px 0px'],
+									[60, 120, 270, 330],
+									['679px 0px', '1358px 0px', '1358px 0px', '679px 0px'],
 									{
-										easing: Easing.bezier(0.16, 1, 0.3, 1),
+										easing: [transitionEasing, Easing.linear, transitionEasing],
 										extrapolateLeft: 'clamp',
 										extrapolateRight: 'clamp',
 									},
@@ -97,43 +112,42 @@ export const StudioCodeHandoff: React.FC = () => {
 						>
 							<TextEditor
 								borderRadius={windowBorderRadius}
-								code={`import {Video} from '@remotion/media';
-import {interpolate, useVideoConfig} from 'remotion';
-import {assetUrl} from './assets';
-import {SILENCES} from './Composition';
-import {EndCard} from './EndCard';
-import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
+								code={`import {Audio} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
+import {IntroScene} from './scenes/Intro';
+import {LightLeaksScene} from './scenes/LightLeaks';
+import {OutroScene} from './scenes/Outro';
 
-const FILE = 'whats11.mov';
-
-export const Scene11: React.FC = () => {
-	const {fps} = useVideoConfig();
-	const silence = SILENCES[FILE];
-	const trimBefore = Math.floor(silence.leadingEnd * fps);
-	const trimAfter = Math.ceil(silence.trailingStart * fps);
-	const overlayProgress = useSlideInProgress({
-		startAt: silence.trailingStart - silence.leadingEnd - 8,
-		holdDuration: 9999,
-	});
-	const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
-
-	return (
-		<>
-			<Video
-				style={{translate: \`\${videoX}% 0px\`}}
-				src={assetUrl(FILE)}
-				trimBefore={trimBefore}
-				trimAfter={trimAfter}
-			/>
-			<SlideInOverlay startAt={7} holdDuration={9999}>
-				<EndCard platform="youtube" />
-			</SlideInOverlay>
-		</>
-	);
+export const WhatsNew = () => {
+  return (
+    <>
+      <TransitionSeries name="Chapters">
+        <TransitionSeries.Sequence
+          name="Intro"
+          durationInFrames={250}
+        >
+          <IntroScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Sequence
+          name="Light leaks"
+          durationInFrames={864}
+        >
+          <LightLeaksScene />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Sequence
+          name="Outro"
+          durationInFrames={180}
+        >
+          <OutroScene />
+        </TransitionSeries.Sequence>
+      </TransitionSeries>
+      <Audio name="Score" src="score.wav" />
+    </>
+  );
 };`}
-								fileName="Scene11.tsx"
+								fileName="WhatsNew.tsx"
 								height={748}
-								highlightedLines="14-18"
+								highlightedLines=""
 								width={667}
 							/>
 						</Interactive.Div>
@@ -149,14 +163,10 @@ export const Scene11: React.FC = () => {
 								top: 6,
 								translate: interpolate(
 									frame,
-									[60, 100, 140, 180],
+									[165, 225, 270, 330],
 									['-667px 0px', '6px 0px', '6px 0px', '-667px 0px'],
 									{
-										easing: [
-											Easing.bezier(0.16, 1, 0.3, 1),
-											Easing.linear,
-											Easing.bezier(0.16, 1, 0.3, 1),
-										],
+										easing: [transitionEasing, Easing.linear, transitionEasing],
 										extrapolateLeft: 'clamp',
 										extrapolateRight: 'clamp',
 									},
@@ -169,6 +179,7 @@ export const Scene11: React.FC = () => {
 								height={748}
 								width={667}
 							/>
+							<Interactive.Div name="Window border" style={windowOutline} />
 						</Interactive.Div>
 
 						<Interactive.Div
@@ -187,26 +198,25 @@ export const Scene11: React.FC = () => {
 						>
 							<Studio
 								compositionHeight={1080}
-								compositionName="Outro"
+								compositionName="WhatsNew"
 								compositionWidth={1920}
 								content={
-									<Sequence from={-416} layout="none">
-										{/* Show Studio frame 655 within this 240-frame composition. */}
-										<Scene11 platform="youtube" />
-									</Sequence>
+									<Img
+										src="https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg"
+										showInTimeline={false}
+										style={{width: '100%', height: '100%'}}
+									/>
 								}
-								durationInFrames={742}
-								frame={655}
-								responsivenessProgress={interpolate(frame, [140, 180], [1, 0], {
-									easing: Easing.bezier(0.16, 1, 0.3, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								})}
+								durationInFrames={1294}
+								frame={1234}
+								timeline={whatsNewTimeline}
+								responsivenessProgress={responsivenessProgress}
 								showTimelineZoom={false}
-								timelineOffset={6 - studioLeft}
+								timelineOffset={0}
 								viewportHeight={748}
 								viewportWidth={studioWidth}
 							/>
+							<Interactive.Div name="Window border" style={windowOutline} />
 						</Interactive.Div>
 					</Interactive.Div>
 				</MacBookScreen>

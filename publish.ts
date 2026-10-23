@@ -64,7 +64,7 @@ const packagesToPublish: {
 	dir: string;
 	name: string;
 	hasLicense: boolean;
-	hasTsgoBuild: boolean;
+	hasNativeTypescriptBuild: boolean;
 	hasPrepublishOnly: boolean;
 	packagePath: string;
 }[] = [];
@@ -106,7 +106,7 @@ for (const dir of dirs) {
 		dir,
 		name: packageJson.name,
 		hasLicense: packageJson.license?.includes('LICENSE.md') === true,
-		hasTsgoBuild: /\btsgo\b/.test(packageJson.scripts?.make ?? ''),
+		hasNativeTypescriptBuild: /\btsc\b/.test(packageJson.scripts?.make ?? ''),
 		hasPrepublishOnly: typeof packageJson.scripts?.prepublishOnly === 'string',
 		packagePath,
 	});
@@ -121,11 +121,11 @@ if (!listOnly) {
 	const validatedTarballs = new Map<string, string>();
 
 	try {
-		// Validate the exact archives that will be published. A successful tsgo build
+		// Validate the exact archives that will be published. A successful native TypeScript build
 		// once left dist/render-queue/queue.js empty in @remotion/cli@4.0.531.
 		const preflightResults = await Promise.allSettled(
 			packagesToPublish
-				.filter(({hasTsgoBuild}) => hasTsgoBuild)
+				.filter(({hasNativeTypescriptBuild}) => hasNativeTypescriptBuild)
 				.map(({dir, name, hasLicense, hasPrepublishOnly, packagePath}) =>
 					p(async () => {
 						const licensePath = path.join(packagePath, 'LICENSE.md');

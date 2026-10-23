@@ -32,13 +32,11 @@ import {
 	JumpToStartIcon,
 	LoopIcon,
 	MagnetIcon,
-	OutlineIcon,
 	OutPointIcon,
 	PlaybackRateIcon,
 	PlayIcon,
 	RemotionGlyph,
 	RocketIcon,
-	RulerIcon,
 	SearchIcon,
 	SettingsIcon,
 	SidebarIcon,
@@ -80,6 +78,38 @@ export const studioReferenceSchema = z.object({
 
 export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
 
+export type StudioTimeline = {
+	readonly labelWidth: number;
+	readonly sourceLabelWidth: number;
+	readonly sourceTrackWidth: number;
+	readonly trackScale: number;
+	readonly pixelsPerFrame: number;
+	readonly imageSrc: string;
+	readonly width: number;
+	readonly height: number;
+	readonly ending: {
+		readonly name: string;
+		readonly from: number;
+		readonly durationInFrames: number;
+		readonly thumbnailSrc: string;
+		readonly connectedCompositionName: string;
+	} | null;
+	readonly regions: readonly {
+		readonly left: number;
+		readonly top: number;
+		readonly width: number;
+		readonly height: number;
+		readonly capturedOpacity: number;
+	}[];
+	readonly mediaLabels: readonly {
+		readonly top: number;
+		readonly height: number;
+		readonly left: number;
+		readonly name: string;
+		readonly assetName: string;
+	}[];
+};
+
 export type StudioProps = InteractiveBaseProps & {
 	readonly compositionName: string;
 	readonly compositionWidth: number;
@@ -90,6 +120,7 @@ export type StudioProps = InteractiveBaseProps & {
 	readonly responsivenessProgress: number;
 	readonly showTimelineZoom: boolean;
 	readonly timelineOffset: number;
+	readonly timeline: StudioTimeline | null;
 	readonly viewportHeight: number | null;
 	readonly viewportWidth: number;
 };
@@ -209,7 +240,10 @@ const MenuToolbar: React.FC<{
 						whiteSpace: 'nowrap',
 					}}
 				>
-					<span style={{letterSpacing: 0.08}}>brand / {compositionName}</span>
+					<span style={{letterSpacing: 0.08}}>
+						{compositionName === 'WhatsNew' ? 'announcements' : 'brand'} /{' '}
+						{compositionName}
+					</span>
 					<span style={{color: '#1594f6', display: 'flex'}}>
 						<VscodeIcon size={16} />
 					</span>
@@ -251,7 +285,9 @@ const MenuToolbar: React.FC<{
 	);
 };
 
-const LeftSidebar: React.FC = () => {
+const LeftSidebar: React.FC<{readonly compositionName: string}> = ({
+	compositionName,
+}) => {
 	return (
 		<Interactive.Div
 			name="Compositions sidebar"
@@ -424,11 +460,13 @@ const LeftSidebar: React.FC = () => {
 							whiteSpace: 'nowrap',
 						}}
 					>
-						SocialMediaAnnouncements
+						{compositionName === 'WhatsNew'
+							? 'WhatsNew'
+							: 'SocialMediaAnnouncements'}
 					</div>
 				</Interactive.Div>
 				<Interactive.Div
-					name="Outro composition"
+					name={`${compositionName} composition`}
 					style={{
 						alignItems: 'center',
 						backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -453,9 +491,26 @@ const LeftSidebar: React.FC = () => {
 							whiteSpace: 'nowrap',
 						}}
 					>
-						Outro
+						{compositionName}
 					</div>
 				</Interactive.Div>
+				{compositionName === 'WhatsNew' ? (
+					<Interactive.Div
+						name="Endcard connected composition"
+						style={{
+							alignItems: 'center',
+							display: 'flex',
+							height: 28,
+							marginLeft: 8,
+							marginBottom: 1,
+							paddingLeft: 20,
+							color: LIGHT_TEXT,
+						}}
+					>
+						<VideoIcon color={LIGHT_TEXT} size={18} />
+						<span style={{fontSize: 13, marginLeft: 8}}>Endcard</span>
+					</Interactive.Div>
+				) : null}
 				<Interactive.Div
 					name="Video Elements folder"
 					style={{
@@ -602,7 +657,9 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					<VideoIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>Root.tsx:127</span>
+					<span style={{marginLeft: 8}}>
+						{compositionName === 'WhatsNew' ? 'Root.tsx:27' : 'Root.tsx:127'}
+					</span>
 				</Interactive.Div>
 				<Interactive.Div
 					name="Scene source"
@@ -614,7 +671,11 @@ const RightSidebar: React.FC<{
 					}}
 				>
 					<BracesIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>Scene11.tsx:11</span>
+					<span style={{marginLeft: 8}}>
+						{compositionName === 'WhatsNew'
+							? 'WhatsNew.tsx:23'
+							: 'Scene11.tsx:11'}
+					</span>
 				</Interactive.Div>
 			</div>
 			<Interactive.Div name="Metadata heading">
@@ -690,45 +751,49 @@ const RightSidebar: React.FC<{
 					</Interactive.Div>
 				</div>
 			</Interactive.Div>
-			<Interactive.Div
-				name="Platform label"
-				style={{
-					color: LIGHT_TEXT,
-					fontFamily: 'monospace',
-					fontSize: 12,
-					lineHeight: '23px',
-					paddingLeft: 10,
-					position: 'relative',
-					top: 1,
-				}}
-			>
-				platform:
-			</Interactive.Div>
-			<Interactive.Div
-				name="Platform selector"
-				style={{
-					alignItems: 'center',
-					backgroundColor: INPUT_BACKGROUND,
-					border: '1px solid rgba(0, 0, 0, 0.65)',
-					borderRadius: 4,
-					boxSizing: 'border-box',
-					color: WHITE,
-					display: 'flex',
-					fontSize: 11,
-					height: 20,
-					marginLeft: 10,
-					paddingLeft: 5,
-					width: 60,
-				}}
-			>
-				youtube
-				<CaretIcon
-					color={LIGHT_TEXT}
-					direction="down"
-					size={9}
-					style={{marginLeft: 'auto', marginRight: 3}}
-				/>
-			</Interactive.Div>
+			{compositionName === 'WhatsNew' ? null : (
+				<>
+					<Interactive.Div
+						name="Platform label"
+						style={{
+							color: LIGHT_TEXT,
+							fontFamily: 'monospace',
+							fontSize: 12,
+							lineHeight: '23px',
+							paddingLeft: 10,
+							position: 'relative',
+							top: 1,
+						}}
+					>
+						platform:
+					</Interactive.Div>
+					<Interactive.Div
+						name="Platform selector"
+						style={{
+							alignItems: 'center',
+							backgroundColor: INPUT_BACKGROUND,
+							border: '1px solid rgba(0, 0, 0, 0.65)',
+							borderRadius: 4,
+							boxSizing: 'border-box',
+							color: WHITE,
+							display: 'flex',
+							fontSize: 11,
+							height: 20,
+							marginLeft: 10,
+							paddingLeft: 5,
+							width: 60,
+						}}
+					>
+						youtube
+						<CaretIcon
+							color={LIGHT_TEXT}
+							direction="down"
+							size={9}
+							style={{marginLeft: 'auto', marginRight: 3}}
+						/>
+					</Interactive.Div>
+				</>
+			)}
 			<div style={{height: 7}} />
 			<Interactive.Div name="Actions heading">
 				<InspectorSectionTitle>Actions</InspectorSectionTitle>
@@ -955,7 +1020,28 @@ const PreviewToolbar: React.FC<{
 						right: '100%',
 					}}
 				>
-					<div style={{width: 16}} />
+					<Interactive.Div name="Loop playback">
+						<IconButton active>
+							<LoopIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Volume">
+						<IconButton>
+							<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 8}} />
+					<Interactive.Div name="Set in point">
+						<IconButton width={18}>
+							<InPointIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Set out point">
+						<IconButton width={18}>
+							<OutPointIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 24}} />
 					<Interactive.Div name="Jump to start">
 						<IconButton>
 							<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
@@ -989,54 +1075,23 @@ const PreviewToolbar: React.FC<{
 							<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
 						</IconButton>
 					</Interactive.Div>
-					<div style={{width: 16}} />
-					<Interactive.Div name="Loop playback">
-						<IconButton active>
-							<LoopIcon color={BLUE} size={18} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 6}} />
-					<Interactive.Div name="Volume">
-						<IconButton>
-							<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 16}} />
-					<Interactive.Div name="Set in point">
-						<IconButton width={18}>
-							<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-						</IconButton>
-					</Interactive.Div>
-					<Interactive.Div name="Set out point">
-						<IconButton width={18}>
-							<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 16}} />
+					<div style={{width: 24}} />
 					<Interactive.Div name="Transparency grid">
-						<IconButton active>
+						<IconButton active width={26}>
 							<CheckerboardIcon color={BLUE} size={18} />
 						</IconButton>
 					</Interactive.Div>
-					<div style={{width: 2}} />
-					<Interactive.Div name="Canvas outline">
-						<IconButton active>
-							<OutlineIcon color={BLUE} size={18} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 2}} />
-					<Interactive.Div name="Rulers">
-						<IconButton>
-							<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 2}} />
 					<Interactive.Div name="Snapping">
-						<IconButton active>
-							<MagnetIcon
-								color={BLUE}
-								size={18}
-								style={{position: 'relative', top: 1}}
+						<IconButton active width={26}>
+							<MagnetIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="View options">
+						<IconButton width={20}>
+							<CaretIcon
+								color={TOOLBAR_FOREGROUND}
+								direction="down"
+								size={10}
 							/>
 						</IconButton>
 					</Interactive.Div>
@@ -1290,6 +1345,7 @@ const Timeline: React.FC<{
 	readonly height: number;
 	readonly showZoom: boolean;
 	readonly timelineOffset: number;
+	readonly timeline: StudioTimeline | null;
 	readonly width: number;
 }> = ({
 	durationInFrames,
@@ -1298,8 +1354,10 @@ const Timeline: React.FC<{
 	height,
 	showZoom,
 	timelineOffset,
+	timeline,
 	width,
 }) => {
+	const opacityFilterId = React.useId();
 	const labelWidth = Math.min(
 		width,
 		Math.max(
@@ -1330,6 +1388,568 @@ const Timeline: React.FC<{
 		{length: Math.floor(durationInFrames / 5) + 1},
 		(_, index) => index * 5,
 	);
+	if (timeline) {
+		const trackViewportWidth = Math.max(1, width - timeline.labelWidth);
+		const capturedPlayhead = frame * timeline.pixelsPerFrame;
+		const {ending} = timeline;
+		const endingIsActive =
+			ending !== null &&
+			frame >= ending.from &&
+			frame < ending.from + ending.durationInFrames;
+		const contentWidth = ending
+			? (ending.from + ending.durationInFrames) * timeline.pixelsPerFrame
+			: timeline.sourceTrackWidth * timeline.trackScale;
+		const scrollLeft = Math.min(
+			Math.max(0, contentWidth - trackViewportWidth),
+			Math.max(0, capturedPlayhead - trackViewportWidth * 0.9),
+		);
+		const endingWidth =
+			(ending?.durationInFrames ?? 0) * timeline.pixelsPerFrame;
+		const rowScale = timeline.height / 582;
+		return (
+			<Interactive.Div
+				name="Timeline"
+				style={{
+					height,
+					width,
+					overflow: 'hidden',
+					position: 'relative',
+					backgroundColor: TIMELINE_BACKGROUND,
+				}}
+			>
+				{/* Undo the capture's dimming against its timeline background, or
+				    apply it to clips outside the displayed playhead. */}
+				<svg width={0} height={0} aria-hidden style={{position: 'absolute'}}>
+					<defs>
+						{[
+							{suffix: 'dim', slope: 0.5},
+							{suffix: 'brighten', slope: 2},
+						].map(({suffix, slope}) => (
+							<filter
+								key={suffix}
+								id={`${opacityFilterId}-${suffix}`}
+								colorInterpolationFilters="sRGB"
+							>
+								<feComponentTransfer>
+									<feFuncR
+										type="linear"
+										slope={slope}
+										intercept={(22 / 255) * (1 - slope)}
+									/>
+									<feFuncG
+										type="linear"
+										slope={slope}
+										intercept={(24 / 255) * (1 - slope)}
+									/>
+									<feFuncB
+										type="linear"
+										slope={slope}
+										intercept={(27 / 255) * (1 - slope)}
+									/>
+								</feComponentTransfer>
+							</filter>
+						))}
+					</defs>
+				</svg>
+				<div
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						width: timeline.labelWidth,
+						height,
+						overflow: 'hidden',
+						backgroundColor: '#202428',
+					}}
+				>
+					<Img
+						src={timeline.imageSrc}
+						showInTimeline={false}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: timeline.width,
+							height: timeline.height,
+							maxWidth: 'none',
+						}}
+					/>
+					{timeline.mediaLabels.map((label) => (
+						<div
+							key={label.name}
+							style={{
+								position: 'absolute',
+								top: label.top,
+								height: label.height,
+								left: 32,
+								right: 2,
+								backgroundColor: '#202428',
+								display: 'flex',
+								flexDirection: 'column',
+								justifyContent: 'center',
+								paddingLeft: label.left - 32,
+								fontFamily: 'Arial, Helvetica, sans-serif',
+								fontSize: 12,
+							}}
+						>
+							<div
+								style={{
+									height: 16,
+									lineHeight: '16px',
+									color: '#d2d3d4',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									paddingRight: 10,
+									maskImage:
+										'linear-gradient(to right, black calc(100% - 10px), transparent)',
+								}}
+							>
+								{label.name}
+							</div>
+							<div
+								style={{
+									height: 14,
+									lineHeight: '14px',
+									marginTop: -2,
+									paddingLeft: 2,
+									paddingRight: 10,
+									color: 'rgba(255, 255, 255, 0.3)',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									maskImage:
+										'linear-gradient(to right, black calc(100% - 10px), transparent)',
+								}}
+							>
+								{label.assetName}
+							</div>
+						</div>
+					))}
+					{endingIsActive ? (
+						<div
+							style={{
+								position: 'absolute',
+								top: 144 * rowScale,
+								bottom: 0,
+								left: 0,
+								right: 2,
+								backgroundColor: '#202428',
+							}}
+						>
+							{[
+								{
+									top: 0,
+									height: 92,
+									name: '<Video>',
+									asset: 'whats11.mov',
+									connected: false,
+								},
+								{
+									top: 92,
+									height: 44,
+									name: '<PunchyCaptions>',
+									asset: null,
+									connected: false,
+								},
+								{
+									top: 136,
+									height: 44,
+									name: ending.connectedCompositionName,
+									asset: null,
+									connected: true,
+								},
+							].map((row) => (
+								<div
+									key={row.name}
+									style={{
+										position: 'absolute',
+										top: row.top * rowScale,
+										height: row.height * rowScale,
+										left: 0,
+										right: 0,
+										borderBottom: '1px solid #171b1e',
+										boxSizing: 'border-box',
+										display: 'flex',
+										alignItems: 'center',
+										color: TOOLBAR_FOREGROUND,
+										fontSize: 12,
+									}}
+								>
+									<EyeIcon
+										color={TOOLBAR_FOREGROUND}
+										size={12}
+										style={{position: 'absolute', left: 8}}
+									/>
+									<div
+										style={{
+											position: 'absolute',
+											left: 44,
+											display: 'flex',
+											alignItems: 'center',
+											gap: 4,
+										}}
+									>
+										{row.connected ? (
+											<VideoIcon color={TOOLBAR_FOREGROUND} size={12} />
+										) : (
+											<div style={{width: 12}} />
+										)}
+										<div>
+											<div>{row.name}</div>
+											{row.asset ? (
+												<div
+													style={{
+														color: 'rgba(255, 255, 255, 0.3)',
+														fontSize: 12,
+														lineHeight: '14px',
+														paddingLeft: 2,
+													}}
+												>
+													{row.asset}
+												</div>
+											) : null}
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					) : null}
+					<div
+						style={{
+							position: 'absolute',
+							right: 0,
+							top: 0,
+							width: 2,
+							height,
+							backgroundColor: BACKGROUND,
+						}}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							width: '100%',
+							height: 40,
+							backgroundColor: BACKGROUND,
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								right: 7,
+								top: 10,
+								display: 'flex',
+								alignItems: 'center',
+								gap: 5,
+								color: LIGHT_TEXT,
+							}}
+						>
+							<CanvasZoomOutIcon size={17} />
+							<div
+								style={{
+									width: 40,
+									height: 4,
+									backgroundColor: '#353a3e',
+									borderRadius: 4,
+									position: 'relative',
+								}}
+							>
+								<div
+									style={{
+										position: 'absolute',
+										left: 15,
+										top: -3,
+										width: 10,
+										height: 10,
+										borderRadius: '50%',
+										backgroundColor: WHITE,
+									}}
+								/>
+							</div>
+							<CanvasZoomIcon size={17} />
+						</div>
+					</div>
+				</div>
+				<div
+					style={{
+						position: 'absolute',
+						left: timeline.labelWidth,
+						top: 0,
+						width: trackViewportWidth,
+						height,
+						overflow: 'hidden',
+					}}
+				>
+					<div
+						style={{
+							position: 'absolute',
+							left: -scrollLeft,
+							top: 0,
+							width: timeline.sourceTrackWidth,
+							height: timeline.height,
+							overflow: 'hidden',
+							transform: `scaleX(${timeline.trackScale})`,
+							transformOrigin: 'left top',
+						}}
+					>
+						<Img
+							src={timeline.imageSrc}
+							showInTimeline={false}
+							style={{
+								position: 'absolute',
+								left: -timeline.sourceLabelWidth,
+								top: 0,
+								width: timeline.width,
+								height: timeline.height,
+								maxWidth: 'none',
+							}}
+						/>
+						{timeline.regions.map((region) => {
+							const active =
+								capturedPlayhead >= region.left * timeline.trackScale &&
+								capturedPlayhead <
+									(region.left + region.width) * timeline.trackScale;
+							const opacity = active ? 1 : 0.5;
+							if (opacity === region.capturedOpacity) {
+								return null;
+							}
+
+							return (
+								<div
+									key={`${region.left}-${region.top}`}
+									style={{
+										position: 'absolute',
+										left: region.left,
+										top: region.top,
+										width: region.width,
+										height: region.height,
+										overflow: 'hidden',
+									}}
+								>
+									<Img
+										src={timeline.imageSrc}
+										showInTimeline={false}
+										style={{
+											position: 'absolute',
+											left: -timeline.sourceLabelWidth - region.left,
+											top: -region.top,
+											width: timeline.width,
+											height: timeline.height,
+											maxWidth: 'none',
+											filter: `url(#${opacityFilterId}-${active ? 'brighten' : 'dim'})`,
+										}}
+									/>
+								</div>
+							);
+						})}
+					</div>
+					{ending ? (
+						<div
+							style={{
+								position: 'absolute',
+								left: ending.from * timeline.pixelsPerFrame - scrollLeft,
+								top: 0,
+								width: endingWidth,
+								height: timeline.height,
+								opacity: endingIsActive ? 1 : 0.5,
+							}}
+						>
+							{[
+								{
+									top: 84,
+									bottom: 144,
+									label: ending.name,
+									chapter: true,
+									connected: false,
+									color: BLUE,
+								},
+								{
+									top: 236,
+									bottom: 280,
+									label: 'Subscribe for more videos.',
+									chapter: false,
+									connected: false,
+									color: '#b66f1f',
+								},
+								{
+									top: 280,
+									bottom: 324,
+									label: ending.connectedCompositionName,
+									chapter: false,
+									connected: true,
+									color: BLUE,
+								},
+							].map((row) => (
+								<div
+									key={row.top}
+									style={{
+										position: 'absolute',
+										top: row.top * rowScale,
+										height: (row.bottom - row.top) * rowScale,
+										width: '100%',
+										boxSizing: 'border-box',
+										border: '1px solid #15181b',
+										backgroundColor: row.color,
+										color: WHITE,
+										fontSize: 12,
+										overflow: 'hidden',
+										whiteSpace: 'nowrap',
+										paddingLeft: 4,
+										display: 'flex',
+										flexDirection: row.connected ? 'row' : 'column',
+										alignItems: row.connected ? 'center' : 'flex-start',
+										justifyContent: row.connected ? 'flex-start' : 'center',
+										gap: row.connected ? 4 : 0,
+									}}
+								>
+									{row.chapter || row.connected ? (
+										<VideoIcon color={WHITE} size={10} />
+									) : null}
+									<span>{row.label}</span>
+								</div>
+							))}
+							<div
+								style={{
+									position: 'absolute',
+									top: 144 * rowScale,
+									height: 52 * rowScale,
+									width: '100%',
+									display: 'flex',
+									overflow: 'hidden',
+								}}
+							>
+								{Array.from(
+									{length: Math.ceil(endingWidth / ((52 * rowScale * 16) / 9))},
+									(_, index) => (
+										<Img
+											key={index}
+											src={ending.thumbnailSrc}
+											showInTimeline={false}
+											style={{
+												height: '100%',
+												width: (52 * rowScale * 16) / 9,
+												flexShrink: 0,
+											}}
+										/>
+									),
+								)}
+							</div>
+							<div
+								style={{
+									position: 'absolute',
+									top: 196 * rowScale,
+									height: 40 * rowScale,
+									width: '100%',
+									overflow: 'hidden',
+								}}
+							>
+								<Img
+									src={timeline.imageSrc}
+									showInTimeline={false}
+									style={{
+										position: 'absolute',
+										top: -254 * rowScale,
+										left:
+											-timeline.sourceLabelWidth -
+											timeline.sourceTrackWidth * 0.75,
+										width: timeline.width,
+										height: timeline.height,
+										maxWidth: 'none',
+										filter: `url(#${opacityFilterId}-brighten)`,
+									}}
+								/>
+							</div>
+						</div>
+					) : null}
+					<div
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							height: 40,
+							width: '100%',
+							backgroundColor: BACKGROUND,
+							overflow: 'hidden',
+						}}
+					>
+						{ticks.map((tick) => (
+							<React.Fragment key={tick}>
+								<div
+									style={{
+										position: 'absolute',
+										top: 0,
+										left: tick * timeline.pixelsPerFrame - scrollLeft,
+										width: 1,
+										height:
+											tick % (timelineFps * 5) === 0
+												? 15
+												: tick % timelineFps === 0
+													? 5
+													: 2,
+										backgroundColor: '#3b4145',
+									}}
+								/>
+								{tick > 0 && tick % (timelineFps * 5) === 0 ? (
+									<div
+										style={{
+											position: 'absolute',
+											top: 5,
+											left: tick * timeline.pixelsPerFrame - scrollLeft + 7,
+											color: LIGHT_TEXT,
+											fontSize: 12,
+											whiteSpace: 'nowrap',
+										}}
+									>
+										00:{String(tick / timelineFps).padStart(2, '0')}.00
+									</div>
+								) : null}
+							</React.Fragment>
+						))}
+					</div>
+					<div
+						style={{
+							position: 'absolute',
+							left: capturedPlayhead - scrollLeft,
+							top: 0,
+							bottom: 0,
+							width: 1,
+							backgroundColor: PLAYHEAD,
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								left: -8,
+								top: 3,
+								width: 17,
+								height: 16,
+								backgroundColor: PLAYHEAD,
+								clipPath: 'polygon(0 0, 100% 0, 100% 50%, 50% 100%, 0 50%)',
+							}}
+						/>
+					</div>
+				</div>
+				<div
+					style={{
+						position: 'absolute',
+						left: 2,
+						top: 2,
+						width: 100,
+						height: 38,
+						backgroundColor: BACKGROUND,
+						paddingLeft: 6,
+						boxSizing: 'border-box',
+						color: LIGHT_TEXT,
+						fontFamily: 'monospace',
+					}}
+				>
+					<div style={{fontSize: 14, lineHeight: '22px'}}>{timecode}</div>
+					<div style={{fontSize: 10, lineHeight: '12px'}}>{frame}</div>
+				</div>
+			</Interactive.Div>
+		);
+	}
+
 	// Mirrors the layer tree the real Studio shows for the Outro composition.
 	const layers: {
 		name: string;
@@ -1653,6 +2273,7 @@ const StudioInner: React.FC<
 	showInTimeline,
 	showTimelineZoom,
 	timelineOffset,
+	timeline,
 	trimAfter,
 	trimBefore,
 	loop,
@@ -1662,9 +2283,9 @@ const StudioInner: React.FC<
 	const {height: videoHeight, fps} = useVideoConfig();
 	const height = viewportHeight ?? videoHeight;
 	const width = viewportWidth;
-	const topPanelHeight = Math.round(
-		(height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO,
-	);
+	const topPanelHeight = timeline
+		? height - MENU_HEIGHT - SPLITTER_SIZE - timeline.height
+		: Math.round((height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO);
 	const timelineHeight = height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
 	const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
 	const leftSidebarWidth = Math.min(
@@ -1675,15 +2296,12 @@ const StudioInner: React.FC<
 		350,
 		Math.max(250, Math.round(width * RIGHT_SIDEBAR_RATIO)),
 	);
-	const sidebarProgress = interpolate(
-		responsivenessProgress,
-		[0, 0.2],
-		[0, 1],
-		{
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		},
-	);
+	const sidebarProgress = timeline
+		? responsivenessProgress
+		: interpolate(responsivenessProgress, [0, 0.2], [0, 1], {
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			});
 	const leftSidebarOccupiedWidth =
 		(leftSidebarWidth + SPLITTER_SIZE) * (1 - sidebarProgress);
 	const rightSidebarOccupiedWidth =
@@ -1751,7 +2369,7 @@ const StudioInner: React.FC<
 								}}
 							>
 								<div style={{width: leftSidebarWidth}}>
-									<LeftSidebar />
+									<LeftSidebar compositionName={compositionName} />
 								</div>
 								<Interactive.Div
 									name="Left sidebar splitter"
@@ -1809,6 +2427,7 @@ const StudioInner: React.FC<
 					style={{backgroundColor: SPLITTER, height: SPLITTER_SIZE, width}}
 				/>
 				<Timeline
+					timeline={timeline}
 					durationInFrames={durationInFrames}
 					fps={fps}
 					frame={frame}
@@ -1846,6 +2465,7 @@ export const StudioReference: React.FC<StudioReferenceProps> = ({
 			responsivenessProgress={responsivenessProgress}
 			showTimelineZoom
 			timelineOffset={0}
+			timeline={null}
 			viewportHeight={null}
 			viewportWidth={viewportWidth}
 		/>
@@ -1901,6 +2521,7 @@ export const StudioDeviceFrame: React.FC<StudioReferenceProps> = ({
 					height={macBookHeight}
 					left={0}
 					showCameraNotch={false}
+					showShadow
 					top={0}
 					width={macBookWidth}
 				>

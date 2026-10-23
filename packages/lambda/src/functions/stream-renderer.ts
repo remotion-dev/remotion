@@ -52,6 +52,8 @@ const streamRenderer = ({
 
 	return new Promise<StreamRendererResponse>((resolve) => {
 		let chunkCompleted = false;
+		let invocation = 0;
+		const artifactInvocations = new Map<string, number>();
 		const chunkFilename = (type: 'video' | 'audio') =>
 			join(outdir, `chunk:${String(payload.chunk).padStart(8, '0')}:${type}`);
 
@@ -83,6 +85,7 @@ const streamRenderer = ({
 
 		const receivedStreamingPayload: OnMessage = ({message}) => {
 			if (message.type === 'lambda-invoked') {
+				invocation++;
 				overallProgress.setLambdaInvoked(payload.chunk);
 				return;
 			}
@@ -165,6 +168,20 @@ const streamRenderer = ({
 					artifact.filename,
 					artifact.content.length + 'bytes.',
 				);
+				const artifactKey = JSON.stringify([artifact.filename, artifact.frame]);
+				const previousInvocation = artifactInvocations.get(artifactKey);
+				if (
+					previousInvocation !== undefined &&
+					previousInvocation < invocation
+				) {
+					RenderInternals.Log.info(
+						{indent: false, logLevel},
+						`Ignoring artifact ${artifact.filename} replayed by a retried stream of chunk ${payload.chunk}`,
+					);
+					return;
+				}
+
+				artifactInvocations.set(artifactKey, invocation);
 				const artifactRegistration = onArtifact({
 					artifact,
 					chunk: payload.chunk,

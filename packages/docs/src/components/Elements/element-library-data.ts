@@ -14,9 +14,12 @@ export type ElementLibrarySection = {
 	readonly label: string;
 };
 
-const elementCategories = Array.from(
-	new Set(elementDefinitions.map(({category}) => category)),
-);
+// Use the sidebar's category order for the gallery as well.
+const elementCategories = registeredCategories
+	.map(({category}) => category)
+	.filter((category) =>
+		elementDefinitions.some((definition) => definition.category === category),
+	);
 
 export const getElementCategoryLabel = (category: ElementCategory) => {
 	return (
