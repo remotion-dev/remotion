@@ -7,6 +7,9 @@ export const GetStarted: React.FC<{
 	readonly command: string;
 }> = ({alignRight, command}) => {
 	const [clicked, setClicked] = useState<number | null>(null);
+	const linkButtonClassName = alignRight
+		? 'w-full px-1.5 min-[360px]:px-2 min-[900px]:px-4'
+		: 'w-full';
 
 	return (
 		<div
@@ -40,30 +43,50 @@ export const GetStarted: React.FC<{
 				</div>
 			</div>
 			<div style={{width: 10, height: 10}} />
-			<div className="w-full min-[900px]:w-auto">
-				<Button href="/docs" className="w-full">
-					Docs
-				</Button>
-			</div>
-			<div className="w-2 h-2" />
-			<div className="w-full min-[900px]:w-auto">
-				<Button
-					href="https://remotion.dev/discord"
-					target="_blank"
-					className="w-full"
+			<div
+				className={
+					alignRight
+						? 'flex flex-row gap-2 w-full min-[900px]:w-auto'
+						: 'contents'
+				}
+			>
+				<div
+					className={
+						alignRight
+							? 'flex-1 min-[900px]:flex-none'
+							: 'w-full min-[900px]:w-auto'
+					}
 				>
-					Discord
-				</Button>
-			</div>
-			<div className="w-2 h-2" />
-			<div className="w-full min-[900px]:w-auto">
-				<Button
-					href="https://github.com/remotion-dev/remotion"
-					target="_blank"
-					className="w-full"
+					<Button href="/docs" className={linkButtonClassName}>
+						Docs
+					</Button>
+				</div>
+				{alignRight ? null : <div className="w-2 h-2" />}
+				<div
+					className={
+						alignRight
+							? 'flex-1 min-[900px]:flex-none'
+							: 'w-full min-[900px]:w-auto'
+					}
 				>
-					<GithubButton />
-				</Button>
+					<Button
+						href="https://remotion.dev/discord"
+						target="_blank"
+						className={linkButtonClassName}
+					>
+						Discord
+					</Button>
+				</div>
+				{alignRight ? null : <div className="w-2 h-2" />}
+				<div className={alignRight ? 'shrink-0' : 'w-full min-[900px]:w-auto'}>
+					<Button
+						href="https://github.com/remotion-dev/remotion"
+						target="_blank"
+						className={linkButtonClassName}
+					>
+						<GithubButton />
+					</Button>
+				</div>
 			</div>
 		</div>
 	);

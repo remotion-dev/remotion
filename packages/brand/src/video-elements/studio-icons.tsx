@@ -285,10 +285,14 @@ export const VolumeIcon: React.FC<VolumeIconProps> = ({
 
 export const InPointIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 192 512" {...props}>
+		<SvgIcon viewBox="0 0 16 16" {...props}>
 			<path
-				fill="currentColor"
-				d="M0 88C0 57.1 25.1 32 56 32h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H56c-4.4 0-8 3.6-8 8v336c0 4.4 3.6 8 8 8h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H56c-30.9 0-56-25.1-56-56V88z"
+				d="M9.5 1.5H5.5v13h4"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</SvgIcon>
 	);
@@ -296,10 +300,14 @@ export const InPointIcon: React.FC<StudioIconProps> = (props) => {
 
 export const OutPointIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 192 512" {...props}>
+		<SvgIcon viewBox="0 0 16 16" {...props}>
 			<path
-				fill="currentColor"
-				d="M192 88c0-30.9-25.1-56-56-56H72C58.7 32 48 42.7 48 56s10.7 24 24 24h64c4.4 0 8 3.6 8 8v336c0 4.4-3.6 8-8 8H72c-13.3 0-24 10.7-24 24s10.7 24 24 24h64c30.9 0 56-25.1 56-56V88z"
+				d="M6.5 1.5h4v13H6.5"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</SvgIcon>
 	);
@@ -307,26 +315,11 @@ export const OutPointIcon: React.FC<StudioIconProps> = (props) => {
 
 export const CheckerboardIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 512 512" {...props}>
+		<SvgIcon viewBox="0 0 18 18" {...props}>
 			<path
 				fill="currentColor"
-				d="M256 48h184c13.3 0 24 10.7 24 24v184H256V48zM48 256h208v208H72c-13.3 0-24-10.7-24-24V256z"
-			/>
-			<rect
-				x="48"
-				y="48"
-				width="416"
-				height="416"
-				rx="24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="32"
-			/>
-			<path
-				d="M256 48v416M48 256h416"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="32"
+				fillRule="evenodd"
+				d="M3 2h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1H3a1 1 0 0 1 -1 -1V3a1 1 0 0 1 1 -1zM3 3h6v6H3zM9 9h6v6H9z"
 			/>
 		</SvgIcon>
 	);
@@ -378,11 +371,11 @@ export const RulerIcon: React.FC<StudioIconProps> = (props) => {
 
 export const MagnetIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 448 512" {...props}>
+		<SvgIcon viewBox="0 0 18 18" {...props}>
 			<path
 				fill="currentColor"
-				transform="rotate(180 224 256)"
-				d="M48 64c-8.8 0-16 7.2-16 16v80h80V80c0-8.8-7.2-16-16-16H48zM32 288c0 106 86 192 192 192s192-86 192-192v-96h-80v96c0 61.9-50.1 112-112 112s-112-50.1-112-112v-96H32v96zM416 160V80c0-8.8-7.2-16-16-16h-48c-8.8 0-16 7.2-16 16v80h80zM0 80c0-26.5 21.5-48 48-48h48c26.5 0 48 21.5 48 48v208c0 44.2 35.8 80 80 80s80-35.8 80-80V80c0-26.5 21.5-48 48-48h48c26.5 0 48 21.5 48 48v208c0 123.7-100.3 224-224 224S0 411.7 0 288V80z"
+				fillRule="evenodd"
+				d="M1 9a8 8 0 0 1 16 0v6a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1V9a3 3 0 0 0 -6 0v6a1 1 0 0 1 -1 1H2a1 1 0 0 1 -1 -1zM2 9v3h3V9a4 4 0 0 1 8 0v3h3V9a7 7 0 0 0 -14 0zM2 13v2h3v-2zM13 13v2h3v-2z"
 			/>
 		</SvgIcon>
 	);
@@ -390,10 +383,14 @@ export const MagnetIcon: React.FC<StudioIconProps> = (props) => {
 
 export const FullscreenIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 448 512" {...props}>
+		<SvgIcon viewBox="0 0 18 18" {...props}>
 			<path
-				fill="currentColor"
-				d="M136 32c13.3 0 24 10.7 24 24s-10.7 24-24 24H48v88c0 13.3-10.7 24-24 24S0 181.3 0 168V56C0 42.7 10.7 32 24 32h112zM0 344c0-13.3 10.7-24 24-24s24 10.7 24 24v88h88c13.3 0 24 10.7 24 24s-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V344zM424 32c13.3 0 24 10.7 24 24v112c0 13.3-10.7 24-24 24s-24-10.7-24-24V80h-88c-13.3 0-24-10.7-24-24s10.7-24 24-24h112zM400 344c0-13.3 10.7-24 24-24s24 10.7 24 24v112c0 13.3-10.7 24-24 24H312c-13.3 0-24-10.7-24-24s10.7-24 24-24h88v-88z"
+				d="M6.5 2.5H2.5v4M2.5 11.5v4h4M11.5 2.5h4v4M15.5 11.5v4h-4"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</SvgIcon>
 	);

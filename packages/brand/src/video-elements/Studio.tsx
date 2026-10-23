@@ -32,13 +32,11 @@ import {
 	JumpToStartIcon,
 	LoopIcon,
 	MagnetIcon,
-	OutlineIcon,
 	OutPointIcon,
 	PlaybackRateIcon,
 	PlayIcon,
 	RemotionGlyph,
 	RocketIcon,
-	RulerIcon,
 	SearchIcon,
 	SettingsIcon,
 	SidebarIcon,
@@ -83,10 +81,26 @@ export type StudioReferenceProps = z.infer<typeof studioReferenceSchema>;
 export type StudioTimeline = {
 	readonly labelWidth: number;
 	readonly sourceLabelWidth: number;
+	readonly sourceTrackWidth: number;
+	readonly trackScale: number;
 	readonly pixelsPerFrame: number;
 	readonly imageSrc: string;
 	readonly width: number;
 	readonly height: number;
+	readonly ending: {
+		readonly name: string;
+		readonly from: number;
+		readonly durationInFrames: number;
+		readonly thumbnailSrc: string;
+		readonly connectedCompositionName: string;
+	} | null;
+	readonly regions: readonly {
+		readonly left: number;
+		readonly top: number;
+		readonly width: number;
+		readonly height: number;
+		readonly capturedOpacity: number;
+	}[];
 	readonly mediaLabels: readonly {
 		readonly top: number;
 		readonly height: number;
@@ -226,7 +240,10 @@ const MenuToolbar: React.FC<{
 						whiteSpace: 'nowrap',
 					}}
 				>
-					<span style={{letterSpacing: 0.08}}>brand / {compositionName}</span>
+					<span style={{letterSpacing: 0.08}}>
+						{compositionName === 'WhatsNew' ? 'announcements' : 'brand'} /{' '}
+						{compositionName}
+					</span>
 					<span style={{color: '#1594f6', display: 'flex'}}>
 						<VscodeIcon size={16} />
 					</span>
@@ -477,6 +494,23 @@ const LeftSidebar: React.FC<{readonly compositionName: string}> = ({
 						{compositionName}
 					</div>
 				</Interactive.Div>
+				{compositionName === 'WhatsNew' ? (
+					<Interactive.Div
+						name="Endcard connected composition"
+						style={{
+							alignItems: 'center',
+							display: 'flex',
+							height: 28,
+							marginLeft: 8,
+							marginBottom: 1,
+							paddingLeft: 20,
+							color: LIGHT_TEXT,
+						}}
+					>
+						<VideoIcon color={LIGHT_TEXT} size={18} />
+						<span style={{fontSize: 13, marginLeft: 8}}>Endcard</span>
+					</Interactive.Div>
+				) : null}
 				<Interactive.Div
 					name="Video Elements folder"
 					style={{
@@ -986,7 +1020,28 @@ const PreviewToolbar: React.FC<{
 						right: '100%',
 					}}
 				>
-					<div style={{width: 16}} />
+					<Interactive.Div name="Loop playback">
+						<IconButton active>
+							<LoopIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Volume">
+						<IconButton>
+							<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 8}} />
+					<Interactive.Div name="Set in point">
+						<IconButton width={18}>
+							<InPointIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="Set out point">
+						<IconButton width={18}>
+							<OutPointIcon color={TOOLBAR_FOREGROUND} size={16} />
+						</IconButton>
+					</Interactive.Div>
+					<div style={{width: 24}} />
 					<Interactive.Div name="Jump to start">
 						<IconButton>
 							<JumpToStartIcon color={TOOLBAR_FOREGROUND} size={18} />
@@ -1020,54 +1075,23 @@ const PreviewToolbar: React.FC<{
 							<StepForwardIcon color={TOOLBAR_FOREGROUND} size={16} />
 						</IconButton>
 					</Interactive.Div>
-					<div style={{width: 16}} />
-					<Interactive.Div name="Loop playback">
-						<IconButton active>
-							<LoopIcon color={BLUE} size={18} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 6}} />
-					<Interactive.Div name="Volume">
-						<IconButton>
-							<VolumeIcon color={TOOLBAR_FOREGROUND} size={21} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 16}} />
-					<Interactive.Div name="Set in point">
-						<IconButton width={18}>
-							<InPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-						</IconButton>
-					</Interactive.Div>
-					<Interactive.Div name="Set out point">
-						<IconButton width={18}>
-							<OutPointIcon color={TOOLBAR_FOREGROUND} size={17} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 16}} />
+					<div style={{width: 24}} />
 					<Interactive.Div name="Transparency grid">
-						<IconButton active>
+						<IconButton active width={26}>
 							<CheckerboardIcon color={BLUE} size={18} />
 						</IconButton>
 					</Interactive.Div>
-					<div style={{width: 2}} />
-					<Interactive.Div name="Canvas outline">
-						<IconButton active>
-							<OutlineIcon color={BLUE} size={18} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 2}} />
-					<Interactive.Div name="Rulers">
-						<IconButton>
-							<RulerIcon color={TOOLBAR_FOREGROUND} size={18} />
-						</IconButton>
-					</Interactive.Div>
-					<div style={{width: 2}} />
 					<Interactive.Div name="Snapping">
-						<IconButton active>
-							<MagnetIcon
-								color={BLUE}
-								size={18}
-								style={{position: 'relative', top: 1}}
+						<IconButton active width={26}>
+							<MagnetIcon color={BLUE} size={18} />
+						</IconButton>
+					</Interactive.Div>
+					<Interactive.Div name="View options">
+						<IconButton width={20}>
+							<CaretIcon
+								color={TOOLBAR_FOREGROUND}
+								direction="down"
+								size={10}
 							/>
 						</IconButton>
 					</Interactive.Div>
@@ -1333,6 +1357,7 @@ const Timeline: React.FC<{
 	timeline,
 	width,
 }) => {
+	const opacityFilterId = React.useId();
 	const labelWidth = Math.min(
 		width,
 		Math.max(
@@ -1366,7 +1391,21 @@ const Timeline: React.FC<{
 	if (timeline) {
 		const trackViewportWidth = Math.max(1, width - timeline.labelWidth);
 		const capturedPlayhead = frame * timeline.pixelsPerFrame;
-		const scrollLeft = Math.max(0, capturedPlayhead - trackViewportWidth * 0.9);
+		const {ending} = timeline;
+		const endingIsActive =
+			ending !== null &&
+			frame >= ending.from &&
+			frame < ending.from + ending.durationInFrames;
+		const contentWidth = ending
+			? (ending.from + ending.durationInFrames) * timeline.pixelsPerFrame
+			: timeline.sourceTrackWidth * timeline.trackScale;
+		const scrollLeft = Math.min(
+			Math.max(0, contentWidth - trackViewportWidth),
+			Math.max(0, capturedPlayhead - trackViewportWidth * 0.9),
+		);
+		const endingWidth =
+			(ending?.durationInFrames ?? 0) * timeline.pixelsPerFrame;
+		const rowScale = timeline.height / 582;
 		return (
 			<Interactive.Div
 				name="Timeline"
@@ -1378,6 +1417,40 @@ const Timeline: React.FC<{
 					backgroundColor: TIMELINE_BACKGROUND,
 				}}
 			>
+				{/* Undo the capture's dimming against its timeline background, or
+				    apply it to clips outside the displayed playhead. */}
+				<svg width={0} height={0} aria-hidden style={{position: 'absolute'}}>
+					<defs>
+						{[
+							{suffix: 'dim', slope: 0.5},
+							{suffix: 'brighten', slope: 2},
+						].map(({suffix, slope}) => (
+							<filter
+								key={suffix}
+								id={`${opacityFilterId}-${suffix}`}
+								colorInterpolationFilters="sRGB"
+							>
+								<feComponentTransfer>
+									<feFuncR
+										type="linear"
+										slope={slope}
+										intercept={(22 / 255) * (1 - slope)}
+									/>
+									<feFuncG
+										type="linear"
+										slope={slope}
+										intercept={(24 / 255) * (1 - slope)}
+									/>
+									<feFuncB
+										type="linear"
+										slope={slope}
+										intercept={(27 / 255) * (1 - slope)}
+									/>
+								</feComponentTransfer>
+							</filter>
+						))}
+					</defs>
+				</svg>
 				<div
 					style={{
 						position: 'absolute',
@@ -1451,6 +1524,95 @@ const Timeline: React.FC<{
 							</div>
 						</div>
 					))}
+					{endingIsActive ? (
+						<div
+							style={{
+								position: 'absolute',
+								top: 144 * rowScale,
+								bottom: 0,
+								left: 0,
+								right: 2,
+								backgroundColor: '#202428',
+							}}
+						>
+							{[
+								{
+									top: 0,
+									height: 92,
+									name: '<Video>',
+									asset: 'whats11.mov',
+									connected: false,
+								},
+								{
+									top: 92,
+									height: 44,
+									name: '<PunchyCaptions>',
+									asset: null,
+									connected: false,
+								},
+								{
+									top: 136,
+									height: 44,
+									name: ending.connectedCompositionName,
+									asset: null,
+									connected: true,
+								},
+							].map((row) => (
+								<div
+									key={row.name}
+									style={{
+										position: 'absolute',
+										top: row.top * rowScale,
+										height: row.height * rowScale,
+										left: 0,
+										right: 0,
+										borderBottom: '1px solid #171b1e',
+										boxSizing: 'border-box',
+										display: 'flex',
+										alignItems: 'center',
+										color: TOOLBAR_FOREGROUND,
+										fontSize: 12,
+									}}
+								>
+									<EyeIcon
+										color={TOOLBAR_FOREGROUND}
+										size={12}
+										style={{position: 'absolute', left: 8}}
+									/>
+									<div
+										style={{
+											position: 'absolute',
+											left: 44,
+											display: 'flex',
+											alignItems: 'center',
+											gap: 4,
+										}}
+									>
+										{row.connected ? (
+											<VideoIcon color={TOOLBAR_FOREGROUND} size={12} />
+										) : (
+											<div style={{width: 12}} />
+										)}
+										<div>
+											<div>{row.name}</div>
+											{row.asset ? (
+												<div
+													style={{
+														color: 'rgba(255, 255, 255, 0.3)',
+														fontSize: 12,
+														lineHeight: '14px',
+														paddingLeft: 2,
+													}}
+												>
+													{row.asset}
+												</div>
+											) : null}
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					) : null}
 					<div
 						style={{
 							position: 'absolute',
@@ -1518,18 +1680,187 @@ const Timeline: React.FC<{
 						overflow: 'hidden',
 					}}
 				>
-					<Img
-						src={timeline.imageSrc}
-						showInTimeline={false}
+					<div
 						style={{
 							position: 'absolute',
-							left: -timeline.sourceLabelWidth - scrollLeft,
+							left: -scrollLeft,
 							top: 0,
-							width: timeline.width,
+							width: timeline.sourceTrackWidth,
 							height: timeline.height,
-							maxWidth: 'none',
+							overflow: 'hidden',
+							transform: `scaleX(${timeline.trackScale})`,
+							transformOrigin: 'left top',
 						}}
-					/>
+					>
+						<Img
+							src={timeline.imageSrc}
+							showInTimeline={false}
+							style={{
+								position: 'absolute',
+								left: -timeline.sourceLabelWidth,
+								top: 0,
+								width: timeline.width,
+								height: timeline.height,
+								maxWidth: 'none',
+							}}
+						/>
+						{timeline.regions.map((region) => {
+							const active =
+								capturedPlayhead >= region.left * timeline.trackScale &&
+								capturedPlayhead <
+									(region.left + region.width) * timeline.trackScale;
+							const opacity = active ? 1 : 0.5;
+							if (opacity === region.capturedOpacity) {
+								return null;
+							}
+
+							return (
+								<div
+									key={`${region.left}-${region.top}`}
+									style={{
+										position: 'absolute',
+										left: region.left,
+										top: region.top,
+										width: region.width,
+										height: region.height,
+										overflow: 'hidden',
+									}}
+								>
+									<Img
+										src={timeline.imageSrc}
+										showInTimeline={false}
+										style={{
+											position: 'absolute',
+											left: -timeline.sourceLabelWidth - region.left,
+											top: -region.top,
+											width: timeline.width,
+											height: timeline.height,
+											maxWidth: 'none',
+											filter: `url(#${opacityFilterId}-${active ? 'brighten' : 'dim'})`,
+										}}
+									/>
+								</div>
+							);
+						})}
+					</div>
+					{ending ? (
+						<div
+							style={{
+								position: 'absolute',
+								left: ending.from * timeline.pixelsPerFrame - scrollLeft,
+								top: 0,
+								width: endingWidth,
+								height: timeline.height,
+								opacity: endingIsActive ? 1 : 0.5,
+							}}
+						>
+							{[
+								{
+									top: 84,
+									bottom: 144,
+									label: ending.name,
+									chapter: true,
+									connected: false,
+									color: BLUE,
+								},
+								{
+									top: 236,
+									bottom: 280,
+									label: 'Subscribe for more videos.',
+									chapter: false,
+									connected: false,
+									color: '#b66f1f',
+								},
+								{
+									top: 280,
+									bottom: 324,
+									label: ending.connectedCompositionName,
+									chapter: false,
+									connected: true,
+									color: BLUE,
+								},
+							].map((row) => (
+								<div
+									key={row.top}
+									style={{
+										position: 'absolute',
+										top: row.top * rowScale,
+										height: (row.bottom - row.top) * rowScale,
+										width: '100%',
+										boxSizing: 'border-box',
+										border: '1px solid #15181b',
+										backgroundColor: row.color,
+										color: WHITE,
+										fontSize: 12,
+										overflow: 'hidden',
+										whiteSpace: 'nowrap',
+										paddingLeft: 4,
+										display: 'flex',
+										flexDirection: row.connected ? 'row' : 'column',
+										alignItems: row.connected ? 'center' : 'flex-start',
+										justifyContent: row.connected ? 'flex-start' : 'center',
+										gap: row.connected ? 4 : 0,
+									}}
+								>
+									{row.chapter || row.connected ? (
+										<VideoIcon color={WHITE} size={10} />
+									) : null}
+									<span>{row.label}</span>
+								</div>
+							))}
+							<div
+								style={{
+									position: 'absolute',
+									top: 144 * rowScale,
+									height: 52 * rowScale,
+									width: '100%',
+									display: 'flex',
+									overflow: 'hidden',
+								}}
+							>
+								{Array.from(
+									{length: Math.ceil(endingWidth / ((52 * rowScale * 16) / 9))},
+									(_, index) => (
+										<Img
+											key={index}
+											src={ending.thumbnailSrc}
+											showInTimeline={false}
+											style={{
+												height: '100%',
+												width: (52 * rowScale * 16) / 9,
+												flexShrink: 0,
+											}}
+										/>
+									),
+								)}
+							</div>
+							<div
+								style={{
+									position: 'absolute',
+									top: 196 * rowScale,
+									height: 40 * rowScale,
+									width: '100%',
+									overflow: 'hidden',
+								}}
+							>
+								<Img
+									src={timeline.imageSrc}
+									showInTimeline={false}
+									style={{
+										position: 'absolute',
+										top: -254 * rowScale,
+										left:
+											-timeline.sourceLabelWidth -
+											timeline.sourceTrackWidth * 0.75,
+										width: timeline.width,
+										height: timeline.height,
+										maxWidth: 'none',
+										filter: `url(#${opacityFilterId}-brighten)`,
+									}}
+								/>
+							</div>
+						</div>
+					) : null}
 					<div
 						style={{
 							position: 'absolute',
