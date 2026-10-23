@@ -36,6 +36,62 @@ This is useful if you would like to have interactive controls in the Remotion St
 
 Individual effects such as [`brightness()`](/docs/effects/brightness), [`contrast()`](/docs/effects/contrast), and [`saturation()`](/docs/effects/saturation) are also available.
 
+## `levels()` effect
+
+Use [`levels()`](/docs/effects/levels) to set the darkest and brightest input values and adjust midtone brightness with gamma. This is useful for expanding the tonal range of a washed-out image:
+
+```tsx twoslash title="MyComp.tsx"
+import {levels} from '@remotion/effects/levels';
+import {Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        levels({blackPoint: 0.05, whitePoint: 0.95, gamma: 1.1}),
+      ]}
+    />
+  );
+};
+```
+
+From <AvailableFrom v="4.0.537" inline />, `outputBlack` and `outputWhite` let you compress or invert the output range, and `channel` selects RGB, red, green, or blue.
+
+## `curves()` effect<AvailableFrom v="4.0.537" />
+
+Use [`curves()`](/docs/effects/curves) to target specific tonal ranges with `[input, output]` control points. Coordinates range from `0` to `1`.
+
+Provide `2` to `32` points with strictly increasing input values; output values may decrease. Points connect smoothly by default, or with straight segments using `interpolation: 'linear'`.
+
+This S-shaped curve darkens shadows and brightens highlights. The second effect lifts blue in the shadows:
+
+```tsx twoslash title="MyComp.tsx"
+import {curves} from '@remotion/effects/curves';
+import {Video} from '@remotion/media';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        curves({
+          points: [[0, 0], [0.25, 0.12], [0.75, 0.88], [1, 1]],
+          amount: 0.75,
+        }),
+        curves({channel: 'blue', points: [[0, 0.05], [1, 1]]}),
+      ]}
+    />
+  );
+};
+```
+
+## Editing Levels and Curves in Studio<AvailableFrom v="4.0.537" />
+
+Both effects show a live input histogram. In the Levels panel, drag the input, gamma, and output handles. In the Curves panel, add, drag, or delete control points, or edit their input and output values numerically.
+
+Levels numeric values and the Curves `amount` can be keyframed in Studio. To animate curve points, update `points` in code using [`useCurrentFrame()`](/docs/use-current-frame).
+
 ## LUTs
 
 LUTs (Look-up tables) are a popular way to define color adjustments for a video.
@@ -78,6 +134,8 @@ export const MyComp: React.FC = () => {
 
 Effects are applied in array order. Place `colorCorrection()` before `lut()` to make primary adjustments before applying the final grade.
 
+Stack `levels()` or `curves()` effects to combine an RGB adjustment with individual red, green, or blue adjustments, using `channel` on each effect. The channel selector changes which channels that effect adjusts; separate effects keep separate adjustments.
+
 ## Previewing LUTs in the Studio
 
 You can drop `.cube` files into your [public folder](/docs/assets) and preview LUTs by clicking on them in the Assets panel.
@@ -102,5 +160,7 @@ Studio adds a [`lut()`](/docs/effects/lut) effect to the video's source code and
 
 - [Effects](/docs/effects)
 - [`colorCorrection()`](/docs/effects/color-correction)
+- [`levels()`](/docs/effects/levels)
+- [`curves()`](/docs/effects/curves)
 - [`lut()`](/docs/effects/lut)
 - [Data fetching](/docs/data-fetching)
