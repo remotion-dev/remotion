@@ -195,14 +195,18 @@ function parseModernComponent(str: string, percentScale: number): number {
 
 function parseHueAngle(str: string): number {
 	if (str === 'none') return 0;
-	if (str.endsWith('rad')) {
-		return (Number.parseFloat(str) * 180) / Math.PI;
+	let degrees = Number.parseFloat(str);
+	if (str.endsWith('grad')) {
+		degrees *= 0.9;
+	} else if (str.endsWith('rad')) {
+		degrees = (degrees * 180) / Math.PI;
+	} else if (str.endsWith('turn')) {
+		degrees *= 360;
 	}
 
-	if (str.endsWith('grad')) return Number.parseFloat(str) * 0.9;
-	if (str.endsWith('turn')) return Number.parseFloat(str) * 360;
 	// 'deg' suffix or plain number = degrees
-	return Number.parseFloat(str);
+	const normalized = degrees % 360;
+	return normalized < 0 ? (normalized + 360) % 360 : normalized;
 }
 
 function parseModernAlpha(str: string | undefined): number {
