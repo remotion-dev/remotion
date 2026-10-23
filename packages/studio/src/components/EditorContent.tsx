@@ -1,6 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {Transform3DModeStateProvider} from '../state/transform-3d-mode';
+import {EffectPickerProvider} from './EffectPickerProvider';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
@@ -93,17 +94,19 @@ export const EditorContent: React.FC<{
 	return (
 		<TimelineTickFormatProvider>
 			<TimelineSelectionProvider>
-				<WebMcp />
-				<Transform3DModeStateProvider>
-					<StudioClearSelectionArea>
-						<InitialCompositionLoader />
-						<MenuToolbar readOnlyStudio={readOnlyStudio} />
-						<GlobalKeybindings />
-						<TimelineKeyframeDragStateProvider>
-							{content}
-						</TimelineKeyframeDragStateProvider>
-					</StudioClearSelectionArea>
-				</Transform3DModeStateProvider>
+				<EffectPickerProvider>
+					<WebMcp />
+					<Transform3DModeStateProvider>
+						<StudioClearSelectionArea>
+							<InitialCompositionLoader />
+							<MenuToolbar readOnlyStudio={readOnlyStudio} />
+							<GlobalKeybindings />
+							<TimelineKeyframeDragStateProvider>
+								{content}
+							</TimelineKeyframeDragStateProvider>
+						</StudioClearSelectionArea>
+					</Transform3DModeStateProvider>
+				</EffectPickerProvider>
 			</TimelineSelectionProvider>
 		</TimelineTickFormatProvider>
 	);

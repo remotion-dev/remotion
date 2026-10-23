@@ -63,6 +63,7 @@ import {
 	isLutEffectDrop,
 	LUT_EFFECT_DROP_TARGET_ATTR,
 } from '../effect-drag-and-drop';
+import {EffectPickerSetterContext} from '../EffectPickerProvider';
 import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
@@ -402,6 +403,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const timelineRowsRef = useTimelineRowsRef();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {openEffectPicker} = useContext(EffectPickerSetterContext);
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const getAssetContextMenu = useAssetTimelineContextMenu();
@@ -1340,19 +1342,16 @@ const TimelineSequenceItemInner: React.FC<{
 			return;
 		}
 
-		setSelectedModal({
-			type: 'add-effect',
+		openEffectPicker({
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
 			nodePathInfo,
-			selectItems: currentSelection.current.selectItems,
 		});
 	}, [
 		canAddEffect,
 		nodePathInfo,
 		previewServerState,
-		setSelectedModal,
-		currentSelection,
+		openEffectPicker,
 		validatedLocation?.source,
 	]);
 
@@ -1565,7 +1564,7 @@ const TimelineSequenceItemInner: React.FC<{
 													type: 'item' as const,
 													id: 'add-effect',
 													keyHint: null,
-													label: 'Add effect...',
+													label: 'Add effect',
 													leftItem: null,
 													disabled: !canAddEffect,
 													onClick: onAddEffect,

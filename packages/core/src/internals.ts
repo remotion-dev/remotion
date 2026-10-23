@@ -60,7 +60,9 @@ import {
 	EditorPropsProvider,
 	timeValueRef,
 } from './EditorProps.js';
+import {captureEffectPreviewSnapshot} from './effects/capture-effect-preview-snapshot.js';
 import {createEffect} from './effects/create-effect.js';
+import {EffectPreviewContext} from './effects/effect-preview.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -548,6 +550,8 @@ export const Internals = {
 	useMemoizedEffects,
 	useMemoizedEffectDefinitions,
 	createEffect,
+	EffectPreviewContext,
+	captureEffectPreviewSnapshot,
 	createWebGLContextError,
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,

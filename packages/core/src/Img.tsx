@@ -1,4 +1,5 @@
 import React, {
+	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
@@ -13,6 +14,11 @@ import type {
 	CanvasImageProps,
 } from './canvas-image/props.js';
 import type {SequenceControls} from './CompositionManager.js';
+import {captureEffectPreviewSnapshot} from './effects/capture-effect-preview-snapshot.js';
+import {
+	EffectPreviewContext,
+	useEffectPreview,
+} from './effects/effect-preview.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
@@ -670,12 +676,101 @@ const ImgInner: React.FC<
 	...props
 }) => {
 	const shouldPauseWhenLoading = resolveV5Default(pauseWhenLoading);
+	const nativeImageRef = useRef<HTMLImageElement | null>(null);
+	const nativeRef = useCallback(
+		(image: HTMLImageElement | null) => {
+			nativeImageRef.current = image;
+			if (typeof ref === 'function') {
+				ref(image);
+			} else if (ref) {
+				ref.current = image;
+			}
+		},
+		[ref],
+	);
+	const [nativePreview, setNativePreview] = useState<{
+		readonly source: string;
+		readonly srcSet: string | null;
+		readonly sizes: string | null;
+		readonly snapshotSrc: string;
+		readonly width: number;
+		readonly height: number;
+		readonly cssWidth: string;
+		readonly cssHeight: string;
+	} | null>(null);
+	const preview = useEffectPreview(controls?.runtimeValues ?? null);
+	const previewStore = useContext(EffectPreviewContext);
+	const onPreviewError = useCallback(() => {
+		if (previewStore.getSnapshot(controls?.runtimeValues ?? null) !== null) {
+			previewStore.setPreview(null);
+		}
+	}, [controls?.runtimeValues, previewStore]);
 
-	if (effects.length === 0) {
+	useLayoutEffect(() => {
+		if (preview === null || effects.length > 0) {
+			setNativePreview(null);
+			return;
+		}
+
+		const image = nativeImageRef.current;
+		if (image === null) {
+			return;
+		}
+
+		const captureNativeImage = () => {
+			// Capture the displayed native pixels before replacing the image. The
+			// same rasterization is used for cards, including srcSet and object-fit.
+			const snapshot = captureEffectPreviewSnapshot(image);
+			if (snapshot === null) {
+				onPreviewError();
+				return;
+			}
+
+			try {
+				const computed =
+					image.ownerDocument.defaultView!.getComputedStyle(image);
+				setNativePreview({
+					source: src,
+					srcSet: props.srcSet ?? null,
+					sizes: props.sizes ?? null,
+					snapshotSrc: snapshot.toDataURL(),
+					width: snapshot.width,
+					height: snapshot.height,
+					cssWidth: computed.width,
+					cssHeight: computed.height,
+				});
+			} catch {
+				onPreviewError();
+			} finally {
+				snapshot.width = 0;
+				snapshot.height = 0;
+			}
+		};
+
+		if (image.complete && image.naturalWidth > 0) {
+			captureNativeImage();
+		} else {
+			image.addEventListener('load', captureNativeImage);
+		}
+
+		return () => image.removeEventListener('load', captureNativeImage);
+	}, [effects.length, onPreviewError, preview, props.sizes, props.srcSet, src]);
+
+	const nativePreviewIsCurrent =
+		nativePreview !== null &&
+		nativePreview.source === src &&
+		nativePreview.srcSet === (props.srcSet ?? null) &&
+		nativePreview.sizes === (props.sizes ?? null);
+	const nativeSnapshot =
+		effects.length === 0 && preview !== null && nativePreviewIsCurrent
+			? nativePreview
+			: null;
+
+	if (effects.length === 0 && nativeSnapshot === null) {
 		return (
 			<NativeImgInner
 				{...props}
-				ref={ref}
+				ref={nativeRef}
 				hidden={hidden}
 				name={name}
 				showInTimeline={showInTimeline}
@@ -711,36 +806,55 @@ const ImgInner: React.FC<
 		throw new Error('No "src" prop was passed to <Img>.');
 	}
 
-	validateCanvasImageFallbackProps({
-		props,
-		ref,
-		width,
-		height,
-	});
+	if (effects.length > 0) {
+		validateCanvasImageFallbackProps({props, ref, width, height});
+	}
 
-	const canvasWidth = typeof width === 'number' ? width : undefined;
-	const canvasHeight = typeof height === 'number' ? height : undefined;
-	const canvasProps = props as CanvasImageCanvasProps;
-	const canvasFit = getFitFromObjectFit(style) ?? 'fill';
+	const canvasWidth =
+		nativeSnapshot?.width ?? (typeof width === 'number' ? width : undefined);
+	const canvasHeight =
+		nativeSnapshot?.height ?? (typeof height === 'number' ? height : undefined);
+
+	// A transient preview also works for a native Img with image-only props.
+	// Keep them intact for when its original native element is restored.
+	const canvasProps = (
+		effects.length === 0
+			? Object.fromEntries(
+					Object.entries(props).filter(
+						([key]) => !imgCanvasFallbackIncompatibleProps.has(key),
+					),
+				)
+			: props
+	) as CanvasImageCanvasProps;
+	const canvasFit =
+		nativeSnapshot === null ? (getFitFromObjectFit(style) ?? 'fill') : 'fill';
+	const canvasStyle: React.CSSProperties | undefined =
+		nativeSnapshot === null
+			? style
+			: {
+					width: nativeSnapshot.cssWidth,
+					height: nativeSnapshot.cssHeight,
+					...style,
+				};
 
 	return (
 		<CanvasImageWithPrivateProps
-			src={src}
+			src={nativeSnapshot?.snapshotSrc ?? src}
 			width={canvasWidth}
 			height={canvasHeight}
 			fit={canvasFit}
 			effects={effects}
 			effectsOutputSize={effectsOutputSize}
 			className={className}
-			style={style}
+			style={canvasStyle}
 			cropLeft={cropLeft}
 			cropRight={cropRight}
 			cropTop={cropTop}
 			cropBottom={cropBottom}
 			id={id}
-			onError={onImageError}
+			onError={preview === null ? onImageError : onPreviewError}
 			pauseWhenLoading={shouldPauseWhenLoading}
-			maxRetries={maxRetries}
+			maxRetries={preview === null ? maxRetries : 0}
 			delayRenderRetries={delayRenderRetries}
 			delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
 			from={from}
