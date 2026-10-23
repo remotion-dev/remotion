@@ -91,8 +91,9 @@ export const ElementLibraryFrame: React.FC<{
 
 		window.addEventListener('message', onMessage);
 
-		// Studio is cross-origin isolated. A credentialless iframe may embed a
-		// library that does not set Cross-Origin-Resource-Policy headers.
+		// In supporting browsers, credentialless allows embedding libraries
+		// without COEP headers. Other browsers require the library to set a
+		// compatible Cross-Origin-Embedder-Policy itself.
 		iframe.setAttribute('credentialless', '');
 		const iframeUrl = new URL(url);
 		iframeUrl.searchParams.set('remotion-studio', 'true');
