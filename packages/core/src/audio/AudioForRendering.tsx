@@ -10,7 +10,10 @@ import React, {
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {random} from '../random.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
+import {
+	RenderAssetManager,
+	type RenderAssetManagerContext,
+} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -32,11 +35,17 @@ type AudioForRenderingProps = RemotionAudioProps & {
 
 const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
-	AudioForRenderingProps
+	AudioForRenderingProps &
+		Pick<
+			RenderAssetManagerContext,
+			'registerRenderAsset' | 'unregisterRenderAsset'
+		>
 > = (props, ref) => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
 	const {
+		registerRenderAsset,
+		unregisterRenderAsset,
 		volume: volumeProp,
 		playbackRate,
 		allowAmplificationDuringRender,
@@ -64,8 +73,6 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const sequenceContext = useContext(SequenceContext);
 	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const audioStartFrame = useContext(Html5MediaTrimContext);
-	const {registerRenderAsset, unregisterRenderAsset} =
-		useContext(RenderAssetManager);
 
 	const {delayRender, continueRender} = useDelayRender();
 
@@ -208,8 +215,26 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	return <audio ref={audioRef} {...nativeProps} onError={onNativeError} />;
 };
 
-export const AudioForRendering = forwardRef(
-	AudioForRenderingRefForwardingFunction,
-) as ForwardRefExoticComponent<
+// Asset collection updates the context, but the audio component only needs its callbacks.
+const MemoAudioForRendering = React.memo(
+	forwardRef(AudioForRenderingRefForwardingFunction),
+);
+
+export const AudioForRendering = forwardRef<
+	HTMLAudioElement,
+	AudioForRenderingProps
+>((props, ref) => {
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
+
+	return (
+		<MemoAudioForRendering
+			{...props}
+			ref={ref}
+			registerRenderAsset={registerRenderAsset}
+			unregisterRenderAsset={unregisterRenderAsset}
+		/>
+	);
+}) as ForwardRefExoticComponent<
 	AudioForRenderingProps & RefAttributes<HTMLAudioElement>
 >;

@@ -11,6 +11,7 @@ import {
 import {getNodeHasKeyframes} from './get-node-keyframes';
 import {
 	filterTimelineExpandedTree,
+	getSelectedTimelineExpandedKeys,
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
@@ -18,6 +19,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from './TimelineSelection';
+import {useTimelineStructureSelector} from './use-timeline-structure-selector';
 
 export const useTimelineSequenceHasExpandableContent = ({
 	sequence,
@@ -34,8 +36,8 @@ export const useTimelineSequenceHasExpandableContent = ({
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
-	const selectedRowKeys = useMemo(
-		() => getSelectedTimelineExpandedRowKeys(selectedItems),
+	const {rowKeys: selectedRowKeys, sourceKeys: selectedSourceKeys} = useMemo(
+		() => getSelectedTimelineExpandedKeys(selectedItems),
 		[selectedItems],
 	);
 	const canHaveExpandableContent = useMemo(() => {
@@ -45,15 +47,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
 		const sourceKey = stringifySequenceExpandedRowKey(nodePath);
-		if (
-			selectedItems.some(
-				(item) =>
-					item.type !== 'guide' &&
-					stringifySequenceExpandedRowKey(
-						item.nodePathInfo.sequenceSubscriptionKey,
-					) === sourceKey,
-			)
-		) {
+		if (selectedSourceKeys.has(sourceKey)) {
 			return true;
 		}
 
@@ -88,7 +82,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 		getDragOverrides,
 		getEffectDragOverrides,
 		nodePathInfo,
-		selectedItems,
+		selectedSourceKeys,
 		sequence.effects,
 		visualModePropStatuses,
 	]);
@@ -138,11 +132,12 @@ export const useTimelineSequenceHasExpandableContent = ({
 		],
 	);
 
-	return useRuntimeValueSelector({
+	return useTimelineStructureSelector({
 		// Runtime values can change active enum fields, but cannot introduce a
 		// selection or keyframes. Most code-animated tracks need no subscription.
 		controls: canHaveExpandableContent ? sequence.controls : null,
 		selector: selectHasExpandableContent,
+		isEqual: null,
 	});
 };
 

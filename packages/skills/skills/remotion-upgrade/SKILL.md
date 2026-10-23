@@ -1,7 +1,7 @@
 ---
 name: remotion-upgrade
 description: Upgrade Remotion, and related packages
-version: 4.0.537
+version: 4.0.538
 ---
 
 # Upgrade Remotion

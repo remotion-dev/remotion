@@ -404,6 +404,7 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly keyframePlaybackRate: number;
 	readonly propStatus: CanUpdateSequencePropStatus | null;
 	readonly runtimeValueStore: RuntimeValueStore | null;
+	readonly subscribeToTimelinePosition: boolean;
 }> = ({
 	field,
 	nodePath,
@@ -412,8 +413,12 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	keyframePlaybackRate,
 	propStatus,
 	runtimeValueStore,
+	subscribeToTimelinePosition,
 }) => {
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePosition =
+		Internals.Timeline.useTimelinePositionWithOptionalSubscription(
+			subscribeToTimelinePosition,
+		);
 
 	return (
 		<TimelineEffectPropValue
@@ -699,6 +704,10 @@ export const TimelineEffectPropItem: React.FC<{
 					keyframePlaybackRate={keyframePlaybackRate}
 					propStatus={propStatus}
 					runtimeValueStore={runtimeValueStore}
+					subscribeToTimelinePosition={
+						propStatus?.status === 'keyframed' ||
+						dragOverrideValue?.type === 'keyframed'
+					}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>

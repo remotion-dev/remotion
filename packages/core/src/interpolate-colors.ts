@@ -38,9 +38,6 @@ function modernColorCall(name: string): RegExp {
 	);
 }
 
-// matchers use RegExp objects which needs to be created separately on JS and on
-// the UI thread. We keep separate cache of Regexes for UI and JS using the below
-// objects, then pick the right cache in getMatchers() method.
 type Matchers = {
 	rgb: MatcherType;
 	rgba: MatcherType;
@@ -57,23 +54,26 @@ type Matchers = {
 	lch: MatcherType;
 	hwb: MatcherType;
 };
+
+const cachedMatchers: Matchers = {
+	rgb: undefined,
+	rgba: undefined,
+	hsl: undefined,
+	hsla: undefined,
+	hex3: undefined,
+	hex4: undefined,
+	hex5: undefined,
+	hex6: undefined,
+	hex8: undefined,
+	oklch: undefined,
+	oklab: undefined,
+	lab: undefined,
+	lch: undefined,
+	hwb: undefined,
+};
+
 function getMatchers(): Matchers {
-	const cachedMatchers: Matchers = {
-		rgb: undefined,
-		rgba: undefined,
-		hsl: undefined,
-		hsla: undefined,
-		hex3: undefined,
-		hex4: undefined,
-		hex5: undefined,
-		hex6: undefined,
-		hex8: undefined,
-		oklch: undefined,
-		oklab: undefined,
-		lab: undefined,
-		lch: undefined,
-		hwb: undefined,
-	};
+	// These expressions have no global or sticky flags, so exec() can reuse them.
 	if (cachedMatchers.rgb === undefined) {
 		cachedMatchers.rgb = new RegExp('rgb' + call(NUMBER, NUMBER, NUMBER));
 		cachedMatchers.rgba = new RegExp(
