@@ -140,6 +140,30 @@ fmt.Println(renderResponse.RenderId, renderResponse.BucketName)
 
 Poll `GetRenderProgress()` until `Done` or `FatalErrorEncountered`. `FramesUploaded` reports uploaded frames, and `OutputSequence.ManifestUrl` points to the completed manifest. Pass an `ImageSequenceOutputPrefix` as `OutputPrefix` to select another bucket or provider.
 
+## Rendering a still<AvailableFrom v="4.0.539" />
+
+Use `RenderStillOnLambda()` with `RenderStillOptions`. The still is rendered in a single Lambda invocation, and the response contains the URL it was written to.
+
+```go title="render-still.go"
+stillResponse, err := lambda_go_sdk.RenderStillOnLambda(lambda_go_sdk.RenderStillOptions{
+  ServeUrl: serveUrl,
+  FunctionName: functionName,
+  Region: region,
+  Composition: "still-helloworld",
+  InputProps: map[string]interface{}{
+    "message": "Hello from props!",
+  },
+  Frame: 10,
+})
+if err != nil {
+  log.Fatal(err)
+}
+
+fmt.Println(stillResponse.Output)
+```
+
+`ImageFormat` defaults to `"png"`; `"jpeg"` and `"webp"` are also supported. `Output` is the URL of the rendered image, `OutKey` is its key in the bucket, and `SizeInBytes` is its size.
+
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 
 Set `EnableCancellation` when starting the render, then pass its response to `CancelRenderOnLambda()`:
