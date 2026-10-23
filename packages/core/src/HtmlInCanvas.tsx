@@ -12,6 +12,7 @@ import {DefaultPremountContext} from './DefaultPremountContext.js';
 import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
+import {useEffectFrameTiming} from './effects/use-effect-frame-timing.js';
 import {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
@@ -616,8 +617,13 @@ const HtmlInCanvasContent = forwardRef<
 			overrideId: controls?.overrideId ?? null,
 			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
+		const frameTiming = useEffectFrameTiming(memoizedEffects);
 
 		// Refs so the paint handler always reads fresh values.
+		const frameTimingRef = useRef(frameTiming);
+		useLayoutEffect(() => {
+			frameTimingRef.current = frameTiming;
+		}, [frameTiming]);
 		const effectsRef = useRef(memoizedEffects);
 		effectsRef.current = memoizedEffects;
 		const onPaintRef = useRef(onPaint);
@@ -641,6 +647,7 @@ const HtmlInCanvasContent = forwardRef<
 			}
 
 			const childrenGeneration = paintState.generation;
+			const timing = frameTimingRef.current;
 			const element = divRef.current;
 
 			if (!element) {
@@ -852,6 +859,7 @@ const HtmlInCanvasContent = forwardRef<
 					const state = chainState.get(canvasWidth, canvasHeight);
 					if (state) {
 						await runEffectChain({
+							frameTiming: timing,
 							state,
 							source: effectSourceCanvas ?? paintTarget,
 							effects: effectsRef.current,
@@ -981,7 +989,7 @@ const HtmlInCanvasContent = forwardRef<
 			}
 
 			canvas.requestPaint?.();
-		}, [onPaint, memoizedEffects]);
+		}, [onPaint, memoizedEffects, frameTiming]);
 
 		useLayoutEffect(() => {
 			const canvas = canvas2dRef.current;

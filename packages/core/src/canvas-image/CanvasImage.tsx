@@ -12,6 +12,7 @@ import type {SequenceControls} from '../CompositionManager.js';
 import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import {runEffectChain} from '../effects/run-effect-chain.js';
 import {useEffectChainState} from '../effects/use-effect-chain-state.js';
+import {useEffectFrameTiming} from '../effects/use-effect-frame-timing.js';
 import {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
@@ -281,6 +282,7 @@ const CanvasImageContent = forwardRef<
 			overrideId: controls?.overrideId ?? null,
 			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
+		const frameTiming = useEffectFrameTiming(memoizedEffects);
 		const sequenceContext = useContext(SequenceContext);
 		const pendingLoadDelayRef = useRef<PendingLoadDelay | null>(null);
 		const [isLoadPending, setIsLoadPending] = useState(false);
@@ -465,6 +467,7 @@ const CanvasImageContent = forwardRef<
 			);
 
 			runEffectChain({
+				frameTiming,
 				state: chainState.get(canvasWidth, canvasHeight)!,
 				source: sourceCanvas,
 				effects: memoizedEffects,
@@ -516,6 +519,7 @@ const CanvasImageContent = forwardRef<
 			height,
 			loadedImage,
 			memoizedEffects,
+			frameTiming,
 			onError,
 			outputCanvas,
 			sourceCanvas,

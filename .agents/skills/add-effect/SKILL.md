@@ -34,6 +34,7 @@ In the effect file:
 - Throw `createWebGL2ContextError('<effect name> effect')` if WebGL2 cannot be acquired.
 - Set `documentationLink` to `https://www.remotion.dev/docs/effects/<slug>`.
 - Include every resolved parameter in `calculateKey()`.
+- For temporal effects on static canvases, add `frameDependent(params)` and return `true` while animation is enabled. Read the immutable `frameTiming` apply parameter (`timestampInSeconds`, composition `fps`) instead of storing time in params or `calculateKey()`. Static canvases use local composition time; media sources use decoded source time. The apply parameter is optional when no clock is supplied.
 
 For WebGL2 effects, use this general structure:
 

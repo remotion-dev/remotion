@@ -36,6 +36,7 @@ import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {EffectsProp, EffectsOutputSize} from './effect-types.js';
 import {runEffectChain} from './run-effect-chain.js';
 import {useEffectChainState} from './use-effect-chain-state.js';
+import {useEffectFrameTiming} from './use-effect-frame-timing.js';
 import {
 	useMemoizedEffectDefinitions,
 	useMemoizedEffects,
@@ -155,6 +156,7 @@ const SolidInner: React.FC<
 		overrideId: overrideId ?? null,
 		videoConfigValues,
 	});
+	const frameTiming = useEffectFrameTiming(memoizedEffects);
 
 	const sourceCanvas = useMemo(() => {
 		if (typeof document === 'undefined') {
@@ -212,6 +214,7 @@ const SolidInner: React.FC<
 		}
 
 		runEffectChain({
+			frameTiming,
 			state: chainState.get(canvasWidth, canvasHeight)!,
 			source: sourceCanvas,
 			effects: memoizedEffects,
@@ -242,6 +245,7 @@ const SolidInner: React.FC<
 		continueRender,
 		cancelRender,
 		memoizedEffects,
+		frameTiming,
 	]);
 
 	const canvasStyle = useMemo(() => {

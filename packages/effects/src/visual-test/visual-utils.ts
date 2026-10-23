@@ -108,6 +108,7 @@ export const renderEffectChainToCanvas = async ({
 	const state = Internals.createEffectChainState(width, height);
 	try {
 		const completed = await Internals.runEffectChain({
+			frameTiming: null,
 			state,
 			source,
 			effects,

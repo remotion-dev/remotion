@@ -157,6 +157,7 @@ export {
 	type EffectDefinitionAndStack,
 	type EffectDescriptor,
 	type EffectFactory,
+	type EffectFrameTiming,
 	type EffectsProp,
 	type EffectsOutputSize,
 } from './effects/index.js';

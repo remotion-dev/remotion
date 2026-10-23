@@ -10,4 +10,5 @@ export type {
 	EffectsOutputSize,
 	EffectDefinition,
 	EffectFactory,
+	EffectFrameTiming,
 } from './effect-types.js';

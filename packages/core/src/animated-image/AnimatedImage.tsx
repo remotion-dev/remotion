@@ -294,6 +294,7 @@ const AnimatedImageContent = forwardRef<
 		return (
 			<Canvas
 				ref={ref}
+				fps={fps}
 				width={width}
 				height={height}
 				fit={fit}

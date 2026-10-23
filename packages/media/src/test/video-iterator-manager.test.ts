@@ -79,6 +79,7 @@ const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
 ) =>
 	videoIteratorManager({
+		fps: 30,
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
@@ -171,6 +172,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 	let maxConcurrentBlocks = 0;
 
 	const manager = await videoIteratorManager({
+		fps: 30,
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => {
@@ -247,6 +249,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 	let maxConcurrentBlocks = 0;
 
 	const manager = await videoIteratorManager({
+		fps: 30,
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => {
@@ -306,6 +309,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 	const {videoTrack} = await prepare();
 
 	const manager = await videoIteratorManager({
+		fps: 30,
 		getIsDisposed: () => false,
 		videoTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({

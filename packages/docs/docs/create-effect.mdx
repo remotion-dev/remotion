@@ -201,6 +201,12 @@ Returns a stable string for a given parameter object.
 
 The key is used to decide whether an effect instance is equivalent to a previous one.
 
+### `frameDependent`
+
+An optional function receiving the effective effect parameters, including Studio overrides. Return `true` when the effect needs a new picture every composition frame even if its source is static, such as animated grain or flicker.
+
+`<Solid>`, `<CanvasImage>` and `<HtmlInCanvas>` subscribe to the local frame clock only while at least one enabled effect returns `true`. Disabling the effect or returning `false` stops that subscription without replacing the canvas or effect state. `calculateKey()` should still describe parameters, not time.
+
 ### `setup`
 
 Runs when the effect needs state for a target canvas.
@@ -228,6 +234,16 @@ Called when the returned effect factory is invoked.
 Throw an error if a required parameter is missing or a value is invalid.
 
 ## Apply Params
+
+### `frameTiming`
+
+An optional, immutable object with `timestampInSeconds` and `fps`, captured before asynchronous effect processing begins. `fps` is the composition frame rate.
+
+For `@remotion/media` video and `<AnimatedImage>`, `timestampInSeconds` is the decoded source frame timestamp in seconds. It follows the source media through trims, playback-rate changes and loops; it is not the frame number of the composition. Video renders preserve this timestamp through image rotation and cross-tab extraction.
+
+For `<Solid>`, `<CanvasImage>` and `<HtmlInCanvas>`, an enabled `frameDependent` effect receives the local composition time (`useCurrentFrame() / fps`), including enclosing sequence offsets, speed, loops and freezes. Without a temporal effect these static sources supply time zero and do not subscribe to frame changes.
+
+The property is absent when the caller does not supply timing. Keep time out of `params` and `calculateKey()` so advancing frames does not change the authored effect parameters.
 
 ### `source`
 

@@ -58,7 +58,9 @@ export const videoIteratorManager = async ({
 	getEffects,
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
+	fps: compositionFps,
 }: {
+	fps: number;
 	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
@@ -164,6 +166,10 @@ export const videoIteratorManager = async ({
 				pendingEffectRun = run;
 				try {
 					await runEffectChain({
+						frameTiming: {
+							timestampInSeconds: frame.timestamp,
+							fps: compositionFps,
+						},
 						state: chainState,
 						source,
 						effects,
