@@ -9,6 +9,7 @@ import {useEffectChainState} from '../effects/use-effect-chain-state.js';
 import type {AnimatedImageCanvasProps, AnimatedImageFillMode} from './props';
 
 type Props = {
+	readonly fps: number;
 	readonly width?: number;
 
 	readonly height?: number;
@@ -31,7 +32,17 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 	AnimatedImageCanvasRef,
 	Props
 > = (
-	{width, height, fit, className, style, effects, effectsOutputSize, ...props},
+	{
+		width,
+		height,
+		fit,
+		className,
+		style,
+		effects,
+		effectsOutputSize,
+		fps,
+		...props
+	},
 	ref,
 ) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -86,6 +97,7 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 			canvas.height = canvasHeight;
 
 			return runEffectChain({
+				frameTiming: {timestampInSeconds: imageData.timestamp / 1_000_000, fps},
 				state: chainState.get(canvasWidth, canvasHeight)!,
 				source: sourceCanvas,
 				effects,
@@ -94,7 +106,7 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 				height: canvasHeight,
 			});
 		},
-		[chainState, effects, fit, height, sourceCanvas, width],
+		[chainState, effects, fit, height, sourceCanvas, width, fps],
 	);
 
 	useImperativeHandle(ref, () => {

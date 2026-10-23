@@ -18,7 +18,16 @@ export type Backend = '2d' | 'webgl2' | 'webgpu';
 // (e.g. via a local type assertion or by depending on `@webgpu/types`).
 type AnyGpuDevice = unknown;
 
+export type EffectFrameTiming = Readonly<{
+	/** Seconds on the decoded media clock, or the local composition clock for static canvases. */
+	timestampInSeconds: number;
+	/** Composition frame rate. */
+	fps: number;
+}>;
+
 export type EffectApplyParams<P, S> = {
+	/** Timing captured before asynchronous rendering begins, when supplied by the source. */
+	readonly frameTiming?: EffectFrameTiming;
 	readonly source: CanvasImageSource;
 	readonly target: HTMLCanvasElement;
 	readonly state: S;

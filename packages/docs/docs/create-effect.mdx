@@ -229,6 +229,14 @@ Throw an error if a required parameter is missing or a value is invalid.
 
 ## Apply Params
 
+### `frameTiming`
+
+An optional, immutable object with `timestampInSeconds` and `fps`, captured before asynchronous effect processing begins. `fps` is the composition frame rate.
+
+For `@remotion/media` video and `<AnimatedImage>`, `timestampInSeconds` is the decoded source frame timestamp in seconds. It follows the source media through trims, playback-rate changes and loops; it is not the frame number of the composition. Video renders preserve this timestamp through image rotation and cross-tab extraction.
+
+The property is absent when the caller does not supply timing. Keep time out of `params` and `calculateKey()` so advancing frames does not change the authored effect parameters.
+
 ### `source`
 
 The current image to read from.

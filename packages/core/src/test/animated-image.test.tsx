@@ -54,6 +54,7 @@ test('AnimatedImage retains a frame drawn while its canvas is hidden', async () 
 	const rendered = render(
 		<Canvas
 			ref={ref}
+			fps={30}
 			fit="fill"
 			effects={[]}
 			effectsOutputSize={null}
@@ -81,6 +82,7 @@ test('AnimatedImage retains a frame drawn while its canvas is hidden', async () 
 	rendered.rerender(
 		<Canvas
 			ref={ref}
+			fps={30}
 			fit="fill"
 			effects={[]}
 			effectsOutputSize={null}
