@@ -677,7 +677,7 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
-						completion: 0.3,
+						progress: 0.3,
 						startAngle: 0,
 						center: [0.5, 0.5],
 						direction: 'clockwise',

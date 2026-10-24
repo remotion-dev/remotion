@@ -17,7 +17,7 @@ import {
 	type WipeState,
 } from './wipe-runtime.js';
 
-const DEFAULT_COMPLETION = 0 as const;
+const DEFAULT_PROGRESS = 0 as const;
 const DEFAULT_START_ANGLE = 0 as const;
 const DEFAULT_CENTER = [0.5, 0.5] as const;
 const DEFAULT_DIRECTION = 'clockwise' as const;
@@ -25,13 +25,13 @@ const DEFAULT_FEATHER = 0 as const;
 const DIRECTIONS = ['clockwise', 'counterclockwise', 'both'] as const;
 
 const radialWipeSchema = {
-	completion: {
+	progress: {
 		type: 'number',
 		min: 0,
 		max: 1,
 		step: 0.01,
-		default: DEFAULT_COMPLETION,
-		description: 'Completion',
+		default: DEFAULT_PROGRESS,
+		description: 'Progress',
 		hiddenFromList: false,
 	},
 	startAngle: {
@@ -68,8 +68,8 @@ const radialWipeSchema = {
 export type RadialWipeDirection = (typeof DIRECTIONS)[number];
 export type RadialWipeCenter = readonly [number, number];
 export type RadialWipeParams = {
-	/** Wipe completion from `0` (visible) to `1` (erased). Defaults to `0`. */
-	readonly completion?: number;
+	/** Wipe progress from `0` (visible) to `1` (erased). Defaults to `0`. */
+	readonly progress?: number;
 	/** Start angle in degrees clockwise from up. Defaults to `0`. */
 	readonly startAngle?: number;
 	/** Normalized center from `[0, 0]` (top left) to `[1, 1]` (bottom right). Defaults to `[0.5, 0.5]`. */
@@ -81,7 +81,7 @@ export type RadialWipeParams = {
 };
 
 const resolve = (p: RadialWipeParams): Required<RadialWipeParams> => ({
-	completion: p.completion ?? DEFAULT_COMPLETION,
+	progress: p.progress ?? DEFAULT_PROGRESS,
 	startAngle: p.startAngle ?? DEFAULT_START_ANGLE,
 	center: p.center ?? DEFAULT_CENTER,
 	direction: p.direction ?? DEFAULT_DIRECTION,
@@ -99,14 +99,14 @@ uniform sampler2D uSource;
 uniform vec2 uResolution;
 uniform vec2 uCenter;
 uniform float uStartAngle;
-uniform float uCompletion;
+uniform float uProgress;
 uniform float uFeather;
 uniform int uDirection;
 
 void main() {
 	vec4 source = texture(uSource, vUv);
-	if (uCompletion <= 0.0) { fragColor = source; return; }
-	if (uCompletion >= 1.0) { fragColor = vec4(0.0); return; }
+	if (uProgress <= 0.0) { fragColor = source; return; }
+	if (uProgress >= 1.0) { fragColor = vec4(0.0); return; }
 	vec2 delta = (vec2(vUv.x, 1.0 - vUv.y) - uCenter) * uResolution;
 	// atan(0, 0) is undefined; the center belongs to the erased sector.
 	if (dot(delta, delta) == 0.0) { fragColor = vec4(0.0); return; }
@@ -114,7 +114,7 @@ void main() {
 	float sweep = 360.0;
 	if (uDirection == 1) angle = 360.0 - angle;
 	if (uDirection == 2) { angle = min(angle, 360.0 - angle); sweep = 180.0; }
-	float distance = angle - uCompletion * sweep;
+	float distance = angle - uProgress * sweep;
 	float mask = uFeather > 0.0 ? clamp(distance / uFeather + 0.5, 0.0, 1.0) : step(0.0, distance);
 	fragColor = source * mask;
 }
@@ -131,7 +131,7 @@ export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
 			'uResolution',
 			'uCenter',
 			'uStartAngle',
-			'uCompletion',
+			'uProgress',
 			'uFeather',
 			'uDirection',
 		]),
@@ -148,7 +148,7 @@ export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
 		gl.uniform2f(uniforms.uResolution, width, height);
 		gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
 		gl.uniform1f(uniforms.uStartAngle, r.startAngle % 360);
-		gl.uniform1f(uniforms.uCompletion, r.completion);
+		gl.uniform1f(uniforms.uProgress, r.progress);
 		gl.uniform1f(uniforms.uFeather, r.feather);
 		gl.uniform1i(uniforms.uDirection, DIRECTIONS.indexOf(r.direction));
 		drawWipe(state);
@@ -157,7 +157,7 @@ export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
 	schema: radialWipeSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Radial wipe');
-		assertOptionalFiniteNumber(params.completion, 'completion');
+		assertOptionalFiniteNumber(params.progress, 'progress');
 		assertOptionalFiniteNumber(params.startAngle, 'startAngle');
 		assertOptionalFiniteNumber(params.feather, 'feather');
 		if (params.center !== undefined) {
@@ -179,7 +179,7 @@ export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
 			);
 		}
 
-		validateUnitInterval(r.completion, 'completion');
+		validateUnitInterval(r.progress, 'progress');
 		validateUnitInterval(r.center[0], 'center[0]');
 		validateUnitInterval(r.center[1], 'center[1]');
 		validateNonNegative(r.feather, 'feather');

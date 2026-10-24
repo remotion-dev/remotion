@@ -25,7 +25,7 @@ import {interpolate, useCurrentFrame} from 'remotion';
 
 export const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
-  const completion = interpolate(frame, [0, 60], [0, 1], {
+  const progress = interpolate(frame, [0, 60], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -35,7 +35,7 @@ export const MyComp: React.FC = () => {
       src="https://remotion.media/video.mp4"
       effects={[
         radialWipe({
-          completion,
+          progress,
           center: [0.5, 0.5],
           startAngle: 0,
           direction: 'clockwise',
@@ -51,7 +51,7 @@ export const MyComp: React.FC = () => {
 
 Pass an object with the following properties. You can also call `radialWipe()` without arguments.
 
-### `completion?`
+### `progress?`
 
 How far the wipe has progressed, from `0` (unchanged) to `1` (fully transparent). Defaults to `0`.
 
