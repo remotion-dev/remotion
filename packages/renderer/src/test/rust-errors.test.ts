@@ -70,6 +70,49 @@ test('Handle panics', async () => {
 	}
 });
 
+test('Commands sent while the compositor crashes should be rejected', async () => {
+	const compositor = startLongRunningCompositor({
+		maximumFrameCacheItemsInBytes: null,
+		logLevel: 'info',
+		indent: false,
+		binariesDirectory: null,
+		extraThreads: 2,
+	});
+
+	const panic = compositor.executeCommand('DeliberatePanic', {});
+	const panicSettled = panic.then(
+		() => true,
+		() => true,
+	);
+
+	// Keep sending commands until the crash is noticed, so that some are
+	// written after the compositor is gone but before "close" fired.
+	const errors: Promise<Error | null>[] = [];
+	while (!(await Promise.race([panicSettled, false]))) {
+		for (let i = 0; i < 20; i++) {
+			errors.push(
+				compositor.executeCommand('Echo', {message: 'hello'}).then(
+					() => null,
+					(err: Error) => err,
+				),
+			);
+		}
+
+		await new Promise((resolve) => {
+			setImmediate(resolve);
+		});
+	}
+
+	await expect(panic).rejects.toThrow('Compositor exited with code 101');
+	const settledErrors = await Promise.all(errors);
+	expect(settledErrors.some((err) => err !== null)).toBe(true);
+	for (const err of settledErrors) {
+		if (err) {
+			expect(err.message).toStartWith('Compositor');
+		}
+	}
+});
+
 test(
 	'Non-long running task panics should be handled',
 	async () => {
