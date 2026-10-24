@@ -245,6 +245,7 @@ export const usePlayback = ({
 			| null = null;
 		let playbackFrame = getCurrentFrame();
 		let lastSeekRevision = seek?.revision.current ?? null;
+		let unsubscribeBuffering: (() => void) | null = null;
 
 		const cancelQueuedFrame = () => {
 			if (reqAnimFrameCall !== null) {
@@ -253,15 +254,20 @@ export const usePlayback = ({
 				} else {
 					clearTimeout(reqAnimFrameCall.id);
 				}
+
+				reqAnimFrameCall = null;
 			}
 		};
 
 		const stop = () => {
 			hasBeenStopped = true;
 			cancelQueuedFrame();
+			unsubscribeBuffering?.();
+			unsubscribeBuffering = null;
 		};
 
 		const callback = () => {
+			reqAnimFrameCall = null;
 			if (hasBeenStopped) {
 				return;
 			}
@@ -271,7 +277,13 @@ export const usePlayback = ({
 				return;
 			}
 
-			if (!muted && !audioContextFailed && !isBuffering()) {
+			// Buffering holds the current frame, including at the playback endpoint.
+			if (isBuffering()) {
+				queueNextFrame();
+				return;
+			}
+
+			if (!muted && !audioContextFailed) {
 				sharedAudioContext?.resume?.();
 			}
 
@@ -357,12 +369,17 @@ export const usePlayback = ({
 					sharedAudioContext?.suspend?.();
 				}
 
-				const unsubscribe = subscribeBuffering((state) => {
+				unsubscribeBuffering = subscribeBuffering((state) => {
 					if (state.buffering) {
 						return;
 					}
 
-					unsubscribe();
+					unsubscribeBuffering?.();
+					unsubscribeBuffering = null;
+					if (hasBeenStopped) {
+						return;
+					}
+
 					if (
 						!muted &&
 						!audioContextFailed &&
@@ -392,15 +409,22 @@ export const usePlayback = ({
 			reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
 		};
 
+		const unsubscribeSeek = seek?.subscribe(() => {
+			// Seek notifications precede the frame update. Anchor the clock now,
+			// then read the new frame on the next callback via the seek revision.
+			startedTime = performance.now();
+			framesAdvanced = 0;
+		});
+
 		queueNextFrame();
 
 		const onVisibilityChange = () => {
-			if (document.visibilityState === 'visible') {
+			// Buffering and audio resume already own the next callback while waiting.
+			if (reqAnimFrameCall === null) {
 				return;
 			}
 
-			// If tab goes into the background, cancel requestAnimationFrame() and update immediately.
-			// , so the transition to setTimeout() can be fulfilled.
+			// Switch between rAF and background timers immediately in both directions.
 			cancelQueuedFrame();
 			callback();
 		};
@@ -409,6 +433,7 @@ export const usePlayback = ({
 
 		return () => {
 			window.removeEventListener('visibilitychange', onVisibilityChange);
+			unsubscribeSeek?.();
 			stop();
 		};
 	}, [

@@ -1,4 +1,4 @@
-import {afterEach, beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeEach, expect, spyOn, test} from 'bun:test';
 import {createRef} from 'react';
 import {Html5Audio, Internals} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
@@ -230,5 +230,122 @@ test.serial(
 		);
 		expect(resumeCalls).toBe(1);
 		expect(animationFrames.size).toBe(1);
+	},
+);
+
+test.serial(
+	'Visibility changes during audio resume preserve one playback loop and a later pause cancels the wait',
+	async () => {
+		let now = 0;
+		let visibility: DocumentVisibilityState = 'visible';
+		const clock = spyOn(performance, 'now').mockImplementation(() => now);
+		const visibilityDescriptor = Object.getOwnPropertyDescriptor(
+			document,
+			'visibilityState',
+		);
+		Object.defineProperty(document, 'visibilityState', {
+			configurable: true,
+			get: () => visibility,
+		});
+		globalThis.AudioContext = class extends FrozenAudioContext {
+			override getOutputTimestamp() {
+				return {
+					contextTime: this.currentTime,
+					performanceTime: this.currentTime * 1000,
+				};
+			}
+
+			override resume() {
+				return super.resume().then(() => {
+					this.currentTime++;
+				});
+			}
+		} as unknown as typeof AudioContext;
+
+		const playerRef = createRef<PlayerRef>();
+		try {
+			render(
+				<Player
+					ref={playerRef}
+					component={AudioComposition}
+					durationInFrames={300}
+					compositionWidth={1920}
+					compositionHeight={1080}
+					fps={30}
+				/>,
+			);
+			await act(async () => {
+				playerRef.current!.play();
+				await Promise.resolve();
+			});
+			now = 800;
+			act(() => {
+				for (const state of [
+					'hidden',
+					'visible',
+					'hidden',
+					'visible',
+				] as const) {
+					visibility = state;
+					document.dispatchEvent(
+						new Event('visibilitychange', {bubbles: true}),
+					);
+				}
+			});
+			expect(playerRef.current!.getCurrentFrame()).toBe(0);
+			expect(playerRef.current!.isPlaying()).toBe(true);
+			expect(resumeCalls).toBe(1);
+
+			await act(async () => {
+				pendingResumes.shift()!();
+				await Promise.resolve();
+			});
+			await act(async () => {
+				flushAnimationFrames();
+				await Promise.resolve();
+			});
+			expect(animationFrames.size).toBe(1);
+			now = 834;
+			act(flushAnimationFrames);
+			expect(playerRef.current!.getCurrentFrame()).toBe(1);
+			expect(animationFrames.size).toBe(1);
+
+			await act(async () => {
+				playerRef.current!.pause();
+				await Promise.resolve();
+			});
+			await act(async () => {
+				playerRef.current!.play();
+				await Promise.resolve();
+			});
+			act(() => {
+				visibility = 'hidden';
+				document.dispatchEvent(new Event('visibilitychange', {bubbles: true}));
+				visibility = 'visible';
+				document.dispatchEvent(new Event('visibilitychange', {bubbles: true}));
+				playerRef.current!.pause();
+			});
+			await act(async () => {
+				pendingResumes.splice(0).forEach((resolve) => resolve());
+				await Promise.resolve();
+			});
+			now = 2000;
+			act(flushAnimationFrames);
+			expect(playerRef.current!.getCurrentFrame()).toBe(1);
+			expect(playerRef.current!.isPlaying()).toBe(false);
+			expect(animationFrames.size).toBe(0);
+		} finally {
+			cleanup();
+			clock.mockRestore();
+			if (visibilityDescriptor) {
+				Object.defineProperty(
+					document,
+					'visibilityState',
+					visibilityDescriptor,
+				);
+			} else {
+				Reflect.deleteProperty(document, 'visibilityState');
+			}
+		}
 	},
 );
