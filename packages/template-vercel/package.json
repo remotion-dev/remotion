@@ -29,7 +29,7 @@
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "tailwind-merge": "3.0.1",
-    "zod": "4.5.4"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.2.0",
