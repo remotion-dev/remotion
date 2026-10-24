@@ -56,6 +56,10 @@ import * as CSSUtils from './default-css.js';
 import {OBJECTFIT_CONTAIN_CLASS_NAME} from './default-css.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
 import {
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
+} from './delay-render.js';
+import {
 	EditorPropsContext,
 	EditorPropsProvider,
 	timeValueRef,
@@ -359,6 +363,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	getDelayRenderSuspendedTime,
+	suspendDelayRenderTimeout,
 	HtmlInCanvasFallback,
 	useHtmlInCanvasUnsupportedMessage,
 	OptimisticSequenceDeletion,
