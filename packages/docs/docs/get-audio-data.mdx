@@ -115,8 +115,8 @@ import {getAudioData} from '@remotion/media-utils';
 import {staticFile} from 'remotion';
 
 await getAudioData(staticFile('music.mp3')); /* {
-  channelWaveforms: [Float32Array(4410000), Float32Array(4410000)],
-  sampleRate: 44100,
+  channelWaveforms: [Float32Array(4800000), Float32Array(4800000)],
+  sampleRate: 48000,
   durationInSeconds: 100.0000,
   numberOfChannels: 2,
   resultId: "0.432878981",
@@ -148,10 +148,12 @@ To determine if a file has an audio track, you may use the [`getVideoMetadata()`
 
 ## Caching behavior
 
-This function is memoizing the results it returns.
+Results are cached by `src` and `sampleRate`.
 
-If you pass in the same argument to `src` multiple times, it will return a cached version from the second time on, regardless of if the file has changed.  
-To clear the cache, you have to reload the page.
+Once audio data has been loaded, calls with the same source and sample rate return the cached data, even if the file has changed.
+Different sample rates have separate cache entries. Omitting `sampleRate` uses the same cache entry as explicitly passing `48000`.
+
+Reload the page to clear the cache.
 
 ## Alternatives
 
