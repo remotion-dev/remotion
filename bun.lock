@@ -702,9 +702,12 @@
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
+        "@remotion/player": "workspace:*",
         "@vitest/browser-playwright": "catalog:",
         "@webgpu/types": "0.1.74",
         "eslint": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
         "typescript": "catalog:",
         "vitest": "catalog:",
       },

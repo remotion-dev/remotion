@@ -11,8 +11,8 @@
 	"type": "module",
 	"scripts": {
 		"test": "bun test src/test",
-		"testvisual": "vitest src/visual-test/effects-visual.test.ts",
-		"testeffectsvisual": "vitest src/visual-test/effects-visual.test.ts --browser --run",
+		"testvisual": "vitest src/visual-test",
+		"testeffectsvisual": "vitest src/visual-test --browser --run",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
@@ -699,9 +699,12 @@
 	"homepage": "https://www.remotion.dev/docs/effects/api",
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"@remotion/player": "workspace:*",
 		"@vitest/browser-playwright": "catalog:",
 		"@webgpu/types": "0.1.74",
 		"eslint": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"vitest": "catalog:",
 		"typescript": "catalog:"
 	},
