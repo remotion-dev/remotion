@@ -1536,6 +1536,29 @@ const Timeline: React.FC<{
 			? soundtrackHeight + volumeRowHeight
 			: 0;
 		const soundtrackWidth = durationInFrames * timelineZoom;
+		const soundtrackPeaks = timeline.soundtrack
+			? Array.from(
+					{length: Math.ceil(durationInFrames / 2)},
+					(_, index) =>
+						3 +
+						random(`soundtrack-${index}`) *
+							23 *
+							(0.45 + 0.55 * Math.abs(Math.sin(index * 0.16))),
+				)
+			: [];
+		// One continuous shape avoids translucent seams between touching bars.
+		const soundtrackWaveformPoints = [
+			...soundtrackPeaks.map((peak, index) => {
+				const y = (soundtrackHeight - peak) / 2;
+				return `${index * 2},${y} ${Math.min(durationInFrames, (index + 1) * 2)},${y}`;
+			}),
+			...soundtrackPeaks
+				.map((peak, index) => {
+					const y = (soundtrackHeight + peak) / 2;
+					return `${Math.min(durationInFrames, (index + 1) * 2)},${y} ${index * 2},${y}`;
+				})
+				.reverse(),
+		].join(' ');
 		const soundtrackKeyframes = timeline.soundtrack
 			? [
 					0,
@@ -2305,27 +2328,10 @@ const Timeline: React.FC<{
 									preserveAspectRatio="none"
 									style={{display: 'block'}}
 								>
-									{/* Keep peaks attached to time as the pixel width changes. */}
-									{Array.from(
-										{length: Math.ceil(durationInFrames / 2)},
-										(_, index) => {
-											const peak =
-												3 +
-												random(`soundtrack-${index}`) *
-													23 *
-													(0.45 + 0.55 * Math.abs(Math.sin(index * 0.16)));
-											return (
-												<rect
-													key={index}
-													x={index * 2}
-													y={(soundtrackHeight - peak) / 2}
-													width={1}
-													height={peak}
-													fill="rgba(255,255,255,0.6)"
-												/>
-											);
-										},
-									)}
+									<polygon
+										points={soundtrackWaveformPoints}
+										fill="rgba(255,255,255,0.6)"
+									/>
 									<path
 										d={`M 0 0 L 0 ${soundtrackHeight} L ${timeline.soundtrack.fadeInFrames} 0 L ${durationInFrames - 1 - timeline.soundtrack.fadeOutFrames} 0 L ${durationInFrames - 1} ${soundtrackHeight} L ${durationInFrames} ${soundtrackHeight} L ${durationInFrames} 0 Z`}
 										fill="rgba(0,0,0,0.6)"
