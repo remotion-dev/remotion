@@ -1,8 +1,8 @@
 import {Artifact, useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import type {EmittedArtifact} from '../artifact';
+import {renderFramesOnWeb, renderStillOnWeb} from '../index';
 import {renderMediaOnWeb} from '../render-media-on-web';
-import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
 test('should be able to render an artifact for still', async () => {
@@ -160,5 +160,35 @@ test('should succeed to render multiple artifacts with renderMediaOnWeb()', asyn
 			frame: 2,
 			downloadBehavior: null,
 		},
+	]);
+});
+
+test('batch stills allow the same artifact filename on separate frames', async () => {
+	const Component: React.FC = () => {
+		const frame = useCurrentFrame();
+		return <Artifact filename="test.txt" content={`Frame ${frame}`} />;
+	};
+
+	const artifacts: EmittedArtifact[] = [];
+
+	await renderFramesOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'batch-artifacts',
+			width: 10,
+			height: 10,
+			fps: 30,
+			durationInFrames: 30,
+		},
+		frames: [10, 0, 20],
+		onArtifact: (artifact) => artifacts.push(artifact),
+	});
+	expect(
+		artifacts.map(({filename, content, frame}) => ({filename, content, frame})),
+	).toEqual([
+		{filename: 'test.txt', content: 'Frame 0', frame: 0},
+		{filename: 'test.txt', content: 'Frame 10', frame: 10},
+		{filename: 'test.txt', content: 'Frame 20', frame: 20},
 	]);
 });

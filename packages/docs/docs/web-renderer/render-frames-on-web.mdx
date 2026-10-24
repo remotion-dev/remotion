@@ -1,0 +1,59 @@
+---
+id: render-frames-on-web
+title: renderFramesOnWeb()
+crumb: '@remotion/web-renderer'
+---
+
+# renderFramesOnWeb()<AvailableFrom v="4.0.539" />
+
+_Part of the `@remotion/web-renderer` package._
+
+Captures multiple still frames in the browser while mounting the composition once. Use it for sparse screenshots or thumbnails that would otherwise repeat scene initialization with separate [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) calls.
+
+```tsx twoslash title="Capture sparse frames"
+import {renderFramesOnWeb} from '@remotion/web-renderer';
+
+const stills = await renderFramesOnWeb({
+  composition: {
+    component: () => null,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+    id: 'my-composition',
+  },
+  frames: [90, 0, 30],
+  licenseKey: 'free-license',
+});
+
+// Results are ordered by frame number: 0, 30, 90.
+const pngBlobs = await Promise.all(stills.map((still) => still.blob({format: 'png'})));
+```
+
+## Options
+
+### `frames`
+
+_number[]_
+
+A non-empty array of distinct, zero-indexed frame numbers. Each frame must be a finite, non-negative integer below the resolved composition's `durationInFrames`. Invalid or duplicate frames reject the call before mounting the composition.
+
+Frames are captured and returned in ascending order, matching the explicit `frames` selection in Node's [`renderFrames()`](/docs/renderer/render-frames). The input array is not mutated. This API accepts an explicit selection; it does not accept `frameRange` or `everyNthFrame`.
+
+### Other options
+
+The `composition`, `inputProps`, `schema`, `scale`, `signal`, `onArtifact`, `delayRenderTimeoutInMilliseconds`, `mediaCacheSizeInBytes`, `logLevel`, `licenseKey`, `isProduction`, and `allowHtmlInCanvas` options work as described for [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#options). Pass `frames` instead of `frame`.
+
+## Return value
+
+A promise resolving to an array of <TsType type="RenderStillOnWebResult" source="@remotion/web-renderer" href="/docs/web-renderer/types#renderstillonwebresult" /> objects, one per selected frame in ascending order. Each result retains its captured pixels and can be encoded with `canvas()`, `blob()` or `url()` after capture finishes.
+
+The composition mounts once, seeks through the selection, and waits for pending [`delayRender()`](/docs/delay-render) handles before each capture. Artifacts are delivered for each captured frame. The composition unmounts after completion or failure.
+
+Aborting or failing any frame rejects the entire call. Still and multi-frame captures share the existing render queue, so a failed batch does not prevent a later capture.
+
+## See also
+
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web)
+- [`renderFrames()`](/docs/renderer/render-frames)
+- [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda)
