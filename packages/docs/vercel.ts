@@ -44,6 +44,19 @@ export const config: VercelConfig = {
 					'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
 			},
 		]),
+		...[
+			{type: 'query' as const, key: 'remotion-studio', value: 'true'},
+			{type: 'header' as const, key: 'sec-fetch-dest', value: 'iframe'},
+		].map((condition) =>
+			routes.header(
+				'/elements/:path*',
+				[
+					{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
+					{key: 'Cross-Origin-Resource-Policy', value: 'cross-origin'},
+				],
+				{has: [condition]},
+			),
+		),
 		routes.header('/new(.*)', browserStudioIsolationHeaders),
 		...['/new', '/new/', '/new.html', '/new/index.html'].map((source) =>
 			routes.header(source, [{key: 'Cache-Control', value: 'no-store'}]),
@@ -392,6 +405,9 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 		routes.redirect('/effects', '/docs/effects', {permanent: false}),
+		routes.redirect('/color-correction', '/docs/color-correction', {
+			permanent: false,
+		}),
 		routes.redirect('/design-systems', '/docs/design-systems', {
 			permanent: false,
 		}),

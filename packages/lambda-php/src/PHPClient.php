@@ -279,6 +279,37 @@ class PHPClient
         return $this->renderMediaOnLambda($render);
     }
 
+    /**
+     * Render a still image in a Lambda function and return the URL it was written to.
+     */
+    public function renderStillOnLambda(RenderStillParams $render): RenderStillOnLambdaResponse
+    {
+        $params = $this->constructStillInternals($render);
+
+        $result = $this->invokeLambdaFunction(json_encode($params));
+        return $this->handleLambdaResponseStill($result);
+    }
+
+    private function constructStillInternals(RenderStillParams $render)
+    {
+        if (empty($render->getComposition())) {
+            throw new InvalidArgumentException("'composition' is required.");
+        }
+
+        $input = $this->serializeInputProps(
+            $render->getData(),
+            $this->getRegion(),
+            "still",
+            null
+        );
+
+        $render->internal_setSerializedInputProps($input);
+        $render->setServeUrl($this->getServeUrl());
+        $render->setRegion($this->getRegion());
+
+        return $render->serializeParams();
+    }
+
     public function makeRenderProgressPayload(string $renderId, string $bucketName, string $logLevel = "info", $forcePathStyle = false)
     {
         return json_encode([
@@ -386,6 +417,33 @@ class PHPClient
         $classResponse->type = $response['type'];
         $classResponse->renderId = $response['renderId'];
         $classResponse->bucketName = $response['bucketName'];
+
+        return $classResponse;
+    }
+
+    private function handleLambdaResponseStill(string $response): RenderStillOnLambdaResponse
+    {
+        $response = json_decode($response, true);
+
+        // AWS response
+        if (isset($response['errorMessage'])) {
+            throw new Exception($response['errorMessage']);
+        }
+
+        // Remotion response
+        if ($response['type'] === 'error') {
+            throw new Exception($response['message']);
+        }
+
+        $classResponse = new RenderStillOnLambdaResponse();
+
+        $classResponse->type = $response['type'];
+        $classResponse->renderId = $response['renderId'];
+        $classResponse->bucketName = $response['bucketName'];
+        $classResponse->output = $response['output'];
+        $classResponse->outKey = $response['outKey'];
+        $classResponse->sizeInBytes = $response['sizeInBytes'];
+        $classResponse->estimatedPrice = $response['estimatedPrice'] ?? null;
 
         return $classResponse;
     }

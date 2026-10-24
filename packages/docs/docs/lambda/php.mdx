@@ -108,6 +108,26 @@ print_r($renderResponse);
 
 Poll `getRenderProgress()` until `done` or `fatalErrorEncountered`. `framesUploaded` reports uploaded frames, and `outputSequence['manifestUrl']` points to the completed manifest. `outputPrefix` also accepts an array with `bucketName`, `keyPrefix`, and optional `s3OutputProvider`.
 
+## Rendering a still<AvailableFrom v="4.0.538" />
+
+Use `renderStillOnLambda()` with `RenderStillParams`. The still is rendered in a single Lambda invocation, and the response contains the URL it was written to.
+
+```php title="render-still.php"
+use Remotion\LambdaPhp\RenderStillParams;
+
+$params = new RenderStillParams(
+  composition: 'still-helloworld',
+  data: ['message' => 'Hello from props!'],
+  frame: 10,
+);
+
+$stillResponse = $client->renderStillOnLambda($params);
+
+print_r($stillResponse->output);
+```
+
+`imageFormat` defaults to `png`; `jpeg` and `webp` are also supported. `output` is the URL of the rendered image, `outKey` is its key in the bucket, and `sizeInBytes` is its size.
+
 ## Cancelling a render<AvailableFrom v="4.0.515" />
 
 Enable cancellation before starting the render, then call `cancelRenderOnLambda()`:

@@ -99,6 +99,11 @@
 			"module": "./dist/esm/contour-lines.mjs",
 			"import": "./dist/esm/contour-lines.mjs"
 		},
+		"./curves": {
+			"types": "./dist/curves.d.ts",
+			"module": "./dist/esm/curves.mjs",
+			"import": "./dist/esm/curves.mjs"
+		},
 		"./cylinder": {
 			"types": "./dist/cylinder.d.ts",
 			"module": "./dist/esm/cylinder.mjs",
@@ -481,6 +486,9 @@
 			],
 			"contour-lines": [
 				"dist/contour-lines.d.ts"
+			],
+			"curves": [
+				"dist/curves.d.ts"
 			],
 			"cylinder": [
 				"dist/cylinder.d.ts"

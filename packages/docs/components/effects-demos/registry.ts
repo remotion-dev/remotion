@@ -10,6 +10,7 @@ import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
 import {cornerPin} from '@remotion/effects/corner-pin';
+import {curves} from '@remotion/effects/curves';
 import {cylinder} from '@remotion/effects/cylinder';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
@@ -91,6 +92,7 @@ import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../effects/effects-curves-preview';
 import {EffectsCylinderPreview} from '../effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
@@ -328,6 +330,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/contrast',
 		comp: EffectsContrastPreview,
 		schema: contrast().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-curves',
+		effectName: 'curves',
+		effectImportPath: '@remotion/effects/curves',
+		comp: EffectsCurvesPreview,
+		schema: curves().definition.schema,
 	},
 	{
 		...defaults,

@@ -28,16 +28,25 @@ const fn = async (
 		sampleRate: options?.sampleRate ?? 48000,
 	});
 
-	const response = await fetchWithCorsCatch(src, options?.requestInit);
-	if (!response.ok) {
-		throw new Error(
-			`Failed to fetch audio data from ${src}: ${response.status} ${response.statusText}`,
-		);
+	let wave: AudioBuffer;
+	try {
+		const response = await fetchWithCorsCatch(src, options?.requestInit);
+		if (!response.ok) {
+			throw new Error(
+				`Failed to fetch audio data from ${src}: ${response.status} ${response.statusText}`,
+			);
+		}
+
+		const arrayBuffer = await response.arrayBuffer();
+
+		wave = await audioContext.decodeAudioData(arrayBuffer);
+	} finally {
+		try {
+			await audioContext.close();
+		} catch {
+			// Preserve the audio data or the original loading error if cleanup fails.
+		}
 	}
-
-	const arrayBuffer = await response.arrayBuffer();
-
-	const wave = await audioContext.decodeAudioData(arrayBuffer);
 
 	const channelWaveforms = new Array(wave.numberOfChannels)
 		.fill(true)

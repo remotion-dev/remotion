@@ -512,6 +512,10 @@ export class MediaPlayer {
 
 			return {type: 'success', durationInSeconds};
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
+			}
+
 			const err = error as Error;
 
 			if (isNetworkError(err)) {
@@ -811,12 +815,15 @@ export class MediaPlayer {
 		// Cancel pending paints before waiting for initialization to settle.
 		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
+		this.audioIteratorManager?.destroyIterator();
+		this.premountAwareDelayPlayback.dispose();
+		// Release before awaiting startup: disposing the last lease cancels a
+		// stalled read, while other players keep their shared Input alive.
+		this.releaseInput();
 
 		if (this.initializationPromise) {
 			try {
-				// wait for the init to finished
-				// otherwise we might get errors like:
-				// Error: Response stream reader stopped unexpectedly before all requested data was read. from UrlSource
+				// Reclaim any manager whose creation was already in flight.
 				await this.initializationPromise;
 			} catch {
 				// Ignore initialization errors during disposal
@@ -825,9 +832,6 @@ export class MediaPlayer {
 
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroyIterator();
-		// Release our reference to the shared Input; it is only disposed once the
-		// last MediaPlayer using this src releases it.
-		this.releaseInput();
 	}
 
 	private getTargetTime = (
