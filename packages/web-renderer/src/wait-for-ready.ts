@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import type {DelayRenderScope} from 'remotion';
+import {Internals, type DelayRenderScope} from 'remotion';
 import type {BackgroundKeepalive} from './background-keepalive';
 import type {InternalState} from './internal-state';
 import {withResolvers} from './with-resolvers';
@@ -36,12 +36,6 @@ export const waitForReady = ({
 			return;
 		}
 
-		if (scope.remotion_renderReady === true) {
-			internalState?.addWaitForReadyTime(performance.now() - start);
-			resolve();
-			return;
-		}
-
 		if (scope.remotion_cancelledError !== undefined) {
 			cancelled = true;
 			internalState?.addWaitForReadyTime(performance.now() - start);
@@ -55,9 +49,19 @@ export const waitForReady = ({
 			// Keep accepting cancellations from core versions that only store a stack.
 			const stack = scope.remotion_cancelledError;
 			const message = stack.split('\n')[0].replace(/^Error: /, '');
-			const error = new Error(message);
-			error.stack = stack;
+			const original = scope.remotion_cancelledErrorObject;
+			const error =
+				original && Internals.getErrorStackWithMessage(original) === stack
+					? original
+					: new Error(message);
+			if (error !== original) error.stack = stack;
 			reject(error);
+			return;
+		}
+
+		if (scope.remotion_renderReady === true) {
+			internalState?.addWaitForReadyTime(performance.now() - start);
+			resolve();
 			return;
 		}
 

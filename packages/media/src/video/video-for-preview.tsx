@@ -301,6 +301,33 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				: null;
 
+		let cancelled = false;
+		const reportError = async (error: Error) => {
+			if (cancelled) return;
+			const [action, errorToUse] = await callOnErrorAndResolve({
+				onError: onErrorRef.current,
+				error,
+				disallowFallback: disallowFallbackRef.current,
+				isClientSideRendering: false,
+				clientSideError: error,
+			});
+			if (cancelled) return;
+			if (action === 'handled') return;
+			if (
+				action === 'fallback' &&
+				!(error instanceof ProResDecoderNotEnabledError)
+			) {
+				Internals.Log.warn(
+					{logLevel, tag: '@remotion/media'},
+					`[VideoForPreview] Failed to initialize or play ${preloadedSrc}, falling back to <Html5Video>.`,
+					error,
+				);
+				setShouldFallbackToNativeVideo(true);
+			} else {
+				setTerminalError(errorToUse);
+			}
+		};
+
 		try {
 			const player = new MediaPlayer({
 				canvas: canvasRef.current,
@@ -330,20 +357,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 				getEffectChainState: (width, height) =>
 					effectChainStateRef.current?.get(width, height)!,
 				maxCanvasSinkFrameSize: maxCanvasSinkFrameSizeRef.current,
-				onError: (error) => {
-					const [action, errorToUse] = callOnErrorAndResolve({
-						onError: onErrorRef.current,
-						error,
-						disallowFallback: disallowFallbackRef.current,
-						isClientSideRendering: false,
-						clientSideError: error,
-					});
-					if (action === 'fallback') {
-						setShouldFallbackToNativeVideo(true);
-					} else {
-						setTerminalError(errorToUse);
-					}
-				},
+				onError: reportError,
 			});
 
 			mediaPlayerRef.current = player;
@@ -353,30 +367,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 					initialMuted.current,
 					initialVolume.current,
 				)
-				.then((result) => {
-					if (result.type === 'disposed') {
+				.then(async (result) => {
+					if (cancelled || result.type === 'disposed') {
 						return;
 					}
-
-					const handleError = (error: Error, fallbackMessage: string) => {
-						const [action, errorToUse] = callOnErrorAndResolve({
-							onError: onErrorRef.current,
-							error,
-							disallowFallback: disallowFallbackToOffthreadVideo,
-							isClientSideRendering: false,
-							clientSideError: error,
-						});
-						if (action === 'fail') {
-							throw errorToUse;
-						}
-
-						// action === 'fallback'
-						Internals.Log.warn(
-							{logLevel, tag: '@remotion/media'},
-							fallbackMessage,
-						);
-						setShouldFallbackToNativeVideo(true);
-					};
 
 					if (
 						result.type === 'unknown-container-format' ||
@@ -387,10 +381,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 
 					if (result.type === 'cannot-decode') {
-						handleError(
-							result.error,
-							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
-						);
+						await reportError(result.error);
 						return;
 					}
 
@@ -402,9 +393,8 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 
 					if (result.type === 'no-tracks') {
-						handleError(
+						await reportError(
 							new Error(`No video or audio tracks found for ${preloadedSrc}.`),
-							`No video or audio tracks found for ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
 						return;
 					}
@@ -417,54 +407,13 @@ const VideoForPreviewAssertedShowing: React.FC<
 						hasDrawnRealFrameRef.current = true;
 					}
 				})
-				.catch((error) => {
-					// ProRes without a registered decoder is unrecoverable and must not
-					// fall back to a native <video> (which cannot decode it either).
-					// Notify onError once for observability, then rethrow.
-					if (error instanceof ProResDecoderNotEnabledError) {
-						onErrorRef.current?.(error);
-						throw error;
-					}
-
-					const [action, errorToUse] = callOnErrorAndResolve({
-						onError: onErrorRef.current,
-						error,
-						disallowFallback: disallowFallbackToOffthreadVideo,
-						isClientSideRendering: false,
-						clientSideError: error,
-					});
-					if (action === 'fail') {
-						throw errorToUse;
-					}
-
-					Internals.Log.error(
-						{logLevel, tag: '@remotion/media'},
-						'[VideoForPreview] Failed to initialize MediaPlayer',
-						errorToUse,
-					);
-					setShouldFallbackToNativeVideo(true);
-				});
+				.catch((error) => reportError(error));
 		} catch (error) {
-			const [action, errorToUse] = callOnErrorAndResolve({
-				error: error as Error,
-				onError: onErrorRef.current,
-				disallowFallback: disallowFallbackToOffthreadVideo,
-				isClientSideRendering: false,
-				clientSideError: error as Error,
-			});
-			if (action === 'fail') {
-				throw errorToUse;
-			}
-
-			Internals.Log.error(
-				{logLevel, tag: '@remotion/media'},
-				'[VideoForPreview] MediaPlayer initialization failed',
-				errorToUse,
-			);
-			setShouldFallbackToNativeVideo(true);
+			reportError(error as Error);
 		}
 
 		return () => {
+			cancelled = true;
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},

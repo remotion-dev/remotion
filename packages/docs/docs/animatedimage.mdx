@@ -26,6 +26,10 @@ export const GifAnimatedImage = () => {
 };
 ```
 
+## Error recovery
+
+The `onError` callback supports [asynchronous asset recovery](/docs/asset-error-handling). Return `'handled'` after replacing or deliberately omitting the failed asset, or throw to fail rendering. <AvailableFrom v="4.0.538" />
+
 ## Props
 
 ### `src`

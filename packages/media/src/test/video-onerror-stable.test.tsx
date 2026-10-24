@@ -4,6 +4,7 @@ import {createRoot} from 'react-dom/client';
 import {expect, test, vi} from 'vitest';
 import {Audio} from '../audio/audio';
 import {MediaPlayer} from '../media-player';
+import {callOnErrorAndResolve} from '../on-error';
 import {Video} from '../video/video';
 
 const waitFor = async (predicate: () => boolean) => {
@@ -171,4 +172,90 @@ test('does not reinitialize MediaPlayer when onError or maxCanvasSinkFrameSize i
 		container.remove();
 		initSpy.mockRestore();
 	}
+});
+
+test.each(['video', 'audio'] as const)(
+	'awaits a rejected %s recovery callback and reports it once',
+	async (tagType) => {
+		const container = document.createElement('div');
+		document.body.appendChild(container);
+		const root = createRoot(container);
+		let entered = false;
+		let release: () => void = () => {};
+		const pending = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const replacement = new Error('Application recovery failed');
+		let caught: Error | null = null;
+		let calls = 0;
+		const onError = async () => {
+			calls++;
+			entered = true;
+			await pending;
+			throw replacement;
+		};
+
+		const Composition = () =>
+			tagType === 'video' ? (
+				<Video src="data:application/octet-stream,invalid" onError={onError} />
+			) : (
+				<Audio src="data:application/octet-stream,invalid" onError={onError} />
+			);
+		root.render(
+			<Player
+				acknowledgeRemotionLicense
+				component={Composition}
+				compositionHeight={16}
+				compositionWidth={16}
+				durationInFrames={30}
+				fps={30}
+				inputProps={{}}
+				errorFallback={({error}) => {
+					caught = error;
+					return null;
+				}}
+			/>,
+		);
+		try {
+			await waitFor(() => entered);
+			expect(caught).toBe(null);
+			release();
+			await waitFor(() => caught !== null);
+			expect(caught).toBe(replacement);
+			expect(calls).toBe(1);
+		} finally {
+			release();
+			root.unmount();
+			container.remove();
+		}
+	},
+);
+
+// PR #12290 review: explicit failure keeps browser-render context, while a
+// handler's rejected replacement Error keeps its identity and custom fields.
+test('browser failure decisions distinguish the asset error from handler rejection', async () => {
+	const assetError = new Error('Unknown container format');
+	const browserError = new Error(
+		'Cannot render video: Unknown container format',
+	);
+	const options = {
+		error: assetError,
+		clientSideError: browserError,
+		disallowFallback: false,
+		isClientSideRendering: true,
+	};
+	expect(
+		await callOnErrorAndResolve({...options, onError: () => 'fail'}),
+	).toEqual(['fail', browserError]);
+	expect(browserError.cause).toBe(assetError);
+	const replacement = Object.assign(new Error('Replacement failed'), {
+		assetId: 'asset-1',
+	});
+	const [action, error] = await callOnErrorAndResolve({
+		...options,
+		onError: () => Promise.reject(replacement),
+	});
+	expect(action).toBe('fail');
+	expect(error).toBe(replacement);
+	expect(error).toHaveProperty('assetId', 'asset-1');
 });

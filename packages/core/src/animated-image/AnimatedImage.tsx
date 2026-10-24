@@ -14,6 +14,7 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
+import {handleImageError} from '../handle-image-error.js';
 import {
 	backgroundSchema,
 	baseSchema,
@@ -25,6 +26,7 @@ import {
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {useErrorRecoveryCommit} from '../media-error-handler.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
@@ -119,6 +121,7 @@ const AnimatedImageContent = forwardRef<
 		const imageDecoder = decodedImage?.decoder ?? null;
 		const activeDecoderRef = useRef<RemotionImageDecoder | null>(null);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const commitRecovery = useErrorRecoveryCommit();
 
 		const frame = useCurrentFrame();
 		const {fps} = useVideoConfig();
@@ -194,12 +197,16 @@ const AnimatedImageContent = forwardRef<
 						return;
 					}
 
-					if (onError) {
-						onError?.(err as Error);
-						continueRenderOnce();
-					} else {
-						cancelRender(err);
-					}
+					return handleImageError({
+						error: err as Error,
+						onError,
+						isCancelled: () => cancelled,
+						cancelRender,
+						onHandled: () =>
+							commitRecovery(() => {
+								if (!cancelled) continueRenderOnce();
+							}),
+					});
 				});
 
 			return () => {
@@ -217,6 +224,7 @@ const AnimatedImageContent = forwardRef<
 			continueRender,
 			delayRender,
 			cancelRender,
+			commitRecovery,
 		]);
 
 		useLayoutEffect(() => {
@@ -261,12 +269,16 @@ const AnimatedImageContent = forwardRef<
 						return;
 					}
 
-					if (onError) {
-						onError(err as Error);
-						continueRender(delay);
-					} else {
-						cancelRender(err);
-					}
+					return handleImageError({
+						error: err as Error,
+						onError,
+						isCancelled: () => cancelled,
+						cancelRender,
+						onHandled: () =>
+							commitRecovery(() => {
+								if (!cancelled) continueRender(delay);
+							}),
+					});
 				});
 
 			return () => {
@@ -287,6 +299,7 @@ const AnimatedImageContent = forwardRef<
 			width,
 			height,
 			cancelRender,
+			commitRecovery,
 			effectsOutputSize?.width,
 			effectsOutputSize?.height,
 		]);
@@ -474,12 +487,13 @@ const AnimatedImageWithIntrinsicDuration = (
 					return;
 				}
 
-				if (onErrorRef.current) {
-					onErrorRef.current(error);
-					setFailedHandle(handle);
-				} else {
-					cancelRender(error);
-				}
+				return handleImageError({
+					error,
+					onError: onErrorRef.current,
+					isCancelled: () => cancelled,
+					cancelRender,
+					onHandled: () => setFailedHandle(handle),
+				});
 			});
 
 		return () => {

@@ -2839,6 +2839,7 @@
         "@remotion/effects": "workspace:*",
         "@remotion/eslint-config-internal": "workspace:*",
         "@remotion/fonts": "workspace:*",
+        "@remotion/gif": "workspace:*",
         "@remotion/media": "workspace:*",
         "@remotion/paths": "workspace:*",
         "@remotion/player": "workspace:*",

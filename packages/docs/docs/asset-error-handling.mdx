@@ -1,0 +1,68 @@
+---
+title: Recovering from asset errors
+---
+
+# Recovering from asset errors<AvailableFrom v="4.0.538" />
+
+`<Img>` (`onImageError`), `<CanvasImage>`, `<AnimatedImage>`, `<Gif>`, and the `@remotion/media` `<Video>` and `<Audio>` components accept asynchronous error handlers.
+
+Use these callbacks when recovery requires an asynchronous operation, such as refreshing an expired URL. Remotion keeps the failed asset's render hold pending while the callback is running. You do not need to call `delayRender()`, `continueRender()`, or `cancelRender()` inside the callback.
+
+The `MediaErrorHandler` type exported from `remotion` describes this callback.
+
+## Handler results
+
+- Return `'handled'` when your application has replaced or deliberately omitted the failed asset. This does not reload the failed URL or choose another decoder. Update `src`, render a replacement, or remove the asset yourself.
+- Return `'fail'` to use the normal failure policy. Browser-rendered video and audio keep their contextual error message and attach the original error as `cause`.
+- Throw an `Error`, or reject the returned promise, to fail with a replacement error. You can attach the original error using `cause`.
+- Video and audio also accept `'fallback'` to request their existing decoder fallback. This remains unavailable during browser rendering. Images do not have this decoder-fallback action.
+
+A result from an old source is ignored after that source is replaced or its component unmounts. An explicit `'handled'` result keeps the hold pending until React commits the source replacement or unmount, including updates scheduled with `startTransition()`. Returning `'handled'` without replacing or removing the asset leaves rendering waiting.
+
+The replacement asset has its own loading lifecycle: finishing the old callback does not mark the new source as loaded.
+
+## Replace a failed image
+
+```tsx
+import {useState} from 'react';
+import {Img, type MediaErrorHandler} from 'remotion';
+
+export const RecoverableImage = ({
+  initialSrc,
+  refreshUrl,
+}: {
+  initialSrc: string;
+  refreshUrl: () => Promise<string>;
+}) => {
+  const [src, setSrc] = useState(initialSrc);
+  const onError: MediaErrorHandler = async () => {
+    try {
+      const replacement = await refreshUrl();
+      setSrc(replacement);
+      return 'handled' as const;
+    } catch (cause) {
+      throw new Error('Could not refresh the image URL', {cause});
+    }
+  };
+
+  return <Img src={src} onImageError={onError} />;
+};
+```
+
+Limit retries in your application if the replacement can fail for the same reason. A callback that only logs an error should return `'fail'` if rendering must not proceed without that asset.
+
+## Compatibility
+
+Existing callback defaults are retained. A returned event ID, array length, `Error` object, `Response`, or other value that is not a recognized action uses the same default as returning no value. For canvas images, animated images, and GIFs, a callback returning no value handles the failure. A native `<Img>` callback returning no value continues waiting for the image to load or be replaced, as before. For video and audio, returning no value uses the existing fallback policy. Use an explicit `'handled'` or `'fail'` result for a handler shared between asset types.
+
+`<Img onError>` remains the native React image event callback. Use `onImageError` for this asynchronous contract. Native `<Html5Video>` / `<Html5Audio>` callbacks and `<OffthreadVideo>` fallback callbacks retain their existing APIs.
+
+Browser-local rendering preserves the original `Error` object, including its cause and custom fields. Errors that cross a browser/process boundary still use the renderer's serialized error representation.
+
+### Asynchronous callbacks and preview errors
+
+All promises returned by these asset callbacks are now awaited. This includes callbacks that only send telemetry: a slow logging endpoint can keep the asset's render hold pending until its timeout. Use a callback that returns no promise for background logging, or return an explicit recovery decision when rendering must wait.
+
+Video and audio error handlers also run during browser rendering, including failures that previously bypassed them. Analytics, notifications, and other handler side effects therefore run in that environment too.
+
+A throwing or rejected image handler cancels rendering with that handler's error. Previously, some image event-handler exceptions were uncaught outside the render cancellation path. GIF preview failures retain the GIF source and CORS guidance for the original loading error; a handler's replacement error is preserved as supplied.
