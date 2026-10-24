@@ -67,6 +67,7 @@ const effectEntrypoints = [
 	'src/scanlines.ts',
 	'src/scale.ts',
 	'src/shadows-highlights.ts',
+	'src/shatter.ts',
 	'src/shine.ts',
 	'src/shrinkwrap.ts',
 	'src/skew.ts',

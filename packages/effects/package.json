@@ -334,6 +334,11 @@
 			"module": "./dist/esm/shadows-highlights.mjs",
 			"import": "./dist/esm/shadows-highlights.mjs"
 		},
+		"./shatter": {
+			"types": "./dist/shatter.d.ts",
+			"module": "./dist/esm/shatter.mjs",
+			"import": "./dist/esm/shatter.mjs"
+		},
 		"./shine": {
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
@@ -627,6 +632,9 @@
 			],
 			"shadows-highlights": [
 				"dist/shadows-highlights.d.ts"
+			],
+			"shatter": [
+				"dist/shatter.d.ts"
 			],
 			"shine": [
 				"dist/shine.d.ts"

@@ -1,0 +1,152 @@
+---
+image: /generated/articles-docs-effects-shatter.png
+slug: /effects/shatter
+title: shatter()
+sidebar_label: shatter()
+crumb: '@remotion/effects'
+---
+
+# shatter()<AvailableFrom v="4.0.539" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Breaks a canvas-based component into fragments that fly apart, tumble in 3D, and fall under gravity. Choose a brick, glass, hexagon, square, or triangle pattern.
+
+The force affects fragments within a sphere around `center` and `depth`. Fragments outside it stay intact. Gaps are transparent, and fragments that move outside the canvas are clipped.
+
+## Preview
+
+<EffectsDemo type="effects-shatter" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {shatter} from '@remotion/effects/shatter';
+import {Video} from '@remotion/media';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        shatter({
+          time: frame / fps,
+          pattern: 'glass',
+          radius: 0.8,
+          seed: 12,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `shatter()` without arguments.
+
+### `time?`
+
+Elapsed time in seconds. Must be non-negative. Defaults to `0.5`.
+
+At `0`, the source is unchanged. Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) divided by the frame rate from [`useVideoConfig()`](/docs/use-video-config). The effect does not advance automatically.
+
+Each frame is calculated independently. The same parameters and `time` produce the same result when seeking or rendering frames out of order.
+
+### `pattern?`
+
+Shape of the fragments. One of `"bricks"`, `"glass"`, `"hexagons"`, `"squares"`, or `"triangles"`. Defaults to `"bricks"`.
+
+### `repetitions?`
+
+Number of pattern subdivisions across the source width. Must be between `1` and `100`. Defaults to `10`.
+
+Higher values create smaller fragments.
+
+### `direction?`
+
+Rotation of the fragment pattern in degrees. Defaults to `0`.
+
+### `origin?`
+
+Origin of the fragment pattern as a `[u, v]` tuple. `[0, 0]` is the top-left of the source and `[1, 1]` is the bottom-right. Defaults to `[0.5, 0.5]`.
+
+### `center?`
+
+Center of the shattering force as a `[u, v]` tuple, using the same coordinates as [`origin`](#origin). Defaults to `[0.5, 0.5]`.
+
+### `radius?`
+
+Radius of the spherical force, relative to the source width. Must be non-negative. Defaults to `0.4`.
+
+Increase this value to affect more fragments.
+
+### `depth?`
+
+Depth of the force center relative to the source plane, as a fraction of the source width. Defaults to `0.1`.
+
+Positive and negative values place the force on opposite sides of the source plane.
+
+### `strength?`
+
+Strength of the shattering force. Defaults to `5`.
+
+Negative values reverse the force direction.
+
+### `rotationSpeed?`
+
+Speed at which detached fragments tumble. Must be non-negative. Defaults to `0.2`.
+
+Use `0` to disable tumbling.
+
+### `randomness?`
+
+Variation in fragment motion from `0` to `1`. Defaults to `0.1`.
+
+### `viscosity?`
+
+Resistance that slows fragment motion, from `0` to `1`. Defaults to `0.1`.
+
+### `massVariance?`
+
+Variation in fragment mass from `0` to `1`. Defaults to `0.3`.
+
+Higher values create larger differences in how fragments respond to the force.
+
+### `gravity?`
+
+Downward acceleration of detached fragments, in tenths of the source width per second squared. Must be non-negative. Defaults to `3`.
+
+Use `0` to disable gravity.
+
+### `seed?`
+
+Seed for the deterministic fragment pattern and motion. Must be an integer between `0` and `4294967295`. Defaults to `0`.
+
+Keep this value constant while animating [`time`](#time) so the fragments follow continuous paths.
+
+### `extrusionDepth?`
+
+Thickness of the fragments as a fraction of the cell size, from `0` to `1`. Defaults to `0.05`.
+
+Use `0` for flat fragments.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`shatter()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`tear()`](/docs/effects/tear)
+- [`pixelDissolve()`](/docs/effects/pixel-dissolve)
+- [HTML-in-canvas guide](/docs/html-in-canvas)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/shatter.ts)
