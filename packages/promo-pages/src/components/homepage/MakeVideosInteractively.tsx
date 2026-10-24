@@ -13,8 +13,9 @@ export const MakeVideosInteractively: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="text-[var(--subtitle)]">Make videos</span>
-			<br /> interactively
+			<span className="min-[900px]:text-[var(--subtitle)]">Make videos</span>{' '}
+			<br className="hidden min-[900px]:block" />
+			interactively
 		</>
 	),
 	description = 'Edit and animate using drag and drop and save back to code.',
@@ -60,10 +61,10 @@ export const MakeVideosInteractively: React.FC<{
 				</div>
 			) : null}
 			<div className="font-brand">
-				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
+				<h2 className="text-2xl fontbrand leading-[1.1] font-medium max-[900px]:mb-2">
 					{title}
 				</h2>
-				<p className="text-balance leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed max-[900px]:mb-0">{description}</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

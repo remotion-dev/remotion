@@ -6,7 +6,6 @@ import {
 	BoltIcon,
 	BottomPanelIcon,
 	ChevronDownIcon,
-	ChevronRightIcon,
 	CopyIcon,
 	FeedbackIcon,
 	FolderIcon,
@@ -29,8 +28,8 @@ export const codexSchema = z.object({
 
 export type CodexProps = z.infer<typeof codexSchema>;
 
-const MINIMUM_WIDTH = 785;
-const MINIMUM_HEIGHT = 928;
+const MINIMUM_WIDTH = 640;
+const MINIMUM_HEIGHT = 748;
 
 const Header: React.FC = () => {
 	return (
@@ -48,7 +47,7 @@ const Header: React.FC = () => {
 				left: 0,
 				position: 'absolute',
 				top: 0,
-				width: 785,
+				width: MINIMUM_WIDTH,
 			}}
 		>
 			<FolderIcon
@@ -62,17 +61,17 @@ const Header: React.FC = () => {
 			/>
 			<div
 				style={{
-					fontSize: 12.7,
+					fontSize: 15.5,
 					marginLeft: 10,
 				}}
 			>
-				Update WhatsNew timeline
+				Make announcement video
 			</div>
 			<MoreIcon
 				size={15}
 				style={{
 					color: '#8b8b8b',
-					left: 593,
+					left: 448,
 					position: 'absolute',
 					scale: '1.15 1.2',
 					top: 13,
@@ -83,7 +82,7 @@ const Header: React.FC = () => {
 				size={14}
 				style={{
 					color: '#8b8b8b',
-					left: 626,
+					left: 481,
 					position: 'absolute',
 					scale: '1.35 1.1',
 					top: 13,
@@ -94,7 +93,7 @@ const Header: React.FC = () => {
 				style={{
 					color: '#8b8b8b',
 					fontSize: 12,
-					left: 646,
+					left: 501,
 					position: 'absolute',
 					top: 12,
 				}}
@@ -105,7 +104,7 @@ const Header: React.FC = () => {
 				size={14}
 				style={{
 					color: '#8b8b8b',
-					left: 695,
+					left: 550,
 					position: 'absolute',
 					scale: '1.3 1',
 					top: 13,
@@ -116,7 +115,7 @@ const Header: React.FC = () => {
 				size={14}
 				style={{
 					color: '#8b8b8b',
-					left: 727,
+					left: 582,
 					position: 'absolute',
 					scale: '1 1.1',
 					top: 13,
@@ -126,7 +125,7 @@ const Header: React.FC = () => {
 				size={14}
 				style={{
 					color: '#8b8b8b',
-					left: 758,
+					left: 613,
 					position: 'absolute',
 					scale: '1 1.1',
 					top: 13,
@@ -136,236 +135,102 @@ const Header: React.FC = () => {
 	);
 };
 
-const CodePill: React.FC<{
-	readonly children: React.ReactNode;
-	readonly height: number;
-	readonly horizontalAlign: number;
-	readonly textTranslateY: number;
-	readonly verticalAlign: number;
-	readonly width: number;
-}> = ({
-	children,
-	height,
-	horizontalAlign,
-	textTranslateY,
-	verticalAlign,
-	width,
-}) => {
-	return (
-		<code
-			style={{
-				alignItems: 'center',
-				backgroundColor: '#303030',
-				borderRadius: 4,
-				boxSizing: 'border-box',
-				color: '#e4e4e4',
-				display: 'inline-flex',
-				fontFamily: 'Menlo, Monaco, monospace',
-				fontSize: 11.5,
-				height,
-				justifyContent: 'center',
-				lineHeight: '16px',
-				translate: `${horizontalAlign}px 0`,
-				verticalAlign,
-				width,
-			}}
-		>
-			<span style={{translate: `0 ${textTranslateY}px`}}>{children}</span>
-		</code>
-	);
-};
-
-const StatusDivider: React.FC<{
-	readonly children: React.ReactNode;
-	readonly top: number;
-}> = ({children, top}) => {
-	return (
-		<div style={{height: 26, left: 61, position: 'absolute', top, width: 663}}>
-			<div
-				style={{
-					alignItems: 'center',
-					color: '#9a9a9a',
-					display: 'flex',
-					fontSize: 12.5,
-					fontWeight: 450,
-					height: 25,
-				}}
-			>
-				{children}
-				<ChevronRightIcon size={12} style={{color: '#8b8b8b', marginLeft: 5}} />
-			</div>
-			<div
-				style={{
-					backgroundColor: '#2a2a2a',
-					bottom: 0,
-					height: 1,
-					left: 0,
-					position: 'absolute',
-					width: 663,
-				}}
-			/>
-		</div>
-	);
-};
-
 const Conversation: React.FC = () => {
 	return (
 		<Interactive.Div
 			name="Conversation"
-			style={{height: 782, left: 0, position: 'absolute', top: 42, width: 785}}
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				gap: 18,
+				left: 24,
+				position: 'absolute',
+				top: 50,
+				width: MINIMUM_WIDTH - 48,
+			}}
 		>
 			<Interactive.Div
 				name="First user message"
 				style={{
+					alignSelf: 'flex-end',
 					backgroundColor: '#213569',
 					borderRadius: 16,
 					boxSizing: 'border-box',
 					color: '#f5f9fe',
-					fontSize: 12.5,
-					height: 120,
-					left: 260,
-					lineHeight: '20.5px',
-					paddingLeft: 14,
-					paddingTop: 8.5,
-					position: 'absolute',
-					top: 29,
-					width: 464,
+					fontSize: 16,
+					lineHeight: '24px',
+					padding: '12px 16px',
+					width: 500,
 				}}
 			>
-				<div style={{translate: '1px 0'}}>
-					I updated the timeline for the WhatsNew composition.
-				</div>
-				<div>Keep the chapters, video clips, captions and sound effects</div>
-				<div style={{translate: '1px 0'}}>together in the timeline.</div>
-				<div>Then render the updated composition and show a</div>
-				<div>screenshot of the preview.</div>
+				Please import the videos I just recorded from ~/Downloads and put them
+				on a timeline. caption it.
 			</Interactive.Div>
-
-			<StatusDivider top={188}>Worked for 6s</StatusDivider>
 
 			<Interactive.Div
 				name="First assistant message"
-				style={{
-					color: '#e4e4e4',
-					fontSize: 12.5,
-					left: 61,
-					lineHeight: '21px',
-					position: 'absolute',
-					top: 228,
-					width: 663,
-				}}
+				style={{color: '#e4e4e4', fontSize: 16, lineHeight: '24px'}}
 			>
-				<div>
-					Got it. I’ll use the updated timeline and render a preview, from the{' '}
-					<CodePill
-						height={15}
-						horizontalAlign={-1}
-						textTranslateY={1}
-						verticalAlign={1}
-						width={67}
-					>
-						WhatsNew
-					</CodePill>
-				</div>
-				<div style={{translate: '0 -1px'}}>
-					composition, and show it inline.
-				</div>
+				Imported your videos and added captions.
 			</Interactive.Div>
 
 			<Interactive.Div
 				name="Second user message"
 				style={{
-					alignItems: 'center',
+					alignSelf: 'flex-end',
 					backgroundColor: '#213569',
 					borderRadius: 16,
 					color: '#f5f9fe',
-					display: 'flex',
-					fontSize: 12.5,
-					height: 38,
-					paddingLeft: 14,
-					position: 'absolute',
-					right: 61,
-					top: 304,
-					width: 295,
+					fontSize: 16,
+					lineHeight: '24px',
+					padding: '12px 16px',
 				}}
 			>
-				Show the endcard preview.
+				add our endcard to it
 			</Interactive.Div>
-
-			<StatusDivider top={381}>Worked for 1m 31s</StatusDivider>
 
 			<Interactive.Div
 				name="Second assistant message"
 				style={{
 					color: '#e4e4e4',
-					fontSize: 12.5,
-					left: 61,
-					lineHeight: '21px',
-					position: 'absolute',
-					top: 421,
-					width: 663,
-				}}
-			>
-				Rendered the{' '}
-				<CodePill
-					height={16}
-					horizontalAlign={0}
-					textTranslateY={0}
-					verticalAlign={0}
-					width={68}
-				>
-					WhatsNew
-				</CodePill>
-				<span> endcard preview.</span>
-			</Interactive.Div>
-
-			<Interactive.Div
-				name="Rendered WhatsNew preview"
-				style={{
-					backgroundColor: '#1f1f1f',
-					border: '1px solid #3b3b3b',
-					borderRadius: 7,
-					boxShadow: '0 1px 2px rgba(0, 0, 0, 0.35)',
-					boxSizing: 'border-box',
-					height: 144,
-					left: 61,
-					overflow: 'hidden',
-					position: 'absolute',
-					top: 465,
-					width: 255,
-				}}
-			>
-				<Img
-					height={142}
-					src="https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg"
-					style={{left: 0, position: 'absolute', top: 0}}
-					width={253}
-				/>
-			</Interactive.Div>
-
-			<div
-				style={{
-					alignItems: 'center',
-					color: '#8b8b8b',
 					display: 'flex',
-					height: 18,
-					left: 61,
-					position: 'absolute',
-					top: 625,
+					flexDirection: 'column',
+					fontSize: 16,
+					gap: 12,
+					lineHeight: '24px',
 				}}
 			>
-				<CopyIcon size={16} style={{translate: '1px 0'}} />
-				<FeedbackIcon size={14} style={{marginLeft: 9, translate: '1px 0'}} />
-				<HandoffIcon
-					size={16}
-					strokeWidth={1.2}
+				<div>Added your endcard.</div>
+				<Interactive.Div
+					name="Endcard preview"
 					style={{
-						marginLeft: 12,
-						scale: '1.2 1.25',
-						translate: '1.5px 0.5px',
+						backgroundColor: '#1f1f1f',
+						border: '1px solid #3b3b3b',
+						borderRadius: 7,
+						boxSizing: 'border-box',
+						overflow: 'hidden',
+						width: 320,
 					}}
-				/>
-			</div>
+				>
+					<Img
+						src="https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg"
+						style={{display: 'block', width: '100%'}}
+					/>
+				</Interactive.Div>
+				<div
+					style={{
+						alignItems: 'center',
+						color: '#8b8b8b',
+						display: 'flex',
+						gap: 12,
+						height: 18,
+					}}
+				>
+					<CopyIcon size={18} />
+					<FeedbackIcon size={16} />
+					<HandoffIcon size={18} strokeWidth={1.2} />
+				</div>
+			</Interactive.Div>
 		</Interactive.Div>
 	);
 };
@@ -383,16 +248,16 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 				boxSizing: 'border-box',
 				color: '#e4e4e4',
 				height: 90,
-				left: 60,
+				left: 24,
 				position: 'absolute',
 				top,
-				width: 665,
+				width: MINIMUM_WIDTH - 48,
 			}}
 		>
 			<div
 				style={{
 					color: '#8b8b8b',
-					fontSize: 12.6,
+					fontSize: 16,
 					left: 11,
 					lineHeight: '18px',
 					position: 'absolute',
@@ -413,7 +278,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 					color: '#e98047',
 					display: 'flex',
 					fontFamily: 'Arial, Helvetica, sans-serif',
-					fontSize: 12.2,
+					fontSize: 14,
 					left: 44,
 					position: 'absolute',
 				}}
@@ -442,7 +307,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 					alignItems: 'center',
 					bottom: 11,
 					display: 'flex',
-					fontSize: 12.5,
+					fontSize: 14,
 					height: 18,
 					position: 'absolute',
 					right: 46,
@@ -465,7 +330,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 					style={{
 						display: 'inline-block',
 						fontFamily: 'Arial, Helvetica, sans-serif',
-						fontSize: 12.2,
+						fontSize: 14,
 						translate: '-3px 0',
 					}}
 				>
@@ -475,7 +340,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 					style={{
 						color: '#8b8b8b',
 						fontFamily: 'Arial, Helvetica, sans-serif',
-						fontSize: 12.65,
+						fontSize: 14,
 						marginLeft: 4,
 						scale: '1 0.9',
 						transformOrigin: 'center',
@@ -562,12 +427,12 @@ export const Codex: React.FC<CodexProps> = ({borderRadius, height, width}) => {
 						left: 0,
 						position: 'absolute',
 						top: 0,
-						width: 785,
+						width: MINIMUM_WIDTH,
 					}}
 				>
 					<Header />
 					<Conversation />
-					<Composer top={MINIMUM_HEIGHT - 104} />
+					<Composer top={MINIMUM_HEIGHT - 152} />
 				</div>
 			</Interactive.Div>
 		</AbsoluteFill>

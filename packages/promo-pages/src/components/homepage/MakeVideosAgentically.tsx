@@ -13,8 +13,9 @@ export const MakeVideosAgentically: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="text-[var(--subtitle)]">Make videos</span>
-			<br /> agentically
+			<span className="min-[900px]:text-[var(--subtitle)]">Make videos</span>{' '}
+			<br className="hidden min-[900px]:block" />
+			agentically
 		</>
 	),
 	description = 'Turn your idea into a video using your coding agent.',
@@ -78,10 +79,10 @@ export const MakeVideosAgentically: React.FC<{
 				</div>
 			) : null}
 			<div className="font-brand">
-				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
+				<h2 className="text-2xl fontbrand leading-[1.1] font-medium max-[900px]:mb-2">
 					{title}
 				</h2>
-				<p className="text-balance leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed max-[900px]:mb-0">{description}</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

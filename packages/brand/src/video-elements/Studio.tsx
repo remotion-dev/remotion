@@ -6,6 +6,7 @@ import {
 	Img,
 	Interactive,
 	interpolate,
+	random,
 	Sequence,
 	staticFile,
 	useCurrentFrame,
@@ -55,6 +56,7 @@ const MENU_BAR_ICON_COLOR = '#d8d8d8';
 const WHITE = '#ffffff';
 const BLUE = '#0b84f3';
 const TIMELINE_BACKGROUND = '#15181B';
+const TIMELINE_PADDING = 16;
 const SEPARATOR = '#13161B';
 const SPLITTER = '#000000';
 const PLAYHEAD = '#f02c00';
@@ -85,9 +87,29 @@ export type StudioTimeline = {
 	readonly trackScale: number;
 	readonly pixelsPerFrame: number;
 	readonly imageSrc: string;
+	readonly removedRow: {readonly top: number; readonly height: number} | null;
+	readonly removedOpeningRows: {
+		readonly top: number;
+		readonly height: number;
+		readonly width: number;
+	} | null;
 	readonly width: number;
 	readonly height: number;
+	readonly soundtrack: {
+		readonly name: string;
+		readonly assetName: string;
+		readonly fadeInFrames: number;
+		readonly fadeOutFrames: number;
+	} | null;
+	readonly capturedChapters: readonly {
+		readonly name: string;
+		readonly from: number;
+		readonly durationInFrames: number;
+		readonly sourceLeft: number;
+		readonly caption: string;
+	}[];
 	readonly ending: {
+		readonly selected: boolean;
 		readonly name: string;
 		readonly from: number;
 		readonly durationInFrames: number;
@@ -588,12 +610,14 @@ const RightSidebar: React.FC<{
 	readonly compositionHeight: number;
 	readonly durationInFrames: number;
 	readonly fps: number;
+	readonly selectedEndcard: StudioTimeline['ending'];
 }> = ({
 	compositionName,
 	compositionWidth,
 	compositionHeight,
 	durationInFrames,
 	fps,
+	selectedEndcard,
 }) => {
 	return (
 		<Interactive.Div
@@ -633,231 +657,286 @@ const RightSidebar: React.FC<{
 					Jobs
 				</Interactive.Div>
 			</div>
-			<div style={{padding: '4px 0'}}>
-				<Interactive.Div
-					name="Composition ID"
-					style={{
-						alignItems: 'center',
-						color: WHITE,
-						display: 'flex',
-						fontSize: 13,
-						height: 28,
-						paddingLeft: 10,
-					}}
-				>
-					{compositionName}
-				</Interactive.Div>
-				<Interactive.Div
-					name="Root source"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 28,
-						paddingLeft: 10,
-					}}
-				>
-					<VideoIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>
-						{compositionName === 'WhatsNew' ? 'Root.tsx:27' : 'Root.tsx:127'}
-					</span>
-				</Interactive.Div>
-				<Interactive.Div
-					name="Scene source"
-					style={{
-						alignItems: 'center',
-						display: 'flex',
-						height: 28,
-						paddingLeft: 10,
-					}}
-				>
-					<BracesIcon color={LIGHT_TEXT} size={18} />
-					<span style={{marginLeft: 8}}>
-						{compositionName === 'WhatsNew'
-							? 'WhatsNew.tsx:23'
-							: 'Scene11.tsx:11'}
-					</span>
-				</Interactive.Div>
-			</div>
-			<Interactive.Div name="Metadata heading">
-				<InspectorSectionTitle>Metadata</InspectorSectionTitle>
-			</Interactive.Div>
-			<div style={{paddingBottom: 4, paddingTop: 4}}>
-				<Interactive.Div name="Dimensions metadata">
-					<MetadataRow
-						label="Dimensions"
-						value={
-							<>
-								<span>{compositionWidth}</span>
-								<span>{compositionHeight}</span>
-							</>
-						}
-					/>
-				</Interactive.Div>
-				<Interactive.Div name="Frame rate metadata">
-					<MetadataRow label="Frame rate" value={<span>{fps}fps</span>} />
-				</Interactive.Div>
-				<Interactive.Div name="Duration metadata">
-					<MetadataRow
-						label="Duration"
-						value={<span>{durationInFrames} frames</span>}
-					/>
-				</Interactive.Div>
-			</div>
-			<Interactive.Div
-				name="Default props heading"
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					height: 35,
-					paddingLeft: 10,
-					paddingRight: 6,
-					translate: '0px -2px',
-				}}
-			>
-				<span style={{fontSize: 12, fontWeight: 600}}>Default Props</span>
-				<div
-					style={{
-						border: '1px solid rgba(0, 0, 0, 0.65)',
-						display: 'flex',
-						height: 22,
-						marginLeft: 8,
-					}}
-				>
-					<Interactive.Div
-						name="Schema tab"
-						style={{
-							alignItems: 'center',
-							backgroundColor: INPUT_BACKGROUND,
-							color: WHITE,
-							display: 'flex',
-							fontSize: 11,
-							paddingLeft: 7,
-							paddingRight: 7,
-						}}
-					>
-						Schema
-					</Interactive.Div>
-					<Interactive.Div
-						name="JSON tab"
-						style={{
-							alignItems: 'center',
-							display: 'flex',
-							fontSize: 11,
-							paddingLeft: 7,
-							paddingRight: 7,
-						}}
-					>
-						JSON
-					</Interactive.Div>
-				</div>
-			</Interactive.Div>
-			{compositionName === 'WhatsNew' ? null : (
+			{selectedEndcard ? (
 				<>
-					<Interactive.Div
-						name="Platform label"
+					<div style={{padding: '4px 10px', color: WHITE}}>
+						<div style={{height: 28, display: 'flex', alignItems: 'center'}}>
+							{selectedEndcard.connectedCompositionName}
+						</div>
+						<div style={{height: 24, color: LIGHT_TEXT}}>{'<EndCard>'}</div>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: 8,
+								height: 26,
+								color: LIGHT_TEXT,
+							}}
+						>
+							<BracesIcon color={LIGHT_TEXT} size={18} />
+							<span>EndCard.tsx:49</span>
+						</div>
+					</div>
+					<InspectorSectionTitle>Connected compositions</InspectorSectionTitle>
+					<div
 						style={{
-							color: LIGHT_TEXT,
-							fontFamily: 'monospace',
-							fontSize: 12,
-							lineHeight: '23px',
+							display: 'flex',
+							alignItems: 'center',
+							gap: 8,
+							height: 28,
 							paddingLeft: 10,
-							position: 'relative',
-							top: 1,
+							color: LIGHT_TEXT,
 						}}
 					>
-						platform:
+						<VideoIcon color={LIGHT_TEXT} size={18} />
+						{selectedEndcard.connectedCompositionName}
+					</div>
+					<InspectorSectionTitle>Actions</InspectorSectionTitle>
+					{['Duplicate', 'Delete'].map((action) => (
+						<div
+							key={action}
+							style={{
+								height: 28,
+								paddingLeft: 10,
+								display: 'flex',
+								alignItems: 'center',
+							}}
+						>
+							{action}
+						</div>
+					))}
+				</>
+			) : (
+				<>
+					<div style={{padding: '4px 0'}}>
+						<Interactive.Div
+							name="Composition ID"
+							style={{
+								alignItems: 'center',
+								color: WHITE,
+								display: 'flex',
+								fontSize: 13,
+								height: 28,
+								paddingLeft: 10,
+							}}
+						>
+							{compositionName}
+						</Interactive.Div>
+						<Interactive.Div
+							name="Root source"
+							style={{
+								alignItems: 'center',
+								display: 'flex',
+								height: 28,
+								paddingLeft: 10,
+							}}
+						>
+							<VideoIcon color={LIGHT_TEXT} size={18} />
+							<span style={{marginLeft: 8}}>
+								{compositionName === 'WhatsNew'
+									? 'Root.tsx:27'
+									: 'Root.tsx:127'}
+							</span>
+						</Interactive.Div>
+						<Interactive.Div
+							name="Scene source"
+							style={{
+								alignItems: 'center',
+								display: 'flex',
+								height: 28,
+								paddingLeft: 10,
+							}}
+						>
+							<BracesIcon color={LIGHT_TEXT} size={18} />
+							<span style={{marginLeft: 8}}>
+								{compositionName === 'WhatsNew'
+									? 'WhatsNew.tsx:23'
+									: 'Scene11.tsx:11'}
+							</span>
+						</Interactive.Div>
+					</div>
+					<Interactive.Div name="Metadata heading">
+						<InspectorSectionTitle>Metadata</InspectorSectionTitle>
 					</Interactive.Div>
+					<div style={{paddingBottom: 4, paddingTop: 4}}>
+						<Interactive.Div name="Dimensions metadata">
+							<MetadataRow
+								label="Dimensions"
+								value={
+									<>
+										<span>{compositionWidth}</span>
+										<span>{compositionHeight}</span>
+									</>
+								}
+							/>
+						</Interactive.Div>
+						<Interactive.Div name="Frame rate metadata">
+							<MetadataRow label="Frame rate" value={<span>{fps}fps</span>} />
+						</Interactive.Div>
+						<Interactive.Div name="Duration metadata">
+							<MetadataRow
+								label="Duration"
+								value={<span>{durationInFrames} frames</span>}
+							/>
+						</Interactive.Div>
+					</div>
 					<Interactive.Div
-						name="Platform selector"
+						name="Default props heading"
 						style={{
 							alignItems: 'center',
-							backgroundColor: INPUT_BACKGROUND,
-							border: '1px solid rgba(0, 0, 0, 0.65)',
-							borderRadius: 4,
-							boxSizing: 'border-box',
-							color: WHITE,
 							display: 'flex',
-							fontSize: 11,
-							height: 20,
-							marginLeft: 10,
-							paddingLeft: 5,
-							width: 60,
+							height: 35,
+							paddingLeft: 10,
+							paddingRight: 6,
+							translate: '0px -2px',
 						}}
 					>
-						youtube
-						<CaretIcon
-							color={LIGHT_TEXT}
-							direction="down"
-							size={9}
-							style={{marginLeft: 'auto', marginRight: 3}}
+						<span style={{fontSize: 12, fontWeight: 600}}>Default Props</span>
+						<div
+							style={{
+								border: '1px solid rgba(0, 0, 0, 0.65)',
+								display: 'flex',
+								height: 22,
+								marginLeft: 8,
+							}}
+						>
+							<Interactive.Div
+								name="Schema tab"
+								style={{
+									alignItems: 'center',
+									backgroundColor: INPUT_BACKGROUND,
+									color: WHITE,
+									display: 'flex',
+									fontSize: 11,
+									paddingLeft: 7,
+									paddingRight: 7,
+								}}
+							>
+								Schema
+							</Interactive.Div>
+							<Interactive.Div
+								name="JSON tab"
+								style={{
+									alignItems: 'center',
+									display: 'flex',
+									fontSize: 11,
+									paddingLeft: 7,
+									paddingRight: 7,
+								}}
+							>
+								JSON
+							</Interactive.Div>
+						</div>
+					</Interactive.Div>
+					{compositionName === 'WhatsNew' ? null : (
+						<>
+							<Interactive.Div
+								name="Platform label"
+								style={{
+									color: LIGHT_TEXT,
+									fontFamily: 'monospace',
+									fontSize: 12,
+									lineHeight: '23px',
+									paddingLeft: 10,
+									position: 'relative',
+									top: 1,
+								}}
+							>
+								platform:
+							</Interactive.Div>
+							<Interactive.Div
+								name="Platform selector"
+								style={{
+									alignItems: 'center',
+									backgroundColor: INPUT_BACKGROUND,
+									border: '1px solid rgba(0, 0, 0, 0.65)',
+									borderRadius: 4,
+									boxSizing: 'border-box',
+									color: WHITE,
+									display: 'flex',
+									fontSize: 11,
+									height: 20,
+									marginLeft: 10,
+									paddingLeft: 5,
+									width: 60,
+								}}
+							>
+								youtube
+								<CaretIcon
+									color={LIGHT_TEXT}
+									direction="down"
+									size={9}
+									style={{marginLeft: 'auto', marginRight: 3}}
+								/>
+							</Interactive.Div>
+						</>
+					)}
+					<div style={{height: 7}} />
+					<Interactive.Div name="Actions heading">
+						<InspectorSectionTitle>Actions</InspectorSectionTitle>
+					</Interactive.Div>
+					<div style={{height: 4}} />
+					<Interactive.Div
+						name="Add solid action"
+						style={{
+							alignItems: 'center',
+							color: LIGHT_TEXT,
+							display: 'flex',
+							height: 28,
+							paddingLeft: 10,
+						}}
+					>
+						<div
+							style={{
+								border: `1px solid ${LIGHT_TEXT}`,
+								borderRadius: 3,
+								height: 16,
+								width: 18,
+							}}
 						/>
+						<span style={{marginLeft: 8}}>Add Solid</span>
+					</Interactive.Div>
+					<Interactive.Div
+						name="Add asset action"
+						style={{
+							alignItems: 'center',
+							color: LIGHT_TEXT,
+							display: 'flex',
+							height: 28,
+							paddingLeft: 10,
+						}}
+					>
+						<ImageIcon color={LIGHT_TEXT} size={18} />
+						<span style={{marginLeft: 8}}>Add asset...</span>
+					</Interactive.Div>
+					<Interactive.Div
+						name="Add composition action"
+						style={{
+							alignItems: 'center',
+							color: LIGHT_TEXT,
+							display: 'flex',
+							height: 28,
+							paddingLeft: 10,
+						}}
+					>
+						<VideoIcon color={LIGHT_TEXT} size={18} />
+						<span style={{marginLeft: 8}}>Add composition...</span>
+					</Interactive.Div>
+					<Interactive.Div
+						name="Browse elements action"
+						style={{
+							alignItems: 'center',
+							color: LIGHT_TEXT,
+							display: 'flex',
+							height: 28,
+							paddingLeft: 10,
+						}}
+					>
+						<BracesIcon color={LIGHT_TEXT} size={18} />
+						<span style={{marginLeft: 8}}>Browse Elements</span>
 					</Interactive.Div>
 				</>
 			)}
-			<div style={{height: 7}} />
-			<Interactive.Div name="Actions heading">
-				<InspectorSectionTitle>Actions</InspectorSectionTitle>
-			</Interactive.Div>
-			<div style={{height: 4}} />
-			<Interactive.Div
-				name="Add solid action"
-				style={{
-					alignItems: 'center',
-					color: LIGHT_TEXT,
-					display: 'flex',
-					height: 28,
-					paddingLeft: 10,
-				}}
-			>
-				<div
-					style={{
-						border: `1px solid ${LIGHT_TEXT}`,
-						borderRadius: 3,
-						height: 16,
-						width: 18,
-					}}
-				/>
-				<span style={{marginLeft: 8}}>Add Solid</span>
-			</Interactive.Div>
-			<Interactive.Div
-				name="Add asset action"
-				style={{
-					alignItems: 'center',
-					color: LIGHT_TEXT,
-					display: 'flex',
-					height: 28,
-					paddingLeft: 10,
-				}}
-			>
-				<ImageIcon color={LIGHT_TEXT} size={18} />
-				<span style={{marginLeft: 8}}>Add asset...</span>
-			</Interactive.Div>
-			<Interactive.Div
-				name="Add composition action"
-				style={{
-					alignItems: 'center',
-					color: LIGHT_TEXT,
-					display: 'flex',
-					height: 28,
-					paddingLeft: 10,
-				}}
-			>
-				<VideoIcon color={LIGHT_TEXT} size={18} />
-				<span style={{marginLeft: 8}}>Add composition...</span>
-			</Interactive.Div>
-			<Interactive.Div
-				name="Browse elements action"
-				style={{
-					alignItems: 'center',
-					color: LIGHT_TEXT,
-					display: 'flex',
-					height: 28,
-					paddingLeft: 10,
-				}}
-			>
-				<BracesIcon color={LIGHT_TEXT} size={18} />
-				<span style={{marginLeft: 8}}>Browse Elements</span>
-			</Interactive.Div>
 		</Interactive.Div>
 	);
 };
@@ -902,7 +981,6 @@ const PreviewCanvas: React.FC<{
 			<Interactive.Div
 				name="Composition viewport"
 				style={{
-					backgroundColor: 'white',
 					height: previewHeight,
 					overflow: 'hidden',
 					position: 'relative',
@@ -1390,22 +1468,143 @@ const Timeline: React.FC<{
 	);
 	if (timeline) {
 		const trackViewportWidth = Math.max(1, width - timeline.labelWidth);
-		const capturedPlayhead = frame * timeline.pixelsPerFrame;
+		// Use Studio's default fit zoom, which follows the viewport while resizing.
+		// Matches studio/src/helpers/get-timeline-max-zoom.ts.
+		const timelineZoom = Math.min(
+			30,
+			Math.max(1, trackViewportWidth - TIMELINE_PADDING * 2) / durationInFrames,
+		);
+		const trackScale =
+			timeline.trackScale * (timelineZoom / timeline.pixelsPerFrame);
+		const capturedPlayhead = frame * timelineZoom;
 		const {ending} = timeline;
 		const endingIsActive =
 			ending !== null &&
 			frame >= ending.from &&
 			frame < ending.from + ending.durationInFrames;
-		const contentWidth = ending
-			? (ending.from + ending.durationInFrames) * timeline.pixelsPerFrame
-			: timeline.sourceTrackWidth * timeline.trackScale;
-		const scrollLeft = Math.min(
-			Math.max(0, contentWidth - trackViewportWidth),
-			Math.max(0, capturedPlayhead - trackViewportWidth * 0.9),
+		const endingWidth = (ending?.durationInFrames ?? 0) * timelineZoom;
+		// Use the same label spacing and tick thresholds as Studio's ruler.
+		const secondIntervals = [
+			1, 2, 5, 10, 15, 30, 60, 120, 180, 300, 600, 900, 1800, 3600,
+		];
+		const rawLabelInterval =
+			(8 + timecode.length * 12 * 0.6 + 16) / (timelineZoom * timelineFps);
+		const labelSeconds =
+			secondIntervals.find((interval) => interval >= rawLabelInterval) ??
+			Math.ceil(rawLabelInterval / 3600) * 3600;
+		const majorInterval = labelSeconds * timelineFps;
+		const frameIntervals = Array.from(
+			{length: timelineFps},
+			(_, i) => i + 1,
+		).filter(
+			(interval) => timelineFps % interval === 0 && interval < timelineFps,
 		);
-		const endingWidth =
-			(ending?.durationInFrames ?? 0) * timeline.pixelsPerFrame;
+		const minorFrames = frameIntervals.find(
+			(interval) => interval >= 5 / timelineZoom,
+		);
+		const minorSeconds = secondIntervals.find(
+			(interval) =>
+				interval >= 16 / (timelineZoom * timelineFps) &&
+				interval < labelSeconds &&
+				labelSeconds % interval === 0,
+		);
+		const minorInterval =
+			minorFrames ?? (minorSeconds ?? labelSeconds) * timelineFps;
+		const mediumInterval = minorFrames
+			? (frameIntervals.find(
+					(interval) =>
+						interval >= 24 / timelineZoom && interval % minorFrames === 0,
+				) ?? majorInterval)
+			: (secondIntervals.find(
+					(interval) =>
+						interval >= 48 / (timelineZoom * timelineFps) &&
+						interval < labelSeconds &&
+						interval % (minorSeconds ?? labelSeconds) === 0 &&
+						labelSeconds % interval === 0,
+				) ?? labelSeconds) * timelineFps;
+		const timelineTicks = Array.from(
+			{length: durationInFrames},
+			(_, tick) => tick,
+		).filter(
+			(tick) => tick % majorInterval === 0 || tick % minorInterval === 0,
+		);
 		const rowScale = timeline.height / 582;
+		const soundtrackTop = 280 * rowScale;
+		const soundtrackHeight = 34;
+		const volumeRowHeight = 21;
+		const soundtrackRowsHeight = timeline.soundtrack
+			? soundtrackHeight + volumeRowHeight
+			: 0;
+		const soundtrackWidth = durationInFrames * timelineZoom;
+		const soundtrackKeyframes = timeline.soundtrack
+			? [
+					0,
+					timeline.soundtrack.fadeInFrames,
+					durationInFrames - 1 - timeline.soundtrack.fadeOutFrames,
+					durationInFrames - 1,
+				]
+			: [];
+		const {removedRow} = timeline;
+		const captureRows = removedRow
+			? [
+					{top: 0, sourceTop: 0, height: removedRow.top},
+					{
+						top: removedRow.top,
+						sourceTop: removedRow.top + removedRow.height,
+						height: timeline.height - removedRow.top - removedRow.height,
+					},
+				]
+			: [{top: 0, sourceTop: 0, height: timeline.height}];
+		const {removedOpeningRows} = timeline;
+		const trackCaptureRows = captureRows
+			.flatMap((row) => {
+				if (!removedOpeningRows) {
+					return [{...row, left: 0, width: timeline.sourceTrackWidth}];
+				}
+
+				const removedBottom =
+					removedOpeningRows.top + removedOpeningRows.height;
+				return [
+					{
+						...row,
+						left: removedOpeningRows.width,
+						width: timeline.sourceTrackWidth - removedOpeningRows.width,
+					},
+					...[
+						[row.top, Math.min(row.top + row.height, removedOpeningRows.top)],
+						[Math.max(row.top, removedBottom), row.top + row.height],
+					]
+						.filter(([start, end]) => end > start)
+						.map(([start, end]) => ({
+							top:
+								start -
+								(start >= removedBottom ? removedOpeningRows.height : 0),
+							sourceTop: row.sourceTop + start - row.top,
+							height: end - start,
+							left: 0,
+							width: removedOpeningRows.width,
+						})),
+				];
+			})
+			.flatMap((row) => {
+				if (!timeline.soundtrack) {
+					return [row];
+				}
+
+				const split = Math.max(
+					0,
+					Math.min(row.height, soundtrackTop - row.top),
+				);
+				return [
+					{...row, height: split},
+					{
+						...row,
+						top: row.top + split + soundtrackRowsHeight,
+						sourceTop: row.sourceTop + split,
+						height: row.height - split,
+					},
+				].filter((slice) => slice.height > 0);
+			});
 		return (
 			<Interactive.Div
 				name="Timeline"
@@ -1462,24 +1661,41 @@ const Timeline: React.FC<{
 						backgroundColor: '#202428',
 					}}
 				>
-					<Img
-						src={timeline.imageSrc}
-						showInTimeline={false}
-						style={{
-							position: 'absolute',
-							left: 0,
-							top: 0,
-							width: timeline.width,
-							height: timeline.height,
-							maxWidth: 'none',
-						}}
-					/>
+					{captureRows.map((row) => (
+						<div
+							key={row.sourceTop}
+							style={{
+								position: 'absolute',
+								top: row.top,
+								width: '100%',
+								height: row.height,
+								overflow: 'hidden',
+							}}
+						>
+							<Img
+								src={timeline.imageSrc}
+								showInTimeline={false}
+								style={{
+									position: 'absolute',
+									left: 0,
+									top: -row.sourceTop,
+									width: timeline.width,
+									height: timeline.height,
+									maxWidth: 'none',
+								}}
+							/>
+						</div>
+					))}
 					{timeline.mediaLabels.map((label) => (
 						<div
 							key={label.name}
 							style={{
 								position: 'absolute',
-								top: label.top,
+								top:
+									label.top -
+									(removedRow && label.top >= removedRow.top + removedRow.height
+										? removedRow.height
+										: 0),
 								height: label.height,
 								left: 32,
 								right: 2,
@@ -1552,7 +1768,7 @@ const Timeline: React.FC<{
 								},
 								{
 									top: 136,
-									height: 44,
+									height: 58,
 									name: ending.connectedCompositionName,
 									asset: null,
 									connected: true,
@@ -1562,11 +1778,17 @@ const Timeline: React.FC<{
 									key={row.name}
 									style={{
 										position: 'absolute',
-										top: row.top * rowScale,
+										top:
+											row.top * rowScale +
+											(row.connected ? soundtrackRowsHeight : 0),
 										height: row.height * rowScale,
 										left: 0,
 										right: 0,
 										borderBottom: '1px solid #171b1e',
+										backgroundColor:
+											row.connected && ending.selected
+												? '#3b3f42'
+												: 'transparent',
 										boxSizing: 'border-box',
 										display: 'flex',
 										alignItems: 'center',
@@ -1611,6 +1833,63 @@ const Timeline: React.FC<{
 									</div>
 								</div>
 							))}
+						</div>
+					) : null}
+					{timeline.soundtrack ? (
+						<div
+							style={{
+								position: 'absolute',
+								top: soundtrackTop,
+								left: 0,
+								right: 2,
+								height: soundtrackHeight + volumeRowHeight,
+								backgroundColor: '#202428',
+							}}
+						>
+							<div
+								style={{
+									height: soundtrackHeight,
+									display: 'flex',
+									alignItems: 'center',
+									borderTop: '1px solid #171b1e',
+									borderBottom: '1px solid #171b1e',
+									boxSizing: 'border-box',
+								}}
+							>
+								<EyeIcon
+									color={TOOLBAR_FOREGROUND}
+									size={12}
+									style={{position: 'absolute', left: 8}}
+								/>
+								<CaretIcon
+									color={LIGHT_TEXT}
+									direction="down"
+									size={10}
+									style={{position: 'absolute', left: 30}}
+								/>
+								<div
+									style={{paddingLeft: 44, fontSize: 12, lineHeight: '14px'}}
+								>
+									<div style={{color: TOOLBAR_FOREGROUND}}>
+										{timeline.soundtrack.name}
+									</div>
+									<div style={{color: 'rgba(255,255,255,0.3)'}}>
+										{timeline.soundtrack.assetName}
+									</div>
+								</div>
+							</div>
+							<div
+								style={{
+									height: volumeRowHeight,
+									display: 'flex',
+									alignItems: 'center',
+									paddingLeft: 62,
+									fontSize: 12,
+									color: LIGHT_TEXT,
+								}}
+							>
+								Volume
+							</div>
 						</div>
 					) : null}
 					<div
@@ -1683,47 +1962,34 @@ const Timeline: React.FC<{
 					<div
 						style={{
 							position: 'absolute',
-							left: -scrollLeft,
+							left: TIMELINE_PADDING,
 							top: 0,
 							width: timeline.sourceTrackWidth,
 							height: timeline.height,
 							overflow: 'hidden',
-							transform: `scaleX(${timeline.trackScale})`,
+							transform: `scaleX(${trackScale})`,
 							transformOrigin: 'left top',
 						}}
 					>
-						<Img
-							src={timeline.imageSrc}
-							showInTimeline={false}
-							style={{
-								position: 'absolute',
-								left: -timeline.sourceLabelWidth,
-								top: 0,
-								width: timeline.width,
-								height: timeline.height,
-								maxWidth: 'none',
-							}}
-						/>
-						{timeline.regions.map((region) => {
-							const active =
-								capturedPlayhead >= region.left * timeline.trackScale &&
-								capturedPlayhead <
-									(region.left + region.width) * timeline.trackScale;
-							const opacity = active ? 1 : 0.5;
-							if (opacity === region.capturedOpacity) {
-								return null;
-							}
-
-							return (
+						{trackCaptureRows.map((row) => (
+							<div
+								key={`${row.left}-${row.sourceTop}`}
+								style={{
+									position: 'absolute',
+									left: row.left,
+									top: row.top,
+									height: row.height,
+									width: row.width,
+									overflow: 'hidden',
+								}}
+							>
 								<div
-									key={`${region.left}-${region.top}`}
 									style={{
 										position: 'absolute',
-										left: region.left,
-										top: region.top,
-										width: region.width,
-										height: region.height,
-										overflow: 'hidden',
+										left: -row.left,
+										top: -row.sourceTop,
+										width: timeline.sourceTrackWidth,
+										height: timeline.height,
 									}}
 								>
 									<Img
@@ -1731,23 +1997,166 @@ const Timeline: React.FC<{
 										showInTimeline={false}
 										style={{
 											position: 'absolute',
-											left: -timeline.sourceLabelWidth - region.left,
-											top: -region.top,
+											left: -timeline.sourceLabelWidth,
+											top: 0,
 											width: timeline.width,
 											height: timeline.height,
 											maxWidth: 'none',
-											filter: `url(#${opacityFilterId}-${active ? 'brighten' : 'dim'})`,
+										}}
+									/>
+									{timeline.regions.map((region) => {
+										const active =
+											capturedPlayhead >= region.left * trackScale &&
+											capturedPlayhead <
+												(region.left + region.width) * trackScale;
+										const opacity = active ? 1 : 0.5;
+										if (opacity === region.capturedOpacity) {
+											return null;
+										}
+
+										return (
+											<div
+												key={`${region.left}-${region.top}`}
+												style={{
+													position: 'absolute',
+													left: region.left,
+													top: region.top,
+													width: region.width,
+													height: region.height,
+													overflow: 'hidden',
+												}}
+											>
+												<Img
+													src={timeline.imageSrc}
+													showInTimeline={false}
+													style={{
+														position: 'absolute',
+														left: -timeline.sourceLabelWidth - region.left,
+														top: -region.top,
+														width: timeline.width,
+														height: timeline.height,
+														maxWidth: 'none',
+														filter: `url(#${opacityFilterId}-${active ? 'brighten' : 'dim'})`,
+													}}
+												/>
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						))}
+					</div>
+					{timeline.capturedChapters.map((chapter) => {
+						const active =
+							frame >= chapter.from &&
+							frame < chapter.from + chapter.durationInFrames;
+						return (
+							<div
+								key={chapter.name}
+								style={{
+									position: 'absolute',
+									left: TIMELINE_PADDING + chapter.from * timelineZoom,
+									top: 0,
+									width: chapter.durationInFrames * timelineZoom,
+									height: timeline.height,
+								}}
+							>
+								{[
+									{
+										top: 84,
+										bottom: 144,
+										label: chapter.name,
+										color: BLUE,
+										composition: true,
+									},
+									{
+										top: 236,
+										bottom: 280,
+										label: chapter.caption,
+										color: '#dd8625',
+										composition: false,
+									},
+									{
+										top: 280,
+										bottom: 338,
+										label: 'Sound effects',
+										color: BLUE,
+										composition: false,
+									},
+								].map((row) => (
+									<div
+										key={row.top}
+										style={{
+											position: 'absolute',
+											top:
+												row.top * rowScale +
+												(row.top >= 280 ? soundtrackRowsHeight : 0),
+											height: (row.bottom - row.top) * rowScale,
+											width: '100%',
+											backgroundColor: active
+												? row.color
+												: `color-mix(in srgb, ${row.color} 50%, ${TIMELINE_BACKGROUND})`,
+											border: `1px solid ${TIMELINE_BACKGROUND}`,
+											boxSizing: 'border-box',
+											overflow: 'hidden',
+										}}
+									>
+										<div
+											style={{
+												height: '100%',
+												paddingLeft: 4,
+												fontSize: 12,
+												color: WHITE,
+												opacity: active ? 1 : 0.5,
+												display: 'flex',
+												flexDirection: 'column',
+												justifyContent: 'center',
+												whiteSpace: 'nowrap',
+											}}
+										>
+											{row.composition ? (
+												<VideoIcon color={WHITE} size={10} />
+											) : null}
+											<span>{row.label}</span>
+										</div>
+									</div>
+								))}
+								<div
+									style={{
+										position: 'absolute',
+										top: 144 * rowScale,
+										height: 52 * rowScale,
+										width: '100%',
+										overflow: 'hidden',
+										backgroundColor: TIMELINE_BACKGROUND,
+									}}
+								>
+									<Img
+										src={timeline.imageSrc}
+										showInTimeline={false}
+										style={{
+											position: 'absolute',
+											left: -timeline.sourceLabelWidth - chapter.sourceLeft,
+											top: -202 * rowScale,
+											width: timeline.width,
+											height: timeline.height,
+											maxWidth: 'none',
+											opacity: active ? 1 : 0.5,
+											filter:
+												chapter.from === 0
+													? undefined
+													: `url(#${opacityFilterId}-brighten)`,
 										}}
 									/>
 								</div>
-							);
-						})}
-					</div>
+							</div>
+						);
+					})}
 					{ending ? (
 						<div
 							style={{
 								position: 'absolute',
-								left: ending.from * timeline.pixelsPerFrame - scrollLeft,
+								left: TIMELINE_PADDING + ending.from * timelineZoom,
 								top: 0,
 								width: endingWidth,
 								height: timeline.height,
@@ -1773,7 +2182,7 @@ const Timeline: React.FC<{
 								},
 								{
 									top: 280,
-									bottom: 324,
+									bottom: 338,
 									label: ending.connectedCompositionName,
 									chapter: false,
 									connected: true,
@@ -1784,11 +2193,17 @@ const Timeline: React.FC<{
 									key={row.top}
 									style={{
 										position: 'absolute',
-										top: row.top * rowScale,
+										top:
+											row.top * rowScale +
+											(row.connected ? soundtrackRowsHeight : 0),
 										height: (row.bottom - row.top) * rowScale,
 										width: '100%',
 										boxSizing: 'border-box',
 										border: '1px solid #15181b',
+										boxShadow:
+											row.connected && ending.selected
+												? 'inset 0 0 0 2px white'
+												: 'none',
 										backgroundColor: row.color,
 										color: WHITE,
 										fontSize: 12,
@@ -1850,15 +2265,98 @@ const Timeline: React.FC<{
 										position: 'absolute',
 										top: -254 * rowScale,
 										left:
-											-timeline.sourceLabelWidth -
-											timeline.sourceTrackWidth * 0.75,
-										width: timeline.width,
+											(-timeline.sourceLabelWidth -
+												timeline.sourceTrackWidth * 0.75) *
+											(timelineZoom / timeline.pixelsPerFrame),
+										width:
+											timeline.width * (timelineZoom / timeline.pixelsPerFrame),
 										height: timeline.height,
 										maxWidth: 'none',
 										filter: `url(#${opacityFilterId}-brighten)`,
 									}}
 								/>
 							</div>
+						</div>
+					) : null}
+					{timeline.soundtrack ? (
+						<div
+							style={{
+								position: 'absolute',
+								left: TIMELINE_PADDING,
+								top: soundtrackTop,
+								width: soundtrackWidth,
+								height: soundtrackHeight + volumeRowHeight,
+							}}
+						>
+							<div
+								style={{
+									position: 'relative',
+									height: soundtrackHeight,
+									overflow: 'hidden',
+									borderRadius: 2,
+									background:
+										'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)',
+								}}
+							>
+								<svg
+									width={soundtrackWidth}
+									height={soundtrackHeight}
+									viewBox={`0 0 ${durationInFrames} ${soundtrackHeight}`}
+									preserveAspectRatio="none"
+									style={{display: 'block'}}
+								>
+									{/* Keep peaks attached to time as the pixel width changes. */}
+									{Array.from(
+										{length: Math.ceil(durationInFrames / 2)},
+										(_, index) => {
+											const peak =
+												3 +
+												random(`soundtrack-${index}`) *
+													23 *
+													(0.45 + 0.55 * Math.abs(Math.sin(index * 0.16)));
+											return (
+												<rect
+													key={index}
+													x={index * 2}
+													y={(soundtrackHeight - peak) / 2}
+													width={1}
+													height={peak}
+													fill="rgba(255,255,255,0.6)"
+												/>
+											);
+										},
+									)}
+									<path
+										d={`M 0 0 L 0 ${soundtrackHeight} L ${timeline.soundtrack.fadeInFrames} 0 L ${durationInFrames - 1 - timeline.soundtrack.fadeOutFrames} 0 L ${durationInFrames - 1} ${soundtrackHeight} L ${durationInFrames} ${soundtrackHeight} L ${durationInFrames} 0 Z`}
+										fill="rgba(0,0,0,0.6)"
+									/>
+								</svg>
+							</div>
+							<svg
+								width={soundtrackWidth}
+								height={volumeRowHeight}
+								style={{display: 'block', overflow: 'visible'}}
+							>
+								<line
+									x1={0}
+									x2={(durationInFrames - 1) * timelineZoom}
+									y1={volumeRowHeight / 2}
+									y2={volumeRowHeight / 2}
+									stroke="rgba(255,255,255,0.1)"
+									strokeWidth={2}
+								/>
+								{soundtrackKeyframes.map((keyframe) => (
+									<polygon
+										key={keyframe}
+										transform={`translate(${keyframe * timelineZoom - 6},${volumeRowHeight / 2 - 6})`}
+										points="6 1.5 10.5 6 6 10.5 1.5 6"
+										fill={LIGHT_TEXT}
+										stroke="rgba(0,0,0,0.4)"
+										strokeWidth={1}
+										strokeLinejoin="round"
+									/>
+								))}
+							</svg>
 						</div>
 					) : null}
 					<div
@@ -1872,29 +2370,30 @@ const Timeline: React.FC<{
 							overflow: 'hidden',
 						}}
 					>
-						{ticks.map((tick) => (
+						{timelineTicks.map((tick) => (
 							<React.Fragment key={tick}>
 								<div
 									style={{
 										position: 'absolute',
 										top: 0,
-										left: tick * timeline.pixelsPerFrame - scrollLeft,
+										left: TIMELINE_PADDING + tick * timelineZoom,
 										width: 1,
 										height:
-											tick % (timelineFps * 5) === 0
+											tick % majorInterval === 0
 												? 15
-												: tick % timelineFps === 0
+												: tick % mediumInterval === 0 ||
+													  (minorFrames && tick % timelineFps === 0)
 													? 5
 													: 2,
 										backgroundColor: '#3b4145',
 									}}
 								/>
-								{tick > 0 && tick % (timelineFps * 5) === 0 ? (
+								{tick > 0 && tick % majorInterval === 0 ? (
 									<div
 										style={{
 											position: 'absolute',
 											top: 5,
-											left: tick * timeline.pixelsPerFrame - scrollLeft + 7,
+											left: TIMELINE_PADDING + tick * timelineZoom + 8,
 											color: LIGHT_TEXT,
 											fontSize: 12,
 											whiteSpace: 'nowrap',
@@ -1909,7 +2408,7 @@ const Timeline: React.FC<{
 					<div
 						style={{
 							position: 'absolute',
-							left: capturedPlayhead - scrollLeft,
+							left: TIMELINE_PADDING + capturedPlayhead,
 							top: 0,
 							bottom: 0,
 							width: 1,
@@ -2284,7 +2783,11 @@ const StudioInner: React.FC<
 	const height = viewportHeight ?? videoHeight;
 	const width = viewportWidth;
 	const topPanelHeight = timeline
-		? height - MENU_HEIGHT - SPLITTER_SIZE - timeline.height
+		? height -
+			MENU_HEIGHT -
+			SPLITTER_SIZE -
+			timeline.height -
+			(timeline.soundtrack ? 12 : 0)
 		: Math.round((height - MENU_HEIGHT - SPLITTER_SIZE) * TOP_PANEL_RATIO);
 	const timelineHeight = height - MENU_HEIGHT - topPanelHeight - SPLITTER_SIZE;
 	const canvasRowHeight = topPanelHeight - PREVIEW_TOOLBAR_HEIGHT;
@@ -2410,6 +2913,9 @@ const StudioInner: React.FC<
 								/>
 								<div style={{width: rightSidebarWidth}}>
 									<RightSidebar
+										selectedEndcard={
+											timeline?.ending?.selected ? timeline.ending : null
+										}
 										compositionHeight={compositionHeight}
 										compositionName={compositionName}
 										compositionWidth={compositionWidth}
