@@ -41,6 +41,7 @@ const {
 	overrideDurationOption,
 	bundleCacheOption,
 	framesOption,
+	isProductionOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -224,5 +225,6 @@ export const still = async (
 		rspackOverride: null,
 		webpackOverride: null,
 		licenseKey,
+		isProduction: isProductionOption.getValue({commandLine: parsedCli}).value,
 	});
 };

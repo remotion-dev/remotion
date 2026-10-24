@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # Is Production<AvailableFrom v="4.0.409" />
 
-Pass `false` if this a development render to not count it as a billable render on remotion.pro. Only can be used in conjuction with `licenseKey`.
+Pass `false` for a development render so it is not counted as a billable render on remotion.pro. Defaults to `true`. Only has an effect when a license key is provided.
 
 ## CLI flag
 
@@ -19,6 +19,8 @@ Pass `false` if this a development render to not count it as a billable render o
 
 The following CLI commands accept this option:
 
+- [`remotion render`](/docs/cli/render)
+- [`remotion still`](/docs/cli/still)
 - [`remotion lambda render`](/docs/lambda/cli/render)
 - [`remotion lambda still`](/docs/lambda/cli/still)
 

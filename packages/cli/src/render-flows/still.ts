@@ -97,6 +97,7 @@ export const renderStillFlow = async ({
 	rspackOverride,
 	webpackOverride,
 	licenseKey,
+	isProduction,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -141,6 +142,7 @@ export const renderStillFlow = async ({
 	rspackOverride: RspackOverrideFn | null;
 	webpackOverride: WebpackOverrideFn | null;
 	licenseKey: string | null;
+	isProduction: boolean | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -461,7 +463,7 @@ export const renderStillFlow = async ({
 			});
 		},
 		licenseKey,
-		isProduction: null,
+		isProduction,
 	});
 
 	aggregate.rendering = {
