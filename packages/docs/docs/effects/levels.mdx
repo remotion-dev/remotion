@@ -10,7 +10,9 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Sets the black point, white point, and midtone gamma in one tonal adjustment.
+Adjusts input black and white points, midtone gamma, and the output range for all RGB channels or one color channel.
+
+Input and output points use a range from `0` to `1`. To convert a value from an editor that uses `0` to `255`, divide it by `255`.
 
 ## Preview
 
@@ -31,6 +33,8 @@ export const MyComp: React.FC = () => {
           blackPoint: 0.05,
           whitePoint: 0.95,
           gamma: 1.2,
+          outputBlack: 0.02,
+          outputWhite: 0.98,
         }),
       ]}
     />
@@ -38,19 +42,45 @@ export const MyComp: React.FC = () => {
 };
 ```
 
+### Adjusting individual channels<AvailableFrom v="4.0.537" />
+
+Use `channel` to adjust only red, green, or blue. Stack multiple `levels()` effects to combine an RGB adjustment with individual channel adjustments. Effects are applied in array order.
+
+```tsx twoslash title="MyComp.tsx"
+import {Video} from '@remotion/media';
+import {levels} from '@remotion/effects/levels';
+
+export const MyComp: React.FC = () => {
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        levels({blackPoint: 0.05, whitePoint: 0.95}),
+        levels({channel: 'red', gamma: 1.1}),
+        levels({channel: 'blue', outputWhite: 0.9}),
+      ]}
+    />
+  );
+};
+```
+
+## Editing in Studio<AvailableFrom v="4.0.537" />
+
+The Levels panel shows a live input histogram and graphical handles for the input points, gamma, and output points. The numeric fields can also be keyframed.
+
 ## API
 
 You can call `levels()` without arguments or pass an object with the following properties.
 
 ### `blackPoint?`
 
-The input value mapped to black, from `0` to `1`. Values below it are clipped to black. Defaults to `0`.
+The input value mapped to `outputBlack`, from `0` to `1`. Values below it are clipped to `outputBlack`. Defaults to `0`.
 
 The black point must be less than the white point. Moving the points close together produces a steep tonal stretch.
 
 ### `whitePoint?`
 
-The input value mapped to white, from `0` to `1`. Values above it are clipped to white. Defaults to `1`.
+The input value mapped to `outputWhite`, from `0` to `1`. Values above it are clipped to `outputWhite`. Defaults to `1`.
 
 The white point must be greater than the black point.
 
@@ -58,7 +88,19 @@ The white point must be greater than the black point.
 
 The midtone gamma from `0.01` to `10`. Values below `1` darken midtones and values above `1` brighten them. Defaults to `1`.
 
-The effect remaps unpremultiplied sRGB channel values, then applies the gamma curve.
+### `outputBlack?`<AvailableFrom v="4.0.537" />
+
+The output value for the input black point, from `0` to `1`. Defaults to `0`. Increase it to lift the darkest values.
+
+### `outputWhite?`<AvailableFrom v="4.0.537" />
+
+The output value for the input white point, from `0` to `1`. Defaults to `1`. Decrease it to dim the brightest values.
+
+Unlike the input points, the output points can be equal or reversed. For example, `outputBlack: 1` and `outputWhite: 0` invert the adjusted channel values.
+
+### `channel?`<AvailableFrom v="4.0.537" />
+
+The color channels to adjust: `'rgb'`, `'red'`, `'green'`, or `'blue'`. Defaults to `'rgb'`, which applies the same adjustment to all three channels. Alpha is preserved.
 
 ### `disabled?`
 

@@ -11,7 +11,10 @@ import {
 	isEffectDragOverTarget,
 	isLutEffectDrop,
 } from '../effect-drag-and-drop';
-import {getElementDragData, hasElementDragType} from '../element-drag-and-drop';
+import {
+	getElementDragData,
+	mayHaveElementDragData,
+} from '../element-drag-and-drop';
 import {handleDrop} from '../handle-drop';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSvgImportDialog} from '../SvgImportDialog';
@@ -113,7 +116,7 @@ export const useTimelineAssetDrop = () => {
 			const canDropElementIntoNewComposition =
 				compositionComponentInfo?.canAddSequence === false &&
 				canReceiveElementDrop &&
-				hasElementDragType(dataTransfer);
+				mayHaveElementDragData(dataTransfer);
 
 			event.preventDefault();
 			event.stopPropagation();

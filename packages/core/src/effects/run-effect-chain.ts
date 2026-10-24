@@ -1,5 +1,9 @@
 import {CanvasPool} from './canvas-pool.js';
 import {groupByBackend} from './effect-internals.js';
+import {
+	invalidateEffectChainSources,
+	publishEffectSource,
+} from './effect-source-observer.js';
 import type {
 	EffectDefinition,
 	EffectDefinitionAndStack,
@@ -61,6 +65,7 @@ export const createEffectChainState = (
 // canvases and contexts. The state must not be used afterwards.
 export const cleanupEffectChainState = (state: EffectChainState): void => {
 	state.currentRunId++;
+	invalidateEffectChainSources(state);
 	try {
 		for (const entry of state.cleanupRegistry) {
 			entry.definition.cleanup(entry.state);
@@ -180,6 +185,7 @@ const runEffectChainWithoutResize = async (
 
 				const setupState = ensureSetup(state, def, dst);
 
+				publishEffectSource(eff, currentImage, state);
 				def.apply({
 					source: currentImage,
 					target: dst,

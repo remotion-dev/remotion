@@ -3520,6 +3520,15 @@ export const articles = [
 		slug: 'effects/corner-pin',
 	},
 	{
+		id: 'effects/curves',
+		title: 'curves()',
+		relativePath: 'docs/effects/curves.mdx',
+		compId: 'articles-docs-effects-curves',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/curves',
+	},
+	{
 		id: 'effects/cylinder',
 		title: 'cylinder()',
 		relativePath: 'docs/effects/cylinder.mdx',

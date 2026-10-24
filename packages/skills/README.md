@@ -12,6 +12,12 @@ You can install them by running:
 npx skills add remotion-dev/skills
 ```
 
+Or install them with the GitHub CLI:
+
+```bash
+gh skill install remotion-dev/skills
+```
+
 You are also offered the option to add skills when you create a new Remotion project:
 
 ```bash
