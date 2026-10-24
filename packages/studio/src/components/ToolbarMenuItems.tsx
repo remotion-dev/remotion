@@ -5,7 +5,7 @@ import {
 	getFileMenu,
 	getRenderMenuItems,
 	useCurrentCompositionMenuData,
-	useMenuStructure,
+	useToolbarMenuStructure,
 } from '../helpers/use-menu-structure';
 import {SetSelectedModalContext} from '../state/modals';
 import {getCompositionMenuItems} from './composition-menu-items';
@@ -123,7 +123,7 @@ export const CompositionToolbarMenuItem: React.FC<ToolbarMenuItemProps> =
 
 export const MobileToolbarMenuItem: React.FC<ToolbarMenuItemProps> = React.memo(
 	({closeMenu, readOnlyStudio, ...menuItemProps}) => {
-		const structure = useMenuStructure(closeMenu, readOnlyStudio);
+		const structure = useToolbarMenuStructure(closeMenu, readOnlyStudio);
 		const menu = structure[0];
 
 		return (

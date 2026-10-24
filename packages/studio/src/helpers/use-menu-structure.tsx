@@ -40,7 +40,6 @@ import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
-import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {canEditStudioConfig} from './settings-tab-availability';
@@ -346,12 +345,14 @@ const useMenuStructureBase = ({
 	currentComposition,
 	resolvedCompositionLocation,
 	buildCompositionMenu,
+	compact,
 }: {
 	closeMenu: () => void;
 	readOnlyStudio: boolean;
 	currentComposition: _InternalTypes['AnyComposition'] | null;
 	resolvedCompositionLocation: ResolvedStackLocation | null;
 	buildCompositionMenu: boolean;
+	compact: boolean;
 }) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
@@ -410,7 +411,6 @@ const useMenuStructureBase = ({
 		(s) => String(size.size) === String(s.size),
 	);
 
-	const mobileLayout = useMobileLayout();
 	const structure = useMemo((): Structure => {
 		let struct: Structure = [
 			{
@@ -1005,7 +1005,7 @@ const useMenuStructureBase = ({
 					{
 						id: 'discord',
 						value: 'discord',
-						label: 'Join Discord community',
+						label: 'Ask on Discord',
 						onClick: () => {
 							closeMenu();
 							openExternal('https://discord.com/invite/6VzzNDwUwV');
@@ -1093,28 +1093,84 @@ const useMenuStructureBase = ({
 				],
 			},
 		].filter(Internals.truthy);
-		if (mobileLayout) {
+		if (compact) {
+			const helpItems = struct.find((section) => section.id === 'help')?.items;
+			const viewItems = struct.find((section) => section.id === 'view')?.items;
+			if (!helpItems || !viewItems) {
+				throw new Error('Compact menu section not found');
+			}
+
 			struct = [
 				{
 					...struct[0],
 					items: [
-						...struct.slice(1).map((s) => {
-							return {
-								...s,
-								keyHint: null,
-								onClick: () => undefined,
-								type: 'item' as const,
-								value: s.id,
-								leftItem: null,
-								subMenu: {
-									items: s.items,
-									leaveLeftSpace: true,
-									preselectIndex: 0,
-								},
-								quickSwitcherLabel: null,
-							} as SelectionItem;
-						}),
-						...struct[0].items,
+						{
+							id: 'view',
+							label: 'View',
+							keyHint: null,
+							onClick: () => undefined,
+							type: 'item' as const,
+							value: 'view',
+							leftItem: null,
+							subMenu: {
+								items: viewItems,
+								leaveLeftSpace: true,
+								preselectIndex: 0,
+							},
+							quickSwitcherLabel: null,
+						} as SelectionItem,
+						{
+							id: 'help',
+							label: 'Help',
+							keyHint: null,
+							onClick: () => undefined,
+							type: 'item' as const,
+							value: 'help',
+							leftItem: null,
+							subMenu: {
+								items: helpItems.filter((item) =>
+									['shortcuts', 'docs', 'file-issue', 'discord'].includes(
+										item.id,
+									),
+								),
+								leaveLeftSpace: true,
+								preselectIndex: 0,
+							},
+							quickSwitcherLabel: null,
+						} as SelectionItem,
+						{
+							id: 'remotion',
+							label: 'Remotion',
+							keyHint: null,
+							onClick: () => undefined,
+							type: 'item' as const,
+							value: 'remotion',
+							leftItem: null,
+							subMenu: {
+								items: [
+									...struct[0].items.filter((item) =>
+										['about', 'changelog', 'acknowledgements'].includes(
+											item.id,
+										),
+									),
+									{
+										id: 'compact-remotion-socials-divider',
+										type: 'divider' as const,
+									},
+									...helpItems.filter((item) =>
+										['insta', 'x', 'youtube', 'linkedin', 'tiktok'].includes(
+											item.id,
+										),
+									),
+								],
+								leaveLeftSpace: true,
+								preselectIndex: 0,
+							},
+							quickSwitcherLabel: null,
+						} as SelectionItem,
+						...struct[0].items.filter((item) =>
+							['timeline-divider-1', 'restart-studio'].includes(item.id),
+						),
 					],
 				},
 			];
@@ -1140,7 +1196,7 @@ const useMenuStructureBase = ({
 		checkerboard,
 		isFullscreenSupported,
 		remotion_packageManager,
-		mobileLayout,
+		compact,
 		newCompositionShortcut,
 		defaultEditorId,
 		defaultEditorName,
@@ -1189,6 +1245,7 @@ export const useMenuStructure = (
 		currentComposition,
 		resolvedCompositionLocation,
 		buildCompositionMenu: true,
+		compact: false,
 	});
 };
 
@@ -1202,6 +1259,7 @@ export const useToolbarMenuStructure = (
 		currentComposition: null,
 		resolvedCompositionLocation: null,
 		buildCompositionMenu: false,
+		compact: true,
 	});
 
 const getItemLabel = (item: SelectionItem) => {

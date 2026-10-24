@@ -62,7 +62,7 @@ export const MenuBuildIndicator: React.FC<{
 
 	return (
 		<div role="group" style={cwd} aria-label={window.remotion_cwd}>
-			<Spacing x={mobileLayout ? 0.5 : 2} />
+			<Spacing x={0.5} />
 			{window.remotion_projectName}
 			<Spacing x={0.5} />
 			<div style={openInEditor}>
