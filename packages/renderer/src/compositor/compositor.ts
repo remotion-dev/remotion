@@ -220,6 +220,8 @@ export const startCompositor = <T extends keyof CompositorCommand>({
 		stderrChunks.push(data);
 	});
 
+	// If the compositor quits while a command is being written to it, the
+	// write fails with EPIPE. Without a listener, this would crash the process.
 	child.stdin.on('error', (err) => {
 		Log.verbose(
 			{indent, logLevel, tag: 'compositor'},

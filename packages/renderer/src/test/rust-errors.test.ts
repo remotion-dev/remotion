@@ -85,6 +85,8 @@ test('Commands sent while the compositor crashes should be rejected', async () =
 		() => true,
 	);
 
+	// Keep sending commands until the crash is noticed, so that some are
+	// written after the compositor is gone but before "close" fired.
 	const errors: Promise<Error | null>[] = [];
 	while (!(await Promise.race([panicSettled, false]))) {
 		for (let i = 0; i < 20; i++) {
@@ -102,7 +104,9 @@ test('Commands sent while the compositor crashes should be rejected', async () =
 	}
 
 	await expect(panic).rejects.toThrow('Compositor exited with code 101');
-	for (const err of await Promise.all(errors)) {
+	const settledErrors = await Promise.all(errors);
+	expect(settledErrors.some((err) => err !== null)).toBe(true);
+	for (const err of settledErrors) {
 		if (err) {
 			expect(err.message).toStartWith('Compositor');
 		}
