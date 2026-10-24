@@ -31,7 +31,7 @@ type RemotionOptions struct {
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
 	Muted                          bool                   `json:"muted"`
 	PreferLossless                 bool                   `json:"preferLossless"`
-	Overwrite                      bool                   `json:"overwrite"`
+	Overwrite                      *bool                  `json:"overwrite"`
 	ForcePathStyle                 bool                   `json:"forcePathStyle"`
 	AudioBitrate                   interface{}            `json:"audioBitrate"`
 	VideoBitrate                   interface{}            `json:"videoBitrate"`
@@ -81,7 +81,7 @@ type RenderFramesOptions struct {
 	ChromiumOptions                interface{}            `json:"chromiumOptions"`
 	Scale                          float64                `json:"scale"`
 	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
-	Overwrite                      bool                   `json:"overwrite"`
+	Overwrite                      *bool                  `json:"overwrite"`
 	MaxRetries                     *int                   `json:"maxRetries"`
 	Webhook                        interface{}            `json:"webhook"`
 	ForceWidth                     interface{}            `json:"forceWidth"`

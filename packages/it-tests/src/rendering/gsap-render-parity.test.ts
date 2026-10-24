@@ -66,6 +66,7 @@ describe('GSAP renderer parity', () => {
 
 		browser = await openBrowser('chrome', {logLevel: 'warn'});
 		composition = await selectComposition({
+			inputProps: {},
 			serveUrl,
 			id: SHOWCASE_ID,
 			puppeteerInstance: browser,
@@ -176,26 +177,31 @@ describe('GSAP renderer parity', () => {
 		'maps timeline time and boundary states consistently across frame rates and Sequences',
 		async () => {
 			const fps24 = await selectComposition({
+				inputProps: {},
 				serveUrl,
 				id: FPS_24_FIXTURE_ID,
 				puppeteerInstance: browser,
 			});
 			const fps30 = await selectComposition({
+				inputProps: {},
 				serveUrl,
 				id: FPS_30_FIXTURE_ID,
 				puppeteerInstance: browser,
 			});
 			const fps60 = await selectComposition({
+				inputProps: {},
 				serveUrl,
 				id: FPS_60_FIXTURE_ID,
 				puppeteerInstance: browser,
 			});
 			const sequence = await selectComposition({
+				inputProps: {},
 				serveUrl,
 				id: SEQUENCE_FIXTURE_ID,
 				puppeteerInstance: browser,
 			});
 			const nestedSequence = await selectComposition({
+				inputProps: {},
 				serveUrl,
 				id: NESTED_SEQUENCE_FIXTURE_ID,
 				puppeteerInstance: browser,
@@ -261,6 +267,7 @@ describe('GSAP renderer parity', () => {
 		'keeps complex fixtures identical across serial, concurrent, and shuffled rendering',
 		async () => {
 			const parity = await selectComposition({
+				inputProps: {},
 				serveUrl,
 				id: PARITY_FIXTURE_ID,
 				puppeteerInstance: browser,

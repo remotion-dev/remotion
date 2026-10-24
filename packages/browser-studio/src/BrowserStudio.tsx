@@ -1,6 +1,7 @@
 import type {RenderDefaults} from '@remotion/studio-shared';
 import {studioHtml} from '@remotion/studio-shared/studio-html';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {NoReactInternals} from 'remotion/no-react';
 import {
 	createBrowserStudioHmrAssetManager,
 	type BrowserStudioHmrBridge,
@@ -110,7 +111,9 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		beepOnFinish: false,
 		chromeMode: 'headless-shell',
 		codec: 'h264',
-		colorSpace: 'default',
+		colorSpace: (NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+			? 'bt709'
+			: 'default') as RenderDefaults['colorSpace'],
 		configFileRenderDefaults: null,
 		concurrency: Math.round(Math.min(8, Math.max(1, maxConcurrency / 2))),
 		crf: null,

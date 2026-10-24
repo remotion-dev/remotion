@@ -17,6 +17,7 @@ console.log('Composition', composition);
 
 await renderMedia({
 	codec: 'h264',
+	licenseKey: null,
 	composition,
 	serveUrl,
 	onProgress: ({progress}) => {
