@@ -11,6 +11,7 @@ import {
 	onlyAudioAndVideoAssets,
 	onlyInlineAudio,
 } from './filter-asset-types';
+import {FrameTimeoutError, getFrameTimeout} from './frame-timeout';
 import type {CountType} from './get-frame-padded-index';
 import {getFrameOutputFileName} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
@@ -126,6 +127,7 @@ export const renderFrameWithOptionToReject = async ({
 	let pageError: Error | null = null;
 	const errorCallbackOnFrame = (err: Error) => {
 		pageError ??= err;
+		clearTimeout(frameTimeout);
 		reject(err);
 	};
 
@@ -135,6 +137,15 @@ export const renderFrameWithOptionToReject = async ({
 		frame,
 	});
 	page.on('error', errorCallbackOnFrame);
+	const frameTimeoutInMilliseconds = getFrameTimeout(timeoutInMilliseconds);
+	const frameTimeout = setTimeout(() => {
+		errorCallbackOnFrame(
+			new FrameTimeoutError(
+				`Rendering frame ${frame} took longer than ${frameTimeoutInMilliseconds}ms, which is more than all of its timeouts combined. The browser tab is stuck and was closed.`,
+			),
+		);
+		page.close().catch(() => undefined);
+	}, frameTimeoutInMilliseconds);
 	let pageListenersCleaned = false;
 	const cleanupPageListeners = () => {
 		if (pageListenersCleaned) {
@@ -142,6 +153,7 @@ export const renderFrameWithOptionToReject = async ({
 		}
 
 		pageListenersCleaned = true;
+		clearTimeout(frameTimeout);
 		cleanupPageError();
 		page.off('error', errorCallbackOnFrame);
 	};
