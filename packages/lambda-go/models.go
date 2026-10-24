@@ -110,6 +110,54 @@ type ImageSequenceOutputPrefix struct {
 	S3OutputProvider interface{} `json:"s3OutputProvider"`
 }
 
+// RenderStillOptions configures a still image render.
+type RenderStillOptions struct {
+	ServeUrl                       string                 `json:"serveUrl" validate:"required"`
+	FunctionName                   string                 `json:"functionName" validate:"required"`
+	Region                         string                 `json:"region" validate:"required"`
+	Composition                    string                 `json:"composition" validate:"required"`
+	InputProps                     interface{}            `json:"inputProps"`
+	ImageFormat                    string                 `json:"imageFormat"`
+	Privacy                        string                 `json:"privacy"`
+	Frame                          int                    `json:"frame"`
+	JpegQuality                    int                    `json:"jpegQuality"`
+	MaxRetries                     int                    `json:"maxRetries"`
+	EnvVariables                   interface{}            `json:"envVariables"`
+	OutName                        interface{}            `json:"outName"`
+	ChromiumOptions                interface{}            `json:"chromiumOptions"`
+	DownloadBehavior               map[string]interface{} `json:"downloadBehavior"`
+	ForceWidth                     interface{}            `json:"forceWidth"`
+	ForceHeight                    interface{}            `json:"forceHeight"`
+	ForceFps                       interface{}            `json:"forceFps"`
+	ForceDurationInFrames          interface{}            `json:"forceDurationInFrames"`
+	ForceBucketName                string                 `json:"forceBucketName"`
+	ForcePathStyle                 bool                   `json:"forcePathStyle"`
+	StorageClass                   interface{}            `json:"storageClass"`
+	IsProduction                   *bool                  `json:"isProduction"`
+	ApiKey                         interface{}            `json:"apiKey"`
+	LicenseKey                     interface{}            `json:"licenseKey"`
+	LogLevel                       string                 `json:"logLevel"`
+	TimeoutInMilliseconds          int                    `json:"timeoutInMilliseconds"`
+	DeleteAfter                    *string                `json:"deleteAfter"`
+	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
+	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
+	MediaCacheSizeInBytes          interface{}            `json:"mediaCacheSizeInBytes"`
+	Scale                          float64                `json:"scale"`
+}
+
+// RemotionRenderStillResponse is the result of a still image render.
+type RemotionRenderStillResponse struct {
+	Type           string `json:"type"`
+	BucketName     string `json:"bucketName"`
+	RenderId       string `json:"renderId"`
+	Output         string `json:"output"`
+	OutKey         string `json:"outKey"`
+	SizeInBytes    int64  `json:"sizeInBytes"`
+	EstimatedPrice Costs  `json:"estimatedPrice"`
+	Message        string `json:"message"`
+	Stack          string `json:"stack"`
+}
+
 type renderInternalOptions struct {
 	EnableCancellation             bool                   `json:"enableCancellation"`
 	RendererFunctionName           *string                `json:"rendererFunctionName"`
