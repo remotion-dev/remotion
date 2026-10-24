@@ -1,3 +1,4 @@
+import type {RefObject} from 'react';
 import {useCallback, useLayoutEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import type {CanvasOutline, CanvasOutlineTarget} from './outline-geometry';
@@ -6,6 +7,18 @@ import {
 	measureCanvasOutlineTargets,
 } from './outline-measurement';
 import {getCanvasOutlineNodes} from './outline-nodes';
+
+const getAutomaticOutlineNodes = (
+	target: CanvasOutlineTarget,
+): readonly (Element | Text)[] | null => {
+	if (!(target.ref.current instanceof Element)) {
+		return null;
+	}
+
+	return Internals.SequenceOutlineInternals.getNodes(
+		target.ref as RefObject<Element | null>,
+	);
+};
 
 export const useCanvasOutlineMeasurements = ({
 	contentRoot,
@@ -71,10 +84,7 @@ export const useCanvasOutlineMeasurements = ({
 
 		const nextOutlines = measureCanvasOutlineTargets(contentRoot, targets);
 		measuredNodesRef.current = new Map(
-			targets.map((target) => [
-				target.ref,
-				Internals.SequenceOutlineInternals.getNodes(target.ref),
-			]),
+			targets.map((target) => [target.ref, getAutomaticOutlineNodes(target)]),
 		);
 		if (canvasOutlinesAreEqual(outlinesRef.current, nextOutlines)) {
 			return;
@@ -107,7 +117,7 @@ export const useCanvasOutlineMeasurements = ({
 				targets.some(
 					(target) =>
 						measuredNodesRef.current.get(target.ref) !==
-						Internals.SequenceOutlineInternals.getNodes(target.ref),
+						getAutomaticOutlineNodes(target),
 				)
 			) {
 				scheduleUpdate();
@@ -115,9 +125,16 @@ export const useCanvasOutlineMeasurements = ({
 		};
 
 		const hasAutomaticTargets = targets.some(
-			(target) =>
-				Internals.SequenceOutlineInternals.getNodes(target.ref) !== null,
+			(target) => getAutomaticOutlineNodes(target) !== null,
 		);
+		const customOutlineCleanups = targets.flatMap((target) => {
+			const outline = target.ref.current;
+			if (outline === null || outline instanceof Element) {
+				return [];
+			}
+
+			return [outline.subscribeToOutlineChanges(scheduleUpdate)];
+		});
 		if (hasAutomaticTargets) {
 			latestUpdateRef.current = scheduleUpdate;
 			ownerWindow?.addEventListener(
@@ -131,6 +148,7 @@ export const useCanvasOutlineMeasurements = ({
 
 		return () => {
 			active = false;
+			customOutlineCleanups.forEach((cleanup) => cleanup());
 			ownerWindow?.removeEventListener(
 				Internals.CommittedMetadataInternals.eventName,
 				onCommit,
