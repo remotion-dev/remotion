@@ -548,16 +548,22 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
 
+	const lastEffectsTime = useRef(currentTime);
 	useLayoutEffect(() => {
+		const timeChanged = lastEffectsTime.current !== currentTime;
+		lastEffectsTime.current = currentTime;
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
+		if (!mediaPlayer || !mediaPlayerReady || timeChanged) {
 			return;
 		}
 
+		// A time update already requests a decoded frame with the latest effects.
+		// Only effect edits at the same time need to repaint the current picture.
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
 	}, [
+		currentTime,
 		effects,
 		effectsOutputSize?.width,
 		effectsOutputSize?.height,
