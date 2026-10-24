@@ -383,6 +383,7 @@ export const videoIteratorManager = async ({
 				pendingEffectRun.state.currentRunId === pendingEffectRun.runId
 			) {
 				pendingEffectRun.state.currentRunId++;
+				pendingEffectRun.state.pool.cancelPendingContextWait();
 			}
 
 			pendingEffectRun = null;

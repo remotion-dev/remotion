@@ -34,6 +34,11 @@ export class CanvasPool {
 
 	private readonly lostContexts: Set<HTMLCanvasElement> = new Set();
 	private readonly onContextLost: (canvas: HTMLCanvasElement) => void;
+	private pendingContextWait: {
+		canvas: HTMLCanvasElement;
+		resolve: (restored: boolean) => void;
+	} | null = null;
+
 	private disposed = false;
 
 	public constructor(
@@ -71,14 +76,22 @@ export class CanvasPool {
 		return this.pairs.get(backend) as CanvasPair;
 	}
 
-	public assertContextNotLost(canvas: HTMLCanvasElement): void {
-		if (this.lostContexts.has(canvas)) {
-			throw new Error(
-				'WebGL context was lost during canvas effect rendering. ' +
-					'This typically happens in headless or memory-constrained environments (e.g. Remotion Lambda). ' +
-					'Try reducing concurrency or increasing the Lambda function memory.',
-			);
+	public waitForContextRestoration(
+		canvas: HTMLCanvasElement,
+	): Promise<boolean> | null {
+		if (!this.lostContexts.has(canvas)) {
+			return null;
 		}
+
+		return new Promise((resolve) => {
+			this.pendingContextWait = {canvas, resolve};
+		});
+	}
+
+	public cancelPendingContextWait(): void {
+		const pending = this.pendingContextWait;
+		this.pendingContextWait = null;
+		pending?.resolve(false);
 	}
 
 	// Makes the pool unusable and releases its resources right away.
@@ -88,6 +101,7 @@ export class CanvasPool {
 		}
 
 		this.disposed = true;
+		this.cancelPendingContextWait();
 		for (const {canvas, gl} of this.allocated) {
 			// Frees the slot in the browser's live-context budget immediately.
 			// Resizing to 0x0 drops the backing store even where the extension
@@ -149,6 +163,11 @@ export class CanvasPool {
 					// A restored context starts from the initial GL state.
 					ctx.pixelStorei(ctx.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 					this.lostContexts.delete(canvas);
+					if (this.pendingContextWait?.canvas === canvas) {
+						const pending = this.pendingContextWait;
+						this.pendingContextWait = null;
+						pending.resolve(true);
+					}
 				});
 
 				ctx.pixelStorei(ctx.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);

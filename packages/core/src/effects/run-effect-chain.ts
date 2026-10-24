@@ -114,10 +114,11 @@ export type RunEffectChainOptions = {
 // completed and wrote to `output`, `false` if it was superseded by a newer
 // run (caller should not act on a stale result).
 const runEffectChainWithoutResize = async (
-	{state, source, effects, output, width, height}: RunEffectChainOptions,
+	options: RunEffectChainOptions,
 	initialFlipSourceY: boolean,
 	runId: number,
 ): Promise<boolean> => {
+	const {state, source, effects, output, width, height} = options;
 	const isCancelled = () => state.currentRunId !== runId;
 
 	// Bypass any effect with `disabled: true` before grouping by backend, so
@@ -178,9 +179,20 @@ const runEffectChainWithoutResize = async (
 				const dst = state.pool.getCanvas(run.backend, canvasIndex);
 				const def = eff.definition as EffectDefinition<unknown, unknown>;
 				if (run.backend === 'webgl2') {
-					// Checked before `setup()`: a lost context cannot compile shaders,
-					// and this surfaces the dedicated error instead of an effect's own.
-					state.pool.assertContextNotLost(dst);
+					const restoration = state.pool.waitForContextRestoration(dst);
+					if (restoration) {
+						if (!(await restoration) || isCancelled()) {
+							return false;
+						}
+
+						// Earlier WebGL passes may have lost their pixels too. Restart
+						// from the source using the restored contexts, not new ones.
+						return runEffectChainWithoutResize(
+							options,
+							initialFlipSourceY,
+							runId,
+						);
+					}
 				}
 
 				const setupState = ensureSetup(state, def, dst);
@@ -266,6 +278,7 @@ export const runEffectChain = async (
 	const {state, source, width, height, effects} = options;
 	// Keep one ID across resizing and effect passes so callers can cancel the run.
 	const runId = ++state.currentRunId;
+	state.pool.cancelPendingContextWait();
 	if (
 		(state.width === width && state.height === height) ||
 		!effects.some((effect) => !(effect.params as {disabled?: boolean}).disabled)
