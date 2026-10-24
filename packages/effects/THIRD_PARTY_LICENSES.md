@@ -16,6 +16,11 @@ EffectCraft's transition effects (`crates/effects/src/misc.rs` and
 `crates/effects/src/transition.rs`), revision
 `eb5108786b90bf994a6abe4e6c0b2614c6aeaa29`, also under the MIT license.
 
+The Film Burn shader is adapted from EffectCraft's CC Burn Film and value noise
+(`crates/effects/src/stylize3.rs`, `crates/effects/src/generate.rs`,
+`crates/effects/src/noise.rs`, and `crates/gpu/src/shaders/fx_pixel2.wgsl`),
+revision `eb5108786b90bf994a6abe4e6c0b2614c6aeaa29`, also under the MIT license.
+
 MIT License
 
 Copyright (c) 2026 ArtCraft Team and the EffectCraft contributors

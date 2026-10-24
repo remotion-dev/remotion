@@ -18,6 +18,7 @@ import {duotone} from '@remotion/effects/duotone';
 import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
 import {exposure} from '@remotion/effects/exposure';
+import {filmBurn} from '@remotion/effects/film-burn';
 import {fisheye} from '@remotion/effects/fisheye';
 import {flannel} from '@remotion/effects/flannel';
 import {fractalNoise} from '@remotion/effects/fractal-noise';
@@ -103,6 +104,7 @@ import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsExposurePreview} from '../effects/effects-exposure-preview';
+import {EffectsFilmBurnPreview} from '../effects/effects-film-burn-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
 import {EffectsFractalNoisePreview} from '../effects/effects-fractal-noise-preview';
@@ -434,6 +436,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/venetian-blinds',
 		comp: EffectsVenetianBlindsPreview,
 		schema: venetianBlinds().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-film-burn',
+		effectName: 'filmBurn',
+		effectImportPath: '@remotion/effects/film-burn',
+		comp: EffectsFilmBurnPreview,
+		schema: filmBurn().definition.schema,
 	},
 	{
 		...defaults,

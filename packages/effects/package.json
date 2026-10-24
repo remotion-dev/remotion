@@ -134,6 +134,11 @@
 			"module": "./dist/esm/exposure.mjs",
 			"import": "./dist/esm/exposure.mjs"
 		},
+		"./film-burn": {
+			"types": "./dist/film-burn.d.ts",
+			"module": "./dist/esm/film-burn.mjs",
+			"import": "./dist/esm/film-burn.mjs"
+		},
 		"./fisheye": {
 			"types": "./dist/fisheye.d.ts",
 			"module": "./dist/esm/fisheye.mjs",
@@ -522,6 +527,9 @@
 			],
 			"exposure": [
 				"dist/exposure.d.ts"
+			],
+			"film-burn": [
+				"dist/film-burn.d.ts"
 			],
 			"fisheye": [
 				"dist/fisheye.d.ts"

@@ -31,6 +31,7 @@ import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-pr
 import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
 import {EffectsExposurePreview} from '../../components/effects/effects-exposure-preview';
+import {EffectsFilmBurnPreview} from '../../components/effects/effects-film-burn-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
 import {
@@ -669,6 +670,17 @@ export const RemotionRoot: React.FC = () => {
 						progress: 0.58,
 						direction: 'vertical',
 						slats: 14,
+					}}
+				/>
+				<Still
+					id="effects-film-burn-preview"
+					component={EffectsFilmBurnPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.4,
+						center: [0.5, 0.5],
+						seed: 0,
 					}}
 				/>
 				<Still

@@ -1,6 +1,6 @@
 import {Internals} from 'remotion';
 
-export type WipeState = {
+export type SinglePassState = {
 	readonly gl: WebGL2RenderingContext;
 	readonly program: WebGLProgram;
 	readonly vao: WebGLVertexArrayObject;
@@ -20,12 +20,12 @@ void main() {
 }
 `;
 
-export const setupWipe = (
+export const setupSinglePass = (
 	target: HTMLCanvasElement,
 	fragmentShader: string,
 	effectName: string,
 	uniformNames: readonly string[],
-): WipeState => {
+): SinglePassState => {
 	const gl = target.getContext('webgl2', {
 		premultipliedAlpha: true,
 		alpha: true,
@@ -111,14 +111,14 @@ export const setupWipe = (
 	}
 };
 
-export const prepareWipeSource = ({
+export const prepareSinglePassSource = ({
 	state,
 	source,
 	width,
 	height,
 	flipSourceY,
 }: {
-	state: WipeState;
+	state: SinglePassState;
 	source: TexImageSource;
 	width: number;
 	height: number;
@@ -136,20 +136,20 @@ export const prepareWipeSource = ({
 	gl.bindVertexArray(vao);
 };
 
-export const drawWipe = ({gl}: WipeState): void => {
+export const drawSinglePass = ({gl}: SinglePassState): void => {
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 	gl.bindVertexArray(null);
 	gl.bindTexture(gl.TEXTURE_2D, null);
 	gl.useProgram(null);
 };
 
-export const cleanupWipe = ({
+export const cleanupSinglePass = ({
 	gl,
 	program,
 	vao,
 	vbo,
 	texture,
-}: WipeState): void => {
+}: SinglePassState): void => {
 	gl.deleteTexture(texture);
 	gl.deleteBuffer(vbo);
 	gl.deleteProgram(program);

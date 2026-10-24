@@ -6,16 +6,16 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {
+	cleanupSinglePass,
+	drawSinglePass,
+	prepareSinglePassSource,
+	setupSinglePass,
+	type SinglePassState,
+} from './single-pass-runtime.js';
+import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
 } from './validate-effect-param.js';
-import {
-	cleanupWipe,
-	drawWipe,
-	prepareWipeSource,
-	setupWipe,
-	type WipeState,
-} from './wipe-runtime.js';
 
 const DEFAULT_PROGRESS = 0 as const;
 const DEFAULT_START_ANGLE = 0 as const;
@@ -120,14 +120,17 @@ void main() {
 }
 `;
 
-export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
+export const radialWipe = Internals.createEffect<
+	RadialWipeParams,
+	SinglePassState
+>({
 	type: 'remotion/radial-wipe',
 	label: 'radialWipe()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/radial-wipe',
 	backend: 'webgl2',
 	calculateKey: (params) => `radial-wipe-${JSON.stringify(resolve(params))}`,
 	setup: (target) =>
-		setupWipe(target, FRAGMENT_SHADER, 'radial wipe', [
+		setupSinglePass(target, FRAGMENT_SHADER, 'radial wipe', [
 			'uResolution',
 			'uCenter',
 			'uStartAngle',
@@ -138,7 +141,7 @@ export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
 	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		const {gl, uniforms} = state;
-		prepareWipeSource({
+		prepareSinglePassSource({
 			state,
 			source: source as TexImageSource,
 			width,
@@ -151,9 +154,9 @@ export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
 		gl.uniform1f(uniforms.uProgress, r.progress);
 		gl.uniform1f(uniforms.uFeather, r.feather);
 		gl.uniform1i(uniforms.uDirection, DIRECTIONS.indexOf(r.direction));
-		drawWipe(state);
+		drawSinglePass(state);
 	},
-	cleanup: cleanupWipe,
+	cleanup: cleanupSinglePass,
 	schema: radialWipeSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Radial wipe');

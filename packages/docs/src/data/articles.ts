@@ -3592,6 +3592,15 @@ export const articles = [
 		slug: 'effects/exposure',
 	},
 	{
+		id: 'effects/film-burn',
+		title: 'filmBurn()',
+		relativePath: 'docs/effects/film-burn.mdx',
+		compId: 'articles-docs-effects-film-burn',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/film-burn',
+	},
+	{
 		id: 'effects/fisheye',
 		title: 'fisheye()',
 		relativePath: 'docs/effects/fisheye.mdx',

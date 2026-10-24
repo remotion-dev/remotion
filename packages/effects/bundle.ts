@@ -24,6 +24,7 @@ const effectEntrypoints = [
 	'src/emboss.ts',
 	'src/evolve.ts',
 	'src/exposure.ts',
+	'src/film-burn.ts',
 	'src/fisheye.ts',
 	'src/flannel.ts',
 	'src/fractal-noise.ts',

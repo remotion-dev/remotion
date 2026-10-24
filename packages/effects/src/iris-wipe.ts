@@ -6,17 +6,17 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {
+	cleanupSinglePass,
+	drawSinglePass,
+	prepareSinglePassSource,
+	setupSinglePass,
+	type SinglePassState,
+} from './single-pass-runtime.js';
+import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 	assertRequiredFiniteNumber,
 } from './validate-effect-param.js';
-import {
-	cleanupWipe,
-	drawWipe,
-	prepareWipeSource,
-	setupWipe,
-	type WipeState,
-} from './wipe-runtime.js';
 
 const {createEffect} = Internals;
 
@@ -220,7 +220,7 @@ void main() {
 }
 `;
 
-export const irisWipe = createEffect<IrisWipeParams, WipeState>({
+export const irisWipe = createEffect<IrisWipeParams, SinglePassState>({
 	type: 'remotion/iris-wipe',
 	label: 'irisWipe()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/iris-wipe',
@@ -230,7 +230,7 @@ export const irisWipe = createEffect<IrisWipeParams, WipeState>({
 		return `iris-wipe-${r.center.join(':')}-${r.points}-${r.outerRadius}-${r.useInnerRadius}-${r.innerRadius}-${r.rotation}-${r.feather}`;
 	},
 	setup: (target) =>
-		setupWipe(target, FRAGMENT_SHADER, 'iris wipe', [
+		setupSinglePass(target, FRAGMENT_SHADER, 'iris wipe', [
 			'uResolution',
 			'uCenter',
 			'uPoints',
@@ -244,7 +244,7 @@ export const irisWipe = createEffect<IrisWipeParams, WipeState>({
 		const r = resolve(params);
 		const {gl, uniforms} = state;
 
-		prepareWipeSource({
+		prepareSinglePassSource({
 			state,
 			source: source as TexImageSource,
 			width,
@@ -265,9 +265,9 @@ export const irisWipe = createEffect<IrisWipeParams, WipeState>({
 			gl.uniform1f(uniforms.uRotation, ((r.rotation % 360) * Math.PI) / 180);
 		if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
 
-		drawWipe(state);
+		drawSinglePass(state);
 	},
-	cleanup: cleanupWipe,
+	cleanup: cleanupSinglePass,
 	schema: irisWipeSchema,
 	validateParams: validateIrisWipeParams,
 });

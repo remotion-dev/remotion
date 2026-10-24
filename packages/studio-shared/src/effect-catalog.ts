@@ -453,6 +453,21 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
 	},
 	{
+		id: 'effects-film-burn',
+		category: 'Reveal',
+		label: 'filmBurn()',
+		description: 'Irregular burn holes with charred and glowing edges',
+		effect: {
+			name: 'filmBurn',
+			importPath: '@remotion/effects/film-burn',
+			config: {
+				progress: 0.4,
+				center: [0.5, 0.5],
+				seed: 0,
+			},
+		},
+	},
+	{
 		id: 'effects-radial-wipe',
 		category: 'Reveal',
 		label: 'radialWipe()',

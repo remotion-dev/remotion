@@ -303,6 +303,7 @@ const sidebars: SidebarsConfig = {
 				'effects/emboss',
 				'effects/evolve',
 				'effects/exposure',
+				'effects/film-burn',
 				'effects/fisheye',
 				'effects/flannel',
 				'effects/fractal-noise',
