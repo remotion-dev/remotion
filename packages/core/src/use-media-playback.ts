@@ -21,11 +21,13 @@ import {
 	usePlaybackRate,
 	useTimelinePosition,
 } from './timeline-position-state.js';
+import {SetTimelineContext} from './TimelineContext.js';
 import {useBuffering} from './use-buffering.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useMediaBuffering} from './use-media-buffering.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {useRequestVideoCallbackTime} from './use-request-video-callback-time.js';
+import {useSyncExternalStore} from './use-sync-external-store.js';
 import {useVideoConfig} from './use-video-config.js';
 import {getMediaTime} from './video/get-current-time.js';
 import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
@@ -66,6 +68,7 @@ export const useMediaPlayback = ({
 	onlyWarnForMediaSeekingError,
 	acceptableTimeshift,
 	pauseWhenBuffering,
+	retainAudioDuringBuffering,
 	isPremounting,
 	isPostmounting,
 	onAutoPlayError,
@@ -78,6 +81,7 @@ export const useMediaPlayback = ({
 	onlyWarnForMediaSeekingError: boolean;
 	acceptableTimeshift: number | null;
 	pauseWhenBuffering: boolean;
+	retainAudioDuringBuffering: boolean | null;
 	isPremounting: boolean;
 	isPostmounting: boolean;
 	onAutoPlayError: null | (() => void);
@@ -93,6 +97,40 @@ export const useMediaPlayback = ({
 	const lastSeek = useRef<number | null>(null);
 	const logLevel = useLogLevel();
 	const mountTime = useMountTime();
+	const env = useRemotionEnvironment();
+	const retainsBufferedAudio =
+		env.isPlayer &&
+		!env.isRendering &&
+		mediaType === 'audio' &&
+		pauseWhenBuffering &&
+		retainAudioDuringBuffering === true;
+	const {seek: timelineSeek} = useContext(SetTimelineContext);
+	const subscribeToSeek = useCallback(
+		(listener: () => void) =>
+			(retainsBufferedAudio ? timelineSeek?.subscribe(listener) : null) ??
+			(() => {}),
+		[retainsBufferedAudio, timelineSeek],
+	);
+	const getSeekRevision = useCallback(
+		() => (retainsBufferedAudio ? (timelineSeek?.revision.current ?? 0) : 0),
+		[retainsBufferedAudio, timelineSeek],
+	);
+	const seekRevision = useSyncExternalStore(
+		subscribeToSeek,
+		getSeekRevision,
+		getSeekRevision,
+	);
+	const bufferingRecovery = useRef<{
+		src: string;
+		seekRevision: number;
+		playbackRate: number;
+		fps: number;
+		trimBefore: number;
+		absoluteFrame: number;
+		playerBuffering: boolean;
+		holding: boolean;
+		resumeFrom: number | null;
+	} | null>(null);
 
 	const isVariableFpsVideoMap = useRef<Record<string, boolean>>({});
 
@@ -169,8 +207,6 @@ export const useMediaPlayback = ({
 		);
 	})();
 
-	const env = useRemotionEnvironment();
-
 	// This must be a useLayoutEffect, because afterwards, useVolume() looks at the playbackRate
 	// and it is also in a useLayoutEffect.
 	useLayoutEffect(() => {
@@ -230,7 +266,7 @@ export const useMediaPlayback = ({
 			current.pause();
 		}
 
-		const action = getMediaSyncAction({
+		let action = getMediaSyncAction({
 			duration: current.duration,
 			currentTime: current.currentTime,
 			paused: current.paused,
@@ -253,6 +289,90 @@ export const useMediaPlayback = ({
 			isPostmounting,
 			pauseWhenBuffering,
 		});
+
+		const previousRecovery = bufferingRecovery.current;
+		const recoveryWasInterrupted =
+			previousRecovery === null ||
+			previousRecovery.src !== src ||
+			previousRecovery.seekRevision !== seekRevision ||
+			previousRecovery.playbackRate !== playbackRate ||
+			previousRecovery.fps !== fps ||
+			previousRecovery.trimBefore !== mediaTrimBefore ||
+			absoluteFrame < previousRecovery.absoluteFrame;
+		const canRetainAudio =
+			retainsBufferedAudio &&
+			playing &&
+			playbackRate > 0 &&
+			!isPremounting &&
+			!isPostmounting &&
+			!current.ended &&
+			!isMediaTagBufferingOrStalled &&
+			Math.abs(current.currentTime - desiredUnclampedTime) <=
+				acceptableTimeShiftButLessThanDuration;
+		let holding =
+			canRetainAudio &&
+			!recoveryWasInterrupted &&
+			(previousRecovery.holding ||
+				// Retain small lags too: a new wait must not skip unheard audio.
+				(playerBuffering && !previousRecovery.playerBuffering));
+		// play() can clear paused before the native clock starts advancing.
+		// Retain recovery until that clock progresses, then restore normal sync.
+		let resumeFrom = playerBuffering
+			? null
+			: (previousRecovery?.resumeFrom ?? null);
+
+		if (
+			holding &&
+			!playerBuffering &&
+			resumeFrom !== null &&
+			!current.paused &&
+			current.currentTime > resumeFrom
+		) {
+			holding = false;
+		}
+
+		if (
+			holding &&
+			!playerBuffering &&
+			current.currentTime <= desiredUnclampedTime &&
+			current.paused &&
+			resumeFrom === null
+		) {
+			resumeFrom = current.currentTime;
+		}
+
+		if (!holding) resumeFrom = null;
+		bufferingRecovery.current = {
+			src,
+			seekRevision,
+			playbackRate,
+			fps,
+			trimBefore: mediaTrimBefore,
+			absoluteFrame,
+			playerBuffering,
+			holding,
+			resumeFrom,
+		};
+
+		// Another media element can freeze the timeline after audio has advanced.
+		// Keep that audio position through buffering and let the timeline catch up
+		// before resuming, instead of replaying an already heard portion.
+		if (holding) {
+			if (playerBuffering || current.currentTime > desiredUnclampedTime) {
+				action = {type: 'none'};
+			} else if (current.paused) {
+				action = {
+					type: 'play-and-seek',
+					shouldBeTime: desiredUnclampedTime,
+					// The executor seeks only when why is non-null.
+					why: null,
+					playReason: 'timeline caught up with retained audio after buffering',
+					bufferUntilFirstFrame: false,
+				};
+			} else {
+				action = {type: 'none'};
+			}
+		}
 
 		if (action.type === 'none') {
 			return;
@@ -351,5 +471,9 @@ export const useMediaPlayback = ({
 		mountTime,
 		mediaTagCurrentTime,
 		env.isPlayer,
+		retainsBufferedAudio,
+		seekRevision,
+		fps,
+		mediaTrimBefore,
 	]);
 };

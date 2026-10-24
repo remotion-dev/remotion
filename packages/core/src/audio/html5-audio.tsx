@@ -47,6 +47,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		name,
 		_remotionInternalStack,
 		pauseWhenBuffering,
+		retainAudioDuringBuffering,
 		showInTimeline,
 		onError: onRemotionError,
 		freeze,
@@ -191,6 +192,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 					<Html5Audio
 						_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 						pauseWhenBuffering={shouldPauseWhenBuffering}
+						retainAudioDuringBuffering={retainAudioDuringBuffering ?? false}
 						{...otherProps}
 						ref={ref}
 					/>
@@ -234,6 +236,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			onNativeError={onError}
 			onDuration={onDuration}
 			pauseWhenBuffering={shouldPauseWhenBuffering}
+			retainAudioDuringBuffering={retainAudioDuringBuffering ?? false}
 			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			showInTimeline={showInTimeline ?? true}
 		/>

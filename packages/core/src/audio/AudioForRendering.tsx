@@ -60,6 +60,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		loopVolumeCurveBehavior,
 		pauseWhenBuffering,
+		retainAudioDuringBuffering,
 		audioStreamIndex,
 		preservePitch,
 		...nativeProps
