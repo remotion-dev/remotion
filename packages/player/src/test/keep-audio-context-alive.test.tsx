@@ -442,7 +442,8 @@ test('Keep-alive audio still corrects drift after buffering', () => {
 		act(() => harness.tick(700));
 		expect(harness.view.getByText('Frame 2')).toBeTruthy();
 		expect(harness.anchors).toHaveLength(1);
-		expect(harness.anchor()).toBeCloseTo(0.7 - 2 / 30, 8);
+		// Anchor when buffering ends, before the next frame advances.
+		expect(harness.anchor()).toBeCloseTo(0.66 - 1 / 30, 8);
 	} finally {
 		harness.dispose();
 	}
