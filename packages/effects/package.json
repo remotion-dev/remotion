@@ -204,6 +204,11 @@
 			"module": "./dist/esm/linear-gradient-tint.mjs",
 			"import": "./dist/esm/linear-gradient-tint.mjs"
 		},
+		"./linear-wipe": {
+			"types": "./dist/linear-wipe.d.ts",
+			"module": "./dist/esm/linear-wipe.mjs",
+			"import": "./dist/esm/linear-wipe.mjs"
+		},
 		"./liquid-contours": {
 			"types": "./dist/liquid-contours.d.ts",
 			"module": "./dist/esm/liquid-contours.mjs",
@@ -218,6 +223,11 @@
 			"types": "./dist/linear-progressive-pixelate.d.ts",
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
+		},
+		"./iris-wipe": {
+			"types": "./dist/iris-wipe.d.ts",
+			"module": "./dist/esm/iris-wipe.mjs",
+			"import": "./dist/esm/iris-wipe.mjs"
 		},
 		"./lens-blur": {
 			"types": "./dist/lens-blur.d.ts",
@@ -303,6 +313,11 @@
 			"types": "./dist/radial-progressive-pixelate.d.ts",
 			"module": "./dist/esm/radial-progressive-pixelate.mjs",
 			"import": "./dist/esm/radial-progressive-pixelate.mjs"
+		},
+		"./radial-wipe": {
+			"types": "./dist/radial-wipe.d.ts",
+			"module": "./dist/esm/radial-wipe.mjs",
+			"import": "./dist/esm/radial-wipe.mjs"
 		},
 		"./region-blur": {
 			"types": "./dist/region-blur.d.ts",
@@ -555,6 +570,9 @@
 			"linear-gradient-tint": [
 				"dist/linear-gradient-tint.d.ts"
 			],
+			"linear-wipe": [
+				"dist/linear-wipe.d.ts"
+			],
 			"liquid-contours": [
 				"dist/liquid-contours.d.ts"
 			],
@@ -563,6 +581,9 @@
 			],
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
+			],
+			"iris-wipe": [
+				"dist/iris-wipe.d.ts"
 			],
 			"lens-blur": [
 				"dist/lens-blur.d.ts"
@@ -614,6 +635,9 @@
 			],
 			"radial-progressive-pixelate": [
 				"dist/radial-progressive-pixelate.d.ts"
+			],
+			"radial-wipe": [
+				"dist/radial-wipe.d.ts"
 			],
 			"region-blur": [
 				"dist/region-blur.d.ts"

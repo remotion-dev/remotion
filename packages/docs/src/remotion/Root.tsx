@@ -44,6 +44,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/eff
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
+import {EffectsIrisWipePreview} from '../../components/effects/effects-iris-wipe-preview';
 import {
 	EffectsLensBlurPreview,
 	LensBlurDemo,
@@ -62,6 +63,7 @@ import {
 	EffectsLinearProgressivePixelatePreview,
 	LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-linear-progressive-pixelate-preview';
+import {EffectsLinearWipePreview} from '../../components/effects/effects-linear-wipe-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
 import {
@@ -100,6 +102,7 @@ import {
 	EffectsRadialProgressivePixelatePreview,
 	RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-pixelate-preview';
+import {EffectsRadialWipePreview} from '../../components/effects/effects-radial-wipe-preview';
 import {EffectsRegionBlurPreview} from '../../components/effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {
@@ -664,6 +667,41 @@ export const RemotionRoot: React.FC = () => {
 						progress: 0.58,
 						direction: 'vertical',
 						slats: 14,
+					}}
+				/>
+				<Still
+					id="effects-linear-wipe-preview"
+					component={EffectsLinearWipePreview}
+					width={1280}
+					height={720}
+					defaultProps={{completion: 0.5, angle: 60, feather: 60}}
+				/>
+				<Still
+					id="effects-radial-wipe-preview"
+					component={EffectsRadialWipePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						completion: 0.3,
+						startAngle: 0,
+						center: [0.5, 0.5],
+						direction: 'clockwise',
+						feather: 8,
+					}}
+				/>
+				<Still
+					id="effects-iris-wipe-preview"
+					component={EffectsIrisWipePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						center: [0.5, 0.5],
+						points: 5,
+						outerRadius: 300,
+						useInnerRadius: true,
+						innerRadius: 140,
+						rotation: 0,
+						feather: 12,
 					}}
 				/>
 				<Still

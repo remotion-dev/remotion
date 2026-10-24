@@ -3691,6 +3691,15 @@ export const articles = [
 		slug: 'effects/invert',
 	},
 	{
+		id: 'effects/iris-wipe',
+		title: 'irisWipe()',
+		relativePath: 'docs/effects/iris-wipe.mdx',
+		compId: 'articles-docs-effects-iris-wipe',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/iris-wipe',
+	},
+	{
 		id: 'effects/lens-blur',
 		title: 'lensBlur()',
 		relativePath: 'docs/effects/lens-blur.mdx',
@@ -3761,6 +3770,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/linear-progressive-pixelate',
+	},
+	{
+		id: 'effects/linear-wipe',
+		title: 'linearWipe()',
+		relativePath: 'docs/effects/linear-wipe.mdx',
+		compId: 'articles-docs-effects-linear-wipe',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/linear-wipe',
 	},
 	{
 		id: 'effects/lines',
@@ -3896,6 +3914,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/radial-progressive-pixelate',
+	},
+	{
+		id: 'effects/radial-wipe',
+		title: 'radialWipe()',
+		relativePath: 'docs/effects/radial-wipe.mdx',
+		compId: 'articles-docs-effects-radial-wipe',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/radial-wipe',
 	},
 	{
 		id: 'effects/region-blur',

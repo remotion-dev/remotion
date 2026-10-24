@@ -1,0 +1,73 @@
+---
+image: /generated/articles-docs-effects-linear-wipe.png
+slug: /effects/linear-wipe
+title: linearWipe()
+sidebar_label: linearWipe()
+crumb: '@remotion/effects'
+---
+
+# linearWipe()<AvailableFrom v="4.0.539" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Erases a canvas-based component with a straight edge moving across the source. Set the wipe angle and feather the edge for a softer transition.
+
+## Preview
+
+<EffectsDemo type="effects-linear-wipe" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {linearWipe} from '@remotion/effects/linear-wipe';
+import {Video} from '@remotion/media';
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const completion = interpolate(frame, [0, 45], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[linearWipe({completion, angle: 90, feather: 60})]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `linearWipe()` without arguments.
+
+### `completion?`
+
+How far the wipe has progressed, from `0` (unchanged) to `1` (fully transparent). Defaults to `0`.
+
+Animate from `1` to `0` to reveal the source.
+
+### `angle?`
+
+Direction of the wipe in degrees, clockwise from up. `0` wipes from bottom to top, `90` from left to right, `180` from top to bottom, and `270` from right to left. Defaults to `90`.
+
+### `feather?`
+
+Width of the soft edge in pixels. Must be at least `0`. Defaults to `0`, creating a sharp edge.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Requirements
+
+`linearWipe()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`radialWipe()`](/docs/effects/radial-wipe)
+- [`irisWipe()`](/docs/effects/iris-wipe)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/linear-wipe.ts)

@@ -447,6 +447,53 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
 	},
 	{
+		id: 'effects-linear-wipe',
+		category: 'Reveal',
+		label: 'linearWipe()',
+		description: 'Straight-edge wipe with angle and feathering',
+		effect: {
+			name: 'linearWipe',
+			importPath: '@remotion/effects/linear-wipe',
+			config: {completion: 0.5, angle: 60, feather: 60},
+		},
+	},
+	{
+		id: 'effects-radial-wipe',
+		category: 'Reveal',
+		label: 'radialWipe()',
+		description: 'Rotating wedge wipe around a center point',
+		effect: {
+			name: 'radialWipe',
+			importPath: '@remotion/effects/radial-wipe',
+			config: {
+				completion: 0.3,
+				startAngle: 0,
+				center: [0.5, 0.5],
+				direction: 'clockwise',
+				feather: 8,
+			},
+		},
+	},
+	{
+		id: 'effects-iris-wipe',
+		category: 'Reveal',
+		label: 'irisWipe()',
+		description: 'Polygon or star opening with feathered edges',
+		effect: {
+			name: 'irisWipe',
+			importPath: '@remotion/effects/iris-wipe',
+			config: {
+				center: [0.5, 0.5],
+				points: 5,
+				outerRadius: 300,
+				useInnerRadius: true,
+				innerRadius: 140,
+				rotation: 0,
+				feather: 12,
+			},
+		},
+	},
+	{
 		id: 'effects-venetian-blinds',
 		category: 'Reveal',
 		label: 'venetianBlinds()',

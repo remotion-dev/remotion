@@ -1,0 +1,188 @@
+import type {InteractivitySchema} from 'remotion';
+import {Internals} from 'remotion';
+import {
+	assertOptionalFiniteNumber,
+	validateNonNegative,
+	validateUnitInterval,
+} from './color-utils.js';
+import {
+	assertEffectParamsObject,
+	assertRequiredFiniteNumber,
+} from './validate-effect-param.js';
+import {
+	cleanupWipe,
+	drawWipe,
+	prepareWipeSource,
+	setupWipe,
+	type WipeState,
+} from './wipe-runtime.js';
+
+const DEFAULT_COMPLETION = 0 as const;
+const DEFAULT_START_ANGLE = 0 as const;
+const DEFAULT_CENTER = [0.5, 0.5] as const;
+const DEFAULT_DIRECTION = 'clockwise' as const;
+const DEFAULT_FEATHER = 0 as const;
+const DIRECTIONS = ['clockwise', 'counterclockwise', 'both'] as const;
+
+const radialWipeSchema = {
+	completion: {
+		type: 'number',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: DEFAULT_COMPLETION,
+		description: 'Completion',
+		hiddenFromList: false,
+	},
+	startAngle: {
+		type: 'rotation-degrees',
+		step: 1,
+		default: DEFAULT_START_ANGLE,
+		description: 'Start angle',
+	},
+	center: {
+		type: 'uv-coordinate',
+		min: 0,
+		max: 1,
+		step: 0.01,
+		default: DEFAULT_CENTER,
+		description: 'Center',
+	},
+	direction: {
+		type: 'enum',
+		variants: {clockwise: {}, counterclockwise: {}, both: {}},
+		default: DEFAULT_DIRECTION,
+		description: 'Direction',
+	},
+	feather: {
+		type: 'number',
+		min: 0,
+		max: 360,
+		step: 1,
+		default: DEFAULT_FEATHER,
+		description: 'Feather',
+		hiddenFromList: false,
+	},
+} as const satisfies InteractivitySchema;
+
+export type RadialWipeDirection = (typeof DIRECTIONS)[number];
+export type RadialWipeCenter = readonly [number, number];
+export type RadialWipeParams = {
+	/** Wipe completion from `0` (visible) to `1` (erased). Defaults to `0`. */
+	readonly completion?: number;
+	/** Start angle in degrees clockwise from up. Defaults to `0`. */
+	readonly startAngle?: number;
+	/** Normalized center from `[0, 0]` (top left) to `[1, 1]` (bottom right). Defaults to `[0.5, 0.5]`. */
+	readonly center?: RadialWipeCenter;
+	/** Sweep direction. `both` erases on both sides of the start angle. Defaults to `clockwise`. */
+	readonly direction?: RadialWipeDirection;
+	/** Width of the soft sweep edge in degrees, from `0` to `360`. Defaults to `0`. */
+	readonly feather?: number;
+};
+
+const resolve = (p: RadialWipeParams): Required<RadialWipeParams> => ({
+	completion: p.completion ?? DEFAULT_COMPLETION,
+	startAngle: p.startAngle ?? DEFAULT_START_ANGLE,
+	center: p.center ?? DEFAULT_CENTER,
+	direction: p.direction ?? DEFAULT_DIRECTION,
+	feather: p.feather ?? DEFAULT_FEATHER,
+});
+
+// Adapted from EffectCraft's radial_wipe(), under the MIT license.
+// https://github.com/storytold/effectcraft/blob/eb5108786b90bf994a6abe4e6c0b2614c6aeaa29/crates/effects/src/misc.rs
+// See ../THIRD_PARTY_LICENSES.md.
+const FRAGMENT_SHADER = /* glsl */ `#version 300 es
+precision highp float;
+in vec2 vUv;
+out vec4 fragColor;
+uniform sampler2D uSource;
+uniform vec2 uResolution;
+uniform vec2 uCenter;
+uniform float uStartAngle;
+uniform float uCompletion;
+uniform float uFeather;
+uniform int uDirection;
+
+void main() {
+	vec4 source = texture(uSource, vUv);
+	if (uCompletion <= 0.0) { fragColor = source; return; }
+	if (uCompletion >= 1.0) { fragColor = vec4(0.0); return; }
+	vec2 delta = (vec2(vUv.x, 1.0 - vUv.y) - uCenter) * uResolution;
+	// atan(0, 0) is undefined; the center belongs to the erased sector.
+	if (dot(delta, delta) == 0.0) { fragColor = vec4(0.0); return; }
+	float angle = mod(degrees(atan(delta.x, -delta.y)) - uStartAngle, 360.0);
+	float sweep = 360.0;
+	if (uDirection == 1) angle = 360.0 - angle;
+	if (uDirection == 2) { angle = min(angle, 360.0 - angle); sweep = 180.0; }
+	float distance = angle - uCompletion * sweep;
+	float mask = uFeather > 0.0 ? clamp(distance / uFeather + 0.5, 0.0, 1.0) : step(0.0, distance);
+	fragColor = source * mask;
+}
+`;
+
+export const radialWipe = Internals.createEffect<RadialWipeParams, WipeState>({
+	type: 'remotion/radial-wipe',
+	label: 'radialWipe()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/radial-wipe',
+	backend: 'webgl2',
+	calculateKey: (params) => `radial-wipe-${JSON.stringify(resolve(params))}`,
+	setup: (target) =>
+		setupWipe(target, FRAGMENT_SHADER, 'radial wipe', [
+			'uResolution',
+			'uCenter',
+			'uStartAngle',
+			'uCompletion',
+			'uFeather',
+			'uDirection',
+		]),
+	apply: ({source, width, height, params, state, flipSourceY}) => {
+		const r = resolve(params);
+		const {gl, uniforms} = state;
+		prepareWipeSource({
+			state,
+			source: source as TexImageSource,
+			width,
+			height,
+			flipSourceY,
+		});
+		gl.uniform2f(uniforms.uResolution, width, height);
+		gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+		gl.uniform1f(uniforms.uStartAngle, r.startAngle % 360);
+		gl.uniform1f(uniforms.uCompletion, r.completion);
+		gl.uniform1f(uniforms.uFeather, r.feather);
+		gl.uniform1i(uniforms.uDirection, DIRECTIONS.indexOf(r.direction));
+		drawWipe(state);
+	},
+	cleanup: cleanupWipe,
+	schema: radialWipeSchema,
+	validateParams: (params) => {
+		assertEffectParamsObject(params, 'Radial wipe');
+		assertOptionalFiniteNumber(params.completion, 'completion');
+		assertOptionalFiniteNumber(params.startAngle, 'startAngle');
+		assertOptionalFiniteNumber(params.feather, 'feather');
+		if (params.center !== undefined) {
+			if (!Array.isArray(params.center) || params.center.length !== 2) {
+				throw new TypeError('"center" must be a tuple of two finite numbers');
+			}
+
+			assertRequiredFiniteNumber(params.center[0], 'center[0]');
+			assertRequiredFiniteNumber(params.center[1], 'center[1]');
+		}
+
+		const r = resolve(params);
+		if (
+			params.direction !== undefined &&
+			!DIRECTIONS.includes(params.direction)
+		) {
+			throw new TypeError(
+				'"direction" must be "clockwise", "counterclockwise" or "both"',
+			);
+		}
+
+		validateUnitInterval(r.completion, 'completion');
+		validateUnitInterval(r.center[0], 'center[0]');
+		validateUnitInterval(r.center[1], 'center[1]');
+		validateNonNegative(r.feather, 'feather');
+		if (r.feather > 360) throw new TypeError('"feather" must be at most 360');
+	},
+});

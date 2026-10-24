@@ -28,6 +28,7 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {irisWipe} from '@remotion/effects/iris-wipe';
 import {lensBlur} from '@remotion/effects/lens-blur';
 import {levels} from '@remotion/effects/levels';
 import {lightLeak} from '@remotion/effects/light-leak';
@@ -36,6 +37,7 @@ import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
+import {linearWipe} from '@remotion/effects/linear-wipe';
 import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
 import {longShadows} from '@remotion/effects/long-shadows';
@@ -51,6 +53,7 @@ import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {radialProgressivePixelate} from '@remotion/effects/radial-progressive-pixelate';
+import {radialWipe} from '@remotion/effects/radial-wipe';
 import {regionBlur} from '@remotion/effects/region-blur';
 import {rings} from '@remotion/effects/rings';
 import {roughenEdges} from '@remotion/effects/roughen-edges';
@@ -111,6 +114,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsIrisWipePreview} from '../effects/effects-iris-wipe-preview';
 import {EffectsLensBlurPreview} from '../effects/effects-lens-blur-preview';
 import {EffectsLevelsPreview} from '../effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
@@ -122,6 +126,7 @@ import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-p
 import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
+import {EffectsLinearWipePreview} from '../effects/effects-linear-wipe-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
 import {
@@ -156,6 +161,7 @@ import {
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRadialProgressivePixelatePreview} from '../effects/effects-radial-progressive-pixelate-preview';
+import {EffectsRadialWipePreview} from '../effects/effects-radial-wipe-preview';
 import {EffectsRegionBlurPreview} from '../effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-preview';
@@ -430,6 +436,30 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/venetian-blinds',
 		comp: EffectsVenetianBlindsPreview,
 		schema: venetianBlinds().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-linear-wipe',
+		effectName: 'linearWipe',
+		effectImportPath: '@remotion/effects/linear-wipe',
+		comp: EffectsLinearWipePreview,
+		schema: linearWipe().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-radial-wipe',
+		effectName: 'radialWipe',
+		effectImportPath: '@remotion/effects/radial-wipe',
+		comp: EffectsRadialWipePreview,
+		schema: radialWipe().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-iris-wipe',
+		effectName: 'irisWipe',
+		effectImportPath: '@remotion/effects/iris-wipe',
+		comp: EffectsIrisWipePreview,
+		schema: irisWipe().definition.schema,
 	},
 	{
 		...defaults,
