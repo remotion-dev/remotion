@@ -111,7 +111,9 @@ Once called, prefetching starts and an object with two properties are returned:
 
 ### `free()`
 
-Calling this function will abort the prefetching is still in progress and free up the memory. Components using the asset might re-request the asset.
+Calling this function aborts the prefetch if it is still in progress and frees its memory. Components using the asset might re-request the asset.
+
+From <AvailableFrom v="4.0.539" inline />, freeing one prefetch does not remove another completed prefetch for the same asset. The asset remains prefetched until all completed prefetches have been freed.
 
 ### `waitUntilDone()`
 
