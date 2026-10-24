@@ -319,6 +319,11 @@
 			"module": "./dist/esm/radial-wipe.mjs",
 			"import": "./dist/esm/radial-wipe.mjs"
 		},
+		"./rain-fall": {
+			"types": "./dist/rain-fall.d.ts",
+			"module": "./dist/esm/rain-fall.mjs",
+			"import": "./dist/esm/rain-fall.mjs"
+		},
 		"./region-blur": {
 			"types": "./dist/region-blur.d.ts",
 			"module": "./dist/esm/region-blur.mjs",
@@ -373,6 +378,11 @@
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
+		},
+		"./snow-fall": {
+			"types": "./dist/snow-fall.d.ts",
+			"module": "./dist/esm/snow-fall.mjs",
+			"import": "./dist/esm/snow-fall.mjs"
 		},
 		"./sphere": {
 			"types": "./dist/sphere.d.ts",
@@ -639,6 +649,9 @@
 			"radial-wipe": [
 				"dist/radial-wipe.d.ts"
 			],
+			"rain-fall": [
+				"dist/rain-fall.d.ts"
+			],
 			"region-blur": [
 				"dist/region-blur.d.ts"
 			],
@@ -671,6 +684,9 @@
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"snow-fall": [
+				"dist/snow-fall.d.ts"
 			],
 			"sphere": [
 				"dist/sphere.d.ts"

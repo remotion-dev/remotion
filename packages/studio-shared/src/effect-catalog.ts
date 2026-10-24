@@ -928,6 +928,38 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-rain-fall',
+		category: 'Generate',
+		label: 'rainFall()',
+		description: 'Falling rain with wind and depth',
+		effect: {
+			name: 'rainFall',
+			importPath: '@remotion/effects/rain-fall',
+			config: {
+				time: 1,
+				drops: 2000,
+				size: 2,
+				wind: 200,
+				opacity: 0.5,
+			},
+		},
+	},
+	{
+		id: 'effects-snow-fall',
+		category: 'Generate',
+		label: 'snowFall()',
+		description: 'Drifting snow with wind and depth',
+		effect: {
+			name: 'snowFall',
+			importPath: '@remotion/effects/snow-fall',
+			config: {
+				time: 1,
+				flakes: 1500,
+				size: 8,
+			},
+		},
+	},
+	{
 		id: 'effects-fractal-noise',
 		category: 'Generate',
 		label: 'fractalNoise()',

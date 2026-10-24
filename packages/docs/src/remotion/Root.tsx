@@ -103,6 +103,10 @@ import {
 	RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-pixelate-preview';
 import {EffectsRadialWipePreview} from '../../components/effects/effects-radial-wipe-preview';
+import {
+	EffectsRainFallPreview,
+	RAIN_FALL_PREVIEW_PARAMS,
+} from '../../components/effects/effects-rain-fall-preview';
 import {EffectsRegionBlurPreview} from '../../components/effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {
@@ -121,6 +125,10 @@ import {
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../../components/effects/effects-skew-preview';
+import {
+	EffectsSnowFallPreview,
+	SNOW_FALL_PREVIEW_PARAMS,
+} from '../../components/effects/effects-snow-fall-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {
 	EffectsSpherePreview,
@@ -671,6 +679,20 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'vertical',
 						slats: 14,
 					}}
+				/>
+				<Still
+					id="effects-rain-fall-preview"
+					component={EffectsRainFallPreview}
+					width={1280}
+					height={720}
+					defaultProps={RAIN_FALL_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-snow-fall-preview"
+					component={EffectsSnowFallPreview}
+					width={1280}
+					height={720}
+					defaultProps={SNOW_FALL_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-film-burn-preview"

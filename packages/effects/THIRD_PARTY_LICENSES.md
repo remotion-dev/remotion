@@ -21,6 +21,11 @@ The Film Burn shader is adapted from EffectCraft's CC Burn Film and value noise
 `crates/effects/src/noise.rs`, and `crates/gpu/src/shaders/fx_pixel2.wgsl`),
 revision `eb5108786b90bf994a6abe4e6c0b2614c6aeaa29`, also under the MIT license.
 
+The Rain Fall and Snow Fall particle layout, shading, and hash are adapted from
+EffectCraft's weather simulations (`crates/effects/src/sim.rs` and
+`crates/raster/src/lib.rs`), revision
+`eb5108786b90bf994a6abe4e6c0b2614c6aeaa29`, also under the MIT license.
+
 MIT License
 
 Copyright (c) 2026 ArtCraft Team and the EffectCraft contributors

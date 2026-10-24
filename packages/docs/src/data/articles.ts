@@ -3925,6 +3925,15 @@ export const articles = [
 		slug: 'effects/radial-wipe',
 	},
 	{
+		id: 'effects/rain-fall',
+		title: 'rainFall()',
+		relativePath: 'docs/effects/rain-fall.mdx',
+		compId: 'articles-docs-effects-rain-fall',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/rain-fall',
+	},
+	{
 		id: 'effects/region-blur',
 		title: 'regionBlur()',
 		relativePath: 'docs/effects/region-blur.mdx',
@@ -4022,6 +4031,15 @@ export const articles = [
 		crumb: '@remotion/effects',
 		noAi: false,
 		slug: 'effects/skew',
+	},
+	{
+		id: 'effects/snow-fall',
+		title: 'snowFall()',
+		relativePath: 'docs/effects/snow-fall.mdx',
+		compId: 'articles-docs-effects-snow-fall',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/snow-fall',
 	},
 	{
 		id: 'effects/speckle',

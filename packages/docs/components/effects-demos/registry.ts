@@ -54,6 +54,7 @@ import {pixelate} from '@remotion/effects/pixelate';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {radialProgressivePixelate} from '@remotion/effects/radial-progressive-pixelate';
 import {radialWipe} from '@remotion/effects/radial-wipe';
+import {rainFall} from '@remotion/effects/rain-fall';
 import {regionBlur} from '@remotion/effects/region-blur';
 import {rings} from '@remotion/effects/rings';
 import {roughenEdges} from '@remotion/effects/roughen-edges';
@@ -65,6 +66,7 @@ import {shatter} from '@remotion/effects/shatter';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
+import {snowFall} from '@remotion/effects/snow-fall';
 import {speckle} from '@remotion/effects/speckle';
 import {sphere} from '@remotion/effects/sphere';
 import {starburst} from '@remotion/effects/starburst';
@@ -162,6 +164,7 @@ import {
 } from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRadialProgressivePixelatePreview} from '../effects/effects-radial-progressive-pixelate-preview';
 import {EffectsRadialWipePreview} from '../effects/effects-radial-wipe-preview';
+import {EffectsRainFallPreview} from '../effects/effects-rain-fall-preview';
 import {EffectsRegionBlurPreview} from '../effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-preview';
@@ -176,6 +179,7 @@ import {
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../effects/effects-skew-preview';
+import {EffectsSnowFallPreview} from '../effects/effects-snow-fall-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsSpherePreview} from '../effects/effects-sphere-preview';
 import {
@@ -225,6 +229,22 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-rain-fall',
+		effectName: 'rainFall',
+		effectImportPath: '@remotion/effects/rain-fall',
+		comp: EffectsRainFallPreview,
+		schema: rainFall().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-snow-fall',
+		effectName: 'snowFall',
+		effectImportPath: '@remotion/effects/snow-fall',
+		comp: EffectsSnowFallPreview,
+		schema: snowFall().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-bevel-alpha',
