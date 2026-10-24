@@ -11,7 +11,7 @@ The Shatter geometry and motion are adapted from EffectCraft's simulation
 engine (`crates/effects/src/sim2.rs` and `crates/raster/src/lib.rs`), revision
 `9581b53c3f8945683252af0eb5fac79e0e43aed4`, also under the MIT license.
 
-The Linear Wipe, Radial Wipe, and Iris Wipe shaders are adapted from
+The Evolve pixel feathering, Radial Wipe, and Iris Wipe shaders are adapted from
 EffectCraft's transition effects (`crates/effects/src/misc.rs` and
 `crates/effects/src/transition.rs`), revision
 `eb5108786b90bf994a6abe4e6c0b2614c6aeaa29`, also under the MIT license.

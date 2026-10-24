@@ -204,11 +204,6 @@
 			"module": "./dist/esm/linear-gradient-tint.mjs",
 			"import": "./dist/esm/linear-gradient-tint.mjs"
 		},
-		"./linear-wipe": {
-			"types": "./dist/linear-wipe.d.ts",
-			"module": "./dist/esm/linear-wipe.mjs",
-			"import": "./dist/esm/linear-wipe.mjs"
-		},
 		"./liquid-contours": {
 			"types": "./dist/liquid-contours.d.ts",
 			"module": "./dist/esm/liquid-contours.mjs",
@@ -569,9 +564,6 @@
 			],
 			"linear-gradient-tint": [
 				"dist/linear-gradient-tint.d.ts"
-			],
-			"linear-wipe": [
-				"dist/linear-wipe.d.ts"
 			],
 			"liquid-contours": [
 				"dist/liquid-contours.d.ts"

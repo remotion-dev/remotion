@@ -63,7 +63,6 @@ import {
 	EffectsLinearProgressivePixelatePreview,
 	LINEAR_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-linear-progressive-pixelate-preview';
-import {EffectsLinearWipePreview} from '../../components/effects/effects-linear-wipe-preview';
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
 import {
@@ -474,9 +473,12 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
-						progress: 0.55,
-						direction: 'left',
-						feather: 0.18,
+						progress: 0.5,
+						direction: 'angle',
+						angle: 60,
+						featherUnit: 'pixels',
+						featherPixels: 60,
+						feather: 0.1,
 					}}
 				/>
 				<Still
@@ -668,13 +670,6 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'vertical',
 						slats: 14,
 					}}
-				/>
-				<Still
-					id="effects-linear-wipe-preview"
-					component={EffectsLinearWipePreview}
-					width={1280}
-					height={720}
-					defaultProps={{completion: 0.5, angle: 60, feather: 60}}
 				/>
 				<Still
 					id="effects-radial-wipe-preview"

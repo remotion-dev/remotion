@@ -3772,15 +3772,6 @@ export const articles = [
 		slug: 'effects/linear-progressive-pixelate',
 	},
 	{
-		id: 'effects/linear-wipe',
-		title: 'linearWipe()',
-		relativePath: 'docs/effects/linear-wipe.mdx',
-		compId: 'articles-docs-effects-linear-wipe',
-		crumb: '@remotion/effects',
-		noAi: false,
-		slug: 'effects/linear-wipe',
-	},
-	{
 		id: 'effects/lines',
 		title: 'lines()',
 		relativePath: 'docs/effects/lines.mdx',

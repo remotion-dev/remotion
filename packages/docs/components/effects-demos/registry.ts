@@ -37,7 +37,6 @@ import {linearGradient} from '@remotion/effects/linear-gradient';
 import {linearGradientTint} from '@remotion/effects/linear-gradient-tint';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
-import {linearWipe} from '@remotion/effects/linear-wipe';
 import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
 import {longShadows} from '@remotion/effects/long-shadows';
@@ -126,7 +125,6 @@ import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-p
 import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
-import {EffectsLinearWipePreview} from '../effects/effects-linear-wipe-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
 import {
@@ -436,14 +434,6 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/venetian-blinds',
 		comp: EffectsVenetianBlindsPreview,
 		schema: venetianBlinds().definition.schema,
-	},
-	{
-		...defaults,
-		id: 'effects-linear-wipe',
-		effectName: 'linearWipe',
-		effectImportPath: '@remotion/effects/linear-wipe',
-		comp: EffectsLinearWipePreview,
-		schema: linearWipe().definition.schema,
 	},
 	{
 		...defaults,

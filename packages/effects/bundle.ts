@@ -46,7 +46,6 @@ const effectEntrypoints = [
 	'src/linear-gradient-tint.ts',
 	'src/linear-progressive-blur.ts',
 	'src/linear-progressive-pixelate.ts',
-	'src/linear-wipe.ts',
 	'src/light-leak.ts',
 	'src/light-trail.ts',
 	'src/lens-blur.ts',

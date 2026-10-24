@@ -432,11 +432,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		id: 'effects-evolve',
 		category: 'Reveal',
 		label: 'evolve()',
-		description: 'Directional reveal effect',
+		description: 'Directional reveal with angle and feathering',
 		effect: {
 			name: 'evolve',
 			importPath: '@remotion/effects/evolve',
-			config: {},
+			config: {
+				progress: 0.5,
+				direction: 'angle',
+				angle: 60,
+				featherUnit: 'pixels',
+				featherPixels: 60,
+			},
 		},
 	},
 	{
@@ -445,17 +451,6 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		label: 'tear()',
 		description: 'Progressive zigzag tear with outward rotation',
 		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
-	},
-	{
-		id: 'effects-linear-wipe',
-		category: 'Reveal',
-		label: 'linearWipe()',
-		description: 'Straight-edge wipe with angle and feathering',
-		effect: {
-			name: 'linearWipe',
-			importPath: '@remotion/effects/linear-wipe',
-			config: {completion: 0.5, angle: 60, feather: 60},
-		},
 	},
 	{
 		id: 'effects-radial-wipe',
