@@ -51,7 +51,7 @@
 		"./package.json": "./package.json"
 	},
 	"devDependencies": {
-		"@rspack/plugin-react-refresh": "1.6.1",
+		"@rspack/plugin-react-refresh": "2.0.2",
 		"@happy-dom/global-registrator": "14.5.1",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@remotion/player": "workspace:*",
