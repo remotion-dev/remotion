@@ -20,7 +20,7 @@ import {makeRoundedProgress} from './make-rounded-progress';
 const outerCornerRadius = 30 * 7.5;
 const padding = 0;
 const outerWidth = 300 * 7.5;
-const outerHeight = 100 * 7.5;
+const outerHeight = 75 * 7.5;
 const progressDurationInFrames = 34;
 const progressStartOffsetInFrames = 24;
 const flipDelayInFrames = 10;

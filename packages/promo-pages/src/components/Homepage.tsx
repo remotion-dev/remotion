@@ -130,16 +130,8 @@ export const NewLanding: React.FC<{
 							<MakeVideosAgentically
 								title="Batch rendering"
 								description="Render millions of videos on your own infrastructure."
-								videoSrc={
-									experimental
-										? 'https://remotion.media/homepage/render-progress-flush-e9ec7d39c5f8.webm'
-										: '/img/render-progress.webm'
-								}
-								fallbackVideoSrc={
-									experimental
-										? 'https://remotion.media/homepage/render-progress-flush-e9ec7d39c5f8.mp4'
-										: '/img/render-progress.mp4'
-								}
+								videoSrc="https://remotion.media/homepage/render-progress-bottom-aligned-a27b53fb8766.webm"
+								fallbackVideoSrc="https://remotion.media/homepage/render-progress-bottom-aligned-a27b53fb8766.mp4"
 								links={[
 									{
 										label: 'Server-side rendering',
