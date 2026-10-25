@@ -13,6 +13,7 @@ const videoSources: Record<string, string> = {
 	Effects: 'effects-2026-10-20-869defbc5f69.mp4',
 	Transitions: 'transitions-2026-10-20-b49c7dfb4fe1.mp4',
 	'Color Correction': 'color-correction-2026-10-20-b0f28e423a58.mp4',
+	Convert: 'convert-2026-10-25-553dad454550.mp4',
 };
 
 export const ExploreSection: React.FC = () => {
