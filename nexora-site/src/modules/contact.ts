@@ -173,7 +173,7 @@ export function initContactForm() {
 				const to = config.email.value;
 				const subject = `Novo projeto — ${payload.nome}`;
 				window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-				setStatus('Abrimos seu aplicativo de e-mail com a mensagem pronta para envio.', 'success');
+				setStatus(`Preparamos a mensagem no seu aplicativo de e-mail. Se ele não abrir, escreva para ${to}.`, 'success');
 			}
 		} catch {
 			setStatus(`Não foi possível enviar agora. Escreva para ${config.email.value}.`, 'error');

@@ -3,12 +3,13 @@
 	"private": true,
 	"version": "1.0.0",
 	"type": "module",
-	"description": "NEXORA Digital — site institucional premium (Vite + TypeScript + GSAP + Three.js)",
+	"description": "NEXORA Digital \u2014 site institucional premium (Vite + TypeScript + GSAP + Three.js)",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc --noEmit && vite build",
 		"preview": "vite preview",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"build:single": "tsc --noEmit && vite build -c vite.single.config.ts && node scripts/inline.mjs"
 	},
 	"dependencies": {
 		"@fontsource-variable/geist": "^5.3.0",
