@@ -1,0 +1,26 @@
+{
+	"name": "nexora-digital-site",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"description": "NEXORA Digital — site institucional premium (Vite + TypeScript + GSAP + Three.js)",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc --noEmit && vite build",
+		"preview": "vite preview",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@fontsource-variable/geist": "^5.3.0",
+		"@fontsource-variable/geist-mono": "^5.3.0",
+		"@fontsource/instrument-serif": "^5.3.0",
+		"gsap": "^3.15.0",
+		"lenis": "^1.3.27",
+		"three": "^0.186.1"
+	},
+	"devDependencies": {
+		"@types/three": "^0.186.0",
+		"typescript": "^5.9.3",
+		"vite": "^8.3.5"
+	}
+}

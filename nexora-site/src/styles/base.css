@@ -1,0 +1,282 @@
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+:root {
+	--ink: #0c0b0a;
+	--ink-2: #131210;
+	--ink-3: #1c1a17;
+	--bone: #ece6db;
+	--bone-2: rgba(236, 230, 219, 0.66);
+	--bone-3: rgba(236, 230, 219, 0.42);
+	--line: rgba(236, 230, 219, 0.12);
+	--line-strong: rgba(236, 230, 219, 0.24);
+	--brass: #c6a46c;
+	--brass-2: #e0c79b;
+	--paper: #e8e2d6;
+	--paper-ink: #16130f;
+	--paper-line: rgba(22, 19, 15, 0.14);
+
+	--font-display: 'Instrument Serif', 'Times New Roman', serif;
+	--font-sans: 'Geist Variable', 'Helvetica Neue', Arial, sans-serif;
+	--font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+
+	--fs-hero: clamp(3.25rem, 1.4rem + 8.2vw, 10.5rem);
+	--fs-h2: clamp(2.5rem, 1.3rem + 4.6vw, 6.25rem);
+	--fs-manifesto: clamp(1.75rem, 1rem + 2.9vw, 4.1rem);
+	--fs-lead: clamp(1.02rem, 0.95rem + 0.3vw, 1.2rem);
+	--fs-body: 1rem;
+	--fs-small: 0.875rem;
+	--fs-mono: 0.72rem;
+
+	--gutter: clamp(1rem, 0.6rem + 1.8vw, 2.5rem);
+	--max: 1440px;
+	--section-y: clamp(6rem, 4rem + 9vw, 12rem);
+	--radius: 2px;
+	--radius-panel: clamp(1.25rem, 0.8rem + 2vw, 2.5rem);
+
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+	color-scheme: dark;
+}
+
+/* ==========================================================================
+   Reset
+   ========================================================================== */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+	scroll-behavior: smooth;
+}
+
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+.lenis.lenis-smooth {
+	scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+	overflow: hidden;
+}
+
+body {
+	margin: 0;
+	background: var(--ink);
+	color: var(--bone);
+	font-family: var(--font-sans);
+	font-size: var(--fs-body);
+	line-height: 1.6;
+	font-weight: 380;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	overflow-x: clip;
+}
+
+/* Textura de grão sutil sobre toda a página */
+body::after {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: 90;
+	pointer-events: none;
+	opacity: 0.055;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+img,
+svg,
+canvas {
+	display: block;
+	max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul,
+dl,
+dd,
+figure {
+	margin: 0;
+}
+
+ol,
+ul {
+	padding: 0;
+	list-style: none;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+	background: none;
+	border: 0;
+	padding: 0;
+}
+
+em {
+	font-family: var(--font-display);
+	font-style: italic;
+	font-weight: 400;
+}
+
+::selection {
+	background: var(--brass);
+	color: var(--ink);
+}
+
+:focus-visible {
+	outline: 1px solid var(--brass);
+	outline-offset: 4px;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.skip-link {
+	position: fixed;
+	top: 0.75rem;
+	left: 0.75rem;
+	z-index: 200;
+	padding: 0.7rem 1rem;
+	background: var(--bone);
+	color: var(--ink);
+	font-size: var(--fs-small);
+	transform: translateY(-160%);
+	transition: transform 0.3s var(--ease-out);
+}
+.skip-link:focus {
+	transform: none;
+}
+
+/* ==========================================================================
+   Layout & tipografia utilitária
+   ========================================================================== */
+.container {
+	width: 100%;
+	max-width: var(--max);
+	margin-inline: auto;
+	padding-inline: var(--gutter);
+}
+
+.section {
+	padding-block: var(--section-y);
+	position: relative;
+}
+
+.mono {
+	font-family: var(--font-mono);
+	font-size: var(--fs-mono);
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-weight: 400;
+}
+
+.eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.7rem;
+	font-family: var(--font-mono);
+	font-size: var(--fs-mono);
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--bone-2);
+}
+
+.dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--brass);
+	box-shadow: 0 0 0 4px rgba(198, 164, 108, 0.16);
+}
+
+.section-index {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.8rem;
+	color: var(--bone-3);
+}
+.section-index::before {
+	content: '';
+	width: 2.2rem;
+	height: 1px;
+	background: currentColor;
+}
+
+.section-title {
+	font-family: var(--font-display);
+	font-weight: 400;
+	font-size: var(--fs-h2);
+	line-height: 0.98;
+	letter-spacing: -0.02em;
+}
+.section-title em {
+	color: var(--brass-2);
+}
+
+.section-lead {
+	font-size: var(--fs-lead);
+	color: var(--bone-2);
+	max-width: 34rem;
+	line-height: 1.55;
+}
+
+/* Selo para campos provisórios definidos em src/config.ts */
+.placeholder-tag {
+	display: inline-block;
+	margin-left: 0.5em;
+	padding: 0.15em 0.45em 0.1em;
+	border: 1px dashed var(--brass);
+	border-radius: 3px;
+	color: var(--brass);
+	font-family: var(--font-mono);
+	font-size: 0.6rem;
+	letter-spacing: 0.1em;
+	vertical-align: middle;
+	line-height: 1.3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+	}
+}
