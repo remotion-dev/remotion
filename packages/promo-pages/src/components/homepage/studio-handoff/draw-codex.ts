@@ -49,11 +49,14 @@ export const drawCodex = (
 	const message =
 		'Please import the videos I just recorded from ~/Downloads and put them on a timeline. caption it.';
 	ctx.font = `400 16px ${font.fontFamily}`;
+	const skillLabel = '/remotion-best-practices';
+	const skillWidth = 21 + ctx.measureText(skillLabel).width;
 	const lines: string[] = [];
 	let line = '';
 	for (const word of message.split(' ')) {
 		const nextLine = line ? `${line} ${word}` : word;
-		if (line && ctx.measureText(nextLine).width > 468) {
+		const availableWidth = 468 - (lines.length === 0 ? skillWidth + 8 : 0);
+		if (line && ctx.measureText(nextLine).width > availableWidth) {
 			lines.push(line);
 			line = word;
 		} else {
@@ -65,8 +68,22 @@ export const drawCodex = (
 	const firstMessageHeight = lines.length * 24 + 24;
 	roundedRect(ctx, 116, 74, 500, firstMessageHeight, 16, '#213569');
 	for (let i = 0; i < lines.length; i++) {
-		text(ctx, lines[i], 132, 90 + i * 24, 16, '#f5f9fe', font);
+		text(
+			ctx,
+			lines[i],
+			132 + (i === 0 ? skillWidth + 8 : 0),
+			90 + i * 24,
+			16,
+			'#f5f9fe',
+			font,
+		);
 	}
+
+	const skillTop = 90;
+	const skillLeft = 132;
+	const skillColor = '#5896e8';
+	drawAppIcon(ctx, 'skill', skillLeft, skillTop - 1.5, 18, 18, skillColor);
+	text(ctx, skillLabel, skillLeft + 21, skillTop, 16, skillColor, font);
 
 	const assistantTop = 74 + firstMessageHeight + 18;
 	text(

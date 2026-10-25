@@ -148,7 +148,7 @@ export const NewLanding: React.FC<{
 								}
 								description={
 									experimental
-										? 'Own the code, use the web and bring your assets.'
+										? 'Own the code, use the web and connect your assets.'
 										: undefined
 								}
 								showVideo={!experimental}
@@ -158,7 +158,7 @@ export const NewLanding: React.FC<{
 								]}
 							/>
 						</div>
-						<ReactSourceOfTruth />
+						{experimental ? null : <ReactSourceOfTruth />}
 						<div className={makeVideosRowClassName}>
 							<MakeVideosProgrammatically
 								title="Parameterization"

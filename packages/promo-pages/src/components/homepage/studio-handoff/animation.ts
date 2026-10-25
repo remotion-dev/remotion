@@ -78,9 +78,13 @@ export const getStudioHandoffFrame = (time: number): StudioHandoffFrame => {
 		}
 
 		const entering = seconds >= transition.midpoint;
-		const eased = handoffEasing((seconds - start) / (end - start));
+		const progress = (seconds - start) / (end - start);
+		const eased = handoffEasing(progress);
 		title.mode = entering ? transition.to : transition.from;
-		title.opacity = Math.abs(2 * eased - 1);
+		// Settle at zero opacity before swapping the word at the midpoint.
+		title.opacity = entering
+			? handoffEasing(progress * 2 - 1)
+			: 1 - handoffEasing(progress * 2);
 		title.offset = transition.direction * 60 * (eased - (entering ? 1 : 0));
 		break;
 	}
@@ -121,15 +125,17 @@ export const getStudioHandoffTransitionFrame = (
 	if (elapsed >= duration) return to;
 	const progress = handoffEasing(elapsed / duration);
 	const titleDuration = Math.min(0.4, duration);
-	const titleProgress = handoffEasing(
-		(elapsed - (duration - titleDuration) / 2) / titleDuration,
+	const titleTime = Math.max(
+		0,
+		Math.min(1, (elapsed - (duration - titleDuration) / 2) / titleDuration),
 	);
+	const titleProgress = handoffEasing(titleTime);
 	const direction =
 		studioHandoffModeTimes[to.title.mode] >=
 		studioHandoffModeTimes[from.title.mode]
 			? 1
 			: -1;
-	const entering = titleProgress >= 0.5;
+	const entering = titleTime >= 0.5;
 	const title =
 		from.title.mode === to.title.mode
 			? {
@@ -141,8 +147,8 @@ export const getStudioHandoffTransitionFrame = (
 			: {
 					mode: entering ? to.title.mode : from.title.mode,
 					opacity: entering
-						? 2 * titleProgress - 1
-						: from.title.opacity * (1 - 2 * titleProgress),
+						? handoffEasing(titleTime * 2 - 1)
+						: from.title.opacity * (1 - handoffEasing(titleTime * 2)),
 					offset: entering
 						? direction * 60 * (titleProgress - 1)
 						: from.title.offset + direction * 60 * titleProgress,

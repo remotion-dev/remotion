@@ -2,6 +2,17 @@
 // VS Code codicons copyright Microsoft Corporation, licensed under CC BY 4.0.
 // Seti UI React glyph copyright 2014 Jesse Weed, licensed under MIT.
 const appIcons = {
+	skill: {
+		viewBox: [0, 0, 24, 24],
+		flipY: false,
+		paths: [
+			{
+				d: 'M12 2 4 6.5v11L12 22l8-4.5v-11L12 2Z M4 6.5l8 4.5 8-4.5 M12 11v11 M4 12l8 4.5 8-4.5',
+				fill: false,
+				opacity: 1,
+			},
+		],
+	},
 	folder: {
 		viewBox: [0, 0, 24, 24],
 		flipY: false,
