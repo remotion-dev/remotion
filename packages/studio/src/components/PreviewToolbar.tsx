@@ -149,24 +149,23 @@ export const PreviewToolbar: React.FC<{
 					<>
 						<Spacing x={2} />
 						<PreviewToolbarControl>
-							<PlaybackRateSelector
-								setPlaybackRate={setPlaybackRate}
-								playbackRate={playbackRate}
-							/>
+							<PlaybackRateSelector />
 						</PreviewToolbarControl>
 					</>
 				) : null}
 				{isMobileLayout ? (
 					<>
+						{isVideoComposition ? (
+							<PreviewToolbarControl>
+								<PlaybackRateSelector />
+							</PreviewToolbarControl>
+						) : null}
 						<PreviewToolbarControl>
 							<PreviewToolbarOverflowButton
 								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-								showPlaybackRate={isVideoComposition}
 								showLoop={isVideoComposition}
 								showCanvasViewControls={showCanvasViewControls}
 								showCompositionControls={showCompositionControls}
-								playbackRate={playbackRate}
-								setPlaybackRate={setPlaybackRate}
 								loop={loop}
 								setLoop={setLoop}
 							/>
