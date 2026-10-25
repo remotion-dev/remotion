@@ -1,5 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
+	createStudioHandoffTransition,
+	getStudioHandoffFrame,
+	getStudioHandoffTransitionFrame,
+	type StudioHandoffMode,
+	type StudioHandoffTitleState,
+} from './studio-handoff/animation';
+import {
 	drawStudioHandoff,
 	loadStudioHandoffAssets,
 	STUDIO_HANDOFF_DURATION,
@@ -8,8 +15,13 @@ import {
 } from './studio-handoff/renderer';
 
 export const StudioHandoffCanvas: React.FC<{
-	readonly onFrameRef: React.RefObject<((time: number) => void) | null>;
-}> = ({onFrameRef}) => {
+	readonly onFrameRef: React.RefObject<
+		((state: StudioHandoffTitleState) => void) | null
+	>;
+	readonly selectModeRef: React.RefObject<
+		((mode: StudioHandoffMode) => void) | null
+	>;
+}> = ({onFrameRef, selectModeRef}) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [ready, setReady] = useState(false);
 
@@ -27,10 +39,15 @@ export const StudioHandoffCanvas: React.FC<{
 		let animationFrame: number | null = null;
 		let previousTimestamp: number | null = null;
 		let time = 0;
+		let currentFrame = getStudioHandoffFrame(0);
+		let transition: ReturnType<typeof createStudioHandoffTransition> | null =
+			null;
+		let transitionElapsed = 0;
+		let holdRemaining = 0;
 
 		const draw = () => {
-			drawStudioHandoff(canvas, time, assets);
-			onFrameRef.current?.(time);
+			drawStudioHandoff(canvas, time, assets, currentFrame.layout);
+			onFrameRef.current?.(currentFrame.title);
 		};
 
 		const tick = (timestamp: number) => {
@@ -39,15 +56,37 @@ export const StudioHandoffCanvas: React.FC<{
 				return;
 			}
 
-			if (previousTimestamp !== null) {
-				time =
-					(time + (timestamp - previousTimestamp) / 1000) %
-					STUDIO_HANDOFF_DURATION;
+			const delta =
+				previousTimestamp === null ? 0 : (timestamp - previousTimestamp) / 1000;
+			if (transition) {
+				transitionElapsed += delta;
+				currentFrame = getStudioHandoffTransitionFrame(
+					transition,
+					transitionElapsed,
+				);
+				if (transitionElapsed >= transition.duration) {
+					const overflow = transitionElapsed - transition.duration;
+					holdRemaining = Math.max(0, 3 - overflow);
+					time =
+						(transition.targetTime + Math.max(0, overflow - 3)) %
+						STUDIO_HANDOFF_DURATION;
+					transition = null;
+					currentFrame = getStudioHandoffFrame(time);
+				}
+			} else {
+				const held = Math.min(delta, holdRemaining);
+				holdRemaining -= held;
+				time = (time + delta - held) % STUDIO_HANDOFF_DURATION;
+				currentFrame = getStudioHandoffFrame(time);
 			}
 
 			previousTimestamp = timestamp;
 			draw();
-			animationFrame = requestAnimationFrame(tick);
+			if (visible || transition) {
+				animationFrame = requestAnimationFrame(tick);
+			} else {
+				previousTimestamp = null;
+			}
 		};
 
 		const updatePlayback = () => {
@@ -57,10 +96,10 @@ export const StudioHandoffCanvas: React.FC<{
 
 			if (
 				!loaded ||
-				!visible ||
+				(!visible && !transition) ||
 				document.hidden ||
 				!document.hasFocus() ||
-				reducedMotion.matches
+				(reducedMotion.matches && !transition)
 			) {
 				if (animationFrame !== null) {
 					cancelAnimationFrame(animationFrame);
@@ -74,6 +113,23 @@ export const StudioHandoffCanvas: React.FC<{
 			if (animationFrame === null) {
 				animationFrame = requestAnimationFrame(tick);
 			}
+		};
+
+		selectModeRef.current = (mode) => {
+			// Redirect from the actual visible pose, even during another selection.
+			transition = createStudioHandoffTransition(currentFrame, mode);
+			transitionElapsed = 0;
+			holdRemaining = 0;
+			previousTimestamp = performance.now();
+			if (reducedMotion.matches || transition.duration === 0 || !loaded) {
+				time = transition.targetTime;
+				holdRemaining = 3;
+				currentFrame = transition.to;
+				transition = null;
+				draw();
+			}
+
+			updatePlayback();
 		};
 
 		const resize = () => {
@@ -95,6 +151,9 @@ export const StudioHandoffCanvas: React.FC<{
 		const onMotionPreferenceChange = () => {
 			if (reducedMotion.matches) {
 				time = 0;
+				holdRemaining = 0;
+				transition = null;
+				currentFrame = getStudioHandoffFrame(time);
 				if (loaded) {
 					draw();
 				}
@@ -141,6 +200,7 @@ export const StudioHandoffCanvas: React.FC<{
 		load();
 		return () => {
 			disposed = true;
+			selectModeRef.current = null;
 			if (animationFrame !== null) {
 				cancelAnimationFrame(animationFrame);
 			}
@@ -153,7 +213,7 @@ export const StudioHandoffCanvas: React.FC<{
 			window.removeEventListener('resize', resize);
 			reducedMotion.removeEventListener('change', onMotionPreferenceChange);
 		};
-	}, [onFrameRef]);
+	}, [onFrameRef, selectModeRef]);
 
 	return (
 		<>

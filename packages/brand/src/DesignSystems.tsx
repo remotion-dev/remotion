@@ -18,6 +18,9 @@ const assetScaleOverlap = 1;
 const endcardEnterStart = animatedLogoExitEnd - assetScaleOverlap;
 // Match the visible half of the 30-unit Batch rendering stroke at its 0.408 scale.
 const selectionOutlineStrokeWidth = (30 / 2) * (1920 / 3200) * 0.68;
+const animatedLogoRestScale = 1.3;
+const endcardRestScale = 0.513;
+const selectionOutlineHandleSize = 40 * animatedLogoRestScale * 0.667;
 const scaleSpring = Easing.spring({
 	damping: 200,
 	mass: 1,
@@ -49,13 +52,13 @@ export const DesignSystems: React.FC = () => {
 	const animatedLogoScale = interpolate(
 		pingPongFrame,
 		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
-		[1.3, 0],
+		[animatedLogoRestScale, 0],
 		exitTransition,
 	);
 	const endcardScale = interpolate(
 		pingPongFrame,
 		[endcardEnterStart, folderTreeSelectionMoveEnd],
-		[0, 0.513],
+		[0, endcardRestScale],
 		enterTransition,
 	);
 	const endcardOpacity = interpolate(
@@ -96,6 +99,10 @@ export const DesignSystems: React.FC = () => {
 					frame={animatedLogoFrame}
 					scale={animatedLogoScale}
 					outlineStrokeWidth={selectionOutlineStrokeWidth}
+					outlineHandleSize={
+						(selectionOutlineHandleSize * animatedLogoScale) /
+						animatedLogoRestScale
+					}
 				/>
 			</Sequence>
 			<Sequence
@@ -113,6 +120,9 @@ export const DesignSystems: React.FC = () => {
 					frame={endcardFrame}
 					scale={endcardScale}
 					outlineStrokeWidth={selectionOutlineStrokeWidth}
+					outlineHandleSize={
+						(selectionOutlineHandleSize * endcardScale) / endcardRestScale
+					}
 				/>
 			</Sequence>
 		</>

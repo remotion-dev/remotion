@@ -1,17 +1,18 @@
 import React, {useEffect, useRef} from 'react';
-import {handoffEasing} from './studio-handoff/renderer';
+import type {StudioHandoffTitleState} from './studio-handoff/animation';
 
-// Midpoints and directions of the two-second slides in StudioCodeHandoff.
-const transitions = [
-	{midpoint: 3, from: 'programmatically', to: 'interactively', direction: 1},
-	{midpoint: 6.5, from: 'interactively', to: 'agentically', direction: 1},
-	{midpoint: 10, from: 'agentically', to: 'programmatically', direction: -1},
+const creationModes = [
+	'programmatically',
+	'interactively',
+	'agentically',
 ] as const;
-const halfTransitionDuration = 0.2;
 
 export const StudioHandoffTitle: React.FC<{
-	readonly onFrameRef: React.RefObject<((time: number) => void) | null>;
-}> = ({onFrameRef}) => {
+	readonly onFrameRef: React.RefObject<
+		((state: StudioHandoffTitleState) => void) | null
+	>;
+	readonly sectionLabelsRef: React.RefObject<HTMLDivElement | null> | null;
+}> = ({onFrameRef, sectionLabelsRef}) => {
 	const wordRef = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
@@ -20,36 +21,25 @@ export const StudioHandoffTitle: React.FC<{
 			return;
 		}
 
-		const update = (time: number) => {
-			let text = 'programmatically';
-			let opacity = 1;
-			let offset = 0;
-
-			for (const transition of transitions) {
-				const start = transition.midpoint - halfTransitionDuration;
-				const end = transition.midpoint + halfTransitionDuration;
-				if (time < start) {
-					break;
-				}
-
-				if (time >= end) {
-					text = transition.to;
-					continue;
-				}
-
-				const entering = time >= transition.midpoint;
-				// Ease the entire motion once, so it keeps moving through the word swap.
-				const progress = (time - start) / (end - start);
-				const eased = handoffEasing(progress);
-				text = entering ? transition.to : transition.from;
-				opacity = Math.abs(2 * eased - 1);
-				offset = transition.direction * 60 * (eased - (entering ? 1 : 0));
-				break;
-			}
-
+		const labels = sectionLabelsRef?.current;
+		let previousLabelState = '';
+		const update = ({mode: text, opacity, offset}: StudioHandoffTitleState) => {
 			const content = `${text}.`;
 			if (word.textContent !== content) {
 				word.textContent = content;
+			}
+
+			const labelState = `${text}:${opacity}`;
+			if (labelState !== previousLabelState) {
+				for (const mode of creationModes) {
+					const strength = mode === text ? opacity * 100 : 0;
+					labels?.style.setProperty(
+						`--make-videos-${mode}-color`,
+						`color-mix(in srgb, var(--text-color) ${strength}%, var(--subtitle))`,
+					);
+				}
+
+				previousLabelState = labelState;
 			}
 
 			word.style.opacity = String(opacity);
@@ -57,11 +47,14 @@ export const StudioHandoffTitle: React.FC<{
 		};
 
 		onFrameRef.current = update;
-		update(0);
+		update({mode: 'programmatically', opacity: 1, offset: 0});
 		return () => {
 			onFrameRef.current = null;
+			for (const mode of creationModes) {
+				labels?.style.removeProperty(`--make-videos-${mode}-color`);
+			}
 		};
-	}, [onFrameRef]);
+	}, [onFrameRef, sectionLabelsRef]);
 
 	return (
 		<>

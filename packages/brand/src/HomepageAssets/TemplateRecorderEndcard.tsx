@@ -12,21 +12,23 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
+import {SelectionOutline} from './SelectionOutline';
 
 const cardWidth = 880;
 const cardHeight = 1320;
 const cornerRadius = 52;
 const canvasWidth = 1080;
 const canvasHeight = 1620;
-const outlineGap = 24;
-const outlineHandleSize = 40;
+const outlineHorizontalGap = 36;
+const outlineVerticalGap = 60;
+const outlineHandleSizeDefault = 40;
 const defaultOutlineStrokeWidth = 6;
-const outlineWidth = cardWidth + outlineGap * 2;
-const outlineHeight = cardHeight + outlineGap * 2;
-const outlineLeft = (canvasWidth - cardWidth) / 2 - outlineGap;
+const outlineWidth = cardWidth + outlineHorizontalGap * 2;
+const outlineHeight = cardHeight + outlineVerticalGap * 2;
+const outlineLeft = (canvasWidth - cardWidth) / 2 - outlineHorizontalGap;
 const outlineVerticalNudge = 30;
 const outlineTop =
-	(canvasHeight - cardHeight) / 2 - outlineGap + outlineVerticalNudge;
+	(canvasHeight - cardHeight) / 2 - outlineVerticalGap + outlineVerticalNudge;
 const fontFamily = 'GT Planar';
 const followButtonHeight = 140;
 const spaceBetweenImgAndText = 30;
@@ -256,90 +258,13 @@ const TemplateRecorderEndcardFace: React.FC<{
 	);
 };
 
-const FlatSelectionOutline: React.FC<{
-	readonly scale: number;
-	readonly strokeWidth: number;
-}> = ({scale, strokeWidth}) => {
-	const handleOffset = outlineHandleSize / 2;
-	const centerX = canvasWidth / 2 - outlineLeft;
-	const centerY = canvasHeight / 2 - outlineTop;
-
-	return (
-		<Interactive.Svg
-			viewBox={`0 0 ${outlineWidth} ${outlineHeight}`}
-			style={{
-				height: outlineHeight,
-				left: outlineLeft,
-				overflow: 'visible',
-				position: 'absolute',
-				top: outlineTop,
-				width: outlineWidth,
-			}}
-		>
-			<g
-				transform={`translate(${centerX} ${centerY}) scale(${scale}) translate(${-centerX} ${-centerY})`}
-				visibility={scale === 0 ? 'hidden' : 'visible'}
-			>
-				<Interactive.Rect
-					fill="none"
-					height={outlineHeight}
-					stroke="#0d99ff"
-					strokeWidth={strokeWidth}
-					vectorEffect="non-scaling-stroke"
-					width={outlineWidth}
-					x={0}
-					y={0}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={outlineHandleSize}
-					stroke="#0d99ff"
-					strokeWidth={strokeWidth}
-					vectorEffect="non-scaling-stroke"
-					width={outlineHandleSize}
-					x={-handleOffset}
-					y={-handleOffset}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={outlineHandleSize}
-					stroke="#0d99ff"
-					strokeWidth={strokeWidth}
-					vectorEffect="non-scaling-stroke"
-					width={outlineHandleSize}
-					x={outlineWidth - handleOffset}
-					y={-handleOffset}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={outlineHandleSize}
-					stroke="#0d99ff"
-					strokeWidth={strokeWidth}
-					vectorEffect="non-scaling-stroke"
-					width={outlineHandleSize}
-					x={-handleOffset}
-					y={outlineHeight - handleOffset}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={outlineHandleSize}
-					stroke="#0d99ff"
-					strokeWidth={strokeWidth}
-					vectorEffect="non-scaling-stroke"
-					width={outlineHandleSize}
-					x={outlineWidth - handleOffset}
-					y={outlineHeight - handleOffset}
-				/>
-			</g>
-		</Interactive.Svg>
-	);
-};
-
 export const TemplateRecorderEndcard: React.FC<{
 	readonly frame?: number;
 	readonly scale: number | null;
 	readonly outlineStrokeWidth: number | null;
-}> = ({frame, scale, outlineStrokeWidth}) => {
+	readonly outlineHandleSize: number | null;
+}> = ({frame, scale, outlineStrokeWidth, outlineHandleSize}) => {
+	const selectionScale = scale ?? 1;
 	return (
 		<AbsoluteFill className="justify-center items-center">
 			<AbsoluteFill
@@ -394,8 +319,19 @@ export const TemplateRecorderEndcard: React.FC<{
 					</Interactive.Div>
 				</ExtrudeDiv>
 			</AbsoluteFill>
-			<FlatSelectionOutline
-				scale={scale ?? 1}
+			<SelectionOutline
+				canvasSize={{width: canvasWidth, height: canvasHeight}}
+				bounds={{
+					left:
+						canvasWidth / 2 + (outlineLeft - canvasWidth / 2) * selectionScale,
+					top:
+						canvasHeight / 2 + (outlineTop - canvasHeight / 2) * selectionScale,
+					width: outlineWidth * selectionScale,
+					height: outlineHeight * selectionScale,
+				}}
+				handleSize={
+					outlineHandleSize ?? outlineHandleSizeDefault * selectionScale
+				}
 				strokeWidth={outlineStrokeWidth ?? defaultOutlineStrokeWidth}
 			/>
 		</AbsoluteFill>
@@ -407,7 +343,11 @@ export const TemplateRecorderEndcardComposition: React.FC = () => {
 		<Composition
 			id="TemplateRecorderEndcard"
 			component={TemplateRecorderEndcard}
-			defaultProps={{scale: null, outlineStrokeWidth: null}}
+			defaultProps={{
+				scale: null,
+				outlineStrokeWidth: null,
+				outlineHandleSize: null,
+			}}
 			durationInFrames={200}
 			fps={30}
 			width={canvasWidth}

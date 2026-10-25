@@ -9,7 +9,11 @@ import {
 } from 'remotion';
 import {Faces} from './Faces';
 import {useFont} from './get-char';
-import {getButton} from './RenderProgress/make-button';
+import {
+	getButton,
+	renderProgressCardHeight,
+	renderProgressCardWidth,
+} from './RenderProgress/make-button';
 
 const viewBox = [-1600, -800, 3200, 1600];
 const color = '#0b84f3';
@@ -98,6 +102,11 @@ export const RenderProgress: React.FC = () => {
 				}),
 				y,
 				scale: getCardScale(localFrame, itemSpacingInFrames),
+				// Anchor the edge facing the neighboring card to keep its gap fixed.
+				scaleOriginY:
+					localFrame < 0
+						? -renderProgressCardHeight / 2
+						: renderProgressCardHeight / 2,
 			};
 		});
 	});
@@ -115,9 +124,9 @@ export const RenderProgress: React.FC = () => {
 							position: 'absolute',
 						}}
 					>
-						{/* The card is 2250 units wide; scale around its left edge. */}
+						{/* Keep the left edge and the neighboring vertical edge anchored. */}
 						<g
-							transform={`translate(-1125 ${item.y}) scale(${item.scale}) translate(1125 0)`}
+							transform={`translate(${-renderProgressCardWidth / 2} ${item.y + item.scaleOriginY}) scale(${item.scale}) translate(${renderProgressCardWidth / 2} ${-item.scaleOriginY})`}
 						>
 							<Faces elements={item.elements} />
 						</g>
@@ -134,7 +143,7 @@ export const OuterRenderProgress = () => {
 			width={1920}
 			height={1080}
 			style={{
-				translate: '-501px 50px',
+				translate: '-501px 164px',
 				scale: 0.68,
 			}}
 		>

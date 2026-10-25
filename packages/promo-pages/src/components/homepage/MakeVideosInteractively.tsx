@@ -13,12 +13,14 @@ export const MakeVideosInteractively: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="min-[900px]:text-[var(--subtitle)]">Make videos</span>{' '}
+			<span className="min-[900px]:text-[var(--make-videos-interactively-color,var(--subtitle))]">
+				Make videos
+			</span>{' '}
 			<br className="hidden min-[900px]:block" />
 			interactively
 		</>
 	),
-	description = 'Edit and animate using drag and drop and save back to code.',
+	description = 'Edit and animate like in a regular video editor.',
 	showLinks = true,
 	links = [
 		{label: 'Studio', href: '/docs/studio'},

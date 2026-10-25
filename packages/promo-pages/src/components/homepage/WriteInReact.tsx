@@ -1,11 +1,15 @@
 import React from 'react';
 import {GetStarted} from './GetStartedStrip';
+import type {StudioHandoffTitleState} from './studio-handoff/animation';
 import {StudioHandoffTitle} from './StudioHandoffTitle';
 
 export const WriteInReact: React.FC<{
 	readonly alignWithDevice: boolean;
-	readonly onFrameRef: React.RefObject<((time: number) => void) | null> | null;
-}> = ({alignWithDevice, onFrameRef}) => {
+	readonly onFrameRef: React.RefObject<
+		((state: StudioHandoffTitleState) => void) | null
+	> | null;
+	readonly sectionLabelsRef: React.RefObject<HTMLDivElement | null> | null;
+}> = ({alignWithDevice, onFrameRef, sectionLabelsRef}) => {
 	const textAlignment = alignWithDevice ? 'text-left' : 'text-center';
 	const textStyle: React.CSSProperties = {
 		textShadow: '0 5px 30px var(--background)',
@@ -32,7 +36,10 @@ export const WriteInReact: React.FC<{
 				}}
 			>
 				{onFrameRef ? (
-					<StudioHandoffTitle onFrameRef={onFrameRef} />
+					<StudioHandoffTitle
+						onFrameRef={onFrameRef}
+						sectionLabelsRef={sectionLabelsRef}
+					/>
 				) : (
 					'Make videos programmatically.'
 				)}

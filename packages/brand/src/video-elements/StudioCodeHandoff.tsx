@@ -45,7 +45,7 @@ export const StudioCodeHandoff: React.FC = () => {
 			return;
 		}
 
-		drawStudioHandoff(canvasRef.current, frame / fps, assets);
+		drawStudioHandoff(canvasRef.current, frame / fps, assets, null);
 		if (handleRef.current !== null) {
 			continueRender(handleRef.current);
 			handleRef.current = null;

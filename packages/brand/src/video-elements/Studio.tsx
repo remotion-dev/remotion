@@ -630,7 +630,7 @@ const SequenceInspectorSection: React.FC<{
 }> = ({label, initiallyExpanded, collapsible, action, children}) => {
 	const [expanded, setExpanded] = React.useState(initiallyExpanded);
 	return (
-		<div>
+		<div style={{paddingBottom: 4}}>
 			<div
 				style={{
 					display: 'flex',
@@ -688,7 +688,7 @@ const SequenceInspectorField: React.FC<{
 		style={{
 			display: 'flex',
 			alignItems: 'center',
-			height: 26,
+			height: 28,
 			padding: '0 10px',
 			gap: 8,
 			fontSize: 12,
@@ -786,13 +786,12 @@ const RightSidebar: React.FC<{
 						<div style={{height: 28, display: 'flex', alignItems: 'center'}}>
 							{selectedEndcard.connectedCompositionName}
 						</div>
-						<div style={{height: 24, color: LIGHT_TEXT}}>{'<EndCard>'}</div>
 						<div
 							style={{
 								display: 'flex',
 								alignItems: 'center',
 								gap: 8,
-								height: 26,
+								height: 28,
 								color: LIGHT_TEXT,
 							}}
 						>
@@ -806,32 +805,34 @@ const RightSidebar: React.FC<{
 						collapsible
 						action={null}
 					>
-						<SequenceInspectorField
-							label="Platform"
-							keyframable={false}
-							value={
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: 12,
-										height: 22,
-										padding: '0 7px',
-										backgroundColor: INPUT_BACKGROUND,
-										border: '1px solid #13161b',
-										borderRadius: 4,
-										color: WHITE,
-									}}
-								>
-									youtube
-									<CaretIcon
-										direction="down"
-										size={8}
-										style={{flexShrink: 0}}
-									/>
-								</div>
-							}
-						/>
+						<div style={{marginBottom: 8}}>
+							<SequenceInspectorField
+								label="Platform"
+								keyframable={false}
+								value={
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: 12,
+											height: 22,
+											padding: '0 7px',
+											backgroundColor: INPUT_BACKGROUND,
+											border: '1px solid #13161b',
+											borderRadius: 4,
+											color: WHITE,
+										}}
+									>
+										youtube
+										<CaretIcon
+											direction="down"
+											size={8}
+											style={{flexShrink: 0}}
+										/>
+									</div>
+								}
+							/>
+						</div>
 					</SequenceInspectorSection>
 					<SequenceInspectorSection
 						label="Transform"

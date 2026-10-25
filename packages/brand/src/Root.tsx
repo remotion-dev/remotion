@@ -88,6 +88,7 @@ import {
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
+import {CursorOrbit} from './HomepageAssets/CursorOrbit';
 import {
 	ExpertsGraphic,
 	expertsGraphicDurationInFrames,
@@ -541,6 +542,19 @@ export const RemotionRoot: React.FC = () => {
 					id="Applications"
 					component={Applications}
 					durationInFrames={180}
+					fps={30}
+					width={1080}
+					height={1080}
+				/>
+				<Composition
+					id="CursorOrbit"
+					component={CursorOrbit}
+					calculateMetadata={() => ({
+						defaultCodec: 'vp8',
+						defaultPixelFormat: 'yuva420p',
+						defaultVideoImageFormat: 'png',
+					})}
+					durationInFrames={240}
 					fps={30}
 					width={1080}
 					height={1080}

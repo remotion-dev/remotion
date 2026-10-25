@@ -1,3 +1,4 @@
+import {getStudioHandoffFrame, type StudioHandoffLayout} from './animation';
 import {drawCodex} from './draw-codex';
 import {drawEditor} from './draw-editor';
 import {drawStudio, studioAssetUrls} from './draw-studio';
@@ -5,7 +6,7 @@ import {roundedRect} from './primitives';
 
 export const STUDIO_HANDOFF_WIDTH = 1874;
 export const STUDIO_HANDOFF_HEIGHT = 1020;
-export const STUDIO_HANDOFF_DURATION = 12;
+export {STUDIO_HANDOFF_DURATION} from './animation';
 
 export type StudioHandoffAssets = Record<string, HTMLImageElement>;
 
@@ -41,35 +42,6 @@ export const loadStudioHandoffAssets = (): Promise<StudioHandoffAssets> => {
 	return assetsPromise;
 };
 
-// The same cubic-bezier(0.42, 0, 0.58, 1) as the original window slides.
-// Invert its x coordinate before evaluating y, without a Remotion dependency.
-export const handoffEasing = (progress: number) => {
-	if (progress <= 0) {
-		return 0;
-	}
-
-	if (progress >= 1) {
-		return 1;
-	}
-
-	let lower = 0;
-	let upper = 1;
-	let t = progress;
-	for (let i = 0; i < 20; i++) {
-		const x =
-			3 * (1 - t) ** 2 * t * 0.42 + 3 * (1 - t) * t ** 2 * 0.58 + t ** 3;
-		if (x < progress) {
-			lower = t;
-		} else {
-			upper = t;
-		}
-
-		t = (lower + upper) / 2;
-	}
-
-	return 3 * (1 - t) * t ** 2 + t ** 3;
-};
-
 const frames = new WeakMap<
 	HTMLCanvasElement,
 	{
@@ -84,22 +56,15 @@ export const drawStudioHandoff = (
 	canvas: HTMLCanvasElement,
 	time: number,
 	assets: StudioHandoffAssets,
+	layout: StudioHandoffLayout | null,
 ) => {
 	const ctx = canvas.getContext('2d');
 	if (!ctx || canvas.width === 0 || canvas.height === 0) {
 		return;
 	}
 
-	const seconds =
-		((time % STUDIO_HANDOFF_DURATION) + STUDIO_HANDOFF_DURATION) %
-		STUDIO_HANDOFF_DURATION;
-	const expand = handoffEasing((seconds - 2) / 2);
-	const agent = handoffEasing((seconds - 5.5) / 2);
-	const reset = handoffEasing((seconds - 9) / 2);
-	const responsivenessProgress = 1 - expand + agent;
-	const studioLeft = 6 + 673 * (agent - reset);
-	const editorLeft = 679 + 679 * (expand - reset);
-	const codexLeft = -667 + 673 * (agent - reset);
+	const {responsivenessProgress, studioLeft, editorLeft, codexLeft} =
+		layout ?? getStudioHandoffFrame(time).layout;
 	const studioWidth = 1340 - 673 * responsivenessProgress;
 	// Holds make up half the loop. Keep the already drawn frame until geometry,
 	// assets or output resolution changes, without allocating panel-sized textures.

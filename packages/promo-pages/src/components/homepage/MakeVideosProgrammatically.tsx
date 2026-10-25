@@ -13,7 +13,9 @@ export const MakeVideosProgrammatically: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="min-[900px]:text-[var(--subtitle)]">Make videos</span>{' '}
+			<span className="min-[900px]:text-[var(--make-videos-programmatically-color,var(--subtitle))]">
+				Make videos
+			</span>{' '}
 			<br className="hidden min-[900px]:block" />
 			programmatically
 		</>

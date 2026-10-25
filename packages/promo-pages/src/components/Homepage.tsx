@@ -15,6 +15,11 @@ import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically'
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {Pricing} from './homepage/Pricing';
 import {ReactSourceOfTruth} from './homepage/ReactSourceOfTruth';
+import type {
+	StudioHandoffMode,
+	StudioHandoffTitleState,
+} from './homepage/studio-handoff/animation';
+import {StudioHandoffSectionTitle} from './homepage/StudioHandoffSectionTitle';
 import {StudioHandoffCanvas} from './homepage/StudioHandoffCanvas';
 import TrustedByBanner from './homepage/TrustedByBanner';
 import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
@@ -29,7 +34,13 @@ export const NewLanding: React.FC<{
 	readonly setColorMode: (colorMode: ColorMode) => void;
 	readonly experimental: boolean;
 }> = ({colorMode, setColorMode, experimental}) => {
-	const studioHandoffFrameRef = useRef<((time: number) => void) | null>(null);
+	const studioHandoffFrameRef = useRef<
+		((state: StudioHandoffTitleState) => void) | null
+	>(null);
+	const studioHandoffLabelsRef = useRef<HTMLDivElement>(null);
+	const selectStudioModeRef = useRef<
+		((mode: StudioHandoffMode) => void) | null
+	>(null);
 
 	return (
 		<ColorModeProvider colorMode={colorMode} setColorMode={setColorMode}>
@@ -54,6 +65,7 @@ export const NewLanding: React.FC<{
 						<WriteInReact
 							alignWithDevice={experimental}
 							onFrameRef={experimental ? studioHandoffFrameRef : null}
+							sectionLabelsRef={experimental ? studioHandoffLabelsRef : null}
 						/>
 						{experimental ? null : (
 							<>
@@ -81,7 +93,10 @@ export const NewLanding: React.FC<{
 										zIndex: -1,
 									}}
 								/>
-								<StudioHandoffCanvas onFrameRef={studioHandoffFrameRef} />
+								<StudioHandoffCanvas
+									onFrameRef={studioHandoffFrameRef}
+									selectModeRef={selectStudioModeRef}
+								/>
 							</div>
 						) : null}
 						{experimental ? (
@@ -89,14 +104,53 @@ export const NewLanding: React.FC<{
 								<GetStarted alignRight command="npx create-video" />
 							</div>
 						) : null}
-						<div className={makeVideosRowClassName}>
+						<div
+							ref={studioHandoffLabelsRef}
+							className={makeVideosRowClassName}
+						>
 							<MakeVideosAgentically
+								title={
+									experimental ? (
+										<StudioHandoffSectionTitle
+											mode="agentically"
+											selectModeRef={selectStudioModeRef}
+										/>
+									) : undefined
+								}
+								description={
+									experimental
+										? 'Turn your idea into a video using your agent.'
+										: undefined
+								}
 								showVideo={!experimental}
 								videoSrc="/img/homepage-assets-master.webm"
 								fallbackVideoSrc="/img/homepage-assets-master.mp4"
 							/>
-							<MakeVideosInteractively showVideo={!experimental} />
+							<MakeVideosInteractively
+								title={
+									experimental ? (
+										<StudioHandoffSectionTitle
+											mode="interactively"
+											selectModeRef={selectStudioModeRef}
+										/>
+									) : undefined
+								}
+								showVideo={!experimental}
+							/>
 							<MakeVideosProgrammatically
+								title={
+									experimental ? (
+										<StudioHandoffSectionTitle
+											mode="programmatically"
+											selectModeRef={selectStudioModeRef}
+										/>
+									) : undefined
+								}
+								description={
+									experimental
+										? 'Own the code, use the web and bring your assets.'
+										: undefined
+								}
 								showVideo={!experimental}
 								links={[
 									{label: 'API Docs', href: '/docs/api'},
@@ -110,14 +164,10 @@ export const NewLanding: React.FC<{
 								title="Parameterization"
 								description="Organize your assets and connect your data."
 								videoSrc={
-									experimental
-										? 'https://remotion.media/homepage/design-systems-outline-b86199f394b9.webm'
-										: '/img/design-systems.webm'
+									'https://remotion.media/homepage/parameterization-border-54bff9f3f1d3.webm'
 								}
 								fallbackVideoSrc={
-									experimental
-										? 'https://remotion.media/homepage/design-systems-outline-b86199f394b9.mp4'
-										: '/img/design-systems.mp4'
+									'https://remotion.media/homepage/parameterization-border-96ec5bb1168e.mp4'
 								}
 								links={[
 									{
@@ -130,8 +180,12 @@ export const NewLanding: React.FC<{
 							<MakeVideosAgentically
 								title="Batch rendering"
 								description="Render millions of videos on your own infrastructure."
-								videoSrc="https://remotion.media/homepage/render-progress-bottom-aligned-a27b53fb8766.webm"
-								fallbackVideoSrc="https://remotion.media/homepage/render-progress-bottom-aligned-a27b53fb8766.mp4"
+								videoSrc={
+									'https://remotion.media/homepage/render-progress-fixed-gaps-e59b3b7224f1.webm'
+								}
+								fallbackVideoSrc={
+									'https://remotion.media/homepage/render-progress-fixed-gaps-ae3cb1f46309.mp4'
+								}
 								links={[
 									{
 										label: 'Server-side rendering',
@@ -148,12 +202,12 @@ export const NewLanding: React.FC<{
 								description="Publish a simple tool or a complex video editor."
 								videoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-outline-input-e966e757a1ae.webm'
+										? 'https://remotion.media/homepage/cursor-orbit-f1c03eb4712b.webm'
 										: '/img/applications.webm'
 								}
 								fallbackVideoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-outline-input-e966e757a1ae.mp4'
+										? 'https://remotion.media/homepage/cursor-orbit-418a60dded47.mp4'
 										: '/img/applications.mp4'
 								}
 								links={[

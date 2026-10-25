@@ -307,13 +307,22 @@ export const drawStudio = (
 	text(ctx, 'Sequence', 10, 11, 13, '#fff');
 	roundedRect(ctx, rightWidth / 2, 0, rightWidth / 2, 34, 0, '#2f363d');
 	text(ctx, 'Jobs', rightWidth / 2 + 10, 11, 13, LIGHT_TEXT);
-	text(ctx, 'Endcard', 10, 45, 13, '#fff');
-	text(ctx, '<EndCard>', 10, 66, 13, LIGHT_TEXT);
-	drawStudioIcon(ctx, 'BracesIcon', 10, 94, 18, LIGHT_TEXT);
+	textInRow(ctx, 'Endcard', {
+		x: 10,
+		top: 38,
+		height: 28,
+		size: 13,
+		color: '#fff',
+		fontFamily: null,
+		weight: null,
+		align: null,
+		fontStyle: null,
+	});
+	drawStudioIcon(ctx, 'BracesIcon', 10, 71, 18, LIGHT_TEXT);
 	textInRow(ctx, 'EndCard.tsx:49', {
 		x: 36,
-		top: 90,
-		height: 26,
+		top: 66,
+		height: 28,
 		size: 13,
 		color: LIGHT_TEXT,
 		fontFamily: null,
@@ -322,11 +331,11 @@ export const drawStudio = (
 		fontStyle: null,
 	});
 	for (const section of [
-		{label: 'Controls', y: 120, expanded: true},
-		{label: 'Transform', y: 174, expanded: false},
-		{label: 'Crop', y: 202, expanded: false},
+		{label: 'Controls', y: 98, expanded: true},
+		{label: 'Transform', y: 166, expanded: false},
+		{label: 'Crop', y: 198, expanded: false},
 		{label: 'Effects', y: 230, expanded: false},
-		{label: 'Actions', y: 258, expanded: true},
+		{label: 'Actions', y: 262, expanded: true},
 	]) {
 		textInRow(ctx, section.label, {
 			x: 10,
@@ -356,8 +365,8 @@ export const drawStudio = (
 
 	textInRow(ctx, 'Platform', {
 		x: 10,
-		top: 150,
-		height: 22,
+		top: 126,
+		height: 28,
 		size: 12,
 		color: FOREGROUND,
 		fontFamily: null,
@@ -365,11 +374,11 @@ export const drawStudio = (
 		align: null,
 		fontStyle: null,
 	});
-	roundedRect(ctx, rightWidth - 89.4, 150, 79.4, 22, 4, '#2f363d', '#13161b');
+	roundedRect(ctx, rightWidth - 89.4, 129, 79.4, 22, 4, '#2f363d', '#13161b');
 	textInRow(ctx, 'youtube', {
 		x: rightWidth - 81.4,
-		top: 150,
-		height: 22,
+		top: 126,
+		height: 28,
 		size: 12,
 		color: '#fff',
 		fontFamily: null,
@@ -377,14 +386,14 @@ export const drawStudio = (
 		align: null,
 		fontStyle: null,
 	});
-	caret(ctx, rightWidth - 25, 156, 8, true, '#fff');
+	caret(ctx, rightWidth - 25, 136, 8, true, '#fff');
 	for (const [index, action] of (
 		[
 			{label: 'Duplicate', icon: 'DuplicateIcon'},
 			{label: 'Delete', icon: 'TrashIcon'},
 		] as const
 	).entries()) {
-		const top = 286 + index * 28;
+		const top = 290 + index * 28;
 		drawStudioIcon(ctx, action.icon, 8, top + 3, 22, LIGHT_TEXT);
 		textInRow(ctx, action.label, {
 			x: 36,

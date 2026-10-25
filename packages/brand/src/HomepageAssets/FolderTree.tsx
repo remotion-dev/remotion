@@ -70,6 +70,8 @@ export const FolderTree: React.FC<{
 					style={{
 						backgroundColor: 'rgb(31,36,40)',
 						borderRadius: panelRadius,
+						// Match the six-pixel outline after the panel's combined scales.
+						boxShadow: 'inset 0 0 0 1.65px #000',
 						height: panelHeight,
 						overflow: 'hidden',
 						position: 'relative',
