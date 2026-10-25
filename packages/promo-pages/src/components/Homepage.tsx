@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useRef, useState} from 'react';
+import React, {useRef} from 'react';
 import {ExploreSection} from './ExploreSection';
 import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
@@ -15,8 +15,8 @@ import {MakeVideosProgrammatically} from './homepage/MakeVideosProgrammatically'
 import {NewsletterButton} from './homepage/NewsletterButton';
 import {Pricing} from './homepage/Pricing';
 import {ReactSourceOfTruth} from './homepage/ReactSourceOfTruth';
+import {StudioHandoffCanvas} from './homepage/StudioHandoffCanvas';
 import TrustedByBanner from './homepage/TrustedByBanner';
-import {useTransparentVideoSource} from './homepage/use-transparent-video-source';
 import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
@@ -29,14 +29,7 @@ export const NewLanding: React.FC<{
 	readonly setColorMode: (colorMode: ColorMode) => void;
 	readonly experimental: boolean;
 }> = ({colorMode, setColorMode, experimental}) => {
-	const studioHandoffVideoRef = useRef<HTMLVideoElement>(null);
-	const [studioHandoffReady, setStudioHandoffReady] = useState(false);
-	const studioHandoffSrc = useTransparentVideoSource({
-		videoSrc:
-			'https://remotion.media/homepage/studio-handoff-sequence-controls-52669ec60e1c.webm',
-		fallbackVideoSrc:
-			'https://remotion.media/homepage/studio-handoff-sequence-controls-52669ec60e1c.mp4',
-	});
+	const studioHandoffFrameRef = useRef<((time: number) => void) | null>(null);
 
 	return (
 		<ColorModeProvider colorMode={colorMode} setColorMode={setColorMode}>
@@ -60,7 +53,7 @@ export const NewLanding: React.FC<{
 					>
 						<WriteInReact
 							alignWithDevice={experimental}
-							videoRef={experimental ? studioHandoffVideoRef : null}
+							onFrameRef={experimental ? studioHandoffFrameRef : null}
 						/>
 						{experimental ? null : (
 							<>
@@ -88,37 +81,7 @@ export const NewLanding: React.FC<{
 										zIndex: -1,
 									}}
 								/>
-								{studioHandoffReady ? null : (
-									<div
-										aria-hidden
-										className="absolute inset-0 overflow-hidden pointer-events-none"
-									>
-										<div
-											style={{
-												width: '100%',
-												aspectRatio: '1874 / 1075',
-												backgroundColor: '#101114',
-												borderRadius: '2.16% / 3.77%',
-											}}
-										/>
-									</div>
-								)}
-								<video
-									ref={studioHandoffVideoRef}
-									src={studioHandoffSrc ?? undefined}
-									onLoadedData={() => setStudioHandoffReady(true)}
-									onEmptied={() => setStudioHandoffReady(false)}
-									autoPlay
-									muted
-									loop
-									playsInline
-									preload="metadata"
-									width={1874}
-									height={1020}
-									aria-label="Remotion Studio, Codex and VS Code working together"
-									className="block aspect-[1874/1020] h-auto w-full"
-									style={{opacity: studioHandoffReady ? 1 : 0}}
-								/>
+								<StudioHandoffCanvas onFrameRef={studioHandoffFrameRef} />
 							</div>
 						) : null}
 						{experimental ? (

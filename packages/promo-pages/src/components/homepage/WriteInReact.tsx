@@ -4,8 +4,8 @@ import {StudioHandoffTitle} from './StudioHandoffTitle';
 
 export const WriteInReact: React.FC<{
 	readonly alignWithDevice: boolean;
-	readonly videoRef: React.RefObject<HTMLVideoElement | null> | null;
-}> = ({alignWithDevice, videoRef}) => {
+	readonly onFrameRef: React.RefObject<((time: number) => void) | null> | null;
+}> = ({alignWithDevice, onFrameRef}) => {
 	const textAlignment = alignWithDevice ? 'text-left' : 'text-center';
 	const textStyle: React.CSSProperties = {
 		textShadow: '0 5px 30px var(--background)',
@@ -31,8 +31,8 @@ export const WriteInReact: React.FC<{
 						: undefined,
 				}}
 			>
-				{videoRef ? (
-					<StudioHandoffTitle videoRef={videoRef} />
+				{onFrameRef ? (
+					<StudioHandoffTitle onFrameRef={onFrameRef} />
 				) : (
 					'Make videos programmatically.'
 				)}

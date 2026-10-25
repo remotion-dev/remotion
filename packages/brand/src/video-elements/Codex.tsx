@@ -334,7 +334,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 						translate: '-3px 0',
 					}}
 				>
-					GPT-5.6 Sol
+					GPT-6.1 Sol
 				</span>
 				<span
 					style={{
