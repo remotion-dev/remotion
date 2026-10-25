@@ -145,7 +145,7 @@ const Conversation: React.FC = () => {
 				gap: 18,
 				left: 24,
 				position: 'absolute',
-				top: 50,
+				top: 74,
 				width: MINIMUM_WIDTH - 48,
 			}}
 		>

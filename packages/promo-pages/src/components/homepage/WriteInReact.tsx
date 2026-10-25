@@ -58,7 +58,7 @@ export const WriteInReact: React.FC<{
 				<div
 					className={
 						alignWithDevice
-							? 'mt-[calc(var(--hero-gap)-4px)] lg:mt-0 lg:mb-0.5 lg:ml-auto lg:shrink-0'
+							? 'hidden min-[900px]:block mt-[calc(var(--hero-gap)-4px)] lg:mt-0 lg:mb-0.5 lg:ml-auto lg:shrink-0'
 							: undefined
 					}
 				>

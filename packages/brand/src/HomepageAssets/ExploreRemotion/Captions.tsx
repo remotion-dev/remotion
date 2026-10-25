@@ -31,9 +31,9 @@ export const ExploreRemotionCaptions = () => {
 						top: -155 * scale,
 						transform: `scale(${scale})`,
 						transformOrigin: 'top left',
-						rotate: '-0.132466 -0.989815 0.052141 43.372219deg',
-						translate: '831px -280.2px',
-						scale: 0.88,
+						rotate: '-0.148338 -0.987665 0.050137 37.783391deg',
+						translate: '105.4px -284.7px',
+						scale: 1.201,
 					}}
 				>
 					<CaptionsRecordingComposition />

@@ -194,8 +194,8 @@ const config: Config = {
 							to: 'https://convert.remotion.dev',
 						},
 						{
-							label: 'Store',
-							href: 'https://remotion.pro/store',
+							label: 'Editor Starter',
+							href: 'https://remotion.pro/editor-starter',
 						},
 						{
 							label: 'GitHub',

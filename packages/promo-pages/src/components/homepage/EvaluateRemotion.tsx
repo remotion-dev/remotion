@@ -23,7 +23,7 @@ const EvaluateRemotionSection: React.FC = () => {
 	return (
 		<>
 			<div className="flex min-w-0 basis-0 flex-1 flex-col">
-				<div className="flex aspect-square w-full items-start">
+				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{licenseVideoSrc ? (
 						<video
 							src={licenseVideoSrc}
@@ -60,7 +60,7 @@ const EvaluateRemotionSection: React.FC = () => {
 				</div>
 			</div>
 			<div className="flex min-w-0 basis-0 flex-1 flex-col">
-				<div className="flex aspect-square w-full items-center justify-center pl-5">
+				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{expertsVideoSrc ? (
 						<video
 							src={expertsVideoSrc}

@@ -6,6 +6,7 @@ import {BackgroundAnimation} from './homepage/BackgroundAnimation';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
+import {GetStarted} from './homepage/GetStartedStrip';
 import type {ColorMode} from './homepage/layout/use-color-mode';
 import {ColorModeProvider} from './homepage/layout/use-color-mode';
 import {MakeVideosAgentically} from './homepage/MakeVideosAgentically';
@@ -32,9 +33,9 @@ export const NewLanding: React.FC<{
 	const [studioHandoffReady, setStudioHandoffReady] = useState(false);
 	const studioHandoffSrc = useTransparentVideoSource({
 		videoSrc:
-			'https://remotion.media/homepage/studio-handoff-continuous-waveform-bf3fb054d840.webm',
+			'https://remotion.media/homepage/studio-handoff-sequence-controls-52669ec60e1c.webm',
 		fallbackVideoSrc:
-			'https://remotion.media/homepage/studio-handoff-continuous-waveform-bf3fb054d840.mp4',
+			'https://remotion.media/homepage/studio-handoff-sequence-controls-52669ec60e1c.mp4',
 	});
 
 	return (
@@ -118,6 +119,11 @@ export const NewLanding: React.FC<{
 									className="block aspect-[1874/1020] h-auto w-full"
 									style={{opacity: studioHandoffReady ? 1 : 0}}
 								/>
+							</div>
+						) : null}
+						{experimental ? (
+							<div className="mt-2.5 min-[900px]:hidden">
+								<GetStarted alignRight command="npx create-video" />
 							</div>
 						) : null}
 						<div className={makeVideosRowClassName}>
@@ -219,6 +225,12 @@ export const NewLanding: React.FC<{
 							</>
 						)}
 						<SectionTitle>Pricing</SectionTitle>
+						<p className="font-brand mt-0 mb-8 text-center text-lg leading-relaxed">
+							Remotion is completely free to use for any individual or small
+							company - no catch.
+							<br />
+							For bigger companies, we charge a license fee.
+						</p>
 						<Pricing />
 						<div className={makeVideosRowClassName}>
 							<TrustedByBanner />

@@ -6,7 +6,7 @@ import {SectionTitle} from './homepage/VideoAppsTitle';
 const videoSources: Record<string, string> = {
 	Video: 'video-playback-2026-09-22.mp4',
 	Audio: 'audio-waveform.mp4',
-	Captions: 'captions-2026-10-20-7c7e04671491.mp4',
+	Captions: 'captions-2026-10-25-6b3e5502cee9.mp4',
 	AI: 'ai-prompt-2026-10-20-77a73116a839.mp4',
 	Parameterization: 'parameterization-blue-2026-10-20-6278779b9cd1.mp4',
 	Rendering: 'render-modal-codec.mp4',
@@ -74,9 +74,7 @@ export const ExploreSection: React.FC = () => {
 								/>
 							</video>
 						) : null}
-						<h3
-							className="explore-title relative z-10 m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-2xl"
-						>
+						<h3 className="explore-title relative z-10 m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-2xl">
 							{item}
 						</h3>
 					</div>

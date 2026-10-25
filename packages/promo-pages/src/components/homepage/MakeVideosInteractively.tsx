@@ -39,7 +39,7 @@ export const MakeVideosInteractively: React.FC<{
 			}
 		>
 			{showVideo ? (
-				<div className="flex aspect-square w-full items-start">
+				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{src ? (
 						<video
 							src={src}
@@ -64,7 +64,9 @@ export const MakeVideosInteractively: React.FC<{
 				<h2 className="text-2xl fontbrand leading-[1.1] font-medium max-[900px]:mb-2">
 					{title}
 				</h2>
-				<p className="text-balance leading-relaxed max-[900px]:mb-0">{description}</p>
+				<p className="text-balance leading-relaxed max-[900px]:mb-0">
+					{description}
+				</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

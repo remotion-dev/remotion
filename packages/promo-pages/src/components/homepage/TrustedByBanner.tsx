@@ -129,7 +129,7 @@ const TrustedByBanner = () => {
 
 	return (
 		<div className="flex min-w-0 basis-0 flex-1 flex-col">
-			<div className="flex aspect-square w-full items-center justify-start">
+			<div className="flex aspect-square w-full items-center justify-start min-[900px]:max-w-[270px] min-[900px]:self-start">
 				<div className="grid w-full max-w-[260px] translate-y-8 grid-cols-2 gap-x-8 gap-y-12">
 					{orderedLogos.map((logo) => (
 						<a

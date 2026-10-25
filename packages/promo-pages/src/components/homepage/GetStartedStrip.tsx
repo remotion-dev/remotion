@@ -78,11 +78,21 @@ export const GetStarted: React.FC<{
 					</Button>
 				</div>
 				{alignRight ? null : <div className="w-2 h-2" />}
-				<div className={alignRight ? 'shrink-0' : 'w-full min-[900px]:w-auto'}>
+				<div
+					className={
+						alignRight
+							? 'flex-[1.4] min-w-max min-[900px]:flex-none'
+							: 'w-full min-[900px]:w-auto'
+					}
+				>
 					<Button
 						href="https://github.com/remotion-dev/remotion"
 						target="_blank"
-						className={linkButtonClassName}
+						className={
+							alignRight
+								? 'w-full px-2.5 min-[360px]:px-4'
+								: linkButtonClassName
+						}
 					>
 						<GithubButton />
 					</Button>
