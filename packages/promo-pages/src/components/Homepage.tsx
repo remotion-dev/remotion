@@ -111,12 +111,12 @@ export const NewLanding: React.FC<{
 								description="Organize your assets and connect your data."
 								videoSrc={
 									experimental
-										? 'https://remotion.media/homepage/design-systems-border-9871af1c4d7f.webm'
+										? 'https://remotion.media/homepage/design-systems-outline-b86199f394b9.webm'
 										: '/img/design-systems.webm'
 								}
 								fallbackVideoSrc={
 									experimental
-										? 'https://remotion.media/homepage/design-systems-border-9871af1c4d7f.mp4'
+										? 'https://remotion.media/homepage/design-systems-outline-b86199f394b9.mp4'
 										: '/img/design-systems.mp4'
 								}
 								links={[

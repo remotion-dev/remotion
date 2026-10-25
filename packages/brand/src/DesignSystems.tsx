@@ -16,6 +16,8 @@ const endcardSequenceStart = folderTreeSelectionMoveStart - 2;
 const animatedLogoExitEnd = 100;
 const assetScaleOverlap = 1;
 const endcardEnterStart = animatedLogoExitEnd - assetScaleOverlap;
+// Match the visible half of the 30-unit Batch rendering stroke at its 0.408 scale.
+const selectionOutlineStrokeWidth = (30 / 2) * (1920 / 3200) * 0.68;
 const scaleSpring = Easing.spring({
 	damping: 200,
 	mass: 1,
@@ -43,10 +45,7 @@ export const DesignSystems: React.FC = () => {
 		0,
 		Math.min(frame, forwardDurationInFrames - 1) - endcardSequenceStart,
 	);
-	const animatedLogoFrame =
-		frame < forwardDurationInFrames
-			? pingPongFrame
-			: 0;
+	const animatedLogoFrame = frame < forwardDurationInFrames ? pingPongFrame : 0;
 	const animatedLogoScale = interpolate(
 		pingPongFrame,
 		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
@@ -91,10 +90,13 @@ export const DesignSystems: React.FC = () => {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
-					scale: animatedLogoScale,
 				}}
 			>
-				<RemotionTriangle frame={animatedLogoFrame} />
+				<RemotionTriangle
+					frame={animatedLogoFrame}
+					scale={animatedLogoScale}
+					outlineStrokeWidth={selectionOutlineStrokeWidth}
+				/>
 			</Sequence>
 			<Sequence
 				width={1080}
@@ -104,11 +106,14 @@ export const DesignSystems: React.FC = () => {
 					position: 'absolute',
 					translate: '170.7px -145.5px',
 					opacity: endcardOpacity,
-					scale: endcardScale,
 				}}
 				from={endcardSequenceStart}
 			>
-				<TemplateRecorderEndcard frame={endcardFrame} />
+				<TemplateRecorderEndcard
+					frame={endcardFrame}
+					scale={endcardScale}
+					outlineStrokeWidth={selectionOutlineStrokeWidth}
+				/>
 			</Sequence>
 		</>
 	);

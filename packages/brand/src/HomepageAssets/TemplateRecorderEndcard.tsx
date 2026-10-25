@@ -20,7 +20,7 @@ const canvasWidth = 1080;
 const canvasHeight = 1620;
 const outlineGap = 24;
 const outlineHandleSize = 40;
-const outlineStrokeWidth = 6;
+const defaultOutlineStrokeWidth = 6;
 const outlineWidth = cardWidth + outlineGap * 2;
 const outlineHeight = cardHeight + outlineGap * 2;
 const outlineLeft = (canvasWidth - cardWidth) / 2 - outlineGap;
@@ -256,8 +256,13 @@ const TemplateRecorderEndcardFace: React.FC<{
 	);
 };
 
-const FlatSelectionOutline: React.FC = () => {
+const FlatSelectionOutline: React.FC<{
+	readonly scale: number;
+	readonly strokeWidth: number;
+}> = ({scale, strokeWidth}) => {
 	const handleOffset = outlineHandleSize / 2;
+	const centerX = canvasWidth / 2 - outlineLeft;
+	const centerY = canvasHeight / 2 - outlineTop;
 
 	return (
 		<Interactive.Svg
@@ -271,113 +276,128 @@ const FlatSelectionOutline: React.FC = () => {
 				width: outlineWidth,
 			}}
 		>
-			<Interactive.Rect
-				fill="none"
-				height={outlineHeight}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineWidth}
-				x={0}
-				y={0}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={-handleOffset}
-				y={-handleOffset}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={outlineWidth - handleOffset}
-				y={-handleOffset}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={-handleOffset}
-				y={outlineHeight - handleOffset}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={outlineWidth - handleOffset}
-				y={outlineHeight - handleOffset}
-			/>
+			<g
+				transform={`translate(${centerX} ${centerY}) scale(${scale}) translate(${-centerX} ${-centerY})`}
+				visibility={scale === 0 ? 'hidden' : 'visible'}
+			>
+				<Interactive.Rect
+					fill="none"
+					height={outlineHeight}
+					stroke="#0d99ff"
+					strokeWidth={strokeWidth}
+					vectorEffect="non-scaling-stroke"
+					width={outlineWidth}
+					x={0}
+					y={0}
+				/>
+				<Interactive.Rect
+					fill="white"
+					height={outlineHandleSize}
+					stroke="#0d99ff"
+					strokeWidth={strokeWidth}
+					vectorEffect="non-scaling-stroke"
+					width={outlineHandleSize}
+					x={-handleOffset}
+					y={-handleOffset}
+				/>
+				<Interactive.Rect
+					fill="white"
+					height={outlineHandleSize}
+					stroke="#0d99ff"
+					strokeWidth={strokeWidth}
+					vectorEffect="non-scaling-stroke"
+					width={outlineHandleSize}
+					x={outlineWidth - handleOffset}
+					y={-handleOffset}
+				/>
+				<Interactive.Rect
+					fill="white"
+					height={outlineHandleSize}
+					stroke="#0d99ff"
+					strokeWidth={strokeWidth}
+					vectorEffect="non-scaling-stroke"
+					width={outlineHandleSize}
+					x={-handleOffset}
+					y={outlineHeight - handleOffset}
+				/>
+				<Interactive.Rect
+					fill="white"
+					height={outlineHandleSize}
+					stroke="#0d99ff"
+					strokeWidth={strokeWidth}
+					vectorEffect="non-scaling-stroke"
+					width={outlineHandleSize}
+					x={outlineWidth - handleOffset}
+					y={outlineHeight - handleOffset}
+				/>
+			</g>
 		</Interactive.Svg>
 	);
 };
 
 export const TemplateRecorderEndcard: React.FC<{
 	readonly frame?: number;
-}> = ({frame}) => {
+	readonly scale: number | null;
+	readonly outlineStrokeWidth: number | null;
+}> = ({frame, scale, outlineStrokeWidth}) => {
 	return (
 		<AbsoluteFill className="justify-center items-center">
-			<ExtrudeDiv
-				width={cardWidth}
-				height={cardHeight}
-				depth={54}
-				cornerRadius={cornerRadius}
-				translationX={-20}
-				translationY={8}
-				translationZ={4}
-				rotationX={0.09}
-				rotationY={-0.34}
-				rotationZ={-0.04}
-				backFace={
-					<Interactive.Div
-						style={{
-							backgroundColor: '#d8d8d8',
-							borderRadius: cornerRadius,
-							height: '100%',
-							width: '100%',
-						}}
-					/>
-				}
+			<AbsoluteFill
+				className="justify-center items-center"
+				style={{scale: scale ?? 1}}
 			>
-				<Interactive.Div
-					style={{
-						backgroundColor: '#fafafa',
-						borderRadius: cornerRadius,
-						border: '5px solid black',
-						height: cardHeight,
-						overflow: 'hidden',
-						position: 'relative',
-						width: cardWidth,
-					}}
+				<ExtrudeDiv
+					width={cardWidth}
+					height={cardHeight}
+					depth={54}
+					cornerRadius={cornerRadius}
+					translationX={-20}
+					translationY={8}
+					translationZ={4}
+					rotationX={0.09}
+					rotationY={-0.34}
+					rotationZ={-0.04}
+					backFace={
+						<Interactive.Div
+							style={{
+								backgroundColor: '#d8d8d8',
+								borderRadius: cornerRadius,
+								height: '100%',
+								width: '100%',
+							}}
+						/>
+					}
 				>
 					<Interactive.Div
 						style={{
-							height: 1080,
-							left: 0,
-							position: 'absolute',
-							top: (cardHeight - 1080) / 2,
-							width: 1080,
-							translate: '-36.3px 0px',
+							backgroundColor: '#fafafa',
+							borderRadius: cornerRadius,
+							border: '5px solid black',
+							height: cardHeight,
+							overflow: 'hidden',
+							position: 'relative',
+							width: cardWidth,
 						}}
 					>
-						<TemplateRecorderEndcardFace frame={frame} />
+						<Interactive.Div
+							style={{
+								height: 1080,
+								left: 0,
+								position: 'absolute',
+								top: (cardHeight - 1080) / 2,
+								width: 1080,
+								translate: '-36.3px 0px',
+							}}
+						>
+							<TemplateRecorderEndcardFace frame={frame} />
+						</Interactive.Div>
 					</Interactive.Div>
-				</Interactive.Div>
-			</ExtrudeDiv>
-			<FlatSelectionOutline />
+				</ExtrudeDiv>
+			</AbsoluteFill>
+			<FlatSelectionOutline
+				scale={scale ?? 1}
+				strokeWidth={outlineStrokeWidth ?? defaultOutlineStrokeWidth}
+			/>
 		</AbsoluteFill>
 	);
 };
@@ -387,6 +407,7 @@ export const TemplateRecorderEndcardComposition: React.FC = () => {
 		<Composition
 			id="TemplateRecorderEndcard"
 			component={TemplateRecorderEndcard}
+			defaultProps={{scale: null, outlineStrokeWidth: null}}
 			durationInFrames={200}
 			fps={30}
 			width={canvasWidth}
