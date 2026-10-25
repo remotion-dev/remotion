@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<title>Marmitaria Nosso Sabor</title>
+		<meta
+			name="description"
+			content="Marmitas com tempero caseiro na Av. dos Esportes, 964. Delivery e retirada, das 10h30 às 14h. Monte seu pedido e envie pelo WhatsApp."
+		/>
+		<meta name="theme-color" content="#120f0d" />
+		<meta property="og:title" content="Marmitaria Nosso Sabor" />
+		<meta property="og:description" content="Delivery e retirada das 10h30 às 14h. Peça pelo WhatsApp." />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<script>
+			document.documentElement.classList.add('js');
+		</script>
+	</head>
+	<body>
+		<a class="skip-link" href="#cardapio">Pular para o cardápio</a>
+
+		<header class="top" data-top>
+			<div class="top__inner wrap">
+				<a class="brand" href="#inicio" aria-label="Marmitaria Nosso Sabor — início">
+					<img class="brand__logo" data-logo alt="" width="44" height="44" />
+					<span class="brand__name">Nosso Sabor<small>Marmitaria</small></span>
+				</a>
+				<span class="status" data-status><i></i><span></span></span>
+				<nav class="top__nav" aria-label="Principal">
+					<a class="ulink" href="#cardapio">Cardápio</a>
+					<a class="ulink" href="#como-pedir">Como pedir</a>
+					<a class="ulink" href="#onde">Onde estamos</a>
+				</nav>
+				<button class="bag-btn" type="button" data-open-cart aria-label="Abrir sacola">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
+					<span class="bag-btn__label">Sacola</span>
+					<span class="bag-btn__count" data-cart-count>0</span>
+				</button>
+			</div>
+		</header>
+
+		<main>
+			<!-- HERO -->
+			<section class="hero" id="inicio" aria-labelledby="hero-title">
+				<div class="hero__scene" data-scene aria-hidden="true">
+					<div class="hero__fallback">
+						<img data-fallback-a alt="" />
+						<img data-fallback-b alt="" />
+					</div>
+				</div>
+				<div class="hero__copy wrap">
+					<p class="kicker" data-hero-in>Marmitaria · Delivery e retirada</p>
+					<span class="status status--hero" data-status><i></i><span></span></span>
+					<h1 class="hero__title" id="hero-title" data-hero-title>
+						<span class="ln">Comida caseira,</span>
+						<span class="ln"><em>quentinha</em> e</span>
+						<span class="ln">no capricho.</span>
+					</h1>
+					<p class="hero__lead" data-hero-in>
+						Marmitas com tempero de casa, prontas para o seu almoço. Monte o pedido aqui e envie direto para o nosso
+						WhatsApp.
+					</p>
+					<div class="hero__actions" data-hero-in>
+						<a class="btn btn--fire" href="#cardapio" data-magnetic>
+							<span>Ver cardápio</span>
+							<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+						</a>
+						<a class="btn btn--ghost" data-wa-link target="_blank" rel="noopener noreferrer" data-magnetic>
+							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 1c-1-.4-2.3-1.7-2.7-2.7l1-1-1-2L9 8.5Z" fill="currentColor" /></svg>
+							<span>Pedir pelo WhatsApp</span>
+						</a>
+					</div>
+					<dl class="facts" data-hero-in>
+						<div><dt>Horário</dt><dd data-hours></dd></div>
+						<div><dt>Endereço</dt><dd data-address></dd></div>
+						<div><dt>Receba</dt><dd>Delivery ou retirada</dd></div>
+					</dl>
+				</div>
+			</section>
+
+			<div class="strip" aria-hidden="true" data-strip>
+				<div class="strip__track">
+					<span>Feijoada light</span><b></b><span>Frango à parmegiana</span><b></b><span>Executiva</span><b></b>
+					<span>Saladas</span><b></b><span>Bebidas</span><b></b><span>Doces</span><b></b>
+				</div>
+			</div>
+
+			<!-- CARDÁPIO -->
+			<section class="menu" id="cardapio" aria-labelledby="menu-title">
+				<div class="wrap">
+					<div class="menu__head">
+						<h2 class="h2" id="menu-title" data-rise>O cardápio</h2>
+						<p class="menu__lead" data-rise>
+							Escolha o prato e o tamanho, adicione à sacola e finalize pelo WhatsApp. Preços de acordo com o cardápio
+							atual.
+						</p>
+					</div>
+
+					<div class="menu__tools">
+						<div class="tabs" role="tablist" aria-label="Categorias" data-tabs></div>
+						<label class="search">
+							<span class="sr-only">Buscar no cardápio</span>
+							<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.6" /></svg>
+							<input id="busca" type="search" placeholder="Buscar prato" autocomplete="off" data-search />
+						</label>
+					</div>
+
+					<div class="dishes" data-dishes aria-live="polite"></div>
+				</div>
+			</section>
+
+			<!-- COMO PEDIR -->
+			<section class="how" id="como-pedir" aria-labelledby="how-title">
+				<div class="wrap">
+					<h2 class="h2" id="how-title" data-rise>Como pedir</h2>
+					<ol class="how__steps">
+						<li class="how__step" data-rise>
+							<span class="how__n">1</span>
+							<h3>Monte a sacola</h3>
+							<p>Escolha os pratos e os tamanhos aqui no site. A sacola fica salva enquanto você navega.</p>
+						</li>
+						<li class="how__step" data-rise>
+							<span class="how__n">2</span>
+							<h3>Envie pelo WhatsApp</h3>
+							<p>O pedido vai pronto para a nossa conversa, com itens, tamanhos e o seu endereço.</p>
+						</li>
+						<li class="how__step" data-rise>
+							<span class="how__n">3</span>
+							<h3>Receba ou retire</h3>
+							<p>Confirmamos o pedido e o valor final com você. Aí é só esperar a marmita chegar ou passar aqui.</p>
+						</li>
+					</ol>
+				</div>
+			</section>
+
+			<!-- ONDE ESTAMOS -->
+			<section class="where" id="onde" aria-labelledby="where-title">
+				<div class="wrap where__grid">
+					<div class="where__hours" data-rise>
+						<h2 class="h2" id="where-title">Onde estamos</h2>
+						<p class="where__clock"><span><i>das</i> <span data-open-time></span></span><span><i>às</i> <span data-close-time></span></span></p>
+						<p class="where__note" data-days></p>
+					</div>
+					<ul class="where__list" data-rise>
+						<li>
+							<span class="label">Endereço</span>
+							<a class="ulink" data-maps target="_blank" rel="noopener noreferrer"><span data-address></span></a>
+						</li>
+						<li>
+							<span class="label">WhatsApp</span>
+							<a class="ulink" data-wa-link target="_blank" rel="noopener noreferrer"><span data-phone></span></a>
+						</li>
+						<li>
+							<span class="label">E-mail</span>
+							<span class="copyable"><span data-email></span><button type="button" class="copy" data-copy-email>Copiar</button></span>
+						</li>
+						<li data-social hidden>
+							<span class="label">Redes</span>
+							<span class="where__social" data-social-links></span>
+						</li>
+					</ul>
+				</div>
+			</section>
+		</main>
+
+		<footer class="foot">
+			<div class="wrap foot__inner">
+				<p class="foot__word" aria-hidden="true">Nosso Sabor</p>
+				<div class="foot__row">
+					<span>© <span data-year></span> Marmitaria Nosso Sabor</span>
+					<a class="ulink" href="#inicio">Voltar ao topo ↑</a>
+				</div>
+			</div>
+		</footer>
+
+		<!-- Barra fixa no celular -->
+		<button class="mbar" type="button" data-open-cart data-mbar hidden>
+			<span><b data-cart-count>0</b> na sacola</span>
+			<span data-cart-total>R$ 0,00</span>
+			<span class="mbar__go">Ver sacola →</span>
+		</button>
+
+		<!-- SACOLA -->
+		<div class="cart" data-cart hidden>
+			<div class="cart__scrim" data-close-cart></div>
+			<aside class="cart__panel" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+				<div class="cart__head">
+					<h2 id="cart-title">Sua sacola</h2>
+					<button class="icon-btn" type="button" data-close-cart aria-label="Fechar sacola">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6" /></svg>
+					</button>
+				</div>
+				<div class="cart__body">
+					<ul class="cart__items" data-cart-items></ul>
+					<div class="cart__empty" data-cart-empty>
+						<p>A sacola está vazia.</p>
+						<a class="ulink" href="#cardapio" data-close-cart>Escolher no cardápio</a>
+					</div>
+
+					<form class="order" id="pedido" data-order novalidate hidden>
+						<fieldset class="seg">
+							<legend class="sr-only">Como quer receber?</legend>
+							<label><input type="radio" name="modo" value="Delivery" checked /><span>Delivery</span></label>
+							<label><input type="radio" name="modo" value="Retirada" /><span>Para retirar</span></label>
+						</fieldset>
+						<div class="fld">
+							<label for="o-nome">Seu nome</label>
+							<input id="o-nome" name="nome" autocomplete="name" required />
+						</div>
+						<div class="fld" data-address-field>
+							<label for="o-end">Endereço de entrega</label>
+							<input id="o-end" name="endereco" autocomplete="street-address" required placeholder="Rua, número, bairro" />
+						</div>
+						<div class="fld">
+							<label for="o-obs">Observações <small>(opcional)</small></label>
+							<textarea id="o-obs" name="obs" rows="2" placeholder="Ex.: sem cebola, troco para R$ 50"></textarea>
+						</div>
+					</form>
+				</div>
+				<div class="cart__foot" data-cart-foot hidden>
+					<div class="cart__total">
+						<span>Total dos itens</span>
+						<strong data-cart-total>R$ 0,00</strong>
+					</div>
+					<p class="cart__note" data-cart-note></p>
+					<p class="cart__error" role="alert" data-order-error></p>
+					<button class="btn btn--fire btn--wide" type="submit" form="pedido" data-send-order>
+						<span>Enviar pedido pelo WhatsApp</span>
+					</button>
+				</div>
+			</aside>
+		</div>
+
+		<div class="toast" role="status" aria-live="polite" data-toast></div>
+
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
