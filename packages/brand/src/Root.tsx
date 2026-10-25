@@ -556,7 +556,7 @@ export const RemotionRoot: React.FC = () => {
 					})}
 					durationInFrames={180}
 					fps={30}
-					width={1080}
+					width={1280}
 					height={1080}
 				/>
 			</Folder>

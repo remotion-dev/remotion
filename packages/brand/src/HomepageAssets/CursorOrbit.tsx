@@ -1,13 +1,16 @@
 import {
 	centerPath,
+	getBoundingBox,
 	parsePath,
 	reduceInstructions,
 	scalePath,
 } from '@remotion/paths';
-import {makeRect} from '@remotion/shapes';
+import {makeRect, makeTriangle} from '@remotion/shapes';
 import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {threeDIntoSvgPath} from './3d-svg';
 import {makeElement, transformElement} from './element';
 import {ApplicationEditorSurface} from './ApplicationEditorSurface';
+import {BLUE} from './colors';
 import {Face} from './Face';
 import {extrudeElement} from './join-inbetween-tiles';
 import {makeFace} from './map-face';
@@ -21,6 +24,25 @@ import {
 	type Vector4D,
 } from './matrix';
 
+// Match the visible half of RenderProgress's stroke after its SVG/outer scale.
+const frameBorderWidth = (30 / 2) * (1920 / 3200) * 0.68;
+
+// Use the same rounded silhouette as the Remotion logo in Parameterization.
+const trianglePath = centerPath(
+	makeTriangle({direction: 'right', length: 240, edgeRoundness: 0.71}).path,
+);
+const triangleTail: Vector4D = [getBoundingBox(trianglePath).x1, 0, 0, 1];
+const triangle = extrudeElement({
+	points: parsePath(trianglePath),
+	depth: 24,
+	sideColor: 'black',
+	frontFaceColor: BLUE,
+	backFaceColor: BLUE,
+	strokeWidth: frameBorderWidth * 2,
+	strokeColor: 'black',
+	description: 'Remotion triangle',
+	crispEdges: false,
+});
 // Outer silhouette of MacOSCursor's default.svg, extruded in 3D.
 // Source: packages/mac-cursors/src/cursor-assets.ts.
 const cursorPath = centerPath(
@@ -31,8 +53,6 @@ const cursorPath = centerPath(
 	),
 );
 
-// Match the visible half of RenderProgress's stroke after its SVG/outer scale.
-const cursorBorderWidth = (30 / 2) * (1920 / 3200) * 0.68;
 const cursorPoints = reduceInstructions(parsePath(cursorPath)).flatMap(
 	(instruction) =>
 		instruction.type === 'M' || instruction.type === 'L'
@@ -58,7 +78,7 @@ const cursorFillPath =
 			];
 			// Intersect the two inward-offset edges to preserve a uniform border.
 			const offset =
-				cursorBorderWidth /
+				frameBorderWidth /
 				(1 +
 					incomingNormal[0] * outgoingNormal[0] +
 					incomingNormal[1] * outgoingNormal[1]);
@@ -101,8 +121,16 @@ for (const side of ['front', 'back'] as const) {
 	);
 }
 
-const isCursorCap = (description: string) =>
-	description.startsWith('macOS cursor') &&
+const cursorTail: Vector4D = [
+	(cursorPoints[0][0] + cursorPoints[2][0]) / 2,
+	(cursorPoints[0][1] + cursorPoints[2][1]) / 2,
+	0,
+	1,
+];
+
+const isOrbitCap = (description: string) =>
+	(description.startsWith('Remotion triangle') ||
+		description.startsWith('macOS cursor')) &&
 	(description.endsWith('(front)') || description.endsWith('(back)'));
 
 const appWidth = 840;
@@ -122,7 +150,7 @@ const app = extrudeElement({
 	sideColor: '#111111',
 	frontFaceColor: '#16181d',
 	backFaceColor: '#141414',
-	strokeWidth: cursorBorderWidth * 2,
+	strokeWidth: frameBorderWidth * 2,
 	strokeColor: '#000000',
 	description: 'Application',
 	crispEdges: false,
@@ -132,17 +160,16 @@ export const CursorOrbit = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 	const angle = (frame / durationInFrames) * Math.PI * 2 - Math.PI / 2;
-	const radius = 480;
+	const radius = 535;
 	const camera = [rotateX(0.2), rotateY(-0.12)];
-	const cursorAlignment = Math.atan2(17.145, -7.876);
 	const orbitTilt = [rotateZ(-0.38), rotateX(-0.18)];
-	const cursorPosition = orbitTilt.reduce(
+	const orbitPosition = orbitTilt.reduce(
 		(point, matrix) => multiplyMatrix(matrix, point),
 		[Math.cos(angle) * radius, 0, Math.sin(angle) * radius, 1] as Vector4D,
 	);
 	const appTransforms = [
-		rotateX((cursorPosition[1] / radius) * 0.12),
-		rotateY((-cursorPosition[0] / radius) * 0.15),
+		rotateX((orbitPosition[1] / radius) * 0.12),
+		rotateY((-orbitPosition[0] / radius) * 0.15),
 		rotateX(0.1),
 		rotateY(-0.06),
 	];
@@ -158,100 +185,126 @@ export const CursorOrbit = () => {
 		),
 	);
 	const panelTransform = `matrix(${xAxis[0] - origin[0]} ${xAxis[1] - origin[1]} ${yAxis[0] - origin[0]} ${yAxis[1] - origin[1]} ${origin[0]} ${origin[1]})`;
+	const orbiters = [
+		{
+			element: cursor,
+			phase: 0,
+			alignment: Math.atan2(17.145, -7.876),
+			tail: cursorTail,
+			trailColor: '140, 140, 140',
+		},
+		{
+			element: triangle,
+			phase: Math.PI,
+			alignment: 0,
+			tail: triangleTail,
+			trailColor: '65, 145, 210',
+		},
+	];
+	const orbitElements = orbiters.flatMap(
+		({element, phase, alignment, tail, trailColor}) => {
+			const orbitAngle = angle + phase;
+			const transformations = (position: number) => [
+				rotateZ(alignment),
+				rotateY(-position - Math.PI / 2),
+				translateX(Math.cos(position) * radius),
+				translateZ(Math.sin(position) * radius),
+				...orbitTilt,
+				...camera,
+			];
+			const trailPoints = Array.from({length: 49}, (_, index) => {
+				const trailAngle = orbitAngle - (index / 48) * Math.PI * 0.35;
+				return transformations(trailAngle).reduce(
+					(point, matrix) => multiplyMatrix(matrix, point),
+					tail,
+				);
+			});
+			return [
+				transformElement(element, transformations(orbitAngle)),
+				...trailPoints.slice(0, -1).map((from, index) => {
+					const to = trailPoints[index + 1];
+					const description = `Orbit trail ${element.description} ${index}`;
+					return makeElement(
+						makeFace({
+							points: `M ${from[0]} ${from[1]} L ${to[0]} ${to[1]}`,
+							fill: 'none',
+							strokeWidth: 26,
+							strokeColor: `rgba(${trailColor}, ${0.6 * (1 - (index + 0.5) / 48) ** 1.5})`,
+							description,
+							crispEdges: false,
+						}),
+						[
+							(from[0] + to[0]) / 2,
+							(from[1] + to[1]) / 2,
+							(from[2] + to[2]) / 2,
+							1,
+						],
+						description,
+					);
+				}),
+			];
+		},
+	);
+	const elements = [transformElement(app, appTransforms), ...orbitElements].map(
+		(element) => ({
+			...element,
+			faces: element.faces
+				.filter((face) => {
+					if (
+						element.description !== 'Remotion triangle' &&
+						element.description !== 'macOS cursor'
+					) {
+						return true;
+					}
 
-	const elements = [
-		transformElement(app, appTransforms),
-		transformElement(cursor, [
-			// Point the cursor along the circle's tangent before tilting both
-			// the cursor and its position into the same diagonal orbit plane.
-			rotateZ(cursorAlignment),
-			rotateY(-angle - Math.PI / 2),
-			translateX(Math.cos(angle) * radius),
-			translateZ(Math.sin(angle) * radius),
-			...orbitTilt,
-			...camera,
-		]),
-	].map((element) => ({
-		...element,
-		faces: element.faces
-			.filter((face) => {
-				if (element.description !== 'macOS cursor') {
-					return true;
-				}
+					// Both contours wind counterclockwise. A negative
+					// projected area faces the camera. The legacy engine gives both
+					// caps the same winding, so reverse the test for the back cap.
+					const points = face.points.map(({point}) => point);
+					const area = points.reduce((sum, point, index) => {
+						const next = points[(index + 1) % points.length];
+						return sum + point[0] * next[1] - next[0] * point[1];
+					}, 0);
 
-				// The cursor contour winds counterclockwise. A negative
-				// projected area faces the camera. The legacy engine gives both
-				// caps the same winding, so reverse the test for the back cap.
-				const points = face.points.map(({point}) => point);
-				const area = points.reduce((sum, point, index) => {
-					const next = points[(index + 1) % points.length];
-					return sum + point[0] * next[1] - next[0] * point[1];
-				}, 0);
+					return face.description.endsWith('(back)')
+						? area > 0.0001
+						: area < -0.0001;
+				})
+				.map((face) => {
+					// The legacy engine initializes side-face centers at the origin.
+					// Recompute from transformed geometry before sorting the faces.
+					const points = face.points.filter((point) => point.type !== 'Z');
+					const centerPoint: Vector4D = [0, 0, 0, 1];
+					for (const {point} of points) {
+						centerPoint[0] += point[0] / points.length;
+						centerPoint[1] += point[1] / points.length;
+						centerPoint[2] += point[2] / points.length;
+					}
 
-				return face.description.endsWith('(back)')
-					? area > 0.0001
-					: area < -0.0001;
-			})
-			.map((face) => {
-				// The legacy engine initializes side-face centers at the origin.
-				// Recompute from transformed geometry before sorting the faces.
-				const points = face.points.filter((point) => point.type !== 'Z');
-				const centerPoint: Vector4D = [0, 0, 0, 1];
-				for (const {point} of points) {
-					centerPoint[0] += point[0] / points.length;
-					centerPoint[1] += point[1] / points.length;
-					centerPoint[2] += point[2] / points.length;
-				}
-
-				return {...face, centerPoint};
-			}),
-	}));
+					return {...face, centerPoint};
+				}),
+		}),
+	);
 
 	return (
 		<AbsoluteFill>
-			{/* Keep the app and its complete cursor orbit inside the composition. */}
+			{/* Keep the app and both complete orbits inside the composition. */}
 			<svg
 				width="100%"
 				height="100%"
-				viewBox="-521 -697 1080 1080"
+				viewBox="-620 -477 1280 1080"
 				style={{position: 'absolute', inset: 0}}
 			>
-				<defs>
-					<filter
-						id="cursor-orbit-shadow"
-						filterUnits="userSpaceOnUse"
-						x="-600"
-						y="-600"
-						width="1200"
-						height="1200"
-						colorInterpolationFilters="sRGB"
-					>
-						<feDropShadow
-							dx="0"
-							dy="4"
-							stdDeviation="5"
-							floodColor="#000000"
-							floodOpacity="0.16"
-						/>
-					</filter>
-				</defs>
-				{/* The UI and its prism share the cursor's camera-space depth sorting. */}
+				{/* The UI and its prism share the orbiters’ camera-space depth sorting. */}
 				{elements
 					.sort((a, b) => b.centerPoint[2] - a.centerPoint[2])
 					.map((element) => (
-						<g
-							key={element.description}
-							filter={
-								element.description === 'macOS cursor'
-									? 'url(#cursor-orbit-shadow)'
-									: undefined
-							}
-						>
+						<g key={element.description}>
 							{[
 								...element.faces
 									.filter(
 										(face) =>
-											!isCursorCap(face.description) &&
+											!isOrbitCap(face.description) &&
 											face.description !== 'Application(front)' &&
 											face.description !== 'Application(back)',
 									)
@@ -262,13 +315,21 @@ export const CursorOrbit = () => {
 									(face) => face.description === 'Application(front)',
 								),
 								// For this non-intersecting prism the visible cap covers
-								// every side projected inside its concave silhouette.
-								...element.faces.filter((face) =>
-									isCursorCap(face.description),
+								// every side projected inside its silhouette.
+								...element.faces.filter((face) => isOrbitCap(face.description)),
+							].map((face, index) =>
+								face.description.startsWith('Orbit trail') ? (
+									<path
+										key={index}
+										d={threeDIntoSvgPath(face.points)}
+										fill="none"
+										stroke={face.strokeColor}
+										strokeWidth={face.strokeWidth}
+									/>
+								) : (
+									<Face key={index} {...face} />
 								),
-							].map((face, index) => (
-								<Face key={index} {...face} />
-							))}
+							)}
 							{element.description === 'Application' ? (
 								<g transform={panelTransform}>
 									<foreignObject
@@ -285,20 +346,18 @@ export const CursorOrbit = () => {
 												transformOrigin: 'top left',
 											}}
 										>
-											<ApplicationEditorSurface
-												borderWidth={(cursorBorderWidth * 1080) / appWidth}
-											/>
+											<ApplicationEditorSurface />
 										</div>
 									</foreignObject>
 									<rect
-										x={-appWidth / 2 + cursorBorderWidth / 2}
-										y={-appHeight / 2 + cursorBorderWidth / 2}
-										width={appWidth - cursorBorderWidth}
-										height={appHeight - cursorBorderWidth}
-										rx={(42 * appWidth) / 1080 - cursorBorderWidth / 2}
+										x={-appWidth / 2 + frameBorderWidth / 2}
+										y={-appHeight / 2 + frameBorderWidth / 2}
+										width={appWidth - frameBorderWidth}
+										height={appHeight - frameBorderWidth}
+										rx={(42 * appWidth) / 1080 - frameBorderWidth / 2}
 										fill="none"
 										stroke="#000000"
-										strokeWidth={cursorBorderWidth}
+										strokeWidth={frameBorderWidth}
 									/>
 								</g>
 							) : null}

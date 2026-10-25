@@ -1,20 +1,25 @@
-import {interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Freeze,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {ApplicationThinkingPanel} from './ApplicationThinkingPanel';
 import {MapCanvas} from './Map';
 
 // The previous Applications editor layout, with a map canvas and chat sidebar.
-export const ApplicationEditorSurface = ({
-	borderWidth,
-}: {
-	borderWidth: number;
-}) => {
+const ApplicationEditorContent = () => {
 	const frame = useCurrentFrame();
+	// Match the map's 5px outline after its 1.45x zoom and viewport scaling.
+	const borderWidth = (5 * 1.45 * (1080 - 340 - 28 * 2)) / 1920;
 	return (
 		<div
 			style={{
 				width: '100%',
 				height: '100%',
-				backgroundColor: '#16181d',
+				backgroundColor: '#1b1e23',
 				borderRadius: 42,
 				color: '#e5e7eb',
 				display: 'flex',
@@ -29,7 +34,6 @@ export const ApplicationEditorSurface = ({
 				<div
 					style={{
 						alignItems: 'center',
-						backgroundColor: '#101216',
 						display: 'flex',
 						flex: 1,
 						justifyContent: 'center',
@@ -38,7 +42,12 @@ export const ApplicationEditorSurface = ({
 					}}
 				>
 					<div
-						style={{aspectRatio: '16 / 9', width: '100%', overflow: 'hidden'}}
+						style={{
+							aspectRatio: '16 / 9',
+							width: '100%',
+							overflow: 'hidden',
+							borderRadius: 16,
+						}}
 					>
 						<MapCanvas lineStartFrame={32} />
 					</div>
@@ -46,39 +55,25 @@ export const ApplicationEditorSurface = ({
 				<div
 					style={{
 						backgroundColor: '#1b1e23',
-						borderTop: '2px solid #2b2f36',
 						height: 144,
 						position: 'relative',
 						flexShrink: 0,
 					}}
 				>
-					<div
-						style={{
-							backgroundColor: '#0b84f3',
-							border: `${borderWidth}px solid black`,
-							borderRadius: 8,
-							boxSizing: 'border-box',
-							height: 64,
-							left: '5%',
-							position: 'absolute',
-							top: 40,
-							width: '72%',
-						}}
-					/>
 					<svg
-						viewBox="0 0 56 144"
+						viewBox="0 0 56 228"
 						preserveAspectRatio="none"
 						style={{
 							position: 'absolute',
-							top: 0,
-							height: '100%',
-							left: `${interpolate(frame, [0, 90], [5, 82], {extrapolateRight: 'clamp'})}%`,
+							top: -84,
+							height: 'calc(100% + 84px)',
+							left: `calc(36px + (100% - 72px) * ${interpolate(frame, [0, 90], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})})`,
 							width: 56,
 							translate: '-50% 0',
 						}}
 					>
 						<path
-							d={`M ${borderWidth} ${borderWidth} H ${56 - borderWidth} V 26 L 32 42 V ${144 - borderWidth} H 24 V 42 L ${borderWidth} 26 Z`}
+							d={`M ${borderWidth} ${borderWidth} H ${56 - borderWidth} V 26 L 32 42 V ${228 - borderWidth} H 24 V 42 L ${borderWidth} 26 Z`}
 							fill="#f02c00"
 							stroke="black"
 							strokeWidth={borderWidth * 2}
@@ -88,9 +83,39 @@ export const ApplicationEditorSurface = ({
 					</svg>
 				</div>
 			</div>
-			<div style={{width: 340, flexShrink: 0, borderLeft: '2px solid #2b2f36'}}>
+			<div style={{width: 340, flexShrink: 0}}>
 				<ApplicationThinkingPanel />
 			</div>
+		</div>
+	);
+};
+
+export const ApplicationEditorSurface = () => {
+	const frame = useCurrentFrame();
+	const {durationInFrames, fps} = useVideoConfig();
+
+	return (
+		<div style={{width: '100%', height: '100%', position: 'relative'}}>
+			{/* Keep an opaque opening state underneath so the crossfade never dims. */}
+			<Freeze frame={0}>
+				<ApplicationEditorContent />
+			</Freeze>
+			<AbsoluteFill
+				style={{
+					opacity: interpolate(
+						frame,
+						[durationInFrames - 0.5 * fps, durationInFrames - 1],
+						[1, 0],
+						{
+							easing: Easing.inOut(Easing.cubic),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
+				<ApplicationEditorContent />
+			</AbsoluteFill>
 		</div>
 	);
 };

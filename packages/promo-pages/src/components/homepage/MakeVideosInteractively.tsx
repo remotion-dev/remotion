@@ -10,6 +10,7 @@ export const MakeVideosInteractively: React.FC<{
 	readonly showVideo?: boolean;
 	readonly videoSrc?: string;
 	readonly fallbackVideoSrc?: string;
+	readonly videoStyle: React.CSSProperties | null;
 }> = ({
 	title = (
 		<>
@@ -29,6 +30,7 @@ export const MakeVideosInteractively: React.FC<{
 	showVideo = true,
 	videoSrc = '/img/editing-vp9-chrome.webm',
 	fallbackVideoSrc = '/img/editing-safari.mp4',
+	videoStyle,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
 	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
@@ -41,7 +43,7 @@ export const MakeVideosInteractively: React.FC<{
 			}
 		>
 			{showVideo ? (
-				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
+				<div className="relative flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{src ? (
 						<video
 							src={src}
@@ -56,6 +58,7 @@ export const MakeVideosInteractively: React.FC<{
 								maxHeight: '100%',
 								borderRadius: 7,
 								overflow: 'hidden',
+								...videoStyle,
 							}}
 							className="object-contain"
 						/>

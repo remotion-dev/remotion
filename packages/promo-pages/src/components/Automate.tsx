@@ -52,6 +52,7 @@ export const AutomatePage: React.FC<{
 							]}
 						/>
 						<MakeVideosInteractively
+							videoStyle={null}
 							title="Applications"
 							description="Publish a simple tool or a complex video editor."
 							videoSrc="/img/applications.webm"

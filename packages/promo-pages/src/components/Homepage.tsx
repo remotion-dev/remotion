@@ -128,6 +128,7 @@ export const NewLanding: React.FC<{
 								fallbackVideoSrc="/img/homepage-assets-master.mp4"
 							/>
 							<MakeVideosInteractively
+								videoStyle={null}
 								title={
 									experimental ? (
 										<StudioHandoffSectionTitle
@@ -200,15 +201,30 @@ export const NewLanding: React.FC<{
 							/>
 							<MakeVideosInteractively
 								title="Applications"
+								videoStyle={
+									experimental
+										? {
+												// Display the 840px editor at column width; keep the
+												// wider canvas available for the orbiting cursor.
+												position: 'absolute',
+												top: 0,
+												left: `${(-200 / 840) * 100}%`,
+												width: `${(1280 / 840) * 100}%`,
+												maxWidth: 'none',
+												maxHeight: 'none',
+												pointerEvents: 'none',
+											}
+										: null
+								}
 								description="Make a simple tool or build a complex video editor."
 								videoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-editor-ae7dabba5e21.webm'
+										? 'https://remotion.media/homepage/applications-final-orbits-528514a71150.webm'
 										: '/img/applications.webm'
 								}
 								fallbackVideoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-editor-84a460f347eb.mp4'
+										? 'https://remotion.media/homepage/applications-final-orbits-243589b6a5ab.mp4'
 										: '/img/applications.mp4'
 								}
 								links={[
