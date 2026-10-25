@@ -48,12 +48,13 @@
 						<img data-fallback-b alt="" />
 					</div>
 				</div>
+				<div class="hero__bits" data-bits aria-hidden="true"></div>
 				<div class="hero__copy wrap">
 					<p class="kicker" data-hero-in>Marmitaria · Delivery e retirada</p>
 					<span class="status status--hero" data-status><i></i><span></span></span>
 					<h1 class="hero__title" id="hero-title" data-hero-title>
 						<span class="ln">Comida caseira,</span>
-						<span class="ln"><em>quentinha</em> e</span>
+						<span class="ln"><em class="hot">quentinha<svg class="steam" viewBox="0 0 90 50" aria-hidden="true"><path d="M20 48c-8-10 8-16 0-26s6-14 2-20"/><path d="M45 48c-8-10 8-16 0-26s6-14 2-20"/><path d="M70 48c-8-10 8-16 0-26s6-14 2-20"/></svg></em> e</span>
 						<span class="ln">no capricho.</span>
 					</h1>
 					<p class="hero__lead" data-hero-in>
@@ -78,10 +79,18 @@
 				</div>
 			</section>
 
-			<div class="strip" aria-hidden="true" data-strip>
-				<div class="strip__track">
-					<span>Feijoada light</span><b></b><span>Frango à parmegiana</span><b></b><span>Executiva</span><b></b>
-					<span>Saladas</span><b></b><span>Bebidas</span><b></b><span>Doces</span><b></b>
+			<div class="ribbons" aria-hidden="true">
+				<div class="strip strip--back" data-strip data-dir="1">
+					<div class="strip__track">
+						<span>Delivery</span><b></b><span>Para retirar</span><b></b><span>Das 10h30 às 14h</span><b></b>
+						<span>Av. dos Esportes, 964</span><b></b><span>Peça pelo WhatsApp</span><b></b>
+					</div>
+				</div>
+				<div class="strip" data-strip data-dir="-1">
+					<div class="strip__track">
+						<span>Feijoada light</span><b></b><span>Frango à parmegiana</span><b></b><span>Executiva</span><b></b>
+						<span>Saladas</span><b></b><span>Bebidas</span><b></b><span>Doces</span><b></b>
+					</div>
 				</div>
 			</div>
 
@@ -89,7 +98,7 @@
 			<section class="menu" id="cardapio" aria-labelledby="menu-title">
 				<div class="wrap">
 					<div class="menu__head">
-						<h2 class="h2" id="menu-title" data-rise>O cardápio</h2>
+						<h2 class="h2" id="menu-title" data-split-h>O cardápio</h2>
 						<p class="menu__lead" data-rise>
 							Escolha o prato e o tamanho, adicione à sacola e finalize pelo WhatsApp. Preços de acordo com o cardápio
 							atual.
@@ -112,7 +121,8 @@
 			<!-- COMO PEDIR -->
 			<section class="how" id="como-pedir" aria-labelledby="how-title">
 				<div class="wrap">
-					<h2 class="h2" id="how-title" data-rise>Como pedir</h2>
+					<h2 class="h2" id="how-title" data-split-h>Como pedir</h2>
+					<div class="how__route" data-route></div>
 					<ol class="how__steps">
 						<li class="how__step" data-rise>
 							<span class="how__n">1</span>
@@ -136,9 +146,12 @@
 			<!-- ONDE ESTAMOS -->
 			<section class="where" id="onde" aria-labelledby="where-title">
 				<div class="wrap where__grid">
-					<div class="where__hours" data-rise>
-						<h2 class="h2" id="where-title">Onde estamos</h2>
-						<p class="where__clock"><span><i>das</i> <span data-open-time></span></span><span><i>às</i> <span data-close-time></span></span></p>
+					<div class="where__hours">
+						<h2 class="h2" id="where-title" data-split-h>Onde estamos</h2>
+						<div class="where__time">
+							<div class="where__dial" data-clock></div>
+							<p class="where__clock"><span><i>das</i> <span data-open-time></span></span><span><i>às</i> <span data-close-time></span></span></p>
+						</div>
 						<p class="where__note" data-days></p>
 					</div>
 					<ul class="where__list" data-rise>
@@ -165,7 +178,7 @@
 
 		<footer class="foot">
 			<div class="wrap foot__inner">
-				<p class="foot__word" aria-hidden="true">Nosso Sabor</p>
+				<p class="foot__word" aria-hidden="true" data-foot-word>Nosso Sabor</p>
 				<div class="foot__row">
 					<span>© <span data-year></span> Marmitaria Nosso Sabor</span>
 					<a class="ulink" href="#inicio">Voltar ao topo ↑</a>

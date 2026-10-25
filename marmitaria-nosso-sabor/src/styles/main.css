@@ -1384,3 +1384,324 @@ em {
 		transition-duration: 0.001ms !important;
 	}
 }
+
+/* ==========================================================================
+   Camada de movimento e ilustrações
+   ========================================================================== */
+
+/* Luz quente que acompanha o cursor no topo */
+.hero::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background: radial-gradient(520px circle at var(--mx, 70%) var(--my, 45%), rgba(255, 164, 81, 0.13), transparent 70%);
+	transition: background-position 0.2s;
+}
+
+/* Ingredientes flutuando */
+.hero__bits {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+}
+.bit {
+	position: absolute;
+	width: clamp(28px, 3.2vw, 46px);
+	aspect-ratio: 1;
+	translate: -50% -50%;
+	filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.5));
+	will-change: transform;
+}
+.bit svg {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+@media (max-width: 900px) {
+	.bit {
+		width: 26px;
+	}
+}
+
+/* Vapor sobre "quentinha" */
+.hot {
+	position: relative;
+	display: inline-block;
+}
+.steam {
+	position: absolute;
+	left: 50%;
+	bottom: 78%;
+	width: 0.9em;
+	translate: -50% 0;
+	overflow: visible;
+	pointer-events: none;
+}
+.steam path {
+	fill: none;
+	stroke: var(--fire-2);
+	stroke-width: 3;
+	stroke-linecap: round;
+	stroke-dasharray: 60 120;
+	opacity: 0;
+	animation: steam 3.2s ease-in-out infinite;
+}
+.steam path:nth-child(2) {
+	animation-delay: 0.6s;
+}
+.steam path:nth-child(3) {
+	animation-delay: 1.2s;
+}
+@keyframes steam {
+	0% {
+		stroke-dashoffset: 60;
+		opacity: 0;
+		transform: translateY(6px);
+	}
+	35% {
+		opacity: 0.75;
+	}
+	100% {
+		stroke-dashoffset: -110;
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+}
+
+/* Fitas cruzadas */
+.ribbons {
+	position: relative;
+	display: grid;
+	align-items: center;
+	padding-block: clamp(4rem, 6vw, 6.5rem);
+	overflow: hidden;
+}
+.ribbons .strip {
+	grid-area: 1 / 1;
+	margin: 0;
+	transform: rotate(-4deg) scale(1.06);
+	box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+}
+.ribbons .strip--back {
+	background: var(--cream);
+	transform: rotate(3.5deg) scale(1.06);
+}
+.strip--back .strip__track {
+	font-size: clamp(1.1rem, 0.9rem + 1vw, 1.6rem);
+}
+.strip--back .strip__track b {
+	background: var(--fire);
+}
+
+/* Ícones das abas */
+.tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.ico {
+	width: 1.35rem;
+	height: 1.35rem;
+	flex: none;
+	overflow: visible;
+}
+.ico path {
+	stroke-dasharray: 80;
+	stroke-dashoffset: 0;
+}
+.tab:hover .ico path,
+.tab[aria-selected='true'] .ico path {
+	animation: draw 0.9s var(--ease) both;
+}
+@keyframes draw {
+	from {
+		stroke-dashoffset: 80;
+	}
+}
+
+/* Cards com profundidade */
+.dish {
+	transform-style: preserve-3d;
+	will-change: transform;
+	position: relative;
+}
+.dish::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	background: radial-gradient(300px circle at var(--gx, 50%) var(--gy, 0%), rgba(255, 164, 81, 0.12), transparent 65%);
+	opacity: 0;
+	transition: opacity 0.4s;
+}
+.dish:hover::after {
+	opacity: 1;
+}
+.dish__photo {
+	transform: translateZ(30px);
+	box-shadow: 0 18px 30px -16px rgba(0, 0, 0, 0.9);
+}
+.dish__price {
+	display: inline-block;
+	min-width: 6ch;
+}
+.plus-one {
+	position: absolute;
+	z-index: 5;
+	pointer-events: none;
+	font-family: var(--display);
+	font-weight: 800;
+	font-size: 1.1rem;
+	color: var(--fire);
+}
+
+/* Caminho do pedido */
+.how__route {
+	margin-top: clamp(2rem, 4vw, 3.5rem);
+	margin-bottom: -1.5rem;
+}
+.route {
+	width: 100%;
+	height: auto;
+	overflow: visible;
+}
+.route path {
+	fill: none;
+	stroke-linecap: round;
+}
+.route__base {
+	stroke: rgba(42, 28, 15, 0.22);
+	stroke-width: 3;
+	stroke-dasharray: 2 12;
+}
+.route__line {
+	stroke: var(--kraft-ink);
+	stroke-width: 4;
+}
+.route__stop circle {
+	fill: var(--kraft);
+	stroke: var(--kraft-ink);
+	stroke-width: 2.5;
+	transition:
+		fill 0.5s,
+		transform 0.5s var(--ease);
+}
+.route__stop {
+	color: var(--kraft-ink);
+	transition: color 0.4s;
+}
+.route__stop.is-on circle {
+	fill: var(--kraft-ink);
+}
+.route__stop.is-on {
+	color: var(--fire);
+}
+.route__rider circle {
+	fill: var(--fire);
+	stroke: var(--kraft-ink);
+	stroke-width: 2.5;
+}
+.route__rider path {
+	stroke: var(--kraft-ink);
+}
+.how__step {
+	transition: opacity 0.5s;
+}
+.js .how--live .how__step {
+	opacity: 0.4;
+}
+.js .how--live .how__step.is-on {
+	opacity: 1;
+}
+@media (max-width: 760px) {
+	.how__route {
+		display: none;
+	}
+	.js .how--live .how__step {
+		opacity: 1;
+	}
+}
+
+/* Relógio */
+.where__time {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+.where__dial {
+	width: clamp(150px, 18vw, 230px);
+	flex: none;
+}
+.clock {
+	width: 100%;
+	height: auto;
+	overflow: visible;
+}
+.clock__face {
+	fill: var(--coal-2);
+	stroke: var(--line);
+}
+.clock__track {
+	fill: none;
+	stroke: var(--coal-3);
+	stroke-width: 14;
+}
+.clock__arc {
+	fill: none;
+	stroke: var(--fire);
+	stroke-width: 14;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 10px rgba(246, 130, 31, 0.55));
+}
+.clock__ticks line {
+	stroke: var(--cream-3);
+	stroke-width: 1;
+}
+.clock__ticks line.big {
+	stroke: var(--cream-2);
+	stroke-width: 2;
+}
+.clock__nums text {
+	fill: var(--cream-2);
+	font-family: var(--display);
+	font-weight: 600;
+	font-size: 15px;
+	text-anchor: middle;
+}
+.clock__hand {
+	transform-origin: 150px 150px;
+	transform: rotate(var(--a, 0deg));
+	transition: transform 1.2s var(--ease);
+}
+.clock__hand line {
+	stroke: var(--cream);
+	stroke-linecap: round;
+}
+.clock__hand--h line {
+	stroke-width: 7;
+}
+.clock__hand--m line {
+	stroke-width: 4;
+}
+.clock__pin {
+	fill: var(--fire);
+}
+.where__clock {
+	font-size: clamp(3.2rem, 1.6rem + 5vw, 7rem);
+}
+
+/* Rodapé letra a letra */
+.foot__word .char {
+	display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.steam {
+		display: none;
+	}
+}

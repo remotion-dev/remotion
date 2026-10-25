@@ -1,6 +1,7 @@
 import {gsap} from 'gsap';
 import {formatPrice, menu, openStatus, store, whatsappLink, mapsLink, type Dish} from '../data';
 import {cart, findDish, orderLink, priceOf} from './cart';
+import {iconSvg} from './graphics';
 
 const $ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) => root.querySelector<T>(s);
 const $$ = <T extends Element = HTMLElement>(s: string, root: ParentNode = document) =>
@@ -127,7 +128,7 @@ export function initMenu() {
 	tabs.innerHTML = menu
 		.map(
 			(c) =>
-				`<button class="tab" type="button" role="tab" id="tab-${c.id}" aria-controls="cardapio-lista" data-tab="${c.id}">${esc(c.name)}${c.dishes.length ? `<small>${c.dishes.length}</small>` : ''}</button>`,
+				`<button class="tab" type="button" role="tab" id="tab-${c.id}" aria-controls="cardapio-lista" data-tab="${c.id}">${iconSvg(c.id)}<span>${esc(c.name)}</span>${c.dishes.length ? `<small>${c.dishes.length}</small>` : ''}</button>`,
 		)
 		.join('');
 	list.id = 'cardapio-lista';
@@ -138,8 +139,21 @@ export function initMenu() {
 		const size = $<HTMLInputElement>('input:checked', card)?.value;
 		const price = dish.sizes.find((s) => s.label === size)?.price ?? null;
 		const el = $('[data-price]', card)!;
-		el.textContent = price === null ? 'Preço a confirmar' : formatPrice(price);
 		el.classList.toggle('is-tbd', price === null);
+		const prev = Number(el.dataset.value);
+		el.dataset.value = price === null ? '' : String(price);
+		if (price === null) {
+			el.textContent = 'Preço a confirmar';
+			return;
+		}
+		// O valor "conta" do preço anterior até o novo
+		if (!reduced() && el.dataset.value && prev && prev !== price) {
+			const o = {v: prev};
+			gsap.to(o, {v: price, duration: 0.6, ease: 'power3.out', onUpdate: () => (el.textContent = formatPrice(o.v))});
+			gsap.fromTo(el, {y: -6, scale: 1.08}, {y: 0, scale: 1, duration: 0.6, ease: 'back.out(2)'});
+		} else {
+			el.textContent = formatPrice(price);
+		}
 	};
 
 	const render = (animate: boolean) => {
@@ -168,7 +182,11 @@ export function initMenu() {
 				<a class="btn btn--fire" href="${wa}" target="_blank" rel="noopener noreferrer"><span>Perguntar no WhatsApp</span></a></div>`;
 		}
 		if (animate && !reduced()) {
-			gsap.fromTo(list.children, {autoAlpha: 0, y: 24}, {autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.06});
+			gsap.fromTo(
+				list.children,
+				{autoAlpha: 0, y: 30, clipPath: 'inset(0% 0% 100% 0% round 20px)'},
+				{autoAlpha: 1, y: 0, clipPath: 'inset(0% 0% 0% 0% round 20px)', duration: 0.8, ease: 'power3.out', stagger: 0.08, clearProps: 'clipPath'},
+			);
 		}
 	};
 
@@ -207,9 +225,46 @@ export function initMenu() {
 		cart.add(dish.id, size);
 		toast(`${dish.name} (${size}) na sacola`);
 		flyToBag($<HTMLImageElement>('img', card), btn);
+		plusOne(btn);
 	});
 
+	// Inclinação 3D suave dos cards (somente mouse)
+	if (matchMedia('(hover: hover) and (pointer: fine)').matches && !reduced()) {
+		list.addEventListener('pointermove', (e) => {
+			const card = (e.target as HTMLElement).closest<HTMLElement>('.dish');
+			if (!card) return;
+			const r = card.getBoundingClientRect();
+			const px = (e.clientX - r.left) / r.width;
+			const py = (e.clientY - r.top) / r.height;
+			card.style.setProperty('--gx', `${px * 100}%`);
+			card.style.setProperty('--gy', `${py * 100}%`);
+			gsap.to(card, {rotationY: (px - 0.5) * 6, rotationX: (0.5 - py) * 6, transformPerspective: 900, duration: 0.6, ease: 'power3.out', overwrite: 'auto'});
+		});
+		list.addEventListener(
+			'pointerout',
+			(e) => {
+				const card = (e.target as HTMLElement).closest<HTMLElement>('.dish');
+				if (card && !card.contains(e.relatedTarget as Node)) gsap.to(card, {rotationX: 0, rotationY: 0, duration: 0.8, ease: 'power3.out'});
+			},
+		);
+	}
+
 	render(false);
+}
+
+/** "+1" que sobe a partir do botão. */
+function plusOne(btn: HTMLElement) {
+	if (reduced()) return;
+	const r = btn.getBoundingClientRect();
+	const el = document.createElement('span');
+	el.className = 'plus-one';
+	el.textContent = '+1';
+	el.style.position = 'fixed';
+	el.style.left = `${r.left + r.width / 2 - 10}px`;
+	el.style.top = `${r.top - 6}px`;
+	document.body.appendChild(el);
+	gsap.fromTo(el, {y: 0, autoAlpha: 1, scale: 0.6}, {y: -46, autoAlpha: 0, scale: 1.2, duration: 0.9, ease: 'power2.out', onComplete: () => el.remove()});
+	gsap.fromTo(btn, {scale: 0.92}, {scale: 1, duration: 0.5, ease: 'back.out(3)'});
 }
 
 /** Miniatura do prato "voa" até o botão da sacola. */
