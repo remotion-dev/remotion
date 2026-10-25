@@ -219,12 +219,12 @@ export const NewLanding: React.FC<{
 								description="Make a simple tool or build a complex video editor."
 								videoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-aligned-chat-8030ac2cb689.webm'
+										? 'https://remotion.media/homepage/applications-map-raised-1ea081adebd3.webm'
 										: '/img/applications.webm'
 								}
 								fallbackVideoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-aligned-chat-3452deaf983d.mp4'
+										? 'https://remotion.media/homepage/applications-map-raised-bcb117322f3a.mp4'
 										: '/img/applications.mp4'
 								}
 								links={[

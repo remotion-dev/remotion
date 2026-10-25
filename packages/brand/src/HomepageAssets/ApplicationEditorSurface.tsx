@@ -14,8 +14,8 @@ const ApplicationEditorContent = () => {
 	const frame = useCurrentFrame();
 	const sidebarWidth = 420;
 	const mapWidth = 1080 - sidebarWidth - 28 * 2;
-	const mapTop = (724 - 144 - (mapWidth * 9) / 16) / 2;
-	const playheadExtension = mapTop - 14;
+	const mapTop = 72;
+	const playheadExtension = 724 - 144 - mapTop - (mapWidth * 9) / 16 - 14;
 	const playheadHeight = 144 + playheadExtension;
 	// Match the map's 5px outline after its 1.45x zoom and viewport scaling.
 	const borderWidth = (5 * 1.45 * mapWidth) / 1920;
@@ -38,12 +38,12 @@ const ApplicationEditorContent = () => {
 			>
 				<div
 					style={{
-						alignItems: 'center',
+						alignItems: 'flex-start',
 						display: 'flex',
 						flex: 1,
 						justifyContent: 'center',
 						minHeight: 0,
-						padding: 28,
+						padding: `${mapTop}px 28px 28px`,
 					}}
 				>
 					<div
