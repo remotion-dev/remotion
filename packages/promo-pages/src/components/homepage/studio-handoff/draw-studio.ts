@@ -292,10 +292,10 @@ export const drawStudio = (
 
 	roundedRect(
 		ctx,
-		previewX + previewWidth * 0.6 + 1,
-		previewY + 1,
-		previewWidth * 0.4 - 2,
-		previewHeight - 2,
+		previewX + previewWidth * 0.6 - 1,
+		previewY - 1,
+		previewWidth * 0.4 + 2,
+		previewHeight + 2,
 		0,
 		null,
 		BLUE,

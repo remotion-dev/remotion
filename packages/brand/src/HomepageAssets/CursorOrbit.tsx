@@ -1,4 +1,3 @@
-import {loadFont} from '@remotion/fonts';
 import {
 	centerPath,
 	parsePath,
@@ -6,16 +5,9 @@ import {
 	scalePath,
 } from '@remotion/paths';
 import {makeRect} from '@remotion/shapes';
-import {
-	AbsoluteFill,
-	Easing,
-	interpolate,
-	interpolateColors,
-	staticFile,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
 import {makeElement, transformElement} from './element';
+import {ApplicationEditorSurface} from './ApplicationEditorSurface';
 import {Face} from './Face';
 import {extrudeElement} from './join-inbetween-tiles';
 import {makeFace} from './map-face';
@@ -28,12 +20,6 @@ import {
 	translateZ,
 	type Vector4D,
 } from './matrix';
-
-loadFont({
-	family: 'Cursor Button Variable',
-	url: staticFile('variable.woff2'),
-	weight: '100 900',
-});
 
 // Outer silhouette of MacOSCursor's default.svg, extruded in 3D.
 // Source: packages/mac-cursors/src/cursor-assets.ts.
@@ -80,9 +66,10 @@ const cursorFillPath =
 		})
 		.join(' ') + ' Z';
 
+const cursorDepth = 24;
 const cursor = extrudeElement({
 	points: parsePath(cursorPath),
-	depth: 12,
+	depth: cursorDepth,
 	sideColor: 'white',
 	frontFaceColor: 'white',
 	backFaceColor: 'white',
@@ -109,7 +96,7 @@ for (const side of ['front', 'back'] as const) {
 				[0, 0, 0, 1],
 				`macOS cursor fill(${side})`,
 			),
-			[translateZ(side === 'front' ? -6.001 : 6.001)],
+			[translateZ((side === 'front' ? -1 : 1) * (cursorDepth / 2 + 0.001))],
 		).faces,
 	);
 }
@@ -118,100 +105,62 @@ const isCursorCap = (description: string) =>
 	description.startsWith('macOS cursor') &&
 	(description.endsWith('(front)') || description.endsWith('(back)'));
 
-const buttonStyles = [
-	{
-		name: 'Blue',
-		front: '#0b84f3',
-		back: '#075cb0',
-		text: '#ffffff',
-		width: 550,
-		radius: 75,
-		depth: 60,
-		fontSize: 100,
-		fontWeight: 800,
-	},
-	{
-		name: 'Shadcn',
-		front: '#ffffff',
-		back: '#f4f4f5',
-		text: '#18181b',
-		width: 510,
-		radius: 40,
-		depth: 60,
-		fontSize: 90,
-		fontWeight: 400,
-	},
-] as const;
+const appWidth = 840;
+const appHeight = (appWidth * 724) / 1080;
+const appDepth = 60;
+const app = extrudeElement({
+	points: parsePath(
+		centerPath(
+			makeRect({
+				width: appWidth,
+				height: appHeight,
+				cornerRadius: (42 * appWidth) / 1080,
+			}).path,
+		),
+	),
+	depth: appDepth,
+	sideColor: '#111111',
+	frontFaceColor: '#16181d',
+	backFaceColor: '#141414',
+	strokeWidth: cursorBorderWidth * 2,
+	strokeColor: '#000000',
+	description: 'Application',
+	crispEdges: false,
+});
 
 export const CursorOrbit = () => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
-	const styleDuration = durationInFrames / buttonStyles.length;
-	const styleIndex = Math.floor(frame / styleDuration) % buttonStyles.length;
-	const styleFrame = frame % styleDuration;
-	const currentStyle = buttonStyles[styleIndex];
-	const nextStyle = buttonStyles[(styleIndex + 1) % buttonStyles.length];
-	const transition = interpolate(
-		styleFrame,
-		[styleDuration - 12, styleDuration],
-		[0, 1],
-		{extrapolateLeft: 'clamp', easing: Easing.inOut(Easing.cubic)},
-	);
-	const mix = (from: number, to: number) => from + (to - from) * transition;
-	const mixColor = (from: string, to: string) =>
-		interpolateColors(transition, [0, 1], [from, to]);
-	const buttonDepth = mix(currentStyle.depth, nextStyle.depth);
-	const renderButton = extrudeElement({
-		points: parsePath(
-			centerPath(
-				makeRect({
-					// Keep padding differences subtle as the button changes style.
-					width: mix(currentStyle.width, nextStyle.width),
-					height: 260,
-					cornerRadius: mix(currentStyle.radius, nextStyle.radius),
-				}).path,
-			),
-		),
-		depth: buttonDepth,
-		sideColor: '#111111',
-		frontFaceColor: mixColor(currentStyle.front, nextStyle.front),
-		backFaceColor: mixColor(currentStyle.back, nextStyle.back),
-		strokeWidth: cursorBorderWidth * 2,
-		strokeColor: '#111111',
-		description: 'Render button',
-		crispEdges: false,
-	});
-	const labelWeight = mix(currentStyle.fontWeight, nextStyle.fontWeight);
 	const angle = (frame / durationInFrames) * Math.PI * 2 - Math.PI / 2;
-	const radius = 280;
+	const radius = 480;
 	const camera = [rotateX(0.2), rotateY(-0.12)];
 	const cursorAlignment = Math.atan2(17.145, -7.876);
-	const orbitTilt = [rotateZ(-cursorAlignment / 2), rotateX(-0.18)];
+	const orbitTilt = [rotateZ(-0.38), rotateX(-0.18)];
 	const cursorPosition = orbitTilt.reduce(
 		(point, matrix) => multiplyMatrix(matrix, point),
 		[Math.cos(angle) * radius, 0, Math.sin(angle) * radius, 1] as Vector4D,
 	);
-	const buttonTransforms = [
-		rotateX((cursorPosition[1] / radius) * 0.24),
-		rotateY((-cursorPosition[0] / radius) * 0.3),
-		...camera,
+	const appTransforms = [
+		rotateX((cursorPosition[1] / radius) * 0.12),
+		rotateY((-cursorPosition[0] / radius) * 0.15),
+		rotateX(0.1),
+		rotateY(-0.06),
 	];
-	// Project the label with the button's front plane instead of placing flat
-	// screen-space text over the 3D button.
+	// Project the complete UI onto the app's front face.
 	const [origin, xAxis, yAxis] = [
-		[0, 0, -buttonDepth / 2 - 0.01, 1],
-		[1, 0, -buttonDepth / 2 - 0.01, 1],
-		[0, 1, -buttonDepth / 2 - 0.01, 1],
+		[0, 0, -appDepth / 2 - 0.01, 1],
+		[1, 0, -appDepth / 2 - 0.01, 1],
+		[0, 1, -appDepth / 2 - 0.01, 1],
 	].map((point) =>
-		buttonTransforms.reduce(
+		appTransforms.reduce(
 			(transformed, matrix) => multiplyMatrix(matrix, transformed),
 			point as Vector4D,
 		),
 	);
-	const labelTransform = `matrix(${xAxis[0] - origin[0]} ${xAxis[1] - origin[1]} ${yAxis[0] - origin[0]} ${yAxis[1] - origin[1]} ${origin[0]} ${origin[1]})`;
+	const panelTransform = `matrix(${xAxis[0] - origin[0]} ${xAxis[1] - origin[1]} ${yAxis[0] - origin[0]} ${yAxis[1] - origin[1]} ${origin[0]} ${origin[1]})`;
 
 	const elements = [
-		transformElement(renderButton, buttonTransforms),
+		transformElement(app, appTransforms),
 		transformElement(cursor, [
 			// Point the cursor along the circle's tangent before tilting both
 			// the cursor and its position into the same diagonal orbit plane.
@@ -260,16 +209,21 @@ export const CursorOrbit = () => {
 
 	return (
 		<AbsoluteFill>
-			{/* Keep the button and its tighter cursor orbit near the bottom left. */}
-			<svg width="100%" height="100%" viewBox="-315 -759 1080 1080">
+			{/* Keep the app and its complete cursor orbit inside the composition. */}
+			<svg
+				width="100%"
+				height="100%"
+				viewBox="-521 -697 1080 1080"
+				style={{position: 'absolute', inset: 0}}
+			>
 				<defs>
 					<filter
 						id="cursor-orbit-shadow"
 						filterUnits="userSpaceOnUse"
-						x="-540"
-						y="-540"
-						width="1080"
-						height="1080"
+						x="-600"
+						y="-600"
+						width="1200"
+						height="1200"
 						colorInterpolationFilters="sRGB"
 					>
 						<feDropShadow
@@ -281,7 +235,7 @@ export const CursorOrbit = () => {
 						/>
 					</filter>
 				</defs>
-				{/* The label and button share the cursor's camera-space depth sorting. */}
+				{/* The UI and its prism share the cursor's camera-space depth sorting. */}
 				{elements
 					.sort((a, b) => b.centerPoint[2] - a.centerPoint[2])
 					.map((element) => (
@@ -298,14 +252,14 @@ export const CursorOrbit = () => {
 									.filter(
 										(face) =>
 											!isCursorCap(face.description) &&
-											face.description !== 'Render button(front)' &&
-											face.description !== 'Render button(back)',
+											face.description !== 'Application(front)' &&
+											face.description !== 'Application(back)',
 									)
 									.sort((a, b) => b.centerPoint[2] - a.centerPoint[2]),
-								// The button always faces the camera. Paint its complete
+								// The app always faces the camera. Paint its complete
 								// front after the sides so the thin outline stays intact.
 								...element.faces.filter(
-									(face) => face.description === 'Render button(front)',
+									(face) => face.description === 'Application(front)',
 								),
 								// For this non-intersecting prism the visible cap covers
 								// every side projected inside its concave silhouette.
@@ -315,22 +269,38 @@ export const CursorOrbit = () => {
 							].map((face, index) => (
 								<Face key={index} {...face} />
 							))}
-							{element.description === 'Render button' ? (
-								<text
-									transform={labelTransform}
-									textAnchor="middle"
-									dominantBaseline="central"
-									fill={mixColor(currentStyle.text, nextStyle.text)}
-									fontFamily="Cursor Button Variable"
-									fontSize={mix(currentStyle.fontSize, nextStyle.fontSize)}
-									fontWeight={labelWeight}
-									style={{
-										fontFeatureSettings: "'ss03'",
-										fontVariationSettings: `"wght" ${labelWeight}`,
-									}}
-								>
-									Render
-								</text>
+							{element.description === 'Application' ? (
+								<g transform={panelTransform}>
+									<foreignObject
+										x={-appWidth / 2}
+										y={-appHeight / 2}
+										width={appWidth}
+										height={appHeight}
+									>
+										<div
+											style={{
+												width: 1080,
+												height: 724,
+												scale: appWidth / 1080,
+												transformOrigin: 'top left',
+											}}
+										>
+											<ApplicationEditorSurface
+												borderWidth={(cursorBorderWidth * 1080) / appWidth}
+											/>
+										</div>
+									</foreignObject>
+									<rect
+										x={-appWidth / 2 + cursorBorderWidth / 2}
+										y={-appHeight / 2 + cursorBorderWidth / 2}
+										width={appWidth - cursorBorderWidth}
+										height={appHeight - cursorBorderWidth}
+										rx={(42 * appWidth) / 1080 - cursorBorderWidth / 2}
+										fill="none"
+										stroke="#000000"
+										strokeWidth={cursorBorderWidth}
+									/>
+								</g>
 							) : null}
 						</g>
 					))}
