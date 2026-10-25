@@ -8,6 +8,7 @@ const BLUE = '#0b84f3';
 const TRACK_BACKGROUND = '#15181b';
 const ROW_SCALE = 1340 / 2700;
 const DURATION = 1294;
+const TIMELINE_ITEM_GAP = 1;
 
 export const studioAssetUrls: Record<string, string> = {
 	studioFilmstrip:
@@ -368,7 +369,7 @@ export const drawStudio = (
 		top: 126,
 		height: 28,
 		size: 12,
-		color: FOREGROUND,
+		color: LIGHT_TEXT,
 		fontFamily: null,
 		weight: null,
 		align: null,
@@ -481,7 +482,14 @@ export const drawStudio = (
 		align: null,
 		fontStyle: null,
 	});
-	caret(ctx, width - 24, toolbarY + 14, 12, true, '#9ba0a4');
+	caret(
+		ctx,
+		width - 81 + ctx.measureText('Render').width + 8,
+		toolbarY + 14,
+		12,
+		true,
+		'#9ba0a4',
+	);
 	roundedRect(ctx, 0, timelineY - 3, width, 3, 0, '#000');
 
 	ctx.save();
@@ -569,29 +577,39 @@ export const drawStudio = (
 			);
 		}
 
-		textInRow(ctx, row.label, {
-			x: row.indent,
-			top: row.top + (row.asset ? (row.height - 28) / 2 : 0),
-			height: row.asset ? 14 : row.height,
-			size: 12,
-			color: FOREGROUND,
-			fontFamily: null,
-			weight: null,
-			align: null,
-			fontStyle: null,
-		});
-		if (row.asset) {
-			textInRow(ctx, row.asset, {
-				x: row.indent + 2,
-				top: row.top + row.height / 2,
-				height: 14,
+		textInRow(
+			ctx,
+			row.label,
+			{
+				x: row.indent,
+				top: row.top + (row.asset ? (row.height - 28) / 2 : 0),
+				height: row.asset ? 14 : row.height,
 				size: 12,
-				color: 'rgba(255,255,255,0.3)',
+				color: FOREGROUND,
 				fontFamily: null,
 				weight: null,
 				align: null,
 				fontStyle: null,
-			});
+			},
+			198 - row.indent - 8,
+		);
+		if (row.asset) {
+			textInRow(
+				ctx,
+				row.asset,
+				{
+					x: row.indent,
+					top: row.top + row.height / 2,
+					height: 14,
+					size: 12,
+					color: 'rgba(255,255,255,0.3)',
+					fontFamily: null,
+					weight: null,
+					align: null,
+					fontStyle: null,
+				},
+				198 - row.indent - 8,
+			);
 		}
 	}
 
@@ -658,13 +676,12 @@ export const drawStudio = (
 			ctx.globalAlpha *= active ? 1 : 0.5;
 			roundedRect(
 				ctx,
-				chapterX + 0.5,
-				row.top + 0.5,
-				chapterWidth - 1,
-				row.height - 1,
+				chapterX + TIMELINE_ITEM_GAP / 2,
+				row.top + TIMELINE_ITEM_GAP / 2,
+				chapterWidth - TIMELINE_ITEM_GAP,
+				row.height - TIMELINE_ITEM_GAP,
 				0,
 				row.color,
-				TRACK_BACKGROUND,
 			);
 			if (row.selected) {
 				roundedRect(
@@ -680,31 +697,47 @@ export const drawStudio = (
 				);
 			}
 
+			const contentLeft = row.selected ? 9 : 5;
+			const labelLeft = contentLeft + (row.icon ? 14 : 0);
 			if (row.icon) {
 				drawStudioIcon(
 					ctx,
 					'VideoIcon',
-					chapterX + 5,
+					chapterX + contentLeft,
 					row.top + (row.height - 10) / 2,
 					10,
 					'#fff',
 				);
 			}
 
-			textInRow(ctx, row.label, {
-				x: chapterX + (row.icon ? 19 : 5),
-				top: row.top,
-				height: row.height,
-				size: 12,
-				color: '#fff',
-				fontFamily: null,
-				weight: null,
-				align: null,
-				fontStyle: null,
-			});
+			textInRow(
+				ctx,
+				row.label,
+				{
+					x: chapterX + labelLeft,
+					top: row.top,
+					height: row.height,
+					size: 12,
+					color: '#fff',
+					fontFamily: null,
+					weight: null,
+					align: null,
+					fontStyle: null,
+				},
+				chapterWidth - labelLeft - 5,
+			);
 			ctx.restore();
 		}
 
+		// Thumbnails and waveform are one video item with the same gap as other clips.
+		ctx.save();
+		clip(
+			ctx,
+			chapterX + TIMELINE_ITEM_GAP / 2,
+			144 * ROW_SCALE + TIMELINE_ITEM_GAP / 2,
+			chapterWidth - TIMELINE_ITEM_GAP,
+			92 * ROW_SCALE - TIMELINE_ITEM_GAP,
+		);
 		ctx.save();
 		clip(ctx, chapterX, 144 * ROW_SCALE, chapterWidth, 52 * ROW_SCALE);
 		ctx.globalAlpha *= active ? 1 : 0.5;
@@ -776,6 +809,7 @@ export const drawStudio = (
 		}
 
 		ctx.restore();
+		ctx.restore();
 	}
 
 	const soundtrackY = 280 * ROW_SCALE;
@@ -788,6 +822,14 @@ export const drawStudio = (
 	);
 	gradient.addColorStop(0, 'rgb(16,171,58)');
 	gradient.addColorStop(0.6, 'rgb(43,165,63)');
+	ctx.save();
+	clip(
+		ctx,
+		trackX + TIMELINE_ITEM_GAP / 2,
+		soundtrackY + TIMELINE_ITEM_GAP / 2,
+		soundtrackWidth - TIMELINE_ITEM_GAP,
+		34 - TIMELINE_ITEM_GAP,
+	);
 	roundedRect(ctx, trackX, soundtrackY, soundtrackWidth, 34, 2, null);
 	ctx.fillStyle = gradient;
 	ctx.fill();
@@ -805,6 +847,7 @@ export const drawStudio = (
 	ctx.lineTo(trackX + soundtrackWidth, soundtrackY);
 	ctx.closePath();
 	ctx.fill();
+	ctx.restore();
 	roundedRect(
 		ctx,
 		trackX,
@@ -834,6 +877,13 @@ export const drawStudio = (
 		const x = trackX + effect.from * zoom;
 		const y = 338 * ROW_SCALE + 55;
 		ctx.save();
+		clip(
+			ctx,
+			x + TIMELINE_ITEM_GAP / 2,
+			y + TIMELINE_ITEM_GAP / 2,
+			effect.duration * zoom - TIMELINE_ITEM_GAP,
+			100 * ROW_SCALE - TIMELINE_ITEM_GAP,
+		);
 		ctx.globalAlpha *= 0.5;
 		roundedRect(
 			ctx,
@@ -849,12 +899,12 @@ export const drawStudio = (
 	}
 
 	roundedRect(ctx, 0, 0, width, 40, 0, BACKGROUND);
-	text(ctx, '00:41.04', 8, 4, 14, LIGHT_TEXT, {
+	text(ctx, '00:41.04', 8, 6.5, 14, FOREGROUND, {
 		fontFamily: 'monospace',
 		weight: null,
 		align: null,
 	});
-	text(ctx, '1234', 8, 24, 10, LIGHT_TEXT, {
+	text(ctx, '1234', 8, 21.5, 10, LIGHT_TEXT, {
 		fontFamily: 'monospace',
 		weight: null,
 		align: null,

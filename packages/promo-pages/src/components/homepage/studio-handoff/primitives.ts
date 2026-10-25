@@ -82,11 +82,36 @@ export const textInRow = (
 		align: CanvasTextAlign | null;
 		fontStyle: 'normal' | 'italic' | null;
 	},
+	clipWidth: number | null = null,
 ) => {
 	ctx.font = `${fontStyle ?? 'normal'} ${weight ?? 400} ${size}px ${fontFamily ?? 'Arial, Helvetica, sans-serif'}`;
 	ctx.textBaseline = 'alphabetic';
 	ctx.textAlign = align ?? 'left';
 	ctx.fillStyle = color;
+	if (clipWidth !== null) {
+		if (clipWidth <= 0) return;
+		ctx.save();
+		ctx.beginPath();
+		ctx.rect(x, top, clipWidth, height);
+		ctx.clip();
+		// Fade only the label; the clip background, outline and icon stay solid.
+		const fade = ctx.createLinearGradient(
+			x + Math.max(0, clipWidth - 10),
+			0,
+			x + clipWidth,
+			0,
+		);
+		// Canvas interpolates RGB as well as alpha, so use the label's RGB at
+		// both ends instead of `transparent`, which means transparent black.
+		const normalizedColor = ctx.fillStyle;
+		const transparentColor = normalizedColor.startsWith('#')
+			? `${normalizedColor.slice(0, 7)}00`
+			: normalizedColor.replace(/,\s*[\d.]+\)$/, ', 0)');
+		fade.addColorStop(0, color);
+		fade.addColorStop(1, transparentColor);
+		ctx.fillStyle = fade;
+	}
+
 	// A stable sample also keeps fallback baselines identical for labels with
 	// and without descenders, such as "Endcard" and "Logo".
 	const metrics = ctx.measureText('Hg');
@@ -95,4 +120,7 @@ export const textInRow = (
 	const descent =
 		metrics.fontBoundingBoxDescent ?? metrics.actualBoundingBoxDescent;
 	ctx.fillText(content, x, top + height / 2 + (ascent - descent) / 2);
+	if (clipWidth !== null) {
+		ctx.restore();
+	}
 };
