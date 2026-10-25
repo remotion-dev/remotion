@@ -81,6 +81,7 @@ export const NewLanding: React.FC<{
 							>
 								<div
 									aria-hidden
+									className="[--hero-gradient-opacity:0.08] min-[900px]:[--hero-gradient-opacity:0.03]"
 									style={{
 										position: 'absolute',
 										bottom: 0,
@@ -88,7 +89,7 @@ export const NewLanding: React.FC<{
 										width: '100vw',
 										height: 100,
 										transform: 'translateX(-50%)',
-										background: `linear-gradient(to top, ${colorMode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)'}, transparent)`,
+										background: `linear-gradient(to top, ${colorMode === 'dark' ? 'rgba(255, 255, 255, var(--hero-gradient-opacity))' : 'rgba(0, 0, 0, var(--hero-gradient-opacity))'}, transparent)`,
 										pointerEvents: 'none',
 										zIndex: -1,
 									}}
@@ -202,12 +203,12 @@ export const NewLanding: React.FC<{
 								description="Make a simple tool or build a complex video editor."
 								videoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-tight-orbit-844ea56311d7.webm'
+										? 'https://remotion.media/homepage/applications-two-styles-1fcfd86aca0a.webm'
 										: '/img/applications.webm'
 								}
 								fallbackVideoSrc={
 									experimental
-										? 'https://remotion.media/homepage/applications-tight-orbit-fd4fdfe34527.mp4'
+										? 'https://remotion.media/homepage/applications-two-styles-ebbf07c47f6d.mp4'
 										: '/img/applications.mp4'
 								}
 								links={[

@@ -129,7 +129,6 @@ const buttonStyles = [
 		depth: 60,
 		fontSize: 100,
 		fontWeight: 800,
-		variable: false,
 	},
 	{
 		name: 'Shadcn',
@@ -138,22 +137,9 @@ const buttonStyles = [
 		text: '#18181b',
 		width: 510,
 		radius: 40,
-		depth: 20,
+		depth: 60,
 		fontSize: 90,
 		fontWeight: 400,
-		variable: false,
-	},
-	{
-		name: 'Orange italic',
-		front: '#f97316',
-		back: '#c2410c',
-		text: '#ffffff',
-		width: 620,
-		radius: 130,
-		depth: 50,
-		fontSize: 104,
-		fontWeight: 600,
-		variable: true,
 	},
 ] as const;
 
@@ -195,16 +181,7 @@ export const CursorOrbit = () => {
 		description: 'Render button',
 		crispEdges: false,
 	});
-	const variablePulse =
-		(1 - Math.cos((styleFrame / styleDuration) * Math.PI * 2)) / 2;
-	const labelWeight = mix(
-		currentStyle.fontWeight + (currentStyle.variable ? variablePulse * 200 : 0),
-		nextStyle.fontWeight + (nextStyle.variable ? variablePulse * 200 : 0),
-	);
-	const labelSlant = mix(
-		currentStyle.variable ? 10 + variablePulse * 8 : 0,
-		nextStyle.variable ? 10 + variablePulse * 8 : 0,
-	);
+	const labelWeight = mix(currentStyle.fontWeight, nextStyle.fontWeight);
 	const angle = (frame / durationInFrames) * Math.PI * 2 - Math.PI / 2;
 	const radius = 280;
 	const camera = [rotateX(0.2), rotateY(-0.12)];
@@ -349,7 +326,7 @@ export const CursorOrbit = () => {
 									fontWeight={labelWeight}
 									style={{
 										fontFeatureSettings: "'ss03'",
-										fontVariationSettings: `"wght" ${labelWeight}, "slnt" ${labelSlant}`,
+										fontVariationSettings: `"wght" ${labelWeight}`,
 									}}
 								>
 									Render
