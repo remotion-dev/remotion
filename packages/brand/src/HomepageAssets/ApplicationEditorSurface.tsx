@@ -12,8 +12,12 @@ import {MapCanvas} from './Map';
 // The previous Applications editor layout, with a map canvas and chat sidebar.
 const ApplicationEditorContent = () => {
 	const frame = useCurrentFrame();
+	const sidebarWidth = 420;
+	const mapWidth = 1080 - sidebarWidth - 28 * 2;
+	const playheadExtension = (724 - 144 - (mapWidth * 9) / 16) / 2 - 14;
+	const playheadHeight = 144 + playheadExtension;
 	// Match the map's 5px outline after its 1.45x zoom and viewport scaling.
-	const borderWidth = (5 * 1.45 * (1080 - 340 - 28 * 2)) / 1920;
+	const borderWidth = (5 * 1.45 * mapWidth) / 1920;
 	return (
 		<div
 			style={{
@@ -61,19 +65,19 @@ const ApplicationEditorContent = () => {
 					}}
 				>
 					<svg
-						viewBox="0 0 56 228"
+						viewBox={`0 0 56 ${playheadHeight}`}
 						preserveAspectRatio="none"
 						style={{
 							position: 'absolute',
-							top: -84,
-							height: 'calc(100% + 84px)',
+							top: -playheadExtension,
+							height: `calc(100% + ${playheadExtension}px)`,
 							left: `calc(36px + (100% - 72px) * ${interpolate(frame, [0, 90], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})})`,
 							width: 56,
 							translate: '-50% 0',
 						}}
 					>
 						<path
-							d={`M ${borderWidth} ${borderWidth} H ${56 - borderWidth} V 26 L 32 42 V ${228 - borderWidth} H 24 V 42 L ${borderWidth} 26 Z`}
+							d={`M ${borderWidth} ${borderWidth} H ${56 - borderWidth} V 26 L 32 42 V ${playheadHeight - borderWidth} H 24 V 42 L ${borderWidth} 26 Z`}
 							fill="#f02c00"
 							stroke="black"
 							strokeWidth={borderWidth * 2}
@@ -83,7 +87,7 @@ const ApplicationEditorContent = () => {
 					</svg>
 				</div>
 			</div>
-			<div style={{width: 340, flexShrink: 0}}>
+			<div style={{width: sidebarWidth, flexShrink: 0}}>
 				<ApplicationThinkingPanel />
 			</div>
 		</div>

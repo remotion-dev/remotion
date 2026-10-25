@@ -36,19 +36,19 @@ export const ApplicationThinkingPanel = () => {
 			<div
 				style={{
 					position: 'absolute',
-					right: 24,
+					right: 28,
 					top: 72,
 					color: '#f1f3f5',
-					fontSize: 32,
+					fontSize: 44,
 					backgroundColor: '#30343c',
 					border: '2px solid #454b54',
-					borderRadius: 18,
+					borderRadius: 24,
 					lineHeight: 1.25,
-					width: 264,
-					height: 124,
+					width: 360,
+					height: 172,
 					boxSizing: 'border-box',
 					textAlign: 'right',
-					padding: '20px 22px',
+					padding: '26px 28px',
 					translate: interpolate(
 						time,
 						[0.4, 28 / 30],
@@ -77,9 +77,9 @@ export const ApplicationThinkingPanel = () => {
 			<div
 				style={{
 					position: 'absolute',
-					left: 24,
-					top: 246,
-					fontSize: 32,
+					left: 28,
+					top: 294,
+					fontSize: 44,
 					color: '#9299a6',
 					opacity: interpolate(
 						time,
@@ -113,7 +113,7 @@ export const ApplicationThinkingPanel = () => {
 					Thinking
 				</span>
 			</div>
-			<div style={{position: 'absolute', left: 24, top: 246, fontSize: 32}}>
+			<div style={{position: 'absolute', left: 28, top: 294, fontSize: 44}}>
 				{['Do', 'ne', '.'].map((token, index) => (
 					<span
 						key={token}
@@ -133,25 +133,25 @@ export const ApplicationThinkingPanel = () => {
 			<div
 				style={{
 					position: 'absolute',
-					left: 24,
-					right: 24,
-					bottom: 24,
-					height: 84,
-					borderRadius: 42,
+					left: 28,
+					right: 28,
+					bottom: 28,
+					height: 104,
+					borderRadius: 52,
 					backgroundColor: '#30343c',
 					border: '2px solid #454b54',
 					boxSizing: 'border-box',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'flex-end',
-					padding: 8,
+					padding: 10,
 				}}
 			>
 				<div
 					style={{
-						width: 64,
-						height: 64,
-						borderRadius: 32,
+						width: 80,
+						height: 80,
+						borderRadius: 40,
 						backgroundColor: '#0b84f3',
 						display: 'flex',
 						alignItems: 'center',
@@ -162,7 +162,7 @@ export const ApplicationThinkingPanel = () => {
 						}),
 					}}
 				>
-					<svg width={24} height={34} viewBox="0 0 384 512" fill="white">
+					<svg width={30} height={42} viewBox="0 0 384 512" fill="white">
 						<path d="M214.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 109.3 160 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-370.7 105.4 105.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z" />
 					</svg>
 				</div>
