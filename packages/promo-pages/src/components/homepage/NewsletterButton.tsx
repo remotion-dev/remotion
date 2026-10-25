@@ -52,7 +52,7 @@ export const NewsletterButton: React.FC<{}> = () => {
 								width: '100%',
 							}}
 						>
-							<div className={'fontbrand text-center mb-10 -mt-4'}>
+							<div className={'fontbrand text-lg text-center mb-10 -mt-4'}>
 								Read about new features and noteworthy updates we have made on
 								Remotion once in a while.{' '}
 							</div>

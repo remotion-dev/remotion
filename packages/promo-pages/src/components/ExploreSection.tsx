@@ -20,7 +20,7 @@ export const ExploreSection: React.FC = () => {
 	return (
 		<section className="mx-auto max-w-[1000px] px-5 pt-24 pb-24 [&_h2]:mb-0">
 			<SectionTitle>Problems we solve</SectionTitle>
-			<p className="mx-auto mt-2 mb-10 max-w-[760px] text-center fontbrand text-balance leading-relaxed">
+			<p className="mx-auto mt-2 mb-10 max-w-[760px] text-center fontbrand text-lg text-balance leading-relaxed">
 				We explode the world of video creation into pieces and let you assemble
 				them.
 			</p>

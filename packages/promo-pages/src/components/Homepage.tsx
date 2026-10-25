@@ -22,7 +22,7 @@ import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
 const makeVideosRowClassName =
-	'mt-4 min-[900px]:mt-6 flex flex-col min-[900px]:flex-row gap-10';
+	'mt-4 min-[900px]:mt-6 flex flex-col gap-10 min-[900px]:grid min-[900px]:grid-cols-[repeat(3,270px)] min-[900px]:justify-between min-[900px]:gap-x-0';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
