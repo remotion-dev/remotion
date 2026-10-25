@@ -44,7 +44,9 @@ export const NewLanding: React.FC<{
 
 	return (
 		<ColorModeProvider colorMode={colorMode} setColorMode={setColorMode}>
-			<div className="w-full relative">
+			<div
+				className={`w-full relative ${experimental ? 'experimental-homepage' : ''}`}
+			>
 				<div style={{overflow: 'hidden'}}>
 					{experimental ? (
 						<div aria-hidden style={{height: 'calc(2lh - 20px)'}} />
@@ -251,7 +253,7 @@ export const NewLanding: React.FC<{
 							</>
 						)}
 						<SectionTitle>Pricing</SectionTitle>
-						<p className="font-brand mt-0 mb-8 text-center text-lg leading-relaxed">
+						<p className="font-brand mt-0 mb-8 text-center text-lg leading-relaxed [.experimental-homepage_&]:text-left">
 							Remotion is completely free to use for any individual or small
 							company - no catch.
 							<br />

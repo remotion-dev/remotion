@@ -23,12 +23,12 @@ const SectionLink: React.FC<{
 );
 
 const CommunityStats: React.FC = () => (
-	<div className={'m-auto max-w-[700px] text-center'}>
+	<div className="m-auto max-w-[700px] text-center [.experimental-homepage_&]:max-w-none">
 		<SectionTitle>Never build alone</SectionTitle>
-		<div className={'fontbrand text-lg text-center mb-10 -mt-4'}>
+		<div className="fontbrand text-lg text-center mb-10 -mt-4 [.experimental-homepage_&]:text-left">
 			Join a thriving community of developers.
 		</div>
-		<div className={'flex flex-wrap justify-between gap-4 w-full items-center'}>
+		<div className="mx-auto flex max-w-[700px] flex-wrap justify-between gap-4 w-full items-center">
 			<SectionLink href="https://www.npmjs.com/package/remotion">
 				<InstallsPerMonth />
 			</SectionLink>
