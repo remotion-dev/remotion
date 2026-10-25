@@ -228,7 +228,7 @@ export const PlaybackRateSelector: React.FC = () => {
 						<>
 							<PlaybackRateIcon color={color} playbackRate={playbackRate} />
 							<span style={{fontSize: 12, fontVariantNumeric: 'tabular-nums'}}>
-								{getPopupRateLabel(magnitude)}
+								{getPopupRateLabel(playbackRate)}
 							</span>
 						</>
 					)}
@@ -251,7 +251,7 @@ export const PlaybackRateSelector: React.FC = () => {
 											{(tabIndex) => (
 												<div style={popupStyle}>
 													<div style={currentRateStyle} aria-live="polite">
-														{getPopupRateLabel(magnitude)}
+														{getPopupRateLabel(playbackRate)}
 													</div>
 													<div style={optionsRowStyle}>
 														<button
