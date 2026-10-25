@@ -58,11 +58,6 @@ const iconPaths = {
 		viewBox: '0 0 576 512',
 		path: 'M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z',
 	},
-	link: {
-		height: 60,
-		viewBox: '0 0 640 512',
-		path: 'M580.2 267.3c56.2-56.2 56.2-147.4 0-203.6S432.8 7.4 376.6 63.7L365.3 75l45.3 45.3 11.3-11.3c31.2-31.2 81.9-31.2 113.1 0s31.2 81.9 0 113.1L421.8 335.2c-31.2 31.2-81.9 31.2-113.1 0c-25.6-25.6-30.3-64.3-13.8-94.6c1.8-3.4 3.9-6.7 6.3-9.8l-51.2-38.4c-4.3 5.7-8.1 11.6-11.4 17.8c-29.5 54.6-21.3 124.2 24.9 170.3c56.2 56.2 147.4 56.2 203.6 0L580.2 267.3zM59.8 244.7c-56.2 56.2-56.2 147.4 0 203.6s147.4 56.2 203.6 0L274.7 437l-45.3-45.3-11.3 11.3c-31.2 31.2-81.9 31.2-113.1 0s-31.2-81.9 0-113.1L218.2 176.8c31.2-31.2 81.9-31.2 113.1 0c25.6 25.6 30.3 64.3 13.8 94.6c-1.8 3.4-3.9 6.7-6.3 9.8l51.2 38.4c4.3-5.7 8.1-11.6 11.4-17.8c29.5-54.6 21.3-124.2-24.9-170.3c-56.2-56.2-147.4-56.2-203.6 0L59.8 244.7z',
-	},
 } as const;
 
 type IconType = keyof typeof iconPaths;
@@ -71,10 +66,6 @@ const remotionSocialRows: readonly {type: IconType; label: string}[] = [
 	{type: 'instagram', label: '@remotion'},
 	{type: 'linkedin', label: 'Remotion'},
 	{type: 'youtube', label: '@remotion_dev'},
-];
-
-const remotionLinks: readonly {type: IconType; label: string}[] = [
-	{type: 'link', label: 'remotion.dev'},
 ];
 
 const Icon: React.FC<{
@@ -139,7 +130,7 @@ const TemplateRecorderEndcardFace: React.FC<{
 	const currentFrame = useCurrentFrame();
 	const frame = frameOverride ?? currentFrame;
 	const {fps, width} = useVideoConfig();
-	const totalLinks = remotionSocialRows.length + remotionLinks.length;
+	const totalLinks = remotionSocialRows.length;
 	const slideUp = spring({
 		fps,
 		frame,
@@ -203,7 +194,8 @@ const TemplateRecorderEndcardFace: React.FC<{
 						</div>
 					</div>
 				</div>
-				<div>
+				{/* Keep the social rows above the overlapping composition selector. */}
+				<div style={{paddingBottom: 180}}>
 					<div style={{height: 80}} />
 					{remotionSocialRows.map((row, index) => {
 						const indexFromLast = totalLinks - index;
@@ -222,30 +214,6 @@ const TemplateRecorderEndcardFace: React.FC<{
 						return (
 							<IconRow
 								key={row.type}
-								label={row.label}
-								opacity={opacity}
-								type={row.type}
-							/>
-						);
-					})}
-					<div style={{height: 80}} />
-					{remotionLinks.map((row, index) => {
-						const indexFromLast = remotionLinks.length - index;
-						const opacity = spring({
-							fps,
-							frame,
-							config: {
-								damping: 200,
-							},
-							delay:
-								slideDelay +
-								((indexFromLast - 1) / totalLinks) * (slideDuration - 15),
-							durationInFrames: 15,
-						});
-
-						return (
-							<IconRow
-								key={row.label}
 								label={row.label}
 								opacity={opacity}
 								type={row.type}

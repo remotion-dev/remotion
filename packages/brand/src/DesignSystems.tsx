@@ -10,8 +10,11 @@ import {TemplateRecorderEndcard} from './HomepageAssets/TemplateRecorderEndcard'
 
 const forwardDurationInFrames = 150;
 const pingPongDurationInFrames = forwardDurationInFrames * 2 - 1;
+const endcardHoldReductionInFrames = 9;
 export const designSystemsDurationInFrames =
-	pingPongDurationInFrames - folderTreeSelectionMoveStart;
+	pingPongDurationInFrames -
+	folderTreeSelectionMoveStart -
+	endcardHoldReductionInFrames;
 const endcardSequenceStart = folderTreeSelectionMoveStart - 2;
 const animatedLogoExitEnd = 100;
 const assetScaleOverlap = 1;
@@ -43,12 +46,13 @@ export const DesignSystems: React.FC = () => {
 	const pingPongFrame =
 		frame < forwardDurationInFrames
 			? frame
-			: pingPongDurationInFrames - 1 - frame;
+			: pingPongDurationInFrames - 1 - frame - endcardHoldReductionInFrames;
 	const endcardFrame = Math.max(
 		0,
 		Math.min(frame, forwardDurationInFrames - 1) - endcardSequenceStart,
 	);
-	const animatedLogoFrame = frame < forwardDurationInFrames ? pingPongFrame : 0;
+	const animatedLogoFrame =
+		frame < forwardDurationInFrames ? pingPongFrame * 2 : 0;
 	const animatedLogoScale = interpolate(
 		pingPongFrame,
 		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
@@ -76,8 +80,9 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
-					translate: '157px 264.7px',
+					translate: '157px 694.7px',
 					scale: 3.233,
+					zIndex: 1,
 				}}
 			>
 				<FolderTree frame={pingPongFrame} />
@@ -88,7 +93,7 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
-					translate: '189.6px 162px',
+					translate: '189.6px -138px',
 					opacity: interpolate(pingPongFrame, [75], [1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
@@ -111,7 +116,7 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
-					translate: '170.7px -145.5px',
+					translate: '170.7px -355.5px',
 					opacity: endcardOpacity,
 				}}
 				from={endcardSequenceStart}

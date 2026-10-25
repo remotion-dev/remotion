@@ -53,7 +53,10 @@ export const WriteInReact: React.FC<{
 				style={secondaryRowStyle}
 			>
 				<p
-					style={textStyle}
+					style={{
+						...textStyle,
+						translate: alignWithDevice ? '0 1px' : undefined,
+					}}
 					className={`font-medium text-lg ${textAlignment} ${alignWithDevice ? 'min-w-0 flex-1' : ''}`}
 				>
 					Create videos and motion graphics with React.{' '}

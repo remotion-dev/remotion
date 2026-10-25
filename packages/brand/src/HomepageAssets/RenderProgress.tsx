@@ -25,6 +25,8 @@ const phrases = ['video.mp4', 'thumb.png', 'sound.wav', 'funny.gif'] as const;
 const cycleOffsets = [-1, 0, 1] as const;
 const stepTransitionDurationInFrames = 24;
 const easing = Easing.inOut(Easing.cubic);
+const scaleOriginX =
+	-renderProgressCardWidth / 2 + renderProgressCardWidth * 0.1;
 
 const modulo = (value: number, by: number) => {
 	return ((value % by) + by) % by;
@@ -114,6 +116,10 @@ export const RenderProgress: React.FC = () => {
 	return (
 		<AbsoluteFill>
 			{rendered.map((item, i) => {
+				if (item.scale < 0.05) {
+					return null;
+				}
+
 				return (
 					<svg
 						key={i}
@@ -124,9 +130,9 @@ export const RenderProgress: React.FC = () => {
 							position: 'absolute',
 						}}
 					>
-						{/* Keep the left edge and the neighboring vertical edge anchored. */}
+						{/* Scale 10% in from the left, keeping the neighboring vertical edge anchored. */}
 						<g
-							transform={`translate(${-renderProgressCardWidth / 2} ${item.y + item.scaleOriginY}) scale(${item.scale}) translate(${renderProgressCardWidth / 2} ${-item.scaleOriginY})`}
+							transform={`translate(${scaleOriginX} ${item.y + item.scaleOriginY}) scale(${item.scale}) translate(${-scaleOriginX} ${-item.scaleOriginY})`}
 						>
 							<Faces elements={item.elements} />
 						</g>
@@ -143,7 +149,7 @@ export const OuterRenderProgress = () => {
 			width={1920}
 			height={1080}
 			style={{
-				translate: '-501px 164px',
+				translate: '-499px 116px',
 				scale: 0.68,
 			}}
 		>

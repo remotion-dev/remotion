@@ -224,7 +224,7 @@ export const FolderTree: React.FC<{
 							position: 'absolute',
 							right: contentPadding,
 							top: 0,
-							translate: `0px ${childRowOffset * 2}px`,
+							translate: `0px ${finalSelectionY + (selectionHeight - rowHeight) / 2}px`,
 							userSelect: 'none',
 						}}
 					>

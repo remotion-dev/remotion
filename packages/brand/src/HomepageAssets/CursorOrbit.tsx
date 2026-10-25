@@ -40,8 +40,8 @@ loadFont({
 const cursorPath = centerPath(
 	scalePath(
 		'm6.148 18.473 1.863-1.003 1.615-.839-2.568-4.816h4.332l-11.379-11.408v16.015l3.316-3.221z',
-		8.5,
-		8.5,
+		11,
+		11,
 	),
 );
 
@@ -206,7 +206,7 @@ export const CursorOrbit = () => {
 		nextStyle.variable ? 10 + variablePulse * 8 : 0,
 	);
 	const angle = (frame / durationInFrames) * Math.PI * 2 - Math.PI / 2;
-	const radius = 330;
+	const radius = 280;
 	const camera = [rotateX(0.2), rotateY(-0.12)];
 	const cursorAlignment = Math.atan2(17.145, -7.876);
 	const orbitTilt = [rotateZ(-cursorAlignment / 2), rotateX(-0.18)];
@@ -283,7 +283,7 @@ export const CursorOrbit = () => {
 
 	return (
 		<AbsoluteFill>
-			{/* Shift 225px left and 219px down, leaving 4px around the full loop. */}
+			{/* Keep the button and its tighter cursor orbit near the bottom left. */}
 			<svg width="100%" height="100%" viewBox="-315 -759 1080 1080">
 				<defs>
 					<filter

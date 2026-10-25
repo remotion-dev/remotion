@@ -148,7 +148,7 @@ export const NewLanding: React.FC<{
 								}
 								description={
 									experimental
-										? 'Own the code, use the web and connect your assets.'
+										? 'Own the code, use the web and bring your assets.'
 										: undefined
 								}
 								showVideo={!experimental}
@@ -162,12 +162,12 @@ export const NewLanding: React.FC<{
 						<div className={makeVideosRowClassName}>
 							<MakeVideosProgrammatically
 								title="Parameterization"
-								description="Organize your assets and connect your data."
+								description="Build templates and connect your data."
 								videoSrc={
-									'https://remotion.media/homepage/parameterization-border-54bff9f3f1d3.webm'
+									'https://remotion.media/homepage/parameterization-centered-row-7f994189e254.webm'
 								}
 								fallbackVideoSrc={
-									'https://remotion.media/homepage/parameterization-border-96ec5bb1168e.mp4'
+									'https://remotion.media/homepage/parameterization-centered-row-a171e9b1897d.mp4'
 								}
 								links={[
 									{
@@ -181,10 +181,10 @@ export const NewLanding: React.FC<{
 								title="Batch rendering"
 								description="Render millions of videos on your own infrastructure."
 								videoSrc={
-									'https://remotion.media/homepage/render-progress-fixed-gaps-e59b3b7224f1.webm'
+									'https://remotion.media/homepage/render-progress-inset-padded-c2444f4217c0.webm'
 								}
 								fallbackVideoSrc={
-									'https://remotion.media/homepage/render-progress-fixed-gaps-ae3cb1f46309.mp4'
+									'https://remotion.media/homepage/render-progress-inset-padded-25b72a686e9d.mp4'
 								}
 								links={[
 									{
@@ -199,15 +199,15 @@ export const NewLanding: React.FC<{
 							/>
 							<MakeVideosInteractively
 								title="Applications"
-								description="Publish a simple tool or a complex video editor."
+								description="Make a simple tool or build a complex video editor."
 								videoSrc={
 									experimental
-										? 'https://remotion.media/homepage/cursor-orbit-f1c03eb4712b.webm'
+										? 'https://remotion.media/homepage/applications-tight-orbit-844ea56311d7.webm'
 										: '/img/applications.webm'
 								}
 								fallbackVideoSrc={
 									experimental
-										? 'https://remotion.media/homepage/cursor-orbit-418a60dded47.mp4'
+										? 'https://remotion.media/homepage/applications-tight-orbit-fd4fdfe34527.mp4'
 										: '/img/applications.mp4'
 								}
 								links={[
