@@ -27,7 +27,45 @@ export const loadStudioHandoffAssets = (): Promise<StudioHandoffAssets> => {
 				(resolve, reject) => {
 					const img = new Image();
 					img.crossOrigin = 'anonymous';
-					img.onload = () => resolve([key, img]);
+					img.onload = () => {
+						if (key !== 'endcard') {
+							resolve([key, img]);
+							return;
+						}
+
+						const canvas = document.createElement('canvas');
+						canvas.width = img.naturalWidth;
+						canvas.height = img.naturalHeight;
+						const ctx = canvas.getContext('2d');
+						if (!ctx) {
+							reject(new Error('Could not center the endcard presenter'));
+							return;
+						}
+
+						// Center the presenter in the left 60% without moving the social panel.
+						const videoWidth = canvas.width * 0.6;
+						const presenterCenter = canvas.width * 0.34;
+						const cropWidth = (videoWidth - presenterCenter) * 2;
+						const cropHeight = canvas.height * (cropWidth / videoWidth);
+						ctx.drawImage(img, 0, 0);
+						ctx.drawImage(
+							img,
+							presenterCenter - cropWidth / 2,
+							(canvas.height - cropHeight) / 2,
+							cropWidth,
+							cropHeight,
+							0,
+							0,
+							videoWidth,
+							canvas.height,
+						);
+						const centered = new Image();
+						centered.onload = () => resolve([key, centered]);
+						centered.onerror = () =>
+							reject(new Error('Could not load the centered endcard'));
+						centered.src = canvas.toDataURL();
+					};
+
 					img.onerror = () => reject(new Error(`Could not load ${url}`));
 					img.src = url;
 				},

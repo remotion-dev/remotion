@@ -137,6 +137,9 @@ export const drawCodex = (
 	drawAppIcon(ctx, 'handoff', 82, actionsTop, 18, 18, '#8b8b8b', 1.2);
 
 	ctx.save();
+	// Reduce the original 62px bottom gap by 30%, moving the whole composer.
+	ctx.translate(0, (748 - 596 - 90) * 0.3);
+	ctx.save();
 	ctx.shadowColor = '#00000020';
 	ctx.shadowBlur = 80;
 	ctx.shadowOffsetY = 4;
@@ -207,6 +210,7 @@ export const drawCodex = (
 	drawAppIcon(ctx, 'microphone', 554, composerRowCenter - 8, 16, 16, '#e4e4e4');
 	roundedRect(ctx, 582, 653, 26, 25, 12.5, '#395ab9');
 	drawAppIcon(ctx, 'voice', 587, 657.5, 16, 16, '#ffffff');
+	ctx.restore();
 	ctx.restore();
 	const border = 667 / 720;
 	roundedRect(

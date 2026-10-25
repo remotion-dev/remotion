@@ -161,8 +161,9 @@ export const drawStudio = (
 	const timelineHeight = 582 * ROW_SCALE + 12;
 	const topPanelHeight = height - 30 - 3 - timelineHeight;
 	const canvasHeight = topPanelHeight - 40;
-	const leftWidth = Math.min(350, Math.round(width * 0.1605));
-	const rightWidth = Math.min(350, Math.max(250, Math.round(width * 0.222)));
+	// Keep the fully open panel widths while sliding them behind the window edges.
+	const leftWidth = 215;
+	const rightWidth = 297;
 	const leftOccupied = (leftWidth + 3) * (1 - responsivenessProgress);
 	const rightOccupied = (rightWidth + 3) * (1 - responsivenessProgress);
 	const canvasWidth = Math.max(17, width - leftOccupied - rightOccupied);
@@ -178,17 +179,18 @@ export const drawStudio = (
 		roundedRect(ctx, x + 0.5, 7, 15, 15, 2.5, null, '#d8d8d8');
 		const dividerX = side === 'left' ? x + 5.75 : x + 10.25;
 		roundedRect(ctx, dividerX, 7.5, 1, 14, 0, '#d8d8d8');
-		if (responsivenessProgress < 0.5) {
-			roundedRect(
-				ctx,
-				side === 'left' ? x + 1 : x + 10.25,
-				7.5,
-				4.75,
-				14,
-				0,
-				'#d8d8d8',
-			);
-		}
+		ctx.save();
+		ctx.globalAlpha *= 1 - responsivenessProgress;
+		roundedRect(
+			ctx,
+			side === 'left' ? x + 1 : x + 10.25,
+			7.5,
+			4.75,
+			14,
+			0,
+			'#d8d8d8',
+		);
+		ctx.restore();
 	}
 
 	drawStudioIcon(ctx, 'RemotionGlyph', 42, 7.5, 14, '#d8d8d8');
@@ -543,6 +545,7 @@ export const drawStudio = (
 			indent: 60,
 		},
 	];
+	roundedRect(ctx, 0, labels[0].top - 1, 198, 1, 0, '#171b1e');
 	for (const row of labels) {
 		roundedRect(
 			ctx,
@@ -582,8 +585,8 @@ export const drawStudio = (
 			row.label,
 			{
 				x: row.indent,
-				top: row.top + (row.asset ? (row.height - 28) / 2 : 0),
-				height: row.asset ? 14 : row.height,
+				top: row.top + (row.asset ? (row.height - 26) / 2 : 0),
+				height: row.asset ? 13 : row.height,
 				size: 12,
 				color: FOREGROUND,
 				fontFamily: null,
@@ -600,7 +603,7 @@ export const drawStudio = (
 				{
 					x: row.indent,
 					top: row.top + row.height / 2,
-					height: 14,
+					height: 13,
 					size: 12,
 					color: 'rgba(255,255,255,0.3)',
 					fontFamily: null,
@@ -613,7 +616,48 @@ export const drawStudio = (
 		}
 	}
 
-	text(ctx, 'Volume', 62, 280 * ROW_SCALE + 39, 12, LIGHT_TEXT);
+	const volumeRowTop = 280 * ROW_SCALE + 34;
+	const volumeRowHeight = 21;
+	const volumeRowCenter = volumeRowTop + volumeRowHeight / 2;
+	drawStudioIcon(
+		ctx,
+		'PreviousKeyframeIcon',
+		12,
+		volumeRowCenter - 7,
+		14,
+		'#ccc',
+	);
+	drawStudioIcon(
+		ctx,
+		'KeyframeDiamondIcon',
+		28,
+		volumeRowCenter - 6,
+		12,
+		LIGHT_TEXT,
+	);
+	drawStudioIcon(ctx, 'NextKeyframeIcon', 42, volumeRowCenter - 7, 14, '#ccc');
+	textInRow(ctx, 'Volume', {
+		x: 62,
+		top: volumeRowTop,
+		height: volumeRowHeight,
+		size: 12,
+		color: LIGHT_TEXT,
+		fontFamily: null,
+		weight: null,
+		align: null,
+		fontStyle: null,
+	});
+	textInRow(ctx, '1.00', {
+		x: 176,
+		top: volumeRowTop,
+		height: volumeRowHeight,
+		size: 12,
+		color: BLUE,
+		fontFamily: null,
+		weight: null,
+		align: 'right',
+		fontStyle: null,
+	});
 	const zoom = Math.max(1, width - 200 - 32) / DURATION;
 	const trackX = 216;
 	const filmstrip = assets.studioFilmstrip;
