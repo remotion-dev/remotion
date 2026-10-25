@@ -13,7 +13,11 @@ loadFont({
 	weight: '500',
 });
 
-export const ApplicationThinkingPanel = () => {
+export const ApplicationThinkingPanel = ({
+	contentTop,
+}: {
+	contentTop: number;
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const time = frame / fps;
@@ -37,7 +41,7 @@ export const ApplicationThinkingPanel = () => {
 				style={{
 					position: 'absolute',
 					right: 28,
-					top: 72,
+					top: contentTop,
 					color: '#f1f3f5',
 					fontSize: 44,
 					backgroundColor: '#30343c',
@@ -52,7 +56,7 @@ export const ApplicationThinkingPanel = () => {
 					translate: interpolate(
 						time,
 						[0.4, 28 / 30],
-						['0px 460px', '0px 0px'],
+						[`0px ${532 - contentTop}px`, '0px 0px'],
 						{
 							easing: Easing.spring({damping: 200}),
 							extrapolateLeft: 'clamp',
@@ -78,7 +82,7 @@ export const ApplicationThinkingPanel = () => {
 				style={{
 					position: 'absolute',
 					left: 28,
-					top: 294,
+					top: contentTop + 222,
 					fontSize: 44,
 					color: '#9299a6',
 					opacity: interpolate(
@@ -113,7 +117,14 @@ export const ApplicationThinkingPanel = () => {
 					Thinking
 				</span>
 			</div>
-			<div style={{position: 'absolute', left: 28, top: 294, fontSize: 44}}>
+			<div
+				style={{
+					position: 'absolute',
+					left: 28,
+					top: contentTop + 222,
+					fontSize: 44,
+				}}
+			>
 				{['Do', 'ne', '.'].map((token, index) => (
 					<span
 						key={token}
