@@ -663,9 +663,12 @@ const SequenceInspectorSection: React.FC<{
 					{collapsible ? (
 						<CaretIcon
 							color={LIGHT_TEXT}
-							direction={expanded ? 'down' : 'right'}
+							direction="down"
 							size={8}
-							style={{flexShrink: 0}}
+							style={{
+								flexShrink: 0,
+								transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+							}}
 						/>
 					) : null}
 				</button>
@@ -939,26 +942,6 @@ const RightSidebar: React.FC<{
 						}
 					>
 						{null}
-					</SequenceInspectorSection>
-					<SequenceInspectorSection
-						label="Connected compositions"
-						initiallyExpanded={false}
-						collapsible
-						action={null}
-					>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: 8,
-								height: 28,
-								paddingLeft: 10,
-								color: LIGHT_TEXT,
-							}}
-						>
-							<VideoIcon color={LIGHT_TEXT} size={18} />
-							{selectedEndcard.connectedCompositionName}
-						</div>
 					</SequenceInspectorSection>
 					<SequenceInspectorSection
 						label="Actions"
