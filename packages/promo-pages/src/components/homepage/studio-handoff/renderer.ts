@@ -10,74 +10,76 @@ export {STUDIO_HANDOFF_DURATION} from './animation';
 
 export type StudioHandoffAssets = Record<string, HTMLImageElement>;
 
-let assetsPromise: Promise<StudioHandoffAssets> | null = null;
+let assetPromises: Promise<readonly [string, HTMLImageElement]>[] | null = null;
 
-export const loadStudioHandoffAssets = (): Promise<StudioHandoffAssets> => {
-	if (assetsPromise) {
-		return assetsPromise;
-	}
+export const loadStudioHandoffAssets = (
+	onAssetLoad: ((key: string, image: HTMLImageElement) => void) | null,
+): Promise<StudioHandoffAssets> => {
+	assetPromises ??= Object.entries({
+		...studioAssetUrls,
+		endcard: 'https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg',
+	}).map(([key, url]) => {
+		return new Promise<readonly [string, HTMLImageElement]>(
+			(resolve, reject) => {
+				const img = new Image();
+				img.crossOrigin = 'anonymous';
+				img.onload = () => {
+					if (key !== 'endcard') {
+						resolve([key, img]);
+						return;
+					}
 
-	assetsPromise = Promise.all(
-		Object.entries({
-			...studioAssetUrls,
-			endcard:
-				'https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg',
-		}).map(([key, url]) => {
-			return new Promise<readonly [string, HTMLImageElement]>(
-				(resolve, reject) => {
-					const img = new Image();
-					img.crossOrigin = 'anonymous';
-					img.onload = () => {
-						if (key !== 'endcard') {
-							resolve([key, img]);
-							return;
-						}
+					const canvas = document.createElement('canvas');
+					canvas.width = img.naturalWidth;
+					canvas.height = img.naturalHeight;
+					const ctx = canvas.getContext('2d');
+					if (!ctx) {
+						reject(new Error('Could not center the endcard presenter'));
+						return;
+					}
 
-						const canvas = document.createElement('canvas');
-						canvas.width = img.naturalWidth;
-						canvas.height = img.naturalHeight;
-						const ctx = canvas.getContext('2d');
-						if (!ctx) {
-							reject(new Error('Could not center the endcard presenter'));
-							return;
-						}
+					// Center the presenter in the left 60% without moving the social panel.
+					const videoWidth = canvas.width * 0.6;
+					const presenterCenter = canvas.width * 0.34;
+					const cropWidth = (videoWidth - presenterCenter) * 2;
+					const cropHeight = canvas.height * (cropWidth / videoWidth);
+					ctx.drawImage(img, 0, 0);
+					ctx.drawImage(
+						img,
+						presenterCenter - cropWidth / 2,
+						(canvas.height - cropHeight) / 2,
+						cropWidth,
+						cropHeight,
+						0,
+						0,
+						videoWidth,
+						canvas.height,
+					);
+					const centered = new Image();
+					centered.onload = () => resolve([key, centered]);
+					centered.onerror = () =>
+						reject(new Error('Could not load the centered endcard'));
+					centered.src = canvas.toDataURL();
+				};
 
-						// Center the presenter in the left 60% without moving the social panel.
-						const videoWidth = canvas.width * 0.6;
-						const presenterCenter = canvas.width * 0.34;
-						const cropWidth = (videoWidth - presenterCenter) * 2;
-						const cropHeight = canvas.height * (cropWidth / videoWidth);
-						ctx.drawImage(img, 0, 0);
-						ctx.drawImage(
-							img,
-							presenterCenter - cropWidth / 2,
-							(canvas.height - cropHeight) / 2,
-							cropWidth,
-							cropHeight,
-							0,
-							0,
-							videoWidth,
-							canvas.height,
-						);
-						const centered = new Image();
-						centered.onload = () => resolve([key, centered]);
-						centered.onerror = () =>
-							reject(new Error('Could not load the centered endcard'));
-						centered.src = canvas.toDataURL();
-					};
-
-					img.onerror = () => reject(new Error(`Could not load ${url}`));
-					img.src = url;
-				},
-			);
-		}),
+				img.onerror = () => reject(new Error(`Could not load ${url}`));
+				img.src = url;
+			},
+		);
+	});
+	return Promise.all(
+		assetPromises.map((promise) =>
+			promise.then(([key, image]) => {
+				onAssetLoad?.(key, image);
+				return [key, image] as const;
+			}),
+		),
 	)
 		.then((entries) => Object.fromEntries(entries))
 		.catch((error) => {
-			assetsPromise = null;
+			assetPromises = null;
 			throw error;
 		});
-	return assetsPromise;
 };
 
 const frames = new WeakMap<

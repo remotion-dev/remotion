@@ -19,15 +19,15 @@ import type {
 	StudioHandoffMode,
 	StudioHandoffTitleState,
 } from './homepage/studio-handoff/animation';
-import {StudioHandoffSectionTitle} from './homepage/StudioHandoffSectionTitle';
 import {StudioHandoffCanvas} from './homepage/StudioHandoffCanvas';
+import {StudioHandoffSectionTitle} from './homepage/StudioHandoffSectionTitle';
 import TrustedByBanner from './homepage/TrustedByBanner';
 import {BuiltWithRemotionShowcase} from './homepage/VideoAppsShowcase';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 import {WriteInReact} from './homepage/WriteInReact';
 
 const makeVideosRowClassName =
-	'mt-4 min-[900px]:mt-6 flex flex-col gap-10 min-[900px]:grid min-[900px]:grid-cols-[repeat(3,270px)] min-[900px]:justify-between min-[900px]:gap-x-0';
+	'flex flex-col gap-10 min-[900px]:grid min-[900px]:grid-cols-[repeat(3,270px)] min-[900px]:justify-between min-[900px]:gap-x-0';
 
 export const NewLanding: React.FC<{
 	readonly colorMode: ColorMode;
@@ -109,7 +109,7 @@ export const NewLanding: React.FC<{
 						) : null}
 						<div
 							ref={studioHandoffLabelsRef}
-							className={makeVideosRowClassName}
+							className={`${experimental ? 'mt-12' : 'mt-4'} min-[900px]:mt-6 ${makeVideosRowClassName}`}
 						>
 							<MakeVideosAgentically
 								title={
@@ -152,7 +152,7 @@ export const NewLanding: React.FC<{
 								}
 								description={
 									experimental
-										? 'Own the code, use the web and bring your assets.'
+										? 'Leverage web technology and own your video as code.'
 										: undefined
 								}
 								showVideo={!experimental}
@@ -162,11 +162,19 @@ export const NewLanding: React.FC<{
 								]}
 							/>
 						</div>
-						{experimental ? null : <ReactSourceOfTruth />}
-						<div className={makeVideosRowClassName}>
+						{experimental ? (
+							<div className="pt-24 [&_h2]:mb-0">
+								<SectionTitle>Automate video production</SectionTitle>
+							</div>
+						) : (
+							<ReactSourceOfTruth />
+						)}
+						<div
+							className={`${experimental ? 'mt-2 min-[900px]:mt-4' : 'mt-4 min-[900px]:mt-6'} ${makeVideosRowClassName}`}
+						>
 							<MakeVideosProgrammatically
 								title="Parameterization"
-								description="Build templates and connect your data."
+								description="Build templates and connect your assets."
 								videoSrc={
 									'https://remotion.media/homepage/parameterization-centered-row-7f994189e254.webm'
 								}

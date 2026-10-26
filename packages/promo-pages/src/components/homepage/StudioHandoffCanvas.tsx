@@ -34,7 +34,6 @@ export const StudioHandoffCanvas: React.FC<{
 		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 		let disposed = false;
 		let assets: Record<string, HTMLImageElement> = {};
-		let loaded = false;
 		let visible = typeof IntersectionObserver === 'undefined';
 		let animationFrame: number | null = null;
 		let previousTimestamp: number | null = null;
@@ -95,10 +94,8 @@ export const StudioHandoffCanvas: React.FC<{
 			}
 
 			if (
-				!loaded ||
 				(!visible && !transition) ||
 				document.hidden ||
-				!document.hasFocus() ||
 				(reducedMotion.matches && !transition)
 			) {
 				if (animationFrame !== null) {
@@ -121,7 +118,7 @@ export const StudioHandoffCanvas: React.FC<{
 			transitionElapsed = 0;
 			holdRemaining = 0;
 			previousTimestamp = performance.now();
-			if (reducedMotion.matches || transition.duration === 0 || !loaded) {
+			if (reducedMotion.matches || transition.duration === 0) {
 				time = transition.targetTime;
 				holdRemaining = 3;
 				currentFrame = transition.to;
@@ -143,9 +140,7 @@ export const StudioHandoffCanvas: React.FC<{
 
 			canvas.width = width;
 			canvas.height = height;
-			if (loaded) {
-				draw();
-			}
+			draw();
 		};
 
 		const onMotionPreferenceChange = () => {
@@ -154,9 +149,7 @@ export const StudioHandoffCanvas: React.FC<{
 				holdRemaining = 0;
 				transition = null;
 				currentFrame = getStudioHandoffFrame(time);
-				if (loaded) {
-					draw();
-				}
+				draw();
 			}
 
 			updatePlayback();
@@ -173,31 +166,24 @@ export const StudioHandoffCanvas: React.FC<{
 					});
 		intersectionObserver?.observe(canvas);
 		document.addEventListener('visibilitychange', updatePlayback);
-		window.addEventListener('focus', updatePlayback);
-		window.addEventListener('blur', updatePlayback);
 		window.addEventListener('resize', resize);
 		reducedMotion.addEventListener('change', onMotionPreferenceChange);
 		resize();
+		draw();
+		setReady(true);
+		updatePlayback();
 
-		const load = async () => {
-			try {
-				assets = await loadStudioHandoffAssets();
-			} catch {
-				// The interface still works when decorative images cannot load.
-				assets = {};
-			}
-
+		loadStudioHandoffAssets((key, image) => {
 			if (disposed) {
 				return;
 			}
 
-			loaded = true;
+			assets = {...assets, [key]: image};
 			draw();
-			setReady(true);
-			updatePlayback();
-		};
+		}).catch(() => {
+			// Keep animating with the images that loaded successfully.
+		});
 
-		load();
 		return () => {
 			disposed = true;
 			selectModeRef.current = null;
@@ -208,8 +194,6 @@ export const StudioHandoffCanvas: React.FC<{
 			resizeObserver.disconnect();
 			intersectionObserver?.disconnect();
 			document.removeEventListener('visibilitychange', updatePlayback);
-			window.removeEventListener('focus', updatePlayback);
-			window.removeEventListener('blur', updatePlayback);
 			window.removeEventListener('resize', resize);
 			reducedMotion.removeEventListener('change', onMotionPreferenceChange);
 		};
