@@ -185,9 +185,9 @@ export const renderCommand = async ({
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const crf = crfOption.getValue({
+	const crfSetting = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
-	}).value;
+	});
 	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -370,6 +370,17 @@ export const renderCommand = async ({
 					compositionCodec: null,
 				},
 			);
+
+	const crf =
+		codec === null
+			? crfSetting.value
+			: CliInternals.getCrfForCodec({
+					crf: crfSetting.value,
+					crfIsFromConfigFile: crfSetting.source === 'config',
+					codec,
+					indent: false,
+					logLevel,
+				});
 
 	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue(
 		{
