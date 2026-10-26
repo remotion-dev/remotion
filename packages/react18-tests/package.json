@@ -17,7 +17,7 @@
 	"license": "UNLICENSED",
 	"dependencies": {
 		"remotion": "workspace:*",
-		"zod": "3.22.3",
+		"zod": "4.6.6",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/zod-types-v3": "workspace:*"
 	},
