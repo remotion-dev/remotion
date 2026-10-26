@@ -10,10 +10,10 @@ import {
 	Easing,
 	Interactive,
 	interpolate,
-	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {auraCodeAssets} from './aura-code-assets';
 import {oledScreen} from './effects/oled-screen-effect';
 
 // Captures use a 3600 × 2400 canvas. Camera and effect keyframes stay inline.
@@ -52,7 +52,7 @@ const ChaptersShot = () => {
 			>
 				<CanvasImage
 					name="WhatsNew · native-resolution closeup"
-					src={staticFile('aura-code/chapters.png')}
+					src={auraCodeAssets.code.chapters}
 					style={{
 						position: 'absolute',
 						width: 3600,
@@ -102,7 +102,7 @@ const DuplicateShot = () => {
 		>
 			<Video
 				name="WhatsNew · select a chapter"
-				src={staticFile('aura-code/duplicate.webm')}
+				src={auraCodeAssets.code.duplicate}
 				muted
 				style={{
 					position: 'absolute',
@@ -146,7 +146,7 @@ const StylesShot = () => {
 		>
 			<CanvasImage
 				name="LowerThird · HTML and CSS"
-				src={staticFile('aura-code/styles.png')}
+				src={auraCodeAssets.code.styles}
 				style={{
 					position: 'absolute',
 					width: 3600,
@@ -215,7 +215,7 @@ const CaptionsShot = () => {
 		>
 			<CanvasImage
 				name="Scene1 · caption markup"
-				src={staticFile('aura-code/captions.png')}
+				src={auraCodeAssets.code.captions}
 				style={{
 					position: 'absolute',
 					width: 3600,

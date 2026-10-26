@@ -104,10 +104,12 @@ Studio origin with `AURA_STUDIO_URL` or the browser with `CHROME_EXECUTABLE`.
 Each run opens an isolated browser context; it does not change the shared Studio
 tab or a personal browser profile.
 
-The chapter fixture's `public/score.wav` is a 22-second loop of the existing
-`public/chime.mp3`, so its filename matches the displayed markup. It is demo
-audio for the timeline waveform, not the announcement soundtrack. Regenerate
-it from the repository root with:
+The chapter fixture's score is a 22-second loop of the existing
+`public/chime.mp3`. It is demo audio for the timeline waveform, not the
+announcement soundtrack. The runtime loads the hosted asset from
+`src/aura-code-assets.ts`; `public/score.wav` is an ignored local preparation
+output whose filename matches the displayed markup. Regenerate it from the
+repository root with:
 
 ```sh
 ffmpeg -y -i packages/brand/public/chime.mp3 -af 'aloop=loop=-1:size=2147483647,atrim=duration=22,asetpts=N/SR/TB' -ar 44100 -ac 1 -c:a pcm_s16le packages/brand/public/score.wav
@@ -151,7 +153,13 @@ fails, a native Chromium screenshot at the same 4× density is saved instead and
 the exact reason is recorded in the manifest. The current four captures all used
 `PageCapture` successfully.
 
-The source PNGs, short selection WebM, and score fixture are versioned for
-reproducible rendering. Capture manifests, unused source takes, duplicate-state
-PNGs, full-Studio screenshots, and failed-capture screenshots are ignored diagnostics.
-The final montage is uploaded to R2 and referenced by the Why Remotion page.
+The source PNGs, short selection WebM, and score fixture are hosted on R2, with
+versioned URLs in `packages/brand/src/aura-code-assets.ts`. After recapturing,
+upload changed runtime assets under new content-hashed keys, verify their public
+bytes, and update that mapping before previewing or rendering. The montage reads
+the hosted URLs rather than the local preparation outputs.
+
+All files in `public/aura-code/` and the generated `public/score.wav` are ignored
+by Git. Capture manifests, unused source takes, duplicate-state PNGs, full-Studio
+screenshots, and failed-capture screenshots remain local diagnostics. The final
+montage is uploaded to R2 and referenced by the Why Remotion page.

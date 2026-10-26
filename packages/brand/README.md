@@ -53,8 +53,9 @@ homepage's Dark+ syntax colors and charcoal theme:
 
 The static shots use the lossless PNG capture. Their unused source WebM takes,
 duplicate-state images, and full-Studio screenshots are ignored local diagnostics.
-Only the nine media assets needed by the compositions are committed; the final
-video is hosted on R2.
+The nine media assets needed by the compositions and the final video are hosted
+on R2. Versioned runtime URLs are recorded in `src/aura-code-assets.ts`; generated
+captures remain local and are ignored by Git.
 
 The right panel uses 5120 × 1964 lossless PNGs captured from real Studio at 4×
 density with PageCapture (`requestPaint` and `drawElementImage`). Each view uses
@@ -73,15 +74,20 @@ macro crop. The focus follows the featured labels, while adjacent rows soften:
 
 The capture fixtures in `src/AuraTimelineSource.tsx` reuse the announcement's
 actual components and materialize the illustrative caption proposal. Their
-`public/score.wav` is a 22-second loop derived from the existing `chime.mp3`, used
-to supply the fixture's score waveform. It is demo audio; the paired montage
-remains silent.
+score fixture is a 22-second loop derived from the existing `chime.mp3`, used to
+supply the fixture's score waveform. The runtime loads its hosted copy from
+`src/aura-code-assets.ts`; `public/score.wav` is only a local preparation output.
+It is demo audio; the paired montage remains silent.
 
 With the brand Studio running at `http://localhost:3110`, regenerate the timeline
 captures from the repository root with
 `bun packages/brand/scripts/aura-code/capture-studio.ts`. Set `AURA_STUDIO_URL`
 when using a different Studio address. Captures and their provenance manifests
 are saved in `public/aura-code/timeline`.
+
+After recapturing, upload the changed runtime assets to R2 under new
+content-hashed keys, verify their public bytes, and update `src/aura-code-assets.ts`
+before previewing or rendering. Local capture files are not read by the montage.
 
 The Studio selections are captured from its actual UI, including the selected
 list row and caption bar, rather than added as overlays.
@@ -97,9 +103,9 @@ paired master, or **Aura → AuraCode** for the original code montage.
 
 ### Why Remotion page
 
-The paired `AuraCodeAndTimeline` montage is embedded above “You want your video
-to be code” in `packages/docs/docs/why.mdx`. Its H.264 render is 3840 × 1080,
-60 fps, and 7.4 seconds. The public video URL is referenced directly from
+The paired `AuraCodeAndTimeline` montage is embedded below the paragraph in
+“You want your video to be code” in `packages/docs/docs/why.mdx`. Its H.264 render
+is 3840 × 1080, 60 fps, and 7.4 seconds. The public video URL is referenced directly from
 `packages/docs/docs/why.mdx`; no rendered video is kept in the repository.
 
 To render a replacement from `packages/brand`:

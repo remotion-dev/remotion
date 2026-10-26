@@ -237,13 +237,20 @@ STUDIO CAPTURE AND PROVENANCE
   beside them in packages/brand/public/aura-code/timeline.
   The fixtures in packages/brand/src/AuraTimelineSource.tsx reuse the actual
   announcement components and materialize the illustrative caption proposal.
-  The fixture's packages/brand/public/score.wav is a 22-second loop derived from
-  the existing chime.mp3. It supplies the demo score waveform; the montage stays silent.
+  The fixture's score is a 22-second loop derived from the existing chime.mp3.
+  It supplies the demo score waveform; the montage stays silent. Its hosted URL
+  is listed with the other runtime media in packages/brand/src/aura-code-assets.ts.
+  packages/brand/public/score.wav is only an ignored local preparation output.
   Caption copy and timing remain illustrative, not a transcript of the presenter.
 
   With brand Studio running at http://localhost:3110, run from the repository root:
   bun packages/brand/scripts/aura-code/capture-studio.ts
   Set AURA_STUDIO_URL when Studio is running at another address.
+
+  All capture outputs in packages/brand/public/aura-code are ignored by Git.
+  After recapturing, upload changed runtime assets to R2 under new content-hashed
+  keys, verify their public bytes, and update packages/brand/src/aura-code-assets.ts
+  before previewing or rendering. The montage reads the hosted URLs.
 
 
 FLASH TRANSITIONS

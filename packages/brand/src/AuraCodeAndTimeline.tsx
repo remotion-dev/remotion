@@ -8,10 +8,10 @@ import {
 	Interactive,
 	interpolate,
 	Sequence,
-	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {auraCodeAssets} from './aura-code-assets';
 import {
 	AuraCodeCaptions,
 	AuraCodeChapters,
@@ -78,7 +78,7 @@ const TimelineCamera = ({view}: {readonly view: TimelineView}) => {
 		>
 			<CanvasImage
 				name="Native Studio timeline"
-				src={staticFile(`aura-code/timeline/${view}.png`)}
+				src={auraCodeAssets.timeline[view]}
 				style={{
 					position: 'absolute',
 					width: 5120,
