@@ -50,6 +50,9 @@ A string pointing to an audio asset.
 
 The `sampleRate` that should be passed into the [`AudioContext`](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/AudioContext) constructor. If not provided, the default value is `48000`.
 
+Changing `sampleRate` loads audio data at the requested rate, reusing any data already cached for that source and sample rate.
+See [`getAudioData()` caching behavior](/docs/get-audio-data#caching-behavior).
+
 #### `requestInit?`<AvailableFrom v="4.0.458"/>
 
 _`RequestInit`_
