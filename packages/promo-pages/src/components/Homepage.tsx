@@ -174,7 +174,7 @@ export const NewLanding: React.FC<{
 						>
 							<MakeVideosProgrammatically
 								title="Parameterization"
-								description="Build templates and connect your assets"
+								description="Build templates and connect your assets."
 								videoSrc={
 									'https://remotion.media/homepage/parameterization-centered-row-7f994189e254.webm'
 								}
