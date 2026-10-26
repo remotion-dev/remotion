@@ -261,7 +261,7 @@ export const renderStillOnWeb = <
 >(
 	options: RenderStillOnWebOptions<Schema, Props>,
 ): Promise<RenderStillOnWebResult> => {
-	onlyOneStillRenderAtATimeQueue.ref = onlyOneStillRenderAtATimeQueue.ref
+	const render = onlyOneStillRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderStillOnWeb<Schema, Props>({
@@ -281,5 +281,11 @@ export const renderStillOnWeb = <
 			}),
 		);
 
-	return onlyOneStillRenderAtATimeQueue.ref as Promise<RenderStillOnWebResult>;
+	// The queue only owns completion; callers own the result or rejection reason.
+	onlyOneStillRenderAtATimeQueue.ref = render.then(
+		() => {},
+		() => {},
+	);
+
+	return render;
 };
