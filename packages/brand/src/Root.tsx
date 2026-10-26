@@ -39,6 +39,7 @@ import {
 } from './Compose/WhatIsRemotion';
 import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
+import {ComposeLayers} from './ComposeLayers';
 import {CurvesStudioRecordingComposition} from './CurvesStudioRecordingComposition';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
@@ -505,6 +506,14 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1080}
 					height={1080}
+				/>
+				<Composition
+					id="ComposeLayers"
+					component={ComposeLayers}
+					durationInFrames={240}
+					fps={30}
+					width={1440}
+					height={600}
 				/>
 				<Composition
 					id="DesignSystemsResponsive"
