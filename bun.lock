@@ -466,7 +466,6 @@
         "@testing-library/react": "16.1.0",
         "@types/dom-webcodecs": "catalog:",
         "eslint": "catalog:",
-        "happy-dom": "20.0.2",
         "react": "catalog:",
         "react-dom": "catalog:",
         "typescript": "catalog:",
@@ -5650,8 +5649,6 @@
 
     "@types/webxr": ["@types/webxr@0.5.2", "", {}, "sha512-szL74BnIcok9m7QwYtVmQ+EdIKwbjPANudfuvDrAF8Cljg9MKUlIoc1w5tjj9PMpeSH3U1Xnx//czQybJ0EfSw=="],
 
-    "@types/whatwg-mimetype": ["@types/whatwg-mimetype@3.0.2", "", {}, "sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA=="],
-
     "@types/wicg-file-system-access": ["@types/wicg-file-system-access@2023.10.5", "", {}, "sha512-e9kZO9kCdLqT2h9Tw38oGv9UNzBBWaR1MzuAavxPcsV/7FJ3tWbU6RI3uB+yKIDPGLkGVbplS52ub0AcRLvrhA=="],
 
     "@types/wrap-ansi": ["@types/wrap-ansi@3.0.0", "", {}, "sha512-ltIpx+kM7g/MLRZfkbL7EsCEjfzCcScLpkg37eXEtx5kmrAKBkTJwd1GIAjDSL8wTpM6Hzn5YO4pSb91BEwu1g=="],
@@ -6852,7 +6849,7 @@
 
     "handle-thing": ["handle-thing@2.0.1", "", {}, "sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg=="],
 
-    "happy-dom": ["happy-dom@20.0.2", "", { "dependencies": { "@types/node": "^20.0.0", "@types/whatwg-mimetype": "^3.0.2", "whatwg-mimetype": "^3.0.0" } }, "sha512-pYOyu624+6HDbY+qkjILpQGnpvZOusItCk+rvF5/V+6NkcgTKnbOldpIy22tBnxoaLtlM9nXgoqAcW29/B7CIw=="],
+    "happy-dom": ["happy-dom@14.5.1", "", { "dependencies": { "entities": "4.5.0", "webidl-conversions": "7.0.0", "whatwg-mimetype": "3.0.0" } }, "sha512-nCmCszZnhHHvcY3gDqLNZrU71QzCT1sI2OUQy2YSn3omMYWe+QHSTO1PfS/1r6fds6zt6GI7L1tRIxo7RgC8lg=="],
 
     "has-bigints": ["has-bigints@1.0.2", "", {}, "sha512-tSvCKtBr9lkF0Ex0aQiP9N+OpV4zi2r/Nee5VkRDbaqv35RLYMzbwQfFSZZH0kR+Rd6302UJZ2p/bJCEoR3VoQ=="],
 
@@ -10093,8 +10090,6 @@
     "@grpc/proto-loader/long": ["long@5.2.3", "", {}, "sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q=="],
 
     "@grpc/proto-loader/yargs": ["yargs@17.7.2", "", { "dependencies": { "cliui": "8.0.1", "escalade": "3.2.0", "get-caller-file": "2.0.5", "require-directory": "2.1.1", "string-width": "4.2.3", "y18n": "5.0.8", "yargs-parser": "21.1.1" } }, "sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w=="],
-
-    "@happy-dom/global-registrator/happy-dom": ["happy-dom@14.5.1", "", { "dependencies": { "entities": "4.5.0", "webidl-conversions": "7.0.0", "whatwg-mimetype": "3.0.0" } }, "sha512-nCmCszZnhHHvcY3gDqLNZrU71QzCT1sI2OUQy2YSn3omMYWe+QHSTO1PfS/1r6fds6zt6GI7L1tRIxo7RgC8lg=="],
 
     "@humanfs/node/@humanwhocodes/retry": ["@humanwhocodes/retry@0.3.1", "", {}, "sha512-JBxkERygn7Bv/GbN5Rv8Ul6LVknS+5Bp6RgDC/O8gEBU/yeH5Ui5C/OlWrTb6qct7LjjfT6Re2NxB0ln0yYybA=="],
 
