@@ -13,6 +13,19 @@ import {
 	Applications,
 } from './Applications';
 import {AudioWaveform} from './AudioWaveform';
+import {
+	AuraCode,
+	AuraCodeChapters,
+	AuraCodeDuplicate,
+	AuraCodeStyles,
+	AuraCodeCaptions,
+} from './AuraCode';
+import {AuraCodeAndTimeline} from './AuraCodeAndTimeline';
+import {
+	AuraTimelineCaptions,
+	AuraTimelineCard,
+	AuraTimelineChapters,
+} from './AuraTimelineSource';
 import {BasicsShowcaseCompositions} from './BasicsShowcase';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
@@ -201,6 +214,82 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="Aura">
+				<Composition
+					id="AuraCodeAndTimeline"
+					component={AuraCodeAndTimeline}
+					width={3840}
+					height={1080}
+					fps={60}
+					durationInFrames={444}
+				/>
+				<Composition
+					id="AuraCode"
+					component={AuraCode}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={444}
+				/>
+				<Composition
+					id="AuraCode-Chapters"
+					component={AuraCodeChapters}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="AuraCode-Styles"
+					component={AuraCodeStyles}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="AuraCode-Duplicate"
+					component={AuraCodeDuplicate}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={84}
+				/>
+				<Composition
+					id="AuraCode-Captions"
+					component={AuraCodeCaptions}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Folder name="Timeline-capture-sources">
+					<Composition
+						id="AuraTimeline-Chapters"
+						component={AuraTimelineChapters}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={660}
+					/>
+					<Composition
+						id="AuraTimeline-Card"
+						component={AuraTimelineCard}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={150}
+					/>
+					<Composition
+						id="AuraTimeline-Captions"
+						component={AuraTimelineCaptions}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={150}
+					/>
+				</Folder>
+			</Folder>
 			<Composition
 				id="ColorCorrectionDemo"
 				component={ColorCorrectionDemo}
