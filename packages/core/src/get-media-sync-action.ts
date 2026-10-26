@@ -93,7 +93,7 @@ export const getMediaSyncAction = (
 	const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
 
 	const mostRecentTimeshift =
-		rvcLastUpdate && (rvcTime as number) > mediaTagLastUpdate
+		rvcLastUpdate && rvcLastUpdate > mediaTagLastUpdate
 			? (timeShiftRvcTag as number)
 			: timeShiftMediaTag;
 

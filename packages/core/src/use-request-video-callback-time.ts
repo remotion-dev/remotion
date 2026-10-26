@@ -42,12 +42,28 @@ export const useRequestVideoCallbackTime = ({
 
 		let cancel = () => undefined;
 
+		// Right after a seek, frames from before it can still be presented,
+		// carrying the old mediaTime. Trusting them would look like a shift by
+		// the whole seek and cause another seek.
+		let lastSeekAt: number | null = null;
+		const onSeeking = () => {
+			lastSeekAt = performance.now();
+			currentTime.current = null;
+		};
+
+		videoTag.addEventListener('seeking', onSeeking);
+
 		const request = () => {
 			if (!videoTag) {
 				return;
 			}
 
 			const cb = videoTag.requestVideoFrameCallback((_, info) => {
+				if (lastSeekAt !== null && info.presentationTime < lastSeekAt) {
+					request();
+					return;
+				}
+
 				if (currentTime.current !== null) {
 					const difference = Math.abs(
 						currentTime.current.time - info.mediaTime,
@@ -87,6 +103,7 @@ export const useRequestVideoCallbackTime = ({
 
 		return () => {
 			cancel();
+			videoTag.removeEventListener('seeking', onSeeking);
 		};
 	}, [lastSeek, mediaRef, mediaType, onVariableFpsVideoDetected]);
 

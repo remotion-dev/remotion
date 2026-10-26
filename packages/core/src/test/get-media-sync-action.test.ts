@@ -134,10 +134,8 @@ describe('seek-due-to-shift (big time shift)', () => {
 });
 
 describe('rvc vs media tag time shift', () => {
-	// The "most recent" comparison uses `rvcTime > mediaTagLastUpdate`, which is
-	// the (odd) behavior of the original implementation. These inputs are chosen
-	// so that branch is taken: rvcLastUpdate is truthy and rvcTime (0.5) is
-	// greater than mediaTagLastUpdate (0).
+	// The "most recent" comparison uses `rvcLastUpdate > mediaTagLastUpdate`,
+	// so whichever clock was read last wins.
 	test('uses rvc time shift when it is more recent', () => {
 		// media tag is on time, but rvc reports a big shift → should still trigger
 		const action = getMediaSyncAction(
@@ -166,6 +164,36 @@ describe('rvc vs media tag time shift', () => {
 			}),
 		);
 		expect(action.type).not.toBe('seek-due-to-shift');
+	});
+
+	// Timestamps are performance.now() values, so they are much bigger than
+	// media times once the page has been open for a while.
+	test('a fresh rvc time on schedule outweighs a stale media tag', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				currentTime: 13,
+				desiredUnclampedTime: 13,
+				mediaTagTime: 12.4,
+				mediaTagLastUpdate: 200_000,
+				rvcTime: 12.99,
+				rvcLastUpdate: 200_600,
+			}),
+		);
+		expect(action.type).not.toBe('seek-due-to-shift');
+	});
+
+	test('a fresh rvc time far off is a shift even if a stale media tag looks right', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				currentTime: 13,
+				desiredUnclampedTime: 13,
+				mediaTagTime: 13,
+				mediaTagLastUpdate: 200_000,
+				rvcTime: 12.4,
+				rvcLastUpdate: 200_600,
+			}),
+		);
+		expect(action.type).toBe('seek-due-to-shift');
 	});
 });
 
