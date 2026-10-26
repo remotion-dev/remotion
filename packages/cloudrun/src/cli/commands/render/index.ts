@@ -330,9 +330,16 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const crf = crfOption.getValue({
+	const crfSetting = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
-	}).value;
+	});
+	const crf = CliInternals.getCrfForCodec({
+		crf: crfSetting.value,
+		crfIsFromConfigFile: crfSetting.source === 'config',
+		codec,
+		indent: false,
+		logLevel,
+	});
 	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -392,7 +399,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		x264Preset,
 		gopSize,
 		disableSharedMemoryCapture,
-		crf,
+		crf: crf ?? undefined,
 		pixelFormat,
 		imageFormat: imageFormat ?? undefined,
 		scale,

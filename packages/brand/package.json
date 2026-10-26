@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.538",
+	"version": "4.0.539",
 	"private": true,
 	"sideEffects": [
 		"*.css"
@@ -13,6 +13,8 @@
 		"dev:studio-code-handoff": "remotion studio src/studio-code-handoff/index.ts",
 		"bundle": "remotion bundle --rspack --public-path /brand/",
 		"capture-docs": "bun scripts/capture-doc-pages.ts",
+		"capture:aura-code": "bun scripts/aura-code/capture.ts",
+		"capture:aura-timeline": "bun scripts/aura-code/capture-studio.ts",
 		"lint": "eslint src",
 		"render-homepage-assets": "./render-homepage-assets.sh",
 		"render-docs-animations": "bash render-docs-animations.sh"

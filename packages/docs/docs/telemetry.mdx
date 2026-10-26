@@ -21,8 +21,9 @@ We do not use telemetry for any other purposes than ensuring proper licensing.
 
 ## Telemetry in server-side rendering
 
-Server-side rendering APIs only send telemetry when the `licenseKey` option is set, and only for successful renders:
+Server-side rendering only sends telemetry when a license key is set, and only for successful renders:
 
+- Rendering from the CLI: [`npx remotion render`](/docs/cli/render#--license-key) and [`npx remotion still`](/docs/cli/still#--license-key)
 - [`@remotion/renderer`](/docs/renderer): [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey)
 - [`@remotion/lambda`](/docs/lambda): [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey)
 - [`@remotion/vercel`](/docs/vercel/api): [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey)
@@ -76,6 +77,8 @@ defaultValue="server-side-rendering"
 values={[
 { label: 'Server-side rendering', value: 'server-side-rendering', },
 { label: 'Client-side rendering', value: 'client-side-rendering', },
+{ label: 'Rendering from the CLI', value: 'cli', },
+{ label: 'Remotion Studio', value: 'studio', },
 ]
 }>
 <TabItem value="server-side-rendering">
@@ -201,6 +204,16 @@ await renderMediaOnWeb({
   licenseKey: 'rm_pub_abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
 });
 ```
+
+</TabItem>
+<TabItem value="cli">
+
+Pass your private key to [`--license-key`](/docs/options/license-key).
+
+</TabItem>
+<TabItem value="studio">
+
+See [Setting a license key in the Studio](/docs/studio#setting-a-license-key).
 
 </TabItem>
 </Tabs>

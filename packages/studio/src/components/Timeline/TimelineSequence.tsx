@@ -515,6 +515,9 @@ const TimelineSequenceBar: React.FC<{
 		labelLeft = Math.max(labelLeft, Math.max(0, inheritedLeft) + 4);
 	}
 
+	// Clear the 2px selection outline while keeping the right-edge fade fixed.
+	labelLeft += 2;
+
 	const labelEndFrame = Math.min(
 		sceneRange?.transitionOutStart ?? Infinity,
 		inheritedSceneRange?.transitionOutStart ?? Infinity,

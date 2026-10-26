@@ -53,7 +53,6 @@ export const listOfRemotionPackages = [
 	'@remotion/rounded-text-box',
 	'@remotion/licensing',
 	'@remotion/lottie',
-	'@remotion/mcp',
 	'@remotion/media-utils',
 	'@remotion/motion-blur',
 	'@remotion/noise',

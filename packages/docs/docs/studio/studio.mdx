@@ -9,9 +9,21 @@ import TabItem from '@theme/TabItem';
 
 Using the Remotion Studio, you can preview your video, and if a server is connected, even render the video.
 
-## Prerequisites
+## Using an AI agent
 
-The Remotion CLI is required for this guide.  
+If you use a coding agent such as Claude Code, Codex or Cursor, install the [Remotion plugin](/docs/ai/plugins) for it.
+
+Then invoke the [`/remotion-studio`](/docs/ai/skills#remotion-studio) skill:
+
+<SuggestedPrompt prompt="/remotion-studio" />
+
+The agent will start the Studio and open it in your browser, or in its in-app browser if it has one.
+
+## Using the terminal
+
+### Prerequisites
+
+The Remotion CLI is required to start the Studio from the terminal.  
 Most templates have it out of the box, but you can install it by running the following command in your terminal:
 
 <Tabs
@@ -56,7 +68,7 @@ bun i @remotion/cli
   </TabItem>
 </Tabs>
 
-## Launching the Studio
+### Launching the Studio
 
 You can start the Remotion Studio by running the following command in your terminal:
 
@@ -99,3 +111,9 @@ A server will be started on port `3000` (or a higher port if it isn't available)
 ## Browse Elements
 
 You can [browse and use Elements directly inside Studio](/docs/studio/browse-elements). Browse Elements includes the first-party [Remotion Elements](/elements) and can include [third-party Element Libraries](/elements/libraries).
+
+## Setting a license key
+
+Go to **Settings...** → **License** and choose your license. It is saved to your [config file](/docs/config) using [`Config.setPublicLicenseKey()`](/docs/config#setpubliclicensekey).
+
+See [Telemetry](/docs/telemetry#setting-a-license-key) for other environments.

@@ -20,7 +20,7 @@ export const StudioCodeHandoff: React.FC = () => {
 		const handle = delayRender('Loading Studio handoff images');
 		handleRef.current = handle;
 		let disposed = false;
-		loadStudioHandoffAssets()
+		loadStudioHandoffAssets(null)
 			.then((loaded) => {
 				if (!disposed) {
 					setAssets(loaded);
