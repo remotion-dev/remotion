@@ -103,8 +103,8 @@ export const HomepageHero: React.FC<{readonly colorMode: ColorMode}> = ({
 				<MakeVideosProgrammatically
 					title="Parameterization"
 					description="Build templates and connect your assets."
-					videoSrc="https://remotion.media/homepage/parameterization-centered-row-7f994189e254.webm"
-					fallbackVideoSrc="https://remotion.media/homepage/parameterization-centered-row-a171e9b1897d.mp4"
+					videoSrc="https://remotion.media/homepage/parameterization-brand-3aa31effe8b9.webm"
+					fallbackVideoSrc="https://remotion.media/homepage/parameterization-brand-cede61aaefe2.mp4"
 					links={[
 						{label: 'Parameterization', href: '/docs/parameterized-rendering'},
 						{label: 'Motion design systems', href: '/design-systems'},

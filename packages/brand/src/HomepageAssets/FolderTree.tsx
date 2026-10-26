@@ -142,7 +142,7 @@ export const FolderTree: React.FC<{
 								whiteSpace: 'nowrap',
 							}}
 						>
-							assets
+							Brand
 						</Interactive.Div>
 					</Interactive.Div>
 					<Interactive.Div
