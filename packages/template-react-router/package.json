@@ -39,7 +39,7 @@
     "@tailwindcss/vite": "4.2.0",
     "vite": "7.3.7",
     "vite-tsconfig-paths": "4.3.2",
-    "zod": "4.5.4"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@react-router/dev": "8.3.0",
