@@ -282,6 +282,7 @@ export const audioIteratorManager = ({
 		onDone,
 		logLevel,
 		currentTime,
+		startFromSecond,
 		getAudioContextCurrentTimeMockedInTest,
 	}: {
 		iterator: AudioIterator;
@@ -300,6 +301,7 @@ export const audioIteratorManager = ({
 		onDestroyed: () => void;
 		logLevel: LogLevel;
 		currentTime: number;
+		startFromSecond: number;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
 		waitForTurn({
@@ -323,14 +325,16 @@ export const audioIteratorManager = ({
 					sequenceStartTime: getStartTime(),
 				});
 
-				// A keep-alive context advances while paused, but queued nodes cannot end.
-				// Freeze lookahead at iterator creation until playback advances.
-				return (
-					scheduledTime -
-					(getIsPlaying()
-						? getAudioContextCurrentTimeMockedInTest()
-						: currentTime)
-				);
+				// Always finish the initial prebuffer, even for future or very slow clips.
+				// Bound further paused decoding by prepared media, not a future start time.
+				const preparedDuration = guessedNextTimestamp - startFromSecond;
+				if (getIsPlaying()) {
+					return scheduledTime - getAudioContextCurrentTimeMockedInTest();
+				}
+
+				return hasEnoughAudioToStartPlayback(preparedDuration)
+					? preparedDuration / playbackRate
+					: 0;
 			},
 			fn: () => iterator.getNextFn(),
 			onDone: (result, next) => {
@@ -373,6 +377,7 @@ export const audioIteratorManager = ({
 					onDone,
 					logLevel,
 					currentTime,
+					startFromSecond,
 					getAudioContextCurrentTimeMockedInTest,
 				});
 				next();
@@ -521,6 +526,7 @@ export const audioIteratorManager = ({
 			},
 			logLevel,
 			currentTime: sharedAudioContext.audioContext.currentTime,
+			startFromSecond,
 			getAudioContextCurrentTimeMockedInTest,
 		});
 	};
