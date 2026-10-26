@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
@@ -33,7 +33,29 @@ export const MakeVideosInteractively: React.FC<{
 	videoStyle,
 }) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
 	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
+
+	useEffect(() => {
+		const {current} = ref;
+		if (!current || !src || !showVideo) {
+			return;
+		}
+
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting) {
+					videoRef.current?.play().catch(() => {
+						// Autoplay may still be blocked by the browser.
+					});
+				}
+			},
+			{root: null, threshold: 0.5},
+		);
+		observer.observe(current);
+
+		return () => observer.disconnect();
+	}, [showVideo, src]);
 
 	return (
 		<div
@@ -46,6 +68,7 @@ export const MakeVideosInteractively: React.FC<{
 				<div className="relative flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{src ? (
 						<video
+							ref={videoRef}
 							src={src}
 							autoPlay
 							muted
