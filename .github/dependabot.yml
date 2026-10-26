@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: 'bun'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    # 0 = no routine version-bump PRs, only security fixes
+    open-pull-requests-limit: 0
+    ignore:
+      # skip major bumps like zod 3 → 4 or happy-dom 20 → 21
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
