@@ -126,7 +126,7 @@ test('WAV', () => {
 	).toThrow(/The "wav" codec does not support the --crf option\./);
 });
 
-test('WAV', () => {
+test('crf and videoBitrate', () => {
 	expect(() =>
 		validateQualitySettings({
 			crf: 10,
