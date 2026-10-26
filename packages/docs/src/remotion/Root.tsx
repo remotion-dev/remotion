@@ -160,6 +160,7 @@ import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {ElementPlayground} from './element-playground/ElementPlayground';
+import {ElementsOgImage} from './ElementsOgImage';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
@@ -228,6 +229,12 @@ export const RemotionRoot: React.FC = () => {
 					);
 				})}
 			</Folder>
+			<Still
+				component={ElementsOgImage}
+				height={630}
+				width={1200}
+				id="elements-og-image"
+			/>
 			<Folder name="articles">
 				{articles.map((e) => {
 					return (
