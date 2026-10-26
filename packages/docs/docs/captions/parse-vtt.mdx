@@ -63,6 +63,7 @@ An array of [`Caption`](/docs/captions/caption) items.
 - Cue settings after the timestamps (such as `align:start position:10%`) are ignored.
 - `NOTE`, `STYLE` and `REGION` blocks are skipped.
 - Multi-line cue text is joined with `\n`.
+- A cue ends at the first empty line. Lines containing only whitespace (as in YouTube auto-generated captions) are part of the cue, and leading and trailing whitespace is trimmed from the cue text.
 
 ## Compatibility
 

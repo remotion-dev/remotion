@@ -85,13 +85,16 @@ export const parseVtt = ({input}: ParseVttInput): ParseVttOutput => {
 
 		i++;
 		const text: string[] = [];
-		while (i < inputLines.length && inputLines[i].trim() !== '') {
+		// Only a truly empty line ends a cue. Whitespace-only lines are part of
+		// the cue, e.g. YouTube auto-generated captions start cues with a line
+		// containing a single space.
+		while (i < inputLines.length && inputLines[i] !== '') {
 			text.push(inputLines[i]);
 			i++;
 		}
 
 		captions.push({
-			text: text.join('\n').trimEnd(),
+			text: text.join('\n').trim(),
 			startMs,
 			endMs,
 			timestampMs: (startMs + endMs) / 2,
