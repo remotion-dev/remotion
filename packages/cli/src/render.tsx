@@ -182,9 +182,8 @@ export const render = async (
 	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const crf = shouldOutputImageSequence
-		? null
-		: crfOption.getValue({commandLine: parsedCli}).value;
+	const crfSetting = crfOption.getValue({commandLine: parsedCli});
+	const crf = shouldOutputImageSequence ? null : crfSetting.value;
 	const gopSize = shouldOutputImageSequence
 		? null
 		: gopSizeOption.getValue({commandLine: parsedCli}).value;
@@ -307,6 +306,7 @@ export const render = async (
 		uiImageFormat: null,
 		cancelSignal: null,
 		crf,
+		crfIsFromConfigFile: crfSetting.source === 'config',
 		gopSize,
 		ffmpegOverride,
 		audioBitrate,
