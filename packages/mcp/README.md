@@ -4,15 +4,10 @@ Remotion's Model Context Protocol
 
 [![NPM Downloads](https://img.shields.io/npm/dm/@remotion/mcp.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/@remotion/mcp?minimal=true)
 
-## Installation
+## Shut down
 
-```bash
-npm install @remotion/mcp --save-exact
-```
+The hosted Remotion MCP server was shut down on October 26, 2026 and is no longer available.
 
-When installing a Remotion package, make sure to align the version of all `remotion` and `@remotion/*` packages to the same version.
-Remove the `^` character from the version number to use the exact version.
+Install [Remotion Agent Skills](https://www.remotion.dev/docs/ai/skills) and use `/remotion-docs` instead.
 
-## Usage
-
-See the [documentation](https://www.remotion.dev/docs/ai/mcp) for more information.
+See the [migration instructions](https://www.remotion.dev/docs/ai/mcp) to remove the MCP configuration and install the skills.
