@@ -76,6 +76,7 @@ export const audioIteratorManager = ({
 	getSequenceDurationInSeconds,
 	getMediaEndTimestamp,
 	getStartTime,
+	getIsPlaying,
 	initialMuted,
 	initialVolume,
 	toneFrequency,
@@ -89,6 +90,7 @@ export const audioIteratorManager = ({
 	getSequenceDurationInSeconds: () => number;
 	getMediaEndTimestamp: () => number;
 	getStartTime: () => number;
+	getIsPlaying: () => boolean;
 	initialMuted: boolean;
 	initialVolume: number;
 	toneFrequency: number;
@@ -321,7 +323,14 @@ export const audioIteratorManager = ({
 					sequenceStartTime: getStartTime(),
 				});
 
-				return scheduledTime - getAudioContextCurrentTimeMockedInTest();
+				// A keep-alive context advances while paused, but queued nodes cannot end.
+				// Freeze lookahead at iterator creation until playback advances.
+				return (
+					scheduledTime -
+					(getIsPlaying()
+						? getAudioContextCurrentTimeMockedInTest()
+						: currentTime)
+				);
 			},
 			fn: () => iterator.getNextFn(),
 			onDone: (result, next) => {
