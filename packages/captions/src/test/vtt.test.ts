@@ -220,7 +220,7 @@ to<00:00:02.600><c> the</c><00:00:02.800><c> channel</c>
 			confidence: 1,
 			endMs: 2270,
 			startMs: 160,
-			text: 'hey<00:00:00.480><c> everyone</c><00:00:00.880><c> welcome</c>',
+			text: 'hey everyone welcome',
 			timestampMs: 1215,
 		},
 		{
@@ -234,8 +234,65 @@ to<00:00:02.600><c> the</c><00:00:02.800><c> channel</c>
 			confidence: 1,
 			endMs: 4990,
 			startMs: 2280,
-			text: 'hey everyone welcome\nto<00:00:02.600><c> the</c><00:00:02.800><c> channel</c>',
+			text: 'hey everyone welcome\nto the channel',
 			timestampMs: 3635,
 		},
 	]);
+});
+
+test('Should strip cue markup tags', () => {
+	const input = `WEBVTT
+
+00:00:01.000 --> 00:00:02.000
+<v.loud Esme Fitzgerald>It's a <i>blue</i> <b>apple</b> <u>tree</u>!</v>
+<c.yellow.bg_blue>Yes</c> <lang en-US>really</lang> <ruby>漢<rt>kan</rt></ruby>
+`;
+
+	expect(parseVtt({input}).captions[0].text).toBe(
+		"It's a blue apple tree!\nYes really 漢kan",
+	);
+});
+
+test('Should decode character references', () => {
+	const input = `WEBVTT
+
+00:00:01.000 --> 00:00:02.000
+Tom &amp; Jerry &lt;3 &gt; &quot;cats&quot; &apos;n&apos;&nbsp;dogs&lrm;&rlm; &#169; &#x1F600; &#X41;
+`;
+
+	expect(parseVtt({input}).captions[0].text).toBe(
+		'Tom & Jerry <3 > "cats" \'n\'\u00A0dogs\u200E\u200F © 😀 A',
+	);
+});
+
+test('Should leave unknown or invalid character references untouched', () => {
+	const input = `WEBVTT
+
+00:00:01.000 --> 00:00:02.000
+&copy; &amp &#xZZ; &#99999999; &#0; &#xD800; & ;
+`;
+
+	expect(parseVtt({input}).captions[0].text).toBe(
+		'&copy; &amp &#xZZ; &#99999999; &#0; &#xD800; & ;',
+	);
+});
+
+test('Should not strip escaped tags', () => {
+	const input = `WEBVTT
+
+00:00:01.000 --> 00:00:02.000
+<b>Use &lt;i&gt; for italics</b>
+`;
+
+	expect(parseVtt({input}).captions[0].text).toBe('Use <i> for italics');
+});
+
+test('Should decode character references in a single pass', () => {
+	const input = `WEBVTT
+
+00:00:01.000 --> 00:00:02.000
+&amp;lt; &amp;amp; &amp;#65;
+`;
+
+	expect(parseVtt({input}).captions[0].text).toBe('&lt; &amp; &#65;');
 });
