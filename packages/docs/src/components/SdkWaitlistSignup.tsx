@@ -1,5 +1,6 @@
+import {Button, CheckIcon, Input, PlanePaperIcon} from '@remotion/design';
+import '@remotion/promo-pages/dist/tailwind.css';
 import React, {useCallback, useId, useState} from 'react';
-import styles from './SdkWaitlistSignup.module.css';
 
 export const SdkWaitlistSignup: React.FC = () => {
 	const emailId = useId();
@@ -43,45 +44,56 @@ export const SdkWaitlistSignup: React.FC = () => {
 	);
 
 	return (
-		<div className={styles.signup}>
+		<form
+			onSubmit={handleSubmit}
+			aria-busy={submitting}
+			className="w-full mb-8"
+		>
+			<label htmlFor={emailId} className="sr-only">
+				Email address
+			</label>
+			<div className="flex flex-col md:flex-row gap-2 justify-start">
+				<Input
+					id={emailId}
+					name="email"
+					type="email"
+					autoComplete="email"
+					required
+					placeholder="animator@gmail.com"
+					value={email}
+					onChange={(event) => setEmail(event.target.value)}
+					disabled={submitting || subscribed}
+					className="md:max-w-[400px]"
+				/>
+				<div>
+					<Button
+						type="submit"
+						aria-label={
+							subscribed ? 'Joined the waitlist' : 'Join the waitlist'
+						}
+						className="w-14 rounded-full h-14 bg-brand text-white font-bold disabled:text-white/50 disabled:border-black px-0 py-0"
+						disabled={submitting || subscribed}
+						loading={submitting}
+					>
+						{subscribed ? (
+							<CheckIcon aria-hidden className="size-5 mt-[1px]" />
+						) : (
+							<PlanePaperIcon aria-hidden className="size-6 ml-[2px]" />
+						)}
+					</Button>
+				</div>
+			</div>
 			{subscribed ? (
-				<p role="status" className={styles.success}>
+				<p role="status" className="mt-4">
 					You&apos;re on the Remotion SDK waitlist. We&apos;ll email you when
 					it&apos;s ready to try.
 				</p>
-			) : (
-				<form onSubmit={handleSubmit} aria-busy={submitting}>
-					<label htmlFor={emailId} className={styles.label}>
-						Email address
-					</label>
-					<div className={styles.fields}>
-						<input
-							id={emailId}
-							name="email"
-							type="email"
-							autoComplete="email"
-							required
-							placeholder="you@example.com"
-							value={email}
-							onChange={(event) => setEmail(event.target.value)}
-							disabled={submitting}
-							className={styles.input}
-						/>
-						<button
-							type="submit"
-							disabled={submitting}
-							className={styles.button}
-						>
-							{submitting ? 'Signing up…' : 'Join the waitlist'}
-						</button>
-					</div>
-					{error ? (
-						<p role="alert" className={styles.error}>
-							{error}
-						</p>
-					) : null}
-				</form>
-			)}
-		</div>
+			) : null}
+			{error ? (
+				<p role="alert" className="text-warn mt-4">
+					{error}
+				</p>
+			) : null}
+		</form>
 	);
 };

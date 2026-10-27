@@ -3,6 +3,8 @@
 @import './fonts.css';
 @import '@remotion/design/register';
 
+@source '../../docs/src/components/SdkWaitlistSignup.tsx';
+
 @layer theme, base, components, utilities;
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
