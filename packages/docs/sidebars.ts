@@ -381,15 +381,6 @@ const sidebars: SidebarsConfig = {
 				'elevenlabs/detect-elevenlabs-transcript-format',
 			],
 		},
-		{
-			type: 'category',
-			label: '@remotion/enable-scss',
-			link: {
-				type: 'doc',
-				id: 'enable-scss/overview',
-			},
-			items: ['enable-scss/enable-scss'],
-		},
 		'eslint-config',
 		'eslint-plugin',
 		{
@@ -1028,23 +1019,6 @@ const sidebars: SidebarsConfig = {
 		},
 		{
 			type: 'category',
-			label: '@remotion/whisper-web',
-			link: {
-				type: 'doc',
-				id: 'whisper-web/index',
-			},
-			items: [
-				'whisper-web/download-whisper-model',
-				'whisper-web/transcribe',
-				'whisper-web/resample-to-16khz',
-				'whisper-web/can-use-whisper-web',
-				'whisper-web/get-available-models',
-				'whisper-web/get-loaded-models',
-				'whisper-web/to-captions',
-			],
-		},
-		{
-			type: 'category',
 			label: '@remotion/whisper-webgpu',
 			link: {
 				type: 'doc',
@@ -1088,6 +1062,15 @@ const sidebars: SidebarsConfig = {
 			value:
 				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>',
 			defaultStyle: true,
+		},
+		{
+			type: 'category',
+			label: '@remotion/enable-scss (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'enable-scss/overview',
+			},
+			items: ['enable-scss/enable-scss'],
 		},
 		{
 			type: 'category',
@@ -1169,6 +1152,23 @@ const sidebars: SidebarsConfig = {
 				'webcodecs/rotate-and-resize-video-frame',
 				'webcodecs/web-fs-writer',
 				'webcodecs/buffer-writer',
+			],
+		},
+		{
+			type: 'category',
+			label: '@remotion/whisper-web (deprecated)',
+			link: {
+				type: 'doc',
+				id: 'whisper-web/index',
+			},
+			items: [
+				'whisper-web/download-whisper-model',
+				'whisper-web/transcribe',
+				'whisper-web/resample-to-16khz',
+				'whisper-web/can-use-whisper-web',
+				'whisper-web/get-available-models',
+				'whisper-web/get-loaded-models',
+				'whisper-web/to-captions',
 			],
 		},
 	],
