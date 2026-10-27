@@ -48,7 +48,7 @@ The `composition`, `inputProps`, `schema`, `scale`, `signal`, `onArtifact`, `del
 
 A promise resolving to an array of <TsType type="RenderStillOnWebResult" source="@remotion/web-renderer" href="/docs/web-renderer/types#renderstillonwebresult" /> objects, one per selected frame in ascending order. Each result retains its captured pixels and can be encoded with `canvas()`, `blob()` or `url()` after capture finishes.
 
-The composition mounts once, seeks through the selection, and waits for pending [`delayRender()`](/docs/delay-render) handles before each capture. Artifacts are delivered for each captured frame. The composition unmounts after completion or failure.
+The composition mounts once, seeks through the selection, and waits for pending [`delayRender()`](/docs/delay-render) handles before each capture. [Artifacts](/docs/artifacts) are passed to `onArtifact` as each frame is captured. As with [`renderFrames()`](/docs/renderer/render-frames), artifact filenames must be unique across all selected frames; emitting the same filename on two frames rejects the call. The composition unmounts after completion or failure.
 
 Aborting or failing any frame rejects the entire call. Still and multi-frame captures share the existing render queue, so a failed batch does not prevent a later capture.
 
