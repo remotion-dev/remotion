@@ -1585,6 +1585,15 @@ export const articles = [
 		slug: 'options/x264-preset',
 	},
 	{
+		id: 'sdk',
+		title: 'SDK',
+		relativePath: 'docs/sdk.mdx',
+		compId: 'articles-docs-sdk',
+		crumb: null,
+		noAi: false,
+		slug: 'sdk',
+	},
+	{
 		id: 'sdk/canvas',
 		title: '<Canvas>',
 		relativePath: 'docs/sdk/canvas.mdx',
@@ -1762,7 +1771,7 @@ export const articles = [
 		compId: 'articles-docs-sdk-index',
 		crumb: '@remotion/sdk',
 		noAi: false,
-		slug: 'sdk/index',
+		slug: 'sdk/api',
 	},
 	{
 		id: 'sdk/start-canvas-keyframe-drag',

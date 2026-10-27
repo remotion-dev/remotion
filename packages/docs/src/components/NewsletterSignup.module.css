@@ -1,0 +1,64 @@
+.signup {
+	margin-bottom: 2rem;
+}
+
+.label {
+	display: block;
+	font-weight: 500;
+	margin-bottom: 0.5rem;
+}
+
+.fields {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.input {
+	flex: 1 1 16rem;
+	min-width: 0;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--ifm-color-emphasis-400);
+	border-radius: 6px;
+	background: var(--ifm-background-color);
+	color: var(--ifm-font-color-base);
+	font: inherit;
+}
+
+.button {
+	padding: 0.75rem 1.25rem;
+	border: 1px solid var(--ifm-color-primary);
+	border-radius: 6px;
+	background: var(--ifm-color-primary);
+	color: white;
+	font: inherit;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+	background: var(--ifm-color-primary-dark);
+}
+
+.input:focus-visible,
+.button:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.input:disabled,
+.button:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+.error {
+	margin-top: 0.75rem;
+	color: var(--ifm-color-danger-dark);
+}
+
+.success {
+	padding: 1rem;
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 6px;
+}
