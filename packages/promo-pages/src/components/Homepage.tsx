@@ -2,6 +2,7 @@
 
 import React from 'react';
 import {ExploreSection} from './ExploreSection';
+import {GetStartedCta} from './GetStartedCta';
 import CommunityStats from './homepage/CommunityStats';
 import {Demo} from './homepage/Demo';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
@@ -59,9 +60,7 @@ export const NewLanding: React.FC<{
 						<br />
 						<br />
 						<CommunityStats />
-						<br />
-						<br />
-						<br />
+						<GetStartedCta />
 					</div>
 				</div>
 			</div>

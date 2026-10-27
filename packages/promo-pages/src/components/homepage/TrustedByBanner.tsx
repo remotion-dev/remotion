@@ -129,8 +129,9 @@ const TrustedByBanner = () => {
 
 	return (
 		<div className="flex min-w-0 basis-0 flex-1 flex-col">
-			<div className="flex aspect-square w-full items-center justify-start min-[900px]:max-w-[270px] min-[900px]:self-start">
-				<div className="grid w-full max-w-[260px] translate-y-8 grid-cols-2 gap-x-8 gap-y-12">
+			{/* Preserve the original bottom gap below the 160px grid and its 32px offset. */}
+			<div className="flex w-full items-center justify-start pt-6 pb-[calc(50%_-_112px)] min-[900px]:aspect-square min-[900px]:max-w-[270px] min-[900px]:self-start min-[900px]:p-0">
+				<div className="grid w-full max-w-[260px] grid-cols-2 gap-x-8 gap-y-12 min-[900px]:translate-y-8">
 					{orderedLogos.map((logo) => (
 						<a
 							key={logo.id}
