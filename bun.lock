@@ -1142,6 +1142,16 @@
         "@remotion/bundler": "workspace:*",
       },
     },
+    "packages/lambda-binaries": {
+      "name": "@remotion/lambda-binaries",
+      "version": "4.0.539",
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@types/bun": "catalog:",
+        "eslint": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/lambda-client": {
       "name": "@remotion/lambda-client",
       "version": "4.0.539",
@@ -4638,6 +4648,8 @@
     "@remotion/kimi-code-plugin": ["@remotion/kimi-code-plugin@workspace:packages/kimi-code-plugin"],
 
     "@remotion/lambda": ["@remotion/lambda@workspace:packages/lambda"],
+
+    "@remotion/lambda-binaries": ["@remotion/lambda-binaries@workspace:packages/lambda-binaries"],
 
     "@remotion/lambda-client": ["@remotion/lambda-client@workspace:packages/lambda-client"],
 

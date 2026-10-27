@@ -63,24 +63,34 @@ Lambda binaries might change in minor Remotion versions, it is your responsibili
 
 ## Creating a custom binary
 
-Go to the [`remotion-dev/lambda-binaries`](https://github.com/remotion-dev/lambda-binaries) repository and clone it.
+Clone the [`remotion-dev/remotion`](https://github.com/remotion-dev/remotion) repository and use its [`packages/lambda-binaries`](https://github.com/remotion-dev/remotion/tree/main/packages/lambda-binaries) package:
 
-The folders `chromium` and `fonts` contain the binaries for the ARM version. The x64 version has been discontinued.
+```bash title="Prepare the Lambda binaries"
+git clone https://github.com/remotion-dev/remotion.git
+cd remotion
+bun install
+cd packages/lambda-binaries
+bun run download
+```
 
-Put the files that you want in the corresponding folders - for example, add the Apple Emoji Font `AppleColorEmoji.ttf` into the `fonts/.fonts/NotoSans/` folder.
+The download command fetches versioned archives from `remotion.media`, verifies their SHA-256 checksums, and extracts them into `layers/`. Regular dependency installation and builds do not download these binaries. Running the download command again preserves existing layer directories and your changes.
 
-Keep the function ZIP and all layers within the combined 250 MiB uncompressed limit. Remove other files if needed, such as `fonts/.fonts/NotoColorEmoji.ttf` and `fonts/.fonts/NotoSansCJKjp-Regular.otf`.
+The `layers/chromium` and `layers/fonts` folders contain the binaries for ARM64. The x64 version has been discontinued. The `layers/emoji-apple`, `layers/emoji-google`, and `layers/cjk` folders contain the optional emoji and CJK layers.
+
+Put the files that you want in the corresponding folders. For example, add custom fonts to `layers/fonts/.fonts/NotoSans/`.
+
+Keep the function ZIP and all layers within the combined 250 MiB uncompressed limit. Remove unneeded files from your custom layers if necessary.
 
 You can see the size of the folders by running:
 
-```bash
-sh size.sh
+```bash title="Check uncompressed layer sizes"
+bun run size
 ```
 
 If you are done with your changes, run:
 
-```bash
-sh make.sh
+```bash title="Package the custom layers"
+bun run zip
 ```
 
 This will zip the layers and put them as artifacts in the `out` directory.
