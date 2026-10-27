@@ -1849,6 +1849,7 @@ const sidebars: SidebarsConfig = {
 			type: 'link',
 			href: '/docs/canvas-capture',
 			label: 'Canvas Capture',
+			className: 'wip-item',
 		},
 		{
 			type: 'html',
@@ -2071,6 +2072,7 @@ const sidebars: SidebarsConfig = {
 		{
 			type: 'category',
 			label: 'Canvas Capture',
+			className: 'wip-item',
 			link: {
 				type: 'doc',
 				id: 'canvas-capture/index',
