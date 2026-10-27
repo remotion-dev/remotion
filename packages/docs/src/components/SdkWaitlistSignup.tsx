@@ -1,7 +1,7 @@
 import React, {useCallback, useId, useState} from 'react';
-import styles from './NewsletterSignup.module.css';
+import styles from './SdkWaitlistSignup.module.css';
 
-export const NewsletterSignup: React.FC = () => {
+export const SdkWaitlistSignup: React.FC = () => {
 	const emailId = useId();
 	const [email, setEmail] = useState('');
 	const [submitting, setSubmitting] = useState(false);
@@ -20,7 +20,7 @@ export const NewsletterSignup: React.FC = () => {
 
 			try {
 				const response = await fetch(
-					'https://www.remotion.pro/api/newsletter',
+					'https://www.remotion.pro/api/sdk-waitlist',
 					{
 						method: 'POST',
 						body: JSON.stringify({email: email.trim()}),
@@ -29,7 +29,7 @@ export const NewsletterSignup: React.FC = () => {
 				);
 				const json = await response.json();
 				if (!response.ok || !json.success) {
-					throw new Error('Newsletter signup failed');
+					throw new Error('SDK waitlist signup failed');
 				}
 
 				setSubscribed(true);
@@ -46,7 +46,8 @@ export const NewsletterSignup: React.FC = () => {
 		<div className={styles.signup}>
 			{subscribed ? (
 				<p role="status" className={styles.success}>
-					You&apos;re subscribed to the Remotion newsletter.
+					You&apos;re on the Remotion SDK waitlist. We&apos;ll email you when
+					it&apos;s ready to try.
 				</p>
 			) : (
 				<form onSubmit={handleSubmit} aria-busy={submitting}>
@@ -71,7 +72,7 @@ export const NewsletterSignup: React.FC = () => {
 							disabled={submitting}
 							className={styles.button}
 						>
-							{submitting ? 'Signing up…' : 'Notify me'}
+							{submitting ? 'Signing up…' : 'Join the waitlist'}
 						</button>
 					</div>
 					{error ? (
