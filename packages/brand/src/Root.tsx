@@ -50,9 +50,9 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {ComposeLayers} from './ComposeLayers';
 import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
-import {ComposeLayers} from './ComposeLayers';
 import {CurvesStudioRecordingComposition} from './CurvesStudioRecordingComposition';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
@@ -101,6 +101,7 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
+import {ExploreCurvesRecording20261027Composition} from './ExploreCurvesRecording20261027Composition';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {CursorOrbit} from './HomepageAssets/CursorOrbit';
 import {
@@ -405,7 +406,7 @@ export const RemotionRoot: React.FC = () => {
 					<Composition
 						id="ExploreRemotionColorCorrection"
 						component={ExploreRemotionColorCorrection}
-						durationInFrames={180}
+						durationInFrames={196}
 						fps={60}
 						width={1080}
 						height={1080}
@@ -1408,6 +1409,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				fps={60}
 				width={2560}
 				height={1428}
+			/>
+			<Composition
+				id="ExploreCurvesRecording20261027"
+				component={ExploreCurvesRecording20261027Composition}
+				durationInFrames={492}
+				fps={60}
+				width={958}
+				height={1440}
 			/>
 		</>
 	);
