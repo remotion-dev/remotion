@@ -1190,7 +1190,6 @@ const sidebars: SidebarsConfig = {
 				'motion-blur/index',
 				'html-in-canvas',
 				'shaders',
-				'effects',
 				'measuring',
 				'using-randomness',
 				'animation-math',
@@ -1289,6 +1288,7 @@ const sidebars: SidebarsConfig = {
 				'captions/exporting',
 			],
 		},
+		'effects',
 		{
 			type: 'html',
 			value:
