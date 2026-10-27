@@ -149,7 +149,10 @@ export const PreviewToolbar: React.FC<{
 					<>
 						<Spacing x={2} />
 						<PreviewToolbarControl>
-							<PlaybackRateSelector />
+							<PlaybackRateSelector
+								setPlaybackRate={setPlaybackRate}
+								playbackRate={playbackRate}
+							/>
 						</PreviewToolbarControl>
 					</>
 				) : null}
@@ -157,7 +160,10 @@ export const PreviewToolbar: React.FC<{
 					<>
 						{isVideoComposition ? (
 							<PreviewToolbarControl>
-								<PlaybackRateSelector />
+								<PlaybackRateSelector
+									setPlaybackRate={setPlaybackRate}
+									playbackRate={playbackRate}
+								/>
 							</PreviewToolbarControl>
 						) : null}
 						<PreviewToolbarControl>

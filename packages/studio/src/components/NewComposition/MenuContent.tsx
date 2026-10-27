@@ -424,6 +424,12 @@ export const MenuContent: React.FC<{
 						);
 					}
 
+					if (item.type === 'custom') {
+						return (
+							<React.Fragment key={item.id}>{item.content}</React.Fragment>
+						);
+					}
+
 					const onClick = (id: string, e: PointerEvent<HTMLDivElement>) => {
 						item.onClick(id, e);
 						if (item.subMenu) {

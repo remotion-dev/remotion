@@ -1,10 +1,5 @@
 import {afterEach, beforeEach, expect, test} from 'bun:test';
-import {
-	loadPlaybackRate,
-	loadPlaybackRateStep,
-	persistPlaybackRate,
-	persistPlaybackRateStep,
-} from '../state/playbackrate';
+import {loadPlaybackRate, persistPlaybackRate} from '../state/playbackrate';
 
 const storage = new Map<string, string>();
 
@@ -54,14 +49,14 @@ test('restores a persisted negative playback rate', () => {
 	expect(loadPlaybackRate()).toBe(-2);
 });
 
-test('restores a custom playback rate from the slider', () => {
-	persistPlaybackRate(0.73);
-	expect(loadPlaybackRate()).toBe(0.73);
+test('restores a custom playback rate', () => {
+	persistPlaybackRate(1.25);
+	expect(loadPlaybackRate()).toBe(1.25);
 });
 
-test('restores a persisted playback rate step', () => {
-	persistPlaybackRateStep(0.25);
-	expect(loadPlaybackRateStep()).toBe(0.25);
+test('restores a custom playback rate below 0.1', () => {
+	persistPlaybackRate(0.05);
+	expect(loadPlaybackRate()).toBe(0.05);
 });
 
 test('falls back to 1 when no playback rate was persisted', () => {
@@ -80,7 +75,7 @@ test('falls back to 1 when no playback rate was persisted', () => {
 });
 
 test('falls back to 1 when the persisted value is not a supported playback rate', () => {
-	for (const invalid of ['abc', '', '0', 'Infinity', '0.05', '4.1']) {
+	for (const invalid of ['abc', '', '0', '-0', 'Infinity', '-4.1', '4.1']) {
 		storage.set('remotion.playbackrate', invalid);
 		expect(loadPlaybackRate()).toBe(1);
 	}
