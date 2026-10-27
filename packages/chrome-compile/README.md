@@ -6,7 +6,7 @@ Public build instructions and scripts imported from `remotion-dev/chrome-compile
 
 From a Remotion checkout, run `bun install`, then `cd packages/chrome-compile`. Follow the platform guide below to compile Chromium. Builds and EC2 launches are explicit manual operations; normal dependency installation and monorepo builds do not compile Chromium, launch instances, or download binary archives.
 
-The source import contains build scripts, configuration, patches, probes, and documentation. Generated ZIPs are hosted on `remotion.media` and excluded from Git. `artifacts.json` records each archive's SHA-256 and byte size, including the historical artifacts retained from the original repository. Older archives are retained for reference and may have obsolete layouts; check the [output ZIP layout requirements](#output-zip-layout-requirements) before using them.
+The package contains the current build scripts, configuration, patches, probes, and documentation. Generated ZIPs are hosted on `remotion.media` and excluded from Git. `artifacts.json` records the SHA-256 and byte size of the five Chromium 157 archives.
 
 ```sh
 # Show available archive paths without downloading anything.
@@ -15,11 +15,11 @@ bun run download --list
 # Download the five current Chromium 157 archives.
 bun run download
 
-# Restore one historical archive when needed.
-bun run download output/old-v138/chrome-headless-shell-linux64.zip
+# Download a single archive.
+bun run download output/chromium-headless-shell-linux64.zip
 ```
 
-`bun run download --all` restores all recorded archive paths. Existing matching files are verified and reused. Existing files with different contents are preserved, so move your own build output before restoring a recorded artifact.
+Existing matching files are verified and reused. Existing files with different contents are preserved, so move your own build output before restoring a recorded artifact.
 
 These downloads verify checksums and preserve the original ZIP bytes; they do not upgrade the browser version used by Remotion. Publishing a new browser build still requires validating its layout and runtime behavior as described below.
 
@@ -42,15 +42,7 @@ for hosts without POSIX shared memory:
 | `posix-shm` | `shm_open("/rmshm-<random>")`, `/dev/shm` on Linux                                                       | Default; tried first. On Linux the pages are reserved up front (`fallocate`, or zero-fill where that is not permitted, as on Lambda's `/tmp`) so a full tmpfs (e.g. a 64 MB container `/dev/shm`) fails cleanly instead of SIGBUS. |
 | `file`      | Regular file `<backingDirectory>/rmshm-<random>` (mode 0600, `O_EXCL`, `O_NOFOLLOW`) mapped `MAP_SHARED` | `shm_open` fails (AWS Lambda has no `/dev/shm`) and the caller passed `backingDirectory`, or `preferredBackend: "file"`.                                                                                                           |
 
-Build status (October 2026): all five variants are built from 157.0.8080.0
-with v3. Every build passed the probe in its build environment
-(`autoBackend: posix-shm`, `fileBackend: file`). The zips were also run
-outside it: Linux x64 (under emulation) and Linux ARM64 in Ubuntu 24.04
-containers, the Lambda build in the AL2023 Lambda image, each with and without
-`/dev/shm` (`autoBackend` falls back to `file` without it), and the macOS build
-on an M4 Mac running macOS 15.7. WebGL and WebGL2 create SwiftShader contexts
-on all of them. No 157 build has been tested on a real Lambda or in a
-Remotion render yet.
+Each build runs the shared-memory probe before packaging. For target-environment validation, follow the [Lambda smoke test](lambda-arm64/README.md#lambda-smoke-test) or the [macOS verification steps](mac-arm64/README.md#verify-before-publishing).
 
 | Variant                                          | remotion.media object                                                           |       Bytes | SHA-256                                                            |
 | ------------------------------------------------ | ------------------------------------------------------------------------------- | ----------: | ------------------------------------------------------------------ |
@@ -61,9 +53,7 @@ Remotion render yet.
 | [`mac-arm64`](mac-arm64/README.md)               | `chromium-headless-shell-mac-arm64-157.0.8080.0.zip`                            | 179,230,663 | `3d9fd9a997915fa295ba6fbd66b2eaad2b9578101aa9dcde5e2eb737afa4f459` |
 
 In 157, `libEGL`/`libGLESv2` are small shims and ANGLE is linked into the
-browser binary, which accounts for most of the size increase over 149. The
-149 v3 builds remain available as `...-149.0.7790.0-v3.zip`.
-
+browser binary, which accounts for most of the size increase over 149.
 The Lambda build is compiled with `optimize_for_size = true` (`-Os` for C/C++,
 `-Copt-level=s` for Rust). The `-O2` build of the same commit remains
 available as `chromium-headless-shell-amazon-linux-arm64-157.0.8080.0.zip`
@@ -128,34 +118,14 @@ you bump the Chromium version, re-verify each one.
 | [`linux-arm64`](linux-arm64/README.md)           | `chromium-headless-shell-linux-arm64.zip`            | `chrome-headless-shell-linux-arm64/`              | `headless_shell`                                   | no                              |
 | [`amazon-linux-x64`](amazon-linux-x64/README.md) | `chromium-headless-shell-amazon-linux2023-x64.zip`   | `chromium-headless-shell-amazon-linux2023-x64/`   | `headless_shell`                                   | yes — AL2023 needs them bundled |
 | [`lambda-arm64`](lambda-arm64/README.md)         | `chromium-headless-shell-amazon-linux2023-arm64.zip` | `chromium-headless-shell-amazon-linux2023-arm64/` | `headless_shell`                                   | yes — AL2023 needs them bundled |
+| [`mac-arm64`](mac-arm64/README.md)               | `chromium-headless-shell-mac-arm64.zip`              | `chrome-headless-shell-mac-arm64/`                | `chrome-headless-shell`                            | no                              |
 
-Notes / footguns:
+Packaging requirements:
 
-1. **`linux-x64` binary rename is mandatory.** The Chromium build outputs the
-   binary as `headless_shell` for every variant. For non-AL2023 `linux64` the
-   renderer's `getExecutablePath` looks for `chrome-headless-shell`. The
-   post-extract rename loop in `BrowserFetcher.ts` only fires when the binary
-   is named `chrome`, so `headless_shell` is left untouched and extraction
-   fails. Rename it to `chrome-headless-shell` at packaging time
-   (`linux-x64/build-chromium.sh` does this).
-2. **All five variants must have a wrapping subdirectory.** Files dumped at
-   the zip root will not match `possibleSubdirs` and extraction fails. Two
-   variants previously got this wrong:
-   - 144's `chrome-headless-shell-linux-arm64.zip` used `chrome-linux/` and
-     was renamed by the post-extract loop. 149+ already uses
-     `chrome-headless-shell-linux-arm64/` — keep it that way.
-   - The Lambda build historically produced `chromium.zip` with files at the
-     root and was restructured by hand into
-     `chromium-headless-shell-amazon-linux2023-arm64/`. As of v149 this is
-     baked into `lambda-arm64/build-chromium.sh`; do not regress.
-3. **`amazon-linux-*` zips bundle system libraries** because AL2023 / Lambda
-   runtimes don't ship them at the locations Chromium expects.
-   `linux-x64` and `linux-arm64` zips do NOT bundle them — the README target
-   tells users to `apt install` them.
-4. **The version-suffixed names** (`...-<version>.zip`, for example
-   `...-157.0.8080.0.zip`) consumed by `getChromeDownloadUrl` are produced as
-   a copy/rename step at upload time.
-   The build scripts emit the short names from the table above.
+- Rename the generic Linux x64 executable from `headless_shell` to `chrome-headless-shell` when packaging it.
+- Every archive must contain the wrapping directory shown above.
+- Amazon Linux archives bundle the system libraries needed by AL2023 and Lambda. Generic Linux archives rely on the runtime dependencies listed in their platform guides.
+- Build scripts emit the short ZIP names shown above. Publishing adds the platform and Chromium version to the hosted filename.
 
 ## Quick start
 
@@ -198,322 +168,11 @@ pools; otherwise Chromium falls back to the file backend when a
 run the probe in a container started with `--ipc=none`, which has no
 `/dev/shm`.
 
-## What changed going from Chromium 149 → 157
+## Build configuration
 
-1. **Shared-memory patch rebase.** The v3 patch logic is unchanged. Only the
-   DevTools method lists in `content/browser/devtools/protocol_config.json`
-   and `third_party/blink/renderer/core/inspector/inspector_protocol_config.json`
-   needed new context; the remaining hunks apply with offsets.
-2. **More `gn gen` asserts on force-disabled subsystems.** Chromium 151 added
-   `enable_background_mode`, `enable_captive_portal_detection` and
-   `enable_chrome_notifications`; 157 adds `enable_platform_apps`
-   (`//chrome/test` depends on `//apps:test_support`) and `enable_lens_desktop`
-   (`//chrome/browser/ui/lens` asserts `enable_lens_overlay_backend`). The
-   generic Linux and Amazon Linux x64 `args.gn` files no longer set them.
-3. **Lambda generates only `headless_shell`'s graph.** The full Chrome graph no
-   longer evaluates with printing disabled (new production code in
-   `//chrome/browser/ui/browser_web_contents_delegate` depends on
-   `//components/printing/browser`, and `//printing` asserts
-   `enable_printing`). `lambda-arm64/build-chromium.sh` appends
-   `root = "//headless:headless_shell"` and
-   `root_patterns = [ "//headless:headless_shell" ]` to `.gn`, which replaces
-   the 149 assert patcher and printing stubs. It has to be `.gn` rather than
-   `gn gen --root-target/--root-pattern`: the `LICENSE.headless_shell` action
-   runs its own `gn desc`, which only sees the dotfile.
-4. **`libEGL.so` / `libGLESv2.so` can be zero-byte placeholders.** All Linux
-   scripts skip `strip` for empty files.
-5. **ARM64 LLVM bootstrap.** 157 reformatted `tools/clang/scripts/build.py`
-   (`bootstrap_args = (...)` spans several lines), so the old PIC/libxml2
-   injection silently no-oped. The matcher now accepts both layouts and fails
-   loudly if an injection point is missing. `build.py` also parses `...Z`
-   timestamps with `datetime.fromisoformat`, which needs Python 3.11, so the
-   Lambda recipe switches to vpython's Python 3.11 before the LLVM step (Step
-   5.5) like the other recipes. LLVM is `llvmorg-24-init-7747-g62397f8b`;
-   CMake 3.20+ is still sufficient.
-6. **Rust must match Chromium's toolchain exactly.** Blink now depends on C++
-   headers that Crubit's `cc_bindings_from_rs` generates from Rust crates
-   (`//third_party/blink/renderer/platform:font_rust_headers`). That tool is a
-   rustc driver and rejects crates compiled by any other rustc
-   (`error[E0514]: found crate core compiled by an incompatible version of
-rustc`), so replacing `third_party/rust-toolchain/bin/rustc` with a rustup
-   nightly, as the 149 recipes did, no longer works.
-   - **x64** builds keep Chromium's bundled Rust toolchain untouched.
-   - **ARM64** builds can't run that x86_64 toolchain. They install
-     rust-lang/rust CI builds of the exact commit Chromium's toolchain is built
-     from (`1edd55dcfcd573872c727fa3e086369a71661ee0`: `rustc`, `rust-std`,
-     `rustc-dev`, `cargo`, `rustfmt` from `ci-artifacts.rust-lang.org`),
-     build `cc_bindings_from_rs` against them with Chromium's
-     `tools/rust/build_crubit.py`, and point `third_party/rust-toolchain` at
-     them. Rust CI keeps these artifacts for about 168 days.
-7. **More x86_64-only host tools on ARM64.** DevTools now uses the native
-   TypeScript 7 compiler from `third_party/typescript/linux-amd64`; ARM64
-   builds install the same npm release for arm64
-   (`@typescript/typescript-linux-arm64`, integrity-checked) in its place.
-   Crubit formats its output with `buildtools/linux64-format/clang-format`,
-   which ARM64 builds replace with the `clang-format` from their LLVM build.
-   Node stays at v24.12.0.
-8. **macOS.** The deployment target is 13.0 (Chromium 157's default),
-   `headless_use_policy` is gone, and `apply-clt-support.py` targets 157's
-   reformatted `sdk_info.py`/`find_sdk.py`, which now always symlink the SDK
-   when `use_system_xcode = true`. ANGLE's Metal shader condition is now a
-   multi-line expression and is matched structurally.
-9. **Resumable builds.** Every `setup-ec2.sh` starts the container with
-   `sleep infinity` and runs `build-chromium.sh` through `docker exec`. When a
-   step fails, the container (with its ~50 GB checkout) keeps running, so the
-   remaining steps can be re-run with `docker exec` instead of restarting or
-   `docker commit`-ing the container.
+Each platform's `build-chromium.sh` and `args.gn` contain the current toolchain setup and build flags. The Linux `Dockerfile` files provide the system dependencies, and `shared/.gclient` configures their Chromium checkout. The macOS build uses its own native toolchain setup.
 
-## What changed going from Chromium 144 → 149
-
-Most of the pain in this bump came from new `gn gen` strictness, Chromium's
-custom rustc moving to a newer date, and the build graph now touching modules
-(`bindgen`, `log_severity_bindgen_generator`) that require extra host tooling.
-Each variant README has the full blow-by-blow; highlights below.
-
-### 1. `gn gen` now asserts on force-disabled subsystems
-
-Chromium 149 added unconditional references to optional subsystems in
-`chrome/...` `BUILD.gn` files. `gn gen` parses the entire build graph even for
-`headless_shell`, so force-disabling these with `enable_*=false` in `args.gn`
-now triggers assertion failures. **Drop these flags and rely on Chromium's
-defaults**:
-
-- `enable_extensions`
-- `enable_platform_apps`
-- `enable_compose`
-- `enable_glic`
-- `enable_mdns`
-- `enable_service_discovery`
-- `enable_click_to_call`
-- `enable_bound_session_credentials`
-- `enable_device_bound_sessions`
-
-Unused code still isn't linked into `headless_shell`; it's only the graph that
-needs to be consistent.
-
-### 2. `use_system_minigbm = false`
-
-Without this, `gn gen` fails trying to find the system `gbm` library.
-
-### 3. PDF is now required and supported
-
-All four `args.gn` now set:
-
-```gn
-enable_pdf = true
-enable_printing = true
-enable_print_preview = true
-```
-
-### 4. Node.js v24.12.0 (was v24.11.1)
-
-`third_party/node/update_node_binaries` declares the version; read it and
-download the arm64/x64 tarball directly rather than trusting the default helper
-(which on ARM64 pulls the x64 binary and symlinks it the wrong way).
-
-### 5. Rust nightly must match the bundled rustc commit
-
-Chromium 149 bundles a patched rustc pinned to a specific upstream commit.
-Using the wrong date breaks `format_placeholder`/`format_count` lang items or
-`-Z` flag support. Derive the date dynamically from
-`third_party/rust-toolchain/VERSION`:
-
-```bash
-RUST_COMMIT=$(cat third_party/rust-toolchain/VERSION | awk '{print $3}')
-COMMIT_DATE_ISO=$(curl -s https://api.github.com/repos/rust-lang/rust/commits/$RUST_COMMIT | jq -r .commit.committer.date)
-RUST_NIGHTLY_DATE=$(date -u -d "$COMMIT_DATE_ISO +1 day" +%Y-%m-%d)
-rustup toolchain install "nightly-$RUST_NIGHTLY_DATE" \
-  --profile minimal --component rustfmt --component rust-src
-```
-
-For 149.0.7790.0 this resolves to `nightly-2026-02-28`.
-
-### 6. Python 3.11 required for `autoninja.py`
-
-`depot_tools/autoninja.py` now `from enum import StrEnum`, which only exists in
-Python ≥ 3.11. Ubuntu 22.04 ships 3.10 and AL2023 ships 3.9. Reuse the Python
-3.11 that `vpython` downloads during `gclient sync`:
-
-```bash
-PY311=$(ls -d /root/.cache/vpython-root.0/store/cpython+*/contents/bin/python3.11 | head -1)
-ln -sf "$PY311" /usr/local/bin/python3
-ln -sf "$PY311" /usr/local/bin/python
-
-mkdir -p /root/depot_tools/.cipd_bin
-ln -sf "$PY311" /root/depot_tools/.cipd_bin/python3
-echo ".cipd_bin" > /root/depot_tools/python3_bin_reldir.txt
-```
-
-Without the last three lines `autoninja` still dies with
-`python3_bin_reldir.txt not found`.
-
-### 7. `/usr/bin/python` symlink for Ninja
-
-Ninja's own `configure.py` (built from source during setup) hard-codes
-`#!/usr/bin/env python`, which doesn't exist on Ubuntu 22.04. Add
-`ln -sf /usr/bin/python3 /usr/bin/python` before the Ninja build step.
-
-### 8. `bindgen`, `rustfmt`, and the rust-toolchain/bin shims
-
-Chromium 149 generates Rust bindings with `bindgen` and `rustfmt` at
-`third_party/rust-toolchain/bin/`. Neither is bundled with `rustup` nightly.
-Install them and symlink every host tool Chromium looks up:
-
-```bash
-cargo install bindgen-cli
-TC=$(dirname "$(dirname "$(rustup which rustc)")")
-for bin in rustc cargo rustfmt rustdoc clippy-driver cargo-clippy cargo-fmt; do
-  [ -f "$TC/bin/$bin" ] && ln -sf "$TC/bin/$bin" third_party/rust-toolchain/bin/$bin
-done
-ln -sf "$(which bindgen)" third_party/rust-toolchain/bin/bindgen
-cp -P "$TC"/lib/*.so*       third_party/rust-toolchain/lib/ || true
-cp -rP "$TC"/lib/rustlib/*  third_party/rust-toolchain/lib/rustlib/
-```
-
-### 9. ARM64-only: `gperf` CIPD package and `mesa-common-dev`
-
-The `infra/3pp/tools/gperf/linux-arm64` CIPD package does not exist. Patch
-`DEPS` to restrict the `src/third_party/gperf/cipd` entry to `host_cpu == "x64"`,
-then install `gperf` via `apt`/`dnf` and symlink the binary into the expected
-location:
-
-```bash
-mkdir -p third_party/gperf/cipd/bin
-ln -sf "$(command -v gperf)" third_party/gperf/cipd/bin/gperf
-```
-
-Ubuntu's `mesa-common-dev` is also needed: `gn gen` calls `pkg-config dri` for
-`//build/config/linux/dri`, which is pulled in transitively from
-`//content/gpu`.
-
-### 10. ARM64-only: LLVM bootstrap PIC patches
-
-Same story as 144: bootstrap must be PIC=OFF (static libs), final stage PIC=ON
-(shared `libclang.so`). The patch patterns in `tools/clang/scripts/build.py`
-changed in 149 — the matcher now needs to target:
-
-```python
-marker = "bootstrap_args = base_cmake_args + compiler_wrapper_cmake_args + [\n"
-```
-
-and inject `-DLLVM_ENABLE_PIC=OFF` and `-DLLVM_ENABLE_LIBXML2=OFF` at the top
-of that list. Non-aarch64 runtime triples
-(`i386`, `x86_64`, `armv7`, `riscv64`) must also be stripped from
-`runtimes_triples_args`. A partial link failure of `libclang-cpp.so` is
-tolerable — only `libclang.so` is needed for bindgen/Rust.
-
-### 11. Clone from `chromium.googlesource.com`, not GitHub
-
-Shallow clones of specific tags from `github.com/chromium/chromium` are
-unusably slow (~1 h). Use:
-
-```bash
-git clone --depth 1 --branch 149.0.7790.0 \
-  https://chromium.googlesource.com/chromium/src.git src
-```
-
-### 12. Disk space for Docker commits
-
-200 GB gp3 is only just enough; committing the container image after LLVM
-on linux-arm64 can ENOSPC and lose the container. Prefer `docker exec -d` to
-re-enter a running container over `docker commit` during long builds.
-
-## Common args.gn (all platforms)
-
-```gn
-import("//build/args/headless.gn")
-
-is_official_build   = true
-is_debug            = false
-symbol_level        = 0
-blink_symbol_level  = 0
-v8_symbol_level     = 0
-
-proprietary_codecs        = true
-ffmpeg_branding           = "Chrome"
-headless_use_embedded_resources = true
-icu_use_data_file         = false
-
-enable_pdf           = true
-enable_printing      = true
-enable_print_preview = true
-
-use_sysroot         = false
-use_dawn            = false
-skia_use_dawn       = false
-use_system_minigbm  = false
-use_qt              = false
-use_cups            = false
-use_pulseaudio      = false
-
-clang_use_chrome_plugins = false
-
-enable_keystone_registration_framework = false
-enable_linux_installer   = false
-enable_media_remoting    = false
-enable_swiftshader_vulkan = false
-use_on_device_model_service = false
-
-chrome_pgo_phase = 0
-```
-
-Platform-specific additions:
-
-- **ARM64**: `target_cpu = "arm64"`, `v8_target_cpu = "arm64"`
-- **x64**: `target_cpu = "x64"`, `v8_target_cpu = "x64"`
-- **Lambda ARM64**: `enable_pdf`, `enable_printing`, `enable_print_preview`,
-  `enable_platform_apps`, `enable_lens_desktop`, `enable_screen_ai_service`
-  and `enable_library_cdms` are all `false`, which is why that build sets
-  `root`/`root_patterns` in `.gn` to generate only `headless_shell`'s graph.
-  It also sets `optimize_for_size = true`.
-
-## Troubleshooting
-
-See each variant's `README.md` for detailed postmortems; `lambda-arm64/README.md`
-is the most detailed since it was the reference implementation.
-
-Quick-reference table:
-
-| Symptom                                                                            | Cause                                                           | Fix                                                                                                                      |
-| ---------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `gn gen` asserts on `enable_extensions=false` etc.                                 | v149 build graph is stricter                                    | Remove flag, rely on defaults                                                                                            |
-| `Package dri was not found in the pkg-config search path`                          | Ubuntu missing `dri.pc`                                         | `apt install mesa-common-dev`                                                                                            |
-| `python3_bin_reldir.txt not found`                                                 | depot_tools Python path                                         | Write `.cipd_bin` + symlink python3                                                                                      |
-| `cannot import name 'StrEnum' from 'enum'`                                         | Python < 3.11                                                   | Symlink vpython's 3.11 over `/usr/local/bin/python3`                                                                     |
-| `"third_party/rust-toolchain/bin/bindgen" missing`                                 | bindgen not installed                                           | `cargo install bindgen-cli` + symlink                                                                                    |
-| `"third_party/rust-toolchain/bin/rustfmt" missing`                                 | rustup nightly without rustfmt                                  | `rustup ... --component rustfmt`                                                                                         |
-| `unknown lang item: format_placeholder`                                            | Wrong Rust nightly                                              | Derive date from `rust-toolchain/VERSION`                                                                                |
-| `recompile with -fPIC` during LLVM                                                 | Bootstrap PIC=OFF flag not applied                              | Patch `build.py` with the 149 marker                                                                                     |
-| `no such package: infra/3pp/tools/gperf/linux-arm64`                               | ARM64 CIPD gperf missing                                        | DEPS patch + system gperf symlink                                                                                        |
-| `/usr/bin/env: 'python': No such file or directory`                                | Ninja's `configure.py`                                          | `ln -sf /usr/bin/python3 /usr/bin/python`                                                                                |
-| `No space left on device` during `docker commit`                                   | 200 GB filled                                                   | Skip intermediate commits; use `docker exec -d`                                                                          |
-| `Cannot depend on platform apps because enable_platform_apps=false`                | v157 `//chrome/test` references `//apps`                        | Remove `enable_platform_apps = false`                                                                                    |
-| `Lens backend logic is not supported on regular Mobile Android`                    | v157 asserts `enable_lens_overlay_backend`                      | Remove `enable_lens_desktop = false`                                                                                     |
-| `assert(enable_printing)` in `//printing/BUILD.gn` (Lambda)                        | v157 browser code needs printing                                | `root`/`root_patterns` = `//headless:headless_shell` in `.gn`                                                            |
-| `strip: ... file format not recognized` on `libEGL.so`                             | Zero-byte placeholder library                                   | Only strip non-empty files (`[ -s "$bin" ]`)                                                                             |
-| `build.py: bootstrap_args list not found` (ARM64)                                  | LLVM `build.py` layout changed again                            | Update the matcher in Step 10                                                                                            |
-| `error[E0514]: found crate core compiled by an incompatible version of rustc`      | rustc differs from the one `cc_bindings_from_rs` was built with | x64: keep the bundled toolchain; ARM64: exact-commit CI rustc + `build_crubit.py`                                        |
-| `Exec format error: .../typescript/linux-amd64/src/lib/tsc` (ARM64)                | x86_64-only TypeScript compiler                                 | Install `@typescript/typescript-linux-arm64` of the same version                                                         |
-| `ValueError: Invalid isoformat string: '...Z'` in LLVM `build.py`                  | Python < 3.11                                                   | Switch to vpython's 3.11 before Step 10                                                                                  |
-| `rustc: error while loading shared libraries: libLLVM.so...` while building Crubit | rustc-dev's `librustc_driver` copy can't find `libLLVM`         | Symlink `libLLVM*.so*` into `lib/rustlib/<host>/lib`                                                                     |
-| `curl 28 Operation too slow` cloning Chromium in Step 2 (Lambda)                   | googlesource takes over a minute to prepare the depth-1 pack    | `http.lowSpeedTime 600` instead of 60                                                                                    |
-| Renderer crashes with "Chrome binary not found" after download                     | Zip layout doesn't match `BrowserFetcher`                       | See [Output zip layout requirements](#output-zip-layout-requirements) — wrapping folder + binary name must match exactly |
-
-## Historical cost estimate
-
-These estimates were recorded with the source build instructions; check current AWS pricing before launching a host.
-
-| Platform                                         | Hourly (on-demand, eu-central-1) | Wall time   | Cost                         |
-| ------------------------------------------------ | -------------------------------- | ----------- | ---------------------------- |
-| [`lambda-arm64`](lambda-arm64/README.md)         | c7g.8xlarge ~$1.09/h             | ~2 h 35 min | ~$2.80                       |
-| [`linux-arm64`](linux-arm64/README.md)           | c7g.8xlarge ~$1.09/h             | ~2 h 30 min | ~$2.75                       |
-| [`linux-x64`](linux-x64/README.md)               | c6i.8xlarge ~$1.36/h             | ~1 h 20 min | ~$1.85                       |
-| [`amazon-linux-x64`](amazon-linux-x64/README.md) | c6i.8xlarge ~$1.36/h             | ~1 h 20 min | ~$1.85                       |
-| [`mac-arm64`](mac-arm64/README.md)               | mac-m4.metal Dedicated Host      | ~2 h 5 min  | 24 h minimum host allocation |
-
-The Linux wall times are for a clean run of the 157 recipes (the LLVM step on
-ARM64 takes 15–30 minutes of that, depending on how fast the llvm-project
-clone is).
+The Linux setup scripts leave the build container running after a failure so you can inspect its logs and state without creating a Docker image snapshot.
 
 ## Version
 
