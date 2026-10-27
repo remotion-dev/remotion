@@ -24,7 +24,7 @@ export const PickFile: React.FC<{
 
 	return (
 		<div className="text-center items-center justify-center flex flex-col h-full w-full">
-			<div className="bg-[#F9FAFC] w-full">
+			<div className="bg-page w-full">
 				<div className="h-10" />
 				<TextMarkLogo text="Remotion Convert" />
 				<div className="h-5" />
@@ -33,7 +33,7 @@ export const PickFile: React.FC<{
 						{title}
 					</h1>
 				</div>
-				<p className="m-auto max-w-[720px] px-4 font-brand text-base text-slate-600 text-balance">
+				<p className="m-auto max-w-[720px] px-4 font-brand text-base text-muted-foreground text-balance">
 					Load MP4, WebM, MOV/ProRes, MKV, MP3, WAV, AAC, FLAC, or HLS streams,
 					then convert, trim, crop, resize, rotate, mirror, probe, or transcribe
 					locally in your browser.
@@ -47,7 +47,7 @@ export const PickFile: React.FC<{
 				<AlternativePickFileOptions onSampleFile={onSampleFile} />
 				<div className="h-10" />
 			</div>
-			<div className="w-full bg-slate-50">
+			<div className="w-full bg-page">
 				<WhyRemotionConvert routeAction={action} />
 			</div>
 		</div>

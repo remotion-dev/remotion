@@ -38,7 +38,7 @@ export const CursorControls: React.FC<{
 						value={cursorScale}
 						onChange={setCursorScale}
 					/>
-					<div className="flex flex-row text-sm text-gray-700 pt-2">
+					<div className="flex flex-row text-sm text-muted-foreground pt-2">
 						<div className="flex-1">Cursor scale</div>
 						<div className="tabular-nums">{cursorScale.toFixed(2)}×</div>
 					</div>
@@ -51,7 +51,7 @@ export const CursorControls: React.FC<{
 						value={cursorPressedScale}
 						onChange={setCursorPressedScale}
 					/>
-					<div className="flex flex-row text-sm text-gray-700 pt-2">
+					<div className="flex flex-row text-sm text-muted-foreground pt-2">
 						<div className="flex-1">Pressed cursor scale</div>
 						<div className="tabular-nums">{cursorPressedScale.toFixed(2)}×</div>
 					</div>

@@ -27,7 +27,7 @@ export const WhyRemotionConvert: React.FC<{
 						<div className="font-brand font-bold text-2xl mb-2">
 							Extremely Fast
 						</div>
-						<div className="font-brand text-black/90">
+						<div className="font-brand text-foreground/90">
 							Remotion Convert leverages WebCodecs technology, taking full
 							advantage of the hardware acceleration of your device.
 						</div>
@@ -38,7 +38,7 @@ export const WhyRemotionConvert: React.FC<{
 						<div className="font-brand font-bold text-2xl mb-2">
 							Private and offline
 						</div>
-						<div className="font-brand text-black/90">
+						<div className="font-brand text-foreground/90">
 							You don&apos;t have to upload your video for it to be processed.
 							This site works completely offline and your video does not leave
 							this device.
@@ -51,7 +51,7 @@ export const WhyRemotionConvert: React.FC<{
 						<div className="font-brand font-bold text-2xl mb-2">
 							Free and no ads
 						</div>
-						<div className="font-brand text-black/90">
+						<div className="font-brand text-foreground/90">
 							This site is free to use and has no ads.
 						</div>
 						<div className="font-brand">
@@ -74,7 +74,7 @@ export const WhyRemotionConvert: React.FC<{
 							<a
 								href="https://remotion.dev/?utm_source=convert"
 								target="_blank"
-								className="font-brand text-sm leading-6 text-slate-600 transition-colors hover:text-brand"
+								className="font-brand text-sm leading-6 text-muted-foreground transition-colors hover:text-brand"
 							>
 								<span className="font-bold text-foreground">remotion.dev</span>
 								{' - '}Make videos programmatically
@@ -89,7 +89,7 @@ export const WhyRemotionConvert: React.FC<{
 										href={tool.href}
 										aria-current={active ? 'page' : undefined}
 										className={clsx(
-											'font-brand text-sm leading-6 text-slate-600 transition-colors hover:text-brand',
+											'font-brand text-sm leading-6 text-muted-foreground transition-colors hover:text-brand',
 											active && 'text-brand',
 										)}
 									>

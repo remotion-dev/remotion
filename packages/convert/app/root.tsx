@@ -9,7 +9,7 @@ const defaultDescription = getDescription({type: 'generic-convert'});
 
 export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,9 +20,17 @@ export const Layout = ({children}: {readonly children: React.ReactNode}) => {
 					rel="manifest"
 					href={`${import.meta.env.BASE_URL}manifest.json`}
 				/>
+				<script
+					// The fixed script applies the saved theme before the first paint.
+					// eslint-disable-next-line react/no-danger
+					dangerouslySetInnerHTML={{
+						__html:
+							"(function(){var theme;try{theme=localStorage.getItem('theme')}catch(e){}var choice=theme===null||theme===undefined||theme==='system'?'system':theme==='dark'?'dark':'light';document.documentElement.dataset.themeChoice=choice;document.documentElement.dataset.theme=choice==='dark'||(choice==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'})();",
+					}}
+				/>
 				<Links />
 			</head>
-			<body className="bg-slate-50">
+			<body className="bg-page">
 				{children}
 				<ForceSpecificCursor />
 				<ScrollRestoration />
