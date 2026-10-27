@@ -11,8 +11,10 @@ const videoSources: Record<string, string> = {
 	Parameterization: 'parameterization-blue-2026-10-20-6278779b9cd1.mp4',
 	Rendering: 'render-modal-codec.mp4',
 	Effects: 'effects-2026-10-20-869defbc5f69.mp4',
+	Elements: 'elements-2026-10-27-101007603fb7.mp4',
 	Transitions: 'transitions-2026-10-20-b49c7dfb4fe1.mp4',
 	'Color Correction': 'color-correction-curves-2026-10-27-f32fcb39ad5b.mp4',
+	Keyframes: 'keyframes-2026-10-27-f0ba2e20abc2.mp4',
 	'remotion.dev/convert': 'convert-2026-10-25-553dad454550.mp4',
 };
 
@@ -20,7 +22,7 @@ export const ExploreSection: React.FC = () => {
 	return (
 		<section className="mx-auto max-w-[1000px] px-5 pt-24 pb-24 [&_h2]:mb-10">
 			<SectionTitle>Explore the world of Remotion</SectionTitle>
-			<div className="grid grid-cols-2 gap-x-3 gap-y-6 min-[700px]:grid-cols-3 min-[900px]:grid-cols-4">
+			<div className="grid grid-cols-2 gap-x-4 gap-y-10 min-[700px]:grid-cols-3 min-[700px]:gap-x-6 min-[900px]:grid-cols-4 min-[900px]:gap-y-12">
 				{[
 					{
 						title: 'Studio',

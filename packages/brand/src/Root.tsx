@@ -102,6 +102,8 @@ import {
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
 import {ExploreCurvesRecording20261027Composition} from './ExploreCurvesRecording20261027Composition';
+import {ExploreElementsRecording20261027Composition} from './ExploreElementsRecording20261027Composition';
+import {ExploreKeyframesRecording20261027Composition} from './ExploreKeyframesRecording20261027Composition';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {CursorOrbit} from './HomepageAssets/CursorOrbit';
 import {
@@ -116,6 +118,16 @@ import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Compos
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
 import {ExploreRemotionConvert} from './HomepageAssets/ExploreRemotion/Convert';
 import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
+import {
+	ElementsDropEdit,
+	ExploreRemotionElements,
+	elementsDropDuration,
+} from './HomepageAssets/ExploreRemotion/Elements';
+import {
+	ExploreRemotionKeyframes,
+	KeyframesCloseupEdit,
+	keyframesCloseupDuration,
+} from './HomepageAssets/ExploreRemotion/Keyframes';
 import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
@@ -395,6 +407,38 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionKeyframes"
+						component={ExploreRemotionKeyframes}
+						durationInFrames={keyframesCloseupDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreKeyframesCloseupEdit"
+						component={KeyframesCloseupEdit}
+						durationInFrames={keyframesCloseupDuration}
+						fps={60}
+						width={2194}
+						height={1438}
+					/>
+					<Composition
+						id="ExploreRemotionElements"
+						component={ExploreRemotionElements}
+						durationInFrames={elementsDropDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreElementsDropEdit"
+						component={ElementsDropEdit}
+						durationInFrames={elementsDropDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotionConvert"
 						component={ExploreRemotionConvert}
@@ -1419,6 +1463,23 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				fps={60}
 				width={958}
 				height={1440}
+			/>
+			<Composition
+				id="ExploreElementsRecording20261027"
+				defaultProps={{cursorFrame: null, showDragPreview: false}}
+				component={ExploreElementsRecording20261027Composition}
+				durationInFrames={562}
+				fps={60}
+				width={2402}
+				height={1600}
+			/>
+			<Composition
+				id="ExploreKeyframesRecording20261027"
+				component={ExploreKeyframesRecording20261027Composition}
+				durationInFrames={636}
+				fps={60}
+				width={2194}
+				height={1438}
 			/>
 		</>
 	);
