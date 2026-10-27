@@ -1,4 +1,5 @@
 import {Internals, type LogLevel} from 'remotion';
+import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {createLayer} from '../take-screenshot';
 import {
@@ -18,6 +19,7 @@ import {
 	getPrecomposeRectForFilter,
 } from './handle-filter';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
 import {setTransform} from './transform';
@@ -38,6 +40,7 @@ export const processNode = async ({
 	scale,
 	waitForPageResponsiveness,
 	transformStyleCache,
+	isolatedElements,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -49,11 +52,13 @@ export const processNode = async ({
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 	transformStyleCache: TransformStyleCache;
+	isolatedElements: WeakSet<Element>;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
 		rootElement,
 		transformStyleCache,
+		isolated: isolatedElements.has(element),
 	});
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
@@ -116,6 +121,18 @@ export const processNode = async ({
 				getWiderRectAndExpand({
 					firstRect: precomposeRect,
 					secondRect: tentativePrecomposeRect,
+				}),
+			);
+		}
+
+		const needsGroup =
+			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+
+		if (needsGroup) {
+			precomposeRect = roundToExpandRect(
+				getWiderRectAndExpand({
+					firstRect: precomposeRect,
+					secondRect: getBiggestBoundingClientRect(element),
 				}),
 			);
 		}
@@ -224,6 +241,16 @@ export const processNode = async ({
 			);
 		};
 
+		const previousCompositeOperation = context.globalCompositeOperation;
+		if (precompositing.needsBlendMode !== null) {
+			context.globalCompositeOperation = precompositing.needsBlendMode;
+		}
+
+		// The opacity of a group was neutralized while drawing the layer
+		const finishOpacity = needsGroup
+			? setOpacity({ctx: context, opacity})
+			: () => {};
+
 		// Apply filter when drawing the precomposed canvas if needed
 		if (precompositing.needsFilterPrecompositing) {
 			applyFilterToDrawOperation({
@@ -235,6 +262,8 @@ export const processNode = async ({
 			drawPrecomposedCanvas();
 		}
 
+		finishOpacity();
+		context.globalCompositeOperation = previousCompositeOperation;
 		context.setTransform(previousTransform);
 		if (waitForPageResponsiveness !== null) {
 			await waitForPageResponsiveness();
