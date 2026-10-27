@@ -1,0 +1,37 @@
+{
+	"sourceCommit": "6255f0237c39798faa0b803fa0bd17e842853487",
+	"defaultArtifacts": [
+		"output/chromium-headless-shell-linux64.zip",
+		"output/chromium-headless-shell-linux-arm64.zip",
+		"output/chromium-headless-shell-amazon-linux2023-x64.zip",
+		"output/chromium-headless-shell-amazon-linux2023-arm64.zip",
+		"output/chromium-headless-shell-mac-arm64.zip"
+	],
+	"artifacts": {
+		"output/chromium-headless-shell-linux64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-linux-x64-157.0.8080.0.zip",
+			"sha256": "7c4a2751b361aeb3cff3ed788fa18b7a0849371b983d478bb9205b6cc25a8c52",
+			"size": 103668996
+		},
+		"output/chromium-headless-shell-linux-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-linux-arm64-157.0.8080.0.zip",
+			"sha256": "a28653057f53d2115c42445ff907f803b2ab9fc1aad77e98f95cf5fa619b2080",
+			"size": 98184293
+		},
+		"output/chromium-headless-shell-amazon-linux2023-x64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-amazon-linux-x64-157.0.8080.0.zip",
+			"sha256": "41135a7d7645ca94747e96a1591495e3d0d2cb8fac10e0d35da3ea37ae882520",
+			"size": 105788600
+		},
+		"output/chromium-headless-shell-amazon-linux2023-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-amazon-linux-arm64-157.0.8080.0-optimize-for-size.zip",
+			"sha256": "eb5f2e34ab898c334eff08dcdd780650da85b5593872a135228758d48a481f61",
+			"size": 83681211
+		},
+		"output/chromium-headless-shell-mac-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-mac-arm64-157.0.8080.0.zip",
+			"size": 179230663,
+			"sha256": "3d9fd9a997915fa295ba6fbd66b2eaad2b9578101aa9dcde5e2eb737afa4f459"
+		}
+	}
+}

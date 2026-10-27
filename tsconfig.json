@@ -37,6 +37,9 @@
 			"path": "./packages/cloudrun"
 		},
 		{
+			"path": "./packages/chrome-compile"
+		},
+		{
 			"path": "./packages/cli"
 		},
 		{

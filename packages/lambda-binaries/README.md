@@ -26,7 +26,7 @@ The checked-in `fonts.conf` is copied into the fonts layer when it is first extr
 
 ## Maintain the hosted layers
 
-`build-chrome.sh` preserves the original manual Amazon Linux 2023 ARM64 build recipe. It is not run by any package script. Review its pinned Chromium version before using it for a new build.
+The maintained Chromium build recipes are in [`../chrome-compile`](../chrome-compile). `build-chrome.sh` preserves the original historical Amazon Linux 2023 ARM64 recipe and is not run by any package script.
 
 For a new binary release:
 

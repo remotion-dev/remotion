@@ -1,0 +1,22 @@
+{
+	"name": "@remotion/chrome-compile",
+	"version": "4.0.539",
+	"private": true,
+	"type": "module",
+	"description": "Chromium build recipes and on-demand build artifacts for Remotion.",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/chrome-compile"
+	},
+	"scripts": {
+		"download": "bun src/download.ts",
+		"make": "tsc",
+		"lint": "eslint src && tsc --noEmit",
+		"formatting": "oxfmt src package.json tsconfig.json artifacts.json eslint.config.mjs README.md */README.md --check"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@types/bun": "catalog:",
+		"eslint": "catalog:",
+		"typescript": "catalog:"
+	}
+}
