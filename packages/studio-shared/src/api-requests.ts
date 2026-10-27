@@ -221,6 +221,7 @@ type AddRenderRequestDynamicFields =
 			disallowParallelEncoding: boolean;
 			repro: boolean;
 			chromeMode: ChromeMode;
+			licenseKey: string | null;
 	  }
 	| {
 			type: 'video';
