@@ -6,7 +6,7 @@ Public build instructions and scripts imported from `remotion-dev/chrome-compile
 
 From a Remotion checkout, run `bun install`, then `cd packages/chrome-compile`. Follow the platform guide below to compile Chromium. Builds and EC2 launches are explicit manual operations; normal dependency installation and monorepo builds do not compile Chromium, launch instances, or download binary archives.
 
-The source import contains build scripts, configuration, patches, probes, and documentation. Generated ZIPs are hosted on `remotion.media` and excluded from Git. `artifacts.json` records each archive's SHA-256 and byte size, including the historical artifacts retained from the original repository. Older archives are retained for reference and may have obsolete layouts; see the [historical restructuring notes](docs/restructure-notes.md).
+The source import contains build scripts, configuration, patches, probes, and documentation. Generated ZIPs are hosted on `remotion.media` and excluded from Git. `artifacts.json` records each archive's SHA-256 and byte size, including the historical artifacts retained from the original repository. Older archives are retained for reference and may have obsolete layouts; check the [output ZIP layout requirements](#output-zip-layout-requirements) before using them.
 
 ```sh
 # Show available archive paths without downloading anything.
