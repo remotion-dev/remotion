@@ -287,6 +287,7 @@ import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
+import {MixBlendMode} from './MixBlendMode/MixBlendMode';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
@@ -845,6 +846,14 @@ export const Index: React.FC = () => {
 					height={100}
 					fps={30}
 					durationInFrames={30}
+				/>
+				<Composition
+					id="mix-blend-mode"
+					component={MixBlendMode}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={60}
 				/>
 				<Composition
 					id="simple-img"
