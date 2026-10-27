@@ -149,12 +149,58 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
+		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
+
+		// If the layer is only scaled and translated when it is drawn (e.g. an
+		// ancestor has `scale(0.9)`), rasterize it at that scale and align it to
+		// the device pixel grid. Otherwise text would be rasterized at 1x and
+		// resampled, shifting baselines and blurring edges.
+		let layerRect = precomposeRect;
+		let layerScale = scale;
+		let layerPixelWidth: number | null = null;
+		let layerPixelHeight: number | null = null;
+		if (
+			!is3DPrecomposition &&
+			totalMatrix.b === 0 &&
+			totalMatrix.c === 0 &&
+			totalMatrix.a > 0 &&
+			totalMatrix.a === totalMatrix.d
+		) {
+			layerScale = scale * totalMatrix.a;
+			const deviceLeft = Math.floor(
+				scale *
+					(totalMatrix.a * precomposeRect.left + totalMatrix.e - parentRect.x),
+			);
+			const deviceTop = Math.floor(
+				scale *
+					(totalMatrix.d * precomposeRect.top + totalMatrix.f - parentRect.y),
+			);
+			const deviceRight = Math.ceil(
+				scale *
+					(totalMatrix.a * precomposeRect.right + totalMatrix.e - parentRect.x),
+			);
+			const deviceBottom = Math.ceil(
+				scale *
+					(totalMatrix.d * precomposeRect.bottom +
+						totalMatrix.f -
+						parentRect.y),
+			);
+			layerPixelWidth = deviceRight - deviceLeft;
+			layerPixelHeight = deviceBottom - deviceTop;
+			layerRect = new DOMRect(
+				(deviceLeft / scale - totalMatrix.e + parentRect.x) / totalMatrix.a,
+				(deviceTop / scale - totalMatrix.f + parentRect.y) / totalMatrix.d,
+				layerPixelWidth / layerScale,
+				layerPixelHeight / layerScale,
+			);
+		}
+
 		const tempContext = await createLayer({
-			cutout: precomposeRect,
+			cutout: layerRect,
 			element,
 			logLevel,
 			internalState,
-			scale,
+			scale: layerScale,
 			onlyBackgroundClipText: false,
 			waitForPageResponsiveness,
 		});
@@ -178,9 +224,9 @@ export const processNode = async ({
 			await handleMask({
 				maskImageInfo: precompositing.needsMaskImage,
 				maskRect: dimensions,
-				precomposeRect,
+				precomposeRect: layerRect,
 				tempContext,
-				scale,
+				scale: layerScale,
 				internalState,
 			});
 			if (waitForPageResponsiveness !== null) {
@@ -207,7 +253,6 @@ export const processNode = async ({
 		}
 
 		const previousTransform = context.getTransform();
-		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
 
 		if (is3DPrecomposition) {
 			context.setTransform(new DOMMatrix());
@@ -224,7 +269,7 @@ export const processNode = async ({
 
 		const destinationRect = is3DPrecomposition
 			? rectAfterTransforms
-			: precomposeRect;
+			: layerRect;
 		const parentOffsetScale = is3DPrecomposition ? scale : 1;
 
 		const drawPrecomposedCanvas = () => {
@@ -232,8 +277,8 @@ export const processNode = async ({
 				drawable,
 				0,
 				0,
-				drawable.width,
-				drawable.height,
+				layerPixelWidth ?? drawable.width,
+				layerPixelHeight ?? drawable.height,
 				destinationRect.left - parentRect.x * parentOffsetScale,
 				destinationRect.top - parentRect.y * parentOffsetScale,
 				destinationRect.width,
