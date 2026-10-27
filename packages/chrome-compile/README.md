@@ -524,3 +524,9 @@ clone is).
 - **LLVM**: `llvmorg-24-init-7747-g62397f8b`
 - **Linux build date**: October 2026
 - **macOS ARM64 build date**: October 2026
+
+## License
+
+The [Remotion License](../../LICENSE.md) applies.
+
+Competing frameworks may not use our compiled binaries.
