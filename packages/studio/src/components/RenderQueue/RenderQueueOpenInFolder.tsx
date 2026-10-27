@@ -17,6 +17,10 @@ export const openRenderOutputInFileExplorer = (job: AnyRenderJob) => {
 			return;
 		}
 
+		showNotification(
+			'Could not open folder on the Studio server, downloading the file instead.',
+			3000,
+		);
 		const a = document.createElement('a');
 		a.href = `${remotion_outputsBase}/${job.outName}`;
 		a.download = job.outName.split(/[/\\]/).at(-1) ?? job.outName;
