@@ -17,7 +17,8 @@ const videoSources: Record<string, string> = {
 	'Color Correction': 'color-correction-curves-2026-10-27-6649bbff497b.mp4',
 	Keyframes: 'keyframes-2026-10-27-f0ba2e20abc2.mp4',
 	'Background removal': 'background-removal-2026-10-27-494c994e8799.mp4',
-	'Editor Starter': 'editor-starter-2026-10-27-b9836160bed2.mp4',
+	Player: 'player-zoom-radial-blur-2026-10-27-83c6f9216476.mp4',
+	'Editor Starter': 'editor-starter-no-vignette-2026-10-27-ec6b5ef939c3.mp4',
 	'Canvas Capture': 'canvas-capture-2026-10-27-253104dab7ca.mp4',
 	'remotion.dev/convert': 'convert-2026-10-25-553dad454550.mp4',
 };
@@ -107,7 +108,7 @@ export const ExploreSection: React.FC = () => {
 					{
 						title: 'Canvas Capture',
 						href: '/docs/canvas-capture',
-						description: 'Record webpages in high resolution',
+						description: 'A screen recorder for micro-interactions',
 					},
 					{
 						title: 'remotion.dev/convert',
@@ -169,12 +170,14 @@ export const ExploreSection: React.FC = () => {
 						</div>
 						<div className="flex flex-col gap-2">
 							<h3
-								className={`m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-[22px] ${title === 'SDK' || title === 'Editor Starter' ? 'flex items-center gap-2' : ''}`}
+								className={`m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-[22px] ${title === 'SDK' || title === 'Editor Starter' || title === 'Canvas Capture' ? 'flex items-center gap-2' : ''}`}
 							>
 								{title}
-								{title === 'SDK' || title === 'Editor Starter' ? (
+								{title === 'SDK' ||
+								title === 'Editor Starter' ||
+								title === 'Canvas Capture' ? (
 									<span className="shrink-0 rounded border border-solid border-current px-1.5 py-0.5 text-xs leading-none font-normal text-muted">
-										{title === 'SDK' ? 'Soon' : 'Paid'}
+										{title === 'Editor Starter' ? 'Paid' : 'Soon'}
 									</span>
 								) : null}
 							</h3>

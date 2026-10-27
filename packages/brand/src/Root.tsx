@@ -1,3 +1,10 @@
+import {ExplorePlayerRecording20261027Composition} from './ExplorePlayerRecording20261027Composition';
+import {
+	ExploreRemotionPlayer,
+	PlayerRecordingEdit,
+	playerRecordingDuration,
+	PlayerSquareEdit,
+} from './HomepageAssets/ExploreRemotion/Player';
 import {ExploreEditorStarterRecording20261027Composition} from './ExploreEditorStarterRecording20261027Composition';
 import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
 import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
@@ -430,6 +437,30 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionPlayer"
+						component={ExploreRemotionPlayer}
+						durationInFrames={playerRecordingDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExplorePlayerRecordingEdit"
+						component={PlayerRecordingEdit}
+						durationInFrames={playerRecordingDuration}
+						fps={60}
+						width={1260}
+						height={1682}
+					/>
+					<Composition
+						id="ExplorePlayerSquareEdit"
+						component={PlayerSquareEdit}
+						durationInFrames={playerRecordingDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
 					<Composition
 						id="ExploreRemotionCanvasCapture"
 						component={ExploreRemotionCanvasCapture}
@@ -1591,6 +1622,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				fps={60}
 				width={1308}
 				height={896}
+			/>
+			<Composition
+				id="ExplorePlayerRecording20261027"
+				component={ExplorePlayerRecording20261027Composition}
+				durationInFrames={410}
+				fps={60}
+				width={1260}
+				height={1682}
 			/>
 		</>
 	);

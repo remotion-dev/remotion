@@ -1,4 +1,3 @@
-import {vignette} from '@remotion/effects/vignette';
 import {Video} from '@remotion/media';
 import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
 import {ExploreEditorStarterRecording20261027Composition} from '../../ExploreEditorStarterRecording20261027Composition';
@@ -39,14 +38,6 @@ export const ExploreRemotionEditorStarter = () => {
 			width={1080}
 			height={1080}
 			durationInFrames={editorStarterDuration}
-			effects={[
-				vignette({
-					amount: 0.24,
-					center: [0.5, 0.48],
-					radius: 0.68,
-					feather: 0.6,
-				}),
-			]}
 		>
 			<div
 				style={{
