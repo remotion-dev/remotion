@@ -85,6 +85,9 @@
 			"path": "./packages/lambda"
 		},
 		{
+			"path": "./packages/lambda-binaries"
+		},
+		{
 			"path": "./packages/lottie"
 		},
 		{

@@ -1,56 +1,70 @@
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
-import {AbsoluteFill, HtmlInCanvas, Sequence, Solid} from 'remotion';
-import {ColorCorrectionRecordingComposition} from '../../ColorCorrectionRecordingComposition';
+import {vignette} from '@remotion/effects/vignette';
+import {HtmlInCanvas, Sequence, Solid, useCurrentFrame} from 'remotion';
+import {
+	ExploreCurvesRecording20261027Composition,
+	getCurvesRecordingCursorTranslate,
+} from '../../ExploreCurvesRecording20261027Composition';
 
 export const ExploreRemotionColorCorrection = () => {
+	const frame = useCurrentFrame();
+	const [cursorX, cursorY] = getCurvesRecordingCursorTranslate(frame + 151)
+		.split(' ')
+		.map(Number.parseFloat);
+
 	return (
 		<>
 			<Solid
 				name="Matching background"
 				width={1080}
 				height={1080}
-				color="#1e2226"
+				color="#1c1e23"
 				style={{position: 'absolute'}}
 			/>
-			<HtmlInCanvas
-				width={1080}
-				height={1080}
-				from={0}
-				durationInFrames={180}
-				trimBefore={0}
-				effects={[
-					radialProgressiveBlur({
-						start: 0.509,
-						center: [0.227, 0.309],
-						height: 1.475,
-						width: 1.634,
-						endBlur: 12,
-					}),
-				]}
+			<div
 				style={{
-					scale: 1.208,
-					translate: '178px 140px',
+					position: 'absolute',
+					width: 884,
+					height: 884,
+					left: 98,
+					top: 98,
+					overflow: 'hidden',
+					scale: 1.3,
+					rotate: '0.15 1 -0.15 18deg',
 				}}
 			>
-				<AbsoluteFill
-					name="Color correction drag"
-					durationInFrames={180}
-					style={{
-						width: 1620,
-						height: 1440,
-						left: 20,
-						top: 20,
-						scale: 0.817,
-						rotate: '0 1 -0.1 20deg',
-						transformOrigin: 'top left',
-						translate: '-17px 50.3px',
-					}}
+				<HtmlInCanvas
+					name="Curves graph"
+					width={958}
+					height={1440}
+					from={0}
+					durationInFrames={196}
+					trimBefore={0}
+					effects={[
+						radialProgressiveBlur({
+							center: [
+								Math.min(0.83, Math.max(0.18, cursorX / 958)),
+								Math.min(0.68, Math.max(0.25, cursorY / 1440)),
+							],
+							start: 0.3,
+							width: 1.65,
+							height: 1.1,
+							endBlur: 4,
+						}),
+						vignette({
+							amount: 0.14,
+							center: [0.5, 0.457],
+							radius: 0.7,
+							feather: 0.6,
+						}),
+					]}
+					style={{position: 'absolute', left: -43, top: -218}}
 				>
-					<Sequence from={-186} layout="none" name="Shadows number drag">
-						<ColorCorrectionRecordingComposition />
+					<Sequence from={-151} layout="none" name="Curve control point drag">
+						<ExploreCurvesRecording20261027Composition />
 					</Sequence>
-				</AbsoluteFill>
-			</HtmlInCanvas>
+				</HtmlInCanvas>
+			</div>
 		</>
 	);
 };

@@ -12,7 +12,7 @@ const videoSources: Record<string, string> = {
 	Rendering: 'render-modal-codec.mp4',
 	Effects: 'effects-2026-10-20-869defbc5f69.mp4',
 	Transitions: 'transitions-2026-10-20-b49c7dfb4fe1.mp4',
-	'Color Correction': 'color-correction-2026-10-20-b0f28e423a58.mp4',
+	'Color Correction': 'color-correction-curves-2026-10-27-f32fcb39ad5b.mp4',
 	'remotion.dev/convert': 'convert-2026-10-25-553dad454550.mp4',
 };
 
