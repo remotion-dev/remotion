@@ -3,6 +3,24 @@ import {releaseStableFrame} from '../canvas-ahead-of-time';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
+// A frame starts "at or before" a timestamp if it starts no later than 1ms
+// after it, the same tolerance the render path uses (keyframe-bank.ts): WebM
+// quantizes timestamps to whole milliseconds, so frame 7 of a 29.97fps file is
+// stored at 0.234s while the timeline asks for 7/30 = 0.2333s. A frame covers
+// a timestamp if it starts at or before it and the next frame does not.
+// Without the tolerance the preview showed the previous frame and lagged one
+// frame behind the render.
+// The small slack absorbs floating point error on the rounded inputs
+// (0.234 - 0.233 is slightly more than 0.001 in IEEE doubles).
+const FRAME_TIMESTAMP_TOLERANCE = 0.001 + 1e-6;
+
+const frameStartsAtOrBefore = (
+	frameTimestamp: number,
+	timestamp: number,
+): boolean => {
+	return frameTimestamp - timestamp <= FRAME_TIMESTAMP_TOLERANCE;
+};
+
 export const createVideoIterator = async (
 	timeToSeek: number,
 	cache: PrewarmedVideoIteratorCache,
@@ -229,8 +247,8 @@ export const createVideoIterator = async (
 			}
 
 			if (
-				frameTimestamp <= timestamp &&
-				frameEndTimestamp.timestamp > timestamp
+				frameStartsAtOrBefore(frameTimestamp, timestamp) &&
+				!frameStartsAtOrBefore(frameEndTimestamp.timestamp, timestamp)
 			) {
 				return {
 					type: 'satisfied' as const,
@@ -320,8 +338,8 @@ export const createVideoIterator = async (
 				}
 
 				if (
-					frameTimestamp <= timestamp &&
-					frameEndTimestamp.timestamp > timestamp
+					frameStartsAtOrBefore(frameTimestamp, timestamp) &&
+					!frameStartsAtOrBefore(frameEndTimestamp.timestamp, timestamp)
 				) {
 					return {
 						type: 'satisfied' as const,

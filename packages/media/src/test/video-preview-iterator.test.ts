@@ -263,3 +263,46 @@ test('preview iterator stops decoding when a seek is superseded', async () => {
 		iterator.destroy();
 	}
 });
+
+test('preview iterator accepts a frame whose millisecond-quantized timestamp is within 1ms after the requested time', async () => {
+	// WebM stores timestamps in whole milliseconds. Frame 7 of a 29.97fps file
+	// (7 * 1001 / 30000 = 0.233567s) is stored at 0.234s, while the timeline
+	// asks for 7 / 30 = 0.2333s. The render path tolerates this (see
+	// keyframe-bank.ts), so the preview has to as well, otherwise it lags one
+	// frame behind the render. https://github.com/remotion-dev/remotion/issues/12603
+	const frames = [
+		makeFrame({timestamp: 0.2, duration: 0.034}),
+		makeFrame({timestamp: 0.234, duration: 0.033}),
+		makeFrame({timestamp: 0.267, duration: 0.033}),
+	];
+	const iterator = await createVideoIterator(0, {
+		destroy: () => undefined,
+		makeIteratorOrUsePrewarmed: () => {
+			let index = 0;
+			return {
+				closeIterator: () => Promise.resolve(),
+				next: () => {
+					const frame = frames[index++] ?? null;
+					return {
+						type: 'ready' as const,
+						frame,
+					};
+				},
+			};
+		},
+		prewarmIteratorForLooping: () => undefined,
+	});
+	try {
+		const result = await iterator.tryToSatisfySeek(7 / 30, {
+			onWait: () => undefined,
+			pendingFrameBehavior: 'wait',
+			shouldContinue: () => true,
+		});
+		if (result.type !== 'satisfied') {
+			throw new Error(`Expected seek to be satisfied, got ${result.reason}`);
+		}
+		expect(result.frame.timestamp).toBe(0.234);
+	} finally {
+		iterator.destroy();
+	}
+});
