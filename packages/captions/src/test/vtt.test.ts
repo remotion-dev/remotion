@@ -269,11 +269,11 @@ test('Should leave unknown or invalid character references untouched', () => {
 	const input = `WEBVTT
 
 00:00:01.000 --> 00:00:02.000
-&copy; &amp &#xZZ; &#99999999; & ;
+&copy; &amp &#xZZ; &#99999999; &#0; &#xD800; & ;
 `;
 
 	expect(parseVtt({input}).captions[0].text).toBe(
-		'&copy; &amp &#xZZ; &#99999999; & ;',
+		'&copy; &amp &#xZZ; &#99999999; &#0; &#xD800; & ;',
 	);
 });
 

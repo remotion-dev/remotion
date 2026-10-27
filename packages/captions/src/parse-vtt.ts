@@ -120,9 +120,11 @@ export const parseVtt = ({input}: ParseVttInput): ParseVttOutput => {
 						const codePoint = decimal
 							? parseInt(decimal, 10)
 							: parseInt(hex, 16);
-						return codePoint <= 0x10ffff
-							? String.fromCodePoint(codePoint)
-							: match;
+						const invalid =
+							codePoint === 0 ||
+							codePoint > 0x10ffff ||
+							(codePoint >= 0xd800 && codePoint <= 0xdfff);
+						return invalid ? match : String.fromCodePoint(codePoint);
 					},
 				)
 				.trim(),
