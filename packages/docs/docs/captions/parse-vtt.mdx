@@ -63,6 +63,9 @@ An array of [`Caption`](/docs/captions/caption) items.
 - Cue settings after the timestamps (such as `align:start position:10%`) are ignored.
 - `NOTE`, `STYLE` and `REGION` blocks are skipped.
 - Multi-line cue text is joined with `\n`.
+- A cue ends at the first empty line. Lines containing only whitespace (as in YouTube auto-generated captions) are part of the cue, and leading and trailing whitespace is trimmed from the cue text.
+- Cue markup tags such as `<i>`, `<b>`, `<c.class>`, `<v Speaker>` and inline timestamps like `<00:00:01.000>` (as in YouTube auto-generated captions) are removed, leaving only the text.
+- The character references `&amp;`, `&lt;`, `&gt;`, `&quot;`, `&apos;`, `&nbsp;`, `&lrm;` and `&rlm;` as well as decimal and hexadecimal numeric references like `&#169;` and `&#xA9;` are decoded after tags are removed, so `&lt;i&gt;` becomes a literal `<i>`. Other or invalid references are left unchanged.
 
 ## Compatibility
 

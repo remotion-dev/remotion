@@ -199,7 +199,7 @@ export const articles = [
 	},
 	{
 		id: 'ai/mcp',
-		title: "Remotion's Model Context Protocol (deprecated)",
+		title: "Remotion's Model Context Protocol (shut down)",
 		relativePath: 'docs/ai/mcp.mdx',
 		compId: 'articles-docs-ai-mcp',
 		crumb: 'AI',

@@ -13,6 +13,19 @@ import {
 	Applications,
 } from './Applications';
 import {AudioWaveform} from './AudioWaveform';
+import {
+	AuraCode,
+	AuraCodeChapters,
+	AuraCodeDuplicate,
+	AuraCodeStyles,
+	AuraCodeCaptions,
+} from './AuraCode';
+import {AuraCodeAndTimeline} from './AuraCodeAndTimeline';
+import {
+	AuraTimelineCaptions,
+	AuraTimelineCard,
+	AuraTimelineChapters,
+} from './AuraTimelineSource';
 import {BasicsShowcaseCompositions} from './BasicsShowcase';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
@@ -37,6 +50,7 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {ComposeLayers, composeLayersSchema} from './ComposeLayers';
 import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
 import {CurvesStudioRecordingComposition} from './CurvesStudioRecordingComposition';
@@ -87,6 +101,9 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
+import {ExploreCurvesRecording20261027Composition} from './ExploreCurvesRecording20261027Composition';
+import {ExploreElementsRecording20261027Composition} from './ExploreElementsRecording20261027Composition';
+import {ExploreKeyframesRecording20261027Composition} from './ExploreKeyframesRecording20261027Composition';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {CursorOrbit} from './HomepageAssets/CursorOrbit';
 import {
@@ -101,6 +118,16 @@ import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Compos
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
 import {ExploreRemotionConvert} from './HomepageAssets/ExploreRemotion/Convert';
 import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
+import {
+	ElementsDropEdit,
+	ExploreRemotionElements,
+	elementsDropDuration,
+} from './HomepageAssets/ExploreRemotion/Elements';
+import {
+	ExploreRemotionKeyframes,
+	KeyframesCloseupEdit,
+	keyframesCloseupDuration,
+} from './HomepageAssets/ExploreRemotion/Keyframes';
 import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
@@ -200,6 +227,82 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="Aura">
+				<Composition
+					id="AuraCodeAndTimeline"
+					component={AuraCodeAndTimeline}
+					width={3840}
+					height={1080}
+					fps={60}
+					durationInFrames={444}
+				/>
+				<Composition
+					id="AuraCode"
+					component={AuraCode}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={444}
+				/>
+				<Composition
+					id="AuraCode-Chapters"
+					component={AuraCodeChapters}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="AuraCode-Styles"
+					component={AuraCodeStyles}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="AuraCode-Duplicate"
+					component={AuraCodeDuplicate}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={84}
+				/>
+				<Composition
+					id="AuraCode-Captions"
+					component={AuraCodeCaptions}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Folder name="Timeline-capture-sources">
+					<Composition
+						id="AuraTimeline-Chapters"
+						component={AuraTimelineChapters}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={660}
+					/>
+					<Composition
+						id="AuraTimeline-Card"
+						component={AuraTimelineCard}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={150}
+					/>
+					<Composition
+						id="AuraTimeline-Captions"
+						component={AuraTimelineCaptions}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={150}
+					/>
+				</Folder>
+			</Folder>
 			<Composition
 				id="ColorCorrectionDemo"
 				component={ColorCorrectionDemo}
@@ -305,6 +408,38 @@ export const RemotionRoot: React.FC = () => {
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
 					<Composition
+						id="ExploreRemotionKeyframes"
+						component={ExploreRemotionKeyframes}
+						durationInFrames={keyframesCloseupDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreKeyframesCloseupEdit"
+						component={KeyframesCloseupEdit}
+						durationInFrames={keyframesCloseupDuration}
+						fps={60}
+						width={2194}
+						height={1438}
+					/>
+					<Composition
+						id="ExploreRemotionElements"
+						component={ExploreRemotionElements}
+						durationInFrames={elementsDropDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreElementsDropEdit"
+						component={ElementsDropEdit}
+						durationInFrames={elementsDropDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
 						id="ExploreRemotionConvert"
 						component={ExploreRemotionConvert}
 						durationInFrames={366}
@@ -315,7 +450,7 @@ export const RemotionRoot: React.FC = () => {
 					<Composition
 						id="ExploreRemotionColorCorrection"
 						component={ExploreRemotionColorCorrection}
-						durationInFrames={180}
+						durationInFrames={196}
 						fps={60}
 						width={1080}
 						height={1080}
@@ -505,6 +640,16 @@ export const RemotionRoot: React.FC = () => {
 					fps={30}
 					width={1080}
 					height={1080}
+				/>
+				<Composition
+					id="ComposeLayers"
+					component={ComposeLayers}
+					schema={composeLayersSchema}
+					defaultProps={{dark: false}}
+					durationInFrames={240}
+					fps={30}
+					width={1440}
+					height={600}
 				/>
 				<Composition
 					id="DesignSystemsResponsive"
@@ -1310,6 +1455,31 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				fps={60}
 				width={2560}
 				height={1428}
+			/>
+			<Composition
+				id="ExploreCurvesRecording20261027"
+				component={ExploreCurvesRecording20261027Composition}
+				durationInFrames={492}
+				fps={60}
+				width={958}
+				height={1440}
+			/>
+			<Composition
+				id="ExploreElementsRecording20261027"
+				defaultProps={{cursorFrame: null, showDragPreview: false}}
+				component={ExploreElementsRecording20261027Composition}
+				durationInFrames={562}
+				fps={60}
+				width={2402}
+				height={1600}
+			/>
+			<Composition
+				id="ExploreKeyframesRecording20261027"
+				component={ExploreKeyframesRecording20261027Composition}
+				durationInFrames={636}
+				fps={60}
+				width={2194}
+				height={1438}
 			/>
 		</>
 	);

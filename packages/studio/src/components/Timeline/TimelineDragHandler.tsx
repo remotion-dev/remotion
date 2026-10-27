@@ -12,7 +12,6 @@ import {
 	getTimelineWidth,
 	getTimelineZoom,
 } from '../../helpers/get-timeline-max-zoom';
-import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
@@ -121,9 +120,7 @@ export const TimelineDragHandler: React.FC = () => {
 			style={containerStyle}
 			{...{[TIMELINE_SCRUBBER_ATTR]: true}}
 		>
-			{video && isStudioSelectionEnabled() ? (
-				<TimelineDragHandlerInnerMemo />
-			) : null}
+			{video ? <TimelineDragHandlerInnerMemo /> : null}
 		</div>
 	);
 };

@@ -20,7 +20,7 @@
     "react-dom": "19.2.3",
     "remotion": "workspace:*",
     "three": "0.178.0",
-    "zod": "4.5.4",
+    "zod": "4.6.7",
     "mediabunny": "1.62.0"
   },
   "devDependencies": {

@@ -12,6 +12,8 @@ Encoding these images is pure overhead, since FFmpeg later decodes them back int
 
 From v4.0.534, Remotion uses a special build of Chromium 157.0.8080.0 to optimize rendering in some cases. Instead of compressing each image, the bitmap is shared directly with Remotion's FFmpeg binary, which encodes it into a video.
 
+You can inspect the [shared-memory capture patch](https://github.com/remotion-dev/remotion/blob/main/packages/chrome-compile/mac-arm64/remotion-shared-memory-v3.patch) or follow the [Chromium build instructions](https://github.com/remotion-dev/remotion/tree/main/packages/chrome-compile) to build your own browser.
+
 ## When it is used
 
 Shared-memory capture is enabled automatically when all of these conditions are met:
