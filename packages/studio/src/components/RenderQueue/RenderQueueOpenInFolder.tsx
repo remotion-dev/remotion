@@ -11,9 +11,9 @@ import {openInFileExplorer} from './actions';
 import type {AnyRenderJob} from './context';
 
 export const openRenderOutputInFileExplorer = (job: AnyRenderJob) => {
-	return openInFileExplorer({directory: job.outName}).catch((err) => {
+	return openInFileExplorer({directory: job.outName}).catch(() => {
 		if (job.type === 'sequence') {
-			showNotification(`Could not open folder: ${err.message}`, 2000);
+			showNotification('Could not open folder on the Studio server.', 3000);
 			return;
 		}
 
