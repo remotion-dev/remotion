@@ -301,7 +301,53 @@ test('preview iterator accepts a frame whose millisecond-quantized timestamp is 
 		if (result.type !== 'satisfied') {
 			throw new Error(`Expected seek to be satisfied, got ${result.reason}`);
 		}
+
 		expect(result.frame.timestamp).toBe(0.234);
+	} finally {
+		iterator.destroy();
+	}
+});
+
+test('preview iterator advances the initial frame to one that starts within 1ms after the requested time', async () => {
+	// Same WebM as above, but this is the mount path: the decoder returns the
+	// 0.2s frame as active at 0.2333s and the preview used to draw it as-is,
+	// while the render path picks the 0.234s frame.
+	const frames = [
+		makeFrame({timestamp: 0.2, duration: 0.034}),
+		makeFrame({timestamp: 0.234, duration: 0.033}),
+		makeFrame({timestamp: 0.267, duration: 0.033}),
+	];
+	const iterator = await createVideoIterator(7 / 30, {
+		destroy: () => undefined,
+		makeIteratorOrUsePrewarmed: () => {
+			let index = 0;
+			return {
+				closeIterator: () => Promise.resolve(),
+				next: () => {
+					const frame = frames[index++] ?? null;
+					return {
+						type: 'ready' as const,
+						frame,
+					};
+				},
+			};
+		},
+		prewarmIteratorForLooping: () => undefined,
+	});
+	try {
+		expect(iterator.initialFrame?.timestamp).toBe(0.234);
+
+		// The frame after the adopted one must still be served next
+		const result = await iterator.tryToSatisfySeek(8 / 30, {
+			onWait: () => undefined,
+			pendingFrameBehavior: 'wait',
+			shouldContinue: () => true,
+		});
+		if (result.type !== 'satisfied') {
+			throw new Error(`Expected seek to be satisfied, got ${result.reason}`);
+		}
+
+		expect(result.frame.timestamp).toBe(0.267);
 	} finally {
 		iterator.destroy();
 	}

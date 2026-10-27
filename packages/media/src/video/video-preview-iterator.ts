@@ -29,14 +29,36 @@ export const createVideoIterator = async (
 	const iterator = cache.makeIteratorOrUsePrewarmed(timeToSeek);
 	let iteratorEnded = false;
 
+	let peekedFrame: WrappedCanvas | null = null;
+
 	const firstAwait = iterator.next();
-	const initialFrame =
+	let initialFrame =
 		firstAwait && firstAwait.type === 'ready'
 			? firstAwait.frame
 			: await firstAwait.wait();
-	let lastReturnedFrame = initialFrame;
 
-	let peekedFrame: WrappedCanvas | null = null;
+	// The decoder yields the frame that is active at `timeToSeek`, but if the
+	// next frame starts within the render path's 1ms tolerance, the render
+	// would use that one instead. Advance to it so the mounted frame matches.
+	// https://github.com/remotion-dev/remotion/issues/12603
+	while (initialFrame) {
+		const next = iterator.next();
+		const nextFrame = next.type === 'ready' ? next.frame : await next.wait();
+		if (!nextFrame) {
+			iteratorEnded = true;
+			break;
+		}
+
+		if (!frameStartsAtOrBefore(nextFrame.timestamp, timeToSeek)) {
+			peekedFrame = nextFrame;
+			break;
+		}
+
+		releaseStableFrame(initialFrame);
+		initialFrame = nextFrame;
+	}
+
+	let lastReturnedFrame = initialFrame;
 
 	const setLastReturnedFrame = (frame: WrappedCanvas) => {
 		if (destroyed) {
