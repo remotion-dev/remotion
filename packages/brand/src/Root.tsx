@@ -1,3 +1,5 @@
+import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
+import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
 import {AiPromptRecordingComposition} from './AiPromptRecordingComposition';
@@ -43,6 +45,7 @@ import {CloseUp7} from './CloseUp7';
 import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
 import {ColorCorrectionDemo} from './ColorCorrectionDemo';
+import {BackgroundRemovalDemo} from './BackgroundRemovalDemo';
 import {ColorCorrectionRecordingComposition} from './ColorCorrectionRecordingComposition';
 import {ColorCorrectionStudioRecordingComposition} from './ColorCorrectionStudioRecordingComposition';
 import {
@@ -112,6 +115,11 @@ import {
 } from './HomepageAssets/ExpertsGraphic';
 import {ExploreRemotionAI} from './HomepageAssets/ExploreRemotion/AI';
 import {ExploreRemotionAudioWaveform} from './HomepageAssets/ExploreRemotion/AudioWaveform';
+import {
+	BackgroundRemovalRecordingEdit,
+	ExploreRemotionBackgroundRemoval,
+	backgroundRemovalDuration,
+} from './HomepageAssets/ExploreRemotion/BackgroundRemoval';
 import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
@@ -131,6 +139,11 @@ import {
 import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
+import {
+	ExploreRemotionStudio,
+	StudioRecordingEdit,
+	studioRecordingDuration,
+} from './HomepageAssets/ExploreRemotion/Studio';
 import {ExploreRemotionTransitions} from './HomepageAssets/ExploreRemotion/Transitions';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
@@ -407,6 +420,38 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionBackgroundRemoval"
+						component={ExploreRemotionBackgroundRemoval}
+						durationInFrames={backgroundRemovalDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreBackgroundRemovalRecordingEdit"
+						component={BackgroundRemovalRecordingEdit}
+						durationInFrames={backgroundRemovalDuration}
+						fps={60}
+						width={1704}
+						height={1440}
+					/>
+					<Composition
+						id="ExploreRemotionStudio"
+						component={ExploreRemotionStudio}
+						durationInFrames={studioRecordingDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreStudioRecordingEdit"
+						component={StudioRecordingEdit}
+						durationInFrames={studioRecordingDuration}
+						fps={60}
+						width={2330}
+						height={1440}
+					/>
 					<Composition
 						id="ExploreRemotionKeyframes"
 						component={ExploreRemotionKeyframes}
@@ -1480,6 +1525,30 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				fps={60}
 				width={2194}
 				height={1438}
+			/>
+			<Composition
+				id="BackgroundRemovalDemo"
+				component={BackgroundRemovalDemo}
+				width={1600}
+				height={1600}
+				fps={30}
+				durationInFrames={120}
+			/>
+			<Composition
+				id="ExploreStudioRecording20261027"
+				component={ExploreStudioRecording20261027Composition}
+				durationInFrames={417}
+				fps={60}
+				width={2330}
+				height={1440}
+			/>
+			<Composition
+				id="ExploreBackgroundRemovalRecording20261027"
+				component={ExploreBackgroundRemovalRecording20261027Composition}
+				durationInFrames={421}
+				fps={60}
+				width={1704}
+				height={1440}
 			/>
 		</>
 	);

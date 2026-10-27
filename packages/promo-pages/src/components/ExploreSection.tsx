@@ -4,6 +4,7 @@ import React from 'react';
 import {SectionTitle} from './homepage/VideoAppsTitle';
 
 const videoSources: Record<string, string> = {
+	Studio: 'studio-2026-10-27-b4f367a1daca.mp4',
 	Video: 'video-playback-2026-09-22.mp4',
 	Audio: 'audio-waveform.mp4',
 	Captions: 'captions-2026-10-25-6b3e5502cee9.mp4',
@@ -15,6 +16,7 @@ const videoSources: Record<string, string> = {
 	Transitions: 'transitions-2026-10-20-b49c7dfb4fe1.mp4',
 	'Color Correction': 'color-correction-curves-2026-10-27-f32fcb39ad5b.mp4',
 	Keyframes: 'keyframes-2026-10-27-f0ba2e20abc2.mp4',
+	'Background removal': 'background-removal-2026-10-27-494c994e8799.mp4',
 	'remotion.dev/convert': 'convert-2026-10-25-553dad454550.mp4',
 };
 
