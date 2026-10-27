@@ -260,6 +260,16 @@
         "typescript": "catalog:",
       },
     },
+    "packages/chrome-compile": {
+      "name": "@remotion/chrome-compile",
+      "version": "4.0.539",
+      "devDependencies": {
+        "@remotion/eslint-config-internal": "workspace:*",
+        "@types/bun": "catalog:",
+        "eslint": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "packages/claude-code-plugin": {
       "name": "@remotion/claude-code-plugin",
       "version": "4.0.539",
@@ -4578,6 +4588,8 @@
     "@remotion/canvas-capture-extension": ["@remotion/canvas-capture-extension@workspace:packages/canvas-capture-extension"],
 
     "@remotion/captions": ["@remotion/captions@workspace:packages/captions"],
+
+    "@remotion/chrome-compile": ["@remotion/chrome-compile@workspace:packages/chrome-compile"],
 
     "@remotion/claude-code-plugin": ["@remotion/claude-code-plugin@workspace:packages/claude-code-plugin"],
 

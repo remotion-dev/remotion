@@ -1,0 +1,97 @@
+{
+	"sourceCommit": "6255f0237c39798faa0b803fa0bd17e842853487",
+	"defaultArtifacts": [
+		"output/chromium-headless-shell-linux64.zip",
+		"output/chromium-headless-shell-linux-arm64.zip",
+		"output/chromium-headless-shell-amazon-linux2023-x64.zip",
+		"output/chromium-headless-shell-amazon-linux2023-arm64.zip",
+		"output/chromium-headless-shell-mac-arm64.zip"
+	],
+	"artifacts": {
+		"amazon-linux-x64/output/chromium-headless-shell-amazon-linux2023-x64.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/e752ceee45a183b3500744ee34b4ae2a03335c41d5ce27c349e943e68ab9b1ed.zip",
+			"sha256": "e752ceee45a183b3500744ee34b4ae2a03335c41d5ce27c349e943e68ab9b1ed",
+			"size": 98356499
+		},
+		"lambda-arm64/output/chromium.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/91f04c7e4d4f4eb9d5f768b32f8a472e42a88d563d0ca9ed1fdc1c3fe4f56342.zip",
+			"sha256": "91f04c7e4d4f4eb9d5f768b32f8a472e42a88d563d0ca9ed1fdc1c3fe4f56342",
+			"size": 93777163
+		},
+		"output/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0-nopdf.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/0cb929794a061848e0ec00d603291a4c71878847509001abb891fe8ac12bfcfc.zip",
+			"sha256": "0cb929794a061848e0ec00d603291a4c71878847509001abb891fe8ac12bfcfc",
+			"size": 93761239
+		},
+		"output/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0-noprint.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/d1e632850925a1c0efde26c6f9f6e7b39a8ccf465e8c5144e8b5fd1aa7e1df5b.zip",
+			"sha256": "d1e632850925a1c0efde26c6f9f6e7b39a8ccf465e8c5144e8b5fd1aa7e1df5b",
+			"size": 93209828
+		},
+		"output/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0-stripped.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/84e2606c1965af26290d8f79b562baf9f4dbd4cbe0cddad778bb06010ae0ca6a.zip",
+			"sha256": "84e2606c1965af26290d8f79b562baf9f4dbd4cbe0cddad778bb06010ae0ca6a",
+			"size": 93096416
+		},
+		"output/chromium-headless-shell-amazon-linux-arm64-149.0.7790.0.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/d1eb83a59313db3804f3e52b5193571f695e6e2f5b2ff10e4accb5b45b277edf.zip",
+			"sha256": "d1eb83a59313db3804f3e52b5193571f695e6e2f5b2ff10e4accb5b45b277edf",
+			"size": 93778089
+		},
+		"output/chromium-headless-shell-amazon-linux-x64-149.0.7790.0.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/e752ceee45a183b3500744ee34b4ae2a03335c41d5ce27c349e943e68ab9b1ed.zip",
+			"sha256": "e752ceee45a183b3500744ee34b4ae2a03335c41d5ce27c349e943e68ab9b1ed",
+			"size": 98356499
+		},
+		"output/chromium-headless-shell-amazon-linux2023-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-amazon-linux-arm64-157.0.8080.0-optimize-for-size.zip",
+			"sha256": "eb5f2e34ab898c334eff08dcdd780650da85b5593872a135228758d48a481f61",
+			"size": 83681211
+		},
+		"output/chromium-headless-shell-amazon-linux2023-x64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-amazon-linux-x64-157.0.8080.0.zip",
+			"sha256": "41135a7d7645ca94747e96a1591495e3d0d2cb8fac10e0d35da3ea37ae882520",
+			"size": 105788600
+		},
+		"output/chromium-headless-shell-lambda-arm64.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/91f04c7e4d4f4eb9d5f768b32f8a472e42a88d563d0ca9ed1fdc1c3fe4f56342.zip",
+			"sha256": "91f04c7e4d4f4eb9d5f768b32f8a472e42a88d563d0ca9ed1fdc1c3fe4f56342",
+			"size": 93777163
+		},
+		"output/chromium-headless-shell-linux-arm64-149.0.7790.0.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/c8ac2ea8fed57653d07c80caacb67bb0e833af32012059bfccf90b6246302706.zip",
+			"sha256": "c8ac2ea8fed57653d07c80caacb67bb0e833af32012059bfccf90b6246302706",
+			"size": 92243209
+		},
+		"output/chromium-headless-shell-linux-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-linux-arm64-157.0.8080.0.zip",
+			"sha256": "a28653057f53d2115c42445ff907f803b2ab9fc1aad77e98f95cf5fa619b2080",
+			"size": 98184293
+		},
+		"output/chromium-headless-shell-linux-x64-149.0.7790.0.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/f11d8e76f043a8a70c7ebdae2834f94370ad329ed997ddcdfd5dbcd803f53f76.zip",
+			"sha256": "f11d8e76f043a8a70c7ebdae2834f94370ad329ed997ddcdfd5dbcd803f53f76",
+			"size": 96395776
+		},
+		"output/chromium-headless-shell-linux64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-linux-x64-157.0.8080.0.zip",
+			"sha256": "7c4a2751b361aeb3cff3ed788fa18b7a0849371b983d478bb9205b6cc25a8c52",
+			"size": 103668996
+		},
+		"output/old-v138/chrome-headless-shell-linux-arm64.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/f0d1cf4286e646ef1b1ff682968373e1025cf9c985dbb9eb146286c542cc7fd0.zip",
+			"sha256": "f0d1cf4286e646ef1b1ff682968373e1025cf9c985dbb9eb146286c542cc7fd0",
+			"size": 87581228
+		},
+		"output/old-v138/chrome-headless-shell-linux64.zip": {
+			"url": "https://remotion.media/chrome-compile/artifacts/dc0b00d45dcb687954e2d16bde7f66367fc0164d6e02f04ef5ce0ecaffe8a6bc.zip",
+			"sha256": "dc0b00d45dcb687954e2d16bde7f66367fc0164d6e02f04ef5ce0ecaffe8a6bc",
+			"size": 90824905
+		},
+		"output/chromium-headless-shell-mac-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-mac-arm64-157.0.8080.0.zip",
+			"size": 179230663,
+			"sha256": "3d9fd9a997915fa295ba6fbd66b2eaad2b9578101aa9dcde5e2eb737afa4f459"
+		}
+	}
+}
