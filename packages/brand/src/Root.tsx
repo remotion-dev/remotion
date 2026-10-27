@@ -50,9 +50,9 @@ import {
 	whatIsRemotionCalculateMetadata,
 	whatIsRemotionSchema,
 } from './Compose/WhatIsRemotion';
+import {ComposeLayers, composeLayersSchema} from './ComposeLayers';
 import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
-import {ComposeLayers} from './ComposeLayers';
 import {CurvesStudioRecordingComposition} from './CurvesStudioRecordingComposition';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
@@ -599,6 +599,8 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="ComposeLayers"
 					component={ComposeLayers}
+					schema={composeLayersSchema}
+					defaultProps={{dark: false}}
 					durationInFrames={240}
 					fps={30}
 					width={1440}
