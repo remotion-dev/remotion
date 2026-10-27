@@ -3,6 +3,7 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -78,7 +79,11 @@ export type AudioSyncAnchorEmitter = {
 	subscribe: (listener: AudioSyncAnchorListener) => {remove: () => void};
 };
 
+const useAudioContextLayoutEffect =
+	typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 type SharedAudioContextValue = {
+	audioContextPending: boolean;
 	sampleRate: number;
 	audioContext: AudioContext | null;
 	getAudioContextState: () => RemotionAudioContextState | null;
@@ -217,6 +222,7 @@ export const SharedAudioContextProvider: React.FC<{
 	_experimentalKeepAudioContextAlive,
 }) => {
 	const logLevel = useLogLevel();
+	const env = useRemotionEnvironment();
 	const sampleRate = previewSampleRate ?? 48000;
 
 	const ctxAndGain = useSingletonAudioContext({
@@ -514,7 +520,7 @@ export const SharedAudioContextProvider: React.FC<{
 	// `no-user-gesture-required`), the mount attempt succeeds immediately;
 	// in a browser the first user gesture starts it. suspend() never reaches
 	// the native context in this mode, so once running it stays running.
-	useLayoutEffect(() => {
+	useAudioContextLayoutEffect(() => {
 		if (!_experimentalKeepAudioContextAlive) {
 			return;
 		}
@@ -551,9 +557,16 @@ export const SharedAudioContextProvider: React.FC<{
 		};
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
 
+	const audioContextPending =
+		audioEnabled &&
+		!env.isRendering &&
+		typeof AudioContext !== 'undefined' &&
+		ctxAndGain === null;
+
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
 			sampleRate,
+			audioContextPending,
 			audioContext: ctxAndGain?.audioContext ?? null,
 			getAudioContextState: () => ctxAndGain?.getState() ?? null,
 			gainNode: ctxAndGain?.gainNode ?? null,
@@ -569,6 +582,7 @@ export const SharedAudioContextProvider: React.FC<{
 		};
 	}, [
 		sampleRate,
+		audioContextPending,
 		ctxAndGain,
 		audioSyncAnchor,
 		audioSyncAnchorEmitter,
@@ -581,7 +595,7 @@ export const SharedAudioContextProvider: React.FC<{
 		_experimentalKeepAudioContextAlive,
 	]);
 
-	useLayoutEffect(() => {
+	useAudioContextLayoutEffect(() => {
 		const queuedNodes = nodesToResume.current;
 		// Autoplay may request playback before the context commits. A replacement
 		// context must also resume when the Player is already playing.

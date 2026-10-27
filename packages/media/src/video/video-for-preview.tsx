@@ -290,6 +290,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
+		// The context is created after commit. Avoid initializing a silent player
+		// that would immediately be replaced when its audio context becomes ready.
+		if (sharedAudioContext?.audioContextPending) {
+			return;
+		}
+
 		const sharedAudioContextForMediaPlayer =
 			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
 				? {
