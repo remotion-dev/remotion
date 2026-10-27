@@ -14,9 +14,11 @@ const videoSources: Record<string, string> = {
 	Effects: 'effects-2026-10-20-869defbc5f69.mp4',
 	Elements: 'elements-2026-10-27-101007603fb7.mp4',
 	Transitions: 'transitions-2026-10-20-b49c7dfb4fe1.mp4',
-	'Color Correction': 'color-correction-curves-2026-10-27-f32fcb39ad5b.mp4',
+	'Color Correction': 'color-correction-curves-2026-10-27-6649bbff497b.mp4',
 	Keyframes: 'keyframes-2026-10-27-f0ba2e20abc2.mp4',
 	'Background removal': 'background-removal-2026-10-27-494c994e8799.mp4',
+	'Editor Starter': 'editor-starter-2026-10-27-b9836160bed2.mp4',
+	'Canvas Capture': 'canvas-capture-2026-10-27-253104dab7ca.mp4',
 	'remotion.dev/convert': 'convert-2026-10-25-553dad454550.mp4',
 };
 
@@ -131,7 +133,7 @@ export const ExploreSection: React.FC = () => {
 					<a
 						key={title}
 						href={href}
-						className="flex min-w-0 flex-col gap-3 rounded-lg text-inherit no-underline hover:text-inherit hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+						className="group/explore-card flex min-w-0 flex-col gap-3 rounded-lg text-inherit no-underline hover:text-inherit hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
 					>
 						<div
 							className="explore-tile relative aspect-square overflow-hidden rounded-lg"
@@ -177,7 +179,7 @@ export const ExploreSection: React.FC = () => {
 								) : null}
 							</h3>
 							{description ? (
-								<p className="m-0 fontbrand text-base leading-normal text-muted">
+								<p className="m-0 fontbrand text-base leading-normal text-muted transition-colors duration-150 ease-out group-hover/explore-card:text-[var(--text-color)]">
 									{description}
 								</p>
 							) : null}

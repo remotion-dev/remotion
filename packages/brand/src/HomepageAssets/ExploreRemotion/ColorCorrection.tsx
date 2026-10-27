@@ -24,12 +24,11 @@ export const ExploreRemotionColorCorrection = () => {
 			<div
 				style={{
 					position: 'absolute',
-					width: 884,
-					height: 884,
-					left: 98,
-					top: 98,
-					overflow: 'hidden',
-					scale: 1.3,
+					width: 958,
+					height: 1080,
+					left: 61,
+					top: 30,
+					overflow: 'visible',
 					rotate: '0.15 1 -0.15 18deg',
 				}}
 			>
@@ -58,7 +57,7 @@ export const ExploreRemotionColorCorrection = () => {
 							feather: 0.6,
 						}),
 					]}
-					style={{position: 'absolute', left: -43, top: -218}}
+					style={{position: 'absolute', left: 0, top: 0}}
 				>
 					<Sequence from={-151} layout="none" name="Curve control point drag">
 						<ExploreCurvesRecording20261027Composition />

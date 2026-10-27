@@ -15,7 +15,7 @@ const SectionLink: React.FC<{
 	<a
 		target="_blank"
 		href={href}
-		className="flex min-w-[200px] flex-1 text-inherit no-underline hover:text-inherit hover:no-underline min-[900px]:min-w-0 min-[900px]:flex-none"
+		className="flex min-w-[200px] flex-1 text-[var(--subtitle)] no-underline transition-colors duration-150 ease-out hover:text-[var(--text-color)] hover:no-underline min-[900px]:min-w-0 min-[900px]:flex-none"
 	>
 		{children}
 	</a>

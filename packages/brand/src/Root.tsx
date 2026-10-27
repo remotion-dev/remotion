@@ -1,3 +1,4 @@
+import {ExploreEditorStarterRecording20261027Composition} from './ExploreEditorStarterRecording20261027Composition';
 import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
 import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
 import {Composition, Folder} from 'remotion';
@@ -120,11 +121,20 @@ import {
 	ExploreRemotionBackgroundRemoval,
 	backgroundRemovalDuration,
 } from './HomepageAssets/ExploreRemotion/BackgroundRemoval';
+import {
+	canvasCaptureDuration,
+	ExploreRemotionCanvasCapture,
+} from './HomepageAssets/ExploreRemotion/CanvasCapture';
 import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
 import {ExploreRemotionConvert} from './HomepageAssets/ExploreRemotion/Convert';
+import {
+	EditorStarterRecordingEdit,
+	editorStarterDuration,
+	ExploreRemotionEditorStarter,
+} from './HomepageAssets/ExploreRemotion/EditorStarter';
 import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
 import {
 	ElementsDropEdit,
@@ -420,6 +430,30 @@ export const RemotionRoot: React.FC = () => {
 			</Folder>
 			<Folder name="HomepageAssets">
 				<Folder name="ExploreRemotion">
+					<Composition
+						id="ExploreRemotionCanvasCapture"
+						component={ExploreRemotionCanvasCapture}
+						durationInFrames={canvasCaptureDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionEditorStarter"
+						component={ExploreRemotionEditorStarter}
+						durationInFrames={editorStarterDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreEditorStarterRecordingEdit"
+						component={EditorStarterRecordingEdit}
+						durationInFrames={editorStarterDuration}
+						fps={60}
+						width={1308}
+						height={896}
+					/>
 					<Composition
 						id="ExploreRemotionBackgroundRemoval"
 						component={ExploreRemotionBackgroundRemoval}
@@ -1549,6 +1583,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				fps={60}
 				width={1704}
 				height={1440}
+			/>
+			<Composition
+				id="ExploreEditorStarterRecording20261027"
+				component={ExploreEditorStarterRecording20261027Composition}
+				durationInFrames={383}
+				fps={60}
+				width={1308}
+				height={896}
 			/>
 		</>
 	);
