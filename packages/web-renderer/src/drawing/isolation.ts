@@ -1,5 +1,24 @@
 import {getMaskImageValue} from './mask-image';
 
+const willChangeStackingContextProperties = new Set([
+	'opacity',
+	'transform',
+	'translate',
+	'scale',
+	'rotate',
+	'perspective',
+	'filter',
+	'backdrop-filter',
+	'clip-path',
+	'mask',
+	'mask-image',
+	'mix-blend-mode',
+	'isolation',
+	'z-index',
+	'position',
+	'contain',
+]);
+
 // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Stacking_context#features_creating_stacking_contexts
 // Every stacking context is an isolated group for mix-blend-mode.
 const createsStackingContext = (element: Element) => {
@@ -27,6 +46,7 @@ const createsStackingContext = (element: Element) => {
 		style.scale !== 'none' ||
 		style.rotate !== 'none' ||
 		style.perspective !== 'none' ||
+		style.transformStyle === 'preserve-3d' ||
 		style.filter !== 'none' ||
 		style.backdropFilter !== 'none' ||
 		style.clipPath !== 'none' ||
@@ -36,9 +56,9 @@ const createsStackingContext = (element: Element) => {
 		style.containerType === 'size' ||
 		style.containerType === 'inline-size' ||
 		/\b(paint|layout|strict|content)\b/.test(style.contain) ||
-		/\b(opacity|transform|translate|scale|rotate|perspective|filter|backdrop-filter|clip-path|mask|mask-image|mix-blend-mode|isolation|z-index|position|contain)\b/.test(
-			style.willChange,
-		)
+		style.willChange
+			.split(',')
+			.some((value) => willChangeStackingContextProperties.has(value.trim()))
 	);
 };
 
