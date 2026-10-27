@@ -689,8 +689,6 @@ export const renderVideoFlow = async ({
 			onLog,
 		});
 
-		// `internalRenderFrames()` does not report usage itself, because
-		// `renderMedia()` calls it too and reports on its own.
 		if (licenseKey !== null) {
 			try {
 				await LicensingInternals.internalRegisterUsageEvent({
