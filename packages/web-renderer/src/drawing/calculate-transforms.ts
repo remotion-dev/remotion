@@ -215,9 +215,8 @@ export const calculateTransforms = ({
 			}
 
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
-			// The element and its descendants are flattened into one group
-			// before they blend, and isolated groups only blend inside of themselves.
-			// The group is drawn as one layer, so filter and opacity apply to it as a whole.
+			// In CSS, an element blends together with its descendants as one group,
+			// and its filter and opacity apply to that group as a whole.
 			const needsGroup = blendMode !== null || isolated;
 
 			filterForPrecompositing =
@@ -230,8 +229,6 @@ export const calculateTransforms = ({
 			parent.style.maskImage = 'none';
 			parent.style.webkitMaskImage = 'none';
 
-			// Neutralize blending and opacity while the group is drawn into its layer,
-			// they are applied when the layer is drawn
 			const originalMixBlendMode = parent.style.mixBlendMode;
 			const originalOpacity = parent.style.opacity;
 			if (needsGroup) {

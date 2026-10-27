@@ -43,9 +43,7 @@ const createsStackingContext = (element: Element) => {
 };
 
 // An element with mix-blend-mode only blends with the content of the
-// nearest ancestor stacking context. Those ancestors need to be drawn into
-// their own layer so that the blending does not reach content behind them.
-// The root element is already drawn into its own canvas.
+// nearest ancestor stacking context.
 export const getElementsNeedingIsolation = ({
 	rootElement,
 	acceptNode,

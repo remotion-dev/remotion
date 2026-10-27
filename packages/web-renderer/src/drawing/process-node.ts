@@ -246,7 +246,6 @@ export const processNode = async ({
 			context.globalCompositeOperation = precompositing.needsBlendMode;
 		}
 
-		// The opacity of a group was neutralized while drawing the layer
 		const finishOpacity = needsGroup
 			? setOpacity({ctx: context, opacity})
 			: () => {};
