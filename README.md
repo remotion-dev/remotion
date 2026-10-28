@@ -12,8 +12,6 @@
 [![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/remotion?minimal=true)
 <a href="https://twitter.com/remotion"><img src="https://img.shields.io/twitter/follow/remotion?label=Twitter&color=black" alt="Twitter"></a>
 
-Video tools for the agent era.
-
 <p align="center">
   <a href="https://www.remotion.dev/">
     <picture>
@@ -23,13 +21,9 @@ Video tools for the agent era.
   </a>
 </p>
 
-## Video Creation
-
-- **Make videos agentically**: Turn your idea into a video using your coding agent.
-- **Make videos interactively**: Edit and animate using drag and drop.
-- **Make videos programmatically**: Connect to data, and manage complexity with code.
-
-React Code is the source of truth. Switch your workflow at any point.
+- **Make videos agentically**: Turn your idea into a video using your agent.
+- **Make videos interactively**: Edit and animate like in a regular video editor.
+- **Make videos programmatically**: Leverage web technology and own your video as code.
 
 ## Video Automation
 
