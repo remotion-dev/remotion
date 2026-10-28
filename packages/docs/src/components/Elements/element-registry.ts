@@ -143,6 +143,10 @@ export const elementRegistry = {
 		category: 'overlays',
 		displayName: 'Name Lower Third',
 	},
+	'overlays/rating-badge': {
+		category: 'overlays',
+		displayName: 'Rating Badge',
+	},
 	'overlays/social-safe-zones': {
 		category: 'overlays',
 		displayName: 'Social Safe Zones',
