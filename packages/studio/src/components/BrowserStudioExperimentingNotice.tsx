@@ -99,7 +99,7 @@ export const BrowserStudioExperimentingNotice: React.FC = () => {
 							style={linkStyle}
 							target="_blank"
 						>
-							remotion.dev/new
+							remotion.new
 						</a>{' '}
 						is a playground for experimenting with Remotion.
 					</p>
