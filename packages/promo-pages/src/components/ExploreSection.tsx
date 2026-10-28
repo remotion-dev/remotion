@@ -103,8 +103,7 @@ export const ExploreSection: React.FC = () => {
 					{
 						title: 'Parameterization',
 						href: '/docs/parameterized-rendering',
-						description:
-							'Visual and programmatic ways to hook up data to your video',
+						description: 'Connect data to your video visually or in code',
 					},
 					{
 						title: 'Rendering',
