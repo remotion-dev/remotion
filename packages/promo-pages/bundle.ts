@@ -46,7 +46,6 @@ const results = [
 		entrypoints: [
 			'./src/components/Homepage.tsx',
 			'./src/components/GetStartedCta.tsx',
-			'./src/components/ExploreSection.tsx',
 			'./src/components/homepage/Pricing.tsx',
 			'./src/components/team.tsx',
 			'./src/components/design.tsx',
