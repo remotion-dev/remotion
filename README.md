@@ -45,13 +45,14 @@ Remotion is extensively documented over 1,200 pages.
   - [Your first video](https://remotion.dev/docs/your-first-video)
   - [Agent Skills](https://www.remotion.dev/docs/ai/skills)
   - [Templates](https://remotion.dev/templates)
-- Components
+- Making videos
   - [Elements](https://remotion.dev/elements)
   - [Effects](https://remotion.dev/effects)
   - [Transitions](https://remotion.dev/transitions)
   - [Sound Effects](https://remotion.dev/docs/sfx)
   - [Captions](https://remotion.dev/docs/captions)
   - [Fonts](https://remotion.dev/docs/fonts)
+  - [Color correction](https://remotion.dev/docs/color-correction)
   - [Shapes](https://remotion.dev/docs/shapes)
 - Rendering
   - [Node.js APIs](https://www.remotion.dev/docs/ssr)
