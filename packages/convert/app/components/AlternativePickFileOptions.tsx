@@ -1,4 +1,4 @@
-import {Button} from '@remotion/design';
+import {ActionLink} from './ActionLink';
 import React from 'react';
 import {LoadFromUrl} from './LoadFromUrl';
 
@@ -6,13 +6,8 @@ export const AlternativePickFileOptions: React.FC<{
 	readonly onSampleFile: () => void;
 }> = ({onSampleFile}) => {
 	return (
-		<div className="flex flex-row items-center justify-center gap-3">
-			<Button
-				className="font-brand text-foreground rounded-full text-sm h-10"
-				onClick={onSampleFile}
-			>
-				Use a sample file
-			</Button>
+		<div className="flex flex-col items-start gap-1 min-[900px]:items-end">
+			<ActionLink onClick={onSampleFile}>Use a sample file</ActionLink>
 			<LoadFromUrl />
 		</div>
 	);
