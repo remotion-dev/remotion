@@ -130,7 +130,7 @@ const config: Config = {
 					position: 'left',
 					items: [
 						{to: '/docs/license/pricing', label: 'License + Pricing'},
-						{to: 'https://remotion.pro/store', label: 'Store'},
+						{href: 'pathname:///store', target: '_self', label: 'Store'},
 						{to: 'success-stories', label: 'Success Stories'},
 						{to: 'experts', label: 'Experts'},
 						{to: 'about', label: 'About us'},
