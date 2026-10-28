@@ -96,6 +96,11 @@ export const ExploreSection: React.FC = () => {
 						description: 'Interactively editable and saves back to code',
 					},
 					{
+						title: 'Agents',
+						href: '/docs/ai',
+						description: 'Skills, Agent Plugins and WebMCP integration',
+					},
+					{
 						title: 'Parameterization',
 						href: '/docs/parameterized-rendering',
 						description:
@@ -112,6 +117,11 @@ export const ExploreSection: React.FC = () => {
 						description: '80 presets that apply to any Element, make your own',
 					},
 					{
+						title: 'Background removal',
+						href: '/docs/video-matting',
+						description: 'Separate layers locally using WebGPU',
+					},
+					{
 						title: 'Transitions',
 						href: '/docs/transitioning',
 						description: '20 presets and fully customizable',
@@ -125,16 +135,6 @@ export const ExploreSection: React.FC = () => {
 						title: 'Color Correction',
 						href: '/docs/color-correction',
 						description: 'Exposure, contrast, levels, curves and LUTs',
-					},
-					{
-						title: 'Background removal',
-						href: '/docs/video-matting',
-						description: 'Separate layers locally using WebGPU',
-					},
-					{
-						title: 'Agents',
-						href: '/docs/ai',
-						description: 'Skills, Agent Plugins and WebMCP integration',
 					},
 					{
 						title: 'Editor Starter',
