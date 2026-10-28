@@ -39,14 +39,15 @@ for theme, logo_name in [
     with Image.open(Path("../remotion-media/public") / logo_name) as source:
         logo = source.convert("RGBA")
     logo = logo.resize((180, round(180 * logo.height / logo.width)), Image.Resampling.LANCZOS)
-    width = frames[0].width
-    frame_width = width - 48
-    frame_height = round(frames[0].height * frame_width / width)
+    # GitHub's README content uses a responsive container capped at 1012px.
+    width = 1012
+    frame_width = frames[0].width
+    frame_height = frames[0].height
     bottom = 72 + frame_height
     background = Image.new("RGBA", (width, bottom + 1))
     draw = ImageDraw.Draw(background)
     shade = 255 if theme == "dark" else 0
-    # Match the homepage's upward-fading wash, clipped to the image edges.
+    # Match the homepage's upward-fading wash across the full README width.
     for y in range(bottom - 100, bottom):
         alpha = round(20 * (y - (bottom - 100)) / 99)
         draw.line((0, y, width - 1, y), fill=(shade, shade, shade, alpha))
@@ -56,8 +57,7 @@ for theme, logo_name in [
     combined_frames = []
     for frame in frames:
         combined = background.copy()
-        device = frame.resize((frame_width, frame_height), Image.Resampling.LANCZOS)
-        combined.alpha_composite(device, (24, 72))
+        combined.alpha_composite(frame, ((width - frame_width) // 2, 72))
         combined_frames.append(combined)
 
     for extension, options in [
