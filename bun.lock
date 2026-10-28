@@ -124,6 +124,7 @@
         "@remotion/motion-blur": "workspace:*",
         "@remotion/noise": "workspace:*",
         "@remotion/paths": "workspace:*",
+        "@remotion/renderer": "workspace:*",
         "@remotion/rough-notation": "workspace:*",
         "@remotion/sfx": "workspace:*",
         "@remotion/shapes": "workspace:*",

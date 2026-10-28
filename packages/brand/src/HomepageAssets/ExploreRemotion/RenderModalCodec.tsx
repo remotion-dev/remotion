@@ -1,22 +1,9 @@
-import {colorCorrection} from '@remotion/effects/color-correction';
 import {HtmlInCanvas, Sequence} from 'remotion';
 import {RenderModalCodecPreview} from '../../RenderModalCodec';
 
 export const ExploreRemotionRenderModalCodec = () => {
 	return (
-		<HtmlInCanvas
-			width={1080}
-			height={1080}
-			effects={[
-				colorCorrection({
-					pivot: 0,
-					shadows: 1,
-					whites: 0.26,
-					blacks: -1,
-					temperature: -1,
-				}),
-			]}
-		>
+		<HtmlInCanvas width={1080} height={1080}>
 			<div
 				style={{
 					position: 'absolute',

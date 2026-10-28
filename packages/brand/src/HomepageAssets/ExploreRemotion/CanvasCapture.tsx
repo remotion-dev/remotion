@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {
 	AbsoluteFill,
@@ -40,7 +41,7 @@ export const ExploreRemotionCanvasCapture = () => {
 						position: 'absolute',
 						inset: 0,
 						overflow: 'visible',
-						rotate: '0.904608 0.351506 -0.241096 27.995464deg',
+						rotate: EXPLORE_CAMERA_ANGLE,
 					}}
 				>
 					<div

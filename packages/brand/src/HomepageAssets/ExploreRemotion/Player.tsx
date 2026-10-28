@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {Video} from '@remotion/media';
 import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
@@ -31,17 +32,17 @@ export const PlayerSquareEdit = () => {
 					position: 'absolute',
 					inset: 0,
 					overflow: 'visible',
-					rotate: '0.904608 0.351506 -0.241096 27.995464deg',
+					rotate: EXPLORE_CAMERA_ANGLE,
 				}}
 			>
 				<div
 					style={{
 						position: 'absolute',
-						left: 46,
-						top: -501,
+						left: -7.9,
+						top: -1050,
 						width: 1260,
 						height: 1682,
-						scale: 1.02,
+						scale: 1.326,
 						transformOrigin: 'top left',
 					}}
 				>
@@ -61,7 +62,7 @@ export const ExploreRemotionPlayer = () => {
 			durationInFrames={playerRecordingDuration}
 			effects={[
 				radialProgressiveBlur({
-					center: [0.325, 0.9],
+					center: [0.325, 0.817],
 					width: 1.15,
 					height: 0.95,
 					start: 0.22,
@@ -72,7 +73,7 @@ export const ExploreRemotionPlayer = () => {
 		>
 			<Video
 				name="Pre-composed Player interaction"
-				src="https://remotion.media/explore-remotion/player-zoom-precomp-2026-10-27-f25cfe2b5a1a.mp4"
+				src="https://remotion.media/explore-remotion/player-close-precomp-2026-10-28-3de88d580df5.mp4"
 				muted
 				durationInFrames={playerRecordingDuration}
 				style={{width: 1080, height: 1080}}

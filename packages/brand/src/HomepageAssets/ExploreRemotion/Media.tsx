@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {Video} from '@remotion/media';
 import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
@@ -27,7 +28,7 @@ export const MediaSquareEdit = () => {
 					position: 'absolute',
 					inset: 0,
 					overflow: 'visible',
-					rotate: '0.904608 0.351506 -0.241096 27.995464deg',
+					rotate: EXPLORE_CAMERA_ANGLE,
 				}}
 			>
 				<div

@@ -1,3 +1,12 @@
+import {ExploreRemotionSDK} from './HomepageAssets/ExploreRemotion/SDK';
+import {
+	ExploreRemotionNew,
+	NewRecordingEdit,
+	NewSquareEdit,
+	newRecordingDuration,
+} from './HomepageAssets/ExploreRemotion/New';
+import {ExploreNewRecording20261028Composition} from './ExploreNewRecording20261028Composition';
+import {ExploreConvertRecording20261028Composition} from './ExploreConvertRecording20261028Composition';
 import {
 	ExploreRemotionMedia,
 	MediaRecordingEdit,
@@ -13,6 +22,11 @@ import {
 	PlayerSquareEdit,
 } from './HomepageAssets/ExploreRemotion/Player';
 import {ExploreEditorStarterRecording20261027Composition} from './ExploreEditorStarterRecording20261027Composition';
+import {
+	EditorStarterRecordingEdit,
+	editorStarterDuration,
+	ExploreRemotionEditorStarter,
+} from './HomepageAssets/ExploreRemotion/EditorStarter';
 import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
 import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
 import {Composition, Folder} from 'remotion';
@@ -123,7 +137,6 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
-import {ExploreConvertRecording20261028Composition} from './ExploreConvertRecording20261028Composition';
 import {ExploreCurvesRecording20261027Composition} from './ExploreCurvesRecording20261027Composition';
 import {ExploreElementsRecording20261027Composition} from './ExploreElementsRecording20261027Composition';
 import {ExploreKeyframesRecording20261027Composition} from './ExploreKeyframesRecording20261027Composition';
@@ -140,11 +153,11 @@ import {
 	ExploreRemotionBackgroundRemoval,
 	backgroundRemovalDuration,
 } from './HomepageAssets/ExploreRemotion/BackgroundRemoval';
+import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {
 	canvasCaptureDuration,
 	ExploreRemotionCanvasCapture,
 } from './HomepageAssets/ExploreRemotion/CanvasCapture';
-import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
@@ -154,11 +167,6 @@ import {
 	convertRecordingDuration,
 	ExploreRemotionConvert,
 } from './HomepageAssets/ExploreRemotion/Convert';
-import {
-	EditorStarterRecordingEdit,
-	editorStarterDuration,
-	ExploreRemotionEditorStarter,
-} from './HomepageAssets/ExploreRemotion/EditorStarter';
 import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
 import {
 	ElementsDropEdit,
@@ -274,99 +282,242 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
-			<Folder name="Aura">
+			<Folder name="VideoElements">
 				<Composition
-					id="AuraCodeAndTimeline"
-					component={AuraCodeAndTimeline}
-					width={3840}
-					height={1080}
-					fps={60}
-					durationInFrames={444}
+					id="CodexUI"
+					component={Codex}
+					durationInFrames={1}
+					fps={30}
+					width={785}
+					height={928}
+					schema={codexSchema}
+					defaultProps={{borderRadius: 6, height: 928, width: 785}}
+					calculateMetadata={({props}) => ({
+						height: props.height,
+						width: props.width,
+					})}
 				/>
 				<Composition
-					id="AuraCode"
-					component={AuraCode}
+					id="TextEditorUI"
+					component={TextEditor}
+					durationInFrames={1}
+					fps={30}
+					width={720}
+					height={822}
+					schema={textEditorSchema}
+					defaultProps={{
+						borderRadius: 6,
+						code: `import {Video} from '@remotion/media';
+			import {interpolate, useVideoConfig} from 'remotion';
+			import {assetUrl} from './assets';
+			import {SILENCES} from './Composition';
+			import type {EndCardPlatform} from './EndCard';
+			import {EndCard} from './EndCard';
+			import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
+
+			const FILE = 'whats11.mov';
+
+			export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
+			const {fps} = useVideoConfig();
+			const silence = SILENCES[FILE];
+			const trimBefore = Math.floor(silence.leadingEnd * fps);
+			const trimAfter = Math.ceil(silence.trailingStart * fps);
+			const sceneDuration = silence.trailingStart - silence.leadingEnd;
+
+			const overlayStartAt = sceneDuration - 7 - 1;
+			const overlayProgress = useSlideInProgress({
+			startAt: overlayStartAt,
+			holdDuration: 9999,
+			});
+			const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
+
+			return (
+			<>
+			<Video
+				style={{transform: \`translateX(\${videoX}%)\`}}
+				src={assetUrl(FILE)}
+				trimBefore={trimBefore}
+				trimAfter={trimAfter}
+			/>
+			<SlideInOverlay startAt={overlayStartAt} holdDuration={9999}>
+				<EndCard platform={platform} />
+			</SlideInOverlay>
+			</>
+			);
+			};
+			`,
+						fileName: 'Scene11.tsx',
+						height: 822,
+						highlightedLines: '39',
+						width: 720,
+					}}
+					calculateMetadata={({props}) => ({
+						height: props.height,
+						width: props.width,
+					})}
+				/>
+				<Composition
+					id="StudioUI"
+					component={StudioReference}
+					durationInFrames={742}
+					fps={30}
+					width={1600}
+					height={900}
+					schema={studioReferenceSchema}
+					defaultProps={{viewportWidth: 1600, responsivenessProgress: 0}}
+					calculateMetadata={({props}) => ({width: props.viewportWidth})}
+				/>
+				<Composition
+					id="StudioUIDeviceFrame"
+					component={StudioDeviceFrame}
+					durationInFrames={742}
+					fps={30}
 					width={1920}
 					height={1080}
-					fps={60}
-					durationInFrames={444}
+					schema={studioReferenceSchema}
+					defaultProps={{
+						viewportWidth: 1600,
+						responsivenessProgress: 0,
+					}}
 				/>
 				<Composition
-					id="AuraCode-Chapters"
-					component={AuraCodeChapters}
-					width={1920}
-					height={1080}
-					fps={60}
-					durationInFrames={120}
+					id="StudioCodeHandoff"
+					component={StudioCodeHandoff}
+					durationInFrames={360}
+					fps={30}
+					width={1874}
+					height={1020}
 				/>
 				<Composition
-					id="AuraCode-Styles"
-					component={AuraCodeStyles}
+					id="StepGuide"
+					component={StepGuide}
+					schema={stepGuideSchema}
+					defaultProps={{
+						stepNumber: 1,
+						titleLine1: 'Setting up the project',
+						titleLine2: '',
+						assetSrc:
+							'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=800&fit=crop',
+						assetPosition: 'left' as const,
+					}}
+					durationInFrames={90}
+					fps={30}
 					width={1920}
 					height={1080}
-					fps={60}
-					durationInFrames={120}
 				/>
 				<Composition
-					id="AuraCode-Duplicate"
-					component={AuraCodeDuplicate}
+					id="YouTubeReference"
+					component={LowerReference}
+					durationInFrames={5 * 30}
+					fps={30}
 					width={1920}
 					height={1080}
-					fps={60}
-					durationInFrames={84}
 				/>
 				<Composition
-					id="AuraCode-Captions"
-					component={AuraCodeCaptions}
+					id="GitHubRepoReference"
+					component={GithubRepo}
+					schema={githubRepoSchema}
+					defaultProps={{
+						repoName: 'remotion-dev/remotion',
+					}}
+					durationInFrames={5 * 30}
+					fps={30}
 					width={1920}
 					height={1080}
-					fps={60}
-					durationInFrames={120}
 				/>
-				<Folder name="Timeline-capture-sources">
-					<Composition
-						id="AuraTimeline-Chapters"
-						component={AuraTimelineChapters}
-						width={1920}
-						height={1080}
-						fps={30}
-						durationInFrames={660}
-					/>
-					<Composition
-						id="AuraTimeline-Card"
-						component={AuraTimelineCard}
-						width={1920}
-						height={1080}
-						fps={30}
-						durationInFrames={150}
-					/>
-					<Composition
-						id="AuraTimeline-Captions"
-						component={AuraTimelineCaptions}
-						width={1920}
-						height={1080}
-						fps={30}
-						durationInFrames={150}
-					/>
-				</Folder>
+				<Composition
+					id="UpperThird"
+					component={UpperThird}
+					schema={upperThirdSchema}
+					defaultProps={{
+						title: 'Title',
+						subtitle: 'remotion.dev',
+					}}
+					durationInFrames={5 * 30}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="NumberedChapter"
+					component={NumberedChapter}
+					schema={numberedChapterSchema}
+					defaultProps={{
+						chapterNumber: 1,
+						chapterTitle: 'Chapter Title',
+					}}
+					durationInFrames={36}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="MoneyBurn"
+					component={MoneyBurn}
+					durationInFrames={36}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="Prompt"
+					component={Prompt}
+					durationInFrames={210}
+					fps={30}
+					width={1920}
+					height={1080}
+					schema={PromptSchema}
+					defaultProps={{
+						prompt: 'Use Remotion Best Practices.',
+						thinkingIndex: 40,
+					}}
+					calculateMetadata={() => {
+						return {
+							defaultCodec: 'prores',
+							defaultProResProfile: '4444',
+							defaultPixelFormat: 'yuva444p10le',
+							defaultVideoImageFormat: 'png',
+						};
+					}}
+				/>
+				<Composition
+					id="FlyingCardsRight"
+					component={VibeSkillsFlyingCards}
+					durationInFrames={150}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="FlyingCardsLeft"
+					component={FlyingCardsLeft}
+					schema={flyingCardsLeftSchema}
+					defaultProps={{
+						cards: ['Jonny Burger', '@JNYBGR'],
+					}}
+					durationInFrames={90}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="FlyingCardBottom"
+					component={FlyingCardBottom}
+					durationInFrames={150}
+					fps={30}
+					width={1920}
+					height={1080}
+				/>
+				<Composition
+					id="3DCheck"
+					component={ThreeDCheck}
+					width={300}
+					height={300}
+					fps={30}
+					durationInFrames={1000}
+				/>
 			</Folder>
-			<Composition
-				id="ColorCorrectionDemo"
-				component={ColorCorrectionDemo}
-				width={1920}
-				height={1080}
-				fps={30}
-				durationInFrames={300}
-			/>
 			<DocsAnimationCompositions />
-			<Composition
-				id="TimelineLayoutReveal"
-				component={TimelineLayoutReveal}
-				width={2560}
-				height={1600}
-				fps={60}
-				durationInFrames={720}
-			/>
 			<Folder name="Logo">
 				<Folder name="AnimatedLogo">
 					<Composition
@@ -477,6 +628,44 @@ export const RemotionRoot: React.FC = () => {
 						fps={60}
 						width={1080}
 						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionSDK"
+						component={ExploreRemotionSDK}
+						durationInFrames={1}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreRemotionNew"
+						component={ExploreRemotionNew}
+						durationInFrames={newRecordingDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreNewRecordingEdit"
+						component={NewRecordingEdit}
+						durationInFrames={newRecordingDuration}
+						fps={60}
+						width={2418}
+						height={1440}
+						defaultProps={{
+							style: {backgroundColor: '#1c2225', overflow: 'visible'},
+						}}
+					/>
+					<Composition
+						id="ExploreNewSquareEdit"
+						component={NewSquareEdit}
+						durationInFrames={newRecordingDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+						defaultProps={{
+							style: {backgroundColor: '#1c2225', overflow: 'visible'},
+						}}
 					/>
 					<Composition
 						id="ExploreRemotionPlayer"
@@ -929,241 +1118,6 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 
-			<Folder name="VideoElements">
-				<Composition
-					id="CodexUI"
-					component={Codex}
-					durationInFrames={1}
-					fps={30}
-					width={785}
-					height={928}
-					schema={codexSchema}
-					defaultProps={{borderRadius: 6, height: 928, width: 785}}
-					calculateMetadata={({props}) => ({
-						height: props.height,
-						width: props.width,
-					})}
-				/>
-				<Composition
-					id="TextEditorUI"
-					component={TextEditor}
-					durationInFrames={1}
-					fps={30}
-					width={720}
-					height={822}
-					schema={textEditorSchema}
-					defaultProps={{
-						borderRadius: 6,
-						code: `import {Video} from '@remotion/media';
-import {interpolate, useVideoConfig} from 'remotion';
-import {assetUrl} from './assets';
-import {SILENCES} from './Composition';
-import type {EndCardPlatform} from './EndCard';
-import {EndCard} from './EndCard';
-import {SlideInOverlay, useSlideInProgress} from './SlideInOverlay';
-
-const FILE = 'whats11.mov';
-
-export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
-	const {fps} = useVideoConfig();
-	const silence = SILENCES[FILE];
-	const trimBefore = Math.floor(silence.leadingEnd * fps);
-	const trimAfter = Math.ceil(silence.trailingStart * fps);
-	const sceneDuration = silence.trailingStart - silence.leadingEnd;
-
-	const overlayStartAt = sceneDuration - 7 - 1;
-	const overlayProgress = useSlideInProgress({
-		startAt: overlayStartAt,
-		holdDuration: 9999,
-	});
-	const videoX = interpolate(overlayProgress, [0, 1], [0, -20]);
-
-	return (
-		<>
-			<Video
-				style={{transform: \`translateX(\${videoX}%)\`}}
-				src={assetUrl(FILE)}
-				trimBefore={trimBefore}
-				trimAfter={trimAfter}
-			/>
-			<SlideInOverlay startAt={overlayStartAt} holdDuration={9999}>
-				<EndCard platform={platform} />
-			</SlideInOverlay>
-		</>
-	);
-};
-`,
-						fileName: 'Scene11.tsx',
-						height: 822,
-						highlightedLines: '39',
-						width: 720,
-					}}
-					calculateMetadata={({props}) => ({
-						height: props.height,
-						width: props.width,
-					})}
-				/>
-				<Composition
-					id="StudioUI"
-					component={StudioReference}
-					durationInFrames={742}
-					fps={30}
-					width={1600}
-					height={900}
-					schema={studioReferenceSchema}
-					defaultProps={{viewportWidth: 1600, responsivenessProgress: 0}}
-					calculateMetadata={({props}) => ({width: props.viewportWidth})}
-				/>
-				<Composition
-					id="StudioUIDeviceFrame"
-					component={StudioDeviceFrame}
-					durationInFrames={742}
-					fps={30}
-					width={1920}
-					height={1080}
-					schema={studioReferenceSchema}
-					defaultProps={{
-						viewportWidth: 1600,
-						responsivenessProgress: 0,
-					}}
-				/>
-				<Composition
-					id="StudioCodeHandoff"
-					component={StudioCodeHandoff}
-					durationInFrames={360}
-					fps={30}
-					width={1874}
-					height={1020}
-				/>
-				<Composition
-					id="StepGuide"
-					component={StepGuide}
-					schema={stepGuideSchema}
-					defaultProps={{
-						stepNumber: 1,
-						titleLine1: 'Setting up the project',
-						titleLine2: '',
-						assetSrc:
-							'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=800&fit=crop',
-						assetPosition: 'left' as const,
-					}}
-					durationInFrames={90}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="YouTubeReference"
-					component={LowerReference}
-					durationInFrames={5 * 30}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="GitHubRepoReference"
-					component={GithubRepo}
-					schema={githubRepoSchema}
-					defaultProps={{
-						repoName: 'remotion-dev/remotion',
-					}}
-					durationInFrames={5 * 30}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="UpperThird"
-					component={UpperThird}
-					schema={upperThirdSchema}
-					defaultProps={{
-						title: 'Title',
-						subtitle: 'remotion.dev',
-					}}
-					durationInFrames={5 * 30}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="NumberedChapter"
-					component={NumberedChapter}
-					schema={numberedChapterSchema}
-					defaultProps={{
-						chapterNumber: 1,
-						chapterTitle: 'Chapter Title',
-					}}
-					durationInFrames={36}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="MoneyBurn"
-					component={MoneyBurn}
-					durationInFrames={36}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="Prompt"
-					component={Prompt}
-					durationInFrames={210}
-					fps={30}
-					width={1920}
-					height={1080}
-					schema={PromptSchema}
-					defaultProps={{
-						prompt: 'Use Remotion Best Practices.',
-						thinkingIndex: 40,
-					}}
-					calculateMetadata={() => {
-						return {
-							defaultCodec: 'prores',
-							defaultProResProfile: '4444',
-							defaultPixelFormat: 'yuva444p10le',
-							defaultVideoImageFormat: 'png',
-						};
-					}}
-				/>
-				<Composition
-					id="FlyingCardsRight"
-					component={VibeSkillsFlyingCards}
-					durationInFrames={150}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="FlyingCardsLeft"
-					component={FlyingCardsLeft}
-					schema={flyingCardsLeftSchema}
-					defaultProps={{
-						cards: ['Jonny Burger', '@JNYBGR'],
-					}}
-					durationInFrames={90}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="FlyingCardBottom"
-					component={FlyingCardBottom}
-					durationInFrames={150}
-					fps={30}
-					width={1920}
-					height={1080}
-				/>
-				<Composition
-					id="3DCheck"
-					component={ThreeDCheck}
-					width={300}
-					height={300}
-					fps={30}
-					durationInFrames={1000}
-				/>
-			</Folder>
 			<Folder name="Recorder">
 				<Composition
 					id="LightMode"
@@ -1309,6 +1263,82 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 					width={3200}
 					height={520}
 				/>
+			</Folder>
+			<Folder name="Aura">
+				<Composition
+					id="AuraCodeAndTimeline"
+					component={AuraCodeAndTimeline}
+					width={3840}
+					height={1080}
+					fps={60}
+					durationInFrames={444}
+				/>
+				<Composition
+					id="AuraCode"
+					component={AuraCode}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={444}
+				/>
+				<Composition
+					id="AuraCode-Chapters"
+					component={AuraCodeChapters}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="AuraCode-Styles"
+					component={AuraCodeStyles}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Composition
+					id="AuraCode-Duplicate"
+					component={AuraCodeDuplicate}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={84}
+				/>
+				<Composition
+					id="AuraCode-Captions"
+					component={AuraCodeCaptions}
+					width={1920}
+					height={1080}
+					fps={60}
+					durationInFrames={120}
+				/>
+				<Folder name="Timeline-capture-sources">
+					<Composition
+						id="AuraTimeline-Chapters"
+						component={AuraTimelineChapters}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={660}
+					/>
+					<Composition
+						id="AuraTimeline-Card"
+						component={AuraTimelineCard}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={150}
+					/>
+					<Composition
+						id="AuraTimeline-Captions"
+						component={AuraTimelineCaptions}
+						width={1920}
+						height={1080}
+						fps={30}
+						durationInFrames={150}
+					/>
+				</Folder>
 			</Folder>
 			<Folder name="SocialMediaAnnouncements">
 				<Folder name="whats-new-in-remotion">
@@ -1577,6 +1607,30 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				/>
 			</Folder>
 			<Composition
+				id="TimelineLayoutReveal"
+				component={TimelineLayoutReveal}
+				width={2560}
+				height={1600}
+				fps={60}
+				durationInFrames={720}
+			/>
+			<Composition
+				id="ColorCorrectionDemo"
+				component={ColorCorrectionDemo}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={300}
+			/>
+			<Composition
+				id="BackgroundRemovalDemo"
+				component={BackgroundRemovalDemo}
+				width={1600}
+				height={1600}
+				fps={30}
+				durationInFrames={120}
+			/>
+			<Composition
 				id="CaptionsRecording"
 				component={CaptionsRecordingComposition}
 				durationInFrames={612}
@@ -1674,14 +1728,6 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				height={1438}
 			/>
 			<Composition
-				id="BackgroundRemovalDemo"
-				component={BackgroundRemovalDemo}
-				width={1600}
-				height={1600}
-				fps={30}
-				durationInFrames={120}
-			/>
-			<Composition
 				id="ExploreStudioRecording20261027"
 				component={ExploreStudioRecording20261027Composition}
 				durationInFrames={417}
@@ -1727,6 +1773,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				durationInFrames={805}
 				fps={60}
 				width={1332}
+				height={1440}
+			/>
+			<Composition
+				id="ExploreNewRecording20261028"
+				component={ExploreNewRecording20261028Composition}
+				durationInFrames={420}
+				fps={60}
+				width={2418}
 				height={1440}
 			/>
 		</>

@@ -189,7 +189,9 @@ export const ExploreVideo: React.FC<{
 	}, [active, bytes, src]);
 
 	return (
-		<div className="pointer-events-none absolute inset-0 grayscale transition-[filter] duration-150 ease-out group-hover/explore-card:grayscale-0 group-focus-visible/explore-card:grayscale-0 motion-reduce:transition-none">
+		<div
+			className={`pointer-events-none absolute inset-0 transition-[filter] duration-150 ease-out motion-reduce:transition-none ${active ? 'grayscale-0' : 'grayscale'}`}
+		>
 			<canvas
 				ref={coverRef}
 				width={0}

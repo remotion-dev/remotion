@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {Video} from '@remotion/media';
 import {
@@ -56,7 +57,7 @@ export const ExploreRemotionStudio = () => {
 						position: 'absolute',
 						inset: 0,
 						overflow: 'visible',
-						rotate: '0.12 1 -0.15 20deg',
+						rotate: EXPLORE_CAMERA_ANGLE,
 						scale: 1.02,
 					}}
 				>

@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {Video} from '@remotion/media';
 import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
@@ -46,7 +47,7 @@ export const ExploreRemotionBackgroundRemoval = () => {
 						position: 'absolute',
 						inset: 0,
 						overflow: 'visible',
-						rotate: '0.12 1 -0.15 18deg',
+						rotate: EXPLORE_CAMERA_ANGLE,
 					}}
 				>
 					<Video

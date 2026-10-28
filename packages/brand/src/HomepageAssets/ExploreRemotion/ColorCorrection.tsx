@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {vignette} from '@remotion/effects/vignette';
 import {HtmlInCanvas, Sequence, Solid, useCurrentFrame} from 'remotion';
@@ -29,7 +30,7 @@ export const ExploreRemotionColorCorrection = () => {
 					left: 61,
 					top: 30,
 					overflow: 'visible',
-					rotate: '0.15 1 -0.15 18deg',
+					rotate: EXPLORE_CAMERA_ANGLE,
 				}}
 			>
 				<HtmlInCanvas
@@ -57,7 +58,13 @@ export const ExploreRemotionColorCorrection = () => {
 							feather: 0.6,
 						}),
 					]}
-					style={{position: 'absolute', left: 0, top: 0}}
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						scale: 1.18,
+						transformOrigin: 'top left',
+					}}
 				>
 					<Sequence from={-151} layout="none" name="Curve control point drag">
 						<ExploreCurvesRecording20261027Composition />

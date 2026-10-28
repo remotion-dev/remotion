@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {AbsoluteFill, Solid} from 'remotion';
 import {TransitionsRecordingComposition} from '../../TransitionsRecordingComposition';
 
@@ -18,7 +19,7 @@ export const ExploreRemotionTransitions = () => {
 					height: 564,
 					left: 0,
 					top: 258,
-					rotate: '0 1 -0.1 18deg',
+					rotate: EXPLORE_CAMERA_ANGLE,
 					transformOrigin: 'center',
 				}}
 			>

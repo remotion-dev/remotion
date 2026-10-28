@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './HomepageAssets/ExploreRemotion/camera-angle';
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
@@ -18,7 +19,7 @@ export const RenderModalCodecPreview = () => {
 				width: 3084,
 				height: 3588,
 				translate: '-946.8px -905.4px',
-				rotate: '0.904608 0.351506 -0.241096 27.995464deg',
+				rotate: EXPLORE_CAMERA_ANGLE,
 				transformOrigin: '27.8% 28.65%',
 				scale: 0.933,
 			}}
