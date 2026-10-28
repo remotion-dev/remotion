@@ -174,8 +174,8 @@ If the `<Player />` is entering a buffer state, it will emit the `waiting` event
 Once it resumes, it emits the `resume` event.
 
 ```tsx twoslash title="Listening to waiting and resume events"
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
 
 // @filename: index.tsx
@@ -232,8 +232,8 @@ To prevent a janky UI, this spinner will only be shown after the Player has been
 You may customize the timeout of `300` milliseconds by passing the [`bufferStateDelayInMilliseconds`](/docs/player/player#bufferstatedelayinmilliseconds) prop to the `<Player />` component.
 
 ```tsx twoslash title="Setting the delay until the spinner is shown"
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
 
 // @filename: index.tsx

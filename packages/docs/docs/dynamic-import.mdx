@@ -61,8 +61,8 @@ Let's imagine a scenario where the asset that should be imported is completely u
 import { getInputProps, Img } from "remotion";
 
 const DynamicAsset: React.FC = () => {
-  const inputProps = getInputProps(); // {"imageSrc": "./assets/img0.png"}
-  return <Img src={require(inputProps.imageSrc as string)} />;
+  const inputProps = getInputProps<{imageSrc: string}>(); // {"imageSrc": "./assets/img0.png"}
+  return <Img src={require(inputProps.imageSrc)} />;
 };
 ```
 
@@ -73,9 +73,9 @@ Like above, you can force Webpack to bundle the whole assets folder by putting a
 import { getInputProps, Img } from "remotion";
 
 const DynamicAsset: React.FC = () => {
-  const inputProps = getInputProps(); // {"imageSrc": "img0.png"}
+  const inputProps = getInputProps<{imageSrc: string}>(); // {"imageSrc": "img0.png"}
   // Works!
-  return <Img src={require(("./assets/" + inputProps.imageSrc) as string)} />;
+  return <Img src={require("./assets/" + inputProps.imageSrc)} />;
 };
 ```
 

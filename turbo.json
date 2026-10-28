@@ -125,7 +125,11 @@
 				"$TURBO_ROOT$/packages/template-vibe-code/styles/**",
 				"$TURBO_ROOT$/packages/template-vibe-code/tsconfig.json"
 			],
-			"outputs": [".docusaurus", "build", "node_modules/.cache/twoslash"],
+			"outputs": [
+				".docusaurus",
+				"build",
+				"node_modules/.cache/twoslash-native"
+			],
 			"env": [
 				"REMOTION_DOCS_DISABLE_TWOSLASH",
 				"REMOTION_DOCS_ENABLE_TWOSLASH"
