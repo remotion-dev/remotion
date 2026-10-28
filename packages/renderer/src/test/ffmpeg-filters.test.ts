@@ -113,7 +113,7 @@ test('Trim the end', () => {
 	expect(trimLeftOffset).toEqual(0);
 	expect(trimRightOffset).toEqual(-0.02933333333333318);
 
-	const padding = Math.round((chunkLengthInSeconds - 0.704) * 48000);
+	const padding = Math.round((chunkLengthInSeconds - 22 / 30) * 48000);
 
 	expect(
 		stringifyFfmpegFilter({
@@ -140,7 +140,7 @@ test('Trim the end', () => {
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:704000us[a0]',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:733333.3333333333us[a0]',
 		pad_end: 'apad=pad_len=' + padding,
 		pad_start: null,
 	});
@@ -192,8 +192,8 @@ test('Should handle trim correctly', () => {
 	).toEqual({
 		actualTrimLeft: 0.3333333333333333,
 		filter:
-			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1037333.3333333335us[a0]',
-		pad_end: 'apad=pad_len=128000',
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1066666.6666666667us[a0]',
+		pad_end: 'apad=pad_len=126592',
 		pad_start: null,
 	});
 });
@@ -283,7 +283,7 @@ test('Should handle delay correctly', () => {
 		filter:
 			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
-		pad_start: 'adelay=2667|2667',
+		pad_start: 'adelay=128000S|128000S',
 	});
 });
 
@@ -333,7 +333,7 @@ test('Should offset multiple channels', () => {
 		filter:
 			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=333333.3333333333us:1000000us[a0]',
 		pad_end: 'apad=pad_len=1792',
-		pad_start: 'adelay=2667|2667|2667|2667',
+		pad_start: 'adelay=128000S|128000S|128000S|128000S',
 	});
 });
 
