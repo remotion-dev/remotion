@@ -9,14 +9,16 @@
   </a>
 </p>
 
+<p align="center">
+  <a href="https://remotion.dev/discord"><img alt="Discord Shield" src="https://img.shields.io/discord/809501355504959528?color=000000&amp;label=Discord&amp;logo=fdgssdf"></a>
+  <a href="https://www.npmjs.org/package/remotion"><img alt="NPM Version" src="https://img.shields.io/npm/v/remotion.svg?style=flat&amp;color=black"></a>
+  <a href="https://npmcharts.com/compare/remotion?minimal=true"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/remotion.svg?style=flat&amp;color=black&amp;label=Downloads"></a>
+  <a href="https://twitter.com/remotion"><img alt="Twitter" src="https://img.shields.io/twitter/follow/remotion?label=Twitter&amp;color=black"></a>
+</p>
+
 - **Make videos agentically**: Turn your idea into a video using your agent.
 - **Make videos interactively**: Edit and animate like in a regular video editor.
 - **Make videos programmatically**: Leverage web technology and own your video as code.
-
-[![Discord Shield](https://img.shields.io/discord/809501355504959528?color=000000&label=Discord&logo=fdgssdf)](https://remotion.dev/discord)
-[![NPM Version](https://img.shields.io/npm/v/remotion.svg?style=flat&color=black)](https://www.npmjs.org/package/remotion)
-[![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/remotion?minimal=true)
-<a href="https://twitter.com/remotion"><img src="https://img.shields.io/twitter/follow/remotion?label=Twitter&color=black" alt="Twitter"></a>
 
 ## Video Automation
 
