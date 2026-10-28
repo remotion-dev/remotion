@@ -8,8 +8,8 @@ crumb: '@remotion/player'
 A component which can be rendered in a regular React App (for example: [Next.JS](https://nextjs.org), [Vite.js](https://vitejs.dev), [Create React App](https://create-react-app.dev/)) to display a Remotion video.
 
 ```tsx twoslash title="MyApp.tsx"
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
 
 // @filename: index.tsx
@@ -532,9 +532,9 @@ The value cannot be changed after the Player mounts. Doing so throws an error.
 You may attach a ref to the player and control it in an imperative manner.
 
 ```tsx twoslash {15}
+// @filename: MyComposition.tsx
 // @allowUmdGlobalAccess
 
-// @filename: MyComposition.tsx
 export const MyComposition: React.FC = () => null;
 
 // @filename: index.tsx

@@ -93,8 +93,8 @@ export const MyComp: React.FC<{text: string}> = ({text}) => {
 Your list of videos (`remotion/Root.tsx` in the example) could look like this:
 
 ```tsx twoslash title="src/remotion/Root.tsx"
-// @allowUmdGlobalAccess
 // @filename: ./MyComp.tsx
+// @allowUmdGlobalAccess
 export const MyComp = () => <></>;
 
 // @filename: Root.tsx
@@ -154,8 +154,8 @@ We recommend adding a new script into your package.json for easy access:
 Anywhere in your app, import the [`<Player />`](/docs/player) component and your Composition component.
 
 ```tsx twoslash
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyComp.tsx
+// @allowUmdGlobalAccess
 export const MyComp = () => <></>;
 
 // @filename: index.tsx

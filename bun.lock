@@ -695,13 +695,13 @@
         "@types/dom-webcodecs": "catalog:",
         "fenceparser": "2.2.0",
         "shiki": "3.22.0",
+        "typescript": "catalog:",
         "unified": "11.0.5",
         "unist-util-visit": "5.1.0",
       },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
-        "typescript": "catalog:",
       },
     },
     "packages/effects": {

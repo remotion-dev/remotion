@@ -5,12 +5,11 @@ import {
 	rendererClassic,
 	transformerTwoslash,
 } from '@remotion/typescript-tools/shiki-twoslash';
-import {createTwoslasher} from '@remotion/typescript-tools/twoslash';
 import type {HighlighterGeneric} from 'shiki/core';
+import {createDocsTwoslasher} from './docs-twoslasher';
 import {
 	createTwoslashCacheContext,
 	getTwoslashCacheKey,
-	getTwoslashCompilerOptions,
 	getTwoslashVersions,
 	readTwoslashCacheEntry,
 	TWOSLASH_EXPLICIT_TRIGGER,
@@ -18,17 +17,18 @@ import {
 	writeTwoslashCacheEntry,
 } from './twoslash-cache';
 
-let cachedTwoslasher: ReturnType<typeof createTwoslasher> | null = null;
+let cachedTwoslasher: ReturnType<typeof createDocsTwoslasher> | null = null;
 let cacheContext: ReturnType<typeof createTwoslashCacheContext> | null = null;
 
 function getTwoslasher() {
 	if (!cachedTwoslasher) {
-		cachedTwoslasher = createTwoslasher({
-			compilerOptions: getTwoslashCompilerOptions(),
+		cachedTwoslasher = createDocsTwoslasher({
+			rootDirectory: resolve(process.cwd()),
 		});
+		process.once('exit', cachedTwoslasher.dispose);
 	}
 
-	return cachedTwoslasher;
+	return cachedTwoslasher.twoslasher;
 }
 
 const getCacheContext = () => {

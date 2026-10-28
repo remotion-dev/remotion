@@ -1,13 +1,19 @@
 import path from 'path';
 import type {DocusaurusContext} from '@docusaurus/types';
 import {remarkTwoslash} from './shiki';
+import {getTwoslashEngine} from './twoslash-cache';
 /**
  * @param {import("@docusaurus/types").DocusaurusContext} context
  * @param {import("remark-shiki-twoslash").Settings} pluginOptions
  * @returns {import("@docusaurus/types").Preset}
  */
 export function shiki(context: DocusaurusContext, pluginOptions: any) {
-	const options = {...pluginOptions, wrapFragments: true};
+	const options = {
+		...pluginOptions,
+		wrapFragments: true,
+		// Include the engine in Docusaurus's MDX loader cache identity.
+		twoslashEngine: getTwoslashEngine(),
+	};
 
 	// So, how do we hijack the code renderer? We mostly override the user's configuration for
 	// the presets.
