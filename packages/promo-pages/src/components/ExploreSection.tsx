@@ -14,7 +14,7 @@ const videoSources: Record<string, string> = {
 	Rendering: 'rendering-natural-2026-10-28-b0466660e7fb.mp4',
 	Effects: 'effects-reframed-2026-10-28-bfe8242ea926.mp4',
 	Elements: 'uniform-angle-elements-2026-10-28-509d1ab4985d.mp4',
-	Transitions: 'uniform-angle-transitions-2026-10-28-72f5b63b8c9b.mp4',
+	Transitions: 'transitions-a-to-b-wider-2026-10-28-08062408d4e9.mp4',
 	'Color Correction': 'color-correction-reframed-2026-10-28-bbd0c2bcacf6.mp4',
 	Keyframes: 'uniform-angle-keyframes-2026-10-28-fd7bcfd66bcf.mp4',
 	'Background removal':
@@ -251,7 +251,7 @@ export const ExploreSection: React.FC = () => {
 								className="flex flex-col gap-2 rounded-sm text-inherit no-underline hover:text-inherit hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
 							>
 								<h3
-									className={`m-0 fontbrand text-lg leading-[1.1] font-medium min-[900px]:text-[22px] ${title === 'SDK' || title === 'Editor Starter' || title === 'Canvas Capture' ? 'flex items-center gap-2' : ''}`}
+									className={`m-0 fontbrand text-[17px] leading-[1.1] font-medium min-[900px]:text-[21px] ${title === 'SDK' || title === 'Editor Starter' || title === 'Canvas Capture' ? 'flex items-center gap-2' : ''}`}
 								>
 									{title}
 									{title === 'SDK' ||
@@ -263,7 +263,7 @@ export const ExploreSection: React.FC = () => {
 									) : null}
 								</h3>
 								{description ? (
-									<p className="m-0 fontbrand text-base leading-normal text-muted transition-colors duration-150 ease-out group-data-[active=true]/explore-card:text-[var(--text-color)]">
+									<p className="m-0 fontbrand text-[15px] leading-normal text-muted transition-colors duration-150 ease-out group-data-[active=true]/explore-card:text-[var(--text-color)]">
 										{description}
 									</p>
 								) : null}

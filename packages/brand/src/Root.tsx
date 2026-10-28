@@ -1,3 +1,4 @@
+import {ExploreZoomBlurRecording20261028Composition} from './ExploreZoomBlurRecording20261028Composition';
 import {ExploreBuildingRecording20261028Composition} from './ExploreBuildingRecording20261028Composition';
 import {ExploreRemotionSDK} from './HomepageAssets/ExploreRemotion/SDK';
 import {
@@ -190,7 +191,10 @@ import {
 	StudioRecordingEdit,
 	studioRecordingDuration,
 } from './HomepageAssets/ExploreRemotion/Studio';
-import {ExploreRemotionTransitions} from './HomepageAssets/ExploreRemotion/Transitions';
+import {
+	ExploreRemotionTransitions,
+	transitionsDuration,
+} from './HomepageAssets/ExploreRemotion/Transitions';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
@@ -831,7 +835,7 @@ export const RemotionRoot: React.FC = () => {
 					<Composition
 						id="ExploreRemotionTransitions"
 						component={ExploreRemotionTransitions}
-						durationInFrames={263}
+						durationInFrames={transitionsDuration}
 						fps={60}
 						width={1080}
 						height={1080}
@@ -1807,6 +1811,14 @@ export const RemotionRoot: React.FC = () => {
 				fps={60}
 				width={2102}
 				height={1440}
+			/>
+			<Composition
+				id="ExploreZoomBlurRecording20261028"
+				component={ExploreZoomBlurRecording20261028Composition}
+				durationInFrames={364}
+				fps={60}
+				width={2896}
+				height={1842}
 			/>
 		</>
 	);
