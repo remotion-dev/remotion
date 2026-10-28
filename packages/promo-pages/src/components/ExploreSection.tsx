@@ -91,9 +91,9 @@ export const ExploreSection: React.FC = () => {
 						description: 'Transcription, display, editing, import and export',
 					},
 					{
-						title: 'Agents',
-						href: '/docs/ai',
-						description: 'Skills, Agent Plugins and WebMCP integration',
+						title: 'Keyframes',
+						href: '/docs/studio/interactivity#keyframes',
+						description: 'Interactively editable and saves back to code',
 					},
 					{
 						title: 'Parameterization',
@@ -127,9 +127,9 @@ export const ExploreSection: React.FC = () => {
 						description: 'Exposure, contrast, levels, curves and LUTs',
 					},
 					{
-						title: 'Keyframes',
-						href: '/docs/studio/interactivity#keyframes',
-						description: 'Interactively editable and saves back to code',
+						title: 'Agents',
+						href: '/docs/ai',
+						description: 'Skills, Agent Plugins and WebMCP integration',
 					},
 					{
 						title: 'Background removal',
