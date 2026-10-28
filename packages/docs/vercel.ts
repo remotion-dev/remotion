@@ -1,7 +1,8 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
 // This deployment is independent of the existing remotion.pro production app.
-const accountMirrorOrigin = 'https://pro-2on7z3ysn-remotion.vercel.app';
+const accountMirrorOrigin =
+	'https://pro-git-codex-dev-account-mirror-preview-remotion.vercel.app';
 const accountMirrorHosts = [
 	{
 		type: 'host' as const,
