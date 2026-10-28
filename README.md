@@ -61,6 +61,7 @@ Remotion is extensively documented over 1,200 pages.
   - [Client-side rendering](https://www.remotion.dev/docs/client-side-rendering/)
   - [Comparison of options](https://remotion.dev/docs/compare-ssr)
 - Making apps
+  - [SDK](https://remotion.dev/docs/sdk) (coming soon)
   - [Player](https://remotion.dev/docs/player)
   - [Editor Starter](https://remotion.dev/editor-starter)
   - [Mediabunny](https://remotion.dev/docs/mediabunny)
