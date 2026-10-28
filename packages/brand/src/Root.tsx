@@ -48,6 +48,10 @@ import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
 import {TriangleDemo} from './Brand/TriangleToSquare';
 import {CanvasCaptureAnnouncement} from './CanvasCaptureAnnouncement/CanvasCaptureAnnouncement';
+import {
+	CanvasCaptureBanner,
+	CanvasCaptureBannerOneX,
+} from './CanvasCaptureBanner';
 import {CanvasCaptureShort} from './CanvasCaptureShort/CanvasCaptureShort';
 import {CaptionsRecordingComposition} from './CaptionsRecordingComposition';
 import {CloseUp1} from './CloseUp1';
@@ -697,6 +701,31 @@ export const RemotionRoot: React.FC = () => {
 						fps={60}
 						width={1080}
 						height={1080}
+					/>
+					<Composition
+						id="CanvasCaptureBanner"
+						component={CanvasCaptureBanner}
+						defaultProps={{
+							oneXSource:
+								'https://remotion.media/canvas-capture/one-x-four-jpeg-passes-2026-10-28-c04f73eee2a8.mp4',
+						}}
+						durationInFrames={127}
+						fps={60}
+						width={960}
+						height={540}
+					/>
+					<Composition
+						id="CanvasCaptureBannerOneX"
+						component={CanvasCaptureBannerOneX}
+						durationInFrames={127}
+						fps={60}
+						width={616}
+						height={718}
+						defaultProps={{
+							source:
+								'https://remotion.media/canvas-capture/render-modal-codec-2026-09-21.webm',
+							trimBefore: 585,
+						}}
 					/>
 					<Composition
 						id="ExploreRemotionVideoPlayback"
