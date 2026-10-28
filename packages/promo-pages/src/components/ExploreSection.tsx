@@ -21,6 +21,7 @@ const videoSources: Record<string, string> = {
 	'Editor Starter': 'editor-starter-no-vignette-2026-10-27-ec6b5ef939c3.mp4',
 	'Canvas Capture': 'canvas-capture-2026-10-27-253104dab7ca.mp4',
 	'remotion.dev/convert': 'convert-2026-10-25-553dad454550.mp4',
+	'remotion.media': 'media-default-2026-10-28-98858a945958.mp4',
 };
 
 export const ExploreSection: React.FC = () => {
