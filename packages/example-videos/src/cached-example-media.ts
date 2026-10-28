@@ -9,6 +9,7 @@ const cachedDir = path.join(rootDir, 'node_modules', '.videos');
 
 const cachedExampleMedia = {
 	bigBuckBunny: 'bigbuckbunny.mp4',
+	mp3nomagicword: 'music-visualization-demo-track.mp3',
 	corrupted: 'corrupted.mp4',
 	variablefps: 'variablefps.webm',
 	iphonevideo: 'iphonevideo.mov',
