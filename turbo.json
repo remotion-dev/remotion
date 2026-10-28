@@ -128,13 +128,11 @@
 			"outputs": [
 				".docusaurus",
 				"build",
-				"node_modules/.cache/twoslash",
 				"node_modules/.cache/twoslash-native"
 			],
 			"env": [
 				"REMOTION_DOCS_DISABLE_TWOSLASH",
-				"REMOTION_DOCS_ENABLE_TWOSLASH",
-				"REMOTION_DOCS_TWOSLASH_ENGINE"
+				"REMOTION_DOCS_ENABLE_TWOSLASH"
 			],
 			"passThroughEnv": [
 				"DOCUSAURUS_SSG_WORKER_THREAD_COUNT",

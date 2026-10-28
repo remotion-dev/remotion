@@ -1,18 +1,17 @@
 import path from 'path';
 import type {DocusaurusContext} from '@docusaurus/types';
 import {remarkTwoslash} from './shiki';
-import {getTwoslashEngine} from './twoslash-cache';
+import {TWOSLASH_CACHE_SCHEMA_VERSION} from './twoslash-cache';
 /**
  * @param {import("@docusaurus/types").DocusaurusContext} context
- * @param {import("remark-shiki-twoslash").Settings} pluginOptions
  * @returns {import("@docusaurus/types").Preset}
  */
 export function shiki(context: DocusaurusContext, pluginOptions: any) {
 	const options = {
 		...pluginOptions,
 		wrapFragments: true,
-		// Include the engine in Docusaurus's MDX loader cache identity.
-		twoslashEngine: getTwoslashEngine(),
+		// Keep Docusaurus's MDX cache aligned with the snippet renderer cache.
+		twoslashCacheVersion: TWOSLASH_CACHE_SCHEMA_VERSION,
 	};
 
 	// So, how do we hijack the code renderer? We mostly override the user's configuration for
@@ -56,7 +55,7 @@ export function shiki(context: DocusaurusContext, pluginOptions: any) {
 	const structure = (a: any) =>
 		typeof a === 'string' ? [a, {}] : a.length === 1 ? [a[0], {}] : a;
 
-	// Adds remark-shiki-twoslash into beforeDefaultRemarkPlugins
+	// Adds the Twoslash renderer into beforeDefaultRemarkPlugins
 	const addTwoslash = (a: any) => {
 		flag = true;
 

@@ -24,7 +24,7 @@ import path from 'node:path';
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import type {TwoslashReturn} from '@remotion/typescript-tools/twoslash';
+import type {TwoslashGenericResult} from 'twoslash-protocol';
 import {
 	NodeFlags,
 	SyntaxKind,
@@ -76,27 +76,17 @@ import {
 	type PositionConverter,
 	type VirtualFile,
 } from './native-twoslash-notations';
+import {getTwoslashCompilerOptions} from './twoslash-cache';
 
-export type NativeTwoslashReturn = Pick<TwoslashReturn, 'code' | 'nodes'>;
+export type NativeTwoslashReturn = Pick<
+	TwoslashGenericResult,
+	'code' | 'nodes'
+>;
 
 export interface NativeTwoslasher {
 	(code: string, extension: string): NativeTwoslashReturn;
 	dispose: () => void;
 }
-
-const defaultCompilerOptions = {
-	strict: true,
-	module: 'esnext',
-	target: 'esnext',
-	moduleResolution: 'bundler',
-	moduleDetection: 'force',
-	jsx: 'react-jsx',
-	esModuleInterop: true,
-	allowJs: true,
-	skipLibCheck: true,
-	types: ['node'],
-	noUncheckedSideEffectImports: false,
-};
 
 const supportedExtensions = ['ts', 'tsx', 'js', 'jsx'];
 /** also used as node builder flags, which share the values */
@@ -692,7 +682,7 @@ export function createNativeTwoslasher({
 	function parse(code: string, extension: string): Block {
 		const customTags = ['annotate', 'log', 'warn', 'error'];
 		const notations: Notations = {
-			compilerOptions: {...defaultCompilerOptions},
+			compilerOptions: getTwoslashCompilerOptions(),
 			handbookOptions: {...defaultHandbookOptions},
 			tags: [],
 			removals: [],

@@ -30,13 +30,10 @@ import type {
 	Position,
 	Range,
 	TwoslashNode as ProtocolTwoslashNode,
-} from '@remotion/typescript-tools/twoslash';
+} from 'twoslash-protocol';
 
 // Reuse Shiki's protocol types so optional output fields remain upstream-owned.
-export type {
-	CompletionEntry,
-	NodeHover,
-} from '@remotion/typescript-tools/twoslash';
+export type {CompletionEntry, NodeHover} from 'twoslash-protocol';
 
 // Native compiler diagnostics always supply these fields.
 export type NodeError = ProtocolNodeError & {

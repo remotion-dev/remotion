@@ -9,7 +9,6 @@ import {Glob} from 'bun';
 import {
 	createTwoslashCacheContext,
 	getTwoslashCacheKey,
-	getTwoslashEngine,
 	getTwoslashLocalCachePath,
 	getTwoslashVersions,
 	readTwoslashCacheEntry,
@@ -422,7 +421,7 @@ async function main() {
 	const numWorkers = Math.min(NUM_WORKERS, unitQueue.length);
 
 	console.log(
-		`${uncachedBlocks.length} twoslash blocks to type-check (${allFiles.length} files scanned, ${getTwoslashEngine()} engine)`,
+		`${uncachedBlocks.length} twoslash blocks to type-check (${allFiles.length} files scanned, native engine)`,
 	);
 	console.log(
 		`Launching ${numWorkers} workers for ${unitQueue.length} work units...`,

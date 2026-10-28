@@ -1,12 +1,8 @@
-import type {transformerTwoslash} from '@remotion/typescript-tools/shiki-twoslash';
-import {createTwoslasher} from '@remotion/typescript-tools/twoslash';
+import type {createTransformerFactory} from '@shikijs/twoslash/core';
 import {createNativeTwoslasher} from './native-twoslash';
-import {getTwoslashCompilerOptions, getTwoslashEngine} from './twoslash-cache';
 
 type DocsTwoslasher = {
-	twoslasher: NonNullable<
-		NonNullable<Parameters<typeof transformerTwoslash>[0]>['twoslasher']
-	>;
+	twoslasher: Parameters<typeof createTransformerFactory>[0];
 	dispose: () => void;
 };
 
@@ -15,20 +11,10 @@ export const createDocsTwoslasher = ({
 }: {
 	rootDirectory: string;
 }): DocsTwoslasher => {
-	if (getTwoslashEngine() === 'native') {
-		const native = createNativeTwoslasher({rootDirectory});
-		return {
-			twoslasher: (code: string, lang: string | undefined) =>
-				native(code, lang ?? 'ts'),
-			dispose: () => native.dispose(),
-		};
-	}
-
+	const native = createNativeTwoslasher({rootDirectory});
 	return {
-		twoslasher: createTwoslasher({
-			vfsRoot: rootDirectory,
-			compilerOptions: getTwoslashCompilerOptions(),
-		}),
-		dispose: () => undefined,
+		twoslasher: (code: string, lang: string | undefined) =>
+			native(code, lang ?? 'ts'),
+		dispose: () => native.dispose(),
 	};
 };
