@@ -8,7 +8,7 @@ const videoSources: Record<string, string> = {
 	Studio: 'studio-cursor-safe-2026-10-28-12eceb67ac7f.mp4',
 	Video: 'uniform-angle-video-2026-10-28-63170f325244.mp4',
 	Audio: 'uniform-angle-audio-2026-10-28-4e6a75985653.mp4',
-	Captions: 'captions-trimmed-2026-10-28-601831ff274e.mp4',
+	Captions: 'captions-reframed-2026-10-28-dfccfc1a3317.mp4',
 	Agents: 'agents-reframed-2026-10-28-05352d1ae978.mp4',
 	Parameterization: 'parameterization-reframed-2026-10-28-5aef41497ae7.mp4',
 	Rendering: 'rendering-natural-2026-10-28-b0466660e7fb.mp4',

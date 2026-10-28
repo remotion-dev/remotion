@@ -21,8 +21,8 @@ export const ExploreRemotionCaptions = () => {
 						transform: `scale(${scale})`,
 						transformOrigin: 'top left',
 						rotate: EXPLORE_CAMERA_ANGLE,
-						translate: '-320px -284.7px',
-						scale: 1.201,
+						translate: '-973.1px -61px',
+						scale: 1.402,
 					}}
 				>
 					<Sequence from={-captionsStartFrame} layout="none">
