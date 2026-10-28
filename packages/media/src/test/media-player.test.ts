@@ -55,7 +55,14 @@ const makeAudioPlayer = (
 				Partial<
 					Pick<
 						ConstructorParameters<typeof MediaPlayer>[0],
-						'getEffects' | 'getEffectChainState' | 'bufferState'
+						| 'getEffects'
+						| 'getEffectChainState'
+						| 'bufferState'
+						| 'durationInFrames'
+						| 'playbackRate'
+						| 'trimBefore'
+						| 'trimAfter'
+						| 'loop'
 					>
 				>)
 		| null = null,
@@ -67,10 +74,10 @@ const makeAudioPlayer = (
 			(tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4'),
 		logLevel: 'error',
 		sharedAudioContext,
-		loop: false,
-		trimBefore: undefined,
-		trimAfter: undefined,
-		playbackRate: 1,
+		loop: options?.loop ?? false,
+		trimBefore: options?.trimBefore,
+		trimAfter: options?.trimAfter,
+		playbackRate: options?.playbackRate ?? 1,
 		toneFrequency: 1,
 		globalPlaybackRate: 1,
 		audioStreamIndex: null,
@@ -79,7 +86,7 @@ const makeAudioPlayer = (
 		bufferState: options?.bufferState ?? makeBufferState(),
 		isPremounting: false,
 		isPostmounting: false,
-		durationInFrames: 300,
+		durationInFrames: options?.durationInFrames ?? 300,
 		onVideoFrameCallback: options?.onVideoFrameCallback ?? null,
 		playing: false,
 		sequenceOffset: 0,
@@ -621,6 +628,124 @@ test.each([
 			await player.dispose();
 			lease?.release();
 			spy.mockRestore();
+		}
+	},
+);
+
+// Regression for kino-ai/kino#4930: short clips decoded unused source audio,
+// and retaining an exhausted iterator could leave live extensions silent.
+test.each([
+	{
+		tagType: 'audio' as const,
+		playbackRate: 1,
+		durationInFrames: 6,
+		loop: false,
+		trimAfter: undefined,
+	},
+	{
+		tagType: 'video' as const,
+		playbackRate: 2,
+		durationInFrames: 6,
+		loop: false,
+		trimAfter: undefined,
+	},
+	{
+		tagType: 'audio' as const,
+		playbackRate: 0.5,
+		durationInFrames: 1,
+		loop: false,
+		trimAfter: undefined,
+	},
+	{
+		tagType: 'audio' as const,
+		playbackRate: 1,
+		durationInFrames: 6,
+		loop: false,
+		trimAfter: 33,
+	},
+	{
+		tagType: 'audio' as const,
+		playbackRate: 1,
+		durationInFrames: 6,
+		loop: true,
+		trimAfter: undefined,
+	},
+])(
+	'bounds $tagType audio decoding at $playbackRate×, $durationInFrames frames, loop=$loop, trimAfter=$trimAfter',
+	async (options) => {
+		const shared = makeSharedAudioContext();
+		const player = makeAudioPlayer(shared, null, options.tagType, {
+			...options,
+			canvas: null,
+			onVideoFrameCallback: null,
+			src:
+				options.tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4',
+			trimBefore: 30,
+		});
+		const buffers = vi.spyOn(AudioBufferSink.prototype, 'buffers');
+		try {
+			expect((await player.initialize(0, false, 1)).type).toBe('success');
+			await vi.waitFor(() => expect(buffers).toHaveBeenCalled());
+			const end = buffers.mock.calls[0][1]!;
+			const sequenceEnd =
+				1 + (options.durationInFrames / 30) * options.playbackRate;
+			if (options.loop) {
+				expect(end).toBeGreaterThan(sequenceEnd);
+			} else {
+				expect(end).toBeCloseTo(
+					Math.min(sequenceEnd, (options.trimAfter ?? Infinity) / 30),
+				);
+			}
+
+			await vi.waitFor(() => {
+				const queued = player
+					.audioIteratorManager!.getAudioBufferIterator()!
+					.getQueuedPeriod();
+				expect(queued?.until).toBeCloseTo(Math.min(sequenceEnd, end));
+			});
+		} finally {
+			await player.dispose();
+			await shared.audioContext.close();
+			buffers.mockRestore();
+		}
+	},
+);
+
+test.each(['audio', 'video'] as const)(
+	'reopens capped %s audio after extension, shrink and re-extension',
+	async (tagType) => {
+		const shared = makeSharedAudioContext();
+		const player = makeAudioPlayer(shared, null, tagType, {
+			canvas: null,
+			onVideoFrameCallback: null,
+			src: tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4',
+			durationInFrames: 6,
+		});
+		try {
+			expect((await player.initialize(0, false, 1)).type).toBe('success');
+			await vi.waitFor(() =>
+				expect(
+					player
+						.audioIteratorManager!.getAudioBufferIterator()!
+						.getQueuedPeriod()?.until,
+				).toBeCloseTo(0.2),
+			);
+			player.play();
+			for (const duration of [15, 6, 15]) {
+				// The playhead is still inside the queued old range. A seek alone
+				// would retain the old iterator and its original decode endpoint.
+				await player.setSequenceDurationInFrames(duration, 0.1);
+				await vi.waitFor(() => {
+					const queued = player
+						.audioIteratorManager!.getAudioBufferIterator()!
+						.getQueuedPeriod();
+					expect(queued?.from).toBeLessThanOrEqual(0.1);
+					expect(queued?.until).toBeCloseTo(duration / 30);
+				});
+			}
+		} finally {
+			await player.dispose();
+			await shared.audioContext.close();
 		}
 	},
 );

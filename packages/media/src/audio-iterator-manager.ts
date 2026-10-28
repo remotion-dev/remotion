@@ -428,7 +428,11 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		const maximumTimestamp = getMediaEndTimestamp();
+		// Pitch shifting needs future samples; truncating its input changes the tail.
+		const maximumTimestamp =
+			loop || currentToneFrequency !== 1
+				? getMediaEndTimestamp()
+				: Math.min(getMediaEndTimestamp(), getSequenceEndTimestamp());
 		if (startFromSecond >= maximumTimestamp) {
 			return;
 		}
