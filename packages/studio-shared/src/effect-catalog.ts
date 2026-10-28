@@ -22,7 +22,7 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
-	return `/img/${item.id}-preview.png`;
+	return `https://remotion.media/docs/effects/${item.id}-preview.png`;
 };
 
 export const getEffectPreviewAlt = (item: EffectCatalogItem) => {

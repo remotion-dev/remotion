@@ -16,8 +16,10 @@ const EvaluateRemotionSection: React.FC = () => {
 				: '/img/license-questions.webm',
 	});
 	const expertsVideoSrc = useTransparentVideoSource({
-		fallbackVideoSrc: '/img/experts-graphic.mp4',
-		videoSrc: '/img/experts-graphic.webm',
+		fallbackVideoSrc:
+			'https://remotion.media/homepage/experts-graphic-b3ade07a9cff.mp4',
+		videoSrc:
+			'https://remotion.media/homepage/experts-graphic-6bb9224f5680.webm',
 	});
 
 	return (
