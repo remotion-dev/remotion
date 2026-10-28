@@ -32,18 +32,32 @@ for index, path in enumerate(sorted((output / "frames").glob("element-*.png"))[1
         durations.append(duration)
     previous = pixels
 
-for extension, options in [
-    ("webp", {"quality": 85, "method": 4, "minimize_size": True}),
-    ("avif", {"quality": 75, "speed": 6, "subsampling": "4:4:4", "max_threads": 4}),
+for theme, logo_name in [
+    ("light", "remotion-wordmark.png"),
+    ("dark", "remotion-wordmark-dark.png"),
 ]:
-    destination = output / f"homepage-hero.{extension}"
-    frames[0].save(
-        destination,
-        save_all=True,
-        append_images=frames[1:],
-        duration=durations,
-        loop=0,
-        **options,
-    )
-    print(f"{destination}: {destination.stat().st_size:,} bytes")
+    with Image.open(Path("../remotion-media/public") / logo_name) as source:
+        logo = source.convert("RGBA")
+    logo = logo.resize((180, round(180 * logo.height / logo.width)), Image.Resampling.LANCZOS)
+    combined_frames = []
+    for frame in frames:
+        combined = Image.new("RGBA", (frame.width, frame.height + 64))
+        combined.alpha_composite(logo, (0, 0))
+        combined.alpha_composite(frame, (0, 64))
+        combined_frames.append(combined)
+
+    for extension, options in [
+        ("webp", {"quality": 85, "method": 4, "minimize_size": True}),
+        ("avif", {"quality": 75, "speed": 6, "subsampling": "4:4:4", "max_threads": 4}),
+    ]:
+        destination = output / f"homepage-hero-{theme}.{extension}"
+        combined_frames[0].save(
+            destination,
+            save_all=True,
+            append_images=combined_frames[1:],
+            duration=durations,
+            loop=0,
+            **options,
+        )
+        print(f"{destination}: {destination.stat().st_size:,} bytes", flush=True)
 PY

@@ -1,17 +1,10 @@
-<p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
-    </picture>
-  </a>
-</p>
-
 <p align="left">
   <a href="https://www.remotion.dev/">
     <picture>
-      <source type="image/avif" srcset="https://remotion.media/homepage/readme-hero-82a44075a5d9.avif">
-      <img alt="Remotion Studio, Codex and VS Code working together" src="https://remotion.media/homepage/readme-hero-6ac1fc11219c.webp" width="937">
+      <source media="(prefers-color-scheme: dark)" type="image/avif" srcset="https://remotion.media/homepage/readme-hero-dark-eb38994994e3.avif">
+      <source media="(prefers-color-scheme: dark)" type="image/webp" srcset="https://remotion.media/homepage/readme-hero-dark-6217fdf24b20.webp">
+      <source type="image/avif" srcset="https://remotion.media/homepage/readme-hero-light-c1463744ad46.avif">
+      <img alt="Remotion — Studio, Codex and VS Code working together" src="https://remotion.media/homepage/readme-hero-light-02045d9570ae.webp" width="937">
     </picture>
   </a>
 </p>
