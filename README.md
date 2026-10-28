@@ -7,7 +7,7 @@
   </a>
 </p>
 
-<p align="center">
+<p align="left">
   <a href="https://www.remotion.dev/">
     <picture>
       <source type="image/avif" srcset="https://remotion.media/homepage/readme-hero-82a44075a5d9.avif">
