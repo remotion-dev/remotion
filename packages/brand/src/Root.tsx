@@ -266,6 +266,7 @@ import {
 	StudioReference,
 	studioReferenceSchema,
 } from './video-elements/Studio';
+import {ReadmeHero} from './video-elements/ReadmeHero';
 import {StudioCodeHandoff} from './video-elements/StudioCodeHandoff';
 import {TextEditor, textEditorSchema} from './video-elements/TextEditor';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
@@ -388,6 +389,18 @@ export const RemotionRoot: React.FC = () => {
 					width={1874}
 					height={1020}
 				/>
+				{(['light', 'dark'] as const).map((theme) => (
+					<Composition
+						key={theme}
+						id={theme === 'light' ? 'ReadmeHeroLight' : 'ReadmeHeroDark'}
+						component={ReadmeHero}
+						defaultProps={{theme}}
+						durationInFrames={180}
+						fps={15}
+						width={1012}
+						height={583}
+					/>
+				))}
 				<Composition
 					id="StepGuide"
 					component={StepGuide}
