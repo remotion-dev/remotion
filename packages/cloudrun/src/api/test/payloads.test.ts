@@ -54,6 +54,8 @@ test('CloudRunPayload should work with and without optional webhook fields', () 
 	}
 
 	if (parsedWithoutWebhook.success) {
+		expect(parsedWithoutWebhook.data.licenseKey).toBeNull();
+		expect(parsedWithoutWebhook.data.isProduction).toBeNull();
 		expect(parsedWithoutWebhook.data.renderIdOverride).toBeUndefined();
 		expect(parsedWithoutWebhook.data.renderStatusWebhook).toBeUndefined();
 	}
