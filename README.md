@@ -48,11 +48,11 @@ Remotion is extensively documented over 1,200 pages.
 - Components
   - [Elements](https://remotion.dev/elements)
   - [Effects](https://remotion.dev/effects)
-  - [Shapes](https://remotion.dev/docs/shapes)
   - [Transitions](https://remotion.dev/transitions)
   - [Sound Effects](https://remotion.dev/docs/sfx)
   - [Captions](https://remotion.dev/docs/captions)
   - [Fonts](https://remotion.dev/docs/fonts)
+  - [Shapes](https://remotion.dev/docs/shapes)
 - Rendering
   - [Node.js APIs](https://www.remotion.dev/docs/ssr)
   - [Lambda](https://www.remotion.dev/docs/lambda)
