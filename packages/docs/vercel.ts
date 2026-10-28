@@ -12,6 +12,7 @@ const accountMirrorPaths = [
 	'/login',
 	'/dashboard',
 	'/dashboard/:path*',
+	'/projects',
 	'/projects/:path*',
 	'/settings',
 	'/store',
