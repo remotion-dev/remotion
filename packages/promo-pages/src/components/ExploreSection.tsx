@@ -143,7 +143,7 @@ export const ExploreSection: React.FC = () => {
 					{
 						title: 'remotion.new',
 						href: 'https://remotion.new',
-						description: 'Try out the Remotion Studio without installation',
+						description: 'Try out Remotion Studio without installation',
 					},
 					{
 						title: 'Editor Starter',
