@@ -112,131 +112,140 @@ const RatingBadgeInner: React.FC<InteractiveTransformProps> = ({style}) => {
 			name="Container"
 			showInTimeline={false}
 			style={{
-				alignItems: 'center',
-				backgroundColor: '#ffffff',
-				border: '1.5px solid #e4e4e7',
-				borderRadius: 9999,
-				boxShadow:
-					'0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
 				boxSizing: 'border-box',
-				display: 'flex',
-				flexDirection: 'row',
-				fontFamily: 'Inter',
 				height: 84,
-				opacity: containerOpacity,
-				padding: '0 28px',
 				position: 'relative',
-				transform: `translateY(${containerTranslateY}px) scale(${containerScale})`,
-				transformOrigin: '50% 50%',
 				width: 580,
-				willChange: 'transform, opacity',
 				...style,
 			}}
 		>
-			<Interactive.Div
-				name="Star rating group"
-				style={{
-					alignItems: 'center',
-					display: 'flex',
-					flexDirection: 'row',
-					gap: 4,
-				}}
-			>
-				{starDelays.map((delay, index) => {
-					const starEntrance = spring({
-						frame: frame - delay,
-						fps,
-						config: {
-							damping: 10,
-							mass: 0.5,
-							stiffness: 180,
-						},
-					});
-
-					const starScale = interpolate(starEntrance, [0, 1], [0, 1], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					});
-
-					return (
-						<div
-							key={index}
-							style={{
-								transform: `scale(${starScale})`,
-								transformOrigin: '50% 50%',
-							}}
-						>
-							<StarIcon fillPercentage={index === 4 ? 0.9 : 1} size={26} />
-						</div>
-					);
-				})}
-			</Interactive.Div>
-
-			<Interactive.Div
-				name="Score text"
-				style={{
-					alignItems: 'baseline',
-					display: 'flex',
-					flexDirection: 'row',
-					gap: 4,
-					marginLeft: 14,
-				}}
-			>
-				<span
-					style={{
-						color: '#09090b',
-						fontSize: 28,
-						fontWeight: 800,
-						letterSpacing: '-0.02em',
-						lineHeight: 1,
-					}}
-				>
-					4.9
-				</span>
-				<span
-					style={{
-						color: '#71717a',
-						fontSize: 19,
-						fontWeight: 500,
-						lineHeight: 1,
-					}}
-				>
-					/ 5.0
-				</span>
-			</Interactive.Div>
-
 			<div
 				style={{
-					backgroundColor: '#e4e4e7',
-					height: 32,
-					margin: '0 20px',
-					width: 1,
-				}}
-			/>
-
-			<Interactive.Div
-				name="Verified customer count"
-				style={{
 					alignItems: 'center',
+					backgroundColor: '#ffffff',
+					border: '1.5px solid #e4e4e7',
+					borderRadius: 9999,
+					boxShadow:
+						'0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
+					boxSizing: 'border-box',
 					display: 'flex',
 					flexDirection: 'row',
-					gap: 8,
+					fontFamily: 'Inter',
+					height: '100%',
+					opacity: containerOpacity,
+					padding: '0 28px',
+					position: 'relative',
+					transform: `translateY(${containerTranslateY}px) scale(${containerScale})`,
+					transformOrigin: '50% 50%',
+					width: '100%',
+					willChange: 'transform, opacity',
 				}}
 			>
-				<VerifiedBadgeIcon size={20} />
-				<span
+				<Interactive.Div
+					name="Star rating group"
 					style={{
-						color: '#27272a',
-						fontSize: 21,
-						fontWeight: 600,
-						letterSpacing: '-0.01em',
-						lineHeight: 1,
-						whiteSpace: 'nowrap',
+						alignItems: 'center',
+						display: 'flex',
+						flexDirection: 'row',
+						gap: 4,
 					}}
 				>
-					2,400+ Reviews
-				</span>
-			</Interactive.Div>
+					{starDelays.map((delay, index) => {
+						const starEntrance = spring({
+							frame: frame - delay,
+							fps,
+							config: {
+								damping: 10,
+								mass: 0.5,
+								stiffness: 180,
+							},
+						});
+
+						const starScale = interpolate(starEntrance, [0, 1], [0, 1], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						});
+
+						return (
+							<div
+								key={index}
+								style={{
+									transform: `scale(${starScale})`,
+									transformOrigin: '50% 50%',
+								}}
+							>
+								<StarIcon fillPercentage={index === 4 ? 0.9 : 1} size={26} />
+							</div>
+						);
+					})}
+				</Interactive.Div>
+
+				<Interactive.Div
+					name="Score text"
+					style={{
+						alignItems: 'baseline',
+						display: 'flex',
+						flexDirection: 'row',
+						gap: 4,
+						marginLeft: 14,
+					}}
+				>
+					<span
+						style={{
+							color: '#09090b',
+							fontSize: 28,
+							fontWeight: 800,
+							letterSpacing: '-0.02em',
+							lineHeight: 1,
+						}}
+					>
+						4.9
+					</span>
+					<span
+						style={{
+							color: '#71717a',
+							fontSize: 19,
+							fontWeight: 500,
+							lineHeight: 1,
+						}}
+					>
+						/ 5.0
+					</span>
+				</Interactive.Div>
+
+				<div
+					style={{
+						backgroundColor: '#e4e4e7',
+						height: 32,
+						margin: '0 20px',
+						width: 1,
+					}}
+				/>
+
+				<Interactive.Div
+					name="Verified customer count"
+					style={{
+						alignItems: 'center',
+						display: 'flex',
+						flexDirection: 'row',
+						gap: 8,
+					}}
+				>
+					<VerifiedBadgeIcon size={20} />
+					<span
+						style={{
+							color: '#27272a',
+							fontSize: 21,
+							fontWeight: 600,
+							letterSpacing: '-0.01em',
+							lineHeight: 1,
+							whiteSpace: 'nowrap',
+						}}
+					>
+						2,400+ Reviews
+					</span>
+				</Interactive.Div>
+			</div>
 		</Interactive.Div>
 	);
 };
