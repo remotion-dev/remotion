@@ -127,14 +127,14 @@ export const ExploreSection: React.FC = () => {
 						description: 'Exposure, contrast, levels, curves and LUTs',
 					},
 					{
-						title: 'Agents',
-						href: '/docs/ai',
-						description: 'Skills, Agent Plugins and WebMCP integration',
-					},
-					{
 						title: 'Background removal',
 						href: '/docs/video-matting',
 						description: 'Separate layers locally using WebGPU',
+					},
+					{
+						title: 'Agents',
+						href: '/docs/ai',
+						description: 'Skills, Agent Plugins and WebMCP integration',
 					},
 					{
 						title: 'Editor Starter',
