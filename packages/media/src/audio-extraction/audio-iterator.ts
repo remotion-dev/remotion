@@ -3,13 +3,6 @@ import {Internals, type LogLevel} from 'remotion';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import {makeAudioCache} from './audio-cache';
 
-// https://discord.com/channels/@me/1409810025844838481/1415028953093111870
-// Audio frames might have dependencies on previous and next frames so we need to decode a bit more
-// and then discard it.
-// The worst case seems to be FLAC files with a 65'535 sample window, which would be 1486.0ms at 44.1Khz.
-// So let's set a threshold of 1.5 seconds.
-
-const EXTRA_THRESHOLD_IN_SECONDS = 1.5;
 const safetyOutOfOrderThreshold = 0.2;
 
 const warned: Record<string, boolean> = {};
@@ -48,7 +41,7 @@ export const makeAudioIterator = ({
 	// https://github.com/Vanilagy/mediabunny/issues/105
 
 	const sampleIterator = audioSampleSink.samples(
-		isMatroska ? 0 : Math.max(0, startTimestamp - EXTRA_THRESHOLD_IN_SECONDS),
+		isMatroska ? 0 : startTimestamp,
 	);
 	if (isMatroska) {
 		warnAboutMatroskaOnce(src, logLevel);

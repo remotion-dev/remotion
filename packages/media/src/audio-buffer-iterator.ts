@@ -1,7 +1,5 @@
 import type {AudioBufferSink, WrappedAudioBuffer} from 'mediabunny';
 
-const AUDIO_PRIMING_SECONDS = 0.5;
-
 export type AudioBufferSlice = {
 	buffer: WrappedAudioBuffer;
 	// Position where the audible slice begins on the continuous timeline.
@@ -11,7 +9,7 @@ export type AudioBufferSlice = {
 	sourceDurationInSeconds: number;
 };
 
-export async function* makeIteratorWithPriming({
+export async function* makeAudioBufferIterator({
 	audioSink,
 	timeToSeek,
 	maximumTimestamp,
@@ -20,8 +18,7 @@ export async function* makeIteratorWithPriming({
 	timeToSeek: number;
 	maximumTimestamp: number;
 }): AsyncGenerator<AudioBufferSlice, void, unknown> {
-	const primingStart = Math.max(0, timeToSeek - AUDIO_PRIMING_SECONDS);
-	const iterator = audioSink.buffers(primingStart, maximumTimestamp);
+	const iterator = audioSink.buffers(timeToSeek, maximumTimestamp);
 
 	for await (const buffer of iterator) {
 		const sourceStart = Math.max(buffer.timestamp, timeToSeek);
@@ -77,7 +74,7 @@ export async function* makeLoopingIterator({
 
 	while (true) {
 		let yieldedInPass = false;
-		for await (const item of makeIteratorWithPriming({
+		for await (const item of makeAudioBufferIterator({
 			audioSink,
 			timeToSeek: passStartInSeconds,
 			maximumTimestamp: segmentEndInSeconds,

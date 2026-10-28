@@ -1,4 +1,4 @@
-import type {AudioBufferSlice} from '../make-iterator-with-priming';
+import type {AudioBufferSlice} from '../audio-buffer-iterator';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
 

@@ -6,6 +6,11 @@ import {
 import type {LogLevel} from 'remotion';
 import {Internals, type ScheduleAudioNodeResult} from 'remotion';
 import {
+	makeAudioBufferIterator,
+	makeLoopingIterator,
+	type AudioBufferSlice,
+} from './audio-buffer-iterator';
+import {
 	isAlreadyQueued,
 	makeAudioIterator,
 	type AudioIterator,
@@ -19,11 +24,6 @@ import {
 	waitForTurn,
 } from './audio/sort-by-priority';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
-import {
-	makeIteratorWithPriming,
-	makeLoopingIterator,
-	type AudioBufferSlice,
-} from './make-iterator-with-priming';
 import type {Nonce} from './nonce-manager';
 import type {SharedAudioContextForMediaPlayer} from './shared-audio-context-for-media-player';
 
@@ -454,7 +454,7 @@ export const audioIteratorManager = ({
 					segmentEndInSeconds: maximumTimestamp,
 					maximumContinuousTimestamp,
 				})
-			: makeIteratorWithPriming({
+			: makeAudioBufferIterator({
 					audioSink,
 					timeToSeek: startFromSecond,
 					maximumTimestamp,

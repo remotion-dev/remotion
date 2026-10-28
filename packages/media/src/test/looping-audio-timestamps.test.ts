@@ -1,13 +1,13 @@
 import type {AudioBufferSink, WrappedAudioBuffer} from 'mediabunny';
 import {expect, test} from 'vitest';
 import {
+	makeAudioBufferIterator,
+	makeLoopingIterator,
+} from '../audio-buffer-iterator';
+import {
 	getDurationOfNode,
 	getTrimStartForAudioNode,
 } from '../audio/get-scheduled-time';
-import {
-	makeIteratorWithPriming,
-	makeLoopingIterator,
-} from '../make-iterator-with-priming';
 
 const CHUNK_DURATION = 1;
 
@@ -163,7 +163,7 @@ test('looping iterator must stop at the manager-provided continuous timestamp', 
 });
 
 test('one-pass iterator does not wrap', async () => {
-	const iterator = makeIteratorWithPriming({
+	const iterator = makeAudioBufferIterator({
 		audioSink: makeMockAudioSink(10),
 		timeToSeek: 8,
 		maximumTimestamp: 10,

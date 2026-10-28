@@ -1,8 +1,8 @@
 import type {CDPSession} from '@vitest/browser-playwright';
 import {expect, test, vi} from 'vitest';
 import {cdp} from 'vitest/browser';
+import type {AudioBufferSlice} from '../audio-buffer-iterator';
 import {makeAudioIterator} from '../audio/audio-preview-iterator';
-import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 async function* makeEmptySource(): AsyncGenerator<
 	AudioBufferSlice,

@@ -1,4 +1,4 @@
-import type {AudioBufferSlice} from '../make-iterator-with-priming';
+import type {AudioBufferSlice} from '../audio-buffer-iterator';
 import {StreamingPitchShifter} from './streaming-pitch-shifter';
 
 const getPlanarSlice = (slice: AudioBufferSlice) => {
