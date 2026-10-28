@@ -98,6 +98,10 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				height,
 				isolation: 'isolate',
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
+				// While rendering, <HtmlInCanvas> hides its layout canvas and only
+				// makes its root div visible again. Samples are canvas siblings, so
+				// they must opt back in, or Chrome keeps no paint record for them.
+				visibility: 'visible',
 			}}
 		>
 			{isRepresentativeSample ? (
