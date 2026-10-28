@@ -324,7 +324,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									>
 										<ExternalLinkIcon size={16} />
 									</span>
-									Try in remotion.dev/new
+									Try in remotion.new
 								</button>
 							) : null}
 						</div>
