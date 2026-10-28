@@ -38,7 +38,7 @@ to get started. Otherwise, read the [installation page](https://www.remotion.dev
 
 ## Discover Remotion
 
-Remotion is extensively documented over more than 1000 pages.
+Remotion is extensively documented over 1,200 pages.
 
 - Get Started
   - [Installation](https://remotion.dev/docs)
