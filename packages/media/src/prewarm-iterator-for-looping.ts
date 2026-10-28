@@ -1,10 +1,10 @@
-import type {CanvasSink} from 'mediabunny';
+import type {CanvasSink, VideoSampleSink} from 'mediabunny';
 import type {CanvasAheadOfTimeIterator} from './canvas-ahead-of-time';
 import {canvasesAheadOfTime} from './canvas-ahead-of-time';
 import {FRAME_START_TOLERANCE} from './helpers/has-frame-started';
 
 export const makePrewarmedVideoIteratorCache = (
-	videoSink: CanvasSink,
+	videoSink: CanvasSink | VideoSampleSink,
 	timeResolution: number,
 ) => {
 	const prewarmedVideoIterators: Map<number, CanvasAheadOfTimeIterator> =

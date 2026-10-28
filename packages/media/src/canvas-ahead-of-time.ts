@@ -1,4 +1,5 @@
 import type {CanvasSink, WrappedCanvas} from 'mediabunny';
+import {VideoSample, VideoSampleSink} from 'mediabunny';
 
 export type CanvasAheadOfTimeNext =
 	| {type: 'ready'; frame: WrappedCanvas | null}
@@ -7,19 +8,93 @@ export type CanvasAheadOfTimeNext =
 const BUFFER_SIZE = 3;
 
 const releaseCanvas = Symbol('releaseCanvas');
+const drawSample = Symbol('drawSample');
 
 type StableWrappedCanvas = WrappedCanvas & {
 	[releaseCanvas]: () => void;
+	[drawSample]:
+		| ((
+				context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+				width: number,
+				height: number,
+		  ) => void)
+		| null;
 };
 
 export const releaseStableFrame = (frame: WrappedCanvas | null) => {
 	(frame as Partial<StableWrappedCanvas> | null)?.[releaseCanvas]?.();
 };
 
+export const drawStableFrame = (
+	context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+	frame: WrappedCanvas,
+	width: number,
+	height: number,
+) => {
+	const draw = (frame as Partial<StableWrappedCanvas>)[drawSample];
+	if (draw) {
+		draw(context, width, height);
+	} else {
+		context.drawImage(frame.canvas, 0, 0, width, height);
+	}
+};
+
 const makeStableFramePool = () => {
 	const availableCanvases: OffscreenCanvas[] = [];
 
-	const makeStableFrame = (frame: WrappedCanvas): WrappedCanvas => {
+	const makeStableFrame = (
+		frame: WrappedCanvas | VideoSample,
+	): WrappedCanvas => {
+		if (frame instanceof VideoSample) {
+			let sampleCanvas: OffscreenCanvas | null = null;
+			let sampleReleased = false;
+			const sampleFrame: StableWrappedCanvas = {
+				timestamp: frame.timestamp,
+				duration: frame.duration,
+				// Effects and onVideoFrame still receive an owned canvas. Ordinary
+				// playback can draw the retained sample without allocating one.
+				get canvas() {
+					if (!sampleCanvas) {
+						sampleCanvas =
+							availableCanvases.pop() ??
+							new OffscreenCanvas(frame.displayWidth, frame.displayHeight);
+						if (sampleCanvas.width !== frame.displayWidth)
+							sampleCanvas.width = frame.displayWidth;
+						if (sampleCanvas.height !== frame.displayHeight)
+							sampleCanvas.height = frame.displayHeight;
+						const sampleContext = sampleCanvas.getContext('2d');
+						if (!sampleContext)
+							throw new Error('Could not create canvas context');
+						sampleContext.clearRect(
+							0,
+							0,
+							sampleCanvas.width,
+							sampleCanvas.height,
+						);
+						frame.draw(
+							sampleContext,
+							0,
+							0,
+							sampleCanvas.width,
+							sampleCanvas.height,
+						);
+					}
+
+					return sampleCanvas;
+				},
+				[drawSample]: (sampleContext, width, height) => {
+					frame.draw(sampleContext, 0, 0, width, height);
+				},
+				[releaseCanvas]: () => {
+					if (sampleReleased) return;
+					sampleReleased = true;
+					frame.close();
+					if (sampleCanvas) availableCanvases.push(sampleCanvas);
+				},
+			};
+			return sampleFrame;
+		}
+
 		const {canvas} = frame;
 		const stableCanvas =
 			availableCanvases.pop() ??
@@ -48,6 +123,7 @@ const makeStableFramePool = () => {
 
 		const stableFrame: StableWrappedCanvas = {
 			canvas: stableCanvas,
+			[drawSample]: null,
 			duration: frame.duration,
 			timestamp: frame.timestamp,
 			[releaseCanvas]: () => {
@@ -67,15 +143,18 @@ const makeStableFramePool = () => {
 };
 
 type Slot = {
-	promise: Promise<IteratorResult<WrappedCanvas, void>>;
+	promise: Promise<IteratorResult<WrappedCanvas | VideoSample, void>>;
 	resolved: IteratorResult<WrappedCanvas, void> | null;
 };
 
 export const canvasesAheadOfTime = (
-	videoSink: CanvasSink,
+	videoSink: CanvasSink | VideoSampleSink,
 	startTimestamp?: number,
 ) => {
-	const iterator = videoSink.canvases(startTimestamp);
+	const iterator =
+		videoSink instanceof VideoSampleSink
+			? videoSink.samples(startTimestamp)
+			: videoSink.canvases(startTimestamp);
 
 	const buffer: Slot[] = [];
 	let chaining = false;
@@ -84,7 +163,7 @@ export const canvasesAheadOfTime = (
 	let inFlight: Promise<void> | null = null;
 	const stableFramePool = makeStableFramePool();
 
-	const takeFrame = (frame: WrappedCanvas): WrappedCanvas => {
+	const takeFrame = (frame: WrappedCanvas | VideoSample): WrappedCanvas => {
 		return stableFramePool.makeStableFrame(frame);
 	};
 
@@ -106,6 +185,7 @@ export const canvasesAheadOfTime = (
 				}
 
 				if (closed) {
+					if (result.value instanceof VideoSample) result.value.close();
 					slot.resolved = {done: true, value: undefined};
 					return;
 				}
