@@ -10,7 +10,7 @@ const accountMirrorHosts = [
 ];
 const accountMirrorPaths = [
 	'/login',
-	'/dashboard',
+	'/dashboard/:path*',
 	'/projects/:path*',
 	'/settings',
 	'/store/:path*',
