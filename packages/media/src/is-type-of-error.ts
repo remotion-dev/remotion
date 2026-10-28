@@ -23,9 +23,15 @@ export function isUnsupportedConfigurationError(error: Error) {
 }
 
 /**
- * Chrome reclaims WebCodecs decoders that have been idle for a while and
- * rejects pending work with "QuotaExceededError: Codec reclaimed due to inactivity."
+ * Browsers (at least Chromium) close codecs that have been idle for a long time
+ * and report "QuotaExceededError: Codec reclaimed due to inactivity."
+ * Mirrors Mediabunny's internal `isCodecReclaimedError`, which is not exported.
+ * `QuotaExceededError` alone is also used for genuine quota failures.
  */
 export function isCodecReclaimedError(error: unknown) {
-	return error instanceof DOMException && error.name === 'QuotaExceededError';
+	return (
+		error instanceof DOMException &&
+		error.name === 'QuotaExceededError' &&
+		/reclaimed/i.test(error.message)
+	);
 }

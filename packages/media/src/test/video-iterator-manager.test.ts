@@ -375,7 +375,7 @@ test('recreates the iterator once when the decoder was reclaimed', async () => {
 	}
 });
 
-test('does not recreate the iterator for other decoder errors', async () => {
+test('does not recreate the iterator for quota errors that are not reclaims', async () => {
 	const {videoTrack} = await prepare();
 	const manager = await makeManager(videoTrack);
 	const nonceManager = makeNonceManager();
@@ -387,7 +387,10 @@ test('does not recreate the iterator for other decoder errors', async () => {
 			throw new Error('Expected a video iterator');
 		}
 
-		const failure = new DOMException('Decoding failed', 'EncodingError');
+		const failure = new DOMException(
+			'Decoder quota exceeded.',
+			'QuotaExceededError',
+		);
 		iterator.tryToSatisfySeek = () => Promise.reject(failure);
 
 		await expect(
