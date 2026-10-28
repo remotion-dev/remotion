@@ -394,7 +394,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										<img
 											alt=""
 											className={styles.contributorAvatar}
-											src={`https://github.com/${contributor.username}.png`}
+											crossOrigin="anonymous"
+											src={`https://avatars.githubusercontent.com/${contributor.username}`}
 										/>
 										<span className={styles.contributorText}>
 											<strong>@{contributor.username}</strong>
