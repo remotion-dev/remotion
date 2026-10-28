@@ -18,7 +18,7 @@ const videoSources: Record<string, string> = {
 	'Color Correction': 'color-correction-reframed-2026-10-28-bbd0c2bcacf6.mp4',
 	Keyframes: 'uniform-angle-keyframes-2026-10-28-fd7bcfd66bcf.mp4',
 	'Background removal':
-		'uniform-angle-background-removal-2026-10-28-621c765dd39d.mp4',
+		'building-background-removal-2026-10-28-2e506bf93665.mp4',
 	Player: 'player-close-2026-10-28-b1906ac6b286.mp4',
 	'Editor Starter': 'editor-starter-no-vignette-2026-10-27-ec6b5ef939c3.mp4',
 	'Canvas Capture': 'canvas-capture-2026-10-27-253104dab7ca.mp4',

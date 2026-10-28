@@ -1,37 +1,53 @@
-import {Img} from 'remotion';
+import {Img, Interactive} from 'remotion';
 
 export const BackgroundRemovalDemo = () => {
 	return (
-		<div style={{position: 'absolute', inset: 0}}>
+		<div style={{position: 'absolute', inset: 0, backgroundColor: '#176693'}}>
 			<Img
-				name="Background"
-				src="https://remotion.media/explore-remotion/whats-new-jonny-background-2026-10-27-eb0e748dc4b9.png"
+				name="Sky"
+				src={
+					'https://remotion.media/explore-remotion/building-background-2026-10-28-69fc218591c6.jpg'
+				}
 				durationInFrames={120}
 				style={{
 					position: 'absolute',
-					left: 180,
-					top: 600,
-					width: 1240,
-					height: 697.5,
-					rotate: '0.15 -1 -0.12 22deg',
-					border: '2px solid #aeb7c5',
-					boxShadow: '0 20px 60px #17243b18',
-					translate: '0px -148.8px',
+					inset: 0,
+					width: '100%',
+					height: '100%',
 				}}
 			/>
-			<Img
-				name="Foreground"
-				src="https://remotion.media/explore-remotion/whats-new-jonny-foreground-2026-10-27-d7cfb160e8d8.png"
+			<Interactive.Div
+				name="Remotion"
 				durationInFrames={120}
 				style={{
 					position: 'absolute',
-					left: 180,
-					top: 600,
-					width: 1240,
-					height: 697.5,
-					rotate: '0.15 -1 -0.12 22deg',
-					translate: '0px -148.8px',
-					border: '2px solid #aeb7c5',
+					left: 65,
+					top: 5,
+					width: 1490,
+					height: 340,
+					fontFamily: 'Arial, Helvetica, sans-serif',
+					fontSize: 314,
+					fontWeight: 900,
+					letterSpacing: -13,
+					lineHeight: 1,
+					color: 'white',
+					textAlign: 'center',
+					translate: '0px 111.9px',
+				}}
+			>
+				Remotion
+			</Interactive.Div>
+			<Img
+				name="Building"
+				src={
+					'https://remotion.media/explore-remotion/building-building-2026-10-28-273eb6c977ae.png'
+				}
+				durationInFrames={120}
+				style={{
+					position: 'absolute',
+					inset: 0,
+					width: '100%',
+					height: '100%',
 				}}
 			/>
 		</div>

@@ -1,17 +1,14 @@
-import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
-import {Video} from '@remotion/media';
-import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
-import {ExploreBackgroundRemovalRecording20261027Composition} from '../../ExploreBackgroundRemovalRecording20261027Composition';
+import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {ExploreBuildingRecording20261028Composition} from '../../ExploreBuildingRecording20261028Composition';
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 
-export const backgroundRemovalDuration = 300;
+export const backgroundRemovalDuration = 357;
 
 export const BackgroundRemovalRecordingEdit = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: '#1f2428', overflow: 'visible'}}>
-			<Sequence from={-42} layout="none" name="Align the separated foreground">
-				<ExploreBackgroundRemovalRecording20261027Composition />
-			</Sequence>
+			<ExploreBuildingRecording20261028Composition />
 		</AbsoluteFill>
 	);
 };
@@ -25,7 +22,7 @@ export const ExploreRemotionBackgroundRemoval = () => {
 			durationInFrames={backgroundRemovalDuration}
 			effects={[
 				radialProgressiveBlur({
-					center: [0.36, 0.49],
+					center: [0.5, 0.49],
 					width: 1.45,
 					height: 1.4,
 					start: 0.3,
@@ -50,21 +47,19 @@ export const ExploreRemotionBackgroundRemoval = () => {
 						rotate: EXPLORE_CAMERA_ANGLE,
 					}}
 				>
-					<Video
-						name="Pre-composed background removal recording"
-						src="https://remotion.media/explore-remotion/background-removal-full-precomp-2026-10-27-c3a506cbd24c.mp4"
-						muted
-						durationInFrames={backgroundRemovalDuration}
+					<div
 						style={{
 							position: 'absolute',
-							left: -620,
-							top: -330,
-							width: 1704,
+							left: -260,
+							top: 0,
+							width: 2102,
 							height: 1440,
-							scale: 1.05,
+							scale: 0.75,
 							transformOrigin: 'top left',
 						}}
-					/>
+					>
+						<BackgroundRemovalRecordingEdit />
+					</div>
 				</div>
 			</div>
 		</HtmlInCanvas>

@@ -1,3 +1,4 @@
+import {ExploreBuildingRecording20261028Composition} from './ExploreBuildingRecording20261028Composition';
 import {ExploreRemotionSDK} from './HomepageAssets/ExploreRemotion/SDK';
 import {
 	ExploreRemotionNew,
@@ -744,7 +745,7 @@ export const RemotionRoot: React.FC = () => {
 						component={BackgroundRemovalRecordingEdit}
 						durationInFrames={backgroundRemovalDuration}
 						fps={60}
-						width={1704}
+						width={2102}
 						height={1440}
 					/>
 					<Composition
@@ -1641,8 +1642,8 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="BackgroundRemovalDemo"
 				component={BackgroundRemovalDemo}
-				width={1600}
-				height={1600}
+				width={1620}
+				height={1080}
 				fps={30}
 				durationInFrames={120}
 			/>
@@ -1797,6 +1798,14 @@ export const RemotionRoot: React.FC = () => {
 				durationInFrames={420}
 				fps={60}
 				width={2418}
+				height={1440}
+			/>
+			<Composition
+				id="ExploreBuildingRecording20261028"
+				component={ExploreBuildingRecording20261028Composition}
+				durationInFrames={357}
+				fps={60}
+				width={2102}
 				height={1440}
 			/>
 		</>
