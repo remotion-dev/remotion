@@ -10,7 +10,7 @@ import {
 } from 'remotion';
 import {ExploreStudioRecording20261027Composition} from '../../ExploreStudioRecording20261027Composition';
 
-export const studioRecordingDuration = 312;
+export const studioRecordingDuration = 200;
 
 // Keep the complete recording through the tilt; only the final tile crops it.
 export const StudioRecordingEdit = () => {
@@ -67,16 +67,11 @@ export const ExploreRemotionStudio = () => {
 						muted
 						style={{
 							position: 'absolute',
-							left: interpolate(
-								frame,
-								[0, 35, 75, 115, 180, 235, 312],
-								[-150, -400, -750, -1200, -1800, -2140, -2140],
-								{
-									easing: Easing.bezier(0.33, 0, 0.67, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							),
+							left: interpolate(frame, [0, 170], [-150, -1700], {
+								easing: Easing.bezier(0.33, 0, 0.67, 1),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
 							top: 90,
 							width: 2330,
 							height: 1440,

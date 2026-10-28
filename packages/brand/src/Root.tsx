@@ -119,6 +119,7 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
+import {ExploreConvertRecording20261028Composition} from './ExploreConvertRecording20261028Composition';
 import {ExploreCurvesRecording20261027Composition} from './ExploreCurvesRecording20261027Composition';
 import {ExploreElementsRecording20261027Composition} from './ExploreElementsRecording20261027Composition';
 import {ExploreKeyframesRecording20261027Composition} from './ExploreKeyframesRecording20261027Composition';
@@ -143,7 +144,12 @@ import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions
 import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
-import {ExploreRemotionConvert} from './HomepageAssets/ExploreRemotion/Convert';
+import {
+	ConvertRecordingEdit,
+	ConvertSquareEdit,
+	convertRecordingDuration,
+	ExploreRemotionConvert,
+} from './HomepageAssets/ExploreRemotion/Convert';
 import {
 	EditorStarterRecordingEdit,
 	editorStarterDuration,
@@ -583,7 +589,23 @@ export const RemotionRoot: React.FC = () => {
 					<Composition
 						id="ExploreRemotionConvert"
 						component={ExploreRemotionConvert}
-						durationInFrames={366}
+						durationInFrames={convertRecordingDuration}
+						fps={60}
+						width={1080}
+						height={1080}
+					/>
+					<Composition
+						id="ExploreConvertRecordingEdit"
+						component={ConvertRecordingEdit}
+						durationInFrames={convertRecordingDuration}
+						fps={60}
+						width={1332}
+						height={1440}
+					/>
+					<Composition
+						id="ExploreConvertSquareEdit"
+						component={ConvertSquareEdit}
+						durationInFrames={convertRecordingDuration}
 						fps={60}
 						width={1080}
 						height={1080}
@@ -1668,6 +1690,14 @@ export const Scene11: React.FC<{platform: EndCardPlatform}> = ({platform}) => {
 				durationInFrames={529}
 				fps={60}
 				width={2510}
+				height={1440}
+			/>
+			<Composition
+				id="ExploreConvertRecording20261028"
+				component={ExploreConvertRecording20261028Composition}
+				durationInFrames={805}
+				fps={60}
+				width={1332}
 				height={1440}
 			/>
 		</>

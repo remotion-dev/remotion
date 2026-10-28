@@ -1536,6 +1536,7 @@
         "bun-plugin-tailwind": "0.1.2",
         "create-video": "workspace:*",
         "hls.js": "1.5.19",
+        "mediabunny": "catalog:",
         "polished": "4.3.1",
         "remotion": "workspace:*",
         "zod": "catalog:",

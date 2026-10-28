@@ -1,5 +1,4 @@
 import {colorCorrection} from '@remotion/effects/color-correction';
-import {grayscale} from '@remotion/effects/grayscale';
 import {HtmlInCanvas, Sequence} from 'remotion';
 import {RenderModalCodecPreview} from '../../RenderModalCodec';
 
@@ -9,7 +8,6 @@ export const ExploreRemotionRenderModalCodec = () => {
 			width={1080}
 			height={1080}
 			effects={[
-				grayscale({}),
 				colorCorrection({
 					pivot: 0,
 					shadows: 1,

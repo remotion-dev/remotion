@@ -1,5 +1,4 @@
 import {colorCorrection} from '@remotion/effects/color-correction';
-import {grayscale} from '@remotion/effects/grayscale';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {AbsoluteFill, HtmlInCanvas, Sequence, Solid} from 'remotion';
 import {AiPromptRecordingComposition} from '../../AiPromptRecordingComposition';
@@ -18,7 +17,6 @@ export const ExploreRemotionAI = () => {
 				width={1080}
 				height={1080}
 				effects={[
-					grayscale({}),
 					colorCorrection({
 						pivot: 0,
 						shadows: 1,

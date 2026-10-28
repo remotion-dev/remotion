@@ -2,7 +2,6 @@ import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {Video} from '@remotion/media';
 import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
 import {ExploreBackgroundRemovalRecording20261027Composition} from '../../ExploreBackgroundRemovalRecording20261027Composition';
-import {preservePink} from './preserve-pink';
 
 export const backgroundRemovalDuration = 300;
 
@@ -24,7 +23,6 @@ export const ExploreRemotionBackgroundRemoval = () => {
 			height={1080}
 			durationInFrames={backgroundRemovalDuration}
 			effects={[
-				preservePink({saturation: 0}),
 				radialProgressiveBlur({
 					center: [0.36, 0.49],
 					width: 1.45,
