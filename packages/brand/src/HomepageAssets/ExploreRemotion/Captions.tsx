@@ -1,6 +1,9 @@
 import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
-import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
 import {CaptionsRecordingComposition} from '../../CaptionsRecordingComposition';
+
+const captionsStartFrame = 136;
+export const captionsDuration = 612 - captionsStartFrame;
 
 export const ExploreRemotionCaptions = () => {
 	const scale = 1080 / 880;
@@ -22,7 +25,9 @@ export const ExploreRemotionCaptions = () => {
 						scale: 1.201,
 					}}
 				>
-					<CaptionsRecordingComposition />
+					<Sequence from={-captionsStartFrame} layout="none">
+						<CaptionsRecordingComposition />
+					</Sequence>
 				</AbsoluteFill>
 			</AbsoluteFill>
 		</HtmlInCanvas>

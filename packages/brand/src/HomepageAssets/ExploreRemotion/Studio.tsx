@@ -68,7 +68,7 @@ export const ExploreRemotionStudio = () => {
 						muted
 						style={{
 							position: 'absolute',
-							left: interpolate(frame, [0, 170], [-150, -1700], {
+							left: interpolate(frame, [0, 190], [150, -1600], {
 								easing: Easing.bezier(0.33, 0, 0.67, 1),
 								extrapolateLeft: 'clamp',
 								extrapolateRight: 'clamp',

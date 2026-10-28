@@ -153,7 +153,10 @@ import {
 	ExploreRemotionBackgroundRemoval,
 	backgroundRemovalDuration,
 } from './HomepageAssets/ExploreRemotion/BackgroundRemoval';
-import {ExploreRemotionCaptions} from './HomepageAssets/ExploreRemotion/Captions';
+import {
+	captionsDuration,
+	ExploreRemotionCaptions,
+} from './HomepageAssets/ExploreRemotion/Captions';
 import {
 	canvasCaptureDuration,
 	ExploreRemotionCanvasCapture,
@@ -846,7 +849,7 @@ export const RemotionRoot: React.FC = () => {
 					<Composition
 						id="ExploreRemotionCaptions"
 						component={ExploreRemotionCaptions}
-						durationInFrames={612}
+						durationInFrames={captionsDuration}
 						fps={60}
 						width={1080}
 						height={1080}

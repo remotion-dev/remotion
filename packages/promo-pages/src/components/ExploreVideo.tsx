@@ -10,7 +10,8 @@ let coverDecodeQueue = Promise.resolve();
 export const ExploreVideo: React.FC<{
 	readonly src: string;
 	readonly active: boolean;
-}> = ({src, active}) => {
+	readonly fadeOnLeave: boolean;
+}> = ({src, active, fadeOnLeave}) => {
 	const coverRef = useRef<HTMLCanvasElement>(null);
 	const playbackRef = useRef<HTMLCanvasElement>(null);
 	const [bytes, setBytes] = useState<ArrayBuffer | null>(null);
@@ -84,7 +85,40 @@ export const ExploreVideo: React.FC<{
 	useEffect(() => {
 		const canvas = playbackRef.current;
 		const cover = coverRef.current;
-		if (!active || !bytes || !canvas || !cover) return;
+		if (!bytes || !canvas || !cover) return;
+		if (!active) {
+			if (canvas.width === 0) return;
+			const clear = () => {
+				canvas.width = 0;
+				canvas.height = 0;
+			};
+
+			if (
+				!fadeOnLeave ||
+				window.matchMedia('(prefers-reduced-motion: reduce)').matches
+			) {
+				clear();
+				return;
+			}
+
+			const duration =
+				Number.parseFloat(
+					getComputedStyle(canvas).getPropertyValue(
+						'--explore-return-duration',
+					),
+				) || 150;
+			const onTransitionEnd = (event: TransitionEvent) => {
+				if (event.propertyName === 'opacity') clear();
+			};
+
+			canvas.addEventListener('transitionend', onTransitionEnd);
+			const timeout = window.setTimeout(clear, duration + 50);
+			return () => {
+				canvas.removeEventListener('transitionend', onTransitionEnd);
+				window.clearTimeout(timeout);
+			};
+		}
+
 		const context = canvas.getContext('2d');
 		if (!context) return;
 
@@ -182,11 +216,8 @@ export const ExploreVideo: React.FC<{
 			sampleInUse?.close();
 			iterator?.return().catch(() => {});
 			input.dispose();
-			// Keep only the cover canvas allocated while the tile is idle.
-			canvas.width = 0;
-			canvas.height = 0;
 		};
-	}, [active, bytes, src]);
+	}, [active, bytes, fadeOnLeave, src]);
 
 	return (
 		<div
@@ -204,7 +235,9 @@ export const ExploreVideo: React.FC<{
 				width={0}
 				height={0}
 				aria-hidden="true"
-				className={`absolute inset-0 h-full w-full ${active ? '' : 'hidden'}`}
+				data-active={active}
+				data-fade-on-leave={fadeOnLeave}
+				className="explore-playback absolute inset-0 h-full w-full"
 			/>
 			{failed ? (
 				<span className="absolute inset-0 flex items-center justify-center text-sm text-muted">

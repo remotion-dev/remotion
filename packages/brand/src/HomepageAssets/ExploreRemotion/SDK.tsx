@@ -15,8 +15,8 @@ export const ExploreRemotionSDK = () => {
 					src="https://remotion.media/explore-remotion/sdk-monaco-source-2026-10-28-4e6cb62c4375.png"
 					style={{
 						position: 'absolute',
-						left: 45,
-						top: -20,
+						left: 115,
+						top: 0,
 						width: 1180,
 						height: 1180,
 					}}
