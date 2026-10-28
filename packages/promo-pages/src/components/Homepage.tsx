@@ -51,7 +51,7 @@ export const NewLanding: React.FC<{
 							<br />
 							For bigger companies, we charge a license fee.
 						</p>
-						<Pricing />
+						<Pricing purchaseHref="/dashboard" />
 						<div className="flex flex-col gap-10 min-[900px]:grid min-[900px]:grid-cols-[repeat(3,270px)] min-[900px]:justify-between min-[900px]:gap-x-0">
 							<TrustedByBanner />
 							<EvaluateRemotionSection />

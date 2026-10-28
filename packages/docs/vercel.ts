@@ -1,5 +1,27 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
+// This deployment is independent of the existing remotion.pro production app.
+const accountMirrorOrigin = 'https://pro-2on7z3ysn-remotion.vercel.app';
+const accountMirrorHosts = [
+	{
+		type: 'host' as const,
+		value: '(?:www\\.)?remotion\\.dev|remotion(?:-[a-z0-9-]+)?\\.vercel\\.app',
+	},
+];
+const accountMirrorPaths = [
+	'/login',
+	'/dashboard',
+	'/projects/:path*',
+	'/settings',
+	'/store/:path*',
+	'/admin/:path*',
+	'/auth-error',
+	'/check-mailbox',
+	'/magic-link',
+	'/change-email',
+	'/api/:path*',
+];
+
 const browserStudioIsolationHeaders = [
 	{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 	{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
@@ -18,6 +40,15 @@ export const config: VercelConfig = {
 	buildCommand:
 		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --no-update-notifier --concurrency=2',
 	headers: [
+		...accountMirrorPaths.map((source) =>
+			routes.header(
+				source,
+				[{key: 'Cache-Control', value: 'private, no-store'}],
+				{
+					has: accountMirrorHosts,
+				},
+			),
+		),
 		routes.header('/assets/(.*)', browserStudioAssetHeaders),
 		routes.header(
 			'/__remotion_browser_studio_workspace__/commits/(.*)',
@@ -76,6 +107,63 @@ export const config: VercelConfig = {
 			{key: 'Cross-Origin-Embedder-Policy', value: 'require-corp'},
 			{key: 'Cross-Origin-Opener-Policy', value: 'same-origin'},
 		]),
+	],
+	rewrites: [
+		// These existing endpoints require the production-only GitHub invite
+		// credential. Reuse them without copying it into the mirror deployment.
+		...['/api/github/invite', '/api/store/invite', '/api/store/redeem'].map(
+			(source) => ({
+				source,
+				destination: `https://www.remotion.pro${source}`,
+				has: accountMirrorHosts,
+			}),
+		),
+		...[
+			...accountMirrorPaths,
+			'/_next/:path*',
+			'/animated-captions-og.png',
+			'/colorsandshapes-ogimage.png',
+			'/cube-presentation-og.jpg',
+			'/editor-splash.png',
+			'/editor-starter-captioning.png',
+			'/editor-starter-export.png',
+			'/editor-starter-inspector.png',
+			'/editor-starter-layer-management.png',
+			'/gt-planar-black.woff2',
+			'/gt-planar-bold.woff2',
+			'/gt-planar-medium.woff2',
+			'/gt-planar-regular.woff2',
+			'/info-icon-for-email.png',
+			'/last-stable.png',
+			'/latest-stable-release-banner.png',
+			'/latest-stable-release.png',
+			'/logo-small.png',
+			'/mapbox-og-image.png',
+			'/mapsnap-studio.png',
+			'/mapsnap.png',
+			'/mux-logo.png',
+			'/npmbanner.png',
+			'/npmkiosk-og-image.png',
+			'/npmkiosk.png',
+			'/og-image.png',
+			'/recorder-1.png',
+			'/recorder-2.png',
+			'/remotion-timeline-square.jpg',
+			'/remotion-wordmark.png',
+			'/timeline-cover.png',
+			'/timeline-og-image.png',
+			'/timeline-store-item.png',
+			'/timelinescreen1.png',
+			'/timelinescreen2.png',
+			'/timelinescreen3.png',
+			'/timelinescreen4.png',
+			'/watercolor-map-og-image.png',
+			'/wordmark.png',
+		].map((source) => ({
+			source,
+			destination: `${accountMirrorOrigin}${source}`,
+			has: accountMirrorHosts,
+		})),
 	],
 	redirects: [
 		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
@@ -191,11 +279,8 @@ export const config: VercelConfig = {
 			'https://github.com/remotion-dev/remotion/blob/main/CODE-OF-CONDUCT.md',
 			{permanent: false},
 		),
-		routes.redirect(
-			'/license',
-			'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
-			{permanent: false},
-		),
+		routes.redirect('/license', '/docs/license/pricing', {permanent: false}),
+		routes.redirect('/pricing', '/docs/license/pricing', {permanent: false}),
 		routes.redirect('/timeout', '/docs/timeout', {permanent: false}),
 		routes.redirect('/html-in-canvas', '/docs/html-in-canvas', {
 			permanent: false,

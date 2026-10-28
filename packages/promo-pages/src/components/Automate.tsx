@@ -74,7 +74,7 @@ export const AutomatePage: React.FC<{
 						We want everyone to be able to build. Completely free for most, fair
 						pricing for companies.
 					</p>
-					<Pricing />
+					<Pricing purchaseHref="/dashboard" />
 					<div className="mt-4 min-[900px]:mt-6 flex flex-col min-[900px]:flex-row gap-10">
 						<TrustedByBanner />
 						<EvaluateRemotionSection />
