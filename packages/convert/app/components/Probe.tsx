@@ -2,10 +2,7 @@ import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
-import {
-	useAddFilenameToTitle,
-	useCopyThumbnailToFavicon,
-} from '~/lib/title-context';
+import {useAddFilenameToTitle} from '~/lib/title-context';
 import {useThumbnailAndWaveform} from '~/lib/use-thumbnail';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
@@ -120,7 +117,6 @@ export const Probe: React.FC<{
 	const [showPackets, setShowPackets] = useState(false);
 
 	useAddFilenameToTitle(name);
-	useCopyThumbnailToFavicon(videoThumbnailRef);
 
 	const images = useMemo(() => {
 		return metadata?.images ?? null;
