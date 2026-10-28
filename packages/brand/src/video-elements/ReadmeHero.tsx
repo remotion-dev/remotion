@@ -15,11 +15,11 @@ export const ReadmeHero: React.FC<{theme: 'light' | 'dark'}> = ({theme}) => {
 					key={side}
 					style={{
 						position: 'absolute',
-						[side]: 8,
+						[side]: 2.5,
 						bottom: 1,
-						width: 58,
-						height: 170,
-						background: `radial-gradient(ellipse 29px 170px at 50% 100%, rgba(${shade}, 0.18) 0%, rgba(${shade}, 0.09) 45%, transparent 100%)`,
+						width: 70,
+						height: 300,
+						background: `radial-gradient(ellipse 35px 300px at 50% 100%, rgba(${shade}, 0.12) 0%, rgba(${shade}, 0.07) 25%, rgba(${shade}, 0.025) 60%, transparent 100%)`,
 					}}
 				/>
 			))}
