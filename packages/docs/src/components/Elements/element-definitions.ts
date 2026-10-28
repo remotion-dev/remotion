@@ -51,6 +51,7 @@ import {SpinningGlobe} from '../../../elements/maps/spinning-globe/spinning-glob
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {RatingBadge} from '../../../elements/overlays/rating-badge/rating-badge';
 import {SocialSafeZones} from '../../../elements/overlays/social-safe-zones/social-safe-zones';
 import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
@@ -1020,6 +1021,34 @@ const elementImplementations = [
 				'https://remotion.media/elements/overlays-name-lower-third-preview.mp4',
 		},
 		safeArea: 300,
+		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
+		slug: 'overlays/rating-badge',
+		assets: [],
+		installationProps: null,
+		component: RatingBadge,
+		contributors: [{username: 'cryptowebbuild', contribution: 'Author'}],
+		description:
+			'An animated star rating pill with a score, review count, and verified badge.',
+		dependencies: [{name: '@remotion/google-fonts', version: null}],
+		durationInFrames: 120,
+		elementHeight: 84,
+		elementWidth: 580,
+		fps: 30,
+		height: 1080,
+		posterFrame: 60,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/overlays-rating-badge-preview.png',
+			backgroundTheme: 'light',
+			videoUrl:
+				'https://remotion.media/elements/overlays-rating-badge-preview.mp4',
+		},
+		safeArea: 200,
 		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
