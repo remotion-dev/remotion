@@ -130,8 +130,8 @@ export const ExploreSection: React.FC = () => {
 						description: 'Free, fast and offline video converter',
 					},
 					{
-						title: 'remotion.dev/new',
-						href: 'https://remotion.dev/new',
+						title: 'remotion.new',
+						href: 'https://remotion.new',
 						description: 'Try out the Remotion Studio without installation',
 					},
 					{
