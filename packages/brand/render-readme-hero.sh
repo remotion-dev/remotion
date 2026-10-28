@@ -47,10 +47,14 @@ for theme, logo_name in [
     background = Image.new("RGBA", (width, bottom + 1))
     draw = ImageDraw.Draw(background)
     shade = 255 if theme == "dark" else 0
-    # Match the homepage's upward-fading wash across the full README width.
+    # Fade upward and smoothly to zero before either side of the image.
     for y in range(bottom - 100, bottom):
-        alpha = round(20 * (y - (bottom - 100)) / 99)
-        draw.line((0, y, width - 1, y), fill=(shade, shade, shade, alpha))
+        vertical = (y - (bottom - 100)) / 99
+        for x in range(16, width - 16):
+            horizontal = min(1, (min(x, width - 1 - x) - 16) / 64)
+            horizontal = horizontal * horizontal * (3 - 2 * horizontal)
+            alpha = round(20 * vertical * horizontal)
+            draw.point((x, y), fill=(shade, shade, shade, alpha))
     draw.line((0, bottom, width - 1, bottom), fill=(shade, shade, shade, 32))
     # Offset the wordmark slightly left of mathematical center for optical alignment.
     background.alpha_composite(logo, ((width - logo.width) // 2 - 12, 4))
