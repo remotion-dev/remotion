@@ -65,6 +65,7 @@ type InternalRenderMediaOnCloudrun = {
 	logLevel: LogLevel;
 	downloadBehavior: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	isProduction: boolean | null;
 	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>;
@@ -102,6 +103,7 @@ export type RenderMediaOnCloudrunInput = {
 	preferLossless?: boolean;
 	downloadBehavior?: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	isProduction?: boolean;
 	renderIdOverride?: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook?: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
@@ -156,6 +158,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	metadata,
 	mediaCacheSizeInBytes,
 	sampleRate,
+	licenseKey,
+	isProduction,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -225,6 +229,8 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		renderIdOverride,
 		renderStatusWebhook,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		licenseKey,
+		isProduction,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -366,6 +372,8 @@ export const renderMediaOnCloudrun = ({
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
 	sampleRate,
+	licenseKey,
+	isProduction,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -429,5 +437,7 @@ export const renderMediaOnCloudrun = ({
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		sampleRate: sampleRate ?? 48000,
+		licenseKey: licenseKey ?? null,
+		isProduction: isProduction ?? null,
 	});
 };

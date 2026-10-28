@@ -437,6 +437,12 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
 		sampleRate,
+		licenseKey: BrowserSafeApis.options.licenseKeyOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		isProduction: BrowserSafeApis.options.isProductionOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
 	});
 
 	if (res.type === 'crash') {

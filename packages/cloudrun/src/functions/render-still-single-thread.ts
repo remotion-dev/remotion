@@ -40,7 +40,7 @@ export const renderStillSingleThread = async (
 		Log.verbose(
 			{indent: false, logLevel: body.logLevel},
 			'Rendering still frame',
-			body,
+			{...body, licenseKey: body.licenseKey === null ? null : '[redacted]'},
 		);
 
 		const composition = await getCompositionFromBody(body);
@@ -114,8 +114,8 @@ export const renderStillSingleThread = async (
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
 			onLog: RenderInternals.defaultOnLog,
-			licenseKey: null,
-			isProduction: null,
+			licenseKey: body.licenseKey,
+			isProduction: body.isProduction,
 		});
 		Log.info({indent: false, logLevel: body.logLevel}, 'Still rendered');
 

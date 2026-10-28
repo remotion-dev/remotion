@@ -51,6 +51,14 @@ If the host is `localhost` or similar, it will be registered as non-billable.
 Whether the event was successful or not.  
 If the event was not successful, it will be registered as a non-billable event.
 
+### `isStill?`
+
+Whether the output is a still image. Defaults to `false`.
+
+### `isProduction?`
+
+Pass `false` for a development render so it is classified as non-billable. Defaults to `true`.
+
 ### `idempotencyKey`<AvailableFrom v="4.0.533"/>
 
 Optional, type: `string` (1–255 characters).

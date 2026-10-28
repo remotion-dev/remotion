@@ -277,12 +277,6 @@ async function internalRenderImagesOnWeb<
 				apiName,
 				isStill: true,
 				isProduction,
-			}).catch((err2) => {
-				Internals.Log.error(
-					{logLevel: 'error', tag: 'web-renderer'},
-					'Failed to send usage event',
-					err2,
-				);
 			});
 		}
 

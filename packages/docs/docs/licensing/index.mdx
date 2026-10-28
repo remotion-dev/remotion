@@ -12,7 +12,7 @@ Also, it offers an API to programmatically check the usage in order to implement
 
 ### How do I use this package?
 
-Not directly - pass the `licenseKey` option in the renderer package you use.
+Pass the `licenseKey` option to the rendering API you use.
 
 **Supported packages**
 
@@ -24,10 +24,14 @@ Not directly - pass the `licenseKey` option in the renderer package you use.
 <details>
   <summary>Deprecated packages</summary>
 
-- [`@remotion/cloudrun`](/docs/cloudrun): No telemetry is implemented. Use [`@remotion/licensing`](/docs/licensing) directly to track usage.
+- [`@remotion/cloudrun`](/docs/cloudrun): Pass `licenseKey` to [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#licensekey) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#licensekey) from <AvailableFrom v="4.0.540" inline /> to trigger an event.
 - [`@remotion/webcodecs`](/docs/webcodecs): Telemetry was removed in v4.0.399 because this package is no longer monetized.
 
 </details>
+
+For custom workflows using [`renderFrames()`](/docs/renderer/render-frames) or [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video), call [`registerUsageEvent()`](/docs/licensing/register-usage-event) once after the final output is complete. See [Custom rendering workflows](/docs/telemetry#custom-rendering-workflows).
+
+Pass `isProduction: false` to classify development renders as non-billable. See [Production and development renders](/docs/telemetry#production-and-development-renders).
 
 On your Company License dashboard on [remotion.pro](https://remotion.pro), you can find your license keys on the License keys page.
 
