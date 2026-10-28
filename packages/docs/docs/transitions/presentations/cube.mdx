@@ -4,9 +4,7 @@ crumb: "@remotion/transitions - Presentations"
 title: "cube()"
 ---
 
-:::note
-This is a paid item which you can [buy here](https://remotion.pro/cube-transition).
-:::
+# cube()<AvailableFrom v="4.0.540"/>
 
 A presentation where both the entering and exiting scene rotate with 3D perspective.
 
@@ -38,7 +36,7 @@ const Letter: React.FC<{
 };
 // ---cut---
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
-import { cube } from "@remotion-dev/cube-presentation";
+import { cube } from "@remotion/transitions/cube";
 
 const BasicTransition = () => {
   return (
@@ -67,9 +65,9 @@ The `cube()` function does take an object with the following properties:
 One of `from-left`, `from-right`, `from-top`, `from-bottom`.
 
 ```tsx twoslash
-import { CubeDirection } from "@remotion-dev/cube-presentation";
+import { CubeDirection } from "@remotion/transitions/cube";
 
-const flipDirection: CubeDirection = "from-left";
+const cubeDirection: CubeDirection = "from-left";
 ```
 
 ### `perspective?`
@@ -82,4 +80,5 @@ The CSS `perspective` of the flip animation. Defaults to `1000`.
 
 ## See also
 
+- [Source code for this presentation](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/presentations/cube.tsx)
 - [Presentations](/docs/transitions/presentations)
