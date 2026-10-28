@@ -253,7 +253,9 @@ const SectionCheckbox: React.FC<{
 	);
 };
 
-export const CompanyPricing: React.FC = () => {
+export const CompanyPricing: React.FC<{readonly purchaseHref: string}> = ({
+	purchaseHref,
+}) => {
 	const mobileLayout = useMobileLayout();
 	const [creatorsSelected, setCreatorsSelected] = React.useState(false);
 	const [automatorsSelected, setAutomatorsSelected] = React.useState(true);
@@ -494,7 +496,7 @@ export const CompanyPricing: React.FC = () => {
 					}}
 				>
 					<a
-						href="https://remotion.pro/dashboard"
+						href={purchaseHref}
 						className="bluelink font-brand flex flex-row items-center gap-1"
 					>
 						Buy now{' '}
