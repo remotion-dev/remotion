@@ -91,11 +91,6 @@ export const ExploreSection: React.FC = () => {
 						description: 'Transcription, display, editing, import and export',
 					},
 					{
-						title: 'Keyframes',
-						href: '/docs/studio/interactivity#keyframes',
-						description: 'Interactively editable and saves back to code',
-					},
-					{
 						title: 'Agents',
 						href: '/docs/ai',
 						description: 'Skills, Agent Plugins and WebMCP integration',
@@ -103,7 +98,8 @@ export const ExploreSection: React.FC = () => {
 					{
 						title: 'Parameterization',
 						href: '/docs/parameterized-rendering',
-						description: 'Connect data to your video visually or in code',
+						description:
+							'Visual and programmatic ways to hook up data to your video',
 					},
 					{
 						title: 'Rendering',
@@ -114,11 +110,6 @@ export const ExploreSection: React.FC = () => {
 						title: 'Effects',
 						href: '/docs/effects',
 						description: '80 presets that apply to any Element, make your own',
-					},
-					{
-						title: 'Background removal',
-						href: '/docs/video-matting',
-						description: 'Separate layers locally using WebGPU',
 					},
 					{
 						title: 'Transitions',
@@ -134,6 +125,16 @@ export const ExploreSection: React.FC = () => {
 						title: 'Color Correction',
 						href: '/docs/color-correction',
 						description: 'Exposure, contrast, levels, curves and LUTs',
+					},
+					{
+						title: 'Keyframes',
+						href: '/docs/studio/interactivity#keyframes',
+						description: 'Interactively editable and saves back to code',
+					},
+					{
+						title: 'Background removal',
+						href: '/docs/video-matting',
+						description: 'Separate layers locally using WebGPU',
 					},
 					{
 						title: 'Editor Starter',
