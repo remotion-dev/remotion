@@ -1,0 +1,27 @@
+---
+image: /generated/articles-docs-canvas-capture-development.png
+title: Development
+---
+
+# Development
+
+To load Canvas Capture as an unpacked extension, use a browser that meets the [installation requirements](/docs/canvas-capture/installation).
+
+## Download the extension
+
+Clone the built extension to a durable location:
+
+```bash title="Terminal"
+git clone --depth=1 https://github.com/remotion-dev/canvas-capture.git \
+  "$HOME/Applications/Remotion Canvas Capture Extension"
+```
+
+The repository contains a production build of Canvas Capture. You do not need to clone or build Remotion.
+
+## Load the extension
+
+Open `chrome://extensions`, enable Developer mode and select Load unpacked.
+
+Select the folder you cloned above.
+
+Open a webpage and click the Remotion Canvas Capture extension icon to start recording.

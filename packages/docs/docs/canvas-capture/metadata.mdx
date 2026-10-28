@@ -1,0 +1,86 @@
+---
+image: /generated/articles-docs-canvas-capture-metadata.png
+title: Recording metadata
+---
+
+# Recording metadata
+
+Canvas Capture embeds cursor movements, clicks, and capture geometry in the video file as a JSON string under the `REMOTION_CAPTURE_DATA` metadata tag. This allows Remotion Studio to import the video and cursor as separate, keyframeable layers.
+
+:::warning
+
+This is an internal, experimental format and may change without a major version bump.
+
+:::
+
+## TypeScript schema
+
+```ts title="CanvasCaptureMetadata.ts"
+type CanvasCaptureMetadata = {
+  readonly startedAt: number;
+  readonly endedAt: number;
+  readonly captureMetadata: {
+    readonly density: number;
+    readonly contentRect: {
+      readonly left: number;
+      readonly top: number;
+      readonly width: number;
+      readonly height: number;
+    };
+    readonly canvasSize: {
+      readonly width: number;
+      readonly height: number;
+    };
+    readonly viewport: {
+      readonly width: number;
+      readonly height: number;
+      readonly scrollX: number;
+      readonly scrollY: number;
+    };
+  } | null;
+  readonly mouseMovements: {
+    readonly timeInSeconds: number;
+    readonly clientX: number;
+    readonly clientY: number;
+    readonly pageX: number;
+    readonly pageY: number;
+    readonly canvasX: number | null;
+    readonly canvasY: number | null;
+    readonly cursor: string;
+  }[];
+  readonly pointerClicks: {
+    readonly timeInSeconds: number;
+    readonly type: 'pointer-down' | 'pointer-up';
+  }[];
+};
+```
+
+## Timestamps
+
+`startedAt` and `endedAt` are values from `performance.now()`, in milliseconds. They are relative to the page's time origin, not Unix timestamps. `endedAt` is sampled during finalization.
+
+Each movement and click has a `timeInSeconds` relative to the start of the recording.
+
+## Capture geometry
+
+`captureMetadata` describes the most recently submitted video frame. It is initialized to `null` before the first frame is submitted.
+
+`density` is the recording scale factor. `contentRect` describes the captured area in CSS pixels relative to the viewport. `canvasSize` contains the encoded frame dimensions in pixels. `viewport` contains the browser viewport dimensions and scroll offsets in CSS pixels.
+
+## Cursor movements
+
+`clientX` and `clientY` are viewport coordinates in CSS pixels. `pageX` and `pageY` include the page's scroll offsets.
+
+`canvasX` and `canvasY` are coordinates in the recorded video, calculated as `(clientX - contentRect.left) * density` and `(clientY - contentRect.top) * density`. Importers accept `null` coordinates and skip those movements.
+
+`cursor` contains the CSS cursor value at the pointer position, including custom cursor values when present.
+
+## Pointer clicks
+
+`pointerClicks` records when a pointer button is pressed or released. Each entry contains a timestamp and either `pointer-down` or `pointer-up`; it does not contain coordinates or a button identifier.
+
+## Importing
+
+The Remotion importer reads the JSON tag and uses `captureMetadata.density`, the canvas coordinates and cursor values in `mouseMovements`, and `pointerClicks`. It does not need the remaining fields to generate cursor keyframes.
+
+See [`addCanvasCaptureComposition()`](/docs/codemods/add-canvas-capture-composition) to generate a composition from a recording's capture data.
