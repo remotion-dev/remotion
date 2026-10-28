@@ -8,6 +8,7 @@ import type {
 import {Internals} from 'remotion';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {roundTo4Digits} from './helpers/round-to-4-digits';
+import {isCodecReclaimedError} from './is-type-of-error';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
 import type {MaxCanvasSinkFrameSize} from './video/props';
@@ -296,6 +297,12 @@ export const videoIteratorManager = async ({
 		continuousPlayback: boolean | null;
 	}) => {
 		if (!videoFrameIterator) {
+			// The previous iterator failed to start, or was discarded after its
+			// decoder was reclaimed by a seek that was then superseded.
+			if (!destroyed) {
+				await startVideoIterator(newTime, nonce);
+			}
+
 			return;
 		}
 
@@ -335,14 +342,47 @@ export const videoIteratorManager = async ({
 			handle: null,
 		};
 		try {
-			const result = await iterator.tryToSatisfySeek(newTime, {
-				pendingFrameBehavior,
-				onWait: () => {
-					pending.handle ??= delayPlaybackHandleIfNotPremounting();
-					currentDelayHandle = pending.handle;
-				},
-				shouldContinue: () => !nonce.isStale() && !iterator.isDestroyed(),
-			});
+			const result = await iterator
+				.tryToSatisfySeek(newTime, {
+					pendingFrameBehavior,
+					onWait: () => {
+						pending.handle ??= delayPlaybackHandleIfNotPremounting();
+						currentDelayHandle = pending.handle;
+					},
+					shouldContinue: () => !nonce.isStale() && !iterator.isDestroyed(),
+				})
+				.catch((error: unknown) => {
+					if (isCodecReclaimedError(error)) {
+						return {type: 'decoder-reclaimed' as const};
+					}
+
+					throw error;
+				});
+
+			if (result.type === 'decoder-reclaimed') {
+				Internals.Log.verbose(
+					{logLevel, tag: '@remotion/media'},
+					`[MediaPlayer] Video decoder was reclaimed, recreating it at ${newTime.toFixed(3)}s`,
+				);
+				// Prewarmed loop iterators were idle as well, so their decoders are
+				// likely reclaimed too.
+				prewarmedVideoIteratorCache.destroy();
+				iterator.destroy();
+				clearLastDrawnFrame();
+				videoFrameIterator = null;
+				currentSeek = null;
+				if (destroyed || nonce.isStale()) {
+					return;
+				}
+
+				pending.handle?.unblock();
+				pending.handle = null;
+				currentDelayHandle = null;
+				// A single attempt: if the fresh decoder fails as well, the error
+				// propagates.
+				await startVideoIterator(newTime, nonce);
+				return;
+			}
 
 			if (nonce.isStale() || iterator.isDestroyed()) {
 				return;

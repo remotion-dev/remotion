@@ -13,10 +13,19 @@ export const createVideoIterator = async (
 	let iteratorEnded = false;
 
 	const firstAwait = iterator.next();
-	const initialFrame =
-		firstAwait && firstAwait.type === 'ready'
-			? firstAwait.frame
-			: await firstAwait.wait();
+	let initialFrame: WrappedCanvas | null;
+	try {
+		initialFrame =
+			firstAwait && firstAwait.type === 'ready'
+				? firstAwait.frame
+				: await firstAwait.wait();
+	} catch (error) {
+		// Nothing references this iterator yet, so release its decoder before
+		// the caller creates a replacement.
+		await iterator.closeIterator().catch(() => undefined);
+		throw error;
+	}
+
 	let lastReturnedFrame = initialFrame;
 
 	let peekedFrame: WrappedCanvas | null = null;

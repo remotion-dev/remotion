@@ -21,3 +21,11 @@ export function isNetworkError(error: Error) {
 export function isUnsupportedConfigurationError(error: Error) {
 	return error.message.includes('Unsupported configuration');
 }
+
+/**
+ * Chrome reclaims WebCodecs decoders that have been idle for a while and
+ * rejects pending work with "QuotaExceededError: Codec reclaimed due to inactivity."
+ */
+export function isCodecReclaimedError(error: unknown) {
+	return error instanceof DOMException && error.name === 'QuotaExceededError';
+}
