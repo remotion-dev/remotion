@@ -12,7 +12,7 @@ const OfferLowerThirdInner: React.FC<InteractiveTransformProps> = ({style}) => {
 	const {durationInFrames} = useVideoConfig();
 	const transitionFrames = Math.min(
 		12,
-		Math.max(1, Math.floor(durationInFrames / 3)),
+		durationInFrames / 3,
 	);
 	const reveal = interpolate(
 		frame,
