@@ -39,6 +39,7 @@ const {
 	preservePitchOnPlaybackOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
+	licenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
 	sequenceActivityLimitOption,
@@ -92,6 +93,11 @@ const {
 	previewSampleRateOption,
 	rspackOption,
 	skipSkillsOption,
+	throwIfSiteExistsOption,
+	enableCrossSiteIsolationOption,
+	preferLosslessOption,
+	enableLambdaInsights,
+	askAIOption,
 }: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
@@ -227,7 +233,7 @@ export type CommandLineOptions = {
 	[imageSequencePatternOption.cliFlag]: TypeOfOption<
 		typeof imageSequencePatternOption
 	>;
-	'license-key': string;
+	[licenseKeyOption.cliFlag]: TypeOfOption<typeof licenseKeyOption>;
 	[publicLicenseKeyOption.cliFlag]: string;
 	[forceNewStudioOption.cliFlag]: TypeOfOption<
 		typeof forceNewStudioOption
@@ -275,6 +281,13 @@ export const BooleanFlags = [
 	bundleCacheOption.cliFlag,
 	rspackOption.cliFlag,
 	skipSkillsOption.cliFlag,
+	throwIfSiteExistsOption.cliFlag,
+	enableCrossSiteIsolationOption.cliFlag,
+	preferLosslessOption.cliFlag,
+	enableMultiprocessOnLinuxOption.cliFlag,
+	folderExpiryOption.cliFlag,
+	enableLambdaInsights.cliFlag,
+	askAIOption.cliFlag,
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
@@ -305,6 +318,11 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[mutedOption.cliFlag]: null,
 		[enableCancellationOption.cliFlag]: null,
 		[rspackOption.cliFlag]: null,
+		[enableCrossSiteIsolationOption.cliFlag]: null,
+		[enableMultiprocessOnLinuxOption.cliFlag]: null,
+		[folderExpiryOption.cliFlag]: null,
+		[enableLambdaInsights.cliFlag]: null,
+		[askAIOption.cliFlag]: null,
 	},
 }) as CommandLineOptions & {
 	_: string[];

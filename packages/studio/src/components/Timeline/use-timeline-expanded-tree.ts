@@ -19,6 +19,7 @@ import {
 	type TimelineSelection,
 	useTimelineSelection,
 } from './TimelineSelection';
+import {useTimelineStructureSelector} from './use-timeline-structure-selector';
 
 export const useTimelineSequenceHasExpandableContent = ({
 	sequence,
@@ -99,6 +100,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				includeInspectorOnlyFields: false,
 				runtimeValues,
 			});
 
@@ -131,11 +133,12 @@ export const useTimelineSequenceHasExpandableContent = ({
 		],
 	);
 
-	return useRuntimeValueSelector({
+	return useTimelineStructureSelector({
 		// Runtime values can change active enum fields, but cannot introduce a
 		// selection or keyframes. Most code-animated tracks need no subscription.
 		controls: canHaveExpandableContent ? sequence.controls : null,
 		selector: selectHasExpandableContent,
+		isEqual: null,
 	});
 };
 
@@ -144,11 +147,13 @@ export const useTimelineExpandedTree = ({
 	nodePathInfo,
 	includeTextContent,
 	includeSourceControls,
+	includeInspectorOnlyFields,
 }: {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly includeTextContent: boolean;
 	readonly includeSourceControls: boolean;
+	readonly includeInspectorOnlyFields: boolean;
 }) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
@@ -214,6 +219,7 @@ export const useTimelineExpandedTree = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent,
 				includeSourceControls,
+				includeInspectorOnlyFields,
 				runtimeValues,
 			}),
 		[
@@ -224,6 +230,7 @@ export const useTimelineExpandedTree = ({
 			visualModePropStatuses,
 			includeTextContent,
 			includeSourceControls,
+			includeInspectorOnlyFields,
 			runtimeValues,
 		],
 	);

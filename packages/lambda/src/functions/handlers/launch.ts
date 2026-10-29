@@ -1268,7 +1268,7 @@ export const launchHandler = async ({
 		});
 		clearTimeout(webhookDueToTimeout);
 
-		sendTelemetryEvent({
+		await sendTelemetryEvent({
 			licenseKey: params.licenseKey ?? null,
 			logLevel: params.logLevel,
 			isStill: false,

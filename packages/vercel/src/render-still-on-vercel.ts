@@ -26,6 +26,7 @@ export async function renderStillOnVercel({
 	mediaCacheSizeInBytes,
 	offthreadVideoThreads,
 	licenseKey,
+	isProduction,
 }: {
 	sandbox: Sandbox;
 	compositionId: string;
@@ -44,6 +45,7 @@ export async function renderStillOnVercel({
 	mediaCacheSizeInBytes?: number | null;
 	offthreadVideoThreads?: number | null;
 	licenseKey?: string | null;
+	isProduction?: boolean;
 }): Promise<{sandboxFilePath: string; contentType: string}> {
 	const serveUrl = `/vercel/sandbox/${REMOTION_SANDBOX_BUNDLE_DIR}`;
 
@@ -64,6 +66,7 @@ export async function renderStillOnVercel({
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		licenseKey: licenseKey ?? null,
+		isProduction: isProduction ?? null,
 		chromeMode: 'headless-shell',
 		browserExecutable: null,
 		binariesDirectory: null,

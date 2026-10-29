@@ -94,7 +94,7 @@ export const EffectThumbnail: React.FC<{
 				/>
 			) : (
 				<img
-					src={`https://www.remotion.dev${getEffectPreviewSource(item)}`}
+					src={getEffectPreviewSource(item)}
 					alt={getEffectPreviewAlt(item)}
 					style={{
 						position: 'absolute',

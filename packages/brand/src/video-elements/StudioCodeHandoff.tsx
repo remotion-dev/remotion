@@ -1,214 +1,65 @@
+import {useLayoutEffect, useRef, useState} from 'react';
+import {useCurrentFrame, useDelayRender, useVideoConfig} from 'remotion';
+// Share the source renderer so Studio previews update without a homepage rebuild.
+// eslint-disable-next-line no-restricted-imports
 import {
-	AbsoluteFill,
-	Easing,
-	Interactive,
-	Img,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
-import {MacBookScreen} from '../WebMCPPromo/MacBookScene';
-import {Codex} from './Codex';
-import {Studio} from './Studio';
-import {TextEditor} from './TextEditor';
-import {whatsNewTimeline} from './WhatsNewTimeline';
-
-const windowBorderRadius = 6;
-const screenInset = 6;
-const deviceBezel = 18;
-const transitionEasing = Easing.bezier(0.42, 0, 0.58, 1);
+	type StudioHandoffAssets,
+	drawStudioHandoff,
+	loadStudioHandoffAssets,
+	STUDIO_HANDOFF_HEIGHT,
+	STUDIO_HANDOFF_WIDTH,
+} from '../../../promo-pages/src/components/homepage/studio-handoff/renderer';
 
 export const StudioCodeHandoff: React.FC = () => {
 	const frame = useCurrentFrame();
-	const studioLeft = interpolate(
-		frame,
-		[165, 225, 270, 330],
-		[6, 679, 679, 6],
-		{
-			easing: [transitionEasing, Easing.linear, transitionEasing],
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		},
-	);
-	const responsivenessProgress = interpolate(
-		frame,
-		[60, 120, 165, 225],
-		[1, 0, 0, 1],
-		{
-			easing: [transitionEasing, Easing.linear, transitionEasing],
-			extrapolateLeft: 'clamp',
-			extrapolateRight: 'clamp',
-		},
-	);
-	const studioWidth = 1340 - 673 * responsivenessProgress;
+	const {fps} = useVideoConfig();
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const [assets, setAssets] = useState<StudioHandoffAssets | null>(null);
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const handleRef = useRef<number | null>(null);
+
+	useLayoutEffect(() => {
+		const handle = delayRender('Loading Studio handoff images');
+		handleRef.current = handle;
+		let disposed = false;
+		loadStudioHandoffAssets(null)
+			.then((loaded) => {
+				if (!disposed) {
+					setAssets(loaded);
+				}
+			})
+			.catch((error) => {
+				if (!disposed) {
+					cancelRender(error);
+				}
+			});
+		return () => {
+			disposed = true;
+			continueRender(handle);
+			if (handleRef.current === handle) {
+				handleRef.current = null;
+			}
+		};
+	}, [cancelRender, continueRender, delayRender]);
+
+	useLayoutEffect(() => {
+		if (!canvasRef.current || !assets) {
+			return;
+		}
+
+		drawStudioHandoff(canvasRef.current, frame / fps, assets, null);
+		if (handleRef.current !== null) {
+			continueRender(handleRef.current);
+			handleRef.current = null;
+		}
+	}, [assets, continueRender, fps, frame]);
 
 	return (
-		<AbsoluteFill>
-			<Interactive.Div
-				name="Device frame"
-				style={{
-					height: 796,
-					left: 69.5,
-					position: 'absolute',
-					scale: 1.35,
-					top: -17.5,
-					width: 1388,
-					translate: '173.5px 240.2px',
-					transformOrigin: '50% 80%',
-				}}
-			>
-				<MacBookScreen
-					borderRadius={windowBorderRadius + screenInset + deviceBezel}
-					height={796}
-					left={0}
-					showCameraNotch={false}
-					showShadow={false}
-					top={0}
-					width={1388}
-				>
-					<Interactive.Div
-						name="Screen viewport"
-						style={{
-							backgroundColor: 'transparent',
-							borderRadius: windowBorderRadius + screenInset,
-							height: 760,
-							left: 18,
-							overflow: 'hidden',
-							position: 'absolute',
-							top: 18,
-							width: 1352,
-						}}
-					>
-						<Interactive.Div
-							name="VS Code"
-							style={{
-								borderRadius: windowBorderRadius,
-								height: 748,
-								left: 0,
-								overflow: 'hidden',
-								position: 'absolute',
-								top: 6,
-								translate: interpolate(
-									frame,
-									[60, 120, 270, 330],
-									['679px 0px', '1358px 0px', '1358px 0px', '679px 0px'],
-									{
-										easing: [transitionEasing, Easing.linear, transitionEasing],
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								),
-								width: 667,
-							}}
-						>
-							<TextEditor
-								borderRadius={windowBorderRadius}
-								code={`import {Audio} from '@remotion/media';
-import {TransitionSeries} from '@remotion/transitions';
-import {IntroScene} from './scenes/Intro';
-import {LightLeaksScene} from './scenes/LightLeaks';
-import {SoundEffectsScene} from './scenes/SoundEffects';
-
-export const WhatsNew = () => {
-  return (
-    <>
-      <TransitionSeries name="Chapters">
-        <TransitionSeries.Sequence
-          name="Intro"
-          durationInFrames={208}
-        >
-          <IntroScene />
-        </TransitionSeries.Sequence>
-        <TransitionSeries.Sequence
-          name="Light leaks"
-          durationInFrames={720}
-        >
-          <LightLeaksScene />
-        </TransitionSeries.Sequence>
-        <TransitionSeries.Sequence
-          name="Sound effects"
-          durationInFrames={1152}
-        >
-          <SoundEffectsScene />
-        </TransitionSeries.Sequence>
-      </TransitionSeries>
-      <Audio name="Score" src="score.wav" />
-    </>
-  );
-};`}
-								fileName="WhatsNew.tsx"
-								height={748}
-								highlightedLines=""
-								width={667}
-							/>
-						</Interactive.Div>
-
-						<Interactive.Div
-							name="Codex"
-							style={{
-								borderRadius: windowBorderRadius,
-								height: 748,
-								left: 0,
-								overflow: 'hidden',
-								position: 'absolute',
-								top: 6,
-								translate: interpolate(
-									frame,
-									[165, 225, 270, 330],
-									['-667px 0px', '6px 0px', '6px 0px', '-667px 0px'],
-									{
-										easing: [transitionEasing, Easing.linear, transitionEasing],
-										extrapolateLeft: 'clamp',
-										extrapolateRight: 'clamp',
-									},
-								),
-								width: 667,
-							}}
-						>
-							<Codex
-								borderRadius={windowBorderRadius}
-								height={748}
-								width={667}
-							/>
-						</Interactive.Div>
-
-						<Interactive.Div
-							name="Remotion Studio"
-							style={{
-								borderRadius: windowBorderRadius,
-								height: 748,
-								left: 0,
-								overflow: 'hidden',
-								position: 'absolute',
-								top: 6,
-								translate: `${studioLeft}px 0px`,
-								width: studioWidth,
-								zIndex: 1,
-							}}
-						>
-							<Studio
-								compositionHeight={1080}
-								compositionName="WhatsNew"
-								compositionWidth={1920}
-								content={
-									<Img
-										src="https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg"
-										showInTimeline={false}
-										style={{width: '100%', height: '100%'}}
-									/>
-								}
-								durationInFrames={7328}
-								frame={900}
-								timeline={whatsNewTimeline}
-								responsivenessProgress={responsivenessProgress}
-								showTimelineZoom={false}
-								timelineOffset={0}
-								viewportHeight={748}
-								viewportWidth={studioWidth}
-							/>
-						</Interactive.Div>
-					</Interactive.Div>
-				</MacBookScreen>
-			</Interactive.Div>
-		</AbsoluteFill>
+		<canvas
+			ref={canvasRef}
+			width={STUDIO_HANDOFF_WIDTH}
+			height={STUDIO_HANDOFF_HEIGHT}
+			style={{display: 'block', width: '100%', height: '100%'}}
+		/>
 	);
 };

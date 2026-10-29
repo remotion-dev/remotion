@@ -44,6 +44,8 @@ type FetchAndPreload = {
 	waitUntilDone: () => Promise<string>;
 };
 
+const activePrefetches = new Map<string, Map<symbol, string>>();
+
 const blobToBase64 = function (blob: Blob): Promise<string> {
 	const reader = new FileReader();
 
@@ -148,6 +150,7 @@ export const prefetch = (
 	waitUntilDone.catch(() => undefined);
 
 	const controller = new AbortController();
+	const prefetchId = Symbol('prefetch');
 	let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
 	fetch(srcWithoutHash, {
@@ -212,6 +215,10 @@ export const prefetch = (
 		})
 		.then((url) => {
 			if (canceled) {
+				if (url && method === 'blob-url') {
+					URL.revokeObjectURL(url);
+				}
+
 				return;
 			}
 
@@ -223,6 +230,10 @@ export const prefetch = (
 			});
 
 			objectUrl = url as string;
+			const prefetchesForSrc =
+				activePrefetches.get(srcWithoutHash) ?? new Map<symbol, string>();
+			prefetchesForSrc.set(prefetchId, objectUrl);
+			activePrefetches.set(srcWithoutHash, prefetchesForSrc);
 
 			setPreloads((p) => ({
 				...p,
@@ -240,6 +251,11 @@ export const prefetch = (
 
 	return {
 		free: () => {
+			if (canceled) {
+				return;
+			}
+
+			canceled = true;
 			playbackLogging({
 				logLevel,
 				tag: 'prefetch',
@@ -251,17 +267,30 @@ export const prefetch = (
 					URL.revokeObjectURL(objectUrl);
 				}
 
+				const prefetchesForSrc = activePrefetches.get(srcWithoutHash);
+				prefetchesForSrc?.delete(prefetchId);
+				const remainingUrl = prefetchesForSrc
+					? [...prefetchesForSrc.values()].pop()
+					: undefined;
+				if (prefetchesForSrc?.size === 0) {
+					activePrefetches.delete(srcWithoutHash);
+				}
+
 				setPreloads((p) => {
+					if (p[srcWithoutHash] === remainingUrl) {
+						return p;
+					}
+
 					const copy = {...p};
-					delete copy[srcWithoutHash];
+					if (remainingUrl === undefined) {
+						delete copy[srcWithoutHash];
+					} else {
+						copy[srcWithoutHash] = remainingUrl;
+					}
+
 					return copy;
 				});
 			} else {
-				if (canceled) {
-					return;
-				}
-
-				canceled = true;
 				const cancellationError = new Error('free() called');
 				reject(cancellationError);
 				try {

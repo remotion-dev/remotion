@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-sdk-create-canvas-controller.png
+image: https://remotion.media/docs/generated/articles-docs-sdk-create-canvas-controller.png
 title: createCanvasController()
 crumb: '@remotion/sdk'
 ---
@@ -26,7 +26,7 @@ The function takes no arguments.
 
 ### timeline
 
-An external store of `readonly TimelineTrackData[]`. Subscribe with `timeline.subscribe(listener)` and read with `timeline.getSnapshot()`. In React, pass both to `useSyncExternalStore()` as shown in the [overview](/docs/sdk#basic-example). Tracks are populated while the composition is mounted and cleared when `<Canvas>` unmounts.
+An external store of `readonly TimelineTrackData[]`. Subscribe with `timeline.subscribe(listener)` and read with `timeline.getSnapshot()`. In React, pass both to `useSyncExternalStore()` as shown in the [overview](/docs/sdk/api#basic-example). Tracks are populated while the composition is mounted and cleared when `<Canvas>` unmounts.
 
 Each track includes `sequence` registration data, `depth`, `nodePathInfo`, and timing fields such as `cascadedStart`, `localStart`, `keyframeDisplayOffset`, `keyframePlaybackRate`, and `sequenceFrameOffset`. The sequence's `from` and `duration` are its visible timeline range. `nodePathInfo` is `null` until a source identity is registered with [`setSequenceNodePaths()`](#setsequencenodepaths).
 

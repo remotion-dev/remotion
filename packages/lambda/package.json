@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda"
 	},
 	"name": "@remotion/lambda",
-	"version": "4.0.538",
+	"version": "4.0.539",
 	"description": "Render Remotion videos on AWS Lambda",
 	"main": "dist/index.js",
 	"scripts": {
@@ -49,6 +49,8 @@
 		"@types/minimist": "1.2.2",
 		"eslint": "catalog:",
 		"next": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"pureimage": "0.4.13",
 		"@types/node": "catalog:",
 		"typescript": "catalog:"

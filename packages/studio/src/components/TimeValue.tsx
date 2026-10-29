@@ -7,7 +7,12 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_80,
+} from '../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -33,7 +38,7 @@ const text: React.CSSProperties = {
 };
 
 const currentTimeTypography: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	color: WHITE_ALPHA_80,
 	display: 'inline-block',
 	fontSize: 14,
 	fontVariantNumeric: 'tabular-nums',

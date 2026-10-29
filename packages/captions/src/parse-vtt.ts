@@ -85,13 +85,49 @@ export const parseVtt = ({input}: ParseVttInput): ParseVttOutput => {
 
 		i++;
 		const text: string[] = [];
-		while (i < inputLines.length && inputLines[i].trim() !== '') {
+		// Only a truly empty line ends a cue. Whitespace-only lines are part of
+		// the cue, e.g. YouTube auto-generated captions start cues with a line
+		// containing a single space.
+		while (i < inputLines.length && inputLines[i] !== '') {
 			text.push(inputLines[i]);
 			i++;
 		}
 
 		captions.push({
-			text: text.join('\n').trimEnd(),
+			// Cue text may contain markup tags (`<i>`, `<v Speaker>`, inline
+			// timestamps like `<00:00:01.000>`, ...) and escaped characters.
+			// Strip tags before decoding so that `&lt;i&gt;` stays a literal `<i>`,
+			// and decode in a single pass so that `&amp;lt;` becomes `&lt;`.
+			text: text
+				.join('\n')
+				.replace(/<[^>]*>/g, '')
+				.replace(
+					/&(?:#(\d+)|#[xX]([\da-fA-F]+)|(amp|lt|gt|quot|apos|nbsp|lrm|rlm));/g,
+					(match, decimal, hex, name) => {
+						if (name) {
+							return {
+								amp: '&',
+								lt: '<',
+								gt: '>',
+								quot: '"',
+								apos: "'",
+								nbsp: '\u00A0',
+								lrm: '\u200E',
+								rlm: '\u200F',
+							}[name as string] as string;
+						}
+
+						const codePoint = decimal
+							? parseInt(decimal, 10)
+							: parseInt(hex, 16);
+						const invalid =
+							codePoint === 0 ||
+							codePoint > 0x10ffff ||
+							(codePoint >= 0xd800 && codePoint <= 0xdfff);
+						return invalid ? match : String.fromCodePoint(codePoint);
+					},
+				)
+				.trim(),
 			startMs,
 			endMs,
 			timestampMs: (startMs + endMs) / 2,

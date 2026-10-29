@@ -1,0 +1,372 @@
+AURA CODE — EDITABLE STORYBOARD
+
+Draft for the next pass. Edit the timing, code, camera, and focus below.
+This file is the brief; editing it does not automatically update the video.
+
+OVERALL
+
+Purpose: Make video-as-code feel expressive and cinematic.
+Duration: 7.4 seconds, 444 frames.
+Master: AuraCodeAndTimeline, 3840 × 1080, 60 fps.
+Layout: The approved 1920 × 1080 code shots occupy the left panel; matching
+  genuine Studio timeline captures occupy the right panel.
+  Retain AuraCode as the original 1920 × 1080 code-only composition.
+Look: The homepage's charcoal editor and Dark+ syntax colors, using Menlo.
+Source: Real Monaco editor showing WhatsNew.tsx, LowerThird.tsx, and Scene1.tsx.
+  Use the homepage's chapter overview, the real announcement's presenter card,
+  and a proposed caption addition to its existing presenter video.
+  The right-side captures come from real Studio timelines using those components.
+Sound: Silent.
+On-screen copy: The code, editor interface, and corresponding Studio timeline.
+  Caption text appears inside the code example and native caption bar;
+  the montage itself has no subtitle or title overlay.
+
+Creative direction:
+  One active editing moment, in shot 3: select a complete chapter block.
+  Every other shot observes the code, with no typing or visible caret.
+  Vary the framing, camera direction, and focus instead of repeating the
+  same push-in and blur transition four times.
+  All code, names, and asset paths are complete from the start.
+  Cut away once the complete Intro chapter is selected, before duplicating it.
+  The recorded source still contains the duplication, outside the montage trim.
+  Move from composition structure to HTML/CSS, chapter selection, then captions.
+  The second and fourth shots switch to prepared files without typing.
+  No opening, between-action, or ending waits. Camera moves begin on the
+  first frame and run through the cut. Quick full-width black pulses cover each cut.
+  Preserve the code camera and focus directions below within the left panel.
+  Match all four cuts on the right, with timeline tilt and zoom, radial blur,
+  and a vignette around the featured native items. Use a focus ellipse sized
+  for each macro crop, gently breathing in blur strength through the shot.
+  Keep the featured words readable while adjacent rows fall out of focus.
+
+Overall changes / notes:
+
+
+SHOT 1 — MACRO VIEW OF THE COMPOSITION
+Time: 00:00–00:02 (2 seconds)
+
+What we see:
+  A very tight view of the WhatsNew component and opening TransitionSeries.
+  The code is recaptured with larger text for a sharp, native-resolution crop.
+
+Studio timeline on the right:
+  Expand Chapters to reveal the presenter filmstrip, introduction, and nested
+  card items. Move in closer on those rows; Score falls below the visible crop.
+
+Code action:
+  None. The editor is still and the caret is hidden.
+
+Camera:
+  A mild 12-degree angle lets the right side recede while keeping the
+  beginnings of the lines visible. A reduced lens zoom from 82% to 94%
+  of the recaptured source pixels moves around a
+  fixed optical center. The hand starts turning immediately, accelerates
+  into the zoom, then eases its grip without an ending hold.
+  Keep at least about 100px of space before the first code column at the
+  closest point. Add gentle, smooth handheld movement during the lens turn:
+  up to 2.5px horizontally, 1.5px vertically, and 0.06 degrees of camera roll.
+  Its strength follows the actual zoom speed and settles to zero at the ends.
+  Keep the deliberate 12-degree angle and optical center unchanged.
+  The capture uses 46px editor text at 2x density; no source upscaling.
+
+Focus:
+  Lens blur follows the actual speed of the zoom: sharp at rest, strongest
+  during the fast part of the turn, then clear as the zoom slows down.
+  Calculate its radius from the change in scale across adjacent frames.
+  Keep a moderate lens blur (about 41 source pixels
+  at the fastest point). A softly rounded hexagonal iris and lightly boosted
+  highlights make the bokeh visible. Average in linear light with 512 samples;
+  the highlight boost also follows zoom speed and settles with the lens.
+  There is no separate blur pulse, delay, or focus recovery after the turn.
+  Keep the lensBlur treatment inspired by disco-light-show/ClientSideChad.tsx.
+
+Your edits:
+
+
+SHOT 2 — HTML AND CSS: THE PRESENTER CARD
+Time: 00:02–00:04 (2 seconds)
+Editor file: LowerThird.tsx
+
+What we see:
+  A macro crop of the real WhatsNew intro's Interactive.Div and style object:
+  white background, font settings, padding, rounded corners, and shadow.
+  The complete captured source still includes its presenter text and inline
+  translate/rotate animations; this shot concentrates on the HTML/CSS.
+  Recapture at 46px editor text and 2x density for native-size detail.
+
+Studio timeline on the right:
+  A tight list closeup of Presenter card, Presenter name, and Presenter role.
+  Select Presenter card in the native Studio UI before capturing the shot,
+  retaining its actual selected row treatment. Do not recreate it as an overlay.
+  Fill the panel with the hierarchy instead of the mostly empty timeline bars.
+  Keep the AbsoluteFill and Presenter card disclosure arrows comfortably
+  inside the top and left edges throughout the rotation.
+
+Code action:
+  None. Open the prepared LowerThird.tsx view at the cut.
+  Keep the caret hidden. Do not animate a file switch or enter more code.
+
+Camera:
+  A tight, fixed-scale crop, almost at 1:1 source resolution.
+  Rotate continuously from +10 to -8 degrees with a small amount of
+  perspective around the HTML/CSS block. No lateral pan or zoom.
+  Begin turning immediately and continue through the cut.
+
+Focus:
+  Keep the center code readable with a slight radial blur: 1.5px in the
+  center, increasing linearly toward the edge of a broad ellipse.
+  Animate the stronger outer blur radius from 18px to 30px to 22px.
+  Add a soft 16% black vignette centered on the same HTML/CSS block.
+
+Real source:
+  packages/brand/src/announcements/whats-new-in-remotion/LowerThird.tsx
+  The card is mounted over the presenter video by Scene1.tsx.
+
+Your edits:
+
+
+SHOT 3 — SELECT A CHAPTER
+Time: 00:04–00:05.4 (1.4 seconds)
+
+What we see:
+  The complete six-line Intro TransitionSeries.Sequence block.
+  Build the selection across the complete block, then cut away.
+
+Studio timeline on the right:
+  The native Intro item is selected, with Chapters expanded and its children
+  visible below it. Move closer while keeping the timeline intact, without duplication.
+
+Code action:
+  00:04.0: Start the first Cmd+L selection on the opening frame.
+  00:04.0–00:05.33: Extend the selection by one line every eight source
+                    frames, through the closing </TransitionSeries.Sequence>.
+  00:05.4: Cut directly to the caption shot before Option+Shift+Down happens.
+
+  The copy event remains in the source recording at 1.4 seconds, but is
+  excluded by the shot's end. Do not show the pasted block for a flash.
+  All other shots stay observational.
+
+Camera:
+  A fixed closeup, about 30% closer than the previous framing.
+  Center the original selected block in the frame throughout.
+  Use the opposite perspective tilt from shot 1.
+  No animated pan, zoom, or follow; keep the framing still.
+
+Focus:
+  Radial progressive blur centered on the currently selected block.
+  Keep the action readable while surrounding code falls strongly out of focus.
+  Blur strength stays constant, with no pulse or animated focus sweep.
+
+Capture notes:
+  Use Monaco's actual Expand Line Selection and Copy Line Down actions.
+  Cmd+L selects lines; it does not duplicate them. The Mac duplication
+  shortcut is Option+Shift+Down. Capture Monaco's own selection highlight,
+  insertion, and resulting layout, without recreating them as overlays.
+
+Your edits:
+
+
+SHOT 4 — CAPTION MARKUP
+Time: 00:05.4–00:07.4 (2 seconds)
+Editor file: Scene1.tsx
+
+What we see:
+  A macro crop of the proposed BasicCaptions element's inline captions array.
+  Go twice as close on the first caption's text, startMs, and endMs.
+  The remaining entry fields can extend outside this macro crop.
+  Its shared Sequence and real presenter Video remain in the complete source.
+  Recapture at 46px editor text and 2x density for native-size detail.
+
+Studio timeline on the right:
+  A much closer view of the orange caption bar, centered on the complete
+  “What's new in Remotion” phrase. Keep the neighboring video filmstrip and
+  waveform as context above the caption, with the list outside the crop.
+  Select Presenter captions in the native Studio UI before capturing the shot,
+  retaining the orange bar's actual selection outline rather than adding one.
+  Use a narrow horizontal focus band: the orange phrase stays clear while
+  the filmstrip and tracks above/below soften. Add a soft edge vignette.
+
+Code action:
+  None. This is prepared, complete markup with the caret hidden.
+  Caption copy and milliseconds in the example are illustrative until
+  checked against the actual recording; do not label them a transcript.
+
+Camera:
+  Angle the camera 34 degrees across the screen, with the left side nearest
+  and the right side receding. Keep the text/startMs/endMs line beginnings
+  inside the frame; their values stretch into the distance to the right.
+  Shift the view right and slightly down so the opening [ and following {
+  remain visible instead of leaving an apparently empty line.
+  Use twice the previous magnification, pushing slowly from 188% to 198%,
+  around a fixed point beside the line beginnings. Keep the camera angle
+  fixed during the slow zoom; no animated rotation or pan.
+  Continue the gentle zoom through the final frame, then cut.
+
+Focus:
+  A constant 0.75px source lens blur keeps the same slight visible softness.
+  After the OLED texture, use a tall radial ellipse centered on the near labels.
+  Increase blur from 0.125px near the left to 12px on the distant right side.
+  Keep the labels readable as the right-hand values fall progressively out of focus.
+  A soft 15% black vignette and the focus region follow the left-hand labels.
+  Keep the caption readable, with no focus pulse or heavy defocus.
+
+Screen texture:
+  A pronounced OLED shader adds a mostly neutral aperture grid and dark gaps.
+  Preserve the original text colors; keep RGB separation barely perceptible.
+  The six-source-pixel grid follows the code as the camera zooms; it does not
+  float over the screen. Blend the pixel structure at 65%; keep the RGB bias capped.
+  Give the dark background faint neutral surface texture rather than colored noise.
+  Keep the pixel texture still, with no flicker or scanline sweep.
+
+Implementation:
+  Use the existing BasicCaptions element from:
+  packages/docs/elements/captions/basic-captions/basic-captions.tsx
+
+  Scene1 currently trims only the Video. For working captions, move its
+  trim and duration onto a shared Sequence containing Video and BasicCaptions.
+  Preserve the existing LowerThird overlay and its separate entrance timing.
+  Caption milliseconds refer to the original, untrimmed whats1.mov.
+
+Your edits:
+
+
+STUDIO CAPTURE AND PROVENANCE
+
+  Capture real Studio at 4x density using PageCapture: requestPaint and
+  drawElementImage. The timeline PNGs are 5120 × 1964, with provenance manifests
+  beside them in packages/brand/public/aura-code/timeline.
+  The fixtures in packages/brand/src/AuraTimelineSource.tsx reuse the actual
+  announcement components and materialize the illustrative caption proposal.
+  The fixture's score is a 22-second loop derived from the existing chime.mp3.
+  It supplies the demo score waveform; the montage stays silent. Its hosted URL
+  is listed with the other runtime media in packages/brand/src/aura-code-assets.ts.
+  packages/brand/public/score.wav is only an ignored local preparation output.
+  Caption copy and timing remain illustrative, not a transcript of the presenter.
+
+  With brand Studio running at http://localhost:3110, run from the repository root:
+  bun packages/brand/scripts/aura-code/capture-studio.ts
+  Set AURA_STUDIO_URL when Studio is running at another address.
+
+  All capture outputs in packages/brand/public/aura-code are ignored by Git.
+  After recapturing, upload changed runtime assets to R2 under new content-hashed
+  keys, verify their public bytes, and update packages/brand/src/aura-code-assets.ts
+  before previewing or rendering. The montage reads the hosted URLs.
+
+
+FLASH TRANSITIONS
+
+  Add a 12-frame black pulse over each cut at 00:02, 00:04, and 00:05.4.
+  Share each full-width pulse across both panels of the paired master.
+  Begin transparent, reach full black exactly on the cut, then clear within
+  five frames.
+  Keep the scene durations intact; the overlays do not add time.
+
+
+ENDING / LOOP
+
+  Cut at the end of the caption camera move. No ending hold or pause.
+  If looping, return immediately to the moving opening shot.
+
+Your edits:
+
+
+ADDITIONAL SHOTS / ALTERNATIVE ACTIONS
+
+
+OTHER NOTES
+
+CONCRETE MARKUP REFERENCES
+
+CHAPTER BLOCK — select all six lines, then cut away before duplication.
+
+<TransitionSeries.Sequence
+  name="Intro"
+  durationInFrames={5 * fps}
+>
+  <IntroScene />
+</TransitionSeries.Sequence>
+
+The full source take includes an unrenamed duplicate after the montage's cut.
+
+HTML/CSS — static styling excerpt from the real presenter card.
+Keep its existing inline animations in the full captured source.
+
+<Interactive.Div
+  name="Presenter card"
+  style={{
+    backgroundColor: 'white',
+    fontFamily: 'GT Planar',
+    fontFeatureSettings: "'ss03' 1",
+    padding: '24px 44px',
+    borderRadius: 18,
+    boxShadow: '0 0 30px rgba(0, 0, 0, 0.1)',
+  }}
+>
+  <Interactive.Div
+    name="Presenter name"
+    style={{fontSize: 50, fontWeight: 700, color: '#111'}}
+  >
+    Jonny Burger
+  </Interactive.Div>
+  <Interactive.Div
+    name="Presenter role"
+    style={{
+      fontSize: 36,
+      fontWeight: 400,
+      marginTop: -12,
+      color: '#4290f5',
+    }}
+  >
+    Chief Hacker, Remotion
+  </Interactive.Div>
+</Interactive.Div>
+
+
+CAPTIONS — proposed addition to Scene1, using the real media source.
+The sample text and timestamps below are illustrative, not a transcription.
+Copy BasicCaptions into the project; import it from './basic-captions'.
+Get fps from useVideoConfig() in Scene1.
+
+Replace the existing Video with this shared group. Keep the existing
+LowerThird Sequence outside it so its entrance timing remains unchanged.
+
+<Sequence
+  name="Presenter video and captions"
+  trimBefore={0.9 * fps}
+  durationInFrames={3.8 * fps}
+>
+  <Video
+    name="Presenter video"
+    src={assetUrl('whats1.mov')}
+  />
+  <BasicCaptions
+    name="Presenter captions"
+    width={900}
+    style={{
+      position: 'absolute',
+      bottom: 280,
+      translate: '510px 0px',
+    }}
+    captions={[
+      {
+        text: "What's new",
+        startMs: 900,
+        endMs: 1600,
+        timestampMs: null,
+        confidence: null,
+      },
+      {
+        text: ' in Remotion',
+        startMs: 1600,
+        endMs: 2400,
+        timestampMs: null,
+        confidence: null,
+      },
+    ]}
+  />
+</Sequence>
+
+The 0.9-second trim and 3.8-second duration match the real intro's 27–141
+source-frame range at 30 fps. Keeping both elements under that trim means
+caption timestamps stay synchronized with the original recording.
+The caption box sits above the lower third to avoid covering the name card.

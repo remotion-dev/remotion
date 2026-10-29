@@ -1,5 +1,6 @@
 import type {WrappedCanvas} from 'mediabunny';
 import {releaseStableFrame} from '../canvas-ahead-of-time';
+import {hasFrameStarted} from '../helpers/has-frame-started';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
@@ -12,10 +13,19 @@ export const createVideoIterator = async (
 	let iteratorEnded = false;
 
 	const firstAwait = iterator.next();
-	const initialFrame =
-		firstAwait && firstAwait.type === 'ready'
-			? firstAwait.frame
-			: await firstAwait.wait();
+	let initialFrame: WrappedCanvas | null;
+	try {
+		initialFrame =
+			firstAwait && firstAwait.type === 'ready'
+				? firstAwait.frame
+				: await firstAwait.wait();
+	} catch (error) {
+		// Nothing references this iterator yet, so release its decoder before
+		// the caller creates a replacement.
+		await iterator.closeIterator().catch(() => undefined);
+		throw error;
+	}
+
 	let lastReturnedFrame = initialFrame;
 
 	let peekedFrame: WrappedCanvas | null = null;
@@ -68,7 +78,7 @@ export const createVideoIterator = async (
 	};
 
 	const getFrameEndTimestampFromPeek = (frame: WrappedCanvas | null) => {
-		return frame ? roundTo4Digits(frame.timestamp) : Infinity;
+		return frame ? frame.timestamp : Infinity;
 	};
 
 	const getFrameEndTimestamp = async ({
@@ -229,8 +239,8 @@ export const createVideoIterator = async (
 			}
 
 			if (
-				frameTimestamp <= timestamp &&
-				frameEndTimestamp.timestamp > timestamp
+				hasFrameStarted(lastReturnedFrame.timestamp, time) &&
+				!hasFrameStarted(frameEndTimestamp.timestamp, time)
 			) {
 				return {
 					type: 'satisfied' as const,
@@ -299,7 +309,6 @@ export const createVideoIterator = async (
 					};
 				}
 
-				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
 				const frameEndTimestamp = await getFrameEndTimestamp({
 					onWait: options.onWait,
 					pendingFrameBehavior: options.pendingFrameBehavior,
@@ -320,8 +329,8 @@ export const createVideoIterator = async (
 				}
 
 				if (
-					frameTimestamp <= timestamp &&
-					frameEndTimestamp.timestamp > timestamp
+					hasFrameStarted(frame.frame.timestamp, time) &&
+					!hasFrameStarted(frameEndTimestamp.timestamp, time)
 				) {
 					return {
 						type: 'satisfied' as const,
