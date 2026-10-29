@@ -17,7 +17,7 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           // audio settings
           audioOffsetInSeconds: 0,
-          audioFileUrl: staticFile("demo-track.mp3"),
+          audioFileUrl: "https://remotion.media/music-visualization-demo-track.mp3",
           // song data
           coverImageUrl: staticFile("demo-song-cover.jpeg"),
           songName: "Sunset Render Deja Vu",

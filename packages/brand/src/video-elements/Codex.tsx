@@ -145,7 +145,7 @@ const Conversation: React.FC = () => {
 				gap: 18,
 				left: 24,
 				position: 'absolute',
-				top: 50,
+				top: 74,
 				width: MINIMUM_WIDTH - 48,
 			}}
 		>
@@ -334,7 +334,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 						translate: '-3px 0',
 					}}
 				>
-					GPT-5.6 Sol
+					GPT-6.1 Sol
 				</span>
 				<span
 					style={{

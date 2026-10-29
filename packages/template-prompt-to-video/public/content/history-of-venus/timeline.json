@@ -3,7 +3,7 @@
     {
       "startMs": 0,
       "endMs": 7616,
-      "imageUrl": "83e869e5-18fd-4de9-b70f-dc0f180da912",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/83e869e5-18fd-4de9-b70f-dc0f180da912.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -19,7 +19,7 @@
     {
       "startMs": 7616,
       "endMs": 11935,
-      "imageUrl": "99af6411-714b-4b72-b66e-f6c02a184493",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/99af6411-714b-4b72-b66e-f6c02a184493.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -35,7 +35,7 @@
     {
       "startMs": 11935,
       "endMs": 18762,
-      "imageUrl": "919d538b-3407-440a-b26a-73a5321a3af0",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/919d538b-3407-440a-b26a-73a5321a3af0.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -51,7 +51,7 @@
     {
       "startMs": 18762,
       "endMs": 24753,
-      "imageUrl": "20cf0ab8-49cb-4ead-816d-6af0b588668a",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/20cf0ab8-49cb-4ead-816d-6af0b588668a.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -67,7 +67,7 @@
     {
       "startMs": 24753,
       "endMs": 28886,
-      "imageUrl": "11f4911a-f39f-4567-8963-41511d05b593",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/11f4911a-f39f-4567-8963-41511d05b593.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -83,7 +83,7 @@
     {
       "startMs": 28886,
       "endMs": 34087,
-      "imageUrl": "5584e376-d02e-48fc-9e47-fc7bf86000af",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/5584e376-d02e-48fc-9e47-fc7bf86000af.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -99,7 +99,7 @@
     {
       "startMs": 34087,
       "endMs": 40496,
-      "imageUrl": "33b24fbd-dc71-4692-87af-fdff7661c222",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/33b24fbd-dc71-4692-87af-fdff7661c222.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -115,7 +115,7 @@
     {
       "startMs": 40496,
       "endMs": 54056,
-      "imageUrl": "90917ba0-8b7c-4309-a784-4f1fdc28d9fb",
+      "imageUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/images/90917ba0-8b7c-4309-a784-4f1fdc28d9fb.png",
       "enterTransition": "blur",
       "exitTransition": "blur",
       "animations": [
@@ -1564,42 +1564,42 @@
     {
       "startMs": 0,
       "endMs": 7616,
-      "audioUrl": "83e869e5-18fd-4de9-b70f-dc0f180da912"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/83e869e5-18fd-4de9-b70f-dc0f180da912.mp3"
     },
     {
       "startMs": 7616,
       "endMs": 11935,
-      "audioUrl": "99af6411-714b-4b72-b66e-f6c02a184493"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/99af6411-714b-4b72-b66e-f6c02a184493.mp3"
     },
     {
       "startMs": 11935,
       "endMs": 18762,
-      "audioUrl": "919d538b-3407-440a-b26a-73a5321a3af0"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/919d538b-3407-440a-b26a-73a5321a3af0.mp3"
     },
     {
       "startMs": 18762,
       "endMs": 24753,
-      "audioUrl": "20cf0ab8-49cb-4ead-816d-6af0b588668a"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/20cf0ab8-49cb-4ead-816d-6af0b588668a.mp3"
     },
     {
       "startMs": 24753,
       "endMs": 28886,
-      "audioUrl": "11f4911a-f39f-4567-8963-41511d05b593"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/11f4911a-f39f-4567-8963-41511d05b593.mp3"
     },
     {
       "startMs": 28886,
       "endMs": 34087,
-      "audioUrl": "5584e376-d02e-48fc-9e47-fc7bf86000af"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/5584e376-d02e-48fc-9e47-fc7bf86000af.mp3"
     },
     {
       "startMs": 34087,
       "endMs": 40496,
-      "audioUrl": "33b24fbd-dc71-4692-87af-fdff7661c222"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/33b24fbd-dc71-4692-87af-fdff7661c222.mp3"
     },
     {
       "startMs": 40496,
       "endMs": 54056,
-      "audioUrl": "90917ba0-8b7c-4309-a784-4f1fdc28d9fb"
+      "audioUrl": "https://remotion.media/template-prompt-to-video/history-of-venus/audio/90917ba0-8b7c-4309-a784-4f1fdc28d9fb.mp3"
     }
   ],
   "shortTitle": "History of Venus"

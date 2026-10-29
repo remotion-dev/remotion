@@ -6,8 +6,10 @@ description: Capture matching 2x Remotion Studio timeline screenshots and make a
 # Timeline Layout Reveal
 
 Use `packages/brand/src/TimelineLayoutReveal.tsx` and its registration in
-`packages/brand/src/Root.tsx`. Screenshots belong in
-`packages/brand/public/timeline-reveal/before.png` and `after.png`.
+`packages/brand/src/Root.tsx`. Save screenshots outside Git, then use
+[offload-r2](../offload-r2/SKILL.md) to upload them under versioned
+`timeline-reveal/` keys. Update the composition's image URLs after verifying
+the public SHA-256 hashes.
 
 ## Matching captures
 
@@ -47,8 +49,8 @@ revision. For a fresh checkout, run `bun install` and
 building only CLI dependencies misses fonts, noise, and layout utilities.
 
 Different ports have separate browser storage. Match the framing and playhead
-explicitly in both Studios. Copy saved screenshots into the active brand project
-before closing the baseline server and archiving a temporary managed worktree.
+explicitly in both Studios. Preserve saved screenshots until their R2 uploads
+are verified before closing the baseline server and archiving a temporary managed worktree.
 Restore any temporarily changed config. Update from main only when requested.
 
 ## Reveal and delivery

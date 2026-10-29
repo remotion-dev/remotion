@@ -163,6 +163,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		});
 	}, [definition, sourceCode]);
 
+	const showOpenInBrowserStudio = Boolean(sourceCode) && !isEmbeddedInStudio;
+
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
 	}, [definition]);
@@ -291,7 +293,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						</>
 					) : null}
 
-					{children || sourceCode ? (
+					{children || showOpenInBrowserStudio ? (
 						<div className={styles.secondaryActions}>
 							{children ? (
 								<button
@@ -311,7 +313,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									View code
 								</button>
 							) : null}
-							{sourceCode ? (
+							{showOpenInBrowserStudio ? (
 								<button
 									aria-label="Try this Element in Browser Studio in a new tab"
 									className={styles.secondaryAction}
@@ -324,7 +326,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									>
 										<ExternalLinkIcon size={16} />
 									</span>
-									Try in remotion.dev/new
+									Try in remotion.new
 								</button>
 							) : null}
 						</div>
@@ -394,7 +396,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										<img
 											alt=""
 											className={styles.contributorAvatar}
-											src={`https://github.com/${contributor.username}.png`}
+											crossOrigin="anonymous"
+											src={`https://avatars.githubusercontent.com/${contributor.username}`}
 										/>
 										<span className={styles.contributorText}>
 											<strong>@{contributor.username}</strong>

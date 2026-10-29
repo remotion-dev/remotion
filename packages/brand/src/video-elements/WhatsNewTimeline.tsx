@@ -24,11 +24,17 @@ export const whatsNewTimeline: StudioTimeline = {
 	trackScale: (1114 * 0.85) / ((2510 - 578) * captureScale),
 	pixelsPerFrame: 0.85,
 	height: 582 * captureScale,
+	soundEffects: [
+		{from: 35, durationInFrames: 80},
+		{from: 330, durationInFrames: 100},
+		{from: 650, durationInFrames: 95},
+		{from: 970, durationInFrames: 120},
+	],
 	soundtrack: {
 		name: 'Soundtrack',
 		assetName: 'score.wav',
-		fadeInFrames: 60,
-		fadeOutFrames: 60,
+		fadeInFrames: 30,
+		fadeOutFrames: 30,
 	},
 	capturedChapters: [
 		{

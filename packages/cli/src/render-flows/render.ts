@@ -6,6 +6,7 @@ import type {
 	RspackOverrideFn,
 	WebpackOverrideFn,
 } from '@remotion/bundler';
+import {LicensingInternals} from '@remotion/licensing';
 import type {
 	AudioCodec,
 	Browser,
@@ -50,6 +51,7 @@ import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
+import {getCrfForCodec} from '../get-crf-for-codec';
 import {getOutputFilename} from '../get-filename';
 import {makeHyperlink} from '../hyperlinks/make-link';
 import {Log} from '../log';
@@ -101,6 +103,7 @@ export const renderVideoFlow = async ({
 	addCleanupCallback,
 	cancelSignal,
 	crf,
+	crfIsFromConfigFile,
 	gopSize,
 	uiCodec,
 	uiImageFormat,
@@ -176,6 +179,7 @@ export const renderVideoFlow = async ({
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (label: string, cb: () => void) => void;
 	crf: Crf | null;
+	crfIsFromConfigFile: boolean;
 	gopSize: number | null;
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
@@ -685,6 +689,23 @@ export const renderVideoFlow = async ({
 			onLog,
 		});
 
+		if (licenseKey !== null) {
+			try {
+				await LicensingInternals.internalRegisterUsageEvent({
+					event: 'cloud-render',
+					host: null,
+					succeeded: true,
+					licenseKey: licenseKey === 'free-license' ? null : licenseKey,
+					isProduction: isProduction ?? true,
+					isStill: false,
+				});
+				Log.verbose({indent, logLevel}, 'Usage event sent successfully');
+			} catch (err) {
+				Log.error({indent, logLevel}, 'Failed to send usage event');
+				Log.error({indent: true, logLevel}, err);
+			}
+		}
+
 		if (!updatesDontOverwrite) {
 			updateRenderProgress({newline: true, printToConsole: true});
 		}
@@ -715,7 +736,13 @@ export const renderVideoFlow = async ({
 			fps: fps ?? config.fps,
 			durationInFrames: durationInFrames ?? config.durationInFrames,
 		},
-		crf: crf ?? null,
+		crf: getCrfForCodec({
+			crf,
+			crfIsFromConfigFile,
+			codec,
+			indent,
+			logLevel,
+		}),
 		gopSize,
 		envVariables,
 		frameRange,

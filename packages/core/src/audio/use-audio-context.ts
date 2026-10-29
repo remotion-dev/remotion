@@ -1,4 +1,4 @@
-import {useMemo, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {useRemotionEnvironment} from '../use-remotion-environment';
@@ -10,6 +10,14 @@ export type RemotionAudioContextState =
 	| AudioContextState
 	| 'running-to-suspended'
 	| 'suspended-to-running';
+
+type OwnedAudioContext = {
+	audioContext: AudioContext;
+	gainNode: GainNode;
+	getState: () => RemotionAudioContextState;
+	resume: () => Promise<void>;
+	suspend: () => Promise<void>;
+};
 
 let warned = false;
 
@@ -49,18 +57,23 @@ export const useSingletonAudioContext = ({
 		);
 	}
 
-	const context = useMemo(() => {
+	const [context, setContext] = useState<OwnedAudioContext | null>(null);
+
+	useEffect(() => {
 		if (env.isRendering) {
-			return null;
+			setContext(null);
+			return;
 		}
 
 		if (!audioEnabled) {
-			return null;
+			setContext(null);
+			return;
 		}
 
 		if (typeof AudioContext === 'undefined') {
 			warnOnce(logLevel);
-			return null;
+			setContext(null);
+			return;
 		}
 
 		const audioContext = new AudioContext({
@@ -140,12 +153,14 @@ export const useSingletonAudioContext = ({
 			});
 		};
 
-		return {
-			audioContext,
-			gainNode,
-			getState,
-			resume,
-			suspend,
+		setContext({audioContext, gainNode, getState, resume, suspend});
+
+		return () => {
+			// Invalidate a suspend waiting on a pending resume before closing.
+			transitionId++;
+			transitionTarget = null;
+			gainNode.disconnect(audioContext.destination);
+			audioContext.close();
 		};
 	}, [logLevel, latencyHint, env.isRendering, audioEnabled, sampleRate]);
 

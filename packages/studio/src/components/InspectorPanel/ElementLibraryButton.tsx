@@ -16,6 +16,7 @@ const noElementLibraries = [] as const;
 
 const elementLibraryDropdownStyle: React.CSSProperties = {
 	borderRadius: 4,
+	display: 'flex',
 	height: 28,
 	margin: '0 4px',
 	width: 'calc(100% - 8px)',
