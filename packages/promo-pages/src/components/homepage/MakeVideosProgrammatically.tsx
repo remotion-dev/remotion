@@ -13,8 +13,11 @@ export const MakeVideosProgrammatically: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="text-[var(--subtitle)]">Make videos</span>
-			<br /> programmatically
+			<span className="min-[900px]:text-[var(--make-videos-programmatically-color,var(--subtitle))]">
+				Make videos
+			</span>{' '}
+			<br className="hidden min-[900px]:block" />
+			programmatically
 		</>
 	),
 	description = 'Connect data and manage complexity with code.',
@@ -28,24 +31,28 @@ export const MakeVideosProgrammatically: React.FC<{
 
 	return (
 		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
-			<div className="flex aspect-square w-full items-start">
-				{showVideo && src ? (
-					<video
-						src={src}
-						muted
-						autoPlay
-						playsInline
-						loop
-						preload="metadata"
-						className="relative max-h-full max-w-full cursor-default! object-contain min-[900px]:mb-0 min-[900px]:mt-0"
-					/>
-				) : null}
-			</div>
+			{showVideo ? (
+				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
+					{src ? (
+						<video
+							src={src}
+							muted
+							autoPlay
+							playsInline
+							loop
+							preload="metadata"
+							className="relative max-h-full max-w-full cursor-default! object-contain min-[900px]:mb-0 min-[900px]:mt-0"
+						/>
+					) : null}
+				</div>
+			) : null}
 			<div className="font-brand">
-				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
+				<h2 className="text-2xl fontbrand leading-[1.1] font-medium max-[900px]:mb-2">
 					{title}
 				</h2>
-				<p className="text-balance leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed max-[900px]:mb-0">
+					{description}
+				</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

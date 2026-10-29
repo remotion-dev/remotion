@@ -20,6 +20,7 @@ import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../../components/effects/effects-curves-preview';
 import {
 	CylinderTextSource,
 	EffectsCylinderPreview,
@@ -64,6 +65,11 @@ import {
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
 import {
+	EffectsLongShadowsPreview,
+	LongShadowsTextSource,
+	LONG_SHADOWS_PREVIEW_PARAMS,
+} from '../../components/effects/effects-long-shadows-preview';
+import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
 } from '../../components/effects/effects-lut-preview';
@@ -105,6 +111,7 @@ import {EffectsSaturationPreview} from '../../components/effects/effects-saturat
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../../components/effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../../components/effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -153,6 +160,7 @@ import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {ElementPlayground} from './element-playground/ElementPlayground';
+import {ElementsOgImage} from './ElementsOgImage';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
@@ -221,6 +229,12 @@ export const RemotionRoot: React.FC = () => {
 					);
 				})}
 			</Folder>
+			<Still
+				component={ElementsOgImage}
+				height={630}
+				width={1200}
+				id="elements-og-image"
+			/>
 			<Folder name="articles">
 				{articles.map((e) => {
 					return (
@@ -406,6 +420,23 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{amount: 1.5}}
 				/>
 				<Still
+					id="effects-curves-preview"
+					component={EffectsCurvesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						points: [
+							[0, 0],
+							[0.25, 0.12],
+							[0.75, 0.88],
+							[1, 1],
+						],
+						channel: 'rgb',
+						interpolation: 'smooth',
+						amount: 1,
+					}}
+				/>
+				<Still
 					id="effects-color-key-preview"
 					component={EffectsColorKeyPreview}
 					width={1280}
@@ -582,7 +613,14 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsLevelsPreview}
 					width={1280}
 					height={720}
-					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
+					defaultProps={{
+						blackPoint: 0.1,
+						whitePoint: 0.9,
+						gamma: 1.4,
+						outputBlack: 0.03,
+						outputWhite: 0.95,
+						channel: 'rgb',
+					}}
 				/>
 				<Still
 					id="effects-lut-preview"
@@ -634,6 +672,19 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'vertical',
 						slats: 14,
 					}}
+				/>
+				<Still
+					id="effects-long-shadows-text-source"
+					component={LongShadowsTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-long-shadows-preview"
+					component={EffectsLongShadowsPreview}
+					width={1280}
+					height={720}
+					defaultProps={LONG_SHADOWS_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-drop-shadow-preview"
@@ -1192,6 +1243,30 @@ export const RemotionRoot: React.FC = () => {
 						offset: 0,
 						amplitude: 40,
 						wavelength: 160,
+					}}
+				/>
+				<Still
+					id="effects-shatter-preview"
+					component={EffectsShatterPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						time: 0.5,
+						pattern: 'bricks',
+						repetitions: 10,
+						direction: 0,
+						origin: [0.5, 0.5],
+						center: [0.5, 0.5],
+						radius: 0.4,
+						depth: 0.1,
+						strength: 5,
+						rotationSpeed: 0.2,
+						randomness: 0.1,
+						viscosity: 0.1,
+						massVariance: 0.3,
+						gravity: 3,
+						seed: 0,
+						extrusionDepth: 0.05,
 					}}
 				/>
 				<Still

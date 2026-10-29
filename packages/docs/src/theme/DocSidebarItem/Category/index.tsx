@@ -32,16 +32,18 @@ const ElementsSidebarRoot: React.FC<Props> = (props) => {
 
 		const updateActiveCategory = () => {
 			animationFrame = null;
-			// Use the same offset as native anchor navigation, allowing subpixel rounding.
 			const scrollOffset =
 				Number.parseFloat(
 					getComputedStyle(document.documentElement).scrollPaddingTop,
 				) || 0;
+			// Highlight approaching sections before their titles reach the sticky navbar.
+			const activationOffset =
+				scrollOffset + Math.min(120, window.innerHeight * 0.2);
 			let activeId: string | null = null;
 			for (const heading of catalogContent.querySelectorAll<HTMLElement>(
 				'h2[id^="element-category-"]',
 			)) {
-				if (heading.getBoundingClientRect().top <= scrollOffset + 1) {
+				if (heading.getBoundingClientRect().top <= activationOffset + 1) {
 					activeId = heading.id;
 				}
 			}
@@ -84,7 +86,7 @@ export default function DocSidebarItemCategoryWrapper(props: Props): ReactNode {
 	const activeHeadingId = useContext(ActiveElementCategoryContext);
 	const catalogHref = item.customProps?.catalogHref;
 
-	if (item.className === 'elements-sidebar-root') {
+	if (item.className?.split(' ').includes('elements-sidebar-root')) {
 		return <ElementsSidebarRoot {...props} />;
 	}
 

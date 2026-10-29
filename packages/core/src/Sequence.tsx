@@ -1,7 +1,6 @@
 import React, {
 	createContext,
 	forwardRef,
-	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
@@ -173,6 +172,33 @@ export type SequencePropsWithoutDuration = {
 export type SequenceProps = {
 	readonly durationInFrames?: number;
 } & SequencePropsWithoutDuration;
+
+// Bind explicit arguments instead of capturing render variables. Extracted hooks
+// can be inlined by minifiers and retain children through their shared scope.
+const getSequenceRegistration = (sequence: TSequence): TSequence => {
+	return sequence;
+};
+
+const getSequenceStack = (stack: string | null): string | null => {
+	return stack;
+};
+
+const getSequenceCurrentFrame = (ref: React.RefObject<number>): number => {
+	return ref.current;
+};
+
+const setSequenceWrapperRef = (
+	ref: React.ForwardedRef<HTMLDivElement>,
+	wrapperRef: React.RefObject<HTMLDivElement | null>,
+	node: HTMLDivElement | null,
+) => {
+	wrapperRef.current = node;
+	if (typeof ref === 'function') {
+		ref(node);
+	} else if (ref) {
+		ref.current = node;
+	}
+};
 
 const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
@@ -568,7 +594,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
 		: (stack ?? null);
-	const getStack = useCallback(() => registrationStack, [registrationStack]);
+	const getStack = useMemo(
+		() => getSequenceStack.bind(null, registrationStack),
+		[registrationStack],
+	);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
 	const currentFrame =
 		registeredFrozenFrame ??
@@ -577,7 +606,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	useLayoutEffect(() => {
 		currentFrameRef.current = currentFrame;
 	}, [currentFrame]);
-	const getCurrentFrame = useCallback(() => currentFrameRef.current, []);
+	const getCurrentFrame = useMemo(
+		() => getSequenceCurrentFrame.bind(null, currentFrameRef),
+		[currentFrameRef],
+	);
 	const registeredTrimBefore = trimBefore === 0 ? null : trimBefore;
 	const parentCumulatedNegativeFrom =
 		parentSequence?.cumulatedNegativeFrom ?? 0;
@@ -669,7 +701,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			controlsSupportsEffects,
 		]);
 
-	const getSequenceForRegistration = useCallback((): TSequence => {
+	const sequenceForRegistration = useMemo((): TSequence => {
 		const trackRegistration = timelineTrack
 			? {
 					timelineTrack: {
@@ -807,6 +839,10 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		frozenMediaFrame,
 		singleChildComponent,
 	]);
+	const getSequenceForRegistration = useMemo(
+		() => getSequenceRegistration.bind(null, sequenceForRegistration),
+		[sequenceForRegistration],
+	);
 	const registration = useSequenceRegistration({
 		getSequence:
 			env.isStudio || sequenceRegistrationEnabled
@@ -880,17 +916,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		style: styleIfThere,
 	});
 
-	const sequenceRef = useCallback(
-		(node: HTMLDivElement | null) => {
-			wrapperRefForOutline.current = node;
-
-			if (typeof ref === 'function') {
-				ref(node);
-			} else if (ref) {
-				ref.current = node;
-			}
-		},
-		[ref],
+	const sequenceRef = useMemo(
+		() => setSequenceWrapperRef.bind(null, ref, wrapperRefForOutline),
+		[ref, wrapperRefForOutline],
 	);
 
 	const defaultStyle: React.CSSProperties = useMemo(() => {

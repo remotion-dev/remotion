@@ -38,6 +38,7 @@ export default defineConfig({
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
 		externally_connectable: {
 			matches: [
+				'https://remotion.new/*',
 				'https://remotion.dev/new*',
 				'https://remotion.dev/convert*',
 				'https://www.remotion.dev/new*',

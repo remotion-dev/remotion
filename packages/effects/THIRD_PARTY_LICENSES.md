@@ -7,6 +7,10 @@ adapted from the noise, distortion, blur, and perspective engines in
 [EffectCraft](https://github.com/storytold/effectcraft), revision
 `8f02f52a44a4b1ea807d8824b92301b96f896a06`. It is used under the MIT license.
 
+The Shatter geometry and motion are adapted from EffectCraft's simulation
+engine (`crates/effects/src/sim2.rs` and `crates/raster/src/lib.rs`), revision
+`9581b53c3f8945683252af0eb5fac79e0e43aed4`, also under the MIT license.
+
 MIT License
 
 Copyright (c) 2026 ArtCraft Team and the EffectCraft contributors

@@ -5,7 +5,7 @@ export default {
     type: "problem",
     docs: {
       description: "Keep copied Element source independent of project files.",
-      url: "https://www.remotion.dev/docs/studio-protocol/component-library-integration#reuse-component-code",
+      url: "https://www.remotion.dev/docs/elements/libraries#1-share-the-element-source",
     },
     schema: [],
     messages: {

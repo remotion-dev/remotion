@@ -50,6 +50,7 @@ const getSequencePropsStatus = ({
 	effects,
 	remotionRoot,
 	logLevel,
+	fileContentsCache,
 }: {
 	fileName: string;
 	line: number;
@@ -62,6 +63,7 @@ const getSequencePropsStatus = ({
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
+	fileContentsCache: Map<string, string> | null;
 }): SubscribeToSequencePropsResponse => {
 	if (preferredNodePath) {
 		try {
@@ -73,6 +75,7 @@ const getSequencePropsStatus = ({
 				assetKeys,
 				effects,
 				remotionRoot,
+				fileContentsCache,
 			});
 			return {
 				status: fromNodePath,
@@ -111,6 +114,7 @@ const getSequencePropsStatus = ({
 					assetKeys,
 					effects,
 					remotionRoot,
+					fileContentsCache,
 				});
 			} catch (error) {
 				if (
@@ -150,6 +154,7 @@ const getSequencePropsStatus = ({
 					assetKeys,
 					effects,
 					remotionRoot,
+					fileContentsCache,
 				}),
 				nodePath: {
 					absolutePath: path.resolve(remotionRoot, fileName),
@@ -182,6 +187,7 @@ const getSequencePropsStatus = ({
 		effects,
 		remotionRoot,
 		logLevel,
+		fileContentsCache,
 	});
 
 	return status;
@@ -200,6 +206,7 @@ export const subscribeToSequencePropsWatchers = ({
 	remotionRoot,
 	clientId,
 	logLevel,
+	fileContentsCache,
 }: {
 	fileName: string;
 	line: number;
@@ -213,6 +220,7 @@ export const subscribeToSequencePropsWatchers = ({
 	remotionRoot: string;
 	clientId: string;
 	logLevel: LogLevel;
+	fileContentsCache: Map<string, string> | null;
 }): SubscribeToSequencePropsResponse => {
 	const initialResult = getSequencePropsStatus({
 		fileName,
@@ -226,6 +234,7 @@ export const subscribeToSequencePropsWatchers = ({
 		effects,
 		remotionRoot,
 		logLevel,
+		fileContentsCache,
 	});
 
 	if (!initialResult.success) {

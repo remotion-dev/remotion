@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-cli-still.png
+image: https://remotion.media/docs/generated/articles-docs-cli-still.png
 title: npx remotion still
 sidebar_label: still
 crumb: CLI Reference
@@ -149,6 +149,18 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 ### `--rspack`<AvailableFrom v="4.0.502" />
 
 <Options id="rspack" />
+
+### `--license-key`<AvailableFrom v="4.0.539" />
+
+<Options id="license-key" />
+
+### `--is-production`<AvailableFrom v="4.0.539" />
+
+<Options id="is-production" />
+
+```bash title="Report a development render"
+npx remotion still --license-key=rm_sec_... --is-production=false
+```
 
 ### ~~`--ffmpeg-executable`~~
 

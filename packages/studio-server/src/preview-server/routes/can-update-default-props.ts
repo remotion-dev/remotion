@@ -7,7 +7,9 @@ import type {
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import {getProjectInfo} from '../project-info';
 
-export const {computeCanUpdateDefaultPropsFromContent} = CodemodsInternals;
+export const {
+	computeCanUpdateDefaultPropsFromContent,
+}: typeof CodemodsInternals = CodemodsInternals;
 
 export const checkIfTypeScriptFile = (file: string) => {
 	if (

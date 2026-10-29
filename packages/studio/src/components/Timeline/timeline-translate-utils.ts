@@ -11,4 +11,4 @@ export const {
 	parseTranslateWithUnits,
 	serializeTranslate,
 	serializeTranslateWithUnits,
-} = CanvasInternals;
+}: typeof CanvasInternals = CanvasInternals;

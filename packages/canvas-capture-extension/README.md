@@ -118,7 +118,7 @@ drawn at the display's native pixel density, then the selected crop is copied
 into a reusable, correctly sized `OffscreenCanvas`. The controls are mounted
 outside the captured body subtree, so they do not appear in area or whole-page
 recordings. Stop the recording, then open it directly in
-[remotion.dev/new](https://remotion.dev/new), inspect it in
+[remotion.new](https://remotion.new), inspect it in
 [remotion.dev/convert](https://remotion.dev/convert), or save it to disk.
 
 The page contents are temporarily placed inside a `content="drawable"` canvas while recording and restored afterward. The extension also sets `layoutSubtree` for older Chromium versions. Existing canvases and canvases added inside the captured subtree during recording temporarily receive `content="drawable"` to avoid Chromium clipping their bitmaps at the origin; their original attributes are restored afterward. Websites that rely on direct-child CSS selectors may look different during capture. Chrome's own pages and the Chrome Web Store do not allow extension script injection.

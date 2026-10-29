@@ -1,7 +1,6 @@
 import type React from 'react';
 import {useContext, useLayoutEffect, useMemo, useState} from 'react';
 import {
-	cancelRender,
 	Html5Audio,
 	Internals,
 	random,
@@ -65,7 +64,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 	const {fps} = videoConfig;
 
-	const {delayRender, continueRender} = useDelayRender();
+	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const [replaceWithHtml5Audio, setReplaceWithHtml5Audio] = useState(false);
 	const [initialRequestInit] = useState(requestInit);
 
@@ -193,10 +192,10 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 
 				if (result.type === 'cannot-decode') {
 					handleError(
-						new Error(`Cannot decode ${src}.`),
-						new Error(
-							`Cannot render audio "${src}": The audio could not be decoded by the browser.`,
-						),
+						result.error,
+						new Error(`Cannot render audio "${src}": ${result.error.message}`, {
+							cause: result.error,
+						}),
 						`Cannot decode ${src}, falling back to <Html5Audio>`,
 					);
 					return;
@@ -283,6 +282,7 @@ export const AudioForRendering: React.FC<AudioProps> = ({
 		sampleRate,
 		absoluteFrame,
 		continueRender,
+		cancelRender,
 		delayRender,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,

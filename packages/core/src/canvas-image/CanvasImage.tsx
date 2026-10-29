@@ -1,6 +1,5 @@
 import {
 	forwardRef,
-	useCallback,
 	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -78,6 +77,42 @@ type LoadedImage = {
 type PendingLoadDelay = {
 	readonly handle: number;
 	continued: boolean;
+};
+
+const continueImageLoadDelay = (
+	pendingLoadDelayRef: React.MutableRefObject<PendingLoadDelay | null>,
+	setIsLoadPending: React.Dispatch<React.SetStateAction<boolean>>,
+	continueRender: ReturnType<typeof useDelayRender>['continueRender'],
+	{markAsReady}: {readonly markAsReady: boolean},
+) => {
+	const pending = pendingLoadDelayRef.current;
+	if (!pending || pending.continued) {
+		return;
+	}
+
+	pending.continued = true;
+	if (markAsReady) {
+		setIsLoadPending(false);
+	}
+
+	continueRender(pending.handle);
+	pendingLoadDelayRef.current = null;
+};
+
+const setCanvasRef = (
+	setOutputCanvas: React.Dispatch<
+		React.SetStateAction<HTMLCanvasElement | null>
+	>,
+	ref: React.ForwardedRef<HTMLCanvasElement>,
+	canvas: HTMLCanvasElement | null,
+) => {
+	setOutputCanvas(canvas);
+
+	if (typeof ref === 'function') {
+		ref(canvas);
+	} else if (ref) {
+		ref.current = canvas;
+	}
 };
 
 const makeAbortError = () => {
@@ -163,7 +198,7 @@ const loadImage = ({
 			return;
 		}
 
-		image.crossOrigin = crossOrigin ?? 'anonymous';
+		image.crossOrigin = crossOrigin || 'anonymous';
 		image.src = src;
 	});
 };
@@ -252,21 +287,15 @@ const CanvasImageContent = forwardRef<
 		const isPremounting = Boolean(sequenceContext?.premounting);
 		const isPostmounting = Boolean(sequenceContext?.postmounting);
 
-		const continuePendingLoadDelay = useCallback(
-			({markAsReady}: {readonly markAsReady: boolean}) => {
-				const pending = pendingLoadDelayRef.current;
-				if (!pending || pending.continued) {
-					return;
-				}
-
-				pending.continued = true;
-				if (markAsReady) {
-					setIsLoadPending(false);
-				}
-
-				continueRender(pending.handle);
-				pendingLoadDelayRef.current = null;
-			},
+		// Bound callbacks keep only these inputs, including after minification.
+		const continuePendingLoadDelay = useMemo(
+			() =>
+				continueImageLoadDelay.bind(
+					null,
+					pendingLoadDelayRef,
+					setIsLoadPending,
+					continueRender,
+				),
 			[continueRender],
 		);
 
@@ -278,16 +307,8 @@ const CanvasImageContent = forwardRef<
 			return document.createElement('canvas');
 		}, []);
 
-		const canvasRef = useCallback(
-			(canvas: HTMLCanvasElement | null) => {
-				setOutputCanvas(canvas);
-
-				if (typeof ref === 'function') {
-					ref(canvas);
-				} else if (ref) {
-					ref.current = canvas;
-				}
-			},
+		const canvasRef = useMemo(
+			() => setCanvasRef.bind(null, setOutputCanvas, ref),
 			[ref],
 		);
 

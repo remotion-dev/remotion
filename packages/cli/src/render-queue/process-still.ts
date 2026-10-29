@@ -90,5 +90,6 @@ export const processStill = async ({
 		rspackOverride: fixedConfig.rspackOverride,
 		webpackOverride: fixedConfig.webpackOverride,
 		licenseKey: job.licenseKey,
+		isProduction: null,
 	});
 };

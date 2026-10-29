@@ -3,6 +3,7 @@ import {useCallback, useContext, useRef} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {getTimelineSequenceTimingLimits} from './get-timeline-sequence-timing-limits';
@@ -18,7 +19,14 @@ export const useClampSequenceTimingValue = () => {
 	const limitsRef = useRef(
 		new Map<string, ReturnType<typeof getTimelineSequenceTimingLimits>>(),
 	);
-	const clearTimingLimits = useCallback(() => limitsRef.current.clear(), []);
+	const tracksBySourceRef = useRef<{
+		tracks: readonly TimelineTrackData[];
+		bySource: Map<string, TimelineTrackData[]>;
+	} | null>(null);
+	const clearTimingLimits = useCallback(() => {
+		limitsRef.current.clear();
+		tracksBySourceRef.current = null;
+	}, []);
 	const clampTimingValue = useCallback(
 		(
 			nodePath: SequencePropsSubscriptionKey,
@@ -49,13 +57,22 @@ export const useClampSequenceTimingValue = () => {
 								sequences,
 								affectedNodePaths: [nodePath],
 							});
-				const matching = tracks.filter(
-					(track) =>
-						track.nodePathInfo &&
-						stringifySequenceSubscriptionKey(
+				if (tracksBySourceRef.current?.tracks !== tracks) {
+					const bySource = new Map<string, TimelineTrackData[]>();
+					for (const track of tracks) {
+						if (!track.nodePathInfo) continue;
+						const sourceKey = stringifySequenceSubscriptionKey(
 							track.nodePathInfo.sequenceSubscriptionKey,
-						) === key,
-				);
+						);
+						const matchingTracks = bySource.get(sourceKey) ?? [];
+						matchingTracks.push(track);
+						bySource.set(sourceKey, matchingTracks);
+					}
+
+					tracksBySourceRef.current = {tracks, bySource};
+				}
+
+				const matching = tracksBySourceRef.current.bySource.get(key) ?? [];
 				for (const track of matching) {
 					const next = getTimelineSequenceTimingLimits({
 						propStatuses,

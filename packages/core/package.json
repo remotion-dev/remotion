@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/core"
 	},
 	"name": "remotion",
-	"version": "4.0.537",
+	"version": "4.0.539",
 	"description": "Make videos programmatically",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -14,7 +14,7 @@
 		"prepublishOnly": "bun ensure-correct-version.ts && cp ../../README.md . && cp ../../LICENSE.md .",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"make": "tsgo -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -30,14 +30,13 @@
 		"@testing-library/dom": "10.4.0",
 		"@happy-dom/global-registrator": "14.5.1",
 		"@types/dom-webcodecs": "catalog:",
-		"happy-dom": "20.0.2",
 		"react": "catalog:",
 		"react-dom": "catalog:",
 		"webpack": "5.105.0",
 		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"video",

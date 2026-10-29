@@ -10,6 +10,7 @@ import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
 import {cornerPin} from '@remotion/effects/corner-pin';
+import {curves} from '@remotion/effects/curves';
 import {cylinder} from '@remotion/effects/cylinder';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
@@ -37,6 +38,7 @@ import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {linearProgressivePixelate} from '@remotion/effects/linear-progressive-pixelate';
 import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
+import {longShadows} from '@remotion/effects/long-shadows';
 import {lut} from '@remotion/effects/lut';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
@@ -56,6 +58,7 @@ import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shadowsHighlights} from '@remotion/effects/shadows-highlights';
+import {shatter} from '@remotion/effects/shatter';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
@@ -90,6 +93,7 @@ import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../effects/effects-curves-preview';
 import {EffectsCylinderPreview} from '../effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
@@ -120,6 +124,10 @@ import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-pro
 import {EffectsLinearProgressivePixelatePreview} from '../effects/effects-linear-progressive-pixelate-preview';
 import {EffectsLinesPreview} from '../effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../effects/effects-liquid-contours-preview';
+import {
+	EffectsLongShadowsPreview,
+	LONG_SHADOWS_PREVIEW_PARAMS,
+} from '../effects/effects-long-shadows-preview';
 import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
@@ -155,6 +163,7 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -326,6 +335,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-curves',
+		effectName: 'curves',
+		effectImportPath: '@remotion/effects/curves',
+		comp: EffectsCurvesPreview,
+		schema: curves().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-color-key',
 		effectName: 'colorKey',
 		effectImportPath: '@remotion/effects/color-key',
@@ -421,6 +438,15 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/drop-shadow',
 		comp: EffectsDropShadowPreview,
 		schema: dropShadow().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-long-shadows',
+		effectName: 'longShadows',
+		effectImportPath: '@remotion/effects/long-shadows',
+		comp: EffectsLongShadowsPreview,
+		schema: longShadows().definition.schema,
+		initialValues: LONG_SHADOWS_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,
@@ -526,6 +552,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/thermal-vision',
 		comp: EffectsThermalVisionPreview,
 		schema: thermalVision().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shatter',
+		effectName: 'shatter',
+		effectImportPath: '@remotion/effects/shatter',
+		comp: EffectsShatterPreview,
+		schema: shatter().definition.schema,
 	},
 	{
 		...defaults,

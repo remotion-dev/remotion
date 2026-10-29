@@ -60,7 +60,9 @@ import {
 	EditorPropsProvider,
 	timeValueRef,
 } from './EditorProps.js';
+import {createCurveSampler} from './effects/create-curve-sampler.js';
 import {createEffect} from './effects/create-effect.js';
+import {subscribeToEffectSource} from './effects/effect-source-observer.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -229,6 +231,7 @@ import {
 	VisualModeDragOverridesRefContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModePropStatusesSubscriptionContext,
 	VisualModeSettersContext,
 	type CanUpdateEffectPropsResponse,
 	type CanUpdateEffectPropsResponseFalse,
@@ -396,6 +399,7 @@ export const Internals = {
 	CompositionSetters,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModePropStatusesSubscriptionContext,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModeDragOverridesRefContext,
@@ -544,8 +548,10 @@ export const Internals = {
 	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
 	createEffect,
+	createCurveSampler,
 	createWebGLContextError,
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,

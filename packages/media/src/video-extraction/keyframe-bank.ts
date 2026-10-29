@@ -1,6 +1,7 @@
 import type {VideoSample, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
+import {hasFrameStarted} from '../helpers/has-frame-started';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {makeSerializedQueue} from '../serialized-queue';
@@ -271,12 +272,7 @@ export const makeKeyframeBank = async ({
 				return null;
 			}
 
-			if (
-				roundTo4Digits(sample.timestamp) <= roundTo4Digits(adjustedTimestamp) ||
-				// Match 0.3333333333 to 0.33355555
-				// this does not satisfy the previous condition, since one rounds up and one rounds down
-				Math.abs(sample.timestamp - adjustedTimestamp) <= 0.001
-			) {
+			if (hasFrameStarted(sample.timestamp, adjustedTimestamp)) {
 				return sample;
 			}
 		}

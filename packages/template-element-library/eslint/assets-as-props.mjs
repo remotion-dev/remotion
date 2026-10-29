@@ -15,7 +15,7 @@ export default {
     type: "problem",
     docs: {
       description: "Pass Element assets through props instead of hardcoding them.",
-      url: "https://www.remotion.dev/docs/studio-protocol/component-library-integration#asset-handling",
+      url: "https://www.remotion.dev/docs/elements/libraries#asset-handling",
     },
     schema: [],
     messages: {

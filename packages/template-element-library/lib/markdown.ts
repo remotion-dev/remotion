@@ -75,7 +75,7 @@ export const getElementMarkdown = ({
     definition.installationMode === "wrapped"
       ? "Wrap the component in a Remotion Sequence and use the duration and dimensions below."
       : "The component owns its Sequence. Pass timing props to the component rather than adding an outer Sequence.",
-    "Use the installation metadata below for default props, dependencies, and assets. Asset references in initialProps must be resolved to local staticFile() calls after saving the declared assets to your public directory. See the [Element Library integration guide](https://www.remotion.dev/docs/studio-protocol/component-library-integration.md) for asset handling and Studio installation.",
+    "Use the installation metadata below for default props, dependencies, and assets. Asset references in initialProps must be resolved to local staticFile() calls after saving the declared assets to your public directory. See the [Element Library integration guide](https://www.remotion.dev/docs/elements/libraries.md) for asset handling and Studio installation.",
     "## Installation metadata",
     codeBlock(
       "json",

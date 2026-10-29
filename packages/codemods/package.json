@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/codemods",
-	"version": "4.0.537",
+	"version": "4.0.539",
 	"description": "Codemods for Remotion projects",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
@@ -14,8 +14,8 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsgo -w",
-		"make": "tsgo && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "tsc -w",
+		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -49,7 +49,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"eslint": "catalog:"
 	},
 	"keywords": [

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-interpolate-colors.png
+image: https://remotion.media/docs/generated/articles-docs-interpolate-colors.png
 title: interpolateColors()
 id: interpolate-colors
 crumb: 'API'
@@ -180,6 +180,8 @@ const d = interpolateColors(frame, [0, 20], ['hwb(0 0% 0%)', 'hwb(120 10% 10%)']
 ```
 
 All modern color functions support the optional `/ alpha` syntax (e.g., `oklch(0.7 0.15 180 / 0.5)`).
+
+From <AvailableFrom v="4.0.539" inline />, `oklch()`, `lch()`, and `hwb()` correctly interpret `grad` hue angles and wrap hues outside a full rotation. For example, `hwb(100grad 0% 0%)` is equivalent to `hwb(90deg 0% 0%)`, and `hwb(2turn 0% 0%)` is equivalent to `hwb(0 0% 0%)`.
 
 ## Compatibility
 

@@ -1,6 +1,27 @@
 <!doctype html>
 <html lang="en">
 	<head>
+		<script>
+			(function () {
+				var theme;
+				try {
+					theme = localStorage.getItem('theme');
+				} catch (e) {}
+				var choice =
+					theme === null || theme === undefined || theme === 'system'
+						? 'system'
+						: theme === 'dark'
+							? 'dark'
+							: 'light';
+				document.documentElement.dataset.themeChoice = choice;
+				document.documentElement.dataset.theme =
+					choice === 'dark' ||
+					(choice === 'system' &&
+						window.matchMedia('(prefers-color-scheme: dark)').matches)
+						? 'dark'
+						: 'light';
+			})();
+		</script>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Free Audio &amp; Video Test Files | remotion.media</title>

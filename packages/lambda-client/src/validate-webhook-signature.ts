@@ -29,8 +29,22 @@ export const validateWebhookSignature = ({
 
 	const Crypto = require('crypto');
 
+	const isRawBody = typeof body === 'string' || Buffer.isBuffer(body);
+
+	if (isRawBody && body.length === 0) {
+		throw new TypeError(
+			"No 'body' was provided to validateWebhookSignature().",
+		);
+	}
+
+	// The signature covers the exact bytes that were sent. A raw body is
+	// hashed as it arrived. A parsed JSON object is serialized first, which
+	// only yields the same signature if parsing and serializing round-trips
+	// exactly.
 	const hmac = Crypto.createHmac('sha512', secret);
-	const signature = `sha512=${hmac.update(JSON.stringify(body)).digest('hex')}`;
+	const signature = `sha512=${hmac
+		.update(isRawBody ? body : JSON.stringify(body))
+		.digest('hex')}`;
 
 	if (!signatureHeader || signatureHeader === 'NO_SECRET_PROVIDED') {
 		throw new Error('No webhook signature was provided');

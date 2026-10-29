@@ -39,6 +39,7 @@ const {
 	preservePitchOnPlaybackOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
+	licenseKeyOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
 	sequenceActivityLimitOption,
@@ -92,7 +93,7 @@ const {
 	previewSampleRateOption,
 	rspackOption,
 	skipSkillsOption,
-} = BrowserSafeApis.options;
+}: typeof BrowserSafeApis.options = BrowserSafeApis.options;
 
 export type CommandLineOptions = {
 	[allowHtmlInCanvasOption.cliFlag]: TypeOfOption<
@@ -227,7 +228,7 @@ export type CommandLineOptions = {
 	[imageSequencePatternOption.cliFlag]: TypeOfOption<
 		typeof imageSequencePatternOption
 	>;
-	'license-key': string;
+	[licenseKeyOption.cliFlag]: TypeOfOption<typeof licenseKeyOption>;
 	[publicLicenseKeyOption.cliFlag]: string;
 	[forceNewStudioOption.cliFlag]: TypeOfOption<
 		typeof forceNewStudioOption

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda-runtime.png
+image: https://remotion.media/docs/generated/articles-docs-lambda-runtime.png
 id: runtime
 title: Runtime
 slug: /lambda/runtime
@@ -60,6 +60,8 @@ You can render multiple frames at once inside a Lambda function by using the [`c
 
 The function already includes a running version of Chrome.
 The browser was compiled including the proprietary codecs, so you can include MP4 videos into your project.
+
+See the [Chromium build instructions and source](https://github.com/remotion-dev/remotion/tree/main/packages/chrome-compile) to inspect the browser patches and build scripts, including the Lambda ARM64 recipe.
 
 | Remotion version | Chrome version |
 | ---------------- | -------------- |
