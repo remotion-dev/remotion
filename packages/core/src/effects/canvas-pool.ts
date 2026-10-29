@@ -1,5 +1,5 @@
 import type {Backend} from './effect-types.js';
-import {resetWebGLState} from './reset-webgl-state.js';
+import {createWebGLStateReset} from './reset-webgl-state.js';
 import {createWebGL2ContextError} from './webgl2-context-error.js';
 
 // A pair of scratch canvases for ping-ponging within a same-backend run.
@@ -28,11 +28,13 @@ export class CanvasPool {
 
 	// Tracked individually rather than through `pairs` so that a canvas whose
 	// sibling failed to allocate still gets released.
-	private readonly allocated: Array<{
-		canvas: HTMLCanvasElement;
-		gl: WebGL2RenderingContext | null;
-		textureUnits: number;
-	}> = [];
+	private readonly allocated = new Map<
+		HTMLCanvasElement,
+		{
+			gl: WebGL2RenderingContext | null;
+			reset: ReturnType<typeof createWebGLStateReset> | null;
+		}
+	>();
 
 	private readonly lostContexts: Set<HTMLCanvasElement> = new Set();
 	private readonly onContextLost: (canvas: HTMLCanvasElement) => void;
@@ -73,43 +75,39 @@ export class CanvasPool {
 		return this.pairs.get(backend) as CanvasPair;
 	}
 
-	public assertContextNotLost(canvas: HTMLCanvasElement): void {
-		if (
-			this.lostContexts.has(canvas) ||
-			this.allocated
-				.find((entry) => entry.canvas === canvas)
-				?.gl?.isContextLost()
-		) {
+	private getCheckedEntry(canvas: HTMLCanvasElement) {
+		const entry = this.allocated.get(canvas);
+		if (this.lostContexts.has(canvas) || entry?.gl?.isContextLost()) {
 			throw new Error(
 				'WebGL context was lost during canvas effect rendering. ' +
 					'This typically happens in headless or memory-constrained environments (e.g. Remotion Lambda). ' +
 					'Try reducing concurrency or increasing the Lambda function memory.',
 			);
 		}
+
+		return entry ?? null;
+	}
+
+	public assertContextNotLost(canvas: HTMLCanvasElement): void {
+		this.getCheckedEntry(canvas);
 	}
 
 	public prepareWebGL(canvas: HTMLCanvasElement, flipSourceY: boolean): void {
-		this.assertContextNotLost(canvas);
-		const entry = this.allocated.find((item) => item.canvas === canvas);
-		if (!entry?.gl) {
+		const entry = this.getCheckedEntry(canvas);
+		if (!entry?.reset) {
 			throw new Error('WebGL effect target is not owned by this pool');
 		}
 
-		resetWebGLState({
-			gl: entry.gl,
-			width: canvas.width,
-			height: canvas.height,
-			textureUnits: entry.textureUnits,
-			flipSourceY,
-		});
+		entry.reset(canvas.width, canvas.height, flipSourceY);
 	}
 
 	// A failed setup may have allocated objects it never returned. Losing the
 	// context also releases those unreachable objects; no cached state survives.
 	public retireWebGL(canvas: HTMLCanvasElement): void {
-		const index = this.allocated.findIndex((entry) => entry.canvas === canvas);
-		if (index === -1) return;
-		const [{gl}] = this.allocated.splice(index, 1);
+		const entry = this.allocated.get(canvas);
+		if (!entry) return;
+		const {gl} = entry;
+		this.allocated.delete(canvas);
 		const pair = this.pairs.get('webgl2');
 		if (pair) {
 			if (pair[0] === canvas) pair[0] = null;
@@ -133,7 +131,7 @@ export class CanvasPool {
 		}
 
 		this.disposed = true;
-		for (const {canvas, gl} of this.allocated) {
+		for (const [canvas, {gl}] of this.allocated) {
 			// Frees the slot in the browser's live-context budget immediately.
 			// Resizing to 0x0 drops the backing store even where the extension
 			// is unavailable.
@@ -142,7 +140,7 @@ export class CanvasPool {
 			canvas.height = 0;
 		}
 
-		this.allocated.length = 0;
+		this.allocated.clear();
 		this.pairs.clear();
 		this.lostContexts.clear();
 	}
@@ -161,7 +159,7 @@ export class CanvasPool {
 					throw new Error('Failed to acquire 2D context for canvas effect');
 				}
 
-				this.allocated.push({canvas, gl: null, textureUnits: 0});
+				this.allocated.set(canvas, {gl: null, reset: null});
 				return canvas;
 			}
 
@@ -178,10 +176,7 @@ export class CanvasPool {
 				canvas.addEventListener('webglcontextlost', (e) => {
 					// `dispose()` loses the context on purpose. Not preventing the
 					// default keeps the browser from restoring a context nobody uses.
-					if (
-						this.disposed ||
-						!this.allocated.some((entry) => entry.canvas === canvas)
-					) {
+					if (this.disposed || !this.allocated.has(canvas)) {
 						return;
 					}
 
@@ -190,10 +185,7 @@ export class CanvasPool {
 					this.onContextLost(canvas);
 				});
 				canvas.addEventListener('webglcontextrestored', () => {
-					if (
-						this.disposed ||
-						!this.allocated.some((entry) => entry.canvas === canvas)
-					) {
+					if (this.disposed || !this.allocated.has(canvas)) {
 						return;
 					}
 
@@ -203,12 +195,12 @@ export class CanvasPool {
 				});
 
 				ctx.pixelStorei(ctx.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-				this.allocated.push({
-					canvas,
+				this.allocated.set(canvas, {
 					gl: ctx,
-					textureUnits: ctx.getParameter(
-						ctx.MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-					) as number,
+					reset: createWebGLStateReset(
+						ctx,
+						ctx.getParameter(ctx.MAX_COMBINED_TEXTURE_IMAGE_UNITS) as number,
+					),
 				});
 				return canvas;
 			}
@@ -220,7 +212,7 @@ export class CanvasPool {
 					);
 				}
 
-				this.allocated.push({canvas, gl: null, textureUnits: 0});
+				this.allocated.set(canvas, {gl: null, reset: null});
 				return canvas;
 			}
 

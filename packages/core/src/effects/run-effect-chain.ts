@@ -222,12 +222,6 @@ const runEffectChainWithoutResize = async (
 				if (isCancelled()) return false;
 				const dst = state.pool.getCanvas(run.backend, canvasIndex);
 				const def = eff.definition as EffectDefinition<unknown, unknown>;
-				if (run.backend === 'webgl2') {
-					// Checked before `setup()`: a lost context cannot compile shaders,
-					// and this surfaces the dedicated error instead of an effect's own.
-					state.pool.assertContextNotLost(dst);
-				}
-
 				const setupState = ensureSetup(state, def, dst);
 				if (isCancelled()) return false;
 
