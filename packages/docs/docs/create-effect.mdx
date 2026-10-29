@@ -189,6 +189,16 @@ The label shown in Remotion Studio.
 
 A URL to the effect documentation. Pass `null` if no documentation page exists.
 
+### `implementations`<AvailableFrom v="4.0.540" />
+
+Provide implementations keyed by `webgpu`, `webgl2`, or `2d`. At least one implementation is required. Each contains `setup`, `apply`, and `cleanup`; use [`createEffectImplementation()`](/docs/create-effect-implementation) to type its state independently.
+
+With `implementations`, omit the top-level `backend`, `setup`, `apply`, and `cleanup`. The existing single-backend form remains supported.
+
+All implementations share parameters, validation, schema, and `calculateKey`. They should produce equivalent output, including alpha, color space, sampling, and seeded randomness. Backend selection happens at runtime and does not change the effect's identity or parameters.
+
+The default preference is WebGPU, WebGL2, then 2D. Lambda selects from WebGL2 and 2D implementations. An unavailable backend falls back; errors inside `setup` or `apply` are reported. If no implementation is supported, rendering fails with the effect's type. See [`preferredEffectBackend`](/docs/options/preferred-effect-backend).
+
 ### `backend`
 
 The rendering backend. Must be `"2d"`, `"webgl2"` or `"webgpu"`.

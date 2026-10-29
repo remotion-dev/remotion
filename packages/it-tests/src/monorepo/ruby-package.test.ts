@@ -146,6 +146,7 @@ test('Render Media payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 			sampleRate: 48000,
 		});
@@ -197,6 +198,7 @@ test('Render Still payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 		});
 

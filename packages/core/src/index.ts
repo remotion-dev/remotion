@@ -14,6 +14,7 @@ import type {
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
+import type {PreferredEffectBackend} from './effects/effect-types.js';
 import {
 	addSequenceStackTraces,
 	setSequenceComponent,
@@ -101,6 +102,8 @@ declare global {
 		remotion_envVariables: string;
 		remotion_isMainTab: boolean;
 		remotion_mediaCacheSizeInBytes: number | null;
+		remotion_preferredEffectBackend: PreferredEffectBackend;
+		remotion_disableWebGpuEffects: boolean;
 		remotion_sampleRate: number | null;
 		remotion_previewSampleRate: number | null;
 		remotion_initialMemoryAvailable: number | null;
@@ -151,6 +154,10 @@ export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
 export {
 	createEffect,
+	createEffectImplementation,
+	type PreferredEffectBackend,
+	type EffectImplementation,
+	type MultiBackendEffectDefinition,
 	type Backend,
 	type EffectApplyParams,
 	type EffectDefinition,

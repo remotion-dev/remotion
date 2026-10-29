@@ -263,6 +263,7 @@ export const lambdaCommandHelp = [
 				'enable-multiprocess-on-linux',
 				'user-agent',
 				'media-cache-size-in-bytes',
+				'preferred-effect-backend',
 				'offthreadvideo-cache-size-in-bytes',
 				'offthreadvideo-video-threads',
 				'delete-after',
@@ -326,6 +327,7 @@ export const lambdaCommandHelp = [
 				'enable-multiprocess-on-linux',
 				'user-agent',
 				'media-cache-size-in-bytes',
+				'preferred-effect-backend',
 				'offthreadvideo-cache-size-in-bytes',
 				'offthreadvideo-video-threads',
 				'delete-after',
@@ -348,6 +350,7 @@ export const lambdaCommandHelp = [
 		description: 'Print composition IDs from a serve URL.',
 		documentation: 'https://www.remotion.dev/docs/lambda/cli/compositions',
 		options: options([
+			'preferred-effect-backend',
 			'region',
 			'function-name',
 			'props',

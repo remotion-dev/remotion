@@ -230,6 +230,8 @@ test.each(['2d', 'webgl2'] as const)(
 			expect([canvas.width, canvas.height]).toEqual([0, 0]);
 		}
 
+		expect(loseContext).not.toHaveBeenCalled();
+		await new Promise((resolve) => setTimeout(resolve, 0));
 		expect(loseContext).toHaveBeenCalledTimes(backend === 'webgl2' ? 2 : 0);
 	},
 );

@@ -5,6 +5,7 @@ import {
 	type Quality,
 	type StreamTargetChunk,
 } from 'mediabunny';
+import type {PreferredEffectBackend} from 'remotion';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -125,6 +126,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	logLevel: LogLevel;
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	videoCodec: WebRendererVideoCodec | null;
 	audioCodec: WebRendererAudioCodec | null;
 	audioBitrate: number | WebRendererQuality;
@@ -176,6 +178,7 @@ const internalRenderMediaOnWeb = async <
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	schema,
 	videoCodec: codec,
 	audioCodec: unresolvedAudioCodec,
@@ -377,6 +380,7 @@ const internalRenderMediaOnWeb = async <
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		schema: schema ?? null,
 		audioEnabled: !muted,
 		videoEnabled,
@@ -864,6 +868,7 @@ export const renderMediaOnWeb = <
 				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+				preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
 				videoCodec: codec,
 				audioCodec: options.audioCodec ?? null,
 				audioBitrate: options.audioBitrate ?? 'medium',

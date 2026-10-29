@@ -384,6 +384,7 @@ const renderHandler = async ({
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			preferredEffectBackend: params.preferredEffectBackend,
 			onLog: RenderInternals.defaultOnLog,
 			// Not doing telemetry for the individual chunks
 			licenseKey: null,
@@ -535,7 +536,6 @@ export const rendererHandler = async ({
 		});
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
-			// eslint-disable-next-line no-console
 			console.log({err});
 			throw err;
 		}

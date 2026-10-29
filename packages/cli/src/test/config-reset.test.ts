@@ -76,6 +76,12 @@ test('reset config options restores defaults before reloading config', async () 
 		displayName: 'Example Elements',
 	});
 	Config.setChromiumOpenGlRenderer('angle');
+	Config.setPreferredEffectBackend('webgl2');
+	expect(
+		BrowserSafeApis.options.preferredEffectBackendOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe('webgl2');
 	Config.setCrf(12);
 	Config.setDefaultCodingAgent('codex');
 	Config.setDefaultEditor('cursor');
@@ -218,6 +224,11 @@ test('reset config options restores defaults before reloading config', async () 
 			.value,
 	).toBeNull();
 	expect(ConfigInternals.getBufferStateDelayInMilliseconds()).toBeNull();
+	expect(
+		BrowserSafeApis.options.preferredEffectBackendOption.getValue({
+			commandLine: {},
+		}).value,
+	).toBe('auto');
 	expect(BrowserSafeApis.options.askAIOption.getConfigValue()).toBeNull();
 	expect(
 		BrowserSafeApis.options.preservePitchOnPlaybackOption.getConfigValue(),
@@ -292,6 +303,15 @@ test('CLI app flags take precedence over the configured defaults', () => {
 	});
 	Config.setExperimentalKeepAudioContextAlive(false);
 	Config.setPreservePitchOnPlayback(true);
+	Config.setPreferredEffectBackend('webgl2');
+	expect(
+		BrowserSafeApis.options.preferredEffectBackendOption.getValue({
+			commandLine: {'preferred-effect-backend': 'webgpu'},
+		}),
+	).toEqual({source: 'cli', value: 'webgpu'});
+	expect(() => Config.setPreferredEffectBackend('invalid' as 'auto')).toThrow(
+		'preferredEffectBackend',
+	);
 	expect(
 		BrowserSafeApis.options.preservePitchOnPlaybackOption.getValue({
 			commandLine: {'preserve-pitch-on-playback': false},

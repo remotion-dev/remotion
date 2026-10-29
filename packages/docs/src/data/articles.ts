@@ -1351,6 +1351,15 @@ export const articles = [
 		slug: 'options/prefer-lossless',
 	},
 	{
+		id: 'options/preferred-effect-backend',
+		title: 'Preferred effect backend',
+		relativePath: 'docs/options/preferred-effect-backend.mdx',
+		compId: 'articles-docs-options-preferred-effect-backend',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/preferred-effect-backend',
+	},
+	{
 		id: 'options/preserve-pitch-on-playback',
 		title: 'Preserve pitch on playback',
 		relativePath: 'docs/options/preserve-pitch-on-playback.mdx',
@@ -3068,6 +3077,15 @@ export const articles = [
 		crumb: 'API',
 		noAi: false,
 		slug: 'create-effect',
+	},
+	{
+		id: 'create-effect-implementation',
+		title: 'createEffectImplementation()',
+		relativePath: 'docs/create-effect-implementation.mdx',
+		compId: 'articles-docs-create-effect-implementation',
+		crumb: 'remotion',
+		noAi: false,
+		slug: 'create-effect-implementation',
 	},
 	{
 		id: 'create-videos-with-code',
