@@ -32,7 +32,7 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
-	readonly preferredEffectBackend?: PreferredEffectBackend;
+	readonly preferredEffectBackend: PreferredEffectBackend | null;
 	readonly preservePitchOnPlayback: boolean;
 	readonly showLayerFrameNumbers: boolean;
 	readonly showPremounting: boolean | null;
