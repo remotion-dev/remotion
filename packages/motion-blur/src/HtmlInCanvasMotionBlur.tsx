@@ -97,6 +97,9 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				width,
 				height,
 				isolation: 'isolate',
+				// Copied-mode HtmlInCanvas hides the layout canvas, so each drawable
+				// sample must remain visible to retain its capture paint record.
+				visibility: 'visible',
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
