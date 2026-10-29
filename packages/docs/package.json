@@ -87,6 +87,7 @@
 		"@remotion/openai-whisper": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/player": "workspace:*",
+		"@remotion/player-a11y": "workspace:*",
 		"@remotion/preload": "workspace:*",
 		"@remotion/promo-pages": "workspace:*",
 		"@remotion/renderer": "workspace:*",

@@ -267,9 +267,11 @@ const innerRenderStill = async ({
 		onError: errorCallback,
 		frame: null,
 	});
+	page.on('error', errorCallback);
 
 	const cleanup = async () => {
 		cleanUpJSException();
+		page.off('error', errorCallback);
 
 		if (puppeteerInstance) {
 			await page.close();
