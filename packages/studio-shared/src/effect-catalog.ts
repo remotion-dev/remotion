@@ -22,6 +22,10 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
+	if (item.id === 'effects-evolve' || item.id === 'effects-rain-fall') {
+		return `https://remotion.media/docs/effects/${item.id}-preview-v2.png`;
+	}
+
 	return `https://remotion.media/docs/effects/${item.id}-preview.png`;
 };
 
@@ -432,11 +436,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		id: 'effects-evolve',
 		category: 'Reveal',
 		label: 'evolve()',
-		description: 'Directional reveal effect',
+		description: 'Directional reveal with angle and feathering',
 		effect: {
 			name: 'evolve',
 			importPath: '@remotion/effects/evolve',
-			config: {},
+			config: {
+				progress: 0.5,
+				direction: 'angle',
+				angle: 60,
+				featherUnit: 'pixels',
+				featherPixels: 60,
+			},
 		},
 	},
 	{
@@ -445,6 +455,57 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		label: 'tear()',
 		description: 'Progressive zigzag tear with outward rotation',
 		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
+	},
+	{
+		id: 'effects-film-burn',
+		category: 'Reveal',
+		label: 'filmBurn()',
+		description: 'Irregular burn holes with charred and glowing edges',
+		effect: {
+			name: 'filmBurn',
+			importPath: '@remotion/effects/film-burn',
+			config: {
+				progress: 0.4,
+				center: [0.5, 0.5],
+				seed: 0,
+			},
+		},
+	},
+	{
+		id: 'effects-radial-wipe',
+		category: 'Reveal',
+		label: 'radialWipe()',
+		description: 'Rotating wedge wipe around a center point',
+		effect: {
+			name: 'radialWipe',
+			importPath: '@remotion/effects/radial-wipe',
+			config: {
+				progress: 0.3,
+				startAngle: 0,
+				center: [0.5, 0.5],
+				direction: 'clockwise',
+				feather: 8,
+			},
+		},
+	},
+	{
+		id: 'effects-iris-wipe',
+		category: 'Reveal',
+		label: 'irisWipe()',
+		description: 'Polygon or star opening with feathered edges',
+		effect: {
+			name: 'irisWipe',
+			importPath: '@remotion/effects/iris-wipe',
+			config: {
+				center: [0.5, 0.5],
+				points: 5,
+				outerRadius: 300,
+				useInnerRadius: true,
+				innerRadius: 140,
+				rotation: 0,
+				feather: 12,
+			},
+		},
 	},
 	{
 		id: 'effects-venetian-blinds',
@@ -868,6 +929,38 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			name: 'vignette',
 			importPath: '@remotion/effects/vignette',
 			config: {},
+		},
+	},
+	{
+		id: 'effects-rain-fall',
+		category: 'Generate',
+		label: 'rainFall()',
+		description: 'Falling rain with wind and depth',
+		effect: {
+			name: 'rainFall',
+			importPath: '@remotion/effects/rain-fall',
+			config: {
+				time: 1,
+				drops: 100000,
+				size: 2,
+				wind: 200,
+				opacity: 0.5,
+			},
+		},
+	},
+	{
+		id: 'effects-snow-fall',
+		category: 'Generate',
+		label: 'snowFall()',
+		description: 'Drifting snow with wind and depth',
+		effect: {
+			name: 'snowFall',
+			importPath: '@remotion/effects/snow-fall',
+			config: {
+				time: 1,
+				flakes: 1500,
+				size: 8,
+			},
 		},
 	},
 	{
