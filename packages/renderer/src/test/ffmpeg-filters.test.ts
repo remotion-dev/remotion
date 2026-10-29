@@ -94,7 +94,7 @@ test('preservePitch: false uses asetrate/aresample instead of atempo', () => {
 		pad_start: null,
 	});
 });
-test('Trim the end', () => {
+test('Should trim audio spanning the full chunk to the AAC boundary', () => {
 	const {
 		chunkLengthInSeconds,
 		trimLeftOffset,
@@ -113,8 +113,6 @@ test('Trim the end', () => {
 	expect(trimLeftOffset).toEqual(0);
 	expect(trimRightOffset).toEqual(-0.02933333333333318);
 
-	const padding = Math.round((chunkLengthInSeconds - 22 / 30) * 48000);
-
 	expect(
 		stringifyFfmpegFilter({
 			fps: 30,
@@ -123,7 +121,11 @@ test('Trim the end', () => {
 					...extraFramesToCaptureAssetsFrontend,
 					...extraFramesToCaptureAssetsBackend,
 				],
-				base: baseAsset,
+				base: {
+					...baseAsset,
+					// Cover the entire chunk, including the extra captured frames.
+					duration: 100,
+				},
 			}),
 			channels: 1,
 			assetDuration: 100,
@@ -140,13 +142,13 @@ test('Trim the end', () => {
 	).toEqual({
 		actualTrimLeft: 0,
 		filter:
-			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:733333.3333333333us[a0]',
-		pad_end: 'apad=pad_len=' + padding,
+			'[0:a]aformat=sample_fmts=s16:sample_rates=48000,atrim=0us:3370666.6666666665us[a0]',
+		pad_end: null,
 		pad_start: null,
 	});
 });
 
-test('Should handle trim correctly', () => {
+test('Should preserve the end of audio finishing before the chunk boundary', () => {
 	const {
 		chunkLengthInSeconds,
 		trimLeftOffset,
