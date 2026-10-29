@@ -760,7 +760,10 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: null, which uses 48000 Hz.
 		 */
 		setPreviewSampleRate: (sampleRate: number | null) => void;
-		/** Preferred implementation for canvas effects in Studio and renders. Default: auto. */
+		/**
+		 * Preferred implementation for [effects](https://www.remotion.dev/docs/effects)
+		 * in Studio and renders. Default: auto.
+		 */
 		setPreferredEffectBackend: (backend: PreferredEffectBackend) => void;
 		/**
 		 * Preserve @remotion/media audio pitch when changing the Studio playback speed.

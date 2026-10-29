@@ -16,10 +16,11 @@ export const preferredEffectBackendOption = {
 	description: () => (
 		<>
 			Prefer <code>webgpu</code>, <code>webgl2</code>, or <code>2d</code>{' '}
-			implementations of canvas effects. Default: <code>auto</code>, which tries
-			WebGPU, WebGL2, then 2D. Falls back when an implementation or backend is
-			unavailable. Lambda disables WebGPU effects. This option also applies to
-			Studio preview.
+			implementations of{' '}
+			<a href="https://www.remotion.dev/docs/effects">effects</a>. Default:{' '}
+			<code>auto</code>, which tries WebGPU, WebGL2, then 2D. Falls back when an
+			implementation or backend is unavailable. Lambda disables WebGPU effects.
+			This option also applies to Studio preview.
 		</>
 	),
 	getValue: ({commandLine}) => {

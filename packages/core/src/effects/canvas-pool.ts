@@ -74,7 +74,7 @@ export class CanvasPool {
 	public assertContextNotLost(canvas: HTMLCanvasElement): void {
 		if (this.lostContexts.has(canvas)) {
 			throw new Error(
-				'WebGL context was lost during canvas effect rendering. ' +
+				'WebGL context was lost while rendering effects. ' +
 					'This typically happens in headless or memory-constrained environments (e.g. Remotion Lambda). ' +
 					'Try reducing concurrency or increasing the Lambda function memory.',
 			);
@@ -113,7 +113,7 @@ export class CanvasPool {
 					colorSpace: 'srgb',
 				});
 				if (!ctx) {
-					throw new Error('Failed to acquire 2D context for canvas effect');
+					throw new Error('Failed to acquire 2D context for effects');
 				}
 
 				this.allocated.push({canvas, gl: null});
@@ -127,7 +127,7 @@ export class CanvasPool {
 					preserveDrawingBuffer: true,
 				});
 				if (!ctx) {
-					throw createWebGL2ContextError('canvas effect');
+					throw createWebGL2ContextError('effects');
 				}
 
 				canvas.addEventListener('webglcontextlost', (e) => {
@@ -163,7 +163,7 @@ export class CanvasPool {
 					!canvas.getContext('webgpu')
 				) {
 					throw new Error(
-						'WebGPU is not available in this environment for canvas effect',
+						'WebGPU is not available in this environment for effects',
 					);
 				}
 
