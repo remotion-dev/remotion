@@ -1,4 +1,4 @@
-import {execSync} from 'child_process';
+import {execFileSync, execSync} from 'child_process';
 import fs, {existsSync} from 'fs';
 import path from 'path';
 import {enableAv1} from './compile-av1.mjs';
@@ -217,21 +217,6 @@ if (fs.existsSync('ffmpeg')) {
 		cwd: 'ffmpeg',
 		stdio: 'inherit',
 	});
-	execSync('git apply aac.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply hevc_ps.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply x265-api.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply fdk-aac-free.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply remotion-shm-input.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
 } else {
 	execSync('git clone https://github.com/ffmpeg/ffmpeg.git', {
 		stdio: 'inherit',
@@ -240,19 +225,17 @@ if (fs.existsSync('ffmpeg')) {
 		cwd: 'ffmpeg',
 		stdio: 'inherit',
 	});
-	execSync('git apply aac.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply hevc_ps.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply x265-api.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply fdk-aac-free.patch --directory ffmpeg', {
-		stdio: 'inherit',
-	});
-	execSync('git apply remotion-shm-input.patch --directory ffmpeg', {
+}
+
+for (const patch of [
+	'aac.patch',
+	'hevc_ps.patch',
+	'x265-api.patch',
+	'fdk-aac-free.patch',
+	'remotion-shm-input.patch',
+]) {
+	execFileSync('git', ['apply', path.resolve(patch)], {
+		cwd: 'ffmpeg',
 		stdio: 'inherit',
 	});
 }
