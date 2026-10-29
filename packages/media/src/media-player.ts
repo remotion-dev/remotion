@@ -969,11 +969,9 @@ export class MediaPlayer {
 			return;
 		}
 
-		const time = this.getTrimmedTime(unloopedTimeInSeconds);
 		if (
-			time !== null &&
 			this.audioIteratorManager.rescheduleAudio(
-				time,
+				this.getTrimmedTime(unloopedTimeInSeconds),
 				unloopedTimeInSeconds,
 				this.playbackRate,
 				this.loop,
@@ -982,7 +980,6 @@ export class MediaPlayer {
 			return;
 		}
 
-		this.audioIteratorManager.destroyIterator();
 		// An anchor can change while paused, when no frame update will restart
 		// scheduling. Refill the queue against the new anchor immediately.
 		// Re-anchoring is not navigation. Preserve the captured revision so an

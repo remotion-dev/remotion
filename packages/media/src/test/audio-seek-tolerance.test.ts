@@ -68,11 +68,19 @@ test.each([
 			gain: {value: 1},
 			connect: () => undefined,
 		} as unknown as GainNode;
+		const stop = vi.fn();
 		const audioContext = {
 			currentTime: clockLead,
 			baseLatency: 0.005,
 			outputLatency,
 			createGain: () => gainNode,
+			createBufferSource: () =>
+				Object.assign(new EventTarget(), {
+					stop,
+					playbackRate: {value: 1},
+					connect: () => undefined,
+					disconnect: () => undefined,
+				}),
 		} as unknown as AudioContext;
 		const scheduleAudioNode = (): ScheduleAudioNodeResult => ({
 			type: 'started',
@@ -113,8 +121,8 @@ test.each([
 				playbackRate,
 				localPlaybackRate,
 				scheduleAudioNode,
-				// Keep decoding outside the scheduling horizon. Seed the queued
-				// node below to exercise seek dedup without a decoder or browser.
+				// Keep decoding outside the scheduling horizon. Queue one prepared
+				// chunk below to exercise seek dedup without reading the source.
 				getTargetTime: () => 3,
 				logLevel: 'error',
 				loop: false,
@@ -135,14 +143,11 @@ test.each([
 				throw new Error('Expected an audio iterator');
 			}
 
-			const stop = vi.fn();
-			iterator.addQueuedAudioNode({
-				reschedule: () => {},
-				node: Object.assign(new EventTarget(), {
-					stop,
-					disconnect: () => undefined,
-				}) as unknown as AudioBufferSourceNode,
+			iterator.scheduleAudio({
+				buffer: new AudioBuffer({length: 4000, sampleRate: 8000}),
 				timestamp: 1 + clockLead * playbackRate,
+				originalUnloopedMediaTimestamp: 1 + clockLead * playbackRate,
+				sourceOffsetInSeconds: 0,
 				sourceDurationInSeconds: 0.5,
 			});
 

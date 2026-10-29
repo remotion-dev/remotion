@@ -1,7 +1,10 @@
 import type {CDPSession} from '@vitest/browser-playwright';
 import {expect, test, vi} from 'vitest';
 import {cdp} from 'vitest/browser';
-import {makeAudioIterator} from '../audio/audio-preview-iterator';
+import {
+	makeAudioIterator,
+	type PreparedAudioChunk,
+} from '../audio/audio-preview-iterator';
 import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 async function* makeEmptySource(): AsyncGenerator<
@@ -9,6 +12,22 @@ async function* makeEmptySource(): AsyncGenerator<
 	void,
 	unknown
 > {}
+
+const makeChunk = (
+	context: OfflineAudioContext,
+	timestamp: number,
+	duration: number,
+): PreparedAudioChunk => ({
+	buffer: context.createBuffer(
+		1,
+		duration * context.sampleRate,
+		context.sampleRate,
+	),
+	timestamp,
+	originalUnloopedMediaTimestamp: timestamp,
+	sourceOffsetInSeconds: 0,
+	sourceDurationInSeconds: duration,
+});
 
 test('destroy stops started nodes and unschedules pending nodes after an audio anchor change', () => {
 	const context = new OfflineAudioContext(1, 4800, 48000);
@@ -22,19 +41,10 @@ test('destroy stops started nodes and unschedules pending nodes after an audio a
 		startFromSecond: 0,
 		iterator: makeEmptySource(),
 		unscheduleAudioNode: unschedule,
+		scheduleChunk: (chunk) => (chunk.timestamp === 0 ? started : pending),
 	});
-	iterator.addQueuedAudioNode({
-		reschedule: () => {},
-		node: started,
-		timestamp: 0,
-		sourceDurationInSeconds: 0.1,
-	});
-	iterator.addQueuedAudioNode({
-		reschedule: () => {},
-		node: pending,
-		timestamp: 0.1,
-		sourceDurationInSeconds: 0.1,
-	});
+	iterator.scheduleAudio(makeChunk(context, 0, 0.1));
+	iterator.scheduleAudio(makeChunk(context, 0.1, 0.1));
 	iterator.destroy();
 	expect(unschedule.mock.calls.map(([node]) => node)).toEqual([
 		started,
@@ -49,31 +59,35 @@ test('destroy stops started nodes and unschedules pending nodes after an audio a
 test('ended audio buffers are collectible while the iterator keeps its scheduling history', async () => {
 	const prepare = async () => {
 		const context = new OfflineAudioContext(2, 4800, 48000);
+		const buffers: WeakRef<AudioBuffer>[] = [];
+		const nodes: WeakRef<AudioBufferSourceNode>[] = [];
+		let ended = 0;
 		const iterator = makeAudioIterator({
 			startFromSecond: 0,
 			iterator: makeEmptySource(),
 			unscheduleAudioNode: () => {},
+			scheduleChunk: (chunk) => {
+				const node = context.createBufferSource();
+				node.buffer = chunk.buffer;
+				node.connect(context.destination);
+				node.addEventListener('ended', () => ended++, {once: true});
+				node.start(0, 0, 0.005);
+				buffers.push(new WeakRef(chunk.buffer));
+				nodes.push(new WeakRef(node));
+				return node;
+			},
 		});
-		const buffers: WeakRef<AudioBuffer>[] = [];
-		const nodes: WeakRef<AudioBufferSourceNode>[] = [];
-		let ended = 0;
 		for (let i = 0; i < 64; i++) {
 			const buffer = context.createBuffer(2, 48000, 48000);
 			buffer.getChannelData(0).fill((i + 1) / 128);
 			buffer.getChannelData(1).fill((i + 1) / 128);
-			const node = context.createBufferSource();
-			node.buffer = buffer;
-			node.connect(context.destination);
-			node.addEventListener('ended', () => ended++, {once: true});
-			node.start(0, 0, 0.005);
-			iterator.addQueuedAudioNode({
-				reschedule: () => {},
-				node,
+			iterator.scheduleAudio({
+				buffer,
 				timestamp: i,
+				originalUnloopedMediaTimestamp: i,
+				sourceOffsetInSeconds: 0,
 				sourceDurationInSeconds: 1,
 			});
-			buffers.push(new WeakRef(buffer));
-			nodes.push(new WeakRef(node));
 		}
 
 		await context.startRendering();
@@ -104,13 +118,9 @@ test('destroy removes the ended listener even when a pending node never starts',
 			startFromSecond: 0,
 			iterator: source,
 			unscheduleAudioNode: () => true,
+			scheduleChunk: () => node,
 		});
-		iterator.addQueuedAudioNode({
-			reschedule: () => {},
-			node,
-			timestamp: 0,
-			sourceDurationInSeconds: 0.1,
-		});
+		iterator.scheduleAudio(makeChunk(context, 0, 0.1));
 		iterator.destroy();
 		return {node, source: new WeakRef(source)};
 	};
@@ -131,27 +141,32 @@ test('re-anchoring preserves audio samples and offsets without double playback',
 	const buffer = context.createBuffer(1, 48000, 48000);
 	const samples = buffer.getChannelData(0);
 	for (let i = 0; i < samples.length; i++) samples[i] = i / 48000;
+	let targetTime = 0.1;
 	const iterator = makeAudioIterator({
 		startFromSecond: 0.5,
 		iterator: makeEmptySource(),
 		unscheduleAudioNode: () => false,
+		scheduleChunk: (chunk) => {
+			const node = context.createBufferSource();
+			node.buffer = chunk.buffer;
+			node.connect(context.destination);
+			node.start(
+				targetTime,
+				chunk.sourceOffsetInSeconds,
+				chunk.sourceDurationInSeconds,
+			);
+			return node;
+		},
 	});
-	let targetTime = 0.1;
-	const schedule = () => {
-		const node = context.createBufferSource();
-		node.buffer = buffer;
-		node.connect(context.destination);
-		node.start(targetTime, 0.2, 0.1);
-		iterator.addQueuedAudioNode({
-			node,
-			timestamp: 0.5,
-			sourceDurationInSeconds: 0.1,
-			reschedule: schedule,
-		});
-	};
 
 	try {
-		schedule();
+		iterator.scheduleAudio({
+			buffer,
+			timestamp: 0.5,
+			originalUnloopedMediaTimestamp: 0.2,
+			sourceOffsetInSeconds: 0.2,
+			sourceDurationInSeconds: 0.1,
+		});
 		targetTime = 0.3;
 		for (let i = 0; i < 5; i++)
 			expect(iterator.rescheduleAudio(0.5)).toBe(true);
@@ -190,27 +205,22 @@ test('re-anchoring keeps a pending read and disposal returns its generator', asy
 		}
 	}
 
+	const stops: ReturnType<typeof vi.spyOn>[] = [];
 	const iterator = makeAudioIterator({
 		startFromSecond: 0,
 		iterator: source(),
 		unscheduleAudioNode: () => false,
+		scheduleChunk: (chunk) => {
+			const node = context.createBufferSource();
+			node.buffer = chunk.buffer;
+			node.start();
+			stops.push(vi.spyOn(node, 'stop'));
+			return node;
+		},
 	});
-	const stops: ReturnType<typeof vi.spyOn>[] = [];
-	const schedule = () => {
-		const node = context.createBufferSource();
-		node.buffer = context.createBuffer(1, 4800, 48000);
-		node.start();
-		stops.push(vi.spyOn(node, 'stop'));
-		iterator.addQueuedAudioNode({
-			node,
-			timestamp: 0,
-			sourceDurationInSeconds: 0.1,
-			reschedule: schedule,
-		});
-	};
 
 	try {
-		schedule();
+		iterator.scheduleAudio(makeChunk(context, 0, 0.1));
 		const read = iterator.getNextFn();
 		expect(iterator.rescheduleAudio(0)).toBe(true);
 		expect(returned).toBe(0);
