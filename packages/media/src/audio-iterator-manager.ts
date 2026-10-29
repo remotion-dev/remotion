@@ -234,6 +234,7 @@ export const audioIteratorManager = ({
 		iterator,
 		nonce,
 		getTargetTime,
+		playbackRate,
 		onScheduled,
 		onDestroyed,
 		onDone,
@@ -247,6 +248,7 @@ export const audioIteratorManager = ({
 			mediaTimestamp: number,
 			currentTime: number,
 		) => number | null;
+		playbackRate: number;
 		onScheduled: (
 			sourceDurationInSeconds: number,
 			timelineTimestamp: number,
@@ -321,6 +323,7 @@ export const audioIteratorManager = ({
 					iterator,
 					nonce,
 					getTargetTime,
+					playbackRate,
 					onScheduled,
 					onDestroyed,
 					onDone,
@@ -474,6 +477,7 @@ export const audioIteratorManager = ({
 			iterator,
 			nonce,
 			getTargetTime,
+			playbackRate,
 			onScheduled: (sourceDurationInSeconds, timelineTimestamp) => {
 				bufferedUntil = Math.max(
 					bufferedUntil,
