@@ -1,9 +1,9 @@
 import {
 	AudioBufferSink,
-	CanvasSink,
 	Input,
 	InputAudioTrack,
 	InputVideoTrack,
+	VideoSampleSink,
 } from 'mediabunny';
 import type {EffectDefinitionAndStack} from 'remotion';
 import {Internals} from 'remotion';
@@ -223,24 +223,49 @@ test('dispose should immediately unblock a pending playback catch-up', async () 
 		onError: null,
 	});
 
-	await player.initialize(0, false, 1);
-	await player.seekTo(0, {revision: 0, playing: true});
-
-	const seekDelayPromise = new Promise<void>((resolve) => {
-		delayPlaybackCalled = resolve;
+	let resume = () => {};
+	const gate = new Promise<void>((resolve) => {
+		resume = resolve;
 	});
+	const {samples} = VideoSampleSink.prototype;
+	const sampleSpy = vi
+		.spyOn(VideoSampleSink.prototype, 'samples')
+		.mockImplementation(function (this: VideoSampleSink, ...args) {
+			const iterator = samples.apply(this, args);
+			const next = iterator.next.bind(iterator);
+			iterator.next = async (...nextArgs) => {
+				const result = await next(...nextArgs);
+				if (!result.done && result.value.timestamp >= 1) await gate;
+				return result;
+			};
 
-	const seekPromise = player.seekTo(9, {revision: 0, playing: true});
+			return iterator;
+		});
+	try {
+		await player.initialize(0, false, 1);
+		await player.seekTo(0, {revision: 0, playing: true});
 
-	await seekDelayPromise;
+		const seekDelayPromise = new Promise<void>((resolve) => {
+			delayPlaybackCalled = resolve;
+		});
 
-	expect(activeBlocks).toBeGreaterThan(0);
+		const seekPromise = player.seekTo(9, {revision: 0, playing: true});
 
-	await player.dispose();
+		await seekDelayPromise;
 
-	expect(activeBlocks).toBe(0);
+		expect(activeBlocks).toBeGreaterThan(0);
 
-	await seekPromise.catch(() => {});
+		await player.dispose();
+
+		expect(activeBlocks).toBe(0);
+
+		resume();
+		await seekPromise.catch(() => {});
+	} finally {
+		resume();
+		sampleSpy.mockRestore();
+		await player.dispose();
+	}
 });
 
 test.each(['video'] as const)(
@@ -404,7 +429,7 @@ test.each(['dimensions', 'first frame', 'effect bridge'] as const)(
 			src: '/red-heart-1x.webm',
 		});
 		const originalWidth = InputVideoTrack.prototype.getDisplayWidth;
-		const originalCanvases = CanvasSink.prototype.canvases;
+		const originalSamples = VideoSampleSink.prototype.samples;
 		const originalBitmap = window.createImageBitmap.bind(window);
 		const spy =
 			boundary === 'dimensions'
@@ -426,9 +451,12 @@ test.each(['dimensions', 'first frame', 'effect bridge'] as const)(
 								return bitmap;
 							})
 					: vi
-							.spyOn(CanvasSink.prototype, 'canvases')
-							.mockImplementationOnce(function (this: CanvasSink, ...args) {
-								const iterator = originalCanvases.apply(this, args);
+							.spyOn(VideoSampleSink.prototype, 'samples')
+							.mockImplementationOnce(function (
+								this: VideoSampleSink,
+								...args
+							) {
+								const iterator = originalSamples.apply(this, args);
 								const next = iterator.next.bind(iterator);
 								iterator.next = async (...nextArgs) => {
 									const frame = await next(...nextArgs);

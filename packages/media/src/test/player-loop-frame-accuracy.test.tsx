@@ -1,6 +1,7 @@
 import {Player, type PlayerRef} from '@remotion/player';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
+import {Internals} from 'remotion';
 import {test} from 'vitest';
 import {Video} from '../video/video';
 import {
@@ -19,25 +20,31 @@ const height = 1080;
 const seekToAndWaitForVideoFrame = async ({
 	frame,
 	getDrawnFrames,
+	isBuffering,
 	playerRef,
 	settleTime,
 }: {
 	readonly frame: number;
 	readonly getDrawnFrames: () => number;
+	readonly isBuffering: () => boolean;
 	readonly playerRef: React.RefObject<PlayerRef | null>;
 	readonly settleTime: number;
 }) => {
 	const drawnFrames = getDrawnFrames();
 	playerRef.current!.seekTo(frame);
 	await waitFor(() => playerRef.current!.getCurrentFrame() === frame);
-	await waitFor(() => getDrawnFrames() > drawnFrames);
+	// An effects redraw can report the preceding frame while the seek still buffers.
+	await waitFor(() => getDrawnFrames() > drawnFrames && !isBuffering());
 	await wait(settleTime);
 };
 
 test('keeps preview frame stepping accurate after crossing a trimAfter loop boundary', async () => {
+	let timeline: React.ContextType<typeof Internals.SetTimelineContext> | null =
+		null;
 	const VideoComposition: React.FC<{
 		readonly onVideoFrame: () => void;
 	}> = ({onVideoFrame}) => {
+		timeline = React.useContext(Internals.SetTimelineContext);
 		return (
 			<Video
 				src="https://remotion.media/video-1m.mp4"
@@ -91,6 +98,7 @@ test('keeps preview frame stepping accurate after crossing a trimAfter loop boun
 			playerRef,
 			frame: 60 * fps - 90 - 1,
 			getDrawnFrames: () => drawnFrames,
+			isBuffering: () => timeline!.isBuffering(),
 			settleTime: 500,
 		});
 
@@ -99,6 +107,7 @@ test('keeps preview frame stepping accurate after crossing a trimAfter loop boun
 				playerRef,
 				frame,
 				getDrawnFrames: () => drawnFrames,
+				isBuffering: () => timeline!.isBuffering(),
 				settleTime: 100,
 			});
 		}
@@ -108,6 +117,7 @@ test('keeps preview frame stepping accurate after crossing a trimAfter loop boun
 				playerRef,
 				frame,
 				getDrawnFrames: () => drawnFrames,
+				isBuffering: () => timeline!.isBuffering(),
 				settleTime: 100,
 			});
 		}
