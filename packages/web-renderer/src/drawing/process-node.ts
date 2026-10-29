@@ -10,6 +10,7 @@ import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
+import {getPrecomposedLayerGeometry} from './get-precomposed-layer-geometry';
 import {
 	getPrecomposeRectFor3DTransform,
 	handle3dTransform,
@@ -149,12 +150,27 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
+		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
+
+		const {
+			rect: layerRect,
+			scale: layerScale,
+			pixelWidth: layerPixelWidth,
+			pixelHeight: layerPixelHeight,
+		} = getPrecomposedLayerGeometry({
+			precomposeRect,
+			totalMatrix,
+			parentRect,
+			scale,
+			is3DPrecomposition,
+		});
+
 		const tempContext = await createLayer({
-			cutout: precomposeRect,
+			cutout: layerRect,
 			element,
 			logLevel,
 			internalState,
-			scale,
+			scale: layerScale,
 			onlyBackgroundClipText: false,
 			waitForPageResponsiveness,
 		});
@@ -178,9 +194,9 @@ export const processNode = async ({
 			await handleMask({
 				maskImageInfo: precompositing.needsMaskImage,
 				maskRect: dimensions,
-				precomposeRect,
+				precomposeRect: layerRect,
 				tempContext,
-				scale,
+				scale: layerScale,
 				internalState,
 			});
 			if (waitForPageResponsiveness !== null) {
@@ -207,7 +223,6 @@ export const processNode = async ({
 		}
 
 		const previousTransform = context.getTransform();
-		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
 
 		if (is3DPrecomposition) {
 			context.setTransform(new DOMMatrix());
@@ -224,7 +239,7 @@ export const processNode = async ({
 
 		const destinationRect = is3DPrecomposition
 			? rectAfterTransforms
-			: precomposeRect;
+			: layerRect;
 		const parentOffsetScale = is3DPrecomposition ? scale : 1;
 
 		const drawPrecomposedCanvas = () => {
@@ -232,8 +247,8 @@ export const processNode = async ({
 				drawable,
 				0,
 				0,
-				drawable.width,
-				drawable.height,
+				layerPixelWidth ?? drawable.width,
+				layerPixelHeight ?? drawable.height,
 				destinationRect.left - parentRect.x * parentOffsetScale,
 				destinationRect.top - parentRect.y * parentOffsetScale,
 				destinationRect.width,
