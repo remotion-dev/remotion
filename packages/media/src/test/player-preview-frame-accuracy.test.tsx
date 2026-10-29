@@ -1,19 +1,17 @@
 import {Player, type PlayerRef} from '@remotion/player';
 import React from 'react';
+import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
+import {Internals} from 'remotion';
 import {test} from 'vitest';
 import {Video} from '../video/video';
 import {
 	canvasToBlob,
 	findLargestCanvas,
-	seekToAndWait,
 	testImage,
-	wait,
 	waitFor,
-	waitUntilCanvasIsVisible,
 } from './player-frame-accuracy-utils';
 
-const src = 'https://remotion.media/video.mp4';
 const fps = 30;
 const width = 1920;
 const height = 1080;
@@ -27,14 +25,53 @@ const afterStepBackAndForwardScreenshot =
 // Allow tiny browser/decoder screenshot variance after seeks while still catching visible frame offsets.
 const allowedMismatchedPixelRatio = 0.001;
 
-const VideoComposition: React.FC = () => {
-	return <Video src={src} debugOverlay />;
-};
+test('keeps preview frame stepping visually accurate in Player', async () => {
+	const response = await fetch('https://remotion.media/video.mp4');
+	if (!response.ok) {
+		throw new Error(
+			`Could not load frame accuracy fixture: ${response.status}`,
+		);
+	}
 
-const TestPlayer: React.FC<{
-	readonly playerRef: React.RefObject<PlayerRef | null>;
-}> = ({playerRef}) => {
-	return (
+	// Finish downloading before testing playback and seeks.
+	const src = URL.createObjectURL(await response.blob());
+	let timeline: React.ContextType<typeof Internals.SetTimelineContext> | null =
+		null;
+	let drawnFrames = 0;
+	const onVideoFrame = () => {
+		drawnFrames++;
+	};
+
+	const VideoComposition = () => {
+		timeline = React.useContext(Internals.SetTimelineContext);
+		return (
+			<Video
+				src={src}
+				onVideoFrame={onVideoFrame}
+				disallowFallbackToOffthreadVideo
+			/>
+		);
+	};
+
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+
+	const root = createRoot(container);
+	const playerRef = React.createRef<PlayerRef>();
+	const seekToAndWaitForDraw = async (frame: number) => {
+		const previousDrawnFrames = drawnFrames;
+		flushSync(() => playerRef.current!.seekTo(frame));
+		// The timeline updates before decoding finishes, and effects may redraw
+		// the previous frame while the requested frame is still buffering.
+		await waitFor(
+			() =>
+				playerRef.current!.getCurrentFrame() === frame &&
+				drawnFrames > previousDrawnFrames &&
+				!timeline!.isBuffering(),
+		);
+	};
+
+	root.render(
 		<Player
 			ref={playerRef}
 			acknowledgeRemotionLicense
@@ -45,34 +82,33 @@ const TestPlayer: React.FC<{
 			fps={fps}
 			initiallyMuted
 			inputProps={{}}
-		/>
+		/>,
 	);
-};
-
-test('keeps preview frame stepping visually accurate in Player', async () => {
-	const container = document.createElement('div');
-	document.body.appendChild(container);
-
-	const root = createRoot(container);
-	const playerRef = React.createRef<PlayerRef>();
-	root.render(<TestPlayer playerRef={playerRef} />);
 
 	try {
-		await waitFor(() => playerRef.current !== null);
-		await waitUntilCanvasIsVisible({container, height, width});
+		await waitFor(
+			() =>
+				playerRef.current !== null &&
+				drawnFrames > 0 &&
+				timeline !== null &&
+				!timeline.isBuffering(),
+		);
 
+		const beforePlayback = drawnFrames;
 		playerRef.current!.play();
-		await wait(700);
+		await waitFor(
+			() =>
+				playerRef.current!.getCurrentFrame() >= 10 &&
+				drawnFrames > beforePlayback,
+		);
 		playerRef.current!.pause();
-		await wait(250);
 
-		await seekToAndWait({playerRef, frame: startFrame, settleTime: 500});
+		await seekToAndWaitForDraw(startFrame);
 
 		for (const frame of framesToStepThrough) {
-			await seekToAndWait({playerRef, frame, settleTime: 500});
+			await seekToAndWaitForDraw(frame);
 		}
 
-		playerRef.current!.pause();
 		const afterSteppingBlob = await canvasToBlob(findLargestCanvas(container));
 		await testImage({
 			allowedMismatchedPixelRatio,
@@ -80,11 +116,10 @@ test('keeps preview frame stepping visually accurate in Player', async () => {
 			testId: afterSteppingScreenshot,
 		});
 
-		await seekToAndWait({playerRef, frame: stepBackFrame, settleTime: 500});
+		await seekToAndWaitForDraw(stepBackFrame);
 
-		await seekToAndWait({playerRef, frame: finalFrame, settleTime: 500});
+		await seekToAndWaitForDraw(finalFrame);
 
-		playerRef.current!.pause();
 		const afterStepBackAndForwardBlob = await canvasToBlob(
 			findLargestCanvas(container),
 		);
@@ -96,5 +131,6 @@ test('keeps preview frame stepping visually accurate in Player', async () => {
 	} finally {
 		root.unmount();
 		container.remove();
+		URL.revokeObjectURL(src);
 	}
-});
+}, 30000);
