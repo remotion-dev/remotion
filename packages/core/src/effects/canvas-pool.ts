@@ -5,8 +5,8 @@ import {createWebGL2ContextError} from './webgl2-context-error.js';
 // A pair of scratch canvases for ping-ponging within a same-backend run.
 type CanvasPair = readonly [HTMLCanvasElement, HTMLCanvasElement];
 
-// Per-chain canvas pool. Each chain owns its own pool; pools are not shared
-// across chains because dimensions are chain-specific.
+// Chains own their 2D/WebGPU pools. WebGL chains borrow one shared pool and
+// resize its scratch canvases while holding an exclusive lease.
 //
 // Canvases are allocated lazily on first use of a given backend. Once
 // allocated, they are reused every frame for the chain's lifetime. Contexts
@@ -19,8 +19,8 @@ type CanvasPair = readonly [HTMLCanvasElement, HTMLCanvasElement];
 // contexts and backing stores as soon as the chain is torn down instead of
 // leaving that to the garbage collector.
 export class CanvasPool {
-	private readonly width: number;
-	private readonly height: number;
+	private width: number;
+	private height: number;
 	private readonly pairs: Map<
 		Backend,
 		[HTMLCanvasElement | null, HTMLCanvasElement | null]
@@ -48,6 +48,16 @@ export class CanvasPool {
 		this.width = width;
 		this.height = height;
 		this.onContextLost = onContextLost;
+	}
+
+	public resize(width: number, height: number): void {
+		this.width = width;
+		this.height = height;
+		for (const canvas of this.allocated.keys()) {
+			// Assigning even the same dimension clears/reallocates the buffer.
+			if (canvas.width !== width) canvas.width = width;
+			if (canvas.height !== height) canvas.height = height;
+		}
 	}
 
 	public getCanvas(backend: Backend, index: 0 | 1): HTMLCanvasElement {

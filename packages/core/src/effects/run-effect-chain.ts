@@ -11,6 +11,11 @@ import type {
 	EffectDefinitionAndStack,
 } from './effect-types.js';
 import {getGpuDevice} from './gpu-device.js';
+import {
+	acquireSharedWebGLPool,
+	cleanupWithSharedWebGLPool,
+	subscribeToSharedWebGLContextLoss,
+} from './shared-webgl-pool.js';
 
 export type EffectChainState = {
 	preferredEffectBackend: PreferredEffectBackend;
@@ -22,11 +27,16 @@ export type EffectChainState = {
 	readonly width: number;
 	readonly height: number;
 	pool: CanvasPool;
+	webglPool: CanvasPool | null;
+	releaseWebGL: (() => void) | null;
+	unsubscribeWebGL: (() => void) | null;
+	onWebGLContextLost: (canvas: HTMLCanvasElement) => void;
 	setupCache: WeakMap<
 		EffectImplementation<unknown, unknown>,
 		WeakMap<HTMLCanvasElement, unknown>
 	>;
 	cleanupRegistry: Array<{
+		backend: Backend;
 		definition: EffectImplementation<unknown, unknown>;
 		state: unknown;
 		target: HTMLCanvasElement;
@@ -60,7 +70,13 @@ const disposeEffectChainState = (state: EffectChainState): void => {
 	try {
 		cleanupEntries(entries);
 	} finally {
-		state.pool.dispose();
+		try {
+			state.unsubscribeWebGL?.();
+			state.unsubscribeWebGL = null;
+			state.webglPool = null;
+		} finally {
+			state.pool.dispose();
+		}
 	}
 };
 
@@ -77,8 +93,11 @@ export const createEffectChainState = (
 				: (window.remotion_preferredEffectBackend ?? 'auto'),
 		gpuDevice: null,
 		selections: new WeakMap(),
-		pool: new CanvasPool(width, height, (canvas) => {
-			state.currentRunId++;
+		pool: new CanvasPool(width, height, () => undefined),
+		webglPool: null,
+		releaseWebGL: null,
+		unsubscribeWebGL: null,
+		onWebGLContextLost: (canvas) => {
 			// The GL objects these setups hold died with the context and stay
 			// invalid on a restored one, so the next run has to recreate them.
 			// While the context is lost, GL calls are no-ops, which makes this
@@ -87,6 +106,8 @@ export const createEffectChainState = (
 			const dead = state.cleanupRegistry.filter(
 				(entry) => entry.target === canvas,
 			);
+			if (dead.length === 0 && state.releaseWebGL === null) return;
+			state.currentRunId++;
 			state.cleanupRegistry = state.cleanupRegistry.filter(
 				(entry) => entry.target !== canvas,
 			);
@@ -95,7 +116,7 @@ export const createEffectChainState = (
 			}
 
 			cleanupEntries(dead);
-		}),
+		},
 		setupCache: new WeakMap(),
 		cleanupRegistry: [],
 		currentRunId: 0,
@@ -113,7 +134,13 @@ export const cleanupEffectChainState = (state: EffectChainState): void => {
 	state.cleanupRequested = true;
 	state.currentRunId++;
 	invalidateEffectChainSources(state);
-	if (!state.pendingRun) disposeEffectChainState(state);
+	if (!state.pendingRun) {
+		if (state.webglPool) {
+			cleanupWithSharedWebGLPool(() => disposeEffectChainState(state));
+		} else {
+			disposeEffectChainState(state);
+		}
+	}
 };
 
 const ensureSetup = <S>(
@@ -133,14 +160,14 @@ const ensureSetup = <S>(
 		return cacheForDefinition.get(target) as S;
 	}
 
-	if (backend === 'webgl2') state.pool.prepareWebGL(target, false);
+	if (backend === 'webgl2') state.webglPool!.prepareWebGL(target, false);
 	let setupState: S;
 	try {
 		setupState = def.setup(target);
 	} catch (error) {
 		if (backend === 'webgl2') {
 			try {
-				state.pool.retireWebGL(target);
+				state.webglPool!.retireWebGL(target);
 			} catch (cleanupError) {
 				throw new AggregateError(
 					[error, cleanupError],
@@ -153,7 +180,12 @@ const ensureSetup = <S>(
 	}
 
 	cacheForDefinition.set(target, setupState);
-	state.cleanupRegistry.push({definition: widened, state: setupState, target});
+	state.cleanupRegistry.push({
+		backend,
+		definition: widened,
+		state: setupState,
+		target,
+	});
 	return setupState;
 };
 
@@ -219,7 +251,9 @@ const runEffectChainWithoutResize = async (
 
 			for (const eff of run.effects) {
 				if (isCancelled()) return false;
-				const dst = state.pool.getCanvas(run.backend, canvasIndex);
+				const canvasPool =
+					run.backend === 'webgl2' ? state.webglPool! : state.pool;
+				const dst = canvasPool.getCanvas(run.backend, canvasIndex);
 				const def = eff.implementation;
 				const setupState = ensureSetup(state, def, dst, run.backend);
 				if (isCancelled()) return false;
@@ -227,7 +261,7 @@ const runEffectChainWithoutResize = async (
 				publishEffectSource(eff.original, currentImage, state);
 				if (isCancelled()) return false;
 				if (run.backend === 'webgl2')
-					state.pool.prepareWebGL(dst, flipWebGLSourceY);
+					canvasPool.prepareWebGL(dst, flipWebGLSourceY);
 				def.apply({
 					source: currentImage,
 					target: dst,
@@ -238,7 +272,7 @@ const runEffectChainWithoutResize = async (
 					gpuDevice,
 					flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
 				});
-				if (run.backend === 'webgl2') state.pool.assertContextNotLost(dst);
+				if (run.backend === 'webgl2') canvasPool.assertContextNotLost(dst);
 				if (isCancelled()) return false;
 				// Effects consume their source synchronously. Release it before the
 				// next bridge so a run never retains multiple temporary bitmaps.
@@ -360,10 +394,23 @@ const runEffectChainWithResize = async (
 					continue;
 			}
 
+			if (backend === 'webgl2' && !state.releaseWebGL) {
+				state.unsubscribeWebGL ??= subscribeToSharedWebGLContextLoss(
+					state.onWebGLContextLost,
+				);
+				const lease = await acquireSharedWebGLPool(state.width, state.height);
+				state.webglPool = lease.pool;
+				state.releaseWebGL = lease.release;
+				if (state.currentRunId !== runId) return false;
+			}
+
 			// Allocation failure is a capability failure; setup/apply errors are bugs and propagate.
 			if (Object.keys(implementations).length > 1) {
 				try {
-					state.pool.getCanvas(backend, 0);
+					(backend === 'webgl2' ? state.webglPool! : state.pool).getCanvas(
+						backend,
+						0,
+					);
 				} catch {
 					continue;
 				}
@@ -386,13 +433,40 @@ const runEffectChainWithResize = async (
 			);
 	}
 
-	if (gpuDevice !== state.gpuDevice) {
-		const entries = state.cleanupRegistry;
-		state.cleanupRegistry = [];
-		state.setupCache = new WeakMap();
-		state.gpuDevice = gpuDevice;
-		cleanupEntries(entries);
+	const deviceChanged = gpuDevice !== state.gpuDevice;
+	const activeImplementations = new Set(
+		resolved.map((effect) => effect.implementation),
+	);
+	const entries = state.cleanupRegistry.filter(
+		(entry) => deviceChanged || !activeImplementations.has(entry.definition),
+	);
+	if (entries.length > 0) {
+		state.cleanupRegistry = state.cleanupRegistry.filter(
+			(entry) => !deviceChanged && activeImplementations.has(entry.definition),
+		);
+		for (const entry of entries) {
+			state.setupCache.get(entry.definition)?.delete(entry.target);
+		}
+
+		if (state.webglPool && !state.releaseWebGL) {
+			// Local WebGPU cleanup must finish before its canvas is configured by
+			// the replacement implementation. Only WebGL shares another chain's lease.
+			try {
+				cleanupEntries(entries.filter((entry) => entry.backend !== 'webgl2'));
+			} finally {
+				const webglEntries = entries.filter(
+					(entry) => entry.backend === 'webgl2',
+				);
+				if (webglEntries.length > 0) {
+					cleanupWithSharedWebGLPool(() => cleanupEntries(webglEntries));
+				}
+			}
+		} else {
+			cleanupEntries(entries);
+		}
 	}
+
+	state.gpuDevice = gpuDevice;
 
 	if (state.currentRunId !== runId) return false;
 
@@ -460,7 +534,13 @@ export const runEffectChain = async (
 				if (state.cleanupRequested) disposeEffectChainState(state);
 			}
 		} finally {
-			release();
+			try {
+				const {releaseWebGL} = state;
+				state.releaseWebGL = null;
+				releaseWebGL?.();
+			} finally {
+				release();
+			}
 		}
 	}
 };
