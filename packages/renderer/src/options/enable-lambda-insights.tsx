@@ -24,9 +24,9 @@ export const enableLambdaInsights = {
 		option = value;
 	},
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
-				value: commandLine[cliFlag] as boolean,
+				value: Boolean(commandLine[cliFlag]),
 				source: 'cli',
 			};
 		}
