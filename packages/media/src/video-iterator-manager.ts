@@ -1,12 +1,12 @@
 import type {InputVideoTrack, WrappedCanvas} from 'mediabunny';
-import {CanvasSink, VideoSampleSink} from 'mediabunny';
+import {VideoSampleSink} from 'mediabunny';
 import type {
 	EffectChainState,
 	EffectDefinitionAndStack,
 	LogLevel,
 } from 'remotion';
 import {Internals} from 'remotion';
-import {drawStableFrame} from './canvas-ahead-of-time';
+import {drawStableFrame, getStableEffectSource} from './canvas-ahead-of-time';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {roundTo4Digits} from './helpers/round-to-4-digits';
 import type {Nonce} from './nonce-manager';
@@ -112,28 +112,12 @@ export const videoIteratorManager = async ({
 				? {height: maxHeight, fit: 'fill' as const}
 				: {};
 
-	// Keep CanvasSink's resampling for explicitly reduced preview frames.
-	// At source size, retain decoded samples and materialize a canvas only
-	// when effects or a frame callback request one.
-	const canvasSink =
-		Object.keys(frameSize).length === 0
-			? new VideoSampleSink(videoTrack)
-			: new CanvasSink(videoTrack, {
-					// Match the preview look-ahead buffer size. CanvasSink may reuse pooled
-					// canvas objects for later decoded frames, so Remotion copies pixels into
-					// stable canvases before retaining frames across seeks/peeks.
-					poolSize: 3,
-					fit: 'contain',
-					alpha: true,
-					...frameSize,
-				});
-
-	// Effects expect a source with the size of the output.
-	let upscaledFrame: OffscreenCanvas | null = null;
+	const videoSink = new VideoSampleSink(videoTrack);
 
 	const prewarmedVideoIteratorCache = makePrewarmedVideoIteratorCache(
-		canvasSink,
+		videoSink,
 		await videoTrack.getTimeResolution(),
+		Object.keys(frameSize).length === 0 ? null : frameSize,
 	);
 
 	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
@@ -149,23 +133,16 @@ export const videoIteratorManager = async ({
 				chainState &&
 				canvas instanceof HTMLCanvasElement
 			) {
-				let source: CanvasImageSource = frame.canvas;
-				if (
-					frame.canvas.width !== canvas.width ||
-					frame.canvas.height !== canvas.height
-				) {
-					upscaledFrame ??= new OffscreenCanvas(canvas.width, canvas.height);
-					const upscaledContext = upscaledFrame.getContext('2d')!;
-					upscaledContext.clearRect(0, 0, canvas.width, canvas.height);
-					upscaledContext.drawImage(
-						frame.canvas,
-						0,
-						0,
-						canvas.width,
-						canvas.height,
-					);
-					source = upscaledFrame;
-				}
+				const firstEnabledEffect = effects.find(
+					(effect) => !(effect.params as {disabled?: boolean}).disabled,
+				);
+				const source = getStableEffectSource(frame, {
+					width: canvas.width,
+					height: canvas.height,
+					allowDirectSource:
+						!firstEnabledEffect ||
+						firstEnabledEffect.definition.backend === '2d',
+				});
 
 				const run = {state: chainState, runId: chainState.currentRunId + 1};
 				pendingEffectRun = run;

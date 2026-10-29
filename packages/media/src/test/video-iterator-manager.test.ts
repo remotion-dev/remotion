@@ -1,5 +1,5 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-import {expect, test} from 'vitest';
+import {expect, onTestFinished, test} from 'vitest';
 import {makeNonceManager} from '../nonce-manager';
 import {
 	isSequentialMediaTimeAdvance,
@@ -201,6 +201,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 	});
+	onTestFinished(() => manager.destroy());
 
 	const nonceManager = makeNonceManager();
 
@@ -277,6 +278,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 	});
+	onTestFinished(() => manager.destroy());
 
 	const nonceManager = makeNonceManager();
 
@@ -328,6 +330,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 	});
+	onTestFinished(() => manager.destroy());
 
 	const nonceManager = makeNonceManager();
 
