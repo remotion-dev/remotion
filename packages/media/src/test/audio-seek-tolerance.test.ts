@@ -137,6 +137,7 @@ test.each([
 
 			const stop = vi.fn();
 			iterator.addQueuedAudioNode({
+				reschedule: () => {},
 				node: Object.assign(new EventTarget(), {
 					stop,
 					disconnect: () => undefined,

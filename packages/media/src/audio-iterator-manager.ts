@@ -212,6 +212,17 @@ export const audioIteratorManager = ({
 			node,
 			timestamp: mediaTimestamp,
 			sourceDurationInSeconds,
+			reschedule: () =>
+				scheduleAudioChunk({
+					buffer,
+					mediaTimestamp,
+					originalUnloopedMediaTimestamp,
+					sourceOffsetInSeconds,
+					sourceDurationInSeconds,
+					playbackRate,
+					scheduleAudioNode,
+					logLevel,
+				}),
 		});
 	};
 
@@ -658,6 +669,24 @@ export const audioIteratorManager = ({
 
 	return {
 		startAudioIterator,
+		rescheduleAudio: (
+			newTime: number,
+			unloopedTime: number,
+			playbackRate: number,
+			loop: boolean,
+		) => {
+			const time =
+				loop && currentAnchor
+					? anchorToContinuousTime({
+							anchor: currentAnchor,
+							unloopedTimeInSeconds: unloopedTime,
+							playbackRate,
+						})
+					: newTime;
+			if (!audioBufferIterator?.rescheduleAudio(time)) return false;
+			processNext();
+			return true;
+		},
 		getAudioBufferIterator: () => audioBufferIterator,
 		getCurrentAnchor: () => currentAnchor,
 		destroyIterator: () => {

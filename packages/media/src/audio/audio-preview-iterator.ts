@@ -6,6 +6,7 @@ export type QueuedNode = {
 	node: AudioBufferSourceNode;
 	timestamp: number;
 	sourceDurationInSeconds: number;
+	reschedule: () => void;
 };
 
 export type QueuedPeriod = {
@@ -25,7 +26,7 @@ export const makeAudioIterator = ({
 	unscheduleAudioNode,
 }: MakeAudioIteratorOptions) => {
 	let destroyed = false;
-	const queuedAudioNodes = new Set<AudioBufferSourceNode>();
+	const queuedAudioNodes = new Map<AudioBufferSourceNode, QueuedNode>();
 	// Seek deduplication needs the scheduling history, including ended audio and
 	// silent gaps. Keep its bounds without retaining the historical nodes.
 	let queuedFrom = Infinity;
@@ -39,7 +40,7 @@ export const makeAudioIterator = ({
 	let mostRecentTimestamp = -Infinity;
 
 	const cleanupAudioQueue = () => {
-		for (const node of queuedAudioNodes) {
+		for (const node of queuedAudioNodes.keys()) {
 			// Pending nodes may never emit ended; remove their listener synchronously.
 			node.removeEventListener('ended', onEnded);
 			node.disconnect();
@@ -93,8 +94,27 @@ export const makeAudioIterator = ({
 				queuedUntil,
 				queuedNode.timestamp + queuedNode.sourceDurationInSeconds,
 			);
-			queuedAudioNodes.add(queuedNode.node);
+			queuedAudioNodes.set(queuedNode.node, queuedNode);
 			queuedNode.node.addEventListener('ended', onEnded, {once: true});
+		},
+		// Keep the decoder and its in-flight read. WebAudio nodes are one-shot,
+		// so replace only their scheduling after the shared clock moves.
+		rescheduleAudio: (time: number) => {
+			const queued = [...queuedAudioNodes.values()];
+			if (
+				destroyed ||
+				!queued.some(
+					(item) =>
+						time >= item.timestamp &&
+						time < item.timestamp + item.sourceDurationInSeconds,
+				)
+			) {
+				return false;
+			}
+
+			cleanupAudioQueue();
+			for (const item of queued) item.reschedule();
+			return true;
 		},
 		guessNextTimestamp: () => {
 			return !Number.isFinite(mostRecentTimestamp)
