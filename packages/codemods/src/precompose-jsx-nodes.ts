@@ -1,8 +1,8 @@
 import type {File, JSXElement, JSXFragment, Node} from '@babel/types';
 import * as recast from 'recast';
-import type {SequenceNodePath} from 'remotion';
+import {Internals, type SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {addComposition} from './add-composition';
+import {addComposition, componentNameRegex} from './add-composition';
 import type {CodemodProject} from './codemod-project';
 import {
 	assertNewCompositionId,
@@ -1509,7 +1509,12 @@ type PrecomposeOptions<Project extends CodemodProject> = {
 	compositionId: string;
 	metadata: CompositionMetadata;
 	existingCompositionIds: string[];
+	name: {compositionId: string; componentName: string} | null;
 };
+
+export class PrecomposeNameError extends Error {
+	name = 'PrecomposeNameError';
+}
 
 const getRegistrationPathChanges = ({
 	before,
@@ -1567,6 +1572,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	compositionId,
 	metadata,
 	existingCompositionIds,
+	name: requestedName,
 }: PrecomposeOptions<Project>) => {
 	if (nodes.length === 0) {
 		throw new Error('Select at least one sequence to pre-compose');
@@ -1646,41 +1652,82 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		});
 	}
 
-	const labelWords = sequenceName?.match(/[A-Za-z][A-Za-z0-9]*/g) ?? [];
-	const baseName =
-		labelWords.length === 0
-			? 'Precomposition'
-			: labelWords
-					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-					.join('');
 	const knownIds = new Set(existingCompositionIds);
-	let name: string | null = null;
-	for (let suffix = 1; suffix < 10000; suffix++) {
-		const candidate = `${baseName}${suffix === 1 ? '' : suffix}`;
-		if (occupiedNames.has(candidate) || knownIds.has(candidate)) {
-			continue;
+	let name: {compositionId: string; componentName: string} | null = null;
+	if (requestedName === null) {
+		const labelWords = sequenceName?.match(/[A-Za-z][A-Za-z0-9]*/g) ?? [];
+		const baseName =
+			labelWords.length === 0
+				? 'Precomposition'
+				: labelWords
+						.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+						.join('');
+		for (let suffix = 1; suffix < 10000; suffix++) {
+			const candidate = `${baseName}${suffix === 1 ? '' : suffix}`;
+			if (occupiedNames.has(candidate) || knownIds.has(candidate)) {
+				continue;
+			}
+
+			try {
+				assertNewCompositionId({
+					project,
+					compositionFile: registrationFile,
+					compositionId: candidate,
+				});
+				name = {compositionId: candidate, componentName: candidate};
+				break;
+			} catch (error) {
+				if (!(error as Error).message.includes('already exists')) {
+					throw error;
+				}
+			}
+		}
+
+		if (name === null) {
+			throw new Error('Could not choose a unique composition name');
+		}
+	} else {
+		if (knownIds.has(requestedName.compositionId)) {
+			throw new PrecomposeNameError(
+				`A composition with the ID "${requestedName.compositionId}" already exists`,
+			);
 		}
 
 		try {
 			assertNewCompositionId({
 				project,
 				compositionFile: registrationFile,
-				compositionId: candidate,
+				compositionId: requestedName.compositionId,
 			});
-			name = candidate;
-			break;
 		} catch (error) {
-			if (!(error as Error).message.includes('already exists')) {
-				throw error;
+			const {message} = error as Error;
+			if (
+				message === Internals.invalidCompositionErrorMessage ||
+				message.includes('already exists')
+			) {
+				throw new PrecomposeNameError(message);
 			}
+
+			throw error;
 		}
+
+		if (!componentNameRegex.test(requestedName.componentName)) {
+			throw new PrecomposeNameError(
+				`"${requestedName.componentName}" is not a valid component name`,
+			);
+		}
+
+		if (occupiedNames.has(requestedName.componentName)) {
+			throw new PrecomposeNameError(
+				`The component name "${requestedName.componentName}" is already used in this file. Choose a different ID.`,
+			);
+		}
+
+		name = requestedName;
 	}
 
-	if (name === null) {
-		throw new Error('Could not choose a unique composition name');
-	}
-
-	occupiedNames.add(name);
+	const {compositionId: newCompositionId, componentName} = name;
+	occupiedNames.add(componentName);
 
 	const frameProps = hookProps.filter((prop) => prop.kind === 'frame');
 	const managedProps = new Set([
@@ -1831,9 +1878,9 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const contentHookProps = styleRoot
 		? hookProps.filter((prop) => contentReferences.has(prop.name))
 		: hookProps;
-	let contentName = `${name}Content`;
+	let contentName = `${componentName}Content`;
 	for (let suffix = 2; occupiedNames.has(contentName); suffix++) {
-		contentName = `${name}Content${suffix}`;
+		contentName = `${componentName}Content${suffix}`;
 	}
 
 	occupiedNames.add(contentName);
@@ -1877,7 +1924,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 		resolvedProps.length === 0 && styleRoot === null
 			? ''
 			: `{${destructuredProps}}${filePath.endsWith('.tsx') ? `: {${typedProps}}` : ''}`;
-	const signature = `${styleRoot ? 'function' : 'export function'} ${styleRoot ? contentName : name}(${parameters}) {`;
+	const signature = `${styleRoot ? 'function' : 'export function'} ${styleRoot ? contentName : componentName}(${parameters}) {`;
 	const valueStatements = [
 		...frameProps.map(
 			({name: propName, hookName}) => `const ${propName} = ${hookName}();`,
@@ -1935,7 +1982,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const endOfLine = getEndOfLine(input);
 	const unit = getIndentationUnit(input, null);
 	const originalIndent = getLineIndent({input, offset: start});
-	const wrapperName = sequenceName ?? name;
+	const wrapperName = sequenceName ?? newCompositionId;
 	const movedAttributes = styleRoot ? rootTimingAttributes : [];
 	const childAttributes = movedAttributes.map((attribute) =>
 		input.slice(
@@ -1956,7 +2003,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	childAttributes.push(
 		...resolvedProps.map(({name: propName}) => `${propName}={${propName}}`),
 	);
-	const childSource = `<${name}${childAttributes.map((attribute) => ` ${attribute}`).join('')} />`;
+	const childSource = `<${componentName}${childAttributes.map((attribute) => ` ${attribute}`).join('')} />`;
 	const replacementSource = selectedSequence
 		? `${endOfLine}${originalIndent}${unit}${childSource}${endOfLine}${originalIndent}`
 		: styleRoot
@@ -2045,9 +2092,9 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 			localName: interactiveLocalName,
 		});
 		wrapperSource = [
-			`export const ${name} = ${interactiveTag}.withSchema({`,
+			`export const ${componentName} = ${interactiveTag}.withSchema({`,
 			`${unit}Component: ${contentName},`,
-			`${unit}componentName: ${JSON.stringify(`<${name}>`)},`,
+			`${unit}componentName: ${JSON.stringify(`<${componentName}>`)},`,
 			`${unit}schema: {},`,
 			`${unit}wrapInSequence: true,`,
 			'});',
@@ -2196,7 +2243,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 			? signature
 			: filePath.endsWith('.tsx')
 				? [
-						`export function ${name}({`,
+						`export function ${componentName}({`,
 						...resolvedProps.map(
 							({name: propName, parentAlias}) =>
 								`${unit}${propName}: ${parentAlias},`,
@@ -2208,7 +2255,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 						'}) {',
 					].join(endOfLine)
 				: [
-						`export function ${name}({`,
+						`export function ${componentName}({`,
 						...resolvedProps.map(
 							({name: propName, parentAlias}) =>
 								`${unit}${propName}: ${parentAlias},`,
@@ -2292,8 +2339,8 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	const registrationResult = addComposition({
 		project: registrationProject,
 		compositionFile: registrationFile,
-		compositionId: name,
-		component: {importName: name, importPath},
+		compositionId: newCompositionId,
+		component: {importName: componentName, importPath},
 		metadata: {
 			...metadata,
 			durationInFrames:
@@ -2316,7 +2363,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 				? sourceOutput
 				: project.files[registrationFile],
 		after: registrationOutput,
-		compositionId: name,
+		compositionId: newCompositionId,
 	});
 	const selectedPaths = new Set(
 		nodes.map((node) => JSON.stringify(node.nodePath)),
@@ -2397,7 +2444,7 @@ export const precomposeJsxNodes = <Project extends CodemodProject>({
 	return {
 		...getNodeEditResult({project, edits}),
 		logLine,
-		newCompositionId: name,
+		newCompositionId,
 	};
 };
 

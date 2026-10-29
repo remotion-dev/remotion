@@ -1031,6 +1031,7 @@ export type PrecomposeJsxNodesRequest = {
 		fps: number;
 		durationInFrames: number;
 	};
+	name: {compositionId: string; componentName: string} | null;
 	dryRun: boolean;
 };
 
@@ -1039,6 +1040,7 @@ export type PrecomposeJsxNodesResponse =
 			success: true;
 			canPrecompose: boolean;
 			reason: string | null;
+			invalidName: boolean;
 			nodePathMutation: SequenceNodePathMutation | null;
 			newCompositionId: string | null;
 	  }

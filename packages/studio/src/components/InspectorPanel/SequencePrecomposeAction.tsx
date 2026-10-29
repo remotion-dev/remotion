@@ -5,7 +5,6 @@ import {getConnectedCompositions} from '../../helpers/get-connected-compositions
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {FilmIcon} from '../../icons/video';
 import {SetSelectedModalContext} from '../../state/modals';
-import {selectCompositionWhenReady} from '../InitialCompositionLoader';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {precomposeJsxNodes} from '../precompose-jsx-nodes-api';
 import {
@@ -92,6 +91,7 @@ export const SequencePrecomposeAction: React.FC<{
 		}
 
 		const request = {
+			nodes,
 			compositionFile,
 			compositionId,
 			existingCompositionIds: compositions.map(({id}) => id),
@@ -100,6 +100,8 @@ export const SequencePrecomposeAction: React.FC<{
 				fps: getCurrentFps(),
 				durationInFrames: getCurrentDuration(),
 			},
+			name: null,
+			dryRun: false,
 		};
 
 		const uniqueSourceNodes =
@@ -120,21 +122,24 @@ export const SequencePrecomposeAction: React.FC<{
 		}
 
 		setBusy(true);
-		precomposeJsxNodes({...request, nodes, dryRun: false})
+		precomposeJsxNodes({...request, dryRun: true})
 			.then((result) => {
 				if (!result.success) {
 					showNotification(result.reason, 4000);
 					return;
 				}
 
-				if (!result.canPrecompose) {
+				if (!result.canPrecompose || result.newCompositionId === null) {
 					openRefactorModal();
 					return;
 				}
 
-				if (result.newCompositionId !== null) {
-					selectCompositionWhenReady(result.newCompositionId);
-				}
+				setSelectedModal({
+					type: 'precompose-name',
+					request,
+					suggestedCompositionId: result.newCompositionId,
+					refactorTargets: modalTargets,
+				});
 			})
 			.catch((error) => {
 				showNotification((error as Error).message, 4000);

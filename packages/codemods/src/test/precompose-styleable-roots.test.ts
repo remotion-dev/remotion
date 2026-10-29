@@ -41,6 +41,7 @@ const precomposeSource = (
 		compositionId: 'Main',
 		metadata,
 		existingCompositionIds: ['Main'],
+		name: null,
 	};
 	expect(canPrecomposeJsxNodes(request)).toEqual({
 		canPrecompose: true,
@@ -491,6 +492,7 @@ export const Video = () => (
 			compositionId: 'Main',
 			metadata,
 			existingCompositionIds: ['Main'],
+			name: null,
 		}),
 	).toEqual({
 		canPrecompose: false,

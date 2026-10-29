@@ -51,6 +51,20 @@ export const getUniqueCompositionName = (
 	}
 };
 
+export const getNewCompositionNaming = (
+	input: string,
+	compositions: _InternalTypes['AnyComposition'][],
+) => {
+	const compositionId = slugifyName(input);
+	return {
+		compositionId,
+		componentName: toPascalCase(compositionId),
+		validationMessage: compositionId
+			? validateCompositionName(compositionId, compositions)
+			: 'Enter an ID containing letters or numbers.',
+	};
+};
+
 export const useCreateComposition = ({
 	compositions,
 	durationInFrames,
@@ -81,17 +95,14 @@ export const useCreateComposition = ({
 	asset: NewCompositionAsset | null;
 }) => {
 	const selectComposition = useSelectComposition();
-	const compositionId = slugifyName(newId);
-	const componentName = useMemo(
-		() => toPascalCase(compositionId),
-		[compositionId],
+	const {
+		compositionId,
+		componentName,
+		validationMessage: nameValidationMessage,
+	} = useMemo(
+		() => getNewCompositionNaming(newId, compositions),
+		[compositions, newId],
 	);
-
-	const nameValidationMessage = useMemo(() => {
-		return compositionId
-			? validateCompositionName(compositionId, compositions)
-			: 'Enter an ID containing letters or numbers.';
-	}, [compositionId, compositions]);
 
 	const widthValidationMessage = useMemo(() => {
 		return validateCompositionDimension('Width', size.width);

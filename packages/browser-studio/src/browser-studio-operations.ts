@@ -19,7 +19,6 @@ import {
 	canWrapNode,
 	wrapNode as wrapNodeCodemod,
 	getNodeProps,
-	canPrecomposeJsxNodes,
 	precomposeJsxNodes as precomposeJsxNodesCodemod,
 	moveComposition as moveCompositionCodemod,
 	moveFolder as moveFolderCodemod,
@@ -1557,6 +1556,7 @@ export const createBrowserStudioOperations = ({
 		compositionId,
 		metadata,
 		existingCompositionIds,
+		name,
 	}) => {
 		try {
 			if (nodes.length === 0) {
@@ -1584,17 +1584,8 @@ export const createBrowserStudioOperations = ({
 				compositionId,
 				metadata,
 				existingCompositionIds,
+				name,
 			};
-			if (dryRun) {
-				const eligibility = canPrecomposeJsxNodes(options);
-				return Promise.resolve({
-					success: true,
-					...eligibility,
-					nodePathMutation: null,
-					newCompositionId: null,
-				});
-			}
-
 			let result: ReturnType<typeof precomposeJsxNodesCodemod>;
 			try {
 				result = precomposeJsxNodesCodemod(options);
@@ -1603,8 +1594,21 @@ export const createBrowserStudioOperations = ({
 					success: true,
 					canPrecompose: false,
 					reason: error instanceof Error ? error.message : String(error),
+					invalidName:
+						error instanceof Error && error.name === 'PrecomposeNameError',
 					nodePathMutation: null,
 					newCompositionId: null,
+				});
+			}
+
+			if (dryRun) {
+				return Promise.resolve({
+					success: true,
+					canPrecompose: true,
+					reason: null,
+					invalidName: false,
+					nodePathMutation: null,
+					newCompositionId: result.newCompositionId,
 				});
 			}
 
@@ -1628,6 +1632,7 @@ export const createBrowserStudioOperations = ({
 				success: true,
 				canPrecompose: true,
 				reason: null,
+				invalidName: false,
 				nodePathMutation,
 				newCompositionId: result.newCompositionId,
 			});
