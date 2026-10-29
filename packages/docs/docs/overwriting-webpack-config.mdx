@@ -21,6 +21,8 @@ You can enable Rspack now to test your project before this transition.
 
 ## Enable Rspack<AvailableFrom v="4.0.426" />
 
+Rspack requires Node.js 20.19 or newer in the 20.x release line, or Node.js 22.12 or newer. Bun is also supported.
+
 Enable Rspack for CLI commands in [`remotion.config.ts`](/docs/config):
 
 ```ts twoslash title="remotion.config.ts"
@@ -612,7 +614,12 @@ Config.overrideRspackConfig((config) => {
     module: {
       ...config.module,
       rules: config.module?.rules?.map((rule) => {
-        if (!rule || rule === '...' || !Array.isArray(rule.use)) {
+        if (
+          !rule ||
+          rule === '...' ||
+          rule.use === undefined ||
+          !Array.isArray(rule.use)
+        ) {
           return rule;
         }
 
@@ -620,6 +627,7 @@ Config.overrideRspackConfig((config) => {
           ...rule,
           use: rule.use.map((use) => {
             if (
+              !use ||
               typeof use === 'string' ||
               use.loader !== 'builtin:swc-loader'
             ) {
