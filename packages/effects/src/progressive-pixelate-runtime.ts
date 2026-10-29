@@ -255,9 +255,9 @@ export const prepareProgressivePixelate = ({
 }): void => {
 	const {gl, uniforms} = state;
 	gl.viewport(0, 0, width, height);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.clearColor(0, 0, 0, 0);
 	gl.clear(gl.COLOR_BUFFER_BIT);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, state.texture);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);

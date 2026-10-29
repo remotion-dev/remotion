@@ -123,13 +123,14 @@ export const wave = createEffect<WaveParams, WaveState>({
 		return `wave-${r.phase}-${r.direction}-${r.amplitude}-${r.wavelength}`;
 	},
 	setup: (target) => setupWave(target),
-	apply: ({source, width, height, params, state}) => {
+	apply: ({source, width, height, params, state, flipSourceY}) => {
 		const r = resolve(params);
 		applyWave({
 			state,
 			source,
 			width,
 			height,
+			flipSourceY,
 			amplitude: r.amplitude,
 			wavelength: r.wavelength,
 			phase: r.phase,
