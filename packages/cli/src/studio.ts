@@ -1,4 +1,4 @@
-import {existsSync, readdirSync} from 'node:fs';
+import {existsSync, readdirSync, readFileSync} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
@@ -14,6 +14,7 @@ import {
 	type ConfigFileFingerprints,
 } from './config-file-change';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
+import {parseRemotionSkillVersion} from './detect-outdated-remotion-skills';
 import {findEntryPoint} from './entry-point';
 import {
 	getLoadedConfigFile,
@@ -98,20 +99,42 @@ export const studioCommand = async (
 	}
 
 	const projectSkills = path.join(remotionRoot, '.claude', 'skills');
-	const globalSkills = path.join(homedir(), '.claude', 'skills');
-	if (projectSkills !== globalSkills && existsSync(projectSkills)) {
-		const shadowedSkills = readdirSync(projectSkills).filter(
-			(name) =>
-				name.startsWith('remotion-') &&
-				existsSync(path.join(projectSkills, name, 'SKILL.md')) &&
-				existsSync(path.join(globalSkills, name, 'SKILL.md')),
-		);
-		if (shadowedSkills.length > 0) {
-			Log.warn(
-				{indent: false, logLevel},
-				`Claude Code loads global skills before project skills. The global Remotion skill${shadowedSkills.length === 1 ? '' : 's'} ${shadowedSkills.join(', ')} ${shadowedSkills.length === 1 ? 'shadows' : 'shadow'} this project's copy. Remove or update the global ${shadowedSkills.length === 1 ? 'copy' : 'copies'} in ${globalSkills}.`,
-			);
+	const globalSkills = path.join(
+		process.env.CLAUDE_CONFIG_DIR || path.join(homedir(), '.claude'),
+		'skills',
+	);
+	try {
+		if (projectSkills !== globalSkills && existsSync(projectSkills)) {
+			const shadowedSkills = readdirSync(projectSkills).filter((name) => {
+				const projectSkill = path.join(projectSkills, name, 'SKILL.md');
+				const globalSkill = path.join(globalSkills, name, 'SKILL.md');
+				if (
+					!name.startsWith('remotion-') ||
+					!existsSync(projectSkill) ||
+					!existsSync(globalSkill)
+				) {
+					return false;
+				}
+
+				const projectVersion = parseRemotionSkillVersion(
+					readFileSync(projectSkill, 'utf8'),
+				);
+				return (
+					projectVersion === null ||
+					projectVersion !==
+						parseRemotionSkillVersion(readFileSync(globalSkill, 'utf8'))
+				);
+			});
+			if (shadowedSkills.length > 0) {
+				const plural = shadowedSkills.length > 1;
+				Log.warn(
+					{indent: false, logLevel},
+					`Claude Code uses the global skill${plural ? 's' : ''} ${shadowedSkills.join(', ')} from ${globalSkills} and ignores this project's ${plural ? 'copies' : 'copy'}. Update or remove the global ${plural ? 'copies' : 'copy'}. If installed with "npx skills add -g", ${plural ? 'they are symlinks' : 'it is a symlink'} to ${path.join(homedir(), '.agents', 'skills')}.`,
+				);
+			}
 		}
+	} catch {
+		// Never block Studio startup because of an unreadable skills directory.
 	}
 
 	const desiredPort =

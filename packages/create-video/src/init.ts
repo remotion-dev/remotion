@@ -232,21 +232,43 @@ export const init = async () => {
 		await installSkills(projectRoot, skillsInstallation);
 
 		const projectSkills = path.join(projectRoot, '.claude', 'skills');
-		const globalSkills = path.join(homedir(), '.claude', 'skills');
-		if (projectSkills !== globalSkills && fs.existsSync(projectSkills)) {
-			const shadowedSkills = fs
-				.readdirSync(projectSkills)
-				.filter(
-					(name) =>
-						name.startsWith('remotion-') &&
-						fs.existsSync(path.join(projectSkills, name, 'SKILL.md')) &&
-						fs.existsSync(path.join(globalSkills, name, 'SKILL.md')),
-				);
-			if (shadowedSkills.length > 0) {
-				Log.warn(
-					`Claude Code loads global skills before project skills. The global Remotion skill${shadowedSkills.length === 1 ? '' : 's'} ${shadowedSkills.join(', ')} ${shadowedSkills.length === 1 ? 'shadows' : 'shadow'} this project's copy. Remove or update the global ${shadowedSkills.length === 1 ? 'copy' : 'copies'} in ${globalSkills}.`,
-				);
+		const globalSkills = path.join(
+			process.env.CLAUDE_CONFIG_DIR || path.join(homedir(), '.claude'),
+			'skills',
+		);
+		const readSkillVersion = (skillFile: string) =>
+			fs
+				.readFileSync(skillFile, 'utf8')
+				.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1]
+				?.match(/^version:\s*['"]?([^\s'"]+)/m)?.[1] ?? null;
+		try {
+			if (projectSkills !== globalSkills && fs.existsSync(projectSkills)) {
+				const shadowedSkills = fs.readdirSync(projectSkills).filter((name) => {
+					const projectSkill = path.join(projectSkills, name, 'SKILL.md');
+					const globalSkill = path.join(globalSkills, name, 'SKILL.md');
+					if (
+						!name.startsWith('remotion-') ||
+						!fs.existsSync(projectSkill) ||
+						!fs.existsSync(globalSkill)
+					) {
+						return false;
+					}
+
+					const projectVersion = readSkillVersion(projectSkill);
+					return (
+						projectVersion === null ||
+						projectVersion !== readSkillVersion(globalSkill)
+					);
+				});
+				if (shadowedSkills.length > 0) {
+					const plural = shadowedSkills.length > 1;
+					Log.warn(
+						`Claude Code uses the global skill${plural ? 's' : ''} ${shadowedSkills.join(', ')} from ${globalSkills} and ignores this project's ${plural ? 'copies' : 'copy'}. Update or remove the global ${plural ? 'copies' : 'copy'}. If installed with "npx skills add -g", ${plural ? 'they are symlinks' : 'it is a symlink'} to ${path.join(homedir(), '.agents', 'skills')}.`,
+					);
+				}
 			}
+		} catch {
+			// Never fail project creation because of an unreadable skills directory.
 		}
 	}
 
