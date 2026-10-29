@@ -16,8 +16,10 @@ const fn = async (
 	src: string,
 	options?: Options,
 ): Promise<MediaUtilsAudioData> => {
-	if (metadataCache[src]) {
-		return metadataCache[src];
+	const sampleRate = options?.sampleRate ?? 48000;
+	const cacheKey = JSON.stringify([src, sampleRate]);
+	if (metadataCache[cacheKey]) {
+		return metadataCache[cacheKey];
 	}
 
 	if (typeof document === 'undefined') {
@@ -25,7 +27,7 @@ const fn = async (
 	}
 
 	const audioContext = new AudioContext({
-		sampleRate: options?.sampleRate ?? 48000,
+		sampleRate,
 	});
 
 	let wave: AudioBuffer;
@@ -62,7 +64,7 @@ const fn = async (
 		resultId: String(Math.random()),
 		isRemote: isRemoteAsset(src),
 	};
-	metadataCache[src] = metadata;
+	metadataCache[cacheKey] = metadata;
 	return metadata;
 };
 

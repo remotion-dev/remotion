@@ -118,7 +118,7 @@ export const RotateComponents: React.FC<{
 				/>
 			</div>
 			{canPixelManipulate ? null : (
-				<div className="text-gray-700 text-sm">
+				<div className="text-muted-foreground text-sm">
 					Re-encode the video stream in order to apply rotation.
 				</div>
 			)}

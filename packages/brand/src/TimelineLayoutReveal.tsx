@@ -3,7 +3,6 @@ import {
 	Easing,
 	Interactive,
 	interpolate,
-	staticFile,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -76,13 +75,13 @@ export const TimelineLayoutReveal = () => {
 			>
 				<CanvasImage
 					name="Before"
-					src={staticFile('timeline-reveal/before.png')}
+					src="https://remotion.media/timeline-reveal/before-de9e08adc40d.png"
 					premountFor={fps}
 					style={{position: 'absolute', width: '100%', height: '100%'}}
 				/>
 				<CanvasImage
 					name="After"
-					src={staticFile('timeline-reveal/after.png')}
+					src="https://remotion.media/timeline-reveal/after-ab4a7cece32f.png"
 					premountFor={fps}
 					cropRight={interpolate(frame, [0, 11 * fps], [0.8, 0], {
 						extrapolateLeft: 'clamp',

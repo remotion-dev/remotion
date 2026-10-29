@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-5-0-migration.png
+image: https://remotion.media/docs/generated/articles-docs-5-0-migration.png
 id: 5-0-migration
 title: v5.0 Migration
 crumb: 'Version Upgrade'
@@ -198,10 +198,11 @@ This prevents the Player from continuing while media or images are still loading
 
 **Required action**: If you want to keep the old behavior, set `pauseWhenBuffering={false}` on video and audio components and `pauseWhenLoading={false}` on `<Img>` explicitly.
 
-## Five packages are no longer published
+## Six packages are no longer published
 
 The following packages stop receiving releases after the 4.x line:
 
+- Replace `@remotion/enable-scss` by copying [its bundler override](https://github.com/remotion-dev/remotion/blob/main/packages/enable-scss/src/enable-scss.ts) into your [`remotion.config.ts`](/docs/config#overridebundlerconfig).
 - Replace `@remotion/light-leaks` with [`lightLeak()` from `@remotion/effects`](/docs/effects/light-leak).
 - Replace `@remotion/starburst` with [`starburst()` from `@remotion/effects`](/docs/effects/starburst).
 - Replace `@remotion/media-parser` with [Mediabunny](/docs/mediabunny).

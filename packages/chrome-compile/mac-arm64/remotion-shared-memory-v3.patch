@@ -1,0 +1,745 @@
+diff --git a/content/browser/devtools/protocol/page_handler.cc b/content/browser/devtools/protocol/page_handler.cc
+index c750e9a..a05af5c 100644
+--- a/content/browser/devtools/protocol/page_handler.cc
++++ b/content/browser/devtools/protocol/page_handler.cc
+@@ -5,6 +5,7 @@
+ #include "content/browser/devtools/protocol/page_handler.h"
+ 
+ #include <algorithm>
++#include <cstring>
+ #include <memory>
+ #include <optional>
+ #include <sstream>
+@@ -13,8 +14,12 @@
+ #include <vector>
+ 
+ #include "base/check_op.h"
++#include "base/command_line.h"
++#include "base/compiler_specific.h"
++#include "base/rand_util.h"
+ #include "base/functional/bind.h"
+ #include "base/location.h"
++#include "base/memory/raw_ptr_exclusion.h"
+ #include "base/memory/ref_counted.h"
+ #include "base/memory/ref_counted_memory.h"
+ #include "base/numerics/safe_conversions.h"
+@@ -74,6 +79,8 @@
+ #include "third_party/blink/public/mojom/script_source_location.mojom.h"
+ #include "third_party/skia/include/core/SkBitmap.h"
+ #include "third_party/skia/include/core/SkColor.h"
++#include "third_party/skia/include/core/SkColorSpace.h"
++#include "third_party/skia/include/core/SkImageInfo.h"
+ #include "ui/base/page_transition_types.h"
+ #include "ui/gfx/codec/jpeg_codec.h"
+ #include "ui/gfx/codec/png_codec.h"
+@@ -85,6 +92,19 @@
+ #include "ui/gfx/skbitmap_operations.h"
+ #include "ui/snapshot/snapshot.h"
+ 
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
++#include <fcntl.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <unistd.h>
++
++#include <cerrno>
++
++#include "base/posix/eintr_wrapper.h"
++#include "base/posix/safe_strerror.h"
++#endif
++
+ #if BUILDFLAG(IS_ANDROID)
+ #include "content/browser/renderer_host/compositor_impl_android.h"
+ #endif
+@@ -488,8 +508,94 @@ std::string GetFrameStartedNavigatingNavigationTypeString(
+       NOTREACHED();
+   }
+ }
++
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
++// Sizes and maps a freshly created, still empty backing object for a Remotion
++// frame pool. Returns nullptr and describes the failure in |error|. The caller
++// keeps ownership of |fd| and unlinks the object on failure.
++void* MapRemotionFramePoolBacking(int fd, size_t size, std::string* error) {
++  if (ftruncate(fd, static_cast<off_t>(size)) != 0) {
++    *error = "ftruncate: " + base::safe_strerror(errno);
++    return nullptr;
++  }
++#if BUILDFLAG(IS_LINUX)
++  // Reserve the pages up front so a full tmpfs (for example a 64 MB container
++  // /dev/shm) or disk fails here instead of raising SIGBUS on the first write.
++  // fallocate() is not available everywhere (AWS Lambda's /tmp answers EPERM),
++  // so anything but a space error falls back to writing zeros, which reserves
++  // the blocks as well and costs a few milliseconds per pool.
++  if (fallocate(fd, 0, 0, static_cast<off_t>(size)) != 0) {
++    if (errno == ENOSPC || errno == EDQUOT || errno == EFBIG) {
++      *error = "fallocate: " + base::safe_strerror(errno);
++      return nullptr;
++    }
++    const std::vector<uint8_t> zeros(1 << 20, 0);
++    for (size_t offset = 0; offset < size;) {
++      const size_t chunk = std::min(zeros.size(), size - offset);
++      const ssize_t written = HANDLE_EINTR(
++          pwrite(fd, zeros.data(), chunk, static_cast<off_t>(offset)));
++      if (written <= 0) {
++        *error = "pwrite: " + base::safe_strerror(errno);
++        return nullptr;
++      }
++      offset += static_cast<size_t>(written);
++    }
++  }
++#endif
++  void* mapping =
++      mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
++  if (mapping == MAP_FAILED) {
++    *error = "mmap: " + base::safe_strerror(errno);
++    return nullptr;
++  }
++  return mapping;
++}
++#endif
+ }  // namespace
+ 
++// All pool state is accessed on the PageHandler sequence. The native consumer
++// only reads published bytes and must finish before RemotionReleaseFrame().
++struct PageHandler::RemotionFramePool {
++  enum class SlotState { kFree, kCapturing, kReady };
++  enum class Backend { kPosixShm, kFile };
++  struct Slot {
++    SlotState state = SlotState::kFree;
++    std::string frame_id;
++  };
++
++  RemotionFramePool() = default;
++  RemotionFramePool(const RemotionFramePool&) = delete;
++  RemotionFramePool& operator=(const RemotionFramePool&) = delete;
++
++  ~RemotionFramePool() {
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
++    if (mapping) {
++      munmap(mapping, mapping_size);
++    }
++    // The consumer usually unlinks the name right after mapping it, so ENOENT
++    // is expected here. This only covers pools no consumer ever opened.
++    if (!name.empty()) {
++      if (backend == Backend::kFile) {
++        unlink(name.c_str());
++      } else {
++        shm_unlink(name.c_str());
++      }
++    }
++#endif
++  }
++
++  Backend backend = Backend::kPosixShm;
++  // A POSIX shared-memory name ("/rmshm-<random>") or, for the file backend,
++  // the absolute path of the mapped file inside the caller's private directory.
++  std::string name;
++  // Owns an mmap allocation, never PartitionAlloc memory. This pool's lifetime
++  // (including pending capture references) ends with the munmap above.
++  RAW_PTR_EXCLUSION void* mapping = nullptr;
++  size_t mapping_size = 0;
++  size_t slot_capacity = 0;
++  std::vector<Slot> slots;
++};
++
+ struct PageHandler::PendingScreenshotRequest {
+   PendingScreenshotRequest(base::ScopedClosureRunner capturer_handle,
+                            PageHandler::BitmapEncoder encoder,
+@@ -498,6 +604,18 @@ struct PageHandler::PendingScreenshotRequest {
+         encoder(std::move(encoder)),
+         callback(std::move(callback)) {}
+ 
++  ~PendingScreenshotRequest() {
++    // Failed/cancelled requests return their slot automatically. Delivered slots
++    // stay owned by the consumer until an explicit release acknowledgement.
++    if (raw_pool && !raw_frame_published) {
++      raw_pool->slots[raw_slot] = RemotionFramePool::Slot();
++    }
++  }
++
++  std::shared_ptr<RemotionFramePool> raw_pool;
++  int raw_slot = -1;
++  bool raw_frame_published = false;
++  std::string capture_path = "standard";
+   base::ScopedClosureRunner capturer_handle;
+   PageHandler::BitmapEncoder encoder;
+   std::unique_ptr<CaptureScreenshotCallback> callback;
+@@ -1386,6 +1504,178 @@ void PageHandler::CaptureSnapshot(
+       std::move(callback));
+ }
+ 
++Response PageHandler::RemotionCreateFramePool(
++    int slot_count,
++    int slot_capacity,
++    std::optional<std::string> backing_directory,
++    std::optional<std::string> preferred_backend,
++    std::string* shared_memory_name,
++    int* out_slot_count,
++    int* out_slot_capacity,
++    std::string* out_backend) {
++  if (!allow_unsafe_operations_ &&
++      !base::CommandLine::ForCurrentProcess()->HasSwitch(
++          "remotion-shared-memory-capture")) {
++    return Response::ServerError(
++        "Raw frames require a trusted DevTools pipe or the "
++        "--remotion-shared-memory-capture opt-in flag");
++  }
++  if (remotion_frame_pool_) {
++    return Response::ServerError("A Remotion frame pool already exists");
++  }
++  // Bound both individual frames and the aggregate allocation before arithmetic.
++  constexpr size_t kMaxPoolBytes = 512u * 1024u * 1024u;
++  if (slot_count < 1 || slot_count > 16 || slot_capacity < 68 ||
++      slot_capacity > 256 * 1024 * 1024 ||
++      static_cast<size_t>(slot_count) >
++          kMaxPoolBytes / static_cast<size_t>(slot_capacity)) {
++    return Response::InvalidParams("Invalid Remotion frame pool dimensions");
++  }
++  const std::string backend_mode = preferred_backend.value_or("auto");
++  if (backend_mode != "auto" && backend_mode != "posix-shm" &&
++      backend_mode != "file") {
++    return Response::InvalidParams(
++        "preferredBackend must be \"auto\", \"posix-shm\" or \"file\"");
++  }
++  if (backing_directory.has_value() &&
++      (backing_directory->empty() || backing_directory->front() != '/' ||
++       backing_directory->size() > 3072 ||
++       backing_directory->find('\0') != std::string::npos)) {
++    return Response::InvalidParams(
++        "backingDirectory must be an absolute path");
++  }
++  if (backend_mode == "file" && !backing_directory.has_value()) {
++    return Response::InvalidParams(
++        "The file backend requires backingDirectory");
++  }
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
++  auto pool = std::make_shared<RemotionFramePool>();
++  pool->slot_capacity = static_cast<size_t>(slot_capacity);
++  pool->mapping_size = pool->slot_capacity * static_cast<size_t>(slot_count);
++  pool->slots.resize(slot_count);
++  // |pool->name| stays empty until a backing object is fully mapped, so the
++  // destructor never unlinks an object this pool does not own.
++  std::string errors;
++  const auto add_error = [&errors](const std::string& error) {
++    if (!errors.empty()) {
++      errors += "; ";
++    }
++    errors += error;
++  };
++
++  if (backend_mode != "file") {
++    // macOS limits POSIX shm names to 31 bytes. Decimal uint64 gives <= 27 here.
++    const std::string name =
++        "/rmshm-" + base::NumberToString(base::RandUint64());
++    const int fd = shm_open(name.c_str(), O_CREAT | O_EXCL | O_RDWR, 0600);
++    if (fd < 0) {
++      // Typically ENOENT without /dev/shm, as in AWS Lambda. Never unlink an
++      // existing object if O_EXCL failed.
++      add_error("shm_open: " + base::safe_strerror(errno));
++    } else {
++      std::string error;
++      void* mapping =
++          MapRemotionFramePoolBacking(fd, pool->mapping_size, &error);
++      close(fd);
++      if (mapping) {
++        pool->backend = RemotionFramePool::Backend::kPosixShm;
++        pool->name = name;
++        pool->mapping = mapping;
++      } else {
++        shm_unlink(name.c_str());
++        add_error("posix-shm " + error);
++      }
++    }
++  }
++
++  if (!pool->mapping && backend_mode != "posix-shm" &&
++      backing_directory.has_value()) {
++    // A file-backed MAP_SHARED mapping needs no /dev/shm. Both processes map
++    // the same page-cache pages, so visibility is identical to POSIX shm; the
++    // kernel merely also writes the pages back to the file on its own schedule.
++    struct stat directory_stat;
++    if (stat(backing_directory->c_str(), &directory_stat) != 0) {
++      add_error("backingDirectory: " + base::safe_strerror(errno));
++    } else if (!S_ISDIR(directory_stat.st_mode)) {
++      add_error("backingDirectory: not a directory");
++    } else {
++      const std::string path = *backing_directory + "/rmshm-" +
++                               base::NumberToString(base::RandUint64());
++      // O_EXCL and O_NOFOLLOW guarantee this creates a brand-new regular file
++      // rather than opening anything that already existed at the path.
++      const int fd = open(path.c_str(),
++                          O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC | O_NOFOLLOW,
++                          0600);
++      if (fd < 0) {
++        add_error("open: " + base::safe_strerror(errno));
++      } else {
++        std::string error;
++        void* mapping = nullptr;
++        struct stat file_stat;
++        if (fstat(fd, &file_stat) != 0) {
++          error = "fstat: " + base::safe_strerror(errno);
++        } else if (!S_ISREG(file_stat.st_mode)) {
++          error = "not a regular file";
++        } else {
++          mapping = MapRemotionFramePoolBacking(fd, pool->mapping_size, &error);
++        }
++        close(fd);
++        if (mapping) {
++          pool->backend = RemotionFramePool::Backend::kFile;
++          pool->name = path;
++          pool->mapping = mapping;
++        } else {
++          unlink(path.c_str());
++          add_error("file " + error);
++        }
++      }
++    }
++  }
++
++  if (!pool->mapping) {
++    return Response::ServerError("Could not create Remotion shared memory (" +
++                                 errors + ")");
++  }
++  *shared_memory_name = pool->name;
++  *out_slot_count = slot_count;
++  *out_slot_capacity = slot_capacity;
++  *out_backend =
++      pool->backend == RemotionFramePool::Backend::kFile ? "file" : "posix-shm";
++  remotion_frame_pool_ = std::move(pool);
++  return Response::Success();
++#else
++  return Response::ServerError("Raw frames are only supported on macOS/Linux");
++#endif
++}
++
++Response PageHandler::RemotionReleaseFrame(int slot,
++                                          const std::string& frame_id) {
++  if (!remotion_frame_pool_ || slot < 0 ||
++      static_cast<size_t>(slot) >= remotion_frame_pool_->slots.size()) {
++    return Response::InvalidParams("Invalid Remotion frame slot");
++  }
++  auto& state = remotion_frame_pool_->slots[slot];
++  if (state.state != RemotionFramePool::SlotState::kReady ||
++      state.frame_id != frame_id) {
++    return Response::InvalidParams("Frame slot is not ready or frameId differs");
++  }
++  state = RemotionFramePool::Slot();
++  return Response::Success();
++}
++
++Response PageHandler::RemotionDestroyFramePool() {
++  if (!remotion_frame_pool_) {
++    return Response::Success();
++  }
++  for (const auto& slot : remotion_frame_pool_->slots) {
++    if (slot.state != RemotionFramePool::SlotState::kFree) {
++      return Response::ServerError("Remotion frame pool still has owned slots");
++    }
++  }
++  remotion_frame_pool_.reset();
++  return Response::Success();
++}
++
+ // Sets a clip with full page dimensions. Calls CaptureScreenshot with updated
+ // value to proceed with capturing the full page screenshot.
+ // TODO(crbug.com/40238745): at the point this method is called, the page could
+@@ -1394,6 +1684,10 @@ void PageHandler::CaptureFullPageScreenshot(
+     std::optional<std::string> format,
+     std::optional<int> quality,
+     std::optional<bool> optimize_for_speed,
++    std::optional<int> remotion_frame_slot,
++    std::optional<std::string> remotion_frame_id,
++    std::optional<bool> remotion_fast_viewport,
++    std::optional<bool> remotion_copy_current_surface,
+     std::unique_ptr<CaptureScreenshotCallback> callback,
+     const gfx::Size& full_page_size) {
+   // check width and height for validity
+@@ -1414,7 +1708,9 @@ void PageHandler::CaptureFullPageScreenshot(
+                   .Build();
+   CaptureScreenshot(std::move(format), std::move(quality), std::move(clip),
+                     /*from_surface=*/true, /*capture_beyond_viewport=*/true,
+-                    std::move(optimize_for_speed), std::move(callback));
++                    std::move(optimize_for_speed), remotion_frame_slot,
++                    std::move(remotion_frame_id), remotion_fast_viewport,
++                    remotion_copy_current_surface, std::move(callback));
+ }
+ 
+ void PageHandler::CaptureScreenshot(
+@@ -1424,6 +1720,10 @@ void PageHandler::CaptureScreenshot(
+     std::optional<bool> from_surface,
+     std::optional<bool> capture_beyond_viewport,
+     std::optional<bool> optimize_for_speed,
++    std::optional<int> remotion_frame_slot,
++    std::optional<std::string> remotion_frame_id,
++    std::optional<bool> remotion_fast_viewport,
++    std::optional<bool> remotion_copy_current_surface,
+     std::unique_ptr<CaptureScreenshotCallback> callback) {
+   if (!host_ || !host_->GetRenderWidgetHost() ||
+       !host_->GetRenderWidgetHost()->GetView()) {
+@@ -1442,6 +1742,8 @@ void PageHandler::CaptureScreenshot(
+     main_frame->GetFullPageSize(base::BindOnce(
+         &PageHandler::CaptureFullPageScreenshot, weak_factory_.GetWeakPtr(),
+         std::move(format), std::move(quality), std::move(optimize_for_speed),
++        remotion_frame_slot, std::move(remotion_frame_id),
++        remotion_fast_viewport, remotion_copy_current_surface,
+         std::move(callback)));
+     return;
+   }
+@@ -1481,6 +1783,72 @@ void PageHandler::CaptureScreenshot(
+       std::move(capturer_handle), std::move(std::get<BitmapEncoder>(encoder)),
+       std::move(callback));
+ 
++  if (remotion_frame_slot.has_value() != remotion_frame_id.has_value()) {
++    pending_request->callback->sendFailure(Response::InvalidParams(
++        "remotionFrameSlot and remotionFrameId must be supplied together"));
++    return;
++  }
++  if (remotion_frame_slot) {
++    const int slot = *remotion_frame_slot;
++    if (!remotion_frame_pool_ || slot < 0 ||
++        static_cast<size_t>(slot) >= remotion_frame_pool_->slots.size() ||
++        remotion_frame_id->empty() || remotion_frame_id->size() > 128) {
++      pending_request->callback->sendFailure(
++          Response::InvalidParams("Invalid Remotion slot or frameId"));
++      return;
++    }
++    auto& state = remotion_frame_pool_->slots[slot];
++    if (state.state != RemotionFramePool::SlotState::kFree) {
++      pending_request->callback->sendFailure(
++          Response::ServerError("Remotion frame slot is already owned"));
++      return;
++    }
++    // Existing screenshot synchronization is per-page: prevent a newer capture
++    // from satisfying an older snapshot request with the same rendered image.
++    for (const auto& other : remotion_frame_pool_->slots) {
++      if (other.state == RemotionFramePool::SlotState::kCapturing) {
++        pending_request->callback->sendFailure(
++            Response::ServerError("Another Remotion capture is in flight"));
++        return;
++      }
++    }
++    state.state = RemotionFramePool::SlotState::kCapturing;
++    state.frame_id = std::move(*remotion_frame_id);
++    pending_request->raw_pool = remotion_frame_pool_;
++    pending_request->raw_slot = slot;
++  }
++
++  // Remotion renders exactly one viewport per frame. If the requested clip
++  // already equals the compositor viewport, clip emulation and
++  // capture-beyond-viewport preferences cannot add pixels. Keep this path
++  // explicitly opt-in and retain Chromium's normal screenshot path for every
++  // other geometry.
++  if (remotion_fast_viewport.value_or(false) && pending_request->raw_pool &&
++      from_surface.value_or(true) && clip && clip->GetX() == 0 &&
++      clip->GetY() == 0 && clip->GetScale() == 1 &&
++      widget_host->GetView()->GetCompositorViewportPixelSize() ==
++          gfx::Size(clip->GetWidth(), clip->GetHeight())) {
++    if (remotion_copy_current_surface.value_or(false)) {
++      pending_request->capture_path = "viewport-current";
++      widget_host->GetSnapshotFromBrowser(
++          base::BindOnce(&PageHandler::ScreenshotCaptured,
++                         weak_factory_.GetWeakPtr(), std::move(pending_request)),
++          true, true);
++      return;
++    }
++    // Match the existing no-clip screenshot behavior. It still applies the
++    // current device-emulation parameters, which matters for exact edge pixels,
++    // but avoids clip viewport emulation and capture-beyond-viewport preferences.
++    pending_request->capture_path = "viewport-redraw";
++    clip.reset();
++    capture_beyond_viewport = false;
++  }
++  if (remotion_copy_current_surface.value_or(false)) {
++    pending_request->callback->sendFailure(Response::InvalidParams(
++        "remotionCopyCurrentSurface requires a matching raw viewport capture"));
++    return;
++  }
++
+   // We don't support clip/emulation when capturing from window, bail out.
+   if (!from_surface.value_or(true)) {
+     if (!is_trusted_) {
+@@ -2011,27 +2379,78 @@ void PageHandler::ScreenshotCaptured(
+     return;
+   }
+ 
+-  std::optional<std::vector<uint8_t>> encoded_bitmap;
+-  const SkBitmap& bitmap = *image.ToSkBitmap();
+-
++  SkBitmap bitmap = *image.ToSkBitmap();
+   if (!request->requested_image_size.IsEmpty() &&
+       (image.Width() != request->requested_image_size.width() ||
+        image.Height() != request->requested_image_size.height())) {
+-    SkBitmap cropped = SkBitmapOperations::CreateTiledBitmap(
++    bitmap = SkBitmapOperations::CreateTiledBitmap(
+         bitmap, 0, 0, request->requested_image_size.width(),
+         request->requested_image_size.height());
+-    encoded_bitmap = request->encoder.Run(cropped);
+-  } else {
+-    encoded_bitmap = request->encoder.Run(bitmap);
+   }
+ 
++  if (request->raw_pool) {
++    constexpr size_t kEncoderPadding = 64;
++    const size_t usable_capacity =
++        request->raw_pool->slot_capacity - kEncoderPadding;
++    const size_t stride = static_cast<size_t>(bitmap.width()) * 4u;
++    const size_t height = static_cast<size_t>(bitmap.height());
++    if (bitmap.width() <= 0 || bitmap.height() <= 0 ||
++        stride > usable_capacity || height > usable_capacity / stride) {
++      request->callback->sendFailure(
++          Response::ServerError("Captured frame exceeds Remotion slot capacity"));
++      return;
++    }
++    const size_t byte_length = stride * height;
++    const size_t offset = static_cast<size_t>(request->raw_slot) *
++                          request->raw_pool->slot_capacity;
++    // The pool bounds and slot index were validated before reservation; the
++    // frame dimensions above prove this write fits entirely inside its slot.
++    void* pixels = UNSAFE_TODO(
++        static_cast<uint8_t*>(request->raw_pool->mapping) + offset);
++    const bool opaque = bitmap.isOpaque();
++    const auto info = SkImageInfo::Make(
++        bitmap.width(), bitmap.height(), kBGRA_8888_SkColorType,
++        opaque ? kOpaque_SkAlphaType : kUnpremul_SkAlphaType,
++        SkColorSpace::MakeSRGB());
++    if (!bitmap.readPixels(info, pixels, stride, 0, 0)) {
++      request->callback->sendFailure(
++          Response::ServerError("Could not convert captured pixels to BGRA"));
++      return;
++    }
++    // Native video libraries may read past the final pixel with SIMD loads.
++    // Keep the required tail accessible and zero even when a slot is reused.
++    UNSAFE_TODO(std::memset(static_cast<uint8_t*>(pixels) + byte_length, 0,
++                            kEncoderPadding));
++    auto& slot = request->raw_pool->slots[request->raw_slot];
++    auto metadata = Page::RemotionRawFrame::Create()
++                        .SetSlot(request->raw_slot)
++                        .SetFrameId(slot.frame_id)
++                        .SetWidth(bitmap.width())
++                        .SetHeight(bitmap.height())
++                        .SetStride(static_cast<int>(stride))
++                        .SetByteLength(static_cast<int>(byte_length))
++                        .SetPixelFormat("bgra")
++                        .SetAlphaType(opaque ? "opaque" : "straight")
++                        .SetColorSpace("srgb")
++                        .SetCapturePath(request->capture_path)
++                        .Build();
++    // Completion is the publication barrier: consumers receive the CDP reply
++    // only after the mapped pixels have been written. No msync is required for
++    // MAP_SHARED interprocess visibility; the bridge must await this reply.
++    slot.state = RemotionFramePool::SlotState::kReady;
++    request->raw_frame_published = true;
++    request->callback->sendSuccess(Binary(), std::move(metadata));
++    return;
++  }
++
++  auto encoded_bitmap = request->encoder.Run(bitmap);
+   if (encoded_bitmap) {
+     request->callback->sendSuccess(
+-        Binary::fromVector(std::move(encoded_bitmap).value()));
++        Binary::fromVector(std::move(encoded_bitmap).value()), nullptr);
+     return;
+   }
+   // TODO(caseq): send failure if we fail to encode?
+-  request->callback->sendSuccess(Binary());
++  request->callback->sendSuccess(Binary(), nullptr);
+ }
+ 
+ Response PageHandler::StopLoading() {
+diff --git a/content/browser/devtools/protocol/page_handler.h b/content/browser/devtools/protocol/page_handler.h
+index 26067a3..f1b7bb4 100644
+--- a/content/browser/devtools/protocol/page_handler.h
++++ b/content/browser/devtools/protocol/page_handler.h
+@@ -157,7 +157,21 @@ class PageHandler : public DevToolsDomainHandler,
+       std::optional<bool> from_surface,
+       std::optional<bool> capture_beyond_viewport,
+       std::optional<bool> optimize_for_speed,
++      std::optional<int> remotion_frame_slot,
++      std::optional<std::string> remotion_frame_id,
++      std::optional<bool> remotion_fast_viewport,
++      std::optional<bool> remotion_copy_current_surface,
+       std::unique_ptr<CaptureScreenshotCallback> callback) override;
++  Response RemotionCreateFramePool(int slot_count,
++                                  int slot_capacity,
++                                  std::optional<std::string> backing_directory,
++                                  std::optional<std::string> preferred_backend,
++                                  std::string* shared_memory_name,
++                                  int* out_slot_count,
++                                  int* out_slot_capacity,
++                                  std::string* out_backend) override;
++  Response RemotionReleaseFrame(int slot, const std::string& frame_id) override;
++  Response RemotionDestroyFramePool() override;
+   void CaptureSnapshot(
+       std::optional<std::string> format,
+       std::unique_ptr<CaptureSnapshotCallback> callback) override;
+@@ -239,6 +253,10 @@ class PageHandler : public DevToolsDomainHandler,
+       std::optional<std::string> format,
+       std::optional<int> quality,
+       std::optional<bool> optimize_for_speed,
++      std::optional<int> remotion_frame_slot,
++      std::optional<std::string> remotion_frame_id,
++      std::optional<bool> remotion_fast_viewport,
++      std::optional<bool> remotion_copy_current_surface,
+       std::unique_ptr<CaptureScreenshotCallback> callback,
+       const gfx::Size& full_page_size);
+   bool EnoughScreencastFramesInFlight();
+@@ -282,6 +300,9 @@ class PageHandler : public DevToolsDomainHandler,
+   bool enabled_;
+   bool bypass_csp_ = false;
+ 
++  struct RemotionFramePool;
++  std::shared_ptr<RemotionFramePool> remotion_frame_pool_;
++
+   BitmapEncoder screencast_encoder_;
+   int screencast_max_width_ = -1;
+   int screencast_max_height_ = -1;
+diff --git a/content/browser/devtools/protocol_config.json b/content/browser/devtools/protocol_config.json
+index d5ffdcf..e6a99c2 100644
+--- a/content/browser/devtools/protocol_config.json
++++ b/content/browser/devtools/protocol_config.json
+@@ -161,7 +161,7 @@
+             },
+             {
+                 "domain": "Page",
+-                "include": ["enable", "disable", "reload", "navigate", "stopLoading", "getNavigationHistory", "navigateToHistoryEntry", "resetNavigationHistory", "captureScreenshot",
++                "include": ["enable", "disable", "reload", "navigate", "stopLoading", "getNavigationHistory", "navigateToHistoryEntry", "resetNavigationHistory", "captureScreenshot", "remotionCreateFramePool", "remotionReleaseFrame", "remotionDestroyFramePool",
+                     "startScreencast", "stopScreencast", "startScreenRecording", "stopScreenRecording", "screencastFrameAck", "handleJavaScriptDialog", "setColorPickerEnabled",
+                     "bringToFront", "setDownloadBehavior", "getAppManifest", "crash", "close", "setWebLifecycleState", "captureSnapshot", "getInstallabilityErrors", "getManifestIcons", "setBypassCSP", "getAppId", "getSubApps", "getSiblingSubApps", "addCompilationCache", "setPrerenderingAllowed", "getAnnotatedPageContent",
+                     "addScriptToEvaluateOnNewDocument", "removeScriptToEvaluateOnNewDocument", "addScriptToEvaluateOnLoad", "removeScriptToEvaluateOnLoad"],
+diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/browser/renderer_host/render_widget_host_impl.cc
+index a5b440d..d75ba1f 100644
+--- a/content/browser/renderer_host/render_widget_host_impl.cc
++++ b/content/browser/renderer_host/render_widget_host_impl.cc
+@@ -2361,12 +2361,20 @@ void RenderWidgetHostImpl::NotifyScreenInfoChanged(bool ignore_ack) {
+ 
+ void RenderWidgetHostImpl::GetSnapshotFromBrowser(
+     GetSnapshotFromBrowserCallback callback,
+-    bool from_surface) {
++    bool from_surface,
++    bool copy_current_surface) {
+   int snapshot_id = next_browser_snapshot_id_++;
+   if (from_surface) {
+     pending_surface_browser_snapshots_.insert(
+         std::make_pair(snapshot_id, std::move(callback)));
+-    if (base::FeatureList::IsEnabled(features::kCDPScreenshotNewSurface)) {
++    if (copy_current_surface) {
++      // Experimental Remotion path. The caller must establish that its target
++      // frame has reached this surface; otherwise it may capture an older frame.
++      GetView()->CopyFromSurface(
++          gfx::Rect(), gfx::Size(), base::TimeDelta(),
++          base::BindOnce(&RenderWidgetHostImpl::OnSnapshotFromSurfaceReceived,
++                         weak_factory_.GetWeakPtr(), snapshot_id, 0));
++    } else if (base::FeatureList::IsEnabled(features::kCDPScreenshotNewSurface)) {
+       // 1. Force content redraw in the renderer.
+       blink_widget_->ForceRedraw(base::DoNothing());
+       // 2. Force a repaint to ensure that surface is updated.
+diff --git a/content/browser/renderer_host/render_widget_host_impl.h b/content/browser/renderer_host/render_widget_host_impl.h
+index 47e44b2..a856934 100644
+--- a/content/browser/renderer_host/render_widget_host_impl.h
++++ b/content/browser/renderer_host/render_widget_host_impl.h
+@@ -453,7 +453,8 @@ class CONTENT_EXPORT RenderWidgetHostImpl
+   using GetSnapshotFromBrowserCallback =
+       base::OnceCallback<void(const gfx::Image&)>;
+   void GetSnapshotFromBrowser(GetSnapshotFromBrowserCallback callback,
+-                              bool from_surface);
++                              bool from_surface,
++                              bool copy_current_surface = false);
+ 
+   // Sets the View of this RenderWidgetHost.  It is called just once when a new
+   // RenderWidgetHostView for a RWH is created.  If the corresponding renderer
+diff --git a/third_party/blink/public/devtools_protocol/domains/Page.pdl b/third_party/blink/public/devtools_protocol/domains/Page.pdl
+index 20b5db9..b55b27e 100644
+--- a/third_party/blink/public/devtools_protocol/domains/Page.pdl
++++ b/third_party/blink/public/devtools_protocol/domains/Page.pdl
+@@ -583,6 +583,54 @@ domain Page
+   # Brings page to front (activates tab).
+   command bringToFront
+ 
++  # Private Remotion prototype. A completed frame in a shared-memory pool that is
++  # backed by a named POSIX shared-memory object or by a mapped file.
++  experimental type RemotionRawFrame extends object
++    properties
++      integer slot
++      string frameId
++      integer width
++      integer height
++      integer stride
++      integer byteLength
++      string pixelFormat
++      string alphaType
++      string colorSpace
++      string capturePath
++
++  # Private Remotion prototype. Creates a page-scoped pool; slots start at slot * slotCapacity.
++  # Each slot must fit width * height * 4 bytes plus 64 zeroed padding bytes.
++  # Requires a trusted DevTools pipe or the --remotion-shared-memory-capture opt-in flag.
++  # The owner must release every delivered frame.
++  experimental command remotionCreateFramePool
++    parameters
++      integer slotCount
++      integer slotCapacity
++      # Absolute path of a private, caller-owned directory. When POSIX shared memory is
++      # unavailable (for example without /dev/shm, as in AWS Lambda) the pool becomes a
++      # regular file created inside this directory and mapped with MAP_SHARED.
++      experimental optional string backingDirectory
++      # "auto" (default) uses POSIX shared memory and falls back to backingDirectory;
++      # "posix-shm" or "file" require that backend and fail otherwise.
++      experimental optional string preferredBackend
++    returns
++      # The POSIX shared-memory name ("/rmshm-<random>") or, for the file backend, the
++      # absolute path of the created file. The consumer may unlink it once mapped.
++      string sharedMemoryName
++      integer slotCount
++      integer slotCapacity
++      # "posix-shm" or "file". Absent in older builds that only support POSIX shm.
++      string backend
++
++  # Releases a completed slot after the native consumer has finished reading it.
++  experimental command remotionReleaseFrame
++    parameters
++      integer slot
++      string frameId
++
++  # Destroys the pool. Fails while any capture or consumer owns a slot.
++  experimental command remotionDestroyFramePool
++
+   # Capture page screenshot.
+   command captureScreenshot
+     parameters
+@@ -601,9 +649,20 @@ domain Page
+       experimental optional boolean captureBeyondViewport
+       # Optimize image encoding for speed, not for resulting size (defaults to false)
+       experimental optional boolean optimizeForSpeed
++      # Private Remotion prototype. Writes BGRA8888 sRGB pixels to this reserved pool slot.
++      # Must be supplied together with remotionFrameId. No image encoding is performed.
++      experimental optional integer remotionFrameSlot
++      experimental optional string remotionFrameId
++      # Use the current viewport when the requested clip exactly matches it.
++      # Avoid per-frame clip emulation and scrollbar preference changes.
++      experimental optional boolean remotionFastViewport
++      # Experimental: copy the current compositor surface without a new redraw.
++      # Can return a stale frame unless the caller proves presentation readiness.
++      experimental optional boolean remotionCopyCurrentSurface
+     returns
+-      # Base64-encoded image data.
++      # Base64-encoded image data. Empty for a raw shared-memory capture.
+       binary data
++      experimental optional RemotionRawFrame remotionFrame
+ 
+   # Returns a snapshot of the page as a string. For MHTML format, the serialization includes
+   # iframes, shadow DOM, external resources, and element-inline styles.
+diff --git a/third_party/blink/renderer/core/inspector/inspector_protocol_config.json b/third_party/blink/renderer/core/inspector/inspector_protocol_config.json
+index 6886876..19213a3 100644
+--- a/third_party/blink/renderer/core/inspector/inspector_protocol_config.json
++++ b/third_party/blink/renderer/core/inspector/inspector_protocol_config.json
+@@ -91,7 +91,7 @@
+             },
+             {
+                 "domain": "Page",
+-                "exclude": ["getNavigationHistory", "navigateToHistoryEntry", "resetNavigationHistory", "captureScreenshot", "startScreencast", "stopScreencast", "screencastFrameAck", "handleJavaScriptDialog", "setColorPickerEnabled",
++                "exclude": ["getNavigationHistory", "navigateToHistoryEntry", "resetNavigationHistory", "captureScreenshot", "remotionCreateFramePool", "remotionReleaseFrame", "remotionDestroyFramePool", "startScreencast", "stopScreencast", "screencastFrameAck", "handleJavaScriptDialog", "setColorPickerEnabled",
+                             "getAppManifest", "getAnnotatedPageContent", "setControlNavigations", "processNavigation", "printToPDF", "bringToFront", "setDownloadBehavior", "navigate", "crash", "close", "setWebLifecycleState", "captureSnapshot", "getInstallabilityErrors", "getManifestIcons", "getAppId", "getSubApps", "getSiblingSubApps", "setSPCTransactionMode", "setRPHRegistrationMode", "setPrerenderingAllowed", "startScreenRecording", "stopScreenRecording"],
+                 "pass_associated_data": [
+                     "addScriptToEvaluateOnNewDocument",

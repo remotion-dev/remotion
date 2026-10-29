@@ -16,7 +16,7 @@ export default () => {
 					'Submissions are currently disabled while we work on something better!',
 				)}
 				{Seo.renderImage(
-					'/generated/articles-prompts-submit.png',
+					'https://remotion.media/docs/generated/articles-prompts-submit.png',
 					context.siteConfig.url,
 				)}
 			</Head>

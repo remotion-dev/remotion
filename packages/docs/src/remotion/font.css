@@ -9,3 +9,10 @@
 :root {
 	--background: white;
 }
+
+@font-face {
+	font-family: 'GTPlanar';
+	src: url('../../static/img/gt-planar-regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+}

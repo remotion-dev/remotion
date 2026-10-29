@@ -100,6 +100,7 @@ import {
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
+import {TimelineAnimatedImageInfo} from './TimelineAnimatedImageInfo';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
 	TimelineInheritedSceneRangeContext,
@@ -514,6 +515,9 @@ const TimelineSequenceBar: React.FC<{
 			Number(style.marginLeft);
 		labelLeft = Math.max(labelLeft, Math.max(0, inheritedLeft) + 4);
 	}
+
+	// Clear the 2px selection outline while keeping the right-edge fade fixed.
+	labelLeft += 2;
 
 	const labelEndFrame = Math.min(
 		sceneRange?.transitionOutStart ?? Infinity,
@@ -2730,10 +2734,22 @@ const TimelineSequenceLayoutInner: React.FC<{
 			) : null}
 			{s.type === 'image' && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
-					<TimelineImageInfo
-						src={s.src}
-						offsetInPixels={visibleLayout.media.offset}
-					/>
+					{s.animated ? (
+						<TimelineAnimatedImageInfo
+							sequence={s}
+							sequenceFrameOffset={sequenceFrameOffset}
+							displayOffsetInFrames={mediaDisplayOffsetInFrames}
+							displayDurationInFrames={mediaDisplayDurationInFrames}
+							visualizationWidth={visibleLayout.media.width}
+							loopDisplay={s.loopDisplay ?? null}
+							fps={video.fps}
+						/>
+					) : (
+						<TimelineImageInfo
+							src={s.src}
+							offsetInPixels={visibleLayout.media.offset}
+						/>
+					)}
 				</div>
 			) : null}
 			{s.loopDisplay === undefined ? null : (

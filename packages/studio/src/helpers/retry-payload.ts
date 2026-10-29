@@ -74,6 +74,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialSampleRate: defaults.sampleRate,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			initialPreferredEffectBackend: job.preferredEffectBackend,
 			renderDefaults: defaults,
 			readOnlyStudio: false,
 		};
@@ -133,6 +134,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialSampleRate: defaults.sampleRate,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			initialPreferredEffectBackend: job.preferredEffectBackend,
 			renderDefaults: defaults,
 			readOnlyStudio: false,
 		};
@@ -192,6 +194,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialSampleRate: job.sampleRate,
 			initialChromeMode: job.chromeMode,
 			initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+			initialPreferredEffectBackend: job.preferredEffectBackend,
 			renderDefaults: defaults,
 			readOnlyStudio: false,
 		};
@@ -215,6 +218,7 @@ export const makeClientRetryPayload = (
 		initialScale: job.scale,
 		initialDelayRenderTimeout: job.delayRenderTimeout,
 		initialMediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		initialPreferredEffectBackend: job.preferredEffectBackend,
 		initialAudioBitrate: job.type === 'client-video' ? job.audioBitrate : null,
 		initialAudioCodec: job.type === 'client-video' ? job.audioCodec : null,
 		initialContainer: job.type === 'client-video' ? job.container : null,

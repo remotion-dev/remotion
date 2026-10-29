@@ -27,7 +27,7 @@ export const AudioWaveForm: React.FC<{
 						data-notnull={bar !== null}
 						data-playing={playing}
 						data-show={progress > i / AMOUNT_OF_BARS}
-						className="rounded bg-slate-200 inline-block w-[4px] data-[notnull=true]:bg-slate-600 opacity-50 data-[show=true]:opacity-100"
+						className="rounded bg-accent inline-block w-[4px] data-[notnull=true]:bg-slate-600 opacity-50 data-[show=true]:opacity-100"
 						style={{
 							height: Math.max(6, height),
 							transition:
@@ -44,7 +44,7 @@ export const AudioWaveformContainer: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<div className="relative bg-slate-100 justify-center items-center flex flex-row gap-px h-[197px] group-fullscreen:flex-1">
+		<div className="relative bg-muted justify-center items-center flex flex-row gap-px h-[197px] group-fullscreen:flex-1">
 			{children}
 		</div>
 	);

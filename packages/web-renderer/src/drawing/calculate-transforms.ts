@@ -27,6 +27,35 @@ const filterRequiresPrecompositing = (filter: string): string | null => {
 	return null;
 };
 
+// CSS mix-blend-mode keywords share their names with canvas composite
+// operations, except plus-lighter which is called lighter on canvas.
+const getBlendMode = (
+	mixBlendMode: string,
+): GlobalCompositeOperation | null => {
+	switch (mixBlendMode) {
+		case 'multiply':
+		case 'screen':
+		case 'overlay':
+		case 'darken':
+		case 'lighten':
+		case 'color-dodge':
+		case 'color-burn':
+		case 'hard-light':
+		case 'soft-light':
+		case 'difference':
+		case 'exclusion':
+		case 'hue':
+		case 'saturation':
+		case 'color':
+		case 'luminosity':
+			return mixBlendMode;
+		case 'plus-lighter':
+			return 'lighter';
+		default:
+			return null;
+	}
+};
+
 type Transform = {
 	matrices: DOMMatrix[];
 	element: Element;
@@ -130,10 +159,12 @@ export const calculateTransforms = ({
 	element,
 	rootElement,
 	transformStyleCache,
+	isolated,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
 	transformStyleCache: TransformStyleCache;
+	isolated: boolean;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
@@ -144,6 +175,7 @@ export const calculateTransforms = ({
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: MaskImageInfo | null = null;
 	let filterForPrecompositing: string | null = null;
+	let blendMode: GlobalCompositeOperation | null = null;
 	while (parent) {
 		// Each node walks its ancestors, so reuse their immutable transform fields
 		// for the remainder of this composition.
@@ -182,14 +214,27 @@ export const calculateTransforms = ({
 				validateUrlMaskImageStyle(computedStyle);
 			}
 
-			filterForPrecompositing = filterRequiresPrecompositing(
-				computedStyle.filter,
-			);
+			blendMode = getBlendMode(computedStyle.mixBlendMode);
+			// In CSS, an element blends together with its descendants as one group,
+			// and its filter and opacity apply to that group as a whole.
+			const needsGroup = blendMode !== null || isolated;
+
+			filterForPrecompositing =
+				needsGroup && computedStyle.filter !== 'none'
+					? computedStyle.filter
+					: filterRequiresPrecompositing(computedStyle.filter);
 
 			const originalMaskImage = parent.style.maskImage;
 			const originalWebkitMaskImage = parent.style.webkitMaskImage;
 			parent.style.maskImage = 'none';
 			parent.style.webkitMaskImage = 'none';
+
+			const originalMixBlendMode = parent.style.mixBlendMode;
+			const originalOpacity = parent.style.opacity;
+			if (needsGroup) {
+				parent.style.mixBlendMode = 'normal';
+				parent.style.opacity = '1';
+			}
 
 			// Neutralize filter if it requires precompositing to prevent double-application
 			const originalFilter = parent.style.filter;
@@ -204,6 +249,11 @@ export const calculateTransforms = ({
 				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
 				if (filterForPrecompositing) {
 					parentRef!.style.filter = originalFilter;
+				}
+
+				if (needsGroup) {
+					parentRef!.style.mixBlendMode = originalMixBlendMode;
+					parentRef!.style.opacity = originalOpacity;
 				}
 			});
 		}
@@ -316,8 +366,14 @@ export const calculateTransforms = ({
 			needs3DTransformViaWebGL,
 			needsMaskImage: maskImageInfo,
 			needsFilterPrecompositing: filterForPrecompositing,
+			needsBlendMode: blendMode,
+			needsIsolation: isolated,
 			needsPrecompositing: Boolean(
-				needs3DTransformViaWebGL || needsMaskImage || needsFilterPrecompositing,
+				needs3DTransformViaWebGL ||
+				needsMaskImage ||
+				needsFilterPrecompositing ||
+				blendMode !== null ||
+				isolated,
 			),
 		},
 	};

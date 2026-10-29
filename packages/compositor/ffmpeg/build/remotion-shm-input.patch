@@ -1,0 +1,1133 @@
+diff --git a/configure b/configure
+index 0a615c665d3996de1eb161af4daa554cefc8f268..749c2c2f9631e218acadf08395426b7f3cb4e0e1 100755
+--- a/configure
++++ b/configure
+@@ -2408,6 +2408,7 @@ SYSTEM_FUNCS="
+     SetDllDirectory
+     setmode
+     setrlimit
++    shm_open
+     Sleep
+     strerror_r
+     sysconf
+@@ -3732,6 +3733,7 @@ jack_indev_deps="libjack"
+ jack_indev_deps_any="sem_timedwait dispatch_dispatch_h"
+ kmsgrab_indev_deps="libdrm"
+ lavfi_indev_deps="avfilter"
++remotionshm_indev_deps="mmap poll_h pthreads shm_open"
+ libcdio_indev_deps="libcdio"
+ libdc1394_indev_deps="libdc1394"
+ openal_indev_deps="openal"
+@@ -6577,6 +6579,7 @@ check_func_headers time.h nanosleep || check_lib nanosleep time.h nanosleep -lrt
+ check_func_headers sys/prctl.h prctl
+ check_func  sched_getaffinity
+ check_func  setrlimit
++check_func_headers sys/mman.h shm_open || check_lib shm_open sys/mman.h shm_open -lrt
+ check_struct "sys/stat.h" "struct stat" st_mtim.tv_nsec -D_BSD_SOURCE
+ check_func  strerror_r
+ check_func  sysconf
+diff --git a/libavdevice/Makefile b/libavdevice/Makefile
+index c30449201d47df0fdfdf2ff5a20d2ceb671b7e32..79d9ed9b384490dc887c4e44ea4bfc305c6e5ea7 100644
+--- a/libavdevice/Makefile
++++ b/libavdevice/Makefile
+@@ -34,6 +34,7 @@ OBJS-$(CONFIG_IEC61883_INDEV)            += iec61883.o
+ OBJS-$(CONFIG_JACK_INDEV)                += jack.o timefilter.o
+ OBJS-$(CONFIG_KMSGRAB_INDEV)             += kmsgrab.o
+ OBJS-$(CONFIG_LAVFI_INDEV)               += lavfi.o
++OBJS-$(CONFIG_REMOTIONSHM_INDEV)         += remotionshm.o
+ OBJS-$(CONFIG_OPENAL_INDEV)              += openal-dec.o
+ OBJS-$(CONFIG_OPENGL_OUTDEV)             += opengl_enc.o
+ OBJS-$(CONFIG_OSS_INDEV)                 += oss_dec.o oss.o
+diff --git a/libavdevice/alldevices.c b/libavdevice/alldevices.c
+index 9b9a9146c7d7bef71c2107abfdf348c705dc5eb5..4cc16ba0898b7a41a425649c5497e1c154a6fa2f 100644
+--- a/libavdevice/alldevices.c
++++ b/libavdevice/alldevices.c
+@@ -44,6 +44,7 @@ extern const FFInputFormat  ff_iec61883_demuxer;
+ extern const FFInputFormat  ff_jack_demuxer;
+ extern const FFInputFormat  ff_kmsgrab_demuxer;
+ extern const FFInputFormat  ff_lavfi_demuxer;
++extern const FFInputFormat  ff_remotionshm_demuxer;
+ extern const FFInputFormat  ff_openal_demuxer;
+ extern const FFOutputFormat ff_opengl_muxer;
+ extern const FFInputFormat  ff_oss_demuxer;
+diff --git a/libavdevice/remotionshm.c b/libavdevice/remotionshm.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..de3a15afd920e468a6f35310cf0c77804971f074
+--- /dev/null
++++ b/libavdevice/remotionshm.c
+@@ -0,0 +1,1075 @@
++/*
++ * Remotion shared-memory video input device
++ *
++ * Frame pools are either named POSIX shared-memory objects or, on hosts
++ * without POSIX shared memory such as AWS Lambda, regular files inside one
++ * caller-designated private directory that are mapped with MAP_SHARED.
++ *
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include <ctype.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <inttypes.h>
++#include <limits.h>
++#include <poll.h>
++#include <pthread.h>
++#include <stdio.h>
++#include <stdatomic.h>
++#include <stdint.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
++#include <unistd.h>
++
++#include "libavcodec/packet.h"
++#include "libavformat/avformat.h"
++#include "libavformat/demux.h"
++#include "libavformat/internal.h"
++#include "libavutil/buffer.h"
++#include "libavutil/common.h"
++#include "libavutil/error.h"
++#include "libavutil/frame.h"
++#include "libavutil/log.h"
++#include "libavutil/mem.h"
++#include "libavutil/opt.h"
++#include "libavutil/pixfmt.h"
++#include "libavutil/threadmessage.h"
++#include "libavutil/time.h"
++
++#include "avdevice.h"
++
++#define REMOTIONSHM_MAX_SLOTS_PER_POOL 64
++#define REMOTIONSHM_MAX_TOTAL_SLOTS 4096
++#define REMOTIONSHM_MAX_POOLS REMOTIONSHM_MAX_TOTAL_SLOTS
++#define REMOTIONSHM_MAX_SLOT_CAPACITY (512ULL * 1024 * 1024)
++#define REMOTIONSHM_MAX_SHM_NAME 255
++#define REMOTIONSHM_MAX_POOL_PATH 4096
++#define REMOTIONSHM_MAX_LINE (REMOTIONSHM_MAX_POOL_PATH + 256)
++#define REMOTIONSHM_CONTROL_BUFFER_SIZE 4096
++#define REMOTIONSHM_POOL_PREFIX "rmshm-"
++
++typedef enum RemotionShmBackend {
++    REMOTIONSHM_BACKEND_POSIX_SHM,
++    REMOTIONSHM_BACKEND_FILE,
++} RemotionShmBackend;
++
++typedef struct RemotionShmAck {
++    uint32_t pool_id;
++    uint32_t slot;
++    uint64_t frame_id;
++} RemotionShmAck;
++
++typedef struct RemotionShmPool {
++    uint32_t id;
++    uint32_t slot_count;
++    uint64_t slot_capacity;
++    size_t mapping_size;
++    uint8_t *mapping;
++    atomic_uchar *busy;
++    char *name;
++    RemotionShmBackend backend;
++} RemotionShmPool;
++
++typedef struct RemotionShmSession {
++    atomic_uint refcount;
++    atomic_int ack_error;
++    int ack_fd;
++    int wake_pipe[2];
++    int64_t ack_timeout_us;
++    AVThreadMessageQueue *ack_queue;
++    pthread_t ack_thread;
++    int ack_thread_started;
++    RemotionShmPool *pools[REMOTIONSHM_MAX_POOLS];
++    unsigned pool_count;
++    unsigned total_slots;
++} RemotionShmSession;
++
++typedef struct RemotionShmLease {
++    RemotionShmSession *session;
++    RemotionShmPool *pool;
++    uint32_t slot;
++    uint64_t frame_id;
++} RemotionShmLease;
++
++typedef struct RemotionShmContext {
++    const AVClass *class;
++    int width;
++    int height;
++    AVRational framerate;
++    int control_fd;
++    int ack_fd;
++    int ack_timeout_ms;
++    char *pool_dir;
++    int owned_control_fd;
++    uint8_t control_buffer[REMOTIONSHM_CONTROL_BUFFER_SIZE];
++    size_t control_buffer_offset;
++    size_t control_buffer_size;
++    RemotionShmSession *session;
++} RemotionShmContext;
++
++static int remotionshm_interrupted(const AVFormatContext *avctx)
++{
++    const AVIOInterruptCB *callback = &avctx->interrupt_callback;
++
++    return callback->callback && callback->callback(callback->opaque);
++}
++
++static void remotionshm_set_ack_error(RemotionShmSession *session, int error)
++{
++    int expected = 0;
++    char wake = 1;
++
++    if (error >= 0)
++        error = AVERROR(EIO);
++    if (atomic_compare_exchange_strong_explicit(&session->ack_error, &expected,
++                                                 error, memory_order_release,
++                                                 memory_order_relaxed)) {
++        if (write(session->wake_pipe[1], &wake, 1) < 0 &&
++            errno != EAGAIN && errno != EWOULDBLOCK)
++            av_log(NULL, AV_LOG_WARNING,
++                   "remotionshm: could not wake the control reader\n");
++    }
++}
++
++static int remotionshm_write_ack(RemotionShmSession *session,
++                                 const RemotionShmAck *ack)
++{
++    char line[64];
++    int size;
++    int64_t deadline = av_gettime_relative() + session->ack_timeout_us;
++    size_t offset = 0;
++
++    size = snprintf(line, sizeof(line), "%"PRIu32"\t%"PRIu32"\t%"PRIu64"\n",
++                    ack->pool_id, ack->slot, ack->frame_id);
++    if (size < 0 || size >= sizeof(line))
++        return AVERROR(EINVAL);
++
++    while (offset < size) {
++        ssize_t written = write(session->ack_fd, line + offset, size - offset);
++        if (written > 0) {
++            offset += written;
++            continue;
++        }
++        if (written < 0 && errno == EINTR)
++            continue;
++        if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
++            if (av_gettime_relative() >= deadline)
++                return AVERROR(ETIMEDOUT);
++            av_usleep(1000);
++            continue;
++        }
++        return AVERROR(written < 0 ? errno : EIO);
++    }
++
++    return 0;
++}
++
++static void *remotionshm_ack_writer(void *opaque)
++{
++    RemotionShmSession *session = opaque;
++    RemotionShmAck ack;
++    int ret;
++
++    for (;;) {
++        ret = av_thread_message_queue_recv(session->ack_queue, &ack, 0);
++        if (ret == AVERROR_EOF)
++            return NULL;
++        if (ret < 0)
++            break;
++        ret = remotionshm_write_ack(session, &ack);
++        if (ret < 0)
++            break;
++    }
++
++    if (session->ack_fd >= 0) {
++        close(session->ack_fd);
++        session->ack_fd = -1;
++    }
++    remotionshm_set_ack_error(session, ret);
++    av_thread_message_queue_set_err_send(session->ack_queue, ret);
++    av_log(NULL, AV_LOG_ERROR, "remotionshm: failed to write frame ACK: %s\n",
++           av_err2str(ret));
++    return NULL;
++}
++
++static void remotionshm_free_pool(RemotionShmPool **pool_ptr)
++{
++    RemotionShmPool *pool = *pool_ptr;
++
++    if (!pool)
++        return;
++    if (pool->mapping && pool->mapping != MAP_FAILED)
++        munmap(pool->mapping, pool->mapping_size);
++    av_freep(&pool->busy);
++    av_freep(&pool->name);
++    av_freep(pool_ptr);
++}
++
++static void remotionshm_free_session(RemotionShmSession *session)
++{
++    unsigned i;
++
++    av_thread_message_queue_set_err_recv(session->ack_queue, AVERROR_EOF);
++    if (session->ack_thread_started)
++        pthread_join(session->ack_thread, NULL);
++    av_thread_message_queue_free(&session->ack_queue);
++    if (session->ack_fd >= 0)
++        close(session->ack_fd);
++    if (session->wake_pipe[0] >= 0)
++        close(session->wake_pipe[0]);
++    if (session->wake_pipe[1] >= 0)
++        close(session->wake_pipe[1]);
++    for (i = 0; i < session->pool_count; i++)
++        remotionshm_free_pool(&session->pools[i]);
++    av_free(session);
++}
++
++static void remotionshm_ref_session(RemotionShmSession *session)
++{
++    atomic_fetch_add_explicit(&session->refcount, 1, memory_order_relaxed);
++}
++
++static void remotionshm_unref_session(RemotionShmSession *session)
++{
++    if (atomic_fetch_sub_explicit(&session->refcount, 1,
++                                  memory_order_acq_rel) == 1)
++        remotionshm_free_session(session);
++}
++
++static int remotionshm_alloc_session(AVFormatContext *avctx)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++    RemotionShmSession *session;
++    int flags;
++    int ret;
++
++    session = av_mallocz(sizeof(*session));
++    if (!session)
++        return AVERROR(ENOMEM);
++    session->ack_fd = -1;
++    session->wake_pipe[0] = -1;
++    session->wake_pipe[1] = -1;
++    session->ack_timeout_us = (int64_t)ctx->ack_timeout_ms * 1000;
++    atomic_init(&session->refcount, 1);
++    atomic_init(&session->ack_error, 0);
++
++    session->ack_fd = dup(ctx->ack_fd);
++    if (session->ack_fd < 0) {
++        ret = AVERROR(errno);
++        goto fail;
++    }
++    flags = fcntl(session->ack_fd, F_GETFL);
++    if (flags < 0 || fcntl(session->ack_fd, F_SETFL, flags | O_NONBLOCK) < 0) {
++        ret = AVERROR(errno);
++        goto fail;
++    }
++    if (pipe(session->wake_pipe) < 0) {
++        ret = AVERROR(errno);
++        goto fail;
++    }
++    flags = fcntl(session->wake_pipe[0], F_GETFL);
++    if (flags < 0 ||
++        fcntl(session->wake_pipe[0], F_SETFL, flags | O_NONBLOCK) < 0) {
++        ret = AVERROR(errno);
++        goto fail;
++    }
++    flags = fcntl(session->wake_pipe[1], F_GETFL);
++    if (flags < 0 ||
++        fcntl(session->wake_pipe[1], F_SETFL, flags | O_NONBLOCK) < 0) {
++        ret = AVERROR(errno);
++        goto fail;
++    }
++
++    ret = av_thread_message_queue_alloc(&session->ack_queue,
++                                        REMOTIONSHM_MAX_TOTAL_SLOTS,
++                                        sizeof(RemotionShmAck));
++    if (ret < 0)
++        goto fail;
++    ret = pthread_create(&session->ack_thread, NULL,
++                         remotionshm_ack_writer, session);
++    if (ret) {
++        ret = AVERROR(ret);
++        goto fail;
++    }
++    session->ack_thread_started = 1;
++    ctx->session = session;
++    return 0;
++
++fail:
++    if (session->ack_queue)
++        av_thread_message_queue_free(&session->ack_queue);
++    if (session->ack_fd >= 0)
++        close(session->ack_fd);
++    if (session->wake_pipe[0] >= 0)
++        close(session->wake_pipe[0]);
++    if (session->wake_pipe[1] >= 0)
++        close(session->wake_pipe[1]);
++    av_free(session);
++    return ret;
++}
++
++static int remotionshm_parse_u64(const char *text, uint64_t *value)
++{
++    unsigned long long parsed;
++    char *end;
++    const char *cursor;
++
++    if (!text[0])
++        return AVERROR_INVALIDDATA;
++    for (cursor = text; *cursor; cursor++)
++        if (!isdigit((unsigned char)*cursor))
++            return AVERROR_INVALIDDATA;
++    errno = 0;
++    parsed = strtoull(text, &end, 10);
++    if (errno || *end)
++        return AVERROR_INVALIDDATA;
++    *value = parsed;
++    return 0;
++}
++
++static int remotionshm_parse_u32(const char *text, uint32_t *value)
++{
++    uint64_t parsed;
++    int ret = remotionshm_parse_u64(text, &parsed);
++
++    if (ret < 0 || parsed > UINT32_MAX)
++        return AVERROR_INVALIDDATA;
++    *value = parsed;
++    return 0;
++}
++
++static int remotionshm_parse_i64(const char *text, int64_t *value)
++{
++    long long parsed;
++    char *end;
++    const char *cursor = text;
++
++    if (*cursor == '-')
++        cursor++;
++    if (!*cursor)
++        return AVERROR_INVALIDDATA;
++    for (; *cursor; cursor++)
++        if (!isdigit((unsigned char)*cursor))
++            return AVERROR_INVALIDDATA;
++    errno = 0;
++    parsed = strtoll(text, &end, 10);
++    if (errno || *end)
++        return AVERROR_INVALIDDATA;
++    *value = parsed;
++    return 0;
++}
++
++static int remotionshm_split_line(char *line, char **fields, int max_fields)
++{
++    int count = 0;
++    char *cursor = line;
++
++    while (count < max_fields) {
++        char *separator;
++
++        if (!*cursor)
++            return AVERROR_INVALIDDATA;
++        fields[count++] = cursor;
++        separator = strchr(cursor, '\t');
++        if (!separator)
++            return count;
++        *separator = '\0';
++        cursor = separator + 1;
++    }
++
++    return strchr(cursor, '\t') ? AVERROR_INVALIDDATA : count;
++}
++
++static int remotionshm_read_line(AVFormatContext *avctx, char *line, size_t size)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++    size_t length = 0;
++
++    for (;;) {
++        char byte;
++        ssize_t read_size;
++
++        if (ctx->control_buffer_offset < ctx->control_buffer_size) {
++            byte = ctx->control_buffer[ctx->control_buffer_offset++];
++            read_size = 1;
++        } else {
++            struct pollfd descriptors[2] = {
++                {
++                    .fd = ctx->owned_control_fd,
++                    .events = POLLIN,
++                },
++                {
++                    .fd = ctx->session->wake_pipe[0],
++                    .events = POLLIN,
++                },
++            };
++            int ack_error = atomic_load_explicit(&ctx->session->ack_error,
++                                                 memory_order_acquire);
++            int poll_result;
++
++            if (ack_error)
++                return ack_error;
++            poll_result = poll(descriptors, FF_ARRAY_ELEMS(descriptors), -1);
++            if (poll_result < 0) {
++                if (errno == EINTR) {
++                    if (remotionshm_interrupted(avctx))
++                        return AVERROR_EXIT;
++                    continue;
++                }
++                return AVERROR(errno);
++            }
++            if (descriptors[1].revents) {
++                char wake_buffer[16];
++
++                while (read(ctx->session->wake_pipe[0], wake_buffer,
++                            sizeof(wake_buffer)) > 0) {
++                }
++                ack_error = atomic_load_explicit(&ctx->session->ack_error,
++                                                 memory_order_acquire);
++                if (ack_error)
++                    return ack_error;
++            }
++            if (descriptors[0].revents & (POLLERR | POLLNVAL))
++                return AVERROR(EIO);
++            if (!(descriptors[0].revents & (POLLIN | POLLHUP)))
++                continue;
++            read_size = read(ctx->owned_control_fd, ctx->control_buffer,
++                             sizeof(ctx->control_buffer));
++            if (read_size > 0) {
++                ctx->control_buffer_offset = 1;
++                ctx->control_buffer_size = read_size;
++                byte = ctx->control_buffer[0];
++            }
++        }
++
++        if (read_size == 0) {
++            if (!length)
++                return AVERROR_EOF;
++            av_log(avctx, AV_LOG_ERROR,
++                   "remotionshm: truncated final control record\n");
++            return AVERROR_INVALIDDATA;
++        }
++        if (read_size < 0) {
++            if (errno == EINTR) {
++                if (remotionshm_interrupted(avctx))
++                    return AVERROR_EXIT;
++                continue;
++            }
++            return AVERROR(errno);
++        }
++        if (byte == '\n') {
++            if (!length)
++                return AVERROR_INVALIDDATA;
++            line[length] = '\0';
++            return 0;
++        }
++        if (byte == '\0' || byte == '\r' || length + 1 >= size) {
++            av_log(avctx, AV_LOG_ERROR,
++                   "remotionshm: invalid or oversized control record\n");
++            return AVERROR_INVALIDDATA;
++        }
++        line[length++] = byte;
++    }
++}
++
++static int remotionshm_valid_token(const char *token)
++{
++    const char *cursor;
++    size_t prefix_length = strlen(REMOTIONSHM_POOL_PREFIX);
++
++    if (strncmp(token, REMOTIONSHM_POOL_PREFIX, prefix_length) ||
++        !token[prefix_length])
++        return 0;
++    for (cursor = token + prefix_length; *cursor; cursor++)
++        if (!isalnum((unsigned char)*cursor) && *cursor != '-' &&
++            *cursor != '_' && *cursor != '.')
++            return 0;
++    return 1;
++}
++
++static int remotionshm_valid_name(const char *name)
++{
++    size_t length = strlen(name);
++
++    return length >= 2 && length <= REMOTIONSHM_MAX_SHM_NAME &&
++           name[0] == '/' && remotionshm_valid_token(name + 1);
++}
++
++/*
++ * A file-backed pool must be a direct child of the caller-designated pool
++ * directory and use the same opaque token shape as POSIX names. The consumer
++ * never opens arbitrary paths from the control stream.
++ */
++static int remotionshm_valid_file_path(const RemotionShmContext *ctx,
++                                       const char *path)
++{
++    size_t dir_length;
++
++    if (!ctx->pool_dir || ctx->pool_dir[0] != '/')
++        return 0;
++    dir_length = strlen(ctx->pool_dir);
++    while (dir_length > 1 && ctx->pool_dir[dir_length - 1] == '/')
++        dir_length--;
++    if (strlen(path) > REMOTIONSHM_MAX_POOL_PATH ||
++        strncmp(path, ctx->pool_dir, dir_length) || path[dir_length] != '/')
++        return 0;
++    return remotionshm_valid_token(path + dir_length + 1);
++}
++
++/*
++ * Opens a producer-created pool file without following symlinks. glibc only
++ * exposes O_NOFOLLOW/O_CLOEXEC for _XOPEN_SOURCE >= 700 and FFmpeg builds with
++ * 600, so the identity of the opened inode is verified against lstat() as
++ * well. Returns a descriptor or a negative AVERROR.
++ */
++static int remotionshm_open_pool_file(const char *path)
++{
++    struct stat before;
++    struct stat after;
++    int flags = O_RDONLY;
++    int fd;
++
++#ifdef O_CLOEXEC
++    flags |= O_CLOEXEC;
++#endif
++#ifdef O_NOFOLLOW
++    flags |= O_NOFOLLOW;
++#endif
++    if (lstat(path, &before) < 0)
++        return AVERROR(errno);
++    if (!S_ISREG(before.st_mode))
++        return AVERROR_INVALIDDATA;
++    fd = open(path, flags);
++    if (fd < 0)
++        return AVERROR(errno);
++    if (fstat(fd, &after) < 0 || !S_ISREG(after.st_mode) ||
++        after.st_dev != before.st_dev || after.st_ino != before.st_ino) {
++        close(fd);
++        return AVERROR_INVALIDDATA;
++    }
++    fcntl(fd, F_SETFD, FD_CLOEXEC);
++    return fd;
++}
++
++static int remotionshm_parse_backend(const char *text,
++                                     RemotionShmBackend *backend)
++{
++    if (!text || !strcmp(text, "posix-shm")) {
++        *backend = REMOTIONSHM_BACKEND_POSIX_SHM;
++        return 0;
++    }
++    if (!strcmp(text, "file")) {
++        *backend = REMOTIONSHM_BACKEND_FILE;
++        return 0;
++    }
++    return AVERROR_INVALIDDATA;
++}
++
++static RemotionShmPool *remotionshm_find_pool(RemotionShmSession *session,
++                                               uint32_t pool_id)
++{
++    unsigned i;
++
++    for (i = 0; i < session->pool_count; i++)
++        if (session->pools[i]->id == pool_id)
++            return session->pools[i];
++    return NULL;
++}
++
++static int remotionshm_register_pool(AVFormatContext *avctx, char **fields,
++                                     int field_count)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++    RemotionShmSession *session = ctx->session;
++    RemotionShmPool *pool = NULL;
++    RemotionShmBackend backend;
++    uint32_t pool_id;
++    uint32_t slot_count;
++    uint64_t slot_capacity;
++    uint64_t mapping_size;
++    struct stat stat_buffer;
++    unsigned i;
++    int fd = -1;
++    int ret;
++
++    if ((ret = remotionshm_parse_u32(fields[1], &pool_id)) < 0 ||
++        (ret = remotionshm_parse_backend(field_count > 5 ? fields[5] : NULL,
++                                         &backend)) < 0 ||
++        (backend == REMOTIONSHM_BACKEND_POSIX_SHM
++             ? !remotionshm_valid_name(fields[2])
++             : !remotionshm_valid_file_path(ctx, fields[2])) ||
++        (ret = remotionshm_parse_u32(fields[3], &slot_count)) < 0 ||
++        (ret = remotionshm_parse_u64(fields[4], &slot_capacity)) < 0 ||
++        !slot_count || slot_count > REMOTIONSHM_MAX_SLOTS_PER_POOL ||
++        !slot_capacity || slot_capacity > REMOTIONSHM_MAX_SLOT_CAPACITY ||
++        slot_capacity > SIZE_MAX / slot_count) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: invalid pool registration\n");
++        return AVERROR_INVALIDDATA;
++    }
++    if (session->pool_count == REMOTIONSHM_MAX_POOLS ||
++        session->total_slots > REMOTIONSHM_MAX_TOTAL_SLOTS - slot_count) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: shared-memory pool limit exceeded\n");
++        return AVERROR(ENOSPC);
++    }
++    for (i = 0; i < session->pool_count; i++) {
++        if (session->pools[i]->id == pool_id ||
++            !strcmp(session->pools[i]->name, fields[2])) {
++            av_log(avctx, AV_LOG_ERROR,
++                   "remotionshm: duplicate pool ID or name\n");
++            return AVERROR_INVALIDDATA;
++        }
++    }
++
++    mapping_size = slot_capacity * slot_count;
++    pool = av_mallocz(sizeof(*pool));
++    if (!pool)
++        return AVERROR(ENOMEM);
++    pool->mapping = MAP_FAILED;
++    pool->id = pool_id;
++    pool->slot_count = slot_count;
++    pool->slot_capacity = slot_capacity;
++    pool->mapping_size = mapping_size;
++    pool->backend = backend;
++    pool->name = av_strdup(fields[2]);
++    pool->busy = av_calloc(slot_count, sizeof(*pool->busy));
++    if (!pool->name || !pool->busy) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++    for (i = 0; i < slot_count; i++)
++        atomic_init(&pool->busy[i], 0);
++
++    if (backend == REMOTIONSHM_BACKEND_FILE) {
++        fd = remotionshm_open_pool_file(pool->name);
++        if (fd < 0) {
++            ret = fd;
++            av_log(avctx, AV_LOG_ERROR,
++                   "remotionshm: could not open pool file %s: %s\n",
++                   pool->name, av_err2str(ret));
++            fd = -1;
++            goto fail;
++        }
++    } else {
++        fd = shm_open(pool->name, O_RDONLY, 0);
++        if (fd < 0) {
++            ret = AVERROR(errno);
++            av_log(avctx, AV_LOG_ERROR,
++                   "remotionshm: could not open pool %s: %s\n",
++                   pool->name, av_err2str(ret));
++            goto fail;
++        }
++    }
++    if (fstat(fd, &stat_buffer) < 0) {
++        ret = AVERROR(errno);
++        goto fail;
++    }
++    if (stat_buffer.st_size < 0 ||
++        (uint64_t)stat_buffer.st_size < mapping_size) {
++        ret = AVERROR_INVALIDDATA;
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: pool %s is smaller than its registration\n",
++               pool->name);
++        goto fail;
++    }
++    pool->mapping = mmap(NULL, pool->mapping_size, PROT_READ, MAP_SHARED,
++                         fd, 0);
++    if (pool->mapping == MAP_FAILED) {
++        ret = AVERROR(errno);
++        goto fail;
++    }
++    /* Both processes now hold the mapping, so the name is no longer needed.
++     * Unlinking here means a producer crash cannot leave a persistent object
++     * or file behind. */
++    if ((backend == REMOTIONSHM_BACKEND_FILE ? unlink(pool->name)
++                                             : shm_unlink(pool->name)) < 0 &&
++        errno != ENOENT) {
++        ret = AVERROR(errno);
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: could not unlink pool %s: %s\n",
++               pool->name, av_err2str(ret));
++        goto fail;
++    }
++    close(fd);
++    av_log(avctx, AV_LOG_VERBOSE,
++           "remotionshm: mapped %s pool %"PRIu32" (%s, %"PRIu32" slot(s) of %"PRIu64" bytes)\n",
++           backend == REMOTIONSHM_BACKEND_FILE ? "file-backed" : "POSIX shared-memory",
++           pool_id, pool->name, slot_count, slot_capacity);
++
++    session->pools[session->pool_count++] = pool;
++    session->total_slots += slot_count;
++    return 0;
++
++fail:
++    if (fd >= 0)
++        close(fd);
++    remotionshm_free_pool(&pool);
++    return ret;
++}
++
++static int remotionshm_unregister_pool(AVFormatContext *avctx,
++                                       const char *pool_id_text)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++    RemotionShmSession *session = ctx->session;
++    uint32_t pool_id;
++    unsigned i;
++    unsigned slot;
++    int ret;
++
++    ret = remotionshm_parse_u32(pool_id_text, &pool_id);
++    if (ret < 0)
++        return ret;
++    for (i = 0; i < session->pool_count; i++) {
++        RemotionShmPool *pool = session->pools[i];
++
++        if (pool->id != pool_id)
++            continue;
++        for (slot = 0; slot < pool->slot_count; slot++) {
++            if (atomic_load_explicit(&pool->busy[slot],
++                                     memory_order_acquire)) {
++                av_log(avctx, AV_LOG_ERROR,
++                       "remotionshm: cannot unregister a pool with leased slots\n");
++                return AVERROR(EBUSY);
++            }
++        }
++        session->total_slots -= pool->slot_count;
++        remotionshm_free_pool(&session->pools[i]);
++        memmove(&session->pools[i], &session->pools[i + 1],
++                (session->pool_count - i - 1) * sizeof(session->pools[0]));
++        session->pools[--session->pool_count] = NULL;
++        return 0;
++    }
++
++    av_log(avctx, AV_LOG_ERROR,
++           "remotionshm: cannot unregister an unknown pool\n");
++    return AVERROR_INVALIDDATA;
++}
++
++static void remotionshm_release_slot(void *opaque, uint8_t *data)
++{
++    RemotionShmLease *lease = opaque;
++    RemotionShmAck ack = {
++        .pool_id = lease->pool->id,
++        .slot = lease->slot,
++        .frame_id = lease->frame_id,
++    };
++    int ret;
++
++    (void)data;
++    atomic_store_explicit(&lease->pool->busy[lease->slot], 0,
++                          memory_order_release);
++    ret = av_thread_message_queue_send(lease->session->ack_queue, &ack,
++                                       AV_THREAD_MESSAGE_NONBLOCK);
++    if (ret < 0)
++        remotionshm_set_ack_error(lease->session, ret);
++    remotionshm_unref_session(lease->session);
++    av_free(lease);
++}
++
++static void remotionshm_free_frame(void *opaque, uint8_t *data)
++{
++    AVFrame *frame = (AVFrame *)data;
++
++    av_frame_free(&frame);
++}
++
++static int remotionshm_read_frame(AVFormatContext *avctx, char **fields,
++                                  AVPacket *pkt)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++    RemotionShmPool *pool;
++    RemotionShmLease *lease = NULL;
++    AVFrame *frame = NULL;
++    uint32_t pool_id;
++    uint32_t slot;
++    uint64_t frame_id;
++    uint32_t width;
++    uint32_t height;
++    uint32_t stride;
++    uint64_t byte_length;
++    int64_t pts;
++    uint64_t minimum_size;
++    unsigned char expected = 0;
++    uint8_t *pixels;
++    int ret;
++
++    if ((ret = remotionshm_parse_u32(fields[1], &pool_id)) < 0 ||
++        (ret = remotionshm_parse_u32(fields[2], &slot)) < 0 ||
++        (ret = remotionshm_parse_u64(fields[3], &frame_id)) < 0 ||
++        (ret = remotionshm_parse_u32(fields[4], &width)) < 0 ||
++        (ret = remotionshm_parse_u32(fields[5], &height)) < 0 ||
++        (ret = remotionshm_parse_u32(fields[6], &stride)) < 0 ||
++        (ret = remotionshm_parse_u64(fields[7], &byte_length)) < 0 ||
++        (ret = remotionshm_parse_i64(fields[8], &pts)) < 0) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: invalid frame descriptor\n");
++        return AVERROR_INVALIDDATA;
++    }
++
++    pool = remotionshm_find_pool(ctx->session, pool_id);
++    if (!pool || slot >= pool->slot_count || width != ctx->width ||
++        height != ctx->height || width > UINT32_MAX / 4 ||
++        stride < width * 4 || stride > INT_MAX ||
++        !height || stride > UINT64_MAX / height ||
++        byte_length > pool->slot_capacity || byte_length > SIZE_MAX) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: frame does not fit the registered pool or stream\n");
++        return AVERROR_INVALIDDATA;
++    }
++    minimum_size = (uint64_t)stride * (height - 1) + (uint64_t)width * 4;
++    if (byte_length < minimum_size) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: frame byte length is smaller than its rows\n");
++        return AVERROR_INVALIDDATA;
++    }
++    if (!atomic_compare_exchange_strong_explicit(&pool->busy[slot], &expected,
++                                                  1, memory_order_acq_rel,
++                                                  memory_order_relaxed)) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: producer reused a slot before its ACK\n");
++        return AVERROR_INVALIDDATA;
++    }
++
++    frame = av_frame_alloc();
++    lease = av_malloc(sizeof(*lease));
++    if (!frame || !lease) {
++        ret = AVERROR(ENOMEM);
++        goto fail_before_buffer;
++    }
++    *lease = (RemotionShmLease) {
++        .session = ctx->session,
++        .pool = pool,
++        .slot = slot,
++        .frame_id = frame_id,
++    };
++    pixels = pool->mapping + (size_t)slot * pool->slot_capacity;
++    remotionshm_ref_session(ctx->session);
++    frame->buf[0] = av_buffer_create(pixels, byte_length,
++                                     remotionshm_release_slot, lease,
++                                     AV_BUFFER_FLAG_READONLY);
++    if (!frame->buf[0]) {
++        remotionshm_unref_session(ctx->session);
++        ret = AVERROR(ENOMEM);
++        goto fail_before_buffer;
++    }
++    lease = NULL;
++
++    frame->data[0] = pixels;
++    frame->linesize[0] = stride;
++    frame->width = width;
++    frame->height = height;
++    frame->format = AV_PIX_FMT_BGRA;
++    frame->pts = pts;
++    frame->duration = 1;
++    frame->time_base = avctx->streams[0]->time_base;
++    frame->sample_aspect_ratio = (AVRational) { 1, 1 };
++    frame->color_range = AVCOL_RANGE_JPEG;
++    frame->colorspace = AVCOL_SPC_RGB;
++    frame->color_primaries = AVCOL_PRI_BT709;
++    frame->color_trc = AVCOL_TRC_IEC61966_2_1;
++
++    pkt->buf = av_buffer_create((uint8_t *)frame, sizeof(*frame),
++                                remotionshm_free_frame, NULL, 0);
++    if (!pkt->buf) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++    pkt->data = pkt->buf->data;
++    pkt->size = pkt->buf->size;
++    pkt->pts = pts;
++    pkt->dts = pts;
++    pkt->duration = 1;
++    pkt->stream_index = 0;
++    pkt->flags |= AV_PKT_FLAG_KEY | AV_PKT_FLAG_TRUSTED;
++    return 0;
++
++fail_before_buffer:
++    atomic_store_explicit(&pool->busy[slot], 0, memory_order_release);
++    av_free(lease);
++fail:
++    av_frame_free(&frame);
++    return ret;
++}
++
++static av_cold int remotionshm_read_header(AVFormatContext *avctx)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++    AVStream *stream;
++    int ret;
++
++    ctx->owned_control_fd = -1;
++    if (ctx->width <= 0 || ctx->height <= 0 ||
++        ctx->framerate.num <= 0 || ctx->framerate.den <= 0 ||
++        ctx->control_fd < 0 || ctx->ack_fd < 0 ||
++        ctx->control_fd == ctx->ack_fd) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: video_size, framerate and distinct control/ACK FDs are required\n");
++        return AVERROR(EINVAL);
++    }
++    if (ctx->pool_dir && !ctx->pool_dir[0])
++        av_freep(&ctx->pool_dir);
++    if (ctx->pool_dir && (ctx->pool_dir[0] != '/' ||
++                          strlen(ctx->pool_dir) >= REMOTIONSHM_MAX_POOL_PATH)) {
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: pool_dir must be an absolute directory path\n");
++        return AVERROR(EINVAL);
++    }
++
++    ctx->owned_control_fd = dup(ctx->control_fd);
++    if (ctx->owned_control_fd < 0)
++        return AVERROR(errno);
++    close(ctx->control_fd);
++    ctx->control_fd = -1;
++    ret = remotionshm_alloc_session(avctx);
++    if (ret < 0)
++        return ret;
++    close(ctx->ack_fd);
++    ctx->ack_fd = -1;
++
++    stream = avformat_new_stream(avctx, NULL);
++    if (!stream)
++        return AVERROR(ENOMEM);
++    stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
++    stream->codecpar->codec_id = AV_CODEC_ID_WRAPPED_AVFRAME;
++    stream->codecpar->format = AV_PIX_FMT_BGRA;
++    stream->codecpar->width = ctx->width;
++    stream->codecpar->height = ctx->height;
++    stream->codecpar->sample_aspect_ratio = (AVRational) { 1, 1 };
++    stream->codecpar->color_range = AVCOL_RANGE_JPEG;
++    stream->codecpar->color_space = AVCOL_SPC_RGB;
++    stream->codecpar->color_primaries = AVCOL_PRI_BT709;
++    stream->codecpar->color_trc = AVCOL_TRC_IEC61966_2_1;
++    stream->sample_aspect_ratio = (AVRational) { 1, 1 };
++    stream->avg_frame_rate = ctx->framerate;
++    stream->r_frame_rate = ctx->framerate;
++    avpriv_set_pts_info(stream, 64, ctx->framerate.den,
++                       ctx->framerate.num);
++    return 0;
++}
++
++static int remotionshm_read_packet(AVFormatContext *avctx, AVPacket *pkt)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++    char line[REMOTIONSHM_MAX_LINE];
++    char *fields[10];
++    int ack_error;
++    int field_count;
++    int ret;
++
++    for (;;) {
++        ack_error = atomic_load_explicit(&ctx->session->ack_error,
++                                         memory_order_acquire);
++        if (ack_error) {
++            av_log(avctx, AV_LOG_ERROR,
++                   "remotionshm: ACK channel failed: %s\n",
++                   av_err2str(ack_error));
++            return ack_error;
++        }
++        ret = remotionshm_read_line(avctx, line, sizeof(line));
++        if (ret < 0)
++            return ret;
++        field_count = remotionshm_split_line(line, fields,
++                                             FF_ARRAY_ELEMS(fields));
++        if (field_count < 0)
++            return field_count;
++        if (!strcmp(fields[0], "P") && (field_count == 5 || field_count == 6)) {
++            ret = remotionshm_register_pool(avctx, fields, field_count);
++            if (ret < 0)
++                return ret;
++            continue;
++        }
++        if (!strcmp(fields[0], "U") && field_count == 2) {
++            ret = remotionshm_unregister_pool(avctx, fields[1]);
++            if (ret < 0)
++                return ret;
++            continue;
++        }
++        if (!strcmp(fields[0], "F") && field_count == 9)
++            return remotionshm_read_frame(avctx, fields, pkt);
++
++        av_log(avctx, AV_LOG_ERROR,
++               "remotionshm: unknown control record\n");
++        return AVERROR_INVALIDDATA;
++    }
++}
++
++static av_cold int remotionshm_read_close(AVFormatContext *avctx)
++{
++    RemotionShmContext *ctx = avctx->priv_data;
++
++    if (ctx->control_fd >= 0) {
++        close(ctx->control_fd);
++        ctx->control_fd = -1;
++    }
++    if (ctx->ack_fd >= 0) {
++        close(ctx->ack_fd);
++        ctx->ack_fd = -1;
++    }
++    if (ctx->owned_control_fd >= 0) {
++        close(ctx->owned_control_fd);
++        ctx->owned_control_fd = -1;
++    }
++    if (ctx->session) {
++        remotionshm_unref_session(ctx->session);
++        ctx->session = NULL;
++    }
++    return 0;
++}
++
++#define OFFSET(x) offsetof(RemotionShmContext, x)
++#define DEC AV_OPT_FLAG_DECODING_PARAM
++
++static const AVOption remotionshm_options[] = {
++    { "video_size", "set the fixed BGRA video size", OFFSET(width),
++      AV_OPT_TYPE_IMAGE_SIZE, { .str = NULL }, 0, 0, DEC },
++    { "framerate", "set the video frame rate", OFFSET(framerate),
++      AV_OPT_TYPE_VIDEO_RATE, { .str = "30" }, 0, INT_MAX, DEC },
++    { "control_fd", "read pool registrations and frame descriptors from this FD",
++      OFFSET(control_fd), AV_OPT_TYPE_INT, { .i64 = 3 }, 0, INT_MAX, DEC },
++    { "ack_fd", "write final-reference slot ACKs to this FD", OFFSET(ack_fd),
++      AV_OPT_TYPE_INT, { .i64 = 4 }, 0, INT_MAX, DEC },
++    { "ack_timeout", "maximum milliseconds to wait for a drained ACK pipe",
++      OFFSET(ack_timeout_ms), AV_OPT_TYPE_INT, { .i64 = 5000 }, 100, 60000, DEC },
++    { "pool_dir", "absolute private directory in which file-backed pools may be opened",
++      OFFSET(pool_dir), AV_OPT_TYPE_STRING, { .str = NULL }, 0, 0, DEC },
++    { NULL },
++};
++
++static const AVClass remotionshm_class = {
++    .class_name = "remotionshm indev",
++    .item_name  = av_default_item_name,
++    .option     = remotionshm_options,
++    .version    = LIBAVUTIL_VERSION_INT,
++    .category   = AV_CLASS_CATEGORY_DEVICE_VIDEO_INPUT,
++};
++
++const FFInputFormat ff_remotionshm_demuxer = {
++    .p.name         = "remotionshm",
++    .p.long_name    = NULL_IF_CONFIG_SMALL("Remotion shared-memory frames (POSIX shm or mapped files)"),
++    .p.flags        = AVFMT_NOFILE,
++    .p.priv_class   = &remotionshm_class,
++    .priv_data_size = sizeof(RemotionShmContext),
++    .read_header    = remotionshm_read_header,
++    .read_packet    = remotionshm_read_packet,
++    .read_close     = remotionshm_read_close,
++    .flags_internal = FF_INFMT_FLAG_INIT_CLEANUP,
++};

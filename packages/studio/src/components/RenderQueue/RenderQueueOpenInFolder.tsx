@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
@@ -9,6 +10,24 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
 import type {AnyRenderJob} from './context';
 
+export const openRenderOutputInFileExplorer = (job: AnyRenderJob) => {
+	return openInFileExplorer({directory: job.outName}).catch(() => {
+		if (job.type === 'sequence') {
+			showNotification('Could not open folder on the Studio server.', 3000);
+			return;
+		}
+
+		showNotification(
+			'Could not open folder on the Studio server, downloading the file instead.',
+			3000,
+		);
+		const a = document.createElement('a');
+		a.href = `${remotion_outputsBase}/${job.outName}`;
+		a.download = job.outName.split(/[/\\]/).at(-1) ?? job.outName;
+		a.click();
+	});
+};
+
 export const RenderQueueOpenInFinderItem: React.FC<{
 	readonly job: AnyRenderJob;
 }> = ({job}) => {
@@ -16,11 +35,9 @@ export const RenderQueueOpenInFinderItem: React.FC<{
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
-			openInFileExplorer({directory: job.outName}).catch((err) => {
-				showNotification(`Could not open file: ${err.message}`, 2000);
-			});
+			openRenderOutputInFileExplorer(job);
 		},
-		[job.outName],
+		[job],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

@@ -130,6 +130,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		logLevel: 'info',
 		maxConcurrency,
 		mediaCacheSizeInBytes: null,
+		preferredEffectBackend: 'auto',
 		metadata: null,
 		minConcurrency: 1,
 		multiProcessOnLinux: true,
@@ -673,6 +674,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					preferredEffectBackend: null,
 					preservePitchOnPlayback: true,
 					showLayerFrameNumbers: false,
 					showPremounting: null,

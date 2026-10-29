@@ -11,12 +11,19 @@ import {
 	assertOptionalColor,
 } from '../validate-effect-param.js';
 import {
+	applyWebGlProjection,
+	cleanupWebGlProjection,
+	setupWebGlProjection,
+	type WebGlProjectionState,
+} from '../webgl-projection-runtime.js';
+import {
 	applyWebGpuProjection,
 	cleanupWebGpuProjection,
 	setupWebGpuProjection,
 	type WebGpuProjectionState,
 } from '../webgpu-projection-runtime.js';
 import {PAGE_TURN_SHADER} from './shader.js';
+import {PAGE_TURN_WEBGL_SHADER} from './webgl-shader.js';
 
 const DEFAULT_FOLD_POSITION = [0.7, 0.7] as const;
 const DEFAULT_FOLD_DIRECTION = 315;
@@ -92,10 +99,20 @@ export type PageTurnParams = {
 	readonly paperColor?: string;
 };
 
-type PageTurnState = WebGpuProjectionState & {
+type PageTurnColorState = {
 	colorCtx: CanvasRenderingContext2D;
 	cachedColor: string | null;
 	cachedRgba: ParsedColorRgba;
+};
+
+const setupPageTurnColor = (): PageTurnColorState => {
+	const colorCanvas = document.createElement('canvas');
+	colorCanvas.width = 1;
+	colorCanvas.height = 1;
+	const colorCtx = colorCanvas.getContext('2d', {willReadFrequently: true});
+	if (!colorCtx)
+		throw new Error('Could not create the page turn color context');
+	return {colorCtx, cachedColor: null, cachedRgba: [255, 255, 255, 255]};
 };
 
 const resolve = (params: PageTurnParams) => ({
@@ -108,11 +125,40 @@ const resolve = (params: PageTurnParams) => ({
 	paperColor: params.paperColor ?? DEFAULT_PAPER_COLOR,
 });
 
-export const pageTurn = Internals.createEffect<PageTurnParams, PageTurnState>({
+const getUniformData = (
+	params: PageTurnParams,
+	state: PageTurnColorState,
+	width: number,
+	height: number,
+) => {
+	const r = resolve(params);
+	if (state.cachedColor !== r.paperColor) {
+		state.cachedColor = r.paperColor;
+		state.cachedRgba = parseColorRgba(state.colorCtx, r.paperColor);
+	}
+
+	const radians = Math.PI / 180;
+	return new Float32Array([
+		width,
+		height,
+		r.foldPosition[0] * width,
+		r.foldPosition[1] * height,
+		r.foldRadius,
+		(r.foldDirection % 360) * radians,
+		(r.lightDirection % 360) * radians,
+		r.render === 'front' ? 1 : r.render === 'back' ? 2 : 0,
+		...state.cachedRgba.map((channel) => channel / 255),
+		r.backPageOpacity,
+		0,
+		0,
+		0,
+	]);
+};
+
+export const pageTurn = Internals.createEffect<PageTurnParams>({
 	type: 'remotion/page-turn',
 	label: 'pageTurn()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/page-turn',
-	backend: 'webgpu',
 	schema: pageTurnSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Page turn');
@@ -153,53 +199,51 @@ export const pageTurn = Internals.createEffect<PageTurnParams, PageTurnState>({
 		const r = resolve(params);
 		return `page-turn-${r.foldPosition.join(',')}-${r.foldDirection}-${r.foldRadius}-${r.lightDirection}-${r.render}-${r.backPageOpacity}-${r.paperColor}`;
 	},
-	setup: (target) => {
-		const colorCanvas = document.createElement('canvas');
-		colorCanvas.width = 1;
-		colorCanvas.height = 1;
-		const colorCtx = colorCanvas.getContext('2d', {willReadFrequently: true});
-		if (!colorCtx)
-			throw new Error('Could not create the page turn color context');
-		return {
-			...setupWebGpuProjection(target, 'page turn'),
-			colorCtx,
-			cachedColor: null,
-			cachedRgba: [255, 255, 255, 255],
-		};
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			PageTurnParams,
+			WebGpuProjectionState & PageTurnColorState
+		>({
+			setup: (target) => ({
+				...setupPageTurnColor(),
+				...setupWebGpuProjection(target, 'page turn'),
+			}),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the page turn effect',
+					);
+				applyWebGpuProjection({
+					source,
+					width,
+					height,
+					state,
+					device: gpuDevice as GPUDevice,
+					shader: PAGE_TURN_SHADER,
+					uniformData: getUniformData(params, state, width, height),
+				});
+			},
+			cleanup: cleanupWebGpuProjection,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			PageTurnParams,
+			WebGlProjectionState & PageTurnColorState
+		>({
+			setup: (target) => ({
+				...setupPageTurnColor(),
+				...setupWebGlProjection(target, PAGE_TURN_WEBGL_SHADER),
+			}),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				applyWebGlProjection({
+					source,
+					width,
+					height,
+					state,
+					flipSourceY,
+					uniformData: getUniformData(params, state, width, height),
+				});
+			},
+			cleanup: cleanupWebGlProjection,
+		}),
 	},
-	apply: ({source, width, height, params, state, gpuDevice}) => {
-		if (!gpuDevice)
-			throw new Error('A WebGPU device is required for the page turn effect');
-		const r = resolve(params);
-		if (state.cachedColor !== r.paperColor) {
-			state.cachedColor = r.paperColor;
-			state.cachedRgba = parseColorRgba(state.colorCtx, r.paperColor);
-		}
-
-		const radians = Math.PI / 180;
-		applyWebGpuProjection({
-			source,
-			width,
-			height,
-			state,
-			device: gpuDevice as GPUDevice,
-			shader: PAGE_TURN_SHADER,
-			uniformData: new Float32Array([
-				width,
-				height,
-				r.foldPosition[0] * width,
-				r.foldPosition[1] * height,
-				r.foldRadius,
-				(r.foldDirection % 360) * radians,
-				(r.lightDirection % 360) * radians,
-				r.render === 'front' ? 1 : r.render === 'back' ? 2 : 0,
-				...state.cachedRgba.map((channel) => channel / 255),
-				r.backPageOpacity,
-				0,
-				0,
-				0,
-			]),
-		});
-	},
-	cleanup: cleanupWebGpuProjection,
 });

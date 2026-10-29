@@ -31,7 +31,7 @@ const VideoVariant = ({
 	readonly variant: (typeof variants)[number];
 }) => {
 	return (
-		<article className="bg-white p-2 mb-2 border-2 border-b-4 rounded-md">
+		<article className="bg-card border-border p-2 mb-2 border-2 border-b-4 rounded-md">
 			<a
 				href={`/${variant.fileNames[0]}`}
 				className="leading-tight hover:text-blue-500"
@@ -41,7 +41,7 @@ const VideoVariant = ({
 				</strong>
 			</a>
 			<div className="flex-1" />
-			<div className="text-neutral-500 text-sm font-brand">
+			<div className="text-muted text-sm font-brand">
 				{variant.size < 1024 * 1024
 					? `${(variant.size / 1024).toFixed(0)} KB`
 					: `${(variant.size / 1024 / 1024).toFixed(1)} MB`}{' '}
@@ -77,7 +77,7 @@ const VideoVariant = ({
 				</a>
 			</div>
 			{variant.fileNames.length > 1 && (
-				<div className="text-neutral-500 text-sm font-brand">
+				<div className="text-muted text-sm font-brand">
 					<span>Aliases: </span>
 					{variant.fileNames.slice(1).map((fileName) => (
 						<span key={fileName} className="mr-2">
@@ -136,8 +136,8 @@ const Sidebar = ({
 							href={`#category-${category}`}
 							className={`block px-3 py-1.5 rounded-md text-sm font-brand transition-colors ${
 								activeCategory === category
-									? 'bg-blue-100 text-blue-700 font-semibold'
-									: 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+									? 'bg-blue-100 text-blue-700 dark:bg-[#424243] dark:text-white font-semibold'
+									: 'text-muted hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-white/6 dark:hover:text-white'
 							}`}
 						>
 							{getCategoryLabel(category)}
@@ -145,14 +145,14 @@ const Sidebar = ({
 					</li>
 				))}
 				{showBackToTop && (
-					<li className="mt-2 pt-2 border-t border-neutral-200">
+					<li className="mt-2 pt-2 border-t border-neutral-200 dark:border-border">
 						<a
 							href="#"
 							onClick={(e) => {
 								e.preventDefault();
 								window.scrollTo({top: 0});
 							}}
-							className="block px-3 py-1.5 rounded-md text-sm font-brand text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors"
+							className="block px-3 py-1.5 rounded-md text-sm font-brand text-muted hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-white/6 dark:hover:text-white transition-colors"
 						>
 							Back to top
 						</a>
@@ -218,7 +218,7 @@ export function App() {
 				<h1 className="text-2xl font-bold mt-10 mb-2 font-brand">
 					Free audio and video files for testing
 				</h1>
-				<div className="text-neutral-500 font-brand mt-1 mb-8">
+				<div className="text-muted font-brand mt-1 mb-8">
 					<p className="mb-3">
 						remotion.media is a CORS-enabled catalog of sample media files. Use
 						them to test media players, parsers, WebCodecs, transcoding, and

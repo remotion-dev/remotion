@@ -1,10 +1,4 @@
-import {
-	ALL_FORMATS,
-	CanvasSink,
-	Input,
-	UrlSource,
-	VideoSampleSink,
-} from 'mediabunny';
+import {ALL_FORMATS, Input, UrlSource, VideoSampleSink} from 'mediabunny';
 import {assert, expect, test} from 'vitest';
 import {
 	getMaxVideoCacheSize,
@@ -126,16 +120,16 @@ test('preview playback starts decoding at a millisecond-quantized WebM keyframe'
 	const track = await input.getPrimaryVideoTrack();
 	assert(track);
 
-	const realSink = new CanvasSink(track);
+	const realSink = new VideoSampleSink(track);
 	const decodedTimestamps: number[] = [];
 	const sink = {
-		async *canvases(start?: number, end?: number) {
-			for await (const canvas of realSink.canvases(start, end)) {
+		async *samples(start?: number, end?: number) {
+			for await (const canvas of realSink.samples(start, end)) {
 				decodedTimestamps.push(canvas.timestamp);
 				yield canvas;
 			}
 		},
-	} as CanvasSink;
+	} as VideoSampleSink;
 
 	const cache = makePrewarmedVideoIteratorCache(
 		sink,

@@ -43,6 +43,7 @@ type RemotionOptions struct {
 	ForceDurationInFrames          interface{}            `json:"forceDurationInFrames"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
 	MediaCacheSizeInBytes          interface{}            `json:"mediaCacheSizeInBytes"`
+	PreferredEffectBackend         string                 `json:"preferredEffectBackend"`
 	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceWidth                     interface{}            `json:"forceWidth"`
 	ApiKey                         interface{}            `json:"apiKey"`
@@ -100,6 +101,7 @@ type RenderFramesOptions struct {
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
 	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	MediaCacheSizeInBytes          interface{}            `json:"mediaCacheSizeInBytes"`
+	PreferredEffectBackend         string                 `json:"preferredEffectBackend"`
 	EnableCancellation             bool                   `json:"enableCancellation"`
 }
 
@@ -154,6 +156,7 @@ type renderInternalOptions struct {
 	Webhook                        interface{}            `json:"webhook"`
 	OffthreadVideoCacheSizeInBytes interface{}            `json:"offthreadVideoCacheSizeInBytes"`
 	MediaCacheSizeInBytes          interface{}            `json:"mediaCacheSizeInBytes"`
+	PreferredEffectBackend         string                 `json:"preferredEffectBackend"`
 	OffthreadVideoThreads          interface{}            `json:"offthreadVideoThreads"`
 	ForceHeight                    interface{}            `json:"forceHeight"`
 	ForceWidth                     interface{}            `json:"forceWidth"`

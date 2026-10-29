@@ -56,7 +56,13 @@ export const startCaptureHandoff = () => {
 				await browser.storage.local.set({
 					[getMetadataKey(message.captureId)]: {...metadata, tabId: tab.id},
 				});
-				const url = new URL(`/${metadata.destination}`, handoffOrigin);
+				const url = new URL(
+					metadata.destination === 'new' &&
+						handoffOrigin === 'https://www.remotion.dev'
+						? 'https://remotion.new'
+						: `/${metadata.destination}`,
+					handoffOrigin,
+				);
 				url.hash = new URLSearchParams({
 					'canvas-capture': message.captureId,
 					'canvas-capture-extension': browser.runtime.id,
@@ -94,6 +100,7 @@ export const startCaptureHandoff = () => {
 				handoffOrigin,
 				'https://remotion.dev',
 				'https://www.remotion.dev',
+				'https://remotion.new',
 			].includes(senderUrl.origin)
 		) {
 			port.disconnect();
@@ -154,10 +161,15 @@ export const startCaptureHandoff = () => {
 					}
 
 					const parameters = new URLSearchParams(senderUrl.hash.slice(1));
+					const expectedPath =
+						senderUrl.origin === 'https://remotion.new' &&
+						stored.destination === 'new'
+							? ''
+							: `/${stored.destination}`;
 					if (
 						stored.tabId !== sender.tab?.id ||
-						(senderUrl.pathname !== `/${stored.destination}` &&
-							senderUrl.pathname !== `/${stored.destination}/`) ||
+						(senderUrl.pathname !== expectedPath &&
+							senderUrl.pathname !== `${expectedPath}/`) ||
 						parameters.get('canvas-capture') !== message.captureId ||
 						parameters.get('canvas-capture-extension') !== browser.runtime.id
 					) {

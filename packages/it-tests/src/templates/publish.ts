@@ -240,7 +240,7 @@ const publishCanvasCapture = async () => {
 	);
 	const workingDir = path.join(tmpdir(), `canvas-capture-${Math.random()}`);
 
-	await $`bun run make`.cwd(packageDir);
+	await $`bun run build-extension`.cwd(packageDir);
 	await $`git clone git@github.com:remotion-dev/canvas-capture.git ${workingDir} --depth 1`;
 
 	const defaultBranch = await $`git branch --show-current`

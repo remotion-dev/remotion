@@ -92,6 +92,10 @@ Use this to look up current API references, component props, and package guides 
 
 > Example prompt: `/remotion-docs How to set up Remotion Lambda?`
 
+### `/remotion-license`<AvailableFrom v="4.0.540" />
+
+Find Remotion license information, FAQs, terms, and where to buy a license.
+
 ### `/remotion-upgrade`
 
 Upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills.

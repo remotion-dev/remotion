@@ -5,11 +5,18 @@ import {
 	assertRequiredFiniteNumber,
 } from '../validate-effect-param.js';
 import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
+import {
 	applyWave,
 	cleanupWave,
 	setupWave,
 	type WaveState,
 } from './wave-runtime.js';
+import {WAVE_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -112,31 +119,68 @@ const validateWaveParams = (params: WaveParams): void => {
 	}
 };
 
-// Sine wave warp: displaces source UVs along the propagation axis. WebGL2 only.
-export const wave = createEffect<WaveParams, WaveState>({
+// Sine wave warp: displaces source UVs along the propagation axis.
+export const wave = createEffect<WaveParams>({
 	type: 'dev.remotion.effects.wave',
 	label: 'wave()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/wave',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `wave-${r.phase}-${r.direction}-${r.amplitude}-${r.wavelength}`;
 	},
-	setup: (target) => setupWave(target),
-	apply: ({source, width, height, params, state}) => {
-		const r = resolve(params);
-		applyWave({
-			state,
-			source,
-			width,
-			height,
-			amplitude: r.amplitude,
-			wavelength: r.wavelength,
-			phase: r.phase,
-			direction: r.direction,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			WaveParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'wave'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error('A WebGPU device is required for the wave effect');
+				}
+
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.amplitude,
+					r.wavelength,
+					r.phase,
+					r.direction === 'horizontal' ? 0 : 1,
+					0,
+					0,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: WAVE_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<WaveParams, WaveState>({
+			setup: (target) => setupWave(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				applyWave({
+					state,
+					source,
+					width,
+					height,
+					flipSourceY,
+					amplitude: r.amplitude,
+					wavelength: r.wavelength,
+					phase: r.phase,
+					direction: r.direction,
+				});
+			},
+			cleanup: (state) => cleanupWave(state),
+		}),
 	},
-	cleanup: (state) => cleanupWave(state),
 	schema: waveSchema,
 	validateParams: validateWaveParams,
 });

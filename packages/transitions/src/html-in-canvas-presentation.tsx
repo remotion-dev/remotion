@@ -15,6 +15,8 @@ import type {
 	TransitionPresentationComponentProps,
 } from './types';
 
+const transferredCanvases = new WeakMap<HTMLCanvasElement, OffscreenCanvas>();
+
 const HtmlInCanvasPresentationWithSupport = <
 	TPassedProps extends Record<string, unknown>,
 >({
@@ -77,37 +79,55 @@ const HtmlInCanvasPresentationWithSupport = <
 	const effectsRef = useRef(memoizedEffects);
 	effectsRef.current = memoizedEffects;
 
-	const [instance] = useState(() => shader(shaderCanvas));
+	const instanceRef = useRef<ReturnType<typeof shader> | null>(null);
+	const passThrough =
+		bothEnteringAndExiting && presentationDirection === 'exiting';
 
 	useLayoutEffect(() => {
-		const canvas = canvasRef.current;
-		if (!canvas) {
-			return () => {
-				instance.cleanup();
-			};
+		if (passThrough) {
+			return;
 		}
 
-		const captureCanvas = canvas.transferControlToOffscreen();
+		const canvas = canvasRef.current;
+		if (!canvas) {
+			return;
+		}
+
+		// Activity can reconnect effects while retaining the same DOM canvas.
+		let captureCanvas = transferredCanvases.get(canvas);
+		if (!captureCanvas) {
+			captureCanvas = canvas.transferControlToOffscreen();
+			transferredCanvases.set(canvas, captureCanvas);
+		}
+
 		const captureContext = captureCanvas.getContext('2d');
 		if (!captureContext) {
 			throw new Error('Failed to create capture canvas context');
 		}
 
+		const instance = shader(shaderCanvas);
+		instanceRef.current = instance;
 		captureCanvasRef.current = captureCanvas;
 		captureContextRef.current = captureContext;
 
 		return () => {
 			instance.cleanup();
+			instanceRef.current = null;
 			captureCanvasRef.current = null;
 			captureContextRef.current = null;
 		};
-	}, [instance]);
+	}, [passThrough, shader, shaderCanvas]);
 
 	const chainState = Internals.useEffectChainState(effectsOutputSize);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
 		async (prevImage, nextImage, progress) => {
+			const instance = instanceRef.current;
+			if (!instance) {
+				return;
+			}
+
 			const outputCanvas = outputCanvasRef.current;
 			if (!outputCanvas) {
 				throw new Error('Canvas not found');
@@ -166,18 +186,8 @@ const HtmlInCanvasPresentationWithSupport = <
 				cancelRender(error);
 			}
 		},
-		[
-			cancelRender,
-			chainState,
-			continueRender,
-			delayRender,
-			instance,
-			shaderCanvas,
-		],
+		[cancelRender, chainState, continueRender, delayRender, shaderCanvas],
 	);
-
-	const passThrough =
-		bothEnteringAndExiting && presentationDirection === 'exiting';
 
 	useLayoutEffect(() => {
 		if (passThrough) {

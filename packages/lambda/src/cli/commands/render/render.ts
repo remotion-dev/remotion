@@ -64,6 +64,7 @@ const {
 	preferLosslessOption,
 	metadataOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	pixelFormatOption,
 	browserExecutableOption,
@@ -179,15 +180,18 @@ export const renderCommand = async ({
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const crf = crfOption.getValue({
+	const crfSetting = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
-	}).value;
+	});
 	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -333,6 +337,7 @@ export const renderCommand = async ({
 				}),
 				chromeMode: 'headless-shell',
 				mediaCacheSizeInBytes: mediaCacheSizeInBytes,
+				preferredEffectBackend: preferredEffectBackend,
 			});
 		composition = compositionId;
 	}
@@ -370,6 +375,17 @@ export const renderCommand = async ({
 					compositionCodec: null,
 				},
 			);
+
+	const crf =
+		codec === null
+			? crfSetting.value
+			: CliInternals.getCrfForCodec({
+					crf: crfSetting.value,
+					crfIsFromConfigFile: crfSetting.source === 'config',
+					codec,
+					indent: false,
+					logLevel,
+				});
 
 	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue(
 		{
@@ -472,6 +488,7 @@ export const renderCommand = async ({
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,

@@ -7,12 +7,25 @@ import {
 	WHITE_BALANCE_GLSL,
 } from './color-correction-shader-utils.js';
 import {
+	COLOR_SPACE_WGSL,
+	WHITE_BALANCE_WGSL,
+	SHADOWS_HIGHLIGHTS_WGSL,
+	VIBRANCE_WGSL,
+} from './color-correction-webgpu-shader-utils.js';
+import {
 	assertOptionalFiniteNumber,
 	validateNonNegative,
 	validateSignedUnitInterval,
 	validateUnitInterval,
 } from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -301,6 +314,80 @@ void main() {
 }
 `;
 
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params {
+	exposure: f32,
+	contrast: f32,
+	pivot: f32,
+	shadows: f32,
+	highlights: f32,
+	whites: f32,
+	blacks: f32,
+	temperature: f32,
+	tint: f32,
+	saturation: f32,
+	vibrance: f32,
+	padding0: f32,
+}
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+${COLOR_SPACE_WGSL}
+${WHITE_BALANCE_WGSL}
+${SHADOWS_HIGHLIGHTS_WGSL}
+${VIBRANCE_WGSL}
+
+fn applyEndpointTones(inputColor: vec3f, blacks: f32, whites: f32) -> vec3f {
+	var color = inputColor;
+	let luminance = dot(color, vec3f(0.2126, 0.7152, 0.0722));
+	var blackWeight = 1.0 - smoothstep(0.0, 0.35, luminance);
+	var whiteWeight = smoothstep(0.65, 1.0, luminance);
+	blackWeight *= blackWeight;
+	whiteWeight *= whiteWeight;
+	if (blacks >= 0.0) {
+		color += (vec3f(1.0) - color) * blacks * blackWeight * 0.2;
+	} else {
+		color *= 1.0 + blacks * blackWeight;
+	}
+	if (whites >= 0.0) {
+		color += (vec3f(1.0) - color) * whites * whiteWeight;
+	} else {
+		color *= 1.0 + whites * whiteWeight * 0.2;
+	}
+	return clamp(color, vec3f(0.0), vec3f(1.0));
+}
+
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let sourceColor = textureSampleLevel(source, sourceSampler, input.uv, 0.0);
+	let alpha = sourceColor.a;
+	if (alpha <= 0.0) {
+		return vec4f(0.0);
+	}
+	if (
+		params.exposure == 0.0 && params.contrast == 1.0 && params.pivot == 0.5 &&
+		params.shadows == 0.0 && params.highlights == 0.0 && params.whites == 0.0 &&
+		params.blacks == 0.0 && params.temperature == 0.0 && params.tint == 0.0 &&
+		params.saturation == 1.0 && params.vibrance == 0.0
+	) {
+		return sourceColor;
+	}
+	var color = sourceColor.rgb / alpha;
+	var linear = srgbToLinear(color) * exp2(params.exposure);
+	linear = applyWhiteBalanceLinear(linear, params.temperature, params.tint);
+	color = linearToSrgb(linear);
+	let tonalStops = getShadowsHighlightsStops(color, params.shadows, params.highlights);
+	linear = srgbToLinear(color) * exp2(tonalStops);
+	color = linearToSrgb(linear);
+	color = applyEndpointTones(color, params.blacks, params.whites);
+	color = clamp((color - vec3f(params.pivot)) * params.contrast + vec3f(params.pivot), vec3f(0.0), vec3f(1.0));
+	let luminance = dot(color, vec3f(0.213, 0.715, 0.072));
+	color = clamp(vec3f(luminance) + (color - vec3f(luminance)) * params.saturation, vec3f(0.0), vec3f(1.0));
+	color = applyVibrance(color, params.vibrance);
+	return vec4f(color * alpha, alpha);
+}
+`;
+
 const compileShader = (
 	gl: WebGL2RenderingContext,
 	type: number,
@@ -428,74 +515,115 @@ const setupColorCorrection = (
 	};
 };
 
-export const colorCorrection = createEffect<
-	ColorCorrectionParams,
-	ColorCorrectionState
->({
+export const colorCorrection = createEffect<ColorCorrectionParams>({
 	type: 'remotion/color-correction',
 	label: 'colorCorrection()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/color-correction',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `color-correction-${r.exposure}-${r.contrast}-${r.pivot}-${r.shadows}-${r.highlights}-${r.whites}-${r.blacks}-${r.temperature}-${r.tint}-${r.saturation}-${r.vibrance}`;
 	},
-	setup: setupColorCorrection,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, textureSource, uniforms, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ColorCorrectionParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'color correction'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the color correction effect',
+					);
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						r.exposure,
+						r.contrast,
+						r.pivot,
+						r.shadows,
+						r.highlights,
+						r.whites,
+						r.blacks,
+						r.temperature,
+						r.tint,
+						r.saturation,
+						r.vibrance,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			ColorCorrectionParams,
+			ColorCorrectionState
+		>({
+			setup: setupColorCorrection,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, textureSource, uniforms, vao} = state;
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uExposure) gl.uniform1f(uniforms.uExposure, r.exposure);
-		if (uniforms.uContrast) gl.uniform1f(uniforms.uContrast, r.contrast);
-		if (uniforms.uPivot) gl.uniform1f(uniforms.uPivot, r.pivot);
-		if (uniforms.uShadows) gl.uniform1f(uniforms.uShadows, r.shadows);
-		if (uniforms.uHighlights) {
-			gl.uniform1f(uniforms.uHighlights, r.highlights);
-		}
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, textureSource);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		if (uniforms.uWhites) gl.uniform1f(uniforms.uWhites, r.whites);
-		if (uniforms.uBlacks) gl.uniform1f(uniforms.uBlacks, r.blacks);
-		if (uniforms.uTemperature) {
-			gl.uniform1f(uniforms.uTemperature, r.temperature);
-		}
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uExposure) gl.uniform1f(uniforms.uExposure, r.exposure);
+				if (uniforms.uContrast) gl.uniform1f(uniforms.uContrast, r.contrast);
+				if (uniforms.uPivot) gl.uniform1f(uniforms.uPivot, r.pivot);
+				if (uniforms.uShadows) gl.uniform1f(uniforms.uShadows, r.shadows);
+				if (uniforms.uHighlights) {
+					gl.uniform1f(uniforms.uHighlights, r.highlights);
+				}
 
-		if (uniforms.uTint) gl.uniform1f(uniforms.uTint, r.tint);
-		if (uniforms.uSaturation) {
-			gl.uniform1f(uniforms.uSaturation, r.saturation);
-		}
+				if (uniforms.uWhites) gl.uniform1f(uniforms.uWhites, r.whites);
+				if (uniforms.uBlacks) gl.uniform1f(uniforms.uBlacks, r.blacks);
+				if (uniforms.uTemperature) {
+					gl.uniform1f(uniforms.uTemperature, r.temperature);
+				}
 
-		if (uniforms.uVibrance) gl.uniform1f(uniforms.uVibrance, r.vibrance);
+				if (uniforms.uTint) gl.uniform1f(uniforms.uTint, r.tint);
+				if (uniforms.uSaturation) {
+					gl.uniform1f(uniforms.uSaturation, r.saturation);
+				}
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				if (uniforms.uVibrance) gl.uniform1f(uniforms.uVibrance, r.vibrance);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, textureSource}) => {
+				gl.deleteTexture(textureSource);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: colorCorrectionSchema,
 	validateParams: validateColorCorrectionParams,

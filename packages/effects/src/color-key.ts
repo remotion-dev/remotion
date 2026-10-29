@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {COLOR_KEY_WEBGPU_SHADER} from './color-key-webgpu-shader.js';
 import {
 	assertOptionalFiniteNumber,
 	parseColorRgba,
@@ -10,6 +11,12 @@ import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -325,7 +332,7 @@ const setupColorKey = (target: HTMLCanvasElement): ColorKeyState => {
 };
 
 const parseKeyColor = (
-	state: ColorKeyState,
+	state: Pick<ColorKeyState, 'colorCtx' | 'cachedColor' | 'cachedColorRgba'>,
 	color: string,
 ): readonly [number, number, number] => {
 	if (state.cachedColor !== color) {
@@ -346,58 +353,117 @@ const parseKeyColor = (
 	];
 };
 
-export const colorKey = createEffect<ColorKeyParams, ColorKeyState>({
+export const colorKey = createEffect<ColorKeyParams>({
 	type: 'dev.remotion.effects.colorKey',
 	label: 'colorKey()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/color-key',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `color-key-${r.keyColor}-${r.similarity}-${r.smoothness}-${r.spillSuppression}`;
 	},
-	setup: (target) => setupColorKey(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const keyColor = parseKeyColor(state, r.keyColor);
-		const {gl, program, textureSource, uniforms, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ColorKeyParams,
+			WebGpuSinglePassState &
+				Pick<ColorKeyState, 'colorCtx' | 'cachedColor' | 'cachedColorRgba'>
+		>({
+			setup: (target) => {
+				const colorCanvas = document.createElement('canvas');
+				colorCanvas.width = 1;
+				colorCanvas.height = 1;
+				const colorCtx = colorCanvas.getContext('2d', {
+					willReadFrequently: true,
+				});
+				if (!colorCtx)
+					throw new Error('Failed to acquire 2D context for color parsing');
+				return {
+					...setupWebGpuSinglePass(target, 'color key'),
+					colorCtx,
+					cachedColor: '',
+					cachedColorRgba: [0, 255, 0, 255],
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the color key effect',
+					);
+				const r = resolve(params);
+				const keyColor = parseKeyColor(state, r.keyColor);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: COLOR_KEY_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						...keyColor,
+						r.similarity,
+						r.smoothness,
+						r.spillSuppression,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<ColorKeyParams, ColorKeyState>(
+			{
+				setup: (target) => setupColorKey(target),
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+					const keyColor = parseKeyColor(state, r.keyColor);
+					const {gl, program, textureSource, uniforms, vao} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+					gl.viewport(0, 0, width, height);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, textureSource);
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						source as TexImageSource,
+					);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uKeyColor)
-			gl.uniform3f(uniforms.uKeyColor, keyColor[0], keyColor[1], keyColor[2]);
-		if (uniforms.uSimilarity) gl.uniform1f(uniforms.uSimilarity, r.similarity);
-		if (uniforms.uSmoothness) gl.uniform1f(uniforms.uSmoothness, r.smoothness);
-		if (uniforms.uSpillSuppression)
-			gl.uniform1f(uniforms.uSpillSuppression, r.spillSuppression);
+					gl.useProgram(program);
+					if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+					if (uniforms.uKeyColor)
+						gl.uniform3f(
+							uniforms.uKeyColor,
+							keyColor[0],
+							keyColor[1],
+							keyColor[2],
+						);
+					if (uniforms.uSimilarity)
+						gl.uniform1f(uniforms.uSimilarity, r.similarity);
+					if (uniforms.uSmoothness)
+						gl.uniform1f(uniforms.uSmoothness, r.smoothness);
+					if (uniforms.uSpillSuppression)
+						gl.uniform1f(uniforms.uSpillSuppression, r.spillSuppression);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+					gl.bindVertexArray(vao);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					gl.bindVertexArray(null);
+					gl.bindTexture(gl.TEXTURE_2D, null);
+					gl.useProgram(null);
+				},
+				cleanup: ({gl, program, vao, vbo, textureSource}) => {
+					gl.deleteTexture(textureSource);
+					gl.deleteBuffer(vbo);
+					gl.deleteProgram(program);
+					gl.deleteVertexArray(vao);
+				},
+			},
+		),
 	},
 	schema: colorKeySchema,
 	validateParams: validateColorKeyParams,

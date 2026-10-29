@@ -1,0 +1,28 @@
+target_os = "mac"
+target_cpu = "arm64"
+is_debug = false
+is_component_build = false
+is_official_build = false
+symbol_level = 0
+blink_symbol_level = 0
+v8_symbol_level = 0
+chrome_pgo_phase = 0
+use_remoteexec = false
+use_siso = false
+use_system_xcode = true
+
+# The EC2 macOS 26 image also includes an older, incomplete 15.4 SDK.
+mac_sdk_min = "26.5"
+mac_deployment_target = "13.0"
+mac_min_system_version = "13.0"
+
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+headless_use_embedded_resources = true
+headless_enable_commands = false
+headless_use_prefs = false
+
+# Chromium's macOS GN graph includes bundle targets that require icudtl.dat.
+# Keep ICU's default external data file; packaging includes it.
+icu_use_data_file = true
+v8_use_external_startup_data = false

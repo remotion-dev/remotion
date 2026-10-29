@@ -253,7 +253,9 @@ const SectionCheckbox: React.FC<{
 	);
 };
 
-export const CompanyPricing: React.FC = () => {
+export const CompanyPricing: React.FC<{readonly purchaseHref: string}> = ({
+	purchaseHref,
+}) => {
 	const mobileLayout = useMobileLayout();
 	const [creatorsSelected, setCreatorsSelected] = React.useState(false);
 	const [automatorsSelected, setAutomatorsSelected] = React.useState(true);
@@ -333,7 +335,7 @@ export const CompanyPricing: React.FC = () => {
 				subtitle={
 					<>
 						Build video creation tools
-						{mobileLayout ? <br /> : ' - '}
+						<span>{mobileLayout ? <br /> : ' - '}</span>
 						$0.01 per render, $100/mo minimum
 					</>
 				}
@@ -371,11 +373,17 @@ export const CompanyPricing: React.FC = () => {
 							/>
 						</div>
 
-						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums">
+						<div
+							key={`render-count-${cloudRenders}`}
+							className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums"
+						>
 							{new Intl.NumberFormat('en-US').format(cloudRenders)} Renders
 						</div>
 
-						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
+						<div
+							key={`render-price-${cloudRenders}`}
+							className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums"
+						>
 							$
 							{new Intl.NumberFormat('en-US', {
 								maximumFractionDigits: 0,
@@ -395,7 +403,7 @@ export const CompanyPricing: React.FC = () => {
 				subtitle={
 					<>
 						Create videos for our organization
-						{mobileLayout ? <br /> : ' - '}
+						<span>{mobileLayout ? <br /> : ' - '}</span>
 						$25/mo per seat
 					</>
 				}
@@ -432,11 +440,17 @@ export const CompanyPricing: React.FC = () => {
 							/>
 						</div>
 
-						<div className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums">
+						<div
+							key={`seat-count-${devSeatCount}`}
+							className="fontbrand shrink-0 whitespace-nowrap w-[135px] sm:w-[150px] text-left tabular-nums"
+						>
 							{devSeatCount} {devSeatCount === 1 ? 'Seat' : 'Seats'}
 						</div>
 
-						<div className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums">
+						<div
+							key={`seat-price-${devSeatCount}`}
+							className="fontbrand font-bold min-w-[60px] text-right shrink-0 whitespace-nowrap tabular-nums"
+						>
 							$
 							{new Intl.NumberFormat('en-US', {
 								maximumFractionDigits: 0,
@@ -449,7 +463,7 @@ export const CompanyPricing: React.FC = () => {
 			<div style={{height: 14}} />
 			<div className="flex flex-row items-baseline justify-end gap-2">
 				<div className="fontbrand text-muted text-sm">Total</div>
-				<PriceTag>{totalPriceString}/month</PriceTag>
+				<PriceTag key={totalPriceString}>{totalPriceString}/month</PriceTag>
 			</div>
 			<div
 				className={cn(
@@ -466,7 +480,8 @@ export const CompanyPricing: React.FC = () => {
 				inert={!bottomMessage}
 			>
 				<div className="overflow-hidden flex flex-col items-stretch text-left">
-					<BottomInfo className="mt-1">
+					{/* Replace translated nodes as a unit when the message changes. */}
+					<BottomInfo key={bottomMessage} className="mt-1">
 						{bottomMessage === 'minimum' ? (
 							'The minimum is $100 per month for Remotion for Automators'
 						) : (
@@ -494,7 +509,7 @@ export const CompanyPricing: React.FC = () => {
 					}}
 				>
 					<a
-						href="https://remotion.pro/dashboard"
+						href={purchaseHref}
 						className="bluelink font-brand flex flex-row items-center gap-1"
 					>
 						Buy now{' '}

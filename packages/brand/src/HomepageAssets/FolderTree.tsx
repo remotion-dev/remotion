@@ -70,6 +70,8 @@ export const FolderTree: React.FC<{
 					style={{
 						backgroundColor: 'rgb(31,36,40)',
 						borderRadius: panelRadius,
+						// Match the six-pixel outline after the panel's combined scales.
+						boxShadow: 'inset 0 0 0 1.65px #000',
 						height: panelHeight,
 						overflow: 'hidden',
 						position: 'relative',
@@ -140,7 +142,7 @@ export const FolderTree: React.FC<{
 								whiteSpace: 'nowrap',
 							}}
 						>
-							assets
+							brand
 						</Interactive.Div>
 					</Interactive.Div>
 					<Interactive.Div
@@ -222,7 +224,7 @@ export const FolderTree: React.FC<{
 							position: 'absolute',
 							right: contentPadding,
 							top: 0,
-							translate: `0px ${childRowOffset * 2}px`,
+							translate: `0px ${finalSelectionY + (selectionHeight - rowHeight) / 2}px`,
 							userSelect: 'none',
 						}}
 					>

@@ -8,9 +8,11 @@ import React, {useCallback, useMemo} from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {FAIL_COLOR, LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {Spacing} from '../layout';
-import {openInFileExplorer} from '../RenderQueue/actions';
 import {CircularProgress} from '../RenderQueue/CircularProgress';
-import {RenderQueueOpenInFinderItem} from '../RenderQueue/RenderQueueOpenInFolder';
+import {
+	openRenderOutputInFileExplorer,
+	RenderQueueOpenInFinderItem,
+} from '../RenderQueue/RenderQueueOpenInFolder';
 import {SuccessIcon} from '../RenderQueue/SuccessIcon';
 
 const progressItem: React.CSSProperties = {
@@ -204,8 +206,8 @@ const OpenFile: React.FC<{
 	}, [job.deletedOutputLocation]);
 
 	const onClick = useCallback(() => {
-		openInFileExplorer({directory: job.outName});
-	}, [job.outName]);
+		openRenderOutputInFileExplorer(job);
+	}, [job]);
 
 	return (
 		<div style={progressItem}>

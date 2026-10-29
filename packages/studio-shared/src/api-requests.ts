@@ -12,6 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {PreferredEffectBackend} from 'remotion';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -221,6 +222,7 @@ type AddRenderRequestDynamicFields =
 			disallowParallelEncoding: boolean;
 			repro: boolean;
 			chromeMode: ChromeMode;
+			licenseKey: string | null;
 	  }
 	| {
 			type: 'video';
@@ -272,6 +274,7 @@ export type AddRenderRequest = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;

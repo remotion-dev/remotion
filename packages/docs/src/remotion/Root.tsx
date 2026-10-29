@@ -31,6 +31,7 @@ import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-pr
 import {EffectsEmbossPreview} from '../../components/effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-preview';
 import {EffectsExposurePreview} from '../../components/effects/effects-exposure-preview';
+import {EffectsFilmBurnPreview} from '../../components/effects/effects-film-burn-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
 import {
@@ -44,6 +45,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/eff
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
+import {EffectsIrisWipePreview} from '../../components/effects/effects-iris-wipe-preview';
 import {
 	EffectsLensBlurPreview,
 	LensBlurDemo,
@@ -100,6 +102,11 @@ import {
 	EffectsRadialProgressivePixelatePreview,
 	RADIAL_PROGRESSIVE_PIXELATE_PREVIEW_PARAMS,
 } from '../../components/effects/effects-radial-progressive-pixelate-preview';
+import {EffectsRadialWipePreview} from '../../components/effects/effects-radial-wipe-preview';
+import {
+	EffectsRainFallPreview,
+	RAIN_FALL_PREVIEW_PARAMS,
+} from '../../components/effects/effects-rain-fall-preview';
 import {EffectsRegionBlurPreview} from '../../components/effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../../components/effects/effects-rings-preview';
 import {
@@ -111,12 +118,17 @@ import {EffectsSaturationPreview} from '../../components/effects/effects-saturat
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../../components/effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../../components/effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../../components/effects/effects-skew-preview';
+import {
+	EffectsSnowFallPreview,
+	SNOW_FALL_PREVIEW_PARAMS,
+} from '../../components/effects/effects-snow-fall-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
 import {
 	EffectsSpherePreview,
@@ -159,6 +171,7 @@ import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {ElementPlayground} from './element-playground/ElementPlayground';
+import {ElementsOgImage} from './ElementsOgImage';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
@@ -227,6 +240,12 @@ export const RemotionRoot: React.FC = () => {
 					);
 				})}
 			</Folder>
+			<Still
+				component={ElementsOgImage}
+				height={630}
+				width={1200}
+				id="elements-og-image"
+			/>
 			<Folder name="articles">
 				{articles.map((e) => {
 					return (
@@ -470,9 +489,12 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{
-						progress: 0.55,
-						direction: 'left',
-						feather: 0.18,
+						progress: 0.5,
+						direction: 'angle',
+						angle: 60,
+						featherUnit: 'pixels',
+						featherPixels: 60,
+						feather: 0.1,
 					}}
 				/>
 				<Still
@@ -663,6 +685,59 @@ export const RemotionRoot: React.FC = () => {
 						progress: 0.58,
 						direction: 'vertical',
 						slats: 14,
+					}}
+				/>
+				<Still
+					id="effects-rain-fall-preview"
+					component={EffectsRainFallPreview}
+					width={1280}
+					height={720}
+					defaultProps={RAIN_FALL_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-snow-fall-preview"
+					component={EffectsSnowFallPreview}
+					width={1280}
+					height={720}
+					defaultProps={SNOW_FALL_PREVIEW_PARAMS}
+				/>
+				<Still
+					id="effects-film-burn-preview"
+					component={EffectsFilmBurnPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.4,
+						center: [0.5, 0.5],
+						seed: 0,
+					}}
+				/>
+				<Still
+					id="effects-radial-wipe-preview"
+					component={EffectsRadialWipePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						progress: 0.3,
+						startAngle: 0,
+						center: [0.5, 0.5],
+						direction: 'clockwise',
+						feather: 8,
+					}}
+				/>
+				<Still
+					id="effects-iris-wipe-preview"
+					component={EffectsIrisWipePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						center: [0.5, 0.5],
+						points: 5,
+						outerRadius: 300,
+						useInnerRadius: true,
+						innerRadius: 140,
+						rotation: 0,
+						feather: 12,
 					}}
 				/>
 				<Still
@@ -1235,6 +1310,30 @@ export const RemotionRoot: React.FC = () => {
 						offset: 0,
 						amplitude: 40,
 						wavelength: 160,
+					}}
+				/>
+				<Still
+					id="effects-shatter-preview"
+					component={EffectsShatterPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						time: 0.5,
+						pattern: 'bricks',
+						repetitions: 10,
+						direction: 0,
+						origin: [0.5, 0.5],
+						center: [0.5, 0.5],
+						radius: 0.4,
+						depth: 0.1,
+						strength: 5,
+						rotationSpeed: 0.2,
+						randomness: 0.1,
+						viscosity: 0.1,
+						massVariance: 0.3,
+						gravity: 3,
+						seed: 0,
+						extrusionDepth: 0.05,
 					}}
 				/>
 				<Still

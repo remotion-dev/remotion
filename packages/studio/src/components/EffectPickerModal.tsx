@@ -204,7 +204,7 @@ const EffectPickerResult: React.FC<{
 			>
 				<div style={previewFrame}>
 					<img
-						src={`https://www.remotion.dev${getEffectPreviewSource(item)}`}
+						src={getEffectPreviewSource(item)}
 						alt={getEffectPreviewAlt(item)}
 						style={{
 							...preview,

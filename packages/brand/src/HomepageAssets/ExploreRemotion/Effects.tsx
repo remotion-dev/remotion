@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {AbsoluteFill, HtmlInCanvas, Solid} from 'remotion';
 import {EffectsRecordingComposition} from '../../EffectsRecordingComposition';
@@ -31,9 +32,10 @@ export const ExploreRemotionEffects = () => {
 					style={{
 						width: 1568,
 						height: 1440,
-						left: 80,
-						top: -300,
-						rotate: '0 1 -0.1 22deg',
+						left: -40,
+						top: -250,
+						scale: 1.15,
+						rotate: EXPLORE_CAMERA_ANGLE,
 						transformOrigin: 'top left',
 					}}
 				>

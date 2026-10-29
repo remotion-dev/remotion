@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/transitions"
 	},
 	"name": "@remotion/transitions",
-	"version": "4.0.538",
+	"version": "4.0.539",
 	"description": "Library for creating transitions in Remotion",
 	"main": "dist/esm/index.mjs",
 	"module": "dist/esm/index.js",
@@ -72,6 +72,12 @@
 			"module": "./dist/esm/wipe.mjs",
 			"import": "./dist/esm/wipe.mjs",
 			"require": "./dist/presentations/wipe.js"
+		},
+		"./cube": {
+			"types": "./dist/presentations/cube.d.ts",
+			"module": "./dist/esm/cube.mjs",
+			"import": "./dist/esm/cube.mjs",
+			"require": "./dist/presentations/cube.js"
 		},
 		"./flip": {
 			"types": "./dist/presentations/flip.d.ts",
@@ -184,6 +190,9 @@
 			],
 			"slide": [
 				"dist/presentations/slide.d.ts"
+			],
+			"cube": [
+				"dist/presentations/cube.d.ts"
 			],
 			"flip": [
 				"dist/presentations/flip.d.ts"

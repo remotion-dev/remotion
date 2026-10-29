@@ -57,6 +57,7 @@ const prepare = async (options?: {
 	let playbackUnblocks = 0;
 
 	const manager = audioIteratorManager({
+		getIsPlaying: () => true,
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {

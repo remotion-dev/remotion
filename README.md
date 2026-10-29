@@ -1,26 +1,24 @@
 <p align="center">
-  <a href="https://github.com/remotion-dev/logo">
+  <a href="https://www.remotion.dev/">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
+      <source media="(prefers-color-scheme: dark)" type="image/avif" srcset="https://remotion.media/homepage/readme-hero-dark-2a223972396d.avif">
+      <source media="(prefers-color-scheme: dark)" type="image/webp" srcset="https://remotion.media/homepage/readme-hero-dark-002bbb0a3844.webp">
+      <source type="image/avif" srcset="https://remotion.media/homepage/readme-hero-light-b8a07e3566d0.avif">
+      <img alt="Remotion — Studio, Codex and VS Code working together" src="https://remotion.media/homepage/readme-hero-light-4bccd3ed9628.webp" width="100%">
     </picture>
   </a>
 </p>
 
-[![Discord Shield](https://img.shields.io/discord/809501355504959528?color=000000&label=Discord&logo=fdgssdf)](https://remotion.dev/discord)
-[![NPM Version](https://img.shields.io/npm/v/remotion.svg?style=flat&color=black)](https://www.npmjs.org/package/remotion)
-[![NPM Downloads](https://img.shields.io/npm/dm/remotion.svg?style=flat&color=black&label=Downloads)](https://npmcharts.com/compare/remotion?minimal=true)
-<a href="https://twitter.com/remotion"><img src="https://img.shields.io/twitter/follow/remotion?label=Twitter&color=black" alt="Twitter"></a>
+<p align="center">
+  <a href="https://remotion.dev/discord"><img alt="Discord Shield" src="https://img.shields.io/discord/809501355504959528?color=000000&amp;label=Discord&amp;logo=fdgssdf"></a>
+  <a href="https://www.npmjs.org/package/remotion"><img alt="NPM Version" src="https://img.shields.io/npm/v/remotion.svg?style=flat&amp;color=black"></a>
+  <a href="https://npmcharts.com/compare/remotion?minimal=true"><img alt="NPM Downloads" src="https://img.shields.io/npm/dm/remotion.svg?style=flat&amp;color=black&amp;label=Downloads"></a>
+  <a href="https://twitter.com/remotion"><img alt="Twitter" src="https://img.shields.io/twitter/follow/remotion?label=Twitter&amp;color=black"></a>
+</p>
 
-Video tools for the agent era.
-
-## Video Creation
-
-- **Make videos agentically**: Turn your idea into a video using your coding agent.
-- **Make videos interactively**: Edit and animate using drag and drop.
-- **Make videos programmatically**: Connect to data, and manage complexity with code.
-
-React Code is the source of truth. Switch your workflow at any point.
+- **Make videos agentically**: Turn your idea into a video using your agent.
+- **Make videos interactively**: Edit and animate like in a regular video editor.
+- **Make videos programmatically**: Leverage web technology and own your video as code.
 
 ## Video Automation
 
@@ -40,21 +38,22 @@ to get started. Otherwise, read the [installation page](https://www.remotion.dev
 
 ## Discover Remotion
 
-Remotion is extensively documented over more than 1000 pages.
+Remotion is extensively documented over 1,200 pages.
 
 - Get Started
   - [Installation](https://remotion.dev/docs)
+  - [Your first video](https://remotion.dev/docs/your-first-video)
   - [Agent Skills](https://www.remotion.dev/docs/ai/skills)
-  - [Prompts](https://www.remotion.dev/prompts)
   - [Templates](https://remotion.dev/templates)
-- Components
+- Making videos
   - [Elements](https://remotion.dev/elements)
   - [Effects](https://remotion.dev/effects)
-  - [Shapes](https://remotion.dev/docs/shapes)
   - [Transitions](https://remotion.dev/transitions)
   - [Sound Effects](https://remotion.dev/docs/sfx)
   - [Captions](https://remotion.dev/docs/captions)
   - [Fonts](https://remotion.dev/docs/fonts)
+  - [Color correction](https://remotion.dev/docs/color-correction)
+  - [Shapes](https://remotion.dev/docs/shapes)
 - Rendering
   - [Node.js APIs](https://www.remotion.dev/docs/ssr)
   - [Lambda](https://www.remotion.dev/docs/lambda)
@@ -62,6 +61,7 @@ Remotion is extensively documented over more than 1000 pages.
   - [Client-side rendering](https://www.remotion.dev/docs/client-side-rendering/)
   - [Comparison of options](https://remotion.dev/docs/compare-ssr)
 - Making apps
+  - [SDK](https://remotion.dev/docs/sdk) (coming soon)
   - [Player](https://remotion.dev/docs/player)
   - [Editor Starter](https://remotion.dev/editor-starter)
   - [Mediabunny](https://remotion.dev/docs/mediabunny)

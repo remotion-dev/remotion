@@ -1,3 +1,5 @@
+import {validatePreferredEffectBackend} from './effects/validate-preferred-effect-backend.js';
+export type {PreferredEffectBackend} from './effects/effect-types.js';
 import type {
 	ArtifactAsset,
 	AudioOrVideoAsset as InternalAudioOrVideoAsset,
@@ -65,6 +67,7 @@ import {parseScaleValue, serializeScaleValue} from './scale-value';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
+import {validateSelectedFrames} from './validate-selected-frames';
 import {validateCodec} from './validation/validate-default-codec';
 import {validateDefaultAndInputProps} from './validation/validate-default-props';
 import {validateDimension} from './validation/validate-dimensions';
@@ -74,6 +77,7 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	validatePreferredEffectBackend,
 	DEFAULT_PREMOUNT_IN_SECONDS,
 	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
@@ -87,6 +91,7 @@ export const NoReactInternals = {
 	validateDurationInFrames,
 	validateDefaultAndInputProps,
 	validateFrame,
+	validateSelectedFrames,
 	serializeJSONWithSpecialTypes,
 	bundleName: 'bundle.js',
 	bundleMapName: 'bundle.js.map',

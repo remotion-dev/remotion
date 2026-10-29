@@ -1,5 +1,6 @@
 import type {AudioSample, AudioSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
+import {isCodecReclaimedError} from '../is-type-of-error';
 import type {RememberActualMatroskaTimestamps} from '../video-extraction/remember-actual-matroska-timestamps';
 import {makeAudioCache} from './audio-cache';
 
@@ -47,7 +48,7 @@ export const makeAudioIterator = ({
 
 	// https://github.com/Vanilagy/mediabunny/issues/105
 
-	const sampleIterator = audioSampleSink.samples(
+	let sampleIterator = audioSampleSink.samples(
 		isMatroska ? 0 : Math.max(0, startTimestamp - EXTRA_THRESHOLD_IN_SECONDS),
 	);
 	if (isMatroska) {
@@ -59,32 +60,79 @@ export const makeAudioIterator = ({
 	const cache = makeAudioCache();
 
 	let lastUsed = Date.now();
+	let deleted = false;
+	let decodeFailure: {error: unknown} | null = null;
 
 	const getNextSample = async () => {
 		lastUsed = Date.now();
-
-		const {value: sample, done} = await sampleIterator.next();
-		if (done) {
-			fullDuration = cache.getNewestTimestamp();
-			return null;
+		if (decodeFailure) {
+			throw decodeFailure.error;
 		}
 
-		const realTimestamp = actualMatroskaTimestamps.getRealTimestamp(
-			sample.timestamp,
-		);
+		let retried = false;
+		const timestamps = cache.getOpenTimestamps();
+		const lastTimestamp = timestamps[timestamps.length - 1];
+		try {
+			while (true) {
+				const {value: sample, done} = await sampleIterator
+					.next()
+					.catch(async (error: unknown) => {
+						if (retried || deleted || !isCodecReclaimedError(error)) {
+							throw error;
+						}
 
-		if (realTimestamp !== null && realTimestamp !== sample.timestamp) {
-			sample.setTimestamp(realTimestamp);
+						retried = true;
+						await sampleIterator.return().catch(() => undefined);
+						if (deleted) {
+							throw error;
+						}
+
+						sampleIterator = audioSampleSink.samples(
+							isMatroska
+								? 0
+								: Math.max(
+										0,
+										(cache.getNewestTimestamp() ?? startTimestamp) -
+											EXTRA_THRESHOLD_IN_SECONDS,
+									),
+						);
+						return sampleIterator.next();
+					});
+				if (done) {
+					fullDuration = cache.getNewestTimestamp();
+					return null;
+				}
+
+				const realTimestamp = actualMatroskaTimestamps.getRealTimestamp(
+					sample.timestamp,
+				);
+				if (realTimestamp !== null && realTimestamp !== sample.timestamp) {
+					sample.setTimestamp(realTimestamp);
+				}
+
+				// Re-decoding includes priming samples that are already cached.
+				if (
+					retried &&
+					lastTimestamp !== undefined &&
+					sample.timestamp <= lastTimestamp
+				) {
+					sample.close();
+					continue;
+				}
+
+				actualMatroskaTimestamps.observeTimestamp(sample.timestamp);
+				actualMatroskaTimestamps.observeTimestamp(
+					sample.timestamp + sample.duration,
+				);
+				cache.addFrame(sample);
+
+				return sample;
+			}
+		} catch (error) {
+			decodeFailure = {error};
+			await sampleIterator.return().catch(() => undefined);
+			throw error;
 		}
-
-		actualMatroskaTimestamps.observeTimestamp(sample.timestamp);
-		actualMatroskaTimestamps.observeTimestamp(
-			sample.timestamp + sample.duration,
-		);
-
-		cache.addFrame(sample);
-
-		return sample;
 	};
 
 	const getSamples = async (timestamp: number, durationInSeconds: number) => {
@@ -175,12 +223,16 @@ export const makeAudioIterator = ({
 	};
 
 	const prepareForDeletion = () => {
+		deleted = true;
 		cache.deleteAll();
-		sampleIterator.return().then((value) => {
-			if (value.value) {
-				value.value.close();
-			}
-		});
+		sampleIterator
+			.return()
+			.then((value) => {
+				if (value.value) {
+					value.value.close();
+				}
+			})
+			.catch(() => undefined);
 
 		fullDuration = null;
 	};

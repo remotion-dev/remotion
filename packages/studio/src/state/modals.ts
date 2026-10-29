@@ -29,6 +29,7 @@ import type {
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
@@ -59,6 +60,7 @@ export type WebRenderModalState = {
 	initialTransparent: boolean | null;
 	initialMuted: boolean | null;
 	initialMediaCacheSizeInBytes: number | null;
+	initialPreferredEffectBackend: PreferredEffectBackend;
 	initialAllowHtmlInCanvas: boolean;
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
@@ -92,6 +94,7 @@ export type RenderModalState = {
 	initialHeadless: boolean;
 	initialDarkMode: boolean;
 	initialMediaCacheSizeInBytes: number | null;
+	initialPreferredEffectBackend: PreferredEffectBackend;
 	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialOffthreadVideoThreads: number | null;
 	initialColorSpace: ColorSpace;

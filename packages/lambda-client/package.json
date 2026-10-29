@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-client"
 	},
 	"name": "@remotion/lambda-client",
-	"version": "4.0.538",
+	"version": "4.0.539",
 	"main": "dist/cjs/index.js",
 	"scripts": {
 		"formatting": "oxfmt src --check",
@@ -34,6 +34,8 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"next": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@types/mime-types": "2.1.1",
 		"typescript": "catalog:"
 	},

@@ -28,6 +28,7 @@ import type {
 	UpdateCompositionMetadataRequest,
 	VisualControlChange,
 } from '@remotion/studio-shared';
+import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
@@ -52,6 +53,7 @@ export const addStillRenderJob = ({
 	metadata,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	licenseKey,
 }: {
 	compositionId: string;
@@ -72,6 +74,7 @@ export const addStillRenderJob = ({
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
@@ -99,6 +102,7 @@ export const addStillRenderJob = ({
 		metadata,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		licenseKey,
 	});
 };
@@ -126,6 +130,8 @@ export const addSequenceRenderJob = ({
 	metadata,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
+	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -149,6 +155,8 @@ export const addSequenceRenderJob = ({
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
+	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -179,6 +187,8 @@ export const addSequenceRenderJob = ({
 		metadata,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
+		licenseKey,
 	});
 };
 
@@ -224,6 +234,7 @@ export const addVideoRenderJob = ({
 	hardwareAcceleration,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	sampleRate,
 	licenseKey,
 }: {
@@ -268,6 +279,7 @@ export const addVideoRenderJob = ({
 	hardwareAcceleration: HardwareAccelerationOption;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	sampleRate: number;
 	licenseKey: string | null;
 }) => {
@@ -319,6 +331,7 @@ export const addVideoRenderJob = ({
 		hardwareAcceleration,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
 		licenseKey,
 	});

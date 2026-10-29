@@ -41,6 +41,7 @@ func RenderFramesOnLambda(input RenderFramesOptions) (*RemotionRenderResponse, e
 		OffthreadVideoCacheSizeInBytes: input.OffthreadVideoCacheSizeInBytes,
 		OffthreadVideoThreads:          input.OffthreadVideoThreads,
 		MediaCacheSizeInBytes:          input.MediaCacheSizeInBytes,
+		PreferredEffectBackend:         input.PreferredEffectBackend,
 		EnableCancellation:             input.EnableCancellation,
 	}, &input)
 }

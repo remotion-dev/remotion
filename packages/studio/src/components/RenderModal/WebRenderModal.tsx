@@ -16,6 +16,7 @@ import {
 	isAudioOnlyContainer,
 } from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -86,6 +87,7 @@ type WebRenderModalProps = {
 	readonly initialTransparent: boolean | null;
 	readonly initialMuted: boolean | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
+	readonly initialPreferredEffectBackend: PreferredEffectBackend;
 	readonly initialAllowHtmlInCanvas: boolean;
 	readonly initialPageResponsiveness: WebRendererPageResponsiveness;
 };
@@ -175,6 +177,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialScale,
 	initialDelayRenderTimeout,
 	initialMediaCacheSizeInBytes,
+	initialPreferredEffectBackend,
 	initialContainer,
 	initialVideoCodec,
 	initialAudioCodec,
@@ -245,6 +248,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
 		initialDelayRenderTimeout ?? 30000,
 	);
+	const preferredEffectBackend = initialPreferredEffectBackend;
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
 	>(initialMediaCacheSizeInBytes);
@@ -557,6 +561,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					inputProps,
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					logLevel,
 					licenseKey: publicLicenseKey,
 					scale,
@@ -586,6 +591,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					inputProps,
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					logLevel,
 					licenseKey: publicLicenseKey,
 					scale,
@@ -617,6 +623,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		inputProps,
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		logLevel,
 		publicLicenseKey,
 		container,

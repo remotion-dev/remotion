@@ -461,7 +461,7 @@ export const TemplateModalContent: React.FC<{
 							<a
 								target="_blank"
 								className="text-inherit inline-flex flex-row items-center cursor-pointer select-none"
-								href={`https://www.remotion.dev/new?repo=${encodeURIComponent(`https://github.com/${template.org}/${template.repoName}`)}`}
+								href={`https://remotion.new?repo=${encodeURIComponent(`https://github.com/${template.org}/${template.repoName}`)}`}
 							>
 								<div className="flex flex-row items-center pt-1 pb-1 align-middle pr-4">
 									<div className="w-6 h-9 mr-3 inline-flex items-center justify-center">

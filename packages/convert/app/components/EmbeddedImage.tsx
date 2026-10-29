@@ -41,7 +41,7 @@ export const EmbeddedImage: React.FC<{
 			style={{
 				height: THUMBNAIL_HEIGHT,
 			}}
-			className="justify-center items-center flex border-solid border-b-2 border-black bg-slate-100"
+			className="justify-center items-center flex border-solid border-b-2 border-outline bg-muted"
 		>
 			<img src={url} className="max-h-full" />
 		</div>

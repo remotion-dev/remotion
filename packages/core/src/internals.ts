@@ -61,8 +61,15 @@ import {
 	timeValueRef,
 } from './EditorProps.js';
 import {createCurveSampler} from './effects/create-curve-sampler.js';
-import {createEffect} from './effects/create-effect.js';
+import {
+	createEffect,
+	createEffectImplementation,
+} from './effects/create-effect.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
+import {
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
+} from './effects/preferred-effect-backend.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -550,7 +557,10 @@ export const Internals = {
 	useMemoizedEffects,
 	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
 	createEffect,
+	createEffectImplementation,
 	createCurveSampler,
 	createWebGLContextError,
 	createWebGL2ContextError,

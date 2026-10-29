@@ -1,8 +1,15 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
+import {SKEW_WEBGPU_SHADER} from './skew-webgpu-shader.js';
 import {publicUvToShaderUv} from './uv-coordinate.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -250,62 +257,96 @@ const setupSkew = (target: HTMLCanvasElement): SkewState => {
 	};
 };
 
-export const skew = createEffect<SkewParams, SkewState>({
+export const skew = createEffect<SkewParams>({
 	type: 'dev.remotion.effects.skew',
 	label: 'skew()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/skew',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `skew-${resolved.x}-${resolved.y}-${resolved.origin[0]}-${resolved.origin[1]}`;
 	},
-	setup: setupSkew,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const resolved = resolve(params);
-		const radians = Math.PI / 180;
-		const {gl} = state;
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
-		gl.useProgram(state.program);
-		gl.bindVertexArray(state.vao);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, state.texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uSkew) {
-			gl.uniform2f(
-				state.uSkew,
-				Math.tan(resolved.x * radians),
-				Math.tan(resolved.y * radians),
-			);
-		}
+	implementations: {
+		webgl2: Internals.createEffectImplementation<SkewParams, SkewState>({
+			setup: setupSkew,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const resolved = resolve(params);
+				const radians = Math.PI / 180;
+				const {gl} = state;
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.useProgram(state.program);
+				gl.bindVertexArray(state.vao);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, state.texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uSkew) {
+					gl.uniform2f(
+						state.uSkew,
+						Math.tan(resolved.x * radians),
+						Math.tan(resolved.y * radians),
+					);
+				}
 
-		if (state.uOrigin) {
-			const [originX, originY] = publicUvToShaderUv(resolved.origin);
-			gl.uniform2f(state.uOrigin, originX, originY);
-		}
+				if (state.uOrigin) {
+					const [originX, originY] = publicUvToShaderUv(resolved.origin);
+					gl.uniform2f(state.uOrigin, originX, originY);
+				}
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+		webgpu: Internals.createEffectImplementation<
+			SkewParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'skew'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error('A WebGPU device is required for the skew effect');
+				}
+
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: SKEW_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						Math.tan((r.x * Math.PI) / 180),
+						Math.tan((r.y * Math.PI) / 180),
+						...publicUvToShaderUv(r.origin),
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
 	},
 	schema: skewSchema,
 	validateParams: validateSkewParams,

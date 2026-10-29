@@ -453,6 +453,7 @@ export class MediaPlayer {
 						getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
 						getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
 						getStartTime: () => this.getStartTime(),
+						getIsPlaying: () => this.playing,
 						initialMuted,
 						initialVolume,
 						toneFrequency: this.toneFrequency,
@@ -799,6 +800,7 @@ export class MediaPlayer {
 		const previousDuration = this.sequenceDurationInFrames;
 		if (previousDuration !== sequenceDurationInFrames) {
 			this.sequenceDurationInFrames = sequenceDurationInFrames;
+			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
@@ -969,7 +971,17 @@ export class MediaPlayer {
 			return;
 		}
 
-		this.audioIteratorManager.destroyIterator();
+		if (
+			this.audioIteratorManager.rescheduleAudio(
+				this.getTrimmedTime(unloopedTimeInSeconds),
+				unloopedTimeInSeconds,
+				this.playbackRate,
+				this.loop,
+			)
+		) {
+			return;
+		}
+
 		// An anchor can change while paused, when no frame update will restart
 		// scheduling. Refill the queue against the new anchor immediately.
 		// Re-anchoring is not navigation. Preserve the captured revision so an

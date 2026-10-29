@@ -3,6 +3,9 @@ const WEBGL_CONTEXT_DOCS_URL =
 
 export const WEBGL2_CONTEXT_ERROR_MARKER = 'Failed to acquire WebGL2 context';
 
+// Distinguish a temporarily unavailable replacement context from an effect bug.
+export class WebGL2ContextCreationError extends Error {}
+
 const webGlContextErrorMessage = (
 	versionLabel: 'WebGL' | 'WebGL2',
 	effectName: string,
@@ -16,4 +19,6 @@ export const createWebGLContextError = (effectName: string): Error =>
 	new Error(webGlContextErrorMessage('WebGL', effectName));
 
 export const createWebGL2ContextError = (effectName: string): Error =>
-	new Error(webGlContextErrorMessage('WebGL2', effectName));
+	new WebGL2ContextCreationError(
+		webGlContextErrorMessage('WebGL2', effectName),
+	);

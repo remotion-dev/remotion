@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-effects-color-correction.png
+image: https://remotion.media/docs/generated/articles-docs-effects-color-correction.png
 slug: /effects/color-correction
 title: colorCorrection()
 sidebar_label: colorCorrection()
@@ -10,7 +10,7 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Applies common primary color adjustments in one WebGL pass.
+Applies common primary color adjustments in one pass.
 
 ## Preview
 
@@ -105,6 +105,13 @@ The vibrance adjustment from `-1` to `1`. Positive values emphasize muted colors
 ### `disabled?`
 
 When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## Compatibility
 

@@ -7,6 +7,7 @@ import type {
 	OnBrowserDownload,
 	RemotionServer,
 } from '@remotion/renderer';
+import type {PreferredEffectBackend} from 'remotion';
 import type {VideoConfig} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 
@@ -34,6 +35,7 @@ export const getCompositionWithDimensionOverride = async ({
 	onBrowserDownload,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 }: {
 	height: number | null;
 	width: number | null;
@@ -58,6 +60,7 @@ export const getCompositionWithDimensionOverride = async ({
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -84,6 +87,7 @@ export const getCompositionWithDimensionOverride = async ({
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 	});
 
 	return {

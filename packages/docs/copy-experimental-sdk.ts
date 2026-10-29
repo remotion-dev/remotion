@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {$} from 'bun';
 
-// remotion.dev/experimental_sdk hosts the Vibe Code template as a static
+// sdk-demo.remotion.dev hosts the Vibe Code template as a static
 // export, with the starter project embedded at build time. The template's
 // workspace dependencies are dependencies of the docs, so they are built.
 const basePath = '/experimental_sdk';

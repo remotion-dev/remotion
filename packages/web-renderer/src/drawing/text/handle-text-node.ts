@@ -16,6 +16,7 @@ export const handleTextNode = async ({
 	scale,
 	waitForPageResponsiveness,
 	transformStyleCache,
+	isolatedElements,
 }: {
 	node: Text;
 	context: OffscreenCanvasRenderingContext2D;
@@ -27,6 +28,7 @@ export const handleTextNode = async ({
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 	transformStyleCache: TransformStyleCache;
+	isolatedElements: WeakSet<Element>;
 }): Promise<ProcessNodeReturnValue> => {
 	const span = document.createElement('span');
 
@@ -49,6 +51,7 @@ export const handleTextNode = async ({
 		scale,
 		waitForPageResponsiveness,
 		transformStyleCache,
+		isolatedElements,
 	});
 
 	// Undo the layout manipulation

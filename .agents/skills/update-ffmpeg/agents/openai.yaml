@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Update FFmpeg'
+  short_description: 'Rebuild compositor binaries and open a PR'
+  default_prompt: 'Use $update-ffmpeg to import the verified FFmpeg artifact set, rebuild all compositor targets, and prepare one PR.'

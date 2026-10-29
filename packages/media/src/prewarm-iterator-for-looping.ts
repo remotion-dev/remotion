@@ -1,10 +1,12 @@
-import type {CanvasSink} from 'mediabunny';
+import type {VideoSampleSink, VideoSampleTransformOptions} from 'mediabunny';
 import type {CanvasAheadOfTimeIterator} from './canvas-ahead-of-time';
 import {canvasesAheadOfTime} from './canvas-ahead-of-time';
+import {FRAME_START_TOLERANCE} from './helpers/has-frame-started';
 
 export const makePrewarmedVideoIteratorCache = (
-	videoSink: CanvasSink,
+	videoSink: VideoSampleSink,
 	timeResolution: number,
+	resize: VideoSampleTransformOptions | null = null,
 ) => {
 	const prewarmedVideoIterators: Map<number, CanvasAheadOfTimeIterator> =
 		new Map();
@@ -12,7 +14,10 @@ export const makePrewarmedVideoIteratorCache = (
 	// Snap to the track's own timestamp grid: WebM stores milliseconds, so frame 62
 	// at 30fps (2.0667s) is stored at 2.067s and must not seek into the previous GOP.
 	const snapToTrackTimeResolution = (timeToSeek: number) => {
-		return Math.round(timeToSeek * timeResolution) / timeResolution;
+		return (
+			Math.floor((timeToSeek + FRAME_START_TOLERANCE) * timeResolution) /
+			timeResolution
+		);
 	};
 
 	const prewarmIteratorForLooping = ({timeToSeek}: {timeToSeek: number}) => {
@@ -20,7 +25,7 @@ export const makePrewarmedVideoIteratorCache = (
 		if (!prewarmedVideoIterators.has(snapped)) {
 			prewarmedVideoIterators.set(
 				snapped,
-				canvasesAheadOfTime(videoSink, snapped),
+				canvasesAheadOfTime(videoSink, snapped, resize),
 			);
 		}
 	};
@@ -33,12 +38,13 @@ export const makePrewarmedVideoIteratorCache = (
 			return prewarmedIterator;
 		}
 
-		return canvasesAheadOfTime(videoSink, snapped);
+		return canvasesAheadOfTime(videoSink, snapped, resize);
 	};
 
 	const destroy = () => {
 		for (const iterator of prewarmedVideoIterators.values()) {
-			iterator.closeIterator();
+			// Closing an iterator whose decoder was reclaimed rejects.
+			iterator.closeIterator().catch(() => undefined);
 		}
 
 		prewarmedVideoIterators.clear();

@@ -113,7 +113,6 @@ export const setupWave = (target: HTMLCanvasElement): WaveState => {
 	}
 
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
 	const program = createProgram(gl, WAVE_VS, WAVE_FS);
 
@@ -168,6 +167,7 @@ type ApplyWaveParams = {
 	readonly source: CanvasImageSource;
 	readonly width: number;
 	readonly height: number;
+	readonly flipSourceY: boolean;
 	readonly amplitude: number;
 	readonly wavelength: number;
 	readonly phase: number;
@@ -186,6 +186,7 @@ export const applyWave = ({
 	source,
 	width,
 	height,
+	flipSourceY,
 	amplitude,
 	wavelength,
 	phase,
@@ -194,6 +195,8 @@ export const applyWave = ({
 	const {gl, program, textureSource, uniforms} = state;
 
 	gl.viewport(0, 0, width, height);
+	gl.activeTexture(gl.TEXTURE0);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 	gl.bindTexture(gl.TEXTURE_2D, textureSource);
 	gl.texImage2D(
 		gl.TEXTURE_2D,

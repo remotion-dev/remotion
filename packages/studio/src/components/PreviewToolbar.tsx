@@ -108,8 +108,7 @@ export const PreviewToolbar: React.FC<{
 	}, [size, width]);
 	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
-	const {playerMuted} = useContext(Internals.MediaVolumeContext);
-	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const [playerMuted, setPlayerMuted] = Internals.usePlayerMutedState();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isVideoComposition = useIsVideoComposition();
 	const showCompositionControls = canvasContent?.type === 'composition';
@@ -158,15 +157,20 @@ export const PreviewToolbar: React.FC<{
 				) : null}
 				{isMobileLayout ? (
 					<>
+						{isVideoComposition ? (
+							<PreviewToolbarControl>
+								<PlaybackRateSelector
+									setPlaybackRate={setPlaybackRate}
+									playbackRate={playbackRate}
+								/>
+							</PreviewToolbarControl>
+						) : null}
 						<PreviewToolbarControl>
 							<PreviewToolbarOverflowButton
 								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-								showPlaybackRate={isVideoComposition}
 								showLoop={isVideoComposition}
 								showCanvasViewControls={showCanvasViewControls}
 								showCompositionControls={showCompositionControls}
-								playbackRate={playbackRate}
-								setPlaybackRate={setPlaybackRate}
 								loop={loop}
 								setLoop={setLoop}
 							/>

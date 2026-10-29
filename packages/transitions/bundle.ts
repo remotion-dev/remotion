@@ -8,6 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
 const presentations = [
 	'slide',
 	'flip',
+	'cube',
 	'wipe',
 	'fade',
 	'clock-wipe',

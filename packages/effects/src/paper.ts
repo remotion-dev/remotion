@@ -741,19 +741,29 @@ const uploadNoiseTexture = (
 	seed: number,
 ): void => {
 	const data = createNoiseData(seed);
+	const flipY = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL) as boolean;
+	const premultiplyAlpha = gl.getParameter(
+		gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
+	) as boolean;
 	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-	gl.texImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		NOISE_TEXTURE_SIZE,
-		NOISE_TEXTURE_SIZE,
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		data,
-	);
+	try {
+		gl.texImage2D(
+			gl.TEXTURE_2D,
+			0,
+			gl.RGBA,
+			NOISE_TEXTURE_SIZE,
+			NOISE_TEXTURE_SIZE,
+			0,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			data,
+		);
+	} finally {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY);
+		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
+	}
 };
 
 const createNoiseTexture = (gl: WebGL2RenderingContext): WebGLTexture => {

@@ -1,4 +1,5 @@
-import type {CanvasSink, WrappedCanvas} from 'mediabunny';
+import type {VideoSampleTransformOptions, WrappedCanvas} from 'mediabunny';
+import type {VideoSample, VideoSampleSink} from 'mediabunny';
 
 export type CanvasAheadOfTimeNext =
 	| {type: 'ready'; frame: WrappedCanvas | null}
@@ -7,75 +8,163 @@ export type CanvasAheadOfTimeNext =
 const BUFFER_SIZE = 3;
 
 const releaseCanvas = Symbol('releaseCanvas');
+const drawSample = Symbol('drawSample');
+const effectSource = Symbol('effectSource');
+
+type EffectSourceOptions = {
+	width: number;
+	height: number;
+	allowDirectSource: boolean;
+};
 
 type StableWrappedCanvas = WrappedCanvas & {
 	[releaseCanvas]: () => void;
+	[effectSource]: ((options: EffectSourceOptions) => CanvasImageSource) | null;
+	[drawSample]:
+		| ((
+				context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+				width: number,
+				height: number,
+		  ) => void)
+		| null;
 };
 
 export const releaseStableFrame = (frame: WrappedCanvas | null) => {
 	(frame as Partial<StableWrappedCanvas> | null)?.[releaseCanvas]?.();
 };
 
+export const drawStableFrame = (
+	context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+	frame: WrappedCanvas,
+	width: number,
+	height: number,
+) => {
+	const draw = (frame as Partial<StableWrappedCanvas>)[drawSample];
+	if (draw) {
+		draw(context, width, height);
+	} else {
+		context.drawImage(frame.canvas, 0, 0, width, height);
+	}
+};
+
+// Effects may await GPU initialization, so this source must outlive a microtask.
+export const getStableEffectSource = (
+	frame: WrappedCanvas,
+	options: EffectSourceOptions,
+): CanvasImageSource => {
+	return (
+		(frame as Partial<StableWrappedCanvas>)[effectSource]?.(options) ??
+		frame.canvas
+	);
+};
+
 const makeStableFramePool = () => {
 	const availableCanvases: OffscreenCanvas[] = [];
 
-	const makeStableFrame = (frame: WrappedCanvas): WrappedCanvas => {
-		const {canvas} = frame;
-		const stableCanvas =
-			availableCanvases.pop() ??
-			new OffscreenCanvas(canvas.width, canvas.height);
-		if (stableCanvas.width !== canvas.width) {
-			stableCanvas.width = canvas.width;
-		}
-
-		if (stableCanvas.height !== canvas.height) {
-			stableCanvas.height = canvas.height;
-		}
-
-		const context = stableCanvas.getContext('2d');
-		if (!context) {
-			throw new Error('Could not create canvas context');
-		}
-
-		context.clearRect(0, 0, stableCanvas.width, stableCanvas.height);
-
-		// CanvasSink may reuse canvases in a ring buffer when poolSize is set.
-		// Since callers retain WrappedCanvas objects as the current/peeked frame,
-		// copy the pixels before another decoded frame can overwrite the source.
-		context.drawImage(canvas, 0, 0);
-
-		let released = false;
-
-		const stableFrame: StableWrappedCanvas = {
-			canvas: stableCanvas,
-			duration: frame.duration,
+	const makeStableFrame = (frame: VideoSample): WrappedCanvas => {
+		let sampleCanvas: OffscreenCanvas | null = null;
+		let sampleReleased = false;
+		let effectCanvas: OffscreenCanvas | null = null;
+		let retainedSource: CanvasImageSource | null = null;
+		const sampleFrame: StableWrappedCanvas = {
 			timestamp: frame.timestamp,
-			[releaseCanvas]: () => {
-				if (released) {
-					return;
+			duration: frame.duration,
+			// Rotation and onVideoFrame can still request an owned canvas. Ordinary
+			// playback can draw the retained sample without allocating one.
+			get canvas() {
+				if (!sampleCanvas) {
+					sampleCanvas =
+						availableCanvases.pop() ??
+						new OffscreenCanvas(frame.displayWidth, frame.displayHeight);
+					if (sampleCanvas.width !== frame.displayWidth)
+						sampleCanvas.width = frame.displayWidth;
+					if (sampleCanvas.height !== frame.displayHeight)
+						sampleCanvas.height = frame.displayHeight;
+					const sampleContext = sampleCanvas.getContext('2d');
+					if (!sampleContext)
+						throw new Error('Could not create canvas context');
+					sampleContext.clearRect(
+						0,
+						0,
+						sampleCanvas.width,
+						sampleCanvas.height,
+					);
+					frame.draw(
+						sampleContext,
+						0,
+						0,
+						sampleCanvas.width,
+						sampleCanvas.height,
+					);
 				}
 
-				released = true;
-				availableCanvases.push(stableCanvas);
+				return sampleCanvas;
+			},
+			[effectSource]: ({width, height, allowDirectSource}) => {
+				if (width !== frame.displayWidth || height !== frame.displayHeight) {
+					effectCanvas ??=
+						availableCanvases.pop() ?? new OffscreenCanvas(width, height);
+					if (effectCanvas.width !== width) effectCanvas.width = width;
+					if (effectCanvas.height !== height) effectCanvas.height = height;
+					const effectContext = effectCanvas.getContext('2d');
+					if (!effectContext)
+						throw new Error('Could not create canvas context');
+					effectContext.clearRect(0, 0, width, height);
+					frame.draw(effectContext, 0, 0, width, height);
+					return effectCanvas;
+				}
+
+				// GPU uploads do not always match Canvas2D's color/orientation conversion.
+				if (
+					!allowDirectSource ||
+					sampleCanvas ||
+					frame.rotation !== 0 ||
+					frame.flip
+				)
+					return sampleFrame.canvas;
+				if (!retainedSource) {
+					const source = frame.toCanvasImageSource();
+					retainedSource =
+						typeof VideoFrame !== 'undefined' && source instanceof VideoFrame
+							? source.clone()
+							: source;
+				}
+
+				return retainedSource;
+			},
+			[drawSample]: (sampleContext, width, height) => {
+				frame.draw(sampleContext, 0, 0, width, height);
+			},
+			[releaseCanvas]: () => {
+				if (sampleReleased) return;
+				sampleReleased = true;
+				if (
+					typeof VideoFrame !== 'undefined' &&
+					retainedSource instanceof VideoFrame
+				)
+					retainedSource.close();
+				frame.close();
+				if (sampleCanvas) availableCanvases.push(sampleCanvas);
+				if (effectCanvas) availableCanvases.push(effectCanvas);
 			},
 		};
-
-		return stableFrame;
+		return sampleFrame;
 	};
 
 	return {makeStableFrame};
 };
 
 type Slot = {
-	promise: Promise<IteratorResult<WrappedCanvas, void>>;
+	promise: Promise<IteratorResult<VideoSample, void>>;
 	resolved: IteratorResult<WrappedCanvas, void> | null;
 };
 
 export const canvasesAheadOfTime = (
-	videoSink: CanvasSink,
+	videoSink: VideoSampleSink,
 	startTimestamp?: number,
+	resize: VideoSampleTransformOptions | null = null,
 ) => {
-	const iterator = videoSink.canvases(startTimestamp);
+	const iterator = videoSink.samples(startTimestamp);
 
 	const buffer: Slot[] = [];
 	let chaining = false;
@@ -83,9 +172,29 @@ export const canvasesAheadOfTime = (
 	let closed = false;
 	let inFlight: Promise<void> | null = null;
 	const stableFramePool = makeStableFramePool();
+	const unclaimedFrames = new Set<WrappedCanvas>();
 
-	const takeFrame = (frame: WrappedCanvas): WrappedCanvas => {
-		return stableFramePool.makeStableFrame(frame);
+	const takeFrame = (frame: VideoSample): WrappedCanvas => {
+		const stable = stableFramePool.makeStableFrame(frame);
+		unclaimedFrames.add(stable);
+		return stable;
+	};
+
+	const claimFrame = (frame: WrappedCanvas): WrappedCanvas | null => {
+		unclaimedFrames.delete(frame);
+		if (closed) {
+			releaseStableFrame(frame);
+			return null;
+		}
+
+		return frame;
+	};
+
+	const waitForSlot = async (slot: Slot) => {
+		await slot.promise;
+		// The resolution handler is registered before any consumer can await this slot.
+		const resolved = slot.resolved!;
+		return resolved.done ? null : claimFrame(resolved.value);
 	};
 
 	const fillNext = () => {
@@ -93,7 +202,23 @@ export const canvasesAheadOfTime = (
 		if (buffer.length >= BUFFER_SIZE) return;
 
 		chaining = true;
-		const slot: Slot = {promise: iterator.next(), resolved: null};
+		const nextSample = iterator.next();
+		const promise = resize
+			? nextSample.then(async (result) => {
+					if (result.done || closed) return result;
+					try {
+						// transform() uses Mediabunny's pooled, quality-preserving resampling.
+						// The returned sample owns its pixels independently of that scratch canvas.
+						return {
+							done: false as const,
+							value: await result.value.transform(resize),
+						};
+					} finally {
+						result.value.close();
+					}
+				})
+			: nextSample;
+		const slot: Slot = {promise, resolved: null};
 		buffer.push(slot);
 		inFlight = slot.promise.then(
 			(result) => {
@@ -106,6 +231,8 @@ export const canvasesAheadOfTime = (
 				}
 
 				if (closed) {
+					result.value.close();
+
 					slot.resolved = {done: true, value: undefined};
 					return;
 				}
@@ -140,11 +267,12 @@ export const canvasesAheadOfTime = (
 					fillNext();
 					if (!next2) return null;
 					if (next2.resolved) {
-						return next2.resolved.done ? null : next2.resolved.value;
+						return next2.resolved.done
+							? null
+							: claimFrame(next2.resolved.value);
 					}
 
-					const result = await next2.promise;
-					return result.done ? null : takeFrame(result.value);
+					return waitForSlot(next2);
 				},
 			};
 		}
@@ -154,29 +282,18 @@ export const canvasesAheadOfTime = (
 				return {type: 'ready', frame: null};
 			}
 
-			return {type: 'ready', frame: slot.resolved.value};
+			return {type: 'ready', frame: claimFrame(slot.resolved.value)};
 		}
 
-		return {
-			type: 'pending',
-			wait: async () => {
-				const result = await slot.promise;
-				if (slot.resolved) {
-					return slot.resolved.done ? null : slot.resolved.value;
-				}
-
-				return result.done ? null : takeFrame(result.value);
-			},
-		};
+		return {type: 'pending', wait: () => waitForSlot(slot)};
 	};
 
 	const closeIterator = async () => {
 		closed = true;
-		for (const slot of buffer) {
-			if (slot.resolved && !slot.resolved.done) {
-				releaseStableFrame(slot.resolved.value);
-			}
-		}
+		// A caller may abandon a pending next() after its slot leaves the buffer.
+		// Keep ownership until wait() actually hands the frame to that caller.
+		unclaimedFrames.forEach(releaseStableFrame);
+		unclaimedFrames.clear();
 
 		buffer.length = 0;
 		await iterator.return();

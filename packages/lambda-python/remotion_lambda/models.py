@@ -351,6 +351,7 @@ class RenderMediaParams:
     sample_rate: int = 48000
     disable_shared_memory_capture: bool = False
     separate_audio_to: Optional[Union[str, OutNameInputObject]] = None
+    preferred_effect_backend: Literal["auto", "webgpu", "webgl2", "2d"] = "auto"
 
     def serialize_params(self) -> Dict:
         """
@@ -407,6 +408,7 @@ class RenderMediaParams:
             'forceDurationInFrames': self.force_duration_in_frames,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
             'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
+            'preferredEffectBackend': self.preferred_effect_backend,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'forceWidth': self.force_width,
             'licenseKey': self.license_key if self.license_key is not None else self.api_key,
@@ -554,6 +556,7 @@ class RenderStillParams:
     offthreadvideo_threads: Optional[int] = None
     streamed: bool = False
     is_production: Optional[bool] = None
+    preferred_effect_backend: Literal["auto", "webgpu", "webgl2", "2d"] = "auto"
 
     def serialize_params(self) -> Dict:
         """
@@ -607,6 +610,7 @@ class RenderStillParams:
             'attempt': self.attempt,
             'offthreadVideoCacheSizeInBytes': self.offthreadvideo_cache_size_in_bytes,
             'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
+            'preferredEffectBackend': self.preferred_effect_backend,
             'offthreadVideoThreads': self.offthreadvideo_threads,
             'streamed': self.streamed,
             'isProduction': self.is_production,

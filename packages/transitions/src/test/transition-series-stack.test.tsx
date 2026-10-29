@@ -510,3 +510,83 @@ test('TransitionSeries.Sequence timing overrides cascade to later sequences', as
 
 	root.unmount();
 });
+
+test('TransitionSeries drops a dangling overlay while a sequence deletion is pending', async () => {
+	const absolutePath = '/comp.tsx';
+	const node = (id: string) => ({absolutePath, nodePath: [id]});
+	const stack = (id: string) => `Error\n    at ${id}`;
+	const withStack = (id: string) =>
+		({_remotionInternalStack: stack(id)}) as {
+			readonly _remotionInternalStack: string;
+		};
+	for (const id of ['s1', 'o1', 's2', 'o2', 's3']) {
+		Internals.OptimisticSequenceDeletion.register(stack(id), node(id));
+	}
+
+	const revision = 1;
+	Internals.OptimisticSequenceDeletion.set([node('s2')], revision, true);
+
+	const div = document.createElement('div');
+	const root = createRoot(div);
+	try {
+		const render = (frame: number) => {
+			root.render(
+				<SequenceTestWrapper
+					frame={frame}
+					onRegisterSequence={() => undefined}
+					overrideIdToNodePathMappings={{}}
+					propStatuses={{}}
+					dragOverrides={{}}
+				>
+					<TransitionSeries>
+						<TransitionSeries.Sequence
+							durationInFrames={60}
+							{...withStack('s1')}
+						>
+							A
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Overlay
+							durationInFrames={20}
+							{...withStack('o1')}
+						>
+							O1
+						</TransitionSeries.Overlay>
+						<TransitionSeries.Sequence
+							durationInFrames={60}
+							{...withStack('s2')}
+						>
+							B
+						</TransitionSeries.Sequence>
+						<TransitionSeries.Overlay
+							durationInFrames={30}
+							{...withStack('o2')}
+						>
+							O2
+						</TransitionSeries.Overlay>
+						<TransitionSeries.Sequence
+							durationInFrames={60}
+							{...withStack('s3')}
+						>
+							C
+						</TransitionSeries.Sequence>
+					</TransitionSeries>
+				</SequenceTestWrapper>,
+			);
+		};
+
+		// Without the pending deletion rule this throws: "<TransitionSeries.Overlay />
+		// must not be followed by another <TransitionSeries.Overlay />".
+		render(55);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(div.textContent).toBe('AO1');
+
+		// The second overlay went with the deleted sequence, so the first one now
+		// leads into the third sequence.
+		render(65);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(div.textContent).toBe('CO1');
+	} finally {
+		root.unmount();
+		Internals.OptimisticSequenceDeletion.rollback([node('s2')], revision);
+	}
+});

@@ -620,8 +620,8 @@ export const startContent = () => {
 		controlsNew.className = 'capture-controls-select';
 		controlsNew.type = 'button';
 		controlsNew.hidden = true;
-		controlsNew.ariaLabel = 'Open in remotion.dev/new';
-		controlsNew.dataset.tooltip = 'Open in remotion.dev/new';
+		controlsNew.ariaLabel = 'Open in remotion.new';
+		controlsNew.dataset.tooltip = 'Open in remotion.new';
 		controlsNew.innerHTML =
 			'<svg viewBox="-24 -24 560 560" aria-hidden="true"><path d="M80 48C53.5 48 32 69.5 32 96v320c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V176L352 48H80zm304 64.6L415.4 144H384v-31.4zM80 80h272v96h96v240c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96c0-8.8 7.2-16 16-16zm160 144v64h-64v32h64v64h32v-64h64v-32h-64v-64h-32z"/></svg>';
 		const controlsConvert = document.createElement('button');

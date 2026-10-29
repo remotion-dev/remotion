@@ -1,3 +1,4 @@
+import {ThemeToggle} from './ThemeToggle';
 import {useRef, useState} from 'react';
 
 export const Navbar = () => {
@@ -7,7 +8,7 @@ export const Navbar = () => {
 	return (
 		<nav
 			aria-label="Main"
-			className="relative z-10 flex min-h-[60px] flex-wrap items-center gap-x-2 bg-white px-4 text-[16px] font-medium text-[#1c1e21] shadow-[0_1px_2px_0_#0000001a] sm:gap-x-4"
+			className="relative z-10 flex min-h-[60px] flex-wrap items-center gap-x-2 bg-white dark:bg-[#242526] px-4 text-[16px] font-medium text-[#1c1e21] dark:text-white shadow-[0_1px_2px_0_#0000001a] sm:gap-x-4"
 			style={{
 				fontFamily:
 					'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
@@ -26,7 +27,7 @@ export const Navbar = () => {
 				aria-expanded={menuOpen}
 				aria-controls="primary-navigation-links"
 				onClick={() => setMenuOpen((open) => !open)}
-				className="-ml-2 flex size-10 cursor-pointer items-center justify-center rounded-md hover:bg-black/4 sm:hidden"
+				className="-ml-2 flex size-10 cursor-pointer items-center justify-center rounded-md hover:bg-black/4 dark:hover:bg-white/6 sm:hidden"
 			>
 				<svg
 					aria-hidden="true"
@@ -54,12 +55,19 @@ export const Navbar = () => {
 					src="/remotion-wordmark.png"
 					width={895}
 					height={212}
-					className="h-7 w-auto sm:h-8"
+					className="h-7 w-auto sm:h-8 dark:hidden"
+				/>
+				<img
+					alt="Remotion logo"
+					src={'/remotion-wordmark-dark.png'}
+					width={895}
+					height={212}
+					className="hidden h-7 w-auto sm:h-8 dark:block"
 				/>
 			</a>
 			<div
 				id="primary-navigation-links"
-				className={`order-last w-full flex-col gap-1 border-t border-black/10 py-3 sm:order-none sm:flex sm:w-auto sm:flex-1 sm:flex-row sm:items-center sm:gap-0 sm:border-0 sm:py-0 ${menuOpen ? 'flex' : 'hidden'}`}
+				className={`order-last w-full flex-col gap-1 border-t border-black/10 dark:border-white/10 py-3 sm:order-none sm:flex sm:w-auto sm:flex-1 sm:flex-row sm:items-center sm:gap-0 sm:border-0 sm:py-0 ${menuOpen ? 'flex' : 'hidden'}`}
 			>
 				<a
 					href="/"
@@ -76,6 +84,7 @@ export const Navbar = () => {
 					Back to docs
 				</a>
 			</div>
+			<ThemeToggle />
 		</nav>
 	);
 };

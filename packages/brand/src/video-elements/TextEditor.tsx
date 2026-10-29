@@ -30,10 +30,10 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 	const referenceWidth = Math.max(
 		720,
 		Math.max(...codeLines.map((line) => line.replaceAll('\t', '    ').length)) *
-			7.25 +
+			8.45 +
 			100,
 	);
-	const referenceHeight = Math.max(320, codeLines.length * 18 + 120);
+	const referenceHeight = Math.max(320, codeLines.length * 21 + 100);
 	const scale = Math.min(width / referenceWidth, height / referenceHeight);
 	const scaledWidth = referenceWidth * scale;
 	const titleBarHeight = 28 * scale;
@@ -101,7 +101,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 						alignItems: 'center',
 						backgroundColor: 'transparent',
 						display: 'flex',
-						height: 18 * scale,
+						height: 21 * scale,
 						minWidth: '100%',
 					}}
 				>
@@ -110,7 +110,7 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 							boxSizing: 'border-box',
 							color: '#858585',
 							flex: `0 0 ${67 * scale}px`,
-							fontSize: 12 * scale,
+							fontSize: 14 * scale,
 							paddingRight: 25 * scale,
 							textAlign: 'right',
 							userSelect: 'none',
@@ -330,10 +330,10 @@ export const TextEditor: React.FC<TextEditorProps> = ({
 								backgroundColor: 'transparent',
 								color: '#d4d4d4',
 								fontFamily: 'Menlo, Monaco, "Courier New", monospace',
-								fontSize: 12 * scale,
+								fontSize: 14 * scale,
 								fontVariantLigatures: 'none',
 								left: scale,
-								lineHeight: `${18 * scale}px`,
+								lineHeight: `${21 * scale}px`,
 								margin: 0,
 								minWidth: '100%',
 								overflow: 'hidden',

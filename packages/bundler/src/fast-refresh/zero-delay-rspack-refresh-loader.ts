@@ -1,7 +1,7 @@
 import type {LoaderDefinition} from 'webpack';
 
-const rspackReactRefreshDelay = '      }, 30);';
-const zeroDelayReactRefresh = '      }, 0);';
+const rspackReactRefreshDelay = '}, 30);';
+const zeroDelayReactRefresh = '}, 0);';
 
 const removeRspackReactRefreshDelay = (source: string) => {
 	const occurrences = source.split(rspackReactRefreshDelay).length - 1;

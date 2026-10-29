@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {WEBGPU_SINGLE_PASS_VERTEX} from './webgpu-single-pass-runtime.js';
 
 const {createWebGL2ContextError} = Internals;
 
@@ -255,9 +256,9 @@ export const prepareProgressivePixelate = ({
 }): void => {
 	const {gl, uniforms} = state;
 	gl.viewport(0, 0, width, height);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.clearColor(0, 0, 0, 0);
 	gl.clear(gl.COLOR_BUFFER_BIT);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, state.texture);
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
@@ -298,3 +299,52 @@ export const cleanupProgressivePixelate = ({
 	gl.deleteProgram(program);
 	gl.deleteVertexArray(vao);
 };
+
+export const PROGRESSIVE_PIXELATE_WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params {
+ resolutionModeBlock: vec4f,
+ startEnd: vec4f,
+ centerSize: vec4f,
+ controls: vec4f,
+}
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+fn linearProgress(uv: vec2f) -> f32 {
+ let gradient = params.startEnd.zw - params.startEnd.xy;
+ let gradientLengthSq = dot(gradient, gradient);
+ if (gradientLengthSq <= 0.0000001) { return 0.0; }
+ return clamp(dot(uv - params.startEnd.xy, gradient) / gradientLengthSq, 0.0, 1.0);
+}
+fn radialProgress(uv: vec2f) -> f32 {
+ let radii = params.centerSize.zw * params.resolutionModeBlock.xy * 0.5;
+ if (radii.x <= 0.0000001 || radii.y <= 0.0000001) { return 0.0; }
+ let delta = (uv - params.centerSize.xy) * params.resolutionModeBlock.xy;
+ let angle = radians(params.controls.x);
+ let c = cos(angle);
+ let s = sin(angle);
+ let local = vec2f(c * delta.x + s * delta.y, -s * delta.x + c * delta.y);
+ let ellipseProgress = clamp(length(local / radii), 0.0, 1.0);
+ let distance = 1.0 - params.controls.y;
+ if (abs(distance) <= 0.0000001) { return step(params.controls.y, ellipseProgress); }
+ return clamp((ellipseProgress - params.controls.y) / distance, 0.0, 1.0);
+}
+fn samplePixelated(uv: vec2f, blockSize: f32) -> vec4f {
+ let pixelSizeUv = vec2f(blockSize) / params.resolutionModeBlock.xy;
+ let blockUv = floor(uv / pixelSizeUv) * pixelSizeUv + pixelSizeUv * 0.5;
+ return textureSampleLevel(source, sourceSampler, vec2f(blockUv.x, 1.0 - blockUv.y), 0);
+}
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+ var progress: f32;
+ if (params.resolutionModeBlock.z == 0.0) { progress = linearProgress(input.uv); }
+ else { progress = radialProgress(input.uv); }
+ let targetBlockSize = max(1.0, mix(params.resolutionModeBlock.w, params.controls.z, progress));
+ let level = log2(targetBlockSize);
+ let lowerBlockSize = exp2(floor(level));
+ let upperBlockSize = lowerBlockSize * 2.0;
+ let levelProgress = fract(level);
+ let uv = vec2f(input.uv.x, 1.0 - input.uv.y);
+ return mix(samplePixelated(uv, lowerBlockSize), samplePixelated(uv, upperBlockSize), levelProgress);
+}
+`;

@@ -2,7 +2,13 @@ import {Config} from '@remotion/cli/config';
 import {bundlerOverride} from './src/webpack-override.mjs';
 
 Config.setOverwriteOutput(true);
-Config.setRspack(true);
+const [nodeMajor, nodeMinor] = process.versions.node.split('.').map(Number);
+Config.setRspack(
+	typeof Bun !== 'undefined' ||
+		(nodeMajor === 20 && nodeMinor >= 19) ||
+		(nodeMajor === 22 && nodeMinor >= 12) ||
+		nodeMajor > 22,
+);
 Config.overrideBundlerConfig(async (config) => {
 	await new Promise((resolve) => {
 		setTimeout(resolve, 10);

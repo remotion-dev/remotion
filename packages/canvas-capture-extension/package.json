@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/canvas-capture-extension",
-	"version": "4.0.538",
+	"version": "4.0.539",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -8,7 +8,7 @@
 		"formatting": "oxfmt src wxt.config.ts --check",
 		"format": "oxfmt src wxt.config.ts",
 		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && bun check",
-		"make": "bunx --bun wxt build"
+		"build-extension": "bunx --bun wxt build"
 	},
 	"dependencies": {
 		"@remotion/studio-shared": "workspace:*",

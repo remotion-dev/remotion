@@ -65,6 +65,7 @@ type InternalRenderMediaOnCloudrun = {
 	logLevel: LogLevel;
 	downloadBehavior: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	isProduction: boolean | null;
 	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>;
@@ -102,6 +103,7 @@ export type RenderMediaOnCloudrunInput = {
 	preferLossless?: boolean;
 	downloadBehavior?: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	isProduction?: boolean;
 	renderIdOverride?: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook?: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
@@ -155,7 +157,10 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	downloadBehavior,
 	metadata,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	sampleRate,
+	licenseKey,
+	isProduction,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -225,6 +230,9 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		renderIdOverride,
 		renderStatusWebhook,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
+		licenseKey,
+		isProduction,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -365,7 +373,10 @@ export const renderMediaOnCloudrun = ({
 	renderStatusWebhook,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	sampleRate,
+	licenseKey,
+	isProduction,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -428,6 +439,9 @@ export const renderMediaOnCloudrun = ({
 		renderStatusWebhook: renderStatusWebhook ?? undefined,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		sampleRate: sampleRate ?? 48000,
+		licenseKey: licenseKey ?? null,
+		isProduction: isProduction ?? null,
 	});
 };

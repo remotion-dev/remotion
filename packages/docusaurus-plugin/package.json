@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/docusaurus-plugin",
-	"version": "4.0.538",
+	"version": "4.0.539",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
@@ -14,18 +14,19 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@remotion/typescript-tools": "workspace:*",
+		"@shikijs/twoslash": "3.22.0",
 		"shiki": "3.22.0",
 		"unified": "11.0.5",
 		"unist-util-visit": "5.1.0",
 		"fenceparser": "2.2.0",
 		"@docusaurus/types": "3.6.0",
-		"@types/dom-webcodecs": "catalog:"
+		"@types/dom-webcodecs": "catalog:",
+		"typescript": "catalog:",
+		"twoslash-protocol": "0.3.6"
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"eslint": "catalog:",
-		"typescript": "catalog:"
+		"eslint": "catalog:"
 	},
 	"private": true,
 	"repository": {
