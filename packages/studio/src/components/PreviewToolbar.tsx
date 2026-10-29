@@ -108,8 +108,7 @@ export const PreviewToolbar: React.FC<{
 	}, [size, width]);
 	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
-	const {playerMuted} = useContext(Internals.MediaVolumeContext);
-	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const [playerMuted, setPlayerMuted] = Internals.usePlayerMutedState();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isVideoComposition = useIsVideoComposition();
 	const showCompositionControls = canvasContent?.type === 'composition';
