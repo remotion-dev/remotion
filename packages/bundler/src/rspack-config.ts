@@ -96,9 +96,6 @@ export const rspackConfig = async ({
 			// compilation. Rspack must emit their throwing fallback chunks first.
 			emitOnErrors: true,
 		},
-		experiments: {
-			nativeWatcher: true,
-		},
 		...(environment === 'development'
 			? // Makes the first HMR event faster.
 				{incremental: {buildChunkGraph: true}}
