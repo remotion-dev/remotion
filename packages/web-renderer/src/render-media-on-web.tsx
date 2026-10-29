@@ -854,7 +854,7 @@ export const renderMediaOnWeb = <
 	const codec =
 		options.videoCodec ?? getDefaultVideoCodecForContainer(container) ?? null;
 
-	onlyOneMediaRenderAtATimeQueue.ref = onlyOneMediaRenderAtATimeQueue.ref
+	const render = onlyOneMediaRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderMediaOnWeb<Schema, Props>({
@@ -890,5 +890,11 @@ export const renderMediaOnWeb = <
 			}),
 		);
 
-	return onlyOneMediaRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
+	// The queue only owns completion; callers own the result or rejection reason.
+	onlyOneMediaRenderAtATimeQueue.ref = render.then(
+		() => {},
+		() => {},
+	);
+
+	return render;
 };

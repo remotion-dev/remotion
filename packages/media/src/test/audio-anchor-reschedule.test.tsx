@@ -269,7 +269,6 @@ test.each([
 			root.unmount();
 			container.remove();
 			createBufferSourceSpy.mockRestore();
-			if (audioContext) await (audioContext as AudioContext).close();
 		}
 	},
 	15000,
