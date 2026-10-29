@@ -45,9 +45,9 @@ const downloadFile = async (url: string, location: string) => {
 
 export const downloadCachedExampleMedia = async () => {
 	for (const filename of Object.values(cachedExampleMedia)) {
-		await downloadFile(
-			`${REMOTE_BASE}/${filename}`,
-			path.join(cachedDir, filename),
-		);
+		const location = path.join(cachedDir, filename);
+		await downloadFile(`${REMOTE_BASE}/${filename}`, location);
+		// Browser suites serve this directory; keep their existing fixture URLs.
+		fs.copyFileSync(location, path.join(rootDir, 'videos', filename));
 	}
 };
