@@ -15,7 +15,7 @@ export const waitForReady = ({
 	timeoutInMilliseconds: number;
 	scope: DelayRenderScope;
 	signal: AbortSignal | null;
-	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb';
+	apiName: 'renderMediaOnWeb' | 'renderStillOnWeb' | 'renderFramesOnWeb';
 	internalState: InternalState | null;
 	keepalive: BackgroundKeepalive | null;
 }) => {

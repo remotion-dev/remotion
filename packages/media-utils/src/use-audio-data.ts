@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {useLayoutEffect, useState} from 'react';
 import {useDelayRender} from 'remotion';
 import {getAudioData} from './get-audio-data';
 import type {MediaUtilsAudioData} from './types';
@@ -25,41 +25,43 @@ export const useAudioData = (
 		throw new TypeError("useAudioData requires a 'src' parameter");
 	}
 
-	const mountState = useRef({isMounted: true});
-
-	useEffect(() => {
-		const {current} = mountState;
-		current.isMounted = true;
-		return () => {
-			current.isMounted = false;
-		};
-	}, []);
-
 	const [metadata, setMetadata] = useState<MediaUtilsAudioData | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 	const sampleRate = options?.sampleRate;
 	const [initialRequestInit] = useState(options?.requestInit);
 
-	const fetchMetadata = useCallback(async () => {
+	useLayoutEffect(() => {
+		let cancelled = false;
 		const handle = delayRender(
 			`Waiting for audio metadata with src="${src}" to be loaded`,
 		);
 
-		try {
-			const data = await getAudioData(
-				src,
-				sampleRate === undefined && initialRequestInit === undefined
-					? undefined
-					: {sampleRate, requestInit: initialRequestInit},
-			);
-			if (mountState.current.isMounted) {
-				setMetadata(data);
+		const fetchMetadata = async () => {
+			try {
+				const data = await getAudioData(
+					src,
+					sampleRate === undefined && initialRequestInit === undefined
+						? undefined
+						: {sampleRate, requestInit: initialRequestInit},
+				);
+				if (!cancelled) {
+					setMetadata(data);
+				}
+			} catch (err) {
+				if (!cancelled) {
+					cancelRender(err);
+				}
 			}
-		} catch (err) {
-			cancelRender(err);
-		}
 
-		continueRender(handle);
+			continueRender(handle);
+		};
+
+		fetchMetadata();
+
+		return () => {
+			cancelled = true;
+			continueRender(handle);
+		};
 	}, [
 		src,
 		sampleRate,
@@ -68,10 +70,6 @@ export const useAudioData = (
 		continueRender,
 		cancelRender,
 	]);
-
-	useLayoutEffect(() => {
-		fetchMetadata();
-	}, [fetchMetadata]);
 
 	return metadata;
 };

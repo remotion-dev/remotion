@@ -22,7 +22,7 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
-	return `/img/${item.id}-preview.png`;
+	return `https://remotion.media/docs/effects/${item.id}-preview.png`;
 };
 
 export const getEffectPreviewAlt = (item: EffectCatalogItem) => {
@@ -117,6 +117,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				similarity: 0.45,
 			},
+		},
+	},
+	{
+		id: 'effects-curves',
+		category: 'Color',
+		label: 'curves()',
+		description: 'Adjust RGB or individual channels with a tonal curve',
+		effect: {
+			name: 'curves',
+			importPath: '@remotion/effects/curves',
+			config: {},
 		},
 	},
 	{
@@ -804,6 +815,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'speckle',
 			importPath: '@remotion/effects/speckle',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-shatter',
+		category: 'Stylize',
+		label: 'shatter()',
+		description: 'Break the source into tumbling fragments',
+		effect: {
+			name: 'shatter',
+			importPath: '@remotion/effects/shatter',
 			config: {},
 		},
 	},

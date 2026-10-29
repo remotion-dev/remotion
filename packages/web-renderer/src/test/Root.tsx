@@ -55,6 +55,10 @@ import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
+import {
+	mixBlendModeAllModes,
+	mixBlendModeGroups,
+} from './fixtures/mix-blend-mode';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
@@ -169,6 +173,8 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundColor} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...mixBlendModeAllModes} />
+				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />

@@ -1040,6 +1040,7 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -1074,6 +1075,7 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		renderDefaults.publicLicenseKey,
 	]);
 
 	useEffect(() => {

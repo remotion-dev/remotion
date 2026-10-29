@@ -181,31 +181,44 @@ export const applyLut = ({
 			);
 		}
 
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_3D, lutTexture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-		gl.texImage3D(
-			gl.TEXTURE_3D,
-			0,
-			gl.RGBA16F,
-			parsed.size,
-			parsed.size,
-			parsed.size,
-			0,
-			gl.RGBA,
-			gl.FLOAT,
-			parsed.data,
-		);
-		const uploadError = gl.getError();
-		if (uploadError !== gl.NO_ERROR) {
+		const previousError = gl.getError();
+		if (previousError !== gl.NO_ERROR) {
 			throw new Error(
-				`Failed to upload the 3D LUT texture (WebGL error ${uploadError})`,
+				`WebGL error ${previousError} was present before uploading the 3D LUT texture`,
 			);
 		}
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		state.cachedContent = content;
+		try {
+			gl.activeTexture(gl.TEXTURE1);
+			gl.bindTexture(gl.TEXTURE_3D, lutTexture);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+			gl.texImage3D(
+				gl.TEXTURE_3D,
+				0,
+				gl.RGBA16F,
+				parsed.size,
+				parsed.size,
+				parsed.size,
+				0,
+				gl.RGBA,
+				gl.FLOAT,
+				parsed.data,
+			);
+			const uploadError = gl.getError();
+			if (uploadError !== gl.NO_ERROR) {
+				throw new Error(
+					`Failed to upload the 3D LUT texture (WebGL error ${uploadError})`,
+				);
+			}
+
+			state.cachedContent = content;
+		} finally {
+			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+			gl.bindTexture(gl.TEXTURE_3D, null);
+			gl.activeTexture(gl.TEXTURE0);
+		}
 	}
 
 	gl.viewport(0, 0, width, height);

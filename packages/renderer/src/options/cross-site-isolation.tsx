@@ -20,9 +20,9 @@ export const enableCrossSiteIsolationOption = {
 	docLink: 'https://www.remotion.dev/docs/options/cross-site-isolation',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
-				value: commandLine[cliFlag] as boolean,
+				value: Boolean(commandLine[cliFlag]),
 				source: 'cli',
 			};
 		}

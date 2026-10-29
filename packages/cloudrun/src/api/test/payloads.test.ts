@@ -26,6 +26,8 @@ test('CloudRunPayload should work with and without optional webhook fields', () 
 
 	const withWebhook: z.infer<typeof CloudRunPayload> = {
 		...basePayload,
+		licenseKey: null,
+		isProduction: null,
 		renderIdOverride: 'custom-render-id',
 		renderStatusWebhook: {
 			url: 'https://webhook.example.com',
@@ -52,6 +54,8 @@ test('CloudRunPayload should work with and without optional webhook fields', () 
 	}
 
 	if (parsedWithoutWebhook.success) {
+		expect(parsedWithoutWebhook.data.licenseKey).toBeNull();
+		expect(parsedWithoutWebhook.data.isProduction).toBeNull();
 		expect(parsedWithoutWebhook.data.renderIdOverride).toBeUndefined();
 		expect(parsedWithoutWebhook.data.renderStatusWebhook).toBeUndefined();
 	}

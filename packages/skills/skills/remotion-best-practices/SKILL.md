@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.538
+version: 4.0.539
 ---
 
 ## Preserve user changes
@@ -103,6 +103,10 @@ Use the [Remotion SaaS skill](./remotion-saas/SKILL.md) for knowledge about Remo
 ## Looking up Remotion APIs and documentation
 
 To find and read current Remotion documentation, load [Remotion Docs](./remotion-docs/SKILL.md).
+
+## Licensing
+
+For Remotion license information, FAQs, terms, or buying a license, load [Remotion License](./remotion-license/SKILL.md).
 
 ## Upgrading
 

@@ -2,22 +2,6 @@
  * Inlined from https://github.com/Jam3/audiobuffer-to-wav/commit/2272eb09bd46a05e50a6d684d908aa6f13c58f63#diff-e727e4bdf3657fd1d798edcd6b099d6e092f8573cba266154583a746bba0f346
  */
 
-function interleave(inputL: Float32Array, inputR: Float32Array) {
-	const length = inputL.length + inputR.length;
-	const result = new Float32Array(length);
-
-	let index = 0;
-	let inputIndex = 0;
-
-	while (index < length) {
-		result[index++] = inputL[inputIndex];
-		result[index++] = inputR[inputIndex];
-		inputIndex++;
-	}
-
-	return result;
-}
-
 function writeFloat32(output: DataView, offset: number, input: Float32Array) {
 	for (let i = 0; i < input.length; i++, offset += 4) {
 		output.setFloat32(offset, input[i], true);
@@ -108,10 +92,16 @@ export function audioBufferToWav(
 	const bitDepth = format === 3 ? 32 : 16;
 
 	let result;
-	if (numChannels === 2) {
-		result = interleave(buffer.getChannelData(0), buffer.getChannelData(1));
-	} else {
+	if (numChannels === 1) {
 		result = buffer.getChannelData(0);
+	} else {
+		result = new Float32Array(buffer.length * numChannels);
+		for (let channel = 0; channel < numChannels; channel++) {
+			const samples = buffer.getChannelData(channel);
+			for (let frame = 0; frame < buffer.length; frame++) {
+				result[frame * numChannels + channel] = samples[frame];
+			}
+		}
 	}
 
 	return encodeWAV({

@@ -43,6 +43,7 @@ type RenderMediaOnVercelBaseOptions = {
 	concurrency?: number | string | null;
 	metadata?: Record<string, string> | null;
 	licenseKey?: string | null;
+	isProduction?: boolean;
 	videoBitrate?: Bitrate | null;
 	audioBitrate?: Bitrate | null;
 	encodingMaxRate?: Bitrate | null;
@@ -115,6 +116,7 @@ const internalRenderMediaOnVercel = async (
 		concurrency,
 		metadata,
 		licenseKey,
+		isProduction,
 		videoBitrate,
 		audioBitrate,
 		encodingMaxRate,
@@ -170,6 +172,7 @@ const internalRenderMediaOnVercel = async (
 		concurrency: concurrency ?? null,
 		metadata: metadata ?? null,
 		licenseKey: licenseKey ?? null,
+		isProduction: isProduction ?? null,
 		videoBitrate: videoBitrate ?? null,
 		audioBitrate: audioBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,

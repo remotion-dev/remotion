@@ -10,6 +10,7 @@ import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
 import {cornerPin} from '@remotion/effects/corner-pin';
+import {curves} from '@remotion/effects/curves';
 import {cylinder} from '@remotion/effects/cylinder';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
@@ -57,6 +58,7 @@ import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shadowsHighlights} from '@remotion/effects/shadows-highlights';
+import {shatter} from '@remotion/effects/shatter';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
@@ -91,6 +93,7 @@ import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../effects/effects-curves-preview';
 import {EffectsCylinderPreview} from '../effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
@@ -160,6 +163,7 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -328,6 +332,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/contrast',
 		comp: EffectsContrastPreview,
 		schema: contrast().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-curves',
+		effectName: 'curves',
+		effectImportPath: '@remotion/effects/curves',
+		comp: EffectsCurvesPreview,
+		schema: curves().definition.schema,
 	},
 	{
 		...defaults,
@@ -540,6 +552,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/thermal-vision',
 		comp: EffectsThermalVisionPreview,
 		schema: thermalVision().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shatter',
+		effectName: 'shatter',
+		effectImportPath: '@remotion/effects/shatter',
+		comp: EffectsShatterPreview,
+		schema: shatter().definition.schema,
 	},
 	{
 		...defaults,

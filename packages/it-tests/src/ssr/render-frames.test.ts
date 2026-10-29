@@ -9,6 +9,7 @@ import {
 	selectComposition,
 	stitchFramesToVideo,
 } from '@remotion/renderer';
+import {PNG} from 'pngjs';
 
 const exampleBuild = path.join(__dirname, '..', '..', '..', 'example', 'build');
 
@@ -73,7 +74,7 @@ test('Legacy SSR way of rendering videos should still work', async () => {
 	}
 });
 
-test('renderFrames() should render selected frames', async () => {
+test('renderFrames() should render selected frames with HTML-in-canvas motion blur (#12656)', async () => {
 	const puppeteerInstance = await openBrowser('chrome');
 	const selectedFramesDir = await fs.promises.mkdtemp(
 		path.join(os.tmpdir(), 'remotion-selected-frames-'),
@@ -90,7 +91,7 @@ test('renderFrames() should render selected frames', async () => {
 		const selectedFramesRender = await renderFrames({
 			composition: tenFrameTester,
 			frames: [5, 0, 2],
-			imageFormat: 'jpeg',
+			imageFormat: 'png',
 			inputProps: {},
 			onFrameUpdate: () => undefined,
 			serveUrl: exampleBuild,
@@ -102,10 +103,39 @@ test('renderFrames() should render selected frames', async () => {
 
 		expect(selectedFramesRender.frameCount).toBe(3);
 		expect((await fs.promises.readdir(selectedFramesDir)).sort()).toEqual([
-			'element-0.jpeg',
-			'element-2.jpeg',
-			'element-5.jpeg',
+			'element-0.png',
+			'element-2.png',
+			'element-5.png',
 		]);
+		for (const frame of [0, 2, 5]) {
+			const png = PNG.sync.read(
+				await fs.promises.readFile(
+					path.join(selectedFramesDir, `element-${frame}.png`),
+				),
+			);
+			const left = 32 + frame * 32;
+			// At frame 0 the earlier samples clamp to 0. Later frames include
+			// four samples on either side, producing distinct blended edges.
+			const probes =
+				frame === 0
+					? [
+							[left + 1, 128],
+							[left + 17, 255],
+							[left + 29, 64],
+						]
+					: [
+							[left - 13, 32],
+							[left - 9, 64],
+							[left + 3, 160],
+						];
+			for (const [x, red] of probes) {
+				const offset = (30 * png.width + x) * 4;
+				expect(
+					Array.from(png.data.subarray(offset, offset + 4)),
+					`motion blur at frame ${frame}, x=${x}`,
+				).toEqual([red, 0, 0, 255]);
+			}
+		}
 	} finally {
 		RenderInternals.deleteDirectory(selectedFramesDir);
 		await puppeteerInstance.close({silent: false});

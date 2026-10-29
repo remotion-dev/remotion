@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.538",
+	"version": "4.0.539",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -98,6 +98,11 @@
 			"types": "./dist/contour-lines.d.ts",
 			"module": "./dist/esm/contour-lines.mjs",
 			"import": "./dist/esm/contour-lines.mjs"
+		},
+		"./curves": {
+			"types": "./dist/curves.d.ts",
+			"module": "./dist/esm/curves.mjs",
+			"import": "./dist/esm/curves.mjs"
 		},
 		"./cylinder": {
 			"types": "./dist/cylinder.d.ts",
@@ -329,6 +334,11 @@
 			"module": "./dist/esm/shadows-highlights.mjs",
 			"import": "./dist/esm/shadows-highlights.mjs"
 		},
+		"./shatter": {
+			"types": "./dist/shatter.d.ts",
+			"module": "./dist/esm/shatter.mjs",
+			"import": "./dist/esm/shatter.mjs"
+		},
 		"./shine": {
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
@@ -482,6 +492,9 @@
 			"contour-lines": [
 				"dist/contour-lines.d.ts"
 			],
+			"curves": [
+				"dist/curves.d.ts"
+			],
 			"cylinder": [
 				"dist/cylinder.d.ts"
 			],
@@ -619,6 +632,9 @@
 			],
 			"shadows-highlights": [
 				"dist/shadows-highlights.d.ts"
+			],
+			"shatter": [
+				"dist/shatter.d.ts"
 			],
 			"shine": [
 				"dist/shine.d.ts"

@@ -125,7 +125,7 @@ jobs:
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Install E2E deps
-        run: cd packages/example && bunx playwright install --with-deps
+        run: cd packages/example && bunx playwright install --with-deps chromium
       - name: Test Example E2E
         run: |
           bun run teste2e
@@ -156,7 +156,7 @@ jobs:
       - name: Install
         run: bun ci
       - name: Install deps
-        run: cd packages/web-renderer && bunx playwright install --with-deps && cd ../media && bunx playwright install --with-deps
+        run: cd packages/web-renderer && bunx playwright install --with-deps
       - name: Cache Turbo
         uses: rharkor/caching-for-turbo@0abc2381e688c4d2832f0665a68a01c6e82f0d6c # v2.3.11
       - name: Test web renderer

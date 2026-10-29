@@ -226,6 +226,7 @@ const resolveKeyframeControlTarget = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const fieldNode = findFieldNode(

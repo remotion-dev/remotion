@@ -22,7 +22,7 @@ export const FullscreenIcon: React.FC<{readonly isFullscreen: boolean}> = ({
 				L ${middleInset} ${middleInset}
 				L ${inset} ${out}
 				`}
-				stroke="#000"
+				stroke="currentColor"
 				strokeWidth={strokeWidth}
 				fill="none"
 			/>
@@ -32,7 +32,7 @@ export const FullscreenIcon: React.FC<{readonly isFullscreen: boolean}> = ({
 				L ${viewSize - middleInset} ${middleInset}
 				L ${viewSize - inset} ${out}
 				`}
-				stroke="#000"
+				stroke="currentColor"
 				strokeWidth={strokeWidth}
 				fill="none"
 			/>
@@ -42,7 +42,7 @@ export const FullscreenIcon: React.FC<{readonly isFullscreen: boolean}> = ({
 				L ${middleInset} ${viewSize - middleInset}
 				L ${inset} ${viewSize - out}
 				`}
-				stroke="#000"
+				stroke="currentColor"
 				strokeWidth={strokeWidth}
 				fill="none"
 			/>
@@ -52,7 +52,7 @@ export const FullscreenIcon: React.FC<{readonly isFullscreen: boolean}> = ({
 				L ${viewSize - middleInset} ${viewSize - middleInset}
 				L ${viewSize - inset} ${viewSize - out}
 				`}
-				stroke="#000"
+				stroke="currentColor"
 				strokeWidth={strokeWidth}
 				fill="none"
 			/>
