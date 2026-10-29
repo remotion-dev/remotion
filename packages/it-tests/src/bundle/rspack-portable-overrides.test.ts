@@ -206,6 +206,7 @@ test(
 						...rule,
 						use: rule.use.map((use) => {
 							if (
+								!use ||
 								typeof use === 'string' ||
 								use.loader !== 'builtin:swc-loader'
 							) {

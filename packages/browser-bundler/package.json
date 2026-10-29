@@ -24,7 +24,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"@rspack/browser": "2.1.1",
+		"@rspack/browser": "2.3.0",
 		"react-refresh": "0.18.0",
 		"remotion": "workspace:*"
 	},

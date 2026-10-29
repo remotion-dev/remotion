@@ -19,7 +19,7 @@
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"@rspack/core": "2.2.8",
+		"@rspack/core": "2.3.0",
 		"@rspack/plugin-react-refresh": "2.0.2",
 		"css-loader": "7.1.4",
 		"esbuild": "0.28.1",
