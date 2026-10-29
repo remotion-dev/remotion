@@ -50,6 +50,7 @@ import {
 import {SpinningGlobe} from '../../../elements/maps/spinning-globe/spinning-globe';
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
+import {OfferLowerThird} from '../../../elements/overlays/offer-lower-third/offer-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
 import {SocialSafeZones} from '../../../elements/overlays/social-safe-zones/social-safe-zones';
 import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
@@ -1023,6 +1024,31 @@ const elementImplementations = [
 		initialProps: null,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
+	},
+	{
+		slug: 'overlays/offer-lower-third',
+		assets: [],
+		installationProps: null,
+		component: OfferLowerThird,
+		contributors: [{username: 'dg314', contribution: 'Author'}],
+		description: 'An editable product offer with a price and call to action.',
+		dependencies: [],
+		durationInFrames: 120,
+		elementHeight: 132,
+		elementWidth: 780,
+		fps: 30,
+		height: 360,
+		posterFrame: 60,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl: 'https://raw.githubusercontent.com/video-gen/video-workflow-recipes/main/remotion/previews/offer.png',
+			backgroundTheme: 'light',
+			videoUrl: 'https://raw.githubusercontent.com/video-gen/video-workflow-recipes/main/remotion/previews/offer.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1080,
 	},
 	{
 		slug: 'overlays/social-safe-zones',
