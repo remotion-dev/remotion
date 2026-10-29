@@ -14,7 +14,6 @@ import {getGpuDevice} from './gpu-device.js';
 
 export type EffectChainState = {
 	preferredEffectBackend: PreferredEffectBackend;
-	strictBackend: Backend | null;
 	gpuDevice: unknown | null;
 	selections: WeakMap<
 		object,
@@ -77,7 +76,6 @@ export const createEffectChainState = (
 				? 'auto'
 				: (window.remotion_preferredEffectBackend ?? 'auto'),
 		gpuDevice: null,
-		strictBackend: null,
 		selections: new WeakMap(),
 		pool: new CanvasPool(width, height, (canvas) => {
 			state.currentRunId++;
@@ -319,11 +317,8 @@ const runEffectChainWithResize = async (
 	runId: number,
 ): Promise<boolean> => {
 	const {state, source, width, height, effects} = options;
-	const order: Backend[] =
-		state.strictBackend === null
-			? ['webgpu', 'webgl2', '2d']
-			: [state.strictBackend];
-	if (state.strictBackend === null && state.preferredEffectBackend !== 'auto') {
+	const order: Backend[] = ['webgpu', 'webgl2', '2d'];
+	if (state.preferredEffectBackend !== 'auto') {
 		order.splice(order.indexOf(state.preferredEffectBackend), 1);
 		order.unshift(state.preferredEffectBackend);
 	}
@@ -336,10 +331,7 @@ const runEffectChainWithResize = async (
 			[effect.definition.backend]: effect.definition,
 		};
 		let selected = false;
-		const cached =
-			state.strictBackend === null
-				? state.selections.get(effect.definition)
-				: undefined;
+		const cached = state.selections.get(effect.definition);
 		const candidates =
 			cached === undefined
 				? order
