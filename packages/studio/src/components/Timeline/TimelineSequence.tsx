@@ -100,6 +100,7 @@ import {
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
+import {TimelineAnimatedImageInfo} from './TimelineAnimatedImageInfo';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
 	TimelineInheritedSceneRangeContext,
@@ -2733,10 +2734,22 @@ const TimelineSequenceLayoutInner: React.FC<{
 			) : null}
 			{s.type === 'image' && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
-					<TimelineImageInfo
-						src={s.src}
-						offsetInPixels={visibleLayout.media.offset}
-					/>
+					{s.animated ? (
+						<TimelineAnimatedImageInfo
+							sequence={s}
+							sequenceFrameOffset={sequenceFrameOffset}
+							displayOffsetInFrames={mediaDisplayOffsetInFrames}
+							displayDurationInFrames={mediaDisplayDurationInFrames}
+							visualizationWidth={visibleLayout.media.width}
+							loopDisplay={s.loopDisplay ?? null}
+							fps={video.fps}
+						/>
+					) : (
+						<TimelineImageInfo
+							src={s.src}
+							offsetInPixels={visibleLayout.media.offset}
+						/>
+					)}
 				</div>
 			) : null}
 			{s.loopDisplay === undefined ? null : (
