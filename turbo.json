@@ -56,6 +56,9 @@
 		"@remotion/player-example#testnextjs": {
 			"dependsOn": ["^make"]
 		},
+		"teste2e": {
+			"dependsOn": ["^make"]
+		},
 		"@remotion/example#teste2e": {
 			"dependsOn": ["^make", "template-vibe-code#make"]
 		},

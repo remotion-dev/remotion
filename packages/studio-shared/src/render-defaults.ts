@@ -11,6 +11,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import type {GitSource} from './git-source';
 import type {PackageManager} from './package-manager';
@@ -54,6 +55,7 @@ export type RenderDefaults = {
 	openGlRenderer: OpenGlRenderer | null;
 	ignoreCertificateErrors: boolean;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	headless: boolean;

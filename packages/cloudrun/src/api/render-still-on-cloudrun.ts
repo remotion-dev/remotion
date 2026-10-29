@@ -110,6 +110,7 @@ const internalRenderStillOnCloudRun = async ({
 	renderIdOverride,
 	renderStatusWebhook,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	licenseKey,
 	isProduction,
 }: OptionalParameters & MandatoryParameters): Promise<
@@ -159,6 +160,7 @@ const internalRenderStillOnCloudRun = async ({
 		renderIdOverride,
 		renderStatusWebhook,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		licenseKey,
 		isProduction,
 	};
@@ -272,6 +274,7 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		renderIdOverride: options.renderIdOverride ?? undefined,
 		renderStatusWebhook: options.renderStatusWebhook ?? undefined,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
 		licenseKey: options.licenseKey ?? null,
 		isProduction: options.isProduction ?? null,
 	});

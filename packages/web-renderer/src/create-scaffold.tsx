@@ -1,6 +1,7 @@
 import {createRef, type ComponentType} from 'react';
 import {flushSync} from 'react-dom';
 import ReactDOM from 'react-dom/client';
+import type {PreferredEffectBackend} from 'remotion';
 import type {Codec, DelayRenderScope, LogLevel, TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {$ZodObject} from 'zod/v4/core';
@@ -130,6 +131,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	resolvedProps,
 	id,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	durationInFrames,
 	fps,
 	initialFrame,
@@ -150,6 +152,7 @@ export function createScaffold<Props extends Record<string, unknown>>({
 	resolvedProps: Record<string, unknown>;
 	id: string;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	initialFrame: number;
 	durationInFrames: number;
 	fps: number;
@@ -261,84 +264,92 @@ export function createScaffold<Props extends Record<string, unknown>>({
 			<Internals.RenderResourceManagerContext.Provider
 				value={renderResourceManager}
 			>
-				<Internals.MaxMediaCacheSizeContext.Provider
-					value={mediaCacheSizeInBytes}
+				<Internals.PreferredEffectBackendContext.Provider
+					value={Internals.validatePreferredEffectBackend(
+						preferredEffectBackend,
+					)}
 				>
-					<Internals.RemotionEnvironmentContext.Provider
-						value={{
-							isStudio: false,
-							isRendering: true,
-							isPlayer: false,
-							isReadOnlyStudio: false,
-							isClientSideRendering: true,
-						}}
+					<Internals.MaxMediaCacheSizeContext.Provider
+						value={mediaCacheSizeInBytes}
 					>
-						<Internals.DelayRenderContextType.Provider value={delayRenderScope}>
-							<Internals.CompositionManager.Provider
-								value={{
-									compositions: [
-										{
-											id,
-											// @ts-expect-error
-											component: Component,
-											order: null,
-											defaultProps: {},
-											folderName: null,
-											parentFolderName: null,
-											schema: schema ?? null,
-											calculateMetadata: null,
+						<Internals.RemotionEnvironmentContext.Provider
+							value={{
+								isStudio: false,
+								isRendering: true,
+								isPlayer: false,
+								isReadOnlyStudio: false,
+								isClientSideRendering: true,
+							}}
+						>
+							<Internals.DelayRenderContextType.Provider
+								value={delayRenderScope}
+							>
+								<Internals.CompositionManager.Provider
+									value={{
+										compositions: [
+											{
+												id,
+												// @ts-expect-error
+												component: Component,
+												order: null,
+												defaultProps: {},
+												folderName: null,
+												parentFolderName: null,
+												schema: schema ?? null,
+												calculateMetadata: null,
+												durationInFrames,
+												fps,
+												height,
+												width,
+											},
+										],
+										canvasContent: {
+											type: 'composition',
+											compositionId: id,
+										},
+										currentAssetMetadata: null,
+										currentCompositionMetadata: {
+											props: resolvedProps,
 											durationInFrames,
 											fps,
 											height,
 											width,
+											defaultCodec: defaultCodec ?? null,
+											defaultOutName: defaultOutName ?? null,
+											defaultVideoImageFormat: null,
+											defaultPixelFormat: null,
+											defaultProResProfile: null,
+											defaultSampleRate: null,
 										},
-									],
-									canvasContent: {
-										type: 'composition',
-										compositionId: id,
-									},
-									currentAssetMetadata: null,
-									currentCompositionMetadata: {
-										props: resolvedProps,
-										durationInFrames,
-										fps,
-										height,
-										width,
-										defaultCodec: defaultCodec ?? null,
-										defaultOutName: defaultOutName ?? null,
-										defaultVideoImageFormat: null,
-										defaultPixelFormat: null,
-										defaultProResProfile: null,
-										defaultSampleRate: null,
-									},
-									folders: [],
-								}}
-							>
-								<Internals.PixelDensityContext.Provider value={pixelDensity}>
-									<Internals.RenderAssetManagerProvider
-										collectAssets={collectAssets}
-									>
-										<UpdateTime
-											audioEnabled={audioEnabled}
-											sampleRate={sampleRate}
-											videoEnabled={videoEnabled}
-											logLevel={logLevel}
-											compId={id}
-											initialFrame={initialFrame}
-											timeUpdater={timeUpdater}
+										folders: [],
+									}}
+								>
+									<Internals.PixelDensityContext.Provider value={pixelDensity}>
+										<Internals.RenderAssetManagerProvider
+											collectAssets={collectAssets}
 										>
-											<Internals.CanUseRemotionHooks.Provider value>
-												{/**
-												 * @ts-expect-error	*/}
-												<Component {...resolvedProps} />
-											</Internals.CanUseRemotionHooks.Provider>
-										</UpdateTime>
-									</Internals.RenderAssetManagerProvider>
-								</Internals.PixelDensityContext.Provider>
-							</Internals.CompositionManager.Provider>
-						</Internals.DelayRenderContextType.Provider>
-					</Internals.RemotionEnvironmentContext.Provider>
-				</Internals.MaxMediaCacheSizeContext.Provider>
+											<UpdateTime
+												audioEnabled={audioEnabled}
+												sampleRate={sampleRate}
+												videoEnabled={videoEnabled}
+												logLevel={logLevel}
+												compId={id}
+												initialFrame={initialFrame}
+												timeUpdater={timeUpdater}
+											>
+												<Internals.CanUseRemotionHooks.Provider value>
+													{/**
+													 * @ts-expect-error	*/}
+													<Component {...resolvedProps} />
+												</Internals.CanUseRemotionHooks.Provider>
+											</UpdateTime>
+										</Internals.RenderAssetManagerProvider>
+									</Internals.PixelDensityContext.Provider>
+								</Internals.CompositionManager.Provider>
+							</Internals.DelayRenderContextType.Provider>
+						</Internals.RemotionEnvironmentContext.Provider>
+					</Internals.MaxMediaCacheSizeContext.Provider>
+				</Internals.PreferredEffectBackendContext.Provider>
 			</Internals.RenderResourceManagerContext.Provider>,
 		);
 	});

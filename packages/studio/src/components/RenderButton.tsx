@@ -280,6 +280,7 @@ const RenderButtonInner: React.FC<{
 				initialSampleRate: defaults.sampleRate,
 				initialChromeMode: defaults.chromeMode,
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				initialPreferredEffectBackend: defaults.preferredEffectBackend,
 				renderDefaults: defaults,
 			});
 		},
@@ -352,6 +353,7 @@ const RenderButtonInner: React.FC<{
 			initialTransparent: null,
 			initialMuted: null,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+			initialPreferredEffectBackend: defaults.preferredEffectBackend,
 			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
 			initialPageResponsiveness: 'medium',
 		});

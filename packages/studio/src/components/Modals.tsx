@@ -351,6 +351,9 @@ export const Modals: React.FC<{
 					initialOffthreadVideoThreads={
 						modalContextType.initialOffthreadVideoThreads
 					}
+					initialPreferredEffectBackend={
+						modalContextType.initialPreferredEffectBackend
+					}
 					initialMediaCacheSizeInBytes={
 						modalContextType.initialMediaCacheSizeInBytes
 					}

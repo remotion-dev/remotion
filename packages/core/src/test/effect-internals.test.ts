@@ -145,6 +145,30 @@ test.each(['2d', 'webgl2'] as const)(
 			return (kind === 'webgl2'
 				? {
 						UNPACK_PREMULTIPLY_ALPHA_WEBGL: 0x9241,
+						getParameter: () => 2,
+						isContextLost: () => false,
+						...Object.fromEntries(
+							[
+								'bindFramebuffer',
+								'drawBuffers',
+								'readBuffer',
+								'viewport',
+								'scissor',
+								'disable',
+								'enable',
+								'colorMask',
+								'depthMask',
+								'stencilMask',
+								'clearColor',
+								'clearDepth',
+								'clearStencil',
+								'useProgram',
+								'bindVertexArray',
+								'bindBuffer',
+								'bindSampler',
+								'activeTexture',
+							].map((method) => [method, () => undefined]),
+						),
 						pixelStorei: () => undefined,
 						getExtension: () => ({loseContext}),
 					}

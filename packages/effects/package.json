@@ -134,6 +134,11 @@
 			"module": "./dist/esm/exposure.mjs",
 			"import": "./dist/esm/exposure.mjs"
 		},
+		"./film-burn": {
+			"types": "./dist/film-burn.d.ts",
+			"module": "./dist/esm/film-burn.mjs",
+			"import": "./dist/esm/film-burn.mjs"
+		},
 		"./fisheye": {
 			"types": "./dist/fisheye.d.ts",
 			"module": "./dist/esm/fisheye.mjs",
@@ -218,6 +223,11 @@
 			"types": "./dist/linear-progressive-pixelate.d.ts",
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
+		},
+		"./iris-wipe": {
+			"types": "./dist/iris-wipe.d.ts",
+			"module": "./dist/esm/iris-wipe.mjs",
+			"import": "./dist/esm/iris-wipe.mjs"
 		},
 		"./lens-blur": {
 			"types": "./dist/lens-blur.d.ts",
@@ -304,6 +314,16 @@
 			"module": "./dist/esm/radial-progressive-pixelate.mjs",
 			"import": "./dist/esm/radial-progressive-pixelate.mjs"
 		},
+		"./radial-wipe": {
+			"types": "./dist/radial-wipe.d.ts",
+			"module": "./dist/esm/radial-wipe.mjs",
+			"import": "./dist/esm/radial-wipe.mjs"
+		},
+		"./rain-fall": {
+			"types": "./dist/rain-fall.d.ts",
+			"module": "./dist/esm/rain-fall.mjs",
+			"import": "./dist/esm/rain-fall.mjs"
+		},
 		"./region-blur": {
 			"types": "./dist/region-blur.d.ts",
 			"module": "./dist/esm/region-blur.mjs",
@@ -358,6 +378,11 @@
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
+		},
+		"./snow-fall": {
+			"types": "./dist/snow-fall.d.ts",
+			"module": "./dist/esm/snow-fall.mjs",
+			"import": "./dist/esm/snow-fall.mjs"
 		},
 		"./sphere": {
 			"types": "./dist/sphere.d.ts",
@@ -513,6 +538,9 @@
 			"exposure": [
 				"dist/exposure.d.ts"
 			],
+			"film-burn": [
+				"dist/film-burn.d.ts"
+			],
 			"fisheye": [
 				"dist/fisheye.d.ts"
 			],
@@ -563,6 +591,9 @@
 			],
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
+			],
+			"iris-wipe": [
+				"dist/iris-wipe.d.ts"
 			],
 			"lens-blur": [
 				"dist/lens-blur.d.ts"
@@ -615,6 +646,12 @@
 			"radial-progressive-pixelate": [
 				"dist/radial-progressive-pixelate.d.ts"
 			],
+			"radial-wipe": [
+				"dist/radial-wipe.d.ts"
+			],
+			"rain-fall": [
+				"dist/rain-fall.d.ts"
+			],
 			"region-blur": [
 				"dist/region-blur.d.ts"
 			],
@@ -647,6 +684,9 @@
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"snow-fall": [
+				"dist/snow-fall.d.ts"
 			],
 			"sphere": [
 				"dist/sphere.d.ts"

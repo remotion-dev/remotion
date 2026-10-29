@@ -269,8 +269,6 @@ test.each([
 			root.unmount();
 			container.remove();
 			createBufferSourceSpy.mockRestore();
-			const context = audioContext as AudioContext | null;
-			if (context && context.state !== 'closed') await context.close();
 		}
 	},
 	15000,

@@ -1,3 +1,5 @@
+import {validatePreferredEffectBackend} from './effects/validate-preferred-effect-backend.js';
+export type {PreferredEffectBackend} from './effects/effect-types.js';
 import type {
 	ArtifactAsset,
 	AudioOrVideoAsset as InternalAudioOrVideoAsset,
@@ -75,6 +77,7 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	validatePreferredEffectBackend,
 	DEFAULT_PREMOUNT_IN_SECONDS,
 	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,

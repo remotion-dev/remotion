@@ -64,6 +64,7 @@ const makeStartPayload = ({
 		bucketName: 'test-bucket',
 		offthreadVideoCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
+		preferredEffectBackend: 'auto' as const,
 		mediaCacheSizeInBytes: null,
 		deleteAfter: null,
 		colorSpace: null,

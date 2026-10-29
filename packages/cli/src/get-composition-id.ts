@@ -9,6 +9,7 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {StudioServerInternals} from '@remotion/studio-server';
+import type {PreferredEffectBackend} from 'remotion';
 import type {VideoConfig} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
@@ -65,6 +66,7 @@ export const getCompositionId = async ({
 	onBrowserDownload,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 }: {
 	args: (string | number)[];
 	compositionIdFromUi: string | null;
@@ -85,6 +87,7 @@ export const getCompositionId = async ({
 	onBrowserDownload: OnBrowserDownload;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -119,6 +122,7 @@ export const getCompositionId = async ({
 				onServeUrlVisited: () => undefined,
 				chromeMode,
 				mediaCacheSizeInBytes,
+				preferredEffectBackend,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -166,6 +170,7 @@ export const getCompositionId = async ({
 		onBrowserDownload,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		onLog: RenderInternals.defaultOnLog,
 	});
 

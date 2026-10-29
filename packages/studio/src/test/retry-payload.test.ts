@@ -12,6 +12,7 @@ const getClientVideoJob = (
 	outName: 'out/video.mp4',
 	inputProps: {},
 	delayRenderTimeout: 30000,
+	preferredEffectBackend: 'auto',
 	mediaCacheSizeInBytes: null,
 	logLevel: 'info',
 	licenseKey: null,

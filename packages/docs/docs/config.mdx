@@ -1456,3 +1456,15 @@ The old way is deprecated, but will work for the foreseeable future.
 ## See also
 
 - [Encoding guide](/docs/encoding)
+
+## `setPreferredEffectBackend()`<AvailableFrom v="4.0.540" />
+
+<Options id="preferred-effect-backend" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPreferredEffectBackend('webgl2');
+```
+
+The [`--preferred-effect-backend`](/docs/options/preferred-effect-backend) CLI flag takes precedence. Changes apply after Studio reloads and to newly queued renders. Existing render jobs retain their preference.
