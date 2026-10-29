@@ -35,6 +35,14 @@ const release = (): void => {
 		throw new AggregateError(errors, 'Shared WebGL cleanup failed');
 };
 
+export const cleanupWithSharedWebGLPool = (cleanup: () => void): void => {
+	cleanups.push(cleanup);
+	if (!leased) {
+		leased = true;
+		release();
+	}
+};
+
 export const subscribeToSharedWebGLContextLoss = (
 	onContextLost: (canvas: HTMLCanvasElement) => void,
 ): (() => void) => {
@@ -87,6 +95,14 @@ export const acquireSharedWebGLPool = async (
 				}
 			}
 
+			// Browser-evicted contexts are not restorable everywhere. Retire this
+			// canvas even if the browser restores it before the next requested frame.
+			// Explicit retirement removes ownership before notifying us, so it does
+			// not enqueue itself again. In-flight chains retain their lease meanwhile.
+			if (pool.owns(canvas)) {
+				cleanupWithSharedWebGLPool(() => pool.retireWebGL(canvas));
+			}
+
 			if (errors.length === 1) throw errors[0];
 			if (errors.length > 1)
 				throw new AggregateError(errors, 'Shared WebGL invalidation failed');
@@ -96,13 +112,5 @@ export const acquireSharedWebGLPool = async (
 	} catch (error) {
 		release();
 		throw error;
-	}
-};
-
-export const cleanupWithSharedWebGLPool = (cleanup: () => void): void => {
-	cleanups.push(cleanup);
-	if (!leased) {
-		leased = true;
-		release();
 	}
 };

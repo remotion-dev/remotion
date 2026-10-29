@@ -1,5 +1,6 @@
 import type {Backend} from './effect-types.js';
 import {createWebGLStateReset} from './reset-webgl-state.js';
+import {WebGLContextLostError} from './webgl-context-lost-error.js';
 import {createWebGL2ContextError} from './webgl2-context-error.js';
 
 // A pair of scratch canvases for ping-ponging within a same-backend run.
@@ -60,6 +61,16 @@ export class CanvasPool {
 		}
 	}
 
+	public owns(canvas: HTMLCanvasElement): boolean {
+		return this.allocated.has(canvas);
+	}
+
+	public assertWebGLContextsNotLost(): void {
+		for (const [canvas, entry] of this.allocated) {
+			if (entry.gl) this.getCheckedEntry(canvas);
+		}
+	}
+
 	public getCanvas(backend: Backend, index: 0 | 1): HTMLCanvasElement {
 		if (this.disposed) {
 			throw new Error(
@@ -88,11 +99,7 @@ export class CanvasPool {
 	private getCheckedEntry(canvas: HTMLCanvasElement) {
 		const entry = this.allocated.get(canvas);
 		if (this.lostContexts.has(canvas) || entry?.gl?.isContextLost()) {
-			throw new Error(
-				'WebGL context was lost while rendering effects. ' +
-					'This typically happens in headless or memory-constrained environments (e.g. Remotion Lambda). ' +
-					'Try reducing concurrency or increasing the Lambda function memory.',
-			);
+			throw new WebGLContextLostError(canvas);
 		}
 
 		return entry ?? null;
@@ -183,14 +190,13 @@ export class CanvasPool {
 					throw createWebGL2ContextError('effects');
 				}
 
-				canvas.addEventListener('webglcontextlost', (e) => {
-					// `dispose()` loses the context on purpose. Not preventing the
-					// default keeps the browser from restoring a context nobody uses.
+				canvas.addEventListener('webglcontextlost', () => {
+					// Recovery replaces the canvas. Do not request restoration of a
+					// retired context, which would consume an unowned browser slot.
 					if (this.disposed || !this.allocated.has(canvas)) {
 						return;
 					}
 
-					e.preventDefault();
 					this.lostContexts.add(canvas);
 					this.onContextLost(canvas);
 				});

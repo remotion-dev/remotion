@@ -16,6 +16,8 @@ import {
 	cleanupWithSharedWebGLPool,
 	subscribeToSharedWebGLContextLoss,
 } from './shared-webgl-pool.js';
+import {WebGLContextLostError} from './webgl-context-lost-error.js';
+import {WebGL2ContextCreationError} from './webgl2-context-error.js';
 
 export type EffectChainState = {
 	preferredEffectBackend: PreferredEffectBackend;
@@ -31,6 +33,9 @@ export type EffectChainState = {
 	releaseWebGL: (() => void) | null;
 	unsubscribeWebGL: (() => void) | null;
 	onWebGLContextLost: (canvas: HTMLCanvasElement) => void;
+	webglGeneration: number;
+	lastLostWebGLCanvas: HTMLCanvasElement | null;
+	requestRedraw: (() => void) | null;
 	setupCache: WeakMap<
 		EffectImplementation<unknown, unknown>,
 		WeakMap<HTMLCanvasElement, unknown>
@@ -74,6 +79,7 @@ const disposeEffectChainState = (state: EffectChainState): void => {
 			state.unsubscribeWebGL?.();
 			state.unsubscribeWebGL = null;
 			state.webglPool = null;
+			state.requestRedraw = null;
 		} finally {
 			state.pool.dispose();
 		}
@@ -97,6 +103,9 @@ export const createEffectChainState = (
 		webglPool: null,
 		releaseWebGL: null,
 		unsubscribeWebGL: null,
+		webglGeneration: 0,
+		lastLostWebGLCanvas: null,
+		requestRedraw: null,
 		onWebGLContextLost: (canvas) => {
 			// The GL objects these setups hold died with the context and stay
 			// invalid on a restored one, so the next run has to recreate them.
@@ -106,8 +115,13 @@ export const createEffectChainState = (
 			const dead = state.cleanupRegistry.filter(
 				(entry) => entry.target === canvas,
 			);
-			if (dead.length === 0 && state.releaseWebGL === null) return;
-			state.currentRunId++;
+			if (
+				dead.length === 0 &&
+				!(state.releaseWebGL && state.webglPool?.owns(canvas))
+			)
+				return;
+			state.webglGeneration++;
+			state.lastLostWebGLCanvas = canvas;
 			state.cleanupRegistry = state.cleanupRegistry.filter(
 				(entry) => entry.target !== canvas,
 			);
@@ -115,7 +129,14 @@ export const createEffectChainState = (
 				state.setupCache.get(entry.definition)?.delete(canvas);
 			}
 
-			cleanupEntries(dead);
+			try {
+				cleanupEntries(dead);
+			} finally {
+				// Active runs recover from their original source. An idle React
+				// preview needs a new capture, including when its timeline is paused.
+				if (!state.pendingRun && !state.cleanupRequested)
+					state.requestRedraw?.();
+			}
 		},
 		setupCache: new WeakMap(),
 		cleanupRegistry: [],
@@ -166,6 +187,9 @@ const ensureSetup = <S>(
 		setupState = def.setup(target);
 	} catch (error) {
 		if (backend === 'webgl2') {
+			// Allocation/compilation can fail because the GPU was lost during
+			// setup. Keep that distinct from a broken shader or effect implementation.
+			state.webglPool!.assertContextNotLost(target);
 			try {
 				state.webglPool!.retireWebGL(target);
 			} catch (cleanupError) {
@@ -214,6 +238,18 @@ const runEffectChainWithoutResize = async (
 	}: {resolved: ResolvedEffect[]; gpuDevice: unknown | null},
 ): Promise<boolean> => {
 	const isCancelled = () => state.currentRunId !== runId;
+	const {webglGeneration} = state;
+	const assertWebGLValid = () => {
+		if (!state.releaseWebGL) return;
+		if (
+			state.webglGeneration !== webglGeneration &&
+			state.lastLostWebGLCanvas
+		) {
+			throw new WebGLContextLostError(state.lastLostWebGLCanvas);
+		}
+
+		state.webglPool!.assertWebGLContextsNotLost();
+	};
 
 	const runs = groupByBackend(resolved);
 
@@ -257,6 +293,7 @@ const runEffectChainWithoutResize = async (
 				const def = eff.implementation;
 				const setupState = ensureSetup(state, def, dst, run.backend);
 				if (isCancelled()) return false;
+				assertWebGLValid();
 
 				publishEffectSource(eff.original, currentImage, state);
 				if (isCancelled()) return false;
@@ -311,6 +348,8 @@ const runEffectChainWithoutResize = async (
 						return false;
 					}
 
+					assertWebGLValid();
+
 					currentImage = bridgeBitmap;
 					if (nextRun.backend === 'webgl2') {
 						flipWebGLSourceY = false;
@@ -324,6 +363,7 @@ const runEffectChainWithoutResize = async (
 	}
 
 	if (isCancelled()) return false;
+	assertWebGLValid();
 	if (!lastTarget) {
 		return true;
 	}
@@ -349,6 +389,7 @@ type ResolvedEffect = {
 const runEffectChainWithResize = async (
 	options: RunEffectChainOptions,
 	runId: number,
+	allowBackendFallback: boolean,
 ): Promise<boolean> => {
 	const {state, source, width, height, effects} = options;
 	const order: Backend[] = ['webgpu', 'webgl2', '2d'];
@@ -411,7 +452,8 @@ const runEffectChainWithResize = async (
 						backend,
 						0,
 					);
-				} catch {
+				} catch (error) {
+					if (!allowBackendFallback) throw error;
 					continue;
 				}
 			}
@@ -526,7 +568,51 @@ export const runEffectChain = async (
 	try {
 		if (previousRun) await previousRun;
 		if (state.currentRunId !== runId) return false;
-		return await runEffectChainWithResize(options, runId);
+		for (let attempt = 0; ; attempt++) {
+			try {
+				return await runEffectChainWithResize(options, runId, attempt === 0);
+			} catch (error) {
+				if (state.currentRunId !== runId) return false;
+				let failure = error;
+				if (state.releaseWebGL) {
+					try {
+						// GPU loss can make a shader compile, upload, or asynchronous
+						// bitmap bridge fail before the browser delivers its lost event.
+						state.webglPool!.assertWebGLContextsNotLost();
+					} catch (contextError) {
+						failure = contextError;
+					}
+				}
+
+				if (
+					!(failure instanceof WebGLContextLostError) &&
+					!(attempt > 0 && failure instanceof WebGL2ContextCreationError)
+				)
+					throw failure;
+				if (attempt === 2) {
+					if (failure instanceof WebGLContextLostError) {
+						// Retire before ending the run so its delayed lost event cannot
+						// schedule another automatic redraw and restart the retry budget.
+						state.webglPool!.retireWebGL(failure.canvas);
+					}
+
+					throw new Error(
+						'WebGL context was lost repeatedly while rendering effects. ' +
+							'Recovery failed after two retries. Try reducing rendering concurrency or GPU memory usage.',
+						{cause: failure},
+					);
+				}
+
+				if (failure instanceof WebGLContextLostError) {
+					state.webglPool!.retireWebGL(failure.canvas);
+				}
+
+				// Yield so the browser can finish releasing the old GPU context.
+				// The next attempt acquires fresh canvases and reruns the whole chain.
+				await new Promise<void>((resolve) => setTimeout(resolve, attempt * 50));
+				if (state.currentRunId !== runId) return false;
+			}
+		}
 	} finally {
 		try {
 			if (state.pendingRun === completion) {
