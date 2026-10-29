@@ -5,11 +5,21 @@ import {
 	parseColorRgba,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {GRIDLINES_WEBGPU_SHADER} from './gridlines-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -297,7 +307,7 @@ mat3 rotationMatrix(float rotationX, float rotationY, float rotationZ) {
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
-	vec2 centered = vUv * uResolution - uResolution * 0.5;
+	vec2 centered = gl_FragCoord.xy - uResolution * 0.5;
 	mat3 rotation = rotationMatrix(uRotationX, uRotationY, uRotation);
 	vec2 gridCoord;
 
@@ -406,185 +416,252 @@ const rgbaToUniform = (
 	return [(r / 255) * alpha, (g / 255) * alpha, (b / 255) * alpha, alpha];
 };
 
-export const gridlines = createEffect<GridlinesParams, GridlinesState>({
+export const gridlines = createEffect<GridlinesParams>({
 	type: 'remotion/gridlines',
 	label: 'gridlines()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/gridlines',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
 		return `gridlines-${r.gridSize}-${r.lineWidth}-${r.lineColor}-${r.backgroundColor}-${r.rotation}-${r.rotationX}-${r.rotationY}-${r.perspective}-${r.offsetX}-${r.offsetY}${maskSuffix}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('gridlines effect');
-		}
-
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-
-		const vs = compileShader(gl, gl.VERTEX_SHADER, GRIDLINES_VS);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, GRIDLINES_FS);
-		const program = linkProgram(gl, vs, fs);
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
-
-		const vao = gl.createVertexArray();
-		if (!vao) {
-			throw new Error('Failed to create WebGL vertex array');
-		}
-
-		gl.bindVertexArray(vao);
-
-		const data = new Float32Array([
-			-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
-		]);
-
-		const vbo = gl.createBuffer();
-		if (!vbo) {
-			throw new Error('Failed to create WebGL buffer');
-		}
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-
-		const aPos = gl.getAttribLocation(program, 'aPos');
-		const aUv = gl.getAttribLocation(program, 'aUv');
-		gl.enableVertexAttribArray(aPos);
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(aUv);
-		gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
-
-		gl.bindVertexArray(null);
-
-		const texture = gl.createTexture();
-		if (!texture) {
-			throw new Error('Failed to create WebGL texture');
-		}
-
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-
-		const colorCanvas = document.createElement('canvas');
-		colorCanvas.width = 1;
-		colorCanvas.height = 1;
-		const colorCtx = colorCanvas.getContext('2d', {willReadFrequently: true});
-		if (!colorCtx) {
-			throw new Error('Failed to acquire 2D context for color parsing');
-		}
-
-		return {
-			gl,
-			program,
-			vao,
-			vbo,
-			texture,
-			uniforms: {
-				uSource: gl.getUniformLocation(program, 'uSource'),
-				uResolution: gl.getUniformLocation(program, 'uResolution'),
-				uGridSize: gl.getUniformLocation(program, 'uGridSize'),
-				uLineWidth: gl.getUniformLocation(program, 'uLineWidth'),
-				uLineColor: gl.getUniformLocation(program, 'uLineColor'),
-				uBackgroundColor: gl.getUniformLocation(program, 'uBackgroundColor'),
-				uRotation: gl.getUniformLocation(program, 'uRotation'),
-				uRotationX: gl.getUniformLocation(program, 'uRotationX'),
-				uRotationY: gl.getUniformLocation(program, 'uRotationY'),
-				uPerspective: gl.getUniformLocation(program, 'uPerspective'),
-				uOffset: gl.getUniformLocation(program, 'uOffset'),
-				uMaskToSourceAlpha: gl.getUniformLocation(
-					program,
-					'uMaskToSourceAlpha',
-				),
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			GridlinesParams,
+			WebGpuColorState
+		>({
+			setup: (target) => setupWebGpuColors(target, 'gridlines'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the gridlines effect',
+					);
+				const r = resolve(params);
+				const colors = getWebGpuColors(state, [r.lineColor, r.backgroundColor]);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.gridSize,
+					r.lineWidth,
+					(r.rotation * Math.PI) / 180,
+					(r.rotationX * Math.PI) / 180,
+					(r.rotationY * Math.PI) / 180,
+					r.perspective,
+					r.offsetX,
+					r.offsetY,
+					r.maskToSourceAlpha ? 1 : 0,
+					0,
+					(colors[0] / 255) * (colors[3] / 255),
+					(colors[1] / 255) * (colors[3] / 255),
+					(colors[2] / 255) * (colors[3] / 255),
+					colors[3] / 255,
+					(colors[4] / 255) * (colors[7] / 255),
+					(colors[5] / 255) * (colors[7] / 255),
+					(colors[6] / 255) * (colors[7] / 255),
+					colors[7] / 255,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: GRIDLINES_WEBGPU_SHADER,
+					uniformData,
+				});
 			},
-			colorCtx,
-			cachedLineColorStr: '',
-			cachedLineColorRgba: [255, 255, 255, 255],
-			cachedBackgroundColorStr: '',
-			cachedBackgroundColorRgba: [0, 0, 0, 0],
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, texture, uniforms} = state;
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			GridlinesParams,
+			GridlinesState
+		>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('gridlines effect');
+				}
 
-		if (state.cachedLineColorStr !== r.lineColor) {
-			state.cachedLineColorStr = r.lineColor;
-			state.cachedLineColorRgba = parseColorRgba(state.colorCtx, r.lineColor);
-		}
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		if (state.cachedBackgroundColorStr !== r.backgroundColor) {
-			state.cachedBackgroundColorStr = r.backgroundColor;
-			state.cachedBackgroundColorRgba = parseColorRgba(
-				state.colorCtx,
-				r.backgroundColor,
-			);
-		}
+				const vs = compileShader(gl, gl.VERTEX_SHADER, GRIDLINES_VS);
+				const fs = compileShader(gl, gl.FRAGMENT_SHADER, GRIDLINES_FS);
+				const program = linkProgram(gl, vs, fs);
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-		const [lineR, lineG, lineB, lineA] = rgbaToUniform(
-			state.cachedLineColorRgba,
-		);
-		const [bgR, bgG, bgB, bgA] = rgbaToUniform(state.cachedBackgroundColorRgba);
+				const vao = gl.createVertexArray();
+				if (!vao) {
+					throw new Error('Failed to create WebGL vertex array');
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.bindVertexArray(vao);
 
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+				const data = new Float32Array([
+					-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
+				]);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				const vbo = gl.createBuffer();
+				if (!vbo) {
+					throw new Error('Failed to create WebGL buffer');
+				}
 
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uGridSize) gl.uniform1f(uniforms.uGridSize, r.gridSize);
-		if (uniforms.uLineWidth) gl.uniform1f(uniforms.uLineWidth, r.lineWidth);
-		if (uniforms.uLineColor)
-			gl.uniform4f(uniforms.uLineColor, lineR, lineG, lineB, lineA);
-		if (uniforms.uBackgroundColor)
-			gl.uniform4f(uniforms.uBackgroundColor, bgR, bgG, bgB, bgA);
-		if (uniforms.uRotation)
-			gl.uniform1f(uniforms.uRotation, (r.rotation * Math.PI) / 180);
-		if (uniforms.uRotationX)
-			gl.uniform1f(uniforms.uRotationX, (r.rotationX * Math.PI) / 180);
-		if (uniforms.uRotationY)
-			gl.uniform1f(uniforms.uRotationY, (r.rotationY * Math.PI) / 180);
-		if (uniforms.uPerspective)
-			gl.uniform1f(uniforms.uPerspective, r.perspective);
-		if (uniforms.uOffset) gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
-		if (uniforms.uMaskToSourceAlpha)
-			gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
+				gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+				gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				const aPos = gl.getAttribLocation(program, 'aPos');
+				const aUv = gl.getAttribLocation(program, 'aUv');
+				gl.enableVertexAttribArray(aPos);
+				gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+				gl.enableVertexAttribArray(aUv);
+				gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
 
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
-		gl.deleteTexture(texture);
+				gl.bindVertexArray(null);
+
+				const texture = gl.createTexture();
+				if (!texture) {
+					throw new Error('Failed to create WebGL texture');
+				}
+
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+
+				const colorCanvas = document.createElement('canvas');
+				colorCanvas.width = 1;
+				colorCanvas.height = 1;
+				const colorCtx = colorCanvas.getContext('2d', {
+					willReadFrequently: true,
+				});
+				if (!colorCtx) {
+					throw new Error('Failed to acquire 2D context for color parsing');
+				}
+
+				return {
+					gl,
+					program,
+					vao,
+					vbo,
+					texture,
+					uniforms: {
+						uSource: gl.getUniformLocation(program, 'uSource'),
+						uResolution: gl.getUniformLocation(program, 'uResolution'),
+						uGridSize: gl.getUniformLocation(program, 'uGridSize'),
+						uLineWidth: gl.getUniformLocation(program, 'uLineWidth'),
+						uLineColor: gl.getUniformLocation(program, 'uLineColor'),
+						uBackgroundColor: gl.getUniformLocation(
+							program,
+							'uBackgroundColor',
+						),
+						uRotation: gl.getUniformLocation(program, 'uRotation'),
+						uRotationX: gl.getUniformLocation(program, 'uRotationX'),
+						uRotationY: gl.getUniformLocation(program, 'uRotationY'),
+						uPerspective: gl.getUniformLocation(program, 'uPerspective'),
+						uOffset: gl.getUniformLocation(program, 'uOffset'),
+						uMaskToSourceAlpha: gl.getUniformLocation(
+							program,
+							'uMaskToSourceAlpha',
+						),
+					},
+					colorCtx,
+					cachedLineColorStr: '',
+					cachedLineColorRgba: [255, 255, 255, 255],
+					cachedBackgroundColorStr: '',
+					cachedBackgroundColorRgba: [0, 0, 0, 0],
+				};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, texture, uniforms} = state;
+
+				if (state.cachedLineColorStr !== r.lineColor) {
+					state.cachedLineColorStr = r.lineColor;
+					state.cachedLineColorRgba = parseColorRgba(
+						state.colorCtx,
+						r.lineColor,
+					);
+				}
+
+				if (state.cachedBackgroundColorStr !== r.backgroundColor) {
+					state.cachedBackgroundColorStr = r.backgroundColor;
+					state.cachedBackgroundColorRgba = parseColorRgba(
+						state.colorCtx,
+						r.backgroundColor,
+					);
+				}
+
+				const [lineR, lineG, lineB, lineA] = rgbaToUniform(
+					state.cachedLineColorRgba,
+				);
+				const [bgR, bgG, bgB, bgA] = rgbaToUniform(
+					state.cachedBackgroundColorRgba,
+				);
+
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
+
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uGridSize) gl.uniform1f(uniforms.uGridSize, r.gridSize);
+				if (uniforms.uLineWidth) gl.uniform1f(uniforms.uLineWidth, r.lineWidth);
+				if (uniforms.uLineColor)
+					gl.uniform4f(uniforms.uLineColor, lineR, lineG, lineB, lineA);
+				if (uniforms.uBackgroundColor)
+					gl.uniform4f(uniforms.uBackgroundColor, bgR, bgG, bgB, bgA);
+				if (uniforms.uRotation)
+					gl.uniform1f(uniforms.uRotation, (r.rotation * Math.PI) / 180);
+				if (uniforms.uRotationX)
+					gl.uniform1f(uniforms.uRotationX, (r.rotationX * Math.PI) / 180);
+				if (uniforms.uRotationY)
+					gl.uniform1f(uniforms.uRotationY, (r.rotationY * Math.PI) / 180);
+				if (uniforms.uPerspective)
+					gl.uniform1f(uniforms.uPerspective, r.perspective);
+				if (uniforms.uOffset)
+					gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
+				if (uniforms.uMaskToSourceAlpha)
+					gl.uniform1i(
+						uniforms.uMaskToSourceAlpha,
+						r.maskToSourceAlpha ? 1 : 0,
+					);
+
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+				gl.deleteTexture(texture);
+			},
+		}),
 	},
 	schema: gridlinesSchema,
 	validateParams: validateGridlinesParams,

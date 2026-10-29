@@ -53,7 +53,8 @@ void main() {
     fragColor = source;
     return;
   }
-  vec2 pixel = vec2(vUv.x, 1.0 - vUv.y) * uResolution;
+  // Use exact pixel centers so block noise stays stable at cell boundaries.
+  vec2 pixel = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y);
   vec2 base = (pixel - uResolution * 0.5 - uOffset) / uScale;
   float sum = 0.0;
   float norm = 0.0;

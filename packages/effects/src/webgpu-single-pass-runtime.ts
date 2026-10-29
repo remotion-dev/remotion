@@ -5,6 +5,14 @@ export type WebGpuSinglePassState = {
 		readonly device: GPUDevice;
 		readonly shader: string;
 		readonly uniformBufferSize: number;
+		readonly sourceFilter: GPUFilterMode;
+		readonly auxiliary: {
+			readonly texture: GPUTexture;
+			readonly width: number;
+			readonly height: number;
+			readonly format: 'rgba8unorm' | 'rgba32float';
+			uploadedData: Uint8Array<ArrayBuffer> | Float32Array<ArrayBuffer> | null;
+		} | null;
 		readonly pipeline: GPURenderPipeline;
 		readonly uniforms: GPUBuffer;
 		readonly sampler: GPUSampler;
@@ -51,25 +59,40 @@ export const setupWebGpuSinglePass = (
 export const cleanupWebGpuSinglePass = (state: WebGpuSinglePassState): void => {
 	state.resources?.source?.texture.destroy();
 	state.resources?.uniforms.destroy();
+	state.resources?.auxiliary?.texture.destroy();
 	state.resources = null;
 	state.context.unconfigure();
 };
 
-export const applyWebGpuSinglePass = ({
-	state,
-	source,
-	device,
-	shader,
-	uniformData,
-}: {
-	state: WebGpuSinglePassState;
-	source: CanvasImageSource;
-	width: number;
-	height: number;
-	device: GPUDevice;
-	shader: string;
-	uniformData: Float32Array<ArrayBuffer>;
-}): void => {
+export const applyWebGpuSinglePass = (
+	{
+		state,
+		source,
+		device,
+		shader,
+		uniformData,
+	}: {
+		state: WebGpuSinglePassState;
+		source: CanvasImageSource;
+		width: number;
+		height: number;
+		device: GPUDevice;
+		shader: string;
+		uniformData: Float32Array<ArrayBuffer>;
+	},
+	options: {
+		sourceFilter: GPUFilterMode | null;
+		// Auxiliary pixels are immutable: replace the array whenever their contents change.
+		auxiliaryTexture: {
+			data: Uint8Array<ArrayBuffer> | Float32Array<ArrayBuffer>;
+			width: number;
+			height: number;
+			format: 'rgba8unorm' | 'rgba32float';
+		} | null;
+	} | null = null,
+): void => {
+	const sourceFilter = options?.sourceFilter ?? 'linear';
+	const auxiliaryTexture = options?.auxiliaryTexture ?? null;
 	// Upload the source's actual extent, which can differ from the output size
 	// (for example Solid's 1x1 source). Sampling performs the scaling.
 	const width =
@@ -100,7 +123,14 @@ export const applyWebGpuSinglePass = ({
 		state.resources &&
 		(state.resources.device !== device ||
 			state.resources.shader !== shader ||
-			state.resources.uniformBufferSize !== uniformBufferSize)
+			state.resources.uniformBufferSize !== uniformBufferSize ||
+			state.resources.sourceFilter !== sourceFilter ||
+			(state.resources.auxiliary?.width ?? null) !==
+				(auxiliaryTexture?.width ?? null) ||
+			(state.resources.auxiliary?.height ?? null) !==
+				(auxiliaryTexture?.height ?? null) ||
+			(state.resources.auxiliary?.format ?? null) !==
+				(auxiliaryTexture?.format ?? null))
 	) {
 		cleanupWebGpuSinglePass(state);
 	}
@@ -116,6 +146,20 @@ export const applyWebGpuSinglePass = ({
 		// generates its pixels without sampling the source.
 		const bindGroupLayout = device.createBindGroupLayout({
 			entries: [
+				...(auxiliaryTexture
+					? [
+							{
+								binding: 3,
+								visibility: GPUShaderStage.FRAGMENT,
+								texture: {
+									sampleType:
+										auxiliaryTexture.format === 'rgba32float'
+											? ('unfilterable-float' as const)
+											: ('float' as const),
+								},
+							},
+						]
+					: []),
 				{binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {}},
 				{binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {}},
 				{
@@ -141,13 +185,28 @@ export const applyWebGpuSinglePass = ({
 		const sampler = device.createSampler({
 			addressModeU: 'clamp-to-edge',
 			addressModeV: 'clamp-to-edge',
-			magFilter: 'linear',
-			minFilter: 'linear',
+			magFilter: sourceFilter,
+			minFilter: sourceFilter,
 		});
+		const auxiliary = auxiliaryTexture
+			? {
+					texture: device.createTexture({
+						size: [auxiliaryTexture.width, auxiliaryTexture.height],
+						format: auxiliaryTexture.format,
+						usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+					}),
+					width: auxiliaryTexture.width,
+					height: auxiliaryTexture.height,
+					format: auxiliaryTexture.format,
+					uploadedData: null,
+				}
+			: null;
 		state.resources = {
 			device,
 			shader,
 			uniformBufferSize,
+			sourceFilter,
+			auxiliary,
 			pipeline,
 			uniforms,
 			sampler,
@@ -177,12 +236,32 @@ export const applyWebGpuSinglePass = ({
 		const bindGroup = device.createBindGroup({
 			layout: resources.bindGroupLayout,
 			entries: [
+				...(resources.auxiliary
+					? [{binding: 3, resource: resources.auxiliary.texture.createView()}]
+					: []),
 				{binding: 0, resource: texture.createView()},
 				{binding: 1, resource: resources.sampler},
 				{binding: 2, resource: {buffer: resources.uniforms}},
 			],
 		});
 		resources.source = {texture, bindGroup, width, height};
+	}
+
+	if (
+		auxiliaryTexture &&
+		resources.auxiliary &&
+		resources.auxiliary.uploadedData !== auxiliaryTexture.data
+	) {
+		device.queue.writeTexture(
+			{texture: resources.auxiliary.texture},
+			auxiliaryTexture.data,
+			{
+				bytesPerRow:
+					auxiliaryTexture.width * 4 * auxiliaryTexture.data.BYTES_PER_ELEMENT,
+			},
+			[auxiliaryTexture.width, auxiliaryTexture.height],
+		);
+		resources.auxiliary.uploadedData = auxiliaryTexture.data;
 	}
 
 	device.queue.copyExternalImageToTexture(

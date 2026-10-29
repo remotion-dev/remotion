@@ -11,11 +11,18 @@ import {
 	assertOptionalColor,
 } from '../validate-effect-param.js';
 import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
+import {
 	applyLightTrail,
 	cleanupLightTrail,
 	setupLightTrail,
 	type LightTrailState,
 } from './light-trail-runtime.js';
+import {LIGHT_TRAIL_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -159,40 +166,104 @@ const validateLightTrailParams = (params: LightTrailParams): void => {
 	validateSamples(r.samples);
 };
 
-export const lightTrail = createEffect<LightTrailParams, LightTrailState>({
+export const lightTrail = createEffect<LightTrailParams>({
 	type: 'remotion/light-trail',
 	label: 'lightTrail()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/light-trail',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `light-trail-${r.direction}-${r.distance}-${r.intensity}-${r.decay}-${r.threshold}-${r.samples}-${r.color}`;
 	},
-	setup: (target) => setupLightTrail(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			LightTrailParams,
+			WebGpuSinglePassState & {
+				readonly colorCtx: CanvasRenderingContext2D;
+				cachedColor: string | null;
+				cachedRgba: ReturnType<typeof parseColorRgba>;
+			}
+		>({
+			setup: (target) => {
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const colorCtx = canvas.getContext('2d', {willReadFrequently: true});
+				if (!colorCtx) throw new Error('Could not create color parser');
+				return {
+					...setupWebGpuSinglePass(target, 'light-trail'),
+					colorCtx,
+					cachedColor: null,
+					cachedRgba: [0, 0, 0, 0],
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+				const angle = (r.direction * Math.PI) / 180;
+				if (state.cachedColor !== r.color) {
+					state.cachedColor = r.color;
+					state.cachedRgba = parseColorRgba(state.colorCtx, r.color);
+				}
 
-		if (state.cachedColorStr !== r.color) {
-			state.cachedColorStr = r.color;
-			state.cachedColorRgba = parseColorRgba(state.colorCtx, r.color);
-		}
+				const color = state.cachedRgba.map((channel) => channel / 255);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: LIGHT_TRAIL_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						Math.cos(angle),
+						-Math.sin(angle),
+						...color,
+						r.distance,
+						r.intensity,
+						r.decay,
+						r.threshold,
+						r.samples,
+						0,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			LightTrailParams,
+			LightTrailState
+		>({
+			setup: (target) => setupLightTrail(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
 
-		applyLightTrail({
-			state,
-			source,
-			width,
-			height,
-			direction: r.direction,
-			distance: r.distance,
-			intensity: r.intensity,
-			decay: r.decay,
-			threshold: r.threshold,
-			samples: r.samples,
-			color: state.cachedColorRgba,
-			flipSourceY,
-		});
+				if (state.cachedColorStr !== r.color) {
+					state.cachedColorStr = r.color;
+					state.cachedColorRgba = parseColorRgba(state.colorCtx, r.color);
+				}
+
+				applyLightTrail({
+					state,
+					source,
+					width,
+					height,
+					direction: r.direction,
+					distance: r.distance,
+					intensity: r.intensity,
+					decay: r.decay,
+					threshold: r.threshold,
+					samples: r.samples,
+					color: state.cachedColorRgba,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupLightTrail(state),
+		}),
 	},
-	cleanup: (state) => cleanupLightTrail(state),
 	schema: lightTrailSchema,
 	validateParams: validateLightTrailParams,
 });

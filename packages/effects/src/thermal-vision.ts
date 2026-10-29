@@ -6,10 +6,17 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {THERMAL_VISION_WEBGPU_SHADER} from './thermal-vision-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertRequiredColor,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -67,7 +74,7 @@ type ThermalVisionState = {
 		readonly uAmount: WebGLUniformLocation | null;
 	};
 	cachedPaletteKey: string;
-	palettePixelData: Uint8Array;
+	palettePixelData: Uint8Array<ArrayBuffer>;
 };
 
 const resolve = (p: ThermalVisionParams): ThermalVisionResolved => ({
@@ -292,7 +299,10 @@ const setupThermalVision = (target: HTMLCanvasElement): ThermalVisionState => {
 };
 
 const updatePalette = (
-	state: ThermalVisionState,
+	state: Pick<
+		ThermalVisionState,
+		'cachedPaletteKey' | 'palettePixelData' | 'colorCtx'
+	>,
 	palette: readonly string[],
 ): boolean => {
 	const paletteKey = palette.join('|');
@@ -303,9 +313,8 @@ const updatePalette = (
 
 	state.cachedPaletteKey = paletteKey;
 	const len = palette.length * 4;
-	if (state.palettePixelData.length !== len) {
-		state.palettePixelData = new Uint8Array(len);
-	}
+	// WebGPU caches uploads by array identity; changed palettes need fresh pixels.
+	state.palettePixelData = new Uint8Array(len);
 
 	const {palettePixelData} = state;
 	for (let i = 0; i < palette.length; i++) {
@@ -319,80 +328,142 @@ const updatePalette = (
 	return true;
 };
 
-export const thermalVision = createEffect<
-	ThermalVisionParams,
-	ThermalVisionState
->({
+export const thermalVision = createEffect<ThermalVisionParams>({
 	type: 'remotion/thermal-vision',
 	label: 'thermalVision()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/thermal-vision',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `thermal-vision-${r.amount}-${r.palette.join('|')}`;
 	},
-	setup: (target) => setupThermalVision(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const paletteDirty = updatePalette(state, r.palette);
-		const {gl, program, sourceTexture, paletteTexture, uniforms, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ThermalVisionParams,
+			WebGpuSinglePassState &
+				Pick<
+					ThermalVisionState,
+					'cachedPaletteKey' | 'palettePixelData' | 'colorCtx'
+				>
+		>({
+			setup: (target) => {
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const colorCtx = canvas.getContext('2d', {willReadFrequently: true});
+				if (!colorCtx)
+					throw new Error('Failed to acquire 2D context for color parsing');
+				return {
+					...setupWebGpuSinglePass(target, 'thermal-vision'),
+					colorCtx,
+					cachedPaletteKey: '',
+					palettePixelData: new Uint8Array(0),
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the thermal-vision effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					r.amount,
+					r.palette.length,
+					0,
+					0,
+				]);
+				updatePalette(state, r.palette);
+				applyWebGpuSinglePass(
+					{
+						state,
+						source,
+						width,
+						height,
+						device: gpuDevice as GPUDevice,
+						shader: THERMAL_VISION_WEBGPU_SHADER,
+						uniformData,
+					},
+					{
+						sourceFilter: null,
+						auxiliaryTexture: {
+							data: state.palettePixelData,
+							width: r.palette.length,
+							height: 1,
+							format: 'rgba8unorm',
+						},
+					},
+				);
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			ThermalVisionParams,
+			ThermalVisionState
+		>({
+			setup: (target) => setupThermalVision(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const paletteDirty = updatePalette(state, r.palette);
+				const {gl, program, sourceTexture, paletteTexture, uniforms, vao} =
+					state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
-		if (paletteDirty) {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				r.palette.length,
-				1,
-				0,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				state.palettePixelData,
-			);
-			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		}
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
+				if (paletteDirty) {
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+					gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						r.palette.length,
+						1,
+						0,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						state.palettePixelData,
+					);
+					gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				}
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
-		if (uniforms.uPaletteLength)
-			gl.uniform1f(uniforms.uPaletteLength, r.palette.length);
-		if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
+				if (uniforms.uPaletteLength)
+					gl.uniform1f(uniforms.uPaletteLength, r.palette.length);
+				if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
-		gl.deleteTexture(sourceTexture);
-		gl.deleteTexture(paletteTexture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
+				gl.deleteTexture(sourceTexture);
+				gl.deleteTexture(paletteTexture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: thermalVisionSchema,
 	validateParams: validateThermalVisionParams,
