@@ -134,6 +134,7 @@ export const startHandler = async ({
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		storageClass: params.storageClass,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+		preferredEffectBackend: params.preferredEffectBackend,
 		isProduction: params.isProduction ?? true,
 		sampleRate: params.sampleRate ?? 48000,
 	};

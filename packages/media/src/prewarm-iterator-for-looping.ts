@@ -42,7 +42,8 @@ export const makePrewarmedVideoIteratorCache = (
 
 	const destroy = () => {
 		for (const iterator of prewarmedVideoIterators.values()) {
-			iterator.closeIterator();
+			// Closing an iterator whose decoder was reclaimed rejects.
+			iterator.closeIterator().catch(() => undefined);
 		}
 
 		prewarmedVideoIterators.clear();

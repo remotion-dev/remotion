@@ -52,6 +52,7 @@ export const getCompositionsOnLambda = async ({
 	forcePathStyle,
 	requestHandler,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -90,6 +91,7 @@ export const getCompositionsOnLambda = async ({
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 				forcePathStyle: forcePathStyle ?? false,
 				mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+				preferredEffectBackend: preferredEffectBackend ?? 'auto',
 			},
 			region,
 			timeoutInTest: 120000,

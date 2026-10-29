@@ -87,6 +87,7 @@ test.each([
 			scheduledTime: 0,
 		});
 		const manager = audioIteratorManager({
+			getIsPlaying: () => true,
 			audioTrack,
 			delayPlaybackHandleIfNotPremounting: () => ({
 				unblock: () => undefined,

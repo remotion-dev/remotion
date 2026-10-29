@@ -1,8 +1,9 @@
 import {Player, type PlayerRef} from '@remotion/player';
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import {Internals} from 'remotion';
+import {Internals, Sequence} from 'remotion';
 import {expect, test, vi} from 'vitest';
+import {page} from 'vitest/browser';
 import {Audio} from '../audio/audio';
 
 test('replaces queued audio after a suspension re-anchors a stationary Player', async () => {
@@ -172,3 +173,103 @@ test('paused seeks unschedule unstarted nodes while playing cleanup still stops 
 		vi.restoreAllMocks();
 	}
 });
+
+test.each([
+	{from: 0, playbackRate: 1},
+	{from: 90, playbackRate: 1},
+	{from: 90, playbackRate: 0.01},
+])(
+	'keep-alive bounds paused audio from frame $from at $playbackRate× without blocking playback',
+	async ({from, playbackRate}) => {
+		const nodes: AudioBufferSourceNode[] = [];
+		const originalCreateBufferSource =
+			AudioContext.prototype.createBufferSource;
+		const createBufferSourceSpy = vi
+			.spyOn(AudioContext.prototype, 'createBufferSource')
+			.mockImplementation(function (this: AudioContext) {
+				const node = originalCreateBufferSource.call(this);
+				nodes.push(node);
+				return node;
+			});
+		let audioContext: AudioContext | null = null;
+		const Composition: React.FC = () => {
+			audioContext =
+				React.useContext(Internals.SharedAudioContext)?.audioContext ?? null;
+			return (
+				<Sequence from={from} premountFor={from}>
+					<Audio
+						src="/voice-note.m4a"
+						playbackRate={playbackRate}
+						disallowFallbackToHtml5Audio
+					/>
+				</Sequence>
+			);
+		};
+
+		const container = document.createElement('div');
+		document.body.appendChild(container);
+		const root = createRoot(container);
+		const playerRef = React.createRef<PlayerRef>();
+		root.render(
+			<Player
+				ref={playerRef}
+				acknowledgeRemotionLicense
+				component={Composition}
+				compositionWidth={100}
+				compositionHeight={100}
+				durationInFrames={4000}
+				fps={30}
+				inputProps={{}}
+				_experimentalKeepAudioContextAlive
+			/>,
+		);
+		try {
+			await vi.waitFor(() => {
+				expect(
+					nodes.reduce((sum, node) => sum + (node.buffer?.duration ?? 0), 0),
+				).toBeGreaterThanOrEqual(0.1);
+			});
+			if (!audioContext) throw new Error('Audio context did not initialize');
+			const context: AudioContext = audioContext;
+			const resumeButton = document.createElement('button');
+			resumeButton.textContent = 'Resume audio context';
+			resumeButton.onclick = () => context.resume();
+			container.appendChild(resumeButton);
+			await page.getByRole('button', {name: 'Resume audio context'}).click();
+			await vi.waitFor(() => expect(context.state).toBe('running'));
+			const startedAt = context.currentTime;
+			// Let the real audio clock move beyond the two-second decode horizon.
+			await vi.waitFor(
+				() => {
+					expect(context.currentTime - startedAt).toBeGreaterThan(3);
+				},
+				{timeout: 5000},
+			);
+			expect(playerRef.current?.getCurrentFrame()).toBe(0);
+			expect(playerRef.current?.isPlaying()).toBe(false);
+			const queuedDuration = nodes.reduce(
+				(sum, node) => sum + (node.buffer?.duration ?? 0),
+				0,
+			);
+			// The final decoded chunk can straddle the two-second boundary.
+			expect(queuedDuration).toBeGreaterThanOrEqual(
+				Math.max(1.9 * playbackRate, 0.1),
+			);
+			expect(queuedDuration).toBeLessThan(Math.max(2.2 * playbackRate, 0.2));
+			playerRef.current?.play();
+			await vi.waitFor(
+				() => {
+					expect(playerRef.current?.getCurrentFrame()).toBeGreaterThan(
+						from + 5,
+					);
+				},
+				{timeout: 5000},
+			);
+		} finally {
+			root.unmount();
+			container.remove();
+			createBufferSourceSpy.mockRestore();
+		}
+	},
+	15000,
+);

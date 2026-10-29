@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import type {
 	AnyZodObject,
 	CompProps,
@@ -106,6 +107,7 @@ export type PlayerProps<
 	readonly logLevel?: LogLevel;
 	readonly noSuspense?: boolean;
 	readonly acknowledgeRemotionLicense?: boolean;
+	readonly preferredEffectBackend?: PreferredEffectBackend;
 	readonly audioLatencyHint?: AudioContextLatencyCategory;
 	readonly sampleRate?: number;
 	readonly volumePersistenceKey?: string;
@@ -205,6 +207,7 @@ const PlayerFn = <
 		noSuspense,
 		acknowledgeRemotionLicense,
 		audioLatencyHint = 'playback',
+		preferredEffectBackend = 'auto',
 		sampleRate = 48000,
 		volumePersistenceKey,
 		initialVolume,
@@ -542,6 +545,7 @@ const PlayerFn = <
 					initiallyMuted={initiallyMuted}
 					logLevel={logLevel}
 					audioLatencyHint={audioLatencyHint}
+					preferredEffectBackend={preferredEffectBackend}
 					sampleRate={sampleRate}
 					_experimentalKeepAudioContextAlive={
 						_experimentalKeepAudioContextAlive

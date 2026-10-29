@@ -58,7 +58,7 @@ fi
 
 (
 	cd "$package_dir"
-	bun run make
+	bun run build-extension
 )
 
 for required_file in manifest.json background.js capture.js drag-image.js shot-tools.js logo.svg; do
