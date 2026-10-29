@@ -24,6 +24,7 @@ type RenderStillConfig = {
 	chromeMode: InternalStillOptions['chromeMode'];
 	offthreadVideoCacheSizeInBytes: InternalStillOptions['offthreadVideoCacheSizeInBytes'];
 	mediaCacheSizeInBytes: InternalStillOptions['mediaCacheSizeInBytes'];
+	preferredEffectBackend: InternalStillOptions['preferredEffectBackend'];
 	offthreadVideoThreads: InternalStillOptions['offthreadVideoThreads'];
 	licenseKey: InternalStillOptions['licenseKey'];
 	isProduction: InternalStillOptions['isProduction'];
@@ -82,6 +83,7 @@ try {
 			}),
 			chromeMode: config.chromeMode,
 			mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
+			preferredEffectBackend: config.preferredEffectBackend,
 			offthreadVideoCacheSizeInBytes: config.offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads: config.offthreadVideoThreads,
 		});
@@ -113,6 +115,7 @@ try {
 		chromeMode: config.chromeMode,
 		offthreadVideoCacheSizeInBytes: config.offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
+		preferredEffectBackend: config.preferredEffectBackend,
 		offthreadVideoThreads: config.offthreadVideoThreads,
 		licenseKey: config.licenseKey,
 		isProduction: config.isProduction,

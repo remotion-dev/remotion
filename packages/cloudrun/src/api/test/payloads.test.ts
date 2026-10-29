@@ -21,6 +21,7 @@ test('CloudRunPayload should work with and without optional webhook fields', () 
 		offthreadVideoCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
 		mediaCacheSizeInBytes: null,
+		preferredEffectBackend: 'auto' as const,
 		serializedInputPropsWithCustomSchema: JSON.stringify({}),
 	};
 

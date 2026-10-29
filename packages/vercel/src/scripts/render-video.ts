@@ -54,6 +54,7 @@ type RenderVideoConfig = {
 	chromeMode: InternalRenderMediaOptions['chromeMode'];
 	offthreadVideoCacheSizeInBytes: InternalRenderMediaOptions['offthreadVideoCacheSizeInBytes'];
 	mediaCacheSizeInBytes: InternalRenderMediaOptions['mediaCacheSizeInBytes'];
+	preferredEffectBackend: InternalRenderMediaOptions['preferredEffectBackend'];
 	offthreadVideoThreads: InternalRenderMediaOptions['offthreadVideoThreads'];
 	repro: InternalRenderMediaOptions['repro'];
 	sampleRate: InternalRenderMediaOptions['sampleRate'];
@@ -170,6 +171,7 @@ try {
 			}),
 			chromeMode: config.chromeMode,
 			mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
+			preferredEffectBackend: config.preferredEffectBackend,
 			offthreadVideoCacheSizeInBytes: config.offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads: config.offthreadVideoThreads,
 		});
@@ -227,6 +229,7 @@ try {
 		chromeMode: config.chromeMode,
 		offthreadVideoCacheSizeInBytes: config.offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
+		preferredEffectBackend: config.preferredEffectBackend,
 		offthreadVideoThreads: config.offthreadVideoThreads,
 		repro: config.repro,
 		sampleRate: config.sampleRate,

@@ -7,6 +7,7 @@ import type {
 	WebRendererQuality,
 	WebRendererVideoCodec,
 } from '@remotion/web-renderer';
+import type {PreferredEffectBackend} from 'remotion';
 import type {LogLevel} from 'remotion';
 
 export type ClientRenderJobProgress = {
@@ -42,6 +43,7 @@ type ClientRenderJobBase = {
 	inputProps: Record<string, unknown>;
 	delayRenderTimeout: number;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	logLevel: LogLevel;
 	licenseKey: string | null;
 	scale: number;

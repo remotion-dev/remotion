@@ -93,6 +93,7 @@ export const compositionsHandler = async ({
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: 1,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			preferredEffectBackend: params.preferredEffectBackend,
 			onLog: RenderInternals.defaultOnLog,
 		});
 

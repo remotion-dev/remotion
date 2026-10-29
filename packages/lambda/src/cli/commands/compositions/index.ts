@@ -93,6 +93,10 @@ export const compositionsCommand = async ({
 	const functionName = await findFunctionName({logLevel});
 
 	const comps = await getCompositionsOnLambda({
+		preferredEffectBackend:
+			BrowserSafeApis.options.preferredEffectBackendOption.getValue({
+				commandLine: CliInternals.parsedCli,
+			}).value,
 		functionName,
 		serveUrl,
 		inputProps,

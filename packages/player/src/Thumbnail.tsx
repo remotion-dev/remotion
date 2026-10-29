@@ -12,6 +12,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import type {
 	AnyZodObject,
 	CompProps,
@@ -46,6 +47,7 @@ export type ThumbnailProps<
 		readonly renderLoading?: RenderLoading;
 		readonly className?: string;
 		readonly overrideInternalClassName?: string;
+		readonly preferredEffectBackend?: PreferredEffectBackend;
 		readonly logLevel?: LogLevel;
 		readonly noSuspense?: boolean;
 	};
@@ -71,6 +73,7 @@ const ThumbnailFn = <
 		overflowVisible = false,
 		overrideInternalClassName,
 		logLevel = 'info',
+		preferredEffectBackend = 'auto',
 		noSuspense,
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
@@ -162,6 +165,7 @@ const ThumbnailFn = <
 					initiallyMuted
 					logLevel={logLevel}
 					audioLatencyHint="playback"
+					preferredEffectBackend={preferredEffectBackend}
 					sampleRate={48000}
 					inputProps={passedInputProps}
 					audioEnabled={false}

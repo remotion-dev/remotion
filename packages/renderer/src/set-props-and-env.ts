@@ -1,3 +1,5 @@
+import type {PreferredEffectBackend} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {VERSION} from 'remotion/version';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
@@ -27,6 +29,7 @@ type SetPropsAndEnv = {
 	onServeUrlVisited: () => void;
 	isMainTab: boolean;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	initialMemoryAvailable: number | null;
 	sampleRate: number;
 };
@@ -47,10 +50,12 @@ const innerSetPropsAndEnv = async ({
 	onServeUrlVisited,
 	isMainTab,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	initialMemoryAvailable,
 	darkMode,
 	sampleRate,
 }: SetPropsAndEnv): Promise<void> => {
+	NoReactInternals.validatePreferredEffectBackend(preferredEffectBackend);
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
 	page.setDefaultTimeout(actualTimeout);
@@ -63,6 +68,8 @@ const innerSetPropsAndEnv = async ({
 			timeout: number,
 			mainTab: boolean,
 			cacheSizeInBytes: number | null,
+			effectBackend: PreferredEffectBackend,
+			disableWebGpuEffects: boolean,
 			initMemoryAvailable: number | null,
 			sRate: number,
 			// eslint-disable-next-line max-params
@@ -70,6 +77,8 @@ const innerSetPropsAndEnv = async ({
 			window.remotion_puppeteerTimeout = timeout;
 			window.remotion_isMainTab = mainTab;
 			window.remotion_mediaCacheSizeInBytes = cacheSizeInBytes;
+			window.remotion_preferredEffectBackend = effectBackend;
+			window.remotion_disableWebGpuEffects = disableWebGpuEffects;
 			window.remotion_initialMemoryAvailable = initMemoryAvailable;
 			window.remotion_sampleRate = sRate;
 			// To make useRemotionEnvironment() work
@@ -87,6 +96,8 @@ const innerSetPropsAndEnv = async ({
 		actualTimeout,
 		isMainTab,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
+		Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME),
 		initialMemoryAvailable,
 		sampleRate,
 	);
@@ -180,6 +191,7 @@ const innerSetPropsAndEnv = async ({
 			onServeUrlVisited,
 			isMainTab,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			initialMemoryAvailable,
 			darkMode,
 			sampleRate,

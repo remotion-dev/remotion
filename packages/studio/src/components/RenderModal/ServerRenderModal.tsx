@@ -27,6 +27,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
@@ -175,6 +176,7 @@ type RenderModalProps = {
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
+	readonly initialPreferredEffectBackend: PreferredEffectBackend;
 	readonly initialDarkMode: boolean;
 	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
@@ -235,6 +237,7 @@ const RenderModal: React.FC<
 	initialEncodingMaxRate,
 	initialOffthreadVideoThreads,
 	initialMediaCacheSizeInBytes,
+	initialPreferredEffectBackend,
 	initialDarkMode,
 	initialUserAgent,
 	defaultProps,
@@ -466,6 +469,9 @@ const RenderModal: React.FC<
 
 	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
 		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
+	const [preferredEffectBackend, setPreferredEffectBackend] = useState(
+		initialPreferredEffectBackend,
+	);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
 	>(initialMediaCacheSizeInBytes);
@@ -837,6 +843,7 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
@@ -868,6 +875,7 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		renderDefaults.publicLicenseKey,
 	]);
 
@@ -951,6 +959,7 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			sampleRate,
 			licenseKey: renderDefaults.publicLicenseKey,
 		})
@@ -1008,6 +1017,7 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
 		renderDefaults.publicLicenseKey,
 	]);
@@ -1040,6 +1050,7 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
@@ -1075,6 +1086,7 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		renderDefaults.publicLicenseKey,
 	]);
 
@@ -1326,6 +1338,7 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			beepOnFinish,
 			repro,
 			metadata,
@@ -1362,6 +1375,7 @@ const RenderModal: React.FC<
 		jpegQuality,
 		logLevel,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		metadata,
 		multiProcessOnLinux,
 		muted,
@@ -1744,6 +1758,8 @@ const RenderModal: React.FC<
 						/>
 					) : (
 						<RenderModalAdvanced
+							preferredEffectBackend={preferredEffectBackend}
+							setPreferredEffectBackend={setPreferredEffectBackend}
 							concurrency={concurrency}
 							maxConcurrency={maxConcurrency}
 							minConcurrency={minConcurrency}
