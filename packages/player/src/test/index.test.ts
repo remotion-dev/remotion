@@ -193,9 +193,15 @@ class MockAudioContext {
 		return undefined;
 	}
 
+	close() {
+		this.state = 'closed';
+		return Promise.resolve();
+	}
+
 	createGain() {
 		return {
 			connect: () => undefined,
+			disconnect: () => undefined,
 			gain: {
 				cancelScheduledValues: () => undefined,
 				linearRampToValueAtTime: () => undefined,
