@@ -33,6 +33,36 @@ export type EffectChainState = {
 		target: HTMLCanvasElement;
 	}>;
 	currentRunId: number;
+	pendingRun: Promise<void> | null;
+	cleanupRequested: boolean;
+};
+
+// Detach entries before calling user code. One broken cleanup must not prevent
+// the remaining effects from releasing their resources.
+const cleanupEntries = (entries: EffectChainState['cleanupRegistry']): void => {
+	const errors: unknown[] = [];
+	for (const entry of entries) {
+		try {
+			entry.definition.cleanup(entry.state);
+		} catch (error) {
+			errors.push(error);
+		}
+	}
+
+	if (errors.length === 1) throw errors[0];
+	if (errors.length > 1)
+		throw new AggregateError(errors, 'Effect cleanup failed');
+};
+
+const disposeEffectChainState = (state: EffectChainState): void => {
+	const entries = state.cleanupRegistry;
+	state.cleanupRegistry = [];
+	state.setupCache = new WeakMap();
+	try {
+		cleanupEntries(entries);
+	} finally {
+		state.pool.dispose();
+	}
 };
 
 export const createEffectChainState = (
@@ -50,6 +80,7 @@ export const createEffectChainState = (
 		strictBackend: null,
 		selections: new WeakMap(),
 		pool: new CanvasPool(width, height, (canvas) => {
+			state.currentRunId++;
 			// The GL objects these setups hold died with the context and stay
 			// invalid on a restored one, so the next run has to recreate them.
 			// While the context is lost, GL calls are no-ops, which makes this
@@ -65,37 +96,33 @@ export const createEffectChainState = (
 				state.setupCache.get(entry.definition)?.delete(canvas);
 			}
 
-			for (const entry of dead) {
-				entry.definition.cleanup(entry.state);
-			}
+			cleanupEntries(dead);
 		}),
 		setupCache: new WeakMap(),
 		cleanupRegistry: [],
 		currentRunId: 0,
+		pendingRun: null,
+		cleanupRequested: false,
 	};
 
 	return state;
 };
 
-// Cancels in-flight runs, releases per-effect resources and then the pool's
-// canvases and contexts. The state must not be used afterwards.
+// Cancel immediately, but do not destroy canvases borrowed by an asynchronous
+// bridge or by an effect callback still on the stack.
 export const cleanupEffectChainState = (state: EffectChainState): void => {
+	if (state.cleanupRequested) return;
+	state.cleanupRequested = true;
 	state.currentRunId++;
 	invalidateEffectChainSources(state);
-	try {
-		for (const entry of state.cleanupRegistry) {
-			entry.definition.cleanup(entry.state);
-		}
-	} finally {
-		state.cleanupRegistry.length = 0;
-		state.pool.dispose();
-	}
+	if (!state.pendingRun) disposeEffectChainState(state);
 };
 
 const ensureSetup = <S>(
 	state: EffectChainState,
 	def: EffectImplementation<unknown, S>,
 	target: HTMLCanvasElement,
+	backend: Backend,
 ): S => {
 	const widened = def as EffectImplementation<unknown, unknown>;
 	let cacheForDefinition = state.setupCache.get(widened);
@@ -108,7 +135,25 @@ const ensureSetup = <S>(
 		return cacheForDefinition.get(target) as S;
 	}
 
-	const setupState = def.setup(target);
+	if (backend === 'webgl2') state.pool.prepareWebGL(target, false);
+	let setupState: S;
+	try {
+		setupState = def.setup(target);
+	} catch (error) {
+		if (backend === 'webgl2') {
+			try {
+				state.pool.retireWebGL(target);
+			} catch (cleanupError) {
+				throw new AggregateError(
+					[error, cleanupError],
+					'Effect setup and cleanup failed',
+				);
+			}
+		}
+
+		throw error;
+	}
+
 	cacheForDefinition.set(target, setupState);
 	state.cleanupRegistry.push({definition: widened, state: setupState, target});
 	return setupState;
@@ -175,17 +220,16 @@ const runEffectChainWithoutResize = async (
 			let canvasIndex: 0 | 1 = 0;
 
 			for (const eff of run.effects) {
+				if (isCancelled()) return false;
 				const dst = state.pool.getCanvas(run.backend, canvasIndex);
 				const def = eff.implementation;
-				if (run.backend === 'webgl2') {
-					// Checked before `setup()`: a lost context cannot compile shaders,
-					// and this surfaces the dedicated error instead of an effect's own.
-					state.pool.assertContextNotLost(dst);
-				}
-
-				const setupState = ensureSetup(state, def, dst);
+				const setupState = ensureSetup(state, def, dst, run.backend);
+				if (isCancelled()) return false;
 
 				publishEffectSource(eff.original, currentImage, state);
+				if (isCancelled()) return false;
+				if (run.backend === 'webgl2')
+					state.pool.prepareWebGL(dst, flipWebGLSourceY);
 				def.apply({
 					source: currentImage,
 					target: dst,
@@ -196,6 +240,8 @@ const runEffectChainWithoutResize = async (
 					gpuDevice,
 					flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
 				});
+				if (run.backend === 'webgl2') state.pool.assertContextNotLost(dst);
+				if (isCancelled()) return false;
 				// Effects consume their source synchronously. Release it before the
 				// next bridge so a run never retains multiple temporary bitmaps.
 				bridgeBitmap?.close();
@@ -245,6 +291,7 @@ const runEffectChainWithoutResize = async (
 		bridgeBitmap?.close();
 	}
 
+	if (isCancelled()) return false;
 	if (!lastTarget) {
 		return true;
 	}
@@ -267,12 +314,11 @@ type ResolvedEffect = {
 };
 
 // Keep ownership of the optional resized source until the existing chain settles.
-export const runEffectChain = async (
+const runEffectChainWithResize = async (
 	options: RunEffectChainOptions,
+	runId: number,
 ): Promise<boolean> => {
 	const {state, source, width, height, effects} = options;
-	// Keep one ID across resizing and effect passes so callers can cancel the run.
-	const runId = ++state.currentRunId;
 	const order: Backend[] =
 		state.strictBackend === null
 			? ['webgpu', 'webgl2', '2d']
@@ -349,12 +395,14 @@ export const runEffectChain = async (
 	}
 
 	if (gpuDevice !== state.gpuDevice) {
-		for (const entry of state.cleanupRegistry)
-			entry.definition.cleanup(entry.state);
-		state.cleanupRegistry.length = 0;
+		const entries = state.cleanupRegistry;
+		state.cleanupRegistry = [];
 		state.setupCache = new WeakMap();
 		state.gpuDevice = gpuDevice;
+		cleanupEntries(entries);
 	}
+
+	if (state.currentRunId !== runId) return false;
 
 	if (
 		(state.width === width && state.height === height) ||
@@ -389,5 +437,38 @@ export const runEffectChain = async (
 		);
 	} finally {
 		resized.close();
+	}
+};
+
+// Reserve the chain before invoking any effect or observer. A reentrant call
+// supersedes this run, but cannot touch its canvases until every bridge settles.
+export const runEffectChain = async (
+	options: RunEffectChainOptions,
+): Promise<boolean> => {
+	const {state} = options;
+	if (state.cleanupRequested) {
+		throw new Error('Effect chain state was used after it had been cleaned up');
+	}
+
+	const runId = ++state.currentRunId;
+	const previousRun = state.pendingRun;
+	let release!: () => void;
+	const completion = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	state.pendingRun = completion;
+	try {
+		if (previousRun) await previousRun;
+		if (state.currentRunId !== runId) return false;
+		return await runEffectChainWithResize(options, runId);
+	} finally {
+		try {
+			if (state.pendingRun === completion) {
+				state.pendingRun = null;
+				if (state.cleanupRequested) disposeEffectChainState(state);
+			}
+		} finally {
+			release();
+		}
 	}
 };
