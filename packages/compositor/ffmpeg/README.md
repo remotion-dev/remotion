@@ -48,6 +48,19 @@ node test-ffmpeg.mjs
 
 The required system dependencies and target arguments are in the CI configurations. macOS builds run in `.github/workflows/ffmpeg.yml`; Linux GNU/musl and Windows GNU builds run in `.circleci/config.yml`. The CircleCI project must be enabled for `remotion-dev/remotion` before collecting a new seven-platform set. The Dockerfiles preserve the ARM build environments. Each job outputs `ffmpeg.tar.gz`, containing FFmpeg, shared libraries, headers and `bindings.rs`.
 
+CircleCI skips the FFmpeg workflow on ordinary pushes. To explicitly run it, select the desired branch in CircleCI, click **Trigger Pipeline**, and add the boolean parameter `run-ffmpeg` with value `true`. The equivalent API request is:
+
+```sh
+curl --fail-with-body \
+  --request POST \
+  --header "Circle-Token: $CIRCLE_TOKEN" \
+  --header 'Content-Type: application/json' \
+  --data '{"branch":"<branch>","parameters":{"run-ffmpeg":true}}' \
+  https://circleci.com/api/v2/project/gh/remotion-dev/remotion/pipeline
+```
+
+The default value is `false`, so omitting the parameter does not start any FFmpeg jobs. Select the same source commit used for the macOS build before collecting the full artifact set.
+
 The small `build/Cargo.toml` intentionally uses a pinned upstream binding generator. It is separate from the compositor's local pre-generated bindings: using `sys/` here would require the archive that this step is generating. Its `Cargo.lock` is retained for reproducibility.
 
 ## Update all targets together
