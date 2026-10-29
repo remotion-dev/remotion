@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {createRectTransformImplementations} from '../rect-transform-runtime.js';
 import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
@@ -81,55 +82,72 @@ const validateScaleParams = (params: ScaleParams): void => {
 	}
 };
 
-export const scale = createEffect<ScaleParams, null>({
+export const scale = createEffect<ScaleParams>({
 	type: 'dev.remotion.effects.scale',
 	label: 'scale()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/scale',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `scale-${r.scale}-${r.horizontal}-${r.vertical}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for scale effect. The canvas may have been assigned a different context type.',
-			);
-		}
+	implementations: {
+		...createRectTransformImplementations<ScaleParams>(
+			'scale',
+			(params, width, height) => {
+				const r = resolve(params);
+				const scaledWidth = width * (r.horizontal ? r.scale : 1);
+				const scaledHeight = height * (r.vertical ? r.scale : 1);
+				return {
+					x: (width - scaledWidth) / 2,
+					y: (height - scaledHeight) / 2,
+					width: scaledWidth,
+					height: scaledHeight,
+				};
+			},
+		),
+		'2d': Internals.createEffectImplementation<ScaleParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const ctx = target.getContext('2d');
+				if (!ctx) {
+					throw new Error(
+						'Failed to acquire 2D context for scale effect. The canvas may have been assigned a different context type.',
+					);
+				}
 
-		const r = resolve(params);
+				const r = resolve(params);
 
-		const scaleX = r.horizontal ? r.scale : 1;
-		const scaleY = r.vertical ? r.scale : 1;
+				const scaleX = r.horizontal ? r.scale : 1;
+				const scaleY = r.vertical ? r.scale : 1;
 
-		// If scale is identity (1, 1), just copy the source
-		if (scaleX === 1 && scaleY === 1) {
-			ctx.clearRect(0, 0, width, height);
-			ctx.drawImage(source, 0, 0, width, height);
-			return;
-		}
+				// If scale is identity (1, 1), just copy the source
+				if (scaleX === 1 && scaleY === 1) {
+					ctx.clearRect(0, 0, width, height);
+					ctx.drawImage(source, 0, 0, width, height);
+					return;
+				}
 
-		ctx.clearRect(0, 0, width, height);
+				ctx.clearRect(0, 0, width, height);
 
-		// Save the current context state
-		ctx.save();
+				// Save the current context state
+				ctx.save();
 
-		// Translate to center, scale, translate back
-		const centerX = width / 2;
-		const centerY = height / 2;
+				// Translate to center, scale, translate back
+				const centerX = width / 2;
+				const centerY = height / 2;
 
-		ctx.translate(centerX, centerY);
-		ctx.scale(scaleX, scaleY);
-		ctx.translate(-centerX, -centerY);
+				ctx.translate(centerX, centerY);
+				ctx.scale(scaleX, scaleY);
+				ctx.translate(-centerX, -centerY);
 
-		ctx.drawImage(source, 0, 0, width, height);
+				ctx.drawImage(source, 0, 0, width, height);
 
-		// Restore the context state
-		ctx.restore();
+				// Restore the context state
+				ctx.restore();
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: scaleSchema,
 	validateParams: validateScaleParams,
 });

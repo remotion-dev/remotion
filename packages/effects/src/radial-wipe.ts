@@ -16,6 +16,13 @@ import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const DEFAULT_PROGRESS = 0 as const;
 const DEFAULT_START_ANGLE = 0 as const;
@@ -120,43 +127,109 @@ void main() {
 }
 `;
 
-export const radialWipe = Internals.createEffect<
-	RadialWipeParams,
-	SinglePassState
->({
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params { resolutionCenter: vec4f, controls: vec4f, }
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
+	let progress = params.controls.y;
+	if (progress <= 0.0) { return color; }
+	if (progress >= 1.0) { return vec4f(0); }
+	let delta = (input.uv - params.resolutionCenter.zw) * params.resolutionCenter.xy;
+	if (dot(delta, delta) == 0.0) { return vec4f(0); }
+	// Avoid the implementation-dependent atan2 result at a signed-zero X argument.
+	var polarAngle = atan2(delta.x, -delta.y);
+	if (delta.y == 0.0) { polarAngle = select(-1.5707963267948966, 1.5707963267948966, delta.x >= 0.0); }
+	let rawAngle = degrees(polarAngle) - params.controls.x;
+	var angle = rawAngle - 360.0 * floor(rawAngle / 360.0);
+	var sweep = 360.0;
+	if (params.controls.w == 1.0) { angle = 360.0 - angle; }
+	if (params.controls.w == 2.0) { angle = min(angle, 360.0 - angle); sweep = 180.0; }
+	let distance = angle - progress * sweep;
+	var mask = step(0.0, distance);
+	if (params.controls.z > 0.0) { mask = clamp(distance / params.controls.z + 0.5, 0.0, 1.0); }
+	return color * mask;
+}
+`;
+
+export const radialWipe = Internals.createEffect<RadialWipeParams>({
 	type: 'remotion/radial-wipe',
 	label: 'radialWipe()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/radial-wipe',
-	backend: 'webgl2',
 	calculateKey: (params) => `radial-wipe-${JSON.stringify(resolve(params))}`,
-	setup: (target) =>
-		setupSinglePass(target, FRAGMENT_SHADER, 'radial wipe', [
-			'uResolution',
-			'uCenter',
-			'uStartAngle',
-			'uProgress',
-			'uFeather',
-			'uDirection',
-		]),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, uniforms} = state;
-		prepareSinglePassSource({
-			state,
-			source: source as TexImageSource,
-			width,
-			height,
-			flipSourceY,
-		});
-		gl.uniform2f(uniforms.uResolution, width, height);
-		gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
-		gl.uniform1f(uniforms.uStartAngle, r.startAngle % 360);
-		gl.uniform1f(uniforms.uProgress, r.progress);
-		gl.uniform1f(uniforms.uFeather, r.feather);
-		gl.uniform1i(uniforms.uDirection, DIRECTIONS.indexOf(r.direction));
-		drawSinglePass(state);
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			RadialWipeParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'radial-wipe'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the radial-wipe effect',
+					);
+				}
+
+				const r = resolve(params);
+
+				applyWebGpuSinglePass({
+					source,
+					width,
+					height,
+					state,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						r.center[0],
+						r.center[1],
+						r.startAngle % 360,
+						r.progress,
+						r.feather,
+						DIRECTIONS.indexOf(r.direction),
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			RadialWipeParams,
+			SinglePassState
+		>({
+			setup: (target) =>
+				setupSinglePass(target, FRAGMENT_SHADER, 'radial wipe', [
+					'uResolution',
+					'uCenter',
+					'uStartAngle',
+					'uProgress',
+					'uFeather',
+					'uDirection',
+				]),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, uniforms} = state;
+				prepareSinglePassSource({
+					state,
+					source: source as TexImageSource,
+					width,
+					height,
+					flipSourceY,
+				});
+				gl.uniform2f(uniforms.uResolution, width, height);
+				gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+				gl.uniform1f(uniforms.uStartAngle, r.startAngle % 360);
+				gl.uniform1f(uniforms.uProgress, r.progress);
+				gl.uniform1f(uniforms.uFeather, r.feather);
+				gl.uniform1i(uniforms.uDirection, DIRECTIONS.indexOf(r.direction));
+				drawSinglePass(state);
+			},
+			cleanup: cleanupSinglePass,
+		}),
 	},
-	cleanup: cleanupSinglePass,
 	schema: radialWipeSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Radial wipe');

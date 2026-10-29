@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {createColorMatrixImplementations} from './color-matrix-runtime.js';
 import {
 	assertOptionalFiniteNumber,
 	brightnessAmountSchema,
@@ -36,46 +37,74 @@ const validateBrightnessParams = (params: BrightnessParams): void => {
 	validateSignedUnitInterval(amount, 'amount');
 };
 
-export const brightness = createEffect<BrightnessParams, null>({
+export const brightness = createEffect<BrightnessParams>({
 	type: 'dev.remotion.effects.brightness',
 	label: 'brightness()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/brightness',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `brightness-${r.amount}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for brightness effect. The canvas may have been assigned a different context type.',
-			);
-		}
+	implementations: {
+		...createColorMatrixImplementations<BrightnessParams>(
+			'brightness',
+			(params) => {
+				const {amount} = resolve(params);
+				const offset = Math.round(amount * 255);
+				return new Float32Array([
+					1,
+					0,
+					0,
+					offset,
+					0,
+					1,
+					0,
+					offset,
+					0,
+					0,
+					1,
+					offset,
+					1,
+					1,
+					amount === 0 ? 1 : 0,
+					0,
+				]);
+			},
+		),
+		'2d': Internals.createEffectImplementation<BrightnessParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const ctx = target.getContext('2d');
+				if (!ctx) {
+					throw new Error(
+						'Failed to acquire 2D context for brightness effect. The canvas may have been assigned a different context type.',
+					);
+				}
 
-		const r = resolve(params);
+				const r = resolve(params);
 
-		ctx.clearRect(0, 0, width, height);
-		ctx.drawImage(source, 0, 0, width, height);
+				ctx.clearRect(0, 0, width, height);
+				ctx.drawImage(source, 0, 0, width, height);
 
-		if (r.amount === 0) {
-			return;
-		}
+				if (r.amount === 0) {
+					return;
+				}
 
-		const imageData = ctx.getImageData(0, 0, width, height);
-		const delta = Math.round(r.amount * 255);
-		const {data} = imageData;
+				const imageData = ctx.getImageData(0, 0, width, height);
+				const delta = Math.round(r.amount * 255);
+				const {data} = imageData;
 
-		for (let i = 0; i < data.length; i += 4) {
-			data[i] = clampColorChannel(data[i] + delta);
-			data[i + 1] = clampColorChannel(data[i + 1] + delta);
-			data[i + 2] = clampColorChannel(data[i + 2] + delta);
-		}
+				for (let i = 0; i < data.length; i += 4) {
+					data[i] = clampColorChannel(data[i] + delta);
+					data[i + 1] = clampColorChannel(data[i + 1] + delta);
+					data[i + 2] = clampColorChannel(data[i + 2] + delta);
+				}
 
-		ctx.putImageData(imageData, 0, 0);
+				ctx.putImageData(imageData, 0, 0);
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: brightnessSchema,
 	validateParams: validateBrightnessParams,
 });

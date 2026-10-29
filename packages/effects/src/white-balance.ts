@@ -5,10 +5,21 @@ import {
 	WHITE_BALANCE_GLSL,
 } from './color-correction-shader-utils.js';
 import {
+	COLOR_SPACE_WGSL,
+	WHITE_BALANCE_WGSL,
+} from './color-correction-webgpu-shader-utils.js';
+import {
 	assertOptionalFiniteNumber,
 	validateSignedUnitInterval,
 } from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -115,6 +126,33 @@ void main() {
 	vec3 corrected = linearToSrgb(balanced);
 
 	fragColor = vec4(corrected * alpha, alpha);
+}
+`;
+
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params {
+	temperature: f32,
+	tint: f32,
+	padding0: f32,
+	padding1: f32,
+}
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+${COLOR_SPACE_WGSL}
+${WHITE_BALANCE_WGSL}
+
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let sourceColor = textureSampleLevel(source, sourceSampler, input.uv, 0.0);
+	let alpha = sourceColor.a;
+	if (alpha <= 0.0) {
+		return vec4f(0.0);
+	}
+	let linear = srgbToLinear(sourceColor.rgb / alpha);
+	let balanced = applyWhiteBalanceLinear(linear, params.temperature, params.tint);
+	let corrected = linearToSrgb(balanced);
+	return vec4f(corrected * alpha, alpha);
 }
 `;
 
@@ -232,58 +270,87 @@ const setupWhiteBalance = (target: HTMLCanvasElement): WhiteBalanceState => {
 	};
 };
 
-export const whiteBalance = createEffect<WhiteBalanceParams, WhiteBalanceState>(
-	{
-		type: 'remotion/white-balance',
-		label: 'whiteBalance()',
-		documentationLink: 'https://www.remotion.dev/docs/effects/white-balance',
-		backend: 'webgl2',
-		calculateKey: (params) => {
-			const {temperature, tint} = resolve(params);
-			return `white-balance-${temperature}-${tint}`;
-		},
-		setup: setupWhiteBalance,
-		apply: ({source, width, height, params, state, flipSourceY}) => {
-			const {temperature, tint} = resolve(params);
-			const {gl, program, textureSource, uniforms, vao} = state;
-
-			gl.viewport(0, 0, width, height);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.clearColor(0, 0, 0, 0);
-			gl.clear(gl.COLOR_BUFFER_BIT);
-
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, textureSource);
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				source as TexImageSource,
-			);
-
-			gl.useProgram(program);
-			if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-			if (uniforms.uTemperature) {
-				gl.uniform1f(uniforms.uTemperature, temperature);
-			}
-
-			if (uniforms.uTint) gl.uniform1f(uniforms.uTint, tint);
-			gl.bindVertexArray(vao);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			gl.bindVertexArray(null);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.useProgram(null);
-		},
-		cleanup: ({gl, program, vao, vbo, textureSource}) => {
-			gl.deleteTexture(textureSource);
-			gl.deleteBuffer(vbo);
-			gl.deleteProgram(program);
-			gl.deleteVertexArray(vao);
-		},
-		schema: whiteBalanceSchema,
-		validateParams: validateWhiteBalanceParams,
+export const whiteBalance = createEffect<WhiteBalanceParams>({
+	type: 'remotion/white-balance',
+	label: 'whiteBalance()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/white-balance',
+	calculateKey: (params) => {
+		const {temperature, tint} = resolve(params);
+		return `white-balance-${temperature}-${tint}`;
 	},
-);
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			WhiteBalanceParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'white balance'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the white balance effect',
+					);
+				}
+
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([r.temperature, r.tint, 0, 0]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			WhiteBalanceParams,
+			WhiteBalanceState
+		>({
+			setup: setupWhiteBalance,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const {temperature, tint} = resolve(params);
+				const {gl, program, textureSource, uniforms, vao} = state;
+
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, textureSource);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uTemperature) {
+					gl.uniform1f(uniforms.uTemperature, temperature);
+				}
+
+				if (uniforms.uTint) gl.uniform1f(uniforms.uTint, tint);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, textureSource}) => {
+				gl.deleteTexture(textureSource);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+	},
+	schema: whiteBalanceSchema,
+	validateParams: validateWhiteBalanceParams,
+});

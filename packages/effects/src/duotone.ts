@@ -10,6 +10,13 @@ import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -54,7 +61,15 @@ type DuotoneResolved = {
 	threshold: number;
 };
 
-type DuotoneState = {
+type DuotoneColorState = {
+	readonly colorCtx: CanvasRenderingContext2D;
+	cachedDarkColor: string;
+	cachedDarkColorRgba: ParsedColorRgba;
+	cachedLightColor: string;
+	cachedLightColorRgba: ParsedColorRgba;
+};
+
+type DuotoneState = DuotoneColorState & {
 	readonly gl: WebGL2RenderingContext;
 	readonly program: WebGLProgram;
 	readonly vao: WebGLVertexArrayObject;
@@ -66,11 +81,6 @@ type DuotoneState = {
 		readonly uLightColor: WebGLUniformLocation | null;
 		readonly uThreshold: WebGLUniformLocation | null;
 	};
-	readonly colorCtx: CanvasRenderingContext2D;
-	cachedDarkColor: string;
-	cachedDarkColorRgba: ParsedColorRgba;
-	cachedLightColor: string;
-	cachedLightColorRgba: ParsedColorRgba;
 };
 
 const resolve = (p: DuotoneParams): DuotoneResolved => ({
@@ -125,6 +135,21 @@ void main() {
 	vec3 duotoneColor = luminance < uThreshold ? uDarkColor : uLightColor;
 
 	fragColor = vec4(duotoneColor * alpha, alpha);
+}
+`;
+
+const DUOTONE_WGSL = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params { dark: vec3f, threshold: f32, light: vec3f, padding: f32 }
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
+	if (color.a <= 0.001) { return vec4f(0); }
+	let luminance = dot(color.rgb / color.a, vec3f(0.299, 0.587, 0.114));
+	let result = select(params.light, params.dark, luminance < params.threshold);
+	return vec4f(result * color.a, color.a);
 }
 `;
 
@@ -278,7 +303,7 @@ const normalizedRgb = (
 };
 
 const getParsedColors = (
-	state: DuotoneState,
+	state: DuotoneColorState,
 	resolved: DuotoneResolved,
 ): {
 	dark: ParsedColorRgba;
@@ -306,57 +331,105 @@ const getParsedColors = (
 	};
 };
 
-export const duotone = createEffect<DuotoneParams, DuotoneState>({
+export const duotone = createEffect<DuotoneParams>({
 	type: 'dev.remotion.effects.duotone',
 	label: 'duotone()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/duotone',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `duotone-${r.darkColor}-${r.lightColor}-${r.threshold}`;
 	},
-	setup: (target) => setupDuotone(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {dark, light} = getParsedColors(state, r);
-		const [dr, dg, db] = normalizedRgb(dark);
-		const [lr, lg, lb] = normalizedRgb(light);
-		const {gl, program, textureSource, uniforms, vao} = state;
+	implementations: {
+		webgl2: Internals.createEffectImplementation<DuotoneParams, DuotoneState>({
+			setup: (target) => setupDuotone(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {dark, light} = getParsedColors(state, r);
+				const [dr, dg, db] = normalizedRgb(dark);
+				const [lr, lg, lb] = normalizedRgb(light);
+				const {gl, program, textureSource, uniforms, vao} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, textureSource);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uDarkColor) gl.uniform3f(uniforms.uDarkColor, dr, dg, db);
-		if (uniforms.uLightColor) gl.uniform3f(uniforms.uLightColor, lr, lg, lb);
-		if (uniforms.uThreshold) gl.uniform1f(uniforms.uThreshold, r.threshold);
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uDarkColor) gl.uniform3f(uniforms.uDarkColor, dr, dg, db);
+				if (uniforms.uLightColor)
+					gl.uniform3f(uniforms.uLightColor, lr, lg, lb);
+				if (uniforms.uThreshold) gl.uniform1f(uniforms.uThreshold, r.threshold);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, textureSource}) => {
+				gl.deleteTexture(textureSource);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+		webgpu: Internals.createEffectImplementation<
+			DuotoneParams,
+			WebGpuSinglePassState & DuotoneColorState
+		>({
+			setup: (target) => {
+				const colorCanvas = document.createElement('canvas');
+				colorCanvas.width = 1;
+				colorCanvas.height = 1;
+				const colorCtx = colorCanvas.getContext('2d', {
+					willReadFrequently: true,
+				});
+				if (!colorCtx)
+					throw new Error('Failed to acquire 2D context for color parsing');
+				return {
+					...setupWebGpuSinglePass(target, 'duotone'),
+					colorCtx,
+					cachedDarkColor: '',
+					cachedDarkColorRgba: [0, 0, 0, 255],
+					cachedLightColor: '',
+					cachedLightColorRgba: [255, 255, 255, 255],
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the duotone effect');
+				const r = resolve(params);
+				const {dark, light} = getParsedColors(state, r);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: DUOTONE_WGSL,
+					uniformData: new Float32Array([
+						...normalizedRgb(dark),
+						r.threshold,
+						...normalizedRgb(light),
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
 	},
 	schema: duotoneSchema,
 	validateParams: validateDuotoneParams,
