@@ -1,6 +1,10 @@
-import {useEffect, useMemo, useRef} from 'react';
+import {useContext, useEffect, useMemo, useRef} from 'react';
 import {validateDimension} from '../validation/validate-dimensions.js';
 import type {EffectsOutputSize} from './effect-types.js';
+import {
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
+} from './preferred-effect-backend.js';
 import type {EffectChainState} from './run-effect-chain.js';
 import {
 	cleanupEffectChainState,
@@ -12,6 +16,12 @@ export const useEffectChainState = (
 ): {
 	get: (width: number, height: number) => EffectChainState | null;
 } => {
+	const preferredEffectBackend = validatePreferredEffectBackend(
+		useContext(PreferredEffectBackendContext) ??
+			(typeof window === 'undefined'
+				? 'auto'
+				: (window.remotion_preferredEffectBackend ?? 'auto')),
+	);
 	const effectWidth = effectsOutputSize?.width;
 	const effectHeight = effectsOutputSize?.height;
 	if (effectsOutputSize) {
@@ -60,19 +70,22 @@ export const useEffectChainState = (
 				if (
 					!sizeRef.current ||
 					sizeRef.current.width !== width ||
-					sizeRef.current.height !== height
+					sizeRef.current.height !== height ||
+					chainStateRef.current?.preferredEffectBackend !==
+						preferredEffectBackend
 				) {
 					if (chainStateRef.current) {
 						cleanupEffectChainState(chainStateRef.current);
 					}
 
 					chainStateRef.current = createEffectChainState(width, height);
+					chainStateRef.current.preferredEffectBackend = preferredEffectBackend;
 					sizeRef.current = {width, height};
 				}
 
 				return chainStateRef.current;
 			},
 		}),
-		[effectWidth, effectHeight],
+		[effectWidth, effectHeight, preferredEffectBackend],
 	);
 };

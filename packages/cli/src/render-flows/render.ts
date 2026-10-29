@@ -44,6 +44,7 @@ import {
 	type ArtifactProgress,
 	type BrowserDownloadState,
 } from '@remotion/studio-shared';
+import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
@@ -136,6 +137,7 @@ export const renderVideoFlow = async ({
 	audioLatencyHint,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	rspack,
 	askAIEnabled,
 	keyboardShortcutsEnabled,
@@ -212,6 +214,7 @@ export const renderVideoFlow = async ({
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	imageSequencePattern: string | null;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	rspack: boolean;
 	askAIEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
@@ -450,6 +453,7 @@ export const renderVideoFlow = async ({
 			onBrowserDownload,
 			chromeMode,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 		});
 
 	const {onArtifact} = handleOnArtifact({
@@ -686,6 +690,7 @@ export const renderVideoFlow = async ({
 			chromeMode,
 			imageSequencePattern,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			onLog,
 		});
 
@@ -830,6 +835,7 @@ export const renderVideoFlow = async ({
 		hardwareAcceleration,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		onLog,
 		licenseKey,
 		isProduction,

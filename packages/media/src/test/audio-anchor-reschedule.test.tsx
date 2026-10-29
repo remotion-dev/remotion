@@ -269,10 +269,6 @@ test.each([
 			root.unmount();
 			container.remove();
 			createBufferSourceSpy.mockRestore();
-			// Player may already have closed its owned context during unmount.
-			if (audioContext && (audioContext as AudioContext).state !== 'closed') {
-				await (audioContext as AudioContext).close();
-			}
 		}
 	},
 	15000,

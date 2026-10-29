@@ -132,6 +132,7 @@ export const processVideoJob = async ({
 		chromeMode: job.chromeMode,
 		offthreadVideoThreads: job.offthreadVideoThreads,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		preferredEffectBackend: job.preferredEffectBackend,
 		audioLatencyHint: null,
 		imageSequencePattern: null,
 		askAIEnabled,

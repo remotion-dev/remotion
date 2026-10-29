@@ -89,6 +89,7 @@ const params: ServerlessPayloads['launch'] = {
 	forceDurationInFrames: null,
 	offthreadVideoCacheSizeInBytes: null,
 	offthreadVideoThreads: null,
+	preferredEffectBackend: 'auto',
 	mediaCacheSizeInBytes: null,
 	deleteAfter: null,
 	colorSpace: null,

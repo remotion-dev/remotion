@@ -34,8 +34,6 @@ export const setupWebGpuProjection = (
 export const applyWebGpuProjection = ({
 	state,
 	source,
-	width,
-	height,
 	device,
 	shader,
 	uniformData,
@@ -48,6 +46,28 @@ export const applyWebGpuProjection = ({
 	shader: string;
 	uniformData: Float32Array<ArrayBuffer>;
 }): void => {
+	// Sources such as Solid's 1x1 canvas are sampled at output resolution. The
+	// upload must use the source's actual extent; copyExternalImageToTexture does not scale.
+	const width =
+		'displayWidth' in source
+			? source.displayWidth
+			: 'videoWidth' in source
+				? source.videoWidth
+				: 'naturalWidth' in source
+					? source.naturalWidth
+					: typeof source.width === 'number'
+						? source.width
+						: source.width.baseVal.value;
+	const height =
+		'displayHeight' in source
+			? source.displayHeight
+			: 'videoHeight' in source
+				? source.videoHeight
+				: 'naturalHeight' in source
+					? source.naturalHeight
+					: typeof source.height === 'number'
+						? source.height
+						: source.height.baseVal.value;
 	if (
 		state.resources &&
 		(state.resources.device !== device ||

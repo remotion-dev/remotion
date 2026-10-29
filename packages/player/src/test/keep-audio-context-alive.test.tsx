@@ -274,6 +274,7 @@ const renderClockedPlayer = () => {
 		compositionHeight: 180,
 		fps: 30,
 		playbackRate: 1,
+		preferredEffectBackend: 'auto' as const,
 		audioLatencyHint: 'playback' as AudioContextLatencyCategory,
 		logLevel: 'info' as LogLevel,
 		numberOfSharedAudioTags: 0,

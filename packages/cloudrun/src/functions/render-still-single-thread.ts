@@ -113,6 +113,7 @@ export const renderStillSingleThread = async (
 			},
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
+			preferredEffectBackend: body.preferredEffectBackend,
 			onLog: RenderInternals.defaultOnLog,
 			licenseKey: body.licenseKey,
 			isProduction: body.isProduction,
