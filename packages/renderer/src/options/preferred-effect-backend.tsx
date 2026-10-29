@@ -19,8 +19,9 @@ export const preferredEffectBackendOption = {
 			implementations of{' '}
 			<a href="https://www.remotion.dev/docs/effects">effects</a>. Default:{' '}
 			<code>auto</code>, which tries WebGPU, WebGL2, then 2D. Falls back when an
-			implementation or backend is unavailable. Lambda disables WebGPU effects.
-			This option also applies to Studio preview.
+			implementation or backend is unavailable. Lambda selects WebGL2 or 2D
+			implementations. Rendering fails if an effect has no supported
+			implementation. This option also applies to Studio preview.
 		</>
 	),
 	getValue: ({commandLine}) => {

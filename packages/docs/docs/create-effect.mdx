@@ -197,7 +197,7 @@ With `implementations`, omit the top-level `backend`, `setup`, `apply`, and `cle
 
 All implementations share parameters, validation, schema, and `calculateKey`. They should produce equivalent output, including alpha, color space, sampling, and seeded randomness. Backend selection happens at runtime and does not change the effect's identity or parameters.
 
-The default preference is WebGPU, WebGL2, then 2D. Lambda disables WebGPU effects. An unavailable backend falls back; errors inside `setup` or `apply` are reported. If no implementation is supported, rendering fails with the effect's type. See [`preferredEffectBackend`](/docs/options/preferred-effect-backend).
+The default preference is WebGPU, WebGL2, then 2D. Lambda selects from WebGL2 and 2D implementations. An unavailable backend falls back; errors inside `setup` or `apply` are reported. If no implementation is supported, rendering fails with the effect's type. See [`preferredEffectBackend`](/docs/options/preferred-effect-backend).
 
 ### `backend`
 
