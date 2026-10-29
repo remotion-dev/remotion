@@ -916,6 +916,7 @@
         "@types/dom-webcodecs": "catalog:",
         "eslint": "catalog:",
         "sharp": "catalog:",
+        "template-vibe-code": "workspace:*",
         "typescript": "5.9.3",
       },
     },
