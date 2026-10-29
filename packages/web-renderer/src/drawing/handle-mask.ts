@@ -2,7 +2,10 @@ import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect'
 import type {InternalState} from '../internal-state';
 import type {MaskImageInfo} from './mask-image';
 import {getMaskImage} from './mask-image-loader';
-import {createCanvasGradient} from './parse-linear-gradient';
+import {
+	createCanvasGradient,
+	createRadialGradientFill,
+} from './parse-linear-gradient';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = getBiggestBoundingClientRect(element);
@@ -43,6 +46,35 @@ export const handleMask = async ({
 
 		tempContext.globalCompositeOperation = 'destination-in';
 		tempContext.fillStyle = gradient;
+		tempContext.fillRect(
+			rectToFill.left,
+			rectToFill.top,
+			rectToFill.width,
+			rectToFill.height,
+		);
+		return;
+	}
+
+	if (maskImageInfo.type === 'radial-gradient') {
+		const fill = createRadialGradientFill({
+			gradientInfo: maskImageInfo.gradientInfo,
+			contextToDraw: tempContext,
+			rect: rectToFill,
+			offsetLeft: 0,
+			offsetTop: 0,
+		});
+		if (!fill) {
+			tempContext.clearRect(
+				0,
+				0,
+				tempContext.canvas.width,
+				tempContext.canvas.height,
+			);
+			return;
+		}
+
+		tempContext.globalCompositeOperation = 'destination-in';
+		tempContext.fillStyle = fill;
 		tempContext.fillRect(
 			rectToFill.left,
 			rectToFill.top,

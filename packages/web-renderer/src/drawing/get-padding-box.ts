@@ -1,4 +1,4 @@
-const getPaddingBox = (
+export const getPaddingBox = (
 	rect: DOMRect,
 	computedStyle: CSSStyleDeclaration,
 ): DOMRect => {

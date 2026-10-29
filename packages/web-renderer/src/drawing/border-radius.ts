@@ -49,7 +49,7 @@ function expandShorthand(values: string[]): [string, string, string, string] {
 	return [values[0], values[1], values[2], values[3]];
 }
 
-function clampBorderRadius({
+export function clampBorderRadius({
 	borderRadius,
 	width,
 	height,

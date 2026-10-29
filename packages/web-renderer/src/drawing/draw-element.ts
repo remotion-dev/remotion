@@ -99,6 +99,14 @@ export const drawElement = async ({
 		scale,
 	});
 
+	drawBorderRadius({
+		ctx: context,
+		computedStyle,
+		rect,
+		borderRadius,
+		logLevel,
+		inset: true,
+	});
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});
 
 	finishBorderRadius();
