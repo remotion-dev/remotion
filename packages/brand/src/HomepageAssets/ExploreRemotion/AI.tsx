@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {colorCorrection} from '@remotion/effects/color-correction';
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {AbsoluteFill, HtmlInCanvas, Sequence, Solid} from 'remotion';
@@ -41,9 +42,9 @@ export const ExploreRemotionAI = () => {
 							left: -95,
 							top: 290,
 							overflow: 'hidden',
-							rotate: '0.2122 0.973833 -0.081363 27.920954deg',
+							rotate: EXPLORE_CAMERA_ANGLE,
 							scale: 1.84,
-							translate: '457.6px 0px',
+							translate: '587.6px 0px',
 						}}
 					>
 						<AbsoluteFill

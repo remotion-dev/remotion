@@ -19,7 +19,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"devDependencies": {
-		"@microsoft/vally": "0.12.0",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"typescript": "catalog:",
 		"eslint": "catalog:"

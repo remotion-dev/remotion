@@ -39,9 +39,9 @@ export const WriteInReact: React.FC<{
 			>
 				<p
 					style={{...textStyle, translate: '0 1px'}}
-					className="font-medium text-lg text-left min-w-0 flex-1"
+					className="font-medium text-[17px] leading-7 sm:text-lg text-left min-w-0 flex-1"
 				>
-					Create videos and motion graphics with React.{' '}
+					Create videos &amp; motion graphics with React.{' '}
 					<br className="lg:hidden" />
 					Use agents, render in bulk and build apps.
 				</p>

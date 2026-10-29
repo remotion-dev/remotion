@@ -9060,7 +9060,7 @@ export const articles = [
 	},
 	{
 		id: 'studio/remotion-dev-new',
-		title: 'remotion.dev/new',
+		title: 'remotion.new',
 		relativePath: 'docs/studio/remotion-dev-new.mdx',
 		compId: 'articles-docs-studio-remotion-dev-new',
 		crumb: 'Remotion Studio',

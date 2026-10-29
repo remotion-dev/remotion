@@ -11,15 +11,15 @@
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
     "@remotion/renderer": "workspace:*",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "remotion": "workspace:*",
     "zod": "4.6.7"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
     "@types/node": "20.12.14",
-    "@types/react": "19.2.7",
+    "@types/react": "19.3.0",
     "eslint": "10.12.0",
     "prettier": "3.8.1",
     "typescript": "5.9.3"

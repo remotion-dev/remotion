@@ -102,7 +102,7 @@
 		"polished": "4.3.1",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"react-is": "19.0.0",
+		"react-is": "19.3.1",
 		"remotion": "workspace:*",
 		"sass": "1.77.2",
 		"sass-loader": "14.2.1",

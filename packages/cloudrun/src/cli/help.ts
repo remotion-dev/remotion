@@ -195,6 +195,8 @@ const renderOptions = options(
 		'color-space',
 		'metadata',
 		'sample-rate',
+		'license-key',
+		'is-production',
 	],
 	{
 		'image-format': 'Video Image Format',
@@ -256,6 +258,8 @@ export const cloudrunCommandHelp = [
 				'quiet',
 				'media-cache-size-in-bytes',
 				'offthreadvideo-cache-size-in-bytes',
+				'license-key',
+				'is-production',
 			],
 			{
 				port: 'Set the local server port when no composition ID is passed.',

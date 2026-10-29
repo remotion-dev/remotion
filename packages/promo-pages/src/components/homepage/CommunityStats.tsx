@@ -22,7 +22,7 @@ const SectionLink: React.FC<{
 );
 
 const CommunityStats: React.FC = () => (
-	<div className="m-auto max-w-[700px] text-center min-[900px]:max-w-none [.experimental-homepage_&]:max-w-none">
+	<div className="m-auto text-center">
 		<div className="mx-auto flex max-w-[700px] flex-wrap justify-between gap-4 w-full items-center min-[900px]:max-w-none min-[900px]:flex-nowrap">
 			<SectionLink href="https://www.remotion.dev/about">
 				<Since2021 />

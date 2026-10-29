@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Remotion SDK — code shot</title>
+		<link rel="stylesheet" href="/monaco/vs/editor/editor.main.css" />
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: #0d1017;
+			}
+			.tab-bar {
+				height: 64px;
+				border-bottom: 1px solid #252a36;
+				background: #11151e;
+				display: flex;
+				align-items: center;
+				padding: 0 30px;
+				gap: 14px;
+				font:
+					22px system-ui,
+					sans-serif;
+				color: #c5cbd5;
+			}
+			.typescript {
+				color: #69a6ff;
+				font-size: 19px;
+				font-weight: 600;
+			}
+			#editor {
+				width: 100%;
+				height: calc(100% - 64px);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="tab-bar">
+			<span class="typescript">TS</span><span>editor.tsx</span>
+		</div>
+		<div id="editor"></div>
+		<script src="/monaco/vs/loader.js"></script>
+		<script>
+			require.config({paths: {vs: '/monaco/vs'}});
+			require(['vs/editor/editor.main'], async () => {
+				const value = await (await fetch('/snippet.ts')).text();
+				monaco.editor.defineTheme('vibe-dark', {
+					base: 'vs-dark',
+					inherit: true,
+					rules: [],
+					colors: {
+						'editor.background': '#0d1017',
+						'editorGutter.background': '#0d1017',
+						'editorLineNumber.foreground': '#414b5f',
+						'editorLineNumber.activeForeground': '#414b5f',
+						'editor.selectionBackground': '#264f78',
+					},
+				});
+				monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+					noSemanticValidation: true,
+					noSyntaxValidation: false,
+				});
+				window.sdkEditor = monaco.editor.create(
+					document.getElementById('editor'),
+					{
+						value,
+						language: 'typescript',
+						theme: 'vibe-dark',
+						automaticLayout: true,
+						minimap: {enabled: false},
+						fontFamily: 'SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+						fontSize: 50,
+						lineHeight: 76,
+						fontLigatures: false,
+						lineNumbers: 'on',
+						lineNumbersMinChars: 2,
+						lineDecorationsWidth: 20,
+						glyphMargin: false,
+						folding: false,
+						renderLineHighlight: 'none',
+						renderWhitespace: 'none',
+						guides: {indentation: false, bracketPairs: false},
+						bracketPairColorization: {enabled: false},
+						matchBrackets: 'never',
+						occurrencesHighlight: 'off',
+						selectionHighlight: false,
+						scrollBeyondLastLine: false,
+						scrollbar: {vertical: 'hidden', horizontal: 'hidden'},
+						padding: {top: 40, bottom: 80},
+						contextmenu: false,
+						quickSuggestions: false,
+						hover: {enabled: false},
+						ariaLabel: 'Remotion SDK and code-mod imports',
+					},
+				);
+				await monaco.editor.colorize(value, 'typescript', {});
+				await document.fonts.ready;
+				requestAnimationFrame(() =>
+					requestAnimationFrame(() => {
+						window.sdkEditorReady = true;
+					}),
+				);
+			});
+		</script>
+	</body>
+</html>

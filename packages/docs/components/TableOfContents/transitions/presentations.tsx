@@ -1,6 +1,6 @@
-import {cube} from '@remotion-dev/cube-presentation';
 import {linearTiming} from '@remotion/transitions';
 import {clockWipe} from '@remotion/transitions/clock-wipe';
+import {cube} from '@remotion/transitions/cube';
 import {fade} from '@remotion/transitions/fade';
 import {flip} from '@remotion/transitions/flip';
 import {iris} from '@remotion/transitions/iris';
@@ -24,7 +24,6 @@ import {ZoomBlurTocPreview} from '../../transitions/zoom-blur-toc-preview';
 import {ZoomInOutTocPreview} from '../../transitions/zoom-in-out-toc-preview';
 import {Grid} from '../Grid';
 import {HtmlInCanvasLabel} from '../html-in-canvas-label';
-import {ProLabel} from '../pro-label';
 import {TOCItem} from '../TOCItem';
 
 const row: React.CSSProperties = {
@@ -338,7 +337,6 @@ export const Presentations: React.FC<{
 						<strong>
 							<code>{'cube()'}</code>
 						</strong>
-						<ProLabel />
 						<div>Rotate both scenes with 3D perspective</div>
 					</div>
 				</div>
