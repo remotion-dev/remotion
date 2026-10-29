@@ -131,7 +131,7 @@ test('concurrent runner shutdown requests share the same cleanup', async () => {
 	expect(runner.listeners).toHaveLength(0);
 });
 
-test('keeps synchronous force-kill cleanup for Node process exit', async () => {
+test('force-kills the browser from the Node process exit handler', async () => {
 	const previous = process.listeners('exit');
 	const {runner, directory, profile, pid} = await startBrowser('hang');
 	const onExit = process.listeners('exit').find((listener) => {
@@ -143,12 +143,18 @@ test('keeps synchronous force-kill cleanup for Node process exit', async () => {
 
 	// Invoke only this runner's exit handler, without exiting the test process.
 	onExit(0);
-	await runner.closeProcess();
+	expect(existsSync(profile)).toBe(false);
+	expect(runner.listeners).toHaveLength(0);
+
+	// Windows taskkill completes asynchronously. Wait for the exit handler to
+	// terminate the worker before closeProcess() can send a CDP close request.
+	for (let attempt = 0; attempt < 500 && pidExists(pid); attempt++) {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+	}
 
 	expect(existsSync(join(directory, 'requests'))).toBe(false);
 	expect(pidExists(pid)).toBe(false);
-	expect(existsSync(profile)).toBe(false);
-	expect(runner.listeners).toHaveLength(0);
+	await runner.closeProcess();
 });
 
 for (const silent of [false, true]) {
