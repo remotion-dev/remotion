@@ -1,10 +1,11 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT, WHITE_ALPHA_80} from '../helpers/colors';
+import {WHITE_ALPHA_80} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {PlaybackRateIcon} from '../icons/playback-rate';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
+import {menuItemLeftSpace} from './Menu/styles';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {InputDragger} from './NewComposition/InputDragger';
 import {TimelineCombobox} from './TimelineCombobox';
@@ -18,14 +19,7 @@ const accessibilityLabel = 'Playback rate';
 const customRateRowStyle: React.CSSProperties = {
 	display: 'flex',
 	alignItems: 'center',
-	justifyContent: 'space-between',
-	gap: 12,
-	padding: '4px 12px 8px',
-};
-
-const customRateLabelStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 13,
+	padding: '4px 8px',
 };
 
 type PlaybackRateMenuItemsProps = {
@@ -37,7 +31,9 @@ const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
 	playbackRate,
 	setPlaybackRate,
 }) => {
-	const setRate = (rate: number) => {
+	const isCustomRate = !commonPlaybackRates.includes(playbackRate);
+	const setRate = (value: number) => {
+		const rate = Math.round(value * 100) / 100;
 		if (!Number.isFinite(rate) || rate === 0 || Math.abs(rate) > 4) {
 			return;
 		}
@@ -48,7 +44,7 @@ const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
 
 	return (
 		<div style={customRateRowStyle}>
-			<span style={customRateLabelStyle}>Custom rate</span>
+			<div style={menuItemLeftSpace}>{isCustomRate ? <Checkmark /> : null}</div>
 			<InputDragger
 				aria-label="Custom playback rate"
 				allowStepMismatch
@@ -57,14 +53,15 @@ const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
 				onTextChange={() => undefined}
 				onValueChange={setRate}
 				onValueChangeEnd={setRate}
-				rightAlign
+				rightAlign={false}
 				small
 				status="ok"
 				step={0.01}
-				style={{width: 88}}
+				style={{width: 64}}
 				type="number"
 				value={playbackRate}
 				formatter={(rate) => getPlaybackRateLabel(Number(rate))}
+				formatterStyle={isCustomRate ? undefined : {opacity: 0.5}}
 			/>
 		</div>
 	);
@@ -147,7 +144,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 		<TimelineCombobox
 			aria-label={accessibilityLabel}
 			tooltipDelay={800}
-			labelWidth={48}
+			labelWidth={30}
 			selectedId={selectedId}
 			selectedLabel={getPlaybackRateLabel(playbackRate)}
 			values={items}

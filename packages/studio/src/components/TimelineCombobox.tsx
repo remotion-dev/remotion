@@ -15,8 +15,8 @@ const label: React.CSSProperties = {
 	flex: 'none',
 	fontFamily: 'inherit',
 	fontSize: 12,
+	fontVariantNumeric: 'tabular-nums',
 	lineHeight: '16px',
-	minWidth: 0,
 	overflow: 'hidden',
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
@@ -74,7 +74,7 @@ export const TimelineCombobox: React.FC<{
 									? displayLabel
 									: undefined
 							}
-							style={{...label, width: labelWidth}}
+							style={{...label, minWidth: labelWidth}}
 						>
 							{displayLabel}
 						</div>
