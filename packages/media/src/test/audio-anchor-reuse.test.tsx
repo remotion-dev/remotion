@@ -113,7 +113,8 @@ test.each([false, true])(
 			await vi.waitFor(() =>
 				expect(ref.current!.getCurrentFrame()).toBeGreaterThan(0),
 			);
-			const handle = buffer!.delayPlayback();
+			// Commit buffering and pending playback frames before sampling the freeze.
+			const handle = flushSync(() => buffer!.delayPlayback());
 			const frozenFrame = ref.current!.getCurrentFrame();
 			await new Promise((resolve) => setTimeout(resolve, 150));
 			expect(ref.current!.getCurrentFrame()).toBe(frozenFrame);
