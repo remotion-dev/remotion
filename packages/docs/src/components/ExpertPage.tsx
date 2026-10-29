@@ -112,7 +112,7 @@ export default () => {
 		throw new Error('no expert found');
 	}
 
-	const imgSrc = `/generated/experts-${expert.slug}.png`;
+	const imgSrc = `https://remotion.media/docs/generated/experts-${expert.slug}.png`;
 
 	return (
 		<Layout>

@@ -1,6 +1,7 @@
 import type {CanvasSink} from 'mediabunny';
 import type {CanvasAheadOfTimeIterator} from './canvas-ahead-of-time';
 import {canvasesAheadOfTime} from './canvas-ahead-of-time';
+import {FRAME_START_TOLERANCE} from './helpers/has-frame-started';
 
 export const makePrewarmedVideoIteratorCache = (
 	videoSink: CanvasSink,
@@ -12,7 +13,10 @@ export const makePrewarmedVideoIteratorCache = (
 	// Snap to the track's own timestamp grid: WebM stores milliseconds, so frame 62
 	// at 30fps (2.0667s) is stored at 2.067s and must not seek into the previous GOP.
 	const snapToTrackTimeResolution = (timeToSeek: number) => {
-		return Math.round(timeToSeek * timeResolution) / timeResolution;
+		return (
+			Math.floor((timeToSeek + FRAME_START_TOLERANCE) * timeResolution) /
+			timeResolution
+		);
 	};
 
 	const prewarmIteratorForLooping = ({timeToSeek}: {timeToSeek: number}) => {

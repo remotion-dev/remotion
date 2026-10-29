@@ -45,4 +45,4 @@ description: Add a new expert to the Remotion experts page
    bun render-cards
    ```
 
-   This generates `packages/docs/static/generated/experts-<slug>.png`. Verify it says "Rendered experts-\<slug\>" (not "Existed").
+   This renders and uploads `https://remotion.media/docs/generated/experts-<slug>.png` using R2 credentials from the environment. Verify it says "Uploaded". For an existing card, pass `--overwrite=experts-<slug>`. Local generated PNGs are ignored and must stay out of Git.

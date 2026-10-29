@@ -2857,7 +2857,7 @@ export const Index: React.FC = () => {
 			<Composition
 				id="empty"
 				component={Empty}
-				width={1080}
+				width={1920}
 				height={1080}
 				fps={30}
 				durationInFrames={900}

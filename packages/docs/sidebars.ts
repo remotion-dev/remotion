@@ -2095,7 +2095,10 @@ const sidebars: SidebarsConfig = {
 			},
 			items: [
 				'canvas-capture/installation',
+				'canvas-capture/how-to-use',
 				'canvas-capture/agentic-shot-setup',
+				'canvas-capture/development',
+				'canvas-capture/metadata',
 				'canvas-capture/privacy',
 			],
 		},

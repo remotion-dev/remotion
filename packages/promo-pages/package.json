@@ -11,6 +11,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"mediabunny": "catalog:",
 		"@remotion/animated-emoji": "workspace:*",
 		"@remotion/design": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",

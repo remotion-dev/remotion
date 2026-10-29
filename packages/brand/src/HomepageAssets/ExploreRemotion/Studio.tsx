@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {Video} from '@remotion/media';
 import {
@@ -10,7 +11,7 @@ import {
 } from 'remotion';
 import {ExploreStudioRecording20261027Composition} from '../../ExploreStudioRecording20261027Composition';
 
-export const studioRecordingDuration = 312;
+export const studioRecordingDuration = 200;
 
 // Keep the complete recording through the tilt; only the final tile crops it.
 export const StudioRecordingEdit = () => {
@@ -56,7 +57,7 @@ export const ExploreRemotionStudio = () => {
 						position: 'absolute',
 						inset: 0,
 						overflow: 'visible',
-						rotate: '0.12 1 -0.15 20deg',
+						rotate: EXPLORE_CAMERA_ANGLE,
 						scale: 1.02,
 					}}
 				>
@@ -67,16 +68,11 @@ export const ExploreRemotionStudio = () => {
 						muted
 						style={{
 							position: 'absolute',
-							left: interpolate(
-								frame,
-								[0, 35, 75, 115, 180, 235, 312],
-								[-150, -400, -750, -1200, -1800, -2140, -2140],
-								{
-									easing: Easing.bezier(0.33, 0, 0.67, 1),
-									extrapolateLeft: 'clamp',
-									extrapolateRight: 'clamp',
-								},
-							),
+							left: interpolate(frame, [0, 190], [150, -1600], {
+								easing: Easing.bezier(0.33, 0, 0.67, 1),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
 							top: 90,
 							width: 2330,
 							height: 1440,

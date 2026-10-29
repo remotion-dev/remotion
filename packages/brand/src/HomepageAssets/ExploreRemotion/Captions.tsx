@@ -1,26 +1,15 @@
-import {colorCorrection} from '@remotion/effects/color-correction';
-import {grayscale} from '@remotion/effects/grayscale';
-import {AbsoluteFill, HtmlInCanvas} from 'remotion';
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
+import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
 import {CaptionsRecordingComposition} from '../../CaptionsRecordingComposition';
+
+const captionsStartFrame = 136;
+export const captionsDuration = 612 - captionsStartFrame;
 
 export const ExploreRemotionCaptions = () => {
 	const scale = 1080 / 880;
 
 	return (
-		<HtmlInCanvas
-			width={1080}
-			height={1080}
-			effects={[
-				grayscale({}),
-				colorCorrection({
-					pivot: 0,
-					shadows: 1,
-					whites: 0.26,
-					blacks: -1,
-					temperature: -1,
-				}),
-			]}
-		>
+		<HtmlInCanvas width={1080} height={1080}>
 			<AbsoluteFill style={{overflow: 'hidden', backgroundColor: '#1f2428'}}>
 				<AbsoluteFill
 					name="Scrolling captions sidebar"
@@ -31,12 +20,14 @@ export const ExploreRemotionCaptions = () => {
 						top: -155 * scale,
 						transform: `scale(${scale})`,
 						transformOrigin: 'top left',
-						rotate: '-0.148338 -0.987665 0.050137 37.783391deg',
-						translate: '105.4px -284.7px',
-						scale: 1.201,
+						rotate: EXPLORE_CAMERA_ANGLE,
+						translate: '-973.1px -61px',
+						scale: 1.402,
 					}}
 				>
-					<CaptionsRecordingComposition />
+					<Sequence from={-captionsStartFrame} layout="none">
+						<CaptionsRecordingComposition />
+					</Sequence>
 				</AbsoluteFill>
 			</AbsoluteFill>
 		</HtmlInCanvas>

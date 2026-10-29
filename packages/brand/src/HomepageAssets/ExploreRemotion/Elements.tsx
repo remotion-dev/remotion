@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {Video} from '@remotion/media';
 import {AbsoluteFill, Freeze, HtmlInCanvas, Sequence} from 'remotion';
 import {ExploreElementsRecording20261027Composition} from '../../ExploreElementsRecording20261027Composition';
@@ -77,7 +78,7 @@ export const ExploreRemotionElements = () => {
 						top: 0,
 						width: 1080,
 						height: 1080,
-						rotate: '0.12 1 -0.15 20deg',
+						rotate: EXPLORE_CAMERA_ANGLE,
 						scale: 1.02,
 					}}
 				/>

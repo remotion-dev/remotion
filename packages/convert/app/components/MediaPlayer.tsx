@@ -308,6 +308,7 @@ export function VideoPlayer({
 				className={cn(
 					crop ? 'border-0' : 'border-2',
 					'rounded-md',
+					crop ? 'overflow-visible' : 'overflow-hidden',
 					crop ? 'border-transparent' : 'border-outline',
 					'relative',
 				)}
