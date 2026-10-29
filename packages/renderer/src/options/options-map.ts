@@ -179,6 +179,7 @@ export const optionsMap = {
 		crf: crfOption,
 		jpegQuality: jpegQualityOption,
 		sampleRate: sampleRateOption,
+		licenseKey: licenseKeyOption,
 	},
 	renderStillOnCloudRun: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
@@ -188,6 +189,7 @@ export const optionsMap = {
 		scale: scaleOption,
 		jpegQuality: jpegQualityOption,
 		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
+		licenseKey: licenseKeyOption,
 	},
 	ensureBrowser: {
 		logLevel: logLevelOption,

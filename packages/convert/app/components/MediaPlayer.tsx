@@ -308,7 +308,8 @@ export function VideoPlayer({
 				className={cn(
 					crop ? 'border-0' : 'border-2',
 					'rounded-md',
-					crop ? 'border-transparent' : 'border-black',
+					crop ? 'overflow-visible' : 'overflow-hidden',
+					crop ? 'border-transparent' : 'border-outline',
 					'relative',
 				)}
 			>
@@ -341,7 +342,7 @@ export function VideoPlayer({
 					/>
 				) : (
 					<div
-						className="bg-slate-100 rounded-[inherit]"
+						className="bg-muted rounded-[inherit]"
 						style={{
 							aspectRatio: dimensions
 								? `${dimensions.width} / ${dimensions.height}`

@@ -108,6 +108,7 @@ test('same goes for audio', async () => {
 	}
 
 	const manager = audioIteratorManager({
+		getIsPlaying: () => true,
 		audioTrack,
 		delayPlaybackHandleIfNotPremounting: () => ({
 			unblock: () => {},

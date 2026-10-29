@@ -39,9 +39,9 @@ export const Footer: React.FC<{
 }> = ({routeAction}) => {
 	return (
 		<footer className="w-full">
-			<div className="flex flex-col gap-5 lg:flex-row lg:items-center">
+			<div className="flex flex-col gap-5 min-[900px]:flex-row min-[900px]:items-center">
 				<a
-					className="hidden group lg:flex flex-row items-center ml-[-8px] shrink-0"
+					className="hidden group min-[900px]:flex flex-row items-center ml-[-8px] shrink-0"
 					target="_blank"
 					href="https://remotion.dev/?utm_source=convert"
 				>
@@ -52,7 +52,7 @@ export const Footer: React.FC<{
 					</div>
 				</a>
 				<a
-					className="lg:hidden font-medium"
+					className="min-[900px]:hidden font-medium"
 					target="_blank"
 					href="https://remotion.dev/?utm_source=convert"
 				>
@@ -60,8 +60,8 @@ export const Footer: React.FC<{
 						A Remotion Product
 					</div>
 				</a>
-				<div className="hidden lg:block lg:flex-1" />
-				<div className="flex flex-wrap items-center gap-x-5 gap-y-2 lg:justify-end">
+				<div className="hidden min-[900px]:block min-[900px]:flex-1" />
+				<div className="flex flex-wrap items-center gap-x-5 gap-y-2 min-[900px]:justify-end">
 					{routeAction.type === 'transcribe' ? (
 						<a
 							target="_blank"

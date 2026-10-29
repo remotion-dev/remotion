@@ -6,11 +6,13 @@ import {
 	type StudioHandoffAssets,
 	drawStudioHandoff,
 	loadStudioHandoffAssets,
+	STUDIO_HANDOFF_HEIGHT,
+	STUDIO_HANDOFF_WIDTH,
 } from '../../../promo-pages/src/components/homepage/studio-handoff/renderer';
 
 export const StudioCodeHandoff: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {width, height, fps} = useVideoConfig();
+	const {fps} = useVideoConfig();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [assets, setAssets] = useState<StudioHandoffAssets | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
@@ -50,13 +52,13 @@ export const StudioCodeHandoff: React.FC = () => {
 			continueRender(handleRef.current);
 			handleRef.current = null;
 		}
-	}, [assets, continueRender, fps, frame, height, width]);
+	}, [assets, continueRender, fps, frame]);
 
 	return (
 		<canvas
 			ref={canvasRef}
-			width={width}
-			height={height}
+			width={STUDIO_HANDOFF_WIDTH}
+			height={STUDIO_HANDOFF_HEIGHT}
 			style={{display: 'block', width: '100%', height: '100%'}}
 		/>
 	);

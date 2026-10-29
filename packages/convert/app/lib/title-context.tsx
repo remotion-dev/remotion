@@ -1,9 +1,6 @@
 import React, {useEffect, useLayoutEffect, useMemo} from 'react';
-import type {VideoThumbnailRef} from '~/components/VideoThumbnail';
 import type {RouteAction} from '~/seo';
 import {getPageTitle} from '~/seo';
-import {DEFAULT_FAVICON} from './default-favicon';
-import {useThumbnailAsFavicon} from './use-thumbnail-as-favicon';
 
 export type TitleContextT = {
 	filename: string | null;
@@ -14,7 +11,6 @@ export type TitleContextT = {
 	setProgress: React.Dispatch<React.SetStateAction<number | null>>;
 	setPaused: React.Dispatch<React.SetStateAction<boolean>>;
 	paused: boolean;
-	favicon: OffscreenCanvas | null;
 };
 
 const TitleContext = React.createContext<TitleContextT | null>(null);
@@ -30,30 +26,18 @@ export const TitleProvider: React.FC<{
 	const [progress, setProgress] = React.useState<number | null>(null);
 	const [paused, setPaused] = React.useState(false);
 
-	const [favicon] = React.useState<OffscreenCanvas | null>(() => {
-		if (typeof OffscreenCanvas === 'undefined') {
-			return null;
-		}
-
-		const canvas = new OffscreenCanvas(32, 32);
-		canvas.width = 32;
-		canvas.height = 32;
-		return canvas;
-	});
-
 	const value: TitleContextT = useMemo(() => {
 		return {
 			filename,
 			setFilename,
 			progress,
 			setProgress,
-			favicon,
 			outputFilename,
 			setOutputFilename,
 			paused,
 			setPaused,
 		};
-	}, [filename, progress, favicon, outputFilename, paused]);
+	}, [filename, progress, outputFilename, paused]);
 
 	useLayoutEffect(() => {
 		const file = outputFilename ?? filename;
@@ -129,32 +113,4 @@ export const useAddProgressToTitle = (progress: number | null) => {
 			setProgress(null);
 		};
 	}, [progress, setProgress]);
-};
-
-export const useCopyThumbnailToFavicon = (
-	sourceRef: React.RefObject<VideoThumbnailRef | null>,
-) => {
-	const {favicon} = useTitle();
-
-	const thumbnail = useThumbnailAsFavicon({
-		sourceRef,
-		targetRef: favicon,
-	});
-
-	useEffect(() => {
-		const newFavicon = document.querySelector('link[rel="icon"]');
-		if (!newFavicon) {
-			throw new Error('No favicon found');
-		}
-
-		if (thumbnail) {
-			newFavicon.setAttribute('href', thumbnail);
-		} else {
-			newFavicon.setAttribute('href', DEFAULT_FAVICON);
-		}
-
-		return () => {
-			newFavicon.setAttribute('href', DEFAULT_FAVICON);
-		};
-	}, [thumbnail]);
 };

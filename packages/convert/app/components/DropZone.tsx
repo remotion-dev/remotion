@@ -7,7 +7,7 @@ const Container: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 	children,
 }) => {
 	return (
-		<div className="relative overflow-hidden flex h-40 border-black rounded-md mt-8 justify-center items-center border-solid border-2">
+		<div className="relative overflow-hidden flex h-40 border-outline rounded-md mt-8 justify-center items-center border-solid border-2">
 			{children}
 		</div>
 	);

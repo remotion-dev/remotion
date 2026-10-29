@@ -17,6 +17,7 @@
 		"capture:aura-timeline": "bun scripts/aura-code/capture-studio.ts",
 		"lint": "eslint src",
 		"render-homepage-assets": "./render-homepage-assets.sh",
+		"render-readme-hero": "bun scripts/render-readme-hero.ts",
 		"render-docs-animations": "bash render-docs-animations.sh"
 	},
 	"dependencies": {
@@ -38,6 +39,7 @@
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/rough-notation": "workspace:*",
+		"@remotion/renderer": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/sfx": "workspace:*",
 		"@remotion/studio": "workspace:*",

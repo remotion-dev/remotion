@@ -6,6 +6,7 @@ import type {
 	RspackOverrideFn,
 	WebpackOverrideFn,
 } from '@remotion/bundler';
+import {LicensingInternals} from '@remotion/licensing';
 import type {
 	AudioCodec,
 	Browser,
@@ -687,6 +688,23 @@ export const renderVideoFlow = async ({
 			mediaCacheSizeInBytes,
 			onLog,
 		});
+
+		if (licenseKey !== null) {
+			try {
+				await LicensingInternals.internalRegisterUsageEvent({
+					event: 'cloud-render',
+					host: null,
+					succeeded: true,
+					licenseKey: licenseKey === 'free-license' ? null : licenseKey,
+					isProduction: isProduction ?? true,
+					isStill: false,
+				});
+				Log.verbose({indent, logLevel}, 'Usage event sent successfully');
+			} catch (err) {
+				Log.error({indent, logLevel}, 'Failed to send usage event');
+				Log.error({indent: true, logLevel}, err);
+			}
+		}
 
 		if (!updatesDontOverwrite) {
 			updateRenderProgress({newline: true, printToConsole: true});

@@ -104,6 +104,10 @@ Use the [Remotion SaaS skill](./remotion-saas/SKILL.md) for knowledge about Remo
 
 To find and read current Remotion documentation, load [Remotion Docs](./remotion-docs/SKILL.md).
 
+## Licensing
+
+For Remotion license information, FAQs, terms, or buying a license, load [Remotion License](./remotion-license/SKILL.md).
+
 ## Upgrading
 
 To upgrade Remotion, related packages, compatible Mediabunny packages, and installed Remotion Agent Skills, load [Remotion Upgrade](./remotion-upgrade/SKILL.md).

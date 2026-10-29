@@ -76,6 +76,7 @@ export const audioIteratorManager = ({
 	getSequenceDurationInSeconds,
 	getMediaEndTimestamp,
 	getStartTime,
+	getIsPlaying,
 	initialMuted,
 	initialVolume,
 	toneFrequency,
@@ -89,6 +90,7 @@ export const audioIteratorManager = ({
 	getSequenceDurationInSeconds: () => number;
 	getMediaEndTimestamp: () => number;
 	getStartTime: () => number;
+	getIsPlaying: () => boolean;
 	initialMuted: boolean;
 	initialVolume: number;
 	toneFrequency: number;
@@ -280,6 +282,7 @@ export const audioIteratorManager = ({
 		onDone,
 		logLevel,
 		currentTime,
+		startFromSecond,
 		getAudioContextCurrentTimeMockedInTest,
 	}: {
 		iterator: AudioIterator;
@@ -298,6 +301,7 @@ export const audioIteratorManager = ({
 		onDestroyed: () => void;
 		logLevel: LogLevel;
 		currentTime: number;
+		startFromSecond: number;
 		getAudioContextCurrentTimeMockedInTest: () => number;
 	}) => {
 		waitForTurn({
@@ -321,7 +325,16 @@ export const audioIteratorManager = ({
 					sequenceStartTime: getStartTime(),
 				});
 
-				return scheduledTime - getAudioContextCurrentTimeMockedInTest();
+				// Always finish the initial prebuffer, even for future or very slow clips.
+				// Bound further paused decoding by prepared media, not a future start time.
+				const preparedDuration = guessedNextTimestamp - startFromSecond;
+				if (getIsPlaying()) {
+					return scheduledTime - getAudioContextCurrentTimeMockedInTest();
+				}
+
+				return hasEnoughAudioToStartPlayback(preparedDuration)
+					? preparedDuration / playbackRate
+					: 0;
 			},
 			fn: () => iterator.getNextFn(),
 			onDone: (result, next) => {
@@ -364,6 +377,7 @@ export const audioIteratorManager = ({
 					onDone,
 					logLevel,
 					currentTime,
+					startFromSecond,
 					getAudioContextCurrentTimeMockedInTest,
 				});
 				next();
@@ -512,6 +526,7 @@ export const audioIteratorManager = ({
 			},
 			logLevel,
 			currentTime: sharedAudioContext.audioContext.currentTime,
+			startFromSecond,
 			getAudioContextCurrentTimeMockedInTest,
 		});
 	};

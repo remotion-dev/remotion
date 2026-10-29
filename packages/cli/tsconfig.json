@@ -13,6 +13,7 @@
 		{"path": "../core"},
 		{"path": "../bundler"},
 		{"path": "../codemods"},
+		{"path": "../licensing"},
 		{"path": "../renderer"},
 		{"path": "../player"},
 		{"path": "../media-utils"},
