@@ -30,6 +30,20 @@ export const innerHandler = async ({
 	responseWriter: ResponseStreamWriter;
 	context: RequestContext;
 }): Promise<void> => {
+	// Older SDK payloads omit the preference. Normalize at the request boundary.
+	if (
+		params.type === ServerlessRoutines.start ||
+		params.type === ServerlessRoutines.launch ||
+		params.type === ServerlessRoutines.renderer ||
+		params.type === ServerlessRoutines.still ||
+		params.type === ServerlessRoutines.compositions
+	) {
+		params = {
+			...params,
+			preferredEffectBackend: params.preferredEffectBackend ?? 'auto',
+		};
+	}
+
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
 	RenderInternals.Log.verbose(

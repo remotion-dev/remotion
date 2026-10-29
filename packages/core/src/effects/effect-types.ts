@@ -12,6 +12,22 @@
 import type {InteractivitySchema} from '../interactivity-schema.js';
 
 export type Backend = '2d' | 'webgl2' | 'webgpu';
+export type PreferredEffectBackend = Backend | 'auto';
+
+export type EffectImplementation<P, S> = {
+	readonly setup: (target: HTMLCanvasElement) => S;
+	readonly apply: (params: EffectApplyParams<P, S>) => void;
+	readonly cleanup: (state: S) => void;
+};
+
+export type MultiBackendEffectDefinition<P> = Omit<
+	EffectDefinition<P>,
+	'backend' | 'setup' | 'apply' | 'cleanup' | 'implementations'
+> & {
+	readonly implementations: Partial<
+		Record<Backend, EffectImplementation<P, unknown>>
+	>;
+};
 
 // `GPUDevice` is left as `unknown` to avoid pulling `@webgpu/types` into core.
 // Effects that target the `webgpu` backend should narrow this themselves
@@ -39,6 +55,9 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly label: string;
 	readonly documentationLink: string | null;
 	readonly backend: Backend;
+	readonly implementations?: Partial<
+		Record<Backend, EffectImplementation<P, unknown>>
+	>;
 	/**
 	 * Stable string for comparing effect instances: two descriptors with the same
 	 * `definition` and the same `calculateKey(params)` are treated as equivalent

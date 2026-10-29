@@ -154,6 +154,7 @@ const sidebars: SidebarsConfig = {
 				'canvasimage',
 				'composition',
 				'create-effect',
+				'create-effect-implementation',
 				'continue-render',
 				'delay-render',
 				'easing',

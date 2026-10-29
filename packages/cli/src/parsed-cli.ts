@@ -9,6 +9,7 @@ import minimist from 'minimist';
 
 const {
 	allowHtmlInCanvasOption,
+	preferredEffectBackendOption,
 	benchmarkConcurrenciesOption,
 	beepOnFinishOption,
 	colorSpaceOption,
@@ -234,6 +235,9 @@ export type CommandLineOptions = {
 		typeof forceNewStudioOption
 	> | null;
 	[sampleRateOption.cliFlag]: TypeOfOption<typeof sampleRateOption>;
+	[preferredEffectBackendOption.cliFlag]: TypeOfOption<
+		typeof preferredEffectBackendOption
+	>;
 	[previewSampleRateOption.cliFlag]: TypeOfOption<
 		typeof previewSampleRateOption
 	>;

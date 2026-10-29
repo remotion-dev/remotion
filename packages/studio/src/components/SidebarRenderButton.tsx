@@ -105,6 +105,7 @@ export const SidebarRenderButton: React.FC<{
 				initialSampleRate: defaults.sampleRate,
 				initialChromeMode: defaults.chromeMode,
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				initialPreferredEffectBackend: defaults.preferredEffectBackend,
 				renderDefaults: defaults,
 				initialDarkMode: defaults.darkMode,
 				readOnlyStudio,

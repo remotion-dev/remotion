@@ -164,6 +164,7 @@ const innerRenderStill = async ({
 	onArtifact,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 }: InternalRenderStillOptions & {
 	serveUrl: string;
@@ -299,6 +300,7 @@ const innerRenderStill = async ({
 		onServeUrlVisited: () => undefined,
 		isMainTab: true,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
 		darkMode: chromiumOptions.darkMode ?? false,
 		sampleRate: 48000,
@@ -539,6 +541,7 @@ export const renderStill = (
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		isProduction,
 		...apiKeyOrLicenseKey
 	} = options;
@@ -632,6 +635,7 @@ export const renderStill = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		licenseKey: effectiveLicenseKey,
 		onLog: defaultOnLog,
 		isProduction: isProduction ?? null,

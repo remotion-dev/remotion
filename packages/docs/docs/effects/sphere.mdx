@@ -90,7 +90,7 @@ When `true`, skips the effect. Defaults to `false`.
 
 ## Requirements
 
-`sphere()` requires WebGPU. See [Using WebGL and WebGPU during renders](/docs/webgl) for rendering configuration.
+From <AvailableFrom v="4.0.540" inline />, `sphere()` supports WebGPU and WebGL2. WebGPU is preferred when available, with a WebGL2 fallback for environments such as Lambda. Use [`preferredEffectBackend`](/docs/options/preferred-effect-backend) to change the preference. Earlier versions require WebGPU. See [Using WebGL and WebGPU during renders](/docs/webgl) for rendering configuration.
 
 ## See also
 

@@ -130,6 +130,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		logLevel: 'info',
 		maxConcurrency,
 		mediaCacheSizeInBytes: null,
+		preferredEffectBackend: 'auto',
 		metadata: null,
 		minConcurrency: 1,
 		multiProcessOnLinux: true,

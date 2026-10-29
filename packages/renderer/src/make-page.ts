@@ -1,3 +1,4 @@
+import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
@@ -33,6 +34,7 @@ export const makePage = async ({
 	pageIndex,
 	isMainTab,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	darkMode,
 	sampleRate,
@@ -57,6 +59,7 @@ export const makePage = async ({
 	pageIndex: number;
 	isMainTab: boolean;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	onLog: OnLog;
 	darkMode: boolean;
 	sampleRate: number;
@@ -87,6 +90,7 @@ export const makePage = async ({
 		onServeUrlVisited: () => undefined,
 		isMainTab,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
 		darkMode,
 		sampleRate,

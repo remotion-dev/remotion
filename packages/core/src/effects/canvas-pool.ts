@@ -157,7 +157,11 @@ export class CanvasPool {
 			}
 
 			case 'webgpu': {
-				if (typeof navigator === 'undefined' || !('gpu' in navigator)) {
+				if (
+					typeof navigator === 'undefined' ||
+					!('gpu' in navigator) ||
+					!canvas.getContext('webgpu')
+				) {
 					throw new Error(
 						'WebGPU is not available in this environment for canvas effect',
 					);

@@ -23,6 +23,7 @@ import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import type {StudioKeyboardShortcuts} from '@remotion/studio-shared';
+import type {PreferredEffectBackend} from 'remotion';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -759,6 +760,8 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: null, which uses 48000 Hz.
 		 */
 		setPreviewSampleRate: (sampleRate: number | null) => void;
+		/** Preferred implementation for canvas effects in Studio and renders. Default: auto. */
+		setPreferredEffectBackend: (backend: PreferredEffectBackend) => void;
 		/**
 		 * Preserve @remotion/media audio pitch when changing the Studio playback speed.
 		 * Does not affect clip-level speed changes or rendered output.
@@ -935,6 +938,8 @@ export const Config: FlatConfig = {
 	setBenchmarkRuns: runsOption.setConfig,
 	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 	setSampleRate: sampleRateOption.setConfig,
+	setPreferredEffectBackend:
+		BrowserSafeApis.options.preferredEffectBackendOption.setConfig,
 	setPreviewSampleRate: previewSampleRateOption.setConfig,
 };
 

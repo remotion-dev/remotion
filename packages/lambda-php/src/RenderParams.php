@@ -53,6 +53,7 @@ class RenderParams
     protected $licenseKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $mediaCacheSizeInBytes = null;
+    protected $preferredEffectBackend = 'auto';
     protected $offthreadVideoThreads = null;
     protected $audioCodec = null;
     protected $rendererFunctionName = null;
@@ -120,7 +121,8 @@ class RenderParams
         ?int    $gopSize = null,
         ?bool   $enableCancellation = false,
         bool    $disableSharedMemoryCapture = false,
-        string|array|null $separateAudioTo = null
+        string|array|null $separateAudioTo = null,
+        string $preferredEffectBackend = 'auto'
     )
     {
         if ($chromiumOptions === null) {
@@ -165,6 +167,7 @@ class RenderParams
         $this->licenseKey = $licenseKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
+        $this->preferredEffectBackend = $preferredEffectBackend;
         $this->offthreadVideoThreads = $offthreadVideoThreads;
         $this->audioCodec = $audioCodec;
         $this->storageClass = $storageClass;
@@ -228,6 +231,7 @@ class RenderParams
             'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
+            'preferredEffectBackend' => $this->getPreferredEffectBackend(),
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
@@ -822,6 +826,16 @@ class RenderParams
     public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
     {
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+    }
+
+    public function getPreferredEffectBackend(): string
+    {
+        return $this->preferredEffectBackend;
+    }
+
+    public function setPreferredEffectBackend(string $preferredEffectBackend)
+    {
+        $this->preferredEffectBackend = $preferredEffectBackend;
     }
 
     public function getMediaCacheSizeInBytes()
