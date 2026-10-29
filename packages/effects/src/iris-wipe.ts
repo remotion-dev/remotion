@@ -17,6 +17,13 @@ import {
 	assertOptionalBoolean,
 	assertRequiredFiniteNumber,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect} = Internals;
 
@@ -220,54 +227,146 @@ void main() {
 }
 `;
 
-export const irisWipe = createEffect<IrisWipeParams, SinglePassState>({
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+// Polygon and star geometry adapted from EffectCraft; see THIRD_PARTY_LICENSES.md.
+struct Params { resolutionCenter: vec4f, radii: vec4f, controls: vec4f, }
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+fn cross2d(a: vec2f, b: vec2f) -> f32 { return a.x * b.y - a.y * b.x; }
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
+	let outerRadius = params.radii.y;
+	if (outerRadius <= 0.0) { return color; }
+	let position = (input.uv - params.resolutionCenter.zw) * params.resolutionCenter.xy;
+	let radius = length(position);
+	let useInnerRadius = params.radii.z != 0.0;
+	let innerRadius = select(outerRadius, params.radii.w, useInnerRadius);
+	var boundary = min(outerRadius, innerRadius);
+	if (radius > 0.000001) {
+		let vertexCount = params.radii.x * select(1.0, 2.0, useInnerRadius);
+		let angleStep = 6.283185307179586 / vertexCount;
+		// Avoid the implementation-dependent atan2 result at a signed-zero X argument.
+		var polarAngle = atan2(position.x, -position.y);
+		if (position.y == 0.0) { polarAngle = select(-1.5707963267948966, 1.5707963267948966, position.x >= 0.0); }
+		let rawAngle = polarAngle - params.controls.x;
+		let angle = rawAngle - 6.283185307179586 * floor(rawAngle / 6.283185307179586);
+		let index = min(floor(angle / angleStep), vertexCount - 1.0);
+		let firstRadius = select(outerRadius, innerRadius, useInnerRadius && index % 2.0 == 1.0);
+		let secondRadius = select(outerRadius, innerRadius, useInnerRadius && (index + 1.0) % 2.0 == 1.0);
+		let firstAngle = params.controls.x + index * angleStep;
+		let secondAngle = firstAngle + angleStep;
+		let first = firstRadius * vec2f(sin(firstAngle), -cos(firstAngle));
+		let second = secondRadius * vec2f(sin(secondAngle), -cos(secondAngle));
+		let edge = second - first;
+		let denominator = cross2d(position / radius, edge);
+		boundary = outerRadius;
+		if (abs(denominator) >= 0.000001) { boundary = cross2d(first, edge) / denominator; }
+	}
+	var mask = step(boundary, radius);
+	if (params.controls.y > 0.0) { mask = clamp((radius - boundary) / params.controls.y + 0.5, 0.0, 1.0); }
+	return color * mask;
+}
+`;
+
+export const irisWipe = createEffect<IrisWipeParams>({
 	type: 'remotion/iris-wipe',
 	label: 'irisWipe()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/iris-wipe',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `iris-wipe-${r.center.join(':')}-${r.points}-${r.outerRadius}-${r.useInnerRadius}-${r.innerRadius}-${r.rotation}-${r.feather}`;
 	},
-	setup: (target) =>
-		setupSinglePass(target, FRAGMENT_SHADER, 'iris wipe', [
-			'uResolution',
-			'uCenter',
-			'uPoints',
-			'uOuterRadius',
-			'uUseInnerRadius',
-			'uInnerRadius',
-			'uRotation',
-			'uFeather',
-		]),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, uniforms} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			IrisWipeParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'iris-wipe'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the iris-wipe effect',
+					);
+				}
 
-		prepareSinglePassSource({
-			state,
-			source: source as TexImageSource,
-			width,
-			height,
-			flipSourceY,
-		});
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
-		if (uniforms.uPoints) gl.uniform1i(uniforms.uPoints, r.points);
-		if (uniforms.uOuterRadius)
-			gl.uniform1f(uniforms.uOuterRadius, r.outerRadius);
-		if (uniforms.uUseInnerRadius)
-			gl.uniform1i(uniforms.uUseInnerRadius, r.useInnerRadius ? 1 : 0);
-		if (uniforms.uInnerRadius)
-			gl.uniform1f(uniforms.uInnerRadius, r.innerRadius);
-		if (uniforms.uRotation)
-			gl.uniform1f(uniforms.uRotation, ((r.rotation % 360) * Math.PI) / 180);
-		if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
+				const r = resolve(params);
 
-		drawSinglePass(state);
+				applyWebGpuSinglePass({
+					source,
+					width,
+					height,
+					state,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						r.center[0],
+						r.center[1],
+						r.points,
+						r.outerRadius,
+						r.useInnerRadius ? 1 : 0,
+						r.innerRadius,
+						((r.rotation % 360) * Math.PI) / 180,
+						r.feather,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			IrisWipeParams,
+			SinglePassState
+		>({
+			setup: (target) =>
+				setupSinglePass(target, FRAGMENT_SHADER, 'iris wipe', [
+					'uResolution',
+					'uCenter',
+					'uPoints',
+					'uOuterRadius',
+					'uUseInnerRadius',
+					'uInnerRadius',
+					'uRotation',
+					'uFeather',
+				]),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, uniforms} = state;
+
+				prepareSinglePassSource({
+					state,
+					source: source as TexImageSource,
+					width,
+					height,
+					flipSourceY,
+				});
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uCenter)
+					gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+				if (uniforms.uPoints) gl.uniform1i(uniforms.uPoints, r.points);
+				if (uniforms.uOuterRadius)
+					gl.uniform1f(uniforms.uOuterRadius, r.outerRadius);
+				if (uniforms.uUseInnerRadius)
+					gl.uniform1i(uniforms.uUseInnerRadius, r.useInnerRadius ? 1 : 0);
+				if (uniforms.uInnerRadius)
+					gl.uniform1f(uniforms.uInnerRadius, r.innerRadius);
+				if (uniforms.uRotation)
+					gl.uniform1f(
+						uniforms.uRotation,
+						((r.rotation % 360) * Math.PI) / 180,
+					);
+				if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
+
+				drawSinglePass(state);
+			},
+			cleanup: cleanupSinglePass,
+		}),
 	},
-	cleanup: cleanupSinglePass,
 	schema: irisWipeSchema,
 	validateParams: validateIrisWipeParams,
 });

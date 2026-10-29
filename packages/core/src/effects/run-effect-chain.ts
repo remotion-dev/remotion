@@ -272,7 +272,12 @@ const runEffectChainWithoutResize = async (
 					// backend's first effect forces an implicit GPU readback / finish on the
 					// consuming context, which empirically blows the per-frame vsync budget and
 					// halves the paint rate. `createImageBitmap` pipelines the GPU work.
-					bridgeBitmap = await createImageBitmap(lastTarget);
+					// WebGL ignores UNPACK_FLIP_Y_WEBGL for ImageBitmap uploads.
+					// Normalize the orientation here rather than relying on the
+					// underlying canvas backing store's orientation.
+					bridgeBitmap = await createImageBitmap(lastTarget, {
+						imageOrientation: nextRun.backend === 'webgl2' ? 'flipY' : 'none',
+					});
 					if (isCancelled()) {
 						return false;
 					}

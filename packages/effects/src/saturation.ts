@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {createColorMatrixImplementations} from './color-matrix-runtime.js';
 import {
 	assertOptionalFiniteNumber,
 	colorMultiplierSchema,
@@ -35,32 +36,62 @@ const validateSaturationParams = (params: SaturationParams): void => {
 	validateNonNegative(amount, 'amount');
 };
 
-export const saturation = createEffect<SaturationParams, null>({
+export const saturation = createEffect<SaturationParams>({
 	type: 'dev.remotion.effects.saturation',
 	label: 'saturation()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/saturation',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `saturation-${r.amount}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for saturation effect. The canvas may have been assigned a different context type.',
-			);
-		}
+	implementations: {
+		...createColorMatrixImplementations<SaturationParams>(
+			'saturation',
+			(params) => {
+				const {amount} = resolve(params);
+				const red = 0.213 * (1 - amount);
+				const green = 0.715 * (1 - amount);
+				const blue = 0.072 * (1 - amount);
+				return new Float32Array([
+					red + amount,
+					green,
+					blue,
+					0,
+					red,
+					green + amount,
+					blue,
+					0,
+					red,
+					green,
+					blue + amount,
+					0,
+					0,
+					0,
+					amount === 1 ? 1 : 0,
+					0,
+				]);
+			},
+		),
+		'2d': Internals.createEffectImplementation<SaturationParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const ctx = target.getContext('2d');
+				if (!ctx) {
+					throw new Error(
+						'Failed to acquire 2D context for saturation effect. The canvas may have been assigned a different context type.',
+					);
+				}
 
-		const r = resolve(params);
+				const r = resolve(params);
 
-		ctx.clearRect(0, 0, width, height);
-		ctx.filter = `saturate(${r.amount * 100}%)`;
-		ctx.drawImage(source, 0, 0, width, height);
-		ctx.filter = 'none';
+				ctx.clearRect(0, 0, width, height);
+				ctx.filter = `saturate(${r.amount * 100}%)`;
+				ctx.drawImage(source, 0, 0, width, height);
+				ctx.filter = 'none';
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: saturationSchema,
 	validateParams: validateSaturationParams,
 });

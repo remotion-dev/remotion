@@ -5,6 +5,13 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -229,6 +236,45 @@ void main() {
 }
 `;
 
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params {
+	blackPoint: f32,
+	whitePoint: f32,
+	gamma: f32,
+	outputBlack: f32,
+	outputWhite: f32,
+	channel: f32,
+	padding0: f32,
+	padding1: f32,
+}
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let sourceColor = textureSampleLevel(source, sourceSampler, input.uv, 0.0);
+	let alpha = sourceColor.a;
+	if (alpha <= 0.0) {
+		return vec4f(0.0);
+	}
+	var color = sourceColor.rgb / alpha;
+	let normalized = clamp((color - vec3f(params.blackPoint)) / (params.whitePoint - params.blackPoint), vec3f(0.0), vec3f(1.0));
+	let corrected = pow(normalized, vec3f(1.0 / params.gamma));
+	let outputColor = mix(vec3f(params.outputBlack), vec3f(params.outputWhite), corrected);
+	if (params.channel == 1.0) {
+		color.r = outputColor.r;
+	} else if (params.channel == 2.0) {
+		color.g = outputColor.g;
+	} else if (params.channel == 3.0) {
+		color.b = outputColor.b;
+	} else {
+		color = outputColor;
+	}
+	return vec4f(color * alpha, alpha);
+}
+`;
+
 const compileShader = (
 	gl: WebGL2RenderingContext,
 	type: number,
@@ -345,73 +391,114 @@ const setupLevels = (target: HTMLCanvasElement): LevelsState => {
 	};
 };
 
-export const levels = createEffect<LevelsParams, LevelsState>({
+export const levels = createEffect<LevelsParams>({
 	type: 'remotion/levels',
 	label: 'levels()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/levels',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const {channel, blackPoint, whitePoint, gamma, outputBlack, outputWhite} =
 			resolve(params);
 		return `levels-${channel}-${blackPoint}-${whitePoint}-${gamma}-${outputBlack}-${outputWhite}`;
 	},
-	setup: setupLevels,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const {channel, blackPoint, whitePoint, gamma, outputBlack, outputWhite} =
-			resolve(params);
-		const {gl, program, textureSource, uniforms, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			LevelsParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'levels'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error('A WebGPU device is required for the levels effect');
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						r.blackPoint,
+						r.whitePoint,
+						r.gamma,
+						r.outputBlack,
+						r.outputWhite,
+						LEVELS_CHANNELS.indexOf(r.channel),
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<LevelsParams, LevelsState>({
+			setup: setupLevels,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const {
+					channel,
+					blackPoint,
+					whitePoint,
+					gamma,
+					outputBlack,
+					outputWhite,
+				} = resolve(params);
+				const {gl, program, textureSource, uniforms, vao} = state;
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uBlackPoint) {
-			gl.uniform1f(uniforms.uBlackPoint, blackPoint);
-		}
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, textureSource);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		if (uniforms.uWhitePoint) {
-			gl.uniform1f(uniforms.uWhitePoint, whitePoint);
-		}
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uBlackPoint) {
+					gl.uniform1f(uniforms.uBlackPoint, blackPoint);
+				}
 
-		if (uniforms.uGamma) gl.uniform1f(uniforms.uGamma, gamma);
-		if (uniforms.uOutputBlack) {
-			gl.uniform1f(uniforms.uOutputBlack, outputBlack);
-		}
+				if (uniforms.uWhitePoint) {
+					gl.uniform1f(uniforms.uWhitePoint, whitePoint);
+				}
 
-		if (uniforms.uOutputWhite) {
-			gl.uniform1f(uniforms.uOutputWhite, outputWhite);
-		}
+				if (uniforms.uGamma) gl.uniform1f(uniforms.uGamma, gamma);
+				if (uniforms.uOutputBlack) {
+					gl.uniform1f(uniforms.uOutputBlack, outputBlack);
+				}
 
-		if (uniforms.uChannel) {
-			gl.uniform1i(uniforms.uChannel, LEVELS_CHANNELS.indexOf(channel));
-		}
+				if (uniforms.uOutputWhite) {
+					gl.uniform1f(uniforms.uOutputWhite, outputWhite);
+				}
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				if (uniforms.uChannel) {
+					gl.uniform1i(uniforms.uChannel, LEVELS_CHANNELS.indexOf(channel));
+				}
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, textureSource}) => {
+				gl.deleteTexture(textureSource);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: levelsSchema,
 	validateParams: validateLevelsParams,
