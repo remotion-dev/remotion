@@ -63,15 +63,6 @@ export const articles = [
 		slug: 'accessibility/dev',
 	},
 	{
-		id: 'accessibility/pro',
-		title: 'Accessibility Statement: remotion.pro',
-		relativePath: 'docs/accessibility/pro.mdx',
-		compId: 'articles-docs-accessibility-pro',
-		crumb: 'Accessibility',
-		noAi: false,
-		slug: 'accessibility/pro',
-	},
-	{
 		id: 'acknowledgements',
 		title: 'Acknowledgements',
 		relativePath: 'docs/acknowledgements.mdx',

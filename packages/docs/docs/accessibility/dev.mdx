@@ -1,59 +1,79 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-accessibility-dev.png
 title: 'Accessibility Statement: remotion.dev'
-sidebar_label: remotion.dev
+sidebar_label: Website statement
 crumb: 'Accessibility'
-description: Accessibility conformance statement for the remotion.dev website, based on our WCAG 2.1 AA and RGAA 4.1.2 audit.
+description: Accessibility statement for the Remotion website, including marketing, documentation, the Dashboard, and the Store.
 ---
 
-This statement covers the **remotion.dev website** - the marketing pages, blog, and documentation you are reading right now.
+This statement covers the **remotion.dev website**: marketing pages, the blog, documentation and interactive website tools, as well as account sign-in, the Remotion Dashboard, license and billing management, and the Remotion Store.
 
-It does not cover the accessibility of Remotion products such as the [Remotion Player](/docs/player), [Remotion Studio](/docs/studio), or [Remotion Editor Starter](/docs/editor-starter). See the [product accessibility overview](/docs/accessibility) for that. It also does not cover [remotion.pro](/docs/accessibility/pro), which is a separate website operated by Remotion AG.
+It does not cover the accessibility of Remotion products such as the [Remotion Player](/docs/player), [Remotion Studio](/docs/studio), or [Remotion Editor Starter](/docs/editor-starter). See the [product accessibility overview](/docs/accessibility) for those products. Store pages are covered by this statement; the products purchased through the Store are assessed separately.
+
+Remotion AG is committed to making its website accessible to the widest possible audience, regardless of ability or technology.
 
 ## Conformance status
 
-remotion.dev aims to conform to:
+We aim to conform to:
 
 - [Web Content Accessibility Guidelines (WCAG) 2.1](https://www.w3.org/TR/WCAG21/) Level AA
 - [RGAA 4.1.2](https://accessibilite.numerique.gouv.fr/)
 
-remotion.dev is currently **partially conformant** with both standards. "Partially conformant" means that some parts of the content do not fully conform to the accessibility standard.
+The website is currently **partially conformant** with both standards. "Partially conformant" means that some parts of the content do not fully conform to the accessibility standard.
 
-Our most recent audit scored **54% against RGAA 4.1.2** (43 criteria conformant, 37 non-conformant, 26 not applicable).
+## Assessment history
 
-We have a detailed internal VPAT 2.4 Rev and RGAA 4.1.2 audit report for remotion.dev. We have decided not to publish these as downloadable documents at this time; the full report is available on request at [hi@remotion.dev](mailto:hi@remotion.dev).
+The website's documentation and commercial account areas were assessed separately. The results below describe the areas and versions assessed at the time; they are not a new assessment or a combined conformance score for the website.
 
-## Preparation of this statement
+| Area assessed                                                       | Assessment date | Reported RGAA 4.1.2 result |
+| :------------------------------------------------------------------ | :-------------- | :------------------------- |
+| Marketing pages, blog, documentation, and interactive website tools | 14 April 2026   | 54%                        |
+| Commercial account and Store website                                | 13 April 2026   | 68%                        |
 
-- **Methodology:** Manual audit against the 106 RGAA 4.1.2 criteria, combined with DOM / accessibility-tree inspection, Axe DevTools, and a Colour Contrast Analyser.
-- **Assistive technologies tested:** NVDA with Chrome on Windows.
-- **Pages sampled:** Home, Contact, Blog, and 10 documentation pages covering navigation, forms, embedded media, and interactive tools such as Remotion Convert.
-- **Most recent audit:** 14 April 2026.
+The initial external audit of the commercial account and Store website took place on 30 March 2026 and reported a score of 58%.
+
+Detailed VPAT 2.4 Rev and RGAA audit reports for these assessments are available on request at [hi@remotion.dev](mailto:hi@remotion.dev).
+
+### Assessment methods and coverage
+
+- **Marketing and documentation assessment:** Manual review against the 106 RGAA 4.1.2 criteria, DOM and accessibility-tree inspection, Axe DevTools, and a Colour Contrast Analyser. The sample included Home, Contact, Blog, and 10 documentation pages covering navigation, forms, embedded media, and interactive tools such as Remotion Convert. Assistive-technology testing used NVDA with Chrome on Windows.
+- **Commercial account and Store assessment:** Manual review against the 106 RGAA 4.1.2 criteria and automated scanning with axe-core in the end-to-end test suite. Testing included NVDA 2024 with Firefox on Windows, VoiceOver with Safari on macOS, keyboard-only navigation, and 200% and 400% browser zoom.
+
+These assessments provide separate baselines for the website's areas. They do not establish that every current page or interaction has been audited.
+
+## Technologies this site relies on
+
+Accessibility conformance depends on HTML5, CSS, WAI-ARIA, JavaScript, and video delivered via Mux working together with your browser and any assistive technology.
 
 ## Known limitations
 
-- **Color contrast.** Our brand blue (`#0B84F3`) does not meet the 4.5:1 contrast ratio against white required by WCAG 1.4.3. Several other elements (search placeholder, "Ask AI" button, sidebar tags, chart labels) also fall short.
-- **Video and multimedia.** Autoplaying homepage and blog videos lack captions, audio descriptions, and a pause/stop/hide control, and one silent video has no text alternative (WCAG 1.2.1, 1.2.2, 1.2.3, 1.2.5, 2.2.2).
-- **Keyboard operability.** Some interactive elements - toggle switches, sliders, drag-and-drop demo widgets, and the "Ask AI" button - are not yet operable by keyboard alone (WCAG 2.1.1). Focus can also land on hidden elements or escape the mobile menu (WCAG 2.4.3).
-- **Focus visibility.** The keyboard focus indicator is missing on several buttons, including "Copy" buttons on code blocks and some form controls (WCAG 2.4.7).
-- **Forms and labelling.** Some inputs (for example the newsletter field) rely on placeholder text instead of a persistent, programmatically associated label (WCAG 1.3.1, 3.3.2).
-- **Status messages.** Confirmations such as "Copied" and progress indicators on the Convert tool are not announced to assistive technology (WCAG 4.1.3).
-- **Structure and headings.** Some visually-styled headings and lists are not marked up with the corresponding semantic HTML elements (WCAG 1.3.1, 2.4.6).
-- **Third-party embeds.** Content from third parties, such as embedded YouTube players, may have accessibility gaps outside our direct control, including single-character keyboard shortcuts and non-unique iframe titles.
+The following limitations were recorded in the assessments and remain part of our published accessibility statement:
 
-## What is already accessible
+- **Color contrast.** Our brand blue (`#0B84F3`) does not meet the 4.5:1 contrast ratio against white required by WCAG 1.4.3. Several documentation elements, including the search placeholder, "Ask AI" button, sidebar tags, and chart labels, also fall short.
+- **Video and multimedia.** Homepage and blog videos lack captions, audio descriptions, and a pause/stop/hide control in the assessed cases; one silent video has no text alternative. Store product demo videos also lack captions, subtitles, or audio descriptions, although descriptive text alternatives are provided alongside them (WCAG 1.2.1, 1.2.2, 1.2.3, 1.2.5, 2.2.2).
+- **Keyboard operability.** Some interactive documentation elements, including toggle switches, sliders, drag-and-drop demo widgets, and the "Ask AI" button, are not operable by keyboard alone. Focus can also land on hidden elements or escape the documentation site's mobile menu (WCAG 2.1.1, 2.4.3).
+- **Focus visibility.** The keyboard focus indicator is missing on several documentation buttons, including "Copy" buttons and some form controls (WCAG 2.4.7).
+- **Forms and labelling.** Some inputs, such as the newsletter field, rely on placeholder text instead of a persistent, programmatically associated label (WCAG 1.3.1, 3.3.2).
+- **Status and error messages.** Confirmations such as "Copied" and progress indicators in the Convert tool are not announced to screen readers. Some login form validation is also not announced to assistive technology (WCAG 4.1.3).
+- **Structure and headings.** Some visually styled headings and lists in the documentation are not marked up with the corresponding semantic HTML elements (WCAG 1.3.1, 2.4.6).
+- **Third-party embeds.** Embedded content, including YouTube players and the OpenStreetMap iframe on the contact page, may have accessibility gaps outside our direct control. Recorded issues include single-character keyboard shortcuts and non-unique iframe titles.
 
-- A skip-to-main-content link and consistent, descriptive page titles on every audited page.
-- `<html lang="en">` and no keyboard traps detected anywhere in the audit.
-- Consistent navigation and more than one way to find any page.
-- Data tables and layout markup that read correctly with assistive technology and linearize properly without styles.
-- Text spacing and orientation changes do not cause loss of content.
+## Existing accessibility support
 
-## Reporting an accessibility issue
+The assessments also recorded accessibility support in the areas tested:
 
-If you encounter an accessibility barrier on remotion.dev, contact us at [hi@remotion.dev](mailto:hi@remotion.dev), or [file an issue](https://remotion.dev/issue).
+- **Marketing and documentation:** A skip-to-main-content link, descriptive page titles, `<html lang="en">`, consistent navigation, and more than one way to find pages. No keyboard traps were detected in that assessment. Data tables and layout markup remain readable with assistive technology and without styles, and text spacing and orientation changes do not cause loss of content.
+- **Commercial account and Store pages:** Semantic landmarks, a skip-to-main-content link, a consistent heading hierarchy, keyboard-operable navigation dropdowns and FAQ accordions, visible focus indicators, and persistent labels on form inputs. The assessed pages reflow at 320 CSS pixels / 400% zoom. Auto-playing videos respect `prefers-reduced-motion` and expose native playback controls when reduced motion is requested.
+
+These findings apply to the assessed areas and do not remove the limitations listed above.
+
+## Feedback and contact
+
+If you encounter an accessibility barrier on remotion.dev, or need content in an alternative format, contact us at [hi@remotion.dev](mailto:hi@remotion.dev), or [file an issue](https://remotion.dev/issue).
 
 Customers eligible for [prioritized support](/docs/support) may also report issues through the channels set up for them.
+
+Postal address: Remotion AG, Neunbrunnenstrasse 38, 8050 Zurich, Switzerland.
 
 ## Enforcement
 
