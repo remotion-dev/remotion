@@ -12,7 +12,6 @@
 		"zip": "bash make.sh",
 		"size": "bash size.sh",
 		"upload": "bash upload.sh",
-		"make": "tsc",
 		"lint": "eslint src && tsc --noEmit",
 		"formatting": "oxfmt src package.json tsconfig.json binaries.json eslint.config.mjs README.md --check"
 	},

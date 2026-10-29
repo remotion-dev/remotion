@@ -91,6 +91,11 @@ content script or persistent host access is required.
 
 ## Build and install
 
+The production extension is built explicitly with `bun run build-extension`
+from this package. It is not part of the monorepo's `make` task, so CI and docs
+deployments do not bundle it. The install script and release pipeline run the
+explicit build when they need the extension.
+
 The extension exposes `setup_shot`, `get_shot`, and `save_recording` to WebMCP-aware
 agents after its icon is clicked. Agents can frame the viewport, an element, or an
 exact rectangle, inspect a PNG still preview, and save a completed recording.
