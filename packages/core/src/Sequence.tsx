@@ -14,6 +14,7 @@ import {
 } from './committed-metadata.js';
 import {getSingleChildComponent} from './component-identity.js';
 import type {
+	AnimatedImageInTimeline,
 	LoopDisplay,
 	SequenceControls,
 	SequenceRegistrationControls,
@@ -162,6 +163,7 @@ export type SequencePropsWithoutDuration = {
 		| {
 				type: 'image';
 				src: string;
+				animated: AnimatedImageInTimeline | null;
 		  };
 	/**
 	 * @deprecated This prop has no effect. Remotion Studio discovers selection outlines automatically.
@@ -668,6 +670,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 					showInTimeline,
 					timelineOrder: null,
 					src: isMedia.src,
+					animated: isMedia.animated,
 					getStack,
 					getCurrentFrame,
 					refForOutline: refForOutline ?? null,

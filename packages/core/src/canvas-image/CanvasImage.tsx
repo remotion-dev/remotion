@@ -592,6 +592,7 @@ const CanvasImageInner = forwardRef<
 			() => ({
 				type: 'image' as const,
 				src,
+				animated: null,
 			}),
 			[src],
 		);

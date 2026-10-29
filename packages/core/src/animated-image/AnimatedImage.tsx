@@ -3,6 +3,7 @@ import {
 	forwardRef,
 	useImperativeHandle,
 	useLayoutEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -339,6 +340,17 @@ const AnimatedImageInner = ({
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const actualRef = useRef<HTMLCanvasElement | null>(null);
+	const isMedia = useMemo(
+		() => ({
+			type: 'image' as const,
+			src: resolveAnimatedImageSource(src),
+			animated: {
+				loopBehavior: loopBehavior ?? 'loop',
+				requestInit: requestInit ?? null,
+			},
+		}),
+		[src, loopBehavior, requestInit],
+	);
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
@@ -411,6 +423,7 @@ const AnimatedImageInner = ({
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
+				_remotionInternalIsMedia={isMedia}
 				{...sequenceProps}
 			>
 				{/* Hidden Activity cleans up effects but retains state. Unmount the
