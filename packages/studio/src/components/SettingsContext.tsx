@@ -15,7 +15,11 @@ import React, {
 } from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {appSelectedEvent} from '../state/recently-used-apps';
+import {
+	appSelectedEvent,
+	codingAgentHistory,
+	editorHistory,
+} from '../state/recently-used-apps';
 import {callApi} from './call-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import {UpdateStatusProvider} from './UpdateStatusContext';
@@ -119,11 +123,15 @@ export const SettingsProvider: React.FC<{
 			controller?.abort();
 			const requestController = new AbortController();
 			controller = requestController;
-			Promise.all([
-				callApi('/api/default-coding-agent-info', {}, requestController.signal),
-				callApi('/api/default-editor-info', {}, requestController.signal),
-			])
-				.then(([codingAgentInfo, editorInfo]) => {
+			callApi(
+				'/api/app-info',
+				{
+					editor: {recentlyUsedIds: editorHistory.getRecentlyUsed()},
+					codingAgent: {recentlyUsedIds: codingAgentHistory.getRecentlyUsed()},
+				},
+				requestController.signal,
+			)
+				.then(({codingAgentInfo, editorInfo}) => {
 					if (requestController.signal.aborted) {
 						return;
 					}

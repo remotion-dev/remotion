@@ -117,9 +117,7 @@ export const useBrowserMediaSession = ({
 				browserMediaControlsBehavior.mode === 'register-media-session' &&
 				videoConfig
 			) {
-				seek(
-					Math.max(0, Math.round((getCurrentFrame() - 10) * videoConfig.fps)),
-				);
+				seek(Math.max(0, Math.round(getCurrentFrame() - 10 * videoConfig.fps)));
 			}
 		});
 
@@ -129,9 +127,9 @@ export const useBrowserMediaSession = ({
 				videoConfig
 			) {
 				seek(
-					Math.max(
+					Math.min(
 						videoConfig.durationInFrames - 1,
-						Math.round((getCurrentFrame() + 10) * videoConfig.fps),
+						Math.round(getCurrentFrame() + 10 * videoConfig.fps),
 					),
 				);
 			}

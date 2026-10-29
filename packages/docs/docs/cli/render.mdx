@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-cli-render.png
+image: https://remotion.media/docs/generated/articles-docs-cli-render.png
 title: npx remotion render
 sidebar_label: render
 crumb: CLI Reference
@@ -118,7 +118,7 @@ If you are rendering on Linux ARM64 GNU, `av1` is not available.
 
 <Options id="prores-profile" />
 
-### `--x264-preset`<AvailableFrom v="4.2.2" />
+### `--x264-preset`<AvailableFrom v="4.0.22" />
 
 <Options id="x264-preset" />
 
@@ -168,9 +168,17 @@ For example only every second frame, every third frame and so on. Only works for
 
 <Options cli id="enforce-audio-track" />
 
+### `--disable-shared-memory-capture`<AvailableFrom v="4.0.534" />
+
+<Options cli id="disable-shared-memory-capture" />
+
+See [Shared-memory capture](/docs/shared-memory-capture).
+
 ### `--disallow-parallel-encoding`<AvailableFrom v="4.0.315" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
+See [parallel encoding](/docs/parallel-encoding) for when it is enabled and how it works.
 
 From <AvailableFrom v="4.0.533" inline />, parallel encoding is no longer disabled automatically based on the available memory. Set this flag if the machine runs out of memory while rendering.
 
@@ -238,6 +246,10 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 
 <Options id="media-cache-size-in-bytes" />
 
+### `--preferred-effect-backend`<AvailableFrom v="4.0.540" />
+
+<Options id="preferred-effect-backend" />
+
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
 <Options cli id="offthreadvideo-cache-size-in-bytes" />
@@ -277,6 +289,18 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 ### `--metadata`<AvailableFrom v="4.0.216" />
 
 <Options cli id="metadata" />
+
+### `--license-key`<AvailableFrom v="4.0.539" />
+
+<Options id="license-key" />
+
+### `--is-production`<AvailableFrom v="4.0.539" />
+
+<Options id="is-production" />
+
+```bash title="Report a development render"
+npx remotion render --license-key=rm_sec_... --is-production=false
+```
 
 ### ~~`--ffmpeg-executable`~~
 

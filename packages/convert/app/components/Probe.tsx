@@ -2,10 +2,7 @@ import clsx from 'clsx';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
 import {useIsNarrow} from '~/lib/is-narrow';
-import {
-	useAddFilenameToTitle,
-	useCopyThumbnailToFavicon,
-} from '~/lib/title-context';
+import {useAddFilenameToTitle} from '~/lib/title-context';
 import {useThumbnailAndWaveform} from '~/lib/use-thumbnail';
 import {AudioTrackOverview} from './AudioTrackOverview';
 import {ContainerOverview} from './ContainerOverview';
@@ -120,7 +117,6 @@ export const Probe: React.FC<{
 	const [showPackets, setShowPackets] = useState(false);
 
 	useAddFilenameToTitle(name);
-	useCopyThumbnailToFavicon(videoThumbnailRef);
 
 	const images = useMemo(() => {
 		return metadata?.images ?? null;
@@ -136,7 +132,7 @@ export const Probe: React.FC<{
 				className="overflow-hidden lg:w-[350px] data-[expanded=true]:w-[732px]"
 				data-expanded={probeDetails}
 			>
-				<div className="flex flex-row lg:flex-col w-full border-b-2 border-black">
+				<div className="flex flex-row lg:flex-col w-full border-b-2 border-outline">
 					{images ? <EmbeddedImage images={images} /> : null}
 					{error ? null : thumbnailError ? null : isAudio ? null : (
 						<VideoThumbnail
@@ -178,7 +174,7 @@ export const Probe: React.FC<{
 					</CardHeader>
 				</div>
 				{canShowDetails && showPackets ? (
-					<div className="pr-6 border-b-2 border-black overflow-y-auto">
+					<div className="pr-6 border-b-2 border-outline overflow-y-auto">
 						<Button variant="link" onClick={() => setShowPackets(false)}>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +191,7 @@ export const Probe: React.FC<{
 						</Button>
 					</div>
 				) : canShowDetails && sortedTracks.length && probeDetails ? (
-					<div className="pr-6 border-b-2 border-black overflow-y-auto">
+					<div className="pr-6 border-b-2 border-outline overflow-y-auto">
 						<TrackSwitcher
 							selectedTrack={trackDetails}
 							sortedTracks={sortedTracks}
@@ -245,7 +241,7 @@ export const Probe: React.FC<{
 				{canShowDetails ? (
 					<div className="flex flex-row items-center justify-center">
 						<Button
-							className="w-full h-full hover:bg-slate-100 transition-colors"
+							className="w-full h-full hover:bg-muted transition-colors"
 							disabled={!tracks}
 							variant="ghost"
 							onClick={onClick}

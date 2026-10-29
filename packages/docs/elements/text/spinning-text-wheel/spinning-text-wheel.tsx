@@ -21,7 +21,7 @@ type SpinningTextWheelProps = InteractiveTransformProps & {
 
 const spinningTextWheelSchema = {
 	items: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Friday\nSaturday\nSunday\nMonday\nTuesday\nWednesday\nThursday',
 		description: 'Items (selected first, one per line)',
 	},
@@ -137,9 +137,8 @@ const SpinningTextWheelInner: React.FC<SpinningTextWheelProps> = ({
 	);
 };
 
-export const SpinningTextWheel = Interactive.withSchema({
+export const SpinningTextWheel = Interactive.create({
 	Component: SpinningTextWheelInner,
 	componentName: '<SpinningTextWheel>',
 	schema: spinningTextWheelSchema,
-	wrapInSequence: true,
 });

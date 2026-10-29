@@ -7,6 +7,13 @@ import {
 } from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
 import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
+import {ZOOM_BLUR_WEBGPU_SHADER} from './webgpu-shader.js';
+import {
 	applyZoomBlur,
 	cleanupZoomBlur,
 	setupZoomBlur,
@@ -121,30 +128,70 @@ const validateZoomBlurParams = (params: ZoomBlurParams): void => {
 	}
 };
 
-export const zoomBlur = createEffect<ZoomBlurParams, ZoomBlurState>({
+export const zoomBlur = createEffect<ZoomBlurParams>({
 	type: 'remotion/zoom-blur',
 	label: 'zoomBlur()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/zoom-blur',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `zoom-blur-${r.amount}-${r.center[0]}-${r.center[1]}-${r.samples}`;
 	},
-	setup: (target) => setupZoomBlur(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		applyZoomBlur({
-			state,
-			source,
-			width,
-			height,
-			amount: r.amount,
-			center: r.center,
-			samples: r.samples,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ZoomBlurParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'zoom-blur'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the zoom-blur effect',
+					);
+				}
+
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.center[0],
+					r.center[1],
+					r.amount,
+					r.samples,
+					0,
+					0,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: ZOOM_BLUR_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<ZoomBlurParams, ZoomBlurState>(
+			{
+				setup: (target) => setupZoomBlur(target),
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+					applyZoomBlur({
+						state,
+						source,
+						width,
+						height,
+						amount: r.amount,
+						center: r.center,
+						samples: r.samples,
+						flipSourceY,
+					});
+				},
+				cleanup: (state) => cleanupZoomBlur(state),
+			},
+		),
 	},
-	cleanup: (state) => cleanupZoomBlur(state),
 	schema: zoomBlurSchema,
 	validateParams: validateZoomBlurParams,
 });

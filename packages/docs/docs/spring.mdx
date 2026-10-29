@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-spring.png
+image: https://remotion.media/docs/generated/articles-docs-spring.png
 id: spring
 title: spring()
 crumb: 'API'
@@ -31,8 +31,6 @@ In the following example, the <code>value</code> controls the [`scale`](/docs/tr
 To disable the default bounce, increase the [`damping`](#damping) parameter.
 
 <Demo type="spring-damping" />
-
-For a more advanced playground, visit [remotion.dev/timing-editor](https://www.remotion.dev/timing-editor).
 
 ## Parameters
 
@@ -129,8 +127,8 @@ For example, if a `delay` of `25` is given frames 0-24 will return the initial v
 Here is the order of which the `durationInFrames`, `reverse` and `delay` operations are applied:
 
 <Step>1</Step> First the spring animation is stretched to the duration that you pass using <a href="#durationinframes"><code>durationInFrames</code></a>, if you pass a duration.<br/>
-<Step>2</Step> Then the animation is reversed if you pass <a href="#reverse-"><code>reverse: true</code></a>.<br/>
-<Step>3</Step> Then the animation is delayed if you pass <a href="#delay-"><code>delay</code></a>.
+<Step>2</Step> Then the animation is reversed if you pass <a href="#reverse"><code>reverse: true</code></a>.<br/>
+<Step>3</Step> Then the animation is delayed if you pass <a href="#delay"><code>delay</code></a>.
 
 ## Credit
 
@@ -142,7 +140,6 @@ This function was taken from [Reanimated 2](https://github.com/software-mansion/
 
 ## See also
 
-- [Spring animation example](/docs/animating-properties#using-spring)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/spring/index.ts)
 - [`interpolate()`](/docs/interpolate)
 - [`measureSpring()`](/docs/measure-spring)

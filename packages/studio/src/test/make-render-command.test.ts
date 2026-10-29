@@ -36,6 +36,7 @@ const getDefaults = (): RenderDefaults => {
 		disableWebSecurity: false,
 		openGlRenderer: null,
 		ignoreCertificateErrors: false,
+		preferredEffectBackend: 'auto',
 		mediaCacheSizeInBytes: null,
 		offthreadVideoCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
@@ -54,6 +55,7 @@ const getDefaults = (): RenderDefaults => {
 		allowHtmlInCanvas: false,
 		sampleRate: 48000,
 		configFileRenderDefaults: null,
+		sharedMemoryCapture: null,
 	};
 };
 
@@ -109,6 +111,7 @@ const getBaseInput = (): Parameters<
 		darkMode: false,
 		offthreadVideoCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
+		preferredEffectBackend: 'auto',
 		mediaCacheSizeInBytes: null,
 		beepOnFinish: false,
 		repro: false,
@@ -235,6 +238,7 @@ test('Should include advanced flags and env variables', () => {
 		darkMode: true,
 		offthreadVideoCacheSizeInBytes: 536870912,
 		offthreadVideoThreads: 2,
+		preferredEffectBackend: 'auto',
 		mediaCacheSizeInBytes: 1000000000,
 		beepOnFinish: true,
 		repro: true,

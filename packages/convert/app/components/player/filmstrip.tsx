@@ -590,7 +590,7 @@ export const Filmstrip: React.FC<{
 					</div>
 				</div>
 			</div>
-			<div className="mt-1 flex items-start justify-between font-brand text-xs tabular-nums text-zinc-700">
+			<div className="mt-1 flex items-start justify-between font-brand text-xs tabular-nums text-zinc-700 dark:text-muted-foreground">
 				<div className="flex flex-col items-start gap-1">
 					<span className="min-w-[4.75rem] text-left">{startTimestamp}</span>
 					<div className="flex items-center gap-1">

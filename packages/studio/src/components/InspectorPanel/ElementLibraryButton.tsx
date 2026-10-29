@@ -8,7 +8,6 @@ import type {SegmentedButtonSegment} from '../SegmentedButton';
 import {SegmentedButton} from '../SegmentedButton';
 import {useSettings} from '../SettingsContext';
 import {
-	InspectorQuickAction,
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
@@ -17,6 +16,7 @@ const noElementLibraries = [] as const;
 
 const elementLibraryDropdownStyle: React.CSSProperties = {
 	borderRadius: 4,
+	display: 'flex',
 	height: 28,
 	margin: '0 4px',
 	width: 'calc(100% - 8px)',
@@ -27,7 +27,7 @@ const elementLibraryDropdownSegmentStyle: React.CSSProperties = {
 	gap: 8,
 	justifyContent: 'flex-start',
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
-	width: '100%',
+	flex: 1,
 };
 
 const elementLibraryDropdownLabelStyle: React.CSSProperties = {
@@ -90,8 +90,6 @@ export const ElementLibraryButton: React.FC = () => {
 				buttonId: null,
 				disabled: false,
 				idleColor: LIGHT_TEXT,
-				leaveLeftSpace: false,
-				onOpenChange: null,
 				renderContent: (color) => (
 					<>
 						<span style={largeInspectorActionIconContainerStyle}>
@@ -109,9 +107,11 @@ export const ElementLibraryButton: React.FC = () => {
 					</>
 				),
 				segmentId: 'element-library',
-				selectedId: null,
 				style: elementLibraryDropdownSegmentStyle,
 				tooltipLabel: null,
+				leaveLeftSpace: false,
+				onOpenChange: null,
+				selectedId: null,
 				type: 'menu',
 				values: [
 					{
@@ -152,7 +152,7 @@ export const ElementLibraryButton: React.FC = () => {
 						disabled: false,
 						id: 'manage-element-libraries',
 						keyHint: null,
-						label: 'Manage...',
+						label: 'Add element library...',
 						leftItem: null,
 						onClick: openElementLibrarySettings,
 						quickSwitcherLabel: null,
@@ -171,29 +171,10 @@ export const ElementLibraryButton: React.FC = () => {
 		],
 	);
 
-	if (elementLibraries.length > 0) {
-		return (
-			<SegmentedButton
-				segments={elementLibraryDropdownSegments}
-				style={elementLibraryDropdownStyle}
-			/>
-		);
-	}
-
 	return (
-		<InspectorQuickAction
-			disabled={false}
-			iconContainerStyle={largeInspectorActionIconContainerStyle}
-			onClick={openElementsLibrary}
-			renderIcon={(color) => (
-				<BrowseElementsIcon
-					color={color}
-					style={largeInspectorActionIconStyle}
-				/>
-			)}
-			aria-label="Browse the Remotion Elements library inside Studio."
-		>
-			Browse Elements
-		</InspectorQuickAction>
+		<SegmentedButton
+			segments={elementLibraryDropdownSegments}
+			style={elementLibraryDropdownStyle}
+		/>
 	);
 };

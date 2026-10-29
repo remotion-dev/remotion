@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import {ColorPicker} from '../../ColorPicker/ColorPicker';
 import {Row, Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
@@ -25,6 +25,7 @@ export const ZodColorEditor: React.FC<{
 	readonly onRemove: null | (() => void);
 	readonly mayPad: boolean;
 }> = ({jsonPath, value, setValue, schema, onRemove, mayPad}) => {
+	const valueOnFocus = useRef(value);
 	const localValue = useMemo(
 		() => zodSafeParse(schema, value),
 		[schema, value],
@@ -52,8 +53,17 @@ export const ZodColorEditor: React.FC<{
 		[setValue],
 	);
 
+	const onTextFocus: React.FocusEventHandler<HTMLInputElement> =
+		useCallback(() => {
+			valueOnFocus.current = value;
+		}, [value]);
+
 	const onTextBlur: React.FocusEventHandler<HTMLInputElement> =
 		useCallback(() => {
+			if (valueOnFocus.current === value) {
+				return;
+			}
+
 			setValue(() => value, {shouldSave: true});
 		}, [setValue, value]);
 
@@ -86,6 +96,7 @@ export const ZodColorEditor: React.FC<{
 						status={status}
 						placeholder={jsonPath.join('.')}
 						onChange={onTextChange}
+						onFocus={onTextFocus}
 						onBlur={onTextBlur}
 						rightAlign={false}
 						small

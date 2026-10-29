@@ -6,16 +6,17 @@ let currentIsProductionKey: boolean | null = null;
 
 export const isProductionOption = {
 	name: 'Is Production',
+	addedIn: '4.0.409',
 	cliFlag,
 	description: () => (
 		<>
-			Pass <code>false</code> if this a development render to not count it as a
-			billable render on remotion.pro. Only can be used in conjuction with{' '}
-			<code>licenseKey</code>.
+			Pass <code>false</code> for a development render so it is not counted as a
+			billable render on remotion.pro. Defaults to <code>true</code>. Only has
+			an effect when a license key is provided.
 		</>
 	),
 	ssrName: 'isProduction' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/is-production',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {

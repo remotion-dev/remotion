@@ -10,7 +10,6 @@ import {
 	type InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {useLoopedVolume} from '../looped-frame';
 import {getLoopDisplay} from '../show-in-timeline';
 import {validateToneFrequency} from '../validate-tone-frequency';
 import {
@@ -57,6 +56,12 @@ export const videoSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	preservePitch: {
+		type: 'boolean',
+		default: false,
+		description: 'Preserve pitch',
+		keyframable: false,
+	},
 	toneFrequency: {
 		type: 'number',
 		min: 0.01,
@@ -101,6 +106,7 @@ const InnerVideo: React.FC<
 	volume,
 	_remotionInternalStack,
 	toneFrequency,
+	preservePitch,
 	showInTimeline,
 	debugOverlay,
 	headless,
@@ -112,6 +118,7 @@ const InnerVideo: React.FC<
 	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize = null,
 	setMediaDurationInSeconds,
 	...props
 }) => {
@@ -139,14 +146,13 @@ const InnerVideo: React.FC<
 		trimAfter,
 	});
 
-	validateMediaProps({playbackRate, volume}, 'Video');
 	validateToneFrequency({toneFrequency, component: 'Video'});
 
 	if (environment.isRendering) {
 		return (
 			<VideoForRendering
 				{...props}
-				audioStreamIndex={audioStreamIndex ?? 0}
+				audioStreamIndex={audioStreamIndex ?? null}
 				className={className}
 				delayRenderRetries={delayRenderRetries ?? null}
 				delayRenderTimeoutInMilliseconds={
@@ -167,6 +173,7 @@ const InnerVideo: React.FC<
 				style={style}
 				volume={volume}
 				toneFrequency={toneFrequency}
+				preservePitch={preservePitch}
 				trimAfterValue={trimAfterValue}
 				trimBeforeValue={trimBeforeValue}
 				headless={headless}
@@ -175,6 +182,7 @@ const InnerVideo: React.FC<
 				requestInit={requestInit}
 				objectFit={objectFit}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize}
 			/>
 		);
 	}
@@ -199,7 +207,7 @@ const InnerVideo: React.FC<
 		<VideoForPreview
 			{...props}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
-			audioStreamIndex={audioStreamIndex ?? 0}
+			audioStreamIndex={audioStreamIndex ?? null}
 			className={className}
 			logLevel={logLevel}
 			loop={loop}
@@ -208,6 +216,7 @@ const InnerVideo: React.FC<
 			onVideoFrame={onVideoFrame}
 			playbackRate={playbackRate}
 			toneFrequency={toneFrequency ?? 1}
+			preservePitch={preservePitch}
 			src={src}
 			style={style}
 			volume={volume}
@@ -226,6 +235,7 @@ const InnerVideo: React.FC<
 			objectFit={objectFit}
 			maxCanvasSinkFrameSize={maxCanvasSinkFrameSize}
 			effects={effects}
+			effectsOutputSize={effectsOutputSize}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
@@ -258,6 +268,7 @@ const VideoInner: React.FC<
 	trimBefore,
 	volume,
 	toneFrequency,
+	preservePitch,
 	debugOverlay,
 	headless,
 	onError,
@@ -268,6 +279,7 @@ const VideoInner: React.FC<
 	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize = null,
 	durationInFrames,
 	from,
 	freeze,
@@ -282,11 +294,12 @@ const VideoInner: React.FC<
 	cropBottom,
 	...props
 }) => {
+	validateMediaProps({playbackRate, preservePitch, volume}, 'Video');
+
 	const sourceStack = controls
 		? (Internals.getStackForControls(controls) ?? undefined)
 		: undefined;
 	const fallbackLogLevel = Internals.useLogLevel();
-	const [mediaVolume] = Internals.useMediaVolumeState();
 	const mediaStartsAt = Internals.useMediaStartsAt();
 	const videoConfig = useVideoConfig();
 	const effectiveTrimAfter = getMediaTrimAfter({
@@ -308,29 +321,15 @@ const VideoInner: React.FC<
 	const [mediaDurationInSeconds, setMediaDurationInSeconds] = useState<
 		number | null
 	>(null);
-	const loopedVolume = useLoopedVolume({
-		volume,
-		loop: loop ?? false,
-		behavior: loopVolumeCurveBehavior ?? 'repeat',
-		assetDurationInSeconds: mediaDurationInSeconds,
-		fps: videoConfig.fps,
-		startsAt: Math.min(0, mediaStartsAt + (from ?? 0)),
-		playbackRate: playbackRate ?? 1,
-		trimBefore,
-		trimAfter: effectiveTrimAfter,
-	});
 
 	const basicInfo = Internals.useBasicMediaInTimeline({
 		src,
-		volume: loopedVolume,
 		playbackRate: playbackRate ?? 1,
 		trimBefore,
 		trimAfter: effectiveTrimAfter,
 		sequenceDurationInFrames,
-		displayName: name ?? '<Video>',
-		mediaVolume,
 		mediaStartsAt,
-		mediaFrom: from ?? 0,
+		displayName: name ?? '<Video>',
 		loop: loop ?? false,
 		muted: muted ?? false,
 	});
@@ -421,57 +420,58 @@ const VideoInner: React.FC<
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
 				name={name ?? '<Video>'}
-				_remotionInternalDocumentationLink={
-					name === undefined
-						? 'https://www.remotion.dev/docs/media/video'
-						: undefined
-				}
+				_remotionInternalDocumentationLink="https://www.remotion.dev/docs/media/video"
 				controls={controls}
 				_remotionInternalLoopDisplay={loopDisplay}
 				_remotionInternalEffects={memoizedEffectDefinitions}
 				showInTimeline={showInTimeline ?? true}
 				hidden={hidden}
 			>
-				<InnerVideo
-					{...props}
-					audioStreamIndex={audioStreamIndex ?? 0}
-					className={className}
-					delayRenderRetries={delayRenderRetries ?? null}
-					delayRenderTimeoutInMilliseconds={
-						delayRenderTimeoutInMilliseconds ?? null
-					}
-					disallowFallbackToOffthreadVideo={
-						disallowFallbackToOffthreadVideo ?? false
-					}
-					fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
-					logLevel={logLevel ?? fallbackLogLevel}
-					loop={loop ?? false}
-					loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
-					muted={muted ?? false}
-					onVideoFrame={onVideoFrame}
-					playbackRate={playbackRate ?? 1}
-					showInTimeline={showInTimeline ?? true}
-					src={src}
-					style={croppedStyle ?? {}}
-					trimAfter={effectiveTrimAfter}
-					trimBefore={trimBefore}
-					volume={volume ?? 1}
-					toneFrequency={toneFrequency ?? 1}
-					_remotionInternalStack={sourceStack}
-					debugOverlay={debugOverlay ?? false}
-					headless={headless ?? false}
-					onError={onError}
-					credentials={credentials}
-					requestInit={requestInit}
-					controls={controls}
-					objectFit={objectFit ?? 'contain'}
-					maxCanvasSinkFrameSize={maxCanvasSinkFrameSize ?? null}
-					_experimentalInitiallyDrawCachedFrame={
-						_experimentalInitiallyDrawCachedFrame ?? false
-					}
-					effects={memoizedEffects}
-					setMediaDurationInSeconds={setMediaDurationInSeconds}
-				/>
+				<Internals.SequenceContent>
+					<InnerVideo
+						{...props}
+						audioStreamIndex={audioStreamIndex ?? null}
+						className={className}
+						delayRenderRetries={delayRenderRetries ?? null}
+						delayRenderTimeoutInMilliseconds={
+							delayRenderTimeoutInMilliseconds ?? null
+						}
+						disallowFallbackToOffthreadVideo={
+							disallowFallbackToOffthreadVideo ?? false
+						}
+						fallbackOffthreadVideoProps={fallbackOffthreadVideoProps ?? {}}
+						logLevel={logLevel ?? fallbackLogLevel}
+						loop={loop ?? false}
+						loopVolumeCurveBehavior={loopVolumeCurveBehavior ?? 'repeat'}
+						muted={muted ?? false}
+						onVideoFrame={onVideoFrame}
+						playbackRate={playbackRate ?? 1}
+						// The enclosing Sequence already represents the video in the timeline.
+						showInTimeline={false}
+						src={src}
+						style={croppedStyle ?? {}}
+						trimAfter={effectiveTrimAfter}
+						trimBefore={trimBefore}
+						volume={volume ?? 1}
+						toneFrequency={toneFrequency ?? 1}
+						preservePitch={preservePitch ?? null}
+						_remotionInternalStack={sourceStack}
+						debugOverlay={debugOverlay ?? false}
+						headless={headless ?? false}
+						onError={onError}
+						credentials={credentials}
+						requestInit={requestInit}
+						controls={controls}
+						objectFit={objectFit ?? 'contain'}
+						maxCanvasSinkFrameSize={maxCanvasSinkFrameSize ?? null}
+						_experimentalInitiallyDrawCachedFrame={
+							_experimentalInitiallyDrawCachedFrame ?? false
+						}
+						effects={memoizedEffects}
+						effectsOutputSize={effectsOutputSize}
+						setMediaDurationInSeconds={setMediaDurationInSeconds}
+					/>
+				</Internals.SequenceContent>
 			</Sequence>
 		</Freeze>
 	);

@@ -31,6 +31,12 @@ module RemotionLambda
       body
     end
 
+    def render_frames_on_lambda(function_name, payload)
+      body = invoke(function_name, payload)
+      raise "Failed to call renderFramesOnLambda: #{body['message']}" if body["type"] == "error"
+      body
+    end
+
     def render_still_on_lambda(function_name, payload)
       body = invoke(function_name, payload)      
       raise "Failed to call renderStillOnLambda: #{body['message']}" if body["type"] == "error"
@@ -81,7 +87,7 @@ module RemotionLambda
       if @aws_profile
         Aws::SharedCredentials.new(profile_name: @aws_profile)
       else        
-        Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
+        Aws::Credentials.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'], ENV['AWS_SESSION_TOKEN'])
       end
     end
   end

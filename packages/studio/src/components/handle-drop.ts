@@ -122,7 +122,6 @@ export const handleDrop = async ({
 			compositionFile,
 			compositionId,
 			dropPosition,
-			fps,
 			from,
 			preferCompositionStart,
 		});
@@ -142,6 +141,7 @@ export const handleDrop = async ({
 				durationInFrames: element.element.durationInFrames ?? null,
 				initialProps: element.element.initialProps ?? null,
 				installationMode: element.element.installationMode ?? null,
+				isCaptionStyle: element.element.isCaptionStyle ?? false,
 			},
 			from,
 			position: getElementPositionForDrop({
@@ -160,7 +160,6 @@ export const handleDrop = async ({
 			compositionFile,
 			compositionId,
 			dropPosition,
-			fps,
 			from,
 			preferCompositionStart,
 		});

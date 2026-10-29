@@ -1,7 +1,8 @@
 import {Audio, Video} from '@remotion/media';
 import React from 'react';
 import {
-	AbsoluteFill,
+	Track,
+	Interactive,
 	interpolate,
 	Sequence,
 	Series,
@@ -526,14 +527,17 @@ const CallForSources: React.FC = () => (
 	</Panel>
 );
 
-export const SoundEffectsScene: React.FC = () => {
+const SoundEffectsSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const captions = getCaptionPlacement(frame, layout);
 
 	return (
-		<AbsoluteFill>
+		<>
 			<Backdrop accent={accents.soundEffects} />
-			<Stage keyframes={layout}>
+			<Stage
+				style={{overflow: 'visible', flexDirection: 'column'}}
+				keyframes={layout}
+			>
 				<Series>
 					<Series.Sequence
 						name="AI is bad at finding them"
@@ -1410,66 +1414,85 @@ export const SoundEffectsScene: React.FC = () => {
 				]}
 			/>
 
-			<Audio
-				name="Sticker ding"
-				src="https://remotion.media/ding.wav"
-				from={2}
-				volume={0.22}
-			/>
-			<Audio
-				name="Split whip"
-				src="https://remotion.media/whip.wav"
-				from={32}
-				volume={0.16}
-			/>
-			<Audio
-				name="Error"
-				src="https://remotion.media/windows-xp-error.wav"
-				from={124}
-				volume={0.2}
-			/>
-			<Audio
-				name="Library whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={188}
-				volume={0.22}
-			/>
-			<Audio
-				name="Library page turn"
-				src="https://remotion.media/page-turn.wav"
-				from={206}
-				volume={0.3}
-			/>
-			<Audio
-				name="Free stamp"
-				src="https://remotion.media/shutter-modern.wav"
-				from={334}
-				volume={0.22}
-			/>
-			<Audio
-				name="Hotlinked whoosh"
-				src="https://remotion.media/whoosh.wav"
-				from={504}
-				volume={0.4}
-			/>
-			<Audio
-				name="Standardized ding"
-				src="https://remotion.media/ding.wav"
-				from={686}
-				volume={0.2}
-			/>
-			<Audio
-				name="Seven pop"
-				src="https://remotion.media/mouse-click.wav"
-				from={778}
-				volume={0.35}
-			/>
-			<Audio
-				name="Back to split"
-				src="https://remotion.media/whip.wav"
-				from={880}
-				volume={0.16}
-			/>
-		</AbsoluteFill>
+			<Track name="Sound effects">
+				<Audio
+					durationInFrames={42}
+					name="Sticker ding"
+					src="https://remotion.media/ding.wav"
+					from={2}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={30}
+					name="Error"
+					src="https://remotion.media/windows-xp-error.wav"
+					from={124}
+					volume={0.2}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Library whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={188}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Library page turn"
+					src="https://remotion.media/page-turn.wav"
+					from={206}
+					volume={0.3}
+				/>
+				<Audio
+					durationInFrames={15}
+					name="Free stamp"
+					src="https://remotion.media/shutter-modern.wav"
+					from={334}
+					volume={0.22}
+				/>
+				<Audio
+					durationInFrames={5}
+					name="Hotlinked whoosh"
+					src="https://remotion.media/whoosh.wav"
+					from={504}
+					volume={0.4}
+				/>
+				<Audio
+					durationInFrames={42}
+					name="Standardized ding"
+					src="https://remotion.media/ding.wav"
+					from={686}
+					volume={0.2}
+				/>
+				<Audio
+					durationInFrames={12}
+					name="Seven pop"
+					src="https://remotion.media/mouse-click.wav"
+					from={778}
+					volume={0.35}
+				/>
+				<Audio
+					durationInFrames={6}
+					name="Back to split"
+					src="https://remotion.media/whip.wav"
+					from={880}
+					volume={0.16}
+				/>
+			</Track>
+			<Track name="Overlapping sound effects">
+				<Audio
+					durationInFrames={6}
+					name="Split whip"
+					src="https://remotion.media/whip.wav"
+					from={32}
+					volume={0.16}
+				/>
+			</Track>
+		</>
 	);
 };
+
+export const SoundEffectsScene = Interactive.create({
+	Component: SoundEffectsSceneInner,
+	layout: 'absolute-fill',
+});

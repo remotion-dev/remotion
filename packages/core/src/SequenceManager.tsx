@@ -1,10 +1,20 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
-import type {TSequence} from './CompositionManager.js';
+export * from './sequence-registry-context.js';
 import {
-	COMMIT_ORDER_EVENT,
-	SequenceManagerOrderMarker,
-	type CommitOrderEventDetail,
-} from './sequence-order-marker.js';
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	SequenceActivityContext,
+	SequenceActivityDormantContext,
+	SequenceActivitySettingsContext,
+} from './sequence-activity-context.js';
+import {
+	SequenceManagerActionsContext,
+	SequenceCommitRegistrationContext,
+	type SequenceManagerActions,
+	type SequenceNodePath,
+} from './sequence-registry-context.js';
+import {SequenceActivityBudgetProvider} from './SequenceActivityBudget.js';
+import {SequenceActivitySuspensionProvider} from './SequenceActivitySuspensionProvider.js';
+import {SequenceRegistryProvider} from './SequenceRegistryProvider.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import type {
 	CanUpdateSequencePropStatus,
@@ -21,93 +31,7 @@ import type {VideoConfigValues} from './video-config.js';
 
 const useIsomorphicLayoutEffect =
 	typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
-
-export type SequenceManagerContext = {
-	registerSequence: (seq: TSequence) => void;
-	updateSequence: ((seq: TSequence) => void) | null;
-	unregisterSequence: (id: string) => void;
-	sequences: TSequence[];
-};
-
-export type SequenceManagerRef = {
-	current: TSequence[];
-};
-
-export type SequenceNodePath = Array<string | number>;
-
-const defaultSequenceManager: SequenceManagerContext = {
-	registerSequence: () => {
-		throw new Error('SequenceManagerContext not initialized');
-	},
-	updateSequence: null,
-	unregisterSequence: () => {
-		throw new Error('SequenceManagerContext not initialized');
-	},
-	sequences: [],
-};
-
-type SequenceManagerActions = Pick<
-	SequenceManagerContext,
-	'registerSequence' | 'updateSequence' | 'unregisterSequence'
->;
-
-export const SequenceManagerActionsContext =
-	React.createContext<SequenceManagerActions>({
-		registerSequence: defaultSequenceManager.registerSequence,
-		updateSequence: defaultSequenceManager.updateSequence,
-		unregisterSequence: defaultSequenceManager.unregisterSequence,
-	});
-
-export const SequenceManager = React.createContext(defaultSequenceManager);
-const NativeSequenceManagerProvider = SequenceManager.Provider;
-const SequenceManagerProviderWithActions: React.FC<
-	React.ProviderProps<SequenceManagerContext>
-> = ({value, children}) => {
-	const actions = useMemo<SequenceManagerActions>(
-		() => ({
-			registerSequence: value.registerSequence,
-			updateSequence: value.updateSequence,
-			unregisterSequence: value.unregisterSequence,
-		}),
-		[value.registerSequence, value.updateSequence, value.unregisterSequence],
-	);
-	return (
-		<SequenceManagerActionsContext.Provider value={actions}>
-			<NativeSequenceManagerProvider value={value}>
-				{children}
-			</NativeSequenceManagerProvider>
-		</SequenceManagerActionsContext.Provider>
-	);
-};
-
-// Keep custom SequenceManager.Provider trees in sync with the stable actions
-// context while preserving the legacy reactive sequence-list context.
-Object.defineProperty(SequenceManager, 'Provider', {
-	value: SequenceManagerProviderWithActions,
-});
-
-export const useSequenceManagerSequences = (): TSequence[] => {
-	return useContext(SequenceManager).sequences;
-};
-
-export const SequenceManagerRefContext =
-	React.createContext<SequenceManagerRef>({
-		current: [],
-	});
-
-export const SequenceRegistrationContext = React.createContext(false);
-
-export const DisableSequenceRegistrationContext = React.createContext(false);
-
-export const DisableSequenceRegistrationProvider: React.FC<{
-	readonly children: React.ReactNode;
-}> = ({children}) => {
-	return React.createElement(
-		DisableSequenceRegistrationContext.Provider,
-		{value: true},
-		children,
-	);
-};
+const useCommitEffect = React.useInsertionEffect ?? useIsomorphicLayoutEffect;
 
 export type VisualModePropStatuses = {
 	propStatuses: PropStatuses;
@@ -151,6 +75,11 @@ const SequenceManagerScopeProviders: React.FC<{
 	>;
 	readonly fromKeys: ReadonlySet<string>;
 }> = ({children, dragOverridesSubscription, fromKeys}) => {
+	const {isStudio} = useRemotionEnvironment();
+	const activitySettings = useContext(SequenceActivitySettingsContext);
+	const commitRegistrationEnabled = useContext(
+		SequenceCommitRegistrationContext,
+	);
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedDragOverridesSubscription = useMemo<DragOverridesSubscription>(
 		() => ({...dragOverridesSubscription, manager}),
@@ -167,7 +96,20 @@ const SequenceManagerScopeProviders: React.FC<{
 			<VisualModeDragOverridesSubscriptionContext.Provider
 				value={scopedDragOverridesSubscription}
 			>
-				{children}
+				<SequenceActivityContext.Provider
+					value={
+						(activitySettings?.limit ?? DEFAULT_SEQUENCE_ACTIVITY_LIMIT) > 0 &&
+						isStudio &&
+						commitRegistrationEnabled &&
+						typeof React.Activity !== 'undefined'
+					}
+				>
+					<SequenceActivitySuspensionProvider>
+						<SequenceActivityBudgetProvider>
+							{children}
+						</SequenceActivityBudgetProvider>
+					</SequenceActivitySuspensionProvider>
+				</SequenceActivityContext.Provider>
 			</VisualModeDragOverridesSubscriptionContext.Provider>
 		</ActiveFromDragOverrideKeysContext.Provider>
 	);
@@ -261,6 +203,11 @@ export type CanUpdateSequencePropsResponseTrue<Numeric = SourceNumericValue> = {
 	canUpdate: true;
 	props: Record<string, CanUpdateSequencePropStatus<Numeric>>;
 	effects: CanUpdateEffectPropsResponse<Numeric>[];
+	/** Source ranges also include interpolations outside the editable schema. */
+	durationDependentKeyframes: {
+		readonly scope: SequenceNodePath;
+		readonly inputRanges: readonly (readonly SourceNumericValue[] | null)[];
+	} | null;
 };
 
 export type CanUpdateSequencePropsResponseFalse = {
@@ -288,17 +235,52 @@ export const VisualModePropStatusesRefContext =
 		current: {},
 	});
 
-export const VisualModeDragOverridesContext =
-	React.createContext<VisualModeDragOverrides>({
-		getDragOverrides: () => {
-			throw new Error('VisualModeDragOverridesContext not initialized');
-		},
-		getEffectDragOverrides: () => {
-			throw new Error('VisualModeDragOverridesContext not initialized');
-		},
+export type VisualModePropStatusesSubscription = {
+	subscribe: (key: string | null, listener: () => void) => () => void;
+	getSnapshot: (key: string | null) => CanUpdateSequencePropsResponse | null;
+};
+
+export const VisualModePropStatusesSubscriptionContext =
+	React.createContext<VisualModePropStatusesSubscription>({
+		subscribe: () => () => undefined,
+		getSnapshot: () => null,
 	});
 
-/* eslint-disable react-hooks/rules-of-hooks */
+const defaultVisualModeDragOverrides: VisualModeDragOverrides = {
+	getDragOverrides: () => {
+		throw new Error('VisualModeDragOverridesContext not initialized');
+	},
+	getEffectDragOverrides: () => {
+		throw new Error('VisualModeDragOverridesContext not initialized');
+	},
+};
+
+export const VisualModeDragOverridesContext =
+	React.createContext<VisualModeDragOverrides>(defaultVisualModeDragOverrides);
+
+export const VisualModeDragOverridesRefContext = React.createContext<
+	React.RefObject<VisualModeDragOverrides>
+>({current: defaultVisualModeDragOverrides});
+
+const useVisualModeSnapshot = <T,>(
+	subscribe: (listener: () => void) => () => void,
+	getSnapshot: () => T,
+): T => {
+	const dormant = useContext(SequenceActivityDormantContext);
+	const [, forceUpdate] = useState(0);
+	const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+	useCommitEffect(() => {
+		if (!dormant) {
+			return;
+		}
+
+		// Activity disconnects passive subscriptions, including useSyncExternalStore.
+		// Insertion effects stay connected through nested hidden Activities.
+		return subscribe(() => forceUpdate((current) => current + 1));
+	}, [dormant, subscribe]);
+	return snapshot;
+};
+
 export const useDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
 ): Record<string, DragOverrideValue> => {
@@ -306,12 +288,6 @@ export const useDragOverridesForNodePath = (
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
 		subscription?.manager === manager ? subscription : null;
-	// Legacy providers only supply VisualModeDragOverridesContext. Its presence is
-	// fixed for the lifetime of a mounted tree.
-	const legacy =
-		scopedSubscription === null
-			? useContext(VisualModeDragOverridesContext)
-			: null;
 	const key =
 		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
 	const subscribe = useCallback(
@@ -323,10 +299,26 @@ export const useDragOverridesForNodePath = (
 		() => scopedSubscription?.getSnapshot(key) ?? emptyDragOverrides,
 		[key, scopedSubscription],
 	);
-	const overrides = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-	return legacy !== null && nodePath !== null
-		? legacy.getDragOverrides(nodePath)
-		: overrides;
+	return useVisualModeSnapshot(subscribe, getSnapshot);
+};
+
+// Every visual element reads its own status. Subscribing to the whole map would
+// rerender all of them whenever any status in the project changes.
+export const usePropStatusForNodePath = (
+	nodePath: SequencePropsSubscriptionKey | null,
+): CanUpdateSequencePropsResponse | null => {
+	const subscription = useContext(VisualModePropStatusesSubscriptionContext);
+	const key =
+		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
+	const subscribe = useCallback(
+		(listener: () => void) => subscription.subscribe(key, listener),
+		[key, subscription],
+	);
+	const getSnapshot = useCallback(
+		() => subscription.getSnapshot(key),
+		[key, subscription],
+	);
+	return useVisualModeSnapshot(subscribe, getSnapshot);
 };
 
 export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
@@ -337,18 +329,11 @@ export const useActiveFromDragOverrideKeys = (): ReadonlySet<string> => {
 
 export const useEffectDragOverridesForNodePath = (
 	nodePath: SequencePropsSubscriptionKey | null,
-	effectCount: number,
 ): Record<string, Record<string, DragOverrideValue>> => {
 	const subscription = useContext(VisualModeDragOverridesSubscriptionContext);
 	const manager = useContext(SequenceManagerActionsContext);
 	const scopedSubscription =
 		subscription?.manager === manager ? subscription : null;
-	// Legacy providers only supply VisualModeDragOverridesContext. Its presence is
-	// fixed for the lifetime of a mounted tree.
-	const legacy =
-		scopedSubscription === null
-			? useContext(VisualModeDragOverridesContext)
-			: null;
 	const key =
 		nodePath === null ? null : makeSequencePropsSubscriptionKey(nodePath);
 	const subscribe = useCallback(
@@ -361,22 +346,8 @@ export const useEffectDragOverridesForNodePath = (
 			scopedSubscription?.getEffectSnapshot(key) ?? emptyEffectDragOverrides,
 		[key, scopedSubscription],
 	);
-	const overrides = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-	if (legacy !== null && nodePath !== null) {
-		const legacyOverrides: Record<
-			string,
-			Record<string, DragOverrideValue>
-		> = {};
-		for (let index = 0; index < effectCount; index++) {
-			legacyOverrides[index] = legacy.getEffectDragOverrides(nodePath, index);
-		}
-
-		return legacyOverrides;
-	}
-
-	return overrides;
+	return useVisualModeSnapshot(subscribe, getSnapshot);
 };
-/* eslint-enable react-hooks/rules-of-hooks */
 
 export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	setDragOverrides: () => {
@@ -422,13 +393,6 @@ const effectDragOverridesKey = (
 export const SequenceManagerProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {isStudio} = useRemotionEnvironment();
-	const [sequenceManagerId] = useState(() => String(Math.random()));
-	const committedOrderRef = useRef<ReadonlyMap<string, number> | null>(null);
-	const committedOrderIdsRef = useRef<readonly string[] | null>(null);
-	const [sequences, setSequences] = useState<TSequence[]>([]);
-	const sequencesRef = useRef(sequences);
-	sequencesRef.current = sequences;
 	const [dragOverrideState, setDragOverrideState] = useState(() => ({
 		overrides: {} as DragOverrides,
 		fromKeys: new Set<string>(),
@@ -450,7 +414,22 @@ export const SequenceManagerProvider: React.FC<{
 	});
 	const [propStatuses, setPropStatusesMapState] = useState<PropStatuses>({});
 	const propStatusesRef = useRef(propStatuses);
-	propStatusesRef.current = propStatuses;
+	// Elements read their own status from the latest requested map, so one that
+	// rerenders together with a status update never renders the previous status.
+	// The layout effect wakes up the elements that did not rerender.
+	const requestedPropStatusesRef = useRef(propStatuses);
+	const propStatusListeners = useRef(new Map<string, Set<() => void>>());
+	useIsomorphicLayoutEffect(() => {
+		const previous = propStatusesRef.current;
+		propStatusesRef.current = propStatuses;
+		for (const [key, listeners] of propStatusListeners.current) {
+			if (previous[key] !== propStatuses[key]) {
+				for (const listener of listeners) {
+					listener();
+				}
+			}
+		}
+	}, [propStatuses]);
 
 	const setDragOverridesBatch = useCallback(
 		(
@@ -713,6 +692,19 @@ export const SequenceManagerProvider: React.FC<{
 		[],
 	);
 
+	const updatePropStatuses = useCallback(
+		(update: (prev: PropStatuses) => PropStatuses) => {
+			const previous = requestedPropStatusesRef.current;
+			const next = update(previous);
+			if (next === previous) {
+				return;
+			}
+
+			requestedPropStatusesRef.current = next;
+			setPropStatusesMapState(next);
+		},
+		[],
+	);
 	const setPropStatuses = useCallback(
 		(
 			nodePath: SequencePropsSubscriptionKey,
@@ -720,7 +712,7 @@ export const SequenceManagerProvider: React.FC<{
 				prev: CanUpdateSequencePropsResponse,
 			) => CanUpdateSequencePropsResponse,
 		) => {
-			setPropStatusesMapState((prev) => {
+			updatePropStatuses((prev) => {
 				const key = makeSequencePropsSubscriptionKey(nodePath);
 
 				const prevKey = prev[key];
@@ -733,11 +725,11 @@ export const SequenceManagerProvider: React.FC<{
 				return {...prev, [key]: newKey};
 			});
 		},
-		[],
+		[updatePropStatuses],
 	);
 	const remapPropStatuses = useCallback(
 		(remappings: readonly SequencePropsStatusRemapping[]) => {
-			setPropStatusesMapState((prev) => {
+			updatePropStatuses((prev) => {
 				const next = {...prev};
 				for (const remapping of remappings) {
 					delete next[
@@ -755,111 +747,9 @@ export const SequenceManagerProvider: React.FC<{
 				return next;
 			});
 		},
-		[],
+		[updatePropStatuses],
 	);
 
-	useIsomorphicLayoutEffect(() => {
-		if (!isStudio) {
-			return;
-		}
-
-		let unmounted = false;
-		const onCommitOrder = (event: Event) => {
-			const {detail} = event as CustomEvent<CommitOrderEventDetail>;
-			const managerOrder = detail.sequenceManagers.find(
-				(item) => item.managerId === sequenceManagerId,
-			);
-			if (!managerOrder) {
-				return;
-			}
-
-			const previousOrder = committedOrderIdsRef.current;
-			if (
-				previousOrder !== null &&
-				previousOrder.length === managerOrder.sequenceIds.length &&
-				previousOrder.every(
-					(sequenceId, index) => sequenceId === managerOrder.sequenceIds[index],
-				)
-			) {
-				return;
-			}
-
-			const order = new Map(
-				managerOrder.sequenceIds.map((sequenceId, index) => [
-					sequenceId,
-					index,
-				]),
-			);
-			committedOrderIdsRef.current = managerOrder.sequenceIds;
-			committedOrderRef.current = order;
-			queueMicrotask(() => {
-				if (unmounted) {
-					return;
-				}
-
-				setSequences((currentSequences) => {
-					let changed = false;
-					const nextSequences = currentSequences.map((sequence) => {
-						const timelineOrder = order.get(sequence.id) ?? null;
-						if (sequence.timelineOrder === timelineOrder) {
-							return sequence;
-						}
-
-						changed = true;
-						return {...sequence, timelineOrder};
-					});
-
-					return changed ? nextSequences : currentSequences;
-				});
-			});
-		};
-
-		window.addEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
-		return () => {
-			unmounted = true;
-			window.removeEventListener(COMMIT_ORDER_EVENT, onCommitOrder);
-		};
-	}, [isStudio, sequenceManagerId]);
-
-	const registerSequence = useCallback((seq: TSequence) => {
-		setSequences((seqs) => {
-			return [
-				...seqs,
-				{
-					...seq,
-					timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
-				},
-			];
-		});
-	}, []);
-	const updateSequence = useCallback((seq: TSequence) => {
-		setSequences((seqs) => {
-			const index = seqs.findIndex((item) => item.id === seq.id);
-			if (index === -1) {
-				return seqs;
-			}
-
-			const next = [...seqs];
-			next[index] = {
-				...seq,
-				timelineOrder: committedOrderRef.current?.get(seq.id) ?? null,
-			};
-			return next;
-		});
-	}, []);
-
-	const unregisterSequence = useCallback((seq: string) => {
-		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
-	}, []);
-
-	const sequenceContext: SequenceManagerContext = useMemo(() => {
-		return {
-			registerSequence,
-			sequences,
-			updateSequence,
-			unregisterSequence,
-		};
-	}, [registerSequence, sequences, unregisterSequence, updateSequence]);
 	const dragOverridesSubscription = useMemo<
 		Omit<DragOverridesSubscription, 'manager'>
 	>(
@@ -900,6 +790,32 @@ export const SequenceManagerProvider: React.FC<{
 			propStatuses,
 		};
 	}, [propStatuses]);
+	const propStatusesSubscription = useMemo<VisualModePropStatusesSubscription>(
+		() => ({
+			subscribe: (key, listener) => {
+				if (key === null) {
+					return () => undefined;
+				}
+
+				let listeners = propStatusListeners.current.get(key);
+				if (!listeners) {
+					listeners = new Set();
+					propStatusListeners.current.set(key, listeners);
+				}
+
+				listeners.add(listener);
+				return () => {
+					listeners.delete(listener);
+					if (listeners.size === 0) {
+						propStatusListeners.current.delete(key);
+					}
+				};
+			},
+			getSnapshot: (key) =>
+				key === null ? null : (requestedPropStatusesRef.current[key] ?? null),
+		}),
+		[],
+	);
 
 	const dragOverridesContext: VisualModeDragOverrides = useMemo(() => {
 		return {
@@ -907,6 +823,11 @@ export const SequenceManagerProvider: React.FC<{
 			getEffectDragOverrides,
 		};
 	}, [getDragOverrides, getEffectDragOverrides]);
+	const dragOverridesRef = useRef(dragOverridesContext);
+	useIsomorphicLayoutEffect(() => {
+		// Interaction handlers read the latest committed overrides without subscribing.
+		dragOverridesRef.current = dragOverridesContext;
+	}, [dragOverridesContext]);
 
 	const settersContext: VisualModeSetters = useMemo(() => {
 		return {
@@ -930,10 +851,12 @@ export const SequenceManagerProvider: React.FC<{
 		[setDragOverridesBatch, setEffectDragOverridesBatch],
 	);
 
-	const providers = (
-		<SequenceManagerRefContext.Provider value={sequencesRef}>
-			<SequenceManager.Provider value={sequenceContext}>
-				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
+	return (
+		<SequenceRegistryProvider>
+			<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
+				<VisualModePropStatusesSubscriptionContext.Provider
+					value={propStatusesSubscription}
+				>
 					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
 						<SequenceManagerScopeProviders
 							dragOverridesSubscription={dragOverridesSubscription}
@@ -942,26 +865,22 @@ export const SequenceManagerProvider: React.FC<{
 							<VisualModeDragOverridesContext.Provider
 								value={dragOverridesContext}
 							>
-								<VisualModeSettersContext.Provider value={settersContext}>
-									<VisualModeBatchSettersContext.Provider
-										value={batchSettersContext}
-									>
-										{children}
-									</VisualModeBatchSettersContext.Provider>
-								</VisualModeSettersContext.Provider>
+								<VisualModeDragOverridesRefContext.Provider
+									value={dragOverridesRef}
+								>
+									<VisualModeSettersContext.Provider value={settersContext}>
+										<VisualModeBatchSettersContext.Provider
+											value={batchSettersContext}
+										>
+											{children}
+										</VisualModeBatchSettersContext.Provider>
+									</VisualModeSettersContext.Provider>
+								</VisualModeDragOverridesRefContext.Provider>
 							</VisualModeDragOverridesContext.Provider>
 						</SequenceManagerScopeProviders>
 					</VisualModePropStatusesContext.Provider>
-				</VisualModePropStatusesRefContext.Provider>
-			</SequenceManager.Provider>
-		</SequenceManagerRefContext.Provider>
-	);
-
-	return isStudio ? (
-		<SequenceManagerOrderMarker managerId={sequenceManagerId}>
-			{providers}
-		</SequenceManagerOrderMarker>
-	) : (
-		providers
+				</VisualModePropStatusesSubscriptionContext.Provider>
+			</VisualModePropStatusesRefContext.Provider>
+		</SequenceRegistryProvider>
 	);
 };

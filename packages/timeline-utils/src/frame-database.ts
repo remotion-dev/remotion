@@ -11,7 +11,7 @@ export const getFrameDatabaseKeyPrefix = (src: string): string => {
 	return `${src}${KEY_SEPARATOR}`;
 };
 
-type VideoFrameAndLastUsed = {
+export type VideoFrameAndLastUsed = {
 	frame: VideoFrame;
 	lastUsed: number;
 	size: number;
@@ -24,6 +24,7 @@ let totalCacheSize = 0;
 export const frameDatabase: Map<FrameDatabaseKey, VideoFrameAndLastUsed> =
 	new Map();
 export const aspectRatioCache: Map<string, number> = new Map();
+export const mediaDurationCache: Map<string, number> = new Map();
 
 export const getTimestampFromFrameDatabaseKey = (key: FrameDatabaseKey) => {
 	const split = key.split(KEY_SEPARATOR);

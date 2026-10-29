@@ -52,12 +52,12 @@ const watercolorMapSchema = {
 		description: 'Destination [longitude, latitude]',
 	},
 	originLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Los Angeles',
 		description: 'Origin label',
 	},
 	destinationLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Zurich',
 		description: 'Destination label',
 	},
@@ -452,9 +452,8 @@ const WatercolorMapContent: React.FC<WatercolorMapProps> = ({
 	);
 };
 
-export const WatercolorMap = Interactive.withSchema({
+export const WatercolorMap = Interactive.create({
 	Component: WatercolorMapContent,
 	componentName: '<WatercolorMap>',
 	schema: watercolorMapSchema,
-	wrapInSequence: true,
 });

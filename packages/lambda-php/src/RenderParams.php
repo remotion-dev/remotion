@@ -11,6 +11,7 @@ class RenderParams
     protected $bucketName = null;
     protected $region = null;
     protected $outName = null;
+    protected $separateAudioTo = null;
     protected $composition = null;
     protected $serverUrl = null;
     protected $framesPerLambda = null;
@@ -52,6 +53,7 @@ class RenderParams
     protected $licenseKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $mediaCacheSizeInBytes = null;
+    protected $preferredEffectBackend = 'auto';
     protected $offthreadVideoThreads = null;
     protected $audioCodec = null;
     protected $rendererFunctionName = null;
@@ -64,6 +66,7 @@ class RenderParams
     protected $isProduction = null;
     protected $sampleRate = 48000;
     protected $gopSize = null;
+    protected $disableSharedMemoryCapture = false;
 
     public function __construct(
         ?array  $data = null,
@@ -116,7 +119,10 @@ class RenderParams
         ?array  $metadata = null,
         ?bool   $isProduction = null,
         ?int    $gopSize = null,
-        ?bool   $enableCancellation = false
+        ?bool   $enableCancellation = false,
+        bool    $disableSharedMemoryCapture = false,
+        string|array|null $separateAudioTo = null,
+        string $preferredEffectBackend = 'auto'
     )
     {
         if ($chromiumOptions === null) {
@@ -139,6 +145,7 @@ class RenderParams
         $this->logLevel = $logLevel;
         $this->frameRange = $frameRange;
         $this->outName = $outName;
+        $this->separateAudioTo = $separateAudioTo;
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
         $this->scale = $scale;
         $this->everyNthFrame = $everyNthFrame;
@@ -160,6 +167,7 @@ class RenderParams
         $this->licenseKey = $licenseKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
+        $this->preferredEffectBackend = $preferredEffectBackend;
         $this->offthreadVideoThreads = $offthreadVideoThreads;
         $this->audioCodec = $audioCodec;
         $this->storageClass = $storageClass;
@@ -174,6 +182,7 @@ class RenderParams
         $this->isProduction = $isProduction;
         $this->gopSize = $gopSize;
         $this->enableCancellation = $enableCancellation;
+        $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
     }
 
     private array $inputProps = array();
@@ -196,6 +205,7 @@ class RenderParams
             'logLevel' => $this->getLogLevel(),
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
+            'separateAudioTo' => $this->getSeparateAudioTo(),
             'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
             'chromiumOptions' => $this->getChromiumOptions() === null ? new stdClass() : $this->getChromiumOptions(),
             'scale' => $this->getScale(),
@@ -221,15 +231,18 @@ class RenderParams
             'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
+            'preferredEffectBackend' => $this->getPreferredEffectBackend(),
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'storageClass' => $this->getStorageClass(),
             'x264Preset' => $this->getX264Preset(),
             'gopSize' => $this->getGopSize(),
+            'disableSharedMemoryCapture' => $this->getDisableSharedMemoryCapture(),
             'deleteAfter' => $this->getDeleteAfter(),
             'forcePathStyle' => $this->getForcePathStyle(),
             'isProduction' => $this->getIsProduction(),
+            'output' => ['type' => 'media'],
             'type' => 'start'
         ];
 
@@ -652,6 +665,11 @@ class RenderParams
         $this->outName = $outName;
     }
 
+    public function setSeparateAudioTo(string|array|null $separateAudioTo)
+    {
+        $this->separateAudioTo = $separateAudioTo;
+    }
+
     public function setTimeoutInMilliseconds($timeoutInMilliseconds)
     {
         $this->timeoutInMilliseconds = $timeoutInMilliseconds;
@@ -701,6 +719,11 @@ class RenderParams
     public function getOutName()
     {
         return $this->outName;
+    }
+
+    public function getSeparateAudioTo(): string|array|null
+    {
+        return $this->separateAudioTo;
     }
 
     public function getTimeoutInMilliseconds()
@@ -803,6 +826,16 @@ class RenderParams
     public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
     {
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+    }
+
+    public function getPreferredEffectBackend(): string
+    {
+        return $this->preferredEffectBackend;
+    }
+
+    public function setPreferredEffectBackend(string $preferredEffectBackend)
+    {
+        $this->preferredEffectBackend = $preferredEffectBackend;
     }
 
     public function getMediaCacheSizeInBytes()
@@ -1035,6 +1068,17 @@ class RenderParams
     public function setGopSize($gopSize)
     {
         $this->gopSize = $gopSize;
+        return $this;
+    }
+
+    public function getDisableSharedMemoryCapture()
+    {
+        return $this->disableSharedMemoryCapture;
+    }
+
+    public function setDisableSharedMemoryCapture(bool $disableSharedMemoryCapture)
+    {
+        $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
         return $this;
     }
 

@@ -1,7 +1,6 @@
 import {evolvePath} from '@remotion/paths';
 import React, {useId} from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
@@ -293,7 +292,7 @@ const MarqueeWall: React.FC = () => {
 	);
 };
 
-export const KineticType: React.FC = () => {
+const KineticTypeInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const shake = interpolate(frame, [10, 22], [1, 0], clamp);
 	const peopleReveal = interpolate(frame, [60, 74], [0, 1], {
@@ -313,9 +312,14 @@ export const KineticType: React.FC = () => {
 	});
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#FF4A1C'}}>
-			<AbsoluteFill
+		<>
+			<Interactive.Div
+				name="Kinetic foreground"
 				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
+					flexDirection: 'column',
 					translate: `${(random(`shake-x-${frame}`) - 0.5) * 26 * shake}px ${(random(`shake-y-${frame}`) - 0.5) * 26 * shake}px`,
 				}}
 			>
@@ -450,15 +454,26 @@ export const KineticType: React.FC = () => {
 					color={colors.ink}
 					start={8}
 				/>
-			</AbsoluteFill>
-			<AbsoluteFill
+			</Interactive.Div>
+			<Interactive.Div
+				name="Marquee wall"
 				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
+					flexDirection: 'column',
 					backgroundColor: colors.ink,
 					clipPath: `polygon(0% ${panelEdge - 9}%, 100% ${panelEdge + 9}%, 100% 130%, 0% 130%)`,
 				}}
 			>
 				<MarqueeWall />
-			</AbsoluteFill>
-		</AbsoluteFill>
+			</Interactive.Div>
+		</>
 	);
 };
+
+export const KineticType = Interactive.create({
+	Component: KineticTypeInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

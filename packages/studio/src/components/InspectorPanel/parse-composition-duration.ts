@@ -3,12 +3,16 @@ import {parseInputDraggerNumber} from '../NewComposition/InputDragger';
 export const parseCompositionDuration = (
 	input: string,
 	fps: number | null,
+	showFrames: boolean,
 ): number | null => {
 	const text = input.trim().toLowerCase();
 	const frameValue = parseInputDraggerNumber(
 		text.replace(/\s*f(?:rames?)?$/, ''),
 	);
-	if (frameValue !== null) {
+	if (
+		frameValue !== null &&
+		(showFrames || fps === null || /\s*f(?:rames?)?$/.test(text))
+	) {
 		return frameValue;
 	}
 
@@ -16,13 +20,20 @@ export const parseCompositionDuration = (
 		return null;
 	}
 
-	const timecode = text.match(/^(?:(\d+):)?(\d+):(\d{1,2})(?:\.(\d+))?$/);
+	const timecode = text.match(
+		showFrames
+			? /^(?:(\d+):)?(\d+):(\d{1,2})(?:\.(\d+))?$/
+			: /^(?:(?:(\d+):)?(\d+):)?(\d+)(?:\.(\d+))?$/,
+	);
 	if (timecode) {
 		const hours = Number(timecode[1] ?? 0);
-		const minutes = Number(timecode[2]);
+		const minutes = Number(timecode[2] ?? 0);
 		const timecodeSeconds = Number(timecode[3]);
 		const frames = Number(timecode[4] ?? 0);
-		if (timecodeSeconds >= 60 || (timecode[1] !== undefined && minutes >= 60)) {
+		if (
+			(timecode[2] !== undefined && timecodeSeconds >= 60) ||
+			(timecode[1] !== undefined && minutes >= 60)
+		) {
 			return null;
 		}
 
@@ -30,6 +41,10 @@ export const parseCompositionDuration = (
 			(hours * 3600 + minutes * 60 + timecodeSeconds) * fps + frames,
 		);
 		return Number.isFinite(timecodeDuration) ? timecodeDuration : null;
+	}
+
+	if (frameValue !== null) {
+		return frameValue;
 	}
 
 	const units = text.matchAll(/(\d+(?:\.\d*)?|\.\d+)\s*([hms])\s*/g);

@@ -3,8 +3,11 @@ import {
 	getProjectId,
 	isInCloudTask,
 } from '../../functions/helpers/is-in-cloud-task';
+import {checkCredentials} from '../../shared/check-credentials';
 
 export const getAuthClientForUrl = async (url: string) => {
+	checkCredentials();
+
 	let auth = new GoogleAuth();
 	if (isInCloudTask()) {
 		auth = new GoogleAuth({

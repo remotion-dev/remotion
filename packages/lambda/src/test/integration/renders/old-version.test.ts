@@ -1,17 +1,23 @@
 import {expect, test} from 'bun:test';
 import path from 'path';
-import {ServerlessRoutines} from '@remotion/serverless';
-import {mockImplementation} from '../../mocks/mock-implementation';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
+import {useFakeAws} from '../../mocks/fake-aws';
+
+useFakeAws();
 
 test(
 	'Should fail when using an incompatible version',
 	async () => {
 		try {
-			const aha = await mockImplementation.callFunctionSync({
+			const aha = await LambdaClientInternals.callFunctionSyncImplementation({
 				type: ServerlessRoutines.launch,
 				payload: {
 					enableCancellation: false,
 					type: ServerlessRoutines.launch,
+					output: {type: 'media'},
 					serveUrl: path.join(__dirname, 'old-version-bundle'),
 					chromiumOptions: {},
 					codec: 'h264',
@@ -29,11 +35,13 @@ test(
 					logLevel: 'warn',
 					maxRetries: 3,
 					outName: null,
+					separateAudioTo: null,
 					pixelFormat: 'yuv420p',
 					privacy: 'public',
 					proResProfile: null,
 					x264Preset: null,
 					gopSize: null,
+					disableSharedMemoryCapture: false,
 					jpegQuality: undefined,
 					scale: 1,
 					timeoutInMilliseconds: 12000,
@@ -67,6 +75,7 @@ test(
 					metadata: {Author: 'Lunar'},
 					licenseKey: null,
 					storageClass: null,
+					preferredEffectBackend: 'auto',
 					mediaCacheSizeInBytes: null,
 					isProduction: true,
 					sampleRate: 48000,

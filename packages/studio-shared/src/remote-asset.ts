@@ -4,12 +4,13 @@ import type {ImageFileType} from './detect-file-type';
 export const maxRemoteAssetSize = 50 * 1024 * 1024;
 export const remoteAssetDownloadTimeout = 15_000;
 export const remoteAssetAcceptHeader =
-	'image/png,image/apng,image/jpeg,image/webp,image/bmp,image/gif';
+	'image/png,image/apng,image/jpeg,image/jxl,image/webp,image/bmp,image/gif';
 
 const extensionsForFileType: Record<ImageFileType['type'], string[]> = {
 	png: ['png'],
 	apng: ['png', 'apng'],
 	jpeg: ['jpg', 'jpeg'],
+	jxl: ['jxl'],
 	webp: ['webp'],
 	bmp: ['bmp'],
 	gif: ['gif'],

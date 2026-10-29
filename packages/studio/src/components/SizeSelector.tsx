@@ -158,6 +158,7 @@ export const SizeSelector: React.FC = () => {
 			aria-label={accessibilityLabel}
 			tooltipDelay={800}
 			selectedId={selectedId}
+			selectedLabel={null}
 			values={items}
 			renderLeftItem={(color) =>
 				selectedId === 'auto' ? (

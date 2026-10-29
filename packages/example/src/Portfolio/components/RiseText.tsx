@@ -33,9 +33,7 @@ const RiseTextInner: React.FC<Props> = ({
 	const frame = useCurrentFrame();
 
 	return (
-		<Interactive.Span
-			style={{display: 'inline-flex', overflow: 'hidden', ...style}}
-		>
+		<span style={{display: 'inline-flex', overflow: 'hidden', ...style}}>
 			{Array.from(text).map((char, i) => {
 				const enterStart = start + i * stagger;
 				const enter = interpolate(
@@ -75,12 +73,13 @@ const RiseTextInner: React.FC<Props> = ({
 					</span>
 				);
 			})}
-		</Interactive.Span>
+		</span>
 	);
 };
 
 const riseTextSchema = {
-	text: {type: 'text-content', default: '', description: 'Text'},
+	...Interactive.textSchema,
+	text: {type: 'string', default: '', description: 'Text'},
 	start: {
 		type: 'number',
 		default: 0,
@@ -103,9 +102,9 @@ const riseTextSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const RiseText = Interactive.withSchema({
+export const RiseText = Interactive.create({
 	Component: RiseTextInner,
 	componentName: '<RiseText>',
 	schema: riseTextSchema,
-	wrapInSequence: true,
+	layout: 'none',
 });

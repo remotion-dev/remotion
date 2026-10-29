@@ -1,4 +1,5 @@
 import {Internals, type LogLevel} from 'remotion';
+import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {createLayer} from '../take-screenshot';
 import {
@@ -9,6 +10,7 @@ import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
+import {getPrecomposedLayerGeometry} from './get-precomposed-layer-geometry';
 import {
 	getPrecomposeRectFor3DTransform,
 	handle3dTransform,
@@ -18,6 +20,7 @@ import {
 	getPrecomposeRectForFilter,
 } from './handle-filter';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
 import {setTransform} from './transform';
@@ -38,6 +41,7 @@ export const processNode = async ({
 	scale,
 	waitForPageResponsiveness,
 	transformStyleCache,
+	isolatedElements,
 }: {
 	element: HTMLElement | SVGElement;
 	context: OffscreenCanvasRenderingContext2D;
@@ -49,11 +53,13 @@ export const processNode = async ({
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 	transformStyleCache: TransformStyleCache;
+	isolatedElements: WeakSet<Element>;
 }): Promise<ProcessNodeReturnValue> => {
 	using transforms = calculateTransforms({
 		element,
 		rootElement,
 		transformStyleCache,
+		isolated: isolatedElements.has(element),
 	});
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
@@ -120,6 +126,18 @@ export const processNode = async ({
 			);
 		}
 
+		const needsGroup =
+			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+
+		if (needsGroup) {
+			precomposeRect = roundToExpandRect(
+				getWiderRectAndExpand({
+					firstRect: precomposeRect,
+					secondRect: getBiggestBoundingClientRect(element),
+				}),
+			);
+		}
+
 		if (!precomposeRect) {
 			throw new Error('Precompose rect not found');
 		}
@@ -132,12 +150,27 @@ export const processNode = async ({
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
 
+		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
+
+		const {
+			rect: layerRect,
+			scale: layerScale,
+			pixelWidth: layerPixelWidth,
+			pixelHeight: layerPixelHeight,
+		} = getPrecomposedLayerGeometry({
+			precomposeRect,
+			totalMatrix,
+			parentRect,
+			scale,
+			is3DPrecomposition,
+		});
+
 		const tempContext = await createLayer({
-			cutout: precomposeRect,
+			cutout: layerRect,
 			element,
 			logLevel,
 			internalState,
-			scale,
+			scale: layerScale,
 			onlyBackgroundClipText: false,
 			waitForPageResponsiveness,
 		});
@@ -161,9 +194,9 @@ export const processNode = async ({
 			await handleMask({
 				maskImageInfo: precompositing.needsMaskImage,
 				maskRect: dimensions,
-				precomposeRect,
+				precomposeRect: layerRect,
 				tempContext,
-				scale,
+				scale: layerScale,
 				internalState,
 			});
 			if (waitForPageResponsiveness !== null) {
@@ -190,7 +223,6 @@ export const processNode = async ({
 		}
 
 		const previousTransform = context.getTransform();
-		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
 
 		if (is3DPrecomposition) {
 			context.setTransform(new DOMMatrix());
@@ -207,7 +239,7 @@ export const processNode = async ({
 
 		const destinationRect = is3DPrecomposition
 			? rectAfterTransforms
-			: precomposeRect;
+			: layerRect;
 		const parentOffsetScale = is3DPrecomposition ? scale : 1;
 
 		const drawPrecomposedCanvas = () => {
@@ -215,14 +247,23 @@ export const processNode = async ({
 				drawable,
 				0,
 				0,
-				drawable.width,
-				drawable.height,
+				layerPixelWidth ?? drawable.width,
+				layerPixelHeight ?? drawable.height,
 				destinationRect.left - parentRect.x * parentOffsetScale,
 				destinationRect.top - parentRect.y * parentOffsetScale,
 				destinationRect.width,
 				destinationRect.height,
 			);
 		};
+
+		const previousCompositeOperation = context.globalCompositeOperation;
+		if (precompositing.needsBlendMode !== null) {
+			context.globalCompositeOperation = precompositing.needsBlendMode;
+		}
+
+		const finishOpacity = needsGroup
+			? setOpacity({ctx: context, opacity})
+			: () => {};
 
 		// Apply filter when drawing the precomposed canvas if needed
 		if (precompositing.needsFilterPrecompositing) {
@@ -235,6 +276,8 @@ export const processNode = async ({
 			drawPrecomposedCanvas();
 		}
 
+		finishOpacity();
+		context.globalCompositeOperation = previousCompositeOperation;
 		context.setTransform(previousTransform);
 		if (waitForPageResponsiveness !== null) {
 			await waitForPageResponsiveness();

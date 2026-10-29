@@ -72,10 +72,16 @@ const createContent: CreateContent = async ({filename}) => {
 	return writer;
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const webFsWriter: WriterInterface = {
 	createContent,
 };
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const canUseWebFsWriter = async () => {
 	if (!('storage' in navigator)) {
 		return false;

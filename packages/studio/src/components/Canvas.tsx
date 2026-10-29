@@ -44,7 +44,7 @@ import {
 	useKeybinding,
 } from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
-import {EditorShowGuidesContext} from '../state/editor-guides';
+import {EditorShowGuidesRefContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {SetSelectedModalContext} from '../state/modals';
@@ -59,8 +59,15 @@ import {isFileDragEvent, isSupportedDropEvent} from './drop-handler-data';
 import EditorGuides from './EditorGuides';
 import {EditorRulers} from './EditorRuler';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
-import {getEffectDragData} from './effect-drag-and-drop';
-import {getElementDragData, hasElementDragType} from './element-drag-and-drop';
+import {
+	getEffectDragData,
+	isEffectDragOverTarget,
+	isLutEffectDrop,
+} from './effect-drag-and-drop';
+import {
+	getElementDragData,
+	mayHaveElementDragData,
+} from './element-drag-and-drop';
 import {handleDrop} from './handle-drop';
 import {
 	hasSvgFile,
@@ -228,7 +235,11 @@ export const Canvas: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const config = Internals.useUnsafeVideoConfig();
 	const areRulersVisible = useIsRulerVisible();
-	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
+	const guideStateRef = useContext(EditorShowGuidesRefContext);
+	if (guideStateRef === null) {
+		throw new Error('Canvas must be used inside ShowGuidesProvider');
+	}
+
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {compositions} = useContext(Internals.CompositionManager);
 	const {setCurrentAssetMetadata} = useContext(Internals.CompositionSetters);
@@ -751,13 +762,23 @@ export const Canvas: React.FC<{
 				return;
 			}
 
+			if (isEffectDragOverTarget(event)) {
+				event.preventDefault();
+				if (event.dataTransfer) {
+					event.dataTransfer.dropEffect = 'copy';
+				}
+
+				setCompositionDropPreview(null);
+				return;
+			}
+
 			const mayBeCanvasCapture =
 				isFileDragEvent(event) && !window.remotion_isReadOnlyStudio;
 			const canDropElementIntoNewComposition =
 				cannotAddSequence &&
 				canReceiveElementInstallRequest &&
 				!isAddingAsset &&
-				hasElementDragType(event.dataTransfer);
+				mayHaveElementDragData(event.dataTransfer);
 
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);
@@ -828,6 +849,7 @@ export const Canvas: React.FC<{
 				!event.metaKey &&
 				!event.ctrlKey
 			) {
+				const {editorShowGuides, guidesList} = guideStateRef.current;
 				const snapped = snapCompositionDropPosition({
 					compositionDimensions,
 					destinationDimensions: contentDimensions,
@@ -880,9 +902,8 @@ export const Canvas: React.FC<{
 			canReceiveElementInstallRequest,
 			contentDimensions,
 			currentCompositionId,
-			editorShowGuides,
 			editorSnapping,
-			guidesList,
+			guideStateRef,
 			isAddingAsset,
 			previewSize,
 			size,
@@ -917,6 +938,11 @@ export const Canvas: React.FC<{
 			setCompositionDropPreview(null);
 
 			if (!isSupportedDropEvent(event) || !isDragEventInsideCanvas(event)) {
+				return;
+			}
+
+			if (isLutEffectDrop(event)) {
+				event.preventDefault();
 				return;
 			}
 
@@ -1006,6 +1032,7 @@ export const Canvas: React.FC<{
 					!event.metaKey &&
 					!event.ctrlKey
 				) {
+					const {editorShowGuides, guidesList} = guideStateRef.current;
 					dropPosition = snapCompositionDropPosition({
 						compositionDimensions: {
 							width: metadata.width,
@@ -1055,9 +1082,8 @@ export const Canvas: React.FC<{
 			config,
 			contentDimensions,
 			currentCompositionId,
-			editorShowGuides,
 			editorSnapping,
-			guidesList,
+			guideStateRef,
 			isAddingAsset,
 			previewSize,
 			size,
@@ -1100,7 +1126,6 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
-						fps: config.fps,
 						html: figmaHtml,
 					});
 				} finally {
@@ -1121,7 +1146,6 @@ export const Canvas: React.FC<{
 						destinationDimensions:
 							contentDimensions === 'none' ? null : contentDimensions,
 						dropPosition,
-						fps: config.fps,
 						markup: svgMarkup,
 					});
 				} finally {
@@ -1311,7 +1335,7 @@ export const Canvas: React.FC<{
 						<ResetZoomButton onClick={onReset} />
 					</div>
 				)}
-				{editorShowGuides && canvasContent.type === 'composition' && (
+				{canvasContent.type === 'composition' && (
 					<EditorGuides
 						canvasSize={size}
 						contentDimensions={contentDimensions}

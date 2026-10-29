@@ -3,7 +3,7 @@ import type {
 	TransitionPresentationComponentProps,
 } from '@remotion/transitions';
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate} from 'remotion';
+import {Easing, interpolate} from 'remotion';
 
 export type BlindsProps = {
 	readonly count: number;
@@ -19,7 +19,7 @@ const BlindsPresentation: React.FC<
 	TransitionPresentationComponentProps<BlindsProps>
 > = ({children, presentationDirection, presentationProgress, passedProps}) => {
 	if (presentationDirection === 'exiting') {
-		return <AbsoluteFill>{children}</AbsoluteFill>;
+		return <>{children}</>;
 	}
 
 	const {count, width, height} = passedProps;
@@ -41,11 +41,17 @@ const BlindsPresentation: React.FC<
 	}
 
 	return (
-		<AbsoluteFill
-			style={{clipPath: d === '' ? 'inset(0 0 100% 0)' : `path("${d}")`}}
+		<div
+			style={{
+				position: 'absolute',
+				inset: 0,
+				display: 'flex',
+				flexDirection: 'column',
+				clipPath: d === '' ? 'inset(0 0 100% 0)' : `path("${d}")`,
+			}}
 		>
 			{children}
-		</AbsoluteFill>
+		</div>
 	);
 };
 

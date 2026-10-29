@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals, useVideoConfig} from 'remotion';
+import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
@@ -43,17 +43,13 @@ import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
-import {
-	ConnectedCompositionsSection,
-	useConnectedCompositions,
-} from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
 import {
-	SequenceInspectorDuplicationSection,
-	SequenceInspectorHeader,
+	SequenceInspectorSections,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
+import {SequenceUnwrapAction} from './SequenceUnwrapAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
@@ -118,7 +114,7 @@ const SplitSequenceQuickAction: React.FC<{
 				<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 			)}
 		>
-			Split clip
+			Split
 		</InspectorQuickAction>
 	);
 };
@@ -131,7 +127,6 @@ const SequenceSourceQuickActions: React.FC<{
 		readonly line: number;
 	};
 }> = ({selection, track, validatedLocation}) => {
-	const {fps} = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
@@ -162,6 +157,8 @@ const SequenceSourceQuickActions: React.FC<{
 	});
 	const sourceActionsDisabled =
 		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
+	const isTransition = track.sequence.timelineTrack?.role === 'transition';
+	const duplicateDisabled = sourceActionsDisabled || isTransition;
 	const mediaSequence =
 		track.sequence.type === 'video' || track.sequence.type === 'audio'
 			? track.sequence
@@ -185,6 +182,7 @@ const SequenceSourceQuickActions: React.FC<{
 		const nodePath = selection.nodePathInfo.sequenceSubscriptionKey;
 		setSelectedModal({
 			type: 'transcribe',
+			captionStyle: null,
 			src: mediaSequence.src,
 			displayName: getMediaFileName(
 				mediaSequence.src,
@@ -198,14 +196,12 @@ const SequenceSourceQuickActions: React.FC<{
 				durationInFrames: Number.isFinite(mediaSequence.duration)
 					? mediaSequence.duration
 					: null,
-				premountFor: fps,
 			},
 		});
 	}, [
 		selection.nodePathInfo,
 		setSelectedModal,
 		mediaSequence,
-		fps,
 		transcriptionDisabledReason,
 	]);
 	const onRemoveBackground = useCallback(() => {
@@ -236,14 +232,14 @@ const SequenceSourceQuickActions: React.FC<{
 		videoMattingDisabledReason,
 	]);
 	const onDuplicate = useCallback(() => {
-		if (sourceActionsDisabled) {
+		if (duplicateDisabled) {
 			return;
 		}
 
 		duplicateSequencesFromSource([selection.nodePathInfo], confirm).catch(
 			() => undefined,
 		);
-	}, [confirm, selection.nodePathInfo, sourceActionsDisabled]);
+	}, [confirm, duplicateDisabled, selection.nodePathInfo]);
 	const onDelete = useCallback(() => {
 		if (sourceActionsDisabled) {
 			return;
@@ -253,9 +249,13 @@ const SequenceSourceQuickActions: React.FC<{
 	}, [deleteTimelineItems, selection, sourceActionsDisabled]);
 	const splitVideoFromAudioDisabledReason = sourceActionsDisabled
 		? 'Studio is read-only'
-		: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
-			? 'Programmatically duplicated sequences cannot be split from source'
-			: undefined;
+		: mediaMetadata?.hasAudioTrack !== true
+			? mediaMetadata?.hasAudioTrack === false
+				? 'This video has no audio track'
+				: 'Waiting for audio track metadata'
+			: selection.nodePathInfo.numberOfSequencesWithThisNodePath > 1
+				? 'Programmatically duplicated sequences cannot be split from source'
+				: undefined;
 	const onSplitVideoFromAudio = useCallback(() => {
 		if (splitVideoFromAudioDisabledReason !== undefined) {
 			return;
@@ -349,7 +349,7 @@ const SequenceSourceQuickActions: React.FC<{
 				</InspectorQuickAction>
 			) : null}
 			<InspectorQuickAction
-				disabled={sourceActionsDisabled}
+				disabled={duplicateDisabled}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={onDuplicate}
 				renderIcon={(color) => (
@@ -362,14 +362,18 @@ const SequenceSourceQuickActions: React.FC<{
 			>
 				Duplicate
 			</InspectorQuickAction>
-			{mediaSequence === null ? (
-				<SequenceWrapAction
-					nodePathInfo={selection.nodePathInfo}
-					track={track}
-					sourceActionsDisabled={sourceActionsDisabled}
-					sourceLocation={validatedLocation}
-				/>
-			) : null}
+			<SequenceWrapAction
+				nodePathInfo={selection.nodePathInfo}
+				track={track}
+				sourceActionsDisabled={sourceActionsDisabled}
+				sourceLocation={validatedLocation}
+			/>
+			<SequenceUnwrapAction
+				sequence={track.sequence}
+				sourceLocation={validatedLocation}
+				nodePathInfo={selection.nodePathInfo}
+				sourceActionsDisabled={sourceActionsDisabled || isTransition}
+			/>
 			<SequencePrecomposeAction
 				targets={[
 					{
@@ -377,6 +381,7 @@ const SequenceSourceQuickActions: React.FC<{
 						displayName: track.sequence.displayName,
 						line: validatedLocation.line,
 						singleChildComponent: track.sequence.singleChildComponent,
+						isTransition,
 					},
 				]}
 				sourceActionsDisabled={sourceActionsDisabled}
@@ -406,9 +411,7 @@ const SequenceExpandedInspector: React.FC<{
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {selectedItems, selectItems} = useTimelineSelection();
 	const sourceLocation = useSequenceInspectorSourceLocation(track.sequence);
-	const connectedCompositions = useConnectedCompositions({track});
 	const {validatedLocation} = sourceLocation;
-	const stackKey = track.sequence.getStack();
 	const sequenceSelection = useMemo((): Extract<
 		TimelineSelection,
 		{type: 'sequence'}
@@ -469,17 +472,7 @@ const SequenceExpandedInspector: React.FC<{
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 			onPointerDown={selectSequenceOnInspectorPointerDown}
 		>
-			<SequenceInspectorHeader
-				key={stackKey ?? track.sequence.id}
-				sourceLocation={sourceLocation}
-				track={track}
-			/>
-			<SequenceInspectorDuplicationSection track={track} />
-			{connectedCompositions.length > 0 ? (
-				<ConnectedCompositionsSection
-					connectedCompositions={connectedCompositions}
-				/>
-			) : null}
+			<SequenceInspectorSections track={track} />
 			{validatedLocation ? (
 				<>
 					<InspectorSequenceSection
@@ -493,6 +486,7 @@ const SequenceExpandedInspector: React.FC<{
 						renderTransformControls={() => <AlignmentControls track={track} />}
 					/>
 					<CollapsibleInspectorSection
+						bodyPaddingBottom={8}
 						collapsible
 						label="Actions"
 						sectionId="sequence-actions"
@@ -514,6 +508,7 @@ const SequenceExpandedInspector: React.FC<{
 				<>
 					<InspectorMessage>Source controls unavailable</InspectorMessage>
 					<CollapsibleInspectorSection
+						bodyPaddingBottom={8}
 						collapsible
 						label="Actions"
 						sectionId="sequence-actions"
@@ -526,6 +521,8 @@ const SequenceExpandedInspector: React.FC<{
 										displayName: track.sequence.displayName,
 										line: null,
 										singleChildComponent: track.sequence.singleChildComponent,
+										isTransition:
+											track.sequence.timelineTrack?.role === 'transition',
 									},
 								]}
 								sourceActionsDisabled={

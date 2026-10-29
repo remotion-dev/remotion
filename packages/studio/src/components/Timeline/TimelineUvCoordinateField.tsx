@@ -194,6 +194,7 @@ export const TimelineUvCoordinateField: React.FC<{
 			<InputDragger
 				type="number"
 				value={dragX ?? codeX}
+				buttonStyle={leftDraggerStyle}
 				style={leftDraggerStyle}
 				status="ok"
 				small
@@ -212,6 +213,7 @@ export const TimelineUvCoordinateField: React.FC<{
 			<InputDragger
 				type="number"
 				value={dragY ?? codeY}
+				buttonStyle={rightDraggerStyle}
 				style={rightDraggerStyle}
 				status="ok"
 				small

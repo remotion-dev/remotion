@@ -17,6 +17,7 @@ export const walkOverNode = ({
 	scale,
 	waitForPageResponsiveness,
 	transformStyleCache,
+	isolatedElements,
 }: {
 	node: Node;
 	context: OffscreenCanvasRenderingContext2D;
@@ -28,6 +29,7 @@ export const walkOverNode = ({
 	scale: number;
 	waitForPageResponsiveness: (() => Promise<void>) | null;
 	transformStyleCache: TransformStyleCache;
+	isolatedElements: WeakSet<Element>;
 }): Promise<ProcessNodeReturnValue> => {
 	if (node instanceof HTMLElement || node instanceof SVGElement) {
 		return processNode({
@@ -41,6 +43,7 @@ export const walkOverNode = ({
 			scale,
 			waitForPageResponsiveness,
 			transformStyleCache,
+			isolatedElements,
 		});
 	}
 
@@ -56,6 +59,7 @@ export const walkOverNode = ({
 			scale,
 			waitForPageResponsiveness,
 			transformStyleCache,
+			isolatedElements,
 		});
 	}
 

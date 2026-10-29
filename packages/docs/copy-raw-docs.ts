@@ -46,6 +46,7 @@ function copyRawDocs() {
 	fs.mkdirSync(DOCS_OUTPUT_DIR, {recursive: true});
 
 	let copiedCount = 0;
+	const copiedSources = new Set<string>();
 
 	for (const article of articles) {
 		// Skip docs marked as noAi
@@ -67,6 +68,7 @@ function copyRawDocs() {
 		const destPath = path.join(DOCS_OUTPUT_DIR, `${slugPath}.md`);
 
 		writeRawMarkdown({destPath, sourcePath});
+		copiedSources.add(sourcePath);
 		copiedCount++;
 
 		// For index routes, also create a flat .md file so /player.md works
@@ -79,6 +81,28 @@ function copyRawDocs() {
 				copiedCount++;
 			}
 		}
+	}
+
+	// Options added to the registry are generated before this script runs, even
+	// when the social-card article catalog has not been regenerated yet.
+	const optionsDirectory = path.join(DOCS_DIR, 'options');
+	for (const file of fs.readdirSync(optionsDirectory)) {
+		if (!file.endsWith('.mdx')) {
+			continue;
+		}
+
+		const sourcePath = path.join(optionsDirectory, file);
+		if (copiedSources.has(sourcePath)) {
+			continue;
+		}
+
+		const slug =
+			file === 'index.mdx' ? 'options' : `options/${file.slice(0, -4)}`;
+		writeRawMarkdown({
+			destPath: path.join(DOCS_OUTPUT_DIR, `${slug}.md`),
+			sourcePath,
+		});
+		copiedCount++;
 	}
 
 	console.log(`✅ Copied ${copiedCount} files to static/_raw/docs/`);

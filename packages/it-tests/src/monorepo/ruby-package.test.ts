@@ -75,6 +75,7 @@ test('Render Media payload', async () => {
 
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			output: {type: 'media'},
 			enableCancellation: false,
 			region: 'us-east-1',
 			composition: 'react-svg',
@@ -114,6 +115,7 @@ test('Render Media payload', async () => {
 			offthreadVideoCacheSizeInBytes: null,
 			offthreadVideoThreads: null,
 			outName: null,
+			separateAudioTo: null,
 			overwrite: false,
 			pixelFormat: undefined,
 			privacy: 'public',
@@ -133,6 +135,7 @@ test('Render Media payload', async () => {
 			},
 			x264Preset: null,
 			gopSize: null,
+			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,
@@ -143,11 +146,13 @@ test('Render Media payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 			sampleRate: 48000,
 		});
 
-	expect(JSON.parse(output)).toEqual(nativeVersion);
+	const parsedOutput = JSON.parse(output);
+	expect(parsedOutput).toEqual(nativeVersion);
 });
 
 test('Render Still payload', async () => {
@@ -193,6 +198,7 @@ test('Render Still payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 		});
 

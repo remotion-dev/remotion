@@ -6,6 +6,7 @@ import {
 	validateUnitInterval,
 } from '../color-utils.js';
 import {
+	PROGRESSIVE_PIXELATE_WEBGPU_SHADER,
 	cleanupProgressivePixelate,
 	drawProgressivePixelate,
 	prepareProgressivePixelate,
@@ -13,6 +14,12 @@ import {
 	type ProgressivePixelateState,
 } from '../progressive-pixelate-runtime.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
 
 const {createEffect} = Internals;
 
@@ -176,44 +183,92 @@ const validateParams = (params: RadialProgressivePixelateParams): void => {
 	);
 };
 
-export const radialProgressivePixelate = createEffect<
-	RadialProgressivePixelateParams,
-	ProgressivePixelateState
->({
-	type: 'dev.remotion.effects.radialProgressivePixelate',
-	label: 'radialProgressivePixelate()',
-	documentationLink:
-		'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
-	backend: 'webgl2',
-	calculateKey: (params) => {
-		const r = resolve(params);
-		return `radial-progressive-pixelate-${r.center.join(':')}-${r.width}-${r.height}-${r.rotation}-${r.start}-${r.startBlockSize}-${r.endBlockSize}`;
-	},
-	setup: setupProgressivePixelate,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		prepareProgressivePixelate({
-			state,
-			source,
-			width,
-			height,
-			flipSourceY,
-		});
-		const {gl, uniforms} = state;
-		if (uniforms.uMode) gl.uniform1i(uniforms.uMode, 1);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
-		if (uniforms.uWidth) gl.uniform1f(uniforms.uWidth, r.width);
-		if (uniforms.uHeight) gl.uniform1f(uniforms.uHeight, r.height);
-		if (uniforms.uRotation) gl.uniform1f(uniforms.uRotation, r.rotation);
-		if (uniforms.uRadialStart) gl.uniform1f(uniforms.uRadialStart, r.start);
-		if (uniforms.uStartBlockSize)
-			gl.uniform1f(uniforms.uStartBlockSize, r.startBlockSize);
-		if (uniforms.uEndBlockSize)
-			gl.uniform1f(uniforms.uEndBlockSize, r.endBlockSize);
-		drawProgressivePixelate(state);
-	},
-	cleanup: cleanupProgressivePixelate,
-	schema: radialProgressivePixelateSchema,
-	validateParams,
-});
+export const radialProgressivePixelate =
+	createEffect<RadialProgressivePixelateParams>({
+		type: 'dev.remotion.effects.radialProgressivePixelate',
+		label: 'radialProgressivePixelate()',
+		documentationLink:
+			'https://www.remotion.dev/docs/effects/radial-progressive-pixelate',
+		calculateKey: (params) => {
+			const r = resolve(params);
+			return `radial-progressive-pixelate-${r.center.join(':')}-${r.width}-${r.height}-${r.rotation}-${r.start}-${r.startBlockSize}-${r.endBlockSize}`;
+		},
+		implementations: {
+			webgpu: Internals.createEffectImplementation<
+				RadialProgressivePixelateParams,
+				WebGpuSinglePassState
+			>({
+				setup: (target) =>
+					setupWebGpuSinglePass(target, 'radial-progressive-pixelate'),
+				apply: ({source, width, height, params, state, gpuDevice}) => {
+					if (!gpuDevice) {
+						throw new Error(
+							'A WebGPU device is required for the radial-progressive-pixelate effect',
+						);
+					}
+
+					const r = resolve(params);
+					applyWebGpuSinglePass({
+						source,
+						width,
+						height,
+						state,
+						device: gpuDevice as GPUDevice,
+						shader: PROGRESSIVE_PIXELATE_WEBGPU_SHADER,
+						uniformData: new Float32Array([
+							width,
+							height,
+							1,
+							r.startBlockSize,
+							0,
+							0,
+							0,
+							0,
+							r.center[0],
+							r.center[1],
+							r.width,
+							r.height,
+							r.rotation,
+							r.start,
+							r.endBlockSize,
+							0,
+						]),
+					});
+				},
+				cleanup: cleanupWebGpuSinglePass,
+			}),
+			webgl2: Internals.createEffectImplementation<
+				RadialProgressivePixelateParams,
+				ProgressivePixelateState
+			>({
+				setup: setupProgressivePixelate,
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+					prepareProgressivePixelate({
+						state,
+						source,
+						width,
+						height,
+						flipSourceY,
+					});
+					const {gl, uniforms} = state;
+					if (uniforms.uMode) gl.uniform1i(uniforms.uMode, 1);
+					if (uniforms.uCenter)
+						gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+					if (uniforms.uWidth) gl.uniform1f(uniforms.uWidth, r.width);
+					if (uniforms.uHeight) gl.uniform1f(uniforms.uHeight, r.height);
+					if (uniforms.uRotation) gl.uniform1f(uniforms.uRotation, r.rotation);
+					if (uniforms.uRadialStart)
+						gl.uniform1f(uniforms.uRadialStart, r.start);
+					if (uniforms.uStartBlockSize)
+						gl.uniform1f(uniforms.uStartBlockSize, r.startBlockSize);
+					if (uniforms.uEndBlockSize)
+						gl.uniform1f(uniforms.uEndBlockSize, r.endBlockSize);
+					drawProgressivePixelate(state);
+				},
+				cleanup: cleanupProgressivePixelate,
+			}),
+		},
+		schema: radialProgressivePixelateSchema,
+		validateParams,
+	});

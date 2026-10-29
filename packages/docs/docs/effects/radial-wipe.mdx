@@ -1,0 +1,92 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-radial-wipe.png
+slug: /effects/radial-wipe
+title: radialWipe()
+sidebar_label: radialWipe()
+crumb: '@remotion/effects'
+---
+
+# radialWipe()<AvailableFrom v="4.0.540" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Erases a canvas-based component with a rotating wedge around a center point. Set the starting angle, rotation direction, and edge softness.
+
+## Preview
+
+<EffectsDemo type="effects-radial-wipe" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {radialWipe} from '@remotion/effects/radial-wipe';
+import {Video} from '@remotion/media';
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 60], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        radialWipe({
+          progress,
+          center: [0.5, 0.5],
+          startAngle: 0,
+          direction: 'clockwise',
+          feather: 8,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `radialWipe()` without arguments.
+
+### `progress?`
+
+How far the wipe has progressed, from `0` (unchanged) to `1` (fully transparent). Defaults to `0`.
+
+Animate from `1` to `0` to reveal the source.
+
+### `startAngle?`
+
+Starting angle in degrees, clockwise from up. `0` starts at the top, `90` at the right, `180` at the bottom, and `270` at the left. Defaults to `0`.
+
+### `center?`
+
+The center of rotation as `[x, y]`, with both values between `0` and `1`. `[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right corner. Defaults to `[0.5, 0.5]`.
+
+### `direction?`
+
+Direction in which the transparent wedge grows. Accepts `clockwise`, `counterclockwise`, or `both`. With `both`, it grows equally in both directions from `startAngle`. Defaults to `clockwise`.
+
+### `feather?`
+
+Width of the soft moving edge in degrees, from `0` to `360`. With `direction: 'both'`, applies to both moving edges. Defaults to `0`, creating sharp edges.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`evolve()`](/docs/effects/evolve)
+- [`irisWipe()`](/docs/effects/iris-wipe)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/radial-wipe.ts)

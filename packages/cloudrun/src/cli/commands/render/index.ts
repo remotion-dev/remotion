@@ -28,6 +28,7 @@ const {
 	scaleOption,
 	crfOption,
 	gopSizeOption,
+	disableSharedMemoryCaptureOption,
 	jpegQualityOption,
 	videoBitrateOption,
 	enforceAudioOption,
@@ -43,6 +44,7 @@ const {
 	binariesDirectoryOption,
 	metadataOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	pixelFormatOption,
 	browserExecutableOption,
@@ -173,6 +175,9 @@ export const renderCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const darkMode = darkModeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -252,6 +257,7 @@ export const renderCommand = async (
 				}),
 				chromeMode: 'headless-shell',
 				mediaCacheSizeInBytes,
+				preferredEffectBackend,
 			});
 		composition = compositionId;
 	}
@@ -329,7 +335,17 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const crf = crfOption.getValue({
+	const crfSetting = crfOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	});
+	const crf = CliInternals.getCrfForCodec({
+		crf: crfSetting.value,
+		crfIsFromConfigFile: crfSetting.source === 'config',
+		codec,
+		indent: false,
+		logLevel,
+	});
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const gopSize = gopSizeOption.getValue({
@@ -387,7 +403,8 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		proResProfile,
 		x264Preset,
 		gopSize,
-		crf,
+		disableSharedMemoryCapture,
+		crf: crf ?? undefined,
 		pixelFormat,
 		imageFormat: imageFormat ?? undefined,
 		scale,
@@ -424,7 +441,14 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			: null,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
+		licenseKey: BrowserSafeApis.options.licenseKeyOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		isProduction: BrowserSafeApis.options.isProductionOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
 	});
 
 	if (res.type === 'crash') {

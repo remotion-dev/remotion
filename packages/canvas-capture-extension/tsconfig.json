@@ -2,6 +2,8 @@
 	"extends": "./.wxt/tsconfig.json",
 	"compilerOptions": {
 		"noEmit": true,
+		"skipLibCheck": true,
+		"types": ["bun"],
 		"target": "ES2022",
 		"module": "esnext",
 		"moduleResolution": "bundler",

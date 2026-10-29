@@ -1,10 +1,39 @@
 import {execSync} from 'child_process';
+import {createHash} from 'crypto';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {bundle} from '@remotion/bundler';
 import {getCompositions, renderStill} from '@remotion/renderer';
+import {S3Client} from 'bun';
 import {readDir} from './get-pages.mjs';
+
+if (!Bun.env.AWS_ACCESS_KEY_ID || !Bun.env.AWS_SECRET_ACCESS_KEY) {
+	throw new Error(
+		'Rendering cards requires AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to upload them to remotion.media. Load packages/remotion-media/.env with bun --env-file.',
+	);
+}
+
+const client = new S3Client({
+	accessKeyId: Bun.env.AWS_ACCESS_KEY_ID,
+	secretAccessKey: Bun.env.AWS_SECRET_ACCESS_KEY,
+	bucket: 'parser-media',
+	endpoint: 'https://2fe488b3b0f4deee223aef7464784c46.r2.cloudflarestorage.com',
+});
+const uploadedCards = new Set<string>();
+let continuationToken: string | null = null;
+do {
+	const result = await client.list({
+		prefix: 'docs/generated/',
+		continuationToken: continuationToken ?? undefined,
+	});
+	for (const object of result.contents ?? []) {
+		uploadedCards.add(object.key);
+	}
+	continuationToken = result.nextContinuationToken ?? null;
+} while (continuationToken);
+
+execSync('bun generate-option-docs.ts', {stdio: 'inherit'});
 
 const data: {
 	id: string;
@@ -181,24 +210,57 @@ const compositions = await getCompositions({
 	inputProps: {},
 });
 
-for (const composition of compositions.filter(
-	(c) => c.id.startsWith('expert') || c.id.startsWith('template'),
-)) {
-	const output = `static/generated/${composition.id}.png`;
-	if (fs.existsSync(output)) {
-		console.log('Existed', composition.id);
-		continue;
-	} else {
+const renderAndUploadCard = async (
+	composition: (typeof compositions)[number],
+	output: string,
+) => {
+	const key = `docs/generated/${composition.id}.png`;
+	const overwrite =
+		process.argv.includes('--overwrite') ||
+		process.argv.includes(`--overwrite=${composition.id}`);
+	if (uploadedCards.has(key) && !overwrite) {
+		return;
+	}
+
+	if (!fs.existsSync(output) || overwrite) {
 		await renderStill({
 			composition,
 			output,
 			serveUrl,
-			chromiumOptions: {
-				gl: 'angle',
-			},
+			chromiumOptions: {gl: 'angle'},
 		});
-		console.log('Rendered', composition.id);
 	}
+
+	const file = Bun.file(output);
+	await client.write(key, file, {type: 'image/png'});
+	const response = await fetch(
+		`https://remotion.media/${key}?verify=${Date.now()}`,
+	);
+	if (!response.ok) {
+		throw new Error(
+			`Could not verify uploaded card ${key}: ${response.status}`,
+		);
+	}
+
+	const localHash = createHash('sha256')
+		.update(new Uint8Array(await file.arrayBuffer()))
+		.digest('hex');
+	const remoteHash = createHash('sha256')
+		.update(new Uint8Array(await response.arrayBuffer()))
+		.digest('hex');
+	if (localHash !== remoteHash) {
+		throw new Error(`Uploaded card does not match local file: ${key}`);
+	}
+
+	uploadedCards.add(key);
+	console.log('Uploaded', `https://remotion.media/${key}`);
+};
+
+for (const composition of compositions.filter(
+	(c) => c.id.startsWith('expert') || c.id.startsWith('template'),
+)) {
+	const output = `static/generated/${composition.id}.png`;
+	await renderAndUploadCard(composition, output);
 }
 
 for (const entry of data) {
@@ -207,19 +269,7 @@ for (const entry of data) {
 		continue;
 	}
 	const output = `static/generated/${composition.id}.png`;
-	if (fs.existsSync(output)) {
-		continue;
-	}
-
-	await renderStill({
-		composition,
-		output,
-		serveUrl,
-		chromiumOptions: {
-			gl: 'angle',
-		},
-	});
-	console.log('Rendered', composition.id);
+	await renderAndUploadCard(composition, output);
 
 	if (entry.relativePath.endsWith('.tsx')) {
 		continue;
@@ -237,7 +287,7 @@ for (const entry of data) {
 
 	const newLines = [
 		...lines.slice(0, frontmatterLine + 1),
-		`image: /${output.substring('/static'.length)}`,
+		`image: https://remotion.media/docs/generated/${composition.id}.png`,
 		...lines.slice(frontmatterLine + 1),
 	].join(os.EOL);
 

@@ -6,6 +6,7 @@ const cliFlag = 'api-key' as const;
 
 export const apiKeyOption = {
 	name: 'API key',
+	addedIn: '4.0.253',
 	cliFlag,
 	description: () => (
 		<>
@@ -13,7 +14,7 @@ export const apiKeyOption = {
 		</>
 	),
 	ssrName: 'apiKey' as const,
-	docLink: 'https://www.remotion.dev/docs/licensing',
+	docLink: 'https://www.remotion.dev/docs/options/api-key',
 	type: null as string | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

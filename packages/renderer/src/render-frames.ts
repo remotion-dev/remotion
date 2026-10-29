@@ -17,7 +17,6 @@ import type {OnLog, Page} from './browser/BrowserPage';
 import {isTargetClosedErr} from './browser/flaky-errors';
 import type {SourceMapGetter} from './browser/source-map-getter';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {getShouldUsePartitionedRendering} from './can-use-parallel-encoding';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {defaultOnLog} from './default-on-log';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -35,10 +34,7 @@ import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {makePage} from './make-page';
-import {
-	nextFrameToRenderState,
-	partitionedNextFrameToRenderState,
-} from './next-frame-to-render';
+import {nextFrameToRenderState} from './next-frame-to-render';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
 import {DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS} from './options/offthreadvideo-threads';
@@ -47,6 +43,10 @@ import type {optionsMap} from './options/options-map';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 import {renderFrameAndRetryTargetClose} from './render-frame-and-retry-target-close';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
@@ -88,6 +88,10 @@ type InternalRenderFramesOptions = {
 	onFrameBuffer:
 		| null
 		| ((buffer: Buffer, frame: number) => void | Promise<void>);
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	onDownload: RenderMediaOnDownload | null;
 	chromiumOptions: ChromiumOptions;
 	scale: number;
@@ -127,6 +131,10 @@ type InnerRenderFramesOptions = {
 	onFrameBuffer:
 		| null
 		| ((buffer: Buffer, frame: number) => void | Promise<void>);
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	onArtifact: OnArtifact | null;
 	onDownload: RenderMediaOnDownload | null;
 	timeoutInMilliseconds: number;
@@ -234,6 +242,8 @@ const innerRenderFrames = async ({
 	envVariables,
 	onBrowserLog,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onDownload,
 	pagesArray,
 	serveUrl,
@@ -258,6 +268,7 @@ const innerRenderFrames = async ({
 	binariesDirectory,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	darkMode,
 	sampleRate,
@@ -313,8 +324,8 @@ const innerRenderFrames = async ({
 		resolvedConcurrency,
 	);
 
-	const makeNewPage = (frame: number, pageIndex: number) => {
-		return makePage({
+	const makeNewPage = async (frame: number, pageIndex: number) => {
+		const page = await makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
 			browserReplacer,
@@ -335,10 +346,13 @@ const innerRenderFrames = async ({
 			pageIndex,
 			isMainTab: pageIndex === 0,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			onLog,
 			darkMode,
 			sampleRate,
 		});
+		await remotionSharedMemory?.ensurePage(page);
+		return page;
 	};
 
 	const getPool = async () => {
@@ -400,24 +414,9 @@ const innerRenderFrames = async ({
 		...extraFramesToCaptureAssetsBackend,
 	];
 
-	const shouldUsePartitionedRendering = getShouldUsePartitionedRendering();
-
-	if (shouldUsePartitionedRendering) {
-		Log.info(
-			{indent, logLevel},
-			'Experimental: Using partitioned rendering (https://github.com/remotion-dev/remotion/pull/4830)',
-		);
-	}
-
-	const nextFrameToRender = shouldUsePartitionedRendering
-		? partitionedNextFrameToRenderState({
-				allFramesAndExtraFrames,
-				concurrencyOrFramesToRender,
-			})
-		: nextFrameToRenderState({
-				allFramesAndExtraFrames,
-				concurrencyOrFramesToRender,
-			});
+	const nextFrameToRender = nextFrameToRenderState({
+		allFramesAndExtraFrames,
+	});
 
 	const pattern = imageSequencePattern || `element-[frame].[ext]`;
 	const imageSequenceName = pattern
@@ -457,6 +456,8 @@ const innerRenderFrames = async ({
 				lastFrame,
 				makeNewPage,
 				onFrameBuffer,
+				onFrame,
+				remotionSharedMemory,
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern: pattern,
@@ -508,6 +509,8 @@ const internalRenderFramesRaw = ({
 	onBrowserLog,
 	onDownload,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onFrameUpdate,
 	onStart,
 	outputDir,
@@ -531,6 +534,7 @@ const internalRenderFramesRaw = ({
 	offthreadVideoThreads,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	sampleRate,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
@@ -651,6 +655,8 @@ const internalRenderFramesRaw = ({
 					muted,
 					onBrowserLog,
 					onFrameBuffer,
+					onFrame,
+					remotionSharedMemory,
 					onFrameUpdate,
 					onStart,
 					outputDir,
@@ -670,6 +676,7 @@ const internalRenderFramesRaw = ({
 					offthreadVideoThreads,
 					imageSequencePattern,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					onLog,
 					darkMode: chromiumOptions.darkMode ?? false,
 					sampleRate,
@@ -778,6 +785,7 @@ export const renderFrames = (
 		offthreadVideoThreads,
 		imageSequencePattern,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
 	} = options;
 
@@ -858,6 +866,8 @@ export const renderFrames = (
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,
 		onFrameBuffer: onFrameBuffer ?? null,
+		onFrame: null,
+		remotionSharedMemory: null,
 		onFrameUpdate,
 		onStart,
 		outputDir,
@@ -880,6 +890,7 @@ export const renderFrames = (
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		imageSequencePattern: imageSequencePattern ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		onLog: defaultOnLog,
 		sampleRate: sampleRate ?? composition.defaultSampleRate ?? 48000,
 	});

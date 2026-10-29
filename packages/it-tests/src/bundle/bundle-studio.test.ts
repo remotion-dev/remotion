@@ -1,11 +1,9 @@
 import {expect, test} from 'bun:test';
 import {existsSync, readFileSync} from 'fs';
 import path from 'path';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {openBrowser} from '@remotion/renderer';
-import {
-	getRemotionVersionFromIndexHtml,
-	VERSION,
-} from '@remotion/serverless-client';
+import {VERSION} from 'remotion/version';
 
 test(
 	'Bundle studio',
@@ -45,7 +43,8 @@ test(
 			path.join(folder, 'index.html'),
 			'utf-8',
 		);
-		const version = getRemotionVersionFromIndexHtml(indexHtmlContent);
+		const version =
+			LambdaClientInternals.getRemotionVersionFromIndexHtml(indexHtmlContent);
 		expect(version).toBe(VERSION);
 
 		const server = Bun.serve({
@@ -144,9 +143,7 @@ test(
 			const label = document.querySelector<HTMLElement>(
 				'[aria-label="<Sequence>"]',
 			);
-			label?.parentElement?.parentElement?.dispatchEvent(
-				new PointerEvent('pointerdown', {bubbles: true, button: 0}),
-			);
+			label?.click();
 
 			for (let attempt = 0; attempt < 100; attempt++) {
 				const inspectorSourceLocation = document.querySelector(

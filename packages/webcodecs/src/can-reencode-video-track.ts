@@ -5,6 +5,9 @@ import {calculateNewDimensionsFromRotateAndScale} from './rotation';
 import {getVideoDecoderConfigWithHardwareAcceleration} from './video-decoder-config';
 import {getVideoEncoderConfig} from './video-encoder-config';
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const canReencodeVideoTrack = async ({
 	videoCodec,
 	track,

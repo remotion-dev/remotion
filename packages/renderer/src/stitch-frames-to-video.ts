@@ -491,6 +491,13 @@ const innerStitchFramesToVideo = async (
 		}),
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
+		// VP8/VP9 store alpha in additional blocks. Stream copying cannot infer
+		// the alpha channel from the decoded pixel format, so retain its signal.
+		preEncodedFileLocation &&
+		(codec === 'vp8' || codec === 'vp9') &&
+		pixelFormat === 'yuva420p'
+			? ['-metadata:s:v:0', 'alpha_mode=1']
+			: null,
 		...makeMetadataArgs(metadata ?? {}),
 		force || fastStartIntermediate ? '-y' : null,
 		fastStartIntermediate ? ['-f', fastStartMuxer] : null,
@@ -552,12 +559,6 @@ const innerStitchFramesToVideo = async (
 		}
 	});
 
-	if (separateAudioTo && audio) {
-		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
-		cpSync(audio, finalDestination);
-		rmSync(audio);
-	}
-
 	await new Promise<void>((resolve, reject) => {
 		task.once('close', (code, signal) => {
 			if (code === 0) {
@@ -573,6 +574,39 @@ const innerStitchFramesToVideo = async (
 			}
 		});
 	});
+
+	if (separateAudioTo && audio) {
+		const finalDestination = path.resolve(remotionRoot, separateAudioTo);
+		const separateAudioExtension =
+			getExtensionOfFilename(finalDestination)?.toLowerCase() ?? null;
+		let separateAudioFile = audio;
+		if (getMp4BrandForExtension(separateAudioExtension)) {
+			// Like audio-only renders: the ADTS stream is remuxed into the
+			// container, away from the public path because of Fast Start.
+			separateAudioFile = path.join(
+				assetsInfo.downloadMap.stitchFrames,
+				`separate-audio.${separateAudioExtension}`,
+			);
+			await muxVideoAndAudio({
+				videoOutput: null,
+				audioOutput: audio,
+				output: separateAudioFile,
+				indent,
+				logLevel,
+				onProgress: () => undefined,
+				binariesDirectory,
+				fps,
+				cancelSignal: cancelSignal ?? undefined,
+				metadata: null,
+				numberOfGifLoops: null,
+				audioCodec: resolvedAudioCodec,
+				sampleRate,
+			});
+		}
+
+		cpSync(separateAudioFile, finalDestination);
+		rmSync(audio);
+	}
 
 	if (fastStartIntermediate && fastStartMuxer) {
 		const destination = outputLocation ?? tempFile;

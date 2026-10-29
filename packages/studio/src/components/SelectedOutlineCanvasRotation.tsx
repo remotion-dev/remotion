@@ -34,7 +34,6 @@ import {
 	type SelectedOutlineTarget,
 } from './selected-outline-types';
 import {svgPointToClientPoint} from './svg-point-to-client-point';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
@@ -57,8 +56,8 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 	outline,
 	transform3DMode,
 }) => {
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -138,7 +137,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 			);
 			const dragStates = getSelectedOutlineRotationDragStates({
 				dragTargets: [rotationDrag],
-				getDragOverrides,
+				getDragOverrides: dragOverridesRef.current.getDragOverrides,
 				timelinePosition: getCurrentFrame(),
 			});
 			let previousAngle = getAngleDegrees(center, startPointer);
@@ -260,25 +259,15 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 						change.type === 'keyframed',
 				);
 
-				Promise.all([
-					staticChanges.length > 0
-						? saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: rotationDrag.clientId,
-								undoLabel: 'Rotate sequence',
-								redoLabel: 'Rotate sequence back',
-							})
-						: Promise.resolve(),
-					callAddKeyframes({
-						sequenceKeyframes: keyframedChanges,
-						effectKeyframes: [],
-						setPropStatuses,
-						clientId: rotationDrag.clientId,
-					}),
-				])
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: rotationDrag.clientId,
+					undoLabel: 'Rotate sequence',
+					redoLabel: 'Rotate sequence back',
+				})
 					.catch((error) => {
 						showNotification(
 							`Could not save sequence props: ${
@@ -307,7 +296,7 @@ export const SelectedOutlineCanvasRotation: React.FC<{
 		[
 			clearDragOverrides,
 			editorSnapping,
-			getDragOverrides,
+			dragOverridesRef,
 			getLatestTargetByKey,
 			layoutTarget.key,
 			onDraggingChange,

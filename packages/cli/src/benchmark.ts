@@ -14,6 +14,7 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
+import {getCrfForCodec} from './get-crf-for-codec';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parsed-cli';
@@ -37,6 +38,7 @@ const {
 	videoCodecOption,
 	colorSpaceOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -54,6 +56,7 @@ const {
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	askAIOption,
 	keyboardShortcutsOption,
@@ -400,6 +403,9 @@ export const benchmarkCommand = async (
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value,
+		preferredEffectBackend: preferredEffectBackendOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		onLog: RenderInternals.defaultOnLog,
 	});
 
@@ -437,7 +443,7 @@ export const benchmarkCommand = async (
 	const audioBitrate = audioBitrateOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const configFileCrf = crfOption.getValue({commandLine: parsedCli}).value;
+	const crfSetting = crfOption.getValue({commandLine: parsedCli});
 	const gopSize = gopSizeOption.getValue({commandLine: parsedCli}).value;
 	const jpegQuality = jpegQualityOption.getValue({
 		commandLine: parsedCli,
@@ -449,6 +455,9 @@ export const benchmarkCommand = async (
 		commandLine: parsedCli,
 	}).value;
 	const muted = mutedOption.getValue({commandLine: parsedCli}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -487,6 +496,13 @@ export const benchmarkCommand = async (
 				compositionCodec: composition.defaultCodec ?? null,
 			},
 		);
+		const crf = getCrfForCodec({
+			crf: crfSetting.value,
+			crfIsFromConfigFile: crfSetting.source === 'config',
+			codec: videoCodec,
+			indent: false,
+			logLevel,
+		});
 		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
@@ -517,7 +533,7 @@ export const benchmarkCommand = async (
 						fps: fps ?? composition.fps,
 						durationInFrames: durationInFrames ?? composition.durationInFrames,
 					},
-					crf: configFileCrf ?? null,
+					crf,
 					gopSize,
 					envVariables,
 					frameRange: defaultFrameRange,
@@ -571,6 +587,7 @@ export const benchmarkCommand = async (
 					audioCodec: null,
 					cancelSignal: undefined,
 					disallowParallelEncoding,
+					disableSharedMemoryCapture,
 					indent: false,
 					onBrowserLog: null,
 					onCtrlCExit: () => undefined,
@@ -612,6 +629,9 @@ export const benchmarkCommand = async (
 					}).value,
 					chromeMode,
 					mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					preferredEffectBackend: preferredEffectBackendOption.getValue({
 						commandLine: parsedCli,
 					}).value,
 					onLog: RenderInternals.defaultOnLog,

@@ -1,6 +1,10 @@
 import * as assert from 'node:assert';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 import {screenshotTask} from './screenshot-task';
 
 export const screenshot = (options: {
@@ -12,7 +16,8 @@ export const screenshot = (options: {
 	width: number;
 	height: number;
 	scale: number;
-}): Promise<Buffer> => {
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
+}): Promise<CapturedFrame> => {
 	if (options.jpegQuality) {
 		assert.ok(
 			typeof options.jpegQuality === 'number',
@@ -40,6 +45,7 @@ export const screenshot = (options: {
 			path: options.path,
 			jpegQuality: options.type === 'jpeg' ? options.jpegQuality : undefined,
 			scale: options.scale,
+			remotionSharedMemory: options.remotionSharedMemory,
 		}),
 	);
 };

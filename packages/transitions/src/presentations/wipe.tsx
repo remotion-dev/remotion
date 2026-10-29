@@ -115,8 +115,10 @@ const WipePresentation: React.FC<
 	}, [outerEnterStyle, outerExitStyle, presentationDirection]);
 
 	return (
-		<AbsoluteFill style={outerStyle}>
-			<AbsoluteFill style={style}>{children}</AbsoluteFill>
+		<AbsoluteFill showInTimeline={false} style={outerStyle}>
+			<AbsoluteFill showInTimeline={false} style={style}>
+				{children}
+			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };

@@ -5,17 +5,20 @@ import React, {
 	type PropsWithChildren,
 } from 'react';
 import type {SequenceControls} from '../CompositionManager.js';
-import {
-	addSequenceStackTraces,
-	getSingleChildComponent,
-} from '../enable-sequence-stack-traces.js';
+import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Interactive} from '../Interactive.js';
 import {
 	sequenceSchemaDefaultLayoutNone,
+	sequenceTimingSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
+import {
+	OptimisticSequenceDeletion,
+	usePendingSequenceDeletions,
+} from '../optimistic-sequence-deletion.js';
 import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
-import {Sequence, SequenceWithoutSchema} from '../Sequence.js';
+import {SequenceWithoutSchema} from '../Sequence.js';
+import {TrackWithoutSchema, type TrackWithoutSchemaProps} from '../Track.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import {flattenChildren} from './flatten-children.js';
@@ -105,7 +108,7 @@ const SeriesSequence = Interactive.withSchema({
 	SeriesSequenceProps & React.RefAttributes<HTMLDivElement>
 >;
 
-type SeriesProps = SequenceProps;
+type SeriesProps = TrackWithoutSchemaProps;
 const SequenceWithoutSchemaWithRef =
 	SequenceWithoutSchema as React.ComponentType<
 		SequenceProps & {readonly ref?: React.Ref<HTMLDivElement>}
@@ -153,8 +156,12 @@ const validateSeriesSequenceProps = ({
 };
 
 const SeriesInner: FC<SeriesProps> = (props) => {
+	const pendingDeletions = usePendingSequenceDeletions();
 	const childrenValue = useMemo(() => {
-		const flattenedChildren = flattenChildren(props.children);
+		const flattenedChildren = flattenChildren(props.children).filter(
+			(child) =>
+				!OptimisticSequenceDeletion.isElementDeleted(child, pendingDeletions),
+		);
 		const renderChildren = (i: number, startFrame: number): React.ReactNode => {
 			if (i === flattenedChildren.length) {
 				return null;
@@ -231,16 +238,15 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 							<SequenceWithoutSchemaWithRef
 								ref={ref}
 								name={name || '<Series.Sequence>'}
-								_remotionInternalDocumentationLink={
-									name ? undefined : 'https://www.remotion.dev/docs/series'
-								}
+								_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 								controls={controls ?? undefined}
 								from={currentStartFrame}
 								durationInFrames={durationInFramesProp}
 								{...passedProps}
-								_remotionInternalSingleChildComponent={getSingleChildComponent(
-									sequenceChildren,
-								)}
+								_remotionInternalTimelineTrack={{
+									role: 'clip',
+									seriesOffset: offset,
+								}}
 							>
 								<IsNotInsideSeriesProvider>
 									{sequenceChildren}
@@ -254,17 +260,17 @@ const SeriesInner: FC<SeriesProps> = (props) => {
 		};
 
 		return renderChildren(0, 0);
-	}, [props.children]);
+	}, [props.children, pendingDeletions]);
 
 	return (
-		<Sequence
+		<TrackWithoutSchema
 			layout="none"
-			name="<Series>"
 			_remotionInternalDocumentationLink="https://www.remotion.dev/docs/series"
 			{...props}
+			name={props.name ?? '<Series>'}
 		>
 			<IsInsideSeriesContainer>{childrenValue}</IsInsideSeriesContainer>
-		</Sequence>
+		</TrackWithoutSchema>
 	);
 };
 
@@ -279,7 +285,10 @@ const Series: React.ComponentType<SeriesProps> & {
 		Component: SeriesInner,
 		componentName: '<Series>',
 		componentIdentity: 'dev.remotion.remotion.Series',
-		schema: sequenceSchemaDefaultLayoutNone,
+		schema: {
+			...sequenceSchemaDefaultLayoutNone,
+			...sequenceTimingSchema,
+		},
 		supportsEffects: false,
 	}),
 	{

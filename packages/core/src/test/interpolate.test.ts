@@ -48,25 +48,61 @@ test('Can interpolate a single keyframe', () => {
 
 test('Can interpolate non-numeric strings in hold mode', () => {
 	expect(
-		interpolate(0, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
-			easing: [Easing.step1, Easing.step1],
-		}),
-	).toBe('default');
+		interpolate(
+			0,
+			[0, 100, 200],
+			[
+				'url("default.svg") 12 12, auto',
+				'url("cursor.svg") 12 12, ew-resize',
+				'url("pointer.svg") 12 12, pointer',
+			],
+			{
+				easing: [Easing.step1, Easing.step1],
+			},
+		),
+	).toBe('url("default.svg") 12 12, auto');
 	expect(
-		interpolate(99.999, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
-			easing: [Easing.step1, Easing.step1],
-		}),
-	).toBe('default');
+		interpolate(
+			99.999,
+			[0, 100, 200],
+			[
+				'url("default.svg") 12 12, auto',
+				'url("cursor.svg") 12 12, ew-resize',
+				'url("pointer.svg") 12 12, pointer',
+			],
+			{
+				easing: [Easing.step1, Easing.step1],
+			},
+		),
+	).toBe('url("default.svg") 12 12, auto');
 	expect(
-		interpolate(100, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
-			easing: [Easing.step1, Easing.step1],
-		}),
-	).toBe('ne-resize');
+		interpolate(
+			100,
+			[0, 100, 200],
+			[
+				'url("default.svg") 12 12, auto',
+				'url("cursor.svg") 12 12, ew-resize',
+				'url("pointer.svg") 12 12, pointer',
+			],
+			{
+				easing: [Easing.step1, Easing.step1],
+			},
+		),
+	).toBe('url("cursor.svg") 12 12, ew-resize');
 	expect(
-		interpolate(200, [0, 100, 200], ['default', 'ne-resize', 'pointer'], {
-			easing: [Easing.step1, Easing.step1],
-		}),
-	).toBe('pointer');
+		interpolate(
+			200,
+			[0, 100, 200],
+			[
+				'url("default.svg") 12 12, auto',
+				'url("cursor.svg") 12 12, ew-resize',
+				'url("pointer.svg") 12 12, pointer',
+			],
+			{
+				easing: [Easing.step1, Easing.step1],
+			},
+		),
+	).toBe('url("pointer.svg") 12 12, pointer');
 });
 
 test('Non-numeric strings require hold mode', () => {

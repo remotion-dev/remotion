@@ -3,6 +3,7 @@ import type {
 	GetDefaultCodingAgentInfoResponse,
 	GetDefaultEditorInfoResponse,
 } from '@remotion/studio-shared';
+import {preferredFallbackEditorIds} from '@remotion/studio-shared';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {getPreferredApp} from '../helpers/get-preferred-app';
 import {codingAgentHistory, editorHistory} from '../state/recently-used-apps';
@@ -19,12 +20,6 @@ export const canUseEditorPicker = (previewServerConnected: boolean) => {
 export const canOpenInEditor = (previewServerConnected: boolean) => {
 	return previewServerConnected && getBrowserStudioOperations() === null;
 };
-
-const preferredFallbackEditorIds: EditorPickerId[] = [
-	'zed',
-	'vscode',
-	'cursor',
-];
 
 export const getPreferredEditorId = (
 	editorInfo: GetDefaultEditorInfoResponse | null,

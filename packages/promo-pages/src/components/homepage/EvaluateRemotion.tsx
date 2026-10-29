@@ -1,21 +1,32 @@
 import React from 'react';
+import {useColorMode} from './layout/use-color-mode';
 import {MakeVideosLinks} from './MakeVideosLinks';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
 const EvaluateRemotionSection: React.FC = () => {
+	const {colorMode} = useColorMode();
 	const licenseVideoSrc = useTransparentVideoSource({
-		fallbackVideoSrc: '/img/license-questions.mp4',
-		videoSrc: '/img/license-questions.webm',
+		fallbackVideoSrc:
+			colorMode === 'dark'
+				? '/img/license-questions-dark.mp4'
+				: '/img/license-questions.mp4',
+		videoSrc:
+			colorMode === 'dark'
+				? '/img/license-questions-dark.webm'
+				: '/img/license-questions.webm',
 	});
 	const expertsVideoSrc = useTransparentVideoSource({
-		fallbackVideoSrc: '/img/experts-graphic.mp4',
-		videoSrc: '/img/experts-graphic.webm',
+		fallbackVideoSrc:
+			'https://remotion.media/homepage/experts-graphic-b3ade07a9cff.mp4',
+		videoSrc:
+			'https://remotion.media/homepage/experts-graphic-6bb9224f5680.webm',
 	});
 
 	return (
 		<>
 			<div className="flex min-w-0 basis-0 flex-1 flex-col">
-				<div className="flex aspect-square w-full items-start">
+				{/* Crop only the top 46% on mobile, preserving the video's bottom padding. */}
+				<div className="relative aspect-[50/27] w-full max-w-[270px] self-start overflow-hidden min-[900px]:aspect-square">
 					{licenseVideoSrc ? (
 						<video
 							src={licenseVideoSrc}
@@ -24,7 +35,7 @@ const EvaluateRemotionSection: React.FC = () => {
 							playsInline
 							loop
 							preload="metadata"
-							className="relative max-h-full max-w-full cursor-default! object-contain"
+							className="absolute top-0 left-0 w-full max-w-none -translate-y-[46%] cursor-default! min-[900px]:translate-y-0"
 						/>
 					) : null}
 				</div>
@@ -52,7 +63,7 @@ const EvaluateRemotionSection: React.FC = () => {
 				</div>
 			</div>
 			<div className="flex min-w-0 basis-0 flex-1 flex-col">
-				<div className="flex aspect-square w-full items-center justify-center pl-5">
+				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{expertsVideoSrc ? (
 						<video
 							src={expertsVideoSrc}

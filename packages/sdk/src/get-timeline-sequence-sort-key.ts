@@ -25,6 +25,8 @@ export type TimelineTrackData = {
 	sequenceFrameOffset: number;
 	cascadedStart: number;
 	localStart: number;
+	parentVisibleStart: number;
+	parentVisibleEnd: number | null;
 };
 
 export type TimelineLoopDisplay = LoopDisplay & {
@@ -32,29 +34,4 @@ export type TimelineLoopDisplay = LoopDisplay & {
 	phaseOffsetInFrames: number;
 	// Elapsed time from the currently registered iteration to the media's visible start.
 	mediaOffsetInFrames: number;
-};
-
-export type TimelineTrackWithOriginalTimings = TimelineTrackData & {
-	cascadedDuration: number;
-};
-
-export const getTimelineSequenceSortKey = (
-	track: TimelineTrackData,
-	tracks: TimelineTrackData[],
-	sequenceRanks: Map<string, number>,
-): string => {
-	const rank = sequenceRanks.get(track.sequence.id) ?? 0;
-	const id = String(rank).padStart(6, '0');
-	if (!track.sequence.parent) {
-		return id;
-	}
-
-	const parent = tracks.find((t) => t.sequence.id === track.sequence.parent);
-	if (!parent) {
-		// Due to effects and conditional `showInTimeline`, a parent
-		// may not exist in the `allTracks` array.
-		return id;
-	}
-
-	return `${getTimelineSequenceSortKey(parent, tracks, sequenceRanks)}-${id}`;
 };

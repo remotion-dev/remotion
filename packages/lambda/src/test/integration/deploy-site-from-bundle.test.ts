@@ -10,12 +10,13 @@ import {
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 import {internalDeploySiteFromBundle} from '../../api/deploy-site-from-bundle';
-import {mockFullClientSpecifics} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {fakeAws, fakeAwsDefaults, useFakeAws} from '../mocks/fake-aws';
 import {resetMockStore} from '../mocks/mock-store';
+
+useFakeAws();
 
 const temporaryDirectories: string[] = [];
 
@@ -45,9 +46,8 @@ const makeBundle = (files: Record<string, string>) => {
 };
 
 const makeBucket = async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
@@ -59,12 +59,11 @@ const makeBucket = async () => {
 	return bucketName;
 };
 
-const withStaleEtags: typeof mockImplementation = {
-	...mockImplementation,
-	listObjects: async (input) => {
-		const objects = await mockImplementation.listObjects(input);
+const withStaleEtags = () => {
+	fakeAws().listObjects.mockImplementation(async (input) => {
+		const objects = await fakeAwsDefaults.listObjects(input);
 		return objects.map((object) => ({...object, ETag: 'stale-etag'}));
-	},
+	});
 };
 
 const deployBundle = ({
@@ -72,29 +71,23 @@ const deployBundle = ({
 	bundleDir,
 	siteName,
 	throwIfSiteExists = false,
-	providerSpecifics = mockImplementation,
-	fullClientSpecifics = mockFullClientSpecifics,
 }: {
 	bucketName: string;
 	bundleDir: string;
 	siteName: string;
 	throwIfSiteExists?: boolean;
-	providerSpecifics?: typeof mockImplementation;
-	fullClientSpecifics?: typeof mockFullClientSpecifics;
 }) => {
 	return internalDeploySiteFromBundle({
 		bucketName,
 		bundleDir,
 		region: 'ap-northeast-1',
 		siteName,
-		providerSpecifics,
 		indent: false,
 		logLevel: 'error',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists,
 		forcePathStyle: false,
-		fullClientSpecifics,
 		requestHandler: null,
 	});
 };
@@ -115,18 +108,14 @@ test('deploys a caller-owned bundle without invoking the bundler', async () => {
 	const bundleBefore = readFileSync(path.join(bundleDir, 'index.html'));
 	const bucketName = await makeBucket();
 
-	const fullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: () => {
-			throw new Error('The bundler must not be called');
-		},
-	};
+	fakeAws().bundleSite.mockImplementation(() => {
+		throw new Error('The bundler must not be called');
+	});
 
 	const result = await deployBundle({
 		bucketName,
 		bundleDir,
 		siteName: 'from-bundle-basic',
-		fullClientSpecifics,
 	});
 
 	expect(result).toEqual({
@@ -144,7 +133,7 @@ test('deploys a caller-owned bundle without invoking the bundler', async () => {
 		bundleBefore,
 	);
 
-	const files = await mockImplementation.listObjects({
+	const files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/from-bundle-basic/',
@@ -190,7 +179,7 @@ test('incrementally uploads and deletes files without deleting either bundle', a
 	expect(existsSync(firstBundle)).toBe(true);
 	expect(existsSync(secondBundle)).toBe(true);
 
-	const files = await mockImplementation.listObjects({
+	const files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/from-bundle-incremental/',
@@ -223,31 +212,22 @@ test('publishes assets and index.html before deleting stale files', async () => 
 	});
 
 	const operations: string[] = [];
-	const providerSpecifics: typeof mockImplementation = {
-		...withStaleEtags,
-		deleteFile: async (input) => {
-			operations.push('delete');
-			await mockImplementation.deleteFile(input);
-		},
-	};
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		uploadDir: async (input) => {
-			operations.push(
-				input.toUpload.includes('index.html')
-					? 'upload-index'
-					: 'upload-assets',
-			);
-			await mockFullClientSpecifics.uploadDir(input);
-		},
-	};
+	withStaleEtags();
+	fakeAws().deleteFile.mockImplementation(async (input) => {
+		operations.push('delete');
+		await fakeAwsDefaults.deleteFile(input);
+	});
+	fakeAws().uploadDir.mockImplementation(async (input) => {
+		operations.push(
+			input.toUpload.includes('index.html') ? 'upload-index' : 'upload-assets',
+		);
+		await fakeAwsDefaults.uploadDir(input);
+	});
 
 	await deployBundle({
 		bucketName,
 		bundleDir: secondBundle,
 		siteName: 'from-bundle-ordering',
-		providerSpecifics,
-		fullClientSpecifics,
 	});
 
 	expect(operations).toEqual(['upload-assets', 'upload-index', 'delete']);
@@ -270,33 +250,23 @@ test('does not publish index.html or delete stale files if an asset upload fails
 	});
 
 	const operations: string[] = [];
-	const providerSpecifics: typeof mockImplementation = {
-		...withStaleEtags,
-		deleteFile: async () => {
-			operations.push('delete');
-		},
-	};
-	const fullClientSpecifics = {
-		...mockFullClientSpecifics,
-		uploadDir: (
-			input: Parameters<typeof mockFullClientSpecifics.uploadDir>[0],
-		) => {
-			operations.push(
-				input.toUpload.includes('index.html')
-					? 'upload-index'
-					: 'upload-assets',
-			);
-			return Promise.reject(new Error('Upload failed'));
-		},
-	};
+	withStaleEtags();
+	fakeAws().deleteFile.mockImplementation(() => {
+		operations.push('delete');
+		return Promise.resolve();
+	});
+	fakeAws().uploadDir.mockImplementation((input) => {
+		operations.push(
+			input.toUpload.includes('index.html') ? 'upload-index' : 'upload-assets',
+		);
+		return Promise.reject(new Error('Upload failed'));
+	});
 
 	await expect(
 		deployBundle({
 			bucketName,
 			bundleDir: secondBundle,
 			siteName: 'from-bundle-failure',
-			providerSpecifics,
-			fullClientSpecifics,
 		}),
 	).rejects.toThrow('Upload failed');
 	expect(operations).toEqual(['upload-assets']);
@@ -308,35 +278,28 @@ test('deletes at most 10 stale files concurrently', async () => {
 	const bucketName = await makeBucket();
 	let activeDeletes = 0;
 	let maxActiveDeletes = 0;
-	const providerSpecifics: typeof mockImplementation = {
-		...mockImplementation,
-		listObjects: () => {
-			return Promise.resolve(
-				Array.from({length: 25}, (_, index) => ({
-					Key: `sites/from-bundle-concurrency/stale-${index}.js`,
-					ETag: 'etag',
-					LastModified: new Date(0),
-					Size: 0,
-				})),
-			);
-		},
-		deleteFile: async () => {
-			activeDeletes++;
-			maxActiveDeletes = Math.max(maxActiveDeletes, activeDeletes);
-			await new Promise((resolve) => setTimeout(resolve, 1));
-			activeDeletes--;
-		},
-	};
+	fakeAws().listObjects.mockImplementation(() => {
+		return Promise.resolve(
+			Array.from({length: 25}, (_, index) => ({
+				Key: `sites/from-bundle-concurrency/stale-${index}.js`,
+				ETag: 'etag',
+				LastModified: new Date(0),
+				Size: 0,
+			})),
+		);
+	});
+	fakeAws().deleteFile.mockImplementation(async () => {
+		activeDeletes++;
+		maxActiveDeletes = Math.max(maxActiveDeletes, activeDeletes);
+		await new Promise((resolve) => setTimeout(resolve, 1));
+		activeDeletes--;
+	});
+	fakeAws().uploadDir.mockImplementation(() => Promise.resolve());
 
 	await deployBundle({
 		bucketName,
 		bundleDir,
 		siteName: 'from-bundle-concurrency',
-		providerSpecifics,
-		fullClientSpecifics: {
-			...mockFullClientSpecifics,
-			uploadDir: () => Promise.resolve(),
-		},
 	});
 
 	expect(maxActiveDeletes).toBe(10);
@@ -365,13 +328,10 @@ test('supports throwIfSiteExists without deleting the caller bundle', async () =
 
 test('validates the local bundle before making an AWS request', async () => {
 	let awsCalls = 0;
-	const providerSpecifics: typeof mockImplementation = {
-		...mockImplementation,
-		getAccountId: () => {
-			awsCalls++;
-			return Promise.resolve('123456789');
-		},
-	};
+	fakeAws().getAccountId.mockImplementation(() => {
+		awsCalls++;
+		return Promise.resolve('123456789');
+	});
 	const missingPathParent = mkdtempSync(
 		path.join(os.tmpdir(), 'missing-remotion-bundle-test-'),
 	);
@@ -383,7 +343,6 @@ test('validates the local bundle before making an AWS request', async () => {
 			bucketName: 'remotionlambda-testing',
 			bundleDir: missingPath,
 			siteName: 'from-bundle-validation',
-			providerSpecifics,
 		}),
 	).rejects.toThrow('does not exist');
 	expect(awsCalls).toBe(0);
@@ -399,7 +358,6 @@ test('validates the local bundle before making an AWS request', async () => {
 			bucketName: 'remotionlambda-testing',
 			bundleDir: filePath,
 			siteName: 'from-bundle-validation',
-			providerSpecifics,
 		}),
 	).rejects.toThrow('is not a directory');
 
@@ -410,7 +368,6 @@ test('validates the local bundle before making an AWS request', async () => {
 			bucketName: 'remotionlambda-testing',
 			bundleDir: withoutIndex,
 			siteName: 'from-bundle-validation',
-			providerSpecifics,
 		}),
 	).rejects.toThrow('does not contain an index.html');
 
@@ -420,7 +377,6 @@ test('validates the local bundle before making an AWS request', async () => {
 			bucketName: 'remotionlambda-testing',
 			bundleDir: withoutBundleScript,
 			siteName: 'from-bundle-validation',
-			providerSpecifics,
 		}),
 	).rejects.toThrow('does not contain a bundle.js');
 
@@ -434,7 +390,6 @@ test('validates the local bundle before making an AWS request', async () => {
 			bucketName: 'remotionlambda-testing',
 			bundleDir: incompatible,
 			siteName: 'from-bundle-validation',
-			providerSpecifics,
 		}),
 	).rejects.toThrow('is not relocatable');
 
@@ -448,7 +403,6 @@ test('validates the local bundle before making an AWS request', async () => {
 			bucketName: 'remotionlambda-testing',
 			bundleDir: malformedPublicPath,
 			siteName: 'from-bundle-validation',
-			providerSpecifics,
 		}),
 	).rejects.toMatchObject({
 		message: expect.stringContaining(
@@ -485,19 +439,15 @@ if (process.platform !== 'win32') {
 			'dir',
 		);
 		let awsCalls = 0;
-		const providerSpecifics: typeof mockImplementation = {
-			...mockImplementation,
-			getAccountId: () => {
-				awsCalls++;
-				return Promise.resolve('123456789');
-			},
-		};
+		fakeAws().getAccountId.mockImplementation(() => {
+			awsCalls++;
+			return Promise.resolve('123456789');
+		});
 		await expect(
 			deployBundle({
 				bucketName,
 				bundleDir: directoryLinkBundle,
 				siteName: 'from-bundle-directory-link',
-				providerSpecifics,
 			}),
 		).rejects.toThrow('symbolic link to a directory');
 		expect(awsCalls).toBe(0);

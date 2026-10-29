@@ -206,15 +206,6 @@ const underlinePaddingSchema = {
 	'padding.top': paddingSchema['padding.top'],
 } as const satisfies InteractivitySchema;
 
-const textContentSchema = {
-	children: {
-		type: 'text-content',
-		default: '',
-		description: 'Text',
-		keyframable: false,
-	},
-} as const satisfies InteractivitySchema;
-
 const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...Interactive.baseSchema,
 	...Interactive.premountSchema,
@@ -242,7 +233,7 @@ const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...roughJsControlsSchema(defaultRoughness),
 	...colorSchema,
 	...Interactive.textSchema,
-	...textContentSchema,
+	...Interactive.childrenSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,

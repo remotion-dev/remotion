@@ -35,6 +35,8 @@ export const ElementInstallRequestHandler: FC = () => {
 	const config = Internals.useUnsafeVideoConfig();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectedModal = useContext(SelectedModalContext);
+	const selectedModalRef = useRef(selectedModal);
+	selectedModalRef.current = selectedModal;
 	const showingExperimentalNotice =
 		selectedModal?.type === 'browser-studio-experimental-notice';
 	const {previewServerState, subscribeToEvent} = useContext(
@@ -163,6 +165,24 @@ export const ElementInstallRequestHandler: FC = () => {
 				return;
 			}
 
+			const modal = selectedModalRef.current;
+			const selectsCaptionStyle =
+				modal?.type === 'transcribe' && modal.target !== null;
+			if (
+				selectsCaptionStyle &&
+				(payload.element.isCaptionStyle !== true ||
+					payload.element.installationMode !== 'component-owned-sequence')
+			) {
+				responsePort.postMessage({
+					success: false,
+					code: 'request-rejected',
+					message: 'This Element is not a caption style',
+				} satisfies InstallInStudioResult);
+				window.setTimeout(() => responsePort.close(), 1000);
+				showNotification('This Element is not a caption style', 4000);
+				return;
+			}
+
 			const request: ElementInstallRequest | null = canInstallElement
 				? {
 						clientId: previewServerClientId,
@@ -174,6 +194,7 @@ export const ElementInstallRequestHandler: FC = () => {
 							durationInFrames: payload.element.durationInFrames ?? null,
 							initialProps: payload.element.initialProps ?? null,
 							installationMode: payload.element.installationMode ?? null,
+							isCaptionStyle: payload.element.isCaptionStyle ?? false,
 						},
 						from: null,
 						id: crypto.randomUUID(),
@@ -202,9 +223,20 @@ export const ElementInstallRequestHandler: FC = () => {
 			responsePort.onmessage = () => {
 				window.clearTimeout(timeout);
 				responsePort.close();
-				if (request !== null) {
-					enqueueElementInstallRequest(request);
+				if (request === null) {
+					return;
 				}
+
+				if (selectsCaptionStyle) {
+					setSelectedModal((current) =>
+						current?.type === 'transcribe' && current.target !== null
+							? {...current, captionStyle: request}
+							: current,
+					);
+					return;
+				}
+
+				enqueueElementInstallRequest(request);
 			};
 
 			responsePort.postMessage(result);
@@ -217,6 +249,7 @@ export const ElementInstallRequestHandler: FC = () => {
 		compositionFile,
 		currentCompositionId,
 		previewServerClientId,
+		setSelectedModal,
 	]);
 
 	useEffect(() => {

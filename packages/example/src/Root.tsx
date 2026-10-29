@@ -10,6 +10,10 @@ import {
 } from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
+import {
+	ACTIVITY_STRESS_TEST_DURATION,
+	ActivityStressTest,
+} from './ActivityStressTest';
 import {UseanimatedEmojis} from './AnimatedEmojis';
 import {BarChart} from './BarChart';
 import BetaText, {betaTextSchema} from './BetaText';
@@ -25,13 +29,18 @@ import {
 import {AnimatedCaptionsComposition} from './CaptionsTester/AnimatedCaptionsComposition';
 import {ClassSerialization} from './ClassSerialization';
 import {ColorInterpolation} from './ColorInterpolation';
+import {
+	COMMITTED_HOLDS_DURATION,
+	COMMITTED_HOLDS_HEIGHT,
+	COMMITTED_HOLDS_WIDTH,
+	CommittedRenderHolds,
+} from './CommittedRenderHolds';
 import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import {ControlsShowcase} from './ControlsShowcase';
 import CorruptVideo from './CorruptVideo';
 import {CssLoaderTest} from './CssLoaderTest';
 import {DarkModeTest} from './DarkModeTest';
-import {DecoderDemo} from './DecoderDemo';
 import {
 	DIFFERENT_SEGMENTS_AT_DIFFERENT_SPEEDS_DURATION,
 	DifferentSegmentsAtDifferentSpeeds,
@@ -106,9 +115,11 @@ import {
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
+import {HtmlInCanvasFallbackExample} from './HtmlInCanvas/fallback';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
+import {KeyframeTrimTestbed} from './KeyframeTrimTestbed';
 import {Layers} from './Layers';
 import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
@@ -180,8 +191,12 @@ import {VideoTextureDemo} from './ThreeScene/Scene';
 import {ThreeWebGPU} from './ThreeWebGPU';
 import {Timeout} from './Timeout';
 import {FitText, fitTextSchema} from './Title/FitText';
+import {TrackAudioIntrinsicDurationRepro} from './TrackAudioIntrinsicDurationRepro';
 import {AudioTransition} from './Transitions/AudioTransition';
-import {BasicTransition} from './Transitions/BasicTransition';
+import {
+	BasicTransition,
+	BasicTransitionSceneB,
+} from './Transitions/BasicTransition';
 import {CustomTransition} from './Transitions/CustomTransition';
 import {
 	PUSH_CUT_DEMO_DURATION_IN_FRAMES,
@@ -190,7 +205,6 @@ import {
 import {VariableGoogleFont} from './VariableGoogleFont/VariableGoogleFont';
 import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
-import {VideoParser} from './VideoParser';
 import {VideoSpeed} from './VideoSpeed';
 import {
 	VideoTesting,
@@ -212,7 +226,6 @@ if (alias !== 'alias') {
 
 const INCLUDE_COMP_BREAKING_GET_COMPOSITIONS = false;
 
-import {parseMedia} from '@remotion/media-parser';
 import {zMatrix} from '@remotion/zod-types';
 import {ThreeDContext} from './3DContext';
 import {ThreeDSvgContent} from './3DSvgContent';
@@ -245,15 +258,23 @@ import {
 	canvasCapturePreviewDefaultProps,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CurvesEffect} from './EffectsTestbed/Curves';
 import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
+import {LevelsEffect} from './EffectsTestbed/Levels';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
+import {
+	ColorCorrectionStudioDemo,
+	CurvesStudioDemo,
+	LevelsStudioDemo,
+} from './EffectsTestbed/StudioDemos';
 import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
+import {getMediaMetadata} from './get-media-metadata';
 import {
 	Issue8974IndependentVideosTimeline,
 	Issue8974SeriesTimeline,
@@ -266,6 +287,7 @@ import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
+import {MixBlendMode} from './MixBlendMode/MixBlendMode';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
@@ -315,6 +337,8 @@ import {TikTokTextBoxPlayground} from './TikTokTextbox/TikTokTextBox';
 import {TimelineNegativeFromResize} from './TimelineNegativeFromResize';
 import {FitTextOnNLines, fitTextOnNLinesSchema} from './Title/FitTextOnNLines';
 import {Issue7359FitTextOnNLines} from './Title/Issue7359FitTextOnNLines';
+import {TrackPrototype} from './TrackPrototype';
+import {TrackSequenceProps} from './TrackSequenceProps';
 import {TransitionRounding} from './TransitionRounding';
 import {WebGlTransition} from './Transitions/WebGlTransition';
 import {
@@ -472,6 +496,14 @@ export const Index: React.FC = () => {
 
 	return (
 		<>
+			<Composition
+				id="CommittedRenderHolds"
+				component={CommittedRenderHolds}
+				durationInFrames={COMMITTED_HOLDS_DURATION}
+				fps={30}
+				width={COMMITTED_HOLDS_WIDTH}
+				height={COMMITTED_HOLDS_HEIGHT}
+			/>
 			<Folder name="WhatsNew">
 				<WhatsNewRoot />
 			</Folder>
@@ -816,6 +848,14 @@ export const Index: React.FC = () => {
 					durationInFrames={30}
 				/>
 				<Composition
+					id="mix-blend-mode"
+					component={MixBlendMode}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={60}
+				/>
+				<Composition
 					id="simple-img"
 					component={SimpleImg}
 					width={1080}
@@ -1116,16 +1156,13 @@ export const Index: React.FC = () => {
 					calculateMetadata={async ({props}) => {
 						const fps = 30;
 
-						const {slowDurationInSeconds} = await parseMedia({
-							src: props.src as string,
-							fields: {
-								slowDurationInSeconds: true,
-							},
-						});
+						const {durationInSeconds} = await getMediaMetadata(
+							props.src as string,
+						);
 
 						return {
 							props: props,
-							durationInFrames: Math.round(slowDurationInSeconds * fps),
+							durationInFrames: Math.round(durationInSeconds * fps),
 							fps,
 							width: 800,
 							height: 800,
@@ -1253,6 +1290,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-fallback"
+						component={HtmlInCanvasFallbackExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={180}
+					/>
 					<Composition
 						id="html-in-canvas-nested"
 						component={HtmlInCanvasNested}
@@ -2331,6 +2376,48 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="Effects">
+				<Folder name="Studio-demos">
+					<Composition
+						id="ColorCorrectionStudioDemo"
+						component={ColorCorrectionStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="LevelsStudioDemo"
+						component={LevelsStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="CurvesStudioDemo"
+						component={CurvesStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+				</Folder>
+				<Composition
+					id="curves-effect"
+					component={CurvesEffect}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="levels-effect"
+					component={LevelsEffect}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
 				<Composition
 					id="tear-test"
 					component={TearTest}
@@ -2442,7 +2529,15 @@ export const Index: React.FC = () => {
 					component={BasicTransition}
 					fps={30}
 					height={1080}
-					durationInFrames={300}
+					durationInFrames={336}
+					width={1920}
+				/>
+				<Composition
+					id="transition-scene-b"
+					component={BasicTransitionSceneB}
+					fps={30}
+					height={1080}
+					durationInFrames={30}
 					width={1920}
 				/>
 				<Composition
@@ -2709,22 +2804,6 @@ export const Index: React.FC = () => {
 					durationInFrames={10_000}
 				/>
 			</Folder>
-			<Folder name="VideoParser">
-				<Composition
-					id="VideoParser"
-					component={VideoParser}
-					fps={30}
-					height={1080}
-					width={1080}
-					durationInFrames={10_000}
-				/>
-			</Folder>
-			<Still
-				id="DecoderDemo"
-				component={DecoderDemo}
-				height={1000}
-				width={1024}
-			/>
 			<Still id="Emojis" component={EmojiTestbed} height={800} width={1024} />
 			<Still id="HugeImage" component={HugeImage} height={9000} width={9000} />
 			<Folder name="3DEngine">
@@ -2778,7 +2857,7 @@ export const Index: React.FC = () => {
 			<Composition
 				id="empty"
 				component={Empty}
-				width={1080}
+				width={1920}
 				height={1080}
 				fps={30}
 				durationInFrames={900}
@@ -3027,7 +3106,41 @@ export const Index: React.FC = () => {
 					durationInFrames={165}
 				/>
 			</Folder>
+			<Folder name="tracks">
+				<Composition
+					id="track-audio-intrinsic-duration-repro"
+					component={TrackAudioIntrinsicDurationRepro}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={90}
+				/>
+				<Composition
+					id="track-sequence-props"
+					component={TrackSequenceProps}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Composition
+					id="track-prototype"
+					component={TrackPrototype}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={240}
+				/>
+			</Folder>
 			<Folder name="video-editing">
+				<Composition
+					id="ActivityStressTest"
+					component={ActivityStressTest}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={ACTIVITY_STRESS_TEST_DURATION}
+				/>
 				<Composition
 					id="hour-long-timeline"
 					component={HourLongTimelineTestbed}
@@ -3102,6 +3215,14 @@ export const Index: React.FC = () => {
 				durationInFrames={300}
 			/>
 			<Folder name="VisualModeTests">
+				<Composition
+					id="keyframe-trim-testbed"
+					component={KeyframeTrimTestbed}
+					width={1920}
+					height={1440}
+					fps={30}
+					durationInFrames={180}
+				/>
 				<Composition
 					id="SourceSubscriptionChurn"
 					component={SourceSubscriptionChurn}

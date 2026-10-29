@@ -50,12 +50,12 @@ const mapFlyoverSchema = {
 		description: 'Destination [longitude, latitude]',
 	},
 	originLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'London',
 		description: 'Origin label',
 	},
 	destinationLabel: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Tokyo',
 		description: 'Destination label',
 	},
@@ -589,9 +589,8 @@ const MapFlyoverContent: React.FC<MapFlyoverLayerProps> = ({
 	);
 };
 
-export const MapFlyover = Interactive.withSchema({
+export const MapFlyover = Interactive.create({
 	Component: MapFlyoverContent,
 	componentName: '<MapFlyover>',
 	schema: mapFlyoverSchema,
-	wrapInSequence: true,
 });

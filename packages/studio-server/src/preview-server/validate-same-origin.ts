@@ -22,7 +22,10 @@ export const validateSameOrigin = (req: IncomingMessage): void => {
 		throw new Error('Request from different origin not allowed');
 	}
 
-	if (originUrl.origin !== `http://${host}`) {
+	if (
+		originUrl.origin !== `http://${host}` &&
+		originUrl.origin !== `https://${host}`
+	) {
 		throw new Error('Request from different origin not allowed');
 	}
 };

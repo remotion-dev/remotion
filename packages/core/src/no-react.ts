@@ -1,13 +1,26 @@
+import {validatePreferredEffectBackend} from './effects/validate-preferred-effect-backend.js';
+export type {PreferredEffectBackend} from './effects/effect-types.js';
+import type {
+	ArtifactAsset,
+	AudioOrVideoAsset as InternalAudioOrVideoAsset,
+	InlineAudioAsset,
+} from './CompositionManager';
 import {
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 } from './evaluate-source-expressions.js';
-export type {
-	ArtifactAsset,
-	AudioOrVideoAsset,
-	InlineAudioAsset,
-	TRenderAsset,
-} from './CompositionManager';
+import {DEFAULT_SEQUENCE_ACTIVITY_LIMIT} from './sequence-activity-defaults.js';
+export type {ArtifactAsset, InlineAudioAsset} from './CompositionManager';
+
+// Older consumers can still supply assets without a pitch preference.
+export type AudioOrVideoAsset = Omit<
+	InternalAudioOrVideoAsset,
+	'preservePitch'
+> & {
+	preservePitch?: boolean | null;
+};
+
+export type TRenderAsset = AudioOrVideoAsset | ArtifactAsset | InlineAudioAsset;
 export type {DownloadBehavior} from './download-behavior';
 export {
 	assertValidInterpolateEasingOption,
@@ -25,6 +38,11 @@ export {random} from './random.js';
 export type {RandomSeed} from './random.js';
 export type {VideoConfig} from './video-config';
 
+import {
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
+	validateDefaultPremountInSeconds,
+} from './default-premount-in-seconds';
 import {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	DELAY_RENDER_CLEAR_TOKEN,
@@ -49,6 +67,7 @@ import {parseScaleValue, serializeScaleValue} from './scale-value';
 import {truthy} from './truthy';
 import {ENABLE_V5_BREAKING_CHANGES} from './v5-flag';
 import {validateFrame} from './validate-frame';
+import {validateSelectedFrames} from './validate-selected-frames';
 import {validateCodec} from './validation/validate-default-codec';
 import {validateDefaultAndInputProps} from './validation/validate-default-props';
 import {validateDimension} from './validation/validate-dimensions';
@@ -58,6 +77,11 @@ import {getExpectedMediaFrameUncorrected} from './video/get-current-time';
 import {getOffthreadVideoSource} from './video/offthread-video-source';
 
 export const NoReactInternals = {
+	validatePreferredEffectBackend,
+	DEFAULT_PREMOUNT_IN_SECONDS,
+	DEFAULT_STUDIO_PREMOUNT_IN_SECONDS,
+	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
+	validateDefaultPremountInSeconds,
 	evaluateSourceNumericValue,
 	evaluateSourcePropStatuses,
 	processColor,
@@ -67,6 +91,7 @@ export const NoReactInternals = {
 	validateDurationInFrames,
 	validateDefaultAndInputProps,
 	validateFrame,
+	validateSelectedFrames,
 	serializeJSONWithSpecialTypes,
 	bundleName: 'bundle.js',
 	bundleMapName: 'bundle.js.map',

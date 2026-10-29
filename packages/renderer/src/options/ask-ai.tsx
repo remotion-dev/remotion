@@ -7,6 +7,7 @@ const cliFlag = 'disable-ask-ai' as const;
 
 export const askAIOption = {
 	name: 'Disable or Enable the Ask AI option',
+	addedIn: '4.0.407',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,10 +16,10 @@ export const askAIOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setaskaienabled',
+	docLink: 'https://www.remotion.dev/docs/options/disable-ask-ai',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			askAIEnabled = false;
 			return {
 				value: askAIEnabled,

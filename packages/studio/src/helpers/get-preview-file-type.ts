@@ -28,6 +28,7 @@ export const getPreviewFileType = (fileName: string | null): AssetFileType => {
 	const imageExtensions = [
 		'jpg',
 		'jpeg',
+		'jxl',
 		'png',
 		'apng',
 		'gif',

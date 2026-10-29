@@ -15,8 +15,18 @@ type PendingSequencePropsSubscription = {
 	reject: (error: unknown) => void;
 };
 
+type PendingSequencePropsUnsubscription = {
+	request: UnsubscribeFromSequencePropsRequest;
+	resolve: (response: undefined) => void;
+	reject: (error: unknown) => void;
+};
+
 let pendingSequencePropsSubscriptions: PendingSequencePropsSubscription[] = [];
 let sequencePropsSubscriptionTimer: ReturnType<typeof setTimeout> | null = null;
+let pendingSequencePropsUnsubscriptions: PendingSequencePropsUnsubscription[] =
+	[];
+let sequencePropsUnsubscriptionTimer: ReturnType<typeof setTimeout> | null =
+	null;
 
 const flushSequencePropsSubscriptions = () => {
 	sequencePropsSubscriptionTimer = null;
@@ -82,7 +92,33 @@ export const unsubscribeFromSequenceProps = (
 	request: UnsubscribeFromSequencePropsRequest,
 ): Promise<undefined> => {
 	const browserStudioOperations = getBrowserStudioOperations();
-	return browserStudioOperations
-		? browserStudioOperations.unsubscribeFromSequenceProps(request)
-		: callApi('/api/unsubscribe-from-sequence-props', request);
+	if (browserStudioOperations) {
+		return browserStudioOperations.unsubscribeFromSequenceProps(request);
+	}
+
+	return new Promise((resolve, reject) => {
+		pendingSequencePropsUnsubscriptions.push({request, resolve, reject});
+		if (sequencePropsUnsubscriptionTimer === null) {
+			sequencePropsUnsubscriptionTimer = setTimeout(() => {
+				sequencePropsUnsubscriptionTimer = null;
+				const pending = pendingSequencePropsUnsubscriptions;
+				pendingSequencePropsUnsubscriptions = [];
+
+				callApi('/api/unsubscribe-from-sequence-props', {
+					requests: pending.map((item) => item.request),
+				}).then(
+					() => {
+						for (const item of pending) {
+							item.resolve(undefined);
+						}
+					},
+					(error) => {
+						for (const item of pending) {
+							item.reject(error);
+						}
+					},
+				);
+			}, 0);
+		}
+	});
 };

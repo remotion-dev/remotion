@@ -404,6 +404,7 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	readonly keyframePlaybackRate: number;
 	readonly propStatus: CanUpdateSequencePropStatus | null;
 	readonly runtimeValueStore: RuntimeValueStore | null;
+	readonly subscribeToTimelinePosition: boolean;
 }> = ({
 	field,
 	nodePath,
@@ -412,8 +413,12 @@ const TimelineEffectPropValueAtCurrentFrame: React.FC<{
 	keyframePlaybackRate,
 	propStatus,
 	runtimeValueStore,
+	subscribeToTimelinePosition,
 }) => {
-	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const timelinePosition =
+		Internals.Timeline.useTimelinePositionWithOptionalSubscription(
+			subscribeToTimelinePosition,
+		);
 
 	return (
 		<TimelineEffectPropValue
@@ -474,7 +479,7 @@ export const TimelineEffectPropItem: React.FC<{
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
 	const containsSelection = useTimelineRowContainsSelection(nodePathInfo);
 	const style = useMemo((): React.CSSProperties => {
-		return field.typeName === 'text-content'
+		return field.typeName === 'string' || field.typeName === 'text-content'
 			? fieldRowBase
 			: {...fieldRowBase, height: field.rowHeight};
 	}, [field.rowHeight, field.typeName]);
@@ -609,7 +614,7 @@ export const TimelineEffectPropItem: React.FC<{
 				id: 'annotate-effect-property',
 				getTarget: () => annotationTarget.current,
 				initialComment: markupSkillAvailable ? '$remotion-markup' : null,
-				metadata: {
+				getMetadata: () => ({
 					layer: nodePath.nodePath.join('.'),
 					layerKeys: JSON.stringify(nodePath.sequenceKeys),
 					effectIndex: field.effectIndex,
@@ -622,7 +627,7 @@ export const TimelineEffectPropItem: React.FC<{
 							location: validatedLocation,
 							root: window.remotion_cwd,
 						}) ?? validatedLocation.source,
-				},
+				}),
 			}),
 			{
 				type: 'divider',
@@ -684,6 +689,7 @@ export const TimelineEffectPropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			<TimelineFieldRowContent
 				field={field}
@@ -698,6 +704,10 @@ export const TimelineEffectPropItem: React.FC<{
 					keyframePlaybackRate={keyframePlaybackRate}
 					propStatus={propStatus}
 					runtimeValueStore={runtimeValueStore}
+					subscribeToTimelinePosition={
+						propStatus?.status === 'keyframed' ||
+						dragOverrideValue?.type === 'keyframed'
+					}
 				/>
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>

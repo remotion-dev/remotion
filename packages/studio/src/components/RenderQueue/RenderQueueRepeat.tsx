@@ -30,6 +30,7 @@ export const RenderQueueRepeatItem: React.FC<{
 			if (job.type === 'caption') {
 				setSelectedModal({
 					type: 'transcribe',
+					captionStyle: job.captionStyle,
 					src: job.src,
 					displayName: job.displayName,
 					audioStreamIndex: job.audioStreamIndex,

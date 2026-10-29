@@ -1,18 +1,16 @@
-import type {
-	BrowserSafeApis,
-	ChromiumOptions,
-	ToOptions,
-	VideoConfig,
-} from '@remotion/serverless-client';
+import type {ChromiumOptions, ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
+import type {VideoConfig} from 'remotion/no-react';
+import {VERSION} from 'remotion/version';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import {
-	ServerlessRoutines,
-	VERSION,
 	compressInputProps,
 	getNeedsToUpload,
 	serializeOrThrow,
-} from '@remotion/serverless-client';
-import {awsImplementation} from './aws-provider';
+} from './compress-props';
+import {getSizeInBytes} from './get-size-in-bytes';
 import type {AwsRegion} from './regions';
+import {ServerlessRoutines} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export type GetCompositionsOnLambdaInput = {
@@ -54,6 +52,7 @@ export const getCompositionsOnLambda = async ({
 	forcePathStyle,
 	requestHandler,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -65,12 +64,10 @@ export const getCompositionsOnLambda = async ({
 		needsToUpload: getNeedsToUpload({
 			type: 'video-or-audio',
 			sizes: [
-				stringifiedInputProps.length,
-				JSON.stringify(envVariables).length,
+				getSizeInBytes(stringifiedInputProps),
+				getSizeInBytes(JSON.stringify(envVariables ?? {})),
 			],
-			providerSpecifics: awsImplementation,
 		}),
-		providerSpecifics: awsImplementation,
 		forcePathStyle: forcePathStyle ?? false,
 		skipPutAcl: false,
 		requestHandler,
@@ -78,14 +75,14 @@ export const getCompositionsOnLambda = async ({
 	});
 
 	try {
-		const res = await awsImplementation.callFunctionSync({
+		const res = await callFunctionSyncImplementation({
 			functionName,
 			type: ServerlessRoutines.compositions,
 			payload: {
 				type: ServerlessRoutines.compositions,
 				chromiumOptions: chromiumOptions ?? {},
 				serveUrl,
-				envVariables,
+				envVariables: envVariables ?? {},
 				inputProps: serializedInputProps,
 				logLevel: dumpBrowserLogs ? 'verbose' : (logLevel ?? 'info'),
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
@@ -94,6 +91,7 @@ export const getCompositionsOnLambda = async ({
 				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 				forcePathStyle: forcePathStyle ?? false,
 				mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+				preferredEffectBackend: preferredEffectBackend ?? 'auto',
 			},
 			region,
 			timeoutInTest: 120000,

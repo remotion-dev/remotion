@@ -8,16 +8,27 @@
 // `@webgpu/types` into core; effects targeting webgpu narrow the type
 // themselves.
 
+let deviceLost = false;
 let devicePromise: Promise<unknown> | null = null;
 
 export const getGpuDevice = (): Promise<unknown> => {
+	if (
+		deviceLost &&
+		typeof window !== 'undefined' &&
+		window.remotion_puppeteerTimeout !== undefined
+	) {
+		throw new Error(
+			'WebGPU device was lost during rendering. Retry the render or use preferredEffectBackend: "webgl2".',
+		);
+	}
+
 	if (devicePromise) {
 		return devicePromise;
 	}
 
 	devicePromise = (async () => {
 		if (typeof navigator === 'undefined' || !('gpu' in navigator)) {
-			throw new Error('WebGPU is not available in this environment');
+			return null;
 		}
 
 		const {gpu} = navigator as unknown as {
@@ -27,11 +38,17 @@ export const getGpuDevice = (): Promise<unknown> => {
 			requestDevice: () => Promise<unknown>;
 		} | null;
 		if (!adapter) {
-			throw new Error('No WebGPU adapter available');
+			return null;
 		}
 
-		return adapter.requestDevice();
-	})();
+		const device = (await adapter.requestDevice()) as {lost: Promise<unknown>};
+		device.lost?.then(() => {
+			// Keep the fallback stable for the lifetime of a render/preview session.
+			deviceLost = true;
+			devicePromise = Promise.resolve(null);
+		});
+		return device;
+	})().catch(() => null);
 
 	return devicePromise;
 };
@@ -39,4 +56,5 @@ export const getGpuDevice = (): Promise<unknown> => {
 // Test-only: reset the cached device. Not exported from `remotion`.
 export const _resetGpuDeviceForTesting = (): void => {
 	devicePromise = null;
+	deviceLost = false;
 };

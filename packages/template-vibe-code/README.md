@@ -3,7 +3,7 @@
 A Remotion template that turns the browser into a motion graphics editor: write React code, watch it compile instantly, and edit the result on the canvas, in the timeline and in the inspector — no backend, no bundler process.
 
 - **Live compilation** – the project is compiled in a Web Worker with [`@remotion/browser-bundler`](https://www.remotion.dev/docs/browser-bundler) and hot-swapped with Fast Refresh, so component state survives edits.
-- **Canvas** – [`@remotion/sdk`](https://www.remotion.dev/docs/sdk) renders the composition with selection outlines. Click a layer on the canvas or in the timeline to select it, drag it to move it (it snaps to the edges and center of the composition, Shift locks the axis, ⌘ disables snapping) or nudge it with the arrow keys. Switch to “Interact” mode to use the composition’s own buttons and inputs.
+- **Canvas** – [`@remotion/sdk`](https://www.remotion.dev/docs/sdk/api) renders the composition with selection outlines. Click a layer on the canvas or in the timeline to select it, drag it to move it (it snaps to the edges and center of the composition, Shift locks the axis, ⌘ disables snapping) or nudge it with the arrow keys. Switch to “Interact” mode to use the composition’s own buttons and inputs.
 - **Timeline** – every mounted sequence shows up as a track. Drag a track bar to change its `from`, drag its edges to trim `durationInFrames`, or drag a track label to reorder selected sibling layers together. Split, duplicate, wrap and delete layers. In/out points, zoomable ruler, scrubbing.
 - **Keyframes** – props animated with `interpolate()` get a keyframe row under their track. Drag keyframes to retime them, click to select them (Shift and ⌘ extend the selection), double-click to jump to them, press ⌫ to delete them. In the inspector, a diamond next to each animatable prop adds or removes a keyframe at the playhead and the arrows jump to the neighboring keyframes.
 - **Easing** – click the line between two keyframes to edit the easing of that segment: pick a preset (ease in/out, hold, springs), tweak the bezier handles or the spring parameters with live preview, or right-click the line for a preset. The same inspector edits the `interpolate()` options of the prop: extrapolation, `output` mode and `posterize`. ⌫ resets a selected easing to linear.
@@ -68,7 +68,9 @@ The browser bundler records where every JSX element was written, and the Canvas 
 
 Dragging a value in the inspector or a track in the timeline does not rewrite the source on every pointer move. The editor previews the value on the canvas with [`controller.overrides`](https://www.remotion.dev/docs/sdk/create-canvas-controller#overrides) and writes it with a codemod once the gesture ends. The preview stays in place until the recompiled project is running, so the canvas never flashes the old value.
 
-Moving an outline on the canvas works the same way, but the Canvas owns the gesture: it previews `style.translate` while dragging and reports the final values through the [`onSequencePropsChange`](https://www.remotion.dev/docs/sdk/canvas#onsequencepropschange) prop. The editor writes them with `updateMultipleNodeProps()` in one undoable step and releases the previews once the new bundle runs. Before a move starts, the Canvas asks the editor through [`getSequencePropStatuses`](https://www.remotion.dev/docs/sdk/canvas#getsequencepropstatuses) how the position is written: a position animated with `interpolate()` gets a keyframe at the playhead via `updateNodeKeyframes()`, and a position computed in code cannot be moved.
+Moving an outline on the canvas works the same way, but the Canvas owns the gesture: it previews `style.translate` while dragging and reports the final values through the [`onSequencePropsChange`](https://www.remotion.dev/docs/sdk/canvas#onsequencepropschange) prop. Before a move starts, the Canvas asks the editor through [`getSequencePropStatuses`](https://www.remotion.dev/docs/sdk/canvas#getsequencepropstatuses) how the position is written: a position animated with `interpolate()` gets a keyframe at the playhead via `updateNodeKeyframes()`, and a position computed in code cannot be moved.
+
+The callback reports static and keyframed changes together. The editor applies `updateMultipleNodeProps()` and `updateNodeKeyframes()` to the same project before committing the resulting files in one undoable step. One undo or redo restores or reapplies the entire mixed selection. The previews are released once the new bundle runs.
 
 ### Keyframes
 
@@ -117,7 +119,7 @@ STATIC_EXPORT_BASE_PATH=/ npm run build          # served at the root
 STATIC_EXPORT_BASE_PATH=/editor npm run build    # served under /editor
 ```
 
-The starter project is embedded at build time and edits stay in memory. Only the `*.static.tsx` route files in `src/app` are part of the export, so the page and the `/api/project` route that read the project from disk are left out. Serve the files with the `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers described below; `next.config.mjs` cannot set headers for a static export. This is how [remotion.dev/experimental_sdk](https://www.remotion.dev/experimental_sdk) is deployed.
+The starter project is embedded at build time and edits stay in memory. Only the `*.static.tsx` route files in `src/app` are part of the export, so the page and the `/api/project` route that read the project from disk are left out. Serve the files with the `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers described below; `next.config.mjs` cannot set headers for a static export. This is how [sdk-demo.remotion.dev](https://sdk-demo.remotion.dev) is deployed.
 
 ## Docs
 

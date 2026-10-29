@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './HomepageAssets/ExploreRemotion/camera-angle';
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
@@ -13,11 +14,12 @@ export const AudioWaveformPreview = () => {
 
 	return (
 		<AbsoluteFill
+			name="Canvas Capture"
 			style={{
 				width: 2560,
 				height: 1402,
-				translate: '-103px -223.5px',
-				rotate: '0.906636 -0.374407 0.194501 24.07307deg',
+				translate: '-203px -403.5px',
+				rotate: EXPLORE_CAMERA_ANGLE,
 				scale: 1.298,
 			}}
 			from={-207}

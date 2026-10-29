@@ -22,7 +22,11 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
-	return `/img/${item.id}-preview.png`;
+	if (item.id === 'effects-evolve' || item.id === 'effects-rain-fall') {
+		return `https://remotion.media/docs/effects/${item.id}-preview-v2.png`;
+	}
+
+	return `https://remotion.media/docs/effects/${item.id}-preview.png`;
 };
 
 export const getEffectPreviewAlt = (item: EffectCatalogItem) => {
@@ -117,6 +121,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			config: {
 				similarity: 0.45,
 			},
+		},
+	},
+	{
+		id: 'effects-curves',
+		category: 'Color',
+		label: 'curves()',
+		description: 'Adjust RGB or individual channels with a tonal curve',
+		effect: {
+			name: 'curves',
+			importPath: '@remotion/effects/curves',
+			config: {},
 		},
 	},
 	{
@@ -302,6 +317,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-lens-blur',
+		category: 'Blur & Shadow',
+		label: 'lensBlur()',
+		description: 'Camera defocus with shaped bokeh',
+		effect: {
+			name: 'lensBlur',
+			importPath: '@remotion/effects/lens-blur',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-linear-progressive-blur',
 		category: 'Blur & Shadow',
 		label: 'linearProgressiveBlur()',
@@ -360,6 +386,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-long-shadows',
+		category: 'Blur & Shadow',
+		label: 'longShadows()',
+		description: 'Solid directional shadow or faux extrusion',
+		effect: {
+			name: 'longShadows',
+			importPath: '@remotion/effects/long-shadows',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-glow',
 		category: 'Blur & Shadow',
 		label: 'glow()',
@@ -399,11 +436,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		id: 'effects-evolve',
 		category: 'Reveal',
 		label: 'evolve()',
-		description: 'Directional reveal effect',
+		description: 'Directional reveal with angle and feathering',
 		effect: {
 			name: 'evolve',
 			importPath: '@remotion/effects/evolve',
-			config: {},
+			config: {
+				progress: 0.5,
+				direction: 'angle',
+				angle: 60,
+				featherUnit: 'pixels',
+				featherPixels: 60,
+			},
 		},
 	},
 	{
@@ -412,6 +455,57 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		label: 'tear()',
 		description: 'Progressive zigzag tear with outward rotation',
 		effect: {name: 'tear', importPath: '@remotion/effects/tear', config: {}},
+	},
+	{
+		id: 'effects-film-burn',
+		category: 'Reveal',
+		label: 'filmBurn()',
+		description: 'Irregular burn holes with charred and glowing edges',
+		effect: {
+			name: 'filmBurn',
+			importPath: '@remotion/effects/film-burn',
+			config: {
+				progress: 0.4,
+				center: [0.5, 0.5],
+				seed: 0,
+			},
+		},
+	},
+	{
+		id: 'effects-radial-wipe',
+		category: 'Reveal',
+		label: 'radialWipe()',
+		description: 'Rotating wedge wipe around a center point',
+		effect: {
+			name: 'radialWipe',
+			importPath: '@remotion/effects/radial-wipe',
+			config: {
+				progress: 0.3,
+				startAngle: 0,
+				center: [0.5, 0.5],
+				direction: 'clockwise',
+				feather: 8,
+			},
+		},
+	},
+	{
+		id: 'effects-iris-wipe',
+		category: 'Reveal',
+		label: 'irisWipe()',
+		description: 'Polygon or star opening with feathered edges',
+		effect: {
+			name: 'irisWipe',
+			importPath: '@remotion/effects/iris-wipe',
+			config: {
+				center: [0.5, 0.5],
+				points: 5,
+				outerRadius: 300,
+				useInnerRadius: true,
+				innerRadius: 140,
+				rotation: 0,
+				feather: 12,
+			},
+		},
 	},
 	{
 		id: 'effects-venetian-blinds',
@@ -531,6 +625,39 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-page-turn',
+		category: 'Distort',
+		label: 'pageTurn()',
+		description: 'Curl a page with a shaded fold and paper back',
+		effect: {
+			name: 'pageTurn',
+			importPath: '@remotion/effects/page-turn',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-sphere',
+		category: 'Distort',
+		label: 'sphere()',
+		description: 'Wrap content around a rotating sphere',
+		effect: {
+			name: 'sphere',
+			importPath: '@remotion/effects/sphere',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-cylinder',
+		category: 'Distort',
+		label: 'cylinder()',
+		description: 'Wrap content around a rotating cylinder',
+		effect: {
+			name: 'cylinder',
+			importPath: '@remotion/effects/cylinder',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-wave',
 		category: 'Distort',
 		label: 'wave()',
@@ -553,6 +680,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-turbulent-displace',
+		category: 'Distort',
+		label: 'turbulentDisplace()',
+		description: 'Evolving turbulent, bulge and twist distortion',
+		effect: {
+			name: 'turbulentDisplace',
+			importPath: '@remotion/effects/turbulent-displace',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-burlap',
 		category: 'Stylize',
 		label: 'burlap()',
@@ -560,6 +698,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'burlap',
 			importPath: '@remotion/effects/burlap',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-bevel-alpha',
+		category: 'Stylize',
+		label: 'bevelAlpha()',
+		description: 'Light and shade the edges of text and shapes',
+		effect: {
+			name: 'bevelAlpha',
+			importPath: '@remotion/effects/bevel-alpha',
 			config: {},
 		},
 	},
@@ -731,6 +880,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-shatter',
+		category: 'Stylize',
+		label: 'shatter()',
+		description: 'Break the source into tumbling fragments',
+		effect: {
+			name: 'shatter',
+			importPath: '@remotion/effects/shatter',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-shine',
 		category: 'Stylize',
 		label: 'shine()',
@@ -768,6 +928,49 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'vignette',
 			importPath: '@remotion/effects/vignette',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-rain-fall',
+		category: 'Generate',
+		label: 'rainFall()',
+		description: 'Falling rain with wind and depth',
+		effect: {
+			name: 'rainFall',
+			importPath: '@remotion/effects/rain-fall',
+			config: {
+				time: 1,
+				drops: 100000,
+				size: 2,
+				wind: 200,
+				opacity: 0.5,
+			},
+		},
+	},
+	{
+		id: 'effects-snow-fall',
+		category: 'Generate',
+		label: 'snowFall()',
+		description: 'Drifting snow with wind and depth',
+		effect: {
+			name: 'snowFall',
+			importPath: '@remotion/effects/snow-fall',
+			config: {
+				time: 1,
+				flakes: 1500,
+				size: 8,
+			},
+		},
+	},
+	{
+		id: 'effects-fractal-noise',
+		category: 'Generate',
+		label: 'fractalNoise()',
+		description: 'Evolving fractal noise textures',
+		effect: {
+			name: 'fractalNoise',
+			importPath: '@remotion/effects/fractal-noise',
 			config: {},
 		},
 	},

@@ -1,9 +1,15 @@
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {defineConfig} from 'wxt';
+// eslint-disable-next-line no-restricted-imports -- Share the minimum version with this package's runtime check.
+import {minimumChromeVersion} from './src/browser-requirements';
 
 const homeDirectory = homedir();
 const isDevelopment = process.env.npm_lifecycle_event === 'dev';
+const handoffOrigin =
+	isDevelopment && process.env.CANVAS_CAPTURE_HANDOFF_ORIGIN
+		? new URL(process.env.CANVAS_CAPTURE_HANDOFF_ORIGIN).origin
+		: 'https://www.remotion.dev';
 
 export default defineConfig({
 	srcDir: 'src',
@@ -17,12 +23,34 @@ export default defineConfig({
 			)
 		: 'dist',
 	outDirTemplate: '.',
+	vite: () => ({
+		define: {
+			'import.meta.env.CANVAS_CAPTURE_HANDOFF_ORIGIN':
+				JSON.stringify(handoffOrigin),
+		},
+	}),
 	manifest: {
 		name: 'Remotion Canvas Capture',
-		description:
-			'Record any element on a webpage as a high-resolution MP4 or WebM.',
+		description: `Record an area or webpage as MP4 or WebM. Requires Chrome ${minimumChromeVersion}+ and Canvas Draw Element enabled.`,
 		version: '0.1.0',
+		// Allow older Chrome versions to install and show the recording requirements.
+		minimum_chrome_version: '155',
 		permissions: ['activeTab', 'scripting', 'storage', 'unlimitedStorage'],
+		externally_connectable: {
+			matches: [
+				'https://remotion.new/*',
+				'https://remotion.dev/new*',
+				'https://remotion.dev/convert*',
+				'https://www.remotion.dev/new*',
+				'https://www.remotion.dev/convert*',
+				...(isDevelopment && handoffOrigin !== 'https://www.remotion.dev'
+					? [
+							`${new URL(handoffOrigin).protocol}//${new URL(handoffOrigin).hostname}/new*`,
+							`${new URL(handoffOrigin).protocol}//${new URL(handoffOrigin).hostname}/convert*`,
+						]
+					: []),
+			],
+		},
 		icons: {
 			16: 'icons/icon-16.png',
 			32: 'icons/icon-32.png',
@@ -41,25 +69,25 @@ export default defineConfig({
 	},
 	webExt: {
 		binaries: {
-			chrome: path.join(
-				homeDirectory,
-				'Applications',
-				'Recorder Chrome.app',
-				'Contents',
-				'MacOS',
-				'Google Chrome for Testing',
-			),
+			chrome:
+				process.env.CANVAS_CAPTURE_BROWSER_EXECUTABLE ??
+				path.join(
+					homeDirectory,
+					'Applications',
+					'Recorder Chrome.app',
+					'Contents',
+					'MacOS',
+					'Google Chrome for Testing',
+				),
 		},
 		chromiumArgs: [
 			`--user-data-dir=${path.join(
 				homeDirectory,
 				'Library',
 				'Application Support',
-				'Chrome for Testing Canvas Capture r1631007',
+				'Remotion Canvas Capture',
 			)}`,
 			'--enable-features=CanvasDrawElement',
-			'--enable-blink-features=CanvasDrawElement',
-			'--disable-component-update',
 			'--no-first-run',
 			'--no-default-browser-check',
 		],

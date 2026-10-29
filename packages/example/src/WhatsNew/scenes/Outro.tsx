@@ -1,12 +1,12 @@
 import React from 'react';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {pop, rise} from '../anim';
 import {Backdrop} from '../components/Background';
 import {RemotionLogo} from '../components/Logo';
 import {display, mono} from '../fonts';
 import {colors} from '../theme';
 
-export const OutroScene: React.FC = () => {
+const OutroSceneInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const logo = pop(frame, 0, 10);
 	const word = rise(frame, 8, 18);
@@ -18,11 +18,32 @@ export const OutroScene: React.FC = () => {
 	});
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#000'}}>
-			<AbsoluteFill style={{opacity: fade}}>
+		<>
+			<div
+				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
+					opacity: fade,
+				}}
+			>
 				<Backdrop accent={colors.blue} dark />
-				<AbsoluteFill
+				<div
 					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						width: '100%',
+						height: '100%',
+						display: 'flex',
 						justifyContent: 'center',
 						alignItems: 'center',
 						flexDirection: 'column',
@@ -76,8 +97,13 @@ export const OutroScene: React.FC = () => {
 					>
 						Make videos programmatically.
 					</div>
-				</AbsoluteFill>
-			</AbsoluteFill>
-		</AbsoluteFill>
+				</div>
+			</div>
+		</>
 	);
 };
+
+export const OutroScene = Interactive.create({
+	Component: OutroSceneInner,
+	layout: 'absolute-fill',
+});

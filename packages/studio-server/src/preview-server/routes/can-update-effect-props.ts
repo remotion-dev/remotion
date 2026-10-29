@@ -293,7 +293,8 @@ export const computeEffectPropStatus = ({
 	};
 };
 
-export const {computeEffectPropsStatusesFromContent} = CodemodsInternals;
+export const {computeEffectPropsStatusesFromContent}: typeof CodemodsInternals =
+	CodemodsInternals;
 
 export const computeEffectPropsStatusesFromFile = ({
 	fileName,

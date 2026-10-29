@@ -16,7 +16,10 @@ import {
 const packagejson = require('../../package.json');
 const rendererOptions = Object.values(BrowserSafeApis.options);
 
-type HelpOption = ReturnType<typeof CliInternals.makeCommandHelpOption>;
+type HelpOption = {
+	flag: string;
+	description: string;
+};
 export type PrintHelp = (
 	selectedPath: readonly string[],
 	logLevel: LogLevel,
@@ -43,6 +46,10 @@ const lambdaOptions: Record<string, HelpOption> = {
 	'concurrency-per-lambda': {
 		flag: '--concurrency-per-lambda <count>',
 		description: 'Set the concurrency within each Lambda invocation.',
+	},
+	'output-prefix': {
+		flag: '--output-prefix <prefix>',
+		description: 'Set the storage prefix for an image sequence.',
 	},
 	'out-name': {
 		flag: '--out-name <key>',
@@ -154,28 +161,35 @@ const lambdaOptions: Record<string, HelpOption> = {
 const options = (
 	flags: readonly string[],
 	descriptionOverrides: Record<string, string> = {},
-): HelpOption[] => {
+	imageFormat: 'video' | 'still' | null = null,
+): (HelpOption & {optionIds: readonly string[]})[] => {
 	return flags.map((flag) => {
 		const lambdaOption = lambdaOptions[flag];
 		if (lambdaOption) {
-			return lambdaOption;
+			return {...lambdaOption, optionIds: []};
 		}
 
-		const rendererOption = rendererOptions.find(
-			(candidate) => candidate.cliFlag === flag,
-		);
+		const rendererOption =
+			flag === 'image-format'
+				? imageFormat === 'video'
+					? BrowserSafeApis.options.videoImageFormatOption
+					: BrowserSafeApis.options.stillImageFormatOption
+				: rendererOptions.find((candidate) => candidate.cliFlag === flag);
 		if (!rendererOption) {
 			throw new Error(`No Lambda CLI help metadata exists for --${flag}`);
 		}
 
-		return CliInternals.makeCommandHelpOption({
-			option: rendererOption,
-			description: descriptionOverrides[flag],
-		});
+		return {
+			...CliInternals.makeCommandHelpOption({
+				option: rendererOption,
+				description: descriptionOverrides[flag],
+			}),
+			optionIds: [rendererOption.id],
+		};
 	});
 };
 
-const commandHelp = [
+export const lambdaCommandHelp = [
 	{
 		path: [],
 		args: ' <command>',
@@ -212,6 +226,7 @@ const commandHelp = [
 				'prores-profile',
 				'x264-preset',
 				'gop',
+				'disable-shared-memory-capture',
 				'crf',
 				'pixel-format',
 				'image-format',
@@ -222,6 +237,10 @@ const commandHelp = [
 				'number-of-gif-loops',
 				'timeout',
 				'out-name',
+				'separate-audio-to',
+				'output-prefix',
+				'sequence',
+				'image-sequence-pattern',
 				's3-output-provider-endpoint',
 				's3-output-provider-region',
 				's3-output-provider-force-path-style',
@@ -244,6 +263,7 @@ const commandHelp = [
 				'enable-multiprocess-on-linux',
 				'user-agent',
 				'media-cache-size-in-bytes',
+				'preferred-effect-backend',
 				'offthreadvideo-cache-size-in-bytes',
 				'offthreadvideo-video-threads',
 				'delete-after',
@@ -262,7 +282,10 @@ const commandHelp = [
 			{
 				'image-format': 'Video Image Format',
 				port: 'Set a custom port when selecting a composition interactively.',
+				'separate-audio-to':
+					'Save the mixed audio as a separate file in the render bucket and omit audio from the video.',
 			},
+			'video',
 		),
 	},
 	{
@@ -304,6 +327,7 @@ const commandHelp = [
 				'enable-multiprocess-on-linux',
 				'user-agent',
 				'media-cache-size-in-bytes',
+				'preferred-effect-backend',
 				'offthreadvideo-cache-size-in-bytes',
 				'offthreadvideo-video-threads',
 				'delete-after',
@@ -317,6 +341,7 @@ const commandHelp = [
 			{
 				port: 'Set a custom port when selecting a composition interactively.',
 			},
+			'still',
 		),
 	},
 	{
@@ -325,6 +350,7 @@ const commandHelp = [
 		description: 'Print composition IDs from a serve URL.',
 		documentation: 'https://www.remotion.dev/docs/lambda/cli/compositions',
 		options: options([
+			'preferred-effect-backend',
 			'region',
 			'function-name',
 			'props',
@@ -497,7 +523,7 @@ const commandHelp = [
 export const getLambdaHelp = (selectedPath: readonly string[]) => {
 	return CliInternals.getCommandHelp({
 		binaryName: BINARY_NAME,
-		commands: commandHelp,
+		commands: lambdaCommandHelp,
 		selectedPath,
 		rootDocumentation: 'https://www.remotion.dev/docs/lambda/cli',
 	});

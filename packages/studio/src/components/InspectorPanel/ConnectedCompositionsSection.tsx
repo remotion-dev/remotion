@@ -50,6 +50,7 @@ export const ConnectedCompositionsSection: React.FC<{
 }> = ({connectedCompositions}) => {
 	return (
 		<CollapsibleInspectorSection
+			bodyPaddingBottom={0}
 			collapsible
 			label="Connected compositions"
 			sectionId="connected-compositions"
@@ -110,7 +111,10 @@ const ConnectedCompositionRow: React.FC<{
 					/>
 				)}
 			>
-				<span data-annotation-composition-id={composition.id}>
+				<span
+					data-annotation-composition-id={composition.id}
+					style={{font: 'inherit'}}
+				>
 					{composition.id}
 				</span>
 			</InspectorQuickAction>

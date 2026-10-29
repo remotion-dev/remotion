@@ -22,6 +22,7 @@ const KEYFRAME_CLIPBOARD_FIELD_TYPE_SUPPORT = {
 	'rotation-degrees': true,
 	scale: true,
 	'svg-path': true,
+	string: false,
 	'text-content': false,
 	'transform-origin': true,
 	translate: true,

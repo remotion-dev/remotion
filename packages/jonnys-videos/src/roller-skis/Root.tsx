@@ -1,7 +1,7 @@
 import {Composition, Still} from 'remotion';
 import {RollerSkiBlueprintCompositions} from './blueprint/RollerSkiBlueprint';
 import {CommuteMotionGraphic} from './CommuteMotionGraphic';
-import {MyComposition} from './Composition';
+import {MyComposition, PresenterIntroduction} from './Composition';
 import {IntroLowerThird} from './IntroLowerThird';
 import {NordicRoutes} from './nordic/NordicRoutes';
 import {Thumbnail} from './Thumbnail';
@@ -10,6 +10,15 @@ export const RemotionRoot: React.FC = () => {
 	return (
 		<>
 			<MyComposition />
+			<Composition
+				id="PresenterIntroduction"
+				component={PresenterIntroduction}
+				durationInFrames={420}
+				fps={30}
+				width={1920}
+				height={1080}
+				defaultProps={{}}
+			/>
 			<Composition
 				id="NordicRoutes"
 				component={NordicRoutes}

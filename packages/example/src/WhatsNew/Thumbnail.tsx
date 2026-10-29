@@ -1,6 +1,6 @@
 import {lightLeak} from '@remotion/effects/light-leak';
 import React from 'react';
-import {AbsoluteFill, Img, Solid} from 'remotion';
+import {Interactive, Img, Solid} from 'remotion';
 import {
 	BoltIcon,
 	EyeIcon,
@@ -20,9 +20,9 @@ const tiles = [
 	{color: '#2A1F4D', icon: <EyeIcon size={44} color={accents.sneakPeek} />},
 ];
 
-export const Thumbnail: React.FC = () => {
+const ThumbnailInner: React.FC = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#06080E', overflow: 'hidden'}}>
+		<>
 			<Img
 				src={
 					'https://remotion.media/announcements/whats-new-in-remotion/cursor/thumbnail/face.jpg'
@@ -43,8 +43,17 @@ export const Thumbnail: React.FC = () => {
 				style={{position: 'absolute', mixBlendMode: 'screen', opacity: 0.7}}
 				effects={[lightLeak({seed: 9, hueShift: 0, progress: 0.22})]}
 			/>
-			<AbsoluteFill
+			<div
 				style={{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					width: '100%',
+					height: '100%',
+					display: 'flex',
+					flexDirection: 'column',
 					background:
 						'linear-gradient(90deg, rgba(6,8,14,0.94) 0%, rgba(6,8,14,0.8) 34%, rgba(6,8,14,0) 60%)',
 				}}
@@ -110,6 +119,11 @@ export const Thumbnail: React.FC = () => {
 					))}
 				</div>
 			</div>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const Thumbnail = Interactive.create({
+	Component: ThumbnailInner,
+	layout: 'absolute-fill',
+});

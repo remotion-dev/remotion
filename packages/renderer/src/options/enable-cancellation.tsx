@@ -6,6 +6,7 @@ let enableCancellation = false;
 
 export const enableCancellationOption = {
 	name: 'Enable cancellation',
+	addedIn: '4.0.515',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,8 +16,7 @@ export const enableCancellationOption = {
 		</>
 	),
 	ssrName: null,
-	docLink:
-		'https://www.remotion.dev/docs/lambda/cli/render#--enable-cancellation',
+	docLink: 'https://www.remotion.dev/docs/options/enable-cancellation',
 	type: false as boolean,
 	setConfig: (value: boolean) => {
 		enableCancellation = value;

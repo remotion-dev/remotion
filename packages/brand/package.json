@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/brand"
 	},
 	"name": "@remotion/brand",
-	"version": "4.0.533",
+	"version": "4.0.539",
 	"private": true,
 	"sideEffects": [
 		"*.css"
@@ -13,8 +13,12 @@
 		"dev:studio-code-handoff": "remotion studio src/studio-code-handoff/index.ts",
 		"bundle": "remotion bundle --rspack --public-path /brand/",
 		"capture-docs": "bun scripts/capture-doc-pages.ts",
+		"capture:aura-code": "bun scripts/aura-code/capture.ts",
+		"capture:aura-timeline": "bun scripts/aura-code/capture-studio.ts",
 		"lint": "eslint src",
-		"render-homepage-assets": "./render-homepage-assets.sh"
+		"render-homepage-assets": "./render-homepage-assets.sh",
+		"render-readme-hero": "bun scripts/render-readme-hero.ts",
+		"render-docs-animations": "bash render-docs-animations.sh"
 	},
 	"dependencies": {
 		"@mediabunny/prores": "catalog:"
@@ -35,6 +39,7 @@
 		"@remotion/noise": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/rough-notation": "workspace:*",
+		"@remotion/renderer": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/sfx": "workspace:*",
 		"@remotion/studio": "workspace:*",
@@ -44,7 +49,7 @@
 		"@remotion/transitions": "workspace:*",
 		"@types/opentype.js": "1.3.4",
 		"@types/styled-components": "5.1.34",
-		"@typescript/native-preview": "catalog:",
+		"typescript": "catalog:",
 		"codehike": "1.0.4",
 		"eslint": "catalog:",
 		"mediabunny": "catalog:",

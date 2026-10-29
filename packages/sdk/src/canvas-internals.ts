@@ -1,9 +1,9 @@
 // Shared with Remotion Studio through CanvasInternals on the package root.
 export {
-	collectCommitOrderFromFiber,
-	installFiberCommitOrderObserver,
-} from './install-fiber-sequence-order-observer';
-export {calculateTimeline} from './calculate-timeline';
+	collectReactCommit,
+	installReactCommitObserver,
+} from './react-commit-adapter';
+export {createTimelineCalculator} from './calculate-timeline';
 export {useIsCanvasSequenceHovered} from './hover';
 export type {
 	CanvasOutline,
@@ -14,7 +14,11 @@ export type {
 	CanvasOutlinePath,
 	CanvasOutlineTarget,
 } from './outline-geometry';
-export {getCanvasOutlinePoint, getCanvasOutlineUv} from './outline-geometry';
+export {
+	getCanvasOutlinePoint,
+	getCanvasOutlineUv,
+	scaleCanvasOutline,
+} from './outline-geometry';
 export {
 	measureCanvasOutlineTargets,
 	cropCanvasOutlinePoints,
@@ -37,6 +41,7 @@ export {
 } from './outline-interaction';
 export type {CanvasOutlinePointerDownDecision} from './outline-interaction';
 export {
+	createCanvasOutlineLayoutTargetLookup,
 	getCanvasActiveOutlineTargets,
 	getCanvasOutlineActivity,
 	getCanvasOutlineLayoutTargets,
@@ -50,19 +55,8 @@ export type {
 	CanvasOutlineLayoutTarget,
 } from './outline-targets';
 export {getConnectedCompositions} from './get-connected-compositions';
-export {
-	getParentSequencePlaybackRate,
-	getCascadedStart,
-	getCascadedStartWithTrim,
-	getTimelineVisibleDuration,
-	getTimelineVisibleStart,
-} from './get-sequence-visible-range';
-export {getTimelineNestedLevel} from './get-timeline-nestedness';
-export {getTimelineSequenceSortKey} from './get-timeline-sequence-sort-key';
-export type {
-	TimelineLoopDisplay,
-	TimelineTrackWithOriginalTimings,
-} from './get-timeline-sequence-sort-key';
+export {getParentSequencePlaybackRate} from './get-sequence-visible-range';
+export type {TimelineLoopDisplay} from './get-timeline-sequence-sort-key';
 export {
 	EMPTY_CANVAS_SELECTION,
 	getCanvasSelectionAfterInteraction,

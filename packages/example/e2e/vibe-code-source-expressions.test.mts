@@ -113,13 +113,22 @@ export const RemotionRoot = () => <Composition id="SourceSubscriptionChurn" comp
 		const expression = page.getByRole('button', {
 			name: /^Expression A: from frame/,
 		});
-		await expression.scrollIntoViewIfNeeded();
 		let edge = await expression.boundingBox();
 		await expect
 			.poll(async () => {
-				await expression.scrollIntoViewIfNeeded();
-				edge = await expression.boundingBox();
-				return edge;
+				try {
+					await expression.scrollIntoViewIfNeeded();
+					edge = await expression.boundingBox();
+					return edge;
+				} catch (error) {
+					if (
+						error instanceof Error &&
+						error.message.includes('Element is not attached to the DOM')
+					) {
+						return null;
+					}
+					throw error;
+				}
 			})
 			.not.toBeNull();
 		if (!edge) throw new Error('Expected expression timeline bar');

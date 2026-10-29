@@ -33,7 +33,7 @@ export const FilmIcon: React.FC<
 				fill={color}
 				d={`M${sideWidth + 1} 2h1v${size - 4}h-1z
 				M${size - sideWidth - 2} 2h1v${size - 4}h-1z
-				M1 ${upperFrameBottom}h${size - 2}v2H1z
+				M${sideWidth + 2} ${upperFrameBottom}h${size - 2 * sideWidth - 4}v1h-${size - 2 * sideWidth - 4}z
 				M1 ${topDivider}h${sideWidth}v1H1z
 				M${size - sideWidth - 1} ${topDivider}h${sideWidth}v1h-${sideWidth}z
 				M1 ${bottomDivider}h${sideWidth}v1H1z

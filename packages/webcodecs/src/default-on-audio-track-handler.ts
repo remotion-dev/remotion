@@ -7,6 +7,9 @@ import type {
 
 const DEFAULT_BITRATE = 128_000;
 
+/**
+ * @deprecated Use Mediabunny instead: https://www.remotion.dev/docs/mediabunny
+ */
 export const defaultOnAudioTrackHandler: ConvertMediaOnAudioTrackHandler =
 	async ({
 		track,

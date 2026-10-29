@@ -1,7 +1,6 @@
 import {evolvePath, interpolatePaths} from '@remotion/paths';
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Freeze,
 	Interactive,
@@ -189,14 +188,17 @@ const SpecRow: React.FC<{
 	);
 };
 
-export const ShapeMorph: React.FC = () => {
+const ShapeMorphInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const form = [...forms].reverse().find((f) => frame >= f.at) ?? forms[0];
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#0B0B0F'}}>
-			<AbsoluteFill
+		<>
+			<Interactive.Div
+				name="Dot grid"
 				style={{
+					position: 'absolute',
+					inset: 0,
 					backgroundImage:
 						'radial-gradient(circle, rgba(243, 239, 230, 0.16) 1.6px, transparent 2px)',
 					backgroundSize: '48px 48px',
@@ -378,6 +380,12 @@ export const ShapeMorph: React.FC = () => {
 				color={colors.paper}
 				start={20}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const ShapeMorph = Interactive.create({
+	Component: ShapeMorphInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

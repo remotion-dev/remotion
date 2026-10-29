@@ -4,22 +4,19 @@ import {
 	Interactive,
 	interpolate,
 	useCurrentFrame,
-	useVideoConfig,
 } from 'remotion';
 import {rollerSkiAsset} from './assets';
 import {BasicCaptions} from './basic-captions';
 
-export const CommuteMotionGraphic: React.FC = () => {
+const CommuteMotionGraphicInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#F7F9FC', color: '#14213D'}}>
-			<Audio
-				src={rollerSkiAsset('footage/IMG_0463.MOV')}
-				trimBefore={417}
-				premountFor={fps}
-			/>
+		<AbsoluteFill
+			showInTimeline={false}
+			style={{backgroundColor: '#F7F9FC', color: '#14213D'}}
+		>
+			<Audio src={rollerSkiAsset('footage/IMG_0463.MOV')} trimBefore={417} />
 			<Interactive.Div
 				name="Remotion wordmark"
 				style={{
@@ -151,3 +148,8 @@ export const CommuteMotionGraphic: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const CommuteMotionGraphic = Interactive.create({
+	Component: CommuteMotionGraphicInner,
+	layout: 'absolute-fill',
+});

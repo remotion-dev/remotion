@@ -18,7 +18,7 @@ Documentation lives in `packages/docs/docs` as `.mdx` files.
 
 ```md
 ---
-image: /generated/articles-docs-my-package-my-api.png
+image: https://remotion.media/docs/generated/articles-docs-my-package-my-api.png
 title: '<MyComponent>'
 crumb: '@remotion/my-package'
 ---
@@ -206,6 +206,11 @@ After adding or editing a page, generate social media preview cards:
 ```bash
 cd packages/docs && bun render-cards.ts
 ```
+
+The command uploads cards to `https://remotion.media/docs/generated/` and
+requires R2 credentials from the docs environment or `bun --env-file`.
+Commit the hosted `image:` frontmatter; local generated PNGs are ignored.
+To replace an existing card, pass `--overwrite=<composition-id>`.
 
 ## Streamlining existing docs
 

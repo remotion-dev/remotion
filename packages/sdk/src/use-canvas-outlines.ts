@@ -1,5 +1,4 @@
-import type {MutableRefObject, RefObject} from 'react';
-import {useEffect, useMemo, useRef} from 'react';
+import {useEffect, useLayoutEffect, useMemo, useRef} from 'react';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 import type {CanvasHoverController} from './hover';
 import {useCanvasHover} from './hover';
@@ -23,19 +22,17 @@ export type CanvasOutlineRenderTarget = Omit<
 
 /** Measure and order a host's outline targets without subscribing to playback. */
 export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
-	containerRef,
+	contentRoot,
 	targets,
 	sequences,
 	hoverController,
 	freezeOrder,
-	updateOutlinesRef,
 }: {
-	readonly containerRef: RefObject<SVGSVGElement | null>;
+	readonly contentRoot: HTMLElement;
 	readonly targets: readonly Target[];
 	readonly sequences: readonly CanvasOutlineSequenceParent[];
 	readonly hoverController: CanvasHoverController;
 	readonly freezeOrder: boolean;
-	readonly updateOutlinesRef: MutableRefObject<() => void> | null;
 }) => {
 	const hover = useCanvasHover(hoverController);
 	const hoveredNodePathKey = hover?.nodePathKey ?? null;
@@ -56,23 +53,84 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 		[hoveredTimelineNodePathKey, targets],
 	);
 	const outlines = useCanvasOutlineMeasurements({
-		containerRef,
+		contentRoot,
 		targets: measurementTargets,
-		updateOutlinesRef,
 	});
 	const targetsByKey = useMemo(
 		() => new Map(targets.map((target) => [target.key, target])),
 		[targets],
 	);
+	const previousOrderInputsRef = useRef<{
+		readonly sequences: readonly CanvasOutlineSequenceParent[];
+		readonly targets: readonly (CanvasOutlineOrderTarget & {
+			readonly key: string;
+		})[];
+		readonly targetsByKey: ReadonlyMap<string, CanvasOutlineOrderTarget>;
+	} | null>(null);
+	const orderInputs = useMemo(() => {
+		const previous = previousOrderInputsRef.current;
+		if (
+			previous !== null &&
+			previous.sequences.length === sequences.length &&
+			previous.sequences.every(
+				(sequence, index) =>
+					sequence.id === sequences[index].id &&
+					sequence.parent === sequences[index].parent,
+			) &&
+			previous.targets.length === targets.length &&
+			previous.targets.every((target, index) => {
+				const next = targets[index];
+				return (
+					target.key === next.key &&
+					target.selected === next.selected &&
+					target.containsSelection === next.containsSelection &&
+					target.sequence.id === next.sequence.id &&
+					target.sequence.parent === next.sequence.parent &&
+					target.sequence.controls?.componentIdentity ===
+						(next.sequence.controls?.componentIdentity ?? null)
+				);
+			})
+		) {
+			return previous;
+		}
+
+		// Playback refreshes targets and their editing callbacks even when stacking
+		// is unchanged. Snapshot only the metadata used by the pairwise sort, while
+		// returning the live targetsByKey above to the renderer.
+		const orderTargets = targets.map((target) => ({
+			key: target.key,
+			selected: target.selected,
+			containsSelection: target.containsSelection,
+			sequence: {
+				id: target.sequence.id,
+				parent: target.sequence.parent,
+				controls: {
+					componentIdentity:
+						target.sequence.controls?.componentIdentity ?? null,
+				},
+			},
+		}));
+		return {
+			sequences: sequences.map(({id, parent}) => ({id, parent})),
+			targets: orderTargets,
+			targetsByKey: new Map(orderTargets.map((target) => [target.key, target])),
+		};
+	}, [sequences, targets]);
+	useLayoutEffect(() => {
+		previousOrderInputsRef.current = orderInputs;
+	}, [orderInputs]);
 
 	// Moving a captured polygon in the DOM can cancel the host's pointer session.
 	const renderingOrderRef = useRef<readonly string[]>([]);
+	// Cache stacking order alongside normalized geometry. Renderers apply zoom,
+	// so zooming and panning do not invalidate this memo or repeat the pairwise
+	// overlap checks.
 	const outlinesForRendering = useMemo(() => {
 		if (!freezeOrder || renderingOrderRef.current.length === 0) {
 			const ordered = orderCanvasOutlinesForRendering({
 				outlines,
-				sequences,
-				targetsByKey,
+				sequences: orderInputs.sequences,
+				targetsByKey: orderInputs.targetsByKey,
 			});
 			renderingOrderRef.current = ordered.map((outline) => outline.key);
 			return ordered;
@@ -92,7 +150,7 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 			const outline = currentOutlinesByKey.get(key);
 			return outline === undefined ? [] : [outline];
 		});
-	}, [freezeOrder, outlines, sequences, targetsByKey]);
+	}, [freezeOrder, orderInputs, outlines]);
 	const outlinesByKey = useMemo(
 		() => new Map(outlines.map((outline) => [outline.key, outline])),
 		[outlines],

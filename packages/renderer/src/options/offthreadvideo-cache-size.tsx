@@ -10,6 +10,7 @@ const cliFlag = 'offthreadvideo-cache-size-in-bytes' as const;
 
 export const offthreadVideoCacheSizeInBytesOption = {
 	name: 'OffthreadVideo cache size',
+	addedIn: '4.0.23',
 	cliFlag,
 	description: () => (
 		<>
@@ -28,7 +29,8 @@ export const offthreadVideoCacheSizeInBytesOption = {
 		</>
 	),
 	ssrName: 'offthreadVideoCacheSizeInBytes' as const,
-	docLink: 'https://www.remotion.dev/docs/offthreadvideo',
+	docLink:
+		'https://www.remotion.dev/docs/options/offthreadvideo-cache-size-in-bytes',
 	type: 0 as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

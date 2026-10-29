@@ -11,7 +11,7 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/build-open-in-remotion-new-url">
 				<strong>buildOpenInRemotionNewUrl()</strong>
-				<div>Build a URL that opens an Element on remotion.dev/new</div>
+				<div>Build a URL that opens an Element on remotion.new</div>
 			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/set-studio-drag-data">
 				<strong>setStudioDragData()</strong>
@@ -24,6 +24,10 @@ export const TableOfContents: React.FC = () => {
 			<TOCItem link="/docs/studio-protocol/add-element-library-to-studio">
 				<strong>addElementLibraryToStudio()</strong>
 				<div>Add an Element Library to a Studio project</div>
+			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/subscribe-to-caption-style-selection">
+				<strong>subscribeToCaptionStyleSelection()</strong>
+				<div>Subscribe to your website’s selected caption style</div>
 			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/is-inside-studio">
 				<strong>isInsideStudio()</strong>

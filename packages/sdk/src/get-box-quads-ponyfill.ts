@@ -7,24 +7,24 @@ export type GetBoxQuadsPonyfillOptions = {
 	readonly relativeTo?: Element;
 };
 
-type ElementWithNativeGetBoxQuads = Element & {
+type NodeWithNativeGetBoxQuads = (Element | Text) & {
 	getBoxQuads?: (options?: GetBoxQuadsPonyfillOptions) => readonly DOMQuad[];
 };
 
 const hasNativeGetBoxQuads = (
-	element: Element,
-): element is ElementWithNativeGetBoxQuads => {
+	element: Element | Text,
+): element is NodeWithNativeGetBoxQuads => {
 	return (
-		typeof (element as ElementWithNativeGetBoxQuads).getBoxQuads === 'function'
+		typeof (element as NodeWithNativeGetBoxQuads).getBoxQuads === 'function'
 	);
 };
 
 /**
- * Returns border/margin/padding/content box quads for an element.
+ * Returns border/margin/padding/content box quads for elements and text fragments.
  * Uses the native API when available, otherwise the getBoxQuads ponyfill.
  */
 export const getBoxQuadsPonyfill = (
-	element: Element,
+	element: Element | Text,
 	options?: GetBoxQuadsPonyfillOptions,
 ): readonly DOMQuad[] | null => {
 	try {

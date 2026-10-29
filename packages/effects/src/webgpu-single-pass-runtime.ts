@@ -1,0 +1,210 @@
+export type WebGpuSinglePassState = {
+	readonly context: GPUCanvasContext;
+	readonly label: string;
+	resources: {
+		readonly device: GPUDevice;
+		readonly shader: string;
+		readonly uniformBufferSize: number;
+		readonly pipeline: GPURenderPipeline;
+		readonly uniforms: GPUBuffer;
+		readonly sampler: GPUSampler;
+		readonly bindGroupLayout: GPUBindGroupLayout;
+		source: {
+			readonly texture: GPUTexture;
+			readonly bindGroup: GPUBindGroup;
+			readonly width: number;
+			readonly height: number;
+		} | null;
+	} | null;
+};
+
+// WebGPU texture coordinates and fragment positions have a top-left origin.
+// WebGL shaders using vUv must invert its Y coordinate when porting their math.
+export const WEBGPU_SINGLE_PASS_VERTEX = /* wgsl */ `
+struct VertexOutput {
+	@builtin(position) position: vec4f,
+	@location(0) uv: vec2f,
+}
+
+@vertex fn vertex(@builtin(vertex_index) index: u32) -> VertexOutput {
+	let positions = array<vec2f, 3>(vec2f(-1, -1), vec2f(3, -1), vec2f(-1, 3));
+	let position = positions[index];
+	var output: VertexOutput;
+	output.position = vec4f(position, 0, 1);
+	output.uv = vec2f(position.x * 0.5 + 0.5, 0.5 - position.y * 0.5);
+	return output;
+}
+`;
+
+export const setupWebGpuSinglePass = (
+	target: HTMLCanvasElement,
+	label: string,
+): WebGpuSinglePassState => {
+	const context = target.getContext('webgpu');
+	if (!context) {
+		throw new Error(`WebGPU is not available for the ${label} effect`);
+	}
+
+	return {context: context as GPUCanvasContext, label, resources: null};
+};
+
+export const cleanupWebGpuSinglePass = (state: WebGpuSinglePassState): void => {
+	state.resources?.source?.texture.destroy();
+	state.resources?.uniforms.destroy();
+	state.resources = null;
+	state.context.unconfigure();
+};
+
+export const applyWebGpuSinglePass = ({
+	state,
+	source,
+	device,
+	shader,
+	uniformData,
+}: {
+	state: WebGpuSinglePassState;
+	source: CanvasImageSource;
+	width: number;
+	height: number;
+	device: GPUDevice;
+	shader: string;
+	uniformData: Float32Array<ArrayBuffer>;
+}): void => {
+	// Upload the source's actual extent, which can differ from the output size
+	// (for example Solid's 1x1 source). Sampling performs the scaling.
+	const width =
+		'displayWidth' in source
+			? source.displayWidth
+			: 'videoWidth' in source
+				? source.videoWidth
+				: 'naturalWidth' in source
+					? source.naturalWidth
+					: typeof source.width === 'number'
+						? source.width
+						: source.width.baseVal.value;
+	const height =
+		'displayHeight' in source
+			? source.displayHeight
+			: 'videoHeight' in source
+				? source.videoHeight
+				: 'naturalHeight' in source
+					? source.naturalHeight
+					: typeof source.height === 'number'
+						? source.height
+						: source.height.baseVal.value;
+	const uniformBufferSize = Math.max(
+		16,
+		Math.ceil(uniformData.byteLength / 16) * 16,
+	);
+	if (
+		state.resources &&
+		(state.resources.device !== device ||
+			state.resources.shader !== shader ||
+			state.resources.uniformBufferSize !== uniformBufferSize)
+	) {
+		cleanupWebGpuSinglePass(state);
+	}
+
+	if (!state.resources) {
+		const format = navigator.gpu.getPreferredCanvasFormat();
+		state.context.configure({device, format, alphaMode: 'premultiplied'});
+		const module = device.createShaderModule({
+			code: shader,
+			label: state.label,
+		});
+		// Keep the same binding contract even if a shader uses textureLoad or
+		// generates its pixels without sampling the source.
+		const bindGroupLayout = device.createBindGroupLayout({
+			entries: [
+				{binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: {}},
+				{binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {}},
+				{
+					binding: 2,
+					visibility: GPUShaderStage.FRAGMENT,
+					buffer: {type: 'uniform'},
+				},
+			],
+		});
+		const pipeline = device.createRenderPipeline({
+			label: state.label,
+			layout: device.createPipelineLayout({
+				bindGroupLayouts: [bindGroupLayout],
+			}),
+			vertex: {module, entryPoint: 'vertex'},
+			fragment: {module, entryPoint: 'fragment', targets: [{format}]},
+			primitive: {topology: 'triangle-list'},
+		});
+		const uniforms = device.createBuffer({
+			size: uniformBufferSize,
+			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+		});
+		const sampler = device.createSampler({
+			addressModeU: 'clamp-to-edge',
+			addressModeV: 'clamp-to-edge',
+			magFilter: 'linear',
+			minFilter: 'linear',
+		});
+		state.resources = {
+			device,
+			shader,
+			uniformBufferSize,
+			pipeline,
+			uniforms,
+			sampler,
+			bindGroupLayout,
+			source: null,
+		};
+	}
+
+	const {resources} = state;
+	if (
+		resources.source &&
+		(resources.source.width !== width || resources.source.height !== height)
+	) {
+		resources.source.texture.destroy();
+		resources.source = null;
+	}
+
+	if (!resources.source) {
+		const texture = device.createTexture({
+			size: [width, height],
+			format: 'rgba8unorm',
+			usage:
+				GPUTextureUsage.TEXTURE_BINDING |
+				GPUTextureUsage.COPY_DST |
+				GPUTextureUsage.RENDER_ATTACHMENT,
+		});
+		const bindGroup = device.createBindGroup({
+			layout: resources.bindGroupLayout,
+			entries: [
+				{binding: 0, resource: texture.createView()},
+				{binding: 1, resource: resources.sampler},
+				{binding: 2, resource: {buffer: resources.uniforms}},
+			],
+		});
+		resources.source = {texture, bindGroup, width, height};
+	}
+
+	device.queue.copyExternalImageToTexture(
+		{source: source as GPUCopyExternalImageSource},
+		{texture: resources.source.texture, premultipliedAlpha: true},
+		[width, height],
+	);
+	device.queue.writeBuffer(resources.uniforms, 0, uniformData);
+	const encoder = device.createCommandEncoder();
+	const pass = encoder.beginRenderPass({
+		colorAttachments: [
+			{
+				view: state.context.getCurrentTexture().createView(),
+				clearValue: {r: 0, g: 0, b: 0, a: 0},
+				loadOp: 'clear',
+				storeOp: 'store',
+			},
+		],
+	});
+	pass.setPipeline(resources.pipeline);
+	pass.setBindGroup(0, resources.source.bindGroup);
+	pass.draw(3);
+	pass.end();
+	device.queue.submit([encoder.finish()]);
+};

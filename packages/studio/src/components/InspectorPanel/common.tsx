@@ -39,7 +39,8 @@ const collapsedSectionBody: React.CSSProperties = {
 export const InspectorSectionBody: React.FC<{
 	readonly children: React.ReactNode;
 	readonly expanded: boolean;
-}> = ({children, expanded}) => {
+	readonly paddingBottom: number;
+}> = ({children, expanded, paddingBottom}) => {
 	if (children === null) {
 		return null;
 	}
@@ -47,7 +48,10 @@ export const InspectorSectionBody: React.FC<{
 	return (
 		<div
 			hidden={!expanded}
-			style={expanded ? inspectorSectionBody : collapsedSectionBody}
+			style={{
+				...(expanded ? inspectorSectionBody : collapsedSectionBody),
+				paddingBottom,
+			}}
 		>
 			{children}
 		</div>
@@ -61,7 +65,9 @@ export const InspectorSection: React.FC<{
 	return (
 		<>
 			<InspectorSectionHeader>{header}</InspectorSectionHeader>
-			<InspectorSectionBody expanded>{children}</InspectorSectionBody>
+			<InspectorSectionBody expanded paddingBottom={8}>
+				{children}
+			</InspectorSectionBody>
 		</>
 	);
 };

@@ -1,16 +1,13 @@
 import type {AudioBufferSlice} from '../make-iterator-with-priming';
 
 export const HEALTHY_BUFFER_THRESHOLD_SECONDS = 1;
-export const ALLOWED_GLOBAL_TIME_ANCHOR_SHIFT = 0.1;
 
-export type QueuedNode = {
-	node: AudioBufferSourceNode;
-	timestamp: number;
+export type PreparedAudioChunk = {
 	buffer: AudioBuffer;
+	timestamp: number;
+	originalUnloopedMediaTimestamp: number;
+	sourceOffsetInSeconds: number;
 	sourceDurationInSeconds: number;
-	scheduledTime: number;
-	playbackRate: number;
-	scheduledAtAnchor: number;
 };
 
 export type QueuedPeriod = {
@@ -21,21 +18,39 @@ export type QueuedPeriod = {
 export type MakeAudioIteratorOptions = {
 	startFromSecond: number;
 	iterator: AsyncGenerator<AudioBufferSlice, void, unknown>;
-	unscheduleAudioNode: (node: AudioBufferSourceNode) => void;
+	scheduleChunk: (chunk: PreparedAudioChunk) => AudioBufferSourceNode | null;
+	unscheduleAudioNode: (node: AudioBufferSourceNode) => boolean | void;
 };
 
 export const makeAudioIterator = ({
 	startFromSecond,
 	iterator,
+	scheduleChunk,
 	unscheduleAudioNode,
 }: MakeAudioIteratorOptions) => {
 	let destroyed = false;
-	const queuedAudioNodes: QueuedNode[] = [];
+	const queuedAudioNodes = new Map<AudioBufferSourceNode, PreparedAudioChunk>();
+	// Seek deduplication needs the scheduling history, including ended audio and
+	// silent gaps. Keep its bounds without retaining the historical nodes.
+	let queuedFrom = Infinity;
+	let queuedUntil = -Infinity;
+	const onEnded = (event: Event) => {
+		const node = event.currentTarget as AudioBufferSourceNode;
+		queuedAudioNodes.delete(node);
+		node.disconnect();
+	};
+
 	let mostRecentTimestamp = -Infinity;
 
-	const cleanupAudioQueue = () => {
-		for (const {node} of queuedAudioNodes) {
-			unscheduleAudioNode(node);
+	const clearSchedule = () => {
+		for (const node of queuedAudioNodes.keys()) {
+			// Pending nodes may never emit ended; remove their listener synchronously.
+			node.removeEventListener('ended', onEnded);
+			node.disconnect();
+			if (unscheduleAudioNode(node) === true) {
+				continue;
+			}
+
 			try {
 				node.stop();
 			} catch {
@@ -44,7 +59,22 @@ export const makeAudioIterator = ({
 			}
 		}
 
-		queuedAudioNodes.length = 0;
+		queuedAudioNodes.clear();
+		queuedFrom = Infinity;
+		queuedUntil = -Infinity;
+	};
+
+	const scheduleAudio = (chunk: PreparedAudioChunk) => {
+		if (destroyed) return;
+		const node = scheduleChunk(chunk);
+		if (!node) return;
+		queuedFrom = Math.min(queuedFrom, chunk.timestamp);
+		queuedUntil = Math.max(
+			queuedUntil,
+			chunk.timestamp + chunk.sourceDurationInSeconds,
+		);
+		queuedAudioNodes.set(node, chunk);
+		node.addEventListener('ended', onEnded, {once: true});
 	};
 
 	const getNextFn = async () => {
@@ -62,7 +92,7 @@ export const makeAudioIterator = ({
 
 	return {
 		destroy: () => {
-			cleanupAudioQueue();
+			clearSchedule();
 			destroyed = true;
 			// Returning an async generator can reject if its underlying media input
 			// was disposed. Destruction is fire-and-forget and has no caller to
@@ -74,8 +104,25 @@ export const makeAudioIterator = ({
 			return destroyed;
 		},
 
-		addQueuedAudioNode: (queuedNode: QueuedNode) => {
-			queuedAudioNodes.push(queuedNode);
+		scheduleAudio,
+		// Keep the decoder and its in-flight read. WebAudio nodes are one-shot,
+		// so replace only their scheduling after the shared clock moves.
+		rescheduleAudio: (time: number) => {
+			const queued = [...queuedAudioNodes.values()];
+			if (
+				destroyed ||
+				!queued.some(
+					(item) =>
+						time >= item.timestamp &&
+						time < item.timestamp + item.sourceDurationInSeconds,
+				)
+			) {
+				return false;
+			}
+
+			clearSchedule();
+			for (const chunk of queued) scheduleAudio(chunk);
+			return true;
 		},
 		guessNextTimestamp: () => {
 			return !Number.isFinite(mostRecentTimestamp)
@@ -83,13 +130,8 @@ export const makeAudioIterator = ({
 				: mostRecentTimestamp;
 		},
 		getQueuedPeriod: () => {
-			let until = -Infinity;
-			let from = Infinity;
-
-			for (const node of queuedAudioNodes) {
-				until = Math.max(until, node.timestamp + node.sourceDurationInSeconds);
-				from = Math.min(from, node.timestamp);
-			}
+			const from = queuedFrom;
+			const until = queuedUntil;
 
 			if (!Number.isFinite(from) || !Number.isFinite(until)) {
 				return null;

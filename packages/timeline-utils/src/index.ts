@@ -3,7 +3,11 @@ export type {
 	AudioWaveformWorkerOutgoingMessage,
 } from './audio-waveform/audio-waveform-worker-types';
 export {TARGET_SAMPLE_RATE} from './audio-waveform/constants';
-export {drawBars, type WaveformVolume} from './audio-waveform/draw-peaks';
+export {
+	drawBars,
+	type WaveformDrawRange,
+	type WaveformVolume,
+} from './audio-waveform/draw-peaks';
 export {getVisibleWaveformVolume} from './audio-waveform/get-visible-waveform-volume';
 export {loadWaveformPeaks} from './audio-waveform/load-waveform-peaks';
 export {sliceVisibleWaveformPeaks} from './audio-waveform/slice-visible-waveform-peaks';
@@ -31,6 +35,7 @@ export {
 	getFrameDatabaseKeyPrefix,
 	getTimestampFromFrameDatabaseKey,
 	makeFrameDatabaseKey,
+	mediaDurationCache,
 } from './frame-database';
 export type {FrameDatabaseKey} from './frame-database';
 export {
@@ -40,6 +45,12 @@ export {
 } from './loop-display';
 export type {LoopDisplaySegment, TimelineLoopDisplay} from './loop-display';
 export {
+	hydrateThumbnailsFromPersistentCache,
+	readMediaMetadataFromPersistentCache,
+	writeMediaMetadataToPersistentCache,
+	writeThumbnailToPersistentCache,
+} from './persistent-cache/persistent-cache';
+export {
 	WEBCODECS_TIMESCALE,
 	calculateTimestampSlots,
 	drawSlot,
@@ -47,8 +58,11 @@ export {
 	fillFrameWhereItFits,
 	fillWithCachedFrames,
 	getDurationOfOneFrame,
+	getSlotsToExtract,
 } from './render-frame-strip';
 export {renderFrameStripToCanvas} from './render-frame-strip-to-canvas';
+export {renderAnimatedImageFrameStrip} from './render-animated-image-frame-strip';
+export type {RenderAnimatedImageFrameStripOptions} from './render-animated-image-frame-strip';
 export type {RenderFrameStripToCanvasOptions} from './render-frame-strip-to-canvas';
 export {resizeVideoFrame} from './resize-video-frame';
 

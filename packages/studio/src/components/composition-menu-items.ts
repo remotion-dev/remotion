@@ -223,10 +223,6 @@ export const getCompositionMenuItems = ({
 			openComponentInGitSource().catch(() => undefined);
 		},
 	});
-	const hasOpenInItems =
-		defaultOpenInName !== null ||
-		compositionOpenInMenuItems.length > 0 ||
-		componentOpenInMenuItems.length > 0;
 
 	return [
 		defaultOpenInTarget && defaultOpenInName
@@ -324,7 +320,109 @@ export const getCompositionMenuItems = ({
 					value: 'open-component-in-another-app',
 				}
 			: null,
-		hasOpenInItems && includeCompositionManagementItems
+		{
+			id: 'copy-context-for-agents',
+			keyHint: null,
+			label: `Copy context for agents`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!contextForAgents) {
+					return;
+				}
+
+				copyText(contextForAgents).catch((err) => {
+					showNotification(
+						`Could not copy to clipboard: ${(err as Error).message}`,
+						1000,
+					);
+				});
+			},
+			quickSwitcherLabel: null,
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-context-for-agents',
+			disabled: !contextForAgents,
+		},
+		...(composition
+			? getAnnotateWithChatGPTMenuItems({
+					id: 'annotate-composition',
+					getTarget: () =>
+						getVisibleAnnotationTarget(
+							Array.from(
+								document.querySelectorAll('[data-annotation-composition-id]'),
+							)
+								.reverse()
+								.filter(
+									(element) =>
+										element.getAttribute('data-annotation-composition-id') ===
+										composition.id,
+								),
+						),
+					initialComment: null,
+					getMetadata: () => ({
+						composition: composition.id,
+						...(fileLocation ? {source: fileLocation} : {}),
+					}),
+				})
+			: []),
+		{
+			id: 'copy-file-location',
+			keyHint: null,
+			label: `Copy file location`,
+			leftItem: null,
+			onClick: () => {
+				closeMenu();
+				if (!fileLocation) {
+					return;
+				}
+
+				copyText(fileLocation)
+					.then(() => {
+						showNotification('Copied file location to clipboard', 1000);
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not copy to clipboard: ${(err as Error).message}`,
+							1000,
+						);
+					});
+			},
+			quickSwitcherLabel: 'Copy composition file location',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-file-location',
+			disabled: copyFileLocationDisabled,
+		},
+		{
+			id: 'copy-id',
+			keyHint: null,
+			label: `Copy ID`,
+			leftItem: null,
+			onClick: () => {
+				if (!composition) {
+					return;
+				}
+
+				closeMenu();
+				copyText(composition.id)
+					.then(() => {
+						showNotification('Copied composition ID', 1000);
+					})
+					.catch((err) => {
+						showNotification(
+							`Could not copy to clipboard: ${err.message}`,
+							1000,
+						);
+					});
+			},
+			quickSwitcherLabel: 'Copy composition ID',
+			subMenu: null,
+			type: 'item' as const,
+			value: 'copy-id',
+			disabled: !composition,
+		},
+		includeCompositionManagementItems
 			? {
 					type: 'divider' as const,
 					id: 'show-in-editor-divider',
@@ -404,114 +502,6 @@ export const getCompositionMenuItems = ({
 					disabled: !composition || readOnlyStudio,
 				}
 			: null,
-		hasOpenInItems || includeCompositionManagementItems
-			? {
-					type: 'divider' as const,
-					id: 'copy-actions-divider',
-				}
-			: null,
-		{
-			id: 'copy-context-for-agents',
-			keyHint: null,
-			label: `Copy context for agents`,
-			leftItem: null,
-			onClick: () => {
-				closeMenu();
-				if (!contextForAgents) {
-					return;
-				}
-
-				copyText(contextForAgents).catch((err) => {
-					showNotification(
-						`Could not copy to clipboard: ${(err as Error).message}`,
-						1000,
-					);
-				});
-			},
-			quickSwitcherLabel: null,
-			subMenu: null,
-			type: 'item' as const,
-			value: 'copy-context-for-agents',
-			disabled: !contextForAgents,
-		},
-		...(composition
-			? getAnnotateWithChatGPTMenuItems({
-					id: 'annotate-composition',
-					getTarget: () =>
-						getVisibleAnnotationTarget(
-							Array.from(
-								document.querySelectorAll('[data-annotation-composition-id]'),
-							)
-								.reverse()
-								.filter(
-									(element) =>
-										element.getAttribute('data-annotation-composition-id') ===
-										composition.id,
-								),
-						),
-					initialComment: null,
-					metadata: {
-						composition: composition.id,
-						...(fileLocation ? {source: fileLocation} : {}),
-					},
-				})
-			: []),
-		{
-			id: 'copy-file-location',
-			keyHint: null,
-			label: `Copy file location`,
-			leftItem: null,
-			onClick: () => {
-				closeMenu();
-				if (!fileLocation) {
-					return;
-				}
-
-				copyText(fileLocation)
-					.then(() => {
-						showNotification('Copied file location to clipboard', 1000);
-					})
-					.catch((err) => {
-						showNotification(
-							`Could not copy to clipboard: ${(err as Error).message}`,
-							1000,
-						);
-					});
-			},
-			quickSwitcherLabel: 'Copy composition file location',
-			subMenu: null,
-			type: 'item' as const,
-			value: 'copy-file-location',
-			disabled: copyFileLocationDisabled,
-		},
-		{
-			id: 'copy-id',
-			keyHint: null,
-			label: `Copy ID`,
-			leftItem: null,
-			onClick: () => {
-				if (!composition) {
-					return;
-				}
-
-				closeMenu();
-				copyText(composition.id)
-					.then(() => {
-						showNotification('Copied composition ID', 1000);
-					})
-					.catch((err) => {
-						showNotification(
-							`Could not copy to clipboard: ${err.message}`,
-							1000,
-						);
-					});
-			},
-			quickSwitcherLabel: 'Copy composition ID',
-			subMenu: null,
-			type: 'item' as const,
-			value: 'copy-id',
-			disabled: !composition,
-		},
 	].filter(NoReactInternals.truthy);
 };
 

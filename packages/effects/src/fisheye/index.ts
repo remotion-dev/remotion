@@ -6,11 +6,18 @@ import {
 } from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
 import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
+import {
 	applyFisheye,
 	cleanupFisheye,
 	setupFisheye,
 	type FisheyeState,
 } from './fisheye-runtime.js';
+import {FISHEYE_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -138,31 +145,67 @@ const validateFisheyeParams = (params: FisheyeParams): void => {
 	validatePositive(resolved.zoom, 'zoom');
 };
 
-export const fisheye = createEffect<FisheyeParams, FisheyeState>({
+export const fisheye = createEffect<FisheyeParams>({
 	type: 'dev.remotion.effects.fisheye',
 	label: 'fisheye()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/fisheye',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `fisheye-${r.fieldOfView}-${r.center.join(':')}-${r.radius}-${r.zoom}`;
 	},
-	setup: (target) => setupFisheye(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		applyFisheye({
-			state,
-			source,
-			width,
-			height,
-			center: r.center,
-			fieldOfView: r.fieldOfView,
-			radius: r.radius,
-			zoom: r.zoom,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			FisheyeParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'fisheye'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error('A WebGPU device is required for the fisheye effect');
+				}
+
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					r.center[0],
+					r.center[1],
+					r.fieldOfView,
+					r.radius,
+					r.zoom,
+					width / height,
+					0,
+					0,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: FISHEYE_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<FisheyeParams, FisheyeState>({
+			setup: (target) => setupFisheye(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				applyFisheye({
+					state,
+					source,
+					width,
+					height,
+					center: r.center,
+					fieldOfView: r.fieldOfView,
+					radius: r.radius,
+					zoom: r.zoom,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupFisheye(state),
+		}),
 	},
-	cleanup: (state) => cleanupFisheye(state),
 	schema: fisheyeSchema,
 	validateParams: validateFisheyeParams,
 });

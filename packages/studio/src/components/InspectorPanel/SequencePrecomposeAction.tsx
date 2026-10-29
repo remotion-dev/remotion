@@ -28,6 +28,7 @@ export const SequencePrecomposeAction: React.FC<{
 		readonly displayName: string | null;
 		readonly line: number | null;
 		readonly singleChildComponent: unknown;
+		readonly isTransition: boolean;
 	}[];
 	readonly sourceActionsDisabled: boolean;
 }> = ({targets, sourceActionsDisabled}) => {
@@ -44,6 +45,7 @@ export const SequencePrecomposeAction: React.FC<{
 		({singleChildComponent}) =>
 			getConnectedCompositions({compositions, singleChildComponent}).length > 0,
 	);
+	const hasTransition = targets.some((target) => target.isTransition);
 	const resolvedCompositionLocation = useResolvedStack(
 		composition?.stack ?? null,
 	);
@@ -60,6 +62,7 @@ export const SequencePrecomposeAction: React.FC<{
 	const onPrecompose = useCallback(() => {
 		if (
 			busy ||
+			hasTransition ||
 			!canChangeSource ||
 			hasConnectedComposition ||
 			targets.length === 0
@@ -144,6 +147,7 @@ export const SequencePrecomposeAction: React.FC<{
 		compositionId,
 		compositions,
 		hasConnectedComposition,
+		hasTransition,
 		setSelectedModal,
 		targets,
 	]);
@@ -154,7 +158,7 @@ export const SequencePrecomposeAction: React.FC<{
 
 	return (
 		<InspectorQuickAction
-			disabled={busy}
+			disabled={busy || hasTransition}
 			onClick={onPrecompose}
 			renderIcon={(color) => <FilmIcon color={color} style={iconStyle} />}
 		>

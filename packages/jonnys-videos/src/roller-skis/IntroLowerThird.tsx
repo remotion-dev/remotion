@@ -95,20 +95,19 @@ const IntroLowerThirdContent: React.FC<IntroLowerThirdProps> = ({
 
 const lowerThirdSchema = {
 	nameText: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Jonny Burger',
 		description: 'Name',
 	},
 	roleText: {
-		type: 'text-content',
+		type: 'string',
 		default: 'Roller Ski Enthusiast',
 		description: 'Role',
 	},
 } as const satisfies InteractivitySchema;
 
-export const IntroLowerThird = Interactive.withSchema({
+export const IntroLowerThird = Interactive.create({
 	Component: IntroLowerThirdContent,
 	componentName: '<IntroLowerThird>',
 	schema: lowerThirdSchema,
-	wrapInSequence: true,
 });

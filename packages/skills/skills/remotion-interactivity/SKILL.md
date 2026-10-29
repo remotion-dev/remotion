@@ -1,98 +1,25 @@
 ---
 name: remotion-interactivity
 description: Structure Remotion markup for interactivity
-version: 4.0.533
+version: 4.0.539
 ---
 
-By writing Remotion markup in a specific way, the Remotion Studio is able to recognize the structure of the code and makes it interactive:
+Studio edits the JSX nodes that create timeline items. Structure the code around
+what the user should be able to select, move, trim, or style independently.
+Keep editable values inline on each instance.
 
-- Allowing items to be selected by clicking on them
-- Allowing drag+drop, resizing and rotation
-- Editing the CSS styles
-- Making keyframes and easing values editable
+Before writing a scene or refactoring its layers, read
+[editable timeline structure](timeline-structure.md). It covers editing units,
+tracks, shared timing, plain layout containers, and a complete component-to-root
+example. For a timeline built from footage, also read
+[editable video timelines](../remotion-markup/video-editing.md).
 
-If the markup is too complex for the Studio to make it interactive, then the values become grayed out.
+Use [connected compositions](../remotion-markup/connected-compositions.md) when
+a scene or reusable group needs its own timeline. Validate both its standalone
+view and the full parent timeline; a connection alone does not guarantee fewer
+visible rows.
 
-## Prefer interactive components with their own timelines
-
-Use `Interactive.withSchema({wrapInSequence: true})` for custom scenes, cards,
-titles, and other visual components whose props should be editable per instance.
-Expose meaningful content and appearance controls in an `InteractivitySchema`.
-Keep decorative implementation details inside the component.
-
-The component must accept `style` and forward it to one visual root. Keep a
-shared root when transforms, cropping, or opacity should affect all its layers.
-Flatten redundant inner wrappers when their styles can move onto an existing
-element without changing layout or animation.
-
-```tsx title="LowerThird.tsx"
-import type React from 'react';
-import {Interactive, type InteractivitySchema} from 'remotion';
-
-type LowerThirdProps = {
-  readonly children: string;
-  readonly accentColor: string;
-  readonly style?: React.CSSProperties;
-};
-
-const LowerThirdInner: React.FC<LowerThirdProps> = ({
-  children,
-  accentColor,
-  style,
-}) => {
-  return (
-    <Interactive.Div
-      style={{
-        position: 'absolute',
-        left: 80,
-        bottom: 80,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 20,
-        backgroundColor: 'white',
-        borderRadius: 16,
-        padding: '20px 32px',
-        color: 'black',
-        fontFamily: 'Helvetica, Arial, sans-serif',
-        fontSize: 48,
-        fontWeight: 600,
-        ...style,
-      }}
-    >
-      <div
-        style={{
-          width: 8,
-          alignSelf: 'stretch',
-          borderRadius: 4,
-          backgroundColor: accentColor,
-        }}
-      />
-      {children}
-    </Interactive.Div>
-  );
-};
-
-const lowerThirdSchema = {
-  children: {type: 'text-content', default: '', description: 'Text'},
-  accentColor: {
-    type: 'color',
-    default: '#0b84f3',
-    description: 'Accent color',
-  },
-} as const satisfies InteractivitySchema;
-
-export const LowerThird = Interactive.withSchema({
-  Component: LowerThirdInner,
-  componentName: '<LowerThird>',
-  schema: lowerThirdSchema,
-  wrapInSequence: true,
-});
-```
-
-Forwarding the injected `style` inside the component is required; keep editable
-styles inline at the component's call site.
-
-### Choose schema fields
+## Choose schema fields
 
 Each key in the schema is a prop that Studio can read and edit at the call site.
 Props that are not in the schema still work, but are not editable in Studio.
@@ -100,7 +27,7 @@ Keys may use dot notation, such as `style.color`.
 
 | Type                                                                         | Use for                                                      | Keyframable   |
 | ---------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------- |
-| `text-content`                                                               | Text, such as a title                                        | No            |
+| `string`                                                                     | Strings, such as a title, prompt, or code snippet            | No            |
 | `number`                                                                     | Numbers, with optional `min`, `max`, `step`, `integer`       | Yes           |
 | `boolean`                                                                    | On/off switches                                              | Yes (hold)    |
 | `color`                                                                      | CSS color strings                                            | Yes           |
@@ -119,7 +46,7 @@ Every field needs a `default` and should have a `description`, which Studio show
 Set `keyframable: false` to show a static control.
 
 Expose content and per-instance appearance, such as the text and an accent color.
-Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `wrapInSequence: true` already adds them.
+Do not add fields for `style.translate`, `style.scale`, `style.rotate`, `style.transformOrigin` and `style.opacity`: `Interactive.create()` adds them automatically.
 
 To make CSS properties of the root editable per instance, spread the built-in schema fragments:
 
@@ -132,109 +59,15 @@ const cardSchema = {
 ```
 
 Also available: `Interactive.borderSchema`, and `Interactive.captionsSchema` for components that accept captions.
+For components that accept `React.ReactNode` children, add `...Interactive.childrenSchema`.
+It provides controls for children content and may evolve to support richer content.
+Currently, it uses a string field labeled "Text" with a default of `''`.
+If a component requires string-only children, declare an explicit `children` field with `type: 'string'` instead.
+`Interactive.textSchema` controls typography styles; `childrenSchema` controls content.
+The children fragment is not included in `baseSchema` or automatically added to custom components.
+Nested markup and computed children are currently read-only.
+`text-content` is a deprecated alias for the `string` field type.
 See [`InteractivitySchema`](https://www.remotion.dev/docs/interactivity-schema) for all options.
-
-### Register reusable components as connected compositions
-
-Register substantial scenes and reusable components with their own layers or
-animation as standalone compositions. Studio calls these **connected
-compositions**: they can be opened in their own timeline while sharing the same
-component implementation with the parent video.
-
-Define required styles and load fonts inside the component so it works without
-its parent. See
-[parent independence](../remotion-markup/connected-compositions.md#make-the-component-independent-of-its-parent).
-
-Register the same exported component reference that the parent renders. For the
-example above, use `component={LowerThird}`, not `LowerThirdInner` or an inline wrapper.
-With `wrapInSequence: true`, no extra `<Sequence>` is needed for the connection.
-
-```tsx title="Root.tsx"
-import {Composition} from 'remotion';
-import {LowerThird} from './LowerThird';
-
-export const RemotionRoot = () => (
-  <Composition
-    id="LowerThird"
-    component={LowerThird}
-    width={1280}
-    height={720}
-    fps={30}
-    durationInFrames={30}
-    defaultProps={{
-      children: 'Jane Doe, Product Designer',
-      accentColor: '#0b84f3',
-    }}
-  />
-);
-```
-
-Choose a unique ID, representative inline defaults, and dimensions, fps, and
-duration suitable for previewing the component. Registration defaults do not
-automatically copy props from a parent instance. See
-[connected compositions](../remotion-markup/connected-compositions.md) for
-registration and extraction details.
-
-### Put timing directly on the component
-
-Avoid a separate `<Sequence>` around one component that already accepts timing
-props. Built-in interactive components and custom components made with
-`wrapInSequence: true` can receive `name`, `from`, `durationInFrames`,
-`trimBefore`, `playbackRate`, and `premountFor` directly.
-
-```tsx
-<LowerThird
-  name="Lower third"
-  from={30}
-  durationInFrames={90}
-  accentColor="#0b84f3"
->
-  Jane Doe, Product Designer
-</LowerThird>
-```
-
-When removing a redundant sequence, move its timing and name to the child.
-Preserve any existing child timing; do not overwrite or double-apply offsets.
-A `useCurrentFrame()` call inside the component reads its local frame, while a
-style expression at the call site still uses the caller's frame. Preserve that
-distinction when moving animation styles.
-
-Keep a `<Sequence>` when it provides shared timing for multiple siblings,
-overrides dimensions for `useVideoConfig()`, or wraps a component that does not
-handle timing. Keep `<Series.Sequence>` for consecutive layout and
-`<TransitionSeries.Sequence>` for transitions; direct `from` props do not
-replace those behaviors.
-
-## Give every independently editable item its own JSX node
-
-The Studio edits the JSX source node that created an item. If multiple runtime
-items come from the same JSX node, they share one source-editing target.
-
-For every composition registration, clip, scene, layer or sequence that should
-be editable on its own, write a separate JSX node and keep its editable props
-on that node. This applies to `<Composition>`, `<Still>`, built-in media
-components, `<Sequence>`, `<Series.Sequence>`, `<TransitionSeries.Sequence>`
-and custom components.
-
-For example, author an editable timeline like this:
-
-```tsx title="Separate source nodes"
-<Series>
-  <Series.Sequence name="Introduction" durationInFrames={90}>
-    <Introduction />
-  </Series.Sequence>
-  <Series.Sequence name="Demo" durationInFrames={150}>
-    <Demo />
-  </Series.Sequence>
-</Series>
-```
-
-A `.map()` or another programmatic loop would create multiple runtime items
-from one JSX source node. That is appropriate for repeated output that is
-intentionally controlled as one template, such as visualization bars or
-particles. It is not appropriate when the instances need independent IDs or
-names, props, metadata, timing, ordering, deletion or duplication in the
-Studio.
 
 ## Make an HTML element interactive using `Interactive`
 
@@ -249,7 +82,9 @@ Every HTML and SVG element (except `<Img>`, it already is interactive) such as `
 </Interactive.Div>
 ```
 
-This allows styles and keyframes to be set in the Studio. Be sensible, if a component has many elements, the timeline might get messy.
+Use this for text or graphics that need independent controls. Keep layout-only
+containers and decorative internals as plain HTML; an interactive component
+already provides controls for its root.
 
 ## Prefer inline text
 

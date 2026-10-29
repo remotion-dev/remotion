@@ -1,7 +1,7 @@
 import {StorageClass} from '@aws-sdk/client-s3';
 import {CliInternals} from '@remotion/cli';
+import type {Privacy} from '@remotion/lambda-client';
 import type {BrowserSafeApis} from '@remotion/renderer/client';
-import type {Privacy} from '@remotion/serverless';
 import type {AwsRegion, DeleteAfter, RuntimePreference} from '../client';
 
 const LambdaBooleanFlags = [
@@ -38,6 +38,7 @@ type LambdaCommandLineOptions = {
 	['concurrency']?: number;
 	['concurrency-per-lambda']?: number;
 	['out-name']: string | undefined;
+	['output-prefix']: string | undefined;
 	['s3-output-provider-endpoint']: string | undefined;
 	['s3-output-provider-region']: AwsRegion | (string & {}) | undefined;
 	['s3-output-provider-force-path-style']: boolean;
@@ -60,13 +61,12 @@ type LambdaCommandLineOptions = {
 	['storage-class']: StorageClass | undefined;
 };
 
-export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(
-	process.argv.slice(2),
-	{
+export const parsedLambdaCli: LambdaCommandLineOptions &
+	ReturnType<typeof CliInternals.minimist> =
+	CliInternals.minimist<LambdaCommandLineOptions>(process.argv.slice(2), {
 		boolean: LambdaBooleanFlags,
 		string: ['_'],
-	},
-);
+	});
 
 export const forceFlagProvided =
 	parsedLambdaCli.f ||

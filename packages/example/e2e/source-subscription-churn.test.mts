@@ -29,22 +29,19 @@ test('trimming a parent then its expression child saves with the latest instance
 			.getByRole('separator', {name: 'Drag to change duration', exact: true})
 			.filter({visible: true})
 			.first();
-		const start = row
-			.getByRole('separator', {name: 'Drag to trim start', exact: true})
-			.filter({visible: true})
-			.first();
 		let endBox = await end.boundingBox();
-		let startBox = await start.boundingBox();
+		let rowBox = await row.boundingBox();
 		await expect
 			.poll(async () => {
 				await end.scrollIntoViewIfNeeded();
 				endBox = await end.boundingBox();
-				startBox = await start.boundingBox();
-				return endBox !== null && startBox !== null;
+				rowBox = await row.boundingBox();
+				return endBox !== null && rowBox !== null;
 			})
 			.toBe(true);
-		if (!endBox || !startBox) throw new Error('Expected trim handles');
-		const pixelsPerFrame = (endBox.x - startBox.x) / duration;
+		if (!endBox || !rowBox) throw new Error('Expected clip and trim handle');
+		// Handles sit inside the clip; their distance excludes the right inset.
+		const pixelsPerFrame = rowBox.width / duration;
 		const x = endBox.x + endBox.width / 2;
 		const y = endBox.y + endBox.height / 2;
 		await page.mouse.move(x, y);

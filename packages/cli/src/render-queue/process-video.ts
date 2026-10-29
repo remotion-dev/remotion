@@ -13,6 +13,7 @@ const {
 	browserExecutableOption,
 	bundleCacheOption,
 	sampleRateOption,
+	disableSharedMemoryCaptureOption,
 } = BrowserSafeApis.options;
 
 export const processVideoJob = async ({
@@ -56,6 +57,9 @@ export const processVideoJob = async ({
 		job.type === 'video'
 			? job.sampleRate
 			: sampleRateOption.getValue({commandLine: parsedCli}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
 	await renderVideoFlow({
@@ -96,6 +100,7 @@ export const processVideoJob = async ({
 		uiImageFormat: job.imageFormat,
 		cancelSignal: job.cancelToken.cancelSignal,
 		crf: job.type === 'video' ? job.crf : null,
+		crfIsFromConfigFile: false,
 		gopSize: job.type === 'video' ? job.gopSize : null,
 		ffmpegOverride,
 		audioBitrate: job.type === 'video' ? job.audioBitrate : null,
@@ -110,6 +115,7 @@ export const processVideoJob = async ({
 		encodingMaxRate: job.type === 'video' ? job.encodingMaxRate : null,
 		numberOfGifLoops: job.type === 'video' ? job.numberOfGifLoops : null,
 		audioCodec: job.type === 'video' ? job.audioCodec : null,
+		disableSharedMemoryCapture,
 		disallowParallelEncoding:
 			job.type === 'video' ? job.disallowParallelEncoding : false,
 		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
@@ -126,6 +132,7 @@ export const processVideoJob = async ({
 		chromeMode: job.chromeMode,
 		offthreadVideoThreads: job.offthreadVideoThreads,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		preferredEffectBackend: job.preferredEffectBackend,
 		audioLatencyHint: null,
 		imageSequencePattern: null,
 		askAIEnabled,
@@ -135,6 +142,7 @@ export const processVideoJob = async ({
 		bundlerOverride: fixedConfig.bundlerOverride,
 		rspackOverride: fixedConfig.rspackOverride,
 		webpackOverride: fixedConfig.webpackOverride,
-		licenseKey: job.type === 'video' ? job.licenseKey : null,
+		licenseKey: job.licenseKey,
+		isProduction: null,
 	});
 };

@@ -1,6 +1,5 @@
 import React, {useId} from 'react';
 import {
-	AbsoluteFill,
 	Easing,
 	Interactive,
 	interpolate,
@@ -208,12 +207,12 @@ const Spec: React.FC<{
 	);
 };
 
-export const CubeWave: React.FC = () => {
+const CubeWaveInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const yawDegrees = interpolate(frame, [0, 210], [24, 62], clamp);
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#F3EFE6'}}>
+		<>
 			<Cubes />
 			<div
 				style={{
@@ -290,6 +289,12 @@ export const CubeWave: React.FC = () => {
 				color={colors.ink}
 				start={20}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const CubeWave = Interactive.create({
+	Component: CubeWaveInner,
+	schema: {...Interactive.backgroundSchema},
+	layout: 'absolute-fill',
+});

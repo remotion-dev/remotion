@@ -1,0 +1,28 @@
+.container {
+	container-type: inline-size;
+	margin-bottom: var(--ifm-paragraph-margin-bottom);
+}
+
+.narrow,
+.wide {
+	height: auto;
+	width: 100%;
+}
+
+.narrow {
+	display: block;
+}
+
+.wide {
+	display: none;
+}
+
+@container (min-width: 640px) {
+	.narrow {
+		display: none;
+	}
+
+	.wide {
+		display: block;
+	}
+}

@@ -29,7 +29,6 @@ import {
 	getUvCoordinateForPoint,
 	getUvHandlePosition,
 } from './selected-outline-uv';
-import {callAddKeyframes} from './Timeline/call-add-keyframe';
 import {resolveKeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {parseCssRotation} from './Timeline/timeline-rotation-utils';
@@ -314,25 +313,15 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 					return;
 				}
 
-				const promise =
-					staticChanges.length === 0
-						? callAddKeyframes({
-								sequenceKeyframes: keyframedChanges,
-								effectKeyframes: [],
-								setPropStatuses,
-								clientId: transformOriginDrag.clientId,
-							})
-						: saveSequenceProps({
-								changes: staticChanges,
-								addedKeyframes: keyframedChanges,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: transformOriginDrag.clientId,
-								undoLabel: 'Move transform origin',
-								redoLabel: 'Move transform origin back',
-							});
-
-				promise
+				saveSequenceProps({
+					changes: staticChanges,
+					addedKeyframes: keyframedChanges,
+					movedKeyframes: null,
+					setPropStatuses,
+					clientId: transformOriginDrag.clientId,
+					undoLabel: 'Move transform origin',
+					redoLabel: 'Move transform origin back',
+				})
 					.catch((err) => {
 						showNotification(
 							`Could not save transform origin: ${

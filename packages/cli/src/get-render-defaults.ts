@@ -34,6 +34,7 @@ const {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	pixelFormatOption,
 	everyNthFrameOption,
@@ -45,6 +46,8 @@ const {
 	stillImageFormatOption,
 	videoImageFormatOption,
 	sampleRateOption,
+	browserExecutableOption,
+	disableSharedMemoryCaptureOption,
 } = BrowserSafeApis.options;
 
 export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
@@ -136,6 +139,9 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const publicLicenseKey = publicLicenseKeyOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -222,10 +228,19 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		hardwareAcceleration,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		publicLicenseKey,
 		outputLocation,
 		allowHtmlInCanvas,
 		sampleRate: sampleRateOption.getValue({commandLine: parsedCli}).value,
 		configFileRenderDefaults,
+		sharedMemoryCapture: {
+			browserExecutable: browserExecutableOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			disabled: disableSharedMemoryCaptureOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+		},
 	};
 };

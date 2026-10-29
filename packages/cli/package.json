@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/cli"
 	},
 	"name": "@remotion/cli",
-	"version": "4.0.533",
+	"version": "4.0.539",
 	"description": "Control Remotion features using the `npx remotion` command",
 	"main": "dist/index.js",
 	"bin": {
@@ -16,7 +16,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsgo -d"
+		"make": "tsc -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
@@ -39,6 +39,7 @@
 		"@babel/parser": "7.24.1",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/codemods": "workspace:*",
+		"@remotion/licensing": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
@@ -71,7 +72,7 @@
 		"zod": "catalog:",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"remotion",

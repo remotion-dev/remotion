@@ -71,6 +71,9 @@ export const muxVideoAndAudio = async ({
 		// result in slightly imprecise values like 95940000/3197999 instead of 30/1.
 		videoOutput ? '-r' : null,
 		videoOutput ? String(fps) : null,
+		// Keep the MP4/MOV video time base consistent with the initial encoding.
+		videoOutput ? '-video_track_timescale' : null,
+		videoOutput ? '90000' : null,
 		numberOfGifLoops === null ? null : '-loop',
 		numberOfGifLoops === null
 			? null

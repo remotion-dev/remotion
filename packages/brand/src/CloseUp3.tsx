@@ -21,7 +21,7 @@ export const CloseUp3Preview = () => {
 			style={{
 				width: 2014,
 				height: 2474,
-				translate: '-851.4px -40.9px',
+				translate: '-401.4px -240.9px',
 				scale: 1.864,
 				rotate: '0.985739 0.066606 -0.154536 58.502619deg',
 				transformOrigin: '50% 0%',
@@ -35,7 +35,7 @@ export const CloseUp3Preview = () => {
 				}),
 			]}
 		>
-			<AbsoluteFill style={{}} from={-573}>
+			<AbsoluteFill name="Canvas Capture" style={{}} from={-573}>
 				<Video
 					src="https://remotion.media/studio-close-ups/studio-checker-editing.mp4"
 					style={{

@@ -6,6 +6,7 @@ let currentPublicDir: string | null = null;
 
 export const publicDirOption = {
 	name: 'Public Directory',
+	addedIn: '3.2.13',
 	cliFlag,
 	description: () => {
 		return (
@@ -20,7 +21,7 @@ export const publicDirOption = {
 		);
 	},
 	ssrName: 'publicDir' as const,
-	docLink: 'https://www.remotion.dev/docs/terminology/public-dir',
+	docLink: 'https://www.remotion.dev/docs/options/public-dir',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

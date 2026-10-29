@@ -1,22 +1,14 @@
 import {Audio} from '@remotion/media';
-import {
-	AbsoluteFill,
-	Composition,
-	Folder,
-	Interactive,
-	useVideoConfig,
-} from 'remotion';
+import {AbsoluteFill, Composition, Folder, Interactive} from 'remotion';
 import {rollerSkiAsset} from '../assets';
 import {BlueprintStage} from './BlueprintStage';
 import {CodeCard} from './CodeCard';
 
 // Timing follows src/blueprint/timeline.ts: drop and whip-in at frame 255,
 // cuts on the beat of the 113 BPM score.
-export const RollerSkiBlueprint: React.FC = () => {
-	const {fps} = useVideoConfig();
-
+const RollerSkiBlueprintInner: React.FC = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#FFFFFF'}}>
+		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#FFFFFF'}}>
 			<Audio
 				name="Score · drop at 8.5 s"
 				src={rollerSkiAsset('blueprint/soundtrack.wav')}
@@ -27,33 +19,28 @@ export const RollerSkiBlueprint: React.FC = () => {
 				src={rollerSkiAsset('blueprint/whoosh-in.wav')}
 				from={252}
 				volume={0.45}
-				premountFor={fps}
 			/>
 			<Audio
 				name="Whoosh · elevations out"
 				src={rollerSkiAsset('blueprint/whoosh-out.wav')}
 				from={354}
 				volume={0.35}
-				premountFor={fps}
 			/>
 			<Audio
 				name="Ratchet · pawl ticks and lock"
 				src={rollerSkiAsset('blueprint/ratchet.wav')}
 				from={366}
 				volume={0.7}
-				premountFor={fps}
 			/>
 			<Audio
 				name="Whoosh · hero in"
 				src={rollerSkiAsset('blueprint/whoosh-hero.wav')}
 				from={456}
 				volume={0.5}
-				premountFor={fps}
 			/>
 			<BlueprintStage
 				name="3D model · hidden-line render"
 				durationInFrames={525}
-				premountFor={fps}
 				lineColor="#1F4FD8"
 				lineWidth={1.6}
 			/>
@@ -61,7 +48,6 @@ export const RollerSkiBlueprint: React.FC = () => {
 				name="Title"
 				from={255}
 				durationInFrames={270}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					zIndex: 1,
@@ -125,3 +111,8 @@ export const RollerSkiBlueprintCompositions: React.FC = () => {
 		</Folder>
 	);
 };
+
+export const RollerSkiBlueprint = Interactive.create({
+	Component: RollerSkiBlueprintInner,
+	layout: 'absolute-fill',
+});

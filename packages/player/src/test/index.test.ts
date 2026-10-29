@@ -193,9 +193,15 @@ class MockAudioContext {
 		return undefined;
 	}
 
+	close() {
+		this.state = 'closed';
+		return Promise.resolve();
+	}
+
 	createGain() {
 		return {
 			connect: () => undefined,
+			disconnect: () => undefined,
 			gain: {
 				cancelScheduledValues: () => undefined,
 				linearRampToValueAtTime: () => undefined,
@@ -224,15 +230,8 @@ class MockAudioContext {
 
 const AudioComposition = () => {
 	return React.createElement(
-		Internals.SequenceManager.Provider,
-		{
-			value: {
-				registerSequence: () => undefined,
-				unregisterSequence: () => undefined,
-				updateSequence: null,
-				sequences: [],
-			},
-		},
+		Internals.SequenceManagerProvider,
+		null,
 		React.createElement(Html5Audio, {src: 'audio.mp3'}),
 	);
 };

@@ -1,16 +1,47 @@
-import {useEffect, useMemo, useRef} from 'react';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {validateDimension} from '../validation/validate-dimensions.js';
+import type {EffectsOutputSize} from './effect-types.js';
+import {
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
+} from './preferred-effect-backend.js';
 import type {EffectChainState} from './run-effect-chain.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
 } from './run-effect-chain.js';
 
-export const useEffectChainState = (): {
+export const useEffectChainState = (
+	effectsOutputSize: EffectsOutputSize | null = null,
+): {
+	recoveryRevision: number;
 	get: (width: number, height: number) => EffectChainState | null;
 } => {
+	const preferredEffectBackend = validatePreferredEffectBackend(
+		useContext(PreferredEffectBackendContext) ??
+			(typeof window === 'undefined'
+				? 'auto'
+				: (window.remotion_preferredEffectBackend ?? 'auto')),
+	);
+	const effectWidth = effectsOutputSize?.width;
+	const effectHeight = effectsOutputSize?.height;
+	if (effectsOutputSize) {
+		validateDimension(
+			effectWidth,
+			'effectsOutputSize.width',
+			'on an effect-capable component',
+		);
+		validateDimension(
+			effectHeight,
+			'effectsOutputSize.height',
+			'on an effect-capable component',
+		);
+	}
+
 	const chainStateRef = useRef<EffectChainState | null>(null);
 	const sizeRef = useRef<{width: number; height: number} | null>(null);
 	const unmountedRef = useRef(false);
+	const [recoveryRevision, setRecoveryRevision] = useState(0);
 
 	useEffect(() => {
 		// StrictMode and Fast Refresh run the cleanup below and then this effect
@@ -29,7 +60,10 @@ export const useEffectChainState = (): {
 
 	return useMemo(
 		() => ({
+			recoveryRevision,
 			get: (width, height) => {
+				width = effectWidth ?? width;
+				height = effectHeight ?? height;
 				// Async work such as a late decoded video frame can still get here
 				// after unmount. Nothing would release a pool created at this point.
 				if (unmountedRef.current) {
@@ -39,19 +73,27 @@ export const useEffectChainState = (): {
 				if (
 					!sizeRef.current ||
 					sizeRef.current.width !== width ||
-					sizeRef.current.height !== height
+					sizeRef.current.height !== height ||
+					chainStateRef.current?.preferredEffectBackend !==
+						preferredEffectBackend
 				) {
 					if (chainStateRef.current) {
 						cleanupEffectChainState(chainStateRef.current);
 					}
 
 					chainStateRef.current = createEffectChainState(width, height);
+					chainStateRef.current.requestRedraw = () => {
+						if (!unmountedRef.current)
+							setRecoveryRevision((revision) => revision + 1);
+					};
+
+					chainStateRef.current.preferredEffectBackend = preferredEffectBackend;
 					sizeRef.current = {width, height};
 				}
 
 				return chainStateRef.current;
 			},
 		}),
-		[],
+		[effectWidth, effectHeight, preferredEffectBackend, recoveryRevision],
 	);
 };

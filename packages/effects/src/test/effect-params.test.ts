@@ -1503,7 +1503,7 @@ test('evolve() rejects feather above range', () => {
 
 test('evolve() rejects direction outside the enum', () => {
 	expect(() => evolve({direction: 'diagonal' as 'left'})).toThrow(
-		'"direction" must be "left", "right", "top" or "bottom", but got "diagonal"',
+		'"direction" must be "left", "right", "top", "bottom" or "angle", but got "diagonal"',
 	);
 });
 

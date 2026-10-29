@@ -14,6 +14,7 @@ const cliFlag = 'number-of-gif-loops' as const;
 
 export const numberOfGifLoopsOption = {
 	name: 'Number of GIF loops',
+	addedIn: '3.1.0',
 	cliFlag,
 	description: () => {
 		return (
@@ -39,8 +40,7 @@ export const numberOfGifLoopsOption = {
 		);
 	},
 	ssrName: 'numberOfGifLoops' as const,
-	docLink:
-		'https://www.remotion.dev/docs/render-as-gif#changing-the-number-of-loops',
+	docLink: 'https://www.remotion.dev/docs/options/number-of-gif-loops',
 	type: 0 as number | null,
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {

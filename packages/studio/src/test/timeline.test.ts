@@ -1,7 +1,7 @@
 import {expect, test} from 'bun:test';
+import {CanvasInternals} from '@remotion/sdk';
 import type {_InternalTypes, TSequence} from 'remotion';
 import {getTimelineMediaStartFrame} from '../components/Timeline/get-timeline-media-start-frame';
-import {calculateTimeline} from '../helpers/calculate-timeline';
 
 const getStack = () => null;
 
@@ -34,15 +34,17 @@ const withoutKeyframeDisplayOffset = <
 	);
 
 test('Should calculate timeline with no sequences', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [],
-	});
+	}).tracks;
 	expect(calculated).toEqual([]);
 });
 
 test('Should calculate a basic timeline', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -69,10 +71,12 @@ test('Should calculate a basic timeline', () => {
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			depth: 0,
 			sequence: {
 				displayName: 'Audio',
@@ -102,7 +106,8 @@ test('Should calculate a basic timeline', () => {
 });
 
 test('Should follow order of nesting', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -152,10 +157,12 @@ test('Should follow order of nesting', () => {
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 	expect(withoutKeyframeDisplayOffset(calculated)).toEqual([
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: null,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -183,6 +190,8 @@ test('Should follow order of nesting', () => {
 		},
 		{
 			nodePathInfo: null,
+			parentVisibleStart: 0,
+			parentVisibleEnd: 100,
 			sequence: {
 				displayName: 'Audio',
 				documentationLink: null,
@@ -212,7 +221,8 @@ test('Should follow order of nesting', () => {
 });
 
 test('Should inherit loop display from parent for media tracks', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -261,8 +271,6 @@ test('Should inherit loop display from parent for media tracks', () => {
 				controls: null,
 				loopDisplay: undefined,
 				src: 'video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
 				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
@@ -274,7 +282,7 @@ test('Should inherit loop display from parent for media tracks', () => {
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 
 	expect(calculated[1].sequence.loopDisplay).toEqual({
 		durationInFrames: 100,
@@ -286,7 +294,8 @@ test('Should inherit loop display from parent for media tracks', () => {
 });
 
 test('Should calculate sequence frame offset for negative from values', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -313,7 +322,7 @@ test('Should calculate sequence frame offset for negative from values', () => {
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(37);
@@ -321,7 +330,8 @@ test('Should calculate sequence frame offset for negative from values', () => {
 });
 
 test('Should calculate sequence frame offset for trimBefore values', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -348,14 +358,15 @@ test('Should calculate sequence frame offset for trimBefore values', () => {
 				frozenFrame: null,
 			},
 		],
-	});
+	}).tracks;
 
 	expect(calculated[0].sequence.from).toBe(0);
 	expect(calculated[0].sequenceFrameOffset).toBe(20);
 });
 
 test('Should account for a parent Sequence trimBefore in video thumbnails', () => {
-	const calculated = calculateTimeline({
+	const calculate = CanvasInternals.createTimelineCalculator();
+	const calculated = calculate({
 		overrideIdsToNodePaths: {},
 		sequences: [
 			{
@@ -406,14 +417,12 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 				frozenMediaFrame: null,
 				mediaFrameAtSequenceZero: 0,
 				src: 'https://remotion.media/video.mp4',
-				volume: 1,
-				doesVolumeChange: false,
 				muted: false,
 				startMediaFrom: 0,
 				playbackRate: 1,
 			},
 		],
-	});
+	}).tracks;
 	const video = calculated.find((track) => track.sequence.type === 'video');
 
 	if (!video || video.sequence.type !== 'video') {
@@ -431,6 +440,7 @@ test('Should account for a parent Sequence trimBefore in video thumbnails', () =
 });
 
 test('Should hide descendants of sequences with connected compositions', () => {
+	const calculate = CanvasInternals.createTimelineCalculator();
 	const LinkedChild = () => null;
 	const makeSequence = ({
 		id,
@@ -470,8 +480,9 @@ test('Should hide descendants of sequences with connected compositions', () => {
 		componentFromProps: LinkedChild,
 	} as unknown as _InternalTypes['AnyComposition'];
 
-	const calculated = calculateTimeline({
+	const calculated = calculate({
 		compositions: [connectedComposition],
+		showConnectedCompositionChildren: true,
 		overrideIdsToNodePaths: {},
 		sequences: [
 			makeSequence({
@@ -484,7 +495,7 @@ test('Should hide descendants of sequences with connected compositions', () => {
 			makeSequence({id: 'grandchild', parent: 'child', timelineOrder: 2}),
 			makeSequence({id: 'sibling', parent: null, timelineOrder: 3}),
 		],
-	});
+	}).tracks;
 
 	expect(calculated.map((track) => track.sequence.id)).toEqual([
 		'linked',

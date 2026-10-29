@@ -12,9 +12,11 @@ import type {
 import {Internals} from '../internals.js';
 import type {SequenceContextType} from '../SequenceContext.js';
 import {SequenceContext} from '../SequenceContext.js';
-import type {SequenceManagerContext} from '../SequenceManager.js';
-import {SequenceManager} from '../SequenceManager.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
+import {SequenceManagerProvider} from '../SequenceManager.js';
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 type DrawImageCall = {
 	readonly canvas: HTMLCanvasElement;
@@ -172,29 +174,15 @@ const SequenceRegistrationWrapper: React.FC<{
 	readonly children: React.ReactNode;
 	readonly onRegisterSequence: (sequence: TSequence) => void;
 }> = ({children, onRegisterSequence}) => {
-	const registerSequence = React.useCallback(
-		(sequence: TSequence) => {
-			onRegisterSequence(sequence);
-		},
-		[onRegisterSequence],
-	);
-	const unregisterSequence = React.useCallback(() => undefined, []);
-	const sequenceManagerContext: SequenceManagerContext = React.useMemo(
-		() => ({
-			registerSequence,
-			unregisterSequence,
-			updateSequence: registerSequence,
-			sequences: [],
-		}),
-		[registerSequence, unregisterSequence],
-	);
-
 	return (
 		<WrapSequenceContext>
 			<Internals.RemotionEnvironmentContext value={studioEnv}>
-				<SequenceManager.Provider value={sequenceManagerContext}>
+				<SequenceManagerProvider>
+					<ObserveSequenceRegistrations
+						onRegisterSequence={onRegisterSequence}
+					/>
 					{children}
-				</SequenceManager.Provider>
+				</SequenceManagerProvider>
 			</Internals.RemotionEnvironmentContext>
 		</WrapSequenceContext>
 	);

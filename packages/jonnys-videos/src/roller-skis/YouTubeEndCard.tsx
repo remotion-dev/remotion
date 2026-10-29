@@ -305,9 +305,10 @@ const LeftSide = () => {
 	);
 };
 
-export const YouTubeEndCard = () => {
+const YouTubeEndCardInner = () => {
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{backgroundColor: '#FAFAFA', color: 'black'}}
 			name="Container"
 		>
@@ -337,3 +338,8 @@ export const YouTubeEndCard = () => {
 		</AbsoluteFill>
 	);
 };
+
+export const YouTubeEndCard = Interactive.create({
+	Component: YouTubeEndCardInner,
+	layout: 'absolute-fill',
+});

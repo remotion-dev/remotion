@@ -2,8 +2,10 @@ import {
 	BufferTarget,
 	StreamTarget,
 	type MetadataTags,
+	type Quality,
 	type StreamTargetChunk,
 } from 'mediabunny';
+import type {PreferredEffectBackend} from 'remotion';
 import type {CalculateMetadataFunction} from 'remotion';
 import {Internals, type LogLevel} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -124,6 +126,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	logLevel: LogLevel;
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	videoCodec: WebRendererVideoCodec | null;
 	audioCodec: WebRendererAudioCodec | null;
 	audioBitrate: number | WebRendererQuality;
@@ -132,7 +135,7 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	onProgress: RenderMediaOnWebProgressCallback | null;
 	hardwareAcceleration: WebRendererHardwareAcceleration;
 	keyframeIntervalInSeconds: number;
-	videoBitrate: number | WebRendererQuality;
+	videoBitrate: number | WebRendererQuality | Quality;
 	frameRange: FrameRange | null;
 	transparent: boolean;
 	onArtifact: WebRendererOnArtifact | null;
@@ -175,6 +178,7 @@ const internalRenderMediaOnWeb = async <
 	delayRenderTimeoutInMilliseconds,
 	logLevel,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	schema,
 	videoCodec: codec,
 	audioCodec: unresolvedAudioCodec,
@@ -376,6 +380,7 @@ const internalRenderMediaOnWeb = async <
 		delayRenderTimeoutInMilliseconds,
 		logLevel,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		schema: schema ?? null,
 		audioEnabled: !muted,
 		videoEnabled,
@@ -467,7 +472,7 @@ const internalRenderMediaOnWeb = async <
 			? new StreamTarget(webFsTarget.stream)
 			: new BufferTarget()!;
 
-	using outputWithCleanup = makeOutputWithCleanup({
+	await using outputWithCleanup = makeOutputWithCleanup({
 		format,
 		target,
 	});
@@ -536,6 +541,9 @@ const internalRenderMediaOnWeb = async <
 					// 1 packet per frame, + 33% buffer
 					// https://mediabunny.dev/api/BaseTrackMetadata#maximumpacketcount
 					maximumPacketCount: Math.ceil(totalFrames * 1.33),
+					// Mediabunny passes this to `VideoEncoder` as `framerate` and uses it
+					// for the container timescale. Without it, Chromium assumes 30 fps.
+					frameRate: resolved.fps,
 				},
 			);
 		}
@@ -726,6 +734,7 @@ const internalRenderMediaOnWeb = async <
 					addVideoSampleAndCloseFrame(
 						frameToEncode,
 						videoSampleSource.videoSampleSource,
+						1 / resolved.fps,
 					),
 				);
 			}
@@ -832,12 +841,6 @@ const internalRenderMediaOnWeb = async <
 				apiName: 'renderMediaOnWeb',
 				isStill: false,
 				isProduction: isProduction ?? true,
-			}).catch((err2) => {
-				Internals.Log.error(
-					{logLevel: 'error', tag: 'web-renderer'},
-					'Failed to send usage event',
-					err2,
-				);
 			});
 		}
 
@@ -855,7 +858,7 @@ export const renderMediaOnWeb = <
 	const codec =
 		options.videoCodec ?? getDefaultVideoCodecForContainer(container) ?? null;
 
-	onlyOneMediaRenderAtATimeQueue.ref = onlyOneMediaRenderAtATimeQueue.ref
+	const render = onlyOneMediaRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderMediaOnWeb<Schema, Props>({
@@ -865,6 +868,7 @@ export const renderMediaOnWeb = <
 				logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
 				schema: options.schema ?? undefined,
 				mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+				preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
 				videoCodec: codec,
 				audioCodec: options.audioCodec ?? null,
 				audioBitrate: options.audioBitrate ?? 'medium',
@@ -891,5 +895,11 @@ export const renderMediaOnWeb = <
 			}),
 		);
 
-	return onlyOneMediaRenderAtATimeQueue.ref as Promise<RenderMediaOnWebResult>;
+	// The queue only owns completion; callers own the result or rejection reason.
+	onlyOneMediaRenderAtATimeQueue.ref = render.then(
+		() => {},
+		() => {},
+	);
+
+	return render;
 };

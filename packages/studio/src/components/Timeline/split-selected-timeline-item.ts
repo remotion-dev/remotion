@@ -1,7 +1,6 @@
 import {hasSequenceTimingTraits} from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropStatus,
-	OverrideIdToNodePaths,
 	PropStatuses,
 	TSequence,
 } from 'remotion';
@@ -79,6 +78,16 @@ export const getTimelineSequenceSplitEligibility = ({
 		return {
 			canSplit: false,
 			reason: 'Could not find selected sequence',
+		};
+	}
+
+	if (
+		sequence.timelineTrack?.role === 'track' ||
+		sequence.controls?.componentIdentity === 'dev.remotion.remotion.Track'
+	) {
+		return {
+			canSplit: false,
+			reason: 'Track containers cannot be split from the Studio',
 		};
 	}
 
@@ -216,16 +225,14 @@ export const splitTimelineSequencesFromSource = ({
 
 export const splitSelectedTimelineItems = ({
 	selections,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 	propStatuses,
 	splitFrame,
 	splitSequences = splitTimelineSequencesFromSource,
 	notify = showNotification,
 }: {
 	selections: readonly TimelineSelection[];
-	sequences: TSequence[];
-	overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 	propStatuses: PropStatuses | undefined;
 	splitFrame: number;
 	splitSequences?: (options: {
@@ -254,8 +261,7 @@ export const splitSelectedTimelineItems = ({
 		}
 
 		const track = findTrackForNodePathInfo({
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 			nodePathInfo: selection.nodePathInfo,
 		});
 		const sequencePropStatuses = propStatuses

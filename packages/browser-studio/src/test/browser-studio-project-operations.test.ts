@@ -56,12 +56,14 @@ test('creates a Canvas Capture with both files in undo history', async () => {
 		throw new Error(result.reason);
 	}
 
-	expect(project.files['/project/src/Root.tsx']).toContain('<Capture />');
+	expect(project.files['/project/src/Root.tsx']).toContain('id="Capture"');
+	expect(project.files['/project/src/Root.tsx']).toContain(
+		'component={Capture}',
+	);
 	expect(project.files['/project/src/Root.tsx']).toMatch(
 		/from ["']\.\/Capture["']/,
 	);
 	const generated = project.files['/project/src/Capture.tsx'];
-	expect(generated).toContain("id={'Capture'}");
 	expect(generated).toContain("staticFile('capture.mp4')");
 	expect(generated).toContain('<MacOSCursor');
 	const createdProject = project;
@@ -131,7 +133,6 @@ test('mutates virtual files, emits events, and preserves undo and redo history',
 			position: null,
 		},
 		from: null,
-		premountFor: null,
 	});
 	if (!insertResult.success) {
 		throw new Error(insertResult.reason);
@@ -524,6 +525,7 @@ test('imports an Element with pinned Remotion dependencies as one undoable mutat
 			logoSrc: staticFileRef('elements/lower-third.bin'),
 		},
 		installationMode: 'wrapped' as const,
+		isCaptionStyle: false,
 		slug: 'titles/lower-third',
 		sourceCode: `import {Rect} from '@remotion/shapes';
 import {Img} from 'remotion';
@@ -576,7 +578,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 12,
-		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -639,7 +641,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		element,
 		expectedFileState: null,
 		from: null,
-		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: null,
@@ -682,6 +684,7 @@ export const LowerThird = ({logoSrc}: {logoSrc: string}) => <>
 		(
 			await operations.insertElement({
 				...installRequest,
+				captionTarget: null,
 				overwriteExisting: true,
 			})
 		).success,
@@ -729,12 +732,13 @@ const makeElementAssetFixture = () => {
 					durationInFrames: 30,
 					initialProps: null,
 					installationMode: 'wrapped',
+					isCaptionStyle: false,
 					slug: 'asset-element',
 					sourceCode: 'export const AssetElement = () => <div />;',
 				},
 				expectedFileState: null,
 				from: null,
-				premountFor: null,
+				captionTarget: null,
 				overwriteExisting: false,
 				position: null,
 				undoRedoNavigation: null,
@@ -857,6 +861,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		durationInFrames: 90,
 		initialProps: null,
 		installationMode: 'wrapped' as const,
+		isCaptionStyle: false,
 		slug: 'browser-element',
 		sourceCode: 'export const BrowserElement = () => <div />;\n',
 	} satisfies ElementDragData['element'];
@@ -876,7 +881,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: null,
-		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: null,
 		undoRedoNavigation: {
@@ -973,6 +978,7 @@ test('installs component-owned Element timing and initial props', async () => {
 			width: 640,
 		},
 		installationMode: 'component-owned-sequence' as const,
+		isCaptionStyle: false,
 		slug: 'captions',
 		sourceCode: 'export const Captions = () => <div />;\n',
 	} satisfies ElementDragData['element'];
@@ -996,7 +1002,7 @@ test('installs component-owned Element timing and initial props', async () => {
 		element,
 		expectedFileState: preflight.plan.expectedFileState,
 		from: 30,
-		premountFor: null,
+		captionTarget: null,
 		overwriteExisting: false,
 		position: {x: 24, y: 48},
 		undoRedoNavigation: null,
@@ -1081,12 +1087,13 @@ test('rejects contradictory component-owned Element initial props', async () => 
 				durationInFrames: 90,
 				initialProps,
 				installationMode: 'component-owned-sequence',
+				isCaptionStyle: false,
 				slug: 'captions',
 				sourceCode: 'export const Captions = () => <div />;\n',
 			},
 			expectedFileState: null,
 			from: 30,
-			premountFor: null,
+			captionTarget: null,
 			overwriteExisting: false,
 			position: {x: 24, y: 48},
 			undoRedoNavigation: null,
@@ -1195,7 +1202,6 @@ test('inserts generic elements with pinned Remotion dependencies', async () => {
 			type: 'asset',
 		},
 		from: 12,
-		premountFor: null,
 	});
 	if (!result.success) {
 		throw new Error(result.reason);
@@ -1232,7 +1238,6 @@ test('rejects inline SVG importing in Browser Studio', async () => {
 			type: 'svg',
 		},
 		from: null,
-		premountFor: null,
 	});
 
 	expect(result).toMatchObject({

@@ -66,6 +66,7 @@ test('consumes an initial Element payload only once', () => {
 			...payload.element,
 			durationInFrames: 60,
 			installationMode: 'wrapped',
+			isCaptionStyle: false,
 		},
 		sourceOrigin: 'https://elements.example.test',
 	});
@@ -183,7 +184,6 @@ export const MyComponent = () => <AbsoluteFill>Existing</AbsoluteFill>;
 		compositionFile: 'src/index.tsx',
 		compositionId: 'MyComp',
 		from: null,
-		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -289,7 +289,6 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		compositionFile: fileName,
 		compositionId: 'MyComp',
 		from: null,
-		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -410,7 +409,6 @@ registerRoot(Root);`,
 		fileName: 'src/Composition.tsx',
 		nodePath: subscription.nodePath.nodePath,
 		durationInFrames: 20,
-		premountFor: 30,
 		captions: [
 			{
 				text: ' Hello',
@@ -469,7 +467,6 @@ registerRoot(Root);`,
 		fileName: 'src/Composition.tsx',
 		nodePath: currentSubscription.nodePath.nodePath,
 		durationInFrames: 20,
-		premountFor: 30,
 		captions: [
 			{
 				text: ' Again',
@@ -521,7 +518,6 @@ test('reports invalid timeline Solid input without changing the project', async 
 		compositionFile: '/project/src/Composition.tsx',
 		compositionId: 'MyComp',
 		from: 1.5,
-		premountFor: null,
 		element: {
 			type: 'solid',
 			width: 1280,
@@ -566,6 +562,7 @@ registerRoot(Root);`,
 		await operations.subscribeToDefaultProps({
 			clientId: 'browser-studio',
 			compositionId: 'MyComp',
+			symbolicatedStack: null,
 		}),
 	).toEqual({
 		canUpdate: true,
@@ -898,6 +895,7 @@ registerRoot(Root);`,
 		throw new Error(splitResult.reason);
 	}
 
+	expect(currentProject.files[fileName]).toContain('<Track name="Sequence">');
 	expect(currentProject.files[fileName]).toContain(
 		'<Sequence from={10} durationInFrames={5} />',
 	);
@@ -944,6 +942,7 @@ const makeOperationsForProject = (project: VirtualProject) => {
 
 test('wraps JSX as an undoable virtual project mutation', async () => {
 	const fileName = '/project/src/Composition.tsx';
+	const compositionId = 'MyComp';
 	const initialContents = `import {AbsoluteFill} from 'remotion';
 
 export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
@@ -962,13 +961,25 @@ export const Component = () => <AbsoluteFill><div /></AbsoluteFill>;`;
 
 	const result = await operations.wrapNode({
 		fileName,
+		compositionId,
 		nodePath,
 		wrapper: 'Sequence',
 		width: null,
 		height: null,
 		timing: null,
 	});
-	expect(result.success).toBe(true);
+	expect(result).toMatchObject({
+		success: true,
+		nodePathMutation: {
+			timelineSelection: {
+				compositionId,
+				absolutePath: fileName,
+				nodePath: getNodes({project: getProject(), filePath: fileName}).find(
+					({tagName}) => tagName === 'Sequence',
+				)?.nodePath,
+			},
+		},
+	});
 	expect(getProject().files[fileName]).toContain('<Sequence>');
 	expect(getProject().files[fileName]).toContain('<AbsoluteFill>');
 	expect(await operations.undo()).toMatchObject({success: true});
@@ -1446,20 +1457,20 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 
 	const rootFile = getProject().files['/project/src/Root.tsx'];
 	const componentFile = getProject().files['/project/src/CanvasComp.tsx'];
-	expect(rootFile).toContain('<CanvasComp');
+	expect(rootFile).toContain('id="CanvasComp"');
+	expect(rootFile).toContain('component={CanvasComp}');
 	expect(rootFile).toContain('import { CanvasComp } from "./CanvasComp"');
 	expect(componentFile).toContain("src={staticFile('capture.mp4')}");
 	expect(componentFile).toContain('<MacOSCursor');
 	expect(componentFile).toContain('translate: interpolate(');
-	expect(componentFile).toContain("id={'CanvasComp'}");
-	expect(componentFile).toContain('width={1920}');
-	expect(componentFile).toContain('height={1080}');
+	expect(rootFile).toContain('width={1920}');
+	expect(rootFile).toContain('height={1080}');
 
 	const undoResult = await operations.undo();
 	expect(undoResult.success).toBe(true);
 	expect(getProject().files['/project/src/CanvasComp.tsx']).toBeUndefined();
 	expect(getProject().files['/project/src/Root.tsx']).not.toContain(
-		'<CanvasComp',
+		'id="CanvasComp"',
 	);
 });
 
@@ -1706,12 +1717,14 @@ export const Root = () => {
 	await operations.subscribeToDefaultProps({
 		clientId: 'browser-studio',
 		compositionId: 'MyComp',
+		symbolicatedStack: null,
 	});
 
 	const result = await operations.updateDefaultProps({
 		compositionId: 'MyComp',
 		defaultProps: JSON.stringify({title: 'Updated', count: 2}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 	expect(result).toEqual({success: true});
 	expect(getProject().files[fileName]).toContain(
@@ -1731,6 +1744,7 @@ export const Root = () => {
 		compositionId: 'Unknown',
 		defaultProps: JSON.stringify({}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 	expect(missingDefaultProps).toEqual({
 		success: false,
@@ -1775,6 +1789,7 @@ export const Root = () => (
 			count: 2,
 		}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 
 	expect(result).toEqual({success: true});
@@ -1795,6 +1810,7 @@ test('adds missing composition defaultProps and restores them through undo and r
 		compositionId: 'MyComp',
 		defaultProps: JSON.stringify({title: 'Hello'}),
 		enumPaths: [],
+		symbolicatedStack: null,
 	});
 	expect(result).toEqual({success: true});
 	const updatedFiles = getProject().files;

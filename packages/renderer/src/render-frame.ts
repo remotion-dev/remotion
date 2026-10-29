@@ -6,7 +6,10 @@ import type {CountType} from './get-frame-padded-index';
 import type {VideoImageFormat} from './image-format';
 import type {LogLevel} from './log-level';
 import type {CancelSignal} from './make-cancel-signal';
-import type {NextFrameToRender} from './next-frame-to-render';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 import {renderFrameWithOptionToReject} from './render-frame-with-option-to-reject';
 import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 
@@ -34,6 +37,8 @@ export const renderFrame = ({
 	timeoutInMilliseconds,
 	lastFrame,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onFrameUpdate,
 	framesRenderedObj,
 	frame,
@@ -68,6 +73,10 @@ export const renderFrame = ({
 		| null
 		| ((buffer: Buffer, frame: number) => void | Promise<void>)
 		| undefined;
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	lastFrame: number;
 	onFrameUpdate:
 		| null
@@ -77,7 +86,6 @@ export const renderFrame = ({
 				timeToRenderInMilliseconds: number,
 		  ) => void);
 	framesRenderedObj: {count: number};
-	nextFrameToRender: NextFrameToRender;
 	frame: number;
 	page: Page;
 	imageSequencePattern: string | null;
@@ -98,6 +106,8 @@ export const renderFrame = ({
 			timeoutInMilliseconds,
 			imageFormat,
 			onFrameBuffer,
+			onFrame,
+			remotionSharedMemory,
 			outputDir,
 			assets,
 			assetIndex,

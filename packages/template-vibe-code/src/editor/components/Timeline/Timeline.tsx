@@ -1315,7 +1315,7 @@ export const Timeline: React.FC = () => {
             const layerKey = getCanvasSelectionItemKey(layer.selectionItem);
             const hasKeyframeRows = keyframedPropsByLayer.has(layerKey);
             return (
-              <React.Fragment key={layer.track.sequence.id}>
+              <React.Fragment key={layerKey}>
                 <TrackRow
                   layer={layer}
                   index={index}

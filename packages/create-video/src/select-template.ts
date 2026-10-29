@@ -10,8 +10,7 @@ const ALL_TEMPLATES = [...FEATURED_TEMPLATES, ...PAID_TEMPLATES];
 type Options = {
 	tmp: boolean;
 	yes: boolean;
-	'no-tailwind': boolean;
-	tailwind: boolean | undefined;
+	tailwind: boolean;
 	help: boolean;
 };
 
@@ -20,7 +19,7 @@ const parsed = minimist<Options>(process.argv.slice(2), {
 		...ALL_TEMPLATES.map((f) => f.cliId),
 		'tmp',
 		'yes',
-		'no-tailwind',
+		'tailwind',
 		'help',
 	],
 	string: ['_'],
@@ -31,7 +30,7 @@ export const isTmpFlagSelected = () => parsed.tmp;
 
 export const isYesFlagSelected = () => parsed.yes;
 
-export const isNoTailwindFlagSelected = () => parsed.tailwind === false;
+export const isTailwindFlagSelected = () => parsed.tailwind;
 
 export const isHelpFlagSelected = () => parsed.help;
 

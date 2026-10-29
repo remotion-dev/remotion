@@ -7,6 +7,7 @@ const cliFlag = 'cross-site-isolation' as const;
 
 export const enableCrossSiteIsolationOption = {
 	name: 'Enable Cross-Site Isolation',
+	addedIn: '4.0.306',
 	cliFlag,
 	description: () => (
 		<>
@@ -16,12 +17,12 @@ export const enableCrossSiteIsolationOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/config#setenablecrosssiteisolation',
+	docLink: 'https://www.remotion.dev/docs/options/cross-site-isolation',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
-				value: commandLine[cliFlag] as boolean,
+				value: Boolean(commandLine[cliFlag]),
 				source: 'cli',
 			};
 		}

@@ -4,7 +4,7 @@ import path from 'path';
 import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 
-let warned = false;
+let cachedIsMusl: boolean | null = null;
 
 export function isMusl({
 	indent,
@@ -13,34 +13,53 @@ export function isMusl({
 	indent: boolean;
 	logLevel: LogLevel;
 }) {
-	if (!process.report && typeof Bun !== 'undefined') {
-		if (!warned) {
-			Log.warn(
-				{indent, logLevel},
-				'Bun limitation: Could not determine if your Linux is using musl or glibc. Assuming glibc.',
-			);
-		}
-
-		warned = true;
-		return false;
+	if (cachedIsMusl !== null) {
+		return cachedIsMusl;
 	}
 
-	const report = process.report?.getReport();
-	if (report && typeof report === 'string') {
-		if (!warned) {
+	if (!process.report && typeof Bun !== 'undefined') {
+		Log.warn(
+			{indent, logLevel},
+			'Bun limitation: Could not determine if your Linux is using musl or glibc. Assuming glibc.',
+		);
+
+		cachedIsMusl = false;
+		return cachedIsMusl;
+	}
+
+	const processReport = process.report;
+	const excludeNetwork =
+		processReport && 'excludeNetwork' in processReport
+			? processReport.excludeNetwork
+			: null;
+
+	try {
+		// Diagnostic reports can block on reverse DNS lookups for open sockets.
+		// This option is available in Node.js 20.13.0+ and 22.0.0+.
+		if (processReport && 'excludeNetwork' in processReport) {
+			processReport.excludeNetwork = true;
+		}
+
+		const report = processReport?.getReport();
+		if (report && typeof report === 'string') {
 			Log.warn(
 				{indent, logLevel},
 				'Bun limitation: Could not determine if your Windows is using musl or glibc. Assuming glibc.',
 			);
+
+			cachedIsMusl = false;
+			return cachedIsMusl;
 		}
 
-		warned = true;
-		return false;
+		// @ts-expect-error no types
+		const {glibcVersionRuntime} = report.header;
+		cachedIsMusl = !glibcVersionRuntime;
+		return cachedIsMusl;
+	} finally {
+		if (processReport && 'excludeNetwork' in processReport) {
+			processReport.excludeNetwork = excludeNetwork;
+		}
 	}
-
-	// @ts-expect-error no types
-	const {glibcVersionRuntime} = report.header;
-	return !glibcVersionRuntime;
 }
 
 export const getExecutablePath = ({

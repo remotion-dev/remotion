@@ -11,6 +11,7 @@ import {
 import {
 	stringifySequenceExpandedRowKey,
 	type SequenceNodePathMutation,
+	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import React, {
 	createContext,
@@ -94,6 +95,8 @@ import {
 } from './timeline-scroll-logic';
 import {TimelineClipboardKeybindings} from './TimelineClipboardKeybindings';
 import {TimelineDeleteKeybindings} from './TimelineDeleteKeybindings';
+import {TimelineSceneRangeContext} from './TimelineSceneRangeContext';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const {
 	EMPTY_CANVAS_SELECTION,
@@ -463,6 +466,7 @@ type TimelineSelectionContextValue = {
 	readonly inspectorRevealRequest: TimelineSelectionRevealRequest | null;
 	readonly revealRequest: TimelineSelectionRevealRequest | null;
 	readonly consumeRevealRequest: (token: number) => void;
+	readonly consumeInspectorRevealRequest: (token: number) => void;
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly isSelected: (item: TimelineSelection) => boolean;
 	readonly selectItem: (
@@ -492,6 +496,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	inspectorRevealRequest: null,
 	revealRequest: null,
 	consumeRevealRequest: () => undefined,
+	consumeInspectorRevealRequest: () => undefined,
 	selectedItems: [],
 	isSelected: () => false,
 	selectItem: () => undefined,
@@ -610,40 +615,134 @@ export const getTimelineSelectionFromNodePathInfo = (
 
 export const getTimelineSelectionKey = getCanvasSelectionItemKey;
 
-const nodePathDescendsFrom = (
-	descendant: SequenceNodePathInfo,
-	ancestor: SequenceNodePathInfo,
-): boolean => {
-	if (
-		stringifySequenceExpandedRowKey(descendant.sequenceSubscriptionKey) !==
-		stringifySequenceExpandedRowKey(ancestor.sequenceSubscriptionKey)
-	) {
-		return false;
+const multiSelectedSequenceNodePathInfosByItems = new WeakMap<
+	readonly TimelineSelection[],
+	readonly SequenceNodePathInfo[] | null
+>();
+
+export const getMultiSelectedSequenceNodePathInfos = (
+	selectedItems: readonly TimelineSelection[],
+): readonly SequenceNodePathInfo[] | null => {
+	const cached = multiSelectedSequenceNodePathInfosByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
 	}
 
-	if (descendant.index !== ancestor.index) {
-		return false;
-	}
-
-	// Must be strictly deeper than `ancestor` (i.e. a descendant), not the same row.
-	if (descendant.auxiliaryKeys.length <= ancestor.auxiliaryKeys.length) {
-		return false;
-	}
-
-	return ancestor.auxiliaryKeys.every(
-		(key, i) => descendant.auxiliaryKeys[i] === key,
-	);
+	// All selected clips and labels can share the same action targets.
+	const nodePathInfos =
+		selectedItems.length < 2 ||
+		selectedItems.some((item) => item.type !== 'sequence')
+			? null
+			: selectedItems.flatMap((item) =>
+					item.type === 'sequence' ? [item.nodePathInfo] : [],
+				);
+	multiSelectedSequenceNodePathInfosByItems.set(selectedItems, nodePathInfos);
+	return nodePathInfos;
 };
+
+const selectedKeysByItems = new WeakMap<
+	readonly TimelineSelection[],
+	ReadonlySet<string>
+>();
+
+const getTimelineSelectedKeys = (
+	selectedItems: readonly TimelineSelection[],
+): ReadonlySet<string> => {
+	const cached = selectedKeysByItems.get(selectedItems);
+	if (cached !== undefined) {
+		return cached;
+	}
+
+	// Share membership checks across rows without retaining old selections.
+	const keys = new Set(selectedItems.map(getTimelineSelectionKey));
+	selectedKeysByItems.set(selectedItems, keys);
+	return keys;
+};
+
+const containedRowsByItems = new WeakMap<
+	readonly TimelineSelection[],
+	{
+		readonly ancestorRows: ReadonlyMap<
+			string,
+			ReadonlyMap<number, ReadonlySet<string>>
+		>;
+		readonly animationRows: ReadonlySet<string>;
+	}
+>();
 
 const timelineRowContainsSelection = (
 	nodePathInfo: SequenceNodePathInfo,
-	selection: TimelineSelection,
-): boolean =>
-	selection.type !== 'guide' &&
-	(nodePathDescendsFrom(selection.nodePathInfo, nodePathInfo) ||
-		((selection.type === 'keyframe' || selection.type === 'easing') &&
-			timelineNodePathInfoToKey(selection.nodePathInfo) ===
-				timelineNodePathInfoToKey(nodePathInfo)));
+	selectedItems: readonly TimelineSelection[],
+): boolean => {
+	let index = containedRowsByItems.get(selectedItems);
+	if (index === undefined) {
+		const ancestorRows = new Map<string, Map<number, Set<string>>>();
+		const animationRows = new Set<string>();
+		for (const item of selectedItems) {
+			if (item.type === 'guide') {
+				continue;
+			}
+
+			if (item.type === 'keyframe' || item.type === 'easing') {
+				animationRows.add(timelineNodePathInfoToKey(item.nodePathInfo));
+			}
+
+			const {
+				auxiliaryKeys,
+				sequenceSubscriptionKey,
+				index: instanceIndex,
+			} = item.nodePathInfo;
+			// NaN never matched the strict instance-index comparison.
+			if (auxiliaryKeys.length === 0 || Number.isNaN(instanceIndex)) {
+				continue;
+			}
+
+			const sequenceKey = stringifySequenceExpandedRowKey(
+				sequenceSubscriptionKey,
+			);
+			let instances = ancestorRows.get(sequenceKey);
+			if (instances === undefined) {
+				instances = new Map();
+				ancestorRows.set(sequenceKey, instances);
+			}
+
+			let prefixes = instances.get(instanceIndex);
+			if (prefixes === undefined) {
+				prefixes = new Set();
+				instances.set(instanceIndex, prefixes);
+			}
+
+			// Only strict ancestors contain a selected row. Preserve auxiliary
+			// segments separately: a property name can itself contain a dot.
+			for (let length = 0; length < auxiliaryKeys.length; length++) {
+				prefixes.add(JSON.stringify(auxiliaryKeys.slice(0, length)));
+			}
+		}
+
+		index = {ancestorRows, animationRows};
+		containedRowsByItems.set(selectedItems, index);
+	}
+
+	if (
+		index.animationRows.size > 0 &&
+		index.animationRows.has(timelineNodePathInfoToKey(nodePathInfo))
+	) {
+		return true;
+	}
+
+	if (index.ancestorRows.size === 0) {
+		return false;
+	}
+
+	return (
+		index.ancestorRows
+			.get(
+				stringifySequenceExpandedRowKey(nodePathInfo.sequenceSubscriptionKey),
+			)
+			?.get(nodePathInfo.index)
+			?.has(JSON.stringify(nodePathInfo.auxiliaryKeys)) ?? false
+	);
+};
 
 export const getSelectableTimelineSequenceSelections = (
 	tracks: readonly Pick<TimelineTrackData, 'nodePathInfo'>[],
@@ -687,7 +786,7 @@ const getSelectableTimelineItemsForTrack = ({
 		return [];
 	}
 
-	if (!getIsExpanded(nodePathInfo)) {
+	if (track.sequence.timelineTrack || !getIsExpanded(nodePathInfo)) {
 		return [sequenceSelection];
 	}
 
@@ -699,6 +798,7 @@ const getSelectableTimelineItemsForTrack = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const filteredTree = filterTimelineExpandedTree({
@@ -1187,6 +1287,11 @@ export const TimelineSelectionProvider: React.FC<{
 	const consumeRevealRequest = useCallback((token: number) => {
 		setRevealRequest((current) => (current?.token === token ? null : current));
 	}, []);
+	const consumeInspectorRevealRequest = useCallback((token: number) => {
+		setInspectorRevealRequest((current) =>
+			current?.token === token ? null : current,
+		);
+	}, []);
 	const requestRevealSelectionItemInInspector = useCallback(
 		(item: TimelineSelection) => {
 			inspectorRevealTokenCounter.current += 1;
@@ -1233,7 +1338,7 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [selectionController, timelineSelectionScope]);
 
 	const selectedKeys = useMemo(
-		() => new Set(availableSelectedItems.map(getTimelineSelectionKey)),
+		() => getTimelineSelectedKeys(availableSelectedItems),
 		[availableSelectedItems],
 	);
 
@@ -1371,15 +1476,20 @@ export const TimelineSelectionProvider: React.FC<{
 
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
-			return availableSelectedItems.some((selected) =>
-				timelineRowContainsSelection(nodePathInfo, selected),
-			);
+			return timelineRowContainsSelection(nodePathInfo, availableSelectedItems);
 		},
 		[availableSelectedItems],
 	);
 
 	const remapSelectionNodePaths = useCallback(
 		(mutations: readonly SequenceNodePathMutation[]) => {
+			const remappingIndexes = new Map<
+				SequenceNodePathMutation['files'][number],
+				{
+					nextIndex: number;
+					byOldPath: Map<string, SequenceNodePathRemapping>;
+				}
+			>();
 			const remapItem = (
 				item: TimelineSelection | null,
 			): TimelineSelection | null => {
@@ -1401,11 +1511,34 @@ export const TimelineSelectionProvider: React.FC<{
 					}
 
 					const nodePathString = JSON.stringify(nodePath);
-					const remapping = file.remappings.find(
-						(candidate) =>
-							candidate.oldNodePath !== null &&
-							JSON.stringify(candidate.oldNodePath) === nodePathString,
-					);
+					let index = remappingIndexes.get(file);
+					if (index === undefined) {
+						index = {nextIndex: 0, byOldPath: new Map()};
+						remappingIndexes.set(file, index);
+					}
+
+					let remapping = index.byOldPath.get(nodePathString);
+					// Share each scanned prefix across selected items and the anchor.
+					while (
+						remapping === undefined &&
+						index.nextIndex < file.remappings.length
+					) {
+						const candidate = file.remappings[index.nextIndex++];
+						if (candidate.oldNodePath === null) {
+							continue;
+						}
+
+						const oldPath = JSON.stringify(candidate.oldNodePath);
+						// Keep the original first-match behavior for duplicate paths.
+						if (!index.byOldPath.has(oldPath)) {
+							index.byOldPath.set(oldPath, candidate);
+						}
+
+						if (oldPath === nodePathString) {
+							remapping = candidate;
+						}
+					}
+
 					if (!remapping) {
 						continue;
 					}
@@ -1459,6 +1592,7 @@ export const TimelineSelectionProvider: React.FC<{
 			inspectorRevealRequest,
 			revealRequest,
 			consumeRevealRequest,
+			consumeInspectorRevealRequest,
 			selectedItems: availableSelectedItems,
 			isSelected,
 			selectItem,
@@ -1474,6 +1608,7 @@ export const TimelineSelectionProvider: React.FC<{
 			inspectorRevealRequest,
 			revealRequest,
 			consumeRevealRequest,
+			consumeInspectorRevealRequest,
 			availableSelectedItems,
 			isSelected,
 			selectItem,
@@ -1549,8 +1684,7 @@ export const useCurrentTimelineSelectionStateAsRef = () => {
 };
 
 export const useTimelineMarqueeSelection = () => {
-	const {canSelect, getMarqueeSelectionCandidates, selectedItems, selectItems} =
-		useTimelineSelection();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {isHighestContext} = useZIndex();
 	const [marqueeRect, setMarqueeRect] = useState<TimelineMarqueeRect | null>(
 		null,
@@ -1558,6 +1692,12 @@ export const useTimelineMarqueeSelection = () => {
 
 	const onPointerDownCapture = useCallback(
 		(event: React.PointerEvent<HTMLDivElement>) => {
+			const {
+				canSelect,
+				getMarqueeSelectionCandidates,
+				selectedItems,
+				selectItems,
+			} = currentSelection.current;
 			if (!isHighestContext) {
 				return;
 			}
@@ -1770,13 +1910,7 @@ export const useTimelineMarqueeSelection = () => {
 				},
 			});
 		},
-		[
-			canSelect,
-			getMarqueeSelectionCandidates,
-			isHighestContext,
-			selectedItems,
-			selectItems,
-		],
+		[currentSelection, isHighestContext],
 	);
 
 	return {marqueeRect, onPointerDownCapture};
@@ -1788,6 +1922,9 @@ export const useTimelineMarqueeSelectableItem = (
 	horizontalBounds: {readonly cropLeft: number; readonly width: number} | null,
 ) => {
 	const selectionContext = useContext(TimelineRowSelectionContext);
+	const sceneRange = useContext(TimelineSceneRangeContext);
+	const timelineWidth = useContext(TimelineWidthContext);
+	const video = Internals.useUnsafeVideoConfig();
 	if (selectionContext === null) {
 		throw new Error(
 			'useTimelineMarqueeSelectableItem must be used inside TimelineSelectionProvider',
@@ -1803,20 +1940,53 @@ export const useTimelineMarqueeSelectableItem = (
 
 		return registerMarqueeSelectableItem(item, () => {
 			const rect = ref.current?.getBoundingClientRect() ?? null;
-			if (rect === null || horizontalBounds === null) {
+			if (rect === null) {
 				return rect;
 			}
 
 			// Sequence bars are cropped to the horizontal render window. Hit-test
 			// the full sequence so scrolling does not change its selectable bounds.
-			return new DOMRect(
-				rect.left - horizontalBounds.cropLeft,
-				rect.top,
-				horizontalBounds.width,
-				rect.height,
-			);
+			let left = rect.left - (horizontalBounds?.cropLeft ?? 0);
+			let right = left + (horizontalBounds?.width ?? rect.width);
+			if (sceneRange !== null) {
+				const scrollable = scrollableRef.current;
+				if (scrollable === null || timelineWidth === null || video === null) {
+					return null;
+				}
+
+				// CSS scene clipping also hides postmount tails and out-of-scene
+				// keyframes. They must not be selectable in the neighboring scene.
+				const frameWidth =
+					(timelineWidth - TIMELINE_PADDING * 2) / video.durationInFrames;
+				const origin =
+					scrollable.getBoundingClientRect().left +
+					TIMELINE_PADDING -
+					scrollable.scrollLeft;
+				left = Math.max(
+					left,
+					origin + Math.max(0, sceneRange.from) * frameWidth,
+				);
+				right = Math.min(
+					right,
+					origin +
+						Math.min(video.durationInFrames, sceneRange.end) * frameWidth,
+				);
+				if (right <= left) {
+					return null;
+				}
+			}
+
+			return new DOMRect(left, rect.top, right - left, rect.height);
 		});
-	}, [horizontalBounds, item, ref, registerMarqueeSelectableItem]);
+	}, [
+		horizontalBounds,
+		item,
+		ref,
+		registerMarqueeSelectableItem,
+		sceneRange,
+		timelineWidth,
+		video,
+	]);
 };
 
 export const useTimelineRowSelection = (
@@ -1833,6 +2003,46 @@ export const useTimelineRowSelection = (
 		selectionItem,
 		useSelectionOrder: true,
 	});
+};
+
+export const useIsPremountingSelected = (
+	nodePathInfo: SequenceNodePathInfo | null,
+): boolean => {
+	const selectionContext = useContext(TimelineRowSelectionContext);
+	if (selectionContext === null) {
+		throw new Error(
+			'useIsPremountingSelected must be used inside TimelineSelectionProvider',
+		);
+	}
+
+	const sequenceSelectionKey = useMemo(
+		() =>
+			nodePathInfo === null
+				? null
+				: getTimelineSequenceSelectionKey(nodePathInfo),
+		[nodePathInfo],
+	);
+	const getIsPremountingSelected = useCallback(() => {
+		if (sequenceSelectionKey === null) {
+			return false;
+		}
+
+		return selectionContext
+			.getSnapshot()
+			.selectedItems.some(
+				(item) =>
+					item.type === 'sequence-prop' &&
+					item.key === 'premountFor' &&
+					getTimelineSequenceSelectionKey(item.nodePathInfo) ===
+						sequenceSelectionKey,
+			);
+	}, [selectionContext, sequenceSelectionKey]);
+
+	return useSyncExternalStore(
+		selectionContext.subscribe,
+		getIsPremountingSelected,
+		getIsPremountingSelected,
+	);
 };
 
 const useTimelineSelectionItem = <
@@ -1865,9 +2075,7 @@ const useTimelineSelectionItem = <
 		}
 
 		const snapshot = selectionContext.getSnapshot();
-		return snapshot.selectedItems.some(
-			(item) => getTimelineSelectionKey(item) === selectionItemKey,
-		)
+		return getTimelineSelectedKeys(snapshot.selectedItems).has(selectionItemKey)
 			? snapshot
 			: null;
 	}, [selectionContext, selectionItemKey]);
@@ -1989,11 +2197,10 @@ export const useTimelineRowContainsSelection = (
 			return false;
 		}
 
-		return selectionContext
-			.getSnapshot()
-			.selectedItems.some((selected) =>
-				timelineRowContainsSelection(nodePathInfo, selected),
-			);
+		return timelineRowContainsSelection(
+			nodePathInfo,
+			selectionContext.getSnapshot().selectedItems,
+		);
 	}, [nodePathInfo, selectionContext]);
 
 	return useSyncExternalStore(

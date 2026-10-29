@@ -63,6 +63,9 @@ export const combineVideoStreams = async ({
 		'-an',
 		'-c:v',
 		encoder,
+		// Keep the MP4/MOV video time base consistent with the initial encoding.
+		'-video_track_timescale',
+		'90000',
 		codec === 'h265' ? '-tag:v' : null,
 		codec === 'h265' ? 'hvc1' : null,
 		addRemotionMetadata ? `-metadata` : null,

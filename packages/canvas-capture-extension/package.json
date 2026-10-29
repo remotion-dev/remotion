@@ -1,16 +1,17 @@
 {
 	"name": "@remotion/canvas-capture-extension",
-	"version": "4.0.533",
+	"version": "4.0.539",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "bunx --bun wxt",
 		"formatting": "oxfmt src wxt.config.ts --check",
 		"format": "oxfmt src wxt.config.ts",
-		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && tsgo --noEmit",
-		"make": "bunx --bun wxt build"
+		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && bun check",
+		"build-extension": "bunx --bun wxt build"
 	},
 	"dependencies": {
+		"@remotion/studio-shared": "workspace:*",
 		"@remotion/design": "workspace:*",
 		"mediabunny": "catalog:",
 		"react": "catalog:",
@@ -18,10 +19,9 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
-		"@typescript/native-preview": "catalog:",
 		"@types/node": "catalog:",
 		"eslint": "catalog:",
-		"vite": "7.3.6",
+		"vite": "7.3.7",
 		"web-ext": "10.6.0",
 		"wxt": "0.21.4"
 	}

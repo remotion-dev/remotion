@@ -9,6 +9,8 @@ export const browserStudioVirtualFilePaths = {
 	reactRefreshEntry: '/__remotion_browser_studio__/react-refresh-entry.js',
 	reactRefreshRuntime: '/__remotion_browser_studio__/reactRefresh.js',
 	reactRefreshUtils: '/__remotion_browser_studio__/refreshUtils.js',
+	reactRefreshWithNotifications:
+		'/__remotion_browser_studio__/react-refresh-with-notifications.js',
 	setupEnvironment: '/__remotion_browser_studio__/setup-environment.ts',
 	setupSequenceStackTraces:
 		'/__remotion_browser_studio__/setup-sequence-stack-traces.ts',
@@ -30,24 +32,20 @@ const getInjectedSetupEnvironment = () => {
 	return __BROWSER_STUDIO_SETUP_ENVIRONMENT__;
 };
 
-const notifyOnRefresh = `const RemotionRefreshRuntime = require('react-refresh/runtime');
-RemotionRefreshRuntime.__remotionReactRefreshWrapped ??= null;
+const notifyOnRefresh = `import {performReactRefresh as originalPerformReactRefresh} from 'react-refresh/runtime';
+export * from 'react-refresh/runtime';
 
-if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
-  const originalPerformReactRefresh = RemotionRefreshRuntime.performReactRefresh;
-  RemotionRefreshRuntime.__remotionReactRefreshWrapped = true;
-  RemotionRefreshRuntime.performReactRefresh = () => {
-    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
-    const result = originalPerformReactRefresh();
-    if (result !== null) {
-      window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));
-    }
+export const performReactRefresh = () => {
+  window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
+  const result = originalPerformReactRefresh();
+  if (result !== null) {
+    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));
+  }
 
-    return result;
-  };
-}
+  return result;
+};
 
-window.remotion_performReactRefresh = () => RemotionRefreshRuntime.performReactRefresh();
+window.remotion_performReactRefresh = performReactRefresh;
 `;
 
 const setupSequenceStackTraces = `import React from 'react';
@@ -58,52 +56,10 @@ Internals.setComponentIdentityResolver((component) => {
   return RefreshRuntime.getFamilyByType(component) ?? component;
 });
 
-const componentsToAddStacksTo = Internals.getComponentsToAddStacksTo();
-const sequenceComponent = Internals.getSequenceComponent();
-const internalStackProp = Internals.REMOTION_INTERNAL_STACK_PROP;
+export const enableProxy = (api, sourceArgumentIndex) =>
+  Internals.createElementSourceProxy(api, sourceArgumentIndex, (fileName) => fileName);
 
-const originalCreateElement = React.createElement;
-
-export const enableProxy = (api, isCreateElement, sourceArgumentIndex) => {
-  return new Proxy(api, {
-    apply(target, thisArg, argArray) {
-      if (componentsToAddStacksTo.includes(argArray[0])) {
-        const [first, props, ...rest] = argArray;
-        const children = isCreateElement
-          ? rest.length === 0
-            ? props?.children
-            : rest
-          : props?.children;
-        const source =
-          sourceArgumentIndex === null ? null : argArray[sourceArgumentIndex];
-        const stack =
-          source &&
-          typeof source.fileName === 'string' &&
-          typeof source.lineNumber === 'number' &&
-          typeof source.columnNumber === 'number'
-            ? Internals.makeOriginalSourceStack({
-                fileName: source.fileName,
-                lineNumber: source.lineNumber,
-                columnNumber: source.columnNumber,
-              })
-            : new Error().stack;
-        const newProps = props?.[internalStackProp]
-          ? {...props}
-          : {...(props ?? {}), [internalStackProp]: stack};
-        if (first === sequenceComponent) {
-          newProps._remotionInternalSingleChildComponent =
-            Internals.getSingleChildComponent(children);
-        }
-
-        return Reflect.apply(target, thisArg, [first, newProps, ...rest]);
-      }
-
-      return Reflect.apply(target, thisArg, argArray);
-    },
-  });
-};
-
-React.createElement = enableProxy(originalCreateElement, true, null);
+React.createElement = enableProxy(React.createElement, null);
 `;
 
 const jsxRuntime = `import {
@@ -114,8 +70,8 @@ const jsxRuntime = `import {
 import {enableProxy} from './setup-sequence-stack-traces';
 
 export {Fragment};
-export const jsx = enableProxy(originalJsx, false, null);
-export const jsxs = enableProxy(originalJsxs, false, null);
+export const jsx = enableProxy(originalJsx, null);
+export const jsxs = enableProxy(originalJsxs, null);
 `;
 
 const jsxDevRuntime = `import {
@@ -125,7 +81,7 @@ const jsxDevRuntime = `import {
 import {enableProxy} from './setup-sequence-stack-traces';
 
 export {Fragment};
-export const jsxDEV = enableProxy(originalJsxDev, false, 4);
+export const jsxDEV = enableProxy(originalJsxDev, 4);
 `;
 
 const reactShim = `import * as React from 'react';
@@ -184,7 +140,17 @@ export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
 	return {
 		...reactRefreshFiles,
 		[browserStudioVirtualFilePaths.browserRequireShim]: browserRequireShim,
-		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles[browserStudioVirtualFilePaths.reactRefreshEntry]}\n${notifyOnRefresh}`,
+		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles[browserStudioVirtualFilePaths.reactRefreshEntry]}\nimport '${browserStudioVirtualFilePaths.reactRefreshWithNotifications}';`,
+		// ESM namespace exports are read-only. Wrap both automatic and manual
+		// refreshes instead of replacing performReactRefresh on the runtime.
+		[browserStudioVirtualFilePaths.reactRefreshUtils]: reactRefreshFiles[
+			browserStudioVirtualFilePaths.reactRefreshUtils
+		].replaceAll(
+			"'react-refresh/runtime'",
+			`'${browserStudioVirtualFilePaths.reactRefreshWithNotifications}'`,
+		),
+		[browserStudioVirtualFilePaths.reactRefreshWithNotifications]:
+			notifyOnRefresh,
 		[browserStudioVirtualFilePaths.setupEnvironment]:
 			getInjectedSetupEnvironment(),
 		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:

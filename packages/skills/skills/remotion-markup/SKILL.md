@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.533
+version: 4.0.539
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -15,9 +15,16 @@ If you detect a surprising change made in the meanwhile, don't overwrite it, ass
 
 ## General rules
 
+Keep `useCurrentFrame()` in the smallest component that needs it. Extract
+frame-dependent audio volume, titles, and overlays into their own components
+instead of subscribing the whole composition or scene; otherwise unrelated
+descendants re-render on every frame. Preserve the existing frame coordinates
+when extracting across timing boundaries, and keep editable interpolations
+inline on the item's props.
+
 Inside a composition or scene component, get `fps` from `useVideoConfig()` for
 all seconds-to-frames calculations, including timing props such as `from`,
-`trimBefore`, `durationInFrames`, and `premountFor`. Keeping the expression on
+`trimBefore` and `durationInFrames`. Keeping the expression on
 the JSX node, such as `trimBefore={4 * fps}`, lets Studio edit the timing and
 keeps it correct if the composition frame rate changes.
 
@@ -27,21 +34,12 @@ Tailwind animation class will not render correctly, they need to be refactored.
 
 Use `Easing.bezier()` and `Easing.spring()` to customize timing.
 
-Structure your markup according to [Remotion Interactivity Best Practices](../remotion-interactivity/SKILL.md).
-Prefer `Interactive.withSchema({wrapInSequence: true})` for custom visual components
-with editable props, and register reusable scenes as connected compositions.
-Put timing directly on components that support it; avoid redundant `<Sequence>` wrappers.
-Give every timed component that supports `premountFor` one second of premounting:
-`premountFor={fps}`, where `fps` comes from `useVideoConfig()`. Apply this to
-media, interactive components, `<Sequence>`, `<Series.Sequence>`,
-`<TransitionSeries.Sequence>`, and `<TransitionSeries.Overlay>`, including
-timed components nested inside scenes. Premount the parent timeline item too
-when a nested item needs to mount before the parent starts. A component without
-`premountFor`, such as `<TransitionSeries.Transition>`, needs no substitute.
-
-The Studio edits the JSX source node that created an item. Author every composition registration, clip, scene, layer and sequence that should be editable independently as its own JSX node, with its editable props inline.
-Programmatic loops are suitable when the generated instances are intentionally controlled as one source template, not when users need to edit the instances
-separately.
+Before choosing the markup hierarchy, read
+[editable timeline structure](../remotion-interactivity/timeline-structure.md).
+Choose editing units first, then the tracks or shared timing boundaries they
+need. It includes a complete example with interactive components and their
+registrations. For source-editable styles, schemas, and keyframes, see
+[Remotion Interactivity](../remotion-interactivity/SKILL.md).
 
 ```tsx
 import { useCurrentFrame, useVideoConfig, Easing, interpolate, Interactive } from "remotion";
@@ -53,7 +51,6 @@ export const FadeIn = () => {
   return (
     <Interactive.Div
       name="Title"
-      premountFor={fps}
       style={{
         opacity: interpolate(frame, [0, 2 * fps], [0, 1], {
           extrapolateRight: "clamp",
@@ -114,22 +111,19 @@ Use `staticFile()` for files in `public/` or pass a remote URL directly:
 
 ```tsx
 import { Audio, Video } from "@remotion/media";
-import { staticFile, CanvasImage, AnimatedImage, useVideoConfig } from "remotion";
+import { staticFile, CanvasImage, AnimatedImage } from "remotion";
 
 export const MyComposition = () => {
-  const {fps} = useVideoConfig();
-
   return (
     <>
-      <Video src={staticFile("video.mp4")} premountFor={fps} style={{ opacity: 0.5 }} />
-      <Audio src={staticFile("audio.mp3")} premountFor={fps} />
+      <Video src={staticFile("video.mp4")} style={{ opacity: 0.5 }} />
+      <Audio src={staticFile("audio.mp3")} />
       <CanvasImage
         src={staticFile("logo.png")}
-        premountFor={fps}
         style={{ width: 100, height: 100 }}
       />
-      <Video src="https://remotion.media/video.mp4" premountFor={fps} />
-      <AnimatedImage src={staticFile('nyancat.gif')} premountFor={fps} />
+      <Video src="https://remotion.media/video.mp4" />
+      <AnimatedImage src={staticFile('nyancat.gif')} />
     </>
   );
 };
@@ -138,158 +132,10 @@ export const MyComposition = () => {
 If the composition is primarily a timeline of video or audio clips, read
 [video-editing.md](video-editing.md) before choosing its source structure.
 
-## Example scene
-
-A background video with a lower third.
-The lower third is an interactive component with its own timeline, registered as a [connected composition](connected-compositions.md).
-Its text is passed as `children` and `accentColor` is an editable prop.
-The fade-in is keyframed inline at the call site.
-
-```tsx
-// MyScene.tsx
-import { Video } from "@remotion/media";
-import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { LowerThird } from "./LowerThird";
-
-export const MyScene = () => {
-  const { fps } = useVideoConfig();
-  const frame = useCurrentFrame();
-
-  return (
-    <>
-      <Video
-        name="Background"
-        src="https://remotion.media/video.mp4"
-        premountFor={fps}
-        objectFit="cover"
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100%",
-        }}
-      />
-      <LowerThird
-        name="Lower third"
-        from={1 * fps}
-        premountFor={fps}
-        accentColor="#0b84f3"
-        style={{
-          opacity: interpolate(frame, [1 * fps, 2 * fps], [0, 1], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-            easing: Easing.bezier(0.16, 1, 0.3, 1),
-          }),
-        }}
-      >
-        Jane Doe, Product Designer
-      </LowerThird>
-    </>
-  );
-};
-```
-
-```tsx
-// LowerThird.tsx
-import type React from "react";
-import { Interactive, type InteractivitySchema } from "remotion";
-
-type LowerThirdProps = {
-  readonly children: string;
-  readonly accentColor: string;
-  readonly style?: React.CSSProperties;
-};
-
-const LowerThirdInner: React.FC<LowerThirdProps> = ({
-  children,
-  accentColor,
-  style,
-}) => {
-  return (
-    <Interactive.Div
-      style={{
-        position: "absolute",
-        left: 80,
-        bottom: 80,
-        display: "flex",
-        alignItems: "center",
-        gap: 20,
-        backgroundColor: "white",
-        borderRadius: 16,
-        padding: "20px 32px",
-        color: "black",
-        fontFamily: "Helvetica, Arial, sans-serif",
-        fontSize: 48,
-        fontWeight: 600,
-        ...style,
-      }}
-    >
-      <div
-        style={{
-          width: 8,
-          alignSelf: "stretch",
-          borderRadius: 4,
-          backgroundColor: accentColor,
-        }}
-      />
-      {children}
-    </Interactive.Div>
-  );
-};
-
-const lowerThirdSchema = {
-  children: { type: "text-content", default: "", description: "Text" },
-  accentColor: {
-    type: "color",
-    default: "#0b84f3",
-    description: "Accent color",
-  },
-} as const satisfies InteractivitySchema;
-
-export const LowerThird = Interactive.withSchema({
-  Component: LowerThirdInner,
-  componentName: "<LowerThird>",
-  schema: lowerThirdSchema,
-  wrapInSequence: true,
-});
-```
-
-```tsx
-// Root.tsx
-import { Composition } from "remotion";
-import { LowerThird } from "./LowerThird";
-import { MyScene } from "./MyScene";
-
-export const RemotionRoot: React.FC = () => {
-  return (
-    <>
-      <Composition
-        id="MyScene"
-        component={MyScene}
-        durationInFrames={60}
-        fps={30}
-        width={1280}
-        height={720}
-      />
-      <Composition
-        id="LowerThird"
-        component={LowerThird}
-        durationInFrames={30}
-        fps={30}
-        width={1280}
-        height={720}
-        defaultProps={{
-          children: "Jane Doe, Product Designer",
-          accentColor: "#0b84f3",
-        }}
-      />
-    </>
-  );
-};
-```
-
 ## Delaying, trimming
 
-Put timing directly on components that support it. See [Timing props](./timing-props.md) for the supported props, examples, and order of operations.
+Use [sequencing](sequencing.md) to choose the timing boundary and
+[timing props](timing-props.md) for the supported props and order of operations.
 
 ## Maps
 
@@ -305,14 +151,10 @@ See [multi-scene-video.md](multi-scene-video.md) if planning to make a video wit
 
 ## Connected compositions
 
-When a scene or group of layers deserves its own editable timeline, follow [connected-compositions.md](connected-compositions.md). Prefer this structure for substantial scenes in a multi-scene video.
-
-### Pre-compose action
-
-For a Studio request such as `Pre-compose Ambient glow (src/BarChart.tsx:134)`, find the selected sequence markup at the given location. Make a connected composition, following [connected-compositions.md](connected-compositions.md): extract the markup into a named component, preferably make it interactive with `Interactive.withSchema({wrapInSequence: true})`, and register the same exported component reference with a unique `<Composition>` in the root. Render the interactive component directly with its timing props, or as the only child of a sequence when that wrapper has a purpose. If the selected node is already a sequence, keep its props and extract its children. The registration needs dimensions, fps, duration, and `defaultProps` equivalent to its parent use. A component extraction without a registered composition does not complete a pre-compose request.
-
-Carry inherited styles such as `fontFamily` and font loading into the extracted
-component; see [parent independence](connected-compositions.md#make-the-component-independent-of-its-parent).
+Read [connected compositions](connected-compositions.md) when a scene or group
+needs its own editable timeline, or when handling a Studio pre-compose request.
+It covers extraction, registration, inherited styles, and verification in both
+the parent and standalone views.
 
 ## Voiceover
 
@@ -372,13 +214,19 @@ built-in effect matches.
 
 Built-in effects from `@remotion/effects`:
 
-- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
+- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `curves()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
 - Blur and trails: `blur()`, `lightTrail()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `regionBlur()`, `zoomBlur()`.
-- Lighting: `dropShadow()`, `glow()`, `lightLeak()`, `shine()`, `starburst()`, `vignette()`.
+- Lighting: `dropShadow()`, `longShadows()`, `glow()`, `lightLeak()`, `shine()`, `starburst()`, `vignette()`.
 - Distortion and transforms: `barrelDistortion()`, `chromaticAberration()`, `cornerPin()`, `fisheye()`, `mirror()`, `noiseDisplacement()`, `scale()`, `skew()`, `tile()`, `uvTranslate()`, `wave()`, `xyTranslate()`.
 - Textures and patterns: `burlap()`, `checkerboard()`, `contourLines()`, `dotGrid()`, `emboss()`, `flannel()`, `gridlines()`, `halftone()`, `halftoneLinearGradient()`, `lines()`, `liquidContours()`, `noise()`, `paper()`, `pattern()`, `rings()`, `scanlines()`, `speckle()`, `tvSignalOff()`, `waves()`, `whiteNoise()`, `zigzag()`.
 - Edges: `outline()`, `roughenEdges()`, `shrinkwrap()`, `tear()`.
 - Pixelation and transitions: `evolve()`, `linearProgressivePixelate()`, `pixelate()`, `pixelDissolve()`, `radialProgressivePixelate()`, `venetianBlinds()`.
+
+## Color correction
+
+Read [color-correction.md](color-correction.md) for primary adjustments with
+`colorCorrection()`, tonal mapping with `levels()` or `curves()`, their Studio
+editors, and 3D `.cube` color grades with `lut()`.
 
 ## 3D content
 
@@ -399,6 +247,10 @@ For static maps, animated routes and markers, geographic explainers, Mapbox, Map
 ## Captions
 
 When dealing with captions or subtitles, load the [Remotion Captions](../remotion-captions/SKILL.md) skill for more information.
+
+## Arabic and right-to-left text
+
+For Arabic, Persian, Urdu or Hebrew text, read [arabic-text.md](arabic-text.md): set the base direction, animate by word, and split letters only in a way that keeps them joined.
 
 ## Google Fonts
 
@@ -468,6 +320,9 @@ This goes for `@remotion/*` packages, `mediabunny`, `@mediabunny/*`, `zod`, and 
 
 ## Visual checks
 
-When a visual check is useful, open the [Remotion Studio](../remotion-studio/SKILL.md) for an interactive preview.
+Open the [Remotion Studio](../remotion-studio/SKILL.md) to check visual changes.
+When changing timeline structure, inspect the full composition as well as any
+connected components; verify the visible layers, cut timing, and synchronized
+content.
 
 You can also use [Rendering](../remotion-render/SKILL.md) to inspect one or several frames as images.

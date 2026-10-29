@@ -115,14 +115,14 @@ const CodeCardInner: React.FC<CodeCardProps> = ({
 
 const codeCardSchema = {
 	header: {
-		type: 'text-content',
+		type: 'string',
 		default: '// ski.system',
 		description: 'Header',
 	},
-	line1: {type: 'text-content', default: '', description: 'Line 01'},
-	line2: {type: 'text-content', default: '', description: 'Line 02'},
-	line3: {type: 'text-content', default: '', description: 'Line 03'},
-	line4: {type: 'text-content', default: '', description: 'Line 04'},
+	line1: {type: 'string', default: '', description: 'Line 01'},
+	line2: {type: 'string', default: '', description: 'Line 02'},
+	line3: {type: 'string', default: '', description: 'Line 03'},
+	line4: {type: 'string', default: '', description: 'Line 04'},
 	typeSeconds: {
 		type: 'number',
 		default: 1.5,
@@ -151,9 +151,8 @@ const codeCardSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const CodeCard = Interactive.withSchema({
+export const CodeCard = Interactive.create({
 	Component: CodeCardInner,
 	componentName: '<CodeCard>',
 	schema: codeCardSchema,
-	wrapInSequence: true,
 });

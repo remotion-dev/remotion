@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-sdk-create-canvas-controller.png
+image: https://remotion.media/docs/generated/articles-docs-sdk-create-canvas-controller.png
 title: createCanvasController()
 crumb: '@remotion/sdk'
 ---
@@ -26,13 +26,13 @@ The function takes no arguments.
 
 ### timeline
 
-An external store of `readonly TimelineTrackData[]`. Subscribe with `timeline.subscribe(listener)` and read with `timeline.getSnapshot()`. In React, pass both to `useSyncExternalStore()` as shown in the [overview](/docs/sdk#basic-example). Tracks are populated while the composition is mounted and cleared when `<Canvas>` unmounts.
+An external store of `readonly TimelineTrackData[]`. Subscribe with `timeline.subscribe(listener)` and read with `timeline.getSnapshot()`. In React, pass both to `useSyncExternalStore()` as shown in the [overview](/docs/sdk/api#basic-example). Tracks are populated while the composition is mounted and cleared when `<Canvas>` unmounts.
 
 Each track includes `sequence` registration data, `depth`, `nodePathInfo`, and timing fields such as `cascadedStart`, `localStart`, `keyframeDisplayOffset`, `keyframePlaybackRate`, and `sequenceFrameOffset`. The sequence's `from` and `duration` are its visible timeline range. `nodePathInfo` is `null` until a source identity is registered with [`setSequenceNodePaths()`](#setsequencenodepaths).
 
 #### sequence.controls<AvailableFrom v="4.0.529" />
 
-The interactivity data of the mounted element, or `null` for elements that do not register any. The `<Canvas>` populates it for built-in elements and for components wrapped with [`Interactive.withSchema()`](/docs/interactive-with-schema).
+The interactivity data of the mounted element, or `null` for elements that do not register any. The `<Canvas>` populates it for built-in elements and for components wrapped with [`Interactive.create()`](/docs/interactive-create).
 
 `schema` is the element's interactivity schema, describing the editable props, their types, ranges and defaults. `runtimeValues` is a store of the current prop values in dot notation, for example `style.opacity`; read it with `getSnapshot()` and `subscribe()`. `supportsEffects` tells whether effects can be added to the element, `componentIdentity` identifies the component and `overrideId` identifies the JSX element the sequence was created from. Sequences rendered from the same element, for example in a `.map()` loop, share an `overrideId`.
 

@@ -31,6 +31,12 @@ import {filterImage} from './fixtures/filter-image';
 import {flexContainer} from './fixtures/flex-container';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {gradientTransparentKeyword} from './fixtures/gradient-transparent-keyword';
+import {htmlInCanvasBlur} from './fixtures/html-in-canvas-blur';
+import {
+	htmlInCanvasFrameMatrix,
+	htmlInCanvasFrames,
+	htmlInCanvasNestedFrames,
+} from './fixtures/html-in-canvas-frames';
 import {hugeImageTransform} from './fixtures/huge-image-transform';
 import {inlineScaleAfterOutline} from './fixtures/inline-scale-after-outline';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -44,11 +50,21 @@ import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-
 import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-position';
 import {issue9901RotatedDropShadow} from './fixtures/issue-9901-rotated-drop-shadow';
 import {issue10676SvgGradientStroke} from './fixtures/issue-10676-svg-gradient-stroke';
+import {
+	issue12604Direct,
+	issue12604DirectFractional,
+	issue12604Precomposed,
+	issue12604PrecomposedFractional,
+} from './fixtures/issue-12604-scaled-precompose-text';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
+import {
+	mixBlendModeAllModes,
+	mixBlendModeGroups,
+} from './fixtures/mix-blend-mode';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
@@ -76,6 +92,7 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
+import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
@@ -136,11 +153,16 @@ export const Root: React.FC = () => {
 			<Composition {...overflowHidden} />
 			<Composition {...overflowHidden3dTransform} />
 			<Composition {...hugeImageTransform} />
+			<Composition {...htmlInCanvasBlur} />
+			<Composition {...htmlInCanvasFrames} />
+			<Composition {...htmlInCanvasFrameMatrix} />
+			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
+			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
 			<Composition {...scaleFixture} />
@@ -157,6 +179,8 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundColor} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...mixBlendModeAllModes} />
+				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
@@ -230,6 +254,10 @@ export const Root: React.FC = () => {
 				<Composition {...issue7199ScaleAndDropShadow} />
 				<Composition {...issue9901RotatedDropShadow} />
 				<Composition {...issue10676SvgGradientStroke} />
+				<Composition {...issue12604Direct} />
+				<Composition {...issue12604Precomposed} />
+				<Composition {...issue12604DirectFractional} />
+				<Composition {...issue12604PrecomposedFractional} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
 				<Composition {...pr11215SvgFontRepro} />

@@ -11,17 +11,23 @@ import {
 } from 'fs';
 import {dirname, join, relative, resolve} from 'path';
 
-export const TWOSLASH_CACHE_SCHEMA_VERSION = 2;
+export const TWOSLASH_CACHE_SCHEMA_VERSION = 4;
 export const TWOSLASH_THEME = 'github-dark';
 export const TWOSLASH_EXPLICIT_TRIGGER = false;
 export const TWOSLASH_RENDERER = 'classic';
 
 export const getTwoslashCompilerOptions = () => ({
-	types: ['node'],
-	target: 99 /* ESNext */,
-	module: 99 /* ESNext */,
-	jsx: 4 /* ReactJSX */,
+	strict: true,
+	module: 'esnext',
+	target: 'esnext',
+	moduleResolution: 'bundler',
+	moduleDetection: 'force',
+	jsx: 'react-jsx',
+	esModuleInterop: true,
+	allowJs: true,
 	skipLibCheck: true,
+	types: ['node'],
+	noUncheckedSideEffectImports: false,
 });
 
 export interface TwoslashVersions {
@@ -92,10 +98,11 @@ export const getTwoslashVersions = (
 	resolvePackage: (packageName: string) => string,
 ): TwoslashVersions => {
 	return {
-		twoslash: findPackageVersion('twoslash', resolvePackage),
+		// Bump the native implementation version when its rendered output changes.
+		twoslash: 'remotion-native-1',
 		shiki: findPackageVersion('shiki', resolvePackage),
 		typescript: findPackageVersion('typescript', resolvePackage),
-		shikiTwoslash: findPackageVersion('@shikijs/twoslash', resolvePackage),
+		shikiTwoslash: findPackageVersion('@shikijs/twoslash/core', resolvePackage),
 	};
 };
 
@@ -259,7 +266,7 @@ export const createTwoslashCacheContext = ({
 	versions: TwoslashVersions;
 }): TwoslashCacheContext => {
 	return {
-		localRoot: join(docsRoot, 'node_modules', '.cache', 'twoslash'),
+		localRoot: join(docsRoot, 'node_modules', '.cache', 'twoslash-native'),
 		environmentHash: getTwoslashEnvironmentHash(docsRoot),
 		versions,
 		workspacePackages: getTwoslashWorkspacePackages(docsRoot),

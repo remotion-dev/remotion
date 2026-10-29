@@ -219,7 +219,11 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 		);
 	}
 
-	if (field.typeName === 'text-content' || field.typeName === 'svg-path') {
+	if (
+		field.typeName === 'string' ||
+		field.typeName === 'text-content' ||
+		field.typeName === 'svg-path'
+	) {
 		return (
 			<TimelineTextContentField
 				effectiveValue={effectiveValue}

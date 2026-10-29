@@ -7,8 +7,13 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {BLACK_ALPHA_60} from '../../helpers/colors';
+import {
+	BLACK_ALPHA_60,
+	TRANSPARENT,
+	WHITE_ALPHA_06,
+} from '../../helpers/colors';
 import {useMobileLayout} from '../../helpers/mobile-layout';
+import {observeHover} from '../../helpers/observe-hover';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -68,6 +73,10 @@ export const MenuContent: React.FC<{
 
 	const [subMenuActivated, setSubMenuActivated] =
 		useState<SubMenuActivated>(false);
+	const subMenuActivatedRef = useRef(subMenuActivated);
+	useEffect(() => {
+		subMenuActivatedRef.current = subMenuActivated;
+	}, [subMenuActivated]);
 	const typeaheadQueryRef = useRef('');
 	const typeaheadTimeoutRef = useRef<number | null>(null);
 
@@ -98,7 +107,7 @@ export const MenuContent: React.FC<{
 	}, []);
 
 	const isItemSelectable = useCallback((v: ComboboxValue) => {
-		return v.type === 'item' && !v.disabled;
+		return (v.type === 'item' && !v.disabled) || v.type === 'custom';
 	}, []);
 
 	const onArrowUp = useCallback(() => {
@@ -159,6 +168,10 @@ export const MenuContent: React.FC<{
 			throw new Error('cannot find item');
 		}
 
+		if (item.type === 'custom') {
+			return;
+		}
+
 		if (item.type !== 'item') {
 			throw new Error('cannot select non-interactive menu item');
 		}
@@ -183,6 +196,10 @@ export const MenuContent: React.FC<{
 		const item = values.find((i) => i.id === selectedItem);
 		if (!item) {
 			throw new Error('cannot find item');
+		}
+
+		if (item.type === 'custom') {
+			return onNextMenu();
 		}
 
 		if (item.type !== 'item') {
@@ -375,6 +392,10 @@ export const MenuContent: React.FC<{
 			return;
 		}
 
+		if (item.type === 'custom') {
+			return setSubMenuActivated(false);
+		}
+
 		if (item.type !== 'item') {
 			throw new Error('should not select non-interactive menu item');
 		}
@@ -390,17 +411,15 @@ export const MenuContent: React.FC<{
 			return;
 		}
 
-		const onPointerLeave = () => {
-			if (subMenuActivated) {
-				return;
-			}
-
-			setSelectedItem(null);
-		};
-
-		current.addEventListener('pointerleave', onPointerLeave);
-		return () => current.removeEventListener('pointerleave', onPointerLeave);
-	}, [onHide, subMenuActivated]);
+		return observeHover({
+			element: current,
+			onHoverChange: (hovered) => {
+				if (!hovered && !subMenuActivatedRef.current) {
+					setSelectedItem(null);
+				}
+			},
+		});
+	}, []);
 
 	return (
 		<MenuTreeContext.Provider value={menuTreeId}>
@@ -418,6 +437,21 @@ export const MenuContent: React.FC<{
 					if (item.type === 'section-header') {
 						return (
 							<MenuSectionHeader key={item.id}>{item.label}</MenuSectionHeader>
+						);
+					}
+
+					if (item.type === 'custom') {
+						return (
+							<div
+								key={item.id}
+								style={{
+									backgroundColor:
+										item.id === selectedItem ? WHITE_ALPHA_06 : TRANSPARENT,
+								}}
+								onPointerEnter={() => setSelectedItem(item.id)}
+							>
+								{item.content}
+							</div>
 						);
 					}
 

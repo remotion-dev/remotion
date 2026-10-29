@@ -1,14 +1,9 @@
 import type {EventSourceEvent} from '@remotion/studio-shared';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {WHITE_ALPHA_80} from '../helpers/colors';
+import {getSourceMutationRevision} from '../helpers/source-mutation-queue';
 import {pushUrl} from '../helpers/url-state';
 import {
 	areKeyboardShortcutsDisabled,
@@ -35,8 +30,6 @@ export const UndoRedoButtons: React.FC = () => {
 	const [redoFile, setRedoFile] = useState<string | null>(null);
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
 	const keybindings = useKeybinding();
-	const undoInFlight = useRef(false);
-	const redoInFlight = useRef(false);
 
 	useEffect(() => {
 		const unsub = subscribeToEvent(
@@ -55,50 +48,44 @@ export const UndoRedoButtons: React.FC = () => {
 	}, [subscribeToEvent]);
 
 	const onUndo = useCallback(() => {
-		if (undoInFlight.current) {
-			return;
-		}
-
-		undoInFlight.current = true;
 		const browserStudioOperations = getBrowserStudioOperations();
 		const promise = browserStudioOperations
 			? browserStudioOperations.undo()
 			: callApi('/api/undo', {});
+		const revision = getSourceMutationRevision();
 		promise
 			.then((response) => {
-				if (response.success && response.route !== null) {
+				if (
+					revision === getSourceMutationRevision() &&
+					response.success &&
+					response.route !== null
+				) {
 					pushUrl(response.route);
 				}
 			})
 			.catch(() => {
 				// Ignore errors
-			})
-			.finally(() => {
-				undoInFlight.current = false;
 			});
 	}, []);
 
 	const onRedo = useCallback(() => {
-		if (redoInFlight.current) {
-			return;
-		}
-
-		redoInFlight.current = true;
 		const browserStudioOperations = getBrowserStudioOperations();
 		const promise = browserStudioOperations
 			? browserStudioOperations.redo()
 			: callApi('/api/redo', {});
+		const revision = getSourceMutationRevision();
 		promise
 			.then((response) => {
-				if (response.success && response.route !== null) {
+				if (
+					revision === getSourceMutationRevision() &&
+					response.success &&
+					response.route !== null
+				) {
 					pushUrl(response.route);
 				}
 			})
 			.catch(() => {
 				// Ignore errors
-			})
-			.finally(() => {
-				redoInFlight.current = false;
 			});
 	}, []);
 
@@ -109,9 +96,7 @@ export const UndoRedoButtons: React.FC = () => {
 			event: 'keydown',
 			action: 'undo',
 			callback: () => {
-				if (undoFile) {
-					onUndo();
-				}
+				onUndo();
 			},
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
@@ -122,9 +107,7 @@ export const UndoRedoButtons: React.FC = () => {
 			event: 'keydown',
 			action: 'redo',
 			callback: () => {
-				if (redoFile) {
-					onRedo();
-				}
+				onRedo();
 			},
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
@@ -135,7 +118,7 @@ export const UndoRedoButtons: React.FC = () => {
 			undo.unregister();
 			redo.unregister();
 		};
-	}, [keybindings, onRedo, onUndo, redoFile, undoFile]);
+	}, [keybindings, onRedo, onUndo]);
 
 	const undoShortcut = useKeyboardShortcutLabel('undo');
 	const redoShortcut = useKeyboardShortcutLabel('redo');

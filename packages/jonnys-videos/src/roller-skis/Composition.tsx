@@ -2,13 +2,15 @@ import type {Caption} from '@remotion/captions';
 import {lut} from '@remotion/effects/lut';
 import {vignette} from '@remotion/effects/vignette';
 import {Audio, Video} from '@remotion/media';
+import {TransitionSeries} from '@remotion/transitions';
 import {
+	Track,
+	Interactive,
 	AbsoluteFill,
 	Composition,
 	Easing,
 	interpolate,
 	Sequence,
-	Series,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -81,11 +83,12 @@ const WhiteYouTubeIcon: React.FC = () => (
 	</svg>
 );
 
-const OpeningTitleCard: React.FC = () => {
+const OpeningTitleCardInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: '#000000',
 				color: '#ffffff',
@@ -118,24 +121,22 @@ const OpeningTitleCard: React.FC = () => {
 	);
 };
 
-const PresenterZoom: React.FC = () => {
+const PresenterZoomInner: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
 	const zoom = interpolate(frame, [472, 516], [1, 1.09], {
 		extrapolateLeft: 'clamp',
 		extrapolateRight: 'clamp',
 	});
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
-			<AbsoluteFill style={{transform: `scale(${zoom})`}}>
+		<AbsoluteFill showInTimeline={false} style={{transform: `scale(${zoom})`}}>
+			<Track name="Presenter footage">
 				<Video
 					src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
 					durationInFrames={436}
 					trimBefore={120}
 					style={videoStyle}
 					objectFit="cover"
-					premountFor={fps}
 					effects={[
 						lut({content: studioLut}),
 						vignette({
@@ -158,7 +159,6 @@ const PresenterZoom: React.FC = () => {
 					trimBefore={556}
 					style={videoStyle}
 					objectFit="cover"
-					premountFor={fps}
 					effects={[
 						lut({content: studioLut}),
 						vignette({
@@ -176,12 +176,12 @@ const PresenterZoom: React.FC = () => {
 					]}
 					toneFrequency={0.95}
 				/>
-			</AbsoluteFill>
+			</Track>
 		</AbsoluteFill>
 	);
 };
 
-const TvColorBars: React.FC = () => {
+const TvColorBarsInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	const top = [
 		'#e6e6e6',
@@ -203,7 +203,10 @@ const TvColorBars: React.FC = () => {
 	];
 
 	return (
-		<AbsoluteFill style={{backgroundColor: '#080808', overflow: 'hidden'}}>
+		<AbsoluteFill
+			showInTimeline={false}
+			style={{backgroundColor: '#080808', overflow: 'hidden'}}
+		>
 			<div style={{display: 'flex', height: '68%'}}>
 				{top.map((color, index) => (
 					<div key={index} style={{backgroundColor: color, flex: 1}} />
@@ -234,11 +237,12 @@ const TvColorBars: React.FC = () => {
 
 const STRAVA_BROLL_DURATION = 165;
 
-const StravaRidesBroll: React.FC = () => {
+const StravaRidesBrollInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: '#000000',
 				opacity: interpolate(
@@ -254,420 +258,444 @@ const StravaRidesBroll: React.FC = () => {
 	);
 };
 
-const RollerSkiRoughCut: React.FC = () => {
-	const frame = useCurrentFrame();
+const PresenterIntroductionInner: React.FC = () => {
 	const {fps} = useVideoConfig();
 
 	return (
 		<>
-			<Series>
-				<Series.Sequence
-					name="Opening text"
-					durationInFrames={165}
-					premountFor={fps}
-				>
+			<Video
+				src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
+				trimBefore={4.833333333333333 * fps}
+				style={videoStyle}
+				objectFit="cover"
+				effects={[lut({content: studioLut})]}
+				from={25}
+				durationInFrames={350}
+			/>
+			<IntroLowerThird
+				name={'Lower Third'}
+				from={36}
+				durationInFrames={108}
+				nameText="Jonny Burger"
+				roleText="Roller Ski Enthusiast"
+			/>
+			<BasicCaptions
+				name="Presenter introduction (1) captions"
+				captions={[
+					{
+						text: 'What',
+						startMs: 1000,
+						endMs: 1100,
+						timestampMs: 1050,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 1100,
+						endMs: 1200,
+						timestampMs: 1150,
+						confidence: null,
+					},
+					{
+						text: ' up',
+						startMs: 1200,
+						endMs: 1420,
+						timestampMs: 1310,
+						confidence: null,
+					},
+					{
+						text: ' guys,',
+						startMs: 1420,
+						endMs: 1600,
+						timestampMs: 1510,
+						confidence: null,
+					},
+					{
+						text: ' my',
+						startMs: 1700,
+						endMs: 1840,
+						timestampMs: 1770,
+						confidence: null,
+					},
+					{
+						text: ' name',
+						startMs: 1840,
+						endMs: 1980,
+						timestampMs: 1910,
+						confidence: null,
+					},
+					{
+						text: ' is',
+						startMs: 1980,
+						endMs: 2160,
+						timestampMs: 2070,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Jonny',
+						startMs: 2160,
+						endMs: 2340,
+						timestampMs: 2250,
+						confidence: null,
+					},
+					{
+						text: ' Burger,',
+						startMs: 2340,
+						endMs: 2860,
+						timestampMs: 2600,
+						confidence: null,
+					},
+					{
+						text: ' I',
+						startMs: 2860,
+						endMs: 2960,
+						timestampMs: 2910,
+						confidence: null,
+					},
+					{
+						text: ' am',
+						startMs: 2960,
+						endMs: 3100,
+						timestampMs: 3030,
+						confidence: null,
+					},
+					{
+						text: ' the',
+						startMs: 3100,
+						endMs: 3260,
+						timestampMs: 3180,
+						confidence: null,
+					},
+					{
+						text: ' founder',
+						startMs: 3260,
+						endMs: 3500,
+						timestampMs: 3380,
+						confidence: null,
+					},
+					{
+						text: ' of',
+						startMs: 3500,
+						endMs: 3640,
+						timestampMs: 3570,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' Remotion',
+						startMs: 3640,
+						endMs: 4180,
+						timestampMs: 3910,
+						confidence: null,
+					},
+					{
+						text: ' and',
+						startMs: 4180,
+						endMs: 4580,
+						timestampMs: 4380,
+						confidence: null,
+					},
+					{
+						text: ' today',
+						startMs: 4580,
+						endMs: 5080,
+						timestampMs: 4830,
+						confidence: null,
+					},
+					{
+						text: " I'll",
+						startMs: 5300,
+						endMs: 5580,
+						timestampMs: 5440,
+						confidence: null,
+					},
+					{
+						text: ' use',
+						startMs: 5580,
+						endMs: 5800,
+						timestampMs: 5690,
+						confidence: null,
+					},
+					{
+						text: ' my',
+						startMs: 5800,
+						endMs: 6260,
+						timestampMs: 6030,
+						confidence: null,
+					},
+					{
+						text: ' massive',
+						startMs: 6260,
+						endMs: 6580,
+						timestampMs: 6420,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' reach',
+						startMs: 6580,
+						endMs: 7160,
+						timestampMs: 6870,
+						confidence: null,
+					},
+					{
+						text: ' to',
+						startMs: 7160,
+						endMs: 7400,
+						timestampMs: 7280,
+						confidence: null,
+					},
+					{
+						text: ' show',
+						startMs: 7400,
+						endMs: 7580,
+						timestampMs: 7490,
+						confidence: null,
+					},
+					{
+						text: ' you',
+						startMs: 7580,
+						endMs: 7840,
+						timestampMs: 7710,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 7840,
+						endMs: 8160,
+						timestampMs: 8000,
+						confidence: null,
+					},
+					{
+						text: ' really',
+						startMs: 8160,
+						endMs: 9180,
+						timestampMs: 8670,
+						confidence: null,
+					},
+					{
+						text: ' underrated',
+						startMs: 9180,
+						endMs: 9720,
+						timestampMs: 9450,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' sport –',
+						startMs: 9720,
+						endMs: 11000,
+						timestampMs: 10360,
+						confidence: null,
+					},
+					{
+						text: ' roller',
+						startMs: 11160,
+						endMs: 11480,
+						timestampMs: 11320,
+						confidence: null,
+					},
+					{
+						text: ' skis.',
+						startMs: 11480,
+						endMs: 12980,
+						timestampMs: 12230,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' I',
+						startMs: 13300,
+						endMs: 13520,
+						timestampMs: 13410,
+						confidence: null,
+					},
+					{
+						text: ' picked',
+						startMs: 13520,
+						endMs: 13760,
+						timestampMs: 13640,
+						confidence: null,
+					},
+					{
+						text: ' up',
+						startMs: 13760,
+						endMs: 14040,
+						timestampMs: 13900,
+						confidence: null,
+					},
+					{
+						text: ' these',
+						startMs: 14040,
+						endMs: 14340,
+						timestampMs: 14190,
+						confidence: null,
+					},
+					{
+						text: ' bad',
+						startMs: 14340,
+						endMs: 14600,
+						timestampMs: 14470,
+						confidence: null,
+					},
+					{
+						text: ' boys',
+						startMs: 14600,
+						endMs: 14900,
+						timestampMs: 14750,
+						confidence: null,
+					},
+					{
+						text: ' at',
+						startMs: 14900,
+						endMs: 15020,
+						timestampMs: 14960,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: ' a',
+						startMs: 15020,
+						endMs: 15240,
+						timestampMs: 15130,
+						confidence: null,
+					},
+					{
+						text: ' yard',
+						startMs: 15240,
+						endMs: 15520,
+						timestampMs: 15380,
+						confidence: null,
+					},
+					{
+						text: ' sale',
+						startMs: 15520,
+						endMs: 15920,
+						timestampMs: 15720,
+						confidence: null,
+					},
+					{
+						text: ' last',
+						startMs: 15920,
+						endMs: 16300,
+						timestampMs: 16110,
+						confidence: null,
+					},
+					{
+						text: ' weekend.',
+						startMs: 16300,
+						endMs: 17640,
+						timestampMs: 16970,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+					{
+						text: " Let's",
+						startMs: 17740,
+						endMs: 17980,
+						timestampMs: 17860,
+						confidence: null,
+					},
+					{
+						text: ' take',
+						startMs: 17980,
+						endMs: 18140,
+						timestampMs: 18060,
+						confidence: null,
+					},
+					{
+						text: ' them',
+						startMs: 18140,
+						endMs: 18320,
+						timestampMs: 18230,
+						confidence: null,
+					},
+					{
+						text: ' out',
+						startMs: 18320,
+						endMs: 18480,
+						timestampMs: 18400,
+						confidence: null,
+					},
+					{
+						text: ' for',
+						startMs: 18480,
+						endMs: 18580,
+						timestampMs: 18530,
+						confidence: null,
+					},
+					{
+						text: ' a',
+						startMs: 18580,
+						endMs: 18820,
+						timestampMs: 18700,
+						confidence: null,
+					},
+					{
+						text: ' spin.',
+						startMs: 18820,
+						endMs: 19040,
+						timestampMs: 18930,
+						confidence: null,
+						pageBreakAfter: true,
+					},
+				]}
+				width={1400}
+				style={{position: 'absolute', left: 260, bottom: 90}}
+				combineTokensWithinMilliseconds={3000}
+			/>
+		</>
+	);
+};
+
+const AnimatedYouTubeEndCard: React.FC = () => {
+	const frame = useCurrentFrame();
+
+	return (
+		<YouTubeEndCard
+			name="Jonny Burger YouTube end card"
+			from={END_CARD_START}
+			durationInFrames={END_CARD_DURATION_IN_FRAMES}
+			style={{
+				translate: interpolate(
+					frame,
+					[12115, 12139],
+					['1920px 0px', '0px 0px'],
+					{
+						easing: [Easing.bezier(0.22, 1, 0.36, 1)],
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+					},
+				),
+			}}
+		/>
+	);
+};
+
+const RollerSkiRoughCutInner: React.FC = () => {
+	return (
+		<>
+			<TransitionSeries>
+				<TransitionSeries.Sequence name="Opening text" durationInFrames={185}>
 					<OpeningTitleCard />
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Presenter introduction (1)"
-					durationInFrames={336}
-					premountFor={fps}
+					durationInFrames={346}
 					trimBefore={21}
 				>
-					<Video
-						src={rollerSkiAsset('footage/webcam1790843295628.mp4')}
-						trimBefore={4 * FPS}
-						style={videoStyle}
-						objectFit="cover"
-						premountFor={fps}
-						effects={[lut({content: studioLut})]}
-					/>
-					<IntroLowerThird
-						name="Jonny Burger lower third"
-						from={36}
-						durationInFrames={108}
-						premountFor={fps}
-						nameText="Jonny Burger"
-						roleText="Roller Ski Enthusiast"
-					/>
-					<BasicCaptions
-						name="Presenter introduction (1) captions"
-						captions={[
-							{
-								text: 'What',
-								startMs: 1000,
-								endMs: 1100,
-								timestampMs: 1050,
-								confidence: null,
-							},
-							{
-								text: ' is',
-								startMs: 1100,
-								endMs: 1200,
-								timestampMs: 1150,
-								confidence: null,
-							},
-							{
-								text: ' up',
-								startMs: 1200,
-								endMs: 1420,
-								timestampMs: 1310,
-								confidence: null,
-							},
-							{
-								text: ' guys,',
-								startMs: 1420,
-								endMs: 1600,
-								timestampMs: 1510,
-								confidence: null,
-							},
-							{
-								text: ' my',
-								startMs: 1700,
-								endMs: 1840,
-								timestampMs: 1770,
-								confidence: null,
-							},
-							{
-								text: ' name',
-								startMs: 1840,
-								endMs: 1980,
-								timestampMs: 1910,
-								confidence: null,
-							},
-							{
-								text: ' is',
-								startMs: 1980,
-								endMs: 2160,
-								timestampMs: 2070,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' Jonny',
-								startMs: 2160,
-								endMs: 2340,
-								timestampMs: 2250,
-								confidence: null,
-							},
-							{
-								text: ' Burger,',
-								startMs: 2340,
-								endMs: 2860,
-								timestampMs: 2600,
-								confidence: null,
-							},
-							{
-								text: ' I',
-								startMs: 2860,
-								endMs: 2960,
-								timestampMs: 2910,
-								confidence: null,
-							},
-							{
-								text: ' am',
-								startMs: 2960,
-								endMs: 3100,
-								timestampMs: 3030,
-								confidence: null,
-							},
-							{
-								text: ' the',
-								startMs: 3100,
-								endMs: 3260,
-								timestampMs: 3180,
-								confidence: null,
-							},
-							{
-								text: ' founder',
-								startMs: 3260,
-								endMs: 3500,
-								timestampMs: 3380,
-								confidence: null,
-							},
-							{
-								text: ' of',
-								startMs: 3500,
-								endMs: 3640,
-								timestampMs: 3570,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' Remotion',
-								startMs: 3640,
-								endMs: 4180,
-								timestampMs: 3910,
-								confidence: null,
-							},
-							{
-								text: ' and',
-								startMs: 4180,
-								endMs: 4580,
-								timestampMs: 4380,
-								confidence: null,
-							},
-							{
-								text: ' today',
-								startMs: 4580,
-								endMs: 5080,
-								timestampMs: 4830,
-								confidence: null,
-							},
-							{
-								text: " I'll",
-								startMs: 5300,
-								endMs: 5580,
-								timestampMs: 5440,
-								confidence: null,
-							},
-							{
-								text: ' use',
-								startMs: 5580,
-								endMs: 5800,
-								timestampMs: 5690,
-								confidence: null,
-							},
-							{
-								text: ' my',
-								startMs: 5800,
-								endMs: 6260,
-								timestampMs: 6030,
-								confidence: null,
-							},
-							{
-								text: ' massive',
-								startMs: 6260,
-								endMs: 6580,
-								timestampMs: 6420,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' reach',
-								startMs: 6580,
-								endMs: 7160,
-								timestampMs: 6870,
-								confidence: null,
-							},
-							{
-								text: ' to',
-								startMs: 7160,
-								endMs: 7400,
-								timestampMs: 7280,
-								confidence: null,
-							},
-							{
-								text: ' show',
-								startMs: 7400,
-								endMs: 7580,
-								timestampMs: 7490,
-								confidence: null,
-							},
-							{
-								text: ' you',
-								startMs: 7580,
-								endMs: 7840,
-								timestampMs: 7710,
-								confidence: null,
-							},
-							{
-								text: ' a',
-								startMs: 7840,
-								endMs: 8160,
-								timestampMs: 8000,
-								confidence: null,
-							},
-							{
-								text: ' really',
-								startMs: 8160,
-								endMs: 9180,
-								timestampMs: 8670,
-								confidence: null,
-							},
-							{
-								text: ' underrated',
-								startMs: 9180,
-								endMs: 9720,
-								timestampMs: 9450,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' sport –',
-								startMs: 9720,
-								endMs: 11000,
-								timestampMs: 10360,
-								confidence: null,
-							},
-							{
-								text: ' roller',
-								startMs: 11160,
-								endMs: 11480,
-								timestampMs: 11320,
-								confidence: null,
-							},
-							{
-								text: ' skis.',
-								startMs: 11480,
-								endMs: 12980,
-								timestampMs: 12230,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' I',
-								startMs: 13300,
-								endMs: 13520,
-								timestampMs: 13410,
-								confidence: null,
-							},
-							{
-								text: ' picked',
-								startMs: 13520,
-								endMs: 13760,
-								timestampMs: 13640,
-								confidence: null,
-							},
-							{
-								text: ' up',
-								startMs: 13760,
-								endMs: 14040,
-								timestampMs: 13900,
-								confidence: null,
-							},
-							{
-								text: ' these',
-								startMs: 14040,
-								endMs: 14340,
-								timestampMs: 14190,
-								confidence: null,
-							},
-							{
-								text: ' bad',
-								startMs: 14340,
-								endMs: 14600,
-								timestampMs: 14470,
-								confidence: null,
-							},
-							{
-								text: ' boys',
-								startMs: 14600,
-								endMs: 14900,
-								timestampMs: 14750,
-								confidence: null,
-							},
-							{
-								text: ' at',
-								startMs: 14900,
-								endMs: 15020,
-								timestampMs: 14960,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' a',
-								startMs: 15020,
-								endMs: 15240,
-								timestampMs: 15130,
-								confidence: null,
-							},
-							{
-								text: ' yard',
-								startMs: 15240,
-								endMs: 15520,
-								timestampMs: 15380,
-								confidence: null,
-							},
-							{
-								text: ' sale',
-								startMs: 15520,
-								endMs: 15920,
-								timestampMs: 15720,
-								confidence: null,
-							},
-							{
-								text: ' last',
-								startMs: 15920,
-								endMs: 16300,
-								timestampMs: 16110,
-								confidence: null,
-							},
-							{
-								text: ' weekend.',
-								startMs: 16300,
-								endMs: 17640,
-								timestampMs: 16970,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: " Let's",
-								startMs: 17740,
-								endMs: 17980,
-								timestampMs: 17860,
-								confidence: null,
-							},
-							{
-								text: ' take',
-								startMs: 17980,
-								endMs: 18140,
-								timestampMs: 18060,
-								confidence: null,
-							},
-							{
-								text: ' them',
-								startMs: 18140,
-								endMs: 18320,
-								timestampMs: 18230,
-								confidence: null,
-							},
-							{
-								text: ' out',
-								startMs: 18320,
-								endMs: 18480,
-								timestampMs: 18400,
-								confidence: null,
-							},
-							{
-								text: ' for',
-								startMs: 18480,
-								endMs: 18580,
-								timestampMs: 18530,
-								confidence: null,
-							},
-							{
-								text: ' a',
-								startMs: 18580,
-								endMs: 18820,
-								timestampMs: 18700,
-								confidence: null,
-							},
-							{
-								text: ' spin.',
-								startMs: 18820,
-								endMs: 19040,
-								timestampMs: 18930,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-						]}
-						width={1400}
-						style={{position: 'absolute', left: 260, bottom: 90}}
-						combineTokensWithinMilliseconds={3000}
-					/>
-				</Series.Sequence>
-				<Series.Sequence
+					<PresenterIntroduction />
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Roller ski blueprint intro"
 					durationInFrames={525}
-					premountFor={fps}
 				>
 					<RollerSkiBlueprint />
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Opening selfie"
 					durationInFrames={15.866666666666667 * FPS}
-					premountFor={fps}
 					trimBefore={55}
 				>
 					<Video
@@ -675,7 +703,6 @@ const RollerSkiRoughCut: React.FC = () => {
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -924,11 +951,10 @@ const RollerSkiRoughCut: React.FC = () => {
 						style={{position: 'absolute', left: 260, bottom: 90}}
 						combineTokensWithinMilliseconds={3500}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Getting ready"
 					durationInFrames={6.4 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0457.MOV')}
@@ -936,15 +962,13 @@ const RollerSkiRoughCut: React.FC = () => {
 						trimBefore={120}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						playbackRate={5}
 						effects={[lut({content: outdoorLut})]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Presenter introduction (2)"
 					durationInFrames={127}
-					premountFor={fps}
 					trimBefore={369}
 				>
 					<PresenterZoom />
@@ -1092,29 +1116,23 @@ const RollerSkiRoughCut: React.FC = () => {
 						style={{position: 'absolute', left: 260, bottom: 90}}
 						combineTokensWithinMilliseconds={3000}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
-					name="TV color bars"
-					durationInFrames={15}
-					premountFor={fps}
-				>
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence name="TV color bars" durationInFrames={15}>
 					<TvColorBars />
 					<Audio
 						src={rollerSkiAsset('audio/tv-static-tone.wav')}
 						volume={0.55}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="The pole tips"
 					durationInFrames={354}
-					premountFor={fps}
 					trimBefore={48}
 				>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790859190089.mp4')}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -1267,18 +1285,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="First roll"
 					durationInFrames={6.333333333333335 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0457.MOV')}
 						trimBefore={40 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -1324,36 +1340,29 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="First roll cutscene"
 					durationInFrames={246}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/first-roll-cutscene.mp4')}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Climbing the incline"
 					durationInFrames={12.4 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0459.MOV')}
 						trimBefore={1 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
-						volume={interpolate(frame, [2697, 2896], [1, 1], {
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}
+						volume={1}
 					/>
 					<BasicCaptions
 						name="Climbing the incline captions"
@@ -1386,18 +1395,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="How the skis roll"
 					durationInFrames={15 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0475.MOV')}
 						trimBefore={93 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -1669,18 +1676,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="People look at me weird"
 					durationInFrames={6.7 * FPS}
-					premountFor={fps}
 				>
 					<Video
-						src={rollerSkiAsset('footage/IMG_0459.MOV')}
+						src={rollerSkiAsset('footage/IMG_0459-rotated-180-v1.mp4')}
 						trimBefore={38 * FPS}
-						style={{...videoStyle, rotate: '180deg'}}
+						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -1706,18 +1711,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Cows react"
 					durationInFrames={6.7 * FPS}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0460.MOV')}
 						muted
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						durationInFrames={220}
 						effects={[lut({content: outdoorLut})]}
 					/>
@@ -1749,103 +1752,101 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Why roller skiing"
-					durationInFrames={57 * FPS}
-					premountFor={fps}
-					trimBefore={23}
+					durationInFrames={57.03333333333333 * FPS}
+					trimBefore={22}
 				>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790843470902.mp4')}
 						trimBefore={30}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
-					<Sequence
-						name="Hackathon half-marathon b-roll"
-						from={7.2 * FPS}
-						durationInFrames={9 * FPS}
-						premountFor={fps}
-					>
-						<Video
-							src={rollerSkiAsset('footage/jonny-hackathon-half-marathon.mp4')}
-							muted
-							style={videoStyle}
-							objectFit="cover"
-							premountFor={fps}
-						/>
-						<div
-							style={{
-								position: 'absolute',
-								top: 52,
-								left: 64,
-								maxWidth: 900,
-								padding: '18px 24px',
-								borderRadius: 10,
-								backgroundColor: 'rgba(12, 18, 22, 0.82)',
-								color: 'white',
-								fontFamily: 'Arial, Helvetica, sans-serif',
-								boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
-								display: 'flex',
-								alignItems: 'center',
-								gap: 16,
-							}}
+					<Track name="Roller skiing b-roll">
+						<Sequence
+							name="Hackathon half-marathon b-roll"
+							from={7.2 * FPS}
+							durationInFrames={9 * FPS}
 						>
-							<WhiteYouTubeIcon />
-							<div>
-								<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
-									Jonny Burger
-								</div>
-								<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
-									Winning Europe's biggest hackathon
+							<Video
+								src={rollerSkiAsset(
+									'footage/jonny-hackathon-half-marathon.mp4',
+								)}
+								muted
+								style={videoStyle}
+								objectFit="cover"
+							/>
+							<div
+								style={{
+									position: 'absolute',
+									top: 52,
+									left: 64,
+									maxWidth: 900,
+									padding: '18px 24px',
+									borderRadius: 10,
+									backgroundColor: 'rgba(12, 18, 22, 0.82)',
+									color: 'white',
+									fontFamily: 'Arial, Helvetica, sans-serif',
+									boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 16,
+								}}
+							>
+								<WhiteYouTubeIcon />
+								<div>
+									<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
+										Jonny Burger
+									</div>
+									<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
+										Winning Europe's biggest hackathon
+									</div>
 								</div>
 							</div>
-						</div>
-					</Sequence>
-					<Sequence
-						name="SkiErg demonstration b-roll"
-						from={24.2 * FPS}
-						durationInFrames={5.5 * FPS}
-						premountFor={fps}
-					>
-						<Video
-							src={rollerSkiAsset('footage/skierg-hwpo-broll.mp4')}
-							muted
-							style={videoStyle}
-							objectFit="cover"
-							premountFor={fps}
-						/>
-						<div
-							style={{
-								position: 'absolute',
-								top: 52,
-								left: 64,
-								maxWidth: 900,
-								padding: '18px 24px',
-								borderRadius: 10,
-								backgroundColor: 'rgba(12, 18, 22, 0.82)',
-								color: 'white',
-								fontFamily: 'Arial, Helvetica, sans-serif',
-								boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
-								display: 'flex',
-								alignItems: 'center',
-								gap: 16,
-							}}
+						</Sequence>
+						<Sequence
+							name="SkiErg demonstration b-roll"
+							from={24.2 * FPS}
+							durationInFrames={5.5 * FPS}
 						>
-							<WhiteYouTubeIcon />
-							<div>
-								<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
-									Mat Fraser | HWPO
-								</div>
-								<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
-									What is the SkiErg? Tips &amp; Tricks for HYROX
+							<Video
+								src={rollerSkiAsset('footage/skierg-hwpo-broll.mp4')}
+								muted
+								style={videoStyle}
+								objectFit="cover"
+							/>
+							<div
+								style={{
+									position: 'absolute',
+									top: 52,
+									left: 64,
+									maxWidth: 900,
+									padding: '18px 24px',
+									borderRadius: 10,
+									backgroundColor: 'rgba(12, 18, 22, 0.82)',
+									color: 'white',
+									fontFamily: 'Arial, Helvetica, sans-serif',
+									boxShadow: '0 8px 30px rgba(0, 0, 0, 0.24)',
+									display: 'flex',
+									alignItems: 'center',
+									gap: 16,
+								}}
+							>
+								<WhiteYouTubeIcon />
+								<div>
+									<div style={{fontSize: 27, fontWeight: 700, lineHeight: 1.2}}>
+										Mat Fraser | HWPO
+									</div>
+									<div style={{fontSize: 23, lineHeight: 1.25, marginTop: 5}}>
+										What is the SkiErg? Tips &amp; Tricks for HYROX
+									</div>
 								</div>
 							</div>
-						</div>
-					</Sequence>
+						</Sequence>
+					</Track>
 					<BasicCaptions
 						name="Why roller skiing captions"
 						captions={[
@@ -2708,18 +2709,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						style={{position: 'absolute', left: 260, bottom: 90}}
 						combineTokensWithinMilliseconds={4500}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Best commute footage"
 					durationInFrames={444}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0463.MOV')}
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -2761,18 +2760,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Approaching the crossing"
 					durationInFrames={321}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0464.MOV')}
 						trimBefore={1 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -2969,11 +2966,10 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Mehmet considers the roller skis"
 					durationInFrames={20.733333333333334 * FPS}
-					premountFor={fps}
 					trimBefore={71}
 				>
 					<Video
@@ -2981,7 +2977,6 @@ const RollerSkiRoughCut: React.FC = () => {
 						trimBefore={42 * FPS}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -3035,18 +3030,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="After the descent"
 					durationInFrames={924}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0465.MOV')}
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3611,18 +3604,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						style={{position: 'absolute', left: 260, bottom: 90}}
 						combineTokensWithinMilliseconds={3500}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Arriving at Remotion"
 					durationInFrames={230}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0473.MOV')}
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3648,11 +3639,10 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Remotion office exterior"
 					durationInFrames={150}
-					premountFor={fps}
 					trimBefore={95}
 				>
 					<Video
@@ -3660,7 +3650,6 @@ const RollerSkiRoughCut: React.FC = () => {
 						trimBefore={0}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3694,31 +3683,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Closing thoughts"
 					durationInFrames={798}
-					premountFor={fps}
 				>
-					<Video
-						src={rollerSkiAsset('footage/webcam1790859120255.mp4')}
-						trimBefore={90}
-						style={{
-							...videoStyle,
-							transform: 'translateY(-55px) scale(1.12)',
-						}}
-						objectFit="cover"
-						premountFor={fps}
-						effects={[lut({content: studioLut})]}
-					/>
-					<Sequence
+					<StravaRidesBroll
 						name="Four Strava rides b-roll"
 						from={2 * FPS}
 						durationInFrames={STRAVA_BROLL_DURATION}
-						premountFor={fps}
-					>
-						<StravaRidesBroll />
-					</Sequence>
+					/>
 					<BasicCaptions
 						name="Closing thoughts captions"
 						captions={closingThoughtsBeforeCaptions}
@@ -3726,18 +3700,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						style={{position: 'absolute', left: 260, bottom: 90}}
 						combineTokensWithinMilliseconds={3500}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="How to brake — demonstration"
 					durationInFrames={1164}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0478.MOV')}
 						trimBefore={95}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3746,18 +3718,16 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="How to brake — conclusion"
 					durationInFrames={82}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/IMG_0478.MOV')}
 						trimBefore={1602}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: outdoorLut})]}
 					/>
 					<BasicCaptions
@@ -3766,11 +3736,10 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-				<Series.Sequence
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence
 					name="Closing thoughts (continued)"
 					durationInFrames={1567}
-					premountFor={fps}
 				>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790859120255.mp4')}
@@ -3780,7 +3749,6 @@ const RollerSkiRoughCut: React.FC = () => {
 							transform: 'translateY(-55px) scale(1.12)',
 						}}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -3790,14 +3758,13 @@ const RollerSkiRoughCut: React.FC = () => {
 						style={{position: 'absolute', left: 260, bottom: 90}}
 						combineTokensWithinMilliseconds={3500}
 					/>
-				</Series.Sequence>
-				<Series.Sequence name="Outro" durationInFrames={287} premountFor={fps}>
+				</TransitionSeries.Sequence>
+				<TransitionSeries.Sequence name="Outro" durationInFrames={287}>
 					<Video
 						src={rollerSkiAsset('footage/webcam1790859310676.mp4')}
 						trimBefore={30}
 						style={videoStyle}
 						objectFit="cover"
-						premountFor={fps}
 						effects={[lut({content: studioLut})]}
 					/>
 					<BasicCaptions
@@ -3985,61 +3952,69 @@ const RollerSkiRoughCut: React.FC = () => {
 						width={1400}
 						style={{position: 'absolute', left: 260, bottom: 90}}
 					/>
-				</Series.Sequence>
-			</Series>
-			<Sequence
-				name="Jonny Burger YouTube end card"
-				from={END_CARD_START}
-				durationInFrames={END_CARD_DURATION_IN_FRAMES}
-				premountFor={fps}
-			>
-				<AbsoluteFill
-					style={{
-						translate: interpolate(
-							frame,
-							[12115, 12139],
-							['1920px 0px', '0px 0px'],
-							{
-								easing: [Easing.bezier(0.22, 1, 0.36, 1)],
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-							},
-						),
-					}}
-				>
-					<YouTubeEndCard />
-				</AbsoluteFill>
-			</Sequence>
-			<Audio
-				name="No School Today music"
-				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
-				from={2212}
-				durationInFrames={450}
-				premountFor={fps}
-				volume={(audioFrame) =>
-					interpolate(
-						audioFrame,
-						[0, 12, 48, 78, 390, 414, 449],
-						[0, 0.22, 0.22, 0.5, 0.5, 0.26, 0],
-						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-					)
-				}
-			/>
-			<Audio
-				name="No School Today music (end card)"
-				src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
-				from={END_CARD_START + 20}
-				durationInFrames={END_CARD_DURATION_IN_FRAMES}
-				premountFor={fps}
-				volume={(audioFrame) =>
-					interpolate(
-						audioFrame,
-						[0, 12, 10 * FPS, END_CARD_DURATION_IN_FRAMES - 1],
-						[0, 0.2, 0.2, 0],
-						{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-					)
-				}
-			/>
+				</TransitionSeries.Sequence>
+			</TransitionSeries>
+			<AnimatedYouTubeEndCard />
+			<Track name="Music">
+				<Audio
+					name="No School Today music"
+					src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
+					from={2212}
+					durationInFrames={450}
+					volume={(audioFrame) =>
+						interpolate(
+							audioFrame,
+							[0, 12, 48, 78, 390, 414, 449],
+							[0, 0.22, 0.22, 0.5, 0.5, 0.26, 0],
+							{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+						)
+					}
+				/>
+				<Audio
+					name="No School Today music (end card)"
+					src={rollerSkiAsset('audio/no-school-today-femme-tov.wav')}
+					from={END_CARD_START + 20}
+					durationInFrames={END_CARD_DURATION_IN_FRAMES}
+					volume={(audioFrame) =>
+						interpolate(
+							audioFrame,
+							[0, 12, 10 * FPS, END_CARD_DURATION_IN_FRAMES - 1],
+							[0, 0.2, 0.2, 0],
+							{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+						)
+					}
+				/>
+			</Track>
 		</>
 	);
 };
+
+const OpeningTitleCard = Interactive.create({
+	Component: OpeningTitleCardInner,
+	layout: 'absolute-fill',
+});
+
+const PresenterZoom = Interactive.create({
+	Component: PresenterZoomInner,
+	layout: 'absolute-fill',
+});
+
+const TvColorBars = Interactive.create({
+	Component: TvColorBarsInner,
+	layout: 'absolute-fill',
+});
+
+const StravaRidesBroll = Interactive.create({
+	Component: StravaRidesBrollInner,
+	layout: 'absolute-fill',
+});
+
+export const PresenterIntroduction = Interactive.create({
+	Component: PresenterIntroductionInner,
+	layout: 'absolute-fill',
+});
+
+const RollerSkiRoughCut = Interactive.create({
+	Component: RollerSkiRoughCutInner,
+	layout: 'absolute-fill',
+});

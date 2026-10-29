@@ -83,6 +83,36 @@ h6 {
 	display: none;
 }
 
+/* Let the embedding Studio supply the caption picker's background. */
+html:has(.studio-caption-picker),
+.studio-caption-picker {
+	--background: transparent;
+	--ifm-background-color: transparent;
+	background: transparent;
+}
+
+/* Caption selection needs previews, not documentation navigation. */
+.studio-caption-picker {
+	--doc-sidebar-width: 0px;
+	--ifm-navbar-height: 0px;
+}
+
+.studio-caption-picker .theme-doc-sidebar-container,
+.studio-caption-picker .theme-doc-toc-mobile,
+.studio-caption-picker .col:has(> .theme-doc-toc-desktop),
+.studio-caption-picker .theme-doc-breadcrumbs,
+.studio-caption-picker .navbar,
+.studio-caption-picker .caption-library-instructions,
+.studio-caption-picker
+	.theme-doc-markdown:has(.caption-library-instructions)
+	> header {
+	display: none;
+}
+
+.studio-caption-picker main > .container {
+	max-width: none;
+}
+
 .elements-embed-breadcrumbs {
 	display: flex;
 }
@@ -92,6 +122,16 @@ h6 {
 }
 
 @media (min-width: 997px) {
+	/* Keep empty sidebar space from pushing the category links above the viewport
+	   when the catalog footer comes into view. */
+	.plugin-id-elements .theme-doc-sidebar-container > div {
+		height: auto;
+	}
+
+	.plugin-id-elements .theme-doc-sidebar-container .menu {
+		max-height: calc(100vh - var(--ifm-navbar-height));
+	}
+
 	.studio-elements-embed {
 		--ifm-navbar-height: 0px;
 	}
@@ -106,28 +146,14 @@ h6 {
 }
 
 @media (max-width: 996px) {
-	/* Keep the mobile sidebar toggle so categories remain navigable. */
+	/* Keep the mobile sidebar toggle for library navigation. */
 	.studio-elements-embed .navbar__items--right {
 		display: none;
 	}
 }
 
-.elements-sidebar-root > .menu__list {
-	padding-left: 0;
-}
-
-.elements-sidebar-root > .menu__list-item-collapsible > .menu__caret {
-	display: none;
-}
-
-.elements-sidebar-root > .menu__list-item-collapsible--active > .menu__link {
-	pointer-events: none;
-}
-
-.elements-sidebar-root
-	> .menu__list-item-collapsible:not(.menu__list-item-collapsible--active)
-	> .menu__link--active {
-	color: var(--ifm-menu-color);
+.theme-doc-sidebar-item-link > hr {
+	background-color: var(--border-color);
 }
 
 :root {
@@ -308,7 +334,7 @@ code {
 
 .wip-item > div > a::after,
 .wip-item > a::after {
-	content: 'Coming Soon';
+	content: 'Soon';
 	font-size: 12px;
 	opacity: 0.7;
 	border: 1px solid;
@@ -319,6 +345,17 @@ code {
 	margin-left: 6px;
 	border-radius: 4px;
 	transform: none !important;
+}
+
+/* Keep dropdown carets beside their labels, including near the mobile breakpoint. */
+.navbar__item.dropdown > .navbar__link {
+	white-space: nowrap;
+}
+
+@media screen and (min-width: 997px) and (max-width: 1100px) {
+	.navbar {
+		--ifm-navbar-item-padding-horizontal: 0.5rem;
+	}
 }
 
 .header-github-link::before {
@@ -406,6 +443,10 @@ code {
 
 .remotion-footer__column .footer__items {
 	font-family: 'GTPlanar';
+}
+
+.footer-convert-link {
+	white-space: nowrap;
 }
 
 @media screen and (max-width: 1199px) {

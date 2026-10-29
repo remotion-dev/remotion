@@ -1,20 +1,27 @@
 import React from 'react';
 import {
-	AbsoluteFill,
 	Easing,
-	Img,
+	CanvasImage,
 	Interactive,
+	Solid,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
 import {asset} from './assets';
 
-export const ForkDrop: React.FC = () => {
+const ForkDropInner: React.FC = () => {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill style={{overflow: 'hidden'}}>
-			<Img
+		<>
+			<Solid
+				name="Cursor UI background"
+				color="#ffffff"
+				width={1080}
+				height={1160}
+				style={{position: 'absolute'}}
+			/>
+			<CanvasImage
 				name="Cursor chat window"
 				src={asset('Screenshot 2026-07-19 at 16.26.01.png')}
 				style={{
@@ -59,10 +66,6 @@ export const ForkDrop: React.FC = () => {
 					top: 0,
 					width: 1428,
 					height: 786,
-					overflow: 'hidden',
-					borderRadius: 30,
-					border: '8px solid rgba(255, 255, 255, 0.95)',
-					boxShadow: '0 24px 60px rgba(0, 0, 0, 0.28)',
 					translate: interpolate(
 						frame,
 						[0, 30, 38],
@@ -73,12 +76,13 @@ export const ForkDrop: React.FC = () => {
 							easing: Easing.bezier(0.33, 0, 0.2, 1),
 						},
 					),
-					scale: interpolate(frame, [0, 30, 38], [0.3, 0.215, 0.225], {
+					scale: interpolate(frame, [0, 30], [0.3, 0.225], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
-						easing: Easing.out(Easing.back(1.8)),
+						easing: Easing.bezier(0.33, 0, 0.2, 1),
+						output: 'perceptual-scale',
 					}),
-					rotate: interpolate(frame, [0, 30, 38], ['-5deg', '2deg', '0deg'], {
+					rotate: interpolate(frame, [0, 30], ['-5deg', '0deg'], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						easing: Easing.out(Easing.cubic),
@@ -86,13 +90,13 @@ export const ForkDrop: React.FC = () => {
 					transformOrigin: '50% 50%',
 				}}
 			>
-				<Img
+				<CanvasImage
 					src={asset('Screenshot 2026-07-19 at 14.35.33.png')}
 					style={{width: 1428, height: 786}}
 					showInTimeline={false}
 				/>
 			</Interactive.Div>
-			<Img
+			<CanvasImage
 				name="Dragging fork"
 				src={asset('elegant-silver-fork-free-png.webp')}
 				style={{
@@ -131,6 +135,11 @@ export const ForkDrop: React.FC = () => {
 					filter: 'drop-shadow(0 20px 18px rgba(0, 0, 0, 0.28))',
 				}}
 			/>
-		</AbsoluteFill>
+		</>
 	);
 };
+
+export const ForkDrop = Interactive.create({
+	Component: ForkDropInner,
+	layout: 'absolute-fill',
+});

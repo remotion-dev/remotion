@@ -1,6 +1,4 @@
 import {expect, test} from 'bun:test';
-import {ServerlessRoutines} from '@remotion/serverless-client';
-import {awsImplementation} from '../aws-provider';
 import {getAwsRegionMetadata} from '../aws-region-metadata';
 import {convertToServeUrlImplementation} from '../convert-to-serve-url';
 import {
@@ -15,6 +13,8 @@ import {getOutputUrlFromMetadata} from '../get-output-url-from-metadata';
 import {makeLambdaRenderStillPayload} from '../make-lambda-payload';
 import {makeS3ServeUrl} from '../make-s3-url';
 import {AWS_REGIONS, DEFAULT_AWS_REGIONS} from '../regions';
+import {getRendererFunctionTransport} from '../renderer-transport';
+import {ServerlessRoutines} from '../shared-constants';
 
 const chinaMetadata = {
 	partition: 'aws-cn',
@@ -35,15 +35,9 @@ test('AWS region metadata is exhaustive for China without changing defaults', ()
 	expect(AWS_REGIONS).toContain('cn-north-1');
 	expect(AWS_REGIONS).toContain('cn-northwest-1');
 	expect(DEFAULT_AWS_REGIONS).not.toContain('cn-north-1' as never);
-	expect(awsImplementation.getRendererFunctionTransport('cn-north-1')).toBe(
-		's3',
-	);
-	expect(awsImplementation.getRendererFunctionTransport('cn-northwest-1')).toBe(
-		's3',
-	);
-	expect(awsImplementation.getRendererFunctionTransport('us-east-1')).toBe(
-		'response-streaming',
-	);
+	expect(getRendererFunctionTransport('cn-north-1')).toBe('s3');
+	expect(getRendererFunctionTransport('cn-northwest-1')).toBe('s3');
+	expect(getRendererFunctionTransport('us-east-1')).toBe('response-streaming');
 });
 
 test('China still payload uses buffered invocation', async () => {
@@ -78,6 +72,7 @@ test('China still payload uses buffered invocation', async () => {
 		timeoutInMilliseconds: 30000,
 		licenseKey: null,
 		offthreadVideoThreads: null,
+		preferredEffectBackend: 'auto' as const,
 		mediaCacheSizeInBytes: null,
 		deleteAfter: null,
 	} as const;
@@ -111,10 +106,13 @@ test('AWS service and Console URLs use the region partition metadata', () => {
 	).toBe('https://bucket.s3.cn-north-1.amazonaws.com.cn/sites/site/index.html');
 	expect(
 		getOutputUrlFromMetadata({
+			output: 'main',
 			bucketName: 'bucket',
 			customCredentials: null,
 			currentRegion: 'cn-north-1',
 			renderMetadata: {
+				separateAudioTo: null,
+				separateAudioOutputFileIsConditional: null,
 				outputFileIsConditional: null,
 				outName: 'out.mp4',
 				privacy: 'public',

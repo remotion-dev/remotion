@@ -8,7 +8,8 @@ import React, {
 	useRef,
 } from 'react';
 import type {SequenceControls} from './CompositionManager.js';
-import type {EffectsProp} from './effects/effect-types.js';
+import {DefaultPremountContext} from './DefaultPremountContext.js';
+import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {runEffectChain} from './effects/run-effect-chain.js';
 import {useEffectChainState} from './effects/use-effect-chain-state.js';
 import {
@@ -17,6 +18,7 @@ import {
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
+import {HtmlInCanvasFallback} from './HtmlInCanvasFallback.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -35,6 +37,7 @@ import {resolveSequenceDuration} from './resolve-sequence-duration.js';
 import {Sequence} from './Sequence.js';
 import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
+import {useCurrentFrame} from './use-current-frame.js';
 import {useDelayRender} from './use-delay-render.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
@@ -234,8 +237,8 @@ declare global {
 
 export type HtmlInCanvasOnPaintParams = {
 	/**
-	 * The `OffscreenCanvas` from {@link HTMLCanvasElement.transferControlToOffscreen}
-	 * on the layout `<canvas>` (same logical canvas as the forwarded ref).
+	 * The paint target. During rendering, its pixels are copied to the layout
+	 * `<canvas>` after painting; during preview, it controls that canvas directly.
 	 */
 	readonly canvas: OffscreenCanvas;
 	readonly element: HTMLDivElement;
@@ -449,21 +452,45 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly width: number;
 		readonly height: number;
 		readonly effects?: EffectsProp;
+		readonly effectsOutputSize?: EffectsOutputSize;
 		readonly children: React.ReactNode;
 		readonly onPaint?: HtmlInCanvasOnPaint;
 		readonly onInit?: HtmlInCanvasOnInit;
 		readonly pixelDensity?: HtmlInCanvasPixelDensity;
 		// captureElementImage() only accepts immediate children of the layout canvas.
 		readonly _remotionInternalCanvasSiblings?: React.ReactNode;
+		readonly _remotionInternalFallbackLabel?: string;
 	};
 /* eslint-enable react/require-default-props */
 
-const HtmlInCanvasAncestorContext = createContext(false);
+type HtmlInCanvasPaintState = {
+	pendingChildren: number;
+	generation: number;
+	release: (() => void) | null;
+	blockPaint: () => () => void;
+};
+
+const HtmlInCanvasAncestorContext =
+	createContext<HtmlInCanvasPaintState | null>(null);
+
+export const useHtmlInCanvasUnsupportedMessage = (): string | null => {
+	const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
+	if (!isHtmlInCanvasSupported()) {
+		return getHtmlInCanvasUnsupportedMessage();
+	}
+
+	if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
+		return `Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`;
+	}
+
+	return null;
+};
 
 type HtmlInCanvasContentProps = {
 	readonly width: number;
 	readonly height: number;
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly children: React.ReactNode;
 	readonly canvasSiblings: React.ReactNode | null;
 	readonly onPaint: HtmlInCanvasOnPaint | undefined;
@@ -475,13 +502,14 @@ type HtmlInCanvasContentProps = {
 
 const HtmlInCanvasContent = forwardRef<
 	HTMLCanvasElement,
-	HtmlInCanvasContentProps
+	HtmlInCanvasContentProps & {readonly renderFrame: number | null}
 >(
 	(
 		{
 			width,
 			height,
 			effects,
+			effectsOutputSize,
 			children,
 			canvasSiblings,
 			onPaint,
@@ -489,14 +517,13 @@ const HtmlInCanvasContent = forwardRef<
 			pixelDensity,
 			controls,
 			style,
+			renderFrame,
 		},
 		ref,
 	) => {
-		const isInsideAncestorHtmlInCanvas = useContext(
-			HtmlInCanvasAncestorContext,
-		);
+		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		assertHtmlInCanvasDimensions(width, height);
-		if (isInsideAncestorHtmlInCanvas && !isHtmlInCanvasNestingSupported()) {
+		if (ancestorPaintState && !isHtmlInCanvasNestingSupported()) {
 			throw new Error(
 				`Nested <HtmlInCanvas> components require Chrome ${MINIMUM_CHROME_VERSION_FOR_NESTED_HTML_IN_CANVAS} or newer with HTML-in-canvas enabled.`,
 			);
@@ -510,29 +537,79 @@ const HtmlInCanvasContent = forwardRef<
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
 		const usesDirectLayoutCanvas =
 			onPaint === undefined && onInit === undefined;
+		// Keep a nested drawable canvas separate from the bitmap captured by its
+		// parent. Reusing it for both can crash Chromium during raster invalidation.
+		const paintTargetMode = ancestorPaintState
+			? 'copied'
+			: usesDirectLayoutCanvas
+				? 'direct'
+				: isRendering
+					? 'copied'
+					: 'transferred';
 
 		if (!isHtmlInCanvasSupported()) {
 			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
+		const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const paintTargetRef = useRef<HtmlInCanvasPaintTarget | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
-		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${usesDirectLayoutCanvas ? 'direct' : 'offscreen'}`;
+		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${paintTargetMode}`;
+		const paintState = useMemo<HtmlInCanvasPaintState>(() => {
+			const state: HtmlInCanvasPaintState = {
+				pendingChildren: 0,
+				generation: 0,
+				release: null,
+				blockPaint: () => {
+					state.pendingChildren++;
+					state.generation++;
+					if (state.release === null) {
+						const handle = delayRender('waiting for nested HtmlInCanvas paint');
+						const releaseAncestor = ancestorPaintState?.blockPaint();
+						state.release = () => {
+							continueRender(handle);
+							releaseAncestor?.();
+						};
+					}
 
-		const setLayoutCanvasRef = useCallback(
+					let released = false;
+					return () => {
+						if (released) {
+							return;
+						}
+
+						released = true;
+						state.pendingChildren--;
+						if (state.pendingChildren === 0) {
+							// A child can finish asynchronously after our paint record was
+							// taken. Keep capture blocked until we paint its finished pixels.
+							canvas2dRef.current?.requestPaint?.();
+						}
+					};
+				},
+			};
+			return state;
+		}, [continueRender, delayRender, ancestorPaintState]);
+
+		const setVisibleCanvasRef = useCallback(
 			(node: HTMLCanvasElement | null) => {
-				canvas2dRef.current = node;
+				if (paintTargetMode === 'copied') {
+					outputCanvasRef.current = node;
+				} else {
+					canvas2dRef.current = node;
+				}
+
 				if (typeof ref === 'function') {
 					ref(node);
 				} else if (ref) {
 					(ref as React.RefObject<HTMLCanvasElement | null>).current = node;
 				}
 			},
-			[ref],
+			[ref, paintTargetMode],
 		);
 
-		const chainState = useEffectChainState();
+		const chainState = useEffectChainState(effectsOutputSize);
 
 		const memoizedEffects = useMemoizedEffects({
 			effects,
@@ -550,8 +627,20 @@ const HtmlInCanvasContent = forwardRef<
 		const initializedRef = useRef(false);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
+		const effectScratchCanvasesRef = useRef<{
+			source: HTMLCanvasElement;
+			previousOutput: HTMLCanvasElement;
+		} | null>(null);
+		const paintingTargets = useRef(
+			new WeakMap<HtmlInCanvasPaintTarget, {repaint: boolean}>(),
+		);
 
 		const onPaintCb = useCallback(async () => {
+			if (isRendering && paintState.pendingChildren > 0) {
+				return;
+			}
+
+			const childrenGeneration = paintState.generation;
 			const element = divRef.current;
 
 			if (!element) {
@@ -565,18 +654,36 @@ const HtmlInCanvasContent = forwardRef<
 				);
 			}
 
+			const inProgress = paintingTargets.current.get(paintTarget);
+			if (isRendering && inProgress) {
+				// In particular, do not run onPaint while an earlier event is still
+				// awaiting onInit (e.g. a WebGPU device).
+				inProgress.repaint = true;
+				return;
+			}
+
+			const painting = {repaint: false};
+			if (isRendering) {
+				paintingTargets.current.set(paintTarget, painting);
+			}
+
 			resizePaintTarget({
 				target: paintTarget,
 				width: canvasWidth,
 				height: canvasHeight,
 			});
 
+			const releaseAncestor = isRendering
+				? ancestorPaintState?.blockPaint()
+				: null;
+			let canReleasePaint = false;
 			try {
 				const placeholderCanvas = canvas2dRef.current;
 				if (!placeholderCanvas) {
 					throw new Error('Canvas not found');
 				}
 
+				const outputCanvas = outputCanvasRef.current;
 				const handle = delayRender('onPaint');
 				if (!initializedRef.current) {
 					const currentOnInit = onInitRef.current;
@@ -596,6 +703,7 @@ const HtmlInCanvasContent = forwardRef<
 							) {
 								// The web renderer explicitly drives additional paint cycles, so a
 								// transient missing record can be retried without failing the render.
+								canReleasePaint = true;
 								continueRender(handle);
 								return;
 							}
@@ -627,11 +735,16 @@ const HtmlInCanvasContent = forwardRef<
 								);
 							}
 
-							if (unmountedRef.current) {
+							if (
+								unmountedRef.current ||
+								paintTargetRef.current !== paintTarget
+							) {
 								cleanup();
-							} else {
-								onInitCleanupRef.current = cleanup;
+								continueRender(handle);
+								return;
 							}
+
+							onInitCleanupRef.current = cleanup;
 						} finally {
 							initImage.close();
 						}
@@ -646,6 +759,7 @@ const HtmlInCanvasContent = forwardRef<
 					// element is outside the viewport (no cached paint record).
 					// Skip this paint cycle — the canvas retains its last state.
 					if (isMissingPaintRecordError(error) && canRetryMissingPaintRecord) {
+						canReleasePaint = true;
 						continueRender(handle);
 						return;
 					}
@@ -657,6 +771,7 @@ const HtmlInCanvasContent = forwardRef<
 					throw error;
 				}
 
+				let effectSourceCanvas: HTMLCanvasElement | null = null;
 				try {
 					const currentOnPaint = onPaintRef.current;
 					if (currentOnPaint) {
@@ -675,6 +790,55 @@ const HtmlInCanvasContent = forwardRef<
 						if (paintResult) {
 							await paintResult;
 						}
+					} else if (
+						paintTarget instanceof HTMLCanvasElement &&
+						effectsRef.current.some(
+							(effect) => !(effect.params as {disabled?: boolean}).disabled,
+						)
+					) {
+						// The element image can only be drawn into the visible layout
+						// canvas, but effects finish asynchronously (e.g. while the
+						// WebGPU device initializes). Move the unprocessed pixels to a
+						// scratch canvas and restore the previous output within this task,
+						// so the browser never presents the HTML without its effects.
+						effectScratchCanvasesRef.current ??= {
+							source: document.createElement('canvas'),
+							previousOutput: document.createElement('canvas'),
+						};
+						const {source: effectSource, previousOutput} =
+							effectScratchCanvasesRef.current;
+						resizePaintTarget({
+							target: effectSource,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+						resizePaintTarget({
+							target: previousOutput,
+							width: canvasWidth,
+							height: canvasHeight,
+						});
+						const effectSourceCtx = effectSource.getContext('2d');
+						const previousOutputCtx = previousOutput.getContext('2d');
+						const paintTargetCtx = paintTarget.getContext('2d');
+						if (!effectSourceCtx || !previousOutputCtx || !paintTargetCtx) {
+							throw new Error(
+								'Failed to acquire 2D context for <HtmlInCanvas> canvas',
+							);
+						}
+
+						previousOutputCtx.reset();
+						previousOutputCtx.drawImage(paintTarget, 0, 0);
+						defaultOnPaint({
+							canvas: paintTarget,
+							element,
+							elementImage: elImage,
+							pixelDensity: resolvedPixelDensity,
+						});
+						effectSourceCtx.reset();
+						effectSourceCtx.drawImage(paintTarget, 0, 0);
+						paintTargetCtx.reset();
+						paintTargetCtx.drawImage(previousOutput, 0, 0);
+						effectSourceCanvas = effectSource;
 					} else {
 						defaultOnPaint({
 							canvas: paintTarget,
@@ -689,7 +853,7 @@ const HtmlInCanvasContent = forwardRef<
 					if (state) {
 						await runEffectChain({
 							state,
-							source: paintTarget,
+							source: effectSourceCanvas ?? paintTarget,
 							effects: effectsRef.current,
 							output: paintTarget,
 							width: canvasWidth,
@@ -700,9 +864,45 @@ const HtmlInCanvasContent = forwardRef<
 					elImage.close();
 				}
 
+				if (
+					paintTargetMode === 'copied' &&
+					paintTargetRef.current === paintTarget &&
+					outputCanvas
+				) {
+					const ctx = outputCanvas.getContext('2d');
+					if (!ctx) {
+						throw new Error(
+							'HtmlInCanvas: could not get layout canvas context',
+						);
+					}
+
+					// A transferred OffscreenCanvas submits its pixels asynchronously.
+					// Copy before releasing the render handle so capture sees this paint.
+					// drawImage preserves the source for handlers that paint incrementally.
+					ctx.reset();
+					ctx.drawImage(paintTarget, 0, 0);
+				}
+
+				canReleasePaint = true;
 				continueRender(handle);
 			} catch (error) {
 				cancelRender(error);
+			} finally {
+				if (
+					canReleasePaint &&
+					paintState.pendingChildren === 0 &&
+					paintState.generation === childrenGeneration
+				) {
+					const {release} = paintState;
+					paintState.release = null;
+					release?.();
+				}
+
+				releaseAncestor?.();
+				paintingTargets.current.delete(paintTarget);
+				if (painting.repaint && paintTargetRef.current === paintTarget) {
+					canvas2dRef.current?.requestPaint?.();
+				}
 			}
 		}, [
 			canvasHeight,
@@ -713,10 +913,24 @@ const HtmlInCanvasContent = forwardRef<
 			delayRender,
 			resolvedPixelDensity,
 			canRetryMissingPaintRecord,
+			paintTargetMode,
+			isRendering,
+			paintState,
+			ancestorPaintState,
 		]);
 
-		// Default paint handlers draw synchronously on the layout canvas itself.
-		// Custom handlers retain the transferred OffscreenCanvas API.
+		useLayoutEffect(() => {
+			return () => {
+				paintState.release?.();
+				paintState.release = null;
+			};
+		}, [paintState]);
+
+		// Non-nested default handlers paint directly on the layout canvas. Nested
+		// canvases and custom handlers retain a transferred target because an
+		// ElementImage can only be drawn into its associated canvas. Nested canvases
+		// and rendering copy it to a separate visible canvas without waiting for
+		// the transferred canvas to present.
 		useLayoutEffect(() => {
 			const placeholder = canvas2dRef.current;
 			if (!placeholder) {
@@ -727,9 +941,10 @@ const HtmlInCanvasContent = forwardRef<
 			placeholder.layoutSubtree = true;
 			divRef.current?.setAttribute('drawable', '');
 
-			const paintTarget = usesDirectLayoutCanvas
-				? placeholder
-				: getTransferredOffscreenCanvas(placeholder);
+			const paintTarget =
+				paintTargetMode === 'direct'
+					? placeholder
+					: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
 			resizePaintTarget({
@@ -751,13 +966,7 @@ const HtmlInCanvasContent = forwardRef<
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [
-			onPaintCb,
-			cancelRender,
-			canvasWidth,
-			canvasHeight,
-			usesDirectLayoutCanvas,
-		]);
+		}, [onPaintCb, cancelRender, canvasWidth, canvasHeight, paintTargetMode]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
@@ -780,19 +989,34 @@ const HtmlInCanvasContent = forwardRef<
 				return;
 			}
 
-			const handle = delayRender('waiting for first paint after canvas resize');
-			canvas.addEventListener(
-				'paint',
-				() => {
-					continueRender(handle);
-				},
-				{once: true},
-			);
+			// Block capture before the paint event begins, including updates that
+			// keep the same canvas. onPaintCb holds its own handle through async work.
+			const handle = delayRender('waiting for HtmlInCanvas paint');
+			const releaseAncestor = isRendering
+				? ancestorPaintState?.blockPaint()
+				: null;
+			const onPainted = () => {
+				continueRender(handle);
+				releaseAncestor?.();
+			};
+
+			canvas.addEventListener('paint', onPainted, {once: true});
+			canvas.requestPaint?.();
 
 			return () => {
-				continueRender(handle);
+				canvas.removeEventListener('paint', onPainted);
+				onPainted();
 			};
-		}, [width, height, continueRender, delayRender, canvasSizeKey]);
+		}, [
+			width,
+			height,
+			continueRender,
+			delayRender,
+			canvasSizeKey,
+			renderFrame,
+			isRendering,
+			ancestorPaintState,
+		]);
 
 		const innerStyle = useMemo(() => {
 			return {
@@ -810,25 +1034,66 @@ const HtmlInCanvasContent = forwardRef<
 		}, [height, style, width]);
 
 		return (
-			<HtmlInCanvasAncestorContext.Provider value>
+			<HtmlInCanvasAncestorContext.Provider value={paintState}>
 				<canvas
 					key={canvasSizeKey}
-					ref={setLayoutCanvasRef}
+					ref={paintTargetMode === 'copied' ? canvas2dRef : setVisibleCanvasRef}
 					width={canvasWidth}
 					height={canvasHeight}
-					style={canvasStyle}
+					style={
+						paintTargetMode === 'copied'
+							? {
+									...canvasStyle,
+									position: 'absolute',
+									// Hide the source canvas while keeping its drawable children
+									// visible to captureElementImage. opacity: 0 drops paint records.
+									visibility: 'hidden',
+									pointerEvents: 'none',
+								}
+							: canvasStyle
+					}
 				>
-					<div ref={divRef} style={innerStyle}>
-						{children}
-					</div>
-					{canvasSiblings}
+					<DefaultPremountContext.Provider value={0}>
+						<div
+							ref={divRef}
+							style={
+								paintTargetMode === 'copied'
+									? {...innerStyle, visibility: 'visible'}
+									: innerStyle
+							}
+						>
+							{children}
+						</div>
+						{canvasSiblings}
+					</DefaultPremountContext.Provider>
 				</canvas>
+				{paintTargetMode === 'copied' ? (
+					<canvas
+						key={`output-${canvasSizeKey}`}
+						ref={setVisibleCanvasRef}
+						width={canvasWidth}
+						height={canvasHeight}
+						style={canvasStyle}
+					/>
+				) : null}
 			</HtmlInCanvasAncestorContext.Provider>
 		);
 	},
 );
 
 HtmlInCanvasContent.displayName = 'HtmlInCanvasContent';
+
+// Subscribe to frame changes only while rendering. Preview keeps relying on
+// the browser's paints and does not need a capture barrier on every frame.
+const HtmlInCanvasContentForRendering = forwardRef<
+	HTMLCanvasElement,
+	HtmlInCanvasContentProps
+>((props, ref) => {
+	const frame = useCurrentFrame();
+	return <HtmlInCanvasContent {...props} ref={ref} renderFrame={frame} />;
+});
+
+HtmlInCanvasContentForRendering.displayName = 'HtmlInCanvasContentForRendering';
 
 const HtmlInCanvasInner = forwardRef<
 	HTMLCanvasElement,
@@ -841,11 +1106,13 @@ const HtmlInCanvasInner = forwardRef<
 			width,
 			height,
 			effects = [],
+			effectsOutputSize,
 			children,
 			onPaint,
 			onInit,
 			pixelDensity,
 			_remotionInternalCanvasSiblings,
+			_remotionInternalFallbackLabel = 'Effects are not visible',
 			controls,
 			style,
 			cropLeft,
@@ -862,6 +1129,13 @@ const HtmlInCanvasInner = forwardRef<
 		},
 		ref,
 	) => {
+		const {isRendering} = useRemotionEnvironment();
+		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
+		assertHtmlInCanvasDimensions(width, height);
+		resolveHtmlInCanvasPixelDensity(pixelDensity);
+		const Content = isRendering
+			? HtmlInCanvasContentForRendering
+			: HtmlInCanvasContent;
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
 		const setCanvasRef = useCallback(
@@ -926,20 +1200,33 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<HtmlInCanvasContent
-						ref={setCanvasRef}
-						width={width}
-						height={height}
-						effects={effects}
-						onPaint={onPaint}
-						onInit={onInit}
-						pixelDensity={pixelDensity}
-						canvasSiblings={_remotionInternalCanvasSiblings ?? null}
-						controls={controls}
-						style={croppedStyle ?? undefined}
-					>
-						{children}
-					</HtmlInCanvasContent>
+					{!isRendering && unsupportedMessage !== null ? (
+						<HtmlInCanvasFallback
+							style={{width, height, ...croppedStyle}}
+							label={_remotionInternalFallbackLabel}
+						>
+							<DefaultPremountContext.Provider value={0}>
+								<div style={{width, height}}>{children}</div>
+							</DefaultPremountContext.Provider>
+						</HtmlInCanvasFallback>
+					) : (
+						<Content
+							ref={setCanvasRef}
+							renderFrame={null}
+							width={width}
+							height={height}
+							effects={effects}
+							effectsOutputSize={effectsOutputSize ?? null}
+							onPaint={onPaint}
+							onInit={onInit}
+							pixelDensity={pixelDensity}
+							canvasSiblings={_remotionInternalCanvasSiblings ?? null}
+							controls={controls}
+							style={croppedStyle ?? undefined}
+						>
+							{children}
+						</Content>
+					)}
 				</Sequence>
 			</Freeze>
 		);

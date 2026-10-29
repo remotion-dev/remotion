@@ -6,6 +6,7 @@ import {chromeModeOption} from './chrome-mode';
 import {colorSpaceOption} from './color-space';
 import {crfOption} from './crf';
 import {deleteAfterOption} from './delete-after';
+import {disableSharedMemoryCaptureOption} from './disable-shared-memory-capture';
 import {disallowParallelEncodingOption} from './disallow-parallel-encoding';
 import {encodingBufferSizeOption} from './encoding-buffer-size';
 import {encodingMaxRateOption} from './encoding-max-rate';
@@ -23,6 +24,7 @@ import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size'
 import {offthreadVideoThreadsOption} from './offthreadvideo-threads';
 import {onBrowserDownloadOption} from './on-browser-download';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {preferredEffectBackendOption} from './preferred-effect-backend';
 import {reproOption} from './repro';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
@@ -37,6 +39,7 @@ import {x264Option} from './x264-preset';
 export const optionsMap = {
 	renderMedia: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		videoBitrate: videoBitrateOption,
@@ -48,6 +51,7 @@ export const optionsMap = {
 		colorSpace: colorSpaceOption,
 		codec: videoCodecOption,
 		disallowParallelEncoding: disallowParallelEncodingOption,
+		disableSharedMemoryCapture: disableSharedMemoryCaptureOption,
 		jpegQuality: jpegQualityOption,
 		encodingMaxRate: encodingMaxRateOption,
 		encodingBufferSize: encodingBufferSizeOption,
@@ -70,6 +74,7 @@ export const optionsMap = {
 	},
 	renderStill: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		jpegQuality: jpegQualityOption,
@@ -83,6 +88,7 @@ export const optionsMap = {
 	},
 	getCompositions: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
@@ -93,6 +99,7 @@ export const optionsMap = {
 	},
 	selectComposition: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
@@ -103,6 +110,7 @@ export const optionsMap = {
 	},
 	renderFrames: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		forSeamlessAacConcatenation: forSeamlessAacConcatenationOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
@@ -116,7 +124,9 @@ export const optionsMap = {
 		sampleRate: sampleRateOption,
 	},
 	renderMediaOnLambda: {
+		disableSharedMemoryCapture: disableSharedMemoryCaptureOption,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		videoBitrate: videoBitrateOption,
@@ -138,6 +148,7 @@ export const optionsMap = {
 	},
 	renderStillOnLambda: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		jpegQuality: jpegQualityOption,
@@ -150,12 +161,15 @@ export const optionsMap = {
 	},
 	getCompositionsOnLambda: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		logLevel: logLevelOption,
 		timeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
 	},
 	renderMediaOnCloudRun: {
+		disableSharedMemoryCapture: disableSharedMemoryCaptureOption,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		numberOfGifLoops: numberOfGifLoopsOption,
@@ -175,15 +189,18 @@ export const optionsMap = {
 		crf: crfOption,
 		jpegQuality: jpegQualityOption,
 		sampleRate: sampleRateOption,
+		licenseKey: licenseKeyOption,
 	},
 	renderStillOnCloudRun: {
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption,
+		preferredEffectBackend: preferredEffectBackendOption,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytesOption,
 		offthreadVideoThreads: offthreadVideoThreadsOption,
 		logLevel: logLevelOption,
 		scale: scaleOption,
 		jpegQuality: jpegQualityOption,
 		delayRenderTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption,
+		licenseKey: licenseKeyOption,
 	},
 	ensureBrowser: {
 		logLevel: logLevelOption,

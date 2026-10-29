@@ -33,6 +33,7 @@ export const createElementPayloadFromDefinition = ({
 				? definition.initialProps
 				: {...definition.initialProps, ...definition.installationProps},
 		installationMode: definition.installationMode,
+		isCaptionStyle: definition.category === 'captions',
 		slug: definition.slug,
 		sourceCode,
 	});

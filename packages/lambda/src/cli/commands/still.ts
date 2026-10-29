@@ -1,7 +1,7 @@
 import path from 'path';
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
 	DEFAULT_MAX_RETRIES,
@@ -10,8 +10,6 @@ import {
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {ProviderSpecifics} from '@remotion/serverless';
-import {validatePrivacy} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
 import {validateMaxRetries} from '../../shared/validate-retries';
@@ -39,6 +37,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	browserExecutableOption,
 	userAgentOption,
@@ -65,12 +64,10 @@ export const stillCommand = async ({
 	args,
 	remotionRoot,
 	logLevel,
-	providerSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }) => {
 	const serveUrl = args[0];
 
@@ -153,6 +150,9 @@ export const stillCommand = async ({
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -217,6 +217,7 @@ export const stillCommand = async ({
 			}),
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: mediaCacheSizeInBytes,
+			preferredEffectBackend: preferredEffectBackend,
 		});
 		composition = compositionId;
 	}
@@ -235,13 +236,13 @@ export const stillCommand = async ({
 		s3OutputProvider,
 	});
 
-	const functionName = await findFunctionName({logLevel, providerSpecifics});
+	const functionName = await findFunctionName({logLevel});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
-	validatePrivacy(privacy, true);
+	LambdaClientInternals.validatePrivacy(privacy, true);
 
 	const {stillImageFormatOption} = BrowserSafeApis.options;
 
@@ -329,6 +330,7 @@ export const stillCommand = async ({
 		offthreadVideoThreads: null,
 		requestHandler: null,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		isProduction:
 			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
 			true,
@@ -372,12 +374,12 @@ export const stillCommand = async ({
 
 	if (downloadName) {
 		const {outputPath, sizeInBytes} = await internalDownloadMedia({
+			output: 'main',
 			bucketName: res.bucketName,
 			outPath: downloadName,
 			region,
 			renderId: res.renderId,
 			logLevel,
-			providerSpecifics: providerSpecifics,
 			forcePathStyle: parsedLambdaCli['force-path-style'],
 			signal: new AbortController().signal,
 			customCredentials: s3OutputProvider,

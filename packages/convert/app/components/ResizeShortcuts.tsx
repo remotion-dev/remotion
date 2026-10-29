@@ -29,7 +29,7 @@ export const ResizeOption: React.FC<{
 	return (
 		<div
 			data-selected={selected}
-			className="font-brand text-sm pl-2 pr-2 text-muted-foreground cursor-pointer transition-colors hover:text-black data-[selected=true]:text-brand"
+			className="font-brand text-sm pl-2 pr-2 text-muted-foreground cursor-pointer transition-colors hover:text-foreground data-[selected=true]:text-brand"
 			onClick={onClick}
 		>
 			{max}p

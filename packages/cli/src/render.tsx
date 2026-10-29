@@ -6,6 +6,7 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
+import {getLicenseKey} from './get-license-key';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parsed-cli';
 import {renderVideoFlow} from './render-flows/render';
@@ -23,6 +24,7 @@ const {
 	mutedOption,
 	colorSpaceOption,
 	disallowParallelEncodingOption,
+	disableSharedMemoryCaptureOption,
 	enableMultiprocessOnLinuxOption,
 	glOption,
 	numberOfGifLoopsOption,
@@ -45,6 +47,7 @@ const {
 	audioLatencyHintOption,
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	askAIOption,
 	keyboardShortcutsOption,
@@ -62,7 +65,7 @@ const {
 	bundleCacheOption,
 	sampleRateOption,
 	stillFrameOption,
-	publicLicenseKeyOption,
+	isProductionOption,
 } = BrowserSafeApis.options;
 
 export const render = async (
@@ -70,6 +73,7 @@ export const render = async (
 	args: (string | number)[],
 	logLevel: LogLevel,
 ) => {
+	const licenseKey = getLicenseKey();
 	const {
 		file,
 		remainingArgs,
@@ -173,12 +177,14 @@ export const render = async (
 	const colorSpace = colorSpaceOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const disallowParallelEncoding = disallowParallelEncodingOption.getValue({
 		commandLine: parsedCli,
 	}).value;
-	const crf = shouldOutputImageSequence
-		? null
-		: crfOption.getValue({commandLine: parsedCli}).value;
+	const crfSetting = crfOption.getValue({commandLine: parsedCli});
+	const crf = shouldOutputImageSequence ? null : crfSetting.value;
 	const gopSize = shouldOutputImageSequence
 		? null
 		: gopSizeOption.getValue({commandLine: parsedCli}).value;
@@ -255,6 +261,9 @@ export const render = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const shouldCache = bundleCacheOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -301,6 +310,7 @@ export const render = async (
 		uiImageFormat: null,
 		cancelSignal: null,
 		crf,
+		crfIsFromConfigFile: crfSetting.source === 'config',
 		gopSize,
 		ffmpegOverride,
 		audioBitrate,
@@ -315,8 +325,10 @@ export const render = async (
 		numberOfGifLoops,
 		audioCodec,
 		disallowParallelEncoding,
+		disableSharedMemoryCapture,
 		offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		colorSpace,
 		repro,
 		binariesDirectory,
@@ -337,6 +349,7 @@ export const render = async (
 		bundlerOverride: null,
 		rspackOverride: null,
 		webpackOverride: null,
-		licenseKey: publicLicenseKeyOption.getValue({commandLine: parsedCli}).value,
+		licenseKey,
+		isProduction: isProductionOption.getValue({commandLine: parsedCli}).value,
 	});
 };

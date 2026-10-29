@@ -65,6 +65,7 @@ type InternalRenderMediaOnCloudrun = {
 	logLevel: LogLevel;
 	downloadBehavior: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	isProduction: boolean | null;
 	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>;
@@ -102,6 +103,7 @@ export type RenderMediaOnCloudrunInput = {
 	preferLossless?: boolean;
 	downloadBehavior?: DownloadBehavior;
 	metadata?: Record<string, string> | null;
+	isProduction?: boolean;
 	renderIdOverride?: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook?: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
 } & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnCloudRun>>;
@@ -129,6 +131,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	disableSharedMemoryCapture,
 	crf,
 	pixelFormat,
 	imageFormat,
@@ -154,7 +157,10 @@ const internalRenderMediaOnCloudrunRaw = async ({
 	downloadBehavior,
 	metadata,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	sampleRate,
+	licenseKey,
+	isProduction,
 }: InternalRenderMediaOnCloudrun): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -194,6 +200,7 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		proResProfile: proResProfile ?? null,
 		x264Preset: x264Preset ?? null,
 		gopSize: gopSize ?? null,
+		disableSharedMemoryCapture,
 		everyNthFrame: everyNthFrame ?? 1,
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		frameRange: frameRange ?? null,
@@ -223,6 +230,9 @@ const internalRenderMediaOnCloudrunRaw = async ({
 		renderIdOverride,
 		renderStatusWebhook,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
+		licenseKey,
+		isProduction,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -335,6 +345,7 @@ export const renderMediaOnCloudrun = ({
 	proResProfile,
 	x264Preset,
 	gopSize,
+	disableSharedMemoryCapture,
 	crf,
 	pixelFormat,
 	imageFormat,
@@ -362,7 +373,10 @@ export const renderMediaOnCloudrun = ({
 	renderStatusWebhook,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	sampleRate,
+	licenseKey,
+	isProduction,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -393,6 +407,7 @@ export const renderMediaOnCloudrun = ({
 		proResProfile: proResProfile ?? undefined,
 		x264Preset: x264Preset ?? null,
 		gopSize: gopSize ?? null,
+		disableSharedMemoryCapture: disableSharedMemoryCapture ?? false,
 		crf: crf ?? undefined,
 		pixelFormat: pixelFormat ?? undefined,
 		imageFormat: imageFormat ?? undefined,
@@ -424,6 +439,9 @@ export const renderMediaOnCloudrun = ({
 		renderStatusWebhook: renderStatusWebhook ?? undefined,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		sampleRate: sampleRate ?? 48000,
+		licenseKey: licenseKey ?? null,
+		isProduction: isProduction ?? null,
 	});
 };

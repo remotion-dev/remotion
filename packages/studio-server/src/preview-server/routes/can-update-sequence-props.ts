@@ -1,4 +1,3 @@
-import {readFileSync} from 'node:fs';
 import type {
 	CallExpression,
 	Expression,
@@ -13,7 +12,7 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import {CodemodsInternals, getNodeProps, getNodes} from '@remotion/codemods';
+import {CodemodsInternals, getNodeProps} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
@@ -32,6 +31,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {getAstNodePath} from '../../helpers/get-ast-node-path';
 import {toImportAgnosticNodePath} from '../../helpers/import-agnostic-node-path';
 import {parseKeyframeEasingExpression} from '../../helpers/parse-keyframe-easing-expression';
+import {readSourceFile} from '../../helpers/read-source-file';
 import {
 	FileOutsideProjectError,
 	resolveFileInsideProject,
@@ -720,7 +720,7 @@ const findNodePath = (
 		visitNode(p) {
 			if (p.node === target) {
 				found = p as unknown as recast.types.NodePath;
-				return false;
+				return this.abort();
 			}
 
 			return this.traverse(p);
@@ -863,16 +863,19 @@ type ResolvedCurrentFrameExpression = {
 
 const resolveCurrentFrameExpression = ({
 	node,
+	nodePath,
 	ast,
 	seenDeclarations,
 }: {
 	node: Expression;
+	nodePath: recast.types.NodePath | null;
 	ast: File;
 	seenDeclarations: Set<object>;
 }): ResolvedCurrentFrameExpression | null => {
 	if (node.type === 'TSAsExpression') {
 		return resolveCurrentFrameExpression({
 			node: node.expression as Expression,
+			nodePath: nodePath?.get('expression') ?? null,
 			ast,
 			seenDeclarations,
 		});
@@ -886,6 +889,7 @@ const resolveCurrentFrameExpression = ({
 		if (rightValue !== null && Number.isFinite(rightValue)) {
 			const resolvedLeft = resolveCurrentFrameExpression({
 				node: node.left as Expression,
+				nodePath: nodePath?.get('left') ?? null,
 				ast,
 				seenDeclarations,
 			});
@@ -904,6 +908,7 @@ const resolveCurrentFrameExpression = ({
 			if (leftValue !== null && Number.isFinite(leftValue)) {
 				const resolvedRight = resolveCurrentFrameExpression({
 					node: node.right as Expression,
+					nodePath: nodePath?.get('right') ?? null,
 					ast,
 					seenDeclarations,
 				});
@@ -923,7 +928,6 @@ const resolveCurrentFrameExpression = ({
 		return null;
 	}
 
-	const nodePath = findNodePath(ast, node);
 	const bindingScope = nodePath?.scope?.lookup(node.name);
 	if (!nodePath || !bindingScope) {
 		return null;
@@ -932,6 +936,7 @@ const resolveCurrentFrameExpression = ({
 	let matchingDeclarations = 0;
 	let matchingDeclaration: object | null = null;
 	let initializer: Expression | null = null;
+	let initializerPath: recast.types.NodePath | null = null;
 	let isConstDeclaration = false;
 	recast.types.visit(bindingScope.path, {
 		visitVariableDeclarator(p) {
@@ -949,6 +954,7 @@ const resolveCurrentFrameExpression = ({
 			if (init) {
 				matchingDeclaration = p.node;
 				initializer = init as Expression;
+				initializerPath = p.get('init');
 				isConstDeclaration =
 					declaration.type === 'VariableDeclaration' &&
 					declaration.kind === 'const';
@@ -979,6 +985,7 @@ const resolveCurrentFrameExpression = ({
 	nextSeenDeclarations.add(matchingDeclaration);
 	return resolveCurrentFrameExpression({
 		node: initializer,
+		nodePath: initializerPath,
 		ast,
 		seenDeclarations: nextSeenDeclarations,
 	});
@@ -1008,6 +1015,7 @@ const getCurrentFrameDisplayOffsetAdjustment = ({
 	const nodePath = findNodePath(ast, node);
 	const resolved = resolveCurrentFrameExpression({
 		node,
+		nodePath,
 		ast,
 		seenDeclarations: new Set(),
 	});
@@ -1342,30 +1350,22 @@ export const resolveSequencePropsNodePathsFromFilename = ({
 	fileName,
 	targets,
 	remotionRoot,
+	fileContentsCache,
 }: {
 	fileName: string;
 	targets: {line: number; column: number}[];
 	remotionRoot: string;
+	fileContentsCache: Map<string, string> | null;
 }) => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
 		fileName,
 		action: 'read',
 	});
-	const fileContents = readFileSync(absolutePath, 'utf-8');
-	const nodes = getNodes({
-		project: {rootDir: remotionRoot, files: {[absolutePath]: fileContents}},
-		filePath: absolutePath,
-	});
-	return targets.map(({line, column}) => {
-		const lineMatches = nodes.filter((node) => node.location?.line === line);
-		const exactMatches = lineMatches.filter(
-			(node) => node.location?.column === column,
-		);
-		return (
-			(exactMatches.length === 1 ? exactMatches[0] : lineMatches.at(-1))
-				?.nodePath ?? null
-		);
+	const fileContents = readSourceFile({absolutePath, fileContentsCache});
+	return CodemodsInternals.resolveNodePathsFromLocations({
+		fileContents,
+		targets,
 	});
 };
 
@@ -1414,6 +1414,7 @@ export const computeSequencePropsStatus = ({
 	assetKeys = [],
 	effects,
 	remotionRoot,
+	fileContentsCache,
 }: {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -1422,6 +1423,7 @@ export const computeSequencePropsStatus = ({
 	assetKeys?: string[];
 	effects: string[][];
 	remotionRoot: string;
+	fileContentsCache: Map<string, string> | null;
 }): CanUpdateSequencePropsResponseTrue => {
 	const {absolutePath} = resolveFileInsideProject({
 		remotionRoot,
@@ -1429,7 +1431,7 @@ export const computeSequencePropsStatus = ({
 		action: 'read',
 	});
 
-	const fileContents = readFileSync(absolutePath, 'utf-8');
+	const fileContents = readSourceFile({absolutePath, fileContentsCache});
 	return computeSequencePropsStatusFromContent({
 		fileContents,
 		nodePath,
@@ -1450,6 +1452,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 	effects,
 	remotionRoot,
 	logLevel,
+	fileContentsCache,
 }: {
 	fileName: string;
 	line: number;
@@ -1460,6 +1463,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 	effects: string[][];
 	remotionRoot: string;
 	logLevel: LogLevel;
+	fileContentsCache: Map<string, string> | null;
 }): SubscribeToSequencePropsResponse => {
 	try {
 		const {absolutePath} = resolveFileInsideProject({
@@ -1472,6 +1476,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 			fileName,
 			targets: [{line, column}],
 			remotionRoot,
+			fileContentsCache,
 		});
 		if (!resolvedNodePath) {
 			return {
@@ -1492,6 +1497,7 @@ export const computeSequencePropsStatusFromFilenameByLocation = ({
 				assetKeys,
 				effects,
 				remotionRoot,
+				fileContentsCache,
 			}),
 			nodePath: {
 				absolutePath,

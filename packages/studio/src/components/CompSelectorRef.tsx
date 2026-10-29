@@ -18,7 +18,9 @@ import {useSelectComposition} from './InitialCompositionLoader';
 export const CompSelectorRef: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
-	const {compositions} = useContext(Internals.CompositionManager);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {compositionFoldersExpanded, setCompositionFoldersExpanded} =
 		useContext(FolderContext);
 
@@ -41,9 +43,10 @@ export const CompSelectorRef: React.FC<{
 		() => {
 			return {
 				expandComposition: (compName) => {
-					const compositionToExpand = compositions.find(
-						(c) => c.id === compName,
-					);
+					const compositionToExpand =
+						compositionManagerRef.current.compositions.find(
+							(c) => c.id === compName,
+						);
 					if (!compositionToExpand) {
 						return;
 					}
@@ -68,7 +71,9 @@ export const CompSelectorRef: React.FC<{
 					});
 				},
 				selectComposition: (compName) => {
-					const comp = compositions.find((c) => c.id === compName);
+					const comp = compositionManagerRef.current.compositions.find(
+						(c) => c.id === compName,
+					);
 					if (!comp) {
 						throw new Error(`Composition ${compName} not found`);
 					}
@@ -81,7 +86,7 @@ export const CompSelectorRef: React.FC<{
 			};
 		},
 		[
-			compositions,
+			compositionManagerRef,
 			selectComposition,
 			setCompositionFoldersExpanded,
 			toggleFolder,

@@ -1,3 +1,4 @@
+import {isTargetClosedErr} from './browser/flaky-errors';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {BrowserReplacer} from './replace-browser';
@@ -41,7 +42,15 @@ export const cycleBrowserTabs = ({
 						!stopped &&
 						currentPage?.url() !== 'about:blank'
 					) {
-						return currentPage.bringToFront();
+						return currentPage.bringToFront().catch((err) => {
+							// The tabs are closed at the end of a render while a
+							// bringToFront() may still be in flight. Only that case is ignored.
+							if (stopped && isTargetClosedErr(err)) {
+								return;
+							}
+
+							throw err;
+						});
 					}
 				})
 

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-contributing-option.png
+image: https://remotion.media/docs/generated/articles-docs-contributing-option.png
 title: Implementing a new option
 crumb: Contributing
 ---
@@ -43,6 +43,8 @@ Options accepting numerical values should include the unit in the name. For exam
 The option should be documented in the [API reference](/docs/api) and the [CLI reference](/docs/cli).
 
 Note from which version the option is available.
+
+The [options reference](/docs/options) is generated from the option definitions and CLI help metadata. Add the option to the registry and the help entries for each supported command, then run `bun run build` at the repository root followed by `bun run generate-option-docs` in `packages/docs`. Keep API and configuration documentation up to date so the generated page can link to the relevant parameter sections.
 
 ## Testing changes to the CLI
 

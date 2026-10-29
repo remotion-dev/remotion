@@ -469,7 +469,18 @@ const parseStringInterpolationValue = (
 
 	const parts = output.trim().split(/\s+/);
 	if (parts.length < 1 || parts.length > 3 || parts[0] === '') {
-		throw new TypeError(
+		// Long text values (for example custom cursor CSS) may use hold easing.
+		// Malformed numeric transforms must still fail instead of becoming text.
+		const ErrorType =
+			outputType === undefined &&
+			parts.some(
+				(part) =>
+					!cssNumberRegex.test(part) &&
+					!transformOriginKeywords.has(part.toLowerCase()),
+			)
+				? UnsupportedStringInterpolationValueError
+				: TypeError;
+		throw new ErrorType(
 			`String outputRange values must contain 1 to 3 components, but got "${output}"`,
 		);
 	}
@@ -707,6 +718,36 @@ const interpolateSegment = ({
 	});
 };
 
+const getInputForInterpolation = ({
+	input,
+	inputRange,
+	options,
+}: {
+	input: number;
+	inputRange: readonly number[];
+	options: InterpolateOptions | null;
+}): number => {
+	const posterizedInput =
+		options?.posterize === undefined
+			? input
+			: Math.floor(input / options.posterize) * options.posterize;
+	const inputMin = inputRange[0];
+	const inputMax = inputRange[inputRange.length - 1];
+	if (
+		inputRange.length === 1 ||
+		!(
+			(posterizedInput < inputMin && options?.extrapolateLeft === 'wrap') ||
+			(posterizedInput > inputMax && options?.extrapolateRight === 'wrap')
+		)
+	) {
+		return posterizedInput;
+	}
+
+	// Wrap before choosing a segment so the entire keyframe range repeats.
+	const range = inputMax - inputMin;
+	return ((((posterizedInput - inputMin) % range) + range) % range) + inputMin;
+};
+
 const interpolateNumber = ({
 	input,
 	inputRange,
@@ -736,17 +777,18 @@ const interpolateNumber = ({
 		extrapolateRight = options.extrapolateRight;
 	}
 
-	const posterizedInput =
-		options?.posterize === undefined
-			? input
-			: Math.floor(input / options.posterize) * options.posterize;
-	const range = findRange(posterizedInput, inputRange);
+	const resolvedInput = getInputForInterpolation({
+		input,
+		inputRange,
+		options: options ?? null,
+	});
+	const range = findRange(resolvedInput, inputRange);
 	const easing = resolveEasingForSegment({
 		easing: easingOption,
 		segmentIndex: range,
 	});
 	let result = interpolateSegment({
-		input: posterizedInput,
+		input: resolvedInput,
 		inputRange: [inputRange[range], inputRange[range + 1]],
 		outputRange: [outputRange[range], outputRange[range + 1]],
 		easing,
@@ -765,12 +807,12 @@ const interpolateNumber = ({
 		}
 
 		const previousSegmentEnd = inputRange[segmentIndex + 1];
-		if (posterizedInput <= previousSegmentEnd) {
+		if (resolvedInput <= previousSegmentEnd) {
 			continue;
 		}
 
 		const continuedSegmentValue = interpolateSegment({
-			input: posterizedInput,
+			input: resolvedInput,
 			inputRange: [inputRange[segmentIndex], previousSegmentEnd],
 			outputRange: [outputRange[segmentIndex], outputRange[segmentIndex + 1]],
 			easing: previousEasing,
@@ -803,12 +845,13 @@ const interpolateString = ({
 	const hasAxisRotation = initiallyParsedOutputRange.some(
 		(parsed) => parsed.axisRotation,
 	);
-	const posterizedInput =
-		options?.posterize === undefined
-			? input
-			: Math.floor(input / options.posterize) * options.posterize;
+	const resolvedInput = getInputForInterpolation({
+		input,
+		inputRange,
+		options: options ?? null,
+	});
 	const segmentIndex =
-		inputRange.length === 1 ? 0 : findRange(posterizedInput, inputRange);
+		inputRange.length === 1 ? 0 : findRange(resolvedInput, inputRange);
 	const parsedOutputRange = hasAxisRotation
 		? initiallyParsedOutputRange.map((parsed, index) => {
 				if (parsed.kind !== 'rotate') {
@@ -1023,13 +1066,13 @@ const interpolateDiscreteValue = <Value extends string | boolean>({
 		}
 	}
 
-	const posterizedInput =
-		options?.posterize === undefined
-			? input
-			: Math.floor(input / options.posterize) * options.posterize;
+	const resolvedInput = getInputForInterpolation({
+		input,
+		inputRange,
+		options: options ?? null,
+	});
 	const inputMin = inputRange[0];
 	const inputMax = inputRange[inputRange.length - 1];
-	let resolvedInput = posterizedInput;
 
 	if (resolvedInput < inputMin) {
 		if (options?.extrapolateLeft === 'identity') {
@@ -1040,14 +1083,7 @@ const interpolateDiscreteValue = <Value extends string | boolean>({
 			);
 		}
 
-		if (options?.extrapolateLeft === 'wrap') {
-			const wrapRange = inputMax - inputMin;
-			resolvedInput =
-				((((resolvedInput - inputMin) % wrapRange) + wrapRange) % wrapRange) +
-				inputMin;
-		} else {
-			return outputRange[0];
-		}
+		return outputRange[0];
 	}
 
 	if (resolvedInput > inputMax) {
@@ -1059,14 +1095,7 @@ const interpolateDiscreteValue = <Value extends string | boolean>({
 			);
 		}
 
-		if (options?.extrapolateRight === 'wrap') {
-			const wrapRange = inputMax - inputMin;
-			resolvedInput =
-				((((resolvedInput - inputMin) % wrapRange) + wrapRange) % wrapRange) +
-				inputMin;
-		} else {
-			return outputRange[outputRange.length - 1];
-		}
+		return outputRange[outputRange.length - 1];
 	}
 
 	const range = findRange(resolvedInput, inputRange);
@@ -1437,3 +1466,19 @@ export function interpolate(
 	return interpolateNumber({input, inputRange, outputRange, options});
 }
 /* eslint-enable no-redeclare */
+
+export const prepareNumericInterpolation = ({
+	inputRange,
+	outputRange,
+	options,
+}: {
+	inputRange: readonly number[];
+	outputRange: readonly number[];
+	options: Omit<InterpolateOptions, 'outputType'>;
+}): ((input: number) => number) => {
+	// Validate the fixed inputs once, using the same checks as interpolate().
+	interpolate(inputRange[0], inputRange, outputRange, options);
+
+	return (input) =>
+		interpolateNumber({input, inputRange, outputRange, options});
+};

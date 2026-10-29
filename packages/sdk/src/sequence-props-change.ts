@@ -25,6 +25,10 @@ export type CanvasSequencePropChange =
 			readonly frame: number;
 	  });
 
+/**
+ * Receives all static and keyframed prop changes from one canvas gesture in
+ * one call. Persist the full batch as one undoable edit.
+ */
 export type CanvasSequencePropsChangeHandler = (
 	changes: readonly CanvasSequencePropChange[],
 ) => void;

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda-custom-destination.png
+image: https://remotion.media/docs/generated/articles-docs-lambda-custom-destination.png
 id: custom-destination
 sidebar_label: Custom output destination
 title: Customizing Lambda output destination
@@ -20,7 +20,11 @@ The output name must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
 
 ## Customizing the output bucket
 
-To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with the `key` and `bucketName` values:
+To render into a different bucket, specify the `outName` option to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda) and pass an object with `bucketName` and an optional `key`.
+
+From <AvailableFrom v="4.0.538" inline />, you can omit `key` to use `renders/${renderId}/out.{extension}` in the destination bucket, including when using `s3OutputProvider`. The extension is chosen from the codec and audio options, or the image format for stills.
+
+If you specify `key`, include the extension.
 
 ```tsx twoslash {13-16}
 import {renderMediaOnLambda} from '@remotion/lambda';
@@ -35,9 +39,9 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   codec: 'h264',
   imageFormat: 'jpeg',
   maxRetries: 1,
-  privacy: 'public',
+  privacy: 'no-acl',
   outName: {
-    key: 'my-output',
+    key: 'my-output.mp4',
     bucketName: 'output-bucket',
   },
 });
@@ -45,13 +49,22 @@ const {bucketName, renderId} = await renderMediaOnLambda({
 
 If you like to use this feature:
 
-- You must extend the [default Remotion role policy](/docs/lambda/permissions) (not user policy) to allow read and write access to that bucket.
+- You must extend the [default Remotion role policy](/docs/lambda/permissions) (not user policy) to allow `s3:PutObject` on the destination bucket's objects. See the [policy example](/docs/lambda/without-iam#render-into-a-different-bucket).
+- If you set `privacy` to `"public"` or `"private"`, also grant `s3:PutObjectAcl` on the destination bucket's objects.
 - The bucket must be in the same region.
 - When calling APIs such as [`downloadMedia()`](/docs/lambda/downloadmedia) or [`getRenderProgress()`](/docs/lambda/getrenderprogress), you must pass the `bucketName` where the site resides in, not the bucket where the video gets saved.
-- The `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`
+- If provided, the `key` must match `/^([0-9a-zA-Z-!_.*'()/]+)$/g`.
 - The bucketName must match `/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/`.
 
 This feature is not supported from the CLI.
+
+### Write-only AWS S3 buckets<AvailableFrom v="4.0.535" />
+
+For [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), `s3:PutObject` is sufficient on the destination bucket when using `privacy: "no-acl"` and the Lambda execution role's credentials (without `s3OutputProvider`). With `overwrite: false`, the final upload prevents replacing an existing object even if Remotion cannot read the destination. A conflict is then reported after rendering, when the upload is attempted.
+
+Optionally grant `s3:GetObject` on `arn:aws:s3:::{bucketname}/*` and `s3:ListBucket` on `arn:aws:s3:::{bucketname}`. These permissions allow Remotion to detect existing output before rendering and recover completion by checking the output if the final progress update is missing. For compatibility with earlier Remotion versions, grant both permissions.
+
+When using `s3OutputProvider` with `overwrite: false`, read access is required because conditional uploads are not supported for these destinations.
 
 ## Saving to another cloud<AvailableFrom v="3.2.23" />
 
@@ -91,7 +104,7 @@ const {bucketName, renderId} = await renderMediaOnLambda({
   maxRetries: 1,
   privacy: 'no-acl',
   outName: {
-    key: 'my-output',
+    key: 'my-output.mp4',
     bucketName: 'output-bucket',
     s3OutputProvider: {
       endpoint: 'https://fra1.digitaloceanspaces.com',

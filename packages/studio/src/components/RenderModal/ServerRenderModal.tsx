@@ -27,6 +27,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
@@ -50,6 +51,7 @@ import {FilmIcon} from '../../icons/video';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
+import {callApi} from '../call-api';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalHeader} from '../ModalHeader';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -174,6 +176,7 @@ type RenderModalProps = {
 	readonly initialIgnoreCertificateErrors: boolean;
 	readonly initialOffthreadVideoCacheSizeInBytes: number | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
+	readonly initialPreferredEffectBackend: PreferredEffectBackend;
 	readonly initialDarkMode: boolean;
 	readonly initialHeadless: boolean;
 	readonly initialColorSpace: ColorSpace;
@@ -234,6 +237,7 @@ const RenderModal: React.FC<
 	initialEncodingMaxRate,
 	initialOffthreadVideoThreads,
 	initialMediaCacheSizeInBytes,
+	initialPreferredEffectBackend,
 	initialDarkMode,
 	initialUserAgent,
 	defaultProps,
@@ -465,6 +469,9 @@ const RenderModal: React.FC<
 
 	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
 		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
+	const [preferredEffectBackend, setPreferredEffectBackend] = useState(
+		initialPreferredEffectBackend,
+	);
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
 	>(initialMediaCacheSizeInBytes);
@@ -480,6 +487,77 @@ const RenderModal: React.FC<
 
 		return videoCodecForVideoTab;
 	}, [videoCodecForAudioTab, renderMode, videoCodecForVideoTab]);
+
+	const sharedMemoryCaptureRequest = useMemo(
+		() => ({
+			browserExecutable:
+				renderDefaults.sharedMemoryCapture === null
+					? null
+					: renderDefaults.sharedMemoryCapture.browserExecutable,
+			chromeMode,
+			chromiumOptions,
+		}),
+		[renderDefaults.sharedMemoryCapture, chromeMode, chromiumOptions],
+	);
+	const sharedMemoryCaptureRequestKey = JSON.stringify(
+		sharedMemoryCaptureRequest,
+	);
+	const [sharedMemoryCaptureSupport, setSharedMemoryCaptureSupport] = useState<{
+		requestKey: string;
+		supported: boolean;
+	} | null>(null);
+	const canUseSharedMemoryCapture =
+		!readOnlyStudio &&
+		renderDefaults.sharedMemoryCapture !== null &&
+		!renderDefaults.sharedMemoryCapture.disabled &&
+		renderMode === 'video' &&
+		!disallowParallelEncoding &&
+		BrowserSafeApis.canUseParallelEncoding(codec);
+
+	useEffect(() => {
+		if (!canUseSharedMemoryCapture) {
+			return;
+		}
+
+		const controller = new AbortController();
+		// Avoid launching a probe for every keystroke in the browser settings.
+		const timeout = setTimeout(() => {
+			callApi(
+				'/api/shared-memory-capture-support',
+				sharedMemoryCaptureRequest,
+				controller.signal,
+			)
+				.then(({supported}) => {
+					if (!controller.signal.aborted) {
+						setSharedMemoryCaptureSupport({
+							requestKey: sharedMemoryCaptureRequestKey,
+							supported,
+						});
+					}
+				})
+				.catch(() => {
+					if (!controller.signal.aborted) {
+						setSharedMemoryCaptureSupport({
+							requestKey: sharedMemoryCaptureRequestKey,
+							supported: false,
+						});
+					}
+				});
+		}, 300);
+		return () => {
+			clearTimeout(timeout);
+			controller.abort();
+		};
+	}, [
+		canUseSharedMemoryCapture,
+		sharedMemoryCaptureRequest,
+		sharedMemoryCaptureRequestKey,
+	]);
+
+	const usesSharedMemoryCapture =
+		canUseSharedMemoryCapture &&
+		sharedMemoryCaptureSupport?.requestKey === sharedMemoryCaptureRequestKey &&
+		sharedMemoryCaptureSupport.supported;
 
 	const numberOfGifLoops = useMemo(() => {
 		if (codec === 'gif' && limitNumberOfGifLoops) {
@@ -765,6 +843,7 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
@@ -796,6 +875,7 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		renderDefaults.publicLicenseKey,
 	]);
 
@@ -879,6 +959,7 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			sampleRate,
 			licenseKey: renderDefaults.publicLicenseKey,
 		})
@@ -936,6 +1017,7 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
 		renderDefaults.publicLicenseKey,
 	]);
@@ -968,6 +1050,8 @@ const RenderModal: React.FC<
 			chromeMode,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
+			licenseKey: renderDefaults.publicLicenseKey,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -1002,6 +1086,8 @@ const RenderModal: React.FC<
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
+		renderDefaults.publicLicenseKey,
 	]);
 
 	useEffect(() => {
@@ -1252,6 +1338,7 @@ const RenderModal: React.FC<
 			offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			beepOnFinish,
 			repro,
 			metadata,
@@ -1288,6 +1375,7 @@ const RenderModal: React.FC<
 		jpegQuality,
 		logLevel,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		metadata,
 		multiProcessOnLinux,
 		muted,
@@ -1577,6 +1665,7 @@ const RenderModal: React.FC<
 							jpegQuality={jpegQuality}
 							setJpegQuality={setJpegQuality}
 							videoImageFormat={videoImageFormat}
+							usesSharedMemoryCapture={usesSharedMemoryCapture}
 							stillImageFormat={stillImageFormat}
 							compositionWidth={resolvedComposition.width}
 							compositionHeight={resolvedComposition.height}
@@ -1669,6 +1758,8 @@ const RenderModal: React.FC<
 						/>
 					) : (
 						<RenderModalAdvanced
+							preferredEffectBackend={preferredEffectBackend}
+							setPreferredEffectBackend={setPreferredEffectBackend}
 							concurrency={concurrency}
 							maxConcurrency={maxConcurrency}
 							minConcurrency={minConcurrency}

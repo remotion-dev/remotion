@@ -35,7 +35,7 @@ import type {MaxCanvasSinkFrameSize} from './video/props';
 export type MediaPlayerInitResult =
 	| {type: 'success'; durationInSeconds: number}
 	| {type: 'unknown-container-format'; error: Error}
-	| {type: 'cannot-decode'}
+	| {type: 'cannot-decode'; error: Error}
 	| {type: 'cannot-decode-prores'}
 	| {type: 'network-error'; error: Error}
 	| {type: 'no-tracks'}
@@ -67,6 +67,8 @@ export class MediaPlayer {
 	private sharedAudioContext: SharedAudioContextForMediaPlayer | null;
 
 	audioIteratorManager: AudioIteratorManager | null = null;
+	private muted = false;
+	private unsupportedAudioError: Error | null = null;
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
@@ -250,6 +252,7 @@ export class MediaPlayer {
 		initialMuted: boolean,
 		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
+		this.muted = initialMuted;
 		const promise = this._initialize(
 			startTimeUnresolved,
 			initialMuted,
@@ -370,7 +373,12 @@ export class MediaPlayer {
 						return {type: 'cannot-decode-prores'};
 					}
 
-					return {type: 'cannot-decode'};
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode video track ${videoTrack.id} (${videoTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
@@ -378,6 +386,7 @@ export class MediaPlayer {
 				}
 
 				this.videoIteratorManager = await videoIteratorManager({
+					getIsDisposed: () => this.isDisposalError(),
 					videoTrack,
 					delayPlaybackHandleIfNotPremounting:
 						this.delayPlaybackHandleIfNotPremounting,
@@ -394,6 +403,10 @@ export class MediaPlayer {
 					getEffectChainState: this.getEffectChainState,
 					maxCanvasSinkFrameSize: this.maxCanvasSinkFrameSize,
 				});
+			}
+
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
 			}
 
 			const startTime = this.getTrimmedTime(startTimeUnresolved);
@@ -418,30 +431,44 @@ export class MediaPlayer {
 				}
 
 				const canDecode = await audioTrack.canDecode();
-				if (!canDecode) {
-					return {type: 'cannot-decode'};
+				if (!canDecode && !this.muted) {
+					return {
+						type: 'cannot-decode',
+						error: new Error(
+							`Cannot decode audio track ${audioTrack.id} (${audioTrack.codec ?? 'unknown codec'}) in ${this.src}.`,
+						),
+					};
 				}
 
 				if (this.isDisposalError()) {
 					return {type: 'disposed'};
 				}
 
-				this.audioIteratorManager = audioIteratorManager({
-					audioTrack,
-					delayPlaybackHandleIfNotPremounting:
-						this.delayPlaybackHandleIfNotPremounting,
-					sharedAudioContext: this.sharedAudioContext,
-					getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
-					getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
-					getStartTime: () => this.getStartTime(),
-					initialMuted,
-					initialVolume,
-					toneFrequency: this.toneFrequency,
-					drawDebugOverlay: this.drawDebugOverlay,
-					onError: (error) => this.reportTerminalError(error),
-					getSequenceDurationInSeconds: () =>
-						this.getSequenceDurationInSeconds(),
-				});
+				if (canDecode) {
+					this.audioIteratorManager = audioIteratorManager({
+						audioTrack,
+						delayPlaybackHandleIfNotPremounting:
+							this.delayPlaybackHandleIfNotPremounting,
+						sharedAudioContext: this.sharedAudioContext,
+						getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
+						getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
+						getStartTime: () => this.getStartTime(),
+						getIsPlaying: () => this.playing,
+						initialMuted,
+						initialVolume,
+						toneFrequency: this.toneFrequency,
+						drawDebugOverlay: this.drawDebugOverlay,
+						onError: (error) => this.reportTerminalError(error),
+						getSequenceDurationInSeconds: () =>
+							this.getSequenceDurationInSeconds(),
+					});
+				} else {
+					// Muted video can draw without an audio decoder. Report the
+					// unavailable audio if the caller later requests sound.
+					this.unsupportedAudioError = new Error(
+						`Cannot decode audio for ${this.src}.`,
+					);
+				}
 			}
 
 			const nonce = this.nonceManager.createAsyncOperation();
@@ -480,8 +507,16 @@ export class MediaPlayer {
 				);
 			}
 
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
+			}
+
 			return {type: 'success', durationInSeconds};
 		} catch (error) {
+			if (this.isDisposalError()) {
+				return {type: 'disposed'};
+			}
+
 			const err = error as Error;
 
 			if (isNetworkError(err)) {
@@ -623,6 +658,12 @@ export class MediaPlayer {
 	}
 
 	public setMuted(muted: boolean): void {
+		this.muted = muted;
+		if (!muted && this.unsupportedAudioError) {
+			this.reportTerminalError(this.unsupportedAudioError);
+			return;
+		}
+
 		this.audioIteratorManager?.setMuted(muted);
 	}
 
@@ -759,6 +800,7 @@ export class MediaPlayer {
 		const previousDuration = this.sequenceDurationInFrames;
 		if (previousDuration !== sequenceDurationInFrames) {
 			this.sequenceDurationInFrames = sequenceDurationInFrames;
+			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
@@ -772,25 +814,26 @@ export class MediaPlayer {
 		}
 
 		this.disposed = true;
+		// Cancel pending paints before waiting for initialization to settle.
+		this.nonceManager.createAsyncOperation();
+		this.videoIteratorManager?.destroy();
+		this.audioIteratorManager?.destroyIterator();
+		this.premountAwareDelayPlayback.dispose();
+		// Release before awaiting startup: disposing the last lease cancels a
+		// stalled read, while other players keep their shared Input alive.
+		this.releaseInput();
 
 		if (this.initializationPromise) {
 			try {
-				// wait for the init to finished
-				// otherwise we might get errors like:
-				// Error: Response stream reader stopped unexpectedly before all requested data was read. from UrlSource
+				// Reclaim any manager whose creation was already in flight.
 				await this.initializationPromise;
 			} catch {
 				// Ignore initialization errors during disposal
 			}
 		}
 
-		// Mark all async operations as stale
-		this.nonceManager.createAsyncOperation();
 		this.videoIteratorManager?.destroy();
 		this.audioIteratorManager?.destroyIterator();
-		// Release our reference to the shared Input; it is only disposed once the
-		// last MediaPlayer using this src releases it.
-		this.releaseInput();
 	}
 
 	private getTargetTime = (
@@ -928,7 +971,17 @@ export class MediaPlayer {
 			return;
 		}
 
-		this.audioIteratorManager.destroyIterator();
+		if (
+			this.audioIteratorManager.rescheduleAudio(
+				this.getTrimmedTime(unloopedTimeInSeconds),
+				unloopedTimeInSeconds,
+				this.playbackRate,
+				this.loop,
+			)
+		) {
+			return;
+		}
+
 		// An anchor can change while paused, when no frame update will restart
 		// scheduling. Refill the queue against the new anchor immediately.
 		// Re-anchoring is not navigation. Preserve the captured revision so an

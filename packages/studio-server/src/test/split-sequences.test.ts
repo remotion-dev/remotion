@@ -105,6 +105,8 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 		);
 
 		expect(success.success).toBe(true);
+		expect(readFileSync(entryPoint, 'utf-8')).toContain('<Track name="one">');
+		expect(readFileSync(entryPoint, 'utf-8')).toContain('<Track name="two">');
 		expect(readFileSync(entryPoint, 'utf-8')).toContain(
 			'<AbsoluteFill name="one" from={30} durationInFrames={20} trimBefore={30} />',
 		);
@@ -131,7 +133,7 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 					JSON.stringify(remapping.newNodePath) ===
 						JSON.stringify(originalSolidPath),
 			),
-		).toMatchObject({oldJsxName: null, newJsxName: 'AbsoluteFill'});
+		).toMatchObject({oldJsxName: null, newJsxName: 'Track'});
 		expect(getUndoStack().length).toBe(1);
 
 		const undo = popUndo();
@@ -147,7 +149,7 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 					JSON.stringify(remapping.oldNodePath) ===
 						JSON.stringify(originalSolidPath) && remapping.newNodePath === null,
 			),
-		).toMatchObject({oldJsxName: 'AbsoluteFill', newJsxName: null});
+		).toMatchObject({oldJsxName: 'Track', newJsxName: null});
 
 		const failure = await splitSequencesHandler(
 			getHandlerOptions({

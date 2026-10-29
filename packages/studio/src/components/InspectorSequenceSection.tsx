@@ -21,6 +21,10 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {
+	useRuntimeValue,
+	useRuntimeValueSelector,
+} from '../helpers/use-runtime-values';
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
@@ -33,15 +37,18 @@ import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSection} from './InspectorPanel/common';
+import {CurvesEditor} from './InspectorPanel/CurvesEditor';
 import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
+import {LevelsEditor} from './InspectorPanel/LevelsEditor';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
 	getBorderRadiusConversionChanges,
 } from './Timeline/border-radius-representation';
+import {requestFocusInspectorField} from './Timeline/focus-inspector-field';
 import {getCurrentFps, getCurrentFrame} from './Timeline/imperative-state';
 import {saveSequenceProps} from './Timeline/save-sequence-prop';
 import {
@@ -78,14 +85,6 @@ const container: React.CSSProperties = {
 	flexDirection: 'column',
 	fontFamily: 'Arial, Helvetica, sans-serif',
 	fontSize: 12,
-};
-
-const emptyState: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	lineHeight: 1.4,
-	padding: '0 12px',
 };
 
 const plusIcon: React.CSSProperties = {
@@ -325,14 +324,19 @@ export const InspectorSequenceSection: React.FC<{
 	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
-	const {tree, propStatuses, runtimeValues} = useTimelineExpandedTree({
+	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
 		includeSourceControls: true,
+		includeInspectorOnlyFields: true,
 	});
-	const {inspectorRevealRequest, selectedItems, selectItems} =
-		useTimelineSelection();
+	const {
+		consumeInspectorRevealRequest,
+		inspectorRevealRequest,
+		selectedItems,
+		selectItems,
+	} = useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -384,10 +388,15 @@ export const InspectorSequenceSection: React.FC<{
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectAsset = useSelectAsset();
-	const mediaSrc = getTimelineAssetSrcFromSchema(
-		sequence.controls,
-		runtimeValues,
+	const selectMediaSrc = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			getTimelineAssetSrcFromSchema(sequence.controls, values),
+		[sequence.controls],
 	);
+	const mediaSrc = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectMediaSrc,
+	});
 	const getSourceAction = useCallback(
 		(src: string): InspectorSourceAction | null => {
 			const linkInfo = getTimelineAssetLinkInfo(src);
@@ -615,20 +624,26 @@ export const InspectorSequenceSection: React.FC<{
 		propStatuses,
 		nodePathInfo.sequenceSubscriptionKey,
 	);
-	const automaticallyEnabled3DTransform = useMemo(() => {
-		return [
-			'style.translate',
-			'style.scale',
-			'style.rotate',
-			'style.transformOrigin',
-		].some((fieldKey) =>
-			propStatusHas3DTransformValue({
-				fieldKey,
-				propStatus: sequencePropStatuses?.[fieldKey],
-				runtimeValue: runtimeValues[fieldKey],
-			}),
-		);
-	}, [runtimeValues, sequencePropStatuses]);
+	const selectAutomaticallyEnabled3DTransform = useCallback(
+		(values: Readonly<Record<string, unknown>>) =>
+			[
+				'style.translate',
+				'style.scale',
+				'style.rotate',
+				'style.transformOrigin',
+			].some((fieldKey) =>
+				propStatusHas3DTransformValue({
+					fieldKey,
+					propStatus: sequencePropStatuses?.[fieldKey],
+					runtimeValue: values[fieldKey],
+				}),
+			),
+		[sequencePropStatuses],
+	);
+	const automaticallyEnabled3DTransform = useRuntimeValueSelector({
+		controls: sequence.controls,
+		selector: selectAutomaticallyEnabled3DTransform,
+	});
 	const show3DTransformControls =
 		automaticallyEnabled3DTransform || manuallyEnabled3DTransform;
 	const onToggle3DTransform = useCallback(() => {
@@ -707,6 +722,64 @@ export const InspectorSequenceSection: React.FC<{
 			sectionExpansionOverrides,
 		],
 	);
+	useEffect(() => {
+		if (
+			readOnlyStudio ||
+			!isStudioInteractivityEnabled() ||
+			inspectorRevealRequest?.item.type !== 'sequence-prop' ||
+			inspectorRevealRequest.item.key !== 'children' ||
+			selectedItems.length !== 1 ||
+			getTimelineSelectionKey(selectedItems[0]) !==
+				getTimelineSelectionKey(inspectorRevealRequest.item) ||
+			getTimelineSequenceSelectionKey(
+				inspectorRevealRequest.item.nodePathInfo,
+			) !== sequenceKey
+		) {
+			return;
+		}
+
+		const group = controlGroups.find((candidate) =>
+			candidate.rows.some(
+				({node}) => node.kind === 'field' && node.field?.key === 'children',
+			),
+		);
+		if (!group) {
+			return;
+		}
+
+		if (!isControlGroupExpanded(group)) {
+			const expansionKey = getInspectorSectionExpansionKey({
+				nodePathInfo,
+				sectionId: group.id,
+			});
+			setSectionExpansionOverrides((previous) => {
+				const next = {...previous, [expansionKey]: true};
+				persistInspectorSectionExpansionOverrides(next);
+				return next;
+			});
+			return;
+		}
+
+		// Ref registration happens during commit, including when expanding Text
+		// mounted the textarea. Consume the request so later remounts do not focus it.
+		if (
+			requestFocusInspectorField({
+				fieldKey: 'children',
+				nodePath: nodePathInfo.sequenceSubscriptionKey,
+			})
+		) {
+			consumeInspectorRevealRequest(inspectorRevealRequest.token);
+		}
+	}, [
+		consumeInspectorRevealRequest,
+		controlGroups,
+		inspectorRevealRequest,
+		isControlGroupExpanded,
+		nodePathInfo,
+		readOnlyStudio,
+		selectedItems,
+		sequenceKey,
+	]);
 	const toggleControlGroup = useCallback(
 		(group: InspectorControlGroup) => {
 			const expansionKey = getInspectorSectionExpansionKey({
@@ -748,14 +821,18 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const runtimeCaptions = useRuntimeValue(
+		hasCaptionsSchema ? sequence.controls : null,
+		'captions',
+	);
 	const inlineCaptions = useMemo(
 		() =>
 			hasCaptionsSchema
-				? Array.isArray(runtimeValues.captions)
-					? (runtimeValues.captions as Caption[])
+				? Array.isArray(runtimeCaptions)
+					? (runtimeCaptions as Caption[])
 					: []
 				: null,
-		[hasCaptionsSchema, runtimeValues.captions],
+		[hasCaptionsSchema, runtimeCaptions],
 	);
 	const {
 		getCurrentFrame: getCommittedSequenceFrame,
@@ -1060,13 +1137,7 @@ export const InspectorSequenceSection: React.FC<{
 		!showEffectsSection &&
 		inlineCaptions === null
 	) {
-		return (
-			<div style={container}>
-				<InspectorSection header="Controls">
-					<div style={emptyState}>No schema</div>
-				</InspectorSection>
-			</div>
-		);
+		return null;
 	}
 
 	return (
@@ -1114,7 +1185,50 @@ export const InspectorSequenceSection: React.FC<{
 											key={getInspectorExpansionKey(row.node.nodePathInfo)}
 											ref={selected ? selectedEffectRowRef : null}
 										>
-											{renderRow(row)}
+											{row.node.kind === 'field' &&
+											row.node.field?.kind === 'effect-field' &&
+											row.node.field.key === 'points' &&
+											sequence.effects[row.node.field.effectIndex]?.type ===
+												'remotion/curves' ? (
+												<CurvesEditor
+													multipleInstances={
+														nodePathInfo.numberOfSequencesWithThisNodePath > 1
+													}
+													nodePath={nodePathInfo.sequenceSubscriptionKey}
+													effectIndex={row.node.field.effectIndex}
+													schema={row.node.field.effectSchema}
+													validatedLocation={validatedLocation}
+													runtimeValueStore={
+														sequence.effectRuntimeValues?.[
+															row.node.field.effectIndex
+														] ?? null
+													}
+												/>
+											) : (
+												renderRow(row)
+											)}
+											{row.node.kind === 'field' &&
+											row.node.field?.kind === 'effect-field' &&
+											row.node.field.key === 'channel' &&
+											sequence.effects[row.node.field.effectIndex]?.type ===
+												'remotion/levels' ? (
+												<LevelsEditor
+													multipleInstances={
+														nodePathInfo.numberOfSequencesWithThisNodePath > 1
+													}
+													nodePath={nodePathInfo.sequenceSubscriptionKey}
+													effectIndex={row.node.field.effectIndex}
+													schema={row.node.field.effectSchema}
+													validatedLocation={validatedLocation}
+													runtimeValueStore={
+														sequence.effectRuntimeValues?.[
+															row.node.field.effectIndex
+														] ?? null
+													}
+													keyframeDisplayOffset={keyframeDisplayOffset}
+													keyframePlaybackRate={keyframePlaybackRate}
+												/>
+											) : null}
 										</div>
 									);
 								})}

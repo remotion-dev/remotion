@@ -13,10 +13,10 @@ import {
 	TagResourceCommand,
 	UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
-import type {RequestHandler} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	type AwsRegion,
+	type RequestHandler,
 	type RuntimePreference,
 } from '@remotion/lambda-client';
 import {LOG_GROUP_PREFIX} from '@remotion/lambda-client/constants';
@@ -360,7 +360,7 @@ export const createFunction = async ({
 		);
 	} catch {
 		console.warn(
-			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.',
+			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/permissions for the required permissions.',
 		);
 	}
 

@@ -3,7 +3,7 @@ import type {
 	TransitionPresentationComponentProps,
 } from '@remotion/transitions';
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate} from 'remotion';
+import {Easing, interpolate} from 'remotion';
 
 export type SlabWipeProps = {
 	readonly colors: readonly string[];
@@ -53,9 +53,17 @@ const SlabWipePresentation: React.FC<
 			easing: Easing.in(Easing.cubic),
 		});
 		return (
-			<AbsoluteFill style={{translate: `${axis}${drift}${suffix}`}}>
+			<div
+				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
+					flexDirection: 'column',
+					translate: `${axis}${drift}${suffix}`,
+				}}
+			>
 				{children}
-			</AbsoluteFill>
+			</div>
 		);
 	}
 
@@ -68,15 +76,19 @@ const SlabWipePresentation: React.FC<
 	);
 
 	return (
-		<AbsoluteFill>
-			<AbsoluteFill
+		<>
+			<div
 				style={{
+					position: 'absolute',
+					inset: 0,
+					display: 'flex',
+					flexDirection: 'column',
 					opacity: presentationProgress >= TRAVEL ? 1 : 0,
 					translate: `${axis}${settle}${suffix}`,
 				}}
 			>
 				{children}
-			</AbsoluteFill>
+			</div>
 			{colors.map((color, i) => {
 				const lead = edge(presentationProgress, i * STAGGER);
 				const trail = edge(
@@ -84,16 +96,18 @@ const SlabWipePresentation: React.FC<
 					0.5 + (count - 1 - i) * STAGGER,
 				);
 				return (
-					<AbsoluteFill
+					<div
 						key={`${color}-${i}`}
 						style={{
+							position: 'absolute',
+							inset: 0,
 							backgroundColor: color,
 							clipPath: slabPolygon(lead, trail, direction),
 						}}
 					/>
 				);
 			})}
-		</AbsoluteFill>
+		</>
 	);
 };
 

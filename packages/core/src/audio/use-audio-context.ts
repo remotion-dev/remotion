@@ -1,4 +1,4 @@
-import {useMemo, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import type {LogLevel} from '../log';
 import {Log} from '../log';
 import {useRemotionEnvironment} from '../use-remotion-environment';
@@ -10,6 +10,14 @@ export type RemotionAudioContextState =
 	| AudioContextState
 	| 'running-to-suspended'
 	| 'suspended-to-running';
+
+type OwnedAudioContext = {
+	audioContext: AudioContext;
+	gainNode: GainNode;
+	getState: () => RemotionAudioContextState;
+	resume: () => Promise<void>;
+	suspend: () => Promise<void>;
+};
 
 let warned = false;
 
@@ -49,18 +57,23 @@ export const useSingletonAudioContext = ({
 		);
 	}
 
-	const context = useMemo(() => {
+	const [context, setContext] = useState<OwnedAudioContext | null>(null);
+
+	useEffect(() => {
 		if (env.isRendering) {
-			return null;
+			setContext(null);
+			return;
 		}
 
 		if (!audioEnabled) {
-			return null;
+			setContext(null);
+			return;
 		}
 
 		if (typeof AudioContext === 'undefined') {
 			warnOnce(logLevel);
-			return null;
+			setContext(null);
+			return;
 		}
 
 		const audioContext = new AudioContext({
@@ -80,6 +93,8 @@ export const useSingletonAudioContext = ({
 		// Tracks the state we are transitioning towards while resume()/suspend()
 		// have been called but the native state has not updated yet.
 		let transitionTarget: 'running' | 'suspended' | null = null;
+		let transitionId = 0;
+		let pendingResume: Promise<void> | null = null;
 
 		const getState = (): RemotionAudioContextState => {
 			const nativeState = audioContext.state;
@@ -96,37 +111,56 @@ export const useSingletonAudioContext = ({
 		};
 
 		const resume = () => {
+			const id = ++transitionId;
 			transitionTarget = 'running';
+			// Keep resume synchronous so it retains the browser's user activation.
 			const promise = audioContext.resume();
+			pendingResume = promise;
 
-			promise.finally(() => {
-				if (transitionTarget === 'running') {
+			return promise.finally(() => {
+				if (pendingResume === promise) {
+					pendingResume = null;
+				}
+
+				if (transitionId === id) {
 					transitionTarget = null;
 				}
 			});
-
-			return promise;
 		};
 
 		const suspend = () => {
+			const id = ++transitionId;
 			transitionTarget = 'suspended';
-			const promise = audioContext.suspend();
+			// Chromium can freeze the audio clock if suspend runs before an
+			// in-flight resume settles, while its reported state is still suspended.
+			// A newer playback request must cancel this deferred suspension.
+			const promise = pendingResume
+				? pendingResume
+						.catch(() => {})
+						.then(() => {
+							if (transitionId !== id) {
+								return;
+							}
 
-			promise.finally(() => {
-				if (transitionTarget === 'suspended') {
+							return audioContext.suspend();
+						})
+				: audioContext.suspend();
+
+			return promise.finally(() => {
+				if (transitionId === id) {
 					transitionTarget = null;
 				}
 			});
-
-			return promise;
 		};
 
-		return {
-			audioContext,
-			gainNode,
-			getState,
-			resume,
-			suspend,
+		setContext({audioContext, gainNode, getState, resume, suspend});
+
+		return () => {
+			// Invalidate a suspend waiting on a pending resume before closing.
+			transitionId++;
+			transitionTarget = null;
+			gainNode.disconnect(audioContext.destination);
+			audioContext.close();
 		};
 	}, [logLevel, latencyHint, env.isRendering, audioEnabled, sampleRate]);
 

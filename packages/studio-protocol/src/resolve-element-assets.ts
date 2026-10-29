@@ -9,6 +9,7 @@ export const resolveElementAssets = async ({
 }) => {
 	const resolved: Array<{path: string; contents: Uint8Array}> = [];
 	let totalBytes = 0;
+
 	for (const asset of assets) {
 		const contents =
 			asset.type === 'base64'
@@ -19,7 +20,9 @@ export const resolveElementAssets = async ({
 						url: new URL(asset.url),
 						maxSize: maxElementAssetBytes - totalBytes,
 					});
+
 		totalBytes += contents.byteLength;
+
 		if (totalBytes > maxElementAssetBytes) {
 			throw new Error('Element assets exceed the 50MB aggregate limit');
 		}

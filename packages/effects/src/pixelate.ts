@@ -1,6 +1,13 @@
 import {Internals, type InteractivitySchema} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -72,7 +79,8 @@ uniform vec2 uResolution;
 
 void main() {
     vec2 pixelSizeUv = vec2(uBlockSize) / uResolution;
-    vec2 blockUv = floor(vUv / pixelSizeUv) * pixelSizeUv + pixelSizeUv * 0.5;
+    // Use fragment pixels directly so fractional grid boundaries do not depend on UV interpolation.
+    vec2 blockUv = (floor(gl_FragCoord.xy / uBlockSize) + 0.5) * pixelSizeUv;
     fragColor = texture(uSource, blockUv);
 }
 `;
@@ -179,67 +187,114 @@ const createPixelateState = (gl: WebGL2RenderingContext): PixelateState => {
 	};
 };
 
-export const pixelate = createEffect<PixelateParams, PixelateState>({
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params { resolutionBlockSize: vec4f, }
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let pixelSizeUv = vec2f(params.resolutionBlockSize.z) / params.resolutionBlockSize.xy;
+	// Keep the original grid anchored at the bottom-left corner.
+	let pixel = vec2f(input.position.x, params.resolutionBlockSize.y - input.position.y);
+	let blockUv = (floor(pixel / params.resolutionBlockSize.z) + 0.5) * pixelSizeUv;
+	return textureSampleLevel(source, sourceSampler, vec2f(blockUv.x, 1.0 - blockUv.y), 0);
+}
+`;
+
+export const pixelate = createEffect<PixelateParams>({
 	type: 'dev.remotion.effects.pixelate',
 	label: 'pixelate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pixelate',
-	backend: 'webgl2',
 
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `pixelate-${r.blockSize}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('pixelate effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			PixelateParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'pixelate'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the pixelate effect',
+					);
+				}
 
-		return createPixelateState(gl);
+				const r = resolve(params);
+
+				applyWebGpuSinglePass({
+					source,
+					width,
+					height,
+					state,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([width, height, r.blockSize, 0]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<PixelateParams, PixelateState>(
+			{
+				setup: (target) => {
+					const gl = target.getContext('webgl2', {
+						premultipliedAlpha: true,
+						alpha: true,
+						preserveDrawingBuffer: true,
+					});
+					if (!gl) {
+						throw createWebGL2ContextError('pixelate effect');
+					}
+
+					return createPixelateState(gl);
+				},
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+
+					state.gl.viewport(0, 0, width, height);
+					state.gl.clearColor(0, 0, 0, 0);
+					state.gl.clear(state.gl.COLOR_BUFFER_BIT);
+
+					state.gl.useProgram(state.program);
+					state.gl.bindVertexArray(state.vao);
+					state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
+					state.gl.activeTexture(state.gl.TEXTURE0);
+					state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
+					state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+					state.gl.pixelStorei(state.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+					state.gl.texImage2D(
+						state.gl.TEXTURE_2D,
+						0,
+						state.gl.RGBA,
+						state.gl.RGBA,
+						state.gl.UNSIGNED_BYTE,
+						source as TexImageSource,
+					);
+
+					if (state.uSource) state.gl.uniform1i(state.uSource, 0);
+					if (state.uBlockSize)
+						state.gl.uniform1f(state.uBlockSize, r.blockSize);
+					if (state.uResolution)
+						state.gl.uniform2f(state.uResolution, width, height);
+
+					state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
+					state.gl.bindVertexArray(null);
+					state.gl.bindTexture(state.gl.TEXTURE_2D, null);
+					state.gl.useProgram(null);
+				},
+				cleanup: ({gl, program, vao, vbo, texture}) => {
+					gl.deleteTexture(texture);
+					gl.deleteBuffer(vbo);
+					gl.deleteProgram(program);
+					gl.deleteVertexArray(vao);
+				},
+			},
+		),
 	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-
-		state.gl.viewport(0, 0, width, height);
-		state.gl.clearColor(0, 0, 0, 0);
-		state.gl.clear(state.gl.COLOR_BUFFER_BIT);
-
-		state.gl.useProgram(state.program);
-		state.gl.bindVertexArray(state.vao);
-		state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
-		state.gl.activeTexture(state.gl.TEXTURE0);
-		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
-		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		state.gl.pixelStorei(state.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		state.gl.texImage2D(
-			state.gl.TEXTURE_2D,
-			0,
-			state.gl.RGBA,
-			state.gl.RGBA,
-			state.gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
-
-		if (state.uSource) state.gl.uniform1i(state.uSource, 0);
-		if (state.uBlockSize) state.gl.uniform1f(state.uBlockSize, r.blockSize);
-		if (state.uResolution) state.gl.uniform2f(state.uResolution, width, height);
-
-		state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
-		state.gl.bindVertexArray(null);
-		state.gl.bindTexture(state.gl.TEXTURE_2D, null);
-		state.gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
-	},
-
 	schema: pixelateSchema,
 	validateParams: validatePixelateParams,
 });

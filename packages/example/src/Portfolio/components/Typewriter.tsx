@@ -34,7 +34,7 @@ const TypewriterInner: React.FC<Props> = ({
 	const cursorVisible = isTyping || Math.floor(frame / 8) % 2 === 0;
 
 	return (
-		<Interactive.Span style={{whiteSpace: 'pre', ...style}}>
+		<span style={{whiteSpace: 'pre', ...style}}>
 			{text.slice(0, typed)}
 			<span
 				style={{
@@ -47,12 +47,13 @@ const TypewriterInner: React.FC<Props> = ({
 					opacity: frame >= start && cursorVisible ? 1 : 0,
 				}}
 			/>
-		</Interactive.Span>
+		</span>
 	);
 };
 
 const typewriterSchema = {
-	text: {type: 'text-content', default: '', description: 'Text'},
+	...Interactive.textSchema,
+	text: {type: 'string', default: '', description: 'Text'},
 	start: {
 		type: 'number',
 		default: 0,
@@ -69,9 +70,9 @@ const typewriterSchema = {
 	cursorColor: {type: 'color', default: '#F3EFE6', description: 'Cursor color'},
 } as const satisfies InteractivitySchema;
 
-export const Typewriter = Interactive.withSchema({
+export const Typewriter = Interactive.create({
 	Component: TypewriterInner,
 	componentName: '<Typewriter>',
 	schema: typewriterSchema,
-	wrapInSequence: true,
+	layout: 'none',
 });

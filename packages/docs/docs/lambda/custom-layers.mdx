@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda-custom-layers.png
+image: https://remotion.media/docs/generated/articles-docs-lambda-custom-layers.png
 title: Custom Layers
 slug: custom-layers
 crumb: 'Lambda'
@@ -12,45 +12,48 @@ The Lambda function [includes Chrome and base fonts by default](/docs/lambda/run
 
 In some advanced use cases, you want to replace certain parts of the stack:
 
-- Use another Chrome version (you may need to [build it yourself](https://github.com/remotion-dev/chrome-build-instructions/tree/main))
+- Use another Chrome version (you may need to [build it yourself](https://github.com/remotion-dev/remotion/tree/main/packages/chrome-compile))
 - Replace default fonts or emojis
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
 
-Also consider that the AWS Lambda layers cumulatively may not exceed 250MB extracted, so you need to sacrifice an equal amount of other files.
+[AWS Lambda limits](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html) the combined uncompressed size of the function ZIP and all attached layers to 250 MiB.
 
 If you just want to add fonts, we recommend to use [Web fonts](/docs/fonts) instead.
 
-## Default layers<AvailableFrom v="4.0.205"/>
+## Default layers<AvailableFrom v="4.0.534"/>
 
 Consider using our layer options before creating a custom stack:
 
+The following uncompressed sizes apply to Remotion v4.0.534, which uses Chromium 157.0.8080.0. 1 MiB is 1,048,576 bytes.
+
+For older Remotion versions, see [the archived default-layer documentation from v4.0.533](https://github.com/remotion-dev/remotion/blob/4f5677ad3527d6758ad2fc218249d07a4a583fb9/packages/docs/docs/lambda/custom-layers.mdx#L24-L54).
+
 With the default option (`--runtime-preference=cjk` or no option):
 
-| Item         | Size     |
-| ------------ | -------- |
-| chromium     | 196 MB   |
-| emoji-google | 9.9 MB   |
-| fonts        | 1.9 MB   |
-| cjk          | 16 MB    |
-| **Total**    | 223.8 MB |
+| Item         | Size       |
+| ------------ | ---------- |
+| chromium     | 188.96 MiB |
+| emoji-google | 4.76 MiB   |
+| fonts        | 1.87 MiB   |
+| cjk          | 14.07 MiB  |
+| Total layers | 209.66 MiB |
 
 With the option [`--runtime-preference=apple-emojis`](/docs/lambda/deployfunction#runtimepreference):
 
-| Item        | Size     |
-| ----------- | -------- |
-| chromium    | 196 MB   |
-| emoji-apple | 45 MB    |
-| fonts       | 1.9 MB   |
-| **Total**   | 242.9 MB |
+| Item         | Size       |
+| ------------ | ---------- |
+| chromium     | 188.96 MiB |
+| emoji-apple  | 8.57 MiB   |
+| fonts        | 1.87 MiB   |
+| Total layers | 199.40 MiB |
 
 :::note
-Numbers are currently outdated since the last Chromium update.
+For Remotion v4.0.534, the totals above exclude the function ZIP, which also counts toward the 250 MiB limit. Any custom layers also count toward the same limit.
 :::
 
 :::note
-Note that by enabling the Apple Emojis, to stay under the 250 MB limit, support for CJK (Chinese, Japanese, Korean) characters will be removed.  
-Google Emojis are also removed.
+Enabling Apple Emojis replaces the Google Emoji and CJK (Chinese, Japanese, Korean) layers. Load additional fonts as [Web fonts](/docs/fonts) if you need CJK characters with Apple Emojis.
 :::
 
 ## Ensure Remotion version
@@ -60,24 +63,34 @@ Lambda binaries might change in minor Remotion versions, it is your responsibili
 
 ## Creating a custom binary
 
-Go to the [`remotion-dev/lambda-binaries`](https://github.com/remotion-dev/lambda-binaries) repository and clone it.
+Clone the [`remotion-dev/remotion`](https://github.com/remotion-dev/remotion) repository and use its [`packages/lambda-binaries`](https://github.com/remotion-dev/remotion/tree/main/packages/lambda-binaries) package:
 
-The folders `chromium` and `fonts` contain the binaries for the ARM version. The x64 version has been discontinued.
+```bash title="Prepare the Lambda binaries"
+git clone https://github.com/remotion-dev/remotion.git
+cd remotion
+bun install
+cd packages/lambda-binaries
+bun run download
+```
 
-Put the files that you want in the corresponding folders - for example, add the Apple Emoji Font `AppleColorEmoji.ttf` into the `fonts/.fonts/NotoSans/` folder.
+The download command fetches versioned archives from `remotion.media`, verifies their SHA-256 checksums, and extracts them into `layers/`. Regular dependency installation and builds do not download these binaries. Running the download command again preserves existing layer directories and your changes.
 
-Since the AWS Lambda layers may not exceed 250MB extracted, we need to sacrifice an equal amount of other files - for example by removing `fonts/.fonts/NotoColorEmoji.ttf` and `fonts/.fonts/NotoSansCJKjp-Regular.otf`.
+The `layers/chromium` and `layers/fonts` folders contain the binaries for ARM64. The x64 version has been discontinued. The `layers/emoji-apple`, `layers/emoji-google`, and `layers/cjk` folders contain the optional emoji and CJK layers.
+
+Put the files that you want in the corresponding folders. For example, add custom fonts to `layers/fonts/.fonts/NotoSans/`.
+
+Keep the function ZIP and all layers within the combined 250 MiB uncompressed limit. Remove unneeded files from your custom layers if necessary.
 
 You can see the size of the folders by running:
 
-```bash
-sh size.sh
+```bash title="Check uncompressed layer sizes"
+bun run size
 ```
 
 If you are done with your changes, run:
 
-```bash
-sh make.sh
+```bash title="Package the custom layers"
+bun run zip
 ```
 
 This will zip the layers and put them as artifacts in the `out` directory.

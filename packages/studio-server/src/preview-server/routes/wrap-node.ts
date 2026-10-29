@@ -18,7 +18,7 @@ import {
 } from './source-file-write-queue';
 
 export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
-	input: {fileName, nodePath, wrapper, width, height, timing},
+	input: {fileName, compositionId, nodePath, wrapper, width, height, timing},
 	remotionRoot,
 	logLevel,
 }) => {
@@ -78,11 +78,21 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 
 			const output = change.nextContents;
 			const remappings = result.nodePathRemappings.map(
-				({oldNodePath, newNodePath}) => ({oldNodePath, newNodePath}),
+				({oldNodePath, newNodePath, oldJsxName, newJsxName}) => ({
+					oldNodePath,
+					newNodePath,
+					oldJsxName,
+					newJsxName,
+				}),
 			);
+			const insertedNodePath =
+				remappings.find((remapping) => remapping.oldNodePath === null)
+					?.newNodePath ?? null;
 			const nodePathMutation = broadcastSequenceNodePathMutation(
 				[{absolutePath, remappings}],
-				null,
+				insertedNodePath !== null
+					? {compositionId, absolutePath, nodePath: insertedNodePath}
+					: null,
 			);
 			const line = result.logLine;
 			pushTransactionToUndoStack({

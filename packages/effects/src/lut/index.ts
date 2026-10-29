@@ -19,7 +19,7 @@ LUT_3D_SIZE 2
 
 export const lutSchema = {
 	content: {
-		type: 'text-content',
+		type: 'string',
 		default: DEFAULT_LUT_CONTENT,
 		description: 'Cube LUT content',
 		keyframable: false,

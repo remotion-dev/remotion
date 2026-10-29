@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useLayoutEffect, useRef} from 'react';
 import {
 	AbsoluteFill,
 	Internals,
@@ -132,8 +132,7 @@ const LightLeakCanvas: React.FC<{
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const glRef = useRef<GlContext | null>(null);
 
-	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const [handle] = useState(() => delayRender());
+	const {cancelRender} = useDelayRender();
 
 	const initGl = useCallback(
 		(canvas: HTMLCanvasElement): GlContext | null => {
@@ -173,8 +172,6 @@ const LightLeakCanvas: React.FC<{
 			gl.enableVertexAttribArray(pos);
 			gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
 
-			continueRender(handle);
-
 			return {
 				gl,
 				resLoc: gl.getUniformLocation(program, 'resolution')!,
@@ -185,16 +182,16 @@ const LightLeakCanvas: React.FC<{
 				hueShiftLoc: gl.getUniformLocation(program, 'hueShift')!,
 			};
 		},
-		[continueRender, handle, cancelRender],
+		[cancelRender],
 	);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas || glRef.current) return;
 		glRef.current = initGl(canvas);
 	}, [initGl]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const ctx = glRef.current;
 		if (!ctx) return;
 		const {

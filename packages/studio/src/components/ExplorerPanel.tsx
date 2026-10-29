@@ -40,9 +40,11 @@ const persistSelectedOptionsSidebarPanel = (panel: ExplorerSidebarPanel) => {
 
 export const ExplorerPanel: React.FC<{
 	readOnlyStudio: boolean;
-}> = ({readOnlyStudio}) => {
-	const [panel, setPanel] = useState<ExplorerSidebarPanel>(() =>
-		getSelectedPanel(),
+	initialPanel: ExplorerSidebarPanel | null;
+	onCompositionSelected: (() => void) | null;
+}> = ({readOnlyStudio, initialPanel, onCompositionSelected}) => {
+	const [panel, setPanel] = useState<ExplorerSidebarPanel>(
+		() => initialPanel ?? getSelectedPanel(),
 	);
 	const assetTabFocusTimer = useRef<number | null>(null);
 	const onCompositionsSelected = useCallback(() => {
@@ -126,7 +128,7 @@ export const ExplorerPanel: React.FC<{
 					</Tabs>
 				</div>
 				{panel === 'compositions' ? (
-					<CompositionSelector />
+					<CompositionSelector onCompositionSelected={onCompositionSelected} />
 				) : (
 					<AssetSelector readOnlyStudio={readOnlyStudio} />
 				)}

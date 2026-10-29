@@ -2,8 +2,9 @@ import {createHash} from 'node:crypto';
 import path from 'node:path';
 import ReactDOM from 'react-dom';
 import {NoReactInternals} from 'remotion/no-react';
+import type {BundlerName} from './override-types';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
-import {getWebpackCacheName} from './webpack-cache';
+import {getWebpackCacheDir, getWebpackCacheName} from './webpack-cache';
 
 if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
@@ -59,16 +60,6 @@ export const getResolveConfig = () => ({
 			'index.mjs',
 		),
 
-		...(NoReactInternals.ENABLE_V5_BREAKING_CHANGES
-			? {}
-			: {
-					'@remotion/media-parser/worker': path.resolve(
-						require.resolve('@remotion/media-parser'),
-						'..',
-						'esm',
-						'worker.mjs',
-					),
-				}),
 		// Studio entry points are also passed to the bundler as resolved CJS paths.
 		// Route both those paths and package imports through the same ESM build.
 		...Object.fromEntries(
@@ -118,26 +109,23 @@ export const getOutputConfig = (environment: 'development' | 'production') => ({
 export const getBaseConfig = (
 	environment: 'development' | 'production',
 	poll: number | null,
+	bundler: BundlerName,
 ) => {
 	const isBun = typeof Bun !== 'undefined';
+	const lazyCompilation =
+		isBun || environment === 'production' ? false : {entries: false};
 
 	return {
 		optimization: {
 			minimize: false,
 		},
-		experiments: {
-			lazyCompilation: isBun
-				? false
-				: environment === 'production'
-					? false
-					: {
-							entries: false,
-						},
-		},
+		...(bundler === 'rspack'
+			? {lazyCompilation}
+			: {experiments: {lazyCompilation}}),
 		watchOptions: {
 			poll: poll ?? undefined,
 			aggregateTimeout: 0,
-			ignored: ['**/.git/**', '**/.turbo/**', '**/node_modules/**'],
+			ignored: /(?:^|[\\/])(?:\.git|\.turbo|node_modules)[\\/]/,
 		},
 		// Higher source map quality in development to power line numbers for stack traces
 		devtool:
@@ -165,7 +153,7 @@ export const getSharedModuleRules = () => [
 		type: 'javascript/auto' as const,
 	},
 	{
-		test: /\.(png|svg|jpg|jpeg|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,
+		test: /\.(png|svg|jpg|jpeg|jxl|webp|gif|bmp|webm|mp4|mov|mp3|m4a|wav|aac)$/,
 		type: 'asset/resource' as const,
 	},
 	{
@@ -178,6 +166,7 @@ export const getSharedModuleRules = () => [
 export const computeHashAndFinalConfig = <T extends {output?: any}>(
 	conf: T,
 	options: {
+		bundler: BundlerName;
 		enableCaching: boolean;
 		environment: 'development' | 'production';
 		outDir: string | null;
@@ -193,9 +182,17 @@ export const computeHashAndFinalConfig = <T extends {output?: any}>(
 			...conf,
 			cache: options.enableCaching
 				? {
-						type: 'filesystem',
+						type: options.bundler === 'rspack' ? 'persistent' : 'filesystem',
 						name: getWebpackCacheName(options.environment, hash),
 						version: hash,
+						...(options.bundler === 'rspack'
+							? {
+									storage: {
+										type: 'filesystem',
+										directory: getWebpackCacheDir(options.remotionRoot),
+									},
+								}
+							: {}),
 					}
 				: false,
 			output: {

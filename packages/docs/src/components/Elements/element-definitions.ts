@@ -1,11 +1,11 @@
 import {ding, mouseClick} from '@remotion/sfx';
-import {staticFileRef} from '@remotion/studio-protocol';
 import type {
 	ElementAsset,
 	ElementDependency,
 	ElementInitialProps,
 	ElementInstallationMode,
 } from '@remotion/studio-protocol';
+import {staticFileRef} from '@remotion/studio-protocol';
 import type {ComponentType} from 'react';
 import {MirroredAudioSpectrum} from '../../../elements/audio/mirrored-spectrum/mirrored-spectrum';
 import {AudioOscilloscope} from '../../../elements/audio/oscilloscope/audio-oscilloscope';
@@ -30,6 +30,7 @@ import {roundedCaptionsInitialProps} from '../../../elements/captions/rounded-ca
 import {RoundedCaptions} from '../../../elements/captions/rounded-captions/rounded-captions';
 import {wordHighlightCaptionsInitialProps} from '../../../elements/captions/word-highlight-captions/initial-props';
 import {WordHighlightCaptions} from '../../../elements/captions/word-highlight-captions/word-highlight-captions';
+import {Peel} from '../../../elements/commerce/peel/peel';
 import {ProductCollection} from '../../../elements/commerce/product-collection/product-collection';
 import {ProductDiscountCallout} from '../../../elements/commerce/product-discount-callout/product-discount-callout';
 import {Shine} from '../../../elements/commerce/shine/shine';
@@ -42,6 +43,11 @@ import {VerticalBarChart} from '../../../elements/data/vertical-bar-chart/vertic
 import {PictureInPictureTransition} from '../../../elements/layouts/picture-in-picture-transition/picture-in-picture-transition';
 import {SlideToSplitScreen} from '../../../elements/layouts/slide-to-split-screen/slide-to-split-screen';
 import {MapFlyover} from '../../../elements/maps/map-flyover/a-to-b-map-flyover';
+import {
+	spinningGlobeInitialProps,
+	spinningGlobeTexture,
+} from '../../../elements/maps/spinning-globe/initial-props';
+import {SpinningGlobe} from '../../../elements/maps/spinning-globe/spinning-globe';
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
@@ -52,6 +58,7 @@ import {speedLinesInitialProps} from '../../../elements/storytelling/speed-lines
 import {SpeedLines} from '../../../elements/storytelling/speed-lines/speed-lines';
 import {CircleMarker} from '../../../elements/text/circle-marker/circle-marker';
 import {CrossedOffText} from '../../../elements/text/crossed-off/crossed-off';
+import {CylinderText} from '../../../elements/text/cylinder-text/cylinder-text';
 import {NewsArticleHighlight} from '../../../elements/text/news-article-highlight/news-article-highlight';
 import {SpinningTextWheel} from '../../../elements/text/spinning-text-wheel/spinning-text-wheel';
 import {StrikeThroughText} from '../../../elements/text/strike-through/strike-through';
@@ -601,6 +608,33 @@ const elementImplementations = [
 		width: 1080,
 	},
 	{
+		slug: 'commerce/peel',
+		assets: [],
+		installationProps: null,
+		component: Peel,
+		contributors: [],
+		description: 'Peels any content away with a curled paper edge.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 60,
+		elementHeight: 720,
+		elementWidth: 1280,
+		fps: 30,
+		height: 1080,
+		posterFrame: 24,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/commerce-peel-preview-57fbe8da-01d3-405c-82f9-84707b1ce6fa.png',
+			backgroundTheme: 'light',
+			videoUrl:
+				'https://remotion.media/elements/commerce-peel-preview-57fbe8da-01d3-405c-82f9-84707b1ce6fa.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
 		slug: 'commerce/shine',
 		assets: [],
 		installationProps: null,
@@ -871,6 +905,36 @@ const elementImplementations = [
 		},
 		safeArea: 0,
 		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
+		slug: 'maps/spinning-globe',
+		assets: [spinningGlobeTexture],
+		installationProps: {
+			src: staticFileRef(spinningGlobeTexture.path),
+		} as ElementInitialProps,
+		component: SpinningGlobe,
+		contributors: [],
+		description:
+			'A globe rotating around its vertical axis, with editable speed, longitude, and shading.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 240,
+		elementHeight: 840,
+		elementWidth: 840,
+		fps: 30,
+		height: 1080,
+		posterFrame: 0,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/maps-spinning-globe-preview-074f0f12-5bf4-4357-a622-5afe8a371b5d.png',
+			backgroundTheme: 'light',
+			videoUrl:
+				'https://remotion.media/elements/maps-spinning-globe-preview-074f0f12-5bf4-4357-a622-5afe8a371b5d.mp4',
+		},
+		safeArea: 0,
+		initialProps: spinningGlobeInitialProps,
 		installationMode: 'component-owned-sequence',
 		width: 1920,
 	},
@@ -1159,6 +1223,34 @@ const elementImplementations = [
 		width: 1920,
 	},
 	{
+		slug: 'text/cylinder-text',
+		assets: [],
+		installationProps: null,
+		component: CylinderText,
+		contributors: [],
+		description:
+			'Editable text spinning around a tilted cylinder using WebGPU.',
+		dependencies: [{name: '@remotion/effects', version: null}],
+		durationInFrames: 180,
+		elementHeight: null,
+		elementWidth: null,
+		fps: 30,
+		height: 1080,
+		posterFrame: 30,
+		preview: {
+			previewLayout: 'composition',
+			posterUrl:
+				'https://remotion.media/elements/text-cylinder-text-preview-97956be8-ce8a-4d79-a9aa-f631bbe6dba9.png',
+			backgroundTheme: 'light',
+			videoUrl:
+				'https://remotion.media/elements/text-cylinder-text-preview-97956be8-ce8a-4d79-a9aa-f631bbe6dba9.mp4',
+		},
+		safeArea: 0,
+		initialProps: null,
+		installationMode: 'component-owned-sequence',
+		width: 1920,
+	},
+	{
 		slug: 'text/spinning-text-wheel',
 		assets: [],
 		installationProps: null,
@@ -1353,8 +1445,10 @@ const elementImplementations = [
 })[];
 
 const htmlInCanvasElementSlugs = new Set<ElementSlug>([
+	'commerce/peel',
 	'commerce/shine',
 	'commerce/tear',
+	'text/cylinder-text',
 ]);
 
 export const elementDefinitions = elementImplementations.map((definition) => ({

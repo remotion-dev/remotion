@@ -14,6 +14,10 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {NextFrameToRender} from './next-frame-to-render';
 import type {Pool} from './pool';
+import type {
+	CapturedFrame,
+	RemotionSharedMemoryCapture,
+} from './remotion-shared-memory';
 import {renderFrame} from './render-frame';
 import type {AssetIndex, FrameAndAssets, OnArtifact} from './render-frames';
 import type {BrowserReplacer} from './replace-browser';
@@ -49,6 +53,8 @@ export const renderFrameAndRetryTargetClose = async ({
 	framesRenderedObj,
 	lastFrame,
 	onFrameBuffer,
+	onFrame,
+	remotionSharedMemory,
 	onFrameUpdate,
 	nextFrameToRender,
 	imageSequencePattern,
@@ -89,6 +95,10 @@ export const renderFrameAndRetryTargetClose = async ({
 		| null
 		| ((buffer: Buffer, frame: number) => void | Promise<void>)
 		| undefined;
+	onFrame:
+		| null
+		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
+	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	onFrameUpdate:
 		| null
 		| ((
@@ -110,7 +120,7 @@ export const renderFrameAndRetryTargetClose = async ({
 
 	const freePage = await currentPool.acquire();
 
-	const frame = nextFrameToRender.getNextFrame(freePage.pageIndex);
+	const frame = nextFrameToRender.getNextFrame();
 
 	try {
 		await Promise.race([
@@ -139,11 +149,12 @@ export const renderFrameAndRetryTargetClose = async ({
 				lastFrame,
 				onError,
 				onFrameBuffer,
+				onFrame,
+				remotionSharedMemory,
 				onFrameUpdate,
 				outputDir,
 				stoppedSignal,
 				timeoutInMilliseconds,
-				nextFrameToRender,
 				frame,
 				page: freePage,
 				imageSequencePattern,
@@ -187,7 +198,17 @@ export const renderFrameAndRetryTargetClose = async ({
 
 		if (shouldRetryError) {
 			const pool = await poolPromise;
-			// Replace the closed page
+			// Retire shared-memory pools before closing the timed-out page.
+			await remotionSharedMemory?.forgetPage(freePage);
+			// Close the timed-out page before creating another main tab at index 0.
+			try {
+				await freePage.close();
+			} catch (closeError) {
+				if (!(closeError instanceof Error) || !isTargetClosedErr(closeError)) {
+					throw closeError;
+				}
+			}
+
 			const newPage = await makeNewPage(frame, freePage.pageIndex);
 			pool.release(newPage);
 			Log.warn(
@@ -228,6 +249,8 @@ export const renderFrameAndRetryTargetClose = async ({
 				framesRenderedObj,
 				lastFrame,
 				onFrameBuffer,
+				onFrame,
+				remotionSharedMemory,
 				onFrameUpdate,
 				nextFrameToRender,
 				imageSequencePattern,
@@ -242,6 +265,7 @@ export const renderFrameAndRetryTargetClose = async ({
 			`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 		);
 		// Replace the entire browser
+		await remotionSharedMemory?.forgetAllPages();
 		await browserReplacer.replaceBrowser(makeBrowser, async () => {
 			const pages = new Array(concurrencyOrFramesToRender)
 				.fill(true)
@@ -286,6 +310,8 @@ export const renderFrameAndRetryTargetClose = async ({
 			framesRenderedObj,
 			lastFrame,
 			onFrameBuffer,
+			onFrame,
+			remotionSharedMemory,
 			onFrameUpdate,
 			nextFrameToRender,
 			imageSequencePattern,

@@ -1,4 +1,3 @@
-// organize-imports-ignore
 // React DOM and Testing Library inspect the DOM when they are imported.
 import './runtime-dom.js';
 import {afterEach, expect, test} from 'bun:test';

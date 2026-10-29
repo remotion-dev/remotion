@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-effects-contrast.png
+image: https://remotion.media/docs/generated/articles-docs-effects-contrast.png
 slug: /effects/contrast
 title: contrast()
 sidebar_label: contrast()
@@ -57,6 +57,14 @@ If you stack color-correction effects, a common order is:
 `brightness()` → `contrast()` → `saturation()` → `hue()`
 
 `brightness()` and `contrast()` are not commutative – swapping their order changes the result, because contrast scales around the mid-gray point (`128`) of the current layer.
+
+## Implementations
+
+- Canvas 2D
+- WebGL2 <AvailableFrom v="4.0.540" />
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

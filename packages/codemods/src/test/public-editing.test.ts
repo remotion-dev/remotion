@@ -471,9 +471,9 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 	const second = await addEffect({
 		project: afterFirst,
 		node: first.insertedEffect,
-		importName: 'brightness',
-		importPath: '@remotion/effects/brightness',
-		props: {amount: 1},
+		importName: 'tint',
+		importPath: '@remotion/effects/tint',
+		props: {color: 'red', opacity: 1},
 	});
 	const afterSecond = applyCodemodChanges(afterFirst, second.changes);
 	const duplicate = await duplicateEffects({
@@ -493,15 +493,44 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 	const edited = await updateEffectProps({
 		project: afterReorder,
 		effect: reordered.updatedEffect,
-		props: {amount: 2},
+		updates: [
+			{key: 'opacity', value: 0.5, defaultValue: 1},
+			{key: 'color', value: 'blue', defaultValue: 'black'},
+			{key: 'opacity', value: 0.75, defaultValue: 1},
+		],
 	});
+	expect(
+		edited.results.map(({oldValueString, newValueString}) => ({
+			oldValueString,
+			newValueString,
+		})),
+	).toEqual([
+		{oldValueString: '1', newValueString: '0.5'},
+		{oldValueString: "'red'", newValueString: '"blue"'},
+		{oldValueString: '0.5', newValueString: '0.75'},
+	]);
+	for (const [index, result] of edited.results.entries()) {
+		const previousSource =
+			index === 0
+				? afterReorder.files[filePath]
+				: edited.results[index - 1].output;
+		expect(result.logLine).toBe(
+			previousSource.slice(0, previousSource.indexOf('tint(')).split('\n')
+				.length,
+		);
+	}
+
+	expect(edited.results[0].output).toContain('opacity: 0.5');
+	expect(edited.results[1].output).toContain("color: 'blue'");
+	expect(edited.results[2].output).toContain('opacity: 0.75');
+	expect(edited.results[2].output).toBe(getChangedContents(edited, filePath));
 	const afterEdit = applyCodemodChanges(afterReorder, edited.changes);
 	const animated = await updateEffectKeyframes({
 		project: afterEdit,
 		effect: edited.updatedEffect,
 		updates: [
-			{key: 'amount', operation: {type: 'add', frame: 0, value: 1}},
-			{key: 'amount', operation: {type: 'add', frame: 30, value: 2}},
+			{key: 'opacity', operation: {type: 'add', frame: 0, value: 0}},
+			{key: 'opacity', operation: {type: 'add', frame: 30, value: 1}},
 		],
 	});
 	const afterAnimation = applyCodemodChanges(afterEdit, animated.changes);
@@ -509,12 +538,12 @@ test('add, duplicate, reorder, edit, animate, and delete effects', async () => {
 		project: afterAnimation,
 		node: animated.updatedEffect,
 		keys: [],
-		effectKeys: [['amount'], ['radius'], ['radius'], ['amount']],
+		effectKeys: [['opacity'], ['radius'], ['radius'], ['opacity']],
 	}).effects;
 	expect(status[0]).toMatchObject({
 		canUpdate: true,
-		callee: 'brightness',
-		props: {amount: {status: 'keyframed'}},
+		callee: 'tint',
+		props: {opacity: {status: 'keyframed'}},
 	});
 	const deleted = await deleteEffects({
 		project: afterAnimation,

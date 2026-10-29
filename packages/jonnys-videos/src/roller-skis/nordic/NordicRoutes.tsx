@@ -210,14 +210,12 @@ const routePanelSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-const RoutePanel = Interactive.withSchema({
+const RoutePanel = Interactive.create({
 	Component: RoutePanelInner,
-	componentName: '<RoutePanel>',
 	schema: routePanelSchema,
-	wrapInSequence: true,
 });
 
-export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
+const NordicRoutesInner: React.FC<{whiteOverlay?: boolean}> = ({
 	whiteOverlay = false,
 }) => {
 	const frame = useCurrentFrame();
@@ -225,6 +223,7 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 
 	return (
 		<AbsoluteFill
+			showInTimeline={false}
 			style={{
 				backgroundColor: whiteOverlay ? 'transparent' : '#F7F6F2',
 				color: whiteOverlay ? '#FFFFFF' : '#292C29',
@@ -238,7 +237,6 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 		>
 			<Interactive.Div
 				name="Four routes fade"
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					inset: 0,
@@ -259,7 +257,6 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={0}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 100, top: 90}}
 				/>
 				<RoutePanel
@@ -267,7 +264,6 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={1}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 1060, top: 90}}
 				/>
 				<RoutePanel
@@ -275,7 +271,6 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={2}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 100, top: whiteOverlay ? 460 : 610}}
 				/>
 				<RoutePanel
@@ -283,10 +278,14 @@ export const NordicRoutes: React.FC<{whiteOverlay?: boolean}> = ({
 					routeIndex={3}
 					accentColor="#FC4C02"
 					whiteOverlay={whiteOverlay}
-					premountFor={fps}
 					style={{left: 1060, top: whiteOverlay ? 460 : 610}}
 				/>
 			</Interactive.Div>
 		</AbsoluteFill>
 	);
 };
+
+export const NordicRoutes = Interactive.create({
+	Component: NordicRoutesInner,
+	layout: 'absolute-fill',
+});

@@ -1,8 +1,9 @@
 import {Video} from '@remotion/media';
 import React from 'react';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
-export const Clip2: React.FC = () => {
+const Clip2Inner: React.FC = () => {
 	return (
 		<>
 			<Video
@@ -19,3 +20,8 @@ export const Clip2: React.FC = () => {
 		</>
 	);
 };
+
+export const Clip2 = Interactive.create({
+	Component: Clip2Inner,
+	layout: 'absolute-fill',
+});

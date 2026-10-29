@@ -14,12 +14,15 @@ import {getCanvasOutlineNodes} from './outline-nodes';
 
 const rectToPoints = (
 	elementRect: DOMRect,
-	containerRect: DOMRect,
+	contentRoot: HTMLElement,
+	rootRect: DOMRect,
 ): CanvasOutline['points'] => {
-	const left = elementRect.left - containerRect.left;
-	const top = elementRect.top - containerRect.top;
-	const right = elementRect.right - containerRect.left;
-	const bottom = elementRect.bottom - containerRect.top;
+	const scaleX = rootRect.width / contentRoot.offsetWidth;
+	const scaleY = rootRect.height / contentRoot.offsetHeight;
+	const left = (elementRect.left - rootRect.left) / scaleX;
+	const top = (elementRect.top - rootRect.top) / scaleY;
+	const right = (elementRect.right - rootRect.left) / scaleX;
+	const bottom = (elementRect.bottom - rootRect.top) / scaleY;
 
 	return [
 		{x: left, y: top},
@@ -65,22 +68,12 @@ export const getTransformedSvgViewportPoints = ({
 	];
 };
 
-const quadToPoints = (
-	quad: DOMQuad,
-	containerRect: DOMRect,
-): CanvasOutline['points'] => {
-	// `getBoxQuads`/the ponyfill returns the quad in viewport coordinates.
-	// The overlay <svg> is unscaled (the canvas `scale()`/pan live on a sibling
-	// container, not the svg), so 1 user unit == 1 px and we only need to move
-	// the quad into the svg's local space by subtracting its viewport origin.
-	// We deliberately do not pass `relativeTo` to the ponyfill: when the target
-	// is not an ancestor of the element, the polyfill cannot resolve the
-	// coordinate space and leaves the quad in viewport coordinates.
+const quadToPoints = (quad: DOMQuad): CanvasOutline['points'] => {
 	return [
-		{x: quad.p1.x - containerRect.left, y: quad.p1.y - containerRect.top},
-		{x: quad.p2.x - containerRect.left, y: quad.p2.y - containerRect.top},
-		{x: quad.p3.x - containerRect.left, y: quad.p3.y - containerRect.top},
-		{x: quad.p4.x - containerRect.left, y: quad.p4.y - containerRect.top},
+		{x: quad.p1.x, y: quad.p1.y},
+		{x: quad.p2.x, y: quad.p2.y},
+		{x: quad.p3.x, y: quad.p3.y},
+		{x: quad.p4.x, y: quad.p4.y},
 	];
 };
 
@@ -113,7 +106,7 @@ const getSvgSvgElementViewport = (element: SVGSVGElement): SvgViewport => {
 };
 
 /**
- * Maps SVG user units to viewport pixels, including ancestor CSS transforms.
+ * Maps SVG user units to composition pixels, including ancestor CSS transforms.
  *
  * `getScreenCTM()` is the obvious API for this, but WebKit ignores ancestor
  * CSS transforms in it, while Blink/Gecko include them — so a Studio fit-scale
@@ -121,21 +114,17 @@ const getSvgSvgElementViewport = (element: SVGSVGElement): SvgViewport => {
  * we compose two consistent transforms:
  *
  * 1. The polyfill's CSS-transform-aware walk from the root <svg> to the
- *    document element (document coordinates, no viewport scroll — FIX 15).
+ *    composition root.
  * 2. `element.getCTM()`, the pure SVG-internal transform from user units to
  *    the root <svg>'s viewport. Cross-browser consistent, no CSS involved.
  *
- * Finally we mirror `toViewportRelativeDocumentElementQuad`: subtract window
- * scroll to land in viewport coordinates, then subtract the overlay origin
- * (like `quadToPoints` does for HTML quads).
  */
-const getSvgElementScreenMatrix = (
+const getSvgElementCompositionMatrix = (
 	element: SVGGraphicsElement,
+	contentRoot: HTMLElement,
 ): (SvgScreenCtm & {readonly is2D: boolean}) | null => {
 	const ownerSvg = element.ownerSVGElement;
-	const {documentElement} = element.ownerDocument;
-	const win = element.ownerDocument.defaultView;
-	if (!ownerSvg || !documentElement || !win) {
+	if (!ownerSvg) {
 		return null;
 	}
 
@@ -146,7 +135,7 @@ const getSvgElementScreenMatrix = (
 		// coordinates by the path's `getBBox()` origin.
 		walk = getResultingTransformationBetweenElementAndAllAncestors(
 			ownerSvg,
-			documentElement,
+			contentRoot,
 			[],
 		);
 	} catch {
@@ -159,33 +148,15 @@ const getSvgElementScreenMatrix = (
 		return null;
 	}
 
-	const matrix = walk.multiply(ctm);
-	const scrollX = win.scrollX ?? documentElement.scrollLeft ?? 0;
-	const scrollY = win.scrollY ?? documentElement.scrollTop ?? 0;
-
-	return {
-		a: matrix.a,
-		b: matrix.b,
-		c: matrix.c,
-		d: matrix.d,
-		e: matrix.e - scrollX,
-		f: matrix.f - scrollY,
-		is2D: matrix.is2D,
-	};
+	return walk.multiply(ctm);
 };
 
 const getSvgSvgElementOutlinePoints = (
 	element: SVGSVGElement,
-	containerRect: DOMRect,
+	contentRoot: HTMLElement,
 ): CanvasOutline['points'] | null => {
 	const viewport = getSvgSvgElementViewport(element);
 	if (viewport.width === 0 && viewport.height === 0) {
-		return null;
-	}
-
-	const {documentElement} = element.ownerDocument;
-	const win = element.ownerDocument.defaultView;
-	if (!documentElement || !win) {
 		return null;
 	}
 
@@ -195,7 +166,7 @@ const getSvgSvgElementOutlinePoints = (
 		// `getScreenCTM()` in WebKit, which ignores ancestor CSS transforms.
 		walk = getResultingTransformationBetweenElementAndAllAncestors(
 			element,
-			documentElement,
+			contentRoot,
 			[],
 		);
 	} catch {
@@ -209,7 +180,7 @@ const getSvgSvgElementOutlinePoints = (
 
 	// Compose the viewBox→viewport transform manually: root-svg `getCTM()`
 	// semantics are unreliable across browsers, and this keeps the math
-	// dependency-free. `walk` maps viewport px → document coordinates.
+	// dependency-free. `walk` maps viewport px into the chosen coordinate space.
 	const viewBox = element.viewBox.baseVal;
 	const hasViewBox = viewBox.width > 0 && viewBox.height > 0;
 	const viewportWidth = element.width.baseVal.value;
@@ -259,9 +230,6 @@ const getSvgSvgElementOutlinePoints = (
 		translateY -= viewBox.y * scaleY;
 	}
 
-	const scrollX = win.scrollX ?? documentElement.scrollLeft ?? 0;
-	const scrollY = win.scrollY ?? documentElement.scrollTop ?? 0;
-
 	return getTransformedSvgViewportPoints({
 		viewport,
 		ctm: {
@@ -269,10 +237,10 @@ const getSvgSvgElementOutlinePoints = (
 			b: walk.b * scaleX,
 			c: walk.c * scaleY,
 			d: walk.d * scaleY,
-			e: walk.a * translateX + walk.c * translateY + walk.e - scrollX,
-			f: walk.b * translateX + walk.d * translateY + walk.f - scrollY,
+			e: walk.a * translateX + walk.c * translateY + walk.e,
+			f: walk.b * translateX + walk.d * translateY + walk.f,
 		},
-		containerRect,
+		containerRect: {left: 0, top: 0},
 	});
 };
 
@@ -288,25 +256,23 @@ const isSvgPathElement = (element: Element): element is SVGPathElement => {
 
 const getPathOutline = ({
 	element,
-	containerRect,
+	contentRoot,
 }: {
 	readonly element: SVGPathElement;
-	readonly containerRect: DOMRect;
+	readonly contentRoot: HTMLElement;
 }): CanvasOutlinePath | null => {
 	const d = element.getAttribute('d');
 	if (d === null || d === '') {
 		return null;
 	}
 
-	const ctm = getSvgElementScreenMatrix(element);
+	const ctm = getSvgElementCompositionMatrix(element, contentRoot);
 	if (ctm === null || !ctm.is2D) {
 		// In a 3D CSS context no single 2D matrix can place the path; the
 		// polygon outline from `getBoxQuads` still applies.
 		return null;
 	}
 
-	// Shift the translation into the overlay svg's local space, like every
-	// other point source.
 	return {
 		d,
 		matrix: {
@@ -314,8 +280,8 @@ const getPathOutline = ({
 			b: ctm.b,
 			c: ctm.c,
 			d: ctm.d,
-			e: ctm.e - containerRect.left,
-			f: ctm.f - containerRect.top,
+			e: ctm.e,
+			f: ctm.f,
 		},
 	};
 };
@@ -323,25 +289,30 @@ const getPathOutline = ({
 const getElementOutlinePoints = (
 	element: Element,
 	elementRect: DOMRect,
-	containerRect: DOMRect,
+	contentRoot: HTMLElement,
+	rootRect: DOMRect,
 ): CanvasOutline['points'] | null => {
 	if (elementRect.width === 0 && elementRect.height === 0) {
 		return null;
 	}
 
 	if (isSvgSvgElement(element)) {
-		return getSvgSvgElementOutlinePoints(element, containerRect);
+		return getSvgSvgElementOutlinePoints(element, contentRoot);
 	}
 
+	// The composition root is a real ancestor. Measuring relative to it avoids
+	// rounding the host's fractional viewport offsets before normalization.
+	// The sibling overlay cannot be used as `relativeTo` by the ponyfill.
 	const quads = getBoxQuadsPonyfill(element, {
 		box: 'border',
+		relativeTo: contentRoot,
 	});
 	const quad = quads?.[0];
 	if (!quad) {
-		return rectToPoints(elementRect, containerRect);
+		return rectToPoints(elementRect, contentRoot, rootRect);
 	}
 
-	return quadToPoints(quad, containerRect);
+	return quadToPoints(quad);
 };
 
 export const cropCanvasOutlinePoints = (
@@ -370,25 +341,27 @@ export const cropCanvasOutlinePoints = (
 };
 
 /**
- * Measures a batch against an unscaled overlay container. Shared ancestor
- * transforms are cached only within this measurement batch.
+ * Measures a batch in composition pixels at scale 1. Shared ancestor transforms
+ * are cached only within this measurement batch.
  */
 export const measureCanvasOutlineTargets = (
-	container: Element,
+	contentRoot: HTMLElement,
 	targets: readonly CanvasOutlineTarget[],
 ): CanvasOutline[] => {
-	// Reuse shared ancestor geometry within this synchronous batch only.
 	resetBoxQuadsCache();
-	const containerRect = container.getBoundingClientRect();
+	const rootRect = contentRoot.getBoundingClientRect();
 	const outlines: CanvasOutline[] = [];
-	const rects = new Map<Element | Text, DOMRect>();
-	const geometry = new Map<
-		Element,
-		Pick<CanvasOutline, 'dimensions' | 'path'> & {
-			uncroppedPoints: CanvasOutline['points'];
-		}
-	>();
+	if (rootRect.width === 0 || rootRect.height === 0) {
+		return outlines;
+	}
 
+	const geometry = new Map<
+		Element | Text,
+		| (Pick<CanvasOutline, 'dimensions' | 'path'> & {
+				uncroppedPoints: CanvasOutline['points'];
+		  })
+		| null
+	>();
 	for (const target of targets) {
 		const nodes = getCanvasOutlineNodes(target.ref);
 		let left = Infinity;
@@ -397,47 +370,113 @@ export const measureCanvasOutlineTargets = (
 		let bottom = -Infinity;
 		const measurableNodes: (Element | Text)[] = [];
 		for (const node of nodes) {
-			let rect = rects.get(node);
-			if (rect === undefined) {
+			if (!geometry.has(node)) {
 				if (node.nodeType === 3) {
-					const range = node.ownerDocument.createRange();
-					range.selectNodeContents(node);
-					rect = range.getBoundingClientRect();
-				} else {
-					rect = (node as Element).getBoundingClientRect();
-				}
+					const text = node as Text;
+					const quads = getBoxQuadsPonyfill(text, {relativeTo: contentRoot});
+					let textPoints = quads?.flatMap(quadToPoints) ?? [];
+					if (textPoints.length === 0) {
+						const range = text.ownerDocument.createRange();
+						range.selectNodeContents(text);
+						const rect = range.getBoundingClientRect();
+						if (rect.width !== 0 || rect.height !== 0) {
+							textPoints = [...rectToPoints(rect, contentRoot, rootRect)];
+						}
+					}
 
-				rects.set(node, rect);
+					if (textPoints.length === 0) {
+						geometry.set(node, null);
+					} else {
+						const xs = textPoints.map((point) => point.x);
+						const ys = textPoints.map((point) => point.y);
+						const textLeft = Math.min(...xs);
+						const textTop = Math.min(...ys);
+						const textRight = Math.max(...xs);
+						const textBottom = Math.max(...ys);
+						geometry.set(
+							node,
+							textLeft === textRight && textTop === textBottom
+								? null
+								: {
+										dimensions: null,
+										path: null,
+										uncroppedPoints: [
+											{x: textLeft, y: textTop},
+											{x: textRight, y: textTop},
+											{x: textRight, y: textBottom},
+											{x: textLeft, y: textBottom},
+										],
+									},
+						);
+					}
+				} else {
+					const element = node as Element;
+					const uncroppedPoints = getElementOutlinePoints(
+						element,
+						element.getBoundingClientRect(),
+						contentRoot,
+						rootRect,
+					);
+					const ownerHTMLElement =
+						element.ownerDocument.defaultView?.HTMLElement;
+					geometry.set(
+						node,
+						uncroppedPoints === null
+							? null
+							: {
+									dimensions:
+										ownerHTMLElement !== undefined &&
+										element instanceof ownerHTMLElement
+											? {
+													width: element.offsetWidth,
+													height: element.offsetHeight,
+												}
+											: isSvgSvgElement(element)
+												? {
+														width: element.width.baseVal.value,
+														height: element.height.baseVal.value,
+													}
+												: null,
+									path: isSvgPathElement(element)
+										? getPathOutline({element, contentRoot})
+										: null,
+									uncroppedPoints,
+								},
+					);
+				}
 			}
 
-			if (rect.width === 0 && rect.height === 0) {
+			const measured = geometry.get(node);
+			if (!measured) {
 				continue;
 			}
 
 			measurableNodes.push(node);
-			left = Math.min(left, rect.left);
-			top = Math.min(top, rect.top);
-			right = Math.max(right, rect.right);
-			bottom = Math.max(bottom, rect.bottom);
+			for (const point of measured.uncroppedPoints) {
+				left = Math.min(left, point.x);
+				top = Math.min(top, point.y);
+				right = Math.max(right, point.x);
+				bottom = Math.max(bottom, point.y);
+			}
 		}
 
 		if (
 			measurableNodes.length === 0 ||
 			(!target.includeOutsideContainer &&
-				(right <= containerRect.left ||
-					left >= containerRect.right ||
-					bottom <= containerRect.top ||
-					top >= containerRect.bottom))
+				(right <= 0 ||
+					left >= contentRoot.offsetWidth ||
+					bottom <= 0 ||
+					top >= contentRoot.offsetHeight))
 		) {
 			continue;
 		}
 
 		if (measurableNodes.length !== 1 || measurableNodes[0].nodeType !== 1) {
 			const groupPoints: CanvasOutline['points'] = [
-				{x: left - containerRect.left, y: top - containerRect.top},
-				{x: right - containerRect.left, y: top - containerRect.top},
-				{x: right - containerRect.left, y: bottom - containerRect.top},
-				{x: left - containerRect.left, y: bottom - containerRect.top},
+				{x: left, y: top},
+				{x: right, y: top},
+				{x: right, y: bottom},
+				{x: left, y: bottom},
 			];
 			outlines.push({
 				key: target.key,
@@ -449,58 +488,19 @@ export const measureCanvasOutlineTargets = (
 			continue;
 		}
 
-		const element = measurableNodes[0] as Element;
-		const cached = geometry.get(element);
-		if (cached) {
-			outlines.push({
-				...cached,
-				key: target.key,
-				points: cropCanvasOutlinePoints(cached.uncroppedPoints, target.crop),
-			});
-			continue;
+		const elementGeometry = geometry.get(measurableNodes[0]);
+		if (!elementGeometry) {
+			throw new Error('Expected measured outline geometry');
 		}
 
-		const elementRect = rects.get(element);
-		if (elementRect === undefined) {
-			throw new Error('Expected a measured outline element');
-		}
-
-		const uncroppedPoints = getElementOutlinePoints(
-			element,
-			elementRect,
-			containerRect,
-		);
-		if (uncroppedPoints === null) {
-			continue;
-		}
-
-		const points = cropCanvasOutlinePoints(uncroppedPoints, target.crop);
-		const ownerHTMLElement = element.ownerDocument.defaultView?.HTMLElement;
-
-		const path = isSvgPathElement(element)
-			? getPathOutline({element, containerRect})
-			: null;
-
-		const measured = {
-			dimensions:
-				(typeof HTMLElement !== 'undefined' &&
-					element instanceof HTMLElement) ||
-				(ownerHTMLElement !== undefined && element instanceof ownerHTMLElement)
-					? {
-							width: element.offsetWidth,
-							height: element.offsetHeight,
-						}
-					: isSvgSvgElement(element)
-						? {
-								width: element.width.baseVal.value,
-								height: element.height.baseVal.value,
-							}
-						: null,
-			uncroppedPoints,
-			path,
-		};
-		geometry.set(element, measured);
-		outlines.push({...measured, key: target.key, points});
+		outlines.push({
+			...elementGeometry,
+			key: target.key,
+			points: cropCanvasOutlinePoints(
+				elementGeometry.uncroppedPoints,
+				target.crop,
+			),
+		});
 	}
 
 	return outlines;

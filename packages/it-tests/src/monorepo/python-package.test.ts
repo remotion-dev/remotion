@@ -62,6 +62,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 	);
 	const nativeVersion =
 		await LambdaClientInternals.makeLambdaRenderMediaPayload({
+			output: {type: 'media'},
 			enableCancellation: false,
 			requestHandler: null,
 			region: 'us-east-1',
@@ -102,6 +103,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			offthreadVideoCacheSizeInBytes: null,
 			offthreadVideoThreads: null,
 			outName: null,
+			separateAudioTo: null,
 			overwrite: false,
 			pixelFormat: undefined,
 			privacy: 'public',
@@ -121,6 +123,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			},
 			x264Preset: null,
 			gopSize: null,
+			disableSharedMemoryCapture: false,
 			preferLossless: false,
 			indent: false,
 			forcePathStyle: false,
@@ -130,6 +133,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			licenseKey: null,
 			storageClass: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 			sampleRate: 48000,
 		});
@@ -213,6 +217,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 		});
 	const {streamed: _, ...parsedJson} = parsePythonOutput(pythonOutput);

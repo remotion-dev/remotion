@@ -1,5 +1,14 @@
-import {AudioBufferSink} from 'mediabunny';
+import {
+	AudioBufferSink,
+	Input,
+	InputAudioTrack,
+	InputVideoTrack,
+	VideoSampleSink,
+} from 'mediabunny';
+import type {EffectDefinitionAndStack} from 'remotion';
+import {Internals} from 'remotion';
 import {expect, test, vi} from 'vitest';
+import {acquireSharedInput} from '../get-shared-input';
 import {MediaPlayer} from '../media-player';
 import type {SharedAudioContextForMediaPlayer} from '../shared-audio-context-for-media-player';
 
@@ -38,33 +47,54 @@ const makeAudioPlayer = (
 	sharedAudioContext: SharedAudioContextForMediaPlayer | null,
 	onError: ((error: Error) => void) | null = null,
 	tagType: 'audio' | 'video' = 'audio',
+	options:
+		| (Pick<
+				ConstructorParameters<typeof MediaPlayer>[0],
+				'canvas' | 'onVideoFrameCallback' | 'src'
+		  > &
+				Partial<
+					Pick<
+						ConstructorParameters<typeof MediaPlayer>[0],
+						| 'getEffects'
+						| 'getEffectChainState'
+						| 'bufferState'
+						| 'durationInFrames'
+						| 'playbackRate'
+						| 'trimBefore'
+						| 'trimAfter'
+						| 'loop'
+					>
+				>)
+		| null = null,
 ) => {
 	return new MediaPlayer({
-		canvas: null,
-		src: tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4',
+		canvas: options?.canvas ?? null,
+		src:
+			options?.src ??
+			(tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4'),
 		logLevel: 'error',
 		sharedAudioContext,
-		loop: false,
-		trimBefore: undefined,
-		trimAfter: undefined,
-		playbackRate: 1,
+		loop: options?.loop ?? false,
+		trimBefore: options?.trimBefore,
+		trimAfter: options?.trimAfter,
+		playbackRate: options?.playbackRate ?? 1,
 		toneFrequency: 1,
 		globalPlaybackRate: 1,
 		audioStreamIndex: null,
 		fps: 30,
 		debugOverlay: false,
-		bufferState: makeBufferState(),
+		bufferState: options?.bufferState ?? makeBufferState(),
 		isPremounting: false,
 		isPostmounting: false,
-		durationInFrames: 300,
-		onVideoFrameCallback: null,
+		durationInFrames: options?.durationInFrames ?? 300,
+		onVideoFrameCallback: options?.onVideoFrameCallback ?? null,
 		playing: false,
 		sequenceOffset: 0,
 		credentials: undefined,
 		requestInit: undefined,
 		tagType,
-		getEffects: () => [],
-		getEffectChainState: () => null,
+		getEffects: options?.getEffects ?? (() => []),
+		getEffectChainState: options?.getEffectChainState ?? (() => null),
 		maxCanvasSinkFrameSize: null,
 		onError,
 	});
@@ -200,24 +230,49 @@ test('dispose should immediately unblock a pending playback catch-up', async () 
 		onError: null,
 	});
 
-	await player.initialize(0, false, 1);
-	await player.seekTo(0, {revision: 0, playing: true});
-
-	const seekDelayPromise = new Promise<void>((resolve) => {
-		delayPlaybackCalled = resolve;
+	let resume = () => {};
+	const gate = new Promise<void>((resolve) => {
+		resume = resolve;
 	});
+	const {samples} = VideoSampleSink.prototype;
+	const sampleSpy = vi
+		.spyOn(VideoSampleSink.prototype, 'samples')
+		.mockImplementation(function (this: VideoSampleSink, ...args) {
+			const iterator = samples.apply(this, args);
+			const next = iterator.next.bind(iterator);
+			iterator.next = async (...nextArgs) => {
+				const result = await next(...nextArgs);
+				if (!result.done && result.value.timestamp >= 1) await gate;
+				return result;
+			};
 
-	const seekPromise = player.seekTo(9, {revision: 0, playing: true});
+			return iterator;
+		});
+	try {
+		await player.initialize(0, false, 1);
+		await player.seekTo(0, {revision: 0, playing: true});
 
-	await seekDelayPromise;
+		const seekDelayPromise = new Promise<void>((resolve) => {
+			delayPlaybackCalled = resolve;
+		});
 
-	expect(activeBlocks).toBeGreaterThan(0);
+		const seekPromise = player.seekTo(9, {revision: 0, playing: true});
 
-	await player.dispose();
+		await seekDelayPromise;
 
-	expect(activeBlocks).toBe(0);
+		expect(activeBlocks).toBeGreaterThan(0);
 
-	await seekPromise.catch(() => {});
+		await player.dispose();
+
+		expect(activeBlocks).toBe(0);
+
+		resume();
+		await seekPromise.catch(() => {});
+	} finally {
+		resume();
+		sampleSpy.mockRestore();
+		await player.dispose();
+	}
 });
 
 test.each(['video'] as const)(
@@ -325,3 +380,396 @@ test('ignores pending seek failures after disposal and skips new seeks', async (
 	expect(seek).toHaveBeenCalledOnce();
 	player.videoIteratorManager = null;
 });
+
+// A disposed initialization must not repaint a canvas reused by its replacement.
+test.each(['dimensions', 'first frame', 'effect bridge'] as const)(
+	'disposing during %s initialization preserves the replacement picture',
+	async (boundary) => {
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let reached = () => {};
+		const held = new Promise<void>((resolve) => {
+			reached = resolve;
+		});
+		const canvas = document.createElement('canvas');
+		const chainState = Internals.createEffectChainState(1920, 1080);
+		const effects: EffectDefinitionAndStack<unknown>[] = (
+			['webgl2', '2d'] as const
+		).map((backend) => ({
+			memoized: true,
+			effectKey: backend,
+			params: {},
+			definition: {
+				type: backend,
+				label: backend,
+				documentationLink: null,
+				backend,
+				calculateKey: () => backend,
+				schema: {},
+				validateParams: () => {},
+				setup: () => null,
+				cleanup: () => {},
+				apply: ({target, source}) => {
+					if (backend === 'webgl2') {
+						const gl = target.getContext('webgl2')!;
+						gl.clearColor(0, 1, 0, 1);
+						gl.clear(gl.COLOR_BUFFER_BIT);
+					} else {
+						target.getContext('2d')!.drawImage(source, 0, 0);
+					}
+				},
+			},
+		}));
+		const onFrame = vi.fn();
+		const oldPlayer = makeAudioPlayer(null, null, 'video', {
+			canvas,
+			onVideoFrameCallback: onFrame,
+			src: '/bigbuckbunny.mp4',
+			getEffects: () => (boundary === 'effect bridge' ? effects : []),
+			getEffectChainState: () => chainState,
+		});
+		const replacement = makeAudioPlayer(null, null, 'video', {
+			canvas,
+			onVideoFrameCallback: null,
+			src: '/red-heart-1x.webm',
+		});
+		const originalWidth = InputVideoTrack.prototype.getDisplayWidth;
+		const originalSamples = VideoSampleSink.prototype.samples;
+		const originalBitmap = window.createImageBitmap.bind(window);
+		const spy =
+			boundary === 'dimensions'
+				? vi
+						.spyOn(InputVideoTrack.prototype, 'getDisplayWidth')
+						.mockImplementationOnce(async function (this: InputVideoTrack) {
+							const width = await originalWidth.call(this);
+							reached();
+							await gate;
+							return width;
+						})
+				: boundary === 'effect bridge'
+					? vi
+							.spyOn(window, 'createImageBitmap')
+							.mockImplementationOnce(async (...args) => {
+								const bitmap = await originalBitmap(...args);
+								reached();
+								await gate;
+								return bitmap;
+							})
+					: vi
+							.spyOn(VideoSampleSink.prototype, 'samples')
+							.mockImplementationOnce(function (
+								this: VideoSampleSink,
+								...args
+							) {
+								const iterator = originalSamples.apply(this, args);
+								const next = iterator.next.bind(iterator);
+								iterator.next = async (...nextArgs) => {
+									const frame = await next(...nextArgs);
+									reached();
+									await gate;
+									return frame;
+								};
+
+								return iterator;
+							});
+		const initialization = oldPlayer.initialize(1, true, 1);
+		let disposal: Promise<void> | null = null;
+		const picture = async () => {
+			const pixels = canvas
+				.getContext('2d')!
+				.getImageData(0, 0, canvas.width, canvas.height).data;
+			return Array.from(
+				new Uint8Array(await crypto.subtle.digest('SHA-256', pixels)),
+			);
+		};
+
+		try {
+			await held;
+			disposal = oldPlayer.dispose();
+			expect((await replacement.initialize(1, true, 1)).type).toBe('success');
+			expect(
+				replacement.videoIteratorManager!.getFramesRendered(),
+			).toBeGreaterThan(0);
+			const expected = await picture();
+			release();
+			await disposal;
+			expect(await picture()).toEqual(expected);
+			expect(onFrame).not.toHaveBeenCalled();
+			expect((await initialization).type).toBe('disposed');
+		} finally {
+			release();
+			await initialization;
+			await disposal;
+			spy.mockRestore();
+			await oldPlayer.dispose();
+			await replacement.dispose();
+			Internals.cleanupEffectChainState(chainState);
+		}
+	},
+);
+
+test('disposal clears a rendered canvas only once', async () => {
+	const canvas = document.createElement('canvas');
+	const player = makeAudioPlayer(null, null, 'video', {
+		canvas,
+		onVideoFrameCallback: null,
+		src: '/bigbuckbunny.mp4',
+	});
+	try {
+		expect((await player.initialize(1, true, 1)).type).toBe('success');
+		const clear = vi.spyOn(canvas.getContext('2d')!, 'clearRect');
+		try {
+			await player.dispose();
+			expect(clear).toHaveBeenCalledOnce();
+		} finally {
+			clear.mockRestore();
+		}
+	} finally {
+		await player.dispose();
+	}
+});
+
+// Regression: unsupported audio blocked even the muted video surface.
+test('draws muted video with unsupported audio and reports it on unmute', async () => {
+	const support = vi
+		.spyOn(InputAudioTrack.prototype, 'canDecode')
+		.mockResolvedValue(false);
+	const errors: Error[] = [];
+	let frames = 0;
+	const sharedAudioContext = makeSharedAudioContext();
+	const player = makeAudioPlayer(
+		sharedAudioContext,
+		(error) => errors.push(error),
+		'video',
+		{
+			src: '/bigbuckbunny.mp4',
+			canvas: document.createElement('canvas'),
+			onVideoFrameCallback: () => {
+				frames++;
+			},
+		},
+	);
+	try {
+		expect((await player.initialize(0, true, 1)).type).toBe('success');
+		expect(frames).toBeGreaterThan(0);
+		expect(errors).toHaveLength(0);
+		player.setMuted(false);
+		expect(errors).toHaveLength(1);
+		expect(errors[0].message).toContain('Cannot decode audio');
+		player.setMuted(false);
+		expect(errors).toHaveLength(1);
+	} finally {
+		await player.dispose();
+		await sharedAudioContext.audioContext.close();
+		support.mockRestore();
+	}
+});
+
+test.each([
+	{shared: false, boundary: 'format'},
+	{shared: true, boundary: 'format'},
+	{shared: false, boundary: 'tracks'},
+	{shared: true, boundary: 'tracks'},
+])(
+	'disposing during $boundary releases buffering and only its input lease (shared: $shared)',
+	async ({shared, boundary}) => {
+		let release = () => {};
+		const gate = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let reached = () => {};
+		const held = new Promise<void>((resolve) => {
+			reached = resolve;
+		});
+		let activeBlocks = 0;
+		const src = `/voice-note.m4a?dispose-shared=${shared}`;
+		const lease = shared
+			? acquireSharedInput({
+					src,
+					credentials: undefined,
+					requestInit: undefined,
+					logLevel: 'error',
+				})
+			: null;
+		let input: Input | null = null;
+		const {getFormat, getAudioTracks} = Input.prototype;
+		const pause = async (value: Input) => {
+			input = value;
+			reached();
+			await gate;
+		};
+
+		const spy =
+			boundary === 'format'
+				? vi
+						.spyOn(Input.prototype, 'getFormat')
+						.mockImplementationOnce(async function (this: Input) {
+							await pause(this);
+							return getFormat.call(this);
+						})
+				: vi
+						.spyOn(Input.prototype, 'getAudioTracks')
+						.mockImplementationOnce(async function (this: Input) {
+							await pause(this);
+							return getAudioTracks.call(this);
+						});
+		const player = makeAudioPlayer(null, null, 'audio', {
+			canvas: null,
+			onVideoFrameCallback: null,
+			src,
+			bufferState: {
+				delayPlayback: () => {
+					activeBlocks++;
+					let unblocked = false;
+					return {
+						unblock: () => {
+							if (!unblocked) {
+								unblocked = true;
+								activeBlocks--;
+							}
+						},
+					};
+				},
+			},
+		});
+		const initialization = player.initialize(0, true, 1);
+		let disposal: Promise<void> | null = null;
+		try {
+			await held;
+			expect(activeBlocks).toBe(1);
+			disposal = player.dispose();
+			expect(activeBlocks).toBe(0);
+			await Promise.resolve();
+			expect(input!.disposed).toBe(!shared);
+			release();
+			expect((await initialization).type).toBe('disposed');
+			await disposal;
+			if (lease) {
+				expect(await lease.input.getFormat()).not.toBeNull();
+			}
+		} finally {
+			release();
+			await initialization;
+			await disposal;
+			await player.dispose();
+			lease?.release();
+			spy.mockRestore();
+		}
+	},
+);
+
+test.each([
+	{
+		tagType: 'audio' as const,
+		playbackRate: 1,
+		durationInFrames: 6,
+		loop: false,
+		trimAfter: undefined,
+	},
+	{
+		tagType: 'video' as const,
+		playbackRate: 2,
+		durationInFrames: 6,
+		loop: false,
+		trimAfter: undefined,
+	},
+	{
+		tagType: 'audio' as const,
+		playbackRate: 0.5,
+		durationInFrames: 1,
+		loop: false,
+		trimAfter: undefined,
+	},
+	{
+		tagType: 'audio' as const,
+		playbackRate: 1,
+		durationInFrames: 6,
+		loop: false,
+		trimAfter: 33,
+	},
+	{
+		tagType: 'audio' as const,
+		playbackRate: 1,
+		durationInFrames: 6,
+		loop: true,
+		trimAfter: undefined,
+	},
+])(
+	'bounds $tagType audio decoding at $playbackRate×, $durationInFrames frames, loop=$loop, trimAfter=$trimAfter',
+	async (options) => {
+		const shared = makeSharedAudioContext();
+		const player = makeAudioPlayer(shared, null, options.tagType, {
+			...options,
+			canvas: null,
+			onVideoFrameCallback: null,
+			src:
+				options.tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4',
+			trimBefore: 30,
+		});
+		const buffers = vi.spyOn(AudioBufferSink.prototype, 'buffers');
+		try {
+			expect((await player.initialize(0, false, 1)).type).toBe('success');
+			await vi.waitFor(() => expect(buffers).toHaveBeenCalled());
+			const end = buffers.mock.calls[0][1]!;
+			const sequenceEnd =
+				1 + (options.durationInFrames / 30) * options.playbackRate;
+			if (options.loop) {
+				expect(end).toBeGreaterThan(sequenceEnd);
+			} else {
+				expect(end).toBeCloseTo(
+					Math.min(sequenceEnd, (options.trimAfter ?? Infinity) / 30),
+				);
+			}
+
+			await vi.waitFor(() => {
+				const queued = player
+					.audioIteratorManager!.getAudioBufferIterator()!
+					.getQueuedPeriod();
+				expect(queued?.until).toBeCloseTo(Math.min(sequenceEnd, end));
+			});
+		} finally {
+			await player.dispose();
+			await shared.audioContext.close();
+			buffers.mockRestore();
+		}
+	},
+);
+
+test.each(['audio', 'video'] as const)(
+	'reopens capped %s audio after extension, shrink and re-extension',
+	async (tagType) => {
+		const shared = makeSharedAudioContext();
+		const player = makeAudioPlayer(shared, null, tagType, {
+			canvas: null,
+			onVideoFrameCallback: null,
+			src: tagType === 'audio' ? '/voice-note.m4a' : '/bigbuckbunny.mp4',
+			durationInFrames: 6,
+		});
+		try {
+			expect((await player.initialize(0, false, 1)).type).toBe('success');
+			await vi.waitFor(() =>
+				expect(
+					player
+						.audioIteratorManager!.getAudioBufferIterator()!
+						.getQueuedPeriod()?.until,
+				).toBeCloseTo(0.2),
+			);
+			player.play();
+			for (const duration of [15, 6, 15]) {
+				await player.setSequenceDurationInFrames(duration, 0.1);
+				await vi.waitFor(() => {
+					const queued = player
+						.audioIteratorManager!.getAudioBufferIterator()!
+						.getQueuedPeriod();
+					expect(queued?.from).toBeLessThanOrEqual(0.1);
+					expect(queued?.until).toBeCloseTo(duration / 30);
+				});
+			}
+		} finally {
+			await player.dispose();
+			await shared.audioContext.close();
+		}
+	},
+);

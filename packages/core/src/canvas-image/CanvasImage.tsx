@@ -1,6 +1,5 @@
 import {
 	forwardRef,
-	useCallback,
 	useContext,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -10,7 +9,7 @@ import {
 } from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {SequenceControls} from '../CompositionManager.js';
-import type {EffectsProp} from '../effects/effect-types.js';
+import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
 import {runEffectChain} from '../effects/run-effect-chain.js';
 import {useEffectChainState} from '../effects/use-effect-chain-state.js';
 import {
@@ -31,6 +30,7 @@ import {
 } from '../interactivity-schema.js';
 import {usePreload} from '../prefetch.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {truncateSrcForLabel} from '../truncate-src-for-label.js';
@@ -77,6 +77,42 @@ type LoadedImage = {
 type PendingLoadDelay = {
 	readonly handle: number;
 	continued: boolean;
+};
+
+const continueImageLoadDelay = (
+	pendingLoadDelayRef: React.MutableRefObject<PendingLoadDelay | null>,
+	setIsLoadPending: React.Dispatch<React.SetStateAction<boolean>>,
+	continueRender: ReturnType<typeof useDelayRender>['continueRender'],
+	{markAsReady}: {readonly markAsReady: boolean},
+) => {
+	const pending = pendingLoadDelayRef.current;
+	if (!pending || pending.continued) {
+		return;
+	}
+
+	pending.continued = true;
+	if (markAsReady) {
+		setIsLoadPending(false);
+	}
+
+	continueRender(pending.handle);
+	pendingLoadDelayRef.current = null;
+};
+
+const setCanvasRef = (
+	setOutputCanvas: React.Dispatch<
+		React.SetStateAction<HTMLCanvasElement | null>
+	>,
+	ref: React.ForwardedRef<HTMLCanvasElement>,
+	canvas: HTMLCanvasElement | null,
+) => {
+	setOutputCanvas(canvas);
+
+	if (typeof ref === 'function') {
+		ref(canvas);
+	} else if (ref) {
+		ref.current = canvas;
+	}
 };
 
 const makeAbortError = () => {
@@ -162,7 +198,7 @@ const loadImage = ({
 			return;
 		}
 
-		image.crossOrigin = crossOrigin ?? 'anonymous';
+		image.crossOrigin = crossOrigin || 'anonymous';
 		image.src = src;
 	});
 };
@@ -202,6 +238,7 @@ type CanvasImageContentProps = Pick<
 	| 'width'
 > & {
 	readonly effects: EffectsProp;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 	readonly controls: SequenceControls | undefined;
 } & CanvasImageCanvasProps;
 
@@ -217,6 +254,7 @@ const CanvasImageContent = forwardRef<
 			height,
 			fit = 'fill',
 			effects,
+			effectsOutputSize,
 			controls,
 			onError,
 			className,
@@ -237,7 +275,7 @@ const CanvasImageContent = forwardRef<
 		);
 		const [loadedImage, setLoadedImage] = useState<LoadedImage | null>(null);
 		const actualSrc = usePreload(src);
-		const chainState = useEffectChainState();
+		const chainState = useEffectChainState(effectsOutputSize);
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
@@ -249,21 +287,15 @@ const CanvasImageContent = forwardRef<
 		const isPremounting = Boolean(sequenceContext?.premounting);
 		const isPostmounting = Boolean(sequenceContext?.postmounting);
 
-		const continuePendingLoadDelay = useCallback(
-			({markAsReady}: {readonly markAsReady: boolean}) => {
-				const pending = pendingLoadDelayRef.current;
-				if (!pending || pending.continued) {
-					return;
-				}
-
-				pending.continued = true;
-				if (markAsReady) {
-					setIsLoadPending(false);
-				}
-
-				continueRender(pending.handle);
-				pendingLoadDelayRef.current = null;
-			},
+		// Bound callbacks keep only these inputs, including after minification.
+		const continuePendingLoadDelay = useMemo(
+			() =>
+				continueImageLoadDelay.bind(
+					null,
+					pendingLoadDelayRef,
+					setIsLoadPending,
+					continueRender,
+				),
 			[continueRender],
 		);
 
@@ -275,16 +307,8 @@ const CanvasImageContent = forwardRef<
 			return document.createElement('canvas');
 		}, []);
 
-		const canvasRef = useCallback(
-			(canvas: HTMLCanvasElement | null) => {
-				setOutputCanvas(canvas);
-
-				if (typeof ref === 'function') {
-					ref(canvas);
-				} else if (ref) {
-					ref.current = canvas;
-				}
-			},
+		const canvasRef = useMemo(
+			() => setCanvasRef.bind(null, setOutputCanvas, ref),
 			[ref],
 		);
 
@@ -528,6 +552,7 @@ const CanvasImageInner = forwardRef<
 			height,
 			fit,
 			effects = [],
+			effectsOutputSize,
 			className,
 			style,
 			id,
@@ -567,6 +592,7 @@ const CanvasImageInner = forwardRef<
 			() => ({
 				type: 'image' as const,
 				src,
+				animated: null,
 			}),
 			[src],
 		);
@@ -635,25 +661,30 @@ const CanvasImageInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					<CanvasImageContent
-						ref={actualRef}
-						src={src}
-						crossOrigin={crossOrigin}
-						width={width}
-						height={height}
-						fit={fit}
-						effects={effects}
-						controls={controls}
-						className={className}
-						style={croppedStyle ?? undefined}
-						id={id}
-						onError={onError}
-						pauseWhenLoading={pauseWhenLoading}
-						maxRetries={maxRetries}
-						delayRenderRetries={delayRenderRetries}
-						delayRenderTimeoutInMilliseconds={delayRenderTimeoutInMilliseconds}
-						{...canvasProps}
-					/>
+					<SequenceContent>
+						<CanvasImageContent
+							ref={actualRef}
+							src={src}
+							crossOrigin={crossOrigin}
+							width={width}
+							height={height}
+							fit={fit}
+							effects={effects}
+							effectsOutputSize={effectsOutputSize ?? null}
+							controls={controls}
+							className={className}
+							style={croppedStyle ?? undefined}
+							id={id}
+							onError={onError}
+							pauseWhenLoading={pauseWhenLoading}
+							maxRetries={maxRetries}
+							delayRenderRetries={delayRenderRetries}
+							delayRenderTimeoutInMilliseconds={
+								delayRenderTimeoutInMilliseconds
+							}
+							{...canvasProps}
+						/>
+					</SequenceContent>
 				</Sequence>
 			</Freeze>
 		);

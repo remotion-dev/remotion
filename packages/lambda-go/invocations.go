@@ -9,7 +9,18 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/lambda"
 )
 
-func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error) {
+func invokeRenderLambda(options RemotionOptions, sequenceOptions *RenderFramesOptions) (*RemotionRenderResponse, error) {
+	if sequenceOptions != nil {
+		if options.ImageFormat == "" {
+			options.ImageFormat = "png"
+		}
+		if options.ImageFormat != "png" && options.ImageFormat != "jpeg" {
+			return nil, fmt.Errorf("imageFormat must be \"png\" or \"jpeg\"")
+		}
+		if sequenceOptions.JpegQuality != nil && options.ImageFormat != "jpeg" {
+			return nil, fmt.Errorf("jpegQuality can only be passed with imageFormat: \"jpeg\"")
+		}
+	}
 
 	awsConfig, configError := awsconfig.LoadDefaultConfig(
 		context.Background(),
@@ -24,6 +35,33 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 
 	if validateError != nil {
 		return nil, validateError
+	}
+
+	if sequenceOptions != nil {
+		var pattern interface{}
+		if sequenceOptions.ImageSequencePattern != "" {
+			pattern = sequenceOptions.ImageSequencePattern
+		}
+		internalParams.Output = map[string]interface{}{
+			"type":                 "sequence",
+			"outputPrefix":         sequenceOptions.OutputPrefix,
+			"imageSequencePattern": pattern,
+		}
+		internalParams.Codec = nil
+		internalParams.Muted = true
+		internalParams.FramesPerLambda = sequenceOptions.FramesPerLambda
+		if sequenceOptions.MaxRetries != nil {
+			internalParams.MaxRetries = *sequenceOptions.MaxRetries
+		}
+		if sequenceOptions.JpegQuality != nil {
+			internalParams.JpegQuality = *sequenceOptions.JpegQuality
+		}
+		if sequenceOptions.Scale != 0 {
+			internalParams.Scale = sequenceOptions.Scale
+		}
+		if sequenceOptions.ForceBucketName != "" {
+			internalParams.BucketName = sequenceOptions.ForceBucketName
+		}
 	}
 
 	internalParamJsonObject, marshallingError := json.Marshal(internalParams)

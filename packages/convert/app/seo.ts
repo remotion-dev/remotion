@@ -157,39 +157,39 @@ export const getHeaderTitle = (routeAction: RouteAction) => {
 
 export const getPageTitle = (routeAction: RouteAction) => {
 	if (routeAction.type === 'generic-convert') {
-		return 'Remotion Convert - Fast video conversion in the browser';
+		return 'remotion.dev/convert - Fast video conversion in the browser';
 	}
 
 	if (routeAction.type === 'convert') {
-		return `Online ${renderHumanReadableContainer(routeAction.input)} to ${renderHumanReadableContainer(routeAction.output)} converter - Remotion Convert`;
+		return `Online ${renderHumanReadableContainer(routeAction.input)} to ${renderHumanReadableContainer(routeAction.output)} converter - remotion.dev/convert`;
 	}
 
 	if (routeAction.type === 'generic-probe') {
-		return 'Online Video Metadata Viewer - Remotion Convert';
+		return 'Online Video Metadata Viewer - remotion.dev/convert';
 	}
 
 	if (routeAction.type === 'generic-rotate') {
-		return 'Online Video Rotation - Remotion Convert';
+		return 'Online Video Rotation - remotion.dev/convert';
 	}
 
 	if (routeAction.type === 'generic-mirror') {
-		return 'Online Video Mirrorer - Remotion Convert';
+		return 'Online Video Mirrorer - remotion.dev/convert';
 	}
 
 	if (routeAction.type === 'rotate-format') {
-		return `Online ${renderHumanReadableContainer(routeAction.format)} Rotator - Remotion Convert`;
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Rotator - remotion.dev/convert`;
 	}
 
 	if (routeAction.type === 'mirror-format') {
-		return `Online ${renderHumanReadableContainer(routeAction.format)} Mirrorer - Remotion Convert`;
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Mirrorer - remotion.dev/convert`;
 	}
 
 	if (routeAction.type === 'generic-resize') {
-		return 'Online Video Resizer - Remotion Convert';
+		return 'Online Video Resizer - remotion.dev/convert';
 	}
 
 	if (routeAction.type === 'resize-format') {
-		return `Online ${renderHumanReadableContainer(routeAction.format)} Resizer - Remotion Convert`;
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Resizer - remotion.dev/convert`;
 	}
 
 	if (routeAction.type === 'report') {
@@ -197,7 +197,7 @@ export const getPageTitle = (routeAction: RouteAction) => {
 	}
 
 	if (routeAction.type === 'transcribe') {
-		return `Online Audio and Video Transcriber - Remotion Convert`;
+		return `Online Audio and Video Transcriber - remotion.dev/convert`;
 	}
 
 	if (routeAction.type === 'timing-editor') {
@@ -205,19 +205,19 @@ export const getPageTitle = (routeAction: RouteAction) => {
 	}
 
 	if (routeAction.type === 'generic-crop') {
-		return 'Online Video Cropper - Remotion Convert';
+		return 'Online Video Cropper - remotion.dev/convert';
 	}
 
 	if (routeAction.type === 'crop-format') {
-		return `Online ${renderHumanReadableContainer(routeAction.format)} Cropper - Remotion Convert`;
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Cropper - remotion.dev/convert`;
 	}
 
 	if (routeAction.type === 'generic-trim') {
-		return 'Online Video Trimmer - Remotion Convert';
+		return 'Online Video Trimmer - remotion.dev/convert';
 	}
 
 	if (routeAction.type === 'trim-format') {
-		return `Online ${renderHumanReadableContainer(routeAction.format)} Trimmer - Remotion Convert`;
+		return `Online ${renderHumanReadableContainer(routeAction.format)} Trimmer - remotion.dev/convert`;
 	}
 
 	throw new Error(`Invalid route action ${routeAction satisfies never}`);

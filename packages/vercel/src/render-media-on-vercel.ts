@@ -1,4 +1,5 @@
 import type {Sandbox} from '@vercel/sandbox';
+import type {PreferredEffectBackend} from 'remotion';
 import {REMOTION_SANDBOX_BUNDLE_DIR} from './internals/add-bundle';
 import type {
 	AudioCodec,
@@ -39,9 +40,11 @@ type RenderMediaOnVercelBaseOptions = {
 	preferLossless?: boolean;
 	enforceAudioTrack?: boolean;
 	disallowParallelEncoding?: boolean;
+	disableSharedMemoryCapture?: boolean;
 	concurrency?: number | string | null;
 	metadata?: Record<string, string> | null;
 	licenseKey?: string | null;
+	isProduction?: boolean;
 	videoBitrate?: Bitrate | null;
 	audioBitrate?: Bitrate | null;
 	encodingMaxRate?: Bitrate | null;
@@ -60,6 +63,7 @@ type RenderMediaOnVercelBaseOptions = {
 	hardwareAcceleration?: HardwareAccelerationOption;
 	offthreadVideoCacheSizeInBytes?: number | null;
 	mediaCacheSizeInBytes?: number | null;
+	preferredEffectBackend?: PreferredEffectBackend;
 	offthreadVideoThreads?: number | null;
 	sampleRate?: number;
 	detachedSandboxTimeoutInMilliseconds?: number;
@@ -110,9 +114,11 @@ const internalRenderMediaOnVercel = async (
 		preferLossless = false,
 		enforceAudioTrack = false,
 		disallowParallelEncoding = false,
+		disableSharedMemoryCapture = false,
 		concurrency,
 		metadata,
 		licenseKey,
+		isProduction,
 		videoBitrate,
 		audioBitrate,
 		encodingMaxRate,
@@ -131,6 +137,7 @@ const internalRenderMediaOnVercel = async (
 		hardwareAcceleration = 'disable',
 		offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		offthreadVideoThreads,
 		sampleRate,
 		detached = false,
@@ -164,9 +171,11 @@ const internalRenderMediaOnVercel = async (
 		preferLossless,
 		enforceAudioTrack,
 		disallowParallelEncoding,
+		disableSharedMemoryCapture,
 		concurrency: concurrency ?? null,
 		metadata: metadata ?? null,
 		licenseKey: licenseKey ?? null,
+		isProduction: isProduction ?? null,
 		videoBitrate: videoBitrate ?? null,
 		audioBitrate: audioBitrate ?? null,
 		encodingMaxRate: encodingMaxRate ?? null,
@@ -185,6 +194,7 @@ const internalRenderMediaOnVercel = async (
 		hardwareAcceleration,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		chromeMode: 'headless-shell',
 		browserExecutable: null,

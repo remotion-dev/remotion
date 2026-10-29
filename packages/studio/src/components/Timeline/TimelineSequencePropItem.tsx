@@ -7,9 +7,11 @@ import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {unstable_batchedUpdates} from 'react-dom';
 import type {
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	InteractivitySchema,
+	RuntimeValueStore,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -23,6 +25,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {ContextMenu} from '../ContextMenu';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -58,6 +61,7 @@ import {
 	useTimelineRowSelection,
 } from './TimelineSelection';
 import {Transform3DModeContext} from './Transform3DModeContext';
+import {useClampSequenceTimingValue} from './use-clamp-sequence-timing-value';
 
 const fieldRowBase: React.CSSProperties = {};
 
@@ -82,12 +86,18 @@ const isKeyframedStatus = (
 const isResettableStatus = ({
 	status,
 	defaultValue,
+	fieldKey,
 }: {
 	readonly status: CanUpdateSequencePropStatus;
 	readonly defaultValue: unknown;
+	readonly fieldKey: string;
 }) => {
 	if (defaultValue === undefined) {
-		return false;
+		return (
+			fieldKey === 'premountFor' &&
+			status.status === 'static' &&
+			status.codeValue !== undefined
+		);
 	}
 
 	if (status.status === 'keyframed') {
@@ -109,6 +119,10 @@ const Value: React.FC<{
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
+	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
+	const video = Internals.useVideo();
+	const fps = nodePath.videoConfigValues?.fps ?? video?.fps;
+	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const previewedKeyframes = useRef<
 		ReturnType<typeof getPlaybackRateKeyframeChanges>['previews']
 	>([]);
@@ -228,7 +242,12 @@ const Value: React.FC<{
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
 		propStatus,
 		dragOverrideValue,
-		defaultValue: field.fieldSchema.default,
+		defaultValue:
+			field.key === 'premountFor' &&
+			field.fieldSchema.default === undefined &&
+			fps !== undefined
+				? Math.round(defaultPremountInSeconds * fps)
+				: field.fieldSchema.default,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -241,11 +260,13 @@ const Value: React.FC<{
 
 	const onSave = useCallback<TimelineFieldOnSave>(
 		(value, options) => {
+			value = clampTimingValue(nodePath, field.key, value);
 			if (!clientId) {
 				return Promise.reject(new Error('Not connected to studio server'));
 			}
 
 			const defaultValue =
+				field.fieldSchema.type === 'string' ||
 				field.fieldSchema.type === 'text-content'
 					? null
 					: field.fieldSchema.default !== undefined
@@ -305,6 +326,7 @@ const Value: React.FC<{
 			);
 		},
 		[
+			clampTimingValue,
 			propStatus,
 			clientId,
 			field.description,
@@ -325,6 +347,7 @@ const Value: React.FC<{
 				throw new Error('Cannot drag value');
 			}
 
+			value = clampTimingValue(nodePath, field.key, value);
 			const keyframeChanges = getPlaybackRateChanges(value);
 			unstable_batchedUpdates(() => {
 				for (const preview of previewedKeyframes.current) {
@@ -366,10 +389,12 @@ const Value: React.FC<{
 			nodePath,
 			field.key,
 			getPlaybackRateChanges,
+			clampTimingValue,
 		],
 	);
 
 	const onDragEnd = useCallback(() => {
+		clearTimingLimits();
 		if (nodePath === null) {
 			throw new Error('Cannot clear drag value');
 		}
@@ -384,13 +409,20 @@ const Value: React.FC<{
 		}
 
 		previewedKeyframes.current = [];
-	}, [clearDragOverrides, clearEffectDragOverrides, nodePath]);
+	}, [
+		clearDragOverrides,
+		clearEffectDragOverrides,
+		nodePath,
+		clearTimingLimits,
+	]);
 
 	return (
 		<TimelineFieldValue
 			field={field}
 			propStatus={propStatus}
-			onSave={onSave}
+			onSave={(value, options) =>
+				onSave(value, options).finally(clearTimingLimits)
+			}
 			onDragValueChange={onDragValueChange}
 			onDragEnd={onDragEnd}
 			effectiveValue={effectiveValue}
@@ -588,6 +620,24 @@ export const TimelineSequenceKeyframedValue = React.memo(
 	TimelineSequenceKeyframedValueUnmemoized,
 );
 
+const TimelineComputedSequencePropValue: React.FC<{
+	readonly field: SchemaFieldInfo;
+	readonly propStatus: CanUpdateSequencePropStatusFalse;
+	readonly runtimeValueStore: RuntimeValueStore | null;
+	readonly validatedLocation: CodePosition;
+}> = ({field, propStatus, runtimeValueStore, validatedLocation}) => {
+	const runtimeValue = useRuntimeStoreValue(runtimeValueStore, field.key);
+
+	return (
+		<TimelineNonEditableStatus
+			propStatus={propStatus}
+			field={field}
+			runtimeValue={runtimeValue}
+			validatedLocation={validatedLocation}
+		/>
+	);
+};
+
 export const TimelineSequencePropItem: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
@@ -598,7 +648,7 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
-	readonly runtimeValue: unknown;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	validatedLocation,
@@ -609,7 +659,7 @@ export const TimelineSequencePropItem: React.FC<{
 	keyframeDisplayOffset,
 	keyframePlaybackRate,
 	keyframeControlsMode,
-	runtimeValue,
+	runtimeValueStore,
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
@@ -684,15 +734,17 @@ export const TimelineSequencePropItem: React.FC<{
 		return isResettableStatus({
 			status: propStatus,
 			defaultValue: field.fieldSchema.default,
+			fieldKey: field.key,
 		});
-	}, [propStatus, field.fieldSchema.default]);
+	}, [propStatus, field.fieldSchema.default, field.key]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
 		propStatus.status !== 'computed';
 	const canShowReset =
-		canPerformReset && field.fieldSchema.default !== undefined;
+		canPerformReset &&
+		(field.fieldSchema.default !== undefined || field.key === 'premountFor');
 
 	const onReset = useCallback(() => {
 		if (
@@ -819,10 +871,10 @@ export const TimelineSequencePropItem: React.FC<{
 			propStatus={propStatus}
 		/>
 	) : (
-		<TimelineNonEditableStatus
+		<TimelineComputedSequencePropValue
 			propStatus={propStatus}
 			field={field}
-			runtimeValue={runtimeValue}
+			runtimeValueStore={runtimeValueStore}
 			validatedLocation={validatedLocation}
 		/>
 	);
@@ -855,6 +907,7 @@ export const TimelineSequencePropItem: React.FC<{
 			showSelectedBackground
 			containsSelection={containsSelection}
 			outerHeight={null}
+			showBottomBorder={false}
 		>
 			{hidePathValue ? (
 				<TimelineFieldLabel

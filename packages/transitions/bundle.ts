@@ -8,6 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
 const presentations = [
 	'slide',
 	'flip',
+	'cube',
 	'wipe',
 	'fade',
 	'clock-wipe',
@@ -37,6 +38,7 @@ const output = await build({
 		'remotion',
 		'remotion/no-react',
 		'react',
+		'react-dom',
 		'react/jsx-runtime',
 		'react/jsx-runtime',
 		'react/jsx-dev-runtime',

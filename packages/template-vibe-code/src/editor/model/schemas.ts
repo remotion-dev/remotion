@@ -11,14 +11,6 @@ import type { Layer } from "./layers";
 // schemas composed below from the public `Interactive.*Schema` fragments are
 // the fallback for elements that are not mounted, e.g. while hidden.
 
-const textContentSchema: InteractivitySchema = {
-  children: {
-    type: "text-content",
-    default: "",
-    description: "Text",
-  },
-};
-
 const assetSchema = (
   assetType: "image" | "video" | "audio",
 ): InteractivitySchema => ({
@@ -56,7 +48,7 @@ const htmlElementSchema: InteractivitySchema = {
   ...Interactive.borderSchema,
   ...Interactive.borderRadiusSchema,
   ...Interactive.textSchema,
-  ...textContentSchema,
+  ...Interactive.childrenSchema,
 };
 
 const svgElementSchema: InteractivitySchema = {
@@ -372,6 +364,7 @@ export const getVisibleFields = (
     "transform-origin",
     "scale",
     "color",
+    "string",
     "text-content",
     "font-family",
     "font-weight",

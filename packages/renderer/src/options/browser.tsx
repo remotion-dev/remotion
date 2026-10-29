@@ -4,6 +4,7 @@ const cliFlag = 'browser' as const;
 
 export const browserOption = {
 	name: 'Browser',
+	addedIn: '3.3.79',
 	cliFlag,
 	description: () => (
 		<>
@@ -15,7 +16,7 @@ export const browserOption = {
 		</>
 	),
 	ssrName: null,
-	docLink: 'https://www.remotion.dev/docs/cli/studio#--browser',
+	docLink: 'https://www.remotion.dev/docs/options/browser',
 	getValue: ({commandLine}) => {
 		if (commandLine[cliFlag] !== undefined) {
 			return {

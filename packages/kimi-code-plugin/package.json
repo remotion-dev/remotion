@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/kimi-code-plugin",
-	"version": "4.0.533",
+	"version": "4.0.539",
 	"private": true,
 	"type": "module",
 	"repository": {
@@ -21,7 +21,7 @@
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
-		"@typescript/native-preview": "catalog:"
+		"typescript": "catalog:"
 	},
 	"keywords": [
 		"remotion",

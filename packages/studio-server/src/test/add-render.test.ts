@@ -43,6 +43,7 @@ test('captures the current public license key for Studio renders', async () => {
 		serializedInputPropsWithCustomSchema: '{}',
 		offthreadVideoCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
+		preferredEffectBackend: 'auto' as const,
 		mediaCacheSizeInBytes: null,
 		multiProcessOnLinux: true,
 		beepOnFinish: false,
