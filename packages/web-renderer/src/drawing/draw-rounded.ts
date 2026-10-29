@@ -7,6 +7,7 @@ export const drawRoundedRectPath = ({
 	width,
 	height,
 	borderRadius,
+	appendToPath = false,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	x: number;
@@ -14,8 +15,9 @@ export const drawRoundedRectPath = ({
 	width: number;
 	height: number;
 	borderRadius: BorderRadiusCorners;
+	appendToPath?: boolean;
 }) => {
-	ctx.beginPath();
+	if (!appendToPath) ctx.beginPath();
 
 	// Start from top-left corner, after the radius
 	ctx.moveTo(x + borderRadius.topLeft.horizontal, y);

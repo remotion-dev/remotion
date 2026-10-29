@@ -2,6 +2,7 @@ export interface ShadowBase {
 	offsetX: number;
 	offsetY: number;
 	blurRadius: number;
+	spreadRadius: number;
 	color: string;
 }
 
@@ -25,6 +26,7 @@ export const parseShadowValues = (shadowValue: string): ShadowBase[] => {
 			offsetX: 0,
 			offsetY: 0,
 			blurRadius: 0,
+			spreadRadius: 0,
 			color: 'rgba(0, 0, 0, 0.5)',
 		};
 
@@ -54,6 +56,7 @@ export const parseShadowValues = (shadowValue: string): ShadowBase[] => {
 			}
 		}
 
+		shadow.spreadRadius = values[3] ?? 0;
 		shadows.push(shadow);
 	}
 
