@@ -10,6 +10,7 @@ import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
+import {getPrecomposedLayerGeometry} from './get-precomposed-layer-geometry';
 import {
 	getPrecomposeRectFor3DTransform,
 	handle3dTransform,
@@ -151,49 +152,18 @@ export const processNode = async ({
 
 		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
 
-		// If the layer is only scaled and translated when it is drawn (e.g. an
-		// ancestor has `scale(0.9)`), rasterize it at that scale and align it to
-		// the device pixel grid. Otherwise text would be rasterized at 1x and
-		// resampled, shifting baselines and blurring edges.
-		let layerRect = precomposeRect;
-		let layerScale = scale;
-		let layerPixelWidth: number | null = null;
-		let layerPixelHeight: number | null = null;
-		if (
-			!is3DPrecomposition &&
-			totalMatrix.b === 0 &&
-			totalMatrix.c === 0 &&
-			totalMatrix.a > 0 &&
-			totalMatrix.a === totalMatrix.d
-		) {
-			layerScale = scale * totalMatrix.a;
-			const deviceLeft = Math.floor(
-				scale *
-					(totalMatrix.a * precomposeRect.left + totalMatrix.e - parentRect.x),
-			);
-			const deviceTop = Math.floor(
-				scale *
-					(totalMatrix.d * precomposeRect.top + totalMatrix.f - parentRect.y),
-			);
-			const deviceRight = Math.ceil(
-				scale *
-					(totalMatrix.a * precomposeRect.right + totalMatrix.e - parentRect.x),
-			);
-			const deviceBottom = Math.ceil(
-				scale *
-					(totalMatrix.d * precomposeRect.bottom +
-						totalMatrix.f -
-						parentRect.y),
-			);
-			layerPixelWidth = deviceRight - deviceLeft;
-			layerPixelHeight = deviceBottom - deviceTop;
-			layerRect = new DOMRect(
-				(deviceLeft / scale - totalMatrix.e + parentRect.x) / totalMatrix.a,
-				(deviceTop / scale - totalMatrix.f + parentRect.y) / totalMatrix.d,
-				layerPixelWidth / layerScale,
-				layerPixelHeight / layerScale,
-			);
-		}
+		const {
+			rect: layerRect,
+			scale: layerScale,
+			pixelWidth: layerPixelWidth,
+			pixelHeight: layerPixelHeight,
+		} = getPrecomposedLayerGeometry({
+			precomposeRect,
+			totalMatrix,
+			parentRect,
+			scale,
+			is3DPrecomposition,
+		});
 
 		const tempContext = await createLayer({
 			cutout: layerRect,
