@@ -9,7 +9,14 @@ import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 } from '../validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
 import {FRACTAL_NOISE_FRAGMENT_SHADER} from './shader.js';
+import {FRACTAL_NOISE_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -458,74 +465,125 @@ const setupFractalNoise = (target: HTMLCanvasElement): FractalNoiseState => {
 	};
 };
 
-export const fractalNoise = createEffect<FractalNoiseParams, FractalNoiseState>(
-	{
-		type: 'remotion/fractal-noise',
-		label: 'fractalNoise()',
-		documentationLink: 'https://www.remotion.dev/docs/effects/fractal-noise',
-		backend: 'webgl2',
-		calculateKey: (params) => {
-			const r = resolve(params);
-			return `fractal-noise-${JSON.stringify(r)}`;
-		},
-		setup: (target) => setupFractalNoise(target),
-		apply: ({source, width, height, params, state, flipSourceY}) => {
-			const r = resolve(params);
-			const {gl, program, texture, vao} = state;
-
-			gl.viewport(0, 0, width, height);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.clearColor(0, 0, 0, 0);
-			gl.clear(gl.COLOR_BUFFER_BIT);
-
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				source as TexImageSource,
-			);
-
-			gl.useProgram(program);
-			if (state.uSource) gl.uniform1i(state.uSource, 0);
-			if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-			if (state.uOffset) gl.uniform2f(state.uOffset, r.offsetX, r.offsetY);
-			if (state.uFractalType)
-				gl.uniform1i(state.uFractalType, FRACTAL_TYPES.indexOf(r.fractalType));
-			if (state.uNoiseType)
-				gl.uniform1i(state.uNoiseType, NOISE_TYPES.indexOf(r.noiseType));
-			if (state.uScale) gl.uniform1f(state.uScale, r.scale);
-			if (state.uComplexity) gl.uniform1f(state.uComplexity, r.complexity);
-			if (state.uEvolution) gl.uniform1f(state.uEvolution, r.evolution / 360);
-			if (state.uContrast) gl.uniform1f(state.uContrast, r.contrast);
-			if (state.uBrightness) gl.uniform1f(state.uBrightness, r.brightness);
-			if (state.uSubInfluence)
-				gl.uniform1f(state.uSubInfluence, r.subInfluence);
-			if (state.uSubScaling) gl.uniform1f(state.uSubScaling, r.subScaling);
-			if (state.uCycleEvolution)
-				gl.uniform1i(state.uCycleEvolution, r.cycleEvolution ? 1 : 0);
-			if (state.uCycle) gl.uniform1f(state.uCycle, r.cycle);
-			if (state.uSeed) gl.uniform1ui(state.uSeed, r.seed);
-			if (state.uInvert) gl.uniform1i(state.uInvert, r.invert ? 1 : 0);
-			if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
-
-			gl.bindVertexArray(vao);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			gl.bindVertexArray(null);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.useProgram(null);
-		},
-		cleanup: ({gl, program, vao, vbo, texture}) => {
-			gl.deleteTexture(texture);
-			gl.deleteBuffer(vbo);
-			gl.deleteProgram(program);
-			gl.deleteVertexArray(vao);
-		},
-		schema: fractalNoiseSchema,
-		validateParams: validateFractalNoiseParams,
+export const fractalNoise = createEffect<FractalNoiseParams>({
+	type: 'remotion/fractal-noise',
+	label: 'fractalNoise()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/fractal-noise',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		return `fractal-noise-${JSON.stringify(r)}`;
 	},
-);
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			FractalNoiseParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'index'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the index effect');
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.offsetX,
+					r.offsetY,
+					r.scale,
+					r.complexity,
+					r.evolution / 360,
+					r.subInfluence,
+					r.subScaling,
+					r.contrast,
+					r.brightness,
+					r.amount,
+					r.cycle,
+					0,
+					FRACTAL_TYPES.indexOf(r.fractalType),
+					NOISE_TYPES.indexOf(r.noiseType),
+					r.invert ? 1 : 0,
+					r.cycleEvolution ? 1 : 0,
+					0,
+					0,
+				]);
+				new Uint32Array(uniformData.buffer)[13] = r.seed;
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: FRACTAL_NOISE_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			FractalNoiseParams,
+			FractalNoiseState
+		>({
+			setup: (target) => setupFractalNoise(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, texture, vao} = state;
+
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				gl.useProgram(program);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uOffset) gl.uniform2f(state.uOffset, r.offsetX, r.offsetY);
+				if (state.uFractalType)
+					gl.uniform1i(
+						state.uFractalType,
+						FRACTAL_TYPES.indexOf(r.fractalType),
+					);
+				if (state.uNoiseType)
+					gl.uniform1i(state.uNoiseType, NOISE_TYPES.indexOf(r.noiseType));
+				if (state.uScale) gl.uniform1f(state.uScale, r.scale);
+				if (state.uComplexity) gl.uniform1f(state.uComplexity, r.complexity);
+				if (state.uEvolution) gl.uniform1f(state.uEvolution, r.evolution / 360);
+				if (state.uContrast) gl.uniform1f(state.uContrast, r.contrast);
+				if (state.uBrightness) gl.uniform1f(state.uBrightness, r.brightness);
+				if (state.uSubInfluence)
+					gl.uniform1f(state.uSubInfluence, r.subInfluence);
+				if (state.uSubScaling) gl.uniform1f(state.uSubScaling, r.subScaling);
+				if (state.uCycleEvolution)
+					gl.uniform1i(state.uCycleEvolution, r.cycleEvolution ? 1 : 0);
+				if (state.uCycle) gl.uniform1f(state.uCycle, r.cycle);
+				if (state.uSeed) gl.uniform1ui(state.uSeed, r.seed);
+				if (state.uInvert) gl.uniform1i(state.uInvert, r.invert ? 1 : 0);
+				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+	},
+	schema: fractalNoiseSchema,
+	validateParams: validateFractalNoiseParams,
+});

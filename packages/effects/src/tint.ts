@@ -1,7 +1,10 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {createColorMatrixImplementations} from './color-matrix-runtime.js';
 import {
 	assertOptionalFiniteNumber,
+	parseColorRgba,
+	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
 import {
@@ -55,46 +58,89 @@ const validateTintParams = (params: TintParams): void => {
 	}
 };
 
-// Tints the source with a flat color. `amount` controls the blend strength
-// (0 = no tint, 1 = full color over opaque pixels). Operates on the 2D
-// backend; tinting respects the source's alpha mask.
-export const tint = createEffect<TintParams, null>({
+// Cache parsed CSS colors for the shader implementations.
+let colorContext: CanvasRenderingContext2D | null = null;
+let cachedColor: {key: string; value: ParsedColorRgba} | null = null;
+const shaderImplementations = createColorMatrixImplementations<TintParams>(
+	'tint',
+	(params) => {
+		if (!colorContext) {
+			const colorCanvas = document.createElement('canvas');
+			colorCanvas.width = 1;
+			colorCanvas.height = 1;
+			colorContext = colorCanvas.getContext('2d', {willReadFrequently: true});
+			if (!colorContext)
+				throw new Error('Failed to acquire 2D context for color parsing');
+		}
+
+		if (cachedColor?.key !== params.color)
+			cachedColor = {
+				key: params.color,
+				value: parseColorRgba(colorContext, params.color),
+			};
+		const color = cachedColor.value;
+		const amount = ((params.amount ?? DEFAULT_AMOUNT) * color[3]) / 255;
+		return new Float32Array([
+			1 - amount,
+			0,
+			0,
+			(color[0] / 255) * amount,
+			0,
+			1 - amount,
+			0,
+			(color[1] / 255) * amount,
+			0,
+			0,
+			1 - amount,
+			(color[2] / 255) * amount,
+			0,
+			0,
+			0,
+			0,
+		]);
+	},
+);
+export const tint = createEffect<TintParams>({
 	type: 'dev.remotion.effects.tint',
 	label: 'tint()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/tint',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `tint-${r.color}-${r.amount}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for tint effect. The canvas may have been assigned a different context type.',
-			);
-		}
+	implementations: {
+		...shaderImplementations,
+		'2d': Internals.createEffectImplementation<TintParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const ctx = target.getContext('2d');
+				if (!ctx) {
+					throw new Error(
+						'Failed to acquire 2D context for tint effect. The canvas may have been assigned a different context type.',
+					);
+				}
 
-		const r = resolve(params);
-		const amount = Math.max(0, Math.min(1, r.amount));
+				const r = resolve(params);
+				const amount = Math.max(0, Math.min(1, r.amount));
 
-		ctx.clearRect(0, 0, width, height);
-		ctx.globalAlpha = 1;
-		ctx.globalCompositeOperation = 'source-over';
-		ctx.drawImage(source, 0, 0, width, height);
+				ctx.clearRect(0, 0, width, height);
+				ctx.globalAlpha = 1;
+				ctx.globalCompositeOperation = 'source-over';
+				ctx.drawImage(source, 0, 0, width, height);
 
-		// `source-atop` only paints inside non-transparent regions of the source,
-		// so the tint respects the source's alpha mask.
-		ctx.globalAlpha = amount;
-		ctx.globalCompositeOperation = 'source-atop';
-		ctx.fillStyle = r.color;
-		ctx.fillRect(0, 0, width, height);
+				// `source-atop` only paints inside non-transparent regions of the source,
+				// so the tint respects the source's alpha mask.
+				ctx.globalAlpha = amount;
+				ctx.globalCompositeOperation = 'source-atop';
+				ctx.fillStyle = r.color;
+				ctx.fillRect(0, 0, width, height);
 
-		ctx.globalAlpha = 1;
-		ctx.globalCompositeOperation = 'source-over';
+				ctx.globalAlpha = 1;
+				ctx.globalCompositeOperation = 'source-over';
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: tintSchema,
 	validateParams: validateTintParams,
 });

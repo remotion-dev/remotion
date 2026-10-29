@@ -15,6 +15,12 @@ import {
 	type WeatherRenderParams,
 	type WeatherState,
 } from './weather/runtime.js';
+import {
+	setupWeatherWebGpu,
+	drawWeatherWebGpu,
+	cleanupWeatherWebGpu,
+	type WeatherWebGpuState,
+} from './weather/webgpu-runtime.js';
 
 const {createEffect} = Internals;
 
@@ -70,25 +76,50 @@ const resolve = (params: RainFallParams): WeatherRenderParams => ({
 	appearance: params.appearance ?? DEFAULTS.appearance,
 });
 
-export const rainFall = createEffect<RainFallParams, WeatherState>({
+export const rainFall = createEffect<RainFallParams>({
 	type: 'remotion/rain-fall',
 	label: 'rainFall()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/rain-fall',
-	backend: 'webgl2',
 	calculateKey: (params) => `rain-fall-${JSON.stringify(resolve(params))}`,
-	setup: (target) => setupWeather(target, 'rain fall'),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		drawWeather({
-			state,
-			source: source as TexImageSource,
-			width,
-			height,
-			flipSourceY,
-			params: resolve(params),
-			type: 'rain',
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			RainFallParams,
+			WeatherWebGpuState
+		>({
+			setup: setupWeatherWebGpu,
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the rain fall effect',
+					);
+				drawWeatherWebGpu({
+					source,
+					width,
+					height,
+					params: resolve(params),
+					state,
+					device: gpuDevice as GPUDevice,
+					type: 'rain',
+				});
+			},
+			cleanup: cleanupWeatherWebGpu,
+		}),
+		webgl2: Internals.createEffectImplementation<RainFallParams, WeatherState>({
+			setup: (target) => setupWeather(target, 'rain fall'),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				drawWeather({
+					state,
+					source: source as TexImageSource,
+					width,
+					height,
+					flipSourceY,
+					params: resolve(params),
+					type: 'rain',
+				});
+			},
+			cleanup: cleanupWeather,
+		}),
 	},
-	cleanup: cleanupWeather,
 	schema: rainFallSchema,
 	validateParams: (params) => {
 		validateWeatherParams(params, 'Rain fall', 20000, 10000);

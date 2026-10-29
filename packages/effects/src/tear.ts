@@ -1,6 +1,13 @@
 import {Internals, type InteractivitySchema} from 'remotion';
 import {assertOptionalFiniteNumber} from './color-utils.js';
+import {TEAR_WEBGPU_SHADER} from './tear-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuMesh,
+	cleanupWebGpuMesh,
+	setupWebGpuMesh,
+	type WebGpuMeshState,
+} from './webgpu-mesh-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -279,74 +286,109 @@ const createTearState = (gl: WebGL2RenderingContext): TearState => {
 	};
 };
 
-export const tear = createEffect<TearParams, TearState>({
+export const tear = createEffect<TearParams>({
 	type: 'dev.remotion.effects.tear',
 	label: 'tear()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/tear',
-	backend: 'webgl2',
 
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `tear-${r.progress}-${r.rotation}-${r.jaggedness}-${r.angle}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('tear effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<TearParams, WebGpuMeshState>({
+			setup: (target) => setupWebGpuMesh(target, 'tear'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) throw new Error('A WebGPU device is required for tear');
+				const r = resolve(params);
+				applyWebGpuMesh({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: TEAR_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						r.angle % 360,
+						r.progress,
+						r.rotation,
+						r.jaggedness,
+						0,
+						0,
+					]),
+					vertices: null,
+					topology: 'triangle-strip',
+					blend: false,
+					vertexCount: (MESH_ROWS + 1) * 2,
+					instanceCount: 2,
+				});
+			},
+			cleanup: cleanupWebGpuMesh,
+		}),
+		webgl2: Internals.createEffectImplementation<TearParams, TearState>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('tear effect');
+				}
 
-		return createTearState(gl);
+				return createTearState(gl);
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+
+				state.gl.viewport(0, 0, width, height);
+				state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
+				state.gl.clearColor(0, 0, 0, 0);
+				state.gl.clear(state.gl.COLOR_BUFFER_BIT);
+
+				state.gl.useProgram(state.program);
+				state.gl.bindVertexArray(state.vao);
+				state.gl.activeTexture(state.gl.TEXTURE0);
+				state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
+				state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				state.gl.pixelStorei(state.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				state.gl.texImage2D(
+					state.gl.TEXTURE_2D,
+					0,
+					state.gl.RGBA,
+					state.gl.RGBA,
+					state.gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				if (state.uSource) state.gl.uniform1i(state.uSource, 0);
+				if (state.uAngle) state.gl.uniform1f(state.uAngle, r.angle % 360);
+				if (state.uProgress) state.gl.uniform1f(state.uProgress, r.progress);
+				if (state.uRotation) state.gl.uniform1f(state.uRotation, r.rotation);
+				if (state.uJaggedness)
+					state.gl.uniform1f(state.uJaggedness, r.jaggedness);
+				if (state.uResolution)
+					state.gl.uniform2f(state.uResolution, width, height);
+
+				for (const side of [-1, 1]) {
+					if (state.uSide) state.gl.uniform1f(state.uSide, side);
+					state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, (MESH_ROWS + 1) * 2);
+				}
+
+				state.gl.bindVertexArray(null);
+				state.gl.bindTexture(state.gl.TEXTURE_2D, null);
+				state.gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-
-		state.gl.viewport(0, 0, width, height);
-		state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
-		state.gl.clearColor(0, 0, 0, 0);
-		state.gl.clear(state.gl.COLOR_BUFFER_BIT);
-
-		state.gl.useProgram(state.program);
-		state.gl.bindVertexArray(state.vao);
-		state.gl.activeTexture(state.gl.TEXTURE0);
-		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
-		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		state.gl.pixelStorei(state.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		state.gl.texImage2D(
-			state.gl.TEXTURE_2D,
-			0,
-			state.gl.RGBA,
-			state.gl.RGBA,
-			state.gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
-
-		if (state.uSource) state.gl.uniform1i(state.uSource, 0);
-		if (state.uAngle) state.gl.uniform1f(state.uAngle, r.angle % 360);
-		if (state.uProgress) state.gl.uniform1f(state.uProgress, r.progress);
-		if (state.uRotation) state.gl.uniform1f(state.uRotation, r.rotation);
-		if (state.uJaggedness) state.gl.uniform1f(state.uJaggedness, r.jaggedness);
-		if (state.uResolution) state.gl.uniform2f(state.uResolution, width, height);
-
-		for (const side of [-1, 1]) {
-			if (state.uSide) state.gl.uniform1f(state.uSide, side);
-			state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, (MESH_ROWS + 1) * 2);
-		}
-
-		state.gl.bindVertexArray(null);
-		state.gl.bindTexture(state.gl.TEXTURE_2D, null);
-		state.gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
-	},
-
 	schema: tearSchema,
 	validateParams: validateTearParams,
 });

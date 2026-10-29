@@ -9,7 +9,14 @@ import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 } from '../validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
 import {LENS_BLUR_FRAGMENT_SHADER} from './shader.js';
+import {LENS_BLUR_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -370,75 +377,121 @@ const setupLensBlur = (target: HTMLCanvasElement): LensBlurState => {
 	};
 };
 
-export const lensBlur = createEffect<LensBlurParams, LensBlurState>({
+export const lensBlur = createEffect<LensBlurParams>({
 	type: 'remotion/lens-blur',
 	label: 'lensBlur()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/lens-blur',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `lens-blur-${JSON.stringify(r)}`;
 	},
-	setup: (target) => setupLensBlur(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, texture, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			LensBlurParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'lens-blur'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: LENS_BLUR_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						r.radius,
+						IRIS_SHAPES.indexOf(r.irisShape) + 3,
+						r.irisRoundness,
+						((r.irisRotation % 360) * Math.PI) / 180,
+						r.irisAspectRatio,
+						0,
+						r.highlightGain,
+						r.highlightThreshold,
+						r.highlightSaturation,
+						r.repeatEdgePixels ? 1 : 0,
+						r.samples,
+						r.linearLight ? 1 : 0,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<LensBlurParams, LensBlurState>(
+			{
+				setup: (target) => setupLensBlur(target),
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+					const {gl, program, texture, vao} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+					gl.viewport(0, 0, width, height);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, texture);
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						source as TexImageSource,
+					);
 
-		gl.useProgram(program);
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uRadius) gl.uniform1f(state.uRadius, r.radius);
-		if (state.uIrisShape)
-			gl.uniform1i(state.uIrisShape, IRIS_SHAPES.indexOf(r.irisShape) + 3);
-		if (state.uIrisRoundness)
-			gl.uniform1f(state.uIrisRoundness, r.irisRoundness);
-		if (state.uIrisRotation)
-			gl.uniform1f(
-				state.uIrisRotation,
-				((r.irisRotation % 360) * Math.PI) / 180,
-			);
-		if (state.uIrisAspectRatio)
-			gl.uniform1f(state.uIrisAspectRatio, r.irisAspectRatio);
-		if (state.uHighlightGain)
-			gl.uniform1f(state.uHighlightGain, r.highlightGain);
-		if (state.uHighlightThreshold)
-			gl.uniform1f(state.uHighlightThreshold, r.highlightThreshold);
-		if (state.uHighlightSaturation)
-			gl.uniform1f(state.uHighlightSaturation, r.highlightSaturation);
-		if (state.uRepeatEdgePixels)
-			gl.uniform1i(state.uRepeatEdgePixels, r.repeatEdgePixels ? 1 : 0);
-		if (state.uSamples) gl.uniform1i(state.uSamples, r.samples);
-		if (state.uLinearLight)
-			gl.uniform1i(state.uLinearLight, r.linearLight ? 1 : 0);
+					gl.useProgram(program);
+					if (state.uSource) gl.uniform1i(state.uSource, 0);
+					if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+					if (state.uRadius) gl.uniform1f(state.uRadius, r.radius);
+					if (state.uIrisShape)
+						gl.uniform1i(
+							state.uIrisShape,
+							IRIS_SHAPES.indexOf(r.irisShape) + 3,
+						);
+					if (state.uIrisRoundness)
+						gl.uniform1f(state.uIrisRoundness, r.irisRoundness);
+					if (state.uIrisRotation)
+						gl.uniform1f(
+							state.uIrisRotation,
+							((r.irisRotation % 360) * Math.PI) / 180,
+						);
+					if (state.uIrisAspectRatio)
+						gl.uniform1f(state.uIrisAspectRatio, r.irisAspectRatio);
+					if (state.uHighlightGain)
+						gl.uniform1f(state.uHighlightGain, r.highlightGain);
+					if (state.uHighlightThreshold)
+						gl.uniform1f(state.uHighlightThreshold, r.highlightThreshold);
+					if (state.uHighlightSaturation)
+						gl.uniform1f(state.uHighlightSaturation, r.highlightSaturation);
+					if (state.uRepeatEdgePixels)
+						gl.uniform1i(state.uRepeatEdgePixels, r.repeatEdgePixels ? 1 : 0);
+					if (state.uSamples) gl.uniform1i(state.uSamples, r.samples);
+					if (state.uLinearLight)
+						gl.uniform1i(state.uLinearLight, r.linearLight ? 1 : 0);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+					gl.bindVertexArray(vao);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					gl.bindVertexArray(null);
+					gl.bindTexture(gl.TEXTURE_2D, null);
+					gl.useProgram(null);
+				},
+				cleanup: ({gl, program, vao, vbo, texture}) => {
+					gl.deleteTexture(texture);
+					gl.deleteBuffer(vbo);
+					gl.deleteProgram(program);
+					gl.deleteVertexArray(vao);
+				},
+			},
+		),
 	},
 	schema: lensBlurSchema,
 	validateParams: validateLensBlurParams,
