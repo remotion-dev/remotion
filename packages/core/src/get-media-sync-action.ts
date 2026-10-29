@@ -90,15 +90,18 @@ export const getMediaSyncAction = (
 			: desiredUnclampedTime;
 
 	const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
-	const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
+	const timeShiftRvcTag =
+		rvcTime === null ? null : Math.abs(shouldBeTime - rvcTime);
 
+	// Both clocks are `performance.now()` timestamps of when the reading
+	// changed last. Trust whichever reading is fresher.
 	const mostRecentTimeshift =
-		rvcLastUpdate && (rvcTime as number) > mediaTagLastUpdate
+		rvcLastUpdate !== null && rvcLastUpdate > mediaTagLastUpdate
 			? (timeShiftRvcTag as number)
 			: timeShiftMediaTag;
 
 	const timeShift =
-		timeShiftRvcTag && !isVariableFpsVideo
+		timeShiftRvcTag !== null && !isVariableFpsVideo
 			? mostRecentTimeshift
 			: timeShiftMediaTag;
 
