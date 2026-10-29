@@ -83,6 +83,7 @@ test('precomposes the roller-skis presenter and captions without changing their 
 		compositionId: 'RollerSkiRoughCut',
 		metadata: {...metadata, durationInFrames: 12377},
 		existingCompositionIds: ['RollerSkiRoughCut'],
+		name: null,
 	};
 	expect(canPrecomposeJsxNodes(request)).toEqual({
 		canPrecompose: true,
@@ -240,6 +241,7 @@ export const Video = () => {
 			compositionId: 'Main',
 			metadata,
 			existingCompositionIds: ['Main'],
+			name: null,
 		};
 		expect(canPrecomposeJsxNodes(request)).toEqual({
 			canPrecompose: true,
@@ -302,6 +304,7 @@ export const Video = () => {const frame = useCurrentFrame(); return <Series><Ser
 				compositionId: 'Main',
 				metadata,
 				existingCompositionIds: ['Main'],
+				name: null,
 			}),
 		).toEqual({canPrecompose: false, reason});
 		expect(project.files[filePath]).toBe(source);
