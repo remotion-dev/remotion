@@ -1,0 +1,39 @@
+# //build/args/headless.gn is not imported: it selects Ozone with the headless
+# platform, which is not a supported Windows configuration (gn gen reports a
+# //ui/base dependency cycle). The headless settings it would apply are
+# replicated below.
+dcheck_always_on = false
+is_official_build = true
+is_debug = false
+symbol_level = 0
+blink_symbol_level = 0
+v8_symbol_level = 0
+
+target_os = "win"
+target_cpu = "x64"
+v8_target_cpu = "x64"
+
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+
+# Embed resources, ICU data and V8 startup data to simplify deployment.
+headless_use_embedded_resources = true
+headless_enable_commands = false
+headless_use_prefs = false
+icu_use_data_file = false
+v8_use_external_startup_data = false
+v8_enable_lazy_source_positions = false
+
+# No PGO profiles are checked out (.gclient sets checkout_pgo_profiles = False).
+chrome_pgo_phase = 0
+use_remoteexec = false
+
+# Official Windows builds default this on; it needs debug info that
+# symbol_level = 0 does not produce, and embedded resources gain nothing from it.
+enable_resource_allowlist_generation = false
+
+enable_pdf = true
+enable_printing = true
+enable_print_preview = true
+enable_media_remoting = false
+clang_use_chrome_plugins = false

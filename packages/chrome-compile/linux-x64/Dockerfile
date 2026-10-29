@@ -1,5 +1,5 @@
 # =============================================================================
-# Dockerfile — Chromium 157 headless_shell build environment (Ubuntu 22.04 x86_64)
+# Dockerfile — Chromium 158 headless_shell build environment (Ubuntu 22.04 x86_64)
 #
 # Targets regular Linux distros (Debian/Ubuntu x86_64).
 # System libraries are NOT bundled — user installs via apt on target.

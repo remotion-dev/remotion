@@ -1,5 +1,5 @@
 # =============================================================================
-# Dockerfile — Chromium 157 headless_shell build environment
+# Dockerfile — Chromium 158 headless_shell build environment
 #
 # Based on Amazon Linux 2023 x86_64.
 # System libraries ARE bundled for self-contained Amazon Linux deployment.
