@@ -957,6 +957,18 @@ const RegularSequenceContent = React.memo(
 	forwardRef(RegularSequenceContentRefForwardingFunction),
 );
 
+// Commit the clock before the content's registration layout effects. A parent
+// layout effect runs after its children and can publish the previous frame.
+const SequenceFrameCommit: React.FC<{
+	readonly currentFrame: number;
+	readonly currentFrameRef: React.RefObject<number>;
+}> = ({currentFrame, currentFrameRef}) => {
+	useLayoutEffect(() => {
+		currentFrameRef.current = currentFrame;
+	}, [currentFrame, currentFrameRef]);
+	return null;
+};
+
 const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps
@@ -1082,9 +1094,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			: (absoluteFrame - currentSequenceStart) *
 				(parentPlaybackRate * playbackRate);
 	const currentFrameRef = useRef(currentFrame);
-	useLayoutEffect(() => {
-		currentFrameRef.current = currentFrame;
-	}, [currentFrame]);
 	const timing = useMemo(
 		(): SequenceTiming => ({
 			contentDurationInFrames,
@@ -1106,7 +1115,15 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 	// The timeline subscriber stays small. Descendants retain their own frame subscriptions,
 	// while registration, validation and provider elements only update with timing or props.
-	return <RegularSequenceContent {...props} ref={ref} timing={timing} />;
+	return (
+		<React.Fragment>
+			<SequenceFrameCommit
+				currentFrame={currentFrame}
+				currentFrameRef={currentFrameRef}
+			/>
+			<RegularSequenceContent {...props} ref={ref} timing={timing} />
+		</React.Fragment>
+	);
 };
 
 const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);

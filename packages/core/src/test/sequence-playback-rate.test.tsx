@@ -234,3 +234,27 @@ test('keeps sequence content stable while clocks advance and timing windows are 
 		resolveCrop.mockRestore();
 	}
 });
+
+test('publishes the current registration frame synchronously with a paused timing edit', () => {
+	const frames: number[] = [];
+	const register = (sequence: TSequence) => {
+		frames.push(sequence.getCurrentFrame!());
+	};
+
+	const content = (from: number) => (
+		<WrapSequenceContext currentFrame={20}>
+			<SequenceRegistrationContext.Provider value>
+				<ObserveSequenceRegistrations onRegisterSequence={register} />
+				<Sequence from={from} durationInFrames={50}>
+					<Clock />
+				</Sequence>
+			</SequenceRegistrationContext.Provider>
+		</WrapSequenceContext>
+	);
+	const view = render(content(10));
+	expect(frames.at(-1)).toBe(10);
+	view.rerender(content(15));
+	expect(frames.at(-1)).toBe(5);
+	view.rerender(content(5));
+	expect(frames.at(-1)).toBe(15);
+});
