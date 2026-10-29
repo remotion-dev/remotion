@@ -11,6 +11,8 @@ execSync(
 	{
 		env: {
 			...process.env,
+			// Override the compositor's parent Cargo config for this separate crate.
+			CARGO_TARGET_DIR: path.join(process.cwd(), 'target'),
 			FFMPEG_DIR: path.join(process.cwd(), PREFIX),
 			CPATH:
 				process.platform === 'darwin'
