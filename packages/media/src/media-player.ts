@@ -800,6 +800,7 @@ export class MediaPlayer {
 		const previousDuration = this.sequenceDurationInFrames;
 		if (previousDuration !== sequenceDurationInFrames) {
 			this.sequenceDurationInFrames = sequenceDurationInFrames;
+			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
