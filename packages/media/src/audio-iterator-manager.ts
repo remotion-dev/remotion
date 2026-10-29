@@ -442,7 +442,10 @@ export const audioIteratorManager = ({
 			return;
 		}
 
-		const maximumTimestamp = getMediaEndTimestamp();
+		const maximumTimestamp =
+			loop || currentToneFrequency !== 1
+				? getMediaEndTimestamp()
+				: Math.min(getMediaEndTimestamp(), getSequenceEndTimestamp());
 		if (startFromSecond >= maximumTimestamp) {
 			return;
 		}
