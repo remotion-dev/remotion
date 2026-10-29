@@ -22,7 +22,7 @@ const NumberInput: React.FC<{
 				min="2"
 				value={value}
 				step={requireTwoStep ? 2 : 1}
-				className="border-2 border-black border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-hidden"
+				className="border-2 border-outline border-b-4 w-20 text-center rounded font-brand h-10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none active:border-brand focus:border-brand active:text-brand focus:text-brand outline-hidden"
 				onFocus={() => {
 					ref.current?.select();
 					onFocus();
@@ -108,7 +108,7 @@ export const ResizeUi: React.FC<{
 				<div className="flex-1" />
 				<div
 					style={outer}
-					className="rounded bg-white flex justify-center items-center outline-2 outline-slate-300"
+					className="rounded bg-button-bg flex justify-center items-center outline-2 outline-slate-300"
 				>
 					<ResizeThumbnail
 						dimensions={originalDimensions}
@@ -126,7 +126,7 @@ export const ResizeUi: React.FC<{
 					/>
 				</div>
 				<div className="flex-1 flex flex-row items-center ml-[2px]">
-					<div className="w-6 border-b-2 border-black border-dotted" />
+					<div className="w-6 border-b-2 border-outline border-dotted" />
 					<NumberInput
 						requireTwoStep={requireTwoStep}
 						value={dimensions.height}
@@ -137,7 +137,7 @@ export const ResizeUi: React.FC<{
 				</div>
 			</div>
 			<div className="flex flex-col items-center mt-[2px]">
-				<div className="h-6 border-r-2 border-black border-dotted" />
+				<div className="h-6 border-r-2 border-outline border-dotted" />
 				<div className="flex flex-row justify-center">
 					<NumberInput
 						requireTwoStep={requireTwoStep}

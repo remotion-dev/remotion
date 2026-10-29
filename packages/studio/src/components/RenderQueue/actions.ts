@@ -126,6 +126,7 @@ export const addSequenceRenderJob = ({
 	metadata,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -149,6 +150,7 @@ export const addSequenceRenderJob = ({
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -179,6 +181,7 @@ export const addSequenceRenderJob = ({
 		metadata,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		licenseKey,
 	});
 };
 

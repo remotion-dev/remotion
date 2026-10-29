@@ -22,7 +22,11 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
-	return `/img/${item.id}-preview.png`;
+	if (item.id === 'effects-evolve') {
+		return 'https://remotion.media/docs/effects/effects-evolve-preview-v2.png';
+	}
+
+	return `https://remotion.media/docs/effects/${item.id}-preview.png`;
 };
 
 export const getEffectPreviewAlt = (item: EffectCatalogItem) => {

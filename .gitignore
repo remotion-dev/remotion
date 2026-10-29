@@ -43,3 +43,13 @@ packages/cloudrun/container/ensure-browser.mjs
 packages/skills-evals/.runs
 packages/skills-evals/.site
 packages/skills-evals/.playground
+
+# Downloaded example media served by browser tests
+packages/example-videos/videos/bigbuckbunny.mp4
+packages/example-videos/videos/music-visualization-demo-track.mp3
+packages/example-videos/videos/corrupted.mp4
+packages/example-videos/videos/variablefps.webm
+packages/example-videos/videos/iphonevideo.mov
+packages/example-videos/videos/music.mp3
+packages/example-videos/videos/iphone-hevc.mov
+packages/example-videos/videos/stretched-vp8.webm

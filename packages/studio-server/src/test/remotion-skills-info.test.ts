@@ -50,6 +50,7 @@ test('the skills info endpoint reports project skills', async () => {
 			'remotion-create',
 			'remotion-docs',
 			'remotion-interactivity',
+			'remotion-license',
 			'remotion-maps',
 			'remotion-markup',
 			'remotion-multimedia',

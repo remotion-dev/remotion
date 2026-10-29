@@ -19,8 +19,8 @@ import {makeRoundedProgress} from './make-rounded-progress';
 
 const outerCornerRadius = 30 * 7.5;
 const padding = 0;
-const outerWidth = 300 * 7.5;
-const outerHeight = 100 * 7.5;
+export const renderProgressCardWidth = 300 * 7.5;
+export const renderProgressCardHeight = 75 * 7.5;
 const progressDurationInFrames = 34;
 const progressStartOffsetInFrames = 24;
 const flipDelayInFrames = 10;
@@ -55,8 +55,8 @@ export const getButton = ({
 }): ThreeDElement[] => {
 	const shiftAnimationsEarlierByFrames = fps;
 	const rect = makeRect({
-		height: outerHeight,
-		width: outerWidth,
+		height: renderProgressCardHeight,
+		width: renderProgressCardWidth,
 		cornerRadius: outerCornerRadius,
 	});
 
@@ -79,8 +79,8 @@ export const getButton = ({
 		delay,
 	});
 
-	const boxWidth = outerWidth - padding * 2;
-	const boxHeight = outerHeight - padding * 2;
+	const boxWidth = renderProgressCardWidth - padding * 2;
+	const boxHeight = renderProgressCardHeight - padding * 2;
 
 	const text = getText({font, text: phrase, size: 80});
 

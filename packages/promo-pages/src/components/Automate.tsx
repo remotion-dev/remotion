@@ -3,6 +3,7 @@
 import React from 'react';
 import {AutomateTitle} from './automate/AutomateTitle';
 import {BuiltWithRemotionShowcase} from './automate/BuiltWithRemotionShowcase';
+import {automationVideos} from './homepage/automation-videos';
 import {Demo} from './homepage/Demo';
 import EvaluateRemotionSection from './homepage/EvaluateRemotion';
 import type {ColorMode} from './homepage/layout/use-color-mode';
@@ -27,8 +28,7 @@ export const AutomatePage: React.FC<{
 						<MakeVideosProgrammatically
 							title="Parameterization"
 							description="Organize your assets and connect your data."
-							videoSrc="/img/design-systems.webm"
-							fallbackVideoSrc="/img/design-systems.mp4"
+							{...automationVideos.parameterization}
 							links={[
 								{
 									label: 'Parameterization',
@@ -40,6 +40,7 @@ export const AutomatePage: React.FC<{
 						<MakeVideosAgentically
 							title="Batch rendering"
 							description="Render millions of videos on your own infrastructure."
+							{...automationVideos.batchRendering}
 							links={[
 								{
 									label: 'Server-side rendering',
@@ -52,10 +53,9 @@ export const AutomatePage: React.FC<{
 							]}
 						/>
 						<MakeVideosInteractively
+							{...automationVideos.applications}
 							title="Applications"
 							description="Publish a simple tool or a complex video editor."
-							videoSrc="/img/applications.webm"
-							fallbackVideoSrc="/img/applications.mp4"
 							links={[
 								{label: 'Player', href: '/docs/player'},
 								{label: 'Editor Starter', href: '/editor-starter'},

@@ -1,10 +1,19 @@
-import {afterEach, beforeEach, expect, test} from 'bun:test';
+import {afterEach, beforeAll, beforeEach, expect, test} from 'bun:test';
 import fs from 'fs';
 import path from 'path';
 import {RenderInternals} from '@remotion/renderer';
 import execa from 'execa';
 
 const outputPath = path.join(process.cwd(), 'packages/example/out.mp3');
+const exampleDir = path.join(process.cwd(), '..', 'example');
+
+beforeAll(async () => {
+	if (!process.env.CI) {
+		await execa('bun', ['x', 'remotion', 'bundle'], {cwd: exampleDir});
+	}
+
+	await execa('bun', ['x', 'remotion', 'browser', 'ensure'], {cwd: exampleDir});
+}, 120000);
 
 beforeEach(() => {
 	if (fs.existsSync(outputPath)) {
@@ -22,9 +31,10 @@ test(
 	async () => {
 		const task = execa(
 			'bun',
-			['x', 'remotion', 'render', 'audio-testing-base64', outputPath],
+			['x', 'remotion', 'render', 'build', 'audio-testing-base64', outputPath],
 			{
-				cwd: path.join(process.cwd(), '..', 'example'),
+				cwd: exampleDir,
+				timeout: 25000,
 			},
 		);
 		task.stderr?.pipe(process.stderr);

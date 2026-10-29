@@ -1,3 +1,4 @@
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {AbsoluteFill, HtmlInCanvas, Sequence} from 'remotion';
 import {ParameterizationRecordingComposition} from '../../ParameterizationRecordingComposition';
@@ -7,6 +8,7 @@ export const ExploreRemotionParameterization = () => {
 		<HtmlInCanvas
 			width={1080}
 			height={1080}
+			style={{backgroundColor: '#1f2428'}}
 			effects={[
 				radialProgressiveBlur({
 					height: 1.661,
@@ -23,7 +25,7 @@ export const ExploreRemotionParameterization = () => {
 					backgroundColor: '#1f2428',
 					overflow: 'hidden',
 					scale: 1.685,
-					translate: '350px 30px',
+					translate: '420px 30px',
 				}}
 			>
 				<AbsoluteFill
@@ -34,7 +36,7 @@ export const ExploreRemotionParameterization = () => {
 						left: 0,
 						top: 150,
 						overflow: 'hidden',
-						rotate: '0.123143 -0.99049 0.061367 29.36985deg',
+						rotate: EXPLORE_CAMERA_ANGLE,
 						scale: 1.2,
 						translate: '0px 20px',
 					}}

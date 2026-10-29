@@ -100,6 +100,7 @@ export const processVideoJob = async ({
 		uiImageFormat: job.imageFormat,
 		cancelSignal: job.cancelToken.cancelSignal,
 		crf: job.type === 'video' ? job.crf : null,
+		crfIsFromConfigFile: false,
 		gopSize: job.type === 'video' ? job.gopSize : null,
 		ffmpegOverride,
 		audioBitrate: job.type === 'video' ? job.audioBitrate : null,
@@ -140,7 +141,7 @@ export const processVideoJob = async ({
 		bundlerOverride: fixedConfig.bundlerOverride,
 		rspackOverride: fixedConfig.rspackOverride,
 		webpackOverride: fixedConfig.webpackOverride,
-		licenseKey: job.type === 'video' ? job.licenseKey : null,
+		licenseKey: job.licenseKey,
 		isProduction: null,
 	});
 };

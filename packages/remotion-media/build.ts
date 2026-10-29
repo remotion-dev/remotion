@@ -193,6 +193,10 @@ cpSync(
 	'public/remotion-wordmark.png',
 	path.join(outdir, 'remotion-wordmark.png'),
 );
+cpSync(
+	'public/remotion-wordmark-dark.png',
+	path.join(outdir, 'remotion-wordmark-dark.png'),
+);
 const rootPlaceholder = '<div id="root"></div>';
 const generatedIndex = readFileSync(generatedIndexPath, 'utf8');
 if (!generatedIndex.includes(rootPlaceholder)) {

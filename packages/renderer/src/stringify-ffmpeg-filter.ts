@@ -177,6 +177,12 @@ export const stringifyFfmpegFilter = ({
 	const assetTrimLeftOffset = startInVideo === 0 ? trimLeftOffset : 0;
 	const startInChunkSeconds =
 		startInVideo === 0 ? 0 : startInVideoSeconds - trimLeftOffset;
+	const capturedFrameCount = Math.round(
+		(chunkLengthInSeconds + trimLeftOffset - trimRightOffset) * fps,
+	);
+	// Only assets present on the last captured frame need the chunk's trailing trim.
+	const assetTrimRightOffset =
+		startInVideo + asset.duration >= capturedFrameCount ? trimRightOffset : 0;
 
 	const {trimLeft, maxTrim} = getActualTrimLeft({
 		trimLeft: asset.trimLeft,
@@ -205,7 +211,7 @@ export const stringifyFfmpegFilter = ({
 	} = trimAndSetTempo({
 		assetDuration,
 		trimLeftOffset: assetTrimLeftOffset,
-		trimRightOffset,
+		trimRightOffset: assetTrimRightOffset,
 		asset,
 		fps,
 		indent,
@@ -256,10 +262,11 @@ export const stringifyFfmpegFilter = ({
 			// This should be fine because FFMPEG documentation states:
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
+			// Use samples so adjacent AAC chunks place the waveform at the same offset.
 			padStart === 0
 				? null
 				: `adelay=${new Array(channels + 1)
-						.fill((padStart * 1000).toFixed(0))
+						.fill(`${Math.round(padStart * sampleRate)}S`)
 						.join('|')}`,
 		actualTrimLeft,
 	};

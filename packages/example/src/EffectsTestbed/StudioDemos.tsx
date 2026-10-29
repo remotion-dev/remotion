@@ -51,7 +51,7 @@ export const CurvesStudioDemo: React.FC = () => {
 				curves({
 					points: [
 						[0, 0],
-						[0.214, 0.552],
+						[0.4, 0.613],
 						[1, 1],
 					],
 				}),

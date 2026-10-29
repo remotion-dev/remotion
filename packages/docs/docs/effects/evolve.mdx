@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-effects-evolve.png
+image: https://remotion.media/docs/generated/articles-docs-effects-evolve.png
 slug: /effects/evolve
 title: evolve()
 sidebar_label: evolve()
@@ -65,15 +65,15 @@ Direction the component is revealed from. Defaults to `left`.
 
 Possible values: `left`, `right`, `top`, `bottom`, `angle`.
 
-Use `angle` to set a custom travel direction with [`angle`](#angle). Available from <AvailableFrom v="4.0.539" inline />.
+Use `angle` to set a custom travel direction with [`angle`](#angle). Available from <AvailableFrom v="4.0.540" inline />.
 
-### `angle?`<AvailableFrom v="4.0.539" />
+### `angle?`<AvailableFrom v="4.0.540" />
 
 Direction the reveal edge travels, in clockwise degrees from up. Only applies when `direction` is `angle`. Defaults to `90`.
 
 An angle of `0` reveals from bottom to top, `90` from left to right, `180` from top to bottom, and `270` from right to left.
 
-### `featherUnit?`<AvailableFrom v="4.0.539" />
+### `featherUnit?`<AvailableFrom v="4.0.540" />
 
 Unit used for the edge softness: `relative` or `pixels`. Defaults to `relative`.
 
@@ -83,7 +83,7 @@ Use `relative` with [`feather`](#feather) to scale the softness with the canvas 
 
 Softness of the evolving edge from `0` (sharp edge) to `1` (fully feathered). Only applies when `featherUnit` is `relative`. Defaults to `0.1`.
 
-### `featherPixels?`<AvailableFrom v="4.0.539" />
+### `featherPixels?`<AvailableFrom v="4.0.540" />
 
 Width of the soft edge in pixels. Must be `0` or greater. Only applies when `featherUnit` is `pixels`. Defaults to `0` (sharp edge).
 
@@ -93,7 +93,7 @@ The edge travels beyond the canvas bounds so the component is fully hidden at `p
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Angled wipe<AvailableFrom v="4.0.539" />
+## Angled wipe<AvailableFrom v="4.0.540" />
 
 ```tsx twoslash title="MyComp.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
