@@ -39,6 +39,7 @@
 		"@babel/parser": "7.24.1",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/codemods": "workspace:*",
+		"@remotion/licensing": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",

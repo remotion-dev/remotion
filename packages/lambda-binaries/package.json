@@ -1,0 +1,25 @@
+{
+	"name": "@remotion/lambda-binaries",
+	"version": "4.0.539",
+	"private": true,
+	"type": "module",
+	"description": "Build and publish Remotion Lambda layers with binaries downloaded on demand.",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/lambda-binaries"
+	},
+	"scripts": {
+		"download": "bun src/download.ts",
+		"zip": "bash make.sh",
+		"size": "bash size.sh",
+		"upload": "bash upload.sh",
+		"make": "tsc",
+		"lint": "eslint src && tsc --noEmit",
+		"formatting": "oxfmt src package.json tsconfig.json binaries.json eslint.config.mjs README.md --check"
+	},
+	"devDependencies": {
+		"@remotion/eslint-config-internal": "workspace:*",
+		"@types/bun": "catalog:",
+		"eslint": "catalog:",
+		"typescript": "catalog:"
+	}
+}

@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import type {Source} from '~/lib/convert-state';
+import '~/lib/early-file-drop';
 import {CONVERTED_OUTPUT_DRAG_TYPE} from '~/lib/file-drag';
 import {DragOverOverlay} from './DragOverOverlay';
 import {Button} from './ui/button';
@@ -25,33 +26,43 @@ export const ReplaceVideo: React.FC<{
 	const [dragging, setDragging] = useState(false);
 
 	useEffect(() => {
-		if (fileToReplace) {
-			return;
-		}
-
 		const onDragOver = (e: DragEvent) => {
-			if (isConvertedOutputDrag(e.dataTransfer)) {
+			if (
+				!Array.from(e.dataTransfer?.types ?? []).includes('Files') ||
+				isConvertedOutputDrag(e.dataTransfer)
+			) {
 				setDragging(false);
 				return;
 			}
 
 			e.preventDefault();
-			setDragging(src !== null);
+			setDragging(fileToReplace === null);
 		};
 
 		const onDragEnd = () => {
 			setDragging(false);
 		};
 
+		const onDragLeave = (event: DragEvent) => {
+			if (!event.relatedTarget) {
+				setDragging(false);
+			}
+		};
+
 		const onDrop = (e: DragEvent) => {
 			setDragging(false);
-			e.preventDefault();
 			if (isConvertedOutputDrag(e.dataTransfer)) {
+				e.preventDefault();
 				return;
 			}
 
 			const file = e.dataTransfer?.files[0];
 			if (file) {
+				e.preventDefault();
+				if (fileToReplace) {
+					return;
+				}
+
 				if (src === null) {
 					setSrc({type: 'file', file});
 				} else {
@@ -67,6 +78,10 @@ export const ReplaceVideo: React.FC<{
 			}
 
 			e.preventDefault();
+			if (fileToReplace) {
+				return;
+			}
+
 			if (src === null) {
 				setSrc({type: 'file', file});
 			} else {
@@ -75,15 +90,30 @@ export const ReplaceVideo: React.FC<{
 		};
 
 		document.addEventListener('dragover', onDragOver, {capture: true});
-		document.addEventListener('dragleave', onDragEnd, {capture: true});
+		document.addEventListener('dragleave', onDragLeave, {capture: true});
 		document.addEventListener('drop', onDrop, {capture: true});
 		document.addEventListener('paste', onPaste, {capture: true});
+		document.addEventListener('dragend', onDragEnd, {capture: true});
+
+		const earlyDrop = window.remotionEarlyFileDrop;
+		if (earlyDrop) {
+			earlyDrop.stop();
+			window.remotionEarlyFileDrop = null;
+			if (earlyDrop.file) {
+				if (src === null) {
+					setSrc({type: 'file', file: earlyDrop.file});
+				} else {
+					setFileToReplace(earlyDrop.file);
+				}
+			}
+		}
 
 		return () => {
-			document.removeEventListener('dragleave', onDragEnd, {capture: true});
+			document.removeEventListener('dragleave', onDragLeave, {capture: true});
 			document.removeEventListener('dragover', onDragOver, {capture: true});
 			document.removeEventListener('drop', onDrop, {capture: true});
 			document.removeEventListener('paste', onPaste, {capture: true});
+			document.removeEventListener('dragend', onDragEnd, {capture: true});
 		};
 	}, [fileToReplace, setSrc, src]);
 
@@ -108,7 +138,7 @@ export const ReplaceVideo: React.FC<{
 
 	return (
 		<>
-			<DragOverOverlay active={dragging} />
+			<DragOverOverlay active={dragging} replacing={src !== null} />
 			<Dialog open={Boolean(fileToReplace)} onOpenChange={onOpenChange}>
 				<DialogContent>
 					<DialogHeader>

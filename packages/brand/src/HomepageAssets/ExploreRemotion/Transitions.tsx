@@ -1,42 +1,37 @@
-import {AbsoluteFill, Solid} from 'remotion';
-import {TransitionsRecordingComposition} from '../../TransitionsRecordingComposition';
+import {AbsoluteFill, Sequence} from 'remotion';
+import {ExploreZoomBlurRecording20261028Composition} from '../../ExploreZoomBlurRecording20261028Composition';
+import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
+
+export const transitionsDuration = 84;
 
 export const ExploreRemotionTransitions = () => {
 	return (
-		<>
-			<Solid
-				name="Matching background"
-				width={1080}
-				height={1080}
-				color="#19191b"
-				style={{position: 'absolute'}}
-			/>
+		<AbsoluteFill style={{backgroundColor: '#1e2226'}}>
 			<AbsoluteFill
-				name="Transition preview close-up"
+				name="Zoom Blur transition close-up"
 				style={{
-					width: 1080,
-					height: 564,
-					left: 0,
-					top: 258,
-					rotate: '0 1 -0.1 18deg',
+					overflow: 'visible',
+					rotate: EXPLORE_CAMERA_ANGLE,
 					transformOrigin: 'center',
 				}}
 			>
 				<AbsoluteFill
 					name="Capture framing"
 					style={{
-						width: 1918,
-						height: 1440,
-						left: -840,
-						top: -631,
-						scale: 0.902,
+						width: 2896,
+						height: 1842,
+						left: -285,
+						top: 9,
+						scale: 0.57,
 						transformOrigin: 'top left',
-						translate: '504.6px 257.1px',
+						overflow: 'visible',
 					}}
 				>
-					<TransitionsRecordingComposition />
+					<Sequence from={-156} layout="none" name="Play from A to B">
+						<ExploreZoomBlurRecording20261028Composition />
+					</Sequence>
 				</AbsoluteFill>
 			</AbsoluteFill>
-		</>
+		</AbsoluteFill>
 	);
 };

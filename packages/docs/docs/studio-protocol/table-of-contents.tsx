@@ -11,7 +11,7 @@ export const TableOfContents: React.FC = () => {
 			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/build-open-in-remotion-new-url">
 				<strong>buildOpenInRemotionNewUrl()</strong>
-				<div>Build a URL that opens an Element on remotion.dev/new</div>
+				<div>Build a URL that opens an Element on remotion.new</div>
 			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/set-studio-drag-data">
 				<strong>setStudioDragData()</strong>

@@ -1,5 +1,6 @@
 import type {WrappedCanvas} from 'mediabunny';
 import {releaseStableFrame} from '../canvas-ahead-of-time';
+import {hasFrameStarted} from '../helpers/has-frame-started';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
 import type {PrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 
@@ -68,7 +69,7 @@ export const createVideoIterator = async (
 	};
 
 	const getFrameEndTimestampFromPeek = (frame: WrappedCanvas | null) => {
-		return frame ? roundTo4Digits(frame.timestamp) : Infinity;
+		return frame ? frame.timestamp : Infinity;
 	};
 
 	const getFrameEndTimestamp = async ({
@@ -229,8 +230,8 @@ export const createVideoIterator = async (
 			}
 
 			if (
-				frameTimestamp <= timestamp &&
-				frameEndTimestamp.timestamp > timestamp
+				hasFrameStarted(lastReturnedFrame.timestamp, time) &&
+				!hasFrameStarted(frameEndTimestamp.timestamp, time)
 			) {
 				return {
 					type: 'satisfied' as const,
@@ -299,7 +300,6 @@ export const createVideoIterator = async (
 					};
 				}
 
-				const frameTimestamp = roundTo4Digits(frame.frame.timestamp);
 				const frameEndTimestamp = await getFrameEndTimestamp({
 					onWait: options.onWait,
 					pendingFrameBehavior: options.pendingFrameBehavior,
@@ -320,8 +320,8 @@ export const createVideoIterator = async (
 				}
 
 				if (
-					frameTimestamp <= timestamp &&
-					frameEndTimestamp.timestamp > timestamp
+					hasFrameStarted(frame.frame.timestamp, time) &&
+					!hasFrameStarted(frameEndTimestamp.timestamp, time)
 				) {
 					return {
 						type: 'satisfied' as const,

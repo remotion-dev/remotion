@@ -1,5 +1,6 @@
 import {loadFont} from '@remotion/fonts';
 import type {CSSProperties} from 'react';
+import {createContext, useContext} from 'react';
 import {
 	AbsoluteFill,
 	Easing,
@@ -10,8 +11,15 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {z} from 'zod';
 import {FxIcon} from './effects/FxIconComposition';
 import {BLUE} from './HomepageAssets/colors';
+
+export const composeLayersSchema = z.object({
+	dark: z.boolean(),
+});
+
+const BackgroundColor = createContext('white');
 
 loadFont({
 	family: 'Compose layers',
@@ -28,6 +36,7 @@ const motion = {
 const ComposedSceneInner = ({style}: {readonly style: CSSProperties}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+	const backgroundColor = useContext(BackgroundColor);
 
 	return (
 		<div
@@ -63,7 +72,7 @@ const ComposedSceneInner = ({style}: {readonly style: CSSProperties}) => {
 						boxSizing: 'border-box',
 						border: `2px solid ${BLUE}`,
 						borderRadius: 20,
-						backgroundColor: 'white',
+						backgroundColor,
 						backgroundImage:
 							'repeating-linear-gradient(135deg, transparent 0px, transparent 16px, rgba(11, 132, 243, 0.4) 16px, rgba(11, 132, 243, 0.4) 18px)',
 					}}
@@ -75,7 +84,7 @@ const ComposedSceneInner = ({style}: {readonly style: CSSProperties}) => {
 							bottom: 8,
 							padding: '6px 8px',
 							borderRadius: 6,
-							backgroundColor: 'white',
+							backgroundColor,
 						}}
 					>
 						{'<Video>'}
@@ -112,7 +121,7 @@ const ComposedSceneInner = ({style}: {readonly style: CSSProperties}) => {
 						boxSizing: 'border-box',
 						border: `2px solid ${BLUE}`,
 						borderRadius: '0 20px 20px 0',
-						backgroundColor: 'white',
+						backgroundColor,
 						transformStyle: 'preserve-3d',
 						fontSize: 24,
 						whiteSpace: 'nowrap',
@@ -144,7 +153,7 @@ const ComposedSceneInner = ({style}: {readonly style: CSSProperties}) => {
 							padding: '14px 18px',
 							borderRadius: 999,
 							border: `2px solid ${BLUE}`,
-							backgroundColor: 'white',
+							backgroundColor,
 							color: BLUE,
 						}}
 					>
@@ -173,18 +182,22 @@ const ComposedScene = Interactive.create({
 	schema: {},
 });
 
-const FeatureCardInner = ({style}: {readonly style: CSSProperties}) => (
-	<div
-		style={{
-			position: 'absolute',
-			boxSizing: 'border-box',
-			border: `2px solid ${BLUE}`,
-			borderRadius: 18,
-			backgroundColor: 'white',
-			...style,
-		}}
-	/>
-);
+const FeatureCardInner = ({style}: {readonly style: CSSProperties}) => {
+	const backgroundColor = useContext(BackgroundColor);
+
+	return (
+		<div
+			style={{
+				position: 'absolute',
+				boxSizing: 'border-box',
+				border: `2px solid ${BLUE}`,
+				borderRadius: 18,
+				backgroundColor,
+				...style,
+			}}
+		/>
+	);
+};
 
 const FeatureCard = Interactive.create({
 	Component: FeatureCardInner,
@@ -195,6 +208,7 @@ const FeatureCard = Interactive.create({
 const FeatureSceneInner = ({style}: {readonly style: CSSProperties}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+	const backgroundColor = useContext(BackgroundColor);
 
 	return (
 		<div
@@ -213,7 +227,7 @@ const FeatureSceneInner = ({style}: {readonly style: CSSProperties}) => {
 				name="Solid background"
 				width={616}
 				height={364}
-				color="white"
+				color={backgroundColor}
 				style={{
 					position: 'absolute',
 					inset: 0,
@@ -310,102 +324,105 @@ const FeatureScene = Interactive.create({
 	schema: {},
 });
 
-export const ComposeLayers = () => {
+export const ComposeLayers = ({dark}: z.infer<typeof composeLayersSchema>) => {
 	const frame = useCurrentFrame();
 	const {fps, height, width} = useVideoConfig();
 	const connectorLength = 144;
+	const backgroundColor = dark ? '#1b1b1d' : 'white';
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			style={{
-				backgroundColor: 'white',
-				fontFamily: 'Compose layers, sans-serif',
-				fontWeight: 500,
-			}}
-		>
-			<Interactive.Div
-				name="Connected scenes"
+		<BackgroundColor.Provider value={backgroundColor}>
+			<AbsoluteFill
+				showInTimeline={false}
 				style={{
-					position: 'absolute',
-					left: width / 2,
-					top: height / 2,
-					width: 0,
-					height: 0,
-					scale: 1.05,
-					transformStyle: 'preserve-3d',
-					rotate: interpolate(
-						frame,
-						[fps, 3.1 * fps, 4.4 * fps, 6.5 * fps],
-						['x 55deg', 'x 0deg', 'x 0deg', 'x 55deg'],
-						motion,
-					),
+					backgroundColor,
+					fontFamily: 'Compose layers, sans-serif',
+					fontWeight: 500,
 				}}
 			>
-				<div
+				<Interactive.Div
+					name="Connected scenes"
 					style={{
+						position: 'absolute',
+						left: width / 2,
+						top: height / 2,
+						width: 0,
+						height: 0,
+						scale: 1.05,
 						transformStyle: 'preserve-3d',
 						rotate: interpolate(
 							frame,
 							[fps, 3.1 * fps, 4.4 * fps, 6.5 * fps],
-							['-24deg', '0deg', '0deg', '-24deg'],
+							['x 55deg', 'x 0deg', 'x 0deg', 'x 55deg'],
 							motion,
 						),
 					}}
 				>
-					<FeatureScene
-						name="Feature overview"
-						style={{translate: '-760px 0px'}}
-					/>
-					<Interactive.Div
-						name="Transition"
+					<div
 						style={{
-							position: 'absolute',
-							left: -380,
-							width: 0,
-							height: 0,
 							transformStyle: 'preserve-3d',
+							rotate: interpolate(
+								frame,
+								[fps, 3.1 * fps, 4.4 * fps, 6.5 * fps],
+								['-24deg', '0deg', '0deg', '-24deg'],
+								motion,
+							),
 						}}
 					>
-						<svg
-							viewBox={`0 0 ${connectorLength} 64`}
-							width={connectorLength}
-							height={64}
-							fill="none"
-							stroke={BLUE}
-							strokeWidth={2}
-							strokeLinecap="round"
-							strokeLinejoin="round"
+						<FeatureScene
+							name="Feature overview"
+							style={{translate: '-760px 0px'}}
+						/>
+						<Interactive.Div
+							name="Transition"
 							style={{
 								position: 'absolute',
-								left: -connectorLength / 2,
-								top: -32,
-								overflow: 'visible',
+								left: -380,
+								width: 0,
+								height: 0,
+								transformStyle: 'preserve-3d',
 							}}
 						>
-							<path
-								d={`M0 32H${connectorLength / 2 - 32} M${connectorLength / 2 + 32} 32H${connectorLength}`}
-							/>
-							<rect
-								x={connectorLength / 2 - 32}
-								y={0}
-								width={64}
+							<svg
+								viewBox={`0 0 ${connectorLength} 64`}
+								width={connectorLength}
 								height={64}
-								rx={12}
-								fill={BLUE}
-								stroke="none"
-							/>
-							<g
-								transform={`translate(${connectorLength / 2} 32) scale(4) translate(-12 -8)`}
-								stroke="white"
+								fill="none"
+								stroke={BLUE}
+								strokeWidth={2}
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								style={{
+									position: 'absolute',
+									left: -connectorLength / 2,
+									top: -32,
+									overflow: 'visible',
+								}}
 							>
-								<path d="M7.5 4.5 16.5 11.5v-7l-9 7Z" strokeWidth={0.5} />
-							</g>
-						</svg>
-					</Interactive.Div>
-					<ComposedScene name="Second scene" style={{translate: '0px 0px'}} />
-				</div>
-			</Interactive.Div>
-		</AbsoluteFill>
+								<path
+									d={`M0 32H${connectorLength / 2 - 32} M${connectorLength / 2 + 32} 32H${connectorLength}`}
+								/>
+								<rect
+									x={connectorLength / 2 - 32}
+									y={0}
+									width={64}
+									height={64}
+									rx={12}
+									fill={BLUE}
+									stroke="none"
+								/>
+								<g
+									transform={`translate(${connectorLength / 2} 32) scale(4) translate(-12 -8)`}
+									stroke="white"
+								>
+									<path d="M7.5 4.5 16.5 11.5v-7l-9 7Z" strokeWidth={0.5} />
+								</g>
+							</svg>
+						</Interactive.Div>
+						<ComposedScene name="Second scene" style={{translate: '0px 0px'}} />
+					</div>
+				</Interactive.Div>
+			</AbsoluteFill>
+		</BackgroundColor.Provider>
 	);
 };

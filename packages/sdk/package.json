@@ -58,5 +58,5 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"homepage": "https://www.remotion.dev/docs/sdk"
+	"homepage": "https://www.remotion.dev/docs/sdk/api"
 }

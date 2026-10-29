@@ -3,14 +3,13 @@ import {createRequire} from 'module';
 import {resolve} from 'path';
 import {
 	rendererClassic,
-	transformerTwoslash,
-} from '@remotion/typescript-tools/shiki-twoslash';
-import {createTwoslasher} from '@remotion/typescript-tools/twoslash';
+	createTransformerFactory,
+} from '@shikijs/twoslash/core';
 import type {HighlighterGeneric} from 'shiki/core';
+import {createDocsTwoslasher} from './docs-twoslasher';
 import {
 	createTwoslashCacheContext,
 	getTwoslashCacheKey,
-	getTwoslashCompilerOptions,
 	getTwoslashVersions,
 	readTwoslashCacheEntry,
 	TWOSLASH_EXPLICIT_TRIGGER,
@@ -18,17 +17,18 @@ import {
 	writeTwoslashCacheEntry,
 } from './twoslash-cache';
 
-let cachedTwoslasher: ReturnType<typeof createTwoslasher> | null = null;
+let cachedTwoslasher: ReturnType<typeof createDocsTwoslasher> | null = null;
 let cacheContext: ReturnType<typeof createTwoslashCacheContext> | null = null;
 
 function getTwoslasher() {
 	if (!cachedTwoslasher) {
-		cachedTwoslasher = createTwoslasher({
-			compilerOptions: getTwoslashCompilerOptions(),
+		cachedTwoslasher = createDocsTwoslasher({
+			rootDirectory: resolve(process.cwd()),
 		});
+		process.once('exit', cachedTwoslasher.dispose);
 	}
 
-	return cachedTwoslasher;
+	return cachedTwoslasher.twoslasher;
 }
 
 const getCacheContext = () => {
@@ -44,7 +44,7 @@ const getCacheContext = () => {
 };
 
 /**
- * Keeps a local cache of the final HTML in node_modules/.cache/twoslash.
+ * Keeps a local cache of the final HTML in node_modules/.cache/twoslash-native.
  */
 export const cachedTwoslashCall = (
 	code: string,
@@ -68,9 +68,10 @@ export const cachedTwoslashCall = (
 		lang,
 		theme: TWOSLASH_THEME,
 		transformers: [
-			transformerTwoslash({
+			createTransformerFactory(
 				twoslasher,
-				renderer: rendererClassic(),
+				rendererClassic(),
+			)({
 				explicitTrigger: TWOSLASH_EXPLICIT_TRIGGER,
 			}),
 		],

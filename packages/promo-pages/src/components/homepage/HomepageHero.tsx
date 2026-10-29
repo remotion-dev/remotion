@@ -1,4 +1,5 @@
 import React, {useRef} from 'react';
+import {automationVideos} from './automation-videos';
 import {GetStarted} from './GetStartedStrip';
 import type {ColorMode} from './layout/use-color-mode';
 import {MakeVideosAgentically} from './MakeVideosAgentically';
@@ -103,8 +104,7 @@ export const HomepageHero: React.FC<{readonly colorMode: ColorMode}> = ({
 				<MakeVideosProgrammatically
 					title="Parameterization"
 					description="Build templates and connect your assets."
-					videoSrc="https://remotion.media/homepage/parameterization-brand-4b037d1643f4.webm"
-					fallbackVideoSrc="https://remotion.media/homepage/parameterization-brand-97e28abb2c0b.mp4"
+					{...automationVideos.parameterization}
 					links={[
 						{label: 'Parameterization', href: '/docs/parameterized-rendering'},
 						{label: 'Motion design systems', href: '/design-systems'},
@@ -113,8 +113,7 @@ export const HomepageHero: React.FC<{readonly colorMode: ColorMode}> = ({
 				<MakeVideosAgentically
 					title="Batch rendering"
 					description="Render millions of videos on your own infrastructure."
-					videoSrc="https://remotion.media/homepage/render-progress-inset-padded-c2444f4217c0.webm"
-					fallbackVideoSrc="https://remotion.media/homepage/render-progress-inset-padded-25b72a686e9d.mp4"
+					{...automationVideos.batchRendering}
 					links={[
 						{label: 'Server-side rendering', href: '/docs/compare-ssr'},
 						{
@@ -125,20 +124,8 @@ export const HomepageHero: React.FC<{readonly colorMode: ColorMode}> = ({
 				/>
 				<MakeVideosInteractively
 					title="Applications"
-					videoStyle={{
-						// Display the 840px editor at column width; keep the
-						// wider canvas available for the orbiting cursor.
-						position: 'absolute',
-						top: 0,
-						left: `${(-200 / 840) * 100}%`,
-						width: `${(1280 / 840) * 100}%`,
-						maxWidth: 'none',
-						maxHeight: 'none',
-						pointerEvents: 'none',
-					}}
+					{...automationVideos.applications}
 					description="Make a simple tool or build a complex video editor."
-					videoSrc="https://remotion.media/homepage/applications-map-raised-1ea081adebd3.webm"
-					fallbackVideoSrc="https://remotion.media/homepage/applications-map-raised-bcb117322f3a.mp4"
 					links={[
 						{label: 'Player', href: '/docs/player'},
 						{label: 'Editor Starter', href: '/editor-starter'},

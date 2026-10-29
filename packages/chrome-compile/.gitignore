@@ -1,0 +1,10 @@
+*.pem
+*.key
+.env
+.DS_Store
+*.zip
+**/output/
+mac-arm64/.build/
+mac-arm64/artifacts/
+mac-arm64/launch-state.env
+__pycache__/
