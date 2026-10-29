@@ -1,5 +1,6 @@
 import {Player, type PlayerRef} from '@remotion/player';
 import React from 'react';
+import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {Internals, Sequence, useBufferState} from 'remotion';
 import {expect, test, vi} from 'vitest';
@@ -120,7 +121,7 @@ test.each([false, true])(
 			await vi.waitFor(() =>
 				expect(ref.current!.getCurrentFrame()).toBeGreaterThan(frozenFrame),
 			);
-			ref.current!.pause();
+			flushSync(() => ref.current!.pause());
 			const pausedFrame = ref.current!.getCurrentFrame();
 			await new Promise((resolve) => setTimeout(resolve, 100));
 			expect(ref.current!.getCurrentFrame()).toBe(pausedFrame);
