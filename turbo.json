@@ -59,6 +59,9 @@
 		"teste2e": {
 			"dependsOn": ["^make"]
 		},
+		"@remotion/example#teste2e": {
+			"dependsOn": ["^make", "@remotion/browser-bundler#make"]
+		},
 		"testwebrenderer": {
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},

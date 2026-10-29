@@ -291,7 +291,7 @@ const renderImagesOnWeb = <
 	options: RenderFramesOnWebOptions<Schema, Props>,
 	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
 ): Promise<RenderStillOnWebResult[]> => {
-	onlyOneStillRenderAtATimeQueue.ref = onlyOneStillRenderAtATimeQueue.ref
+	const render = onlyOneStillRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderImagesOnWeb<Schema, Props>(
@@ -314,9 +314,13 @@ const renderImagesOnWeb = <
 			),
 		);
 
-	return onlyOneStillRenderAtATimeQueue.ref as Promise<
-		RenderStillOnWebResult[]
-	>;
+	// The queue only owns completion; callers own the result or rejection reason.
+	onlyOneStillRenderAtATimeQueue.ref = render.then(
+		() => {},
+		() => {},
+	);
+
+	return render;
 };
 
 export const renderStillOnWeb = <
