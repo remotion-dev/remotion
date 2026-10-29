@@ -2,6 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {
 	SequenceActivityAbsoluteTimeContext,
 	SequenceActivityDormantContext,
+	SequenceActivitySuspensionContext,
 	SequenceActivityTimelineContext,
 } from './sequence-activity-context.js';
 import {
@@ -10,6 +11,25 @@ import {
 	type TimelineContextValue,
 } from './TimelineContext.js';
 import {useVideoConfig} from './use-video-config.js';
+
+// Resume through the context update, never through a wakeable callback. React
+// 19.2 can retry an already unmounted Activity with a null Offscreen stateNode.
+// Do not retain retry callbacks either: this token is shared by all activities.
+const suspendedActivity = {then: () => undefined};
+
+const SuspendSequenceActivity: React.FC<{
+	readonly children: React.ReactNode;
+	readonly dormant: boolean;
+}> = ({children, dormant}) => {
+	const suspended = useContext(SequenceActivitySuspensionContext);
+	if (dormant && suspended) {
+		// The hidden Activity retains its last committed children when suspended,
+		// including the metadata used by Studio's timeline registry.
+		throw suspendedActivity;
+	}
+
+	return children;
+};
 
 const areActivityChildrenEqual = (
 	previous: React.ReactNode,
@@ -114,7 +134,9 @@ export const SequenceActivityBoundary: React.FC<{
 							<React.Activity
 								mode={dormant && !parentDormant ? 'hidden' : 'visible'}
 							>
-								{children}
+								<SuspendSequenceActivity dormant={dormant}>
+									{children}
+								</SuspendSequenceActivity>
 							</React.Activity>
 						</AbsoluteTimeContext.Provider>
 					</TimelineContext.Provider>

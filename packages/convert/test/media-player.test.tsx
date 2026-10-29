@@ -36,7 +36,7 @@ const TrimmingPlayer = () => {
 			setUnclampedRect={() => undefined}
 			dimensions={{width: 1920, height: 1080}}
 			durationInSeconds={10}
-			fps={30}
+			fps={1.54}
 			rotation={0}
 			mirrorHorizontal={false}
 			mirrorVertical={false}
@@ -96,8 +96,8 @@ test('uses exported video geometry without changing player timing', () => {
 	});
 });
 
-test('uses the probed FPS in the player', () => {
-	expect(getPlayerFps(1.54)).toBe(1.54);
+test('uses at least 30 FPS in the player', () => {
+	expect(getPlayerFps(1.54)).toBe(30);
 	expect(getPlayerFps(120)).toBe(120);
 	expect(getPlayerFps(null)).toBe(30);
 });
@@ -114,4 +114,5 @@ test('pauses playback when trimming', () => {
 		}),
 	);
 	expect(rendered.getByRole('button', {name: 'Play video'})).not.toBeNull();
+	expect(rendered.getByText('0:00.033')).not.toBeNull();
 });

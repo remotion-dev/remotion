@@ -3,6 +3,7 @@ import type {
 	JSXElement,
 	JSXExpressionContainer,
 	JSXFragment,
+	JSXOpeningElement,
 	JSXSpreadAttribute,
 	ObjectProperty,
 	StringLiteral,
@@ -35,8 +36,8 @@ import {
 } from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
-	findNodePathForJsxElement,
 	findJsxElementNodeAtNodePath,
+	getNodePathForRecastPath,
 	getStaticJsxChildrenAttribute,
 	getStaticJsxTextContent,
 	hasJsxChildrenAttribute,
@@ -1485,10 +1486,13 @@ export const updateMultipleSequenceProps = ({
 					jsxElement,
 					updates,
 					schema,
-					videoConfigValues: getVideoConfigIdentifierValues({
-						ast,
-						videoConfigValues,
-					}),
+					// Only numeric updates without clipboard expressions use these bindings.
+					videoConfigValues: updates.some(
+						({value, clipboardParam}) =>
+							typeof value === 'number' && !clipboardParam,
+					)
+						? getVideoConfigIdentifierValues({ast, videoConfigValues})
+						: new Map(),
 					clipboardParamLocalNames,
 				}),
 			};
@@ -1496,16 +1500,33 @@ export const updateMultipleSequenceProps = ({
 	);
 	ensureImportsForUpdates({ast, updates: allUpdates});
 	applyGoogleFontSourceEdits({ast, updates: allUpdates});
+	const updatedOpeningElements = new Set(
+		updateResults.map(({jsxElement}) => jsxElement.openingElement),
+	);
+	const updatedNodePaths = new Map<JSXOpeningElement, SequenceNodePath>();
+	// Resolve all result paths together after imports and hooks have been inserted.
+	if (updatedOpeningElements.size > 0) {
+		recast.types.visit(ast, {
+			visitJSXOpeningElement(path) {
+				if (updatedOpeningElements.has(path.node as JSXOpeningElement)) {
+					updatedNodePaths.set(
+						path.node as JSXOpeningElement,
+						getNodePathForRecastPath(path, ast),
+					);
+				}
+
+				return this.traverse(path);
+			},
+		});
+	}
+
 	const results = updateResults.map(({jsxElement, result}) => {
-		const newNodePath = findNodePathForJsxElement(
-			ast,
-			jsxElement.openingElement,
-		);
+		const newNodePath = updatedNodePaths.get(jsxElement.openingElement);
 		if (!newNodePath) {
 			throw new Error('Could not determine the updated JSX element path');
 		}
 
-		return {...result, newNodePath};
+		return {...result, newNodePath: [...newNodePath]};
 	});
 	const {coveredRanges, edits: functionEdits} =
 		getFunctionSourceEditsForPrependedStatements({

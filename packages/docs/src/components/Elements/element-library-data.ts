@@ -2,6 +2,7 @@ import {
 	elementDefinitions,
 	type ElementDefinition,
 } from './element-definitions';
+import {elementCategories as registeredCategories} from './element-registry';
 
 type RegisteredElementDefinition = (typeof elementDefinitions)[number];
 
@@ -13,20 +14,21 @@ export type ElementLibrarySection = {
 	readonly label: string;
 };
 
-const elementCategories = Array.from(
-	new Set(elementDefinitions.map(({category}) => category)),
-);
+// Use the sidebar's category order for the gallery as well.
+const elementCategories = registeredCategories
+	.map(({category}) => category)
+	.filter((category) =>
+		elementDefinitions.some((definition) => definition.category === category),
+	);
 
 export const getElementCategoryLabel = (category: ElementCategory) => {
-	if (category === 'youtube') {
-		return 'YouTube';
-	}
-
-	return category
-		.split('-')
-		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-		.join(' ');
+	return (
+		registeredCategories.find((entry) => entry.category === category)?.label ??
+		category
+	);
 };
+
+export {getElementCategoryHeadingId} from './element-registry';
 
 export const isElementCategory = (
 	category: string,

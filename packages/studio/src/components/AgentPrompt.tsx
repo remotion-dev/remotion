@@ -1,4 +1,5 @@
 import React, {useCallback, useContext} from 'react';
+import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLACK_ALPHA_30, BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
@@ -109,6 +110,10 @@ export const AgentPrompt: React.FC<{
 		),
 		[installCopied],
 	);
+
+	if (getBrowserStudioOperations() !== null) {
+		return null;
+	}
 
 	return (
 		<>

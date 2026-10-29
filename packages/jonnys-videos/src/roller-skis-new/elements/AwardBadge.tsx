@@ -115,9 +115,8 @@ const awardBadgeSchema = {
 	winner: {type: 'string', default: 'Winner', description: 'Winner'},
 } as const satisfies InteractivitySchema;
 
-export const AwardBadge = Interactive.withSchema({
+export const AwardBadge = Interactive.create({
 	Component: AwardBadgeInner,
 	componentName: '<AwardBadge>',
 	schema: awardBadgeSchema,
-	wrapInSequence: true,
 });

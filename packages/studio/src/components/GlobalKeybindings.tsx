@@ -3,7 +3,7 @@ import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
-import {calculateTimeline} from '../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {pickColor} from '../helpers/pick-color';
@@ -42,6 +42,7 @@ const hasOwnProperty = (obj: object, key: string) =>
 	Object.prototype.hasOwnProperty.call(obj, key);
 
 export const GlobalKeybindings: React.FC = () => {
+	const calculateTimeline = useTimelineCalculator();
 	const keybindings = useKeybinding();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -140,7 +141,7 @@ export const GlobalKeybindings: React.FC = () => {
 			const selectedTrackKey = getTimelineSequenceSelectionKey(
 				selection.nodePathInfo,
 			);
-			const timeline = calculateTimeline({
+			const {tracks: timeline} = calculateTimeline({
 				sequences: sequencesRef.current,
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 			});
@@ -180,6 +181,7 @@ export const GlobalKeybindings: React.FC = () => {
 			return true;
 		},
 		[
+			calculateTimeline,
 			currentSelection,
 			overrideIdToNodePathMappingsRef,
 			sequencesRef,

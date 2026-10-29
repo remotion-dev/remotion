@@ -6,6 +6,7 @@ import {
 } from '../optimistic-update-keyframe-settings';
 
 const previous: CanUpdateSequencePropsResponse = {
+	durationDependentKeyframes: null,
 	canUpdate: true,
 	props: {
 		scale: {

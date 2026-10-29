@@ -226,9 +226,8 @@ const WordHighlightCaptionsContent: React.FC<WordHighlightCaptionsProps> = ({
 	);
 };
 
-export const WordHighlightCaptions = Interactive.withSchema({
+export const WordHighlightCaptions = Interactive.create({
 	Component: WordHighlightCaptionsContent,
 	componentName: '<WordHighlightCaptions>',
 	schema: wordHighlightCaptionsSchema,
-	wrapInSequence: true,
 });

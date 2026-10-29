@@ -7,6 +7,7 @@ require_relative 'remotion_lambda/render_frames_on_lambda_payload'
 require_relative 'remotion_lambda/render_progress_payload'
 require_relative 'remotion_lambda/render_still_on_lambda_payload'
 require_relative 'remotion_lambda/s3_output_provider'
+require_relative 'remotion_lambda/webhook'
 require_relative 'remotion_lambda/sdk'
 
 module RemotionLambda

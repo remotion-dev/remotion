@@ -1,4 +1,5 @@
 import type {TSequence} from 'remotion';
+import type {TimelineTransitionRange} from './get-timeline-transition-ranges';
 import type {TimelineSceneRange} from './timeline-series-layout';
 
 export const getTimelineSceneRange = ({
@@ -6,49 +7,57 @@ export const getTimelineSceneRange = ({
 	previous,
 	next,
 	range,
-	seriesItems,
+	transitionRangesByStart,
 }: {
 	readonly sequence: TSequence;
 	readonly previous: TSequence | null;
 	readonly next: TSequence | null;
 	readonly range: TimelineSceneRange | null;
-	readonly seriesItems: readonly TSequence[];
+	readonly transitionRangesByStart: ReadonlyMap<
+		number,
+		TimelineTransitionRange
+	>;
 }): TimelineSceneRange => {
 	const sceneEnd = sequence.from + sequence.duration;
 	const previousEnd = previous
 		? previous.from + previous.duration
 		: sequence.from;
-	const incomingOverlap =
-		sequence.timelineTrack?.role === 'clip' &&
-		previousEnd > sequence.from &&
-		seriesItems.some(
-			(item) =>
-				item.timelineTrack?.role === 'transition' &&
-				item.from === sequence.from,
-		);
-	const outgoingOverlap =
+	const incomingTransition =
+		sequence.timelineTrack?.role === 'clip' && previousEnd > sequence.from
+			? transitionRangesByStart.get(sequence.from)
+			: undefined;
+	const outgoingTransition =
 		sequence.timelineTrack?.role === 'clip' &&
 		next !== null &&
-		next.from < sceneEnd &&
-		seriesItems.some(
-			(item) =>
-				item.timelineTrack?.role === 'transition' && item.from === next.from,
-		);
-
+		next.from < sceneEnd
+			? transitionRangesByStart.get(next.from)
+			: undefined;
+	const from = Math.max(
+		range?.from ?? -Infinity,
+		sequence.from,
+		incomingTransition?.from ?? -Infinity,
+	);
+	const end = Math.min(
+		range?.end ?? Infinity,
+		sceneEnd,
+		outgoingTransition?.end ?? Infinity,
+	);
 	return {
-		from: Math.max(
-			range?.from ?? -Infinity,
-			incomingOverlap ? (sequence.from + previousEnd) / 2 : sequence.from,
+		from,
+		end,
+		activeFrom: Math.max(
+			range?.activeFrom ?? -Infinity,
+			incomingTransition ? (sequence.from + previousEnd) / 2 : sequence.from,
 		),
-		end: Math.min(
-			range?.end ?? Infinity,
-			outgoingOverlap ? (next.from + sceneEnd) / 2 : sceneEnd,
+		activeEnd: Math.min(
+			range?.activeEnd ?? Infinity,
+			outgoingTransition && next ? (next.from + sceneEnd) / 2 : sceneEnd,
 		),
-		fadeInEnd: incomingOverlap
-			? Math.max(range?.fadeInEnd ?? -Infinity, previousEnd)
-			: (range?.fadeInEnd ?? null),
-		fadeOutStart: outgoingOverlap
-			? Math.min(range?.fadeOutStart ?? Infinity, next.from)
-			: (range?.fadeOutStart ?? null),
+		transitionInEnd: incomingTransition
+			? Math.max(range?.transitionInEnd ?? -Infinity, incomingTransition.end)
+			: (range?.transitionInEnd ?? null),
+		transitionOutStart: outgoingTransition
+			? Math.min(range?.transitionOutStart ?? Infinity, outgoingTransition.from)
+			: (range?.transitionOutStart ?? null),
 	};
 };

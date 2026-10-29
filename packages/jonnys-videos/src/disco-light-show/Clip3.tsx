@@ -1,20 +1,15 @@
 import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {Video} from '@remotion/media';
 import React from 'react';
-import {
-	Interactive,
-	useVideoConfig,
-	interpolate,
-	useCurrentFrame,
-} from 'remotion';
+import {Interactive, interpolate, useCurrentFrame} from 'remotion';
 import {asset} from './assets';
 
 const Clip3Inner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<Video
+				name="Party dance floor"
 				src={asset('clip3-source.mp4')}
 				style={{
 					position: 'absolute',
@@ -23,7 +18,7 @@ const Clip3Inner: React.FC = () => {
 					height: 1080,
 					scale: 1.805,
 				}}
-				durationInFrames={68}
+				durationInFrames={99}
 				playbackRate={1.5}
 				effects={[
 					linearProgressiveBlur({
@@ -36,16 +31,12 @@ const Clip3Inner: React.FC = () => {
 					}),
 				]}
 				muted
-				premountFor={fps}
 			/>
 		</>
 	);
 };
 
-export const Clip3 = Interactive.withSchema({
+export const Clip3 = Interactive.create({
 	Component: Clip3Inner,
-	componentName: 'Clip3',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

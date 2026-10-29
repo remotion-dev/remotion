@@ -2,6 +2,8 @@ import React from 'react';
 import {Checkmark} from '../icons/Checkmark';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
+import {InfoBubble} from './RenderModal/InfoBubble';
+import {INFO_TOOLTIP_FONT_SIZE} from './RenderModal/InfoTooltip';
 import {label, optionRow, rightRow} from './RenderModal/layout';
 
 const DEFAULT_VALUE = 'studio-default';
@@ -18,12 +20,14 @@ export const booleanOptions = [
 
 export const ConfigSelect = <T extends string | boolean>({
 	defaultLabel,
+	description,
 	name,
 	onChange,
 	options,
 	value,
 }: {
 	readonly defaultLabel: string;
+	readonly description: React.ReactNode;
 	readonly name: string;
 	readonly onChange: (value: T | null) => void;
 	readonly options: readonly {label: string; value: T}[];
@@ -60,7 +64,26 @@ export const ConfigSelect = <T extends string | boolean>({
 
 	return (
 		<div style={optionRow}>
-			<div style={label}>{name}</div>
+			<div style={label}>
+				{name}
+				{description === null ? null : (
+					<InfoBubble
+						aria-label={`About ${name.toLowerCase()}`}
+						horizontalAlignment="right"
+					>
+						<div
+							style={{
+								padding: 12,
+								maxWidth: 280,
+								fontSize: INFO_TOOLTIP_FONT_SIZE,
+								lineHeight: 1.5,
+							}}
+						>
+							{description}
+						</div>
+					</InfoBubble>
+				)}
+			</div>
 			<div style={rightRow}>
 				<Combobox
 					values={values}

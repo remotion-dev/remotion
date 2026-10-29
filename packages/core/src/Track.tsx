@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {
 	sequenceSchema,
@@ -10,10 +10,7 @@ import {
 	type AbsoluteFillLayout,
 	type SequenceProps,
 } from './Sequence.js';
-import {
-	ExperimentalTracksEnabledContext,
-	TimelineTrackContext,
-} from './timeline-track-context.js';
+import {TimelineTrackContext} from './timeline-track-context.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
 
 export type TrackProps = Omit<
@@ -60,11 +57,7 @@ export const TrackWithoutSchema: React.FC<TrackWithoutSchemaProps> = ({
 	...props
 }) => {
 	const [id] = useState(() => String(Math.random()));
-	const tracksEnabled = useContext(ExperimentalTracksEnabledContext);
-	const value = useMemo(
-		() => (tracksEnabled ? {id, name} : null),
-		[id, name, tracksEnabled],
-	);
+	const value = useMemo(() => ({id, name}), [id, name]);
 
 	return (
 		<TimelineTrackContext.Provider value={value}>

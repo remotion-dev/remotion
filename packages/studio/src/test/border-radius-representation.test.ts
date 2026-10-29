@@ -35,6 +35,7 @@ test('a static shorthand can be converted to individual corners', () => {
 	]);
 
 	const initial: CanUpdateSequencePropsResponse = {
+		durationDependentKeyframes: null,
 		canUpdate: true,
 		props: {
 			[BORDER_RADIUS_SHORTHAND_KEY]: {

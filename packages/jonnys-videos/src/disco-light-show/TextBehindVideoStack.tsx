@@ -1,7 +1,5 @@
 import {Video} from '@remotion/media';
 import {
-	useVideoConfig,
-	AbsoluteFill,
 	Composition,
 	Easing,
 	Interactive,
@@ -11,18 +9,17 @@ import {
 import {asset} from './assets';
 
 const TextBehindVideoStackCompositionInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill
-			showInTimeline={false}
-			premountFor={fps}
-			style={{overflow: 'hidden'}}
-		>
-			<Interactive.Div
-				premountFor={fps}
+		<>
+			<Video
 				name="Background video"
+				src={asset('text-behind-video-background.webm')}
+				from={0}
+				trimBefore={330}
+				durationInFrames={3343}
+				muted
 				style={{
 					position: 'absolute',
 					left: 0,
@@ -30,6 +27,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 					width: 1920,
 					height: 1080,
 					scale: 0.31,
+					// Keep the outline 2px wide after the layer's scale.
+					outline: `${2 / 0.31}px solid #2684ff`,
 					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,
@@ -51,26 +50,13 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<Video
-					premountFor={fps}
-					src={asset('text-behind-video-background.webm')}
-					from={0}
-					trimBefore={330}
-					durationInFrames={3343}
-					muted
-					style={{
-						width: 1920,
-						height: 1080,
-						boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
-						borderRadius: 60,
-					}}
-					showInTimeline={false}
-				/>
-			</Interactive.Div>
-			<Interactive.Div
-				premountFor={fps}
+			/>
+			<Video
 				name="Text video"
+				src={asset('text-behind-video-text.webm')}
+				from={-625}
+				trimBefore={330}
+				durationInFrames={3343}
 				style={{
 					position: 'absolute',
 					left: 0,
@@ -78,6 +64,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 					width: 1920,
 					height: 1080,
 					scale: 0.31,
+					// Keep the outline 2px wide after the layer's scale.
+					outline: `${2 / 0.31}px solid #2684ff`,
 					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,
@@ -99,24 +87,13 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<Video
-					src={asset('text-behind-video-text.webm')}
-					from={-625}
-					trimBefore={330}
-					durationInFrames={3343}
-					style={{
-						width: 1920,
-						height: 1080,
-						boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
-						borderRadius: 60,
-					}}
-					premountFor={fps}
-				/>
-			</Interactive.Div>
-			<Interactive.Div
-				premountFor={fps}
+			/>
+			<Video
 				name="Foreground video"
+				src={asset('text-behind-video-foreground.webm')}
+				from={0}
+				trimBefore={330}
+				durationInFrames={3343}
 				style={{
 					position: 'absolute',
 					left: 0,
@@ -124,6 +101,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 					width: 1920,
 					height: 1080,
 					scale: 0.31,
+					// Keep the outline 2px wide after the layer's scale.
+					outline: `${2 / 0.31}px solid #2684ff`,
 					transformOrigin: '0% 0%',
 					translate: interpolate(
 						frame,
@@ -145,23 +124,8 @@ const TextBehindVideoStackCompositionInner: React.FC = () => {
 						},
 					),
 				}}
-			>
-				<Video
-					premountFor={fps}
-					src={asset('text-behind-video-foreground.webm')}
-					from={0}
-					trimBefore={330}
-					durationInFrames={3343}
-					style={{
-						width: 1920,
-						height: 1080,
-						boxShadow: '0px 0px 50px rgba(255, 255, 255, 0.5)',
-						borderRadius: 60,
-					}}
-					showInTimeline={false}
-				/>
-			</Interactive.Div>
-		</AbsoluteFill>
+			/>
+		</>
 	);
 };
 
@@ -174,14 +138,12 @@ export const TextBehindVideoStack: React.FC = () => {
 			fps={30}
 			width={1080}
 			height={1920}
+			defaultProps={{style: {overflow: 'hidden'}}}
 		/>
 	);
 };
 
-export const TextBehindVideoStackComposition = Interactive.withSchema({
+export const TextBehindVideoStackComposition = Interactive.create({
 	Component: TextBehindVideoStackCompositionInner,
-	componentName: 'TextBehindVideoStackComposition',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

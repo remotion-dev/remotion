@@ -221,6 +221,7 @@ type AddRenderRequestDynamicFields =
 			disallowParallelEncoding: boolean;
 			repro: boolean;
 			chromeMode: ChromeMode;
+			licenseKey: string | null;
 	  }
 	| {
 			type: 'video';
@@ -299,6 +300,7 @@ export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
 	enumPaths: EnumPath[];
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type ApplyVisualControlRequest = {
@@ -439,6 +441,7 @@ export type CanUpdateDefaultPropsResponse =
 export type SubscribeToDefaultPropsRequest = {
 	compositionId: string;
 	clientId: string;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type SubscribeToDefaultPropsResponse = CanUpdateDefaultPropsResponse;
@@ -492,6 +495,10 @@ export type UnsubscribeFromSequencePropsRequest = {
 	sequenceKeys: string[];
 	assetKeys: string[];
 	effectKeys: string[][];
+};
+
+export type UnsubscribeFromSequencePropsBatchRequest = {
+	requests: UnsubscribeFromSequencePropsRequest[];
 };
 
 export type GoogleFontSourceEdit = {
@@ -991,6 +998,21 @@ export type WrapNodeResponse =
 	  }
 	| {success: false; reason: string; stack: string};
 
+export type UnwrapNodeRequest = {
+	fileName: string;
+	compositionId: string;
+	nodePath: SequenceNodePath;
+	dryRun: boolean;
+};
+
+export type UnwrapNodeResponse =
+	| {
+			success: true;
+			canUnwrap: boolean;
+			nodePathMutation: SequenceNodePathMutation | null;
+	  }
+	| {success: false; reason: string; stack: string};
+
 export type PrecomposeJsxNodesRequestItem = {
 	fileName: string;
 	nodePath: SequenceNodePath;
@@ -1063,7 +1085,6 @@ export type InsertBasicCaptionsRequest = {
 	fileName: string;
 	nodePath: SequenceNodePath;
 	durationInFrames: number | null;
-	premountFor: number | null;
 	captions: {
 		text: string;
 		startMs: number;
@@ -1089,6 +1110,13 @@ export type ReplaceVideoSourceResponse =
 	| {success: false; reason: string; stack: string};
 
 export type InsertableCompositionElement =
+	| {
+			type: 'text';
+			text: string;
+			fontSize: number;
+			color: string;
+			position: InsertableCompositionElementPosition | null;
+	  }
 	| {
 			type: 'solid';
 			width: number;
@@ -1141,7 +1169,6 @@ export type InsertCompositionElementRequest = {
 	compositionId: string;
 	element: InsertableCompositionElement;
 	from: number | null;
-	premountFor: number | null;
 };
 
 export type InsertCompositionElementResponse =
@@ -1223,7 +1250,6 @@ export type InsertElementRequest = {
 	element: InstallableElement;
 	expectedFileState: ElementInstallExpectedFileState | null;
 	from: number | null;
-	premountFor: number | null;
 	position: InsertableCompositionElementPosition | null;
 	overwriteExisting: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
@@ -1594,7 +1620,7 @@ export const studioOperations = {
 		SubscribeToSequencePropsBatchResponse
 	>({mutatesSource: false}),
 	'/api/unsubscribe-from-sequence-props': new StudioOperation<
-		UnsubscribeFromSequencePropsRequest,
+		UnsubscribeFromSequencePropsBatchRequest,
 		undefined
 	>({mutatesSource: false}),
 	'/api/save-sequence-props': new StudioOperation<
@@ -1675,6 +1701,10 @@ export const studioOperations = {
 	'/api/precompose-jsx-nodes': new StudioOperation<
 		PrecomposeJsxNodesRequest,
 		PrecomposeJsxNodesResponse
+	>({mutatesSource: true}),
+	'/api/unwrap-node': new StudioOperation<
+		UnwrapNodeRequest,
+		UnwrapNodeResponse
 	>({mutatesSource: true}),
 	'/api/wrap-node': new StudioOperation<WrapNodeRequest, WrapNodeResponse>({
 		mutatesSource: true,

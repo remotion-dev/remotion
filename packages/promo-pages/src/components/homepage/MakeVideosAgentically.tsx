@@ -1,5 +1,6 @@
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
+import {useAutoplayVideo} from './use-autoplay-video';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
 export const MakeVideosAgentically: React.FC<{
@@ -13,8 +14,11 @@ export const MakeVideosAgentically: React.FC<{
 }> = ({
 	title = (
 		<>
-			<span className="text-[var(--subtitle)]">Make videos</span>
-			<br /> agentically
+			<span className="min-[900px]:text-[var(--make-videos-agentically-color,var(--subtitle))]">
+				Make videos
+			</span>{' '}
+			<br className="hidden min-[900px]:block" />
+			agentically
 		</>
 	),
 	description = 'Turn your idea into a video using your coding agent.',
@@ -27,59 +31,41 @@ export const MakeVideosAgentically: React.FC<{
 	videoSrc = '/img/render-progress.webm',
 	fallbackVideoSrc = '/img/render-progress.mp4',
 }) => {
-	const ref = useRef<HTMLDivElement>(null);
-	const videoRef = useRef<HTMLVideoElement>(null);
 	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const callback = (data: IntersectionObserverEntry[]) => {
-			if (data[0].isIntersecting) {
-				videoRef.current?.play();
-			}
-		};
-
-		const observer = new IntersectionObserver(callback, {
-			root: null,
-			threshold: 0.5,
-		});
-		observer.observe(current);
-
-		return () => observer.unobserve(current);
-	}, []);
+	const videoRef = useAutoplayVideo(showVideo ? src : null);
 
 	return (
-		<div ref={ref} className={'flex min-w-0 basis-0 flex-col flex-1'}>
-			<div className="flex aspect-square w-full items-start">
-				{showVideo && src ? (
-					<video
-						ref={videoRef}
-						src={src}
-						muted
-						autoPlay
-						playsInline
-						loop
-						preload="metadata"
-						style={{
-							width: 400,
-							maxWidth: '100%',
-							maxHeight: '100%',
-							borderRadius: 7,
-							overflow: 'hidden',
-						}}
-						className="cursor-default! relative object-contain"
-					/>
-				) : null}
-			</div>
+		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
+			{showVideo ? (
+				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
+					{src ? (
+						<video
+							ref={videoRef}
+							src={src}
+							muted
+							autoPlay
+							playsInline
+							loop
+							preload="metadata"
+							style={{
+								width: 400,
+								maxWidth: '100%',
+								maxHeight: '100%',
+								borderRadius: 7,
+								overflow: 'hidden',
+							}}
+							className="cursor-default! relative object-contain"
+						/>
+					) : null}
+				</div>
+			) : null}
 			<div className="font-brand">
-				<h2 className="text-2xl fontbrand leading-[1.1] font-medium">
+				<h2 className="text-2xl fontbrand leading-[1.1] font-medium max-[900px]:mb-2">
 					{title}
 				</h2>
-				<p className="text-balance leading-relaxed">{description}</p>
+				<p className="text-balance leading-relaxed max-[900px]:mb-0">
+					{description}
+				</p>
 				{showLinks ? <MakeVideosLinks links={links} /> : null}
 			</div>
 		</div>

@@ -1,4 +1,5 @@
 import type {AudioBufferSink, WrappedAudioBuffer} from 'mediabunny';
+import {isCodecReclaimedError} from './is-type-of-error';
 
 const AUDIO_PRIMING_SECONDS = 0.5;
 
@@ -20,26 +21,46 @@ export async function* makeIteratorWithPriming({
 	timeToSeek: number;
 	maximumTimestamp: number;
 }): AsyncGenerator<AudioBufferSlice, void, unknown> {
-	const primingStart = Math.max(0, timeToSeek - AUDIO_PRIMING_SECONDS);
-	const iterator = audioSink.buffers(primingStart, maximumTimestamp);
-
-	for await (const buffer of iterator) {
-		const sourceStart = Math.max(buffer.timestamp, timeToSeek);
-		const sourceEnd = Math.min(
-			buffer.timestamp + buffer.duration,
+	let resumeTime = timeToSeek;
+	let retriedWithoutProgress = false;
+	while (true) {
+		const iterator = audioSink.buffers(
+			Math.max(0, resumeTime - AUDIO_PRIMING_SECONDS),
 			maximumTimestamp,
 		);
+		try {
+			for await (const buffer of iterator) {
+				const sourceStart = Math.max(buffer.timestamp, resumeTime);
+				const sourceEnd = Math.min(
+					buffer.timestamp + buffer.duration,
+					maximumTimestamp,
+				);
 
-		if (sourceEnd <= sourceStart) {
-			continue;
+				if (sourceEnd <= sourceStart) {
+					continue;
+				}
+
+				// Preserve queued audio and resume after its last delivered slice.
+				resumeTime = sourceEnd;
+				retriedWithoutProgress = false;
+				yield {
+					buffer,
+					timelineTimestamp: sourceStart,
+					sourceOffsetInSeconds: sourceStart - buffer.timestamp,
+					sourceDurationInSeconds: sourceEnd - sourceStart,
+				};
+			}
+
+			return;
+		} catch (error) {
+			if (!isCodecReclaimedError(error) || retriedWithoutProgress) {
+				throw error;
+			}
+
+			retriedWithoutProgress = true;
+		} finally {
+			await iterator.return().catch(() => undefined);
 		}
-
-		yield {
-			buffer,
-			timelineTimestamp: sourceStart,
-			sourceOffsetInSeconds: sourceStart - buffer.timestamp,
-			sourceDurationInSeconds: sourceEnd - sourceStart,
-		};
 	}
 }
 

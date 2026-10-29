@@ -56,6 +56,12 @@ export const videoSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	preservePitch: {
+		type: 'boolean',
+		default: false,
+		description: 'Preserve pitch',
+		keyframable: false,
+	},
 	toneFrequency: {
 		type: 'number',
 		min: 0.01,
@@ -100,6 +106,7 @@ const InnerVideo: React.FC<
 	volume,
 	_remotionInternalStack,
 	toneFrequency,
+	preservePitch,
 	showInTimeline,
 	debugOverlay,
 	headless,
@@ -111,6 +118,7 @@ const InnerVideo: React.FC<
 	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize = null,
 	setMediaDurationInSeconds,
 	...props
 }) => {
@@ -138,14 +146,13 @@ const InnerVideo: React.FC<
 		trimAfter,
 	});
 
-	validateMediaProps({playbackRate, volume}, 'Video');
 	validateToneFrequency({toneFrequency, component: 'Video'});
 
 	if (environment.isRendering) {
 		return (
 			<VideoForRendering
 				{...props}
-				audioStreamIndex={audioStreamIndex ?? 0}
+				audioStreamIndex={audioStreamIndex ?? null}
 				className={className}
 				delayRenderRetries={delayRenderRetries ?? null}
 				delayRenderTimeoutInMilliseconds={
@@ -166,6 +173,7 @@ const InnerVideo: React.FC<
 				style={style}
 				volume={volume}
 				toneFrequency={toneFrequency}
+				preservePitch={preservePitch}
 				trimAfterValue={trimAfterValue}
 				trimBeforeValue={trimBeforeValue}
 				headless={headless}
@@ -174,6 +182,7 @@ const InnerVideo: React.FC<
 				requestInit={requestInit}
 				objectFit={objectFit}
 				effects={effects}
+				effectsOutputSize={effectsOutputSize}
 			/>
 		);
 	}
@@ -198,7 +207,7 @@ const InnerVideo: React.FC<
 		<VideoForPreview
 			{...props}
 			setMediaDurationInSeconds={setMediaDurationInSeconds}
-			audioStreamIndex={audioStreamIndex ?? 0}
+			audioStreamIndex={audioStreamIndex ?? null}
 			className={className}
 			logLevel={logLevel}
 			loop={loop}
@@ -207,6 +216,7 @@ const InnerVideo: React.FC<
 			onVideoFrame={onVideoFrame}
 			playbackRate={playbackRate}
 			toneFrequency={toneFrequency ?? 1}
+			preservePitch={preservePitch}
 			src={src}
 			style={style}
 			volume={volume}
@@ -225,6 +235,7 @@ const InnerVideo: React.FC<
 			objectFit={objectFit}
 			maxCanvasSinkFrameSize={maxCanvasSinkFrameSize}
 			effects={effects}
+			effectsOutputSize={effectsOutputSize}
 			_experimentalInitiallyDrawCachedFrame={
 				_experimentalInitiallyDrawCachedFrame
 			}
@@ -257,6 +268,7 @@ const VideoInner: React.FC<
 	trimBefore,
 	volume,
 	toneFrequency,
+	preservePitch,
 	debugOverlay,
 	headless,
 	onError,
@@ -267,6 +279,7 @@ const VideoInner: React.FC<
 	maxCanvasSinkFrameSize,
 	_experimentalInitiallyDrawCachedFrame,
 	effects,
+	effectsOutputSize = null,
 	durationInFrames,
 	from,
 	freeze,
@@ -281,6 +294,8 @@ const VideoInner: React.FC<
 	cropBottom,
 	...props
 }) => {
+	validateMediaProps({playbackRate, preservePitch, volume}, 'Video');
+
 	const sourceStack = controls
 		? (Internals.getStackForControls(controls) ?? undefined)
 		: undefined;
@@ -415,7 +430,7 @@ const VideoInner: React.FC<
 				<Internals.SequenceContent>
 					<InnerVideo
 						{...props}
-						audioStreamIndex={audioStreamIndex ?? 0}
+						audioStreamIndex={audioStreamIndex ?? null}
 						className={className}
 						delayRenderRetries={delayRenderRetries ?? null}
 						delayRenderTimeoutInMilliseconds={
@@ -439,6 +454,7 @@ const VideoInner: React.FC<
 						trimBefore={trimBefore}
 						volume={volume ?? 1}
 						toneFrequency={toneFrequency ?? 1}
+						preservePitch={preservePitch ?? null}
 						_remotionInternalStack={sourceStack}
 						debugOverlay={debugOverlay ?? false}
 						headless={headless ?? false}
@@ -452,6 +468,7 @@ const VideoInner: React.FC<
 							_experimentalInitiallyDrawCachedFrame ?? false
 						}
 						effects={memoizedEffects}
+						effectsOutputSize={effectsOutputSize}
 						setMediaDurationInSeconds={setMediaDurationInSeconds}
 					/>
 				</Internals.SequenceContent>

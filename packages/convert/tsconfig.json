@@ -39,6 +39,9 @@
 	},
 	"references": [
 		{
+			"path": "../studio-shared"
+		},
+		{
 			"path": "../design"
 		}
 	]

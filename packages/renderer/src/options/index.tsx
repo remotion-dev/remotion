@@ -34,9 +34,6 @@ import {enforceAudioOption} from './enforce-audio';
 import {envFileOption} from './env-file';
 import {everyNthFrameOption} from './every-nth-frame';
 import {experimentalKeepAudioContextAliveOption} from './experimental-keep-audio-context-alive';
-import {experimentalSequenceActivityOption} from './experimental-sequence-activity';
-import {experimentalSequenceActivityLimitOption} from './experimental-sequence-activity-limit';
-import {experimentalTracksOption} from './experimental-tracks';
 import {folderExpiryOption} from './folder-expiry';
 import {forSeamlessAacConcatenationOption} from './for-seamless-aac-concatenation';
 import {forceNewStudioOption} from './force-new-studio';
@@ -75,6 +72,7 @@ import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {preservePitchOnPlaybackOption} from './preserve-pitch-on-playback';
 import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
 import {proResProfileOption} from './prores-profile';
@@ -87,6 +85,8 @@ import {runsOption} from './runs';
 import {sampleRateOption} from './sample-rate';
 import {scaleOption} from './scale';
 import {separateAudioOption} from './separate-audio';
+import {sequenceActivityLimitOption} from './sequence-activity-limit';
+import {showLayerFrameNumbersOption} from './show-layer-frame-numbers';
 import {showPremountingOption} from './show-premounting';
 import {skipSkillsOption} from './skip-skills';
 import {stillFrameOption} from './still-frame';
@@ -104,6 +104,8 @@ import {webpackPollOption} from './webpack-poll';
 import {x264Option} from './x264-preset';
 
 export const allOptions = {
+	preservePitchOnPlaybackOption,
+	showLayerFrameNumbersOption,
 	showPremountingOption,
 	allowHtmlInCanvasOption,
 	audioCodecOption,
@@ -180,9 +182,7 @@ export const allOptions = {
 	framesOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	ipv4Option,
 	stillImageFormatOption,

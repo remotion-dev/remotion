@@ -49,7 +49,7 @@ export const optimisticUpdateForPropStatuses = ({
 	}
 
 	return {
-		canUpdate: true,
+		...previous,
 		props,
 		effects: previous.effects,
 	};

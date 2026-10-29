@@ -285,21 +285,41 @@ const dimensionsMatch = (
 export const parseDragData = (
 	source: SerializedDragData | DragDataTransfer,
 ): ParsedDragData | null => {
-	const {mimeType, payload} =
-		'types' in source
-			? (() => {
-					const candidate = getDragPreviewMetadata(source.types);
-					if (candidate === null) {
-						return {mimeType: '', payload: ''};
-					}
+	let serialized: SerializedDragData;
 
-					return {
-						mimeType: candidate.mimeType,
-						payload: source.getData(candidate.mimeType),
-					};
-				})()
-			: source;
+	if ('types' in source) {
+		const candidate = getDragPreviewMetadata(source.types);
+
+		if (candidate === null) {
+			// Safari hides custom MIME types when dragging between origins.
+			// Only accept the validated Element payload written by setStudioDragData.
+			const data = parseElementDragData(source.getData('text/plain'));
+			if (data === null || data.element.durationInFrames === undefined) {
+				return null;
+			}
+
+			return {
+				type: 'element',
+				data,
+				preview: {
+					type: 'element',
+					...(data.element.dimensions ?? {}),
+					durationInFrames: data.element.durationInFrames,
+				},
+			};
+		}
+
+		serialized = {
+			mimeType: candidate.mimeType,
+			payload: source.getData(candidate.mimeType),
+		};
+	} else {
+		serialized = source;
+	}
+
+	const {mimeType, payload} = serialized;
 	const preview = parseDragMimeType(mimeType);
+
 	if (preview === null) {
 		return null;
 	}
@@ -313,6 +333,7 @@ export const parseDragData = (
 
 		case 'component': {
 			const data = parseComponentDragData(payload);
+
 			if (
 				data === null ||
 				!dimensionsMatch(preview, data.component.dimensions)
@@ -331,6 +352,7 @@ export const parseDragData = (
 
 		case 'element': {
 			const data = parseElementDragData(payload);
+
 			if (!data || !dimensionsMatch(preview, data.element.dimensions)) {
 				return null;
 			}

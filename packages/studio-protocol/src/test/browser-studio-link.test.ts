@@ -16,8 +16,8 @@ test('round-trips a payload through the default Browser Studio URL', () => {
 	const url = buildOpenInRemotionNewUrl({payload});
 	const parsedUrl = new URL(url);
 
-	expect(parsedUrl.origin).toBe('https://www.remotion.dev');
-	expect(parsedUrl.pathname).toBe('/new');
+	expect(parsedUrl.origin).toBe('https://remotion.new');
+	expect(parsedUrl.pathname).toBe('/');
 	expect(url).not.toContain('Grüezi');
 	expect(
 		StudioProtocolInternals.parseBrowserStudioHash(parsedUrl.hash),
@@ -29,6 +29,7 @@ test('preserves a configured Browser Studio endpoint', () => {
 		endpoint: 'https://studio.example.test/new?template=blank',
 		payload,
 	});
+
 	const parsedUrl = new URL(url);
 
 	expect(parsedUrl.origin).toBe('https://studio.example.test');

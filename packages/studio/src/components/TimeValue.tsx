@@ -7,7 +7,12 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
+import {
+	LIGHT_TEXT,
+	TRANSPARENT,
+	WHITE,
+	WHITE_ALPHA_80,
+} from '../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -33,7 +38,7 @@ const text: React.CSSProperties = {
 };
 
 const currentTimeTypography: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	color: WHITE_ALPHA_80,
 	display: 'inline-block',
 	fontSize: 14,
 	fontVariantNumeric: 'tabular-nums',
@@ -84,8 +89,37 @@ const currentTimeSubtitle: React.CSSProperties = {
 	textAlign: 'left',
 };
 
-export const TimeValue: React.FC = () => {
+const CurrentTimeInput: React.FC<{
+	readonly buttonRef: React.Ref<HTMLButtonElement>;
+	readonly onTextChange: (value: string) => void;
+	readonly onValueChange: (value: number) => void;
+	readonly formatter: (value: string | number) => string;
+}> = ({buttonRef, onTextChange, onValueChange, formatter}) => {
 	const frame = useCurrentFrame();
+
+	return (
+		<InputDragger
+			ref={buttonRef}
+			aria-label={String(frame)}
+			value={frame}
+			onTextChange={onTextChange}
+			onValueChange={onValueChange}
+			formatter={formatter}
+			formatterStyle={currentTimeTypography}
+			buttonStyle={currentTimeButtonStyle}
+			rightAlign={false}
+			status="ok"
+			style={currentTimeInputStyle}
+		/>
+	);
+};
+
+const CurrentFrame: React.FC = () => {
+	const frame = useCurrentFrame();
+	return frame;
+};
+
+export const TimeValue = React.memo(() => {
 	const {showFrames, setShowFrames} = useContext(TimelineTickFormatContext);
 	const toggleTickFormat = useCallback(() => {
 		setShowFrames((previous) => !previous);
@@ -156,18 +190,11 @@ export const TimeValue: React.FC = () => {
 	return (
 		<div style={text}>
 			<div style={currentTimeStack}>
-				<InputDragger
-					ref={ref}
-					aria-label={String(frame)}
-					value={frame}
+				<CurrentTimeInput
+					buttonRef={ref}
 					onTextChange={onTextChange}
 					onValueChange={onValueChange}
 					formatter={formatter}
-					formatterStyle={currentTimeTypography}
-					buttonStyle={currentTimeButtonStyle}
-					rightAlign={false}
-					status="ok"
-					style={currentTimeInputStyle}
 				/>
 				<ActionTooltip
 					label="Toggle time format"
@@ -183,7 +210,7 @@ export const TimeValue: React.FC = () => {
 						aria-label="Show timeline ticks as frames"
 						aria-pressed={showFrames}
 					>
-						{frame}
+						<CurrentFrame />
 					</button>
 				</ActionTooltip>
 			</div>
@@ -193,4 +220,4 @@ export const TimeValue: React.FC = () => {
 			<Spacing x={0.5} />
 		</div>
 	);
-};
+});

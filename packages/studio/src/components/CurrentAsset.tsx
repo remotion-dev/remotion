@@ -475,6 +475,7 @@ export const AssetInfo: React.FC<{
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
 				<CollapsibleInspectorSection
+					bodyPaddingBottom={8}
 					collapsible
 					label="File"
 					sectionId="asset-file"
@@ -490,6 +491,7 @@ export const AssetInfo: React.FC<{
 			) : null}
 			{mediaSections && mediaSections.video ? (
 				<CollapsibleInspectorSection
+					bodyPaddingBottom={8}
 					collapsible
 					label="Video"
 					sectionId="asset-video"
@@ -505,6 +507,7 @@ export const AssetInfo: React.FC<{
 			) : null}
 			{mediaSections && mediaSections.audio !== null ? (
 				<CollapsibleInspectorSection
+					bodyPaddingBottom={8}
 					collapsible={mediaSections.audio.length > 0}
 					label="Audio"
 					sectionId="asset-audio"
@@ -541,6 +544,7 @@ export const AssetInfo: React.FC<{
 				</CollapsibleInspectorSection>
 			) : null}
 			<CollapsibleInspectorSection
+				bodyPaddingBottom={8}
 				collapsible
 				label="Actions"
 				sectionId="asset-actions"

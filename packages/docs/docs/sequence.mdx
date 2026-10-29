@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-sequence.png
+image: https://remotion.media/docs/generated/articles-docs-sequence.png
 id: sequence
 title: <Sequence>
 crumb: 'API'
@@ -10,19 +10,20 @@ It provides timing props such as `from`, `durationInFrames` and `trimBefore`.
 
 These components use the same timing props:
 
+- [`<Track>`](/docs/track).
 - [`Interactive` elements](/docs/interactive), such as `<Interactive.Div>`, and [`<AbsoluteFill>`](/docs/absolute-fill).
 - [`<Img>`](/docs/img), [`<CanvasImage>`](/docs/canvasimage), [`<AnimatedImage>`](/docs/animatedimage), [`<Solid>`](/docs/solid) and [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
 - [`<HtmlInCanvasMotionBlur>`](/docs/motion-blur/html-in-canvas-motion-blur) from `@remotion/motion-blur`.
 - [`<Gif>`](/docs/gif/gif), [`<Lottie>`](/docs/lottie), [`<ThreeCanvas>`](/docs/three-canvas) and [`<RemotionRiveCanvas>`](/docs/rive/remotionrivecanvas).
 - [`@remotion/shapes`](/docs/shapes), [`@remotion/rough-notation`](/docs/rough-notation/api) and [`<MacOSCursor>`](/docs/mac-cursors/mac-os-cursor).
 - [`<Audio>`](/docs/media/audio) and [`<Video>`](/docs/media/video) from `@remotion/media`.
-- Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) that expose these props.
+- Custom components built with [`Interactive.create()`](/docs/interactive-create) that expose these props.
 
 See [Timing and trimming](/docs/timing) for examples of using these props directly on components.
 
 ## Make a component inherit from Sequence
 
-Wrap a custom component with [`Interactive.withSchema()`](/docs/interactive-with-schema) to give it the timing props listed below.  
+Wrap a custom component with [`Interactive.create()`](/docs/interactive-create) to give it the timing props listed below.  
 You can then set those props directly on the component, and Studio shows it as a single timeline layer.  
 See the linked API page for an example.
 
@@ -90,7 +91,7 @@ For example, a sequence that starts at frame 60 which is inside a sequence that 
 ## Props
 
 `<Sequence>` accepts children and the following props.  
-Custom components built with [`Interactive.withSchema()`](/docs/interactive-with-schema) also receive timing props.
+Custom components built with [`Interactive.create()`](/docs/interactive-create) also receive timing props.
 
 ### `from?`
 
@@ -309,7 +310,7 @@ If `layout` is set to `none`, there is no container and setting this style is no
 ### `premountFor?`<AvailableFrom v="4.0.140" />
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
-The default is controlled by [`defaultPremountInSeconds`](/docs/player/premounting#default-premount-duration), converted to frames. It is `0` seconds in v4 and `2` seconds in [v5.0](/docs/5-0-migration).
+The [Studio default](/docs/player/premounting#default-premounting-in-studio) is `2` seconds starting in v4.0.535. The general default, used by the [Player](/docs/player/premounting#default-premounting-in-the-player), is `0` seconds in v4 and `2` seconds in [v5](/docs/5-0-migration#default-premount-duration-is-now-2-seconds). Seconds are converted to frames. An explicit `premountFor` takes precedence.
 
 ### `postmountFor?`<AvailableFrom v="4.0.340" />
 
@@ -373,6 +374,6 @@ Example: `<Sequence layout="none">`.
 ## See also
 
 - [Source code for this component](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/Sequence.tsx)
-- [Reuse components using Sequences](/docs/reusability)
+- [Composing components](/docs/composing)
 - [`<Composition />`](/docs/composition)
 - [`<Series />`](/docs/series)

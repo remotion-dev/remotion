@@ -32,7 +32,7 @@ const ChapterTagInner: React.FC<Props> = ({
 	});
 
 	return (
-		<Interactive.Div
+		<div
 			style={{
 				position: 'absolute',
 				left: 72,
@@ -62,11 +62,12 @@ const ChapterTagInner: React.FC<Props> = ({
 			<span style={{clipPath: `inset(0 ${(1 - reveal) * 100}% 0 0)`}}>
 				{title}
 			</span>
-		</Interactive.Div>
+		</div>
 	);
 };
 
 const chapterTagSchema = {
+	...Interactive.textSchema,
 	index: {type: 'string', default: '01', description: 'Chapter number'},
 	title: {type: 'string', default: '', description: 'Chapter title'},
 	color: {type: 'color', default: '#F3EFE6', description: 'Text color'},
@@ -78,9 +79,9 @@ const chapterTagSchema = {
 	},
 } as const satisfies InteractivitySchema;
 
-export const ChapterTag = Interactive.withSchema({
+export const ChapterTag = Interactive.create({
 	Component: ChapterTagInner,
 	componentName: '<ChapterTag>',
 	schema: chapterTagSchema,
-	wrapInSequence: true,
+	layout: 'none',
 });

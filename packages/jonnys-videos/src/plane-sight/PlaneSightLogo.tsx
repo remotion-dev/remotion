@@ -19,7 +19,6 @@ const PlaneSightLogoContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/branding/plane-sight-logo.png'
 				}
-				premountFor={fps}
 				style={{
 					position: 'absolute',
 					left: 220,
@@ -40,9 +39,7 @@ const PlaneSightLogoContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const PlaneSightLogo = Interactive.withSchema({
+export const PlaneSightLogo = Interactive.create({
 	Component: PlaneSightLogoContent,
 	componentName: 'PlaneSightLogo',
-	schema: {},
-	wrapInSequence: true,
 });

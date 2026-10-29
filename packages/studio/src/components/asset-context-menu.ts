@@ -81,6 +81,20 @@ export const getAssetContextMenuItems = ({
 					value: 'open-asset-in-convert',
 				}
 			: null,
+		fileExplorerAvailable
+			? {
+					id: 'open-asset-in-explorer',
+					keyHint: null,
+					label: `Show in ${fileManagerName}`,
+					leftItem: null,
+					onClick: openAssetInExplorer,
+					quickSwitcherLabel: `Show asset in ${fileManagerName}`,
+					subMenu: null,
+					type: 'item',
+					value: 'open-asset-in-explorer',
+					disabled: fileExplorerDisabled,
+				}
+			: null,
 		{
 			type: 'divider',
 			id: 'open-in-new-window-divider',
@@ -124,20 +138,6 @@ export const getAssetContextMenuItems = ({
 			type: 'divider',
 			id: 'asset-file-actions-divider',
 		},
-		fileExplorerAvailable
-			? {
-					id: 'open-asset-in-explorer',
-					keyHint: null,
-					label: `Show in ${fileManagerName}`,
-					leftItem: null,
-					onClick: openAssetInExplorer,
-					quickSwitcherLabel: `Show asset in ${fileManagerName}`,
-					subMenu: null,
-					type: 'item',
-					value: 'open-asset-in-explorer',
-					disabled: fileExplorerDisabled,
-				}
-			: null,
 		{
 			id: 'rename-asset',
 			keyHint: null,

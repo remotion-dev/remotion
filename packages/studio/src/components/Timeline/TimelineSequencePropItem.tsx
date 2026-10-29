@@ -7,9 +7,11 @@ import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {unstable_batchedUpdates} from 'react-dom';
 import type {
 	CanUpdateSequencePropStatus,
+	CanUpdateSequencePropStatusFalse,
 	CanUpdateSequencePropStatusKeyframed,
 	CanUpdateSequencePropStatusStatic,
 	InteractivitySchema,
+	RuntimeValueStore,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {Internals} from 'remotion';
@@ -23,6 +25,7 @@ import type {
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {ContextMenu} from '../ContextMenu';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -83,12 +86,18 @@ const isKeyframedStatus = (
 const isResettableStatus = ({
 	status,
 	defaultValue,
+	fieldKey,
 }: {
 	readonly status: CanUpdateSequencePropStatus;
 	readonly defaultValue: unknown;
+	readonly fieldKey: string;
 }) => {
 	if (defaultValue === undefined) {
-		return false;
+		return (
+			fieldKey === 'premountFor' &&
+			status.status === 'static' &&
+			status.codeValue !== undefined
+		);
 	}
 
 	if (status.status === 'keyframed') {
@@ -110,6 +119,9 @@ const Value: React.FC<{
 	readonly schema: InteractivitySchema;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 }> = ({field, nodePath, validatedLocation, schema, propStatus}) => {
+	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
+	const video = Internals.useVideo();
+	const fps = nodePath.videoConfigValues?.fps ?? video?.fps;
 	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const previewedKeyframes = useRef<
 		ReturnType<typeof getPlaybackRateKeyframeChanges>['previews']
@@ -230,7 +242,12 @@ const Value: React.FC<{
 	const effectiveValue = Internals.getEffectiveVisualModeValue({
 		propStatus,
 		dragOverrideValue,
-		defaultValue: field.fieldSchema.default,
+		defaultValue:
+			field.key === 'premountFor' &&
+			field.fieldSchema.default === undefined &&
+			fps !== undefined
+				? Math.round(defaultPremountInSeconds * fps)
+				: field.fieldSchema.default,
 		shouldResortToDefaultValueIfUndefined: true,
 	});
 
@@ -603,6 +620,24 @@ export const TimelineSequenceKeyframedValue = React.memo(
 	TimelineSequenceKeyframedValueUnmemoized,
 );
 
+const TimelineComputedSequencePropValue: React.FC<{
+	readonly field: SchemaFieldInfo;
+	readonly propStatus: CanUpdateSequencePropStatusFalse;
+	readonly runtimeValueStore: RuntimeValueStore | null;
+	readonly validatedLocation: CodePosition;
+}> = ({field, propStatus, runtimeValueStore, validatedLocation}) => {
+	const runtimeValue = useRuntimeStoreValue(runtimeValueStore, field.key);
+
+	return (
+		<TimelineNonEditableStatus
+			propStatus={propStatus}
+			field={field}
+			runtimeValue={runtimeValue}
+			validatedLocation={validatedLocation}
+		/>
+	);
+};
+
 export const TimelineSequencePropItem: React.FC<{
 	readonly field: SchemaFieldInfo;
 	readonly validatedLocation: CodePosition;
@@ -613,7 +648,7 @@ export const TimelineSequencePropItem: React.FC<{
 	readonly keyframeDisplayOffset: number;
 	readonly keyframePlaybackRate: number;
 	readonly keyframeControlsMode: TimelineKeyframeControlsMode;
-	readonly runtimeValue: unknown;
+	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({
 	field,
 	validatedLocation,
@@ -624,7 +659,7 @@ export const TimelineSequencePropItem: React.FC<{
 	keyframeDisplayOffset,
 	keyframePlaybackRate,
 	keyframeControlsMode,
-	runtimeValue,
+	runtimeValueStore,
 }) => {
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
@@ -699,15 +734,17 @@ export const TimelineSequencePropItem: React.FC<{
 		return isResettableStatus({
 			status: propStatus,
 			defaultValue: field.fieldSchema.default,
+			fieldKey: field.key,
 		});
-	}, [propStatus, field.fieldSchema.default]);
+	}, [propStatus, field.fieldSchema.default, field.key]);
 
 	const canPerformReset =
 		previewServerState.type === 'connected' &&
 		propStatus !== null &&
 		propStatus.status !== 'computed';
 	const canShowReset =
-		canPerformReset && field.fieldSchema.default !== undefined;
+		canPerformReset &&
+		(field.fieldSchema.default !== undefined || field.key === 'premountFor');
 
 	const onReset = useCallback(() => {
 		if (
@@ -834,10 +871,10 @@ export const TimelineSequencePropItem: React.FC<{
 			propStatus={propStatus}
 		/>
 	) : (
-		<TimelineNonEditableStatus
+		<TimelineComputedSequencePropValue
 			propStatus={propStatus}
 			field={field}
-			runtimeValue={runtimeValue}
+			runtimeValueStore={runtimeValueStore}
 			validatedLocation={validatedLocation}
 		/>
 	);

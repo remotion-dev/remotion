@@ -21,7 +21,7 @@ export const getPlayerFps = (fps: number | null | undefined) => {
 		return 30;
 	}
 
-	return fps;
+	return Math.max(30, fps);
 };
 
 export const getDurationInFrames = ({
@@ -308,7 +308,8 @@ export function VideoPlayer({
 				className={cn(
 					crop ? 'border-0' : 'border-2',
 					'rounded-md',
-					crop ? 'border-transparent' : 'border-black',
+					crop ? 'overflow-visible' : 'overflow-hidden',
+					crop ? 'border-transparent' : 'border-outline',
 					'relative',
 				)}
 			>
@@ -341,15 +342,13 @@ export function VideoPlayer({
 					/>
 				) : (
 					<div
-						className="bg-slate-100 text-muted-foreground flex items-center justify-center text-sm"
+						className="bg-muted rounded-[inherit]"
 						style={{
 							aspectRatio: dimensions
 								? `${dimensions.width} / ${dimensions.height}`
 								: '16 / 9',
 						}}
-					>
-						Loading preview...
-					</div>
+					/>
 				)}
 				{!isAudio && crop && playerDimensions ? (
 					<CropUI

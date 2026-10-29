@@ -27,7 +27,6 @@ const TowerZoomContent = ({style, afterHerdr}: TowerZoomProps) => {
 						? 'https://remotion.media/jonnys-videos/plane-sight/screenshots/herdr-terminal-airport.png'
 						: 'https://remotion.media/jonnys-videos/plane-sight/screenshots/five-agent-airport.png'
 				}
-				premountFor={fps}
 				style={{
 					width: '100%',
 					height: '100%',
@@ -61,7 +60,7 @@ const TowerZoomContent = ({style, afterHerdr}: TowerZoomProps) => {
 	);
 };
 
-export const TowerZoom = Interactive.withSchema({
+export const TowerZoom = Interactive.create({
 	Component: TowerZoomContent,
 	componentName: 'TowerZoom',
 	schema: {
@@ -71,5 +70,4 @@ export const TowerZoom = Interactive.withSchema({
 			description: 'Use the airport after the Herdr handoff',
 		},
 	} satisfies InteractivitySchema,
-	wrapInSequence: true,
 });

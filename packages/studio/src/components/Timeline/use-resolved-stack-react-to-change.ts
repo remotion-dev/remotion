@@ -41,6 +41,8 @@ export const useResolveStackAndReactToChange = (
 		lastResolvedLocation.current = resolvedLocationFromStack;
 	}
 
+	// Keep the inspector mounted while resolving the refreshed stack. Source
+	// subscriptions must wait for stackIsResolved before using this location.
 	const resolvedLocation = stackIsResolved
 		? resolvedLocationFromStack
 		: stackState.preferMappedNodePath
@@ -50,9 +52,13 @@ export const useResolveStackAndReactToChange = (
 	resolvedLocationRef.current = resolvedLocation;
 	const getStackRef = useRef(getStack);
 	getStackRef.current = getStack;
+	const previousSequenceIdentity = useRef(sequenceIdentity);
 
 	useEffect(() => {
-		const newStack = getStackRef.current();
+		const identityChanged =
+			previousSequenceIdentity.current !== sequenceIdentity;
+		previousSequenceIdentity.current = sequenceIdentity;
+		const newStack = getStack();
 		setStackState((current) => {
 			if (newStack === current.stack) {
 				return current;
@@ -60,12 +66,12 @@ export const useResolveStackAndReactToChange = (
 
 			return {
 				stack: newStack,
-				// A different identity means a different selected sequence. Its existing
-				// node path mapping is still preferred.
-				preferMappedNodePath: true,
+				// Registration can publish its new stack after the refresh event.
+				// Only a different sequence should retain its existing node path.
+				preferMappedNodePath: identityChanged,
 			};
 		});
-	}, [sequenceIdentity]);
+	}, [getStack, sequenceIdentity]);
 
 	useEffect(() => {
 		if (fastRefreshes === 0) {
@@ -136,6 +142,7 @@ export const useResolveStackAndReactToChange = (
 	return {
 		preferMappedNodePath: stackState.preferMappedNodePath,
 		resolvedLocation,
+		stackIsResolved,
 		stack: stackState.stack,
 	};
 };

@@ -2,8 +2,14 @@ import {experts} from '@remotion/promo-pages/dist/experts/experts-data.js';
 import {CreateVideoInternals} from 'create-video';
 import React from 'react';
 import {Composition, Folder, Still} from 'remotion';
+import {CylinderTextDemo} from '../../components/demos/CylinderTextDemo';
 import {MotionBlurHtmlInCanvasLiveDemo} from '../../components/demos/MotionBlurDemo';
 import {EffectsBarrelDistortionPreview} from '../../components/effects/effects-barrel-distortion-preview';
+import {
+	EffectsBevelAlphaPreview,
+	BevelAlphaDemo,
+	BevelAlphaTextSource,
+} from '../../components/effects/effects-bevel-alpha-preview';
 import {EffectsBlurPreview} from '../../components/effects/effects-blur-preview';
 import {EffectsBrightnessPreview} from '../../components/effects/effects-brightness-preview';
 import {EffectsBurlapPreview} from '../../components/effects/effects-burlap-preview';
@@ -14,6 +20,11 @@ import {EffectsColorKeyPreview} from '../../components/effects/effects-color-key
 import {EffectsContourLinesPreview} from '../../components/effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../../components/effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../../components/effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../../components/effects/effects-curves-preview';
+import {
+	CylinderTextSource,
+	EffectsCylinderPreview,
+} from '../../components/effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../../components/effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../../components/effects/effects-drop-shadow-preview';
 import {EffectsDuotonePreview} from '../../components/effects/effects-duotone-preview';
@@ -22,6 +33,10 @@ import {EffectsEvolvePreview} from '../../components/effects/effects-evolve-prev
 import {EffectsExposurePreview} from '../../components/effects/effects-exposure-preview';
 import {EffectsFisheyePreview} from '../../components/effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../../components/effects/effects-flannel-preview';
+import {
+	EffectsFractalNoisePreview,
+	FractalNoiseDemo,
+} from '../../components/effects/effects-fractal-noise-preview';
 import {EffectsGlowPreview} from '../../components/effects/effects-glow-preview';
 import {EffectsGrayscalePreview} from '../../components/effects/effects-grayscale-preview';
 import {EffectsGridlinesPreview} from '../../components/effects/effects-gridlines-preview';
@@ -29,6 +44,10 @@ import {EffectsHalftoneLinearGradientPreview} from '../../components/effects/eff
 import {EffectsHalftonePreview} from '../../components/effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../../components/effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../../components/effects/effects-invert-preview';
+import {
+	EffectsLensBlurPreview,
+	LensBlurDemo,
+} from '../../components/effects/effects-lens-blur-preview';
 import {EffectsLevelsPreview} from '../../components/effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../../components/effects/effects-light-leak-preview';
 import {
@@ -46,6 +65,11 @@ import {
 import {EffectsLinesPreview} from '../../components/effects/effects-lines-preview';
 import {EffectsLiquidContoursPreview} from '../../components/effects/effects-liquid-contours-preview';
 import {
+	EffectsLongShadowsPreview,
+	LongShadowsTextSource,
+	LONG_SHADOWS_PREVIEW_PARAMS,
+} from '../../components/effects/effects-long-shadows-preview';
+import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
 } from '../../components/effects/effects-lut-preview';
@@ -57,6 +81,10 @@ import {
 } from '../../components/effects/effects-noise-displacement-preview';
 import {EffectsNoisePreview} from '../../components/effects/effects-noise-preview';
 import {EffectsOutlinePreview} from '../../components/effects/effects-outline-preview';
+import {
+	EffectsPageTurnPreview,
+	PageTurnScene,
+} from '../../components/effects/effects-page-turn-preview';
 import {
 	EffectsPaperPreview,
 	PAPER_PREVIEW_PARAMS,
@@ -83,6 +111,7 @@ import {EffectsSaturationPreview} from '../../components/effects/effects-saturat
 import {EffectsScalePreview} from '../../components/effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../../components/effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../../components/effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../../components/effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../../components/effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
@@ -90,6 +119,10 @@ import {
 } from '../../components/effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../../components/effects/effects-skew-preview';
 import {EffectsSpecklePreview} from '../../components/effects/effects-speckle-preview';
+import {
+	EffectsSpherePreview,
+	SpinningGlobeDemo,
+} from '../../components/effects/effects-sphere-preview';
 import {
 	EffectsStarburstPreview,
 	STARBURST_PREVIEW_PARAMS,
@@ -102,6 +135,11 @@ import {
 	EffectsUvTranslatePreview,
 	EffectsXyTranslatePreview,
 } from '../../components/effects/effects-translate-preview';
+import {
+	EffectsTurbulentDisplacePreview,
+	TurbulentDisplaceDemo,
+	TurbulentDisplaceTextSource,
+} from '../../components/effects/effects-turbulent-displace-preview';
 import {EffectsTvSignalOffPreview} from '../../components/effects/effects-tv-signal-off-preview';
 import {EffectsVenetianBlindsPreview} from '../../components/effects/effects-venetian-blinds-preview';
 import {EffectsVibrancePreview} from '../../components/effects/effects-vibrance-preview';
@@ -122,6 +160,7 @@ import {articles} from '../data/articles';
 import {AllTemplates} from './AllTemplates';
 import {Article} from './Article';
 import {ElementPlayground} from './element-playground/ElementPlayground';
+import {ElementsOgImage} from './ElementsOgImage';
 import {Expert} from './Expert';
 import {TemplateComp} from './Template';
 
@@ -190,6 +229,12 @@ export const RemotionRoot: React.FC = () => {
 					);
 				})}
 			</Folder>
+			<Still
+				component={ElementsOgImage}
+				height={630}
+				width={1200}
+				id="elements-og-image"
+			/>
 			<Folder name="articles">
 				{articles.map((e) => {
 					return (
@@ -223,6 +268,83 @@ export const RemotionRoot: React.FC = () => {
 				})}
 			</Folder>
 			<Folder name="effect-previews">
+				<Still
+					id="effects-page-turn-preview"
+					component={EffectsPageTurnPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						foldPosition: [0.57, 0.6],
+						foldDirection: 300,
+						foldRadius: 85,
+						lightDirection: -45,
+						render: 'both',
+						backPageOpacity: 0.25,
+						paperColor: '#ffffff',
+					}}
+				/>
+				<Composition
+					id="page-turn-demo"
+					component={PageTurnScene}
+					defaultProps={{style: {backgroundColor: '#182033'}}}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Still
+					id="effects-sphere-preview"
+					component={EffectsSpherePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 300,
+						rotationX: 0,
+						rotationY: -20,
+						rotationZ: 0,
+						position: [0.5, 0.5],
+						render: 'both',
+						shading: 0.35,
+					}}
+				/>
+				<Composition
+					id="sphere-globe"
+					component={SpinningGlobeDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={240}
+				/>
+				<Composition
+					id="cylinder-text"
+					component={CylinderTextDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Still
+					id="effects-cylinder-text"
+					component={CylinderTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-cylinder-preview"
+					component={EffectsCylinderPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 340,
+						rotation: 30,
+						rotationX: 52,
+						rotationY: 0,
+						rotationZ: -18,
+						position: [0.5, 0.5],
+						render: 'both',
+						shading: 0.35,
+					}}
+				/>
 				<Still
 					id="effects-brightness-preview"
 					component={EffectsBrightnessPreview}
@@ -298,6 +420,23 @@ export const RemotionRoot: React.FC = () => {
 					defaultProps={{amount: 1.5}}
 				/>
 				<Still
+					id="effects-curves-preview"
+					component={EffectsCurvesPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						points: [
+							[0, 0],
+							[0.25, 0.12],
+							[0.75, 0.88],
+							[1, 1],
+						],
+						channel: 'rgb',
+						interpolation: 'smooth',
+						amount: 1,
+					}}
+				/>
+				<Still
 					id="effects-color-key-preview"
 					component={EffectsColorKeyPreview}
 					width={1280}
@@ -345,6 +484,124 @@ export const RemotionRoot: React.FC = () => {
 					}}
 				/>
 				<Still
+					id="effects-bevel-alpha-text-source"
+					component={BevelAlphaTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-bevel-alpha-preview"
+					component={EffectsBevelAlphaPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						edgeThickness: 14,
+						lightAngle: -60,
+						lightColor: 'white',
+						lightIntensity: 0.9,
+					}}
+				/>
+				<Composition
+					id="bevel-alpha-demo"
+					component={BevelAlphaDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Still
+					id="effects-lens-blur-preview"
+					component={EffectsLensBlurPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						radius: 16,
+						irisShape: 'hexagon',
+						irisRoundness: 0,
+						irisRotation: 0,
+						irisAspectRatio: 1,
+						highlightGain: 0.5,
+						highlightThreshold: 0.8,
+						highlightSaturation: 1,
+						repeatEdgePixels: true,
+						samples: 512,
+						linearLight: false,
+					}}
+				/>
+				<Composition
+					id="lens-blur-demo"
+					component={LensBlurDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+				<Still
+					id="effects-turbulent-displace-text-source"
+					component={TurbulentDisplaceTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-turbulent-displace-preview"
+					component={EffectsTurbulentDisplacePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						displacement: 'turbulent',
+						amount: 120,
+						size: 150,
+						offset: [0.5, 0.5],
+						complexity: 2,
+						evolution: 90,
+						cycleEvolution: false,
+						cycle: 1,
+						seed: 0,
+						pinning: 'all',
+					}}
+				/>
+				<Composition
+					id="turbulent-displace-demo"
+					component={TurbulentDisplaceDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={120}
+				/>
+
+				<Still
+					id="effects-fractal-noise-preview"
+					component={EffectsFractalNoisePreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						fractalType: 'basic',
+						noiseType: 'soft-linear',
+						scale: 300,
+						complexity: 6,
+						evolution: 0,
+						contrast: 2,
+						brightness: 0,
+						offsetX: 0,
+						offsetY: 0,
+						subInfluence: 0.7,
+						subScaling: 0.56,
+						cycleEvolution: false,
+						cycle: 1,
+						seed: 0,
+						invert: false,
+						amount: 1,
+					}}
+				/>
+				<Composition
+					id="fractal-noise-demo"
+					component={FractalNoiseDemo}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={180}
+				/>
+				<Still
 					id="effects-exposure-preview"
 					component={EffectsExposurePreview}
 					width={1280}
@@ -356,7 +613,14 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsLevelsPreview}
 					width={1280}
 					height={720}
-					defaultProps={{blackPoint: 0.1, whitePoint: 0.9, gamma: 1.4}}
+					defaultProps={{
+						blackPoint: 0.1,
+						whitePoint: 0.9,
+						gamma: 1.4,
+						outputBlack: 0.03,
+						outputWhite: 0.95,
+						channel: 'rgb',
+					}}
 				/>
 				<Still
 					id="effects-lut-preview"
@@ -408,6 +672,19 @@ export const RemotionRoot: React.FC = () => {
 						direction: 'vertical',
 						slats: 14,
 					}}
+				/>
+				<Still
+					id="effects-long-shadows-text-source"
+					component={LongShadowsTextSource}
+					width={1280}
+					height={720}
+				/>
+				<Still
+					id="effects-long-shadows-preview"
+					component={EffectsLongShadowsPreview}
+					width={1280}
+					height={720}
+					defaultProps={LONG_SHADOWS_PREVIEW_PARAMS}
 				/>
 				<Still
 					id="effects-drop-shadow-preview"
@@ -966,6 +1243,30 @@ export const RemotionRoot: React.FC = () => {
 						offset: 0,
 						amplitude: 40,
 						wavelength: 160,
+					}}
+				/>
+				<Still
+					id="effects-shatter-preview"
+					component={EffectsShatterPreview}
+					width={1280}
+					height={720}
+					defaultProps={{
+						time: 0.5,
+						pattern: 'bricks',
+						repetitions: 10,
+						direction: 0,
+						origin: [0.5, 0.5],
+						center: [0.5, 0.5],
+						radius: 0.4,
+						depth: 0.1,
+						strength: 5,
+						rotationSpeed: 0.2,
+						randomness: 0.1,
+						viscosity: 0.1,
+						massVariance: 0.3,
+						gravity: 3,
+						seed: 0,
+						extrusionDepth: 0.05,
 					}}
 				/>
 				<Still

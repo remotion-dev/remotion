@@ -776,4 +776,58 @@ export const experts: Expert[] = [
 			</div>
 		),
 	},
+	{
+		slug: 'mark-santos',
+		name: 'Mark Santos',
+		image: '/img/freelancers/mark-santos.jpg',
+		website: 'https://www.markstudios.com',
+		x: 'markksantos',
+		github: 'markksantos',
+		linkedin: 'in/markksantos/',
+		email: 'contact@markstudios.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-10-09').getTime(),
+		description: (
+			<div>
+				I didn&apos;t plan to start a creative agency. I started editing because
+				I cared about making great content, and once I got good at it, people
+				kept coming back for more. That became Mark Studios. We use Remotion for
+				the captions and graphics in our clients&apos; YouTube videos.
+			</div>
+		),
+	},
+	{
+		slug: 'arif-ata-kosker',
+		name: 'Arif Ata Köşker',
+		image: '/img/freelancers/arif.png',
+		website: 'https://www.arifatakosker.com/en/is/remotion',
+		x: null,
+		github: 'Arif-Ata-Kosker',
+		linkedin: null,
+		email: 'arif@feastflows.com',
+		videocall: null,
+		discord: null,
+		since: new Date('2026-10-14').getTime(),
+		description: (
+			<div>
+				I build automated video pipelines with Remotion. My{' '}
+				<a target={'_blank'} href="https://youtu.be/Dl5kunVp-2Y">
+					reel editor
+				</a>{' '}
+				turns a raw talking-head video into a ready-to-post video through one
+				pipeline: transcription, automatic cuts, face-tracked reframing,
+				word-level captions and loudness normalization, all rendered with
+				Remotion. I use it to edit my own content on{' '}
+				<a target={'_blank'} href="https://www.instagram.com/arifata.kosker/">
+					Instagram
+				</a>
+				.
+				<br />
+				I&apos;ve also built a prompt-to-video production pipeline and
+				data-driven motion graphics. I run FeastFlows, a software company for
+				restaurants.
+			</div>
+		),
+	},
 ];

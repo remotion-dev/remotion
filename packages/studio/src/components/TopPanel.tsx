@@ -6,12 +6,14 @@ import {
 	useResponsiveSidebarStatus,
 } from '../helpers/use-responsive-sidebar-status';
 import {RULER_WIDTH} from '../state/editor-rulers';
+import {SelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
 import {CanvasTabs} from './CanvasTabs';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
+import MobilePanel from './MobilePanel';
 import {ObserveDefaultProps} from './ObserveDefaultPropsContext';
 import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
@@ -51,12 +53,15 @@ const TopPanelInner: React.FC<{
 	readonly bufferStateDelayInMilliseconds: number;
 }> = ({readOnlyStudio, onMounted, drawRef, bufferStateDelayInMilliseconds}) => {
 	const {
+		leftSidebarOverlayOpen,
+		setLeftSidebarOverlayOpen,
 		rightSidebarTemporaryExpansion,
 		setRightSidebarTemporaryExpansion,
 		setSidebarCollapsedState,
 		setSidebarCollapsedDuringDrag,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
+	const selectedModal = useContext(SelectedModalContext);
 	const rulersAreVisible = useIsRulerVisible();
 	const isNarrowLayout = useBreakpoint(SIDEBAR_RESPONSIVE_BREAKPOINTS.right);
 
@@ -80,6 +85,16 @@ const TopPanelInner: React.FC<{
 		}),
 		[rulersAreVisible],
 	);
+
+	const closeLeftSidebarOverlay = useCallback(() => {
+		setLeftSidebarOverlayOpen(false);
+	}, [setLeftSidebarOverlayOpen]);
+
+	useEffect(() => {
+		if (selectedModal !== null) {
+			closeLeftSidebarOverlay();
+		}
+	}, [closeLeftSidebarOverlay, selectedModal]);
 
 	const onCollapseLeft = useCallback(() => {
 		setSidebarCollapsedState({left: 'collapsed', right: null});
@@ -114,6 +129,15 @@ const TopPanelInner: React.FC<{
 			readOnlyStudio={readOnlyStudio}
 		>
 			<div style={container}>
+				{leftSidebarOverlayOpen && selectedModal === null ? (
+					<MobilePanel onClose={closeLeftSidebarOverlay}>
+						<ExplorerPanel
+							readOnlyStudio={readOnlyStudio}
+							initialPanel="compositions"
+							onCompositionSelected={closeLeftSidebarOverlay}
+						/>
+					</MobilePanel>
+				) : null}
 				<div style={row}>
 					<SplitterContainer
 						minFlex={0.15}
@@ -126,12 +150,16 @@ const TopPanelInner: React.FC<{
 						id="sidebar-to-preview"
 						orientation="vertical"
 					>
-						{actualStateLeft === 'expanded' ? (
+						{actualStateLeft === 'expanded' && !leftSidebarOverlayOpen ? (
 							<SplitterElement sticky={null} type="flexer">
-								<ExplorerPanel readOnlyStudio={readOnlyStudio} />
+								<ExplorerPanel
+									readOnlyStudio={readOnlyStudio}
+									initialPanel={null}
+									onCompositionSelected={null}
+								/>
 							</SplitterElement>
 						) : null}
-						{actualStateLeft === 'expanded' ? (
+						{actualStateLeft === 'expanded' && !leftSidebarOverlayOpen ? (
 							<SplitterHandle
 								allowToCollapse="left"
 								onCollapse={onCollapseLeft}

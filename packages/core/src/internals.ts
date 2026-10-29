@@ -46,6 +46,7 @@ import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 } from './CompositionManagerContext.js';
 import {CompositionManagerProvider} from './CompositionManagerProvider.js';
@@ -59,7 +60,9 @@ import {
 	EditorPropsProvider,
 	timeValueRef,
 } from './EditorProps.js';
+import {createCurveSampler} from './effects/create-curve-sampler.js';
 import {createEffect} from './effects/create-effect.js';
+import {subscribeToEffectSource} from './effects/effect-source-observer.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -105,6 +108,8 @@ import {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
 import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {useHtmlInCanvasUnsupportedMessage} from './HtmlInCanvas.js';
+import {HtmlInCanvasFallback} from './HtmlInCanvasFallback.js';
 import {
 	getInputPropsOverride,
 	setInputPropsOverride,
@@ -154,6 +159,7 @@ import {
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
 import {playbackLogging} from './playback-logging.js';
+import {PlaybackPitchContext} from './playback-pitch-context';
 import {portalNode, setPortalNodeCurrentScale} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -225,6 +231,7 @@ import {
 	VisualModeDragOverridesRefContext,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModePropStatusesSubscriptionContext,
 	VisualModeSettersContext,
 	type CanUpdateEffectPropsResponse,
 	type CanUpdateEffectPropsResponseFalse,
@@ -245,10 +252,7 @@ import {
 	useTimelineContext,
 	useTimelineSetFrameWithoutSeek,
 } from './timeline-position-state.js';
-import {
-	ExperimentalTracksEnabledContext,
-	TimelineTrackContext,
-} from './timeline-track-context.js';
+import {TimelineTrackContext} from './timeline-track-context.js';
 import {
 	AbsoluteTimeContext,
 	PlaybackRateContext,
@@ -355,6 +359,8 @@ const compositionSelectorRef = createRef<{
 // Mark them as Internals so use don't assume this is public
 // API and are less likely to use it
 export const Internals = {
+	HtmlInCanvasFallback,
+	useHtmlInCanvasUnsupportedMessage,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,
@@ -389,9 +395,11 @@ export const Internals = {
 	resolveTrimProps,
 	VideoForPreview,
 	CompositionManager,
+	CompositionManagerRefContext,
 	CompositionSetters,
 	VisualModePropStatusesContext,
 	VisualModePropStatusesRefContext,
+	VisualModePropStatusesSubscriptionContext,
 	VisualModeBatchSettersContext,
 	VisualModeDragOverridesContext,
 	VisualModeDragOverridesRefContext,
@@ -437,7 +445,6 @@ export const Internals = {
 	truthy,
 	SequenceContext,
 	TimelineTrackContext,
-	ExperimentalTracksEnabledContext,
 	TrackWithoutSchema,
 	PremountContext,
 	usePremounting,
@@ -530,6 +537,7 @@ export const Internals = {
 	DelayRenderContextType,
 	TimelineContext,
 	usePlaying,
+	PlaybackPitchContext,
 	PlaybackRateContext,
 	AbsoluteTimeContext,
 	RenderAssetManagerProvider,
@@ -540,8 +548,10 @@ export const Internals = {
 	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
 	createEffect,
+	createCurveSampler,
 	createWebGLContextError,
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,

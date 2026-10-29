@@ -1,14 +1,13 @@
 import {Video} from '@remotion/media';
 import React from 'react';
-import {Interactive, useVideoConfig} from 'remotion';
+import {Interactive} from 'remotion';
 import {asset} from './assets';
 
 const Clip4Inner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	return (
 		<>
 			<Video
-				premountFor={fps}
+				name="Party close-up"
 				src={asset('IMG_8549.mp4')}
 				style={{
 					position: 'absolute',
@@ -24,10 +23,7 @@ const Clip4Inner: React.FC = () => {
 	);
 };
 
-export const Clip4 = Interactive.withSchema({
+export const Clip4 = Interactive.create({
 	Component: Clip4Inner,
-	componentName: 'Clip4',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

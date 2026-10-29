@@ -90,10 +90,7 @@ const Composition4PeopleInner: React.FC = () => {
 	);
 };
 
-export const Composition4People = Interactive.withSchema({
+export const Composition4People = Interactive.create({
 	Component: Composition4PeopleInner,
-	componentName: 'Composition4People',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

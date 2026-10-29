@@ -20,6 +20,10 @@ import {
 	WrapInEnteringProgressContext,
 	WrapInExitingProgressContext,
 } from './context.js';
+import {
+	findDanglingConnectors,
+	type TransitionSeriesChildKind,
+} from './find-dangling-connectors.js';
 import {flattenChildren} from './flatten-children.js';
 import {slide} from './presentations/slide.js';
 import type {
@@ -240,13 +244,41 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const flattedChildren = useMemo(() => {
-		return flattenChildren(children).filter(
-			(child) =>
-				!Internals.OptimisticSequenceDeletion.isElementDeleted(
-					child,
-					pendingDeletions,
-				),
+		const flattened = flattenChildren(children);
+		const deleted = flattened.map((child) =>
+			Internals.OptimisticSequenceDeletion.isElementDeleted(
+				child,
+				pendingDeletions,
+			),
 		);
+		// A deleted sequence takes the transitions or overlays that would be left
+		// dangling along, like the source codemod does. Otherwise two of them
+		// would sit next to each other until the source file is reloaded.
+		const kinds = flattened.map((child): TransitionSeriesChildKind => {
+			if (!React.isValidElement(child)) {
+				return 'other';
+			}
+
+			if (child.type === SeriesSequence) {
+				return 'sequence';
+			}
+
+			if (
+				child.type === TransitionSeriesTransition ||
+				child.type === SeriesOverlay
+			) {
+				return 'connector';
+			}
+
+			return 'other';
+		});
+		if (kinds.some((kind, i) => kind === 'sequence' && deleted[i])) {
+			for (const i of findDanglingConnectors({kinds, deleted})) {
+				deleted[i] = true;
+			}
+		}
+
+		return flattened.filter((_, i) => !deleted[i]);
 	}, [children, pendingDeletions]);
 	const hasOverlay = flattedChildren.some(
 		(child) => React.isValidElement(child) && child.type === SeriesOverlay,
@@ -722,41 +754,23 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 						);
 					};
 
-					const nextDuration =
-						next?.props.timing.getDurationInFrames({fps}) ?? null;
-					const nextTransitionFrame =
-						nextDuration === null
-							? null
-							: frame -
-								actualStartFrame -
-								timelineDurationInFrames +
-								nextDuration;
-					const nextProgress =
-						next &&
-						nextTransitionFrame !== null &&
-						nextDuration !== null &&
-						nextTransitionFrame >= 0 &&
-						nextTransitionFrame < nextDuration
-							? next.props.timing.getProgress({
-									frame: nextTransitionFrame,
-									fps,
-								})
-							: null;
+					const nextProgress = next
+						? next.props.timing.getProgress({
+								frame:
+									frame -
+									actualStartFrame -
+									timelineDurationInFrames +
+									next.props.timing.getDurationInFrames({fps}),
+								fps,
+							})
+						: null;
 
-					const prevDuration =
-						prev?.props.timing.getDurationInFrames({fps}) ?? null;
-					const prevTransitionFrame = prev ? frame - actualStartFrame : null;
-					const prevProgress =
-						prev &&
-						prevTransitionFrame !== null &&
-						prevDuration !== null &&
-						prevTransitionFrame >= 0 &&
-						prevTransitionFrame < prevDuration
-							? prev.props.timing.getProgress({
-									frame: prevTransitionFrame,
-									fps,
-								})
-							: null;
+					const prevProgress = prev
+						? prev.props.timing.getProgress({
+								frame: frame - actualStartFrame,
+								fps,
+							})
+						: null;
 
 					if (
 						next &&

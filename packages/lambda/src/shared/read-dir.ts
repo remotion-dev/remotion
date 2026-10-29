@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type {ReadDir} from '@remotion/serverless';
+import type {ReadDir} from '../functions/types';
 import {getEtagOfFile} from './get-etag';
 
 // Function to recursively read a directory and return a list of files
@@ -37,6 +37,12 @@ export const readDirectory: ReadDir = ({
 			.join('/');
 
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
+			if (fs.statSync(filePath).isDirectory()) {
+				throw new Error(
+					`The directory ${originalDir} contains a symbolic link to a directory at ${relative}. Directory symbolic links are not supported when deploying a site.`,
+				);
+			}
+
 			const realPath = fs.realpathSync(filePath);
 
 			etags[relative] = getEtagOfFile(realPath, onProgress);

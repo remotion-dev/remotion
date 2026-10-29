@@ -9,7 +9,7 @@ description: Add a new package to the Remotion monorepo, including package scaff
 
 1. **Create `packages/<name>/`** with these files:
    - `package.json` — copy from `@remotion/light-leaks` as template; update name, description, homepage, dependencies
-   - `tsconfig.json` — extends `../tsconfig.settings.json`, uses tsgo with `emitDeclarationOnly: true`, `outDir: "dist"`, `module: "es2020"`, `moduleResolution: "bundler"`, `target: "ES2022"`
+   - `tsconfig.json` — extends `../tsconfig.settings.json`, uses the native TypeScript compiler with `emitDeclarationOnly: true`, `outDir: "dist"`, `module: "es2020"`, `moduleResolution: "bundler"`, `target: "ES2022"`
    - `src/index.ts` — exports
    - `bundle.ts` — Bun build script, externalize `react`, `remotion`, `remotion/no-react`, `react/jsx-runtime`, `react/jsx-dev-runtime`, `react-dom`
    - `eslint.config.mjs` — use `remotionFlatConfig({react: true})` if React, `{react: false}` otherwise
@@ -51,8 +51,8 @@ For the documentation version, increment the patch version by 1 as it will only 
 
 - Use `"workspace:*"` for internal dependencies
 - Use `"catalog:"` for shared external dependency versions
-- The `make` script is: `tsgo && bun --env-file=../.env.bundle bundle.ts`
+- The `make` script is: `tsc && bun --env-file=../.env.bundle bundle.ts`
 - Add `"type": "module"` to `package.json`
-- Add `"@typescript/native-preview": "catalog:"` to devDependencies
+- Add `"typescript": "catalog:"` to devDependencies. This installs the native TypeScript compiler used by package builds.
 - Types/main point to `dist/index.d.ts` and `dist/index.js` (not `dist/cjs/`)
 - Packages with React components need `peerDependencies` for `react` and `react-dom`

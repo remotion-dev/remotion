@@ -28,6 +28,7 @@ import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
+import {getCrfForCodec} from './get-crf-for-codec';
 import {getGitSource} from './get-github-repository';
 import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
@@ -248,4 +249,5 @@ export const CliInternals = {
 	makeCommandHelpOption,
 	handleCtrlC,
 	registerCtrlCHandler,
+	getCrfForCodec,
 };

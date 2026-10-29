@@ -8,7 +8,6 @@ import {
 	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
-import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {
 	getNodeCanEditEasing,
@@ -23,6 +22,7 @@ import {
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
 import {useTimelineSelection} from './TimelineSelection';
+import {useTimelineStructureSelector} from './use-timeline-structure-selector';
 
 export type ExpandedTrackKeyframeRow = {
 	readonly height: number;
@@ -107,6 +107,7 @@ export const useExpandedTrackKeyframeRows = ({
 				propStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				includeInspectorOnlyFields: false,
 				runtimeValues,
 			}),
 		[
@@ -117,7 +118,7 @@ export const useExpandedTrackKeyframeRows = ({
 			nodePathInfo,
 		],
 	);
-	const tree = useRuntimeValueSelector({
+	const tree = useTimelineStructureSelector({
 		controls: sequence.controls,
 		selector: selectTree,
 		isEqual: areTimelineTreeLayoutsEqual,

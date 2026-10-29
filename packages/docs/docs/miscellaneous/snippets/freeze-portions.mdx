@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-miscellaneous-snippets-freeze-portions.png
+image: https://remotion.media/docs/generated/articles-docs-miscellaneous-snippets-freeze-portions.png
 title: 'Freeze portions of a sequence'
 sidebar_label: Freeze a portion
 crumb: 'Snippets'
@@ -28,11 +28,8 @@ const CounterInner: React.FC = () => {
   );
 };
 
-export const Counter = Interactive.withSchema({
+export const Counter = Interactive.create({
   Component: CounterInner,
-  componentName: 'Counter',
-  schema: {},
-  wrapInSequence: true,
   layout: 'absolute-fill',
 });
 

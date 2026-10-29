@@ -8,11 +8,10 @@ import {
 	Internals,
 	type CanUpdateSequencePropStatus,
 	type InteractivitySchema,
-	type OverrideIdToNodePaths,
 	type PropStatuses,
 	type SequencePropsSubscriptionKey,
-	type TSequence,
 } from 'remotion';
+import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {isKeyframeValueCompatible} from './keyframe-clipboard';
 import type {TimelineSelection} from './TimelineSelection';
@@ -52,21 +51,18 @@ export const propStatusToClipboardParam = (
 export const getSequencePropClipboardDataFromSelection = ({
 	selection,
 	propStatuses,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 }: {
 	readonly selection: TimelineSelection;
 	readonly propStatuses: PropStatuses;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 }): SequencePropClipboardData | null => {
 	if (selection.type !== 'sequence-prop') {
 		return null;
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo: selection.nodePathInfo,
 	});
 	if (!track?.sequence.controls) {
@@ -125,14 +121,12 @@ const getPasteTargetForSelection = ({
 	selection,
 	payload,
 	propStatuses,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 }: {
 	readonly selection: TimelineSelection;
 	readonly payload: SequencePropClipboardData;
 	readonly propStatuses: PropStatuses;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 }):
 	| {type: 'valid'; target: PasteSequencePropEditTarget}
 	| Exclude<PasteSequencePropTarget, {type: 'valid'}> => {
@@ -147,8 +141,7 @@ const getPasteTargetForSelection = ({
 	}
 
 	const track = findTrackForNodePathInfo({
-		sequences,
-		overrideIdsToNodePaths,
+		tracks,
 		nodePathInfo: selection.nodePathInfo,
 	});
 	if (!track?.sequence.controls || !track.nodePathInfo) {
@@ -199,14 +192,12 @@ export const getPasteSequencePropTarget = ({
 	selectedItems,
 	payload,
 	propStatuses,
-	sequences,
-	overrideIdsToNodePaths,
+	tracks,
 }: {
 	readonly selectedItems: readonly TimelineSelection[];
 	readonly payload: SequencePropClipboardData;
 	readonly propStatuses: PropStatuses;
-	readonly sequences: TSequence[];
-	readonly overrideIdsToNodePaths: OverrideIdToNodePaths;
+	readonly tracks: readonly TimelineTrackData[];
 }): PasteSequencePropTarget => {
 	if (selectedItems.length === 0) {
 		return {type: 'none'};
@@ -218,8 +209,7 @@ export const getPasteSequencePropTarget = ({
 			selection,
 			payload,
 			propStatuses,
-			sequences,
-			overrideIdsToNodePaths,
+			tracks,
 		});
 		if (result.type !== 'valid') {
 			return result;

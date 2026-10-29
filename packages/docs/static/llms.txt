@@ -7,7 +7,7 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 ## Getting started
 
 - [Creating a new project](https://www.remotion.dev/docs/index.md)
-- [The fundamentals](https://www.remotion.dev/docs/the-fundamentals.md)
+- [The core idea](https://www.remotion.dev/docs/idea.md)
 - [API overview](https://www.remotion.dev/docs/api.md)
 
 ## Creating videos

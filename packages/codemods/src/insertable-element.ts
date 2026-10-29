@@ -55,19 +55,17 @@ const toCodemodValue = (value: unknown): CodemodValue => {
 };
 
 /**
- * Translates a Studio insertion request for a solid, asset or component into
+ * Translates a Studio insertion request for text, a solid, asset or component into
  * an element for `addElement()`. SVG markup and compositions keep using the
  * dedicated insertion pipeline.
  */
 export const createElementFromInsertable = ({
 	element,
 	from,
-	premountFor,
 	wrapInSequence,
 }: {
 	element: InsertableCompositionElement;
 	from: number | null;
-	premountFor: number | null;
 	wrapInSequence: InsertableSequenceWrapper | null;
 }): CodemodElement => {
 	if (element.type === 'svg' || element.type === 'composition') {
@@ -76,13 +74,6 @@ export const createElementFromInsertable = ({
 
 	if (from !== null && (!Number.isInteger(from) || from < 0)) {
 		throw new Error('from must be a non-negative integer');
-	}
-
-	if (
-		premountFor !== null &&
-		(!Number.isInteger(premountFor) || premountFor < 0)
-	) {
-		throw new Error('premountFor must be a non-negative integer');
 	}
 
 	if (
@@ -118,6 +109,35 @@ export const createElementFromInsertable = ({
 				color: 'gray',
 				style: getPositionStyle(element.position),
 			},
+		});
+	} else if (element.type === 'text') {
+		if (typeof element.text !== 'string' || element.text.trim() === '') {
+			throw new Error('Text must be a non-empty string');
+		}
+
+		if (!Number.isFinite(element.fontSize) || element.fontSize < 1) {
+			throw new Error('fontSize must be a positive number');
+		}
+
+		if (typeof element.color !== 'string' || element.color.trim() === '') {
+			throw new Error('Text color must be a non-empty string');
+		}
+
+		inner = createElement({
+			component: 'Interactive.Div',
+			importPath: 'remotion',
+			importName: 'Interactive',
+			props: {
+				name: 'Text',
+				...(from === null ? {} : {from}),
+				style: {
+					...(positioned ? getPositionStyle(element.position) : {}),
+					fontFamily: 'sans-serif',
+					fontSize: element.fontSize,
+					color: element.color,
+				},
+			},
+			children: [element.text],
 		});
 	} else if (element.type === 'asset') {
 		if (element.srcType === 'remote' && !isUrl(element.src)) {
@@ -191,9 +211,7 @@ export const createElementFromInsertable = ({
 	}
 
 	if (sequence === null) {
-		return premountFor === null
-			? inner
-			: inner.withProp('premountFor', premountFor);
+		return inner;
 	}
 
 	return createElement({
@@ -201,7 +219,6 @@ export const createElementFromInsertable = ({
 		importPath: 'remotion',
 		props: {
 			...(sequence.from === null ? {} : {from: sequence.from}),
-			...(premountFor === null ? {} : {premountFor}),
 			...(sequence.name === null ? {} : {name: sequence.name}),
 			...(sequence.dimensions === null
 				? {}

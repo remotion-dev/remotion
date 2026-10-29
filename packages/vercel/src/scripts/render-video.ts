@@ -33,6 +33,7 @@ type RenderVideoConfig = {
 	binariesDirectory: InternalRenderMediaOptions['binariesDirectory'];
 	metadata: InternalRenderMediaOptions['metadata'];
 	licenseKey: InternalRenderMediaOptions['licenseKey'];
+	isProduction: InternalRenderMediaOptions['isProduction'];
 	codec: InternalRenderMediaOptions['codec'];
 	videoBitrate: InternalRenderMediaOptions['videoBitrate'];
 	audioBitrate: InternalRenderMediaOptions['audioBitrate'];
@@ -206,6 +207,7 @@ try {
 		binariesDirectory: config.binariesDirectory,
 		metadata: config.metadata,
 		licenseKey: config.licenseKey,
+		isProduction: config.isProduction,
 		videoBitrate: config.videoBitrate,
 		audioBitrate: config.audioBitrate,
 		encodingMaxRate: config.encodingMaxRate,
@@ -259,7 +261,6 @@ try {
 		compositionStart: 0,
 		onArtifact: null,
 		onLog: RenderInternals.defaultOnLog,
-		isProduction: true,
 		onBrowserDownload: () => ({
 			version: null,
 			onProgress: noop,

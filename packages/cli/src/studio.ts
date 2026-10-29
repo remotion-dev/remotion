@@ -45,9 +45,7 @@ const {
 	canvasTabsOption,
 	forceNewStudioOption,
 	experimentalKeepAudioContextAliveOption,
-	experimentalTracksOption,
-	experimentalSequenceActivityOption,
-	experimentalSequenceActivityLimitOption,
+	sequenceActivityLimitOption,
 	numberOfSharedAudioTagsOption,
 	audioLatencyHintOption,
 	ipv4Option,
@@ -60,6 +58,8 @@ const {
 	defaultCodingAgentOption,
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
+	showLayerFrameNumbersOption,
+	preservePitchOnPlaybackOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	beepOnFinishOption,
@@ -168,6 +168,12 @@ export const studioCommand = async (
 			commandLine: parsedCli,
 		}).value;
 
+		const sequenceActivityLimit = sequenceActivityLimitOption.getValue({
+			commandLine: parsedCli,
+		}).value;
+		const configuredSequenceActivityLimit =
+			sequenceActivityLimitOption.getConfigValue();
+
 		return {
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			defaultPremountInSeconds: defaultPremountInSecondsOption.getValue({
@@ -176,21 +182,19 @@ export const studioCommand = async (
 			showPremounting: showPremountingOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			preservePitchOnPlayback: preservePitchOnPlaybackOption.getValue({
+				commandLine: parsedCli,
+			}).value,
+			showLayerFrameNumbers: showLayerFrameNumbersOption.getValue({
+				commandLine: parsedCli,
+			}).value,
 			keyboardShortcuts: ConfigInternals.getKeyboardShortcuts(),
 			askAIEnabled: askAIOption.getValue({
 				commandLine: parsedCli,
 			}).value,
 			elementLibraries: ConfigInternals.getElementLibraries(),
-			experimentalSequenceActivityEnabled:
-				experimentalSequenceActivityOption.getValue({commandLine: parsedCli})
-					.value,
-			experimentalSequenceActivityLimit:
-				experimentalSequenceActivityLimitOption.getValue({
-					commandLine: parsedCli,
-				}).value,
-			experimentalTracksEnabled: experimentalTracksOption.getValue({
-				commandLine: parsedCli,
-			}).value,
+			sequenceActivityLimit:
+				sequenceActivityLimit === Infinity ? null : sequenceActivityLimit,
 			interactivityEnabled: interactivityOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -211,6 +215,8 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			configFileStudioSettings: {
+				preservePitchOnPlayback: preservePitchOnPlaybackOption.getConfigValue(),
+				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),
 				showPremounting: showPremountingOption.getConfigValue(),
 				defaultPremountInSeconds:
 					defaultPremountInSecondsOption.getConfigValue(),
@@ -219,11 +225,10 @@ export const studioCommand = async (
 				beepOnFinish: beepOnFinishOption.getConfigValue(),
 				enableCrossSiteIsolation:
 					enableCrossSiteIsolationOption.getConfigValue(),
-				experimentalTracksEnabled: experimentalTracksOption.getConfigValue(),
-				experimentalSequenceActivityEnabled:
-					experimentalSequenceActivityOption.getConfigValue(),
-				experimentalSequenceActivityLimit:
-					experimentalSequenceActivityLimitOption.getConfigValue(),
+				sequenceActivityLimit:
+					configuredSequenceActivityLimit === Infinity
+						? null
+						: configuredSequenceActivityLimit,
 				interactivityEnabled: interactivityOption.getConfigValue(),
 				keyboardShortcutsEnabled: keyboardShortcutsOption.getConfigValue(),
 				logLevel: logLevelOption.getConfigValue(),

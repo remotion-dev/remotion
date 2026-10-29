@@ -52,7 +52,13 @@ test('AnimatedImage retains a frame drawn while its canvas is hidden', async () 
 
 	const ref = React.createRef<AnimatedImageCanvasRef>();
 	const rendered = render(
-		<Canvas ref={ref} fit="fill" effects={[]} style={{display: 'none'}} />,
+		<Canvas
+			ref={ref}
+			fit="fill"
+			effects={[]}
+			effectsOutputSize={null}
+			style={{display: 'none'}}
+		/>,
 	);
 	const canvas = rendered.container.querySelector('canvas');
 	if (!canvas) {
@@ -73,7 +79,13 @@ test('AnimatedImage retains a frame drawn while its canvas is hidden', async () 
 	expect(pixels.get(canvas)).toBe('initial-frame');
 
 	rendered.rerender(
-		<Canvas ref={ref} fit="fill" effects={[]} style={{display: 'block'}} />,
+		<Canvas
+			ref={ref}
+			fit="fill"
+			effects={[]}
+			effectsOutputSize={null}
+			style={{display: 'block'}}
+		/>,
 	);
 
 	expect(rendered.container.querySelector('canvas')).toBe(canvas);

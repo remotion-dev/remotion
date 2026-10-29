@@ -5,7 +5,9 @@ import {
 	HtmlInCanvas,
 	Internals,
 	useDelayRender,
+	useRemotionEnvironment,
 	type EffectsProp,
+	type EffectsOutputSize,
 } from 'remotion';
 import type {DrawFunction} from './TransitionSeries';
 import type {
@@ -13,7 +15,9 @@ import type {
 	TransitionPresentationComponentProps,
 } from './types';
 
-export const HtmlInCanvasPresentation = <
+const transferredCanvases = new WeakMap<HTMLCanvasElement, OffscreenCanvas>();
+
+const HtmlInCanvasPresentationWithSupport = <
 	TPassedProps extends Record<string, unknown>,
 >({
 	children,
@@ -23,16 +27,14 @@ export const HtmlInCanvasPresentation = <
 	presentationDirection,
 	shader,
 	effects,
+	effectsOutputSize,
 	passedProps,
 	bothEnteringAndExiting,
 }: TransitionPresentationComponentProps<TPassedProps> & {
 	readonly shader: HtmlInCanvasShader<TPassedProps>;
-	readonly effects?: EffectsProp;
+	readonly effects: EffectsProp | null;
+	readonly effectsOutputSize: EffectsOutputSize | null;
 }) => {
-	if (!HtmlInCanvas.isSupported()) {
-		throw new Error(getHtmlInCanvasUnsupportedMessage());
-	}
-
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const outputCanvasRef = useRef<HTMLCanvasElement>(null);
 	const canvasSubtreeStyle: React.CSSProperties = useMemo(() => {
@@ -77,37 +79,55 @@ export const HtmlInCanvasPresentation = <
 	const effectsRef = useRef(memoizedEffects);
 	effectsRef.current = memoizedEffects;
 
-	const [instance] = useState(() => shader(shaderCanvas));
+	const instanceRef = useRef<ReturnType<typeof shader> | null>(null);
+	const passThrough =
+		bothEnteringAndExiting && presentationDirection === 'exiting';
 
 	useLayoutEffect(() => {
-		const canvas = canvasRef.current;
-		if (!canvas) {
-			return () => {
-				instance.cleanup();
-			};
+		if (passThrough) {
+			return;
 		}
 
-		const captureCanvas = canvas.transferControlToOffscreen();
+		const canvas = canvasRef.current;
+		if (!canvas) {
+			return;
+		}
+
+		// Activity can reconnect effects while retaining the same DOM canvas.
+		let captureCanvas = transferredCanvases.get(canvas);
+		if (!captureCanvas) {
+			captureCanvas = canvas.transferControlToOffscreen();
+			transferredCanvases.set(canvas, captureCanvas);
+		}
+
 		const captureContext = captureCanvas.getContext('2d');
 		if (!captureContext) {
 			throw new Error('Failed to create capture canvas context');
 		}
 
+		const instance = shader(shaderCanvas);
+		instanceRef.current = instance;
 		captureCanvasRef.current = captureCanvas;
 		captureContextRef.current = captureContext;
 
 		return () => {
 			instance.cleanup();
+			instanceRef.current = null;
 			captureCanvasRef.current = null;
 			captureContextRef.current = null;
 		};
-	}, [instance]);
+	}, [passThrough, shader, shaderCanvas]);
 
-	const chainState = Internals.useEffectChainState();
+	const chainState = Internals.useEffectChainState(effectsOutputSize);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	const draw: DrawFunction = useCallback(
 		async (prevImage, nextImage, progress) => {
+			const instance = instanceRef.current;
+			if (!instance) {
+				return;
+			}
+
 			const outputCanvas = outputCanvasRef.current;
 			if (!outputCanvas) {
 				throw new Error('Canvas not found');
@@ -166,18 +186,8 @@ export const HtmlInCanvasPresentation = <
 				cancelRender(error);
 			}
 		},
-		[
-			cancelRender,
-			chainState,
-			continueRender,
-			delayRender,
-			instance,
-			shaderCanvas,
-		],
+		[cancelRender, chainState, continueRender, delayRender, shaderCanvas],
 	);
-
-	const passThrough =
-		bothEnteringAndExiting && presentationDirection === 'exiting';
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -251,7 +261,7 @@ export const HtmlInCanvasPresentation = <
 		}
 
 		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough, memoizedEffects]);
+	}, [presentationProgress, passThrough, memoizedEffects, chainState]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -303,11 +313,48 @@ export const HtmlInCanvasPresentation = <
 	return (
 		<AbsoluteFill showInTimeline={false}>
 			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
-				{children}
+				{/* Keep the drawable element mounted while async children load. */}
+				<div style={canvasSubtreeStyle}>{children}</div>
 			</canvas>
 			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>
 	);
+};
+
+export const HtmlInCanvasPresentation = <
+	TPassedProps extends Record<string, unknown>,
+>(
+	props: TransitionPresentationComponentProps<TPassedProps> & {
+		readonly shader: HtmlInCanvasShader<TPassedProps>;
+		readonly effects: EffectsProp | null;
+		readonly effectsOutputSize: EffectsOutputSize | null;
+	},
+) => {
+	const {isRendering} = useRemotionEnvironment();
+	if (!HtmlInCanvas.isSupported()) {
+		if (isRendering) {
+			throw new Error(getHtmlInCanvasUnsupportedMessage());
+		}
+
+		const visible =
+			props.presentationDirection === 'entering'
+				? props.presentationProgress >= 0.5
+				: props.presentationProgress < 0.5;
+		return (
+			<Internals.HtmlInCanvasFallback
+				label="Transition is not visible"
+				style={{
+					position: 'absolute',
+					inset: 0,
+					visibility: visible ? 'visible' : 'hidden',
+				}}
+			>
+				{props.children}
+			</Internals.HtmlInCanvasFallback>
+		);
+	}
+
+	return <HtmlInCanvasPresentationWithSupport {...props} />;
 };
 
 export type HtmlInCanvasShaderDrawParams<Props> = {
@@ -334,17 +381,21 @@ export const makeHtmlInCanvasPresentation = <
 >(
 	shader: HtmlInCanvasShader<TPassedProps>,
 ) => {
-	type AugmentedProps = TPassedProps & {effects?: EffectsProp};
+	type AugmentedProps = TPassedProps & {
+		effects?: EffectsProp;
+		effectsOutputSize?: EffectsOutputSize;
+	};
 	const CompWithShader: React.FC<
 		TransitionPresentationComponentProps<AugmentedProps>
 	> = (props) => {
 		const {passedProps, ...otherProps} = props;
-		const {effects, ...restPassedProps} = props.passedProps;
+		const {effects, effectsOutputSize, ...restPassedProps} = props.passedProps;
 		return (
 			<HtmlInCanvasPresentation
 				shader={shader}
 				passedProps={restPassedProps as TPassedProps}
-				effects={effects}
+				effects={effects ?? null}
+				effectsOutputSize={effectsOutputSize ?? null}
 				{...otherProps}
 			/>
 		);

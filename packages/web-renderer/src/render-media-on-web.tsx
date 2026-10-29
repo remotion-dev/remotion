@@ -468,7 +468,7 @@ const internalRenderMediaOnWeb = async <
 			? new StreamTarget(webFsTarget.stream)
 			: new BufferTarget()!;
 
-	using outputWithCleanup = makeOutputWithCleanup({
+	await using outputWithCleanup = makeOutputWithCleanup({
 		format,
 		target,
 	});
@@ -837,12 +837,6 @@ const internalRenderMediaOnWeb = async <
 				apiName: 'renderMediaOnWeb',
 				isStill: false,
 				isProduction: isProduction ?? true,
-			}).catch((err2) => {
-				Internals.Log.error(
-					{logLevel: 'error', tag: 'web-renderer'},
-					'Failed to send usage event',
-					err2,
-				);
 			});
 		}
 

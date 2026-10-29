@@ -30,7 +30,6 @@ const AirportSignZoomContent = ({style}: InteractiveTransformProps) => {
 				src={
 					'https://remotion.media/jonnys-videos/plane-sight/screenshots/herdr-terminal-airport.png'
 				}
-				premountFor={fps}
 				style={{
 					width: '100%',
 					height: '100%',
@@ -44,9 +43,7 @@ const AirportSignZoomContent = ({style}: InteractiveTransformProps) => {
 	);
 };
 
-export const AirportSignZoom = Interactive.withSchema({
+export const AirportSignZoom = Interactive.create({
 	Component: AirportSignZoomContent,
 	componentName: 'AirportSignZoom',
-	schema: {},
-	wrapInSequence: true,
 });

@@ -1,7 +1,7 @@
 import type {NodeWrapper} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useState} from 'react';
 import {Internals, isHtmlInCanvasSupported} from 'remotion';
-import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
@@ -40,6 +40,7 @@ export const SequenceWrapAction: React.FC<{
 		readonly line: number;
 	};
 }> = ({nodePathInfo, track, sourceActionsDisabled, sourceLocation}) => {
+	const calculateTimeline = useTimelineCalculator();
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
@@ -48,6 +49,7 @@ export const SequenceWrapAction: React.FC<{
 	);
 	const {sequence} = track;
 	const [busy, setBusy] = useState(false);
+	const isTransition = sequence.timelineTrack?.role === 'transition';
 	const canWrapInHtmlInCanvas =
 		sequence.type === 'sequence' &&
 		!nodePathInfo.supportsEffects &&
@@ -59,6 +61,7 @@ export const SequenceWrapAction: React.FC<{
 		async (wrapper: HtmlInCanvasWrapper) => {
 			if (
 				busy ||
+				isTransition ||
 				!canWrapInHtmlInCanvas ||
 				sourceActionsDisabled ||
 				canvasContent?.type !== 'composition'
@@ -137,7 +140,7 @@ export const SequenceWrapAction: React.FC<{
 				tracks: calculateTimeline({
 					sequences,
 					overrideIdsToNodePaths: overrideIdToNodePathMappings,
-				}),
+				}).tracks,
 				sequenceSubscriptionKey: nodePath,
 			});
 			setBusy(true);
@@ -198,6 +201,8 @@ export const SequenceWrapAction: React.FC<{
 		},
 		[
 			busy,
+			calculateTimeline,
+			isTransition,
 			canWrapInHtmlInCanvas,
 			canvasContent,
 			nodePathInfo.sequenceSubscriptionKey,
@@ -223,7 +228,7 @@ export const SequenceWrapAction: React.FC<{
 	return (
 		<>
 			<InspectorQuickAction
-				disabled={busy || sourceActionsDisabled}
+				disabled={busy || sourceActionsDisabled || isTransition}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={() => onWrap('HtmlInCanvas')}
 				renderIcon={(color) => (
@@ -237,7 +242,7 @@ export const SequenceWrapAction: React.FC<{
 				HTML-in-canvas
 			</InspectorQuickAction>
 			<InspectorQuickAction
-				disabled={busy || sourceActionsDisabled}
+				disabled={busy || sourceActionsDisabled || isTransition}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}
 				onClick={() => onWrap('HtmlInCanvasMotionBlur')}
 				renderIcon={(color) => (

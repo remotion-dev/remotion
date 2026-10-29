@@ -37,6 +37,7 @@ import {
 import {getEasingSelectionFromCurrentKeyframes} from './easing-inspector-selection';
 import {KeyframeEasingNavigator} from './KeyframeEasingNavigator';
 import {KeyframeSettings} from './KeyframeSettings';
+import {SequenceInspectorSections} from './SequenceInspectorHeader';
 import {selectedContainer} from './styles';
 import {useTrackForSelection} from './use-track-for-selection';
 
@@ -59,10 +60,6 @@ export const EasingInspector: React.FC<{
 	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const sequences = Internals.useSequenceManagerSequences();
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
-	);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
@@ -79,11 +76,10 @@ export const EasingInspector: React.FC<{
 		() =>
 			getSelectedEasingUpdate({
 				selection,
-				sequences,
-				overrideIdsToNodePaths: overrideIdToNodePathMappings,
+				tracks: track ? [track] : [],
 				propStatuses,
 			}),
-		[overrideIdToNodePathMappings, propStatuses, selection, sequences],
+		[propStatuses, selection, track],
 	);
 	const initialEasing = easingUpdate?.currentEasing ?? null;
 	const easingDetails = useMemo<EasingInspectorDetails | null>(() => {
@@ -348,9 +344,11 @@ export const EasingInspector: React.FC<{
 
 	return (
 		<div style={selectedContainer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			<SequenceInspectorSections track={track} />
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
+				easingUpdate={easingUpdate}
 				renderHeader={renderHeader}
 			/>
 			<KeyframeSettings update={easingUpdate} />

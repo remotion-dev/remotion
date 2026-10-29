@@ -12,6 +12,12 @@ You can install them by running:
 npx skills add remotion-dev/skills
 ```
 
+Or install them with the GitHub CLI:
+
+```bash
+gh skill install remotion-dev/skills
+```
+
 You are also offered the option to add skills when you create a new Remotion project:
 
 ```bash
@@ -85,6 +91,10 @@ Search the Remotion documentation and fetch any page as Markdown.
 Use this to look up current API references, component props, and package guides before implementing.
 
 > Example prompt: `/remotion-docs How to set up Remotion Lambda?`
+
+### `/remotion-license`<AvailableFrom v="4.0.540" />
+
+Find Remotion license information, FAQs, terms, and where to buy a license.
 
 ### `/remotion-upgrade`
 

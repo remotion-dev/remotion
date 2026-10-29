@@ -23,6 +23,7 @@ import type {
 	RenameFolderRequest,
 	RenderJob,
 	RequiredChromiumOptions,
+	SymbolicatedStackFrame,
 	UnwrapFolderRequest,
 	UpdateCompositionMetadataRequest,
 	VisualControlChange,
@@ -125,6 +126,7 @@ export const addSequenceRenderJob = ({
 	metadata,
 	chromeMode,
 	mediaCacheSizeInBytes,
+	licenseKey,
 }: {
 	compositionId: string;
 	outName: string;
@@ -148,6 +150,7 @@ export const addSequenceRenderJob = ({
 	metadata: Record<string, string> | null;
 	chromeMode: ChromeMode;
 	mediaCacheSizeInBytes: number | null;
+	licenseKey: string | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -178,6 +181,7 @@ export const addSequenceRenderJob = ({
 		metadata,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		licenseKey,
 	});
 };
 
@@ -480,6 +484,7 @@ export const callUpdateDefaultPropsApi = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[],
+	symbolicatedStack: SymbolicatedStackFrame | null,
 ) => {
 	const body = {
 		compositionId,
@@ -489,6 +494,7 @@ export const callUpdateDefaultPropsApi = (
 			staticBase: window.remotion_staticBase,
 		}).serializedString,
 		enumPaths,
+		symbolicatedStack,
 	};
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations !== null) {

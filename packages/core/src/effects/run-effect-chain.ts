@@ -1,5 +1,9 @@
 import {CanvasPool} from './canvas-pool.js';
 import {groupByBackend} from './effect-internals.js';
+import {
+	invalidateEffectChainSources,
+	publishEffectSource,
+} from './effect-source-observer.js';
 import type {
 	EffectDefinition,
 	EffectDefinitionAndStack,
@@ -7,6 +11,8 @@ import type {
 import {getGpuDevice} from './gpu-device.js';
 
 export type EffectChainState = {
+	readonly width: number;
+	readonly height: number;
 	pool: CanvasPool;
 	setupCache: WeakMap<
 		EffectDefinition<unknown, unknown>,
@@ -18,6 +24,36 @@ export type EffectChainState = {
 		target: HTMLCanvasElement;
 	}>;
 	currentRunId: number;
+	pendingRun: Promise<void> | null;
+	cleanupRequested: boolean;
+};
+
+// Detach entries before calling user code. One broken cleanup must not prevent
+// the remaining effects from releasing their resources.
+const cleanupEntries = (entries: EffectChainState['cleanupRegistry']): void => {
+	const errors: unknown[] = [];
+	for (const entry of entries) {
+		try {
+			entry.definition.cleanup(entry.state);
+		} catch (error) {
+			errors.push(error);
+		}
+	}
+
+	if (errors.length === 1) throw errors[0];
+	if (errors.length > 1)
+		throw new AggregateError(errors, 'Effect cleanup failed');
+};
+
+const disposeEffectChainState = (state: EffectChainState): void => {
+	const entries = state.cleanupRegistry;
+	state.cleanupRegistry = [];
+	state.setupCache = new WeakMap();
+	try {
+		cleanupEntries(entries);
+	} finally {
+		state.pool.dispose();
+	}
 };
 
 export const createEffectChainState = (
@@ -25,7 +61,10 @@ export const createEffectChainState = (
 	height: number,
 ): EffectChainState => {
 	const state: EffectChainState = {
+		width,
+		height,
 		pool: new CanvasPool(width, height, (canvas) => {
+			state.currentRunId++;
 			// The GL objects these setups hold died with the context and stay
 			// invalid on a restored one, so the next run has to recreate them.
 			// While the context is lost, GL calls are no-ops, which makes this
@@ -41,30 +80,26 @@ export const createEffectChainState = (
 				state.setupCache.get(entry.definition)?.delete(canvas);
 			}
 
-			for (const entry of dead) {
-				entry.definition.cleanup(entry.state);
-			}
+			cleanupEntries(dead);
 		}),
 		setupCache: new WeakMap(),
 		cleanupRegistry: [],
 		currentRunId: 0,
+		pendingRun: null,
+		cleanupRequested: false,
 	};
 
 	return state;
 };
 
-// Cancels in-flight runs, releases per-effect resources and then the pool's
-// canvases and contexts. The state must not be used afterwards.
+// Cancel immediately, but do not destroy canvases borrowed by an asynchronous
+// bridge or by an effect callback still on the stack.
 export const cleanupEffectChainState = (state: EffectChainState): void => {
+	if (state.cleanupRequested) return;
+	state.cleanupRequested = true;
 	state.currentRunId++;
-	try {
-		for (const entry of state.cleanupRegistry) {
-			entry.definition.cleanup(entry.state);
-		}
-	} finally {
-		state.cleanupRegistry.length = 0;
-		state.pool.dispose();
-	}
+	invalidateEffectChainSources(state);
+	if (!state.pendingRun) disposeEffectChainState(state);
 };
 
 const ensureSetup = <S>(
@@ -83,7 +118,25 @@ const ensureSetup = <S>(
 		return cacheForDefinition.get(target) as S;
 	}
 
-	const setupState = def.setup(target);
+	if (def.backend === 'webgl2') state.pool.prepareWebGL(target, false);
+	let setupState: S;
+	try {
+		setupState = def.setup(target);
+	} catch (error) {
+		if (def.backend === 'webgl2') {
+			try {
+				state.pool.retireWebGL(target);
+			} catch (cleanupError) {
+				throw new AggregateError(
+					[error, cleanupError],
+					'Effect setup and cleanup failed',
+				);
+			}
+		}
+
+		throw error;
+	}
+
 	cacheForDefinition.set(target, setupState);
 	state.cleanupRegistry.push({definition: widened, state: setupState, target});
 	return setupState;
@@ -104,15 +157,11 @@ export type RunEffectChainOptions = {
 // Runs the effect pipeline imperatively. Returns `true` if the pipeline
 // completed and wrote to `output`, `false` if it was superseded by a newer
 // run (caller should not act on a stale result).
-export const runEffectChain = async ({
-	state,
-	source,
-	effects,
-	output,
-	width,
-	height,
-}: RunEffectChainOptions): Promise<boolean> => {
-	const runId = ++state.currentRunId;
+const runEffectChainWithoutResize = async (
+	{state, source, effects, output, width, height}: RunEffectChainOptions,
+	initialFlipSourceY: boolean,
+	runId: number,
+): Promise<boolean> => {
 	const isCancelled = () => state.currentRunId !== runId;
 
 	// Bypass any effect with `disabled: true` before grouping by backend, so
@@ -160,75 +209,88 @@ export const runEffectChain = async ({
 	// Canvas sources are DOM-oriented. Flip them when uploading into WebGL so
 	// texture coordinates match clip-space output. `ImageBitmap` bridges below
 	// opt out because they are already oriented for upload.
-	let flipWebGLSourceY = true;
+	let flipWebGLSourceY = initialFlipSourceY;
+	// Only bridge bitmaps are owned here; the original source belongs to the caller.
+	let bridgeBitmap: ImageBitmap | null = null;
 
-	for (let runIndex = 0; runIndex < runs.length; runIndex++) {
-		const run = runs[runIndex];
-		let canvasIndex: 0 | 1 = 0;
+	try {
+		for (let runIndex = 0; runIndex < runs.length; runIndex++) {
+			const run = runs[runIndex];
+			let canvasIndex: 0 | 1 = 0;
 
-		for (const eff of run.effects) {
-			const dst = state.pool.getCanvas(run.backend, canvasIndex);
-			const def = eff.definition as EffectDefinition<unknown, unknown>;
-			if (run.backend === 'webgl2') {
-				// Checked before `setup()`: a lost context cannot compile shaders,
-				// and this surfaces the dedicated error instead of an effect's own.
-				state.pool.assertContextNotLost(dst);
-			}
+			for (const eff of run.effects) {
+				if (isCancelled()) return false;
+				const dst = state.pool.getCanvas(run.backend, canvasIndex);
+				const def = eff.definition as EffectDefinition<unknown, unknown>;
+				const setupState = ensureSetup(state, def, dst);
+				if (isCancelled()) return false;
 
-			const setupState = ensureSetup(state, def, dst);
+				publishEffectSource(eff, currentImage, state);
+				if (isCancelled()) return false;
+				if (run.backend === 'webgl2')
+					state.pool.prepareWebGL(dst, flipWebGLSourceY);
+				def.apply({
+					source: currentImage,
+					target: dst,
+					state: setupState,
+					params: eff.params,
+					width: state.width,
+					height: state.height,
+					gpuDevice,
+					flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
+				});
+				if (run.backend === 'webgl2') state.pool.assertContextNotLost(dst);
+				if (isCancelled()) return false;
+				// Effects consume their source synchronously. Release it before the
+				// next bridge so a run never retains multiple temporary bitmaps.
+				bridgeBitmap?.close();
+				bridgeBitmap = null;
 
-			def.apply({
-				source: currentImage,
-				target: dst,
-				state: setupState,
-				params: eff.params,
-				width,
-				height,
-				gpuDevice,
-				flipSourceY: run.backend === 'webgl2' ? flipWebGLSourceY : false,
-			});
-
-			if (run.backend === 'webgl2') {
-				// Same-backend ping-pong passes feed the previous WebGL canvas back
-				// through `texImage2D()`. That source is still a DOM canvas, so the
-				// next upload also needs to be flipped.
-				flipWebGLSourceY = true;
-			}
-
-			currentImage = dst;
-			canvasIndex = canvasIndex === 0 ? 1 : 0;
-		}
-
-		lastTarget = (currentImage as HTMLCanvasElement | null) ?? lastTarget;
-
-		const nextRun = runs[runIndex + 1];
-		if (nextRun && nextRun.backend !== run.backend && lastTarget) {
-			// 2D → WebGL: pass the 2D canvas directly so `texImage2D` + `UNPACK_FLIP_Y`
-			// matches blur-only on a raw frame canvas. `createImageBitmap` here changes
-			// upload orientation and produced upside-down stacks (wave + blur).
-			if (run.backend === '2d' && nextRun.backend === 'webgl2') {
-				currentImage = lastTarget;
-				flipWebGLSourceY = true;
-			} else {
-				// Other bridges use `createImageBitmap` rather than passing the canvas
-				// straight through. A direct `drawImage(webglCanvas)` in the next
-				// backend's first effect forces an implicit GPU readback / finish on the
-				// consuming context, which empirically blows the per-frame vsync budget and
-				// halves the paint rate. `createImageBitmap` pipelines the GPU work.
-				const bitmap = await createImageBitmap(lastTarget);
-				if (isCancelled()) {
-					bitmap.close();
-					return false;
+				if (run.backend === 'webgl2') {
+					// Same-backend ping-pong passes feed the previous WebGL canvas back
+					// through `texImage2D()`. That source is still a DOM canvas, so the
+					// next upload also needs to be flipped.
+					flipWebGLSourceY = true;
 				}
 
-				currentImage = bitmap;
-				if (nextRun.backend === 'webgl2') {
-					flipWebGLSourceY = false;
+				currentImage = dst;
+				canvasIndex = canvasIndex === 0 ? 1 : 0;
+			}
+
+			lastTarget = (currentImage as HTMLCanvasElement | null) ?? lastTarget;
+
+			const nextRun = runs[runIndex + 1];
+			if (nextRun && nextRun.backend !== run.backend && lastTarget) {
+				// 2D → WebGL: pass the 2D canvas directly so `texImage2D` + `UNPACK_FLIP_Y`
+				// matches blur-only on a raw frame canvas. `createImageBitmap` here changes
+				// upload orientation and produced upside-down stacks (wave + blur).
+				if (run.backend === '2d' && nextRun.backend === 'webgl2') {
+					currentImage = lastTarget;
+					flipWebGLSourceY = true;
+				} else {
+					// Other bridges use `createImageBitmap` rather than passing the canvas
+					// straight through. A direct `drawImage(webglCanvas)` in the next
+					// backend's first effect forces an implicit GPU readback / finish on the
+					// consuming context, which empirically blows the per-frame vsync budget and
+					// halves the paint rate. `createImageBitmap` pipelines the GPU work.
+					bridgeBitmap = await createImageBitmap(lastTarget);
+					if (isCancelled()) {
+						return false;
+					}
+
+					currentImage = bridgeBitmap;
+					if (nextRun.backend === 'webgl2') {
+						flipWebGLSourceY = false;
+					}
 				}
 			}
 		}
+	} finally {
+		// Also release a bridge if setup/apply throws or the run is cancelled.
+		bridgeBitmap?.close();
 	}
 
+	if (isCancelled()) return false;
 	if (!lastTarget) {
 		return true;
 	}
@@ -241,4 +303,75 @@ export const runEffectChain = async ({
 	outCtx.clearRect(0, 0, width, height);
 	outCtx.drawImage(lastTarget, 0, 0, width, height);
 	return true;
+};
+
+// Keep ownership of the optional resized source until the existing chain settles.
+const runEffectChainWithResize = async (
+	options: RunEffectChainOptions,
+	runId: number,
+): Promise<boolean> => {
+	const {state, source, width, height, effects} = options;
+	if (
+		(state.width === width && state.height === height) ||
+		!effects.some((effect) => !(effect.params as {disabled?: boolean}).disabled)
+	) {
+		return runEffectChainWithoutResize(options, true, runId);
+	}
+
+	const firstEnabledEffect = effects.find(
+		(effect) => !(effect.params as {disabled?: boolean}).disabled,
+	)!;
+	const resized = await createImageBitmap(source as ImageBitmapSource, {
+		resizeWidth: state.width,
+		resizeHeight: state.height,
+		// WebGL ignores UNPACK_FLIP_Y_WEBGL for ImageBitmap uploads.
+		imageOrientation:
+			firstEnabledEffect.definition.backend === 'webgl2' ? 'flipY' : 'none',
+	});
+	try {
+		if (state.currentRunId !== runId) {
+			return false;
+		}
+
+		return await runEffectChainWithoutResize(
+			{...options, source: resized},
+			false,
+			runId,
+		);
+	} finally {
+		resized.close();
+	}
+};
+
+// Reserve the chain before invoking any effect or observer. A reentrant call
+// supersedes this run, but cannot touch its canvases until every bridge settles.
+export const runEffectChain = async (
+	options: RunEffectChainOptions,
+): Promise<boolean> => {
+	const {state} = options;
+	if (state.cleanupRequested) {
+		throw new Error('Effect chain state was used after it had been cleaned up');
+	}
+
+	const runId = ++state.currentRunId;
+	const previousRun = state.pendingRun;
+	let release!: () => void;
+	const completion = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	state.pendingRun = completion;
+	try {
+		if (previousRun) await previousRun;
+		if (state.currentRunId !== runId) return false;
+		return await runEffectChainWithResize(options, runId);
+	} finally {
+		try {
+			if (state.pendingRun === completion) {
+				state.pendingRun = null;
+				if (state.cleanupRequested) disposeEffectChainState(state);
+			}
+		} finally {
+			release();
+		}
+	}
 };

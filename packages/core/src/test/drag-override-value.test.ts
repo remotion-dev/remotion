@@ -161,7 +161,7 @@ test('makeKeyframedDragOverride replaces an existing keyframe without changing e
 	});
 });
 
-test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides at the current frame', () => {
+test('computeEffectiveSchemaValuesDotNotation resolves existing keyframes even when authoring is disabled', () => {
 	const status = makeKeyframedStatus();
 	const {merged} = computeEffectiveSchemaValuesDotNotation({
 		schema: {
@@ -169,6 +169,7 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 				type: 'number',
 				default: 1,
 				hiddenFromList: false,
+				keyframable: false,
 			},
 		},
 		currentValue: {opacity: 2},
@@ -186,6 +187,22 @@ test('computeEffectiveSchemaValuesDotNotation resolves keyframed drag overrides 
 	});
 
 	expect(merged.opacity).toBe(3);
+	expect(
+		computeEffectiveSchemaValuesDotNotation({
+			schema: {
+				opacity: {
+					type: 'number',
+					default: 1,
+					hiddenFromList: false,
+					keyframable: false,
+				},
+			},
+			currentValue: {opacity: 2},
+			overrideValues: {},
+			propStatus: {opacity: status},
+			frame: 30,
+		}).merged.opacity,
+	).toBe(3);
 });
 
 test('computeEffectiveSchemaValuesDotNotation resolves static file tokens for asset fields', () => {

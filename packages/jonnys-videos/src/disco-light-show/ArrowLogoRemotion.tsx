@@ -1,30 +1,21 @@
 import {dropShadow} from '@remotion/effects/drop-shadow';
 import {scale} from '@remotion/effects/scale';
 import {noise2D} from '@remotion/noise';
-import {Arrow} from '@remotion/shapes';
 import React from 'react';
-import {
-	Interactive,
-	useVideoConfig,
-	CanvasImage,
-	useCurrentFrame,
-} from 'remotion';
+import {Interactive, CanvasImage, useCurrentFrame} from 'remotion';
+import {cutoutPaperEffects} from '../paper-disco/cutout-paper';
 import {asset} from './assets';
+import {NOTEBOOK_ARROW_SRC} from './notebook-arrow';
 
 const ArrowLogoRemotionInner: React.FC = () => {
-	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	return (
 		<>
-			<Arrow
-				premountFor={fps}
-				length={300}
-				headWidth={185}
-				headLength={120}
-				shaftWidth={80}
-				direction="right"
-				cornerRadius={0}
-				fill={'#ffffff'}
+			<CanvasImage
+				name="Pointer arrow"
+				src={NOTEBOOK_ARROW_SRC}
+				width={300}
+				height={185}
 				style={{
 					position: 'absolute',
 					translate: '903.4px 247.4px',
@@ -35,15 +26,16 @@ const ArrowLogoRemotionInner: React.FC = () => {
 					scale({
 						scale: 0.7,
 					}),
-					dropShadow({
-						offsetX: 0,
-						offsetY: 0,
-						radius: 100,
+					...cutoutPaperEffects({
+						gridOpacity: null,
+						edgeRoughness: 0.12,
+						unit: 1 / (1.337 * 0.736 * 1.24),
+						seed: 11,
 					}),
 				]}
 			/>
 			<CanvasImage
-				premountFor={fps}
+				name="Remotion logo"
 				src={asset('remotion-logo.svg')}
 				style={{
 					position: 'absolute',
@@ -66,10 +58,7 @@ const ArrowLogoRemotionInner: React.FC = () => {
 	);
 };
 
-export const ArrowLogoRemotion = Interactive.withSchema({
+export const ArrowLogoRemotion = Interactive.create({
 	Component: ArrowLogoRemotionInner,
-	componentName: 'ArrowLogoRemotion',
-	schema: {},
-	wrapInSequence: true,
 	layout: 'absolute-fill',
 });

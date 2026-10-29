@@ -1,6 +1,7 @@
 import React from 'react';
 import {
-	AbsoluteFill,
+	Interactive,
+	type InteractiveTransformProps,
 	interpolate,
 	random,
 	useCurrentFrame,
@@ -9,11 +10,13 @@ import {
 import {easeOut} from '../anim';
 
 // Radial speed streaks around a focus point.
-export const SpeedLines: React.FC<{
-	readonly color?: string;
-	readonly cx?: number;
-	readonly cy?: number;
-}> = ({color = 'rgba(255,255,255,0.85)', cx = 1000, cy = 430}) => {
+const SpeedLinesInner: React.FC<
+	{
+		readonly color?: string;
+		readonly cx?: number;
+		readonly cy?: number;
+	} & InteractiveTransformProps
+> = ({color = 'rgba(255,255,255,0.85)', cx = 1000, cy = 430, style}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 	const fade = interpolate(
@@ -23,7 +26,21 @@ export const SpeedLines: React.FC<{
 		{extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
 	);
 	return (
-		<AbsoluteFill style={{opacity: fade}}>
+		<div
+			style={{
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				width: '100%',
+				height: '100%',
+				display: 'flex',
+				flexDirection: 'column',
+				opacity: fade,
+				...style,
+			}}
+		>
 			<svg width={1920} height={1080}>
 				{new Array(46).fill(true).map((_, i) => {
 					const angle = random(`angle-${i}`) * Math.PI * 2;
@@ -50,14 +67,14 @@ export const SpeedLines: React.FC<{
 					);
 				})}
 			</svg>
-		</AbsoluteFill>
+		</div>
 	);
 };
 
 // Cinematic bars that slide in from top and bottom.
-export const Letterbox: React.FC<{readonly height?: number}> = ({
-	height = 104,
-}) => {
+const LetterboxInner: React.FC<
+	{readonly height?: number} & InteractiveTransformProps
+> = ({height = 104, style}) => {
 	const frame = useCurrentFrame();
 	const {durationInFrames} = useVideoConfig();
 	const p = interpolate(
@@ -71,7 +88,20 @@ export const Letterbox: React.FC<{readonly height?: number}> = ({
 		},
 	);
 	return (
-		<AbsoluteFill>
+		<div
+			style={{
+				position: 'absolute',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				width: '100%',
+				height: '100%',
+				display: 'flex',
+				flexDirection: 'column',
+				...style,
+			}}
+		>
 			<div
 				style={{
 					position: 'absolute',
@@ -92,12 +122,12 @@ export const Letterbox: React.FC<{readonly height?: number}> = ({
 					backgroundColor: '#000',
 				}}
 			/>
-		</AbsoluteFill>
+		</div>
 	);
 };
 
 // A one-shot burst of confetti dots from a point.
-export const Burst: React.FC<{
+const BurstInner: React.FC<{
 	readonly x: number;
 	readonly y: number;
 	readonly colors: readonly string[];
@@ -105,7 +135,7 @@ export const Burst: React.FC<{
 }> = ({x, y, colors, count = 28}) => {
 	const frame = useCurrentFrame();
 	return (
-		<AbsoluteFill>
+		<>
 			{new Array(count).fill(true).map((_, i) => {
 				const angle = random(`b-a-${i}`) * Math.PI * 2;
 				const distance = 140 + random(`b-d-${i}`) * 260;
@@ -136,7 +166,7 @@ export const Burst: React.FC<{
 					/>
 				);
 			})}
-		</AbsoluteFill>
+		</>
 	);
 };
 
@@ -180,3 +210,16 @@ export const WaveBars: React.FC<{
 		</div>
 	);
 };
+
+export const SpeedLines = Interactive.create({
+	Component: SpeedLinesInner,
+	layout: 'none',
+});
+export const Letterbox = Interactive.create({
+	Component: LetterboxInner,
+	layout: 'none',
+});
+export const Burst = Interactive.create({
+	Component: BurstInner,
+	layout: 'absolute-fill',
+});

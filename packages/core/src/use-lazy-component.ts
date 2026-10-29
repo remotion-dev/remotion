@@ -5,7 +5,7 @@ import type {
 } from 'react';
 import React, {useEffect, useLayoutEffect, useMemo} from 'react';
 import type {CompProps} from './Composition.js';
-import {createRegistryStore} from './registry-store.js';
+import {createRegistryStore, type RegistryStore} from './registry-store.js';
 import {useSyncExternalStore} from './use-sync-external-store.js';
 
 const useIsomorphicLayoutEffect =
@@ -15,6 +15,21 @@ type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
 	ComponentPropsWithRef<T>
 > & {
 	readonly _result: T;
+};
+
+const createComponentWrapper = <Props>(
+	componentStore: RegistryStore<ComponentType<Props> | null>,
+): ComponentType<Props> => {
+	const Wrapper = (props: Props) => {
+		const Comp = useSyncExternalStore(
+			componentStore.subscribe,
+			componentStore.getSnapshot,
+			componentStore.getSnapshot,
+		)!;
+		return React.createElement(Comp as React.ComponentType<{}>, props as {});
+	};
+
+	return Wrapper;
 };
 
 // Expected, it can be any component props
@@ -75,29 +90,17 @@ export const useLazyComponent = <Props>({
 			componentStore.setSnapshot(() => componentFromProps);
 		}
 	}, [componentFromProps, componentStore]);
+	// Passing a bound factory keeps its closure separate from the render, including
+	// after minification. The wrapper must only retain the store, not initial props.
+	const createWrapper = createComponentWrapper<Props>;
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const Wrapper = useMemo(createWrapper.bind(null, componentStore), [
+		componentStore,
+	]);
 
 	const lazy = useMemo(() => {
 		if ('component' in compProps) {
-			// In SSR, suspense is not yet supported, we cannot use React.lazy
-			if (typeof document === 'undefined' || noSuspense) {
-				return compProps.component as unknown as React.LazyExoticComponent<
-					ComponentType<Props>
-				>;
-			}
-
-			const Wrapper = (props: Props) => {
-				const Comp = useSyncExternalStore(
-					componentStore.subscribe,
-					componentStore.getSnapshot,
-					componentStore.getSnapshot,
-				)!;
-				return React.createElement(
-					Comp as React.ComponentType<{}>,
-					props as {},
-				);
-			};
-
-			return Wrapper as ComponentType<Props>;
+			return Wrapper;
 		}
 
 		if (
@@ -125,6 +128,15 @@ export const useLazyComponent = <Props>({
 		// compProps.component — the stable wrapper subscribes to componentStore instead.
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [lazyComponentFromProps, componentStore]);
+	}, [lazyComponentFromProps, componentStore, Wrapper]);
+
+	// Read the current component on every render when bypassing the wrapper.
+	if (
+		'component' in compProps &&
+		(typeof document === 'undefined' || noSuspense)
+	) {
+		return compProps.component as ComponentType<Props>;
+	}
+
 	return lazy;
 };

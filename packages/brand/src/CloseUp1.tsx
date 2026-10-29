@@ -9,8 +9,9 @@ import {
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
-export const CloseUp1Preview = () => {
+const CloseUp1Content = () => {
 	const frame = useCurrentFrame();
 	const captureFrame = frame + 444;
 
@@ -19,7 +20,7 @@ export const CloseUp1Preview = () => {
 			width={3214}
 			height={1690}
 			style={{
-				translate: '-452px -605.8px',
+				translate: '-852px -905.8px',
 				scale: 1.26,
 				rotate: interpolate(
 					frame,
@@ -45,7 +46,7 @@ export const CloseUp1Preview = () => {
 				}),
 			]}
 		>
-			<AbsoluteFill style={{}} from={-444}>
+			<AbsoluteFill name="Canvas Capture" style={{}} from={-444}>
 				<Video
 					src="https://remotion.media/studio-close-ups/studio-timeline-editing.mp4"
 					style={{
@@ -588,6 +589,14 @@ export const CloseUp1Preview = () => {
 				/>
 			</AbsoluteFill>
 		</HtmlInCanvas>
+	);
+};
+
+export const CloseUp1Preview = () => {
+	return (
+		<CloseUpFrame>
+			<CloseUp1Content />
+		</CloseUpFrame>
 	);
 };
 

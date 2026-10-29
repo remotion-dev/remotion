@@ -1,9 +1,11 @@
+import type {EffectsOutputSize} from 'remotion';
 export type GifLoopBehavior =
 	| 'loop'
 	| 'pause-after-finish'
 	| 'unmount-after-finish';
 
 export type RemotionGifProps = {
+	effectsOutputSize?: EffectsOutputSize;
 	src: string;
 	width?: number;
 	height?: number;

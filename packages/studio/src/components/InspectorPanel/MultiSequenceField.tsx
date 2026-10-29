@@ -15,6 +15,7 @@ import type {
 	SchemaFieldInfo,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
+import {ContextMenu} from '../ContextMenu';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {saveSequenceProps} from '../Timeline/save-sequence-prop';
 import {TimelineExpandArrowSpacer} from '../Timeline/TimelineExpandArrowButton';
@@ -38,29 +39,45 @@ export const MultiSequenceField: React.FC<{
 	readonly targets: MultiSequenceTarget[];
 	readonly readOnlyStudio: boolean;
 }> = ({field, targets, readOnlyStudio}) => {
+	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
+	const video = Internals.useVideo();
 	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
 	);
+	const batchSetters = useContext(Internals.VisualModeBatchSettersContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const [editingMixed, setEditingMixed] = useState(false);
 	const statuses = targets.map(
 		(target) =>
 			Internals.getPropStatusesCtx(propStatuses, target.nodePath)?.[field.key],
 	);
-	const values = statuses.map((status) =>
-		status?.status === 'static'
+	const inherited = statuses.map(
+		(status) =>
+			field.key === 'premountFor' &&
+			field.fieldSchema.default === undefined &&
+			status?.status === 'static' &&
+			status.codeValue === undefined,
+	);
+	const values = statuses.map((status, index) => {
+		const fps = targets[index].nodePath.videoConfigValues?.fps ?? video?.fps;
+		return status?.status === 'static'
 			? Internals.getEffectiveVisualModeValue({
 					propStatus: status,
 					dragOverrideValue: undefined,
-					defaultValue: field.fieldSchema.default,
+					defaultValue:
+						inherited[index] && fps !== undefined
+							? Math.round(defaultPremountInSeconds * fps)
+							: field.fieldSchema.default,
 					shouldResortToDefaultValueIfUndefined: true,
 				})
-			: undefined,
-	);
+			: undefined;
+	});
 	const mixed = values.some(
-		(value) => JSON.stringify(value) !== JSON.stringify(values[0]),
+		(value, index) =>
+			JSON.stringify(value) !== JSON.stringify(values[0]) ||
+			inherited[index] !== inherited[0],
 	);
 	const staticValues = statuses.every((status) => status?.status === 'static');
 	const editable =
@@ -85,21 +102,34 @@ export const MultiSequenceField: React.FC<{
 	}, [clearDragOverrides]);
 	const preview = useCallback(
 		(nextValues: unknown[]) => {
-			if (!editable) {
+			if (!editable || targets.length === 0) {
 				return;
 			}
 
-			for (const [index, target] of targets.entries()) {
-				setDragOverrides(
-					target.nodePath,
-					field.key,
-					Internals.makeStaticDragOverride(
-						clampTimingValue(target.nodePath, field.key, nextValues[index]),
-					),
-				);
+			const clamped = targets.map((target, index) =>
+				clampTimingValue(target.nodePath, field.key, nextValues[index]),
+			);
+			const updates = targets.map((target, index) => ({
+				nodePath: target.nodePath,
+				key: field.key,
+				value: Internals.makeStaticDragOverride(clamped[index]),
+			}));
+			if (batchSetters) {
+				batchSetters.setDragOverridesBatch(updates);
+			} else {
+				for (const update of updates) {
+					setDragOverrides(update.nodePath, update.key, update.value);
+				}
 			}
 		},
-		[clampTimingValue, editable, field.key, setDragOverrides, targets],
+		[
+			batchSetters,
+			clampTimingValue,
+			editable,
+			field.key,
+			setDragOverrides,
+			targets,
+		],
 	);
 	const save = useCallback(
 		async (
@@ -111,16 +141,15 @@ export const MultiSequenceField: React.FC<{
 			}
 
 			try {
+				const clamped = targets.map((target, index) =>
+					clampTimingValue(target.nodePath, field.key, nextValues[index]),
+				);
 				await saveSequenceProps({
 					changes: targets.map((target, index) => ({
 						fileName: target.nodePath.absolutePath,
 						nodePath: target.nodePath,
 						fieldKey: field.key,
-						value: clampTimingValue(
-							target.nodePath,
-							field.key,
-							nextValues[index],
-						),
+						value: clamped[index],
 						defaultValue:
 							field.typeName === 'string' ||
 							field.typeName === 'text-content' ||
@@ -191,6 +220,8 @@ export const MultiSequenceField: React.FC<{
 			<MultiSequenceNumberField
 				field={field}
 				values={values}
+				forceMixed={inherited.some((value) => value !== inherited[0])}
+				inherited={inherited.every(Boolean)}
 				onPreview={preview}
 				onSave={(next) => save(next, undefined)}
 				onClear={clear}
@@ -244,7 +275,7 @@ export const MultiSequenceField: React.FC<{
 		);
 	}
 
-	return (
+	const row = (
 		<TimelineRowChrome
 			depth={0}
 			eye={<TimelineLayerEyeSpacer />}
@@ -262,5 +293,33 @@ export const MultiSequenceField: React.FC<{
 				{content}
 			</TimelineFieldRowContent>
 		</TimelineRowChrome>
+	);
+	if (field.key !== 'premountFor' || field.fieldSchema.default !== undefined) {
+		return row;
+	}
+
+	return (
+		<ContextMenu
+			getItems={() => [
+				{
+					type: 'item',
+					id: 'reset-premount-for',
+					keyHint: null,
+					label: 'Reset',
+					leftItem: null,
+					disabled: !editable || inherited.every(Boolean),
+					onClick: () =>
+						save(
+							targets.map(() => undefined),
+							undefined,
+						),
+					quickSwitcherLabel: null,
+					subMenu: null,
+					value: 'reset-premount-for',
+				},
+			]}
+		>
+			{row}
+		</ContextMenu>
 	);
 };

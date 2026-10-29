@@ -1,9 +1,4 @@
 import {Composition, Folder, Series, useVideoConfig} from 'remotion';
-import {BasicsLeftTrimComposition} from './BasicsLeftTrimComposition';
-import {
-	BasicsLeftTrimScene,
-	BasicsLeftTrimSceneComposition,
-} from './BasicsLeftTrimScene';
 import {BasicsPlaybackRateComposition} from './BasicsPlaybackRateComposition';
 import {
 	BasicsPlaybackRateScene,
@@ -36,13 +31,6 @@ export const BasicsShowcase = () => {
 
 	return (
 		<Series>
-			<Series.Sequence
-				name="Left Trim"
-				durationInFrames={3 * fps}
-				premountFor={fps}
-			>
-				<BasicsLeftTrimScene premountFor={fps} />
-			</Series.Sequence>
 			<Series.Sequence
 				name="Source-only trim"
 				durationInFrames={3 * fps}
@@ -88,20 +76,18 @@ export const BasicsShowcaseCompositions = () => {
 			<Composition
 				id="BasicsShowcase"
 				component={BasicsShowcase}
-				durationInFrames={1080}
+				durationInFrames={900}
 				fps={60}
 				width={1920}
 				height={1080}
 			/>
 			<Folder name="Scenes">
-				<BasicsLeftTrimSceneComposition />
 				<BasicsSourceOnlyTrimSceneComposition />
 				<BasicsSeriesTrimSceneComposition />
 				<BasicsPlaybackRateSceneComposition />
 				<BasicsVolumeKeyframesSceneComposition />
 				<BasicsVirtualizedTimelineSceneComposition />
 			</Folder>
-			<BasicsLeftTrimComposition />
 			<BasicsSourceOnlyTrimComposition />
 			<BasicsSeriesTrimComposition />
 			<BasicsPlaybackRateComposition />

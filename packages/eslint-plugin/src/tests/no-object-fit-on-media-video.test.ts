@@ -1,7 +1,7 @@
-import {ESLintUtils} from '@typescript-eslint/utils';
 import rule from '../rules/no-object-fit-on-media-video';
+import {createRuleTester} from './create-rule-tester';
 
-const ruleTester = new ESLintUtils.RuleTester({
+const ruleTester = createRuleTester({
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		ecmaFeatures: {

@@ -8,6 +8,7 @@ import type {
 import {Internals} from 'remotion';
 import type {DelayPlaybackIfNotPremounting} from './delay-playback-if-not-premounting';
 import {roundTo4Digits} from './helpers/round-to-4-digits';
+import {isCodecReclaimedError} from './is-type-of-error';
 import type {Nonce} from './nonce-manager';
 import {makePrewarmedVideoIteratorCache} from './prewarm-iterator-for-looping';
 import type {MaxCanvasSinkFrameSize} from './video/props';
@@ -44,6 +45,7 @@ export const isSequentialMediaTimeAdvance = ({
 };
 
 export const videoIteratorManager = async ({
+	getIsDisposed,
 	delayPlaybackHandleIfNotPremounting,
 	canvas,
 	context,
@@ -58,6 +60,7 @@ export const videoIteratorManager = async ({
 	getEffectChainState,
 	maxCanvasSinkFrameSize,
 }: {
+	getIsDisposed: () => boolean;
 	videoTrack: InputVideoTrack;
 	delayPlaybackHandleIfNotPremounting: () => DelayPlaybackIfNotPremounting;
 	context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null;
@@ -82,6 +85,7 @@ export const videoIteratorManager = async ({
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let currentSeek: number | null = null;
 	let destroyed = false;
+	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
@@ -89,7 +93,7 @@ export const videoIteratorManager = async ({
 
 	const displayWidth = await videoTrack.getDisplayWidth();
 	const displayHeight = await videoTrack.getDisplayHeight();
-	if (canvas) {
+	if (canvas && !getIsDisposed()) {
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
@@ -121,10 +125,16 @@ export const videoIteratorManager = async ({
 	// Effects expect a source with the size of the output.
 	let upscaledFrame: OffscreenCanvas | null = null;
 
-	const prewarmedVideoIteratorCache =
-		makePrewarmedVideoIteratorCache(canvasSink);
+	const prewarmedVideoIteratorCache = makePrewarmedVideoIteratorCache(
+		canvasSink,
+		await videoTrack.getTimeResolution(),
+	);
 
 	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
+		if (destroyed) {
+			return;
+		}
+
 		if (context && canvas) {
 			const effects = getEffects();
 			const chainState = getEffectChainState(canvas.width, canvas.height);
@@ -151,14 +161,22 @@ export const videoIteratorManager = async ({
 					source = upscaledFrame;
 				}
 
-				await runEffectChain({
-					state: chainState,
-					source,
-					effects,
-					output: canvas,
-					width: canvas.width,
-					height: canvas.height,
-				});
+				const run = {state: chainState, runId: chainState.currentRunId + 1};
+				pendingEffectRun = run;
+				try {
+					await runEffectChain({
+						state: chainState,
+						source,
+						effects,
+						output: canvas,
+						width: canvas.width,
+						height: canvas.height,
+					});
+				} finally {
+					if (pendingEffectRun === run) {
+						pendingEffectRun = null;
+					}
+				}
 			} else {
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				context.drawImage(frame.canvas, 0, 0, canvas.width, canvas.height);
@@ -168,6 +186,10 @@ export const videoIteratorManager = async ({
 
 	const drawFrame = async (frame: WrappedCanvas): Promise<void> => {
 		await paintFrame(frame);
+		if (destroyed) {
+			return;
+		}
+
 		lastDrawnFrame = frame;
 
 		framesRendered++;
@@ -190,6 +212,9 @@ export const videoIteratorManager = async ({
 		}
 
 		await paintFrame(lastDrawnFrame);
+		if (destroyed) {
+			return;
+		}
 
 		drawDebugOverlay();
 		const callback = getOnVideoFrameCallback();
@@ -206,6 +231,7 @@ export const videoIteratorManager = async ({
 	const startVideoIterator = async (
 		timeToSeek: number,
 		nonce: Nonce,
+		retryReclaimed: boolean,
 	): Promise<void> => {
 		clearLastDrawnFrame();
 		videoFrameIterator?.destroy();
@@ -213,10 +239,32 @@ export const videoIteratorManager = async ({
 		currentDelayHandle = delayHandle;
 		currentSeek = timeToSeek;
 
-		const iterator = await createVideoIterator(
-			timeToSeek,
-			prewarmedVideoIteratorCache,
-		);
+		let iterator: VideoIterator;
+		try {
+			iterator = await createVideoIterator(
+				timeToSeek,
+				prewarmedVideoIteratorCache,
+			);
+		} catch (error) {
+			videoFrameIterator = null;
+			if (!retryReclaimed || !isCodecReclaimedError(error)) {
+				throw error;
+			}
+
+			// A cached loop iterator can already be reclaimed before its first read.
+			prewarmedVideoIteratorCache.destroy();
+			currentSeek = null;
+			if (destroyed || nonce.isStale()) {
+				return;
+			}
+
+			iterator = await createVideoIterator(
+				timeToSeek,
+				prewarmedVideoIteratorCache,
+			);
+			currentSeek = timeToSeek;
+		}
+
 		videoIteratorsCreated++;
 
 		// destroy() may have run while the first frame was decoding. It could
@@ -272,6 +320,12 @@ export const videoIteratorManager = async ({
 		continuousPlayback: boolean | null;
 	}) => {
 		if (!videoFrameIterator) {
+			// The previous iterator failed to start, or was discarded after its
+			// decoder was reclaimed by a seek that was then superseded.
+			if (!destroyed) {
+				await startVideoIterator(newTime, nonce, true);
+			}
+
 			return;
 		}
 
@@ -311,14 +365,47 @@ export const videoIteratorManager = async ({
 			handle: null,
 		};
 		try {
-			const result = await iterator.tryToSatisfySeek(newTime, {
-				pendingFrameBehavior,
-				onWait: () => {
-					pending.handle ??= delayPlaybackHandleIfNotPremounting();
-					currentDelayHandle = pending.handle;
-				},
-				shouldContinue: () => !nonce.isStale() && !iterator.isDestroyed(),
-			});
+			const result = await iterator
+				.tryToSatisfySeek(newTime, {
+					pendingFrameBehavior,
+					onWait: () => {
+						pending.handle ??= delayPlaybackHandleIfNotPremounting();
+						currentDelayHandle = pending.handle;
+					},
+					shouldContinue: () => !nonce.isStale() && !iterator.isDestroyed(),
+				})
+				.catch((error: unknown) => {
+					if (isCodecReclaimedError(error)) {
+						return {type: 'decoder-reclaimed' as const};
+					}
+
+					throw error;
+				});
+
+			if (result.type === 'decoder-reclaimed') {
+				Internals.Log.verbose(
+					{logLevel, tag: '@remotion/media'},
+					`[MediaPlayer] Video decoder was reclaimed, recreating it at ${newTime.toFixed(3)}s`,
+				);
+				// Prewarmed loop iterators were idle as well, so their decoders are
+				// likely reclaimed too.
+				prewarmedVideoIteratorCache.destroy();
+				iterator.destroy();
+				clearLastDrawnFrame();
+				videoFrameIterator = null;
+				currentSeek = null;
+				if (destroyed || nonce.isStale()) {
+					return;
+				}
+
+				pending.handle?.unblock();
+				pending.handle = null;
+				currentDelayHandle = null;
+				// A single attempt: if the fresh decoder fails as well, the error
+				// propagates.
+				await startVideoIterator(newTime, nonce, false);
+				return;
+			}
 
 			if (nonce.isStale() || iterator.isDestroyed()) {
 				return;
@@ -334,7 +421,7 @@ export const videoIteratorManager = async ({
 			pending.handle?.unblock();
 			pending.handle = null;
 			currentDelayHandle = null;
-			await startVideoIterator(newTime, nonce);
+			await startVideoIterator(newTime, nonce, true);
 		} finally {
 			pending.handle?.unblock();
 			if (currentDelayHandle === pending.handle) {
@@ -344,15 +431,29 @@ export const videoIteratorManager = async ({
 	};
 
 	return {
-		startVideoIterator,
+		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
+			startVideoIterator(timeToSeek, nonce, true),
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
+			if (destroyed) {
+				return;
+			}
+
 			destroyed = true;
+			// Cancel only this manager's pending run, not a newer run sharing its state.
+			if (
+				pendingEffectRun &&
+				pendingEffectRun.state.currentRunId === pendingEffectRun.runId
+			) {
+				pendingEffectRun.state.currentRunId++;
+			}
+
+			pendingEffectRun = null;
 			clearLastDrawnFrame();
 			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
-			if (context && canvas) {
+			if (context && canvas && framesRendered > 0) {
 				context.clearRect(0, 0, canvas.width, canvas.height);
 			}
 

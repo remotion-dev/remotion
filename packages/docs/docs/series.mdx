@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-series.png
+image: https://remotion.media/docs/generated/articles-docs-series.png
 id: series
 title: <Series>
 crumb: 'API'
@@ -110,7 +110,7 @@ Whether this sequence should be shown in the timeline in the Studio. See [`showI
 ### `premountFor?`<AvailableFrom v="4.0.140"/>
 
 [Premount](/docs/player/premounting) the sequence for a set number of frames.
-The default is controlled by [`defaultPremountInSeconds`](/docs/player/premounting#default-premount-duration), converted to frames. It is `0` seconds in v4 and `2` seconds in [v5.0](/docs/5-0-migration).
+The [Studio default](/docs/player/premounting#default-premounting-in-studio) is `2` seconds starting in v4.0.535. The general default, used by the [Player](/docs/player/premounting#default-premounting-in-the-player), is `0` seconds in v4 and `2` seconds in [v5](/docs/5-0-migration#default-premount-duration-is-now-2-seconds). Seconds are converted to frames. An explicit `premountFor` takes precedence.
 
 ### `ref?`<AvailableFrom v="3.3.4" />
 

@@ -23,6 +23,9 @@ for (const packageManager of packageManagers) {
 				'@types/react': '^18.0.6',
 				'@remotion/eslint-config': '^2.0.0',
 			},
+			allowScripts: {
+				sharp: true,
+			},
 		};
 		let newPackageJson: typeof packageJson | null = null;
 		patchPackageJson(
@@ -44,6 +47,10 @@ for (const packageManager of packageManagers) {
 			packageManager === 'bun' ? 'remotionb studio' : 'remotion studio';
 		expect(newPackageJson as unknown).toEqual({
 			...packageJson,
+			allowScripts: {
+				...packageJson.allowScripts,
+				...(packageManager === 'npm' ? {esbuild: false} : {}),
+			},
 			scripts: {
 				start: expectedStartScript,
 			},

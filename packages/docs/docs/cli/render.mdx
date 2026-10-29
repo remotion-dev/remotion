@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-cli-render.png
+image: https://remotion.media/docs/generated/articles-docs-cli-render.png
 title: npx remotion render
 sidebar_label: render
 crumb: CLI Reference
@@ -285,6 +285,18 @@ Not to be confused with the [`--timeout` flag when deploying a Lambda function](
 ### `--metadata`<AvailableFrom v="4.0.216" />
 
 <Options cli id="metadata" />
+
+### `--license-key`<AvailableFrom v="4.0.539" />
+
+<Options id="license-key" />
+
+### `--is-production`<AvailableFrom v="4.0.539" />
+
+<Options id="is-production" />
+
+```bash title="Report a development render"
+npx remotion render --license-key=rm_sec_... --is-production=false
+```
 
 ### ~~`--ffmpeg-executable`~~
 

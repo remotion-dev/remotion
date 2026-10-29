@@ -79,6 +79,7 @@ test.each([
 			scheduledTime: 0,
 		});
 		const manager = audioIteratorManager({
+			getIsPlaying: () => true,
 			audioTrack,
 			delayPlaybackHandleIfNotPremounting: () => ({
 				unblock: () => undefined,
@@ -137,13 +138,12 @@ test.each([
 
 			const stop = vi.fn();
 			iterator.addQueuedAudioNode({
-				node: {stop} as unknown as AudioBufferSourceNode,
+				node: Object.assign(new EventTarget(), {
+					stop,
+					disconnect: () => undefined,
+				}) as unknown as AudioBufferSourceNode,
 				timestamp: 1 + clockLead * playbackRate,
-				buffer: {duration: 0.5} as AudioBuffer,
 				sourceDurationInSeconds: 0.5,
-				scheduledTime: audioContext.currentTime,
-				playbackRate,
-				scheduledAtAnchor: 0,
 			});
 
 			seek(0.99);

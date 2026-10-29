@@ -41,6 +41,30 @@ const stringifyTrim = (trim: number) => {
 	return asString;
 };
 
+// When `preservePitch` is disabled, the speed change must not go through
+// `atempo` (which keeps the pitch). Changing the sample rate and then
+// resampling back to the target rate speeds up or slows down playback
+// while letting the pitch shift along with it (tape / chipmunk effect).
+const calculateSpeedChangeFilter = ({
+	playbackRate,
+	preservePitch,
+	sampleRate,
+}: {
+	playbackRate: number;
+	preservePitch: boolean;
+	sampleRate: number;
+}): string | null => {
+	if (playbackRate === 1) {
+		return null;
+	}
+
+	if (preservePitch) {
+		return calculateATempo(playbackRate);
+	}
+
+	return `asetrate=${sampleRate}*${playbackRate},aresample=${sampleRate}`;
+};
+
 const trimAndSetTempo = ({
 	assetDuration,
 	asset,
@@ -49,6 +73,7 @@ const trimAndSetTempo = ({
 	fps,
 	indent,
 	logLevel,
+	sampleRate,
 }: {
 	assetDuration: number | null;
 	trimLeftOffset: number;
@@ -57,6 +82,7 @@ const trimAndSetTempo = ({
 	fps: number;
 	indent: boolean;
 	logLevel: LogLevel;
+	sampleRate: number;
 }): {
 	actualTrimLeft: number;
 	filter: (string | null)[];
@@ -98,7 +124,11 @@ const trimAndSetTempo = ({
 
 	return {
 		filter: [
-			calculateATempo(asset.playbackRate),
+			calculateSpeedChangeFilter({
+				playbackRate: asset.playbackRate,
+				preservePitch: asset.preservePitch,
+				sampleRate,
+			}),
 			`atrim=${stringifyTrim(trimLeft)}:${stringifyTrim(trimRightOrAssetDuration)}`,
 		],
 		actualTrimLeft: trimLeft,
@@ -142,11 +172,22 @@ export const stringifyFfmpegFilter = ({
 	const {toneFrequency, startInVideo} = asset;
 
 	const startInVideoSeconds = startInVideo / fps;
+	// A chunk's leading trim only cuts into assets already playing at its start.
+	// For later assets, remove that time from the silence before the asset instead.
+	const assetTrimLeftOffset = startInVideo === 0 ? trimLeftOffset : 0;
+	const startInChunkSeconds =
+		startInVideo === 0 ? 0 : startInVideoSeconds - trimLeftOffset;
+	const capturedFrameCount = Math.round(
+		(chunkLengthInSeconds + trimLeftOffset - trimRightOffset) * fps,
+	);
+	// Only assets present on the last captured frame need the chunk's trailing trim.
+	const assetTrimRightOffset =
+		startInVideo + asset.duration >= capturedFrameCount ? trimRightOffset : 0;
 
 	const {trimLeft, maxTrim} = getActualTrimLeft({
 		trimLeft: asset.trimLeft,
 		fps,
-		trimLeftOffset,
+		trimLeftOffset: assetTrimLeftOffset,
 		seamless: forSeamlessAacConcatenation,
 		assetDuration,
 		audioStartFrame: asset.audioStartFrame,
@@ -169,12 +210,13 @@ export const stringifyFfmpegFilter = ({
 		filter: trimAndTempoFilter,
 	} = trimAndSetTempo({
 		assetDuration,
-		trimLeftOffset,
-		trimRightOffset,
+		trimLeftOffset: assetTrimLeftOffset,
+		trimRightOffset: assetTrimRightOffset,
 		asset,
 		fps,
 		indent,
 		logLevel,
+		sampleRate,
 	});
 
 	const volumeFilter = ffmpegVolumeExpression({
@@ -183,10 +225,10 @@ export const stringifyFfmpegFilter = ({
 		trimLeft: actualTrimLeft,
 	});
 
-	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInVideoSeconds;
+	const padAtEnd = chunkLengthInSeconds - audibleDuration - startInChunkSeconds;
 
 	const padStart =
-		startInVideoSeconds +
+		startInChunkSeconds +
 		(asset.trimLeft === 0 ? presentationTimeOffsetInSeconds : 0);
 
 	// Set as few filters as possible, as combining them can create noise
@@ -220,10 +262,11 @@ export const stringifyFfmpegFilter = ({
 			// This should be fine because FFMPEG documentation states:
 			// "Unused delays will be silently ignored."
 			// https://ffmpeg.org/ffmpeg-filters.html#adelay
+			// Use samples so adjacent AAC chunks place the waveform at the same offset.
 			padStart === 0
 				? null
 				: `adelay=${new Array(channels + 1)
-						.fill((padStart * 1000).toFixed(0))
+						.fill(`${Math.round(padStart * sampleRate)}S`)
 						.join('|')}`,
 		actualTrimLeft,
 	};

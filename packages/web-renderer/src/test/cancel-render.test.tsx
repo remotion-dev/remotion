@@ -1,10 +1,21 @@
 import {useEffect, useState} from 'react';
 import {useDelayRender} from 'remotion';
 import {expect, test} from 'vitest';
+import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
-test('should be able to cancel render', async () => {
+test('preserves the original cancellation error and its causes', async () => {
+	const decoderError = new DOMException(
+		'Decoder allocation failed',
+		'EncodingError',
+	);
+	const mediaError = new Error('Video decoding failed at 0.5s', {
+		cause: decoderError,
+	});
+	const error = new Error('This should be the error message', {
+		cause: mediaError,
+	});
 	const Component: React.FC = () => {
 		const {delayRender, cancelRender} = useDelayRender();
 
@@ -13,7 +24,7 @@ test('should be able to cancel render', async () => {
 		useEffect(() => {
 			Promise.resolve().then(() => {
 				try {
-					cancelRender(new Error('This should be the error message'));
+					cancelRender(error);
 				} catch {
 					// cancelRender throws, we catch it here
 				}
@@ -23,19 +34,30 @@ test('should be able to cancel render', async () => {
 		return null;
 	};
 
+	const composition = {
+		component: Component,
+		id: 'cancel-render-test',
+		width: 100,
+		height: 100,
+		fps: 30,
+		durationInFrames: 30,
+	};
+
 	await expect(
 		renderStillOnWeb({
 			licenseKey: 'free-license',
-			composition: {
-				component: Component,
-				id: 'cancel-render-test',
-				width: 100,
-				height: 100,
-				fps: 30,
-				durationInFrames: 30,
-			},
+			composition,
 			frame: 20,
 			inputProps: {},
 		}),
-	).rejects.toThrow(/This should be the error message/);
+	).rejects.toBe(error);
+
+	await expect(
+		renderMediaOnWeb({
+			licenseKey: 'free-license',
+			composition,
+			inputProps: {},
+			container: 'webm',
+		}),
+	).rejects.toBe(error);
 });

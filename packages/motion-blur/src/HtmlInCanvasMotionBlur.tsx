@@ -97,6 +97,11 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				width,
 				height,
 				isolation: 'isolate',
+				// Copied-mode HtmlInCanvas hides the layout canvas, so each drawable
+				// sample must remain visible to retain its capture paint record.
+				// Issue: https://github.com/remotion-dev/remotion/issues/12656
+				// Test: https://github.com/remotion-dev/remotion/blob/5d2ff05db91c1e5a02fc3d01f359638e98807882/packages/it-tests/src/ssr/render-frames.test.ts#L77
+				visibility: 'visible',
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
@@ -215,22 +220,26 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 		[actualSamples],
 	);
 
-	const sampleElements = Array.from({length: actualSamples}, (_, index) => {
-		return (
-			<MotionBlurSample
-				key={index}
-				width={width}
-				height={height}
-				index={index}
-				count={actualSamples}
-				shutterInFrames={shutterInFrames}
-				firstFrame={firstFrame}
-				lastFrame={lastFrame}
-			>
-				{children}
-			</MotionBlurSample>
-		);
-	});
+	const passThrough = Internals.useHtmlInCanvasUnsupportedMessage() !== null;
+	const sampleElements = Array.from(
+		{length: passThrough ? 0 : actualSamples},
+		(_, index) => {
+			return (
+				<MotionBlurSample
+					key={index}
+					width={width}
+					height={height}
+					index={index}
+					count={actualSamples}
+					shutterInFrames={shutterInFrames}
+					firstFrame={firstFrame}
+					lastFrame={lastFrame}
+				>
+					{children}
+				</MotionBlurSample>
+			);
+		},
+	);
 
 	// The root wrapper holds the first sample. The rest must be canvas children.
 	// Reuse HtmlInCanvas's Sequence for the motion blur controls.
@@ -254,8 +263,9 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 			{...{controls}}
 			onPaint={onPaint}
 			_remotionInternalCanvasSiblings={sampleElements.slice(1)}
+			_remotionInternalFallbackLabel="Motion blur is not visible"
 		>
-			{sampleElements[0]}
+			{passThrough ? children : sampleElements[0]}
 		</HtmlInCanvas>
 	);
 };

@@ -101,6 +101,7 @@ export const decodeImage = async ({
 			}
 
 			const item = sortByClosestToCurrentTime[i];
+			item.frame?.close();
 			item.frame = null;
 		}
 	};

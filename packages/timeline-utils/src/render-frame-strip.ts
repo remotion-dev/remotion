@@ -1,13 +1,94 @@
 import {snapCanvasPositionToDevicePixel} from './device-pixel-alignment';
-import type {FrameDatabaseKey} from './frame-database';
 import {
 	frameDatabase,
 	getFrameDatabaseKeyPrefix,
-	getTimestampFromFrameDatabaseKey,
+	makeFrameDatabaseKey,
+	mediaDurationCache,
 } from './frame-database';
 
 export const WEBCODECS_TIMESCALE = 1_000_000;
-const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+export const MAX_TIME_DEVIATION = WEBCODECS_TIMESCALE * 0.05;
+
+// How far a frame is from the frame that is shown at a slot, 0 if it is shown.
+// The duration makes this work for low and variable frame rate videos.
+// Like extractFrames(), the last frame is shown after the end of the media.
+export const getFrameDistance = ({
+	src,
+	frameTimestamp,
+	frameDuration,
+	slot,
+}: {
+	src: string;
+	frameTimestamp: number;
+	frameDuration: number | null;
+	slot: number;
+}) => {
+	const mediaDuration = mediaDurationCache.get(src);
+	const timestamp =
+		mediaDuration === undefined
+			? slot
+			: Math.min(slot, mediaDuration * WEBCODECS_TIMESCALE - 1);
+	if (
+		frameTimestamp <= timestamp &&
+		timestamp < frameTimestamp + (frameDuration ?? 0)
+	) {
+		return 0;
+	}
+
+	return Math.abs(frameTimestamp - timestamp);
+};
+
+const getFilledDistance = ({
+	src,
+	filled,
+	slot,
+}: {
+	src: string;
+	filled: number | undefined;
+	slot: number;
+}) => {
+	if (filled === undefined) {
+		return Infinity;
+	}
+
+	return getFrameDistance({
+		src,
+		frameTimestamp: filled,
+		frameDuration:
+			frameDatabase.get(makeFrameDatabaseKey(src, filled))?.frame.duration ??
+			null,
+		slot,
+	});
+};
+
+// A frame that is closer to a slot than to the neighboring slots is a good
+// enough thumbnail for it, so zooming out reuses the frames of a closer zoom.
+export const getSlotTolerance = (slots: number[]) => {
+	if (slots.length < 2) {
+		return MAX_TIME_DEVIATION;
+	}
+
+	const [first, second] = [...slots].sort((a, b) => a - b);
+	return Math.max(MAX_TIME_DEVIATION, (second - first) / 2);
+};
+
+// Slots that are filled with a frame that is too far away, for example after
+// zooming in, or not filled at all.
+export const getSlotsToExtract = ({
+	filledSlots,
+	src,
+}: {
+	filledSlots: Map<number, number | undefined>;
+	src: string;
+}) => {
+	const slots = Array.from(filledSlots.keys());
+	const tolerance = getSlotTolerance(slots);
+
+	return slots.filter(
+		(slot) =>
+			getFilledDistance({src, filled: filledSlots.get(slot), slot}) > tolerance,
+	);
+};
 
 export const getDurationOfOneFrame = ({
 	visualizationWidth,
@@ -180,47 +261,61 @@ export const fillWithCachedFrames = ({
 	horizontalOffset: number;
 }) => {
 	const prefix = getFrameDatabaseKeyPrefix(src);
-	const keys = Array.from(frameDatabase.keys()).filter((k) =>
-		k.startsWith(prefix),
-	);
+	let candidates: NonNullable<ReturnType<typeof frameDatabase.get>>[] | null =
+		null;
 	const targets = Array.from(filledSlots.keys());
 
 	for (const timestamp of targets) {
-		let bestKey: FrameDatabaseKey | undefined;
-		let bestDistance = Infinity;
-		for (const key of keys) {
-			const distance = Math.abs(
-				getTimestampFromFrameDatabaseKey(key) - timestamp,
-			);
-			if (distance < bestDistance) {
-				bestDistance = distance;
-				bestKey = key;
+		const filledDistance = getFilledDistance({
+			src,
+			filled: filledSlots.get(timestamp),
+			slot: timestamp,
+		});
+		// A frame covering this slot cannot be improved by another cached frame.
+		if (filledDistance === 0) {
+			continue;
+		}
+
+		if (candidates === null) {
+			candidates = [];
+			for (const [key, candidate] of frameDatabase) {
+				if (key.startsWith(prefix)) {
+					candidates.push(candidate);
+				}
 			}
 		}
 
-		if (!bestKey) {
+		let best: (typeof candidates)[number] | undefined;
+		let bestDistance = Infinity;
+		for (const candidate of candidates) {
+			const distance = getFrameDistance({
+				src,
+				frameTimestamp: candidate.frame.timestamp,
+				frameDuration: candidate.frame.duration,
+				slot: timestamp,
+			});
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				best = candidate;
+				if (distance === 0) {
+					break;
+				}
+			}
+		}
+
+		if (!best) {
 			continue;
 		}
 
-		const frame = frameDatabase.get(bestKey);
-		if (!frame) {
+		if (filledDistance <= bestDistance) {
 			continue;
 		}
 
-		const alreadyFilled = filledSlots.get(timestamp);
-		if (
-			alreadyFilled &&
-			Math.abs(alreadyFilled - timestamp) <=
-				Math.abs(frame.frame.timestamp - timestamp)
-		) {
-			continue;
-		}
-
-		frame.lastUsed = Date.now();
+		best.lastUsed = Date.now();
 
 		drawSlot({
 			ctx,
-			frame: frame.frame,
+			frame: best.frame,
 			filledSlots,
 			visualizationWidth: naturalWidth,
 			timestamp,
@@ -235,6 +330,7 @@ export const fillWithCachedFrames = ({
 
 export const fillFrameWhereItFits = ({
 	frame,
+	src,
 	filledSlots,
 	ctx,
 	visualizationWidth,
@@ -245,6 +341,7 @@ export const fillFrameWhereItFits = ({
 	horizontalOffset,
 }: {
 	frame: VideoFrame;
+	src: string;
 	filledSlots: Map<number, number | undefined>;
 	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 	visualizationWidth: number;
@@ -256,16 +353,19 @@ export const fillFrameWhereItFits = ({
 }) => {
 	const slots = Array.from(filledSlots.keys());
 
-	for (let i = 0; i < slots.length; i++) {
-		const slot = slots[i];
-		if (Math.abs(slot - frame.timestamp) > MAX_TIME_DEVIATION) {
+	for (const slot of slots) {
+		const distance = getFrameDistance({
+			src,
+			frameTimestamp: frame.timestamp,
+			frameDuration: frame.duration,
+			slot,
+		});
+		if (distance > MAX_TIME_DEVIATION) {
 			continue;
 		}
 
-		const filled = filledSlots.get(slot);
 		if (
-			filled &&
-			Math.abs(filled - slot) <= Math.abs(filled - frame.timestamp)
+			getFilledDistance({src, filled: filledSlots.get(slot), slot}) <= distance
 		) {
 			continue;
 		}

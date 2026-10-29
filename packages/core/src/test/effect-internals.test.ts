@@ -48,6 +48,37 @@ const memoizeEffects = (
 	}));
 };
 
+// PR #11436: a size change or unmount can cancel an asynchronous source resize.
+test('closes a resized effect source after its chain is cancelled', async () => {
+	const originalBitmap = globalThis.createImageBitmap;
+	let finishResize!: (bitmap: ImageBitmap) => void;
+	const close = mock(() => undefined);
+	globalThis.createImageBitmap = mock(
+		() =>
+			new Promise<ImageBitmap>((resolve) => {
+				finishResize = resolve;
+			}),
+	) as typeof createImageBitmap;
+	const state = createEffectChainState(2, 2);
+	try {
+		const rendering = runEffectChain({
+			state,
+			source: document.createElement('canvas'),
+			output: document.createElement('canvas'),
+			width: 4,
+			height: 4,
+			effects: memoizeEffects([makeDesc('cancelled', '2d')]),
+		});
+		cleanupEffectChainState(state);
+		finishResize({close} as unknown as ImageBitmap);
+		expect(await rendering).toBe(false);
+		expect(close).toHaveBeenCalledTimes(1);
+	} finally {
+		globalThis.createImageBitmap = originalBitmap;
+		cleanupEffectChainState(state);
+	}
+});
+
 test('groupByBackend collapses adjacent same-backend effects', () => {
 	const effects = [
 		makeDesc('a', '2d'),
@@ -97,25 +128,6 @@ test('groupByBackend returns one run per backend transition', () => {
 	expect(runs.map((r) => r.backend)).toEqual(['2d', 'webgl2', '2d', 'webgl2']);
 });
 
-test('runEffectChain filters disabled effects before grouping', () => {
-	// Mirror of the filter in `runEffectChain` — kept here as a regression
-	// guard so the behavior is asserted independently of the canvas-bound
-	// chain runner.
-	const all: EffectDescriptor<unknown>[] = [
-		{...makeDesc('a', '2d'), params: {disabled: false}},
-		{...makeDesc('b', '2d'), params: {disabled: true}},
-		{...makeDesc('c', 'webgl2'), params: {}},
-		{...makeDesc('d', 'webgl2'), params: {disabled: true}},
-	];
-	const enabled = all.filter(
-		(e) => !(e.params as {disabled?: boolean}).disabled,
-	);
-	const runs = groupByBackend(memoizeEffects(enabled));
-	expect(runs).toHaveLength(2);
-	expect(runs[0].effects.map((e) => e.definition.type)).toEqual(['a']);
-	expect(runs[1].effects.map((e) => e.definition.type)).toEqual(['c']);
-});
-
 test.each(['2d', 'webgl2'] as const)(
 	'runEffectChain allocates only needed %s targets and releases them',
 	async (backend) => {
@@ -133,6 +145,30 @@ test.each(['2d', 'webgl2'] as const)(
 			return (kind === 'webgl2'
 				? {
 						UNPACK_PREMULTIPLY_ALPHA_WEBGL: 0x9241,
+						getParameter: () => 2,
+						isContextLost: () => false,
+						...Object.fromEntries(
+							[
+								'bindFramebuffer',
+								'drawBuffers',
+								'readBuffer',
+								'viewport',
+								'scissor',
+								'disable',
+								'enable',
+								'colorMask',
+								'depthMask',
+								'stencilMask',
+								'clearColor',
+								'clearDepth',
+								'clearStencil',
+								'useProgram',
+								'bindVertexArray',
+								'bindBuffer',
+								'bindSampler',
+								'activeTexture',
+							].map((method) => [method, () => undefined]),
+						),
 						pixelStorei: () => undefined,
 						getExtension: () => ({loseContext}),
 					}

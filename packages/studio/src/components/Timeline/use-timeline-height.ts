@@ -5,7 +5,6 @@ import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-k
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
-	getTimelineLayerHeight,
 	getTreeRowHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
@@ -17,6 +16,7 @@ import {
 	getSelectedTimelineExpandedRowKeys,
 	isTimelineExpandedNodeSelected,
 } from './timeline-expanded-filter';
+import {getTimelineSequenceHeight} from './timeline-track-groups';
 import {useTimelineSelection} from './TimelineSelection';
 
 const emptyDragOverrideSnapshot = {};
@@ -165,8 +165,7 @@ export const useTimelineTrackHeights = ({
 			}
 
 			const layerHeight =
-				getTimelineLayerHeight(track.sequence.type) +
-				TIMELINE_ITEM_BORDER_BOTTOM;
+				getTimelineSequenceHeight(track.sequence) + TIMELINE_ITEM_BORDER_BOTTOM;
 			const expandedHeight = (() => {
 				if (!isExpanded || track.nodePathInfo === null) {
 					return 0;
@@ -181,6 +180,7 @@ export const useTimelineTrackHeights = ({
 					propStatuses,
 					includeTextContent: false,
 					includeSourceControls: false,
+					includeInspectorOnlyFields: false,
 					runtimeValues,
 				});
 				const filteredTree = filterTimelineExpandedTree({

@@ -1,0 +1,77 @@
+import type {
+	AudioCodec,
+	DeleteAfter,
+	StillImageFormat,
+	VideoImageFormat,
+} from '@remotion/renderer';
+import type {DownloadBehavior} from 'remotion';
+import type {ImageSequenceOutput} from './image-sequence';
+import type {AwsRegion} from './regions';
+import type {
+	OutNameInputWithoutCredentials,
+	Privacy,
+	SerializedInputProps,
+	ServerlessCodec,
+} from './shared-constants';
+
+type Discriminated =
+	| {
+			type: 'still';
+			imageFormat: StillImageFormat;
+			codec: null;
+	  }
+	| {
+			type: 'video';
+			imageFormat: VideoImageFormat;
+			muted: boolean;
+			frameRange: [number, number];
+			everyNthFrame: number;
+			codec: ServerlessCodec;
+	  }
+	| {
+			type: 'sequence';
+			imageFormat: 'png' | 'jpeg';
+			codec: null;
+			muted: true;
+			frameRange: [number, number];
+			everyNthFrame: number;
+			outputSequence: ImageSequenceOutput;
+			imageSequencePattern: string;
+			framePadding: number;
+	  };
+
+type Dimensions = {
+	width: number;
+	height: number;
+};
+
+export type RenderMetadata = Discriminated & {
+	siteId: string;
+	startedDate: number;
+	totalChunks: number;
+	estimatedTotalLambdaInvokations: number;
+	estimatedRenderLambdaInvokations: number;
+	compositionId: string;
+	audioCodec: AudioCodec | null;
+	inputProps: SerializedInputProps;
+	framesPerLambda: number;
+	memorySizeInMb: number;
+	functionName: string;
+	rendererFunctionName: string;
+	lambdaVersion: string;
+	region: AwsRegion;
+	renderId: string;
+	outName: OutNameInputWithoutCredentials | undefined;
+	separateAudioTo: OutNameInputWithoutCredentials | null;
+	// Whether the final upload must create a new object without overwriting.
+	outputFileIsConditional: boolean | null;
+	separateAudioOutputFileIsConditional: boolean | null;
+	privacy: Privacy;
+	deleteAfter: DeleteAfter | null;
+	numberOfGifLoops: number | null;
+	audioBitrate: string | null;
+	downloadBehavior: DownloadBehavior;
+	metadata: Record<string, string> | null;
+	dimensions: Dimensions;
+	scale: number;
+};

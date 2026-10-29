@@ -21,16 +21,13 @@ const HerdrGroundControlContent = ({style}: InteractiveTransformProps) => {
 				playbackRate={1.25}
 				muted
 				objectFit="cover"
-				premountFor={fps}
 				style={{width: '100%', height: '100%'}}
 			/>
 		</AbsoluteFill>
 	);
 };
 
-export const HerdrGroundControl = Interactive.withSchema({
+export const HerdrGroundControl = Interactive.create({
 	Component: HerdrGroundControlContent,
 	componentName: 'HerdrGroundControl',
-	schema: {},
-	wrapInSequence: true,
 });
