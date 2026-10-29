@@ -8,8 +8,8 @@ license = "WTFPL"
 
 description = "Safe FFmpeg wrapper (FFmpeg 4 compatible fork of the ffmpeg crate)"
 documentation = "https://docs.rs/ffmpeg-next"
-homepage = "https://github.com/zmwangx/rust-ffmpeg#readme"
-repository = "https://github.com/zmwangx/rust-ffmpeg"
+homepage = "https://github.com/remotion-dev/remotion/tree/main/packages/compositor/ffmpeg/wrapper#readme"
+repository = "https://github.com/remotion-dev/remotion/tree/main/packages/compositor/ffmpeg/wrapper"
 readme = "README.md"
 keywords = ["ffmpeg", "multimedia", "video", "audio"]
 categories = ["multimedia"]

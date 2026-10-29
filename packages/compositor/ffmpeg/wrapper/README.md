@@ -1,13 +1,16 @@
+# Remotion FFmpeg wrapper
+
+This is Remotion's local fork of the upstream [`ffmpeg-next`](https://github.com/zmwangx/rust-ffmpeg) crate. The badges and compatibility notes below describe upstream. Remotion uses the pinned FFmpeg version and local `../sys` crate described in the [monorepo FFmpeg workflow](../README.md).
+
 [![crates.io](https://img.shields.io/crates/v/ffmpeg-next.svg)](https://crates.io/crates/ffmpeg-next)
 [![docs.rs](https://docs.rs/ffmpeg-next/badge.svg)](https://docs.rs/ffmpeg-next/)
-[![build](https://github.com/zmwangx/rust-ffmpeg/workflows/build/badge.svg)](https://github.com/zmwangx/rust-ffmpeg/actions)
 
 This is a fork of the abandoned [ffmpeg](https://crates.io/crates/ffmpeg) crate by [meh.](https://github.com/meh/rust-ffmpeg).
 
 This crate is currently in maintenance mode, and aims to be compatible with all of FFmpeg's versions from 3.4
 (currently from 3.4 til 7.0)
 
-Build instructions can be found on the [wiki](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building).
+For Remotion build instructions and updates, use the [monorepo FFmpeg workflow](../README.md). The [upstream build notes](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building) apply to the upstream crate.
 
 Documentation:
 
