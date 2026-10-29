@@ -5,21 +5,29 @@ import {
 	publishEffectSource,
 } from './effect-source-observer.js';
 import type {
-	EffectDefinition,
+	EffectImplementation,
+	PreferredEffectBackend,
+	Backend,
 	EffectDefinitionAndStack,
 } from './effect-types.js';
 import {getGpuDevice} from './gpu-device.js';
 
 export type EffectChainState = {
+	preferredEffectBackend: PreferredEffectBackend;
+	gpuDevice: unknown | null;
+	selections: WeakMap<
+		object,
+		{backend: Backend; implementation: EffectImplementation<unknown, unknown>}
+	>;
 	readonly width: number;
 	readonly height: number;
 	pool: CanvasPool;
 	setupCache: WeakMap<
-		EffectDefinition<unknown, unknown>,
+		EffectImplementation<unknown, unknown>,
 		WeakMap<HTMLCanvasElement, unknown>
 	>;
 	cleanupRegistry: Array<{
-		definition: EffectDefinition<unknown, unknown>;
+		definition: EffectImplementation<unknown, unknown>;
 		state: unknown;
 		target: HTMLCanvasElement;
 	}>;
@@ -63,6 +71,12 @@ export const createEffectChainState = (
 	const state: EffectChainState = {
 		width,
 		height,
+		preferredEffectBackend:
+			typeof window === 'undefined'
+				? 'auto'
+				: (window.remotion_preferredEffectBackend ?? 'auto'),
+		gpuDevice: null,
+		selections: new WeakMap(),
 		pool: new CanvasPool(width, height, (canvas) => {
 			state.currentRunId++;
 			// The GL objects these setups hold died with the context and stay
@@ -104,10 +118,11 @@ export const cleanupEffectChainState = (state: EffectChainState): void => {
 
 const ensureSetup = <S>(
 	state: EffectChainState,
-	def: EffectDefinition<unknown, S>,
+	def: EffectImplementation<unknown, S>,
 	target: HTMLCanvasElement,
+	backend: Backend,
 ): S => {
-	const widened = def as EffectDefinition<unknown, unknown>;
+	const widened = def as EffectImplementation<unknown, unknown>;
 	let cacheForDefinition = state.setupCache.get(widened);
 	if (!cacheForDefinition) {
 		cacheForDefinition = new WeakMap<HTMLCanvasElement, unknown>();
@@ -118,12 +133,12 @@ const ensureSetup = <S>(
 		return cacheForDefinition.get(target) as S;
 	}
 
-	if (def.backend === 'webgl2') state.pool.prepareWebGL(target, false);
+	if (backend === 'webgl2') state.pool.prepareWebGL(target, false);
 	let setupState: S;
 	try {
 		setupState = def.setup(target);
 	} catch (error) {
-		if (def.backend === 'webgl2') {
+		if (backend === 'webgl2') {
 			try {
 				state.pool.retireWebGL(target);
 			} catch (cleanupError) {
@@ -158,20 +173,17 @@ export type RunEffectChainOptions = {
 // completed and wrote to `output`, `false` if it was superseded by a newer
 // run (caller should not act on a stale result).
 const runEffectChainWithoutResize = async (
-	{state, source, effects, output, width, height}: RunEffectChainOptions,
+	{state, source, output, width, height}: RunEffectChainOptions,
 	initialFlipSourceY: boolean,
 	runId: number,
+	{
+		resolved,
+		gpuDevice,
+	}: {resolved: ResolvedEffect[]; gpuDevice: unknown | null},
 ): Promise<boolean> => {
 	const isCancelled = () => state.currentRunId !== runId;
 
-	// Bypass any effect with `disabled: true` before grouping by backend, so
-	// disabled effects don't create empty runs or force unnecessary backend
-	// transitions. The `disabled` flag is injected by `createEffect` and lives
-	// on `params` so it flows through code/drag override merging.
-	const enabledEffects = effects.filter(
-		(e) => !(e.params as {disabled?: boolean}).disabled,
-	);
-	const runs = groupByBackend(enabledEffects);
+	const runs = groupByBackend(resolved);
 
 	let currentImage: CanvasImageSource = source;
 	let lastTarget: HTMLCanvasElement | null = null;
@@ -193,19 +205,6 @@ const runEffectChainWithoutResize = async (
 		return true;
 	}
 
-	let needsGpuDevice = false;
-	for (const run of runs) {
-		if (run.backend === 'webgpu') {
-			needsGpuDevice = true;
-			break;
-		}
-	}
-
-	const gpuDevice = needsGpuDevice ? await getGpuDevice() : null;
-	if (isCancelled()) {
-		return false;
-	}
-
 	// Canvas sources are DOM-oriented. Flip them when uploading into WebGL so
 	// texture coordinates match clip-space output. `ImageBitmap` bridges below
 	// opt out because they are already oriented for upload.
@@ -221,11 +220,11 @@ const runEffectChainWithoutResize = async (
 			for (const eff of run.effects) {
 				if (isCancelled()) return false;
 				const dst = state.pool.getCanvas(run.backend, canvasIndex);
-				const def = eff.definition as EffectDefinition<unknown, unknown>;
-				const setupState = ensureSetup(state, def, dst);
+				const def = eff.implementation;
+				const setupState = ensureSetup(state, def, dst, run.backend);
 				if (isCancelled()) return false;
 
-				publishEffectSource(eff, currentImage, state);
+				publishEffectSource(eff.original, currentImage, state);
 				if (isCancelled()) return false;
 				if (run.backend === 'webgl2')
 					state.pool.prepareWebGL(dst, flipWebGLSourceY);
@@ -305,22 +304,111 @@ const runEffectChainWithoutResize = async (
 	return true;
 };
 
+type ResolvedEffect = {
+	definition: {backend: Backend};
+	implementation: EffectImplementation<unknown, unknown>;
+	original: EffectDefinitionAndStack<unknown>;
+	params: unknown;
+};
+
 // Keep ownership of the optional resized source until the existing chain settles.
 const runEffectChainWithResize = async (
 	options: RunEffectChainOptions,
 	runId: number,
 ): Promise<boolean> => {
 	const {state, source, width, height, effects} = options;
-	if (
-		(state.width === width && state.height === height) ||
-		!effects.some((effect) => !(effect.params as {disabled?: boolean}).disabled)
-	) {
-		return runEffectChainWithoutResize(options, true, runId);
+	const order: Backend[] = ['webgpu', 'webgl2', '2d'];
+	if (state.preferredEffectBackend !== 'auto') {
+		order.splice(order.indexOf(state.preferredEffectBackend), 1);
+		order.unshift(state.preferredEffectBackend);
 	}
 
-	const firstEnabledEffect = effects.find(
-		(effect) => !(effect.params as {disabled?: boolean}).disabled,
-	)!;
+	const resolved: ResolvedEffect[] = [];
+	let gpuDevice: unknown | null = null;
+	for (const effect of effects) {
+		if ((effect.params as {disabled: boolean | undefined}).disabled) continue;
+		const implementations = effect.definition.implementations ?? {
+			[effect.definition.backend]: effect.definition,
+		};
+		let selected = false;
+		const cached = state.selections.get(effect.definition);
+		const candidates =
+			cached === undefined
+				? order
+				: [
+						cached.backend,
+						...order.filter((backend) => backend !== cached.backend),
+					];
+		for (const backend of candidates) {
+			const implementation = implementations[backend];
+			if (!implementation) continue;
+			if (backend === 'webgpu') {
+				if (
+					typeof window !== 'undefined' &&
+					window.remotion_disableWebGpuEffects
+				)
+					continue;
+				gpuDevice = await getGpuDevice();
+				if (state.currentRunId !== runId) return false;
+				if (!gpuDevice) continue;
+				const {limits} = gpuDevice as {limits: {maxTextureDimension2D: number}};
+				if (
+					limits &&
+					(state.width > limits.maxTextureDimension2D ||
+						state.height > limits.maxTextureDimension2D)
+				)
+					continue;
+			}
+
+			// Allocation failure is a capability failure; setup/apply errors are bugs and propagate.
+			if (Object.keys(implementations).length > 1) {
+				try {
+					state.pool.getCanvas(backend, 0);
+				} catch {
+					continue;
+				}
+			}
+
+			state.selections.set(effect.definition, {backend, implementation});
+			resolved.push({
+				definition: {backend},
+				implementation,
+				original: effect,
+				params: effect.params,
+			});
+			selected = true;
+			break;
+		}
+
+		if (!selected)
+			throw new Error(
+				`No supported implementation for effect "${effect.definition.type}" (preferred backend: ${state.preferredEffectBackend})`,
+			);
+	}
+
+	if (gpuDevice !== state.gpuDevice) {
+		const entries = state.cleanupRegistry;
+		state.cleanupRegistry = [];
+		state.setupCache = new WeakMap();
+		state.gpuDevice = gpuDevice;
+		cleanupEntries(entries);
+	}
+
+	if (state.currentRunId !== runId) return false;
+
+	if (
+		(state.width === width && state.height === height) ||
+		!effects.some(
+			(effect) => !(effect.params as {disabled: boolean | undefined}).disabled,
+		)
+	) {
+		return runEffectChainWithoutResize(options, true, runId, {
+			resolved,
+			gpuDevice,
+		});
+	}
+
+	const firstEnabledEffect = resolved[0];
 	const resized = await createImageBitmap(source as ImageBitmapSource, {
 		resizeWidth: state.width,
 		resizeHeight: state.height,
@@ -337,6 +425,7 @@ const runEffectChainWithResize = async (
 			{...options, source: resized},
 			false,
 			runId,
+			{resolved, gpuDevice},
 		);
 	} finally {
 		resized.close();

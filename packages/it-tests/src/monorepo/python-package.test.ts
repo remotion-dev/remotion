@@ -133,6 +133,7 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			licenseKey: null,
 			storageClass: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 			sampleRate: 48000,
 		});
@@ -216,6 +217,7 @@ test('Python package should create the same renderStill payload as normal Lambda
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 		});
 	const {streamed: _, ...parsedJson} = parsePythonOutput(pythonOutput);

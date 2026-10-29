@@ -84,6 +84,7 @@ export const configMethodLifecycles = {
 	setPreferLosslessAudio: 'runtime',
 	setPreservePitchOnPlayback: 'runtime',
 	setPreviewSampleRate: 'reload',
+	setPreferredEffectBackend: 'reload',
 	setProResProfile: 'runtime',
 	setPublicDir: 'restart',
 	setPublicLicenseKey: 'runtime',

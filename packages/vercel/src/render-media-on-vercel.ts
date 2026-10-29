@@ -1,4 +1,5 @@
 import type {Sandbox} from '@vercel/sandbox';
+import type {PreferredEffectBackend} from 'remotion';
 import {REMOTION_SANDBOX_BUNDLE_DIR} from './internals/add-bundle';
 import type {
 	AudioCodec,
@@ -62,6 +63,7 @@ type RenderMediaOnVercelBaseOptions = {
 	hardwareAcceleration?: HardwareAccelerationOption;
 	offthreadVideoCacheSizeInBytes?: number | null;
 	mediaCacheSizeInBytes?: number | null;
+	preferredEffectBackend?: PreferredEffectBackend;
 	offthreadVideoThreads?: number | null;
 	sampleRate?: number;
 	detachedSandboxTimeoutInMilliseconds?: number;
@@ -135,6 +137,7 @@ const internalRenderMediaOnVercel = async (
 		hardwareAcceleration = 'disable',
 		offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		offthreadVideoThreads,
 		sampleRate,
 		detached = false,
@@ -191,6 +194,7 @@ const internalRenderMediaOnVercel = async (
 		hardwareAcceleration,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		chromeMode: 'headless-shell',
 		browserExecutable: null,

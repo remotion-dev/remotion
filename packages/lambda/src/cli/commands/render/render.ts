@@ -64,6 +64,7 @@ const {
 	preferLosslessOption,
 	metadataOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	pixelFormatOption,
 	browserExecutableOption,
@@ -177,6 +178,9 @@ export const renderCommand = async ({
 			commandLine: CliInternals.parsedCli,
 		}).value;
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
@@ -333,6 +337,7 @@ export const renderCommand = async ({
 				}),
 				chromeMode: 'headless-shell',
 				mediaCacheSizeInBytes: mediaCacheSizeInBytes,
+				preferredEffectBackend: preferredEffectBackend,
 			});
 		composition = compositionId;
 	}
@@ -483,6 +488,7 @@ export const renderCommand = async ({
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,

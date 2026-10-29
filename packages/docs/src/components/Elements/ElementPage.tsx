@@ -163,6 +163,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		});
 	}, [definition, sourceCode]);
 
+	const showOpenInBrowserStudio = Boolean(sourceCode) && !isEmbeddedInStudio;
+
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
 	}, [definition]);
@@ -291,7 +293,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						</>
 					) : null}
 
-					{children || sourceCode ? (
+					{children || showOpenInBrowserStudio ? (
 						<div className={styles.secondaryActions}>
 							{children ? (
 								<button
@@ -311,7 +313,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									View code
 								</button>
 							) : null}
-							{sourceCode ? (
+							{showOpenInBrowserStudio ? (
 								<button
 									aria-label="Try this Element in Browser Studio in a new tab"
 									className={styles.secondaryAction}

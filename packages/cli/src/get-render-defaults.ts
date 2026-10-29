@@ -34,6 +34,7 @@ const {
 	hardwareAccelerationOption,
 	chromeModeOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	pixelFormatOption,
 	everyNthFrameOption,
@@ -138,6 +139,9 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const publicLicenseKey = publicLicenseKeyOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -224,6 +228,7 @@ export const getRenderDefaults = (logLevel: LogLevel): RenderDefaults => {
 		hardwareAcceleration,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		publicLicenseKey,
 		outputLocation,
 		allowHtmlInCanvas,
