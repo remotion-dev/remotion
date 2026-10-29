@@ -363,6 +363,47 @@ export const measureCanvasOutlineTargets = (
 		| null
 	>();
 	for (const target of targets) {
+		const customOutline = target.ref.current;
+		if (customOutline !== null && !(customOutline instanceof Element)) {
+			const customMeasurement = customOutline.measure();
+			if (customMeasurement === null) {
+				continue;
+			}
+
+			const scaleX =
+				contentRoot.offsetWidth > 0
+					? rootRect.width / contentRoot.offsetWidth
+					: 1;
+			const scaleY =
+				contentRoot.offsetHeight > 0
+					? rootRect.height / contentRoot.offsetHeight
+					: 1;
+			const toContainerPoint = (point: CanvasOutlinePoint) => ({
+				x: (point.x - rootRect.left) / scaleX,
+				y: (point.y - rootRect.top) / scaleY,
+			});
+			const customPoints: CanvasOutline['points'] = [
+				toContainerPoint(customMeasurement.points[0]),
+				toContainerPoint(customMeasurement.points[1]),
+				toContainerPoint(customMeasurement.points[2]),
+				toContainerPoint(customMeasurement.points[3]),
+			];
+			outlines.push({
+				key: target.key,
+				dimensions:
+					customMeasurement.dimensions === null
+						? null
+						: {
+								width: customMeasurement.dimensions.width / scaleX,
+								height: customMeasurement.dimensions.height / scaleY,
+							},
+				uncroppedPoints: customPoints,
+				points: cropCanvasOutlinePoints(customPoints, target.crop),
+				path: null,
+			});
+			continue;
+		}
+
 		const nodes = getCanvasOutlineNodes(target.ref);
 		let left = Infinity;
 		let top = Infinity;
