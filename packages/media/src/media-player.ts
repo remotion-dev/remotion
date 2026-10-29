@@ -453,6 +453,7 @@ export class MediaPlayer {
 						getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
 						getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
 						getStartTime: () => this.getStartTime(),
+						getIsPlaying: () => this.playing,
 						initialMuted,
 						initialVolume,
 						toneFrequency: this.toneFrequency,

@@ -34,6 +34,8 @@
 		"@remotion/eslint-config-internal": "workspace:*",
 		"eslint": "catalog:",
 		"next": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"@types/mime-types": "2.1.1",
 		"typescript": "catalog:"
 	},

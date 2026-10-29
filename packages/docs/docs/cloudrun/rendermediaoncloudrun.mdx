@@ -336,6 +336,14 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 
 <Options id="color-space" />
 
+### `licenseKey?`<AvailableFrom v="4.0.540"/>
+
+License key for reporting usage on [remotion.pro](https://www.remotion.pro). Pass a private API key starting with `rm_sec_`, or `"free-license"` if you qualify for the [Free License](/docs/license). Defaults to `null`, which disables usage reporting.
+
+### `isProduction?`<AvailableFrom v="4.0.540"/>
+
+<Options id="is-production" />
+
 ## Return value
 
 Returns a promise resolving to an object.

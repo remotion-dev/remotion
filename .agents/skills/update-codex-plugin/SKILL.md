@@ -62,17 +62,24 @@ those overrides for a skills update; change them only when the task includes a
 listing change. If the source package structure has changed incompatibly, adapt
 the helper before uploading instead of silently dropping components.
 
-Check the reported source commit, version, skill names, and ZIP path. With the
-monorepo dependencies installed, lint the staged package from
-`packages/agent-plugin` using the existing Vally library:
+Check the reported source commit, version, skill names, and ZIP path. The helper
+validates the staged manifest, skill layout, release versions, and preserved
+listing assets. With the monorepo dependencies installed, validate relative
+links in the staged skills from the monorepo root:
 
 ```bash
-bun -e 'import {runLint, LintConsoleReporter} from "@microsoft/vally"; const result = await runLint({rootPath: process.argv[1]}); await new LintConsoleReporter({verbose: true}).report(result); if (!result.passed) process.exit(1);' /absolute/path/to/staged/remotion
+SKILLS_ROOT="/absolute/path/to/staged/remotion/skills" bun packages/skills/scripts/validate-links.ts
 ```
 
-`@microsoft/vally` is a library; it does not provide a `vally` CLI. Fix actual
-packaging findings before uploading. Do not change skill content merely to
-bypass a safety finding.
+Also run the handwritten checks for the monorepo's Codex and portable plugin
+builds:
+
+```bash
+bun run --cwd packages/agent-plugin test
+```
+
+Fix packaging findings before uploading. These local structural checks do not
+replace the dashboard's metadata and skill review.
 
 ## Upload and publish in the browser
 

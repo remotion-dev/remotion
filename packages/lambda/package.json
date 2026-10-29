@@ -49,6 +49,8 @@
 		"@types/minimist": "1.2.2",
 		"eslint": "catalog:",
 		"next": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"pureimage": "0.4.13",
 		"@types/node": "catalog:",
 		"typescript": "catalog:"
