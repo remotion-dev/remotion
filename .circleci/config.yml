@@ -1,10 +1,5 @@
 version: 2.1
 
-parameters:
-  run-ffmpeg:
-    type: boolean
-    default: false
-
 orbs:
   node: circleci/node@5.1.0
 
@@ -158,7 +153,7 @@ jobs:
 
 workflows:
   build_ffmpeg:
-    when: << pipeline.parameters.run-ffmpeg >>
+    when: pipeline.trigger.type == "api"
     jobs:
       - build-linux-x64-gnu
       - build-linux-arm-gnu

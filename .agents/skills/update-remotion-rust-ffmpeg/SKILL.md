@@ -11,7 +11,7 @@ The complete source chain now lives in [`packages/compositor/ffmpeg`](../../../p
 
 Use the full source commit SHA for the intended FFmpeg build.
 
-Explicitly trigger the CircleCI pipeline on the branch containing that commit with the boolean parameter `run-ffmpeg=true`. The default is `false`, so pushes do not run the FFmpeg workflow. See the [trigger instructions](../../../packages/compositor/ffmpeg/README.md#rebuild-ffmpeg). Wait for its five jobs and the macOS GitHub Actions build for the same commit to succeed. Then collect artifacts from the Remotion repository root:
+Explicitly trigger the CircleCI pipeline on the branch containing that commit using the web app's **Trigger Pipeline** button or the API. No parameters are needed: the workflow only runs for `pipeline.trigger.type == "api"`, which covers both methods. See the [trigger instructions](../../../packages/compositor/ffmpeg/README.md#rebuild-ffmpeg). Wait for its five jobs and the macOS GitHub Actions build for the same commit to succeed. Then collect artifacts from the Remotion repository root:
 
 ```sh
 node packages/compositor/ffmpeg/collect-artifacts.mjs --sha <full-source-sha>
