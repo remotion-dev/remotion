@@ -26,3 +26,12 @@ export const loadPlaybackRate = () => {
 		? playbackRate
 		: 1;
 };
+
+export const stepPlaybackRate = (playbackRate: number, direction: 1 | -1) => {
+	const tenths = Math.abs(playbackRate) * 10;
+	const next =
+		direction === 1
+			? Math.floor(tenths + 1e-9) + 1
+			: Math.ceil(tenths - 1e-9) - 1;
+	return (Math.sign(playbackRate) * Math.min(40, Math.max(1, next))) / 10;
+};

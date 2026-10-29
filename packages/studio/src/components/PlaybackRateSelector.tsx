@@ -1,11 +1,17 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {WHITE, WHITE_ALPHA_80} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
+import {Minus} from '../icons/minus';
 import {PlaybackRateIcon} from '../icons/playback-rate';
-import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
-import {menuItemLeftSpace} from './Menu/styles';
+import {Plus} from '../icons/plus';
+import {
+	commonPlaybackRates,
+	persistPlaybackRate,
+	stepPlaybackRate,
+} from '../state/playbackrate';
+import {InlineAction} from './InlineAction';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {InputDragger} from './NewComposition/InputDragger';
 import {TimelineCombobox} from './TimelineCombobox';
@@ -22,6 +28,16 @@ const customRateRowStyle: React.CSSProperties = {
 	padding: '4px 8px',
 };
 
+const customRateValueStyle: React.CSSProperties = {
+	flex: 1,
+	display: 'flex',
+	justifyContent: 'center',
+};
+
+const stepIconStyle: React.CSSProperties = {
+	height: 14,
+};
+
 type PlaybackRateMenuItemsProps = {
 	readonly playbackRate: number;
 	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
@@ -31,7 +47,6 @@ const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
 	playbackRate,
 	setPlaybackRate,
 }) => {
-	const isCustomRate = !commonPlaybackRates.includes(playbackRate);
 	const setRate = (value: number) => {
 		const rate = Math.round(value * 100) / 100;
 		if (!Number.isFinite(rate) || rate === 0 || Math.abs(rate) > 4) {
@@ -44,24 +59,42 @@ const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
 
 	return (
 		<div style={customRateRowStyle}>
-			<div style={menuItemLeftSpace}>{isCustomRate ? <Checkmark /> : null}</div>
-			<InputDragger
-				aria-label="Custom playback rate"
-				allowStepMismatch
-				max={4}
-				min={-4}
-				onTextChange={() => undefined}
-				onValueChange={setRate}
-				onValueChangeEnd={setRate}
-				rightAlign={false}
-				small
-				status="ok"
-				step={0.01}
-				style={{width: 64}}
-				type="number"
-				value={playbackRate}
-				formatter={(rate) => getPlaybackRateLabel(Number(rate))}
-				formatterStyle={isCustomRate ? undefined : {opacity: 0.5}}
+			<InlineAction
+				aria-label="Decrease playback rate"
+				onClick={() => setRate(stepPlaybackRate(playbackRate, -1))}
+				renderAction={(color) => <Minus color={color} style={stepIconStyle} />}
+				style={{width: 20, marginLeft: -2}}
+				unhoveredColor={WHITE}
+				variant={null}
+			/>
+			<div style={customRateValueStyle}>
+				<InputDragger
+					aria-label="Custom playback rate"
+					allowStepMismatch
+					buttonStyle={{textAlign: 'center'}}
+					max={4}
+					min={-4}
+					onTextChange={() => undefined}
+					onValueChange={setRate}
+					onValueChangeEnd={setRate}
+					rightAlign={false}
+					small
+					status="ok"
+					step={0.01}
+					style={{width: 64}}
+					type="number"
+					value={playbackRate}
+					formatter={(rate) => getPlaybackRateLabel(Number(rate))}
+					formatterStyle={{color: WHITE}}
+				/>
+			</div>
+			<InlineAction
+				aria-label="Increase playback rate"
+				onClick={() => setRate(stepPlaybackRate(playbackRate, 1))}
+				renderAction={(color) => <Plus color={color} style={stepIconStyle} />}
+				style={{width: 20, marginRight: -2}}
+				unhoveredColor={WHITE}
+				variant={null}
 			/>
 		</div>
 	);

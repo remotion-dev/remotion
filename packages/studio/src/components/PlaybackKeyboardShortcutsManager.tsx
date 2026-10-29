@@ -3,6 +3,7 @@ import type React from 'react';
 import {useCallback, useEffect} from 'react';
 import {useIsVideoComposition} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {stepPlaybackRate} from '../state/playbackrate';
 import {toggleLoop} from './LoopToggle';
 import {toggleMute} from './MuteToggle';
 
@@ -118,12 +119,39 @@ export const PlaybackKeyboardShortcutsManager: React.FC<{
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
+		const decrease = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'decreasePlaybackRate',
+			callback: () => {
+				setPlaybackRate((prevPlaybackRate) =>
+					stepPlaybackRate(prevPlaybackRate, -1),
+				);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const increase = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'increasePlaybackRate',
+			callback: () => {
+				setPlaybackRate((prevPlaybackRate) =>
+					stepPlaybackRate(prevPlaybackRate, 1),
+				);
+			},
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+
 		return () => {
 			jKey.unregister();
 			kKey.unregister();
 			lKey.unregister();
+			decrease.unregister();
+			increase.unregister();
 		};
-	}, [keybindings, onJKey, onKKey, onLKey]);
+	}, [keybindings, onJKey, onKKey, onLKey, setPlaybackRate]);
 
 	return null;
 };
