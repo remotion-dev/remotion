@@ -60,7 +60,7 @@
 			"dependsOn": ["^make"]
 		},
 		"@remotion/example#teste2e": {
-			"dependsOn": ["^make", "@remotion/browser-bundler#make"]
+			"dependsOn": ["^make", "template-vibe-code#make"]
 		},
 		"testwebrenderer": {
 			"dependsOn": ["@remotion/web-renderer#make"]

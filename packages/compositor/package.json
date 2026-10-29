@@ -6,7 +6,9 @@
 	"version": "4.0.539",
 	"description": "Rust binary for Remotion",
 	"scripts": {
-		"build-all": "bun build.ts --all"
+		"build-all": "bun build.ts --all",
+		"download-ffmpeg": "node ffmpeg/download.mjs archives",
+		"formatting": "oxfmt build.ts package.json ffmpeg/*.mjs ffmpeg/assets.json ffmpeg/README.md --check"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",

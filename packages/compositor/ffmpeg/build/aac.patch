@@ -1,0 +1,13 @@
+diff --git a/fftools/ffmpeg_dec.c b/fftools/ffmpeg_dec.c
+index 2723a0312e..8d5c7e68f6 100644
+--- a/fftools/ffmpeg_dec.c
++++ b/fftools/ffmpeg_dec.c
+@@ -252,7 +252,7 @@ static void audio_ts_process(DecoderPriv *dp, AVFrame *frame)
+     // on samplerate change, choose a new internal timebase for timestamp
+     // generation that can represent timestamps from all the samplerates
+     // seen so far
+-    tb = audio_samplerate_update(dp, frame);
++    tb = frame->time_base;
+     pts_pred = dp->last_frame_pts == AV_NOPTS_VALUE ? 0 :
+                dp->last_frame_pts + dp->last_frame_duration_est;
+ 

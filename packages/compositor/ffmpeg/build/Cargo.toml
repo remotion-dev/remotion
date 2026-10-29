@@ -1,0 +1,17 @@
+[package]
+name = "ffmpeg-splitter"
+version = "0.1.0"
+authors = ["Jonny Burger <jonny@remotion.dev>"]
+edition = "2021"
+license = "GPL-2.0-or-later"
+
+[[bin]]
+name = "split"
+path = "main.rs"
+
+[dependencies]
+ffmpeg-next = { git = "https://github.com/zmwangx/rust-ffmpeg", rev = "a7b50dd5f909e071affffe238d434d184da30aee" }
+bindgen = { version = "0.70", default-features = false, features = ["runtime"] }
+
+[profile.dev]
+rpath = true
