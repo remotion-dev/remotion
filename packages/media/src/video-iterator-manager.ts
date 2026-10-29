@@ -231,6 +231,7 @@ export const videoIteratorManager = async ({
 	const startVideoIterator = async (
 		timeToSeek: number,
 		nonce: Nonce,
+		retryReclaimed: boolean,
 	): Promise<void> => {
 		clearLastDrawnFrame();
 		videoFrameIterator?.destroy();
@@ -238,10 +239,32 @@ export const videoIteratorManager = async ({
 		currentDelayHandle = delayHandle;
 		currentSeek = timeToSeek;
 
-		const iterator = await createVideoIterator(
-			timeToSeek,
-			prewarmedVideoIteratorCache,
-		);
+		let iterator: VideoIterator;
+		try {
+			iterator = await createVideoIterator(
+				timeToSeek,
+				prewarmedVideoIteratorCache,
+			);
+		} catch (error) {
+			videoFrameIterator = null;
+			if (!retryReclaimed || !isCodecReclaimedError(error)) {
+				throw error;
+			}
+
+			// A cached loop iterator can already be reclaimed before its first read.
+			prewarmedVideoIteratorCache.destroy();
+			currentSeek = null;
+			if (destroyed || nonce.isStale()) {
+				return;
+			}
+
+			iterator = await createVideoIterator(
+				timeToSeek,
+				prewarmedVideoIteratorCache,
+			);
+			currentSeek = timeToSeek;
+		}
+
 		videoIteratorsCreated++;
 
 		// destroy() may have run while the first frame was decoding. It could
@@ -300,7 +323,7 @@ export const videoIteratorManager = async ({
 			// The previous iterator failed to start, or was discarded after its
 			// decoder was reclaimed by a seek that was then superseded.
 			if (!destroyed) {
-				await startVideoIterator(newTime, nonce);
+				await startVideoIterator(newTime, nonce, true);
 			}
 
 			return;
@@ -380,7 +403,7 @@ export const videoIteratorManager = async ({
 				currentDelayHandle = null;
 				// A single attempt: if the fresh decoder fails as well, the error
 				// propagates.
-				await startVideoIterator(newTime, nonce);
+				await startVideoIterator(newTime, nonce, false);
 				return;
 			}
 
@@ -398,7 +421,7 @@ export const videoIteratorManager = async ({
 			pending.handle?.unblock();
 			pending.handle = null;
 			currentDelayHandle = null;
-			await startVideoIterator(newTime, nonce);
+			await startVideoIterator(newTime, nonce, true);
 		} finally {
 			pending.handle?.unblock();
 			if (currentDelayHandle === pending.handle) {
@@ -408,7 +431,8 @@ export const videoIteratorManager = async ({
 	};
 
 	return {
-		startVideoIterator,
+		startVideoIterator: (timeToSeek: number, nonce: Nonce) =>
+			startVideoIterator(timeToSeek, nonce, true),
 		getVideoIteratorsCreated: () => videoIteratorsCreated,
 		seek,
 		destroy: () => {
