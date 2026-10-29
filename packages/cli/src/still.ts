@@ -27,6 +27,7 @@ const {
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	askAIOption,
 	keyboardShortcutsOption,
@@ -124,6 +125,9 @@ export const still = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -217,6 +221,7 @@ export const still = async (
 		chromeMode,
 		audioLatencyHint,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack,

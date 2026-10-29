@@ -97,7 +97,7 @@ export const collectOptionReferences = (
 		const cli = /^(?:cli|lambda\/cli|cloudrun\/cli)\//.test(relativePath);
 		const config = relativePath === 'config.mdx';
 		const api =
-			(/^(?:renderer|lambda|cloudrun|bundler|studio|web-renderer)\//.test(
+			(/^(?:renderer|lambda|cloudrun|vercel|bundler|studio|web-renderer)\//.test(
 				relativePath,
 			) ||
 				relativePath === 'bundle.mdx') &&

@@ -175,6 +175,10 @@ export const studioCommand = async (
 			sequenceActivityLimitOption.getConfigValue();
 
 		return {
+			preferredEffectBackend:
+				BrowserSafeApis.options.preferredEffectBackendOption.getValue({
+					commandLine: parsedCli,
+				}).value,
 			maxTimelineTracks: ConfigInternals.getMaxTimelineTracks(),
 			defaultPremountInSeconds: defaultPremountInSecondsOption.getValue({
 				commandLine: parsedCli,

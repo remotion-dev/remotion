@@ -9,7 +9,6 @@
 	},
 	"scripts": {
 		"download": "bun src/download.ts",
-		"make": "tsc",
 		"lint": "eslint src && tsc --noEmit",
 		"formatting": "oxfmt src package.json tsconfig.json artifacts.json eslint.config.mjs README.md */README.md --check"
 	},

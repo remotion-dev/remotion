@@ -117,6 +117,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 	internalParams.SampleRate = sampleRate
 
+	internalParams.PreferredEffectBackend = options.PreferredEffectBackend
+	if internalParams.PreferredEffectBackend == "" {
+		internalParams.PreferredEffectBackend = "auto"
+	}
+
 	if options.ConcurrencyPerLambda == 0 {
 		internalParams.ConcurrencyPerLambda = 1
 	} else {

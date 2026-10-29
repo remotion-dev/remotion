@@ -453,6 +453,7 @@ export class MediaPlayer {
 						getMediaEndTimestamp: () => this.getMediaEndTimestamp(),
 						getSequenceEndTimestamp: () => this.getSequenceEndTimestamp(),
 						getStartTime: () => this.getStartTime(),
+						getIsPlaying: () => this.playing,
 						initialMuted,
 						initialVolume,
 						toneFrequency: this.toneFrequency,
@@ -799,6 +800,7 @@ export class MediaPlayer {
 		const previousDuration = this.sequenceDurationInFrames;
 		if (previousDuration !== sequenceDurationInFrames) {
 			this.sequenceDurationInFrames = sequenceDurationInFrames;
+			this.audioIteratorManager?.destroyIterator();
 			await this.seekTo(unloopedTimeInSeconds, 'discontinuity');
 		}
 	}
