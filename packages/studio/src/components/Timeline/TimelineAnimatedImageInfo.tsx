@@ -25,9 +25,13 @@ export const TimelineAnimatedImageInfo: React.FC<{
 	fps,
 }) => {
 	const ref = useRef<HTMLCanvasElement>(null);
+	const {src, animated, frozenFrame, sequencePlaybackRate} = sequence;
+	const loopDuration = loopDisplay?.durationInFrames ?? null;
+	const loopMediaOffset = loopDisplay?.mediaOffsetInFrames ?? 0;
+	const loopPhaseOffset = loopDisplay?.phaseOffsetInFrames ?? 0;
 	useLayoutEffect(() => {
 		const canvas = ref.current;
-		if (!canvas || !sequence.animated || typeof ImageDecoder === 'undefined') {
+		if (!canvas || !animated || typeof ImageDecoder === 'undefined') {
 			return;
 		}
 
@@ -42,55 +46,58 @@ export const TimelineAnimatedImageInfo: React.FC<{
 		});
 		renderAnimatedImageFrameStrip({
 			canvas,
-			src: sequence.src,
+			src,
 			width: visualizationWidth * pixelRatio,
 			frameHeight: height,
 			devicePixelRatio: pixelRatio,
 			horizontalOffset,
 			fromSeconds: displayOffsetInFrames / fps,
 			toSeconds: (displayOffsetInFrames + displayDurationInFrames) / fps,
-			loopBehavior: sequence.animated.loopBehavior,
-			requestInit: sequence.animated.requestInit,
+			loopBehavior: animated.loopBehavior,
+			requestInit: animated.requestInit,
 			signal: controller.signal,
 			getTimestampInSeconds: (time) => {
-				if (sequence.frozenFrame !== null) {
-					return sequence.frozenFrame / fps;
+				if (frozenFrame !== null) {
+					return frozenFrame / fps;
 				}
 
 				const displayFrame = time * fps;
-				if (loopDisplay) {
+				if (loopDuration !== null) {
 					return (
 						(sequenceFrameOffset -
-							loopDisplay.mediaOffsetInFrames * sequence.sequencePlaybackRate +
-							((displayFrame + loopDisplay.phaseOffsetInFrames) %
-								loopDisplay.durationInFrames) *
-								sequence.sequencePlaybackRate) /
+							loopMediaOffset * sequencePlaybackRate +
+							((displayFrame + loopPhaseOffset) % loopDuration) *
+								sequencePlaybackRate) /
 						fps
 					);
 				}
 
 				return (
-					(sequenceFrameOffset + displayFrame * sequence.sequencePlaybackRate) /
-					fps
+					(sequenceFrameOffset + displayFrame * sequencePlaybackRate) / fps
 				);
 			},
 		}).catch((error) => {
 			if (!controller.signal.aborted) {
 				Internals.Log.warn(
 					{logLevel: 'warn', tag: 'animated-image-filmstrip'},
-					`Could not render filmstrip for ${sequence.src}`,
+					`Could not render filmstrip for ${src}`,
 					error,
 				);
 			}
 		});
 		return () => controller.abort();
 	}, [
+		animated,
 		displayDurationInFrames,
 		displayOffsetInFrames,
 		fps,
-		loopDisplay,
-		sequence,
+		frozenFrame,
+		loopDuration,
+		loopMediaOffset,
+		loopPhaseOffset,
 		sequenceFrameOffset,
+		sequencePlaybackRate,
+		src,
 		visualizationWidth,
 	]);
 

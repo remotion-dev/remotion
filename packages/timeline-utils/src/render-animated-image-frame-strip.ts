@@ -11,6 +11,8 @@ import {
 import {
 	calculateTimestampSlots,
 	getDurationOfOneFrame,
+	getFrameDistance,
+	MAX_TIME_DEVIATION,
 	WEBCODECS_TIMESCALE,
 } from './render-frame-strip';
 import type {RenderFrameStripToCanvasOptions} from './render-frame-strip-to-canvas';
@@ -134,6 +136,7 @@ export const renderAnimatedImageFrameStrip = async ({
 			}
 		}
 
+		signal?.throwIfAborted();
 		const segmentDuration = toSeconds - fromSeconds;
 		const slots = calculateTimestampSlots({
 			visualizationWidth: width,
@@ -150,9 +153,7 @@ export const renderAnimatedImageFrameStrip = async ({
 		});
 		const prefix = getFrameDatabaseKeyPrefix(cacheKey);
 		const durationInMicroseconds = Math.round(duration * WEBCODECS_TIMESCALE);
-		const frameTimes = new Map<number, {start: number; end: number}>();
-		for (const slot of slots) {
-			signal?.throwIfAborted();
+		const targets = slots.flatMap((slot) => {
 			// Match the decoder's integer timebase at exact frame/loop boundaries.
 			const time = Math.max(
 				0,
@@ -165,7 +166,7 @@ export const renderAnimatedImageFrameStrip = async ({
 				time >= durationInMicroseconds &&
 				loopBehavior === 'clear-after-finish'
 			) {
-				continue;
+				return [];
 			}
 
 			const timestamp =
@@ -174,71 +175,26 @@ export const renderAnimatedImageFrameStrip = async ({
 					: loopBehavior === 'loop'
 						? time % durationInMicroseconds
 						: Math.min(time, durationInMicroseconds - 1);
-			let frame: VideoFrame | null = null;
-			for (const [key, cached] of frameDatabase) {
-				if (
-					key.startsWith(prefix) &&
-					cached.frame.displayHeight === canvas.height &&
-					cached.frame.timestamp <= timestamp &&
-					(cached.frame.duration === null ||
-						timestamp < cached.frame.timestamp + cached.frame.duration)
-				) {
-					frame = cached.frame;
-					cached.lastUsed = Date.now();
-					break;
-				}
-			}
-
-			if (!frame) {
-				const imageDecoder = await getDecoder();
-				let low = 0;
-				let high = (imageDecoder.tracks.selectedTrack?.frameCount ?? 0) - 1;
-				// Frame delays may vary, so search by decoded timestamps, not FPS.
-				while (low <= high) {
-					signal?.throwIfAborted();
-					const index = Math.floor((low + high) / 2);
-					const knownTime = frameTimes.get(index);
-					if (knownTime && timestamp < knownTime.start) {
-						high = index - 1;
-						continue;
-					}
-
-					if (knownTime && timestamp >= knownTime.end) {
-						low = index + 1;
-						continue;
-					}
-
-					const {image} = await imageDecoder.decode({frameIndex: index});
-					try {
-						const start = image.timestamp;
-						const end = start + (image.duration ?? Infinity);
-						frameTimes.set(index, {start, end});
-						if (timestamp < start) {
-							high = index - 1;
-						} else if (timestamp >= end) {
-							low = index + 1;
-						} else {
-							frame = resizeVideoFrame({
-								frame: image,
-								scale: canvas.height / image.displayHeight,
-							});
-							if (frame === image) {
-								frame = image.clone();
-							}
-
-							addFrameToCache(makeFrameDatabaseKey(cacheKey, start), frame);
-							break;
-						}
-					} finally {
-						image.close();
-					}
-				}
-			}
-
-			if (!frame || signal?.aborted) {
-				continue;
-			}
-
+			// Measure the half-slot in source time so playback speed is respected.
+			// Use the nearer edge in case the other edge crosses a sequence loop.
+			const before =
+				getTimestampInSeconds((slot - slotDuration / 2) / WEBCODECS_TIMESCALE) *
+				WEBCODECS_TIMESCALE;
+			const after =
+				getTimestampInSeconds((slot + slotDuration / 2) / WEBCODECS_TIMESCALE) *
+				WEBCODECS_TIMESCALE;
+			return [
+				{
+					slot,
+					timestamp,
+					tolerance: Math.max(
+						MAX_TIME_DEVIATION,
+						Math.min(Math.abs(time - before), Math.abs(after - time)),
+					),
+				},
+			];
+		});
+		const drawFrame = (slot: number, frame: VideoFrame) => {
 			const thumbnailWidth = canvas.height * aspectRatio;
 			const position =
 				((slot - fromSeconds * WEBCODECS_TIMESCALE) / slotDuration) *
@@ -251,7 +207,107 @@ export const renderAnimatedImageFrameStrip = async ({
 				horizontalOffset,
 				position: position + thumbnailWidth,
 			});
+			// A decoded frame may replace a cached placeholder with transparency.
+			ctx.clearRect(left, 0, right - left, canvas.height);
 			ctx.drawImage(frame, left, 0, right - left, canvas.height);
+		};
+
+		const fillFromCache = (target: (typeof targets)[number]) => {
+			let best: ReturnType<typeof frameDatabase.get>;
+			let bestDistance = Infinity;
+			for (const [key, cached] of frameDatabase) {
+				if (
+					!key.startsWith(prefix) ||
+					cached.frame.displayHeight !== canvas.height
+				) {
+					continue;
+				}
+
+				const distance = getFrameDistance({
+					src: cacheKey,
+					frameTimestamp: cached.frame.timestamp,
+					frameDuration: cached.frame.duration,
+					slot: target.timestamp,
+				});
+				if (distance < bestDistance) {
+					best = cached;
+					bestDistance = distance;
+					if (distance === 0) {
+						break;
+					}
+				}
+			}
+
+			if (!best) {
+				return false;
+			}
+
+			best.lastUsed = Date.now();
+			drawFrame(target.slot, best.frame);
+			return bestDistance <= target.tolerance;
+		};
+
+		// Fill the entire strip synchronously before any fetch/decode can suspend.
+		// Nearby cached frames are sufficient at this zoom, just as for videos.
+		const missingTargets = targets.filter((target) => !fillFromCache(target));
+		const frameTimes = new Map<number, {start: number; end: number}>();
+		for (const target of missingTargets) {
+			signal?.throwIfAborted();
+			if (fillFromCache(target)) {
+				continue;
+			}
+
+			const {slot, timestamp} = target;
+			let frame: VideoFrame | null = null;
+			const imageDecoder = await getDecoder();
+			let low = 0;
+			let high = (imageDecoder.tracks.selectedTrack?.frameCount ?? 0) - 1;
+			// Frame delays may vary, so search by decoded timestamps, not FPS.
+			while (low <= high) {
+				signal?.throwIfAborted();
+				const index = Math.floor((low + high) / 2);
+				const knownTime = frameTimes.get(index);
+				if (knownTime && timestamp < knownTime.start) {
+					high = index - 1;
+					continue;
+				}
+
+				if (knownTime && timestamp >= knownTime.end) {
+					low = index + 1;
+					continue;
+				}
+
+				const {image} = await imageDecoder.decode({frameIndex: index});
+				try {
+					const start = image.timestamp;
+					const end = start + (image.duration ?? Infinity);
+					frameTimes.set(index, {start, end});
+					if (timestamp < start) {
+						high = index - 1;
+					} else if (timestamp >= end) {
+						low = index + 1;
+					} else {
+						frame = resizeVideoFrame({
+							frame: image,
+							scale: canvas.height / image.displayHeight,
+						});
+						if (frame === image) {
+							frame = image.clone();
+						}
+
+						addFrameToCache(makeFrameDatabaseKey(cacheKey, start), frame);
+						break;
+					}
+				} finally {
+					image.close();
+				}
+			}
+
+			if (!frame || signal?.aborted) {
+				continue;
+			}
+
+			drawFrame(slot, frame);
 		}
 	} catch (error) {
 		if (!signal?.aborted) {
