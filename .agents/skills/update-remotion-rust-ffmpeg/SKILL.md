@@ -1,82 +1,42 @@
 ---
 name: update-remotion-rust-ffmpeg
-description: Update Remotion's ffmpeg-next Git revision to a published rust-ffmpeg commit, refresh Cargo.lock, rebuild all supported compositor binaries, validate the monorepo, and open a draft pull request. Use for the final step of the rust-ffmpeg binary update chain.
+description: Update the monorepo FFmpeg archives, regenerate bindings, rebuild compositor binaries, and validate a single Remotion pull request. Use after the seven-platform FFmpeg build completes.
 ---
 
-# Update Remotion Rust FFmpeg
+# Update Remotion FFmpeg
 
-Require the full published `rust-ffmpeg` commit SHA from `$update-rust-ffmpeg-sys`.
+The complete source chain now lives in [`packages/compositor/ffmpeg`](../../../packages/compositor/ffmpeg/README.md). The compositor and wrapper use local Cargo dependencies. There are no intermediate rust-ffmpeg-sys or rust-ffmpeg PRs or Git revision bumps.
 
-Read [`../pr/SKILL.md`](../pr/SKILL.md) and [`../pr-name/SKILL.md`](../pr-name/SKILL.md) before committing or opening the pull request.
+## Collect and import
 
-## Prepare the worktree
-
-Run from the dedicated Remotion worktree on `codex/update-rust-ffmpeg`. Never perform this work in the primary `/Users/jonathanburger/remotion` checkout.
-
-Fetch `origin`. If the branch has no release commits yet, fast-forward it to `origin/main`. Do not rebase, reset, or overwrite unrelated work.
-
-Allow this skill's own tracked `.agents/skills/update-remotion-rust-ffmpeg` files to exist unchanged. Stop on any pre-existing change that is not explicitly part of the requested pull request.
-
-Verify that the supplied full SHA is reachable from `remotion-dev/rust-ffmpeg`'s `main` branch. Read that commit's `Cargo.toml` and record the exact `ffmpeg-sys-next` revision for later lockfile verification.
-
-## Update Cargo and rebuild artifacts
-
-Change only the `ffmpeg-next.rev` value in `packages/compositor/Cargo.toml` to the supplied full SHA. From `packages/compositor`, run:
+Use the full source commit SHA for the intended FFmpeg build. From the Remotion repository root:
 
 ```sh
-cargo update -p ffmpeg-next
+node packages/compositor/ffmpeg/collect-artifacts.mjs --sha <full-source-sha>
 ```
 
-Verify in `Cargo.lock` that:
+The collector requires successful GitHub Actions and CircleCI builds for that same SHA. Do not combine runs or fill missing targets from an older build. Keep the returned `MANIFEST.json` and `SHA256SUMS` with the seven archives.
 
-- `ffmpeg-next` resolves to the supplied `rust-ffmpeg` SHA;
-- `ffmpeg-sys-next` resolves to the recorded `rust-ffmpeg-sys` SHA.
-
-Install workspace dependencies without changing the lockfile:
+Upload the verified archives to a new immutable directory on `remotion.media` using the repository's R2 upload workflow. Never overwrite an existing release directory. Then run:
 
 ```sh
-bun install --frozen-lockfile
+node packages/compositor/ffmpeg/import-artifacts.mjs <artifact-directory> <immutable-https-base-url>
 ```
 
-Install cross-compilation toolchains if `packages/compositor/toolchains` is absent:
+The importer verifies local and hosted archive checksums before updating `assets.json`, `sys/zips/SOURCE.md`, and the seven canonical generated bindings. Archives remain ignored downloads. Do not hand-edit bindings.
 
-```sh
-cd packages/compositor
-bun install-toolchain.ts
-bun run build-all
-```
+## Rebuild and validate
 
-The all-platform build must complete for Windows x64 GNU, macOS ARM64/x64, and Linux ARM64/x64 GNU/musl. On macOS, ensure an MSVCRT-targeting `x86_64-w64-mingw32-gcc` linker is available before running the build; do not use a UCRT-defaulting toolchain. It refreshes both the `remotion` executables and the FFmpeg shared libraries/CLI files in their platform packages. Do not substitute a native-only build.
+Install dependencies with `bun install --frozen-lockfile`. From `packages/compositor`, install missing cross-compilation toolchains with `bun install-toolchain.ts`, then run `bun run build-all`.
 
-From the repository root, run:
+Require all seven targets: Windows x64 GNU, macOS ARM64/x64, Linux ARM64/x64 GNU/musl. On macOS, use an MSVCRT-targeting `x86_64-w64-mingw32-gcc`. Verify `objdump -p packages/compositor-win32-x64-msvc/remotion.exe` imports `msvcrt.dll` and no `api-ms-win-crt-*` or `ucrtbase.dll`.
 
-```sh
-bun run build
-bun run stylecheck
-git diff --check
-```
+From the repository root, run `bun run build`, `bun run stylecheck`, and `git diff --check`. Inspect the FFmpeg metadata/binding changes and all seven rebuilt compositor packages. Do not include unrelated changes.
 
-Inspect the diff. It may contain:
-
-- `packages/compositor/Cargo.toml` and `packages/compositor/Cargo.lock`;
-- rebuilt files under the six `packages/compositor-{darwin,linux}-*` platform packages and `packages/compositor-win32-x64-msvc`.
-
-Stop if unrelated tracked files changed. Confirm that the Windows compositor package changed, including `remotion.exe` and the FFmpeg files from the updated archive. Run `objdump -p packages/compositor-win32-x64-msvc/remotion.exe`: require `msvcrt.dll` and reject `api-ms-win-crt-*` or `ucrtbase.dll` imports.
-
-## Commit, push, and open the PR
-
-Before committing, check for an existing pull request for the current branch. If one exists, report it and stop instead of duplicating or rewriting it.
-
-Stage only the two Cargo files, the seven rebuilt compositor platform packages, `packages/compositor/build.ts`, and any intentional update to this skill. Use this commit and PR title:
+When a PR is requested, read [`../pr/SKILL.md`](../pr/SKILL.md) and [`../pr-name/SKILL.md`](../pr-name/SKILL.md). Include the full source SHA, hosted archive directory, CI provenance, rebuilt targets and validation results. Use the title:
 
 ```text
-`@remotion/compositor`: Update rust-ffmpeg and rebuild binaries
+`@remotion/compositor`: Update FFmpeg and rebuild binaries
 ```
 
-Push once with `git push -u origin HEAD`. Never force-push. If the push is rejected, stop and report it.
-
-Write a concise PR body to a temporary Markdown file. Include the full `rust-ffmpeg` and `rust-ffmpeg-sys` SHAs, the splitter source SHA if available in the handoff, the seven rebuilt targets, and validation results. Create a draft PR against `main` with `gh pr create --draft --body-file`; do not pass the body inline.
-
-## Finish the chain
-
-Report the PR URL, branch, all three source commit SHAs available in the handoff, rebuilt targets, and validation results. There is no next repository; the multi-repository update chain is complete.
+No separate repository handoff is needed. `packages/lambda-binaries` packages Chromium and fonts and does not need a rebuild for an FFmpeg-only update.

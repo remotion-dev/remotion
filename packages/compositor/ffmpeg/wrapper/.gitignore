@@ -1,0 +1,9 @@
+# Rust files
+target
+Cargo.lock
+
+# Vim temporary files
+*.swp
+*.swo
+*.swn
+bindings.rs
