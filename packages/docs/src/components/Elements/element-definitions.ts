@@ -50,8 +50,8 @@ import {
 import {SpinningGlobe} from '../../../elements/maps/spinning-globe/spinning-globe';
 import {WatercolorMap} from '../../../elements/maps/watercolor-map/watercolor-map';
 import {LocationLowerThird} from '../../../elements/overlays/location-lower-third/location-lower-third';
-import {OfferLowerThird} from '../../../elements/overlays/offer-lower-third/offer-lower-third';
 import {NameLowerThird} from '../../../elements/overlays/name-lower-third/name-lower-third';
+import {OfferLowerThird} from '../../../elements/overlays/offer-lower-third/offer-lower-third';
 import {SocialSafeZones} from '../../../elements/overlays/social-safe-zones/social-safe-zones';
 import {OnScreenMessages} from '../../../elements/storytelling/on-screen-messages/on-screen-messages';
 import {PolaroidPictures} from '../../../elements/storytelling/polaroid-pictures/polaroid-pictures';
@@ -1041,9 +1041,9 @@ const elementImplementations = [
 		posterFrame: 60,
 		preview: {
 			previewLayout: 'composition',
-			posterUrl: 'https://raw.githubusercontent.com/video-gen/video-workflow-recipes/main/remotion/previews/offer.png',
+			posterUrl: '/elements/overlays-offer-lower-third-preview.png',
 			backgroundTheme: 'light',
-			videoUrl: 'https://raw.githubusercontent.com/video-gen/video-workflow-recipes/main/remotion/previews/offer.mp4',
+			videoUrl: '/elements/overlays-offer-lower-third-preview.mp4',
 		},
 		safeArea: 0,
 		initialProps: null,
