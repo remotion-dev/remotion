@@ -99,8 +99,4 @@ manifest.binarySource = {
 	circleCI: bundle.circleCI,
 };
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-writeFileSync(
-	path.join(root, 'sys/zips/SOURCE.md'),
-	`Built from [Remotion commit ${bundle.sourceSha}](https://github.com/remotion-dev/remotion/commit/${bundle.sourceSha}).\n\nSee [assets.json](../../assets.json) for archive checksums and CI provenance.\n`,
-);
 console.log(`Imported all seven targets from ${bundle.sourceSha}`);

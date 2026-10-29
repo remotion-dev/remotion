@@ -1,18 +1,4 @@
 {
-	"sources": {
-		"rust-ffmpeg-splitter": {
-			"repository": "https://github.com/remotion-dev/rust-ffmpeg-splitter",
-			"commit": "50b6a0c0e7e3076e33044254b560f466b67cd245"
-		},
-		"rust-ffmpeg-sys": {
-			"repository": "https://github.com/remotion-dev/rust-ffmpeg-sys",
-			"commit": "e7f864a5d93368a984cda5d73be52a13edb6cc4c"
-		},
-		"rust-ffmpeg": {
-			"repository": "https://github.com/remotion-dev/rust-ffmpeg",
-			"commit": "05791070b6ca8ed8d0940a9251f7e41f570634ee"
-		}
-	},
 	"archives": {
 		"aarch64-apple-darwin": {
 			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/aarch64-apple-darwin.gz",

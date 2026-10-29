@@ -2,13 +2,13 @@
 
 The complete FFmpeg source-build and Rust integration chain lives here:
 
-| Directory  | Purpose                                                                         | Imported repository    |
-| ---------- | ------------------------------------------------------------------------------- | ---------------------- |
-| `build/`   | Build FFmpeg, codec libraries, patches, bindings and archives for seven targets | `rust-ffmpeg-splitter` |
-| `sys/`     | Link FFmpeg and expose the generated C bindings to Rust                         | `rust-ffmpeg-sys`      |
-| `wrapper/` | Safe Rust API used by the compositor                                            | `rust-ffmpeg`          |
+| Directory  | Purpose                                                                         |
+| ---------- | ------------------------------------------------------------------------------- |
+| `build/`   | Build FFmpeg, codec libraries, patches, bindings and archives for seven targets |
+| `sys/`     | Link FFmpeg and expose the generated C bindings to Rust                         |
+| `wrapper/` | Safe Rust API used by the compositor                                            |
 
-`../Cargo.toml` depends on `wrapper/`, which depends on `sys/`, using local Cargo paths. The source revisions imported without an FFmpeg upgrade are recorded in `assets.json`. Keep the upstream license notices with these sources.
+`../Cargo.toml` depends on `wrapper/`, which depends on `sys/`, using local Cargo paths. Keep the upstream license notices with these sources.
 
 `packages/lambda-binaries` is already part of the monorepo. It packages Chromium and font layers; the FFmpeg libraries and compositor executable are distributed by the platform-specific `packages/compositor-*` packages. An FFmpeg update does not require changing the Chromium layers.
 
@@ -29,9 +29,9 @@ cargo check --locked
 
 Replace the target with your Rust target triple. Omit the target to download all seven archives. Neither `bun install` nor the regular TypeScript build downloads FFmpeg assets.
 
-Archives, codec build inputs and test videos are downloaded on demand and checked against the sizes and SHA-256 digests in `assets.json`. All assets are hosted at immutable URLs on `remotion.media`; the old repositories are only referenced for source provenance.
+Archives, codec build inputs and test videos are downloaded on demand and checked against the sizes and SHA-256 digests in `assets.json`. All assets are hosted at immutable URLs on `remotion.media`.
 
-`sys/build.rs` extracts the selected archive into Cargo's output directory and uses the checked-in binding for the same target. Only canonical target names are retained; the old duplicate binding aliases have been removed.
+`sys/build.rs` extracts the selected archive into Cargo's output directory and uses the checked-in binding for the same target. Bindings are named after their canonical Rust target triples.
 
 ## Rebuild FFmpeg
 
@@ -81,7 +81,7 @@ cd packages/compositor
 bun run build-all
 ```
 
-The importer verifies the complete local set, checks the hosted copies, updates the manifest and regenerates the seven checked-in bindings. It leaves the archives in the ignored cache. Commit the manifest, bindings and rebuilt platform packages together in one PR. No intermediate crate commits or dependency revision bumps are needed.
+The importer verifies the complete local set, checks the hosted copies, updates the manifest and regenerates the seven checked-in bindings. It leaves the archives in the ignored cache. Commit the manifest, bindings and rebuilt platform packages together in one PR. Future artifact imports record the monorepo source commit and CI provenance in `assets.json`.
 
 ## Further simplification
 

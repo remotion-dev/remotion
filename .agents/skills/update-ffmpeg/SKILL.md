@@ -1,11 +1,11 @@
 ---
-name: update-remotion-rust-ffmpeg
+name: update-ffmpeg
 description: Update the monorepo FFmpeg archives, regenerate bindings, rebuild compositor binaries, and validate a single Remotion pull request. Use after the seven-platform FFmpeg build completes.
 ---
 
 # Update Remotion FFmpeg
 
-The complete source chain now lives in [`packages/compositor/ffmpeg`](../../../packages/compositor/ffmpeg/README.md). The compositor and wrapper use local Cargo dependencies. There are no intermediate rust-ffmpeg-sys or rust-ffmpeg PRs or Git revision bumps.
+The FFmpeg build recipes, Rust bindings and wrapper live in [`packages/compositor/ffmpeg`](../../../packages/compositor/ffmpeg/README.md). The compositor and wrapper use local Cargo dependencies, and updates are reviewed in a single Remotion pull request.
 
 ## Collect and import
 
@@ -25,7 +25,7 @@ Upload the verified archives to a new immutable directory on `remotion.media` us
 node packages/compositor/ffmpeg/import-artifacts.mjs <artifact-directory> <immutable-https-base-url>
 ```
 
-The importer verifies local and hosted archive checksums before updating `assets.json`, `sys/zips/SOURCE.md`, and the seven canonical generated bindings. Archives remain ignored downloads. Do not hand-edit bindings.
+The importer verifies local and hosted archive checksums before updating `assets.json` and the seven canonical generated bindings. Archives remain ignored downloads. Do not hand-edit bindings.
 
 ## Rebuild and validate
 
@@ -41,4 +41,4 @@ When a PR is requested, read [`../pr/SKILL.md`](../pr/SKILL.md) and [`../pr-name
 `@remotion/compositor`: Update FFmpeg and rebuild binaries
 ```
 
-No separate repository handoff is needed. `packages/lambda-binaries` packages Chromium and fonts and does not need a rebuild for an FFmpeg-only update.
+`packages/lambda-binaries` packages Chromium and fonts and does not need a rebuild for an FFmpeg-only update.

@@ -275,7 +275,7 @@ fn check_features(
                 continue;
             }
         }
-        // Here so the features are listed for rust-ffmpeg at build time. Does
+        // Here so the features are listed for ffmpeg-next at build time. Does
         // NOT represent activated features, just features that exist (hence the
         // lack of "=true" at the end)
         println!(r#"cargo:{}="#, var);

@@ -1,6 +1,6 @@
 # FFmpeg source build
 
-The build recipes, patches and binding generator were imported from `remotion-dev/rust-ffmpeg-splitter`.
+This directory contains the FFmpeg build recipes, patches and binding generator used by the compositor.
 See [the FFmpeg workflow](../README.md) for setup, downloads, CI and updating the compositor.
 
 macOS and Linux builds include the private [`remotionshm`](REMOTION_SHM.md) input device.
