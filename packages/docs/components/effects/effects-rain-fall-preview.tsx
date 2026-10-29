@@ -6,7 +6,7 @@ import {EFFECTS_PREVIEW_IMAGE_SRC} from './effects-preview-image';
 
 export const RAIN_FALL_PREVIEW_PARAMS = {
 	time: 1,
-	drops: 2000,
+	drops: 100000,
 	size: 2,
 	sceneDepth: 5000,
 	speed: 4000,

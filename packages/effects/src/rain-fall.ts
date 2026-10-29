@@ -19,7 +19,7 @@ import {
 const {createEffect} = Internals;
 
 export type RainFallParams = WeatherCommonParams & {
-	/** Number of drops, an integer from `0` to `100000`. Defaults to `5000`. */
+	/** Number of drops, an integer from `0` to `100000`. Defaults to `100000`. */
 	readonly drops?: number;
 	/** Refract the source color into each drop, or use a solid color. Defaults to `refracting`. */
 	readonly appearance?: 'refracting' | 'soft-solid';
@@ -34,7 +34,7 @@ const DEFAULTS = {
 	color: '#cccccc',
 	opacity: 0.25,
 	transferMode: 'lighten',
-	drops: 5000,
+	drops: 100000,
 	appearance: 'refracting',
 } as const satisfies Required<RainFallParams>;
 

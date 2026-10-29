@@ -22,8 +22,8 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
-	if (item.id === 'effects-evolve') {
-		return 'https://remotion.media/docs/effects/effects-evolve-preview-v2.png';
+	if (item.id === 'effects-evolve' || item.id === 'effects-rain-fall') {
+		return `https://remotion.media/docs/effects/${item.id}-preview-v2.png`;
 	}
 
 	return `https://remotion.media/docs/effects/${item.id}-preview.png`;
@@ -941,7 +941,7 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 			importPath: '@remotion/effects/rain-fall',
 			config: {
 				time: 1,
-				drops: 2000,
+				drops: 100000,
 				size: 2,
 				wind: 200,
 				opacity: 0.5,

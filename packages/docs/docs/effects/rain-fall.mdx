@@ -33,7 +33,7 @@ export const MyComp: React.FC = () => {
       effects={[
         rainFall({
           time: frame / fps,
-          drops: 2000,
+          drops: 100000,
           size: 2,
           wind: 200,
           opacity: 0.5,
@@ -58,7 +58,7 @@ The same parameters and `time` produce the same result when seeking or rendering
 
 ### `drops?`
 
-Number of raindrops. Must be an integer from `0` to `100000`. Defaults to `5000`.
+Number of raindrops. Must be an integer from `0` to `100000`. Defaults to `100000`.
 
 ### `size?`
 
