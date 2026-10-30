@@ -105,6 +105,7 @@ See the [Vercel API documentation](../docs/docs/vercel/index.mdx).
 - [ ] Preserve color primaries, transfer, matrix, and range in codec fixtures and decoder configuration. Raw H.264 without color metadata can produce different pixels because the browser must infer a color space.
 - [ ] Test VP8/VP9 and Opus, seeking/trimming, first/last frames, looping, variable frame rate, and audio/video synchronization. Check H.265/HEVC only against the documented support of each platform/backend, recording unsupported combinations.
 - [ ] Distinguish browser decoding (`<Html5Video>`, WebCodecs, `@remotion/media`) from FFmpeg decoding (`<OffthreadVideo>`). FFmpeg success does not prove proprietary codecs were included in Chrome.
+- [ ] Render a sustained `<OffthreadVideo>` sequence with normal CDP network tracking enabled, and compare memory growth with the previous Chrome. On Vercel, run all 900 codec frames (1800–2699) without restarting the browser. Verify the fallback actually runs: Chrome 158 retained fetched frame blobs in DevTools and exhausted its blob quota near the end despite revoked object URLs and free disk space. Short renders missed the regression.
 - [ ] Exercise supported WebCodecs encoders with real encode/decode output, hardware and software paths where applicable, and a client-side render. Check [`webcodecs-bugs`](../docs/docs/mediabunny/webcodecs-bugs.mdx) for regressions.
 
 ## 9. HTML-in-canvas regression matrix
