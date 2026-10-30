@@ -82,9 +82,13 @@ for (const file of files.sort()) {
 
 			if (
 				filePath !== '' &&
-				spawnSync('git', ['cat-file', '-e', `${ref}:${filePath}`], {
-					cwd: repoRoot,
-				}).status !== 0
+				spawnSync(
+					'git',
+					['rev-parse', '--verify', '--quiet', `${ref}:${filePath}`],
+					{
+						cwd: repoRoot,
+					},
+				).status !== 0
 			) {
 				errors.push(
 					`${location(index)}: Path does not exist at ${ref}: ${url}`,
