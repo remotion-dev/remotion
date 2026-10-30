@@ -137,7 +137,7 @@ Copy the build inputs to the host:
     '$SCRIPT_DIR/README.md' '$SCRIPT_DIR/args.gn' \\
     '$SCRIPT_DIR/apply-clt-support.py' '$SCRIPT_DIR/build-chromium.sh' \\
     '$SCRIPT_DIR/probe-fast-path.py' '$SCRIPT_DIR/remotion-shared-memory-v3.patch' \\
-    '$SCRIPT_DIR/setup-ec2.sh' \\
+    '$SCRIPT_DIR/remotion-h264-color-space.patch' '$SCRIPT_DIR/setup-ec2.sh' \\
     ec2-user@'$PUBLIC_IP':remotion-chromium-mac-arm64/
 
 Start the build:
