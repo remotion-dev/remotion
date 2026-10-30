@@ -250,6 +250,21 @@ export type CommandLineOptions = {
 	'experimental-rspack'?: unknown;
 	[isProductionOption.cliFlag]: TypeOfOption<typeof isProductionOption> | null;
 	[skipSkillsOption.cliFlag]: TypeOfOption<typeof skipSkillsOption>;
+	[disableGitSourceOption.cliFlag]: TypeOfOption<typeof disableGitSourceOption>;
+	[forSeamlessAacConcatenationOption.cliFlag]: TypeOfOption<
+		typeof forSeamlessAacConcatenationOption
+	>;
+	[throwIfSiteExistsOption.cliFlag]: TypeOfOption<
+		typeof throwIfSiteExistsOption
+	>;
+	[enableCrossSiteIsolationOption.cliFlag]: TypeOfOption<
+		typeof enableCrossSiteIsolationOption
+	> | null;
+	[preferLosslessOption.cliFlag]: TypeOfOption<typeof preferLosslessOption>;
+	[enableLambdaInsights.cliFlag]: TypeOfOption<
+		typeof enableLambdaInsights
+	> | null;
+	[askAIOption.cliFlag]: TypeOfOption<typeof askAIOption> | null;
 };
 
 export const BooleanFlags = [
