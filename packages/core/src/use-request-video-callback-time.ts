@@ -40,6 +40,17 @@ export const useRequestVideoCallbackTime = ({
 			return;
 		}
 
+		// A seek makes the last presented frame meaningless as a clock. The
+		// browser can even present one more frame from the old position after
+		// the seek was requested; its sample would read as a shift of the whole
+		// seek distance. Drop the reading and ignore samples until the seek is
+		// done, so the media tag is the clock in the meantime.
+		const onSeeking = () => {
+			currentTime.current = null;
+		};
+
+		videoTag.addEventListener('seeking', onSeeking);
+
 		let cancel = () => undefined;
 
 		const request = () => {
@@ -48,6 +59,11 @@ export const useRequestVideoCallbackTime = ({
 			}
 
 			const cb = videoTag.requestVideoFrameCallback((_, info) => {
+				if (videoTag.seeking) {
+					request();
+					return;
+				}
+
 				if (currentTime.current !== null) {
 					const difference = Math.abs(
 						currentTime.current.time - info.mediaTime,
@@ -86,6 +102,7 @@ export const useRequestVideoCallbackTime = ({
 		request();
 
 		return () => {
+			videoTag.removeEventListener('seeking', onSeeking);
 			cancel();
 		};
 	}, [lastSeek, mediaRef, mediaType, onVariableFpsVideoDetected]);
