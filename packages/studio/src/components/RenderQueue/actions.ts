@@ -13,6 +13,7 @@ import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	AddCompositionRequest,
 	AddFolderRequest,
+	AddRenderRequest,
 	DeleteCompositionRequest,
 	DuplicateCompositionRequest,
 	EnumPath,
@@ -237,6 +238,7 @@ export const addVideoRenderJob = ({
 	preferredEffectBackend,
 	sampleRate,
 	licenseKey,
+	prerenderTarget,
 }: {
 	compositionId: string;
 	outName: string;
@@ -282,6 +284,10 @@ export const addVideoRenderJob = ({
 	preferredEffectBackend: PreferredEffectBackend;
 	sampleRate: number;
 	licenseKey: string | null;
+	prerenderTarget: Extract<
+		AddRenderRequest,
+		{type: 'video'}
+	>['prerenderTarget'];
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -334,6 +340,7 @@ export const addVideoRenderJob = ({
 		preferredEffectBackend,
 		sampleRate,
 		licenseKey,
+		prerenderTarget,
 	});
 };
 

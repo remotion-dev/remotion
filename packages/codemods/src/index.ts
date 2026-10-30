@@ -21,6 +21,8 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
+import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
+import {replaceNodeChild} from './replace-node-child';
 import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
 import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
 import {computeEffectPropsStatusesFromContent} from './sequence-props/can-update-effect-props';
@@ -196,6 +198,8 @@ export const CodemodsInternals = {
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,
 	pasteEffects,
+	replaceJsxElementWithSource,
+	replaceNodeChild,
 	resolveCompositionComponent,
 	resolveCompositionComponentWithFile,
 	resolveNodePathsFromLocations,

@@ -105,6 +105,41 @@ export const addJob = ({
 	logLevel: LogLevel;
 	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
+	if (job.type === 'video' && job.prerender !== null) {
+		const absolutePath = path.resolve(remotionRoot, job.prerender.fileName);
+		const unsubscribe =
+			StudioServerInternals.subscribeToSequenceNodePathMutations((mutation) => {
+				const current = jobQueue.find((j) => j.id === job.id);
+				const nodePath =
+					current?.type === 'video' ? current.prerender?.nodePath : null;
+				if (!nodePath) {
+					return;
+				}
+
+				const remapping = mutation.files
+					.filter((file) => file.absolutePath === absolutePath)
+					.flatMap((file) => file.remappings)
+					.find(
+						(r) =>
+							r.oldNodePath !== null &&
+							JSON.stringify(r.oldNodePath) === JSON.stringify(nodePath),
+					);
+				if (!remapping) {
+					return;
+				}
+
+				updateJob(job.id, (j) =>
+					j.type === 'video' && j.prerender !== null
+						? {
+								...j,
+								prerender: {...j.prerender, nodePath: remapping.newNodePath},
+							}
+						: j,
+				);
+			});
+		job.cleanup.push(unsubscribe);
+	}
+
 	jobQueue.push(job);
 	processJobIfPossible({entryPoint, remotionRoot, logLevel, fixedConfig});
 
@@ -230,6 +265,40 @@ const processJobIfPossible = async ({
 			{indent: false, logLevel},
 			chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'),
 		);
+
+		// The target may have moved while rendering
+		const latestJob = jobQueue.find((j) => j.id === nextJob.id) ?? nextJob;
+		const prerender = latestJob.type === 'video' ? latestJob.prerender : null;
+		if (prerender !== null) {
+			// The render succeeded even if the scene cannot be replaced
+			try {
+				if (prerender.nodePath === null) {
+					throw new Error('The scene was deleted while rendering');
+				}
+
+				await StudioServerInternals.replaceWithPrerenderedVideo({
+					remotionRoot,
+					logLevel,
+					fileName: prerender.fileName,
+					nodePath: prerender.nodePath,
+					src: prerender.src,
+					videoFile: path.resolve(remotionRoot, nextJob.outName),
+					compositionId: nextJob.compositionId,
+				});
+			} catch (err) {
+				Log.warn(
+					{indent: false, logLevel},
+					`Could not replace the scene with the rendered video: ${(err as Error).message}`,
+				);
+				StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+					listener.sendEventToClient({
+						type: 'prerender-replace-failed',
+						compositionId: nextJob.compositionId,
+						message: (err as Error).message,
+					});
+				});
+			}
+		}
 
 		const {unwatch} = StudioServerInternals.installFileWatcher({
 			file: path.resolve(remotionRoot, nextJob.outName),

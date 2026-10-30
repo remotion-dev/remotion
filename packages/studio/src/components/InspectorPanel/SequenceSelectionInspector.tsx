@@ -43,12 +43,15 @@ import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
+import {useConnectedCompositions} from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
+import {PrerenderedVideoActions} from './PrerenderedVideoActions';
 import {
 	SequenceInspectorSections,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
+import {SequencePrerenderAction} from './SequencePrerenderAction';
 import {SequenceUnwrapAction} from './SequenceUnwrapAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
@@ -158,6 +161,7 @@ const SequenceSourceQuickActions: React.FC<{
 	const sourceActionsDisabled =
 		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
 	const isTransition = track.sequence.timelineTrack?.role === 'transition';
+	const connectedCompositions = useConnectedCompositions({track});
 	const duplicateDisabled = sourceActionsDisabled || isTransition;
 	const mediaSequence =
 		track.sequence.type === 'video' || track.sequence.type === 'audio'
@@ -297,6 +301,13 @@ const SequenceSourceQuickActions: React.FC<{
 				</InspectorQuickAction>
 			) : null}
 			{track.sequence.type === 'video' ? (
+				<PrerenderedVideoActions
+					nodePathInfo={selection.nodePathInfo}
+					src={track.sequence.src}
+					sourceActionsDisabled={sourceActionsDisabled}
+				/>
+			) : null}
+			{track.sequence.type === 'video' ? (
 				<InspectorQuickAction
 					disabled={videoMattingDisabledReason !== undefined}
 					iconContainerStyle={largeInspectorActionIconContainerStyle}
@@ -386,6 +397,14 @@ const SequenceSourceQuickActions: React.FC<{
 				]}
 				sourceActionsDisabled={sourceActionsDisabled}
 			/>
+			{connectedCompositions.length > 0 ? (
+				<SequencePrerenderAction
+					nodePathInfo={selection.nodePathInfo}
+					sequence={track.sequence}
+					connectedComposition={connectedCompositions[0]}
+					sourceActionsDisabled={sourceActionsDisabled || isTransition}
+				/>
+			) : null}
 			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}

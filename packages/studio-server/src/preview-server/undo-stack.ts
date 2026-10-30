@@ -26,7 +26,7 @@ export interface UndoEntryDescription {
 	redoMessage: string;
 }
 
-type UndoEntryType =
+export type UndoEntryType =
 	| 'visual-control'
 	| 'default-props'
 	| 'sequence-props'
@@ -50,6 +50,8 @@ type UndoEntryType =
 	| 'split-video-from-audio'
 	| 'insert-basic-captions'
 	| 'replace-video-source'
+	| 'prerender'
+	| 'restore-prerendered-scene'
 	| 'insert-composition-element'
 	| 'delete-composition'
 	| 'rename-composition'

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import {makeCancelSignal} from '@remotion/renderer';
 import type {AddRenderRequest} from '@remotion/studio-shared';
 import type {ApiHandler} from '../api-types';
@@ -8,10 +9,29 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 	remotionRoot,
 	logLevel,
 	binariesDirectory,
+	publicDir,
 	methods: {addJob},
 }): Promise<undefined> => {
 	const id = String(Math.random()).replace('0.', '');
 	if (input.type === 'video') {
+		let {outName} = input;
+		let prerender = null;
+		if (input.prerenderTarget !== null) {
+			const absoluteOutName = path.resolve(publicDir, input.outName);
+			const src = path.relative(publicDir, absoluteOutName);
+			if (src.startsWith('..') || path.isAbsolute(src)) {
+				throw new Error(
+					'Pre-rendered videos must be saved in the public folder',
+				);
+			}
+
+			outName = path.relative(remotionRoot, absoluteOutName);
+			prerender = {
+				...input.prerenderTarget,
+				src: src.split(path.sep).join('/'),
+			};
+		}
+
 		addJob({
 			entryPoint,
 			remotionRoot,
@@ -25,7 +45,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				status: 'idle',
 				id,
 				imageFormat: input.imageFormat,
-				outName: input.outName,
+				outName,
 				jpegQuality: input.jpegQuality,
 				scale: input.scale,
 				startedAt: Date.now(),
@@ -69,6 +89,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				preferredEffectBackend: input.preferredEffectBackend,
 				sampleRate: input.sampleRate,
 				licenseKey: input.licenseKey,
+				prerender,
 			},
 			logLevel,
 		});
