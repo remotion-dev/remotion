@@ -73,6 +73,7 @@ const downloadFileWithoutRetries = ({
 						`Tried to download file ${url}, ${noDataSentToken} 20 seconds`,
 					),
 				);
+				closeConnection();
 			}, 20000);
 		};
 
@@ -95,6 +96,11 @@ const downloadFileWithoutRetries = ({
 					request.destroy();
 					response.destroy();
 				};
+
+				if (rejected) {
+					closeConnection();
+					return;
+				}
 
 				if (abortSignal.aborted) {
 					onAbort();
