@@ -63,19 +63,31 @@ export const RemotionRoot = () => <Composition id="SourceSubscriptionChurn" comp
 	createRoot(root).render(
 		<BrowserStudio
 			dependencyResolver={
-				source === 'fallback'
-					? ({name, version}) => (name === 'react' ? version : null)
-					: source === 'transformers-override'
-						? ({name}) =>
+				source === 'fallback' || source === 'transformers-override'
+					? ({name, version}) => {
+							if (name === 'mediabunny') {
+								return {
+									url: new URL('/mediabunny.mjs', window.location.href).href,
+								};
+							}
+
+							if (source === 'fallback' && name === 'react') {
+								return version;
+							}
+
+							if (
+								source === 'transformers-override' &&
 								name === '@huggingface/transformers'
-									? {
-											url: new URL(
-												'/fake-transformers.mjs',
-												window.location.href,
-											).href,
-										}
-									: null
-						: undefined
+							) {
+								return {
+									url: new URL('/fake-transformers.mjs', window.location.href)
+										.href,
+								};
+							}
+
+							return null;
+						}
+					: undefined
 			}
 			initialElement={
 				initialElementPayload === null
