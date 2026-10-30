@@ -92,8 +92,8 @@ export const renderHumanReadableAudioCodec = (
 		return 'DTS';
 	}
 
-	if (codec === 'aiff') {
-		return 'AIFF';
+	if (codec === 'truehd') {
+		return 'Dolby TrueHD';
 	}
 
 	if (codec === null) {
