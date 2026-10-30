@@ -118,9 +118,28 @@ Native macOS checks also preserve the transparent VP9 fixture's fully transparen
 
 Sandbox `sbx_HpoTEMNWRwGed9Y6UbnJkEZTZwLb` is stopped with persistence disabled. Before shutdown, no Chrome, FFmpeg, or compositor processes remained, `/dev/shm` was empty, and OOM counters were zero. No snapshots, Blob outputs, or project deployments were created for this investigation.
 
+### Memory and throughput cost of the workaround
+
+The successful Chrome 158 renders above establish correctness and avoidance of the blob leak; they do not establish that the workaround is neutral for memory or throughput. A separate A/B/A comparison on Chrome 157 isolates that cost without the Chrome 158 leak. It uses the same Vercel sandbox, original testbed bundle, 900 codec frames, concurrency 2, 256 MiB media cache, and 512 MiB compositor cache. The diagnostic hook changes only proxy response consumption to the workaround. Evidence is in `out/chrome-158-validation/vercel-memory/`.
+
+| Chrome 157 frame-fetch path                                 | Peak process memory (PSS) | Frame rendering time |
+| ----------------------------------------------------------- | ------------------------- | -------------------- |
+| Original `Response.blob()`, two runs                        | 3,165–3,196 MiB           | 85.9–86.5 seconds    |
+| `ArrayBuffer` then `Blob`, current workaround               | 3,407 MiB                 | 95.8 seconds         |
+| Same workaround, experimental CDP body-cache limits of zero | 3,031 MiB                 | 91.4 seconds         |
+
+PSS is summed across render processes, counting shared resident pages proportionally; it excludes unrelated filesystem cache. Samples are taken every 500 ms. The current workaround adds 211–242 MiB of peak process memory (about 7%) and approximately 11% render time in this workload. The three A/B/A outputs have identical decoded video hashes. These results are not a high-resolution, high-concurrency, Windows, or low-memory Lambda stress test.
+
+The extra allocation comes from buffering the response into an `ArrayBuffer` and [copying its bytes into the `Blob`](https://w3c.github.io/FileAPI/#constructorBlob). It scales with source frame size and simultaneous video requests. The path also makes frame bodies eligible for the inspector's normal response cache, whose [desktop default is 200,000,000 bytes per tab](https://github.com/chromium/chromium/blob/158.0.8127.2/third_party/blink/renderer/core/inspector/inspector_network_agent.cc#L135). An experimental `Network.enable({maxTotalBufferSize: 0, maxResourceBufferSize: 0})` retains request events while removing this unused body cache; the current renderer does not call `Network.getResponseBody`. This experiment is not part of the shipped workaround. It reduces memory in this test, but the Chrome 157 render still takes about 6% longer than the original path.
+
+The same cache-disabled experiment on custom Chrome 158 completes all 900 frames at 3,040 MiB peak process PSS and 93.3 seconds. All five exported videos have identical decoded video hashes; both cache-disabled outputs decode to 900 frames with AAC audio. Sandbox `sbx_VpxlqaRfnTl3JbM65ym8Y2Azv6Ej` is stopped with persistence disabled, no leftover render processes or shared-memory files, and zero OOM events.
+
+The change affects server-rendered `<OffthreadVideo>` and `@remotion/media` video fallback on every platform and browser version that uses this path, including Lambda and Docker. Studio/Player preview and successful WebCodecs decoding use different paths. Tight memory budgets and simultaneous high-resolution sources need additional validation before treating the workaround as a performance-neutral upgrade.
+
 ## Failures and incomplete gates
 
 - Vercel requires the `<OffthreadVideo>` frame-fetch fix described above for sustained rendering on Chrome 158. The full testbed now passes with that fix. The separate `addBundleToSandbox()` parent-directory setup workaround is still required in the tested package.
+- The frame-fetch workaround has a measured memory and throughput cost compared with the healthy Chrome 157 path. The cache-limit mitigation above is experimental and not included in the implementation; high-resolution and low-memory workloads remain unverified with the workaround.
 - The exact standalone WebGL-context-loss reproducer from [#12293](https://github.com/remotion-dev/remotion/issues/12293) still crashes the page after HTML-in-canvas paint. Reproduced on macOS with both SwiftShader and Metal, and on Linux ARM64/x64. Google's same-version Chrome-for-Testing also crashes. Keep [Chromium 575053149](https://issues.chromium.org/issues/575053149) open in the release decision.
 - `bunx remotion gpu` fails to navigate to `chrome://gpu` in the custom macOS headless shell (`net::ERR_FAILED`). Actual WebGL rendering passes. This was not compared against the previous binary, so it is not classified as a new regression.
 - `bunx remotion browser ensure --chrome-mode=chrome-for-testing` currently ignores the mode and ensures Headless Shell. The actual Chrome-for-Testing checks used a render with that flag or `ensureBrowser({chromeMode: 'chrome-for-testing'})`, then verified the executable/version.
