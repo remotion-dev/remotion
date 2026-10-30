@@ -1,5 +1,9 @@
 # @remotion/chrome-compile
 
+Follow the [Chrome upgrade checklist](UPGRADE-CHECKLIST.md) before shipping a new browser version or rebuilt binary.
+
+See the [Chrome 158.0.8127.2 validation record](VALIDATION-158.0.8127.2.md) for observed results and remaining gates.
+
 Public build instructions and scripts imported from `remotion-dev/chrome-compile` at commit `6255f0237c39798faa0b803fa0bd17e842853487` (October 5, 2026). This is a private workspace package, so the source is public in the monorepo but the package is not published to npm.
 
 ## Use this package
