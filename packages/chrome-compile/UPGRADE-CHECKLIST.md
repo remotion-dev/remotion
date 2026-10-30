@@ -71,7 +71,19 @@ Keep `apt-get update` and the corresponding install in the same Docker layer so 
 
 See [the Lambda smoke workflow](lambda-arm64/README.md#lambda-smoke-test) and [layer packaging](../lambda-binaries/README.md).
 
-## 5. Shared-memory capture and fallback
+## 5. Vercel Sandbox
+
+- [ ] Create a fresh Vercel Sandbox using the runtime and resources from `@remotion/vercel`. Record the project, region, architecture, Node version, system glibc, vCPUs, and memory. Install the PR's local packages and pin their transitive workspace dependencies before downloading Chrome; the same-version registry package or a cached snapshot may still contain the previous browser.
+- [ ] Exercise Remotion's sandbox setup, bundle upload, video rendering, and still rendering APIs. Check the downloaded executable's actual version and the renderer package used inside the sandbox.
+- [ ] Verify the compositor patch on Vercel's Amazon Linux 2023 x64 runtime: its interpreter and library path must use the bundled glibc 2.35. Render the H.265 / `<OffthreadVideo>` fallback to prove the compositor runs. This patched environment does not establish support for unmodified Amazon Linux 2023 x64.
+- [ ] Render the full `browser-test` and `html-in-canvas` compositions. A bounded smoke test must cover every section as described above and be recorded as partial coverage. Verify WebGL/WebGL2 drawing, proprietary-codec decoding, and supported WebCodecs round trips inside the sandbox.
+- [ ] Prove shared-memory capture is active in render logs and FFmpeg arguments. Repeat a deterministic segment with shared memory disabled and compare decoded frames. Check `/dev/shm` capacity, capture backend, cleanup, and PNG/JPEG screenshot fallback.
+- [ ] Download and decode the outputs, checking frame counts, duration, audio, representative pixels, and still-image output. Record concurrency, cache limits, peak memory, disk headroom, and OOM counters. Keep default-setting failures visible even if a bounded-cache retry passes; compare with the previous Chrome before classifying a regression. Record setup/upload failures separately, including any workaround needed to reach rendering.
+- [ ] If the deployment reuses snapshots, create a snapshot with the candidate packages/browser and verify a resumed render. Invalidate older cached snapshots during the upgrade. Stop test sandboxes and remove temporary snapshots or Blob outputs after preserving evidence.
+
+See the [Vercel API documentation](../docs/docs/vercel/index.mdx).
+
+## 6. Shared-memory capture and fallback
 
 - [ ] Run `mac-arm64/probe-fast-path.py <executable>` against each packaged native binary, not just in its build container. Validate published frame bytes, release, pool destruction, and file cleanup.
 - [ ] On macOS/Linux, cover automatic POSIX shared memory and forced file-backed pools. On Lambda, require the actual file backend. On Linux, include missing/full `/dev/shm` and limited temporary storage.
@@ -80,14 +92,14 @@ See [the Lambda smoke workflow](lambda-arm64/README.md#lambda-smoke-test) and [l
 - [ ] Windows currently has no shared-memory backend and its FFmpeg has no `remotionshm` device. Require the expected capability-unavailable response and a successful PNG/JPEG/video fallback render on native Windows. Do not label Windows shared memory as supported because the patched protocol exists.
 - [ ] Test stills, image sequences, transparent output, and stock-browser fallback independently of parallel video encoding.
 
-## 6. Chrome-for-Testing and stock fallbacks
+## 7. Chrome-for-Testing and stock fallbacks
 
 - [ ] Verify the exact version in Google's [download manifest](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json). HEAD-check both `chrome` and `chrome-headless-shell` for Linux x64/ARM64, macOS x64/ARM64, and Windows x64.
 - [ ] Install through the public renderer API or a render with `--chrome-mode=chrome-for-testing`, then run the testbed on each native platform. Confirm the selected executable/version in logs. As of this checklist, `remotion browser ensure --chrome-mode=...` does not forward that option; do not mistake its headless-shell success for a Chrome-for-Testing test.
 - [ ] Confirm ordinary screenshot capture works without the private CDP methods. Shared-memory support is not required for stock Chrome.
 - [ ] Test an explicit stock headless-shell version override and the macOS Intel route. Verify launch, codecs, HTML-in-canvas, and output, not just HTTP availability. Older-glibc browser launches are diagnostics, not evidence of supported rendering.
 
-## 7. WebCodecs, media, and audio
+## 8. WebCodecs, media, and audio
 
 - [ ] Decode real H.264 video and AAC audio through HTML media elements and WebCodecs. Assert decoded pixels, dimensions, audio samples, and timestamps. Capability queries alone are insufficient.
 - [ ] Preserve color primaries, transfer, matrix, and range in codec fixtures and decoder configuration. Raw H.264 without color metadata can produce different pixels because the browser must infer a color space.
@@ -95,7 +107,7 @@ See [the Lambda smoke workflow](lambda-arm64/README.md#lambda-smoke-test) and [l
 - [ ] Distinguish browser decoding (`<Html5Video>`, WebCodecs, `@remotion/media`) from FFmpeg decoding (`<OffthreadVideo>`). FFmpeg success does not prove proprietary codecs were included in Chrome.
 - [ ] Exercise supported WebCodecs encoders with real encode/decode output, hardware and software paths where applicable, and a client-side render. Check [`webcodecs-bugs`](../docs/docs/mediabunny/webcodecs-bugs.mdx) for regressions.
 
-## 8. HTML-in-canvas regression matrix
+## 9. HTML-in-canvas regression matrix
 
 - [ ] Review the [bug tracker](../docs/docs/html-in-canvas-bugs.mdx) and linked upstream reproducers. Record exact versions and actual results; a reported upstream fix is not a test pass.
 - [ ] Run nesting and pixel-density compositions at DPR/scale 1 and 2; compare expected pixels and screenshots.
@@ -105,14 +117,14 @@ See [the Lambda smoke workflow](lambda-arm64/README.md#lambda-smoke-test) and [l
 - [ ] Inspect output for blank/black textures, alpha, transforms, clipping, filters, and colors. A completed render can still be visually wrong. Compare the previous custom build and Google's same-version build to distinguish upstream changes from packaging/patch changes.
 - [ ] Re-run every distinct crash signature in [#12369](https://github.com/remotion-dev/remotion/issues/12369), not only the opacity case. Use the issue's unmodified revision, keep zero-scale endpoints and two-second preview premounting, and render consecutive frames 181–1799 across transitions 275 and 534–537. Check real-time playback from frame 210 and the current composition too; later workarounds or composition edits can conceal the original failure. Keep [context loss](https://issues.chromium.org/issues/575053149) and any remaining signatures visible in the release decision.
 
-## 9. Runtime correctness and regressions
+## 10. Runtime correctness and regressions
 
 - [ ] Run relevant upstream V8 regressions, including the object-literal cloning/migration cases from [#12680](https://github.com/remotion-dev/remotion/issues/12680). Assert returned values; disabling DCHECKs can hide a crash while preserving incorrect behavior.
 - [ ] Check browser launch/close, CDP commands, page crashes/retries, timeouts, `delayRender`, fonts/emoji/CJK, SVG/CSS filters, network/media loading, and console errors using representative compositions.
 - [ ] Compare render time, peak memory, startup time, executable/unpacked/ZIP size, and a sustained high-resolution render with the previous version on the same machine/configuration. Explain material regressions.
 - [ ] Run relevant renderer/browser, web-renderer, and Lambda integration checks against the actual candidate binary. Record the executable/version used by CI; do not assume it uses the new download.
 
-## 10. Release evidence and rollout
+## 11. Release evidence and rollout
 
 - [ ] Attach the completed matrix, commands, logs, representative frames/videos, size totals/headroom, and links to unresolved failures to the upgrade PR.
 - [ ] Update artifact manifests, cache markers, layer staging inputs/license metadata, hosted layer references, and version documentation together. Verify reproducible layer packaging does not still point at the previous browser.
@@ -128,6 +140,7 @@ Chrome version / Chromium commit / V8 revision:
 Artifact URL / SHA-256 / actual executable version:
 Platform / architecture / native or emulated / GPU backend:
 Function + layer ARNs / rendering account / region:
+Vercel project / sandbox + snapshot IDs / runtime / region / resources:
 Commands / frame ranges / concurrency / capture mode:
 Outputs / decoded frame count / pixel or audio comparison:
 Uncompressed function + layers / limit / remaining headroom:

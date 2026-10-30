@@ -28,6 +28,7 @@ The supported Linux minimum is glibc 2.35. Amazon Linux 2023 on ARM64 is support
 | Canvas opacity            | Repeated opacity smoke passes on the tested platforms. The exact #12369 nested-canvas reproducer additionally passes custom and stock macOS Chrome 158 and crashes Chrome 157; see the follow-up below.      |
 | MasterWithEffect          | The unchanged #12369 composition renders frames 181–1799 on Chrome 158; Chrome 157 reproduces the GPU crash at 275. Today's complete 1,608-frame composition also renders successfully.                      |
 | Real Lambda               | Apple-emoji function deployed and rendered all four browser-test sections, HTML-in-canvas, and diagnostics; 14 output videos / 641 frames verified. See the Lambda matrix below.                             |
+| Real Vercel Sandbox       | Testbed smoke sections, HTML-in-canvas, stills, and capture comparison pass. Sustained H.265 fallback fails on Chrome 158; Chrome 157 control passes. See Vercel results.                                    |
 
 The animated Three.js comparison was not bit-identical: decoded SSIM was 0.982045 for POSIX versus PNG fallback and 0.993908 for POSIX versus file-backed capture. Do not use that animated scene as a byte-equality oracle; the static comparison above passed. No baseline performance comparison with Chrome 157 was completed.
 
@@ -59,8 +60,40 @@ The renderer now requires glibc 2.35, with an exception for Amazon Linux 2023 AR
 
 The migrated `Dockerfile.al2023-arm64` passed a fresh bounded smoke build with the updated local renderer: 60 frames each of fonts, GPU, codecs, WebGL/WebGL2, and HTML-in-canvas. All five exported videos decoded successfully to 60 frames and two seconds, totaling 300 frames. The installed renderer starts without a warning on glibc 2.34. Building the recipe for `linux/amd64` fails at its architecture guard with instructions to use `--platform=linux/arm64`. Evidence is in `out/chrome-158-validation/glibc-policy/`.
 
+## Vercel Sandbox
+
+Tested the PR at `1bc11e50db4dfa481deb43a6ca6d73b6fb44ca40` in a fresh real Vercel Sandbox under the `template-vercel` project, region `fra1`: Amazon Linux 2023.12 x64, Node 24.22.1, glibc 2.34, four vCPUs, 8 GiB RAM, and 64 MiB `/dev/shm`. The sandbox was created through the Vercel connection and initialized using the local `@remotion/vercel` setup API. Local evidence is in `out/chrome-158-validation/vercel/`.
+
+The installed renderer's browser-download module matches the local build's SHA-256 (`dac81639df594007ba3ecc5cfa71e5d7558ff357a656ada4a1c843db37cf099c`), and the executable reports `Chromium 158.0.8127.2`. Local renderer, core, streaming, and licensing tarballs were installed with transitive overrides in `pnpm-workspace.yaml`. The initial registry setup selected Chrome 157, and a mixed local-renderer / registry-core attempt failed before rendering; those attempts are excluded from candidate results.
+
+The published compositor matches the PR's binary before patching (`405015f380d4813d01b7ae6a8bf8cbf7a91d64f161bee795b1204a5289ef368d`) and fails to load with `GLIBC_2.35` missing. Remotion's existing Vercel setup patches its interpreter to `/tmp/glibc235/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2` and its RPATH to that library directory plus `$ORIGIN`. The patched compositor starts and decodes the H.265 fallback. The host-level glibc warning remains because the system itself still has 2.34.
+
+Setup and sustained-render findings:
+
+- `addBundleToSandbox()` fails on the fresh sandbox when creating `remotion-bundle/public`, because the `remotion-bundle` parent does not exist. Creating that parent first lets the same API upload the bundle. This workaround was used for the rendering checks; the helper was not changed in this PR.
+- The full 3,600-frame run at concurrency 2 with default cache sizes failed after 2,694 rendered frames, fetching the local H.265 frame proxy at 29.8 seconds. The sandbox still had about 30 GiB disk space free, `/dev/shm` was empty after cleanup, and cgroup OOM counters were zero. Recorded peak memory was 8,481,529,856 bytes, close to the 8 GiB limit. A retry with a 256 MiB media cache and 512 MiB compositor cache failed at the same timestamp, so those cache limits do not fix it. The source clip is 10 seconds long and its testbed section is 30 seconds; a cold render of the final ten frames (2690–2699) passes on both Chrome 158 and Chrome 157.
+- Rendering the entire codec section (1800–2699) with the same renderer, compositor, concurrency 2, and bounded caches fails on custom Chrome 158 near the end (`net::ERR_FAILED` at 29.9 seconds), while custom Chrome 157 completes all 900 frames. This is evidence of a Chrome-upgrade regression requiring a release decision; the root cause is not established. Short smoke renders do not reproduce it.
+
+| 900-frame codec sequence               | Capture                     | Result                                  |
+| -------------------------------------- | --------------------------- | --------------------------------------- |
+| Custom Chrome 157.0.8080.0             | Shared memory               | All 900 frames complete                 |
+| Custom Chrome 158.0.8127.2             | Shared memory               | H.265 proxy fetch fails at 29.9 seconds |
+| Custom Chrome 158.0.8127.2             | PNG, shared memory disabled | Same failure at 29.9 seconds            |
+| Google Chrome-for-Testing 158.0.8127.2 | PNG                         | Same failure at 29.8667 seconds         |
+
+All four sequence tests use the same candidate packages, patched compositor, frame range 1800–2699, concurrency 2, 256 MiB media cache, and 512 MiB compositor cache. The Chrome 157 and stock controls override the generated render-script's browser configuration (`browserExecutable` or `chromeMode`); the public Vercel render API fixes the default mode to Headless Shell. The stock browser also logs the H.265 `<OffthreadVideo>` fallback. The PNG controls sampled peak cgroup memory at 8,443,408,384 bytes (custom) and 8,418,816,000 bytes (stock); the relation to the failure remains unproven. The stock reproduction and disabled-capture control show that the failure is not specific to the private shared-memory capture path.
+
+The fonts, GPU, codecs, and WebGL/WebGL2 smoke sections each complete 60 frames. HTML-in-canvas completes all 120 frames and a PNG still at frame 60. POSIX shared-memory capture is confirmed by both the backend message and FFmpeg `remotionshm` arguments. A second 60-frame font render explicitly disables shared memory and uses PNG `image2pipe`; its decoded RGB frames match the shared-memory render exactly (SHA-256 `e910bdd0e16b700d83e55545f0815e04a2d9ebc3e1ac5d577cd3ef3411a3370a`).
+
+Direct browser probes pass WebGL and WebGL2 clear/readback at DPR 1 and 2 on ANGLE/SwiftShader, nested canvas `contain`/`cover` pixel checks, and opacity-zero rendering. H.264 pixels and AAC audio decode through HTML media and WebCodecs. H.264, VP8, VP9, and Opus encode/decode round trips pass; AAC encoding is reported unsupported on this Linux browser. The known forced WebGL-context-loss fixture still crashes the page here too.
+
+A snapshot of the prepared sandbox was restored into another four-vCPU / 8 GiB sandbox. Chrome still reports 158.0.8127.2, the private glibc interpreter remains available, and a 60-frame codec render passes after restoration. All ten exported videos decode successfully: 1,400 frames total, comprising 490 candidate frames and 910 Chrome 157 control frames. Frame counts and durations match the requested ranges, the codec smoke has AAC audio, and representative GPU, codec, WebGL, and HTML-in-canvas images were inspected.
+
+Cleanup is complete: original sandbox `sbx_gzq0tlCjq8bKfcFS75cxjx0K797f` and restored sandbox `sbx_RvfbuxAWQYqZNIXSJTByRFOqZK8A` are stopped; temporary snapshot `snap_GJZcAedivrOt8lTC9WYPH3eEkjbA` was deleted. No Blob outputs or project deployments were created. Logs after rendering/probing show no remaining Chrome/FFmpeg/compositor processes, an empty `/dev/shm`, and zero cgroup OOM events.
+
 ## Failures and incomplete gates
 
+- Vercel's sustained codec sequence fails on custom and stock Chrome 158 while the equivalent custom Chrome 157 control passes. Disabling shared memory does not fix it. Keep this gate failed pending investigation; the successful smoke renders are not a full Vercel pass.
 - The exact standalone WebGL-context-loss reproducer from [#12293](https://github.com/remotion-dev/remotion/issues/12293) still crashes the page after HTML-in-canvas paint. Reproduced on macOS with both SwiftShader and Metal, and on Linux ARM64/x64. Google's same-version Chrome-for-Testing also crashes. Keep [Chromium 575053149](https://issues.chromium.org/issues/575053149) open in the release decision.
 - `bunx remotion gpu` fails to navigate to `chrome://gpu` in the custom macOS headless shell (`net::ERR_FAILED`). Actual WebGL rendering passes. This was not compared against the previous binary, so it is not classified as a new regression.
 - `bunx remotion browser ensure --chrome-mode=chrome-for-testing` currently ignores the mode and ensures Headless Shell. The actual Chrome-for-Testing checks used a render with that flag or `ensureBrowser({chromeMode: 'chrome-for-testing'})`, then verified the executable/version.
