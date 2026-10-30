@@ -14,6 +14,11 @@ a page over CDP, and exercises both pool backends of the v3 patch:
 
 For each pool it captures one raw frame through the viewport fast path, checks
 the published bytes, releases the frame, and destroys the pool.
+
+On Windows, where the patch implements no pool backend, it instead checks that
+``Page.remotionCreateFramePool`` fails with the capability error Remotion's
+renderer falls back on, and that an ordinary PNG ``Page.captureScreenshot``
+still works.
 """
 
 from __future__ import annotations
@@ -218,6 +223,68 @@ def main() -> None:
                     },
                     session_id,
                 )
+                if sys.platform == "win32":
+                    # The v3 patch only implements frame pools on macOS and Linux.
+                    # Windows must refuse the pool with the capability error that
+                    # Remotion's renderer recognizes, and the ordinary encoded
+                    # screenshot path must keep working.
+                    websocket.send_json(
+                        {
+                            "id": 900,
+                            "sessionId": session_id,
+                            "method": "Page.remotionCreateFramePool",
+                            "params": {"slotCount": 1, "slotCapacity": slot_capacity},
+                        }
+                    )
+                    while True:
+                        response = websocket.receive_json()
+                        if response.get("id") == 900:
+                            break
+                    error = response.get("error")
+                    if not isinstance(error, dict) or (
+                        "Raw frames are only supported" not in str(error.get("message"))
+                    ):
+                        raise RuntimeError(
+                            f"Expected the Windows capability error, got {response!r}"
+                        )
+                    capture = command(
+                        "Page.captureScreenshot",
+                        {
+                            "format": "png",
+                            "fromSurface": True,
+                            "captureBeyondViewport": False,
+                            "clip": {
+                                "x": 0,
+                                "y": 0,
+                                "width": width,
+                                "height": height,
+                                "scale": 1,
+                            },
+                        },
+                        session_id,
+                    )
+                    png = base64.b64decode(str(capture.get("data", "")))
+                    if (
+                        png[:8] != b"\x89PNG\r\n\x1a\n"
+                        or struct.unpack("!II", png[16:24]) != (width, height)
+                        or "remotionFrame" in capture
+                    ):
+                        raise RuntimeError(f"Unexpected PNG screenshot: {capture!r}")
+                    print(
+                        json.dumps(
+                            {
+                                "supported": False,
+                                "method": "Page.remotionCreateFramePool",
+                                "error": error["message"],
+                                "fallbackCapture": "png",
+                                "width": width,
+                                "height": height,
+                            },
+                            separators=(",", ":"),
+                        )
+                    )
+                    return
+
                 backing_directory = Path(temp) / "pools"
                 backing_directory.mkdir(mode=0o700)
                 expected_auto_backend = (
