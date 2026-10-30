@@ -7,7 +7,7 @@ Mark each gate as passed, failed, or not run. An existing upstream failure needs
 ## 1. Identify and verify the shipped binaries
 
 - [ ] Pin the Chromium source commit, V8 revision, patches, GN arguments, and toolchain. Check `is_debug = false`, `dcheck_always_on = false`, proprietary codecs, and the intended ANGLE backends in the resolved build configuration.
-- [ ] Verify the six Remotion archives: Linux x64/ARM64, Amazon Linux x64/ARM64, macOS ARM64, and Windows x64. Verify the stock macOS Intel download separately.
+- [ ] Verify the six Remotion archives: Linux x64/ARM64, Amazon Linux x64/ARM64, macOS ARM64, and Windows x64. The Amazon Linux x64 browser archive is used by environments such as Vercel with a separately patched compositor; unmodified Amazon Linux 2023 x64 is unsupported. Verify the stock macOS Intel download separately.
 - [ ] Download the published artifacts, verify SHA-256, byte size, ZIP integrity, top-level directory, executable name/permissions, and runtime libraries against `BrowserFetcher`. Run macOS code-signature verification.
 - [ ] Use a clean Remotion cache to exercise download, extraction, version markers, and launch. Upgrade an existing cache as well. Rebuilt binaries of the same Chrome version need a new cache marker. Check Windows filenames and paths with spaces.
 - [ ] Run the packaged executable and record its actual version. Do not infer it from an archive filename, source constant, or layer description.
@@ -42,11 +42,11 @@ For a smoke run, render at least 60 consecutive frames from each section, plus `
 ## 3. Docker matrix
 
 - [ ] Build and render `Dockerfile.ubuntu22`, `Dockerfile.ubuntu24`, and `Dockerfile.debian` for both `linux/amd64` and `linux/arm64`. Verify which architecture actually ran; mark emulated runs.
-- [ ] Run `Dockerfile.al2023` explicitly for both architectures. `run.sh` currently comments out this recipe.
+- [ ] Run `Dockerfile.al2023-arm64` with `--platform=linux/arm64`. Amazon Linux 2023 ARM64 is the glibc 2.34 exception; x64 is unsupported and excluded from the render matrix.
 - [ ] Attempt `Dockerfile.nix` and document its result separately. It currently uses a template and system Chromium, so it does not validate the candidate Remotion binary. It is also commented out in `run.sh`.
 - [ ] Run `remotion compositions`, `browser-test`, and `html-in-canvas` in each supported image, using local workspace packages. Check actual browser versions and inspect output.
 - [ ] Exercise containers with normal `/dev/shm`, Docker's small default `/dev/shm`, and no `/dev/shm`. Check fallback behavior and cleanup after failure.
-- [ ] Check shared-library/glibc compatibility, including older-glibc stock-browser routes. A working Ubuntu 24 image does not establish Ubuntu 22, Debian, Amazon Linux, or musl compatibility.
+- [ ] Check shared-library/glibc compatibility against the supported minimum: glibc 2.35, or glibc 2.34 on Amazon Linux 2023 ARM64. A stock-browser fallback does not lower the rendering requirement. A working Ubuntu 24 image does not establish Ubuntu 22, Debian, or Amazon Linux ARM64 compatibility.
 - [ ] Check the compositor executable and bundled FFmpeg libraries independently of Chrome. Inspect their versioned GLIBC imports and exercise a media path that starts the compositor. Browser launch and FFmpeg encoding can pass while the compositor fails to load.
 
 Run from `packages/dockerfiles` after building the local CLI:
@@ -85,7 +85,7 @@ See [the Lambda smoke workflow](lambda-arm64/README.md#lambda-smoke-test) and [l
 - [ ] Verify the exact version in Google's [download manifest](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json). HEAD-check both `chrome` and `chrome-headless-shell` for Linux x64/ARM64, macOS x64/ARM64, and Windows x64.
 - [ ] Install through the public renderer API or a render with `--chrome-mode=chrome-for-testing`, then run the testbed on each native platform. Confirm the selected executable/version in logs. As of this checklist, `remotion browser ensure --chrome-mode=...` does not forward that option; do not mistake its headless-shell success for a Chrome-for-Testing test.
 - [ ] Confirm ordinary screenshot capture works without the private CDP methods. Shared-memory support is not required for stock Chrome.
-- [ ] Test an explicit stock headless-shell version override and the macOS Intel/default older-glibc routes. Verify launch, codecs, HTML-in-canvas, and output, not just HTTP availability.
+- [ ] Test an explicit stock headless-shell version override and the macOS Intel route. Verify launch, codecs, HTML-in-canvas, and output, not just HTTP availability. Older-glibc browser launches are diagnostics, not evidence of supported rendering.
 
 ## 7. WebCodecs, media, and audio
 

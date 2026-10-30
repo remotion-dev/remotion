@@ -5,6 +5,8 @@ For EC2 launches, set `SSH_CIDR` to the public IPv4 range allowed to connect (no
 Builds Chromium **158.0.8127.2** `headless_shell` for Amazon Linux 2023 x86_64
 inside a Docker container based on `amazonlinux:2023`.
 
+Unmodified Amazon Linux 2023 on x64 is unsupported for Remotion rendering because its glibc 2.34 is below the required 2.35. This is a Chromium build container, retained for environments such as Vercel that separately patch the compositor. The supported Amazon Linux render-test image is [`Dockerfile.al2023-arm64`](../../dockerfiles/Dockerfile.al2023-arm64).
+
 Output: `chromium-headless-shell-amazon-linux2023-x64.zip`
 containing files inside a top-level
 `chromium-headless-shell-amazon-linux2023-x64/` directory and including the

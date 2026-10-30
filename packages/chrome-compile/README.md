@@ -101,16 +101,18 @@ page-cache pages, so visibility is identical to POSIX shm. The consumer
 mapping it; Chromium also unlinks on pool destruction. Older callers that omit
 the new parameters get the v2 behavior.
 
-## Supported Platforms
+## Chromium build targets
 
-| Directory                                        | Target                                | Instance     | Build time  | Output size | Output zip (script-emitted name)                     |
-| ------------------------------------------------ | ------------------------------------- | ------------ | ----------- | ----------- | ---------------------------------------------------- |
-| [`lambda-arm64`](lambda-arm64/README.md)         | AWS Lambda (Amazon Linux 2023, ARM64) | c7g.8xlarge  | ~2 h 35 min | ~84 MB      | `chromium-headless-shell-amazon-linux2023-arm64.zip` |
-| [`linux-arm64`](linux-arm64/README.md)           | Debian/Ubuntu ARM64 (glibc ≥ 2.35)    | c7g.8xlarge  | ~2 h 30 min | ~98 MB      | `chromium-headless-shell-linux-arm64.zip`            |
-| [`linux-x64`](linux-x64/README.md)               | Debian/Ubuntu x86_64 (glibc ≥ 2.35)   | c6i.8xlarge  | ~1 h 20 min | ~104 MB     | `chromium-headless-shell-linux64.zip`                |
-| [`amazon-linux-x64`](amazon-linux-x64/README.md) | Amazon Linux 2023 x86_64              | c6i.8xlarge  | ~1 h 20 min | ~106 MB     | `chromium-headless-shell-amazon-linux2023-x64.zip`   |
-| [`mac-arm64`](mac-arm64/README.md)               | macOS ARM64 (13.0+)                   | mac-m4.metal | ~2 h 5 min  | ~179 MB     | `chromium-headless-shell-mac-arm64.zip`              |
-| [`win-x64`](win-x64/README.md)                   | Windows x64 (Windows 10+)             | c6i.16xlarge | ~1 h 20 min | ~137 MB     | `chromium-headless-shell-win64.zip`                  |
+Remotion rendering requires glibc 2.35 or later on Linux. Amazon Linux 2023 on ARM64 is supported with glibc 2.34. Unmodified Amazon Linux 2023 on x64 is unsupported. Its Chromium build below is retained for environments such as Vercel that separately patch the compositor; a working browser alone does not establish rendering support.
+
+| Directory                                        | Target                                         | Instance     | Build time  | Output size | Output zip (script-emitted name)                     |
+| ------------------------------------------------ | ---------------------------------------------- | ------------ | ----------- | ----------- | ---------------------------------------------------- |
+| [`lambda-arm64`](lambda-arm64/README.md)         | AWS Lambda (Amazon Linux 2023, ARM64)          | c7g.8xlarge  | ~2 h 35 min | ~84 MB      | `chromium-headless-shell-amazon-linux2023-arm64.zip` |
+| [`linux-arm64`](linux-arm64/README.md)           | Debian/Ubuntu ARM64 (glibc ≥ 2.35)             | c7g.8xlarge  | ~2 h 30 min | ~98 MB      | `chromium-headless-shell-linux-arm64.zip`            |
+| [`linux-x64`](linux-x64/README.md)               | Debian/Ubuntu x86_64 (glibc ≥ 2.35)            | c6i.8xlarge  | ~1 h 20 min | ~104 MB     | `chromium-headless-shell-linux64.zip`                |
+| [`amazon-linux-x64`](amazon-linux-x64/README.md) | AL2023 x86_64 browser for patched environments | c6i.8xlarge  | ~1 h 20 min | ~106 MB     | `chromium-headless-shell-amazon-linux2023-x64.zip`   |
+| [`mac-arm64`](mac-arm64/README.md)               | macOS ARM64 (13.0+)                            | mac-m4.metal | ~2 h 5 min  | ~179 MB     | `chromium-headless-shell-mac-arm64.zip`              |
+| [`win-x64`](win-x64/README.md)                   | Windows x64 (Windows 10+)                      | c6i.16xlarge | ~1 h 20 min | ~137 MB     | `chromium-headless-shell-win64.zip`                  |
 
 Fresh builds write their ZIPs to the ignored `output/` directories. At upload time, copy them to the versioned URL names consumed by `getChromeDownloadUrl` (`chromium-headless-shell-<platform>-<version>.zip`). Recorded build artifacts can be restored with `bun run download`; this package does not use Git LFS.
 

@@ -1,5 +1,6 @@
 import os from 'node:os';
 import {NoReactInternals} from 'remotion/no-react';
+import {isAmazonLinux2023} from './browser/get-chrome-download-url';
 import {isMusl} from './compositor/get-executable-path';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
@@ -13,13 +14,12 @@ const getRequiredLibCVersion = () => {
 		return null;
 	}
 
-	// Uses Amazon Linux 2 to compile
-	if (process.arch === 'arm64') {
-		return [2, 26];
+	// Amazon Linux 2023 on ARM64 is supported with its system glibc.
+	if (process.arch === 'arm64' && isAmazonLinux2023()) {
+		return [2, 34];
 	}
 
-	// Uses Ubuntu 20.04 to compile
-	return [2, 31];
+	return [2, 35];
 };
 
 const required = getRequiredLibCVersion();
@@ -44,7 +44,7 @@ export const gLibCErrorMessage = (libCString: string) => {
 
 	return `Rendering videos requires glibc ${required.join(
 		'.',
-	)} on your or higher on your OS. Your system has glibc ${libCString}.`;
+	)} or higher on your OS. Your system has glibc ${libCString}.`;
 };
 
 const checkLibCRequirement = (logLevel: LogLevel, indent: boolean) => {
