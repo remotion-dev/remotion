@@ -55,20 +55,23 @@ test('a long frame duration can satisfy requests beyond the jump threshold', asy
 	samples[1].close();
 });
 
-test('releases old frames before requesting more decoder output', async () => {
+test.each([30, 60, 120, 240])('%i fps decoder surfaces', async (sourceFps) => {
 	let openFrames = 0;
 	const sink: VideoSampleSink = {
 		getSample() {
 			return Promise.reject(new Error('Not implemented'));
 		},
 		async *samples() {
-			for (let i = 0; i < 20; i++) {
+			for (let i = 0; i < sourceFps; i++) {
 				if (openFrames >= 8) {
 					throw new Error('Decoder ran out of output surfaces');
 				}
 
 				openFrames++;
-				const sample = makeSample({timestamp: i / 30, duration: 1 / 30});
+				const sample = makeSample({
+					timestamp: i / sourceFps,
+					duration: 1 / sourceFps,
+				});
 				const originalClose = sample.close.bind(sample);
 				let closed = false;
 				sample.close = () => {

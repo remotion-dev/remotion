@@ -241,6 +241,13 @@ export const makeKeyframeBank = async ({
 		frameTimestamps.push(frame.timestamp);
 		allocationSize += getAllocationSize(frame);
 
+		// A time-based window can retain enough high-fps output to exhaust a
+		// native decoder's surfaces. Only the containing frame and lookahead
+		// are needed; older requests can use the manager's existing refetch path.
+		while (frameTimestamps.length > 2) {
+			deleteFrameAtTimestamp(frameTimestamps[0]);
+		}
+
 		lastUsed = Date.now();
 		Internals.Log.trace(
 			{logLevel, tag: '@remotion/media'},
