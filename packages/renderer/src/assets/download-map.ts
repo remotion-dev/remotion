@@ -35,7 +35,9 @@ export type DownloadMap = {
 			  }
 			| undefined;
 	};
-	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
+	listeners: {
+		[key: string]: {[downloadDir: string]: ((err: Error | null) => void)[]};
+	};
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;
 	preEncode: string;
