@@ -24,6 +24,7 @@ type NodeRequestAndResponse = {
 
 const readFileWithoutRedirect = (
 	url: string,
+	signal: AbortSignal | null,
 ): Promise<NodeRequestAndResponse> => {
 	return new Promise<NodeRequestAndResponse>((resolve, reject) => {
 		const client = getClient(url);
@@ -36,8 +37,9 @@ const readFileWithoutRedirect = (
 							'user-agent':
 								'Mozilla/5.0 (@remotion/renderer - https://remotion.dev)',
 						},
+						signal: signal ?? undefined,
 					}
-				: {},
+				: {signal: signal ?? undefined},
 			(res) => {
 				resolve({request: req, response: res});
 			},
@@ -52,13 +54,14 @@ const readFileWithoutRedirect = (
 
 export const readFile = async (
 	url: string,
+	signal: AbortSignal | null,
 	redirectsSoFar = 0,
 ): Promise<NodeRequestAndResponse> => {
 	if (redirectsSoFar > 10) {
 		throw new Error(`Too many redirects while downloading ${url}`);
 	}
 
-	const {request, response} = await readFileWithoutRedirect(url);
+	const {request, response} = await readFileWithoutRedirect(url, signal);
 	if (redirectStatusCodes.includes(response.statusCode as number)) {
 		if (!response.headers.location) {
 			throw new Error(
@@ -71,7 +74,7 @@ export const readFile = async (
 		request.destroy();
 		response.destroy();
 
-		return readFile(redirectUrl, redirectsSoFar + 1);
+		return readFile(redirectUrl, signal, redirectsSoFar + 1);
 	}
 
 	if ((response.statusCode as number) >= 400) {
