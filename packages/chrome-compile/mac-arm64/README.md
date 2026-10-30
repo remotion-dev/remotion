@@ -1,14 +1,18 @@
-# Chromium 157 shared-memory headless shell — macOS ARM64
+# Chromium 158 shared-memory headless shell — macOS ARM64
 
-This directory builds Chromium **157.0.8080.0** at commit
-`ab28d45abdcf95062bcb97d82e8a01b662d7cbdf` for Apple Silicon. It applies the
+This directory builds Chromium **158.0.8127.2** at commit
+`681cd621e82e606d7536eae8ea2576afb3c7d65c` for Apple Silicon. It applies the
 Remotion **v3** shared-memory capture patch and enables proprietary H.264/AAC
 codecs. It does not select or require a VideoToolbox encoder.
 
 The recipe was validated on an EC2 `mac-m4.metal` host running macOS 26.6.2,
-Command Line Tools 26.6, and the macOS 26.5 SDK (the version Chromium 157 pins
-as `mac_sdk_official_version`). The deployment target is macOS 13.0, Chromium
-157's default; Chromium no longer builds for macOS 12.
+Command Line Tools 26.6, and the macOS 26.5 SDK. Chromium 158 pins the 27.0
+SDK as `mac_sdk_official_version` for hermetic builds but still accepts 26.5
+(its `mac_sdk_official_universal_version`) with `use_system_xcode = true` and
+`mac_sdk_min = "26.5"`. The deployment target is macOS 13.0, Chromium's
+default; Chromium no longer builds for macOS 12. `args.gn` keeps
+`is_official_build = false` and therefore sets `dcheck_always_on = false`
+explicitly, which that configuration would otherwise default to on.
 
 ## Output contract
 
@@ -25,8 +29,8 @@ chrome-headless-shell-mac-arm64/
 └── *.pak
 ```
 
-The upload-time name for Chromium 157 is
-`chromium-headless-shell-mac-arm64-157.0.8080.0.zip`.
+The upload-time name for Chromium 158 is
+`chromium-headless-shell-mac-arm64-158.0.8127.2.zip`.
 
 ## Files
 
@@ -36,24 +40,24 @@ The upload-time name for Chromium 157 is
 | `setup-ec2.sh`                    | Checks the native macOS toolchain and starts the build                                                     |
 | `build-chromium.sh`               | Fetches pinned inputs, patches, builds, signs, probes, and packages Chromium                               |
 | `args.gn`                         | ARM64, codec, SDK, and headless build settings                                                             |
-| `apply-clt-support.py`            | Makes Chromium 157 use Apple's Command Line Tools installation honestly                                    |
+| `apply-clt-support.py`            | Makes Chromium 158 use Apple's Command Line Tools installation honestly                                    |
 | `remotion-shared-memory-v3.patch` | Adds the private shared-memory CDP transport, the viewport fast path, and the v3 file-backed pool fallback |
 | `probe-fast-path.py`              | Invokes `Page.remotionCreateFramePool` against a built browser                                             |
 
-The v3 patch, rebased onto Chromium 157, has SHA-256
-`eaa4a8d5cb88c27bf78c3eb4d935491ca0118e1d8302a748f497c61a5a147f6a`. It
+The v3 patch, rebased onto Chromium 158, has SHA-256
+`5013890c48cb4e517a50409275b91b6ef14b197c4037e5417fc320aff2e94aba`. It
 supersedes v2 (`91dd0b5a…`) by adding the `backingDirectory`/`preferredBackend`
 parameters and the `backend` result on `Page.remotionCreateFramePool`, which
 lets hosts without POSIX shared memory (AWS Lambda) use file-backed pools.
-The rebase changed no patch logic; only the two DevTools protocol method lists
-(`protocol_config.json`, `inspector_protocol_config.json`) needed new context.
-The build pins depot_tools at
-`9b264039190fa270f3fc44779b4e26b43008ba41`, the last commit before the
-157.0.8080.0 branch point.
+The 158 rebase changed no patch logic; it only dropped the hunk that adjusted
+`ScreenshotCaptured`'s encode-failure reply, because Chromium 158 now sends a
+failure there instead of an empty success. The build pins depot_tools at
+`3218cfc968b246bf2498fd13f707851a0b1cd408`, the last commit before the
+158.0.8127.2 tag.
 
 Chromium 157 reformatted its Python tooling and now always runs
 `build/config/apple/sdk_info.py --get_sdk_info --create_symlink_at` when
-`use_system_xcode = true`, so `apply-clt-support.py` targets 157's
+`use_system_xcode = true`, so `apply-clt-support.py` targets 157's and 158's
 `sdk_info.py`/`find_sdk.py` and reports the Command Line Tools directories for
 the platform and toolchain paths it symlinks. `headless_use_policy` was removed
 from `args.gn` because Chromium 157 no longer declares it.

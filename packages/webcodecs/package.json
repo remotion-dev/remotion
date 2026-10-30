@@ -34,7 +34,7 @@
 		"@remotion/example-videos": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"playwright": "catalog:",
-		"vite": "6.4.4",
+		"vite": "6.4.5",
 		"@playwright/test": "1.60.0",
 		"eslint": "catalog:",
 		"typescript": "catalog:"

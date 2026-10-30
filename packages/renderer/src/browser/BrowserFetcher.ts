@@ -142,7 +142,9 @@ export const downloadBrowser = async ({
 }): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
 	const downloadURL = getChromeDownloadUrl({platform, version, chromeMode});
-	const fileName = downloadURL.split('/').pop();
+	// remotion.media URLs carry a ?clear query string, and "?" is not a valid
+	// file name character on Windows.
+	const fileName = downloadURL.split('/').pop()?.split('?')[0];
 	if (!fileName) {
 		throw new Error(`A malformed download URL was found: ${downloadURL}.`);
 	}

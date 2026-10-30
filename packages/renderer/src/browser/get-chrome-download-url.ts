@@ -4,7 +4,7 @@ import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import type {ChromeMode} from '../options/chrome-mode';
 
-export const TESTED_VERSION = '157.0.8080.0';
+export const TESTED_VERSION = '158.0.8127.2';
 
 export type Platform =
 	| 'linux64'
@@ -114,6 +114,10 @@ export function getChromeDownloadUrl({
 	if (chromeMode === 'headless-shell' && version === null) {
 		if (platform === 'mac-arm64') {
 			return `https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}.zip?clear`;
+		}
+
+		if (platform === 'win64') {
+			return `https://remotion.media/chromium-headless-shell-win-x64-${TESTED_VERSION}.zip?clear`;
 		}
 
 		if (platform === 'linux64' || platform === 'linux-arm64') {

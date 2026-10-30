@@ -1,4 +1,10 @@
-import React, {useCallback, useImperativeHandle, useMemo, useRef} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+} from 'react';
 import {calculateImageFit} from '../calculate-image-fit.js';
 import type {
 	EffectDefinitionAndStack,
@@ -36,6 +42,19 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 ) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const chainState = useEffectChainState(effectsOutputSize);
+	// Several composition frames can resolve to the same decoded image frame.
+	// Remember what the output canvas currently shows so the effect chain is
+	// not rerun while the decoded frame and all inputs are unchanged.
+	const lastDrawRef = useRef<{
+		canvas: HTMLCanvasElement;
+		chainState: typeof chainState;
+		imageData: VideoFrame;
+		effects: EffectDefinitionAndStack<unknown>[];
+		fit: AnimatedImageFillMode;
+		canvasWidth: number;
+		canvasHeight: number;
+	} | null>(null);
+	const drawCountRef = useRef(0);
 
 	const sourceCanvas = useMemo(() => {
 		if (typeof document === 'undefined') {
@@ -58,6 +77,23 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 			if (!sourceCanvas) {
 				throw new Error('Source canvas is not available');
 			}
+
+			const lastDraw = lastDrawRef.current;
+			if (
+				lastDraw &&
+				lastDraw.canvas === canvas &&
+				lastDraw.chainState === chainState &&
+				lastDraw.imageData === imageData &&
+				lastDraw.effects === effects &&
+				lastDraw.fit === fit &&
+				lastDraw.canvasWidth === canvasWidth &&
+				lastDraw.canvasHeight === canvasHeight
+			) {
+				return Promise.resolve(true);
+			}
+
+			lastDrawRef.current = null;
+			const drawId = ++drawCountRef.current;
 
 			sourceCanvas.width = canvasWidth;
 			sourceCanvas.height = canvasHeight;
@@ -92,10 +128,44 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 				output: canvas,
 				width: canvasWidth,
 				height: canvasHeight,
+			}).then((completed) => {
+				// A later draw() may have started before this one settled.
+				if (completed && drawCountRef.current === drawId) {
+					lastDrawRef.current = {
+						canvas,
+						chainState,
+						imageData,
+						effects,
+						fit,
+						canvasWidth,
+						canvasHeight,
+					};
+				}
+
+				return completed;
 			});
 		},
 		[chainState, effects, fit, height, sourceCanvas, width],
 	);
+
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) {
+			return;
+		}
+
+		// The browser restores a lost 2D context with a blank bitmap. A draw
+		// that is still in flight must not record its result either.
+		const invalidate = () => {
+			lastDrawRef.current = null;
+			drawCountRef.current++;
+		};
+
+		canvas.addEventListener('contextrestored', invalidate);
+		return () => {
+			canvas.removeEventListener('contextrestored', invalidate);
+		};
+	}, []);
 
 	useImperativeHandle(ref, () => {
 		return {
@@ -113,6 +183,8 @@ const CanvasRefForwardingFunction: React.ForwardRefRenderFunction<
 					throw new Error('Could not get 2d context');
 				}
 
+				lastDrawRef.current = null;
+				drawCountRef.current++;
 				ctx.clearRect(
 					0,
 					0,

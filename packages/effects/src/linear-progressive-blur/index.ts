@@ -1,7 +1,14 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
+import {GAUSSIAN_BLUR_WEBGPU_SHADER} from '../gaussian-blur-webgpu-shader.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
+import {
+	applyWebGpuMultipass,
+	cleanupWebGpuMultipass,
+	setupWebGpuMultipass,
+	type WebGpuMultipassState,
+} from '../webgpu-multipass-runtime.js';
 import {
 	applyLinearProgressiveBlur,
 	cleanupLinearProgressiveBlur,
@@ -122,32 +129,101 @@ const validateLinearProgressiveBlurParams = (
 	assertOptionalFiniteNumber(params.endBlur, 'endBlur');
 };
 
-export const linearProgressiveBlur = createEffect<
-	LinearProgressiveBlurParams,
-	LinearProgressiveBlurState
->({
+export const linearProgressiveBlur = createEffect<LinearProgressiveBlurParams>({
 	type: 'dev.remotion.effects.linearProgressiveBlur',
 	label: 'linearProgressiveBlur()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/linear-progressive-blur',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolveLinearProgressiveBlurParams(params);
 		return `linear-progressive-blur-${r.start.join(':')}-${r.end.join(':')}-${r.startBlur}-${r.endBlur}`;
 	},
-	setup: (target) => setupLinearProgressiveBlur(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolveLinearProgressiveBlurParams(params);
-		applyLinearProgressiveBlur({
-			state,
-			source,
-			width,
-			height,
-			params: r,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			LinearProgressiveBlurParams,
+			WebGpuMultipassState
+		>({
+			setup: (target) =>
+				setupWebGpuMultipass(target, 'linear-progressive-blur'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolveLinearProgressiveBlurParams(params);
+
+				applyWebGpuMultipass({
+					auxiliarySource: null,
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					passes: [
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								1,
+								0,
+								0,
+								1,
+								r.startBlur,
+								r.endBlur,
+								...r.start,
+								...r.end,
+								0,
+								0,
+								0,
+								0,
+							]),
+							source: -1,
+							secondary: -1,
+						},
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								0,
+								1,
+								0,
+								1,
+								r.startBlur,
+								r.endBlur,
+								...r.start,
+								...r.end,
+								0,
+								0,
+								0,
+								0,
+							]),
+							source: 0,
+							secondary: -1,
+						},
+					],
+				});
+			},
+			cleanup: cleanupWebGpuMultipass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			LinearProgressiveBlurParams,
+			LinearProgressiveBlurState
+		>({
+			setup: (target) => setupLinearProgressiveBlur(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolveLinearProgressiveBlurParams(params);
+				applyLinearProgressiveBlur({
+					state,
+					source,
+					width,
+					height,
+					params: r,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupLinearProgressiveBlur(state),
+		}),
 	},
-	cleanup: (state) => cleanupLinearProgressiveBlur(state),
 	schema: linearProgressiveBlurSchema,
 	validateParams: validateLinearProgressiveBlurParams,
 });

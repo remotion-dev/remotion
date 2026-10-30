@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# build-chromium.sh — Build Chromium 157.0.8080.0 headless_shell (x86_64)
+# build-chromium.sh — Build Chromium 158.0.8127.2 headless_shell (x86_64)
 #
 # Runs INSIDE the Docker container (Ubuntu 22.04).
 # Targets regular Linux distros (Debian/Ubuntu) — no system libs bundled.
@@ -10,7 +10,7 @@ set -euo pipefail
 # SIMPLIFIED vs ARM64: No LLVM bootstrap needed — uses pre-built toolchain.
 # =============================================================================
 
-CHROME_VERSION="157.0.8080.0"
+CHROME_VERSION="158.0.8127.2"
 
 echo "========================================="
 echo "Building Chromium $CHROME_VERSION headless_shell (Linux x86_64)"
@@ -89,7 +89,10 @@ git apply /root/remotion-shared-memory-v3.patch
 # cached Python 3.11 (downloaded during `gclient sync`) as the default
 # interpreter on PATH.
 echo ">>> Step 5.5: Fix Python version (Ubuntu 22.04 ships 3.10, Chromium needs 3.11+)"
-PY311=$(ls -d /root/.cache/vpython-root.0/store/cpython+*/contents/bin/python3.11 2>/dev/null | head -1)
+# The store directory is named cpython+<hash> or, since the depot_tools used
+# by Chromium 158, cpython-<hash>. A failing `ls` inside $(...) would abort
+# the script under `set -e`, so the lookup uses find.
+PY311=$(find /root/.cache/vpython-root.0/store -path "*/cpython*/contents/bin/python3.11" -type f 2>/dev/null | head -1 || true)
 if [ -n "$PY311" ] && [ -x "$PY311" ]; then
   ln -sf "$PY311" /usr/local/bin/python3
   ln -sf "$PY311" /usr/local/bin/python

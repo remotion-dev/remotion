@@ -16,6 +16,7 @@ import type {
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	NodeWrapper,
+	PrecomposeJsxNodesRequest,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -218,6 +219,12 @@ export type ElementInstallModalState = {
 	readonly sourceLabel: string;
 };
 
+export type PrecomposeRefactorTarget = {
+	fileName: string;
+	displayName: string | null;
+	line: number | null;
+};
+
 export type ModalState =
 	| {
 			type: 'new-comp';
@@ -303,11 +310,13 @@ export type ModalState =
 	  }
 	| {
 			type: 'precompose-refactor';
-			targets: {
-				fileName: string;
-				displayName: string | null;
-				line: number | null;
-			}[];
+			targets: PrecomposeRefactorTarget[];
+	  }
+	| {
+			type: 'precompose-name';
+			request: PrecomposeJsxNodesRequest;
+			suggestedCompositionId: string;
+			refactorTargets: PrecomposeRefactorTarget[];
 	  }
 	| {
 			type: 'generate-with-agent';

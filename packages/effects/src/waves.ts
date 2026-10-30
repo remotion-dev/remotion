@@ -10,6 +10,16 @@ import {
 	assertOptionalBoolean,
 	assertRequiredColor,
 } from './validate-effect-param.js';
+import {WAVES_WEBGPU_SHADER} from './waves-webgpu-shader.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -313,7 +323,7 @@ void main() {
 	float thickness = max(uThickness, 0.001);
 	float spacing = max(uSpacing, 0.001);
 	float cycle = spacing * uNumColors;
-	vec2 centered = vUv * uResolution - uResolution * 0.5;
+	vec2 centered = gl_FragCoord.xy - uResolution * 0.5;
 	float s = sin(uAngle);
 	float c = cos(uAngle);
 	vec2 rotated = vec2(
@@ -537,90 +547,153 @@ const updatePalette = (
 	return true;
 };
 
-export const waves = createEffect<WavesParams, WavesState>({
+export const waves = createEffect<WavesParams>({
 	type: 'dev.remotion.effects.waves',
 	label: 'waves()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/waves',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
 		return `waves-${r.colors.join('|')}-${r.direction}-${r.thickness}-${r.spacing}-${r.angle}-${r.offset}-${r.amplitude}-${r.wavelength}-${r.phase}${maskSuffix}`;
 	},
-	setup: (target) => setupWaves(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const paletteDirty = updatePalette(state, r.colors);
-		const {gl, program, sourceTexture, paletteTexture, uniforms, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<WavesParams, WebGpuColorState>(
+			{
+				setup: (target) => setupWebGpuColors(target, 'waves'),
+				apply: ({source, width, height, params, state, gpuDevice}) => {
+					if (!gpuDevice)
+						throw new Error('A WebGPU device is required for the waves effect');
+					const r = resolve(params);
+					const colors = getWebGpuColors(state, r.colors);
+					const uniformData = new Float32Array([
+						width,
+						height,
+						r.colors.length,
+						r.direction === 'horizontal' ? 0 : 1,
+						r.thickness,
+						r.spacing,
+						(r.angle * Math.PI) / 180,
+						r.offset,
+						r.maskToSourceAlpha ? 1 : 0,
+						0,
+						0,
+						0,
+						r.amplitude,
+						r.wavelength,
+						(r.phase * Math.PI) / 180,
+						0,
+					]);
+					applyWebGpuSinglePass(
+						{
+							state,
+							source,
+							width,
+							height,
+							device: gpuDevice as GPUDevice,
+							shader: WAVES_WEBGPU_SHADER,
+							uniformData,
+						},
+						{
+							sourceFilter: null,
+							auxiliaryTexture: {
+								data: colors,
+								width: r.colors.length,
+								height: 1,
+								format: 'rgba8unorm',
+							},
+						},
+					);
+				},
+				cleanup: cleanupWebGpuSinglePass,
+			},
+		),
+		webgl2: Internals.createEffectImplementation<WavesParams, WavesState>({
+			setup: (target) => setupWaves(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const paletteDirty = updatePalette(state, r.colors);
+				const {gl, program, sourceTexture, paletteTexture, uniforms, vao} =
+					state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
-		if (paletteDirty) {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				r.colors.length,
-				1,
-				0,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				state.palettePixelData,
-			);
-			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		}
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
+				if (paletteDirty) {
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+					gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						r.colors.length,
+						1,
+						0,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						state.palettePixelData,
+					);
+					gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				}
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uNumColors) gl.uniform1f(uniforms.uNumColors, r.colors.length);
-		if (uniforms.uDirection)
-			gl.uniform1i(uniforms.uDirection, r.direction === 'horizontal' ? 0 : 1);
-		if (uniforms.uThickness) gl.uniform1f(uniforms.uThickness, r.thickness);
-		if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
-		if (uniforms.uAngle)
-			gl.uniform1f(uniforms.uAngle, (r.angle * Math.PI) / 180);
-		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
-		if (uniforms.uAmplitude) gl.uniform1f(uniforms.uAmplitude, r.amplitude);
-		if (uniforms.uWavelength) gl.uniform1f(uniforms.uWavelength, r.wavelength);
-		if (uniforms.uPhase)
-			gl.uniform1f(uniforms.uPhase, (r.phase * Math.PI) / 180);
-		if (uniforms.uMaskToSourceAlpha)
-			gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uNumColors)
+					gl.uniform1f(uniforms.uNumColors, r.colors.length);
+				if (uniforms.uDirection)
+					gl.uniform1i(
+						uniforms.uDirection,
+						r.direction === 'horizontal' ? 0 : 1,
+					);
+				if (uniforms.uThickness) gl.uniform1f(uniforms.uThickness, r.thickness);
+				if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
+				if (uniforms.uAngle)
+					gl.uniform1f(uniforms.uAngle, (r.angle * Math.PI) / 180);
+				if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
+				if (uniforms.uAmplitude) gl.uniform1f(uniforms.uAmplitude, r.amplitude);
+				if (uniforms.uWavelength)
+					gl.uniform1f(uniforms.uWavelength, r.wavelength);
+				if (uniforms.uPhase)
+					gl.uniform1f(uniforms.uPhase, (r.phase * Math.PI) / 180);
+				if (uniforms.uMaskToSourceAlpha)
+					gl.uniform1i(
+						uniforms.uMaskToSourceAlpha,
+						r.maskToSourceAlpha ? 1 : 0,
+					);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
-		gl.deleteTexture(sourceTexture);
-		gl.deleteTexture(paletteTexture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
+				gl.deleteTexture(sourceTexture);
+				gl.deleteTexture(paletteTexture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: wavesSchema,
 	validateParams: validateWavesParams,

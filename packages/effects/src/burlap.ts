@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {BURLAP_WEBGPU_SHADER} from './burlap-webgpu-shader.js';
 import {
 	assertOptionalFiniteNumber,
 	parseColorRgba,
@@ -10,6 +11,15 @@ import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -193,7 +203,8 @@ void main() {
 		return;
 	}
 
-	vec2 fragPos = vUv * uResolution;
+	// Use pixel centers so weave-cell boundaries do not depend on UV interpolation.
+	vec2 fragPos = gl_FragCoord.xy;
 	float strandSize = max(uSize, 0.001);
 	vec2 weave = fragPos / strandSize;
 
@@ -363,64 +374,103 @@ const normalizedRgba = (
 	return [color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255];
 };
 
-export const burlap = createEffect<BurlapParams, BurlapState>({
+export const burlap = createEffect<BurlapParams>({
 	type: 'dev.remotion.effects.burlap',
 	label: 'burlap()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/burlap',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `burlap-${r.amount}-${r.size}-${r.roughness}-${r.seed}-${r.color}`;
 	},
-	setup: (target) => setupBurlap(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, texture} = state;
-		if (state.cachedColor !== r.color) {
-			state.cachedColor = r.color;
-			state.cachedColorRgba = parseColorRgba(state.colorCtx, r.color);
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			BurlapParams,
+			WebGpuColorState
+		>({
+			setup: (target) => setupWebGpuColors(target, 'burlap'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the burlap effect');
+				const r = resolve(params);
+				const colors = getWebGpuColors(state, [r.color]);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.amount,
+					r.size,
+					r.roughness,
+					r.seed,
+					0,
+					0,
+					colors[0] / 255,
+					colors[1] / 255,
+					colors[2] / 255,
+					colors[3] / 255,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: BURLAP_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<BurlapParams, BurlapState>({
+			setup: (target) => setupBurlap(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, texture} = state;
+				if (state.cachedColor !== r.color) {
+					state.cachedColor = r.color;
+					state.cachedColorRgba = parseColorRgba(state.colorCtx, r.color);
+				}
 
-		const [red, green, blue, alpha] = normalizedRgba(state.cachedColorRgba);
+				const [red, green, blue, alpha] = normalizedRgba(state.cachedColorRgba);
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
-		if (state.uSize) gl.uniform1f(state.uSize, r.size);
-		if (state.uRoughness) gl.uniform1f(state.uRoughness, r.roughness);
-		if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
-		if (state.uColor) gl.uniform4f(state.uColor, red, green, blue, alpha);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
+				if (state.uSize) gl.uniform1f(state.uSize, r.size);
+				if (state.uRoughness) gl.uniform1f(state.uRoughness, r.roughness);
+				if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
+				if (state.uColor) gl.uniform4f(state.uColor, red, green, blue, alpha);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: burlapSchema,
 	validateParams: validateBurlapParams,

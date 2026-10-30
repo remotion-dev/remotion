@@ -1,7 +1,14 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
 import {applyLut, cleanupLut, setupLut, type LutState} from './lut-runtime.js';
 import {parseCubeLut, type ParsedCubeLut} from './parse-cube-lut.js';
+import {LUT_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -92,25 +99,99 @@ const validateLutParams = (params: LutParams): void => {
 	getCachedLut(params.content);
 };
 
-export const lut = createEffect<LutParams, LutState>({
+export const lut = createEffect<LutParams>({
 	type: 'remotion/lut',
 	label: 'lut()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/lut',
-	backend: 'webgl2',
 	calculateKey: (params) => getCachedLut(params.content).effectKey,
-	setup: setupLut,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		applyLut({
-			state,
-			source,
-			width,
-			height,
-			content: params.content,
-			parsed: getCachedLut(params.content).parsed,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			LutParams,
+			WebGpuSinglePassState & {
+				cached: {
+					content: string;
+					data: Float32Array<ArrayBuffer>;
+					width: number;
+					height: number;
+				} | null;
+			}
+		>({
+			setup: (target) => ({
+				...setupWebGpuSinglePass(target, 'lut'),
+				cached: null,
+			}),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the LUT effect');
+				const device = gpuDevice as GPUDevice;
+				const {parsed} = getCachedLut(params.content);
+				const textureWidth = Math.min(
+					parsed.size * parsed.size,
+					device.limits.maxTextureDimension2D,
+				);
+				const textureHeight = Math.ceil(parsed.size ** 3 / textureWidth);
+				if (textureHeight > device.limits.maxTextureDimension2D)
+					throw new Error(
+						`LUT_3D_SIZE ${parsed.size} exceeds this browser's maximum LUT texture size`,
+					);
+				if (
+					state.cached?.content !== params.content ||
+					state.cached.width !== textureWidth
+				) {
+					const data = new Float32Array(textureWidth * textureHeight * 4);
+					data.set(parsed.data);
+					state.cached = {
+						content: params.content,
+						data,
+						width: textureWidth,
+						height: textureHeight,
+					};
+				}
+
+				applyWebGpuSinglePass(
+					{
+						state,
+						source,
+						width,
+						height,
+						device,
+						shader: LUT_WEBGPU_SHADER,
+						uniformData: new Float32Array([
+							...parsed.domainMin,
+							parsed.size,
+							...parsed.domainMax,
+							0,
+						]),
+					},
+					{
+						sourceFilter: null,
+						auxiliaryTexture: {
+							data: state.cached.data,
+							width: textureWidth,
+							height: textureHeight,
+							format: 'rgba32float',
+						},
+					},
+				);
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<LutParams, LutState>({
+			setup: setupLut,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				applyLut({
+					state,
+					source,
+					width,
+					height,
+					content: params.content,
+					parsed: getCachedLut(params.content).parsed,
+					flipSourceY,
+				});
+			},
+			cleanup: cleanupLut,
+		}),
 	},
-	cleanup: cleanupLut,
 	schema: lutSchema,
 	validateParams: validateLutParams,
 });

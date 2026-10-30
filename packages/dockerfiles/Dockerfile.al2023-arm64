@@ -1,5 +1,8 @@
 FROM amazonlinux:2023
 
+RUN test "$(uname -m)" = aarch64 || \
+  { echo "Amazon Linux 2023 is supported only on ARM64. Build with --platform=linux/arm64." >&2; exit 1; }
+
 WORKDIR /usr/app
 # util-linux is needed for setpriv
 RUN yum install git tar gzip unzip util-linux -y

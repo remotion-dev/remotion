@@ -6,9 +6,9 @@ const LIBC6_DEB_URL =
 const FALLBACK_URL = 'https://remotion.media/libc6_2.35-0ubuntu3.1_amd64.deb';
 
 /**
- * Remotion does not officially support glibc 2.34, but it can be patched.
+ * Remotion does not officially support glibc 2.34 on x64, but it can be patched.
  *
- * Vercel Sandbox runs Amazon Linux 2023 which ships glibc 2.34,
+ * Vercel Sandbox runs Amazon Linux 2023 on x64, which ships glibc 2.34,
  * but the compositor binary requires glibc 2.35.
  * We download Ubuntu 22.04's libc6 package and use patchelf to
  * point the compositor at the bundled glibc.

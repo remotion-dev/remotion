@@ -8,9 +8,20 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {
+	LONG_SHADOWS_EXTEND_WEBGPU_SHADER,
+	LONG_SHADOWS_COMPOSITE_WEBGPU_SHADER,
+} from './long-shadows-webgpu-shaders.js';
+import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuMultipass,
+	cleanupWebGpuMultipass,
+	setupWebGpuMultipass,
+	type WebGpuMultipassState,
+} from './webgpu-multipass-runtime.js';
+import {type WebGpuPass} from './webgpu-multipass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -201,221 +212,311 @@ const createProgram = (
 	return program;
 };
 
-export const longShadows = createEffect<LongShadowsParams, LongShadowsState>({
+export const longShadows = createEffect<LongShadowsParams>({
 	type: 'remotion/long-shadows',
 	label: 'longShadows()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/long-shadows',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const {length, angle, color, opacity} = resolve(params);
 		return `long-shadows-${length}-${angle}-${color}-${opacity}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('long shadows effect');
-		}
-
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		const extendProgram = createProgram(gl, EXTEND_SHADER);
-		const compositeProgram = createProgram(gl, COMPOSITE_SHADER);
-		const vao = gl.createVertexArray();
-		const vbo = gl.createBuffer();
-		const framebuffer = gl.createFramebuffer();
-		if (!vao || !vbo || !framebuffer) {
-			throw new Error('Failed to create long shadows buffers');
-		}
-
-		gl.bindVertexArray(vao);
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(
-			gl.ARRAY_BUFFER,
-			new Float32Array([-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1]),
-			gl.STATIC_DRAW,
-		);
-		gl.enableVertexAttribArray(0);
-		gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(1);
-		gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
-		gl.bindVertexArray(null);
-
-		const textures = [0, 1, 2].map(() => {
-			const texture = gl.createTexture();
-			if (!texture) {
-				throw new Error('Failed to create long shadows texture');
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			LongShadowsParams,
+			WebGpuMultipassState & {
+				readonly colorCtx: CanvasRenderingContext2D;
+				cachedColor: string | null;
+				cachedRgba: ReturnType<typeof parseColorRgba>;
 			}
+		>({
+			setup: (target) => {
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const colorCtx = canvas.getContext('2d', {willReadFrequently: true});
+				if (!colorCtx) throw new Error('Could not create color parser');
+				return {
+					...setupWebGpuMultipass(target, 'long-shadows'),
+					colorCtx,
+					cachedColor: null,
+					cachedRgba: [0, 0, 0, 0],
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+				if (state.cachedColor !== r.color) {
+					state.cachedColor = r.color;
+					state.cachedRgba = parseColorRgba(state.colorCtx, r.color);
+				}
 
-			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			return texture;
-		});
-		gl.bindTexture(gl.TEXTURE_2D, null);
+				const color = state.cachedRgba.map((channel) => channel / 255);
+				const distance =
+					r.opacity === 0 || color[3] === 0
+						? 0
+						: Math.min(r.length, Math.hypot(width, height));
+				const steps = Math.ceil(distance);
+				const angle = ((r.angle % 360) * Math.PI) / 180;
+				const stepLength = steps === 0 ? 0 : distance / steps;
+				const passes: WebGpuPass[] = [];
+				let covered = 0;
+				while (covered < steps) {
+					const extension = Math.min(covered + 1, steps - covered);
+					passes.push({
+						shader: LONG_SHADOWS_EXTEND_WEBGPU_SHADER,
+						uniforms: new Float32Array([
+							(Math.cos(angle) * extension * stepLength) / width,
+							(Math.sin(angle) * extension * stepLength) / height,
+							0,
+							0,
+						]),
+						source: passes.length - 1,
+						secondary: -1,
+					});
+					covered += extension;
+				}
 
-		const colorCanvas = document.createElement('canvas');
-		colorCanvas.width = 1;
-		colorCanvas.height = 1;
-		const colorCtx = colorCanvas.getContext('2d', {willReadFrequently: true});
-		if (!colorCtx) {
-			throw new Error('Failed to acquire 2D context for color parsing');
-		}
+				passes.push({
+					shader: LONG_SHADOWS_COMPOSITE_WEBGPU_SHADER,
+					uniforms: new Float32Array([
+						color[0],
+						color[1],
+						color[2],
+						r.length === 0 ? 0 : color[3] * r.opacity,
+					]),
+					source: -1,
+					secondary: passes.length - 1,
+				});
+				applyWebGpuMultipass({
+					auxiliarySource: null,
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					passes,
+				});
+			},
+			cleanup: cleanupWebGpuMultipass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			LongShadowsParams,
+			LongShadowsState
+		>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('long shadows effect');
+				}
 
-		return {
-			gl,
-			extendProgram,
-			compositeProgram,
-			vao,
-			vbo,
-			framebuffer,
-			sourceTexture: textures[0],
-			shadowTextures: [textures[1], textures[2]],
-			extendSource: gl.getUniformLocation(extendProgram, 'uSource'),
-			extendOffset: gl.getUniformLocation(extendProgram, 'uOffset'),
-			compositeSource: gl.getUniformLocation(compositeProgram, 'uSource'),
-			compositeShadow: gl.getUniformLocation(compositeProgram, 'uShadow'),
-			compositeColor: gl.getUniformLocation(compositeProgram, 'uColor'),
-			colorCtx,
-			cachedColor: '',
-			cachedRgba: [0, 0, 0, 0],
-			width: 0,
-			height: 0,
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const {length, angle, color, opacity} = resolve(params);
-		const {gl, sourceTexture, shadowTextures, framebuffer} = state;
-		if (state.cachedColor !== color) {
-			state.cachedRgba = parseColorRgba(state.colorCtx, color);
-			state.cachedColor = color;
-		}
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				const extendProgram = createProgram(gl, EXTEND_SHADER);
+				const compositeProgram = createProgram(gl, COMPOSITE_SHADER);
+				const vao = gl.createVertexArray();
+				const vbo = gl.createBuffer();
+				const framebuffer = gl.createFramebuffer();
+				if (!vao || !vbo || !framebuffer) {
+					throw new Error('Failed to create long shadows buffers');
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.bindVertexArray(vao);
+				gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+				gl.bufferData(
+					gl.ARRAY_BUFFER,
+					new Float32Array([
+						-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
+					]),
+					gl.STATIC_DRAW,
+				);
+				gl.enableVertexAttribArray(0);
+				gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
+				gl.enableVertexAttribArray(1);
+				gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
+				gl.bindVertexArray(null);
 
-		if (state.width !== width || state.height !== height) {
-			for (const texture of shadowTextures) {
-				gl.bindTexture(gl.TEXTURE_2D, texture);
+				const textures = [0, 1, 2].map(() => {
+					const texture = gl.createTexture();
+					if (!texture) {
+						throw new Error('Failed to create long shadows texture');
+					}
+
+					gl.bindTexture(gl.TEXTURE_2D, texture);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					return texture;
+				});
+				gl.bindTexture(gl.TEXTURE_2D, null);
+
+				const colorCanvas = document.createElement('canvas');
+				colorCanvas.width = 1;
+				colorCanvas.height = 1;
+				const colorCtx = colorCanvas.getContext('2d', {
+					willReadFrequently: true,
+				});
+				if (!colorCtx) {
+					throw new Error('Failed to acquire 2D context for color parsing');
+				}
+
+				return {
+					gl,
+					extendProgram,
+					compositeProgram,
+					vao,
+					vbo,
+					framebuffer,
+					sourceTexture: textures[0],
+					shadowTextures: [textures[1], textures[2]],
+					extendSource: gl.getUniformLocation(extendProgram, 'uSource'),
+					extendOffset: gl.getUniformLocation(extendProgram, 'uOffset'),
+					compositeSource: gl.getUniformLocation(compositeProgram, 'uSource'),
+					compositeShadow: gl.getUniformLocation(compositeProgram, 'uShadow'),
+					compositeColor: gl.getUniformLocation(compositeProgram, 'uColor'),
+					colorCtx,
+					cachedColor: '',
+					cachedRgba: [0, 0, 0, 0],
+					width: 0,
+					height: 0,
+				};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const {length, angle, color, opacity} = resolve(params);
+				const {gl, sourceTexture, shadowTextures, framebuffer} = state;
+				if (state.cachedColor !== color) {
+					state.cachedRgba = parseColorRgba(state.colorCtx, color);
+					state.cachedColor = color;
+				}
+
+				gl.viewport(0, 0, width, height);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
 					gl.RGBA,
-					width,
-					height,
-					0,
 					gl.RGBA,
 					gl.UNSIGNED_BYTE,
-					null,
+					source as TexImageSource,
 				);
-			}
 
-			state.width = width;
-			state.height = height;
-		}
+				if (state.width !== width || state.height !== height) {
+					for (const texture of shadowTextures) {
+						gl.bindTexture(gl.TEXTURE_2D, texture);
+						gl.texImage2D(
+							gl.TEXTURE_2D,
+							0,
+							gl.RGBA,
+							width,
+							height,
+							0,
+							gl.RGBA,
+							gl.UNSIGNED_BYTE,
+							null,
+						);
+					}
 
-		gl.bindVertexArray(state.vao);
-		gl.useProgram(state.extendProgram);
-		gl.uniform1i(state.extendSource, 0);
+					state.width = width;
+					state.height = height;
+				}
 
-		// No in-canvas source can cast farther than the canvas diagonal.
-		const distance =
-			opacity === 0 || state.cachedRgba[3] === 0
-				? 0
-				: Math.min(length, Math.hypot(width, height));
-		const steps = Math.ceil(distance);
-		const radians = ((angle % 360) * Math.PI) / 180;
-		const stepLength = steps === 0 ? 0 : distance / steps;
-		let shadow = sourceTexture;
-		let covered = 0;
-		let pass = 0;
+				gl.bindVertexArray(state.vao);
+				gl.useProgram(state.extendProgram);
+				gl.uniform1i(state.extendSource, 0);
 
-		// Each pass extends the existing interval by up to its own size.
-		// This covers every step with logarithmic passes, even for long shadows.
-		while (covered < steps) {
-			const extension = Math.min(covered + 1, steps - covered);
-			const output = shadowTextures[pass % 2];
-			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-			gl.framebufferTexture2D(
-				gl.FRAMEBUFFER,
-				gl.COLOR_ATTACHMENT0,
-				gl.TEXTURE_2D,
-				output,
-				0,
-			);
-			if (
-				gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE
-			) {
-				throw new Error('Long shadows framebuffer incomplete');
-			}
+				// No in-canvas source can cast farther than the canvas diagonal.
+				const distance =
+					opacity === 0 || state.cachedRgba[3] === 0
+						? 0
+						: Math.min(length, Math.hypot(width, height));
+				const steps = Math.ceil(distance);
+				const radians = ((angle % 360) * Math.PI) / 180;
+				const stepLength = steps === 0 ? 0 : distance / steps;
+				let shadow = sourceTexture;
+				let covered = 0;
+				let pass = 0;
 
-			gl.bindTexture(gl.TEXTURE_2D, shadow);
-			gl.uniform2f(
-				state.extendOffset,
-				(Math.cos(radians) * extension * stepLength) / width,
-				(-Math.sin(radians) * extension * stepLength) / height,
-			);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			shadow = output;
-			covered += extension;
-			pass++;
-		}
+				// Each pass extends the existing interval by up to its own size.
+				// This covers every step with logarithmic passes, even for long shadows.
+				while (covered < steps) {
+					const extension = Math.min(covered + 1, steps - covered);
+					const output = shadowTextures[pass % 2];
+					gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+					gl.framebufferTexture2D(
+						gl.FRAMEBUFFER,
+						gl.COLOR_ATTACHMENT0,
+						gl.TEXTURE_2D,
+						output,
+						0,
+					);
+					if (
+						gl.checkFramebufferStatus(gl.FRAMEBUFFER) !==
+						gl.FRAMEBUFFER_COMPLETE
+					) {
+						throw new Error('Long shadows framebuffer incomplete');
+					}
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.useProgram(state.compositeProgram);
-		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, shadow);
-		gl.uniform1i(state.compositeSource, 0);
-		gl.uniform1i(state.compositeShadow, 1);
-		const [r, g, b, a] = state.cachedRgba;
-		gl.uniform4f(
-			state.compositeColor,
-			r / 255,
-			g / 255,
-			b / 255,
-			length === 0 ? 0 : (a / 255) * opacity,
-		);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({
-		gl,
-		extendProgram,
-		compositeProgram,
-		vao,
-		vbo,
-		framebuffer,
-		sourceTexture,
-		shadowTextures,
-	}) => {
-		gl.deleteProgram(extendProgram);
-		gl.deleteProgram(compositeProgram);
-		gl.deleteVertexArray(vao);
-		gl.deleteBuffer(vbo);
-		gl.deleteFramebuffer(framebuffer);
-		gl.deleteTexture(sourceTexture);
-		for (const texture of shadowTextures) {
-			gl.deleteTexture(texture);
-		}
+					gl.bindTexture(gl.TEXTURE_2D, shadow);
+					gl.uniform2f(
+						state.extendOffset,
+						(Math.cos(radians) * extension * stepLength) / width,
+						(-Math.sin(radians) * extension * stepLength) / height,
+					);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					shadow = output;
+					covered += extension;
+					pass++;
+				}
+
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.useProgram(state.compositeProgram);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, shadow);
+				gl.uniform1i(state.compositeSource, 0);
+				gl.uniform1i(state.compositeShadow, 1);
+				const [r, g, b, a] = state.cachedRgba;
+				gl.uniform4f(
+					state.compositeColor,
+					r / 255,
+					g / 255,
+					b / 255,
+					length === 0 ? 0 : (a / 255) * opacity,
+				);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({
+				gl,
+				extendProgram,
+				compositeProgram,
+				vao,
+				vbo,
+				framebuffer,
+				sourceTexture,
+				shadowTextures,
+			}) => {
+				gl.deleteProgram(extendProgram);
+				gl.deleteProgram(compositeProgram);
+				gl.deleteVertexArray(vao);
+				gl.deleteBuffer(vbo);
+				gl.deleteFramebuffer(framebuffer);
+				gl.deleteTexture(sourceTexture);
+				for (const texture of shadowTextures) {
+					gl.deleteTexture(texture);
+				}
+			},
+		}),
 	},
 	schema: longShadowsSchema,
 	validateParams: validateLongShadowsParams,

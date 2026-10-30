@@ -4,6 +4,7 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {FILM_BURN_WEBGPU_SHADER} from './film-burn-webgpu-shader.js';
 import {
 	cleanupSinglePass,
 	drawSinglePass,
@@ -15,6 +16,12 @@ import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect} = Internals;
 
@@ -192,40 +199,81 @@ void main() {
 }
 `;
 
-export const filmBurn = createEffect<FilmBurnParams, SinglePassState>({
+export const filmBurn = createEffect<FilmBurnParams>({
 	type: 'remotion/film-burn',
 	label: 'filmBurn()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/film-burn',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `film-burn-${r.progress}-${r.center.join(':')}-${r.seed}`;
 	},
-	setup: (target) =>
-		setupSinglePass(target, FRAGMENT_SHADER, 'film burn', [
-			'uResolution',
-			'uProgress',
-			'uCenter',
-			'uSeed',
-		]),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, uniforms} = state;
-		prepareSinglePassSource({
-			state,
-			source: source as TexImageSource,
-			width,
-			height,
-			flipSourceY,
-		});
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uProgress) gl.uniform1f(uniforms.uProgress, r.progress);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
-		if (uniforms.uSeed) gl.uniform1ui(uniforms.uSeed, r.seed);
-		drawSinglePass(state);
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			FilmBurnParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'film-burn'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the film-burn effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.progress,
+					0,
+					r.center[0],
+					r.center[1],
+					0,
+					0,
+				]);
+				new Uint32Array(uniformData.buffer)[3] = r.seed;
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: FILM_BURN_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			FilmBurnParams,
+			SinglePassState
+		>({
+			setup: (target) =>
+				setupSinglePass(target, FRAGMENT_SHADER, 'film burn', [
+					'uResolution',
+					'uProgress',
+					'uCenter',
+					'uSeed',
+				]),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, uniforms} = state;
+				prepareSinglePassSource({
+					state,
+					source: source as TexImageSource,
+					width,
+					height,
+					flipSourceY,
+				});
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uProgress) gl.uniform1f(uniforms.uProgress, r.progress);
+				if (uniforms.uCenter)
+					gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+				if (uniforms.uSeed) gl.uniform1ui(uniforms.uSeed, r.seed);
+				drawSinglePass(state);
+			},
+			cleanup: cleanupSinglePass,
+		}),
 	},
-	cleanup: cleanupSinglePass,
 	schema: filmBurnSchema,
 	validateParams: validateFilmBurnParams,
 });
