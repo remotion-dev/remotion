@@ -330,6 +330,67 @@ class PHPClient
         return $this->handleLambdaResponseProgress($result);
     }
 
+    public function makeGetCompositionsPayload(
+        $inputProps,
+        string $logLevel = "info",
+        ?string $forceBucketName = null,
+        int $timeoutInMilliseconds = 30000,
+        $envVariables = null,
+        $chromiumOptions = null,
+        ?int $offthreadVideoCacheSizeInBytes = null,
+        ?int $mediaCacheSizeInBytes = null,
+        ?string $preferredEffectBackend = null
+    ) {
+        $serializedInputProps = $this->serializeInputProps($inputProps, $this->region, "video-or-audio", $forceBucketName);
+
+        return json_encode([
+            'type' => 'compositions',
+            'version' => Semantic::VERSION,
+            'chromiumOptions' => $chromiumOptions ?? new stdClass(),
+            'logLevel' => $logLevel,
+            'inputProps' => $serializedInputProps,
+            'envVariables' => $envVariables ?? new stdClass(),
+            'timeoutInMilliseconds' => $timeoutInMilliseconds,
+            'serveUrl' => $this->serveUrl,
+            'bucketName' => $forceBucketName,
+            'offthreadVideoCacheSizeInBytes' => $offthreadVideoCacheSizeInBytes,
+            'mediaCacheSizeInBytes' => $mediaCacheSizeInBytes,
+            'preferredEffectBackend' => $preferredEffectBackend ?? 'auto',
+            'forcePathStyle' => $this->forcePathStyle,
+        ]);
+    }
+
+    /**
+     * Get the compositions defined in a Remotion project.
+     *
+     * @return array the compositions inside the deployed project
+     */
+    public function getCompositionsOnLambda(
+        $inputProps = null,
+        string $logLevel = "info",
+        ?string $forceBucketName = null,
+        int $timeoutInMilliseconds = 30000,
+        $envVariables = null,
+        $chromiumOptions = null,
+        ?int $offthreadVideoCacheSizeInBytes = null,
+        ?int $mediaCacheSizeInBytes = null,
+        ?string $preferredEffectBackend = null
+    ): array {
+        $payload = $this->makeGetCompositionsPayload(
+            $inputProps,
+            $logLevel,
+            $forceBucketName,
+            $timeoutInMilliseconds,
+            $envVariables,
+            $chromiumOptions,
+            $offthreadVideoCacheSizeInBytes,
+            $mediaCacheSizeInBytes,
+            $preferredEffectBackend
+        );
+        $result = $this->invokeLambdaFunction($payload);
+        return $this->handleLambdaResponseCompositions($result);
+    }
+
     public function cancelRenderOnLambda(string $renderId, string $bucketName): void
     {
         try {
@@ -476,6 +537,21 @@ class PHPClient
         $classResponse->type = $response['type'];
 
         return $classResponse;
+    }
+
+    private function handleLambdaResponseCompositions(string $response): array
+    {
+        $response = json_decode($response, true);
+
+        if (isset($response['errorMessage'])) {
+            throw new Exception($response['errorMessage']);
+        }
+
+        if (($response['type'] ?? null) === 'error') {
+            throw new Exception($response['message']);
+        }
+
+        return $response['compositions'];
     }
 
     /**
