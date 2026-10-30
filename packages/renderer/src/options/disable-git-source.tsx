@@ -2,7 +2,7 @@ import type {AnyRemotionOption} from './option';
 
 const DEFAULT = false;
 
-const cliFlag = 'disable-git-source';
+const cliFlag = 'disable-git-source' as const;
 
 export const disableGitSourceOption = {
 	cliFlag,
