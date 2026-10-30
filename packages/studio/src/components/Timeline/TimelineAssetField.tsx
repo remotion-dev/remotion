@@ -179,12 +179,16 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	const {getSourceAction, sourceAction} = useContext(AssetSelectionContext);
 	const {assetType} = field.fieldSchema;
 	const initialQuery = assetType ? `type:${assetType} ` : '';
-	const imageLinkInfo =
-		assetType === 'image' && typeof effectiveValue === 'string'
-			? getTimelineAssetLinkInfo(effectiveValue)
-			: null;
+	const assetLinkInfo = useMemo(
+		() =>
+			typeof effectiveValue === 'string'
+				? getTimelineAssetLinkInfo(effectiveValue)
+				: null,
+		[effectiveValue],
+	);
+	const imageLinkInfo = assetType === 'image' ? assetLinkInfo : null;
 	const localAssetPath =
-		imageLinkInfo?.kind === 'local' ? imageLinkInfo.assetPath : null;
+		assetLinkInfo?.kind === 'local' ? assetLinkInfo.assetPath : null;
 	const {getContextMenuItems: getLocalAssetContextMenuItems} =
 		useAssetContextMenuItems({
 			relativePath: localAssetPath,
@@ -281,14 +285,11 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		};
 
 		if (assetType !== undefined) {
-			const linkInfo =
-				typeof effectiveValue === 'string'
-					? getTimelineAssetLinkInfo(effectiveValue)
-					: null;
 			setSelectedModal({
 				type: 'asset-selection',
 				assetType,
-				initialUrl: linkInfo?.kind === 'remote' ? linkInfo.href : null,
+				initialUrl:
+					assetLinkInfo?.kind === 'remote' ? assetLinkInfo.href : null,
 				invocationTimestamp: Date.now(),
 				assetSelection,
 				onSelectedUrl: onSelectUrl,
@@ -304,8 +305,8 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 			compositionSelection: null,
 		});
 	}, [
+		assetLinkInfo,
 		assetType,
-		effectiveValue,
 		initialQuery,
 		onSelect,
 		onSelectUrl,
@@ -414,23 +415,26 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		return action;
 	}
 
+	const sourceButton = (
+		<InspectorQuickAction
+			{...inlineSourceAction}
+			size="compact"
+			style={standaloneSourceActionStyle}
+		/>
+	);
+
 	return (
 		<div style={sourceActions}>
-			<InspectorQuickAction
-				{...inlineSourceAction}
-				disabled={
-					assetType === undefined
-						? inlineSourceAction.disabled
-						: window.remotion_isReadOnlyStudio
-				}
-				onClick={
-					assetType === undefined
-						? inlineSourceAction.onClick
-						: openAssetSelection
-				}
-				size="compact"
-				style={standaloneSourceActionStyle}
-			/>
+			{localAssetPath === null ? (
+				sourceButton
+			) : (
+				<ContextMenu
+					getItems={getLocalAssetContextMenuItems}
+					style={imageAssetPreviewContainer}
+				>
+					{sourceButton}
+				</ContextMenu>
+			)}
 			{action}
 		</div>
 	);

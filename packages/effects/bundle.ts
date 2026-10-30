@@ -24,6 +24,7 @@ const effectEntrypoints = [
 	'src/emboss.ts',
 	'src/evolve.ts',
 	'src/exposure.ts',
+	'src/film-burn.ts',
 	'src/fisheye.ts',
 	'src/flannel.ts',
 	'src/fractal-noise.ts',
@@ -39,6 +40,7 @@ const effectEntrypoints = [
 	'src/pixel-dissolve.ts',
 	'src/pixelate.ts',
 	'src/invert.ts',
+	'src/iris-wipe.ts',
 	'src/lines.ts',
 	'src/liquid-contours.ts',
 	'src/linear-gradient.ts',
@@ -61,6 +63,8 @@ const effectEntrypoints = [
 	'src/pattern.ts',
 	'src/radial-progressive-blur.ts',
 	'src/radial-progressive-pixelate.ts',
+	'src/radial-wipe.ts',
+	'src/rain-fall.ts',
 	'src/region-blur.ts',
 	'src/rings.ts',
 	'src/saturation.ts',
@@ -72,6 +76,7 @@ const effectEntrypoints = [
 	'src/shrinkwrap.ts',
 	'src/skew.ts',
 	'src/speckle.ts',
+	'src/snow-fall.ts',
 	'src/sphere.ts',
 	'src/starburst.ts',
 	'src/tear.ts',
@@ -95,7 +100,10 @@ const effectEntrypoints = [
 console.time('Generated.');
 const output = await build({
 	entrypoints: effectEntrypoints,
-	naming: '[name].mjs',
+	naming: {entry: '[name].mjs', chunk: '[name]-[hash].mjs'},
+	// Share runtime caches when effects are imported through separate entrypoints.
+	splitting: true,
+	modulePreload: false,
 	external: [
 		'remotion',
 		'remotion/no-react',

@@ -37,6 +37,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	browserExecutableOption,
 	userAgentOption,
@@ -149,6 +150,9 @@ export const stillCommand = async ({
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -213,6 +217,7 @@ export const stillCommand = async ({
 			}),
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: mediaCacheSizeInBytes,
+			preferredEffectBackend: preferredEffectBackend,
 		});
 		composition = compositionId;
 	}
@@ -325,6 +330,7 @@ export const stillCommand = async ({
 		offthreadVideoThreads: null,
 		requestHandler: null,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		isProduction:
 			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
 			true,

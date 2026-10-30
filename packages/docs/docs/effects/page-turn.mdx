@@ -86,11 +86,18 @@ CSS color used for the back of the page. Defaults to `'#ffffff'`. A transparent 
 
 When `true`, skips the effect. Defaults to `false`.
 
-## Requirements
+## Limitations
 
-`pageTurn()` requires WebGPU. See [Using WebGL and WebGPU during renders](/docs/webgl) for rendering configuration. HTML content inside [`<HtmlInCanvas>`](/docs/html-in-canvas) also requires HTML-in-canvas support.
+HTML content inside [`<HtmlInCanvas>`](/docs/html-in-canvas) requires HTML-in-canvas support.
 
 The curl stays within the canvas bounds. Leave space around the page if you need the curled edge to extend beyond the original page rectangle. The back reuses the source image; a separate back image is not supported.
+
+## Implementations
+
+- WebGPU
+- WebGL2 <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

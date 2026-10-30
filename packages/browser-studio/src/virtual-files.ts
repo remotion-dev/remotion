@@ -9,6 +9,8 @@ export const browserStudioVirtualFilePaths = {
 	reactRefreshEntry: '/__remotion_browser_studio__/react-refresh-entry.js',
 	reactRefreshRuntime: '/__remotion_browser_studio__/reactRefresh.js',
 	reactRefreshUtils: '/__remotion_browser_studio__/refreshUtils.js',
+	reactRefreshWithNotifications:
+		'/__remotion_browser_studio__/react-refresh-with-notifications.js',
 	setupEnvironment: '/__remotion_browser_studio__/setup-environment.ts',
 	setupSequenceStackTraces:
 		'/__remotion_browser_studio__/setup-sequence-stack-traces.ts',
@@ -30,24 +32,20 @@ const getInjectedSetupEnvironment = () => {
 	return __BROWSER_STUDIO_SETUP_ENVIRONMENT__;
 };
 
-const notifyOnRefresh = `const RemotionRefreshRuntime = require('react-refresh/runtime');
-RemotionRefreshRuntime.__remotionReactRefreshWrapped ??= null;
+const notifyOnRefresh = `import {performReactRefresh as originalPerformReactRefresh} from 'react-refresh/runtime';
+export * from 'react-refresh/runtime';
 
-if (RemotionRefreshRuntime.__remotionReactRefreshWrapped === null) {
-  const originalPerformReactRefresh = RemotionRefreshRuntime.performReactRefresh;
-  RemotionRefreshRuntime.__remotionReactRefreshWrapped = true;
-  RemotionRefreshRuntime.performReactRefresh = () => {
-    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
-    const result = originalPerformReactRefresh();
-    if (result !== null) {
-      window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));
-    }
+export const performReactRefresh = () => {
+  window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_STARTED_EVENT)}));
+  const result = originalPerformReactRefresh();
+  if (result !== null) {
+    window.dispatchEvent(new Event(${JSON.stringify(REACT_REFRESH_FINISHED_EVENT)}));
+  }
 
-    return result;
-  };
-}
+  return result;
+};
 
-window.remotion_performReactRefresh = () => RemotionRefreshRuntime.performReactRefresh();
+window.remotion_performReactRefresh = performReactRefresh;
 `;
 
 const setupSequenceStackTraces = `import React from 'react';
@@ -142,7 +140,17 @@ export const getBrowserStudioVirtualFiles = (): Record<string, string> => {
 	return {
 		...reactRefreshFiles,
 		[browserStudioVirtualFilePaths.browserRequireShim]: browserRequireShim,
-		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles[browserStudioVirtualFilePaths.reactRefreshEntry]}\n${notifyOnRefresh}`,
+		[browserStudioVirtualFilePaths.reactRefreshEntry]: `${reactRefreshFiles[browserStudioVirtualFilePaths.reactRefreshEntry]}\nimport '${browserStudioVirtualFilePaths.reactRefreshWithNotifications}';`,
+		// ESM namespace exports are read-only. Wrap both automatic and manual
+		// refreshes instead of replacing performReactRefresh on the runtime.
+		[browserStudioVirtualFilePaths.reactRefreshUtils]: reactRefreshFiles[
+			browserStudioVirtualFilePaths.reactRefreshUtils
+		].replaceAll(
+			"'react-refresh/runtime'",
+			`'${browserStudioVirtualFilePaths.reactRefreshWithNotifications}'`,
+		),
+		[browserStudioVirtualFilePaths.reactRefreshWithNotifications]:
+			notifyOnRefresh,
 		[browserStudioVirtualFilePaths.setupEnvironment]:
 			getInjectedSetupEnvironment(),
 		[browserStudioVirtualFilePaths.setupSequenceStackTraces]:

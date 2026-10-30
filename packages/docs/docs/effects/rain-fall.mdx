@@ -1,0 +1,151 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-rain-fall.png
+slug: /effects/rain-fall
+title: rainFall()
+sidebar_label: rainFall()
+crumb: '@remotion/effects'
+---
+
+# rainFall()<AvailableFrom v="4.0.540" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds falling rain to a canvas-based component, with wind, depth, and refracting or solid drops. Animate `time` to move the rain.
+
+## Preview
+
+<EffectsDemo type="effects-rain-fall" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {rainFall} from '@remotion/effects/rain-fall';
+import {Video} from '@remotion/media';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        rainFall({
+          time: frame / fps,
+          drops: 100000,
+          size: 2,
+          wind: 200,
+          opacity: 0.5,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `rainFall()` without arguments.
+
+### `time?`
+
+Elapsed time in seconds. Must be non-negative. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) divided by the frame rate from [`useVideoConfig()`](/docs/use-video-config). The effect does not advance automatically.
+
+The same parameters and `time` produce the same result when seeking or rendering frames out of order.
+
+### `drops?`
+
+Number of raindrops. Must be an integer from `0` to `100000`. Defaults to `100000`.
+
+### `size?`
+
+Size of the drops, affecting both their width and length. Must be between `0` and `50`. Defaults to `1`.
+
+### `sceneDepth?`
+
+Depth of the rain field, from `0` to `20000`. Defaults to `5000`.
+
+Higher values make distant drops smaller, slower, and more transparent. At `0`, all drops have the same depth.
+
+### `speed?`
+
+Downward speed of the rain, from `0` to `20000`. Defaults to `4000`.
+
+Higher values also lengthen the rain streaks. Use `0` to stop downward movement.
+
+### `wind?`
+
+Horizontal wind strength, from `-10000` to `10000`. Positive values blow right and negative values blow left. Defaults to `0`.
+
+Wind affects both the direction of movement and the angle of the streaks.
+
+### `windVariation?`
+
+Random variation in wind strength between drops, from `0` to `1`. Defaults to `0`.
+
+### `spread?`
+
+Additional random horizontal motion, from `0` to `1000`. Defaults to `0`.
+
+Unlike `windVariation`, this also spreads drops when `wind` is `0`.
+
+### `color?`
+
+CSS color of the drops. Defaults to `"#cccccc"`.
+
+The color's alpha is multiplied by `opacity`. With `appearance: "refracting"`, the drops also sample the source behind them.
+
+### `opacity?`
+
+Opacity of the rain, from `0` to `1`. Defaults to `0.25`.
+
+### `transferMode?`
+
+How the rain blends with the source. One of `"composite"` or `"lighten"`. Defaults to `"lighten"`.
+
+`"composite"` places the rain over the source. `"lighten"` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
+
+### `compositeWithOriginal?`
+
+Whether to include the source behind the rain. Defaults to `true`.
+
+Set to `false` to output only the rain on a transparent background.
+
+### `appearance?`
+
+Appearance of the drops. One of `"refracting"` or `"soft-solid"`. Defaults to `"refracting"`.
+
+`"refracting"` uses a brightened, offset sample of the source to color each drop. `"soft-solid"` uses the chosen `color`.
+
+### `offset?`
+
+Position of the rain pattern as a normalized `[x, y]` tuple. Defaults to `[0.5, 0.5]`, which leaves the pattern centered.
+
+Increasing `x` shifts the pattern right; increasing `y` shifts it down. A change of `1` moves it by the source width or height. Values outside `[0, 1]` are allowed, and drops wrap around the edges.
+
+### `seed?`
+
+Random seed for the drops' positions and motion. Must be an integer from `0` to `4294967295`. Defaults to `0`.
+
+Keep the seed fixed while animating `time` so the drops follow continuous paths.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU<AvailableFrom v="4.0.540" inline />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`snowFall()`](/docs/effects/snow-fall)
+- [`shatter()`](/docs/effects/shatter)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/rain-fall.ts)

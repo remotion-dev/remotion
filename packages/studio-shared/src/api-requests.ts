@@ -12,6 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {PreferredEffectBackend} from 'remotion';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -273,6 +274,7 @@ export type AddRenderRequest = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
@@ -1029,6 +1031,7 @@ export type PrecomposeJsxNodesRequest = {
 		fps: number;
 		durationInFrames: number;
 	};
+	name: {compositionId: string; componentName: string} | null;
 	dryRun: boolean;
 };
 
@@ -1037,6 +1040,7 @@ export type PrecomposeJsxNodesResponse =
 			success: true;
 			canPrecompose: boolean;
 			reason: string | null;
+			invalidName: boolean;
 			nodePathMutation: SequenceNodePathMutation | null;
 			newCompositionId: string | null;
 	  }

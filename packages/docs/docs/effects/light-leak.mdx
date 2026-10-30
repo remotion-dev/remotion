@@ -10,7 +10,7 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Applies a WebGL2-based light leak overlay to canvas-based components such as [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
+Applies a light leak overlay to canvas-based components such as [`<Video>`](/docs/media/video), [`<CanvasImage>`](/docs/canvasimage) and [`<Solid>`](/docs/solid).
 
 The light leak reveals during the first half of its progress and retracts during the second half.
 
@@ -70,9 +70,12 @@ Effects do not animate on their own. Drive `progress` with [`useCurrentFrame()`]
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`lightLeak()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGL2
+- WebGPU<AvailableFrom v="4.0.540" inline />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

@@ -62,9 +62,16 @@ import {
 } from './EditorProps.js';
 import {captureEffectPreviewSnapshot} from './effects/capture-effect-preview-snapshot.js';
 import {createCurveSampler} from './effects/create-curve-sampler.js';
-import {createEffect} from './effects/create-effect.js';
+import {
+	createEffect,
+	createEffectImplementation,
+} from './effects/create-effect.js';
 import {EffectPreviewContext} from './effects/effect-preview.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
+import {
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
+} from './effects/preferred-effect-backend.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -552,9 +559,12 @@ export const Internals = {
 	useMemoizedEffects,
 	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
 	createEffect,
 	EffectPreviewContext,
 	captureEffectPreviewSnapshot,
+	createEffectImplementation,
 	createCurveSampler,
 	createWebGLContextError,
 	createWebGL2ContextError,

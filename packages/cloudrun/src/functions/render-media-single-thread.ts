@@ -198,6 +198,7 @@ export const renderMediaSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
+			preferredEffectBackend: body.preferredEffectBackend,
 			offthreadVideoThreads: body.offthreadVideoThreads,
 			colorSpace: body.colorSpace,
 			repro: false,

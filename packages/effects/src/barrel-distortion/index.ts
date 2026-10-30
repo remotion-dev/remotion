@@ -6,11 +6,18 @@ import {
 } from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
 import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
+import {
 	applyBarrelDistortion,
 	cleanupBarrelDistortion,
 	setupBarrelDistortion,
 	type BarrelDistortionState,
 } from './barrel-distortion-runtime.js';
+import {BARREL_DISTORTION_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -51,31 +58,58 @@ const validateBarrelDistortionParams = (
 	validateUnitInterval(resolved.amount, 'amount');
 };
 
-export const barrelDistortion = createEffect<
-	BarrelDistortionParams,
-	BarrelDistortionState
->({
+export const barrelDistortion = createEffect<BarrelDistortionParams>({
 	type: 'dev.remotion.effects.barrelDistortion',
 	label: 'barrelDistortion()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/barrel-distortion',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `barrel-distortion-${r.amount}`;
 	},
-	setup: (target) => setupBarrelDistortion(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		applyBarrelDistortion({
-			state,
-			source,
-			width,
-			height,
-			amount: r.amount,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			BarrelDistortionParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'barrel-distortion'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the barrel-distortion effect',
+					);
+				}
+
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: BARREL_DISTORTION_WEBGPU_SHADER,
+					uniformData: new Float32Array([resolve(params).amount, 0, 0, 0]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			BarrelDistortionParams,
+			BarrelDistortionState
+		>({
+			setup: (target) => setupBarrelDistortion(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				applyBarrelDistortion({
+					state,
+					source,
+					width,
+					height,
+					amount: r.amount,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupBarrelDistortion(state),
+		}),
 	},
-	cleanup: (state) => cleanupBarrelDistortion(state),
 	schema: barrelDistortionSchema,
 	validateParams: validateBarrelDistortionParams,
 });

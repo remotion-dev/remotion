@@ -1,0 +1,12 @@
+diff --git a/configure b/configure
+index d77a55b653..0a615c665d 100755
+--- a/configure
++++ b/configure
+@@ -1878,3 +1878,2 @@ EXTERNAL_LIBRARY_NONFREE_LIST="
+     decklink
+-    libfdk_aac
+     libtls
+@@ -1917,2 +1916,3 @@ EXTERNAL_LIBRARY_LIST="
+     libdav1d
++    libfdk_aac
+     libdc1394

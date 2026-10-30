@@ -31,7 +31,7 @@
 		"@remotion/codemods": "workspace:*",
 		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
-		"@rspack/browser": "2.1.1",
+		"@rspack/browser": "2.3.0",
 		"fflate": "0.8.3",
 		"prettier": "catalog:",
 		"react-refresh": "0.18.0",
@@ -53,7 +53,7 @@
 	"devDependencies": {
 		"@huggingface/transformers": "catalog:",
 		"@playwright/test": "1.60.0",
-		"@rspack/core": "1.7.11",
+		"@rspack/core": "2.3.0",
 		"@remotion/studio": "workspace:*",
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@types/react": "catalog:",

@@ -52,16 +52,15 @@ Review the [logic of `MAX_DURATION_ALLOWING_CAPTIONING_IN_SEC`](https://github.c
 
 ## Alternatives
 
-### `@remotion/whisper-web`
+### `@remotion/whisper-webgpu`
 
-You can replace the OpenAI Whisper API with [`@remotion/whisper-web`](/docs/whisper-web) for local, in-browser transcription.  
+You can replace the OpenAI Whisper API with [`@remotion/whisper-webgpu`](/docs/whisper-webgpu) for local, in-browser transcription.  
 This eliminates the need for an OpenAI key and S3 fetches for transcription, but you'll still need to handle audio loading locally.
 
 Caveats:
 
-- Performance: Transcription runs on the CPU in the browser, which can be significantly slower than GPU-accelerated options like OpenAI's cloud service.
-- Model size: Smaller models (e.g., 'tiny') are faster but less accurate; larger ones require more memory and space.
-- You need to [enable cross-origin isolation](/docs/whisper-web/can-use-whisper-web#important-considerations) for your app.
+- The user's browser needs to support WebGPU. Use [`canUseWhisperWebGpu()`](/docs/whisper-webgpu/can-use-whisper-webgpu) to check.
+- Model size: The model needs to be downloaded in the browser before transcribing. Smaller models (e.g., `tiny`) are faster but less accurate; larger ones require more memory and space.
 
 ### `@remotion/install-whisper-cpp`
 
@@ -79,5 +78,5 @@ We recommend that you convert the captions to the [`Caption`](/docs/captions/cap
 ## See also
 
 - [`@remotion/captions`](/docs/captions/api)
-- [`@remotion/whisper-web`](/docs/whisper-web)
+- [`@remotion/whisper-webgpu`](/docs/whisper-webgpu)
 - [`@remotion/install-whisper-cpp`](/docs/install-whisper-cpp)

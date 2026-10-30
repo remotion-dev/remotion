@@ -5,7 +5,14 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from './color-utils.js';
+import {ROUGHEN_EDGES_WEBGPU_SHADER} from './roughen-edges-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -365,7 +372,7 @@ const nextNoiseState = (state: number): number => {
 	return next >>> 0;
 };
 
-const createNoiseData = (seed: number): Uint8Array => {
+const createNoiseData = (seed: number): Uint8Array<ArrayBuffer> => {
 	const data = new Uint8Array(NOISE_TEXTURE_SIZE * NOISE_TEXTURE_SIZE * 4);
 	let state = initialNoiseState(seed);
 	for (let i = 0; i < data.length; i += 4) {
@@ -486,74 +493,134 @@ const setupRoughenEdges = (target: HTMLCanvasElement): RoughenEdgesState => {
 	};
 };
 
-export const roughenEdges = createEffect<RoughenEdgesParams, RoughenEdgesState>(
-	{
-		type: 'dev.remotion.effects.roughen-edges',
-		label: 'roughenEdges()',
-		documentationLink: 'https://www.remotion.dev/docs/effects/roughen-edges',
-		backend: 'webgl2',
-		calculateKey: (params) => {
-			const r = resolve(params);
-			return `roughen-edges-${r.amount}-${r.border}-${r.scale}-${r.seed}`;
-		},
-		setup: (target) => setupRoughenEdges(target),
-		apply: ({source, width, height, params, state, flipSourceY}) => {
-			const r = resolve(params);
-			const {gl, program, vao, sourceTexture, noiseTexture, uniforms} = state;
-
-			gl.viewport(0, 0, width, height);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.clearColor(0, 0, 0, 0);
-			gl.clear(gl.COLOR_BUFFER_BIT);
-
-			gl.useProgram(program);
-			gl.bindVertexArray(vao);
-
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				source as TexImageSource,
-			);
-
-			gl.activeTexture(gl.TEXTURE1);
-			gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-			if (state.cachedNoiseSeed !== r.seed) {
-				uploadNoiseTexture(gl, noiseTexture, r.seed);
-				state.cachedNoiseSeed = r.seed;
-			}
-
-			if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-			if (uniforms.uResolution)
-				gl.uniform2f(uniforms.uResolution, width, height);
-			if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
-			if (uniforms.uBorder) gl.uniform1f(uniforms.uBorder, r.border);
-			if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
-			if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
-			if (uniforms.uNoiseTexture) gl.uniform1i(uniforms.uNoiseTexture, 1);
-
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			gl.bindVertexArray(null);
-			gl.activeTexture(gl.TEXTURE1);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.useProgram(null);
-		},
-		cleanup: ({gl, program, vao, vbo, sourceTexture, noiseTexture}) => {
-			gl.deleteTexture(sourceTexture);
-			gl.deleteTexture(noiseTexture);
-			gl.deleteBuffer(vbo);
-			gl.deleteProgram(program);
-			gl.deleteVertexArray(vao);
-		},
-		schema: roughenEdgesSchema,
-		validateParams: validateRoughenEdgesParams,
+export const roughenEdges = createEffect<RoughenEdgesParams>({
+	type: 'dev.remotion.effects.roughen-edges',
+	label: 'roughenEdges()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/roughen-edges',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		return `roughen-edges-${r.amount}-${r.border}-${r.scale}-${r.seed}`;
 	},
-);
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			RoughenEdgesParams,
+			WebGpuSinglePassState & {
+				noiseData: Uint8Array<ArrayBuffer>;
+				noiseSeed: number | null;
+			}
+		>({
+			setup: (target) => ({
+				...setupWebGpuSinglePass(target, 'roughen-edges'),
+				noiseData: new Uint8Array(0),
+				noiseSeed: null,
+			}),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the roughen-edges effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.amount,
+					r.border,
+					r.scale,
+					r.seed,
+					0,
+					0,
+				]);
+				if (state.noiseSeed !== r.seed) {
+					state.noiseData = createNoiseData(r.seed);
+					state.noiseSeed = r.seed;
+				}
+
+				applyWebGpuSinglePass(
+					{
+						state,
+						source,
+						width,
+						height,
+						device: gpuDevice as GPUDevice,
+						shader: ROUGHEN_EDGES_WEBGPU_SHADER,
+						uniformData,
+					},
+					{
+						sourceFilter: null,
+						auxiliaryTexture: {
+							data: state.noiseData,
+							width: NOISE_TEXTURE_SIZE,
+							height: NOISE_TEXTURE_SIZE,
+							format: 'rgba8unorm',
+						},
+					},
+				);
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			RoughenEdgesParams,
+			RoughenEdgesState
+		>({
+			setup: (target) => setupRoughenEdges(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, sourceTexture, noiseTexture, uniforms} = state;
+
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
+
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+				if (state.cachedNoiseSeed !== r.seed) {
+					uploadNoiseTexture(gl, noiseTexture, r.seed);
+					state.cachedNoiseSeed = r.seed;
+				}
+
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
+				if (uniforms.uBorder) gl.uniform1f(uniforms.uBorder, r.border);
+				if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
+				if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
+				if (uniforms.uNoiseTexture) gl.uniform1i(uniforms.uNoiseTexture, 1);
+
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, sourceTexture, noiseTexture}) => {
+				gl.deleteTexture(sourceTexture);
+				gl.deleteTexture(noiseTexture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+	},
+	schema: roughenEdgesSchema,
+	validateParams: validateRoughenEdgesParams,
+});

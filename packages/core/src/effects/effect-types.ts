@@ -2,8 +2,9 @@
 //
 // An effect is a description of how to transform an input image into an output
 // image, executed inside a per-frame chain runtime owned by a source component
-// (`<Solid>`, `<HtmlInCanvas>`, ...). The chain runtime owns scratch canvases
-// and ping-pongs between them, so effects do not allocate per frame.
+// (`<Solid>`, `<HtmlInCanvas>`, ...). Chains own 2D/WebGPU scratch canvases and
+// borrow shared WebGL canvases exclusively through the final output copy.
+// Effects reuse their resources, even when another chain resizes the target.
 //
 // Cross-backend contract: all canvases store premultiplied alpha and are
 // sRGB-encoded. Effects that perform color math in linear space are responsible
@@ -25,6 +26,22 @@
 import type {InteractivitySchema} from '../interactivity-schema.js';
 
 export type Backend = '2d' | 'webgl2' | 'webgpu';
+export type PreferredEffectBackend = Backend | 'auto';
+
+export type EffectImplementation<P, S> = {
+	readonly setup: (target: HTMLCanvasElement) => S;
+	readonly apply: (params: EffectApplyParams<P, S>) => void;
+	readonly cleanup: (state: S) => void;
+};
+
+export type MultiBackendEffectDefinition<P> = Omit<
+	EffectDefinition<P>,
+	'backend' | 'setup' | 'apply' | 'cleanup' | 'implementations'
+> & {
+	readonly implementations: Partial<
+		Record<Backend, EffectImplementation<P, unknown>>
+	>;
+};
 
 // `GPUDevice` is left as `unknown` to avoid pulling `@webgpu/types` into core.
 // Effects that target the `webgpu` backend should narrow this themselves
@@ -52,6 +69,9 @@ export type EffectDefinition<P, S = unknown> = {
 	readonly label: string;
 	readonly documentationLink: string | null;
 	readonly backend: Backend;
+	readonly implementations?: Partial<
+		Record<Backend, EffectImplementation<P, unknown>>
+	>;
 	/**
 	 * Stable string for comparing effect instances: two descriptors with the same
 	 * `definition` and the same `calculateKey(params)` are treated as equivalent

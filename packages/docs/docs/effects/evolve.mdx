@@ -10,7 +10,7 @@ crumb: '@remotion/effects'
 
 _Part of the [`@remotion/effects`](/docs/effects/api) package._
 
-Reveals a canvas-based component from a direction with an optional soft edge.
+Reveals a canvas-based component from a direction or angle with an optional soft edge.
 
 Use it for wipes, reveals, and intro/outro animations on [`<Video>`](/docs/media/video), [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas) and [`<Solid>`](/docs/solid).
 
@@ -57,26 +57,84 @@ Pass an object with the following properties. You can also call `evolve()` witho
 
 Reveal progress from `0` (fully hidden) to `1` (fully revealed). Defaults to `0.5`.
 
+Animate from `1` to `0` to wipe the component out.
+
 ### `direction?`
 
 Direction the component is revealed from. Defaults to `left`.
 
-Possible values: `left`, `right`, `top`, `bottom`.
+Possible values: `left`, `right`, `top`, `bottom`, `angle`.
+
+Use `angle` to set a custom travel direction with [`angle`](#angle). Available from <AvailableFrom v="4.0.540" inline />.
+
+### `angle?`<AvailableFrom v="4.0.540" />
+
+Direction the reveal edge travels, in clockwise degrees from up. Only applies when `direction` is `angle`. Defaults to `90`.
+
+An angle of `0` reveals from bottom to top, `90` from left to right, `180` from top to bottom, and `270` from right to left.
+
+### `featherUnit?`<AvailableFrom v="4.0.540" />
+
+Unit used for the edge softness: `relative` or `pixels`. Defaults to `relative`.
+
+Use `relative` with [`feather`](#feather) to scale the softness with the canvas size. Use `pixels` with [`featherPixels`](#featherpixels) to set the width of a linear fade centered on the reveal edge.
 
 ### `feather?`
 
-Softness of the evolving edge from `0` (sharp edge) to `1` (fully feathered). Defaults to `0.1`.
+Softness of the evolving edge from `0` (sharp edge) to `1` (fully feathered). Only applies when `featherUnit` is `relative`. Defaults to `0.1`.
+
+### `featherPixels?`<AvailableFrom v="4.0.540" />
+
+Width of the soft edge in pixels. Must be `0` or greater. Only applies when `featherUnit` is `pixels`. Defaults to `0` (sharp edge).
+
+The edge travels beyond the canvas bounds so the component is fully hidden at `progress: 0` and fully revealed at `progress: 1`, including with large feather widths.
 
 ### `disabled?`
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Angled wipe<AvailableFrom v="4.0.540" />
 
-`evolve()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+```tsx twoslash title="MyComp.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
+import {Video} from '@remotion/media';
+import {evolve} from '@remotion/effects/evolve';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 30], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        evolve({
+          progress,
+          direction: 'angle',
+          angle: 60,
+          featherUnit: 'pixels',
+          featherPixels: 60,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## Implementations
+
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 
 - [`@remotion/effects`](/docs/effects/api)
+- [`radialWipe()`](/docs/effects/radial-wipe)
+- [`irisWipe()`](/docs/effects/iris-wipe)
 - [HTML-in-canvas guide](/docs/html-in-canvas)
 - [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/evolve.ts)

@@ -11,6 +11,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {PreferredEffectBackend} from 'remotion';
 
 type BaseRenderProgress = {
 	message: string;
@@ -119,6 +120,7 @@ type RenderJobDynamicFields =
 			scale: number;
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
+			preferredEffectBackend: PreferredEffectBackend;
 			offthreadVideoThreads: number | null;
 			licenseKey: string | null;
 	  } & RenderJobDynamicStatus)
@@ -132,6 +134,7 @@ type RenderJobDynamicFields =
 			endFrame: number;
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
+			preferredEffectBackend: PreferredEffectBackend;
 			offthreadVideoThreads: number | null;
 			licenseKey: string | null;
 	  } & RenderJobDynamicStatus)
@@ -161,6 +164,7 @@ type RenderJobDynamicFields =
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
+			preferredEffectBackend: PreferredEffectBackend;
 			offthreadVideoThreads: number | null;
 			colorSpace: ColorSpace;
 			forSeamlessAacConcatenation: boolean;

@@ -83,6 +83,12 @@ type DividerItem = {
 	id: string;
 };
 
+type CustomContentItem = {
+	type: 'custom';
+	id: string;
+	content: React.ReactNode;
+};
+
 type SectionHeaderItem = {
 	type: 'section-header';
 	id: string;
@@ -108,7 +114,11 @@ export type SelectionItem = {
 	disabled?: boolean;
 };
 
-export type ComboboxValue = DividerItem | SectionHeaderItem | SelectionItem;
+export type ComboboxValue =
+	| CustomContentItem
+	| DividerItem
+	| SectionHeaderItem
+	| SelectionItem;
 
 export const Combobox: React.FC<{
 	readonly values: ComboboxValue[];

@@ -6,6 +6,13 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -304,57 +311,125 @@ const setupScanlines = (target: HTMLCanvasElement): ScanlinesState => {
 	};
 };
 
-export const scanlines = createEffect<ScanlinesParams, ScanlinesState>({
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params { controls: vec4f, options: vec4f, }
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+ let texColor = textureSampleLevel(source, sourceSampler, input.uv, 0);
+ let alpha = texColor.a;
+ if (alpha <= 0.001) { return vec4f(0); }
+ if (params.controls.x <= 0.0 || params.controls.z <= 0.0) { return texColor; }
+ let spacing = max(params.controls.y, 0.001);
+ let thickness = min(params.controls.z, spacing);
+ let halfThickness = thickness * 0.5;
+ // WebGL fragment coordinates run bottom-to-top.
+ let rawPosition = params.options.y - input.position.y + params.controls.w;
+ let position = rawPosition - spacing * floor(rawPosition / spacing);
+ let distanceToLine = min(position, spacing - position);
+ let line = 1.0 - smoothstep(halfThickness, halfThickness + 1.0, distanceToLine);
+ let dutyCycle = thickness / spacing;
+ let signal = line - dutyCycle;
+ let rgb = texColor.rgb / alpha;
+ let scanlineLayer = select(vec3f(signal), rgb * signal, params.options.x != 0.0);
+ let result = clamp(rgb + scanlineLayer * params.controls.x, vec3f(0), vec3f(1));
+ return vec4f(result * alpha, alpha);
+}
+`;
+
+export const scanlines = createEffect<ScanlinesParams>({
 	type: 'dev.remotion.effects.scanlines',
 	label: 'scanlines()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/scanlines',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `scanlines-${r.amount}-${r.spacing}-${r.thickness}-${r.offset}-${r.premultiply ? 1 : 0}`;
 	},
-	setup: (target) => setupScanlines(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, texture, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ScanlinesParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'scanlines'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the scanlines effect',
+					);
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					source,
+					width,
+					height,
+					state,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						r.amount,
+						r.spacing,
+						r.thickness,
+						r.offset,
+						r.premultiply ? 1 : 0,
+						height,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			ScanlinesParams,
+			ScanlinesState
+		>({
+			setup: (target) => setupScanlines(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, texture, vao} = state;
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
-		if (state.uSpacing) gl.uniform1f(state.uSpacing, r.spacing);
-		if (state.uThickness) gl.uniform1f(state.uThickness, r.thickness);
-		if (state.uOffset) gl.uniform1f(state.uOffset, r.offset);
-		if (state.uPremultiply)
-			gl.uniform1i(state.uPremultiply, r.premultiply ? 1 : 0);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.useProgram(program);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
+				if (state.uSpacing) gl.uniform1f(state.uSpacing, r.spacing);
+				if (state.uThickness) gl.uniform1f(state.uThickness, r.thickness);
+				if (state.uOffset) gl.uniform1f(state.uOffset, r.offset);
+				if (state.uPremultiply)
+					gl.uniform1i(state.uPremultiply, r.premultiply ? 1 : 0);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: scanlinesSchema,
 	validateParams: validateScanlinesParams,

@@ -53,7 +53,7 @@
 		"@remotion/tailwind-v4": "workspace:*",
 		"@remotion/transitions": "workspace:*",
 		"@remotion/webcodecs": "workspace:*",
-		"@rspack/core": "1.7.11",
+		"@rspack/core": "2.3.0",
 		"@types/pngjs": "6.0.5",
 		"@types/sharp": "0.28.6",
 		"create-video": "workspace:*",

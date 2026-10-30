@@ -8,11 +8,18 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {polygonizeAlpha} from './outline/polygonize-alpha.js';
+import {OUTLINE_WEBGPU_SHADER} from './outline/webgpu-shader.js';
 import {
 	assertOptionalBoolean,
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuMultipass,
+	cleanupWebGpuMultipass,
+	setupWebGpuMultipass,
+	type WebGpuMultipassState,
+} from './webgpu-multipass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -291,7 +298,10 @@ const updatePolygonMask = ({
 	readonly height: number;
 	readonly simplification: number;
 	readonly outlineWidth: number;
-	readonly state: OutlineState;
+	readonly state: Pick<
+		OutlineState,
+		'alphaCanvas' | 'alphaCtx' | 'polygonMaskCanvas' | 'polygonMaskCtx'
+	>;
 }): void => {
 	if (
 		state.alphaCanvas.width !== width ||
@@ -445,105 +455,197 @@ const setupOutline = (target: HTMLCanvasElement): OutlineState => {
 	};
 };
 
-export const outline = createEffect<OutlineParams, OutlineState>({
+export const outline = createEffect<OutlineParams>({
 	type: 'remotion/outline',
 	label: 'outline()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/outline',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `outline-${resolved.width}-${resolved.edgeSimplification}-${resolved.color}-${resolved.opacity}-${resolved.outlineOnly}`;
 	},
-	setup: setupOutline,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const resolved = resolve(params);
-		if (state.cachedColor !== resolved.color) {
-			state.cachedColor = resolved.color;
-			state.cachedColorRgba = parseColorRgba(state.colorCtx, resolved.color);
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			OutlineParams,
+			WebGpuMultipassState & {
+				readonly colorCtx: CanvasRenderingContext2D;
+				cachedColor: string | null;
+				cachedRgba: ReturnType<typeof parseColorRgba>;
+			} & Pick<
+					OutlineState,
+					'alphaCanvas' | 'alphaCtx' | 'polygonMaskCanvas' | 'polygonMaskCtx'
+				>
+		>({
+			setup: (target) => {
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const colorCtx = canvas.getContext('2d', {willReadFrequently: true});
+				if (!colorCtx) throw new Error('Could not create color parser');
+				const alphaCanvas = document.createElement('canvas');
+				const alphaCtx = alphaCanvas.getContext('2d', {
+					willReadFrequently: true,
+				});
+				const polygonMaskCanvas = document.createElement('canvas');
+				const polygonMaskCtx = polygonMaskCanvas.getContext('2d');
+				if (!alphaCtx || !polygonMaskCtx)
+					throw new Error('Could not create outline mask');
+				return {
+					alphaCanvas,
+					alphaCtx,
+					polygonMaskCanvas,
+					polygonMaskCtx,
+					...setupWebGpuMultipass(target, 'outline'),
+					colorCtx,
+					cachedColor: null,
+					cachedRgba: [0, 0, 0, 0],
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+				if (state.cachedColor !== r.color) {
+					state.cachedColor = r.color;
+					state.cachedRgba = parseColorRgba(state.colorCtx, r.color);
+				}
 
-		const {gl, program, textureSource, texturePolygonMask, uniforms, vao} =
-			state;
-		const [red, green, blue, alpha] = state.cachedColorRgba;
-		const usePolygonMask =
-			resolved.edgeSimplification > 0 &&
-			resolved.opacity > 0 &&
-			alpha > 0 &&
-			(resolved.width > 0 || resolved.outlineOnly);
-		if (usePolygonMask) {
-			updatePolygonMask({
-				source,
-				width,
-				height,
-				simplification: resolved.edgeSimplification,
-				outlineWidth: resolved.width,
-				state,
-			});
-		}
+				const color = state.cachedRgba.map((channel) => channel / 255);
+				const usePolygonMask =
+					r.edgeSimplification > 0 &&
+					r.opacity > 0 &&
+					color[3] > 0 &&
+					(r.width > 0 || r.outlineOnly);
+				if (usePolygonMask)
+					updatePolygonMask({
+						source,
+						width,
+						height,
+						simplification: r.edgeSimplification,
+						outlineWidth: r.width,
+						state,
+					});
+				applyWebGpuMultipass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					auxiliarySource: usePolygonMask ? state.polygonMaskCanvas : null,
+					passes: [
+						{
+							shader: OUTLINE_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								...color,
+								r.width,
+								r.opacity,
+								r.outlineOnly ? 1 : 0,
+								usePolygonMask ? 1 : 0,
+							]),
+							source: -1,
+							secondary: usePolygonMask ? -2 : -1,
+						},
+					],
+				});
+			},
+			cleanup: cleanupWebGpuMultipass,
+		}),
+		webgl2: Internals.createEffectImplementation<OutlineParams, OutlineState>({
+			setup: setupOutline,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const resolved = resolve(params);
+				if (state.cachedColor !== resolved.color) {
+					state.cachedColor = resolved.color;
+					state.cachedColorRgba = parseColorRgba(
+						state.colorCtx,
+						resolved.color,
+					);
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				const {gl, program, textureSource, texturePolygonMask, uniforms, vao} =
+					state;
+				const [red, green, blue, alpha] = state.cachedColorRgba;
+				const usePolygonMask =
+					resolved.edgeSimplification > 0 &&
+					resolved.opacity > 0 &&
+					alpha > 0 &&
+					(resolved.width > 0 || resolved.outlineOnly);
+				if (usePolygonMask) {
+					updatePolygonMask({
+						source,
+						width,
+						height,
+						simplification: resolved.edgeSimplification,
+						outlineWidth: resolved.width,
+						state,
+					});
+				}
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, texturePolygonMask);
-		if (usePolygonMask) {
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				state.polygonMaskCanvas,
-			);
-		}
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uPolygonMask) gl.uniform1i(uniforms.uPolygonMask, 1);
-		if (uniforms.uUsePolygonMask)
-			gl.uniform1i(uniforms.uUsePolygonMask, usePolygonMask ? 1 : 0);
-		if (uniforms.uWidth) gl.uniform1f(uniforms.uWidth, resolved.width);
-		if (uniforms.uColor)
-			gl.uniform4f(
-				uniforms.uColor,
-				red / 255,
-				green / 255,
-				blue / 255,
-				alpha / 255,
-			);
-		if (uniforms.uOpacity) gl.uniform1f(uniforms.uOpacity, resolved.opacity);
-		if (uniforms.uOutlineOnly)
-			gl.uniform1i(uniforms.uOutlineOnly, resolved.outlineOnly ? 1 : 0);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, textureSource);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, texturePolygonMask);
+				if (usePolygonMask) {
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						state.polygonMaskCanvas,
+					);
+				}
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource, texturePolygonMask}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteTexture(texturePolygonMask);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uPolygonMask) gl.uniform1i(uniforms.uPolygonMask, 1);
+				if (uniforms.uUsePolygonMask)
+					gl.uniform1i(uniforms.uUsePolygonMask, usePolygonMask ? 1 : 0);
+				if (uniforms.uWidth) gl.uniform1f(uniforms.uWidth, resolved.width);
+				if (uniforms.uColor)
+					gl.uniform4f(
+						uniforms.uColor,
+						red / 255,
+						green / 255,
+						blue / 255,
+						alpha / 255,
+					);
+				if (uniforms.uOpacity)
+					gl.uniform1f(uniforms.uOpacity, resolved.opacity);
+				if (uniforms.uOutlineOnly)
+					gl.uniform1i(uniforms.uOutlineOnly, resolved.outlineOnly ? 1 : 0);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, textureSource, texturePolygonMask}) => {
+				gl.deleteTexture(textureSource);
+				gl.deleteTexture(texturePolygonMask);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: outlineSchema,
 	validateParams: validateOutlineParams,

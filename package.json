@@ -73,7 +73,7 @@
 		"oxfmt": "0.35.0",
 		"prettier": "catalog:",
 		"react-scan": "0.5.7",
-		"vite": "6.4.4"
+		"vite": "6.4.5"
 	},
 	"dependencies": {
 		"p-limit": "7.2.0",
@@ -84,7 +84,6 @@
 	"overrides": {
 		"@aws-sdk/xml-builder": "3.972.5",
 		"caniuse-lite": "1.0.30001766",
-		"@rspack/core": "1.7.11",
 		"@remix-run/dev": "2.17.4",
 		"@remix-run/node": "2.17.4",
 		"@remix-run/react": "2.17.4",

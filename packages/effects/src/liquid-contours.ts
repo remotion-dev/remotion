@@ -6,10 +6,20 @@ import {
 	validateUnitInterval,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {LIQUID_CONTOURS_WEBGPU_SHADER} from './liquid-contours-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -257,7 +267,7 @@ float fbm(vec2 p) {
 }
 
 void main() {
-	vec2 position = vUv * uResolution + uOffset;
+	vec2 position = gl_FragCoord.xy + uOffset;
 	vec2 p = position / max(uScale, 0.001) + vec2(uSeed * 0.137, uSeed * 0.193);
 	vec2 warp = vec2(fbm(p + vec2(5.2, 1.3)), fbm(p + vec2(1.7, 9.2))) - 0.5;
 	mat2 roundRotation = mat2(0.7071, 0.7071, -0.7071, 0.7071);
@@ -385,61 +395,118 @@ const normalized = (
 	color[3] / 255,
 ];
 
-export const liquidContours = createEffect<
-	LiquidContoursParams,
-	LiquidContoursState
->({
+export const liquidContours = createEffect<LiquidContoursParams>({
 	type: 'dev.remotion.effects.liquidContours',
 	label: 'liquidContours()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/liquid-contours',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `liquid-contours-${r.firstColor}-${r.secondColor}-${r.spacing}-${r.scale}-${r.complexity}-${r.smoothness}-${r.seed}-${r.offsetX}-${r.offsetY}-${r.phase}`;
 	},
-	setup,
-	apply: ({width, height, params, state}) => {
-		const r = resolve(params);
-		if (state.cachedFirstColor !== r.firstColor) {
-			state.cachedFirstColor = r.firstColor;
-			state.cachedFirstColorRgba = parseColorRgba(state.colorCtx, r.firstColor);
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			LiquidContoursParams,
+			WebGpuColorState
+		>({
+			setup: (target) => setupWebGpuColors(target, 'liquid-contours'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the liquid-contours effect',
+					);
+				const r = resolve(params);
+				const colors = getWebGpuColors(state, [r.firstColor, r.secondColor]);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.spacing,
+					r.scale,
+					r.complexity,
+					r.smoothness,
+					r.seed,
+					r.phase,
+					r.offsetX,
+					r.offsetY,
+					0,
+					0,
+					colors[0] / 255,
+					colors[1] / 255,
+					colors[2] / 255,
+					colors[3] / 255,
+					colors[4] / 255,
+					colors[5] / 255,
+					colors[6] / 255,
+					colors[7] / 255,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: LIQUID_CONTOURS_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			LiquidContoursParams,
+			LiquidContoursState
+		>({
+			setup,
+			apply: ({width, height, params, state}) => {
+				const r = resolve(params);
+				if (state.cachedFirstColor !== r.firstColor) {
+					state.cachedFirstColor = r.firstColor;
+					state.cachedFirstColorRgba = parseColorRgba(
+						state.colorCtx,
+						r.firstColor,
+					);
+				}
 
-		if (state.cachedSecondColor !== r.secondColor) {
-			state.cachedSecondColor = r.secondColor;
-			state.cachedSecondColorRgba = parseColorRgba(
-				state.colorCtx,
-				r.secondColor,
-			);
-		}
+				if (state.cachedSecondColor !== r.secondColor) {
+					state.cachedSecondColor = r.secondColor;
+					state.cachedSecondColorRgba = parseColorRgba(
+						state.colorCtx,
+						r.secondColor,
+					);
+				}
 
-		const first = normalized(state.cachedFirstColorRgba);
-		const second = normalized(state.cachedSecondColorRgba);
-		const {gl, program, vao, uniforms} = state;
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
-		gl.useProgram(program);
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uFirstColor) gl.uniform4f(uniforms.uFirstColor, ...first);
-		if (uniforms.uSecondColor) gl.uniform4f(uniforms.uSecondColor, ...second);
-		if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
-		if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
-		if (uniforms.uComplexity) gl.uniform1f(uniforms.uComplexity, r.complexity);
-		if (uniforms.uSmoothness) gl.uniform1f(uniforms.uSmoothness, r.smoothness);
-		if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
-		if (uniforms.uOffset) gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
-		if (uniforms.uPhase) gl.uniform1f(uniforms.uPhase, r.phase);
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo}) => {
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				const first = normalized(state.cachedFirstColorRgba);
+				const second = normalized(state.cachedSecondColorRgba);
+				const {gl, program, vao, uniforms} = state;
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.useProgram(program);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uFirstColor) gl.uniform4f(uniforms.uFirstColor, ...first);
+				if (uniforms.uSecondColor)
+					gl.uniform4f(uniforms.uSecondColor, ...second);
+				if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
+				if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
+				if (uniforms.uComplexity)
+					gl.uniform1f(uniforms.uComplexity, r.complexity);
+				if (uniforms.uSmoothness)
+					gl.uniform1f(uniforms.uSmoothness, r.smoothness);
+				if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
+				if (uniforms.uOffset)
+					gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
+				if (uniforms.uPhase) gl.uniform1f(uniforms.uPhase, r.phase);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo}) => {
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: liquidContoursSchema,
 	validateParams: validateLiquidContoursParams,

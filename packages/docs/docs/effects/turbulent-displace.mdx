@@ -22,6 +22,8 @@ Warps a layer using evolving fractal noise. Use it for liquid text, heat haze an
 
 ## Example
 
+The animated text example also uses [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+
 ```tsx twoslash title="MyComp.tsx"
 import {turbulentDisplace} from '@remotion/effects/turbulent-displace';
 import {AbsoluteFill, HtmlInCanvas, Interactive, interpolate, useCurrentFrame} from 'remotion';
@@ -137,11 +139,12 @@ The canvas size stays unchanged. Pixels moved outside it are cropped.
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`turbulentDisplace()` uses WebGL2. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGL2
+- WebGPU<AvailableFrom v="4.0.540" inline />
 
-The animated text example also uses [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas).
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 
