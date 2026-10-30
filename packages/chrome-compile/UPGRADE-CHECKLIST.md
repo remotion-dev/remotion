@@ -12,6 +12,7 @@ Mark each gate as passed, failed, or not run. An existing upstream failure needs
 - [ ] Use a clean Remotion cache to exercise download, extraction, version markers, and launch. Upgrade an existing cache as well. Rebuilt binaries of the same Chrome version need a new cache marker. Check Windows filenames and paths with spaces.
 - [ ] Run the packaged executable and record its actual version. Do not infer it from an archive filename, source constant, or layer description.
 - [ ] Preserve the previous archives and layer ARNs for rollback.
+- [ ] Rebuild composition bundles and redeploy Lambda sites, Docker images, and Vercel snapshots when a browser upgrade also needs a browser-side Remotion fix. Updating the renderer or Chrome binary alone does not update JavaScript in an existing site or snapshot.
 
 ## 2. GPU testbed on native platforms
 
@@ -105,6 +106,10 @@ See the [Vercel API documentation](../docs/docs/vercel/index.mdx).
 - [ ] Preserve color primaries, transfer, matrix, and range in codec fixtures and decoder configuration. Raw H.264 without color metadata can produce different pixels because the browser must infer a color space.
 - [ ] Test VP8/VP9 and Opus, seeking/trimming, first/last frames, looping, variable frame rate, and audio/video synchronization. Check H.265/HEVC only against the documented support of each platform/backend, recording unsupported combinations.
 - [ ] Distinguish browser decoding (`<Html5Video>`, WebCodecs, `@remotion/media`) from FFmpeg decoding (`<OffthreadVideo>`). FFmpeg success does not prove proprietary codecs were included in Chrome.
+- [ ] Render a sustained `<OffthreadVideo>` sequence with normal CDP network tracking enabled, and compare memory growth with the previous Chrome. On Vercel, run all 900 codec frames (1800–2699) without restarting the browser. Verify the fallback actually runs: Chrome 158 retained fetched frame blobs in DevTools and exhausted its blob quota near the end despite revoked object URLs and free disk space. Short renders missed the regression.
+- [ ] Compare peak process memory and throughput with the previous working version, including 4K/8K **source** frames, simultaneous video layers, multiple tabs, and a low-memory Lambda. Record cache budgets and concurrency; a small output resolution does not make large source frames cheap. Inspect decoded output and preserve failed configurations alongside passing retries.
+- [ ] Audit repeated `Response.blob()` calls in compositions and dependencies, including texture loaders, masks, and large-file helpers. On Chrome 158, zero DevTools response-body cache limits do not release these fetched blobs; the `<OffthreadVideo>` workaround covers only its own fetches. Check retention after object-URL revocation and garbage collection with CDP Network enabled.
+- [ ] When changing CDP cache settings, verify redirects, HTTP errors, and failed-request diagnostics still work. Keep request tracking enabled; Remotion does not use `Network.getResponseBody`.
 - [ ] Exercise supported WebCodecs encoders with real encode/decode output, hardware and software paths where applicable, and a client-side render. Check [`webcodecs-bugs`](../docs/docs/mediabunny/webcodecs-bugs.mdx) for regressions.
 
 ## 9. HTML-in-canvas regression matrix
