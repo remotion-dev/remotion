@@ -47,6 +47,7 @@ For a smoke run, render at least 60 consecutive frames from each section, plus `
 - [ ] Run `remotion compositions`, `browser-test`, and `html-in-canvas` in each supported image, using local workspace packages. Check actual browser versions and inspect output.
 - [ ] Exercise containers with normal `/dev/shm`, Docker's small default `/dev/shm`, and no `/dev/shm`. Check fallback behavior and cleanup after failure.
 - [ ] Check shared-library/glibc compatibility, including older-glibc stock-browser routes. A working Ubuntu 24 image does not establish Ubuntu 22, Debian, Amazon Linux, or musl compatibility.
+- [ ] Check the compositor executable and bundled FFmpeg libraries independently of Chrome. Inspect their versioned GLIBC imports and exercise a media path that starts the compositor. Browser launch and FFmpeg encoding can pass while the compositor fails to load.
 
 Run from `packages/dockerfiles` after building the local CLI:
 

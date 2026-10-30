@@ -58,9 +58,32 @@ All 39 exported Docker videos decoded to exactly 30 frames and one second. Repre
 - The initial Docker run hit stale Ubuntu package indexes (HTTP 404 during apt install). The Ubuntu 22/24 and Debian recipes now update package indexes in the same layer as installation.
 - Docker Desktop stopped during the subsequent full emulated Ubuntu 24 run, before a final result. The completed Docker smoke matrix uses the same recipes with only render commands shortened to 30 frames from each of the four testbed sections, plus 30 HTML-in-canvas frames, at concurrency 1. It is not a full-duration Docker pass.
 - Nix fails before rendering: `nixpkgs.nodejs-18_x` no longer exists. Its existing recipe uses system Chromium rather than the candidate binary and cannot establish candidate compatibility even if that setup failure is fixed.
-- Amazon Linux 2023 x64 fails when H.265 falls back to `@remotion/compositor-linux-x64-gnu`: the executable requires `GLIBC_2.35`, which is unavailable in that image. Chrome launches, shared-memory capture works, and the other four sections pass. This is a compositor compatibility failure, not evidence that the Chrome binary cannot launch; it was not compared against the previous Remotion build.
+- Amazon Linux 2023 x64 fails when H.265 falls back to `@remotion/compositor-linux-x64-gnu`: the executable requires `GLIBC_2.35`, which is unavailable in that image. Chrome launches, shared-memory capture works, and the other four sections pass. The follow-up investigation below reproduces this compositor incompatibility starting with stable Remotion 4.0.0; this Chrome PR does not change the compositor binary.
 - Native Windows and macOS Intel were not rerun in this session. Windows shared-memory capture is unsupported by the current POSIX-only patch and Windows FFmpeg. Windows needs a native screenshot-fallback gate; the PR's earlier reported Windows verification is separate evidence.
 - NVIDIA/ANGLE EGL, WebGPU effects, the full #12369 composition/crash sequence, hardware codecs, and a complete client-side render remain unverified in this session.
+
+## Amazon Linux x64 compositor compatibility history
+
+The first affected stable release is **Remotion 4.0.0, published July 3, 2023**. This predates the Chrome 158 upgrade. The Amazon Linux 2023 x64 image used here has GLIBC 2.34; the compositor requires `hypot@GLIBC_2.35` from `libm.so.6`.
+
+Downloaded these packages from the official npm registry, verified their published integrity hashes, inspected ELF dynamic symbols, and tested them in the same Amazon Linux x64 container under emulation:
+
+| Published package | Date             | Compositor's highest GLIBC import | Startup on Amazon Linux 2023                                          |
+| ----------------- | ---------------- | --------------------------------- | --------------------------------------------------------------------- |
+| 3.3.103           | July 2, 2023     | 2.12                              | Starts and reaches its JSON parser; no full historical render claimed |
+| 4.0.0             | July 3, 2023     | 2.35                              | Fails on `hypot@GLIBC_2.35`                                           |
+| 4.0.94            | January 23, 2024 | 2.35                              | Same failure                                                          |
+| 4.0.539           | October 26, 2026 | 2.35                              | Same failure                                                          |
+
+The source change is [video rotation support, June 30, 2023](https://github.com/remotion-dev/remotion/commit/f0bdc8f1f04d924cc8269130101550d386b1f052), which added two `f64::hypot()` calls. They remain in [`rotation.rs`](../compositor/rust/rotation.rs). The [4.0.0 release commit](https://github.com/remotion-dev/remotion/commit/67a5b7553ababd7a6310eb8022673aca208121c6) first ships the x64 binary importing `hypot@GLIBC_2.35`; its immediate parent's binary has no `hypot` import and tops out at GLIBC 2.34. The older published 3.3.103 binary differs from that pre-release tree and has a lower requirement. A scan of 254 tracked binary revisions found no subsequent reduction of the 2.35 requirement.
+
+The loader rejects the executable before it can inspect a video's rotation. The testbed exposes it when H.265 decoding falls back to `<OffthreadVideo>` and starts the compositor. Successful Chrome rendering or invoking the separate FFmpeg encoder does not exercise this executable. The Amazon Linux recipe is also commented out in the current `run.sh` matrix.
+
+The current ARM64 compositor imports `hypot@GLIBC_2.17` and its own highest GLIBC import is 2.25, so this x64 dependency does not affect the successful ARM64 Lambda runs. This is an architecture-specific binary compatibility constraint.
+
+[Issue #2439](https://github.com/remotion-dev/remotion/issues/2439) records the historical GLIBC discussion. Its later comment about lowering the requirement to 2.31 does not match the published 4.0.94 compositor: that executable still requires 2.35. The bundled FFmpeg executables/libraries in 4.0.94 and 4.0.539 have their own GLIBC imports at or below 2.29; lowering their build baseline did not lower the Rust compositor's requirement.
+
+Supporting Amazon Linux 2023 x64 requires rebuilding the compositor against a compatible GLIBC sysroot, then testing the executable and every bundled shared library on that distribution. A browser-only rebuild cannot resolve this dependency. Raw history, symbol tables, npm metadata, and runtime results are retained under `out/chrome-158-validation/compositor-history/`.
 
 ## Lambda package and deployment
 
