@@ -58,14 +58,18 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 ### `onBrowserLog?`<AvailableFrom v="3.0.0" />
 
-Gets called when your project calls `console.log` or another method from console. A browser log has three properties:
+Called for `console` messages and browser diagnostics, including CORS errors and failed network requests.
+
+Since <AvailableFrom v="4.0.540" inline />, uncaught exceptions and unhandled promise rejections are also forwarded with `type: 'error'`. Forwarding an exception does not prevent it from failing the render.
+
+A browser log has three properties:
 
 - `text`: The message being printed
-- `stackTrace`: An array of objects containing the following properties:
+- `stackTrace`: The available stack or source location, with the following properties:
   - `url`: URL of the resource that logged.
   - `lineNumber`: 0-based line number in the file where the log got called.
   - `columnNumber`: 0-based column number in the file where the log got called.
-- `type`: The console method - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
+- `type`: The console method or browser diagnostic severity - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
 
 ```tsx twoslash
 interface ConsoleMessageLocation {

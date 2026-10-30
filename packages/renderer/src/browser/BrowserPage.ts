@@ -31,6 +31,7 @@ import type {
 	ConsoleAPICalledEvent,
 	DevtoolsRemoteObject,
 	EntryAddedEvent,
+	ExceptionThrownEvent,
 	SetDeviceMetricsOverrideRequest,
 	StackTrace,
 } from './devtools-types';
@@ -253,6 +254,25 @@ export class Page extends EventEmitter {
 		client.on('Runtime.consoleAPICalled', (event) => {
 			return this.#onConsoleAPI(event);
 		});
+		client.on('Runtime.exceptionThrown', (event: ExceptionThrownEvent) => {
+			const {exception, text, stackTrace, url, lineNumber, columnNumber} =
+				event.exceptionDetails;
+			const description = exception
+				? (exception.description ??
+					String(exception.unserializableValue ?? exception.value))
+				: null;
+			this.onBrowserLog?.({
+				type: 'error',
+				text: description === null ? text : `${text} ${description}`,
+				stackTrace: stackTrace?.callFrames.length
+					? stackTrace.callFrames.map((frame) => ({
+							url: frame.url,
+							lineNumber: frame.lineNumber,
+							columnNumber: frame.columnNumber,
+						}))
+					: [{url, lineNumber, columnNumber}],
+			});
+		});
 		client.on('Runtime.bindingCalled', (event) => {
 			return this.#onBindingCalled(event);
 		});
@@ -393,7 +413,8 @@ export class Page extends EventEmitter {
 	}
 
 	#onLogEntryAdded(event: EntryAddedEvent): void {
-		const {level, text, args, source, url, lineNumber} = event.entry;
+		const {level, text, args, source, url, lineNumber, stackTrace} =
+			event.entry;
 		if (args) {
 			args.map((arg) => {
 				return releaseObject(this.#client, arg);
@@ -408,15 +429,16 @@ export class Page extends EventEmitter {
 				type: level,
 				text,
 				args: [],
-				stackTraceLocations: [{url, lineNumber}],
+				stackTraceLocations: stackTrace?.callFrames.length
+					? stackTrace.callFrames.map((frame) => ({
+							url: frame.url,
+							lineNumber: frame.lineNumber,
+							columnNumber: frame.columnNumber,
+						}))
+					: [{url, lineNumber}],
 				previewString,
 				logLevel: logLevelFromRemotionLog ?? logLevelFromEvent,
 				tag,
-			});
-			this.onBrowserLog?.({
-				stackTrace: message.stackTrace(),
-				text: message.text,
-				type: message.type,
 			});
 			this.#onConsole(message);
 		}
