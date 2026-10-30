@@ -3,7 +3,7 @@ set -euo pipefail
 export PATH="/opt/homebrew/bin:$PATH"
 
 # Run on an EC2 M4 Mac with macOS 26 and Command Line Tools 26.6.
-# The capture patch, GN args, and CLT support helper are required local inputs.
+# The patches, GN args, and CLT support helper are required local inputs.
 CHROMIUM_VERSION=158.0.8127.2
 CHROMIUM_COMMIT=681cd621e82e606d7536eae8ea2576afb3c7d65c
 DEPOT_TOOLS_COMMIT=3218cfc968b246bf2498fd13f707851a0b1cd408
@@ -13,6 +13,7 @@ artifact_dir="$source_dir/artifacts"
 output_dir="${REMOTION_OUTPUT_DIR:-$source_dir/../output}"
 jobs="${CHROMIUM_BUILD_JOBS:-8}"
 capture_patch="$source_dir/remotion-shared-memory-v3.patch"
+color_space_patch="$source_dir/remotion-h264-color-space.patch"
 gn_args="$source_dir/args.gn"
 mkdir -p "$artifact_dir" "$output_dir"
 exec > >(tee -a "$artifact_dir/build-v3.log") 2>&1
@@ -21,6 +22,7 @@ trap 'result=$?; printf "Build finished with exit code %s at %s\n" "$result" "$(
 test "$(uname -s)" = Darwin
 test "$(uname -m)" = arm64
 test -f "$capture_patch"
+test -f "$color_space_patch"
 test -f "$gn_args"
 case "$jobs" in 4|5|6|7|8|9|10) ;; *) echo 'CHROMIUM_BUILD_JOBS must be between 4 and 10.'; exit 1;; esac
 
@@ -171,6 +173,20 @@ if ! git apply --reverse --check "$capture_patch" 2>/dev/null; then
   git apply "$capture_patch"
 fi
 
+# Keep the color-space patch separate from shared-memory capture so it can be
+# reviewed and retired independently once Chromium fixes crbug.com/532860177.
+echo 'Applying the H.264 configured color-space patch.'
+if ! git apply --reverse --check "$color_space_patch" 2>/dev/null; then
+  # As above, these files belong to this disposable Chromium checkout.
+  git restore --source="$CHROMIUM_COMMIT" -- \
+    media/gpu/mac/video_toolbox_h264_accelerator.cc \
+    media/gpu/mac/video_toolbox_h264_accelerator.h \
+    media/gpu/mac/video_toolbox_h264_accelerator_unittest.cc \
+    media/gpu/mac/video_toolbox_video_decoder.cc
+  git apply --check "$color_space_patch"
+  git apply "$color_space_patch"
+fi
+
 # Xcode 26 moved the offline Metal compiler into a separately downloaded
 # component. ANGLE already has a runtime source-shader fallback. Use that
 # existing path to avoid any additional Xcode downloads or authentication.
@@ -193,6 +209,7 @@ mkdir -p out/Remotion
 cp "$gn_args" out/Remotion/args.gn
 cp out/Remotion/args.gn "$artifact_dir/args.gn"
 cp "$capture_patch" "$artifact_dir/remotion-shared-memory-v3.patch"
+cp "$color_space_patch" "$artifact_dir/remotion-h264-color-space.patch"
 git diff --binary > "$artifact_dir/chromium-applied.patch"
 git -C third_party/angle diff --binary > "$artifact_dir/angle-runtime-shaders.patch"
 buildtools/mac/gn gen out/Remotion --fail-on-unused-args
@@ -202,22 +219,27 @@ third_party/rust-toolchain/bin/rustc --version > "$artifact_dir/rust-version.txt
 test -x third_party/ninja/ninja
 autoninja -C out/Remotion --version | tee "$artifact_dir/ninja-version.txt"
 
-# Ask this generated GN graph for the patched source's actual object targets.
-# Building them first catches capture/API errors before the remaining browser
+# Ask this generated GN graph for the patched sources' actual object targets.
+# Building them first catches capture/codec API errors before the remaining browser
 # compilation; Ninja reuses all generated headers and objects in the full build.
-buildtools/mac/gn outputs out/Remotion \
+> "$artifact_dir/patched-object-targets.txt"
+for patched_source in \
   content/browser/devtools/protocol/page_handler.cc \
-  > "$artifact_dir/capture-object-targets.txt"
-capture_targets=()
+  media/gpu/mac/video_toolbox_h264_accelerator.cc \
+  media/gpu/mac/video_toolbox_video_decoder.cc; do
+  buildtools/mac/gn outputs out/Remotion "$patched_source" \
+    >> "$artifact_dir/patched-object-targets.txt"
+done
+patched_targets=()
 while IFS= read -r target; do
   if [ -n "$target" ]; then
-    capture_targets+=("$target")
+    patched_targets+=("$target")
   fi
-done < "$artifact_dir/capture-object-targets.txt"
-test "${#capture_targets[@]}" -gt 0
-echo 'Compiling the shared-memory capture source first.'
-cat "$artifact_dir/capture-object-targets.txt"
-autoninja -C out/Remotion -j "$jobs" "${capture_targets[@]}"
+done < "$artifact_dir/patched-object-targets.txt"
+test "${#patched_targets[@]}" -gt 0
+echo 'Compiling the patched capture and H.264 sources first.'
+cat "$artifact_dir/patched-object-targets.txt"
+autoninja -C out/Remotion -j "$jobs" "${patched_targets[@]}"
 
 echo "Building headless_shell with $jobs jobs."
 autoninja -C out/Remotion -j "$jobs" headless_shell
@@ -309,6 +331,8 @@ manifest = {
     'is_official_build': False,
     'dcheck_always_on': False,
     'angle_internal_shaders': 'runtime-source-compilation',
+    'h264_color_space_patch_sha256': hashlib.sha256(
+        (artifact / 'remotion-h264-color-space.patch').read_bytes()).hexdigest(),
     'encoding_transport': 'CPU shared-memory capture patch; no forced VideoToolbox',
     'mach_o_files': mach_o,
     'metadata': {name: (artifact / name).read_text().strip() for name in [
@@ -316,7 +340,7 @@ manifest = {
         'clang-version.txt', 'rust-version.txt', 'gn-version.txt', 'args.gn',
         'browser-version.txt', 'depot-python-version.txt',
         'depot-python-path.txt', 'vpython-version.txt', 'build-tool-paths.txt',
-        'ninja-version.txt', 'capture-object-targets.txt']},
+        'ninja-version.txt', 'patched-object-targets.txt']},
     'files': {},
 }
 for path in sorted(package.rglob('*')):

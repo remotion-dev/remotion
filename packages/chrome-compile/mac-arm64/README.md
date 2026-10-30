@@ -2,8 +2,9 @@
 
 This directory builds Chromium **158.0.8127.2** at commit
 `681cd621e82e606d7536eae8ea2576afb3c7d65c` for Apple Silicon. It applies the
-Remotion **v3** shared-memory capture patch and enables proprietary H.264/AAC
-codecs. It does not select or require a VideoToolbox encoder.
+Remotion **v3** shared-memory capture patch, the proposed H.264 color-space
+patch below, and enables proprietary H.264/AAC codecs. It does not select or
+require a VideoToolbox encoder.
 
 The recipe was validated on an EC2 `mac-m4.metal` host running macOS 26.6.2,
 Command Line Tools 26.6, and the macOS 26.5 SDK. Chromium 158 pins the 27.0
@@ -42,6 +43,7 @@ The upload-time name for Chromium 158 is
 | `args.gn`                         | ARM64, codec, SDK, and headless build settings                                                             |
 | `apply-clt-support.py`            | Makes Chromium 158 use Apple's Command Line Tools installation honestly                                    |
 | `remotion-shared-memory-v3.patch` | Adds the private shared-memory CDP transport, the viewport fast path, and the v3 file-backed pool fallback |
+| `remotion-h264-color-space.patch` | Supplies explicit decoder color metadata to VideoToolbox for untagged H.264 streams                        |
 | `probe-fast-path.py`              | Invokes `Page.remotionCreateFramePool` against a built browser                                             |
 
 The v3 patch, rebased onto Chromium 158, has SHA-256
@@ -62,6 +64,47 @@ Chromium 157 reformatted its Python tooling and now always runs
 the platform and toolchain paths it symlinks. `headless_use_policy` was removed
 from `args.gn` because Chromium 157 no longer declares it.
 
+## Proposed H.264 color-space fix
+
+`remotion-h264-color-space.patch` targets [Chromium issue 532860177](https://issues.chromium.org/issues/532860177)
+and applies to the pinned 158.0.8127.2 source. It is a candidate for the next
+browser build; the published 158 archives and their recorded checksums do not
+contain this patch. The validated build described above predates this change.
+
+Chromium's H.264 decoder already uses the configured color space when the
+bitstream has none. However, the VideoToolbox accelerator creates its CoreMedia
+format description from SPS/PPS alone. VideoToolbox fills in BT.709 output tags
+for the untagged stream, and Chromium's frame converter trusts those tags over
+its own fallback.
+
+The patch supplies the configured primaries, transfer function, matrix, and
+range in the CoreMedia input format before decoding. It preserves the existing
+format extensions, including the `avcC` parameter sets. It only applies when
+the active SPS has no `video_signal_type_present_flag` and the configured color
+space is fully specified and representable by CoreVideo. Tagged streams,
+including range-only VUI signaling, retain their existing behavior. A decoder
+reconfiguration recreates the accelerator with the new configuration; SPS
+changes recreate the format through the existing parameter-set tracking.
+
+A native VideoToolbox experiment with the issue's [untagged H.264 sample](https://remotion.media/webcodecs-color-space-untagged-sd-h264.mp4)
+produced SMPTE C primaries and an ITU-R 601 matrix when those input extensions
+were supplied, versus BT.709 for the original format. The decoded NV12 pixels
+had the same SHA-256 in both cases and in a BT.709 control. CoreVideo represents
+the SMPTE 170M transfer curve with its ITU-R 709 constant, so this is evidence
+for correcting color interpretation, not a guarantee of identical WebCodecs
+color-space enum values.
+
+The patch has not been compiled into Chromium or validated through WebCodecs.
+Before publishing a new browser version, compare the original and patched
+builds on the issue repro, checking both `VideoFrame.colorSpace` and rendered
+pixels. Include BT.601 and BT.709 configurations, full and limited range,
+tagged SDR/HDR streams, and decoder reconfiguration/SPS changes. Keep the
+upstream issue open until the browser result is verified. Publish under a new
+browser version/cache identity rather than replacing the recorded 158 archive.
+
+The build copies this patch into `artifacts/`, records its SHA-256 in
+`manifest.json`, and compiles the changed H.264 sources before the full browser.
+
 ## Build on an existing Apple Silicon Mac
 
 The host needs macOS 26, Command Line Tools 26.6, at least 250 GB of free disk,
@@ -79,10 +122,12 @@ top-level `output/` directory.
 The build script:
 
 1. Pins Chromium and depot_tools by commit.
-2. Applies the Command Line Tools compatibility changes and the v3 patch.
+2. Applies the Command Line Tools compatibility changes, the v3 patch, and the
+   proposed H.264 color-space patch.
 3. Generates the `headless_shell` build with `proprietary_codecs = true` and
    `ffmpeg_branding = "Chrome"`.
-4. Compiles the changed screenshot handler first, then the complete browser.
+4. Compiles the changed screenshot handler and H.264 sources first, then the
+   complete browser.
 5. Packages every GN runtime dependency, ad-hoc signs Mach-O files when needed,
    and emits a SHA-256 manifest.
 6. Starts the packaged browser and, for both the `auto` (POSIX shm) and the

@@ -1,0 +1,155 @@
+diff --git a/media/gpu/mac/video_toolbox_h264_accelerator.cc b/media/gpu/mac/video_toolbox_h264_accelerator.cc
+--- a/media/gpu/mac/video_toolbox_h264_accelerator.cc
++++ b/media/gpu/mac/video_toolbox_h264_accelerator.cc
+@@ -11,6 +11,7 @@
+ #include "base/numerics/byte_conversions.h"
+ #include "base/numerics/safe_conversions.h"
+ #include "build/build_config.h"
++#include "media/base/mac/color_space_util_mac.h"
+ #include "media/base/media_log.h"
+ #include "media/base/video_types.h"
+ 
+@@ -18,9 +19,11 @@
+ 
+ VideoToolboxH264Accelerator::VideoToolboxH264Accelerator(
+     std::unique_ptr<MediaLog> media_log,
++    const VideoColorSpace& container_color_space,
+     DecodeCB decode_cb,
+     OutputCB output_cb)
+     : media_log_(std::move(media_log)),
++      container_color_space_(container_color_space),
+       decode_cb_(std::move(decode_cb)),
+       output_cb_(std::move(output_cb)),
+       sps_tracker_("SPS", media_log_.get()),
+@@ -83,6 +86,55 @@
+     return false;
+   }
+ 
++  // The SPS/PPS-only format omits the decoder config's color space. For an
++  // untagged stream VideoToolbox then invents BT.709 output attachments, which
++  // take precedence over Chromium's fallback in VideoToolboxFrameConverter.
++  // Supply the fallback before decoding instead of relabeling decoded pixels.
++  // Preserve all bitstream signaling, including range-only VUI descriptions.
++  // See https://crbug.com/532860177.
++  if (!frame_has_color_information_ && container_color_space_.IsSpecified()) {
++    CFStringRef primaries = nullptr;
++    CFStringRef transfer = nullptr;
++    CFStringRef matrix = nullptr;
++    if (!GetImageBufferColorValues(container_color_space_.ToGfxColorSpace(),
++                                   &primaries, &transfer, &matrix)) {
++      // Keep the existing decoder fallback for color spaces CoreVideo cannot
++      // represent rather than making an otherwise decodable stream fail.
++      return true;
++    }
++
++    base::apple::ScopedCFTypeRef<CFMutableDictionaryRef> extensions(
++        CFDictionaryCreateMutableCopy(
++            kCFAllocatorDefault, 0,
++            CMFormatDescriptionGetExtensions(active_format_.get())));
++    CFDictionarySetValue(extensions.get(),
++                         kCMFormatDescriptionExtension_ColorPrimaries,
++                         primaries);
++    CFDictionarySetValue(extensions.get(),
++                         kCMFormatDescriptionExtension_TransferFunction,
++                         transfer);
++    CFDictionarySetValue(extensions.get(),
++                         kCMFormatDescriptionExtension_YCbCrMatrix, matrix);
++    CFDictionarySetValue(
++        extensions.get(), kCMFormatDescriptionExtension_FullRangeVideo,
++        container_color_space_.range() == gfx::ColorSpace::RangeID::FULL
++            ? kCFBooleanTrue
++            : kCFBooleanFalse);
++
++    const auto dimensions =
++        CMVideoFormatDescriptionGetDimensions(active_format_.get());
++    base::apple::ScopedCFTypeRef<CMFormatDescriptionRef> format;
++    status = CMVideoFormatDescriptionCreate(
++        kCFAllocatorDefault, kCMVideoCodecType_H264, dimensions.width,
++        dimensions.height, extensions.get(), format.InitializeInto());
++    if (status != noErr) {
++      OSSTATUS_MEDIA_LOG(ERROR, status, media_log_.get())
++          << "CMVideoFormatDescriptionCreate() with configured color space";
++      return false;
++    }
++    active_format_ = std::move(format);
++  }
++
+   return true;
+ }
+ 
+@@ -100,6 +152,7 @@
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+ 
+   ResetFrameData();
++  frame_has_color_information_ = sps->video_signal_type_present_flag;
+   return Status::kOk;
+ }
+ 
+@@ -212,6 +265,7 @@
+   sps_tracker_.ResetFrame();
+   pps_tracker_.ResetFrame();
+   frame_slice_data_.clear();
++  frame_has_color_information_ = false;
+ }
+ 
+ }  // namespace media
+diff --git a/media/gpu/mac/video_toolbox_h264_accelerator.h b/media/gpu/mac/video_toolbox_h264_accelerator.h
+--- a/media/gpu/mac/video_toolbox_h264_accelerator.h
++++ b/media/gpu/mac/video_toolbox_h264_accelerator.h
+@@ -18,6 +18,7 @@
+ #include "base/functional/callback.h"
+ #include "base/memory/raw_ptr_exclusion.h"
+ #include "base/sequence_checker.h"
++#include "media/base/video_color_space.h"
+ #include "media/base/video_types.h"
+ #include "media/gpu/h264_decoder.h"
+ #include "media/gpu/mac/video_toolbox_decompression_metadata.h"
+@@ -38,6 +39,7 @@
+   using OutputCB = base::RepeatingCallback<void(scoped_refptr<CodecPicture>)>;
+ 
+   VideoToolboxH264Accelerator(std::unique_ptr<MediaLog> media_log,
++                              const VideoColorSpace& container_color_space,
+                               DecodeCB decode_cb,
+                               OutputCB output_cb);
+   ~VideoToolboxH264Accelerator() override;
+@@ -72,6 +74,7 @@
+   void ResetFrameData();
+ 
+   std::unique_ptr<MediaLog> media_log_;
++  const VideoColorSpace container_color_space_;
+ 
+   // Callbacks are called synchronously, which is always re-entrant.
+   DecodeCB decode_cb_;
+@@ -86,6 +89,7 @@
+   // Accumulated slice data for the current frame.
+   // TODO(367764863) Rewrite to base::raw_span.
+   RAW_PTR_EXCLUSION std::vector<base::span<const uint8_t>> frame_slice_data_;
++  bool frame_has_color_information_ = false;
+ 
+   // True after Reset() and until after the first successful SubmitDecode().
+   bool first_decode_ = true;
+diff --git a/media/gpu/mac/video_toolbox_h264_accelerator_unittest.cc b/media/gpu/mac/video_toolbox_h264_accelerator_unittest.cc
+--- a/media/gpu/mac/video_toolbox_h264_accelerator_unittest.cc
++++ b/media/gpu/mac/video_toolbox_h264_accelerator_unittest.cc
+@@ -53,7 +53,7 @@
+ 
+   std::unique_ptr<VideoToolboxH264Accelerator> accelerator_{
+       std::make_unique<VideoToolboxH264Accelerator>(
+-          std::make_unique<NullMediaLog>(),
++          std::make_unique<NullMediaLog>(), VideoColorSpace(),
+           base::BindRepeating(&VideoToolboxH264AcceleratorTest::OnDecode,
+                               base::Unretained(this)),
+           base::BindRepeating(&VideoToolboxH264AcceleratorTest::OnOutput,
+diff --git a/media/gpu/mac/video_toolbox_video_decoder.cc b/media/gpu/mac/video_toolbox_video_decoder.cc
+--- a/media/gpu/mac/video_toolbox_video_decoder.cc
++++ b/media/gpu/mac/video_toolbox_video_decoder.cc
+@@ -180,7 +180,8 @@
+     case VideoCodec::kH264:
+       accelerator_ = std::make_unique<H264Decoder>(
+           std::make_unique<VideoToolboxH264Accelerator>(
+-              media_log_->Clone(), std::move(accelerator_decode_cb),
++              media_log_->Clone(), config.color_space_info(),
++              std::move(accelerator_decode_cb),
+               std::move(accelerator_output_cb)),
+           config.profile(), config.color_space_info());
+       break;
