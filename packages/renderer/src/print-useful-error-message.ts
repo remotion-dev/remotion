@@ -175,10 +175,7 @@ export const printUsefulErrorMessage = (
 	}
 
 	if (err.message.includes('GLIBC_')) {
-		Log.info(
-			{indent, logLevel},
-			'💡 Remotion requires glibc 2.35 or later. Amazon Linux 2023 on ARM64 is supported with glibc 2.34.',
-		);
+		Log.info({indent, logLevel}, '💡 Remotion requires at least Libc 2.35.');
 		Log.info(
 			{indent, logLevel},
 			'💡 Get help for this issue: https://github.com/remotion-dev/remotion/issues/2439',
