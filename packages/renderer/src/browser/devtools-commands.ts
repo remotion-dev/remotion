@@ -271,7 +271,12 @@ export interface Commands {
 		returnType: void;
 	};
 	'Network.enable': {
-		paramsType: [EnableRequest?];
+		paramsType: [
+			{
+				maxTotalBufferSize: number;
+				maxResourceBufferSize: number;
+			}?,
+		];
 		returnType: void;
 	};
 	'Target.detachFromTarget': {
