@@ -137,3 +137,48 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
 	return &renderProgressOutput, nil
 }
+
+func invokeGetCompositionsLambda(options *GetCompositionsOptions) (*GetCompositionsResponse, error) {
+
+	awsConfig, configError := awsconfig.LoadDefaultConfig(
+		context.Background(),
+		awsconfig.WithRegion(options.Region),
+	)
+	if configError != nil {
+		return nil, fmt.Errorf("could not load AWS config: %w", configError)
+	}
+	svc := lambda.NewFromConfig(awsConfig)
+
+	internalParams, validateError := constructGetCompositionsInternals(options)
+
+	if validateError != nil {
+		return nil, validateError
+	}
+
+	internalParamsJSON, marshallingError := json.Marshal(internalParams)
+	if marshallingError != nil {
+		return nil, fmt.Errorf("could not serialize compositions parameters: %w", marshallingError)
+	}
+
+	invocationParams := &lambda.InvokeInput{
+		FunctionName: new(options.FunctionName),
+		Payload:      internalParamsJSON,
+	}
+
+	// Invoke Lambda function
+	invokeResult, invokeError := svc.Invoke(context.Background(), invocationParams)
+
+	if invokeError != nil {
+		return nil, fmt.Errorf("could not invoke Lambda function %q: %w", options.FunctionName, invokeError)
+	}
+
+	// Unmarshal response from Lambda function
+	var compositionsOutput GetCompositionsResponse
+
+	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &compositionsOutput)
+	if resultUnmarshallError != nil {
+		return nil, fmt.Errorf("could not parse Lambda compositions response: %w", resultUnmarshallError)
+	}
+
+	return &compositionsOutput, nil
+}
