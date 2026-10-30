@@ -73,17 +73,28 @@ export const iterateOverSegments = <
 				cpX = s.cpx;
 				cpY = s.cpy;
 				break;
-			case 'T':
+			case 'T': {
+				const prevSegment = segments[i - 1];
 				// Order of if statement is important here
-				if (cpX !== null && cpY !== null) {
+				// After a command other than Q or T, the control point is the current point
+				if (
+					cpX !== null &&
+					cpY !== null &&
+					(prevSegment?.type === 'Q' || prevSegment?.type === 'T')
+				) {
 					cpX = x - (cpX - x);
 					cpY = y - (cpY - y);
+				} else {
+					cpX = x;
+					cpY = y;
 				}
 
 				x = s.x;
 				y = s.y;
 
 				break;
+			}
+
 			case 'L':
 				x = s.x;
 				y = s.y;
