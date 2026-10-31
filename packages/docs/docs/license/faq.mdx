@@ -93,7 +93,7 @@ You can buy a Company License under [remotion.pro/license](https://remotion.pro/
 We distinguish 2 cases:
 
 - **Remotion for Creators** is for organizations wanting to produce videos without setting up an [automation](#what-is-considered-an-automation).  
-  It costs $25/month per person who writes Remotion code themselves or using agentic coding tools.
+  It costs $25/month per person who makes videos with Remotion, whether by writing code, using agentic coding tools or editing in the [Remotion Studio](/docs/studio).
 - **Remotion for Automators** is for organizations building [automations](#what-is-considered-an-automation).  
   It costs $0.01 per [render](#how-is-1-render-defined), with a minimum spend of $100/month.
 
@@ -105,7 +105,14 @@ Use our [Pricing Calculator](/docs/license/pricing) to see how much a Company Li
 
 ### What is considered an automation?
 
-An automation is defined as owning code that programmatically calls one of the following APIs or commands:
+An automation is code that renders media without a person initiating and supervising each run. This includes code that:
+
+- is reused as a tool, for example an internal tool, a batch script or a video editor
+- runs on a schedule or in response to events
+- is triggered by other people, such as end users, colleagues or customers
+- renders media at high volume
+
+Such code typically calls one of the following APIs or commands:
 
 - [`renderMedia()`](/docs/renderer/render-media)
 - [`renderStill()`](/docs/renderer/render-still)
@@ -124,9 +131,26 @@ An automation is defined as owning code that programmatically calls one of the f
 - [`npx remotion lambda still`](/docs/lambda/cli/still)
 - [`npx remotion cloudrun render`](/docs/cloudrun/cli/render)
 - [`npx remotion cloudrun still`](/docs/cloudrun/cli/still)
-- [`<Player>`](/docs/player/player)
+
+Using the [`<Player>`](/docs/player/player) is always considered an automation.
 
 In practice, organizations building video editors, prompt-to-video tools, automated video pipelines or using the [Remotion Player](/docs/player) will fall under Remotion for Automators.
+
+### My AI agent wrote a script that renders many videos. Is that an automation?
+
+Not if you run it yourself for a single production.  
+For example, if you ask your agent to render a video in 12 languages and it writes a loop around [`renderMedia()`](/docs/renderer/render-media) that you run once, this is covered by Remotion for Creators.
+
+It becomes an automation once the script is reused as a tool, runs on a schedule, is triggered by other people or renders at high volume.  
+If your usage starts to resemble an automation, we may ask you to review your license configuration.
+
+### Who needs a Seat under Remotion for Creators?
+
+Every person who makes videos with Remotion needs a Seat, whether they write code, use an agentic coding tool or edit and assemble compositions in the [Remotion Studio](/docs/studio).  
+This includes people who only assemble videos from existing templates in the Studio.
+
+People who only review or receive the finished videos do not need a Seat.  
+Developers working only on automations do not need a Seat either.
 
 ### How is 1 render defined?
 

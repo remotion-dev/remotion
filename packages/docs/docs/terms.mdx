@@ -111,7 +111,9 @@ Although Remotion cannot promise solutions to issues encountered by Users, Enter
 
 Remotion for Automators is a Company License option priced at $0.01 per render, with a Minimum Spend of $100 per month. It is for organizations building automations such as video editors, prompt-to-video tools, automated video pipelines, embedding the [Remotion Player](/docs/player), or any other type of automation.
 
-An automation is defined as: Owning code that calls one of the following APIs or commands programmatically: `renderMedia()`, `renderStill()`, `renderFrames()`, `renderMediaOnLambda()`, `renderStillOnLambda()`, `renderMediaOnCloudRun()`, `renderStillOnCloudRun()`, `renderMediaOnVercel()`, `renderStillOnVercel()`, `renderMediaOnWeb()`, `renderStillOnWeb()`, `npx remotion render`, `npx remotion still`, `npx remotion lambda render`, `npx remotion lambda still`, `npx remotion cloudrun render`, `npx remotion cloudrun still`, or using the `<Player>` component.
+An automation is defined as code that renders media without a person initiating and supervising each run. This includes code that is reused as a tool, runs on a schedule or in response to events, is triggered by other people (such as end users, colleagues, or customers), or renders media at high volume. Such code typically calls one of the following APIs or commands: `renderMedia()`, `renderStill()`, `renderFrames()`, `renderMediaOnLambda()`, `renderStillOnLambda()`, `renderMediaOnCloudRun()`, `renderStillOnCloudRun()`, `renderMediaOnVercel()`, `renderStillOnVercel()`, `renderMediaOnWeb()`, `renderStillOnWeb()`, `npx remotion render`, `npx remotion still`, `npx remotion lambda render`, `npx remotion lambda still`, `npx remotion cloudrun render`, `npx remotion cloudrun still`. Using the `<Player>` component is always considered an automation.
+
+A script that a single person writes, or has an agentic coding tool write, and runs themselves for a single production (for example, rendering one campaign in multiple languages) is not an automation and is covered by Remotion for Creators. If such usage reaches a volume that resembles an automation, Remotion may ask the User to review their license configuration.
 
 Free License Users may build automations without purchasing Renders. The Remotion for Automators option and its Minimum Spend apply only to Company License Users.
 
@@ -121,7 +123,7 @@ Remotion for Creators is a Company License option priced at $25 per Seat per mon
 
 ### Seat {#Seat}
 
-A Seat is defined as a license that permits a single person to use the Remotion Software for the purpose of creating low-volume media for their organization. Seats are applicable to the option called Remotion for Creators, where a single person either writes Remotion code themselves or leverages agentic coding tools such as Claude Code, Codex, OpenCode, or similar.
+A Seat is defined as a license that permits a single person to use the Remotion Software for the purpose of creating low-volume media for their organization. Seats are applicable to the option called Remotion for Creators, where a single person makes media with the Remotion Software, whether by writing Remotion code themselves, by leveraging agentic coding tools such as Claude Code, Codex, OpenCode, or similar, or by editing or assembling compositions in the Remotion Studio.
 
 ### Renders {#ServerRenders}
 
