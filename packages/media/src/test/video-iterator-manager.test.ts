@@ -1,4 +1,6 @@
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import {ALL_FORMATS, EncodedPacketSink, Input, UrlSource} from 'mediabunny';
+import type {EffectDefinitionAndStack} from 'remotion';
+import {Internals} from 'remotion';
 import {expect, onTestFinished, test} from 'vitest';
 import {makeNonceManager} from '../nonce-manager';
 import {
@@ -457,4 +459,107 @@ test('a superseded seek leaves recreating a reclaimed decoder to the next seek',
 	} finally {
 		manager.destroy();
 	}
+});
+
+test('reuses effect output while seeks stay within one decoded frame', async () => {
+	const input = new Input({
+		source: new UrlSource('/red-heart-1x.webm'),
+		formats: ALL_FORMATS,
+	});
+	onTestFinished(() => input.dispose());
+	const videoTrack = await input.getPrimaryVideoTrack();
+	if (!videoTrack) {
+		throw new Error('No video track found');
+	}
+
+	const firstPacket = await new EncodedPacketSink(videoTrack).getFirstPacket();
+	if (!firstPacket || firstPacket.duration <= 0) {
+		throw new Error('Expected a first packet with a duration');
+	}
+
+	const frameDuration = firstPacket.duration;
+	const canvas = document.createElement('canvas');
+	const chainState = Internals.createEffectChainState(1, 1);
+	onTestFinished(() => Internals.cleanupEffectChainState(chainState));
+	let applied = 0;
+	const makeEffects = (): EffectDefinitionAndStack<unknown>[] => [
+		{
+			memoized: true,
+			effectKey: 'count',
+			params: {},
+			definition: {
+				type: 'count',
+				label: 'count',
+				documentationLink: null,
+				backend: '2d',
+				calculateKey: () => 'count',
+				schema: {},
+				validateParams: () => {},
+				setup: () => null,
+				cleanup: () => {},
+				apply: ({target, source}) => {
+					applied++;
+					target.getContext('2d')!.drawImage(source, 0, 0);
+				},
+			},
+		},
+	];
+	let effects = makeEffects();
+
+	const manager = await videoIteratorManager({
+		getIsDisposed: () => false,
+		videoTrack,
+		delayPlaybackHandleIfNotPremounting: () => ({
+			unblock: () => {},
+			[Symbol.dispose]: () => {},
+		}),
+		context: canvas.getContext('2d'),
+		canvas,
+		getOnVideoFrameCallback: () => null,
+		logLevel: 'error',
+		drawDebugOverlay: () => {},
+		getLoopSegmentMediaEndTimestamp: () => {
+			throw new Error('not implemented');
+		},
+		getStartTime: () => {
+			throw new Error('not implemented');
+		},
+		getIsLooping: () => false,
+		getEffects: () => effects,
+		getEffectChainState: () => chainState,
+		maxCanvasSinkFrameSize: null,
+	});
+	onTestFinished(() => manager.destroy());
+	const nonceManager = makeNonceManager();
+	const seek = (newTime: number) =>
+		manager.seek({
+			newTime,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 60,
+			playbackRate: 1,
+			isPlaying: true,
+			continuousPlayback: true,
+		});
+
+	await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+	expect(applied).toBe(1);
+
+	// Like a 60 fps composition showing a lower frame rate video.
+	await seek(frameDuration / 4);
+	await seek(frameDuration / 2);
+	expect(manager.getFramesRendered()).toBe(3);
+	expect(applied).toBe(1);
+
+	await seek(frameDuration * 1.25);
+	expect(manager.getFramesRendered()).toBe(4);
+	expect(applied).toBe(2);
+
+	// Changed effects need a new output, even for the same decoded frame.
+	effects = makeEffects();
+	await seek(frameDuration * 1.5);
+	expect(applied).toBe(3);
+
+	// An explicit redraw always reruns the effects.
+	await manager.redrawCurrentFrame();
+	expect(applied).toBe(4);
 });
