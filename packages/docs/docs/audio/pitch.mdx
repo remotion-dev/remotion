@@ -1,12 +1,15 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-audio-pitch.png
-title: Controlling Pitch
-sidebar_label: Controlling Pitch
+title: Controlling pitch
+sidebar_label: Controlling pitch
 id: pitch
-crumb: 'Audio'
+crumb: 'Video and Audio'
 ---
 
-Use the `toneFrequency` prop to control the pitch of audio.
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Use the [`toneFrequency`](/docs/media/audio#tonefrequency) prop to control the pitch of sound from both [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).
 
 | Tag                                                        | Preview                                 | [Server-side rendering](/docs/ssr)      | [Client-side rendering](/docs/client-side-rendering) |
 | ---------------------------------------------------------- | --------------------------------------- | --------------------------------------- | ---------------------------------------------------- |
@@ -22,16 +25,36 @@ A `toneFrequency` of 0.5 would lower the pitch by half, and a `toneFrequency` of
 
 The value must stay constant for each audio or video asset. Animating or keyframing `toneFrequency` is not supported.
 
-```tsx twoslash {7} title="MyComp.tsx"
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return <Video src={staticFile('video.mp4')} toneFrequency={0.8} />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
 import {Audio} from '@remotion/media';
 import {staticFile} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <>
-      <div>Hello World!</div>
-      <Audio src={staticFile('audio.mp3')} toneFrequency={0.8} />
-    </>
-  );
+  return <Audio src={staticFile('audio.mp3')} toneFrequency={0.8} />;
 };
 ```
+
+</TabItem>
+</Tabs>
+
+To change playback speed while keeping the original pitch, use [`preservePitch`](/docs/audio/speed#preserving-pitch) instead.
+
+## See also
+
+- [Controlling playback speed](/docs/audio/speed)
+- [Choosing a media component](/docs/video-tags)

@@ -1199,66 +1199,121 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
 			type: 'category',
-			label: 'Adding video',
+			label: 'Studio',
+			items: [
+				'studio/studio',
+				'studio/open-in-editor',
+				'studio/shortcuts',
+				'studio/quick-switcher',
+				'studio/showing-unmounted-components',
+				'studio/interactivity',
+				'studio/interactivity-best-practices',
+				'studio/make-component-interactive',
+				'studio/deploy-static',
+				'studio/deploy-server',
+				'studio/remotion-dev-new',
+				'studio/browse-elements',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Elements',
+			link: {
+				type: 'doc',
+				id: 'elements',
+			},
+			items: ['elements', 'elements/libraries'],
+		},
+		{
+			type: 'category',
+			label: 'AI',
+			link: {
+				type: 'doc',
+				id: 'ai/index',
+			},
+			items: [
+				'ai/coding-agents',
+				'ai/skills',
+				{
+					type: 'category',
+					label: 'Plugins',
+					link: {
+						type: 'doc',
+						id: 'ai/plugins',
+					},
+					items: [
+						'ai/claude-code-plugin',
+						'ai/codex-plugin',
+						'ai/cursor-plugin',
+						'ai/github-copilot-plugin',
+						'ai/kimi-code-plugin',
+					],
+				},
+				'ai/webmcp',
+				'ai/bolt',
+				'ai/chatbot',
+				'ai/generate',
+				'ai/dynamic-compilation',
+				'ai/ai-saas-template',
+			],
+		},
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'category',
+			label: 'Video and Audio',
+			link: {type: 'doc', id: 'video-and-audio'},
 			items: [
 				'videos/index',
-				'videos/align-duration',
-				'videos/sequence',
-				'videos/transparency',
-				'videos/video-manipulation',
-				'color-correction',
-				'greenscreen',
-				'videos/accelerated-video',
-				'videos/jumpcuts',
-				'videos/different-segments-at-different-speeds',
-				'video-tags',
-				'hls',
-				'videos/prores',
-				'videos/media-fragments',
-				'videos/as-threejs-texture',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Adding audio',
-			link: {
-				type: 'doc',
-				id: 'using-audio',
-			},
-			items: [
-				'audio/importing',
 				'audio/trimming',
-				'audio/delaying',
-				'audio/volume',
-				'audio/muting',
 				'audio/speed',
+				'audio/volume',
 				'audio/pitch',
-				'audio/from-video',
-				'audio/visualization',
-				'audio/sfx',
-				'audio/exporting',
+				'videos/align-duration',
+				{
+					type: 'category',
+					label: 'Video techniques',
+					items: [
+						'videos/size-and-position',
+						'videos/sequence',
+						'videos/transparency',
+						'color-correction',
+						'greenscreen',
+						'videos/video-manipulation',
+						'videos/jumpcuts',
+						'videos/accelerated-video',
+						'videos/different-segments-at-different-speeds',
+						'videos/as-threejs-texture',
+					],
+				},
+				{
+					type: 'category',
+					label: 'Audio techniques',
+					items: ['audio/visualization', 'audio/sfx'],
+				},
+				{
+					type: 'category',
+					label: 'Formats and compatibility',
+					items: [
+						'video-tags',
+						'hls',
+						'videos/prores',
+						'videos/media-fragments',
+					],
+				},
 			],
 		},
-		{
-			type: 'category',
-			label: 'Parameterized videos',
-			link: {
-				type: 'doc',
-				id: 'parameterized-rendering',
-			},
-			items: [
-				'passing-props',
-				'default-props-inference',
-				'schemas',
-				'visual-editing',
-				'data-fetching',
-				'dynamic-metadata',
-				'props-resolution',
-				'design-systems',
-			],
-		},
-
 		{
 			type: 'category',
 			label: 'Captions',
@@ -1294,7 +1349,24 @@ const sidebars: SidebarsConfig = {
 				'maps',
 				'light-leaks',
 				'text-highlights',
-				'starburst',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Parameterized videos',
+			link: {
+				type: 'doc',
+				id: 'parameterized-rendering',
+			},
+			items: [
+				'passing-props',
+				'default-props-inference',
+				'schemas',
+				'visual-editing',
+				'data-fetching',
+				'dynamic-metadata',
+				'props-resolution',
+				'design-systems',
 			],
 		},
 		{
@@ -1313,6 +1385,7 @@ const sidebars: SidebarsConfig = {
 			items: [
 				'encoding',
 				'stills',
+				'audio/exporting',
 				'scaling',
 				'transparent-videos',
 				'render-as-gif',
@@ -1454,73 +1527,6 @@ const sidebars: SidebarsConfig = {
 				'lambda/s3-public-access',
 				'lambda/bucket-security',
 				'lambda/naming-convention',
-			],
-		},
-		{
-			type: 'html',
-			value:
-				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
-			defaultStyle: true, // Use the default menu item styling
-		},
-		{
-			type: 'category',
-			label: 'Studio',
-			items: [
-				'studio/studio',
-				'studio/open-in-editor',
-				'studio/shortcuts',
-				'studio/quick-switcher',
-				'studio/showing-unmounted-components',
-				'studio/interactivity',
-				'studio/interactivity-best-practices',
-				'studio/make-component-interactive',
-				'studio/deploy-static',
-				'studio/deploy-server',
-				'studio/remotion-dev-new',
-				'studio/browse-elements',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Elements',
-			link: {
-				type: 'doc',
-				id: 'elements',
-			},
-			items: ['elements', 'elements/libraries'],
-		},
-		{
-			type: 'category',
-			label: 'AI',
-			link: {
-				type: 'doc',
-				id: 'ai/index',
-			},
-			items: [
-				'ai/coding-agents',
-				'ai/skills',
-				{
-					type: 'category',
-					label: 'Plugins',
-					link: {
-						type: 'doc',
-						id: 'ai/plugins',
-					},
-					items: [
-						'ai/claude-code-plugin',
-						'ai/codex-plugin',
-						'ai/cursor-plugin',
-						'ai/github-copilot-plugin',
-						'ai/kimi-code-plugin',
-					],
-				},
-				'ai/webmcp',
-				'ai/bolt',
-				'ai/chatbot',
-				'ai/generate',
-				'ai/dynamic-compilation',
-				'ai/ai-saas-template',
-				'ai/mcp',
 			],
 		},
 		{
