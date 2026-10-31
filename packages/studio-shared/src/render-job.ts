@@ -11,7 +11,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {PreferredEffectBackend} from 'remotion';
+import type {PreferredEffectBackend, SequenceNodePath} from 'remotion';
 
 type BaseRenderProgress = {
 	message: string;
@@ -172,6 +172,18 @@ type RenderJobDynamicFields =
 			hardwareAcceleration: HardwareAccelerationOption;
 			sampleRate: number;
 			licenseKey: string | null;
+			prerender: {
+				fileName: string;
+				// Follows source edits while rendering. `null` if the target
+				// was deleted.
+				nodePath: SequenceNodePath | null;
+				// Output path relative to the public folder
+				src: string;
+				width: number;
+				height: number;
+				fps: number;
+				durationInFrames: number;
+			} | null;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';

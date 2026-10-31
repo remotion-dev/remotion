@@ -12,7 +12,10 @@ import {
 	withCommittedMetadata,
 	type CommittedMetadata,
 } from './committed-metadata.js';
-import {getSingleChildComponent} from './component-identity.js';
+import {
+	getSingleChildComponent,
+	getSingleChildProps,
+} from './component-identity.js';
 import type {
 	AnimatedImageInTimeline,
 	LoopDisplay,
@@ -146,6 +149,11 @@ export type SequencePropsWithoutDuration = {
 	readonly _remotionInternalSingleChildComponent?: unknown;
 	/**
 	 * @deprecated For internal use only.
+	 * The children as authored, if the rendered children are wrapped.
+	 */
+	readonly _remotionInternalSingleChildren?: React.ReactNode;
+	/**
+	 * @deprecated For internal use only.
 	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
@@ -236,6 +244,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalSingleChildComponent: childComponentOverride,
+		_remotionInternalSingleChildren: authoredChildrenOverride,
 		_remotionInternalDocumentationLink: documentationLink,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
@@ -529,12 +538,27 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
+	const authoredChildren =
+		authoredChildrenOverride === undefined
+			? children
+			: authoredChildrenOverride;
 	const singleChildComponent = useMemo(
 		() =>
 			childComponentOverride === undefined
-				? getSingleChildComponent(children)
+				? getSingleChildComponent(authoredChildren)
 				: childComponentOverride,
-		[children, childComponentOverride],
+		[authoredChildren, childComponentOverride],
+	);
+	const childrenRef = useRef(authoredChildren);
+	useLayoutEffect(() => {
+		childrenRef.current = authoredChildren;
+	}, [authoredChildren]);
+	const getRegisteredSingleChildProps = useMemo(
+		() =>
+			childComponentOverride === undefined
+				? () => getSingleChildProps(childrenRef.current)
+				: null,
+		[childComponentOverride],
 	);
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
@@ -677,6 +701,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
 					singleChildComponent: singleChildComponent ?? null,
+					getSingleChildProps: getRegisteredSingleChildProps,
 				};
 			}
 
@@ -711,6 +736,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 				frozenFrame: registeredFrozenFrame,
 				frozenMediaFrame,
 				singleChildComponent: singleChildComponent ?? null,
+				getSingleChildProps: getRegisteredSingleChildProps,
 			};
 		}
 
@@ -742,6 +768,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
 			singleChildComponent: singleChildComponent ?? null,
+			getSingleChildProps: getRegisteredSingleChildProps,
 		};
 	}, [
 		id,
@@ -776,6 +803,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		mediaFrameAtSequenceZero,
 		frozenMediaFrame,
 		singleChildComponent,
+		getRegisteredSingleChildProps,
 	]);
 	const getSequenceForRegistration = useMemo(
 		() => getSequenceRegistration.bind(null, sequenceForRegistration),

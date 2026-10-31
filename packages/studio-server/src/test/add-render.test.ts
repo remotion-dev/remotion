@@ -86,6 +86,7 @@ test('captures the current public license key for Studio renders', async () => {
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
 			sampleRate: 48000,
+			prerenderTarget: null,
 		});
 		await addRender({
 			...common,
