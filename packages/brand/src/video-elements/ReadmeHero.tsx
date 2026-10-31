@@ -8,7 +8,7 @@ export const ReadmeHero: React.FC<{theme: 'light' | 'dark'}> = ({theme}) => {
 		<AbsoluteFill>
 			<Img
 				src={`https://remotion.media/remotion-wordmark${theme === 'dark' ? '-dark' : ''}.png`}
-				style={{position: 'absolute', width: 220, left: 384, top: 4}}
+				style={{position: 'absolute', width: 280, left: 354, top: 4}}
 			/>
 			{(['left', 'right'] as const).map((side) => (
 				<div
@@ -27,7 +27,7 @@ export const ReadmeHero: React.FC<{theme: 'light' | 'dark'}> = ({theme}) => {
 				style={{
 					position: 'absolute',
 					left: 37.5,
-					top: 72,
+					top: 88,
 					width: 937,
 					height: 510,
 				}}
