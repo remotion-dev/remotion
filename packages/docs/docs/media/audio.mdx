@@ -152,6 +152,8 @@ A name and that will be shown as the label of the sequence in the timeline of th
 
 ### `onError?`<AvailableFrom v="4.0.404" />
 
+Supports [asynchronous asset recovery](/docs/asset-error-handling), including an explicit `'handled'` result. <AvailableFrom v="4.0.538" />
+
 Handle errors that occur during audio processing. The callback receives an `Error` and should return either `'fallback'` or `'fail'`.
 
 - Return `'fallback'` to fall back to [`<Html5Audio>`](/docs/html5-audio) (default behavior)
@@ -177,7 +179,7 @@ export const MyVideo = () => {
 
 :::note
 
-- In client-side rendering, the render will always fail regardless of the return value.
+- In client-side rendering, decoder fallback is unavailable. The render fails unless your callback returns `'handled'` after replacing or deliberately omitting the failed asset.
 - If you return `'fallback'`, the component will fall back to [`<Html5Audio>`](/docs/html5-audio) which may have its own error handling via [`fallbackHtml5AudioProps.onError`](#onerror-1).
   :::
 

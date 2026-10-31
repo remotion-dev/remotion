@@ -269,6 +269,7 @@ export {
 	type Translation,
 	useCurrentScale,
 } from './use-current-scale';
+export type {MediaErrorHandler} from './media-error-handler.js';
 export {useDelayRender} from './use-delay-render';
 export {usePixelDensity} from './use-pixel-density';
 export {useRemotionEnvironment} from './use-remotion-environment.js';

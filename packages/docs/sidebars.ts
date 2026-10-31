@@ -1281,6 +1281,7 @@ const sidebars: SidebarsConfig = {
 				'layers',
 				'transforms',
 				'assets',
+				'asset-error-handling',
 				'fonts',
 				'transitioning',
 				'motion-blur/index',

@@ -69,6 +69,7 @@ export function cancelRenderInternal(
 		// keep the original Error in this realm, including its cause chain.
 		scope.remotion_cancelledErrorObject = error;
 		scope.remotion_cancelledError = getErrorStackWithMessage(error);
+		scope.remotion_cancelledErrorObject = error;
 	}
 
 	throw error;

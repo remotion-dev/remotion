@@ -107,6 +107,8 @@ CSS styles applied to the canvas while it is postmounted. These styles override 
 
 ### `onError?`
 
+Supports [asynchronous asset recovery](/docs/asset-error-handling), including an explicit `'handled'` result. <AvailableFrom v="4.0.538" />
+
 Called when the image cannot be loaded, decoded, or drawn after all retries are exhausted.  
 If omitted, [`cancelRender()`](/docs/cancel-render) is called.
 

@@ -38,7 +38,8 @@ export const GifForRendering = forwardRef<
 		const requestInitRef = useRef(requestInit);
 		requestInitRef.current = requestInit;
 		const cacheKey = getGifCacheKey({resolvedSrc, requestInit});
-		const {delayRender, continueRender} = useDelayRender();
+		const {delayRender, continueRender, cancelRender} = useDelayRender();
+		const commitRecovery = Internals.useErrorRecoveryCommit();
 		const [state, update] = useState<GifState & {handle: number | null}>(() => {
 			const parsedGif = volatileGifCache.get(cacheKey);
 
@@ -103,7 +104,7 @@ export const GifForRendering = forwardRef<
 					volatileGifCache.set(cacheKey, parsed);
 					done = true;
 				})
-				.catch((err) => {
+				.catch(async (err) => {
 					if (aborted) {
 						continueRender(newHandle);
 						return;
@@ -111,11 +112,21 @@ export const GifForRendering = forwardRef<
 
 					Internals.Log.error({logLevel, tag: null}, 'Failed to load GIF', err);
 
-					if (currentOnError.current) {
-						currentOnError.current(err);
-					} else {
-						setError(err);
-					}
+					const result = await Internals.resolveMediaError({
+						onError: currentOnError.current,
+						error: err,
+						defaultAction: currentOnError.current ? 'handled' : 'fail',
+						actions: ['handled', 'fail'],
+					});
+					if (aborted) return;
+					if (result.action === 'fail') {
+						if (currentOnError.current)
+							Internals.cancelRenderFromAsync(cancelRender, result.error);
+						else setError(result.error);
+					} else if (result.isDefaultAction)
+						commitRecovery(() => {
+							if (!aborted) continueRender(newHandle);
+						});
 				});
 
 			return () => {
@@ -132,6 +143,8 @@ export const GifForRendering = forwardRef<
 			resolvedSrc,
 			delayRender,
 			continueRender,
+			cancelRender,
+			commitRecovery,
 			delayRenderTimeoutInMilliseconds,
 		]);
 
