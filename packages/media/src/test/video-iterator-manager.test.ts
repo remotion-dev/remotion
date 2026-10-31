@@ -562,4 +562,11 @@ test('reuses effect output while seeks stay within one decoded frame', async () 
 	// An explicit redraw always reruns the effects.
 	await manager.redrawCurrentFrame();
 	expect(applied).toBe(4);
+
+	// A restored 2D context comes back blank, so the same frame needs a new output.
+	await seek(frameDuration * 1.75);
+	expect(applied).toBe(4);
+	canvas.dispatchEvent(new Event('contextrestored'));
+	await seek(frameDuration * 1.8);
+	expect(applied).toBe(5);
 });
