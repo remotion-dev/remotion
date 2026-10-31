@@ -229,6 +229,18 @@ In the [Remotion Studio](/docs/terminology/studio) or in the [Remotion Player](/
 
 If set to `true` and the audio is buffering, the Player will enter into the [native buffering state](/docs/player/buffer-state). The default is `false` in Remotion 4.0 and `true` in Remotion 5.0.
 
+### `retainAudioDuringBuffering?`<AvailableFrom v="4.0.538" />
+
+Opt in to retaining the native audio position when another media element buffers in the [Player](/docs/player). Requires [`pauseWhenBuffering`](#pausewhenbuffering) to be `true`. Defaults to `false`, independently of the `pauseWhenBuffering` default in Remotion 5.0. Has no effect in Studio or rendering.
+
+```tsx
+<Html5Audio src={audioSrc} pauseWhenBuffering retainAudioDuringBuffering />
+```
+
+If audio is slightly ahead when the timeline stops, it stays paused until the timeline catches up, then resumes without seeking back. A small lag at a subsequent buffering interval is also retained to avoid skipping unheard audio. Normal synchronization resumes once the native audio clock advances. Explicit seeks, source/timebase changes, audio's own buffering and drift beyond the existing tolerance still use normal synchronization.
+
+This trades repeated or skipped audio for additional waiting while the timeline catches up. Choose whether this is appropriate for your content. Omitting this prop or setting it to `false` keeps the existing synchronization behavior and does not disable the audio's own buffering.
+
 ### `showInTimeline?`<AvailableFrom v="4.0.122"/>
 
 If set to `false`, no layer will be shown in the timeline of the Remotion Studio. The default is `true`.
