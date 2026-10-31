@@ -279,6 +279,7 @@ const CanvasImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			runtimeValues: controls?.runtimeValues ?? null,
 			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
@@ -440,9 +441,15 @@ const CanvasImageContent = forwardRef<
 			});
 
 			if (!sourceContext) {
-				cancelRender(
-					new Error('Could not get 2D context for <CanvasImage> source canvas'),
+				const error = new Error(
+					'Could not get 2D context for <CanvasImage> source canvas',
 				);
+				if (onError) {
+					onError(error);
+				} else {
+					cancelRender(error);
+				}
+
 				continueRenderOnce();
 				return () => {
 					continueRenderOnce();

@@ -29,10 +29,10 @@ import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
 import {Plus} from '../icons/plus';
-import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
+import {EffectPickerSetterContext} from './EffectPickerProvider';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
@@ -331,12 +331,8 @@ export const InspectorSequenceSection: React.FC<{
 		includeSourceControls: true,
 		includeInspectorOnlyFields: true,
 	});
-	const {
-		consumeInspectorRevealRequest,
-		inspectorRevealRequest,
-		selectedItems,
-		selectItems,
-	} = useTimelineSelection();
+	const {consumeInspectorRevealRequest, inspectorRevealRequest, selectedItems} =
+		useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -386,7 +382,7 @@ export const InspectorSequenceSection: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {openEffectPicker} = useContext(EffectPickerSetterContext);
 	const selectAsset = useSelectAsset();
 	const selectMediaSrc = useCallback(
 		(values: Readonly<Record<string, unknown>>) =>
@@ -934,20 +930,17 @@ export const InspectorSequenceSection: React.FC<{
 
 		setAdditionalSectionExpanded('effects', true);
 
-		setSelectedModal({
-			type: 'add-effect',
+		openEffectPicker({
 			clientId: previewServerState.clientId,
 			fileName: validatedLocation.source,
 			nodePathInfo,
-			selectItems,
 		});
 	}, [
 		canAddEffect,
 		nodePathInfo,
 		previewServerState,
 		setAdditionalSectionExpanded,
-		setSelectedModal,
-		selectItems,
+		openEffectPicker,
 		validatedLocation.source,
 	]);
 

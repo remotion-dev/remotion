@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
 export * from './sequence-registry-context.js';
+import {EffectPreviewProvider} from './effects/effect-preview.js';
 import {
 	DEFAULT_SEQUENCE_ACTIVITY_LIMIT,
 	SequenceActivityContext,
@@ -853,34 +854,36 @@ export const SequenceManagerProvider: React.FC<{
 
 	return (
 		<SequenceRegistryProvider>
-			<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
-				<VisualModePropStatusesSubscriptionContext.Provider
-					value={propStatusesSubscription}
-				>
-					<VisualModePropStatusesContext.Provider value={propStatusesContext}>
-						<SequenceManagerScopeProviders
-							dragOverridesSubscription={dragOverridesSubscription}
-							fromKeys={dragOverrideState.fromKeys}
-						>
-							<VisualModeDragOverridesContext.Provider
-								value={dragOverridesContext}
+			<EffectPreviewProvider>
+				<VisualModePropStatusesRefContext.Provider value={propStatusesRef}>
+					<VisualModePropStatusesSubscriptionContext.Provider
+						value={propStatusesSubscription}
+					>
+						<VisualModePropStatusesContext.Provider value={propStatusesContext}>
+							<SequenceManagerScopeProviders
+								dragOverridesSubscription={dragOverridesSubscription}
+								fromKeys={dragOverrideState.fromKeys}
 							>
-								<VisualModeDragOverridesRefContext.Provider
-									value={dragOverridesRef}
+								<VisualModeDragOverridesContext.Provider
+									value={dragOverridesContext}
 								>
-									<VisualModeSettersContext.Provider value={settersContext}>
-										<VisualModeBatchSettersContext.Provider
-											value={batchSettersContext}
-										>
-											{children}
-										</VisualModeBatchSettersContext.Provider>
-									</VisualModeSettersContext.Provider>
-								</VisualModeDragOverridesRefContext.Provider>
-							</VisualModeDragOverridesContext.Provider>
-						</SequenceManagerScopeProviders>
-					</VisualModePropStatusesContext.Provider>
-				</VisualModePropStatusesSubscriptionContext.Provider>
-			</VisualModePropStatusesRefContext.Provider>
+									<VisualModeDragOverridesRefContext.Provider
+										value={dragOverridesRef}
+									>
+										<VisualModeSettersContext.Provider value={settersContext}>
+											<VisualModeBatchSettersContext.Provider
+												value={batchSettersContext}
+											>
+												{children}
+											</VisualModeBatchSettersContext.Provider>
+										</VisualModeSettersContext.Provider>
+									</VisualModeDragOverridesRefContext.Provider>
+								</VisualModeDragOverridesContext.Provider>
+							</SequenceManagerScopeProviders>
+						</VisualModePropStatusesContext.Provider>
+					</VisualModePropStatusesSubscriptionContext.Provider>
+				</VisualModePropStatusesRefContext.Provider>
+			</EffectPreviewProvider>
 		</SequenceRegistryProvider>
 	);
 };

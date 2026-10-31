@@ -18,6 +18,7 @@ import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
+import {EffectPickerSetterContext} from './EffectPickerProvider';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
@@ -131,6 +132,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		Internals.CompositionManagerRefContext,
 	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {openEffectPicker} = useContext(EffectPickerSetterContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
@@ -501,7 +503,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 											type: 'item' as const,
 											id: 'add-effect',
 											keyHint: null,
-											label: 'Add effect...',
+											label: 'Add effect',
 											leftItem: null,
 											disabled: !canAddEffect,
 											onClick: () => {
@@ -512,12 +514,10 @@ const SelectedOutlineElementUnmemoized: React.FC<
 													return;
 												}
 
-												setSelectedModal({
-													type: 'add-effect',
+												openEffectPicker({
 													clientId: previewServerState.clientId,
 													fileName: nodePath.absolutePath,
 													nodePathInfo: contextMenuTarget.nodePathInfo,
-													selectItems: currentSelection.current.selectItems,
 												});
 											},
 											quickSwitcherLabel: null,
@@ -539,6 +539,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		deleteTimelineItems,
 		editorInfo,
 		getTarget,
+		openEffectPicker,
 		onSelect,
 		defaultEditorId,
 		editorAvailable,
@@ -546,7 +547,6 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		resolveOriginalLocation,
 		setManuallyEnabled,
 		selectAsset,
-		currentSelection,
 		setSelectedModal,
 		setPropStatuses,
 		outline.path,
