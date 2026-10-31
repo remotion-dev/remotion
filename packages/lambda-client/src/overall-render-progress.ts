@@ -18,6 +18,8 @@ export type OverallRenderProgress = {
 	timeToEncode: number | null;
 	timeToRenderFrames: number | null;
 	lambdasInvoked: number;
+	// Reported by a renderer once it starts, or null before any renderer starts.
+	rendererMemorySizeInMb: number | null;
 	retries: ChunkRetry[];
 	postRenderData: PostRenderData | null;
 	separateAudio: SeparateAudioOutput | null;

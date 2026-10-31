@@ -6,7 +6,7 @@ slug: /lambda/naming-convention
 crumb: 'Lambda'
 ---
 
-A Remotion Lambda function has the following naming convention:
+By default, a Remotion Lambda function has the following naming convention:
 
 ```
 remotion-render-4-0-372-mem2048mb-disk2048mb-240sec
@@ -17,7 +17,7 @@ remotion-render-4-0-372-mem2048mb-disk2048mb-240sec
                   |----------------------------- Remotion version with dots replaced by dashes
 ```
 
-When you deploy a function, the name is hardcoded. This has two functions:
+When you deploy a function without a name override, the name is generated from its configuration. This has two benefits:
 
 - <Step>1</Step> Avoid having multiple functions with the same configuration unnecessarily.
 - <Step>2</Step> Being able to guess the function name using
@@ -26,7 +26,10 @@ When you deploy a function, the name is hardcoded. This has two functions:
 </a>
 so you don't have to fetch a list of functions in your AWS account.
 
+From <AvailableFrom v="4.0.540" inline />, you can override the name. See [Custom Lambda function names](/docs/lambda/custom-function-names) for deployment, IAM permissions and function selection.
+
 ## See also
 
 - [`speculateFunctionName()`](/docs/lambda/speculatefunctionname)
+- [Custom Lambda function names](/docs/lambda/custom-function-names)
 - [/docs/lambda/separate-environments](/docs/lambda/separate-environments)

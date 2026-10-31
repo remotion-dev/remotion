@@ -5,13 +5,11 @@ import {
 	type ServerlessPayload,
 } from '@remotion/lambda-client';
 import {getCurrentFunctionName} from '../helpers/get-current-function-name';
-import {getCurrentMemorySizeInMb} from '../helpers/get-current-memory-size';
 import {getCurrentRegionInFunction} from '../helpers/get-current-region';
 import {checkVersionMismatch} from './check-version-mismatch';
 
 type Options = {
 	expectedBucketOwner: string | null;
-	timeoutInMilliseconds: number;
 	retriesRemaining: number;
 };
 
@@ -37,8 +35,6 @@ export const progressHandler = async ({
 			renderId: params.renderId,
 			expectedBucketOwner: options.expectedBucketOwner,
 			region: getCurrentRegionInFunction(),
-			memorySizeInMb: getCurrentMemorySizeInMb(),
-			timeoutInMilliseconds: options.timeoutInMilliseconds,
 			customCredentials: params.s3OutputProvider ?? null,
 			forcePathStyle: params.forcePathStyle,
 			functionName: getCurrentFunctionName(),
@@ -58,7 +54,6 @@ export const progressHandler = async ({
 				params,
 				options: {
 					expectedBucketOwner: options.expectedBucketOwner,
-					timeoutInMilliseconds: options.timeoutInMilliseconds,
 					retriesRemaining: options.retriesRemaining - 1,
 				},
 			});

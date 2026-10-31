@@ -97,6 +97,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 	});
 	output.update('Deploying Lambda...', false);
 	const {functionName, alreadyExisted} = await internalDeployFunction({
+		functionName: parsedLambdaCli['function-name'] ?? null,
 		createCloudWatchLogGroup,
 		region,
 		timeoutInSeconds,

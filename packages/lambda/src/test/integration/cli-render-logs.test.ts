@@ -36,21 +36,27 @@ afterEach(() => {
 	doAfter();
 });
 
-test('Only shows the main CloudWatch logs for a direct single-function render', async () => {
-	let resolveStatusRequested: () => void = () => undefined;
-	const statusRequested = new Promise<void>((resolve) => {
-		resolveStatusRequested = resolve;
+test('Uses an explicit function without discovery and only shows its main CloudWatch logs', async () => {
+	fakeAws().getFunctions.mockClear();
+	fakeAws().getFunctions.mockRejectedValue(
+		new Error('AccessDenied: lambda:ListFunctions'),
+	);
+
+	let resolveProgressRequested: () => void = () => undefined;
+	let rejectProgressRequested: (error: unknown) => void = () => undefined;
+	const progressRequested = new Promise<void>((resolve, reject) => {
+		resolveProgressRequested = resolve;
+		rejectProgressRequested = reject;
 	});
-	const pendingStatus = new Promise<never>(() => undefined);
+	const pendingProgressRead = new Promise<never>(() => undefined);
+	fakeAws().readFile.mockImplementation(() => {
+		resolveProgressRequested();
+		return pendingProgressRead;
+	});
 
 	fakeAws().callFunctionSync.mockImplementation(((input) => {
 		if (input.type === 'start') {
 			return Promise.resolve({bucketName: 'bucket', renderId: 'render-id'});
-		}
-
-		if (input.type === 'status') {
-			resolveStatusRequested();
-			return pendingStatus;
 		}
 
 		return Promise.reject(
@@ -72,10 +78,17 @@ test('Only shows the main CloudWatch logs for a direct single-function render', 
 		args: ['https://example.com', 'composition-id'],
 		remotionRoot: process.cwd(),
 		logLevel: 'verbose',
-	}).catch(() => undefined);
+	}).catch(rejectProgressRequested);
 
 	try {
-		await statusRequested;
+		await progressRequested;
+		expect(fakeAws().getFunctions).not.toHaveBeenCalled();
+		expect(fakeAws().callFunctionSync).toHaveBeenCalledWith(
+			expect.objectContaining({
+				functionName: 'custom-function',
+				type: ServerlessRoutines.start,
+			}),
+		);
 		const output = getProcessWriteOutput();
 		const mainLogs = LambdaClientInternals.getCloudwatchMethodUrl({
 			region: 'us-east-1',

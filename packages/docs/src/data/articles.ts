@@ -5221,6 +5221,15 @@ export const articles = [
 		slug: 'lambda/custom-destination',
 	},
 	{
+		id: 'lambda/custom-function-names',
+		title: 'Custom Lambda function names',
+		relativePath: 'docs/lambda/custom-function-names.mdx',
+		compId: 'articles-docs-lambda-custom-function-names',
+		crumb: '@remotion/lambda',
+		noAi: false,
+		slug: 'lambda/custom-function-names',
+	},
+	{
 		id: 'lambda/custom-layers',
 		title: 'Custom Layers',
 		relativePath: 'docs/lambda/custom-layers.mdx',

@@ -1454,6 +1454,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/s3-public-access',
 				'lambda/bucket-security',
 				'lambda/naming-convention',
+				'lambda/custom-function-names',
 			],
 		},
 		{
