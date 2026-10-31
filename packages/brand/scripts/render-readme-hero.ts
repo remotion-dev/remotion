@@ -29,6 +29,7 @@ for (const theme of ['light', 'dark']) {
 			path.join(import.meta.dir, 'encode-readme-hero.py'),
 			frames,
 			path.join(output, `homepage-hero-${theme}`),
+			'30',
 		],
 		{cwd: brandRoot, stdout: 'inherit', stderr: 'inherit'},
 	);
