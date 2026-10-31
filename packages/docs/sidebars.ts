@@ -1350,7 +1350,6 @@ const sidebars: SidebarsConfig = {
 				'maps',
 				'light-leaks',
 				'text-highlights',
-				'starburst',
 			],
 		},
 		{

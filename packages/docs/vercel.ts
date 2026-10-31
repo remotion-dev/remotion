@@ -171,6 +171,18 @@ export const config: VercelConfig = {
 		})),
 	],
 	redirects: [
+		routes.redirect(
+			'/docs/starburst',
+			'/elements/backgrounds/rotating-starburst',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect(
+			'/docs/starburst.md',
+			'/elements/backgrounds/rotating-starburst.md',
+			{permanent: true},
+		),
 		routes.redirect('/docs/using-audio', '/docs/video-and-audio', {
 			permanent: true,
 		}),

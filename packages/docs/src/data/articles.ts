@@ -8760,15 +8760,6 @@ export const articles = [
 		slug: 'standalone',
 	},
 	{
-		id: 'starburst',
-		title: 'Starburst',
-		relativePath: 'docs/starburst-guide.mdx',
-		compId: 'articles-docs-starburst-guide',
-		crumb: 'Designing visuals',
-		noAi: false,
-		slug: 'starburst',
-	},
-	{
 		id: 'starburst-api',
 		title: '@remotion/starburst',
 		relativePath: 'docs/starburst/index.mdx',
