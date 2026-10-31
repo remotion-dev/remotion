@@ -1,3 +1,6 @@
+require 'json'
+require_relative 'version'
+
 def get_compositions_payload(
   serve_url:,
   input_props: {},

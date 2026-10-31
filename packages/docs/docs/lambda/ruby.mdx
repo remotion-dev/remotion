@@ -14,7 +14,7 @@ The version should be the same version of the `@remotion/lambda` NPM package ver
 ## Notes
 
 - This module is experimental and might have breaking changes in minor versions. Check on this page for up-to-date examples.
-- The implemented methods are [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`getRenderProgressOnLambda()`](/docs/lambda/getrenderprogress), and [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
+- The implemented methods are [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda), [`getRenderProgressOnLambda()`](/docs/lambda/getrenderprogress), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda), and [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
 - We will maintain the Ruby SDK to ensure the fields stay in sync with the Node.js functions.
 - The fields in the input payload are `snake_case` versions of the Node.js field names.
 - Nested field names, e.g. `s3_output_provder.accessKeyId` have the original `camelCase` capitalization.
@@ -57,6 +57,43 @@ while true
   sleep 1
 end
 ```
+
+## Getting compositions<AvailableFrom v="4.0.540" />
+
+Use `get_compositions_payload()` and `get_compositions_on_lambda()` to list the compositions in a deployed project:
+
+```ruby title="get_compositions.rb"
+require 'remotion_lambda'
+
+client = RemotionLambda::Client.new(region: 'eu-central-1')
+payload = get_compositions_payload(
+  serve_url: ENV.fetch('REMOTION_APP_SERVE_URL'),
+  input_props: {title: 'Hello'},
+)
+
+response = client.get_compositions_on_lambda(
+  ENV.fetch('REMOTION_APP_FUNCTION_NAME'),
+  payload,
+)
+
+response['compositions'].each do |composition|
+  puts "#{composition['id']}: #{composition['width']}x#{composition['height']}"
+end
+```
+
+The method returns the response hash. Its `compositions` array contains hashes with `id`, `width`, `height`, `fps`, `durationInFrames`, `props`, `defaultProps`, and default output settings. It raises if the Lambda handler reports an error.
+
+### serve_url
+
+The URL of the deployed [Remotion project](/docs/terminology). Required by `get_compositions_payload()`.
+
+### input_props?
+
+Props passed to each composition's [`calculateMetadata()`](/docs/calculate-metadata) function. Defaults to an empty hash; no composition ID is required. Input props are included in the invocation payload and are subject to the size limit described above.
+
+### Other arguments
+
+The payload builder also accepts `env_variables`, `chromium_options`, `log_level`, `bucket_name`, `force_path_style`, `timeout_in_milliseconds`, `offthread_video_cache_size_in_bytes`, `media_cache_size_in_bytes`, and `preferred_effect_backend`, corresponding to the options of [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda). The timeout defaults to `30000` milliseconds, the log level to `info`, and the effect backend to `auto`.
 
 ## Rendering an image sequence<AvailableFrom v="4.0.535" />
 
