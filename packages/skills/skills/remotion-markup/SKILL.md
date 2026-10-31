@@ -13,6 +13,11 @@ Users may make edits in the code outside of the conversation.
 
 If you detect a surprising change made in the meanwhile, don't overwrite it, assume it was intentional or ask for confirmation.
 
+## Remotion Elements
+
+For reusable graphics such as lower thirds, captions, backgrounds, and charts,
+read [Using Elements](elements.md) before building from scratch.
+
 ## General rules
 
 Keep `useCurrentFrame()` in the smallest component that needs it. Extract
