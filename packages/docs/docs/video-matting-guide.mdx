@@ -1,0 +1,166 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-video-matting-guide.png
+title: Video matting
+crumb: 'Designing visuals'
+---
+
+# Video matting<AvailableFrom v="4.0.523" />
+
+Video matting separates a subject from its background and saves it as a video with transparency. You can then place text behind the subject, blur or replace the background, or apply effects to the subject independently.
+
+[`@remotion/video-matting`](/docs/video-matting) processes the video locally using a GPU. The resulting foreground video can be reused in multiple compositions without running the model again.
+
+## Applications
+
+The following layer stacks are listed from back to front. In JSX, render the foreground last so it appears on top. See [Layers](/docs/layers).
+
+| Application                                       | Layer stack                                             | Use cases                                                         |
+| ------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------- |
+| [Text behind a subject](#text-behind-a-subject)   | Original video → text or graphics → foreground          | Captions, music videos, title sequences                           |
+| [Background blur](#background-blur)               | Blurred original video → sharp foreground               | Interviews, talking-head videos, reducing background distractions |
+| [Background replacement](#background-replacement) | New background → foreground                             | Branded backgrounds, product presentations, virtual sets          |
+| [Foreground effects](#foreground-effects)         | Original video → foreground with effects                | Subject highlights, glows, selective color correction             |
+| [Cutout overlays](#cutout-overlays)               | Slides, screen recording, or other content → foreground | Presenter overlays, tutorials, reaction videos                    |
+
+## Create a foreground video
+
+### In Remotion Studio
+
+Select a video and choose **Remove background**. Studio creates a transparent WebM and replaces the selected video's source with it. Duplicate the video layer first if you want to keep the original underneath.
+
+You can also ask an agent to use the [`remove_video_background` WebMCP tool](/docs/ai/webmcp#remove_video_background).
+
+### Programmatically
+
+Use [`separateVideoLayers()`](/docs/video-matting/separate-video-layers) to create an opaque base and a transparent foreground. Download the model with [`downloadVideoMattingModel()`](/docs/video-matting/download-video-matting-model) first. See the [Node.js setup](/docs/video-matting/node) for processing local files, or the [package documentation](/docs/video-matting) for browser requirements.
+
+The base includes the original subject. Matting does not reconstruct the background hidden behind it. For text-behind-video and background blur, keep this base or the original video underneath the foreground. For background replacement, omit the original video.
+
+[`modnet`](/docs/video-matting/get-available-models) is optimized for people. The experimental `ben2-base` model supports general foreground subjects and uses more memory.
+
+## Text behind a subject
+
+Place the original video at the back, your text in the middle, and the foreground video on top. The transparent areas reveal the text, while the subject covers it.
+
+This works with any inserted content, including animated captions, shapes, images, or another video.
+
+The examples below assume `public/original.mp4` and a matching `public/foreground.webm` with its background removed.
+
+```tsx twoslash title="TextBehindVideo.tsx"
+import {Video} from '@remotion/media';
+import {AbsoluteFill, staticFile} from 'remotion';
+
+export const TextBehindVideo = () => {
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('original.mp4')} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
+      <AbsoluteFill
+        style={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'white',
+          fontSize: 120,
+          fontWeight: 800,
+        }}
+      >
+        BEHIND THE SCENES
+      </AbsoluteFill>
+      <Video
+        src={staticFile('foreground.webm')}
+        muted
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Animate the middle layer with [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate), or use [captions](/docs/captions) to synchronize words with speech.
+
+## Background blur
+
+Apply [`blur()`](/docs/effects/blur) to the original video, then place the sharp foreground on top. This keeps the subject in focus while softening the surrounding scene.
+
+```tsx twoslash title="BackgroundBlur.tsx"
+import {blur} from '@remotion/effects/blur';
+import {Video} from '@remotion/media';
+import {AbsoluteFill, staticFile} from 'remotion';
+
+export const BackgroundBlur = () => {
+  return (
+    <AbsoluteFill>
+      <Video src={staticFile('original.mp4')} effects={[blur({radius: 16})]} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
+      <Video
+        src={staticFile('foreground.webm')}
+        muted
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+```
+
+Because the blurred original still contains the subject, a strong blur can produce a halo around its edges. Reduce the blur radius if this becomes distracting.
+
+You can also [color-correct](/docs/color-correction) or darken the base while leaving the foreground unchanged.
+
+## Background replacement
+
+Omit the original video and place the foreground over a new background. Use an [`<Img>`](/docs/img), another [`<Video>`](/docs/media/video), or HTML elements to create the replacement.
+
+```tsx twoslash title="BackgroundReplacement.tsx"
+import {Video} from '@remotion/media';
+import {AbsoluteFill, staticFile} from 'remotion';
+
+export const BackgroundReplacement = () => {
+  return (
+    <AbsoluteFill style={{backgroundColor: '#0b1533'}}>
+      <Video src={staticFile('foreground.webm')} muted style={{width: '100%', height: '100%', objectFit: 'contain'}} />
+    </AbsoluteFill>
+  );
+};
+```
+
+This example is silent. Keep audio in the foreground when generating it, or add an [`<Audio>`](/docs/media/audio) layer for the original speech or a soundtrack.
+
+## Foreground effects
+
+Apply [effects](/docs/effects) to the foreground video to change only the subject. For example, use [`glow()`](/docs/effects/glow) to highlight a person or product, [`dropShadow()`](/docs/effects/drop-shadow) to separate a cutout from a replacement background, or [color correction](/docs/color-correction) to match the subject to a new scene.
+
+Keep the original video underneath when you want to preserve its background. Omit it when placing the subject in a different scene. Apply background effects to the base layer and subject effects to the foreground layer.
+
+## Cutout overlays
+
+Place the foreground over slides or a screen recording, then resize and position it as a presenter overlay. Unlike a rectangular picture-in-picture video, the transparent cutout reveals the content around the presenter.
+
+For this use case, the foreground can have its own position and scale. For text-behind-video or background blur, the foreground must align with the original video instead.
+
+## Keep the layers aligned
+
+- Generate the foreground from the same source clip used for the base. Preserve its dimensions and duration.
+- Use the same `from`, `trimBefore`, `durationInFrames`, and `playbackRate` on both video layers. If you crop, resize, or move one layer, apply the same changes to the other.
+- Use [`<Video>`](/docs/media/video) from `@remotion/media` for both layers so they follow Remotion's timeline, including when seeking or rendering frames.
+- Play the source audio once. Mute the foreground when the base already contains audio. With [`separateVideoLayers()`](/docs/video-matting/separate-video-layers#audio), the default is to include audio only in the base.
+- Keep the foreground in a format with alpha, such as WebM. An opaque format will cover the layers underneath. The final composition can still be rendered as an ordinary MP4 when it has an opaque background.
+
+Review the cutout around hair, motion blur, and objects crossing the subject. The quality depends on the source footage and model; background removal may leave missing details or flickering edges.
+
+## See also
+
+- [`@remotion/video-matting`](/docs/video-matting)
+- [`separateVideoLayers()`](/docs/video-matting/separate-video-layers)
+- [Layers](/docs/layers)
+- [Effects](/docs/effects)
+- [Rendering transparent videos](/docs/transparent-videos)
