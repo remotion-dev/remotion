@@ -1199,6 +1199,79 @@ const sidebars: SidebarsConfig = {
 			],
 		},
 		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
+			type: 'category',
+			label: 'Studio',
+			items: [
+				'studio/studio',
+				'studio/open-in-editor',
+				'studio/shortcuts',
+				'studio/quick-switcher',
+				'studio/showing-unmounted-components',
+				'studio/interactivity',
+				'studio/interactivity-best-practices',
+				'studio/make-component-interactive',
+				'studio/deploy-static',
+				'studio/deploy-server',
+				'studio/remotion-dev-new',
+				'studio/browse-elements',
+			],
+		},
+		{
+			type: 'category',
+			label: 'Elements',
+			link: {
+				type: 'doc',
+				id: 'elements',
+			},
+			items: ['elements', 'elements/libraries'],
+		},
+		{
+			type: 'category',
+			label: 'AI',
+			link: {
+				type: 'doc',
+				id: 'ai/index',
+			},
+			items: [
+				'ai/coding-agents',
+				'ai/skills',
+				{
+					type: 'category',
+					label: 'Plugins',
+					link: {
+						type: 'doc',
+						id: 'ai/plugins',
+					},
+					items: [
+						'ai/claude-code-plugin',
+						'ai/codex-plugin',
+						'ai/cursor-plugin',
+						'ai/github-copilot-plugin',
+						'ai/kimi-code-plugin',
+					],
+				},
+				'ai/webmcp',
+				'ai/bolt',
+				'ai/chatbot',
+				'ai/generate',
+				'ai/dynamic-compilation',
+				'ai/ai-saas-template',
+				'ai/mcp',
+			],
+		},
+		{
+			type: 'html',
+			value:
+				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
+			defaultStyle: true, // Use the default menu item styling
+		},
+		{
 			type: 'category',
 			label: 'Video and Audio',
 			link: {type: 'doc', id: 'video-and-audio'},
@@ -1456,73 +1529,6 @@ const sidebars: SidebarsConfig = {
 				'lambda/s3-public-access',
 				'lambda/bucket-security',
 				'lambda/naming-convention',
-			],
-		},
-		{
-			type: 'html',
-			value:
-				'<hr style="margin-top: 4px; margin-bottom: 4px; border-bottom: none"/>', // The HTML to be rendered
-			defaultStyle: true, // Use the default menu item styling
-		},
-		{
-			type: 'category',
-			label: 'Studio',
-			items: [
-				'studio/studio',
-				'studio/open-in-editor',
-				'studio/shortcuts',
-				'studio/quick-switcher',
-				'studio/showing-unmounted-components',
-				'studio/interactivity',
-				'studio/interactivity-best-practices',
-				'studio/make-component-interactive',
-				'studio/deploy-static',
-				'studio/deploy-server',
-				'studio/remotion-dev-new',
-				'studio/browse-elements',
-			],
-		},
-		{
-			type: 'category',
-			label: 'Elements',
-			link: {
-				type: 'doc',
-				id: 'elements',
-			},
-			items: ['elements', 'elements/libraries'],
-		},
-		{
-			type: 'category',
-			label: 'AI',
-			link: {
-				type: 'doc',
-				id: 'ai/index',
-			},
-			items: [
-				'ai/coding-agents',
-				'ai/skills',
-				{
-					type: 'category',
-					label: 'Plugins',
-					link: {
-						type: 'doc',
-						id: 'ai/plugins',
-					},
-					items: [
-						'ai/claude-code-plugin',
-						'ai/codex-plugin',
-						'ai/cursor-plugin',
-						'ai/github-copilot-plugin',
-						'ai/kimi-code-plugin',
-					],
-				},
-				'ai/webmcp',
-				'ai/bolt',
-				'ai/chatbot',
-				'ai/generate',
-				'ai/dynamic-compilation',
-				'ai/ai-saas-template',
-				'ai/mcp',
 			],
 		},
 		{
