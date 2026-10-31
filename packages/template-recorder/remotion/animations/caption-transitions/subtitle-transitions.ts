@@ -25,6 +25,13 @@ export const getSubtitleTransform = ({
   nextScene: SceneAndMetadata | null;
   subtitleLayout: Layout;
 }): Layout => {
+  // Portrait captions stay in the reserved platform-safe lane across scenes.
+  // The square transition helpers inspect corner positions, but camera-only
+  // portrait scenes use a centered webcam position.
+  if (canvasHeight > canvasWidth) {
+    return subtitleLayout;
+  }
+
   const enter = getSquareEnterOrExit({
     scene,
     otherScene: previousScene,

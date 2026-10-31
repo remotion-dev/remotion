@@ -5,8 +5,12 @@ export type Dimensions = {
   height: number;
 };
 
-export const canvasLayout = z.enum(["landscape", "square"]);
+export const canvasLayout = z.enum(["landscape", "square", "portrait"]);
 export type CanvasLayout = z.infer<typeof canvasLayout>;
+
+export const PORTRAIT_BOTTOM_SAFE_SPACE = 320;
+export const PORTRAIT_CAPTION_LANE_HEIGHT = 260;
+export const PORTRAIT_CAPTION_SIDE_SAFE_SPACE = 72;
 
 export const DIMENSIONS: { [key in CanvasLayout]: Dimensions } = {
   landscape: {
@@ -16,6 +20,10 @@ export const DIMENSIONS: { [key in CanvasLayout]: Dimensions } = {
   square: {
     width: 1080,
     height: 1080,
+  },
+  portrait: {
+    width: 1080,
+    height: 1920,
   },
 };
 
