@@ -173,12 +173,28 @@ func invokeGetCompositionsLambda(options *GetCompositionsOptions) (*GetCompositi
 	}
 
 	// Unmarshal response from Lambda function
-	var compositionsOutput GetCompositionsResponse
+	var compositionsOutput struct {
+		GetCompositionsResponse
+		Type         string `json:"type"`
+		Message      string `json:"message"`
+		Stack        string `json:"stack"`
+		ErrorMessage string `json:"errorMessage"`
+	}
 
 	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &compositionsOutput)
 	if resultUnmarshallError != nil {
 		return nil, fmt.Errorf("could not parse Lambda compositions response: %w", resultUnmarshallError)
 	}
 
-	return &compositionsOutput, nil
+	if compositionsOutput.Type == "error" {
+		return nil, fmt.Errorf("could not get compositions: %s\n%s", compositionsOutput.Message, compositionsOutput.Stack)
+	}
+	if invokeResult.FunctionError != nil || compositionsOutput.ErrorMessage != "" {
+		return nil, fmt.Errorf("Lambda compositions function failed: %s", compositionsOutput.ErrorMessage)
+	}
+	if compositionsOutput.Type != "success" {
+		return nil, fmt.Errorf("unexpected Lambda compositions response type: %q", compositionsOutput.Type)
+	}
+
+	return &compositionsOutput.GetCompositionsResponse, nil
 }
