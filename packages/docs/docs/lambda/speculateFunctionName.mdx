@@ -10,13 +10,15 @@ crumb: 'Lambda API'
 
 Speculate the name of the Lambda function that will be created by [`deployFunction()`](/docs/lambda/deployfunction) or its CLI equivalent, [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy). This could be useful in cases when the configuration of the Lambda function is known in advance, and the name of the function is needed.
 
+This returns the default name. If you [override the function name](/docs/lambda/custom-function-names), use that name directly instead.
+
 If you are not sure whether a function exists, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo) and catch the error that gets thrown if it does not exist.
 
 If you want to get a list of deployed functions, use [`getFunctions()`](/docs/lambda/getfunctions) instead.
 
 ## Function name pattern
 
-A Remotion Lambda function is always names like this:
+A Remotion Lambda function uses this naming pattern by default:
 
 ```txt
 remotion-render-3-3-63-mem2048mb-disk2048mb-240sec

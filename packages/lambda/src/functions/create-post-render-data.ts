@@ -10,7 +10,6 @@ import type {OutputFileMetadata} from './find-output-file-in-bucket';
 
 export const createPostRenderData = ({
 	region,
-	memorySizeInMb,
 	renderMetadata,
 	errorExplanations,
 	timeToDelete,
@@ -21,7 +20,6 @@ export const createPostRenderData = ({
 	outputSize,
 }: {
 	region: AwsRegion;
-	memorySizeInMb: number;
 	renderMetadata: RenderMetadata;
 	timeToDelete: number;
 	errorExplanations: EnhancedErrorInfo[];
@@ -43,9 +41,7 @@ export const createPostRenderData = ({
 	const cost = LambdaClientInternals.estimatePrice({
 		durationInMilliseconds: estimatedBillingDurationInMilliseconds,
 		memorySizeInMb:
-			LambdaClientInternals.parseFunctionName(
-				renderMetadata.rendererFunctionName,
-			)?.memorySizeInMb ?? memorySizeInMb,
+			overallProgress.rendererMemorySizeInMb ?? renderMetadata.memorySizeInMb,
 		region,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
 		diskSizeInMb: LambdaClientInternals.MAX_EPHEMERAL_STORAGE_IN_MB,

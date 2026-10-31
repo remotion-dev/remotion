@@ -1,5 +1,5 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {BINARY_NAME} from '@remotion/lambda-client/constants';
+import {BINARY_NAME, RENDER_FN_PREFIX} from '@remotion/lambda-client/constants';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {parsedLambdaCli} from '../args';
@@ -33,11 +33,11 @@ export const findFunctionName = async ({logLevel}: {logLevel: LogLevel}) => {
 		if (!compatibleFunctionExists) {
 			Log.warn(
 				{indent: false, logLevel},
-				`The name passed to --function-name "${cliFlag}" does not match the naming convention this version of the CLI expects: ${LambdaClientInternals.innerSpeculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
+				`The function passed to --function-name "${cliFlag}" was not found among the compatible Remotion functions in your account.`,
 			);
 			Log.warn(
 				{indent: false, logLevel},
-				'Remotion relies on the naming to determine function information. This is an unsupported workflow.',
+				`Automatic discovery only includes functions whose names start with "${RENDER_FN_PREFIX}".`,
 			);
 
 			if (lambdasWithMatchingVersion.length > 0) {

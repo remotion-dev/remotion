@@ -8,7 +8,7 @@ crumb: 'Lambda API'
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
 
-If a function with the same version, memory size and timeout already existed, it will be returned instead without a new one being created. This means this function can be treated as idempotent.
+If a function with the same name, version, memory size, disk size and timeout already exists, it will be returned instead without a new one being created. This means this function can be treated as idempotent.
 
 ## Example
 
@@ -28,6 +28,14 @@ console.log(functionName);
 ## Arguments
 
 An object with the following properties:
+
+### `functionName?`<AvailableFrom v="4.0.540" />
+
+Override the [default function name](/docs/lambda/naming-convention). By default, the name is generated from the Remotion version, memory size, disk size and timeout.
+
+The name must contain 1–64 letters, digits, hyphens or underscores. Different names allow multiple functions with the same configuration. An existing function with this name must have the same Remotion version, memory size, disk size and timeout; otherwise deployment fails.
+
+Custom names require you to update IAM permissions and select the function explicitly when rendering. See [Custom Lambda function names](/docs/lambda/custom-function-names).
 
 ### `region`
 
@@ -109,3 +117,4 @@ The Remotion Lambda deployment files must be included in the serverless deployme
 - [CLI equivalent: `npx remotion lambda functions deploy`](/docs/lambda/cli/functions/deploy)
 - [`deleteFunction()`](/docs/lambda/deletefunction)
 - [`getFunctions()`](/docs/lambda/getfunctions)
+- [Custom Lambda function names](/docs/lambda/custom-function-names)

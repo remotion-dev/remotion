@@ -25,6 +25,7 @@ import {
 } from '../get-browser-instance';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getChromiumPath} from '../helpers/get-chromium-path';
+import {getCurrentMemorySizeInMb} from '../helpers/get-current-memory-size';
 import {getCurrentRegionInFunction} from '../helpers/get-current-region';
 import {getTmpDirStateIfENoSp} from '../helpers/get-tmp-dir';
 import {startLeakDetection} from '../helpers/leak-detection';
@@ -326,6 +327,7 @@ const renderHandler = async ({
 					type: 'lambda-invoked',
 					payload: {
 						attempt: params.attempt,
+						memorySizeInMb: getCurrentMemorySizeInMb(),
 					},
 				});
 			},

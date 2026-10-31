@@ -26,6 +26,7 @@ type S3RendererStatusBase = {
 	chunk: number;
 	attempt: number;
 	lambdaInvoked: boolean;
+	memorySizeInMb: number;
 	renderedFrames: number;
 	encodedFrames: number;
 	uploadedFrames: number;
@@ -126,6 +127,7 @@ export const parseS3RendererStatus = ({
 
 	if (
 		typeof status.lambdaInvoked !== 'boolean' ||
+		!isNumber(status.memorySizeInMb) ||
 		!isNumber(status.renderedFrames) ||
 		!isNumber(status.encodedFrames) ||
 		!isNumber(status.uploadedFrames) ||
