@@ -342,7 +342,7 @@ code {
 	padding-right: 4px;
 	padding-top: 1px;
 	padding-bottom: 1px;
-	margin-left: 6px;
+	margin-left: auto;
 	border-radius: 4px;
 	transform: none !important;
 }
