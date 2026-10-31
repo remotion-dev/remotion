@@ -449,13 +449,26 @@ class RemotionClient:
         objects: List[str] = []
         depth = 0
         start_index = 0
+        in_string = False
+        escaped = False
 
         for i, char in enumerate(input_string):
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif char == '\\':
+                    escaped = True
+                elif char == '"':
+                    in_string = False
+                continue
+            if char == '"' and depth > 0:
+                in_string = True
+                continue
             if char == '{':
                 if depth == 0:
                     start_index = i
                 depth += 1
-            elif char == '}':
+            elif char == '}' and depth > 0:
                 depth -= 1
                 if depth == 0:
                     objects.append(input_string[start_index : i + 1])
