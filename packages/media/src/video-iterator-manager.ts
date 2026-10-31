@@ -96,10 +96,24 @@ export const videoIteratorManager = async ({
 		height: number;
 	} | null = null;
 
+	// Bumped when the 2D context is restored, so an effect run that is still in
+	// flight does not record its output either.
+	let contextRestores = 0;
+
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
 		lastEffectOutput = null;
 	};
+
+	// The browser restores a lost 2D context with a blank bitmap.
+	const onContextRestored = () => {
+		lastEffectOutput = null;
+		contextRestores++;
+	};
+
+	if (canvas instanceof HTMLCanvasElement) {
+		canvas.addEventListener('contextrestored', onContextRestored);
+	}
 
 	const displayWidth = await videoTrack.getDisplayWidth();
 	const displayHeight = await videoTrack.getDisplayHeight();
@@ -173,6 +187,7 @@ export const videoIteratorManager = async ({
 
 				const run = {state: chainState, runId: chainState.currentRunId + 1};
 				pendingEffectRun = run;
+				const restoresBeforeRun = contextRestores;
 				try {
 					const completed = await runEffectChain({
 						state: chainState,
@@ -182,7 +197,11 @@ export const videoIteratorManager = async ({
 						width: canvas.width,
 						height: canvas.height,
 					});
-					if (completed && !destroyed) {
+					if (
+						completed &&
+						!destroyed &&
+						restoresBeforeRun === contextRestores
+					) {
 						lastEffectOutput = {
 							frame,
 							effects,
@@ -461,6 +480,10 @@ export const videoIteratorManager = async ({
 			}
 
 			destroyed = true;
+			if (canvas instanceof HTMLCanvasElement) {
+				canvas.removeEventListener('contextrestored', onContextRestored);
+			}
+
 			// Cancel only this manager's pending run, not a newer run sharing its state.
 			if (
 				pendingEffectRun &&
