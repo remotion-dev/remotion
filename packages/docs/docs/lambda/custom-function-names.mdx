@@ -8,70 +8,16 @@ crumb: '@remotion/lambda'
 
 # Custom Lambda function names<AvailableFrom v="4.0.540" />
 
-You can override the [default function name](/docs/lambda/naming-convention) to meet organizational naming requirements or deploy separate functions with the same configuration.
+While we recommend the [default Lambda function names](/docs/lambda/naming-convention), the organization you work for might have naming conventions that you need to follow.
 
-Remotion does not update IAM policies or automatic discovery when you override the name. Configure permissions before deploying, and pass the function name explicitly when rendering.
+You can override the default function name to meet organizational naming requirements or deploy separate functions with the same configuration.
 
-Complete the [Lambda setup](/docs/lambda/setup) first. This guide changes the function name; you still need a [deployed site](/docs/lambda/deploysite) containing your video code.
+If you do so, there are a couple of extra steps you need to take.
 
 ## Configure IAM permissions
 
-The [default user and execution-role policies](/docs/lambda/permissions) restrict function management, invocation and CloudWatch logging to names starting with `remotion-render-`. If you keep this prefix, no additional naming-related IAM permissions are needed. Otherwise, add permissions for your naming scheme to both policies.
-
-The examples below use names starting with `acme-render-` in `us-east-1`. Replace the account ID, region and name prefix with your values. Use `arn:aws-cn` in [AWS China regions](/docs/lambda/aws-china-regions).
-
-### Deployment and rendering credentials
-
-Add these statements to the policy for the IAM user or role whose credentials deploy and invoke the function. Keep the existing S3, layer and other permissions, including `lambda:ListFunctions` on `*`: CLI rendering still lists functions even when you pass an explicit name.
-
-```json title="Additional caller policy statements"
-[
-  {
-    "Effect": "Allow",
-    "Action": [
-      "lambda:GetFunction",
-      "lambda:GetFunctionConfiguration",
-      "lambda:CreateFunction",
-      "lambda:DeleteFunction",
-      "lambda:InvokeFunction",
-      "lambda:InvokeAsync",
-      "lambda:PutFunctionEventInvokeConfig",
-      "lambda:PutRuntimeManagementConfig",
-      "lambda:TagResource",
-      "lambda:UpdateFunctionConfiguration"
-    ],
-    "Resource": "arn:aws:lambda:us-east-1:123456789012:function:acme-render-*"
-  },
-  {
-    "Effect": "Allow",
-    "Action": ["logs:CreateLogGroup", "logs:PutRetentionPolicy"],
-    "Resource": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/acme-render-*"
-  }
-]
-```
-
-`lambda:UpdateFunctionConfiguration` is needed when updating [custom Layers](/docs/lambda/custom-layers) on an existing function. If you also use a custom execution role, the deploying credentials need `iam:PassRole` for that role's ARN.
-
-### Lambda execution role
-
-Add these statements to the function's execution role, normally `remotion-lambda-role`. The function needs to invoke itself and its renderer workers, and write to its log group. If you use a separate [`rendererFunctionName`](/docs/lambda/rendermediaonlambda#rendererfunctionname), include that function's ARN too.
-
-```json title="Additional execution-role policy statements"
-[
-  {
-    "Effect": "Allow",
-    "Action": "lambda:InvokeFunction",
-    "Resource": "arn:aws:lambda:us-east-1:123456789012:function:acme-render-*"
-  },
-  {
-    "Effect": "Allow",
-    "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
-    "Resource": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/acme-render-*:*"
-  }
-]
-```
-
-The trailing `:*` includes the group's [log streams](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/iam-identity-based-access-control-cwl.html).
+The [user and role policies](/docs/lambda/permissions) are scoped to the `remotion-render-` prefix by default.  
+Change them first so they apply to your function names.
 
 ## Deploy with a custom name
 
@@ -95,18 +41,22 @@ console.log(functionName);
 Or pass [`--function-name`](/docs/lambda/cli/functions/deploy#--function-name) to the CLI:
 
 ```bash title="Terminal"
-bunx remotion lambda functions deploy --region=us-east-1 --function-name=acme-render-production-4-0-540
+npx remotion lambda functions deploy --region=us-east-1 --function-name=acme-render-production-4-0-540
 ```
 
-Names must contain 1–64 letters, digits, hyphens or underscores. Different names allow multiple functions with the same configuration. Repeating deployment with the same name, Remotion version, memory size, disk size and timeout reuses the existing function. If those values differ, choose another name or [delete the existing function](/docs/lambda/deletefunction) before deploying.
+Names must contain 1–64 letters, digits, hyphens or underscores.
 
-Including the Remotion version in your custom name lets you deploy upgrades alongside functions still serving renders. Keep the Remotion versions of your client, deployed functions and site in sync. See [Upgrading Remotion Lambda](/docs/lambda/upgrading).
+Deploying again with the same name, Remotion version, memory size, disk size and timeout reuses the existing function.
+
+If those values differ, choose another name or [delete the existing function](/docs/lambda/deletefunction) before deploying.
+
+Including the Remotion [version](/docs/version) in your custom name lets you deploy upgrades alongside functions still serving renders.
 
 ## Select the function explicitly
 
-[`getFunctions()`](/docs/lambda/getfunctions) and `bunx remotion lambda functions ls` only discover names starting with `remotion-render-`. [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) generates the default name and does not know your override.
+[`getFunctions()`](/docs/lambda/getfunctions) and [`remotion lambda functions ls`](/docs/lambda/cli/functions/ls) only discover names starting with `remotion-render-`.
 
-Save the name returned by deployment in your application configuration. Pass it directly to rendering and progress APIs instead of selecting it from `getFunctions()`:
+When invoking, pass your function name directly to rendering and progress APIs instead of selecting it from `getFunctions()`:
 
 ```ts twoslash title="render.ts"
 import {downloadMedia} from '@remotion/lambda';
@@ -154,19 +104,11 @@ const {outputPath} = await downloadMedia({
 console.log(outputPath);
 ```
 
-Replace `serveUrl` and `composition` with your deployed site and composition ID. Run this example on your server or local machine with AWS credentials. [`downloadMedia()`](/docs/lambda/downloadmedia) saves the private output locally after rendering finishes.
-
-Fast progress polling works with custom names from v4.0.540. It still requires [S3 read permission](/docs/lambda/faster-progress-polling), as does downloading the result.
-
-For CLI renders, pass the same name explicitly:
+For CLI renders, use [`--function-name`](/docs/lambda/cli/render#--function-name) to pass the name explicitly:
 
 ```bash title="Terminal"
-bunx remotion lambda render https://example.com/my-remotion-site MyComposition --region=us-east-1 --function-name=acme-render-production-4-0-540
+npx remotion lambda render https://example.com/my-remotion-site MyComposition --region=us-east-1 --function-name=acme-render-production-4-0-540
 ```
-
-The CLI may warn that the name was not found by automatic discovery; it still uses the explicit name. To inspect a known function, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo), which accepts its name directly.
-
-Keeping the `remotion-render-` prefix and adding your own suffix is another option if it satisfies your naming requirements. The default IAM patterns and discovery include those names, but you must still select the intended function when multiple compatible functions exist.
 
 ## Use a separate renderer function
 
@@ -202,8 +144,6 @@ const {renderId, bucketName} = await renderMediaOnLambda({
   privacy: 'private',
 });
 ```
-
-The IAM examples above cover both names because they share the `acme-render-` prefix. If you use different prefixes, allow both. Progress polling and cost estimates use the functions' actual memory sizes; the names do not need to encode them.
 
 ## See also
 

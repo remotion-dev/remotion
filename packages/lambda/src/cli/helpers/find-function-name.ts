@@ -1,5 +1,5 @@
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {BINARY_NAME, RENDER_FN_PREFIX} from '@remotion/lambda-client/constants';
+import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel, LogOptions} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {parsedLambdaCli} from '../args';
@@ -12,6 +12,11 @@ import {Log} from '../log';
 import {quit} from './quit';
 
 export const findFunctionName = async ({logLevel}: {logLevel: LogLevel}) => {
+	const cliFlag = parsedLambdaCli['function-name'];
+	if (cliFlag) {
+		return cliFlag;
+	}
+
 	const remotionLambdas = await LambdaClientInternals.getFunctions({
 		region: getAwsRegion(),
 		compatibleOnly: false,
@@ -23,38 +28,6 @@ export const findFunctionName = async ({logLevel}: {logLevel: LogLevel}) => {
 		indent: false,
 		logLevel,
 	};
-
-	const cliFlag = parsedLambdaCli['function-name'];
-
-	if (cliFlag) {
-		const compatibleFunctionExists = lambdasWithMatchingVersion.find(
-			(l) => l.functionName === cliFlag,
-		);
-		if (!compatibleFunctionExists) {
-			Log.warn(
-				{indent: false, logLevel},
-				`The function passed to --function-name "${cliFlag}" was not found among the compatible Remotion functions in your account.`,
-			);
-			Log.warn(
-				{indent: false, logLevel},
-				`Automatic discovery only includes functions whose names start with "${RENDER_FN_PREFIX}".`,
-			);
-
-			if (lambdasWithMatchingVersion.length > 0) {
-				Log.info(logOptions, 'The following functions were found:');
-				for (const l of lambdasWithMatchingVersion) {
-					Log.info(logOptions, `- ${l.functionName} (v${l.version})`);
-				}
-
-				Log.info(
-					logOptions,
-					'Prefer using one of those functions by passing their name to `--function-name` or removing it entirely.',
-				);
-			}
-		}
-
-		return cliFlag;
-	}
 
 	if (lambdasWithMatchingVersion.length === 0) {
 		Log.error(
