@@ -52,7 +52,7 @@ The sites must be public because they are accessed via HTTP.
 
 ### Can I use a custom function name?
 
-Yes, from <AvailableFrom v="4.0.540" inline />. See [Custom Lambda function names](/docs/lambda/custom-function-names). You must update IAM permissions and pass the function name explicitly when rendering.
+Yes, from <AvailableFrom v="4.0.540" inline />. See [Custom Lambda function names](/docs/lambda/custom-function-names). Pass the function name explicitly when rendering. Names outside the `remotion-render-` prefix also require updated IAM permissions.
 
 The default name allows automatic discovery and [`speculateFunctionName()`](/docs/lambda/speculatefunctionname). Reusing one function can also improve warm-start reuse across environments.
 

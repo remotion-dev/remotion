@@ -10,15 +10,17 @@ You can override the [default function name](/docs/lambda/naming-convention) to 
 
 Remotion does not update IAM policies or automatic discovery when you override the name. Configure permissions before deploying, and pass the function name explicitly when rendering.
 
+Complete the [Lambda setup](/docs/lambda/setup) first. This guide changes the function name; you still need a [deployed site](/docs/lambda/deploysite) containing your video code.
+
 ## Configure IAM permissions
 
-The [default user and execution-role policies](/docs/lambda/permissions) only allow access to functions named `remotion-render-*` and their CloudWatch log groups. If your custom name does not start with `remotion-render-`, add permissions for your naming scheme to both policies.
+The [default user and execution-role policies](/docs/lambda/permissions) restrict function management, invocation and CloudWatch logging to names starting with `remotion-render-`. If you keep this prefix, no additional naming-related IAM permissions are needed. Otherwise, add permissions for your naming scheme to both policies.
 
 The examples below use names starting with `acme-render-` in `us-east-1`. Replace the account ID, region and name prefix with your values. Use `arn:aws-cn` in [AWS China regions](/docs/lambda/aws-china-regions).
 
 ### Deployment and rendering credentials
 
-Add these statements to the policy for the IAM user or role whose credentials deploy and invoke the function. Keep the existing S3, layer and other permissions.
+Add these statements to the policy for the IAM user or role whose credentials deploy and invoke the function. Keep the existing S3, layer and other permissions, including `lambda:ListFunctions` on `*`: CLI rendering still lists functions even when you pass an explicit name.
 
 ```json title="Additional caller policy statements"
 [
@@ -62,10 +64,12 @@ Add these statements to the function's execution role, normally `remotion-lambda
   {
     "Effect": "Allow",
     "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
-    "Resource": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/acme-render-*"
+    "Resource": "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/acme-render-*:*"
   }
 ]
 ```
+
+The trailing `:*` includes the group's [log streams](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/iam-identity-based-access-control-cwl.html).
 
 ## Deploy with a custom name
 
@@ -94,7 +98,7 @@ bunx remotion lambda functions deploy --region=us-east-1 --function-name=acme-re
 
 Names must contain 1–64 letters, digits, hyphens or underscores. Different names allow multiple functions with the same configuration. Repeating deployment with the same name, Remotion version, memory size, disk size and timeout reuses the existing function. If those values differ, choose another name or [delete the existing function](/docs/lambda/deletefunction) before deploying.
 
-Including the Remotion version in your custom name lets you deploy upgrades alongside functions still serving renders. Keep your client and deployed function versions in sync.
+Including the Remotion version in your custom name lets you deploy upgrades alongside functions still serving renders. Keep the Remotion versions of your client, deployed functions and site in sync. See [Upgrading Remotion Lambda](/docs/lambda/upgrading).
 
 ## Select the function explicitly
 
@@ -103,6 +107,7 @@ Including the Remotion version in your custom name lets you deploy upgrades alon
 Save the name returned by deployment in your application configuration. Pass it directly to rendering and progress APIs instead of selecting it from `getFunctions()`:
 
 ```ts twoslash title="render.ts"
+import {downloadMedia} from '@remotion/lambda';
 import {getRenderProgress, renderMediaOnLambda} from '@remotion/lambda/client';
 
 const functionName = 'acme-render-production-4-0-540';
@@ -113,20 +118,43 @@ const {renderId, bucketName} = await renderMediaOnLambda({
   serveUrl: 'https://example.com/my-remotion-site',
   composition: 'MyComposition',
   codec: 'h264',
+  privacy: 'private',
 });
 
-const progress = await getRenderProgress({
+while (true) {
+  const progress = await getRenderProgress({
+    region: 'us-east-1',
+    functionName,
+    renderId,
+    bucketName,
+    skipLambdaInvocation: true,
+  });
+
+  if (progress.fatalErrorEncountered) {
+    throw new Error(JSON.stringify(progress.errors));
+  }
+
+  if (progress.done) {
+    break;
+  }
+
+  console.log(progress.overallProgress);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+}
+
+const {outputPath} = await downloadMedia({
   region: 'us-east-1',
-  functionName,
   renderId,
   bucketName,
-  skipLambdaInvocation: true,
+  outPath: 'out.mp4',
 });
 
-console.log(progress.overallProgress);
+console.log(outputPath);
 ```
 
-Fast progress polling works with custom names from v4.0.540. It still requires [S3 read permission](/docs/lambda/faster-progress-polling).
+Replace `serveUrl` and `composition` with your deployed site and composition ID. Run this example on your server or local machine with AWS credentials. [`downloadMedia()`](/docs/lambda/downloadmedia) saves the private output locally after rendering finishes.
+
+Fast progress polling works with custom names from v4.0.540. It still requires [S3 read permission](/docs/lambda/faster-progress-polling), as does downloading the result.
 
 For CLI renders, pass the same name explicitly:
 
@@ -137,6 +165,43 @@ bunx remotion lambda render https://example.com/my-remotion-site MyComposition -
 The CLI may warn that the name was not found by automatic discovery; it still uses the explicit name. To inspect a known function, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo), which accepts its name directly.
 
 Keeping the `remotion-render-` prefix and adding your own suffix is another option if it satisfies your naming requirements. The default IAM patterns and discovery include those names, but you must still select the intended function when multiple compatible functions exist.
+
+## Use a separate renderer function
+
+You can give the main function and renderer workers different names and memory sizes. Deploy a second function with the same Remotion version in the same account and region:
+
+```ts twoslash title="deploy-renderer.ts"
+import {deployFunction} from '@remotion/lambda';
+
+const {functionName: rendererFunctionName} = await deployFunction({
+  region: 'us-east-1',
+  functionName: 'acme-render-worker-4-0-540',
+  memorySizeInMb: 1536,
+  diskSizeInMb: 2048,
+  timeoutInSeconds: 120,
+  createCloudWatchLogGroup: true,
+});
+
+console.log(rendererFunctionName);
+```
+
+Pass this name as [`rendererFunctionName`](/docs/lambda/rendermediaonlambda#rendererfunctionname) when starting the render. Continue passing the main function's name to `getRenderProgress()`:
+
+```ts twoslash title="render-with-workers.ts"
+import {renderMediaOnLambda} from '@remotion/lambda/client';
+
+const {renderId, bucketName} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'acme-render-production-4-0-540',
+  rendererFunctionName: 'acme-render-worker-4-0-540',
+  serveUrl: 'https://example.com/my-remotion-site',
+  composition: 'MyComposition',
+  codec: 'h264',
+  privacy: 'private',
+});
+```
+
+The IAM examples above cover both names because they share the `acme-render-` prefix. If you use different prefixes, allow both. Progress polling and cost estimates use the functions' actual memory sizes; the names do not need to encode them.
 
 ## See also
 

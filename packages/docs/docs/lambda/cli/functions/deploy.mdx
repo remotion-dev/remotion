@@ -47,7 +47,7 @@ The [AWS region](/docs/lambda/region-selection) to select.
 
 Override the [default function name](/docs/lambda/naming-convention). The name must contain 1–64 letters, digits, hyphens or underscores. An existing function with this name must have the same Remotion version, memory size, disk size and timeout; otherwise deployment fails.
 
-Custom names require you to update IAM permissions and select the function explicitly when rendering. See [Custom Lambda function names](/docs/lambda/custom-function-names).
+Select the function explicitly when rendering. Names outside the `remotion-render-` prefix also require updated IAM permissions. See [Custom Lambda function names](/docs/lambda/custom-function-names).
 
 ## `--memory`
 
