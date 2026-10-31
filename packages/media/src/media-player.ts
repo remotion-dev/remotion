@@ -966,7 +966,10 @@ export class MediaPlayer {
 		}
 	};
 
-	public audioSyncAnchorChanged = async (unloopedTimeInSeconds: number) => {
+	public audioSyncAnchorChanged = async (
+		unloopedTimeInSeconds: number,
+		drifted = false,
+	) => {
 		if (!this.audioIteratorManager) {
 			return;
 		}
@@ -981,6 +984,12 @@ export class MediaPlayer {
 		) {
 			return;
 		}
+
+		// After a drift (the Player buffered, so the audio clock ran ahead of
+		// the frame), audio that has to be decoded again catches up in the
+		// background. Waiting for it would buffer the Player again, drift the
+		// clock again, and never resume.
+		this.audioIteratorManager.setCatchUpOnNextStart(drifted);
 
 		// An anchor can change while paused, when no frame update will restart
 		// scheduling. Refill the queue against the new anchor immediately.

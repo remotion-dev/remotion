@@ -123,7 +123,7 @@ export const usePlayback = ({
 			force: false,
 		});
 		if (changed) {
-			sharedAudioContext.audioSyncAnchorEmitter.dispatch('changed');
+			sharedAudioContext.audioSyncAnchorEmitter.dispatch('drift');
 		}
 	}, [fps, frame, logLevel, playbackRate, sharedAudioContext, muted]);
 

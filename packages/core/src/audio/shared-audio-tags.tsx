@@ -70,7 +70,10 @@ export type ScheduleAudioNodeOptions = {
 	readonly offset: number;
 };
 
-export type AudioSyncAnchorEvent = 'changed';
+// 'changed': the anchor was reset on purpose (playback starts, the audio
+// context was suspended). 'drift': the frame and the audio clock drifted
+// apart, for example while the Player was buffering.
+export type AudioSyncAnchorEvent = 'changed' | 'drift';
 
 export type AudioSyncAnchorListener = (event: AudioSyncAnchorEvent) => void;
 

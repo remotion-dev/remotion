@@ -125,6 +125,7 @@ export const audioIteratorManager = ({
 	let audioIteratorsCreated = 0;
 	let totalAudioScheduledInSeconds = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
+	let catchUpOnNextStart = false;
 
 	const unblockCurrentDelayHandle = () => {
 		if (currentDelayHandle) {
@@ -404,7 +405,11 @@ export const audioIteratorManager = ({
 		audioBufferIterator?.destroy();
 		unblockCurrentDelayHandle();
 
-		const delayHandle = delayPlaybackHandleIfNotPremounting();
+		const catchesUp = catchUpOnNextStart;
+		catchUpOnNextStart = false;
+		const delayHandle = catchesUp
+			? {unblock: () => undefined}
+			: delayPlaybackHandleIfNotPremounting();
 		currentDelayHandle = delayHandle;
 
 		currentAnchor = {
@@ -668,6 +673,9 @@ export const audioIteratorManager = ({
 			// Missing live samples require a fresh decoder when the caller seeks.
 			destroyIterator();
 			return false;
+		},
+		setCatchUpOnNextStart: (catchUp: boolean) => {
+			catchUpOnNextStart = catchUp;
 		},
 		getAudioBufferIterator: () => audioBufferIterator,
 		getCurrentAnchor: () => currentAnchor,

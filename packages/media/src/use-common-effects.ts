@@ -76,9 +76,9 @@ export const useCommonEffects = ({
 
 		const {remove} = sharedAudioContext.audioSyncAnchorEmitter.subscribe(
 			(event) => {
-				if (event === 'changed') {
+				if (event === 'changed' || event === 'drift') {
 					mediaPlayerRef.current
-						?.audioSyncAnchorChanged(currentTimeRef.current)
+						?.audioSyncAnchorChanged(currentTimeRef.current, event === 'drift')
 						.catch(() => {
 							// Might be disposed
 						});
