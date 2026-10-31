@@ -3,29 +3,13 @@ image: https://remotion.media/docs/generated/articles-docs-audio-muting.png
 title: Muting Audio
 sidebar_label: Muting Audio
 id: muting
-crumb: 'Audio'
+crumb: 'Video and Audio'
+unlisted: true
+displayed_sidebar: mainSidebar
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import {AvailableFrom} from '../../src/components/AvailableFrom';
+import Redirect from '../../components/Redirect';
 
-You may pass in the [`muted`](/docs/media/audio#muted) prop to [`<Audio>`](/docs/media/audio), [`<Video>`](/docs/media/video), [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Html5Audio>`](/docs/html5-audio) and [`<Html5Video>`](/docs/html5-video) and even change it over time.
+See [Controlling volume and muting](/docs/audio/volume#muting).
 
-When [`muted`](/docs/media/audio#muted) is true, audio will be omitted at that time. In the following example, we are muting the track between seconds 2 and 4.
-
-```tsx twoslash {9}
-import {staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
-import {Audio} from '@remotion/media';
-
-export const MyComposition = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-
-  return (
-    <>
-      <Audio src={staticFile('audio.mp3')} muted={frame >= 2 * fps && frame <= 4 * fps} />
-    </>
-  );
-};
-```
+<Redirect redirect="/docs/audio/volume#muting" />

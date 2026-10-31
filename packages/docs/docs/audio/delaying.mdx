@@ -3,25 +3,13 @@ image: https://remotion.media/docs/generated/articles-docs-audio-delaying.png
 title: Delaying Audio
 sidebar_label: Delaying Audio
 id: delaying
-crumb: 'Audio'
+crumb: 'Video and Audio'
+unlisted: true
+displayed_sidebar: mainSidebar
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Redirect from '../../components/Redirect';
 
-Use the [`from`](/docs/media/audio#from) prop to delay the audio from playing.
+See [Delaying video and audio](/docs/audio/trimming#delaying).
 
-In the following example, the audio will start playing after 100 frames.
-
-```tsx twoslash {6-8}
-import {staticFile} from 'remotion';
-import {Audio} from '@remotion/media';
-
-export const MyComposition = () => {
-  return (
-    <>
-      <Audio from={100} src={staticFile('audio.mp3')} />
-    </>
-  );
-};
-```
+<Redirect redirect="/docs/audio/trimming#delaying" />

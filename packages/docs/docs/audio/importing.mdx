@@ -3,41 +3,13 @@ image: https://remotion.media/docs/generated/articles-docs-audio-importing.png
 title: Importing Audio
 sidebar_label: Importing Audio
 id: importing
-crumb: 'Audio'
+crumb: 'Video and Audio'
+unlisted: true
+displayed_sidebar: mainSidebar
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Redirect from '../../components/Redirect';
 
-[Put an audio file into the `public/` folder](/docs/assets) and use [`staticFile()`](/docs/staticfile) to reference it.  
-Add an [`<Audio/>`](/docs/media/audio) tag to your component to add sound to it.
+See [Adding video and audio](/docs/videos).
 
-```tsx twoslash title="MyComp.tsx"
-import {staticFile} from 'remotion';
-import {Audio} from '@remotion/media';
-
-export const MyComposition = () => {
-  return (
-    <>
-      <Audio src={staticFile('audio.mp3')} />
-    </>
-  );
-};
-```
-
-You can also add remote audio by passing a URL:
-
-```tsx twoslash title="MyComp.tsx"
-import {Audio} from '@remotion/media';
-
-export const MyComposition = () => {
-  return (
-    <>
-      <Audio src="https://example.com/audio.mp3" />
-    </>
-  );
-};
-```
-
-By default, the audio will play from the start, at full volume and full length.  
-You can mix multiple tracks together by adding more audio tags.
+<Redirect redirect="/docs/videos" />
