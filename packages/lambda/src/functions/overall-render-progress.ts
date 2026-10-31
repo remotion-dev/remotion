@@ -21,6 +21,7 @@ const wait = (duration: number) => {
 
 export type OverallProgressHelper = {
 	upload: (reason: string) => Promise<void>;
+	flush: (reason: string) => Promise<void>;
 	setFrames: ({
 		encoded,
 		rendered,
@@ -118,6 +119,7 @@ export const makeOverallRenderProgress = ({
 	let dirty = false;
 	let dirtyReasons: string[] = [];
 	let uploadLoopPromise: Promise<void> | null = null;
+	let uploadError: unknown = null;
 
 	let encodeStartTime: number | null = null;
 	let renderFramesStartTime: number | null = null;
@@ -148,8 +150,10 @@ export const makeOverallRenderProgress = ({
 					{indent: false, logLevel},
 					`Uploaded progress in ${Date.now() - start}ms`,
 				);
+				uploadError = null;
 				return;
 			} catch (err) {
+				uploadError = err;
 				const willRetry = attempt < progressUploadAttempts;
 				RenderInternals.Log.error(
 					{indent: false, logLevel},
@@ -194,8 +198,18 @@ export const makeOverallRenderProgress = ({
 		await uploadLoopPromise;
 	};
 
+	const flush = async (reason: string) => {
+		await upload(reason);
+		if (uploadError !== null) {
+			throw new Error(
+				`Could not persist render progress: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`,
+			);
+		}
+	};
+
 	return {
 		upload,
+		flush,
 		setFrames: ({
 			encoded,
 			rendered,
@@ -313,7 +327,12 @@ export const makeOverallRenderProgress = ({
 		},
 		async setPostRenderData(postRenderData) {
 			renderProgress.postRenderData = postRenderData;
-			await upload('setPostRenderData');
+			try {
+				await flush('setPostRenderData');
+			} catch (err) {
+				renderProgress.postRenderData = null;
+				throw err;
+			}
 		},
 		async setSeparateAudio(separateAudio) {
 			renderProgress.separateAudio = separateAudio;

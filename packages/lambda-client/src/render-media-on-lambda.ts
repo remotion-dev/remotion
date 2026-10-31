@@ -101,6 +101,53 @@ export type RenderMediaOnLambdaOutput = {
 	progressJsonInConsole: string;
 };
 
+export const makeRenderMediaOnLambdaOutput = ({
+	renderId,
+	bucketName,
+	functionName,
+	region,
+	rendererFunctionName,
+}: {
+	renderId: string;
+	bucketName: string;
+	functionName: string;
+	region: AwsRegion;
+	rendererFunctionName: string | null;
+}): RenderMediaOnLambdaOutput => {
+	return {
+		renderId,
+		bucketName,
+		cloudWatchLogs: getCloudwatchRendererUrl({
+			functionName,
+			region,
+			renderId,
+			rendererFunctionName: rendererFunctionName ?? null,
+			chunk: null,
+		}),
+		cloudWatchMainLogs: getCloudwatchMethodUrl({
+			renderId,
+			functionName,
+			method: ServerlessRoutines.launch,
+			region,
+			rendererFunctionName: rendererFunctionName ?? null,
+		}),
+		folderInS3Console: getS3RenderUrl({
+			bucketName,
+			renderId,
+			region,
+		}),
+		lambdaInsightsLogs: getLambdaInsightsUrl({
+			functionName,
+			region,
+		}),
+		progressJsonInConsole: getProgressJsonUrl({
+			bucketName,
+			renderId,
+			region,
+		}),
+	};
+};
+
 export const internalRenderMediaOnLambdaRaw = async (
 	input: InnerRenderMediaOnLambdaInput,
 ): Promise<RenderMediaOnLambdaOutput> => {
@@ -116,38 +163,13 @@ export const internalRenderMediaOnLambdaRaw = async (
 			requestHandler: input.requestHandler,
 		});
 
-		return {
+		return makeRenderMediaOnLambdaOutput({
 			renderId: res.renderId,
 			bucketName: res.bucketName,
-			cloudWatchLogs: getCloudwatchRendererUrl({
-				functionName,
-				region,
-				renderId: res.renderId,
-				rendererFunctionName: rendererFunctionName ?? null,
-				chunk: null,
-			}),
-			cloudWatchMainLogs: getCloudwatchMethodUrl({
-				renderId: res.renderId,
-				functionName,
-				method: ServerlessRoutines.launch,
-				region,
-				rendererFunctionName: rendererFunctionName ?? null,
-			}),
-			folderInS3Console: getS3RenderUrl({
-				bucketName: res.bucketName,
-				renderId: res.renderId,
-				region,
-			}),
-			lambdaInsightsLogs: getLambdaInsightsUrl({
-				functionName,
-				region,
-			}),
-			progressJsonInConsole: getProgressJsonUrl({
-				bucketName: res.bucketName,
-				renderId: res.renderId,
-				region,
-			}),
-		};
+			functionName,
+			region,
+			rendererFunctionName,
+		});
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
@@ -236,9 +258,9 @@ const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
  * @description Kicks off a render process on Remotion Lambda. The progress can be tracked using getRenderProgress().
  * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
  */
-export const renderMediaOnLambda = (
+export const validateRenderMediaOnLambdaInput = (
 	options: RenderMediaOnLambdaInput,
-): Promise<RenderMediaOnLambdaOutput> => {
+): void => {
 	if (
 		Array.isArray(options.frameRange) &&
 		Array.isArray(options.frameRange[0])
@@ -253,7 +275,12 @@ export const renderMediaOnLambda = (
 			'quality has been renamed to jpegQuality. Please rename the option.',
 		);
 	}
+};
 
+export const renderMediaOnLambda = (
+	options: RenderMediaOnLambdaInput,
+): Promise<RenderMediaOnLambdaOutput> => {
+	validateRenderMediaOnLambdaInput(options);
 	return wrapped(renderMediaOnLambdaOptionalToRequired(options));
 };
 

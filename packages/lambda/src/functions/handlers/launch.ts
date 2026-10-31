@@ -5,6 +5,7 @@ import {
 	LambdaClientInternals,
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
+	type GenericRenderProgress,
 	type ImageSequenceManifest,
 	type ImageSequenceOutput,
 	type PostRenderData,
@@ -1076,9 +1077,11 @@ type CleanupTask = () => Promise<unknown>;
 export const launchHandler = async ({
 	params,
 	options,
+	onProgress,
 }: {
 	params: ServerlessPayload;
 	options: Options;
+	onProgress: ((progress: GenericRenderProgress) => void) | null;
 }): Promise<void> => {
 	if (params.type !== ServerlessRoutines.launch) {
 		throw new Error('Expected launch type');
@@ -1151,6 +1154,35 @@ export const launchHandler = async ({
 			(globalThis._dumpUnreleasedBuffers as EventEmitter).emit(
 				'dump-unreleased-buffers',
 			);
+		}
+
+		if (!overallProgress.get().postRenderData) {
+			const timeoutError = new Error(
+				'The Lambda function timed out before the render finished.',
+			);
+			overallProgress.addErrorWithoutUpload({
+				type: 'stitcher',
+				name: 'TimeoutError',
+				message: timeoutError.message,
+				stack: timeoutError.stack ?? timeoutError.message,
+				chunk: null,
+				frame: null,
+				tmpDir: null,
+				isFatal: true,
+				willRetry: false,
+				attempt: 1,
+				totalAttempts: 1,
+			});
+			try {
+				await overallProgress.flush('timeout');
+				publishProgress();
+			} catch (err) {
+				RenderInternals.Log.error(
+					logOptions,
+					'Could not persist terminal timeout progress',
+					err,
+				);
+			}
 		}
 
 		runCleanupTasks();
@@ -1258,6 +1290,50 @@ export const launchHandler = async ({
 		forcePathStyle: params.forcePathStyle,
 	});
 
+	const publishProgress = () => {
+		if (!onProgress) {
+			return;
+		}
+
+		try {
+			onProgress(
+				LambdaClientInternals.normalizeRenderProgress({
+					overallProgress: overallProgress.get(),
+					recoveredOutput: null,
+					bucketName: params.bucketName,
+					renderId: params.renderId,
+					region: getCurrentRegionInFunction(),
+					memorySizeInMb: getCurrentMemorySizeInMb(),
+					timeoutInMilliseconds:
+						overallProgress.get().timeoutTimestamp -
+						overallProgress.get().functionLaunched,
+					customCredentials: null,
+					functionName: getCurrentFunctionName(),
+				}),
+			);
+		} catch (err) {
+			RenderInternals.Log.verbose(
+				logOptions,
+				'Progress observer disconnected',
+				err,
+			);
+		}
+	};
+
+	// Read the same in-memory state used by S3 writes. Never poll storage here.
+	const progressInterval = onProgress
+		? setInterval(() => {
+				const state = overallProgress.get();
+				if (
+					!state.postRenderData &&
+					!state.errors.some((e) => e.isFatal && !e.willRetry)
+				) {
+					publishProgress();
+				}
+			}, 250)
+		: null;
+	publishProgress();
+
 	try {
 		const postRenderData = await innerLaunchHandler({
 			params,
@@ -1269,6 +1345,7 @@ export const launchHandler = async ({
 			},
 		});
 		clearTimeout(webhookDueToTimeout);
+		publishProgress();
 
 		await sendTelemetryEvent({
 			licenseKey: params.licenseKey ?? null,
@@ -1361,13 +1438,26 @@ export const launchHandler = async ({
 			willRetry: false,
 			message: (err as Error).message,
 		});
-		await overallProgress.upload('fatalError');
+		let persistenceError: unknown = null;
+		try {
+			await overallProgress.flush('fatalError');
+			publishProgress();
+		} catch (uploadError) {
+			persistenceError = uploadError;
+			RenderInternals.Log.error(
+				logOptions,
+				'Could not persist terminal render error',
+				uploadError,
+			);
+		}
 
 		runCleanupTasks();
 
 		RenderInternals.Log.error(
 			{indent: false, logLevel: params.logLevel},
-			'Wrote error to S3',
+			persistenceError === null
+				? 'Wrote error to S3'
+				: 'Could not write error to S3',
 		);
 		clearTimeout(webhookDueToTimeout);
 
@@ -1419,7 +1509,17 @@ export const launchHandler = async ({
 				);
 			}
 		}
+
+		if (persistenceError !== null) {
+			throw persistenceError;
+		}
 	} finally {
+		clearTimeout(webhookDueToTimeout);
+		if (progressInterval) {
+			clearInterval(progressInterval);
+		}
+
+		await overallProgress.upload('finish');
 		if (instance) {
 			forgetBrowserEventLoop({
 				logLevel: params.logLevel,

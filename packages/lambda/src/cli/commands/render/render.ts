@@ -4,6 +4,9 @@ import {ConfigInternals} from '@remotion/cli/config';
 import {
 	LambdaClientInternals,
 	getRenderProgress,
+	RenderMediaOnLambdaAndWaitError,
+	type RenderMediaOnLambdaOutput,
+	type RenderProgress,
 	type EnhancedErrorInfo,
 	type ServerlessCodec,
 } from '@remotion/lambda-client';
@@ -416,7 +419,9 @@ export const renderCommand = async ({
 
 	const webhookCustomData = getWebhookCustomData(logLevel);
 
-	const res = await LambdaClientInternals.internalRenderMediaOnLambdaRaw({
+	const renderInput: Parameters<
+		typeof LambdaClientInternals.internalRenderMediaOnLambdaRaw
+	>[0] = {
 		enableCancellation,
 		functionName,
 		serveUrl,
@@ -503,45 +508,7 @@ export const renderCommand = async ({
 			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
 			true,
 		sampleRate,
-	});
-
-	const unregisterCtrlCHandler = CliInternals.registerCtrlCHandler(async () => {
-		if (!enableCancellation) {
-			Log.info(
-				{indent: false, logLevel},
-				'Stopped waiting. The Lambda render is still running.',
-			);
-			Log.info(
-				{indent: false, logLevel},
-				'Use --enable-cancellation to allow Ctrl+C to cancel it.',
-			);
-			return 130;
-		}
-
-		Log.info({indent: false, logLevel}, 'Cancelling Lambda render...');
-		try {
-			await LambdaClientInternals.internalCancelRenderOnLambda({
-				bucketName: res.bucketName,
-				region,
-				renderId: res.renderId,
-				forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
-				requestHandler: null,
-			});
-		} catch (err) {
-			Log.error(
-				{indent: false, logLevel},
-				`Could not cancel the Lambda render: ${err instanceof Error ? err.message : String(err)}`,
-			);
-			Log.info(
-				{indent: false, logLevel},
-				'The Lambda render may still be running.',
-			);
-			return 1;
-		}
-
-		Log.info({indent: false, logLevel}, 'Cancellation signal sent.');
-		return 130;
-	});
+	};
 
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
@@ -552,133 +519,192 @@ export const renderCommand = async ({
 		logLevel,
 	});
 
-	Log.info(
-		{indent: false, logLevel},
-		CliInternals.chalk.gray(
-			`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: LambdaClientInternals.getS3BucketUrl({region: getAwsRegion(), bucketName: res.bucketName})})}`,
-		),
-	);
-	if (enableCancellation) {
+	const identity: {value: RenderMediaOnLambdaOutput | null} = {value: null};
+	let unregisterCtrlCHandler = () => {};
+	const onInit = (res: RenderMediaOnLambdaOutput) => {
+		identity.value = res;
+
+		unregisterCtrlCHandler = CliInternals.registerCtrlCHandler(async () => {
+			if (!enableCancellation) {
+				Log.info(
+					{indent: false, logLevel},
+					'Stopped waiting. The Lambda render is still running.',
+				);
+				Log.info(
+					{indent: false, logLevel},
+					'Use --enable-cancellation to allow Ctrl+C to cancel it.',
+				);
+				return 130;
+			}
+
+			Log.info({indent: false, logLevel}, 'Cancelling Lambda render...');
+			try {
+				await LambdaClientInternals.internalCancelRenderOnLambda({
+					bucketName: res.bucketName,
+					region,
+					renderId: res.renderId,
+					forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
+					requestHandler: null,
+				});
+			} catch (err) {
+				Log.error(
+					{indent: false, logLevel},
+					`Could not cancel the Lambda render: ${err instanceof Error ? err.message : String(err)}`,
+				);
+				Log.info(
+					{indent: false, logLevel},
+					'The Lambda render may still be running.',
+				);
+				return 1;
+			}
+
+			Log.info({indent: false, logLevel}, 'Cancellation signal sent.');
+			return 130;
+		});
+
 		Log.info(
 			{indent: false, logLevel},
-			CliInternals.chalk.gray('Press Ctrl+C to cancel the render.'),
-		);
-	}
-	Log.info(
-		{indent: false, logLevel},
-		CliInternals.chalk.gray(
-			`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: LambdaClientInternals.getLambdaFunctionUrl({region: getAwsRegion(), functionName})})}`,
-		),
-	);
-	Log.info(
-		{indent: false, logLevel},
-		CliInternals.chalk.gray(
-			`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: res.folderInS3Console})}`,
-		),
-	);
-	Log.info(
-		{indent: false, logLevel},
-		CliInternals.chalk.gray(
-			`progress.json: ${CliInternals.makeHyperlink({
-				text: (clickInstruction) => {
-					return `${clickInstruction} to view`;
-				},
-				fallback: res.progressJsonInConsole,
-				url: res.progressJsonInConsole,
-			})}`,
-		),
-	);
-	if (shouldOutputImageSequence) {
-		Log.info(
-			{indent: false, logLevel},
-			CliInternals.chalk.gray(`Image format: ${imageFormat}`),
-		);
-	} else {
-		Log.info(
-			{
-				indent: false,
-				logLevel,
-			},
 			CliInternals.chalk.gray(
-				`${CliInternals.makeHyperlink({
-					text: 'Codec',
-					fallback: 'Codec',
-					url: 'https://remotion.dev/docs/encoding',
-				})}: ${codec} (${reason})`,
+				`Bucket: ${CliInternals.makeHyperlink({text: res.bucketName, fallback: res.bucketName, url: LambdaClientInternals.getS3BucketUrl({region: getAwsRegion(), bucketName: res.bucketName})})}`,
 			),
 		);
-	}
+		if (enableCancellation) {
+			Log.info(
+				{indent: false, logLevel},
+				CliInternals.chalk.gray('Press Ctrl+C to cancel the render.'),
+			);
+		}
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(
+				`Function: ${CliInternals.makeHyperlink({text: functionName, fallback: functionName, url: LambdaClientInternals.getLambdaFunctionUrl({region: getAwsRegion(), functionName})})}`,
+			),
+		);
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(
+				`Render ID: ${CliInternals.makeHyperlink({text: res.renderId, fallback: res.renderId, url: res.folderInS3Console})}`,
+			),
+		);
+		Log.info(
+			{indent: false, logLevel},
+			CliInternals.chalk.gray(
+				`progress.json: ${CliInternals.makeHyperlink({
+					text: (clickInstruction) => {
+						return `${clickInstruction} to view`;
+					},
+					fallback: res.progressJsonInConsole,
+					url: res.progressJsonInConsole,
+				})}`,
+			),
+		);
+		if (shouldOutputImageSequence) {
+			Log.info(
+				{indent: false, logLevel},
+				CliInternals.chalk.gray(`Image format: ${imageFormat}`),
+			);
+		} else {
+			Log.info(
+				{
+					indent: false,
+					logLevel,
+				},
+				CliInternals.chalk.gray(
+					`${CliInternals.makeHyperlink({
+						text: 'Codec',
+						fallback: 'Codec',
+						url: 'https://remotion.dev/docs/encoding',
+					})}: ${codec} (${reason})`,
+				),
+			);
+		}
 
-	Log.verbose(
-		{indent: false, logLevel},
-		'CloudWatch logs (if enabled):',
-		CliInternals.makeHyperlink({
-			text: `Main function`,
-			url: res.cloudWatchMainLogs,
-			fallback: res.cloudWatchMainLogs,
-		}),
-		...(concurrency === 1 && rendererFunctionName === null
-			? []
-			: [
-					CliInternals.makeHyperlink({
-						text: `Renderer functions`,
-						url: res.cloudWatchLogs,
-						fallback: res.cloudWatchLogs,
-					}),
-				]),
-	);
-	Log.verbose(
-		{indent: false, logLevel},
-		'Lambda insights: (if enabled):',
-		CliInternals.makeHyperlink({
-			text: (instruction) => `${instruction} to view`,
-			url: res.lambdaInsightsLogs,
-			fallback: res.lambdaInsightsLogs,
-		}),
-	);
-
-	if (!CliInternals.supportsHyperlink()) {
 		Log.verbose(
 			{indent: false, logLevel},
+			'CloudWatch logs (if enabled):',
 			CliInternals.makeHyperlink({
-				text: (instruction) => `${instruction} for Render folder`,
-				url: res.folderInS3Console,
-				fallback: `Render folder: ${res.folderInS3Console}`,
+				text: `Main function`,
+				url: res.cloudWatchMainLogs,
+				fallback: res.cloudWatchMainLogs,
+			}),
+			...(concurrency === 1 && rendererFunctionName === null
+				? []
+				: [
+						CliInternals.makeHyperlink({
+							text: `Renderer functions`,
+							url: res.cloudWatchLogs,
+							fallback: res.cloudWatchLogs,
+						}),
+					]),
+		);
+		Log.verbose(
+			{indent: false, logLevel},
+			'Lambda insights: (if enabled):',
+			CliInternals.makeHyperlink({
+				text: (instruction) => `${instruction} to view`,
+				url: res.lambdaInsightsLogs,
+				fallback: res.lambdaInsightsLogs,
 			}),
 		);
+
+		if (!CliInternals.supportsHyperlink()) {
+			Log.verbose(
+				{indent: false, logLevel},
+				CliInternals.makeHyperlink({
+					text: (instruction) => `${instruction} for Render folder`,
+					url: res.folderInS3Console,
+					fallback: `Render folder: ${res.folderInS3Console}`,
+				}),
+			);
+		}
+	};
+	let finalStatus: RenderProgress | null = null;
+	if (shouldOutputImageSequence) {
+		onInit(
+			await LambdaClientInternals.internalRenderMediaOnLambdaRaw(renderInput),
+		);
+	} else {
+		try {
+			finalStatus =
+				await LambdaClientInternals.internalRenderMediaOnLambdaAndWait(
+					renderInput,
+					{
+						onInit,
+						onProgress: (overall) => {
+							progressBar.update(
+								makeProgressString({downloadInfo: null, overall}),
+								false,
+							);
+						},
+					},
+				);
+		} catch (err) {
+			if (
+				!(err instanceof RenderMediaOnLambdaAndWaitError) ||
+				!err.progress?.fatalErrorEncountered
+			)
+				throw err;
+			finalStatus = err.progress;
+		} finally {
+			unregisterCtrlCHandler();
+		}
 	}
-
-	const adheresToFunctionNameConvention =
-		LambdaClientInternals.parseFunctionName(functionName);
-
-	const status = await getRenderProgress({
-		functionName,
-		bucketName: res.bucketName,
-		renderId: res.renderId,
-		region: getAwsRegion(),
-		logLevel,
-		skipLambdaInvocation: Boolean(adheresToFunctionNameConvention),
-		s3OutputProvider: s3OutputProvider ?? undefined,
-	});
-	progressBar.update(
-		makeProgressString({
-			downloadInfo: null,
-			overall: status,
-		}),
-		false,
-	);
+	const res = identity.value;
+	if (!res) throw new Error('No Lambda render identity received');
 
 	// eslint-disable-next-line no-constant-condition
 	while (true) {
-		await sleep(500);
-		const newStatus = await getRenderProgress({
-			functionName,
-			bucketName: res.bucketName,
-			renderId: res.renderId,
-			region: getAwsRegion(),
-			logLevel,
-			s3OutputProvider: s3OutputProvider ?? undefined,
-		});
+		if (!finalStatus) await sleep(500);
+		const newStatus =
+			finalStatus ??
+			(await getRenderProgress({
+				functionName,
+				bucketName: res.bucketName,
+				renderId: res.renderId,
+				region: getAwsRegion(),
+				logLevel,
+				s3OutputProvider: s3OutputProvider ?? undefined,
+			}));
 		progressBar.update(
 			makeProgressString({
 				downloadInfo: null,

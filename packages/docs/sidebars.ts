@@ -481,6 +481,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/presignurl',
 				'lambda/renderframesonlambda',
 				'lambda/rendermediaonlambda',
+				'lambda/rendermediaonlambdaandwait',
 				'lambda/cancelrenderonlambda',
 				'lambda/renderstillonlambda',
 				'lambda/simulatepermissions',

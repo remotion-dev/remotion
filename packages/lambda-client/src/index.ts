@@ -154,3 +154,10 @@ export type {
 } from './write-error-to-storage';
 
 export * as LambdaClientInternals from './internals';
+
+export {
+	renderMediaOnLambdaAndWait,
+	RenderMediaOnLambdaAndWaitError,
+	type RenderMediaOnLambdaAndWaitInput,
+	type RenderMediaOnLambdaAndWaitOutput,
+} from './render-media-on-lambda-and-wait';

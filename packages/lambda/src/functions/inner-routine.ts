@@ -19,6 +19,7 @@ import {infoHandler} from './info';
 import {getWarm, setWarm} from './is-warm';
 import {printLoggingGrepHelper} from './print-logging-grep-helper';
 import {makeS3RendererOutput} from './s3-renderer-output';
+import {makeProgressStream} from './streaming/progress-stream';
 import type {ResponseStreamWriter} from './streaming/stream-writer';
 
 export const innerHandler = async ({
@@ -122,7 +123,6 @@ export const innerHandler = async ({
 			});
 			await responseWriter.end();
 		} catch (err) {
-			// eslint-disable-next-line no-console
 			console.log({err});
 		}
 
@@ -130,6 +130,9 @@ export const innerHandler = async ({
 	}
 
 	if (params.type === ServerlessRoutines.start) {
+		const stream = params.streamProgress
+			? makeProgressStream(responseWriter)
+			: null;
 		try {
 			const renderId =
 				LambdaClientInternals.generateRandomHashWithLifeCycleRule({
@@ -150,6 +153,8 @@ export const innerHandler = async ({
 			}
 
 			const response = await startHandler({
+				context,
+				publish: stream?.publish ?? null,
 				params,
 				options: {
 					expectedBucketOwner: context.expectedBucketOwner,
@@ -158,13 +163,30 @@ export const innerHandler = async ({
 				},
 			});
 
+			if (stream) {
+				await stream.end();
+				return;
+			}
+
 			await responseWriter.write(
 				new TextEncoder().encode(JSON.stringify(response)),
 			);
 			await responseWriter.end();
 			return;
 		} catch (err) {
-			// eslint-disable-next-line no-console
+			if (stream) {
+				stream.publish({
+					type: 'render-failed',
+					payload: {
+						message: (err as Error).message,
+						stack: (err as Error).stack ?? null,
+						progress: null,
+					},
+				});
+				await stream.end();
+				return;
+			}
+
 			console.log({err});
 			const response: OrError<0> = {
 				type: 'error',
@@ -193,6 +215,7 @@ export const innerHandler = async ({
 		}
 
 		await launchHandler({
+			onProgress: null,
 			params,
 			options: {
 				expectedBucketOwner: context.expectedBucketOwner,
