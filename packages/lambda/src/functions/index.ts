@@ -8,6 +8,7 @@ import {
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
 import {streamifyResponse} from './helpers/streamify-response';
 import {innerHandler} from './inner-routine';
+import {makeProgressStream} from './streaming/progress-stream';
 import type {ResponseStream} from './streaming/response-stream';
 import {streamWriter} from './streaming/stream-writer';
 
@@ -23,6 +24,10 @@ export const routine = async (
 	context: LambdaRequestContext,
 ): Promise<void> => {
 	const responseWriter = streamWriter(responseStream);
+	// An outward stream is an observer, never the lifetime of the render.
+	if (params.type === ServerlessRoutines.start && params.streamProgress) {
+		responseStream.on('error', () => undefined);
+	}
 
 	const buffered =
 		params.type === ServerlessRoutines.info ||
@@ -54,6 +59,20 @@ export const routine = async (
 			},
 		});
 	} catch (err) {
+		if (params.type === ServerlessRoutines.start && params.streamProgress) {
+			const stream = makeProgressStream(responseWriter);
+			stream.publish({
+				type: 'render-failed',
+				payload: {
+					message: (err as Error).message,
+					stack: (err as Error).stack ?? null,
+					progress: null,
+				},
+			});
+			await stream.end();
+			return;
+		}
+
 		if (!buffered) {
 			throw err;
 		}

@@ -99,11 +99,12 @@ export {
 } from './most-expensive-chunks';
 export {pLimit} from './p-limit';
 export {parseFunctionName} from './parse-function-name';
-export {getProgress} from './progress';
+export {getProgress, normalizeRenderProgress} from './progress';
 export {randomHashImplementation} from './random-hash';
 export {lambdaReadFileImplementation} from './read-file';
 export {
 	internalRenderMediaOnLambdaRaw,
+	makeRenderMediaOnLambdaOutput,
 	renderMediaOnLambdaOptionalToRequired,
 } from './render-media-on-lambda';
 export {internalRenderStillOnLambda} from './render-still-on-lambda';
@@ -165,3 +166,5 @@ export {
 	lambdaWriteFileImplementation,
 	supportsConditionalOutput,
 } from './write-file';
+
+export {internalRenderMediaOnLambdaAndWait} from './render-media-on-lambda-and-wait';

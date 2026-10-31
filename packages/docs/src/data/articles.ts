@@ -5599,6 +5599,15 @@ export const articles = [
 		slug: 'lambda/rendermediaonlambda',
 	},
 	{
+		id: 'rendermediaonlambdaandwait',
+		title: 'renderMediaOnLambdaAndWait()',
+		relativePath: 'docs/lambda/rendermediaonlambdaandwait.mdx',
+		compId: 'articles-docs-lambda-rendermediaonlambdaandwait',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/rendermediaonlambdaandwait',
+	},
+	{
 		id: 'renderstillonlambda',
 		title: 'renderStillOnLambda()',
 		relativePath: 'docs/lambda/renderstillonlambda.mdx',
