@@ -312,7 +312,7 @@ const config: Config = {
 						},
 						{
 							label: 'Accessibility',
-							to: '/docs/accessibility',
+							to: '/docs/accessibility/dev',
 						},
 					],
 				},
