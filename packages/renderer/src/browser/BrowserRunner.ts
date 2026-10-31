@@ -96,7 +96,7 @@ export const makeBrowserRunner = async ({
 		// If the process failed to launch (for example if the browser executable path
 		// is invalid), then the process does not get a pid assigned. A call to
 		// `proc.kill` would error, as the `pid` to-be-killed can not be found.
-		if (proc.pid && pidExists(proc.pid)) {
+		if (!closed && proc.pid && pidExists(proc.pid)) {
 			try {
 				if (process.platform === 'win32') {
 					childProcess.exec(`taskkill /pid ${proc.pid} /T /F`, (error) => {
@@ -145,23 +145,51 @@ export const makeBrowserRunner = async ({
 		removeEventListeners(listeners);
 	};
 
+	let closePromise: Promise<void> | null = null;
 	const closeProcess = (): Promise<void> => {
-		if (closed) {
-			return Promise.resolve();
+		if (closePromise) {
+			return closePromise;
 		}
 
-		Log.verbose(
-			{indent, logLevel},
-			'Received SIGTERM signal. Killing browser process',
-		);
-		killProcess();
+		closePromise = (async () => {
+			let timeoutId: ReturnType<typeof setTimeout> | null = null;
+			try {
+				if (!closed) {
+					// Let Chrome run its shutdown cleanup, including macOS code-sign
+					// clone removal. The CDP response can be lost as Chrome exits.
+					try {
+						void connection.send('Browser.close').catch(() => undefined);
+					} catch {
+						// The transport may already be closed. Still wait for process exit.
+					}
 
-		deleteDirectory(userDataDir);
+					await Promise.race([
+						processClosing,
+						new Promise<void>((resolve) => {
+							timeoutId = setTimeout(resolve, 2000);
+						}),
+					]);
+					if (!closed) {
+						Log.verbose(
+							{indent, logLevel},
+							'Browser did not exit gracefully. Killing browser process',
+						);
+						killProcess();
+					}
 
-		// Cleanup this listener last, as that makes sure the full callback runs. If we
-		// perform this earlier, then the previous function calls would not happen.
-		removeEventListeners(listeners);
-		return processClosing;
+					await processClosing;
+				}
+			} finally {
+				if (timeoutId !== null) {
+					clearTimeout(timeoutId);
+				}
+
+				// Also clean up when Chrome exited on its own, before closeProcess().
+				deleteDirectory(userDataDir);
+				removeEventListeners(listeners);
+			}
+		})();
+		return closePromise;
 	};
 
 	if (dumpio) {
