@@ -87,9 +87,18 @@ export const videoIteratorManager = async ({
 	let currentSeek: number | null = null;
 	let destroyed = false;
 	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
+	// The inputs of the effect chain output that is currently on the canvas.
+	let lastEffectOutput: {
+		frame: WrappedCanvas;
+		effects: EffectDefinitionAndStack<unknown>[];
+		state: EffectChainState;
+		width: number;
+		height: number;
+	} | null = null;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
+		lastEffectOutput = null;
 	};
 
 	const displayWidth = await videoTrack.getDisplayWidth();
@@ -121,7 +130,10 @@ export const videoIteratorManager = async ({
 		Object.keys(frameSize).length === 0 ? null : frameSize,
 	);
 
-	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
+	const paintFrame = async (
+		frame: WrappedCanvas,
+		reuseEffectOutput: boolean,
+	): Promise<void> => {
 		if (destroyed) {
 			return;
 		}
@@ -134,6 +146,20 @@ export const videoIteratorManager = async ({
 				chainState &&
 				canvas instanceof HTMLCanvasElement
 			) {
+				// A seek within the same decoded frame would produce the same output.
+				if (
+					reuseEffectOutput &&
+					lastEffectOutput !== null &&
+					lastEffectOutput.frame === frame &&
+					lastEffectOutput.effects === effects &&
+					lastEffectOutput.state === chainState &&
+					lastEffectOutput.width === canvas.width &&
+					lastEffectOutput.height === canvas.height
+				) {
+					return;
+				}
+
+				lastEffectOutput = null;
 				const firstEnabledEffect = effects.find(
 					(effect) => !(effect.params as {disabled?: boolean}).disabled,
 				);
@@ -148,7 +174,7 @@ export const videoIteratorManager = async ({
 				const run = {state: chainState, runId: chainState.currentRunId + 1};
 				pendingEffectRun = run;
 				try {
-					await runEffectChain({
+					const completed = await runEffectChain({
 						state: chainState,
 						source,
 						effects,
@@ -156,12 +182,22 @@ export const videoIteratorManager = async ({
 						width: canvas.width,
 						height: canvas.height,
 					});
+					if (completed && !destroyed) {
+						lastEffectOutput = {
+							frame,
+							effects,
+							state: chainState,
+							width: canvas.width,
+							height: canvas.height,
+						};
+					}
 				} finally {
 					if (pendingEffectRun === run) {
 						pendingEffectRun = null;
 					}
 				}
 			} else {
+				lastEffectOutput = null;
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				drawStableFrame(context, frame, canvas.width, canvas.height);
 			}
@@ -169,7 +205,7 @@ export const videoIteratorManager = async ({
 	};
 
 	const drawFrame = async (frame: WrappedCanvas): Promise<void> => {
-		await paintFrame(frame);
+		await paintFrame(frame, true);
 		if (destroyed) {
 			return;
 		}
@@ -195,7 +231,7 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
-		await paintFrame(lastDrawnFrame);
+		await paintFrame(lastDrawnFrame, false);
 		if (destroyed) {
 			return;
 		}
