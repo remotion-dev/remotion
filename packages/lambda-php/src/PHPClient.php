@@ -256,7 +256,7 @@ class PHPClient
             $render->getData(),
             $this->getRegion(),
             "video-or-audio",
-            null
+            $render->getBucketName()
         );
 
         $render->internal_setSerializedInputProps($input);
@@ -300,7 +300,7 @@ class PHPClient
             $render->getData(),
             $this->getRegion(),
             "still",
-            null
+            $render->getBucketName()
         );
 
         $render->internal_setSerializedInputProps($input);
@@ -464,8 +464,8 @@ class PHPClient
         $response = json_decode($response, true);
 
         // AWS response
-        if (isset($response->errorMessage)) {
-            throw new Exception($response->errorMessage);
+        if (isset($response['errorMessage'])) {
+            throw new Exception($response['errorMessage']);
         }
 
         $classResponse = new RenderMediaOnLambdaResponse();
@@ -513,8 +513,8 @@ class PHPClient
     {
         $response = json_decode($response, true);
 
-        if (isset($response->errorMessage)) {
-            throw new Exception($response->errorMessage);
+        if (isset($response['errorMessage'])) {
+            throw new Exception($response['errorMessage']);
         }
 
         $classResponse = new GetRenderProgressResponse();
@@ -571,7 +571,7 @@ class PHPClient
             }
 
             $hash = $this->generateHash($payload);
-            $bucketName = $this->getOrCreateBucket();
+            $bucketName = $userSpecifiedBucketName ?? $this->getOrCreateBucket();
             $key = $this->inputPropsKey($hash);
 
             $this->uploadToS3($bucketName, $key, $payload);
