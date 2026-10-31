@@ -10374,6 +10374,15 @@ export const articles = [
 		slug: 'version',
 	},
 	{
+		id: 'video-matting-guide',
+		title: 'Video matting',
+		relativePath: 'docs/video-matting-guide.mdx',
+		compId: 'articles-docs-video-matting-guide',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'video-matting-guide',
+	},
+	{
 		id: 'video-matting/can-use-video-matting',
 		title: 'canUseVideoMatting()',
 		relativePath: 'docs/video-matting/can-use-video-matting.mdx',
