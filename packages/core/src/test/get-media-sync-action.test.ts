@@ -134,10 +134,8 @@ describe('seek-due-to-shift (big time shift)', () => {
 });
 
 describe('rvc vs media tag time shift', () => {
-	// The "most recent" comparison uses `rvcTime > mediaTagLastUpdate`, which is
-	// the (odd) behavior of the original implementation. These inputs are chosen
-	// so that branch is taken: rvcLastUpdate is truthy and rvcTime (0.5) is
-	// greater than mediaTagLastUpdate (0).
+	// `rvcLastUpdate` and `mediaTagLastUpdate` are `performance.now()`
+	// timestamps of when each reading changed last. The fresher one wins.
 	test('uses rvc time shift when it is more recent', () => {
 		// media tag is on time, but rvc reports a big shift → should still trigger
 		const action = getMediaSyncAction(
@@ -147,6 +145,80 @@ describe('rvc vs media tag time shift', () => {
 				mediaTagLastUpdate: 0,
 				rvcTime: 0.5,
 				rvcLastUpdate: 1,
+			}),
+		);
+		expect(action.type).toBe('seek-due-to-shift');
+	});
+
+	// Regression for #12588: the media time used to be compared against the
+	// timestamp, so the frame callback reading was ignored once the page had
+	// been open for longer than the media position.
+	test('trusts a fresher rvc reading late in the page lifetime', () => {
+		// Media tag read 600ms ago and stale, frame callback just now and in sync
+		const action = getMediaSyncAction(
+			makeInput({
+				desiredUnclampedTime: 13,
+				mediaTagTime: 12.4,
+				mediaTagLastUpdate: 200_000,
+				rvcTime: 12.99,
+				rvcLastUpdate: 200_600,
+			}),
+		);
+		expect(action.type).toBe('none');
+	});
+
+	test('trusts a fresher rvc reading that is exactly on time', () => {
+		// A time shift of 0 is still a reading
+		const action = getMediaSyncAction(
+			makeInput({
+				desiredUnclampedTime: 13,
+				mediaTagTime: 12.4,
+				mediaTagLastUpdate: 200_000,
+				rvcTime: 13,
+				rvcLastUpdate: 200_600,
+			}),
+		);
+		expect(action.type).toBe('none');
+	});
+
+	test('uses a fresher rvc reading of 0', () => {
+		// The first presented frame reports mediaTime 0
+		const action = getMediaSyncAction(
+			makeInput({
+				desiredUnclampedTime: 0.6,
+				mediaTagTime: 0.6,
+				mediaTagLastUpdate: 200_000,
+				rvcTime: 0,
+				rvcLastUpdate: 200_600,
+			}),
+		);
+		expect(action.type).toBe('seek-due-to-shift');
+	});
+
+	test('trusts a fresher media tag reading early in the page lifetime', () => {
+		// Media tag just now and in sync, frame callback 3ms earlier and stale.
+		// The media position (12.4) is larger than the timestamp (5), which
+		// the old comparison took as the rvc reading being more recent.
+		const action = getMediaSyncAction(
+			makeInput({
+				desiredUnclampedTime: 13,
+				mediaTagTime: 13,
+				mediaTagLastUpdate: 5,
+				rvcTime: 12.4,
+				rvcLastUpdate: 2,
+			}),
+		);
+		expect(action.type).toBe('none');
+	});
+
+	test('seeks when the fresher rvc reading is off late in the page lifetime', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				desiredUnclampedTime: 13,
+				mediaTagTime: 13,
+				mediaTagLastUpdate: 200_000,
+				rvcTime: 12.4,
+				rvcLastUpdate: 200_600,
 			}),
 		);
 		expect(action.type).toBe('seek-due-to-shift');
