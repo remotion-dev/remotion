@@ -401,13 +401,21 @@ class RemotionClient:
             return True
         return False
 
-    def _serialize_input_props(self, input_props: Optional[Dict[str, Any]], render_type: RenderType) -> Dict[str, Any] : # Added type hints
+    def _serialize_input_props(
+        self,
+        input_props: Optional[Dict[str, Any]],
+        render_type: RenderType,
+        user_specified_bucket_name: Optional[str] = None,
+    ) -> Dict[str, Any]: # Added type hints
         """
         Serialize inputProps to a format compatible with Lambda.
 
         Args:
             input_props (dict): Input properties to be serialized.
             render_type (RenderType): Type of the render (e.g., 'still' or 'video-or-audio').
+            user_specified_bucket_name (Optional[str]): Bucket to upload input props to
+                when they exceed the inline limit. When not provided, the default
+                Remotion bucket is used.
 
         Returns:
             dict: Serialized inputProps in either payload or bucket-url format.
@@ -418,7 +426,7 @@ class RemotionClient:
 
             if self._needs_upload(payload_size, render_type):
                 hash_value = self._generate_hash(payload)
-                bucket_name = self._get_or_create_bucket()
+                bucket_name = user_specified_bucket_name or self._get_or_create_bucket()
                 key = self._input_props_key(hash_value)
 
                 self._upload_to_s3(bucket_name, key, payload)
@@ -571,7 +579,12 @@ class RemotionClient:
             # Assuming RenderMediaParams and RenderStillParams both have an input_props attribute
             # and a private_serialized_input_props attribute (even if Optional)
             render_params.private_serialized_input_props = self._serialize_input_props(
-                input_props=render_params.input_props, render_type=render_type
+                input_props=render_params.input_props,
+                render_type=render_type,
+                user_specified_bucket_name=getattr(
+                    render_params, "force_bucket_name", None
+                )
+                or getattr(render_params, "bucket_name", None),
             )
         except (RemotionInvalidArgumentException, ClientError) as e:
             raise RemotionInvalidArgumentException(
@@ -788,7 +801,9 @@ class RemotionClient:
             str: JSON representation of the get compositions request.
         """
         serialized_input_props = self._serialize_input_props(
-            input_props=input_props or {}, render_type="video-or-audio"
+            input_props=input_props or {},
+            render_type="video-or-audio",
+            user_specified_bucket_name=force_bucket_name,
         )
 
         params = GetCompositionsParams(
