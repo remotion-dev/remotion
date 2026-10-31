@@ -1,5 +1,49 @@
-import {AbsoluteFill, Img} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Freeze,
+	Img,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 import {StudioCodeHandoff} from './StudioCodeHandoff';
+
+const ReadmeHandoffFade: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	return (
+		<AbsoluteFill style={{isolation: 'isolate'}}>
+			{[
+				{time: 0, times: [2.8, 3.2, 9.8, 10.2], opacity: [1, 0, 0, 1]},
+				{time: 4, times: [2.8, 3.2, 6.3, 6.7], opacity: [0, 1, 1, 0]},
+				{time: 7.5, times: [6.3, 6.7, 9.8, 10.2], opacity: [0, 1, 1, 0]},
+			].map((state) => (
+				<AbsoluteFill
+					key={state.time}
+					style={{
+						mixBlendMode: 'plus-lighter',
+						opacity: interpolate(
+							frame,
+							state.times.map((time) => time * fps),
+							state.opacity,
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: Easing.bezier(0.42, 0, 0.58, 1),
+							},
+						),
+					}}
+				>
+					<Freeze frame={state.time * fps}>
+						<StudioCodeHandoff />
+					</Freeze>
+				</AbsoluteFill>
+			))}
+		</AbsoluteFill>
+	);
+};
 
 export const ReadmeHero: React.FC<{theme: 'light' | 'dark'}> = ({theme}) => {
 	const shade = theme === 'dark' ? '255, 255, 255' : '0, 0, 0';
@@ -32,7 +76,7 @@ export const ReadmeHero: React.FC<{theme: 'light' | 'dark'}> = ({theme}) => {
 					height: 510,
 				}}
 			>
-				<StudioCodeHandoff />
+				<ReadmeHandoffFade />
 			</div>
 			<div
 				style={{

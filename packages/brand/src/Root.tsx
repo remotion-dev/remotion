@@ -403,8 +403,8 @@ export const RemotionRoot: React.FC = () => {
 						id={theme === 'light' ? 'ReadmeHeroLight' : 'ReadmeHeroDark'}
 						component={ReadmeHero}
 						defaultProps={{theme}}
-						durationInFrames={180}
-						fps={15}
+						durationInFrames={360}
+						fps={30}
 						width={1012}
 						height={599}
 					/>
