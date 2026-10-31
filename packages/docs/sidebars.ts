@@ -1399,7 +1399,6 @@ const sidebars: SidebarsConfig = {
 				'lambda/faq',
 				'lambda/light-client',
 				'lambda/custom-layers',
-				'lambda/custom-function-names',
 				'lambda/separate-environments',
 				'lambda/custom-destination',
 				'lambda/checklist',
@@ -1455,6 +1454,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/s3-public-access',
 				'lambda/bucket-security',
 				'lambda/naming-convention',
+				'lambda/custom-function-names',
 			],
 		},
 		{
