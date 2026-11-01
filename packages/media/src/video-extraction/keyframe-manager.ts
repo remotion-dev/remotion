@@ -16,6 +16,13 @@ import {type KeyframeBank, makeKeyframeBank} from './keyframe-bank';
 // least-recently-used banks whenever the cache exceeds its budget.
 const RECENTLY_USED_REQUEST_COUNT = 50;
 
+// Every bank holds an open decoder. A request only clears banks of its own src,
+// and a bank with few frames barely counts against the cache budget, so each
+// src of a composition would keep a decoder open until the render ends.
+// A src that was not requested for this many requests per open src gets its
+// banks closed. Sources on screen together are requested in turn and stay open.
+const IDLE_SRC_REQUESTS_PER_SRC = 2;
+
 export const makeKeyframeManager = ({
 	getTotalCacheStats,
 }: {
@@ -29,6 +36,10 @@ export const makeKeyframeManager = ({
 	// concurrently-mounted components are actively reading from.
 	let requestCountForSrc: Record<string, number> = {};
 	const lastRequestForBank = new WeakMap<KeyframeBank, number>();
+
+	// The same across all sources, to detect sources that are not read anymore.
+	let totalRequestCount = 0;
+	let lastRequestForSrc: Record<string, number> = {};
 
 	const addKeyframeBank = ({
 		src,
@@ -249,6 +260,31 @@ export const makeKeyframeManager = ({
 		logCacheStats(logLevel);
 	};
 
+	const clearBanksOfIdleSources = (logLevel: LogLevel) => {
+		const srcs = Object.keys(sources);
+		const idleAfterRequests = Math.max(
+			RECENTLY_USED_REQUEST_COUNT,
+			srcs.length * IDLE_SRC_REQUESTS_PER_SRC,
+		);
+
+		for (const src of srcs) {
+			if (totalRequestCount - lastRequestForSrc[src] < idleAfterRequests) {
+				continue;
+			}
+
+			for (const bank of sources[src]) {
+				if (!bank.isBusy()) {
+					bank.prepareForDeletion(logLevel, `${src} is no longer requested`);
+				}
+			}
+
+			sources[src] = sources[src].filter((bank) => bank.isBusy());
+			if (sources[src].length === 0) {
+				delete sources[src];
+			}
+		}
+	};
+
 	const getKeyframeBankOrRefetch = async ({
 		timestamp,
 		videoSampleSink,
@@ -348,8 +384,11 @@ export const makeKeyframeManager = ({
 		}
 
 		requestCountForSrc[src] = (requestCountForSrc[src] ?? 0) + 1;
+		totalRequestCount++;
+		lastRequestForSrc[src] = totalRequestCount;
 
 		ensureToStayUnderMaxCacheSize(logLevel, maxCacheSize);
+		clearBanksOfIdleSources(logLevel);
 
 		clearKeyframeBanksBeforeTime({
 			timestampInSeconds: timestamp,
@@ -387,6 +426,8 @@ export const makeKeyframeManager = ({
 
 		sources = {};
 		requestCountForSrc = {};
+		totalRequestCount = 0;
+		lastRequestForSrc = {};
 	};
 
 	const dispose = (logLevel: LogLevel) => {
