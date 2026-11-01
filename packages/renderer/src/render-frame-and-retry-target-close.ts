@@ -196,11 +196,11 @@ export const renderFrameAndRetryTargetClose = async ({
 			throw err;
 		}
 
-		if (shouldRetryError) {
+		const replacePage = async () => {
 			const pool = await poolPromise;
-			// Retire shared-memory pools before closing the timed-out page.
+			// Retire shared-memory pools before closing the failed page.
 			await remotionSharedMemory?.forgetPage(freePage);
-			// Close the timed-out page before creating another main tab at index 0.
+			// Close the failed page before creating another main tab at index 0.
 			try {
 				await freePage.close();
 			} catch (closeError) {
@@ -210,13 +210,18 @@ export const renderFrameAndRetryTargetClose = async ({
 			}
 
 			const newPage = await makeNewPage(frame, freePage.pageIndex);
+			// Whoever gets the new page takes the next frame, which must be this one.
+			nextFrameToRender.returnFrame(frame);
 			pool.release(newPage);
+		};
+
+		if (shouldRetryError) {
+			await replacePage();
 			Log.warn(
 				{indent, logLevel},
 				`delayRender() timed out while rendering frame ${frame}: ${(err as Error).message}`,
 			);
 			const actualRetriesLeft = getRetriesLeftFromError(err as Error);
-			nextFrameToRender.returnFrame(frame);
 
 			return renderFrameAndRetryTargetClose({
 				retriesLeft: actualRetriesLeft,
@@ -264,20 +269,24 @@ export const renderFrameAndRetryTargetClose = async ({
 			{indent, logLevel},
 			`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 		);
-		// Replace the entire browser
-		await remotionSharedMemory?.forgetAllPages();
-		await browserReplacer.replaceBrowser(makeBrowser, async () => {
-			const pages = new Array(concurrencyOrFramesToRender)
-				.fill(true)
-				.map((_, i) => makeNewPage(frame, i));
-			const puppeteerPages = await Promise.all(pages);
-			const pool = await poolPromise;
-			for (const newPage of puppeteerPages) {
-				pool.release(newPage);
-			}
-		});
+		if (browserReplacer.canKeepBrowser()) {
+			await replacePage();
+		} else {
+			// Replace the entire browser
+			await remotionSharedMemory?.forgetAllPages();
+			await browserReplacer.replaceBrowser(makeBrowser, async () => {
+				const pages = new Array(concurrencyOrFramesToRender)
+					.fill(true)
+					.map((_, i) => makeNewPage(frame, i));
+				const puppeteerPages = await Promise.all(pages);
+				const pool = await poolPromise;
+				for (const newPage of puppeteerPages) {
+					pool.release(newPage);
+				}
+			});
 
-		nextFrameToRender.returnFrame(frame);
+			nextFrameToRender.returnFrame(frame);
+		}
 
 		await renderFrameAndRetryTargetClose({
 			retriesLeft: retriesLeft - 1,

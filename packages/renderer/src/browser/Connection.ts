@@ -46,6 +46,10 @@ export class Connection extends EventEmitter {
 		this.transport.onclose = this.#onClose.bind(this);
 	}
 
+	get closed(): boolean {
+		return this.#closed;
+	}
+
 	static fromSession(session: CDPSession): Connection | undefined {
 		return session.connection();
 	}
@@ -140,6 +144,7 @@ export class Connection extends EventEmitter {
 			return;
 		}
 
+		this.#closed = true;
 		this.transport.onmessage = undefined;
 		this.transport.onclose = undefined;
 		for (const callback of this.#callbacks.values()) {

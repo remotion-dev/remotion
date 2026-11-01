@@ -305,6 +305,10 @@ export class HeadlessBrowser extends EventEmitter {
 		}, []);
 	}
 
+	isConnected(): boolean {
+		return !this.connection.closed;
+	}
+
 	async close({silent}: {silent: boolean}): Promise<void> {
 		await this.runner.closeProcess();
 		(await this.pages()).forEach((page) => {

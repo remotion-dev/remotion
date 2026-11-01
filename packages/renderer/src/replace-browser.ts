@@ -4,6 +4,7 @@ import {Log} from './logger';
 
 export type BrowserReplacer = {
 	getBrowser: () => HeadlessBrowser;
+	canKeepBrowser: () => boolean;
 	replaceBrowser: (
 		make: () => Promise<HeadlessBrowser>,
 		makeNewPages: () => Promise<void>,
@@ -14,6 +15,7 @@ export const handleBrowserCrash = (
 	instance: HeadlessBrowser,
 	logLevel: LogLevel,
 	indent: boolean,
+	isPassedIn: boolean,
 ): BrowserReplacer => {
 	let _instance = instance;
 	const waiters: {
@@ -24,6 +26,10 @@ export const handleBrowserCrash = (
 
 	return {
 		getBrowser: () => _instance,
+		// A browser passed in belongs to the caller. While it is running,
+		// only the page that failed may be replaced.
+		canKeepBrowser: () =>
+			isPassedIn && _instance === instance && instance.isConnected(),
 		replaceBrowser: async (make, makeNewPages): Promise<HeadlessBrowser> => {
 			if (replacing) {
 				const waiter = new Promise<HeadlessBrowser>((resolve, reject) => {

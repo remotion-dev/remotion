@@ -618,7 +618,12 @@ const internalRenderFramesRaw = ({
 			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
 				const {serveUrl, offthreadPort, sourceMap, downloadMap} = openedServer;
 
-				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
+				const browserReplacer = handleBrowserCrash(
+					pInstance,
+					logLevel,
+					indent,
+					Boolean(puppeteerInstance),
+				);
 
 				const cycle = cycleBrowserTabs({
 					puppeteerInstance: browserReplacer,
@@ -631,6 +636,17 @@ const internalRenderFramesRaw = ({
 					return Promise.resolve();
 				});
 				cleanup.push(() => cleanupServer(false));
+				cleanup.push(() => {
+					const currentBrowser = browserReplacer.getBrowser();
+					// Only this render knows about a replacement browser.
+					if (currentBrowser === pInstance) {
+						return Promise.resolve();
+					}
+
+					return currentBrowser.close({silent: true}).catch((err) => {
+						Log.error({indent, logLevel}, 'Unable to close browser', err);
+					});
+				});
 
 				return innerRenderFrames({
 					onError,
