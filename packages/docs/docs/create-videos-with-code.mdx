@@ -1,31 +1,503 @@
----
-image: https://remotion.media/docs/generated/articles-docs-create-videos-with-code.png
-title: Create videos with code
-crumb: 'Wait, you read the code?'
----
+🎬 REELS 45 DETIK — Implementasi HTML/CSS/JS
 
-import {Grid} from '../components/TableOfContents/Grid';
-import {TOCItem} from '../components/TableOfContents/TOCItem';
+Berikut kode lengkap untuk animasi Reels 45 detik dengan teks inti, animasi 3D-transform, timeline narration, dan SFX opsional. Semua dalam 1 file, tanpa dependency eksternal (offline-ready).
 
-Remotion came out in 2021, way before agents were the hype. <br />
-How did people create videos back then? They wrote code themselves!
+HTML
 
-By learning how Remotion markup works, you can do more sophisticated videos, optimize performance, make and publish your own components, connect data and become ready to build apps.
+            Salin
+          
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reels — Laptop Rp40 Juta, Isinya Rp15 Juta</title>
+<style>
+  /* ====== RESET & BASE ====== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<Grid>
-  <TOCItem link="/docs/idea">
-    <strong>The core idea</strong>
-  </TOCItem>
-  <TOCItem link="/docs/components">
-    <strong>Components</strong>
-  </TOCItem>
-  <TOCItem link="/docs/timing">
-    <strong>Timing and trimming</strong>
-  </TOCItem>
-  <TOCItem link="/docs/animating-properties">
-    <strong>Animating properties</strong>
-  </TOCItem>
-  <TOCItem link="/docs/composing">
-    <strong>Composing components</strong>
-  </TOCItem>
-</Grid>
+  :root {
+    --bg-deep: #0b0f17;
+    --bg-office: #1a2332;
+    --accent-red: #e63946;
+    --accent-green: #2ec4b6;
+    --accent-gold: #ffd166;
+    --text: #f1f5f9;
+    --danger: #ff2d55;
+    --ease-out: cubic-bezier(.22,.61,.36,1);
+  }
+
+  html, body {
+    height: 100%;
+    background: #000;
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ====== STAGE 9:16 ====== */
+  .stage {
+    position: relative;
+    width: min(100vw, calc(100vh * 9 / 16));
+    height: min(100vh, calc(100vw * 16 / 9));
+    margin: auto;
+    top: 50%; transform: translateY(-50%);
+    background: radial-gradient(circle at 50% 30%, #243047 0%, var(--bg-deep) 70%);
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(0,0,0,.8);
+    perspective: 1400px;
+  }
+
+  /* Layar skenario (tiap scene) */
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6% 7%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .6s var(--ease-out), visibility 0s linear .6s;
+    text-align: center;
+  }
+  .scene.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .6s var(--ease-out), visibility 0s;
+  }
+
+  /* ====== TYPOGRAPHY ====== */
+  .label {
+    font-size: clamp(14px, 2.4vmin, 22px);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: .7;
+    margin-bottom: 1.2vmin;
+  }
+
+  .big-number {
+    font-size: clamp(48px, 12vmin, 140px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-shadow: 0 8px 40px rgba(0,0,0,.6);
+  }
+
+  .mid-number {
+    font-size: clamp(32px, 7vmin, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+  }
+
+  /* ====== SCENE 1: KARDUS ====== */
+  #scene-1 .box-stack {
+    position: relative;
+    width: 60%;
+    height: 55%;
+    transform-style: preserve-3d;
+  }
+  .box {
+    position: absolute;
+    width: 55%;
+    height: 30%;
+    background: linear-gradient(145deg, #a9773f, #7a5326);
+    border-radius: 6px;
+    box-shadow: 0 18px 40px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,255,255,.15);
+    animation: float 4s ease-in-out infinite;
+  }
+  .box::before {
+    content: '';
+    position: absolute; inset: 0;
+    border: 2px dashed rgba(255,255,255,.25);
+    border-radius: 6px;
+    margin: 6px;
+  }
+  .box::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 6px; background: rgba(0,0,0,.35);
+    transform: translateY(-50%);
+  }
+  .box:nth-child(1) { top: 8%;  left: 20%; animation-delay: 0s; }
+  .box:nth-child(2) { top: 35%; left: 10%; animation-delay: .3s; }
+  .box:nth-child(3) { top: 55%; left: 28%; animation-delay: .6s; }
+  .box:nth-child(4) { top: 20%; left: 45%; animation-delay: .9s; transform: scale(.92); }
+  .box:nth-child(5) { top: 60%; left: 48%; animation-delay: 1.2s; transform: scale(.85); }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* ====== SCENE 2: STIKER vs DOKUMEN ====== */
+  #scene-2 .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4vmin;
+    width: 100%;
+    margin-bottom: 6vmin;
+  }
+  .panel {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 16px;
+    padding: 3vmin 2vmin;
+    backdrop-filter: blur(6px);
+    transition: transform .4s var(--ease-out);
+  }
+  .panel h3 {
+    font-size: clamp(11px, 1.8vmin, 15px);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    opacity: .6;
+    margin-bottom: 1.5vmin;
+  }
+  .panel .spec {
+    font-size: clamp(20px, 4.5vmin, 44px);
+    font-weight: 900;
+    margin-bottom: .8vmin;
+  }
+  .panel .price {
+    font-size: clamp(16px, 3.4vmin, 32px);
+    font-weight: 700;
+    opacity: .85;
+  }
+
+  .panel.real { border-color: rgba(230,57,70,.5); }
+  .panel.real .spec { color: var(--accent-red); }
+  .panel.fake .spec { color: var(--accent-green); }
+  .panel.real.active-shake { animation: shake .5s ease-in-out 2; }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px) rotate(-.6deg); }
+    75% { transform: translateX(4px) rotate(.6deg); }
+  }
+
+  /* ====== SCENE 3: Rp 250 JUTA ====== */
+  #scene-3 { background: radial-gradient(circle at 50% 50%, #3a0d14 0%, #0b0f17 70%); }
+  #scene-3 .glow-text {
+    font-size: clamp(52px, 14vmin, 170px);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(180deg, #fff 0%, var(--danger) 60%, #b00022 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 60px rgba(255,45,85,.35);
+    animation: pulseBoom 1.6s ease-out;
+  }
+  #scene-3 .sub {
+    margin-top: 2vmin;
+    font-size: clamp(13px, 2.2vmin, 20px);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+  }
+  @keyframes pulseBoom {
+    0%   { transform: scale(.3); opacity: 0; }
+    60%  { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ====== SCENE 4: CTA ====== */
+  #scene-4 .options {
+    display: flex;
+    flex-direction: column;
+    gap: 3vmin;
+    width: 100%;
+    margin-bottom: 5vmin;
+  }
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 2.5vmin;
+    padding: 3vmin 3.5vmin;
+    border-radius: 18px;
+    font-size: clamp(16px, 3.2vmin, 30px);
+    font-weight: 700;
+    text-align: left;
+    opacity: 0;
+    transform: translateX(-30px);
+    animation: slideIn .5s var(--ease-out) forwards;
+  }
+  .opt:nth-child(1) { animation-delay: .2s; background: rgba(46,196,182,.12); border: 1px solid rgba(46,196,182,.5); color: var(--accent-green); }
+  .opt:nth-child(2) { animation-delay: .5s; background: rgba(230,57,70,.12); border: 1px solid rgba(230,57,70,.5); color: var(--accent-red); }
+  .opt .letter {
+    font-size: clamp(24px, 5vmin, 46px);
+    font-weight: 900;
+    opacity: .85;
+  }
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .cta-hint {
+    font-size: clamp(12px, 2vmin, 18px);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    opacity: .7;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:.4;} 50%{opacity:1;} }
+
+  /* ====== TIMELINE BAR (opsional, untuk debug) ====== */
+  .timeline {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: rgba(255,255,255,.08);
+    z-index: 10;
+  }
+  .timeline .fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-gold), var(--accent-red));
+    transition: width .1s linear;
+  }
+
+  /* ====== CONTROLS ====== */
+  .controls {
+    position: fixed;
+    bottom: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 12px;
+    z-index: 20;
+  }
+  .controls button {
+    padding: 10px 20px;
+    border: none; border-radius: 999px;
+    background: rgba(255,255,255,.1);
+    color: white;
+    font-size: 13px; font-weight: 600; letter-spacing: .08em;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: background .2s;
+  }
+  .controls button:hover { background: rgba(255,255,255,.22); }
+
+  /* ====== REDUCED MOTION ====== */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- SCENE 1: HOOK (0–10s) -->
+  <section class="scene active" id="scene-1" aria-label="Scene 1: Tumpukan kardus">
+    <div class="box-stack">
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+    </div>
+    <p class="label" style="margin-top:6vmin;">Pengadaan kantor — hari ini</p>
+  </section>
+
+  <!-- SCENE 2: KONFLIK (10–25s) -->
+  <section class="scene" id="scene-2" aria-label="Scene 2: Bandingkan stiker vs dokumen">
+    <div class="compare">
+      <div class="panel fake">
+        <h3>Dokumen</h3>
+        <div class="spec">RAM 16GB</div>
+        <div class="price">Rp 40.000.000</div>
+      </div>
+      <div class="panel real" id="panel-real">
+        <h3>Fisik</h3>
+        <div class="spec">RAM 4GB</div>
+        <div class="price">Rp 15.000.000</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENE 3: KLIMAKS (25–35s) -->
+  <section class="scene" id="scene-3" aria-label="Scene 3: Total selisih">
+    <p class="label">10 unit · selisih per unit Rp 25 juta</p>
+    <h1 class="glow-text"><span id="counter">0</span></h1>
+    <p class="sub">= Total selisih</p>
+  </section>
+
+  <!-- SCENE 4: CTA (35–45s) -->
+  <section class="scene" id="scene-4" aria-label="Scene 4: CTA pilihan">
+    <div class="options">
+      <div class="opt"><span class="letter">A</span> Bilang ke atasan</div>
+      <div class="opt"><span class="letter">B</span> Diamkan saja</div>
+    </div>
+    <p class="cta-hint">Komentar di bawah 👇</p>
+  </section>
+
+  <!-- Timeline -->
+  <div class="timeline"><div class="fill" id="timelineFill"></div></div>
+
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button id="btnPlay" type="button">▶ Play</button>
+  <button id="btnRestart" type="button">↺ Restart</button>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ====== CONFIG TIMELINE ====== */
+  const TIMELINE = [
+    { id: 'scene-1', start: 0,    end: 10000 },
+    { id: 'scene-2', start: 10000, end: 25000 },
+    { id: 'scene-3', start: 25000, end: 35000 },
+    { id: 'scene-4', start: 35000, end: 45000 },
+  ];
+  const TOTAL_MS = 45000;
+
+  /* ====== DOM CACHE ====== */
+  const stage       = document.getElementById('stage');
+  const fill        = document.getElementById('timelineFill');
+  const counterEl   = document.getElementById('counter');
+  const panelReal   = document.getElementById('panel-real');
+  const btnPlay     = document.getElementById('btnPlay');
+  const btnRestart  = document.getElementById('btnRestart');
+  const scenes      = TIMELINE.map(t => document.getElementById(t.id));
+
+  /* ====== STATE ====== */
+  let rafId = null;
+  let startTime = 0;
+  let elapsed = 0;
+  let playing = false;
+  let currentSceneIdx = -1;
+  let counterStarted = false;
+
+  /* ====== HELPERS ====== */
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+  function formatRupiah(n) {
+    // Format angka menjadi "Rp 250 Juta"
+    if (n >= 1_000_000 && n % 1_000_000 === 0) {
+      return `Rp ${n / 1_000_000} Juta`;
+    }
+    return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(n);
+  }
+
+  function setScene(idx) {
+    if (idx === currentSceneIdx) return;
+    scenes.forEach((el, i) => el.classList.toggle('active', i === idx));
+    currentSceneIdx = idx;
+
+    // Reset efek per scene
+    if (idx === 1) {          // Scene 2 — shake pada panel real
+      panelReal.classList.remove('active-shake');
+      // trigger reflow agar animation bisa retrigger
+      void panelReal.offsetWidth;
+      panelReal.classList.add('active-shake');
+    }
+    if (idx === 2) {          // Scene 3 — counter
+      counterStarted = false;
+      counterEl.textContent = '0';
+    }
+  }
+
+  /* ====== COUNTER ANIMATION ====== */
+  const COUNTER_DURATION = 1800; // ms
+  const COUNTER_TARGET = 250_000_000;
+
+  function tickCounter(sceneElapsed) {
+    if (counterStarted) return;
+    const local = sceneElapsed - 25000;
+    if (local < 0) return;
+    counterStarted = true;
+
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min((now - t0) / COUNTER_DURATION, 1);
+      const val = Math.floor(easeOutCubic(p) * COUNTER_TARGET);
+      counterEl.textContent = formatRupiah(val);
+      if (p < 1) requestAnimationFrame(step);
+      else counterEl.textContent = 'Rp 250 Juta';
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ====== LOOP ====== */
+  function loop(now) {
+    if (!playing) return;
+    if (!startTime) startTime = now;
+    elapsed = now - startTime;
+
+    // progress
+    const progress = Math.min(elapsed / TOTAL_MS, 1);
+    fill.style.width = `${progress * 100}%`;
+
+    // scene index
+    const idx = TIMELINE.findIndex(t => elapsed >= t.start && elapsed < t.end);
+    const safeIdx = idx === -1 ? TIMELINE.length - 1 : idx;
+    setScene(safeIdx);
+
+    // efek khusus per scene
+    if (safeIdx === 2) tickCounter(elapsed);
+
+    // selesai
+    if (elapsed >= TOTAL_MS) {
+      playing = false;
+      btnPlay.textContent = '↻ Ulangi';
+      return;
+    }
+    rafId = requestAnimationFrame(loop);
+  }
+
+  /* ====== CONTROLS ====== */
+  function play() {
+    if (playing) return;
+    if (elapsed >= TOTAL_MS) return restart();
+    playing = true;
+    startTime = performance.now() - elapsed;
+    btnPlay.textContent = '⏸ Pause';
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function pause() {
+    playing = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    btnPlay.textContent = '▶ Play';
+  }
+
+  function restart() {
+    pause();
+    elapsed = 0;
+    startTime = 0;
+    currentSceneIdx = -1;
+    counterStarted = false;
+    counterEl.textContent = '0';
+    fill.style.width = '0%';
+    setScene(0);
+    play();
+  }
+
+  btnPlay.addEventListener('click', () => {
+    if (playing) pause();
+    else play();
+  });
+  btnRestart.addEventListener('click', restart);
+
+  /* Spacebar = play/pause, R = restart */
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); playing ? pause() : play(); }
+    if (e.key === 'r' || e.key === 'R') restart();
+  });
+
+  /* ====== INIT ====== */
+  setScene(0); // tampilkan scene 1 saat load
+
+  // Auto-play bila browser mengizinkan
+  window.addEventListener('load', () => setTimeout(play, 400));
+})();
+</script>
+</body>
+</html>
