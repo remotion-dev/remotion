@@ -1825,7 +1825,7 @@ export const RemotionRoot: React.FC = () => {
 				id="100gb-video"
 				component={AirDropFootage20261031}
 				durationInFrames={Math.ceil(1185.05 * (30000 / 1001))}
-				fps={30000 / 1001}
+				fps={30}
 				width={3840}
 				height={2160}
 			/>
