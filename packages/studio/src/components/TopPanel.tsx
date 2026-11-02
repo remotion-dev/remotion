@@ -57,10 +57,13 @@ const FullscreenSeekBar: React.FC = () => {
 		<div
 			style={{
 				position: 'absolute',
-				left: 16,
-				right: 16,
-				bottom: 8,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				padding: '40px 16px 8px',
+				backgroundImage: 'linear-gradient(transparent, rgba(0, 0, 0, 0.6))',
 				opacity: visible ? 1 : 0,
+				pointerEvents: visible ? 'auto' : 'none',
 				transition: 'opacity 0.3s',
 			}}
 		>
