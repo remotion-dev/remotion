@@ -344,7 +344,6 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 	expect(manager.getVideoIteratorsCreated()).toBe(1);
 });
 
-// Regression for #12542: same-time clock/rate seeks must not repaint video.
 test('same-time seeks without changed effects do not emit another frame', async () => {
 	const {videoTrack} = await prepare();
 	const onVideoFrame = vi.fn();

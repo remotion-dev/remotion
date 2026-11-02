@@ -563,8 +563,6 @@ const VideoForPreviewAssertedShowing: React.FC<
 			return;
 		}
 
-		// A time update already requests a decoded frame with the latest effects.
-		// Only effect edits at the same time need to repaint the current picture.
 		mediaPlayer.redrawVideoEffects().catch(() => {
 			// Player may have been disposed between layout and the async redraw.
 		});
