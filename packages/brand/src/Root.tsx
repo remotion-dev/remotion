@@ -223,6 +223,7 @@ import {ParameterizationRecordingComposition} from './ParameterizationRecordingC
 import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
+import {RemotionPrototype2020} from './RemotionPrototype2020';
 import {RenderModalCodec} from './RenderModalCodec';
 import {RenderOnWeb} from './RenderOnWeb';
 import {ProductHuntLogo} from './ScalingLogo';
@@ -1363,6 +1364,14 @@ export const RemotionRoot: React.FC = () => {
 				</Folder>
 			</Folder>
 			<Folder name="SocialMediaAnnouncements">
+				<Composition
+					id="RemotionPrototype2020"
+					component={RemotionPrototype2020}
+					width={1920}
+					height={1080}
+					fps={24}
+					durationInFrames={1395}
+				/>
 				<Folder name="whats-new-in-remotion">
 					<WhatsNewInRemotion />
 				</Folder>
