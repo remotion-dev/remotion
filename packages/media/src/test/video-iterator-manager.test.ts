@@ -505,8 +505,7 @@ const makeCountingEffect = (
 	return [{definition, params: {}, effectKey: 'counting', memoized: true}];
 };
 
-// #12701: a 24fps video in a 60fps composition reran the whole effect chain
-// for every composition frame, even while the decoded frame was the same.
+// https://github.com/remotion-dev/remotion/issues/12701
 test('does not rerun effects for an unchanged decoded frame', async () => {
 	const {videoTrack} = await prepare();
 	const canvas = document.createElement('canvas');
@@ -552,7 +551,6 @@ test('does not rerun effects for an unchanged decoded frame', async () => {
 	expect(manager.getFramesRendered()).toBe(1);
 	expect(apply).toHaveBeenCalledTimes(1);
 
-	// One 100fps timeline frame later, the same decoded frame is still current
 	await manager.seek({
 		continuousPlayback: null,
 		newTime: 0.01,
@@ -564,12 +562,10 @@ test('does not rerun effects for an unchanged decoded frame', async () => {
 	expect(manager.getFramesRendered()).toBe(2);
 	expect(apply).toHaveBeenCalledTimes(1);
 
-	// Changed effects have to go through the chain again
 	effects = makeCountingEffect(apply);
 	await manager.redrawCurrentFrame();
 	expect(apply).toHaveBeenCalledTimes(2);
 
-	// A different decoded frame has to go through the chain again
 	await manager.seek({
 		continuousPlayback: null,
 		newTime: 1,
