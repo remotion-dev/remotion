@@ -1,5 +1,8 @@
 import {describe, expect, test} from 'bun:test';
-import type {GetMediaSyncActionInput} from '../get-media-sync-action.js';
+import type {
+	GetMediaSyncActionInput,
+	MediaSyncAction,
+} from '../get-media-sync-action.js';
 import {getMediaSyncAction} from '../get-media-sync-action.js';
 
 const makeInput = (
@@ -314,6 +317,17 @@ describe('play-and-seek', () => {
 	});
 });
 
+const getEffect = (action: MediaSyncAction) => ({
+	seeksTo:
+		action.type === 'seek-due-to-shift' ||
+		(action.type !== 'none' && action.why !== null)
+			? action.shouldBeTime
+			: null,
+	plays:
+		action.type === 'play-and-seek' ||
+		(action.type === 'seek-due-to-shift' && action.playReason !== null),
+});
+
 describe('audio ahead of the timeline after buffering', () => {
 	test('does not seek audio back while something else is buffering', () => {
 		const action = getMediaSyncAction(
@@ -325,10 +339,7 @@ describe('audio ahead of the timeline after buffering', () => {
 				mediaTagTime: 5.3,
 			}),
 		);
-		expect(action.type).toBe('seek-if-not-playing');
-		if (action.type === 'seek-if-not-playing') {
-			expect(action.why).toBe(null);
-		}
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: false});
 	});
 
 	test('stays paused until the timeline catches up', () => {
@@ -340,7 +351,7 @@ describe('audio ahead of the timeline after buffering', () => {
 				mediaTagTime: 5.3,
 			}),
 		);
-		expect(action.type).toBe('none');
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: false});
 	});
 
 	test('plays without seeking once the timeline caught up', () => {
@@ -352,10 +363,7 @@ describe('audio ahead of the timeline after buffering', () => {
 				mediaTagTime: 5.3,
 			}),
 		);
-		expect(action.type).toBe('play-and-seek');
-		if (action.type === 'play-and-seek') {
-			expect(action.why).toBe(null);
-		}
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: true});
 	});
 
 	test('still seeks video back', () => {
@@ -368,10 +376,7 @@ describe('audio ahead of the timeline after buffering', () => {
 				mediaTagTime: 5.3,
 			}),
 		);
-		expect(action.type).toBe('play-and-seek');
-		if (action.type === 'play-and-seek') {
-			expect(action.why).not.toBe(null);
-		}
+		expect(getEffect(action)).toEqual({seeksTo: 5, plays: true});
 	});
 
 	test('still seeks audio that is behind the timeline', () => {
@@ -383,9 +388,6 @@ describe('audio ahead of the timeline after buffering', () => {
 				mediaTagTime: 4.7,
 			}),
 		);
-		expect(action.type).toBe('play-and-seek');
-		if (action.type === 'play-and-seek') {
-			expect(action.why).not.toBe(null);
-		}
+		expect(getEffect(action)).toEqual({seeksTo: 5, plays: true});
 	});
 });
