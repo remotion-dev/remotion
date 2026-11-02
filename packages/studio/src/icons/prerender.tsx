@@ -1,7 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useId} from 'react';
 
-// An editable scene (dashed) that became a video
 export const PrerenderIcon: React.FC<
 	SVGProps<SVGSVGElement> & {
 		readonly color: string;

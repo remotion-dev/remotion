@@ -22,7 +22,6 @@ export const prerenderedSceneInfoHandler: ApiHandler<
 				hashSceneFile(path.resolve(remotionRoot, sidecar.sceneFile)) !==
 				sidecar.sceneFileHash;
 		} catch {
-			// The scene file was moved or deleted
 			stale = true;
 		}
 	}

@@ -153,7 +153,6 @@ export type TSequence = {
 	isInsideSeries: boolean;
 	frozenFrame: number | null;
 	singleChildComponent?: unknown;
-	/** Read the call-site props of the single child without re-registering every render. */
 	getSingleChildProps?: (() => Record<string, unknown> | null) | null;
 } & EnhancedTSequenceData;
 

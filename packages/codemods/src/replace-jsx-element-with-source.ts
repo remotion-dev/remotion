@@ -27,17 +27,10 @@ export type ReplaceJsxElementWithSourceOptions<Project extends CodemodProject> =
 	{
 		project: Project;
 		node: NodeReference;
-		// A single JSX element, e.g. `<Scene title="Hi" />`
 		source: string;
-		// Imports that the source needs. Specifiers that are not imported
-		// anymore are added back.
 		importStatements: string[];
 	};
 
-/**
- * Replaces a JSX element with JSX source code that was taken from a file
- * earlier. Used to restore a scene that was swapped for its pre-rendered video.
- */
 export const replaceJsxElementWithSource = <Project extends CodemodProject>({
 	project,
 	node,

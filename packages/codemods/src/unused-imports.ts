@@ -9,8 +9,6 @@ import {
 	type SourceEdit,
 } from './source-edits';
 
-// Every identifier that a node references outside of imports, including JSX
-// tag names
 export const collectReferencedNames = (node: Node) => {
 	const names = new Set<string>();
 	recast.types.visit(node, {
@@ -30,10 +28,6 @@ export const collectReferencedNames = (node: Node) => {
 	return names;
 };
 
-/**
- * Removes the imports of `localNames` that are not referenced anymore,
- * e.g. the import of a component whose only usage was replaced.
- */
 export const removeUnusedImports = ({
 	input,
 	localNames,

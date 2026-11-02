@@ -14,8 +14,6 @@ const iconStyle: React.CSSProperties = {
 	width: 14,
 };
 
-// For a <Video> that replaced a scene: brings the scene back, and tells
-// whether the scene was edited since it was pre-rendered.
 export const PrerenderedVideoActions: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly src: string;
@@ -37,7 +35,6 @@ export const PrerenderedVideoActions: React.FC<{
 		);
 	}, [staticFile, staticFiles]);
 
-	// Edits to the scene trigger a rebuild, after which it may be out of date
 	const [buildHash, setBuildHash] = useState<string | null>(null);
 	useEffect(() => {
 		return subscribeToPreviewServerEvents((event) => {

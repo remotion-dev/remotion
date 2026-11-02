@@ -258,10 +258,6 @@ type AddRenderRequestDynamicFields =
 			chromeMode: ChromeMode;
 			sampleRate: number;
 			licenseKey: string | null;
-			// After rendering, replace the only child of this node with a <Video>
-			// of the output. `outName` is then relative to the public folder.
-			// The dimensions are those of the call site, which can differ from
-			// the composition the scene is registered as.
 			prerenderTarget: {
 				fileName: string;
 				nodePath: SequenceNodePath;
@@ -1142,7 +1138,6 @@ export type ReplaceVideoSourceResponse =
 	| {success: false; reason: string; stack: string};
 
 export type PrerenderedSceneInfoRequest = {
-	// Relative to the public folder
 	src: string;
 };
 
@@ -1151,15 +1146,12 @@ export type PrerenderedSceneInfoResponse =
 	| {
 			type: 'prerendered';
 			compositionId: string;
-			// null if the scene file could not be resolved
 			stale: boolean | null;
 	  };
 
 export type RestorePrerenderedSceneRequest = {
 	fileName: string;
-	// The <Video> that replaced the scene
 	nodePath: SequenceNodePath;
-	// Relative to the public folder
 	src: string;
 };
 

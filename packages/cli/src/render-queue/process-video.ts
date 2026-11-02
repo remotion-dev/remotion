@@ -61,7 +61,6 @@ export const processVideoJob = async ({
 		commandLine: parsedCli,
 	}).value;
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
-	// Pre-renders use the dimensions of the call site
 	const prerender = job.type === 'video' ? job.prerender : null;
 
 	await renderVideoFlow({
@@ -108,8 +107,8 @@ export const processVideoJob = async ({
 			prerender === null
 				? ffmpegOverride
 				: (info) => {
-						// Pre-renders are always transparent. libvpx defaults to its
-						// slowest settings, which take ~10x longer for a similar quality.
+						// libvpx defaults to its slowest settings, which take ~10x longer
+						// for a similar quality
 						const args = ffmpegOverride(info);
 						return args.includes('libvpx')
 							? [

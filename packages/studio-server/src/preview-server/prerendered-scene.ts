@@ -16,13 +16,10 @@ import type {LogLevel} from '@remotion/renderer';
 import type {SequenceNodePath} from 'remotion';
 import {commitNodeCodemod} from './commit-node-codemod';
 
-// Saved next to each pre-rendered video so that the scene can be restored
-// and so that Studio can tell when the video is out of date.
 type PrerenderedSceneSidecar = {
 	compositionId: string;
 	source: string;
 	importStatements: string[];
-	// Relative to the Remotion root
 	sceneFile: string | null;
 	sceneFileHash: string | null;
 };
@@ -64,7 +61,6 @@ export const hashSceneFile = (file: string) =>
 		.digest('hex')
 		.slice(0, 16);
 
-// Only follows relative imports. Packages and path aliases are not resolved.
 const resolveSceneFile = (importingFile: string, importSource: string) => {
 	if (!importSource.startsWith('.')) {
 		return null;
@@ -81,7 +77,6 @@ const resolveSceneFile = (importingFile: string, importSource: string) => {
 	);
 };
 
-// Called by the render queue once a pre-render job has written its output.
 export const replaceWithPrerenderedVideo = async ({
 	remotionRoot,
 	logLevel,
@@ -95,7 +90,6 @@ export const replaceWithPrerenderedVideo = async ({
 	logLevel: LogLevel;
 	fileName: string;
 	nodePath: SequenceNodePath;
-	// Relative to the public folder
 	src: string;
 	videoFile: string;
 	compositionId: string;

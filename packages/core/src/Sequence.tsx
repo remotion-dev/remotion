@@ -149,7 +149,6 @@ export type SequencePropsWithoutDuration = {
 	readonly _remotionInternalSingleChildComponent?: unknown;
 	/**
 	 * @deprecated For internal use only.
-	 * The children as authored, if the rendered children are wrapped.
 	 */
 	readonly _remotionInternalSingleChildren?: React.ReactNode;
 	/**

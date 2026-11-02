@@ -9,7 +9,6 @@ const mutationSessionId = randomUUID();
 let mutationCounter = 0;
 const listeners = new Set<(mutation: SequenceNodePathMutation) => void>();
 
-// Lets the render queue follow the target of a pending pre-render
 export const subscribeToSequenceNodePathMutations = (
 	listener: (mutation: SequenceNodePathMutation) => void,
 ) => {

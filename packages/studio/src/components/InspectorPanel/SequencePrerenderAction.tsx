@@ -17,7 +17,6 @@ const iconStyle: React.CSSProperties = {
 	width: 16,
 };
 
-// Returns the path of the first prop that cannot be passed as input props.
 const findUnserializableProp = (
 	value: unknown,
 	propPath: string,
@@ -45,11 +44,6 @@ const findUnserializableProp = (
 	return null;
 };
 
-// Renders the connected composition to a video in the public folder, then
-// replaces the scene at the call site with that video, like flattening a track.
-// The scene is rendered the way it is embedded: with the call-site props, at
-// the size and frame rate of the current composition, for as long as the
-// sequence shows it.
 export const SequencePrerenderAction: React.FC<{
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly sequence: TSequence;
@@ -65,7 +59,6 @@ export const SequencePrerenderAction: React.FC<{
 	const {setSidebarCollapsedState} = useContext(SidebarContext);
 	const [busy, setBusy] = useState(false);
 
-	// The scene sees frames from `trimBefore` until the end of the sequence
 	const durationInFrames = Math.ceil(
 		(sequence.trimBefore ?? 0) +
 			sequence.duration * sequence.sequencePlaybackRate,
@@ -79,7 +72,6 @@ export const SequencePrerenderAction: React.FC<{
 		durationInFrames > 0 &&
 		sequence.frozenFrame === null &&
 		sequence.loopDisplay === undefined &&
-		// calculateMetadata() would not run when the scene is embedded
 		connectedComposition.calculateMetadata === null &&
 		nodePathInfo.numberOfSequencesWithThisNodePath === 1;
 
@@ -106,14 +98,12 @@ export const SequencePrerenderAction: React.FC<{
 		setBusy(true);
 		addVideoRenderJob({
 			compositionId: connectedComposition.id,
-			// Keyed by call site so that two pre-renders don't overwrite each other
 			outName: `prerendered/${connectedComposition.id}-${random(
 				`${nodePathInfo.sequenceSubscriptionKey.absolutePath}:${nodePathInfo.sequenceSubscriptionKey.nodePath.join('.')}`,
 			)
 				.toString(36)
 				.slice(2, 8)}.webm`,
-			// Transparent, because the scene might not cover the whole frame.
-			// VP8 is the codec that Chrome can play with alpha.
+			// VP8 is the codec that Chrome can play with alpha
 			imageFormat: 'png',
 			jpegQuality: defaults.jpegQuality,
 			scale: 1,
@@ -192,7 +182,6 @@ export const SequencePrerenderAction: React.FC<{
 		video,
 	]);
 
-	// Rendering needs the Node.js render queue.
 	if (sourceActionsDisabled || getBrowserStudioOperations() !== null) {
 		return null;
 	}

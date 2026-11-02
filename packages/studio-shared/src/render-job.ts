@@ -177,10 +177,7 @@ type RenderJobDynamicFields =
 			licenseKey: string | null;
 			prerender: {
 				fileName: string;
-				// Follows source edits while rendering. `null` if the target
-				// was deleted.
 				nodePath: SequenceNodePath | null;
-				// Output path relative to the public folder
 				src: string;
 				width: number;
 				height: number;

@@ -281,11 +281,9 @@ const processJobIfPossible = async ({
 			chalk.gray('╰─ Done in ' + (Date.now() - startTime) + 'ms.'),
 		);
 
-		// The target may have moved while rendering
 		const latestJob = jobQueue.find((j) => j.id === nextJob.id) ?? nextJob;
 		const prerender = latestJob.type === 'video' ? latestJob.prerender : null;
 		if (prerender !== null) {
-			// The render succeeded even if the scene cannot be replaced
 			try {
 				if (prerender.nodePath === null) {
 					throw new Error('The scene was deleted while rendering');

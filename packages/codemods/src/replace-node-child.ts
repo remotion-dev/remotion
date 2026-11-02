@@ -28,10 +28,6 @@ export type ReplaceNodeChildOptions<Project extends CodemodProject> = {
 	element: CodemodElement;
 };
 
-/**
- * Replaces the only JSX child of a node, e.g. `<Sequence><Scene /></Sequence>`,
- * with a new element. Used to swap a scene for its pre-rendered video.
- */
 export const replaceNodeChild = <Project extends CodemodProject>({
 	project,
 	node,
@@ -61,7 +57,6 @@ export const replaceNodeChild = <Project extends CodemodProject>({
 		throw new Error('The target element must have exactly one JSX child');
 	}
 
-	// Remembered so that the replacement can be undone without the undo stack
 	const childNames = collectReferencedNames(child);
 	let rootName = child.openingElement.name;
 	while (rootName.type === 'JSXMemberExpression') {
@@ -108,8 +103,6 @@ export const replaceNodeChild = <Project extends CodemodProject>({
 	}
 
 	const childStart = recastLocToOffset(input, child.loc.start);
-	// Without the indentation of the call site, so that it can be restored at
-	// a different depth
 	const childIndent = getLineIndent({input, offset: childStart});
 	const replacedSource = input
 		.slice(childStart, recastLocToOffset(input, child.loc.end))

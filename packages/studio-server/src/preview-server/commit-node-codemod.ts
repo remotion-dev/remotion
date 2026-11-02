@@ -19,8 +19,6 @@ import {
 	type UndoEntryType,
 } from './undo-stack';
 
-// Applies a codemod to a single node as one undoable step. Shared by the
-// edits that follow a job: matting, pre-rendering and restoring a pre-render.
 export const commitNodeCodemod = <
 	Result extends {
 		changes: {nextContents: string | null}[];
