@@ -7,8 +7,6 @@ import type {
 	OpenGlRenderer,
 	X264Preset,
 } from '@remotion/renderer';
-import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
-import type {RenderStillOnWebImageFormat} from '@remotion/web-renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
@@ -16,18 +14,19 @@ import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {WHITE_ALPHA_80} from '../helpers/colors';
-import {subscribeToPreviewServerConnectionState} from '../helpers/preview-server-events';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SetSelectedModalContext} from '../state/modals';
-import {callApi} from './call-api';
 import {useConfirmationDialog} from './ConfirmationDialog';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {showNotification} from './Notifications/NotificationCenter';
+import {
+	canRenderOnServer,
+	openClientRenderModalForComposition,
+} from './RenderModal/open-client-render-modal';
 import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
 import {useDownloadProject} from './use-download-project';
 
@@ -138,7 +137,7 @@ const RenderButtonInner: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
-	const canServerRender = connectionStatus === 'connected' && !isBrowserStudio;
+	const canServerRender = canRenderOnServer(readOnlyStudio, connectionStatus);
 	const confirm = useConfirmationDialog();
 	const downloadProject = useDownloadProject();
 	const openServerRenderHandoff = useCallback(async () => {
@@ -289,88 +288,22 @@ const RenderButtonInner: React.FC<{
 		[video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame],
 	);
 
-	const openClientRenderModal = useCallback(async () => {
+	const openClientRenderModal = useCallback(() => {
 		if (!video) {
-			return null;
+			return;
 		}
 
-		const defaults = window.remotion_renderDefaults;
-
-		if (!defaults) {
-			throw new TypeError('Expected defaults');
-		}
-
-		if (!readOnlyStudio && canServerRender) {
-			const controller = new AbortController();
-			const nextReconciliation = new Promise<void>((resolve) => {
-				const finish = () => resolve();
-				window.addEventListener(REACT_REFRESH_FINISHED_EVENT, finish, {
-					once: true,
-					signal: controller.signal,
-				});
-				controller.signal.addEventListener('abort', finish, {once: true});
-			});
-			const unsubscribe = subscribeToPreviewServerConnectionState((state) => {
-				if (state.type !== 'connected') {
-					controller.abort();
-				}
-			});
-
-			try {
-				const {didInvalidate} = await callApi(
-					'/api/invalidate-bundle',
-					{},
-					controller.signal,
-				);
-				if (didInvalidate) {
-					await nextReconciliation;
-				}
-			} catch (error) {
-				if (!controller.signal.aborted) {
-					showNotification(
-						`Could not prepare client-side render: ${(error as Error).message}`,
-						4000,
-					);
-					return null;
-				}
-			} finally {
-				unsubscribe();
-				controller.abort();
-			}
-		}
-
-		setSelectedModal({
-			type: 'web-render',
-			retryJobId: null,
-			initialRenderType: null,
+		return openClientRenderModalForComposition({
 			compositionId: video.id,
-			initialFrame: getCurrentFrame(),
 			defaultProps: props[video.id] ?? video.defaultProps,
+			getInitialFrame: getCurrentFrame,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
-			initialLogLevel: defaults.logLevel as LogLevel,
-			initialStillImageFormat:
-				defaults.stillImageFormat as RenderStillOnWebImageFormat,
-			initialScale: defaults.scale,
-			initialDelayRenderTimeout: defaults.delayRenderTimeout,
-			initialDefaultOutName: null,
-			initialContainer: null,
-			initialVideoCodec: null,
-			initialAudioCodec: null,
-			initialAudioBitrate: null,
-			initialVideoBitrate: null,
-			initialHardwareAcceleration: null,
-			initialKeyframeIntervalInSeconds: null,
-			initialTransparent: null,
-			initialMuted: null,
-			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
-			initialPreferredEffectBackend: defaults.preferredEffectBackend,
-			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
-			initialPageResponsiveness: 'medium',
+			prepareServerBundle: canServerRender,
+			setSelectedModal,
 		});
 	}, [
 		video,
-		readOnlyStudio,
 		canServerRender,
 		setSelectedModal,
 		props,
