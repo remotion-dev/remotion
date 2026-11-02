@@ -26,7 +26,10 @@ test('adds an 8px horizontal gutter when fitting by width', () => {
 	});
 
 	expect(transformation.scale).toBeCloseTo((1000 - 16) / 1920);
-	expect(transformation.centerX).toBeCloseTo(STUDIO_FIT_PADDING);
+	expect(transformation.centerX).toBe(
+		Math.round((1000 - 1920 * transformation.scaleX) / 2),
+	);
+	expect(transformation.centerX).toBeGreaterThanOrEqual(STUDIO_FIT_PADDING);
 	expect(transformation.centerY).toBe(
 		Math.round((600 - 1080 * transformation.scale) / 2),
 	);
@@ -93,4 +96,18 @@ test('snaps the fitted composition edges to whole pixels', () => {
 	expect(height).toBeCloseTo(Math.round(height), 10);
 	expect(transformation.centerX).toBe(Math.round(transformation.centerX));
 	expect(height).toBeLessThanOrEqual(315 - 16);
+});
+
+test('snaps the fitted composition width to whole pixels', () => {
+	const canvasSize = makeCanvasSize(1100, 700);
+	const transformation = calculateStudioCanvasTransformation({
+		canvasSize,
+		compositionHeight: 1080,
+		compositionWidth: 1920,
+		previewSize: 'auto',
+	});
+
+	const width = 1920 * transformation.scaleX;
+	expect(width).toBeCloseTo(Math.round(width), 10);
+	expect(Math.abs(width - 1920 * transformation.scale)).toBeLessThan(1);
 });

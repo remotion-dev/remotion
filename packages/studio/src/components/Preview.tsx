@@ -64,12 +64,13 @@ const PIXEL_GRID_MIN_SCALE = 4;
 
 const containerStyle = (options: {
 	scale: number;
+	scaleX: number;
 	width: number;
 	height: number;
 	checkerboard: boolean;
 }): React.CSSProperties => {
 	return {
-		transform: `scale(${options.scale})`,
+		transform: `scale(${options.scaleX}, ${options.scale})`,
 		// Keep the scaled composition on its own layer so the checkerboard does
 		// not bleed through its edges at fractional preview scales.
 		willChange: 'transform',
@@ -245,28 +246,37 @@ const CompWhenItHasDimensions: React.FC<{
 		};
 	}, [canvasContent.type]);
 
-	const {centerX, centerY, scale} = useMemo(() => {
+	const {centerX, centerY, scale, scaleX} = useMemo(() => {
 		if (contentDimensions === 'none') {
 			return {
 				centerX: 0,
 				centerY: 0,
 				scale: 1,
+				scaleX: 1,
 			};
 		}
 
-		return canvasContent.type === 'composition'
-			? calculateStudioCanvasTransformation({
-					canvasSize,
-					compositionHeight: contentDimensions.height,
-					compositionWidth: contentDimensions.width,
-					previewSize: previewSize.size,
-				})
-			: PlayerInternals.calculateCanvasTransformation({
-					canvasSize,
-					compositionHeight: contentDimensions.height,
-					compositionWidth: contentDimensions.width,
-					previewSize: previewSize.size,
-				});
+		if (canvasContent.type === 'composition') {
+			return calculateStudioCanvasTransformation({
+				canvasSize,
+				compositionHeight: contentDimensions.height,
+				compositionWidth: contentDimensions.width,
+				previewSize: previewSize.size,
+			});
+		}
+
+		const transformation = PlayerInternals.calculateCanvasTransformation({
+			canvasSize,
+			compositionHeight: contentDimensions.height,
+			compositionWidth: contentDimensions.width,
+			previewSize: previewSize.size,
+		});
+		return {
+			centerX: transformation.centerX,
+			centerY: transformation.centerY,
+			scale: transformation.scale,
+			scaleX: transformation.scale,
+		};
 	}, [canvasContent.type, canvasSize, contentDimensions, previewSize.size]);
 	const assetFileType =
 		canvasContent.type === 'asset'
@@ -285,7 +295,9 @@ const CompWhenItHasDimensions: React.FC<{
 	const outer: React.CSSProperties = useMemo(() => {
 		return {
 			width:
-				contentDimensions === 'none' ? '100%' : contentDimensions.width * scale,
+				contentDimensions === 'none'
+					? '100%'
+					: contentDimensions.width * scaleX,
 			height:
 				contentDimensions === 'none'
 					? '100%'
@@ -310,6 +322,7 @@ const CompWhenItHasDimensions: React.FC<{
 	}, [
 		contentDimensions,
 		scale,
+		scaleX,
 		centerX,
 		previewSize.translation.x,
 		previewSize.translation.y,
@@ -352,6 +365,7 @@ const CompWhenItHasDimensions: React.FC<{
 						contentDimensions={contentDimensions}
 						offscreen={mediaCompositionFileType === 'audio'}
 						scale={scale}
+						scaleX={scaleX}
 					/>
 					<AssetMediaComposition
 						asset={canvasContent.asset}
@@ -405,6 +419,7 @@ const CompWhenItHasDimensions: React.FC<{
 				contentDimensions={contentDimensions as Dimensions}
 				offscreen={false}
 				scale={scale}
+				scaleX={scaleX}
 			/>
 			<PixelGrid scale={scale} />
 			<SelectedOutlineOverlay
@@ -450,8 +465,9 @@ const AssetMediaComposition: React.FC<{
 const PortalContainer: React.FC<{
 	readonly offscreen: boolean;
 	readonly scale: number;
+	readonly scaleX: number;
 	readonly contentDimensions: Dimensions;
-}> = ({offscreen, scale, contentDimensions}) => {
+}> = ({offscreen, scale, scaleX, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const portalContainer = useRef<HTMLDivElement>(null);
@@ -471,6 +487,7 @@ const PortalContainer: React.FC<{
 		return containerStyle({
 			checkerboard,
 			scale,
+			scaleX,
 			width: contentDimensions.width,
 			height: contentDimensions.height,
 		});
@@ -480,6 +497,7 @@ const PortalContainer: React.FC<{
 		contentDimensions.width,
 		offscreen,
 		scale,
+		scaleX,
 	]);
 
 	useLayoutEffect(() => {

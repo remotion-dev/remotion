@@ -95,12 +95,18 @@ export const calculateStudioCanvasTransformation = ({
 	readonly previewSize: PreviewSize['size'];
 }) => {
 	if (previewSize !== 'auto') {
-		return PlayerInternals.calculateCanvasTransformation({
+		const transformation = PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight,
 			compositionWidth,
 			previewSize,
 		});
+		return {
+			centerX: transformation.centerX,
+			centerY: transformation.centerY,
+			scale: transformation.scale,
+			scaleX: transformation.scale,
+		};
 	}
 
 	const {
@@ -117,11 +123,19 @@ export const calculateStudioCanvasTransformation = ({
 	const devicePixelRatio = getDevicePixelRatio();
 	const snapToDevicePixel = (value: number) =>
 		Math.round(value * devicePixelRatio) / devicePixelRatio;
+	// The fitted height is whole device pixels, but with the composition's
+	// aspect ratio the width usually is not, which leaks a 1px column of video
+	// next to a full-height bar at the right edge. Scale the width separately so
+	// that it is whole device pixels too. The difference to `scale` is less than
+	// one device pixel over the whole width, so the distortion is not visible.
+	const scaleX =
+		Math.floor(compositionWidth * scale * devicePixelRatio) /
+		(compositionWidth * devicePixelRatio);
 
 	return {
 		centerX: snapToDevicePixel(
 			paddedCanvasSize.width / 2 -
-				(compositionWidth * scale) / 2 +
+				(compositionWidth * scaleX) / 2 +
 				horizontalPadding,
 		),
 		centerY: snapToDevicePixel(
@@ -130,5 +144,6 @@ export const calculateStudioCanvasTransformation = ({
 				verticalPadding,
 		),
 		scale,
+		scaleX,
 	};
 };
