@@ -12,7 +12,7 @@ export class Pool {
 	acquire(): Promise<Page> {
 		const resource = this.resources.shift();
 		if (resource !== undefined) {
-			return resource.closed ? this.acquire() : Promise.resolve(resource);
+			return Promise.resolve(resource);
 		}
 
 		return new Promise((resolve) => {
