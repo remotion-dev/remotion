@@ -61,6 +61,7 @@ import {
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
 import {useEncodableAudioCodecs} from './use-encodable-audio-codecs';
 import {useEncodableVideoCodecs} from './use-encodable-video-codecs';
+import {useRenderFrameInput} from './use-render-frame-input';
 import {WebRenderModalAdvanced} from './WebRenderModalAdvanced';
 import {WebRenderModalAudio} from './WebRenderModalAudio';
 import {WebRenderModalBasic} from './WebRenderModalBasic';
@@ -238,7 +239,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [imageFormat, setImageFormat] = useState<RenderStillOnWebImageFormat>(
 		() => initialStillImageFormat ?? 'png',
 	);
-	const [frame, setFrame] = useState(() => initialFrame);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
 	const [inputProps, _setInputProps] = useState(() => defaultProps);
 	const setInputProps: UpdaterFunction<Record<string, unknown>> = useCallback(
@@ -281,10 +281,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [keyframeIntervalInSeconds, setKeyframeIntervalInSeconds] = useState(
 		initialKeyframeIntervalInSeconds ?? 5,
 	);
-	const [startFrame, setStartFrame] = useState<number | null>(
-		() => inFrameMark,
-	);
-	const [endFrame, setEndFrame] = useState<number | null>(() => outFrameMark);
 	const [transparent, setTransparent] = useState(initialTransparent ?? false);
 	const [muted, setMuted] = useState(initialMuted ?? false);
 	const [scale, setScale] = useState(initialScale ?? 1);
@@ -316,24 +312,17 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		return encodableVideoCodecs[0] ?? codec;
 	}, [codec, encodableVideoCodecs]);
 
-	const finalEndFrame = useMemo(() => {
-		if (endFrame === null) {
-			return resolvedComposition.durationInFrames - 1;
-		}
-
-		return Math.max(
-			0,
-			Math.min(resolvedComposition.durationInFrames - 1, endFrame),
-		);
-	}, [endFrame, resolvedComposition.durationInFrames]);
-
-	const finalStartFrame = useMemo(() => {
-		if (startFrame === null) {
-			return 0;
-		}
-
-		return Math.max(0, Math.min(finalEndFrame, startFrame));
-	}, [finalEndFrame, startFrame]);
+	const lastFrame = resolvedComposition.durationInFrames - 1;
+	const endFrameInput = useRenderFrameInput(outFrameMark, lastFrame, lastFrame);
+	const startFrameInput = useRenderFrameInput(
+		inFrameMark,
+		0,
+		endFrameInput.value,
+	);
+	const stillFrameInput = useRenderFrameInput(initialFrame, 0, lastFrame);
+	const {value: finalEndFrame} = endFrameInput;
+	const {value: finalStartFrame} = startFrameInput;
+	const {value: frame} = stillFrameInput;
 
 	const [initialOutNameState] = useState(() => {
 		if (initialDefaultOutName) {
@@ -458,27 +447,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 		return options;
 	}, [renderMode, resolvedComposition.durationInFrames, onRenderModeChange]);
-
-	const onFrameSetDirectly = useCallback(
-		(newFrame: number) => {
-			setFrame(newFrame);
-		},
-		[setFrame],
-	);
-
-	const onFrameChanged = useCallback(
-		(e: string) => {
-			setFrame((q) => {
-				const newFrame = parseFloat(e);
-				if (Number.isNaN(newFrame)) {
-					return q;
-				}
-
-				return newFrame;
-			});
-		},
-		[setFrame],
-	);
 
 	const onOutNameChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback((e) => {
@@ -758,18 +726,14 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							resolvedComposition={resolvedComposition}
 							imageFormat={imageFormat}
 							setStillFormat={setStillFormat}
-							frame={frame}
-							onFrameChanged={onFrameChanged}
-							onFrameSetDirectly={onFrameSetDirectly}
+							frame={stillFrameInput}
 							container={container}
 							setContainerFormat={setContainerFormat}
 							setCodec={setCodecWithContainer}
 							encodableVideoCodecs={encodableVideoCodecs}
 							effectiveVideoCodec={effectiveVideoCodec}
-							startFrame={finalStartFrame}
-							setStartFrame={setStartFrame}
-							endFrame={finalEndFrame}
-							setEndFrame={setEndFrame}
+							startFrame={startFrameInput}
+							endFrame={endFrameInput}
 							outName={outName}
 							onOutNameChange={onOutNameChange}
 							validationMessage={
