@@ -258,6 +258,14 @@ type AddRenderRequestDynamicFields =
 			chromeMode: ChromeMode;
 			sampleRate: number;
 			licenseKey: string | null;
+			prerenderTarget: {
+				fileName: string;
+				nodePath: SequenceNodePath;
+				width: number;
+				height: number;
+				fps: number;
+				durationInFrames: number;
+			} | null;
 	  };
 
 export type CancelRenderRequest = {
@@ -1129,6 +1137,28 @@ export type ReplaceVideoSourceResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
+export type PrerenderedSceneInfoRequest = {
+	src: string;
+};
+
+export type PrerenderedSceneInfoResponse =
+	| {type: 'not-prerendered'}
+	| {
+			type: 'prerendered';
+			compositionId: string;
+			stale: boolean | null;
+	  };
+
+export type RestorePrerenderedSceneRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	src: string;
+};
+
+export type RestorePrerenderedSceneResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
 export type InsertableCompositionElement =
 	| {
 			type: 'text';
@@ -1744,6 +1774,14 @@ export const studioOperations = {
 	'/api/replace-video-source': new StudioOperation<
 		ReplaceVideoSourceRequest,
 		ReplaceVideoSourceResponse
+	>({mutatesSource: true}),
+	'/api/prerendered-scene-info': new StudioOperation<
+		PrerenderedSceneInfoRequest,
+		PrerenderedSceneInfoResponse
+	>({mutatesSource: false}),
+	'/api/restore-prerendered-scene': new StudioOperation<
+		RestorePrerenderedSceneRequest,
+		RestorePrerenderedSceneResponse
 	>({mutatesSource: true}),
 	'/api/insert-composition-element': new StudioOperation<
 		InsertCompositionElementRequest,
