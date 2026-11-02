@@ -192,6 +192,51 @@ export const getUpdatedNodeReference = ({
 	return {filePath, nodePath: remapping?.newNodePath ?? node.nodePath};
 };
 
+export const getUpdatedNodeReferences = ({
+	project,
+	nodes,
+	nodePathRemappings,
+}: {
+	project: CodemodProject;
+	nodes: readonly NodeReference[];
+	nodePathRemappings: NodePathRemapping[];
+}): NodeReference[] => {
+	if (nodes.length === 1) {
+		return [
+			getUpdatedNodeReference({project, node: nodes[0], nodePathRemappings}),
+		];
+	}
+
+	const pathsByFile = new Map<string, Map<string, SequenceNodePath | null>>();
+	for (const {filePath, oldNodePath, newNodePath} of nodePathRemappings) {
+		if (oldNodePath === null) {
+			continue;
+		}
+
+		const paths =
+			pathsByFile.get(filePath) ?? new Map<string, SequenceNodePath | null>();
+		const key = JSON.stringify(oldNodePath);
+		// Match the first remapping, as the single-node lookup does.
+		if (!paths.has(key)) {
+			paths.set(key, newNodePath);
+		}
+
+		pathsByFile.set(filePath, paths);
+	}
+
+	return nodes.map((node) => {
+		const filePath = findProjectFile({project, filePath: node.filePath});
+		const nodePath = pathsByFile
+			.get(filePath)
+			?.get(JSON.stringify(node.nodePath));
+		if (nodePath === null) {
+			throw new Error('The JSX node was removed');
+		}
+
+		return {filePath, nodePath: nodePath ?? node.nodePath};
+	});
+};
+
 export const groupNodeReferencesByFile = ({
 	project,
 	nodes,
@@ -204,18 +249,19 @@ export const groupNodeReferencesByFile = ({
 	}
 
 	const groups = new Map<string, SequenceNodePath[]>();
+	const seenPathsByFile = new Map<string, Set<string>>();
 	for (const node of nodes) {
 		const filePath = findProjectFile({project, filePath: node.filePath});
 		const paths = groups.get(filePath) ?? [];
-		if (
-			!paths.some(
-				(path) => JSON.stringify(path) === JSON.stringify(node.nodePath),
-			)
-		) {
+		const seenPaths = seenPathsByFile.get(filePath) ?? new Set<string>();
+		const key = JSON.stringify(node.nodePath);
+		if (!seenPaths.has(key)) {
 			paths.push(node.nodePath);
+			seenPaths.add(key);
 		}
 
 		groups.set(filePath, paths);
+		seenPathsByFile.set(filePath, seenPaths);
 	}
 
 	return groups;

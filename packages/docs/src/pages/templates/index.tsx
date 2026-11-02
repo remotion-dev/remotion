@@ -6,7 +6,7 @@ import React from 'react';
 import {Seo} from '../../components/Seo';
 
 export default () => {
-	const imgSrc = `/generated/template-all.png`;
+	const imgSrc = `https://remotion.media/docs/generated/template-all.png`;
 	const context = useDocusaurusContext();
 
 	return (

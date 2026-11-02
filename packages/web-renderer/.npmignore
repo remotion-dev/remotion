@@ -2,6 +2,7 @@ tsconfig.json
 eslint.config.mjs
 tsconfig.tsbuildinfo
 src
+test
 .turbo
 bundle.ts
 vitest.config.ts

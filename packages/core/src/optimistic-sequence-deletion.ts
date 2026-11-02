@@ -101,6 +101,58 @@ export const OptimisticSequenceDeletion = {
 
 		publish();
 	},
+	rollbackRevision: (revision: number) => {
+		for (const [key, deletion] of deletions) {
+			if (deletion.revision === revision) {
+				deletions.delete(key);
+			}
+		}
+
+		publish();
+	},
+	remap: (
+		remappings: readonly {
+			previousNodePath: Node;
+			nodePath: Node | null;
+			revision: number;
+		}[],
+	) => {
+		const moves = remappings.flatMap((remapping) => {
+			const oldKey = keyForNode(remapping.previousNodePath);
+			const deletion = deletions.get(oldKey);
+			if (deletion?.id !== remapping.revision) {
+				return [];
+			}
+
+			const newKey =
+				remapping.nodePath === null ? null : keyForNode(remapping.nodePath);
+			return oldKey === newKey ? [] : [{oldKey, newKey, deletion}];
+		});
+		if (moves.length === 0) {
+			return;
+		}
+
+		// Snapshot every source before writing destinations so sibling swaps
+		// cannot move a deletion twice. Its current undo/redo intent follows it.
+		for (const {oldKey} of moves) {
+			deletions.delete(oldKey);
+		}
+
+		for (const {newKey, deletion} of moves) {
+			if (newKey === null) {
+				continue;
+			}
+
+			const existing = deletions.get(newKey);
+			if (existing && existing.revision > deletion.revision) {
+				continue;
+			}
+
+			deletions.set(newKey, deletion);
+		}
+
+		publish();
+	},
 	// Undo/redo can only update deletions still represented by the loaded tree.
 	// Once source remapping retires them, restoration is handled by HMR.
 	restore: (nodes: readonly Node[], revision: number, deleted: boolean) => {
@@ -115,18 +167,14 @@ export const OptimisticSequenceDeletion = {
 		publish();
 	},
 	prepareRetirement: (nodes: readonly Node[], dispatchedRevision: number) => {
-		const captured = nodes.map((node) => {
-			const key = keyForNode(node);
-			return {key, id: deletions.get(key)?.id};
-		});
+		const keys = nodes.map(keyForNode);
 		return () => {
 			let changed = false;
-			for (const {key, id} of captured) {
-				if (
-					id !== undefined &&
-					id <= dispatchedRevision &&
-					deletions.get(key)?.id === id
-				) {
+			for (const key of keys) {
+				// An earlier mutation in this refresh can move the queued deletion
+				// into this path after retirement was prepared.
+				const deletion = deletions.get(key);
+				if (deletion !== undefined && deletion.id <= dispatchedRevision) {
 					changed = deletions.delete(key) || changed;
 				}
 			}

@@ -1,0 +1,43 @@
+{
+	"sourceCommit": "6255f0237c39798faa0b803fa0bd17e842853487",
+	"defaultArtifacts": [
+		"output/chromium-headless-shell-linux64.zip",
+		"output/chromium-headless-shell-linux-arm64.zip",
+		"output/chromium-headless-shell-amazon-linux2023-x64.zip",
+		"output/chromium-headless-shell-amazon-linux2023-arm64.zip",
+		"output/chromium-headless-shell-mac-arm64.zip",
+		"output/chromium-headless-shell-win64.zip"
+	],
+	"artifacts": {
+		"output/chromium-headless-shell-linux64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-linux-x64-158.0.8127.2.zip",
+			"sha256": "37efc23c796de6a7ae6360b545434863e1c35d9cabc7fddc8036e8c6e00697e8",
+			"size": 107515885
+		},
+		"output/chromium-headless-shell-linux-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-linux-arm64-158.0.8127.2.zip",
+			"sha256": "9d48943eb88a60d34d0c4213f59ceebc807b182fb28cbb4ee5283c047b81b26b",
+			"size": 100692102
+		},
+		"output/chromium-headless-shell-amazon-linux2023-x64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-amazon-linux-x64-158.0.8127.2.zip",
+			"sha256": "6ddba099a234c3c584caee4e0d52f95838e2acd8d1186552c83dff1bd88fcddb",
+			"size": 109296701
+		},
+		"output/chromium-headless-shell-amazon-linux2023-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-amazon-linux-arm64-158.0.8127.2.zip",
+			"sha256": "eaf6b3e0f4d7f1771656ab03fa30cefa854e15c98c4142be9b7c62111fab131c",
+			"size": 85643494
+		},
+		"output/chromium-headless-shell-mac-arm64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-mac-arm64-158.0.8127.2.zip",
+			"sha256": "8b7c8d0c0a04a7d32ade612b51ac9ae1aa7d674d9eb0bb6f794eee253b835a04",
+			"size": 147153468
+		},
+		"output/chromium-headless-shell-win64.zip": {
+			"url": "https://remotion.media/chromium-headless-shell-win-x64-158.0.8127.2.zip",
+			"sha256": "58afb19b136b32c36a9b879cedde3d8a05d0f5cfb2e60b6f17b7c0301e10299a",
+			"size": 137435497
+		}
+	}
+}

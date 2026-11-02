@@ -4,7 +4,14 @@ import {
 	assertOptionalFiniteNumber,
 	validateNonNegative,
 } from './color-utils.js';
+import {DOT_GRID_WEBGPU_SHADER} from './dot-grid-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -115,7 +122,7 @@ uniform float uGridSize;
 uniform bool uInvert;
 
 void main() {
-	vec2 fragPos = vUv * uResolution;
+	vec2 fragPos = gl_FragCoord.xy;
 	vec2 center = uResolution * 0.5;
 	vec2 gridPos = fragPos - center;
 
@@ -191,126 +198,163 @@ const linkProgram = (
 	return program;
 };
 
-export const dotGrid = createEffect<DotGridParams, DotGridState>({
+export const dotGrid = createEffect<DotGridParams>({
 	type: 'dev.remotion.effects.dotGrid',
 	label: 'dotGrid()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/dot-grid',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `dot-grid-${r.dotSize}-${r.gridSize}-${r.invert ? 1 : 0}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('dot grid effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			DotGridParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'dot-grid'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the dot-grid effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.dotSize,
+					r.gridSize,
+					r.invert ? 1 : 0,
+					0,
+					0,
+					0,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: DOT_GRID_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<DotGridParams, DotGridState>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('dot grid effect');
+				}
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		const vs = compileShader(gl, gl.VERTEX_SHADER, DOT_GRID_VS);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, DOT_GRID_FS);
-		const program = linkProgram(gl, vs, fs);
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
+				const vs = compileShader(gl, gl.VERTEX_SHADER, DOT_GRID_VS);
+				const fs = compileShader(gl, gl.FRAGMENT_SHADER, DOT_GRID_FS);
+				const program = linkProgram(gl, vs, fs);
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-		const vao = gl.createVertexArray();
-		if (!vao) {
-			throw new Error('Failed to create WebGL vertex array');
-		}
+				const vao = gl.createVertexArray();
+				if (!vao) {
+					throw new Error('Failed to create WebGL vertex array');
+				}
 
-		gl.bindVertexArray(vao);
+				gl.bindVertexArray(vao);
 
-		const data = new Float32Array([
-			-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
-		]);
+				const data = new Float32Array([
+					-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
+				]);
 
-		const vbo = gl.createBuffer();
-		if (!vbo) {
-			throw new Error('Failed to create WebGL buffer');
-		}
+				const vbo = gl.createBuffer();
+				if (!vbo) {
+					throw new Error('Failed to create WebGL buffer');
+				}
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+				gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-		const aPos = gl.getAttribLocation(program, 'aPos');
-		const aUv = gl.getAttribLocation(program, 'aUv');
-		gl.enableVertexAttribArray(aPos);
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(aUv);
-		gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+				const aPos = gl.getAttribLocation(program, 'aPos');
+				const aUv = gl.getAttribLocation(program, 'aUv');
+				gl.enableVertexAttribArray(aPos);
+				gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+				gl.enableVertexAttribArray(aUv);
+				gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
 
-		gl.bindVertexArray(null);
+				gl.bindVertexArray(null);
 
-		const texture = gl.createTexture();
-		if (!texture) {
-			throw new Error('Failed to create WebGL texture');
-		}
+				const texture = gl.createTexture();
+				if (!texture) {
+					throw new Error('Failed to create WebGL texture');
+				}
 
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.bindTexture(gl.TEXTURE_2D, null);
 
-		return {
-			gl,
-			program,
-			vao,
-			vbo,
-			texture,
-			uSource: gl.getUniformLocation(program, 'uSource'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
-			uDotSize: gl.getUniformLocation(program, 'uDotSize'),
-			uGridSize: gl.getUniformLocation(program, 'uGridSize'),
-			uInvert: gl.getUniformLocation(program, 'uInvert'),
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, texture} = state;
+				return {
+					gl,
+					program,
+					vao,
+					vbo,
+					texture,
+					uSource: gl.getUniformLocation(program, 'uSource'),
+					uResolution: gl.getUniformLocation(program, 'uResolution'),
+					uDotSize: gl.getUniformLocation(program, 'uDotSize'),
+					uGridSize: gl.getUniformLocation(program, 'uGridSize'),
+					uInvert: gl.getUniformLocation(program, 'uInvert'),
+				};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, texture} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uDotSize) gl.uniform1f(state.uDotSize, r.dotSize);
-		if (state.uGridSize) gl.uniform1f(state.uGridSize, r.gridSize);
-		if (state.uInvert) gl.uniform1i(state.uInvert, r.invert ? 1 : 0);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uDotSize) gl.uniform1f(state.uDotSize, r.dotSize);
+				if (state.uGridSize) gl.uniform1f(state.uGridSize, r.gridSize);
+				if (state.uInvert) gl.uniform1i(state.uInvert, r.invert ? 1 : 0);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
-		gl.deleteTexture(texture);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+				gl.deleteTexture(texture);
+			},
+		}),
 	},
 	schema: dotGridSchema,
 	validateParams: validateDotGridParams,

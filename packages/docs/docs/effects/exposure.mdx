@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-effects-exposure.png
+image: https://remotion.media/docs/generated/articles-docs-effects-exposure.png
 slug: /effects/exposure
 title: exposure()
 sidebar_label: exposure()
@@ -49,6 +49,13 @@ When `true`, the effect is skipped. Defaults to `false`.
 ## Difference from `brightness()`
 
 [`brightness()`](/docs/effects/brightness) adds the same value to each color channel. `exposure()` multiplies light intensity, preserving the photographic relationship between tones.
+
+## Implementations
+
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## Compatibility
 

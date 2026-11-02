@@ -7,13 +7,16 @@ export const getTimelineSceneRange = ({
 	previous,
 	next,
 	range,
-	transitionRanges,
+	transitionRangesByStart,
 }: {
 	readonly sequence: TSequence;
 	readonly previous: TSequence | null;
 	readonly next: TSequence | null;
 	readonly range: TimelineSceneRange | null;
-	readonly transitionRanges: readonly TimelineTransitionRange[];
+	readonly transitionRangesByStart: ReadonlyMap<
+		number,
+		TimelineTransitionRange
+	>;
 }): TimelineSceneRange => {
 	const sceneEnd = sequence.from + sequence.duration;
 	const previousEnd = previous
@@ -21,13 +24,13 @@ export const getTimelineSceneRange = ({
 		: sequence.from;
 	const incomingTransition =
 		sequence.timelineTrack?.role === 'clip' && previousEnd > sequence.from
-			? transitionRanges.find((item) => item.from === sequence.from)
+			? transitionRangesByStart.get(sequence.from)
 			: undefined;
 	const outgoingTransition =
 		sequence.timelineTrack?.role === 'clip' &&
 		next !== null &&
 		next.from < sceneEnd
-			? transitionRanges.find((item) => item.from === next.from)
+			? transitionRangesByStart.get(next.from)
 			: undefined;
 	const from = Math.max(
 		range?.from ?? -Infinity,

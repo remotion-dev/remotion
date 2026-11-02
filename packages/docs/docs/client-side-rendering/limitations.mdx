@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-client-side-rendering-limitations.png
+image: https://remotion.media/docs/generated/articles-docs-client-side-rendering-limitations.png
 crumb: 'Client-side rendering'
 sidebar_label: Limitations
 title: Limitations of client-side rendering
@@ -117,6 +117,13 @@ The `filter` property is <a style={{color: 'green'}}>supported</a> with the foll
 Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter support.
 :::
 
+## Blending
+
+The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline /> with all blend modes.
+Stacking contexts created by properties such as `opacity`, `transform` or `isolation: isolate` limit what an element blends with, as in the browser.
+
+The `background-blend-mode` property is <a style={{color: 'red'}}>not supported</a>.
+
 ## Supported elements
 
 The following Remotion components are supported:
@@ -157,7 +164,6 @@ All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported<
 Here is a selection of unsupported styles:
 
 - `backdrop-filter`
-- `mix-blend-mode`
 - `background-blend-mode`
 - `z-index`
   - See [Z-indexing](#z-indexing) below.

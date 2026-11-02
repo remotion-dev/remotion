@@ -4,6 +4,7 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
+	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -78,7 +79,11 @@ export type AudioSyncAnchorEmitter = {
 	subscribe: (listener: AudioSyncAnchorListener) => {remove: () => void};
 };
 
+const useAudioContextLayoutEffect =
+	typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 type SharedAudioContextValue = {
+	audioContextPending: boolean;
 	sampleRate: number;
 	audioContext: AudioContext | null;
 	getAudioContextState: () => RemotionAudioContextState | null;
@@ -217,6 +222,7 @@ export const SharedAudioContextProvider: React.FC<{
 	_experimentalKeepAudioContextAlive,
 }) => {
 	const logLevel = useLogLevel();
+	const env = useRemotionEnvironment();
 	const sampleRate = previewSampleRate ?? 48000;
 
 	const ctxAndGain = useSingletonAudioContext({
@@ -225,7 +231,8 @@ export const SharedAudioContextProvider: React.FC<{
 		audioEnabled,
 		sampleRate,
 	});
-	const audioContextIsPlayingEventually = useRef(false);
+	const audioContextIsPlayingEventually = useRef<AudioContext | null>(null);
+	const playbackRequested = useRef(false);
 	const initialExperimentalKeepAudioContextAlive = useRef(
 		_experimentalKeepAudioContextAlive,
 	);
@@ -307,7 +314,7 @@ export const SharedAudioContextProvider: React.FC<{
 			const saveForLater =
 				shouldSaveForLater(currentState) ||
 				(_experimentalKeepAudioContextAlive &&
-					!audioContextIsPlayingEventually.current);
+					audioContextIsPlayingEventually.current !== ctxAndGain.audioContext);
 
 			if (duration > 0) {
 				if (saveForLater) {
@@ -388,17 +395,18 @@ export const SharedAudioContextProvider: React.FC<{
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive, logLevel]);
 
 	const resume = useCallback(() => {
-		const isAutoPlayAttempt = nextResumeIsAutoPlayAttempt.current;
-		nextResumeIsAutoPlayAttempt.current = false;
+		playbackRequested.current = true;
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}
 
-		if (audioContextIsPlayingEventually.current) {
+		const isAutoPlayAttempt = nextResumeIsAutoPlayAttempt.current;
+		nextResumeIsAutoPlayAttempt.current = false;
+		if (audioContextIsPlayingEventually.current === ctxAndGain.audioContext) {
 			return Promise.resolve();
 		}
 
-		audioContextIsPlayingEventually.current = true;
+		audioContextIsPlayingEventually.current = ctxAndGain.audioContext;
 
 		ctxAndGain.gainNode.gain.cancelScheduledValues(
 			ctxAndGain.audioContext.currentTime,
@@ -474,17 +482,19 @@ export const SharedAudioContextProvider: React.FC<{
 	}, []);
 
 	const suspend = useCallback(() => {
+		playbackRequested.current = false;
+		nextResumeIsAutoPlayAttempt.current = false;
 		isResuming.current?.abortController.abort();
 
 		if (!ctxAndGain) {
 			return Promise.resolve();
 		}
 
-		if (!audioContextIsPlayingEventually.current) {
+		if (audioContextIsPlayingEventually.current !== ctxAndGain.audioContext) {
 			return Promise.resolve();
 		}
 
-		audioContextIsPlayingEventually.current = false;
+		audioContextIsPlayingEventually.current = null;
 
 		if (_experimentalKeepAudioContextAlive) {
 			// Silence through the gain instead of suspending, so the context
@@ -510,9 +520,7 @@ export const SharedAudioContextProvider: React.FC<{
 	// `no-user-gesture-required`), the mount attempt succeeds immediately;
 	// in a browser the first user gesture starts it. suspend() never reaches
 	// the native context in this mode, so once running it stays running.
-	// The cleanup suspends the native context, since Player contexts are
-	// not close()d and must not be left running after unmount.
-	useEffect(() => {
+	useAudioContextLayoutEffect(() => {
 		if (!_experimentalKeepAudioContextAlive) {
 			return;
 		}
@@ -546,13 +554,19 @@ export const SharedAudioContextProvider: React.FC<{
 		return () => {
 			window.removeEventListener('pointerdown', wake, {capture: true});
 			window.removeEventListener('keydown', wake, {capture: true});
-			ctxAndGain.suspend().catch(() => {});
 		};
 	}, [ctxAndGain, _experimentalKeepAudioContextAlive]);
+
+	const audioContextPending =
+		audioEnabled &&
+		!env.isRendering &&
+		typeof AudioContext !== 'undefined' &&
+		ctxAndGain === null;
 
 	const audioContextValue: SharedAudioContextValue = useMemo(() => {
 		return {
 			sampleRate,
+			audioContextPending,
 			audioContext: ctxAndGain?.audioContext ?? null,
 			getAudioContextState: () => ctxAndGain?.getState() ?? null,
 			gainNode: ctxAndGain?.gainNode ?? null,
@@ -568,6 +582,7 @@ export const SharedAudioContextProvider: React.FC<{
 		};
 	}, [
 		sampleRate,
+		audioContextPending,
 		ctxAndGain,
 		audioSyncAnchor,
 		audioSyncAnchorEmitter,
@@ -579,6 +594,20 @@ export const SharedAudioContextProvider: React.FC<{
 		unscheduleAudioNode,
 		_experimentalKeepAudioContextAlive,
 	]);
+
+	useAudioContextLayoutEffect(() => {
+		const queuedNodes = nodesToResume.current;
+		// Autoplay may request playback before the context commits. A replacement
+		// context must also resume when the Player is already playing.
+		if (playbackRequested.current) {
+			resume();
+		}
+
+		return () => {
+			isResuming.current?.abortController.abort();
+			queuedNodes.clear();
+		};
+	}, [resume]);
 
 	return (
 		<SharedAudioContext.Provider value={audioContextValue}>
@@ -865,15 +894,6 @@ export const SharedAudioTagsContextProvider: React.FC<{
 	);
 };
 
-const unregisterSharedAudio = (
-	tagsContext: SharedAudioTagsContextValue | null,
-	id: number,
-) => {
-	if (tagsContext && tagsContext.numberOfAudioTags > 0) {
-		tagsContext.unregisterAudio(id);
-	}
-};
-
 export const useSharedAudio = ({
 	aud,
 	audioId,
@@ -887,6 +907,8 @@ export const useSharedAudio = ({
 }) => {
 	const audioCtx = useContext(SharedAudioContext);
 	const tagsCtx = useContext(SharedAudioTagsContext);
+	const unregisterAudio =
+		tagsCtx && tagsCtx.numberOfAudioTags > 0 ? tagsCtx.unregisterAudio : null;
 
 	/**
 	 * We work around this in React 18 so an audio tag will only register itself once
@@ -942,8 +964,9 @@ export const useSharedAudio = ({
 		}, [aud, tagsCtx, elem.id, audioId, premounting, postmounting]);
 
 		effectToUse(() => {
-			return unregisterSharedAudio.bind(null, tagsCtx, elem.id);
-		}, [tagsCtx, elem.id]);
+			// Readiness changes the context value, but not the registration's owner.
+			return () => unregisterAudio?.(elem.id);
+		}, [unregisterAudio, elem.id]);
 	}
 
 	return elem;

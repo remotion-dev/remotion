@@ -4,4 +4,5 @@ const config = remotionFlatConfig({react: true});
 
 export default {
 	...config,
+	files: [...config.files, 'test/**/*.ts'],
 };

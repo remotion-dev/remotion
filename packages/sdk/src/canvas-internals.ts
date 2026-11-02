@@ -41,6 +41,7 @@ export {
 } from './outline-interaction';
 export type {CanvasOutlinePointerDownDecision} from './outline-interaction';
 export {
+	createCanvasOutlineLayoutTargetLookup,
 	getCanvasActiveOutlineTargets,
 	getCanvasOutlineActivity,
 	getCanvasOutlineLayoutTargets,

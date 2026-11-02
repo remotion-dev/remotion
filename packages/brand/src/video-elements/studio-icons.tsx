@@ -285,10 +285,14 @@ export const VolumeIcon: React.FC<VolumeIconProps> = ({
 
 export const InPointIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 192 512" {...props}>
+		<SvgIcon viewBox="0 0 16 16" {...props}>
 			<path
-				fill="currentColor"
-				d="M0 88C0 57.1 25.1 32 56 32h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H56c-4.4 0-8 3.6-8 8v336c0 4.4 3.6 8 8 8h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H56c-30.9 0-56-25.1-56-56V88z"
+				d="M9.5 1.5H5.5v13h4"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</SvgIcon>
 	);
@@ -296,10 +300,14 @@ export const InPointIcon: React.FC<StudioIconProps> = (props) => {
 
 export const OutPointIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 192 512" {...props}>
+		<SvgIcon viewBox="0 0 16 16" {...props}>
 			<path
-				fill="currentColor"
-				d="M192 88c0-30.9-25.1-56-56-56H72C58.7 32 48 42.7 48 56s10.7 24 24 24h64c4.4 0 8 3.6 8 8v336c0 4.4-3.6 8-8 8H72c-13.3 0-24 10.7-24 24s10.7 24 24 24h64c30.9 0 56-25.1 56-56V88z"
+				d="M6.5 1.5h4v13H6.5"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</SvgIcon>
 	);
@@ -307,26 +315,11 @@ export const OutPointIcon: React.FC<StudioIconProps> = (props) => {
 
 export const CheckerboardIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 512 512" {...props}>
+		<SvgIcon viewBox="0 0 18 18" {...props}>
 			<path
 				fill="currentColor"
-				d="M256 48h184c13.3 0 24 10.7 24 24v184H256V48zM48 256h208v208H72c-13.3 0-24-10.7-24-24V256z"
-			/>
-			<rect
-				x="48"
-				y="48"
-				width="416"
-				height="416"
-				rx="24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="32"
-			/>
-			<path
-				d="M256 48v416M48 256h416"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="32"
+				fillRule="evenodd"
+				d="M3 2h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1H3a1 1 0 0 1 -1 -1V3a1 1 0 0 1 1 -1zM3 3h6v6H3zM9 9h6v6H9z"
 			/>
 		</SvgIcon>
 	);
@@ -378,11 +371,11 @@ export const RulerIcon: React.FC<StudioIconProps> = (props) => {
 
 export const MagnetIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 448 512" {...props}>
+		<SvgIcon viewBox="0 0 18 18" {...props}>
 			<path
 				fill="currentColor"
-				transform="rotate(180 224 256)"
-				d="M48 64c-8.8 0-16 7.2-16 16v80h80V80c0-8.8-7.2-16-16-16H48zM32 288c0 106 86 192 192 192s192-86 192-192v-96h-80v96c0 61.9-50.1 112-112 112s-112-50.1-112-112v-96H32v96zM416 160V80c0-8.8-7.2-16-16-16h-48c-8.8 0-16 7.2-16 16v80h80zM0 80c0-26.5 21.5-48 48-48h48c26.5 0 48 21.5 48 48v208c0 44.2 35.8 80 80 80s80-35.8 80-80V80c0-26.5 21.5-48 48-48h48c26.5 0 48 21.5 48 48v208c0 123.7-100.3 224-224 224S0 411.7 0 288V80z"
+				fillRule="evenodd"
+				d="M1 9a8 8 0 0 1 16 0v6a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1V9a3 3 0 0 0 -6 0v6a1 1 0 0 1 -1 1H2a1 1 0 0 1 -1 -1zM2 9v3h3V9a4 4 0 0 1 8 0v3h3V9a7 7 0 0 0 -14 0zM2 13v2h3v-2zM13 13v2h3v-2z"
 			/>
 		</SvgIcon>
 	);
@@ -390,10 +383,14 @@ export const MagnetIcon: React.FC<StudioIconProps> = (props) => {
 
 export const FullscreenIcon: React.FC<StudioIconProps> = (props) => {
 	return (
-		<SvgIcon viewBox="0 0 448 512" {...props}>
+		<SvgIcon viewBox="0 0 18 18" {...props}>
 			<path
-				fill="currentColor"
-				d="M136 32c13.3 0 24 10.7 24 24s-10.7 24-24 24H48v88c0 13.3-10.7 24-24 24S0 181.3 0 168V56C0 42.7 10.7 32 24 32h112zM0 344c0-13.3 10.7-24 24-24s24 10.7 24 24v88h88c13.3 0 24 10.7 24 24s-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V344zM424 32c13.3 0 24 10.7 24 24v112c0 13.3-10.7 24-24 24s-24-10.7-24-24V80h-88c-13.3 0-24-10.7-24-24s10.7-24 24-24h112zM400 344c0-13.3 10.7-24 24-24s24 10.7 24 24v112c0 13.3-10.7 24-24 24H312c-13.3 0-24-10.7-24-24s10.7-24 24-24h88v-88z"
+				d="M6.5 2.5H2.5v4M2.5 11.5v4h4M11.5 2.5h4v4M15.5 11.5v4h-4"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="1"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</SvgIcon>
 	);
@@ -467,6 +464,32 @@ export const CaretIcon: React.FC<CaretIconProps> = ({
 			<path
 				fill="currentColor"
 				d="M235.3 411.3c-6.2 6.2-16.4 6.2-22.6 0l-208-208c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0L224 377.4l196.7-196.7c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6l-208 208z"
+			/>
+		</SvgIcon>
+	);
+};
+
+// Font Awesome Pro v7.3.1, Copyright 2026 Fonticons, Inc.
+// https://fontawesome.com/license (Commercial License)
+// Matches the original Studio icon.
+export const DuplicateIcon: React.FC<StudioIconProps> = (props) => {
+	return (
+		<SvgIcon viewBox="0 0 640 640" {...props}>
+			<path
+				fill="currentColor"
+				d="M352 544L128 544C110.3 544 96 529.7 96 512L96 288C96 270.3 110.3 256 128 256L176 256L176 224L128 224C92.7 224 64 252.7 64 288L64 512C64 547.3 92.7 576 128 576L352 576C387.3 576 416 547.3 416 512L416 464L384 464L384 512C384 529.7 369.7 544 352 544zM288 384C270.3 384 256 369.7 256 352L256 128C256 110.3 270.3 96 288 96L512 96C529.7 96 544 110.3 544 128L544 352C544 369.7 529.7 384 512 384L288 384zM224 352C224 387.3 252.7 416 288 416L512 416C547.3 416 576 387.3 576 352L576 128C576 92.7 547.3 64 512 64L288 64C252.7 64 224 92.7 224 128L224 352z"
+			/>
+		</SvgIcon>
+	);
+};
+
+// Matches the original Studio icon.
+export const TrashIcon: React.FC<StudioIconProps> = (props) => {
+	return (
+		<SvgIcon viewBox="0 0 448 512" {...props}>
+			<path
+				fill="currentColor"
+				d="M160.5 27.4C162.5 20.6 168.8 16 175.8 16h96.4c7.1 0 13.3 4.6 15.3 11.4l11 36.6h-149l11-36.6zM116.1 64H16C7.2 64 0 71.2 0 80s7.2 16 16 16h416c8.8 0 16-7.2 16-16s-7.2-16-16-16H331.9l-13.7-45.8C312.1-2.1 293.4-16 272.2-16h-96.4c-21.2 0-39.9 13.9-46 34.2L116.1 64zM28.7 144l22.9 308.7c2.5 33.4 30.3 59.3 63.8 59.3h217.1c33.5 0 61.3-25.9 63.8-59.3L419.2 144h-32.1l-22.7 306.4c-1.2 16.7-15.2 29.6-31.9 29.6H115.4c-16.8 0-30.7-12.9-31.9-29.6L60.8 144H28.7z"
 			/>
 		</SvgIcon>
 	);

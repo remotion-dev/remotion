@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {unregisterClientRender} from '../../api/save-render-output';
 import {CURRENT_COLOR} from '../../helpers/colors';
+import {normalizeOutputPath} from '../../helpers/output-path';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
@@ -30,7 +31,8 @@ export const RenderQueueRemoveItem: React.FC<{
 					canvasContent &&
 					canvasContent.type === 'output' &&
 					job.status === 'done' &&
-					canvasContent.path === `/${job.outName}`
+					normalizeOutputPath(canvasContent.path) ===
+						normalizeOutputPath(job.outName)
 				) {
 					setCanvasContent(null);
 				}

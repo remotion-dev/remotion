@@ -17,9 +17,15 @@ const mockAudioContext = () => {
 			createdAudioContexts++;
 		}
 
+		close() {
+			this.state = 'closed';
+			return Promise.resolve();
+		}
+
 		createGain() {
 			return {
 				connect: () => undefined,
+				disconnect: () => undefined,
 			};
 		}
 

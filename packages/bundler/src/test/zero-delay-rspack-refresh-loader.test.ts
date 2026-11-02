@@ -14,7 +14,13 @@ test('emits a zero-delay Rspack React Refresh runtime', async () => {
 		outDir: outputDirectory,
 		environment: 'development',
 		bundlerOverride: (configuration) => configuration,
-		rspackOverride: (configuration) => configuration,
+		rspackOverride: (configuration) => ({
+			...configuration,
+			output: {
+				...configuration.output,
+				assetModuleFilename: '[hash][ext]',
+			},
+		}),
 		onProgress: () => undefined,
 		enableCaching: false,
 		remotionRoot: process.cwd(),

@@ -6,11 +6,21 @@ import {
 	validateUnitInterval,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {CONTOUR_LINES_WEBGPU_SHADER} from './contour-lines-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -298,7 +308,7 @@ float fbm(vec2 p) {
 
 void main() {
 	vec4 texColor = texture(uSource, vUv);
-	vec2 pixelPosition = vUv * uResolution + uOffset;
+	vec2 pixelPosition = gl_FragCoord.xy + uOffset;
 	float scale = max(uScale, 0.001);
 	vec2 p = pixelPosition / scale + vec2(uSeed * 0.137, uSeed * 0.193);
 
@@ -492,88 +502,140 @@ const setupContourLines = (target: HTMLCanvasElement): ContourLinesState => {
 	};
 };
 
-export const contourLines = createEffect<ContourLinesParams, ContourLinesState>(
-	{
-		type: 'dev.remotion.effects.contourLines',
-		label: 'contourLines()',
-		documentationLink: 'https://www.remotion.dev/docs/effects/contour-lines',
-		backend: 'webgl2',
-		calculateKey: (params) => {
-			const r = resolve(params);
-			const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
-			return `contour-lines-${r.lineColor}-${r.lineWidth}-${r.spacing}-${r.scale}-${r.complexity}-${r.smoothness}-${r.seed}-${r.offsetX}-${r.offsetY}-${r.opacity}${maskSuffix}`;
-		},
-		setup: (target) => setupContourLines(target),
-		apply: ({source, width, height, params, state, flipSourceY}) => {
-			const r = resolve(params);
-			const {gl, program, sourceTexture, uniforms, vao} = state;
-
-			if (state.cachedLineColor !== r.lineColor) {
-				state.cachedLineColor = r.lineColor;
-				state.cachedLineColorRgba = parseColorRgba(state.colorCtx, r.lineColor);
-			}
-
-			const [cr, cg, cb, ca] = state.cachedLineColorRgba;
-
-			gl.viewport(0, 0, width, height);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.clearColor(0, 0, 0, 0);
-			gl.clear(gl.COLOR_BUFFER_BIT);
-
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				source as TexImageSource,
-			);
-
-			gl.useProgram(program);
-			if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-			if (uniforms.uResolution)
-				gl.uniform2f(uniforms.uResolution, width, height);
-			if (uniforms.uLineColor) {
-				gl.uniform4f(
-					uniforms.uLineColor,
-					cr / 255,
-					cg / 255,
-					cb / 255,
-					ca / 255,
-				);
-			}
-
-			if (uniforms.uLineWidth) gl.uniform1f(uniforms.uLineWidth, r.lineWidth);
-			if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
-			if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
-			if (uniforms.uComplexity)
-				gl.uniform1f(uniforms.uComplexity, r.complexity);
-			if (uniforms.uSmoothness)
-				gl.uniform1f(uniforms.uSmoothness, r.smoothness);
-			if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
-			if (uniforms.uOffset)
-				gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
-			if (uniforms.uOpacity) gl.uniform1f(uniforms.uOpacity, r.opacity);
-			if (uniforms.uMaskToSourceAlpha)
-				gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
-
-			gl.bindVertexArray(vao);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			gl.bindVertexArray(null);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.useProgram(null);
-		},
-		cleanup: ({gl, program, vao, vbo, sourceTexture}) => {
-			gl.deleteTexture(sourceTexture);
-			gl.deleteBuffer(vbo);
-			gl.deleteProgram(program);
-			gl.deleteVertexArray(vao);
-		},
-		schema: contourLinesSchema,
-		validateParams: validateContourLinesParams,
+export const contourLines = createEffect<ContourLinesParams>({
+	type: 'dev.remotion.effects.contourLines',
+	label: 'contourLines()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/contour-lines',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `contour-lines-${r.lineColor}-${r.lineWidth}-${r.spacing}-${r.scale}-${r.complexity}-${r.smoothness}-${r.seed}-${r.offsetX}-${r.offsetY}-${r.opacity}${maskSuffix}`;
 	},
-);
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ContourLinesParams,
+			WebGpuColorState
+		>({
+			setup: (target) => setupWebGpuColors(target, 'contour-lines'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the contour-lines effect',
+					);
+				const r = resolve(params);
+				const colors = getWebGpuColors(state, [r.lineColor]);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.spacing,
+					r.scale,
+					r.complexity,
+					r.smoothness,
+					r.seed,
+					r.lineWidth,
+					r.offsetX,
+					r.offsetY,
+					r.opacity,
+					r.maskToSourceAlpha ? 1 : 0,
+					colors[0] / 255,
+					colors[1] / 255,
+					colors[2] / 255,
+					colors[3] / 255,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: CONTOUR_LINES_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			ContourLinesParams,
+			ContourLinesState
+		>({
+			setup: (target) => setupContourLines(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, sourceTexture, uniforms, vao} = state;
+
+				if (state.cachedLineColor !== r.lineColor) {
+					state.cachedLineColor = r.lineColor;
+					state.cachedLineColorRgba = parseColorRgba(
+						state.colorCtx,
+						r.lineColor,
+					);
+				}
+
+				const [cr, cg, cb, ca] = state.cachedLineColorRgba;
+
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uLineColor) {
+					gl.uniform4f(
+						uniforms.uLineColor,
+						cr / 255,
+						cg / 255,
+						cb / 255,
+						ca / 255,
+					);
+				}
+
+				if (uniforms.uLineWidth) gl.uniform1f(uniforms.uLineWidth, r.lineWidth);
+				if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
+				if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
+				if (uniforms.uComplexity)
+					gl.uniform1f(uniforms.uComplexity, r.complexity);
+				if (uniforms.uSmoothness)
+					gl.uniform1f(uniforms.uSmoothness, r.smoothness);
+				if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
+				if (uniforms.uOffset)
+					gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
+				if (uniforms.uOpacity) gl.uniform1f(uniforms.uOpacity, r.opacity);
+				if (uniforms.uMaskToSourceAlpha)
+					gl.uniform1i(
+						uniforms.uMaskToSourceAlpha,
+						r.maskToSourceAlpha ? 1 : 0,
+					);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, sourceTexture}) => {
+				gl.deleteTexture(sourceTexture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+	},
+	schema: contourLinesSchema,
+	validateParams: validateContourLinesParams,
+});

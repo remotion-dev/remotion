@@ -3,16 +3,16 @@ import type {Backend, EffectDefinitionAndStack} from './effect-types.js';
 // Internal helpers for the chain runtime. Exported separately so they can be
 // unit-tested without spinning up the React lifecycle / canvas mocking.
 
-export type Run = {
+export type Run<T = EffectDefinitionAndStack<unknown>> = {
 	readonly backend: Backend;
-	readonly effects: EffectDefinitionAndStack<unknown>[];
+	readonly effects: T[];
 };
 
-export const groupByBackend = (
-	effects: EffectDefinitionAndStack<unknown>[],
-): Run[] => {
-	const runs: Run[] = [];
-	let current: EffectDefinitionAndStack<unknown>[] = [];
+export const groupByBackend = <T extends {definition: {backend: Backend}}>(
+	effects: T[],
+): Run<T>[] => {
+	const runs: Run<T>[] = [];
+	let current: T[] = [];
 	let currentBackend: Backend | null = null;
 	for (const eff of effects) {
 		const {backend} = eff.definition;

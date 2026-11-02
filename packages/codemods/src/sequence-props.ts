@@ -28,7 +28,10 @@ import type {
 	VideoConfigNumericExpression,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
+import {
+	getReadOnlySourceNodePath,
+	getReadOnlySourceSnapshot,
+} from './sequence-props-snapshot';
 import {computeEffectPropStatus} from './sequence-props/can-update-effect-props';
 import {getCssShorthandForLonghand} from './sequence-props/css-shorthand-properties';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
@@ -583,6 +586,8 @@ const findNodePath = (
 	ast: File,
 	target: Node,
 ): recast.types.NodePath | null => {
+	const cachedPath = getReadOnlySourceNodePath(ast, target);
+	if (cachedPath !== undefined) return cachedPath;
 	let found: recast.types.NodePath | null = null;
 	recast.types.visit(ast, {
 		visitNode(p) {
@@ -1065,30 +1070,26 @@ const resolveCurrentFrameExpression = ({
 	let matchingDeclaration: object | null = null;
 	let initializer: Expression | null = null;
 	let isConstDeclaration = false;
-	recast.types.visit(bindingScope.path, {
-		visitVariableDeclarator(p) {
-			const {id, init} = p.node;
-			if (
-				id.type !== 'Identifier' ||
-				id.name !== node.name ||
-				p.scope.lookup(node.name)?.path.node !== bindingScope.path.node
-			) {
-				return this.traverse(p);
-			}
+	for (const binding of bindingScope.getBindings()[node.name] ?? []) {
+		const declarator = binding.parentPath;
+		if (
+			declarator?.node.type !== 'VariableDeclarator' ||
+			declarator.node.id !== binding.node ||
+			binding.node.type !== 'Identifier'
+		) {
+			continue;
+		}
 
-			matchingDeclarations++;
-			const declaration = p.parentPath.node;
-			if (init) {
-				matchingDeclaration = p.node;
-				initializer = init as Expression;
-				isConstDeclaration =
-					declaration.type === 'VariableDeclaration' &&
-					declaration.kind === 'const';
-			}
-
-			return false;
-		},
-	});
+		matchingDeclarations++;
+		const declaration = declarator.parentPath.node;
+		if (declarator.node.init) {
+			matchingDeclaration = declarator.node;
+			initializer = declarator.node.init as Expression;
+			isConstDeclaration =
+				declaration.type === 'VariableDeclaration' &&
+				declaration.kind === 'const';
+		}
+	}
 
 	if (
 		matchingDeclarations !== 1 ||

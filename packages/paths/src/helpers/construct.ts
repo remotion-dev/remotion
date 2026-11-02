@@ -306,9 +306,9 @@ export const constructFromInstructions = (
 		if (instruction.type === 'q') {
 			if (instruction.cpdx === 0 && instruction.cpdy === 0) {
 				const linearCurve = makeLinearPosition({
-					x0: cur[0] + instruction.cpdx,
-					x1: cur[0] + instruction.cpdy,
-					y0: cur[1] + instruction.dx,
+					x0: cur[0],
+					x1: cur[0] + instruction.dx,
+					y0: cur[1],
 					y1: cur[1] + instruction.dy,
 				});
 				totalLength += linearCurve.getTotalLength();
@@ -359,7 +359,10 @@ export const constructFromInstructions = (
 				totalLength += linearCurve.getTotalLength();
 			}
 
-			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
+			// After a non-quadratic command, the control point is the current point
+			prev_point = prevWasQ
+				? [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]]
+				: [cur[0], cur[1]];
 			cur = [instruction.x, instruction.y];
 		}
 
@@ -392,7 +395,10 @@ export const constructFromInstructions = (
 				functions.push(linearCurve);
 			}
 
-			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
+			// After a non-quadratic command, the control point is the current point
+			prev_point = prevWasQ
+				? [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]]
+				: [cur[0], cur[1]];
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 		}
 

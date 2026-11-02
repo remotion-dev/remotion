@@ -24,9 +24,19 @@ export const MacBookScreen: React.FC<{
 	readonly height: number;
 	readonly left: number;
 	readonly showCameraNotch: boolean;
+	readonly showShadow: boolean;
 	readonly top: number;
 	readonly width: number;
-}> = ({borderRadius, children, height, left, showCameraNotch, top, width}) => {
+}> = ({
+	borderRadius,
+	children,
+	height,
+	left,
+	showCameraNotch,
+	showShadow,
+	top,
+	width,
+}) => {
 	return (
 		<Interactive.Div
 			name="Desktop / screen"
@@ -34,7 +44,7 @@ export const MacBookScreen: React.FC<{
 				backgroundColor: '#101114',
 				border: '1px solid #35373d',
 				borderRadius: borderRadius ?? 36,
-				boxShadow: '0 42px 90px rgba(15, 22, 35, 0.24)',
+				boxShadow: showShadow ? '0 42px 90px rgba(15, 22, 35, 0.24)' : 'none',
 				height,
 				left,
 				overflow: 'hidden',
@@ -106,6 +116,7 @@ export const MacBookDesktopScene = () => {
 			height={863}
 			left={282}
 			showCameraNotch
+			showShadow
 			top={70}
 			width={1356}
 		>

@@ -6,10 +6,20 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {FLANNEL_WEBGPU_SHADER} from './flannel-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -158,7 +168,7 @@ void main() {
 		return;
 	}
 
-	vec2 pixel = vUv * uResolution;
+	vec2 pixel = gl_FragCoord.xy;
 	vec2 plaid = pixel / max(uSize, 0.001);
 	float edge = mix(0.002, 0.08, uSoftness);
 
@@ -305,71 +315,114 @@ const normalizedRgba = (
 	color[3] / 255,
 ];
 
-export const flannel = createEffect<FlannelParams, FlannelState>({
+export const flannel = createEffect<FlannelParams>({
 	type: 'dev.remotion.effects.flannel',
 	label: 'flannel()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/flannel',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `flannel-${resolved.amount}-${resolved.size}-${resolved.softness}-${resolved.baseColor}-${resolved.stripeColor}`;
 	},
-	setup: setupFlannel,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const resolved = resolve(params);
-		if (state.cachedBaseColor !== resolved.baseColor) {
-			state.cachedBaseColor = resolved.baseColor;
-			state.cachedBaseColorRgba = parseColorRgba(
-				state.colorCtx,
-				resolved.baseColor,
-			);
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			FlannelParams,
+			WebGpuColorState
+		>({
+			setup: (target) => setupWebGpuColors(target, 'flannel'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the flannel effect');
+				const r = resolve(params);
+				const colors = getWebGpuColors(state, [r.baseColor, r.stripeColor]);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.amount,
+					r.size,
+					r.softness,
+					0,
+					0,
+					0,
+					colors[0] / 255,
+					colors[1] / 255,
+					colors[2] / 255,
+					colors[3] / 255,
+					colors[4] / 255,
+					colors[5] / 255,
+					colors[6] / 255,
+					colors[7] / 255,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: FLANNEL_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<FlannelParams, FlannelState>({
+			setup: setupFlannel,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const resolved = resolve(params);
+				if (state.cachedBaseColor !== resolved.baseColor) {
+					state.cachedBaseColor = resolved.baseColor;
+					state.cachedBaseColorRgba = parseColorRgba(
+						state.colorCtx,
+						resolved.baseColor,
+					);
+				}
 
-		if (state.cachedStripeColor !== resolved.stripeColor) {
-			state.cachedStripeColor = resolved.stripeColor;
-			state.cachedStripeColorRgba = parseColorRgba(
-				state.colorCtx,
-				resolved.stripeColor,
-			);
-		}
+				if (state.cachedStripeColor !== resolved.stripeColor) {
+					state.cachedStripeColor = resolved.stripeColor;
+					state.cachedStripeColorRgba = parseColorRgba(
+						state.colorCtx,
+						resolved.stripeColor,
+					);
+				}
 
-		const base = normalizedRgba(state.cachedBaseColorRgba);
-		const stripe = normalizedRgba(state.cachedStripeColorRgba);
-		const {gl} = state;
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
-		gl.useProgram(state.program);
-		gl.bindVertexArray(state.vao);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, state.texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uAmount) gl.uniform1f(state.uAmount, resolved.amount);
-		if (state.uSize) gl.uniform1f(state.uSize, resolved.size);
-		if (state.uSoftness) gl.uniform1f(state.uSoftness, resolved.softness);
-		if (state.uBaseColor) gl.uniform4f(state.uBaseColor, ...base);
-		if (state.uStripeColor) gl.uniform4f(state.uStripeColor, ...stripe);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				const base = normalizedRgba(state.cachedBaseColorRgba);
+				const stripe = normalizedRgba(state.cachedStripeColorRgba);
+				const {gl} = state;
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.useProgram(state.program);
+				gl.bindVertexArray(state.vao);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, state.texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uAmount) gl.uniform1f(state.uAmount, resolved.amount);
+				if (state.uSize) gl.uniform1f(state.uSize, resolved.size);
+				if (state.uSoftness) gl.uniform1f(state.uSoftness, resolved.softness);
+				if (state.uBaseColor) gl.uniform4f(state.uBaseColor, ...base);
+				if (state.uStripeColor) gl.uniform4f(state.uStripeColor, ...stripe);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: flannelSchema,
 	validateParams: validateFlannelParams,

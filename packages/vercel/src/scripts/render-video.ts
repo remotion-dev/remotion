@@ -33,6 +33,7 @@ type RenderVideoConfig = {
 	binariesDirectory: InternalRenderMediaOptions['binariesDirectory'];
 	metadata: InternalRenderMediaOptions['metadata'];
 	licenseKey: InternalRenderMediaOptions['licenseKey'];
+	isProduction: InternalRenderMediaOptions['isProduction'];
 	codec: InternalRenderMediaOptions['codec'];
 	videoBitrate: InternalRenderMediaOptions['videoBitrate'];
 	audioBitrate: InternalRenderMediaOptions['audioBitrate'];
@@ -53,6 +54,7 @@ type RenderVideoConfig = {
 	chromeMode: InternalRenderMediaOptions['chromeMode'];
 	offthreadVideoCacheSizeInBytes: InternalRenderMediaOptions['offthreadVideoCacheSizeInBytes'];
 	mediaCacheSizeInBytes: InternalRenderMediaOptions['mediaCacheSizeInBytes'];
+	preferredEffectBackend: InternalRenderMediaOptions['preferredEffectBackend'];
 	offthreadVideoThreads: InternalRenderMediaOptions['offthreadVideoThreads'];
 	repro: InternalRenderMediaOptions['repro'];
 	sampleRate: InternalRenderMediaOptions['sampleRate'];
@@ -169,6 +171,7 @@ try {
 			}),
 			chromeMode: config.chromeMode,
 			mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
+			preferredEffectBackend: config.preferredEffectBackend,
 			offthreadVideoCacheSizeInBytes: config.offthreadVideoCacheSizeInBytes,
 			offthreadVideoThreads: config.offthreadVideoThreads,
 		});
@@ -206,6 +209,7 @@ try {
 		binariesDirectory: config.binariesDirectory,
 		metadata: config.metadata,
 		licenseKey: config.licenseKey,
+		isProduction: config.isProduction,
 		videoBitrate: config.videoBitrate,
 		audioBitrate: config.audioBitrate,
 		encodingMaxRate: config.encodingMaxRate,
@@ -225,6 +229,7 @@ try {
 		chromeMode: config.chromeMode,
 		offthreadVideoCacheSizeInBytes: config.offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes: config.mediaCacheSizeInBytes,
+		preferredEffectBackend: config.preferredEffectBackend,
 		offthreadVideoThreads: config.offthreadVideoThreads,
 		repro: config.repro,
 		sampleRate: config.sampleRate,
@@ -259,7 +264,6 @@ try {
 		compositionStart: 0,
 		onArtifact: null,
 		onLog: RenderInternals.defaultOnLog,
-		isProduction: true,
 		onBrowserDownload: () => ({
 			version: null,
 			onProgress: noop,

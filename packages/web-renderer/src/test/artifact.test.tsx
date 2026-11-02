@@ -1,8 +1,8 @@
 import {Artifact, useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import type {EmittedArtifact} from '../artifact';
+import {renderFramesOnWeb, renderStillOnWeb} from '../index';
 import {renderMediaOnWeb} from '../render-media-on-web';
-import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
 test('should be able to render an artifact for still', async () => {
@@ -161,4 +161,63 @@ test('should succeed to render multiple artifacts with renderMediaOnWeb()', asyn
 			downloadBehavior: null,
 		},
 	]);
+});
+
+test('renderFramesOnWeb() emits uniquely named artifacts for each frame', async () => {
+	const Component: React.FC = () => {
+		const frame = useCurrentFrame();
+		return (
+			<Artifact filename={`frame-${frame}.txt`} content={`Frame ${frame}`} />
+		);
+	};
+
+	const artifacts: EmittedArtifact[] = [];
+
+	await renderFramesOnWeb({
+		licenseKey: 'free-license',
+		composition: {
+			component: Component,
+			id: 'batch-artifacts',
+			width: 10,
+			height: 10,
+			fps: 30,
+			durationInFrames: 30,
+		},
+		frames: [10, 0, 20],
+		onArtifact: (artifact) => artifacts.push(artifact),
+	});
+	expect(
+		artifacts.map(({filename, content, frame}) => ({filename, content, frame})),
+	).toEqual([
+		{filename: 'frame-0.txt', content: 'Frame 0', frame: 0},
+		{filename: 'frame-10.txt', content: 'Frame 10', frame: 10},
+		{filename: 'frame-20.txt', content: 'Frame 20', frame: 20},
+	]);
+});
+
+test('renderFramesOnWeb() rejects the same artifact filename on separate frames', async () => {
+	const Component: React.FC = () => {
+		return <Artifact filename="test.txt" content="Hello World!" />;
+	};
+
+	const artifacts: EmittedArtifact[] = [];
+
+	await expect(
+		renderFramesOnWeb({
+			licenseKey: 'free-license',
+			composition: {
+				component: Component,
+				id: 'batch-artifacts-duplicate',
+				width: 10,
+				height: 10,
+				fps: 30,
+				durationInFrames: 30,
+			},
+			frames: [10, 0],
+			onArtifact: (artifact) => artifacts.push(artifact),
+		}),
+	).rejects.toThrow(
+		'An artifact with output "test.txt" was already registered at frame 0, but now registered again at frame 10. Artifacts must have unique names. https://remotion.dev/docs/artifacts',
+	);
+	expect(artifacts.map(({frame}) => frame)).toEqual([0]);
 });

@@ -157,6 +157,7 @@ export const renderImageSequenceChunk = async ({
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+		preferredEffectBackend: params.preferredEffectBackend,
 		imageSequencePattern: null,
 		sampleRate: params.sampleRate,
 		onLog: RenderInternals.defaultOnLog,

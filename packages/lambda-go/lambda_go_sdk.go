@@ -41,12 +41,18 @@ func RenderFramesOnLambda(input RenderFramesOptions) (*RemotionRenderResponse, e
 		OffthreadVideoCacheSizeInBytes: input.OffthreadVideoCacheSizeInBytes,
 		OffthreadVideoThreads:          input.OffthreadVideoThreads,
 		MediaCacheSizeInBytes:          input.MediaCacheSizeInBytes,
+		PreferredEffectBackend:         input.PreferredEffectBackend,
 		EnableCancellation:             input.EnableCancellation,
 	}, &input)
 }
 
 func GetRenderProgress(input RenderConfig) (*RenderProgress, error) {
 	return invokeRenderProgressLambda(input)
+}
+
+// GetCompositionsOnLambda lists the compositions defined in a Remotion project.
+func GetCompositionsOnLambda(input *GetCompositionsOptions) (*GetCompositionsResponse, error) {
+	return invokeGetCompositionsLambda(input)
 }
 
 func CancelRenderOnLambda(input CancelRenderOnLambdaInput) error {

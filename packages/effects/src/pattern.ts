@@ -4,10 +4,17 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {PATTERN_WEBGPU_SHADER} from './pattern-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -359,9 +366,8 @@ void main() {
 	vec2 cropSize = max(cropEnd - cropStart, vec2(0.001));
 	vec2 tileSize = max(cropSize * uScale, vec2(0.001));
 	vec2 pitch = max(tileSize + uGap, vec2(0.001));
-	vec2 patternUv = vec2(vUv.x, 1.0 - vUv.y);
 	vec2 originPx = (uOrigin + uOffset) * uResolution;
-	vec2 fragPx = patternUv * uResolution;
+	vec2 fragPx = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y);
 
 	vec2 gridPx = fragPx - originPx;
 	vec2 cell = floor(gridPx / pitch);
@@ -437,148 +443,201 @@ const linkProgram = (
 	return program;
 };
 
-export const pattern = createEffect<PatternParams, PatternState>({
+export const pattern = createEffect<PatternParams>({
 	type: 'dev.remotion.effects.pattern',
 	label: 'pattern()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pattern',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `pattern-${r.scale}-${r.cropLeft}-${r.cropTop}-${r.cropRight}-${r.cropBottom}-${r.gapX}-${r.gapY}-${r.offsetU}-${r.offsetV}-${r.rowOffset}-${r.rowOffsetEvery}-${r.columnOffset}-${r.columnOffsetEvery}-${r.origin[0]}-${r.origin[1]}-${r.wrap ? 1 : 0}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('pattern effect');
-		}
-
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-
-		const vs = compileShader(gl, gl.VERTEX_SHADER, PATTERN_VS);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, PATTERN_FS);
-		const program = linkProgram(gl, vs, fs);
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
-
-		const vao = gl.createVertexArray();
-		if (!vao) {
-			throw new Error('Failed to create WebGL vertex array');
-		}
-
-		gl.bindVertexArray(vao);
-
-		const data = new Float32Array([
-			-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
-		]);
-
-		const vbo = gl.createBuffer();
-		if (!vbo) {
-			throw new Error('Failed to create WebGL buffer');
-		}
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-
-		const aPos = gl.getAttribLocation(program, 'aPos');
-		const aUv = gl.getAttribLocation(program, 'aUv');
-		gl.enableVertexAttribArray(aPos);
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(aUv);
-		gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
-
-		gl.bindVertexArray(null);
-
-		const texture = gl.createTexture();
-		if (!texture) {
-			throw new Error('Failed to create WebGL texture');
-		}
-
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-
-		return {
-			gl,
-			program,
-			vao,
-			vbo,
-			texture,
-			uniforms: {
-				uSource: gl.getUniformLocation(program, 'uSource'),
-				uResolution: gl.getUniformLocation(program, 'uResolution'),
-				uScale: gl.getUniformLocation(program, 'uScale'),
-				uCrop: gl.getUniformLocation(program, 'uCrop'),
-				uGap: gl.getUniformLocation(program, 'uGap'),
-				uOffset: gl.getUniformLocation(program, 'uOffset'),
-				uRowOffset: gl.getUniformLocation(program, 'uRowOffset'),
-				uColumnOffset: gl.getUniformLocation(program, 'uColumnOffset'),
-				uOrigin: gl.getUniformLocation(program, 'uOrigin'),
-				uWrap: gl.getUniformLocation(program, 'uWrap'),
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			PatternParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'pattern'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the pattern effect');
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.scale,
+					r.wrap ? 1 : 0,
+					r.cropLeft,
+					r.cropTop,
+					r.cropRight,
+					r.cropBottom,
+					r.gapX,
+					r.gapY,
+					r.offsetU,
+					r.offsetV,
+					r.rowOffset,
+					r.rowOffsetEvery,
+					r.columnOffset,
+					r.columnOffsetEvery,
+					r.origin[0],
+					r.origin[1],
+					0,
+					0,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: PATTERN_WEBGPU_SHADER,
+					uniformData,
+				});
 			},
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, texture, uniforms} = state;
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<PatternParams, PatternState>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('pattern effect');
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+				const vs = compileShader(gl, gl.VERTEX_SHADER, PATTERN_VS);
+				const fs = compileShader(gl, gl.FRAGMENT_SHADER, PATTERN_FS);
+				const program = linkProgram(gl, vs, fs);
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				const vao = gl.createVertexArray();
+				if (!vao) {
+					throw new Error('Failed to create WebGL vertex array');
+				}
 
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
-		if (uniforms.uCrop)
-			gl.uniform4f(
-				uniforms.uCrop,
-				r.cropLeft,
-				r.cropTop,
-				r.cropRight,
-				r.cropBottom,
-			);
-		if (uniforms.uGap) gl.uniform2f(uniforms.uGap, r.gapX, r.gapY);
-		if (uniforms.uOffset) gl.uniform2f(uniforms.uOffset, r.offsetU, r.offsetV);
-		if (uniforms.uRowOffset)
-			gl.uniform2f(uniforms.uRowOffset, r.rowOffset, r.rowOffsetEvery);
-		if (uniforms.uColumnOffset)
-			gl.uniform2f(uniforms.uColumnOffset, r.columnOffset, r.columnOffsetEvery);
-		if (uniforms.uOrigin)
-			gl.uniform2f(uniforms.uOrigin, r.origin[0], r.origin[1]);
-		if (uniforms.uWrap) gl.uniform1i(uniforms.uWrap, r.wrap ? 1 : 0);
+				gl.bindVertexArray(vao);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				const data = new Float32Array([
+					-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
+				]);
 
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
-		gl.deleteTexture(texture);
+				const vbo = gl.createBuffer();
+				if (!vbo) {
+					throw new Error('Failed to create WebGL buffer');
+				}
+
+				gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+				gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+				const aPos = gl.getAttribLocation(program, 'aPos');
+				const aUv = gl.getAttribLocation(program, 'aUv');
+				gl.enableVertexAttribArray(aPos);
+				gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+				gl.enableVertexAttribArray(aUv);
+				gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+
+				gl.bindVertexArray(null);
+
+				const texture = gl.createTexture();
+				if (!texture) {
+					throw new Error('Failed to create WebGL texture');
+				}
+
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+
+				return {
+					gl,
+					program,
+					vao,
+					vbo,
+					texture,
+					uniforms: {
+						uSource: gl.getUniformLocation(program, 'uSource'),
+						uResolution: gl.getUniformLocation(program, 'uResolution'),
+						uScale: gl.getUniformLocation(program, 'uScale'),
+						uCrop: gl.getUniformLocation(program, 'uCrop'),
+						uGap: gl.getUniformLocation(program, 'uGap'),
+						uOffset: gl.getUniformLocation(program, 'uOffset'),
+						uRowOffset: gl.getUniformLocation(program, 'uRowOffset'),
+						uColumnOffset: gl.getUniformLocation(program, 'uColumnOffset'),
+						uOrigin: gl.getUniformLocation(program, 'uOrigin'),
+						uWrap: gl.getUniformLocation(program, 'uWrap'),
+					},
+				};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, texture, uniforms} = state;
+
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
+
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uScale) gl.uniform1f(uniforms.uScale, r.scale);
+				if (uniforms.uCrop)
+					gl.uniform4f(
+						uniforms.uCrop,
+						r.cropLeft,
+						r.cropTop,
+						r.cropRight,
+						r.cropBottom,
+					);
+				if (uniforms.uGap) gl.uniform2f(uniforms.uGap, r.gapX, r.gapY);
+				if (uniforms.uOffset)
+					gl.uniform2f(uniforms.uOffset, r.offsetU, r.offsetV);
+				if (uniforms.uRowOffset)
+					gl.uniform2f(uniforms.uRowOffset, r.rowOffset, r.rowOffsetEvery);
+				if (uniforms.uColumnOffset)
+					gl.uniform2f(
+						uniforms.uColumnOffset,
+						r.columnOffset,
+						r.columnOffsetEvery,
+					);
+				if (uniforms.uOrigin)
+					gl.uniform2f(uniforms.uOrigin, r.origin[0], r.origin[1]);
+				if (uniforms.uWrap) gl.uniform1i(uniforms.uWrap, r.wrap ? 1 : 0);
+
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+				gl.deleteTexture(texture);
+			},
+		}),
 	},
 	schema: patternSchema,
 	validateParams: validatePatternParams,

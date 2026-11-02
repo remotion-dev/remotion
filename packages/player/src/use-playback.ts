@@ -181,6 +181,10 @@ export const usePlayback = ({
 			return;
 		}
 
+		if (muted) {
+			sharedAudioContext?.suspend?.();
+		}
+
 		// Duration and range changes update the endpoint without losing elapsed
 		// sub-frame time. A different composition or timebase needs a fresh clock.
 		const previousClock = playbackClockRef.current;

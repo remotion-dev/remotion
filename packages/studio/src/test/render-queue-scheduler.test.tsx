@@ -53,6 +53,7 @@ const makeStillParams = (compositionId: string): AddClientStillJobParams => ({
 	frame: 0,
 	inputProps: {},
 	delayRenderTimeout: 30_000,
+	preferredEffectBackend: 'auto',
 	mediaCacheSizeInBytes: null,
 	logLevel: 'info',
 	licenseKey: null,

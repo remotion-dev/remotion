@@ -291,7 +291,22 @@ export const parseDragData = (
 		const candidate = getDragPreviewMetadata(source.types);
 
 		if (candidate === null) {
-			return null;
+			// Safari hides custom MIME types when dragging between origins.
+			// Only accept the validated Element payload written by setStudioDragData.
+			const data = parseElementDragData(source.getData('text/plain'));
+			if (data === null || data.element.durationInFrames === undefined) {
+				return null;
+			}
+
+			return {
+				type: 'element',
+				data,
+				preview: {
+					type: 'element',
+					...(data.element.dimensions ?? {}),
+					durationInFrames: data.element.durationInFrames,
+				},
+			};
 		}
 
 		serialized = {

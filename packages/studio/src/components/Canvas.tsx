@@ -64,7 +64,10 @@ import {
 	isEffectDragOverTarget,
 	isLutEffectDrop,
 } from './effect-drag-and-drop';
-import {getElementDragData, hasElementDragType} from './element-drag-and-drop';
+import {
+	getElementDragData,
+	mayHaveElementDragData,
+} from './element-drag-and-drop';
 import {handleDrop} from './handle-drop';
 import {
 	hasSvgFile,
@@ -775,7 +778,7 @@ export const Canvas: React.FC<{
 				cannotAddSequence &&
 				canReceiveElementInstallRequest &&
 				!isAddingAsset &&
-				hasElementDragType(event.dataTransfer);
+				mayHaveElementDragData(event.dataTransfer);
 
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);

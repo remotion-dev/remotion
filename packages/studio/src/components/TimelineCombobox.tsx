@@ -15,8 +15,8 @@ const label: React.CSSProperties = {
 	flex: 'none',
 	fontFamily: 'inherit',
 	fontSize: 12,
+	fontVariantNumeric: 'tabular-nums',
 	lineHeight: '16px',
-	minWidth: 0,
 	overflow: 'hidden',
 	textAlign: 'left',
 	textOverflow: 'ellipsis',
@@ -30,6 +30,7 @@ type SelectionItem = Extract<ComboboxValue, {type: 'item'}>;
 export const TimelineCombobox: React.FC<{
 	readonly values: ComboboxValue[];
 	readonly selectedId: string | number;
+	readonly selectedLabel: string | null;
 	readonly 'aria-label': string;
 	readonly tooltipDelay: number | null;
 	readonly labelWidth?: number;
@@ -38,6 +39,7 @@ export const TimelineCombobox: React.FC<{
 }> = ({
 	values,
 	selectedId,
+	selectedLabel,
 	'aria-label': ariaLabel,
 	tooltipDelay,
 	labelWidth = 32,
@@ -47,6 +49,7 @@ export const TimelineCombobox: React.FC<{
 	const selected = values.find((value) => value.id === selectedId) as
 		| SelectionItem
 		| undefined;
+	const displayLabel = selectedLabel ?? selected?.label;
 	const segments: SegmentedButtonSegment[] = [
 		{
 			ariaLabel,
@@ -63,17 +66,17 @@ export const TimelineCombobox: React.FC<{
 							<Spacing x={0.5} />
 						</>
 					) : null}
-					{selected ? (
+					{selected || displayLabel ? (
 						<div
 							role="group"
 							aria-label={
-								tooltipDelay === null && typeof selected.label === 'string'
-									? selected.label
+								tooltipDelay === null && typeof displayLabel === 'string'
+									? displayLabel
 									: undefined
 							}
-							style={{...label, width: labelWidth}}
+							style={{...label, minWidth: labelWidth}}
 						>
-							{selected.label}
+							{displayLabel}
 						</div>
 					) : null}
 					<Spacing x={0.5} />

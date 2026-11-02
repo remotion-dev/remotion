@@ -17,7 +17,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--published-zip", type=Path, required=True)
     parser.add_argument("--version", help="Released version; defaults to latest stable")
+    parser.add_argument("--support-url", help="Override the published listing's support URL")
     args = parser.parse_args()
+    if args.support_url is not None and (
+        not args.support_url.startswith("https://") or len(args.support_url) > 1024
+    ):
+        parser.error("--support-url must be an HTTPS URL of at most 1024 characters")
 
     def api(endpoint):
         result = subprocess.run(["gh", "api", endpoint], capture_output=True)
@@ -94,6 +99,11 @@ def main():
                 }
             manifest[key] = published[key]
 
+    if args.support_url is not None:
+        manifest["interface"] = {
+            **manifest.get("interface", {}), "supportURL": args.support_url
+        }
+
     # Listing image paths may have been normalized by the directory. Copy the
     # exact files those preserved paths reference from the downloaded release.
     pending = [manifest.get("interface", {}), manifest.get("extensions", {})]
@@ -155,6 +165,7 @@ def main():
         "file_count": len(files),
         "skills": [PurePosixPath(path).parts[1] for path in skill_paths],
         "preserved_manifest_differences": preserved_differences,
+        "support_url_override": args.support_url,
     }
     (output / "preparation.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))

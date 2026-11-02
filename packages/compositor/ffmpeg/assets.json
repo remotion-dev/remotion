@@ -1,0 +1,116 @@
+{
+	"archives": {
+		"aarch64-apple-darwin": {
+			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/aarch64-apple-darwin.gz",
+			"size": 8256028,
+			"sha256": "b2052d87678a1e06ea432757e8a0e22d4e4d9fd0ccd15d7c494e904b6152dbdb"
+		},
+		"aarch64-unknown-linux-gnu": {
+			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/aarch64-unknown-linux-gnu.gz",
+			"size": 6831560,
+			"sha256": "c1764224c801a417a80513e92d1910370a9364e0d3fb476693b89f5725d1226a"
+		},
+		"aarch64-unknown-linux-musl": {
+			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/aarch64-unknown-linux-musl.gz",
+			"size": 8525508,
+			"sha256": "5a1d30f3fcf31dda73bb6b6ce00b4a59487ca60ea42975369367fb6c3bf78ae0"
+		},
+		"x86_64-apple-darwin": {
+			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/x86_64-apple-darwin.gz",
+			"size": 9594065,
+			"sha256": "43d7240b510775b8b2f07ad543e590abb868b36c28f59f81b7db4ce5699c4949"
+		},
+		"x86_64-pc-windows-gnu": {
+			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/x86_64-pc-windows-gnu.gz",
+			"size": 11106344,
+			"sha256": "3dcf768bc9b390cd974a230d80e04a85bb7dd52eedbf81fcc01243578e067189"
+		},
+		"x86_64-unknown-linux-gnu": {
+			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/x86_64-unknown-linux-gnu.gz",
+			"size": 10305037,
+			"sha256": "a783026eb2af535e05c7e2d4e62500e24471d1edee782a87a6e09412b95a42ea"
+		},
+		"x86_64-unknown-linux-musl": {
+			"url": "https://remotion.media/ffmpeg/archives/e7f864a5d93368a984cda5d73be52a13edb6cc4c/x86_64-unknown-linux-musl.gz",
+			"size": 10639399,
+			"sha256": "a1b24a640a29e9580eb7a9851956e990d96557f1697af5e7aefb26dd50098f5d"
+		}
+	},
+	"buildInputs": {
+		"libgcc_s_seh-1.dll": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/libgcc_s_seh-1.dll",
+			"size": 83150,
+			"sha256": "e298fa2e8729b17208ccd20b585b01ef58d10fb050eb03c72fdb04ea5462e766"
+		},
+		"libmp3lame.zip": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/libmp3lame.zip",
+			"size": 1754127,
+			"sha256": "200d00fb6b7b4cc65a0fe8289a4bb56b50f5c1f2ac2c3eafa839e6ae8fcc0e30"
+		},
+		"libssp-0.dll": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/libssp-0.dll",
+			"size": 43431,
+			"sha256": "647dbde6fe577e2d8710f96510556c2405a42a4f10fc30e4e10521ce036584b4"
+		},
+		"libstdc++-6.dll": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/libstdc++-6.dll",
+			"size": 1444997,
+			"sha256": "821e40488ee797e29d173e42d5bec669203fd9676a687acf3d0a21a7a1446b28"
+		},
+		"libvpx-1.dll": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/libvpx-1.dll",
+			"size": 3419339,
+			"sha256": "6656164716a3deeba19d18b47f31acb16ccc628d225aa06e8bd29da80fa6d83f"
+		},
+		"libwinpthread-1.dll": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/libwinpthread-1.dll",
+			"size": 58621,
+			"sha256": "707e0add151c8d7e150a3fe0ba8c0c562505c3859f687b82de8a1af6c2b3bb73"
+		},
+		"msvcr100.dll": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/msvcr100.dll",
+			"size": 830616,
+			"sha256": "2b7ab898b2f64f4cd1ae651c93d7eb9556208fd8d8d40d425e856c83d86d2346"
+		},
+		"opus.gz": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/opus.gz",
+			"size": 1040054,
+			"sha256": "65b58e1e25b2a114157014736a3d9dfeaad8d41be1c8179866f144a2fb44ff9d"
+		},
+		"sample-5s.webm": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/sample-5s.webm",
+			"size": 6687499,
+			"sha256": "475c15a79379c070faa977e5ed61eb25d4ff198f0249a105f3190da6b69fdfa6"
+		},
+		"sample-av1.webm": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/sample-av1.webm",
+			"size": 18508946,
+			"sha256": "9a2c220e14317dab02895f35d590678c88af36900866453f7f574a7262abe608"
+		},
+		"sample.mp4": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/sample.mp4",
+			"size": 1570024,
+			"sha256": "71944d7430c461f0cd6e7fd10cee7eb72786352a3678fc7bc0ae3d410f72aece"
+		},
+		"vpx-windows.tar.gz": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/vpx-windows.tar.gz",
+			"size": 9838080,
+			"sha256": "9536f4db2016e6ec81241dbc3cfe436fd522acb24c7e64b233df05c0b2c5de5c"
+		},
+		"vpx.gz": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/vpx.gz",
+			"size": 5465627,
+			"sha256": "f1acc15d0fd0cb431f4bf6eac32d5e932e40ea1186fe78e074254d6d003957bb"
+		},
+		"x265-windows/lib/libx265.a": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/x265-windows/lib/libx265.a",
+			"size": 8076388,
+			"sha256": "9588be7845bc778027f0beb3bc64eadaf1e3d8b64d7e1fcf4951596e49a444ce"
+		},
+		"zlib1.dll": {
+			"url": "https://remotion.media/ffmpeg/buildInputs/50b6a0c0e7e3076e33044254b560f466b67cd245/zlib1.dll",
+			"size": 88888,
+			"sha256": "0ab6e9f64123d6a9d80ec6a5f590effe9f1858f84dab92e9c02c2c72c8cfd131"
+		}
+	}
+}

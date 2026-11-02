@@ -1,5 +1,5 @@
 import {readFileSync} from 'node:fs';
-import {canPrecomposeJsxNodes, precomposeJsxNodes} from '@remotion/codemods';
+import {precomposeJsxNodes} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	PrecomposeJsxNodesRequest,
@@ -32,6 +32,7 @@ export const precomposeJsxNodesHandler: ApiHandler<
 		compositionId,
 		metadata,
 		existingCompositionIds,
+		name,
 	},
 	remotionRoot,
 	logLevel,
@@ -87,17 +88,8 @@ export const precomposeJsxNodesHandler: ApiHandler<
 				compositionId,
 				metadata,
 				existingCompositionIds,
+				name,
 			};
-			if (dryRun) {
-				const eligibility = canPrecomposeJsxNodes(codemodInput);
-				return Promise.resolve({
-					success: true,
-					...eligibility,
-					nodePathMutation: null,
-					newCompositionId: null,
-				});
-			}
-
 			let result;
 			try {
 				result = precomposeJsxNodes(codemodInput);
@@ -106,8 +98,21 @@ export const precomposeJsxNodesHandler: ApiHandler<
 					success: true,
 					canPrecompose: false,
 					reason: error instanceof Error ? error.message : String(error),
+					invalidName:
+						error instanceof Error && error.name === 'PrecomposeNameError',
 					nodePathMutation: null,
 					newCompositionId: null,
+				});
+			}
+
+			if (dryRun) {
+				return Promise.resolve({
+					success: true,
+					canPrecompose: true,
+					reason: null,
+					invalidName: false,
+					nodePathMutation: null,
+					newCompositionId: result.newCompositionId,
 				});
 			}
 
@@ -235,6 +240,7 @@ export const precomposeJsxNodesHandler: ApiHandler<
 				success: true,
 				canPrecompose: true,
 				reason: null,
+				invalidName: false,
 				nodePathMutation,
 				newCompositionId: result.newCompositionId,
 			});

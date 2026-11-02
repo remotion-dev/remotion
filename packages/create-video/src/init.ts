@@ -1,5 +1,6 @@
 import {spawnSync} from 'node:child_process';
 import fs from 'node:fs';
+import {homedir} from 'node:os';
 import path from 'node:path';
 import chalk from 'chalk';
 import execa from 'execa';
@@ -174,6 +175,33 @@ export const init = async () => {
 			repoName: selectedTemplate.repoName,
 			dest: projectRoot,
 		});
+		const [nodeMajor = 0, nodeMinor = 0] = process.versions.node
+			.split('.')
+			.map(Number);
+		const supportsRspack =
+			pkgManager === 'bun' ||
+			(nodeMajor === 20 && nodeMinor >= 19) ||
+			(nodeMajor === 22 && nodeMinor >= 12) ||
+			nodeMajor > 22;
+		if (!supportsRspack) {
+			// Templates enable Rspack, but older Node.js versions need Webpack.
+			for (const name of ['remotion.config.ts', 'remotion.config.js']) {
+				const configFile = path.join(projectRoot, name);
+				if (!fs.existsSync(configFile)) {
+					continue;
+				}
+
+				const config = fs.readFileSync(configFile, 'utf-8');
+				const updatedConfig = config.replace(
+					/Config\.setRspack\(\s*true\s*\)/g,
+					'Config.setRspack(false)',
+				);
+				if (updatedConfig !== config) {
+					fs.writeFileSync(configFile, updatedConfig);
+				}
+			}
+		}
+
 		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
 		if (shouldOverrideTailwind) {
 			addTailwindToConfig(projectRoot);
@@ -230,6 +258,46 @@ export const init = async () => {
 
 	if (skillsInstallation !== null) {
 		await installSkills(projectRoot, skillsInstallation);
+
+		const projectSkills = path.join(projectRoot, '.claude', 'skills');
+		const globalSkills = path.join(
+			process.env.CLAUDE_CONFIG_DIR || path.join(homedir(), '.claude'),
+			'skills',
+		);
+		const readSkillVersion = (skillFile: string) =>
+			fs
+				.readFileSync(skillFile, 'utf8')
+				.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1]
+				?.match(/^version:\s*['"]?([^\s'"]+)/m)?.[1] ?? null;
+		try {
+			if (projectSkills !== globalSkills && fs.existsSync(projectSkills)) {
+				const shadowedSkills = fs.readdirSync(projectSkills).filter((name) => {
+					const projectSkill = path.join(projectSkills, name, 'SKILL.md');
+					const globalSkill = path.join(globalSkills, name, 'SKILL.md');
+					if (
+						!name.startsWith('remotion-') ||
+						!fs.existsSync(projectSkill) ||
+						!fs.existsSync(globalSkill)
+					) {
+						return false;
+					}
+
+					const projectVersion = readSkillVersion(projectSkill);
+					return (
+						projectVersion === null ||
+						projectVersion !== readSkillVersion(globalSkill)
+					);
+				});
+				if (shadowedSkills.length > 0) {
+					const plural = shadowedSkills.length > 1;
+					Log.warn(
+						`Claude Code uses the global skill${plural ? 's' : ''} ${shadowedSkills.join(', ')} from ${globalSkills} and ignores this project's ${plural ? 'copies' : 'copy'}. Update or remove the global ${plural ? 'copies' : 'copy'}. If installed with "npx skills add -g", ${plural ? 'they are symlinks' : 'it is a symlink'} to ${path.join(homedir(), '.agents', 'skills')}.`,
+					);
+				}
+			}
+		} catch {
+			// Never fail project creation because of an unreadable skills directory.
+		}
 	}
 
 	const relativeToCurrent = path.relative(process.cwd(), projectRoot);

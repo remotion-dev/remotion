@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {createColorMatrixImplementations} from './color-matrix-runtime.js';
 import {
 	assertOptionalFiniteNumber,
 	colorAmountSchema,
@@ -35,32 +36,57 @@ const validateInvertParams = (params: InvertParams): void => {
 	validateUnitInterval(amount, 'amount');
 };
 
-export const invert = createEffect<InvertParams, null>({
+export const invert = createEffect<InvertParams>({
 	type: 'dev.remotion.effects.invert',
 	label: 'invert()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/invert',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `invert-${r.amount}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for invert effect. The canvas may have been assigned a different context type.',
-			);
-		}
+	implementations: {
+		...createColorMatrixImplementations<InvertParams>('invert', (params) => {
+			const {amount} = resolve(params);
+			const factor = 1 - 2 * amount;
+			return new Float32Array([
+				factor,
+				0,
+				0,
+				amount,
+				0,
+				factor,
+				0,
+				amount,
+				0,
+				0,
+				factor,
+				amount,
+				0,
+				0,
+				amount === 0 ? 1 : 0,
+				0,
+			]);
+		}),
+		'2d': Internals.createEffectImplementation<InvertParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const ctx = target.getContext('2d');
+				if (!ctx) {
+					throw new Error(
+						'Failed to acquire 2D context for invert effect. The canvas may have been assigned a different context type.',
+					);
+				}
 
-		const r = resolve(params);
+				const r = resolve(params);
 
-		ctx.clearRect(0, 0, width, height);
-		ctx.filter = `invert(${r.amount * 100}%)`;
-		ctx.drawImage(source, 0, 0, width, height);
-		ctx.filter = 'none';
+				ctx.clearRect(0, 0, width, height);
+				ctx.filter = `invert(${r.amount * 100}%)`;
+				ctx.drawImage(source, 0, 0, width, height);
+				ctx.filter = 'none';
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: invertSchema,
 	validateParams: validateInvertParams,
 });

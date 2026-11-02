@@ -7,6 +7,7 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {PreferredEffectBackend} from 'remotion/no-react';
 import type {VideoConfig} from 'remotion/no-react';
 import {NoReactInternals} from 'remotion/no-react';
 import {getChromiumPath} from './helpers/get-chromium-path';
@@ -28,6 +29,7 @@ type ValidateCompositionOptions = {
 	server: RemotionServer | undefined;
 	offthreadVideoCacheSizeInBytes: number | null;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	offthreadVideoThreads: number | null;
 	onBrowserDownload: OnBrowserDownload;
 	onServeUrlVisited: () => void;
@@ -53,6 +55,7 @@ export const validateComposition = async ({
 	onServeUrlVisited,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 }: ValidateCompositionOptions): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
@@ -75,6 +78,7 @@ export const validateComposition = async ({
 		onServeUrlVisited,
 		chromeMode: 'headless-shell',
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 	});
 
 	const videoConfig: VideoConfig = {

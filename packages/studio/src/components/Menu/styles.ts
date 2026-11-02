@@ -10,6 +10,14 @@ import {
 export const MENU_VERTICAL_PADDING = 4;
 export const SUBMENU_LEFT_INSET = -8;
 
+export const menuItemLeftSpace: React.CSSProperties = {
+	width: 20,
+	marginLeft: -2,
+	display: 'inline-flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+};
+
 export const MAX_MENU_WIDTH = 400;
 export const MAX_MOBILE_MENU_WIDTH = 300;
 

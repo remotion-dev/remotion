@@ -729,12 +729,13 @@ export type EasingEditorState = {
 	selections: TimelineSelection[];
 };
 
-export const EasingEditor: React.FC<{
+const EasingEditorUnmemoized: React.FC<{
 	readonly state: EasingEditorState;
+	readonly easingUpdate: SelectedEasingUpdate;
 	readonly renderHeader?: (
 		modeItems: SegmentedControlItem[],
 	) => React.ReactNode;
-}> = ({state, renderHeader}) => {
+}> = ({state, easingUpdate, renderHeader}) => {
 	const calculateTimeline = useTimelineCalculator();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
@@ -1178,7 +1179,7 @@ export const EasingEditor: React.FC<{
 	);
 
 	const disabled = previewServerState.type !== 'connected';
-	const graphLabels = getEasingGraphLabels(getCurrentEasingUpdates());
+	const graphLabels = getEasingGraphLabels([easingUpdate]);
 	const currentEasing = useMemo(() => {
 		if (mode === 'spring') {
 			return serializeSpring(spring);
@@ -1301,6 +1302,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>X1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[0]}
 									status="ok"
@@ -1324,6 +1326,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Y1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[1]}
 									status="ok"
@@ -1347,6 +1350,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>X2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[2]}
 									status="ok"
@@ -1370,6 +1374,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Y2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[3]}
 									status="ok"
@@ -1411,6 +1416,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Damping</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={spring.damping}
 									status="ok"
@@ -1437,6 +1443,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Mass</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={spring.mass}
 									status="ok"
@@ -1463,6 +1470,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Stiffness</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={spring.stiffness}
 									status="ok"
@@ -1489,6 +1497,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Rest threshold</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={
 										spring.durationRestThreshold ??
@@ -1562,3 +1571,5 @@ export const EasingEditor: React.FC<{
 		</div>
 	);
 };
+
+export const EasingEditor = React.memo(EasingEditorUnmemoized);

@@ -348,6 +348,7 @@ export const EasingInspector: React.FC<{
 			<EasingEditor
 				key={getTimelineSelectionKey(currentEasingSelection)}
 				state={state}
+				easingUpdate={easingUpdate}
 				renderHeader={renderHeader}
 			/>
 			<KeyframeSettings update={easingUpdate} />

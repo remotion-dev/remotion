@@ -210,7 +210,12 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 					);
 				}
 
-				const blob = await res.blob();
+				// Chrome 158's Network inspector retains Response.blob() bodies even
+				// after their object URLs are revoked. Read bytes first to avoid this.
+				// https://chromium-review.googlesource.com/c/chromium/src/+/8451629
+				const blob = new Blob([await res.arrayBuffer()], {
+					type: res.headers.get('Content-Type') ?? '',
+				});
 
 				const url = URL.createObjectURL(blob);
 				cleanup.push(() => URL.revokeObjectURL(url));

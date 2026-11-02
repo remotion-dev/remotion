@@ -25,6 +25,12 @@ module RemotionLambda
       body
     end
 
+    def get_compositions_on_lambda(function_name, payload)
+      body = invoke(function_name, payload)      
+      raise "Failed to call getCompositionsOnLambda: #{body['message']}" if body["type"] == "error"
+      body
+    end
+
     def render_media_on_lambda(function_name, payload)
       body = invoke(function_name, payload)      
       raise "Failed to call renderMediaOnLambda: #{body['message']}" if body["type"] == "error"

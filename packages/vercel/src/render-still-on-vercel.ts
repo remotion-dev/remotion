@@ -1,4 +1,5 @@
 import type {Sandbox} from '@vercel/sandbox';
+import type {PreferredEffectBackend} from 'remotion';
 import {REMOTION_SANDBOX_BUNDLE_DIR} from './internals/add-bundle';
 import type {
 	ChromiumOptions,
@@ -24,8 +25,10 @@ export async function renderStillOnVercel({
 	timeoutInMilliseconds = 30000,
 	offthreadVideoCacheSizeInBytes,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	offthreadVideoThreads,
 	licenseKey,
+	isProduction,
 }: {
 	sandbox: Sandbox;
 	compositionId: string;
@@ -42,8 +45,10 @@ export async function renderStillOnVercel({
 	timeoutInMilliseconds?: number;
 	offthreadVideoCacheSizeInBytes?: number | null;
 	mediaCacheSizeInBytes?: number | null;
+	preferredEffectBackend?: PreferredEffectBackend;
 	offthreadVideoThreads?: number | null;
 	licenseKey?: string | null;
+	isProduction?: boolean;
 }): Promise<{sandboxFilePath: string; contentType: string}> {
 	const serveUrl = `/vercel/sandbox/${REMOTION_SANDBOX_BUNDLE_DIR}`;
 
@@ -62,8 +67,10 @@ export async function renderStillOnVercel({
 		timeoutInMilliseconds,
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		licenseKey: licenseKey ?? null,
+		isProduction: isProduction ?? null,
 		chromeMode: 'headless-shell',
 		browserExecutable: null,
 		binariesDirectory: null,

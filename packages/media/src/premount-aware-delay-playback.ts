@@ -10,6 +10,7 @@ type TrackedDelayHandle = {
 export class PremountAwareDelayPlayback {
 	private isPremounting: boolean;
 	private isPostmounting: boolean;
+	private disposed = false;
 	private readonly activeHandles = new Set<TrackedDelayHandle>();
 	private readonly delayPlayback: ReturnType<
 		typeof useBufferState
@@ -30,7 +31,14 @@ export class PremountAwareDelayPlayback {
 	}
 
 	private shouldDelayPlayback(): boolean {
-		return !this.isPremounting && !this.isPostmounting;
+		return !this.disposed && !this.isPremounting && !this.isPostmounting;
+	}
+
+	public dispose(): void {
+		this.disposed = true;
+		for (const handle of this.activeHandles) {
+			handle.dispose();
+		}
 	}
 
 	private syncHandles(): void {

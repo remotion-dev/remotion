@@ -1,7 +1,8 @@
 import {afterEach, expect, test} from 'bun:test';
 import {act, cleanup, render} from '@testing-library/react';
 import type React from 'react';
-import {useContext} from 'react';
+import {StrictMode, useContext} from 'react';
+import {renderToString} from 'react-dom/server';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -21,10 +22,16 @@ const previewEnvironment = {
 	isStudio: false,
 };
 
+const contexts: TrackedAudioContext[] = [];
 let nativeSuspendCalls = 0;
 let gainValues: number[] = [];
 
 class TrackedAudioContext {
+	public closeCalls = 0;
+	constructor() {
+		contexts.push(this);
+	}
+
 	public state = 'suspended' as AudioContextState;
 	public baseLatency = 0;
 	public outputLatency = 0;
@@ -39,9 +46,16 @@ class TrackedAudioContext {
 		return undefined;
 	}
 
+	close() {
+		this.closeCalls++;
+		this.state = 'closed';
+		return Promise.resolve();
+	}
+
 	createGain() {
 		return {
 			connect: () => undefined,
+			disconnect: () => undefined,
 			gain: {
 				cancelScheduledValues: () => undefined,
 				linearRampToValueAtTime: () => undefined,
@@ -100,7 +114,10 @@ const scheduleAt = (
 	});
 };
 
-const renderProvider = (_experimentalKeepAudioContextAlive: boolean) => {
+const renderProvider = (
+	_experimentalKeepAudioContextAlive: boolean,
+	strict = false,
+) => {
 	const ref: {
 		current: NonNullable<React.ContextType<typeof SharedAudioContext>> | null;
 	} = {current: null};
@@ -110,7 +127,7 @@ const renderProvider = (_experimentalKeepAudioContextAlive: boolean) => {
 		return null;
 	};
 
-	render(
+	const tree = (
 		<RemotionEnvironmentContext.Provider value={previewEnvironment}>
 			<WrapSequenceContext>
 				<SharedAudioContextProvider
@@ -124,8 +141,10 @@ const renderProvider = (_experimentalKeepAudioContextAlive: boolean) => {
 					<Probe />
 				</SharedAudioContextProvider>
 			</WrapSequenceContext>
-		</RemotionEnvironmentContext.Provider>,
+		</RemotionEnvironmentContext.Provider>
 	);
+
+	render(strict ? <StrictMode>{tree}</StrictMode> : tree);
 
 	if (!ref.current) {
 		throw new Error('Expected the shared audio context to be available');
@@ -134,7 +153,7 @@ const renderProvider = (_experimentalKeepAudioContextAlive: boolean) => {
 	return ref.current;
 };
 
-const withMockedAudioContext = async (fn: () => Promise<void>) => {
+const withMockedAudioContext = async (fn: () => Promise<void> | void) => {
 	const originalAudioContext = globalThis.AudioContext;
 	globalThis.AudioContext =
 		TrackedAudioContext as unknown as typeof AudioContext;
@@ -214,5 +233,52 @@ test('_experimentalKeepAudioContextAlive queues nodes scheduled while silenced',
 			await Promise.resolve();
 		});
 		expect(startedWhileSilenced).toEqual([2]);
+	});
+});
+
+// Repeated Player closure leaked every context; StrictMode also allocated an
+// abandoned render-time context. Every committed resource must have one owner.
+test.each([false, true])(
+	'closes every context after repeated mounts (StrictMode=%s)',
+	async (strict) => {
+		await withMockedAudioContext(async () => {
+			contexts.length = 0;
+			for (let cycle = 0; cycle < 3; cycle++) {
+				const value = renderProvider(false, strict);
+				expect(value.audioContext?.state).toBe('suspended');
+				expect(
+					contexts.filter((context) => context.state !== 'closed'),
+				).toHaveLength(1);
+				await act(async () => {
+					await value.resume();
+				});
+				expect(value.audioContext?.state).toBe('running');
+				cleanup();
+				expect(contexts.every((context) => context.closeCalls === 1)).toBe(
+					true,
+				);
+			}
+		});
+	},
+);
+
+test('an uncommitted preview render allocates no AudioContext', async () => {
+	await withMockedAudioContext(() => {
+		contexts.length = 0;
+		renderToString(
+			<RemotionEnvironmentContext.Provider value={previewEnvironment}>
+				<WrapSequenceContext>
+					<SharedAudioContextProvider
+						audioEnabled
+						audioLatencyHint="interactive"
+						previewSampleRate={null}
+						_experimentalKeepAudioContextAlive={false}
+					>
+						<div />
+					</SharedAudioContextProvider>
+				</WrapSequenceContext>
+			</RemotionEnvironmentContext.Provider>,
+		);
+		expect(contexts).toHaveLength(0);
 	});
 });

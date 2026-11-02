@@ -72,6 +72,7 @@ import {packageManagerOption} from './package-manager';
 import {pixelFormatOption} from './pixel-format';
 import {portOption} from './port';
 import {preferLosslessAudioOption} from './prefer-lossless';
+import {preferredEffectBackendOption} from './preferred-effect-backend';
 import {preservePitchOnPlaybackOption} from './preserve-pitch-on-playback';
 import {previewSampleRateOption} from './preview-sample-rate';
 import {propsOption} from './props';
@@ -169,6 +170,7 @@ export const allOptions = {
 	ignoreCertificateErrorsOption,
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	defaultCodingAgentOption,
 	defaultEditorOption,

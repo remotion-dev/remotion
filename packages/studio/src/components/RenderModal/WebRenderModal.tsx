@@ -16,6 +16,7 @@ import {
 	isAudioOnlyContainer,
 } from '@remotion/web-renderer';
 import {useCallback, useContext, useMemo, useState} from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
@@ -67,6 +68,7 @@ import {WebRenderModalPicture} from './WebRenderModalPicture';
 
 type WebRenderModalProps = {
 	readonly compositionId: string;
+	readonly initialRenderType: 'still' | 'video' | null;
 	readonly initialFrame: number;
 	readonly initialLogLevel: LogLevel;
 	readonly defaultProps: Record<string, unknown>;
@@ -86,6 +88,7 @@ type WebRenderModalProps = {
 	readonly initialTransparent: boolean | null;
 	readonly initialMuted: boolean | null;
 	readonly initialMediaCacheSizeInBytes: number | null;
+	readonly initialPreferredEffectBackend: PreferredEffectBackend;
 	readonly initialAllowHtmlInCanvas: boolean;
 	readonly initialPageResponsiveness: WebRendererPageResponsiveness;
 };
@@ -165,6 +168,7 @@ const validateOutnameForStill = ({
 // TODO: Apply defaultCodec
 // TODO: Apply defaultOutName
 const WebRenderModal: React.FC<WebRenderModalProps> = ({
+	initialRenderType,
 	initialFrame,
 	defaultProps,
 	inFrameMark,
@@ -175,6 +179,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	initialScale,
 	initialDelayRenderTimeout,
 	initialMediaCacheSizeInBytes,
+	initialPreferredEffectBackend,
 	initialContainer,
 	initialVideoCodec,
 	initialAudioCodec,
@@ -217,11 +222,11 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	});
 
 	const [renderMode, setRenderMode] = useState<RenderType>(
-		initialContainer && isAudioOnlyContainer(initialContainer)
-			? 'audio'
-			: isVideo
-				? 'video'
-				: 'still',
+		initialRenderType === 'still'
+			? 'still'
+			: initialContainer && isAudioOnlyContainer(initialContainer)
+				? 'audio'
+				: (initialRenderType ?? (isVideo ? 'video' : 'still')),
 	);
 	const [tab, setTab] = useState<TabType>('general');
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
@@ -245,6 +250,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
 		initialDelayRenderTimeout ?? 30000,
 	);
+	const preferredEffectBackend = initialPreferredEffectBackend;
 	const [mediaCacheSizeInBytes, setMediaCacheSizeInBytes] = useState<
 		number | null
 	>(initialMediaCacheSizeInBytes);
@@ -557,6 +563,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					inputProps,
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					logLevel,
 					licenseKey: publicLicenseKey,
 					scale,
@@ -586,6 +593,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 					inputProps,
 					delayRenderTimeout,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					logLevel,
 					licenseKey: publicLicenseKey,
 					scale,
@@ -617,6 +625,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		inputProps,
 		delayRenderTimeout,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		logLevel,
 		publicLicenseKey,
 		container,

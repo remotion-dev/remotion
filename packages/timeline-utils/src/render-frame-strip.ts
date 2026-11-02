@@ -4,6 +4,7 @@ import {
 	getFrameDatabaseKeyPrefix,
 	makeFrameDatabaseKey,
 	mediaDurationCache,
+	type VideoFrameAndLastUsed,
 } from './frame-database';
 
 export const WEBCODECS_TIMESCALE = 1_000_000;
@@ -70,6 +71,57 @@ export const getSlotTolerance = (slots: number[]) => {
 
 	const [first, second] = [...slots].sort((a, b) => a - b);
 	return Math.max(MAX_TIME_DEVIATION, (second - first) / 2);
+};
+
+export const getCachedFrames = ({
+	src,
+	height,
+}: {
+	src: string;
+	height: number | null;
+}) => {
+	const prefix = getFrameDatabaseKeyPrefix(src);
+	const frames: VideoFrameAndLastUsed[] = [];
+	for (const [key, entry] of frameDatabase) {
+		if (
+			key.startsWith(prefix) &&
+			(height === null || entry.frame.displayHeight === height)
+		) {
+			frames.push(entry);
+		}
+	}
+
+	return frames;
+};
+
+export const findBestCachedFrame = ({
+	src,
+	frames,
+	timestamp,
+}: {
+	src: string;
+	frames: VideoFrameAndLastUsed[];
+	timestamp: number;
+}) => {
+	let best: VideoFrameAndLastUsed | null = null;
+	let distance = Infinity;
+	for (const candidate of frames) {
+		const candidateDistance = getFrameDistance({
+			src,
+			frameTimestamp: candidate.frame.timestamp,
+			frameDuration: candidate.frame.duration,
+			slot: timestamp,
+		});
+		if (candidateDistance < distance) {
+			best = candidate;
+			distance = candidateDistance;
+			if (distance === 0) {
+				break;
+			}
+		}
+	}
+
+	return {entry: best, distance};
 };
 
 // Slots that are filled with a frame that is too far away, for example after
@@ -194,6 +246,8 @@ export const drawSlot = ({
 	devicePixelRatio,
 	frameHeight,
 	horizontalOffset,
+	aspectRatio = null,
+	clearBeforeDraw = false,
 }: {
 	frame: VideoFrame;
 	ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
@@ -205,17 +259,22 @@ export const drawSlot = ({
 	devicePixelRatio: number;
 	frameHeight: number;
 	horizontalOffset: number;
+	aspectRatio?: number | null;
+	clearBeforeDraw?: boolean;
 }) => {
 	const durationOfOneFrame = getDurationOfOneFrame({
 		visualizationWidth,
-		aspectRatio: frame.displayWidth / frame.displayHeight,
+		aspectRatio: aspectRatio ?? frame.displayWidth / frame.displayHeight,
 		segmentDuration,
 		frameHeight,
 	});
 
 	const relativeTimestamp = timestamp - fromSeconds * WEBCODECS_TIMESCALE;
 	const frameIndex = relativeTimestamp / durationOfOneFrame;
-	const thumbnailWidth = frame.displayWidth / devicePixelRatio;
+	const thumbnailWidth =
+		aspectRatio === null
+			? frame.displayWidth / devicePixelRatio
+			: (frame.displayHeight * aspectRatio) / devicePixelRatio;
 	const idealLeft = frameIndex * thumbnailWidth;
 	const idealRight = idealLeft + thumbnailWidth;
 	// When the canvas is aligned to the device-pixel grid, use the same absolute
@@ -228,6 +287,15 @@ export const drawSlot = ({
 		horizontalOffset,
 		position: idealRight,
 	});
+
+	if (clearBeforeDraw) {
+		ctx.clearRect(
+			left,
+			0,
+			right - left,
+			frame.displayHeight / devicePixelRatio,
+		);
+	}
 
 	ctx.drawImage(
 		frame,
@@ -260,39 +328,36 @@ export const fillWithCachedFrames = ({
 	frameHeight: number;
 	horizontalOffset: number;
 }) => {
-	const prefix = getFrameDatabaseKeyPrefix(src);
-	const candidates = Array.from(frameDatabase.entries())
-		.filter(([key]) => key.startsWith(prefix))
-		.map(([, candidate]) => candidate);
+	let candidates: NonNullable<ReturnType<typeof frameDatabase.get>>[] | null =
+		null;
 	const targets = Array.from(filledSlots.keys());
 
 	for (const timestamp of targets) {
-		let best: (typeof candidates)[number] | undefined;
-		let bestDistance = Infinity;
-		for (const candidate of candidates) {
-			const distance = getFrameDistance({
-				src,
-				frameTimestamp: candidate.frame.timestamp,
-				frameDuration: candidate.frame.duration,
-				slot: timestamp,
-			});
-			if (distance < bestDistance) {
-				bestDistance = distance;
-				best = candidate;
-			}
+		const filledDistance = getFilledDistance({
+			src,
+			filled: filledSlots.get(timestamp),
+			slot: timestamp,
+		});
+		// A frame covering this slot cannot be improved by another cached frame.
+		if (filledDistance === 0) {
+			continue;
 		}
+
+		if (candidates === null) {
+			candidates = getCachedFrames({src, height: null});
+		}
+
+		const {entry: best, distance: bestDistance} = findBestCachedFrame({
+			src,
+			frames: candidates,
+			timestamp,
+		});
 
 		if (!best) {
 			continue;
 		}
 
-		if (
-			getFilledDistance({
-				src,
-				filled: filledSlots.get(timestamp),
-				slot: timestamp,
-			}) <= bestDistance
-		) {
+		if (filledDistance <= bestDistance) {
 			continue;
 		}
 

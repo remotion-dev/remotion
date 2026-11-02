@@ -11,11 +11,9 @@ export const browserExecutableOption = {
 	cliFlag,
 	description: () => (
 		<>
-			Set a custom Chrome or Chromium executable path. By default Remotion will
-			try to find an existing version of Chrome on your system and if not found,
-			it will download one. This flag is useful if you don&apos;t have Chrome
-			installed in a standard location and you want to prevent downloading an
-			additional browser or need support for the H264 codec.
+			Set a custom Chrome or Chromium executable path. By default, Remotion
+			downloads and uses Chrome Headless Shell with Remotion&apos;s browser
+			fixes. Leave this option unset for normal rendering.
 		</>
 	),
 	ssrName: 'browserExecutable' as const,

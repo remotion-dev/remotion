@@ -2,11 +2,18 @@ import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
 import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
+import {
 	applyCornerPin,
 	cleanupCornerPin,
 	setupCornerPin,
 	type CornerPinState,
 } from './corner-pin-runtime.js';
+import {CORNER_PIN_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -97,31 +104,63 @@ const validateCornerPinParams = (params: CornerPinParams): void => {
 	assertOptionalUvCoordinate(params.bottomLeft, 'bottomLeft');
 };
 
-export const cornerPin = createEffect<CornerPinParams, CornerPinState>({
+export const cornerPin = createEffect<CornerPinParams>({
 	type: 'dev.remotion.effects.cornerPin',
 	label: 'cornerPin()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/corner-pin',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `corner-pin-${r.topLeft.join(':')}-${r.topRight.join(':')}-${r.bottomRight.join(':')}-${r.bottomLeft.join(':')}`;
 	},
-	setup: (target) => setupCornerPin(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		applyCornerPin({
-			state,
-			source,
-			width,
-			height,
-			topLeft: r.topLeft,
-			topRight: r.topRight,
-			bottomRight: r.bottomRight,
-			bottomLeft: r.bottomLeft,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			CornerPinParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'corner-pin'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: CORNER_PIN_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						...r.topLeft,
+						...r.topRight,
+						...r.bottomRight,
+						...r.bottomLeft,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			CornerPinParams,
+			CornerPinState
+		>({
+			setup: (target) => setupCornerPin(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				applyCornerPin({
+					state,
+					source,
+					width,
+					height,
+					topLeft: r.topLeft,
+					topRight: r.topRight,
+					bottomRight: r.bottomRight,
+					bottomLeft: r.bottomLeft,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupCornerPin(state),
+		}),
 	},
-	cleanup: (state) => cleanupCornerPin(state),
 	schema: cornerPinSchema,
 	validateParams: validateCornerPinParams,
 });

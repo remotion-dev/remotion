@@ -263,3 +263,30 @@ test('preview iterator stops decoding when a seek is superseded', async () => {
 		iterator.destroy();
 	}
 });
+
+test('preview iterator closes the underlying iterator if the first frame fails', async () => {
+	const failure = new DOMException(
+		'Codec reclaimed due to inactivity.',
+		'QuotaExceededError',
+	);
+	let closed = 0;
+
+	await expect(
+		createVideoIterator(0, {
+			destroy: () => undefined,
+			makeIteratorOrUsePrewarmed: () => ({
+				closeIterator: () => {
+					closed++;
+					return Promise.reject(failure);
+				},
+				next: () => ({
+					type: 'pending' as const,
+					wait: () => Promise.reject(failure),
+				}),
+			}),
+			prewarmIteratorForLooping: () => undefined,
+		}),
+	).rejects.toBe(failure);
+
+	expect(closed).toBe(1);
+});

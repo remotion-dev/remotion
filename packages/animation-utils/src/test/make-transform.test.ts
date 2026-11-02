@@ -27,6 +27,13 @@ test('makeTransform() should work well - forgetting to pass a param', () => {
 	);
 });
 
+test('makeTransform() should validate the second scale param', () => {
+	expect(scale(2, 3)).toBe('scale(2, 3)');
+	expect(() => scale(2, NaN)).toThrow(
+		'Argument passed to "scale" for param "y" is null (must be finite)',
+	);
+});
+
 test('makeTransform() should allow strings with units', () => {
 	expect(makeTransform([rotate('12rad'), rotate3d(10, 20, 40, '12deg')])).toBe(
 		'rotate(12rad) rotate3d(10, 20, 40, 12deg)',
@@ -36,6 +43,11 @@ test('makeTransform() should allow strings with units', () => {
 test('makeTransform() should handle skew', () => {
 	expect(skew(10)).toBe('skew(10deg, 10deg)');
 	expect(skew(10, 'rad')).toBe('skew(10rad, 10rad)');
+	expect(skew(10, 'deg', 20, 'rad')).toBe('skew(10deg, 20rad)');
+	// @ts-expect-error
+	expect(() => skew(10, 'px', 20, 'deg')).toThrow(
+		/supports only the following /,
+	);
 	// @ts-expect-error
 	expect(() => skew(10, 'rad', 1)).toThrow(/supports only the following /);
 	expect(skewX(10, 'rad')).toBe('skewX(10rad)');

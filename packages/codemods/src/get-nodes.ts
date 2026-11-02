@@ -31,6 +31,12 @@ export const getNodes = ({
 	const nodePathByNode = new Map(
 		captured.map(({node, nodePath}) => [node, nodePath]),
 	);
+	// Index source lines once instead of splitting the prefix for every JSX node.
+	const lineStarts = [0];
+	for (const match of input.matchAll(/\r\n|[\r\n\u2028\u2029]/g)) {
+		lineStarts.push(match.index + match[0].length);
+	}
+
 	return captured.map(({node, nodePath, parentNode}) => {
 		const offset = node.loc ? recastLocToOffset(input, node.loc.start) : null;
 		return {
@@ -42,10 +48,7 @@ export const getNodes = ({
 				node.loc && offset !== null
 					? {
 							line: node.loc.start.line,
-							column: input
-								.slice(0, offset)
-								.split(/\r\n|[\r\n\u2028\u2029]/)
-								.at(-1)!.length,
+							column: offset - lineStarts[node.loc.start.line - 1],
 						}
 					: null,
 			parentNodePath:

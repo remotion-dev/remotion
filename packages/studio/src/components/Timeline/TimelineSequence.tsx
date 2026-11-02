@@ -84,7 +84,11 @@ import {getTimelineTrimHandleLayout} from './get-timeline-trim-handle-layout';
 import {getTimelineVolume} from './get-timeline-volume';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
-import {splitSelectedTimelineItems} from './split-selected-timeline-item';
+import {isSequenceSplitPending} from './pending-sequence-splits';
+import {
+	canSplitTimelineSequences,
+	splitSelectedTimelineItems,
+} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
@@ -100,6 +104,7 @@ import {
 	TIMELINE_PACKED_TRACK_HEIGHT,
 } from './timeline-track-groups';
 import {timelineTrimEdgeCursor} from './timeline-trim-edge-cursor';
+import {TimelineAnimatedImageInfo} from './TimelineAnimatedImageInfo';
 import {TimelineImageInfo} from './TimelineImageInfo';
 import {
 	TimelineInheritedSceneRangeContext,
@@ -107,6 +112,7 @@ import {
 	TimelineSceneRangeContext,
 } from './TimelineSceneRangeContext';
 import {
+	getMultiSelectedSequenceNodePathInfos,
 	getTimelineColor,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
@@ -513,6 +519,9 @@ const TimelineSequenceBar: React.FC<{
 			Number(style.marginLeft);
 		labelLeft = Math.max(labelLeft, Math.max(0, inheritedLeft) + 4);
 	}
+
+	// Clear the 2px selection outline while keeping the right-edge fade fixed.
+	labelLeft += 2;
 
 	const labelEndFrame = Math.min(
 		sceneRange?.transitionOutStart ?? Infinity,
@@ -1451,19 +1460,9 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const deleteTimelineItems = useDeleteTimelineItems();
 	const {onSelect, selectable, selected, selectedItems} =
 		useTimelineRowSelection(nodePathInfo);
-	const selectedSequenceNodePathInfos = useMemo(() => {
-		if (
-			!selected ||
-			selectedItems.length < 2 ||
-			selectedItems.some((item) => item.type !== 'sequence')
-		) {
-			return null;
-		}
-
-		return selectedItems.flatMap((item) =>
-			item.type === 'sequence' ? [item.nodePathInfo] : [],
-		);
-	}, [selected, selectedItems]);
+	const selectedSequenceNodePathInfos = selected
+		? getMultiSelectedSequenceNodePathInfos(selectedItems)
+		: null;
 	const performSequenceDoubleClick = useCallback(
 		(e: React.MouseEvent<HTMLDivElement>) => {
 			if (isTimelineSelectionModifierEvent(e)) {
@@ -1565,7 +1564,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 	const onSplitSelectedSequences = useCallback(() => {
-		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+		if (
+			!canSplitTimelineSequences() ||
+			selectedSequenceNodePathInfos === null
+		) {
 			return;
 		}
 
@@ -1581,7 +1583,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	}, [
 		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
-		previewInteractive,
 		propStatuses,
 		selectedItems,
 		selectedSequenceNodePathInfos,
@@ -1668,7 +1669,9 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive,
+					splitDisabled:
+						!canSplitTimelineSequences() ||
+						selectedSequenceNodePathInfos.some(isSequenceSplitPending),
 					onDeleteSelectedSequences,
 					onDuplicateSelectedSequences,
 					onSplitSelectedSequences,
@@ -1696,7 +1699,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				splitFrame: getCurrentFrame(),
 				keyframeDisplayOffset,
 				keyframePlaybackRate,
-				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				canEditSource:
+					canSplitTimelineSequences() && Boolean(validatedLocation?.source),
 				hasMultipleSelection: selected && selectedItems.length > 1,
 			});
 
@@ -1813,26 +1817,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	const displayDurationInFrames = s.loopDisplay
 		? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
 		: s.duration;
-	const timelineVolume = useMemo(() => {
-		if (typeof waveformVolume === 'number' && Number.isFinite(waveformVolume)) {
-			return {type: 'constant' as const, value: Math.max(0, waveformVolume)};
-		}
-
-		return getTimelineVolume({
-			status: typeof waveformVolume === 'number' ? null : waveformVolume,
-			displayDurationInFrames,
-			firstDisplayFrame: s.from + (s.loopDisplay?.startOffset ?? 0),
-			keyframeDisplayOffset,
-			keyframePlaybackRate,
-		});
-	}, [
-		displayDurationInFrames,
-		keyframeDisplayOffset,
-		keyframePlaybackRate,
-		s.from,
-		s.loopDisplay?.startOffset,
-		waveformVolume,
-	]);
 
 	const isMedia = s.type === 'audio' || s.type === 'video';
 	const durationInFramesCodeValue =
@@ -1986,7 +1970,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		getContextMenuItems,
 		frozenFrame,
 		onSequenceClick,
-		timelineVolume,
+		waveformVolume,
 		displayDurationInFrames,
 		mediaDurationDragLimits,
 		hasCaptionsSchema,
@@ -2027,6 +2011,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		labelStartFrame,
 		connectedCompositions,
 		nodePathInfo,
+		keyframeDisplayOffset,
 		keyframePlaybackRate,
 		sequenceFrameOffset,
 		cascadedStart,
@@ -2067,7 +2052,7 @@ const TimelineSequenceLayoutInner: React.FC<{
 		getContextMenuItems,
 		frozenFrame,
 		onSequenceClick,
-		timelineVolume,
+		waveformVolume,
 		displayDurationInFrames,
 		mediaDurationDragLimits,
 		hasCaptionsSchema,
@@ -2143,6 +2128,34 @@ const TimelineSequenceLayoutInner: React.FC<{
 		premountWidth,
 		renderWindow,
 		width,
+	]);
+	const mediaVisible =
+		isMedia && visibleLayout !== null && visibleLayout.media !== null;
+	const timelineVolume = useMemo(() => {
+		// Hidden clips keep their source state mounted, but do not need a waveform.
+		if (!mediaVisible) {
+			return {type: 'constant' as const, value: 1};
+		}
+
+		if (typeof waveformVolume === 'number' && Number.isFinite(waveformVolume)) {
+			return {type: 'constant' as const, value: Math.max(0, waveformVolume)};
+		}
+
+		return getTimelineVolume({
+			status: typeof waveformVolume === 'number' ? null : waveformVolume,
+			displayDurationInFrames,
+			firstDisplayFrame: s.from + (s.loopDisplay?.startOffset ?? 0),
+			keyframeDisplayOffset,
+			keyframePlaybackRate,
+		});
+	}, [
+		displayDurationInFrames,
+		keyframeDisplayOffset,
+		keyframePlaybackRate,
+		mediaVisible,
+		s.from,
+		s.loopDisplay?.startOffset,
+		waveformVolume,
 	]);
 	const mediaVisualizationStyle = useMemo((): React.CSSProperties => {
 		return {
@@ -2730,10 +2743,22 @@ const TimelineSequenceLayoutInner: React.FC<{
 			) : null}
 			{s.type === 'image' && visibleLayout.media ? (
 				<div style={mediaVisualizationStyle}>
-					<TimelineImageInfo
-						src={s.src}
-						offsetInPixels={visibleLayout.media.offset}
-					/>
+					{s.animated ? (
+						<TimelineAnimatedImageInfo
+							sequence={s}
+							sequenceFrameOffset={sequenceFrameOffset}
+							displayOffsetInFrames={mediaDisplayOffsetInFrames}
+							displayDurationInFrames={mediaDisplayDurationInFrames}
+							visualizationWidth={visibleLayout.media.width}
+							loopDisplay={s.loopDisplay ?? null}
+							fps={video.fps}
+						/>
+					) : (
+						<TimelineImageInfo
+							src={s.src}
+							offsetInPixels={visibleLayout.media.offset}
+						/>
+					)}
 				</div>
 			) : null}
 			{s.loopDisplay === undefined ? null : (

@@ -108,8 +108,12 @@ const PlaybackPopup: React.FC<{
 
 	useEffect(() => {
 		const listener = (e: KeyboardEvent) => {
-			e.preventDefault();
+			if (e.ctrlKey || e.metaKey || e.altKey) {
+				return;
+			}
+
 			if (e.key === 'ArrowUp') {
+				e.preventDefault();
 				const currentIndex = playbackRates.findIndex(
 					(rate) => rate === keyboardSelectedRate,
 				);
@@ -123,6 +127,7 @@ const PlaybackPopup: React.FC<{
 					setKeyboardSelectedRate(playbackRates[currentIndex - 1]);
 				}
 			} else if (e.key === 'ArrowDown') {
+				e.preventDefault();
 				const currentIndex = playbackRates.findIndex(
 					(rate) => rate === keyboardSelectedRate,
 				);
@@ -136,7 +141,13 @@ const PlaybackPopup: React.FC<{
 					setKeyboardSelectedRate(playbackRates[currentIndex + 1]);
 				}
 			} else if (e.key === 'Enter') {
+				e.preventDefault();
 				setPlaybackRate(keyboardSelectedRate);
+				setIsComponentVisible(false);
+			} else if (e.key === 'Escape') {
+				e.preventDefault();
+				setIsComponentVisible(false);
+			} else if (e.key === 'Tab') {
 				setIsComponentVisible(false);
 			}
 		};

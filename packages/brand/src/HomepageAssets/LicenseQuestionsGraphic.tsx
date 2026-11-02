@@ -9,7 +9,9 @@ import {
 	useCurrentFrame,
 } from 'remotion';
 
-export const LicenseQuestionsGraphic: React.FC = () => {
+export const LicenseQuestionsGraphic: React.FC<{
+	readonly lineColor: string;
+}> = ({lineColor}) => {
 	const frame = useCurrentFrame();
 
 	return (
@@ -54,7 +56,7 @@ export const LicenseQuestionsGraphic: React.FC = () => {
 						<path
 							d="M280 540H590"
 							fill="none"
-							stroke="black"
+							stroke={lineColor}
 							strokeDasharray="28 28"
 							strokeDashoffset={interpolate(frame, [55, 132], [0, -138], {
 								extrapolateLeft: 'clamp',

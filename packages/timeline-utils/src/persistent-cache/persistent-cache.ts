@@ -9,6 +9,10 @@ import {
 } from '../frame-database';
 import {getFrameDistance, getSlotTolerance} from '../render-frame-strip';
 import {
+	normalizeTimelineMediaSource,
+	type TimelineMediaSource,
+} from '../timeline-media-source';
+import {
 	dequantizeWaveformPeaks,
 	quantizeWaveformPeaks,
 } from './quantize-waveform-peaks';
@@ -56,7 +60,7 @@ type ThumbnailRecord = {
 };
 
 type PendingThumbnail = {
-	readonly src: string;
+	readonly source: TimelineMediaSource;
 	readonly aspectRatio: number | null;
 	readonly durationInSeconds: number | null;
 	readonly height: number;
@@ -162,14 +166,22 @@ const getStaticFileFingerprint = (src: string): string | null => {
 		: null;
 };
 
-const getRemoteFingerprint = (src: string): Promise<string | null> => {
-	const existing = remoteFingerprints.get(src);
+const getRemoteFingerprint = (
+	source: TimelineMediaSource,
+): Promise<string | null> => {
+	const existing = remoteFingerprints.get(source.cacheKey);
 	if (existing) {
 		return existing;
 	}
 
 	// A ranged GET instead of HEAD, because presigned URLs are only signed for GET.
-	const promise = fetch(src, {headers: {Range: 'bytes=0-0'}, cache: 'no-store'})
+	const headers = new Headers(source.requestInit?.headers);
+	headers.set('Range', 'bytes=0-0');
+	const promise = fetch(source.src, {
+		...source.requestInit,
+		headers,
+		cache: 'no-store',
+	})
 		.then((response) => {
 			response.body?.cancel().catch(() => undefined);
 			if (!response.ok) {
@@ -185,7 +197,7 @@ const getRemoteFingerprint = (src: string): Promise<string | null> => {
 			return `remote:${etag}:${lastModified}`;
 		})
 		.catch(() => null);
-	remoteFingerprints.set(src, promise);
+	remoteFingerprints.set(source.cacheKey, promise);
 	return promise;
 };
 
@@ -311,12 +323,19 @@ const scheduleEviction = () => {
 // request would wait behind the media downloads and delay drawing. They are
 // validated in the background instead, and purged if they changed, so that
 // the next page load recomputes them.
-const getReadableDatabase = (src: string): Promise<IDBDatabase | null> => {
-	if (!isCacheable(src)) {
+const getReadableDatabase = (
+	input: string | TimelineMediaSource,
+): Promise<IDBDatabase | null> => {
+	const sourceInfo = normalizeTimelineMediaSource(input);
+	const src = sourceInfo.cacheKey;
+	if (!isCacheable(sourceInfo.src)) {
 		return Promise.resolve(null);
 	}
 
-	const staticFingerprint = getStaticFileFingerprint(src);
+	const staticFingerprint =
+		sourceInfo.requestInit === null
+			? getStaticFileFingerprint(sourceInfo.src)
+			: null;
 	const key = `${staticFingerprint ?? 'remote'}|${src}`;
 	const existing = readableSources.get(key);
 	if (existing) {
@@ -360,7 +379,7 @@ const getReadableDatabase = (src: string): Promise<IDBDatabase | null> => {
 		}
 
 		if (staticFingerprint === null) {
-			getRemoteFingerprint(src)
+			getRemoteFingerprint(sourceInfo)
 				.then((fingerprint) => {
 					if (fingerprint === null || fingerprint === source.fingerprint) {
 						return;
@@ -382,12 +401,19 @@ const getReadableDatabase = (src: string): Promise<IDBDatabase | null> => {
 
 // Resolves to the database once `src` has a record that new data can be
 // added to. Creating one requires the fingerprint of the source.
-const getWritableDatabase = (src: string): Promise<IDBDatabase | null> => {
-	if (!isCacheable(src)) {
+const getWritableDatabase = (
+	input: string | TimelineMediaSource,
+): Promise<IDBDatabase | null> => {
+	const sourceInfo = normalizeTimelineMediaSource(input);
+	const src = sourceInfo.cacheKey;
+	if (!isCacheable(sourceInfo.src)) {
 		return Promise.resolve(null);
 	}
 
-	const staticFingerprint = getStaticFileFingerprint(src);
+	const staticFingerprint =
+		sourceInfo.requestInit === null
+			? getStaticFileFingerprint(sourceInfo.src)
+			: null;
 	const key = `${staticFingerprint ?? 'remote'}|${src}`;
 	const existing = writableSources.get(key);
 	if (existing) {
@@ -402,11 +428,12 @@ const getWritableDatabase = (src: string): Promise<IDBDatabase | null> => {
 		}
 
 		// Also purges data of a source that has changed.
-		if (await getReadableDatabase(src)) {
+		if (await getReadableDatabase(sourceInfo)) {
 			return database;
 		}
 
-		const fingerprint = staticFingerprint ?? (await getRemoteFingerprint(src));
+		const fingerprint =
+			staticFingerprint ?? (await getRemoteFingerprint(sourceInfo));
 		if (fingerprint === null) {
 			return null;
 		}
@@ -583,11 +610,13 @@ export const hydrateThumbnailsFromPersistentCache = async ({
 	src,
 	height,
 	getTimestamps,
+	getTimestampTolerance = null,
 }: {
-	readonly src: string;
+	readonly src: string | TimelineMediaSource;
 	readonly height: number;
 	// Called once the aspect ratio of a persisted source is restored.
 	readonly getTimestamps: () => number[];
+	readonly getTimestampTolerance?: ((timestamp: number) => number) | null;
 }): Promise<void> => {
 	try {
 		const database = await getReadableDatabase(src);
@@ -603,18 +632,27 @@ export const hydrateThumbnailsFromPersistentCache = async ({
 			return;
 		}
 
-		const tolerance = getSlotTolerance(timestamps);
+		const {cacheKey} = normalizeTimelineMediaSource(src);
+		const defaultTolerance = getSlotTolerance(timestamps);
+		const tolerance = getTimestampTolerance
+			? Math.max(...timestamps.map(getTimestampTolerance))
+			: defaultTolerance;
 		const from = Math.min(...timestamps) - tolerance;
 		const to = Math.max(...timestamps) + tolerance;
 		const store = database.transaction('thumbnails').objectStore('thumbnails');
 		// A frame of a low or variable frame rate video, or the last frame of a
 		// video, can be shown long after its timestamp.
 		const previousRequest = store.openCursor(
-			IDBKeyRange.bound([src, height], [src, height, from], false, true),
+			IDBKeyRange.bound(
+				[cacheKey, height],
+				[cacheKey, height, from],
+				false,
+				true,
+			),
 			'prev',
 		);
 		const recordsRequest = store.getAll(
-			IDBKeyRange.bound([src, height, from], [src, height, to]),
+			IDBKeyRange.bound([cacheKey, height, from], [cacheKey, height, to]),
 		);
 		const [previous, records] = await Promise.all([
 			toPromise(previousRequest),
@@ -630,7 +668,7 @@ export const hydrateThumbnailsFromPersistentCache = async ({
 			let bestDistance = Infinity;
 			for (const candidate of candidates) {
 				const distance = getFrameDistance({
-					src,
+					src: cacheKey,
 					frameTimestamp: candidate.timestamp,
 					frameDuration: candidate.duration,
 					slot,
@@ -641,14 +679,17 @@ export const hydrateThumbnailsFromPersistentCache = async ({
 				}
 			}
 
-			if (best && bestDistance <= tolerance) {
+			if (
+				best &&
+				bestDistance <= (getTimestampTolerance?.(slot) ?? defaultTolerance)
+			) {
 				fitting.add(best);
 			}
 		}
 
 		await Promise.all(
 			Array.from(fitting).map(async (record) => {
-				const key = makeFrameDatabaseKey(src, record.timestamp);
+				const key = makeFrameDatabaseKey(cacheKey, record.timestamp);
 				if (frameDatabase.has(key)) {
 					return;
 				}
@@ -681,15 +722,15 @@ const flushThumbnails = async () => {
 	// byte count would otherwise include every copy.
 	const bySrc = new Map<string, Map<string, PendingThumbnail>>();
 	for (const thumbnail of batch) {
-		const thumbnails = bySrc.get(thumbnail.src) ?? new Map();
+		const thumbnails = bySrc.get(thumbnail.source.cacheKey) ?? new Map();
 		thumbnails.set(`${thumbnail.height}:${thumbnail.timestamp}`, thumbnail);
-		bySrc.set(thumbnail.src, thumbnails);
+		bySrc.set(thumbnail.source.cacheKey, thumbnails);
 	}
 
 	for (const [src, byKey] of bySrc) {
 		const thumbnails = Array.from(byKey.values());
 		try {
-			const database = await getWritableDatabase(src);
+			const database = await getWritableDatabase(thumbnails[0].source);
 			if (!database) {
 				continue;
 			}
@@ -751,7 +792,7 @@ export const writeThumbnailToPersistentCache = ({
 	src,
 	frame,
 }: {
-	readonly src: string;
+	readonly src: string | TimelineMediaSource;
 	readonly frame: VideoFrame;
 }) => {
 	if (typeof OffscreenCanvas === 'undefined') {
@@ -769,10 +810,11 @@ export const writeThumbnailToPersistentCache = ({
 	// back to PNG, which is larger but still correct.
 	const image = canvas.convertToBlob({type: 'image/webp', quality: 0.8});
 	image.catch(() => undefined);
+	const source = normalizeTimelineMediaSource(src);
 	pendingThumbnails.push({
-		src,
-		aspectRatio: aspectRatioCache.get(src) ?? null,
-		durationInSeconds: mediaDurationCache.get(src) ?? null,
+		source,
+		aspectRatio: aspectRatioCache.get(source.cacheKey) ?? null,
+		durationInSeconds: mediaDurationCache.get(source.cacheKey) ?? null,
 		height: frame.displayHeight,
 		timestamp: frame.timestamp,
 		duration: frame.duration,

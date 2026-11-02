@@ -19,7 +19,7 @@ export const askAIOption = {
 	docLink: 'https://www.remotion.dev/docs/options/disable-ask-ai',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			askAIEnabled = false;
 			return {
 				value: askAIEnabled,

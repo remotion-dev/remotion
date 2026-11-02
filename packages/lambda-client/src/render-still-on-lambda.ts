@@ -239,6 +239,7 @@ export function renderStillOnLambda(
 		storageClass: input.storageClass ?? null,
 		requestHandler: input.requestHandler ?? null,
 		mediaCacheSizeInBytes: input.mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: input.preferredEffectBackend ?? 'auto',
 		isProduction: input.isProduction ?? null,
 	});
 }

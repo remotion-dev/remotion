@@ -59,7 +59,7 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 	try {
 		writeFileSync(filePath, input);
 
-		await deleteKeyframes({
+		const results = await deleteKeyframes({
 			sequenceKeyframes: [
 				{
 					fileName,
@@ -110,6 +110,24 @@ test('deleteKeyframes batches sequence and effect deletes into one undo entry', 
 			remotionRoot: dir,
 			logLevel: 'error',
 		});
+
+		expect(results).toMatchObject([
+			{
+				nodePath: {...nodePath, absolutePath: filePath},
+				effectIndex: null,
+				props: {'style.opacity': {status: 'static', codeValue: 0.4}},
+			},
+			{
+				nodePath: {...nodePath, absolutePath: filePath},
+				effectIndex: 0,
+				props: {amount: {status: 'static', codeValue: 0.6}},
+			},
+		]);
+		expect(Object.keys(results[0].props).sort()).toEqual([
+			'style.opacity',
+			'style.scale',
+		]);
+		expect(Object.keys(results[1].props)).toEqual(['amount']);
 
 		const output = readFileSync(filePath, 'utf-8');
 		expect(output).toContain('opacity: 0.4');

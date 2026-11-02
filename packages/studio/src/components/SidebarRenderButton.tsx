@@ -55,6 +55,7 @@ export const SidebarRenderButton: React.FC<{
 			e.stopPropagation();
 			setSelectedModal({
 				type: 'server-render',
+				retrySettings: null,
 				compositionId: composition.id,
 				initialFrame: 0,
 				initialVideoImageFormat: defaults.videoImageFormat,
@@ -105,6 +106,7 @@ export const SidebarRenderButton: React.FC<{
 				initialSampleRate: defaults.sampleRate,
 				initialChromeMode: defaults.chromeMode,
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				initialPreferredEffectBackend: defaults.preferredEffectBackend,
 				renderDefaults: defaults,
 				initialDarkMode: defaults.darkMode,
 				readOnlyStudio,

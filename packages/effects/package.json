@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.537",
+	"version": "4.0.540",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -99,6 +99,11 @@
 			"module": "./dist/esm/contour-lines.mjs",
 			"import": "./dist/esm/contour-lines.mjs"
 		},
+		"./curves": {
+			"types": "./dist/curves.d.ts",
+			"module": "./dist/esm/curves.mjs",
+			"import": "./dist/esm/curves.mjs"
+		},
 		"./cylinder": {
 			"types": "./dist/cylinder.d.ts",
 			"module": "./dist/esm/cylinder.mjs",
@@ -128,6 +133,11 @@
 			"types": "./dist/exposure.d.ts",
 			"module": "./dist/esm/exposure.mjs",
 			"import": "./dist/esm/exposure.mjs"
+		},
+		"./film-burn": {
+			"types": "./dist/film-burn.d.ts",
+			"module": "./dist/esm/film-burn.mjs",
+			"import": "./dist/esm/film-burn.mjs"
 		},
 		"./fisheye": {
 			"types": "./dist/fisheye.d.ts",
@@ -214,6 +224,11 @@
 			"module": "./dist/esm/linear-progressive-pixelate.mjs",
 			"import": "./dist/esm/linear-progressive-pixelate.mjs"
 		},
+		"./iris-wipe": {
+			"types": "./dist/iris-wipe.d.ts",
+			"module": "./dist/esm/iris-wipe.mjs",
+			"import": "./dist/esm/iris-wipe.mjs"
+		},
 		"./lens-blur": {
 			"types": "./dist/lens-blur.d.ts",
 			"module": "./dist/esm/lens-blur.mjs",
@@ -299,6 +314,16 @@
 			"module": "./dist/esm/radial-progressive-pixelate.mjs",
 			"import": "./dist/esm/radial-progressive-pixelate.mjs"
 		},
+		"./radial-wipe": {
+			"types": "./dist/radial-wipe.d.ts",
+			"module": "./dist/esm/radial-wipe.mjs",
+			"import": "./dist/esm/radial-wipe.mjs"
+		},
+		"./rain-fall": {
+			"types": "./dist/rain-fall.d.ts",
+			"module": "./dist/esm/rain-fall.mjs",
+			"import": "./dist/esm/rain-fall.mjs"
+		},
 		"./region-blur": {
 			"types": "./dist/region-blur.d.ts",
 			"module": "./dist/esm/region-blur.mjs",
@@ -329,6 +354,11 @@
 			"module": "./dist/esm/shadows-highlights.mjs",
 			"import": "./dist/esm/shadows-highlights.mjs"
 		},
+		"./shatter": {
+			"types": "./dist/shatter.d.ts",
+			"module": "./dist/esm/shatter.mjs",
+			"import": "./dist/esm/shatter.mjs"
+		},
 		"./shine": {
 			"types": "./dist/shine.d.ts",
 			"module": "./dist/esm/shine.mjs",
@@ -348,6 +378,11 @@
 			"types": "./dist/speckle.d.ts",
 			"module": "./dist/esm/speckle.mjs",
 			"import": "./dist/esm/speckle.mjs"
+		},
+		"./snow-fall": {
+			"types": "./dist/snow-fall.d.ts",
+			"module": "./dist/esm/snow-fall.mjs",
+			"import": "./dist/esm/snow-fall.mjs"
 		},
 		"./sphere": {
 			"types": "./dist/sphere.d.ts",
@@ -482,6 +517,9 @@
 			"contour-lines": [
 				"dist/contour-lines.d.ts"
 			],
+			"curves": [
+				"dist/curves.d.ts"
+			],
 			"cylinder": [
 				"dist/cylinder.d.ts"
 			],
@@ -499,6 +537,9 @@
 			],
 			"exposure": [
 				"dist/exposure.d.ts"
+			],
+			"film-burn": [
+				"dist/film-burn.d.ts"
 			],
 			"fisheye": [
 				"dist/fisheye.d.ts"
@@ -551,6 +592,9 @@
 			"linear-progressive-pixelate": [
 				"dist/linear-progressive-pixelate.d.ts"
 			],
+			"iris-wipe": [
+				"dist/iris-wipe.d.ts"
+			],
 			"lens-blur": [
 				"dist/lens-blur.d.ts"
 			],
@@ -602,6 +646,12 @@
 			"radial-progressive-pixelate": [
 				"dist/radial-progressive-pixelate.d.ts"
 			],
+			"radial-wipe": [
+				"dist/radial-wipe.d.ts"
+			],
+			"rain-fall": [
+				"dist/rain-fall.d.ts"
+			],
 			"region-blur": [
 				"dist/region-blur.d.ts"
 			],
@@ -620,6 +670,9 @@
 			"shadows-highlights": [
 				"dist/shadows-highlights.d.ts"
 			],
+			"shatter": [
+				"dist/shatter.d.ts"
+			],
 			"shine": [
 				"dist/shine.d.ts"
 			],
@@ -631,6 +684,9 @@
 			],
 			"speckle": [
 				"dist/speckle.d.ts"
+			],
+			"snow-fall": [
+				"dist/snow-fall.d.ts"
 			],
 			"sphere": [
 				"dist/sphere.d.ts"

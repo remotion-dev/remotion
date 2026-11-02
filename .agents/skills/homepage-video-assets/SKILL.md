@@ -1,6 +1,6 @@
 ---
 name: homepage-video-assets
-description: Use when rendering or replacing Remotion homepage creator strip videos, especially transparent Chrome WebM and Safari MP4 assets copied into both promo-pages and docs.
+description: Use when rendering or replacing Remotion homepage creator strip videos, especially transparent Chrome WebM and Safari MP4 assets hosted on remotion.media.
 ---
 
 # Homepage Video Assets
@@ -56,36 +56,29 @@ avconvert \
   --replace
 ```
 
-3. Copy both outputs into both app folders:
-
-```bash
-cp /tmp/<chrome-name>.webm ../promo-pages/public/img/<chrome-name>.webm
-cp /tmp/<safari-name>.mp4 ../promo-pages/public/img/<safari-name>.mp4
-cp /tmp/<chrome-name>.webm ../docs/static/img/<chrome-name>.webm
-cp /tmp/<safari-name>.mp4 ../docs/static/img/<safari-name>.mp4
-```
+3. Use the `offload-r2` skill to upload both outputs under `homepage/` with
+   new versioned keys, verify their public SHA-256 hashes, and update the URLs in
+   the relevant homepage consumers. Keep the rendered binaries out of Git.
 
 ## Verification
 
-Verify the ProRes master has real alpha before converting, and verify the Safari MP4 exists in both folders:
+Verify the ProRes master has real alpha before converting, and inspect the Safari MP4:
 
 ```bash
 ffmpeg -i /tmp/<asset>-master.mov
-ffmpeg -i ../promo-pages/public/img/<safari-name>.mp4
+ffmpeg -i /tmp/<safari-name>.mp4
 ffmpeg -y -i /tmp/<asset>-master.mov \
   -vf alphaextract -frames:v 1 /tmp/<asset>-alpha.png
 ```
 
 The master should report `prores (4444)` and a `yuva...` pixel format. `alphaextract` should succeed, and the alpha image should not be fully opaque. A common failure mode is `alphaextract` succeeding but every sampled pixel is opaque; in that case, the master was rendered with a black/opaque background or a stale opaque master was reused.
 
-Verify every copied Chrome WebM and Safari MP4 is exactly `540x540`:
+Verify the Chrome WebM and Safari MP4 are exactly `540x540`:
 
 ```bash
 for f in \
-  ../promo-pages/public/img/<chrome-name>.webm \
-  ../promo-pages/public/img/<safari-name>.mp4 \
-  ../docs/static/img/<chrome-name>.webm \
-  ../docs/static/img/<safari-name>.mp4; do
+  /tmp/<chrome-name>.webm \
+  /tmp/<safari-name>.mp4; do
   ffmpeg -i "$f"
 done
 ```

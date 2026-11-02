@@ -7,6 +7,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {CURRENT_COLOR_LOWERCASE, LIGHT_COLOR} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -17,6 +18,7 @@ import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils
 import {normalizeTimelineNumber} from './timeline-field-utils';
 import {timelineLayerIconContainer} from './TimelineLayerEye';
 import {Transform3DModeContext} from './Transform3DModeContext';
+import {useTimelineFieldEdit} from './use-timeline-field-edit';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -155,7 +157,7 @@ export const TimelineScaleField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 	readonly scaleLockNodePath: SequencePropsSubscriptionKey;
 }> = ({
 	field,
@@ -166,6 +168,7 @@ export const TimelineScaleField: React.FC<{
 	onDragEnd,
 	scaleLockNodePath,
 }) => {
+	const {markEdit, finishEdit} = useTimelineFieldEdit();
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
 	const [dragZ, setDragZ] = useState<number | null>(null);
@@ -223,8 +226,18 @@ export const TimelineScaleField: React.FC<{
 		[codeZ, dragZ],
 	);
 
+	const onValueChangeCancel = useCallback(() => {
+		markEdit();
+		dragStartRef.current = null;
+		setDragX(null);
+		setDragY(null);
+		setDragZ(null);
+		onDragEnd('cancel');
+	}, [markEdit, onDragEnd]);
+
 	const onXChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (linked) {
 				const [baseX, baseY] = getDragStart();
 				const [newX, newY] = getLinkedScale({
@@ -254,11 +267,13 @@ export const TimelineScaleField: React.FC<{
 			min,
 			onDragValueChange,
 			serialize,
+			markEdit,
 		],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const [newX, newY] = linked
 				? getLinkedScale({
 						axis: 'x',
@@ -271,18 +286,18 @@ export const TimelineScaleField: React.FC<{
 				: [newVal, dragY ?? codeY];
 			const newScale = serialize(newX, newY);
 
-			const clearDragState = () => {
+			const clearDragState: TimelineFieldOnDragEnd = (reason) => {
 				dragStartRef.current = null;
 				setDragX(null);
 				setDragY(null);
 				setDragZ(null);
-				onDragEnd();
+				onDragEnd(reason);
 			};
 
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
-				onSave(newScale).finally(clearDragState);
+				finishEdit(onSave(newScale), () => clearDragState('commit'));
 			} else {
-				clearDragState();
+				clearDragState('cancel');
 			}
 		},
 		[
@@ -296,6 +311,8 @@ export const TimelineScaleField: React.FC<{
 			onSave,
 			propStatus,
 			serialize,
+			markEdit,
+			finishEdit,
 		],
 	);
 
@@ -318,9 +335,10 @@ export const TimelineScaleField: React.FC<{
 				: [parsed, dragY ?? codeY];
 			const newScale = serialize(newX, newY);
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				markEdit();
 				setDragX(newX);
 				setDragY(newY);
-				onSave(newScale).finally(() => {
+				finishEdit(onSave(newScale), () => {
 					dragStartRef.current = null;
 					setDragX(null);
 					setDragY(null);
@@ -328,11 +346,24 @@ export const TimelineScaleField: React.FC<{
 				});
 			}
 		},
-		[codeX, codeY, dragY, linked, max, min, onSave, propStatus, serialize],
+		[
+			codeX,
+			codeY,
+			dragY,
+			linked,
+			max,
+			min,
+			onSave,
+			propStatus,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onYChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (linked) {
 				const [baseX, baseY] = getDragStart();
 				const [newX, newY] = getLinkedScale({
@@ -362,11 +393,13 @@ export const TimelineScaleField: React.FC<{
 			min,
 			onDragValueChange,
 			serialize,
+			markEdit,
 		],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const [newX, newY] = linked
 				? getLinkedScale({
 						axis: 'y',
@@ -379,18 +412,18 @@ export const TimelineScaleField: React.FC<{
 				: [dragX ?? codeX, newVal];
 			const newScale = serialize(newX, newY);
 
-			const clearDragState = () => {
+			const clearDragState: TimelineFieldOnDragEnd = (reason) => {
 				dragStartRef.current = null;
 				setDragX(null);
 				setDragY(null);
 				setDragZ(null);
-				onDragEnd();
+				onDragEnd(reason);
 			};
 
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
-				onSave(newScale).finally(clearDragState);
+				finishEdit(onSave(newScale), () => clearDragState('commit'));
 			} else {
-				clearDragState();
+				clearDragState('cancel');
 			}
 		},
 		[
@@ -404,6 +437,8 @@ export const TimelineScaleField: React.FC<{
 			onSave,
 			propStatus,
 			serialize,
+			markEdit,
+			finishEdit,
 		],
 	);
 
@@ -426,9 +461,10 @@ export const TimelineScaleField: React.FC<{
 				: [dragX ?? codeX, parsed];
 			const newScale = serialize(newX, newY);
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				markEdit();
 				setDragX(newX);
 				setDragY(newY);
-				onSave(newScale).finally(() => {
+				finishEdit(onSave(newScale), () => {
 					dragStartRef.current = null;
 					setDragX(null);
 					setDragY(null);
@@ -436,7 +472,19 @@ export const TimelineScaleField: React.FC<{
 				});
 			}
 		},
-		[codeX, codeY, dragX, linked, max, min, onSave, propStatus, serialize],
+		[
+			codeX,
+			codeY,
+			dragX,
+			linked,
+			max,
+			min,
+			onSave,
+			propStatus,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onToggleLink = useCallback(() => {
@@ -449,27 +497,29 @@ export const TimelineScaleField: React.FC<{
 
 	const onZChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragZ(newVal);
 			onDragValueChange(serialize(dragX ?? codeX, dragY ?? codeY, newVal));
 		},
-		[codeX, codeY, dragX, dragY, onDragValueChange, serialize],
+		[codeX, codeY, dragX, dragY, onDragValueChange, serialize, markEdit],
 	);
 
 	const onZChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, newVal);
-			const clearDragState = () => {
+			const clearDragState: TimelineFieldOnDragEnd = (reason) => {
 				dragStartRef.current = null;
 				setDragX(null);
 				setDragY(null);
 				setDragZ(null);
-				onDragEnd();
+				onDragEnd(reason);
 			};
 
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
-				onSave(newScale).finally(clearDragState);
+				finishEdit(onSave(newScale), () => clearDragState('commit'));
 			} else {
-				clearDragState();
+				clearDragState('cancel');
 			}
 		},
 		[
@@ -481,6 +531,8 @@ export const TimelineScaleField: React.FC<{
 			onSave,
 			propStatus.codeValue,
 			serialize,
+			markEdit,
+			finishEdit,
 		],
 	);
 
@@ -493,16 +545,28 @@ export const TimelineScaleField: React.FC<{
 
 			const newScale = serialize(dragX ?? codeX, dragY ?? codeY, parsed);
 			if (!valuesEqual(newScale, propStatus.codeValue)) {
+				markEdit();
 				setDragZ(parsed);
-				onSave(newScale).finally(() => setDragZ(null));
+				finishEdit(onSave(newScale), () => setDragZ(null));
 			}
 		},
-		[codeX, codeY, dragX, dragY, onSave, propStatus.codeValue, serialize],
+		[
+			codeX,
+			codeY,
+			dragX,
+			dragY,
+			onSave,
+			propStatus.codeValue,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	return (
 		<span style={containerStyle}>
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragX ?? codeX}
 				buttonStyle={leftDraggerStyle}
@@ -522,6 +586,7 @@ export const TimelineScaleField: React.FC<{
 			/>
 			<div style={gapStyle} />
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragY ?? codeY}
 				buttonStyle={rightDraggerStyle}
@@ -543,6 +608,7 @@ export const TimelineScaleField: React.FC<{
 				<>
 					<div style={gapStyle} />
 					<InputDragger
+						onValueChangeCancel={onValueChangeCancel}
 						type="number"
 						value={dragZ ?? codeZ}
 						buttonStyle={rightDraggerStyle}

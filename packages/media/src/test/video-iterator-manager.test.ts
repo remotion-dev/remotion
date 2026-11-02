@@ -1,5 +1,5 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-import {expect, test} from 'vitest';
+import {expect, onTestFinished, test, vi} from 'vitest';
 import {makeNonceManager} from '../nonce-manager';
 import {
 	isSequentialMediaTimeAdvance,
@@ -77,6 +77,7 @@ const prepare = async () => {
 
 const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
+	onVideoFrame: (() => void) | null = null,
 ) =>
 	videoIteratorManager({
 		getIsDisposed: () => false,
@@ -87,7 +88,7 @@ const makeManager = (
 		}),
 		context: null,
 		canvas: null,
-		getOnVideoFrameCallback: () => null,
+		getOnVideoFrameCallback: () => onVideoFrame,
 		logLevel: 'error',
 		drawDebugOverlay: () => {},
 		getLoopSegmentMediaEndTimestamp: () => {
@@ -201,6 +202,7 @@ test('seek should not cause overlapping block/unblock cycles', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 	});
+	onTestFinished(() => manager.destroy());
 
 	const nonceManager = makeNonceManager();
 
@@ -277,6 +279,7 @@ test('rapid sequential seeks should not cause overlapping blocks', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 	});
+	onTestFinished(() => manager.destroy());
 
 	const nonceManager = makeNonceManager();
 
@@ -328,6 +331,7 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 		getEffectChainState: () => null,
 		maxCanvasSinkFrameSize: null,
 	});
+	onTestFinished(() => manager.destroy());
 
 	const nonceManager = makeNonceManager();
 
@@ -338,4 +342,144 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 	await manager.redrawCurrentFrame();
 
 	expect(manager.getVideoIteratorsCreated()).toBe(1);
+});
+
+test('same-time seeks without changed effects do not emit another frame', async () => {
+	const {videoTrack} = await prepare();
+	const onVideoFrame = vi.fn();
+	const manager = await makeManager(videoTrack, onVideoFrame);
+	const nonceManager = makeNonceManager();
+	const seek = () =>
+		manager.seek({
+			newTime: 0,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: false,
+			continuousPlayback: false,
+		});
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		expect(onVideoFrame).toHaveBeenCalledOnce();
+		await seek();
+		expect(onVideoFrame).toHaveBeenCalledOnce();
+	} finally {
+		manager.destroy();
+	}
+});
+
+const makeReclaimedError = () =>
+	new DOMException('Codec reclaimed due to inactivity.', 'QuotaExceededError');
+
+test('recreates the iterator once when the decoder was reclaimed', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		const iterator = manager.getVideoFrameIterator();
+		if (!iterator) {
+			throw new Error('Expected a video iterator');
+		}
+
+		iterator.tryToSatisfySeek = () => Promise.reject(makeReclaimedError());
+
+		await manager.seek({
+			continuousPlayback: null,
+			newTime: 1,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: false,
+		});
+
+		expect(iterator.isDestroyed()).toBe(true);
+		expect(manager.getVideoIteratorsCreated()).toBe(2);
+		expect(manager.getVideoFrameIterator()).not.toBe(iterator);
+		expect(manager.getFramesRendered()).toBe(2);
+	} finally {
+		manager.destroy();
+	}
+});
+
+test('does not recreate the iterator for quota errors that are not reclaims', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		const iterator = manager.getVideoFrameIterator();
+		if (!iterator) {
+			throw new Error('Expected a video iterator');
+		}
+
+		const failure = new DOMException(
+			'Decoder quota exceeded.',
+			'QuotaExceededError',
+		);
+		iterator.tryToSatisfySeek = () => Promise.reject(failure);
+
+		await expect(
+			manager.seek({
+				continuousPlayback: null,
+				newTime: 1,
+				nonce: nonceManager.createAsyncOperation(),
+				fps: 30,
+				playbackRate: 1,
+				isPlaying: false,
+			}),
+		).rejects.toBe(failure);
+
+		expect(manager.getVideoIteratorsCreated()).toBe(1);
+	} finally {
+		manager.destroy();
+	}
+});
+
+test('a superseded seek leaves recreating a reclaimed decoder to the next seek', async () => {
+	const {videoTrack} = await prepare();
+	const manager = await makeManager(videoTrack);
+	const nonceManager = makeNonceManager();
+
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		const iterator = manager.getVideoFrameIterator();
+		if (!iterator) {
+			throw new Error('Expected a video iterator');
+		}
+
+		iterator.tryToSatisfySeek = () => {
+			// A newer seek arrives while this one is failing.
+			nonceManager.createAsyncOperation();
+			return Promise.reject(makeReclaimedError());
+		};
+
+		await manager.seek({
+			continuousPlayback: null,
+			newTime: 1,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: false,
+		});
+
+		expect(manager.getVideoFrameIterator()).toBe(null);
+		expect(manager.getVideoIteratorsCreated()).toBe(1);
+
+		await manager.seek({
+			continuousPlayback: null,
+			newTime: 2,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: false,
+		});
+
+		expect(manager.getVideoIteratorsCreated()).toBe(2);
+		expect(manager.getFramesRendered()).toBe(2);
+	} finally {
+		manager.destroy();
+	}
 });

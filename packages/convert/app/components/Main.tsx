@@ -22,7 +22,7 @@ export const Main: React.FC<{
 
 	return (
 		<TitleProvider routeAction={routeAction}>
-			<div className="font-sans min-h-screen">
+			<div className="font-sans min-h-[calc(100vh-60px)]">
 				{captureError ? (
 					<div role="alert" className="p-4 text-red-500">
 						{captureError}

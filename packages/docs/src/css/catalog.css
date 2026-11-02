@@ -125,6 +125,11 @@
 	padding: 16px 12px;
 }
 
-.studio-elements-embed .catalog-sidebar-divider {
+.studio-elements-embed .catalog-sidebar-divider,
+.studio-elements-embed .elements-sidebar-root > .menu__list-item-collapsible {
 	display: none;
+}
+
+.studio-elements-embed .elements-sidebar-root > .menu__list {
+	margin-top: 0;
 }

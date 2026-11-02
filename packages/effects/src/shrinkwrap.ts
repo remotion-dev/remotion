@@ -5,7 +5,14 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from './color-utils.js';
+import {SHRINKWRAP_WEBGPU_SHADER} from './shrinkwrap-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -436,138 +443,184 @@ const linkProgram = (
 	return program;
 };
 
-export const shrinkwrap = createEffect<ShrinkwrapParams, ShrinkwrapState>({
+export const shrinkwrap = createEffect<ShrinkwrapParams>({
 	type: 'dev.remotion.effects.shrinkwrap',
 	label: 'shrinkwrap()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/shrinkwrap',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `shrinkwrap-${r.amount}-${r.displacement}-${r.highlightIntensity}-${r.wrinkleDensity}-${r.edgeTension}-${r.phase}-${r.seed}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('shrinkwrap effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ShrinkwrapParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'shrinkwrap'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the shrinkwrap effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.amount,
+					r.displacement,
+					r.highlightIntensity,
+					r.wrinkleDensity,
+					r.edgeTension,
+					r.phase,
+					r.seed,
+					0,
+					0,
+					0,
+				]);
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: SHRINKWRAP_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			ShrinkwrapParams,
+			ShrinkwrapState
+		>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('shrinkwrap effect');
+				}
 
-		const vs = compileShader(gl, gl.VERTEX_SHADER, SHRINKWRAP_VS);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, SHRINKWRAP_FS);
-		const program = linkProgram(gl, vs, fs);
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		const vao = gl.createVertexArray();
-		if (!vao) {
-			throw new Error('Failed to create WebGL vertex array');
-		}
+				const vs = compileShader(gl, gl.VERTEX_SHADER, SHRINKWRAP_VS);
+				const fs = compileShader(gl, gl.FRAGMENT_SHADER, SHRINKWRAP_FS);
+				const program = linkProgram(gl, vs, fs);
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-		gl.bindVertexArray(vao);
+				const vao = gl.createVertexArray();
+				if (!vao) {
+					throw new Error('Failed to create WebGL vertex array');
+				}
 
-		const data = new Float32Array([
-			-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
-		]);
+				gl.bindVertexArray(vao);
 
-		const vbo = gl.createBuffer();
-		if (!vbo) {
-			throw new Error('Failed to create WebGL buffer');
-		}
+				const data = new Float32Array([
+					-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
+				]);
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+				const vbo = gl.createBuffer();
+				if (!vbo) {
+					throw new Error('Failed to create WebGL buffer');
+				}
 
-		const aPos = gl.getAttribLocation(program, 'aPos');
-		const aUv = gl.getAttribLocation(program, 'aUv');
-		gl.enableVertexAttribArray(aPos);
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(aUv);
-		gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+				gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+				gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-		gl.bindVertexArray(null);
+				const aPos = gl.getAttribLocation(program, 'aPos');
+				const aUv = gl.getAttribLocation(program, 'aUv');
+				gl.enableVertexAttribArray(aPos);
+				gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+				gl.enableVertexAttribArray(aUv);
+				gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
 
-		const texture = gl.createTexture();
-		if (!texture) {
-			throw new Error('Failed to create WebGL texture');
-		}
+				gl.bindVertexArray(null);
 
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+				const texture = gl.createTexture();
+				if (!texture) {
+					throw new Error('Failed to create WebGL texture');
+				}
 
-		return {
-			gl,
-			program,
-			vao,
-			vbo,
-			texture,
-			uSource: gl.getUniformLocation(program, 'uSource'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
-			uAmount: gl.getUniformLocation(program, 'uAmount'),
-			uDisplacement: gl.getUniformLocation(program, 'uDisplacement'),
-			uHighlightIntensity: gl.getUniformLocation(
-				program,
-				'uHighlightIntensity',
-			),
-			uWrinkleDensity: gl.getUniformLocation(program, 'uWrinkleDensity'),
-			uEdgeTension: gl.getUniformLocation(program, 'uEdgeTension'),
-			uPhase: gl.getUniformLocation(program, 'uPhase'),
-			uSeed: gl.getUniformLocation(program, 'uSeed'),
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, texture} = state;
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.bindTexture(gl.TEXTURE_2D, null);
 
-		gl.viewport(0, 0, width, height);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+				return {
+					gl,
+					program,
+					vao,
+					vbo,
+					texture,
+					uSource: gl.getUniformLocation(program, 'uSource'),
+					uResolution: gl.getUniformLocation(program, 'uResolution'),
+					uAmount: gl.getUniformLocation(program, 'uAmount'),
+					uDisplacement: gl.getUniformLocation(program, 'uDisplacement'),
+					uHighlightIntensity: gl.getUniformLocation(
+						program,
+						'uHighlightIntensity',
+					),
+					uWrinkleDensity: gl.getUniformLocation(program, 'uWrinkleDensity'),
+					uEdgeTension: gl.getUniformLocation(program, 'uEdgeTension'),
+					uPhase: gl.getUniformLocation(program, 'uPhase'),
+					uSeed: gl.getUniformLocation(program, 'uSeed'),
+				};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, texture} = state;
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
 
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
-		if (state.uDisplacement) gl.uniform1f(state.uDisplacement, r.displacement);
-		if (state.uHighlightIntensity)
-			gl.uniform1f(state.uHighlightIntensity, r.highlightIntensity);
-		if (state.uWrinkleDensity)
-			gl.uniform1f(state.uWrinkleDensity, r.wrinkleDensity);
-		if (state.uEdgeTension) gl.uniform1f(state.uEdgeTension, r.edgeTension);
-		if (state.uPhase) gl.uniform1f(state.uPhase, r.phase);
-		if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
+				if (state.uDisplacement)
+					gl.uniform1f(state.uDisplacement, r.displacement);
+				if (state.uHighlightIntensity)
+					gl.uniform1f(state.uHighlightIntensity, r.highlightIntensity);
+				if (state.uWrinkleDensity)
+					gl.uniform1f(state.uWrinkleDensity, r.wrinkleDensity);
+				if (state.uEdgeTension) gl.uniform1f(state.uEdgeTension, r.edgeTension);
+				if (state.uPhase) gl.uniform1f(state.uPhase, r.phase);
+				if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
 
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
-		gl.deleteTexture(texture);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+				gl.deleteTexture(texture);
+			},
+		}),
 	},
 	schema: shrinkwrapSchema,
 	validateParams: validateShrinkwrapParams,

@@ -1,0 +1,87 @@
+import("//build/args/headless.gn")
+dcheck_always_on = false
+is_official_build = true
+symbol_level = 0
+blink_symbol_level = 0
+v8_symbol_level = 0
+enable_keystone_registration_framework = false
+enable_linux_installer = false
+enable_media_remoting = false
+
+enable_swiftshader_vulkan = false
+
+ffmpeg_branding = "Chrome"
+headless_use_embedded_resources = true
+icu_use_data_file = false
+
+is_debug = false
+proprietary_codecs = true
+target_cpu = "arm64"
+target_os = "linux"
+use_cups = false
+use_pulseaudio = false
+v8_target_cpu = "arm64"
+
+chrome_pgo_phase = 0
+
+use_sysroot = false
+use_qt = false
+# System libgbm-devel isn't installed in our builder image; use the bundled copy.
+use_system_minigbm = false
+
+use_on_device_model_service = false
+enable_print_preview = false
+enable_lens_desktop = false
+enable_platform_apps = false
+use_dawn = false
+skia_use_dawn = false
+# Chromium 157 enables OpenXR (WebXR) on Linux; its loader includes the
+# system <vulkan/vulkan.h>, which use_sysroot = false builds don't have.
+# headless_shell never needs WebXR, and 149 didn't build it either.
+enable_openxr = false
+# PDF + printing both disabled on Lambda to keep the binary small.
+# The full //chrome graph no longer resolves with printing disabled, so
+# build-chromium.sh sets `root` and `root_patterns` in .gn to generate only
+# headless_shell and its transitive dependencies.
+# Expected savings vs. enable_printing=true: ~15-20 MiB stripped.
+enable_pdf = false
+enable_printing = false
+
+# ---------------------------------------------------------------------------
+# Lambda-only stripping: disable subsystems that aren't used by a screenshot-
+# rendering headless workload. Each of these defaults to ON for Linux desktop
+# Chromium but contributes only dead code to `headless_shell`.
+#
+# Estimated savings (combined, stripped binary): ~3-5 MiB.
+#
+# Each of these is asserted somewhere in the full //chrome graph, which is why
+# build-chromium.sh only generates the graph reachable from headless_shell.
+#
+# NOTE — flags tried and reverted with the full graph (Chromium 149):
+#   enable_extensions / enable_extensions_core (false) → chrome/browser/ui/*
+#     BUILD.gn files have unconditional deps on //extensions/browser/api/*
+#     and gn gen bails with `Cannot depend on extensions because
+#     enable_extensions=false`. Empirically the dead extension code doesn't
+#     make it into headless_shell anyway, so this is a size no-op + breaks.
+#   enable_compose = false → //chrome/browser/compose:compose unconditionally
+#     deps //chrome/browser:compose_optimization_guide_proto, which is gated
+#     out. Same pattern as extensions; would need stub groups to fix.
+#   safe_browsing_mode = 0 → //chrome/browser/feedback,
+#     //chrome/browser/ui/webui/feedback/report_unsafe_site, and
+#     //chrome/test:interactive_ui_tests all unconditionally dep on
+#     //components/safe_browsing/content/browser:client_side_detection.
+# ---------------------------------------------------------------------------
+
+# Removes accessibility OCR / Screen AI plugin (TFLite + ML Kit). Defaults to
+# true on Linux. Headless can never hand a PDF or image to ScreenAI.
+enable_screen_ai_service = false
+
+# Removes the library-CDM framework (Widevine plumbing, EME mojo IPC, CDM host
+# verification scaffolding). Default is true on Linux desktop with toolkit_views.
+# We're not chrome-branded so no actual CDM is shipped — only the framework was
+# being linked in.
+enable_library_cdms = false
+
+# Favor size over speed: -Os for C/C++ and -Copt-level=s for Rust instead of
+# -O2 / -Copt-level=3, and no extra ThinLTO inlining.
+optimize_for_size = true

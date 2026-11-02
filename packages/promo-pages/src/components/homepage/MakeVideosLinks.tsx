@@ -18,7 +18,7 @@ export const MakeVideosLinkItem: React.FC<MakeVideosLink> = ({
 }) => {
 	return (
 		<a
-			className="no-underline text-[var(--subtitle)] font-brand font-medium text-sm inline-flex flex-row items-center"
+			className="no-underline text-[var(--subtitle)] hover:text-[var(--text-color)] transition-colors duration-150 ease-out font-brand font-medium text-sm inline-flex flex-row items-center"
 			href={href}
 			target={target}
 		>

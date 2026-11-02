@@ -1,5 +1,3 @@
-import type {CubeDirection} from '@remotion-dev/cube-presentation';
-import {cube} from '@remotion-dev/cube-presentation';
 import type {PlayerRef} from '@remotion/player';
 import {Player} from '@remotion/player';
 import type {
@@ -12,6 +10,8 @@ import {
 	springTiming,
 } from '@remotion/transitions';
 import {clockWipe} from '@remotion/transitions/clock-wipe';
+import type {CubeDirection} from '@remotion/transitions/cube';
+import {cube} from '@remotion/transitions/cube';
 import {fade} from '@remotion/transitions/fade';
 import type {FlipDirection} from '@remotion/transitions/flip';
 import {flip} from '@remotion/transitions/flip';

@@ -57,6 +57,16 @@ const makeMarkdownResponse = (contentType: string) => {
 
 serve({
 	routes: {
+		'/remotion-wordmark-dark.png': () =>
+			new Response(
+				Bun.file(
+					new URL('../public/remotion-wordmark-dark.png', import.meta.url),
+				),
+			),
+		'/remotion-wordmark.png': () =>
+			new Response(
+				Bun.file(new URL('../public/remotion-wordmark.png', import.meta.url)),
+			),
 		'/': async (request, server) => {
 			if (prefersMarkdown(request)) {
 				return makeMarkdownResponse('text/markdown');

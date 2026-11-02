@@ -126,28 +126,35 @@ export function springCalculation({
 		overshootClamping:
 			config.overshootClamping ?? defaultSpringConfig.overshootClamping,
 	};
-	const cacheKey = [
-		frame,
+	const configKey = [
 		fps,
 		resolvedConfig.damping,
 		resolvedConfig.mass,
 		resolvedConfig.overshootClamping,
 		resolvedConfig.stiffness,
 	].join('-');
+	const cacheKey = `${frame}-${configKey}`;
 	if (calculationCache[cacheKey]) {
 		return calculationCache[cacheKey];
 	}
 
-	let animation: AnimationNode = {
+	const frameClamped = Math.max(0, frame);
+	// Only resume from an integer frame: fractional steps change the simulation.
+	const previousFrame = Math.ceil(frameClamped) - 1;
+	const previousAnimation =
+		previousFrame >= 0
+			? calculationCache[`${previousFrame}-${configKey}`]
+			: undefined;
+	let animation: AnimationNode = previousAnimation ?? {
 		lastTimestamp: 0,
 		current: from,
 		toValue: to,
 		velocity: 0,
 		prevPosition: 0,
 	};
-	const frameClamped = Math.max(0, frame);
 	const unevenRest = frameClamped % 1;
-	for (let f = 0; f <= Math.floor(frameClamped); f++) {
+	const startFrame = previousAnimation ? previousFrame + 1 : 0;
+	for (let f = startFrame; f <= Math.floor(frameClamped); f++) {
 		const time = (f / fps) * 1000;
 		animation = advance({
 			animation,

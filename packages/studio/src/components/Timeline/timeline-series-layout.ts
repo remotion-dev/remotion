@@ -2,6 +2,7 @@ import type {TSequence} from 'remotion';
 import {getTimelineSceneRange} from './get-timeline-scene-range';
 import {
 	getTimelineTransitionRanges,
+	getTimelineTransitionRangesByStart,
 	type TimelineTransitionRange,
 } from './get-timeline-transition-ranges';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
@@ -50,7 +51,10 @@ export const getTimelineSeriesLayout = ({
 	}
 
 	const scenesBySeries = new Map<number, TimelineTrackWithDisplayGroup[]>();
-	const transitionsBySeries = new Map<number, TimelineTransitionRange[]>();
+	const transitionsBySeries = new Map<
+		number,
+		ReadonlyMap<number, TimelineTransitionRange>
+	>();
 	const seriesByScene = new Map<string, number>();
 	if (compactSeries) {
 		for (let index = 0; index < rows.length; index++) {
@@ -83,8 +87,10 @@ export const getTimelineSeriesLayout = ({
 			scenesBySeries.set(index, scenes);
 			transitionsBySeries.set(
 				index,
-				getTimelineTransitionRanges(
-					row.childScenes.map((item) => item.sequence),
+				getTimelineTransitionRangesByStart(
+					getTimelineTransitionRanges(
+						row.childScenes.map((item) => item.sequence),
+					),
 				),
 			);
 			for (const scene of scenes) {
@@ -180,7 +186,7 @@ export const getTimelineSeriesLayout = ({
 					const next = roleScenes[sceneIndex + 1]?.sequence;
 					const sceneRange = getTimelineSceneRange({
 						sequence,
-						transitionRanges: transitionsBySeries.get(index) ?? [],
+						transitionRangesByStart: transitionsBySeries.get(index)!,
 						previous: previous ?? null,
 						next: next ?? null,
 						range,

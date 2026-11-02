@@ -1,7 +1,9 @@
 import type {VideoSample, VideoSampleSink} from 'mediabunny';
 import {Internals, type LogLevel} from 'remotion';
 import {getSafeWindowOfMonotonicity} from '../caches';
+import {hasFrameStarted} from '../helpers/has-frame-started';
 import {roundTo4Digits} from '../helpers/round-to-4-digits';
+import {isCodecReclaimedError} from '../is-type-of-error';
 import {renderTimestampRange} from '../render-timestamp-range';
 import {makeSerializedQueue} from '../serialized-queue';
 import {getAllocationSize} from './get-allocation-size';
@@ -60,7 +62,7 @@ export const makeKeyframeBank = async ({
 	// Snap to the track's own timestamp grid: WebM stores milliseconds, so frame 62
 	// at 30fps (2.0667s) is stored at 2.067s and must not seek into the previous GOP.
 	// MP4 timescales like 30000 keep fractional keyframes such as 61061/30000 exact.
-	const sampleIterator = videoSampleSink.samples(
+	let sampleIterator = videoSampleSink.samples(
 		Math.round(initialTimestampRequest * timeResolution) / timeResolution,
 	);
 
@@ -72,6 +74,53 @@ export const makeKeyframeBank = async ({
 	let lastUsed = Date.now();
 	let allocationSize = 0;
 	let pendingOperations = 0;
+	let deleted = false;
+	let decodeFailure: {error: unknown} | null = null;
+
+	const readNextSample = async () => {
+		if (decodeFailure) {
+			throw decodeFailure.error;
+		}
+
+		try {
+			return await sampleIterator.next();
+		} catch (error) {
+			if (!isCodecReclaimedError(error) || deleted) {
+				decodeFailure = {error};
+				await sampleIterator.return().catch(() => undefined);
+				throw error;
+			}
+
+			await sampleIterator.return().catch(() => undefined);
+			const lastTimestamp = frameTimestamps[frameTimestamps.length - 1];
+			try {
+				if (deleted) {
+					throw error;
+				}
+
+				sampleIterator = videoSampleSink.samples(
+					lastTimestamp ??
+						Math.round(initialTimestampRequest * timeResolution) /
+							timeResolution,
+				);
+				let sample = await sampleIterator.next();
+				// Restart from a decodable boundary without retaining duplicate frames.
+				if (lastTimestamp !== undefined) {
+					while (sample.value && sample.value.timestamp <= lastTimestamp) {
+						sample.value.close();
+						sample = await sampleIterator.next();
+					}
+				}
+
+				return sample;
+			} catch (retryError) {
+				// Do not mistake the failed iterator's subsequent EOF for end of media.
+				decodeFailure = {error: retryError};
+				await sampleIterator.return().catch(() => undefined);
+				throw retryError;
+			}
+		}
+	};
 
 	const getMeasuredDurationOfFrame = (timestamp: number) => {
 		const index = frameTimestamps.indexOf(timestamp);
@@ -214,7 +263,7 @@ export const makeKeyframeBank = async ({
 					timestampInSeconds - getSafeWindowOfMonotonicity(fps),
 			});
 
-			const sample = await sampleIterator.next();
+			const sample = await readNextSample();
 
 			if (sample.value) {
 				addFrame(sample.value, logLevel);
@@ -271,12 +320,7 @@ export const makeKeyframeBank = async ({
 				return null;
 			}
 
-			if (
-				roundTo4Digits(sample.timestamp) <= roundTo4Digits(adjustedTimestamp) ||
-				// Match 0.3333333333 to 0.33355555
-				// this does not satisfy the previous condition, since one rounds up and one rounds down
-				Math.abs(sample.timestamp - adjustedTimestamp) <= 0.001
-			) {
+			if (hasFrameStarted(sample.timestamp, adjustedTimestamp)) {
 				return sample;
 			}
 		}
@@ -302,7 +346,7 @@ export const makeKeyframeBank = async ({
 
 	const enqueue = makeSerializedQueue();
 
-	const firstFrame = await sampleIterator.next();
+	const firstFrame = await readNextSample();
 	if (!firstFrame.value) {
 		throw new Error('No first frame found');
 	}
@@ -331,6 +375,7 @@ export const makeKeyframeBank = async ({
 	};
 
 	const prepareForDeletion = (logLevel: LogLevel, reason: string) => {
+		deleted = true;
 		const range = getRangeOfTimestamps();
 		if (range) {
 			Internals.Log.verbose(
@@ -352,7 +397,7 @@ export const makeKeyframeBank = async ({
 
 		// Cleanup frames that have been extracted that might not have been retrieved yet
 		// Must be called after closing the frames
-		sampleIterator.return();
+		sampleIterator.return().catch(() => undefined);
 
 		frameTimestamps.length = 0;
 		return {framesDeleted};

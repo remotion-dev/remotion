@@ -66,6 +66,11 @@ export type AnyCompMetadata = TCompMetadata<
 	Record<string, unknown>
 >;
 
+export type AnimatedImageInTimeline = {
+	loopBehavior: 'loop' | 'pause-after-finish' | 'clear-after-finish';
+	requestInit: RequestInit | null;
+};
+
 type EnhancedTSequenceData =
 	| {
 			type: 'sequence';
@@ -91,6 +96,7 @@ type EnhancedTSequenceData =
 	| {
 			type: 'image';
 			src: string;
+			animated: AnimatedImageInTimeline | null;
 	  };
 
 export type LoopDisplay = {

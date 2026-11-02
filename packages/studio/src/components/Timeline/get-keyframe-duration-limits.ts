@@ -82,8 +82,8 @@ export const getKeyframeDurationLimits = ({
 	readonly tracks: readonly TimelineTrackData[];
 	readonly propStatuses: PropStatuses;
 }) => {
-	const sequencesById = new Map(sequences.map((item) => [item.id, item]));
-	const tracksById = new Map(tracks.map((item) => [item.sequence.id, item]));
+	let sequencesById: Map<string, TSequence> | null = null;
+	let tracksById: Map<string, TimelineTrackData> | null = null;
 	const visited = new Set<string>();
 	let minimumEnd = -Infinity;
 	let maximumEnd = Infinity;
@@ -98,6 +98,9 @@ export const getKeyframeDurationLimits = ({
 			? status.durationDependentKeyframes
 			: null;
 		if (constraints === null) continue;
+
+		sequencesById ??= new Map(sequences.map((item) => [item.id, item]));
+		tracksById ??= new Map(tracks.map((item) => [item.sequence.id, item]));
 
 		// A hook in the render function reads the context outside its outermost
 		// JSX element. Nested JSX sequences do not change that hook's clock.

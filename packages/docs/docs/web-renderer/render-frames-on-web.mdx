@@ -1,0 +1,60 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-web-renderer-render-frames-on-web.png
+id: render-frames-on-web
+title: renderFramesOnWeb()
+crumb: '@remotion/web-renderer'
+---
+
+# renderFramesOnWeb()<AvailableFrom v="4.0.540" />
+
+_Part of the `@remotion/web-renderer` package._
+
+Renders multiple frames of a composition in the browser. Unlike calling [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web) for each frame, the composition is only mounted once.
+
+```tsx twoslash title="Example usage"
+import {renderFramesOnWeb} from '@remotion/web-renderer';
+
+const stills = await renderFramesOnWeb({
+  composition: {
+    component: () => null,
+    durationInFrames: 100,
+    fps: 30,
+    width: 1920,
+    height: 1080,
+    id: 'my-composition',
+  },
+  frames: [0, 30, 90],
+  licenseKey: 'free-license',
+});
+
+const pngBlobs = await Promise.all(stills.map((still) => still.blob({format: 'png'})));
+```
+
+## Arguments
+
+Accepts the same arguments as [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web#arguments), except that `frame` is replaced by `frames`.
+
+### `frames`
+
+An array of frame numbers to render. Behaves like the [`frames`](/docs/renderer/render-frames#frames) option of [`renderFrames()`](/docs/renderer/render-frames).
+
+### `licenseKey?`
+
+A [license key](/docs/licensing) to use for this render. Pass a public license key, or `"free-license"` if you [qualify for the free license](/docs/license). Defaults to no key.
+
+One still-render telemetry event is sent for the entire batch, even if no key is provided. See [Telemetry](/docs/telemetry#telemetry-in-client-side-rendering).
+
+### `isProduction?`
+
+<Options id="is-production" />
+
+## Return value
+
+A promise resolving to an array of [`RenderStillOnWebResult`](/docs/web-renderer/types#renderstillonwebresult) objects, one per frame, in ascending frame order.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/web-renderer/src/render-still-on-web.tsx)
+- [`renderStillOnWeb()`](/docs/web-renderer/render-still-on-web)
+- [`renderFrames()`](/docs/renderer/render-frames)
+- [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda)

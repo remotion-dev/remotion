@@ -1,9 +1,16 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {GAUSSIAN_BLUR_WEBGPU_SHADER} from '../gaussian-blur-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
 } from '../validate-effect-param.js';
+import {
+	applyWebGpuMultipass,
+	cleanupWebGpuMultipass,
+	setupWebGpuMultipass,
+	type WebGpuMultipassState,
+} from '../webgpu-multipass-runtime.js';
 import {
 	applyBlur,
 	cleanupBlur,
@@ -60,30 +67,102 @@ const validateBlurParams = (params: BlurParams): void => {
 	assertRequiredFiniteNumber(params.radius, 'radius');
 };
 
-export const blur = createEffect<BlurParams, BlurState>({
+export const blur = createEffect<BlurParams>({
 	type: 'dev.remotion.effects.blur',
 	label: 'blur()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/blur',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolveBlurParams(params);
 		return `${r.radius}-${r.horizontal ? 1 : 0}-${r.vertical ? 1 : 0}`;
 	},
-	setup: (target) => setupBlur(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolveBlurParams(params);
-		applyBlur({
-			state,
-			source,
-			width,
-			height,
-			radius: r.radius,
-			horizontal: r.horizontal,
-			vertical: r.vertical,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			BlurParams,
+			WebGpuMultipassState
+		>({
+			setup: (target) => setupWebGpuMultipass(target, 'blur'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolveBlurParams(params);
+
+				applyWebGpuMultipass({
+					auxiliarySource: null,
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					passes: [
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								1,
+								0,
+								r.horizontal ? r.radius : 0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+							]),
+							source: -1,
+							secondary: -1,
+						},
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								0,
+								1,
+								r.vertical ? r.radius : 0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+							]),
+							source: 0,
+							secondary: -1,
+						},
+					],
+				});
+			},
+			cleanup: cleanupWebGpuMultipass,
+		}),
+		webgl2: Internals.createEffectImplementation<BlurParams, BlurState>({
+			setup: (target) => setupBlur(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolveBlurParams(params);
+				applyBlur({
+					state,
+					source,
+					width,
+					height,
+					radius: r.radius,
+					horizontal: r.horizontal,
+					vertical: r.vertical,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupBlur(state),
+		}),
 	},
-	cleanup: (state) => cleanupBlur(state),
 	schema: blurSchema,
 	validateParams: validateBlurParams,
 });

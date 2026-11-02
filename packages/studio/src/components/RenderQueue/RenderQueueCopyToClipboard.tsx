@@ -1,7 +1,7 @@
 import type {RenderJob} from '@remotion/studio-shared';
 import {useCallback} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
-import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
+import {getRenderOutputSrc} from '../../helpers/get-asset-metadata';
 import {useCopyFeedback} from '../../helpers/use-copy-feedback';
 import {CopyIcon} from '../../icons/copy';
 import {ActionTooltip} from '../ActionTooltip';
@@ -49,7 +49,7 @@ export const RenderQueueCopyToClipboard: React.FC<{
 		async (e) => {
 			e.stopPropagation();
 			try {
-				const src = `${remotion_outputsBase}/${job.outName}`;
+				const src = getRenderOutputSrc(job.outName);
 
 				const content = await fetch(src);
 				const contentType = content.headers.get('content-type');

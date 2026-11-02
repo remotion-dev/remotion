@@ -100,13 +100,6 @@ export const useLazyComponent = <Props>({
 
 	const lazy = useMemo(() => {
 		if ('component' in compProps) {
-			// In SSR, suspense is not yet supported, we cannot use React.lazy
-			if (typeof document === 'undefined' || noSuspense) {
-				return compProps.component as unknown as React.LazyExoticComponent<
-					ComponentType<Props>
-				>;
-			}
-
 			return Wrapper;
 		}
 
@@ -136,5 +129,14 @@ export const useLazyComponent = <Props>({
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [lazyComponentFromProps, componentStore, Wrapper]);
+
+	// Read the current component on every render when bypassing the wrapper.
+	if (
+		'component' in compProps &&
+		(typeof document === 'undefined' || noSuspense)
+	) {
+		return compProps.component as ComponentType<Props>;
+	}
+
 	return lazy;
 };

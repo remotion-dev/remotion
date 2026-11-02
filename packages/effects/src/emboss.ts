@@ -4,7 +4,14 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {EMBOSS_WEBGPU_SHADER} from './emboss-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -383,66 +390,106 @@ const degreesToRadians = (degrees: number): number => {
 	return (degrees * Math.PI) / 180;
 };
 
-export const emboss = createEffect<EmbossParams, EmbossState>({
+export const emboss = createEffect<EmbossParams>({
 	type: 'dev.remotion.effects.emboss',
 	label: 'emboss()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/emboss',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `emboss-${r.amount}-${r.size}-${r.lineWidth}-${r.depth}-${r.angle}-${r.lightAngle}-${r.offset}`;
 	},
-	setup: (target) => setupEmboss(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, texture, uniforms} = state;
+	implementations: {
+		webgl2: Internals.createEffectImplementation<EmbossParams, EmbossState>({
+			setup: (target) => setupEmboss(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, texture, uniforms} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
-		if (uniforms.uSize) gl.uniform1f(uniforms.uSize, r.size);
-		if (uniforms.uLineWidth) gl.uniform1f(uniforms.uLineWidth, r.lineWidth);
-		if (uniforms.uDepth) gl.uniform1f(uniforms.uDepth, r.depth);
-		if (uniforms.uAngle) {
-			gl.uniform1f(uniforms.uAngle, degreesToRadians(r.angle));
-		}
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
+				if (uniforms.uSize) gl.uniform1f(uniforms.uSize, r.size);
+				if (uniforms.uLineWidth) gl.uniform1f(uniforms.uLineWidth, r.lineWidth);
+				if (uniforms.uDepth) gl.uniform1f(uniforms.uDepth, r.depth);
+				if (uniforms.uAngle) {
+					gl.uniform1f(uniforms.uAngle, degreesToRadians(r.angle));
+				}
 
-		if (uniforms.uLightAngle) {
-			gl.uniform1f(uniforms.uLightAngle, degreesToRadians(r.lightAngle));
-		}
+				if (uniforms.uLightAngle) {
+					gl.uniform1f(uniforms.uLightAngle, degreesToRadians(r.lightAngle));
+				}
 
-		if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
+				if (uniforms.uOffset) gl.uniform1f(uniforms.uOffset, r.offset);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+		webgpu: Internals.createEffectImplementation<
+			EmbossParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'emboss'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error('A WebGPU device is required for the emboss effect');
+				}
+
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: EMBOSS_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						r.amount,
+						r.size,
+						r.lineWidth,
+						r.depth,
+						degreesToRadians(r.angle),
+						degreesToRadians(r.lightAngle),
+						r.offset,
+						0,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
 	},
 	schema: embossSchema,
 	validateParams: validateEmbossParams,

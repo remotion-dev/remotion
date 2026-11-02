@@ -82,6 +82,7 @@ export const processStill = async ({
 		chromeMode: job.chromeMode,
 		audioLatencyHint: null,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		preferredEffectBackend: job.preferredEffectBackend,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack: fixedConfig.rspack,
@@ -90,5 +91,6 @@ export const processStill = async ({
 		rspackOverride: fixedConfig.rspackOverride,
 		webpackOverride: fixedConfig.webpackOverride,
 		licenseKey: job.licenseKey,
+		isProduction: null,
 	});
 };

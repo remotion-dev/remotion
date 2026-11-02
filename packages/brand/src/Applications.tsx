@@ -23,11 +23,23 @@ loadFont({
 	weight: '700',
 });
 
+loadFont({
+	family: 'GT Planar',
+	url: staticFile('GT Planar/GT-Planar-Black.woff2'),
+	weight: '900',
+});
+
 export function Applications() {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill
+			style={{
+				fontFamily: 'GT Planar, sans-serif',
+				fontFeatureSettings: "'ss03'",
+				fontWeight: 700,
+			}}
+		>
 			<Sequence
 				durationInFrames={180}
 				name="Simple application slide"

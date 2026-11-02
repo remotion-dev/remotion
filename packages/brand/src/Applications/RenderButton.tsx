@@ -32,7 +32,7 @@ export function ApplicationRenderButton() {
 				rotationZ={0.01}
 				translationX={-4}
 				translationY={2}
-				width={300}
+				width={220}
 				style={{
 					translate: '262.5px 27.7px',
 					scale: 1.291,
@@ -49,7 +49,7 @@ export function ApplicationRenderButton() {
 						fontFamily: 'GT Planar, sans-serif',
 						fontFeatureSettings: "'ss03'",
 						fontSize: 40,
-						fontWeight: 500,
+						fontWeight: 700,
 						gap: 22,
 						height: '100%',
 						justifyContent: 'center',

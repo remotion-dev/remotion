@@ -101,7 +101,6 @@ const config: Config = {
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
-						{to: '/docs/recorder', label: 'Recorder'},
 						{to: 'https://remotion.dev/convert', label: 'Convert'},
 					],
 				},
@@ -190,16 +189,13 @@ const config: Config = {
 							to: '/lambda',
 						},
 						{
-							label: 'Convert a video',
-							to: 'https://convert.remotion.dev',
+							label: 'remotion.dev/convert',
+							to: 'https://remotion.dev/convert',
+							className: 'footer-convert-link',
 						},
 						{
-							label: 'Store',
-							href: 'https://remotion.pro/store',
-						},
-						{
-							label: 'GitHub',
-							href: 'https://github.com/remotion-dev/remotion',
+							label: 'Editor Starter',
+							href: 'https://remotion.pro/editor-starter',
 						},
 						{
 							label: 'Changelog',
@@ -215,10 +211,6 @@ const config: Config = {
 					title: 'Community',
 					items: [
 						{
-							label: 'Prompt Showcase',
-							to: 'https://remotion.dev/prompts',
-						},
-						{
 							label: 'Showcase',
 							to: 'showcase',
 						},
@@ -229,6 +221,10 @@ const config: Config = {
 						{
 							label: 'Experts',
 							to: 'experts',
+						},
+						{
+							label: 'GitHub',
+							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
 							label: 'Discord',

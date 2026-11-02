@@ -43,7 +43,7 @@ export const rangeParser = (
 
 		// -nnn
 		if (isNaN(start)) {
-			start = size - end;
+			start = Math.max(size - end, 0);
 			end = size - 1;
 			// nnn-
 		} else if (isNaN(end)) {

@@ -227,6 +227,7 @@ const RenderButtonInner: React.FC<{
 
 			setSelectedModal({
 				type: 'server-render',
+				retrySettings: null,
 				readOnlyStudio: copyCommandOnly,
 				compositionId: video.id,
 				initialFrame: getCurrentFrame(),
@@ -280,6 +281,7 @@ const RenderButtonInner: React.FC<{
 				initialSampleRate: defaults.sampleRate,
 				initialChromeMode: defaults.chromeMode,
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				initialPreferredEffectBackend: defaults.preferredEffectBackend,
 				renderDefaults: defaults,
 			});
 		},
@@ -331,6 +333,8 @@ const RenderButtonInner: React.FC<{
 
 		setSelectedModal({
 			type: 'web-render',
+			retryJobId: null,
+			initialRenderType: null,
 			compositionId: video.id,
 			initialFrame: getCurrentFrame(),
 			defaultProps: props[video.id] ?? video.defaultProps,
@@ -352,6 +356,7 @@ const RenderButtonInner: React.FC<{
 			initialTransparent: null,
 			initialMuted: null,
 			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+			initialPreferredEffectBackend: defaults.preferredEffectBackend,
 			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
 			initialPageResponsiveness: 'medium',
 		});

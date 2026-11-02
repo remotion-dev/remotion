@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-player-best-practices.png
+image: https://remotion.media/docs/generated/articles-docs-player-best-practices.png
 id: best-practices
 sidebar_label: 'Best practices'
 title: 'Player - Best practices'
@@ -12,8 +12,8 @@ crumb: '@remotion/player'
 The following pattern is not ideal because every time the time updates, the `<Player>` is being re-rendered:
 
 ```tsx twoslash title="❌ Problematic"
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
 
 // @filename: index.tsx
@@ -50,8 +50,8 @@ export const App: React.FC = () => {
 We advise to render your controls and UI as a sibling to the component that renders the `<Player>` and pass a ref to the player as a prop:
 
 ```tsx twoslash title="✅ Better"
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
 
 // @filename: index.tsx
@@ -116,8 +116,8 @@ Pass it on to [`.play()`](/docs/player/player#play) and [`.toggle()`](/docs/play
 Not memoizing the `inputProps` can cause the whole tree to re-render too many times and create a bottleneck.
 
 ```tsx twoslash title="Player.tsx"
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
 
 // @filename: index.tsx

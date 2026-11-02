@@ -18,11 +18,11 @@ const makeDefaultGlobalCSS = () => {
 
 	return `
 	  html {
-	    overscroll-behavior-y: none;
+	    overscroll-behavior: none;
 	  }
 
   body {
-    overscroll-behavior-y: none;
+    overscroll-behavior: none;
     /* Override Chakra UI position: relative on body */
     position: static !important;
   }

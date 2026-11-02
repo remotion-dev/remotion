@@ -1,7 +1,9 @@
 import React, {useContext, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {TRANSPARENT} from '../helpers/colors';
-import {startCapturedPointerSession} from '../helpers/pointer-session';
+import {startEscapeCancelableCapturedPointerSession} from '../helpers/escape-cancelable-pointer-session';
+import {isPointerSessionRelease} from '../helpers/pointer-session';
+import {createCanvasDragPreview} from './canvas-drag-preview';
 import {ContextMenuForTarget} from './ContextMenu';
 import {
 	forceSpecificCursor,
@@ -9,7 +11,6 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineDragOverrides,
 	getSelectedOutlineScaleDragChanges,
 	getSelectedOutlineScaleDragStates,
 	getSelectedOutlineScaleDragValues,
@@ -32,7 +33,7 @@ import {
 } from './selected-outline-types';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
-import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {saveSequencePropsWithResult} from './Timeline/save-sequence-prop';
 import type {
 	TimelineSelection,
 	TimelineSelectionInteraction,
@@ -69,8 +70,11 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 	const dragOverridesRef = useContext(
 		Internals.VisualModeDragOverridesRefContext,
 	);
-	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, updateDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
 	);
 	const scaleDrag = target?.scaleDrag ?? null;
 	const selected = target?.selected ?? false;
@@ -108,6 +112,15 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 			}
 
 			const startPointer = {x: event.clientX, y: event.clientY};
+			const preview = createCanvasDragPreview({
+				updateDragOverrides,
+				setPropStatuses,
+				setPropStatusesBatch: null,
+				getPropStatuses: (nodePath) =>
+					propStatusesRef.current[
+						Internals.makeSequencePropsSubscriptionKey(nodePath)
+					],
+			});
 			const dragStates = getSelectedOutlineScaleDragStates({
 				dragTargets: selected ? getAllScaleDragTargets() : [scaleDrag],
 				getDragOverrides: dragOverridesRef.current.getDragOverrides,
@@ -157,7 +170,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 					}
 
 					if (dragState.target.propStatus.status === 'keyframed') {
-						setDragOverrides(
+						preview.setDragOverrides(
 							dragState.target.nodePath,
 							scaleFieldKey,
 							Internals.makeKeyframedDragOverride({
@@ -167,7 +180,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 							}),
 						);
 					} else {
-						setDragOverrides(
+						preview.setDragOverrides(
 							dragState.target.nodePath,
 							scaleFieldKey,
 							Internals.makeStaticDragOverride(value),
@@ -176,7 +189,7 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 				}
 			};
 
-			const onPointerUp = () => {
+			const finishDrag = (commit: boolean) => {
 				if (dragStarted) {
 					stopForcingSpecificCursor();
 					onDraggingChange(false);
@@ -187,28 +200,39 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 					lastValues,
 				});
 
-				if (changes.length === 0) {
-					clearSelectedOutlineDragOverrides({
-						clearDragOverrides,
-						dragStates,
-					});
+				if (!commit || changes.length === 0) {
+					preview.cancel();
 					return;
 				}
 
-				const staticChanges = changes.filter(
+				const changesToSave: (
+					| SelectedOutlineStaticDragChange
+					| SelectedOutlineKeyframedDragChange
+				)[] = [];
+				for (const change of changes) {
+					const nodePath = preview.getNodePath(change.nodePath);
+					if (nodePath === null) {
+						preview.cancel();
+						return;
+					}
+
+					changesToSave.push({...change, nodePath});
+				}
+
+				const staticChanges = changesToSave.filter(
 					(change): change is SelectedOutlineStaticDragChange =>
 						change.type === 'static',
 				);
-				const keyframedChanges = changes.filter(
+				const keyframedChanges = changesToSave.filter(
 					(change): change is SelectedOutlineKeyframedDragChange =>
 						change.type === 'keyframed',
 				);
 
-				saveSequenceProps({
+				saveSequencePropsWithResult({
 					changes: staticChanges,
 					addedKeyframes: keyframedChanges,
 					movedKeyframes: null,
-					setPropStatuses,
+					setPropStatuses: preview.setPropStatuses,
 					clientId: scaleDrag.clientId,
 					undoLabel:
 						changes.length > 1 ? 'Scale selected sequences' : 'Scale sequence',
@@ -217,31 +241,36 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 							? 'Scale selected sequences back'
 							: 'Scale sequence back',
 				})
+					.then((response) => {
+						if (response && !response.canUpdate) {
+							throw new Error(
+								'The layer could not be updated. Try the edit again.',
+							);
+						}
+
+						preview.acknowledge(response);
+					})
 					.catch((err) => {
+						preview.fail();
 						showNotification(
 							`Could not save sequence props: ${
 								err instanceof Error ? err.message : String(err)
 							}`,
 							4000,
 						);
-					})
-					.finally(() => {
-						clearSelectedOutlineDragOverrides({
-							clearDragOverrides,
-							dragStates,
-						});
 					});
 			};
 
-			startCapturedPointerSession({
+			startEscapeCancelableCapturedPointerSession({
 				event,
 				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
-				onEnd: onPointerUp,
+				onEnd: (reason, endEvent) => {
+					finishDrag(isPointerSessionRelease(reason, endEvent));
+				},
 			});
 		},
 		[
-			clearDragOverrides,
 			containsSelection,
 			getAllScaleDragTargets,
 			edgeInfo,
@@ -251,7 +280,8 @@ export const SelectedOutlineScaleEdgeLine: React.FC<{
 			scaleDrag,
 			selected,
 			setPropStatuses,
-			setDragOverrides,
+			updateDragOverrides,
+			propStatusesRef,
 			target,
 		],
 	);

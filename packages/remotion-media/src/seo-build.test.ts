@@ -41,7 +41,7 @@ test('builds a crawlable media catalog and discovery files', async () => {
 			readFile(path.join(filesDir, 'llms.txt'), 'utf8'),
 		]);
 
-		expect(html).toContain('<div id="root"><main');
+		expect(html).toContain('<main');
 		expect(html).toContain('Free audio and video files for testing');
 		expect(html).toContain('video.mp4');
 		expect(html).toContain('name="description"');

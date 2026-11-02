@@ -12,7 +12,7 @@ import type {
 	SequenceControls,
 } from './CompositionManager.js';
 import {deleteNestedKey} from './delete-nested-key.js';
-import {getPropStatusesCtx} from './effects/use-memoized-effects.js';
+import {getPropStatusesForSequenceStatus} from './effects/use-memoized-effects.js';
 import {
 	getStackForControls,
 	setStackForControls,
@@ -29,16 +29,24 @@ import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
+import {REACT_REFRESH_STARTED_EVENT} from './react-refresh-event.js';
 import {createRuntimeValueStore} from './runtime-value-store.js';
 import {OverrideIdsToNodePathsGettersContext} from './sequence-node-path.js';
 import {
 	useDragOverridesForNodePath,
-	VisualModePropStatusesContext,
+	usePropStatusForNodePath,
 } from './SequenceManager.js';
 import {useCurrentFrameWithOptionalSubscription} from './use-current-frame.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {computeEffectiveSchemaValuesDotNotation} from './use-schema.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
+
+let sourceRefreshGeneration = 0;
+if (typeof window !== 'undefined') {
+	window.addEventListener(REACT_REFRESH_STARTED_EVENT, () => {
+		sourceRefreshGeneration++;
+	});
+}
 
 export const getNestedValue = (
 	obj: Record<string, unknown>,
@@ -224,7 +232,8 @@ export const withInteractivitySchema = <
 	const flatKeys = Object.keys(flatSchema);
 	// A structural edit can put a different component at the same stack.
 	// Only reuse overrides for instances of this component.
-	const stackToOverrideMap: Record<string, string> = {};
+	let stackToOverrideMap: Record<string, string> = {};
+	let overrideMapGeneration = sourceRefreshGeneration;
 
 	const Wrapped = forwardRef<unknown, Props>((props, ref) => {
 		const {
@@ -254,8 +263,6 @@ export const withInteractivitySchema = <
 			});
 		}
 
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		const {propStatuses} = useContext(VisualModePropStatusesContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const nodePathMapping = useContext(OverrideIdsToNodePathsGettersContext);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -318,6 +325,14 @@ export const withInteractivitySchema = <
 				return String(Math.random());
 			}
 
+			// Original-source stacks can be reused by a different JSX node after
+			// a source edit. Mounted instances keep their state, but newly mounted
+			// instances must not inherit an old sibling's override ID.
+			if (overrideMapGeneration !== sourceRefreshGeneration) {
+				stackToOverrideMap = {};
+				overrideMapGeneration = sourceRefreshGeneration;
+			}
+
 			const existingOverrideId = stackToOverrideMap[internalStack];
 			if (existingOverrideId) {
 				return existingOverrideId;
@@ -333,15 +348,11 @@ export const withInteractivitySchema = <
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const dragOverrides = useDragOverridesForNodePath(nodePath);
 		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const sequenceStatus = usePropStatusForNodePath(nodePath);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const propStatus = useMemo(
-			() =>
-				nodePath === null
-					? undefined
-					: getPropStatusesCtx(propStatuses, {
-							...nodePath,
-							videoConfigValues,
-						}),
-			[nodePath, propStatuses, videoConfigValues],
+			() => getPropStatusesForSequenceStatus(sequenceStatus, videoConfigValues),
+			[sequenceStatus, videoConfigValues],
 		);
 		// Runtime props already update through their owner. Only overrides with
 		// keyframes need this wrapper to subscribe to the advancing clock.
@@ -441,6 +452,15 @@ export const withInteractivitySchema = <
 			schemaKeys: activeKeys,
 			propsToDelete,
 		});
+		// Names are hidden from the property controls, but source-only renames still
+		// need to reach sequence registration when a webpack rebuild is suppressed.
+		const nameStatus = propStatus?.name;
+		if (flatSchema.name?.type === 'hidden' && nameStatus?.status === 'static') {
+			mergedProps.name =
+				typeof nameStatus.codeValue === 'string'
+					? nameStatus.codeValue
+					: undefined;
+		}
 
 		if (OptimisticSequenceDeletion.isDeleted(nodePath, pendingDeletions)) {
 			return null;

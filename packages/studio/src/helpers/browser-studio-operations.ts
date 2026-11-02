@@ -4,6 +4,7 @@ import {
 	type BrowserStudioOperations,
 } from '@remotion/studio-shared';
 import {enqueueStudioSourceMutation} from './enqueue-studio-source-mutation';
+import {withSequenceSourceRead} from './sequence-node-path-mutations';
 
 const queuedOperations = new WeakMap<object, object>();
 
@@ -40,10 +41,17 @@ const withMutationQueue = <T extends object>(operations: T): T => {
 				`/api/${name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}` as keyof ApiRoutes;
 			const queued = studioOperations[endpoint]?.mutatesSource
 				? (...args: unknown[]) =>
-						enqueueStudioSourceMutation(endpoint, args[0], () =>
-							value.apply(target, args),
+						enqueueStudioSourceMutation(endpoint, args[0], (rebasedBody) =>
+							value.apply(target, [rebasedBody, ...args.slice(1)]),
 						)
-				: value.bind(target);
+				: property === 'subscribeToSequenceProps'
+					? (...args: unknown[]) => {
+							return withSequenceSourceRead(
+								[(args[0] as {fileName: string}).fileName],
+								() => value.apply(target, args),
+							);
+						}
+					: value.bind(target);
 			methods.set(property, {original: value, queued});
 			return queued;
 		},

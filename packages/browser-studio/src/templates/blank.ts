@@ -56,13 +56,13 @@ export const MyComponent: React.FC<Props> = () => {
   "license": "UNLICENSED",
   "dependencies": {
     "@remotion/cli": "workspace:*",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "remotion": "workspace:*"
   },
   "devDependencies": {
     "@remotion/eslint-config-flat": "workspace:*",
-    "@types/react": "19.2.7",
+    "@types/react": "19.3.0",
     "@types/web": "0.0.166",
     "eslint": "10.12.0",
     "prettier": "3.8.1",

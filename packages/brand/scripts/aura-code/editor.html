@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>WhatsNew.tsx — announcements</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+				width: 1800px;
+				height: 1200px;
+				overflow: hidden;
+				background: #131414;
+			}
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+				color: #999999;
+			}
+			#shell {
+				width: 1800px;
+				height: 1200px;
+				background: #131414;
+			}
+			.titlebar {
+				height: 56px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: #181919;
+				font-size: 17px;
+				letter-spacing: 0.4px;
+				border-bottom: 1px solid #2b2b2b;
+			}
+			.traffic {
+				position: absolute;
+				left: 26px;
+				display: flex;
+				gap: 10px;
+			}
+			.traffic i {
+				width: 13px;
+				height: 13px;
+				border-radius: 50%;
+				background: #ff5f57;
+			}
+			.traffic i:nth-child(2) {
+				background: #febc2e;
+			}
+			.traffic i:nth-child(3) {
+				background: #28c840;
+			}
+			.tabs {
+				height: 58px;
+				display: flex;
+				align-items: stretch;
+				border-bottom: 1px solid #2b2b2b;
+				background: #181919;
+			}
+			.tab {
+				padding: 0 30px;
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				border-right: 1px solid #2b2b2b;
+				font-size: 19px;
+			}
+			.active {
+				background: #131414;
+
+				color: #e7e7e7;
+			}
+			.icon {
+				font-size: 24px;
+				font-weight: 400;
+				color: #519aba;
+			}
+			.breadcrumbs {
+				height: 38px;
+				display: flex;
+				align-items: center;
+				padding-left: 36px;
+				gap: 14px;
+				font-size: 15px;
+				color: #9c9c9c;
+			}
+			#editor {
+				width: 1800px;
+				height: 1008px;
+			}
+			.status {
+				height: 40px;
+				padding: 0 26px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				border-top: 1px solid #2b2b2b;
+				font-size: 14px;
+				letter-spacing: 0.2px;
+			}
+			body:not(.typing) .monaco-editor .cursors-layer {
+				display: none !important;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="shell">
+			<div class="titlebar">
+				<span class="traffic"><i></i><i></i><i></i></span>WhatsNew.tsx —
+				announcements
+			</div>
+			<div class="tabs">
+				<div class="tab active">
+					<span class="icon">⚛</span>WhatsNew.tsx<span
+						style="margin-left: 24px; color: #e7e7e7"
+						>×</span
+					>
+				</div>
+				<div class="tab"><span class="icon">⚛</span>Root.tsx</div>
+				<div class="tab" style="font-style: italic">
+					<span class="icon">⚛</span>SlideInOverlay.tsx
+				</div>
+			</div>
+			<div class="breadcrumbs">
+				<span>src</span><span>›</span><span>announcements</span><span>›</span
+				><span>whats-new-in-remotion</span><span>›</span
+				><span>WhatsNew.tsx</span>
+			</div>
+			<div id="editor"></div>
+			<div class="status">
+				<span>⑂ main</span
+				><span>UTF-8 &nbsp;&nbsp; TypeScript JSX &nbsp;&nbsp; Prettier</span>
+			</div>
+		</div>
+		<script src="/vs/loader.js"></script>
+		<script type="module" src="/browser.js"></script>
+	</body>
+</html>

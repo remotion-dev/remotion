@@ -1,5 +1,6 @@
 import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	AggregateRenderProgress,
 	JobProgressCallback,
@@ -16,19 +17,24 @@ import {processVideoJob} from './process-video';
 import type {StudioRenderJobFixedConfig} from './studio-render-job-fixed-config';
 
 let jobQueue: RenderJobWithCleanup[] = [];
+const cancellationRequests = new Set<string>();
+let isProcessingJob = false;
 
 const updateJob = (
 	id: string,
 	updater: (job: RenderJobWithCleanup) => RenderJobWithCleanup,
 ) => {
+	let changed = false;
 	jobQueue = jobQueue.map((j) => {
 		if (id === j.id) {
-			return updater(j);
+			const next = updater(j);
+			changed ||= next !== j;
+			return next;
 		}
 
 		return j;
 	});
-	notifyClientsOfJobUpdate();
+	if (changed) notifyClientsOfJobUpdate();
 };
 
 export const getRenderQueue = (): RenderJob[] => {
@@ -128,12 +134,21 @@ export const removeJob = (jobId: string) => {
 export const cancelJob = (jobId: string) => {
 	for (const job of jobQueue) {
 		if (job.id === jobId) {
-			if (job.status !== 'running') {
-				throw new Error('Job is not running');
+			if (job.status === 'idle') {
+				updateJob(jobId, (queuedJob) => ({...queuedJob, status: 'cancelled'}));
+				return;
 			}
 
-			job.cancelToken.cancel();
-			break;
+			if (job.status !== 'running' || cancellationRequests.has(jobId)) return;
+			cancellationRequests.add(jobId);
+			try {
+				job.cancelToken.cancel();
+			} catch (error) {
+				cancellationRequests.delete(jobId);
+				throw error;
+			}
+
+			return;
 		}
 	}
 };
@@ -149,10 +164,9 @@ const processJobIfPossible = async ({
 	logLevel: LogLevel;
 	fixedConfig: StudioRenderJobFixedConfig;
 }) => {
-	const runningJob = jobQueue.find((q) => {
-		return q.status === 'running';
-	});
-	if (runningJob) {
+	// A terminal result may arrive before its browser and temporary files finish
+	// cleaning up. Keep the queue serial until the active processor has settled.
+	if (isProcessingJob) {
 		return;
 	}
 
@@ -164,6 +178,7 @@ const processJobIfPossible = async ({
 		return;
 	}
 
+	isProcessingJob = true;
 	const jobCleanups: {label: string; job: () => void}[] = [];
 
 	try {
@@ -187,12 +202,12 @@ const processJobIfPossible = async ({
 			remotionRoot,
 			onProgress: (progress) => {
 				updateJob(nextJob.id, (job) => {
-					lastProgress = progress;
-					// Ignore late callbacks of progress updates after cancelling
-					if (job.status === 'failed' || job.status === 'done') {
+					if (job.status !== 'running') {
 						return job;
 					}
 
+					lastProgress = progress;
+					if (cancellationRequests.has(job.id)) return job;
 					if (job.type === 'still') {
 						return {
 							...job,
@@ -259,10 +274,19 @@ const processJobIfPossible = async ({
 				...job,
 				status: 'done',
 				cleanup: [...job.cleanup, unwatch],
-				progress: {message: 'Done', value: 1, ...lastProgress},
+				progress: {...lastProgress, message: 'Done', value: 1},
 			};
 		});
 	} catch (err) {
+		if (
+			cancellationRequests.has(nextJob.id) &&
+			RenderInternals.isUserCancelledRender(err)
+		) {
+			Log.info({indent: false, logLevel}, chalk.gray('╰─ Render cancelled.'));
+			updateJob(nextJob.id, (job) => ({...job, status: 'cancelled'}));
+			return;
+		}
+
 		Log.error(
 			{indent: false, logLevel},
 			chalk.gray('\n╰─ '),
@@ -290,13 +314,17 @@ const processJobIfPossible = async ({
 			});
 		});
 	} finally {
-		await Promise.all(
-			jobCleanups.map(({job, label}) => {
-				Log.verbose({indent: false, logLevel}, 'Cleanup: ' + label);
-				return job();
-			}),
-		);
+		try {
+			await Promise.all(
+				jobCleanups.map(({job, label}) => {
+					Log.verbose({indent: false, logLevel}, 'Cleanup: ' + label);
+					return job();
+				}),
+			);
+		} finally {
+			cancellationRequests.delete(nextJob.id);
+			isProcessingJob = false;
+			processJobIfPossible({entryPoint, remotionRoot, logLevel, fixedConfig});
+		}
 	}
-
-	processJobIfPossible({remotionRoot, entryPoint, logLevel, fixedConfig});
 };

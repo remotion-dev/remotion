@@ -9,32 +9,24 @@ import {parseRange} from './range-parser';
 import {ready} from './ready';
 import type {DevMiddlewareContext} from './types';
 
-const cacheStore = new WeakMap();
+const parsedUrls = new Map<string, URL>();
+const maximumParsedUrls = 1000;
 
-const mem = (fn: Function, {cache = new Map()} = {}) => {
-	const memoized = (...arguments_: unknown[]) => {
-		const [key] = arguments_;
-		const cacheItem = cache.get(key);
+const memoizedParse = (url: string): URL => {
+	const cached = parsedUrls.get(url);
+	if (cached) {
+		return cached;
+	}
 
-		if (cacheItem) {
-			return cacheItem.data;
-		}
+	const parsed = new URL(url, 'http://localhost');
+	// Asset preview URLs include timestamps, so the cache must stay bounded.
+	if (parsedUrls.size >= maximumParsedUrls) {
+		parsedUrls.clear();
+	}
 
-		const result = fn.apply(this, arguments_);
-
-		cache.set(key, {
-			data: result,
-		});
-
-		return result;
-	};
-
-	cacheStore.set(memoized, cache);
-
-	return memoized;
+	parsedUrls.set(url, parsed);
+	return parsed;
 };
-
-const memoizedParse = mem((url: string) => new URL(url, 'http://localhost'));
 
 function getFilenameFromUrl(
 	context: DevMiddlewareContext,

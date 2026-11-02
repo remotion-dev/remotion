@@ -57,13 +57,12 @@ build_and_extract Dockerfile.ubuntu24 remotion-ubuntu24-x86 ubuntu24-x86.mp4 lin
 build_and_extract Dockerfile.ubuntu22 remotion-ubuntu22-x86 ubuntu22-x86.mp4 linux/amd64
 build_and_extract Dockerfile.debian remotion-debian-x86 debian-x86.mp4 linux/amd64
 
-# build_and_extract Dockerfile.al2023 remotion-al2023 al2023.mp4
+# Amazon Linux 2023 is supported only on ARM64 (glibc 2.34 exception).
+build_and_extract Dockerfile.al2023-arm64 remotion-al2023-arm64 al2023-arm64.mp4 linux/arm64
 build_and_extract Dockerfile.ubuntu24 remotion-ubuntu24 ubuntu24.mp4
 build_and_extract Dockerfile.ubuntu22 remotion-ubuntu22 ubuntu22.mp4
 build_and_extract Dockerfile.debian remotion-debian debian.mp4
 # build_and_extract Dockerfile.nix remotion-nix nix.mp4
-
-
 
 echo ""
 echo "All videos extracted to packages/dockerfiles/out/"

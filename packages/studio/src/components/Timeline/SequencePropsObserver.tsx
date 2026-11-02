@@ -1,6 +1,7 @@
 import {
 	REACT_REFRESH_STARTED_EVENT,
 	type EventSourceEvent,
+	type SequenceNodePathMutation,
 } from '@remotion/studio-shared';
 import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
@@ -11,16 +12,37 @@ import type {
 import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {markDuplicationSelectionMutationsApplied} from '../../helpers/duplicated-element-selection';
+import {remapOptimisticEffectDeletions} from '../../helpers/effect-deletion-state';
+import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
 import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
+import {acceptSequencePropsSourceVersion} from '../../helpers/sequence-props-source-version';
+import {
+	reconcileCanvasDragPreviewStatuses,
+	resetCanvasDragPreviewsForSourceSession,
+	remapCanvasDragPreviews,
+} from '../canvas-drag-preview';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
+import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
 import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
 import {useTimelineSelection} from './TimelineSelection';
 
-export const SequencePropsObserver = () => {
+export const SequencePropsObserver = ({
+	remapCollapsedLayers,
+}: {
+	readonly remapCollapsedLayers: (
+		mutations: SequenceNodePathMutation[],
+	) => void;
+}) => {
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
-	const {remapPropStatuses, setPropStatuses} = useContext(
-		Internals.VisualModeSettersContext,
-	);
+	const visualModeSetters = useContext(Internals.VisualModeSettersContext);
+	const {
+		remapPropStatuses,
+		setPropStatuses,
+		updateDragOverrides,
+		remapDragOverrideFields,
+		remapEffectDragOverrideFields,
+	} = visualModeSetters;
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -59,13 +81,42 @@ export const SequencePropsObserver = () => {
 		ExpandedTracksSetterContext,
 	);
 	const {remapSelectionNodePaths} = useTimelineSelection();
+	useEffect(
+		() =>
+			subscribeToPreviewServerEvents((event) => {
+				if (event.type === 'init')
+					resetCanvasDragPreviewsForSourceSession(
+						visualModeSetters,
+						event.sourceVersionSessionId,
+					);
+			}),
+		[visualModeSetters],
+	);
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
 			if (event.type !== 'sequence-props-updated') {
 				return;
 			}
 
-			setPropStatuses(event.nodePath, () => event.result);
+			if (
+				!acceptSequencePropsSourceVersion(
+					updateDragOverrides,
+					event.nodePath,
+					event.sourceVersion,
+				)
+			)
+				return;
+
+			// Every save re-sends all subscribed nodes of the file. Keep unchanged
+			// statuses so their consumers do not rerender.
+			const result = reconcileCanvasDragPreviewStatuses(
+				updateDragOverrides,
+				event.nodePath,
+				event.result,
+			);
+			setPropStatuses(event.nodePath, (prev) =>
+				deepEqual(prev, result) ? prev : result,
+			);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
@@ -73,7 +124,7 @@ export const SequencePropsObserver = () => {
 		return () => {
 			unsubscribe();
 		};
-	}, [setPropStatuses, subscribeToEvent]);
+	}, [setPropStatuses, subscribeToEvent, updateDragOverrides]);
 
 	useLayoutEffect(() => {
 		const mutations = takePendingSequenceNodePathMutations();
@@ -81,7 +132,65 @@ export const SequencePropsObserver = () => {
 			return;
 		}
 
+		markDuplicationSelectionMutationsApplied(mutations, fastRefreshes);
+
+		remapCanvasDragPreviews(
+			{
+				updateDragOverrides,
+				remapDragOverrideFields,
+				remapEffectDragOverrideFields,
+			},
+			mutations,
+		);
+		for (const mutation of mutations) remapOptimisticEffectDeletions(mutation);
 		remapSelectionNodePaths(mutations);
+		remapCollapsedLayers(mutations);
+
+		// Each edit can remap many siblings. Index paths once before matching
+		// them against every mounted override ID.
+		const indexedMutations = mutations.map((mutation) =>
+			mutation.files.map((file) => {
+				const byOldPath = new Map<string, (typeof file.remappings)[number]>();
+				const byNewPath = new Map<string, (typeof file.remappings)[number]>();
+				const insertedPaths = new Set<string>();
+				const updatedPaths = new Set<string>();
+				for (const remapping of file.remappings) {
+					const oldPath =
+						remapping.oldNodePath === null
+							? null
+							: JSON.stringify(remapping.oldNodePath);
+					const newPath =
+						remapping.newNodePath === null
+							? null
+							: JSON.stringify(remapping.newNodePath);
+
+					// Preserve the first match when multiple remappings share a path.
+					if (oldPath !== null && !byOldPath.has(oldPath)) {
+						byOldPath.set(oldPath, remapping);
+					}
+
+					if (newPath !== null && !byNewPath.has(newPath)) {
+						byNewPath.set(newPath, remapping);
+					}
+
+					if (oldPath === null && newPath !== null) {
+						insertedPaths.add(newPath);
+					}
+
+					if (oldPath !== null && oldPath === newPath) {
+						updatedPaths.add(oldPath);
+					}
+				}
+
+				return {
+					absolutePath: file.absolutePath,
+					byOldPath,
+					byNewPath,
+					insertedPaths,
+					updatedPaths,
+				};
+			}),
+		);
 
 		const statusRemappings: SequencePropsStatusRemapping[] = [];
 		const overrideUpdates: Array<{
@@ -100,8 +209,8 @@ export const SequencePropsObserver = () => {
 			let runtimeNodePathNeedsRefresh = false;
 			const previousNodePathString = JSON.stringify(previousNodePath.nodePath);
 
-			for (const mutation of mutations) {
-				for (const file of mutation.files) {
+			for (const files of indexedMutations) {
+				for (const file of files) {
 					if (file.absolutePath !== previousNodePath.absolutePath) {
 						continue;
 					}
@@ -110,33 +219,22 @@ export const SequencePropsObserver = () => {
 					// Override IDs follow runtime instances, which may be reused when the
 					// same JSX component takes over an old path. A different component remounts,
 					// so move the old mapping with its source node and resubscribe instead.
-					const runtimeNodePathSource = file.remappings.find(
-						(item) =>
-							item.oldNodePath !== null &&
-							JSON.stringify(item.oldNodePath) === previousNodePathString,
+					const runtimeNodePathSource = file.byOldPath.get(
+						previousNodePathString,
 					);
-					const runtimeNodePathDestination = file.remappings.find(
-						(item) =>
-							item.newNodePath !== null &&
-							JSON.stringify(item.newNodePath) === previousNodePathString,
+					const runtimeNodePathDestination = file.byNewPath.get(
+						previousNodePathString,
 					);
 					const replacementComponentMatches =
 						runtimeNodePathSource?.oldJsxName === undefined ||
 						runtimeNodePathDestination?.newJsxName === undefined ||
 						runtimeNodePathSource.oldJsxName ===
 							runtimeNodePathDestination.newJsxName;
-					const runtimeNodePathWasInserted = file.remappings.some(
-						(item) =>
-							item.oldNodePath === null &&
-							item.newNodePath !== null &&
-							JSON.stringify(item.newNodePath) === previousNodePathString,
+					const runtimeNodePathWasInserted = file.insertedPaths.has(
+						previousNodePathString,
 					);
-					const runtimeNodePathWasUpdated = file.remappings.some(
-						(item) =>
-							item.oldNodePath !== null &&
-							item.newNodePath !== null &&
-							JSON.stringify(item.oldNodePath) === previousNodePathString &&
-							JSON.stringify(item.newNodePath) === previousNodePathString,
+					const runtimeNodePathWasUpdated = file.updatedPaths.has(
+						previousNodePathString,
 					);
 					if (runtimeNodePathSource) {
 						runtimeNodePathExists = Boolean(
@@ -155,11 +253,7 @@ export const SequencePropsObserver = () => {
 						continue;
 					}
 
-					const remapping = file.remappings.find(
-						(item) =>
-							item.oldNodePath !== null &&
-							JSON.stringify(item.oldNodePath) === JSON.stringify(nodePath),
-					);
+					const remapping = file.byOldPath.get(JSON.stringify(nodePath));
 					if (!remapping) {
 						continue;
 					}
@@ -233,7 +327,11 @@ export const SequencePropsObserver = () => {
 		migrateExpandedTracksForSubscriptionKey,
 		propStatusesRef,
 		remapSelectionNodePaths,
+		remapCollapsedLayers,
 		remapPropStatuses,
+		updateDragOverrides,
+		remapDragOverrideFields,
+		remapEffectDragOverrideFields,
 		setOverrideIdToNodePath,
 	]);
 

@@ -11,7 +11,7 @@ export const getFrameDatabaseKeyPrefix = (src: string): string => {
 	return `${src}${KEY_SEPARATOR}`;
 };
 
-type VideoFrameAndLastUsed = {
+export type VideoFrameAndLastUsed = {
 	frame: VideoFrame;
 	lastUsed: number;
 	size: number;

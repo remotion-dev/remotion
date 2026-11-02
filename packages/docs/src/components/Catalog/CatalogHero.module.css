@@ -65,7 +65,7 @@
 :global(.studio-elements-embed) .hero {
 	align-items: flex-start;
 	gap: 12px;
-	padding: 0;
+	padding: 0 0 24px;
 	text-align: left;
 }
 

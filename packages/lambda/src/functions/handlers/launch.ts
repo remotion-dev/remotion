@@ -221,6 +221,7 @@ const innerLaunchHandler = async ({
 		},
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+		preferredEffectBackend: params.preferredEffectBackend,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -477,6 +478,7 @@ const innerLaunchHandler = async ({
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			preferredEffectBackend: params.preferredEffectBackend,
 			sampleRate: params.sampleRate,
 		};
 		return payload;
@@ -1095,7 +1097,7 @@ export const launchHandler = async ({
 	};
 
 	const runCleanupTasks = () => {
-		const prom = Promise.all(cleanupTasks)
+		const prom = Promise.all(cleanupTasks.map((task) => task()))
 			.then(() => {
 				RenderInternals.Log.info(
 					{indent: false, logLevel: params.logLevel},
@@ -1268,7 +1270,7 @@ export const launchHandler = async ({
 		});
 		clearTimeout(webhookDueToTimeout);
 
-		sendTelemetryEvent({
+		await sendTelemetryEvent({
 			licenseKey: params.licenseKey ?? null,
 			logLevel: params.logLevel,
 			isStill: false,

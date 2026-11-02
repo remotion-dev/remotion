@@ -155,6 +155,7 @@ export const renderWithSingleFunction = async ({
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			preferredEffectBackend: params.preferredEffectBackend,
 			licenseKey: null,
 			isProduction: false,
 			sampleRate: params.sampleRate,

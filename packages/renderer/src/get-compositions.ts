@@ -117,6 +117,7 @@ const innerGetCompositions = async ({
 	indent,
 	logLevel,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	darkMode,
 }: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
@@ -137,6 +138,7 @@ const innerGetCompositions = async ({
 		onServeUrlVisited: () => undefined,
 		isMainTab: true,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
 		darkMode,
 		sampleRate: 48000,
@@ -233,6 +235,7 @@ const internalGetCompositionsRaw = async ({
 	chromeMode,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanupPage} = await getPageAndCleanupFn({
@@ -304,6 +307,7 @@ const internalGetCompositionsRaw = async ({
 					chromeMode,
 					offthreadVideoThreads,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					darkMode: chromiumOptions.darkMode ?? false,
 				});
 			})
@@ -360,6 +364,7 @@ export const getCompositions = (
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		serveUrl,
 	} = options;
 
@@ -396,6 +401,7 @@ export const getCompositions = (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		onLog: defaultOnLog,
 	});
 };

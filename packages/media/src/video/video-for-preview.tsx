@@ -290,6 +290,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
+		// The context is created after commit. Avoid initializing a silent player
+		// that would immediately be replaced when its audio context becomes ready.
+		if (sharedAudioContext?.audioContextPending) {
+			return;
+		}
+
 		const sharedAudioContextForMediaPlayer =
 			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
 				? {
@@ -548,9 +554,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
 
+	const lastEffectsTime = useRef(currentTime);
 	useLayoutEffect(() => {
+		const timeChanged = lastEffectsTime.current !== currentTime;
+		lastEffectsTime.current = currentTime;
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
+		if (!mediaPlayer || !mediaPlayerReady || timeChanged) {
 			return;
 		}
 
@@ -558,6 +567,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 			// Player may have been disposed between layout and the async redraw.
 		});
 	}, [
+		currentTime,
 		effects,
 		effectsOutputSize?.width,
 		effectsOutputSize?.height,

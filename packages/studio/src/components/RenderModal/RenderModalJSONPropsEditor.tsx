@@ -201,6 +201,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	return (
 		<div style={layout === 'inspector' ? inspectorScrollable : scrollable}>
 			<RemTextarea
+				indentWithTab
 				onChange={onChange}
 				onBlur={onQuickSave}
 				value={localValue.str}

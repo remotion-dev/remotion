@@ -1,0 +1,5 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Unified diff context lines intentionally contain a trailing space.
+*.patch -whitespace

@@ -38,8 +38,9 @@ export type {
 	RenderMediaOnWebResult,
 	WebRendererHardwareAcceleration,
 } from './render-media-on-web';
-export {renderStillOnWeb} from './render-still-on-web';
+export {renderFramesOnWeb, renderStillOnWeb} from './render-still-on-web';
 export type {
+	RenderFramesOnWebOptions,
 	RenderStillOnWebEncodeOptions,
 	RenderStillOnWebImageFormat,
 	RenderStillOnWebOptions,

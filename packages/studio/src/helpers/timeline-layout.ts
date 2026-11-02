@@ -12,6 +12,7 @@ import {
 	type SequenceControls,
 	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
+import {Internals} from 'remotion';
 import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
@@ -58,11 +59,13 @@ export type TimelineFieldOnSave = (
 		sourceEdit?: SaveSequencePropSourceEdit;
 	},
 ) => Promise<void>;
+export type TimelineFieldOnDragEnd = (reason: 'commit' | 'cancel') => void;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
 export type TimelineEffectGroupInfo = {
 	readonly effectIndex: number;
 	readonly effectSchema: InteractivitySchemaShape;
+	readonly effects: TSequence['effects'];
 	readonly documentationLink: string | null;
 };
 
@@ -82,7 +85,6 @@ export type TimelineTreeNode =
 			readonly nodePathInfo: SequenceNodePathInfo;
 			readonly label: string;
 			readonly field: AnySchemaFieldInfo | null;
-			readonly runtimeValue: unknown;
 			readonly runtimeValueStore: RuntimeValueStore | null;
 	  };
 
@@ -94,8 +96,13 @@ export const buildTimelineTree = ({
 	propStatuses,
 	includeTextContent,
 	includeSourceControls,
+	includeInspectorOnlyFields,
 	runtimeValues,
+	pendingEffectDeletion,
 }: {
+	pendingEffectDeletion: ReturnType<
+		typeof Internals.OptimisticEffectDeletion.get
+	>;
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
@@ -103,6 +110,7 @@ export const buildTimelineTree = ({
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
 	includeSourceControls: boolean;
+	includeInspectorOnlyFields: boolean;
 	runtimeValues: Readonly<Record<string, unknown>> | null;
 }): TimelineTreeNode[] => {
 	const roots: TimelineTreeNode[] = [];
@@ -138,13 +146,21 @@ export const buildTimelineTree = ({
 				},
 				label: f.description ?? f.key,
 				field: f,
-				runtimeValue: runtimeValues?.[f.key],
-				runtimeValueStore: null,
+				runtimeValueStore: sequence.controls!.runtimeValues,
 			});
 		}
 	}
 
-	if (sequence.effects.length > 0) {
+	const pendingDeletion = pendingEffectDeletion;
+	const hiddenEffects =
+		pendingDeletion &&
+		Internals.OptimisticEffectDeletion.matches(
+			pendingDeletion,
+			sequence.effects,
+		)
+			? new Set(pendingDeletion.effectIndices)
+			: null;
+	if (sequence.effects.length > (hiddenEffects?.size ?? 0)) {
 		roots.push({
 			kind: 'group',
 			nodePathInfo: {
@@ -154,53 +170,64 @@ export const buildTimelineTree = ({
 				numberOfSequencesWithThisNodePath: 0,
 				supportsEffects,
 			},
-			label: 'Effects',
+			label: pendingDeletion ? 'Effects (deleting…)' : 'Effects',
 			effectInfo: null,
-			children: sequence.effects.map((effect, i): TimelineTreeNode => {
-				const effectFields = getEffectFieldsToShow({
-					effect,
-					effectIndex: i,
-					nodePath: sequenceSubscriptionKey,
-					propStatuses,
-					getEffectDragOverrides,
-				});
-				return {
-					kind: 'group',
-					nodePathInfo: {
-						sequenceSubscriptionKey,
-						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
-						index,
-						numberOfSequencesWithThisNodePath: 0,
-						supportsEffects,
+			children: sequence.effects.flatMap((effect, i): TimelineTreeNode[] => {
+				if (hiddenEffects?.has(i)) return [];
+				const effectFields = pendingDeletion
+					? []
+					: getEffectFieldsToShow({
+							effect,
+							effectIndex: i,
+							nodePath: sequenceSubscriptionKey,
+							propStatuses,
+							getEffectDragOverrides,
+						}).filter(
+							// The Curves inspector preserves input order; the generic array editor cannot.
+							(field) =>
+								includeInspectorOnlyFields ||
+								effect.type !== 'remotion/curves' ||
+								field.key !== 'points',
+						);
+				return [
+					{
+						kind: 'group',
+						nodePathInfo: {
+							sequenceSubscriptionKey,
+							auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
+							index,
+							numberOfSequencesWithThisNodePath: 0,
+							supportsEffects,
+						},
+						label: effect.label,
+						effectInfo: {
+							effectIndex: i,
+							effectSchema: effect.schema,
+							effects: sequence.effects,
+							documentationLink: effect.documentationLink ?? null,
+						},
+						children: effectFields.map(
+							(f): TimelineTreeNode => ({
+								kind: 'field',
+								nodePathInfo: {
+									sequenceSubscriptionKey,
+									auxiliaryKeys: [
+										...auxiliaryKeys,
+										'effects',
+										i.toString(),
+										f.key,
+									],
+									index,
+									numberOfSequencesWithThisNodePath: 0,
+									supportsEffects,
+								},
+								label: f.description ?? f.key,
+								field: f,
+								runtimeValueStore: sequence.effectRuntimeValues?.[i] ?? null,
+							}),
+						),
 					},
-					label: effect.label,
-					effectInfo: {
-						effectIndex: i,
-						effectSchema: effect.schema,
-						documentationLink: effect.documentationLink ?? null,
-					},
-					children: effectFields.map(
-						(f): TimelineTreeNode => ({
-							kind: 'field',
-							nodePathInfo: {
-								sequenceSubscriptionKey,
-								auxiliaryKeys: [
-									...auxiliaryKeys,
-									'effects',
-									i.toString(),
-									f.key,
-								],
-								index,
-								numberOfSequencesWithThisNodePath: 0,
-								supportsEffects,
-							},
-							label: f.description ?? f.key,
-							field: f,
-							runtimeValue: null,
-							runtimeValueStore: sequence.effectRuntimeValues?.[i] ?? null,
-						}),
-					),
-				};
+				];
 			}),
 		});
 	}
@@ -259,6 +286,9 @@ export const getExpandedTrackHeight = ({
 	propStatuses: PropStatuses;
 }): number => {
 	const tree = buildTimelineTree({
+		pendingEffectDeletion: Internals.OptimisticEffectDeletion.get(
+			nodePathInfo.sequenceSubscriptionKey,
+		),
 		sequence,
 		nodePathInfo,
 		// We assume that no drag overrides can change the timeline layout
@@ -267,6 +297,7 @@ export const getExpandedTrackHeight = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});
@@ -290,6 +321,7 @@ export const TIMELINE_LAYER_HEIGHT_VIDEO =
 	TIMELINE_LAYER_FILMSTRIP_HEIGHT + TIMELINE_VIDEO_INFO_WAVEFORM_HEIGHT;
 
 export const TIMELINE_LAYER_HEIGHT_AUDIO = 34;
+export const TIMELINE_LAYER_HEIGHT_IMAGE = 34;
 export const TIMELINE_LAYER_HEIGHT_DEFAULT = 21;
 // The horizontal row inside a timeline list item (eye + arrow + label).
 export const TIMELINE_LIST_ITEM_ROW_HEIGHT = 21;
@@ -303,6 +335,10 @@ export const getTimelineLayerHeight = (
 
 	if (type === 'audio') {
 		return TIMELINE_LAYER_HEIGHT_AUDIO;
+	}
+
+	if (type === 'image') {
+		return TIMELINE_LAYER_HEIGHT_IMAGE;
 	}
 
 	return TIMELINE_LAYER_HEIGHT_DEFAULT;
