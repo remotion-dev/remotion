@@ -822,18 +822,25 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const captionStatus = sequencePropStatuses?.captions;
 	const runtimeCaptions = useRuntimeValue(
-		hasCaptionsSchema ? sequence.controls : null,
+		hasCaptionsSchema && captionStatus?.status !== 'static'
+			? sequence.controls
+			: null,
 		'captions',
 	);
+	const captionValue =
+		captionStatus?.status === 'static'
+			? captionStatus.codeValue
+			: runtimeCaptions;
 	const inlineCaptions = useMemo(
 		() =>
 			hasCaptionsSchema
-				? Array.isArray(runtimeCaptions)
-					? (runtimeCaptions as Caption[])
+				? Array.isArray(captionValue)
+					? (captionValue as Caption[])
 					: []
 				: null,
-		[hasCaptionsSchema, runtimeCaptions],
+		[hasCaptionsSchema, captionValue],
 	);
 	const {
 		getCurrentFrame: getCommittedSequenceFrame,

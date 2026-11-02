@@ -4,17 +4,20 @@ import type {TSequence} from 'remotion';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {TimelineSequenceLabel} from './timeline-sequence-label';
 
+export type TimelineCaptionSource =
+	| {readonly type: 'runtime'; readonly key: string}
+	| {readonly type: 'static'; readonly value: unknown};
+
 export const TimelineSequenceCaptions: React.FC<{
 	readonly s: TSequence;
+	readonly source: TimelineCaptionSource;
 	readonly startMs: number;
 	readonly endMs: number;
-}> = ({s, startMs, endMs}) => {
-	const captionKey = Object.entries(s.controls?.schema ?? {}).find(
-		([, field]) => field.type === 'remotion-captions',
-	)?.[0];
+}> = ({s, source, startMs, endMs}) => {
 	const selectTranscript = useCallback(
 		(values: Readonly<Record<string, unknown>>) => {
-			const value = values[captionKey ?? 'captions'];
+			const value =
+				source.type === 'static' ? source.value : values[source.key];
 			const captions = Array.isArray(value) ? (value as Caption[]) : [];
 			return captions
 				.filter(
@@ -23,14 +26,22 @@ export const TimelineSequenceCaptions: React.FC<{
 						caption.endMs > startMs &&
 						caption.startMs < endMs,
 				)
-				.map((caption) => caption.text)
+				.map((caption, index, visible) => {
+					const next = visible[index + 1];
+					return caption.pageBreakAfter &&
+						next &&
+						!/\s$/.test(caption.text) &&
+						!/^\s/.test(next.text)
+						? `${caption.text} `
+						: caption.text;
+				})
 				.join('')
 				.trim();
 		},
-		[captionKey, endMs, startMs],
+		[endMs, source, startMs],
 	);
 	const transcript = useRuntimeValueSelector({
-		controls: s.controls ?? null,
+		controls: source.type === 'runtime' ? s.controls : null,
 		selector: selectTranscript,
 	});
 

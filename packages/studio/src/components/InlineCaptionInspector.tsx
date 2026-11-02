@@ -170,19 +170,19 @@ export const InlineCaptionInspector: React.FC<{
 	const [draftCaptions, setDraftCaptions] = useState(captions);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const savedCaptions = useRef(captions);
-	const runtimeSignature = serializeCaptions(captions);
-	const lastRuntimeSignature = useRef(runtimeSignature);
+	const signature = serializeCaptions(captions);
+	const lastSignature = useRef(signature);
 
 	useEffect(() => {
-		if (lastRuntimeSignature.current === runtimeSignature) {
+		if (lastSignature.current === signature) {
 			return;
 		}
 
-		lastRuntimeSignature.current = runtimeSignature;
+		lastSignature.current = signature;
 		savedCaptions.current = captions;
 		setDraftCaptions(captions);
 		clearDragOverrides(nodePath);
-	}, [captions, clearDragOverrides, nodePath, runtimeSignature]);
+	}, [captions, clearDragOverrides, nodePath, signature]);
 
 	useEffect(() => {
 		if (expanded) {
