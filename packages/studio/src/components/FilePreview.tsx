@@ -5,6 +5,7 @@ import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {
 	registerRenderOutputPlayback,
+	type RenderOutputPlaybackClock,
 	type RenderOutputPlaybackContent,
 } from '../helpers/render-output-playback';
 import {JSONViewer} from './JSONViewer';
@@ -109,7 +110,7 @@ const FontPreview: React.FC<{
 
 type OutputPlayback = {
 	content: RenderOutputPlaybackContent;
-	fps: number | null;
+	clock: RenderOutputPlaybackClock | null;
 };
 
 const NativeMediaPreview: React.FC<{
@@ -118,15 +119,15 @@ const NativeMediaPreview: React.FC<{
 	readonly outputPlayback: OutputPlayback | null;
 }> = ({src, fileType, outputPlayback}) => {
 	const ref = useRef<HTMLMediaElement | null>(null);
-	const fpsRef = useRef(outputPlayback?.fps ?? null);
-	fpsRef.current = outputPlayback?.fps ?? null;
+	const clockRef = useRef(outputPlayback?.clock ?? null);
+	clockRef.current = outputPlayback?.clock ?? null;
 	const content = outputPlayback?.content ?? null;
 	useLayoutEffect(() => {
 		if (content === null || ref.current === null) return;
 		return registerRenderOutputPlayback({
 			content,
 			element: ref.current,
-			getFps: () => fpsRef.current,
+			getClock: () => clockRef.current,
 		});
 	}, [content, fileType, src]);
 	return (

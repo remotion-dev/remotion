@@ -829,7 +829,7 @@ The preview's frame rate, used to interpret `currentFrame` and `seek_to_frame`. 
 
 #### `durationInFrames`<AvailableFrom v="4.0.540" />
 
-The current preview's duration in its frame clock, or `null` when unavailable. Rendered outputs derive it from their native media duration and preview frame rate.
+The current preview's duration in its frame clock, or `null` when unavailable. A rendered video uses the length of its video track when available, with frame `0` at the first picture. While trailing audio finishes, the playhead stays on the last picture. Audio outputs and videos without track timing use the native media duration. An asset preview includes the full soundtrack, even when the audio extends past the video.
 
 #### `playbackStartFrame`<AvailableFrom v="4.0.540" />
 
@@ -1132,7 +1132,7 @@ Sets the playback multiplier. Negative values play backwards in compositions and
 
 ### `seek_to_frame`
 
-Seeks to a zero-based frame. Values beyond the duration are clamped to the final frame. Read `fps` and `durationInFrames` from `get_playback_state` to interpret rendered-output frames; a seek updates the same native media element used by the preview controls.
+Seeks to a zero-based frame. Values beyond the duration are clamped to the final frame. Read `fps` and `durationInFrames` from `get_playback_state` to interpret rendered-output frames. A seek updates the native media element used by the preview controls.
 
 ```ts title="Input"
 {

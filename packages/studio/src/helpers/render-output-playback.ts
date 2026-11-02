@@ -1,5 +1,11 @@
 import type {CanvasContent} from 'remotion';
 import {normalizeOutputPath} from './output-path';
+import {
+	getMediaDurationInFrames,
+	type getMediaPreviewClock,
+} from './use-media-metadata';
+
+export type RenderOutputPlaybackClock = ReturnType<typeof getMediaPreviewClock>;
 
 export type RenderOutputPlaybackContent = Extract<
 	CanvasContent,
@@ -31,7 +37,7 @@ export type RenderOutputPlaybackTarget = {
 type Registration = {
 	content: RenderOutputPlaybackContent;
 	element: HTMLMediaElement;
-	getFps: () => number | null;
+	getClock: () => RenderOutputPlaybackClock | null;
 	target: RenderOutputPlaybackTarget;
 };
 let current: Registration | null = null;
@@ -43,17 +49,16 @@ const mediaTimeToFrame = (time: number, fps: number) => {
 };
 
 const isReady = (entry: Registration) => {
-	const fps = entry.getFps();
+	const clock = entry.getClock();
 	return (
 		current === entry &&
 		entry.element.isConnected &&
 		entry.element.error === null &&
 		entry.element.readyState >= 1 &&
-		Number.isFinite(entry.element.duration) &&
+		clock !== null &&
 		entry.element.duration > 0 &&
-		fps !== null &&
-		Number.isFinite(fps) &&
-		fps > 0
+		(Number.isFinite(entry.element.duration) ||
+			typeof clock.videoTiming?.durationInFrames === 'number')
 	);
 };
 
@@ -81,11 +86,11 @@ export const getRenderOutputPlaybackTarget = (
 export const registerRenderOutputPlayback = ({
 	content,
 	element,
-	getFps,
+	getClock,
 }: {
 	content: RenderOutputPlaybackContent;
 	element: HTMLMediaElement;
-	getFps: () => number | null;
+	getClock: () => RenderOutputPlaybackClock | null;
 }) => {
 	let playStartTime: number | null = null;
 	let awaitingPlayEvent = false;
@@ -110,19 +115,22 @@ export const registerRenderOutputPlayback = ({
 				: `output-blob:${content.displayName}`,
 		getState: () => {
 			requireCurrent();
-			const fps = getFps()!;
-			const durationInFrames = Math.max(1, Math.ceil(element.duration * fps));
+			const {fps, videoTiming} = getClock()!;
+			const startTime = videoTiming?.startTime ?? 0;
+			const durationInFrames =
+				videoTiming?.durationInFrames ??
+				getMediaDurationInFrames(element.duration, fps);
 			return {
 				frame: Math.min(
 					durationInFrames - 1,
-					Math.max(0, mediaTimeToFrame(element.currentTime, fps)),
+					Math.max(0, mediaTimeToFrame(element.currentTime - startTime, fps)),
 				),
 				playbackStartFrame:
 					playStartTime === null
 						? null
 						: Math.min(
 								durationInFrames - 1,
-								Math.max(0, mediaTimeToFrame(playStartTime, fps)),
+								Math.max(0, mediaTimeToFrame(playStartTime - startTime, fps)),
 							),
 				fps,
 				durationInFrames,
@@ -183,7 +191,21 @@ export const registerRenderOutputPlayback = ({
 				throw new Error(
 					`Frame must be between 0 and ${state.durationInFrames - 1}.`,
 				);
-			element.currentTime = frame / state.fps;
+			const {videoTiming} = getClock()!;
+			const time = (videoTiming?.startTime ?? 0) + frame / state.fps;
+			if (videoTiming === null || time === 0) {
+				element.currentTime = time;
+				return;
+			}
+
+			// Media timestamps are quantized to track ticks and native seeks to microseconds.
+			const ticks = time * videoTiming.timeResolution;
+			const nextTick =
+				Math.ceil(ticks - Number.EPSILON * ticks) / videoTiming.timeResolution;
+			element.currentTime = Math.min(
+				nextTick + 0.000002,
+				time + 0.5 / state.fps,
+			);
 		},
 		setPlaybackRate: (rate) => {
 			requireCurrent();
@@ -208,7 +230,7 @@ export const registerRenderOutputPlayback = ({
 			element.loop = loop;
 		},
 	};
-	const entry: Registration = {content, element, getFps, target};
+	const entry: Registration = {content, element, getClock, target};
 	if (current && current.element !== element) current.element.pause();
 	current = entry;
 	element.addEventListener('play', onPlay);

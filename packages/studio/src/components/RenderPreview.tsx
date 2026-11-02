@@ -6,7 +6,10 @@ import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import {getRenderOutputSrc} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {RenderOutputPlaybackContent} from '../helpers/render-output-playback';
-import {getMediaMetadata} from '../helpers/use-media-metadata';
+import {
+	getRenderOutputVideoClock,
+	getMediaPreviewClock,
+} from '../helpers/use-media-metadata';
 import {FilePreview} from './FilePreview';
 
 const msgStyle: React.CSSProperties = {
@@ -41,9 +44,10 @@ export const RenderPreview: React.FC<{
 		identity: typeof blobIdentity;
 		error: Error;
 	} | null>(null);
-	const [blobFps, setBlobFps] = useState<{src: string; fps: number} | null>(
-		null,
-	);
+	const [resolvedClock, setResolvedClock] = useState<{
+		src: string;
+		clock: ReturnType<typeof getMediaPreviewClock>;
+	} | null>(null);
 
 	useEffect(() => {
 		if (!getBlob) {
@@ -97,28 +101,25 @@ export const RenderPreview: React.FC<{
 					fetchedAt: assetMetadata.fetchedAt,
 				})
 			: null;
+	const metadata =
+		assetMetadata?.type === 'found' ? assetMetadata.mediaMetadata : null;
+	const needsVideoClock =
+		fileType === 'video' &&
+		(Boolean(getBlob) || metadata?.videoTiming?.durationInFrames === null);
 	useEffect(() => {
-		if (!getBlob || src === null || fileType !== 'video') return;
-		let cancelled = false;
-		getMediaMetadata(src)
-			.then((metadata) => {
-				if (cancelled) return;
-				const fps = metadata?.fps;
-				setBlobFps({
-					src,
-					fps:
-						fps !== null && fps !== undefined && Number.isFinite(fps) && fps > 0
-							? fps
-							: 30,
-				});
+		if (!needsVideoClock || src === null) return;
+		const controller = new AbortController();
+		getRenderOutputVideoClock(src, controller.signal)
+			.then((videoClock) => {
+				if (!controller.signal.aborted)
+					setResolvedClock({src, clock: videoClock});
 			})
 			.catch(() => {
-				if (!cancelled) setBlobFps({src, fps: 30});
+				if (!controller.signal.aborted)
+					setResolvedClock({src, clock: getMediaPreviewClock(metadata)});
 			});
-		return () => {
-			cancelled = true;
-		};
-	}, [fileType, getBlob, src]);
+		return () => controller.abort();
+	}, [metadata, needsVideoClock, src]);
 
 	if (!getBlob && connectionStatus === 'disconnected') {
 		return <div style={errMsgStyle}>Studio server disconnected</div>;
@@ -134,23 +135,15 @@ export const RenderPreview: React.FC<{
 		return <div style={msgStyle}>Loading preview...</div>;
 	}
 
-	let outputFps: number | null = 30;
-	if (fileType === 'video') {
-		const detectedFps =
-			assetMetadata?.type === 'found' ? assetMetadata.mediaMetadata?.fps : null;
-		if (getBlob) outputFps = blobFps?.src === src ? blobFps.fps : null;
-		else if (
-			detectedFps !== null &&
-			detectedFps !== undefined &&
-			Number.isFinite(detectedFps) &&
-			detectedFps > 0
-		)
-			outputFps = detectedFps;
-	}
+	const clock = needsVideoClock
+		? resolvedClock?.src === src
+			? resolvedClock.clock
+			: null
+		: getMediaPreviewClock(fileType === 'video' ? metadata : null);
 
 	return (
 		<FilePreview
-			outputPlayback={{content: outputPlaybackContent, fps: outputFps}}
+			outputPlayback={{content: outputPlaybackContent, clock}}
 			assetMetadata={assetMetadata}
 			currentAsset={path}
 			fileType={fileType}

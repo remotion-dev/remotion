@@ -4,7 +4,12 @@ import {addAssetCacheBust} from './add-asset-cache-bust';
 import {getPreviewFileType} from './get-preview-file-type';
 import type {Dimensions} from './is-current-selected-still';
 import {getEncodedOutputPath} from './output-path';
-import {getMediaMetadata, type MediaMetadata} from './use-media-metadata';
+import {
+	getMediaDurationInFrames,
+	getMediaMetadata,
+	getMediaPreviewClock,
+	type MediaMetadata,
+} from './use-media-metadata';
 
 export const remotion_outputsBase = window.remotion_outputsBase ?? '';
 
@@ -65,11 +70,15 @@ export const getAssetPreviewMetadata = ({
 		return null;
 	}
 
-	const detectedFps = metadata.mediaMetadata.fps;
-	const fps =
-		detectedFps !== null && Number.isFinite(detectedFps) && detectedFps > 0
-			? detectedFps
-			: 30;
+	const {fps, videoTiming} = getMediaPreviewClock(metadata.mediaMetadata);
+	const {duration} = metadata.mediaMetadata;
+	const durationInFrames =
+		typeof videoTiming?.durationInFrames === 'number' &&
+		videoTiming.startTime === 0 &&
+		metadata.mediaMetadata.hasAudioTrack === false &&
+		metadata.mediaMetadata.fps !== null
+			? videoTiming.durationInFrames
+			: getMediaDurationInFrames(duration, fps);
 
 	return {
 		asset: canvasContent.asset,
@@ -80,10 +89,7 @@ export const getAssetPreviewMetadata = ({
 		width: dimensions.width,
 		height: dimensions.height,
 		fps,
-		durationInFrames: Math.max(
-			1,
-			Math.ceil(metadata.mediaMetadata.duration * fps),
-		),
+		durationInFrames,
 		props: {},
 		defaultCodec: null,
 		defaultOutName: null,
