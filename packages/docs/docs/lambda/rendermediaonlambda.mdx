@@ -104,7 +104,7 @@ const chunks: [number, number][] = [
 ];
 ```
 
-The chunks must be sorted and contiguous, start at the first frame and end at the last frame of the [`frameRange`](#framerange) (or of the composition if no `frameRange` is passed). Each chunk must contain at least <MinimumFramesPerLambda /> frames, unless the whole range is shorter than that.
+The chunks must be sorted and contiguous, start at the first frame and end at the last frame of the [`frameRange`](#framerange) (or of the composition if no `frameRange` is passed). Each chunk, the last one included, must contain at least <MinimumFramesPerLambda /> frames, unless the whole range is shorter than that. A plan from `framesPerLambda` can end in a shorter last chunk, so it cannot always be passed back as `chunks` unchanged.
 
 Maximum number of chunks: 200
 
