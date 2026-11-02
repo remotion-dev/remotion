@@ -72,11 +72,7 @@ import {
 	getPendingSequenceDuplications,
 	isSequenceDuplicationPending,
 } from './Timeline/duplicate-selected-timeline-item';
-import {
-	getCurrentDuration,
-	getCurrentFps,
-	getCurrentFrame,
-} from './Timeline/imperative-state';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
 import {
 	getPendingSequenceSplits,
@@ -299,8 +295,10 @@ export const WebMcp: FC = () => {
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
 	const currentSelectionRef = useRef<string | null>(null);
 	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
-	const {canvasContent, compositions, currentCompositionMetadata, folders} =
-		useContext(Internals.CompositionManager);
+	const {canvasContent, compositions, folders} = useContext(
+		Internals.CompositionManager,
+	);
+	const video = Internals.useVideo();
 	const compositionManagerRef = useContext(
 		Internals.CompositionManagerRefContext,
 	);
@@ -362,8 +360,9 @@ export const WebMcp: FC = () => {
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const foldersRef = useRef(folders);
 	foldersRef.current = folders;
-	const currentCompositionMetadataRef = useRef(currentCompositionMetadata);
-	currentCompositionMetadataRef.current = currentCompositionMetadata;
+	const resolvedComposition = video?.id === currentComposition ? video : null;
+	const resolvedCompositionRef = useRef(resolvedComposition);
+	resolvedCompositionRef.current = resolvedComposition;
 	const guidesListRef = useRef(guidesList);
 	guidesListRef.current = guidesList;
 	const editorShowGuidesRef = useRef(editorShowGuides);
@@ -403,16 +402,16 @@ export const WebMcp: FC = () => {
 				};
 			}
 
-			const compositionId = currentCompositionRef.current;
+			const composition = resolvedCompositionRef.current;
 			if (
 				content?.type === 'composition' &&
-				compositionId === content.compositionId
+				composition?.id === content.compositionId
 			) {
 				return {
 					type: 'timeline' as const,
-					id: compositionId,
-					durationInFrames: getCurrentDuration(),
-					fps: getCurrentFps(),
+					id: composition.id,
+					durationInFrames: composition.durationInFrames,
+					fps: composition.fps,
 				};
 			}
 
@@ -448,15 +447,10 @@ export const WebMcp: FC = () => {
 		};
 
 		const getCurrentTimeline = () => {
-			const composition = currentCompositionDefinitionRef.current;
+			const composition = resolvedCompositionRef.current;
 			if (composition === null) {
 				return [];
 			}
-
-			const durationInFrames =
-				currentCompositionMetadataRef.current?.durationInFrames ??
-				composition.durationInFrames ??
-				getCurrentDuration();
 
 			return calculateTimeline({
 				sequences: sequencesRef.current,
@@ -464,7 +458,7 @@ export const WebMcp: FC = () => {
 				compositions: compositionsRef.current,
 				showConnectedCompositionChildren: compactSeriesRef.current,
 			}).tracks.filter((timelineTrack) =>
-				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
+				shouldShowTrackInTimeline(timelineTrack, composition.durationInFrames),
 			);
 		};
 
@@ -1448,7 +1442,7 @@ export const WebMcp: FC = () => {
 							});
 						}
 
-						const metadata = currentCompositionMetadataRef.current;
+						const metadata = resolvedCompositionRef.current;
 						return Promise.resolve({
 							compositionName: composition.id,
 							stack: composition.stack,
@@ -1459,7 +1453,7 @@ export const WebMcp: FC = () => {
 							height: metadata?.height ?? composition.height ?? null,
 							width: metadata?.width ?? composition.width ?? null,
 							fps: metadata?.fps ?? composition.fps ?? null,
-							currentFrame: getCurrentFrame(),
+							currentFrame: metadata === null ? null : getCurrentFrame(),
 						});
 					},
 				},
@@ -1478,8 +1472,7 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: true},
 					execute: () => {
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
+						if (resolvedCompositionRef.current === null) {
 							return Promise.resolve({
 								currentContent: currentContentRef.current,
 								currentFrame: null,
@@ -1514,8 +1507,7 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: true},
 					execute: async () => {
-						const composition = currentCompositionDefinitionRef.current;
-						if (composition === null) {
+						if (resolvedCompositionRef.current === null) {
 							return {
 								currentContent: currentContentRef.current,
 								currentFrame: null,
@@ -1696,7 +1688,7 @@ export const WebMcp: FC = () => {
 							playbackStartFrame: null,
 							fps: target.fps,
 							durationInFrames: target.durationInFrames,
-							playing: isPlaying(),
+							playing: durationInFrames > 1 && isPlaying(),
 							muted: playerMutedRef.current,
 							volume: mediaVolumeRef.current,
 							playbackRate: playbackRateRef.current,
@@ -2016,17 +2008,14 @@ export const WebMcp: FC = () => {
 						const target = requireCurrentPlaybackTarget();
 						if (target.type === 'output') {
 							target.output.pause();
-							return Promise.resolve({
-								currentContent: currentContentRef.current,
-								playing: false,
-							});
+						} else if (target.durationInFrames > 1) {
+							if (Internals.timeValueRef.current === null) {
+								throw new Error('Studio playback controls are not ready.');
+							}
+
+							pause();
 						}
 
-						if (Internals.timeValueRef.current === null) {
-							throw new Error('Studio playback controls are not ready.');
-						}
-
-						pause();
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
 							playing: false,
@@ -2352,6 +2341,7 @@ export const WebMcp: FC = () => {
 						const {durationInFrames} = target;
 						if (
 							target.type !== 'output' &&
+							durationInFrames > 1 &&
 							Internals.timeValueRef.current === null
 						) {
 							throw new Error('Studio playback controls are not ready.');

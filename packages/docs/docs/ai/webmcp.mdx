@@ -720,6 +720,8 @@ Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
 
 Returns metadata and the current frame for the open composition. All fields are `null` when the canvas is showing an asset or other non-composition content.
 
+While `calculateMetadata` is pending, `currentFrame` is `null` and metadata fields use the registered values where available. Once it resolves, the fields report the calculated values.
+
 ```ts title="Input"
 {
 }
@@ -741,6 +743,8 @@ Returns metadata and the current frame for the open composition. All fields are 
 
 Returns the rendered composition HTML at the current frame without the surrounding Studio interface. The returned HTML is capped at 100,000 characters. Canvas and WebGL pixels are not represented.
 
+While composition metadata is loading, `currentFrame` and `html` are `null`.
+
 ```ts title="Input"
 {
 }
@@ -759,6 +763,8 @@ Returns the rendered composition HTML at the current frame without the surroundi
 ### `get_outlines`
 
 Returns the measurable selectable component outlines active at the current frame. Coordinates use composition pixels and do not change with the Studio canvas zoom.
+
+While composition metadata is loading, `currentFrame` is `null` and `outlines` is empty.
 
 ```ts title="Input"
 {
@@ -793,6 +799,8 @@ Returns the measurable selectable component outlines active at the current frame
 ### `get_playback_state`
 
 Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
+
+One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
 
 ```ts title="Input"
 {
