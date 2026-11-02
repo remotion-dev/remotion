@@ -114,7 +114,6 @@ export const calculateStudioCanvasTransformation = ({
 		compositionWidth,
 		previewSize,
 	});
-	const correction = 0 - (1 - scale) / 2;
 	const devicePixelRatio = getDevicePixelRatio();
 	const snapToDevicePixel = (value: number) =>
 		Math.round(value * devicePixelRatio) / devicePixelRatio;
@@ -130,8 +129,6 @@ export const calculateStudioCanvasTransformation = ({
 				(compositionHeight * scale) / 2 +
 				verticalPadding,
 		),
-		xCorrection: correction * compositionWidth,
-		yCorrection: correction * compositionHeight,
 		scale,
 	};
 };
