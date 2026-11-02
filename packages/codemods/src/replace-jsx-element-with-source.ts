@@ -13,6 +13,7 @@ import {
 	applySourceEdits,
 	captureImportSnapshots,
 	getInsertImportSourceEdits,
+	renderImportDeclaration,
 	type SourceEdit,
 } from './source-edits';
 import {
@@ -108,15 +109,39 @@ export const replaceJsxElementWithSource = <Project extends CodemodProject>({
 					(specifier) => specifier.type !== 'ImportNamespaceSpecifier',
 				),
 		);
-		if (
-			existing &&
-			missing.every(
-				(specifier) => specifier.type !== 'ImportNamespaceSpecifier',
-			)
-		) {
-			existing.specifiers = [...(existing.specifiers ?? []), ...missing];
-		} else if (missing.length === savedImport.specifiers.length) {
+		if (!existing && missing.length === savedImport.specifiers.length) {
 			appendedImports.push(importStatement);
+			continue;
+		}
+
+		// A namespace import cannot share a declaration with named imports
+		const namespaceSpecifiers = missing.filter(
+			(specifier) => specifier.type === 'ImportNamespaceSpecifier',
+		);
+		const otherSpecifiers = missing.filter(
+			(specifier) => specifier.type !== 'ImportNamespaceSpecifier',
+		);
+		if (existing && otherSpecifiers.length > 0) {
+			existing.specifiers = [
+				...(existing.specifiers ?? []),
+				...otherSpecifiers,
+			];
+		}
+
+		for (const specifiers of [
+			namespaceSpecifiers,
+			existing ? [] : otherSpecifiers,
+		]) {
+			if (specifiers.length > 0) {
+				appendedImports.push(
+					renderImportDeclaration({
+						bracketSpacing: /\{\s/.test(importStatement),
+						declaration: {...savedImport, specifiers},
+						quote: importStatement.includes('"') ? '"' : "'",
+						semicolon: importStatement.trimEnd().endsWith(';') ? ';' : '',
+					}),
+				);
+			}
 		}
 	}
 

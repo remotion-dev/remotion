@@ -220,6 +220,12 @@ type SequenceTiming = {
 	readonly currentFrameRef: React.RefObject<number>;
 };
 
+// Bound instead of a closure: a closure created during render shares its scope
+// with the other closures of that render and would retain the first children.
+const getSingleChildPropsFromRef = (
+	childrenRef: React.RefObject<React.ReactNode>,
+) => getSingleChildProps(childrenRef.current);
+
 const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps & {readonly timing: SequenceTiming}
@@ -556,7 +562,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 	const getRegisteredSingleChildProps = useMemo(
 		() =>
 			childComponentOverride === undefined
-				? () => getSingleChildProps(childrenRef.current)
+				? getSingleChildPropsFromRef.bind(null, childrenRef)
 				: null,
 		[childComponentOverride],
 	);
