@@ -241,9 +241,10 @@ export const makeKeyframeBank = async ({
 		frameTimestamps.push(frame.timestamp);
 		allocationSize += getAllocationSize(frame);
 
-		// A time-based window can retain enough high-fps output to exhaust a
-		// native decoder's surfaces. Only the containing frame and lookahead
-		// are needed; older requests can use the manager's existing refetch path.
+		// Hardware decoders (seen on Windows/D3D11) own a small, GPU-dependent pool of
+		// output surfaces. While decoded frames stay open, the decoder silently stops
+		// producing output instead of throwing, which shows up as a delayRender() timeout.
+		// Keep only the frame containing the request and the next one (needed for its duration).
 		while (frameTimestamps.length > 2) {
 			deleteFrameAtTimestamp(frameTimestamps[0]);
 		}
@@ -261,9 +262,6 @@ export const makeKeyframeBank = async ({
 		fps: number,
 	) => {
 		while (!hasDecodedEnoughForTimestamp(timestampInSeconds)) {
-			// Windows hardware decoders can stop producing frames when too many
-			// decoded VideoFrames are still open. Free frames outside the safe
-			// window before asking the decoder for another one.
 			deleteFramesBeforeTimestamp({
 				logLevel: parentLogLevel,
 				timestampInSeconds:
