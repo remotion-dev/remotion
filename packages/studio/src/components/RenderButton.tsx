@@ -499,13 +499,6 @@ const RenderButtonInner: React.FC<{
 		<>
 			<button
 				style={{display: 'none'}}
-				id="render-modal-button-server"
-				disabled={!canServerRender}
-				onClick={() => openServerRenderModal(false)}
-				type="button"
-			/>{' '}
-			<button
-				style={{display: 'none'}}
 				id="render-modal-button-client"
 				onClick={openClientRenderModal}
 				type="button"

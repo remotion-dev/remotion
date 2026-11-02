@@ -232,13 +232,11 @@ export const getFileMenu = ({
 
 export const getRenderMenuItems = ({
 	closeMenu,
-	previewServerState,
 	readOnlyStudio,
 	renderShortcut,
 	compositionSelected,
 }: {
 	closeMenu: () => void;
-	previewServerState: 'connected' | 'init' | 'disconnected';
 	readOnlyStudio: boolean;
 	renderShortcut: string;
 	compositionSelected: boolean;
@@ -252,16 +250,7 @@ export const getRenderMenuItems = ({
 					label: 'Render...',
 					onClick: () => {
 						closeMenu();
-						if (previewServerState !== 'connected') {
-							showNotification('Restart the studio to render', 2000);
-							return;
-						}
-
-						const renderButton = document.getElementById(
-							'render-modal-button-server',
-						) as HTMLButtonElement;
-
-						renderButton.click();
+						document.getElementById('render-modal-button')?.click();
 					},
 					type: 'item' as const,
 					keyHint: areKeyboardShortcutsDisabled()
@@ -852,7 +841,6 @@ const useMenuStructureBase = ({
 						? [
 								...getRenderMenuItems({
 									closeMenu,
-									previewServerState: type,
 									readOnlyStudio,
 									renderShortcut,
 									compositionSelected: currentComposition !== null,
