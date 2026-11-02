@@ -105,14 +105,7 @@ Use our [Pricing Calculator](/docs/license/pricing) to see how much a Company Li
 
 ### What is considered an automation?
 
-An automation is code that renders media without a person initiating and supervising each run. This includes code that:
-
-- is reused as a tool, for example an internal tool, a batch script or a video editor
-- runs on a schedule or in response to events
-- is triggered by other people, such as end users, colleagues or customers
-- renders media at high volume
-
-Such code typically calls one of the following APIs or commands:
+An automation is defined as owning code that programmatically calls one of the following APIs or commands:
 
 - [`renderMedia()`](/docs/renderer/render-media)
 - [`renderStill()`](/docs/renderer/render-still)
@@ -131,18 +124,19 @@ Such code typically calls one of the following APIs or commands:
 - [`npx remotion lambda still`](/docs/lambda/cli/still)
 - [`npx remotion cloudrun render`](/docs/cloudrun/cli/render)
 - [`npx remotion cloudrun still`](/docs/cloudrun/cli/still)
-
-Using the [`<Player>`](/docs/player/player) is always considered an automation.
+- [`<Player>`](/docs/player/player)
 
 In practice, organizations building video editors, prompt-to-video tools, automated video pipelines or using the [Remotion Player](/docs/player) will fall under Remotion for Automators.
 
 ### My AI agent wrote a script that renders many videos. Is that an automation?
 
-Not if you run it yourself for a single production.  
-For example, if you ask your agent to render a video in 12 languages and it writes a loop around [`renderMedia()`](/docs/renderer/render-media) that you run once, this is covered by Remotion for Creators.
+By default, yes, since the script calls one of the APIs listed above.
 
-It becomes an automation once the script is reused as a tool, runs on a schedule, is triggered by other people or renders at high volume.  
-If your usage starts to resemble an automation, we may ask you to review your license configuration.
+As an exception, if you hold a Seat and run the script yourself for a single production for your organization, it is covered by Remotion for Creators.  
+For example, asking your agent to render one campaign in 12 languages and running the resulting script once.
+
+The exception does not apply once the script is reused as a tool, deployed, scheduled, triggered by events or by other people, or renders at high volume.  
+We decide whether usage falls under this exception. If you are unsure, [contact us](/contact).
 
 ### Who needs a Seat under Remotion for Creators?
 
