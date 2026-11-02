@@ -209,6 +209,7 @@ type SequenceTiming = {
 	readonly loopPeriod: number | null;
 	readonly loopIteration: number;
 	readonly contentVisible: boolean;
+	readonly inheritedFrozenFrame: number | null;
 	readonly currentFrameRef: React.RefObject<number>;
 };
 
@@ -306,6 +307,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		loopPeriod,
 		loopIteration,
 		contentVisible,
+		inheritedFrozenFrame,
 		currentFrameRef,
 	} = timing;
 
@@ -561,15 +563,21 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		isMedia && isMedia.type !== 'image'
 			? isMedia.data.startMediaFrom + parentCumulatedNegativeFrom
 			: null;
+	const mediaFreezeFrame =
+		registeredFrozenFrame ??
+		(contentVisible && !parentDormant && !premounting && !postmounting
+			? inheritedFrozenFrame
+			: null);
 	const frozenMediaFrame =
-		isMedia && isMedia.type !== 'image' && mediaFrameAtSequenceZero !== null
-			? registeredFrozenFrame === null
-				? null
-				: mediaFrameAtSequenceZero +
-					(resolvedLoopDisplay
-						? registeredFrozenFrame % resolvedLoopDisplay.durationInFrames
-						: registeredFrozenFrame) *
-						isMedia.data.playbackRate
+		isMedia &&
+		isMedia.type !== 'image' &&
+		mediaFrameAtSequenceZero !== null &&
+		mediaFreezeFrame !== null
+			? mediaFrameAtSequenceZero +
+				(resolvedLoopDisplay
+					? mediaFreezeFrame % resolvedLoopDisplay.durationInFrames
+					: mediaFreezeFrame) *
+					isMedia.data.playbackRate
 			: null;
 	const controlsSchema = controls?.schema;
 	const controlsRuntimeValues = controls?.runtimeValues;
@@ -578,14 +586,13 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 	const controlsComponentIdentity = controls?.componentIdentity;
 	const controlsComponentName = controls?.componentName;
 	const controlsVideoConfigValues = controls?.videoConfigValues;
-	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
 	const canInferDuration =
 		(controlsComponentIdentity === 'dev.remotion.remotion.Series' ||
 			controlsComponentIdentity ===
 				'dev.remotion.transitions.TransitionSeries') &&
 		!loop &&
 		registeredFrozenFrame === null &&
-		!isInsideNonPremountFreeze &&
+		inheritedFrozenFrame === null &&
 		!hidden;
 	const autoDuration = canInferDuration && durationInFrames === undefined;
 	const isSeriesChild =
@@ -1096,6 +1103,9 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			? freeze
 			: (absoluteFrame - currentSequenceStart) *
 				(parentPlaybackRate * playbackRate);
+	const inheritedFrozenFrame = useIsInsideNonPremountFreeze()
+		? currentFrame
+		: null;
 	const currentFrameRef = useRef(currentFrame);
 	const timing = useMemo(
 		(): SequenceTiming => ({
@@ -1105,6 +1115,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			loopPeriod,
 			loopIteration,
 			contentVisible,
+			inheritedFrozenFrame,
 			currentFrameRef,
 		}),
 		[
@@ -1114,6 +1125,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			loopPeriod,
 			loopIteration,
 			contentVisible,
+			inheritedFrozenFrame,
 		],
 	);
 	// The timeline subscriber stays small. Descendants retain their own frame subscriptions,
