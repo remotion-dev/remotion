@@ -37,6 +37,7 @@ type WebRenderModalBasicProps = {
 	readonly startFrame: RenderFrameInput;
 	readonly endFrame: RenderFrameInput;
 	readonly outName: string;
+	readonly outputNameLabel: string;
 	readonly onOutNameChange: React.ChangeEventHandler<HTMLInputElement>;
 	readonly validationMessage: string | null;
 	readonly logLevel: LogLevel;
@@ -90,6 +91,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	startFrame,
 	endFrame,
 	outName,
+	outputNameLabel,
 	onOutNameChange,
 	validationMessage,
 	logLevel,
@@ -237,18 +239,14 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 				</>
 			)}
 			<RenderModalOutputName
-				ariaLabel={
-					window.remotion_isReadOnlyStudio ? 'Download name' : 'Output name'
-				}
+				ariaLabel={outputNameLabel}
 				existingOutputPath={null}
 				existence={false}
 				inputStyle={input}
 				outName={outName}
 				onValueChange={onOutNameChange}
 				validationMessage={validationMessage}
-				label={
-					window.remotion_isReadOnlyStudio ? 'Download name' : 'Output name'
-				}
+				label={outputNameLabel}
 			/>
 			<div style={optionRow}>
 				<div style={label}>

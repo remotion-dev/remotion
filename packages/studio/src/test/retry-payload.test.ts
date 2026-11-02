@@ -10,6 +10,7 @@ const getClientVideoJob = (
 	startedAt: 0,
 	compositionId: 'Comp',
 	outName: 'out/video.mp4',
+	downloadOutput: false,
 	inputProps: {},
 	delayRenderTimeout: 30000,
 	preferredEffectBackend: 'auto',

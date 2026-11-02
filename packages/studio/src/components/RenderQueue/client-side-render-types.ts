@@ -40,6 +40,7 @@ type ClientRenderJobBase = {
 	startedAt: number;
 	compositionId: string;
 	outName: string;
+	downloadOutput: boolean;
 	inputProps: Record<string, unknown>;
 	delayRenderTimeout: number;
 	mediaCacheSizeInBytes: number | null;

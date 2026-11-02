@@ -16,6 +16,7 @@ import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {WHITE_ALPHA_80} from '../helpers/colors';
+import {subscribeToPreviewServerConnectionState} from '../helpers/preview-server-events';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
@@ -178,12 +179,12 @@ const RenderButtonInner: React.FC<{
 				: 'client-render';
 		}
 
-		if (connectionStatus === 'disconnected' || isBrowserStudio) {
+		if (!canServerRender) {
 			return 'client-render';
 		}
 
 		return preferredRenderType;
-	}, [connectionStatus, isBrowserStudio, preferredRenderType, readOnlyStudio]);
+	}, [canServerRender, preferredRenderType, readOnlyStudio]);
 
 	const renderShortcut = useKeyboardShortcutLabel('render');
 	const shortcut =
@@ -299,35 +300,42 @@ const RenderButtonInner: React.FC<{
 			throw new TypeError('Expected defaults');
 		}
 
-		if (!readOnlyStudio && !isBrowserStudio) {
-			let onReconciliation: (() => void) | null = null;
+		if (!readOnlyStudio && canServerRender) {
+			const controller = new AbortController();
 			const nextReconciliation = new Promise<void>((resolve) => {
-				onReconciliation = resolve;
-				window.addEventListener(
-					REACT_REFRESH_FINISHED_EVENT,
-					onReconciliation,
-					{once: true},
-				);
+				const finish = () => resolve();
+				window.addEventListener(REACT_REFRESH_FINISHED_EVENT, finish, {
+					once: true,
+					signal: controller.signal,
+				});
+				controller.signal.addEventListener('abort', finish, {once: true});
+			});
+			const unsubscribe = subscribeToPreviewServerConnectionState((state) => {
+				if (state.type !== 'connected') {
+					controller.abort();
+				}
 			});
 
 			try {
-				const {didInvalidate} = await callApi('/api/invalidate-bundle', {});
+				const {didInvalidate} = await callApi(
+					'/api/invalidate-bundle',
+					{},
+					controller.signal,
+				);
 				if (didInvalidate) {
 					await nextReconciliation;
 				}
 			} catch (error) {
-				showNotification(
-					`Could not prepare client-side render: ${(error as Error).message}`,
-					4000,
-				);
-				return null;
-			} finally {
-				if (onReconciliation) {
-					window.removeEventListener(
-						REACT_REFRESH_FINISHED_EVENT,
-						onReconciliation,
+				if (!controller.signal.aborted) {
+					showNotification(
+						`Could not prepare client-side render: ${(error as Error).message}`,
+						4000,
 					);
+					return null;
 				}
+			} finally {
+				unsubscribe();
+				controller.abort();
 			}
 		}
 
@@ -363,7 +371,7 @@ const RenderButtonInner: React.FC<{
 	}, [
 		video,
 		readOnlyStudio,
-		isBrowserStudio,
+		canServerRender,
 		setSelectedModal,
 		props,
 		inFrame,

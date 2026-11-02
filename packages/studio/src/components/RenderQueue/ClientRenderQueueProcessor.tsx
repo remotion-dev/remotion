@@ -10,8 +10,8 @@ import {
 	registerClientRender,
 	saveOutputFile,
 } from '../../api/save-render-output';
-import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {downloadBlob} from '../../helpers/download-blob';
+import {getPreviewServerConnectionState} from '../../helpers/preview-server-events';
 import type {
 	ClientRenderJob,
 	ClientRenderJobProgress,
@@ -153,19 +153,20 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 
 	const processJob = useCallback(
 		async (job: ClientRenderJob) => {
+			if (job.status !== 'idle') {
+				return;
+			}
+
 			const abortController = getAbortController(job.id);
 
 			try {
 				let result: RenderResult;
 
 				if (job.type === 'client-still') {
-					result = await processStillJob(
-						job as ClientStillRenderJob,
-						abortController.signal,
-					);
+					result = await processStillJob(job, abortController.signal);
 				} else if (job.type === 'client-video') {
 					result = await processVideoJob(
-						job as ClientVideoRenderJob,
+						job,
 						abortController.signal,
 						updateClientJobProgress,
 					);
@@ -190,8 +191,8 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				};
 
 				if (
-					window.remotion_isReadOnlyStudio ||
-					getBrowserStudioOperations() !== null
+					job.downloadOutput ||
+					getPreviewServerConnectionState().type !== 'connected'
 				) {
 					downloadAndFinish();
 				} else {

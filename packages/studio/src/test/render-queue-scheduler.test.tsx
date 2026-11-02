@@ -49,6 +49,7 @@ const makeStillParams = (compositionId: string): AddClientStillJobParams => ({
 	type: 'client-still',
 	compositionId,
 	outName: `${compositionId}.png`,
+	downloadOutput: false,
 	imageFormat: 'png',
 	frame: 0,
 	inputProps: {},

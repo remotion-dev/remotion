@@ -20,6 +20,7 @@ import type {PreferredEffectBackend} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {getDownloadFilename} from '../../helpers/download-blob';
 import {canEditStudioConfig} from '../../helpers/settings-tab-availability';
 import {AudioIcon} from '../../icons/audio';
 import {CertificateIcon} from '../../icons/certificate';
@@ -231,6 +232,10 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	);
 	const [tab, setTab] = useState<TabType>('general');
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
+	const downloadOutput =
+		window.remotion_isReadOnlyStudio ||
+		isBrowserStudio ||
+		previewServerState.type !== 'connected';
 	const canEditConfig = canEditStudioConfig({
 		isBrowserStudio,
 		previewServerConnected: previewServerState.type === 'connected',
@@ -324,12 +329,12 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 	const {value: finalStartFrame} = startFrameInput;
 	const {value: frame} = stillFrameInput;
 
-	const [initialOutNameState] = useState(() => {
+	const [outputPath, setOutputPath] = useState(() => {
 		if (initialDefaultOutName) {
 			return initialDefaultOutName;
 		}
 
-		const defaultOut = getDefaultOutLocation({
+		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
 				renderMode === 'still'
@@ -341,18 +346,17 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			compositionDefaultOutName: resolvedComposition.defaultOutName,
 			outputLocation: window.remotion_renderDefaults?.outputLocation ?? null,
 		});
-
-		if (window.remotion_isReadOnlyStudio) {
-			return defaultOut.replace(/^out\//, '');
-		}
-
-		return defaultOut;
 	});
-
-	const [outName, setOutName] = useState(() => initialOutNameState);
+	const [hasCustomOutName, setHasCustomOutName] = useState(
+		initialDefaultOutName !== null,
+	);
+	const outName =
+		downloadOutput && !hasCustomOutName
+			? getDownloadFilename(outputPath)
+			: outputPath;
 
 	const updateOutNameExtension = useCallback((extension: string) => {
-		setOutName((prev) => getStringBeforeSuffix(prev) + '.' + extension);
+		setOutputPath((prev) => getStringBeforeSuffix(prev) + '.' + extension);
 	}, []);
 
 	const setStillFormat = useCallback(
@@ -450,7 +454,8 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 
 	const onOutNameChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback((e) => {
-			setOutName(e.target.value);
+			setHasCustomOutName(true);
+			setOutputPath(e.target.value);
 		}, []);
 
 	const outnameValidation = useMemo(() => {
@@ -524,6 +529,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			addClientStillJob(
 				{
 					type: 'client-still',
+					downloadOutput,
 					compositionId: resolvedComposition.id,
 					outName,
 					imageFormat,
@@ -543,6 +549,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			addClientVideoJob(
 				{
 					type: 'client-video',
+					downloadOutput,
 					compositionId: resolvedComposition.id,
 					outName,
 					container,
@@ -587,6 +594,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 		resolvedComposition.defaultProps,
 		resolvedComposition.id,
 		setSidebarCollapsedState,
+		downloadOutput,
 		outName,
 		imageFormat,
 		frame,
@@ -735,6 +743,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 							startFrame={startFrameInput}
 							endFrame={endFrameInput}
 							outName={outName}
+							outputNameLabel={downloadOutput ? 'Download name' : 'Output name'}
 							onOutNameChange={onOutNameChange}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
