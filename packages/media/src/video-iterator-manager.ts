@@ -87,11 +87,17 @@ export const videoIteratorManager = async ({
 	let currentSeek: number | null = null;
 	let lastPaintedEffects: EffectDefinitionAndStack<unknown>[] = [];
 	let lastPaintedEffectChainState: EffectChainState | null = null;
+	let lastCompletedEffectPaint: {
+		frame: WrappedCanvas;
+		effects: EffectDefinitionAndStack<unknown>[];
+		chainState: EffectChainState;
+	} | null = null;
 	let destroyed = false;
 	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
+		lastCompletedEffectPaint = null;
 	};
 
 	const displayWidth = await videoTrack.getDisplayWidth();
@@ -138,6 +144,15 @@ export const videoIteratorManager = async ({
 				chainState &&
 				canvas instanceof HTMLCanvasElement
 			) {
+				if (
+					lastCompletedEffectPaint?.frame === frame &&
+					lastCompletedEffectPaint.effects === effects &&
+					lastCompletedEffectPaint.chainState === chainState
+				) {
+					return;
+				}
+
+				lastCompletedEffectPaint = null;
 				const firstEnabledEffect = effects.find(
 					(effect) => !(effect.params as {disabled?: boolean}).disabled,
 				);
@@ -152,7 +167,7 @@ export const videoIteratorManager = async ({
 				const run = {state: chainState, runId: chainState.currentRunId + 1};
 				pendingEffectRun = run;
 				try {
-					await runEffectChain({
+					const completed = await runEffectChain({
 						state: chainState,
 						source,
 						effects,
@@ -160,12 +175,16 @@ export const videoIteratorManager = async ({
 						width: canvas.width,
 						height: canvas.height,
 					});
+					if (completed && pendingEffectRun === run) {
+						lastCompletedEffectPaint = {frame, effects, chainState};
+					}
 				} finally {
 					if (pendingEffectRun === run) {
 						pendingEffectRun = null;
 					}
 				}
 			} else {
+				lastCompletedEffectPaint = null;
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				drawStableFrame(context, frame, canvas.width, canvas.height);
 			}
