@@ -392,12 +392,13 @@ export const WebMcp: FC = () => {
 			if (content?.type === 'output' || content?.type === 'output-blob') {
 				const output = getRenderOutputPlaybackTarget(content);
 				if (output === null) return null;
-				const {durationInFrames, fps} = output.getState();
+				const state = output.getState();
 				return {
 					type: 'output' as const,
 					id: output.id,
-					durationInFrames,
-					fps,
+					durationInFrames: state.durationInFrames,
+					fps: state.fps,
+					state,
 					output,
 				};
 			}
@@ -1660,7 +1661,7 @@ export const WebMcp: FC = () => {
 						}
 
 						if (target.type === 'output') {
-							const state = target.output.getState();
+							const {state} = target;
 							return Promise.resolve({
 								currentContent: currentContentRef.current,
 								currentFrame: state.frame,
@@ -1714,16 +1715,20 @@ export const WebMcp: FC = () => {
 					name: 'get_selection',
 					title: 'Get Studio selection',
 					description:
-						'Read the current frame, canvas content (composition, asset, or output), and source-code context for the item currently selected in Remotion Studio. The selection matches "Copy context for agents".',
+						'Read the current frame of the selected composition, asset, or render output, and the source-code context for the selected item. The frame is 0 when there is no ready playhead. The selection matches "Copy context for agents".',
 					inputSchema: {
 						type: 'object',
 						properties: {},
 						additionalProperties: false,
 					},
 					annotations: {readOnlyHint: true},
-					execute: () =>
-						Promise.resolve({
-							currentFrame: getCurrentFrame(),
+					execute: () => {
+						const target = getCurrentPlaybackTarget();
+						return Promise.resolve({
+							currentFrame:
+								target?.type === 'timeline'
+									? getCurrentFrame()
+									: (target?.state.frame ?? 0),
 							currentSelection: currentSelectionRef.current,
 							currentContent: currentContentRef.current,
 							selectionType:
@@ -1731,7 +1736,8 @@ export const WebMcp: FC = () => {
 									? timelineSelectionRef.current.selectedItems[0].type
 									: null,
 							selectedSequence: selectedSequenceRef.current,
-						}),
+						});
+					},
 				},
 				{signal: controller.signal},
 			),
