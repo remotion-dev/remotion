@@ -64,8 +64,6 @@ const PIXEL_GRID_MIN_SCALE = 4;
 
 const containerStyle = (options: {
 	scale: number;
-	xCorrection: number;
-	yCorrection: number;
 	width: number;
 	height: number;
 	checkerboard: boolean;
@@ -75,8 +73,10 @@ const containerStyle = (options: {
 		// Keep the scaled composition on its own layer so the checkerboard does
 		// not bleed through its edges at fractional preview scales.
 		willChange: 'transform',
-		marginLeft: options.xCorrection,
-		marginTop: options.yCorrection,
+		// Scale from the top left so that the composition is rasterized from the
+		// pixel-snapped position of the outer container, instead of being shifted
+		// by fractional margins around a centered transform origin.
+		transformOrigin: '0 0',
 		width: options.width,
 		height: options.height,
 		display: 'flex',
@@ -245,13 +245,11 @@ const CompWhenItHasDimensions: React.FC<{
 		};
 	}, [canvasContent.type]);
 
-	const {centerX, centerY, yCorrection, xCorrection, scale} = useMemo(() => {
+	const {centerX, centerY, scale} = useMemo(() => {
 		if (contentDimensions === 'none') {
 			return {
 				centerX: 0,
 				centerY: 0,
-				yCorrection: 0,
-				xCorrection: 0,
 				scale: 1,
 			};
 		}
@@ -354,8 +352,6 @@ const CompWhenItHasDimensions: React.FC<{
 						contentDimensions={contentDimensions}
 						offscreen={mediaCompositionFileType === 'audio'}
 						scale={scale}
-						xCorrection={xCorrection}
-						yCorrection={yCorrection}
 					/>
 					<AssetMediaComposition
 						asset={canvasContent.asset}
@@ -409,8 +405,6 @@ const CompWhenItHasDimensions: React.FC<{
 				contentDimensions={contentDimensions as Dimensions}
 				offscreen={false}
 				scale={scale}
-				xCorrection={xCorrection}
-				yCorrection={yCorrection}
 			/>
 			<PixelGrid scale={scale} />
 			<SelectedOutlineOverlay
@@ -456,10 +450,8 @@ const AssetMediaComposition: React.FC<{
 const PortalContainer: React.FC<{
 	readonly offscreen: boolean;
 	readonly scale: number;
-	readonly xCorrection: number;
-	readonly yCorrection: number;
 	readonly contentDimensions: Dimensions;
-}> = ({offscreen, scale, xCorrection, yCorrection, contentDimensions}) => {
+}> = ({offscreen, scale, contentDimensions}) => {
 	const {checkerboard} = useContext(CheckerboardContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const portalContainer = useRef<HTMLDivElement>(null);
@@ -479,8 +471,6 @@ const PortalContainer: React.FC<{
 		return containerStyle({
 			checkerboard,
 			scale,
-			xCorrection,
-			yCorrection,
 			width: contentDimensions.width,
 			height: contentDimensions.height,
 		});
@@ -490,8 +480,6 @@ const PortalContainer: React.FC<{
 		contentDimensions.width,
 		offscreen,
 		scale,
-		xCorrection,
-		yCorrection,
 	]);
 
 	useLayoutEffect(() => {

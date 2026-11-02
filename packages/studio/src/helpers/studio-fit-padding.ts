@@ -52,12 +52,35 @@ export const calculateStudioScale = ({
 }) => {
 	const paddedCanvasSize = getStudioPaddedCanvasSize(canvasSize).canvasSize;
 
-	return Internals.calculateScale({
+	const scale = Internals.calculateScale({
 		canvasSize: paddedCanvasSize,
 		compositionHeight,
 		compositionWidth,
 		previewSize,
 	});
+
+	if (previewSize !== 'auto') {
+		return scale;
+	}
+
+	// The composition is scaled with a CSS transform, so a fractional fit scale
+	// puts its bottom edge between device pixels. Chrome then snaps the clip of
+	// promoted layers like <video> outwards while normal content is painted with
+	// partial coverage, which leaks a 1px row of video below a full-width bar.
+	// Round the fitted height down to whole device pixels to avoid this.
+	const devicePixelRatio = getDevicePixelRatio();
+	return (
+		Math.floor(scale * compositionHeight * devicePixelRatio) /
+		(compositionHeight * devicePixelRatio)
+	);
+};
+
+const getDevicePixelRatio = () => {
+	if (typeof window === 'undefined') {
+		return 1;
+	}
+
+	return window.devicePixelRatio || 1;
 };
 
 export const calculateStudioCanvasTransformation = ({
@@ -85,16 +108,30 @@ export const calculateStudioCanvasTransformation = ({
 		horizontalPadding,
 		verticalPadding,
 	} = getStudioPaddedCanvasSize(canvasSize);
-	const transformation = PlayerInternals.calculateCanvasTransformation({
-		canvasSize: paddedCanvasSize,
+	const scale = calculateStudioScale({
+		canvasSize,
 		compositionHeight,
 		compositionWidth,
 		previewSize,
 	});
+	const correction = 0 - (1 - scale) / 2;
+	const devicePixelRatio = getDevicePixelRatio();
+	const snapToDevicePixel = (value: number) =>
+		Math.round(value * devicePixelRatio) / devicePixelRatio;
 
 	return {
-		...transformation,
-		centerX: transformation.centerX + horizontalPadding,
-		centerY: transformation.centerY + verticalPadding,
+		centerX: snapToDevicePixel(
+			paddedCanvasSize.width / 2 -
+				(compositionWidth * scale) / 2 +
+				horizontalPadding,
+		),
+		centerY: snapToDevicePixel(
+			paddedCanvasSize.height / 2 -
+				(compositionHeight * scale) / 2 +
+				verticalPadding,
+		),
+		xCorrection: correction * compositionWidth,
+		yCorrection: correction * compositionHeight,
+		scale,
 	};
 };

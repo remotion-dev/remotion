@@ -27,8 +27,8 @@ test('adds an 8px horizontal gutter when fitting by width', () => {
 
 	expect(transformation.scale).toBeCloseTo((1000 - 16) / 1920);
 	expect(transformation.centerX).toBeCloseTo(STUDIO_FIT_PADDING);
-	expect(transformation.centerY).toBeCloseTo(
-		(600 - 1080 * transformation.scale) / 2,
+	expect(transformation.centerY).toBe(
+		Math.round((600 - 1080 * transformation.scale) / 2),
 	);
 });
 
@@ -42,8 +42,8 @@ test('adds an 8px vertical gutter when fitting by height', () => {
 	});
 
 	expect(transformation.scale).toBeCloseTo((500 - 16) / 1080);
-	expect(transformation.centerX).toBeCloseTo(
-		(1000 - 1920 * transformation.scale) / 2,
+	expect(transformation.centerX).toBe(
+		Math.round((1000 - 1920 * transformation.scale) / 2),
 	);
 	expect(transformation.centerY).toBe(STUDIO_FIT_PADDING);
 });
@@ -77,4 +77,20 @@ test('keeps the layout size separate from the auto-fit size', () => {
 	expect(context.canvasSize).toBe(canvasSize);
 	expect(context.canvasSizeForAuto.width).toBe(1000 - 16);
 	expect(context.canvasSizeForAuto.height).toBe(600 - 16);
+});
+
+test('snaps the fitted composition edges to whole pixels', () => {
+	const canvasSize = makeCanvasSize(547, 315);
+	const transformation = calculateStudioCanvasTransformation({
+		canvasSize,
+		compositionHeight: 1080,
+		compositionWidth: 1920,
+		previewSize: 'auto',
+	});
+
+	const height = 1080 * transformation.scale;
+	expect(transformation.centerY).toBe(Math.round(transformation.centerY));
+	expect(height).toBeCloseTo(Math.round(height), 10);
+	expect(transformation.centerX).toBe(Math.round(transformation.centerX));
+	expect(height).toBeLessThanOrEqual(315 - 16);
 });
