@@ -39,9 +39,7 @@ export type GetMediaSyncActionInput = {
 	ended: boolean;
 	desiredUnclampedTime: number;
 	mediaTagTime: number;
-	mediaTagLastUpdate: number;
 	rvcTime: number | null;
-	rvcLastUpdate: number | null;
 	isVariableFpsVideo: boolean;
 	acceptableTimeShift: number;
 	lastSeekDueToShift: number | null;
@@ -68,9 +66,7 @@ export const getMediaSyncAction = (
 		ended,
 		desiredUnclampedTime,
 		mediaTagTime,
-		mediaTagLastUpdate,
 		rvcTime,
-		rvcLastUpdate,
 		isVariableFpsVideo,
 		acceptableTimeShift,
 		lastSeekDueToShift,
@@ -91,18 +87,7 @@ export const getMediaSyncAction = (
 			? Math.min(duration, desiredUnclampedTime)
 			: desiredUnclampedTime;
 
-	const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
-	const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
-
-	const mostRecentTimeshift =
-		rvcLastUpdate && (rvcTime as number) > mediaTagLastUpdate
-			? (timeShiftRvcTag as number)
-			: timeShiftMediaTag;
-
-	const timeShift =
-		timeShiftRvcTag && !isVariableFpsVideo
-			? mostRecentTimeshift
-			: timeShiftMediaTag;
+	const timeShift = Math.abs(shouldBeTime - mediaTagTime);
 
 	if (timeShift > acceptableTimeShift && lastSeekDueToShift !== shouldBeTime) {
 		// If scrubbing around, adjust timing

@@ -14,9 +14,7 @@ const makeInput = (
 	ended: false,
 	desiredUnclampedTime: 5,
 	mediaTagTime: 5,
-	mediaTagLastUpdate: 0,
 	rvcTime: null,
-	rvcLastUpdate: null,
 	isVariableFpsVideo: false,
 	acceptableTimeShift: 0.45,
 	lastSeekDueToShift: null,
@@ -138,22 +136,15 @@ describe('seek-due-to-shift (big time shift)', () => {
 });
 
 describe('rvc vs media tag time shift', () => {
-	// The "most recent" comparison uses `rvcTime > mediaTagLastUpdate`, which is
-	// the (odd) behavior of the original implementation. These inputs are chosen
-	// so that branch is taken: rvcLastUpdate is truthy and rvcTime (0.5) is
-	// greater than mediaTagLastUpdate (0).
-	test('uses rvc time shift when it is more recent', () => {
-		// media tag is on time, but rvc reports a big shift → should still trigger
+	test('ignores rvc time shift when the media tag is on time', () => {
 		const action = getMediaSyncAction(
 			makeInput({
 				desiredUnclampedTime: 10,
 				mediaTagTime: 10,
-				mediaTagLastUpdate: 0,
 				rvcTime: 0.5,
-				rvcLastUpdate: 1,
 			}),
 		);
-		expect(action.type).toBe('seek-due-to-shift');
+		expect(action.type).not.toBe('seek-due-to-shift');
 	});
 
 	test('ignores rvc time shift for variable fps videos', () => {
@@ -161,9 +152,7 @@ describe('rvc vs media tag time shift', () => {
 			makeInput({
 				desiredUnclampedTime: 10,
 				mediaTagTime: 10,
-				mediaTagLastUpdate: 0,
 				rvcTime: 0.5,
-				rvcLastUpdate: 1,
 				isVariableFpsVideo: true,
 				// media tag says on time, rvc ignored → no big shift
 				currentTime: 10,
