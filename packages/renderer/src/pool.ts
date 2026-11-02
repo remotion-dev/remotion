@@ -23,7 +23,6 @@ export class Pool {
 	}
 
 	release(resource: Page): void {
-		// A frame that finished after the browser was replaced returns a dead page
 		if (resource.closed) {
 			return;
 		}
