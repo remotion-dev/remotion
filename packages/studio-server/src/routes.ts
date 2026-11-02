@@ -321,11 +321,13 @@ const handleUploadOutput = ({
 	res,
 	search,
 	remotionRoot,
+	liveEventsServer,
 }: {
 	req: IncomingMessage;
 	res: ServerResponse;
 	search: string;
 	remotionRoot: string;
+	liveEventsServer: LiveEventsServer;
 }): Promise<void> => {
 	try {
 		validateSameOrigin(req);
@@ -355,6 +357,14 @@ const handleUploadOutput = ({
 			autoClose: true,
 		});
 		writeStream.on('close', () => {
+			if (!writeStream.writableFinished) {
+				return;
+			}
+
+			liveEventsServer.sendEventToClient({
+				type: 'render-output-written',
+				path: filePath,
+			});
 			res.end(JSON.stringify({success: true}));
 		});
 
@@ -498,6 +508,7 @@ export const handleRoutes = ({
 			res: response,
 			search: url.search,
 			remotionRoot,
+			liveEventsServer,
 		});
 	}
 

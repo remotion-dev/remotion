@@ -121,10 +121,12 @@ export const getAssetMetadata = async (
 					)
 				: null;
 		let size = listedStaticFile?.sizeInBytes ?? null;
+		let fetchedAt = Date.now();
 
 		if (size === null) {
 			const file = await fetch(src, {
 				method: 'HEAD',
+				cache: 'no-store',
 			});
 
 			if (file.status === 404) {
@@ -144,9 +146,12 @@ export const getAssetMetadata = async (
 			}
 
 			size = Number(contentLength);
+			const mtime = file.headers.get('x-remotion-file-mtime');
+			if (canvasContent.type === 'output' && mtime !== null) {
+				fetchedAt = Number(mtime);
+			}
 		}
 
-		const fetchedAt = Date.now();
 		const srcWithTime = addTime ? addAssetCacheBust({fetchedAt, src}) : src;
 
 		const fileType = getPreviewFileType(

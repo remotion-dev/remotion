@@ -1,4 +1,5 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
+import {addAssetCacheBust} from '../helpers/add-asset-cache-bust';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
@@ -88,7 +89,14 @@ export const RenderPreview: React.FC<{
 		blobFailure?.identity === blobIdentity
 			? (blobFailure?.error ?? null)
 			: null;
-	const src = getBlob ? blobUrl : getRenderOutputSrc(path);
+	const src = getBlob
+		? blobUrl
+		: assetMetadata?.type === 'found'
+			? addAssetCacheBust({
+					src: getRenderOutputSrc(path),
+					fetchedAt: assetMetadata.fetchedAt,
+				})
+			: null;
 	useEffect(() => {
 		if (!getBlob || src === null || fileType !== 'video') return;
 		let cancelled = false;

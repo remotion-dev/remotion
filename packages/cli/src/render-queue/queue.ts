@@ -277,6 +277,14 @@ const processJobIfPossible = async ({
 				progress: {...lastProgress, message: 'Done', value: 1},
 			};
 		});
+		if (nextJob.type !== 'sequence') {
+			StudioServerInternals.waitForLiveEventsListener().then((listener) => {
+				listener.sendEventToClient({
+					type: 'render-output-written',
+					path: nextJob.outName,
+				});
+			});
+		}
 	} catch (err) {
 		if (
 			cancellationRequests.has(nextJob.id) &&

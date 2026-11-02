@@ -136,11 +136,11 @@ export const RenderQueueItem: React.FC<{
 
 		if (clientBlobInfo) {
 			setCanvasContent((c: CanvasContent | null): CanvasContent => {
-				const isAlreadySelected =
-					c && c.type === 'output-blob' && c.displayName === job.outName;
-
-				if (isAlreadySelected && !selected) {
-					scrollCurrentIntoView();
+				if (
+					c?.type === 'output-blob' &&
+					c.getBlob === clientBlobInfo.getBlob &&
+					c.displayName === job.outName
+				) {
 					return c;
 				}
 
