@@ -91,6 +91,7 @@ test('Render Media payload', async () => {
 			colorSpace: null,
 			concurrencyPerLambda: 1,
 			concurrency: null,
+			audioConcatenation: 'seamless-if-possible',
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {

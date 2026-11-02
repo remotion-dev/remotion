@@ -54,6 +54,7 @@ const params: ServerlessPayloads['launch'] = {
 	outName: {bucketName: destination},
 	separateAudioTo: null,
 	concurrency: 1,
+	audioConcatenation: 'seamless-if-possible',
 	framesPerFunction: null,
 	concurrencyPerFunction: 1,
 	frameRange: null,

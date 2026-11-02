@@ -6,6 +6,7 @@ import {
 } from '@remotion/lambda-client';
 import type {
 	AudioCodec,
+	AudioConcatenation,
 	CancelSignal,
 	CombineChunksOnProgress,
 	SingleFrameRange,
@@ -25,6 +26,7 @@ export const concatVideos = async ({
 	audioBitrate,
 	logLevel,
 	framesPerLambda,
+	audioConcatenation,
 	binariesDirectory,
 	cancelSignal,
 	preferLossless,
@@ -46,6 +48,7 @@ export const concatVideos = async ({
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
+	audioConcatenation: AudioConcatenation;
 	binariesDirectory: string | null;
 	cancelSignal: CancelSignal | undefined;
 	preferLossless: boolean;
@@ -104,6 +107,7 @@ export const concatVideos = async ({
 			everyNthFrame,
 			frameRange,
 			sampleRate,
+			audioConcatenation,
 		});
 	} catch (err) {
 		await fs.promises.rm(outputDirectory, {recursive: true, force: true});

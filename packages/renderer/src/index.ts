@@ -170,10 +170,12 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {validateOutputFilename} from './validate-output-filename';
 export type {AudioCodec};
+export type {AudioConcatenation} from './can-concat-seamlessly';
 
 import {makeDownloadMap} from './assets/download-map';
 import {
 	canConcatAudioSeamlessly,
+	validateAudioConcatenation,
 	canConcatVideoSeamlessly,
 } from './can-concat-seamlessly';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -293,6 +295,7 @@ export const RenderInternals = {
 	DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 	canConcatVideoSeamlessly,
 	canConcatAudioSeamlessly,
+	validateAudioConcatenation,
 	internalCombineChunks,
 	defaultOnLog,
 };

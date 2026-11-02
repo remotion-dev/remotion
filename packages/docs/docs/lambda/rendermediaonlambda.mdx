@@ -92,6 +92,24 @@ Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
 Cannot be used together with `framesPerLambda`. Use only one of them.
 :::
 
+### `audioConcatenation?`<AvailableFrom v="4.0.540" />
+
+<Options id="audio-concatenation" />
+
+```tsx twoslash title="Encode the audio once at the end"
+// ---cut---
+import {renderMediaOnLambda} from '@remotion/lambda/client';
+
+const {renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  codec: 'h264',
+  audioConcatenation: 'encode-at-merge',
+});
+```
+
 ### `frameRange?`
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline /> To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).

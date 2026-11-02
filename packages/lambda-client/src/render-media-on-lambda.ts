@@ -1,6 +1,7 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
 	AudioCodec,
+	AudioConcatenation,
 	ChromiumOptions,
 	PixelFormat,
 	SingleFrameRange,
@@ -54,6 +55,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	concurrency?: number;
+	audioConcatenation?: AudioConcatenation;
 	frameRange?: SingleFrameRange;
 	outName?: OutNameInput;
 	separateAudioTo?: OutNameInputWithKey;
@@ -176,6 +178,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
 		concurrency: options.concurrency ?? null,
+		audioConcatenation: options.audioConcatenation ?? 'seamless-if-possible',
 		crf: options.crf,
 		gopSize: options.gopSize ?? null,
 		disableSharedMemoryCapture: options.disableSharedMemoryCapture ?? false,

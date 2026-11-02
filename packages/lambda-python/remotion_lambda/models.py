@@ -380,6 +380,7 @@ class RenderMediaParams:
     number_of_gif_loops: Optional[int] = None
     concurrency_per_lambda: Optional[int] = 1
     concurrency: Optional[int] = None
+    audio_concatenation: Literal["seamless-if-possible", "encode-at-merge"] = "seamless-if-possible"
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
         default_factory=lambda: PlayInBrowser(type='play-in-browser')
     )
@@ -424,6 +425,7 @@ class RenderMediaParams:
             'rendererFunctionName': self.renderer_function_name,
             'framesPerLambda': self.frames_per_lambda,
             'concurrency': self.concurrency,
+            'audioConcatenation': self.audio_concatenation,
             'composition': self.composition,
             'serveUrl': self.serve_url,
             'inputProps': self.private_serialized_input_props,

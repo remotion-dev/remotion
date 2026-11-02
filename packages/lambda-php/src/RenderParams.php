@@ -67,6 +67,7 @@ class RenderParams
     protected $sampleRate = 48000;
     protected $gopSize = null;
     protected $disableSharedMemoryCapture = false;
+    protected $audioConcatenation = 'seamless-if-possible';
 
     public function __construct(
         ?array  $data = null,
@@ -122,7 +123,8 @@ class RenderParams
         ?bool   $enableCancellation = false,
         bool    $disableSharedMemoryCapture = false,
         string|array|null $separateAudioTo = null,
-        string $preferredEffectBackend = 'auto'
+        string $preferredEffectBackend = 'auto',
+        string $audioConcatenation = 'seamless-if-possible'
     )
     {
         if ($chromiumOptions === null) {
@@ -183,6 +185,7 @@ class RenderParams
         $this->gopSize = $gopSize;
         $this->enableCancellation = $enableCancellation;
         $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
+        $this->audioConcatenation = $audioConcatenation;
     }
 
     private array $inputProps = array();
@@ -213,6 +216,7 @@ class RenderParams
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
             'concurrency' => $this->getConcurrency(),
+            'audioConcatenation' => $this->getAudioConcatenation(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -759,6 +763,16 @@ class RenderParams
     public function getConcurrency()
     {
         return $this->concurrency;
+    }
+
+    public function getAudioConcatenation(): string
+    {
+        return $this->audioConcatenation;
+    }
+
+    public function setAudioConcatenation(string $audioConcatenation)
+    {
+        $this->audioConcatenation = $audioConcatenation;
     }
 
     public function getDownloadBehavior()

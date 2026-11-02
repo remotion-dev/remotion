@@ -347,6 +347,8 @@ const innerLaunchHandler = async ({
 		throw new Error('Media renders require a codec');
 	}
 
+	RenderInternals.validateAudioConcatenation(params.audioConcatenation);
+
 	const framesPerLambda = LambdaClientInternals.validateFramesPerFunction({
 		framesPerFunction: params.framesPerFunction,
 		durationInFrames: frameCount.length,
@@ -473,6 +475,7 @@ const innerLaunchHandler = async ({
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],
 			framesPerLambda,
+			audioConcatenation: params.audioConcatenation,
 			progressEveryNthFrame,
 			forcePathStyle: params.forcePathStyle,
 			metadata: params.metadata,
@@ -1013,6 +1016,7 @@ const innerLaunchHandler = async ({
 			audioBitrate: params.audioBitrate,
 			logLevel: params.logLevel,
 			framesPerLambda,
+			audioConcatenation: params.audioConcatenation,
 			binariesDirectory: null,
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],

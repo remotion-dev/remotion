@@ -80,6 +80,7 @@ export const startHandler = async ({
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,
 		concurrency: params.concurrency,
+		audioConcatenation: params.audioConcatenation ?? 'seamless-if-possible',
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,

@@ -2,6 +2,7 @@
 
 import {copyFileSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
+import type {AudioConcatenation} from './can-concat-seamlessly';
 import {
 	canConcatAudioSeamlessly,
 	canConcatVideoSeamlessly,
@@ -92,9 +93,11 @@ export const internalCombineChunks = async ({
 	compositionDurationInFrames,
 	sampleRate,
 	separateAudioTo,
+	audioConcatenation,
 }: AllCombineChunksOptions & {
 	indent: boolean;
 	separateAudioTo: string | null;
+	audioConcatenation: AudioConcatenation;
 }) => {
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
@@ -123,6 +126,7 @@ export const internalCombineChunks = async ({
 	const seamlessAudio = canConcatAudioSeamlessly(
 		resolvedAudioCodec,
 		framesPerChunk,
+		audioConcatenation,
 	);
 
 	const numberOfFrames = getFramesToRender(
@@ -300,5 +304,6 @@ export const combineChunks = (options: CombineChunksOptions) => {
 		compositionDurationInFrames: options.compositionDurationInFrames,
 		sampleRate: options.sampleRate ?? 48000,
 		separateAudioTo: null,
+		audioConcatenation: 'seamless-if-possible',
 	});
 };
