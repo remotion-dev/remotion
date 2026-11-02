@@ -2,6 +2,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -19,7 +20,7 @@ export const TimelineFontWeightField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	propStatus,
@@ -45,7 +46,7 @@ export const TimelineFontWeightField: React.FC<{
 			}
 
 			onDragValueChange(newValue);
-			onSave(newValue).finally(onDragEnd);
+			onSave(newValue).finally(() => onDragEnd('commit'));
 		},
 		[onDragEnd, onDragValueChange, onSave, propStatus.codeValue],
 	);
@@ -103,11 +104,11 @@ export const TimelineFontWeightField: React.FC<{
 			onBlur={(event) => {
 				const newValue = event.currentTarget.value;
 				if (newValue === propStatus.codeValue) {
-					onDragEnd();
+					onDragEnd('cancel');
 					return;
 				}
 
-				onSave(newValue).finally(onDragEnd);
+				onSave(newValue).finally(() => onDragEnd('commit'));
 			}}
 			onChange={(event) => onDragValueChange(event.currentTarget.value)}
 			onDoubleClick={(event) => event.stopPropagation()}
@@ -118,7 +119,7 @@ export const TimelineFontWeightField: React.FC<{
 
 				if (event.key === 'Escape') {
 					event.currentTarget.value = String(propStatus.codeValue ?? '');
-					onDragEnd();
+					onDragEnd('cancel');
 					event.currentTarget.blur();
 				}
 			}}

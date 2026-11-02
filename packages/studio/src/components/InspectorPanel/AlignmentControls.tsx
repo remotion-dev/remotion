@@ -10,12 +10,12 @@ import {AlignLeftIcon} from '../../icons/align-left';
 import {AlignRightIcon} from '../../icons/align-right';
 import {AlignTopIcon} from '../../icons/align-top';
 import {ActionTooltip} from '../ActionTooltip';
+import {createCanvasDragPreview} from '../canvas-drag-preview';
 import {InlineAction} from '../InlineAction';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {getSelectedOutlineActiveSchema} from '../selected-outline-drag';
 import {translateFieldKey} from '../selected-outline-types';
-import {callAddSequenceKeyframe} from '../Timeline/call-add-keyframe';
 import {
 	getKeyframeDisplayOffset,
 	getKeyframeSourceFrame,
@@ -24,7 +24,7 @@ import {
 	getCurrentDimensions,
 	getCurrentFrame,
 } from '../Timeline/imperative-state';
-import {saveSequenceProps} from '../Timeline/save-sequence-prop';
+import {saveSequencePropsWithResult} from '../Timeline/save-sequence-prop';
 import {
 	parseTranslate,
 	serializeTranslate,
@@ -88,10 +88,12 @@ const AlignmentControlsUnmemoized: React.FC<{
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
-	const {getDragOverrides} = useContext(
-		Internals.VisualModeDragOverridesContext,
+	const dragOverridesRef = useContext(
+		Internals.VisualModeDragOverridesRefContext,
 	);
-	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses, updateDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 	const {canvasContent, compositions} = useContext(
 		Internals.CompositionManager,
 	);
@@ -123,7 +125,7 @@ const AlignmentControlsUnmemoized: React.FC<{
 				propStatusesRef.current,
 				nodePath,
 			);
-			const dragOverrides = getDragOverrides(nodePath) ?? {};
+			const dragOverrides = dragOverridesRef.current.getDragOverrides(nodePath);
 
 			const activeSchema = getSelectedOutlineActiveSchema({
 				schema: track.sequence.controls.schema,
@@ -235,55 +237,88 @@ const AlignmentControlsUnmemoized: React.FC<{
 
 			const label = undoLabels[direction];
 
-			if (!propStatus || propStatus.status === 'static') {
-				saveSequenceProps({
-					addedKeyframes: null,
-					movedKeyframes: null,
-					changes: [
-						{
-							fileName: nodePath.absolutePath,
-							nodePath,
-							fieldKey: translateFieldKey,
-							value: newValue,
-							defaultValue:
-								fieldSchema.default !== undefined
-									? JSON.stringify(fieldSchema.default)
-									: null,
-							schema: track.sequence.controls.schema,
-						},
+			const preview = createCanvasDragPreview({
+				updateDragOverrides,
+				setPropStatuses,
+				setPropStatusesBatch: null,
+				getPropStatuses: (path) =>
+					propStatusesRef.current[
+						Internals.makeSequencePropsSubscriptionKey(path)
 					],
-					setPropStatuses,
-					clientId: previewServerState.clientId,
-					undoLabel: label,
-					redoLabel: label,
-				});
-			} else {
-				callAddSequenceKeyframe({
-					fileName: nodePath.absolutePath,
-					nodePath,
-					fieldKey: translateFieldKey,
-					sourceFrame: getKeyframeSourceFrame({
-						displayFrame: timelinePosition,
-						keyframeDisplayOffset: getKeyframeDisplayOffset({
-							propStatus,
-							keyframeDisplayOffset: track.keyframeDisplayOffset,
+			});
+			const sourceFrame =
+				propStatus?.status === 'keyframed'
+					? getKeyframeSourceFrame({
+							displayFrame: timelinePosition,
+							keyframeDisplayOffset: getKeyframeDisplayOffset({
+								propStatus,
+								keyframeDisplayOffset: track.keyframeDisplayOffset,
+								keyframePlaybackRate: track.keyframePlaybackRate,
+							}),
 							keyframePlaybackRate: track.keyframePlaybackRate,
-						}),
-						keyframePlaybackRate: track.keyframePlaybackRate,
-						propStatus,
-					}),
-					value: newValue,
-					schema: track.sequence.controls.schema,
-					setPropStatuses,
-					clientId: previewServerState.clientId,
+							propStatus,
+						})
+					: null;
+			preview.setDragOverrides(
+				nodePath,
+				translateFieldKey,
+				propStatus?.status === 'keyframed' && sourceFrame !== null
+					? Internals.makeKeyframedDragOverride({
+							status: propStatus,
+							frame: sourceFrame,
+							value: newValue,
+						})
+					: Internals.makeStaticDragOverride(newValue),
+			);
+			const change = {
+				fileName: nodePath.absolutePath,
+				nodePath,
+				fieldKey: translateFieldKey,
+				value: newValue,
+				schema: track.sequence.controls.schema,
+			};
+			saveSequencePropsWithResult({
+				changes:
+					sourceFrame === null
+						? [
+								{
+									...change,
+									defaultValue:
+										fieldSchema.default !== undefined
+											? JSON.stringify(fieldSchema.default)
+											: null,
+								},
+							]
+						: [],
+				addedKeyframes:
+					sourceFrame === null ? null : [{...change, sourceFrame}],
+				movedKeyframes: null,
+				setPropStatuses: preview.setPropStatuses,
+				clientId: previewServerState.clientId,
+				undoLabel: label,
+				redoLabel: label,
+			})
+				.then((response) => {
+					if (response && !response.canUpdate)
+						throw new Error(
+							'The layer could not be updated. Try the edit again.',
+						);
+					preview.acknowledge(response);
+				})
+				.catch((error) => {
+					preview.fail();
+					showNotification(
+						`Could not align sequence: ${error instanceof Error ? error.message : String(error)}`,
+						4000,
+					);
 				});
-			}
 		},
 		[
 			previewServerState,
 			track,
 			propStatusesRef,
-			getDragOverrides,
+			dragOverridesRef,
+			updateDragOverrides,
 			setPropStatuses,
 		],
 	);

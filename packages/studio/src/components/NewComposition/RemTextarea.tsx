@@ -20,6 +20,7 @@ type Props = React.DetailedHTMLProps<
 	HTMLTextAreaElement
 > & {
 	readonly status: 'error' | 'warning' | 'ok';
+	readonly indentWithTab: boolean;
 	readonly small?: boolean;
 };
 
@@ -42,7 +43,7 @@ const compactInputStyle: React.CSSProperties = {
 const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 	HTMLTextAreaElement,
 	Props
-> = ({status, small = false, ...props}, ref) => {
+> = ({status, indentWithTab, small = false, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const {tabIndex} = useZIndex();
@@ -84,7 +85,7 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			if (e.code === 'Tab') {
+			if (e.code === 'Tab' && indentWithTab) {
 				e.preventDefault();
 				// Always match up with value in JSON.stringify(content, null, 2)
 				document.execCommand('insertText', false, ' '.repeat(2));
@@ -126,7 +127,7 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 			current.removeEventListener('blur', onBlur);
 			current.removeEventListener('keydown', onKeyDown);
 		};
-	}, [inputRef]);
+	}, [indentWithTab, inputRef]);
 
 	return (
 		<textarea

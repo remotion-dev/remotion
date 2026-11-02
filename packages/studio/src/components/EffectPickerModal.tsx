@@ -20,6 +20,7 @@ import {
 	WHITE,
 	WHITE_ALPHA_06,
 } from '../helpers/colors';
+import {assertEffectChainEditable} from '../helpers/effect-deletion-state';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../helpers/hoverable';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {ExternalLinkIcon} from '../icons/external-link';
@@ -34,6 +35,7 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {DismissableModal} from './NewComposition/DismissableModal';
 import {RemotionInput} from './NewComposition/RemInput';
+import {showNotification} from './Notifications/NotificationCenter';
 import {
 	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 	loopIndex,
@@ -238,6 +240,13 @@ const EffectPickerContent: React.FC<{
 
 	const selectItem = useCallback(
 		(item: EffectCatalogItem) => {
+			try {
+				assertEffectChainEditable(state.nodePathInfo.sequenceSubscriptionKey);
+			} catch (error) {
+				showNotification((error as Error).message, 4000);
+				return;
+			}
+
 			setSelectedModal(null);
 			addEffectToSequence({
 				clientId: state.clientId,

@@ -1,32 +1,134 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-audio-trimming.png
-title: Trimming Audio
-sidebar_label: Trimming Audio
+title: Trimming, delaying and looping
+sidebar_label: Trimming, delaying and looping
 id: trimming
-crumb: 'Audio'
+crumb: 'Video and Audio'
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The [`<Audio />`](/docs/media/audio) and [`<Video />`](/docs/media/video) tags support the [`trimBefore`](/docs/media/audio#trimbefore) and [`durationInFrames`](/docs/media/audio#durationinframes) props.
-Use them together to select a section of the source.
+[`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) share the same timing props.
+For how these props compose and interact with playback speed, see [Timing and trimming](/docs/timing).
 
-```tsx twoslash {8} title="MyComp.tsx"
-import {staticFile, useVideoConfig} from 'remotion';
+## Trimming
+
+Use [`trimBefore`](/docs/media/audio#trimbefore) to skip the beginning of a source and [`durationInFrames`](/docs/media/audio#durationinframes) to select how much of it to play.
+Both values are measured in frames at the composition's frame rate.
+
+This example plays the source from 2 to 4 seconds. At the default playback speed, it occupies the first 2 seconds of the composition:
+
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
 import {Video} from '@remotion/media';
+import {staticFile, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
   const {fps} = useVideoConfig();
 
-  return (
-    <>
-      <Video src={staticFile('video.mp4')} trimBefore={2 * fps} durationInFrames={2 * fps} />
-    </>
-  );
+  return <Video src={staticFile('video.mp4')} trimBefore={2 * fps} durationInFrames={2 * fps} />;
 };
 ```
 
-This makes the media play the range from `00:02:00` to `00:04:00`, meaning it will play for 2 seconds.
+</TabItem>
+<TabItem value="audio" label="Audio">
 
-The audio will still play immediately at the beginning - to see how to shift the audio to appear later in the composition, see the [next article](/docs/audio/delaying).
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return <Audio src={staticFile('audio.mp3')} trimBefore={2 * fps} durationInFrames={2 * fps} />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+## Delaying
+
+Use [`from`](/docs/media/audio#from) to start media later on the timeline. It changes when the clip appears, without skipping any source content.
+
+This example starts playing at 2 seconds into the composition:
+
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {staticFile, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return <Video src={staticFile('video.mp4')} from={2 * fps} />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return <Audio src={staticFile('audio.mp3')} from={2 * fps} />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+You can combine `from` with `trimBefore` and `durationInFrames` to place a trimmed clip later in the composition.
+
+## Looping
+
+Use [`loop`](/docs/media/audio#loop) to repeat media until its parent ends. Without an explicit `durationInFrames`, the media's intrinsic duration determines the end of the source range.
+
+To repeat a specific section, combine `loop` with `trimBefore` and `durationInFrames`. This example repeats the source range from 2 to 4 seconds:
+
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {staticFile, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return <Video src={staticFile('video.mp4')} trimBefore={2 * fps} durationInFrames={2 * fps} loop />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const {fps} = useVideoConfig();
+
+  return <Audio src={staticFile('audio.mp3')} trimBefore={2 * fps} durationInFrames={2 * fps} loop />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+## See also
+
+- [Timing and trimming](/docs/timing)
+- [Controlling playback speed](/docs/audio/speed)
+- [Matching composition duration](/docs/videos/align-duration)
+- [Playing videos in sequence](/docs/videos/sequence)

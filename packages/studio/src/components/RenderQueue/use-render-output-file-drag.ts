@@ -2,7 +2,8 @@ import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {DragEventHandler} from 'react';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {CanvasContent} from 'remotion';
-import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
+import {getRenderOutputSrc} from '../../helpers/get-asset-metadata';
+import {normalizeOutputPath} from '../../helpers/output-path';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
 
@@ -126,10 +127,7 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 				const filename = getFilename(job.outName);
 				const source = clientFile
 					? clientFile.objectUrl
-					: new URL(
-							`${remotion_outputsBase}/${job.outName}`,
-							window.location.href,
-						).href;
+					: new URL(getRenderOutputSrc(job.outName), window.location.href).href;
 				const mimeType = clientFile?.file.type || 'application/octet-stream';
 
 				event.dataTransfer.clearData();
@@ -169,7 +167,7 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 				} else {
 					draggedOutput = {
 						jobId: job.id,
-						content: {type: 'output', path: `/${job.outName}`},
+						content: {type: 'output', path: normalizeOutputPath(job.outName)},
 					};
 				}
 

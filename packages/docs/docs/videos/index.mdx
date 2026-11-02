@@ -1,170 +1,129 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-videos-index.png
-title: Embedding videos into Remotion
-sidebar_label: Adding a video
-crumb: 'How To'
+title: Adding video and audio
+sidebar_label: Adding video and audio
+crumb: 'Video and Audio'
 ---
 
-You can embed existing videos into Remotion by using the [`<Video>` from `@remotion/media`](/docs/media/video) component.
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-
-export const MyComp: React.FC = () => {
-  return <Video src="https://remotion.media/BigBuckBunny.mp4" />;
-};
-```
+Use [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) to add video and sound to your composition.
 
 ## Using a local file
 
-Put a file into the [`public` folder](/docs/terminology/public-dir) and reference it using [`staticFile()`](/docs/staticfile).
+Put your media in the [`public` folder](/docs/terminology/public-dir) and reference it with [`staticFile()`](/docs/staticfile).
 
-```tsx twoslash
-import React from 'react';
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
 import {Video} from '@remotion/media';
 import {staticFile} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyComposition = () => {
   return <Video src={staticFile('video.mp4')} />;
 };
 ```
 
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return <Audio src={staticFile('audio.mp3')} />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+## Using a URL
+
+Pass a remote URL as `src`. The server must allow [cross-origin requests](/docs/cors-issues).
+
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+
+export const MyComposition = () => {
+  return <Video src="https://remotion.media/BigBuckBunny.mp4" />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+
+export const MyComposition = () => {
+  return <Audio src="https://remotion.media/audio.mp3" />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+By default, media starts at frame `0` and plays at its original speed and full volume.
+
+## Adding background music
+
+Add multiple media components to mix their audio together. This example plays a video with quieter, looping background music:
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio, Video} from '@remotion/media';
+import {AbsoluteFill, staticFile} from 'remotion';
+
+export const MyComposition = () => (
+  <AbsoluteFill>
+    <Video src={staticFile('video.mp4')} />
+    <Audio src={staticFile('music.mp3')} volume={0.2} loop />
+  </AbsoluteFill>
+);
+```
+
+## Audio from video
+
+A video's audio is included automatically. The same controls for volume, muting, speed and pitch apply to both `<Video>` and `<Audio>`.
+To replace a video's sound with background music, add `muted` to `<Video>` in the example above.
+
 ## Trimming
 
-By using the [`trimBefore`](/docs/media/video#trimbefore) prop, you can remove the first few seconds of the video.
-
-In the example below, the first two seconds of the video are skipped (assuming a composition FPS of 30).
-
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return <Video src={staticFile('video.mp4')} trimBefore={60} />;
-};
-```
-
-Use [`durationInFrames`](/docs/media/video#durationinframes) to select how many source frames should play.
-
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return <Video src={staticFile('video.mp4')} trimBefore={60} durationInFrames={60} />;
-};
-```
+Use `trimBefore` and `durationInFrames` to select a source range. See [Trimming, delaying and looping](/docs/audio/trimming#trimming).
 
 ## Delaying
 
-Use the [`from`](/docs/media/video#from) prop to delay the appearance of a video.
-In the example below, the video will start playing at frame 60.
-
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return <Video from={60} src={staticFile('video.mp4')} />;
-};
-```
+Use `from` to start media later in the composition. See [Delaying](/docs/audio/trimming#delaying).
 
 ## Size and Position
 
-You can size and position the video using CSS.  
-You'll find the properties `width`, `height`, `position`, `left`, `top`, `right`, `bottom`, `margin`, `aspectRatio` and `objectFit` useful.
-
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return (
-    <Video
-      src={staticFile('video.mp4')}
-      style={{
-        width: 640,
-        height: 360,
-        position: 'absolute',
-        top: 100,
-        left: 100,
-      }}
-    />
-  );
-};
-```
+Use CSS to [size and position a video](/docs/videos/size-and-position).
 
 ## Volume
 
-You can set the volume of the video using the [`volume`](/docs/media/video#volume) prop.
-
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return <Video src={staticFile('video.mp4')} volume={0.5} />;
-};
-```
-
-You can also mute a video using the [`muted`](/docs/media/video#muted) prop.
-
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return <Video src={staticFile('video.mp4')} muted />;
-};
-```
-
-See [Using Audio](/docs/audio/volume) for more ways you can control volume.
+Use `volume` to adjust levels and `muted` to silence media. See [Controlling volume and muting](/docs/audio/volume).
 
 ## Speed
 
-You can use the [`playbackRate`](/docs/media/video#playbackrate) prop to change the speed of the video.
-
-```tsx twoslash
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return <Video src={staticFile('video.mp4')} playbackRate={2} />;
-};
-```
-
-This only works if the speed is constant. See also: [Changing the speed of a video over time](/docs/videos/accelerated-video).
+Use `playbackRate` to speed up or slow down media. See [Controlling playback speed](/docs/audio/speed).
 
 ## Looping
 
-Use the [`loop`](/docs/media/video#loop) prop to restart the video when it reaches the end.
-
-```tsx twoslash title="Looping a video"
-import React from 'react';
-import {Video} from '@remotion/media';
-import {staticFile} from 'remotion';
-
-export const MyComp: React.FC = () => {
-  return <Video src={staticFile('video.mp4')} loop />;
-};
-```
-
-To learn how looping interacts with `trimBefore` and `durationInFrames`, see [Timing and trimming](/docs/timing).
+Use `loop` to repeat media. See [Looping](/docs/audio/trimming#looping).
 
 ## GIFs
 
-See: [Using GIFs](/docs/gif)
+See [Using GIFs](/docs/gif).
 
 ## See also
 
-- [`<Video>` from `@remotion/media`](/docs/media/video)
-- [Comparison of video tags](/docs/video-tags)
-- [Using Audio](/docs/using-audio)
+- [Video and Audio](/docs/video-and-audio)
+- [Choosing a media component](/docs/video-tags)
+- [`<Video>`](/docs/media/video)
+- [`<Audio>`](/docs/media/audio)

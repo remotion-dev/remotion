@@ -1,10 +1,10 @@
 <p align="center">
   <a href="https://www.remotion.dev/">
     <picture>
-      <source media="(prefers-color-scheme: dark)" type="image/avif" srcset="https://remotion.media/homepage/readme-hero-dark-2a223972396d.avif">
-      <source media="(prefers-color-scheme: dark)" type="image/webp" srcset="https://remotion.media/homepage/readme-hero-dark-002bbb0a3844.webp">
-      <source type="image/avif" srcset="https://remotion.media/homepage/readme-hero-light-b8a07e3566d0.avif">
-      <img alt="Remotion — Studio, Codex and VS Code working together" src="https://remotion.media/homepage/readme-hero-light-4bccd3ed9628.webp" width="100%">
+      <source media="(prefers-color-scheme: dark)" type="image/avif" srcset="https://remotion.media/homepage/readme-hero-dark-8e3738026d0c.avif">
+      <source media="(prefers-color-scheme: dark)" type="image/webp" srcset="https://remotion.media/homepage/readme-hero-dark-29b3646a987b.webp">
+      <source type="image/avif" srcset="https://remotion.media/homepage/readme-hero-light-d5565fc15159.avif">
+      <img alt="Remotion — Studio, Codex and VS Code working together" src="https://remotion.media/homepage/readme-hero-light-f7ec8ed9562c.webp" width="100%">
     </picture>
   </a>
 </p>

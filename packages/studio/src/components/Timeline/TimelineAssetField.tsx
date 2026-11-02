@@ -15,6 +15,7 @@ import {
 } from '../../helpers/hoverable';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -159,7 +160,7 @@ type TimelineAssetFieldProps = {
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 };
 
 export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
@@ -211,7 +212,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 			onDragValueChange(previewValue);
 			onSave(sourceValue).finally(() => {
-				onDragEnd();
+				onDragEnd('commit');
 			});
 		},
 		[propStatus.codeValue, onDragValueChange, onSave, onDragEnd],
@@ -225,7 +226,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 			onDragValueChange(url);
 			onSave(url).finally(() => {
-				onDragEnd();
+				onDragEnd('commit');
 			});
 		},
 		[propStatus.codeValue, onDragValueChange, onDragEnd, onSave],

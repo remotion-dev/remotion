@@ -1,6 +1,7 @@
 import {
 	REACT_REFRESH_STARTED_EVENT,
 	type EventSourceEvent,
+	type SequenceNodePathMutation,
 } from '@remotion/studio-shared';
 import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
@@ -11,17 +12,37 @@ import type {
 import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {markDuplicationSelectionMutationsApplied} from '../../helpers/duplicated-element-selection';
+import {remapOptimisticEffectDeletions} from '../../helpers/effect-deletion-state';
+import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
 import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
+import {acceptSequencePropsSourceVersion} from '../../helpers/sequence-props-source-version';
+import {
+	reconcileCanvasDragPreviewStatuses,
+	resetCanvasDragPreviewsForSourceSession,
+	remapCanvasDragPreviews,
+} from '../canvas-drag-preview';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
 import {refreshSequencePropsSubscription} from './sequence-props-subscription-store';
 import {useTimelineSelection} from './TimelineSelection';
 
-export const SequencePropsObserver = () => {
+export const SequencePropsObserver = ({
+	remapCollapsedLayers,
+}: {
+	readonly remapCollapsedLayers: (
+		mutations: SequenceNodePathMutation[],
+	) => void;
+}) => {
 	const {subscribeToEvent} = useContext(StudioServerConnectionCtx);
-	const {remapPropStatuses, setPropStatuses} = useContext(
-		Internals.VisualModeSettersContext,
-	);
+	const visualModeSetters = useContext(Internals.VisualModeSettersContext);
+	const {
+		remapPropStatuses,
+		setPropStatuses,
+		updateDragOverrides,
+		remapDragOverrideFields,
+		remapEffectDragOverrideFields,
+	} = visualModeSetters;
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -60,16 +81,41 @@ export const SequencePropsObserver = () => {
 		ExpandedTracksSetterContext,
 	);
 	const {remapSelectionNodePaths} = useTimelineSelection();
+	useEffect(
+		() =>
+			subscribeToPreviewServerEvents((event) => {
+				if (event.type === 'init')
+					resetCanvasDragPreviewsForSourceSession(
+						visualModeSetters,
+						event.sourceVersionSessionId,
+					);
+			}),
+		[visualModeSetters],
+	);
 	useEffect(() => {
 		const handleEvent = (event: EventSourceEvent) => {
 			if (event.type !== 'sequence-props-updated') {
 				return;
 			}
 
+			if (
+				!acceptSequencePropsSourceVersion(
+					updateDragOverrides,
+					event.nodePath,
+					event.sourceVersion,
+				)
+			)
+				return;
+
 			// Every save re-sends all subscribed nodes of the file. Keep unchanged
 			// statuses so their consumers do not rerender.
+			const result = reconcileCanvasDragPreviewStatuses(
+				updateDragOverrides,
+				event.nodePath,
+				event.result,
+			);
 			setPropStatuses(event.nodePath, (prev) =>
-				deepEqual(prev, event.result) ? prev : event.result,
+				deepEqual(prev, result) ? prev : result,
 			);
 		};
 
@@ -78,7 +124,7 @@ export const SequencePropsObserver = () => {
 		return () => {
 			unsubscribe();
 		};
-	}, [setPropStatuses, subscribeToEvent]);
+	}, [setPropStatuses, subscribeToEvent, updateDragOverrides]);
 
 	useLayoutEffect(() => {
 		const mutations = takePendingSequenceNodePathMutations();
@@ -86,7 +132,19 @@ export const SequencePropsObserver = () => {
 			return;
 		}
 
+		markDuplicationSelectionMutationsApplied(mutations, fastRefreshes);
+
+		remapCanvasDragPreviews(
+			{
+				updateDragOverrides,
+				remapDragOverrideFields,
+				remapEffectDragOverrideFields,
+			},
+			mutations,
+		);
+		for (const mutation of mutations) remapOptimisticEffectDeletions(mutation);
 		remapSelectionNodePaths(mutations);
+		remapCollapsedLayers(mutations);
 
 		// Each edit can remap many siblings. Index paths once before matching
 		// them against every mounted override ID.
@@ -269,7 +327,11 @@ export const SequencePropsObserver = () => {
 		migrateExpandedTracksForSubscriptionKey,
 		propStatusesRef,
 		remapSelectionNodePaths,
+		remapCollapsedLayers,
 		remapPropStatuses,
+		updateDragOverrides,
+		remapDragOverrideFields,
+		remapEffectDragOverrideFields,
 		setOverrideIdToNodePath,
 	]);
 

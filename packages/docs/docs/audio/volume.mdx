@@ -1,51 +1,141 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-audio-volume.png
-title: Controlling Volume
-sidebar_label: Controlling Volume
+title: Controlling volume and muting
+sidebar_label: Controlling volume and muting
 id: volume
-crumb: 'Audio'
+crumb: 'Video and Audio'
 ---
 
-You can use the [`volume`](/docs/media/audio#volume) prop to control the volume.
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-The simplest way is to pass a number between `0` and `1`.
+Use [`volume`](/docs/media/audio#volume) and [`muted`](/docs/media/audio#muted) to control sound from both [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).
 
-```tsx twoslash {9} title="MyComp.tsx"
+## Setting the volume
+
+Pass a number between `0` and `1` to `volume`. The default is `1`; `0` silences the media.
+
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return <Video src={staticFile('video.mp4')} volume={0.5} />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
 import {Audio} from '@remotion/media';
 import {staticFile} from 'remotion';
 
 export const MyComposition = () => {
-  return (
-    <>
-      <div>Hello World!</div>
-      <Audio src={staticFile('audio.mp3')} volume={0.5} />
-    </>
-  );
+  return <Audio src={staticFile('audio.mp3')} volume={0.5} />;
 };
 ```
 
+</TabItem>
+</Tabs>
+
 ## Changing volume over time
 
-You can also change volume over time using [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate).
+Use [`useCurrentFrame()`](/docs/use-current-frame) and [`interpolate()`](/docs/interpolate) to animate volume.
+This example fades the sound in over 1 second:
 
-```tsx twoslash {6,11} title="MyComp.tsx"
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const volume = interpolate(frame, [0, fps], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return <Video src={staticFile('video.mp4')} volume={volume} />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
 import {Audio} from '@remotion/media';
 import {interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 export const MyComposition = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const volume = interpolate(frame, [0, fps], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
 
-  return (
-    <>
-      <Audio src={staticFile('audio.mp3')} volume={interpolate(frame, [0, 1 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} />
-    </>
-  );
+  return <Audio src={staticFile('audio.mp3')} volume={volume} />;
 };
 ```
 
-In this example we are using the [`interpolate()`](/docs/interpolate) function to fade the audio in over 1 second.
-With [Studio interactivity](/docs/studio/interactivity) enabled, the Studio recognizes these keyframes, lets you edit them, and draws the resulting volume curve in the timeline.
+</TabItem>
+</Tabs>
+
+Clamping keeps the volume between `0` and `1` outside the fade. To fade out, use `[1, 0]` as the output range and choose the frames where the fade should start and end.
+
+With [Studio interactivity](/docs/studio/interactivity) enabled, the Studio recognizes these keyframes, lets you edit them, and draws the volume curve in the timeline.
 Select an audio or video timeline row and press <kbd>V</kbd> to select its `volume` property. <AvailableFrom v="4.0.530" inline />
 
-Note that because values below 0 are not allowed, we need to set the [`extrapolateLeft: 'clamp'`](/docs/interpolate#extrapolateleft) option to ensure no negative values.
+## Muting
+
+Pass `muted` to silence a clip. For videos, the picture continues playing.
+
+You can change `muted` over time. This example mutes sound from 2 seconds up to, but not including, 4 seconds:
+
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  return <Video src={staticFile('video.mp4')} muted={frame >= 2 * fps && frame < 4 * fps} />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComposition = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  return <Audio src={staticFile('audio.mp3')} muted={frame >= 2 * fps && frame < 4 * fps} />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+The `muted` prop is also supported by [`<OffthreadVideo>`](/docs/offthreadvideo), [`<Html5Video>`](/docs/html5-video) and [`<Html5Audio>`](/docs/html5-audio).
+
+## See also
+
+- [Adding background music](/docs/videos#adding-background-music)
+- [Audio transitions](/docs/transitions/audio-transitions)
+- [Excluding audio from a render](/docs/audio/exporting#excluding-audio)

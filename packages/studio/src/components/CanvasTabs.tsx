@@ -23,6 +23,7 @@ import {
 } from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {noop} from '../helpers/noop';
+import {getOutputRoute, normalizeOutputPath} from '../helpers/output-path';
 import {
 	closedAllCanvasTabsStorageKey,
 	getRoute,
@@ -59,6 +60,15 @@ import {useSelectAsset} from './use-select-asset';
 const storageKey = 'remotion.canvasTabs';
 const canvasTabDragMimeType = 'application/vnd.remotion.canvas-tab';
 
+const normalizeTabContent = (content: CanvasContent): CanvasContent => {
+	if (content.type !== 'output') {
+		return content;
+	}
+
+	const path = normalizeOutputPath(content.path);
+	return path === content.path ? content : {...content, path};
+};
+
 const getTabKey = (content: CanvasContent): string => {
 	switch (content.type) {
 		case 'composition':
@@ -66,7 +76,7 @@ const getTabKey = (content: CanvasContent): string => {
 		case 'asset':
 			return `asset:${content.asset}`;
 		case 'output':
-			return `output:${content.path}`;
+			return `output:${normalizeOutputPath(content.path)}`;
 		case 'output-blob':
 			return `output-blob:${content.displayName}`;
 		default:
@@ -81,7 +91,7 @@ const getTabLabel = (content: CanvasContent): string => {
 		case 'asset':
 			return content.asset.split('/').at(-1) ?? content.asset;
 		case 'output':
-			return content.path.split('/').at(-1) ?? content.path;
+			return content.path.split(/[/\\]/).at(-1) ?? content.path;
 		case 'output-blob':
 			return content.displayName;
 		default:
@@ -96,7 +106,7 @@ const getTabRoute = (content: CanvasContent): string | null => {
 		case 'asset':
 			return `/assets/${content.asset}`;
 		case 'output':
-			return `/outputs/${content.path}`;
+			return getOutputRoute(content.path);
 		case 'output-blob':
 			return null;
 		default:
@@ -128,7 +138,7 @@ const loadTabs = (): CanvasContent[] => {
 			} else if (item.type === 'asset' && typeof item.asset === 'string') {
 				content = {type: 'asset', asset: item.asset};
 			} else if (item.type === 'output' && typeof item.path === 'string') {
-				content = {type: 'output', path: item.path};
+				content = {type: 'output', path: normalizeOutputPath(item.path)};
 			}
 
 			if (
@@ -538,7 +548,8 @@ export const CanvasTabs: React.FC = React.memo(() => {
 				setTabs((current) => {
 					const keys = new Set(current.map(getTabKey));
 					const next = [...current];
-					for (const content of contents) {
+					for (const originalContent of contents) {
+						const content = normalizeTabContent(originalContent);
 						const key = getTabKey(content);
 						if (!keys.has(key)) {
 							keys.add(key);
@@ -598,18 +609,19 @@ export const CanvasTabs: React.FC = React.memo(() => {
 		}
 
 		setTabs((current) => {
-			const key = getTabKey(canvasContent);
+			const content = normalizeTabContent(canvasContent);
+			const key = getTabKey(content);
 			const index = current.findIndex((tab) => getTabKey(tab) === key);
 			if (index === -1) {
-				return [...current, canvasContent];
+				return [...current, content];
 			}
 
-			if (current[index] === canvasContent) {
+			if (current[index] === content) {
 				return current;
 			}
 
 			const next = [...current];
-			next[index] = canvasContent;
+			next[index] = content;
 			return next;
 		});
 	}, [canvasContent]);

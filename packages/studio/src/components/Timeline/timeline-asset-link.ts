@@ -70,7 +70,7 @@ export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
 		typeof window === 'undefined' ? null : window.remotion_staticBase;
 
 	if (staticBase && src.startsWith(staticBase + '/')) {
-		const assetPath = src.slice(staticBase.length + 1);
+		const assetPath = src.slice(staticBase.length + 1).split(/[?#]/, 1)[0];
 		return {
 			kind: 'local',
 			assetPath: decodeURIComponent(assetPath),

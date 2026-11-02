@@ -76,6 +76,14 @@ Some shortcuts are context-sensitive interactions or browser events and cannot b
 
 Press <kbd>Tab</kbd> to navigate between controls and <kbd>Enter</kbd> to activate the focused control.
 
+## Rendered-output previews<AvailableFrom v="4.0.540" />
+
+Ready audio and video output previews, including local browser renders, support <kbd>Space</kbd>, <kbd>K</kbd> and <kbd>L</kbd> for playback; arrow keys, <kbd>A</kbd> and <kbd>E</kbd> for seeking; <kbd>&lt;</kbd> and <kbd>&gt;</kbd> for speed; <kbd>M</kbd> for mute; and <kbd>Shift+L</kbd> for looping. The corresponding customized shortcuts also apply.
+
+<kbd>Shift</kbd> with an arrow seeks one second, and <kbd>Alt</kbd> with an arrow seeks to the beginning or end. While playing, <kbd>Enter</kbd> pauses and returns to where playback started. Rendered outputs do not support reverse playback with <kbd>J</kbd>.
+
+These shortcuts yield to focused native media controls, editable fields and other controls, and to open dialogs. Native audio and video controls keep their browser keyboard behavior.
+
 ## Disabling keyboard shortcuts
 
 Use [`Config.setKeyboardShortcutsEnabled(false)`](/docs/config#setkeyboardshortcutsenabled) or start the Studio with [`--disable-keyboard-shortcuts`](/docs/cli/studio#--disable-keyboard-shortcuts) to disable all shortcuts.

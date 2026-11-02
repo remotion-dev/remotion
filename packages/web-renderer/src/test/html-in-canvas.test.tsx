@@ -21,6 +21,11 @@ import {
 	htmlInCanvasFrameMatrix,
 	htmlInCanvasNestedFrames,
 } from './fixtures/html-in-canvas-frames';
+import {
+	sceneAColor,
+	sceneBColor,
+	transitionHtmlInCanvasFrames,
+} from './fixtures/transition-html-in-canvas-frames';
 
 const readPixels = (
 	source: CanvasImageSource,
@@ -243,6 +248,52 @@ for (const allowHtmlInCanvas of [false, true]) {
 			},
 		);
 	}
+
+	test(
+		`captures current scenes in every HTML-in-canvas transition frame, native=${allowHtmlInCanvas} (#12559)`,
+		{timeout: 60_000},
+		async (t) => {
+			if (!HtmlInCanvas.isSupported()) {
+				t.skip();
+				return;
+			}
+
+			const {width, height} = transitionHtmlInCanvasFrames;
+			let captured = 18;
+			await renderMediaOnWeb({
+				composition: transitionHtmlInCanvasFrames,
+				inputProps: {},
+				allowHtmlInCanvas,
+				licenseKey: 'free-license',
+				logLevel: 'error',
+				frameRange: [18, 32],
+				container: 'webm',
+				videoCodec: 'vp9',
+				hardwareAcceleration: 'prefer-software',
+				muted: true,
+				onFrame: (frame) => {
+					const pixels = readPixels(frame, width, height);
+					const sceneA = [sceneAColor(captured), 0, 0, 255];
+					const sceneB = [0, sceneBColor(captured - 20), 0, 255];
+					// The transition runs from frame 20 to 29. A stale capture shows
+					// the scene of an earlier frame.
+					const left = (50 * width + 10) * 4;
+					const right = (50 * width + width - 10) * 4;
+					expect(
+						Array.from(pixels.slice(left, left + 4)),
+						`left, frame ${captured}`,
+					).toEqual(captured < 20 ? sceneA : sceneB);
+					expect(
+						Array.from(pixels.slice(right, right + 4)),
+						`right, frame ${captured}`,
+					).toEqual(captured < 30 ? sceneA : sceneB);
+					captured++;
+					return frame;
+				},
+			});
+			expect(captured).toBe(33);
+		},
+	);
 
 	for (const offset of [false, true]) {
 		test(

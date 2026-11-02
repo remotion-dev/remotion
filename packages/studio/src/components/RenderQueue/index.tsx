@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
+import {normalizeOutputPath} from '../../helpers/output-path';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {isCaptionJob} from './caption-job-types';
@@ -80,7 +81,11 @@ export const RenderQueue: React.FC = () => {
 					continue;
 				}
 
-				if (job.status === 'done' && canvasContent.path === `/${job.outName}`) {
+				if (
+					job.status === 'done' &&
+					normalizeOutputPath(canvasContent.path) ===
+						normalizeOutputPath(job.outName)
+				) {
 					return i;
 				}
 			}

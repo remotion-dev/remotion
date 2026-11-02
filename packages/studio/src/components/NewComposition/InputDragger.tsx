@@ -18,11 +18,11 @@ import {
 	TRANSPARENT,
 	WHITE_ALPHA_10,
 } from '../../helpers/colors';
+import {startEscapeCancelableCapturedPointerSession} from '../../helpers/escape-cancelable-pointer-session';
 import {noop} from '../../helpers/noop';
 import {
 	isPointerSessionRelease,
 	observePointerRelease,
-	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
@@ -35,6 +35,7 @@ import {RemotionInput, inputBaseStyle} from './RemInput';
 
 type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'title'> & {
 	readonly onValueChange: (newVal: number, source: 'input' | 'drag') => void;
+	readonly onValueChangeCancel: (() => void) | null;
 	readonly onValueChangeEnd?: (
 		newVal: number,
 		source: 'input' | 'drag',
@@ -532,6 +533,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 > = (
 	{
 		onValueChange,
+		onValueChangeCancel,
 		onValueChangeEnd,
 		min: _min,
 		max: _max,
@@ -563,6 +565,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	const fallbackRef = useRef<HTMLInputElement>(null);
 	const displayRef = useRef<HTMLSpanElement>(null);
 	const pointerDownRef = useRef(false);
+	const pointerSessionRef = useRef<(() => void) | null>(null);
+	const suppressNextClickRef = useRef(false);
 	const editingDisplayValueRef = useRef('');
 	const editingPaddingRightRef = useRef<string | null>(null);
 	const formattedInputValueRef = useRef<{text: string; value: number} | null>(
@@ -647,6 +651,13 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
+			if (suppressNextClickRef.current) {
+				suppressNextClickRef.current = false;
+				e.preventDefault();
+				e.stopPropagation();
+				return;
+			}
+
 			if (!getClickLock()) {
 				e.stopPropagation();
 			}
@@ -675,8 +686,9 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const onEscape = useCallback(() => {
 		textEditing?.onCancel();
+		onValueChangeCancel?.();
 		setInputFallback(false);
-	}, [textEditing]);
+	}, [onValueChangeCancel, textEditing]);
 
 	const onInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -816,8 +828,14 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				return;
 			}
 
+			pointerSessionRef.current?.();
+			suppressNextClickRef.current = false;
 			pointerDownRef.current = true;
 			let lastDragValue: number | null = null;
+			const dragStartValue = deriveInputDraggerDragStartValue({
+				min: _min,
+				value,
+			});
 
 			const moveListener = (ev: PointerEvent) => {
 				const xDistance = ev.pageX - pageX;
@@ -827,10 +845,6 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
 				const max = Number(_max ?? Infinity);
-				const dragStartValue = deriveInputDraggerDragStartValue({
-					min: _min,
-					value,
-				});
 
 				if (distanceFromStart > 4) {
 					setClickLock(true);
@@ -862,17 +876,30 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				onValueChange(nextValue, 'drag');
 			};
 
-			startCapturedPointerSession({
+			pointerSessionRef.current = startEscapeCancelableCapturedPointerSession({
 				event: e.nativeEvent,
 				captureTarget: target,
 				onMove: moveListener,
 				onEnd: (reason, endEvent) => {
+					pointerSessionRef.current = null;
 					pointerDownRef.current = false;
 					setDragging(false);
 					stopForcingSpecificCursor();
 					const commit = isPointerSessionRelease(reason, endEvent);
 					if (commit && lastDragValue !== null && onValueChangeEnd) {
 						onValueChangeEnd(lastDragValue, 'drag');
+					}
+
+					if (!commit) {
+						// Escape can precede the physical release and its synthetic click.
+						suppressNextClickRef.current = true;
+						if (lastDragValue !== null) {
+							if (onValueChangeCancel === null) {
+								onValueChange(dragStartValue, 'drag');
+							} else {
+								onValueChangeCancel();
+							}
+						}
 					}
 
 					setTimeout(() => {
@@ -888,12 +915,19 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			value,
 			integerOnly,
 			onValueChange,
+			onValueChangeCancel,
 			onValueChangeEnd,
 			snapToStep,
 			dragDecimalPlaces,
 			dragSensitivity,
 		],
 	);
+
+	useEffect(() => {
+		return () => {
+			pointerSessionRef.current?.();
+		};
+	}, []);
 
 	useLayoutEffect(() => {
 		if (inputFallback) {

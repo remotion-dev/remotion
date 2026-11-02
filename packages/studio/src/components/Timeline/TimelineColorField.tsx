@@ -3,6 +3,7 @@ import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -39,7 +40,7 @@ export const TimelineColorField: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	effectiveValue,
@@ -68,7 +69,7 @@ export const TimelineColorField: React.FC<{
 				onSave(next);
 			}
 
-			onDragEnd();
+			onDragEnd(next !== propStatus.codeValue ? 'commit' : 'cancel');
 		},
 		[onSave, onDragEnd, propStatus],
 	);

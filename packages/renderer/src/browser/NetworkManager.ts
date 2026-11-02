@@ -92,7 +92,12 @@ export class NetworkManager extends EventEmitter {
 	}
 
 	async initialize(): Promise<void> {
-		await this.#client.send('Network.enable');
+		// We consume request events, but never read response bodies from DevTools.
+		// Avoid retaining frame and media responses in its per-tab body cache.
+		await this.#client.send('Network.enable', {
+			maxTotalBufferSize: 0,
+			maxResourceBufferSize: 0,
+		});
 	}
 
 	#onRequestWillBeSent(event: RequestWillBeSentEvent): void {

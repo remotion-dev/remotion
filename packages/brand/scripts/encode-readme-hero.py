@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 from PIL import Image
 
+fps = int(sys.argv[3])
 frames = []
 durations = []
 previous = None
@@ -10,7 +11,7 @@ for index, path in enumerate(sorted(Path(sys.argv[1]).glob("element-*.png"))):
     with Image.open(path) as source:
         frame = source.convert("RGBA")
     pixels = frame.tobytes()
-    duration = round((index + 1) * 1000 / 15) - round(index * 1000 / 15)
+    duration = round((index + 1) * 1000 / fps) - round(index * 1000 / fps)
     if pixels == previous:
         durations[-1] += duration
     else:
