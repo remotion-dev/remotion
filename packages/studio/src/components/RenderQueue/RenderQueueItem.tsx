@@ -10,12 +10,14 @@ import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {getOutputRoute, normalizeOutputPath} from '../../helpers/output-path';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
 import type {ClientRenderJob} from './client-side-render-types';
 import {isRestoredClientJob} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
+import {renderQueueItemSubtitleStyle} from './item-style';
 import {RENDER_QUEUE_ITEM_SELECTED_CLASSNAME} from './item-style';
 import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
 import {
@@ -32,6 +34,7 @@ import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 import {RenderQueueSavingMessage} from './RenderQueueSavingMessage';
+import {useIsRenderJobCancelling} from './use-is-render-job-cancelling';
 import {useRenderOutputFileDrag} from './use-render-output-file-drag';
 
 const container: React.CSSProperties = {
@@ -69,6 +72,7 @@ export const RenderQueueItem: React.FC<{
 	readonly job: AnyRenderJob;
 	readonly selected: boolean;
 }> = ({job, selected}) => {
+	const cancelling = useIsRenderJobCancelling(job.id);
 	const [hovered, setHovered] = useState(false);
 
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
@@ -154,16 +158,18 @@ export const RenderQueueItem: React.FC<{
 
 		setCanvasContent((c: CanvasContent | null): CanvasContent => {
 			const isAlreadySelected =
-				c && c.type === 'output' && c.path === `/${job.outName}`;
+				c &&
+				c.type === 'output' &&
+				normalizeOutputPath(c.path) === normalizeOutputPath(job.outName);
 
 			if (isAlreadySelected && !selected) {
 				scrollCurrentIntoView();
 				return c;
 			}
 
-			return {type: 'output', path: `/${job.outName}`};
+			return {type: 'output', path: normalizeOutputPath(job.outName)};
 		});
-		pushUrl(`/outputs/${job.outName}`);
+		pushUrl(getOutputRoute(job.outName));
 	}, [
 		job,
 		isClientJob,
@@ -208,7 +214,11 @@ export const RenderQueueItem: React.FC<{
 			<div style={right}>
 				<div style={title}>{job.compositionId}</div>
 				<div style={subtitle}>
-					{job.status === 'done' ? (
+					{cancelling ? (
+						<span role="status" style={renderQueueItemSubtitleStyle}>
+							Cancelling…
+						</span>
+					) : job.status === 'done' ? (
 						<RenderQueueOutputName job={job} />
 					) : job.status === 'failed' ? (
 						<RenderQueueError job={job} />
@@ -228,7 +238,7 @@ export const RenderQueueItem: React.FC<{
 						<RenderQueueCopyToClipboard job={job as RenderJob} />
 					) : null}
 					{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
-					{job.status === 'running' ? (
+					{job.status === 'running' || job.status === 'idle' ? (
 						<RenderQueueCancelButton job={job} />
 					) : isBrowserStudio ? null : (
 						<RenderQueueRemoveItem job={job} />

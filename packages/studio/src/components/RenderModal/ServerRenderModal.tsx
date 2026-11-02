@@ -48,6 +48,7 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 import {InputPropsIcon} from '../../icons/input-props';
 import {FilmIcon} from '../../icons/video';
+import type {ServerRenderRetrySettings} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
@@ -148,6 +149,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 type RenderModalProps = {
+	readonly retrySettings: ServerRenderRetrySettings | null;
 	readonly readOnlyStudio: boolean;
 	readonly compositionId: string;
 	readonly initialFrame: number;
@@ -206,6 +208,7 @@ const RenderModal: React.FC<
 		readonly defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
+	retrySettings,
 	readOnlyStudio,
 	initialFrame,
 	initialVideoImageFormat,
@@ -288,12 +291,26 @@ const RenderModal: React.FC<
 			initialVideoCodecForVideoTab,
 		},
 	] = useState(() => {
-		return getDefaultCodecs({
+		const codecs = getDefaultCodecs({
 			defaultConfigurationVideoCodec,
-			compositionDefaultVideoCodec: resolvedComposition.defaultCodec,
+			compositionDefaultVideoCodec:
+				retrySettings === null ? resolvedComposition.defaultCodec : null,
 			defaultConfigurationAudioCodec,
 			renderType: renderTypeOfLastRender ?? (isVideo ? 'video' : 'still'),
 		});
+		if (retrySettings === null) {
+			return codecs;
+		}
+
+		return {
+			...codecs,
+			initialAudioCodec: defaultConfigurationAudioCodec,
+			initialRenderType:
+				renderTypeOfLastRender === 'still' ||
+				renderTypeOfLastRender === 'sequence'
+					? renderTypeOfLastRender
+					: codecs.initialRenderType,
+		};
 	});
 
 	const [state, dispatch] = useReducer(reducer, initialState);
@@ -308,8 +325,10 @@ const RenderModal: React.FC<
 			renderDefaults.videoImageFormat,
 	);
 	const [sequenceImageFormat, setSequenceImageFormat] =
-		useState<VideoImageFormat>(() =>
-			initialStillImageFormat === 'jpeg' ? 'jpeg' : 'png',
+		useState<VideoImageFormat>(
+			() =>
+				retrySettings?.sequenceImageFormat ??
+				(initialStillImageFormat === 'jpeg' ? 'jpeg' : 'png'),
 		);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodecForVideoTab, setVideoCodecForVideoTab] = useState<Codec>(
@@ -317,7 +336,9 @@ const RenderModal: React.FC<
 	);
 	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
 		useState<AudioCodec | null>(() => initialAudioCodec);
-	const [separateAudioTo, setSeparateAudioTo] = useState<string | null>(null);
+	const [separateAudioTo, setSeparateAudioTo] = useState<string | null>(
+		retrySettings?.separateAudioTo ?? null,
+	);
 
 	const [envVariables, setEnvVariables] = useState<[string, string][]>(() =>
 		envVariablesObjectToArray(initialEnvVariables).filter(
@@ -326,6 +347,10 @@ const RenderModal: React.FC<
 	);
 
 	const [initialOutName] = useState(() => {
+		if (retrySettings !== null) {
+			return retrySettings.outName;
+		}
+
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
@@ -363,8 +388,9 @@ const RenderModal: React.FC<
 	);
 	const [scale, setScale] = useState(() => initialScale);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
-	const [disallowParallelEncoding, setDisallowParallelEncoding] =
-		useState(false);
+	const [disallowParallelEncoding, setDisallowParallelEncoding] = useState(
+		retrySettings?.disallowParallelEncoding ?? false,
+	);
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
 		() => initialDisableWebSecurity,
 	);
@@ -628,7 +654,10 @@ const RenderModal: React.FC<
 		return null;
 	}, [customTargetVideoBitrate, qualityControlType]);
 
-	const {crf, maxCrf, minCrf, setCrf} = useCrfState(codec);
+	const {crf, maxCrf, minCrf, setCrf} = useCrfState(
+		codec,
+		retrySettings?.crf ?? null,
+	);
 
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
@@ -697,7 +726,7 @@ const RenderModal: React.FC<
 			return 0;
 		}
 
-		return Math.max(0, Math.min(endFrame - 1, startFrameOrNull));
+		return Math.max(0, Math.min(endFrame, startFrameOrNull));
 	}, [endFrame, startFrameOrNull]);
 
 	const frame = useMemo(() => {
@@ -916,7 +945,7 @@ const RenderModal: React.FC<
 			compositionId: resolvedComposition.id,
 			outName,
 			imageFormat: videoImageFormat,
-			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
+			jpegQuality: videoImageFormat === 'jpeg' ? jpegQuality : null,
 			scale,
 			logLevel,
 			codec,
@@ -976,7 +1005,6 @@ const RenderModal: React.FC<
 		resolvedComposition.id,
 		outName,
 		videoImageFormat,
-		stillImageFormat,
 		jpegQuality,
 		scale,
 		logLevel,
@@ -1293,7 +1321,7 @@ const RenderModal: React.FC<
 			videoImageFormat,
 			jpegQuality:
 				renderMode === 'video'
-					? stillImageFormat === 'jpeg'
+					? videoImageFormat === 'jpeg'
 						? jpegQuality
 						: null
 					: renderMode === 'audio'

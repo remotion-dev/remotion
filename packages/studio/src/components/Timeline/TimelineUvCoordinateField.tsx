@@ -2,12 +2,14 @@ import React, {useCallback, useMemo, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {getTimelineDisplayDecimalPlaces} from './timeline-field-utils';
+import {useTimelineFieldEdit} from './use-timeline-field-edit';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -51,7 +53,7 @@ export const TimelineUvCoordinateField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	propStatus,
@@ -60,6 +62,7 @@ export const TimelineUvCoordinateField: React.FC<{
 	onDragValueChange,
 	onDragEnd,
 }) => {
+	const {markEdit, finishEdit} = useTimelineFieldEdit();
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
 
@@ -103,30 +106,39 @@ export const TimelineUvCoordinateField: React.FC<{
 		[field.fieldSchema],
 	);
 
+	const onValueChangeCancel = useCallback(() => {
+		markEdit();
+		setDragX(null);
+		setDragY(null);
+		onDragEnd('cancel');
+	}, [markEdit, onDragEnd]);
+
 	const onXChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
 			onDragValueChange([newVal, currentY]);
 		},
-		[onDragValueChange, dragY, codeY],
+		[onDragValueChange, dragY, codeY, markEdit],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const currentY = dragY ?? codeY;
 			const newTuple: [number, number] = [newVal, currentY];
 			if (!tuplesEqual(propStatus.codeValue, newTuple)) {
-				onSave(newTuple).finally(() => {
+				finishEdit(onSave(newTuple), () => {
 					setDragX(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragX(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[dragY, codeY, propStatus, onSave, onDragEnd],
+		[dragY, codeY, propStatus, onSave, onDragEnd, markEdit, finishEdit],
 	);
 
 	const onXTextChange = useCallback(
@@ -136,40 +148,43 @@ export const TimelineUvCoordinateField: React.FC<{
 				const currentY = dragY ?? codeY;
 				const newTuple: [number, number] = [parsed, currentY];
 				if (!tuplesEqual(propStatus.codeValue, newTuple)) {
+					markEdit();
 					setDragX(parsed);
-					onSave(newTuple).finally(() => {
+					finishEdit(onSave(newTuple), () => {
 						setDragX(null);
 					});
 				}
 			}
 		},
-		[propStatus, dragY, codeY, onSave],
+		[propStatus, dragY, codeY, onSave, markEdit, finishEdit],
 	);
 
 	const onYChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
 			onDragValueChange([currentX, newVal]);
 		},
-		[onDragValueChange, dragX, codeX],
+		[onDragValueChange, dragX, codeX, markEdit],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const currentX = dragX ?? codeX;
 			const newTuple: [number, number] = [currentX, newVal];
 			if (!tuplesEqual(propStatus.codeValue, newTuple)) {
-				onSave(newTuple).finally(() => {
+				finishEdit(onSave(newTuple), () => {
 					setDragY(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragY(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[dragX, codeX, propStatus, onSave, onDragEnd],
+		[dragX, codeX, propStatus, onSave, onDragEnd, markEdit, finishEdit],
 	);
 
 	const onYTextChange = useCallback(
@@ -179,19 +194,21 @@ export const TimelineUvCoordinateField: React.FC<{
 				const currentX = dragX ?? codeX;
 				const newTuple: [number, number] = [currentX, parsed];
 				if (!tuplesEqual(propStatus.codeValue, newTuple)) {
+					markEdit();
 					setDragY(parsed);
-					onSave(newTuple).finally(() => {
+					finishEdit(onSave(newTuple), () => {
 						setDragY(null);
 					});
 				}
 			}
 		},
-		[propStatus, onSave, dragX, codeX],
+		[propStatus, onSave, dragX, codeX, markEdit, finishEdit],
 	);
 
 	return (
 		<span style={containerStyle}>
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragX ?? codeX}
 				buttonStyle={leftDraggerStyle}
@@ -211,6 +228,7 @@ export const TimelineUvCoordinateField: React.FC<{
 			/>
 			<div style={{marginLeft: -6, marginRight: -6}} />
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragY ?? codeY}
 				buttonStyle={rightDraggerStyle}

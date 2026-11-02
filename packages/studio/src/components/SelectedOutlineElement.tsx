@@ -2,6 +2,7 @@ import React, {useContext, useLayoutEffect} from 'react';
 import type {ResolvedStackLocation} from 'remotion';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {isEffectDeletionPending} from '../helpers/effect-deletion-state';
 import {getConnectedCompositions} from '../helpers/get-connected-compositions';
 import {
 	getDefaultOpenInTarget,
@@ -98,6 +99,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	scale,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const pendingEffectDeletion = Internals.useOptimisticEffectDeletion(
+		layoutTarget?.nodePathInfo.sequenceSubscriptionKey ?? null,
+	);
 	const {
 		canConfigureApps,
 		canOpenInEditor: editorAvailable,
@@ -314,6 +318,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		const isProgrammaticallyDuplicated =
 			contextMenuTarget.nodePathInfo.numberOfSequencesWithThisNodePath > 1;
 		const canAddEffect =
+			pendingEffectDeletion === null &&
+			!isEffectDeletionPending(nodePath) &&
 			contextMenuTarget.nodePathInfo.supportsEffects &&
 			!sourceEditDisabled &&
 			previewServerState.type === 'connected';
@@ -507,6 +513,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 											onClick: () => {
 												if (
 													!canAddEffect ||
+													isEffectDeletionPending(nodePath) ||
 													previewServerState.type !== 'connected'
 												) {
 													return;
@@ -543,6 +550,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		defaultEditorId,
 		editorAvailable,
 		previewServerState,
+		pendingEffectDeletion,
 		resolveOriginalLocation,
 		setManuallyEnabled,
 		selectAsset,

@@ -103,6 +103,7 @@ const Inner: React.FC<{}> = () => {
 				changes.
 			</div>
 			<RemTextarea
+				indentWithTab
 				onChange={(e) => onChange(e.target.value)}
 				value={value ?? ''}
 				status={valid ? 'ok' : 'error'}

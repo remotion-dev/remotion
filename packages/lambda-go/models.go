@@ -213,6 +213,62 @@ type renderProgressInternalConfig struct {
 	LogLevel   string `json:"logLevel" validate:"required"`
 }
 
+// GetCompositionsOptions mirrors GetCompositionsOnLambdaInput in @remotion/lambda-client.
+type GetCompositionsOptions struct {
+	ServeUrl                       string            `json:"serveUrl" validate:"required"`
+	FunctionName                   string            `json:"functionName" validate:"required"`
+	Region                         string            `json:"region" validate:"required"`
+	InputProps                     interface{}       `json:"inputProps"`
+	EnvVariables                   map[string]string `json:"envVariables"`
+	ChromiumOptions                interface{}       `json:"chromiumOptions"`
+	LogLevel                       string            `json:"logLevel"`
+	TimeoutInMilliseconds          int               `json:"timeoutInMilliseconds"`
+	ForceBucketName                string            `json:"forceBucketName"`
+	ForcePathStyle                 bool              `json:"forcePathStyle"`
+	OffthreadVideoCacheSizeInBytes *int              `json:"offthreadVideoCacheSizeInBytes"`
+	MediaCacheSizeInBytes          *int              `json:"mediaCacheSizeInBytes"`
+	PreferredEffectBackend         string            `json:"preferredEffectBackend"`
+}
+
+// getCompositionsInternalConfig is the payload the compositions handler expects.
+type getCompositionsInternalConfig struct {
+	Type                           string                `json:"type" validate:"required"`
+	Version                        string                `json:"version" validate:"required"`
+	ChromiumOptions                interface{}           `json:"chromiumOptions"`
+	LogLevel                       string                `json:"logLevel"`
+	InputProps                     *SerializedInputProps `json:"inputProps"`
+	EnvVariables                   map[string]string     `json:"envVariables"`
+	TimeoutInMilliseconds          int                   `json:"timeoutInMilliseconds"`
+	ServeUrl                       string                `json:"serveUrl" validate:"required"`
+	BucketName                     *string               `json:"bucketName"`
+	OffthreadVideoCacheSizeInBytes *int                  `json:"offthreadVideoCacheSizeInBytes"`
+	MediaCacheSizeInBytes          *int                  `json:"mediaCacheSizeInBytes"`
+	PreferredEffectBackend         string                `json:"preferredEffectBackend"`
+	ForcePathStyle                 bool                  `json:"forcePathStyle"`
+}
+
+// VideoConfig is one composition returned by getCompositionsOnLambda().
+type VideoConfig struct {
+	Width                   int                    `json:"width"`
+	Height                  int                    `json:"height"`
+	Fps                     float64                `json:"fps"`
+	DurationInFrames        int                    `json:"durationInFrames"`
+	ID                      string                 `json:"id"`
+	DefaultProps            map[string]interface{} `json:"defaultProps"`
+	Props                   map[string]interface{} `json:"props"`
+	DefaultCodec            *string                `json:"defaultCodec"`
+	DefaultOutName          *string                `json:"defaultOutName"`
+	DefaultVideoImageFormat *string                `json:"defaultVideoImageFormat"`
+	DefaultPixelFormat      *string                `json:"defaultPixelFormat"`
+	DefaultProResProfile    *string                `json:"defaultProResProfile"`
+	DefaultSampleRate       *int                   `json:"defaultSampleRate"`
+}
+
+// GetCompositionsResponse is returned by getCompositionsOnLambda().
+type GetCompositionsResponse struct {
+	Compositions []VideoConfig `json:"compositions"`
+}
+
 type FileNameAndSize struct {
 	Name string `json:"name"`
 	Size int    `json:"size"`

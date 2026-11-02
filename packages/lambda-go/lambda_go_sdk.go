@@ -50,6 +50,11 @@ func GetRenderProgress(input RenderConfig) (*RenderProgress, error) {
 	return invokeRenderProgressLambda(input)
 }
 
+// GetCompositionsOnLambda lists the compositions defined in a Remotion project.
+func GetCompositionsOnLambda(input *GetCompositionsOptions) (*GetCompositionsResponse, error) {
+	return invokeGetCompositionsLambda(input)
+}
+
 func CancelRenderOnLambda(input CancelRenderOnLambdaInput) error {
 	validate := validator.New()
 	if err := validate.Struct(input); err != nil {

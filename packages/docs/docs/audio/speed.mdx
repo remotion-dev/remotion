@@ -1,29 +1,91 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-audio-speed.png
 title: Controlling playback speed
-sidebar_label: Audio Speed
+sidebar_label: Controlling playback speed
 id: speed
-crumb: 'Audio'
+crumb: 'Video and Audio'
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Controlling playback speed<AvailableFrom v="2.2" />
 
-You can use the [`playbackRate`](/docs/media/audio#playbackrate) prop to control the speed of the audio.
+Use [`playbackRate`](/docs/media/audio#playbackrate) to control the speed of both [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio).
 
-- `1` is the default.
-- `0.5` slows down the audio so it's twice as long
-- `2` speeds up the audio so it's twice as fast
-- Google Chrome supports playback rates between `0.0625` and `16`.
+- `1` is the default speed.
+- `0.5` plays at half speed and takes twice as long.
+- `2` plays at double speed and takes half as long.
 
-```tsx twoslash {6} title="MyComp.tsx"
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
 import {staticFile} from 'remotion';
-import {Audio} from '@remotion/media';
 
 export const MyComposition = () => {
-  return (
-    <>
-      <Audio src={staticFile('audio.mp3')} playbackRate={2} />
-    </>
-  );
+  return <Video src={staticFile('video.mp4')} playbackRate={2} />;
 };
 ```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return <Audio src={staticFile('audio.mp3')} playbackRate={2} />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+Keep `playbackRate` constant for each clip. To use a different speed for each section, see [Different segments at different speeds](/docs/videos/different-segments-at-different-speeds).
+The [Changing speed over time](/docs/videos/accelerated-video) recipe uses `<OffthreadVideo>` and has separate compatibility requirements.
+
+## Preserving pitch<AvailableFrom v="4.0.538" />
+
+With `<Video>` and `<Audio>` from `@remotion/media`, changing playback speed also changes audio pitch by default.
+Pass `preservePitch` to keep the original pitch while changing speed:
+
+<Tabs groupId="media-type">
+<TabItem value="video" label="Video">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return <Video src={staticFile('video.mp4')} playbackRate={2} preservePitch />;
+};
+```
+
+</TabItem>
+<TabItem value="audio" label="Audio">
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => {
+  return <Audio src={staticFile('audio.mp3')} playbackRate={2} preservePitch />;
+};
+```
+
+</TabItem>
+</Tabs>
+
+This works during preview, server-side rendering and client-side rendering. Keep `preservePitch` constant for each asset during rendering.
+For native media components and fallback behavior, see [Choosing a media component](/docs/video-tags).
+
+To adjust pitch independently, see [Controlling pitch](/docs/audio/pitch).
+
+## See also
+
+- [Timing and trimming](/docs/timing)
+- [Trimming, delaying and looping](/docs/audio/trimming)
+- [Different segments at different speeds](/docs/videos/different-segments-at-different-speeds)

@@ -11,6 +11,8 @@ import type {
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {copySourcePathProvenance} from '../../helpers/rebase-source-request';
+import {reconcileCanvasDragPreviewStatuses} from '../canvas-drag-preview';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
@@ -37,7 +39,9 @@ export const useSequencePropsSubscription = ({
 	preferMappedNodePath: boolean;
 	stack: string | null;
 }) => {
-	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses, updateDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 	const {setOverrideIdToNodePath} = useContext(
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
@@ -122,8 +126,13 @@ export const useSequencePropsSubscription = ({
 				}
 
 				// Edits that shift source lines resubscribe every following node.
+				const status = reconcileCanvasDragPreviewStatuses(
+					updateDragOverrides,
+					result.nodePath,
+					result.status,
+				);
 				setPropStatuses(result.nodePath, (prev) =>
-					deepEqual(prev, result.status) ? prev : result.status,
+					deepEqual(prev, status) ? prev : status,
 				);
 			},
 			applyEach: (result) => {
@@ -140,6 +149,20 @@ export const useSequencePropsSubscription = ({
 					: null;
 
 				if (previousNodePathKey === newNodePathKey) {
+					if (previousNodePath) {
+						copySourcePathProvenance(
+							newNodePath.nodePath,
+							previousNodePath.nodePath,
+						);
+					}
+
+					if (nodePathAtResubscribe) {
+						copySourcePathProvenance(
+							newNodePath.nodePath,
+							nodePathAtResubscribe.nodePath,
+						);
+					}
+
 					return;
 				}
 
@@ -174,6 +197,7 @@ export const useSequencePropsSubscription = ({
 		refreshToken,
 		schema,
 		setPropStatuses,
+		updateDragOverrides,
 		setOverrideIdToNodePath,
 		stack,
 	]);

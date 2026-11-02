@@ -91,6 +91,9 @@ export const useExpandedTrackKeyframeRows = ({
 	readonly rows: ExpandedTrackKeyframeRow[];
 	readonly expandedHeight: number;
 } => {
+	const pendingDeletion = Internals.useOptimisticEffectDeletion(
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
@@ -100,6 +103,7 @@ export const useExpandedTrackKeyframeRows = ({
 	const selectTree = useCallback(
 		(runtimeValues: Readonly<Record<string, unknown>>) =>
 			buildTimelineTree({
+				pendingEffectDeletion: pendingDeletion,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -111,6 +115,7 @@ export const useExpandedTrackKeyframeRows = ({
 				runtimeValues,
 			}),
 		[
+			pendingDeletion,
 			sequence,
 			propStatuses,
 			getDragOverrides,

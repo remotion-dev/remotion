@@ -32,7 +32,10 @@ export const getGpuDevice = (): Promise<unknown> => {
 		}
 
 		const {gpu} = navigator as unknown as {
-			gpu: {requestAdapter: () => Promise<unknown>};
+			gpu: {
+				requestAdapter: () => Promise<unknown>;
+				getPreferredCanvasFormat: () => string;
+			};
 		};
 		const adapter = (await gpu.requestAdapter()) as {
 			requestDevice: () => Promise<unknown>;
@@ -41,7 +44,55 @@ export const getGpuDevice = (): Promise<unknown> => {
 			return null;
 		}
 
-		const device = (await adapter.requestDevice()) as {lost: Promise<unknown>};
+		const device = (await adapter.requestDevice()) as {
+			lost: Promise<unknown>;
+			destroy: () => void;
+			pushErrorScope: (filter: 'validation') => void;
+			popErrorScope: () => Promise<unknown | null>;
+		};
+		let supportsCanvasTargets = false;
+		try {
+			const canvas = document.createElement('canvas');
+			canvas.width = 1;
+			canvas.height = 1;
+			const context = canvas.getContext('webgpu') as {
+				configure: (configuration: {
+					device: unknown;
+					format: string;
+					alphaMode: 'premultiplied';
+				}) => void;
+				getCurrentTexture: () => {createView: () => unknown};
+				unconfigure: () => void;
+			} | null;
+			if (!context) return null;
+
+			// Some headless browsers expose a device but return invalid canvas
+			// textures. Detect this before an effect silently draws transparent pixels.
+			// All callers share this initialization, so the scope cannot swallow an
+			// effect's validation errors and adds no work to subsequent frames.
+			let validationError: unknown = null;
+			try {
+				device.pushErrorScope('validation');
+				try {
+					context.configure({
+						device,
+						format: gpu.getPreferredCanvasFormat(),
+						alphaMode: 'premultiplied',
+					});
+					context.getCurrentTexture().createView();
+				} finally {
+					validationError = await device.popErrorScope();
+				}
+			} finally {
+				context.unconfigure();
+			}
+
+			if (validationError) return null;
+			supportsCanvasTargets = true;
+		} finally {
+			if (!supportsCanvasTargets) device.destroy();
+		}
+
 		device.lost?.then(() => {
 			// Keep the fallback stable for the lifetime of a render/preview session.
 			deviceLost = true;
