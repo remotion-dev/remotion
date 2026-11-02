@@ -11,7 +11,7 @@ import {useBufferUntilFirstFrame} from './buffer-until-first-frame.js';
 import {getMediaSyncAction} from './get-media-sync-action.js';
 import {useLogLevel, useMountTime} from './log-level-context.js';
 import {Log} from './log.js';
-import {useCurrentTimeOfMediaTagWithUpdateTimeStamp} from './media-tag-current-time-timestamp.js';
+import {useCurrentTimeOfMediaTag} from './media-tag-current-time-timestamp.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {playbackLogging} from './playback-logging.js';
 import {seek} from './seek.js';
@@ -120,8 +120,7 @@ export const useMediaPlayback = ({
 		onVariableFpsVideoDetected,
 	});
 
-	const mediaTagCurrentTime =
-		useCurrentTimeOfMediaTagWithUpdateTimeStamp(mediaRef);
+	const mediaTagCurrentTime = useCurrentTimeOfMediaTag(mediaRef);
 
 	const desiredUnclampedTime = getMediaTime({
 		frame,
@@ -237,9 +236,7 @@ export const useMediaPlayback = ({
 			ended: current.ended,
 			desiredUnclampedTime,
 			mediaTagTime: mediaTagCurrentTime.current.time,
-			mediaTagLastUpdate: mediaTagCurrentTime.current.lastUpdate,
 			rvcTime: rvcCurrentTime.current?.time ?? null,
-			rvcLastUpdate: rvcCurrentTime.current?.lastUpdate ?? null,
 			isVariableFpsVideo: Boolean(isVariableFpsVideoMap.current[src]),
 			acceptableTimeShift: acceptableTimeShiftButLessThanDuration,
 			lastSeekDueToShift: lastSeekDueToShift.current,
