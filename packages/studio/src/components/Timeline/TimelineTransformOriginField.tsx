@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -20,6 +21,7 @@ import {
 	transformOriginPercentToUv,
 } from './transform-origin-utils';
 import {Transform3DModeContext} from './Transform3DModeContext';
+import {useTimelineFieldEdit} from './use-timeline-field-edit';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -40,7 +42,7 @@ export const TimelineTransformOriginField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	propStatus,
@@ -49,6 +51,7 @@ export const TimelineTransformOriginField: React.FC<{
 	onDragValueChange,
 	onDragEnd,
 }) => {
+	const {markEdit, finishEdit} = useTimelineFieldEdit();
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
 	const [dragZ, setDragZ] = useState<number | null>(null);
@@ -113,8 +116,17 @@ export const TimelineTransformOriginField: React.FC<{
 		[parsedZ?.unit],
 	);
 
+	const onValueChangeCancel = useCallback(() => {
+		markEdit();
+		setDragX(null);
+		setDragY(null);
+		setDragZ(null);
+		onDragEnd('cancel');
+	}, [markEdit, onDragEnd]);
+
 	const onXChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (percent === null) {
 				return;
 			}
@@ -123,11 +135,12 @@ export const TimelineTransformOriginField: React.FC<{
 			const currentY = dragY ?? percent[1];
 			onDragValueChange(serialize(newVal, currentY));
 		},
-		[dragY, onDragValueChange, percent, serialize],
+		[dragY, onDragValueChange, percent, serialize, markEdit],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (percent === null) {
 				return;
 			}
@@ -135,16 +148,25 @@ export const TimelineTransformOriginField: React.FC<{
 			const currentY = dragY ?? percent[1];
 			const value = serialize(newVal, currentY);
 			if (value !== propStatus.codeValue) {
-				onSave(value).finally(() => {
+				finishEdit(onSave(value), () => {
 					setDragX(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragX(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[dragY, onDragEnd, onSave, percent, propStatus.codeValue, serialize],
+		[
+			dragY,
+			onDragEnd,
+			onSave,
+			percent,
+			propStatus.codeValue,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onXTextChange = useCallback(
@@ -158,18 +180,28 @@ export const TimelineTransformOriginField: React.FC<{
 				const currentY = dragY ?? percent[1];
 				const value = serialize(parsedValue, currentY);
 				if (value !== propStatus.codeValue) {
+					markEdit();
 					setDragX(parsedValue);
-					onSave(value).finally(() => {
+					finishEdit(onSave(value), () => {
 						setDragX(null);
 					});
 				}
 			}
 		},
-		[dragY, onSave, percent, propStatus.codeValue, serialize],
+		[
+			dragY,
+			onSave,
+			percent,
+			propStatus.codeValue,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onYChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (percent === null) {
 				return;
 			}
@@ -178,11 +210,12 @@ export const TimelineTransformOriginField: React.FC<{
 			const currentX = dragX ?? percent[0];
 			onDragValueChange(serialize(currentX, newVal));
 		},
-		[dragX, onDragValueChange, percent, serialize],
+		[dragX, onDragValueChange, percent, serialize, markEdit],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (percent === null) {
 				return;
 			}
@@ -190,16 +223,25 @@ export const TimelineTransformOriginField: React.FC<{
 			const currentX = dragX ?? percent[0];
 			const value = serialize(currentX, newVal);
 			if (value !== propStatus.codeValue) {
-				onSave(value).finally(() => {
+				finishEdit(onSave(value), () => {
 					setDragY(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragY(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[dragX, onDragEnd, onSave, percent, propStatus.codeValue, serialize],
+		[
+			dragX,
+			onDragEnd,
+			onSave,
+			percent,
+			propStatus.codeValue,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onYTextChange = useCallback(
@@ -213,18 +255,28 @@ export const TimelineTransformOriginField: React.FC<{
 				const currentX = dragX ?? percent[0];
 				const value = serialize(currentX, parsedValue);
 				if (value !== propStatus.codeValue) {
+					markEdit();
 					setDragY(parsedValue);
-					onSave(value).finally(() => {
+					finishEdit(onSave(value), () => {
 						setDragY(null);
 					});
 				}
 			}
 		},
-		[dragX, onSave, percent, propStatus.codeValue, serialize],
+		[
+			dragX,
+			onSave,
+			percent,
+			propStatus.codeValue,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onZChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (percent === null) {
 				return;
 			}
@@ -234,11 +286,12 @@ export const TimelineTransformOriginField: React.FC<{
 				serialize(dragX ?? percent[0], dragY ?? percent[1], serializeZ(newVal)),
 			);
 		},
-		[dragX, dragY, onDragValueChange, percent, serialize, serializeZ],
+		[dragX, dragY, onDragValueChange, percent, serialize, serializeZ, markEdit],
 	);
 
 	const onZChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (percent === null) {
 				return;
 			}
@@ -249,13 +302,13 @@ export const TimelineTransformOriginField: React.FC<{
 				serializeZ(newVal),
 			);
 			if (value !== propStatus.codeValue) {
-				onSave(value).finally(() => {
+				finishEdit(onSave(value), () => {
 					setDragZ(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragZ(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
 		[
@@ -267,6 +320,8 @@ export const TimelineTransformOriginField: React.FC<{
 			propStatus.codeValue,
 			serialize,
 			serializeZ,
+			markEdit,
+			finishEdit,
 		],
 	);
 
@@ -284,8 +339,9 @@ export const TimelineTransformOriginField: React.FC<{
 					serializeZ(parsedValue),
 				);
 				if (value !== propStatus.codeValue) {
+					markEdit();
 					setDragZ(parsedValue);
-					onSave(value).finally(() => setDragZ(null));
+					finishEdit(onSave(value), () => setDragZ(null));
 				}
 			}
 		},
@@ -297,6 +353,8 @@ export const TimelineTransformOriginField: React.FC<{
 			propStatus.codeValue,
 			serialize,
 			serializeZ,
+			markEdit,
+			finishEdit,
 		],
 	);
 
@@ -309,6 +367,7 @@ export const TimelineTransformOriginField: React.FC<{
 	return (
 		<span style={containerStyle}>
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragX ?? percent[0]}
 				buttonStyle={leftDraggerStyle}
@@ -329,6 +388,7 @@ export const TimelineTransformOriginField: React.FC<{
 			/>
 			<div style={{marginLeft: -6, marginRight: -6}} />
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragY ?? percent[1]}
 				buttonStyle={rightDraggerStyle}
@@ -351,6 +411,7 @@ export const TimelineTransformOriginField: React.FC<{
 				<>
 					<div style={{marginLeft: -6, marginRight: -6}} />
 					<InputDragger
+						onValueChangeCancel={onValueChangeCancel}
 						type="number"
 						value={dragZ ?? parsedZ?.value ?? 0}
 						buttonStyle={rightDraggerStyle}

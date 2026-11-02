@@ -1,6 +1,9 @@
 import React, {useRef, useState} from 'react';
 import {noop} from '../../helpers/noop';
-import type {SchemaFieldInfo} from '../../helpers/timeline-layout';
+import type {
+	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
+} from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from '../Timeline/timeline-field-display-utils';
 import {
@@ -12,6 +15,7 @@ import {
 	parseTranslate,
 	serializeTranslate,
 } from '../Timeline/timeline-translate-utils';
+import {useTimelineFieldEdit} from '../Timeline/use-timeline-field-edit';
 
 const NumericAxis: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -21,7 +25,7 @@ const NumericAxis: React.FC<{
 	readonly axis: 0 | 1 | 2 | null;
 	readonly onPreview: (values: unknown[]) => void;
 	readonly onSave: (values: unknown[]) => Promise<void>;
-	readonly onClear: () => void;
+	readonly onClear: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	values,
@@ -33,6 +37,7 @@ const NumericAxis: React.FC<{
 	onClear,
 }) => {
 	const [dragValue, setDragValue] = useState<number | null>(null);
+	const {markEdit, finishEdit} = useTimelineFieldEdit();
 	const initialValues = useRef<unknown[] | null>(null);
 	const coordinates = values.map((value) =>
 		axis === null ? Number(value) : (parseTranslate(String(value))[axis] ?? 0),
@@ -89,9 +94,10 @@ const NumericAxis: React.FC<{
 	};
 
 	const clear = () => {
+		markEdit();
 		initialValues.current = null;
 		setDragValue(null);
-		onClear();
+		onClear('cancel');
 	};
 
 	return (
@@ -112,6 +118,7 @@ const NumericAxis: React.FC<{
 			}}
 		>
 			<InputDragger
+				onValueChangeCancel={clear}
 				type="number"
 				aria-description="Type to set all values; drag to adjust each value"
 				value={dragValue ?? coordinates[0]}
@@ -148,6 +155,7 @@ const NumericAxis: React.FC<{
 				}}
 				onTextChange={noop}
 				onValueChange={(value, source) => {
+					markEdit();
 					initialValues.current ??= values;
 					setDragValue(value);
 					onPreview(nextValues(value, source));
@@ -157,7 +165,12 @@ const NumericAxis: React.FC<{
 						return;
 					}
 
-					onSave(nextValues(value, source)).finally(clear);
+					const next = nextValues(value, source);
+					initialValues.current = null;
+					finishEdit(onSave(next), () => {
+						setDragValue(null);
+						onClear('commit');
+					});
 				}}
 			/>
 		</span>
@@ -171,7 +184,7 @@ export const MultiSequenceNumberField: React.FC<{
 	readonly inherited: boolean;
 	readonly onPreview: (values: unknown[]) => void;
 	readonly onSave: (values: unknown[]) => Promise<void>;
-	readonly onClear: () => void;
+	readonly onClear: TimelineFieldOnDragEnd;
 }> = (props) => {
 	const axes: (0 | 1 | 2 | null)[] =
 		props.field.typeName === 'translate'

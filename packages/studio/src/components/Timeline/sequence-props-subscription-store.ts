@@ -16,6 +16,7 @@ type Key = string;
 // resolve both the old and new JSX nodes to the same line and column.
 const makeKey = ({
 	fileName,
+	clientId,
 	line,
 	column,
 	componentIdentity,
@@ -26,6 +27,7 @@ const makeKey = ({
 	stack,
 }: {
 	fileName: string;
+	clientId: string;
 	line: number;
 	column: number;
 	componentIdentity: JsxComponentIdentity | null;
@@ -35,7 +37,7 @@ const makeKey = ({
 
 	stack: string | null;
 }): Key =>
-	`${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${stack ?? ''}`;
+	`${clientId}\0${fileName}\0${line}\0${column}\0${componentIdentity ?? ''}\0${sequenceKeys.join('\0')}\0${assetKeys.join('\0')}\0${effectKeys.map((keys) => keys.join('\0')).join('\0\0')}\0${stack ?? ''}`;
 
 type SubscribeResult = Awaited<ReturnType<typeof subscribeToSequenceProps>>;
 
@@ -106,6 +108,7 @@ export const acquireSequencePropsSubscription = ({
 	const effectKeys = effects.map((effect) => getAllSchemaKeys(effect));
 	const key = makeKey({
 		fileName,
+		clientId,
 		line,
 		column,
 		componentIdentity,
@@ -157,6 +160,7 @@ export const acquireSequencePropsSubscription = ({
 				}
 
 				current.applyOnce = null;
+				entries.delete(key);
 				Internals.Log.error(err);
 			});
 	}

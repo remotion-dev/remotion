@@ -4,6 +4,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import type {Readable} from 'node:stream';
 import * as writeFileModule from '../../../../lambda-client/src/write-file';
+import * as currentMemorySize from '../../functions/helpers/get-current-memory-size';
 import {makeS3RendererOutput} from '../../functions/s3-renderer-output';
 
 const bodyToBytes = async (
@@ -38,6 +39,10 @@ const bodyToBytes = async (
 };
 
 test('S3 renderer output publishes media and artifacts before completion', async () => {
+	const memory = spyOn(
+		currentMemorySize,
+		'getCurrentMemorySizeInMb',
+	).mockReturnValue(4096);
 	const directory = await mkdtemp(join(tmpdir(), 'remotion-s3-output-'));
 	const objects = new Map<string, Uint8Array>();
 	const statusWrites: Array<Record<string, unknown>> = [];
@@ -76,7 +81,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 		await output.initialize();
 		await output.onStream({
 			type: 'lambda-invoked',
-			payload: {attempt: 2},
+			payload: {attempt: 2, memorySizeInMb: 4096},
 		});
 		await output.onStream({
 			type: 'frames-rendered',
@@ -113,6 +118,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 			chunk: 1,
 			attempt: 2,
 			lambdaInvoked: true,
+			memorySizeInMb: 4096,
 			renderedFrames: 10,
 			encodedFrames: 8,
 			uploadedFrames: 0,
@@ -134,6 +140,7 @@ test('S3 renderer output publishes media and artifacts before completion', async
 		).toBe('artifact-content');
 	} finally {
 		write.mockRestore();
+		memory.mockRestore();
 		await rm(directory, {recursive: true, force: true});
 	}
 });

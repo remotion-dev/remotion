@@ -12,6 +12,7 @@ import type {HotMiddlewareMessage} from './hot-middleware';
 import type {RenderDefaults} from './render-defaults';
 import type {CompletedClientRender, RenderJob} from './render-job';
 import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
+import type {SourceFileVersion} from './source-file-version';
 import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type EventSourceEvent =
@@ -22,6 +23,7 @@ export type EventSourceEvent =
 	| {
 			type: 'init';
 			clientId: string;
+			sourceVersionSessionId: string | null;
 			undoFile: string | null;
 			redoFile: string | null;
 	  }
@@ -54,6 +56,11 @@ export type EventSourceEvent =
 			error: Error;
 	  }
 	| {
+			type: 'prerender-replace-failed';
+			compositionId: string;
+			message: string;
+	  }
+	| {
 			type: 'watched-file-undeleted';
 			file: string;
 	  }
@@ -75,6 +82,7 @@ export type EventSourceEvent =
 			fileName: string;
 			nodePath: SequencePropsSubscriptionKey;
 			result: CanUpdateSequencePropsResponse;
+			sourceVersion: SourceFileVersion | null;
 	  }
 	| {
 			type: 'sequence-node-paths-remapped';
@@ -85,6 +93,7 @@ export type EventSourceEvent =
 			fileName: string;
 			line: number;
 			column: number;
+			sourceVersion: SourceFileVersion | null;
 	  }
 	| {
 			type: 'default-props-updatable-changed';

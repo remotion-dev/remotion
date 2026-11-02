@@ -1,5 +1,8 @@
 import {describe, expect, test} from 'bun:test';
-import type {GetMediaSyncActionInput} from '../get-media-sync-action.js';
+import type {
+	GetMediaSyncActionInput,
+	MediaSyncAction,
+} from '../get-media-sync-action.js';
 import {getMediaSyncAction} from '../get-media-sync-action.js';
 
 const makeInput = (
@@ -26,6 +29,7 @@ const makeInput = (
 	isPremounting: false,
 	isPostmounting: false,
 	pauseWhenBuffering: true,
+	mediaType: 'audio',
 	...overrides,
 });
 
@@ -310,5 +314,80 @@ describe('play-and-seek', () => {
 		if (action.type === 'play-and-seek') {
 			expect(action.bufferUntilFirstFrame).toBe(false);
 		}
+	});
+});
+
+const getEffect = (action: MediaSyncAction) => ({
+	seeksTo:
+		action.type === 'seek-due-to-shift' ||
+		(action.type !== 'none' && action.why !== null)
+			? action.shouldBeTime
+			: null,
+	plays:
+		action.type === 'play-and-seek' ||
+		(action.type === 'seek-due-to-shift' && action.playReason !== null),
+});
+
+describe('audio ahead of the timeline after buffering', () => {
+	test('does not seek audio back while something else is buffering', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				playerBuffering: true,
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: false});
+	});
+
+	test('stays paused until the timeline catches up', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: false});
+	});
+
+	test('plays without seeking once the timeline caught up', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5.2,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: true});
+	});
+
+	test('still seeks video back', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				mediaType: 'video',
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: 5, plays: true});
+	});
+
+	test('still seeks audio that is behind the timeline', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 4.7,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 4.7,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: 5, plays: true});
 	});
 });

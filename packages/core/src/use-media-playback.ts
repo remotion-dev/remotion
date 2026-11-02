@@ -252,6 +252,7 @@ export const useMediaPlayback = ({
 			isPremounting,
 			isPostmounting,
 			pauseWhenBuffering,
+			mediaType,
 		});
 
 		if (action.type === 'none') {

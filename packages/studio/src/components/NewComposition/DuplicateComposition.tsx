@@ -275,6 +275,7 @@ const DuplicateCompositionLoaded: React.FC<{
 								<div style={rightRow}>
 									<InputAndValidationContainer>
 										<InputDragger
+											onValueChangeCancel={null}
 											type="number"
 											value={size.width}
 											placeholder="Width"
@@ -307,6 +308,7 @@ const DuplicateCompositionLoaded: React.FC<{
 								<div style={rightRow}>
 									<InputAndValidationContainer>
 										<InputDragger
+											onValueChangeCancel={null}
 											type="number"
 											value={size.height}
 											onTextChange={onHeightChanged}
@@ -347,6 +349,7 @@ const DuplicateCompositionLoaded: React.FC<{
 							<div style={label}>FPS</div>
 							<div style={rightRow}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={selectedFrameRate}
 									onTextChange={onTextFpsChange}

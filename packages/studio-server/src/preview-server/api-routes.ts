@@ -45,6 +45,7 @@ import {openInTerminalHandler} from './routes/open-in-terminal';
 import {pasteEffectsHandler} from './routes/paste-effects';
 import {precomposeJsxNodesHandler} from './routes/precompose-jsx-nodes';
 import {prepareElementInstallHandler} from './routes/prepare-element-install';
+import {prerenderedSceneInfoHandler} from './routes/prerendered-scene-info';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
@@ -61,6 +62,7 @@ import {reorderEffectHandler} from './routes/reorder-effect';
 import {reorderSequenceHandler} from './routes/reorder-sequence';
 import {replaceVideoSourceHandler} from './routes/replace-video-source';
 import {handleRestartStudio} from './routes/restart-studio';
+import {restorePrerenderedSceneHandler} from './routes/restore-prerendered-scene';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
@@ -159,6 +161,8 @@ export const allApiRoutes: {
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
 	'/api/replace-video-source': replaceVideoSourceHandler,
+	'/api/prerendered-scene-info': prerenderedSceneInfoHandler,
+	'/api/restore-prerendered-scene': restorePrerenderedSceneHandler,
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,

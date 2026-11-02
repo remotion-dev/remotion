@@ -93,6 +93,7 @@ export type StreamingPayload =
 			type: typeof functionInvoked;
 			payload: {
 				attempt: number;
+				memorySizeInMb: number;
 			};
 	  }
 	| {

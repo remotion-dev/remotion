@@ -233,7 +233,7 @@ const renderImportSpecifier = (
 	return specifier.importKind === 'type' ? `type ${rendered}` : rendered;
 };
 
-const renderImportDeclaration = ({
+export const renderImportDeclaration = ({
 	bracketSpacing,
 	declaration,
 	quote,
@@ -272,7 +272,7 @@ const renderImportDeclaration = ({
 	return `import ${parts.join(', ')} from ${source}${semicolon}`;
 };
 
-const getImportBracketSpacing = ({
+export const getImportBracketSpacing = ({
 	declaration,
 	input,
 	prettierConfigOverride,

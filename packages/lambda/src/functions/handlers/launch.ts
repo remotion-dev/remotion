@@ -891,7 +891,6 @@ const innerLaunchHandler = async ({
 		});
 		postRenderData = createPostRenderData({
 			region: getCurrentRegionInFunction(),
-			memorySizeInMb: getCurrentMemorySizeInMb(),
 			renderMetadata,
 			errorExplanations: LambdaClientInternals.inspectErrors({
 				errors: progress.errors,

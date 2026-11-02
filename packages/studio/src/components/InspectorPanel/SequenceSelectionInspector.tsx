@@ -21,8 +21,13 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {getMediaFileName} from '../public-output-name';
 import {splitVideoFromAudio} from '../split-video-from-audio-api';
-import {duplicateSequencesFromSource} from '../Timeline/duplicate-selected-timeline-item';
 import {
+	duplicateSequencesFromSource,
+	useIsDuplicatingSequence,
+} from '../Timeline/duplicate-selected-timeline-item';
+import {useIsSplittingSequence} from '../Timeline/pending-sequence-splits';
+import {
+	canSplitTimelineSequences,
 	getSequenceSourceSplitFrame,
 	getTimelineSequenceSplitEligibility,
 	splitTimelineSequenceFromSource,
@@ -43,12 +48,15 @@ import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
+import {useConnectedCompositions} from './ConnectedCompositionsSection';
 import type {SequenceSectionSelection} from './inspector-selection';
+import {PrerenderedVideoActions} from './PrerenderedVideoActions';
 import {
 	SequenceInspectorSections,
 	useSequenceInspectorSourceLocation,
 } from './SequenceInspectorHeader';
 import {SequencePrecomposeAction} from './SequencePrecomposeAction';
+import {SequencePrerenderAction} from './SequencePrerenderAction';
 import {SequenceUnwrapAction} from './SequenceUnwrapAction';
 import {SequenceWrapAction} from './SequenceWrapAction';
 import {selectedContainer} from './styles';
@@ -59,6 +67,7 @@ const SplitSequenceQuickAction: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({selection, track}) => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
+	const isSplitting = useIsSplittingSequence(selection.nodePathInfo);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const sequencePropStatuses = useMemo(
 		() =>
@@ -79,7 +88,8 @@ const SplitSequenceQuickAction: React.FC<{
 		[selection, sequencePropStatuses, timelinePosition, track.sequence],
 	);
 	const canSplit =
-		isStudioInteractivityEnabled() &&
+		!isSplitting &&
+		canSplitTimelineSequences() &&
 		sequencePropStatuses !== undefined &&
 		eligibility.canSplit;
 	const onSplit = useCallback(() => {
@@ -89,6 +99,7 @@ const SplitSequenceQuickAction: React.FC<{
 
 		splitTimelineSequenceFromSource({
 			nodePathInfo: eligibility.nodePathInfo,
+			expectedDuration: timelinePosition - track.sequence.from,
 			splitFrame: getSequenceSourceSplitFrame({
 				timelineFrame: timelinePosition,
 				keyframeDisplayOffset: track.keyframeDisplayOffset,
@@ -96,13 +107,15 @@ const SplitSequenceQuickAction: React.FC<{
 			}),
 		}).catch(() => undefined);
 	}, [canSplit, eligibility, timelinePosition, track]);
-	const disabledReason = !isStudioInteractivityEnabled()
-		? 'Studio is read-only'
-		: sequencePropStatuses === undefined
-			? 'Waiting for sequence prop status'
-			: eligibility.canSplit
-				? undefined
-				: eligibility.reason;
+	const disabledReason = isSplitting
+		? 'Splitting…'
+		: !canSplitTimelineSequences()
+			? 'Studio source editing is unavailable'
+			: sequencePropStatuses === undefined
+				? 'Waiting for sequence prop status'
+				: eligibility.canSplit
+					? undefined
+					: eligibility.reason;
 
 	return (
 		<InspectorQuickAction
@@ -114,7 +127,7 @@ const SplitSequenceQuickAction: React.FC<{
 				<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 			)}
 		>
-			Split
+			{isSplitting ? 'Splitting…' : 'Split'}
 		</InspectorQuickAction>
 	);
 };
@@ -158,7 +171,10 @@ const SequenceSourceQuickActions: React.FC<{
 	const sourceActionsDisabled =
 		previewServerState.type !== 'connected' || !isStudioInteractivityEnabled();
 	const isTransition = track.sequence.timelineTrack?.role === 'transition';
-	const duplicateDisabled = sourceActionsDisabled || isTransition;
+	const connectedCompositions = useConnectedCompositions({track});
+	const isDuplicating = useIsDuplicatingSequence(selection.nodePathInfo);
+	const duplicateDisabled =
+		sourceActionsDisabled || isTransition || isDuplicating;
 	const mediaSequence =
 		track.sequence.type === 'video' || track.sequence.type === 'audio'
 			? track.sequence
@@ -297,6 +313,13 @@ const SequenceSourceQuickActions: React.FC<{
 				</InspectorQuickAction>
 			) : null}
 			{track.sequence.type === 'video' ? (
+				<PrerenderedVideoActions
+					nodePathInfo={selection.nodePathInfo}
+					src={track.sequence.src}
+					sourceActionsDisabled={sourceActionsDisabled}
+				/>
+			) : null}
+			{track.sequence.type === 'video' ? (
 				<InspectorQuickAction
 					disabled={videoMattingDisabledReason !== undefined}
 					iconContainerStyle={largeInspectorActionIconContainerStyle}
@@ -360,7 +383,7 @@ const SequenceSourceQuickActions: React.FC<{
 					/>
 				)}
 			>
-				Duplicate
+				{isDuplicating ? 'Duplicating...' : 'Duplicate'}
 			</InspectorQuickAction>
 			<SequenceWrapAction
 				nodePathInfo={selection.nodePathInfo}
@@ -386,6 +409,14 @@ const SequenceSourceQuickActions: React.FC<{
 				]}
 				sourceActionsDisabled={sourceActionsDisabled}
 			/>
+			{connectedCompositions.length > 0 ? (
+				<SequencePrerenderAction
+					nodePathInfo={selection.nodePathInfo}
+					sequence={track.sequence}
+					connectedComposition={connectedCompositions[0]}
+					sourceActionsDisabled={sourceActionsDisabled || isTransition}
+				/>
+			) : null}
 			<InspectorQuickAction
 				disabled={sourceActionsDisabled}
 				iconContainerStyle={largeInspectorActionIconContainerStyle}

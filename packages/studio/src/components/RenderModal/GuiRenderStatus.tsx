@@ -230,7 +230,11 @@ const OpenFile: React.FC<{
 export const GuiRenderStatus: React.FC<{
 	readonly job: RenderJob;
 }> = ({job}) => {
-	if (job.status === 'idle' || job.status === 'failed') {
+	if (
+		job.status === 'idle' ||
+		job.status === 'failed' ||
+		job.status === 'cancelled'
+	) {
 		throw new Error(
 			'This component should not be rendered when the job is idle',
 		);

@@ -186,6 +186,7 @@ export const RenderModalBasic: React.FC<{
 					<div style={rightRow}>
 						<RightAlignInput>
 							<InputDragger
+								onValueChangeCancel={null}
 								value={frame}
 								onTextChange={onFrameChanged}
 								placeholder={`0-${resolvedComposition.durationInFrames - 1}`}

@@ -379,9 +379,11 @@ export const createBrowserStudioProjectController = ({
 	getStaticFiles,
 	getProject,
 	onProjectChange,
+	sourceVersionSessionId,
 }: {
 	getStaticFiles: BrowserStudioStaticFilesGetter | null;
 	getProject: () => VirtualProject;
+	sourceVersionSessionId: string | null;
 	onProjectChange: (
 		project: VirtualProject,
 		metadata: {skipSequencePropsUpdate: boolean},
@@ -766,6 +768,7 @@ export const createBrowserStudioProjectController = ({
 			listener({
 				type: 'init',
 				clientId: 'browser-studio',
+				sourceVersionSessionId,
 				undoFile: undoStack.at(-1)?.fileName ?? null,
 				redoFile: redoStack.at(-1)?.fileName ?? null,
 			});

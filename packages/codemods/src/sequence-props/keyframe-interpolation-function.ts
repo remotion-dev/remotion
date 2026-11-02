@@ -4,6 +4,7 @@ import {
 	type KeyframeInterpolationFunction,
 } from '@remotion/studio-shared/keyframe-interpolation-function';
 import * as recast from 'recast';
+import {getReadOnlySourceNodePath} from '../sequence-props-snapshot';
 import {getImportedName} from './imports';
 
 export const getKeyframeInterpolationFunctionForCallee = ({
@@ -14,18 +15,26 @@ export const getKeyframeInterpolationFunctionForCallee = ({
 	callee: Identifier;
 }): KeyframeInterpolationFunction | null => {
 	let bindings: recast.types.NodePath[] | null = null;
-	recast.types.visit(ast, {
-		visitIdentifier(path) {
-			if (path.node !== callee) {
-				return this.traverse(path);
-			}
+	const cachedPath = getReadOnlySourceNodePath(ast, callee);
+	if (cachedPath !== undefined) {
+		bindings =
+			cachedPath?.scope?.lookup(callee.name)?.getBindings()[callee.name] ??
+			null;
+	} else {
+		recast.types.visit(ast, {
+			visitIdentifier(path) {
+				if (path.node !== callee) {
+					return this.traverse(path);
+				}
 
-			bindings =
-				path.scope?.lookup(callee.name)?.getBindings()[callee.name] ?? null;
-			this.abort();
-			return false;
-		},
-	});
+				bindings =
+					path.scope?.lookup(callee.name)?.getBindings()[callee.name] ?? null;
+				this.abort();
+				return false;
+			},
+		});
+	}
+
 	for (const statement of ast.program.body) {
 		if (
 			statement.type !== 'ImportDeclaration' ||

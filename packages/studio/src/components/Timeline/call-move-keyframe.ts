@@ -2,6 +2,7 @@ import {
 	optimisticMoveEffectKeyframes,
 	optimisticMoveSequenceKeyframes,
 	type MoveKeyframesRequest,
+	type MoveKeyframesResponse,
 } from '@remotion/studio-shared';
 import type {
 	CanUpdateSequencePropSource,
@@ -9,6 +10,7 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
 import {callApi} from '../call-api';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -185,22 +187,46 @@ export const callMoveKeyframes = ({
 	sequenceKeyframes,
 	effectKeyframes,
 	setPropStatuses,
+	setPropStatusesBatch,
 	clientId,
 }: {
 	sequenceKeyframes: MoveSequenceKeyframeChange[];
 	effectKeyframes: MoveEffectKeyframeChange[];
 	setPropStatuses: SetPropStatuses;
+	setPropStatusesBatch:
+		| ((
+				updates: readonly {
+					nodePath: SequencePropsSubscriptionKey;
+					update: Parameters<SetPropStatuses>[1];
+				}[],
+		  ) => void)
+		| null;
 	clientId: string;
-}): Promise<void> => {
-	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
-		return Promise.resolve();
+}): Promise<MoveKeyframesResponse> => {
+	try {
+		for (const nodePath of effectKeyframes.map((change) => change.nodePath))
+			assertEffectChainEditable(nodePath);
+	} catch (error) {
+		return Promise.reject(error);
 	}
 
+	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
+		return Promise.resolve({success: true, results: []});
+	}
+
+	const updates: {
+		nodePath: SequencePropsSubscriptionKey;
+		update: Parameters<SetPropStatuses>[1];
+	}[] = [];
 	applyOptimisticKeyframeMoves({
 		sequenceKeyframes,
 		effectKeyframes,
-		setPropStatuses,
+		setPropStatuses:
+			setPropStatusesBatch === null
+				? setPropStatuses
+				: (nodePath, update) => updates.push({nodePath, update}),
 	});
+	if (setPropStatusesBatch !== null) setPropStatusesBatch(updates);
 
 	return moveKeyframes({
 		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
@@ -221,5 +247,5 @@ export const callMoveKeyframes = ({
 			schema: keyframe.schema,
 		})),
 		clientId,
-	}).then(() => undefined);
+	});
 };

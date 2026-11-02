@@ -3,9 +3,14 @@ import {staticFile} from 'remotion';
 import {addAssetCacheBust} from './add-asset-cache-bust';
 import {getPreviewFileType} from './get-preview-file-type';
 import type {Dimensions} from './is-current-selected-still';
+import {getEncodedOutputPath} from './output-path';
 import {getMediaMetadata, type MediaMetadata} from './use-media-metadata';
 
 export const remotion_outputsBase = window.remotion_outputsBase ?? '';
+
+export const getRenderOutputSrc = (path: string): string => {
+	return remotion_outputsBase + getEncodedOutputPath(path);
+};
 
 const getSrcFromCanvasContent = (
 	canvasContent: CanvasContent & {type: 'asset' | 'output'},
@@ -14,7 +19,7 @@ const getSrcFromCanvasContent = (
 		return staticFile(canvasContent.asset);
 	}
 
-	return remotion_outputsBase + canvasContent.path;
+	return getRenderOutputSrc(canvasContent.path);
 };
 
 export type AssetMetadata =

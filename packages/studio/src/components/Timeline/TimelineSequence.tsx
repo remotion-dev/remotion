@@ -84,7 +84,11 @@ import {getTimelineTrimHandleLayout} from './get-timeline-trim-handle-layout';
 import {getTimelineVolume} from './get-timeline-volume';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
-import {splitSelectedTimelineItems} from './split-selected-timeline-item';
+import {isSequenceSplitPending} from './pending-sequence-splits';
+import {
+	canSplitTimelineSequences,
+	splitSelectedTimelineItems,
+} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
@@ -1560,7 +1564,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 	const onSplitSelectedSequences = useCallback(() => {
-		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+		if (
+			!canSplitTimelineSequences() ||
+			selectedSequenceNodePathInfos === null
+		) {
 			return;
 		}
 
@@ -1576,7 +1583,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	}, [
 		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
-		previewInteractive,
 		propStatuses,
 		selectedItems,
 		selectedSequenceNodePathInfos,
@@ -1663,7 +1669,9 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive,
+					splitDisabled:
+						!canSplitTimelineSequences() ||
+						selectedSequenceNodePathInfos.some(isSequenceSplitPending),
 					onDeleteSelectedSequences,
 					onDuplicateSelectedSequences,
 					onSplitSelectedSequences,
@@ -1691,7 +1699,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				splitFrame: getCurrentFrame(),
 				keyframeDisplayOffset,
 				keyframePlaybackRate,
-				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				canEditSource:
+					canSplitTimelineSequences() && Boolean(validatedLocation?.source),
 				hasMultipleSelection: selected && selectedItems.length > 1,
 			});
 
