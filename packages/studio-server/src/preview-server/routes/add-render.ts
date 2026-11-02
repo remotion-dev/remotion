@@ -25,7 +25,10 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				);
 			}
 
-			outName = path.relative(remotionRoot, absoluteOutName);
+			outName = path
+				.relative(remotionRoot, absoluteOutName)
+				.split(path.sep)
+				.join('/');
 			prerender = {
 				...input.prerenderTarget,
 				src: src.split(path.sep).join('/'),
