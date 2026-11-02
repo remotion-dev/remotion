@@ -24,7 +24,9 @@ export const callOnErrorAndResolve = ({
 		return ['fail', clientSideError];
 	}
 
-	if (result) {
+	// Only recognized actions override the default. Callbacks may return other
+	// values in JavaScript, such as a Promise from an async logging function.
+	if (result === 'fail' || result === 'fallback') {
 		return [result, error];
 	}
 
