@@ -273,6 +273,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				.map((_, i) => makeNewPage(frame, i));
 			const puppeteerPages = await Promise.all(pages);
 			const pool = await poolPromise;
+			pool.resources = pool.resources.filter((p) => !p.closed);
 			for (const newPage of puppeteerPages) {
 				pool.release(newPage);
 			}
