@@ -12,7 +12,7 @@ export class Pool {
 	acquire(): Promise<Page> {
 		const resource = this.resources.shift();
 		if (resource !== undefined) {
-			return Promise.resolve(resource);
+			return resource.closed ? this.acquire() : Promise.resolve(resource);
 		}
 
 		return new Promise((resolve) => {
@@ -23,6 +23,11 @@ export class Pool {
 	}
 
 	release(resource: Page): void {
+		// A frame that finished after the browser was replaced returns a dead page
+		if (resource.closed) {
+			return;
+		}
+
 		const waiter = this.waiters.shift();
 		if (waiter === undefined) {
 			this.resources.push(resource);
