@@ -87,9 +87,27 @@ export const videoIteratorManager = async ({
 	let currentSeek: number | null = null;
 	let destroyed = false;
 	let pendingEffectRun: {state: EffectChainState; runId: number} | null = null;
+	// Several timeline frames can resolve to the same decoded frame (e.g. a
+	// 24fps video in a 60fps composition). Remember what the canvas currently
+	// shows so the effect chain is not rerun while all inputs are unchanged.
+	// Each decoded frame gets its own WrappedCanvas, so identity is reliable.
+	let lastEffectPaint: {
+		frame: WrappedCanvas;
+		effects: EffectDefinitionAndStack<unknown>[];
+		chainState: EffectChainState;
+		width: number;
+		height: number;
+	} | null = null;
+	let effectPaintGeneration = 0;
+
+	const invalidateEffectPaint = () => {
+		lastEffectPaint = null;
+		effectPaintGeneration++;
+	};
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
+		invalidateEffectPaint();
 	};
 
 	const displayWidth = await videoTrack.getDisplayWidth();
@@ -99,6 +117,14 @@ export const videoIteratorManager = async ({
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
 		}
+	}
+
+	// The browser restores a lost 2D context with a blank bitmap.
+	if (
+		typeof HTMLCanvasElement !== 'undefined' &&
+		canvas instanceof HTMLCanvasElement
+	) {
+		canvas.addEventListener('contextrestored', invalidateEffectPaint);
 	}
 
 	const maxWidth = maxCanvasSinkFrameSize?.width ?? Infinity;
@@ -134,6 +160,19 @@ export const videoIteratorManager = async ({
 				chainState &&
 				canvas instanceof HTMLCanvasElement
 			) {
+				if (
+					lastEffectPaint &&
+					lastEffectPaint.frame === frame &&
+					lastEffectPaint.effects === effects &&
+					lastEffectPaint.chainState === chainState &&
+					lastEffectPaint.width === canvas.width &&
+					lastEffectPaint.height === canvas.height
+				) {
+					return;
+				}
+
+				invalidateEffectPaint();
+				const generation = effectPaintGeneration;
 				const firstEnabledEffect = effects.find(
 					(effect) => !(effect.params as {disabled?: boolean}).disabled,
 				);
@@ -148,7 +187,7 @@ export const videoIteratorManager = async ({
 				const run = {state: chainState, runId: chainState.currentRunId + 1};
 				pendingEffectRun = run;
 				try {
-					await runEffectChain({
+					const completed = await runEffectChain({
 						state: chainState,
 						source,
 						effects,
@@ -156,12 +195,27 @@ export const videoIteratorManager = async ({
 						width: canvas.width,
 						height: canvas.height,
 					});
+					// A later paint may have started before this one settled.
+					if (
+						completed &&
+						pendingEffectRun === run &&
+						generation === effectPaintGeneration
+					) {
+						lastEffectPaint = {
+							frame,
+							effects,
+							chainState,
+							width: canvas.width,
+							height: canvas.height,
+						};
+					}
 				} finally {
 					if (pendingEffectRun === run) {
 						pendingEffectRun = null;
 					}
 				}
 			} else {
+				invalidateEffectPaint();
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				drawStableFrame(context, frame, canvas.width, canvas.height);
 			}
@@ -435,6 +489,13 @@ export const videoIteratorManager = async ({
 
 			pendingEffectRun = null;
 			clearLastDrawnFrame();
+			if (
+				typeof HTMLCanvasElement !== 'undefined' &&
+				canvas instanceof HTMLCanvasElement
+			) {
+				canvas.removeEventListener('contextrestored', invalidateEffectPaint);
+			}
+
 			prewarmedVideoIteratorCache.destroy();
 			videoFrameIterator?.destroy();
 			if (context && canvas && framesRendered > 0) {

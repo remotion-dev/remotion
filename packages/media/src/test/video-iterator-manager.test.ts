@@ -1,5 +1,7 @@
 import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
-import {expect, onTestFinished, test} from 'vitest';
+import type {EffectDefinition, EffectDefinitionAndStack} from 'remotion';
+import {Internals} from 'remotion';
+import {expect, onTestFinished, test, vi} from 'vitest';
 import {makeNonceManager} from '../nonce-manager';
 import {
 	isSequentialMediaTimeAdvance,
@@ -457,4 +459,99 @@ test('a superseded seek leaves recreating a reclaimed decoder to the next seek',
 	} finally {
 		manager.destroy();
 	}
+});
+
+const makeCountingEffect = (
+	apply: () => void,
+): EffectDefinitionAndStack<unknown>[] => {
+	const definition: EffectDefinition<unknown, unknown> = {
+		type: 'counting',
+		label: 'counting',
+		documentationLink: null,
+		backend: '2d',
+		calculateKey: () => 'counting',
+		setup: () => null,
+		apply,
+		cleanup: () => undefined,
+		schema: {},
+		validateParams: () => {},
+	};
+
+	return [{definition, params: {}, effectKey: 'counting', memoized: true}];
+};
+
+// #12701: a 24fps video in a 60fps composition reran the whole effect chain
+// for every composition frame, even while the decoded frame was the same.
+test('does not rerun effects for an unchanged decoded frame', async () => {
+	const {videoTrack} = await prepare();
+	const canvas = document.createElement('canvas');
+	const context = canvas.getContext('2d');
+	if (!context) {
+		throw new Error('Could not get 2d context');
+	}
+
+	const apply = vi.fn();
+	let effects = makeCountingEffect(apply);
+	const chainState = Internals.createEffectChainState(
+		canvas.width,
+		canvas.height,
+	);
+
+	const manager = await videoIteratorManager({
+		getIsDisposed: () => false,
+		videoTrack,
+		delayPlaybackHandleIfNotPremounting: () => ({
+			unblock: () => {},
+			[Symbol.dispose]: () => {},
+		}),
+		context,
+		canvas,
+		getOnVideoFrameCallback: () => null,
+		logLevel: 'error',
+		drawDebugOverlay: () => {},
+		getLoopSegmentMediaEndTimestamp: () => {
+			throw new Error('not implemented');
+		},
+		getStartTime: () => {
+			throw new Error('not implemented');
+		},
+		getIsLooping: () => false,
+		getEffects: () => effects,
+		getEffectChainState: () => chainState,
+		maxCanvasSinkFrameSize: null,
+	});
+	onTestFinished(() => manager.destroy());
+	const nonceManager = makeNonceManager();
+
+	await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+	expect(manager.getFramesRendered()).toBe(1);
+	expect(apply).toHaveBeenCalledTimes(1);
+
+	// One 100fps timeline frame later, the same decoded frame is still current
+	await manager.seek({
+		continuousPlayback: null,
+		newTime: 0.01,
+		nonce: nonceManager.createAsyncOperation(),
+		fps: 100,
+		playbackRate: 1,
+		isPlaying: true,
+	});
+	expect(manager.getFramesRendered()).toBe(2);
+	expect(apply).toHaveBeenCalledTimes(1);
+
+	// Changed effects have to go through the chain again
+	effects = makeCountingEffect(apply);
+	await manager.redrawCurrentFrame();
+	expect(apply).toHaveBeenCalledTimes(2);
+
+	// A different decoded frame has to go through the chain again
+	await manager.seek({
+		continuousPlayback: null,
+		newTime: 1,
+		nonce: nonceManager.createAsyncOperation(),
+		fps: 100,
+		playbackRate: 1,
+		isPlaying: false,
+	});
+	expect(apply).toHaveBeenCalledTimes(3);
 });
