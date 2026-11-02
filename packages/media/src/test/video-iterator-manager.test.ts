@@ -79,6 +79,7 @@ const prepare = async () => {
 
 const makeManager = (
 	videoTrack: Awaited<ReturnType<typeof prepare>>['videoTrack'],
+	onVideoFrame: (() => void) | null = null,
 ) =>
 	videoIteratorManager({
 		getIsDisposed: () => false,
@@ -89,7 +90,7 @@ const makeManager = (
 		}),
 		context: null,
 		canvas: null,
-		getOnVideoFrameCallback: () => null,
+		getOnVideoFrameCallback: () => onVideoFrame,
 		logLevel: 'error',
 		drawDebugOverlay: () => {},
 		getLoopSegmentMediaEndTimestamp: () => {
@@ -343,6 +344,30 @@ test('redrawCurrentFrame should not create a new video iterator', async () => {
 	await manager.redrawCurrentFrame();
 
 	expect(manager.getVideoIteratorsCreated()).toBe(1);
+});
+
+test('same-time seeks without changed effects do not emit another frame', async () => {
+	const {videoTrack} = await prepare();
+	const onVideoFrame = vi.fn();
+	const manager = await makeManager(videoTrack, onVideoFrame);
+	const nonceManager = makeNonceManager();
+	const seek = () =>
+		manager.seek({
+			newTime: 0,
+			nonce: nonceManager.createAsyncOperation(),
+			fps: 30,
+			playbackRate: 1,
+			isPlaying: false,
+			continuousPlayback: false,
+		});
+	try {
+		await manager.startVideoIterator(0, nonceManager.createAsyncOperation());
+		expect(onVideoFrame).toHaveBeenCalledOnce();
+		await seek();
+		expect(onVideoFrame).toHaveBeenCalledOnce();
+	} finally {
+		manager.destroy();
+	}
 });
 
 const makeReclaimedError = () =>
