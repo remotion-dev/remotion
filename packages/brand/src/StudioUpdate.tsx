@@ -45,7 +45,16 @@ export const studioUpdateSchema = z.object({
 // Use original recordings with live cameras and cursors for the homepage montage.
 export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 	const reel = mode === 'instagram-reel';
+	const captionTimelineFill = reel
+		? 'linear-gradient(to bottom, transparent 50%, #15161b 50%)'
+		: undefined;
 	const frame = useCurrentFrame();
+	const closingPushScale = interpolate(frame, [911, 968], [1.7, 1], {
+		easing: Easing.out(Easing.quad),
+		extrapolateLeft: 'clamp',
+		extrapolateRight: 'clamp',
+		output: 'perceptual-scale',
+	});
 
 	// Recenter the original capture around the interaction. Coordinates are
 	// normalized within each shot's native portrait layout.
@@ -141,7 +150,11 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					endRotation="0.65 1 -0.1 6.5deg"
 				/>
 				<StudioDeviceOverview
-					name="01f - Full Studio - device zoom out"
+					name={
+						reel
+							? '01f - Full Studio - left to right pan'
+							: '01f - Full Studio - device zoom out'
+					}
 					from={242}
 					durationInFrames={56}
 					premountFor={6}
@@ -179,7 +192,13 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					playbackRate={123 / 11}
 					premountFor={30}
 					style={{
-						...reelCamera(1.65),
+						...reelCamera(
+							2.3,
+							interpolate(frame, [423, 433], [0.61, 0.45], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
+						),
 						backgroundColor: '#1c1e23',
 						overflow: 'hidden',
 					}}
@@ -199,8 +218,16 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					durationInFrames={38}
 					premountFor={30}
 					style={{
-						...reelCamera(1.48, 0.6, 0.52),
+						...reelCamera(
+							2.1,
+							interpolate(frame, [475, 505], [0.34, 0.54], {
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
+							0.6,
+						),
 						backgroundColor: '#1c1e23',
+						backgroundImage: captionTimelineFill,
 						overflow: 'hidden',
 					}}
 				/>
@@ -235,8 +262,9 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					durationInFrames={24}
 					premountFor={30}
 					style={{
-						...reelCamera(1.45, 0.5, 0.55),
+						...reelCamera(2.1, 0.53, 0.56),
 						backgroundColor: '#1c1e23',
+						backgroundImage: captionTimelineFill,
 						overflow: 'hidden',
 					}}
 				/>
@@ -295,8 +323,8 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					durationInFrames={45 * 2.3}
 					playbackRate={2.3}
 					captureStyle={{
-						translate: reel ? '0px 255px' : '-100px -300px',
-						scale: reel ? 0.67 : 0.9,
+						translate: reel ? '-220px 80px' : '-350px -700px',
+						scale: reel ? 0.8 : 1.25,
 						rotate: '-3deg',
 					}}
 					premountFor={30}
@@ -317,12 +345,17 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					style={{
 						backgroundColor: '#0d0d0d',
 						overflow: 'hidden',
-						scale: 1.05,
-						translate: `${interpolate(frame, [884, 938], [2, -2], {
-							easing: Easing.inOut(Easing.quad),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}% 0`,
+						scale: reel ? 1.4 : 1.05,
+						translate: `${interpolate(
+							frame,
+							reel ? [869, 889] : [884, 938],
+							reel ? [12, 0] : [2, -2],
+							{
+								easing: Easing.inOut(Easing.quad),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						)}% 0`,
 					}}
 				/>
 				<StudioHomepageMenus
@@ -349,12 +382,12 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					playbackRate={16 / 27}
 					premountFor={30}
 					style={{
-						...reelCamera(1.95, 0.37, 0.54),
-						transform: `translateX(${interpolate(frame, [884, 938], [2, -2], {
-							easing: Easing.inOut(Easing.quad),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						})}%) scale(1.05)`,
+						...reelCamera(
+							1.95 * (1.7 + (closingPushScale - 1.7) / 2),
+							0.34,
+							0.55,
+						),
+						transform: reel ? undefined : `scale(${closingPushScale})`,
 						backgroundColor: '#1f2428',
 						overflow: 'hidden',
 					}}
@@ -368,11 +401,7 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					premountFor={30}
 					style={{
 						overflow: 'hidden',
-						scale: interpolate(frame, [947, 959], [1, 1.1], {
-							easing: Easing.inOut(Easing.quad),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
+						scale: closingPushScale,
 					}}
 				/>
 				<StudioRenderProgressComposition
@@ -384,11 +413,7 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					premountFor={30}
 					style={{
 						overflow: 'hidden',
-						scale: interpolate(frame, [947, 959], [1, 1.1], {
-							easing: Easing.inOut(Easing.quad),
-							extrapolateLeft: 'clamp',
-							extrapolateRight: 'clamp',
-						}),
+						scale: closingPushScale,
 					}}
 				/>
 				<StudioClosing

@@ -230,6 +230,15 @@ const TimelineClipSelectionContent = ({
 }) => {
 	const frame = useCurrentFrame();
 	const {fps, width, height} = useVideoConfig();
+	const portraitPan = rattleTiming && width < height;
+	// The marquee starts on the right. Follow it left, then hold on the selected clips.
+	const focusX = portraitPan
+		? interpolate(frame / fps, [8 / 30, 36 / 30], [2140, 460], {
+				easing: Easing.bezier(0.24, 0, 0.55, 1),
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
+			})
+		: 1350;
 
 	return (
 		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#15161b'}}>
@@ -240,10 +249,12 @@ const TimelineClipSelectionContent = ({
 					height: 1410,
 					left: '50%',
 					top: '50%',
-					translate: '-1350px -825px',
-					transformOrigin: '1350px 825px',
+					translate: `${-focusX}px -825px`,
+					transformOrigin: `${focusX}px 825px`,
 					rotate: '-4deg',
-					scale: 1.1 * Math.min(width / 2560, height / 1600),
+					scale: portraitPan
+						? height / 1280
+						: 1.1 * Math.min(width / 2560, height / 1600),
 				}}
 			>
 				<Freeze

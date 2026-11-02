@@ -1,4 +1,5 @@
 import {
+	Easing,
 	Img,
 	Interactive,
 	interpolate,
@@ -9,24 +10,43 @@ import {
 const StudioDeviceOverviewContent = () => {
 	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
+	const portrait = width < height;
+	const portraitScale = (height * 0.86) / 1424;
+	const halfDeviceWidth = (2240 * portraitScale) / 2;
 
 	return (
 		<Interactive.Div
-			name="Studio device - slow zoom out"
+			name={
+				portrait
+					? 'Studio device - pan left to right'
+					: 'Studio device - slow zoom out'
+			}
 			style={{
 				position: 'absolute',
-				left: '50%',
-				top: width < height ? '50%' : '65%',
+				left: portrait
+					? interpolate(
+							frame,
+							[0, durationInFrames - 1],
+							[halfDeviceWidth + 32, width - halfDeviceWidth - 32],
+							{
+								easing: Easing.inOut(Easing.sin),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							},
+						)
+					: '50%',
+				top: portrait ? '50%' : '65%',
 				translate: '-50% -50%',
 				width: 2240,
 				height: 1424,
-				scale:
-					Math.min(width / 2560, height / 1600) *
-					interpolate(frame, [0, durationInFrames - 1], [1.13, 1.03], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-					}),
+				scale: portrait
+					? portraitScale
+					: Math.min(width / 2560, height / 1600) *
+						interpolate(frame, [0, durationInFrames - 1], [1.13, 1.08], {
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							output: 'perceptual-scale',
+						}),
 				// Match the device housing on the homepage.
 				backgroundColor: '#101114',
 				border: '2px solid #35373d',

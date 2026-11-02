@@ -19,7 +19,7 @@ const BasicsPlaybackRateInner = ({
 	readonly captureStyle: React.CSSProperties | null;
 	readonly blurEdges: boolean | null;
 }) => {
-	const {fps} = useVideoConfig();
+	const {fps, width, height} = useVideoConfig();
 	const frame = (useCurrentFrame() * 60) / fps;
 
 	const screenCapture = (
@@ -338,8 +338,32 @@ const BasicsPlaybackRateInner = ({
 	return (
 		<AbsoluteFill
 			showInTimeline={false}
-			style={{backgroundColor: '#111518', overflow: 'hidden'}}
+			style={{
+				backgroundColor: width < height ? '#1f2427' : '#111518',
+				overflow: 'hidden',
+			}}
 		>
+			{width < height ? (
+				<div
+					style={{
+						position: 'absolute',
+						transformOrigin: '0 0',
+						...captureStyle,
+					}}
+				>
+					{/* Continue the track area below the tilted capture, alongside the lighter layer list. */}
+					<div
+						style={{
+							position: 'absolute',
+							left: 1224,
+							top: 2143,
+							width: 3794 - 1224,
+							height,
+							backgroundColor: '#15171c',
+						}}
+					/>
+				</div>
+			) : null}
 			{HtmlInCanvas.isSupported() ? (
 				<HtmlInCanvas
 					name="Canvas Capture"

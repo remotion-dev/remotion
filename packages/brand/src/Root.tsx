@@ -1681,7 +1681,7 @@ export const RemotionRoot: React.FC = () => {
 				id="StudioUpdate"
 				component={StudioUpdate}
 				schema={studioUpdateSchema}
-				defaultProps={{mode: 'widescreen' as const}}
+				defaultProps={{mode: 'instagram-reel' as const}}
 				calculateMetadata={({props}) =>
 					props.mode === 'instagram-reel'
 						? {width: 1080, height: 1920}
