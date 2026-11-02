@@ -8,6 +8,8 @@ crumb: 'Lambda API'
 
 Retrieves a list of functions that Remotion deployed to AWS Lambda in a certain region.
 
+Only names starting with `remotion-render-` are included. For [custom function names](/docs/lambda/custom-function-names) outside that prefix, retain the deployed name and use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo) to inspect it.
+
 The parameter `compatibleOnly` determines whether only functions that are compatible with the installed version of Remotion Lambda should be returned.
 
 :::note

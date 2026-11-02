@@ -14,7 +14,6 @@ import type {LogLevel} from '@remotion/renderer';
 import type {DownloadBehavior} from 'remotion/no-react';
 import {cleanupProps} from './cleanup-props';
 import {createPostRenderData} from './create-post-render-data';
-import {getCurrentMemorySizeInMb} from './helpers/get-current-memory-size';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {timer} from './helpers/timer';
 import type {OverallProgressHelper} from './overall-render-progress';
@@ -178,7 +177,6 @@ export const finishRender = async ({
 
 	const postRenderData = createPostRenderData({
 		region: getCurrentRegionInFunction(),
-		memorySizeInMb: getCurrentMemorySizeInMb(),
 		renderMetadata,
 		errorExplanations,
 		timeToDelete: (await cleanupProm).reduce((a, b) => Math.max(a, b), 0),

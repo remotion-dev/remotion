@@ -9,6 +9,7 @@ import {
 	type AwsRegion,
 } from '@remotion/lambda-client';
 import type {EmittedArtifact} from '@remotion/renderer';
+import {getCurrentMemorySizeInMb} from './helpers/get-current-memory-size';
 
 export const makeS3RendererOutput = ({
 	params,
@@ -24,6 +25,7 @@ export const makeS3RendererOutput = ({
 	}
 
 	const startedAt = Date.now();
+	const memorySizeInMb = getCurrentMemorySizeInMb();
 	let lambdaInvoked = true;
 	let renderedFrames = 0;
 	let encodedFrames = 0;
@@ -67,6 +69,7 @@ export const makeS3RendererOutput = ({
 		chunk: params.chunk,
 		attempt: params.attempt,
 		lambdaInvoked,
+		memorySizeInMb,
 		renderedFrames,
 		encodedFrames,
 		uploadedFrames,
@@ -144,6 +147,7 @@ export const makeS3RendererOutput = ({
 				chunk: params.chunk,
 				attempt: params.attempt,
 				lambdaInvoked,
+				memorySizeInMb,
 				renderedFrames,
 				encodedFrames,
 				uploadedFrames,
@@ -246,6 +250,7 @@ export const makeS3RendererOutput = ({
 			chunk: params.chunk,
 			attempt: params.attempt,
 			lambdaInvoked: true,
+			memorySizeInMb,
 			renderedFrames,
 			encodedFrames,
 			uploadedFrames,
