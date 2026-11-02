@@ -107,12 +107,22 @@ export const replaceJsxElementWithSource = <Project extends CodemodProject>({
 			continue;
 		}
 
-		// A namespace import cannot share a declaration with named imports
+		// A namespace import cannot share a declaration with named imports,
+		// and a declaration can only have one default import
 		const namespaceSpecifiers = missing.filter(
 			(specifier) => specifier.type === 'ImportNamespaceSpecifier',
 		);
+		const defaultSpecifiers: typeof missing = (existing?.specifiers ?? []).some(
+			(specifier) => specifier.type === 'ImportDefaultSpecifier',
+		)
+			? missing.filter(
+					(specifier) => specifier.type === 'ImportDefaultSpecifier',
+				)
+			: [];
 		const otherSpecifiers = missing.filter(
-			(specifier) => specifier.type !== 'ImportNamespaceSpecifier',
+			(specifier) =>
+				specifier.type !== 'ImportNamespaceSpecifier' &&
+				!defaultSpecifiers.includes(specifier),
 		);
 		if (existing && otherSpecifiers.length > 0) {
 			existing.specifiers = [
@@ -123,6 +133,7 @@ export const replaceJsxElementWithSource = <Project extends CodemodProject>({
 
 		for (const specifiers of [
 			namespaceSpecifiers,
+			defaultSpecifiers,
 			existing ? [] : otherSpecifiers,
 		]) {
 			if (specifiers.length > 0) {

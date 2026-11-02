@@ -20,8 +20,10 @@ const iconStyle: React.CSSProperties = {
 const findUnserializableProp = (
 	value: unknown,
 	propPath: string,
+	ancestors: readonly unknown[],
 ): string | null => {
 	if (
+		ancestors.includes(value) ||
 		typeof value === 'function' ||
 		typeof value === 'symbol' ||
 		typeof value === 'bigint' ||
@@ -35,7 +37,10 @@ const findUnserializableProp = (
 	}
 
 	for (const [key, item] of Object.entries(value)) {
-		const found = findUnserializableProp(item, `${propPath}.${key}`);
+		const found = findUnserializableProp(item, `${propPath}.${key}`, [
+			...ancestors,
+			value,
+		]);
 		if (found !== null) {
 			return found;
 		}
@@ -86,7 +91,11 @@ export const SequencePrerenderAction: React.FC<{
 		}
 
 		const callSiteProps = getSingleChildProps() ?? {};
-		const unserializableProp = findUnserializableProp(callSiteProps, 'props');
+		const unserializableProp = findUnserializableProp(
+			callSiteProps,
+			'props',
+			[],
+		);
 		if (unserializableProp !== null) {
 			showNotification(
 				`Cannot render and replace: ${unserializableProp} cannot be serialized`,

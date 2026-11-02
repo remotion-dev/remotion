@@ -172,3 +172,38 @@ export const Main = () => (
 );
 `);
 });
+
+test('replaceJsxElementWithSource keeps a default import that clashes with an existing one', () => {
+	const input = `import Bar, {C} from './pkg';
+import {Video} from '@remotion/media';
+import {Sequence, staticFile} from 'remotion';
+
+export const Main = () => (
+	<Sequence>
+		<Bar c={C} />
+		<Video src={staticFile('a.webm')} />
+	</Sequence>
+);
+`;
+	const restored = CodemodsInternals.replaceJsxElementWithSource({
+		project: {rootDir: '/', files: {'/test.tsx': input}},
+		node: {
+			filePath: '/test.tsx',
+			nodePath: lineContainingToNodePath(input, '<Video'),
+		},
+		source: '<Foo a={A} />',
+		importStatements: ["import Foo, {A} from './pkg';"],
+	});
+	expect(restored.changes[0].nextContents)
+		.toBe(`import Bar, {C, A} from './pkg';
+import {Sequence} from 'remotion';
+import Foo from './pkg';
+
+export const Main = () => (
+	<Sequence>
+		<Bar c={C} />
+		<Foo a={A} />
+	</Sequence>
+);
+`);
+});
