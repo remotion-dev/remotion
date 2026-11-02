@@ -380,6 +380,7 @@ const CompWhenItHasDimensions: React.FC<{
 		return (
 			<div style={outer}>
 				<RenderPreview
+					outputPlaybackContent={canvasContent}
 					path={canvasContent.path}
 					assetMetadata={assetMetadata}
 				/>
@@ -391,6 +392,7 @@ const CompWhenItHasDimensions: React.FC<{
 		return (
 			<div style={outer}>
 				<RenderPreview
+					outputPlaybackContent={canvasContent}
 					path={canvasContent.displayName}
 					assetMetadata={assetMetadata}
 					getBlob={canvasContent.getBlob}

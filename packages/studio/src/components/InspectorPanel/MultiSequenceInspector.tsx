@@ -17,7 +17,11 @@ import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {getCurrentFrame} from '../Timeline/imperative-state';
-import {splitSelectedTimelineItems} from '../Timeline/split-selected-timeline-item';
+import {useAreSequencesSplitting} from '../Timeline/pending-sequence-splits';
+import {
+	canSplitTimelineSequences,
+	splitSelectedTimelineItems,
+} from '../Timeline/split-selected-timeline-item';
 import {
 	INSPECTOR_TIMELINE_ROW_LAYOUT,
 	TimelineRowLayoutContext,
@@ -166,7 +170,12 @@ export const MultiSequenceInspector: React.FC<{
 			),
 		);
 	}, [getDragOverrides, propStatuses, runtimeValues, targets]);
-	const canSplit = !readOnlyStudio && isStudioInteractivityEnabled();
+	const splitNodePaths = useMemo(
+		() => selections.map(({nodePathInfo}) => nodePathInfo),
+		[selections],
+	);
+	const isSplitting = useAreSequencesSplitting(splitNodePaths);
+	const canSplit = !isSplitting && canSplitTimelineSequences();
 	const onSplit = useCallback(() => {
 		if (!canSplit) {
 			return;
@@ -245,12 +254,18 @@ export const MultiSequenceInspector: React.FC<{
 						disabled={!canSplit}
 						iconContainerStyle={largeInspectorActionIconContainerStyle}
 						onClick={onSplit}
-						aria-label={canSplit ? undefined : 'Studio is read-only'}
+						aria-label={
+							isSplitting
+								? 'Splitting…'
+								: canSplit
+									? undefined
+									: 'Studio source editing is unavailable'
+						}
 						renderIcon={(color) => (
 							<SplitIcon style={largeInspectorActionIconStyle} color={color} />
 						)}
 					>
-						Split selected
+						{isSplitting ? 'Splitting…' : 'Split selected'}
 					</InspectorQuickAction>
 					<SequencePrecomposeAction
 						targets={precomposeTargets}

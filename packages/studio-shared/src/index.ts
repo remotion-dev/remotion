@@ -1,3 +1,4 @@
+export type {SourceFileVersion} from './source-file-version';
 export {studioOperations} from './api-requests';
 export {splitAnsi, stripAnsi} from './ansi';
 export type {TerminalId} from './terminal';
@@ -45,6 +46,7 @@ export {
 	DeleteNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
+	KeyframeMutationResult,
 	DeleteSequenceKeyframe,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,

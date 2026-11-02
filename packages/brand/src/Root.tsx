@@ -1,39 +1,7 @@
-import {ExploreZoomBlurRecording20261028Composition} from './ExploreZoomBlurRecording20261028Composition';
-import {ExploreBuildingRecording20261028Composition} from './ExploreBuildingRecording20261028Composition';
-import {ExploreRemotionSDK} from './HomepageAssets/ExploreRemotion/SDK';
-import {
-	ExploreRemotionNew,
-	NewRecordingEdit,
-	NewSquareEdit,
-	newRecordingDuration,
-} from './HomepageAssets/ExploreRemotion/New';
-import {ExploreNewRecording20261028Composition} from './ExploreNewRecording20261028Composition';
-import {ExploreConvertRecording20261028Composition} from './ExploreConvertRecording20261028Composition';
-import {
-	ExploreRemotionMedia,
-	MediaRecordingEdit,
-	MediaSquareEdit,
-	mediaRecordingDuration,
-} from './HomepageAssets/ExploreRemotion/Media';
-import {ExploreMediaRecording20261028Composition} from './ExploreMediaRecording20261028Composition';
-import {ExplorePlayerRecording20261027Composition} from './ExplorePlayerRecording20261027Composition';
-import {
-	ExploreRemotionPlayer,
-	PlayerRecordingEdit,
-	playerRecordingDuration,
-	PlayerSquareEdit,
-} from './HomepageAssets/ExploreRemotion/Player';
-import {ExploreEditorStarterRecording20261027Composition} from './ExploreEditorStarterRecording20261027Composition';
-import {
-	EditorStarterRecordingEdit,
-	editorStarterDuration,
-	ExploreRemotionEditorStarter,
-} from './HomepageAssets/ExploreRemotion/EditorStarter';
-import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
-import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
 import {AiPromptRecordingComposition} from './AiPromptRecordingComposition';
+import {AirDropFootage20261031} from './AirDropFootage20261031';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
@@ -59,6 +27,7 @@ import {
 	AuraTimelineCard,
 	AuraTimelineChapters,
 } from './AuraTimelineSource';
+import {BackgroundRemovalDemo} from './BackgroundRemovalDemo';
 import {BasicsShowcaseCompositions} from './BasicsShowcase';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
@@ -80,7 +49,6 @@ import {CloseUp7} from './CloseUp7';
 import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
 import {ColorCorrectionDemo} from './ColorCorrectionDemo';
-import {BackgroundRemovalDemo} from './BackgroundRemovalDemo';
 import {ColorCorrectionRecordingComposition} from './ColorCorrectionRecordingComposition';
 import {ColorCorrectionStudioRecordingComposition} from './ColorCorrectionStudioRecordingComposition';
 import {
@@ -139,9 +107,18 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
+import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
+import {ExploreBuildingRecording20261028Composition} from './ExploreBuildingRecording20261028Composition';
+import {ExploreConvertRecording20261028Composition} from './ExploreConvertRecording20261028Composition';
 import {ExploreCurvesRecording20261027Composition} from './ExploreCurvesRecording20261027Composition';
+import {ExploreEditorStarterRecording20261027Composition} from './ExploreEditorStarterRecording20261027Composition';
 import {ExploreElementsRecording20261027Composition} from './ExploreElementsRecording20261027Composition';
 import {ExploreKeyframesRecording20261027Composition} from './ExploreKeyframesRecording20261027Composition';
+import {ExploreMediaRecording20261028Composition} from './ExploreMediaRecording20261028Composition';
+import {ExploreNewRecording20261028Composition} from './ExploreNewRecording20261028Composition';
+import {ExplorePlayerRecording20261027Composition} from './ExplorePlayerRecording20261027Composition';
+import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
+import {ExploreZoomBlurRecording20261028Composition} from './ExploreZoomBlurRecording20261028Composition';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {CursorOrbit} from './HomepageAssets/CursorOrbit';
 import {
@@ -156,13 +133,13 @@ import {
 	backgroundRemovalDuration,
 } from './HomepageAssets/ExploreRemotion/BackgroundRemoval';
 import {
-	captionsDuration,
-	ExploreRemotionCaptions,
-} from './HomepageAssets/ExploreRemotion/Captions';
-import {
 	canvasCaptureDuration,
 	ExploreRemotionCanvasCapture,
 } from './HomepageAssets/ExploreRemotion/CanvasCapture';
+import {
+	captionsDuration,
+	ExploreRemotionCaptions,
+} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
@@ -172,6 +149,11 @@ import {
 	convertRecordingDuration,
 	ExploreRemotionConvert,
 } from './HomepageAssets/ExploreRemotion/Convert';
+import {
+	EditorStarterRecordingEdit,
+	editorStarterDuration,
+	ExploreRemotionEditorStarter,
+} from './HomepageAssets/ExploreRemotion/EditorStarter';
 import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
 import {
 	ElementsDropEdit,
@@ -183,9 +165,28 @@ import {
 	KeyframesCloseupEdit,
 	keyframesCloseupDuration,
 } from './HomepageAssets/ExploreRemotion/Keyframes';
+import {
+	ExploreRemotionMedia,
+	MediaRecordingEdit,
+	MediaSquareEdit,
+	mediaRecordingDuration,
+} from './HomepageAssets/ExploreRemotion/Media';
+import {
+	ExploreRemotionNew,
+	NewRecordingEdit,
+	NewSquareEdit,
+	newRecordingDuration,
+} from './HomepageAssets/ExploreRemotion/New';
 import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
+import {
+	ExploreRemotionPlayer,
+	PlayerRecordingEdit,
+	playerRecordingDuration,
+	PlayerSquareEdit,
+} from './HomepageAssets/ExploreRemotion/Player';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
+import {ExploreRemotionSDK} from './HomepageAssets/ExploreRemotion/SDK';
 import {
 	ExploreRemotionStudio,
 	StudioRecordingEdit,
@@ -268,13 +269,13 @@ import {
 	numberedChapterSchema,
 } from './video-elements/numbered-chapter';
 import {Prompt, PromptSchema} from './video-elements/Prompt';
+import {ReadmeHero} from './video-elements/ReadmeHero';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
 import {
 	StudioDeviceFrame,
 	StudioReference,
 	studioReferenceSchema,
 } from './video-elements/Studio';
-import {ReadmeHero} from './video-elements/ReadmeHero';
 import {StudioCodeHandoff} from './video-elements/StudioCodeHandoff';
 import {TextEditor, textEditorSchema} from './video-elements/TextEditor';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
@@ -403,10 +404,10 @@ export const RemotionRoot: React.FC = () => {
 						id={theme === 'light' ? 'ReadmeHeroLight' : 'ReadmeHeroDark'}
 						component={ReadmeHero}
 						defaultProps={{theme}}
-						durationInFrames={180}
-						fps={15}
+						durationInFrames={360}
+						fps={30}
 						width={1012}
-						height={583}
+						height={599}
 					/>
 				))}
 				<Composition
@@ -1819,6 +1820,14 @@ export const RemotionRoot: React.FC = () => {
 				fps={60}
 				width={2896}
 				height={1842}
+			/>
+			<Composition
+				id="100gb-video"
+				component={AirDropFootage20261031}
+				durationInFrames={Math.ceil(1185.05 * (30000 / 1001))}
+				fps={30}
+				width={3840}
+				height={2160}
 			/>
 		</>
 	);

@@ -84,7 +84,7 @@ const getSourceMap = (
 };
 
 const fetchUrl = async (url: string) => {
-	const {request, response} = await readFile(url);
+	const {request, response} = await readFile(url, null);
 
 	return new Promise<string>((resolve, reject) => {
 		let downloaded = '';

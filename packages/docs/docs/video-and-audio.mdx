@@ -1,0 +1,142 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-video-and-audio.png
+title: Video and Audio
+sidebar_label: Overview
+---
+
+import {Grid} from '../components/TableOfContents/Grid';
+import {TOCItem} from '../components/TableOfContents/TOCItem';
+
+Use [`<Video>`](/docs/media/video) and [`<Audio>`](/docs/media/audio) from [`@remotion/media`](/docs/media) to add media to your composition.
+Both components support the same controls for timing, playback speed, volume and pitch.
+
+Put `video.mp4` and `music.mp3` in your [`public` folder](/docs/terminology/public-dir) to play a video with background music:
+
+```tsx twoslash title="MyComposition.tsx"
+import {Audio, Video} from '@remotion/media';
+import {AbsoluteFill, staticFile} from 'remotion';
+
+export const MyComposition = () => (
+  <AbsoluteFill>
+    <Video src={staticFile('video.mp4')} />
+    <Audio src={staticFile('music.mp3')} volume={0.2} loop />
+  </AbsoluteFill>
+);
+```
+
+The video's own audio is included. Add `muted` to `<Video>` to hear only the background music.
+
+## Shared controls
+
+<Grid>
+  <TOCItem link="/docs/videos">
+    <strong>Adding video and audio</strong>
+    <div>Use local files, remote URLs and multiple tracks.</div>
+  </TOCItem>
+  <TOCItem link="/docs/audio/trimming">
+    <strong>Trimming, delaying and looping</strong>
+    <div>Select a source range and place it on the timeline.</div>
+  </TOCItem>
+  <TOCItem link="/docs/audio/speed">
+    <strong>Controlling playback speed</strong>
+    <div>Speed up or slow down media and preserve its pitch.</div>
+  </TOCItem>
+  <TOCItem link="/docs/audio/volume">
+    <strong>Controlling volume and muting</strong>
+    <div>Adjust levels, fade sound in and out, or mute it.</div>
+  </TOCItem>
+  <TOCItem link="/docs/audio/pitch">
+    <strong>Controlling pitch</strong>
+    <div>Raise or lower the pitch of a video's or audio file's sound.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/align-duration">
+    <strong>Matching composition duration</strong>
+    <div>Set the composition's duration from a video or audio file.</div>
+  </TOCItem>
+</Grid>
+
+## Video techniques
+
+<Grid>
+  <TOCItem link="/docs/videos/size-and-position">
+    <strong>Size and position</strong>
+    <div>Fit a video into your layout.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/sequence">
+    <strong>Playing videos in sequence</strong>
+    <div>Play clips one after another.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/transparency">
+    <strong>Transparent videos</strong>
+    <div>Embed videos with transparency.</div>
+  </TOCItem>
+  <TOCItem link="/docs/color-correction">
+    <strong>Color correction</strong>
+    <div>Adjust colors and apply a color grade.</div>
+  </TOCItem>
+  <TOCItem link="/docs/greenscreen">
+    <strong>Greenscreen</strong>
+    <div>Remove a background color.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/video-manipulation">
+    <strong>Manipulating pixels</strong>
+    <div>Process individual video frames.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/jumpcuts">
+    <strong>Jump cuts</strong>
+    <div>Skip unwanted sections of a video.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/accelerated-video">
+    <strong>Changing speed over time</strong>
+    <div>
+      Use an <code>{'<OffthreadVideo>'}</code> recipe for gradual speed changes.
+    </div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/different-segments-at-different-speeds">
+    <strong>Different segments at different speeds</strong>
+    <div>Set a playback speed for each section.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/as-threejs-texture">
+    <strong>Using video as a Three.js texture</strong>
+    <div>Play a video on a 3D surface.</div>
+  </TOCItem>
+</Grid>
+
+## Audio techniques
+
+<Grid>
+  <TOCItem link="/docs/audio/visualization">
+    <strong>Visualizing audio</strong>
+    <div>Create waveforms and music visualizers.</div>
+  </TOCItem>
+  <TOCItem link="/docs/audio/sfx">
+    <strong>Sound effects</strong>
+    <div>Add sound effects to your composition.</div>
+  </TOCItem>
+</Grid>
+
+## Formats and compatibility
+
+<Grid>
+  <TOCItem link="/docs/video-tags">
+    <strong>Choosing a media component</strong>
+    <div>Compare media components and their fallbacks.</div>
+  </TOCItem>
+  <TOCItem link="/docs/hls">
+    <strong>HLS</strong>
+    <div>Play an HLS playlist.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/prores">
+    <strong>ProRes</strong>
+    <div>Enable ProRes decoding.</div>
+  </TOCItem>
+  <TOCItem link="/docs/videos/media-fragments">
+    <strong>Media fragments</strong>
+    <div>Control media fragment hints for native video tags.</div>
+  </TOCItem>
+</Grid>
+
+## API reference
+
+- [`<Video>`](/docs/media/video)
+- [`<Audio>`](/docs/media/audio)

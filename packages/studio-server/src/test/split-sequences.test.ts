@@ -4,6 +4,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {
 	createFileWatcherRegistry,
+	getSourceVersionSessionId,
 	setFileWatcherRegistry,
 } from '../file-watcher';
 import {setLiveEventsListener} from '../preview-server/live-events';
@@ -116,6 +117,37 @@ test('splitSequencesHandler writes success and failure responses', async () => {
 		if (!success.success) {
 			throw new Error(success.reason);
 		}
+
+		expect(success.splitNodes).toEqual([
+			{
+				absolutePath: entryPoint,
+				nodePath: lineContainingToNodePath(
+					readFileSync(entryPoint, 'utf-8'),
+					'<AbsoluteFill name="one" from={30}',
+				),
+			},
+			{
+				absolutePath: entryPoint,
+				nodePath: lineContainingToNodePath(
+					readFileSync(entryPoint, 'utf-8'),
+					'<Solid name="two" from={30}',
+				),
+			},
+		]);
+		const sourceVersionSessionId = getSourceVersionSessionId();
+		if (sourceVersionSessionId === null) {
+			throw new Error('Expected a source version session');
+		}
+
+		expect(success.sourceVersions).toEqual([
+			{
+				absolutePath: entryPoint,
+				sourceVersion: {
+					sessionId: sourceVersionSessionId,
+					revision: expect.any(Number),
+				},
+			},
+		]);
 
 		const originalSolidPath = lineContainingToNodePath(input, 'name="two"');
 		const [{remappings}] = success.nodePathMutation.files;

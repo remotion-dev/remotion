@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply prototype-only CLT support to a Chromium 157 checkout.
+"""Apply prototype-only CLT support to a Chromium 158 checkout.
 
 Run after gclient sync, then set REMOTION_ALLOW_COMMAND_LINE_TOOLS=1 for
 gn gen and the build. Full-Xcode detection is unchanged. This patch does not
@@ -125,7 +125,7 @@ for relative, replacements in changes.items():
         if replacement in source:
             continue
         if source.count(original) != 1:
-            raise RuntimeError(f"Expected exact Chromium 157 source in {path}")
+            raise RuntimeError(f"Expected exact Chromium 158 source in {path}")
         source = source.replace(original, replacement, 1)
     path.write_text(source)
 

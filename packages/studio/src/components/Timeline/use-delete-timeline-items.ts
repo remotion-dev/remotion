@@ -9,6 +9,7 @@ import {
 } from '../../state/editor-guides';
 import {useConfirmationDialog} from '../ConfirmationDialog';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
+import {useDeleteKeyframes} from './call-delete-keyframe';
 import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
@@ -35,6 +36,7 @@ export const useDeleteTimelineItems = () => {
 		Internals.VisualModePropStatusesRefContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const deleteKeyframes = useDeleteKeyframes({notifyOnError: true});
 	const {setGuidesList} = useContext(EditorShowGuidesContext);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const confirm = useConfirmationDialog();
@@ -76,9 +78,10 @@ export const useDeleteTimelineItems = () => {
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 			});
 			const deletePromise = deleteSelectedTimelineItems({
+				currentSelection,
 				selections: selectedItems,
 				tracks,
-				setPropStatuses,
+				deleteKeyframes,
 				clientId,
 				confirm,
 				propStatuses,
@@ -86,6 +89,17 @@ export const useDeleteTimelineItems = () => {
 			});
 
 			if (deletePromise !== null) {
+				if (
+					selectedItems.every(
+						(item) =>
+							item.type === 'sequence-effect' ||
+							item.type === 'sequence-all-effects',
+					)
+				) {
+					deletePromise.catch(() => undefined);
+					return;
+				}
+
 				const updateSelectionAfterDeletion = () => {
 					const nextSelection = getTimelineSelectionAfterDeletingItems({
 						selections: selectedItems,
@@ -145,6 +159,7 @@ export const useDeleteTimelineItems = () => {
 			}
 		},
 		[
+			deleteKeyframes,
 			calculateTimeline,
 			confirm,
 			currentSelection,

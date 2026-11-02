@@ -134,12 +134,50 @@ export type VisualModeSetters = {
 		key: string,
 		value: DragOverrideValue,
 	) => void;
+	updateDragOverrides: (
+		nodePath: SequencePropsSubscriptionKey,
+		update: (
+			current: Readonly<Record<string, DragOverrideValue>>,
+		) => Readonly<Record<string, DragOverrideValue>>,
+	) => void;
+	updateDragOverridesBatch: (
+		updates: readonly {
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly update: (
+				current: Readonly<Record<string, DragOverrideValue>>,
+			) => Readonly<Record<string, DragOverrideValue>>;
+		}[],
+	) => void;
+	remapDragOverrideFields: (
+		remappings: readonly {
+			readonly previousNodePath: SequencePropsSubscriptionKey;
+			readonly nodePath: SequencePropsSubscriptionKey | null;
+			readonly fields: Readonly<Record<string, DragOverrideValue>>;
+		}[],
+	) => void;
 	clearDragOverrides: (nodePath: SequencePropsSubscriptionKey) => void;
 	setEffectDragOverrides: (
 		nodePath: SequencePropsSubscriptionKey,
 		effectIndex: number,
 		key: string,
 		value: DragOverrideValue,
+	) => void;
+	updateEffectDragOverridesBatch: (
+		updates: readonly {
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly effectIndex: number;
+			readonly update: (
+				current: Readonly<Record<string, DragOverrideValue>>,
+			) => Readonly<Record<string, DragOverrideValue>>;
+		}[],
+	) => void;
+	remapEffectDragOverrideFields: (
+		remappings: readonly {
+			readonly previousNodePath: SequencePropsSubscriptionKey;
+			readonly nodePath: SequencePropsSubscriptionKey | null;
+			readonly effectIndex: number;
+			readonly fields: Readonly<Record<string, DragOverrideValue>>;
+		}[],
 	) => void;
 	clearEffectDragOverrides: (
 		nodePath: SequencePropsSubscriptionKey,
@@ -150,6 +188,14 @@ export type VisualModeSetters = {
 		values: (
 			prev: CanUpdateSequencePropsResponse,
 		) => CanUpdateSequencePropsResponse,
+	) => void;
+	setPropStatusesBatch: (
+		updates: readonly {
+			readonly nodePath: SequencePropsSubscriptionKey;
+			readonly update: (
+				previous: CanUpdateSequencePropsResponse,
+			) => CanUpdateSequencePropsResponse;
+		}[],
 	) => void;
 	remapPropStatuses: (
 		remappings: readonly SequencePropsStatusRemapping[],
@@ -353,16 +399,34 @@ export const VisualModeSettersContext = React.createContext<VisualModeSetters>({
 	setDragOverrides: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
+	updateDragOverrides: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	updateDragOverridesBatch: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	remapDragOverrideFields: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
 	clearDragOverrides: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 	setEffectDragOverrides: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
+	updateEffectDragOverridesBatch: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	remapEffectDragOverrideFields: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
 	clearEffectDragOverrides: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 	setPropStatuses: () => {
+		throw new Error('VisualModeSettersContext not initialized');
+	},
+	setPropStatusesBatch: () => {
 		throw new Error('VisualModeSettersContext not initialized');
 	},
 	remapPropStatuses: () => {
@@ -486,6 +550,139 @@ export const SequenceManagerProvider: React.FC<{
 		) => setDragOverridesBatch([{nodePath, key, value}]),
 		[setDragOverridesBatch],
 	);
+
+	const updateDragOverridesBatch = useCallback<
+		VisualModeSetters['updateDragOverridesBatch']
+	>((updates) => {
+		if (updates.length === 0) return;
+		setDragOverrideState((previous) => {
+			let {overrides, fromKeys} = previous;
+			for (const {nodePath, update} of updates) {
+				const key = makeSequencePropsSubscriptionKey(nodePath);
+				const current = overrides[key] ?? emptyDragOverrides;
+				const updated = update(current);
+				if (updated === current) continue;
+
+				const hasOverrides = Object.keys(updated).length > 0;
+				if (!hasOverrides && overrides[key] === undefined) continue;
+
+				if (overrides === previous.overrides) overrides = {...overrides};
+				if (hasOverrides) {
+					overrides[key] = updated;
+				} else {
+					delete overrides[key];
+				}
+
+				const hasFrom = updated.from !== undefined;
+				if (fromKeys.has(key) !== hasFrom) {
+					if (fromKeys === previous.fromKeys) fromKeys = new Set(fromKeys);
+					if (hasFrom) {
+						fromKeys.add(key);
+					} else {
+						fromKeys.delete(key);
+					}
+				}
+			}
+
+			return overrides === previous.overrides
+				? previous
+				: {overrides, fromKeys};
+		});
+	}, []);
+
+	const updateDragOverrides = useCallback<
+		VisualModeSetters['updateDragOverrides']
+	>(
+		(nodePath, update) => updateDragOverridesBatch([{nodePath, update}]),
+		[updateDragOverridesBatch],
+	);
+
+	const remapDragOverrideFields = useCallback<
+		VisualModeSetters['remapDragOverrideFields']
+	>((remappings) => {
+		setDragOverrideState((previous) => {
+			const moves = remappings.flatMap((remapping) => {
+				const previousKey = makeSequencePropsSubscriptionKey(
+					remapping.previousNodePath,
+				);
+				const key = remapping.nodePath
+					? makeSequencePropsSubscriptionKey(remapping.nodePath)
+					: null;
+				if (previousKey === key) {
+					return [];
+				}
+
+				const fields = Object.entries(remapping.fields).filter(
+					([field, expected]) =>
+						previous.overrides[previousKey]?.[field] === expected,
+				);
+				return fields.length > 0 ? [{previousKey, key, fields}] : [];
+			});
+			if (moves.length === 0) {
+				return previous;
+			}
+
+			const overrides = {...previous.overrides};
+			const changedKeys = new Set<string>();
+			const getMutableFields = (key: string) => {
+				if (!changedKeys.has(key)) {
+					changedKeys.add(key);
+					overrides[key] = {...overrides[key]};
+				}
+
+				return overrides[key];
+			};
+
+			// Match against one snapshot and remove all sources before applying
+			// destinations, so swapping source locations cannot overwrite a preview.
+			for (const {previousKey, fields} of moves) {
+				const source = getMutableFields(previousKey);
+				for (const [field] of fields) {
+					delete source[field];
+				}
+			}
+
+			for (const {key, fields} of moves) {
+				if (key === null) {
+					continue;
+				}
+
+				for (const [field, value] of fields) {
+					// A value that did not participate in this remapping has a
+					// different owner. Leave that newer preview in place.
+					if (overrides[key]?.[field] !== undefined) {
+						continue;
+					}
+
+					getMutableFields(key)[field] = value;
+				}
+			}
+
+			let {fromKeys} = previous;
+			for (const key of changedKeys) {
+				const hasFrom = overrides[key].from !== undefined;
+				if (Object.keys(overrides[key]).length === 0) {
+					delete overrides[key];
+				}
+
+				if (fromKeys.has(key) === hasFrom) {
+					continue;
+				}
+
+				if (fromKeys === previous.fromKeys) {
+					fromKeys = new Set(fromKeys);
+				}
+
+				if (hasFrom) {
+					fromKeys.add(key);
+				} else {
+					fromKeys.delete(key);
+				}
+			}
+
+			return {overrides, fromKeys};
+		});
+	}, []);
 
 	const subscribeDragOverrides = useCallback(
 		(key: string | null, listener: () => void) => {
@@ -676,6 +873,86 @@ export const SequenceManagerProvider: React.FC<{
 		[setEffectDragOverridesBatch],
 	);
 
+	const updateEffectDragOverridesBatch = useCallback<
+		VisualModeSetters['updateEffectDragOverridesBatch']
+	>((updates) => {
+		if (updates.length === 0) return;
+		setEffectDragOverridesState((previous) => {
+			let next = previous;
+			for (const {nodePath, effectIndex, update} of updates) {
+				const key = effectDragOverridesKey(nodePath, effectIndex);
+				const current = next[key] ?? emptyDragOverrides;
+				const updated = update(current);
+				if (updated === current) continue;
+
+				const hasOverrides = Object.keys(updated).length > 0;
+				if (!hasOverrides && next[key] === undefined) continue;
+
+				if (next === previous) next = {...previous};
+				if (hasOverrides) next[key] = updated;
+				else delete next[key];
+			}
+
+			return next;
+		});
+	}, []);
+
+	const remapEffectDragOverrideFields = useCallback<
+		VisualModeSetters['remapEffectDragOverrideFields']
+	>((remappings) => {
+		setEffectDragOverridesState((previous) => {
+			const moves = remappings.flatMap((remapping) => {
+				const previousKey = effectDragOverridesKey(
+					remapping.previousNodePath,
+					remapping.effectIndex,
+				);
+				const key = remapping.nodePath
+					? effectDragOverridesKey(remapping.nodePath, remapping.effectIndex)
+					: null;
+				if (previousKey === key) return [];
+
+				const fields = Object.entries(remapping.fields).filter(
+					([field, expected]) => previous[previousKey]?.[field] === expected,
+				);
+				return fields.length > 0 ? [{previousKey, key, fields}] : [];
+			});
+			if (moves.length === 0) return previous;
+
+			const next = {...previous};
+			const changedKeys = new Set<string>();
+			const getMutableFields = (key: string) => {
+				if (!changedKeys.has(key)) {
+					changedKeys.add(key);
+					next[key] = {...next[key]};
+				}
+
+				return next[key];
+			};
+
+			// Match against the original snapshot and remove all participating fields
+			// first, so a source-path swap keeps both owners' previews intact.
+			for (const {previousKey, fields} of moves) {
+				const source = getMutableFields(previousKey);
+				for (const [field] of fields) delete source[field];
+			}
+
+			for (const {key, fields} of moves) {
+				if (key === null) continue;
+				for (const [field, value] of fields) {
+					// Preserve a newer, nonparticipating destination owner.
+					if (next[key]?.[field] !== undefined) continue;
+					getMutableFields(key)[field] = value;
+				}
+			}
+
+			for (const key of changedKeys) {
+				if (Object.keys(next[key]).length === 0) delete next[key];
+			}
+
+			return next;
+		});
+	}, []);
+
 	const clearEffectDragOverrides = useCallback(
 		(nodePath: SequencePropsSubscriptionKey, effectIndex: number) => {
 			setEffectDragOverridesState((prev) => {
@@ -705,27 +982,31 @@ export const SequenceManagerProvider: React.FC<{
 		},
 		[],
 	);
-	const setPropStatuses = useCallback(
-		(
-			nodePath: SequencePropsSubscriptionKey,
-			values: (
-				prev: CanUpdateSequencePropsResponse,
-			) => CanUpdateSequencePropsResponse,
-		) => {
-			updatePropStatuses((prev) => {
-				const key = makeSequencePropsSubscriptionKey(nodePath);
+	const setPropStatusesBatch = useCallback<
+		VisualModeSetters['setPropStatusesBatch']
+	>(
+		(updates) => {
+			if (updates.length === 0) return;
+			updatePropStatuses((previous) => {
+				let next = previous;
+				for (const {nodePath, update} of updates) {
+					const key = makeSequencePropsSubscriptionKey(nodePath);
+					const current = next[key];
+					const updated = update(current);
+					if (updated === current) continue;
 
-				const prevKey = prev[key];
-				const newKey = values(prevKey);
-
-				if (prevKey === newKey) {
-					return prev;
+					if (next === previous) next = {...previous};
+					next[key] = updated;
 				}
 
-				return {...prev, [key]: newKey};
+				return next;
 			});
 		},
 		[updatePropStatuses],
+	);
+	const setPropStatuses = useCallback<VisualModeSetters['setPropStatuses']>(
+		(nodePath, update) => setPropStatusesBatch([{nodePath, update}]),
+		[setPropStatusesBatch],
 	);
 	const remapPropStatuses = useCallback(
 		(remappings: readonly SequencePropsStatusRemapping[]) => {
@@ -832,18 +1113,30 @@ export const SequenceManagerProvider: React.FC<{
 	const settersContext: VisualModeSetters = useMemo(() => {
 		return {
 			setDragOverrides,
+			updateDragOverrides,
+			updateDragOverridesBatch,
+			remapDragOverrideFields,
 			clearDragOverrides,
 			setEffectDragOverrides,
+			updateEffectDragOverridesBatch,
+			remapEffectDragOverrideFields,
 			clearEffectDragOverrides,
 			setPropStatuses,
+			setPropStatusesBatch,
 			remapPropStatuses,
 		};
 	}, [
 		setDragOverrides,
+		updateDragOverrides,
+		updateDragOverridesBatch,
+		remapDragOverrideFields,
 		clearDragOverrides,
 		setEffectDragOverrides,
+		updateEffectDragOverridesBatch,
+		remapEffectDragOverrideFields,
 		clearEffectDragOverrides,
 		setPropStatuses,
+		setPropStatusesBatch,
 		remapPropStatuses,
 	]);
 	const batchSettersContext = useMemo<VisualModeBatchSetters>(

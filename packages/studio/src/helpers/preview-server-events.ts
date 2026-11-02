@@ -2,11 +2,16 @@
 /// <reference lib="dom.iterable" />
 
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import {observePendingSequenceSplitSourceVersion} from '../components/Timeline/pending-sequence-splits';
 import {
 	BROWSER_STUDIO_OPERATIONS_READY_EVENT,
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
 import {queueSequenceNodePathMutation} from './sequence-node-path-mutations';
+import {
+	getSequencePropsSourceSession,
+	setSequencePropsSourceSession,
+} from './sequence-props-source-version';
 
 export type PreviewServerConnectionState =
 	| {
@@ -43,7 +48,19 @@ const dispatch = (event: EventSourceEvent) => {
 		queueSequenceNodePathMutation(event.mutation);
 	}
 
+	if (
+		(event.type === 'sequence-props-updated' ||
+			event.type === 'lost-node-path') &&
+		event.sourceVersion?.sessionId === getSequencePropsSourceSession()
+	) {
+		observePendingSequenceSplitSourceVersion(
+			event.fileName,
+			event.sourceVersion,
+		);
+	}
+
 	if (event.type === 'init') {
+		setSequencePropsSourceSession(event.sourceVersionSessionId);
 		lastInitEvent = event;
 		connectionState = {
 			type: 'connected',
@@ -86,9 +103,11 @@ const openEventSource = () => {
 		return;
 	}
 
-	source = new EventSource('/events');
+	const eventSource = new EventSource('/events');
+	source = eventSource;
 
-	source.addEventListener('message', (event) => {
+	eventSource.addEventListener('message', (event) => {
+		if (source !== eventSource) return;
 		try {
 			const newEvent = JSON.parse(event.data) as EventSourceEvent;
 			dispatch(newEvent);
@@ -97,10 +116,12 @@ const openEventSource = () => {
 		}
 	});
 
-	source.addEventListener('open', () => {
-		source?.addEventListener(
+	eventSource.addEventListener('open', () => {
+		if (source !== eventSource) return;
+		eventSource.addEventListener(
 			'error',
 			() => {
+				if (source !== eventSource) return;
 				connectionState = {type: 'disconnected'};
 				notifyConnectionState();
 				source?.close();
@@ -162,6 +183,8 @@ export const subscribeToPreviewServerEvents = (
 		messageListeners.delete(listener);
 	};
 };
+
+export const getPreviewServerConnectionState = () => connectionState;
 
 export const subscribeToPreviewServerConnectionState = (
 	listener: ConnectionStateListener,

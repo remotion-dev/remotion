@@ -20,7 +20,7 @@
     "@remotion/google-fonts": "workspace:*",
     "@remotion/layout-utils": "workspace:*",
     "@remotion/install-whisper-cpp": "workspace:*",
-    "mediabunny": "1.62.0",
+    "mediabunny": "1.64.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "remotion": "workspace:*",

@@ -18,6 +18,7 @@ from botocore.response import StreamingBody # For Lambda payload
 from .models import (
     CostsInfo,
     CustomCredentials,
+    GetCompositionsParams,
     RenderFramesParams,
     RenderMediaParams,
     RenderMediaProgress,
@@ -26,6 +27,7 @@ from .models import (
     RenderStillResponse,
     RenderStillParams,
     RenderType,
+    VideoConfig,
 )
 
 from .exception import (
@@ -447,13 +449,26 @@ class RemotionClient:
         objects: List[str] = []
         depth = 0
         start_index = 0
+        in_string = False
+        escaped = False
 
         for i, char in enumerate(input_string):
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif char == '\\':
+                    escaped = True
+                elif char == '"':
+                    in_string = False
+                continue
+            if char == '"' and depth > 0:
+                in_string = True
+                continue
             if char == '{':
                 if depth == 0:
                     start_index = i
                 depth += 1
-            elif char == '}':
+            elif char == '}' and depth > 0:
                 depth -= 1
                 if depth == 0:
                     objects.append(input_string[start_index : i + 1])
@@ -741,4 +756,111 @@ class RemotionClient:
             # and that all keys match its fields, or handle gracefully.
             render_progress.__dict__.update(progress_response_data)
             return render_progress
+        return None
+
+    def construct_get_compositions_request(
+        self,
+        input_props: Optional[Dict[str, Any]] = None,
+        env_variables: Optional[Dict[str, str]] = None,
+        chromium_options: Optional[Dict[str, Any]] = None,
+        log_level: str = "info",
+        force_bucket_name: Optional[str] = None,
+        timeout_in_milliseconds: int = 30000,
+        offthread_video_cache_size_in_bytes: Optional[int] = None,
+        media_cache_size_in_bytes: Optional[int] = None,
+        preferred_effect_backend: Optional[str] = None,
+    ) -> str:
+        """
+        Construct a get compositions request in JSON format.
+
+        Args:
+            input_props (Optional[Dict[str, Any]]): Input properties passed to the project.
+            env_variables (Optional[Dict[str, str]]): Environment variables for the render function.
+            chromium_options (Optional[Dict[str, Any]]): Chromium options.
+            log_level (str): Log level ("error", "warning", "info", "verbose").
+            force_bucket_name (Optional[str]): Force the bucket to upload input props to.
+            timeout_in_milliseconds (int): Timeout for getting compositions.
+            offthread_video_cache_size_in_bytes (Optional[int]): Size limit for the offthread video cache.
+            media_cache_size_in_bytes (Optional[int]): Size limit for the media cache.
+            preferred_effect_backend (Optional[str]): Preferred effect backend.
+
+        Returns:
+            str: JSON representation of the get compositions request.
+        """
+        serialized_input_props = self._serialize_input_props(
+            input_props=input_props or {}, render_type="video-or-audio"
+        )
+
+        params = GetCompositionsParams(
+            serve_url=self.serve_url,
+            input_props=input_props or {},
+            env_variables=env_variables or {},
+            chromium_options=chromium_options or {},
+            log_level=log_level,
+            force_bucket_name=force_bucket_name,
+            force_path_style=self.force_path_style,
+            timeout_in_milliseconds=timeout_in_milliseconds,
+            offthread_video_cache_size_in_bytes=offthread_video_cache_size_in_bytes,
+            media_cache_size_in_bytes=media_cache_size_in_bytes,
+            preferred_effect_backend=preferred_effect_backend,
+            serialized_input_props=serialized_input_props,
+        )
+
+        try:
+            return json.dumps(params.serialize_params(), default=self._custom_serializer)
+        except (TypeError, OverflowError) as e:
+            raise RemotionInvalidArgumentException(
+                f"Failed to serialize compositions parameters to JSON: {e}"
+            ) from e
+
+    def get_compositions_on_lambda(
+        self,
+        input_props: Optional[Dict[str, Any]] = None,
+        env_variables: Optional[Dict[str, str]] = None,
+        chromium_options: Optional[Dict[str, Any]] = None,
+        log_level: str = "info",
+        force_bucket_name: Optional[str] = None,
+        timeout_in_milliseconds: int = 30000,
+        offthread_video_cache_size_in_bytes: Optional[int] = None,
+        media_cache_size_in_bytes: Optional[int] = None,
+        preferred_effect_backend: Optional[str] = None,
+    ) -> Optional[List[VideoConfig]]:
+        """
+        Get the compositions inside a Lambda function.
+
+        Args:
+            input_props (Optional[Dict[str, Any]]): Input properties passed to the project.
+            env_variables (Optional[Dict[str, str]]): Environment variables for the render function.
+            chromium_options (Optional[Dict[str, Any]]): Chromium options.
+            log_level (str): Log level ("error", "warning", "info", "verbose").
+            force_bucket_name (Optional[str]): Force the bucket to upload input props to.
+            timeout_in_milliseconds (int): Timeout for getting compositions.
+            offthread_video_cache_size_in_bytes (Optional[int]): Size limit for the offthread video cache.
+            media_cache_size_in_bytes (Optional[int]): Size limit for the media cache.
+            preferred_effect_backend (Optional[str]): Preferred effect backend.
+
+        Returns:
+            Optional[List[VideoConfig]]: The compositions, or None if no compositions response.
+        """
+        params_json_str = self.construct_get_compositions_request(
+            input_props=input_props,
+            env_variables=env_variables,
+            chromium_options=chromium_options,
+            log_level=log_level,
+            force_bucket_name=force_bucket_name,
+            timeout_in_milliseconds=timeout_in_milliseconds,
+            offthread_video_cache_size_in_bytes=offthread_video_cache_size_in_bytes,
+            media_cache_size_in_bytes=media_cache_size_in_bytes,
+            preferred_effect_backend=preferred_effect_backend,
+        )
+        response_data = self._invoke_lambda(
+            function_name=self.function_name, payload=params_json_str
+        )
+        if response_data and "compositions" in response_data:
+            compositions: List[VideoConfig] = []
+            for composition in response_data["compositions"]:
+                video_config = VideoConfig()
+                video_config.__dict__.update(composition)
+                compositions.append(video_config)
+            return compositions
         return None

@@ -59,6 +59,10 @@ test('multiple watchers on the same file share a single OS watcher', () => {
 		content: 'updated',
 		originatorClientId: undefined,
 		skipSequencePropsUpdate: false,
+		sourceVersion: {
+			sessionId: expect.any(String),
+			revision: expect.any(Number),
+		},
 	});
 	expect(cb2).toHaveBeenCalledTimes(1);
 	expect(cb2).toHaveBeenCalledWith({
@@ -66,6 +70,10 @@ test('multiple watchers on the same file share a single OS watcher', () => {
 		content: 'updated',
 		originatorClientId: undefined,
 		skipSequencePropsUpdate: false,
+		sourceVersion: {
+			sessionId: expect.any(String),
+			revision: expect.any(Number),
+		},
 	});
 
 	w1.unwatch();
@@ -132,6 +140,10 @@ test('unwatching one subscriber does not affect the other', () => {
 		content: 'after-unwatch',
 		originatorClientId: undefined,
 		skipSequencePropsUpdate: false,
+		sourceVersion: {
+			sessionId: expect.any(String),
+			revision: expect.any(Number),
+		},
 	});
 
 	w2.unwatch();
@@ -322,6 +334,7 @@ test('existenceOnly emits created with empty content when file appears', () => {
 		type: 'created',
 		content: '',
 		originatorClientId: undefined,
+		sourceVersion: null,
 	});
 
 	w.unwatch();

@@ -5,6 +5,7 @@ import type {
 } from 'node:http';
 import type {LogLevel} from '@remotion/renderer';
 import type {EventSourceEvent} from '@remotion/studio-shared';
+import {getSourceVersionSessionId} from '../file-watcher';
 import {printServerReadyComment} from '../server-ready';
 import {unsubscribeClientDefaultPropsWatchers} from './default-props-watchers';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
@@ -78,7 +79,13 @@ export const makeLiveEventsRouter = (
 		const clientId = String(Math.random());
 		const {undoFile, redoFile} = getInitialUndoRedoState();
 		response.write(
-			serializeMessage({type: 'init', clientId, undoFile, redoFile}),
+			serializeMessage({
+				type: 'init',
+				clientId,
+				undoFile,
+				redoFile,
+				sourceVersionSessionId: getSourceVersionSessionId(),
+			}),
 		);
 
 		const newClient = {

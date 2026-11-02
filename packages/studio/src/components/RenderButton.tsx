@@ -227,6 +227,7 @@ const RenderButtonInner: React.FC<{
 
 			setSelectedModal({
 				type: 'server-render',
+				retrySettings: null,
 				readOnlyStudio: copyCommandOnly,
 				compositionId: video.id,
 				initialFrame: getCurrentFrame(),
@@ -332,6 +333,8 @@ const RenderButtonInner: React.FC<{
 
 		setSelectedModal({
 			type: 'web-render',
+			retryJobId: null,
+			initialRenderType: null,
 			compositionId: video.id,
 			initialFrame: getCurrentFrame(),
 			defaultProps: props[video.id] ?? video.defaultProps,

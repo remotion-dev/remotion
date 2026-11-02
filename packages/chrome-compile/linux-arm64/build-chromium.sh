@@ -2,13 +2,13 @@
 set -euo pipefail
 
 # =============================================================================
-# build-chromium.sh — Build Chromium 157.0.8080.0 headless_shell (ARM64)
+# build-chromium.sh — Build Chromium 158.0.8127.2 headless_shell (ARM64)
 #
 # Runs INSIDE the Docker container (Ubuntu 22.04 ARM64).
 # Targets regular Linux distros (Debian/Ubuntu) — no system libs bundled.
 # =============================================================================
 
-CHROME_VERSION="157.0.8080.0"
+CHROME_VERSION="158.0.8127.2"
 
 echo "========================================="
 echo "Building Chromium $CHROME_VERSION headless_shell (Linux ARM64)"
@@ -109,7 +109,10 @@ git apply /root/remotion-shared-memory-v3.patch
 # cached Python 3.11 (downloaded during `gclient sync`) as the default
 # interpreter on PATH.
 echo ">>> Step 5.5: Fix Python version (Ubuntu 22.04 ships 3.10, Chromium needs 3.11+)"
-PY311=$(ls -d /root/.cache/vpython-root.0/store/cpython+*/contents/bin/python3.11 2>/dev/null | head -1)
+# The store directory is named cpython+<hash> or, since the depot_tools used
+# by Chromium 158, cpython-<hash>. A failing `ls` inside $(...) would abort
+# the script under `set -e`, so the lookup uses find.
+PY311=$(find /root/.cache/vpython-root.0/store -path "*/cpython*/contents/bin/python3.11" -type f 2>/dev/null | head -1 || true)
 if [ -n "$PY311" ] && [ -x "$PY311" ]; then
   ln -sf "$PY311" /usr/local/bin/python3
   ln -sf "$PY311" /usr/local/bin/python
@@ -448,14 +451,40 @@ cp -P "$RUST_CI_DIR"/lib/*.so* "$RUST_TOOLCHAIN/lib/"
 # Earlier steps put $RUST_TOOLCHAIN/lib on LD_LIBRARY_PATH, which would make
 # these cargo builds' rustc load librustc_driver (and so its sysroot) from there
 # instead of from the rustc-dev prefix.
+# Since Chromium 158, build_crubit.py drives cargo through tools/rust/host_tools.py
+# and expects the products of build_rust.py: a hermetic host LLVM, an amd64
+# Debian sysroot and rustc-dev inside third_party/rust-toolchain. Point its
+# module globals at this build's LLVM and the rustc-dev prefix instead, and
+# build only cc_bindings_from_rs (Chromium uses nothing from
+# rs_bindings_from_cc, whose Abseil/Protobuf dependencies are skipped).
 env -u LD_LIBRARY_PATH python3 - "$RUST_CI_DEV_DIR" <<'PY'
+import os
 import sys
 sys.path.insert(0, 'tools/rust')
 import build_crubit
+import host_tools
+rust_dev = sys.argv[1]
 build_crubit.CheckoutGitRepo('crubit', build_crubit.CRUBIT_GIT,
                              build_crubit.CRUBIT_REVISION,
                              build_crubit.CRUBIT_SRC_DIR)
-sys.exit(build_crubit.BuildCrubit(sys.argv[1], '/root/crubit-out'))
+build_crubit.ENABLE_BUILDING_RS_BINDINGS_FROM_CC = False
+build_crubit.CRUBIT_BINS[:] = ['cc_bindings_from_rs']
+host_tools.RUSTC_BIN = os.path.join(rust_dev, 'bin', 'rustc')
+host_tools.CARGO_BIN = os.path.join(rust_dev, 'bin', 'cargo')
+# CheckoutGitRepo leaves the process in the crubit checkout: use absolute paths.
+host_tools.RUST_HOST_LLVM_INSTALL_DIR = os.path.join(
+    build_crubit.CHROMIUM_DIR, 'third_party', 'llvm-build', 'Release+Asserts')
+# No Debian sysroot and no -Clinker=<Chromium clang>: link with the
+# container's default linker against its glibc, as the previous recipe did.
+# Chromium's clang does not find Amazon Linux's GCC crt objects until Step 14
+# links them into /usr/lib.
+host_tools.GetHostCFlags = lambda: []
+host_tools.GetHostLinkArgs = lambda: []
+host_tools.GetHostLinkerRustFlags = lambda: []
+# cc_bindings_from_rs has no C++ code; this flag would only require a static
+# libstdc++ that the container may not have.
+build_crubit.GetCxxRuntimeRustFlags = lambda: []
+build_crubit.BuildCrubit('/root/crubit-out')
 PY
 "$RUST_TOOLCHAIN/bin/cc_bindings_from_rs" --help | head -1
 LD_LIBRARY_PATH="$(pwd)/$RUST_TOOLCHAIN/lib" "$RUST_TOOLCHAIN/bin/rustc" \

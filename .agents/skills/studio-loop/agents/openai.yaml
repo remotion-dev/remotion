@@ -1,0 +1,3 @@
+interface:
+  display_name: 'Studio Loop'
+  short_description: 'Dogfood Studio and checkpoint fixes for review'

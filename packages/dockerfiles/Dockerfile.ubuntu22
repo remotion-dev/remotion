@@ -1,7 +1,6 @@
 FROM ubuntu:22.04
 
-RUN apt-get update
-RUN apt-get install git curl make unzip -y
+RUN apt-get update && apt-get install git curl make unzip -y
 RUN curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n | bash -s 20
 RUN curl -fsSL https://bun.com/install | bash && ln -s /root/.bun/bin/bun /usr/local/bin/bun
 WORKDIR /usr/app
@@ -12,7 +11,7 @@ COPY local-cli-package.json /usr/app/package.json
 RUN bun install
 ENV PATH="/usr/app/node_modules/.bin:$PATH"
 
-RUN apt install -y \
+RUN apt-get update && apt-get install -y \
   libnss3 \
   libdbus-1-3 \
   libatk1.0-0 \

@@ -1,0 +1,47 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-videos-size-and-position.png
+title: Sizing and positioning a video
+sidebar_label: Size and position
+crumb: 'Video and Audio'
+---
+
+Use the `style` prop of [`<Video>`](/docs/media/video) to size and position a video with CSS.
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const MyComposition = () => (
+  <Video
+    src={staticFile('video.mp4')}
+    style={{
+      width: 640,
+      height: 360,
+      position: 'absolute',
+      top: 100,
+      left: 100,
+    }}
+  />
+);
+```
+
+## Fitting a video into a container
+
+Set `width` and `height` to fill the container. Use `objectFit: 'cover'` to fill it while cropping any overflow, or `objectFit: 'contain'` to keep the entire video visible.
+
+```tsx twoslash title="MyComposition.tsx"
+import {Video} from '@remotion/media';
+import {AbsoluteFill, staticFile} from 'remotion';
+
+export const MyComposition = () => (
+  <AbsoluteFill>
+    <Video src={staticFile('video.mp4')} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+  </AbsoluteFill>
+);
+```
+
+## See also
+
+- [Layers](/docs/layers)
+- [Transforms](/docs/transforms)
+- [`<Video>`](/docs/media/video)

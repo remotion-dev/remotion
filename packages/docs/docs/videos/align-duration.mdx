@@ -1,9 +1,11 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-videos-align-duration.png
-title: How do I make the composition the same duration as my video?
-sidebar_label: Make timeline duration the same
-crumb: 'FAQ'
+title: Matching composition duration
+sidebar_label: Matching composition duration
+crumb: 'Video and Audio'
 ---
+
+Use [`calculateMetadata()`](/docs/calculate-metadata) to match the composition duration to a video or audio file. The following example uses a video; see [the audio adaptation below](#how-do-i-make-the-composition-the-same-duration-as-my-audio) for audio files.
 
 If you have a component rendering a video:
 
@@ -51,20 +53,14 @@ export const calculateMetadata: CalculateMetadataFunction<MyCompProps> = async (
     source: new UrlSource(props.src),
   });
 
-  const [durationInSeconds, videoTrack] = await Promise.all([
-    input.computeDuration(),
-    input.getPrimaryVideoTrack(),
-  ]);
+  const [durationInSeconds, videoTrack] = await Promise.all([input.computeDuration(), input.getPrimaryVideoTrack()]);
 
   if (videoTrack === null) {
     // For example when passing an MP3 file:
     throw new Error('Not a video file');
   }
 
-  const [width, height] = await Promise.all([
-    videoTrack.getDisplayWidth(),
-    videoTrack.getDisplayHeight(),
-  ]);
+  const [width, height] = await Promise.all([videoTrack.getDisplayWidth(), videoTrack.getDisplayHeight()]);
   const fps = 30;
 
   return {
