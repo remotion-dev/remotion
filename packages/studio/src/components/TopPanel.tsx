@@ -1,11 +1,20 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import {PlayerInternals} from '@remotion/player';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {useBreakpoint} from '../helpers/use-breakpoint';
+import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {
 	SIDEBAR_RESPONSIVE_BREAKPOINTS,
 	useResponsiveSidebarStatus,
 } from '../helpers/use-responsive-sidebar-status';
 import {RULER_WIDTH} from '../state/editor-rulers';
+import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
@@ -20,6 +29,51 @@ import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
+
+const noop = () => undefined;
+
+const FullscreenSeekBar: React.FC = () => {
+	const isFullscreen = useIsFullscreen();
+	const config = Internals.useUnsafeVideoConfig();
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+	const [visible, setVisible] = useState(true);
+	useEffect(() => {
+		if (!isFullscreen) return;
+		let timeout: ReturnType<typeof setTimeout> | undefined;
+		const show = () => {
+			setVisible(true);
+			clearTimeout(timeout);
+			timeout = setTimeout(() => setVisible(false), 2000);
+		};
+
+		show();
+		window.addEventListener('pointermove', show);
+		return () => {
+			clearTimeout(timeout);
+			window.removeEventListener('pointermove', show);
+		};
+	}, [isFullscreen]);
+	return isFullscreen && config ? (
+		<div
+			style={{
+				position: 'absolute',
+				left: 16,
+				right: 16,
+				bottom: 8,
+				opacity: visible ? 1 : 0,
+				transition: 'opacity 0.3s',
+			}}
+		>
+			<PlayerInternals.PlayerSeekBar
+				durationInFrames={config.durationInFrames}
+				inFrame={inFrame}
+				outFrame={outFrame}
+				onSeekStart={noop}
+				onSeekEnd={noop}
+			/>
+		</div>
+	) : null;
+};
 
 const container: React.CSSProperties = {
 	height: '100%',
@@ -183,6 +237,7 @@ const TopPanelInner: React.FC<{
 										<CanvasTabs />
 										<div ref={drawRef} style={canvasContainerStyle}>
 											<CanvasIfSizeIsAvailable />
+											<FullscreenSeekBar />
 										</div>
 									</div>
 								</SplitterElement>
