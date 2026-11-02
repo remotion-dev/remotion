@@ -166,7 +166,6 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(parentSequence?.premounting),
 		isPostmounting: Boolean(parentSequence?.postmounting),
 		pauseWhenBuffering,
-		retainAudioDuringBuffering: null,
 		onAutoPlayError: onAutoPlayError ?? null,
 	});
 

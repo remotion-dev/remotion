@@ -26,6 +26,7 @@ const makeInput = (
 	isPremounting: false,
 	isPostmounting: false,
 	pauseWhenBuffering: true,
+	mediaType: 'audio',
 	...overrides,
 });
 
@@ -309,6 +310,82 @@ describe('play-and-seek', () => {
 		expect(action.type).toBe('play-and-seek');
 		if (action.type === 'play-and-seek') {
 			expect(action.bufferUntilFirstFrame).toBe(false);
+		}
+	});
+});
+
+describe('audio ahead of the timeline after buffering', () => {
+	test('does not seek audio back while something else is buffering', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				playerBuffering: true,
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(action.type).toBe('seek-if-not-playing');
+		if (action.type === 'seek-if-not-playing') {
+			expect(action.why).toBe(null);
+		}
+	});
+
+	test('stays paused until the timeline catches up', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(action.type).toBe('none');
+	});
+
+	test('plays without seeking once the timeline caught up', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5.2,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(action.type).toBe('play-and-seek');
+		if (action.type === 'play-and-seek') {
+			expect(action.why).toBe(null);
+		}
+	});
+
+	test('still seeks video back', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				mediaType: 'video',
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(action.type).toBe('play-and-seek');
+		if (action.type === 'play-and-seek') {
+			expect(action.why).not.toBe(null);
+		}
+	});
+
+	test('still seeks audio that is behind the timeline', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 4.7,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 4.7,
+			}),
+		);
+		expect(action.type).toBe('play-and-seek');
+		if (action.type === 'play-and-seek') {
+			expect(action.why).not.toBe(null);
 		}
 	});
 });

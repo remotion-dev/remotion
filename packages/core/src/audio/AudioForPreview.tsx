@@ -38,7 +38,6 @@ type AudioForPreviewProps = RemotionAudioProps & {
 	readonly shouldPreMountAudioTags: boolean;
 	readonly onDuration: (src: string, durationInSeconds: number) => void;
 	readonly pauseWhenBuffering: boolean;
-	readonly retainAudioDuringBuffering: boolean;
 	readonly _remotionInternalNativeLoopPassed: boolean;
 	readonly _remotionInternalStack: string | null;
 	readonly showInTimeline: boolean;
@@ -82,7 +81,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		allowAmplificationDuringRender,
 		name,
 		pauseWhenBuffering,
-		retainAudioDuringBuffering,
 		showInTimeline,
 		loopVolumeCurveBehavior,
 		crossOrigin,
@@ -179,7 +177,6 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		isPremounting: Boolean(sequenceContext?.premounting),
 		isPostmounting: Boolean(sequenceContext?.postmounting),
 		pauseWhenBuffering,
-		retainAudioDuringBuffering,
 		onAutoPlayError: null,
 	});
 

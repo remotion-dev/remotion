@@ -54,7 +54,6 @@ export type RemotionAudioProps = NativeAudioProps & {
 	toneFrequency?: number;
 	useWebAudioApi?: boolean;
 	pauseWhenBuffering?: boolean;
-	retainAudioDuringBuffering?: boolean;
 	showInTimeline?: boolean;
 	delayRenderTimeoutInMilliseconds?: number;
 	delayRenderRetries?: number;
