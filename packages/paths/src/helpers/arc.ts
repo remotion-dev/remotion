@@ -22,7 +22,9 @@ const angleBetween = (v0: Point, v1: Point) => {
 	const p = v0.x * v1.x + v0.y * v1.y;
 	const n = Math.sqrt((v0.x ** 2 + v0.y ** 2) * (v1.x ** 2 + v1.y ** 2));
 	const sign = v0.x * v1.y - v0.y * v1.x < 0 ? -1 : 1;
-	const angle = sign * Math.acos(p / n);
+	// Rounding errors can push the cosine slightly outside of [-1, 1],
+	// e.g. -1.0000000000000002 for opposite vectors, and Math.acos() would return NaN
+	const angle = sign * Math.acos(Math.max(-1, Math.min(1, p / n)));
 
 	return angle;
 };
