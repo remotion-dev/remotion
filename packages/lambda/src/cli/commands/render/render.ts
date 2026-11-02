@@ -84,7 +84,6 @@ const {
 	enableCancellationOption,
 	separateAudioOption,
 	chunksOption,
-	audioConcatenationOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -415,9 +414,6 @@ export const renderCommand = async ({
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
 	const chunks = parseChunksFlag(parsedLambdaCli[chunksOption.cliFlag]);
-	const audioConcatenation = audioConcatenationOption.getValue({
-		commandLine: CliInternals.parsedCli,
-	}).value;
 	const rendererFunctionName =
 		parsedLambdaCli['renderer-function-name'] ?? null;
 
@@ -460,7 +456,6 @@ export const renderCommand = async ({
 		framesPerLambda: framesPerLambda ?? null,
 		concurrency: concurrency ?? null,
 		chunks,
-		audioConcatenation,
 		privacy,
 		logLevel,
 		frameRange: singleFrameRange,

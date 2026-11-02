@@ -28,7 +28,6 @@ test(
 					framesPerFunction: 8,
 					concurrency: null,
 					chunks: null,
-					audioConcatenation: 'seamless-if-possible',
 					imageFormat: 'png',
 					inputProps: {
 						type: 'payload',

@@ -131,11 +131,6 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	internalParams.Concurrency = options.Concurrency
 	internalParams.Chunks = options.Chunks
 
-	internalParams.AudioConcatenation = options.AudioConcatenation
-	if internalParams.AudioConcatenation == "" {
-		internalParams.AudioConcatenation = "seamless-if-possible"
-	}
-
 	if options.TimeoutInMilliseconds == 0 {
 		internalParams.TimeoutInMilliseconds = 30000
 	} else {

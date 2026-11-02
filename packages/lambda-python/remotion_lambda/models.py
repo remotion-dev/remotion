@@ -381,7 +381,6 @@ class RenderMediaParams:
     concurrency_per_lambda: Optional[int] = 1
     concurrency: Optional[int] = None
     chunks: Optional[List[List[int]]] = None
-    audio_concatenation: Literal["seamless-if-possible", "encode-at-merge"] = "seamless-if-possible"
     download_behavior: Optional[Union[PlayInBrowser, ShouldDownload]] = field(
         default_factory=lambda: PlayInBrowser(type='play-in-browser')
     )
@@ -427,7 +426,6 @@ class RenderMediaParams:
             'framesPerLambda': self.frames_per_lambda,
             'concurrency': self.concurrency,
             'chunks': self.chunks,
-            'audioConcatenation': self.audio_concatenation,
             'composition': self.composition,
             'serveUrl': self.serve_url,
             'inputProps': self.private_serialized_input_props,

@@ -33,24 +33,3 @@ test('renderMediaOnLambda() sends chunks: null when no chunks are passed', async
 
 	expect(payload.chunks).toBe(null);
 });
-
-test('renderMediaOnLambda() sends audioConcatenation in the start payload', async () => {
-	const payload = await makeLambdaRenderMediaPayload(
-		renderMediaOnLambdaOptionalToRequired({
-			region: 'us-east-1',
-			functionName: 'test-function',
-			serveUrl: 'https://example.com',
-			composition: 'test-composition',
-			codec: 'h264',
-			audioConcatenation: 'encode-at-merge',
-		}),
-	);
-
-	expect(payload.audioConcatenation).toBe('encode-at-merge');
-});
-
-test('renderMediaOnLambda() sends audioConcatenation: "seamless-if-possible" by default', async () => {
-	const payload = await makePayload(undefined);
-
-	expect(payload.audioConcatenation).toBe('seamless-if-possible');
-});

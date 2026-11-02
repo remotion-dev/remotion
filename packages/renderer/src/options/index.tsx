@@ -3,7 +3,6 @@ import {apiKeyOption} from './api-key';
 import {askAIOption} from './ask-ai';
 import {audioBitrateOption} from './audio-bitrate';
 import {audioCodecOption} from './audio-codec';
-import {audioConcatenationOption} from './audio-concatenation';
 import {beepOnFinishOption} from './beep-on-finish';
 import {benchmarkConcurrenciesOption} from './benchmark-concurrencies';
 import {binariesDirectoryOption} from './binaries-directory';
@@ -128,7 +127,6 @@ export const allOptions = {
 	offthreadVideoThreadsOption,
 	webhookCustomDataOption,
 	chunksOption,
-	audioConcatenationOption,
 	colorSpaceOption,
 	deleteAfterOption,
 	disableWebSecurityOption,

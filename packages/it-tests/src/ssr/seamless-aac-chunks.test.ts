@@ -9,7 +9,6 @@ import {
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {bundle} from '@remotion/bundler';
-import type {AudioConcatenation} from '@remotion/renderer';
 import {
 	openBrowser,
 	RenderInternals,
@@ -124,7 +123,7 @@ const countVideoFrames = async (file: string) => {
 };
 
 test(
-	'Merging unequal chunks lines up their audio with a single-pass render, seamless or encoded at the merge',
+	'Merging unequal chunks lines up their audio with a single-pass render',
 	async () => {
 		const directory = mkdtempSync(path.join(tmpdir(), 'seamless-aac-chunks-'));
 		const browser = await openBrowser('chrome');
@@ -164,7 +163,6 @@ test(
 				name: string,
 				chunks: [number, number][],
 				chunkDurationsInFrames: number[] | null,
-				audioConcatenation: AudioConcatenation,
 			) => {
 				const framesPerChunk = Math.min(
 					...chunks.map(([start, end]) => end - start + 1),
@@ -172,7 +170,6 @@ test(
 				const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
 					'aac',
 					framesPerChunk,
-					audioConcatenation,
 				);
 				const chunkAudioCodec = seamlessAudio ? 'aac' : 'pcm-16';
 				const files: string[] = [];
@@ -222,7 +219,6 @@ test(
 					sampleRate,
 					separateAudioTo: null,
 					chunkDurationsInFrames,
-					audioConcatenation,
 				});
 				return outputLocation;
 			};
@@ -246,20 +242,8 @@ test(
 					'unequal',
 					unequalChunks,
 					unequalChunks.map(([start, end]) => end - start + 1),
-					'seamless-if-possible',
 				),
-				await renderInChunks(
-					'equal',
-					equalChunks,
-					null,
-					'seamless-if-possible',
-				),
-				await renderInChunks(
-					'unequal-encode-at-merge',
-					unequalChunks,
-					unequalChunks.map(([start, end]) => end - start + 1),
-					'encode-at-merge',
-				),
+				await renderInChunks('equal', equalChunks, null),
 			]) {
 				const {onsets, durationInSeconds} = await getClicks(merged);
 				// Every click starts on the same sample as in the single-pass render.

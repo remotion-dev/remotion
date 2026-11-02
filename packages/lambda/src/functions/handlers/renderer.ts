@@ -176,7 +176,6 @@ const renderHandler = async ({
 	const seamlessAudio = RenderInternals.canConcatAudioSeamlessly(
 		defaultAudioCodec,
 		params.framesPerLambda,
-		params.audioConcatenation,
 	);
 	const seamlessVideo = RenderInternals.canConcatVideoSeamlessly(params.codec);
 

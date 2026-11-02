@@ -74,23 +74,3 @@ test('the start handler passes chunks: null when a client does not send chunks',
 
 	expect(launchPayload.chunks).toBe(null);
 });
-
-test('the start handler forwards audioConcatenation to the launch handler', async () => {
-	const launchPayload = await startAndGetLaunchPayload({
-		...(await makeStartPayload(undefined)),
-		audioConcatenation: 'encode-at-merge',
-	});
-
-	expect(launchPayload.audioConcatenation).toBe('encode-at-merge');
-});
-
-test('the start handler passes audioConcatenation: "seamless-if-possible" when a client does not send it', async () => {
-	const {audioConcatenation: _omitted, ...payloadWithoutMode} =
-		await makeStartPayload(undefined);
-
-	const launchPayload = await startAndGetLaunchPayload(
-		payloadWithoutMode as ServerlessStartPayload,
-	);
-
-	expect(launchPayload.audioConcatenation).toBe('seamless-if-possible');
-});

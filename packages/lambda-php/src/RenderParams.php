@@ -68,7 +68,6 @@ class RenderParams
     protected $gopSize = null;
     protected $disableSharedMemoryCapture = false;
     protected $chunks = null;
-    protected $audioConcatenation = 'seamless-if-possible';
 
     public function __construct(
         ?array  $data = null,
@@ -125,8 +124,7 @@ class RenderParams
         bool    $disableSharedMemoryCapture = false,
         string|array|null $separateAudioTo = null,
         string $preferredEffectBackend = 'auto',
-        ?array  $chunks = null,
-        string $audioConcatenation = 'seamless-if-possible'
+        ?array  $chunks = null
     )
     {
         if ($chromiumOptions === null) {
@@ -188,7 +186,6 @@ class RenderParams
         $this->enableCancellation = $enableCancellation;
         $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
         $this->chunks = $chunks;
-        $this->audioConcatenation = $audioConcatenation;
     }
 
     private array $inputProps = array();
@@ -220,7 +217,6 @@ class RenderParams
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
             'concurrency' => $this->getConcurrency(),
             'chunks' => $this->getChunks(),
-            'audioConcatenation' => $this->getAudioConcatenation(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -777,16 +773,6 @@ class RenderParams
     public function getChunks()
     {
         return $this->chunks;
-    }
-
-    public function getAudioConcatenation(): string
-    {
-        return $this->audioConcatenation;
-    }
-
-    public function setAudioConcatenation(string $audioConcatenation)
-    {
-        $this->audioConcatenation = $audioConcatenation;
     }
 
     public function getDownloadBehavior()

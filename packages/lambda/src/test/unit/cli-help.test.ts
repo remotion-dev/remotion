@@ -123,7 +123,6 @@ test('defines help for every Lambda command', () => {
 	expect(renderHelp).toContain('--config <value>');
 	expect(renderHelp).toContain('--port <value>');
 	expect(renderHelp).toContain('--chunks <value>');
-	expect(renderHelp).toContain('--audio-concatenation <value>');
 
 	const stillHelp = getLambdaHelp(['still']).join('\n');
 	expect(stillHelp).toContain('--function-name <name>');

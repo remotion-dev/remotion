@@ -80,7 +80,6 @@ test('Python package should create the same renderMedia payload as normal Lambda
 			concurrencyPerLambda: 1,
 			concurrency: null,
 			chunks: null,
-			audioConcatenation: 'seamless-if-possible',
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {

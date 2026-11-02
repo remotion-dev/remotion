@@ -676,15 +676,6 @@ export const articles = [
 		slug: 'options/audio-codec',
 	},
 	{
-		id: 'options/audio-concatenation',
-		title: 'Audio concatenation',
-		relativePath: 'docs/options/audio-concatenation.mdx',
-		compId: 'articles-docs-options-audio-concatenation',
-		crumb: 'Options',
-		noAi: false,
-		slug: 'options/audio-concatenation',
-	},
-	{
 		id: 'options/audio-latency-hint',
 		title: 'Audio Latency Hint',
 		relativePath: 'docs/options/audio-latency-hint.mdx',
