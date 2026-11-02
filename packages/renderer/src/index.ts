@@ -174,8 +174,8 @@ export type {AudioConcatenation} from './can-concat-seamlessly';
 
 import {makeDownloadMap} from './assets/download-map';
 import {
-	audioConcatenationModes,
 	canConcatAudioSeamlessly,
+	validateAudioConcatenation,
 	canConcatVideoSeamlessly,
 } from './can-concat-seamlessly';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -295,7 +295,7 @@ export const RenderInternals = {
 	DEFAULT_RENDER_FRAMES_OFFTHREAD_VIDEO_THREADS,
 	canConcatVideoSeamlessly,
 	canConcatAudioSeamlessly,
-	audioConcatenationModes,
+	validateAudioConcatenation,
 	internalCombineChunks,
 	defaultOnLog,
 };

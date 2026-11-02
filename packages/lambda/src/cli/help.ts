@@ -214,6 +214,8 @@ export const lambdaCommandHelp = [
 				'max-retries',
 				'frames-per-lambda',
 				'concurrency',
+				'chunks',
+				'audio-concatenation',
 				'concurrency-per-lambda',
 				'jpeg-quality',
 				'muted',

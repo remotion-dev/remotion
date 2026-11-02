@@ -153,6 +153,26 @@ Minimum value: 1 if rendering on main function, otherwise value must result in `
 Cannot be used together with `--frames-per-lambda`. Use only one of them.
 :::
 
+### `--chunks`<AvailableFrom v="4.0.540" />
+
+<Options id="chunks" cli />
+
+```bash
+npx remotion lambda render <serve-url> <composition-id> --chunks="[[0,59],[60,89],[90,374]]"
+```
+
+The chunks must be sorted and contiguous, start at the first frame and end at the last frame of [`--frames`](#--frames) (or of the composition if `--frames` is not passed). Each chunk must contain at least <MinimumFramesPerLambda /> frames, unless the whole range is shorter than that. See [`chunks`](/docs/lambda/rendermediaonlambda#chunks) for details.
+
+Maximum number of chunks: 200
+
+:::note
+Cannot be used together with `--frames-per-lambda`, `--concurrency` or [`--every-nth-frame`](#--every-nth-frame).
+:::
+
+### `--audio-concatenation`<AvailableFrom v="4.0.540" />
+
+<Options id="audio-concatenation" cli />
+
 ### `--concurrency-per-lambda`<AvailableFrom v="3.0.30" />
 
 By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.

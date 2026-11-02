@@ -676,6 +676,15 @@ export const articles = [
 		slug: 'options/audio-codec',
 	},
 	{
+		id: 'options/audio-concatenation',
+		title: 'Audio concatenation',
+		relativePath: 'docs/options/audio-concatenation.mdx',
+		compId: 'articles-docs-options-audio-concatenation',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/audio-concatenation',
+	},
+	{
 		id: 'options/audio-latency-hint',
 		title: 'Audio Latency Hint',
 		relativePath: 'docs/options/audio-latency-hint.mdx',
@@ -746,6 +755,15 @@ export const articles = [
 		crumb: 'Options',
 		noAi: false,
 		slug: 'options/chrome-mode',
+	},
+	{
+		id: 'options/chunks',
+		title: 'Chunks',
+		relativePath: 'docs/options/chunks.mdx',
+		compId: 'articles-docs-options-chunks',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/chunks',
 	},
 	{
 		id: 'options/codec',

@@ -94,7 +94,7 @@ Cannot be used together with `framesPerLambda`. Use only one of them.
 
 ### `chunks?`<AvailableFrom v="4.0.540" />
 
-Specify the frame range that each Lambda function renders, as a list of `[startFrame, endFrame]` pairs. Use this instead of [`framesPerLambda`](#framesperlambda) or [`concurrency`](#concurrency) when the cost of rendering is uneven, so that expensive parts of a video get split into shorter chunks than cheap parts.
+<Options id="chunks" />
 
 ```ts title="Three chunks for a 375-frame video"
 const chunks: [number, number][] = [
@@ -116,10 +116,7 @@ Cannot be used together with `framesPerLambda`, `concurrency` or [`everyNthFrame
 
 ### `audioConcatenation?`<AvailableFrom v="4.0.540" />
 
-How the audio of the chunks is joined. One of:
-
-- `"seamless-if-possible"` (default): If the audio codec is `aac` and every chunk is longer than 4 frames, each Lambda function encodes its chunk's audio to AAC, and the chunks are joined without re-encoding. To join AAC without gaps, each function evaluates a few extra frames before and after its chunk for their audio. Otherwise, the same as `"encode-at-merge"`.
-- `"encode-at-merge"`: Each Lambda function keeps its chunk's audio uncompressed, and the main function encodes the joined audio once. No function evaluates extra frames, which makes renders with many or short chunks faster and cheaper. Merging takes longer because the whole audio track gets encoded in the main function.
+<Options id="audio-concatenation" />
 
 ```tsx twoslash title="Encode the audio once at the end"
 // ---cut---

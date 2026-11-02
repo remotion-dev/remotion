@@ -347,15 +347,7 @@ const innerLaunchHandler = async ({
 		throw new Error('Media renders require a codec');
 	}
 
-	if (
-		!RenderInternals.audioConcatenationModes.includes(params.audioConcatenation)
-	) {
-		throw new TypeError(
-			`'audioConcatenation' must be one of ${RenderInternals.audioConcatenationModes
-				.map((m) => JSON.stringify(m))
-				.join(', ')}, but got ${JSON.stringify(params.audioConcatenation)}`,
-		);
-	}
+	RenderInternals.validateAudioConcatenation(params.audioConcatenation);
 
 	const explicitChunks =
 		params.chunks === null
