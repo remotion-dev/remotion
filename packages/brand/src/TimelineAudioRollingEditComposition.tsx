@@ -613,7 +613,7 @@ const TimelineAudioRollingEditContent = ({
 					},
 				)}
 				customCursor={interpolate(
-					frame,
+					cursorSpin ? 119 : frame,
 					[-47, 16, 79, 119],
 					[
 						'url("data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cg%20transform%3D%22translate(32%200)%20scale(-1%201)%22%20filter%3D%22url(%23shadow)%22%3E%0A%3Cpath%20d%3D%22M23%204.5H18C16.9%204.5%2016%205.4%2016%206.5V25.5C16%2026.6%2016.9%2027.5%2018%2027.5H23%22%20stroke%3D%22white%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M23%204.5H18C16.9%204.5%2016%205.4%2016%206.5V25.5C16%2026.6%2016.9%2027.5%2018%2027.5H23%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fg%3E%0A%3Cdefs%3E%0A%3Cfilter%20id%3D%22shadow%22%20x%3D%220%22%20y%3D%220%22%20width%3D%2232%22%20height%3D%2232%22%20filterUnits%3D%22userSpaceOnUse%22%3E%0A%3CfeDropShadow%20dx%3D%220%22%20dy%3D%221.5%22%20stdDeviation%3D%221%22%20flood-color%3D%22black%22%20flood-opacity%3D%220.35%22%2F%3E%0A%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3C%2Fsvg%3E") 12 12, ew-resize',
@@ -714,7 +714,37 @@ const AudioRollingCursorMotionBlur = () => {
 
 	// Once settled, keep the drag in the DOM without an intermediate canvas crop.
 	if (!rotating) {
-		return <TimelineAudioRollingEditContent cursorSpin />;
+		const settledFrame = (66 * fps) / (60 * (70 / 51));
+		const pauseEndFrame = Math.ceil(settledFrame) + Math.round(0.2 * fps);
+		const lastFrame = (51 / 30) * fps - 1;
+
+		return (
+			<AbsoluteFill
+				showInTimeline={false}
+				style={{
+					scale: interpolate(
+						motionFrame,
+						[settledFrame, lastFrame],
+						[1, 0.94],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						},
+					),
+				}}
+			>
+				<Freeze
+					frame={interpolate(
+						motionFrame,
+						[pauseEndFrame - 1, lastFrame],
+						[settledFrame, settledFrame + (lastFrame - settledFrame) * 1.2],
+						{extrapolateLeft: 'clamp'},
+					)}
+				>
+					<TimelineAudioRollingEditContent cursorSpin />
+				</Freeze>
+			</AbsoluteFill>
+		);
 	}
 
 	if (HtmlInCanvas.isSupported()) {

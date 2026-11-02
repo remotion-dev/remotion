@@ -41,7 +41,7 @@ const StudioHomepageMenusContent = () => {
 					width: 1080,
 					height: 1080,
 					rotate: EXPLORE_CAMERA_ANGLE,
-					scale: 1.02,
+					scale: 0.9,
 				}}
 			>
 				<AbsoluteFill

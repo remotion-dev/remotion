@@ -423,7 +423,8 @@ const TimelineZoomContent = () => {
 					left: '50%',
 					top: '50%',
 					translate: '-50% -50%',
-					scale: Math.min(width / 2336, height / 1440),
+					rotate: '3deg',
+					scale: 1.1 * Math.min(width / 2336, height / 1440),
 				}}
 			>
 				<TimelineZoomRecording />

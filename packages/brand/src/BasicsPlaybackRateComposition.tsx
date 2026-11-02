@@ -14,11 +14,13 @@ import {
 
 const BasicsPlaybackRateInner = ({
 	captureStyle,
+	blurEdges,
 }: {
 	readonly captureStyle: React.CSSProperties | null;
+	readonly blurEdges: boolean | null;
 }) => {
-	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	const screenCapture = (
 		<>
@@ -27,7 +29,7 @@ const BasicsPlaybackRateInner = ({
 				premountFor={fps}
 				muted
 				effects={
-					HtmlInCanvas.isSupported()
+					HtmlInCanvas.isSupported() || blurEdges === false
 						? []
 						: [
 								radialProgressiveBlur({
@@ -43,7 +45,7 @@ const BasicsPlaybackRateInner = ({
 				src={
 					'https://remotion.media/studio-close-ups/basics-showcase/changing-playbackrate-874793ccb8b6.mp4'
 				}
-				durationInFrames={368}
+				durationInFrames={(368 / 60) * fps}
 				style={{
 					position: 'absolute',
 				}}
@@ -343,17 +345,21 @@ const BasicsPlaybackRateInner = ({
 					name="Canvas Capture"
 					width={3794}
 					height={2144}
-					effects={[
-						radialProgressiveBlur({
-							center: [0.25, 0.49],
-							width: 0.85,
-							height: 0.74,
-							start: 0.42,
-							startBlur: 0,
-							endBlur: 32,
-						}),
-					]}
-					durationInFrames={368}
+					effects={
+						blurEdges === false
+							? []
+							: [
+									radialProgressiveBlur({
+										center: [0.25, 0.49],
+										width: 0.85,
+										height: 0.74,
+										start: 0.42,
+										startBlur: 0,
+										endBlur: 32,
+									}),
+								]
+					}
+					durationInFrames={(368 / 60) * fps}
 					premountFor={fps}
 					style={{
 						translate: '150px -430px',
@@ -368,7 +374,7 @@ const BasicsPlaybackRateInner = ({
 			) : (
 				<AbsoluteFill
 					name="Canvas Capture"
-					durationInFrames={368}
+					durationInFrames={(368 / 60) * fps}
 					premountFor={fps}
 					style={{
 						width: 3794,
@@ -402,7 +408,7 @@ export const BasicsPlaybackRateComposition = () => {
 			component={BasicsPlaybackRatePreview}
 			width={1920}
 			height={1080}
-			defaultProps={{captureStyle: null}}
+			defaultProps={{captureStyle: null, blurEdges: null}}
 			fps={60}
 			durationInFrames={368}
 		/>

@@ -31,7 +31,7 @@ const TimelineRevealShotContent = ({
 	endRotation,
 }: TimelineRevealShotProps) => {
 	const frame = useCurrentFrame();
-	const {fps, durationInFrames} = useVideoConfig();
+	const {fps, width, height, durationInFrames} = useVideoConfig();
 
 	return (
 		<div
@@ -73,7 +73,9 @@ const TimelineRevealShotContent = ({
 					scale: interpolate(
 						frame,
 						[0, durationInFrames - 1],
-						[zoom / 2.5, endZoom / 2.5],
+						[zoom, endZoom].map(
+							(value) => (value / 2.5) * (width < height ? 0.68 : 1),
+						),
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',

@@ -1,6 +1,7 @@
 import {Audio} from '@remotion/media';
-import {Track} from 'remotion';
-import {PitchCorrectionPreview} from './PitchCorrection';
+import {Easing, interpolate, Track, useCurrentFrame} from 'remotion';
+import {z} from 'zod';
+import {BasicsPlaybackRatePreview} from './BasicsPlaybackRateComposition';
 import {StudioActionsMenuComposition} from './StudioActionsMenuComposition';
 import {StudioAiPrompt} from './StudioAiPrompt';
 import {StudioClosing} from './StudioClosing';
@@ -8,7 +9,6 @@ import {StudioCurvesSplit} from './StudioCurvesSplit';
 import {StudioDeviceOverview} from './StudioDeviceOverview';
 import {
 	StudioHomepageEffects,
-	StudioHomepageKeyframes,
 	StudioHomepageMenus,
 	StudioHomepageNew,
 	StudioHomepageParameterization,
@@ -33,13 +33,35 @@ import {
 } from './TimelineVideoRollingEditComposition';
 import {TimelineZoomComposition} from './TimelineZoomComposition';
 
+export const studioUpdateSchema = z.object({
+	mode: z.enum(['widescreen', 'instagram-reel']),
+});
+
 // Cut points follow the recorded transients at 30 fps (approximately 145 BPM).
 // Keep each shot as an authored node so its content can be replaced independently.
 // Follow the glow across the opening shots before the cursor showcase.
 // Build in complexity: timeline zoom, trims, rolling edits, pitch, then color curves.
 // Accelerate into shorter cuts; late slots follow measured transients and subdivisions.
 // Use original recordings with live cameras and cursors for the homepage montage.
-export const StudioUpdate = () => {
+export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
+	const reel = mode === 'instagram-reel';
+	const frame = useCurrentFrame();
+
+	// Recenter the original capture around the interaction. Coordinates are
+	// normalized within each shot's native portrait layout.
+	const reelCamera = (
+		scale: number,
+		focusX = 0.5,
+		focusY = 0.5,
+	): React.CSSProperties =>
+		reel
+			? {
+					transformOrigin: '0 0',
+					scale,
+					translate: `${(0.5 - focusX * scale) * 100}% ${(0.5 - focusY * scale) * 100}%`,
+				}
+			: {};
+
 	return (
 		<>
 			<Track name="Scenes">
@@ -128,7 +150,7 @@ export const StudioUpdate = () => {
 				<TimelineAudioRollingEditComposition
 					name="01g - Audio rolling edit - hover cursors"
 					cursorSpin
-					style={{backgroundColor: '#15161b'}}
+					style={{...reelCamera(1.35), backgroundColor: '#15161b'}}
 					from={298}
 					durationInFrames={51}
 					premountFor={30}
@@ -141,6 +163,7 @@ export const StudioUpdate = () => {
 					premountFor={30}
 				/>
 				<TimelineZoomComposition
+					style={reelCamera(1.9)}
 					name="09b - Timeline zoom in and out"
 					from={397}
 					trimBefore={120}
@@ -155,9 +178,14 @@ export const StudioUpdate = () => {
 					durationInFrames={123}
 					playbackRate={123 / 11}
 					premountFor={30}
-					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
+					style={{
+						...reelCamera(1.65),
+						backgroundColor: '#1c1e23',
+						overflow: 'hidden',
+					}}
 				/>
 				<TimelineLeftDragComposition
+					style={reelCamera(2.05, 0.46)}
 					name="09d - Timeline left trim - 1.89x"
 					from={434}
 					durationInFrames={72}
@@ -170,9 +198,14 @@ export const StudioUpdate = () => {
 					from={472}
 					durationInFrames={38}
 					premountFor={30}
-					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
+					style={{
+						...reelCamera(1.48, 0.6, 0.52),
+						backgroundColor: '#1c1e23',
+						overflow: 'hidden',
+					}}
 				/>
 				<TimelineSourceOnlyTrimWideComposition
+					style={reelCamera(1.7, 0.5, 0.55)}
 					name="11 - Source-only trim - close-up to wide"
 					from={510}
 					trimBefore={40}
@@ -187,7 +220,7 @@ export const StudioUpdate = () => {
 					durationInFrames={54}
 					playbackRate={54 / 26}
 					premountFor={30}
-					style={{overflow: 'hidden'}}
+					style={{...reelCamera(2.05, 0.44), overflow: 'hidden'}}
 				/>
 				<StudioScreenshotRattle
 					name="14 - Full Studio screenshot - snare rattle zoom"
@@ -201,29 +234,43 @@ export const StudioUpdate = () => {
 					from={596}
 					durationInFrames={24}
 					premountFor={30}
-					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
+					style={{
+						...reelCamera(1.45, 0.5, 0.55),
+						backgroundColor: '#1c1e23',
+						overflow: 'hidden',
+					}}
 				/>
 				<StudioHomepageEffects
 					name="21.01 - Effects - enable all in one sweep"
 					from={620}
 					durationInFrames={25}
 					premountFor={30}
-					style={{backgroundColor: '#1f2427', overflow: 'hidden'}}
+					style={{
+						...reelCamera(2.15, 0.27, 0.52),
+						backgroundColor: '#1f2427',
+						overflow: 'hidden',
+					}}
 				/>
 				<StudioHomepageNew
 					name="21.04 - remotion.new - Actions menu"
 					from={645}
 					durationInFrames={38}
 					premountFor={30}
-					style={{backgroundColor: '#1f2427', overflow: 'hidden'}}
+					style={{
+						...reelCamera(2, 0.28),
+						backgroundColor: '#1f2427',
+						overflow: 'hidden',
+					}}
 				/>
 				<TimelineVideoRollingPrelude
+					style={reelCamera(1.35, 0.54)}
 					name="22-26 - Bass stutter - frozen rolling edit pickup"
 					from={683}
 					durationInFrames={12}
 					premountFor={30}
 				/>
 				<TimelineVideoRollingEditComposition
+					style={reelCamera(1.35, 0.54)}
 					name="27 - Video rolling edit - active drag - 2.08x"
 					from={695}
 					trimBefore={32}
@@ -232,6 +279,7 @@ export const StudioUpdate = () => {
 					premountFor={30}
 				/>
 				<TimelineKeyframeShiftComposition
+					style={reelCamera(1.9)}
 					name="27b - Audio keyframes - marquee and shift - 2x"
 					from={720}
 					trimBefore={33}
@@ -239,12 +287,18 @@ export const StudioUpdate = () => {
 					playbackRate={2}
 					premountFor={30}
 				/>
-				<PitchCorrectionPreview
-					name="28 - Pitch correction - 3.18x"
+				<BasicsPlaybackRatePreview
+					blurEdges={false}
+					name="28 - Playback rate - clips and keyframes - 2.3x"
 					from={757}
-					// End at source frame 830, after release and before the cursor moves away.
-					durationInFrames={45 * 3.18}
-					playbackRate={3.18}
+					trimBefore={45}
+					durationInFrames={45 * 2.3}
+					playbackRate={2.3}
+					captureStyle={{
+						translate: reel ? '0px 255px' : '-100px -300px',
+						scale: reel ? 0.67 : 0.9,
+						rotate: '-3deg',
+					}}
 					premountFor={30}
 				/>
 				<StudioCurvesSplit
@@ -258,33 +312,52 @@ export const StudioUpdate = () => {
 					name="31.01 - AI prompt - before entering Studio"
 					from={869}
 					durationInFrames={12}
-					playbackRate={12 / 15}
+					playbackRate={12 / 21}
 					premountFor={30}
-					style={{backgroundColor: '#0d0d0d', overflow: 'hidden'}}
+					style={{
+						backgroundColor: '#0d0d0d',
+						overflow: 'hidden',
+						scale: 1.05,
+						translate: `${interpolate(frame, [884, 938], [2, -2], {
+							easing: Easing.inOut(Easing.quad),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})}% 0`,
+					}}
 				/>
 				<StudioHomepageMenus
 					name="31.02 - Enter Studio - menus"
-					from={884}
+					from={890}
 					durationInFrames={18}
 					playbackRate={18 / 21}
 					premountFor={30}
-					style={{backgroundColor: '#1f2428', overflow: 'hidden'}}
-				/>
-				<StudioHomepageKeyframes
-					name="31.04 - Keyframe handles"
-					from={905}
-					durationInFrames={9}
-					playbackRate={9 / 12}
-					premountFor={30}
-					style={{backgroundColor: '#14171a', overflow: 'hidden'}}
+					style={{
+						backgroundColor: '#1f2428',
+						overflow: 'hidden',
+						scale: 1.05,
+						translate: `${interpolate(frame, [884, 938], [2, -2], {
+							easing: Easing.inOut(Easing.quad),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})}% 0`,
+					}}
 				/>
 				<StudioHomepageParameterization
 					name="32.01 - Parameterization - duration drag"
-					from={917}
+					from={911}
 					durationInFrames={16}
-					playbackRate={16 / 21}
+					playbackRate={16 / 27}
 					premountFor={30}
-					style={{backgroundColor: '#1f2428', overflow: 'hidden'}}
+					style={{
+						...reelCamera(1.95, 0.37, 0.54),
+						transform: `translateX(${interpolate(frame, [884, 938], [2, -2], {
+							easing: Easing.inOut(Easing.quad),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						})}%) scale(1.05)`,
+						backgroundColor: '#1f2428',
+						overflow: 'hidden',
+					}}
 				/>
 				<StudioRenderClickComposition
 					name="32.02 - Press Render - centered close-up"
@@ -293,16 +366,30 @@ export const StudioUpdate = () => {
 					durationInFrames={24}
 					playbackRate={24 / 15}
 					premountFor={30}
-					style={{overflow: 'hidden'}}
+					style={{
+						overflow: 'hidden',
+						scale: interpolate(frame, [947, 959], [1, 1.1], {
+							easing: Easing.inOut(Easing.quad),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+					}}
 				/>
 				<StudioRenderProgressComposition
-					name="32.03 - Render progress - completion"
+					name="32.03 - Render progress - rendering"
 					from={953}
 					trimBefore={630}
-					durationInFrames={117}
-					playbackRate={117 / 16}
+					durationInFrames={63}
+					playbackRate={63 / 16}
 					premountFor={30}
-					style={{overflow: 'hidden'}}
+					style={{
+						overflow: 'hidden',
+						scale: interpolate(frame, [947, 959], [1, 1.1], {
+							easing: Easing.inOut(Easing.quad),
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+						}),
+					}}
 				/>
 				<StudioClosing
 					name="33 - Remotion logo outro"

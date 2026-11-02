@@ -16,13 +16,13 @@ const StudioDeviceOverviewContent = () => {
 			style={{
 				position: 'absolute',
 				left: '50%',
-				top: '50%',
+				top: width < height ? '50%' : '65%',
 				translate: '-50% -50%',
 				width: 2240,
 				height: 1424,
 				scale:
 					Math.min(width / 2560, height / 1600) *
-					interpolate(frame, [0, durationInFrames - 1], [1.03, 0.93], {
+					interpolate(frame, [0, durationInFrames - 1], [1.13, 1.03], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 						output: 'perceptual-scale',

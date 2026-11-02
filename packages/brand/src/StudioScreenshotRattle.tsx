@@ -9,14 +9,17 @@ import {
 
 const StudioScreenshotRattleContent = () => {
 	const frame = useCurrentFrame();
-	const {fps, durationInFrames} = useVideoConfig();
+	const {fps, width, height, durationInFrames} = useVideoConfig();
 
 	return (
 		<Interactive.Div
 			name="Steady screenshot push in"
 			style={{
 				position: 'absolute',
-				inset: 0,
+				top: '50%',
+				width: '100%',
+				height: width < height ? (width * 1600) / 2560 : '100%',
+				translate: '0 -50%',
 				transformOrigin: '55% 73%',
 				scale: interpolate(frame, [0, durationInFrames - 1], [1, 1.04], {
 					extrapolateLeft: 'clamp',

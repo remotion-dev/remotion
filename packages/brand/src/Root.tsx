@@ -270,7 +270,7 @@ import {StudioRenderClickComposition} from './StudioRenderClickComposition';
 import {StudioRenderProgressComposition} from './StudioRenderProgressComposition';
 import {StudioScreenshotRattle} from './StudioScreenshotRattle';
 import {StudioTimelineClip} from './StudioTimelineClip';
-import {StudioUpdate} from './StudioUpdate';
+import {StudioUpdate, studioUpdateSchema} from './StudioUpdate';
 import {SvgLogoCompositions} from './SvgLogos';
 import {TimelineAudioRollingEditComposition} from './TimelineAudioRollingEditComposition';
 import {
@@ -1680,8 +1680,13 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="StudioUpdate"
 				component={StudioUpdate}
-				width={2560}
-				height={1600}
+				schema={studioUpdateSchema}
+				defaultProps={{mode: 'widescreen' as const}}
+				calculateMetadata={({props}) =>
+					props.mode === 'instagram-reel'
+						? {width: 1080, height: 1920}
+						: {width: 2560, height: 1600}
+				}
 				fps={30}
 				durationInFrames={1023}
 			/>
@@ -2128,7 +2133,7 @@ export const RemotionRoot: React.FC = () => {
 			<Composition
 				id="TimelineClipSelection"
 				component={TimelineClipSelectionComposition}
-				durationInFrames={404}
+				durationInFrames={267}
 				fps={30}
 				width={2560}
 				height={1600}

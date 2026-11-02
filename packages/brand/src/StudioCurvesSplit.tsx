@@ -14,6 +14,7 @@ import {
 const StudioCurvesSplitContent = () => {
 	const frame = useCurrentFrame();
 	const {fps, width, height} = useVideoConfig();
+	const stacked = width < height;
 	const sourceFrame = 151 + (frame * 60 * (98 / 67)) / fps;
 	const [, cursorY] = getCurvesRecordingCursorTranslate(
 		Math.min(298, Math.max(169, sourceFrame)),
@@ -29,11 +30,11 @@ const StudioCurvesSplitContent = () => {
 					position: 'absolute',
 					left: 0,
 					top: 0,
-					width: '50%',
-					height: '100%',
+					width: stacked ? '100%' : '50%',
+					height: stacked ? '50%' : '100%',
 					overflow: 'hidden',
-					scale: 1.413,
-					translate: '56.3px -118.5px',
+					scale: stacked ? 1 : 1.413,
+					translate: stacked ? undefined : '56.3px -118.5px',
 				}}
 			>
 				<Interactive.Div
@@ -47,7 +48,9 @@ const StudioCurvesSplitContent = () => {
 						translate: '-3100px -1450px',
 						transformOrigin: '3100px 1450px',
 						rotate: '-0.561848 -0.819813 0.110604 27.005026deg',
-						scale: Math.min(width / 2560, height / 1600) * 0.5,
+						scale: stacked
+							? width / 3200
+							: Math.min(width / 2560, height / 1600) * 0.5,
 					}}
 				>
 					<CowColorCorrectionLayers
@@ -66,10 +69,10 @@ const StudioCurvesSplitContent = () => {
 				style={{
 					backgroundColor: '#1e2226',
 					position: 'absolute',
-					left: '50%',
-					top: 0,
-					width: '50%',
-					height: '100%',
+					left: stacked ? 0 : '50%',
+					top: stacked ? '50%' : 0,
+					width: stacked ? '100%' : '50%',
+					height: stacked ? '50%' : '100%',
 					overflow: 'hidden',
 				}}
 			>
@@ -81,7 +84,9 @@ const StudioCurvesSplitContent = () => {
 						left: '50%',
 						top: '50%',
 						translate: '-50% -50%',
-						scale: Math.min((width / 2 - 128) / 958, (height - 96) / 1440),
+						scale: stacked
+							? Math.min(width / 1150, height / 1850)
+							: Math.min((width / 2 - 128) / 958, (height - 96) / 1440),
 					}}
 				>
 					<AbsoluteFill
@@ -90,9 +95,9 @@ const StudioCurvesSplitContent = () => {
 						durationInFrames={(196 / 60) * fps}
 						playbackRate={98 / 67}
 						style={{
-							scale: 2.131,
+							scale: stacked ? 1.12 : 2.131,
 							rotate: '-0.561848 0.819813 -0.110604 27.005026deg',
-							translate: '338.8px 602.6px',
+							translate: stacked ? '65px 185px' : '338.8px 602.6px',
 						}}
 					>
 						<ExploreCurvesRecording20261027Composition />
