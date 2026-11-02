@@ -59,6 +59,7 @@ import {
 import {ComposeLayers, composeLayersSchema} from './ComposeLayers';
 import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
+import {CowColorCorrection} from './CowColorCorrection';
 import {CurvesStudioRecordingComposition} from './CurvesStudioRecordingComposition';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
@@ -213,7 +214,6 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
-import './index.css';
 import {KeyframeMove} from './KeyframeMove';
 import {LevelsStudioRecordingComposition} from './LevelsStudioRecordingComposition';
 import {Logo} from './Logo';
@@ -224,8 +224,10 @@ import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
 import {RemotionPrototype2020} from './RemotionPrototype2020';
+import './index.css';
 import {RenderModalCodec} from './RenderModalCodec';
-import {RenderOnWeb} from './RenderOnWeb';
+import {RenderOnWeb, StudioRenderOnWeb} from './RenderOnWeb';
+import {RenderOnWebCaptureComposition} from './RenderOnWebCaptureComposition';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
@@ -248,13 +250,47 @@ import {Skills2Pick} from './Skills2Pick';
 import {Skills2Router} from './Skills2Router';
 import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
+import {StudioActionsMenuComposition} from './StudioActionsMenuComposition';
+import {StudioAiPrompt} from './StudioAiPrompt';
+import {StudioClosing} from './StudioClosing';
+import {StudioCurvesSplit} from './StudioCurvesSplit';
+import {StudioDeviceOverview} from './StudioDeviceOverview';
+import {
+	StudioHomepageEffects,
+	StudioHomepageElements,
+	StudioHomepageKeyframes,
+	StudioHomepageMenus,
+	StudioHomepageNew,
+	StudioHomepageParameterization,
+	StudioHomepageRender,
+	StudioHomepageTransitions,
+} from './StudioHomepageShots';
+import {StudioMusicTrackStill} from './StudioMusicTrackStill';
+import {StudioRenderClickComposition} from './StudioRenderClickComposition';
+import {StudioRenderProgressComposition} from './StudioRenderProgressComposition';
+import {StudioScreenshotRattle} from './StudioScreenshotRattle';
+import {StudioTimelineClip} from './StudioTimelineClip';
+import {StudioUpdate} from './StudioUpdate';
 import {SvgLogoCompositions} from './SvgLogos';
 import {TimelineAudioRollingEditComposition} from './TimelineAudioRollingEditComposition';
+import {
+	TimelineCaptionPosition,
+	TimelinePlayheadScrub,
+} from './TimelineCaptionPositionAndScrub';
+import {TimelineCaptionReorderAndScrubComposition} from './TimelineCaptionReorderAndScrubComposition';
+import {TimelineClipSelectionComposition} from './TimelineClipSelectionComposition';
+import {TimelineKeyframeShiftComposition} from './TimelineKeyframeShiftComposition';
 import {TimelineLayoutReveal} from './TimelineLayoutReveal';
 import {TimelineLeftDragComposition} from './TimelineLeftDragComposition';
+import {TimelineRevealShot} from './TimelineRevealShot';
+import {TimelineRightTrimComposition} from './TimelineRightTrimComposition';
 import {TimelineSourceOnlyTrimComposition} from './TimelineSourceOnlyTrimComposition';
 import {TimelineSourceOnlyTrimWideComposition} from './TimelineSourceOnlyTrimWideComposition';
-import {TimelineVideoRollingEditComposition} from './TimelineVideoRollingEditComposition';
+import {
+	TimelineVideoRollingEditComposition,
+	TimelineVideoRollingPrelude,
+} from './TimelineVideoRollingEditComposition';
+import {TimelineZoomComposition} from './TimelineZoomComposition';
 import {TransitionsRecordingComposition} from './TransitionsRecordingComposition';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
@@ -1235,6 +1271,10 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="TimelineAudioRollingEdit"
 					component={TimelineAudioRollingEditComposition}
+					defaultProps={{
+						cursorSpin: false,
+						style: {backgroundColor: '#15161b'},
+					}}
 					durationInFrames={430}
 					fps={60}
 					width={1920}
@@ -1638,12 +1678,208 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Composition
+				id="StudioUpdate"
+				component={StudioUpdate}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={1023}
+			/>
+			<Composition
 				id="TimelineLayoutReveal"
 				component={TimelineLayoutReveal}
 				width={2560}
 				height={1600}
 				fps={60}
 				durationInFrames={720}
+			/>
+			<Composition
+				id="StudioMusicTrackStill"
+				component={StudioMusicTrackStill}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={3}
+				defaultProps={{style: {backgroundColor: '#15161b', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioTimelineClip"
+				component={StudioTimelineClip}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={12}
+				defaultProps={{focusX: 1590, focusY: 2585, zoom: 2.7}}
+			/>
+			<Composition
+				id="TimelineVideoRollingPrelude"
+				component={TimelineVideoRollingPrelude}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={12}
+			/>
+			<Composition
+				id="StudioDeviceOverview"
+				component={StudioDeviceOverview}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={56}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioScreenshotRattle"
+				component={StudioScreenshotRattle}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={24}
+				defaultProps={{
+					style: {backgroundColor: '#151719', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="StudioHomepageElements"
+				component={StudioHomepageElements}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={16}
+				defaultProps={{style: {backgroundColor: '#1e2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageTransitions"
+				component={StudioHomepageTransitions}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={16}
+				defaultProps={{style: {backgroundColor: '#1e2226', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageParameterization"
+				component={StudioHomepageParameterization}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={16}
+				defaultProps={{style: {backgroundColor: '#1f2428', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioRenderOnWeb"
+				component={StudioRenderOnWeb}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={13}
+				defaultProps={{style: {backgroundColor: '#1f2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageNew"
+				component={StudioHomepageNew}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={38}
+				defaultProps={{style: {backgroundColor: '#1f2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageEffects"
+				component={StudioHomepageEffects}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={25}
+				defaultProps={{style: {backgroundColor: '#1f2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageMenus"
+				component={StudioHomepageMenus}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={18}
+				defaultProps={{style: {backgroundColor: '#1f2428', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageRender"
+				component={StudioHomepageRender}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={13}
+				defaultProps={{style: {backgroundColor: '#1f2428', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageKeyframes"
+				component={StudioHomepageKeyframes}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={9}
+				defaultProps={{style: {backgroundColor: '#14171a', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioAiPrompt"
+				component={StudioAiPrompt}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={12}
+				defaultProps={{
+					style: {backgroundColor: '#0d0d0d', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="StudioClosing"
+				component={StudioClosing}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={24}
+				defaultProps={{
+					style: {backgroundColor: '#1c1e23', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="StudioCurvesSplit"
+				component={StudioCurvesSplit}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={67}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="CowColorCorrection"
+				component={CowColorCorrection}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={38}
+				defaultProps={{
+					style: {backgroundColor: '#1c1e23', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="TimelineRevealShot"
+				component={TimelineRevealShot}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={49}
+				defaultProps={{
+					revealOffsetInSeconds: 0,
+					focusX: 562,
+					focusY: 1128,
+					endFocusX: 735.1,
+					endFocusY: 1134,
+					zoom: 5.4,
+					endZoom: 5.55,
+					rotation: '0.2 1 -0.05 7deg',
+					endRotation: '0.2 1 -0.05 5deg',
+				}}
 			/>
 			<Composition
 				id="ColorCorrectionDemo"
@@ -1837,6 +2073,97 @@ export const RemotionRoot: React.FC = () => {
 				fps={30}
 				width={3840}
 				height={2160}
+			/>
+			<Composition
+				id="TimelineZoom"
+				component={TimelineZoomComposition}
+				durationInFrames={495}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="TimelineKeyframeShift"
+				component={TimelineKeyframeShiftComposition}
+				durationInFrames={182}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="TimelineCaptionPosition"
+				component={TimelineCaptionPosition}
+				durationInFrames={24}
+				fps={30}
+				width={2560}
+				height={1600}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="TimelinePlayheadScrub"
+				component={TimelinePlayheadScrub}
+				durationInFrames={38}
+				fps={30}
+				width={2560}
+				height={1600}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="TimelineCaptionReorderAndScrub"
+				component={TimelineCaptionReorderAndScrubComposition}
+				durationInFrames={222}
+				fps={30}
+				width={2084}
+				height={1440}
+			/>
+			<Composition
+				id="TimelineRightTrim"
+				component={TimelineRightTrimComposition}
+				durationInFrames={331}
+				fps={30}
+				width={2560}
+				height={1600}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="TimelineClipSelection"
+				component={TimelineClipSelectionComposition}
+				durationInFrames={404}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="RenderOnWebCapture"
+				component={RenderOnWebCaptureComposition}
+				durationInFrames={241}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="StudioRenderClick"
+				component={StudioRenderClickComposition}
+				durationInFrames={480}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="StudioRenderProgress"
+				component={StudioRenderProgressComposition}
+				durationInFrames={812}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="StudioActionsMenu"
+				component={StudioActionsMenuComposition}
+				durationInFrames={172}
+				fps={30}
+				width={2560}
+				height={1600}
 			/>
 		</>
 	);

@@ -1,6 +1,12 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const getCurvesRecordingCursorTranslate = (frame: number) =>
 	interpolate(
@@ -326,12 +332,14 @@ export const getCurvesRecordingCursorTranslate = (frame: number) =>
 	);
 
 export const ExploreCurvesRecording20261027Composition = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	// The recording and cursor keyframes use a 60 fps source clock.
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={492}
+			durationInFrames={(492 / 60) * fps}
 			style={{
 				width: 958,
 				height: 1440,
@@ -339,7 +347,8 @@ export const ExploreCurvesRecording20261027Composition = () => {
 		>
 			<Video
 				src="https://remotion.media/explore-remotion/curves-source-2026-10-27-aafaec4fc822.mp4"
-				durationInFrames={492}
+				durationInFrames={(492 / 60) * fps}
+				muted
 				style={{
 					position: 'absolute',
 				}}

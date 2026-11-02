@@ -1,14 +1,21 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const ExploreZoomBlurRecording20261028Composition = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={364}
+			durationInFrames={(364 / 60) * fps}
 			style={{
 				width: 2896,
 				height: 1842,
@@ -17,7 +24,7 @@ export const ExploreZoomBlurRecording20261028Composition = () => {
 			<Video
 				src="https://remotion.media/explore-remotion/zoom-blur-recording-2026-10-28-7bce6523c0db.mp4"
 				muted
-				durationInFrames={364}
+				durationInFrames={(364 / 60) * fps}
 				style={{
 					position: 'absolute',
 				}}

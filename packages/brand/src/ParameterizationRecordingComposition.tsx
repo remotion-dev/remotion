@@ -1,14 +1,21 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const ParameterizationRecordingComposition = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={933}
+			durationInFrames={(933 / 60) * fps}
 			style={{
 				width: 2032,
 				height: 1440,
@@ -18,7 +25,7 @@ export const ParameterizationRecordingComposition = () => {
 				src={
 					'https://remotion.media/explore-remotion/parameterization-source-2026-10-20-cc659ab7d29a.mp4'
 				}
-				durationInFrames={933}
+				durationInFrames={(933 / 60) * fps}
 				style={{
 					position: 'absolute',
 				}}
