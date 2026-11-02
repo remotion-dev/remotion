@@ -4,6 +4,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {
 	SplitSequencesRequest,
 	SplitSequencesResponse,
+	SourceFileVersion,
 } from '@remotion/studio-shared';
 import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
@@ -82,6 +83,10 @@ export const splitSequencesHandler: ApiHandler<
 						nodeLabels,
 						nodePathRemappings,
 						output,
+						splitNodes: result.insertedNodes.map(({filePath, nodePath}) => ({
+							absolutePath: filePath,
+							nodePath,
+						})),
 					};
 				}),
 			);
@@ -116,14 +121,19 @@ export const splitSequencesHandler: ApiHandler<
 				undoRedoNavigation: null,
 			});
 
+			const sourceVersions: {
+				absolutePath: string;
+				sourceVersion: SourceFileVersion | null;
+			}[] = [];
 			for (const update of updates) {
 				suppressUndoStackInvalidation(update.absolutePath);
-				writeFileAndNotifyFileWatchers({
+				const sourceVersion = writeFileAndNotifyFileWatchers({
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
 					metadata: {skipSequencePropsUpdate: true},
 				});
+				sourceVersions.push({absolutePath: update.absolutePath, sourceVersion});
 
 				const locationLabel = formatLogFileLocation({
 					remotionRoot,
@@ -151,6 +161,8 @@ export const splitSequencesHandler: ApiHandler<
 			return {
 				success: true,
 				nodePathMutation,
+				splitNodes: updates.flatMap((update) => update.splitNodes),
+				sourceVersions,
 			};
 		} catch (err) {
 			return {

@@ -73,7 +73,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 ### `onBrowserLog?`
 
-Gets called when your project calls `console.log` or another method from console. See the documentation for [`renderFrames`](/docs/renderer/render-frames#onbrowserlog) for more information.
+Called for `console` messages and browser diagnostics, including CORS errors and failed network requests. Uncaught exceptions and unhandled promise rejections are also forwarded since <AvailableFrom v="4.0.540" inline />. See [`renderFrames()`](/docs/renderer/render-frames#onbrowserlog) for the log format.
 
 ### `puppeteerInstance?`
 

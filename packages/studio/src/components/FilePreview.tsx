@@ -1,11 +1,16 @@
 import {formatBytes} from '@remotion/studio-shared';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
+import {
+	registerRenderOutputPlayback,
+	type RenderOutputPlaybackContent,
+} from '../helpers/render-output-playback';
 import {JSONViewer} from './JSONViewer';
 import {Spacing} from './layout';
 import {LutPreview} from './LutPreview';
+import {RenderOutputKeyboardShortcuts} from './RenderOutputKeyboardShortcuts';
 import {TextViewer} from './TextViewer';
 
 const msgStyle: React.CSSProperties = {
@@ -102,12 +107,55 @@ const FontPreview: React.FC<{
 	);
 };
 
+type OutputPlayback = {
+	content: RenderOutputPlaybackContent;
+	fps: number | null;
+};
+
+const NativeMediaPreview: React.FC<{
+	readonly src: string;
+	readonly fileType: 'audio' | 'video';
+	readonly outputPlayback: OutputPlayback | null;
+}> = ({src, fileType, outputPlayback}) => {
+	const ref = useRef<HTMLMediaElement | null>(null);
+	const fpsRef = useRef(outputPlayback?.fps ?? null);
+	fpsRef.current = outputPlayback?.fps ?? null;
+	const content = outputPlayback?.content ?? null;
+	useLayoutEffect(() => {
+		if (content === null || ref.current === null) return;
+		return registerRenderOutputPlayback({
+			content,
+			element: ref.current,
+			getFps: () => fpsRef.current,
+		});
+	}, [content, fileType, src]);
+	return (
+		<>
+			{content === null ? null : <RenderOutputKeyboardShortcuts />}
+			{fileType === 'audio' ? (
+				<audio
+					ref={ref as React.RefObject<HTMLAudioElement>}
+					src={src}
+					controls
+				/>
+			) : (
+				<video
+					ref={ref as React.RefObject<HTMLVideoElement>}
+					src={src}
+					controls
+				/>
+			)}
+		</>
+	);
+};
+
 export const FilePreview: React.FC<{
 	readonly src: string;
 	readonly fileType: AssetFileType;
 	readonly currentAsset: string;
 	readonly assetMetadata: AssetMetadata | null;
-}> = ({fileType, src, currentAsset, assetMetadata}) => {
+	readonly outputPlayback: OutputPlayback | null;
+}> = ({fileType, src, currentAsset, assetMetadata, outputPlayback}) => {
 	if (!assetMetadata) {
 		throw new Error('expected to have assetMetadata');
 	}
@@ -120,12 +168,15 @@ export const FilePreview: React.FC<{
 		throw new Error('unexpected metadata-error in FilePreview');
 	}
 
-	if (fileType === 'audio') {
-		return <audio src={src} controls />;
-	}
-
-	if (fileType === 'video') {
-		return <video src={src} controls />;
+	if (fileType === 'audio' || fileType === 'video') {
+		return (
+			<NativeMediaPreview
+				key={src}
+				src={src}
+				fileType={fileType}
+				outputPlayback={outputPlayback}
+			/>
+		);
 	}
 
 	if (fileType === 'image') {

@@ -78,6 +78,9 @@ export const duplicateNodesHandler: ApiHandler<
 						logLine: Math.min(...logLines),
 						nodeLabels,
 						nodePathRemappings,
+						duplicatedNodes: result.duplicatedNodes.map(
+							({filePath, nodePath}) => ({absolutePath: filePath, nodePath}),
+						),
 						output,
 					};
 				}),
@@ -147,6 +150,7 @@ export const duplicateNodesHandler: ApiHandler<
 			return {
 				success: true,
 				nodePathMutation,
+				duplicatedNodes: updates.flatMap((update) => update.duplicatedNodes),
 			};
 		} catch (err) {
 			return {

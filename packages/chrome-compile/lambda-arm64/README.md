@@ -1,8 +1,8 @@
-# Chromium 157 Headless Shell - ARM64 Build Guide
+# Chromium 158 Headless Shell - ARM64 Build Guide
 
 For EC2 launches, set `SSH_CIDR` to the public IPv4 range allowed to connect (normally your address with `/32`). `203.0.113.10/32` in the examples is a placeholder.
 
-Build Chromium 157.0.8080.0 `headless_shell` for ARM64 (aarch64) inside a Docker container based on the AWS Lambda Node.js 24 image (Amazon Linux 2023).
+Build Chromium 158.0.8127.2 `headless_shell` for ARM64 (aarch64) inside a Docker container based on the AWS Lambda Node.js 24 image (Amazon Linux 2023).
 
 Output: `chromium-headless-shell-amazon-linux2023-arm64.zip` (~84 MB)
 containing `headless_shell` + shared libraries inside the
@@ -15,7 +15,7 @@ Remotion's `BrowserFetcher`. See the top-level `README.md` →
 - **EC2**: c7g.8xlarge (32 ARM64 vCPU, 64 GiB RAM, Graviton3), 200 GiB gp3, eu-central-1
 - **Docker base image**: `public.ecr.aws/lambda/nodejs:24.2026.01.26.23`
 - **Build time**: ~2 h 35 min total (checkout and sync ~15 min, LLVM ~30 min, Rust/Crubit ~5 min, Chromium compile ~1 h 45 min)
-- **Chromium**: 157.0.8080.0
+- **Chromium**: 158.0.8127.2
 - **Node.js**: v24.12.0 (whatever `third_party/node/update_node_binaries` declares)
 - **Rust**: rust-lang/rust CI build of the commit in `third_party/rust-toolchain/VERSION`
 
@@ -52,7 +52,7 @@ scp -i chrome-build-key.pem \
   ec2-user@<IP>:/home/ec2-user/chromium-headless-shell-amazon-linux2023-arm64.zip .
 ```
 
-## Chromium 157 build details
+## Chromium 157/158 build details
 
 1. **`gn gen` only generates `headless_shell`'s graph.** The full Chrome graph
    no longer evaluates with printing disabled (for example
@@ -72,10 +72,11 @@ scp -i chrome-build-key.pem \
 6. **Rust matches Chromium's toolchain exactly.** Blink needs headers from
    Crubit's `cc_bindings_from_rs`, which rejects crates compiled by any other
    rustc, and Chromium's toolchain is x86_64-only. Step 13 installs
-   rust-lang/rust CI builds of commit `1edd55dcfcd573872c727fa3e086369a71661ee0`,
+   rust-lang/rust CI builds of the commit in `third_party/rust-toolchain/VERSION`
+   (`8a9dd7abdf013ec10cfeaaa3685feba18ef1c90c` for Chromium 158),
    builds `cc_bindings_from_rs` with `tools/rust/build_crubit.py`, and swaps
    the x86_64 `clang-format` Crubit runs for the LLVM build's. LLVM is
-   `llvmorg-24-init-7747-g62397f8b`.
+   `llvmorg-24-init-14453-ge063be79` for Chromium 158.
 7. **Python 3.11 before LLVM (Step 5.5).** 157's `tools/clang/scripts/build.py`
    parses `...Z` timestamps with `datetime.fromisoformat`, which fails on
    AL2023's Python 3.9 (`Invalid isoformat string`) and made every LLVM

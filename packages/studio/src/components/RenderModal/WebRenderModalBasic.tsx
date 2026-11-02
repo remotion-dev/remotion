@@ -192,6 +192,7 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							<div style={rightRow}>
 								<RightAlignInput>
 									<InputDragger
+										onValueChangeCancel={null}
 										value={frame}
 										onTextChange={onFrameChanged}
 										placeholder={`0-${resolvedComposition.durationInFrames - 1}`}

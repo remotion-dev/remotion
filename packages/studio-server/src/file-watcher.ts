@@ -1,4 +1,6 @@
+import {randomUUID} from 'node:crypto';
 import fs, {readFileSync, writeFileSync} from 'node:fs';
+import type {SourceFileVersion} from '@remotion/studio-shared';
 import {prepareBundlerForFileWrite} from './preview-server/watch-ignore-next-change';
 
 export type FileChangeMetadata = {
@@ -13,13 +15,19 @@ type WriteFileAndNotifyFileWatchersOptions = {
 };
 
 export type FileChangeEvent =
-	| {type: 'created'; content: string; originatorClientId: string | undefined}
+	| {
+			type: 'created';
+			content: string;
+			originatorClientId: string | undefined;
+			sourceVersion: SourceFileVersion | null;
+	  }
 	| {type: 'deleted'}
 	| {
 			type: 'changed';
 			content: string;
 			originatorClientId: string | undefined;
 			skipSequencePropsUpdate: boolean;
+			sourceVersion: SourceFileVersion | null;
 	  };
 
 type OnChange = (event: FileChangeEvent) => void;
@@ -35,6 +43,7 @@ const getRegistryKey = (file: string, existenceOnly: boolean): string =>
 	existenceOnly ? `${file}\0existence-only` : file;
 
 export type FileWatcherRegistry = {
+	readonly sourceVersionSessionId: string;
 	installFileWatcher: (options: {
 		file: string;
 		onChange: OnChange;
@@ -51,11 +60,17 @@ export type FileWatcherRegistry = {
 	};
 	writeFileAndNotifyFileWatchers: (
 		options: WriteFileAndNotifyFileWatchersOptions,
-	) => void;
+	) => SourceFileVersion | null;
 };
 
 export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 	const sharedWatchers = new Map<string, SharedWatcher>();
+	const sessionId = randomUUID();
+	let revision = 0;
+	const nextSourceVersion = (): SourceFileVersion => ({
+		sessionId,
+		revision: ++revision,
+	});
 
 	const _installFileWatcher = ({
 		file,
@@ -107,6 +122,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 						type: 'created',
 						content: '',
 						originatorClientId: undefined,
+						sourceVersion: null,
 					};
 				} else if (shared.existedBefore && !existsNow) {
 					shared.existedBefore = false;
@@ -116,7 +132,12 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 				const content = readFileSync(file, 'utf-8');
 				shared.existedBefore = true;
 				shared.lastKnownContent = content;
-				event = {type: 'created', content, originatorClientId: undefined};
+				event = {
+					type: 'created',
+					content,
+					originatorClientId: undefined,
+					sourceVersion: nextSourceVersion(),
+				};
 			} else if (shared.existedBefore && !existsNow) {
 				shared.existedBefore = false;
 				shared.lastKnownContent = null;
@@ -141,6 +162,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 					content,
 					originatorClientId: undefined,
 					skipSequencePropsUpdate: false,
+					sourceVersion: nextSourceVersion(),
 				};
 			}
 
@@ -176,10 +198,11 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 	}: WriteFileAndNotifyFileWatchersOptions) => {
 		prepareBundlerForFileWrite(file);
 		writeFileSync(file, content);
+		const sourceVersion = nextSourceVersion();
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));
 		if (!shared) {
-			return;
+			return sourceVersion;
 		}
 
 		shared.lastKnownContent = content;
@@ -191,17 +214,24 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 				content,
 				originatorClientId,
 				skipSequencePropsUpdate: metadata?.skipSequencePropsUpdate ?? false,
+				sourceVersion,
 			});
 		}
+
+		return sourceVersion;
 	};
 
 	return {
+		sourceVersionSessionId: sessionId,
 		installFileWatcher: _installFileWatcher,
 		writeFileAndNotifyFileWatchers: _writeFileAndNotifyFileWatchers,
 	};
 };
 
 let currentRegistry: FileWatcherRegistry | null = null;
+
+export const getSourceVersionSessionId = (): string | null =>
+	currentRegistry?.sourceVersionSessionId ?? null;
 
 export const setFileWatcherRegistry = (
 	registry: FileWatcherRegistry,
@@ -236,8 +266,8 @@ export const installFileWatcher: FileWatcherRegistry['installFileWatcher'] = (
 export const writeFileAndNotifyFileWatchers: FileWatcherRegistry['writeFileAndNotifyFileWatchers'] =
 	(options) => {
 		if (!currentRegistry) {
-			return;
+			return null;
 		}
 
-		getFileWatcherRegistry().writeFileAndNotifyFileWatchers(options);
+		return getFileWatcherRegistry().writeFileAndNotifyFileWatchers(options);
 	};

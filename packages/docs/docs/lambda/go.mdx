@@ -3,12 +3,10 @@ image: https://remotion.media/docs/generated/articles-docs-lambda-go.png
 title: Triggering renders from Go
 slug: /lambda/go
 sidebar_label: Rendering from Go
-crumb: "@remotion/lambda"
+crumb: '@remotion/lambda'
 ---
 
-<ExperimentalBadge>
-This feature is new. Please report any issues you encounter.
-</ExperimentalBadge>
+<ExperimentalBadge>This feature is new. Please report any issues you encounter.</ExperimentalBadge>
 
 To trigger a Lambda render using Go, you can use the Remotion Lambda Go client. Note the following:
 
@@ -115,6 +113,36 @@ func main() {
 	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
 }
 ```
+
+## GetCompositionsOnLambda()<AvailableFrom v="4.0.540" />
+
+Use `GetCompositionsOnLambda()` to list the compositions in a deployed [Remotion project](/docs/terminology). Pass `GetCompositionsOptions` with `ServeUrl`, `FunctionName`, and `Region`:
+
+```go title="get-compositions.go"
+response, err := lambda_go_sdk.GetCompositionsOnLambda(&lambda_go_sdk.GetCompositionsOptions{
+  ServeUrl: serveUrl,
+  FunctionName: functionName,
+  Region: region,
+  InputProps: map[string]interface{}{"title": "Hello"},
+})
+if err != nil {
+  log.Fatal(err)
+}
+
+for _, composition := range response.Compositions {
+  fmt.Println(composition.ID, composition.Width, composition.Height, composition.Fps, composition.DurationInFrames)
+}
+```
+
+The returned `GetCompositionsResponse.Compositions` contains `VideoConfig` values with each composition's dimensions, frame rate, duration, resolved props, default props, and default output settings. If the Lambda function fails, the call returns an error.
+
+### InputProps?
+
+Props passed to each composition's [`calculateMetadata()`](/docs/calculate-metadata) function. You do not need to select a composition ID.
+
+### Other options
+
+`EnvVariables`, `ChromiumOptions`, `LogLevel`, `TimeoutInMilliseconds`, `ForceBucketName`, `ForcePathStyle`, `OffthreadVideoCacheSizeInBytes`, `MediaCacheSizeInBytes`, and `PreferredEffectBackend` correspond to the options of [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda). The timeout defaults to `30000` milliseconds, the log level to `info`, and the effect backend to `auto`.
 
 ## Rendering an image sequence<AvailableFrom v="4.0.535" />
 

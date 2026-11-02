@@ -5,6 +5,7 @@ import type {
 	DeleteEffectKeyframe,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
+	KeyframeMutationResult,
 	DeleteSequenceKeyframe,
 } from '@remotion/studio-shared';
 import {
@@ -20,6 +21,7 @@ import {
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {suppressBundlerUpdateForFile} from '../watch-ignore-next-change';
+import {getKeyframeMutationResults} from './get-keyframe-mutation-results';
 import {logEffectUpdate} from './log-updates/log-effect-update';
 import {logUpdate} from './log-updates/log-update';
 import {withSourceFileWriteQueue} from './source-file-write-queue';
@@ -107,7 +109,7 @@ export const deleteKeyframes = async ({
 	clientId: string;
 	remotionRoot: string;
 	logLevel: LogLevel;
-}): Promise<void> => {
+}): Promise<KeyframeMutationResult[]> => {
 	const totalKeyframes = sequenceKeyframes.length + effectKeyframes.length;
 	if (totalKeyframes === 0) {
 		throw new Error('No keyframes were specified for deletion');
@@ -143,6 +145,8 @@ export const deleteKeyframes = async ({
 		fileGroups.set(absolutePath, group);
 	}
 
+	const results: KeyframeMutationResult[] = [];
+	const resultsByFile = new Map<string, KeyframeMutationResult[]>();
 	const snapshots: UndoSnapshot[] = [];
 	const sequenceLogs: SequenceLog[] = [];
 	const effectLogs: EffectLog[] = [];
@@ -151,6 +155,9 @@ export const deleteKeyframes = async ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		let output = fileContents;
 		let firstLogLine = Number.POSITIVE_INFINITY;
+		const targets: Parameters<
+			typeof getKeyframeMutationResults
+		>[0]['targets'][number][] = [];
 
 		for (const keyframeGroup of groupBy(group.sequenceKeyframes, (keyframe) =>
 			JSON.stringify(keyframe.nodePath.nodePath),
@@ -176,6 +183,15 @@ export const deleteKeyframes = async ({
 				})),
 			});
 			output = result.output;
+			targets.push({
+				nodePath: {
+					...firstSequenceKeyframe.nodePath,
+					absolutePath,
+					nodePath: result.updatedNode.nodePath,
+				},
+				effectIndex: null,
+				keys: [...new Set(keyframeGroup.map((keyframe) => keyframe.key))],
+			});
 			firstLogLine = Math.min(firstLogLine, result.logLine);
 
 			for (const [keyframeIndex, keyframe] of keyframeGroup.entries()) {
@@ -218,6 +234,15 @@ export const deleteKeyframes = async ({
 				})),
 			});
 			output = result.output;
+			targets.push({
+				nodePath: {
+					...firstEffectKeyframe.sequenceNodePath,
+					absolutePath,
+					nodePath: result.updatedEffect.nodePath,
+				},
+				effectIndex: firstEffectKeyframe.effectIndex,
+				keys: [...new Set(keyframeGroup.map((keyframe) => keyframe.key))],
+			});
 			firstLogLine = Math.min(firstLogLine, result.logLine);
 
 			for (const [keyframeIndex, keyframe] of keyframeGroup.entries()) {
@@ -232,6 +257,13 @@ export const deleteKeyframes = async ({
 				});
 			}
 		}
+
+		const fileResults = getKeyframeMutationResults({
+			fileContents: output,
+			targets,
+		});
+		results.push(...fileResults);
+		resultsByFile.set(absolutePath, fileResults);
 
 		snapshots.push({
 			filePath: absolutePath,
@@ -268,12 +300,15 @@ export const deleteKeyframes = async ({
 	for (const snapshot of snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
 		suppressBundlerUpdateForFile(snapshot.filePath);
-		writeFileAndNotifyFileWatchers({
+		const sourceVersion = writeFileAndNotifyFileWatchers({
 			file: snapshot.filePath,
 			content: snapshot.newContents,
 			originatorClientId: clientId,
 			metadata: null,
 		});
+		for (const result of resultsByFile.get(snapshot.filePath) ?? []) {
+			result.sourceVersion = sourceVersion;
+		}
 	}
 
 	for (const log of sequenceLogs) {
@@ -308,6 +343,7 @@ export const deleteKeyframes = async ({
 	}
 
 	printUndoHint(logLevel);
+	return results;
 };
 
 export const deleteKeyframesHandler: ApiHandler<
@@ -326,7 +362,7 @@ export const deleteKeyframesHandler: ApiHandler<
 			} keyframe(s)`,
 		);
 
-		await deleteKeyframes({
+		const results = await deleteKeyframes({
 			sequenceKeyframes,
 			effectKeyframes,
 			clientId,
@@ -334,5 +370,5 @@ export const deleteKeyframesHandler: ApiHandler<
 			logLevel,
 		});
 
-		return {success: true};
+		return {success: true, results};
 	});

@@ -1,7 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {CURRENT_COLOR} from '../../helpers/colors';
-import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
+import {getRenderOutputSrc} from '../../helpers/get-asset-metadata';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
@@ -22,7 +22,7 @@ export const openRenderOutputInFileExplorer = (job: AnyRenderJob) => {
 			3000,
 		);
 		const a = document.createElement('a');
-		a.href = `${remotion_outputsBase}/${job.outName}`;
+		a.href = getRenderOutputSrc(job.outName);
 		a.download = job.outName.split(/[/\\]/).at(-1) ?? job.outName;
 		a.click();
 	});

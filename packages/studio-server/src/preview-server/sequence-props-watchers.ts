@@ -281,9 +281,10 @@ export const subscribeToSequencePropsWatchers = ({
 			}
 
 			try {
+				const sourceNodePath = watcherInfo.currentNodePath;
 				const result = computeSequencePropsStatusFromContent({
 					fileContents: event.content,
-					nodePath: watcherInfo.currentNodePath.nodePath,
+					nodePath: sourceNodePath.nodePath,
 					componentIdentity,
 					keys,
 					assetKeys,
@@ -309,7 +310,8 @@ export const subscribeToSequencePropsWatchers = ({
 					listener.sendEventToClientId(clientId, {
 						type: 'sequence-props-updated',
 						fileName,
-						nodePath: watcherInfo.currentNodePath,
+						nodePath: sourceNodePath,
+						sourceVersion: event.sourceVersion,
 						result,
 					});
 				});
@@ -324,6 +326,7 @@ export const subscribeToSequencePropsWatchers = ({
 							fileName,
 							line,
 							column,
+							sourceVersion: event.sourceVersion,
 						});
 					});
 					return;

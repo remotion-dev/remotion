@@ -8,6 +8,7 @@ import type {
 import {Internals} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -26,7 +27,7 @@ export const TimelineKeyframedValue: React.FC<{
 	readonly dragOverrideValue: DragOverrideValue | undefined;
 	readonly onSave: (value: unknown, sourceFrame: number) => Promise<void>;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 	readonly scaleLockNodePath: SequencePropsSubscriptionKey;
 }> = ({
 	field,
@@ -90,12 +91,13 @@ export const TimelineKeyframedValue: React.FC<{
 				valuesEqual(value, computedValue) ||
 				(existingKeyframe && valuesEqual(value, existingKeyframe.value))
 			) {
+				onDragEnd('cancel');
 				return Promise.resolve();
 			}
 
 			return onSave(value, sourceFrame);
 		},
-		[computedValue, onSave, propStatus.keyframes, sourceFrame],
+		[computedValue, onDragEnd, onSave, propStatus.keyframes, sourceFrame],
 	);
 
 	if (computedValue === null) {

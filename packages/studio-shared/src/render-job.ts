@@ -104,6 +104,9 @@ type RenderJobDynamicStatus =
 			status: 'idle';
 	  }
 	| {
+			status: 'cancelled';
+	  }
+	| {
 			status: 'failed';
 			error: {
 				message: string;

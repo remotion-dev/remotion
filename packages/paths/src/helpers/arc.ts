@@ -58,8 +58,11 @@ const pointOnEllipticalArc = ({
 
 	// If rx = 0 or ry = 0 then this arc is treated as a straight line segment joining the endpoints.
 	if (rx === 0 || ry === 0) {
-		// return this.pointOnLine(p0, p1, t);
-		return {x: 0, y: 0, ellipticalArcAngle: 0}; // Check if angle is correct
+		return {
+			x: p0.x + (p1.x - p0.x) * t,
+			y: p0.y + (p1.y - p0.y) * t,
+			ellipticalArcAngle: 0,
+		};
 	}
 
 	// Following "Conversion from endpoint to center parameterization"

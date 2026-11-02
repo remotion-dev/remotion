@@ -1,3 +1,4 @@
+import type {SequenceNodePathMutation} from '@remotion/studio-shared';
 import React, {
 	createContext,
 	useCallback,
@@ -17,6 +18,7 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../../helpers/hoverable';
+import {remapCollapsedLayerChildren} from '../../helpers/remap-collapsed-layer-children';
 import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {getTimelineSeriesLayout} from './timeline-series-layout';
@@ -73,6 +75,25 @@ export const useTimelineLayerChildren = (
 			return {};
 		}
 	});
+	const remapCollapsedLayers = useCallback(
+		(mutations: SequenceNodePathMutation[]) => {
+			setCollapsed((previous) => {
+				const next = remapCollapsedLayerChildren(previous, mutations);
+				if (next === null) {
+					return previous;
+				}
+
+				try {
+					window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+				} catch {
+					// Preserve the in-memory state when storage is unavailable.
+				}
+
+				return next;
+			});
+		},
+		[],
+	);
 	const hierarchy = useMemo(() => {
 		const {tracks: layoutTracks, sequences} = layoutSnapshot;
 		const byId = new Map(sequences.map((sequence) => [sequence.id, sequence]));
@@ -225,7 +246,7 @@ export const useTimelineLayerChildren = (
 		}),
 		[collapsed, hierarchy, toggle],
 	);
-	return {visibleTracks, visibleLayoutTracks, value};
+	return {visibleTracks, visibleLayoutTracks, value, remapCollapsedLayers};
 };
 
 export const TimelineLayerChildrenToggle: React.FC<{
