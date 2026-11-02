@@ -63,11 +63,9 @@ export const calculateStudioScale = ({
 		return scale;
 	}
 
-	// The composition is scaled with a CSS transform, so a fractional fit scale
-	// puts its bottom edge between device pixels. Chrome then snaps the clip of
-	// promoted layers like <video> outwards while normal content is painted with
-	// partial coverage, which leaks a 1px row of video below a full-width bar.
-	// Round the fitted height down to whole device pixels to avoid this.
+	// Chrome snaps the clip of promoted layers like <video> outwards to device
+	// pixels while normal content is painted with partial coverage, so an edge
+	// between device pixels leaks a 1px line of video next to a full-width bar.
 	const devicePixelRatio = getDevicePixelRatio();
 	return (
 		Math.floor(scale * compositionHeight * devicePixelRatio) /
@@ -123,11 +121,6 @@ export const calculateStudioCanvasTransformation = ({
 	const devicePixelRatio = getDevicePixelRatio();
 	const snapToDevicePixel = (value: number) =>
 		Math.round(value * devicePixelRatio) / devicePixelRatio;
-	// The fitted height is whole device pixels, but with the composition's
-	// aspect ratio the width usually is not, which leaks a 1px column of video
-	// next to a full-height bar at the right edge. Scale the width separately so
-	// that it is whole device pixels too. The difference to `scale` is less than
-	// one device pixel over the whole width, so the distortion is not visible.
 	const scaleX =
 		Math.floor(compositionWidth * scale * devicePixelRatio) /
 		(compositionWidth * devicePixelRatio);

@@ -74,9 +74,6 @@ const containerStyle = (options: {
 		// Keep the scaled composition on its own layer so the checkerboard does
 		// not bleed through its edges at fractional preview scales.
 		willChange: 'transform',
-		// Scale from the top left so that the composition is rasterized from the
-		// pixel-snapped position of the outer container, instead of being shifted
-		// by fractional margins around a centered transform origin.
 		transformOrigin: '0 0',
 		width: options.width,
 		height: options.height,
