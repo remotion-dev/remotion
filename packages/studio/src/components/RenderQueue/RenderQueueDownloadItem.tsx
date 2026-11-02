@@ -1,10 +1,8 @@
 import React, {useCallback, useMemo} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
-import {downloadBlob} from '../../helpers/download-blob';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
-import {showNotification} from '../Notifications/NotificationCenter';
 import type {ClientRenderJob} from './client-side-render-types';
 
 export const RenderQueueDownloadItem: React.FC<{
@@ -13,18 +11,9 @@ export const RenderQueueDownloadItem: React.FC<{
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
-			if (job.status !== 'done' || !job.getBlob) {
-				return;
+			if (job.status === 'done') {
+				job.localOutput?.download();
 			}
-
-			job
-				.getBlob()
-				.then((blob) => {
-					downloadBlob(blob, job.outName);
-				})
-				.catch((err: Error) => {
-					showNotification(`Could not download file: ${err.message}`, 2000);
-				});
 		},
 		[job],
 	);

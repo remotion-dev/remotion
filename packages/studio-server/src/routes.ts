@@ -1,11 +1,16 @@
+import {randomUUID} from 'node:crypto';
 import {
 	createReadStream,
 	createWriteStream,
 	existsSync,
+	lstatSync,
+	renameSync,
+	rmSync,
 	statSync,
 } from 'node:fs';
 import type {IncomingMessage, ServerResponse} from 'node:http';
 import path, {join} from 'node:path';
+import {pipeline} from 'node:stream/promises';
 import {URLSearchParams} from 'node:url';
 import {BundlerInternals} from '@remotion/bundler';
 import type {
@@ -25,12 +30,20 @@ import type {
 	UpdateConfigRequest,
 	UpdateConfigResponse,
 } from '@remotion/studio-shared';
-import {getProjectName} from '@remotion/studio-shared';
+import {
+	getConflictingOutputPaths,
+	getProjectName,
+	validateStudioArtifactFilename,
+} from '@remotion/studio-shared';
+import {Internals} from 'remotion';
 import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
-import {openFileForWritingWithoutSymlinks} from './helpers/open-file-for-writing-without-symlinks';
+import {
+	assertNoSymlinks,
+	openFileForWritingWithoutSymlinks,
+} from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
@@ -316,7 +329,20 @@ const handleAddAsset = ({
 	return Promise.resolve();
 };
 
-const handleUploadOutput = ({
+const validateOutputDestination = (
+	rootDirectory: string,
+	absolutePath: string,
+) => {
+	assertNoSymlinks({rootDirectory, absolutePath});
+	const existing = lstatSync(absolutePath, {throwIfNoEntry: false});
+	if (existing && (!existing.isFile() || existing.nlink !== 1)) {
+		throw new Error(
+			'Not allowed to replace a non-regular or multiply linked output file',
+		);
+	}
+};
+
+const handleUploadOutput = async ({
 	req,
 	res,
 	search,
@@ -330,62 +356,99 @@ const handleUploadOutput = ({
 	liveEventsServer: LiveEventsServer;
 }): Promise<void> => {
 	try {
+		if (req.method !== 'POST') {
+			res.setHeader('Allow', 'POST');
+			res.statusCode = 405;
+			res.end(JSON.stringify({error: 'Output uploads require POST'}));
+			return;
+		}
+
 		validateSameOrigin(req);
 
 		const query = new URLSearchParams(search);
 
-		const filePath = query.get('filePath');
+		let filePath = query.get('filePath');
 		if (typeof filePath !== 'string') {
 			throw new Error('No `filePath` provided');
 		}
 
-		const absolutePath = resolveOutputPath(remotionRoot, filePath);
-		const extension = path.extname(absolutePath).slice(1).toLowerCase();
-		if (!clientRenderOutputExtensions.has(extension)) {
-			throw new Error(
-				`Not allowed to upload a .${extension || 'unknown'} file`,
-			);
-		}
-
-		const fileDescriptor = openFileForWritingWithoutSymlinks({
-			rootDirectory: remotionRoot,
-			absolutePath,
-			exclusive: false,
-		});
-		const writeStream = createWriteStream(absolutePath, {
-			fd: fileDescriptor,
-			autoClose: true,
-		});
-		writeStream.on('close', () => {
-			if (!writeStream.writableFinished) {
-				return;
+		const compositionId = query.get('artifactCompositionId');
+		if (compositionId !== null) {
+			if (!Internals.isCompositionIdValid(compositionId)) {
+				throw new Error('Invalid artifact composition ID');
 			}
 
-			liveEventsServer.sendEventToClient({
-				type: 'render-output-written',
-				path: filePath,
+			validateStudioArtifactFilename(compositionId);
+			validateStudioArtifactFilename(filePath);
+			filePath = `out/${compositionId}/${filePath}`;
+			const outputName = query.get('outputName');
+			if (!outputName) {
+				throw new Error('No `outputName` provided for artifact upload');
+			}
+
+			const outputPath = resolveOutputPath(
+				remotionRoot,
+				outputName.replace(/\\/g, '/'),
+			);
+			const relativeOutput = path
+				.relative(remotionRoot, outputPath)
+				.split(path.sep)
+				.join('/');
+			validateStudioArtifactFilename(relativeOutput);
+			if (getConflictingOutputPaths([relativeOutput, filePath])) {
+				throw new Error(
+					'The artifact path conflicts with the main render output',
+				);
+			}
+		}
+
+		const absolutePath = resolveOutputPath(remotionRoot, filePath);
+		if (compositionId === null) {
+			const extension = path.extname(absolutePath).slice(1).toLowerCase();
+			if (!clientRenderOutputExtensions.has(extension)) {
+				throw new Error(
+					`Not allowed to upload a .${extension || 'unknown'} file`,
+				);
+			}
+		}
+
+		validateOutputDestination(remotionRoot, absolutePath);
+		const temporaryPath = join(
+			path.dirname(absolutePath),
+			`.remotion-output-${randomUUID()}.tmp`,
+		);
+		const fileDescriptor = openFileForWritingWithoutSymlinks({
+			rootDirectory: remotionRoot,
+			absolutePath: temporaryPath,
+			exclusive: true,
+		});
+
+		try {
+			await pipeline(
+				req,
+				createWriteStream(temporaryPath, {fd: fileDescriptor}),
+			);
+			validateOutputDestination(remotionRoot, temporaryPath);
+			validateOutputDestination(remotionRoot, absolutePath);
+			renameSync(temporaryPath, absolutePath);
+		} catch (err) {
+			assertNoSymlinks({
+				rootDirectory: remotionRoot,
+				absolutePath: temporaryPath,
 			});
-			res.end(JSON.stringify({success: true}));
-		});
+			rmSync(temporaryPath, {force: true});
+			throw err;
+		}
 
-		writeStream.on('error', (err) => {
-			res.statusCode = 500;
-			res.end(JSON.stringify({error: err.message}));
+		liveEventsServer.sendEventToClient({
+			type: 'render-output-written',
+			path: filePath,
 		});
-
-		req.on('error', (err) => {
-			writeStream.destroy();
-			res.statusCode = 500;
-			res.end(JSON.stringify({error: err.message}));
-		});
-
-		req.pipe(writeStream);
+		res.end(JSON.stringify({success: true}));
 	} catch (err) {
 		res.statusCode = 500;
 		res.end(JSON.stringify({error: (err as Error).message}));
 	}
-
-	return Promise.resolve();
 };
 
 const handleFavicon = (

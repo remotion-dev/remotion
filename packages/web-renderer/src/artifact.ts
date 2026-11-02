@@ -8,6 +8,23 @@ export type EmittedArtifact = {
 	downloadBehavior: DownloadBehavior | null;
 };
 
+const decodeBinaryArtifact = (encoded: string): Uint8Array => {
+	if (
+		'fromBase64' in Uint8Array &&
+		typeof Uint8Array.fromBase64 === 'function'
+	) {
+		return Uint8Array.fromBase64(encoded) as Uint8Array;
+	}
+
+	const binary = atob(encoded);
+	const bytes = new Uint8Array(binary.length);
+	for (let index = 0; index < binary.length; index++) {
+		bytes[index] = binary.charCodeAt(index);
+	}
+
+	return bytes;
+};
+
 export const onlyArtifact = async ({
 	assets,
 	frameBuffer,
@@ -26,7 +43,10 @@ export const onlyArtifact = async ({
 		if (artifact.contentType === 'binary' || artifact.contentType === 'text') {
 			result.push({
 				frame: artifact.frame,
-				content: artifact.content,
+				content:
+					artifact.contentType === 'binary'
+						? decodeBinaryArtifact(artifact.content)
+						: artifact.content,
 				filename: artifact.filename,
 				downloadBehavior: artifact.downloadBehavior,
 			});

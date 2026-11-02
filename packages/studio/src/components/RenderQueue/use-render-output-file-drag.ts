@@ -42,16 +42,12 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 	} | null>(null);
 
 	const clientBlobInfo = useMemo(() => {
-		if (
-			!isClientRenderJob(job) ||
-			job.status !== 'done' ||
-			job.getBlob === undefined
-		) {
+		if (!isClientRenderJob(job) || job.status !== 'done' || !job.localOutput) {
 			return null;
 		}
 
 		return {
-			getBlob: job.getBlob,
+			getBlob: job.localOutput.getBlob,
 			sizeInBytes: job.metadata.sizeInBytes,
 		};
 	}, [job]);
@@ -152,13 +148,13 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 					'DownloadURL',
 					`${mimeType}:${filename}:${source}`,
 				);
-				if (isClientRenderJob(job) && job.getBlob) {
+				if (isClientRenderJob(job) && job.localOutput) {
 					draggedOutput = {
 						jobId: job.id,
 						content: {
 							type: 'output-blob',
 							displayName: job.outName,
-							getBlob: job.getBlob,
+							getBlob: job.localOutput.getBlob,
 							width: job.metadata.width,
 							height: job.metadata.height,
 							sizeInBytes: job.metadata.sizeInBytes,

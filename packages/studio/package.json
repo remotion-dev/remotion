@@ -51,6 +51,7 @@
 		"@remotion/web-renderer": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@tanstack/react-virtual": "3.14.9",
+		"client-zip": "2.5.1",
 		"mediabunny": "catalog:",
 		"memfs": "3.4.3",
 		"open": "8.4.2",

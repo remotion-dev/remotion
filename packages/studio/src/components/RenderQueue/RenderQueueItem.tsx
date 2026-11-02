@@ -112,12 +112,12 @@ export const RenderQueueItem: React.FC<{
 	}, []);
 
 	const clientBlobInfo = useMemo(() => {
-		if (!isClientJob || job.status !== 'done' || !job.getBlob) {
+		if (!isClientJob || job.status !== 'done' || !job.localOutput) {
 			return null;
 		}
 
 		return {
-			getBlob: job.getBlob,
+			getBlob: job.localOutput.getBlob,
 			width: job.metadata.width,
 			height: job.metadata.height,
 			sizeInBytes: job.metadata.sizeInBytes,

@@ -20,13 +20,18 @@ export type ClientRenderJobProgress = {
 
 export type GetBlobCallback = () => Promise<Blob>;
 
+export type LocalRenderOutput = {
+	getBlob: GetBlobCallback;
+	download: () => void;
+};
+
 type ClientRenderJobDynamicStatus =
 	| {status: 'idle'}
 	| {status: 'running'; progress: ClientRenderJobProgress}
 	| {status: 'saving'}
 	| {
 			status: 'done';
-			getBlob?: GetBlobCallback;
+			localOutput: LocalRenderOutput | null;
 			metadata: CompletedClientRender['metadata'];
 	  }
 	| {status: 'cancelled'}
@@ -75,7 +80,7 @@ export type ClientVideoRenderJob = ClientRenderJobBase & {
 
 export type RestoredClientRenderJob = CompletedClientRender & {
 	status: 'done';
-	getBlob?: GetBlobCallback;
+	localOutput: null;
 };
 
 export type ClientRenderJob =

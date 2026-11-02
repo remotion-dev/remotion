@@ -1,16 +1,23 @@
 import type {CompletedClientRender} from '@remotion/studio-shared';
+import {
+	getConflictingOutputPaths,
+	getPortableDownloadFilename,
+	validateStudioArtifactFilename,
+} from '@remotion/studio-shared';
 import type {
 	WebRendererAudioCodec,
+	WebRendererOnArtifact,
 	WebRendererContainer,
 	WebRendererQuality,
 } from '@remotion/web-renderer';
 import {renderMediaOnWeb, renderStillOnWeb} from '@remotion/web-renderer';
+import {downloadZip} from 'client-zip';
 import {useCallback, useContext, useEffect} from 'react';
 import {
 	registerClientRender,
 	saveOutputFile,
 } from '../../api/save-render-output';
-import {downloadBlob} from '../../helpers/download-blob';
+import {downloadBlob, getDownloadFilename} from '../../helpers/download-blob';
 import {getPreviewServerConnectionState} from '../../helpers/preview-server-events';
 import type {
 	ClientRenderJob,
@@ -43,6 +50,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 		async (
 			job: ClientStillRenderJob,
 			signal: AbortSignal,
+			onArtifact: WebRendererOnArtifact,
 		): Promise<RenderResult> => {
 			const compositionRef = getCompositionForJob(job.id);
 			if (!compositionRef) {
@@ -70,6 +78,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					licenseKey: job.licenseKey ?? undefined,
 					scale: job.scale,
 					signal,
+					onArtifact,
 					allowHtmlInCanvas: job.allowHtmlInCanvas,
 				})
 			).blob({format: job.imageFormat});
@@ -87,6 +96,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 		async (
 			job: ClientVideoRenderJob,
 			signal: AbortSignal,
+			onArtifact: WebRendererOnArtifact,
 			onProgress: (jobId: string, progress: ClientRenderJobProgress) => void,
 		): Promise<RenderResult> => {
 			const compositionRef = getCompositionForJob(job.id);
@@ -127,6 +137,7 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 				muted: job.muted,
 				scale: job.scale,
 				signal,
+				onArtifact,
 				onProgress: (progress) => {
 					onProgress(job.id, {
 						encodedFrames: progress.encodedFrames,
@@ -160,18 +171,43 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 			const abortController = getAbortController(job.id);
 
 			try {
+				const artifacts: {filename: string; blob: Blob}[] = [];
+				const onArtifact: WebRendererOnArtifact = ({filename, content}) => {
+					validateStudioArtifactFilename(filename);
+					artifacts.push({
+						filename,
+						blob: new Blob([
+							typeof content === 'string' ? content : new Uint8Array(content),
+						]),
+					});
+				};
+
 				let result: RenderResult;
 
 				if (job.type === 'client-still') {
-					result = await processStillJob(job, abortController.signal);
+					result = await processStillJob(
+						job,
+						abortController.signal,
+						onArtifact,
+					);
 				} else if (job.type === 'client-video') {
 					result = await processVideoJob(
 						job,
 						abortController.signal,
+						onArtifact,
 						updateClientJobProgress,
 					);
 				} else {
 					throw new Error(`Unknown job type`);
+				}
+
+				const conflict = getConflictingOutputPaths(
+					artifacts.map(({filename}) => filename),
+				);
+				if (conflict) {
+					throw new Error(
+						`The artifact paths "${conflict[0]}" and "${conflict[1]}" must identify separate files.`,
+					);
 				}
 
 				const blob = await result.getBlob();
@@ -183,21 +219,41 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 
 				markClientJobSaving(job.id);
 
-				const getBlob = () => Promise.resolve(blob);
-
-				const downloadAndFinish = () => {
-					downloadBlob(blob, job.outName);
-					markClientJobDone(job.id, metadata, getBlob);
-				};
-
 				if (
-					job.downloadOutput ||
-					getPreviewServerConnectionState().type !== 'connected'
+					!job.downloadOutput &&
+					getPreviewServerConnectionState().type === 'connected'
 				) {
-					downloadAndFinish();
-				} else {
 					try {
-						await saveOutputFile({blob, filePath: job.outName});
+						if (artifacts.length > 0) {
+							const outputPath = job.outName
+								.split(/[/\\]+/)
+								.filter(Boolean)
+								.join('/');
+							const collision = getConflictingOutputPaths([
+								outputPath,
+								...artifacts.map(
+									({filename}) => `out/${job.compositionId}/${filename}`,
+								),
+							]);
+							if (collision) {
+								throw new Error(
+									`An artifact conflicts with the main output "${job.outName}".`,
+								);
+							}
+						}
+
+						for (const artifact of artifacts) {
+							await saveOutputFile({
+								blob: artifact.blob,
+								filePath: artifact.filename,
+								artifact: {
+									compositionId: job.compositionId,
+									outputName: job.outName,
+								},
+							});
+						}
+
+						await saveOutputFile({blob, filePath: job.outName, artifact: null});
 						await registerClientRender({
 							id: job.id,
 							type: job.type,
@@ -207,16 +263,39 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 							deletedOutputLocation: false,
 							metadata,
 						});
-						markClientJobDone(job.id, metadata);
+						markClientJobDone(job.id, metadata, null);
+						return;
 					} catch (err) {
 						// eslint-disable-next-line no-console
 						console.error(
 							'Failed to save render output, falling back to browser download.',
 							err,
 						);
-						downloadAndFinish();
 					}
 				}
+
+				let downloadFile = blob;
+				let downloadName = job.outName;
+				if (artifacts.length > 0) {
+					const name = getPortableDownloadFilename(
+						getDownloadFilename(job.outName),
+					);
+					downloadFile = await downloadZip([
+						{name, input: blob},
+						...artifacts.map((artifact) => ({
+							name: 'artifacts/' + artifact.filename,
+							input: artifact.blob,
+						})),
+					]).blob();
+					downloadName = name.replace(/\.[^.]+$/, '') + '.zip';
+				}
+
+				const download = () => downloadBlob(downloadFile, downloadName);
+				download();
+				markClientJobDone(job.id, metadata, {
+					getBlob: () => Promise.resolve(blob),
+					download,
+				});
 			} catch (err) {
 				if (abortController.signal.aborted) {
 					markClientJobCancelled(job.id);

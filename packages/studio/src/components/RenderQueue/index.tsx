@@ -87,10 +87,10 @@ export const RenderQueue: React.FC = () => {
 					return false;
 				}
 
-				if (isClientRenderJob(job) && job.getBlob) {
+				if (isClientRenderJob(job) && job.localOutput) {
 					return (
 						canvasContent.type === 'output-blob' &&
-						canvasContent.getBlob === job.getBlob &&
+						canvasContent.getBlob === job.localOutput.getBlob &&
 						canvasContent.displayName === job.outName
 					);
 				}
