@@ -92,6 +92,49 @@ Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
 Cannot be used together with `framesPerLambda`. Use only one of them.
 :::
 
+### `chunks?`<AvailableFrom v="4.0.540" />
+
+Specify the frame range that each Lambda function renders, as a list of `[startFrame, endFrame]` pairs. Use this instead of [`framesPerLambda`](#framesperlambda) or [`concurrency`](#concurrency) when the cost of rendering is uneven, so that expensive parts of a video get split into shorter chunks than cheap parts.
+
+```ts title="Three chunks for a 375-frame video"
+const chunks: [number, number][] = [
+  [0, 59],
+  [60, 89],
+  [90, 374],
+];
+```
+
+The chunks must be sorted and contiguous, start at the first frame and end at the last frame of the [`frameRange`](#framerange) (or of the composition if no `frameRange` is passed). Each chunk must contain at least <MinimumFramesPerLambda /> frames, unless the whole range is shorter than that.
+
+Maximum number of chunks: 200
+
+The plan is validated in the main function after the composition has been evaluated. If it is invalid, [`getRenderProgress()`](/docs/lambda/getrenderprogress) reports a fatal error.
+
+:::note
+Cannot be used together with `framesPerLambda`, `concurrency` or [`everyNthFrame`](#everynthframe).
+:::
+
+### `audioConcatenation?`<AvailableFrom v="4.0.540" />
+
+How the audio of the chunks is joined. One of:
+
+- `"seamless-if-possible"` (default): If the audio codec is `aac` and every chunk is longer than 4 frames, each Lambda function encodes its chunk's audio to AAC, and the chunks are joined without re-encoding. To join AAC without gaps, each function evaluates a few extra frames before and after its chunk for their audio. Otherwise, the same as `"encode-at-merge"`.
+- `"encode-at-merge"`: Each Lambda function keeps its chunk's audio uncompressed, and the main function encodes the joined audio once. No function evaluates extra frames, which makes renders with many or short chunks faster and cheaper. Merging takes longer because the whole audio track gets encoded in the main function.
+
+```tsx twoslash title="Encode the audio once at the end"
+// ---cut---
+import {renderMediaOnLambda} from '@remotion/lambda/client';
+
+const {renderId} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'remotion-render-bds9aab',
+  composition: 'MyVideo',
+  serveUrl: 'https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw',
+  codec: 'h264',
+  audioConcatenation: 'encode-at-merge',
+});
+```
+
 ### `frameRange?`
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline /> To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).

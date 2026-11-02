@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {planFrameRanges} from '../../functions/plan-frame-ranges';
 
 test('Plan frame ranges should respect everyNthFrame', () => {
@@ -39,4 +40,39 @@ test('Should not have a bug that was reported', () => {
 	});
 	const last = planned.chunks[planned.chunks.length - 1];
 	expect(last[1]).toBe(35559);
+});
+
+test('A planned split passed as chunks is accepted unchanged, unless its last chunk is shorter than the minimum', () => {
+	for (const framesPerFunction of [5, 13, 20, 100, 375]) {
+		const planned = planFrameRanges({
+			framesPerFunction,
+			everyNthFrame: 1,
+			frameRange: [0, 374],
+		}).chunks;
+		expect(
+			LambdaClientInternals.validateChunks({
+				chunks: planned,
+				frameRange: [0, 374],
+				everyNthFrame: 1,
+				framesPerFunction: null,
+				concurrency: null,
+			}),
+		).toEqual(planned);
+	}
+
+	const {chunks} = planFrameRanges({
+		framesPerFunction: 7,
+		everyNthFrame: 1,
+		frameRange: [0, 374],
+	});
+	expect(chunks[chunks.length - 1]).toEqual([371, 374]);
+	expect(() =>
+		LambdaClientInternals.validateChunks({
+			chunks,
+			frameRange: [0, 374],
+			everyNthFrame: 1,
+			framesPerFunction: null,
+			concurrency: null,
+		}),
+	).toThrow("'chunks[53]' needs to have at least 5 frames");
 });

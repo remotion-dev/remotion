@@ -12,6 +12,7 @@ import type {
 } from '@remotion/lambda-client';
 import type {
 	AudioCodec,
+	AudioConcatenation,
 	CombineChunksOnProgress,
 	LogLevel,
 	SingleFrameRange,
@@ -43,6 +44,8 @@ type MergeChunksAndFinishRenderInput = {
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
+	chunkDurationsInFrames: number[] | null;
+	audioConcatenation: AudioConcatenation;
 	binariesDirectory: string | null;
 	preferLossless: boolean;
 	compositionStart: number;
@@ -88,6 +91,8 @@ export const mergeChunksAndFinishRender = async (
 		audioBitrate: options.audioBitrate,
 		logLevel: options.logLevel,
 		framesPerLambda: options.framesPerLambda,
+		chunkDurationsInFrames: options.chunkDurationsInFrames,
+		audioConcatenation: options.audioConcatenation,
 		binariesDirectory: options.binariesDirectory,
 		cancelSignal: undefined,
 		preferLossless: options.preferLossless,

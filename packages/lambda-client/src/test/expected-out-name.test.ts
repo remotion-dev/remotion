@@ -12,6 +12,7 @@ const testRenderMetadata: RenderMetadata = {
 	estimatedRenderLambdaInvokations: 100,
 	estimatedTotalLambdaInvokations: 100,
 	framesPerLambda: 20,
+	chunks: null,
 	imageFormat: 'png',
 	type: 'video',
 	inputProps: {

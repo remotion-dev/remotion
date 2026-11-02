@@ -452,6 +452,8 @@ export const renderCommand = async ({
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
 		concurrency: concurrency ?? null,
+		chunks: null,
+		audioConcatenation: 'seamless-if-possible',
 		privacy,
 		logLevel,
 		frameRange: singleFrameRange,

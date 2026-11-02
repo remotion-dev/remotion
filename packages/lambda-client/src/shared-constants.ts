@@ -4,6 +4,7 @@ export const COMMAND_NOT_FOUND = 'Command not found';
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
 	AudioCodec,
+	AudioConcatenation,
 	ChromiumOptions,
 	ColorSpace,
 	LogLevel,
@@ -137,6 +138,8 @@ export type ServerlessStartPayload = {
 	composition: string;
 	framesPerLambda: number | null;
 	concurrency: number | null;
+	chunks: [number, number][] | null;
+	audioConcatenation: AudioConcatenation;
 	inputProps: SerializedInputProps;
 	codec: ServerlessCodec | null;
 	audioCodec: AudioCodec | null;
@@ -205,6 +208,8 @@ export type ServerlessPayloads = {
 		composition: string;
 		framesPerFunction: number | null;
 		concurrency: number | null;
+		chunks: [number, number][] | null;
+		audioConcatenation: AudioConcatenation;
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
@@ -312,6 +317,7 @@ export type ServerlessPayloads = {
 		colorSpace: ColorSpace | null;
 		compositionStart: number;
 		framesPerLambda: number;
+		audioConcatenation: AudioConcatenation;
 		progressEveryNthFrame: number;
 		forcePathStyle: boolean;
 		metadata: Record<string, string> | null;

@@ -45,6 +45,8 @@ test(
 				colorSpace: null,
 				concurrencyPerLambda: 1,
 				concurrency: null,
+				chunks: null,
+				audioConcatenation: 'seamless-if-possible',
 				crf: undefined,
 				deleteAfter: null,
 				downloadBehavior: {type: 'play-in-browser'},

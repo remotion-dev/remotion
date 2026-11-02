@@ -130,7 +130,7 @@ const combineAudioSeamlessly = async ({
 	indent,
 	logLevel,
 	output,
-	chunkDurationInSeconds,
+	chunkDurationsInFrames,
 	addRemotionMetadata,
 	fps,
 	binariesDirectory,
@@ -142,7 +142,7 @@ const combineAudioSeamlessly = async ({
 	filelistDir: string;
 	logLevel: LogLevel;
 	output: string;
-	chunkDurationInSeconds: number;
+	chunkDurationsInFrames: number[];
 	addRemotionMetadata: boolean;
 	fps: number;
 	binariesDirectory: string | null;
@@ -151,12 +151,20 @@ const combineAudioSeamlessly = async ({
 	onProgress: (frames: number) => void;
 	sampleRate: number;
 }) => {
+	if (chunkDurationsInFrames.length !== files.length) {
+		throw new Error(
+			`Expected one audio file per chunk (${chunkDurationsInFrames.length}), got ${files.length}`,
+		);
+	}
+
 	const startConcatenating = Date.now();
+	let framesBefore = 0;
 	const fileList = files
 		.map((p, i) => {
 			const isLast = i === files.length - 1;
-			const targetStart = i * chunkDurationInSeconds;
-			const endStart = (i + 1) * chunkDurationInSeconds;
+			const targetStart = framesBefore / fps;
+			framesBefore += chunkDurationsInFrames[i];
+			const endStart = framesBefore / fps;
 
 			const startTime =
 				getClosestAlignedTime(targetStart, sampleRate) * 1_000_000;
@@ -251,7 +259,7 @@ export const createCombinedAudio = ({
 	audioBitrate,
 	resolvedAudioCodec,
 	output,
-	chunkDurationInSeconds,
+	chunkDurationsInFrames,
 	addRemotionMetadata,
 	binariesDirectory,
 	fps,
@@ -267,7 +275,7 @@ export const createCombinedAudio = ({
 	audioBitrate: string | null;
 	resolvedAudioCodec: AudioCodec;
 	output: string;
-	chunkDurationInSeconds: number;
+	chunkDurationsInFrames: number[];
 	addRemotionMetadata: boolean;
 	binariesDirectory: string | null;
 	fps: number;
@@ -282,7 +290,7 @@ export const createCombinedAudio = ({
 			indent,
 			logLevel,
 			output,
-			chunkDurationInSeconds,
+			chunkDurationsInFrames,
 			addRemotionMetadata,
 			binariesDirectory,
 			fps,

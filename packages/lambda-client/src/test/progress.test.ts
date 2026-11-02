@@ -35,6 +35,7 @@ const renderMetadata: RenderMetadata = {
 	everyNthFrame: 1,
 	frameRange: [0, 19],
 	framesPerLambda: 10,
+	chunks: null,
 	functionName: 'remotion-render-4-0-0-mem2048mb-disk512mb-120sec',
 	imageFormat: 'png',
 	inputProps: {

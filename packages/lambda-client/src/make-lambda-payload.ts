@@ -1,6 +1,7 @@
 import type {StorageClass} from '@aws-sdk/client-s3';
 import type {
 	AudioCodec,
+	AudioConcatenation,
 	ChromiumOptions,
 	ColorSpace,
 	LogLevel,
@@ -64,6 +65,8 @@ export type InnerRenderMediaOnLambdaInput = {
 	maxRetries: number;
 	framesPerLambda: number | null;
 	concurrency: number | null;
+	chunks: [number, number][] | null;
+	audioConcatenation: AudioConcatenation;
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput | null;
@@ -107,6 +110,8 @@ export const makeLambdaRenderMediaPayload = async ({
 	frameRange,
 	framesPerLambda,
 	concurrency,
+	chunks,
+	audioConcatenation,
 	forceBucketName: bucketName,
 	codec,
 	output,
@@ -201,6 +206,8 @@ export const makeLambdaRenderMediaPayload = async ({
 		rendererFunctionName,
 		framesPerLambda,
 		concurrency,
+		chunks,
+		audioConcatenation,
 		composition,
 		serveUrl,
 		inputProps: serialized,

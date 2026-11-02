@@ -347,11 +347,36 @@ const innerLaunchHandler = async ({
 		throw new Error('Media renders require a codec');
 	}
 
-	const framesPerLambda = LambdaClientInternals.validateFramesPerFunction({
-		framesPerFunction: params.framesPerFunction,
-		durationInFrames: frameCount.length,
-		concurrency: params.concurrency,
-	});
+	if (
+		!RenderInternals.audioConcatenationModes.includes(params.audioConcatenation)
+	) {
+		throw new TypeError(
+			`'audioConcatenation' must be one of ${RenderInternals.audioConcatenationModes
+				.map((m) => JSON.stringify(m))
+				.join(', ')}, but got ${JSON.stringify(params.audioConcatenation)}`,
+		);
+	}
+
+	const explicitChunks =
+		params.chunks === null
+			? null
+			: LambdaClientInternals.validateChunks({
+					chunks: params.chunks,
+					frameRange: realFrameRange,
+					everyNthFrame: params.everyNthFrame,
+					framesPerFunction: params.framesPerFunction,
+					concurrency: params.concurrency,
+				});
+	// With explicit chunks, the renderers and the merge only use framesPerLambda to decide
+	// whether AAC can be concatenated seamlessly, which needs every chunk to be longer than 4 frames.
+	const framesPerLambda =
+		explicitChunks === null
+			? LambdaClientInternals.validateFramesPerFunction({
+					framesPerFunction: params.framesPerFunction,
+					durationInFrames: frameCount.length,
+					concurrency: params.concurrency,
+				})
+			: Math.min(...explicitChunks.map(([start, end]) => end - start + 1));
 
 	LambdaClientInternals.validateOutname({
 		outName,
@@ -363,11 +388,13 @@ const innerLaunchHandler = async ({
 	LambdaClientInternals.validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
-	const {chunks} = planFrameRanges({
-		framesPerFunction: framesPerLambda,
-		frameRange: realFrameRange,
-		everyNthFrame: params.everyNthFrame,
-	});
+	const chunks =
+		explicitChunks ??
+		planFrameRanges({
+			framesPerFunction: framesPerLambda,
+			frameRange: realFrameRange,
+			everyNthFrame: params.everyNthFrame,
+		}).chunks;
 
 	if (chunks.length > LambdaClientInternals.MAX_FUNCTIONS_PER_RENDER) {
 		throw new Error(
@@ -473,6 +500,7 @@ const innerLaunchHandler = async ({
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],
 			framesPerLambda,
+			audioConcatenation: params.audioConcatenation,
 			progressEveryNthFrame,
 			forcePathStyle: params.forcePathStyle,
 			metadata: params.metadata,
@@ -544,6 +572,7 @@ const innerLaunchHandler = async ({
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda,
+		chunks: explicitChunks,
 		memorySizeInMb: getCurrentMemorySizeInMb(),
 		region: getCurrentRegionInFunction(),
 		renderId: params.renderId,
@@ -1013,6 +1042,9 @@ const innerLaunchHandler = async ({
 			audioBitrate: params.audioBitrate,
 			logLevel: params.logLevel,
 			framesPerLambda,
+			chunkDurationsInFrames:
+				explicitChunks?.map(([start, end]) => end - start + 1) ?? null,
+			audioConcatenation: params.audioConcatenation,
 			binariesDirectory: null,
 			preferLossless: params.preferLossless,
 			compositionStart: realFrameRange[0],

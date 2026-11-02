@@ -13,11 +13,13 @@ export const getMostExpensiveChunks = ({
 	framesPerFunction: framesPerLambda,
 	firstFrame,
 	lastFrame,
+	chunks,
 }: {
 	parsedTimings: ParsedTiming[];
 	framesPerFunction: number;
 	firstFrame: number;
 	lastFrame: number;
+	chunks: [number, number][] | null;
 }): ExpensiveChunk[] => {
 	const mostExpensiveChunks = parsedTimings
 		.slice(0)
@@ -35,12 +37,14 @@ export const getMostExpensiveChunks = ({
 		return {
 			timeInMilliseconds: c.rendered - c.start,
 			chunk: c.chunk,
-			frameRange: [
-				framesPerLambda * c.chunk + firstFrame,
-				isLastChunk
-					? lastFrame
-					: framesPerLambda * (c.chunk + 1) - 1 + firstFrame,
-			],
+			frameRange: chunks
+				? chunks[c.chunk]
+				: [
+						framesPerLambda * c.chunk + firstFrame,
+						isLastChunk
+							? lastFrame
+							: framesPerLambda * (c.chunk + 1) - 1 + firstFrame,
+					],
 		};
 	});
 };

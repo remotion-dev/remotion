@@ -67,6 +67,8 @@ class RenderParams
     protected $sampleRate = 48000;
     protected $gopSize = null;
     protected $disableSharedMemoryCapture = false;
+    protected $chunks = null;
+    protected $audioConcatenation = 'seamless-if-possible';
 
     public function __construct(
         ?array  $data = null,
@@ -122,7 +124,9 @@ class RenderParams
         ?bool   $enableCancellation = false,
         bool    $disableSharedMemoryCapture = false,
         string|array|null $separateAudioTo = null,
-        string $preferredEffectBackend = 'auto'
+        string $preferredEffectBackend = 'auto',
+        ?array  $chunks = null,
+        string $audioConcatenation = 'seamless-if-possible'
     )
     {
         if ($chromiumOptions === null) {
@@ -183,6 +187,8 @@ class RenderParams
         $this->gopSize = $gopSize;
         $this->enableCancellation = $enableCancellation;
         $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
+        $this->chunks = $chunks;
+        $this->audioConcatenation = $audioConcatenation;
     }
 
     private array $inputProps = array();
@@ -213,6 +219,8 @@ class RenderParams
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
             'concurrency' => $this->getConcurrency(),
+            'chunks' => $this->getChunks(),
+            'audioConcatenation' => $this->getAudioConcatenation(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -705,6 +713,11 @@ class RenderParams
         $this->concurrency = $concurrency;
     }
 
+    public function setChunks(?array $chunks)
+    {
+        $this->chunks = $chunks;
+    }
+
     public function setDownloadBehavior($downloadBehavior)
     {
         $this->downloadBehavior = $downloadBehavior;
@@ -759,6 +772,21 @@ class RenderParams
     public function getConcurrency()
     {
         return $this->concurrency;
+    }
+
+    public function getChunks()
+    {
+        return $this->chunks;
+    }
+
+    public function getAudioConcatenation(): string
+    {
+        return $this->audioConcatenation;
+    }
+
+    public function setAudioConcatenation(string $audioConcatenation)
+    {
+        $this->audioConcatenation = $audioConcatenation;
     }
 
     public function getDownloadBehavior()
