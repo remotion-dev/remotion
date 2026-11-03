@@ -1,5 +1,6 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
+import {NoReactInternals} from 'remotion/no-react';
 import type {Point, Properties} from './types';
 
 const mod = (x: number, m: number) => {
@@ -297,11 +298,14 @@ export const makeArc = ({
 			const yDist = p2.y - p1.y;
 			const dist = Math.sqrt(xDist * xDist + yDist * yDist);
 
-			if (fractionLength < length - point_dist) {
-				return {x: -xDist / dist, y: -yDist / dist};
-			}
+			// In v4, arc tangents point against the direction of travel.
+			// v5 makes them point forward, like lines and Bézier curves.
+			const forward = fractionLength < length - point_dist ? 1 : -1;
+			const sign = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+				? forward
+				: -forward;
 
-			return {x: xDist / dist, y: yDist / dist};
+			return {x: (sign * xDist) / dist, y: (sign * yDist) / dist};
 		},
 		getTotalLength: () => {
 			return length;
