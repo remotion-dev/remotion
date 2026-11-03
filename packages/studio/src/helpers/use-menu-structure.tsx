@@ -28,6 +28,7 @@ import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
+import {ShowControlsInFullscreenContext} from '../state/fullscreen-controls';
 import type {ModalState} from '../state/modals';
 import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
@@ -355,6 +356,9 @@ const useMenuStructureBase = ({
 }) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
+	const {showControlsInFullscreen, setShowControlsInFullscreen} = useContext(
+		ShowControlsInFullscreenContext,
+	);
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext,
 	);
@@ -841,6 +845,22 @@ const useMenuStructureBase = ({
 								quickSwitcherLabel: 'Go Fullscreen',
 							}
 						: null,
+					isFullscreenSupported
+						? {
+								id: 'show-controls-in-fullscreen',
+								keyHint: null,
+								label: 'Show Controls in Fullscreen',
+								leftItem: showControlsInFullscreen ? <Checkmark /> : null,
+								onClick: () => {
+									closeMenu();
+									setShowControlsInFullscreen((c) => !c);
+								},
+								subMenu: null,
+								type: 'item' as const,
+								value: 'show-controls-in-fullscreen',
+								quickSwitcherLabel: 'Toggle Controls in Fullscreen',
+							}
+						: null,
 				].filter(Internals.truthy),
 			},
 			{
@@ -1138,6 +1158,7 @@ const useMenuStructureBase = ({
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
+		showControlsInFullscreen,
 		isFullscreenSupported,
 		remotion_packageManager,
 		mobileLayout,
@@ -1171,6 +1192,7 @@ const useMenuStructureBase = ({
 		setEditorSnapping,
 		setSidebarCollapsedState,
 		setCheckerboard,
+		setShowControlsInFullscreen,
 		setSelectedModal,
 	]);
 

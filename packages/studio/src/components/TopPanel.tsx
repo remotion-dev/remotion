@@ -1,20 +1,11 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {useBreakpoint} from '../helpers/use-breakpoint';
-import {useIsFullscreen} from '../helpers/use-is-fullscreen';
 import {
 	SIDEBAR_RESPONSIVE_BREAKPOINTS,
 	useResponsiveSidebarStatus,
 } from '../helpers/use-responsive-sidebar-status';
 import {RULER_WIDTH} from '../state/editor-rulers';
-import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasIfSizeIsAvailable} from './CanvasIfSizeIsAvailable';
@@ -22,6 +13,7 @@ import {CanvasTabs} from './CanvasTabs';
 import {TitleUpdater} from './CurrentCompositionSideEffects';
 import {useIsRulerVisible} from './EditorRuler/use-is-ruler-visible';
 import {ExplorerPanel} from './ExplorerPanel';
+import {FullscreenControls} from './FullscreenControls';
 import MobilePanel from './MobilePanel';
 import {ObserveDefaultProps} from './ObserveDefaultPropsContext';
 import {OptionsPanel} from './OptionsPanel';
@@ -29,54 +21,6 @@ import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
-
-const noop = () => undefined;
-
-const FullscreenSeekBar: React.FC = () => {
-	const isFullscreen = useIsFullscreen();
-	const config = Internals.useUnsafeVideoConfig();
-	const {inFrame, outFrame} = useTimelineInOutFramePosition();
-	const [visible, setVisible] = useState(true);
-	useEffect(() => {
-		if (!isFullscreen) return;
-		let timeout: ReturnType<typeof setTimeout> | undefined;
-		const show = () => {
-			setVisible(true);
-			clearTimeout(timeout);
-			timeout = setTimeout(() => setVisible(false), 2000);
-		};
-
-		show();
-		window.addEventListener('pointermove', show);
-		return () => {
-			clearTimeout(timeout);
-			window.removeEventListener('pointermove', show);
-		};
-	}, [isFullscreen]);
-	return isFullscreen && config ? (
-		<div
-			style={{
-				position: 'absolute',
-				left: 0,
-				right: 0,
-				bottom: 0,
-				padding: '40px 16px 8px',
-				backgroundImage: 'linear-gradient(transparent, rgba(0, 0, 0, 0.6))',
-				opacity: visible ? 1 : 0,
-				pointerEvents: visible ? 'auto' : 'none',
-				transition: 'opacity 0.3s',
-			}}
-		>
-			<PlayerInternals.PlayerSeekBar
-				durationInFrames={config.durationInFrames}
-				inFrame={inFrame}
-				outFrame={outFrame}
-				onSeekStart={noop}
-				onSeekEnd={noop}
-			/>
-		</div>
-	) : null;
-};
 
 const container: React.CSSProperties = {
 	height: '100%',
@@ -240,7 +184,7 @@ const TopPanelInner: React.FC<{
 										<CanvasTabs />
 										<div ref={drawRef} style={canvasContainerStyle}>
 											<CanvasIfSizeIsAvailable />
-											<FullscreenSeekBar />
+											<FullscreenControls />
 										</div>
 									</div>
 								</SplitterElement>
