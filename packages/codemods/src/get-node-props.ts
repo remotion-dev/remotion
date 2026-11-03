@@ -66,6 +66,7 @@ export const getNodeProps = ({
 
 	const result = computeSequencePropsStatusFromContent({
 		fileContents: project.files[filePath],
+		includeSourceLocation: false,
 		nodePath: node.nodePath,
 		componentIdentity: componentIdentity ?? null,
 		assetKeys,

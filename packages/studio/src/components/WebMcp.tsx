@@ -87,7 +87,7 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useCompactSeries} from './Timeline/use-compact-series';
-import {useResolveStackAndReactToChange} from './Timeline/use-resolved-stack-react-to-change';
+import {useSequenceSourceLocation} from './Timeline/use-sequence-source-location';
 import {
 	getDefaultCaptionOutputName,
 	validateCaptionOutputName,
@@ -173,7 +173,6 @@ const serializeCompositionTree = (
 	});
 };
 
-const getNoStack = () => null;
 const MAX_CANVAS_HTML_LENGTH = 100_000;
 
 const missingOptionalPackageResult = (packageName: string) => ({
@@ -223,15 +222,12 @@ const WebMcpSelectionSync: FC<{
 	const {selectedItems} = useTimelineSelection();
 	const selectedItem = selectedItems.length === 1 ? selectedItems[0] : null;
 	const track = useTrackForSelection(selectedItem);
-	const {resolvedLocation, stack} = useResolveStackAndReactToChange(
-		track?.sequence.getStack ?? getNoStack,
-		track?.sequence.controls?.overrideId ??
-			track?.sequence.id ??
-			'no-selection',
+	const {location, stack} = useSequenceSourceLocation(
+		track?.sequence ?? null,
+		track?.nodePathInfo?.sequenceSubscriptionKey ?? null,
 	);
 	const currentStack = track?.sequence.getStack() ?? null;
-	const currentResolvedLocation =
-		stack === currentStack ? resolvedLocation : null;
+	const currentResolvedLocation = stack === currentStack ? location : null;
 	const currentSelection = useMemo(() => {
 		if (
 			selectedItems.length !== 1 ||

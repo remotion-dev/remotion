@@ -28,6 +28,7 @@ import type {
 	VideoConfigNumericExpression,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {
 	getReadOnlySourceNodePath,
 	getReadOnlySourceSnapshot,
@@ -1757,13 +1758,6 @@ export const lineColumnToNodePath = (
 ): SequenceNodePath | null => {
 	const lineMatches: SequenceNodePath[] = [];
 	const exactMatches: SequenceNodePath[] = [];
-	const recastTargetColumn =
-		targetColumn === undefined || fileContents === undefined
-			? targetColumn
-			: sourceColumnToRecastColumn({
-					sourceLine: fileContents.split('\n')[targetLine - 1],
-					column: targetColumn,
-				});
 
 	recast.types.visit(ast, {
 		visitJSXOpeningElement(p) {
@@ -1771,7 +1765,11 @@ export const lineColumnToNodePath = (
 			if (node.loc && node.loc.start.line === targetLine) {
 				const nodePath = getNodePathForRecastPath(p, ast);
 				lineMatches.push(nodePath);
-				if (node.loc.start.column === recastTargetColumn) {
+				const column =
+					fileContents === undefined
+						? node.loc.start.column
+						: getJsxSourceLocation(fileContents, node.loc.start).column;
+				if (column === targetColumn) {
 					exactMatches.push(nodePath);
 				}
 			}
@@ -2273,6 +2271,7 @@ const computeSequenceOnlyPropsRecord = ({
 
 const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	ast,
+	sourceForLocation,
 	nodePath,
 	componentIdentity,
 	keys,
@@ -2281,6 +2280,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	videoConfigIdentifierValues,
 }: {
 	ast: File;
+	sourceForLocation: string | null;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -2362,6 +2362,13 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 
 	return {
 		canUpdate: true as const,
+		...(sourceForLocation === null
+			? {}
+			: {
+					sourceLocation: jsxElement.loc
+						? getJsxSourceLocation(sourceForLocation, jsxElement.loc.start)
+						: null,
+				}),
 		durationDependentKeyframes: null,
 		props: Object.fromEntries(
 			Object.entries(filteredProps).map(([key, status]) => [
@@ -2387,6 +2394,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 
 export const computeSequencePropsStatusFromContent = ({
 	fileContents,
+	includeSourceLocation,
 	nodePath,
 	componentIdentity,
 	keys,
@@ -2394,6 +2402,7 @@ export const computeSequencePropsStatusFromContent = ({
 	effects,
 }: {
 	fileContents: string;
+	includeSourceLocation: boolean;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -2408,6 +2417,7 @@ export const computeSequencePropsStatusFromContent = ({
 
 	return computeSequencePropsStatusFromAstAndIdentifiers({
 		ast,
+		sourceForLocation: includeSourceLocation ? fileContents : null,
 		nodePath,
 		componentIdentity,
 		keys,
@@ -2421,6 +2431,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 	fileContents,
 	absolutePath,
 	line,
+	column,
 	preferredNodePath,
 	componentIdentity,
 	keys,
@@ -2430,6 +2441,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 	fileContents: string;
 	absolutePath: string;
 	line: number;
+	column: number;
 	preferredNodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -2442,6 +2454,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 				success: true,
 				status: computeSequencePropsStatusFromContent({
 					fileContents,
+					includeSourceLocation: true,
 					nodePath: preferredNodePath,
 					componentIdentity,
 					keys,
@@ -2473,7 +2486,12 @@ export const computeSequencePropsSubscriptionFromContent = ({
 
 	try {
 		const {ast} = getReadOnlySourceSnapshot(fileContents);
-		const resolvedNodePath = lineColumnToNodePath(ast, line);
+		const resolvedNodePath = lineColumnToNodePath(
+			ast,
+			line,
+			column,
+			fileContents,
+		);
 		if (!resolvedNodePath) {
 			return {
 				success: false,
@@ -2485,6 +2503,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 			success: true,
 			status: computeSequencePropsStatusFromContent({
 				fileContents,
+				includeSourceLocation: true,
 				nodePath: resolvedNodePath,
 				componentIdentity,
 				keys,

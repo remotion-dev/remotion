@@ -453,7 +453,7 @@ const TimelineSequenceItemInner: React.FC<{
 		openInEditor,
 		openSource,
 		originalLocation,
-	} = useOpenSequenceInApps(sequence);
+	} = useOpenSequenceInApps(sequence, nodePath);
 
 	const validatedLocation = useMemo(() => {
 		if (

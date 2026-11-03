@@ -10,7 +10,6 @@ import type {
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import {captureJsxNodePaths} from '../../codemods/get-node-path-remappings';
-import {parseAst} from '../../codemods/parse-ast';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -171,7 +170,7 @@ export const addKeyframes = async ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		let output = fileContents;
 		let firstLogLine = Number.POSITIVE_INFINITY;
-		const originalNodes = captureJsxNodePaths(parseAst(fileContents));
+		const originalNodes = captureJsxNodePaths(fileContents);
 
 		// Keyframe codemods may wrap a concise arrow in a return statement.
 		// JSX nodes remain in order, but their node paths can all change.
@@ -186,7 +185,7 @@ export const addKeyframes = async ({
 				throw new Error('Could not find the original JSX node for keyframing');
 			}
 
-			const currentNodes = captureJsxNodePaths(parseAst(output));
+			const currentNodes = captureJsxNodePaths(output);
 			if (currentNodes.length !== originalNodes.length) {
 				throw new Error('Could not remap JSX nodes after keyframing');
 			}
@@ -277,7 +276,7 @@ export const addKeyframes = async ({
 			}
 		}
 
-		const finalNodes = captureJsxNodePaths(parseAst(output));
+		const finalNodes = captureJsxNodePaths(output);
 		if (finalNodes.length !== originalNodes.length) {
 			throw new Error('Could not remap JSX nodes after keyframing');
 		}
@@ -294,7 +293,13 @@ export const addKeyframes = async ({
 						location?.column === next.location?.column &&
 						JSON.stringify(nodePath) === JSON.stringify(next.nodePath)
 						? []
-						: [{oldNodePath: nodePath, newNodePath: next.nodePath}];
+						: [
+								{
+									oldNodePath: nodePath,
+									newNodePath: next.nodePath,
+									sourceLocations: {before: location, after: next.location},
+								},
+							];
 				},
 			),
 		});

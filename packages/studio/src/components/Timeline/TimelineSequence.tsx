@@ -1367,7 +1367,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		openInEditor,
 		openSource,
 		originalLocation,
-	} = useOpenSequenceInApps(s);
+	} = useOpenSequenceInApps(s, nodePath);
 	const validatedLocation = useMemo(() => {
 		if (
 			!originalLocation ||

@@ -483,6 +483,14 @@ export function popUndo(): UndoResponse {
 						...(remapping.oldJsxName === undefined
 							? {}
 							: {newJsxName: remapping.oldJsxName}),
+						...(remapping.sourceLocations
+							? {
+									sourceLocations: {
+										before: remapping.sourceLocations.after,
+										after: remapping.sourceLocations.before,
+									},
+								}
+							: {}),
 					}),
 				),
 			},

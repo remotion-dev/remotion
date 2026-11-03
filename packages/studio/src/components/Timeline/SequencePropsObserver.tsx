@@ -226,6 +226,7 @@ export const SequencePropsObserver = ({
 			overrideIdToNodePathMappingsRef.current,
 		)) {
 			let {nodePath} = previousNodePath;
+			let sourceLocation: {line: number; column: number} | null = null;
 			let wasRemapped = false;
 			let wasDeleted = false;
 			let runtimeNodePathExists = true;
@@ -282,6 +283,7 @@ export const SequencePropsObserver = ({
 					}
 
 					wasRemapped = true;
+					sourceLocation = remapping.sourceLocations?.after ?? null;
 					if (remapping.newNodePath === null) {
 						wasDeleted = true;
 						continue;
@@ -300,14 +302,20 @@ export const SequencePropsObserver = ({
 				JSON.stringify(nodePath) !== previousNodePathString;
 			const previousStatusKey =
 				Internals.makeSequencePropsSubscriptionKey(previousNodePath);
+			const previousStatus = propStatusesRef.current[previousStatusKey] ?? null;
+			let result = nodePathChanged ? null : previousStatus;
+			if (
+				sourceLocation &&
+				previousStatus?.canUpdate &&
+				(!nodePathChanged || !runtimeNodePathExists)
+			) {
+				result = {...previousStatus, sourceLocation};
+			}
+
 			statusRemappings.push({
 				previousNodePath,
 				nodePath: nextNodePath,
-				// A reused runtime instance still renders the old JSX until Refresh.
-				// Let it use its JSX values instead of a shifted sibling's source props.
-				result: nodePathChanged
-					? null
-					: (propStatusesRef.current[previousStatusKey] ?? null),
+				result,
 			});
 
 			overrideUpdates.push({

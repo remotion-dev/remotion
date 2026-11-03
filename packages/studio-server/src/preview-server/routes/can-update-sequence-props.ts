@@ -12,7 +12,7 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import {CodemodsInternals, getNodeProps} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
@@ -1385,13 +1385,14 @@ export const computeSequencePropsStatusFromContent = ({
 	effects: string[][];
 }): CanUpdateSequencePropsResponseTrue => {
 	try {
-		return getNodeProps({
-			project: {rootDir: '/', files: {'source.tsx': fileContents}},
-			node: {filePath: 'source.tsx', nodePath},
+		return CodemodsInternals.computeSequencePropsStatusFromContent({
+			fileContents,
+			includeSourceLocation: true,
+			nodePath,
 			componentIdentity,
 			keys,
 			assetKeys,
-			effectKeys: effects,
+			effects,
 		});
 	} catch (error) {
 		if (error instanceof CodemodsInternals.JsxElementIdentityMismatchError) {

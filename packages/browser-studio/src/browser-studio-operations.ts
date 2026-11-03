@@ -93,6 +93,7 @@ import type {VirtualProject, VirtualProjectPublicFile} from './types';
 
 const {
 	basicCaptionsElementSource,
+	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	createElementFromInsertable,
 	findProjectFile,
@@ -1114,6 +1115,7 @@ export const createBrowserStudioOperations = ({
 				fileContents: project.files[absolutePath],
 				absolutePath,
 				line: request.line,
+				column: request.column,
 				preferredNodePath: request.nodePath,
 				componentIdentity: request.componentIdentity,
 				keys: request.keys,
@@ -1136,13 +1138,14 @@ export const createBrowserStudioOperations = ({
 					filePath: request.fileName,
 					project,
 				});
-				const nextStatus = getNodeProps({
-					project,
-					node: {filePath: absolutePath, nodePath: result.nodePath.nodePath},
+				const nextStatus = computeSequencePropsStatusFromContent({
+					fileContents: project.files[absolutePath],
+					includeSourceLocation: true,
+					nodePath: result.nodePath.nodePath,
 					componentIdentity: request.componentIdentity,
 					keys: request.keys,
 					assetKeys: request.assetKeys,
-					effectKeys: request.effects,
+					effects: request.effects,
 				});
 				const nextEffectChain = nextStatus.effects
 					.map((effect) => (effect.canUpdate ? effect.callee : false))
