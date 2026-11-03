@@ -734,19 +734,42 @@ export const handleRoutes = ({
 		return static404(response);
 	}
 
-	if (url.pathname.startsWith(outputHash)) {
-		const filename = new URL(
-			request.url as string,
-			'http://localhost',
-		).pathname.replace(new RegExp(`^${outputHash}`), '');
-		const filePath = join(remotionRoot, decodeURIComponent(filename));
+	if (url.pathname.startsWith(`${outputHash}/`)) {
+		let filename: string;
+		try {
+			filename = decodeURIComponent(url.pathname.slice(outputHash.length + 1));
+		} catch {
+			response.writeHead(400);
+			response.end('Invalid output path');
+			return Promise.resolve();
+		}
+
+		const filePath = path.resolve(remotionRoot, filename);
+		const outsideProject = !RenderInternals.isPathInside(
+			filePath,
+			remotionRoot,
+		);
+		const isCompletedOutput =
+			outsideProject &&
+			getRenderQueue().some(
+				(job) =>
+					job.status === 'done' &&
+					(job.type === 'video' || job.type === 'still') &&
+					!job.deletedOutputLocation &&
+					path.resolve(remotionRoot, job.outName) === filePath,
+			);
+		if (outsideProject && !isCompletedOutput) {
+			response.writeHead(404);
+			response.end('Output file not found');
+			return Promise.resolve();
+		}
 
 		return serveStatic({
 			root: remotionRoot,
 			path: filePath,
 			req: request,
 			res: response,
-			allowOutsidePublicFolder: false,
+			allowOutsidePublicFolder: isCompletedOutput,
 			allowRemotionConvertCors: false,
 		});
 	}

@@ -1,5 +1,4 @@
 import type {CanvasContent} from 'remotion';
-import {normalizeOutputPath} from '../helpers/output-path';
 import {getRoute} from '../helpers/url-state';
 
 export const deriveCanvasContentFromRoute = (
@@ -28,9 +27,7 @@ export const deriveCanvasContentFromRoute = (
 
 		return {
 			type: 'output',
-			path: normalizeOutputPath(
-				decodeURIComponent(route.substring('/outputs/'.length)),
-			),
+			path: decodeURIComponent(route.substring('/outputs/'.length)),
 		};
 	}
 

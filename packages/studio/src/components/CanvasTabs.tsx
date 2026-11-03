@@ -23,7 +23,7 @@ import {
 } from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {noop} from '../helpers/noop';
-import {getOutputRoute, normalizeOutputPath} from '../helpers/output-path';
+import {getOutputRoute} from '../helpers/output-path';
 import {
 	closedAllCanvasTabsStorageKey,
 	getRoute,
@@ -63,15 +63,6 @@ const canvasTabDragMimeType = 'application/vnd.remotion.canvas-tab';
 const blobTabIds = new WeakMap<() => Promise<Blob>, number>();
 let nextBlobTabId = 0;
 
-const normalizeTabContent = (content: CanvasContent): CanvasContent => {
-	if (content.type !== 'output') {
-		return content;
-	}
-
-	const path = normalizeOutputPath(content.path);
-	return path === content.path ? content : {...content, path};
-};
-
 const getTabKey = (content: CanvasContent): string => {
 	switch (content.type) {
 		case 'composition':
@@ -79,7 +70,7 @@ const getTabKey = (content: CanvasContent): string => {
 		case 'asset':
 			return `asset:${content.asset}`;
 		case 'output':
-			return `output:${normalizeOutputPath(content.path)}`;
+			return `output:${content.path}`;
 		case 'output-blob': {
 			let id = blobTabIds.get(content.getBlob);
 			if (id === undefined) {
@@ -149,7 +140,18 @@ const loadTabs = (): CanvasContent[] => {
 			} else if (item.type === 'asset' && typeof item.asset === 'string') {
 				content = {type: 'asset', asset: item.asset};
 			} else if (item.type === 'output' && typeof item.path === 'string') {
-				content = {type: 'output', path: normalizeOutputPath(item.path)};
+				content = {
+					type: 'output',
+					path:
+						item.outputPathVersion === 1
+							? item.path
+							: item.path.replace(
+									window.remotion_fileSystemPlatform === 'win32'
+										? /^[\\/]+/
+										: /^\/+/,
+									'',
+								),
+				};
 			}
 
 			if (
@@ -592,8 +594,7 @@ export const CanvasTabs: React.FC = React.memo(() => {
 				setTabs((current) => {
 					const keys = new Set(current.map(getTabKey));
 					const next = [...current];
-					for (const originalContent of contents) {
-						const content = normalizeTabContent(originalContent);
+					for (const content of contents) {
 						const key = getTabKey(content);
 						if (!keys.has(key)) {
 							keys.add(key);
@@ -653,19 +654,18 @@ export const CanvasTabs: React.FC = React.memo(() => {
 		}
 
 		setTabs((current) => {
-			const content = normalizeTabContent(canvasContent);
-			const key = getTabKey(content);
+			const key = getTabKey(canvasContent);
 			const index = current.findIndex((tab) => getTabKey(tab) === key);
 			if (index === -1) {
-				return [...current, content];
+				return [...current, canvasContent];
 			}
 
-			if (current[index] === content) {
+			if (current[index] === canvasContent) {
 				return current;
 			}
 
 			const next = [...current];
-			next[index] = content;
+			next[index] = canvasContent;
 			return next;
 		});
 	}, [canvasContent]);
@@ -691,7 +691,13 @@ export const CanvasTabs: React.FC = React.memo(() => {
 		try {
 			sessionStorage.setItem(
 				storageKey,
-				JSON.stringify(tabs.filter((tab) => tab.type !== 'output-blob')),
+				JSON.stringify(
+					tabs
+						.filter((tab) => tab.type !== 'output-blob')
+						.map((tab) =>
+							tab.type === 'output' ? {...tab, outputPathVersion: 1} : tab,
+						),
+				),
 			);
 		} catch {
 			// Session storage may be unavailable in an embedded Studio.

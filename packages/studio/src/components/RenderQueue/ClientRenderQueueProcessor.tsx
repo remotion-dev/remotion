@@ -18,6 +18,7 @@ import {
 	saveOutputFile,
 } from '../../api/save-render-output';
 import {downloadBlob, getDownloadFilename} from '../../helpers/download-blob';
+import {getRenderJobOutputPath} from '../../helpers/output-path';
 import {getPreviewServerConnectionState} from '../../helpers/preview-server-events';
 import type {
 	ClientRenderJob,
@@ -224,13 +225,14 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 					getPreviewServerConnectionState().type === 'connected'
 				) {
 					try {
+						const outputPath = getRenderJobOutputPath(job);
 						if (artifacts.length > 0) {
-							const outputPath = job.outName
+							const normalizedOutputPath = outputPath
 								.split(/[/\\]+/)
 								.filter(Boolean)
 								.join('/');
 							const collision = getConflictingOutputPaths([
-								outputPath,
+								normalizedOutputPath,
 								...artifacts.map(
 									({filename}) => `out/${job.compositionId}/${filename}`,
 								),
@@ -248,17 +250,17 @@ export const ClientRenderQueueProcessor: React.FC = () => {
 								filePath: artifact.filename,
 								artifact: {
 									compositionId: job.compositionId,
-									outputName: job.outName,
+									outputName: outputPath,
 								},
 							});
 						}
 
-						await saveOutputFile({blob, filePath: job.outName, artifact: null});
+						await saveOutputFile({blob, filePath: outputPath, artifact: null});
 						await registerClientRender({
 							id: job.id,
 							type: job.type,
 							compositionId: job.compositionId,
-							outName: job.outName,
+							outName: outputPath,
 							startedAt: job.startedAt,
 							deletedOutputLocation: false,
 							metadata,
