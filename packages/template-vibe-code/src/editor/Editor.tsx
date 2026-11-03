@@ -274,10 +274,11 @@ export const Editor: React.FC<{
   useCompiler({
     host,
     files: state.files,
+    sourceRevision: state.sourceRevision,
     entryPoint,
     selection,
     dispatch,
-    getSourceRemappings: actions.getSourceRemappings,
+    getSourceTransition: actions.getSourceTransition,
   });
 
   shortcutHandlerRef.current = useEditorShortcuts({

@@ -1090,8 +1090,9 @@ export const Timeline: React.FC = () => {
       };
       const item = getKeyframeSelectionItem(prop, frame);
       const itemKey = getCanvasSelectionItemKey(item);
+      const selectionBefore = host.controller.selection.getSnapshot();
       const selectedKeyframes = getSelectedKeyframes(
-        host.controller.selection.getSnapshot().selectedItems,
+        selectionBefore.selectedItems,
       );
       const selected = selectedKeyframes.some(
         (keyframe) => getCanvasSelectionItemKey(keyframe) === itemKey,
@@ -1153,7 +1154,7 @@ export const Timeline: React.FC = () => {
             })),
             null,
           );
-          void actions.commitKeyframeChanges(changes);
+          void actions.commitKeyframeChanges(changes, selectionBefore);
         },
       });
     },

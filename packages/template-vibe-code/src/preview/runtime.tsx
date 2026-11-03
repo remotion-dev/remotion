@@ -395,35 +395,33 @@ export const createPreviewHost: CreatePreviewHost = ({
 
   return {
     controller,
-    applyBundle: async (bundle, remappings) => {
+    applyBundle: async (bundle, applySourceTransition) => {
       if (disposed) {
         throw new Error("The preview was disposed.");
       }
 
-      const applyRemappings = () => {
-        if (remappings === null) {
-          controller.selection.clear();
-          controller.setSequenceNodePaths({});
-        } else {
-          for (const group of remappings)
-            controller.remapSequenceNodePaths(group);
-        }
+      let transitionApplied = false;
+      const applyTransition = () => {
+        if (transitionApplied) return;
+        transitionApplied = true;
+        applySourceTransition();
       };
       window.addEventListener(
         Internals.REACT_REFRESH_STARTED_EVENT,
-        applyRemappings,
+        applyTransition,
         { capture: true, once: true },
       );
       try {
         const registeredRoot = await runtime.applyBundle(bundle);
         if (disposed) throw new Error("The preview was disposed.");
+        applyTransition();
         store.setState({ root: registeredRoot });
         const { selection } = store.getState();
         if (selection) await resolveSelection(selection);
       } finally {
         window.removeEventListener(
           Internals.REACT_REFRESH_STARTED_EVENT,
-          applyRemappings,
+          applyTransition,
           true,
         );
       }

@@ -117,7 +117,7 @@ const KeyframeControls: React.FC<{
         }
         onClick={() => {
           if (toggle.change !== null) {
-            void actions.commitKeyframeChanges([toggle.change]);
+            void actions.commitKeyframeChanges([toggle.change], null);
           }
         }}
       >
@@ -308,22 +308,25 @@ const KeyframedPropEditor: React.FC<{
           return;
         }
 
-        void actions.commitKeyframeChanges([
-          {
-            nodePathInfo: layer.nodePathInfo,
-            key: fieldKey,
-            schema,
-            operation: {
-              type: "add",
-              frame: getCanvasKeyframeSourceFrame({
-                track: layer.track,
-                propStatus: status,
-                frame,
-              }),
-              value: next,
+        void actions.commitKeyframeChanges(
+          [
+            {
+              nodePathInfo: layer.nodePathInfo,
+              key: fieldKey,
+              schema,
+              operation: {
+                type: "add",
+                frame: getCanvasKeyframeSourceFrame({
+                  track: layer.track,
+                  propStatus: status,
+                  frame,
+                }),
+                value: next,
+              },
             },
-          },
-        ]);
+          ],
+          null,
+        );
       }}
       onPreview={onPreview}
       onCancelPreview={onCancelPreview}
@@ -585,11 +588,14 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
     const keys = visible.map(({ key }) => key);
     let props: Record<string, CanUpdateSequencePropStatus> | null = null;
     try {
-      props = Internals.evaluateSourcePropStatuses(getNodeProps({
-        project,
-        node,
-        keys,
-      }).props, layer.track.sequence.controls?.videoConfigValues ?? composition ?? null);
+      props = Internals.evaluateSourcePropStatuses(
+        getNodeProps({
+          project,
+          node,
+          keys,
+        }).props,
+        layer.track.sequence.controls?.videoConfigValues ?? composition ?? null,
+      );
     } catch {
       return { fields: visible, statuses: null };
     }
@@ -606,11 +612,16 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
       if (variantFields.length > 0) {
         visible = [...visible, ...variantFields];
         try {
-          const extra = Internals.evaluateSourcePropStatuses(getNodeProps({
-            project,
-            node,
-            keys: variantFields.map((item) => item.key),
-          }).props, layer.track.sequence.controls?.videoConfigValues ?? composition ?? null);
+          const extra = Internals.evaluateSourcePropStatuses(
+            getNodeProps({
+              project,
+              node,
+              keys: variantFields.map((item) => item.key),
+            }).props,
+            layer.track.sequence.controls?.videoConfigValues ??
+              composition ??
+              null,
+          );
           props = { ...props, ...extra };
         } catch {
           // Leave the variant fields without status.
@@ -619,7 +630,13 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
     }
 
     return { fields: visible, statuses: props };
-  }, [composition, node, project, schema, layer.track.sequence.controls?.videoConfigValues]);
+  }, [
+    composition,
+    node,
+    project,
+    schema,
+    layer.track.sequence.controls?.videoConfigValues,
+  ]);
 
   const grouped = useMemo(() => {
     const groups = new Map<FieldGroup, VisibleField[]>();

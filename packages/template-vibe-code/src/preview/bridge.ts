@@ -9,7 +9,6 @@ import type { BrowserBundle } from "@remotion/browser-bundler";
 import type { BrowserComposition } from "@remotion/browser-bundler/runtime";
 import type {
   CanvasController,
-  CanvasSequenceNodePathRemapping,
   CanvasSequencePropChange,
   CanvasSequencePropStatusResolver,
 } from "@remotion/sdk";
@@ -91,7 +90,7 @@ export type PreviewHost = {
   readonly controller: CanvasController;
   applyBundle: (
     bundle: BrowserBundle,
-    remappings: readonly (readonly CanvasSequenceNodePathRemapping[])[] | null,
+    applySourceTransition: () => void,
   ) => Promise<void>;
   selectComposition: (
     selection: PreviewCompositionSelection,

@@ -8,6 +8,8 @@ import {
   type CanvasKeyframeChange,
   type CanvasKeyframeEasing,
   type CanvasSelectionInteraction,
+  type CanvasSelectionItem,
+  type CanvasSelectionSnapshot,
   type CanvasSequencePropChange,
   type SequenceNodePathInfo,
 } from "@remotion/sdk";
@@ -96,6 +98,44 @@ import {
 
 const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
 
+type SelectionCheckpoint = {
+  compositionId: string;
+  snapshot: CanvasSelectionSnapshot;
+};
+
+const remapSelectionSnapshot = (
+  snapshot: CanvasSelectionSnapshot,
+  remappings: readonly NodePathRemapping[],
+): CanvasSelectionSnapshot => {
+  const remap = (
+    item: CanvasSelectionItem | null,
+  ): CanvasSelectionItem | null => {
+    if (item === null || item.type === "guide") return item;
+    const key = item.nodePathInfo.sequenceSubscriptionKey;
+    const mapping = remappings.find(
+      (entry) =>
+        entry.filePath === key.absolutePath &&
+        entry.oldNodePath !== null &&
+        JSON.stringify(entry.oldNodePath) === JSON.stringify(key.nodePath),
+    );
+    if (!mapping) return item;
+    if (mapping.newNodePath === null) return null;
+    return {
+      ...item,
+      nodePathInfo: {
+        ...item.nodePathInfo,
+        sequenceSubscriptionKey: { ...key, nodePath: mapping.newNodePath },
+      },
+    };
+  };
+  return {
+    selectedItems: snapshot.selectedItems
+      .map(remap)
+      .filter((item): item is CanvasSelectionItem => item !== null),
+    anchor: remap(snapshot.anchor),
+  };
+};
+
 type ActionContext = {
   state: EditorState;
   entryPoint: string;
@@ -131,6 +171,32 @@ export const useEditorActions = ({
     sourceState.current = context.state;
   }
   const sourceGeneration = useRef(0);
+  const selectionCheckpoints = useRef(
+    new WeakMap<ProjectFiles, Map<string, CanvasSelectionSnapshot>>(),
+  );
+  const selectionFiles = useRef<ProjectFiles | null>(
+    context.state.appliedFiles,
+  );
+  const selectionSourceRevision = useRef<number | null>(
+    context.state.appliedFiles === context.state.files
+      ? context.state.sourceRevision
+      : null,
+  );
+  const userSelectionRevision = useRef(0);
+  const applyingSourceSelection = useRef(false);
+  const pendingSelection = useRef<{
+    files: ProjectFiles;
+    sourceRevision: number;
+    userSelectionRevision: number;
+    checkpoint: SelectionCheckpoint;
+  } | null>(null);
+  useEffect(
+    () =>
+      context.host?.controller.selection.subscribe(() => {
+        if (!applyingSourceSelection.current) userSelectionRevision.current++;
+      }),
+    [context.host],
+  );
   const cancelPendingRef = useRef<(() => void) | null>(null);
   useEffect(
     () => () => {
@@ -156,6 +222,7 @@ export const useEditorActions = ({
     let sourceQueue = Promise.resolve();
     const cancellationListeners = new Set<() => void>();
     const cancelPending = () => {
+      pendingSelectionSnapshots.clear();
       for (const listener of cancellationListeners) listener();
     };
     cancelPendingRef.current = cancelPending;
@@ -186,6 +253,119 @@ export const useEditorActions = ({
       after: ProjectFiles;
       remappings: NodePathRemapping[];
     }[] = [];
+    const pendingSelectionSnapshots = new Map<
+      symbol,
+      {
+        before: ReturnType<typeof captureSelection>;
+        after: ReturnType<typeof captureSelection>;
+      }
+    >();
+    const rememberSelection = (
+      files: ProjectFiles,
+      checkpoint: SelectionCheckpoint,
+    ) => {
+      const byComposition =
+        selectionCheckpoints.current.get(files) ??
+        new Map<string, CanvasSelectionSnapshot>();
+      byComposition.set(checkpoint.compositionId, checkpoint.snapshot);
+      selectionCheckpoints.current.set(files, byComposition);
+    };
+    const captureSelection = (snapshot: CanvasSelectionSnapshot | null) => {
+      const { host } = ref.current;
+      const compositionId = host?.getSnapshot().composition?.id;
+      if (!host || !compositionId) return null;
+      return {
+        files:
+          selectionFiles.current ??
+          ref.current.state.appliedFiles ??
+          sourceState.current.files,
+        checkpoint: {
+          compositionId,
+          snapshot: snapshot ?? host.controller.selection.getSnapshot(),
+        },
+      };
+    };
+    const selectionAtFiles = (
+      captured: ReturnType<typeof captureSelection>,
+      targetFiles: ProjectFiles,
+    ): SelectionCheckpoint | null => {
+      if (!captured) return null;
+      let { files, checkpoint } = captured;
+      if (files === targetFiles) return checkpoint;
+      for (const step of sourceRemappings) {
+        if (step.before !== files) continue;
+        checkpoint = {
+          ...checkpoint,
+          snapshot: remapSelectionSnapshot(
+            checkpoint.snapshot,
+            step.remappings,
+          ),
+        };
+        files = step.after;
+        if (files === targetFiles) return checkpoint;
+      }
+      return null;
+    };
+    const logicalSelection = () => {
+      const pending = pendingSelection.current;
+      if (
+        pending &&
+        pending.files === sourceState.current.files &&
+        pending.sourceRevision === sourceState.current.sourceRevision &&
+        pending.userSelectionRevision === userSelectionRevision.current &&
+        pending.checkpoint.compositionId === ref.current.state.compositionId
+      ) {
+        return pending.checkpoint;
+      }
+      return selectionAtFiles(
+        captureSelection(null),
+        sourceState.current.files,
+      );
+    };
+    const restoreSelection = (checkpoint: SelectionCheckpoint) => {
+      pendingSelection.current = {
+        files: sourceState.current.files,
+        sourceRevision: sourceState.current.sourceRevision,
+        userSelectionRevision: userSelectionRevision.current,
+        checkpoint,
+      };
+      const { host } = ref.current;
+      if (
+        host &&
+        selectionFiles.current === sourceState.current.files &&
+        checkpoint.compositionId === ref.current.state.compositionId &&
+        checkpoint.compositionId === host.getSnapshot().composition?.id
+      ) {
+        applyingSourceSelection.current = true;
+        try {
+          if (host.controller.selection.getSnapshot() !== checkpoint.snapshot)
+            host.controller.selection.setSnapshot(checkpoint.snapshot);
+          if (
+            selectionSourceRevision.current ===
+            sourceState.current.sourceRevision
+          )
+            pendingSelection.current = null;
+        } finally {
+          applyingSourceSelection.current = false;
+        }
+      }
+    };
+    const getSourceRemappings = (
+      previousFiles: ProjectFiles | null,
+      nextFiles: ProjectFiles,
+    ): NodePathRemapping[][] | null => {
+      if (previousFiles === null || filesAreEqual(previousFiles, nextFiles))
+        return [];
+      let files = previousFiles;
+      const groups: NodePathRemapping[][] = [];
+      for (const step of sourceRemappings) {
+        if (!filesAreEqual(files, step.before)) continue;
+        groups.push(step.remappings);
+        files = step.after;
+        if (filesAreEqual(files, nextFiles)) return groups;
+      }
+      return null;
+    };
     const pendingPreviews = new Map<
       string,
       {
@@ -198,6 +378,38 @@ export const useEditorActions = ({
       action: Extract<EditorAction, { type: "set-files" | "undo" | "redo" }>,
       invalidate: boolean,
     ) => {
+      const previous = sourceState.current;
+      let checkpoint = invalidate ? logicalSelection() : null;
+      if (checkpoint) {
+        const sameItem = (
+          a: CanvasSelectionItem | null,
+          b: CanvasSelectionItem | null,
+        ) =>
+          a === null
+            ? b === null
+            : b !== null &&
+              getCanvasSelectionItemKey(a) === getCanvasSelectionItemKey(b);
+        for (const pending of [
+          ...pendingSelectionSnapshots.values(),
+        ].reverse()) {
+          const before = selectionAtFiles(pending.before, previous.files);
+          const after = selectionAtFiles(pending.after, previous.files);
+          if (
+            !before ||
+            !after ||
+            after.compositionId !== checkpoint.compositionId ||
+            after.snapshot.selectedItems.length !==
+              checkpoint.snapshot.selectedItems.length ||
+            !after.snapshot.selectedItems.every((item, index) =>
+              sameItem(item, checkpoint!.snapshot.selectedItems[index]),
+            ) ||
+            !sameItem(after.snapshot.anchor, checkpoint.snapshot.anchor)
+          )
+            break;
+          checkpoint = before;
+        }
+      }
+      if (checkpoint) rememberSelection(previous.files, checkpoint);
       if (invalidate) {
         sourceGeneration.current++;
         cancelPending();
@@ -211,6 +423,34 @@ export const useEditorActions = ({
         pendingPreviews.clear();
       }
       sourceState.current = editorReducer(sourceState.current, action);
+      if (invalidate && sourceState.current !== previous) {
+        const compositionId = ref.current.state.compositionId;
+        if (action.type === "set-files") {
+          pendingSelection.current = null;
+          if (compositionId)
+            rememberSelection(sourceState.current.files, {
+              compositionId,
+              snapshot: { selectedItems: [], anchor: null },
+            });
+        } else {
+          const snapshot = compositionId
+            ? selectionCheckpoints.current
+                .get(sourceState.current.files)
+                ?.get(compositionId)
+            : null;
+          pendingSelection.current =
+            snapshot && compositionId
+              ? {
+                  files: sourceState.current.files,
+                  sourceRevision: sourceState.current.sourceRevision,
+                  userSelectionRevision: userSelectionRevision.current,
+                  checkpoint: { compositionId, snapshot },
+                }
+              : null;
+        }
+      } else if (invalidate && checkpoint) {
+        restoreSelection(checkpoint);
+      }
       dispatch(action);
     };
 
@@ -230,11 +470,21 @@ export const useEditorActions = ({
         | CodemodNodeResult,
       {
         onApplied,
+        selectionBefore,
       }: {
         onApplied?: (changed: boolean) => void;
-      } = {},
+        selectionBefore: CanvasSelectionSnapshot | null;
+      } = { selectionBefore: null },
     ) => {
       const generation = sourceGeneration.current;
+      const beforeSelection = captureSelection(selectionBefore);
+      const afterSelection = captureSelection(null);
+      const selectionRevision = userSelectionRevision.current;
+      const selectionToken = Symbol();
+      pendingSelectionSnapshots.set(selectionToken, {
+        before: beforeSelection,
+        after: afterSelection,
+      });
       const mountedFiles =
         ref.current.state.appliedFiles ?? sourceState.current.files;
       pendingMutations++;
@@ -275,13 +525,42 @@ export const useEditorActions = ({
           if (generation !== sourceGeneration.current) return false;
           const { files } = applyCodemodChanges(project, result.changes);
           const changed = !filesAreEqual(project.files, files);
+          const remappings =
+            "nodePathRemappings" in result ? result.nodePathRemappings : [];
+          const beforeCheckpoint = selectionAtFiles(
+            beforeSelection,
+            project.files,
+          );
+          const afterCheckpoint = selectionAtFiles(
+            afterSelection,
+            project.files,
+          );
+          if (changed && beforeCheckpoint)
+            rememberSelection(project.files, beforeCheckpoint);
+          const nextCheckpoint = afterCheckpoint
+            ? {
+                ...afterCheckpoint,
+                snapshot: remapSelectionSnapshot(
+                  afterCheckpoint.snapshot,
+                  remappings,
+                ),
+              }
+            : null;
+          if (changed && nextCheckpoint)
+            rememberSelection(files, nextCheckpoint);
           dispatchSource(
             { type: "set-files", files, coalesceKey: null, at: Date.now() },
             false,
           );
           if (changed) {
-            const remappings =
-              "nodePathRemappings" in result ? result.nodePathRemappings : [];
+            pendingSelection.current = nextCheckpoint
+              ? {
+                  files,
+                  sourceRevision: sourceState.current.sourceRevision,
+                  userSelectionRevision: selectionRevision,
+                  checkpoint: nextCheckpoint,
+                }
+              : null;
             sourceRemappings.push({
               before: project.files,
               after: files,
@@ -291,9 +570,23 @@ export const useEditorActions = ({
           onApplied?.(changed);
           return true;
         } catch (error) {
-          if (generation === sourceGeneration.current) notifyError(error);
+          if (generation === sourceGeneration.current) {
+            if (
+              selectionBefore !== null &&
+              selectionRevision === userSelectionRevision.current &&
+              [...pendingSelectionSnapshots.keys()].at(-1) === selectionToken
+            ) {
+              const checkpoint = selectionAtFiles(
+                beforeSelection,
+                sourceState.current.files,
+              );
+              if (checkpoint) restoreSelection(checkpoint);
+            }
+            notifyError(error);
+          }
           return false;
         } finally {
+          pendingSelectionSnapshots.delete(selectionToken);
           if (generation === sourceGeneration.current) {
             pendingMutations--;
             dispatch({
@@ -429,7 +722,10 @@ export const useEditorActions = ({
      * Writes grouped node changes to the source in one undoable step. The
      * canvas keeps previewing the values until `releasePreviews`.
      */
-    const commitNodeChanges = async (nodeChanges: Map<string, NodeChange>) => {
+    const commitNodeChanges = async (
+      nodeChanges: Map<string, NodeChange>,
+      selectionBefore: CanvasSelectionSnapshot | null,
+    ) => {
       if (nodeChanges.size === 0) {
         return false;
       }
@@ -531,6 +827,7 @@ export const useEditorActions = ({
           };
         },
         {
+          selectionBefore,
           onApplied: (changed) => {
             if (!changed) {
               release();
@@ -619,21 +916,52 @@ export const useEditorActions = ({
     return {
       notify,
       notifyError,
-      getSourceRemappings: (
+      getSourceTransition: (
         previousFiles: ProjectFiles | null,
         nextFiles: ProjectFiles,
-      ): NodePathRemapping[][] | null => {
-        if (previousFiles === null || filesAreEqual(previousFiles, nextFiles))
-          return [];
-        let files = previousFiles;
-        const groups: NodePathRemapping[][] = [];
-        for (const step of sourceRemappings) {
-          if (!filesAreEqual(files, step.before)) continue;
-          groups.push(step.remappings);
-          files = step.after;
-          if (filesAreEqual(files, nextFiles)) return groups;
-        }
-        return null;
+        sourceRevision: number,
+      ): (() => void) => {
+        const groups = getSourceRemappings(previousFiles, nextFiles);
+        const requested = pendingSelection.current;
+        const restore =
+          requested?.files === nextFiles &&
+          requested.sourceRevision === sourceRevision
+            ? requested
+            : null;
+        const host = ref.current.host;
+        return () => {
+          if (!host || host !== ref.current.host) return;
+          applyingSourceSelection.current = true;
+          try {
+            if (groups === null) {
+              host.controller.selection.clear();
+              host.controller.setSequenceNodePaths({});
+            } else {
+              for (const group of groups)
+                host.controller.remapSequenceNodePaths(group);
+            }
+            selectionFiles.current = nextFiles;
+            selectionSourceRevision.current = sourceRevision;
+            if (
+              restore &&
+              pendingSelection.current === restore &&
+              sourceState.current.files === nextFiles &&
+              sourceState.current.sourceRevision === sourceRevision &&
+              restore.userSelectionRevision === userSelectionRevision.current &&
+              restore.checkpoint.compositionId ===
+                ref.current.state.compositionId &&
+              restore.checkpoint.compositionId ===
+                host.getSnapshot().composition?.id
+            ) {
+              host.controller.selection.setSnapshot(
+                restore.checkpoint.snapshot,
+              );
+              pendingSelection.current = null;
+            }
+          } finally {
+            applyingSourceSelection.current = false;
+          }
+        };
       },
 
       // Files
@@ -784,7 +1112,6 @@ export const ${componentName}: React.FC = () => {
           true,
         );
         if (pending > 1) notify(`Canceled ${pending} pending edits.`);
-        ref.current.host?.controller.selection.clear();
       },
       redo: () => {
         const pending = pendingMutations;
@@ -800,7 +1127,6 @@ export const ${componentName}: React.FC = () => {
           true,
         );
         if (pending > 1) notify(`Canceled ${pending} pending edits.`);
-        ref.current.host?.controller.selection.clear();
       },
 
       // Layers. The selection follows the edited nodes through the node-path
@@ -1046,6 +1372,7 @@ export const ${componentName}: React.FC = () => {
               videoConfig,
             }),
           {
+            selectionBefore: null,
             onApplied: (changed) => {
               if (!changed) {
                 clearPreview(layer, token);
@@ -1068,13 +1395,15 @@ export const ${componentName}: React.FC = () => {
        */
       commitSequencePropChanges: (
         changes: readonly CanvasSequencePropChange[],
-      ) => commitNodeChanges(groupNodeChanges(changes)),
+      ) => commitNodeChanges(groupNodeChanges(changes), null),
       /**
        * Adds, removes or moves keyframes in the source. Moved keyframes stay
        * previewed on the canvas until `releasePreviews`.
        */
-      commitKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) =>
-        commitNodeChanges(groupNodeChanges(changes)),
+      commitKeyframeChanges: (
+        changes: readonly CanvasKeyframeChange[],
+        selectionBefore: CanvasSelectionSnapshot | null,
+      ) => commitNodeChanges(groupNodeChanges(changes), selectionBefore),
       previewKeyframeChanges,
       /** Drops the previews of keyframe changes without writing them. */
       cancelKeyframePreviews: (changes: readonly CanvasKeyframeChange[]) => {
@@ -1092,7 +1421,7 @@ export const ${componentName}: React.FC = () => {
        */
       applyKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) => {
         previewKeyframeChanges(changes);
-        return commitNodeChanges(groupNodeChanges(changes));
+        return commitNodeChanges(groupNodeChanges(changes), null);
       },
       /** Gives the easing segments the same easing. */
       applyEasing: (
@@ -1105,7 +1434,7 @@ export const ${componentName}: React.FC = () => {
           easing,
         });
         previewKeyframeChanges(changes);
-        return commitNodeChanges(groupNodeChanges(changes));
+        return commitNodeChanges(groupNodeChanges(changes), null);
       },
       /** Removes the keyframes that are selected on the timeline. */
       deleteSelectedKeyframes: () => {
@@ -1147,11 +1476,12 @@ export const ${componentName}: React.FC = () => {
           return Promise.resolve(false);
         }
 
+        const selectionBefore = host.controller.selection.getSnapshot();
         // The layers of the removed keyframes stay selected.
         host.controller.selection.setSelectedItems(
           [...layers.values()].map((layer) => layer.selectionItem),
         );
-        return commitNodeChanges(groupNodeChanges(changes));
+        return commitNodeChanges(groupNodeChanges(changes), selectionBefore);
       },
       /**
        * Selects keyframes and easing segments. With an interaction, Shift
@@ -1268,6 +1598,7 @@ export const ${componentName}: React.FC = () => {
 
       // Compositions
       selectComposition: (compositionId: string) => {
+        pendingSelection.current = null;
         dispatch({ type: "select-composition", compositionId });
         ref.current.host?.controller.selection.clear();
       },
@@ -1451,6 +1782,7 @@ export const ${componentName}: React.FC = () => {
             };
           },
           {
+            selectionBefore: null,
             onApplied: () => {
               dispatch({ type: "select-composition", compositionId: id });
               dispatch({ type: "open-file", filePath: componentFile });

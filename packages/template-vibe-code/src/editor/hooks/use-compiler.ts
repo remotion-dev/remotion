@@ -11,7 +11,6 @@ import type {
   PreviewHost,
 } from "@/preview/bridge";
 import { toVirtualProject, type ProjectFiles } from "../model/project";
-import type { NodePathRemapping } from "@remotion/codemods";
 import type { EditorAction } from "../state/editor-store";
 import { getErrorMessage } from "./use-preview-host";
 
@@ -49,26 +48,29 @@ const sameSelection = (
 export const useCompiler = ({
   host,
   files,
+  sourceRevision,
   entryPoint,
   selection,
   dispatch,
-  getSourceRemappings,
+  getSourceTransition,
 }: {
   host: PreviewHost | null;
   files: ProjectFiles;
+  sourceRevision: number;
   entryPoint: string;
   selection: PreviewCompositionSelection | null;
   dispatch: React.Dispatch<EditorAction>;
-  getSourceRemappings: (
+  getSourceTransition: (
     previousFiles: ProjectFiles | null,
     nextFiles: ProjectFiles,
-  ) => NodePathRemapping[][] | null;
+    sourceRevision: number,
+  ) => () => void;
 }) => {
   const sessionRef = useRef<Session | null>(null);
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
-  const remappingsRef = useRef(getSourceRemappings);
-  remappingsRef.current = getSourceRemappings;
+  const transitionRef = useRef(getSourceTransition);
+  transitionRef.current = getSourceTransition;
 
   useEffect(() => {
     if (!host) {
@@ -127,7 +129,7 @@ export const useCompiler = ({
   }, [dispatch, host]);
 
   const compile = useCallback(
-    (nextFiles: ProjectFiles) => {
+    (nextFiles: ProjectFiles, nextSourceRevision: number) => {
       const session = sessionRef.current;
       if (!host || !session || session.disposed) {
         return;
@@ -158,7 +160,11 @@ export const useCompiler = ({
           // applied because the next Fast Refresh update builds on it.
           await host.applyBundle(
             bundle,
-            remappingsRef.current(session.appliedFiles, nextFiles),
+            transitionRef.current(
+              session.appliedFiles,
+              nextFiles,
+              nextSourceRevision,
+            ),
           );
           session.appliedFiles = nextFiles;
           session.hasBundle = true;
@@ -198,9 +204,12 @@ export const useCompiler = ({
       return;
     }
 
-    const timeout = window.setTimeout(() => compile(files), 150);
+    const timeout = window.setTimeout(
+      () => compile(files, sourceRevision),
+      150,
+    );
     return () => window.clearTimeout(timeout);
-  }, [compile, files, host]);
+  }, [compile, files, host, sourceRevision]);
 
   useEffect(() => {
     const session = sessionRef.current;
