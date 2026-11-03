@@ -1,4 +1,8 @@
-import {TraceMap, type SourceMapInput} from '@jridgewell/trace-mapping';
+import {
+	sourceContentFor,
+	TraceMap,
+	type SourceMapInput,
+} from '@jridgewell/trace-mapping';
 import {Internals} from 'remotion';
 import {getOriginalPosition} from '../../../error-overlay/react-overlay/utils/get-source-map';
 import {
@@ -10,6 +14,23 @@ const traceMapCache: Partial<Record<string, TraceMap>> = {};
 const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
 const traceMapsByOriginalSource = new Map<string, TraceMap>();
 const sourceMapFilesCache = new WeakMap<TraceMap, Record<string, string>>();
+
+export const getCompiledSourceHash = (
+	stack: string | null,
+	fileName: string,
+): string | null => {
+	const location = getLocationOfSequence(stack);
+	const map = location ? traceMapCache[location.fileName] : null;
+	if (!map) {
+		return null;
+	}
+
+	return (
+		sourceContentFor(map, fileName)
+			?.slice(-96)
+			.match(/\/\* remotion-source-sha256:([a-f0-9]{64}) \*\/\s*$/)?.[1] ?? null
+	);
+};
 
 const isInternalSource = (source: string | null): boolean => {
 	if (source === null) {

@@ -487,7 +487,13 @@ export function popUndo(): UndoResponse {
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
+		files.length === 0
+			? null
+			: broadcastSequenceNodePathMutation(
+					files,
+					null,
+					entry.suppressHmrOnFileRestore,
+				);
 
 	for (const snapshot of entry.snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
@@ -587,7 +593,13 @@ export function popRedo(): RedoResponse {
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
+		files.length === 0
+			? null
+			: broadcastSequenceNodePathMutation(
+					files,
+					null,
+					entry.suppressHmrOnFileRestore,
+				);
 
 	for (const snapshot of snapshotsWithNewContents) {
 		suppressUndoStackInvalidation(snapshot.filePath);

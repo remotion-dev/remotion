@@ -347,7 +347,7 @@ export const addKeyframes = async ({
 	}
 
 	const nodePathMutation = filesWithRemappings.length
-		? broadcastSequenceNodePathMutation(filesWithRemappings, null)
+		? broadcastSequenceNodePathMutation(filesWithRemappings, null, true)
 		: null;
 
 	for (const log of sequenceLogs) {

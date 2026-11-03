@@ -120,7 +120,7 @@ export const deleteNodesHandler: ApiHandler<
 				pushToUndoStack({
 					filePath: update.absolutePath,
 					oldContents: update.fileContents,
-					newContents: null,
+					newContents: update.output,
 					logLevel,
 					remotionRoot,
 					logLine: update.logLine,

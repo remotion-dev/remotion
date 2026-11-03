@@ -484,6 +484,7 @@ export type SubscribeToSequencePropsResponse =
 	  };
 
 export type SubscribeToSequencePropsBatchRequest = {
+	compiledSourceHashes: (string | null)[] | null;
 	requests: SubscribeToSequencePropsRequest[];
 };
 

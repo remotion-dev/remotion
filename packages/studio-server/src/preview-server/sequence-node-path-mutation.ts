@@ -14,10 +14,12 @@ export const broadcastSequenceNodePathMutation = (
 		remappings: SequenceNodePathRemapping[];
 	}>,
 	timelineSelection: SequenceNodePathMutation['timelineSelection'],
+	applyWithoutFastRefresh = false,
 ): SequenceNodePathMutation => {
 	mutationCounter++;
 	const mutation: SequenceNodePathMutation = {
 		mutationId: `${mutationSessionId}:${mutationCounter}`,
+		...(applyWithoutFastRefresh ? {applyWithoutFastRefresh: true} : {}),
 		timelineSelection,
 		files,
 	};

@@ -19,6 +19,19 @@ const pendingDeletionRemappings = new Map<
 	Parameters<typeof Internals.OptimisticSequenceDeletion.remap>[0][number][]
 >();
 const seenMutationIds = new Set<string>();
+const filesWithSourceOnlyRemappings = new Set<string>();
+
+export const hasSourceOnlyRemappings = (fileName: string): boolean => {
+	if (filesWithSourceOnlyRemappings.size === 0) {
+		return false;
+	}
+
+	const root = typeof window === 'undefined' ? '' : (window.remotion_cwd ?? '');
+	return filesWithSourceOnlyRemappings.has(
+		normalizeSourceFileName(fileName, root),
+	);
+};
+
 const mutationListeners = new Set<
 	(mutation: SequenceNodePathMutation) => void
 >();
@@ -118,6 +131,14 @@ export const queueSequenceNodePathMutation = (
 	}
 
 	seenMutationIds.add(mutation.mutationId);
+	if (mutation.applyWithoutFastRefresh) {
+		for (const file of mutation.files) {
+			filesWithSourceOnlyRemappings.add(
+				normalizeSourceFileName(file.absolutePath, ''),
+			);
+		}
+	}
+
 	pendingMutations.push(mutation);
 	recordDuplicationSelectionMutation(mutation);
 	markSourceRequestPaths(
@@ -195,18 +216,27 @@ export const queueSequenceNodePathMutationFromApiResponse = (
 	queueSequenceNodePathMutation(nodePathMutation as SequenceNodePathMutation);
 };
 
-export const takePendingSequenceNodePathMutations =
-	(): SequenceNodePathMutation[] => {
-		const mutations = pendingMutations.splice(0);
-		for (const mutation of mutations) {
-			pendingDeletionRetirements.get(mutation.mutationId)?.();
-			pendingDeletionRetirements.delete(mutation.mutationId);
-			const remappings = pendingDeletionRemappings.get(mutation.mutationId);
-			if (remappings) {
-				Internals.OptimisticSequenceDeletion.remap(remappings);
-				pendingDeletionRemappings.delete(mutation.mutationId);
-			}
+export const takePendingSequenceNodePathMutations = (
+	onlyWithoutFastRefresh = false,
+): SequenceNodePathMutation[] => {
+	const nextRefresh = onlyWithoutFastRefresh
+		? pendingMutations.findIndex(
+				(mutation) => !mutation.applyWithoutFastRefresh,
+			)
+		: -1;
+	const mutations = pendingMutations.splice(
+		0,
+		nextRefresh === -1 ? pendingMutations.length : nextRefresh,
+	);
+	for (const mutation of mutations) {
+		pendingDeletionRetirements.get(mutation.mutationId)?.();
+		pendingDeletionRetirements.delete(mutation.mutationId);
+		const remappings = pendingDeletionRemappings.get(mutation.mutationId);
+		if (remappings) {
+			Internals.OptimisticSequenceDeletion.remap(remappings);
+			pendingDeletionRemappings.delete(mutation.mutationId);
 		}
+	}
 
-		return mutations;
-	};
+	return mutations;
+};

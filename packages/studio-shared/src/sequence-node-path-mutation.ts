@@ -13,6 +13,7 @@ export type SequenceNodePathRemapping = {
 
 export type SequenceNodePathMutation = {
 	mutationId: string;
+	applyWithoutFastRefresh?: true;
 	timelineSelection: {
 		compositionId: string;
 		absolutePath: string;

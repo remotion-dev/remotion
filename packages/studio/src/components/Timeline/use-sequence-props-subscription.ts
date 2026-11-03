@@ -5,6 +5,7 @@ import {
 import {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import type {
 	JsxComponentIdentity,
+	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
@@ -55,6 +56,10 @@ export const useSequencePropsSubscription = ({
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
 	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const [refreshToken, setRefreshToken] = useState(0);
+	const remappedSource = useRef<{
+		nodePath: SequenceNodePath;
+		stack: string | null;
+	} | null>(null);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 	const effectsSignature = useMemo(
@@ -84,10 +89,11 @@ export const useSequencePropsSubscription = ({
 	const locationColumn = validatedLocation?.column ?? null;
 
 	useEffect(() => {
-		return subscribeToSequencePropsRefresh(overrideId, () => {
+		return subscribeToSequencePropsRefresh(overrideId, (nodePath) => {
+			remappedSource.current = nodePath ? {nodePath, stack} : null;
 			setRefreshToken((token) => token + 1);
 		});
-	}, [overrideId]);
+	}, [overrideId, stack]);
 
 	useEffect(() => {
 		// Optimistic deletion can remount siblings with stacks from the old source.
@@ -106,6 +112,11 @@ export const useSequencePropsSubscription = ({
 
 		const nodePathAtResubscribe =
 			overrideIdToNodePathMappingsRef.current[overrideId] ?? null;
+		const requestedNodePath =
+			remappedSource.current?.stack === stack
+				? remappedSource.current.nodePath
+				: null;
+		remappedSource.current = null;
 
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
@@ -114,9 +125,11 @@ export const useSequencePropsSubscription = ({
 			schema,
 			componentIdentity,
 			effects,
-			nodePath: preferMappedNodePath
-				? (nodePathAtResubscribe?.nodePath ?? null)
-				: null,
+			nodePath:
+				requestedNodePath ??
+				(preferMappedNodePath
+					? (nodePathAtResubscribe?.nodePath ?? null)
+					: null),
 			clientId,
 			stack,
 
