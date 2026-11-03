@@ -362,14 +362,14 @@ export const SequencePropsObserver = ({
 				nodePath: runtimeNodePathExists ? previousNodePath : nextNodePath,
 			});
 			if (
-				!wasDeleted &&
-				(nodePathChanged ||
-					!runtimeNodePathExists ||
-					runtimeNodePathNeedsRefresh)
+				runtimeNodePathNeedsRefresh ||
+				(!wasDeleted && (nodePathChanged || !runtimeNodePathExists))
 			) {
 				overrideIdsToRefresh.set(
 					overrideId,
-					onlyWithoutFastRefresh ? (nextNodePath?.nodePath ?? null) : null,
+					onlyWithoutFastRefresh
+						? (nextNodePath ?? previousNodePath).nodePath
+						: null,
 				);
 			}
 		}
