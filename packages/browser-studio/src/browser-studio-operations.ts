@@ -622,7 +622,10 @@ export const createBrowserStudioOperations = ({
 		payload: StudioElementPayload;
 		sourceOrigin: string | null;
 	} | null;
-	onProjectChange: (project: VirtualProject) => void;
+	onProjectChange: (
+		project: VirtualProject,
+		sourceMutationId: string | null,
+	) => void;
 	resolveDependencies: ResolveElementDependencies | null;
 }): BrowserStudioOperationsController => {
 	let pendingInitialElement = initialElement;
@@ -678,7 +681,7 @@ export const createBrowserStudioOperations = ({
 		sourceVersionSessionId,
 		onProjectChange: (project, metadata) => {
 			const sourceVersions = captureSourceVersions(project);
-			onProjectChange(project);
+			onProjectChange(project, metadata.sourceMutationId);
 			refreshDefaultPropsSubscriptions();
 			refreshSequencePropsSubscriptions(
 				project,

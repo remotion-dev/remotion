@@ -1,5 +1,11 @@
 export type HotMiddlewareMessage =
 	| {
+			action: 'project-unchanged';
+			hash: string;
+			previousMutationId: string | null;
+			sourceMutationId: string;
+	  }
+	| {
 			action: 'building';
 			name?: string;
 	  }
@@ -10,6 +16,7 @@ export type HotMiddlewareMessage =
 			errors: unknown[];
 			warnings: unknown[];
 			hash: string | undefined;
+			sourceMutationId: string | null;
 			modules: {
 				[key: string]: string;
 			};

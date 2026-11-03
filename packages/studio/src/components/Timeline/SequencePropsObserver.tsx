@@ -17,6 +17,7 @@ import {markDuplicationSelectionMutationsApplied} from '../../helpers/duplicated
 import {remapOptimisticEffectDeletions} from '../../helpers/effect-deletion-state';
 import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
 import {
+	subscribeToInstalledMutationBuild,
 	subscribeToSequenceNodePathMutations,
 	takePendingSequenceNodePathMutations,
 } from '../../helpers/sequence-node-path-mutations';
@@ -123,7 +124,11 @@ export const SequencePropsObserver = ({
 			REACT_REFRESH_STARTED_EVENT,
 			handleReactRefreshStarted,
 		);
+		const unsubscribe = subscribeToInstalledMutationBuild(() => {
+			setFastRefreshStarts((starts) => starts + 1);
+		});
 		return () => {
+			unsubscribe();
 			window.removeEventListener(
 				REACT_REFRESH_STARTED_EVENT,
 				handleReactRefreshStarted,
@@ -187,14 +192,14 @@ export const SequencePropsObserver = ({
 			started: fastRefreshStarts,
 			completed: fastRefreshes,
 		};
-		const mutations = takePendingSequenceNodePathMutations(
-			onlyWithoutFastRefresh,
-		);
-		if (mutations.length === 0) {
+		const {mutations: settled, changes: mutations} =
+			takePendingSequenceNodePathMutations(onlyWithoutFastRefresh);
+		if (settled.length === 0) {
 			return;
 		}
 
-		markDuplicationSelectionMutationsApplied(mutations, fastRefreshes);
+		markDuplicationSelectionMutationsApplied(settled, fastRefreshes);
+		if (mutations.length === 0) return;
 
 		remapCanvasDragPreviews(
 			{

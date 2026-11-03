@@ -401,7 +401,10 @@ export const createBrowserStudioProjectController = ({
 	sourceVersionSessionId: string | null;
 	onProjectChange: (
 		project: VirtualProject,
-		metadata: {skipSequencePropsUpdate: boolean},
+		metadata: {
+			skipSequencePropsUpdate: boolean;
+			sourceMutationId: string | null;
+		},
 	) => void;
 }): BrowserStudioProjectController => {
 	const resolvedGetStaticFiles: BrowserStudioStaticFilesGetter =
@@ -417,7 +420,7 @@ export const createBrowserStudioProjectController = ({
 	const redoStack: HistoryEntry[] = [];
 	const listeners = new Set<(event: EventSourceEvent) => void>();
 	const lastModifiedByPath = new Map<string, number>();
-	let latestHmrEvent: Extract<EventSourceEvent, {type: 'hmr'}> | null = null;
+	const pendingHmrEvents: Extract<EventSourceEvent, {type: 'hmr'}>[] = [];
 	let publicFileRevision = 0;
 	const nodePathMutationSessionId = `${Date.now()}:${Math.random()}`;
 	let nodePathMutationCounter = 0;
@@ -492,7 +495,7 @@ export const createBrowserStudioProjectController = ({
 
 	const emit = (event: EventSourceEvent) => {
 		if (event.type === 'hmr' && listeners.size === 0) {
-			latestHmrEvent = event;
+			pendingHmrEvents.push(event);
 		}
 
 		for (const listener of listeners) {
@@ -543,6 +546,7 @@ export const createBrowserStudioProjectController = ({
 		}
 
 		onProjectChange(nextProject, {
+			sourceMutationId: nodePathMutation?.mutationId ?? null,
 			skipSequencePropsUpdate:
 				nodePathMutationFiles !== null &&
 				!onlySourceLocationsChanged(nodePathMutationFiles),
@@ -724,7 +728,7 @@ export const createBrowserStudioProjectController = ({
 			}
 		},
 		clearPendingHmrEvent: () => {
-			latestHmrEvent = null;
+			pendingHmrEvents.length = 0;
 		},
 		emitEvent: emit,
 		findInFile: (request) => {
@@ -804,9 +808,8 @@ export const createBrowserStudioProjectController = ({
 					}
 				})
 				.catch(reportAsyncError);
-			if (latestHmrEvent) {
-				listener(latestHmrEvent);
-				latestHmrEvent = null;
+			for (const event of pendingHmrEvents.splice(0)) {
+				listener(event);
 			}
 
 			return () => {
