@@ -78,6 +78,7 @@ import {
 } from '../selected-outline-types';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
+import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {
@@ -645,7 +646,10 @@ const TimelineSequenceItemInner: React.FC<{
 
 			if (
 				dragData.parentId !== parentId ||
-				dragData.fileName !== validatedLocation.source
+				dragData.fileName !== validatedLocation.source ||
+				dragData.sourceNodePaths.some(
+					(source) => !areSequenceNodesJsxSiblings(source, nodePath),
+				)
 			) {
 				return {
 					type: 'invalid',

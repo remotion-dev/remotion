@@ -11,6 +11,7 @@ import {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {reorderSequence} from '../reorder-sequence-api';
+import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {scrollableRef} from './timeline-refs';
 import {
@@ -198,13 +199,18 @@ export const useSeriesReorder = (
 				);
 				const next = candidates[insertionIndex];
 				const candidate = next ?? candidates.at(-1);
+				const candidateNodePathInfo = candidate?.item.nodePathInfo;
 				if (
 					changesOrder &&
-					(!candidate ||
-						candidate.item.nodePathInfo?.numberOfSequencesWithThisNodePath !==
-							1 ||
-						candidate.item.nodePathInfo.sequenceSubscriptionKey.absolutePath !==
-							fileName)
+					(!candidateNodePathInfo ||
+						candidateNodePathInfo.numberOfSequencesWithThisNodePath !== 1 ||
+						sourceInfos.some(
+							(info) =>
+								!areSequenceNodesJsxSiblings(
+									info.sequenceSubscriptionKey,
+									candidateNodePathInfo.sequenceSubscriptionKey,
+								),
+						))
 				) {
 					setDropIndicatorLeft(null);
 					return;
