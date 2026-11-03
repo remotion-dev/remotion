@@ -27,10 +27,8 @@ import {
 	WHITE_ALPHA_35,
 	WHITE_ALPHA_72,
 } from '../../helpers/colors';
-import {
-	isPointerSessionRelease,
-	startCapturedPointerSession,
-} from '../../helpers/pointer-session';
+import {startEscapeCancelableCapturedPointerSession} from '../../helpers/escape-cancelable-pointer-session';
+import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -764,6 +762,7 @@ const EasingEditorUnmemoized: React.FC<{
 	const springRef = useRef(spring);
 	const liveOverrideVersionRef = useRef(0);
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
+	const stopPointerSession = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
@@ -1108,15 +1107,17 @@ const EasingEditorUnmemoized: React.FC<{
 
 			event.preventDefault();
 			event.stopPropagation();
+			stopPointerSession.current?.();
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			updateHandleFromPointer(handle, event);
-			startCapturedPointerSession({
+			stopPointerSession.current = startEscapeCancelableCapturedPointerSession({
 				event,
 				captureTarget: event.currentTarget,
 				onMove: (moveEvent) => {
 					updateHandleFromPointer(handle, moveEvent);
 				},
 				onEnd: (reason, endEvent) => {
+					stopPointerSession.current = null;
 					if (isPointerSessionRelease(reason, endEvent)) {
 						commitEasing(
 							serializeBezier(bezierRef.current),
@@ -1141,6 +1142,7 @@ const EasingEditorUnmemoized: React.FC<{
 
 	useEffect(() => {
 		return () => {
+			stopPointerSession.current?.();
 			clearEasingDragOverrides(pendingOverrideTargetsRef.current);
 		};
 	}, [clearEasingDragOverrides]);
