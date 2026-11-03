@@ -124,7 +124,8 @@ const Value: React.FC<{
 	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
 	const video = Internals.useVideo();
 	const fps = nodePath.videoConfigValues?.fps ?? video?.fps;
-	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
+	const {clampTimingValue, clearTimingLimits, getLoopToggleError} =
+		useClampSequenceTimingValue();
 	const {getPreview, takePreview, cancelPreview} = useSequencePropPreview();
 	const {
 		preview: previewPlaybackRate,
@@ -230,6 +231,13 @@ const Value: React.FC<{
 
 	const onSave = useCallback<TimelineFieldOnSave>(
 		(value, options) => {
+			const loopToggleError = getLoopToggleError(nodePath, field.key, value);
+			if (loopToggleError !== null) {
+				cancelActivePreview();
+				showNotification(loopToggleError, 4000);
+				return Promise.resolve();
+			}
+
 			value = clampTimingValue(nodePath, field.key, value);
 			clearTimingLimits();
 			if (!clientId) {
@@ -366,6 +374,7 @@ const Value: React.FC<{
 			field.fieldSchema.type,
 			field.key,
 			getLoopDurationChange,
+			getLoopToggleError,
 			nodePath,
 			schema,
 			setPropStatuses,

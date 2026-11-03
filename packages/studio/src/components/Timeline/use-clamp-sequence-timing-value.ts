@@ -8,6 +8,13 @@ import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscripti
 import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {getTimelineSequenceTimingLimits} from './get-timeline-sequence-timing-limits';
 
+const timelineLoopComponentIdentities = new Set([
+	'dev.remotion.media.Video',
+	'dev.remotion.media.Audio',
+	'dev.remotion.gif.Gif',
+	'dev.remotion.remotion.AnimatedImage',
+]);
+
 export const useClampSequenceTimingValue = () => {
 	const calculateTimeline = useTimelineCalculator();
 	const propStatusesRef = useContext(
@@ -27,6 +34,60 @@ export const useClampSequenceTimingValue = () => {
 		limitsRef.current.clear();
 		tracksBySourceRef.current = null;
 	}, []);
+	const getLoopToggleError = useCallback(
+		(
+			nodePath: SequencePropsSubscriptionKey,
+			fieldKey: string,
+			value: unknown,
+		): string | null => {
+			if (fieldKey !== 'loop' || value !== true || !video) {
+				return null;
+			}
+
+			const sequences = sequencesRef.current;
+			const {tracks} = calculateTimeline({
+				sequences,
+				overrideIdsToNodePaths: mappingsRef.current,
+			});
+			const key = stringifySequenceSubscriptionKey(nodePath);
+			for (const track of tracks) {
+				if (
+					!timelineLoopComponentIdentities.has(
+						track.sequence.controls?.componentIdentity ?? '',
+					) ||
+					!track.nodePathInfo ||
+					stringifySequenceSubscriptionKey(
+						track.nodePathInfo.sequenceSubscriptionKey,
+					) !== key
+				) {
+					continue;
+				}
+
+				const limits = getTimelineSequenceTimingLimits({
+					propStatuses: propStatusesRef.current,
+					movingSequenceIds: null,
+					track,
+					tracks,
+					sequences,
+					timelineDurationInFrames: video.durationInFrames,
+				});
+				const loopEnd = Math.min(
+					video.durationInFrames,
+					track.parentVisibleEnd ?? Infinity,
+				);
+				const tolerance =
+					Number.EPSILON *
+					Math.max(1, Math.abs(loopEnd), Math.abs(limits.maximumEnd)) *
+					4;
+				if (loopEnd - limits.maximumEnd > tolerance) {
+					return 'Looping this clip would overlap another item on this track.';
+				}
+			}
+
+			return null;
+		},
+		[calculateTimeline, mappingsRef, propStatusesRef, sequencesRef, video],
+	);
 	const clampTimingValue = useCallback(
 		(
 			nodePath: SequencePropsSubscriptionKey,
@@ -150,5 +211,5 @@ export const useClampSequenceTimingValue = () => {
 			video?.durationInFrames,
 		],
 	);
-	return {clampTimingValue, clearTimingLimits};
+	return {clampTimingValue, clearTimingLimits, getLoopToggleError};
 };
