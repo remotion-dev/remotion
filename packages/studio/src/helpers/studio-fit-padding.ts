@@ -52,12 +52,33 @@ export const calculateStudioScale = ({
 }) => {
 	const paddedCanvasSize = getStudioPaddedCanvasSize(canvasSize).canvasSize;
 
-	return Internals.calculateScale({
+	const scale = Internals.calculateScale({
 		canvasSize: paddedCanvasSize,
 		compositionHeight,
 		compositionWidth,
 		previewSize,
 	});
+
+	if (previewSize !== 'auto') {
+		return scale;
+	}
+
+	// Chrome snaps the clip of promoted layers like <video> outwards to device
+	// pixels while normal content is painted with partial coverage, so an edge
+	// between device pixels leaks a 1px line of video next to a full-width bar.
+	const devicePixelRatio = getDevicePixelRatio();
+	return (
+		Math.floor(scale * compositionHeight * devicePixelRatio) /
+		(compositionHeight * devicePixelRatio)
+	);
+};
+
+const getDevicePixelRatio = () => {
+	if (typeof window === 'undefined') {
+		return 1;
+	}
+
+	return window.devicePixelRatio || 1;
 };
 
 export const calculateStudioCanvasTransformation = ({
@@ -72,12 +93,18 @@ export const calculateStudioCanvasTransformation = ({
 	readonly previewSize: PreviewSize['size'];
 }) => {
 	if (previewSize !== 'auto') {
-		return PlayerInternals.calculateCanvasTransformation({
+		const transformation = PlayerInternals.calculateCanvasTransformation({
 			canvasSize,
 			compositionHeight,
 			compositionWidth,
 			previewSize,
 		});
+		return {
+			centerX: transformation.centerX,
+			centerY: transformation.centerY,
+			scale: transformation.scale,
+			scaleX: transformation.scale,
+		};
 	}
 
 	const {
@@ -85,16 +112,31 @@ export const calculateStudioCanvasTransformation = ({
 		horizontalPadding,
 		verticalPadding,
 	} = getStudioPaddedCanvasSize(canvasSize);
-	const transformation = PlayerInternals.calculateCanvasTransformation({
-		canvasSize: paddedCanvasSize,
+	const scale = calculateStudioScale({
+		canvasSize,
 		compositionHeight,
 		compositionWidth,
 		previewSize,
 	});
+	const devicePixelRatio = getDevicePixelRatio();
+	const snapToDevicePixel = (value: number) =>
+		Math.round(value * devicePixelRatio) / devicePixelRatio;
+	const scaleX =
+		Math.floor(compositionWidth * scale * devicePixelRatio) /
+		(compositionWidth * devicePixelRatio);
 
 	return {
-		...transformation,
-		centerX: transformation.centerX + horizontalPadding,
-		centerY: transformation.centerY + verticalPadding,
+		centerX: snapToDevicePixel(
+			paddedCanvasSize.width / 2 -
+				(compositionWidth * scaleX) / 2 +
+				horizontalPadding,
+		),
+		centerY: snapToDevicePixel(
+			paddedCanvasSize.height / 2 -
+				(compositionHeight * scale) / 2 +
+				verticalPadding,
+		),
+		scale,
+		scaleX,
 	};
 };

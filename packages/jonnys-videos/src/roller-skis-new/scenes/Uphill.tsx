@@ -19,7 +19,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -126,7 +126,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -254,7 +254,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -291,7 +291,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -349,7 +349,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -400,7 +400,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -430,7 +430,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -467,7 +467,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -504,7 +504,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -548,7 +548,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -634,7 +634,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -729,7 +729,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -878,7 +878,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -1027,7 +1027,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -1071,7 +1071,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459-rotated-180-v1.mp4'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -1171,7 +1171,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"
@@ -1236,7 +1236,7 @@ const UphillInner: React.FC = () => {
 					<Video
 						name="IMG_0459"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 						}
 						volume={0.8}
 						objectFit="cover"

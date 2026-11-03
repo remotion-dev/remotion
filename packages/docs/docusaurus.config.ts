@@ -101,7 +101,6 @@ const config: Config = {
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
-						{to: '/docs/recorder', label: 'Recorder'},
 						{to: 'https://remotion.dev/convert', label: 'Convert'},
 					],
 				},

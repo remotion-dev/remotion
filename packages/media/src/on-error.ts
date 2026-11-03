@@ -24,7 +24,7 @@ export const callOnErrorAndResolve = ({
 		return ['fail', clientSideError];
 	}
 
-	if (result) {
+	if (result === 'fail' || result === 'fallback') {
 		return [result, error];
 	}
 
