@@ -83,7 +83,7 @@ export const useEditorShortcuts = ({
           }
 
           if (event.shiftKey) {
-            void actions.splitNodesAtPlayhead(selectedNodes);
+            void actions.splitLayersAtPlayhead(getSelectedLayers(host, layers));
           } else {
             void actions.duplicateNodes(selectedNodes);
           }
@@ -138,7 +138,10 @@ export const useEditorShortcuts = ({
         if (key === "ArrowUp" || key === "ArrowDown") {
           const [node] = getSelectedNodes(host, layers);
           if (node) {
-            void actions.moveSelectedNodesOneStep(node, key === "ArrowUp" ? "up" : "down");
+            void actions.moveSelectedNodesOneStep(
+              node,
+              key === "ArrowUp" ? "up" : "down",
+            );
           }
 
           return true;
@@ -327,7 +330,7 @@ export const useEditorShortcuts = ({
   return handleKey;
 };
 
-export const getSelectedNodes = (host: PreviewHost | null, layers: Layer[]) => {
+const getSelectedLayers = (host: PreviewHost | null, layers: Layer[]) => {
   if (!host) {
     return [];
   }
@@ -337,12 +340,14 @@ export const getSelectedNodes = (host: PreviewHost | null, layers: Layer[]) => {
       .getSnapshot()
       .selectedItems.map(getCanvasSelectionItemKey),
   );
-  const nodes = new Map<string, ReturnType<typeof getNodeReference>>();
-  for (const layer of layers) {
-    if (!selectedKeys.has(getCanvasSelectionItemKey(layer.selectionItem))) {
-      continue;
-    }
+  return layers.filter((layer) =>
+    selectedKeys.has(getCanvasSelectionItemKey(layer.selectionItem)),
+  );
+};
 
+export const getSelectedNodes = (host: PreviewHost | null, layers: Layer[]) => {
+  const nodes = new Map<string, ReturnType<typeof getNodeReference>>();
+  for (const layer of getSelectedLayers(host, layers)) {
     const node = getNodeReference(layer.selectionItem);
     if (node) {
       nodes.set(JSON.stringify(node), node);

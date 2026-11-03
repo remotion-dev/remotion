@@ -813,14 +813,52 @@ export const ${componentName}: React.FC = () => {
         applyCodemod((project, resolveNode) =>
           duplicateNodesCodemod({ project, nodes: nodes.map(resolveNode) }),
         ),
-      splitNodesAtPlayhead: (nodes: NodeReference[]) => {
+      splitLayersAtPlayhead: (layers: Layer[]) => {
         const frame = currentFrame();
-        return applyCodemod((project, resolveNode) =>
-          splitSequences({
+        const videoConfig = {
+          width: ref.current.compositionWidth,
+          height: ref.current.compositionHeight,
+          fps: ref.current.compositionFps,
+          durationInFrames: ref.current.compositionDurationInFrames,
+        };
+        const splits = layers.flatMap((layer) => {
+          const node = getNodeReference(layer.selectionItem);
+          if (!node) return [];
+          const { track } = layer;
+          return [
+            {
+              node,
+              frame:
+                track.localStart +
+                (frame - track.cascadedStart) * track.keyframePlaybackRate,
+              videoConfig:
+                track.sequence.controls?.videoConfigValues ?? videoConfig,
+            },
+          ];
+        });
+        return applyCodemod((project, resolveNode) => {
+          const uniqueSplits = new Map<string, (typeof splits)[number]>();
+          for (const split of splits) {
+            const key = JSON.stringify([
+              split.node.filePath,
+              split.node.nodePath,
+            ]);
+            const existing = uniqueSplits.get(key);
+            if (existing && existing.frame !== split.frame) {
+              throw new Error(
+                "Selected instances share source code but have different split points.",
+              );
+            }
+            uniqueSplits.set(key, split);
+          }
+          return splitSequences({
             project,
-            splits: nodes.map((node) => ({ node: resolveNode(node), frame })),
-          }),
-        );
+            splits: [...uniqueSplits.values()].map((split) => ({
+              ...split,
+              node: resolveNode(split.node),
+            })),
+          });
+        });
       },
       wrapNode: (node: NodeReference, wrapper: "Sequence" | "AbsoluteFill") =>
         applyCodemod((project, resolveNode) =>

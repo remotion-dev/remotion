@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  getCanvasSelectionItemKey,
-  useCanvasSelection,
-} from "@remotion/sdk";
+import { getCanvasSelectionItemKey, useCanvasSelection } from "@remotion/sdk";
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -80,7 +77,7 @@ const SelectionInspector: React.FC = () => {
           size="xs"
           variant="secondary"
           disabled={nodes.length === 0}
-          onClick={() => void actions.splitNodesAtPlayhead(nodes)}
+          onClick={() => void actions.splitLayersAtPlayhead(selectedLayers)}
         >
           Split at playhead
         </Button>
