@@ -113,7 +113,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 		);
 		const subscription = await subscribeToSequenceProps({
 			...apiHandlerContext,
-			input: {requests},
+			input: {requests, compiledSourceHashes: null},
 		});
 		expect(subscription.results.every((result) => result.success)).toBe(true);
 

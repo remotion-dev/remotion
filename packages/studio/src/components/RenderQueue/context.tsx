@@ -34,7 +34,7 @@ import type {
 	ClientRenderJobProgress,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
-	GetBlobCallback,
+	LocalRenderOutput,
 	RestoredClientRenderJob,
 } from './client-side-render-types';
 import {createRenderCancellationStore} from './render-cancellation';
@@ -54,7 +54,7 @@ declare global {
 const restorePersistedClientRenders = (): RestoredClientRenderJob[] => {
 	const persisted = window.remotion_initialClientRenders ?? [];
 	return persisted.map(
-		(r): RestoredClientRenderJob => ({...r, status: 'done'}),
+		(r): RestoredClientRenderJob => ({...r, status: 'done', localOutput: null}),
 	);
 };
 
@@ -88,7 +88,7 @@ type RenderQueueContextType = {
 	markClientJobDone: (
 		jobId: string,
 		metadata: CompletedClientRender['metadata'],
-		getBlob?: GetBlobCallback,
+		localOutput: LocalRenderOutput | null,
 	) => void;
 	markClientJobFailed: (jobId: string, error: Error) => void;
 	markClientJobCancelled: (jobId: string) => void;
@@ -423,14 +423,16 @@ export const RenderQueueContextProvider: React.FC<{
 		(
 			jobId: string,
 			metadata: CompletedClientRender['metadata'],
-			getBlob?: GetBlobCallback,
+			localOutput: LocalRenderOutput | null,
 		): void => {
 			deleteAbortController(jobId);
 			cleanupCompositionForJob(jobId);
 
 			setClientJobs((prev) =>
 				prev.map((job) =>
-					job.id === jobId ? {...job, status: 'done', metadata, getBlob} : job,
+					job.id === jobId && job.status !== 'done'
+						? {...job, status: 'done', metadata, localOutput}
+						: job,
 				),
 			);
 			setCurrentlyProcessing((current) => (current === jobId ? null : current));
@@ -790,7 +792,13 @@ export const RenderQueueContextProvider: React.FC<{
 
 					const newJobs = renders
 						.filter((r) => !existingIds.has(r.id))
-						.map((r): RestoredClientRenderJob => ({...r, status: 'done'}));
+						.map(
+							(r): RestoredClientRenderJob => ({
+								...r,
+								status: 'done',
+								localOutput: null,
+							}),
+						);
 
 					return [...updatedPrev, ...newJobs];
 				});

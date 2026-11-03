@@ -20,6 +20,7 @@ import {humanReadableLogLevel} from './human-readable-loglevel';
 import {input, label, optionRow, rightRow} from './layout';
 import {WebRendererOptionExplainerBubble} from './OptionExplainerBubble';
 import {RenderModalOutputName} from './RenderModalOutputName';
+import type {RenderFrameInput} from './use-render-frame-input';
 import type {RenderType} from './WebRenderModal';
 
 type WebRenderModalBasicProps = {
@@ -27,19 +28,16 @@ type WebRenderModalBasicProps = {
 	readonly resolvedComposition: VideoConfig;
 	readonly imageFormat: RenderStillOnWebImageFormat;
 	readonly setStillFormat: (format: RenderStillOnWebImageFormat) => void;
-	readonly frame: number;
-	readonly onFrameChanged: (e: string) => void;
-	readonly onFrameSetDirectly: (newFrame: number) => void;
+	readonly frame: RenderFrameInput;
 	readonly container: WebRendererContainer;
 	readonly setContainerFormat: (container: WebRendererContainer) => void;
 	readonly setCodec: (codec: WebRendererVideoCodec) => void;
 	readonly encodableVideoCodecs: WebRendererVideoCodec[];
 	readonly effectiveVideoCodec: WebRendererVideoCodec;
-	readonly startFrame: number | null;
-	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	readonly endFrame: number | null;
-	readonly setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly startFrame: RenderFrameInput;
+	readonly endFrame: RenderFrameInput;
 	readonly outName: string;
+	readonly outputNameLabel: string;
 	readonly onOutNameChange: React.ChangeEventHandler<HTMLInputElement>;
 	readonly validationMessage: string | null;
 	readonly logLevel: LogLevel;
@@ -85,18 +83,15 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 	imageFormat,
 	setStillFormat,
 	frame,
-	onFrameChanged,
-	onFrameSetDirectly,
 	container,
 	setContainerFormat,
 	setCodec,
 	encodableVideoCodecs,
 	effectiveVideoCodec,
 	startFrame,
-	setStartFrame,
 	endFrame,
-	setEndFrame,
 	outName,
+	outputNameLabel,
 	onOutNameChange,
 	validationMessage,
 	logLevel,
@@ -192,13 +187,9 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 							<div style={rightRow}>
 								<RightAlignInput>
 									<InputDragger
-										onValueChangeCancel={null}
-										value={frame}
-										onTextChange={onFrameChanged}
+										{...frame}
 										placeholder={`0-${resolvedComposition.durationInFrames - 1}`}
-										onValueChange={onFrameSetDirectly}
 										name="frame"
-										step={1}
 										min={0}
 										status="ok"
 										max={resolvedComposition.durationInFrames - 1}
@@ -242,26 +233,20 @@ export const WebRenderModalBasic: React.FC<WebRenderModalBasicProps> = ({
 					) : null}
 					<FrameRangeSetting
 						durationInFrames={resolvedComposition.durationInFrames}
-						startFrame={startFrame ?? 0}
-						endFrame={endFrame ?? resolvedComposition.durationInFrames - 1}
-						setStartFrame={setStartFrame}
-						setEndFrame={setEndFrame}
+						startFrame={startFrame}
+						endFrame={endFrame}
 					/>
 				</>
 			)}
 			<RenderModalOutputName
-				ariaLabel={
-					window.remotion_isReadOnlyStudio ? 'Download name' : 'Output name'
-				}
+				ariaLabel={outputNameLabel}
 				existingOutputPath={null}
 				existence={false}
 				inputStyle={input}
 				outName={outName}
 				onValueChange={onOutNameChange}
 				validationMessage={validationMessage}
-				label={
-					window.remotion_isReadOnlyStudio ? 'Download name' : 'Output name'
-				}
+				label={outputNameLabel}
 			/>
 			<div style={optionRow}>
 				<div style={label}>

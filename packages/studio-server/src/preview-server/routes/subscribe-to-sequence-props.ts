@@ -5,13 +5,15 @@ import type {
 } from '@remotion/studio-shared';
 import type {SequenceNodePath} from 'remotion';
 import type {ApiHandler} from '../api-types';
+import {resolveCompiledSequencePaths} from '../resolve-compiled-sequence-paths';
 import {subscribeToSequencePropsWatchers} from '../sequence-props-watchers';
+import {invalidatePreviouslySuppressedFiles} from '../watch-ignore-next-change';
 import {resolveSequencePropsNodePathsFromFilename} from './can-update-sequence-props';
 
 export const subscribeToSequenceProps: ApiHandler<
 	SubscribeToSequencePropsBatchRequest,
 	SubscribeToSequencePropsBatchResponse
-> = ({input, remotionRoot, logLevel}) => {
+> = async ({input, remotionRoot, logLevel}) => {
 	// Source contents are shared only within this synchronous subscription batch.
 	const fileContentsCache = new Map<string, string>();
 	const requestsByFile = new Map<string, number[]>();
@@ -25,14 +27,33 @@ export const subscribeToSequenceProps: ApiHandler<
 	const results: SubscribeToSequencePropsBatchResponse['results'] = [];
 	// Finish each file before moving on so large batches do not evict and
 	// repeatedly parse the same source snapshot from the bounded AST cache.
-	for (const indexes of requestsByFile.values()) {
-		const unresolved = indexes
-			.filter((index) => input.requests[index].nodePath === null)
-			.map((index) => ({
-				index,
-				line: input.requests[index].line,
-				column: input.requests[index].column,
-			}));
+	const staleFiles = new Set<string>();
+	for (const [absolutePath, indexes] of requestsByFile) {
+		const unresolved: {index: number; line: number; column: number}[] = [];
+		const compiledTargets: ((typeof unresolved)[number] & {hash: string})[] =
+			[];
+		for (const index of indexes) {
+			const {line, column, nodePath} = input.requests[index];
+			if (nodePath !== null) continue;
+			const hash = input.compiledSourceHashes?.[index] ?? null;
+			if (hash === null) unresolved.push({index, line, column});
+			else compiledTargets.push({index, line, column, hash});
+		}
+
+		let compiledPaths = new Map<number, SequenceNodePath | null>();
+		if (compiledTargets.length > 0) {
+			try {
+				compiledPaths = resolveCompiledSequencePaths({
+					fileName: input.requests[indexes[0]].fileName,
+					remotionRoot,
+					fileContentsCache,
+					targets: compiledTargets,
+				});
+			} catch {
+				// An unavailable or unparsable source cannot be safely located in a newer file.
+			}
+		}
+
 		const resolvedNodePaths = new Map<number, SequenceNodePath>();
 		if (unresolved.length > 0) {
 			try {
@@ -64,11 +85,17 @@ export const subscribeToSequenceProps: ApiHandler<
 				effects,
 				clientId,
 			} = input.requests[index];
-			results[index] = subscribeToSequencePropsWatchers({
+			const requireExactNodePath =
+				nodePath === null &&
+				(input.compiledSourceHashes?.[index] ?? null) !== null;
+			const result = subscribeToSequencePropsWatchers({
 				fileName,
 				line,
 				column,
-				nodePath,
+				nodePath: requireExactNodePath
+					? (compiledPaths.get(index) ?? null)
+					: nodePath,
+				requireExactNodePath,
 				resolvedNodePath: resolvedNodePaths.get(index),
 				componentIdentity,
 				keys,
@@ -80,8 +107,19 @@ export const subscribeToSequenceProps: ApiHandler<
 				logLevel,
 				fileContentsCache,
 			});
+			results[index] = result;
+			if (
+				requireExactNodePath &&
+				!result.success &&
+				result.status.reason === 'not-found'
+			) {
+				staleFiles.add(absolutePath);
+			}
 		}
 	}
 
-	return Promise.resolve({results});
+	await Promise.all(
+		[...staleFiles].map((file) => invalidatePreviouslySuppressedFiles(file)),
+	);
+	return {results};
 };

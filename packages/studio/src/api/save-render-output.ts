@@ -19,12 +19,18 @@ const throwIfNotOk = async (response: Response): Promise<void> => {
 export const saveOutputFile = async ({
 	blob,
 	filePath,
+	artifact,
 }: {
 	blob: Blob;
 	filePath: string;
+	artifact: {compositionId: string; outputName: string} | null;
 }): Promise<void> => {
 	const url = new URL('/api/upload-output', window.location.origin);
-	url.search = new URLSearchParams({filePath}).toString();
+	url.searchParams.set('filePath', filePath);
+	if (artifact) {
+		url.searchParams.set('artifactCompositionId', artifact.compositionId);
+		url.searchParams.set('outputName', artifact.outputName);
+	}
 
 	const response = await fetch(url, {
 		method: 'POST',

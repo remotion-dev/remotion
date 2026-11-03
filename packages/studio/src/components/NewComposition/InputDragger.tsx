@@ -762,6 +762,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				}
 
 				if (e.key === 'Enter') {
+					e.preventDefault();
+					e.stopPropagation();
 					fallbackRef.current?.blur();
 					return;
 				}

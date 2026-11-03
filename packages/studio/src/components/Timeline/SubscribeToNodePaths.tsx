@@ -1,10 +1,11 @@
-import {memo, useMemo, type FC} from 'react';
+import {memo, useCallback, useMemo, useRef, type FC} from 'react';
 import type {
 	EffectDefinition,
 	JsxComponentIdentity,
 	InteractivitySchema,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {getSequenceLocationStack} from './TimelineStack/get-stack';
 import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
 import {useSequencePropsSubscription} from './use-sequence-props-subscription';
 
@@ -15,8 +16,14 @@ export const SubscribeToNodePaths: FC<{
 	readonly getStack: () => string | null;
 	readonly effects: readonly EffectDefinition<unknown>[];
 }> = memo(({overrideId, componentIdentity, schema, getStack, effects}) => {
+	const getStackRef = useRef(getStack);
+	getStackRef.current = getStack;
+	const getSubscriptionStack = useCallback(
+		() => getSequenceLocationStack(getStack()),
+		[getStack],
+	);
 	const {resolvedLocation, stack, preferMappedNodePath, stackIsResolved} =
-		useResolveStackAndReactToChange(getStack, overrideId);
+		useResolveStackAndReactToChange(getSubscriptionStack, overrideId);
 
 	const effectSubscriptions = useMemo<InteractivitySchema[]>(() => {
 		return effects
@@ -36,6 +43,7 @@ export const SubscribeToNodePaths: FC<{
 		originalLocation: stackIsResolved ? resolvedLocation : null,
 		preferMappedNodePath,
 		stack,
+		getStackRef,
 	});
 
 	return null;

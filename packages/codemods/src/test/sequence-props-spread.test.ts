@@ -6,6 +6,7 @@ const subscribe = (input: string, line: number, keys: string[]) => {
 		fileContents: input,
 		absolutePath: '/project/src/Example.tsx',
 		line,
+		column: 0,
 		preferredNodePath: null,
 		componentIdentity: 'dev.remotion.remotion.Sequence',
 		keys,

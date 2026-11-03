@@ -1,4 +1,7 @@
-import type {SequenceNodePathMutation} from '@remotion/studio-shared';
+import type {
+	HotMiddlewareMessage,
+	SequenceNodePathMutation,
+} from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import {recordDuplicationSelectionMutation} from './duplicated-element-selection';
 import {requestInsertedElementSelection} from './inserted-element-selection';
@@ -19,6 +22,78 @@ const pendingDeletionRemappings = new Map<
 	Parameters<typeof Internals.OptimisticSequenceDeletion.remap>[0][number][]
 >();
 const seenMutationIds = new Set<string>();
+const lastMutationByBuildHash = new Map<string, string | null>();
+const unchangedSince = new Map<string, string | null>();
+const installedBuildListeners = new Set<() => void>();
+const filesWithSourceOnlyRemappings = new Set<string>();
+
+const notifyInstalledBuild = () => {
+	for (const listener of installedBuildListeners) listener();
+};
+
+export const subscribeToInstalledMutationBuild = (listener: () => void) => {
+	installedBuildListeners.add(listener);
+	return () => {
+		installedBuildListeners.delete(listener);
+	};
+};
+
+export const recordSequenceNodePathMutationBuild = (
+	hash: string | undefined,
+	mutationId: string | null | undefined,
+) => {
+	if (hash === undefined || mutationId === undefined) {
+		lastMutationByBuildHash.clear();
+		return;
+	}
+
+	const installedHash =
+		typeof __webpack_hash__ === 'string' ? __webpack_hash__ : null;
+	if (installedHash !== null && lastMutationByBuildHash.has(installedHash)) {
+		for (const previousHash of lastMutationByBuildHash.keys()) {
+			if (previousHash === installedHash) break;
+			lastMutationByBuildHash.delete(previousHash);
+		}
+	}
+
+	const previousMutationId = lastMutationByBuildHash.get(hash);
+	lastMutationByBuildHash.set(hash, mutationId);
+	if (
+		hash === installedHash &&
+		mutationId !== null &&
+		mutationId !== previousMutationId &&
+		pendingMutations.some((mutation) => mutation.mutationId === mutationId)
+	) {
+		notifyInstalledBuild();
+	}
+};
+
+export const recordUnchangedSequenceNodePathMutationBuild = (
+	event: Extract<HotMiddlewareMessage, {action: 'project-unchanged'}>,
+) => {
+	if (
+		!seenMutationIds.has(event.sourceMutationId) ||
+		pendingMutations.some(
+			(mutation) => mutation.mutationId === event.sourceMutationId,
+		)
+	) {
+		unchangedSince.set(event.sourceMutationId, event.previousMutationId);
+	}
+
+	recordSequenceNodePathMutationBuild(event.hash, event.sourceMutationId);
+};
+
+export const hasSourceOnlyRemappings = (fileName: string): boolean => {
+	if (filesWithSourceOnlyRemappings.size === 0) {
+		return false;
+	}
+
+	const root = typeof window === 'undefined' ? '' : (window.remotion_cwd ?? '');
+	return filesWithSourceOnlyRemappings.has(
+		normalizeSourceFileName(fileName, root),
+	);
+};
+
 const mutationListeners = new Set<
 	(mutation: SequenceNodePathMutation) => void
 >();
@@ -118,6 +193,14 @@ export const queueSequenceNodePathMutation = (
 	}
 
 	seenMutationIds.add(mutation.mutationId);
+	if (mutation.applyWithoutFastRefresh) {
+		for (const file of mutation.files) {
+			filesWithSourceOnlyRemappings.add(
+				normalizeSourceFileName(file.absolutePath, ''),
+			);
+		}
+	}
+
 	pendingMutations.push(mutation);
 	recordDuplicationSelectionMutation(mutation);
 	markSourceRequestPaths(
@@ -169,6 +252,13 @@ export const queueSequenceNodePathMutation = (
 	for (const listener of mutationListeners) {
 		listener(mutation);
 	}
+
+	if (
+		typeof __webpack_hash__ === 'string' &&
+		lastMutationByBuildHash.get(__webpack_hash__) === mutation.mutationId
+	) {
+		notifyInstalledBuild();
+	}
 };
 
 export const queueSequenceNodePathMutationFromApiResponse = (
@@ -195,18 +285,66 @@ export const queueSequenceNodePathMutationFromApiResponse = (
 	queueSequenceNodePathMutation(nodePathMutation as SequenceNodePathMutation);
 };
 
-export const takePendingSequenceNodePathMutations =
-	(): SequenceNodePathMutation[] => {
-		const mutations = pendingMutations.splice(0);
-		for (const mutation of mutations) {
-			pendingDeletionRetirements.get(mutation.mutationId)?.();
-			pendingDeletionRetirements.delete(mutation.mutationId);
-			const remappings = pendingDeletionRemappings.get(mutation.mutationId);
-			if (remappings) {
-				Internals.OptimisticSequenceDeletion.remap(remappings);
-				pendingDeletionRemappings.delete(mutation.mutationId);
+export const takePendingSequenceNodePathMutations = (
+	onlyWithoutFastRefresh = false,
+) => {
+	let lastCompiledIndex = onlyWithoutFastRefresh
+		? -1
+		: pendingMutations.length - 1;
+	if (
+		!onlyWithoutFastRefresh &&
+		lastMutationByBuildHash.size > 0 &&
+		typeof __webpack_hash__ === 'string'
+	) {
+		const mutationId = lastMutationByBuildHash.get(__webpack_hash__);
+		lastCompiledIndex = pendingMutations.findIndex(
+			(mutation) => mutation.mutationId === mutationId,
+		);
+	}
+
+	const nextRefresh = pendingMutations.findIndex(
+		(mutation, index) =>
+			index > lastCompiledIndex && !mutation.applyWithoutFastRefresh,
+	);
+	const mutations = pendingMutations.splice(
+		0,
+		nextRefresh === -1 ? pendingMutations.length : nextRefresh,
+	);
+	let changes = mutations;
+	if (mutations.length > 0 && unchangedSince.size > 0) {
+		const indexes = new Map(
+			mutations.map((mutation, i) => [mutation.mutationId, i]),
+		);
+		changes = [];
+		for (let i = mutations.length - 1; i >= 0; ) {
+			const mutation = mutations[i];
+			const previousId = unchangedSince.get(mutation.mutationId);
+			if (previousId !== undefined) {
+				const previousIndex =
+					previousId === null ? -1 : (indexes.get(previousId) ?? -1);
+				if (previousIndex < i) {
+					i = previousIndex;
+					continue;
+				}
 			}
+
+			changes.push(mutation);
+			i--;
 		}
 
-		return mutations;
-	};
+		changes.reverse();
+	}
+
+	for (const mutation of mutations) {
+		unchangedSince.delete(mutation.mutationId);
+		pendingDeletionRetirements.get(mutation.mutationId)?.();
+		pendingDeletionRetirements.delete(mutation.mutationId);
+		const remappings = pendingDeletionRemappings.get(mutation.mutationId);
+		if (remappings) {
+			Internals.OptimisticSequenceDeletion.remap(remappings);
+			pendingDeletionRemappings.delete(mutation.mutationId);
+		}
+	}
+
+	return {mutations, changes};
+};

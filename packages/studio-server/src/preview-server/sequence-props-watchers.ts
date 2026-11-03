@@ -43,6 +43,7 @@ const getSequencePropsStatus = ({
 	line,
 	column,
 	preferredNodePath,
+	requireExactNodePath,
 	resolvedNodePath,
 	componentIdentity,
 	keys,
@@ -56,6 +57,7 @@ const getSequencePropsStatus = ({
 	line: number;
 	column: number;
 	preferredNodePath: SequenceNodePath | null;
+	requireExactNodePath: boolean;
 	resolvedNodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -98,6 +100,10 @@ const getSequencePropsStatus = ({
 				throw error;
 			}
 		}
+	}
+
+	if (requireExactNodePath) {
+		return {success: false, status: {canUpdate: false, reason: 'not-found'}};
 	}
 
 	// Try cached nodePath first (handles stale source maps after suppressed rebuilds)
@@ -198,6 +204,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line,
 	column,
 	nodePath: preferredNodePath,
+	requireExactNodePath,
 	resolvedNodePath = null,
 	componentIdentity,
 	keys,
@@ -212,6 +219,7 @@ export const subscribeToSequencePropsWatchers = ({
 	line: number;
 	column: number;
 	nodePath: SequenceNodePath | null;
+	requireExactNodePath: boolean;
 	resolvedNodePath?: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -227,6 +235,7 @@ export const subscribeToSequencePropsWatchers = ({
 		line,
 		column,
 		preferredNodePath,
+		requireExactNodePath,
 		resolvedNodePath,
 		componentIdentity,
 		keys,

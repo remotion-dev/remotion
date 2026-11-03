@@ -280,12 +280,8 @@ const keep = { value : true }
 
 	expect(output).toBe(`import { Track } from "remotion"
 export const Comp = () => <Track name="Sequence">
-  <Sequence from={0} durationInFrames={30}>
-    <span>Hi</span>
-  </Sequence>
-  <Sequence from={30} durationInFrames={20} trimBefore={30}>
-    <span>Hi</span>
-  </Sequence>
+  <Sequence from={0} durationInFrames={30}><span>Hi</span></Sequence>
+  <Sequence from={30} durationInFrames={20} trimBefore={30}><span>Hi</span></Sequence>
 </Track>;
 
 const keep = { value : true }

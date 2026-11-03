@@ -30,6 +30,7 @@ import {
 	pushUrl,
 	replaceUrl,
 } from '../helpers/url-state';
+import {watchRenderOutput} from '../helpers/watch-render-output';
 import {CompositionListContext} from '../state/composition-list';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
@@ -59,6 +60,8 @@ import {useSelectAsset} from './use-select-asset';
 
 const storageKey = 'remotion.canvasTabs';
 const canvasTabDragMimeType = 'application/vnd.remotion.canvas-tab';
+const blobTabIds = new WeakMap<() => Promise<Blob>, number>();
+let nextBlobTabId = 0;
 
 const normalizeTabContent = (content: CanvasContent): CanvasContent => {
 	if (content.type !== 'output') {
@@ -77,8 +80,16 @@ const getTabKey = (content: CanvasContent): string => {
 			return `asset:${content.asset}`;
 		case 'output':
 			return `output:${normalizeOutputPath(content.path)}`;
-		case 'output-blob':
-			return `output-blob:${content.displayName}`;
+		case 'output-blob': {
+			let id = blobTabIds.get(content.getBlob);
+			if (id === undefined) {
+				id = nextBlobTabId++;
+				blobTabIds.set(content.getBlob, id);
+			}
+
+			return `output-blob:${id}:${content.displayName}`;
+		}
+
 		default:
 			throw new Error('Unknown canvas content type');
 	}
@@ -259,10 +270,44 @@ const CanvasTab: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const [tooltipHovered, setTooltipHovered] = useState(false);
-	const [assetMetadata, setAssetMetadata] = useState<AssetMetadata | null>(
-		null,
-	);
-	const assetMetadataRequested = useRef(false);
+	const [metadataVersion, setMetadataVersion] = useState(0);
+	const [loadedMetadata, setLoadedMetadata] = useState<{
+		version: number;
+		value: AssetMetadata;
+	} | null>(null);
+	const assetMetadata =
+		loadedMetadata?.version === metadataVersion ? loadedMetadata.value : null;
+	const [metadataTab, setMetadataTab] = useState<Extract<
+		CanvasContent,
+		{type: 'asset' | 'output'}
+	> | null>(null);
+	useEffect(() => {
+		if (metadataTab?.type !== 'output') {
+			return;
+		}
+
+		return watchRenderOutput(metadataTab.path, () =>
+			setMetadataVersion((version) => version + 1),
+		);
+	}, [metadataTab]);
+
+	useEffect(() => {
+		if (!tooltipHovered || !metadataTab || assetMetadata) {
+			return;
+		}
+
+		let cancelled = false;
+		getAssetMetadata(metadataTab, metadataTab.type === 'output').then(
+			(value) => {
+				if (!cancelled) {
+					setLoadedMetadata({version: metadataVersion, value});
+				}
+			},
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, [assetMetadata, metadataTab, metadataVersion, tooltipHovered]);
 	const compositionMetadataRequested = useRef(false);
 	const dragFocusTimer = useRef<number | null>(null);
 	const onCloseTab = useCallback(() => onClose(tab), [onClose, tab]);
@@ -460,9 +505,8 @@ const CanvasTab: React.FC<{
 					onPointerEnter={() => {
 						setTooltipHovered(true);
 						if (tab.type === 'asset' || tab.type === 'output') {
-							if (!assetMetadataRequested.current) {
-								assetMetadataRequested.current = true;
-								getAssetMetadata(tab, false).then(setAssetMetadata);
+							if (!metadataTab) {
+								setMetadataTab(tab);
 							}
 						} else if (
 							tab.type === 'composition' &&

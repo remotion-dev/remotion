@@ -138,14 +138,19 @@ export class WatchIgnoreNextChangePlugin {
 		return files;
 	}
 
-	consumeSuppressedFilesForRebuild(): string[] {
+	consumeSuppressedFilesForRebuild(onlyFile: string | null = null): string[] {
 		// Include writes whose watcher event has not arrived yet.
-		const files = [
-			...new Set([...this.suppressedFilesHistory, ...this.filesToIgnore]),
-		];
-		this.suppressedFilesHistory.clear();
-		for (const file of files) {
-			this.unignoreNextChange(file);
+		const candidates =
+			onlyFile === null
+				? new Set([...this.suppressedFilesHistory, ...this.filesToIgnore])
+				: [onlyFile];
+		const files: string[] = [];
+		for (const file of candidates) {
+			const wasSuppressed = this.suppressedFilesHistory.delete(file);
+			if (wasSuppressed || this.filesToIgnore.has(file)) {
+				files.push(file);
+				this.requireRebuild(file);
+			}
 		}
 
 		return files;

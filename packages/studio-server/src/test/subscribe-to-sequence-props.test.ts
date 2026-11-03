@@ -113,7 +113,7 @@ export const Second = () => {
 		};
 		const response = await subscribeToSequenceProps({
 			...handlerOptions,
-			input: {requests},
+			input: {requests, compiledSourceHashes: null},
 		});
 		const expectedNodePaths = [
 			lineColumnToNodePath(firstInput, 6),
@@ -260,7 +260,7 @@ export default InteractiveDivStressTest;
 			entryPoint: join(remotionRoot, fileName),
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
-			input: {requests},
+			input: {requests, compiledSourceHashes: null},
 			logLevel: 'error',
 			methods: {
 				addJob: () => undefined,

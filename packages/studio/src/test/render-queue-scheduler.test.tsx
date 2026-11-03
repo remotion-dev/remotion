@@ -49,6 +49,7 @@ const makeStillParams = (compositionId: string): AddClientStillJobParams => ({
 	type: 'client-still',
 	compositionId,
 	outName: `${compositionId}.png`,
+	downloadOutput: false,
 	imageFormat: 'png',
 	frame: 0,
 	inputProps: {},
@@ -126,11 +127,15 @@ test('prevents closing the tab while browser-local jobs are incomplete', async (
 	act(() => getContext().markClientJobSaving(renderId));
 	expect(closeIsPrevented()).toBe(true);
 	act(() =>
-		getContext().markClientJobDone(renderId, {
-			height: 100,
-			sizeInBytes: 1,
-			width: 100,
-		}),
+		getContext().markClientJobDone(
+			renderId,
+			{
+				height: 100,
+				sizeInBytes: 1,
+				width: 100,
+			},
+			null,
+		),
 	);
 	await waitFor(() => expect(closeIsPrevented()).toBe(false));
 });
@@ -209,11 +214,15 @@ test('processes client renders and captions in one local FIFO', async () => {
 		).toBe('idle');
 
 		act(() =>
-			getContext().markClientJobDone(renderId, {
-				width: 100,
-				height: 100,
-				sizeInBytes: 1,
-			}),
+			getContext().markClientJobDone(
+				renderId,
+				{
+					width: 100,
+					height: 100,
+					sizeInBytes: 1,
+				},
+				null,
+			),
 		);
 		await waitFor(() =>
 			expect(processedJobs).toEqual([

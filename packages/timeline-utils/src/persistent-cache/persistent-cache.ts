@@ -19,7 +19,7 @@ import {
 
 // Bump when the stored data or the way it is computed changes.
 // Opening the database with a newer version wipes all stores.
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 const DATABASE_NAME = 'remotion-timeline-cache';
 const MAX_TOTAL_BYTES = 256 * 1024 * 1024;
 const EVICT_TO_BYTES = 200 * 1024 * 1024;

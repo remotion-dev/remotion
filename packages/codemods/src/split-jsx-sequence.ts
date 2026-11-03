@@ -31,7 +31,7 @@ import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
 } from './get-node-path-remappings';
-import {printInsertedJsx} from './print-jsx';
+import {printJsxOpeningElement} from './print-jsx';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {ensureOfficialNamedImport} from './sequence-props/imports';
 import {getJsxComponentIdentity} from './sequence-props/jsx-component-identity';
@@ -51,6 +51,7 @@ import {
 } from './source-edits';
 import {
 	getEndOfLine,
+	getIndentationUnit,
 	getLineIndent,
 	indentContinuationLines,
 } from './source-style';
@@ -312,34 +313,6 @@ const getSplittableSequenceTagName = (element: JSXElement): string => {
 	return jsxNameToString(element.openingElement.name);
 };
 
-/*
- * `cloneNode` from `@babel/types` reads `process.env` at module scope, which
- * breaks browser bundles. Printing and reparsing yields an equally detached
- * deep copy without the Node-only dependency.
- */
-const cloneJsxElement = (element: JSXElement): JSXElement => {
-	const printed = recast.print(
-		element as Parameters<typeof recast.print>[0],
-	).code;
-	const file = parseAstForReadOnly(`<>${printed}</>;`);
-	const statement = file.program.body[0];
-	if (
-		statement?.type !== 'ExpressionStatement' ||
-		statement.expression.type !== 'JSXFragment'
-	) {
-		throw new Error('Could not clone the JSX sequence to split');
-	}
-
-	const cloned = statement.expression.children.find(
-		(child): child is JSXElement => child.type === 'JSXElement',
-	);
-	if (!cloned) {
-		throw new Error('Could not clone the JSX sequence to split');
-	}
-
-	return cloned;
-};
-
 const makeFragment = (first: JSXElement, second: JSXElement): JSXFragment => ({
 	type: 'JSXFragment',
 	openingFragment: {type: 'JSXOpeningFragment'},
@@ -400,7 +373,7 @@ const getSplitSourceEdit = ({
 	track: JSXElement | null;
 	wrapInFragment: boolean;
 }) => {
-	if (!left.loc) {
+	if (!left.loc || !left.openingElement.loc) {
 		throw new Error('Cannot split a JSX sequence without a source location');
 	}
 
@@ -411,25 +384,37 @@ const getSplitSourceEdit = ({
 	const lineIndent = getLineIndent({input, offset: start});
 	const isOnlyElementOnLine = beforeElement.trim() === '';
 	const endOfLine = getEndOfLine(input);
-	const formattingConfig = prettierConfigOverride ?? null;
-	const print = (element: JSXElement | JSXFragment) =>
+	const wrapped = track !== null || wrapInFragment;
+	const clipIndent = wrapped
+		? lineIndent + getIndentationUnit(input, prettierConfigOverride)
+		: lineIndent;
+	const printOpening = (element: JSXElement, indent: string) =>
 		indentContinuationLines({
-			indent: lineIndent,
+			indent,
 			input,
-			printed: printInsertedJsx({
+			printed: printJsxOpeningElement({
 				compactLiteralProps: false,
-				element: element as unknown as
-					| AstNamedTypes.JSXElement
-					| AstNamedTypes.JSXFragment,
+				openingElement:
+					element.openingElement as unknown as AstNamedTypes.JSXOpeningElement,
 				input,
-				prettierConfigOverride: formattingConfig,
+				prettierConfigOverride,
 			}),
 		});
-	const replacement = track
-		? print(track)
-		: wrapInFragment
-			? print(makeFragment(left, right))
-			: `${print(left)}${isOnlyElementOnLine ? `${endOfLine}${lineIndent}` : ' '}${print(right)}`;
+	const childrenAndClosingTag = input.slice(
+		recastLocToOffset(input, left.openingElement.loc.end),
+		end,
+	);
+	const clips = [left, right]
+		.map((element) => printOpening(element, clipIndent) + childrenAndClosingTag)
+		.join(wrapped || isOnlyElementOnLine ? endOfLine + clipIndent : '');
+	const replacement = wrapped
+		? [
+				track ? printOpening(track, lineIndent) : '<>',
+				clipIndent + clips,
+				lineIndent +
+					(track ? `</${getSplittableSequenceTagName(track)}>` : '</>'),
+			].join(endOfLine)
+		: clips;
 
 	return {end, replacement, start};
 };
@@ -461,6 +446,7 @@ export const splitJsxSequences = ({
 	}
 
 	const ast = parseAst(input);
+	const copies = parseAstForReadOnly(input);
 	const capturedNodePaths = captureJsxNodePaths(ast);
 	const importSnapshots = captureImportSnapshots(ast);
 	const targets = splits.map(
@@ -470,7 +456,8 @@ export const splitJsxSequences = ({
 			}
 
 			const jsxPath = findJsxElementPathForDeletion(ast, nodePath);
-			if (!jsxPath) {
+			const copy = findJsxElementPathForDeletion(copies, nodePath);
+			if (!jsxPath || !copy) {
 				throw new Error(
 					'Could not find a JSX sequence at the specified location to split',
 				);
@@ -535,6 +522,7 @@ export const splitJsxSequences = ({
 				from,
 				jsxElement,
 				jsxPath,
+				right: copy.node as JSXElement,
 				splitFrame,
 				timing,
 			};
@@ -550,10 +538,10 @@ export const splitJsxSequences = ({
 			isInsideTrack,
 			jsxElement,
 			jsxPath,
+			right,
 			splitFrame,
 			timing,
 		}) => {
-			const right = cloneJsxElement(jsxElement);
 			insertedElements.push(right);
 			// Match Studio's numeric dragger precision while retaining fractional frames.
 			const leftTimelineDuration = normalizeComputedTiming(splitFrame - from);

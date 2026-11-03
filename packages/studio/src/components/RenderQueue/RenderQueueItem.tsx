@@ -112,12 +112,12 @@ export const RenderQueueItem: React.FC<{
 	}, []);
 
 	const clientBlobInfo = useMemo(() => {
-		if (!isClientJob || job.status !== 'done' || !job.getBlob) {
+		if (!isClientJob || job.status !== 'done' || !job.localOutput) {
 			return null;
 		}
 
 		return {
-			getBlob: job.getBlob,
+			getBlob: job.localOutput.getBlob,
 			width: job.metadata.width,
 			height: job.metadata.height,
 			sizeInBytes: job.metadata.sizeInBytes,
@@ -136,11 +136,11 @@ export const RenderQueueItem: React.FC<{
 
 		if (clientBlobInfo) {
 			setCanvasContent((c: CanvasContent | null): CanvasContent => {
-				const isAlreadySelected =
-					c && c.type === 'output-blob' && c.displayName === job.outName;
-
-				if (isAlreadySelected && !selected) {
-					scrollCurrentIntoView();
+				if (
+					c?.type === 'output-blob' &&
+					c.getBlob === clientBlobInfo.getBlob &&
+					c.displayName === job.outName
+				) {
 					return c;
 				}
 

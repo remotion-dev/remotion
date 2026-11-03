@@ -12,6 +12,7 @@ import type {
 } from './call-move-keyframe';
 import {
 	getKeyframedSequenceDragTargets,
+	isKeyframeInSequenceSource,
 	type TimelineSequenceEffectKeyframeDragTarget,
 	type TimelineSequenceKeyframeDragTarget,
 } from './get-keyframed-sequence-drag-targets';
@@ -105,13 +106,9 @@ export const getPlaybackRateKeyframeChanges = ({
 			continue;
 		}
 
-		const rootElementPath = nodePath.nodePath.slice(0, -1);
 		if (
 			sequence.id !== root.id &&
-			(descendantNodePath.absolutePath !== nodePath.absolutePath ||
-				!rootElementPath.every(
-					(segment, index) => descendantNodePath.nodePath[index] === segment,
-				))
+			!isKeyframeInSequenceSource(nodePath, descendantNodePath)
 		) {
 			continue;
 		}

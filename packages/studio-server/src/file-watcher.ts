@@ -32,6 +32,16 @@ export type FileChangeEvent =
 
 type OnChange = (event: FileChangeEvent) => void;
 
+const sourceWriteListeners = new Set<
+	(file: string, contents: string) => void
+>();
+export const subscribeToStudioSourceWrites = (
+	listener: (file: string, contents: string) => void,
+) => {
+	sourceWriteListeners.add(listener);
+	return () => sourceWriteListeners.delete(listener);
+};
+
 type SharedWatcher = {
 	subscribers: Set<OnChange>;
 	existedBefore: boolean;
@@ -199,6 +209,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		prepareBundlerForFileWrite(file);
 		writeFileSync(file, content);
 		const sourceVersion = nextSourceVersion();
+		for (const listener of sourceWriteListeners) listener(file, content);
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));
 		if (!shared) {

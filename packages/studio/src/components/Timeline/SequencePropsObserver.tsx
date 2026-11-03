@@ -6,6 +6,7 @@ import {
 import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {flushSync} from 'react-dom';
 import type {
+	SequenceNodePath,
 	SequencePropsStatusRemapping,
 	SequencePropsSubscriptionKey,
 } from 'remotion';
@@ -15,7 +16,11 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {markDuplicationSelectionMutationsApplied} from '../../helpers/duplicated-element-selection';
 import {remapOptimisticEffectDeletions} from '../../helpers/effect-deletion-state';
 import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
-import {takePendingSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
+import {
+	subscribeToInstalledMutationBuild,
+	subscribeToSequenceNodePathMutations,
+	takePendingSequenceNodePathMutations,
+} from '../../helpers/sequence-node-path-mutations';
 import {acceptSequencePropsSourceVersion} from '../../helpers/sequence-props-source-version';
 import {
 	reconcileCanvasDragPreviewStatuses,
@@ -39,6 +44,7 @@ export const SequencePropsObserver = ({
 	const {
 		remapPropStatuses,
 		setPropStatuses,
+		setPropStatusesBatch,
 		updateDragOverrides,
 		remapDragOverrideFields,
 		remapEffectDragOverrideFields,
@@ -56,6 +62,54 @@ export const SequencePropsObserver = ({
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
 	const [fastRefreshStarts, setFastRefreshStarts] = useState(0);
+	const [sourceOnlyMutations, setSourceOnlyMutations] = useState(0);
+	const lastRefresh = useRef<{started: number; completed: number} | null>(null);
+	useEffect(
+		() =>
+			subscribeToSequenceNodePathMutations((mutation) => {
+				if (mutation.applyWithoutFastRefresh) {
+					setSourceOnlyMutations((count) => count + 1);
+					return;
+				}
+
+				for (const file of mutation.files) {
+					const positions = new Map<string, {line: number; column: number}>();
+					for (const {sourceLocations} of file.remappings) {
+						if (!sourceLocations?.before || !sourceLocations.after) continue;
+						const {before, after} = sourceLocations;
+						if (before.line !== after.line || before.column !== after.column)
+							positions.set(`${before.line}:${before.column}`, after);
+					}
+
+					if (positions.size === 0) continue;
+					const seen = new Set<string>();
+					const updates: Array<
+						Parameters<typeof setPropStatusesBatch>[0][number]
+					> = [];
+					for (const nodePath of Object.values(
+						overrideIdToNodePathMappingsRef.current,
+					)) {
+						if (nodePath.absolutePath !== file.absolutePath) continue;
+						const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
+						if (seen.has(key)) continue;
+						seen.add(key);
+						updates.push({
+							nodePath,
+							update: (previous) => {
+								if (!previous?.canUpdate || !previous.sourceLocation)
+									return previous;
+								const {line, column} = previous.sourceLocation;
+								const next = positions.get(`${line}:${column}`);
+								return next ? {...previous, sourceLocation: next} : previous;
+							},
+						});
+					}
+
+					setPropStatusesBatch(updates);
+				}
+			}),
+		[setPropStatusesBatch],
+	);
 	useEffect(() => {
 		const handleReactRefreshStarted = () => {
 			// Apply source-node remappings immediately before React commits the
@@ -70,7 +124,11 @@ export const SequencePropsObserver = ({
 			REACT_REFRESH_STARTED_EVENT,
 			handleReactRefreshStarted,
 		);
+		const unsubscribe = subscribeToInstalledMutationBuild(() => {
+			setFastRefreshStarts((starts) => starts + 1);
+		});
 		return () => {
+			unsubscribe();
 			window.removeEventListener(
 				REACT_REFRESH_STARTED_EVENT,
 				handleReactRefreshStarted,
@@ -127,12 +185,21 @@ export const SequencePropsObserver = ({
 	}, [setPropStatuses, subscribeToEvent, updateDragOverrides]);
 
 	useLayoutEffect(() => {
-		const mutations = takePendingSequenceNodePathMutations();
-		if (mutations.length === 0) {
+		const onlyWithoutFastRefresh =
+			lastRefresh.current?.started === fastRefreshStarts &&
+			lastRefresh.current.completed === fastRefreshes;
+		lastRefresh.current = {
+			started: fastRefreshStarts,
+			completed: fastRefreshes,
+		};
+		const {mutations: settled, changes: mutations} =
+			takePendingSequenceNodePathMutations(onlyWithoutFastRefresh);
+		if (settled.length === 0) {
 			return;
 		}
 
-		markDuplicationSelectionMutationsApplied(mutations, fastRefreshes);
+		markDuplicationSelectionMutationsApplied(settled, fastRefreshes);
+		if (mutations.length === 0) return;
 
 		remapCanvasDragPreviews(
 			{
@@ -197,12 +264,13 @@ export const SequencePropsObserver = ({
 			overrideId: string;
 			nodePath: SequencePropsSubscriptionKey | null;
 		}> = [];
-		const overrideIdsToRefresh = new Set<string>();
+		const overrideIdsToRefresh = new Map<string, SequenceNodePath | null>();
 
 		for (const [overrideId, previousNodePath] of Object.entries(
 			overrideIdToNodePathMappingsRef.current,
 		)) {
 			let {nodePath} = previousNodePath;
+			let sourceLocation: {line: number; column: number} | null = null;
 			let wasRemapped = false;
 			let wasDeleted = false;
 			let runtimeNodePathExists = true;
@@ -259,6 +327,7 @@ export const SequencePropsObserver = ({
 					}
 
 					wasRemapped = true;
+					sourceLocation = remapping.sourceLocations?.after ?? null;
 					if (remapping.newNodePath === null) {
 						wasDeleted = true;
 						continue;
@@ -277,14 +346,20 @@ export const SequencePropsObserver = ({
 				JSON.stringify(nodePath) !== previousNodePathString;
 			const previousStatusKey =
 				Internals.makeSequencePropsSubscriptionKey(previousNodePath);
+			const previousStatus = propStatusesRef.current[previousStatusKey] ?? null;
+			let result = nodePathChanged ? null : previousStatus;
+			if (
+				sourceLocation &&
+				previousStatus?.canUpdate &&
+				(!nodePathChanged || !runtimeNodePathExists)
+			) {
+				result = {...previousStatus, sourceLocation};
+			}
+
 			statusRemappings.push({
 				previousNodePath,
 				nodePath: nextNodePath,
-				// A reused runtime instance still renders the old JSX until Refresh.
-				// Let it use its JSX values instead of a shifted sibling's source props.
-				result: nodePathChanged
-					? null
-					: (propStatusesRef.current[previousStatusKey] ?? null),
+				result,
 			});
 
 			overrideUpdates.push({
@@ -292,12 +367,15 @@ export const SequencePropsObserver = ({
 				nodePath: runtimeNodePathExists ? previousNodePath : nextNodePath,
 			});
 			if (
-				!wasDeleted &&
-				(nodePathChanged ||
-					!runtimeNodePathExists ||
-					runtimeNodePathNeedsRefresh)
+				runtimeNodePathNeedsRefresh ||
+				(!wasDeleted && (nodePathChanged || !runtimeNodePathExists))
 			) {
-				overrideIdsToRefresh.add(overrideId);
+				overrideIdsToRefresh.set(
+					overrideId,
+					onlyWithoutFastRefresh
+						? (nextNodePath ?? previousNodePath).nodePath
+						: null,
+				);
 			}
 		}
 
@@ -307,8 +385,8 @@ export const SequencePropsObserver = ({
 			setOverrideIdToNodePath(event.overrideId, event.nodePath);
 		}
 
-		for (const overrideId of overrideIdsToRefresh) {
-			refreshSequencePropsSubscription(overrideId);
+		for (const [overrideId, nodePath] of overrideIdsToRefresh) {
+			refreshSequencePropsSubscription(overrideId, nodePath);
 		}
 
 		for (const event of statusRemappings) {
@@ -324,6 +402,7 @@ export const SequencePropsObserver = ({
 	}, [
 		fastRefreshes,
 		fastRefreshStarts,
+		sourceOnlyMutations,
 		migrateExpandedTracksForSubscriptionKey,
 		propStatusesRef,
 		remapSelectionNodePaths,

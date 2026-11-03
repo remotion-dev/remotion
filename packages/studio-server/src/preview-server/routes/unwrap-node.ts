@@ -81,7 +81,7 @@ export const unwrapNodeHandler: ApiHandler<
 					{
 						filePath: absolutePath,
 						oldContents: fileContents,
-						newContents: null,
+						newContents: output,
 						logLine: line,
 						nodePathRemappings: remappings,
 					},

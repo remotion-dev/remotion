@@ -98,6 +98,7 @@ import {
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
+import {useRenderFrameInput} from './use-render-frame-input';
 
 type State =
 	| {
@@ -314,7 +315,6 @@ const RenderModal: React.FC<
 	});
 
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const [unclampedFrame, setFrame] = useState(() => initialFrame);
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
 		() => initialStillImageFormat,
 	);
@@ -435,12 +435,6 @@ const RenderModal: React.FC<
 	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
-	const [endFrameOrNull, setEndFrame] = useState<number | null>(
-		() => outFrameMark ?? null,
-	);
-	const [startFrameOrNull, setStartFrame] = useState<number | null>(
-		() => inFrameMark ?? null,
-	);
 	const [proResProfileSetting, setProResProfile] = useState<
 		_InternalTypes['ProResProfile']
 	>(
@@ -710,33 +704,17 @@ const RenderModal: React.FC<
 
 	const [metadata] = useState(() => defaultMetadata);
 
-	const endFrame = useMemo((): number => {
-		if (endFrameOrNull === null) {
-			return resolvedComposition.durationInFrames - 1;
-		}
-
-		return Math.max(
-			0,
-			Math.min(resolvedComposition.durationInFrames - 1, endFrameOrNull),
-		);
-	}, [resolvedComposition.durationInFrames, endFrameOrNull]);
-
-	const startFrame = useMemo((): number => {
-		if (startFrameOrNull === null) {
-			return 0;
-		}
-
-		return Math.max(0, Math.min(endFrame, startFrameOrNull));
-	}, [endFrame, startFrameOrNull]);
-
-	const frame = useMemo(() => {
-		const parsed = Math.floor(unclampedFrame);
-
-		return Math.max(
-			0,
-			Math.min(resolvedComposition.durationInFrames - 1, parsed),
-		);
-	}, [resolvedComposition.durationInFrames, unclampedFrame]);
+	const lastFrame = resolvedComposition.durationInFrames - 1;
+	const endFrameInput = useRenderFrameInput(outFrameMark, lastFrame, lastFrame);
+	const startFrameInput = useRenderFrameInput(
+		inFrameMark,
+		0,
+		endFrameInput.value,
+	);
+	const stillFrameInput = useRenderFrameInput(initialFrame, 0, lastFrame);
+	const {value: endFrame} = endFrameInput;
+	const {value: startFrame} = startFrameInput;
+	const {value: frame} = stillFrameInput;
 
 	const deriveFinalAudioCodec = useCallback(
 		(passedVideoCodec: Codec, passedAudioCodec: AudioCodec | null) => {
@@ -1665,22 +1643,19 @@ const RenderModal: React.FC<
 						<RenderModalBasic
 							codec={codec}
 							resolvedComposition={resolvedComposition}
-							frame={frame}
+							frame={stillFrameInput}
 							imageFormatOptions={imageFormatOptions}
 							outName={outName}
 							proResProfile={proResProfile}
 							renderMode={renderMode}
 							setVideoCodec={setCodec}
-							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}
-							endFrame={endFrame}
-							setEndFrame={setEndFrame}
-							setStartFrame={setStartFrame}
+							endFrame={endFrameInput}
 							setVerboseLogging={setLogLevel}
 							logLevel={logLevel}
 							showOutputName={!readOnlyStudio}
-							startFrame={startFrame}
+							startFrame={startFrameInput}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
 							}

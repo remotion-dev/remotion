@@ -54,6 +54,7 @@ test('formats video and audio sections for current assets', () => {
 	expect(
 		getCurrentAssetMediaSections({
 			duration: 10,
+			videoTiming: null,
 			format: 'QuickTime / MOV',
 			width: 1920,
 			height: 1080,
@@ -85,6 +86,7 @@ test('returns an empty audio section for videos without audio', () => {
 	expect(
 		getCurrentAssetMediaSections({
 			duration: 10,
+			videoTiming: null,
 			format: 'MP4',
 			width: 1920,
 			height: 1080,
@@ -112,6 +114,7 @@ test('formats audio-only assets', () => {
 	expect(
 		getCurrentAssetMediaSections({
 			duration: 125.5,
+			videoTiming: null,
 			format: 'MP3',
 			width: null,
 			height: null,

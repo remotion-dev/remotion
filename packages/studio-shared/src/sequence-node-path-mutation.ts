@@ -9,10 +9,15 @@ export type SequenceNodePathRemapping = {
 	oldJsxName?: string | null;
 	/** JSX tag after the mutation. Older mutation producers may omit it. */
 	newJsxName?: string | null;
+	sourceLocations?: {
+		before: {line: number; column: number} | null;
+		after: {line: number; column: number} | null;
+	};
 };
 
 export type SequenceNodePathMutation = {
 	mutationId: string;
+	applyWithoutFastRefresh?: true;
 	timelineSelection: {
 		compositionId: string;
 		absolutePath: string;
