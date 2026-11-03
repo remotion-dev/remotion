@@ -2,6 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {useIsFullscreen} from '../helpers/use-is-fullscreen';
+import {useSyncExternalStore} from '../helpers/use-sync-external-store';
 import {drawRef} from '../state/canvas-ref';
 import {ShowControlsInFullscreenContext} from '../state/fullscreen-controls';
 import {useTimelineInOutFramePosition} from '../state/in-out';
@@ -14,7 +15,11 @@ const FullscreenControlsInner: React.FC<{
 }> = ({fps, durationInFrames}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {play, pause} = PlayerInternals.usePlayerMethods();
-	const playing = Internals.usePlaying();
+	// Not Internals.usePlaying(): it reads the timeline context, which changes every frame
+	const {subscribePlaying, isPlaying} = useContext(
+		Internals.SetTimelineContext,
+	);
+	const playing = useSyncExternalStore(subscribePlaying, isPlaying, isPlaying);
 	const scaleContext = useContext(Internals.CurrentScaleContext);
 	const canvasSize =
 		scaleContext?.type === 'canvas-size' ? scaleContext.canvasSize : null;
