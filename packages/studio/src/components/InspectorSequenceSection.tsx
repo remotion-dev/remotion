@@ -44,7 +44,6 @@ import {
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
 import {LevelsEditor} from './InspectorPanel/LevelsEditor';
-import {MediaSourceStart} from './InspectorPanel/MediaSourceStart';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -76,7 +75,6 @@ import {
 	useTimelineSelection,
 	type TimelineSelection,
 } from './Timeline/TimelineSelection';
-import {isTimelineSequenceLeftEdgeDraggable} from './Timeline/TimelineSequenceRightEdgeDragHandle';
 import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
@@ -1174,27 +1172,6 @@ export const InspectorSequenceSection: React.FC<{
 										) : (
 											group.rows.map(renderRow)
 										)
-									) : null}
-									{group.id === 'source' &&
-									isControlGroupExpanded(group) &&
-									(sequence.type === 'audio' || sequence.type === 'video') &&
-									(!sequence.loopDisplay ||
-										(sequenceFrameOffset === 0 &&
-											sequence.frozenMediaFrame === null)) &&
-									isTimelineSequenceLeftEdgeDraggable(sequence) ? (
-										<MediaSourceStart
-											key={sequenceKey}
-											nodePathInfo={nodePathInfo}
-											sequence={sequence}
-											sequenceFrameOffset={sequenceFrameOffset}
-											editable={
-												!readOnlyStudio &&
-												previewServerState.type === 'connected' &&
-												isStudioInteractivityEnabled() &&
-												nodePathInfo.numberOfSequencesWithThisNodePath === 1 &&
-												sequencePropStatuses?.trimBefore?.status === 'static'
-											}
-										/>
 									) : null}
 								</InspectorSection>
 							</React.Fragment>

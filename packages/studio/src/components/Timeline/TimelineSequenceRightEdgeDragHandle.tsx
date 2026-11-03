@@ -567,23 +567,16 @@ export const getTimelineSequenceLeftEdgeDragValues = ({
 	};
 };
 
-const getTimelineSequenceLeftEdgeDragValuesForTarget = (
-	{
-		target,
-		deltaFrames,
-		trimBeforeOnly,
-	}: {
-		readonly target: TimelineSequenceLeftEdgeDragTarget;
-		readonly deltaFrames: number;
-		readonly trimBeforeOnly: boolean;
-	},
-	requestedSourceOffset: number | null = null,
-) => {
-	if (
-		requestedSourceOffset === null
-			? deltaFrames === 0
-			: requestedSourceOffset === target.initialTrimBefore
-	) {
+const getTimelineSequenceLeftEdgeDragValuesForTarget = ({
+	target,
+	deltaFrames,
+	trimBeforeOnly,
+}: {
+	readonly target: TimelineSequenceLeftEdgeDragTarget;
+	readonly deltaFrames: number;
+	readonly trimBeforeOnly: boolean;
+}) => {
+	if (deltaFrames === 0) {
 		return {
 			durationInFrames: target.initialDuration,
 			from: target.initialFrom,
@@ -597,9 +590,8 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = (
 			limits.minimumSourceOffset,
 			Math.min(
 				limits.maximumSourceOffset,
-				requestedSourceOffset ??
-					target.initialTrimBefore -
-						deltaFrames * target.parentPlaybackRate * target.playbackRate,
+				target.initialTrimBefore -
+					deltaFrames * target.parentPlaybackRate * target.playbackRate,
 			),
 		);
 		const fromShift = Math.max(0, -sourceOffset / target.playbackRate);
@@ -700,28 +692,21 @@ const getTimelineSequenceLeftEdgeDragValuesForTarget = (
 	});
 };
 
-export const getTimelineSequenceLeftEdgeDragChanges = (
-	edit:
-		| {
-				readonly targets: readonly TimelineSequenceLeftEdgeDragTarget[];
-				readonly deltaFrames: number;
-				readonly trimBeforeOnly?: boolean;
-		  }
-		| {
-				readonly target: TimelineSequenceLeftEdgeDragTarget;
-				readonly sourceOffset: number;
-		  },
-): SaveSequencePropChange[] => {
-	const sourceEdit = 'sourceOffset' in edit;
-	const targets = sourceEdit ? [edit.target] : edit.targets;
-	const deltaFrames = sourceEdit ? 0 : edit.deltaFrames;
-	const trimBeforeOnly = sourceEdit || edit.trimBeforeOnly === true;
-	const sourceOffset = sourceEdit ? edit.sourceOffset : null;
+export const getTimelineSequenceLeftEdgeDragChanges = ({
+	targets,
+	deltaFrames,
+	trimBeforeOnly = false,
+}: {
+	readonly targets: readonly TimelineSequenceLeftEdgeDragTarget[];
+	readonly deltaFrames: number;
+	readonly trimBeforeOnly?: boolean;
+}): SaveSequencePropChange[] => {
 	return targets.flatMap((target) => {
-		const nextValues = getTimelineSequenceLeftEdgeDragValuesForTarget(
-			{target, deltaFrames, trimBeforeOnly},
-			sourceOffset,
-		);
+		const nextValues = getTimelineSequenceLeftEdgeDragValuesForTarget({
+			target,
+			deltaFrames,
+			trimBeforeOnly,
+		});
 		const changes: SaveSequencePropChange[] = [];
 		if (target.ripplePrevious && !trimBeforeOnly) {
 			const previous = target.ripplePrevious;
