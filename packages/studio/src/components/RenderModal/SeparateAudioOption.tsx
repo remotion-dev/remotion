@@ -17,7 +17,8 @@ export const SeparateAudioOptionInput: React.FC<{
 	readonly separateAudioTo: string;
 	readonly audioCodec: AudioCodec;
 }> = ({separateAudioTo, setSeparateAudioTo, audioCodec}) => {
-	const existence = useFileExistence(separateAudioTo);
+	const {exists: existence, checkFailed: existenceCheckFailed} =
+		useFileExistence(separateAudioTo);
 
 	const onValueChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -42,6 +43,7 @@ export const SeparateAudioOptionInput: React.FC<{
 			ariaLabel={null}
 			existingOutputPath={null}
 			existence={existence}
+			existenceCheckFailed={existenceCheckFailed}
 			inputStyle={input}
 			onValueChange={onValueChange}
 			outName={separateAudioTo}

@@ -44,6 +44,7 @@ type Props = {
 	readonly ariaLabel: string | null;
 	readonly existingOutputPath: string | null;
 	readonly existence: boolean;
+	readonly existenceCheckFailed: boolean;
 	readonly inputStyle: React.CSSProperties;
 	readonly outName: string;
 	readonly onValueChange: React.ChangeEventHandler<HTMLInputElement>;
@@ -55,6 +56,7 @@ export const RenderModalOutputName = ({
 	ariaLabel,
 	existingOutputPath,
 	existence,
+	existenceCheckFailed,
 	inputStyle,
 	outName,
 	onValueChange,
@@ -87,7 +89,13 @@ export const RenderModalOutputName = ({
 				<div style={outputNameInputContainer}>
 					<RemotionInput
 						aria-label={ariaLabel ?? undefined}
-						status={validationMessage ? 'error' : existence ? 'warning' : 'ok'}
+						status={
+							validationMessage
+								? 'error'
+								: existence || existenceCheckFailed
+									? 'warning'
+									: 'ok'
+						}
 						style={inputStyle}
 						type="text"
 						value={outName}
@@ -101,6 +109,15 @@ export const RenderModalOutputName = ({
 								align="flex-end"
 								message={validationMessage}
 								type={'error'}
+							/>
+						</>
+					) : existenceCheckFailed ? (
+						<>
+							<Spacing y={1} block />
+							<ValidationMessage
+								align="flex-end"
+								message="Could not check whether this file exists. Rendering may overwrite it."
+								type="warning"
 							/>
 						</>
 					) : existence ? (
