@@ -237,6 +237,8 @@ type SequencePropsSubscription = {
 	result: SuccessfulSequencePropsSubscription;
 	refCount: number;
 	effectChain: string;
+	fileContents: string;
+	sourceVersion: SourceFileVersion | null;
 };
 
 type ResolveElementDependencies = (
@@ -668,6 +670,7 @@ export const createBrowserStudioOperations = ({
 	let refreshSequencePropsSubscriptions: (
 		project: VirtualProject,
 		sourceVersions: ReadonlyMap<string, SourceFileVersion>,
+		onlyRestoredFiles: boolean,
 	) => void = () => undefined;
 	const controller = createBrowserStudioProjectController({
 		getStaticFiles,
@@ -677,9 +680,11 @@ export const createBrowserStudioOperations = ({
 			const sourceVersions = captureSourceVersions(project);
 			onProjectChange(project);
 			refreshDefaultPropsSubscriptions();
-			if (!metadata.skipSequencePropsUpdate) {
-				refreshSequencePropsSubscriptions(project, sourceVersions);
-			}
+			refreshSequencePropsSubscriptions(
+				project,
+				sourceVersions,
+				metadata.skipSequencePropsUpdate,
+			);
 		},
 	});
 	const commitCompositionEdit = ({
@@ -1118,10 +1123,10 @@ export const createBrowserStudioOperations = ({
 	};
 
 	const getSequencePropsSubscription = (
+		project: VirtualProject,
 		request: SubscribeToSequencePropsRequest,
 	): SubscribeToSequencePropsResponse => {
 		try {
-			const project = getProject();
 			const absolutePath = findProjectFile({
 				filePath: request.fileName,
 				project,
@@ -1145,14 +1150,29 @@ export const createBrowserStudioOperations = ({
 		}
 	};
 
-	refreshSequencePropsSubscriptions = (project, sourceVersions) => {
+	refreshSequencePropsSubscriptions = (
+		project,
+		sourceVersions,
+		onlyRestoredFiles,
+	) => {
 		for (const subscription of sequencePropsSubscriptions.values()) {
 			const {request, result} = subscription;
+			if (onlyRestoredFiles) {
+				// Opposite edits can cancel before the iframe receives a refresh.
+				const path = result.nodePath.absolutePath;
+				const version = sourceVersions.get(path);
+				if (
+					!version ||
+					version === subscription.sourceVersion ||
+					project.files[path] !== subscription.fileContents
+				)
+					continue;
+			}
+
 			try {
-				const absolutePath = findProjectFile({
-					filePath: request.fileName,
-					project,
-				});
+				const absolutePath = onlyRestoredFiles
+					? result.nodePath.absolutePath
+					: findProjectFile({filePath: request.fileName, project});
 				const nextStatus = computeSequencePropsStatusFromContent({
 					fileContents: project.files[absolutePath],
 					includeSourceLocation: true,
@@ -1169,12 +1189,14 @@ export const createBrowserStudioOperations = ({
 					continue;
 				}
 
+				subscription.fileContents = project.files[absolutePath];
+				subscription.sourceVersion = sourceVersions.get(absolutePath) ?? null;
 				controller.emitEvent({
 					type: 'sequence-props-updated',
 					fileName: request.fileName,
 					nodePath: result.nodePath,
 					result: nextStatus,
-					sourceVersion: sourceVersions.get(absolutePath) ?? null,
+					sourceVersion: subscription.sourceVersion,
 				});
 			} catch (error) {
 				if (
@@ -3270,7 +3292,7 @@ export const createBrowserStudioOperations = ({
 			const sourceVersions = captureSourceVersions(project);
 			controller.resetHistory();
 			refreshDefaultPropsSubscriptions();
-			refreshSequencePropsSubscriptions(project, sourceVersions);
+			refreshSequencePropsSubscriptions(project, sourceVersions, false);
 		},
 		splitVideoFromAudio,
 		insertBasicCaptions,
@@ -3287,7 +3309,8 @@ export const createBrowserStudioOperations = ({
 		splitSequences,
 		subscribeToEvent: controller.subscribeToEvent,
 		subscribeToSequenceProps: (request) => {
-			const result = getSequencePropsSubscription(request);
+			const project = getProject();
+			const result = getSequencePropsSubscription(project, request);
 			if (!result.success) {
 				return Promise.resolve(result);
 			}
@@ -3300,9 +3323,16 @@ export const createBrowserStudioOperations = ({
 				assetKeys: request.assetKeys,
 				effectKeys: request.effects,
 			});
+			const {absolutePath} = result.nodePath;
+			const fileContents = project.files[absolutePath];
+			const sourceFile = sourceFileStates.get(absolutePath);
+			const sourceVersion =
+				sourceFile?.content === fileContents ? sourceFile.version : null;
 			const existing = sequencePropsSubscriptions.get(key);
 			if (existing) {
 				existing.refCount++;
+				existing.fileContents = fileContents;
+				existing.sourceVersion = sourceVersion;
 				return Promise.resolve(result);
 			}
 
@@ -3311,6 +3341,8 @@ export const createBrowserStudioOperations = ({
 				result,
 				refCount: 1,
 				effectChain: getEffectChain(result),
+				fileContents,
+				sourceVersion,
 			});
 			return Promise.resolve(result);
 		},
