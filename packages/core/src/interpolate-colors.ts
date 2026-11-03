@@ -139,7 +139,8 @@ function hslToRgb(h: number, s: number, l: number): number {
 }
 
 function parse255(str: string): number {
-	const int = Number.parseInt(str, 10);
+	// Browsers round fractional channels, e.g. rgb(127.6, 0, 0) is rgb(128, 0, 0)
+	const int = Math.round(Number.parseFloat(str));
 	if (int < 0) {
 		return 0;
 	}
