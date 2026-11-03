@@ -158,10 +158,11 @@ export const getOriginalLocationFromStack = async (
 	}
 
 	const map = await getSourceMapCache(location.fileName);
+	// Browser stack columns start at one, while source map columns start at zero.
 	const originalPosition = getOriginalPosition(
 		map,
-		location.lineNumber as number,
-		location.columnNumber as number,
+		location.lineNumber,
+		Math.max(0, location.columnNumber - 1),
 	);
 	return isInternalSource(originalPosition.source) ? null : originalPosition;
 };
