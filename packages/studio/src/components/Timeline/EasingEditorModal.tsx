@@ -1144,6 +1144,7 @@ const EasingEditorUnmemoized: React.FC<{
 		return () => {
 			stopPointerSession.current?.();
 			clearEasingDragOverrides(pendingOverrideTargetsRef.current);
+			pendingOverrideTargetsRef.current = [];
 		};
 	}, [clearEasingDragOverrides]);
 
