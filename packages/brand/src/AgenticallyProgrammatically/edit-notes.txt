@@ -101,8 +101,9 @@ Presenter and captions shift left while the sidebar is visible.
 THREE WAYS HERO
 The second shot overlays the exact homepage hero renderer on white. Agent view
 holds through the first phrase, transitions to full Studio at source 4.36-4.96s,
-and transitions to Studio/code at 8.40-9.00s. The graphic touches the bottom edge
-with captions over it, and the camera returns at the start of the next shot.
+and transitions to Studio/code at 8.40-9.00s. The graphic is scaled to 118% around
+the bottom-center anchor and touches the bottom edge with captions over it.
+The camera returns at the start of the next shot.
 
 QUICK EDITS B-ROLL
 Shot 04 retains the original dialogue and captions while showing two existing

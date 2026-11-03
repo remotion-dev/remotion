@@ -301,7 +301,10 @@ export const AgenticallyProgrammatically = () => {
 					src="https://remotion.media/here-2026-11-03/audio/here2-auphonic-4a6e2a0ce1df.flac"
 					volume={0.25}
 				/>
-				<ThreeWaysHero name="Three ways - homepage hero" />
+				<ThreeWaysHero
+					name="Three ways - homepage hero"
+					style={{scale: 1.18, transformOrigin: '50% 100%'}}
+				/>
 				<BasicCaptions
 					name="02 - Captions"
 					width={1200}

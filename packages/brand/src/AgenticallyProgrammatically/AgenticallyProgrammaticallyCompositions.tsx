@@ -40,6 +40,7 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 				fps={30}
 				width={1920}
 				height={1080}
+				defaultProps={{style: {scale: 1.18, transformOrigin: '50% 100%'}}}
 			/>
 			<Composition
 				id="QuickEditsBroll"
