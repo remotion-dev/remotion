@@ -564,6 +564,11 @@ const PlayerFn = <
 							loop={Boolean(loop)}
 							controls={Boolean(controls)}
 							errorFallback={errorFallback}
+							renderingOwner={
+								('component' in componentProps
+									? componentProps.component
+									: componentProps.lazyComponent) ?? null
+							}
 							style={style}
 							inputProps={actualInputProps}
 							allowFullscreen={Boolean(allowFullscreen)}

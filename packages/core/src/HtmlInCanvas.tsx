@@ -548,7 +548,7 @@ const HtmlInCanvasContent = forwardRef<
 					: 'transferred';
 
 		if (!isHtmlInCanvasSupported()) {
-			cancelRender(new Error(getHtmlInCanvasUnsupportedMessage()));
+			throw new Error(getHtmlInCanvasUnsupportedMessage());
 		}
 
 		const canvas2dRef = useRef<HTMLCanvasElement | null>(null);

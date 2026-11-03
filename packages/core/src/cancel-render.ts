@@ -42,15 +42,7 @@ const isErrorLike = (err: unknown): boolean => {
 	return true;
 };
 
-/**
- * Internal function that accepts scope as parameter.
- * This allows useDelayRender to control its own scope source.
- * @private
- */
-export function cancelRenderInternal(
-	scope: DelayRenderScope | undefined,
-	err: unknown,
-): never {
+const normalizeError = (err: unknown): Error => {
 	let error: Error;
 
 	if (isErrorLike(err)) {
@@ -64,6 +56,13 @@ export function cancelRenderInternal(
 		error = Error('Rendering was cancelled');
 	}
 
+	return error;
+};
+
+const throwCancellation = (
+	scope: DelayRenderScope | undefined,
+	error: Error,
+): never => {
 	if (scope) {
 		// Server rendering reads the stack across Puppeteer. Browser rendering can
 		// keep the original Error in this realm, including its cause chain.
@@ -72,6 +71,20 @@ export function cancelRenderInternal(
 	}
 
 	throw error;
+};
+
+/** Deliver cancellation to its scoped owner, or retain the default throw. */
+export function cancelRenderInternal(
+	scope: DelayRenderScope | undefined,
+	err: unknown,
+): void {
+	const error = normalizeError(err);
+	if (scope?.remotion_onCancelRender) {
+		scope.remotion_onCancelRender(error);
+		return;
+	}
+
+	throwCancellation(scope, error);
 }
 
 /*
@@ -79,8 +92,8 @@ export function cancelRenderInternal(
  * @see [Documentation](https://remotion.dev/docs/cancel-render)
  */
 export function cancelRender(err: unknown): never {
-	return cancelRenderInternal(
+	return throwCancellation(
 		typeof window !== 'undefined' ? window : undefined,
-		err,
+		normalizeError(err),
 	);
 }

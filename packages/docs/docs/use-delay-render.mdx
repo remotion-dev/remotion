@@ -31,9 +31,15 @@ import {useDelayRender, continueRender, delayRender} from 'remotion';
 With this hook, we can scope the delays to a specific render.  
 This makes it future-proof for [browser rendering](/docs/miscellaneous/render-in-browser).<br /> It is recommended to use this hook instead of the global `delayRender()` function.
 
+## Errors in a Player or Thumbnail
+
+Inside a [`Player`](/docs/player) or [`Thumbnail`](/docs/thumbnail), errors passed to the scoped `cancelRender()` reach that instance's `errorFallback` and error event, including calls from asynchronous callbacks. Other players are unaffected. Callbacks from an unmounted composition or a replaced `component` or `lazyComponent` are ignored.
+
+Scoped cancellation can return after reporting the error. Return from the failed callback instead of continuing its work. The global [`cancelRender()`](/docs/cancel-render) continues to throw. Promises that never call scoped `cancelRender()` still need their own error handling.
+
 ## Compatibility
 
-<CompatibilityTable chrome firefox safari nodejs={''} bun={''} serverlessFunctions="" clientSideRendering serverSideRendering player="No-op" studio="No-op" hideServers />
+<CompatibilityTable chrome firefox safari nodejs={''} bun={''} serverlessFunctions="" clientSideRendering serverSideRendering player studio="No-op" hideServers />
 
 ## See also
 
