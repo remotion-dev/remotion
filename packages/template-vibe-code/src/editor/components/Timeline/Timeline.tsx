@@ -89,10 +89,6 @@ type DragState = {
   mode: "move" | "start" | "end";
   startX: number;
   deltaFrames: number;
-  // Timeline geometry when the drag started. The preview moves the sequence
-  // live, so the bar is drawn from these values instead of the live track.
-  startFrom: number;
-  startDuration: number;
 };
 
 type ReorderDragState = {
@@ -214,18 +210,7 @@ const TrackRow = memo(function TrackRow({
   const schema = getLayerSchema(layer);
   const editable = layer.source !== null && hasTimingProps(schema);
   const isDragging = drag?.layerId === sequence.id;
-  const delta = isDragging ? drag.deltaFrames : 0;
-  const baseFrom = isDragging ? drag.startFrom : sequence.from;
-  const baseDuration = isDragging ? drag.startDuration : sequence.duration;
-  const from = baseFrom + (isDragging && drag.mode !== "end" ? delta : 0);
-  const duration = Math.max(
-    1,
-    isDragging && drag.mode === "start"
-      ? baseDuration - delta
-      : isDragging && drag.mode === "end"
-        ? baseDuration + delta
-        : baseDuration,
-  );
+  const { from, duration } = sequence;
   const label = getLayerLabel(layer);
   const select = (event: React.MouseEvent) =>
     actions.selectLayer(layer, {
@@ -744,13 +729,18 @@ export const Timeline: React.FC = () => {
         event.dataTransfer.setDragImage(
           dragImage,
           event.clientX - labelRect.left,
-          orderedLayers.indexOf(layer) * ROW_HEIGHT + event.clientY - labelRect.top,
+          orderedLayers.indexOf(layer) * ROW_HEIGHT +
+            event.clientY -
+            labelRect.top,
         );
         requestAnimationFrame(() => dragImage.remove());
       }
 
       event.dataTransfer.effectAllowed = "move";
-      event.dataTransfer.setData("application/x-remotion-layer-reorder", "move");
+      event.dataTransfer.setData(
+        "application/x-remotion-layer-reorder",
+        "move",
+      );
       setReorderDrag({
         nodes: nodes as NodeReference[],
         sourceKeys: sourceLayers.map((sourceLayer) =>
@@ -868,8 +858,6 @@ export const Timeline: React.FC = () => {
         mode,
         startX: event.clientX,
         deltaFrames: 0,
-        startFrom: layer.track.sequence.from,
-        startDuration: layer.track.sequence.duration,
       };
       dragRef.current = start;
       const target = event.currentTarget as HTMLElement;
@@ -887,15 +875,18 @@ export const Timeline: React.FC = () => {
       const runtimeValues =
         sequence.controls?.runtimeValues.getSnapshot() ?? {};
       const runtimePlaybackRate = runtimeValues.playbackRate;
+      const parentPlaybackRate = layer.track.keyframePlaybackRate;
       const playbackRate = playbackRateComponentIdentities.has(
         sequence.controls?.componentIdentity ?? "",
       )
-        ? typeof runtimePlaybackRate === "number"
-          ? runtimePlaybackRate
-          : 1
+        ? parentPlaybackRate *
+          (typeof runtimePlaybackRate === "number" ? runtimePlaybackRate : 1)
         : sequence.sequencePlaybackRate;
+      let visibleSourceDuration =
+        (sequence.from + sequence.duration - layer.track.cascadedStart) *
+        playbackRate;
       let sourceFrom = 0;
-      let sourceDuration = sequence.duration * playbackRate;
+      let sourceDuration = visibleSourceDuration;
       let sourceTrimBefore =
         typeof runtimeValues.trimBefore === "number"
           ? runtimeValues.trimBefore
@@ -903,11 +894,14 @@ export const Timeline: React.FC = () => {
       let blocked: string | null = null;
       if (node) {
         try {
-          const props = Internals.evaluateSourcePropStatuses(getNodeProps({
-            project,
-            node,
-            keys: ["from", "durationInFrames", "trimBefore"],
-          }).props, sequence.controls?.videoConfigValues ?? null);
+          const props = Internals.evaluateSourcePropStatuses(
+            getNodeProps({
+              project,
+              node,
+              keys: ["from", "durationInFrames", "trimBefore"],
+            }).props,
+            sequence.controls?.videoConfigValues ?? null,
+          );
           const fromStatus = props.from;
           const durationStatus = props.durationInFrames;
           const trimBeforeStatus = props.trimBefore;
@@ -934,6 +928,18 @@ export const Timeline: React.FC = () => {
             typeof durationStatus.codeValue === "number"
           ) {
             sourceDuration = durationStatus.codeValue;
+            if (
+              Math.abs(visibleSourceDuration - sourceDuration) <=
+              Number.EPSILON *
+                Math.max(
+                  1,
+                  Math.abs(visibleSourceDuration),
+                  Math.abs(sourceDuration),
+                ) *
+                8
+            ) {
+              visibleSourceDuration = sourceDuration;
+            }
           }
 
           if (
@@ -947,11 +953,25 @@ export const Timeline: React.FC = () => {
         }
       }
 
+      const normalizeSourceFrame = (value: number) => {
+        const rounded = Math.round(value);
+        const tolerance = Number.EPSILON * Math.max(1, Math.abs(value)) * 8;
+        return Math.abs(value - rounded) <= tolerance ? rounded : value;
+      };
+
       const getUpdates = (deltaFrames: number) => {
-        const childDeltaFrames = deltaFrames * playbackRate;
+        const sourceDeltaFrames =
+          deltaFrames +
+          (mode === "start" ? sequence.from - layer.track.cascadedStart : 0);
+        const parentDeltaFrames = sourceDeltaFrames * parentPlaybackRate;
+        const childDeltaFrames = sourceDeltaFrames * playbackRate;
         if (mode === "move") {
           return [
-            { key: "from", value: sourceFrom + deltaFrames, defaultValue: 0 },
+            {
+              key: "from",
+              value: normalizeSourceFrame(sourceFrom + parentDeltaFrames),
+              defaultValue: 0,
+            },
           ];
         }
 
@@ -959,7 +979,9 @@ export const Timeline: React.FC = () => {
           return [
             {
               key: "durationInFrames",
-              value: Math.max(1, sourceDuration + childDeltaFrames),
+              value: normalizeSourceFrame(
+                Math.max(1, visibleSourceDuration + childDeltaFrames),
+              ),
               defaultValue: null,
             },
           ];
@@ -968,17 +990,21 @@ export const Timeline: React.FC = () => {
         return [
           {
             key: "from",
-            value: sourceFrom + deltaFrames,
+            value: normalizeSourceFrame(sourceFrom + parentDeltaFrames),
             defaultValue: 0,
           },
           {
             key: "durationInFrames",
-            value: Math.max(1, sourceDuration - childDeltaFrames),
+            value: normalizeSourceFrame(
+              Math.max(1, sourceDuration - childDeltaFrames),
+            ),
             defaultValue: null,
           },
           {
             key: "trimBefore",
-            value: Math.max(0, sourceTrimBefore + childDeltaFrames),
+            value: normalizeSourceFrame(
+              Math.max(0, sourceTrimBefore + childDeltaFrames),
+            ),
             defaultValue: 0,
           },
         ];
