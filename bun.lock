@@ -2677,6 +2677,7 @@
         "@remotion/browser-bundler": "workspace:*",
         "@remotion/cli": "workspace:*",
         "@remotion/codemods": "workspace:*",
+        "@remotion/media": "workspace:*",
         "@remotion/player": "workspace:*",
         "@remotion/sdk": "workspace:*",
         "@remotion/web-renderer": "workspace:*",

@@ -29,6 +29,7 @@
 		"@remotion/sdk": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/codemods": "workspace:*",
+		"@remotion/media": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",
 		"class-variance-authority": "0.7.1",

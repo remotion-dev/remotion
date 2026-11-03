@@ -11,6 +11,7 @@ import type {
   PreviewHost,
 } from "@/preview/bridge";
 import { toVirtualProject, type ProjectFiles } from "../model/project";
+import type { NodePathRemapping } from "@remotion/codemods";
 import type { EditorAction } from "../state/editor-store";
 import { getErrorMessage } from "./use-preview-host";
 
@@ -20,6 +21,7 @@ type Session = {
   revision: number;
   hasBundle: boolean;
   appliedSelection: PreviewCompositionSelection | null;
+  appliedFiles: ProjectFiles | null;
   disposed: boolean;
 };
 
@@ -50,16 +52,23 @@ export const useCompiler = ({
   entryPoint,
   selection,
   dispatch,
+  getSourceRemappings,
 }: {
   host: PreviewHost | null;
   files: ProjectFiles;
   entryPoint: string;
   selection: PreviewCompositionSelection | null;
   dispatch: React.Dispatch<EditorAction>;
+  getSourceRemappings: (
+    previousFiles: ProjectFiles | null,
+    nextFiles: ProjectFiles,
+  ) => NodePathRemapping[][] | null;
 }) => {
   const sessionRef = useRef<Session | null>(null);
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
+  const remappingsRef = useRef(getSourceRemappings);
+  remappingsRef.current = getSourceRemappings;
 
   useEffect(() => {
     if (!host) {
@@ -105,6 +114,7 @@ export const useCompiler = ({
       revision: 0,
       hasBundle: false,
       appliedSelection: null,
+      appliedFiles: null,
       disposed: false,
     };
     sessionRef.current = session;
@@ -146,7 +156,11 @@ export const useCompiler = ({
           dispatch({ type: "set-runtime-error", message: null });
           // Newer edits may be queued, but every compiled bundle must be
           // applied because the next Fast Refresh update builds on it.
-          await host.applyBundle(bundle);
+          await host.applyBundle(
+            bundle,
+            remappingsRef.current(session.appliedFiles, nextFiles),
+          );
+          session.appliedFiles = nextFiles;
           session.hasBundle = true;
           dispatch({ type: "set-applied-files", files: nextFiles });
           const desired = selectionRef.current;

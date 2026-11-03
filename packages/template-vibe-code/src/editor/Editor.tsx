@@ -180,13 +180,6 @@ export const Editor: React.FC<{
         : null,
     [activeComposition, state.propsOverride],
   );
-  useCompiler({
-    host,
-    files: state.files,
-    entryPoint,
-    selection,
-    dispatch,
-  });
 
   useEffect(() => {
     if (hostError) {
@@ -278,6 +271,15 @@ export const Editor: React.FC<{
     canSave,
   });
 
+  useCompiler({
+    host,
+    files: state.files,
+    entryPoint,
+    selection,
+    dispatch,
+    getSourceRemappings: actions.getSourceRemappings,
+  });
+
   shortcutHandlerRef.current = useEditorShortcuts({
     actions,
     playback,
@@ -308,7 +310,7 @@ export const Editor: React.FC<{
     if (previewUpToDate || compileFailed) {
       actions.releasePreviews();
     }
-  }, [actions, compileFailed, previewUpToDate]);
+  }, [actions, compileFailed, previewUpToDate, state.pendingSourceMutations]);
 
   useEffect(() => {
     if (state.notices.length === 0) {
