@@ -55,3 +55,19 @@ test('Should cut a cubic curve with coincident control points by arc length', ()
 
 	expect(endpoint.x).toBeCloseTo(50, 1);
 });
+
+test('Should cut a closing Z command', () => {
+	const path = 'M 0 0 L 100 0 L 100 100 Z';
+	const result = cutPath(path, 250);
+	expect(getLength(result)).toBeCloseTo(250, 5);
+
+	const instructions = parsePath(result);
+	const endpoint = instructions[instructions.length - 1];
+	const expected = getPointAtLength(path, 250);
+	if (endpoint.type !== 'L' || !expected) {
+		throw new Error('Expected a line endpoint and a point on the path');
+	}
+
+	expect(endpoint.x).toBeCloseTo(expected.x, 5);
+	expect(endpoint.y).toBeCloseTo(expected.y, 5);
+});

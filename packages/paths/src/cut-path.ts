@@ -20,8 +20,13 @@ export const cutPath = (d: string, length: number): string => {
 				const remainingLength = length - summedUpLength;
 				const progress = remainingLength / instructionAndInfo.length;
 				// cut
+				const {instruction} = instructionAndInfo;
 				const cut = cutInstruction({
-					instruction: instructionAndInfo.instruction,
+					// `Z` draws a line back to the start of the subpath, so cut it as one
+					instruction:
+						instruction.type === 'Z'
+							? {type: 'L', x: segment.startPoint.x, y: segment.startPoint.y}
+							: instruction,
 					lastPoint: instructionAndInfo.startPoint,
 					progress,
 				});
