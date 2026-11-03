@@ -101,6 +101,13 @@ Previously, they returned the point or tangent at the end of the path.
 
 **Required action**: Handle the `null` return value or ensure that the requested length does not exceed the path length.
 
+## `getTangentAtLength()` points in the direction of travel on arcs
+
+[`getTangentAtLength()`](/docs/paths/get-tangent-at-length) now returns a tangent that points in the direction of travel for arc (`A` / `a`) segments, consistent with lines and Bézier curves.
+Previously, the tangent of an arc pointed in the opposite direction.
+
+**Required action**: If you negated the tangent of an arc to compensate, remove the negation.
+
 ## `overwrite` is now `true` by default in `renderMediaOnLambda()`
 
 The default value of `overwrite` in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) has changed from `false` to `true`. This skips a check that the file already exists in the S3 bucket, which makes the render start faster.
