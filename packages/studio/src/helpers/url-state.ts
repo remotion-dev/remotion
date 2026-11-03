@@ -50,7 +50,15 @@ export const reloadUrl = () => {
 export const getRoute = () => {
 	if (getUrlHandlingType() === 'query-string') {
 		const route = getNavigationWindow().location.search.substring(1);
-		return route.startsWith('/') ? route : '';
+		if (route.startsWith('/')) {
+			return route;
+		}
+
+		if (route !== '' && !route.includes('=') && !route.includes('&')) {
+			return `/${route}`;
+		}
+
+		return '';
 	}
 
 	return window.location.pathname;
