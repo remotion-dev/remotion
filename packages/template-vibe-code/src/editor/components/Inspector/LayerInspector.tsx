@@ -35,7 +35,6 @@ import {
 import {
   parseNumber,
   parseRotation,
-  parseScale,
   parseTranslate,
   serializeRotation,
   serializeTranslate,
@@ -422,12 +421,31 @@ export const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
       );
     }
 
-    case "scale":
+    case "scale": {
+      const current = codeValue ?? schemaDefault;
+      const scalar =
+        typeof current === "number"
+          ? current
+          : typeof current === "string" && current.trim() !== ""
+            ? Number(current)
+            : 1;
+      if (typeof current === "string" && !Number.isFinite(scalar)) {
+        return (
+          <FieldRow label={label} badge={badge} keyframe={keyframe}>
+            <TextField
+              ariaLabel={ariaLabel}
+              value={current}
+              onCommit={(value) => commit(value === "" ? undefined : value)}
+            />
+          </FieldRow>
+        );
+      }
+
       return (
         <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <NumberField
             ariaLabel={ariaLabel}
-            value={parseScale(codeValue ?? schemaDefault)}
+            value={scalar}
             min={field.min}
             max={field.max}
             step={field.step ?? 0.01}
@@ -437,6 +455,7 @@ export const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
           />
         </FieldRow>
       );
+    }
 
     case "rotation-css":
       return (

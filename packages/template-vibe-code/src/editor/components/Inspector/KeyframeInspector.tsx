@@ -61,9 +61,8 @@ export const KeyframeInspector: React.FC<{
     prop &&
     keyframe &&
     typeof keyframe.value === "string" &&
-    ((prop.field.type === "scale" && /\s/.test(keyframe.value.trim())) ||
-      (prop.field.type === "rotation-css" &&
-        !/^[+-]?(?:\d+\.?\d*|\.\d+)deg$/.test(keyframe.value)) ||
+    ((prop.field.type === "rotation-css" &&
+      !/^[+-]?(?:\d+\.?\d*|\.\d+)deg$/.test(keyframe.value)) ||
       (prop.field.type === "translate" &&
         !/^[+-]?(?:\d+\.?\d*|\.\d+)px(?:\s+[+-]?(?:\d+\.?\d*|\.\d+)px)?$/.test(
           keyframe.value,
