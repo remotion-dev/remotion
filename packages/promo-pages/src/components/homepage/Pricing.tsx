@@ -11,7 +11,7 @@ export const Pricing: React.FC<{
 	faqHref = '/docs/license/faq',
 	faqLabel = 'License FAQ',
 	licenseHref = 'https://github.com/remotion-dev/remotion/blob/main/LICENSE.md',
-	termsHref = '/docs/terms',
+	termsHref = 'https://www.remotion.dev/docs/terms',
 	purchaseHref = 'https://remotion.pro/dashboard',
 }) => {
 	const faqLinkTarget = useMemo(() => {

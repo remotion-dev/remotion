@@ -94,6 +94,8 @@ export const FreePricing: React.FC<{
 							<>
 								<a
 									href={termsHref}
+									target={termsHref.startsWith('http') ? '_blank' : undefined}
+									rel="noopener noreferrer"
 									className="underline underline-offset-4 text-inherit font-brand"
 								>
 									Terms
