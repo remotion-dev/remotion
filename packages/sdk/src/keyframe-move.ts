@@ -62,6 +62,26 @@ export const getCanvasKeyframeMove = (
 	),
 });
 
+export const getCanvasKeyframeMoves = (
+	targets: readonly CanvasKeyframeMoveTarget[],
+	delta: number,
+): CanvasKeyframeMove[] => {
+	const moves = targets.map((target) => getCanvasKeyframeMove(target, delta));
+	if (moves.length < 2) {
+		return moves;
+	}
+
+	const destinations = new Map<number, number>();
+	return moves.filter(({fromFrame, toFrame}) => {
+		if (destinations.get(fromFrame) === toFrame) {
+			return false;
+		}
+
+		destinations.set(fromFrame, toFrame);
+		return true;
+	});
+};
+
 /**
  * Whether the keyframes of one prop can be moved by `delta` frames: every
  * moved keyframe exists and no two moved keyframes end up on the same frame.
@@ -82,7 +102,7 @@ export const canMoveCanvasKeyframes = ({
 
 	return canMoveKeyframesWithoutCollisions({
 		status: first.propStatus,
-		moves: targets.map((target) => getCanvasKeyframeMove(target, delta)),
+		moves: getCanvasKeyframeMoves(targets, delta),
 	});
 };
 
@@ -102,7 +122,7 @@ export const getMovedCanvasKeyframeStatus = ({
 
 	const moved = moveKeyframesInPropStatus({
 		status: first.propStatus,
-		moves: targets.map((target) => getCanvasKeyframeMove(target, delta)),
+		moves: getCanvasKeyframeMoves(targets, delta),
 	});
 	if (moved.status !== 'keyframed') {
 		throw new Error('Expected keyframed status');
