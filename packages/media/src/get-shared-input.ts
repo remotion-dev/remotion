@@ -20,7 +20,7 @@ import {
 // same media share the same `src`, they can share ONE `Input`: the container is
 // parsed once and subsequent seeks are served from the warm byte cache.
 //
-const getSharedInputCacheKey = ({
+export const getSharedInputCacheKey = ({
 	src,
 	credentials,
 	requestInit,

@@ -19,8 +19,10 @@ import {
 	Internals,
 	useBufferState,
 	useCurrentFrame,
+	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
+import {getSharedInputCacheKey} from '../get-shared-input';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
@@ -86,12 +88,20 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
-type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
+type VideoForPreviewAssertedShowingProps = VideoForPreviewProps & {
+	readonly mediaTime: number;
+};
+
+const studioVideoCanvases = new Map<
+	HTMLCanvasElement,
+	{sourceKey: string; getPlainFrameTime: () => number | null}
+>();
 
 const VideoForPreviewAssertedShowing: React.FC<
 	VideoForPreviewAssertedShowingProps
 > = ({
 	src: unpreloadedSrc,
+	mediaTime,
 	style,
 	playbackRate,
 	toneFrequency,
@@ -126,6 +136,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const src = usePreload(unpreloadedSrc);
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const {isStudio} = useRemotionEnvironment();
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
@@ -241,6 +252,68 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const isPremountingRef = useRef(isPremounting);
 	isPremountingRef.current = isPremounting;
 
+	const maxWidth = maxCanvasSinkFrameSize?.width;
+	const maxHeight = maxCanvasSinkFrameSize?.height;
+	const studioSourceKey = useMemo(
+		() =>
+			isStudio
+				? JSON.stringify([
+						getSharedInputCacheKey({
+							src: preloadedSrc,
+							credentials,
+							requestInit: initialRequestInit,
+						}),
+						maxWidth,
+						maxHeight,
+					])
+				: null,
+		[
+			credentials,
+			initialRequestInit,
+			isStudio,
+			maxHeight,
+			maxWidth,
+			preloadedSrc,
+		],
+	);
+	const canSharePausedFrame =
+		!playing &&
+		!loop &&
+		!debugOverlay &&
+		!onVideoFrame &&
+		effects.length === 0 &&
+		!_experimentalInitiallyDrawCachedFrame;
+	const canSharePausedFrameRef = useRef(canSharePausedFrame);
+	canSharePausedFrameRef.current = canSharePausedFrame;
+	const mediaTimeRef = useRef(mediaTime);
+	mediaTimeRef.current = mediaTime;
+	const canReceivePausedFrame =
+		canSharePausedFrame && !isPremounting && !isPostmounting && !headless;
+	useLayoutEffect(() => {
+		const canvas = canvasRef.current;
+		if (
+			!canvas ||
+			!studioSourceKey ||
+			!canReceivePausedFrame ||
+			mediaPlayerRef.current
+		) {
+			return;
+		}
+
+		for (const [source, previous] of studioVideoCanvases) {
+			if (
+				source !== canvas &&
+				previous.sourceKey === studioSourceKey &&
+				previous.getPlainFrameTime() === mediaTimeRef.current
+			) {
+				canvas.width = source.width;
+				canvas.height = source.height;
+				canvas.getContext('2d')?.drawImage(source, 0, 0);
+				break;
+			}
+		}
+	}, [canReceivePausedFrame, studioSourceKey]);
+
 	useLayoutEffect(() => {
 		if (!_experimentalInitiallyDrawCachedFrame) {
 			return;
@@ -307,9 +380,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				: null;
 
+		const canvas = canvasRef.current;
 		try {
 			const player = new MediaPlayer({
-				canvas: canvasRef.current,
+				canvas,
 				src: preloadedSrc,
 				logLevel,
 				sharedAudioContext: sharedAudioContextForMediaPlayer,
@@ -351,6 +425,16 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				},
 			});
+
+			if (canvas && studioSourceKey) {
+				studioVideoCanvases.set(canvas, {
+					sourceKey: studioSourceKey,
+					getPlainFrameTime: () =>
+						canSharePausedFrameRef.current
+							? (player.videoIteratorManager?.getPlainFrameTime() ?? null)
+							: null,
+				});
+			}
 
 			mediaPlayerRef.current = player;
 			player
@@ -471,6 +555,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		}
 
 		return () => {
+			if (canvas && studioSourceKey) {
+				studioVideoCanvases.delete(canvas);
+			}
+
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
@@ -497,6 +585,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
+		studioSourceKey,
 		// Compare the numbers, so that a new object with the same size does not
 		// recreate the player.
 		maxCanvasSinkFrameSize?.width,
@@ -641,8 +730,8 @@ export const VideoForPreview: React.FC<
 	const videoConfig = useVideoConfig();
 	const currentTime = frame / videoConfig.fps;
 
-	const showShow = useMemo(() => {
-		return (
+	const mediaTime = useMemo(
+		() =>
 			getTimeInSeconds({
 				unloopedTimeInSeconds: currentTime,
 				playbackRate: props.playbackRate,
@@ -653,21 +742,21 @@ export const VideoForPreview: React.FC<
 				fps: videoConfig.fps,
 				ifNoMediaDuration: 'infinity',
 				src: props.src,
-			}) !== null
-		);
-	}, [
-		currentTime,
-		props.loop,
-		props.playbackRate,
-		props.src,
-		videoConfig.fps,
-		props.trimBefore,
-		props.trimAfter,
-	]);
+			}),
+		[
+			currentTime,
+			props.loop,
+			props.playbackRate,
+			props.src,
+			videoConfig.fps,
+			props.trimBefore,
+			props.trimAfter,
+		],
+	);
 
-	if (!showShow) {
+	if (mediaTime === null) {
 		return null;
 	}
 
-	return <VideoForPreviewAssertedShowing {...props} />;
+	return <VideoForPreviewAssertedShowing {...props} mediaTime={mediaTime} />;
 };

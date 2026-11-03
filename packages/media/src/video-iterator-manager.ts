@@ -84,6 +84,8 @@ export const videoIteratorManager = async ({
 	let framesRendered = 0;
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
+	let lastDrawnMediaTime: number | null = null;
+	let lastPlainFrameTime: number | null = null;
 	let currentSeek: number | null = null;
 	let lastPaintedEffects: EffectDefinitionAndStack<unknown>[] = [];
 	let lastPaintedEffectChainState: EffectChainState | null = null;
@@ -97,6 +99,8 @@ export const videoIteratorManager = async ({
 
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
+		lastDrawnMediaTime = null;
+		lastPlainFrameTime = null;
 		lastCompletedEffectPaint = null;
 	};
 
@@ -129,12 +133,16 @@ export const videoIteratorManager = async ({
 		Object.keys(frameSize).length === 0 ? null : frameSize,
 	);
 
-	const paintFrame = async (frame: WrappedCanvas): Promise<void> => {
+	const paintFrame = async (
+		frame: WrappedCanvas,
+		mediaTime: number | null,
+	): Promise<void> => {
 		if (destroyed) {
 			return;
 		}
 
 		if (context && canvas) {
+			lastPlainFrameTime = null;
 			const effects = getEffects();
 			lastPaintedEffects = effects;
 			const chainState = getEffectChainState(canvas.width, canvas.height);
@@ -187,17 +195,24 @@ export const videoIteratorManager = async ({
 				lastCompletedEffectPaint = null;
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				drawStableFrame(context, frame, canvas.width, canvas.height);
+				if (effects.length === 0) {
+					lastPlainFrameTime = mediaTime;
+				}
 			}
 		}
 	};
 
-	const drawFrame = async (frame: WrappedCanvas): Promise<void> => {
-		await paintFrame(frame);
+	const drawFrame = async (
+		frame: WrappedCanvas,
+		mediaTime: number,
+	): Promise<void> => {
+		await paintFrame(frame, mediaTime);
 		if (destroyed) {
 			return;
 		}
 
 		lastDrawnFrame = frame;
+		lastDrawnMediaTime = mediaTime;
 
 		framesRendered++;
 
@@ -218,7 +233,7 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
-		await paintFrame(lastDrawnFrame);
+		await paintFrame(lastDrawnFrame, lastDrawnMediaTime);
 		if (destroyed) {
 			return;
 		}
@@ -293,7 +308,7 @@ export const videoIteratorManager = async ({
 			// lands, so returning undrawn would discard every frame and freeze
 			// the preview. Painting is safe: the newer seek always lands last.
 			if (!videoFrameIterator.isDestroyed() && iterator.initialFrame) {
-				await drawFrame(iterator.initialFrame);
+				await drawFrame(iterator.initialFrame, timeToSeek);
 			}
 
 			return;
@@ -308,7 +323,7 @@ export const videoIteratorManager = async ({
 			return;
 		}
 
-		await drawFrame(iterator.initialFrame);
+		await drawFrame(iterator.initialFrame, timeToSeek);
 	};
 
 	const seek = async ({
@@ -433,7 +448,7 @@ export const videoIteratorManager = async ({
 			}
 
 			if (result.type === 'satisfied') {
-				await drawFrame(result.frame);
+				await drawFrame(result.frame, newTime);
 				currentSeek = newTime;
 				return;
 			}
@@ -486,6 +501,8 @@ export const videoIteratorManager = async ({
 			videoFrameIterator = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,
+		getPlainFrameTime: () =>
+			pendingEffectRun || lastCompletedEffectPaint ? null : lastPlainFrameTime,
 		drawFrame,
 		redrawCurrentFrame,
 		getFramesRendered: () => framesRendered,
