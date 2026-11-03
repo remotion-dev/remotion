@@ -52,6 +52,7 @@ export {
 	getCanvasKeyframes,
 	getCanvasKeyframeSourceFrame,
 	getCanvasKeyframeToggle,
+	getCanvasKeyframeValueChange,
 	getCanvasPropValueAtFrame,
 } from './keyframes';
 export type {

@@ -2,7 +2,9 @@
 
 import {
   getCanvasKeyframeChangeOverride,
+  getCanvasKeyframeDisplayFrame,
   getCanvasKeyframeToggle,
+  getCanvasKeyframeValueChange,
   getCanvasSelectionItemKey,
   getCanvasSequenceReorderSelection,
   type CanvasKeyframeChange,
@@ -23,6 +25,7 @@ import {
   deleteNodes as deleteNodesCodemod,
   duplicateComposition,
   duplicateNodes as duplicateNodesCodemod,
+  getNodeProps,
   moveComposition,
   moveFolder,
   renameComposition,
@@ -57,6 +60,7 @@ import type {
   CanUpdateSequencePropStatus,
   InteractivitySchema,
 } from "remotion";
+import { Internals } from "remotion";
 import type {
   PreviewHost,
   PreviewRenderRequest,
@@ -725,6 +729,7 @@ export const useEditorActions = ({
     const commitNodeChanges = async (
       nodeChanges: Map<string, NodeChange>,
       selectionBefore: CanvasSelectionSnapshot | null,
+      requireExistingKeyframes: boolean,
     ) => {
       if (nodeChanges.size === 0) {
         return false;
@@ -800,15 +805,58 @@ export const useEditorActions = ({
             nodePathInfo,
           } of nodeChanges.values()) {
             if (keyframes.length > 0) {
+              const resolvedNode = resolveNode(node);
+              const config =
+                nodePathInfo.sequenceSubscriptionKey.videoConfigValues ??
+                videoConfig;
+              if (requireExistingKeyframes) {
+                const statuses = Internals.evaluateSourcePropStatuses(
+                  getNodeProps({
+                    project: current,
+                    node: resolvedNode,
+                    keys: keyframes.map(({ key }) => key),
+                  }).props,
+                  config,
+                );
+                for (const { key, operation } of keyframes) {
+                  const status = statuses[key];
+                  const track = {
+                    keyframeDisplayOffset: 0,
+                    keyframePlaybackRate: 1,
+                  };
+                  if (
+                    operation.type !== "add" ||
+                    status?.status !== "keyframed" ||
+                    !status.keyframes.some(
+                      ({ frame }) => frame === operation.frame,
+                    ) ||
+                    !getCanvasKeyframeValueChange({
+                      nodePathInfo,
+                      track,
+                      schema,
+                      key,
+                      propStatus: status,
+                      frame: getCanvasKeyframeDisplayFrame({
+                        track,
+                        propStatus: status,
+                        sourceFrame: operation.frame,
+                      }),
+                      value: operation.value,
+                    })
+                  ) {
+                    throw new Error(
+                      "The selected keyframe changed. Select it again before editing its value.",
+                    );
+                  }
+                }
+              }
               collect(
                 await updateNodeKeyframes({
                   project: current,
-                  node: resolveNode(node),
+                  node: resolvedNode,
                   updates: keyframes,
                   schema,
-                  videoConfig:
-                    nodePathInfo.sequenceSubscriptionKey.videoConfigValues ??
-                    videoConfig,
+                  videoConfig: config,
                 }),
               );
             }
@@ -1395,7 +1443,7 @@ export const ${componentName}: React.FC = () => {
        */
       commitSequencePropChanges: (
         changes: readonly CanvasSequencePropChange[],
-      ) => commitNodeChanges(groupNodeChanges(changes), null),
+      ) => commitNodeChanges(groupNodeChanges(changes), null, false),
       /**
        * Adds, removes or moves keyframes in the source. Moved keyframes stay
        * previewed on the canvas until `releasePreviews`.
@@ -1403,7 +1451,37 @@ export const ${componentName}: React.FC = () => {
       commitKeyframeChanges: (
         changes: readonly CanvasKeyframeChange[],
         selectionBefore: CanvasSelectionSnapshot | null,
-      ) => commitNodeChanges(groupNodeChanges(changes), selectionBefore),
+      ) => commitNodeChanges(groupNodeChanges(changes), selectionBefore, false),
+      commitKeyframeValue: (item: KeyframeSelectionItem, value: unknown) => {
+        const prop = findKeyframedProp(ref.current.keyframedProps, item);
+        if (!prop) {
+          notify("The selected keyframe is no longer in the source.");
+          return Promise.resolve(false);
+        }
+        const change = getCanvasKeyframeValueChange({
+          nodePathInfo: prop.layer.nodePathInfo,
+          track: prop.layer.track,
+          schema: prop.schema,
+          key: prop.key,
+          propStatus: prop.propStatus,
+          frame: item.frame,
+          value,
+        });
+        if (!change) {
+          clearPreview(prop.layer, null);
+          if (value !== undefined)
+            notify("This value cannot replace the selected keyframe.");
+          return Promise.resolve(false);
+        }
+        const previous = prop.propStatus.keyframes.find(
+          ({ frame }) => frame === change.operation.frame,
+        );
+        if (previous?.value === change.operation.value) {
+          clearPreview(prop.layer, null);
+          return Promise.resolve(false);
+        }
+        return commitNodeChanges(groupNodeChanges([change]), null, true);
+      },
       previewKeyframeChanges,
       /** Drops the previews of keyframe changes without writing them. */
       cancelKeyframePreviews: (changes: readonly CanvasKeyframeChange[]) => {
@@ -1421,7 +1499,7 @@ export const ${componentName}: React.FC = () => {
        */
       applyKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) => {
         previewKeyframeChanges(changes);
-        return commitNodeChanges(groupNodeChanges(changes), null);
+        return commitNodeChanges(groupNodeChanges(changes), null, false);
       },
       /** Gives the easing segments the same easing. */
       applyEasing: (
@@ -1434,7 +1512,7 @@ export const ${componentName}: React.FC = () => {
           easing,
         });
         previewKeyframeChanges(changes);
-        return commitNodeChanges(groupNodeChanges(changes), null);
+        return commitNodeChanges(groupNodeChanges(changes), null, false);
       },
       /** Removes the keyframes that are selected on the timeline. */
       deleteSelectedKeyframes: () => {
@@ -1481,7 +1559,11 @@ export const ${componentName}: React.FC = () => {
         host.controller.selection.setSelectedItems(
           [...layers.values()].map((layer) => layer.selectionItem),
         );
-        return commitNodeChanges(groupNodeChanges(changes), selectionBefore);
+        return commitNodeChanges(
+          groupNodeChanges(changes),
+          selectionBefore,
+          false,
+        );
       },
       /**
        * Selects keyframes and easing segments. With an interaction, Shift

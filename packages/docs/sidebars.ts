@@ -2157,6 +2157,7 @@ const sidebars: SidebarsConfig = {
 				'sdk/get-canvas-sequence-reorder-insertion-index',
 				'sdk/get-canvas-keyframes',
 				'sdk/get-canvas-keyframe-toggle',
+				'sdk/get-canvas-keyframe-value-change',
 				'sdk/start-canvas-keyframe-drag',
 				'sdk/get-canvas-keyframe-easing-segments',
 				'sdk/get-canvas-keyframe-easing-change',

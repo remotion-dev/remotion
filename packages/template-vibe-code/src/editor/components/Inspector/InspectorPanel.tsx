@@ -5,12 +5,16 @@ import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getSelectedNodes } from "../../hooks/use-editor-shortcuts";
-import { getSelectedEasings } from "../../model/keyframes";
+import {
+  getSelectedEasings,
+  getSelectedKeyframes,
+} from "../../model/keyframes";
 import { getLayerLabel } from "../../model/layers";
 import { useEditor } from "../../state/editor-context";
 import { fallbackSelectionController } from "../../state/fallback-selection";
 import { CompositionInspector } from "./CompositionInspector";
 import { EasingInspector } from "./EasingInspector";
+import { KeyframeInspector } from "./KeyframeInspector";
 import { LayerInspector } from "./LayerInspector";
 import { RendersPanel } from "./RendersPanel";
 
@@ -28,6 +32,17 @@ const SelectionInspector: React.FC = () => {
     );
   }, [layers, selection.selectedItems]);
   const selectedEasings = getSelectedEasings(selection.selectedItems);
+  const selectedKeyframes = getSelectedKeyframes(selection.selectedItems);
+
+  if (selectedKeyframes.length > 0) {
+    return (
+      <KeyframeInspector
+        key={selectedKeyframes.map(getCanvasSelectionItemKey).join("\n")}
+        items={selectedKeyframes}
+        easingCount={selectedEasings.length}
+      />
+    );
+  }
 
   if (selectedEasings.length > 0) {
     return (

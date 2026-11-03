@@ -66,6 +66,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>getCanvasKeyframeToggle()</strong>
 					<div>Add, remove and navigate keyframes at a frame</div>
 				</TOCItem>
+				<TOCItem link="/docs/sdk/get-canvas-keyframe-value-change">
+					<strong>getCanvasKeyframeValueChange()</strong>
+					<div>Replace the value of a selected keyframe</div>
+				</TOCItem>
 				<TOCItem link="/docs/sdk/start-canvas-keyframe-drag">
 					<strong>startCanvasKeyframeDrag()</strong>
 					<div>Move keyframes along the timeline with the pointer</div>

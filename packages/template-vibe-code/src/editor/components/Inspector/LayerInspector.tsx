@@ -334,7 +334,7 @@ const KeyframedPropEditor: React.FC<{
   );
 };
 
-const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
+export const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
   fieldKey,
   field,
   codeValue,
@@ -512,6 +512,10 @@ const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
             value={codeValue === undefined ? defaultOption : String(codeValue)}
             options={[
               { value: defaultOption, label: "Default" },
+              ...(codeValue !== undefined &&
+              !fontWeights.includes(String(codeValue))
+                ? [{ value: String(codeValue), label: String(codeValue) }]
+                : []),
               ...fontWeights.map((weight) => ({
                 value: weight,
                 label: weight,
