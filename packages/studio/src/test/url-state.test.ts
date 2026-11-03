@@ -63,3 +63,21 @@ test('uses query-string routing in Browser Studio', () => {
 	replaceUrl('/assets/other.mp4');
 	expect(replaceStateCalls).toEqual([[{}, 'Studio', '/new?/assets/other.mp4']]);
 });
+
+test('accepts query-string routes without a leading slash', () => {
+	for (const [search, expected] of [
+		['?/AgenticallyProgrammatically', '/AgenticallyProgrammatically'],
+		['?AgenticallyProgrammatically', '/AgenticallyProgrammatically'],
+		['?source=release', ''],
+		['', ''],
+	] as const) {
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: {
+				location: {pathname: '/brand', search},
+				remotion_isReadOnlyStudio: true,
+			},
+		});
+		expect(getRoute()).toBe(expected);
+	}
+});
