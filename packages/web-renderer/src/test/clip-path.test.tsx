@@ -1,4 +1,3 @@
-import React from 'react';
 import {expect, test} from 'vitest';
 import {parseClipPath} from '../drawing/clip-path';
 import {renderStillOnWeb} from '../render-still-on-web';
