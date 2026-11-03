@@ -276,7 +276,16 @@ const VideoForPreviewAssertedShowing: React.FC<
 			preloadedSrc,
 		],
 	);
+	const copiedFrameRef = useRef<{
+		canvas: HTMLCanvasElement;
+		sourceKey: string;
+		mediaTime: number;
+		width: number;
+		height: number;
+	} | null>(null);
 	const canSharePausedFrame =
+		!shouldFallbackToNativeVideo &&
+		terminalError === null &&
 		!playing &&
 		!loop &&
 		!debugOverlay &&
@@ -306,9 +315,21 @@ const VideoForPreviewAssertedShowing: React.FC<
 				previous.sourceKey === studioSourceKey &&
 				previous.getPlainFrameTime() === mediaTimeRef.current
 			) {
+				const context = canvas.getContext('2d');
+				if (!context) {
+					return;
+				}
+
 				canvas.width = source.width;
 				canvas.height = source.height;
-				canvas.getContext('2d')?.drawImage(source, 0, 0);
+				context.drawImage(source, 0, 0);
+				copiedFrameRef.current = {
+					canvas,
+					sourceKey: studioSourceKey,
+					mediaTime: mediaTimeRef.current,
+					width: canvas.width,
+					height: canvas.height,
+				};
 				break;
 			}
 		}
@@ -427,12 +448,27 @@ const VideoForPreviewAssertedShowing: React.FC<
 			});
 
 			if (canvas && studioSourceKey) {
+				const copied = copiedFrameRef.current;
+				copiedFrameRef.current = null;
 				studioVideoCanvases.set(canvas, {
 					sourceKey: studioSourceKey,
-					getPlainFrameTime: () =>
-						canSharePausedFrameRef.current
-							? (player.videoIteratorManager?.getPlainFrameTime() ?? null)
-							: null,
+					getPlainFrameTime: () => {
+						if (!canSharePausedFrameRef.current) {
+							return null;
+						}
+
+						const copiedTime =
+							copied?.canvas === canvas &&
+							copied.sourceKey === studioSourceKey &&
+							copied.mediaTime === mediaTimeRef.current &&
+							copied.width === canvas.width &&
+							copied.height === canvas.height
+								? copied.mediaTime
+								: null;
+						return player.videoIteratorManager
+							? player.videoIteratorManager.getPlainFrameTime(copiedTime)
+							: copiedTime;
+					},
 				});
 			}
 

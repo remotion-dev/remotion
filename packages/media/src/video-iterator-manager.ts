@@ -85,7 +85,7 @@ export const videoIteratorManager = async ({
 	let currentDelayHandle: {unblock: () => void} | null = null;
 	let lastDrawnFrame: WrappedCanvas | null = null;
 	let lastDrawnMediaTime: number | null = null;
-	let lastPlainFrameTime: number | null = null;
+	let lastPlainFrameTime: number | null | undefined;
 	let currentSeek: number | null = null;
 	let lastPaintedEffects: EffectDefinitionAndStack<unknown>[] = [];
 	let lastPaintedEffectChainState: EffectChainState | null = null;
@@ -100,7 +100,10 @@ export const videoIteratorManager = async ({
 	const clearLastDrawnFrame = () => {
 		lastDrawnFrame = null;
 		lastDrawnMediaTime = null;
-		lastPlainFrameTime = null;
+		if (lastPlainFrameTime !== undefined) {
+			lastPlainFrameTime = null;
+		}
+
 		lastCompletedEffectPaint = null;
 	};
 
@@ -108,6 +111,7 @@ export const videoIteratorManager = async ({
 	const displayHeight = await videoTrack.getDisplayHeight();
 	if (canvas && !getIsDisposed()) {
 		if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+			lastPlainFrameTime = null;
 			canvas.width = displayWidth;
 			canvas.height = displayHeight;
 		}
@@ -501,8 +505,15 @@ export const videoIteratorManager = async ({
 			videoFrameIterator = null;
 		},
 		getVideoFrameIterator: () => videoFrameIterator,
-		getPlainFrameTime: () =>
-			pendingEffectRun || lastCompletedEffectPaint ? null : lastPlainFrameTime,
+		getPlainFrameTime: (copiedFrameTime: number | null) => {
+			if (destroyed || pendingEffectRun || lastCompletedEffectPaint) {
+				return null;
+			}
+
+			return lastPlainFrameTime === undefined
+				? copiedFrameTime
+				: lastPlainFrameTime;
+		},
 		drawFrame,
 		redrawCurrentFrame,
 		getFramesRendered: () => framesRendered,
