@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/canvas-capture-extension",
-	"version": "4.0.539",
+	"version": "4.0.540",
 	"private": true,
 	"type": "module",
 	"scripts": {

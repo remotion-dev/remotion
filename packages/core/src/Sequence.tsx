@@ -12,7 +12,10 @@ import {
 	withCommittedMetadata,
 	type CommittedMetadata,
 } from './committed-metadata.js';
-import {getSingleChildComponent} from './component-identity.js';
+import {
+	getSingleChildComponent,
+	getSingleChildProps,
+} from './component-identity.js';
 import type {
 	AnimatedImageInTimeline,
 	LoopDisplay,
@@ -147,6 +150,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalSingleChildren?: React.ReactNode;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -213,6 +220,12 @@ type SequenceTiming = {
 	readonly currentFrameRef: React.RefObject<number>;
 };
 
+// Bound instead of a closure: a closure created during render shares its scope
+// with the other closures of that render and would retain the first children.
+const getSingleChildPropsFromRef = (
+	childrenRef: React.RefObject<React.ReactNode>,
+) => getSingleChildProps(childrenRef.current);
+
 const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
 	SequenceProps & {readonly timing: SequenceTiming}
@@ -237,6 +250,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalSingleChildComponent: childComponentOverride,
+		_remotionInternalSingleChildren: authoredChildrenOverride,
 		_remotionInternalDocumentationLink: documentationLink,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
@@ -531,12 +545,27 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
+	const authoredChildren =
+		authoredChildrenOverride === undefined
+			? children
+			: authoredChildrenOverride;
 	const singleChildComponent = useMemo(
 		() =>
 			childComponentOverride === undefined
-				? getSingleChildComponent(children)
+				? getSingleChildComponent(authoredChildren)
 				: childComponentOverride,
-		[children, childComponentOverride],
+		[authoredChildren, childComponentOverride],
+	);
+	const childrenRef = useRef(authoredChildren);
+	useLayoutEffect(() => {
+		childrenRef.current = authoredChildren;
+	}, [authoredChildren]);
+	const getRegisteredSingleChildProps = useMemo(
+		() =>
+			childComponentOverride === undefined
+				? getSingleChildPropsFromRef.bind(null, childrenRef)
+				: null,
+		[childComponentOverride],
 	);
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
@@ -684,6 +713,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
 					singleChildComponent: singleChildComponent ?? null,
+					getSingleChildProps: getRegisteredSingleChildProps,
 				};
 			}
 
@@ -718,6 +748,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 				frozenFrame: registeredFrozenFrame,
 				frozenMediaFrame,
 				singleChildComponent: singleChildComponent ?? null,
+				getSingleChildProps: getRegisteredSingleChildProps,
 			};
 		}
 
@@ -749,6 +780,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
 			singleChildComponent: singleChildComponent ?? null,
+			getSingleChildProps: getRegisteredSingleChildProps,
 		};
 	}, [
 		id,
@@ -783,6 +815,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		mediaFrameAtSequenceZero,
 		frozenMediaFrame,
 		singleChildComponent,
+		getRegisteredSingleChildProps,
 	]);
 	const getSequenceForRegistration = useMemo(
 		() => getSequenceRegistration.bind(null, sequenceForRegistration),

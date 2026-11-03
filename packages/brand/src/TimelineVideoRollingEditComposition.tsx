@@ -1,25 +1,38 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import type React from 'react';
+import {
+	AbsoluteFill,
+	Easing,
+	Freeze,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
-export const TimelineVideoRollingEditComposition = () => {
-	const frame = useCurrentFrame();
+const TimelineVideoRollingEditContent = () => {
+	const {fps} = useVideoConfig();
+	// Keep cursor keyframes and recording on the captured 60 fps clock.
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={352}
+			durationInFrames={(352 / 60) * fps}
 			style={{
 				width: 2560,
 				height: 1312,
 				rotate: '0.620975 0.651947 -0.43515 27.514238deg',
 				scale: 1.372,
 			}}
-			trimBefore={84}
+			trimBefore={(84 / 60) * fps}
 		>
 			<Video
 				src="https://remotion.media/studio-close-ups/timeline-video-rolling-edit-dcc776192258.mp4"
-				durationInFrames={436}
+				durationInFrames={(436 / 60) * fps}
+				muted
 				style={{
 					position: 'absolute',
 				}}
@@ -308,3 +321,86 @@ export const TimelineVideoRollingEditComposition = () => {
 		</AbsoluteFill>
 	);
 };
+
+const TimelineVideoRollingEditFrame = ({
+	children,
+}: {
+	readonly children: React.ReactNode;
+}) => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<CloseUpFrame>
+			<div
+				style={{
+					position: 'absolute',
+					width: 2560,
+					height: 1312,
+					left: '50%',
+					top: '50%',
+					translate: '-50% -50%',
+					scale: Math.min(width / 2560, height / 1312),
+					overflow: 'hidden',
+				}}
+			>
+				{children}
+			</div>
+		</CloseUpFrame>
+	);
+};
+
+const TimelineVideoRollingEditCompositionContent = () => (
+	<Interactive.Div
+		name="Rolling edit - hold final stutter framing"
+		style={{position: 'absolute', inset: 0, scale: 1.8}}
+	>
+		<TimelineVideoRollingEditFrame>
+			<TimelineVideoRollingEditContent />
+		</TimelineVideoRollingEditFrame>
+	</Interactive.Div>
+);
+
+const TimelineVideoRollingPreludeContent = () => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+
+	return (
+		<Interactive.Div
+			name="Two bass stutters - frozen UI zoom"
+			style={{
+				position: 'absolute',
+				inset: 0,
+				scale: interpolate(
+					frame,
+					[0, (3 / 30) * fps, (6 / 30) * fps],
+					[1.5, 1.65, 1.8],
+					{
+						easing: Easing.step1,
+						extrapolateLeft: 'clamp',
+						extrapolateRight: 'clamp',
+						output: 'perceptual-scale',
+					},
+				),
+			}}
+		>
+			<TimelineVideoRollingEditFrame>
+				{/* Match the next shot's trim, then release the freeze at its cut. */}
+				<Freeze frame={(32 / 30) * fps}>
+					<TimelineVideoRollingEditContent />
+				</Freeze>
+			</TimelineVideoRollingEditFrame>
+		</Interactive.Div>
+	);
+};
+
+export const TimelineVideoRollingPrelude = Interactive.create({
+	Component: TimelineVideoRollingPreludeContent,
+	layout: 'absolute-fill',
+	schema: {},
+});
+
+export const TimelineVideoRollingEditComposition = Interactive.create({
+	Component: TimelineVideoRollingEditCompositionContent,
+	layout: 'absolute-fill',
+	schema: {},
+});

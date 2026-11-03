@@ -666,8 +666,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 							role: 'clip' as const,
 							seriesOffset: offsetProp ?? 0,
 						},
-						_remotionInternalSingleChildComponent:
-							Internals.getSingleChildComponent(sequenceChildren),
+						_remotionInternalSingleChildren: sequenceChildren,
 					};
 					validateDurationInFrames(durationInFramesProp, {
 						component: `of a <TransitionSeries.Sequence /> component`,

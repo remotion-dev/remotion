@@ -223,7 +223,10 @@ test('an artifact replayed after a cut-off stream in the same attempt is idempot
 		for (let i = 0; i < 2; i++) {
 			receivedStreamingPayload({
 				successType: 'success',
-				message: {type: 'lambda-invoked', payload: {attempt: payload.attempt}},
+				message: {
+					type: 'lambda-invoked',
+					payload: {attempt: payload.attempt, memorySizeInMb: 4096},
+				},
 			});
 			receivedStreamingPayload({
 				successType: 'success',
@@ -250,7 +253,9 @@ test('an artifact replayed after a cut-off stream in the same attempt is idempot
 	});
 	let completedChunks = 0;
 	const overallProgress = {
-		setLambdaInvoked: () => undefined,
+		setLambdaInvoked: (_chunk: number, memorySizeInMb: number) => {
+			expect(memorySizeInMb).toBe(4096);
+		},
 		addChunkCompleted: () => {
 			completedChunks++;
 		},

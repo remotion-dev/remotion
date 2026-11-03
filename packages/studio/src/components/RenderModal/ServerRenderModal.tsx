@@ -969,6 +969,7 @@ const RenderModal: React.FC<
 			preferredEffectBackend,
 			sampleRate,
 			licenseKey: renderDefaults.publicLicenseKey,
+			prerenderTarget: null,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});

@@ -12,6 +12,11 @@ import {Log} from '../log';
 import {quit} from './quit';
 
 export const findFunctionName = async ({logLevel}: {logLevel: LogLevel}) => {
+	const cliFlag = parsedLambdaCli['function-name'];
+	if (cliFlag) {
+		return cliFlag;
+	}
+
 	const remotionLambdas = await LambdaClientInternals.getFunctions({
 		region: getAwsRegion(),
 		compatibleOnly: false,
@@ -23,38 +28,6 @@ export const findFunctionName = async ({logLevel}: {logLevel: LogLevel}) => {
 		indent: false,
 		logLevel,
 	};
-
-	const cliFlag = parsedLambdaCli['function-name'];
-
-	if (cliFlag) {
-		const compatibleFunctionExists = lambdasWithMatchingVersion.find(
-			(l) => l.functionName === cliFlag,
-		);
-		if (!compatibleFunctionExists) {
-			Log.warn(
-				{indent: false, logLevel},
-				`The name passed to --function-name "${cliFlag}" does not match the naming convention this version of the CLI expects: ${LambdaClientInternals.innerSpeculateFunctionName({diskSizeInMb: '[disk]', memorySizeInMb: '[memory]', timeoutInSeconds: '[timeout]'})}.`,
-			);
-			Log.warn(
-				{indent: false, logLevel},
-				'Remotion relies on the naming to determine function information. This is an unsupported workflow.',
-			);
-
-			if (lambdasWithMatchingVersion.length > 0) {
-				Log.info(logOptions, 'The following functions were found:');
-				for (const l of lambdasWithMatchingVersion) {
-					Log.info(logOptions, `- ${l.functionName} (v${l.version})`);
-				}
-
-				Log.info(
-					logOptions,
-					'Prefer using one of those functions by passing their name to `--function-name` or removing it entirely.',
-				);
-			}
-		}
-
-		return cliFlag;
-	}
 
 	if (lambdasWithMatchingVersion.length === 0) {
 		Log.error(

@@ -60,6 +60,11 @@ export type EventSourceEvent =
 			error: Error;
 	  }
 	| {
+			type: 'prerender-replace-failed';
+			compositionId: string;
+			message: string;
+	  }
+	| {
 			type: 'watched-file-undeleted';
 			file: string;
 	  }

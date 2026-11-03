@@ -48,6 +48,7 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 			chunk: 0,
 			attempt: 1,
 			lambdaInvoked: true,
+			memorySizeInMb: 4096,
 			renderedFrames: 12,
 			encodedFrames: 12,
 			uploadedFrames: 0,
@@ -112,11 +113,13 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 
 		const frames: Array<{rendered: number; encoded: number}> = [];
 		let lambdasInvoked = 0;
+		const rendererMemorySizes: number[] = [];
 		let completedChunks = 0;
 		const overallProgress = {
 			get: () => ({timeoutTimestamp: Date.now() + 10_000}),
-			setLambdaInvoked: () => {
+			setLambdaInvoked: (_chunk: number, memorySizeInMb: number) => {
 				lambdasInvoked++;
+				rendererMemorySizes.push(memorySizeInMb);
 			},
 			setFrames: ({rendered, encoded}: {rendered: number; encoded: number}) => {
 				frames.push({rendered, encoded});
@@ -156,6 +159,7 @@ test('S3 launcher invokes, polls, downloads, and normalizes a renderer result', 
 
 		expect(asyncInvocations).toBe(1);
 		expect(lambdasInvoked).toBe(1);
+		expect(rendererMemorySizes).toEqual([4096]);
 		expect(frames).toEqual([{rendered: 12, encoded: 12}]);
 		expect(completedChunks).toBe(1);
 		expect(artifacts).toEqual([
