@@ -43,6 +43,7 @@ import {SegmentedControl} from '../SegmentedControl';
 import {VerticalTab} from '../Tabs/vertical';
 import {DataEditor} from './DataEditor';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
+import {hasInvalidOutputDotSegment} from './out-name-checker';
 import {
 	buttonStyle,
 	container as containerStyle,
@@ -123,17 +124,6 @@ const validateOutnameForStill = ({
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 
-		const hasDotAfterSlash = () => {
-			const substrings = prefix.split('/');
-			for (const str of substrings) {
-				if (str[0] === '.') {
-					return true;
-				}
-			}
-
-			return false;
-		};
-
 		const hasInvalidChar = () => {
 			return prefix.split('').some((char) => invalidCharacters.includes(char));
 		};
@@ -142,7 +132,7 @@ const validateOutnameForStill = ({
 			throw new Error('The prefix must be at least 1 character long');
 		}
 
-		if (prefix[0] === '.' || hasDotAfterSlash()) {
+		if (hasInvalidOutputDotSegment(outName)) {
 			throw new Error('The output name must not start with a dot');
 		}
 
@@ -471,17 +461,6 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 			const extension = outName.substring(outName.lastIndexOf('.') + 1);
 			const prefix = outName.substring(0, outName.lastIndexOf('.'));
 
-			const hasDotAfterSlash = () => {
-				const substrings = prefix.split('/');
-				for (const str of substrings) {
-					if (str[0] === '.') {
-						return true;
-					}
-				}
-
-				return false;
-			};
-
 			const hasInvalidChar = () => {
 				return prefix
 					.split('')
@@ -492,7 +471,7 @@ const WebRenderModal: React.FC<WebRenderModalProps> = ({
 				throw new Error('The prefix must be at least 1 character long');
 			}
 
-			if (prefix[0] === '.' || hasDotAfterSlash()) {
+			if (hasInvalidOutputDotSegment(outName)) {
 				throw new Error('The output name must not start with a dot');
 			}
 
