@@ -197,7 +197,9 @@ export const shouldSuppressHmrForSequencePropEdits = (
 	return edits.every(
 		(edit) =>
 			edit.key !== 'showInTimeline' &&
-			(edit.sourceEdit === null || edit.sourceEdit === undefined),
+			(edit.sourceEdit === null ||
+				edit.sourceEdit === undefined ||
+				edit.sourceEdit.type === 'playback-rate'),
 	);
 };
 
