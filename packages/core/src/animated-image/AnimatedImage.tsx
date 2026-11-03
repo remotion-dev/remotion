@@ -15,6 +15,7 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
+import {getCanvasPropsFromSequenceProps} from '../get-canvas-props-from-sequence-props.js';
 import {
 	backgroundSchema,
 	baseSchema,
@@ -41,11 +42,7 @@ import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
 import {getCurrentTime} from './get-current-time.js';
 import {getAnimatedImageDurationInSeconds} from './get-duration-in-seconds.js';
-import type {
-	AnimatedImageCanvasProps,
-	AnimatedImageProps,
-	RemotionAnimatedImageProps,
-} from './props';
+import type {AnimatedImageProps, RemotionAnimatedImageProps} from './props';
 import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
@@ -66,24 +63,6 @@ export const animatedImageSchema = {
 	...borderSchema,
 	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
-
-const getCanvasPropsFromSequenceProps = (
-	props: Record<string, unknown>,
-): AnimatedImageCanvasProps => {
-	const canvasProps: AnimatedImageCanvasProps = {};
-	const mutableCanvasProps = canvasProps as Record<string, unknown>;
-
-	for (const key in props) {
-		if (
-			Object.prototype.hasOwnProperty.call(props, key) &&
-			(key.startsWith('data-') || key.startsWith('aria-'))
-		) {
-			mutableCanvasProps[key] = props[key];
-		}
-	}
-
-	return canvasProps;
-};
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;

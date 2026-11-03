@@ -1,5 +1,6 @@
 import {afterEach, expect, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
+import {createRef} from 'react';
 import {Solid, solidSchema} from '../effects/Solid.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -149,4 +150,47 @@ test('<Solid> throws for an invalid pixelDensity', () => {
 			</WrapSequenceContext>,
 		),
 	).toThrow(/`pixelDensity` must be a positive finite number/);
+});
+
+// Regression: editor node IDs were accepted as JSX attributes but dropped by Solid.
+test('<Solid> forwards data and aria attributes to its referenced canvas', () => {
+	const ref = createRef<HTMLCanvasElement>();
+	const {container, rerender} = render(
+		<WrapSequenceContext>
+			<Solid
+				ref={ref}
+				width={120}
+				height={80}
+				color="red"
+				data-node-id="solid"
+				aria-label="Red solid"
+				aria-hidden={false}
+				from={0}
+				durationInFrames={30}
+			/>
+		</WrapSequenceContext>,
+	);
+	const canvas = container.querySelector('canvas');
+	expect(ref.current).toBe(canvas);
+	expect(canvas?.getAttribute('data-node-id')).toBe('solid');
+	expect(canvas?.getAttribute('aria-label')).toBe('Red solid');
+	expect(canvas?.getAttribute('aria-hidden')).toBe('false');
+	expect(canvas?.hasAttribute('from')).toBe(false);
+	expect(canvas?.hasAttribute('durationInFrames')).toBe(false);
+	rerender(
+		<WrapSequenceContext>
+			<Solid
+				ref={ref}
+				width={120}
+				height={80}
+				color="red"
+				data-node-id="changed"
+				aria-label="Updated solid"
+			/>
+		</WrapSequenceContext>,
+	);
+	expect(ref.current).toBe(canvas);
+	expect(canvas?.getAttribute('data-node-id')).toBe('changed');
+	expect(canvas?.getAttribute('aria-label')).toBe('Updated solid');
+	expect(canvas?.hasAttribute('aria-hidden')).toBe(false);
 });
