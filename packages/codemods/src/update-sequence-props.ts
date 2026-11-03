@@ -24,10 +24,10 @@ import type {
 	VideoConfigValues,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {ensureUseCurrentFrameHook} from './ensure-imports-and-frame-hook';
 import {
 	captureFunctionSourceSnapshots,
 	getFunctionSourceEditsForPrependedStatements,
-	type FunctionNode,
 } from './function-source-edits';
 import {
 	captureJsxAttributeSources,
@@ -207,88 +207,6 @@ type JSXElementLike = NonNullable<
 >;
 type JSXOpeningElementLike = JSXElementLike['openingElement'];
 
-const isFunctionNode = (value: unknown): value is FunctionNode => {
-	return (
-		recast.types.namedTypes.FunctionDeclaration.check(value) ||
-		recast.types.namedTypes.FunctionExpression.check(value) ||
-		recast.types.namedTypes.ArrowFunctionExpression.check(value)
-	);
-};
-
-const ensureUseCurrentFrameHook = ({
-	ast,
-	jsxElement,
-	hookName,
-}: {
-	ast: File;
-	jsxElement: JSXElementLike;
-	hookName: string;
-}) => {
-	let functionPath: recast.types.NodePath | null = null;
-	recast.types.visit(ast, {
-		visitJSXElement(path) {
-			if (path.node !== jsxElement) {
-				return this.traverse(path);
-			}
-
-			let current: recast.types.NodePath | null = path.parentPath;
-			while (current) {
-				if (isFunctionNode(current.value)) {
-					functionPath = current;
-					return false;
-				}
-
-				current = current.parentPath;
-			}
-
-			return false;
-		},
-	});
-
-	const enclosingFunctionPath = functionPath as recast.types.NodePath | null;
-	if (enclosingFunctionPath === null) {
-		return;
-	}
-
-	const fn = enclosingFunctionPath.value as FunctionNode;
-	if (!recast.types.namedTypes.BlockStatement.check(fn.body)) {
-		fn.body = b.blockStatement([
-			b.returnStatement(fn.body as Parameters<typeof b.returnStatement>[0]),
-		]) as unknown as FunctionNode['body'];
-	}
-
-	const block = fn.body as Extract<
-		FunctionNode['body'],
-		{type: 'BlockStatement'}
-	>;
-	const hasFrame = block.body.some((statement) => {
-		return (
-			statement.type === 'VariableDeclaration' &&
-			statement.declarations.some(
-				(declaration) =>
-					declaration.type === 'VariableDeclarator' &&
-					declaration.id.type === 'Identifier' &&
-					declaration.id.name === 'frame' &&
-					declaration.init?.type === 'CallExpression' &&
-					declaration.init.callee.type === 'Identifier' &&
-					declaration.init.callee.name === hookName,
-			)
-		);
-	});
-	if (hasFrame) {
-		return;
-	}
-
-	block.body.unshift(
-		b.variableDeclaration('const', [
-			b.variableDeclarator(
-				b.identifier('frame'),
-				b.callExpression(b.identifier(hookName), []),
-			),
-		]) as unknown as (typeof block.body)[number],
-	);
-};
-
 const prepareClipboardParamSourceEdits = ({
 	ast,
 	changes,
@@ -298,7 +216,7 @@ const prepareClipboardParamSourceEdits = ({
 		readonly jsxElement: JSXElementLike;
 		readonly updates: SequencePropUpdate[];
 	}[];
-}): ClipboardParamRemotionLocalNames => {
+}): Map<JSXElementLike, ClipboardParamRemotionLocalNames> => {
 	const params = changes.flatMap(({updates}) =>
 		updates.flatMap((update) =>
 			update.clipboardParam ? [update.clipboardParam] : [],
@@ -310,21 +228,37 @@ const prepareClipboardParamSourceEdits = ({
 		requiredImports,
 	});
 
+	const namesByNode = new Map(
+		changes.map(({jsxElement}) => [jsxElement, {...localNames}]),
+	);
 	if (requiredImports.has('useCurrentFrame')) {
-		for (const {jsxElement, updates} of changes) {
-			if (
-				updates.some((update) => update.clipboardParam?.type === 'keyframed')
-			) {
+		const animatedNodes = new Set(
+			changes
+				.filter(({updates}) =>
+					updates.some((update) => update.clipboardParam?.type === 'keyframed'),
+				)
+				.map(({jsxElement}) => jsxElement),
+		);
+		const paths: recast.types.NodePath[] = [];
+		recast.types.visit(ast, {
+			visitJSXElement(path) {
+				if (animatedNodes.has(path.node as JSXElementLike)) {
+					paths.push(path);
+				}
+
+				return this.traverse(path);
+			},
+		});
+		for (const path of paths) {
+			namesByNode.get(path.node as JSXElementLike)!.frameName =
 				ensureUseCurrentFrameHook({
-					ast,
-					jsxElement,
+					referencePath: path,
 					hookName: localNames.useCurrentFrame ?? 'useCurrentFrame',
 				});
-			}
 		}
 	}
 
-	return localNames;
+	return namesByNode;
 };
 
 const escapeJsxText = (value: string): string => {
@@ -1254,7 +1188,7 @@ export const updateSequencePropsAst = ({
 		updates,
 		schema,
 		videoConfigValues: videoConfigIdentifierValues,
-		clipboardParamLocalNames,
+		clipboardParamLocalNames: clipboardParamLocalNames.get(jsxElement)!,
 	});
 	ensureImportsForUpdates({ast, updates});
 	applyGoogleFontSourceEdits({ast, updates});
@@ -1493,7 +1427,7 @@ export const updateMultipleSequenceProps = ({
 					)
 						? getVideoConfigIdentifierValues({ast, videoConfigValues})
 						: new Map(),
-					clipboardParamLocalNames,
+					clipboardParamLocalNames: clipboardParamLocalNames.get(jsxElement)!,
 				}),
 			};
 		},

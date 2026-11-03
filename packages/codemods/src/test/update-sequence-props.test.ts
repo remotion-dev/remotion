@@ -519,10 +519,7 @@ export const Example = () => {
 
   return (
     <Interactive.Div opacity={interpolate(frame, [0, 30], [0, 1])}>
-      {[1].map(() => {
-        const frame = useCurrentFrame()
-        return <Interactive.Div opacity={interpolate(frame, [0, 30], [0, 1])} />
-      })}
+      {[1].map(() => <Interactive.Div opacity={interpolate(frame, [0, 30], [0, 1])} />)}
     </Interactive.Div>
   )
 }

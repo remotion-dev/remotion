@@ -447,7 +447,7 @@ export const duplicateNodes = ({
 							showInTimeline.value.expression.value));
 				if (
 					identity !== null &&
-					/^dev\.remotion\.(remotion\.(Sequence|Video|OffthreadVideo|Audio|experimental_Video|experimental_Audio|Interactive\.[A-Za-z]+)|media\.(Video|Audio))$/.test(
+					/^dev\.remotion\.(remotion\.(Sequence|Video|OffthreadVideo|Audio|experimental_Video|experimental_Audio|Interactive\.[A-Za-z][A-Za-z0-9]*)|media\.(Video|Audio))$/.test(
 						identity,
 					) &&
 					!openingElement.attributes.some(

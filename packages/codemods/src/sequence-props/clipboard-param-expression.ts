@@ -6,7 +6,7 @@ import type {
 import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import {parseValueExpression} from '../update-nested-prop';
-import {ensureNamedImport} from './imports';
+import {ensureOfficialNamedImport} from './imports';
 
 const b = recast.types.builders;
 
@@ -19,7 +19,7 @@ export type ClipboardParamRemotionImportName =
 
 export type ClipboardParamRemotionLocalNames = Partial<
 	Record<ClipboardParamRemotionImportName, string>
->;
+> & {frameName: string | null};
 
 export const getRequiredRemotionImportsForClipboardParams = (
 	params: Iterable<EffectClipboardParam>,
@@ -47,14 +47,14 @@ export const ensureClipboardParamRemotionImports = ({
 	ast: File;
 	requiredImports: Set<ClipboardParamRemotionImportName>;
 }): ClipboardParamRemotionLocalNames => {
-	const localNames: ClipboardParamRemotionLocalNames = {};
+	const localNames: ClipboardParamRemotionLocalNames = {frameName: null};
 	for (const importedName of requiredImports) {
-		localNames[importedName] = ensureNamedImport({
+		localNames[importedName] = ensureOfficialNamedImport({
 			ast,
 			importedName,
 			sourcePath:
 				importedName === 'interpolatePaths' ? '@remotion/paths' : 'remotion',
-			localName: importedName,
+			preferredLocalName: importedName,
 		});
 	}
 
@@ -225,7 +225,7 @@ export const makeClipboardParamExpression = ({
 	}
 
 	const args: ExpressionKind[] = [
-		b.identifier('frame') as ExpressionKind,
+		b.identifier(localNames.frameName ?? 'frame') as ExpressionKind,
 		b.arrayExpression(
 			param.keyframes.map((keyframe) =>
 				parseValueExpression(keyframe.frame),

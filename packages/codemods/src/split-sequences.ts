@@ -46,7 +46,7 @@ export const splitSequences = async <Project extends CodemodProject>({
 			const target = nodesByPath.get(JSON.stringify(split.node.nodePath));
 			if (
 				!target?.componentIdentity ||
-				!/^dev\.remotion\.(remotion\.(Sequence|Video|OffthreadVideo|Audio|experimental_Video|experimental_Audio|Interactive\.[A-Za-z]+)|media\.(Video|Audio))$/.test(
+				!/^dev\.remotion\.(remotion\.(Sequence|Video|OffthreadVideo|Audio|experimental_Video|experimental_Audio|Interactive\.[A-Za-z][A-Za-z0-9]*)|media\.(Video|Audio))$/.test(
 					target.componentIdentity,
 				)
 			) {

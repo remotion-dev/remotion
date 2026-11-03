@@ -90,7 +90,7 @@ export type EditorAction =
     }
   | { type: "undo" }
   | { type: "redo" }
-  | { type: "mark-saved" }
+  | { type: "mark-saved"; files: ProjectFiles }
   | { type: "open-file"; filePath: string }
   | { type: "close-file"; filePath: string }
   | { type: "select-composition"; compositionId: string | null }
@@ -231,7 +231,7 @@ export const editorReducer = (
     }
 
     case "mark-saved":
-      return { ...state, savedFiles: state.files };
+      return { ...state, savedFiles: action.files };
 
     case "open-file":
       return {

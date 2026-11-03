@@ -321,11 +321,16 @@ export const ensureOfficialNamedImport = ({
 }) => {
 	const boundNames = new Set<string>();
 	recast.types.visit(ast, {
-		visitNode(path) {
-			if (path.scope?.path === path && path.node.type !== 'Program') {
-				for (const name of Object.keys(path.scope.getBindings())) {
-					boundNames.add(name);
-				}
+		visitFunction(path) {
+			for (const name of Object.keys(path.scope.getBindings())) {
+				boundNames.add(name);
+			}
+
+			this.traverse(path);
+		},
+		visitCatchClause(path) {
+			for (const name of Object.keys(path.scope.getBindings())) {
+				boundNames.add(name);
 			}
 
 			this.traverse(path);

@@ -585,7 +585,7 @@ export const ${componentName}: React.FC = () => {
             throw new Error(body?.error ?? `Save failed (${response.status})`);
           }
 
-          dispatch({ type: "mark-saved" });
+          dispatch({ type: "mark-saved", files });
           notify("Saved to src/remotion");
         } catch (error) {
           notifyError(error);
