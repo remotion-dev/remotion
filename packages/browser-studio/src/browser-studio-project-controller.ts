@@ -44,6 +44,21 @@ type ProjectMutation = {
 
 const MAX_HISTORY_ENTRIES = 100;
 
+const onlySourceLocationsChanged = (files: ProjectNodePathMutationFiles) => {
+	return (
+		files.length > 0 &&
+		files.every(
+			({remappings}) =>
+				remappings.length > 0 &&
+				remappings.every(
+					({oldNodePath, newNodePath, sourceLocations}) =>
+						sourceLocations &&
+						JSON.stringify(oldNodePath) === JSON.stringify(newNodePath),
+				),
+		)
+	);
+};
+
 const isStoredPublicFile = (
 	contents: VirtualProjectPublicFile,
 ): contents is BrowserStudioStoredPublicFile =>
@@ -528,7 +543,9 @@ export const createBrowserStudioProjectController = ({
 		}
 
 		onProjectChange(nextProject, {
-			skipSequencePropsUpdate: nodePathMutationFiles !== null,
+			skipSequencePropsUpdate:
+				nodePathMutationFiles !== null &&
+				!onlySourceLocationsChanged(nodePathMutationFiles),
 		});
 		if (publicFilesChanged) {
 			getPublicFilesEvent().then(emit).catch(reportAsyncError);
@@ -625,6 +642,14 @@ export const createBrowserStudioProjectController = ({
 				(remapping): SequenceNodePathRemapping => ({
 					oldNodePath: remapping.newNodePath,
 					newNodePath: remapping.oldNodePath,
+					...(remapping.sourceLocations
+						? {
+								sourceLocations: {
+									before: remapping.sourceLocations.after,
+									after: remapping.sourceLocations.before,
+								},
+							}
+						: {}),
 					...(remapping.newJsxName === undefined
 						? {}
 						: {oldJsxName: remapping.newJsxName}),

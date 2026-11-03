@@ -102,6 +102,7 @@ const {
 	getCompositionComponentInfo,
 	getCompositionFile,
 	getFolderFile,
+	getKeyframeSourceLocationRemappings,
 	getRootFileForProject,
 	insertBasicCaptions: insertBasicCaptionsCodemod,
 	insertJsxElementIntoProjectWithNodePathRemappings,
@@ -762,10 +763,18 @@ export const createBrowserStudioOperations = ({
 			currentPath,
 			applyEdit,
 			getProject: () => nextProject,
-			finish: () => {
+			finish: (includeSourceLocations: boolean) => {
 				const files = [...pathsByFile].map(([absolutePath, paths]) => ({
 					absolutePath,
-					remappings: paths,
+					remappings:
+						includeSourceLocations &&
+						project.files[absolutePath] !== nextProject.files[absolutePath]
+							? getKeyframeSourceLocationRemappings({
+									input: project.files[absolutePath],
+									output: nextProject.files[absolutePath],
+									remappings: paths,
+								})
+							: paths,
 				}));
 				const pathsMoved = files.some(({remappings}) =>
 					remappings.some(
@@ -773,9 +782,15 @@ export const createBrowserStudioOperations = ({
 							JSON.stringify(oldNodePath) !== JSON.stringify(newNodePath),
 					),
 				);
+				const mutationFiles = pathsMoved
+					? files
+					: files.flatMap(({absolutePath, remappings}) => {
+							const moved = remappings.filter((entry) => entry.sourceLocations);
+							return moved.length ? [{absolutePath, remappings: moved}] : [];
+						});
 				return {
 					project: nextProject,
-					nodePathMutationFiles: pathsMoved ? files : null,
+					nodePathMutationFiles: mutationFiles.length ? mutationFiles : null,
 					propsResponse:
 						propEdit?.getResponse(nextProject, currentPath) ?? null,
 					commit: (current: VirtualProject) =>
@@ -907,7 +922,7 @@ export const createBrowserStudioOperations = ({
 		}
 
 		return {
-			...source.finish(),
+			...source.finish(true),
 			appliedSequenceMutations: mergedSequenceMutations.map((mutation) => ({
 				...mutation,
 				updatedNodePath: currentPath(
@@ -3223,7 +3238,7 @@ export const createBrowserStudioOperations = ({
 						sequenceMutations,
 						effectMutations,
 					})
-				: {...source.finish(), appliedSequenceMutations: []};
+				: {...source.finish(false), appliedSequenceMutations: []};
 
 			const firstTarget = request.edits[0] ?? request.captionPatches?.[0];
 			controller.applyMutation({

@@ -43,6 +43,7 @@ export const SequencePropsObserver = ({
 	const {
 		remapPropStatuses,
 		setPropStatuses,
+		setPropStatusesBatch,
 		updateDragOverrides,
 		remapDragOverrideFields,
 		remapEffectDragOverrideFields,
@@ -65,10 +66,48 @@ export const SequencePropsObserver = ({
 	useEffect(
 		() =>
 			subscribeToSequenceNodePathMutations((mutation) => {
-				if (mutation.applyWithoutFastRefresh)
+				if (mutation.applyWithoutFastRefresh) {
 					setSourceOnlyMutations((count) => count + 1);
+					return;
+				}
+
+				for (const file of mutation.files) {
+					const positions = new Map<string, {line: number; column: number}>();
+					for (const {sourceLocations} of file.remappings) {
+						if (!sourceLocations?.before || !sourceLocations.after) continue;
+						const {before, after} = sourceLocations;
+						if (before.line !== after.line || before.column !== after.column)
+							positions.set(`${before.line}:${before.column}`, after);
+					}
+
+					if (positions.size === 0) continue;
+					const seen = new Set<string>();
+					const updates: Array<
+						Parameters<typeof setPropStatusesBatch>[0][number]
+					> = [];
+					for (const nodePath of Object.values(
+						overrideIdToNodePathMappingsRef.current,
+					)) {
+						if (nodePath.absolutePath !== file.absolutePath) continue;
+						const key = Internals.makeSequencePropsSubscriptionKey(nodePath);
+						if (seen.has(key)) continue;
+						seen.add(key);
+						updates.push({
+							nodePath,
+							update: (previous) => {
+								if (!previous?.canUpdate || !previous.sourceLocation)
+									return previous;
+								const {line, column} = previous.sourceLocation;
+								const next = positions.get(`${line}:${column}`);
+								return next ? {...previous, sourceLocation: next} : previous;
+							},
+						});
+					}
+
+					setPropStatusesBatch(updates);
+				}
 			}),
-		[],
+		[setPropStatusesBatch],
 	);
 	useEffect(() => {
 		const handleReactRefreshStarted = () => {
