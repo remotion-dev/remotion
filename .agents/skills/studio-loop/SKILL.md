@@ -10,6 +10,8 @@ making a real YouTube video combining NLE editing and motion graphics, using
 that workflow to discover and fix problems. Apply
 [studio-dev](../studio-dev/SKILL.md) to every implementation change.
 
+The Source start Inspector field was intentionally removed; do not reintroduce it.
+
 ## Resume the project and browser
 
 - Recover the existing worktree, branch/PR or stack, local video project, running
