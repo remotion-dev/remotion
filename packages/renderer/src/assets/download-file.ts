@@ -200,10 +200,9 @@ export const downloadFile = async (
 			message.includes(incorrectContentLengthToken) ||
 			message.includes(noDataSentToken) ||
 			// Try again if hitting internal errors
-			message.includes('503') ||
-			message.includes('502') ||
-			message.includes('504') ||
-			message.includes('500')
+			/^Received a status code of (500|502|503|504) while downloading file /.test(
+				message,
+			)
 		) {
 			if (retries === 0) {
 				throw err;
