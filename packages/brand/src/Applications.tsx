@@ -25,7 +25,7 @@ loadFont({
 
 loadFont({
 	family: 'GT Planar',
-	url: staticFile('GT Planar/GT-Planar-Black.woff2'),
+	url: 'https://remotion.media/agentically-programmatically/gt-planar-black-fe8aa1491f7a.woff2',
 	weight: '900',
 });
 

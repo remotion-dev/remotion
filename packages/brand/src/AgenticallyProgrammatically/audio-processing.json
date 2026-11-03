@@ -1,0 +1,338 @@
+{
+	"provider": "Auphonic",
+	"productionId": "mtPU85TJJ6vexFY6CwiyCm",
+	"productionUrl": "https://auphonic.com/engine/status/mtPU85TJJ6vexFY6CwiyCm",
+	"processedAt": "2026-11-03T16:25:28.808Z",
+	"algorithms": {
+		"filtering": true,
+		"filtermethod": "autoeq",
+		"leveler": true,
+		"levelermode": "musicspeech",
+		"compressor_speech": "soft",
+		"compressor_music": "same",
+		"levelerstrength_speech": 70,
+		"levelerstrength_music": -1,
+		"maxlra": 0,
+		"maxs": 0,
+		"maxm": 0,
+		"musicgain": 0,
+		"msclassifier": "speech",
+		"normloudness": true,
+		"loudnesstarget": -16,
+		"maxpeak": -1.5,
+		"dualmono": false,
+		"loudnessmethod": "program",
+		"denoise": true,
+		"denoisemethod": "dynamic",
+		"denoiseamount": 12,
+		"deverbamount": 6,
+		"dehum": 0,
+		"dehumamount": 0,
+		"debreathamount": -1,
+		"cutter": false,
+		"cut_mode": "apply_cuts",
+		"silence_cutter": false,
+		"filler_cutter": false,
+		"cough_cutter": false,
+		"music_cutter": false,
+		"segments": []
+	},
+	"statistics": {
+		"input": {
+			"signal_level": [-28.54, "dB"],
+			"noise_level": [-72.31, "dB"],
+			"snr": [43.77, "dB"],
+			"loudness": [-28.26, "LUFS"],
+			"max_momentary": [-20.54, "LUFS"],
+			"max_shortterm": [-24.29, "LUFS"],
+			"lra": [8.12, "LU"],
+			"speech_loudness": [-28.26, "LUFS"],
+			"speech_lra": [8.12, "LU"],
+			"speech_percentage": [100, "%"],
+			"lsr": [0, "LU"]
+		},
+		"output": {
+			"loudness": [-16, "LUFS"],
+			"lra": [7.99, "LU"],
+			"max_momentary": [-10.34000015258789, "LUFS"],
+			"max_shortterm": [-13.819999694824219, "LUFS"],
+			"speech_loudness": [-16, "LUFS"],
+			"speech_lra": [7.99, "LU"],
+			"speech_percentage": [100, "%"],
+			"lsr": [0, "LU"],
+			"gain_mean": [12.079999923706055, "dB"],
+			"gain_min": [9.90999984741211, "dB"],
+			"gain_max": [13.850000381469727, "dB"],
+			"peak": [-1.5, "dBTP"],
+			"plr": [14.5, "LU"]
+		}
+	},
+	"timingVerification": {
+		"expectedSamples": 19331120,
+		"actualSamplesAfterResampling": 19331121,
+		"maxRoundingCorrectionSamples": 1,
+		"alignment": [
+			{
+				"sourceStartSeconds": 4,
+				"lagMilliseconds": 0.0
+			},
+			{
+				"sourceStartSeconds": 80,
+				"lagMilliseconds": 0.0
+			},
+			{
+				"sourceStartSeconds": 160,
+				"lagMilliseconds": 0.0
+			},
+			{
+				"sourceStartSeconds": 240,
+				"lagMilliseconds": 0.0
+			},
+			{
+				"sourceStartSeconds": 340,
+				"lagMilliseconds": 0.0
+			}
+		]
+	},
+	"audioFiles": [
+		{
+			"originalFile": "here1.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here1-auphonic-7a767eea0051.flac",
+			"sha256": "7a767eea0051460e3ee493452f54e17af4e5cf88204598c70309c0c97cf4b998",
+			"bytes": 1009687,
+			"samples": 915920,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here10.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here10-auphonic-c6f51fdf7eaa.flac",
+			"sha256": "c6f51fdf7eaac2640f155af4b1ff898b9e084b1266994837d50de232b78d7f37",
+			"bytes": 995959,
+			"samples": 845360,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here11.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here11-auphonic-dad7394e02be.flac",
+			"sha256": "dad7394e02be7b216f7eb9cce669c51230004f10859d28ee081bc91e2eff4c98",
+			"bytes": 962478,
+			"samples": 857200,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here13.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here13-auphonic-64ce1b2a7323.flac",
+			"sha256": "64ce1b2a7323fb1141cde9bb2b495460fe06a1a8d891c3568455fe3fae97f00a",
+			"bytes": 627568,
+			"samples": 559760,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here14.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here14-auphonic-025f2f0b7687.flac",
+			"sha256": "025f2f0b7687dc9213dab04c7791cccdd9765d209140321bb4c64fc5710e8334",
+			"bytes": 708774,
+			"samples": 640000,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here15.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here15-auphonic-c6fb53701b82.flac",
+			"sha256": "c6fb53701b825c94f0c121c5fbcfca853e2196b7276e9b673cd2092b216de5c7",
+			"bytes": 414355,
+			"samples": 407440,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here16.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here16-auphonic-96a673a13d4a.flac",
+			"sha256": "96a673a13d4a7846162e2be0ee33eb303778433ac496579e0136f15226e5e74c",
+			"bytes": 505132,
+			"samples": 466800,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here17.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here17-auphonic-5dabbfad4e95.flac",
+			"sha256": "5dabbfad4e952e6dfe126b619e56034036df679836325e49a433469424999db0",
+			"bytes": 648053,
+			"samples": 598800,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here18.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here18-auphonic-a8d64b672499.flac",
+			"sha256": "a8d64b6724994406099a4f60fe081bb74848b8754d6e2794f68d07f34e0a0a90",
+			"bytes": 481985,
+			"samples": 439520,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here19.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here19-auphonic-7b58cf06f4f9.flac",
+			"sha256": "7b58cf06f4f92224725dd07105400e2d2f5164f68ca36b83892b9d3cdbd6915e",
+			"bytes": 458389,
+			"samples": 460320,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here2.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here2-auphonic-4a6e2a0ce1df.flac",
+			"sha256": "4a6e2a0ce1dfff22cf28cf7c0a8d4a2a84d4bd0213424737d4ebfda8a7e6819d",
+			"bytes": 626206,
+			"samples": 572640,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here20.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here20-auphonic-230f1edf2127.flac",
+			"sha256": "230f1edf212716f6ebc8babaca6bb1f0431860a2611ad18c7503bb1cece0f24c",
+			"bytes": 1059970,
+			"samples": 965680,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here21.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here21-auphonic-14de8d93c297.flac",
+			"sha256": "14de8d93c297f689286277af4194a85ef0a9d201a23aa03a845d392567942905",
+			"bytes": 516876,
+			"samples": 502080,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here22.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here22-auphonic-1ffe113c4b4f.flac",
+			"sha256": "1ffe113c4b4ffe23642bebcef245e70b66a4e8216752f41ff480369943b1ddac",
+			"bytes": 952275,
+			"samples": 964080,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here23.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here23-auphonic-40622844a602.flac",
+			"sha256": "40622844a602ef68cbc3d319e1b3c1a238e1fbade1f838ccbfc748c8f03fe450",
+			"bytes": 1345923,
+			"samples": 1176960,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here24.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here24-auphonic-207fd1c39e8b.flac",
+			"sha256": "207fd1c39e8b1687025be865de56b41255316d46a377bd6197c53ccfabd6f2f3",
+			"bytes": 1211196,
+			"samples": 1171040,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here25.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here25-auphonic-a88b1d57a6f6.flac",
+			"sha256": "a88b1d57a6f69ff53b187e74508eaae5e2d118105cd6a59d406bf7125b8adba7",
+			"bytes": 832646,
+			"samples": 769920,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here26.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here26-auphonic-cbe214e1b44a.flac",
+			"sha256": "cbe214e1b44ab4a9ac3a6ae95f28ab7c201dda3bf5a89f6056bcd1e380d67706",
+			"bytes": 2024112,
+			"samples": 1744320,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here3.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here3-auphonic-64fe0c400eb6.flac",
+			"sha256": "64fe0c400eb678e1fa4343ae246214c2dc532c79f70c559e3de821d1f4dbd129",
+			"bytes": 956429,
+			"samples": 880640,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here4.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here4-auphonic-4ad550e43242.flac",
+			"sha256": "4ad550e4324240a2ce0c7134d26bdfbe8683744d3d47a3fd148413259665b74e",
+			"bytes": 672122,
+			"samples": 603200,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here5.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here5-auphonic-8ed378907c50.flac",
+			"sha256": "8ed378907c50641436b8203e4acb69496f8998331e273719cb55b732f07fbc85",
+			"bytes": 358310,
+			"samples": 356160,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here6.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here6-auphonic-c80cab6be6fa.flac",
+			"sha256": "c80cab6be6fa2567d5f2c3d9608c1dfdc4cd21b274b4f40b93aa138e68f48238",
+			"bytes": 698330,
+			"samples": 646400,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here7.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here7-auphonic-acadca060add.flac",
+			"sha256": "acadca060add36412e69a7403d3a12f5b8b4913a284952d71885e32a96498961",
+			"bytes": 716403,
+			"samples": 623760,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here8.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here8-auphonic-05f66204c627.flac",
+			"sha256": "05f66204c62727a42cfc7bdeeb771da7337bd3f0afe4a98368d74eed9067b1ba",
+			"bytes": 721394,
+			"samples": 636800,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here9.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here9-auphonic-7dc8b2ef5c28.flac",
+			"sha256": "7dc8b2ef5c287551d6615737fc6c5187c92102ce3a3256bec2f57874d592ac95",
+			"bytes": 500327,
+			"samples": 435120,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "here_bettertake.mov",
+			"url": "https://remotion.media/here-2026-11-03/audio/here_bettertake-auphonic-eab3f61c6b71.flac",
+			"sha256": "eab3f61c6b71dd10281451b90fd84c0618e3d9a1a87bf9940f176eeb202bb4c6",
+			"bytes": 1229175,
+			"samples": 1091200,
+			"sampleRate": 48000,
+			"channels": 2
+		}
+	],
+	"editedTimelineMeasurement": {
+		"integratedLufs": -15.42,
+		"truePeakDbtp": -1.39,
+		"loudnessRangeLu": 3.4
+	}
+}

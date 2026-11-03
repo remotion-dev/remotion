@@ -1,0 +1,120 @@
+AgenticallyProgrammatically rough cut - 3 November 2026
+
+Duration: 292.60 seconds at 30 fps (1920 x 1080).
+The original numbered take order is preserved.
+here_bettertake.mov replaces here12.mov. The rejected take remains in Source-takes.
+Leading setup, trailing dead air, and five extended internal pauses are trimmed.
+Dialogue is processed with Auphonic: Voice AutoEQ, 12 dB dynamic noise reduction,
+6 dB reverb reduction, 70% adaptive leveling, soft compression, and -16 LUFS
+loudness normalization with a -1.5 dBTP peak ceiling.
+Original camera audio is muted; source-aligned lossless audio follows every shot trim.
+Automatic cutting is disabled. Five measured alignment checks show zero timing shift.
+All trims remain editable. Basic Captions are grouped with each shot and retain source timestamps.
+Homepage logo/motto, homepage hero, and Studio B-roll overlays are included.
+No music has been added.
+All 27 originals are hosted on remotion.media; public SHA-256 hashes match the local files.
+Original files in Movies are retained. No media binaries are added to the repository.
+
+EDIT DECISION LIST (source seconds -> timeline seconds)
+01 - The new Remotion motto: here1.mov 2.300-17.333 -> 0.000-15.033
+02 - Three ways to create: here2.mov 1.867-11.000 -> 15.033-24.167
+03 - Everything in all three ways: here3.mov 4.200-17.933 -> 24.167-37.900
+04 - Use Studio for quick edits: here4.mov 2.733-11.500 -> 37.900-46.667
+05 - Use agents for higher-level tasks: here5.mov 2.300-6.233 -> 46.667-50.600
+06 - Why the code still matters: here6.mov 2.633-12.233 -> 50.600-60.200
+07 - A tight editing workflow: here7.mov 1.833-12.067 -> 60.200-70.433
+08 - Install the Remotion plugin: here8.mov 2.000-12.100 -> 70.433-80.533
+09 - Ask for a rough cut: here9.mov 0.667-8.233 -> 80.533-88.100
+10 - Build around a soundtrack: here10.mov 2.267-16.233 -> 88.100-102.067
+11 - The interactive timeline: here11.mov 2.600-16.567 -> 102.067-116.033
+12 - Edit clips and delete AI slop: here_bettertake.mov 2.633-21.133 -> 116.033-134.533
+13 - Preview changes immediately: here13.mov 2.200-10.500 -> 134.533-142.833
+14 - Copy context for agents: here14.mov 2.133-12.100 -> 142.833-152.800
+15 - Describe the change: here15.mov 3.100-7.233 -> 152.800-156.933
+16 - Agents can see your selection: here16.mov 2.533-9.033 -> 156.933-163.433
+17 - Invoke your preferred coding agent: here17.mov 2.933-11.133 -> 163.433-171.633
+18 - Annotate in ChatGPT: here18.mov 1.800-8.033 -> 171.633-177.867
+19 - Stay in sync: here19.mov 3.267-7.867 -> 177.867-182.467
+20 - When code becomes too dynamic: here20.mov 5.133-18.667 -> 182.467-196.000
+21 - Computed properties: here21.mov 3.033-9.233 -> 196.000-202.200
+22 - Look at the underlying code: here22.mov 6.500-18.700 -> 202.200-214.400
+23a - Restructure with your agent: here23.mov 1.533-11.867 -> 214.400-224.733
+23b - Restructure with your agent: here23.mov 12.400-14.333 -> 224.733-226.667
+23c - Restructure with your agent: here23.mov 14.867-23.233 -> 226.667-235.033
+24a - Jump to the code editor: here24.mov 6.900-14.833 -> 235.033-242.967
+24b - Jump to the code editor: here24.mov 15.467-22.900 -> 242.967-250.400
+25 - Live updates with Fast Refresh: here25.mov 3.200-14.567 -> 250.400-261.767
+26a - Closing thoughts: here26.mov 2.567-11.900 -> 261.767-271.100
+26b - Closing thoughts: here26.mov 12.833-29.633 -> 271.100-287.900
+26c - Closing thoughts: here26.mov 30.200-34.900 -> 287.900-292.600
+
+SOURCE TRANSCRIPTS (automated reference, obvious spelling corrected)
+here1.mov: Here at Remotion our new motto is make videos programmatically, interactively, and agentically. What we mean by that is that everything you do in Remotion should be possible in three ways.
+here2.mov: by using a coding agent, by using the Studio like a regular video editor, or by editing the code directly.
+here3.mov: Whether it is about adding content, editing, adding and working with captions, exporting or changing settings in Remotion, everything should be possible in all of the three ways.
+here4.mov: Use our Studio for quick edits that you want to preview immediately without having to describe them using words.
+here5.mov: Use your coding agent for any higher level task.
+here6.mov: And while you might not write code manually, it is still very important because it can do things which are just not possible in a graphical user interface.
+here7.mov: I want to show you now my state of the art editing workflow for making videos like this one and how re-motion allows me to keep a tight iteration loop.
+here8.mov: I would start by installing the Remotion plugin available for most major coding agents and I can just invoke it and drop in some raw camera footage.
+here9.mov: I could ask for a rough cut or directly ask for captions or motion graphics to be added on top of it.
+here10.mov: Alternatively, I could start with the sound track and ask it to analyze the beat and place-place-holder sections on the timeline. In case, for example, we want to make a promo video which flows with the music.
+here11.mov: The Studio should open automatically, but if it doesn't, please ask your agent to do so. I know it took us some time, but finally, re-motion shows you a full interactive timeline of your content.
+here12.mov: Here you can trim and move your clips, keyframe your animations, drag items around, change parameters, apply color correction, add effects and subtitles.
+here13.mov: The benefit of doing this interactively is that you can immediately preview your changes and you don't need to describe them in words.
+here14.mov: On every layer, composition, property, or timing, you can also right-click and select copy context for agents.
+here15.mov: Paste that into the agent and describe the change that you want to see happen.
+here16.mov: Some agents can also directly see what you have selected without you having to paste that context.
+here17.mov: Remotion also recognizes which coding agents you have installed and allows you to invoke them with the right context directly.
+here18.mov: And in chat GPT you can right click and directly annotate items with the change that you want.
+here19.mov: That's how the Remotion Studio and your agent stay in perfect sync.
+here20.mov: Since the internal structure of your video is just JavaScript code, sometimes things can get so dynamic and complex that they cannot be visually represented and edited in the Studio anymore.
+here21.mov: If that is the case, properties get grayed out and show computed instead.
+here22.mov: Here, even if you don't know how to program, it might be useful to look at the underlying structure of your video and pull up the code that drives your video.
+here23.mov: Remotion Studio can show you the code snippet which contains the computed expression. And it gives you a suggested prompt for your coding agent to restructure the markup. With just one click you can invoke your favorite coding agent or open the code snippet in your code editor.
+here24.mov: You can also double-click any item or property in the Remotion Studio to open the right location in your code editor. I find this useful if I, for example, want to cut some markup and paste it in another location in the code.
+here25.mov: Of course, any edits that you make in your code get applied using React's fast refresh without needing to reload and stay immediately visible to your agent.
+here26.mov: To make good videos a tight iteration loop is still crucial because agents can run for a long time and they produce a lot of slop. I can speak only for myself but I've been making videos since a long time and I've been also developing remotions since six years now and only these recent changes made me drop other programs and go all in on remotion. I hope that these new features also are valuable to you.
+here_bettertake.mov: Here you can trim and edit your clips, keyframe your animations, drag items around, change parameters, apply color correction, add effects and subtitles, and most importantly, press delete on all of the AI slop that was generated.
+
+FRAMING
+All kept camera takes use a static 1.3x crop. Each take is centered horizontally
+from three sampled frames, with roughly 6% headroom above the hair. Framing uses
+editable Video crop and position properties. Existing shot timings, audio edits,
+and captions are preserved.
+
+CAPTION BALANCING
+Caption pages use explicit phrase breaks, measured at the existing Arial 64px
+size to fit one line in the 1200px caption area. Related words are kept together
+and short leftover pages are redistributed. Original text and word timestamps
+are retained; the shared Basic Captions component is unchanged.
+
+HOMEPAGE MOTTO SIDEBAR
+A right sidebar uses the homepage light background (#f8fafc), GT Planar Black type, and
+horizontal slide/fade word changes. It enters at source 2.30-2.90s with the blue
+Remotion logo centered at 200px wide. The logo moves upward and left and shrinks
+to 120px with spring easing from 4.733-5.133s; the left-aligned motto appears at 5.18-5.50s with a
+24px gap below the logo. Words change to interactively at 8.00s and
+agentically at 9.78s. The sidebar exits at 13.34-13.94s on the three-ways setup.
+Presenter and captions shift left while the sidebar is visible.
+
+THREE WAYS HERO
+The second shot overlays the exact homepage hero renderer on white. Agent view
+holds through the first phrase, transitions to full Studio at source 4.36-4.96s,
+and transitions to Studio/code at 8.40-9.00s. The graphic touches the bottom edge
+with captions over it, and the camera returns at the start of the next shot.
+
+QUICK EDITS B-ROLL
+Shot 04 retains the original dialogue and captions while showing two existing
+Studio recordings: an angled timeline trim (104 source frames from frame 120 over 83 output frames)
+for the first 83 frames, then caption repositioning and live playhead scrubbing
+(source frames 18-197 at 1x) for 180 frames. Cut at “that you want to preview.”
+The cutaways are editable together as QuickEditsBroll and use hosted assets.
+
+MEDIA STORAGE
+All 59 project assets (27 source takes, 26 processed audio files, 2 B-roll clips,
+2 homepage images, the logo, and the headline font) are hosted on remotion.media.
+Public objects were checked against SHA-256 hashes on 3 November 2026.
+The shared repository-local logo and font copies were removed after verification;
+their other brand references now use the same hosted URLs. Original camera files
+in Movies remain untouched.

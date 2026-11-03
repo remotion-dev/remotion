@@ -15,7 +15,8 @@ import {
 } from 'remotion';
 
 const AUDIO_FILE = staticFile('hoorn.wav');
-const LOGO_FILE = staticFile('logo/remotion/logo-on-white.svg');
+const LOGO_FILE =
+	'https://remotion.media/agentically-programmatically/remotion-logo-on-light-96f0dc86e90d.svg';
 const LOGO_SIZE = 200;
 
 const getFrequencies = ({

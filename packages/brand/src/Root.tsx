@@ -199,6 +199,7 @@ import {
 } from './HomepageAssets/ExploreRemotion/Transitions';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
+import {AgenticallyProgrammaticallyCompositions} from './AgenticallyProgrammatically/AgenticallyProgrammaticallyCompositions';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
 import {
@@ -329,6 +330,7 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<AgenticallyProgrammaticallyCompositions />
 			<Folder name="VideoElements">
 				<Composition
 					id="CodexUI"
