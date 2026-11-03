@@ -24,16 +24,22 @@ export type OriginalSourceLocation = {
 	column: number;
 };
 
-export const makeOriginalSourceStack = ({
-	fileName,
-	lineNumber,
-	columnNumber,
-}: {
-	fileName: string;
-	lineNumber: number;
-	columnNumber: number;
-}): string => {
-	return `Error\n    at remotionOriginalSource (${ORIGINAL_SOURCE_STACK_PREFIX}${encodeURIComponent(fileName)}:${lineNumber}:${columnNumber})`;
+export const makeOriginalSourceStack = (
+	{
+		fileName,
+		lineNumber,
+		columnNumber,
+	}: {
+		fileName: string;
+		lineNumber: number;
+		columnNumber: number;
+	},
+	compiledSourceHash: string | null = null,
+): string => {
+	const location = `Error\n    at remotionOriginalSource (${ORIGINAL_SOURCE_STACK_PREFIX}${encodeURIComponent(fileName)}:${lineNumber}:${columnNumber})`;
+	return compiledSourceHash === null
+		? location
+		: `${location}\n    at remotionCompiledSource (remotion-source-sha256:${compiledSourceHash})`;
 };
 
 export const parseOriginalSourceStack = (

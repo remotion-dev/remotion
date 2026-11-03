@@ -9,16 +9,43 @@ import {
 	getLocationOfFunctionCall,
 	getLocationOfSequence,
 } from '../../../helpers/get-location-of-sequence';
+import {hasSourceOnlyRemappings} from '../../../helpers/sequence-node-path-mutations';
 
 const traceMapCache: Partial<Record<string, TraceMap>> = {};
 const traceMapPromises: Partial<Record<string, Promise<TraceMap>>> = {};
 const traceMapsByOriginalSource = new Map<string, TraceMap>();
 const sourceMapFilesCache = new WeakMap<TraceMap, Record<string, string>>();
 
+export const compiledSourceFrame =
+	'\n    at remotionCompiledSource (remotion-source-sha256:';
+
+export const getSequenceLocationStack = (
+	stack: string | null,
+): string | null => {
+	const index = stack?.lastIndexOf(compiledSourceFrame) ?? -1;
+	if (!stack || index === -1) {
+		return stack;
+	}
+
+	const source = Internals.parseOriginalSourceStack(stack);
+	return source && !hasSourceOnlyRemappings(source.fileName)
+		? stack.slice(0, index)
+		: stack;
+};
+
 export const getCompiledSourceHash = (
 	stack: string | null,
 	fileName: string,
 ): string | null => {
+	const originalSource = Internals.parseOriginalSourceStack(stack);
+	if (originalSource) {
+		return originalSource.fileName === fileName
+			? (stack?.match(
+					/\n {4}at remotionCompiledSource \(remotion-source-sha256:([a-f0-9]{64})\)$/,
+				)?.[1] ?? null)
+			: null;
+	}
+
 	const location = getLocationOfSequence(stack);
 	const map = location ? traceMapCache[location.fileName] : null;
 	if (!map) {

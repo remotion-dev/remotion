@@ -287,12 +287,16 @@ export const addKeyframes = async ({
 			oldContents: fileContents,
 			newContents: output,
 			logLine: Number.isFinite(firstLogLine) ? firstLogLine : 1,
-			nodePathRemappings: originalNodes.flatMap(({nodePath}, index) => {
-				const newNodePath = finalNodes[index].nodePath;
-				return JSON.stringify(nodePath) === JSON.stringify(newNodePath)
-					? []
-					: [{oldNodePath: nodePath, newNodePath}];
-			}),
+			nodePathRemappings: originalNodes.flatMap(
+				({location, nodePath}, index) => {
+					const next = finalNodes[index];
+					return location?.line === next.location?.line &&
+						location?.column === next.location?.column &&
+						JSON.stringify(nodePath) === JSON.stringify(next.nodePath)
+						? []
+						: [{oldNodePath: nodePath, newNodePath: next.nodePath}];
+				},
+			),
 		});
 	}
 

@@ -5,6 +5,7 @@ import {getNodePathForRecastPath} from '../preview-server/routes/can-update-sequ
 
 export type CapturedJsxNodePath = {
 	nodePath: SequenceNodePath;
+	location: {line: number; column: number} | null;
 };
 
 export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
@@ -13,6 +14,7 @@ export const captureJsxNodePaths = (ast: File): CapturedJsxNodePath[] => {
 		visitJSXOpeningElement(path) {
 			captured.push({
 				nodePath: getNodePathForRecastPath(path, ast),
+				location: path.node.loc?.start ?? null,
 			});
 			return this.traverse(path);
 		},

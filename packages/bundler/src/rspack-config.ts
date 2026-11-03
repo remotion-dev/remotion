@@ -52,6 +52,16 @@ export const rspackConfig = async ({
 					.ReactRefreshRspackPlugin as typeof ReactRefreshRspackPluginType)
 			: null;
 	let lastProgress = 0;
+	const jsxSourceLoaders =
+		environment === 'development'
+			? [
+					{
+						loader:
+							require.resolve('./fast-refresh/rspack-jsx-source-loader.js'),
+						codeFilter: 'react/jsx-dev-runtime',
+					},
+				]
+			: [];
 
 	const swcLoaderRule = {
 		loader: 'builtin:swc-loader',
@@ -171,12 +181,12 @@ export const rspackConfig = async ({
 				},
 				{
 					test: /\.tsx?$/,
-					use: [swcLoaderRule],
+					use: [...jsxSourceLoaders, swcLoaderRule],
 				},
 				{
 					test: /\.jsx?$/,
 					exclude: /node_modules/,
-					use: [swcLoaderRuleJsx],
+					use: [...jsxSourceLoaders, swcLoaderRuleJsx],
 				},
 			],
 		},

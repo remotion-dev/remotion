@@ -2,7 +2,14 @@ import {
 	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {
+	type RefObject,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {
 	JsxComponentIdentity,
 	SequenceNodePath,
@@ -13,6 +20,7 @@ import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {copySourcePathProvenance} from '../../helpers/rebase-source-request';
+import {hasSourceOnlyRemappings} from '../../helpers/sequence-node-path-mutations';
 import {reconcileCanvasDragPreviewStatuses} from '../canvas-drag-preview';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
 import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
@@ -22,6 +30,7 @@ import {
 	subscribeToSequencePropsRefresh,
 } from './sequence-props-subscription-store';
 import {shouldSubscribeToSourceFile} from './should-subscribe-to-source-file';
+import {compiledSourceFrame} from './TimelineStack/get-stack';
 
 export const useSequencePropsSubscription = ({
 	originalLocation,
@@ -31,6 +40,7 @@ export const useSequencePropsSubscription = ({
 	effects,
 	preferMappedNodePath,
 	stack,
+	getStackRef,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
@@ -39,6 +49,7 @@ export const useSequencePropsSubscription = ({
 	originalLocation: OriginalPosition | null;
 	preferMappedNodePath: boolean;
 	stack: string | null;
+	getStackRef: RefObject<() => string | null>;
 }) => {
 	const {setPropStatuses, updateDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
@@ -118,6 +129,9 @@ export const useSequencePropsSubscription = ({
 				: null;
 		remappedSource.current = null;
 
+		const liveStack = hasSourceOnlyRemappings(locationSource)
+			? getStackRef.current()
+			: null;
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
 			line: locationLine,
@@ -131,7 +145,10 @@ export const useSequencePropsSubscription = ({
 					? (nodePathAtResubscribe?.nodePath ?? null)
 					: null),
 			clientId,
-			stack,
+			stack:
+				stack !== null && liveStack?.startsWith(stack + compiledSourceFrame)
+					? liveStack
+					: stack,
 
 			applyOnce: (result) => {
 				if (!result.success) {
@@ -213,5 +230,6 @@ export const useSequencePropsSubscription = ({
 		updateDragOverrides,
 		setOverrideIdToNodePath,
 		stack,
+		getStackRef,
 	]);
 };
