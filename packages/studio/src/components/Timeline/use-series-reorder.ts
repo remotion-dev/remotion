@@ -3,11 +3,9 @@ import type {ReorderSequencePosition} from '@remotion/studio-shared';
 import {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {startEscapeCancelableDeferredPointerSession} from '../../helpers/escape-cancelable-pointer-session';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {
-	isPointerSessionRelease,
-	startDeferredCapturedPointerSession,
-} from '../../helpers/pointer-session';
+import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {reorderSequence} from '../reorder-sequence-api';
@@ -238,7 +236,7 @@ export const useSeriesReorder = (
 					updateDropTarget();
 				},
 			});
-			stopPointerSession.current = startDeferredCapturedPointerSession({
+			stopPointerSession.current = startEscapeCancelableDeferredPointerSession({
 				// The row stays mounted when horizontal scrolling crops the source clip.
 				captureTarget: trackElement,
 				event: e.nativeEvent,

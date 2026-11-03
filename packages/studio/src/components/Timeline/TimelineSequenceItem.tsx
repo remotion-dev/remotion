@@ -27,6 +27,7 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_16,
 	WHITE,
 } from '../../helpers/colors';
+import {startEscapeCancelableDeferredPointerSession} from '../../helpers/escape-cancelable-pointer-session';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -37,10 +38,7 @@ import {
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {
-	isPointerSessionRelease,
-	startDeferredCapturedPointerSession,
-} from '../../helpers/pointer-session';
+import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -442,7 +440,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
 	const sequenceReorderWrapperRef = useRef<HTMLDivElement>(null);
-	const stopSequencePointerSession = useRef<(() => void) | null>(null);
+	const stopPointerSession = useRef<(() => void) | null>(null);
 	const suppressNextClick = useRef(false);
 	const {
 		canConfigureApps,
@@ -755,7 +753,7 @@ const TimelineSequenceItemInner: React.FC<{
 	]);
 
 	useEffect(() => {
-		return () => stopSequencePointerSession.current?.();
+		return () => stopPointerSession.current?.();
 	}, []);
 
 	const onSequencePointerDown = useCallback(
@@ -782,7 +780,7 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			stopSequencePointerSession.current?.();
+			stopPointerSession.current?.();
 
 			const selectedNodePathInfos = getCanvasSequenceReorderSelection({
 				draggedItem: {type: 'sequence', nodePathInfo},
@@ -878,7 +876,7 @@ const TimelineSequenceItemInner: React.FC<{
 				},
 			});
 
-			stopSequencePointerSession.current = startDeferredCapturedPointerSession({
+			stopPointerSession.current = startEscapeCancelableDeferredPointerSession({
 				captureTarget: sourceElement,
 				event: e.nativeEvent,
 				onMove: (pointerEvent, capturePointer) => {
@@ -995,7 +993,7 @@ const TimelineSequenceItemInner: React.FC<{
 					autoScroll.stop();
 					activeDropTarget?.setDropIndicator(null);
 					dragPreview?.remove();
-					stopSequencePointerSession.current = null;
+					stopPointerSession.current = null;
 
 					if (!didDrag) {
 						return;
