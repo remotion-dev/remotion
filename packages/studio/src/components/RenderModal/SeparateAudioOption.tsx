@@ -8,6 +8,7 @@ import {Spacing} from '../layout';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
+import {isValidSeparateAudioName} from './out-name-checker';
 import {RenderModalOutputName} from './RenderModalOutputName';
 
 export const SeparateAudioOptionInput: React.FC<{
@@ -28,14 +29,12 @@ export const SeparateAudioOptionInput: React.FC<{
 	);
 
 	const validationMessage = useMemo(() => {
-		const expectedExtension =
-			BrowserSafeApis.getExtensionFromAudioCodec(audioCodec);
-		const actualExtension = separateAudioTo.split('.').pop();
-		if (actualExtension !== expectedExtension) {
-			return `Expected extension: .${expectedExtension}`;
+		try {
+			isValidSeparateAudioName({audioCodec, separateAudioTo});
+			return null;
+		} catch (error) {
+			return (error as Error).message;
 		}
-
-		return null;
 	}, [audioCodec, separateAudioTo]);
 
 	return (
@@ -85,7 +84,7 @@ export const SeparateAudioOption: React.FC<{
 				<div style={rightRow}>
 					<Checkbox
 						disabled={false}
-						checked={Boolean(separateAudioTo)}
+						checked={separateAudioTo !== null}
 						onChange={onSeparateAudioChange}
 						name="separate-audio-to"
 					/>
