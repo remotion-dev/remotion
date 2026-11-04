@@ -64,10 +64,7 @@ describe('GSAP renderer parity', () => {
 			});
 		}
 
-		browser = await openBrowser('chrome', {
-			logLevel: 'warn',
-			chromiumOptions: {gl: 'swangle'},
-		});
+		browser = await openBrowser('chrome', {logLevel: 'warn'});
 		composition = await selectComposition({
 			inputProps: {},
 			serveUrl,
