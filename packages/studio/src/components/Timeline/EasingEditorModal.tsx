@@ -695,7 +695,7 @@ const EasingPresetButton: React.FC<{
 		(): React.CSSProperties => ({
 			...presetButtonBase,
 			backgroundColor: selected ? INPUT_BACKGROUND : TRANSPARENT,
-			cursor: disabled ? 'not-allowed' : undefined,
+			cursor: 'default',
 			opacity: disabled ? 0.45 : 1,
 		}),
 		[disabled, selected],
