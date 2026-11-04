@@ -54,6 +54,9 @@ export type Menu = {
 	label: React.ReactNode;
 	items: ComboboxValue[];
 	leaveLeftPadding: boolean;
+	// Declared when the label is only an icon, so the trigger keeps a
+	// discernible name for assistive technology.
+	ariaLabel?: string;
 };
 
 export const MenuItem: React.FC<{
@@ -187,6 +190,7 @@ export const MenuItem: React.FC<{
 			<button
 				ref={ref}
 				role="button"
+				aria-label={menu.ariaLabel}
 				tabIndex={tabIndex}
 				onPointerEnter={onPointerEnter}
 				onPointerDown={onPointerDown}

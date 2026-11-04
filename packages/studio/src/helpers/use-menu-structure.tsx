@@ -404,6 +404,7 @@ const useMenuStructureBase = ({
 		let struct: Structure = [
 			{
 				id: 'remotion' as const,
+				ariaLabel: 'Remotion',
 				label: (
 					<Row align="center" justify="center" style={inheritColor}>
 						<svg
