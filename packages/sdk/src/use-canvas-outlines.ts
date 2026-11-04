@@ -157,10 +157,7 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 	);
 
 	useEffect(() => {
-		if (
-			hover?.source !== 'canvas' ||
-			(targetsByKey.has(hover.key) && outlinesByKey.has(hover.key))
-		) {
+		if (hover?.source !== 'canvas' || targetsByKey.has(hover.key)) {
 			return;
 		}
 
@@ -169,7 +166,7 @@ export const useCanvasOutlines = <Target extends CanvasOutlineRenderTarget>({
 				? null
 				: current,
 		);
-	}, [hover, hoverController, outlinesByKey, targetsByKey]);
+	}, [hover, hoverController, targetsByKey]);
 
 	return {
 		outlines,

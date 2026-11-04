@@ -31,6 +31,7 @@ import {
 	useTimelineSequenceHoverState,
 } from '../state/timeline-sequence-hover';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
+import {InteractiveEditorConnector} from './InteractiveEditorConnector';
 import {getSelectedOutlineActiveSchema} from './selected-outline-drag';
 import {
 	getSelectedCropInfo,
@@ -1174,8 +1175,29 @@ const SelectedOutlineOverlayUnmemoized: React.FC<
 		);
 	}, [measurementActive, setHoveredSequence]);
 
+	const editorOutlines = useMemo(
+		() =>
+			isFullscreen || !previewSelectionAvailable || !isStudioSelectionEnabled()
+				? []
+				: getSelectableOutlines(null),
+		[getSelectableOutlines, isFullscreen, previewSelectionAvailable],
+	);
+
 	return (
 		<>
+			<InteractiveEditorConnector
+				connectedClientId={
+					previewServerState.type === 'connected'
+						? previewServerState.clientId
+						: null
+				}
+				getLatestOutlineTargetByKey={getLatestOutlineTargetByKey}
+				hover={hoveredSequence}
+				onSelect={selectOutlineItem}
+				selectableOutlines={editorOutlines}
+				selectedSequenceKeys={selectedSequenceKeys}
+				setHoveredSequence={setHoveredSequence}
+			/>
 			<SelectedOutlineKeyboardControls getAllDragTargets={getAllDragTargets} />
 			{measurementActive ? (
 				<ActiveSelectedOutlineOverlay
