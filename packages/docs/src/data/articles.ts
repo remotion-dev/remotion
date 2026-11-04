@@ -1702,6 +1702,15 @@ export const articles = [
 		slug: 'sdk/get-canvas-keyframe-toggle',
 	},
 	{
+		id: 'sdk/get-canvas-keyframe-value-change',
+		title: 'getCanvasKeyframeValueChange()',
+		relativePath: 'docs/sdk/get-canvas-keyframe-value-change.mdx',
+		compId: 'articles-docs-sdk-get-canvas-keyframe-value-change',
+		crumb: '@remotion/sdk',
+		noAi: false,
+		slug: 'sdk/get-canvas-keyframe-value-change',
+	},
+	{
 		id: 'sdk/get-canvas-keyframes',
 		title: 'getCanvasKeyframes()',
 		relativePath: 'docs/sdk/get-canvas-keyframes.mdx',
@@ -5183,6 +5192,15 @@ export const articles = [
 		crumb: 'Lambda',
 		noAi: false,
 		slug: 'lambda/custom-destination',
+	},
+	{
+		id: 'lambda/custom-function-names',
+		title: 'Custom Lambda function names',
+		relativePath: 'docs/lambda/custom-function-names.mdx',
+		compId: 'articles-docs-lambda-custom-function-names',
+		crumb: '@remotion/lambda',
+		noAi: false,
+		slug: 'lambda/custom-function-names',
 	},
 	{
 		id: 'lambda/custom-layers',

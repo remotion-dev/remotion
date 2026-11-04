@@ -1,29 +1,35 @@
 const RECAST_TAB_WIDTH = 4;
-const lineStartsBySource = new Map<string, number[]>();
+const sourceLines = new Map<
+	string,
+	{starts: number[]; jsxColumnAdjustments: Map<number, number>}
+>();
 const maximumCachedSources = 8;
 
+const getSourceLines = (input: string) => {
+	let lines = sourceLines.get(input);
+	if (!lines) {
+		lines = {starts: [0], jsxColumnAdjustments: new Map()};
+		for (const match of input.matchAll(/\r\n|[\r\n\u2028\u2029]/g)) {
+			lines.starts.push(match.index + match[0].length);
+		}
+	}
+
+	sourceLines.delete(input);
+	sourceLines.set(input, lines);
+	if (sourceLines.size > maximumCachedSources) {
+		sourceLines.delete(sourceLines.keys().next().value!);
+	}
+
+	return lines;
+};
+
 // Recast normalizes every line ending, removes zero-width indentation, and
-// expands tabs in leading whitespace before parsing. Index line starts once
-// per source, then walk the requested line to map its normalized column.
+// expands tabs in leading whitespace before parsing.
 export const recastLocToOffset = (
 	input: string,
 	loc: {line: number; column: number},
 ): number => {
-	let lineStarts = lineStartsBySource.get(input);
-	if (!lineStarts) {
-		lineStarts = [0];
-		for (const match of input.matchAll(/\r\n|[\r\n\u2028\u2029]/g)) {
-			lineStarts.push(match.index + match[0].length);
-		}
-	}
-
-	lineStartsBySource.delete(input);
-	lineStartsBySource.set(input, lineStarts);
-	if (lineStartsBySource.size > maximumCachedSources) {
-		lineStartsBySource.delete(lineStartsBySource.keys().next().value!);
-	}
-
-	let sourceOffset = lineStarts[loc.line - 1];
+	let sourceOffset = getSourceLines(input).starts[loc.line - 1];
 	if (sourceOffset === undefined) {
 		return input.length;
 	}
@@ -78,4 +84,21 @@ export const recastLocToOffset = (
 	}
 
 	return sourceOffset;
+};
+
+export const getJsxSourceLocation = (
+	input: string,
+	loc: {line: number; column: number},
+) => {
+	const {starts, jsxColumnAdjustments} = getSourceLines(input);
+	let adjustment = jsxColumnAdjustments.get(loc.line);
+	if (adjustment === undefined) {
+		// Recast only changes indentation, so all JSX tokens on one line share
+		// the same difference between parser columns and authored columns.
+		adjustment =
+			recastLocToOffset(input, loc) - starts[loc.line - 1] - loc.column;
+		jsxColumnAdjustments.set(loc.line, adjustment);
+	}
+
+	return {line: loc.line, column: loc.column + adjustment};
 };

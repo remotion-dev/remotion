@@ -23,6 +23,10 @@ export class Pool {
 	}
 
 	release(resource: Page): void {
+		if (resource.closed) {
+			return;
+		}
+
 		const waiter = this.waiters.shift();
 		if (waiter === undefined) {
 			this.resources.push(resource);

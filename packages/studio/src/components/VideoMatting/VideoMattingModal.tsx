@@ -306,6 +306,7 @@ export const VideoMattingModal: React.FC<VideoMattingModalState> = ({
 									: null
 							}
 							existence={outputExists}
+							existenceCheckFailed={false}
 							inputStyle={input}
 							label="Output in public/"
 							onValueChange={(event) => setOutName(event.target.value)}

@@ -12,7 +12,7 @@ import type {
 	TSAsExpression,
 	UnaryExpression,
 } from '@babel/types';
-import {CodemodsInternals, getNodeProps} from '@remotion/codemods';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared';
@@ -1385,14 +1385,33 @@ export const computeSequencePropsStatusFromContent = ({
 	effects: string[][];
 }): CanUpdateSequencePropsResponseTrue => {
 	try {
-		return getNodeProps({
-			project: {rootDir: '/', files: {'source.tsx': fileContents}},
-			node: {filePath: 'source.tsx', nodePath},
+		const result = CodemodsInternals.computeSequencePropsStatusFromContent({
+			fileContents,
+			includeSourceLocation: true,
+			nodePath,
 			componentIdentity,
 			keys,
 			assetKeys,
-			effectKeys: effects,
+			effects,
 		});
+		const translate = result.props['style.translate'];
+		if (
+			(translate?.status === 'static' &&
+				typeof translate.codeValue === 'string' &&
+				translate.codeValue.includes('%')) ||
+			(translate?.status === 'keyframed' &&
+				translate.keyframes.some(
+					(keyframe) =>
+						typeof keyframe.value === 'string' && keyframe.value.includes('%'),
+				))
+		) {
+			return {
+				...result,
+				props: {...result.props, 'style.translate': {status: 'computed'}},
+			};
+		}
+
+		return result;
 	} catch (error) {
 		if (error instanceof CodemodsInternals.JsxElementIdentityMismatchError) {
 			throw new JsxElementIdentityMismatchError();

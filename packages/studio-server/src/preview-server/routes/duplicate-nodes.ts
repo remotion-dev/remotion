@@ -101,7 +101,7 @@ export const duplicateNodesHandler: ApiHandler<
 				snapshots: updates.map((update) => ({
 					filePath: update.absolutePath,
 					oldContents: update.fileContents,
-					newContents: null,
+					newContents: update.output,
 					logLine: update.logLine,
 					nodePathRemappings: update.nodePathRemappings,
 				})),

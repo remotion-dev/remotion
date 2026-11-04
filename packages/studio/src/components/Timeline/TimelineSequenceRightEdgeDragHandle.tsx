@@ -50,6 +50,7 @@ import {
 import {getKeyframeTrimConstraints} from './get-keyframe-trim-constraints';
 import {
 	getKeyframedSequenceDragTargets,
+	isKeyframeInSequenceSource,
 	type TimelineSequenceEffectKeyframeDragTarget,
 	type TimelineSequenceKeyframeDragTarget,
 } from './get-keyframed-sequence-drag-targets';
@@ -1945,7 +1946,12 @@ export const getTimelineSequenceFromDragTargets = ({
 				const descendantNodePath = overrideId
 					? overrideIdsToNodePaths[overrideId]
 					: undefined;
-				if (descendantNodePath === undefined) {
+				const isDescendant = sequence.id !== originalSequence.id;
+				if (
+					descendantNodePath === undefined ||
+					(isDescendant &&
+						!isKeyframeInSequenceSource(nodePath, descendantNodePath))
+				) {
 					return [];
 				}
 
@@ -1962,7 +1968,7 @@ export const getTimelineSequenceFromDragTargets = ({
 						sequence,
 						sequences,
 						propStatuses,
-						isDescendant: sequence.id !== originalSequence.id,
+						isDescendant,
 					}),
 				];
 			});
