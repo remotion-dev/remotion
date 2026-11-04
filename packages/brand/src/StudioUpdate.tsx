@@ -1,7 +1,6 @@
 import {Audio} from '@remotion/media';
 import {Easing, interpolate, Track, useCurrentFrame} from 'remotion';
 import {z} from 'zod';
-import {BasicsPlaybackRatePreview} from './BasicsPlaybackRateComposition';
 import {StudioActionsMenuComposition} from './StudioActionsMenuComposition';
 import {StudioAiPrompt} from './StudioAiPrompt';
 import {StudioClosing} from './StudioClosing';
@@ -13,6 +12,8 @@ import {
 	StudioHomepageNew,
 	StudioHomepageParameterization,
 } from './StudioHomepageShots';
+import {StudioLevelsComposition} from './StudioLevelsComposition';
+import {StudioPlaybackRateComposition} from './StudioPlaybackRateComposition';
 import {StudioRenderClickComposition} from './StudioRenderClickComposition';
 import {StudioRenderProgressComposition} from './StudioRenderProgressComposition';
 import {StudioScreenshotRattle} from './StudioScreenshotRattle';
@@ -81,9 +82,9 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					premountFor={6}
 					revealOffsetInSeconds={0}
 					focusX={562}
-					focusY={1128}
+					focusY={reel ? 1260 : 1150}
 					endFocusX={735.1}
-					endFocusY={1134}
+					endFocusY={reel ? 1266 : 1156}
 					zoom={5.4}
 					endZoom={5.55}
 					rotation="0.2 1 -0.05 7deg"
@@ -165,13 +166,14 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					cursorSpin
 					style={{...reelCamera(1.35), backgroundColor: '#15161b'}}
 					from={298}
-					durationInFrames={51}
+					durationInFrames={57}
 					premountFor={30}
 				/>
 				<TimelineClipSelectionComposition
 					name="02-09a - Rattle - progressive clip selection"
-					from={349}
-					durationInFrames={48}
+					from={355}
+					trimBefore={6}
+					durationInFrames={42}
 					rattleTiming
 					premountFor={30}
 				/>
@@ -236,8 +238,8 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					name="11 - Source-only trim - close-up to wide"
 					from={510}
 					trimBefore={40}
-					durationInFrames={120}
-					playbackRate={120 / 36}
+					durationInFrames={90}
+					playbackRate={90 / 36}
 					premountFor={30}
 				/>
 				<StudioActionsMenuComposition
@@ -315,24 +317,31 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					playbackRate={2}
 					premountFor={30}
 				/>
-				<BasicsPlaybackRatePreview
-					blurEdges={false}
-					name="28 - Playback rate - clips and keyframes - 2.3x"
+				<StudioPlaybackRateComposition
+					name="28 - Playback rate - clips and keyframes - 1.78x"
 					from={757}
-					trimBefore={45}
-					durationInFrames={45 * 2.3}
-					playbackRate={2.3}
-					captureStyle={{
-						translate: reel ? '-220px 80px' : '-350px -700px',
-						scale: reel ? 0.8 : 1.25,
-						rotate: '-3deg',
-					}}
+					trimBefore={490}
+					durationInFrames={80}
+					playbackRate={80 / 45}
 					premountFor={30}
 				/>
-				<StudioCurvesSplit
-					name="29 - Curves - live split-screen correction"
+				<StudioLevelsComposition
+					name="29a - Levels - input-black adjustment"
 					from={802}
+					trimBefore={35}
+					durationInFrames={48}
+					playbackRate={48 / 31}
+					premountFor={30}
+					style={{
+						scale: 1.5,
+						translate: '0px -119.1px',
+					}}
+				/>
+				<StudioCurvesSplit
+					name="29b - Curves - fullscreen adjustment"
+					from={833}
 					durationInFrames={67}
+					playbackRate={67 / 36}
 					premountFor={30}
 					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
 				/>
@@ -396,8 +405,8 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 					name="32.02 - Press Render - centered close-up"
 					from={938}
 					trimBefore={360}
-					durationInFrames={24}
-					playbackRate={24 / 15}
+					durationInFrames={21}
+					playbackRate={21 / 15}
 					premountFor={30}
 					style={{
 						overflow: 'hidden',
@@ -407,13 +416,19 @@ export const StudioUpdate = ({mode}: z.infer<typeof studioUpdateSchema>) => {
 				<StudioRenderProgressComposition
 					name="32.03 - Render progress - rendering"
 					from={953}
-					trimBefore={630}
+					trimBefore={738}
 					durationInFrames={63}
 					playbackRate={63 / 16}
 					premountFor={30}
 					style={{
 						overflow: 'hidden',
-						scale: closingPushScale,
+						scale:
+							closingPushScale *
+							interpolate(frame, [953, 963], [1.025, 1], {
+								easing: Easing.out(Easing.cubic),
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+							}),
 					}}
 				/>
 				<StudioClosing

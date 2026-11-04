@@ -1,5 +1,4 @@
 import type {CanvasContent} from 'remotion';
-import {normalizeOutputPath} from './output-path';
 import {
 	getMediaDurationInFrames,
 	type getMediaPreviewClock,
@@ -69,8 +68,7 @@ export const getRenderOutputPlaybackTarget = (
 	if (
 		content.type === 'output' &&
 		current.content.type === 'output' &&
-		normalizeOutputPath(content.path) ===
-			normalizeOutputPath(current.content.path)
+		content.path === current.content.path
 	)
 		return current.target;
 	if (
@@ -111,7 +109,7 @@ export const registerRenderOutputPlayback = ({
 	const target: RenderOutputPlaybackTarget = {
 		id:
 			content.type === 'output'
-				? `output:${normalizeOutputPath(content.path)}`
+				? `output:${content.path}`
 				: `output-blob:${content.displayName}`,
 		getState: () => {
 			requireCurrent();

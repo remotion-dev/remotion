@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {clamp, hsvToRgb} from '../../helpers/color-conversion';
 import {
 	BORDER_WHITE_2PX,
@@ -10,6 +10,10 @@ import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 
 const AREA_HEIGHT = 140;
 
@@ -43,6 +47,11 @@ export const SaturationValueArea: React.FC<{
 	readonly onChangeComplete: (next: {s: number; v: number}) => void;
 }> = ({hue, saturation, value, onChange, onChangeComplete}) => {
 	const containerRef = useRef<HTMLDivElement>(null);
+	const stopPointerSession = useRef<(() => void) | null>(null);
+
+	useEffect(() => {
+		return () => stopPointerSession.current?.();
+	}, []);
 
 	const baseColor = useMemo(() => {
 		const {r, g, b} = hsvToRgb({h: hue, s: 1, v: 1});
@@ -76,10 +85,11 @@ export const SaturationValueArea: React.FC<{
 			}
 
 			e.preventDefault();
+			forceSpecificCursor('crosshair');
 			updateFromEvent(e.clientX, e.clientY, false);
 			let lastPosition = {clientX: e.clientX, clientY: e.clientY};
 
-			startCapturedPointerSession({
+			stopPointerSession.current = startCapturedPointerSession({
 				event: e.nativeEvent,
 				captureTarget: e.currentTarget,
 				onMove: (ev) => {
@@ -87,6 +97,8 @@ export const SaturationValueArea: React.FC<{
 					updateFromEvent(ev.clientX, ev.clientY, false);
 				},
 				onEnd: (reason, ev) => {
+					stopPointerSession.current = null;
+					stopForcingSpecificCursor();
 					const shouldUseEndEvent = isPointerSessionRelease(reason, ev);
 					updateFromEvent(
 						shouldUseEndEvent && ev ? ev.clientX : lastPosition.clientX,

@@ -22,8 +22,8 @@ const TimelineSourceOnlyTrimWideContent = () => {
 				position: 'absolute',
 				inset: 0,
 				backgroundColor: '#1f2427',
-				// Reveal the preview early enough to watch it change during the drag.
-				scale: interpolate(frame, [104, 164], [2.4, 1], {
+				// Hold the trim close-up before gradually revealing the changing preview.
+				scale: interpolate(frame, [140, 230], [2.4, 1], {
 					extrapolateLeft: 'clamp',
 					extrapolateRight: 'clamp',
 					easing: Easing.bezier(0.2, 0, 0.2, 1),
@@ -31,7 +31,7 @@ const TimelineSourceOnlyTrimWideContent = () => {
 				}),
 				translate: interpolate(
 					frame,
-					[104, 164],
+					[140, 230],
 					['-336px -864px', '0px 0px'],
 					{
 						extrapolateLeft: 'clamp',

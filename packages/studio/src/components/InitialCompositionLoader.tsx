@@ -128,7 +128,10 @@ export const InitialCompositionLoader: React.FC = () => {
 				}
 			}
 
-			setCompositionListState('ready');
+			if (compositionListIsReady) {
+				setCompositionListState('ready');
+			}
+
 			return;
 		}
 
