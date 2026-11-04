@@ -73,6 +73,10 @@ Always `true` when inspection succeeds. Check each prop's `status` and each effe
 
 A record keyed by the requested names. Each value has `status: 'static'` with `codeValue`, `status: 'keyframed'` with keyframes and interpolation settings, or `status: 'computed'` when the value cannot be statically understood. A missing prop is static with `codeValue: undefined`.
 
+#### Percentage translation<AvailableFrom v="4.0.541" />
+
+Recognized static `style.translate` strings contain one to three space-separated values. The X and Y values accept `px` or `%`; the optional Z value must use `px`. Supported [`interpolate()`](/docs/interpolate) expressions with percentage values return `status: 'keyframed'` and preserve those values in the keyframes.
+
 ### effects
 
 An array of effect descriptions. Editable entries include `canUpdate: true`, `effectIndex`, `callee`, `importPath`, and prop statuses. Unsupported entries include `canUpdate: false` and a `reason`. Automatically discovering effects requires an inline array.

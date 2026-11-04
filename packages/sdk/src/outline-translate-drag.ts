@@ -18,7 +18,7 @@ import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from './pointer-session';
-import {parseTranslate, serializeTranslate} from './translate-value';
+import {parseTranslateWithUnits, serializeTranslate} from './translate-value';
 
 export const canvasTranslateFieldKey = 'style.translate';
 export const canvasOutlineDragThresholdPx = 4;
@@ -91,7 +91,7 @@ export const getCanvasOutlineTranslateDragStates = <
 	readonly getDragOverrides: GetDragOverrides;
 	readonly timelinePosition: number;
 }): CanvasOutlineTranslateDragState<Target>[] => {
-	return dragTargets.map((target) => {
+	return dragTargets.flatMap((target) => {
 		const dragOverrideValue = (getDragOverrides(target.nodePath) ?? {})[
 			canvasTranslateFieldKey
 		];
@@ -121,22 +121,25 @@ export const getCanvasOutlineTranslateDragStates = <
 			});
 		}
 
-		const [startX, startY, startZ] = parseTranslate(
-			String(effectiveValue ?? '0px 0px'),
-		);
+		const parsed = parseTranslateWithUnits(String(effectiveValue ?? '0px 0px'));
+		if (parsed === null || parsed[0].unit !== 'px' || parsed[1].unit !== 'px') {
+			return [];
+		}
 
-		return {
-			defaultValue:
-				target.fieldDefault !== undefined
-					? JSON.stringify(target.fieldDefault)
-					: null,
-			key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
-			sourceFrame,
-			startX,
-			startY,
-			startZ,
-			target,
-		};
+		return [
+			{
+				defaultValue:
+					target.fieldDefault !== undefined
+						? JSON.stringify(target.fieldDefault)
+						: null,
+				key: Internals.makeSequencePropsSubscriptionKey(target.nodePath),
+				sourceFrame,
+				startX: parsed[0].value,
+				startY: parsed[1].value,
+				startZ: parsed[2]?.value ?? null,
+				target,
+			},
+		];
 	});
 };
 

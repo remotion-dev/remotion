@@ -9,7 +9,7 @@ import {
 } from "@remotion/sdk";
 import { getNodeProps, type SequencePropUpdate } from "@remotion/codemods";
 import { ChevronLeftIcon, ChevronRightIcon, RotateCcwIcon } from "lucide-react";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import type {
   CanUpdateSequencePropStatus,
   InteractivitySchema,
@@ -293,40 +293,65 @@ const KeyframedPropEditor: React.FC<{
     frame,
   });
 
+  const [editorRevision, setEditorRevision] = useState(0);
+  const commit = async (next: unknown) => {
+    if (next === undefined || next === value) {
+      onCancelPreview();
+      return;
+    }
+
+    const changed = await actions.commitKeyframeChanges(
+      [
+        {
+          nodePathInfo: layer.nodePathInfo,
+          key: fieldKey,
+          schema,
+          operation: {
+            type: "add",
+            frame: getCanvasKeyframeSourceFrame({
+              track: layer.track,
+              propStatus: status,
+              frame,
+            }),
+            value: next,
+          },
+        },
+      ],
+      null,
+    );
+    if (!changed) setEditorRevision((revision) => revision + 1);
+  };
+
+  if (
+    field.type === "rotation-css" &&
+    typeof value === "string" &&
+    !/^[+-]?(?:\d+\.?\d*|\.\d+)deg$/.test(value)
+  ) {
+    return (
+      <FieldRow
+        label={getFieldLabel(fieldKey, field)}
+        badge={<StatusBadge status="keyframed" />}
+        keyframe={keyframe}
+      >
+        <TextField
+          key={editorRevision}
+          ariaLabel={getFieldLabel(fieldKey, field)}
+          value={value}
+          onCommit={(next) => void commit(next)}
+        />
+      </FieldRow>
+    );
+  }
+
   return (
     <PropFieldEditor
+      key={editorRevision}
       fieldKey={fieldKey}
-      field={field}
       codeValue={value ?? undefined}
+      field={field}
       badge={<StatusBadge status="keyframed" />}
       keyframe={keyframe}
-      onCommit={(next) => {
-        // A scrub that ends where it started only releases the preview.
-        if (next === undefined || next === value) {
-          onCancelPreview();
-          return;
-        }
-
-        void actions.commitKeyframeChanges(
-          [
-            {
-              nodePathInfo: layer.nodePathInfo,
-              key: fieldKey,
-              schema,
-              operation: {
-                type: "add",
-                frame: getCanvasKeyframeSourceFrame({
-                  track: layer.track,
-                  propStatus: status,
-                  frame,
-                }),
-                value: next,
-              },
-            },
-          ],
-          null,
-        );
-      }}
+      onCommit={(next) => void commit(next)}
       onPreview={onPreview}
       onCancelPreview={onCancelPreview}
     />
@@ -388,6 +413,20 @@ export const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
       );
 
     case "translate": {
+      const value = codeValue ?? schemaDefault;
+      if (
+        typeof value === "string" &&
+        !/^[+-]?(?:\d+\.?\d*|\.\d+)px(?:\s+[+-]?(?:\d+\.?\d*|\.\d+)px)?$/.test(
+          value,
+        )
+      ) {
+        return (
+          <FieldRow label={label} badge={badge} keyframe={keyframe}>
+            <TextField ariaLabel={ariaLabel} value={value} onCommit={commit} />
+          </FieldRow>
+        );
+      }
+
       const current = parseTranslate(codeValue ?? schemaDefault);
       return (
         <FieldRow label={label} badge={badge} keyframe={keyframe}>

@@ -1822,12 +1822,15 @@ export const lineColumnsToNodePaths = ({
 	);
 };
 
-const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+const TRANSLATE_VALUE_REGEX = /^-?\d+(\.\d+)?(px|%)$/;
 
 const isSupportedTranslateValue = (value: string): boolean => {
 	const parts = value.split(/\s+/);
 	if (parts.length >= 1 && parts.length <= 3) {
-		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+		return parts.every(
+			(part, index) =>
+				TRANSLATE_VALUE_REGEX.test(part) && (index < 2 || part.endsWith('px')),
+		);
 	}
 
 	return false;
@@ -2231,19 +2234,7 @@ const computeSequenceOnlyPropsRecord = ({
 				allowSpecialValues: assetKeys.includes(key),
 				lastSpreadIndex,
 			});
-			filteredProps[key] =
-				key === 'style.translate' &&
-				((status.status === 'static' &&
-					typeof status.codeValue === 'string' &&
-					status.codeValue.includes('%')) ||
-					(status.status === 'keyframed' &&
-						status.keyframes.some(
-							(keyframe) =>
-								typeof keyframe.value === 'string' &&
-								keyframe.value.includes('%'),
-						)))
-					? computedStatus()
-					: status;
+			filteredProps[key] = status;
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else if (lastSpreadIndex !== -1) {

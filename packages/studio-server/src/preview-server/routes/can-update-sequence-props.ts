@@ -1385,7 +1385,7 @@ export const computeSequencePropsStatusFromContent = ({
 	effects: string[][];
 }): CanUpdateSequencePropsResponseTrue => {
 	try {
-		return CodemodsInternals.computeSequencePropsStatusFromContent({
+		const result = CodemodsInternals.computeSequencePropsStatusFromContent({
 			fileContents,
 			includeSourceLocation: true,
 			nodePath,
@@ -1394,6 +1394,24 @@ export const computeSequencePropsStatusFromContent = ({
 			assetKeys,
 			effects,
 		});
+		const translate = result.props['style.translate'];
+		if (
+			(translate?.status === 'static' &&
+				typeof translate.codeValue === 'string' &&
+				translate.codeValue.includes('%')) ||
+			(translate?.status === 'keyframed' &&
+				translate.keyframes.some(
+					(keyframe) =>
+						typeof keyframe.value === 'string' && keyframe.value.includes('%'),
+				))
+		) {
+			return {
+				...result,
+				props: {...result.props, 'style.translate': {status: 'computed'}},
+			};
+		}
+
+		return result;
 	} catch (error) {
 		if (error instanceof CodemodsInternals.JsxElementIdentityMismatchError) {
 			throw new JsxElementIdentityMismatchError();

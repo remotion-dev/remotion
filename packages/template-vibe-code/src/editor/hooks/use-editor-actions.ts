@@ -2,7 +2,6 @@
 
 import {
   getCanvasKeyframeChangeOverride,
-  getCanvasKeyframeDisplayFrame,
   getCanvasKeyframeToggle,
   getCanvasKeyframeValueChange,
   getCanvasSelectionItemKey,
@@ -809,7 +808,11 @@ export const useEditorActions = ({
               const config =
                 nodePathInfo.sequenceSubscriptionKey.videoConfigValues ??
                 videoConfig;
-              if (requireExistingKeyframes) {
+              let updates = keyframes;
+              if (
+                requireExistingKeyframes ||
+                keyframes.some(({ operation }) => operation.type === "add")
+              ) {
                 const statuses = Internals.evaluateSourcePropStatuses(
                   getNodeProps({
                     project: current,
@@ -818,43 +821,82 @@ export const useEditorActions = ({
                   }).props,
                   config,
                 );
-                for (const { key, operation } of keyframes) {
+                const fields = Internals.getFlatSchemaWithAllKeys(schema);
+                updates = [];
+                for (const { key, operation: originalOperation } of keyframes) {
                   const status = statuses[key];
-                  const track = {
-                    keyframeDisplayOffset: 0,
-                    keyframePlaybackRate: 1,
-                  };
+                  let operation = originalOperation;
                   if (
-                    operation.type !== "add" ||
-                    status?.status !== "keyframed" ||
-                    !status.keyframes.some(
-                      ({ frame }) => frame === operation.frame,
-                    ) ||
-                    !getCanvasKeyframeValueChange({
-                      nodePathInfo,
-                      track,
-                      schema,
-                      key,
-                      propStatus: status,
-                      frame: getCanvasKeyframeDisplayFrame({
-                        track,
-                        propStatus: status,
-                        sourceFrame: operation.frame,
-                      }),
-                      value: operation.value,
-                    })
+                    requireExistingKeyframes &&
+                    (originalOperation.type !== "add" ||
+                      status?.status !== "keyframed" ||
+                      !status.keyframes.some(
+                        ({ frame }) => frame === originalOperation.frame,
+                      ))
                   ) {
                     throw new Error(
                       "The selected keyframe changed. Select it again before editing its value.",
                     );
                   }
+                  if (
+                    operation.type === "add" &&
+                    fields[key]?.type === "font-weight"
+                  ) {
+                    const value = operation.value;
+                    operation = {
+                      ...operation,
+                      value:
+                        value === "normal"
+                          ? 400
+                          : value === "bold"
+                            ? 700
+                            : typeof value === "string" &&
+                                /^\d+(?:\.\d+)?$/.test(value)
+                              ? Number(value)
+                              : value,
+                    };
+                  }
+                  const override = status
+                    ? getCanvasKeyframeChangeOverride({
+                        propStatus: status,
+                        change: { nodePathInfo, key, schema, operation },
+                      })
+                    : null;
+                  if (
+                    operation.type === "add" &&
+                    (operation.value === undefined ||
+                      operation.value === null ||
+                      override?.type !== "keyframed" ||
+                      (override.status.interpolationFunction ===
+                      "interpolatePaths"
+                        ? typeof operation.value !== "string"
+                        : Internals.interpolateKeyframedStatus({
+                            status: override.status,
+                            frame: operation.frame,
+                            forceSpringAllowTail: null,
+                          }) === null))
+                  ) {
+                    throw new Error(
+                      "This value cannot be interpolated with the other keyframes.",
+                    );
+                  }
+                  if (override?.type === "keyframed") {
+                    statuses[key] = override.status;
+                  } else if (override?.type === "static") {
+                    statuses[key] = {
+                      status: "static",
+                      codeValue: override.value,
+                      keyframeDisplayOffsetAdjustment: null,
+                    };
+                  }
+                  updates.push({ key, operation });
                 }
               }
               collect(
                 await updateNodeKeyframes({
                   project: current,
                   node: resolvedNode,
-                  updates: keyframes,
+                  updates,
                   schema,
                   videoConfig: config,
                 }),
