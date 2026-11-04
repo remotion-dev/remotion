@@ -23,8 +23,8 @@ const AsyncRenderErrorScope = ({
 	children,
 	renderingOwner,
 }: {
-	children: React.ReactNode;
-	renderingOwner: object | null;
+	readonly children: React.ReactNode;
+	readonly renderingOwner: object | null;
 }) => {
 	const inheritedScope = useContext(Internals.DelayRenderContextType);
 	const activity = useRef(new WeakMap<DelayRenderScope, boolean>());
@@ -36,24 +36,28 @@ const AsyncRenderErrorScope = ({
 		const target =
 			inheritedScope ?? (typeof window === 'undefined' ? null : window);
 		if (!target) return {inheritedScope, renderingOwner, scope: null};
-		const onCancelRender = (error: Error) => {
-			const active = activity.current.get(scope);
-			// Before commit, React can catch the synchronous error directly.
-			if (active === undefined) throw error;
-			if (active)
-				setFailure((previous) =>
-					previous?.scope === scope ? previous : {scope, error},
-				);
-		};
-		const scope: DelayRenderScope = new Proxy(target, {
-			get(target, key) {
-				return key === 'remotion_onCancelRender'
-					? onCancelRender
-					: Reflect.get(target, key, target);
+		const cancellationScope: DelayRenderScope = new Proxy(target, {
+			get(scopeTarget, key) {
+				if (key === 'remotion_onCancelRender') {
+					return (error: Error) => {
+						const active = activity.current.get(cancellationScope);
+						// Before commit, React can catch the synchronous error directly.
+						if (active === undefined) throw error;
+						if (active)
+							setFailure((previous) =>
+								previous?.scope === cancellationScope
+									? previous
+									: {scope: cancellationScope, error},
+							);
+					};
+				}
+
+				return Reflect.get(scopeTarget, key, scopeTarget);
 			},
 		});
-		return {inheritedScope, renderingOwner, scope};
+		return {inheritedScope, renderingOwner, scope: cancellationScope};
 	};
+
 	// This identity owns async work and must survive compiler memoization changes.
 	const [owned, setOwned] = useState(createScope);
 	const {scope} = owned;
@@ -71,6 +75,7 @@ const AsyncRenderErrorScope = ({
 		setOwned(createScope());
 		return null;
 	}
+
 	if (failure?.scope === scope) throw failure.error;
 	return (
 		<Internals.DelayRenderContextType.Provider value={scope}>

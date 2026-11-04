@@ -8,12 +8,17 @@ import {Thumbnail} from '../Thumbnail.js';
 import {act, cleanup, render} from './test-utils.js';
 
 type Controls = ReturnType<typeof useDelayRender>;
-const Capture = ({ready}: {ready: (controls: Controls) => void}) => {
+const Capture = ({ready}: {readonly ready: (controls: Controls) => void}) => {
 	const controls = useDelayRender();
-	useLayoutEffect(() => ready(controls), [ready, controls.cancelRender]);
+	const {delayRender, continueRender, cancelRender} = controls;
+	useLayoutEffect(
+		() => ready({delayRender, continueRender, cancelRender}),
+		[ready, delayRender, continueRender, cancelRender],
+	);
 	return <div>composition</div>;
 };
-const Replacement = (props: {ready: (controls: Controls) => void}) => (
+
+const Replacement = (props: {readonly ready: (controls: Controls) => void}) => (
 	<Capture {...props} />
 );
 const config = {
@@ -42,6 +47,7 @@ test('an async rendering failure reaches only its owning Player and preserves sh
 		<>
 			<Player
 				{...config}
+				ref={subscribe}
 				component={Capture}
 				inputProps={{
 					ready: (value) => {
@@ -49,7 +55,6 @@ test('an async rendering failure reaches only its owning Player and preserves sh
 					},
 				}}
 				errorFallback={fallback}
-				ref={subscribe}
 			/>
 			<Player
 				{...config}
@@ -87,6 +92,7 @@ test('replaced and unmounted compositions cannot report stale async failures', a
 	const ready = (value: Controls) => {
 		controls = value;
 	};
+
 	const view = render(
 		<Player
 			{...config}
@@ -168,6 +174,7 @@ test('a revealed Activity activates cancellation before descendant layout effect
 		}, [cancelRender]);
 		return <div>active composition</div>;
 	};
+
 	const player = (
 		<Player {...config} component={Content} errorFallback={fallback} />
 	);
@@ -194,6 +201,7 @@ test('owner replacement preserves mounted content while expiring old cancellatio
 		}, []);
 		return <div>retained composition</div>;
 	};
+
 	const reported: Error[] = [];
 	const onError = (error: Error) => reported.push(error);
 	const view = render(
