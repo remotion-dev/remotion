@@ -44,6 +44,7 @@ test('keeps a text menu trigger named by its visible label', () => {
 	renderMenu({
 		id: 'file',
 		label: 'File',
+		ariaLabel: null,
 		items: [],
 		leaveLeftPadding: false,
 	});

@@ -224,6 +224,7 @@ export const getFileMenu = ({
 	return {
 		id: 'file' as const,
 		label: 'File',
+		ariaLabel: null,
 		leaveLeftPadding: false,
 		items,
 		quickSwitcherLabel: null,
@@ -526,6 +527,7 @@ const useMenuStructureBase = ({
 			{
 				id: 'view' as const,
 				label: 'View',
+				ariaLabel: null,
 				leaveLeftPadding: true,
 				items: [
 					{
@@ -836,6 +838,7 @@ const useMenuStructureBase = ({
 			{
 				id: 'composition' as const,
 				label: 'Composition',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					...(buildCompositionMenu
@@ -864,6 +867,7 @@ const useMenuStructureBase = ({
 			{
 				id: 'tools' as const,
 				label: 'Tools',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					studioAskAIEnabled
@@ -932,6 +936,7 @@ const useMenuStructureBase = ({
 			{
 				id: 'help' as const,
 				label: 'Help',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					{
