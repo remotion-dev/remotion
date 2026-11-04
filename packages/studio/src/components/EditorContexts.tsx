@@ -18,7 +18,6 @@ import {RenderQueueContextProvider} from './RenderQueue/context';
 import {VideoMattingQueueProcessorLoader} from './RenderQueue/VideoMattingQueueProcessorLoader';
 import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
 import {SettingsProvider} from './SettingsContext';
-import {ShowControlsInFullscreenProvider} from './ShowControlsInFullscreenProvider';
 import {ShowGuidesProvider} from './ShowGuidesProvider';
 import {ShowOutlinesProvider} from './ShowOutlinesProvider';
 import {ShowPixelGridProvider} from './ShowPixelGridProvider';
@@ -42,41 +41,39 @@ export const EditorContexts: React.FC<{
 							<VideoMattingQueueProcessorLoader />
 							<KeybindingContextProvider>
 								<CheckerboardProvider>
-									<ShowControlsInFullscreenProvider>
-										<ZoomGesturesProvider>
-											<ShowPixelGridProvider>
-												<ShowRulersProvider>
-													<ShowGuidesProvider>
-														<ShowOutlinesProvider>
-															<SnappingProvider>
-																<PreviewSizeProvider>
-																	<ModalsProvider>
-																		<MediaVolumeProvider>
-																			<PlayerInternals.PlayerEmitterProvider
-																				currentPlaybackRate={null}
-																			>
-																				<SidebarContextProvider>
-																					<FolderContextProvider>
-																						<HighestZIndexProvider>
-																							<SetTimelineInOutProvider>
-																								<ExpandedTracksProvider>
-																									{children}
-																								</ExpandedTracksProvider>
-																							</SetTimelineInOutProvider>
-																						</HighestZIndexProvider>
-																					</FolderContextProvider>
-																				</SidebarContextProvider>
-																			</PlayerInternals.PlayerEmitterProvider>
-																		</MediaVolumeProvider>
-																	</ModalsProvider>
-																</PreviewSizeProvider>
-															</SnappingProvider>
-														</ShowOutlinesProvider>
-													</ShowGuidesProvider>
-												</ShowRulersProvider>
-											</ShowPixelGridProvider>
-										</ZoomGesturesProvider>
-									</ShowControlsInFullscreenProvider>
+									<ZoomGesturesProvider>
+										<ShowPixelGridProvider>
+											<ShowRulersProvider>
+												<ShowGuidesProvider>
+													<ShowOutlinesProvider>
+														<SnappingProvider>
+															<PreviewSizeProvider>
+																<ModalsProvider>
+																	<MediaVolumeProvider>
+																		<PlayerInternals.PlayerEmitterProvider
+																			currentPlaybackRate={null}
+																		>
+																			<SidebarContextProvider>
+																				<FolderContextProvider>
+																					<HighestZIndexProvider>
+																						<SetTimelineInOutProvider>
+																							<ExpandedTracksProvider>
+																								{children}
+																							</ExpandedTracksProvider>
+																						</SetTimelineInOutProvider>
+																					</HighestZIndexProvider>
+																				</FolderContextProvider>
+																			</SidebarContextProvider>
+																		</PlayerInternals.PlayerEmitterProvider>
+																	</MediaVolumeProvider>
+																</ModalsProvider>
+															</PreviewSizeProvider>
+														</SnappingProvider>
+													</ShowOutlinesProvider>
+												</ShowGuidesProvider>
+											</ShowRulersProvider>
+										</ShowPixelGridProvider>
+									</ZoomGesturesProvider>
 								</CheckerboardProvider>
 							</KeybindingContextProvider>
 						</RenderQueueContextProvider>
