@@ -1,14 +1,21 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const ExploreKeyframesRecording20261027Composition = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={636}
+			durationInFrames={(636 / 60) * fps}
 			style={{
 				width: 2194,
 				height: 1438,
@@ -18,7 +25,8 @@ export const ExploreKeyframesRecording20261027Composition = () => {
 				src={
 					'https://remotion.media/explore-remotion/keyframes-source-2026-10-27-2af58b0a819c.mp4'
 				}
-				durationInFrames={636}
+				durationInFrames={(636 / 60) * fps}
+				muted
 				style={{
 					position: 'absolute',
 				}}

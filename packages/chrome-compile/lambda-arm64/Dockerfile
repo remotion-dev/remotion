@@ -1,5 +1,5 @@
 # =============================================================================
-# Dockerfile — Chromium 157 headless_shell build environment
+# Dockerfile — Chromium 158 headless_shell build environment
 #
 # Based on the Lambda Node.js 24 image (Amazon Linux 2023, ARM64).
 # Overrides the Lambda entrypoint so we can use it as a plain build container.

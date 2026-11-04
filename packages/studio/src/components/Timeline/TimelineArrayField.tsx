@@ -11,6 +11,7 @@ import {
 } from '../../helpers/colors';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -203,7 +204,7 @@ const ItemEditor: React.FC<{
 	readonly index: number;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	arrayField,
@@ -269,7 +270,7 @@ export const TimelineArrayField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({field, effectiveValue, onSave, onDragValueChange, onDragEnd}) => {
 	const arrayField = field.fieldSchema;
 	if (arrayField.type !== 'array') {

@@ -11,12 +11,16 @@ import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../helpers/pointer-session';
+import {createCanvasDragPreview} from './canvas-drag-preview';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
 import type {SelectedOutlinePathDragTarget} from './selected-outline-types';
-import {callAddSequenceKeyframe} from './Timeline/call-add-keyframe';
 import {resolveKeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
-import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {saveSequencePropsWithResult} from './Timeline/save-sequence-prop';
 
 type PathPointRole = 'end' | 'cp1' | 'cp2' | 'cp' | 'reflected-cp';
 
@@ -25,8 +29,11 @@ export const SelectedOutlinePathPoints: React.FC<{
 	readonly pathDrag: SelectedOutlinePathDragTarget;
 	readonly onDraggingChange: (dragging: boolean) => void;
 }> = ({outline, pathDrag, onDraggingChange}) => {
-	const {setDragOverrides, clearDragOverrides, setPropStatuses} = useContext(
+	const {updateDragOverrides, setPropStatuses} = useContext(
 		Internals.VisualModeSettersContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
 	);
 	const {points, connections, implicitTControls} = useMemo(() => {
 		if (outline.path === null) {
@@ -308,9 +315,18 @@ export const SelectedOutlinePathPoints: React.FC<{
 			pathDrag.sourceFrame,
 			pathDrag.propStatus,
 		);
+		const preview = createCanvasDragPreview({
+			updateDragOverrides,
+			setPropStatuses,
+			setPropStatusesBatch: null,
+			getPropStatuses: (nodePath) =>
+				propStatusesRef.current[
+					Internals.makeSequencePropsSubscriptionKey(nodePath)
+				],
+		});
 		let lastD = originalD;
 		const updatePathOverride = (value: string) => {
-			setDragOverrides(
+			preview.setDragOverrides(
 				pathDrag.nodePath,
 				'd',
 				pathDrag.propStatus.status === 'keyframed'
@@ -323,6 +339,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 			);
 		};
 
+		forceSpecificCursor('default');
 		startCapturedPointerSession({
 			event,
 			captureTarget: svg,
@@ -470,51 +487,57 @@ export const SelectedOutlinePathPoints: React.FC<{
 				updatePathOverride(nextD);
 			},
 			onEnd: (reason, endEvent) => {
+				stopForcingSpecificCursor();
 				onDraggingChange(false);
 				if (!isPointerSessionRelease(reason, endEvent) || lastD === originalD) {
-					clearDragOverrides(pathDrag.nodePath);
+					preview.cancel();
 					return;
 				}
 
-				const promise =
-					pathDrag.propStatus.status === 'keyframed'
-						? callAddSequenceKeyframe({
-								fileName: pathDrag.nodePath.absolutePath,
-								nodePath: pathDrag.nodePath,
-								fieldKey: 'd',
-								sourceFrame,
-								value: lastD,
-								schema: pathDrag.schema,
-								setPropStatuses,
-								clientId: pathDrag.clientId,
-							})
-						: saveSequenceProps({
-								changes: [
-									{
-										fileName: pathDrag.nodePath.absolutePath,
-										nodePath: pathDrag.nodePath,
-										fieldKey: 'd',
-										value: lastD,
-										defaultValue: null,
-										schema: pathDrag.schema,
-									},
-								],
-								addedKeyframes: null,
-								movedKeyframes: null,
-								setPropStatuses,
-								clientId: pathDrag.clientId,
-								undoLabel: 'Edit path point',
-								redoLabel: 'Edit path point back',
-							});
+				const nodePath = preview.getNodePath(pathDrag.nodePath);
+				if (nodePath === null) {
+					preview.cancel();
+					return;
+				}
+
+				const change = {
+					fileName: nodePath.absolutePath,
+					nodePath,
+					fieldKey: 'd',
+					value: lastD,
+					schema: pathDrag.schema,
+				};
+				const promise = saveSequencePropsWithResult({
+					changes:
+						pathDrag.propStatus.status === 'keyframed'
+							? []
+							: [{...change, defaultValue: null}],
+					addedKeyframes:
+						pathDrag.propStatus.status === 'keyframed'
+							? [{...change, sourceFrame}]
+							: null,
+					movedKeyframes: null,
+					setPropStatuses: preview.setPropStatuses,
+					clientId: pathDrag.clientId,
+					undoLabel: 'Edit path point',
+					redoLabel: 'Edit path point back',
+				});
 
 				promise
+					.then((response) => {
+						if (response && !response.canUpdate)
+							throw new Error(
+								'The layer could not be updated. Try the edit again.',
+							);
+						preview.acknowledge(response);
+					})
 					.catch((error) => {
+						preview.fail();
 						showNotification(
 							`Could not save path: ${error instanceof Error ? error.message : String(error)}`,
 							3000,
 						);
-					})
-					.finally(() => clearDragOverrides(pathDrag.nodePath));
+					});
 			},
 		});
 	};

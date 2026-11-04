@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {createColorMatrixImplementations} from './color-matrix-runtime.js';
 import {
 	assertOptionalFiniteNumber,
 	DEFAULT_HUE_DEGREES,
@@ -31,32 +32,59 @@ const validateHueParams = (params: HueParams): void => {
 	assertOptionalFiniteNumber(params.degrees, 'degrees');
 };
 
-export const hue = createEffect<HueParams, null>({
+export const hue = createEffect<HueParams>({
 	type: 'dev.remotion.effects.hue',
 	label: 'hue()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/hue',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `hue-${r.degrees}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for hue effect. The canvas may have been assigned a different context type.',
-			);
-		}
+	implementations: {
+		...createColorMatrixImplementations<HueParams>('hue', (params) => {
+			const {degrees} = resolve(params);
+			const radians = ((degrees % 360) * Math.PI) / 180;
+			const cosine = Math.cos(radians);
+			const sine = Math.sin(radians);
+			return new Float32Array([
+				0.213 + 0.787 * cosine - 0.213 * sine,
+				0.715 - 0.715 * cosine - 0.715 * sine,
+				0.072 - 0.072 * cosine + 0.928 * sine,
+				0,
+				0.213 - 0.213 * cosine + 0.143 * sine,
+				0.715 + 0.285 * cosine + 0.14 * sine,
+				0.072 - 0.072 * cosine - 0.283 * sine,
+				0,
+				0.213 - 0.213 * cosine - 0.787 * sine,
+				0.715 - 0.715 * cosine + 0.715 * sine,
+				0.072 + 0.928 * cosine + 0.072 * sine,
+				0,
+				0,
+				0,
+				degrees % 360 === 0 ? 1 : 0,
+				0,
+			]);
+		}),
+		'2d': Internals.createEffectImplementation<HueParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const ctx = target.getContext('2d');
+				if (!ctx) {
+					throw new Error(
+						'Failed to acquire 2D context for hue effect. The canvas may have been assigned a different context type.',
+					);
+				}
 
-		const r = resolve(params);
+				const r = resolve(params);
 
-		ctx.clearRect(0, 0, width, height);
-		ctx.filter = `hue-rotate(${r.degrees}deg)`;
-		ctx.drawImage(source, 0, 0, width, height);
-		ctx.filter = 'none';
+				ctx.clearRect(0, 0, width, height);
+				ctx.filter = `hue-rotate(${r.degrees}deg)`;
+				ctx.drawImage(source, 0, 0, width, height);
+				ctx.filter = 'none';
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: hueSchema,
 	validateParams: validateHueParams,
 });

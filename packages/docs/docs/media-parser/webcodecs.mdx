@@ -182,7 +182,7 @@ const onVideoTrack: MediaParserOnVideoTrack = async ({track}) => {
 ### Handling rotation
 
 WebCodecs do not seem to consider rotation.  
-For example, this [video recorded with an iPhone](https://github.com/remotion-dev/remotion/blob/main/packages/example/public/iphone-hevc.mov) has metadata that it should be displayed at 90 degrees rotation.
+For example, this [video recorded with an iPhone](https://remotion.media/iphone-hevc.mov) has metadata that it should be displayed at 90 degrees rotation.
 
 `VideoDecoder` is not able to rotate the video for you, so you might need to do it yourself, for example by drawing it to a canvas.  
 Fortunately `parseMedia()` returns the rotation of the track:
@@ -264,11 +264,6 @@ It handles various browser quirks and hard implementation details for you.
 
 - Convert, rotate and resize videos: [`convertMedia()`](/docs/webcodecs/convert-media)
 - Decode media: [`createVideoDecoder()`](/docs/webcodecs/create-video-decoder) and [`createAudioDecoder()`](/docs/webcodecs/create-audio-decoder)
-
-## Reference implementation
-
-A testbed with many different codecs and edge cases is available [here](https://github.com/remotion-dev/remotion/blob/main/packages/example/src/DecoderDemo.tsx).  
-Follow [these instructions](https://www.remotion.dev/docs/contributing#testing-your-changes) to run the testbed locally.
 
 ## License reminder
 

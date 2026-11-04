@@ -5,17 +5,19 @@ import {promisify} from 'node:util';
 import {isMainThread} from 'node:worker_threads';
 import type {GitSource, RenderDefaults} from '@remotion/studio-shared';
 import {getProjectName} from '@remotion/studio-shared';
+import type {Stats as RspackStats} from '@rspack/core';
 import {NoReactInternals} from 'remotion/no-react';
 import webpack from 'webpack';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import type {
 	BundlerOverrideFn,
+	RspackConfiguration,
 	RspackOverrideFn,
 	WebpackOverrideFn,
 } from './override-types';
 import {readRecursively} from './read-recursively';
-import {rspackConfig} from './rspack-config';
+import {createRspackCompiler, rspackConfig} from './rspack-config';
 import {clearCache} from './webpack-cache';
 import {webpackConfig} from './webpack-config';
 
@@ -296,32 +298,23 @@ export const internalBundle = async (
 	});
 
 	if (actualArgs.rspack) {
-		const {rspack: rspackFn} = require('@rspack/core');
-		const rspackCompiler = rspackFn(config);
-		const rspackOutput = await new Promise<{
-			toJson: (opts: unknown) => {
-				errors?: Array<{message: string; details: string}>;
-			};
-		}>((resolve, reject) => {
-			rspackCompiler.run(
-				(
-					err: Error | null,
-					stats: {
-						toJson: (opts: unknown) => {
-							errors?: Array<{message: string; details: string}>;
-						};
-					},
-				) => {
-					if (err) {
-						reject(err);
+		const rspackCompiler = createRspackCompiler(config as RspackConfiguration);
+		const rspackOutput = await new Promise<RspackStats>((resolve, reject) => {
+			rspackCompiler.run((err, stats) => {
+				if (err) {
+					reject(err);
+					return;
+				}
+
+				rspackCompiler.close(() => {
+					if (!stats) {
+						reject(new Error('Expected Rspack output'));
 						return;
 					}
 
-					rspackCompiler.close(() => {
-						resolve(stats);
-					});
-				},
-			);
+					resolve(stats);
+				});
+			});
 		});
 
 		if (isMainThread) {

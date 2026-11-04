@@ -30,6 +30,9 @@ export const useTimelineSequenceHasExpandableContent = ({
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly selectedItems: readonly TimelineSelection[];
 }) => {
+	const pendingDeletion = Internals.useOptimisticEffectDeletion(
+		nodePathInfo?.sequenceSubscriptionKey ?? null,
+	);
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
 	);
@@ -93,6 +96,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 			}
 
 			const tree = buildTimelineTree({
+				pendingEffectDeletion: pendingDeletion,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -123,6 +127,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 			);
 		},
 		[
+			pendingDeletion,
 			canHaveExpandableContent,
 			getDragOverrides,
 			getEffectDragOverrides,
@@ -157,6 +162,9 @@ export const useTimelineExpandedTree = ({
 }) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const pendingDeletion = Internals.useOptimisticEffectDeletion(
+		nodePathInfo?.sequenceSubscriptionKey ?? null,
+	);
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
 	);
@@ -212,6 +220,7 @@ export const useTimelineExpandedTree = ({
 	const tree = useMemo(
 		() =>
 			buildTimelineTree({
+				pendingEffectDeletion: pendingDeletion,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -223,6 +232,7 @@ export const useTimelineExpandedTree = ({
 				runtimeValues,
 			}),
 		[
+			pendingDeletion,
 			sequence,
 			nodePathInfo,
 			getDragOverrides,

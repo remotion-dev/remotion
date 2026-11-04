@@ -5,13 +5,21 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from '../color-utils.js';
+import {GAUSSIAN_BLUR_WEBGPU_SHADER} from '../gaussian-blur-webgpu-shader.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
+import {
+	applyWebGpuMultipass,
+	cleanupWebGpuMultipass,
+	setupWebGpuMultipass,
+	type WebGpuMultipassState,
+} from '../webgpu-multipass-runtime.js';
 import {
 	applyRegionBlur,
 	cleanupRegionBlur,
 	setupRegionBlur,
 	type RegionBlurState,
 } from './region-blur-runtime.js';
+import {REGION_BLUR_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -129,28 +137,116 @@ const validateRegionBlurParams = (params: RegionBlurParams): void => {
 	}
 };
 
-export const regionBlur = createEffect<RegionBlurParams, RegionBlurState>({
+export const regionBlur = createEffect<RegionBlurParams>({
 	type: 'remotion/region-blur',
 	label: 'regionBlur()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/region-blur',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `region-blur-${resolved.topLeft.join(':')}-${resolved.bottomRight.join(':')}-${resolved.blurRadius}-${resolved.feather}-${resolved.roundness}`;
 	},
-	setup: (target) => setupRegionBlur(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const resolved = resolve(params);
-		applyRegionBlur({
-			state,
-			source,
-			width,
-			height,
-			flipSourceY,
-			...resolved,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			RegionBlurParams,
+			WebGpuMultipassState
+		>({
+			setup: (target) => setupWebGpuMultipass(target, 'region-blur'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+
+				applyWebGpuMultipass({
+					auxiliarySource: null,
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					passes: [
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								1,
+								0,
+								r.blurRadius,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+							]),
+							source: -1,
+							secondary: -1,
+						},
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								0,
+								1,
+								r.blurRadius,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+								0,
+							]),
+							source: 0,
+							secondary: -1,
+						},
+						{
+							shader: REGION_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								r.feather,
+								r.roundness,
+								...r.topLeft,
+								...r.bottomRight,
+							]),
+							source: -1,
+							secondary: 1,
+						},
+					],
+				});
+			},
+			cleanup: cleanupWebGpuMultipass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			RegionBlurParams,
+			RegionBlurState
+		>({
+			setup: (target) => setupRegionBlur(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const resolved = resolve(params);
+				applyRegionBlur({
+					state,
+					source,
+					width,
+					height,
+					flipSourceY,
+					...resolved,
+				});
+			},
+			cleanup: (state) => cleanupRegionBlur(state),
+		}),
 	},
-	cleanup: (state) => cleanupRegionBlur(state),
 	schema: regionBlurSchema,
 	validateParams: validateRegionBlurParams,
 });

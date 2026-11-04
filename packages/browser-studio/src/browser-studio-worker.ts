@@ -16,11 +16,11 @@ import {BROWSER_STUDIO_TRANSFORMERS_PACKAGE} from './browser-studio-import-map';
 import {browserStudioDependencyVersions} from './dependency-versions';
 import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
 import type {
+	BrowserStudioCompileInput,
 	BrowserStudioDependencyResolution,
 	BrowserStudioError,
 	BrowserStudioWorkerCompileRequest,
 	BrowserStudioWorkerCompileResponse,
-	VirtualProject,
 } from './types';
 import {
 	browserStudioVirtualFilePaths,
@@ -34,8 +34,9 @@ import {
 type CompilerSession = {
 	compiler: BrowserCompiler;
 	initialCompiled: boolean;
-	project: VirtualProject;
-	queuedProject: VirtualProject | null;
+	input: BrowserStudioCompileInput;
+	lastSuccessfulInput: {hash: string; sourceMutationId: string | null} | null;
+	queuedInput: BrowserStudioCompileInput | null;
 	resolvedUrls: Record<string, string>;
 	resolvedVersions: Record<string, string>;
 	running: boolean;
@@ -298,27 +299,57 @@ const createCompiler = async ({
 	};
 };
 
-const makeHmrEvent = (result: BrowserCompilerResult): HotMiddlewareMessage => ({
+const makeHmrEvent = (
+	result: BrowserCompilerResult,
+	sourceMutationId: string | null,
+): HotMiddlewareMessage => ({
 	action: 'built',
 	errors: result.errors,
 	hash: result.hash,
 	modules: result.modules,
 	name: '',
+	sourceMutationId: result.errors.length === 0 ? sourceMutationId : null,
 	time: result.time,
 	warnings: result.warnings,
 });
 
 const applyProjectUpdate = (
 	session: CompilerSession,
-	project: VirtualProject,
+	input: BrowserStudioCompileInput,
 ) => {
-	const {modified, removed} = getVirtualProjectChanges({
-		previous: getVirtualProjectFiles(session.project),
-		next: getVirtualProjectFiles(project),
-	});
-	session.project = project;
+	const previous = session.input;
+	session.input = input;
+	if (previous.project !== input.project) {
+		const {modified, removed} = getVirtualProjectChanges({
+			previous: getVirtualProjectFiles(previous.project),
+			next: getVirtualProjectFiles(input.project),
+		});
+		if (modified.length > 0 || removed.length > 0) {
+			return true;
+		}
+	}
 
-	return modified.length > 0 || removed.length > 0;
+	const compiled = session.lastSuccessfulInput;
+	if (
+		compiled &&
+		input.sourceMutationId &&
+		input.sourceMutationId !== compiled.sourceMutationId
+	) {
+		postResponse({
+			type: 'hmr-update',
+			assets: null,
+			hmrEvent: {
+				action: 'project-unchanged',
+				hash: compiled.hash,
+				previousMutationId: compiled.sourceMutationId,
+				sourceMutationId: input.sourceMutationId,
+			},
+			warnings: [],
+		});
+		compiled.sourceMutationId = input.sourceMutationId;
+	}
+
+	return false;
 };
 
 const runCompilation = async (session: CompilerSession) => {
@@ -327,7 +358,9 @@ const runCompilation = async (session: CompilerSession) => {
 	}
 
 	session.running = true;
-	const outcome = await session.compiler.compile(session.project).then(
+	session.lastSuccessfulInput = null;
+	const {project, sourceMutationId} = session.input;
+	const outcome = await session.compiler.compile(project).then(
 		(compilation) => ({type: 'success' as const, result: compilation}),
 		(error: unknown) => ({
 			type: 'error' as const,
@@ -339,10 +372,10 @@ const runCompilation = async (session: CompilerSession) => {
 	}
 
 	session.running = false;
-	const {queuedProject} = session;
-	session.queuedProject = null;
+	const {queuedInput} = session;
+	session.queuedInput = null;
 	const runQueuedProject = () => {
-		if (!queuedProject || !applyProjectUpdate(session, queuedProject)) {
+		if (!queuedInput || !applyProjectUpdate(session, queuedInput)) {
 			return false;
 		}
 
@@ -363,6 +396,17 @@ const runCompilation = async (session: CompilerSession) => {
 	}
 
 	const {result} = outcome;
+	if (
+		result.hash &&
+		result.errors.length === 0 &&
+		(session.initialCompiled || result.bundle !== null)
+	) {
+		session.lastSuccessfulInput = {
+			hash: result.hash,
+			sourceMutationId: sourceMutationId ?? null,
+		};
+	}
+
 	if (!session.initialCompiled) {
 		if (result.bundle === null) {
 			if (!runQueuedProject()) {
@@ -392,7 +436,7 @@ const runCompilation = async (session: CompilerSession) => {
 		assets: result.assets.filter((asset) =>
 			asset.name.includes('.hot-update.'),
 		),
-		hmrEvent: makeHmrEvent(result),
+		hmrEvent: makeHmrEvent(result, sourceMutationId),
 		type: 'hmr-update',
 		warnings: result.warnings,
 	});
@@ -413,8 +457,12 @@ const startCompiler = async (
 	const session: CompilerSession = {
 		compiler,
 		initialCompiled: false,
-		project: request.project,
-		queuedProject: null,
+		input: {
+			project: request.project,
+			sourceMutationId: request.sourceMutationId,
+		},
+		lastSuccessfulInput: null,
+		queuedInput: null,
 		resolvedUrls,
 		resolvedVersions,
 		running: false,
@@ -424,29 +472,38 @@ const startCompiler = async (
 };
 
 const updateProject = (
-	request: Extract<BrowserStudioWorkerCompileRequest, {type: 'update-project'}>,
+	request: Exclude<BrowserStudioWorkerCompileRequest, {type: 'init'}>,
 ) => {
 	if (!compilerSession) {
 		throw new Error('Cannot update Browser Studio before initializing it');
 	}
 
-	for (const [name, resolution] of Object.entries(
-		request.dependencyResolutions,
-	)) {
-		applyDependencyResolution({
-			name,
-			resolution,
-			resolvedUrls: compilerSession.resolvedUrls,
-			resolvedVersions: compilerSession.resolvedVersions,
-		});
+	if (request.type === 'update-project') {
+		for (const [name, resolution] of Object.entries(
+			request.dependencyResolutions,
+		)) {
+			applyDependencyResolution({
+				name,
+				resolution,
+				resolvedUrls: compilerSession.resolvedUrls,
+				resolvedVersions: compilerSession.resolvedVersions,
+			});
+		}
 	}
 
+	const input = {
+		project:
+			request.type === 'update-project'
+				? request.project
+				: (compilerSession.queuedInput ?? compilerSession.input).project,
+		sourceMutationId: request.sourceMutationId,
+	};
 	if (compilerSession.running) {
-		compilerSession.queuedProject = request.project;
+		compilerSession.queuedInput = input;
 		return;
 	}
 
-	if (!applyProjectUpdate(compilerSession, request.project)) {
+	if (!applyProjectUpdate(compilerSession, input)) {
 		return;
 	}
 

@@ -100,7 +100,10 @@ const effectEntrypoints = [
 console.time('Generated.');
 const output = await build({
 	entrypoints: effectEntrypoints,
-	naming: '[name].mjs',
+	naming: {entry: '[name].mjs', chunk: '[name]-[hash].mjs'},
+	// Share runtime caches when effects are imported through separate entrypoints.
+	splitting: true,
+	modulePreload: false,
 	external: [
 		'remotion',
 		'remotion/no-react',

@@ -3,11 +3,14 @@
 import {
   getCanvasKeyframeChangeOverride,
   getCanvasKeyframeToggle,
+  getCanvasKeyframeValueChange,
   getCanvasSelectionItemKey,
   getCanvasSequenceReorderSelection,
   type CanvasKeyframeChange,
   type CanvasKeyframeEasing,
   type CanvasSelectionInteraction,
+  type CanvasSelectionItem,
+  type CanvasSelectionSnapshot,
   type CanvasSequencePropChange,
   type SequenceNodePathInfo,
 } from "@remotion/sdk";
@@ -21,6 +24,7 @@ import {
   deleteNodes as deleteNodesCodemod,
   duplicateComposition,
   duplicateNodes as duplicateNodesCodemod,
+  getNodeProps,
   moveComposition,
   moveFolder,
   renameComposition,
@@ -50,18 +54,18 @@ import {
   type NodeReference,
   type SequencePropUpdate,
 } from "@remotion/codemods";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type {
   CanUpdateSequencePropStatus,
   InteractivitySchema,
 } from "remotion";
+import { Internals } from "remotion";
 import type {
   PreviewHost,
   PreviewRenderRequest,
   PreviewZoom,
 } from "@/preview/bridge";
 import type { CompositionInfo } from "../model/compositions";
-import { formatSource } from "../model/format";
 import {
   findKeyframedProp,
   getEasingChanges,
@@ -78,18 +82,62 @@ import {
   getNodeReference,
   type Layer,
 } from "../model/layers";
-import { filesAreEqual, getFileName, toCodemodProject } from "../model/project";
+import {
+  filesAreEqual,
+  getFileName,
+  toCodemodProject,
+  type ProjectFiles,
+} from "../model/project";
 import { BASE_PATH } from "@/lib/base-path";
 import { resolveProjectPathInput } from "@/lib/project-paths";
 import type { PlaybackStore } from "./use-playback";
 import { getErrorMessage } from "./use-preview-host";
-import type {
-  EditorAction,
-  EditorState,
-  RenderJob,
+import {
+  editorReducer,
+  type EditorAction,
+  type EditorState,
+  type RenderJob,
 } from "../state/editor-store";
 
 const zoomLevels = [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
+
+type SelectionCheckpoint = {
+  compositionId: string;
+  snapshot: CanvasSelectionSnapshot;
+};
+
+const remapSelectionSnapshot = (
+  snapshot: CanvasSelectionSnapshot,
+  remappings: readonly NodePathRemapping[],
+): CanvasSelectionSnapshot => {
+  const remap = (
+    item: CanvasSelectionItem | null,
+  ): CanvasSelectionItem | null => {
+    if (item === null || item.type === "guide") return item;
+    const key = item.nodePathInfo.sequenceSubscriptionKey;
+    const mapping = remappings.find(
+      (entry) =>
+        entry.filePath === key.absolutePath &&
+        entry.oldNodePath !== null &&
+        JSON.stringify(entry.oldNodePath) === JSON.stringify(key.nodePath),
+    );
+    if (!mapping) return item;
+    if (mapping.newNodePath === null) return null;
+    return {
+      ...item,
+      nodePathInfo: {
+        ...item.nodePathInfo,
+        sequenceSubscriptionKey: { ...key, nodePath: mapping.newNodePath },
+      },
+    };
+  };
+  return {
+    selectedItems: snapshot.selectedItems
+      .map(remap)
+      .filter((item): item is CanvasSelectionItem => item !== null),
+    anchor: remap(snapshot.anchor),
+  };
+};
 
 type ActionContext = {
   state: EditorState;
@@ -121,6 +169,45 @@ export const useEditorActions = ({
   // stable for keyboard shortcuts and memoized components.
   const ref = useRef(context);
   ref.current = context;
+  const sourceState = useRef(context.state);
+  if (context.state.sourceRevision >= sourceState.current.sourceRevision) {
+    sourceState.current = context.state;
+  }
+  const sourceGeneration = useRef(0);
+  const selectionCheckpoints = useRef(
+    new WeakMap<ProjectFiles, Map<string, CanvasSelectionSnapshot>>(),
+  );
+  const selectionFiles = useRef<ProjectFiles | null>(
+    context.state.appliedFiles,
+  );
+  const selectionSourceRevision = useRef<number | null>(
+    context.state.appliedFiles === context.state.files
+      ? context.state.sourceRevision
+      : null,
+  );
+  const userSelectionRevision = useRef(0);
+  const applyingSourceSelection = useRef(false);
+  const pendingSelection = useRef<{
+    files: ProjectFiles;
+    sourceRevision: number;
+    userSelectionRevision: number;
+    checkpoint: SelectionCheckpoint;
+  } | null>(null);
+  useEffect(
+    () =>
+      context.host?.controller.selection.subscribe(() => {
+        if (!applyingSourceSelection.current) userSelectionRevision.current++;
+      }),
+    [context.host],
+  );
+  const cancelPendingRef = useRef<(() => void) | null>(null);
+  useEffect(
+    () => () => {
+      sourceGeneration.current++;
+      cancelPendingRef.current?.();
+    },
+    [],
+  );
 
   return useMemo(() => {
     const notifyError = (error: unknown) => {
@@ -134,7 +221,241 @@ export const useEditorActions = ({
       dispatch({ type: "notify", notice: { type: "info", message } });
     };
 
-    const getProject = () => toCodemodProject(ref.current.state.files);
+    const getProject = () => toCodemodProject(sourceState.current.files);
+    let sourceQueue = Promise.resolve();
+    const cancellationListeners = new Set<() => void>();
+    const cancelPending = () => {
+      pendingSelectionSnapshots.clear();
+      for (const listener of cancellationListeners) listener();
+    };
+    cancelPendingRef.current = cancelPending;
+    const waitForSourceTask = <T>(
+      operation: Promise<T>,
+      cancelledValue: T,
+    ): Promise<T> =>
+      new Promise<T>((resolve, reject) => {
+        const cancelSourceWait = () => {
+          cancellationListeners.delete(cancelSourceWait);
+          resolve(cancelledValue);
+        };
+        cancellationListeners.add(cancelSourceWait);
+        operation.then(
+          (value) => {
+            cancellationListeners.delete(cancelSourceWait);
+            resolve(value);
+          },
+          (error) => {
+            cancellationListeners.delete(cancelSourceWait);
+            reject(error);
+          },
+        );
+      });
+    let pendingMutations = 0;
+    const sourceRemappings: {
+      before: ProjectFiles;
+      after: ProjectFiles;
+      remappings: NodePathRemapping[];
+    }[] = [];
+    const pendingSelectionSnapshots = new Map<
+      symbol,
+      {
+        before: ReturnType<typeof captureSelection>;
+        after: ReturnType<typeof captureSelection>;
+      }
+    >();
+    const rememberSelection = (
+      files: ProjectFiles,
+      checkpoint: SelectionCheckpoint,
+    ) => {
+      const byComposition =
+        selectionCheckpoints.current.get(files) ??
+        new Map<string, CanvasSelectionSnapshot>();
+      byComposition.set(checkpoint.compositionId, checkpoint.snapshot);
+      selectionCheckpoints.current.set(files, byComposition);
+    };
+    const captureSelection = (snapshot: CanvasSelectionSnapshot | null) => {
+      const { host } = ref.current;
+      const compositionId = host?.getSnapshot().composition?.id;
+      if (!host || !compositionId) return null;
+      return {
+        files:
+          selectionFiles.current ??
+          ref.current.state.appliedFiles ??
+          sourceState.current.files,
+        checkpoint: {
+          compositionId,
+          snapshot: snapshot ?? host.controller.selection.getSnapshot(),
+        },
+      };
+    };
+    const selectionAtFiles = (
+      captured: ReturnType<typeof captureSelection>,
+      targetFiles: ProjectFiles,
+    ): SelectionCheckpoint | null => {
+      if (!captured) return null;
+      let { files, checkpoint } = captured;
+      if (files === targetFiles) return checkpoint;
+      for (const step of sourceRemappings) {
+        if (step.before !== files) continue;
+        checkpoint = {
+          ...checkpoint,
+          snapshot: remapSelectionSnapshot(
+            checkpoint.snapshot,
+            step.remappings,
+          ),
+        };
+        files = step.after;
+        if (files === targetFiles) return checkpoint;
+      }
+      return null;
+    };
+    const logicalSelection = () => {
+      const pending = pendingSelection.current;
+      if (
+        pending &&
+        pending.files === sourceState.current.files &&
+        pending.sourceRevision === sourceState.current.sourceRevision &&
+        pending.userSelectionRevision === userSelectionRevision.current &&
+        pending.checkpoint.compositionId === ref.current.state.compositionId
+      ) {
+        return pending.checkpoint;
+      }
+      return selectionAtFiles(
+        captureSelection(null),
+        sourceState.current.files,
+      );
+    };
+    const restoreSelection = (checkpoint: SelectionCheckpoint) => {
+      pendingSelection.current = {
+        files: sourceState.current.files,
+        sourceRevision: sourceState.current.sourceRevision,
+        userSelectionRevision: userSelectionRevision.current,
+        checkpoint,
+      };
+      const { host } = ref.current;
+      if (
+        host &&
+        selectionFiles.current === sourceState.current.files &&
+        checkpoint.compositionId === ref.current.state.compositionId &&
+        checkpoint.compositionId === host.getSnapshot().composition?.id
+      ) {
+        applyingSourceSelection.current = true;
+        try {
+          if (host.controller.selection.getSnapshot() !== checkpoint.snapshot)
+            host.controller.selection.setSnapshot(checkpoint.snapshot);
+          if (
+            selectionSourceRevision.current ===
+            sourceState.current.sourceRevision
+          )
+            pendingSelection.current = null;
+        } finally {
+          applyingSourceSelection.current = false;
+        }
+      }
+    };
+    const getSourceRemappings = (
+      previousFiles: ProjectFiles | null,
+      nextFiles: ProjectFiles,
+    ): NodePathRemapping[][] | null => {
+      if (previousFiles === null || filesAreEqual(previousFiles, nextFiles))
+        return [];
+      let files = previousFiles;
+      const groups: NodePathRemapping[][] = [];
+      for (const step of sourceRemappings) {
+        if (!filesAreEqual(files, step.before)) continue;
+        groups.push(step.remappings);
+        files = step.after;
+        if (filesAreEqual(files, nextFiles)) return groups;
+      }
+      return null;
+    };
+    const pendingPreviews = new Map<
+      string,
+      {
+        nodePathInfo: SequenceNodePathInfo;
+        token: symbol;
+        committed: boolean;
+      }
+    >();
+    const dispatchSource = (
+      action: Extract<EditorAction, { type: "set-files" | "undo" | "redo" }>,
+      invalidate: boolean,
+    ) => {
+      const previous = sourceState.current;
+      let checkpoint = invalidate ? logicalSelection() : null;
+      if (checkpoint) {
+        const sameItem = (
+          a: CanvasSelectionItem | null,
+          b: CanvasSelectionItem | null,
+        ) =>
+          a === null
+            ? b === null
+            : b !== null &&
+              getCanvasSelectionItemKey(a) === getCanvasSelectionItemKey(b);
+        for (const pending of [
+          ...pendingSelectionSnapshots.values(),
+        ].reverse()) {
+          const before = selectionAtFiles(pending.before, previous.files);
+          const after = selectionAtFiles(pending.after, previous.files);
+          if (
+            !before ||
+            !after ||
+            after.compositionId !== checkpoint.compositionId ||
+            after.snapshot.selectedItems.length !==
+              checkpoint.snapshot.selectedItems.length ||
+            !after.snapshot.selectedItems.every((item, index) =>
+              sameItem(item, checkpoint!.snapshot.selectedItems[index]),
+            ) ||
+            !sameItem(after.snapshot.anchor, checkpoint.snapshot.anchor)
+          )
+            break;
+          checkpoint = before;
+        }
+      }
+      if (checkpoint) rememberSelection(previous.files, checkpoint);
+      if (invalidate) {
+        sourceGeneration.current++;
+        cancelPending();
+        sourceQueue = Promise.resolve();
+        pendingMutations = 0;
+        dispatch({ type: "set-pending-source-mutations", count: 0 });
+        sourceRemappings.length = 0;
+        for (const { nodePathInfo } of pendingPreviews.values()) {
+          ref.current.host?.controller.overrides.clear(nodePathInfo);
+        }
+        pendingPreviews.clear();
+      }
+      sourceState.current = editorReducer(sourceState.current, action);
+      if (invalidate && sourceState.current !== previous) {
+        const compositionId = ref.current.state.compositionId;
+        if (action.type === "set-files") {
+          pendingSelection.current = null;
+          if (compositionId)
+            rememberSelection(sourceState.current.files, {
+              compositionId,
+              snapshot: { selectedItems: [], anchor: null },
+            });
+        } else {
+          const snapshot = compositionId
+            ? selectionCheckpoints.current
+                .get(sourceState.current.files)
+                ?.get(compositionId)
+            : null;
+          pendingSelection.current =
+            snapshot && compositionId
+              ? {
+                  files: sourceState.current.files,
+                  sourceRevision: sourceState.current.sourceRevision,
+                  userSelectionRevision: userSelectionRevision.current,
+                  checkpoint: { compositionId, snapshot },
+                }
+              : null;
+        }
+      } else if (invalidate && checkpoint) {
+        restoreSelection(checkpoint);
+      }
+      dispatch(action);
+    };
 
     /**
      * Applies a codemod as one undoable edit. Node-path remappings of the
@@ -142,55 +463,150 @@ export const useEditorActions = ({
      * Fast Refresh update of the compiled source, so the selection and the
      * layer list keep pointing at the same elements.
      */
-    const applyCodemod = async (
+    const applyCodemod = (
       run: (
         project: CodemodProject,
+        resolveNode: (node: NodeReference) => NodeReference,
       ) =>
         | Promise<CodemodResult | CodemodNodeResult>
         | CodemodResult
         | CodemodNodeResult,
       {
         onApplied,
+        selectionBefore,
       }: {
         onApplied?: (changed: boolean) => void;
-      } = {},
+        selectionBefore: CanvasSelectionSnapshot | null;
+      } = { selectionBefore: null },
     ) => {
-      try {
-        const project = getProject();
-        const result = await run(project);
-        const next = applyCodemodChanges(project, result.changes);
-        const files = { ...next.files };
-        for (const change of result.changes) {
-          if (change.nextContents !== null && change.filePath in files) {
-            files[change.filePath] = await formatSource(
-              change.filePath,
-              files[change.filePath],
-            );
+      const generation = sourceGeneration.current;
+      const beforeSelection = captureSelection(selectionBefore);
+      const afterSelection = captureSelection(null);
+      const selectionRevision = userSelectionRevision.current;
+      const selectionToken = Symbol();
+      pendingSelectionSnapshots.set(selectionToken, {
+        before: beforeSelection,
+        after: afterSelection,
+      });
+      const mountedFiles =
+        ref.current.state.appliedFiles ?? sourceState.current.files;
+      pendingMutations++;
+      dispatch({
+        type: "set-pending-source-mutations",
+        count: pendingMutations,
+      });
+      const operation = sourceQueue.then(async () => {
+        try {
+          if (generation !== sourceGeneration.current) return false;
+          const project = getProject();
+          const resolveNode = (node: NodeReference): NodeReference => {
+            let files = mountedFiles;
+            let resolved = node;
+            for (const step of sourceRemappings) {
+              if (!filesAreEqual(files, step.before)) continue;
+              const remapping = step.remappings.find(
+                (entry) =>
+                  entry.filePath === resolved.filePath &&
+                  JSON.stringify(entry.oldNodePath) ===
+                    JSON.stringify(resolved.nodePath),
+              );
+              if (remapping?.newNodePath === null) {
+                throw new Error("This layer was removed by an earlier edit.");
+              }
+              if (remapping)
+                resolved = { ...resolved, nodePath: remapping.newNodePath! };
+              files = step.after;
+            }
+            if (!filesAreEqual(files, project.files)) {
+              throw new Error(
+                "The preview is still updating. Try this layer edit again when it is ready.",
+              );
+            }
+            return resolved;
+          };
+          const result = await run(project, resolveNode);
+          if (generation !== sourceGeneration.current) return false;
+          const { files } = applyCodemodChanges(project, result.changes);
+          const changed = !filesAreEqual(project.files, files);
+          const remappings =
+            "nodePathRemappings" in result ? result.nodePathRemappings : [];
+          const beforeCheckpoint = selectionAtFiles(
+            beforeSelection,
+            project.files,
+          );
+          const afterCheckpoint = selectionAtFiles(
+            afterSelection,
+            project.files,
+          );
+          if (changed && beforeCheckpoint)
+            rememberSelection(project.files, beforeCheckpoint);
+          const nextCheckpoint = afterCheckpoint
+            ? {
+                ...afterCheckpoint,
+                snapshot: remapSelectionSnapshot(
+                  afterCheckpoint.snapshot,
+                  remappings,
+                ),
+              }
+            : null;
+          if (changed && nextCheckpoint)
+            rememberSelection(files, nextCheckpoint);
+          dispatchSource(
+            { type: "set-files", files, coalesceKey: null, at: Date.now() },
+            false,
+          );
+          if (changed) {
+            pendingSelection.current = nextCheckpoint
+              ? {
+                  files,
+                  sourceRevision: sourceState.current.sourceRevision,
+                  userSelectionRevision: selectionRevision,
+                  checkpoint: nextCheckpoint,
+                }
+              : null;
+            sourceRemappings.push({
+              before: project.files,
+              after: files,
+              remappings,
+            });
+          }
+          onApplied?.(changed);
+          return true;
+        } catch (error) {
+          if (generation === sourceGeneration.current) {
+            if (
+              selectionBefore !== null &&
+              selectionRevision === userSelectionRevision.current &&
+              [...pendingSelectionSnapshots.keys()].at(-1) === selectionToken
+            ) {
+              const checkpoint = selectionAtFiles(
+                beforeSelection,
+                sourceState.current.files,
+              );
+              if (checkpoint) restoreSelection(checkpoint);
+            }
+            notifyError(error);
+          }
+          return false;
+        } finally {
+          pendingSelectionSnapshots.delete(selectionToken);
+          if (generation === sourceGeneration.current) {
+            pendingMutations--;
+            dispatch({
+              type: "set-pending-source-mutations",
+              count: pendingMutations,
+            });
           }
         }
-
-        const changed = !filesAreEqual(project.files, files);
-        dispatch({ type: "set-files", files, coalesceKey: null });
-        if (changed && "nodePathRemappings" in result) {
-          ref.current.host?.controller.queueSequenceNodePathRemappings(
-            result.nodePathRemappings,
-          );
-        }
-
-        onApplied?.(changed);
-        return true;
-      } catch (error) {
-        notifyError(error);
-        return false;
-      }
+      });
+      sourceQueue = operation.then(() => undefined);
+      return waitForSourceTask(operation, false);
     };
 
-    // Values previewed on the canvas through overrides. They stay in place
-    // until the preview has compiled the committed source, so the canvas does
-    // not flash the old value while the bundler works.
-    const pendingPreviews = new Map<string, SequenceNodePathInfo>();
-    const clearPreview = (layer: Layer) => {
-      pendingPreviews.delete(getCanvasSelectionItemKey(layer.selectionItem));
+    const clearPreview = (layer: Layer, token: symbol | null) => {
+      const key = getCanvasSelectionItemKey(layer.selectionItem);
+      if (token !== null && pendingPreviews.get(key)?.token !== token) return;
+      pendingPreviews.delete(key);
       ref.current.host?.controller.overrides.clear(layer.nodePathInfo);
     };
 
@@ -309,7 +725,11 @@ export const useEditorActions = ({
      * Writes grouped node changes to the source in one undoable step. The
      * canvas keeps previewing the values until `releasePreviews`.
      */
-    const commitNodeChanges = async (nodeChanges: Map<string, NodeChange>) => {
+    const commitNodeChanges = async (
+      nodeChanges: Map<string, NodeChange>,
+      selectionBefore: CanvasSelectionSnapshot | null,
+      requireExistingKeyframes: boolean,
+    ) => {
       if (nodeChanges.size === 0) {
         return false;
       }
@@ -321,21 +741,25 @@ export const useEditorActions = ({
         fps: ref.current.compositionFps,
         durationInFrames: ref.current.compositionDurationInFrames,
       };
+      const token = Symbol();
       const release = () => {
         for (const { nodePathInfo } of nodeChanges.values()) {
-          pendingPreviews.delete(
-            getCanvasSelectionItemKey({ type: "sequence", nodePathInfo }),
-          );
+          const key = getCanvasSelectionItemKey({
+            type: "sequence",
+            nodePathInfo,
+          });
+          if (pendingPreviews.get(key)?.token !== token) continue;
+          pendingPreviews.delete(key);
           controller?.overrides.clear(nodePathInfo);
         }
       };
 
       for (const [key, { nodePathInfo }] of nodeChanges) {
-        pendingPreviews.set(key, nodePathInfo);
+        pendingPreviews.set(key, { nodePathInfo, token, committed: false });
       }
 
       const ok = await applyCodemod(
-        async (project) => {
+        async (project, resolveNode) => {
           let current = project;
           const touched = new Set<string>();
           const remappings: NodePathRemapping[][] = [];
@@ -355,26 +779,126 @@ export const useEditorActions = ({
               updateMultipleNodeProps({
                 project: current,
                 changes: staticChanges.map(
-                  ({ node, schema, updates, nodePathInfo }): NodePropChange => ({
+                  ({
                     node,
                     schema,
                     updates,
-                    videoConfig: nodePathInfo.sequenceSubscriptionKey.videoConfigValues ?? videoConfig,
+                    nodePathInfo,
+                  }): NodePropChange => ({
+                    node: resolveNode(node),
+                    schema,
+                    updates,
+                    videoConfig:
+                      nodePathInfo.sequenceSubscriptionKey.videoConfigValues ??
+                      videoConfig,
                   }),
                 ),
               }),
             );
           }
 
-          for (const { node, schema, keyframes, nodePathInfo } of nodeChanges.values()) {
+          for (const {
+            node,
+            schema,
+            keyframes,
+            nodePathInfo,
+          } of nodeChanges.values()) {
             if (keyframes.length > 0) {
+              const resolvedNode = resolveNode(node);
+              const config =
+                nodePathInfo.sequenceSubscriptionKey.videoConfigValues ??
+                videoConfig;
+              let updates = keyframes;
+              if (
+                requireExistingKeyframes ||
+                keyframes.some(({ operation }) => operation.type === "add")
+              ) {
+                const statuses = Internals.evaluateSourcePropStatuses(
+                  getNodeProps({
+                    project: current,
+                    node: resolvedNode,
+                    keys: keyframes.map(({ key }) => key),
+                  }).props,
+                  config,
+                );
+                const fields = Internals.getFlatSchemaWithAllKeys(schema);
+                updates = [];
+                for (const { key, operation: originalOperation } of keyframes) {
+                  const status = statuses[key];
+                  let operation = originalOperation;
+                  if (
+                    requireExistingKeyframes &&
+                    (originalOperation.type !== "add" ||
+                      status?.status !== "keyframed" ||
+                      !status.keyframes.some(
+                        ({ frame }) => frame === originalOperation.frame,
+                      ))
+                  ) {
+                    throw new Error(
+                      "The selected keyframe changed. Select it again before editing its value.",
+                    );
+                  }
+                  if (
+                    operation.type === "add" &&
+                    fields[key]?.type === "font-weight"
+                  ) {
+                    const value = operation.value;
+                    operation = {
+                      ...operation,
+                      value:
+                        value === "normal"
+                          ? 400
+                          : value === "bold"
+                            ? 700
+                            : typeof value === "string" &&
+                                /^\d+(?:\.\d+)?$/.test(value)
+                              ? Number(value)
+                              : value,
+                    };
+                  }
+                  const override = status
+                    ? getCanvasKeyframeChangeOverride({
+                        propStatus: status,
+                        change: { nodePathInfo, key, schema, operation },
+                      })
+                    : null;
+                  if (
+                    operation.type === "add" &&
+                    (operation.value === undefined ||
+                      operation.value === null ||
+                      override?.type !== "keyframed" ||
+                      (override.status.interpolationFunction ===
+                      "interpolatePaths"
+                        ? typeof operation.value !== "string"
+                        : Internals.interpolateKeyframedStatus({
+                            status: override.status,
+                            frame: operation.frame,
+                            forceSpringAllowTail: null,
+                          }) === null))
+                  ) {
+                    throw new Error(
+                      "This value cannot be interpolated with the other keyframes.",
+                    );
+                  }
+                  if (override?.type === "keyframed") {
+                    statuses[key] = override.status;
+                  } else if (override?.type === "static") {
+                    statuses[key] = {
+                      status: "static",
+                      codeValue: override.value,
+                      keyframeDisplayOffsetAdjustment: null,
+                    };
+                  }
+                  updates.push({ key, operation });
+                }
+              }
               collect(
                 await updateNodeKeyframes({
                   project: current,
-                  node,
-                  updates: keyframes,
+                  node: resolvedNode,
+                  updates,
                   schema,
-                  videoConfig: nodePathInfo.sequenceSubscriptionKey.videoConfigValues ?? videoConfig,
+                  videoConfig: config,
                 }),
               );
             }
@@ -393,9 +917,14 @@ export const useEditorActions = ({
           };
         },
         {
+          selectionBefore,
           onApplied: (changed) => {
             if (!changed) {
               release();
+            } else {
+              for (const entry of pendingPreviews.values()) {
+                if (entry.token === token) entry.committed = true;
+              }
             }
           },
         },
@@ -452,7 +981,11 @@ export const useEditorActions = ({
         }
 
         controller.overrides.set(change.nodePathInfo, change.key, override);
-        pendingPreviews.set(sequenceKey, change.nodePathInfo);
+        pendingPreviews.set(sequenceKey, {
+          nodePathInfo: change.nodePathInfo,
+          token: Symbol(),
+          committed: false,
+        });
       }
     };
 
@@ -473,14 +1006,65 @@ export const useEditorActions = ({
     return {
       notify,
       notifyError,
+      getSourceTransition: (
+        previousFiles: ProjectFiles | null,
+        nextFiles: ProjectFiles,
+        sourceRevision: number,
+      ): (() => void) => {
+        const groups = getSourceRemappings(previousFiles, nextFiles);
+        const requested = pendingSelection.current;
+        const restore =
+          requested?.files === nextFiles &&
+          requested.sourceRevision === sourceRevision
+            ? requested
+            : null;
+        const host = ref.current.host;
+        return () => {
+          if (!host || host !== ref.current.host) return;
+          applyingSourceSelection.current = true;
+          try {
+            if (groups === null) {
+              host.controller.selection.clear();
+              host.controller.setSequenceNodePaths({});
+            } else {
+              for (const group of groups)
+                host.controller.remapSequenceNodePaths(group);
+            }
+            selectionFiles.current = nextFiles;
+            selectionSourceRevision.current = sourceRevision;
+            if (
+              restore &&
+              pendingSelection.current === restore &&
+              sourceState.current.files === nextFiles &&
+              sourceState.current.sourceRevision === sourceRevision &&
+              restore.userSelectionRevision === userSelectionRevision.current &&
+              restore.checkpoint.compositionId ===
+                ref.current.state.compositionId &&
+              restore.checkpoint.compositionId ===
+                host.getSnapshot().composition?.id
+            ) {
+              host.controller.selection.setSnapshot(
+                restore.checkpoint.snapshot,
+              );
+              pendingSelection.current = null;
+            }
+          } finally {
+            applyingSourceSelection.current = false;
+          }
+        };
+      },
 
       // Files
       editFile: (filePath: string, contents: string) => {
-        dispatch({
-          type: "set-files",
-          files: { ...ref.current.state.files, [filePath]: contents },
-          coalesceKey: `edit:${filePath}`,
-        });
+        dispatchSource(
+          {
+            type: "set-files",
+            files: { ...sourceState.current.files, [filePath]: contents },
+            coalesceKey: `edit:${filePath}`,
+            at: Date.now(),
+          },
+          true,
+        );
       },
       // File names are validated with the same rules as /api/project, so a
       // single bad name cannot make every later save fail.
@@ -492,7 +1076,7 @@ export const useEditorActions = ({
         }
 
         const filePath = resolved.path;
-        if (filePath in ref.current.state.files) {
+        if (filePath in sourceState.current.files) {
           notifyError(new Error(`${filePath} already exists.`));
           return;
         }
@@ -507,11 +1091,15 @@ export const ${componentName}: React.FC = () => {
 };
 `
           : "";
-        dispatch({
-          type: "set-files",
-          files: { ...ref.current.state.files, [filePath]: contents },
-          coalesceKey: null,
-        });
+        dispatchSource(
+          {
+            type: "set-files",
+            files: { ...sourceState.current.files, [filePath]: contents },
+            coalesceKey: null,
+            at: Date.now(),
+          },
+          true,
+        );
         dispatch({ type: "open-file", filePath });
       },
       deleteFile: (filePath: string) => {
@@ -522,9 +1110,12 @@ export const ${componentName}: React.FC = () => {
           return;
         }
 
-        const files = { ...ref.current.state.files };
+        const files = { ...sourceState.current.files };
         delete files[filePath];
-        dispatch({ type: "set-files", files, coalesceKey: null });
+        dispatchSource(
+          { type: "set-files", files, coalesceKey: null, at: Date.now() },
+          true,
+        );
       },
       renameFile: (filePath: string, input: string) => {
         if (filePath === ref.current.entryPoint) {
@@ -541,7 +1132,7 @@ export const ${componentName}: React.FC = () => {
         }
 
         const nextPath = resolved.path;
-        const { files } = ref.current.state;
+        const { files } = sourceState.current;
         if (nextPath === filePath) {
           return;
         }
@@ -556,7 +1147,10 @@ export const ${componentName}: React.FC = () => {
           next[key === filePath ? nextPath : key] = value;
         }
 
-        dispatch({ type: "set-files", files: next, coalesceKey: null });
+        dispatchSource(
+          { type: "set-files", files: next, coalesceKey: null, at: Date.now() },
+          true,
+        );
         dispatch({ type: "open-file", filePath: nextPath });
       },
       openFile: (filePath: string) => dispatch({ type: "open-file", filePath }),
@@ -568,7 +1162,10 @@ export const ${componentName}: React.FC = () => {
           return;
         }
 
-        const { files, savedFiles } = ref.current.state;
+        if (pendingMutations > 0)
+          await waitForSourceTask(sourceQueue, undefined);
+        const { files } = sourceState.current;
+        const { savedFiles } = ref.current.state;
         const deleted = Object.keys(savedFiles).filter(
           (file) => !(file in files),
         );
@@ -585,48 +1182,115 @@ export const ${componentName}: React.FC = () => {
             throw new Error(body?.error ?? `Save failed (${response.status})`);
           }
 
-          dispatch({ type: "mark-saved" });
+          dispatch({ type: "mark-saved", files });
           notify("Saved to src/remotion");
         } catch (error) {
           notifyError(error);
         }
       },
       undo: () => {
-        dispatch({ type: "undo" });
-        ref.current.host?.controller.selection.clear();
+        const pending = pendingMutations;
+        dispatchSource(
+          pending > 0
+            ? {
+                type: "set-files",
+                files: sourceState.current.files,
+                coalesceKey: null,
+                at: Date.now(),
+              }
+            : { type: "undo" },
+          true,
+        );
+        if (pending > 1) notify(`Canceled ${pending} pending edits.`);
       },
       redo: () => {
-        dispatch({ type: "redo" });
-        ref.current.host?.controller.selection.clear();
+        const pending = pendingMutations;
+        dispatchSource(
+          pending > 0
+            ? {
+                type: "set-files",
+                files: sourceState.current.files,
+                coalesceKey: null,
+                at: Date.now(),
+              }
+            : { type: "redo" },
+          true,
+        );
+        if (pending > 1) notify(`Canceled ${pending} pending edits.`);
       },
 
       // Layers. The selection follows the edited nodes through the node-path
       // remappings of each result.
       deleteNodes: (nodes: NodeReference[]) =>
-        applyCodemod((project) => deleteNodesCodemod({ project, nodes })),
+        applyCodemod((project, resolveNode) =>
+          deleteNodesCodemod({ project, nodes: nodes.map(resolveNode) }),
+        ),
       duplicateNodes: (nodes: NodeReference[]) =>
-        applyCodemod((project) => duplicateNodesCodemod({ project, nodes })),
-      splitNodesAtPlayhead: (nodes: NodeReference[]) => {
+        applyCodemod((project, resolveNode) =>
+          duplicateNodesCodemod({ project, nodes: nodes.map(resolveNode) }),
+        ),
+      splitLayersAtPlayhead: (layers: Layer[]) => {
         const frame = currentFrame();
-        return applyCodemod((project) =>
-          splitSequences({
+        const videoConfig = {
+          width: ref.current.compositionWidth,
+          height: ref.current.compositionHeight,
+          fps: ref.current.compositionFps,
+          durationInFrames: ref.current.compositionDurationInFrames,
+        };
+        const splits = layers.flatMap((layer) => {
+          const node = getNodeReference(layer.selectionItem);
+          if (!node) return [];
+          const { track } = layer;
+          return [
+            {
+              node,
+              frame:
+                track.localStart +
+                (frame - track.cascadedStart) * track.keyframePlaybackRate,
+              videoConfig:
+                track.sequence.controls?.videoConfigValues ?? videoConfig,
+            },
+          ];
+        });
+        return applyCodemod((project, resolveNode) => {
+          const uniqueSplits = new Map<string, (typeof splits)[number]>();
+          for (const split of splits) {
+            const key = JSON.stringify([
+              split.node.filePath,
+              split.node.nodePath,
+            ]);
+            const existing = uniqueSplits.get(key);
+            if (existing && existing.frame !== split.frame) {
+              throw new Error(
+                "Selected instances share source code but have different split points.",
+              );
+            }
+            uniqueSplits.set(key, split);
+          }
+          return splitSequences({
             project,
-            splits: nodes.map((node) => ({ node, frame })),
-          }),
-        );
+            splits: [...uniqueSplits.values()].map((split) => ({
+              ...split,
+              node: resolveNode(split.node),
+            })),
+          });
+        });
       },
       wrapNode: (node: NodeReference, wrapper: "Sequence" | "AbsoluteFill") =>
-        applyCodemod((project) =>
+        applyCodemod((project, resolveNode) =>
           wrapNode({
             project,
-            node,
+            node: resolveNode(node),
             wrapper: createElement({
               component: wrapper,
               importPath: "remotion",
             }),
           }),
         ),
-      moveSelectedNodesOneStep: (node: NodeReference, direction: "up" | "down") => {
+      moveSelectedNodesOneStep: (
+        node: NodeReference,
+        direction: "up" | "down",
+      ) => {
         const draggedLayer = ref.current.layers.find(
           (layer) =>
             layer.source?.filePath === node.filePath &&
@@ -645,7 +1309,10 @@ export const ${componentName}: React.FC = () => {
           const layer = ref.current.layers.find(
             (candidate) =>
               getCanvasSelectionItemKey(candidate.selectionItem) ===
-              getCanvasSelectionItemKey({ type: "sequence", nodePathInfo: info }),
+              getCanvasSelectionItemKey({
+                type: "sequence",
+                nodePathInfo: info,
+              }),
           );
           return layer?.source &&
             info.numberOfSequencesWithThisNodePath === 1 &&
@@ -691,11 +1358,11 @@ export const ${componentName}: React.FC = () => {
           return Promise.resolve(false);
         }
 
-        return applyCodemod((project) =>
+        return applyCodemod((project, resolveNode) =>
           reorderNodesCodemod({
             project,
-            nodes: moving as NodeReference[],
-            target,
+            nodes: (moving as NodeReference[]).map(resolveNode),
+            target: resolveNode(target),
             position: direction === "up" ? "before" : "after",
           }),
         );
@@ -705,28 +1372,35 @@ export const ${componentName}: React.FC = () => {
         target: NodeReference,
         position: "before" | "after",
       ) =>
-        applyCodemod((project) =>
-          reorderNodesCodemod({ project, nodes, target, position }),
+        applyCodemod((project, resolveNode) =>
+          reorderNodesCodemod({
+            project,
+            nodes: nodes.map(resolveNode),
+            target: resolveNode(target),
+            position,
+          }),
         ),
       updateNodeProps: (
         node: NodeReference,
         updates: SequencePropUpdate[],
         schema: InteractivitySchema | null,
-      ) =>
-        applyCodemod((project) =>
+      ) => {
+        const videoConfig = {
+          width: ref.current.compositionWidth,
+          height: ref.current.compositionHeight,
+          fps: ref.current.compositionFps,
+          durationInFrames: ref.current.compositionDurationInFrames,
+        };
+        return applyCodemod((project, resolveNode) =>
           updateNodeProps({
             project,
-            node,
+            node: resolveNode(node),
             updates,
             schema: schema ?? undefined,
-            videoConfig: {
-              width: ref.current.compositionWidth,
-              height: ref.current.compositionHeight,
-              fps: ref.current.compositionFps,
-              durationInFrames: ref.current.compositionDurationInFrames,
-            },
+            videoConfig,
           }),
-        ),
+        );
+      },
       /**
        * Shows prop values on the canvas without touching the source, e.g.
        * while a value is being scrubbed. Commit them with `commitLayerProps`.
@@ -744,13 +1418,14 @@ export const ${componentName}: React.FC = () => {
           });
         }
 
-        pendingPreviews.set(
-          getCanvasSelectionItemKey(layer.selectionItem),
-          layer.nodePathInfo,
-        );
+        pendingPreviews.set(getCanvasSelectionItemKey(layer.selectionItem), {
+          nodePathInfo: layer.nodePathInfo,
+          token: Symbol(),
+          committed: false,
+        });
       },
       /** Drops a preview without writing to the source. */
-      cancelLayerPreview: (layer: Layer) => clearPreview(layer),
+      cancelLayerPreview: (layer: Layer) => clearPreview(layer, null),
       /** Writes previewed values to the source and releases the preview. */
       commitLayerProps: async (
         layer: Layer,
@@ -759,34 +1434,47 @@ export const ${componentName}: React.FC = () => {
       ) => {
         const node = getNodeReference(layer.selectionItem);
         if (!node) {
-          clearPreview(layer);
+          clearPreview(layer, null);
           return false;
         }
 
+        const key = getCanvasSelectionItemKey(layer.selectionItem);
+        const token = pendingPreviews.get(key)?.token ?? Symbol();
+        pendingPreviews.set(key, {
+          nodePathInfo: layer.nodePathInfo,
+          token,
+          committed: false,
+        });
+        const videoConfig = layer.track.sequence.controls
+          ?.videoConfigValues ?? {
+          width: ref.current.compositionWidth,
+          height: ref.current.compositionHeight,
+          fps: ref.current.compositionFps,
+          durationInFrames: ref.current.compositionDurationInFrames,
+        };
         const ok = await applyCodemod(
-          (project) =>
+          (project, resolveNode) =>
             updateNodeProps({
               project,
-              node,
+              node: resolveNode(node),
               updates,
               schema: schema ?? undefined,
-              videoConfig: layer.track.sequence.controls?.videoConfigValues ?? {
-                width: ref.current.compositionWidth,
-                height: ref.current.compositionHeight,
-                fps: ref.current.compositionFps,
-                durationInFrames: ref.current.compositionDurationInFrames,
-              },
+              videoConfig,
             }),
           {
+            selectionBefore: null,
             onApplied: (changed) => {
               if (!changed) {
-                clearPreview(layer);
+                clearPreview(layer, token);
+              } else {
+                const entry = pendingPreviews.get(key);
+                if (entry?.token === token) entry.committed = true;
               }
             },
           },
         );
         if (!ok) {
-          clearPreview(layer);
+          clearPreview(layer, token);
         }
 
         return ok;
@@ -797,13 +1485,45 @@ export const ${componentName}: React.FC = () => {
        */
       commitSequencePropChanges: (
         changes: readonly CanvasSequencePropChange[],
-      ) => commitNodeChanges(groupNodeChanges(changes)),
+      ) => commitNodeChanges(groupNodeChanges(changes), null, false),
       /**
        * Adds, removes or moves keyframes in the source. Moved keyframes stay
        * previewed on the canvas until `releasePreviews`.
        */
-      commitKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) =>
-        commitNodeChanges(groupNodeChanges(changes)),
+      commitKeyframeChanges: (
+        changes: readonly CanvasKeyframeChange[],
+        selectionBefore: CanvasSelectionSnapshot | null,
+      ) => commitNodeChanges(groupNodeChanges(changes), selectionBefore, false),
+      commitKeyframeValue: (item: KeyframeSelectionItem, value: unknown) => {
+        const prop = findKeyframedProp(ref.current.keyframedProps, item);
+        if (!prop) {
+          notify("The selected keyframe is no longer in the source.");
+          return Promise.resolve(false);
+        }
+        const change = getCanvasKeyframeValueChange({
+          nodePathInfo: prop.layer.nodePathInfo,
+          track: prop.layer.track,
+          schema: prop.schema,
+          key: prop.key,
+          propStatus: prop.propStatus,
+          frame: item.frame,
+          value,
+        });
+        if (!change) {
+          clearPreview(prop.layer, null);
+          if (value !== undefined)
+            notify("This value cannot replace the selected keyframe.");
+          return Promise.resolve(false);
+        }
+        const previous = prop.propStatus.keyframes.find(
+          ({ frame }) => frame === change.operation.frame,
+        );
+        if (previous?.value === change.operation.value) {
+          clearPreview(prop.layer, null);
+          return Promise.resolve(false);
+        }
+        return commitNodeChanges(groupNodeChanges([change]), null, true);
+      },
       previewKeyframeChanges,
       /** Drops the previews of keyframe changes without writing them. */
       cancelKeyframePreviews: (changes: readonly CanvasKeyframeChange[]) => {
@@ -821,7 +1541,7 @@ export const ${componentName}: React.FC = () => {
        */
       applyKeyframeChanges: (changes: readonly CanvasKeyframeChange[]) => {
         previewKeyframeChanges(changes);
-        return commitNodeChanges(groupNodeChanges(changes));
+        return commitNodeChanges(groupNodeChanges(changes), null, false);
       },
       /** Gives the easing segments the same easing. */
       applyEasing: (
@@ -834,7 +1554,7 @@ export const ${componentName}: React.FC = () => {
           easing,
         });
         previewKeyframeChanges(changes);
-        return commitNodeChanges(groupNodeChanges(changes));
+        return commitNodeChanges(groupNodeChanges(changes), null, false);
       },
       /** Removes the keyframes that are selected on the timeline. */
       deleteSelectedKeyframes: () => {
@@ -876,11 +1596,16 @@ export const ${componentName}: React.FC = () => {
           return Promise.resolve(false);
         }
 
+        const selectionBefore = host.controller.selection.getSnapshot();
         // The layers of the removed keyframes stay selected.
         host.controller.selection.setSelectedItems(
           [...layers.values()].map((layer) => layer.selectionItem),
         );
-        return commitNodeChanges(groupNodeChanges(changes));
+        return commitNodeChanges(
+          groupNodeChanges(changes),
+          selectionBefore,
+          false,
+        );
       },
       /**
        * Selects keyframes and easing segments. With an interaction, Shift
@@ -921,17 +1646,27 @@ export const ${componentName}: React.FC = () => {
       /** Called once the preview shows the committed source again. */
       releasePreviews: () => {
         const controller = ref.current.host?.controller;
-        for (const nodePathInfo of pendingPreviews.values()) {
-          controller?.overrides.clear(nodePathInfo);
+        for (const [key, entry] of pendingPreviews) {
+          if (!entry.committed) continue;
+          controller?.overrides.clear(entry.nodePathInfo);
+          pendingPreviews.delete(key);
         }
-
-        pendingPreviews.clear();
+        if (
+          pendingMutations === 0 &&
+          ref.current.state.appliedFiles !== null &&
+          filesAreEqual(
+            ref.current.state.appliedFiles,
+            sourceState.current.files,
+          )
+        ) {
+          sourceRemappings.length = 0;
+        }
       },
       renameNode: (node: NodeReference, name: string) =>
-        applyCodemod((project) =>
+        applyCodemod((project, resolveNode) =>
           updateNodeProps({
             project,
-            node,
+            node: resolveNode(node),
             updates: [
               {
                 key: "name",
@@ -987,6 +1722,7 @@ export const ${componentName}: React.FC = () => {
 
       // Compositions
       selectComposition: (compositionId: string) => {
+        pendingSelection.current = null;
         dispatch({ type: "select-composition", compositionId });
         ref.current.host?.controller.selection.clear();
       },
@@ -1134,42 +1870,49 @@ export const ${componentName}: React.FC = () => {
   );
 };
 `;
-        try {
-          const project = {
-            ...getProject(),
-            files: { ...state.files, [componentFile]: componentSource },
-          };
-          const result = addComposition({
-            project,
-            compositionFile,
-            compositionId: id,
-            component: {
-              importName: componentName,
-              importPath: `./${componentName}`,
+        return applyCodemod(
+          (project) => {
+            if (componentFile in project.files)
+              throw new Error(`${componentFile} already exists.`);
+            const result = addComposition({
+              project: {
+                ...project,
+                files: { ...project.files, [componentFile]: componentSource },
+              },
+              compositionFile,
+              compositionId: id,
+              component: {
+                importName: componentName,
+                importPath: `./${componentName}`,
+              },
+              metadata: {
+                width: 1920,
+                height: 1080,
+                fps: 30,
+                durationInFrames: 150,
+              },
+              folder: folder ?? undefined,
+            });
+            return {
+              ...result,
+              changes: [
+                {
+                  filePath: componentFile,
+                  previousContents: null,
+                  nextContents: componentSource,
+                },
+                ...result.changes,
+              ],
+            };
+          },
+          {
+            selectionBefore: null,
+            onApplied: () => {
+              dispatch({ type: "select-composition", compositionId: id });
+              dispatch({ type: "open-file", filePath: componentFile });
             },
-            metadata: {
-              width: 1920,
-              height: 1080,
-              fps: 30,
-              durationInFrames: 150,
-            },
-            folder: folder ?? undefined,
-          });
-          const files = {
-            ...applyCodemodChanges(project, result.changes).files,
-          };
-          files[compositionFile] = await formatSource(
-            compositionFile,
-            files[compositionFile],
-          );
-          dispatch({ type: "set-files", files, coalesceKey: null });
-          dispatch({ type: "select-composition", compositionId: id });
-          dispatch({ type: "open-file", filePath: componentFile });
-          return true;
-        } catch (error) {
-          notifyError(error);
-          return false;
-        }
+          },
+        );
       },
       /**
        * Moves a composition or folder within the registration file: into a
@@ -1428,6 +2171,21 @@ export const ${componentName}: React.FC = () => {
 
       // Rendering
       startRender: async (request: PreviewRenderRequest) => {
+        if (
+          pendingMutations > 0 ||
+          ref.current.state.appliedFiles === null ||
+          !filesAreEqual(
+            sourceState.current.files,
+            ref.current.state.appliedFiles,
+          )
+        ) {
+          notifyError(
+            new Error(
+              "Wait for the preview to finish updating before rendering.",
+            ),
+          );
+          return;
+        }
         const { host, activeComposition } = ref.current;
         if (!host || !activeComposition) {
           notifyError(new Error("Nothing to render yet."));

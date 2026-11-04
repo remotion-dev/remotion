@@ -48,6 +48,7 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 import {InputPropsIcon} from '../../icons/input-props';
 import {FilmIcon} from '../../icons/video';
+import type {ServerRenderRetrySettings} from '../../state/modals';
 import {SetSelectedModalContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Button} from '../Button';
@@ -71,7 +72,7 @@ import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
 import {getDefaultCodecs} from './get-default-codecs';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
-import {validateOutnameGui} from './out-name-checker';
+import {isValidSeparateAudioName, validateOutnameGui} from './out-name-checker';
 import {
 	buttonStyle,
 	container,
@@ -97,6 +98,7 @@ import {
 	ResolvedCompositionContext,
 } from './ResolveCompositionBeforeModal';
 import type {UpdaterFunction} from './SchemaEditor/ZodSwitch';
+import {useRenderFrameInput} from './use-render-frame-input';
 
 type State =
 	| {
@@ -148,6 +150,7 @@ const reducer = (state: State, action: Action): State => {
 };
 
 type RenderModalProps = {
+	readonly retrySettings: ServerRenderRetrySettings | null;
 	readonly readOnlyStudio: boolean;
 	readonly compositionId: string;
 	readonly initialFrame: number;
@@ -206,6 +209,7 @@ const RenderModal: React.FC<
 		readonly defaultConfigurationVideoCodec: Codec | null;
 	}
 > = ({
+	retrySettings,
 	readOnlyStudio,
 	initialFrame,
 	initialVideoImageFormat,
@@ -288,16 +292,29 @@ const RenderModal: React.FC<
 			initialVideoCodecForVideoTab,
 		},
 	] = useState(() => {
-		return getDefaultCodecs({
+		const codecs = getDefaultCodecs({
 			defaultConfigurationVideoCodec,
-			compositionDefaultVideoCodec: resolvedComposition.defaultCodec,
+			compositionDefaultVideoCodec:
+				retrySettings === null ? resolvedComposition.defaultCodec : null,
 			defaultConfigurationAudioCodec,
 			renderType: renderTypeOfLastRender ?? (isVideo ? 'video' : 'still'),
 		});
+		if (retrySettings === null) {
+			return codecs;
+		}
+
+		return {
+			...codecs,
+			initialAudioCodec: defaultConfigurationAudioCodec,
+			initialRenderType:
+				renderTypeOfLastRender === 'still' ||
+				renderTypeOfLastRender === 'sequence'
+					? renderTypeOfLastRender
+					: codecs.initialRenderType,
+		};
 	});
 
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const [unclampedFrame, setFrame] = useState(() => initialFrame);
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
 		() => initialStillImageFormat,
 	);
@@ -308,8 +325,10 @@ const RenderModal: React.FC<
 			renderDefaults.videoImageFormat,
 	);
 	const [sequenceImageFormat, setSequenceImageFormat] =
-		useState<VideoImageFormat>(() =>
-			initialStillImageFormat === 'jpeg' ? 'jpeg' : 'png',
+		useState<VideoImageFormat>(
+			() =>
+				retrySettings?.sequenceImageFormat ??
+				(initialStillImageFormat === 'jpeg' ? 'jpeg' : 'png'),
 		);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
 	const [videoCodecForVideoTab, setVideoCodecForVideoTab] = useState<Codec>(
@@ -317,7 +336,9 @@ const RenderModal: React.FC<
 	);
 	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
 		useState<AudioCodec | null>(() => initialAudioCodec);
-	const [separateAudioTo, setSeparateAudioTo] = useState<string | null>(null);
+	const [separateAudioTo, setSeparateAudioTo] = useState<string | null>(
+		retrySettings?.separateAudioTo ?? null,
+	);
 
 	const [envVariables, setEnvVariables] = useState<[string, string][]>(() =>
 		envVariablesObjectToArray(initialEnvVariables).filter(
@@ -326,6 +347,10 @@ const RenderModal: React.FC<
 	);
 
 	const [initialOutName] = useState(() => {
+		if (retrySettings !== null) {
+			return retrySettings.outName;
+		}
+
 		return getDefaultOutLocation({
 			compositionName: resolvedComposition.id,
 			defaultExtension:
@@ -363,8 +388,9 @@ const RenderModal: React.FC<
 	);
 	const [scale, setScale] = useState(() => initialScale);
 	const [logLevel, setLogLevel] = useState(() => initialLogLevel);
-	const [disallowParallelEncoding, setDisallowParallelEncoding] =
-		useState(false);
+	const [disallowParallelEncoding, setDisallowParallelEncoding] = useState(
+		retrySettings?.disallowParallelEncoding ?? false,
+	);
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
 		() => initialDisableWebSecurity,
 	);
@@ -409,12 +435,6 @@ const RenderModal: React.FC<
 	]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
-	const [endFrameOrNull, setEndFrame] = useState<number | null>(
-		() => outFrameMark ?? null,
-	);
-	const [startFrameOrNull, setStartFrame] = useState<number | null>(
-		() => inFrameMark ?? null,
-	);
 	const [proResProfileSetting, setProResProfile] = useState<
 		_InternalTypes['ProResProfile']
 	>(
@@ -628,7 +648,10 @@ const RenderModal: React.FC<
 		return null;
 	}, [customTargetVideoBitrate, qualityControlType]);
 
-	const {crf, maxCrf, minCrf, setCrf} = useCrfState(codec);
+	const {crf, maxCrf, minCrf, setCrf} = useCrfState(
+		codec,
+		retrySettings?.crf ?? null,
+	);
 
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
@@ -681,33 +704,17 @@ const RenderModal: React.FC<
 
 	const [metadata] = useState(() => defaultMetadata);
 
-	const endFrame = useMemo((): number => {
-		if (endFrameOrNull === null) {
-			return resolvedComposition.durationInFrames - 1;
-		}
-
-		return Math.max(
-			0,
-			Math.min(resolvedComposition.durationInFrames - 1, endFrameOrNull),
-		);
-	}, [resolvedComposition.durationInFrames, endFrameOrNull]);
-
-	const startFrame = useMemo((): number => {
-		if (startFrameOrNull === null) {
-			return 0;
-		}
-
-		return Math.max(0, Math.min(endFrame - 1, startFrameOrNull));
-	}, [endFrame, startFrameOrNull]);
-
-	const frame = useMemo(() => {
-		const parsed = Math.floor(unclampedFrame);
-
-		return Math.max(
-			0,
-			Math.min(resolvedComposition.durationInFrames - 1, parsed),
-		);
-	}, [resolvedComposition.durationInFrames, unclampedFrame]);
+	const lastFrame = resolvedComposition.durationInFrames - 1;
+	const endFrameInput = useRenderFrameInput(outFrameMark, lastFrame, lastFrame);
+	const startFrameInput = useRenderFrameInput(
+		inFrameMark,
+		0,
+		endFrameInput.value,
+	);
+	const stillFrameInput = useRenderFrameInput(initialFrame, 0, lastFrame);
+	const {value: endFrame} = endFrameInput;
+	const {value: startFrame} = startFrameInput;
+	const {value: frame} = stillFrameInput;
 
 	const deriveFinalAudioCodec = useCallback(
 		(passedVideoCodec: Codec, passedAudioCodec: AudioCodec | null) => {
@@ -892,6 +899,27 @@ const RenderModal: React.FC<
 	}, [codec, everyNthFrameSetting]);
 
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
+	const effectiveSeparateAudioTo =
+		renderMode === 'video' &&
+		!muted &&
+		BrowserSafeApis.supportedAudioCodecs[codec].length > 0
+			? separateAudioTo
+			: null;
+	const separateAudioValidationMessage = useMemo(() => {
+		if (effectiveSeparateAudioTo === null) {
+			return null;
+		}
+
+		try {
+			isValidSeparateAudioName({
+				audioCodec,
+				separateAudioTo: effectiveSeparateAudioTo,
+			});
+			return null;
+		} catch (error) {
+			return (error as Error).message;
+		}
+	}, [audioCodec, effectiveSeparateAudioTo]);
 
 	const availablePixelFormats = useMemo(() => {
 		return BrowserSafeApis.validPixelFormatsForCodec(codec);
@@ -916,7 +944,7 @@ const RenderModal: React.FC<
 			compositionId: resolvedComposition.id,
 			outName,
 			imageFormat: videoImageFormat,
-			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
+			jpegQuality: videoImageFormat === 'jpeg' ? jpegQuality : null,
 			scale,
 			logLevel,
 			codec,
@@ -953,7 +981,7 @@ const RenderModal: React.FC<
 			beepOnFinish,
 			repro,
 			forSeamlessAacConcatenation,
-			separateAudioTo,
+			separateAudioTo: effectiveSeparateAudioTo,
 			metadata,
 			hardwareAcceleration,
 			chromeMode,
@@ -962,6 +990,7 @@ const RenderModal: React.FC<
 			preferredEffectBackend,
 			sampleRate,
 			licenseKey: renderDefaults.publicLicenseKey,
+			prerenderTarget: null,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -976,7 +1005,6 @@ const RenderModal: React.FC<
 		resolvedComposition.id,
 		outName,
 		videoImageFormat,
-		stillImageFormat,
 		jpegQuality,
 		scale,
 		logLevel,
@@ -1010,7 +1038,7 @@ const RenderModal: React.FC<
 		repro,
 		forSeamlessAacConcatenation,
 		gopSize,
-		separateAudioTo,
+		effectiveSeparateAudioTo,
 		setSelectedModal,
 		metadata,
 		hardwareAcceleration,
@@ -1264,7 +1292,7 @@ const RenderModal: React.FC<
 		audioCodec,
 		renderMode,
 		stillImageFormat,
-		separateAudioTo,
+		separateAudioTo: effectiveSeparateAudioTo,
 	});
 
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
@@ -1293,7 +1321,7 @@ const RenderModal: React.FC<
 			videoImageFormat,
 			jpegQuality:
 				renderMode === 'video'
-					? stillImageFormat === 'jpeg'
+					? videoImageFormat === 'jpeg'
 						? jpegQuality
 						: null
 					: renderMode === 'audio'
@@ -1321,7 +1349,7 @@ const RenderModal: React.FC<
 			encodingBufferSize,
 			encodingMaxRate,
 			forSeamlessAacConcatenation,
-			separateAudioTo,
+			separateAudioTo: effectiveSeparateAudioTo,
 			colorSpace,
 			scale,
 			logLevel,
@@ -1395,7 +1423,7 @@ const RenderModal: React.FC<
 		resolvedComposition.id,
 		scale,
 		sampleRate,
-		separateAudioTo,
+		effectiveSeparateAudioTo,
 		sequenceImageFormat,
 		startFrame,
 		stillImageFormat,
@@ -1405,11 +1433,15 @@ const RenderModal: React.FC<
 		x264Preset,
 	]);
 	const [commandCopiedAt, setCommandCopiedAt] = useState<number | null>(null);
-	const renderDisabled = readOnlyStudio
-		? false
-		: !outnameValidation.valid || state.type === 'load';
+	const renderDisabled =
+		separateAudioValidationMessage !== null ||
+		(!readOnlyStudio && (!outnameValidation.valid || state.type === 'load'));
 
 	const trigger = useCallback(() => {
+		if (renderDisabled) {
+			return;
+		}
+
 		if (readOnlyStudio) {
 			if (!readOnlyRenderCommand) {
 				return;
@@ -1438,6 +1470,7 @@ const RenderModal: React.FC<
 		onClickVideo,
 		readOnlyRenderCommand,
 		readOnlyStudio,
+		renderDisabled,
 		renderMode,
 	]);
 
@@ -1503,7 +1536,10 @@ const RenderModal: React.FC<
 					disabled={renderDisabled}
 					style={{
 						...buttonStyle,
-						backgroundColor: outnameValidation.valid ? BLUE : BLUE_DISABLED,
+						backgroundColor:
+							outnameValidation.valid && separateAudioValidationMessage === null
+								? BLUE
+								: BLUE_DISABLED,
 					}}
 				>
 					{readOnlyStudio
@@ -1636,22 +1672,19 @@ const RenderModal: React.FC<
 						<RenderModalBasic
 							codec={codec}
 							resolvedComposition={resolvedComposition}
-							frame={frame}
+							frame={stillFrameInput}
 							imageFormatOptions={imageFormatOptions}
 							outName={outName}
 							proResProfile={proResProfile}
 							renderMode={renderMode}
 							setVideoCodec={setCodec}
-							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}
-							endFrame={endFrame}
-							setEndFrame={setEndFrame}
-							setStartFrame={setStartFrame}
+							endFrame={endFrameInput}
 							setVerboseLogging={setLogLevel}
 							logLevel={logLevel}
 							showOutputName={!readOnlyStudio}
-							startFrame={startFrame}
+							startFrame={startFrameInput}
 							validationMessage={
 								outnameValidation.valid ? null : outnameValidation.error.message
 							}

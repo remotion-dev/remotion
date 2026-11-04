@@ -7,6 +7,8 @@ export const studioKeyboardShortcutActions = [
 	'reversePlayback',
 	'pausePlayback',
 	'playForward',
+	'decreasePlaybackRate',
+	'increasePlaybackRate',
 	'goToFrame',
 	'pauseAndReturnToPlaybackStart',
 	'toggleLeftSidebar',

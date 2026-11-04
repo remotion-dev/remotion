@@ -16,6 +16,7 @@ import type {
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	NodeWrapper,
+	PrecomposeJsxNodesRequest,
 	RenderDefaults,
 } from '@remotion/studio-shared';
 import type {
@@ -40,6 +41,8 @@ import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-k
 
 export type WebRenderModalState = {
 	type: 'web-render';
+	retryJobId: string | null;
+	initialRenderType: 'still' | 'video' | null;
 	initialFrame: number;
 	compositionId: string;
 	defaultProps: Record<string, unknown>;
@@ -65,8 +68,18 @@ export type WebRenderModalState = {
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
+export type ServerRenderRetrySettings = {
+	jobId: string;
+	outName: string;
+	crf: number | null;
+	separateAudioTo: string | null;
+	disallowParallelEncoding: boolean;
+	sequenceImageFormat: VideoImageFormat | null;
+};
+
 export type RenderModalState = {
 	type: 'server-render';
+	retrySettings: ServerRenderRetrySettings | null;
 	readOnlyStudio: boolean;
 	compositionId: string;
 	initialFrame: number;
@@ -218,6 +231,12 @@ export type ElementInstallModalState = {
 	readonly sourceLabel: string;
 };
 
+export type PrecomposeRefactorTarget = {
+	fileName: string;
+	displayName: string | null;
+	line: number | null;
+};
+
 export type ModalState =
 	| {
 			type: 'new-comp';
@@ -303,11 +322,13 @@ export type ModalState =
 	  }
 	| {
 			type: 'precompose-refactor';
-			targets: {
-				fileName: string;
-				displayName: string | null;
-				line: number | null;
-			}[];
+			targets: PrecomposeRefactorTarget[];
+	  }
+	| {
+			type: 'precompose-name';
+			request: PrecomposeJsxNodesRequest;
+			suggestedCompositionId: string;
+			refactorTargets: PrecomposeRefactorTarget[];
 	  }
 	| {
 			type: 'generate-with-agent';

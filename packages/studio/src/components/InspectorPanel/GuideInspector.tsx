@@ -94,6 +94,7 @@ export const GuideInspector: React.FC<{
 						}
 					>
 						<InputDragger
+							onValueChangeCancel={null}
 							type="number"
 							value={guide.position}
 							status="ok"

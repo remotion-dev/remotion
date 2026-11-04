@@ -6,11 +6,18 @@ import {
 } from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
 import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
+import {
 	applyChromaticAberration,
 	cleanupChromaticAberration,
 	setupChromaticAberration,
 	type ChromaticAberrationState,
 } from './chromatic-aberration-runtime.js';
+import {CHROMATIC_ABERRATION_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect} = Internals;
 
@@ -65,33 +72,68 @@ const validateChromaticAberrationParams = (
 	validateNonNegative(resolved.amount, 'amount');
 };
 
-export const chromaticAberration = createEffect<
-	ChromaticAberrationParams,
-	ChromaticAberrationState
->({
+export const chromaticAberration = createEffect<ChromaticAberrationParams>({
 	type: 'dev.remotion.effects.chromaticAberration',
 	label: 'chromaticAberration()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/chromatic-aberration',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `chromatic-aberration-${resolved.amount}-${resolved.angle}`;
 	},
-	setup: (target) => setupChromaticAberration(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const resolved = resolve(params);
-		applyChromaticAberration({
-			state,
-			source,
-			width,
-			height,
-			amount: resolved.amount,
-			angle: resolved.angle,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ChromaticAberrationParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'chromatic-aberration'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the chromatic-aberration effect',
+					);
+				}
+
+				const r = resolve(params);
+				const radians = (r.angle * Math.PI) / 180;
+				const uniformData = new Float32Array([
+					(Math.cos(radians) * r.amount) / width,
+					-(Math.sin(radians) * r.amount) / height,
+					0,
+					0,
+				]);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: CHROMATIC_ABERRATION_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			ChromaticAberrationParams,
+			ChromaticAberrationState
+		>({
+			setup: (target) => setupChromaticAberration(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const resolved = resolve(params);
+				applyChromaticAberration({
+					state,
+					source,
+					width,
+					height,
+					amount: resolved.amount,
+					angle: resolved.angle,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupChromaticAberration(state),
+		}),
 	},
-	cleanup: (state) => cleanupChromaticAberration(state),
 	schema: chromaticAberrationSchema,
 	validateParams: validateChromaticAberrationParams,
 });

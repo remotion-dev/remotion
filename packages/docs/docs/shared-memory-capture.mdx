@@ -26,10 +26,12 @@ Shared-memory capture is enabled automatically when all of these conditions are 
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | macOS                       | Apple Silicon Mac with [macOS 15 or later](/docs#system-requirements)                                                                                                       |
 | Linux                       | x64 or ARM64 with glibc 2.35 or later, such as [Ubuntu 22.04](https://packages.ubuntu.com/jammy/libc6) or [Debian 12](https://packages.debian.org/bookworm/libc6) and newer |
-| Amazon Linux                | Amazon Linux 2023, x64 or ARM64                                                                                                                                             |
+| Amazon Linux                | Amazon Linux 2023 on ARM64 with glibc 2.34                                                                                                                                  |
 | Remotion Lambda / Cloud Run | Deploy a new function or service using Remotion v4.0.534 or later                                                                                                           |
 
-These requirements assume you use Remotion's [default browser](/docs/miscellaneous/chrome-headless-shell). On Windows, Intel Macs and older Linux systems, Remotion uses regular JPEG or PNG screenshots. Selecting [Chrome for Testing](/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead) also uses regular screenshots.
+Amazon Linux 2023 on x64 is unsupported because its glibc 2.34 does not meet the [Linux rendering requirements](/docs/miscellaneous/linux-dependencies#glibc-requirements).
+
+These requirements assume you use Remotion's [default browser](/docs/miscellaneous/chrome-headless-shell). On Windows and Intel Macs, Remotion uses regular JPEG or PNG screenshots. Selecting [Chrome for Testing](/docs/miscellaneous/chrome-headless-shell#using-chrome-for-testing-instead) also uses regular screenshots; it does not lower the Linux rendering requirements.
 
 The patch does not apply to previews or [client-side rendering](/docs/client-side-rendering).
 

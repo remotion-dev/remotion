@@ -127,6 +127,47 @@ asyncio.run(main())
 
 Cancelling an awaited request does not stop the AWS request or the render. To cancel a render, start it with `enable_cancellation=True` and await `cancel_render_on_lambda()` with its render ID and bucket name.
 
+## Getting compositions<AvailableFrom v="4.0.540" />
+
+Use `get_compositions_on_lambda()` to list the compositions in the deployed project configured by the client's `serve_url`, `function_name`, and `region`:
+
+```python title="get_compositions.py"
+import os
+from remotion_lambda import RemotionClient, VideoConfig
+
+client = RemotionClient(
+    region=os.environ['REMOTION_APP_REGION'],
+    serve_url=os.environ['REMOTION_APP_SERVE_URL'],
+    function_name=os.environ['REMOTION_APP_FUNCTION_NAME'],
+)
+
+compositions = client.get_compositions_on_lambda(input_props={"title": "Hello"})
+if compositions is not None:
+    for composition in compositions:
+        print(composition.id, composition.width, composition.height,
+              composition.fps, composition.durationInFrames)
+```
+
+The method returns a list of `VideoConfig` objects, or `None` if the response contains no composition list. Each object contains dimensions, frame rate, duration, `props`, `defaultProps`, and default output settings. Response fields use camelCase, matching [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda). Import `VideoConfig` from `remotion_lambda` for type annotations; `GetCompositionsParams` is also exported for constructing requests.
+
+### input_props?
+
+Props passed to each composition's [`calculateMetadata()`](/docs/calculate-metadata) function. Defaults to an empty dictionary; no composition ID is required.
+
+### Other arguments
+
+`env_variables`, `chromium_options`, `log_level`, `force_bucket_name`, `timeout_in_milliseconds`, `offthread_video_cache_size_in_bytes`, `media_cache_size_in_bytes`, and `preferred_effect_backend` correspond to the options of [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda). The timeout defaults to `30000` milliseconds, the log level to `info`, and the effect backend to `auto`.
+
+### Async client
+
+`AsyncRemotionClient` accepts the same arguments and returns the same objects:
+
+```python title="get_compositions_async.py"
+compositions = await client.get_compositions_on_lambda(input_props={"title": "Hello"})
+```
+
+Both clients also expose `construct_get_compositions_request()` to serialize a request without invoking Lambda. Await this method when using `AsyncRemotionClient`.
+
 ## Rendering an image sequence<AvailableFrom v="4.0.535" />
 
 Use `render_frames_on_lambda()` with `RenderFramesParams`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).

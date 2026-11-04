@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/google-fonts"
 	},
 	"name": "@remotion/google-fonts",
-	"version": "4.0.539",
+	"version": "4.0.540",
 	"description": "Use Google Fonts in Remotion",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.mjs",
@@ -4332,6 +4332,27 @@
 			"RedactedScript": [
 				"dist/cjs/RedactedScript.d.ts"
 			],
+			"Redaction": [
+				"dist/cjs/Redaction.d.ts"
+			],
+			"Redaction10": [
+				"dist/cjs/Redaction10.d.ts"
+			],
+			"Redaction100": [
+				"dist/cjs/Redaction100.d.ts"
+			],
+			"Redaction20": [
+				"dist/cjs/Redaction20.d.ts"
+			],
+			"Redaction35": [
+				"dist/cjs/Redaction35.d.ts"
+			],
+			"Redaction50": [
+				"dist/cjs/Redaction50.d.ts"
+			],
+			"Redaction70": [
+				"dist/cjs/Redaction70.d.ts"
+			],
 			"RedditMono": [
 				"dist/cjs/RedditMono.d.ts"
 			],
@@ -5121,6 +5142,9 @@
 			"Tiny5": [
 				"dist/cjs/Tiny5.d.ts"
 			],
+			"Tiny5Duo": [
+				"dist/cjs/Tiny5Duo.d.ts"
+			],
 			"TiroBangla": [
 				"dist/cjs/TiroBangla.d.ts"
 			],
@@ -5393,6 +5417,9 @@
 			],
 			"XanhMono": [
 				"dist/cjs/XanhMono.d.ts"
+			],
+			"Xmind": [
+				"dist/cjs/Xmind.d.ts"
 			],
 			"Yaldevi": [
 				"dist/cjs/Yaldevi.d.ts"

@@ -112,7 +112,7 @@ export type CommandLineOptions = {
 	['image-format']: VideoImageFormat | StillImageFormat;
 	[proResProfileOption.cliFlag]: TypeOfOption<typeof proResProfileOption>;
 	[x264Option.cliFlag]: TypeOfOption<typeof x264Option>;
-	[bundleCacheOption.cliFlag]: TypeOfOption<typeof bundleCacheOption>;
+	[bundleCacheOption.cliFlag]: TypeOfOption<typeof bundleCacheOption> | null;
 	[envFileOption.cliFlag]: TypeOfOption<typeof envFileOption>;
 	[ignoreCertificateErrorsOption.cliFlag]: TypeOfOption<
 		typeof ignoreCertificateErrorsOption
@@ -202,7 +202,7 @@ export type CommandLineOptions = {
 	[interactivityOption.cliFlag]: TypeOfOption<
 		typeof interactivityOption
 	> | null;
-	[mutedOption.cliFlag]: TypeOfOption<typeof mutedOption>;
+	[mutedOption.cliFlag]: TypeOfOption<typeof mutedOption> | null;
 	[overrideHeightOption.cliFlag]: TypeOfOption<typeof overrideHeightOption>;
 	[overrideWidthOption.cliFlag]: TypeOfOption<typeof overrideWidthOption>;
 	[overrideFpsOption.cliFlag]: TypeOfOption<typeof overrideFpsOption>;
@@ -229,7 +229,7 @@ export type CommandLineOptions = {
 	> | null;
 	[enableMultiprocessOnLinuxOption.cliFlag]: TypeOfOption<
 		typeof enableMultiprocessOnLinuxOption
-	>;
+	> | null;
 	[reproOption.cliFlag]: TypeOfOption<typeof reproOption> | null;
 	[imageSequencePatternOption.cliFlag]: TypeOfOption<
 		typeof imageSequencePatternOption
@@ -250,6 +250,21 @@ export type CommandLineOptions = {
 	'experimental-rspack'?: unknown;
 	[isProductionOption.cliFlag]: TypeOfOption<typeof isProductionOption> | null;
 	[skipSkillsOption.cliFlag]: TypeOfOption<typeof skipSkillsOption>;
+	[disableGitSourceOption.cliFlag]: TypeOfOption<typeof disableGitSourceOption>;
+	[forSeamlessAacConcatenationOption.cliFlag]: TypeOfOption<
+		typeof forSeamlessAacConcatenationOption
+	>;
+	[throwIfSiteExistsOption.cliFlag]: TypeOfOption<
+		typeof throwIfSiteExistsOption
+	>;
+	[enableCrossSiteIsolationOption.cliFlag]: TypeOfOption<
+		typeof enableCrossSiteIsolationOption
+	> | null;
+	[preferLosslessOption.cliFlag]: TypeOfOption<typeof preferLosslessOption>;
+	[enableLambdaInsights.cliFlag]: TypeOfOption<
+		typeof enableLambdaInsights
+	> | null;
+	[askAIOption.cliFlag]: TypeOfOption<typeof askAIOption> | null;
 };
 
 export const BooleanFlags = [
@@ -292,7 +307,7 @@ export const BooleanFlags = [
 	folderExpiryOption.cliFlag,
 	enableLambdaInsights.cliFlag,
 	askAIOption.cliFlag,
-];
+] satisfies (keyof CommandLineOptions)[];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
@@ -327,7 +342,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 		[folderExpiryOption.cliFlag]: null,
 		[enableLambdaInsights.cliFlag]: null,
 		[askAIOption.cliFlag]: null,
-	},
+	} satisfies Partial<CommandLineOptions>,
 }) as CommandLineOptions & {
 	_: string[];
 };

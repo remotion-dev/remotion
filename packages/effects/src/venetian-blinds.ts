@@ -5,6 +5,13 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -318,59 +325,111 @@ const directionToInt = (direction: VenetianBlindsDirection): number => {
 	}
 };
 
-export const venetianBlinds = createEffect<
-	VenetianBlindsParams,
-	VenetianBlindsState
->({
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params { controls: vec4f, }
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let color = textureSampleLevel(source, sourceSampler, input.uv, 0);
+	let axis = select(input.uv.x, 1.0 - input.uv.y, params.controls.y != 0.0);
+	let local = fract(axis * max(params.controls.z, 1.0));
+	let distanceToCenter = abs(local - 0.5) * 2.0;
+	let progress = clamp(params.controls.x, 0.0, 1.0);
+	if (progress <= 0.000001) { return vec4f(0); }
+	if (progress >= 0.999999) { return color; }
+	return color * step(distanceToCenter, progress);
+}
+`;
+
+export const venetianBlinds = createEffect<VenetianBlindsParams>({
 	type: 'dev.remotion.effects.venetianBlinds',
 	label: 'venetianBlinds()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/venetian-blinds',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `venetian-blinds-${r.progress}-${r.direction}-${r.slats}`;
 	},
-	setup: (target) => setupVenetianBlinds(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, texture, uniforms, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			VenetianBlindsParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'venetian-blinds'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the venetian-blinds effect',
+					);
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				const r = resolve(params);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				applyWebGpuSinglePass({
+					source,
+					width,
+					height,
+					state,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						r.progress,
+						r.direction === 'vertical' ? 0 : 1,
+						r.slats,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			VenetianBlindsParams,
+			VenetianBlindsState
+		>({
+			setup: (target) => setupVenetianBlinds(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, texture, uniforms, vao} = state;
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uProgress) gl.uniform1f(uniforms.uProgress, r.progress);
-		if (uniforms.uDirection)
-			gl.uniform1i(uniforms.uDirection, directionToInt(r.direction));
-		if (uniforms.uSlats) gl.uniform1f(uniforms.uSlats, r.slats);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uProgress) gl.uniform1f(uniforms.uProgress, r.progress);
+				if (uniforms.uDirection)
+					gl.uniform1i(uniforms.uDirection, directionToInt(r.direction));
+				if (uniforms.uSlats) gl.uniform1f(uniforms.uSlats, r.slats);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: venetianBlindsSchema,
 	validateParams: validateVenetianBlindsParams,

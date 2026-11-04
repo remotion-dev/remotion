@@ -39,9 +39,7 @@ export type GetMediaSyncActionInput = {
 	ended: boolean;
 	desiredUnclampedTime: number;
 	mediaTagTime: number;
-	mediaTagLastUpdate: number;
 	rvcTime: number | null;
-	rvcLastUpdate: number | null;
 	isVariableFpsVideo: boolean;
 	acceptableTimeShift: number;
 	lastSeekDueToShift: number | null;
@@ -55,6 +53,7 @@ export type GetMediaSyncActionInput = {
 	isPremounting: boolean;
 	isPostmounting: boolean;
 	pauseWhenBuffering: boolean;
+	mediaType: 'audio' | 'video';
 };
 
 export const getMediaSyncAction = (
@@ -67,9 +66,7 @@ export const getMediaSyncAction = (
 		ended,
 		desiredUnclampedTime,
 		mediaTagTime,
-		mediaTagLastUpdate,
 		rvcTime,
-		rvcLastUpdate,
 		isVariableFpsVideo,
 		acceptableTimeShift,
 		lastSeekDueToShift,
@@ -82,6 +79,7 @@ export const getMediaSyncAction = (
 		isPremounting,
 		isPostmounting,
 		pauseWhenBuffering,
+		mediaType,
 	} = input;
 
 	const shouldBeTime =
@@ -89,18 +87,7 @@ export const getMediaSyncAction = (
 			? Math.min(duration, desiredUnclampedTime)
 			: desiredUnclampedTime;
 
-	const timeShiftMediaTag = Math.abs(shouldBeTime - mediaTagTime);
-	const timeShiftRvcTag = rvcTime ? Math.abs(shouldBeTime - rvcTime) : null;
-
-	const mostRecentTimeshift =
-		rvcLastUpdate && (rvcTime as number) > mediaTagLastUpdate
-			? (timeShiftRvcTag as number)
-			: timeShiftMediaTag;
-
-	const timeShift =
-		timeShiftRvcTag && !isVariableFpsVideo
-			? mostRecentTimeshift
-			: timeShiftMediaTag;
+	const timeShift = Math.abs(shouldBeTime - mediaTagTime);
 
 	if (timeShift > acceptableTimeShift && lastSeekDueToShift !== shouldBeTime) {
 		// If scrubbing around, adjust timing
@@ -127,6 +114,15 @@ export const getMediaSyncAction = (
 	// which is fixed by only seeking conditionally.
 	const makesSenseToSeek = Math.abs(currentTime - shouldBeTime) > seekThreshold;
 
+	const audioLead = currentTime - shouldBeTime;
+	const holdAudioUntilTimelineCatchesUp =
+		mediaType === 'audio' &&
+		playing &&
+		playbackRate > 0 &&
+		makesSenseToSeek &&
+		audioLead > 0 &&
+		audioLead <= acceptableTimeShift;
+
 	const isSomethingElseBuffering =
 		playerBuffering && !mediaTagBufferingOrStalled;
 
@@ -134,9 +130,10 @@ export const getMediaSyncAction = (
 		return {
 			type: 'seek-if-not-playing',
 			shouldBeTime,
-			why: makesSenseToSeek
-				? `not playing or something else is buffering. time offset is over seek threshold (${seekThreshold})`
-				: null,
+			why:
+				makesSenseToSeek && !holdAudioUntilTimelineCatchesUp
+					? `not playing or something else is buffering. time offset is over seek threshold (${seekThreshold})`
+					: null,
 		};
 	}
 
@@ -146,6 +143,10 @@ export const getMediaSyncAction = (
 
 	// We now assured we are in playing state and not buffering
 	const pausedCondition = paused && !ended;
+	if (pausedCondition && holdAudioUntilTimelineCatchesUp) {
+		return {type: 'none'};
+	}
+
 	const firstFrameCondition = absoluteFrame === 0;
 	if (pausedCondition || firstFrameCondition) {
 		const reason = pausedCondition

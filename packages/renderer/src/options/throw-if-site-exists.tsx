@@ -2,7 +2,7 @@ import type {AnyRemotionOption} from './option';
 
 const DEFAULT = false;
 
-const cliFlag = 'throw-if-site-exists';
+const cliFlag = 'throw-if-site-exists' as const;
 
 export const throwIfSiteExistsOption = {
 	cliFlag,

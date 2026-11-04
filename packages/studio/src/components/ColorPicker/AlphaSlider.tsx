@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {clamp, hsvToRgb} from '../../helpers/color-conversion';
 import {
 	BORDER_WHITE_2PX,
@@ -9,6 +9,10 @@ import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {
 	CHECKER_BACKGROUND_COLOR,
 	CHECKER_BACKGROUND_IMAGE,
@@ -47,6 +51,11 @@ export const AlphaSlider: React.FC<{
 	readonly onChangeComplete: (next: number) => void;
 }> = ({hue, saturation, value, alpha, onChange, onChangeComplete}) => {
 	const ref = useRef<HTMLDivElement>(null);
+	const stopPointerSession = useRef<(() => void) | null>(null);
+
+	useEffect(() => {
+		return () => stopPointerSession.current?.();
+	}, []);
 
 	const opaqueColor = useMemo(() => {
 		const {r, g, b} = hsvToRgb({h: hue, s: saturation, v: value});
@@ -85,10 +94,11 @@ export const AlphaSlider: React.FC<{
 			}
 
 			e.preventDefault();
+			forceSpecificCursor('ew-resize');
 			updateFromEvent(e.clientX, false);
 			let lastClientX = e.clientX;
 
-			startCapturedPointerSession({
+			stopPointerSession.current = startCapturedPointerSession({
 				event: e.nativeEvent,
 				captureTarget: e.currentTarget,
 				onMove: (ev) => {
@@ -96,6 +106,8 @@ export const AlphaSlider: React.FC<{
 					updateFromEvent(ev.clientX, false);
 				},
 				onEnd: (reason, ev) => {
+					stopPointerSession.current = null;
+					stopForcingSpecificCursor();
 					const shouldUseEndEvent = isPointerSessionRelease(reason, ev);
 					updateFromEvent(
 						shouldUseEndEvent && ev ? ev.clientX : lastClientX,

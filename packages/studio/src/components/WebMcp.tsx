@@ -8,6 +8,7 @@ import {
 	type FC,
 	type MutableRefObject,
 } from 'react';
+import {flushSync} from 'react-dom';
 import {Internals, staticFile} from 'remotion';
 import {installPackages} from '../api/install-package';
 import {pause} from '../api/pause';
@@ -16,6 +17,7 @@ import {restartStudio} from '../api/restart-studio';
 import {seek} from '../api/seek';
 import {shutDownStudio} from '../api/shut-down-studio';
 import {getCurrentError} from '../error-overlay/current-error';
+import {canUseEffectOperations} from '../helpers/browser-studio-operations';
 import {useTimelineCalculator} from '../helpers/calculate-timeline';
 import {createFolderTree} from '../helpers/create-folder-tree';
 import {
@@ -31,12 +33,14 @@ import {
 	timelineZoomToNormalized,
 } from '../helpers/get-timeline-max-zoom';
 import type {TimelineTrackData} from '../helpers/get-timeline-sequence-sort-key';
+import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {getRenderOutputPlaybackTarget} from '../helpers/render-output-playback';
 import {
 	EditorShowGuidesContext,
 	persistGuidesList,
 	type Guide,
 } from '../state/editor-guides';
-import {loadLoopOption} from '../state/loop';
+import {loadLoopOption, loopSetterRef, persistLoopOption} from '../state/loop';
 import {persistMuteOption} from '../state/mute';
 import {commonPlaybackRates, persistPlaybackRate} from '../state/playbackrate';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
@@ -50,10 +54,30 @@ import {
 	getDefaultOutputBaseName,
 	validatePublicOutputName,
 } from './public-output-name';
-import {RenderQueueContext} from './RenderQueue/context';
+import {
+	isClientRenderJob,
+	RenderQueueActionsContext,
+	RenderQueueContext,
+} from './RenderQueue/context';
+import {useRenderJobRetry} from './RenderQueue/render-retry';
 import {measureOutlineTargets} from './selected-outline-measurement';
-import {getCurrentDuration, getCurrentFrame} from './Timeline/imperative-state';
+import {getPendingTimelineTimingEdits} from './Timeline/commit-timeline-timing-edit';
+import {
+	deleteEffectsFromSource,
+	getPendingEffectDeletions,
+	isEffectDeletionPending,
+} from './Timeline/delete-effects-from-source';
+import {
+	duplicateSequencesFromSource,
+	getPendingSequenceDuplications,
+	isSequenceDuplicationPending,
+} from './Timeline/duplicate-selected-timeline-item';
+import {getCurrentFrame} from './Timeline/imperative-state';
 import {parseKeyframeFieldFromNodePath} from './Timeline/parse-keyframe-field-from-node-path';
+import {
+	getPendingSequenceSplits,
+	isSequenceSplitPending,
+} from './Timeline/pending-sequence-splits';
 import {shouldShowTrackInTimeline} from './Timeline/should-show-track-in-timeline';
 import {scrollableRef} from './Timeline/timeline-refs';
 import {
@@ -63,7 +87,7 @@ import {
 } from './Timeline/TimelineSelection';
 import {getOriginalLocationFromStack} from './Timeline/TimelineStack/get-stack';
 import {useCompactSeries} from './Timeline/use-compact-series';
-import {useResolveStackAndReactToChange} from './Timeline/use-resolved-stack-react-to-change';
+import {useSequenceSourceLocation} from './Timeline/use-sequence-source-location';
 import {
 	getDefaultCaptionOutputName,
 	validateCaptionOutputName,
@@ -149,7 +173,6 @@ const serializeCompositionTree = (
 	});
 };
 
-const getNoStack = () => null;
 const MAX_CANVAS_HTML_LENGTH = 100_000;
 
 const missingOptionalPackageResult = (packageName: string) => ({
@@ -199,15 +222,12 @@ const WebMcpSelectionSync: FC<{
 	const {selectedItems} = useTimelineSelection();
 	const selectedItem = selectedItems.length === 1 ? selectedItems[0] : null;
 	const track = useTrackForSelection(selectedItem);
-	const {resolvedLocation, stack} = useResolveStackAndReactToChange(
-		track?.sequence.getStack ?? getNoStack,
-		track?.sequence.controls?.overrideId ??
-			track?.sequence.id ??
-			'no-selection',
+	const {location, stack} = useSequenceSourceLocation(
+		track?.sequence ?? null,
+		track?.nodePathInfo?.sequenceSubscriptionKey ?? null,
 	);
 	const currentStack = track?.sequence.getStack() ?? null;
-	const currentResolvedLocation =
-		stack === currentStack ? resolvedLocation : null;
+	const currentResolvedLocation = stack === currentStack ? location : null;
 	const currentSelection = useMemo(() => {
 		if (
 			selectedItems.length !== 1 ||
@@ -265,23 +285,35 @@ export const WebMcp: FC = () => {
 	const compactSeriesRef = useRef(compactSeries);
 	compactSeriesRef.current = compactSeries;
 	const {addCaptionJob, addVideoMattingJob} = useContext(RenderQueueContext);
+	const renderQueueActions = useContext(RenderQueueActionsContext);
+	const renderJobRetry = useRenderJobRetry();
 	const staticFiles = useStaticFiles();
 	const timelineSelectionRef = useCurrentTimelineSelectionStateAsRef();
 	const currentSelectionRef = useRef<string | null>(null);
 	const selectedSequenceRef = useRef<WebMcpSequence | null>(null);
-	const {canvasContent, compositions, currentCompositionMetadata, folders} =
-		useContext(Internals.CompositionManager);
+	const {canvasContent, compositions, folders} = useContext(
+		Internals.CompositionManager,
+	);
+	const video = Internals.useVideo();
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const {playbackRate: currentPlaybackRate, setPlaybackRate} =
 		Internals.usePlaybackRate();
 	const {isPlaying} = Internals.Timeline.useTimelineContext();
 	const {mediaVolume, playerMuted} = useContext(Internals.MediaVolumeContext);
-	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const {setPlayerMuted, setMediaVolume} = useContext(
+		Internals.SetMediaVolumeContext,
+	);
 	const {setZoom: setTimelineZoom, zoom: timelineZoomMap} =
 		useContext(TimelineZoomCtx);
 	const selectComposition = useSelectComposition();
 	const {editorShowGuides, guidesList, setEditorShowGuides, setGuidesList} =
 		useContext(EditorShowGuidesContext);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
 	const {overrideIdToNodePathMappings} = useContext(
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
@@ -324,8 +356,9 @@ export const WebMcp: FC = () => {
 	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const foldersRef = useRef(folders);
 	foldersRef.current = folders;
-	const currentCompositionMetadataRef = useRef(currentCompositionMetadata);
-	currentCompositionMetadataRef.current = currentCompositionMetadata;
+	const resolvedComposition = video?.id === currentComposition ? video : null;
+	const resolvedCompositionRef = useRef(resolvedComposition);
+	resolvedCompositionRef.current = resolvedComposition;
 	const guidesListRef = useRef(guidesList);
 	guidesListRef.current = guidesList;
 	const editorShowGuidesRef = useRef(editorShowGuides);
@@ -348,16 +381,72 @@ export const WebMcp: FC = () => {
 		}
 
 		const controller = new AbortController();
+		const getCurrentPlaybackTarget = () => {
+			const {canvasContent: content, currentAssetMetadata} =
+				compositionManagerRef.current;
+			if (content?.type === 'output' || content?.type === 'output-blob') {
+				const output = getRenderOutputPlaybackTarget(content);
+				if (output === null) return null;
+				const state = output.getState();
+				return {
+					type: 'output' as const,
+					id: output.id,
+					durationInFrames: state.durationInFrames,
+					fps: state.fps,
+					state,
+					output,
+				};
+			}
+
+			const composition = resolvedCompositionRef.current;
+			if (
+				content?.type === 'composition' &&
+				composition?.id === content.compositionId
+			) {
+				return {
+					type: 'timeline' as const,
+					id: composition.id,
+					durationInFrames: composition.durationInFrames,
+					fps: composition.fps,
+				};
+			}
+
+			if (
+				content?.type === 'asset' &&
+				currentAssetMetadata?.asset === content.asset
+			) {
+				return {
+					type: 'timeline' as const,
+					id: `asset:${content.asset}`,
+					durationInFrames: currentAssetMetadata.durationInFrames,
+					fps: currentAssetMetadata.fps,
+				};
+			}
+
+			return null;
+		};
+
+		const requireCurrentPlaybackTarget = () => {
+			const target = getCurrentPlaybackTarget();
+			if (target === null) {
+				const content = compositionManagerRef.current.canvasContent;
+				throw new Error(
+					content?.type === 'output' || content?.type === 'output-blob'
+						? 'The current render output does not have a ready audio or video preview.'
+						: content?.type === 'asset'
+							? 'The current asset does not have a ready audio or video preview.'
+							: 'No composition or ready audio/video preview is currently selected.',
+				);
+			}
+
+			return target;
+		};
+
 		const getCurrentTimeline = () => {
-			const composition = currentCompositionDefinitionRef.current;
+			const composition = resolvedCompositionRef.current;
 			if (composition === null) {
 				return [];
 			}
-
-			const durationInFrames =
-				currentCompositionMetadataRef.current?.durationInFrames ??
-				composition.durationInFrames ??
-				getCurrentDuration();
 
 			return calculateTimeline({
 				sequences: sequencesRef.current,
@@ -365,7 +454,7 @@ export const WebMcp: FC = () => {
 				compositions: compositionsRef.current,
 				showConnectedCompositionChildren: compactSeriesRef.current,
 			}).tracks.filter((timelineTrack) =>
-				shouldShowTrackInTimeline(timelineTrack, durationInFrames),
+				shouldShowTrackInTimeline(timelineTrack, composition.durationInFrames),
 			);
 		};
 
@@ -780,6 +869,112 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'get_render_jobs',
+					title: 'Get Studio render jobs',
+					description:
+						'Read the server and browser render jobs currently shown in Studio, including progress, cancellation availability, pending cancellation, and whether the saved render settings can be reopened. Excludes transcription and background removal jobs. Reading jobs is available in all Studio modes.',
+					inputSchema: {
+						type: 'object',
+						properties: {},
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: true},
+					execute: () => {
+						return Promise.resolve({
+							jobs: renderQueueActions.getJobs().map((job) => {
+								const retryState = renderJobRetry.getRetryState(job.id);
+								return {
+									id: job.id,
+									type: job.type,
+									compositionId: job.compositionId,
+									outputName: job.outName,
+									status: job.status,
+									cancelling: renderQueueActions.isCancelling(job.id),
+									canCancel: renderQueueActions.canCancelJob(job.id),
+									canRetry: retryState.canRetry,
+									retryUnavailableReason: retryState.reason,
+									progress:
+										job.status === 'done'
+											? 1
+											: job.status === 'idle'
+												? 0
+												: job.status === 'running'
+													? isClientRenderJob(job)
+														? job.progress.progress
+														: job.progress.value
+													: null,
+									error: job.status === 'failed' ? job.error.message : null,
+								};
+							}),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'open_render_job_settings',
+					title: 'Open Studio render job settings',
+					description:
+						'Open the same prefilled render dialog as Studio Retry for a completed, failed, or cancelled render job, without starting a render. Uses the job’s saved settings, or preserves unsaved edits if this job’s dialog is already open. The returned outputName identifies the saved job. Read canRetry and retryUnavailableReason from get_render_jobs first. Server settings require a connected interactive Studio; browser render settings can reopen locally in all modes when the original settings and composition are available.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							jobId: {
+								type: 'string',
+								minLength: 1,
+								description: 'The render job id returned by get_render_jobs.',
+							},
+						},
+						required: ['jobId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({jobId}) => {
+						if (typeof jobId !== 'string' || jobId.length === 0) {
+							throw new Error('jobId must be a non-empty string.');
+						}
+
+						return Promise.resolve({
+							jobId,
+							...renderJobRetry.openRenderJobSettings(jobId),
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'cancel_render_job',
+					title: 'Cancel Studio render job',
+					description:
+						'Request cancellation of a render job using the same action as Studio. Get the jobId from get_render_jobs. Server jobs require a connected Studio server; queued or running browser render jobs can be cancelled locally in every Studio mode. A requested result acknowledges the cancellation request, not a terminal outcome; read get_render_jobs until the job finishes.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							jobId: {
+								type: 'string',
+								minLength: 1,
+								description: 'The render job id returned by get_render_jobs.',
+							},
+						},
+						required: ['jobId'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: async ({jobId}) => {
+						if (typeof jobId !== 'string' || jobId.length === 0) {
+							throw new Error('jobId must be a non-empty string.');
+						}
+
+						const result = await renderQueueActions.cancelJob(jobId);
+						return {jobId, ...result};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'get_current_error',
 					title: 'Get current Studio error',
 					description:
@@ -844,7 +1039,7 @@ export const WebMcp: FC = () => {
 					name: 'select_composition',
 					title: 'Select Studio composition',
 					description:
-						'Open a registered composition in Remotion Studio by ID.',
+						'Open a registered composition in Remotion Studio by ID and acknowledge after the selection has committed. Preview metadata may still be loading.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -869,7 +1064,7 @@ export const WebMcp: FC = () => {
 							throw new Error(`Composition ${compositionName} not found.`);
 						}
 
-						selectComposition(composition, true);
+						flushSync(() => selectComposition(composition, true));
 						return Promise.resolve({
 							currentContent: {
 								type: 'composition',
@@ -885,7 +1080,7 @@ export const WebMcp: FC = () => {
 					name: 'get_sequences',
 					title: 'Get Studio sequences',
 					description:
-						'Read the mounted sequences in the current Remotion Studio timeline, including their IDs, hierarchy, timing, type, source stack, and whether they can be selected.',
+						'Read the mounted sequences in the current Remotion Studio timeline, including their IDs, hierarchy, timing, effects, source stack, selection availability, and pending timing edits, duplication, splitting, or effect deletion. Pending operations include source nodes that are temporarily unmounted during refresh.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -894,13 +1089,265 @@ export const WebMcp: FC = () => {
 					annotations: {readOnlyHint: true},
 					execute: () => {
 						const compositionId = currentCompositionRef.current;
+						const pendingEffectDeletions = getPendingEffectDeletions();
+						const pendingEffectsByNode = new Map(
+							pendingEffectDeletions.map((entry) => [
+								JSON.stringify([
+									entry.nodePath.absolutePath,
+									entry.nodePath.nodePath,
+								]),
+								entry,
+							]),
+						);
+						const canDeleteEffects =
+							timelineSelectionRef.current.canSelect &&
+							canUseEffectOperations();
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
+							pendingTimingEdits: getPendingTimelineTimingEdits(),
+							pendingDuplications: getPendingSequenceDuplications(),
+							pendingSplits: getPendingSequenceSplits().map(
+								({absolutePath, nodePath, splitFrame}) => ({
+									absolutePath,
+									nodePath,
+									sourceFrame: splitFrame,
+								}),
+							),
+							pendingEffectDeletions: pendingEffectDeletions.map(
+								({nodePath, effectIndices}) => ({
+									absolutePath: nodePath.absolutePath,
+									nodePath: nodePath.nodePath,
+									effectIndices,
+								}),
+							),
 							sequences:
 								compositionId === null
 									? []
-									: getCurrentTimeline().map(serializeSequence),
+									: getCurrentTimeline().map((track) => {
+											const nodePath =
+												track.nodePathInfo?.sequenceSubscriptionKey ?? null;
+											const pendingEffects = nodePath
+												? pendingEffectsByNode.get(
+														JSON.stringify([
+															nodePath.absolutePath,
+															nodePath.nodePath,
+														]),
+													)
+												: undefined;
+											return {
+												...serializeSequence(track),
+												splitting:
+													track.nodePathInfo !== null &&
+													isSequenceSplitPending(track.nodePathInfo),
+												duplicating:
+													track.nodePathInfo !== null &&
+													isSequenceDuplicationPending(track.nodePathInfo),
+												effects: track.sequence.effects.map(
+													(effect, effectIndex) => {
+														const status = nodePath
+															? Internals.getEffectPropStatusesCtx({
+																	propStatuses: propStatusesRef.current,
+																	nodePath,
+																	effectIndex,
+																})
+															: null;
+														return {
+															effectIndex,
+															type: effect.type,
+															label: effect.label,
+															canDelete:
+																canDeleteEffects &&
+																pendingEffects === undefined &&
+																status?.type === 'can-update-effect',
+															deleting:
+																pendingEffects !== undefined &&
+																Internals.OptimisticEffectDeletion.matches(
+																	pendingEffects,
+																	track.sequence.effects,
+																) &&
+																pendingEffects.effectIndices.includes(
+																	effectIndex,
+																),
+														};
+													},
+												),
+											};
+										}),
 						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'delete_effect',
+					title: 'Delete Studio effect',
+					description:
+						'Delete an effect from a sequence using the same action as the Studio interface. Read the current effectIndex from get_sequences before deleting. This edits the source and affects every runtime instance of that source node. Success means the deletion was saved; the preview may still be refreshing.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							sequenceId: {
+								type: 'string',
+								minLength: 1,
+								description: 'The sequence ID returned by get_sequences.',
+							},
+							effectIndex: {
+								type: 'integer',
+								minimum: 0,
+								description:
+									'The current zero-based effect index returned by get_sequences.',
+							},
+						},
+						required: ['sequenceId', 'effectIndex'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: async ({sequenceId, effectIndex}) => {
+						if (typeof sequenceId !== 'string' || sequenceId.length === 0) {
+							throw new Error('sequenceId must be a non-empty string.');
+						}
+
+						if (
+							typeof effectIndex !== 'number' ||
+							!Number.isInteger(effectIndex) ||
+							effectIndex < 0
+						) {
+							throw new Error('effectIndex must be a non-negative integer.');
+						}
+
+						if (currentCompositionRef.current === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						if (
+							!timelineSelectionRef.current.canSelect ||
+							!canUseEffectOperations()
+						) {
+							throw new Error('Studio effect editing is unavailable.');
+						}
+
+						const track = getCurrentTimeline().find(
+							(candidate) => candidate.sequence.id === sequenceId,
+						);
+						if (!track) {
+							throw new Error(
+								`Sequence ${sequenceId} not found in the current composition.`,
+							);
+						}
+
+						const nodePath =
+							track.nodePathInfo?.sequenceSubscriptionKey ?? null;
+						if (nodePath === null) {
+							throw new Error(
+								`The source for sequence ${sequenceId} is unavailable.`,
+							);
+						}
+
+						if (!track.sequence.effects[effectIndex]) {
+							throw new Error(
+								`Effect ${effectIndex} not found on sequence ${sequenceId}.`,
+							);
+						}
+
+						if (isEffectDeletionPending(nodePath)) {
+							return {sequenceId, effectIndex, status: 'already-pending'};
+						}
+
+						const status = Internals.getEffectPropStatusesCtx({
+							propStatuses: propStatusesRef.current,
+							nodePath,
+							effectIndex,
+						});
+						if (status.type !== 'can-update-effect') {
+							throw new Error('The effect source is unavailable for deletion.');
+						}
+
+						const result = await deleteEffectsFromSource(
+							[
+								{
+									nodePath,
+									effectIndices: [effectIndex],
+									effects: track.sequence.effects,
+								},
+							],
+							timelineSelectionRef,
+						);
+						return {sequenceId, effectIndex, ...result};
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
+					name: 'duplicate_sequence',
+					title: 'Duplicate Studio sequence',
+					description:
+						'Duplicate the source JSX node for a mounted sequence using the same action as the Studio inspector. Requires source editing to be available. Success means the source copy was saved; new sequence IDs appear in get_sequences after the preview refreshes.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							sequenceId: {
+								type: 'string',
+								minLength: 1,
+								description: 'The sequence ID returned by get_sequences.',
+							},
+							confirmProgrammaticDuplication: {
+								type: 'boolean',
+								description:
+									'When one source node produces multiple runtime instances, copying that source node creates a copy for every instance. Set true to confirm this behavior; false cancels duplication of programmatically repeated nodes. Single-instance nodes do not require confirmation.',
+							},
+						},
+						required: ['sequenceId', 'confirmProgrammaticDuplication'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: async ({sequenceId, confirmProgrammaticDuplication}) => {
+						if (typeof sequenceId !== 'string' || sequenceId.length === 0) {
+							throw new Error('sequenceId must be a non-empty string.');
+						}
+
+						if (typeof confirmProgrammaticDuplication !== 'boolean') {
+							throw new Error(
+								'confirmProgrammaticDuplication must be a boolean.',
+							);
+						}
+
+						if (currentCompositionRef.current === null) {
+							throw new Error('No composition is currently selected.');
+						}
+
+						if (
+							!timelineSelectionRef.current.canSelect ||
+							!isStudioInteractivityEnabled()
+						) {
+							throw new Error('Studio source editing is unavailable.');
+						}
+
+						const track = getCurrentTimeline().find(
+							(candidate) => candidate.sequence.id === sequenceId,
+						);
+						if (!track) {
+							throw new Error(
+								`Sequence ${sequenceId} not found in the current composition.`,
+							);
+						}
+
+						if (track.sequence.timelineTrack?.role === 'transition') {
+							throw new Error('Transitions cannot be duplicated.');
+						}
+
+						if (track.nodePathInfo === null) {
+							throw new Error(
+								`The source for sequence ${sequenceId} is unavailable.`,
+							);
+						}
+
+						const result = await duplicateSequencesFromSource(
+							[track.nodePathInfo],
+							() => Promise.resolve(confirmProgrammaticDuplication),
+						);
+						return {sequenceId, ...result};
 					},
 				},
 				{signal: controller.signal},
@@ -991,7 +1438,7 @@ export const WebMcp: FC = () => {
 							});
 						}
 
-						const metadata = currentCompositionMetadataRef.current;
+						const metadata = resolvedCompositionRef.current;
 						return Promise.resolve({
 							compositionName: composition.id,
 							stack: composition.stack,
@@ -1002,7 +1449,7 @@ export const WebMcp: FC = () => {
 							height: metadata?.height ?? composition.height ?? null,
 							width: metadata?.width ?? composition.width ?? null,
 							fps: metadata?.fps ?? composition.fps ?? null,
-							currentFrame: getCurrentFrame(),
+							currentFrame: metadata === null ? null : getCurrentFrame(),
 						});
 					},
 				},
@@ -1021,8 +1468,7 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: true},
 					execute: () => {
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
+						if (resolvedCompositionRef.current === null) {
 							return Promise.resolve({
 								currentContent: currentContentRef.current,
 								currentFrame: null,
@@ -1057,8 +1503,7 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: true},
 					execute: async () => {
-						const composition = currentCompositionDefinitionRef.current;
-						if (composition === null) {
+						if (resolvedCompositionRef.current === null) {
 							return {
 								currentContent: currentContentRef.current,
 								currentFrame: null,
@@ -1178,7 +1623,7 @@ export const WebMcp: FC = () => {
 					name: 'get_playback_state',
 					title: 'Get Studio playback state',
 					description:
-						'Read the current frame, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition open in Remotion Studio. All playback fields are null when the canvas is not showing a composition.',
+						'Read the current frame, frame rate, duration, playing state, audio state, playback rate, looping state, and normalized timeline zoom for the composition or ready audio/video asset or render-output preview. All playback fields are null for unsupported or unready content. Render outputs have no timeline zoom and expose playbackStartFrame for returning to their last playback start with pause and seek_to_frame.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1186,11 +1631,14 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: true},
 					execute: () => {
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
+						const target = getCurrentPlaybackTarget();
+						if (target === null) {
 							return Promise.resolve({
 								currentContent: currentContentRef.current,
 								currentFrame: null,
+								playbackStartFrame: null,
+								fps: null,
+								durationInFrames: null,
 								playing: null,
 								muted: null,
 								volume: null,
@@ -1200,7 +1648,24 @@ export const WebMcp: FC = () => {
 							});
 						}
 
-						const durationInFrames = getCurrentDuration();
+						if (target.type === 'output') {
+							const {state} = target;
+							return Promise.resolve({
+								currentContent: currentContentRef.current,
+								currentFrame: state.frame,
+								playbackStartFrame: state.playbackStartFrame,
+								fps: state.fps,
+								durationInFrames: state.durationInFrames,
+								playing: state.playing,
+								muted: state.muted,
+								volume: state.volume,
+								playbackRate: state.playbackRate,
+								looping: state.loop,
+								timelineZoom: null,
+							});
+						}
+
+						const {durationInFrames} = target;
 						const timelineViewportWidth =
 							scrollableRef.current?.clientWidth ?? 0;
 						const minZoom = getTimelineMinZoom({
@@ -1210,13 +1675,16 @@ export const WebMcp: FC = () => {
 						const timelineZoom = getTimelineZoom({
 							durationInFrames,
 							timelineViewportWidth,
-							zoom: timelineZoomRef.current[compositionId] ?? null,
+							zoom: timelineZoomRef.current[target.id] ?? null,
 						});
 
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
 							currentFrame: getCurrentFrame(),
-							playing: isPlaying(),
+							playbackStartFrame: null,
+							fps: target.fps,
+							durationInFrames: target.durationInFrames,
+							playing: durationInFrames > 1 && isPlaying(),
 							muted: playerMutedRef.current,
 							volume: mediaVolumeRef.current,
 							playbackRate: playbackRateRef.current,
@@ -1235,16 +1703,20 @@ export const WebMcp: FC = () => {
 					name: 'get_selection',
 					title: 'Get Studio selection',
 					description:
-						'Read the current frame, canvas content (composition, asset, or output), and source-code context for the item currently selected in Remotion Studio. The selection matches "Copy context for agents".',
+						'Read the current frame of the selected composition, asset, or render output, and the source-code context for the selected item. The frame is 0 when there is no ready playhead. The selection matches "Copy context for agents".',
 					inputSchema: {
 						type: 'object',
 						properties: {},
 						additionalProperties: false,
 					},
 					annotations: {readOnlyHint: true},
-					execute: () =>
-						Promise.resolve({
-							currentFrame: getCurrentFrame(),
+					execute: () => {
+						const target = getCurrentPlaybackTarget();
+						return Promise.resolve({
+							currentFrame:
+								target?.type === 'timeline'
+									? getCurrentFrame()
+									: (target?.state.frame ?? 0),
 							currentSelection: currentSelectionRef.current,
 							currentContent: currentContentRef.current,
 							selectionType:
@@ -1252,7 +1724,8 @@ export const WebMcp: FC = () => {
 									? timelineSelectionRef.current.selectedItems[0].type
 									: null,
 							selectedSequence: selectedSequenceRef.current,
-						}),
+						});
+					},
 				},
 				{signal: controller.signal},
 			),
@@ -1464,25 +1937,42 @@ export const WebMcp: FC = () => {
 			modelContext.registerTool(
 				{
 					name: 'play',
-					title: 'Play Studio composition',
+					title: 'Play Studio preview',
 					description:
-						'Start playing the current Remotion Studio composition from the current frame.',
+						'Start playing the current Remotion Studio composition or ready audio/video asset or render-output preview from the current frame.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
 						additionalProperties: false,
 					},
 					annotations: {readOnlyHint: false},
-					execute: () => {
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
-							throw new Error('No composition is currently selected.');
+					execute: async () => {
+						const target = requireCurrentPlaybackTarget();
+						const {durationInFrames} = target;
+
+						if (target.type === 'timeline' && durationInFrames <= 1) {
+							throw new Error(
+								'The current preview has only one frame and cannot play.',
+							);
 						}
 
-						if (getCurrentDuration() <= 1) {
-							throw new Error(
-								'The current composition is a still and cannot play.',
-							);
+						if (target.type === 'output') {
+							await target.output.play();
+							if (
+								getRenderOutputPlaybackTarget(
+									compositionManagerRef.current.canvasContent,
+								) !== target.output
+							) {
+								target.output.pause();
+								throw new Error(
+									'The rendered output preview changed while playback was starting.',
+								);
+							}
+
+							return {
+								currentContent: currentContentRef.current,
+								playing: target.output.getState().playing,
+							};
 						}
 
 						if (Internals.timeValueRef.current === null) {
@@ -1501,9 +1991,9 @@ export const WebMcp: FC = () => {
 			modelContext.registerTool(
 				{
 					name: 'pause',
-					title: 'Pause Studio composition',
+					title: 'Pause Studio preview',
 					description:
-						'Pause the current Remotion Studio composition at the current frame.',
+						'Pause the current Remotion Studio composition or ready audio/video asset or render-output preview at the current frame.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1511,16 +2001,17 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: false},
 					execute: () => {
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
-							throw new Error('No composition is currently selected.');
+						const target = requireCurrentPlaybackTarget();
+						if (target.type === 'output') {
+							target.output.pause();
+						} else if (target.durationInFrames > 1) {
+							if (Internals.timeValueRef.current === null) {
+								throw new Error('Studio playback controls are not ready.');
+							}
+
+							pause();
 						}
 
-						if (Internals.timeValueRef.current === null) {
-							throw new Error('Studio playback controls are not ready.');
-						}
-
-						pause();
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
 							playing: false,
@@ -1532,9 +2023,9 @@ export const WebMcp: FC = () => {
 			modelContext.registerTool(
 				{
 					name: 'mute',
-					title: 'Mute Studio composition',
+					title: 'Mute Studio preview',
 					description:
-						'Mute audio playback for the current Remotion Studio composition.',
+						'Mute audio playback for the current Remotion Studio composition or ready audio/video asset or render-output preview.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1542,13 +2033,14 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: false},
 					execute: () => {
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
-							throw new Error('No composition is currently selected.');
+						const target = requireCurrentPlaybackTarget();
+
+						if (target.type === 'output') target.output.setMuted(true);
+						else {
+							setPlayerMuted(true);
+							persistMuteOption(true);
 						}
 
-						setPlayerMuted(true);
-						persistMuteOption(true);
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
 							muted: true,
@@ -1560,9 +2052,9 @@ export const WebMcp: FC = () => {
 			modelContext.registerTool(
 				{
 					name: 'unmute',
-					title: 'Unmute Studio composition',
+					title: 'Unmute Studio preview',
 					description:
-						'Unmute audio playback for the current Remotion Studio composition.',
+						'Unmute audio playback for the current Remotion Studio composition or ready audio/video asset or render-output preview.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1570,13 +2062,14 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: false},
 					execute: () => {
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
-							throw new Error('No composition is currently selected.');
+						const target = requireCurrentPlaybackTarget();
+
+						if (target.type === 'output') target.output.setMuted(false);
+						else {
+							setPlayerMuted(false);
+							persistMuteOption(false);
 						}
 
-						setPlayerMuted(false);
-						persistMuteOption(false);
 						return Promise.resolve({
 							currentContent: currentContentRef.current,
 							muted: false,
@@ -1587,10 +2080,58 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'set_volume',
+					title: 'Set Studio preview volume',
+					description:
+						'Set playback volume from 0 to 1 for the current composition or ready audio/video preview in any Studio mode. Render-output volume is local to the mounted output. This does not change source audio settings or the muted state.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							volume: {
+								type: 'number',
+								minimum: 0,
+								maximum: 1,
+								description:
+									'Playback volume from 0 (silent) to 1 (full volume).',
+							},
+						},
+						required: ['volume'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({volume}) => {
+						if (
+							typeof volume !== 'number' ||
+							!Number.isFinite(volume) ||
+							volume < 0 ||
+							volume > 1
+						) {
+							throw new Error(
+								'volume must be a finite number between 0 and 1.',
+							);
+						}
+
+						const target = requireCurrentPlaybackTarget();
+						if (target.type === 'output') target.output.setVolume(volume);
+						else {
+							mediaVolumeRef.current = volume;
+							setMediaVolume(volume);
+						}
+
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							volume,
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'set_timeline_zoom',
 					title: 'Set Studio timeline zoom',
 					description:
-						'Set the timeline zoom for the current Remotion Studio composition. Use 0 for fully zoomed out and 1 for the maximum zoom supported by the composition duration.',
+						'Set the timeline zoom for the current Remotion Studio composition or ready audio/video asset preview. Use 0 for fully zoomed out and 1 for the maximum zoom supported by the preview duration.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -1616,15 +2157,17 @@ export const WebMcp: FC = () => {
 							throw new Error('zoom must be a finite number between 0 and 1.');
 						}
 
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
-							throw new Error('No composition is currently selected.');
+						const target = requireCurrentPlaybackTarget();
+						if (target.type === 'output') {
+							throw new Error(
+								'Render-output previews do not have timeline zoom.',
+							);
 						}
 
-						const durationInFrames = getCurrentDuration();
+						const {id, durationInFrames} = target;
 						if (durationInFrames <= 1) {
 							throw new Error(
-								'The current composition is a still and has no timeline zoom.',
+								'The current preview has only one frame and has no timeline zoom.',
 							);
 						}
 
@@ -1642,7 +2185,7 @@ export const WebMcp: FC = () => {
 							durationInFrames,
 							timelineViewportWidth,
 						});
-						setTimelineZoom(compositionId, () => timelineZoom, {
+						setTimelineZoom(id, () => timelineZoom, {
 							anchorFrame: null,
 							anchorContentX: null,
 						});
@@ -1660,10 +2203,65 @@ export const WebMcp: FC = () => {
 			),
 			modelContext.registerTool(
 				{
+					name: 'set_looping',
+					title: 'Set Studio looping',
+					description:
+						'Enable or disable looping for the current Remotion Studio composition or ready audio/video preview. Render-output looping is local to the mounted output; composition and asset looping updates the Loop control and saved playback preference.',
+					inputSchema: {
+						type: 'object',
+						properties: {
+							looping: {
+								type: 'boolean',
+								description: 'Whether playback should loop at the end.',
+							},
+						},
+						required: ['looping'],
+						additionalProperties: false,
+					},
+					annotations: {readOnlyHint: false},
+					execute: ({looping}) => {
+						if (typeof looping !== 'boolean') {
+							throw new Error('looping must be a boolean.');
+						}
+
+						const target = requireCurrentPlaybackTarget();
+						const {durationInFrames} = target;
+						if (target.type === 'timeline' && durationInFrames <= 1) {
+							throw new Error(
+								'The current preview has only one frame and cannot loop.',
+							);
+						}
+
+						if (target.type === 'output') {
+							target.output.setLoop(looping);
+							return Promise.resolve({
+								currentContent: currentContentRef.current,
+								looping,
+							});
+						}
+
+						if (loopSetterRef.current === null) {
+							throw new Error('Studio playback controls are not ready.');
+						}
+
+						loopSetterRef.current(() => {
+							persistLoopOption(looping);
+							return looping;
+						});
+						return Promise.resolve({
+							currentContent: currentContentRef.current,
+							looping,
+						});
+					},
+				},
+				{signal: controller.signal},
+			),
+			modelContext.registerTool(
+				{
 					name: 'set_playback_rate',
 					title: 'Set Studio playback rate',
 					description:
-						'Set the playback rate for the current Remotion Studio composition. Negative values play the composition backwards.',
+						'Set the playback rate for the current Remotion Studio composition or ready audio/video preview. Negative values play backwards in compositions and assets; rendered outputs only support positive rates and keep their own rate.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -1688,9 +2286,17 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
-							throw new Error('No composition is currently selected.');
+						const target = requireCurrentPlaybackTarget();
+						if (target.type === 'output') {
+							if (playbackRate < 0)
+								throw new Error(
+									'Render-output previews do not support reverse playback.',
+								);
+							target.output.setPlaybackRate(playbackRate);
+							return Promise.resolve({
+								currentContent: currentContentRef.current,
+								playbackRate: target.output.getState().playbackRate,
+							});
 						}
 
 						setPlaybackRate(() => playbackRate);
@@ -1708,7 +2314,7 @@ export const WebMcp: FC = () => {
 					name: 'seek_to_frame',
 					title: 'Seek Studio timeline',
 					description:
-						'Seek the current Remotion Studio composition to a frame. Frames past the end of the composition are clamped to the final frame.',
+						'Seek the current Remotion Studio composition or ready audio/video asset or render-output preview to a frame. Frames past the end are clamped to the final frame. Read get_playback_state for the preview frame rate and duration.',
 					inputSchema: {
 						type: 'object',
 						properties: {
@@ -1727,16 +2333,23 @@ export const WebMcp: FC = () => {
 							throw new Error('frame must be an integer.');
 						}
 
-						const compositionId = currentCompositionRef.current;
-						if (compositionId === null) {
-							throw new Error('No composition is currently selected.');
+						const target = requireCurrentPlaybackTarget();
+						const {durationInFrames} = target;
+						if (
+							target.type !== 'output' &&
+							durationInFrames > 1 &&
+							Internals.timeValueRef.current === null
+						) {
+							throw new Error('Studio playback controls are not ready.');
 						}
 
 						const currentFrame = Math.min(
 							Math.max(0, frame),
-							getCurrentDuration() - 1,
+							durationInFrames - 1,
 						);
-						seek(currentFrame);
+						if (target.type === 'output')
+							target.output.seekToFrame(currentFrame);
+						else seek(currentFrame);
 						return Promise.resolve({
 							currentFrame,
 							currentContent: currentContentRef.current,
@@ -1754,11 +2367,16 @@ export const WebMcp: FC = () => {
 		addCaptionJob,
 		addVideoMattingJob,
 		calculateTimeline,
+		compositionManagerRef,
 		isPlaying,
+		propStatusesRef,
+		renderQueueActions,
+		renderJobRetry,
 		selectComposition,
 		sequencesRef,
 		setEditorShowGuides,
 		setGuidesList,
+		setMediaVolume,
 		setPlaybackRate,
 		setPlayerMuted,
 		setTimelineZoom,

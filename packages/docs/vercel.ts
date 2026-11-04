@@ -171,6 +171,54 @@ export const config: VercelConfig = {
 		})),
 	],
 	redirects: [
+		routes.redirect(
+			'/docs/starburst',
+			'/elements/backgrounds/rotating-starburst',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect(
+			'/docs/starburst.md',
+			'/elements/backgrounds/rotating-starburst.md',
+			{permanent: true},
+		),
+		routes.redirect('/docs/using-audio', '/docs/video-and-audio', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/using-audio.md', '/docs/video-and-audio.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/importing', '/docs/videos', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/importing.md', '/docs/videos.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/from-video', '/docs/videos#audio-from-video', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/docs/audio/from-video.md',
+			'/docs/videos.md#audio-from-video',
+			{permanent: true},
+		),
+		routes.redirect('/docs/audio/delaying', '/docs/audio/trimming#delaying', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/docs/audio/delaying.md',
+			'/docs/audio/trimming.md#delaying',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect('/docs/audio/muting', '/docs/audio/volume#muting', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/muting.md', '/docs/audio/volume.md#muting', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
 			permanent: true,
 		}),

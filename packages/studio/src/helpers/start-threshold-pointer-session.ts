@@ -1,8 +1,6 @@
+import {startEscapeCancelableCapturedPointerSession} from './escape-cancelable-pointer-session';
 import type {PointerSessionEndReason} from './pointer-session';
-import {
-	isPointerSessionRelease,
-	startCapturedPointerSession,
-} from './pointer-session';
+import {isPointerSessionRelease} from './pointer-session';
 
 type PointerHandlers = {
 	onMove: (event: PointerEvent) => void;
@@ -25,7 +23,7 @@ export const startThresholdPointerSession = ({
 	let handlers = minimumMovement === null ? onStart() : null;
 	const movedEnough = (move: PointerEvent) =>
 		Math.abs(move.clientX - event.clientX) >= (minimumMovement ?? 0);
-	return startCapturedPointerSession({
+	return startEscapeCancelableCapturedPointerSession({
 		event,
 		captureTarget,
 		onMove: (move) => {
