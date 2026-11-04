@@ -24,7 +24,6 @@ test('starts asynchronous cleanup when a simulated Lambda releases its browser',
 	expect(browserClosed).toBe(false);
 });
 
-// Separate tests exercise the teardown boundary that precedes CLI SIGINT tests.
 test('finishes the previous browser cleanup before running the next test', () => {
 	expect(browserClosed).toBe(true);
 });

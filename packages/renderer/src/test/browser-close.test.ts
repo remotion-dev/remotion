@@ -140,13 +140,10 @@ test('force-kills the browser from the Node process exit handler', async () => {
 		throw new Error('The browser exit listener was not registered');
 	}
 
-	// Invoke only this runner's exit handler, without exiting the test process.
 	onExit(0);
 	expect(existsSync(profile)).toBe(false);
 	expect(runner.listeners).toHaveLength(0);
 
-	// Windows taskkill completes asynchronously. Wait for the exit handler to
-	// terminate the worker before closeProcess() can send a CDP close request.
 	for (let attempt = 0; attempt < 500 && pidExists(pid); attempt++) {
 		await new Promise((resolve) => setTimeout(resolve, 10));
 	}

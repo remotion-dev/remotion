@@ -345,7 +345,6 @@ export const useFakeAws = () => {
 	beforeAll(installFakeAws);
 	afterEach(async () => {
 		try {
-			// Finish browser shutdown before another test can emit SIGINT.
 			await waitForPromisesToFinish(pendingBrowserCloses.splice(0));
 		} finally {
 			resetFakeAws();

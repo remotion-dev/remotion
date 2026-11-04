@@ -159,9 +159,7 @@ export const makeBrowserRunner = async ({
 					// clone removal. The CDP response can be lost as Chrome exits.
 					try {
 						void connection.send('Browser.close').catch(() => undefined);
-					} catch {
-						// The transport may already be closed. Still wait for process exit.
-					}
+					} catch {}
 
 					await Promise.race([
 						processClosing,
@@ -184,7 +182,6 @@ export const makeBrowserRunner = async ({
 					clearTimeout(timeoutId);
 				}
 
-				// Also clean up when Chrome exited on its own, before closeProcess().
 				deleteDirectory(userDataDir);
 				removeEventListeners(listeners);
 			}

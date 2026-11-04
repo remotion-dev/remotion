@@ -6,7 +6,6 @@ const [mode, directory] = process.argv.slice(2);
 const server = new WebSocketServer({host: '127.0.0.1', port: 0});
 writeFileSync(join(directory, 'pid'), String(process.pid));
 
-// Bound the lifetime of a worker if its test fails during startup.
 setTimeout(() => process.exit(1), 15_000).unref();
 
 server.on('listening', () => {
@@ -44,8 +43,6 @@ server.on('connection', (socket) => {
 			socket.send(JSON.stringify({id, result: {}}));
 		}
 
-		// A CDP response or socket close is not the process exit. This marker
-		// models browser-owned cleanup that a SIGKILL would bypass.
 		setTimeout(() => {
 			writeFileSync(
 				join(directory, 'closed'),
