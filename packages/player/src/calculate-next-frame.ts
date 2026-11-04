@@ -29,7 +29,6 @@ export const calculateNextFrame = ({
 
 	const hasEnded = !shouldLoop && isNextFrameOutside && !isCurrentFrameOutside;
 	if (shouldLoop && isNextFrameOutside && !isCurrentFrameOutside) {
-		// Preserve elapsed frames across complete loops in either direction.
 		const playbackRange = actualLastFrame - actualFirstFrame + 1;
 		const frameWithinRange = (nextFrame - actualFirstFrame) % playbackRange;
 		return {

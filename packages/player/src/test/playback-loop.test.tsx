@@ -70,7 +70,6 @@ test.each([
 		duration: 1,
 		frames: [0, 0, 0, 0],
 	},
-	// Starting outside the playback range still enters it at the existing boundary.
 	{
 		rate: 1,
 		initial: 8,
@@ -147,7 +146,6 @@ test.each([
 			player.current!.addEventListener('ended', ended);
 			act(() => player.current!.play());
 
-			// Drop frames, continue normally, skip multiple loops, then continue again.
 			for (const [index, time] of [101, 168, 1101, 1168].entries()) {
 				now = time;
 				const pending = [...rafs.values()];

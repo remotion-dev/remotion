@@ -281,7 +281,6 @@ export const usePlayback = ({
 				return;
 			}
 
-			// Buffering holds the current frame, including at the playback endpoint.
 			if (isBuffering()) {
 				queueNextFrame();
 				return;
@@ -414,8 +413,6 @@ export const usePlayback = ({
 		};
 
 		const unsubscribeSeek = seek?.subscribe(() => {
-			// Seek notifications precede the frame update. Anchor the clock now,
-			// then read the new frame on the next callback via the seek revision.
 			clock.startedTime = performance.now();
 			clock.framesAdvanced = 0;
 		});

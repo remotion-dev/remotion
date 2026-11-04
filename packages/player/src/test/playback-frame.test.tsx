@@ -229,8 +229,6 @@ test('Internal seeks restart elapsed playback time at the latest seek, including
 		act(() => clock.tick(34));
 		expect(view.getByText('Frame 1')).toBeTruthy();
 
-		// The browser has not delivered a callback for almost a second when the
-		// user seeks. Only time elapsed after the seek belongs to the new frame.
 		clock.setTime(800);
 		fireEvent.click(view.getByRole('button', {name: 'Seek to frame 100'}));
 		act(() => clock.tick(834));
@@ -325,8 +323,7 @@ test('Returning to a visible tab restores animation frames and keeps one playbac
 
 		clock.setTime(40);
 		act(() => clock.setVisibility('hidden'));
-		// Background timeouts may be heavily throttled. Returning to a visible
-		// tab should resume on its next paint, before that timeout arrives.
+		// Background timeouts may be heavily throttled.
 		clock.setTime(1000);
 		act(() => clock.setVisibility('visible'));
 		act(() => clock.tick(1017));
@@ -370,8 +367,6 @@ test('Returning to a visible tab restores animation frames and keeps one playbac
 		fireEvent.click(view.getByRole('button', {name: 'Resume after buffering'}));
 		act(() => clock.tick(2034));
 		expect(view.getByText('Frame 39')).toBeTruthy();
-		// The Player also uses one-shot animation frames for its buffering UI.
-		// After those run, only the recurring playback callback should remain.
 		expect(clock.pendingRafs()).toBe(1);
 
 		fireEvent.click(view.getByRole('button', {name: 'Start buffering'}));
