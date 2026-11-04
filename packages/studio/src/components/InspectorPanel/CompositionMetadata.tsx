@@ -7,12 +7,13 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {WHITE_ALPHA_40} from '../../helpers/colors';
+import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {CaretDown} from '../../icons/caret';
 import {Checkmark} from '../../icons/Checkmark';
 import {renderFrame} from '../../state/render-frame';
+import {ActionTooltip} from '../ActionTooltip';
 import {ContextMenu} from '../ContextMenu';
 import {InlineDropdown} from '../InlineDropdown';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -74,6 +75,33 @@ const metadataFormatterStyle: React.CSSProperties = {
 	WebkitUserSelect: 'none',
 };
 
+const dimensionFormatterStyle: React.CSSProperties = {
+	...metadataFormatterStyle,
+	display: 'block',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+};
+
+const dimensionControlStyle: React.CSSProperties = {
+	position: 'relative',
+};
+
+const dimensionLabelStyle: React.CSSProperties = {
+	position: 'absolute',
+	left: 2,
+	top: 0,
+	bottom: 0,
+	display: 'flex',
+	alignItems: 'center',
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	fontSize: 11,
+	lineHeight: '20px',
+	pointerEvents: 'none',
+	userSelect: 'none',
+	WebkitUserSelect: 'none',
+};
+
 const metadataDraggerStyles: Record<
 	CompositionMetadataField,
 	React.CSSProperties
@@ -92,13 +120,13 @@ const metadataDraggerStyles: Record<
 	},
 	height: {
 		fontSize: 13,
-		padding: '2px 0 2px 6px',
+		padding: '2px 0 2px 13px',
 		textAlign: 'right',
 		width: 52,
 	},
 	width: {
 		fontSize: 13,
-		padding: '2px 0 2px 6px',
+		padding: '2px 0 2px 13px',
 		textAlign: 'right',
 		width: 52,
 	},
@@ -110,7 +138,7 @@ const dimensionsControls: React.CSSProperties = {
 	display: 'flex',
 	fontFamily: 'sans-serif',
 	fontSize: 13,
-	gap: 4,
+	gap: 16,
 	justifyContent: 'flex-end',
 	lineHeight: '20px',
 	minWidth: 0,
@@ -290,10 +318,25 @@ const CompositionMetadataValue: React.FC<{
 		};
 	}, [field, formatValue, fps, showFrames]);
 
+	const isDimension = field === 'width' || field === 'height';
 	const content =
 		computed || disabled ? (
-			<span style={computedContainerStyle}>
-				<span style={computedValueStyle}>{formatValue(value)}</span>
+			<span
+				style={
+					isDimension
+						? {...computedContainerStyle, ...metadataDraggerStyles[field]}
+						: computedContainerStyle
+				}
+			>
+				<span
+					style={
+						isDimension
+							? {...dimensionFormatterStyle, ...computedValueStyle}
+							: computedValueStyle
+					}
+				>
+					{formatValue(value)}
+				</span>
 			</span>
 		) : (
 			<InputDraggerWithTextEditing
@@ -312,11 +355,30 @@ const CompositionMetadataValue: React.FC<{
 				step={isFps ? 0.01 : 1}
 				dragDecimalPlaces={isFps ? 2 : 0}
 				formatter={formatValue}
-				formatterStyle={metadataFormatterStyle}
+				formatterStyle={
+					isDimension ? dimensionFormatterStyle : metadataFormatterStyle
+				}
 				rightAlign
 				style={metadataDraggerStyles[field]}
 			/>
 		);
+
+	if (isDimension) {
+		return (
+			<ActionTooltip
+				label={`${fieldLabels[field]} (px)`}
+				shortcut={null}
+				delay={800}
+				dismissOnClick
+				triggerStyle={dimensionControlStyle}
+			>
+				{content}
+				<span style={dimensionLabelStyle} aria-hidden>
+					{field === 'width' ? 'W' : 'H'}
+				</span>
+			</ActionTooltip>
+		);
+	}
 
 	return field === 'durationInFrames' ? (
 		<ContextMenu
