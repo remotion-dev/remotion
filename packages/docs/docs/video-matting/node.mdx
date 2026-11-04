@@ -47,7 +47,7 @@ env.cacheDir = resolve('.cache/video-matting');
 
 ## Requirements
 
-From Remotion <AvailableFrom v="4.0.541" inline />, use Node.js 20.9 or later. The required Transformers.js version uses Sharp 0.35, which no longer supports Node.js 18.
+Node.js 20.9 or later is required.
 
 A compatible GPU is required. Transformers.js uses ONNX Runtime's native WebGPU provider in Node.js. [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting) runs a tiny inference to check support, including fp16 computation for `ben2-base`.
 
