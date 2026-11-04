@@ -46,6 +46,7 @@ import * as invokeWebhook from '../../functions/invoke-webhook';
 import type {InvokeWebhookParams} from '../../functions/types';
 import * as bundleSite from '../../shared/bundle-site';
 import * as readDir from '../../shared/read-dir';
+import {waitForPromisesToFinish} from '../../shared/wait-for-promises-to-finish';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
@@ -76,6 +77,7 @@ const realRandomHash = randomHash.randomHashImplementation;
 const realGenerateRenderId = lifecycle.generateRandomHashWithLifeCycleRule;
 
 const webhookCalls: InvokeWebhookParams[] = [];
+const pendingBrowserCloses: Promise<void>[] = [];
 
 export const getWebhookCalls = () => webhookCalls;
 export const resetWebhookCalls = () => {
@@ -234,7 +236,7 @@ export const fakeAwsDefaults: FakeAwsDefaults = {
 		return {instance, configurationString: 'chrome'};
 	},
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
-		launchedBrowser.instance.close({silent: false});
+		pendingBrowserCloses.push(launchedBrowser.instance.close({silent: false}));
 	},
 	closeBrowserInstance: async ({launchedBrowser}) => {
 		await launchedBrowser.instance.close({silent: true});
@@ -341,6 +343,12 @@ export const fakeAws = (): FakeAwsSpies => {
 
 export const useFakeAws = () => {
 	beforeAll(installFakeAws);
-	afterEach(resetFakeAws);
+	afterEach(async () => {
+		try {
+			await waitForPromisesToFinish(pendingBrowserCloses.splice(0));
+		} finally {
+			resetFakeAws();
+		}
+	});
 	afterAll(uninstallFakeAws);
 };
