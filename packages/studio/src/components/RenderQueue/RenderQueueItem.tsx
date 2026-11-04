@@ -10,7 +10,10 @@ import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
-import {getOutputRoute, normalizeOutputPath} from '../../helpers/output-path';
+import {
+	getOutputRoute,
+	getRenderJobOutputPath,
+} from '../../helpers/output-path';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
 import type {ClientRenderJob} from './client-side-render-types';
@@ -78,6 +81,7 @@ export const RenderQueueItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
+	const outputPath = getRenderJobOutputPath(job);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {canDrag, isDragging, onDragEnd, onDragStart} =
 		useRenderOutputFileDrag(job);
@@ -158,20 +162,19 @@ export const RenderQueueItem: React.FC<{
 
 		setCanvasContent((c: CanvasContent | null): CanvasContent => {
 			const isAlreadySelected =
-				c &&
-				c.type === 'output' &&
-				normalizeOutputPath(c.path) === normalizeOutputPath(job.outName);
+				c && c.type === 'output' && c.path === outputPath;
 
 			if (isAlreadySelected && !selected) {
 				scrollCurrentIntoView();
 				return c;
 			}
 
-			return {type: 'output', path: normalizeOutputPath(job.outName)};
+			return {type: 'output', path: outputPath};
 		});
-		pushUrl(getOutputRoute(job.outName));
+		pushUrl(getOutputRoute(outputPath));
 	}, [
 		job,
+		outputPath,
 		isClientJob,
 		clientBlobInfo,
 		scrollCurrentIntoView,

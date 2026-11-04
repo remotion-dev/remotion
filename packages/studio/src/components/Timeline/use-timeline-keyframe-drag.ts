@@ -18,6 +18,10 @@ import type {
 import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import type {createCanvasDragPreview} from '../canvas-drag-preview';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {callMoveKeyframes} from './call-move-keyframe';
@@ -643,7 +647,12 @@ export const useTimelineKeyframeDrag = ({
 			};
 
 			let stopPointerSession: (() => void) | null = null;
-			const cleanup = () => stopPointerSession?.();
+			const cleanup = () => {
+				stopPointerSession?.();
+				if (hasDragged) {
+					stopForcingSpecificCursor();
+				}
+			};
 
 			const cancelDrag = () => {
 				finishKeyframePreview({
@@ -690,6 +699,10 @@ export const useTimelineKeyframeDrag = ({
 
 				if (hasDragged && delta === lastDelta) {
 					return;
+				}
+
+				if (!hasDragged) {
+					forceSpecificCursor('default');
 				}
 
 				hasDragged = true;
@@ -912,7 +925,12 @@ export const useTimelineEasingKeyframeDrag = ({
 			};
 
 			let stopPointerSession: (() => void) | null = null;
-			const cleanup = () => stopPointerSession?.();
+			const cleanup = () => {
+				stopPointerSession?.();
+				if (hasDragged) {
+					stopForcingSpecificCursor();
+				}
+			};
 
 			const cancelDrag = () => {
 				finishKeyframePreview({
@@ -959,6 +977,10 @@ export const useTimelineEasingKeyframeDrag = ({
 
 				if (hasDragged && delta === lastDelta) {
 					return;
+				}
+
+				if (!hasDragged) {
+					forceSpecificCursor('default');
 				}
 
 				hasDragged = true;

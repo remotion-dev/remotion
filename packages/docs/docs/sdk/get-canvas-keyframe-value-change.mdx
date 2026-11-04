@@ -1,0 +1,127 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-sdk-get-canvas-keyframe-value-change.png
+title: getCanvasKeyframeValueChange()
+crumb: '@remotion/sdk'
+---
+
+# getCanvasKeyframeValueChange()<AvailableFrom v="4.0.541" />
+
+Returns the change that replaces the value of an existing keyframe. Use it to edit a selected keyframe without moving the playhead or adding a keyframe at the playhead.
+
+:::warning
+
+_Experimental API_: This package is not stable. Its public API may change without a major version bump.
+
+:::
+
+```ts twoslash title="set-keyframe-opacity.ts"
+// @moduleResolution: bundler
+import {
+  getCanvasKeyframeChangeOverride,
+  getCanvasKeyframeValueChange,
+  type CanvasController,
+  type CanvasKeyframe,
+  type SequenceNodePathInfo,
+  type TimelineTrackData,
+} from '@remotion/sdk';
+import {
+  applyCodemodChanges,
+  updateNodeKeyframes,
+  type CodemodProject,
+} from '@remotion/codemods';
+import type {CanUpdateSequencePropStatus, InteractivitySchema} from 'remotion';
+declare const controller: CanvasController;
+declare const nodePathInfo: SequenceNodePathInfo;
+declare const track: TimelineTrackData;
+declare const schema: InteractivitySchema;
+declare const propStatus: CanUpdateSequencePropStatus;
+declare const selectedKeyframe: CanvasKeyframe;
+declare const project: CodemodProject;
+declare const applyProjectAndWaitForPreview: (project: CodemodProject) => Promise<void>;
+// ---cut---
+export const setKeyframeOpacity = async (value: number) => {
+  const change = getCanvasKeyframeValueChange({
+    nodePathInfo,
+    track,
+    schema,
+    key: 'style.opacity',
+    propStatus,
+    frame: selectedKeyframe.frame,
+    value,
+  });
+  if (change === null) {
+    return;
+  }
+
+  const override = getCanvasKeyframeChangeOverride({propStatus, change});
+  if (override !== null) {
+    controller.overrides.set(change.nodePathInfo, change.key, override);
+  }
+
+  try {
+    const {absolutePath, nodePath} = change.nodePathInfo.sequenceSubscriptionKey;
+    const result = await updateNodeKeyframes({
+      project,
+      node: {filePath: absolutePath, nodePath},
+      updates: [{key: change.key, operation: change.operation}],
+      schema: change.schema,
+    });
+    await applyProjectAndWaitForPreview(applyCodemodChanges(project, result.changes));
+  } finally {
+    controller.overrides.clear(change.nodePathInfo);
+  }
+};
+```
+
+`selectedKeyframe` comes from [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes). Your editor implements `applyProjectAndWaitForPreview()` to apply the updated files and wait until the composition renders them. Keep the override until then; clear it if persistence fails.
+
+## Parameters
+
+An object with the following properties:
+
+### nodePathInfo
+
+The `SequenceNodePathInfo` of the sequence, from a track or a selection item. It is passed through to the returned change.
+
+### track
+
+The `TimelineTrackData` of the sequence from [`controller.timeline`](/docs/sdk/create-canvas-controller#timeline). Its `keyframeDisplayOffset` and `keyframePlaybackRate` convert the composition frame to the frame clock of the interpolation.
+
+### schema
+
+The interactivity schema of the element, from [`track.sequence.controls`](/docs/sdk/create-canvas-controller#sequencecontrols). The field must support keyframes.
+
+### key
+
+The schema key of the prop in dot notation, for example `'style.opacity'`.
+
+### propStatus
+
+How the prop is written in the source, as the `props` of [`getNodeProps()`](/docs/codemods/get-node-props) report it. `null` or a status other than `'keyframed'` returns `null`.
+
+### frame
+
+The composition frame of the keyframe to change, from [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes). Pass this frame without rounding: nested timing and playback rates can place keyframes at fractional composition frames.
+
+### value
+
+The replacement value. Font-weight fields normalize `'normal'` to `400`, `'bold'` to `700`, and numeric strings to numbers. Relative font weights such as `'bolder'` and `'lighter'` are not supported. Other values are passed through.
+
+## Return value
+
+A `CanvasKeyframeChange` whose `operation` is `{type: 'add', frame, value}`. The operation replaces the existing keyframe at its exact source frame and preserves the other keyframes and interpolation settings.
+
+Returns `null` when the prop cannot be keyframed, no keyframe exists at the supplied frame, or the replacement is `null`, `undefined`, or unsupported. Values for [`interpolate()`](/docs/interpolate) and [`interpolateColors()`](/docs/interpolate-colors) are checked for compatibility with the interpolation. Values for [`interpolatePaths()`](/docs/paths/interpolate-paths) must be strings; SVG path data is not validated.
+
+Pass the change to [`getCanvasKeyframeChangeOverride()`](/docs/sdk/get-canvas-keyframe-change-override) for an immediate preview, and persist it with [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes), as in the example above.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs="" bun="" serverlessFunctions="" clientSideRendering={false} serverSideRendering player studio="" hideServers />
+
+## See also
+
+- [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes)
+- [`getCanvasKeyframeToggle()`](/docs/sdk/get-canvas-keyframe-toggle)
+- [`getCanvasKeyframeChangeOverride()`](/docs/sdk/get-canvas-keyframe-change-override)
+- [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes)

@@ -28,6 +28,10 @@ import type {
 	VideoConfigNumericExpression,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	findEnclosingFunctionPath,
+	isComponentFunctionPath,
+} from './ensure-imports-and-frame-hook';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {
 	getReadOnlySourceNodePath,
@@ -846,11 +850,7 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	let playbackRateAdjustment: SourceNumericValue = 1;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
-		if (
-			currentNode.type === 'FunctionDeclaration' ||
-			currentNode.type === 'FunctionExpression' ||
-			currentNode.type === 'ArrowFunctionExpression'
-		) {
+		if (isComponentFunctionPath(current)) {
 			return null;
 		}
 
@@ -935,19 +935,7 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	playbackRateAdjustment: SourceNumericValue;
 	canKeyframe: boolean;
 } | null => {
-	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
-	while (functionPath) {
-		const node = functionPath.value as Node;
-		if (
-			node.type === 'FunctionDeclaration' ||
-			node.type === 'FunctionExpression' ||
-			node.type === 'ArrowFunctionExpression'
-		) {
-			break;
-		}
-
-		functionPath = functionPath.parentPath;
-	}
+	const functionPath = findEnclosingFunctionPath(jsxPath);
 
 	if (!functionPath) {
 		// Module-level JSX still has editable static props. There is no local
@@ -1834,12 +1822,15 @@ export const lineColumnsToNodePaths = ({
 	);
 };
 
-const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+const TRANSLATE_VALUE_REGEX = /^-?\d+(\.\d+)?(px|%)$/;
 
 const isSupportedTranslateValue = (value: string): boolean => {
 	const parts = value.split(/\s+/);
 	if (parts.length >= 1 && parts.length <= 3) {
-		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+		return parts.every(
+			(part, index) =>
+				TRANSLATE_VALUE_REGEX.test(part) && (index < 2 || part.endsWith('px')),
+		);
 	}
 
 	return false;
@@ -2243,19 +2234,7 @@ const computeSequenceOnlyPropsRecord = ({
 				allowSpecialValues: assetKeys.includes(key),
 				lastSpreadIndex,
 			});
-			filteredProps[key] =
-				key === 'style.translate' &&
-				((status.status === 'static' &&
-					typeof status.codeValue === 'string' &&
-					status.codeValue.includes('%')) ||
-					(status.status === 'keyframed' &&
-						status.keyframes.some(
-							(keyframe) =>
-								typeof keyframe.value === 'string' &&
-								keyframe.value.includes('%'),
-						)))
-					? computedStatus()
-					: status;
+			filteredProps[key] = status;
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else if (lastSpreadIndex !== -1) {

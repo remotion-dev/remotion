@@ -42,7 +42,7 @@ const StudioDeviceOverviewContent = () => {
 				scale: portrait
 					? portraitScale
 					: Math.min(width / 2560, height / 1600) *
-						interpolate(frame, [0, durationInFrames - 1], [1.13, 1.08], {
+						interpolate(frame, [0, durationInFrames - 1], [1.18, 1.08], {
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
 							output: 'perceptual-scale',

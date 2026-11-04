@@ -1,5 +1,6 @@
 import type {ImageFit} from '../calculate-image-fit.js';
 import type {EffectsProp, EffectsOutputSize} from '../effects/effect-types.js';
+import type {CanvasDomProps} from '../get-canvas-props-from-sequence-props.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -11,8 +12,7 @@ export type RemotionAnimatedImageLoopBehavior =
 	| 'pause-after-finish'
 	| 'clear-after-finish';
 
-export type AnimatedImageCanvasProps = React.AriaAttributes &
-	Record<`data-${string}`, string | undefined>;
+export type AnimatedImageCanvasProps = CanvasDomProps;
 
 export type RemotionAnimatedImageProps = {
 	src: string;

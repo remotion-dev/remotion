@@ -3,7 +3,6 @@ import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
 	Easing,
-	Freeze,
 	interpolate,
 	Interactive,
 	useCurrentFrame,
@@ -102,8 +101,7 @@ const StudioRenderProgressCapture = () => {
 };
 
 const StudioRenderProgressContent = () => {
-	const frame = useCurrentFrame();
-	const {width, height, fps} = useVideoConfig();
+	const {width, height} = useVideoConfig();
 
 	return (
 		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#1f2327'}}>
@@ -114,16 +112,13 @@ const StudioRenderProgressContent = () => {
 					height: 1532,
 					left: '50%',
 					top: '50%',
-					translate: '-1045px -400px',
-					transformOrigin: '1045px 400px',
+					translate: '-1045px -640px',
+					transformOrigin: '1045px 640px',
 					rotate: '-4deg',
 					scale: 1.5 * Math.min(width / 2560, height / 1600),
 				}}
 			>
-				{/* Hold the completed render before the next queued job starts. */}
-				<Freeze active={frame >= 23.1 * fps} frame={(719 / 30) * fps}>
-					<StudioRenderProgressCapture />
-				</Freeze>
+				<StudioRenderProgressCapture />
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);
