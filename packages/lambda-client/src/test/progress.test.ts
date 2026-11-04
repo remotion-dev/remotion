@@ -5,9 +5,9 @@ import * as awsRegionMetadata from '../aws-region-metadata';
 import * as estimatePriceModule from '../estimate-price';
 import type {EstimatePriceInput} from '../estimate-price';
 import {OutputFileAccessDeniedError} from '../find-output-file-in-bucket';
+import {getRenderProgress} from '../get-render-progress';
 import * as headFile from '../head-file';
 import type {OverallRenderProgress} from '../overall-render-progress';
-import {getProgress} from '../progress';
 import * as readFile from '../read-file';
 import type {RenderMetadata} from '../render-metadata';
 import {overallProgressKey} from '../shared-constants';
@@ -35,7 +35,7 @@ const renderMetadata: RenderMetadata = {
 	everyNthFrame: 1,
 	frameRange: [0, 19],
 	framesPerLambda: 10,
-	functionName: 'remotion-render-4-0-0-mem2048mb-disk512mb-120sec',
+	functionName: 'custom-render-function',
 	imageFormat: 'png',
 	inputProps: {
 		type: 'payload',
@@ -52,7 +52,7 @@ const renderMetadata: RenderMetadata = {
 	},
 	privacy: 'private',
 	region: 'eu-central-1',
-	rendererFunctionName: 'remotion-render-4-0-0-mem2048mb-disk512mb-120sec',
+	rendererFunctionName: 'custom-renderer-function',
 	renderId,
 	scale: 1,
 	siteId: 'site',
@@ -75,6 +75,7 @@ const progress: OverallRenderProgress = {
 	framesRendered: 20,
 	functionLaunched: startedDate,
 	lambdasInvoked: 2,
+	rendererMemorySizeInMb: 4096,
 	postRenderData: null,
 	receivedArtifact: [],
 	renderMetadata,
@@ -131,7 +132,7 @@ const installFakes = ({
 	);
 };
 
-test('getProgress treats an existing output file as finished if postRenderData was not persisted', async () => {
+test('getRenderProgress treats an existing output file as finished if postRenderData was not persisted', async () => {
 	const headedFiles: {bucketName: string; key: string}[] = [];
 	installFakes({
 		billingCurrency: 'CNY',
@@ -145,17 +146,13 @@ test('getProgress treats an existing output file as finished if postRenderData w
 		renderProgress: null,
 	});
 
-	const renderProgress = await getProgress({
+	const renderProgress = await getRenderProgress({
 		bucketName,
-		customCredentials: null,
-		expectedBucketOwner: null,
+		skipLambdaInvocation: true,
 		forcePathStyle: false,
 		functionName: renderMetadata.functionName,
-		memorySizeInMb: 2048,
 		region: 'eu-central-1',
 		renderId,
-		requestHandler: null,
-		timeoutInMilliseconds: 1000,
 	});
 
 	expect(headedFiles).toEqual([
@@ -171,7 +168,7 @@ test('getProgress treats an existing output file as finished if postRenderData w
 	expect(renderProgress.costs.displayCost).toBe('¥0.010');
 });
 
-test('getProgress estimates costs from invoked lambdas only', async () => {
+test('getRenderProgress estimates costs from invoked lambdas only', async () => {
 	const priceInputs: EstimatePriceInput[] = [];
 	const originalTimings = progress.timings;
 	const originalChunks = progress.chunks;
@@ -195,21 +192,18 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 			renderProgress: null,
 		});
 
-		const renderProgress = await getProgress({
+		const renderProgress = await getRenderProgress({
 			bucketName,
-			customCredentials: null,
-			expectedBucketOwner: null,
+			skipLambdaInvocation: true,
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
-			memorySizeInMb: 2048,
 			region: 'eu-central-1',
 			renderId,
-			requestHandler: null,
-			timeoutInMilliseconds: 120000,
 		});
 
 		expect(priceInputs).toHaveLength(1);
 		expect(priceInputs[0].lambdasInvoked).toBe(1);
+		expect(priceInputs[0].memorySizeInMb).toBe(4096);
 		expect(renderProgress.estimatedBillingDurationInMilliseconds).toBeLessThan(
 			60000,
 		);
@@ -220,7 +214,7 @@ test('getProgress estimates costs from invoked lambdas only', async () => {
 	}
 });
 
-test('getProgress keeps direct render progress finite', async () => {
+test('getRenderProgress keeps direct render progress finite', async () => {
 	const directProgress: OverallRenderProgress = {
 		...progress,
 		chunks: [],
@@ -230,6 +224,7 @@ test('getProgress keeps direct render progress finite', async () => {
 		uploadedSizeInBytes: 0,
 		framesRendered: 0,
 		lambdasInvoked: 0,
+		rendererMemorySizeInMb: null,
 		renderMetadata: {
 			...renderMetadata,
 			estimatedRenderLambdaInvokations: 0,
@@ -245,17 +240,13 @@ test('getProgress keeps direct render progress finite', async () => {
 
 	for (const lambdasInvoked of [0, 1]) {
 		directProgress.lambdasInvoked = lambdasInvoked;
-		const renderProgress = await getProgress({
+		const renderProgress = await getRenderProgress({
 			bucketName,
-			customCredentials: null,
-			expectedBucketOwner: null,
+			skipLambdaInvocation: true,
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
-			memorySizeInMb: 2048,
 			region: 'eu-central-1',
 			renderId,
-			requestHandler: null,
-			timeoutInMilliseconds: 120000,
 		});
 
 		expect(renderProgress.done).toBe(false);
@@ -265,10 +256,11 @@ test('getProgress keeps direct render progress finite', async () => {
 	}
 });
 
-test('getProgress falls back to persisted progress when destination reads are denied', async () => {
+test('getRenderProgress falls back to persisted progress when destination reads are denied', async () => {
 	let heads = 0;
+	const storedProgress = {...progress};
 	installFakes({
-		renderProgress: null,
+		renderProgress: storedProgress,
 		onHeadFile: () => {
 			heads++;
 			return Promise.reject(
@@ -277,17 +269,15 @@ test('getProgress falls back to persisted progress when destination reads are de
 		},
 	});
 	for (const timeoutInMilliseconds of [120000, 1000]) {
-		const result = await getProgress({
+		storedProgress.timeoutTimestamp =
+			storedProgress.functionLaunched + timeoutInMilliseconds;
+		const result = await getRenderProgress({
 			bucketName,
+			skipLambdaInvocation: true,
 			renderId,
-			customCredentials: null,
-			expectedBucketOwner: null,
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
-			memorySizeInMb: 2048,
 			region: 'eu-central-1',
-			requestHandler: null,
-			timeoutInMilliseconds,
 		});
 		expect(result.done).toBe(false);
 		expect(result.framesRendered).toBe(20);
@@ -298,7 +288,7 @@ test('getProgress falls back to persisted progress when destination reads are de
 	expect(heads).toBe(2);
 });
 
-test('getProgress preserves upload failures and unexpected storage errors', async () => {
+test('getRenderProgress preserves upload failures and unexpected storage errors', async () => {
 	const uploadFailure = {
 		type: 'stitcher' as const,
 		message: 'Output already exists',
@@ -324,17 +314,13 @@ test('getProgress preserves upload failures and unexpected storage errors', asyn
 				return Promise.reject(storageError);
 			},
 		});
-		const pending = getProgress({
+		const pending = getRenderProgress({
 			bucketName,
+			skipLambdaInvocation: true,
 			renderId,
-			customCredentials: null,
-			expectedBucketOwner: null,
 			forcePathStyle: false,
 			functionName: renderMetadata.functionName,
-			memorySizeInMb: 2048,
 			region: 'eu-central-1',
-			requestHandler: null,
-			timeoutInMilliseconds: 120000,
 		});
 		if (errors.length) {
 			const result = await pending;

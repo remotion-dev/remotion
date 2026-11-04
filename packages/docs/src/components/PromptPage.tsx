@@ -40,7 +40,7 @@ export default () => {
 	const description = getDescription();
 	const ogImage = promptSubmission
 		? `https://image.mux.com/${promptSubmission.muxPlaybackId}/thumbnail.png?width=1200&height=630&fit_mode=smartcrop`
-		: '/generated/articles-prompts-gallery.png';
+		: 'https://remotion.media/docs/generated/articles-prompts-gallery.png';
 
 	return (
 		<Layout>

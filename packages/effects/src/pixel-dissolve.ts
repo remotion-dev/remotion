@@ -4,7 +4,14 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {PIXEL_DISSOLVE_WEBGPU_SHADER} from './pixel-dissolve-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -183,7 +190,8 @@ float dissolveMask(float noise, float progress, float feather) {
 void main() {
 	vec2 divisions = max(vec2(uColumns, uRows), vec2(1.0));
 	vec2 gridUv = min(vUv, vec2(1.0) - vec2(0.000001));
-	vec2 cell = floor(gridUv * divisions);
+	// Stabilize cells when a pixel center falls exactly on a grid boundary.
+	vec2 cell = floor(gridUv * divisions + vec2(0.00001));
 	vec4 color = texture(uSource, vUv);
 
 	float noise = hash21(cell + vec2(uSeed, uSeed * 1.618));
@@ -266,112 +274,149 @@ const createFullscreenQuad = (
 	return {vao, vbo};
 };
 
-export const pixelDissolve = createEffect<
-	PixelDissolveParams,
-	PixelDissolveState
->({
+export const pixelDissolve = createEffect<PixelDissolveParams>({
 	type: 'dev.remotion.effects.pixelDissolve',
 	label: 'pixelDissolve()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/pixel-dissolve',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `pixel-dissolve-${r.progress}-${r.columns}-${r.rows}-${r.seed}-${r.feather}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('pixel dissolve effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			PixelDissolveParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'pixel-dissolve'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the pixel-dissolve effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					r.progress,
+					r.columns,
+					r.rows,
+					r.seed,
+					r.feather,
+					0,
+					0,
+					0,
+				]);
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: PIXEL_DISSOLVE_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			PixelDissolveParams,
+			PixelDissolveState
+		>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('pixel dissolve effect');
+				}
 
-		const vs = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-		const program = linkProgram(gl, vs, fs);
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		const {vao, vbo} = createFullscreenQuad(gl);
-		const aPos = gl.getAttribLocation(program, 'aPos');
-		const aUv = gl.getAttribLocation(program, 'aUv');
-		gl.enableVertexAttribArray(aPos);
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(aUv);
-		gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
-		gl.bindVertexArray(null);
+				const vs = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+				const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+				const program = linkProgram(gl, vs, fs);
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-		const texture = gl.createTexture();
-		if (!texture) {
-			throw new Error('Failed to create WebGL texture');
-		}
+				const {vao, vbo} = createFullscreenQuad(gl);
+				const aPos = gl.getAttribLocation(program, 'aPos');
+				const aUv = gl.getAttribLocation(program, 'aUv');
+				gl.enableVertexAttribArray(aPos);
+				gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+				gl.enableVertexAttribArray(aUv);
+				gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+				gl.bindVertexArray(null);
 
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+				const texture = gl.createTexture();
+				if (!texture) {
+					throw new Error('Failed to create WebGL texture');
+				}
 
-		return {
-			gl,
-			program,
-			vao,
-			vbo,
-			texture,
-			uSource: gl.getUniformLocation(program, 'uSource'),
-			uProgress: gl.getUniformLocation(program, 'uProgress'),
-			uColumns: gl.getUniformLocation(program, 'uColumns'),
-			uRows: gl.getUniformLocation(program, 'uRows'),
-			uSeed: gl.getUniformLocation(program, 'uSeed'),
-			uFeather: gl.getUniformLocation(program, 'uFeather'),
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.bindTexture(gl.TEXTURE_2D, null);
 
-		state.gl.viewport(0, 0, width, height);
-		state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
-		state.gl.clearColor(0, 0, 0, 0);
-		state.gl.clear(state.gl.COLOR_BUFFER_BIT);
+				return {
+					gl,
+					program,
+					vao,
+					vbo,
+					texture,
+					uSource: gl.getUniformLocation(program, 'uSource'),
+					uProgress: gl.getUniformLocation(program, 'uProgress'),
+					uColumns: gl.getUniformLocation(program, 'uColumns'),
+					uRows: gl.getUniformLocation(program, 'uRows'),
+					uSeed: gl.getUniformLocation(program, 'uSeed'),
+					uFeather: gl.getUniformLocation(program, 'uFeather'),
+				};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
 
-		state.gl.useProgram(state.program);
-		state.gl.bindVertexArray(state.vao);
+				state.gl.viewport(0, 0, width, height);
+				state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
+				state.gl.clearColor(0, 0, 0, 0);
+				state.gl.clear(state.gl.COLOR_BUFFER_BIT);
 
-		state.gl.activeTexture(state.gl.TEXTURE0);
-		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
-		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		state.gl.texImage2D(
-			state.gl.TEXTURE_2D,
-			0,
-			state.gl.RGBA,
-			state.gl.RGBA,
-			state.gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				state.gl.useProgram(state.program);
+				state.gl.bindVertexArray(state.vao);
 
-		if (state.uSource) state.gl.uniform1i(state.uSource, 0);
-		if (state.uProgress) state.gl.uniform1f(state.uProgress, r.progress);
-		if (state.uColumns) state.gl.uniform1f(state.uColumns, r.columns);
-		if (state.uRows) state.gl.uniform1f(state.uRows, r.rows);
-		if (state.uSeed) state.gl.uniform1f(state.uSeed, r.seed);
-		if (state.uFeather) state.gl.uniform1f(state.uFeather, r.feather);
+				state.gl.activeTexture(state.gl.TEXTURE0);
+				state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
+				state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				state.gl.texImage2D(
+					state.gl.TEXTURE_2D,
+					0,
+					state.gl.RGBA,
+					state.gl.RGBA,
+					state.gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
+				if (state.uSource) state.gl.uniform1i(state.uSource, 0);
+				if (state.uProgress) state.gl.uniform1f(state.uProgress, r.progress);
+				if (state.uColumns) state.gl.uniform1f(state.uColumns, r.columns);
+				if (state.uRows) state.gl.uniform1f(state.uRows, r.rows);
+				if (state.uSeed) state.gl.uniform1f(state.uSeed, r.seed);
+				if (state.uFeather) state.gl.uniform1f(state.uFeather, r.feather);
 
-		state.gl.bindVertexArray(null);
-		state.gl.bindTexture(state.gl.TEXTURE_2D, null);
-		state.gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
+
+				state.gl.bindVertexArray(null);
+				state.gl.bindTexture(state.gl.TEXTURE_2D, null);
+				state.gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: pixelDissolveSchema,
 	validateParams: validatePixelDissolveParams,

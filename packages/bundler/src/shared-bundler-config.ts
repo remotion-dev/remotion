@@ -2,8 +2,9 @@ import {createHash} from 'node:crypto';
 import path from 'node:path';
 import ReactDOM from 'react-dom';
 import {NoReactInternals} from 'remotion/no-react';
+import type {BundlerName} from './override-types';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
-import {getWebpackCacheName} from './webpack-cache';
+import {getWebpackCacheDir, getWebpackCacheName} from './webpack-cache';
 
 if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
@@ -108,22 +109,19 @@ export const getOutputConfig = (environment: 'development' | 'production') => ({
 export const getBaseConfig = (
 	environment: 'development' | 'production',
 	poll: number | null,
+	bundler: BundlerName,
 ) => {
 	const isBun = typeof Bun !== 'undefined';
+	const lazyCompilation =
+		isBun || environment === 'production' ? false : {entries: false};
 
 	return {
 		optimization: {
 			minimize: false,
 		},
-		experiments: {
-			lazyCompilation: isBun
-				? false
-				: environment === 'production'
-					? false
-					: {
-							entries: false,
-						},
-		},
+		...(bundler === 'rspack'
+			? {lazyCompilation}
+			: {experiments: {lazyCompilation}}),
 		watchOptions: {
 			poll: poll ?? undefined,
 			aggregateTimeout: 0,
@@ -168,6 +166,7 @@ export const getSharedModuleRules = () => [
 export const computeHashAndFinalConfig = <T extends {output?: any}>(
 	conf: T,
 	options: {
+		bundler: BundlerName;
 		enableCaching: boolean;
 		environment: 'development' | 'production';
 		outDir: string | null;
@@ -183,9 +182,17 @@ export const computeHashAndFinalConfig = <T extends {output?: any}>(
 			...conf,
 			cache: options.enableCaching
 				? {
-						type: 'filesystem',
+						type: options.bundler === 'rspack' ? 'persistent' : 'filesystem',
 						name: getWebpackCacheName(options.environment, hash),
 						version: hash,
+						...(options.bundler === 'rspack'
+							? {
+									storage: {
+										type: 'filesystem',
+										directory: getWebpackCacheDir(options.remotionRoot),
+									},
+								}
+							: {}),
 					}
 				: false,
 			output: {

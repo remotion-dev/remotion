@@ -46,8 +46,13 @@ const waitForAssetToBeDownloaded = ({
 		downloadMap.listeners[src][downloadDir] = [];
 	}
 
-	return new Promise<string>((resolve) => {
-		downloadMap.listeners[src][downloadDir].push(() => {
+	return new Promise<string>((resolve, reject) => {
+		downloadMap.listeners[src][downloadDir].push((err) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+
 			const srcMap = downloadMap.hasBeenDownloadedMap[src];
 			if (!srcMap?.[downloadDir]) {
 				throw new Error(
@@ -99,7 +104,7 @@ const notifyAssetIsDownloaded = ({
 		}
 	)[downloadDir] = to;
 
-	downloadMap.listeners[src][downloadDir].forEach((fn) => fn());
+	downloadMap.listeners[src][downloadDir].forEach((fn) => fn(null));
 };
 
 const validateMimeType = (mimeType: string, src: string) => {
@@ -255,6 +260,13 @@ export const downloadAsset = async ({
 		indent,
 		logLevel,
 		abortSignal: downloadMap.cleanupController.signal,
+	}).catch((err: Error) => {
+		// https://github.com/remotion-dev/remotion/issues/12817
+		delete downloadMap.isDownloadingMap[src]?.[downloadDir];
+		const listeners = downloadMap.listeners[src]?.[downloadDir] ?? [];
+		delete downloadMap.listeners[src]?.[downloadDir];
+		listeners.forEach((fn) => fn(err));
+		throw err;
 	});
 
 	notifyAssetIsDownloaded({src, downloadMap, downloadDir, to});

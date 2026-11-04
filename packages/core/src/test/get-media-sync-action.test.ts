@@ -1,5 +1,8 @@
 import {describe, expect, test} from 'bun:test';
-import type {GetMediaSyncActionInput} from '../get-media-sync-action.js';
+import type {
+	GetMediaSyncActionInput,
+	MediaSyncAction,
+} from '../get-media-sync-action.js';
 import {getMediaSyncAction} from '../get-media-sync-action.js';
 
 const makeInput = (
@@ -11,9 +14,7 @@ const makeInput = (
 	ended: false,
 	desiredUnclampedTime: 5,
 	mediaTagTime: 5,
-	mediaTagLastUpdate: 0,
 	rvcTime: null,
-	rvcLastUpdate: null,
 	isVariableFpsVideo: false,
 	acceptableTimeShift: 0.45,
 	lastSeekDueToShift: null,
@@ -26,6 +27,7 @@ const makeInput = (
 	isPremounting: false,
 	isPostmounting: false,
 	pauseWhenBuffering: true,
+	mediaType: 'audio',
 	...overrides,
 });
 
@@ -134,22 +136,15 @@ describe('seek-due-to-shift (big time shift)', () => {
 });
 
 describe('rvc vs media tag time shift', () => {
-	// The "most recent" comparison uses `rvcTime > mediaTagLastUpdate`, which is
-	// the (odd) behavior of the original implementation. These inputs are chosen
-	// so that branch is taken: rvcLastUpdate is truthy and rvcTime (0.5) is
-	// greater than mediaTagLastUpdate (0).
-	test('uses rvc time shift when it is more recent', () => {
-		// media tag is on time, but rvc reports a big shift → should still trigger
+	test('ignores rvc time shift when the media tag is on time', () => {
 		const action = getMediaSyncAction(
 			makeInput({
 				desiredUnclampedTime: 10,
 				mediaTagTime: 10,
-				mediaTagLastUpdate: 0,
 				rvcTime: 0.5,
-				rvcLastUpdate: 1,
 			}),
 		);
-		expect(action.type).toBe('seek-due-to-shift');
+		expect(action.type).not.toBe('seek-due-to-shift');
 	});
 
 	test('ignores rvc time shift for variable fps videos', () => {
@@ -157,9 +152,7 @@ describe('rvc vs media tag time shift', () => {
 			makeInput({
 				desiredUnclampedTime: 10,
 				mediaTagTime: 10,
-				mediaTagLastUpdate: 0,
 				rvcTime: 0.5,
-				rvcLastUpdate: 1,
 				isVariableFpsVideo: true,
 				// media tag says on time, rvc ignored → no big shift
 				currentTime: 10,
@@ -310,5 +303,80 @@ describe('play-and-seek', () => {
 		if (action.type === 'play-and-seek') {
 			expect(action.bufferUntilFirstFrame).toBe(false);
 		}
+	});
+});
+
+const getEffect = (action: MediaSyncAction) => ({
+	seeksTo:
+		action.type === 'seek-due-to-shift' ||
+		(action.type !== 'none' && action.why !== null)
+			? action.shouldBeTime
+			: null,
+	plays:
+		action.type === 'play-and-seek' ||
+		(action.type === 'seek-due-to-shift' && action.playReason !== null),
+});
+
+describe('audio ahead of the timeline after buffering', () => {
+	test('does not seek audio back while something else is buffering', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				playerBuffering: true,
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: false});
+	});
+
+	test('stays paused until the timeline catches up', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: false});
+	});
+
+	test('plays without seeking once the timeline caught up', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5.2,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: null, plays: true});
+	});
+
+	test('still seeks video back', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				mediaType: 'video',
+				paused: true,
+				currentTime: 5.3,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 5.3,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: 5, plays: true});
+	});
+
+	test('still seeks audio that is behind the timeline', () => {
+		const action = getMediaSyncAction(
+			makeInput({
+				paused: true,
+				currentTime: 4.7,
+				desiredUnclampedTime: 5,
+				mediaTagTime: 4.7,
+			}),
+		);
+		expect(getEffect(action)).toEqual({seeksTo: 5, plays: true});
 	});
 });

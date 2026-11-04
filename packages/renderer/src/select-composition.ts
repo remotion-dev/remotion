@@ -82,6 +82,7 @@ const innerSelectComposition = async ({
 	logLevel,
 	onServeUrlVisited,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	chromiumOptions,
 }: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
@@ -102,6 +103,7 @@ const innerSelectComposition = async ({
 		onServeUrlVisited,
 		isMainTab: true,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
 		darkMode: chromiumOptions.darkMode ?? false,
 		sampleRate: 48000,
@@ -223,6 +225,7 @@ export const internalSelectCompositionRaw = async (
 		onServeUrlVisited,
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 	} = options;
 
 	const [{page, cleanupPage}, serverUsed] = await Promise.all([
@@ -295,6 +298,7 @@ export const internalSelectCompositionRaw = async (
 			onServeUrlVisited,
 			chromeMode,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 		})
 			.then((data) => {
 				return resolve(data);
@@ -344,6 +348,7 @@ export const selectComposition = async (
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 	} = options;
 
 	const indent = false;
@@ -381,6 +386,7 @@ export const selectComposition = async (
 		chromeMode: chromeMode ?? 'headless-shell',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 	});
 	return data.metadata;
 };

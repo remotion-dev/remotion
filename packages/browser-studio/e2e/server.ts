@@ -111,6 +111,23 @@ Bun.serve({
 			});
 		}
 
+		// Keep fallback module loading independent of esm.sh building new releases.
+		if (url.pathname === '/mediabunny.mjs') {
+			const packageJsonPath = Bun.resolveSync(
+				'mediabunny/package.json',
+				import.meta.dir,
+			);
+			return new Response(
+				Bun.file(
+					path.join(
+						path.dirname(packageJsonPath),
+						'dist/bundles/mediabunny.mjs',
+					),
+				),
+				{headers: {...headers, 'Content-Type': 'text/javascript'}},
+			);
+		}
+
 		const remotionPackagePath = remotionPackagePaths.find((prefix) =>
 			url.pathname.startsWith(prefix),
 		);

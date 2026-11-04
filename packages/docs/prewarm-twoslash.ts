@@ -348,6 +348,8 @@ async function main() {
 				entrypoints: [WORKER_SOURCE_PATH],
 				format: 'esm',
 				target: 'node',
+				// The native client resolves its platform binary relative to its package.
+				external: ['typescript/*'],
 			});
 			if (!result.success || result.outputs.length !== 1) {
 				throw new Error(
@@ -419,7 +421,7 @@ async function main() {
 	const numWorkers = Math.min(NUM_WORKERS, unitQueue.length);
 
 	console.log(
-		`${uncachedBlocks.length} twoslash blocks to type-check (${allFiles.length} files scanned)`,
+		`${uncachedBlocks.length} twoslash blocks to type-check (${allFiles.length} files scanned, native engine)`,
 	);
 	console.log(
 		`Launching ${numWorkers} workers for ${unitQueue.length} work units...`,

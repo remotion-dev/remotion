@@ -5,13 +5,22 @@ import type {
 	TSequence,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
+import {getPreviewServerConnectionState} from '../../helpers/preview-server-events';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {splitSequences as splitSequencesApi} from '../split-sequences-api';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
+import {
+	acknowledgePendingSequenceSplit,
+	beginPendingSequenceSplit,
+	finishPendingSequenceSplit,
+	type SplitTarget,
+} from './pending-sequence-splits';
 import type {TimelineSelection} from './TimelineSelection';
 
 export type SplitTimelineSequenceEligibility =
@@ -177,89 +186,126 @@ export const getTimelineSequenceSplitEligibility = ({
 	};
 };
 
-export const splitTimelineSequenceFromSource = ({
-	nodePathInfo,
-	splitFrame,
-}: {
-	nodePathInfo: SequenceNodePathInfo;
-	splitFrame: number;
-}): Promise<boolean> => {
-	return splitTimelineSequencesFromSource({
-		sequences: [{nodePathInfo, splitFrame}],
-	});
+export type SequenceSplitResult = {
+	status: 'success' | 'already-pending' | 'ineligible' | 'error';
+	reason: string | null;
+	split: SequenceNodePathInfo[];
+	skipped: {nodePathInfo: SequenceNodePathInfo; reason: string}[];
 };
+
+export const canSplitTimelineSequences = () =>
+	isStudioSelectionEnabled() &&
+	(getBrowserStudioOperations() !== null ||
+		(!window.remotion_isReadOnlyStudio &&
+			getPreviewServerConnectionState().type === 'connected'));
+
+const splitFromSource = async (
+	sequences: readonly SplitTarget[],
+): Promise<SequenceSplitResult> => {
+	const result = (
+		status: SequenceSplitResult['status'],
+		reason: string | null,
+	): SequenceSplitResult => ({
+		status,
+		reason,
+		split:
+			status === 'success'
+				? sequences.map(({nodePathInfo}) => nodePathInfo)
+				: [],
+		skipped: [],
+	});
+	if (!canSplitTimelineSequences()) {
+		const reason = 'Connect to an editable Studio to split clips.';
+		showNotification(reason, 4000);
+		return result('error', reason);
+	}
+
+	let notification: ReturnType<typeof showNotification> | null = null;
+	const operation = beginPendingSequenceSplit(sequences, () =>
+		notification?.dismiss(),
+	);
+	if (!operation)
+		return result('already-pending', 'Wait for the current split to finish.');
+	notification = showNotification('Splitting…', null);
+	try {
+		const response = await splitSequencesApi({
+			sequences: sequences.map(({nodePathInfo, splitFrame}) => {
+				const nodePath = nodePathInfo.sequenceSubscriptionKey;
+				return {
+					fileName: nodePath.absolutePath,
+					nodePath: nodePath.nodePath,
+					sequenceKeys: nodePath.sequenceKeys,
+					splitFrame,
+					videoConfigValues: nodePath.videoConfigValues,
+				};
+			}),
+		});
+		if (!response.success) throw new Error(response.reason);
+		if (
+			!Array.isArray(response.splitNodes) ||
+			response.splitNodes.length === 0 ||
+			!response.splitNodes.every(
+				(node) =>
+					typeof node?.absolutePath === 'string' &&
+					Array.isArray(node.nodePath),
+			) ||
+			!Array.isArray(response.sourceVersions)
+		) {
+			finishPendingSequenceSplit(operation);
+			const reason =
+				'The split was saved, but its preview could not be confirmed. Restart or update Studio before splitting again.';
+			showNotification(reason, 5000);
+			return result('error', reason);
+		}
+
+		acknowledgePendingSequenceSplit(
+			operation,
+			response.nodePathMutation.mutationId,
+			response.splitNodes,
+			response.sourceVersions,
+		);
+		return result('success', null);
+	} catch (error) {
+		finishPendingSequenceSplit(operation);
+		const cause = error instanceof Error ? error.message : String(error);
+		const clipLabel = sequences.length === 1 ? 'clip' : 'clips';
+		const reason =
+			/^(Failed to fetch|fetch failed|NetworkError when attempting to fetch resource\.?)$/i.test(
+				cause,
+			)
+				? `Could not split ${clipLabel}. Check your connection to Studio and try again.`
+				: `Could not split ${clipLabel}: ${cause}`;
+		showNotification(reason, 4000);
+		return result('error', reason);
+	}
+};
+
+export const splitTimelineSequenceFromSource = (
+	sequence: SplitTarget,
+): Promise<boolean> =>
+	splitFromSource([sequence]).then((result) => result.status === 'success');
 
 export const splitTimelineSequencesFromSource = ({
 	sequences,
 }: {
-	sequences: Array<{
-		nodePathInfo: SequenceNodePathInfo;
-		splitFrame: number;
-	}>;
-}): Promise<boolean> => {
-	return splitSequencesApi({
-		sequences: sequences.map(({nodePathInfo, splitFrame}) => {
-			const nodePath = nodePathInfo.sequenceSubscriptionKey;
-			return {
-				fileName: nodePath.absolutePath,
-				nodePath: nodePath.nodePath,
-				sequenceKeys: nodePath.sequenceKeys,
-				splitFrame,
-				videoConfigValues: nodePath.videoConfigValues,
-			};
-		}),
-	})
-		.then((result) => {
-			if (result.success) {
-				return true;
-			}
+	sequences: SplitTarget[];
+}): Promise<boolean> =>
+	splitFromSource(sequences).then((result) => result.status === 'success');
 
-			showNotification(result.reason, 4000);
-			return false;
-		})
-		.catch((err) => {
-			showNotification((err as Error).message, 4000);
-			return false;
-		});
-};
-
-export const splitSelectedTimelineItems = ({
-	selections,
-	tracks,
-	propStatuses,
-	splitFrame,
-	splitSequences = splitTimelineSequencesFromSource,
-	notify = showNotification,
-}: {
+type SelectedSplitOptions = {
 	selections: readonly TimelineSelection[];
-	readonly tracks: readonly TimelineTrackData[];
+	tracks: readonly TimelineTrackData[];
 	propStatuses: PropStatuses | undefined;
 	splitFrame: number;
-	splitSequences?: (options: {
-		sequences: Array<{
-			nodePathInfo: SequenceNodePathInfo;
-			splitFrame: number;
-		}>;
-	}) => Promise<boolean>;
-	notify?: (message: string, durationInMs: number) => void;
-}): Promise<boolean> | null => {
-	if (
-		selections.length === 0 ||
-		selections.some((selection) => selection.type !== 'sequence')
-	) {
-		return null;
-	}
-
-	const eligible: Array<{
-		nodePathInfo: SequenceNodePathInfo;
-		splitFrame: number;
-	}> = [];
-	const skippedReasons: string[] = [];
+};
+const prepareSelectedSplits = (
+	{selections, tracks, propStatuses, splitFrame}: SelectedSplitOptions,
+	requirePropStatuses: boolean,
+) => {
+	const eligible: SplitTarget[] = [];
+	const skipped: SequenceSplitResult['skipped'] = [];
 	for (const selection of selections) {
-		if (selection.type !== 'sequence') {
-			continue;
-		}
-
+		if (selection.type !== 'sequence') continue;
 		const track = findTrackForNodePathInfo({
 			tracks,
 			nodePathInfo: selection.nodePathInfo,
@@ -270,46 +316,118 @@ export const splitSelectedTimelineItems = ({
 					selection.nodePathInfo.sequenceSubscriptionKey,
 				)
 			: undefined;
+		if (requirePropStatuses && sequencePropStatuses === undefined) {
+			skipped.push({
+				nodePathInfo: selection.nodePathInfo,
+				reason: 'Waiting for sequence prop status',
+			});
+			continue;
+		}
+
 		const eligibility = getTimelineSequenceSplitEligibility({
 			selection,
 			sequence: track?.sequence ?? null,
 			splitFrame,
 			propStatuses: sequencePropStatuses,
 		});
-		if (eligibility.canSplit) {
+		if (eligibility.canSplit && track) {
 			eligible.push({
 				nodePathInfo: eligibility.nodePathInfo,
-				splitFrame: track
-					? getSequenceSourceSplitFrame({
-							timelineFrame: splitFrame,
-							keyframeDisplayOffset: track.keyframeDisplayOffset,
-							keyframePlaybackRate: track.keyframePlaybackRate,
-						})
-					: splitFrame,
+				splitFrame: getSequenceSourceSplitFrame({
+					timelineFrame: splitFrame,
+					keyframeDisplayOffset: track.keyframeDisplayOffset,
+					keyframePlaybackRate: track.keyframePlaybackRate,
+				}),
+				expectedDuration: splitFrame - track.sequence.from,
 			});
 		} else {
-			skippedReasons.push(eligibility.reason);
+			skipped.push({
+				nodePathInfo: selection.nodePathInfo,
+				reason: eligibility.canSplit
+					? 'Could not find selected sequence'
+					: eligibility.reason,
+			});
 		}
 	}
 
+	return {eligible, skipped};
+};
+
+const partialSplitMessage = (eligible: number, skipped: number) =>
+	`Split ${eligible} ${eligible === 1 ? 'clip' : 'clips'}. Skipped ${skipped} ${skipped === 1 ? 'clip' : 'clips'} that could not be split.`;
+
+export const splitSelectedTimelineItemsWithResult = async (
+	options: SelectedSplitOptions,
+): Promise<SequenceSplitResult> => {
+	if (
+		options.selections.length === 0 ||
+		options.selections.some((selection) => selection.type !== 'sequence') ||
+		!Number.isInteger(options.splitFrame) ||
+		options.splitFrame < 0
+	) {
+		const reason =
+			'Select clips and an integer frame in the composition to split.';
+		showNotification(reason, 4000);
+		return {status: 'ineligible', reason, split: [], skipped: []};
+	}
+
+	const {eligible, skipped} = prepareSelectedSplits(options, true);
+	if (eligible.length === 0) {
+		const reason =
+			skipped.length === 1
+				? skipped[0].reason
+				: `None of the ${options.selections.length} selected clips can be split at the playhead`;
+		showNotification(reason, 4000);
+		return {status: 'ineligible', reason, split: [], skipped};
+	}
+
+	const result = await splitFromSource(eligible);
+	if (result.status === 'success' && skipped.length > 0)
+		showNotification(
+			partialSplitMessage(eligible.length, skipped.length),
+			4000,
+		);
+	return {...result, skipped};
+};
+
+export const splitSelectedTimelineItems = ({
+	splitSequences,
+	notify = showNotification,
+	...options
+}: SelectedSplitOptions & {
+	splitSequences?: (options: {
+		sequences: {nodePathInfo: SequenceNodePathInfo; splitFrame: number}[];
+	}) => Promise<boolean>;
+	notify?: (message: string, durationInMs: number) => void;
+}): Promise<boolean> | null => {
+	if (
+		options.selections.length === 0 ||
+		options.selections.some((selection) => selection.type !== 'sequence')
+	)
+		return null;
+	if (!splitSequences)
+		return splitSelectedTimelineItemsWithResult(options).then(
+			(result) => result.status === 'success',
+		);
+	const {eligible, skipped} = prepareSelectedSplits(options, false);
 	if (eligible.length === 0) {
 		notify(
-			selections.length === 1
-				? skippedReasons[0]
-				: `None of the ${selections.length} selected clips can be split at the playhead`,
+			skipped.length === 1
+				? skipped[0].reason
+				: `None of the ${options.selections.length} selected clips can be split at the playhead`,
 			4000,
 		);
 		return Promise.resolve(false);
 	}
 
-	return splitSequences({sequences: eligible}).then((success) => {
-		if (success && skippedReasons.length > 0) {
-			notify(
-				`Split ${eligible.length} ${eligible.length === 1 ? 'clip' : 'clips'}. Skipped ${skippedReasons.length} ${skippedReasons.length === 1 ? 'clip' : 'clips'} that could not be split.`,
-				4000,
-			);
-		}
-
+	return splitSequences({
+		sequences: eligible.map(({nodePathInfo, splitFrame}) => ({
+			nodePathInfo,
+			splitFrame,
+		})),
+	}).then((success) => {
+		if (success && skipped.length > 0)
+			notify(partialSplitMessage(eligible.length, skipped.length), 4000);
 		return success;
 	});
 };

@@ -20,6 +20,7 @@ import {studioRenderEntryExternal} from './dev/studio-render-entry-external';
 import {LoadingProgress} from './LoadingProgress';
 import {deleteBrowserStudioProjectStorage} from './opfs-public-files';
 import type {
+	BrowserStudioCompileInput,
 	BrowserStudioDependencyResolution,
 	BrowserStudioProps,
 	BrowserStudioWorkerCompileRequest,
@@ -133,6 +134,7 @@ const getBrowserRenderDefaults = (): RenderDefaults => {
 		logLevel: 'info',
 		maxConcurrency,
 		mediaCacheSizeInBytes: null,
+		preferredEffectBackend: 'auto',
 		metadata: null,
 		minConcurrency: 1,
 		multiProcessOnLinux: true,
@@ -184,7 +186,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	const lastWrittenHtmlRef = useRef<string | null>(null);
 	const workerRef = useRef<Worker | null>(null);
 	const initialElementRef = useRef(initialElement);
-	const lastSentProjectRef = useRef<BrowserStudioProps['project'] | null>(null);
+	const lastSentProjectRef = useRef<BrowserStudioCompileInput | null>(null);
 	const bundleUrlRef = useRef<string | null>(null);
 	const unsubscribeFromIframeEventsRef = useRef(new Set<() => void>());
 	const notifyStudioOfPointerLeave = useCallback(() => {
@@ -231,10 +233,13 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		return () => hmrAssetManager.dispose();
 	}, [hmrAssetManager]);
 
-	const [editedProject, setEditedProject] = useState<{
-		project: BrowserStudioProps['project'];
-		sourceProject: BrowserStudioProps['project'];
-	} | null>(null);
+	const [{editedProject, sourceMutationId}, setProjectEdit] = useState<{
+		editedProject: {
+			project: BrowserStudioProps['project'];
+			sourceProject: BrowserStudioProps['project'];
+		} | null;
+		sourceMutationId: string | null;
+	}>({editedProject: null, sourceMutationId: null});
 	const incomingProjectMatchesEditSource =
 		editedProject !== null &&
 		areBrowserStudioProjectsEqual(editedProject.sourceProject, project);
@@ -242,8 +247,8 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		editedProject && incomingProjectMatchesEditSource
 			? editedProject.project
 			: project;
-	const activeProjectRef = useRef(activeProject);
-	activeProjectRef.current = activeProject;
+	const activeProjectRef = useRef({project: activeProject, sourceMutationId});
+	activeProjectRef.current = {project: activeProject, sourceMutationId};
 	const previousProjectStorageRef = useRef(activeProject.publicFileStorage);
 	useEffect(() => {
 		const previousStorage = previousProjectStorageRef.current;
@@ -266,11 +271,19 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	onProjectChangeRef.current = onProjectChange;
 
 	const updateProject = useCallback(
-		(nextProject: BrowserStudioProps['project']) => {
-			activeProjectRef.current = nextProject;
-			setEditedProject({
+		(nextProject: BrowserStudioProps['project'], mutationId: string | null) => {
+			const latestMutationId =
+				mutationId ?? activeProjectRef.current.sourceMutationId;
+			activeProjectRef.current = {
 				project: nextProject,
-				sourceProject: incomingProjectRef.current,
+				sourceMutationId: latestMutationId,
+			};
+			setProjectEdit({
+				editedProject: {
+					project: nextProject,
+					sourceProject: incomingProjectRef.current,
+				},
+				sourceMutationId: latestMutationId,
 			});
 			onProjectChangeRef.current?.(nextProject);
 		},
@@ -335,7 +348,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			createBrowserStudioOperations({
 				dependencyVersions: browserStudioDependencyVersions,
 				getStaticFiles: publicFileManager.getStaticFiles,
-				getProject: () => activeProjectRef.current,
+				getProject: () => activeProjectRef.current.project,
 				initialElement: initialElementRef.current,
 				onProjectChange: updateProject,
 				resolveDependencies: resolveElementDependencies,
@@ -359,7 +372,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		}
 
 		if (incomingProjectAcknowledgesEdit) {
-			setEditedProject(null);
+			setProjectEdit((previous) => ({...previous, editedProject: null}));
 		}
 
 		previousIncomingProject.current = project;
@@ -593,12 +606,18 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			}
 
 			if (response.type === 'hmr-update') {
-				hmrAssetManager.updateAssets(response.assets);
+				if (response.assets !== null) {
+					hmrAssetManager.updateAssets(response.assets);
+				}
+
 				browserStudioOperations.emitEvent({
 					hmrEvent: response.hmrEvent,
 					type: 'hmr',
 				});
-				setCompileState({status: 'compiled', warnings: response.warnings});
+				if (response.assets !== null) {
+					setCompileState({status: 'compiled', warnings: response.warnings});
+				}
+
 				return;
 			}
 
@@ -609,7 +628,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 			bundleUrlRef.current = URL.createObjectURL(
 				new Blob([response.bundle], {type: 'text/javascript'}),
 			);
-			const currentProject = activeProjectRef.current;
+			const currentProject = activeProjectRef.current.project;
 			const publicFiles = await publicFileManager.getStaticFiles({
 				lastModifiedByPath: null,
 				project: currentProject,
@@ -676,6 +695,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				sampleRate: null,
 				staticHash: '',
 				studioRuntimeConfig: {
+					preferredEffectBackend: null,
 					preservePitchOnPlayback: true,
 					showLayerFrameNumbers: false,
 					showPremounting: null,
@@ -713,7 +733,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 		worker.postMessage({
 			type: 'init',
 			dependencyResolutions,
-			project: activeProjectRef.current,
+			...activeProjectRef.current,
 			remotionPackageSource: remotionPackageSource ?? null,
 			useVendorBundle,
 		} satisfies BrowserStudioWorkerCompileRequest);
@@ -756,21 +776,33 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 	useEffect(() => {
 		const worker = workerRef.current;
 		const lastSentProject = lastSentProjectRef.current;
-		if (
-			!worker ||
-			!lastSentProject ||
-			areBrowserStudioProjectsEqual(lastSentProject, activeProject)
-		) {
+		if (!worker || !lastSentProject) {
 			return;
 		}
 
-		lastSentProjectRef.current = activeProject;
+		if (areBrowserStudioProjectsEqual(lastSentProject.project, activeProject)) {
+			if (
+				sourceMutationId !== null &&
+				lastSentProject.sourceMutationId !== sourceMutationId
+			) {
+				lastSentProjectRef.current = {project: activeProject, sourceMutationId};
+				worker.postMessage({
+					type: 'acknowledge-project',
+					sourceMutationId,
+				} satisfies BrowserStudioWorkerCompileRequest);
+			}
+
+			return;
+		}
+
+		lastSentProjectRef.current = {project: activeProject, sourceMutationId};
 		worker.postMessage({
 			dependencyResolutions: installedDependencyResolutionsRef.current,
 			project: activeProject,
+			sourceMutationId,
 			type: 'update-project',
 		} satisfies BrowserStudioWorkerCompileRequest);
-	}, [activeProject]);
+	}, [activeProject, sourceMutationId]);
 
 	useEffect(() => {
 		let cancelled = false;

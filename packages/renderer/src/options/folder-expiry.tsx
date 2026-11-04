@@ -22,7 +22,7 @@ export const folderExpiryOption = {
 	docLink: 'https://www.remotion.dev/docs/options/enable-folder-expiry',
 	type: false as boolean | null,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				source: 'cli',
 				value: commandLine[cliFlag] as boolean | null,

@@ -12,8 +12,12 @@ import {
 	withCommittedMetadata,
 	type CommittedMetadata,
 } from './committed-metadata.js';
-import {getSingleChildComponent} from './component-identity.js';
+import {
+	getSingleChildComponent,
+	getSingleChildProps,
+} from './component-identity.js';
 import type {
+	AnimatedImageInTimeline,
 	LoopDisplay,
 	SequenceControls,
 	SequenceRegistrationControls,
@@ -146,6 +150,10 @@ export type SequencePropsWithoutDuration = {
 	/**
 	 * @deprecated For internal use only.
 	 */
+	readonly _remotionInternalSingleChildren?: React.ReactNode;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	readonly _remotionInternalIsPremounting?: boolean;
 	/**
 	 * @deprecated For internal use only.
@@ -162,6 +170,7 @@ export type SequencePropsWithoutDuration = {
 		| {
 				type: 'image';
 				src: string;
+				animated: AnimatedImageInTimeline | null;
 		  };
 	/**
 	 * @deprecated This prop has no effect. Remotion Studio discovers selection outlines automatically.
@@ -200,11 +209,29 @@ const setSequenceWrapperRef = (
 	}
 };
 
-const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+type SequenceTiming = {
+	readonly contentDurationInFrames: number;
+	readonly effectiveDurationInFrames: number;
+	readonly actualDurationInFrames: number;
+	readonly loopPeriod: number | null;
+	readonly loopIteration: number;
+	readonly contentVisible: boolean;
+	readonly inheritedFrozenFrame: number | null;
+	readonly currentFrameRef: React.RefObject<number>;
+};
+
+// Bound instead of a closure: a closure created during render shares its scope
+// with the other closures of that render and would retain the first children.
+const getSingleChildPropsFromRef = (
+	childrenRef: React.RefObject<React.ReactNode>,
+) => getSingleChildProps(childrenRef.current);
+
+const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
-	SequenceProps
+	SequenceProps & {readonly timing: SequenceTiming}
 > = (
 	{
+		timing,
 		from = 0,
 		trimBefore = 0,
 		playbackRate = 1,
@@ -223,6 +250,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		_remotionInternalLoopDisplay: loopDisplay,
 		_remotionInternalStack: stack,
 		_remotionInternalSingleChildComponent: childComponentOverride,
+		_remotionInternalSingleChildren: authoredChildrenOverride,
 		_remotionInternalDocumentationLink: documentationLink,
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
@@ -286,9 +314,16 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		);
 	}
 
-	const contentDurationInFrames = resolveSequenceContentDuration({
-		durationInFrames,
-	});
+	const {
+		contentDurationInFrames,
+		effectiveDurationInFrames,
+		actualDurationInFrames,
+		loopPeriod,
+		loopIteration,
+		contentVisible,
+		inheritedFrozenFrame,
+		currentFrameRef,
+	} = timing;
 
 	if (typeof contentDurationInFrames !== 'number') {
 		throw new TypeError(
@@ -370,81 +405,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		}
 	}
 
-	const absoluteFrame = useTimelinePosition();
-	const lastPlaybackRate = useRef({playbackRate, frame: absoluteFrame});
-	if (
-		typeof playbackRate !== 'number' ||
-		!Number.isFinite(playbackRate) ||
-		playbackRate <= 0
-	) {
-		throw new TypeError(
-			`The "playbackRate" prop of <Sequence /> must be a positive finite number, but got ${playbackRate}.`,
-		);
-	}
-
-	if (
-		lastPlaybackRate.current.frame !== absoluteFrame &&
-		lastPlaybackRate.current.playbackRate !== playbackRate
-	) {
-		throw new Error(
-			'The "playbackRate" prop of <Sequence /> must be constant. Animating playbackRate is not supported.',
-		);
-	}
-
-	useLayoutEffect(() => {
-		lastPlaybackRate.current = {playbackRate, frame: absoluteFrame};
-	}, [absoluteFrame, playbackRate]);
 	const videoConfig = useVideoConfig();
-	const effectiveDurationInFrames = resolveSequenceDuration({
-		durationInFrames,
-		playbackRate,
-		loop,
-	});
-	const windowRelativeFrom = from - trimBefore / playbackRate;
-
-	const parentSequenceDuration = parentSequence
-		? Math.min(
-				parentSequence.durationInFrames - windowRelativeFrom,
-				effectiveDurationInFrames,
-			)
-		: effectiveDurationInFrames;
-	const actualDurationInFrames = Math.max(
-		0,
-		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
-	);
-
-	// A looped sequence repeats the child range selected by `durationInFrames`. Each
-	// iteration lasts `loopPeriod` parent frames and moves the clock origin,
-	// while the visible window stays at [from, from + effectiveDurationInFrames).
-	const frameInParent = (absoluteFrame - cumulatedFrom) * parentPlaybackRate;
-	const loopPeriod =
-		loop && Number.isFinite(contentDurationInFrames)
-			? contentDurationInFrames / playbackRate
-			: null;
-	let loopIteration = 0;
-	if (
-		loopPeriod !== null &&
-		(!activityEnabled ||
-			(!parentDormant &&
-				frameInParent >= from &&
-				frameInParent < from + actualDurationInFrames))
-	) {
-		const loopsElapsed = (frameInParent - from) / loopPeriod;
-		const nearestIteration = Math.round(loopsElapsed);
-		// Fractional periods and nested playback rates can put an exact loop
-		// boundary a few floating-point units before the next iteration.
-		const isAtBoundary =
-			Math.abs(loopsElapsed - nearestIteration) <=
-			Number.EPSILON * Math.max(1, Math.abs(loopsElapsed)) * 4;
-		const lastIteration = Math.ceil(actualDurationInFrames / loopPeriod) - 1;
-		loopIteration = Math.max(
-			0,
-			Math.min(
-				lastIteration,
-				isAtBoundary ? nearestIteration : Math.floor(loopsElapsed),
-			),
-		);
-	}
 
 	const loopOffset = loopPeriod === null ? 0 : loopIteration * loopPeriod;
 	const clockFrom = from + loopOffset;
@@ -584,12 +545,27 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	const isInsideSeries = useContext(IsInsideSeriesContext);
 
+	const authoredChildren =
+		authoredChildrenOverride === undefined
+			? children
+			: authoredChildrenOverride;
 	const singleChildComponent = useMemo(
 		() =>
 			childComponentOverride === undefined
-				? getSingleChildComponent(children)
+				? getSingleChildComponent(authoredChildren)
 				: childComponentOverride,
-		[children, childComponentOverride],
+		[authoredChildren, childComponentOverride],
+	);
+	const childrenRef = useRef(authoredChildren);
+	useLayoutEffect(() => {
+		childrenRef.current = authoredChildren;
+	}, [authoredChildren]);
+	const getRegisteredSingleChildProps = useMemo(
+		() =>
+			childComponentOverride === undefined
+				? getSingleChildPropsFromRef.bind(null, childrenRef)
+				: null,
+		[childComponentOverride],
 	);
 	const registrationStack = controls
 		? (getStackForControls(controls) ?? stack ?? null)
@@ -599,13 +575,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		[registrationStack],
 	);
 	const registeredFrozenFrame = typeof freeze === 'number' ? freeze : null;
-	const currentFrame =
-		registeredFrozenFrame ??
-		(absoluteFrame - currentSequenceStart) * cumulativePlaybackRate;
-	const currentFrameRef = useRef(currentFrame);
-	useLayoutEffect(() => {
-		currentFrameRef.current = currentFrame;
-	}, [currentFrame]);
 	const getCurrentFrame = useMemo(
 		() => getSequenceCurrentFrame.bind(null, currentFrameRef),
 		[currentFrameRef],
@@ -623,15 +592,21 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		isMedia && isMedia.type !== 'image'
 			? isMedia.data.startMediaFrom + parentCumulatedNegativeFrom
 			: null;
+	const mediaFreezeFrame =
+		registeredFrozenFrame ??
+		(contentVisible && !parentDormant && !premounting && !postmounting
+			? inheritedFrozenFrame
+			: null);
 	const frozenMediaFrame =
-		isMedia && isMedia.type !== 'image' && mediaFrameAtSequenceZero !== null
-			? registeredFrozenFrame === null
-				? null
-				: mediaFrameAtSequenceZero +
-					(resolvedLoopDisplay
-						? registeredFrozenFrame % resolvedLoopDisplay.durationInFrames
-						: registeredFrozenFrame) *
-						isMedia.data.playbackRate
+		isMedia &&
+		isMedia.type !== 'image' &&
+		mediaFrameAtSequenceZero !== null &&
+		mediaFreezeFrame !== null
+			? mediaFrameAtSequenceZero +
+				(resolvedLoopDisplay
+					? mediaFreezeFrame % resolvedLoopDisplay.durationInFrames
+					: mediaFreezeFrame) *
+					isMedia.data.playbackRate
 			: null;
 	const controlsSchema = controls?.schema;
 	const controlsRuntimeValues = controls?.runtimeValues;
@@ -640,14 +615,13 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	const controlsComponentIdentity = controls?.componentIdentity;
 	const controlsComponentName = controls?.componentName;
 	const controlsVideoConfigValues = controls?.videoConfigValues;
-	const isInsideNonPremountFreeze = useIsInsideNonPremountFreeze();
 	const canInferDuration =
 		(controlsComponentIdentity === 'dev.remotion.remotion.Series' ||
 			controlsComponentIdentity ===
 				'dev.remotion.transitions.TransitionSeries') &&
 		!loop &&
 		registeredFrozenFrame === null &&
-		!isInsideNonPremountFreeze &&
+		inheritedFrozenFrame === null &&
 		!hidden;
 	const autoDuration = canInferDuration && durationInFrames === undefined;
 	const isSeriesChild =
@@ -658,7 +632,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			'dev.remotion.transitions.TransitionSeries.Transition' ||
 		controlsComponentIdentity ===
 			'dev.remotion.transitions.TransitionSeries.Overlay';
-	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
 	const effectRuntimeValues = useMemo(
 		() =>
 			(
@@ -733,12 +706,14 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 					showInTimeline,
 					timelineOrder: null,
 					src: isMedia.src,
+					animated: isMedia.animated,
 					getStack,
 					getCurrentFrame,
 					refForOutline: refForOutline ?? null,
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
 					singleChildComponent: singleChildComponent ?? null,
+					getSingleChildProps: getRegisteredSingleChildProps,
 				};
 			}
 
@@ -773,6 +748,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 				frozenFrame: registeredFrozenFrame,
 				frozenMediaFrame,
 				singleChildComponent: singleChildComponent ?? null,
+				getSingleChildProps: getRegisteredSingleChildProps,
 			};
 		}
 
@@ -804,6 +780,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
 			singleChildComponent: singleChildComponent ?? null,
+			getSingleChildProps: getRegisteredSingleChildProps,
 		};
 	}, [
 		id,
@@ -838,6 +815,7 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		mediaFrameAtSequenceZero,
 		frozenMediaFrame,
 		singleChildComponent,
+		getRegisteredSingleChildProps,
 	]);
 	const getSequenceForRegistration = useMemo(
 		() => getSequenceRegistration.bind(null, sequenceForRegistration),
@@ -851,19 +829,6 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		id,
 	});
 
-	// Use an exclusive end so fractional clocks and frozen subframes remain visible.
-	const endThreshold = from + effectiveDurationInFrames;
-	const boundaryTolerance = getSequenceBoundaryTolerance({
-		absoluteFrame,
-		cumulatedFrom,
-		from,
-		parentPlaybackRate,
-		durationInFrames: effectiveDurationInFrames,
-	});
-	const contentVisible =
-		seriesContentVisible &&
-		frameInParent - from >= -boundaryTolerance &&
-		frameInParent - endThreshold < -boundaryTolerance;
 	const activityDormant = parentDormant || !contentVisible;
 	const admitted = useSequenceActivityAdmission(
 		activityEnabled && !hidden
@@ -1031,7 +996,237 @@ const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	return sequence;
 };
 
+const RegularSequenceContent = React.memo(
+	forwardRef(RegularSequenceContentRefForwardingFunction),
+);
+
+// Commit the clock before the content's registration layout effects. A parent
+// layout effect runs after its children and can publish the previous frame.
+const SequenceFrameCommit: React.FC<{
+	readonly currentFrame: number;
+	readonly currentFrameRef: React.RefObject<number>;
+}> = ({currentFrame, currentFrameRef}) => {
+	useLayoutEffect(() => {
+		currentFrameRef.current = currentFrame;
+	}, [currentFrame, currentFrameRef]);
+	return null;
+};
+
+const RegularSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SequenceProps
+> = (props, ref) => {
+	const {
+		from = 0,
+		trimBefore = 0,
+		playbackRate = 1,
+		loop = false,
+		durationInFrames,
+		freeze,
+	} = props;
+	const parentSequence = useContext(SequenceContext);
+	const parentPlaybackRate = parentSequence?.playbackRate ?? 1;
+	const cumulatedFrom = parentSequence
+		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
+		: 0;
+	const activityRequested = useContext(SequenceActivityContext);
+	const parentDormant = useContext(SequenceActivityDormantContext);
+	const env = useRemotionEnvironment();
+	const activityEnabled = activityRequested && env.isStudio && !env.isRendering;
+	const seriesContentVisible = useContext(SeriesContentVisibilityContext);
+	const videoConfig = useVideoConfig();
+	const contentDurationInFrames = resolveSequenceContentDuration({
+		durationInFrames,
+	});
+	const absoluteFrame = useTimelinePosition();
+	const lastPlaybackRate = useRef({playbackRate, frame: absoluteFrame});
+	if (
+		typeof playbackRate !== 'number' ||
+		!Number.isFinite(playbackRate) ||
+		playbackRate <= 0
+	) {
+		throw new TypeError(
+			`The "playbackRate" prop of <Sequence /> must be a positive finite number, but got ${playbackRate}.`,
+		);
+	}
+
+	if (
+		lastPlaybackRate.current.frame !== absoluteFrame &&
+		lastPlaybackRate.current.playbackRate !== playbackRate
+	) {
+		throw new Error(
+			'The "playbackRate" prop of <Sequence /> must be constant. Animating playbackRate is not supported.',
+		);
+	}
+
+	useLayoutEffect(() => {
+		lastPlaybackRate.current = {playbackRate, frame: absoluteFrame};
+	}, [absoluteFrame, playbackRate]);
+	const effectiveDurationInFrames = resolveSequenceDuration({
+		durationInFrames,
+		playbackRate,
+		loop,
+	});
+	const windowRelativeFrom = from - trimBefore / playbackRate;
+
+	const parentSequenceDuration = parentSequence
+		? Math.min(
+				parentSequence.durationInFrames - windowRelativeFrom,
+				effectiveDurationInFrames,
+			)
+		: effectiveDurationInFrames;
+	const actualDurationInFrames = Math.max(
+		0,
+		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
+	);
+
+	// A looped sequence repeats the child range selected by `durationInFrames`. Each
+	// iteration lasts `loopPeriod` parent frames and moves the clock origin,
+	// while the visible window stays at [from, from + effectiveDurationInFrames).
+	const frameInParent = (absoluteFrame - cumulatedFrom) * parentPlaybackRate;
+	const loopPeriod =
+		loop && Number.isFinite(contentDurationInFrames)
+			? contentDurationInFrames / playbackRate
+			: null;
+	let loopIteration = 0;
+	if (
+		loopPeriod !== null &&
+		(!activityEnabled ||
+			(!parentDormant &&
+				frameInParent >= from &&
+				frameInParent < from + actualDurationInFrames))
+	) {
+		const loopsElapsed = (frameInParent - from) / loopPeriod;
+		const nearestIteration = Math.round(loopsElapsed);
+		// Fractional periods and nested playback rates can put an exact loop
+		// boundary a few floating-point units before the next iteration.
+		const isAtBoundary =
+			Math.abs(loopsElapsed - nearestIteration) <=
+			Number.EPSILON * Math.max(1, Math.abs(loopsElapsed)) * 4;
+		const lastIteration = Math.ceil(actualDurationInFrames / loopPeriod) - 1;
+		loopIteration = Math.max(
+			0,
+			Math.min(
+				lastIteration,
+				isAtBoundary ? nearestIteration : Math.floor(loopsElapsed),
+			),
+		);
+	}
+
+	// Use an exclusive end so fractional clocks and frozen subframes remain visible.
+	const endThreshold = from + effectiveDurationInFrames;
+	const boundaryTolerance = getSequenceBoundaryTolerance({
+		absoluteFrame,
+		cumulatedFrom,
+		from,
+		parentPlaybackRate,
+		durationInFrames: effectiveDurationInFrames,
+	});
+	const contentVisible =
+		seriesContentVisible &&
+		frameInParent - from >= -boundaryTolerance &&
+		frameInParent - endThreshold < -boundaryTolerance;
+
+	const loopOffset = loopPeriod === null ? 0 : loopIteration * loopPeriod;
+	const currentSequenceStart =
+		cumulatedFrom +
+		(from + loopOffset - trimBefore / playbackRate) / parentPlaybackRate;
+	const currentFrame =
+		typeof freeze === 'number'
+			? freeze
+			: (absoluteFrame - currentSequenceStart) *
+				(parentPlaybackRate * playbackRate);
+	const inheritedFrozenFrame = useIsInsideNonPremountFreeze()
+		? currentFrame
+		: null;
+	const currentFrameRef = useRef(currentFrame);
+	const timing = useMemo(
+		(): SequenceTiming => ({
+			contentDurationInFrames,
+			effectiveDurationInFrames,
+			actualDurationInFrames,
+			loopPeriod,
+			loopIteration,
+			contentVisible,
+			inheritedFrozenFrame,
+			currentFrameRef,
+		}),
+		[
+			contentDurationInFrames,
+			effectiveDurationInFrames,
+			actualDurationInFrames,
+			loopPeriod,
+			loopIteration,
+			contentVisible,
+			inheritedFrozenFrame,
+		],
+	);
+	// The timeline subscriber stays small. Descendants retain their own frame subscriptions,
+	// while registration, validation and provider elements only update with timing or props.
+	return (
+		<React.Fragment>
+			<SequenceFrameCommit
+				currentFrame={currentFrame}
+				currentFrameRef={currentFrameRef}
+			/>
+			<RegularSequenceContent {...props} ref={ref} timing={timing} />
+		</React.Fragment>
+	);
+};
+
 const RegularSequence = forwardRef(RegularSequenceRefForwardingFunction);
+
+const PremountedSequenceContentRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	Extract<SequenceProps, AbsoluteFillLayout> & {
+		readonly freezeFrame: number;
+		readonly isPremountingOrPostmounting: boolean;
+		readonly premountingActive: boolean;
+		readonly postmountingActive: boolean;
+		readonly premountingStyle: React.CSSProperties | null;
+	}
+> = (
+	{
+		freezeFrame,
+		isPremountingOrPostmounting,
+		premountingActive,
+		postmountingActive,
+		premountingStyle,
+		from = 0,
+		durationInFrames,
+		premountFor = 0,
+		postmountFor = 0,
+		style: _style,
+		styleWhilePremounted: _styleWhilePremounted,
+		styleWhilePostmounted: _styleWhilePostmounted,
+		...otherProps
+	},
+	ref,
+) => {
+	return (
+		<Freeze
+			frame={freezeFrame}
+			active={isPremountingOrPostmounting}
+			_remotionInternalIsPremounting={premountingActive}
+		>
+			<RegularSequence
+				ref={ref}
+				from={from}
+				durationInFrames={durationInFrames}
+				style={premountingStyle ?? undefined}
+				_remotionInternalPremountDisplay={premountFor}
+				_remotionInternalPostmountDisplay={postmountFor}
+				_remotionInternalIsPremounting={premountingActive}
+				_remotionInternalIsPostmounting={postmountingActive}
+				{...otherProps}
+			/>
+		</Freeze>
+	);
+};
+
+const PremountedSequenceContent = React.memo(
+	forwardRef(PremountedSequenceContentRefForwardingFunction),
+);
 
 const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLDivElement,
@@ -1076,23 +1271,15 @@ const PremountedPostmountedSequenceRefForwardingFunction: React.ForwardRefRender
 	});
 
 	return (
-		<Freeze
-			frame={freezeFrame}
-			active={isPremountingOrPostmounting}
-			_remotionInternalIsPremounting={premountingActive}
-		>
-			<RegularSequence
-				ref={ref}
-				from={from}
-				durationInFrames={durationInFrames}
-				style={premountingStyle ?? undefined}
-				_remotionInternalPremountDisplay={premountFor}
-				_remotionInternalPostmountDisplay={postmountFor}
-				_remotionInternalIsPremounting={premountingActive}
-				_remotionInternalIsPostmounting={postmountingActive}
-				{...otherProps}
-			/>
-		</Freeze>
+		<PremountedSequenceContent
+			{...props}
+			ref={ref}
+			freezeFrame={freezeFrame}
+			isPremountingOrPostmounting={isPremountingOrPostmounting}
+			postmountingActive={postmountingActive}
+			premountingActive={premountingActive}
+			premountingStyle={premountingStyle}
+		/>
 	);
 };
 

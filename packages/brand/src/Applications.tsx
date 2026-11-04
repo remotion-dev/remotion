@@ -23,11 +23,23 @@ loadFont({
 	weight: '700',
 });
 
+loadFont({
+	family: 'GT Planar',
+	url: 'https://remotion.media/agentically-programmatically/gt-planar-black-fe8aa1491f7a.woff2',
+	weight: '900',
+});
+
 export function Applications() {
 	const frame = useCurrentFrame();
 
 	return (
-		<AbsoluteFill>
+		<AbsoluteFill
+			style={{
+				fontFamily: 'GT Planar, sans-serif',
+				fontFeatureSettings: "'ss03'",
+				fontWeight: 700,
+			}}
+		>
 			<Sequence
 				durationInFrames={180}
 				name="Simple application slide"

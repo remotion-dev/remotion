@@ -30,7 +30,12 @@ type Options = {
 	sampleRate: number;
 };
 
-const mergeAudioTrackUnlimited = async ({
+// Limits how many FFmpeg processes mix audio at once. Only the FFmpeg calls
+// take a slot: a merge that waits for its chunks to be merged first holds none,
+// so concurrent renders with many audio tracks can't block each other.
+const limit = pLimit(3);
+
+export const mergeAudioTrack = async ({
 	outName,
 	files,
 	downloadMap,
@@ -45,7 +50,7 @@ const mergeAudioTrackUnlimited = async ({
 	sampleRate,
 }: Options): Promise<void> => {
 	if (files.length === 0) {
-		await createSilentAudio({
+		await limit(createSilentAudio, {
 			outName,
 			chunkLengthInSeconds,
 			indent,
@@ -159,32 +164,27 @@ const mergeAudioTrackUnlimited = async ({
 		complexFilter,
 	);
 
-	const task = callFf({
-		bin: 'ffmpeg',
-		args,
-		indent,
-		logLevel,
-		binariesDirectory,
-		cancelSignal,
-	});
+	await limit(async () => {
+		const task = callFf({
+			bin: 'ffmpeg',
+			args,
+			indent,
+			logLevel,
+			binariesDirectory,
+			cancelSignal,
+		});
 
-	task.stderr?.on('data', (data: Buffer) => {
-		const utf8 = data.toString('utf8');
-		const parsed = parseFfmpegProgress(utf8, fps);
-		if (parsed !== undefined) {
-			onProgress(parsed / (chunkLengthInSeconds * fps));
-		}
-	});
+		task.stderr?.on('data', (data: Buffer) => {
+			const utf8 = data.toString('utf8');
+			const parsed = parseFfmpegProgress(utf8, fps);
+			if (parsed !== undefined) {
+				onProgress(parsed / (chunkLengthInSeconds * fps));
+			}
+		});
 
-	await task;
+		await task;
+	});
 
 	onProgress(1);
 	cleanup();
-};
-
-// Must be at least 3 because recursively called twice in mergeAudioTrack
-const limit = pLimit(3);
-
-export const mergeAudioTrack = (options: Options) => {
-	return limit(mergeAudioTrackUnlimited, options);
 };

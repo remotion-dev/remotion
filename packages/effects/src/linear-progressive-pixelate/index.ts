@@ -2,6 +2,7 @@ import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
 import {
+	PROGRESSIVE_PIXELATE_WEBGPU_SHADER,
 	cleanupProgressivePixelate,
 	drawProgressivePixelate,
 	prepareProgressivePixelate,
@@ -9,6 +10,12 @@ import {
 	type ProgressivePixelateState,
 } from '../progressive-pixelate-runtime.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
 
 const {createEffect} = Internals;
 
@@ -127,40 +134,88 @@ const validateParams = (params: LinearProgressivePixelateParams): void => {
 	);
 };
 
-export const linearProgressivePixelate = createEffect<
-	LinearProgressivePixelateParams,
-	ProgressivePixelateState
->({
-	type: 'dev.remotion.effects.linearProgressivePixelate',
-	label: 'linearProgressivePixelate()',
-	documentationLink:
-		'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
-	backend: 'webgl2',
-	calculateKey: (params) => {
-		const r = resolve(params);
-		return `linear-progressive-pixelate-${r.start.join(':')}-${r.end.join(':')}-${r.startBlockSize}-${r.endBlockSize}`;
-	},
-	setup: setupProgressivePixelate,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		prepareProgressivePixelate({
-			state,
-			source,
-			width,
-			height,
-			flipSourceY,
-		});
-		const {gl, uniforms} = state;
-		if (uniforms.uMode) gl.uniform1i(uniforms.uMode, 0);
-		if (uniforms.uStart) gl.uniform2f(uniforms.uStart, r.start[0], r.start[1]);
-		if (uniforms.uEnd) gl.uniform2f(uniforms.uEnd, r.end[0], r.end[1]);
-		if (uniforms.uStartBlockSize)
-			gl.uniform1f(uniforms.uStartBlockSize, r.startBlockSize);
-		if (uniforms.uEndBlockSize)
-			gl.uniform1f(uniforms.uEndBlockSize, r.endBlockSize);
-		drawProgressivePixelate(state);
-	},
-	cleanup: cleanupProgressivePixelate,
-	schema: linearProgressivePixelateSchema,
-	validateParams,
-});
+export const linearProgressivePixelate =
+	createEffect<LinearProgressivePixelateParams>({
+		type: 'dev.remotion.effects.linearProgressivePixelate',
+		label: 'linearProgressivePixelate()',
+		documentationLink:
+			'https://www.remotion.dev/docs/effects/linear-progressive-pixelate',
+		calculateKey: (params) => {
+			const r = resolve(params);
+			return `linear-progressive-pixelate-${r.start.join(':')}-${r.end.join(':')}-${r.startBlockSize}-${r.endBlockSize}`;
+		},
+		implementations: {
+			webgpu: Internals.createEffectImplementation<
+				LinearProgressivePixelateParams,
+				WebGpuSinglePassState
+			>({
+				setup: (target) =>
+					setupWebGpuSinglePass(target, 'linear-progressive-pixelate'),
+				apply: ({source, width, height, params, state, gpuDevice}) => {
+					if (!gpuDevice) {
+						throw new Error(
+							'A WebGPU device is required for the linear-progressive-pixelate effect',
+						);
+					}
+
+					const r = resolve(params);
+					applyWebGpuSinglePass({
+						source,
+						width,
+						height,
+						state,
+						device: gpuDevice as GPUDevice,
+						shader: PROGRESSIVE_PIXELATE_WEBGPU_SHADER,
+						uniformData: new Float32Array([
+							width,
+							height,
+							0,
+							r.startBlockSize,
+							r.start[0],
+							r.start[1],
+							r.end[0],
+							r.end[1],
+							0,
+							0,
+							0,
+							0,
+							0,
+							0,
+							r.endBlockSize,
+							0,
+						]),
+					});
+				},
+				cleanup: cleanupWebGpuSinglePass,
+			}),
+			webgl2: Internals.createEffectImplementation<
+				LinearProgressivePixelateParams,
+				ProgressivePixelateState
+			>({
+				setup: setupProgressivePixelate,
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+					prepareProgressivePixelate({
+						state,
+						source,
+						width,
+						height,
+						flipSourceY,
+					});
+					const {gl, uniforms} = state;
+					if (uniforms.uMode) gl.uniform1i(uniforms.uMode, 0);
+					if (uniforms.uStart)
+						gl.uniform2f(uniforms.uStart, r.start[0], r.start[1]);
+					if (uniforms.uEnd) gl.uniform2f(uniforms.uEnd, r.end[0], r.end[1]);
+					if (uniforms.uStartBlockSize)
+						gl.uniform1f(uniforms.uStartBlockSize, r.startBlockSize);
+					if (uniforms.uEndBlockSize)
+						gl.uniform1f(uniforms.uEndBlockSize, r.endBlockSize);
+					drawProgressivePixelate(state);
+				},
+				cleanup: cleanupProgressivePixelate,
+			}),
+		},
+		schema: linearProgressivePixelateSchema,
+		validateParams,
+	});

@@ -198,6 +198,7 @@ export const renderMediaSingleThread = async (
 			server: undefined,
 			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 			mediaCacheSizeInBytes: body.mediaCacheSizeInBytes,
+			preferredEffectBackend: body.preferredEffectBackend,
 			offthreadVideoThreads: body.offthreadVideoThreads,
 			colorSpace: body.colorSpace,
 			repro: false,
@@ -213,8 +214,8 @@ export const renderMediaSingleThread = async (
 			hardwareAcceleration: 'disable',
 			chromeMode: 'headless-shell',
 			onLog: RenderInternals.defaultOnLog,
-			licenseKey: null,
-			isProduction: null,
+			licenseKey: body.licenseKey,
+			isProduction: body.isProduction,
 			sampleRate: body.sampleRate ?? 48000,
 		});
 

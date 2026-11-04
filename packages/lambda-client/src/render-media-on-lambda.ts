@@ -224,6 +224,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		storageClass: options.storageClass ?? null,
 		requestHandler: options.requestHandler ?? null,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
 		isProduction: options.isProduction ?? null,
 		sampleRate: options.sampleRate ?? 48000,
 	};

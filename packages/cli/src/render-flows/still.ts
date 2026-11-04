@@ -1,6 +1,5 @@
-// Prints to CLI and also reports back to browser
-
 import {existsSync, mkdirSync} from 'node:fs';
+// Prints to CLI and also reports back to browser
 import path from 'node:path';
 import type {
 	BundlerOverrideFn,
@@ -24,6 +23,7 @@ import type {
 	JobProgressCallback,
 } from '@remotion/studio-server';
 import type {BrowserDownloadState} from '@remotion/studio-shared';
+import type {PreferredEffectBackend} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {defaultBrowserDownloadProgress} from '../browser-download-bar';
 import {chalk} from '../chalk';
@@ -89,6 +89,7 @@ export const renderStillFlow = async ({
 	offthreadVideoThreads,
 	audioLatencyHint,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	rspack,
 	askAIEnabled,
 	keyboardShortcutsEnabled,
@@ -97,6 +98,7 @@ export const renderStillFlow = async ({
 	rspackOverride,
 	webpackOverride,
 	licenseKey,
+	isProduction,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -133,6 +135,7 @@ export const renderStillFlow = async ({
 	chromeMode: ChromeMode;
 	audioLatencyHint: AudioContextLatencyCategory | null;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	rspack: boolean;
 	askAIEnabled: boolean;
 	keyboardShortcutsEnabled: boolean;
@@ -141,6 +144,7 @@ export const renderStillFlow = async ({
 	rspackOverride: RspackOverrideFn | null;
 	webpackOverride: WebpackOverrideFn | null;
 	licenseKey: string | null;
+	isProduction: boolean | null;
 }) => {
 	const isVerbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	Log.verbose(
@@ -313,6 +317,7 @@ export const renderStillFlow = async ({
 			onBrowserDownload,
 			chromeMode,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -447,6 +452,7 @@ export const renderStillFlow = async ({
 		chromeMode,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		onLog: ({logLevel: logLogLevel, previewString, tag}) => {
 			addLogToAggregateProgress({
 				logs: aggregate.logs,
@@ -461,7 +467,7 @@ export const renderStillFlow = async ({
 			});
 		},
 		licenseKey,
-		isProduction: null,
+		isProduction,
 	});
 
 	aggregate.rendering = {

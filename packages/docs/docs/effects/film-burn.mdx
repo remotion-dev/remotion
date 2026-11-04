@@ -1,0 +1,84 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-film-burn.png
+slug: /effects/film-burn
+title: filmBurn()
+sidebar_label: filmBurn()
+crumb: '@remotion/effects'
+---
+
+# filmBurn()<AvailableFrom v="4.0.540" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Burns irregular holes into a canvas-based component, with charred rims and glowing orange edges. Animate `progress` to grow the transparent burned areas.
+
+## Preview
+
+<EffectsDemo type="effects-film-burn" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {filmBurn} from '@remotion/effects/film-burn';
+import {Video} from '@remotion/media';
+import {interpolate, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const progress = interpolate(frame, [0, 60], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        filmBurn({
+          progress,
+          center: [0.5, 0.5],
+          seed: 0,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `filmBurn()` without arguments.
+
+### `progress?`
+
+How far the burn has progressed, from `0` (unchanged) to `1` (fully transparent). Defaults to `0`.
+
+Animate from `1` to `0` to reveal the source.
+
+### `center?`
+
+Center of the burn as `[x, y]`, with both values between `0` and `1`. `[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right corner. Defaults to `[0.5, 0.5]`.
+
+### `seed?`
+
+Random seed for the burn pattern. Must be an integer from `0` to `4294967295`. Defaults to `0`.
+
+Keep the seed fixed while animating `progress` to grow the same burn pattern.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU<AvailableFrom v="4.0.540" inline />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`radialWipe()`](/docs/effects/radial-wipe)
+- [`lightLeak()`](/docs/effects/light-leak)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/film-burn.ts)

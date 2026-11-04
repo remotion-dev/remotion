@@ -73,6 +73,7 @@ const downloadFileWithoutRetries = ({
 						`Tried to download file ${url}, ${noDataSentToken} 20 seconds`,
 					),
 				);
+				closeConnection();
 			}, 20000);
 		};
 
@@ -80,7 +81,9 @@ const downloadFileWithoutRetries = ({
 
 		let finishEventSent = false;
 
-		let closeConnection = () => undefined;
+		// Until a response arrives, closing the connection aborts the pending request
+		const requestController = new AbortController();
+		let closeConnection = () => requestController.abort();
 
 		const onAbort = () => {
 			rejectAndFlag(new Error(CANCELLED_ERROR));
@@ -89,12 +92,17 @@ const downloadFileWithoutRetries = ({
 
 		abortSignal.addEventListener('abort', onAbort);
 
-		readFile(url)
+		readFile(url, requestController.signal)
 			.then(({response, request}) => {
 				closeConnection = () => {
 					request.destroy();
 					response.destroy();
 				};
+
+				if (rejected) {
+					closeConnection();
+					return;
+				}
 
 				if (abortSignal.aborted) {
 					onAbort();
@@ -192,10 +200,9 @@ export const downloadFile = async (
 			message.includes(incorrectContentLengthToken) ||
 			message.includes(noDataSentToken) ||
 			// Try again if hitting internal errors
-			message.includes('503') ||
-			message.includes('502') ||
-			message.includes('504') ||
-			message.includes('500')
+			/^Received a status code of (500|502|503|504) while downloading file /.test(
+				message,
+			)
 		) {
 			if (retries === 0) {
 				throw err;

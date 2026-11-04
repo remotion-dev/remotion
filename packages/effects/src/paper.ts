@@ -8,9 +8,19 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {
+	PAPER_CROP_WEBGPU_SHADER,
+	PAPER_WEBGPU_SHADER,
+} from './paper-webgpu-shader.js';
+import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -556,7 +566,8 @@ float drops(vec2 uv) {
 }
 
 void main() {
-	vec4 source = texture(uSource, vUv);
+	vec2 paperUv = gl_FragCoord.xy / uResolution;
+	vec4 source = texture(uSource, paperUv);
 	float sourceAlpha = source.a;
 
 	if (sourceAlpha <= 0.001 || uAmount <= 0.0) {
@@ -565,8 +576,8 @@ void main() {
 	}
 
 	vec3 sourceRgb = source.rgb / sourceAlpha;
-	vec2 imageUV = vUv;
-	vec2 patternUV = vUv - 0.5;
+	vec2 imageUV = paperUv;
+	vec2 patternUV = paperUv - 0.5;
 	patternUV /= max(uScale, 0.001);
 	patternUV = 5.0 * (patternUV * vec2(uImageAspectRatio, 1.0));
 
@@ -719,7 +730,7 @@ const nextNoiseState = (state: number): number => {
 	return next >>> 0;
 };
 
-const createNoiseData = (seed: number): Uint8Array => {
+const createNoiseData = (seed: number): Uint8Array<ArrayBuffer> => {
 	const data = new Uint8Array(NOISE_TEXTURE_SIZE * NOISE_TEXTURE_SIZE * 4);
 	let state = initialNoiseState(seed);
 	for (let i = 0; i < data.length; i += 4) {
@@ -741,19 +752,29 @@ const uploadNoiseTexture = (
 	seed: number,
 ): void => {
 	const data = createNoiseData(seed);
+	const flipY = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL) as boolean;
+	const premultiplyAlpha = gl.getParameter(
+		gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
+	) as boolean;
 	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-	gl.texImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		NOISE_TEXTURE_SIZE,
-		NOISE_TEXTURE_SIZE,
-		0,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		data,
-	);
+	try {
+		gl.texImage2D(
+			gl.TEXTURE_2D,
+			0,
+			gl.RGBA,
+			NOISE_TEXTURE_SIZE,
+			NOISE_TEXTURE_SIZE,
+			0,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			data,
+		);
+	} finally {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipY);
+		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplyAlpha);
+	}
 };
 
 const createNoiseTexture = (gl: WebGL2RenderingContext): WebGLTexture => {
@@ -868,107 +889,232 @@ const normalizedRgba = (
 	return [color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255];
 };
 
-export const paper = createEffect<PaperParams, PaperState>({
+export const paper = createEffect<PaperParams>({
 	type: 'dev.remotion.effects.paper',
 	label: 'paper()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/paper',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `paper-${r.amount}-${r.colorFront}-${r.colorBack}-${r.contrast}-${r.roughness}-${r.fiber}-${r.fiberSize}-${r.crumples}-${r.crumpleSize}-${r.folds}-${r.foldCount}-${r.drops}-${r.fade}-${r.seed}-${r.scale}`;
 	},
-	setup: (target) => setupPaper(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, sourceTexture, noiseTexture} = state;
-		if (state.cachedColorFront !== r.colorFront) {
-			state.cachedColorFront = r.colorFront;
-			state.cachedColorFrontRgba = parseColorRgba(state.colorCtx, r.colorFront);
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			PaperParams,
+			WebGpuSinglePassState & {
+				colorCtx: CanvasRenderingContext2D;
+				noiseData: Uint8Array<ArrayBuffer>;
+				noiseSeed: number | null;
+				paddedCanvas: HTMLCanvasElement;
+				paddedState: WebGpuSinglePassState;
+			}
+		>({
+			setup: (target) => {
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const colorCtx = canvas.getContext('2d', {willReadFrequently: true});
+				if (!colorCtx)
+					throw new Error('Could not create paper color parsing context');
+				const paddedCanvas = document.createElement('canvas');
 
-		if (state.cachedColorBack !== r.colorBack) {
-			state.cachedColorBack = r.colorBack;
-			state.cachedColorBackRgba = parseColorRgba(state.colorCtx, r.colorBack);
-		}
+				return {
+					...setupWebGpuSinglePass(target, 'paper'),
+					colorCtx,
+					noiseData: new Uint8Array(0),
+					noiseSeed: null,
+					paddedCanvas,
+					paddedState: setupWebGpuSinglePass(paddedCanvas, 'paper'),
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the paper effect');
+				const r = resolve(params);
+				// Derivative quads begin at the bottom in WebGL and the top in
+				// WebGPU. An extra top row aligns them when the height is odd.
+				const offsetY = height % 2;
+				if (
+					offsetY &&
+					(state.paddedCanvas.width !== width ||
+						state.paddedCanvas.height !== height + 1)
+				) {
+					state.paddedCanvas.width = width;
+					state.paddedCanvas.height = height + 1;
+				}
 
-		const [frontRed, frontGreen, frontBlue, frontAlpha] = normalizedRgba(
-			state.cachedColorFrontRgba,
-		);
-		const [backRed, backGreen, backBlue, backAlpha] = normalizedRgba(
-			state.cachedColorBackRgba,
-		);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					width / height,
+					r.amount,
+					...normalizedRgba(parseColorRgba(state.colorCtx, r.colorFront)),
+					...normalizedRgba(parseColorRgba(state.colorCtx, r.colorBack)),
+					r.contrast,
+					r.roughness,
+					r.fiber,
+					r.fiberSize,
+					r.crumples,
+					r.crumpleSize,
+					r.folds,
+					r.foldCount,
+					r.drops,
+					r.fade,
+					r.seed,
+					r.scale,
+					offsetY,
+					0,
+					0,
+					0,
+				]);
+				if (state.noiseSeed !== r.seed) {
+					state.noiseData = createNoiseData(r.seed);
+					state.noiseSeed = r.seed;
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				applyWebGpuSinglePass(
+					{
+						state: offsetY ? state.paddedState : state,
+						source,
+						width,
+						height,
+						device: gpuDevice as GPUDevice,
+						shader: PAPER_WEBGPU_SHADER,
+						uniformData,
+					},
+					{
+						sourceFilter: null,
+						auxiliaryTexture: {
+							data: state.noiseData,
+							width: NOISE_TEXTURE_SIZE,
+							height: NOISE_TEXTURE_SIZE,
+							format: 'rgba8unorm',
+						},
+					},
+				);
+				if (offsetY) {
+					applyWebGpuSinglePass({
+						state,
+						source: state.paddedCanvas,
+						width,
+						height,
+						device: gpuDevice as GPUDevice,
+						shader: PAPER_CROP_WEBGPU_SHADER,
+						uniformData: new Float32Array([width, height, 0, 0]),
+					});
+				}
+			},
+			cleanup: (state) => {
+				cleanupWebGpuSinglePass(state.paddedState);
+				cleanupWebGpuSinglePass(state);
+			},
+		}),
+		webgl2: Internals.createEffectImplementation<PaperParams, PaperState>({
+			setup: (target) => setupPaper(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, vao, sourceTexture, noiseTexture} = state;
+				if (state.cachedColorFront !== r.colorFront) {
+					state.cachedColorFront = r.colorFront;
+					state.cachedColorFrontRgba = parseColorRgba(
+						state.colorCtx,
+						r.colorFront,
+					);
+				}
 
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+				if (state.cachedColorBack !== r.colorBack) {
+					state.cachedColorBack = r.colorBack;
+					state.cachedColorBackRgba = parseColorRgba(
+						state.colorCtx,
+						r.colorBack,
+					);
+				}
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				const [frontRed, frontGreen, frontBlue, frontAlpha] = normalizedRgba(
+					state.cachedColorFrontRgba,
+				);
+				const [backRed, backGreen, backBlue, backAlpha] = normalizedRgba(
+					state.cachedColorBackRgba,
+				);
 
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-		if (state.cachedNoiseSeed !== r.seed) {
-			uploadNoiseTexture(gl, noiseTexture, r.seed);
-			state.cachedNoiseSeed = r.seed;
-		}
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uImageAspectRatio)
-			gl.uniform1f(state.uImageAspectRatio, width / height);
-		if (state.uColorFront)
-			gl.uniform4f(
-				state.uColorFront,
-				frontRed,
-				frontGreen,
-				frontBlue,
-				frontAlpha,
-			);
-		if (state.uColorBack)
-			gl.uniform4f(state.uColorBack, backRed, backGreen, backBlue, backAlpha);
-		if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
-		if (state.uContrast) gl.uniform1f(state.uContrast, r.contrast);
-		if (state.uRoughness) gl.uniform1f(state.uRoughness, r.roughness);
-		if (state.uFiber) gl.uniform1f(state.uFiber, r.fiber);
-		if (state.uFiberSize) gl.uniform1f(state.uFiberSize, r.fiberSize);
-		if (state.uCrumples) gl.uniform1f(state.uCrumples, r.crumples);
-		if (state.uCrumpleSize) gl.uniform1f(state.uCrumpleSize, r.crumpleSize);
-		if (state.uFolds) gl.uniform1f(state.uFolds, r.folds);
-		if (state.uFoldCount) gl.uniform1f(state.uFoldCount, r.foldCount);
-		if (state.uDrops) gl.uniform1f(state.uDrops, r.drops);
-		if (state.uFade) gl.uniform1f(state.uFade, r.fade);
-		if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
-		if (state.uScale) gl.uniform1f(state.uScale, r.scale);
-		if (state.uNoiseTexture) gl.uniform1i(state.uNoiseTexture, 1);
+				gl.useProgram(program);
+				gl.bindVertexArray(vao);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, sourceTexture, noiseTexture}) => {
-		gl.deleteTexture(sourceTexture);
-		gl.deleteTexture(noiseTexture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
+
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+				if (state.cachedNoiseSeed !== r.seed) {
+					uploadNoiseTexture(gl, noiseTexture, r.seed);
+					state.cachedNoiseSeed = r.seed;
+				}
+
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uImageAspectRatio)
+					gl.uniform1f(state.uImageAspectRatio, width / height);
+				if (state.uColorFront)
+					gl.uniform4f(
+						state.uColorFront,
+						frontRed,
+						frontGreen,
+						frontBlue,
+						frontAlpha,
+					);
+				if (state.uColorBack)
+					gl.uniform4f(
+						state.uColorBack,
+						backRed,
+						backGreen,
+						backBlue,
+						backAlpha,
+					);
+				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
+				if (state.uContrast) gl.uniform1f(state.uContrast, r.contrast);
+				if (state.uRoughness) gl.uniform1f(state.uRoughness, r.roughness);
+				if (state.uFiber) gl.uniform1f(state.uFiber, r.fiber);
+				if (state.uFiberSize) gl.uniform1f(state.uFiberSize, r.fiberSize);
+				if (state.uCrumples) gl.uniform1f(state.uCrumples, r.crumples);
+				if (state.uCrumpleSize) gl.uniform1f(state.uCrumpleSize, r.crumpleSize);
+				if (state.uFolds) gl.uniform1f(state.uFolds, r.folds);
+				if (state.uFoldCount) gl.uniform1f(state.uFoldCount, r.foldCount);
+				if (state.uDrops) gl.uniform1f(state.uDrops, r.drops);
+				if (state.uFade) gl.uniform1f(state.uFade, r.fade);
+				if (state.uSeed) gl.uniform1f(state.uSeed, r.seed);
+				if (state.uScale) gl.uniform1f(state.uScale, r.scale);
+				if (state.uNoiseTexture) gl.uniform1i(state.uNoiseTexture, 1);
+
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, sourceTexture, noiseTexture}) => {
+				gl.deleteTexture(sourceTexture);
+				gl.deleteTexture(noiseTexture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: paperSchema,
 	validateParams: validatePaperParams,

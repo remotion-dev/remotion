@@ -31,7 +31,9 @@ export const parseCaptionFile = ({
 	let parsed: unknown;
 	let canonical = false;
 	if (name.endsWith('.srt')) {
-		parsed = parseSrt({input: contents, strict: true}).captions;
+		parsed = parseSrt({input: contents, strict: true}).captions.map(
+			(caption) => ({...caption, pageBreakAfter: true}),
+		);
 	} else {
 		try {
 			parsed = JSON.parse(contents.replace(/^\uFEFF/, ''));

@@ -1,5 +1,12 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND, BLACK_ALPHA_50} from '../helpers/colors';
@@ -10,7 +17,7 @@ import {
 } from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
-import {loadLoopOption} from '../state/loop';
+import {loadLoopOption, loopSetterRef} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {FullScreenToggle} from './FullscreenToggle';
@@ -108,8 +115,7 @@ export const PreviewToolbar: React.FC<{
 	}, [size, width]);
 	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
-	const {playerMuted} = useContext(Internals.MediaVolumeContext);
-	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const [playerMuted, setPlayerMuted] = Internals.usePlayerMutedState();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isVideoComposition = useIsVideoComposition();
 	const showCompositionControls = canvasContent?.type === 'composition';
@@ -121,6 +127,7 @@ export const PreviewToolbar: React.FC<{
 	const isStill = useIsStill();
 
 	const [loop, setLoop] = useState(loadLoopOption());
+	useImperativeHandle(loopSetterRef, () => setLoop, [setLoop]);
 
 	const isFullscreenSupported = checkFullscreenSupport();
 	const isMobileLayout = useMobileLayout();
@@ -158,15 +165,20 @@ export const PreviewToolbar: React.FC<{
 				) : null}
 				{isMobileLayout ? (
 					<>
+						{isVideoComposition ? (
+							<PreviewToolbarControl>
+								<PlaybackRateSelector
+									setPlaybackRate={setPlaybackRate}
+									playbackRate={playbackRate}
+								/>
+							</PreviewToolbarControl>
+						) : null}
 						<PreviewToolbarControl>
 							<PreviewToolbarOverflowButton
 								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
-								showPlaybackRate={isVideoComposition}
 								showLoop={isVideoComposition}
 								showCanvasViewControls={showCanvasViewControls}
 								showCompositionControls={showCompositionControls}
-								playbackRate={playbackRate}
-								setPlaybackRate={setPlaybackRate}
 								loop={loop}
 								setLoop={setLoop}
 							/>

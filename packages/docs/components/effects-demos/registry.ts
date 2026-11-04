@@ -10,6 +10,7 @@ import {colorKey} from '@remotion/effects/color-key';
 import {contourLines} from '@remotion/effects/contour-lines';
 import {contrast} from '@remotion/effects/contrast';
 import {cornerPin} from '@remotion/effects/corner-pin';
+import {curves} from '@remotion/effects/curves';
 import {cylinder} from '@remotion/effects/cylinder';
 import {dotGrid} from '@remotion/effects/dot-grid';
 import {dropShadow} from '@remotion/effects/drop-shadow';
@@ -17,6 +18,7 @@ import {duotone} from '@remotion/effects/duotone';
 import {emboss} from '@remotion/effects/emboss';
 import {evolve} from '@remotion/effects/evolve';
 import {exposure} from '@remotion/effects/exposure';
+import {filmBurn} from '@remotion/effects/film-burn';
 import {fisheye} from '@remotion/effects/fisheye';
 import {flannel} from '@remotion/effects/flannel';
 import {fractalNoise} from '@remotion/effects/fractal-noise';
@@ -27,6 +29,7 @@ import {halftone} from '@remotion/effects/halftone';
 import {halftoneLinearGradient} from '@remotion/effects/halftone-linear-gradient';
 import {hue} from '@remotion/effects/hue';
 import {invert} from '@remotion/effects/invert';
+import {irisWipe} from '@remotion/effects/iris-wipe';
 import {lensBlur} from '@remotion/effects/lens-blur';
 import {levels} from '@remotion/effects/levels';
 import {lightLeak} from '@remotion/effects/light-leak';
@@ -50,6 +53,8 @@ import {pixelDissolve} from '@remotion/effects/pixel-dissolve';
 import {pixelate} from '@remotion/effects/pixelate';
 import {radialProgressiveBlur} from '@remotion/effects/radial-progressive-blur';
 import {radialProgressivePixelate} from '@remotion/effects/radial-progressive-pixelate';
+import {radialWipe} from '@remotion/effects/radial-wipe';
+import {rainFall} from '@remotion/effects/rain-fall';
 import {regionBlur} from '@remotion/effects/region-blur';
 import {rings} from '@remotion/effects/rings';
 import {roughenEdges} from '@remotion/effects/roughen-edges';
@@ -57,9 +62,11 @@ import {saturation} from '@remotion/effects/saturation';
 import {scale} from '@remotion/effects/scale';
 import {scanlines} from '@remotion/effects/scanlines';
 import {shadowsHighlights} from '@remotion/effects/shadows-highlights';
+import {shatter} from '@remotion/effects/shatter';
 import {shine} from '@remotion/effects/shine';
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import {skew} from '@remotion/effects/skew';
+import {snowFall} from '@remotion/effects/snow-fall';
 import {speckle} from '@remotion/effects/speckle';
 import {sphere} from '@remotion/effects/sphere';
 import {starburst} from '@remotion/effects/starburst';
@@ -91,6 +98,7 @@ import {EffectsColorKeyPreview} from '../effects/effects-color-key-preview';
 import {EffectsContourLinesPreview} from '../effects/effects-contour-lines-preview';
 import {EffectsContrastPreview} from '../effects/effects-contrast-preview';
 import {EffectsCornerPinPreview} from '../effects/effects-corner-pin-preview';
+import {EffectsCurvesPreview} from '../effects/effects-curves-preview';
 import {EffectsCylinderPreview} from '../effects/effects-cylinder-preview';
 import {EffectsDotGridPreview} from '../effects/effects-dot-grid-preview';
 import {EffectsDropShadowPreview} from '../effects/effects-drop-shadow-preview';
@@ -98,6 +106,7 @@ import {EffectsDuotonePreview} from '../effects/effects-duotone-preview';
 import {EffectsEmbossPreview} from '../effects/effects-emboss-preview';
 import {EffectsEvolvePreview} from '../effects/effects-evolve-preview';
 import {EffectsExposurePreview} from '../effects/effects-exposure-preview';
+import {EffectsFilmBurnPreview} from '../effects/effects-film-burn-preview';
 import {EffectsFisheyePreview} from '../effects/effects-fisheye-preview';
 import {EffectsFlannelPreview} from '../effects/effects-flannel-preview';
 import {EffectsFractalNoisePreview} from '../effects/effects-fractal-noise-preview';
@@ -108,6 +117,7 @@ import {EffectsHalftoneLinearGradientPreview} from '../effects/effects-halftone-
 import {EffectsHalftonePreview} from '../effects/effects-halftone-preview';
 import {EffectsHuePreview} from '../effects/effects-hue-preview';
 import {EffectsInvertPreview} from '../effects/effects-invert-preview';
+import {EffectsIrisWipePreview} from '../effects/effects-iris-wipe-preview';
 import {EffectsLensBlurPreview} from '../effects/effects-lens-blur-preview';
 import {EffectsLevelsPreview} from '../effects/effects-levels-preview';
 import {EffectsLightLeakPreview} from '../effects/effects-light-leak-preview';
@@ -153,6 +163,8 @@ import {
 	RADIAL_PROGRESSIVE_BLUR_PREVIEW_PARAMS,
 } from '../effects/effects-radial-progressive-blur-preview';
 import {EffectsRadialProgressivePixelatePreview} from '../effects/effects-radial-progressive-pixelate-preview';
+import {EffectsRadialWipePreview} from '../effects/effects-radial-wipe-preview';
+import {EffectsRainFallPreview} from '../effects/effects-rain-fall-preview';
 import {EffectsRegionBlurPreview} from '../effects/effects-region-blur-preview';
 import {EffectsRingsPreview} from '../effects/effects-rings-preview';
 import {EffectsRoughenEdgesPreview} from '../effects/effects-roughen-edges-preview';
@@ -160,12 +172,14 @@ import {EffectsSaturationPreview} from '../effects/effects-saturation-preview';
 import {EffectsScalePreview} from '../effects/effects-scale-preview';
 import {EffectsScanlinesPreview} from '../effects/effects-scanlines-preview';
 import {EffectsShadowsHighlightsPreview} from '../effects/effects-shadows-highlights-preview';
+import {EffectsShatterPreview} from '../effects/effects-shatter-preview';
 import {EffectsShinePreview} from '../effects/effects-shine-preview';
 import {
 	EffectsShrinkwrapPreview,
 	SHRINKWRAP_PREVIEW_PARAMS,
 } from '../effects/effects-shrinkwrap-preview';
 import {EffectsSkewPreview} from '../effects/effects-skew-preview';
+import {EffectsSnowFallPreview} from '../effects/effects-snow-fall-preview';
 import {EffectsSpecklePreview} from '../effects/effects-speckle-preview';
 import {EffectsSpherePreview} from '../effects/effects-sphere-preview';
 import {
@@ -215,6 +229,22 @@ const shrinkwrapDemoSchema = {
 const cylinderDemoSchema = cylinder().definition.schema;
 
 export const effectsDemos: EffectsDemoType[] = [
+	{
+		...defaults,
+		id: 'effects-rain-fall',
+		effectName: 'rainFall',
+		effectImportPath: '@remotion/effects/rain-fall',
+		comp: EffectsRainFallPreview,
+		schema: rainFall().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-snow-fall',
+		effectName: 'snowFall',
+		effectImportPath: '@remotion/effects/snow-fall',
+		comp: EffectsSnowFallPreview,
+		schema: snowFall().definition.schema,
+	},
 	{
 		...defaults,
 		id: 'effects-bevel-alpha',
@@ -331,6 +361,14 @@ export const effectsDemos: EffectsDemoType[] = [
 	},
 	{
 		...defaults,
+		id: 'effects-curves',
+		effectName: 'curves',
+		effectImportPath: '@remotion/effects/curves',
+		comp: EffectsCurvesPreview,
+		schema: curves().definition.schema,
+	},
+	{
+		...defaults,
 		id: 'effects-color-key',
 		effectName: 'colorKey',
 		effectImportPath: '@remotion/effects/color-key',
@@ -418,6 +456,30 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/venetian-blinds',
 		comp: EffectsVenetianBlindsPreview,
 		schema: venetianBlinds().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-film-burn',
+		effectName: 'filmBurn',
+		effectImportPath: '@remotion/effects/film-burn',
+		comp: EffectsFilmBurnPreview,
+		schema: filmBurn().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-radial-wipe',
+		effectName: 'radialWipe',
+		effectImportPath: '@remotion/effects/radial-wipe',
+		comp: EffectsRadialWipePreview,
+		schema: radialWipe().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-iris-wipe',
+		effectName: 'irisWipe',
+		effectImportPath: '@remotion/effects/iris-wipe',
+		comp: EffectsIrisWipePreview,
+		schema: irisWipe().definition.schema,
 	},
 	{
 		...defaults,
@@ -540,6 +602,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/thermal-vision',
 		comp: EffectsThermalVisionPreview,
 		schema: thermalVision().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-shatter',
+		effectName: 'shatter',
+		effectImportPath: '@remotion/effects/shatter',
+		comp: EffectsShatterPreview,
+		schema: shatter().definition.schema,
 	},
 	{
 		...defaults,

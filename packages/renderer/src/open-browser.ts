@@ -208,6 +208,8 @@ export const internalOpenBrowser = async ({
 			"--proxy-server='direct://'",
 			'--proxy-bypass-list=*',
 			'--force-gpu-mem-available-mb=4096',
+			// https://github.com/remotion-dev/remotion/issues/12929
+			process.platform === 'win32' ? '--disable-skia-graphite' : null,
 			// Prevent duplicated horizontal strips in Lambda renders: https://github.com/remotion-dev/remotion/issues/11428
 			process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA === 'true'
 				? '--disable-gpu-rasterization'

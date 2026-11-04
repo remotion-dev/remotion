@@ -4,6 +4,7 @@ import type {
 	InputVideoTrack,
 	MetadataTags,
 } from 'mediabunny';
+import {QuickTimeInputFormat} from 'mediabunny';
 import React from 'react';
 import {Table, TableBody, TableCell, TableRow} from '@/components/ui/table';
 import type {Dimensions} from '~/lib/calculate-new-dimensions-from-dimensions';
@@ -52,7 +53,11 @@ export const ContainerOverview: React.FC<{
 					<TableCell className="font-brand">Container</TableCell>
 					<TableCell className="text-right">
 						{container ? (
-							container.name
+							container instanceof QuickTimeInputFormat ? (
+								'QuickTime'
+							) : (
+								container.name
+							)
 						) : (
 							<Skeleton className="h-3 w-[100px] inline-block" />
 						)}

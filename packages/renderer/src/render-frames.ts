@@ -268,6 +268,7 @@ const innerRenderFrames = async ({
 	binariesDirectory,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	darkMode,
 	sampleRate,
@@ -345,6 +346,7 @@ const innerRenderFrames = async ({
 			pageIndex,
 			isMainTab: pageIndex === 0,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			onLog,
 			darkMode,
 			sampleRate,
@@ -532,6 +534,7 @@ const internalRenderFramesRaw = ({
 	offthreadVideoThreads,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	sampleRate,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
@@ -673,6 +676,7 @@ const internalRenderFramesRaw = ({
 					offthreadVideoThreads,
 					imageSequencePattern,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					onLog,
 					darkMode: chromiumOptions.darkMode ?? false,
 					sampleRate,
@@ -781,6 +785,7 @@ export const renderFrames = (
 		offthreadVideoThreads,
 		imageSequencePattern,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
 	} = options;
 
@@ -885,6 +890,7 @@ export const renderFrames = (
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		imageSequencePattern: imageSequencePattern ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		onLog: defaultOnLog,
 		sampleRate: sampleRate ?? composition.defaultSampleRate ?? 48000,
 	});

@@ -1,4 +1,3 @@
-import {Card} from '@remotion/design';
 import clsx from 'clsx';
 import React from 'react';
 import {convertTools, getActiveConvertTool} from '~/lib/convert-tools';
@@ -14,47 +13,43 @@ export const WhyRemotionConvert: React.FC<{
 	const activeTool = getActiveConvertTool(routeAction);
 
 	return (
-		<div className="text-left lg:text-center px-8 block m-auto">
-			<h2 className="font-brand text-xl font-bold mt-14">
-				Why use Remotion Convert?
-			</h2>
-			<div className="h-10" />
-			<div className="m-auto inline-block">
-				<div className="inline-flex flex-col lg:flex-row gap-8">
-					<Card className="lg:w-[300px] text-left px-4 py-6">
+		<div className="mx-auto w-full max-w-[500px] px-5 pt-10 text-left min-[900px]:max-w-[1000px]">
+			<div className="w-full">
+				<div className="flex flex-col gap-10 min-[900px]:grid min-[900px]:grid-cols-[repeat(3,270px)] min-[900px]:justify-between min-[900px]:gap-x-0">
+					<div className="flex min-w-0 flex-col items-start">
 						<BoltIcon />
 						<div className="h-4" />
-						<div className="font-brand font-bold text-2xl mb-2">
+						<h2 className="font-brand font-medium text-2xl leading-[1.1] mb-2">
 							Extremely Fast
-						</div>
-						<div className="font-brand text-black/90">
-							Remotion Convert leverages WebCodecs technology, taking full
+						</h2>
+						<div className="font-brand text-foreground/90 leading-relaxed text-pretty">
+							remotion.dev/convert leverages WebCodecs technology, taking full
 							advantage of the hardware acceleration of your device.
 						</div>
-					</Card>
-					<Card className="lg:w-[300px] text-left px-4 py-6">
+					</div>
+					<div className="flex min-w-0 flex-col items-start">
 						<LockIcon />
 						<div className="h-4" />
-						<div className="font-brand font-bold text-2xl mb-2">
+						<h2 className="font-brand font-medium text-2xl leading-[1.1] mb-2">
 							Private and offline
-						</div>
-						<div className="font-brand text-black/90">
+						</h2>
+						<div className="font-brand text-foreground/90 leading-relaxed text-pretty">
 							You don&apos;t have to upload your video for it to be processed.
 							This site works completely offline and your video does not leave
 							this device.
 							<br />
 						</div>
-					</Card>
-					<Card className="lg:w-[300px] text-left px-4 py-6">
+					</div>
+					<div className="flex min-w-0 flex-col items-start">
 						<AwesomeIcon />
 						<div className="h-4" />
-						<div className="font-brand font-bold text-2xl mb-2">
+						<h2 className="font-brand font-medium text-2xl leading-[1.1] mb-2">
 							Free and no ads
+						</h2>
+						<div className="font-brand text-foreground/90 leading-relaxed text-pretty">
+							No monetization on this site.
 						</div>
-						<div className="font-brand text-black/90">
-							This site is free to use and has no ads.
-						</div>
-						<div className="font-brand">
+						<div className="font-brand leading-relaxed text-pretty">
 							It simply serves as a GUI for{' '}
 							<a
 								href="https://mediabunny.dev"
@@ -65,19 +60,19 @@ export const WhyRemotionConvert: React.FC<{
 							</a>
 							, an open-source multimedia library we love!
 						</div>
-					</Card>
+					</div>
 				</div>
 				<div className="h-14" />
-				<div className="m-auto max-w-[760px] text-left">
+				<div className="w-full text-left">
 					<nav aria-label="Remotion tools" className="grid grid-cols-1 gap-y-2">
 						<div>
 							<a
 								href="https://remotion.dev/?utm_source=convert"
 								target="_blank"
-								className="font-brand text-sm leading-6 text-slate-600 transition-colors hover:text-brand"
+								className="grid gap-x-3 font-brand text-sm leading-6 text-muted-foreground transition-colors hover:text-brand min-[600px]:grid-cols-[230px_1fr] min-[900px]:grid-cols-[calc((100%_-_270px)/2)_1fr] min-[900px]:gap-x-0"
 							>
 								<span className="font-bold text-foreground">remotion.dev</span>
-								{' - '}Make videos programmatically
+								<span>Make videos programmatically</span>
 							</a>
 						</div>
 						{convertTools.map((tool) => {
@@ -89,7 +84,7 @@ export const WhyRemotionConvert: React.FC<{
 										href={tool.href}
 										aria-current={active ? 'page' : undefined}
 										className={clsx(
-											'font-brand text-sm leading-6 text-slate-600 transition-colors hover:text-brand',
+											'grid gap-x-3 font-brand text-sm leading-6 text-muted-foreground transition-colors hover:text-brand min-[600px]:grid-cols-[230px_1fr] min-[900px]:grid-cols-[calc((100%_-_270px)/2)_1fr] min-[900px]:gap-x-0',
 											active && 'text-brand',
 										)}
 									>
@@ -101,8 +96,7 @@ export const WhyRemotionConvert: React.FC<{
 										>
 											{tool.displayUrl}
 										</span>
-										{' - '}
-										{tool.description}
+										<span>{tool.description}</span>
 									</a>
 								</div>
 							);

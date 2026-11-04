@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda-cli-render.png
+image: https://remotion.media/docs/generated/articles-docs-lambda-cli-render.png
 id: render
 sidebar_label: render
 title: 'npx remotion lambda render'
@@ -324,7 +324,9 @@ Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> we
 
 ### `--function-name`<AvailableFrom v="3.3.38" />
 
-Specify the name of the function which should be used to invoke and orchestrate the render. You only need to pass it if there are multiple functions with different configurations.
+Specify the name of the function which should be used to invoke and orchestrate the render. Use this if there are multiple functions to choose from or you use a [custom function name](/docs/lambda/custom-function-names).
+
+From <AvailableFrom v="4.0.540" inline />, passing this flag skips automatic function discovery.
 
 ### `--renderer-function-name`<AvailableFrom v="3.3.38" />
 
@@ -359,6 +361,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
 
 <Options id="media-cache-size-in-bytes" />
+
+### `--preferred-effect-backend`<AvailableFrom v="4.0.540" />
+
+<Options id="preferred-effect-backend" />
 
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 

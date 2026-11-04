@@ -93,7 +93,7 @@ export const ElementInstallFallbackModal: React.FC<{
 				) : null}
 			</div>
 			<p className={styles.hint}>
-				Not working? Drag the button into your Studio instead.
+				Not working? Drag ⠿ into your Studio instead.
 			</p>
 			<p className={styles.copyHint}>
 				You can also{' '}
