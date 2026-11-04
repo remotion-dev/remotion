@@ -1,6 +1,9 @@
 import {expect, test} from 'bun:test';
+import {spawnSync} from 'node:child_process';
+import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import ts from 'typescript';
 import {generateOpenTimelineComposition} from '../open-timeline/generate';
 
 test('generated OTIO markup typechecks against the workspace Remotion components', () => {
@@ -71,86 +74,101 @@ test('generated OTIO markup typechecks against the workspace Remotion components
 			],
 		},
 	};
-	const sources = new Map<string, string>();
-	for (const componentName of [
-		'Video',
-		'Sequence',
-		'CanvasImage',
-		'AbsoluteFill',
-	]) {
-		const generated = generateOpenTimelineComposition({
-			timeline,
-			componentName,
-			fps: 30,
-			width: 1920,
-			height: 1080,
-		});
-		expect(generated.diagnostics).toEqual([]);
-		expect(generated.source).not.toBeNull();
-		sources.set(
-			fileURLToPath(
-				new URL(`./generated-${componentName}.tsx`, import.meta.url),
-			),
-			generated.source!,
+	const projectDir = mkdtempSync(path.join(tmpdir(), 'remotion-otio-types-'));
+	try {
+		const fileNames: string[] = [];
+		for (const componentName of [
+			'Video',
+			'Sequence',
+			'CanvasImage',
+			'AbsoluteFill',
+		]) {
+			const generated = generateOpenTimelineComposition({
+				timeline,
+				componentName,
+				fps: 30,
+				width: 1920,
+				height: 1080,
+			});
+			expect(generated.diagnostics).toEqual([]);
+			expect(generated.source).not.toBeNull();
+			const fileName = `generated-${componentName}.tsx`;
+			writeFileSync(path.join(projectDir, fileName), generated.source!);
+			fileNames.push(fileName);
+		}
+
+		writeFileSync(
+			path.join(projectDir, 'tsconfig.json'),
+			JSON.stringify({
+				compilerOptions: {
+					strict: true,
+					noEmit: true,
+					noUnusedLocals: true,
+					skipLibCheck: true,
+					types: [],
+					target: 'ES2022',
+					module: 'ESNext',
+					moduleResolution: 'Bundler',
+					jsx: 'react-jsx',
+					esModuleInterop: true,
+					paths: {
+						react: [
+							fileURLToPath(
+								new URL(
+									'../../../../node_modules/@types/react',
+									import.meta.url,
+								),
+							),
+						],
+						'react/*': [
+							fileURLToPath(
+								new URL(
+									'../../../../node_modules/@types/react/*',
+									import.meta.url,
+								),
+							),
+						],
+						remotion: [
+							fileURLToPath(
+								new URL('../../../core/src/index.ts', import.meta.url),
+							),
+						],
+						'@remotion/media': [
+							fileURLToPath(
+								new URL('../../../media/src/index.ts', import.meta.url),
+							),
+						],
+					},
+				},
+				files: fileNames,
+			}),
 		);
+
+		const tsc = spawnSync(
+			'node',
+			[
+				fileURLToPath(
+					new URL('../../node_modules/typescript/bin/tsc', import.meta.url),
+				),
+				'--project',
+				projectDir,
+				'--pretty',
+				'false',
+			],
+			{cwd: projectDir, encoding: 'utf8'},
+		);
+		expect(tsc.error).toBeUndefined();
+		expect(tsc.stderr).toBe('');
+		// Workspace sources report unrelated diagnostics under these options,
+		// so only diagnostics for the generated files are relevant.
+		expect(
+			tsc.stdout
+				.split('\n')
+				.filter((line) =>
+					fileNames.some((fileName) => line.startsWith(`${fileName}(`)),
+				),
+		).toEqual([]);
+	} finally {
+		rmSync(projectDir, {recursive: true, force: true});
 	}
-
-	const options: ts.CompilerOptions = {
-		strict: true,
-		noEmit: true,
-		noUnusedLocals: true,
-		skipLibCheck: true,
-		types: [],
-		target: ts.ScriptTarget.ES2022,
-		module: ts.ModuleKind.ESNext,
-		moduleResolution: ts.ModuleResolutionKind.Bundler,
-		jsx: ts.JsxEmit.ReactJSX,
-		esModuleInterop: true,
-		paths: {
-			remotion: [
-				fileURLToPath(new URL('../../../core/src/index.ts', import.meta.url)),
-			],
-			'@remotion/media': [
-				fileURLToPath(new URL('../../../media/src/index.ts', import.meta.url)),
-			],
-		},
-	};
-	const host = ts.createCompilerHost(options);
-	const originalGetSourceFile = host.getSourceFile.bind(host);
-	host.getSourceFile = (
-		fileName,
-		languageVersion,
-		onError,
-		shouldCreateNewSourceFile,
-	) => {
-		const source = sources.get(fileName);
-		return source === undefined
-			? originalGetSourceFile(
-					fileName,
-					languageVersion,
-					onError,
-					shouldCreateNewSourceFile,
-				)
-			: ts.createSourceFile(
-					fileName,
-					source,
-					languageVersion,
-					true,
-					ts.ScriptKind.TSX,
-				);
-	};
-
-	const program = ts.createProgram([...sources.keys()], options, host);
-	const diagnostics = [...sources.keys()].flatMap((fileName) => {
-		const source = program.getSourceFile(fileName)!;
-		return [
-			...program.getSyntacticDiagnostics(source),
-			...program.getSemanticDiagnostics(source),
-		];
-	});
-	expect(
-		diagnostics.map((diagnostic) =>
-			ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
-		),
-	).toEqual([]);
 });
