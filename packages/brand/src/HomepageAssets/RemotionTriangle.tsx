@@ -15,10 +15,14 @@ import {transformAroundItself} from './element';
 import {Faces} from './Faces';
 import {extrudeElement} from './join-inbetween-tiles';
 import {rotateX, scaled} from './matrix';
+import {SelectionOutline} from './SelectionOutline';
 
 export const RemotionTriangle: React.FC<{
 	readonly frame?: number;
-}> = ({frame: frameOverride}) => {
+	readonly scale: number | null;
+	readonly outlineStrokeWidth: number | null;
+	readonly outlineHandleSize: number | null;
+}> = ({frame: frameOverride, scale, outlineStrokeWidth, outlineHandleSize}) => {
 	const currentFrame = useCurrentFrame();
 	const frame = frameOverride ?? currentFrame;
 	const {fps} = useVideoConfig();
@@ -69,6 +73,8 @@ export const RemotionTriangle: React.FC<{
 		],
 	);
 
+	const selectionScale = (scale ?? 1) * 0.667;
+
 	return (
 		<AbsoluteFill>
 			<Interactive.Svg
@@ -77,61 +83,26 @@ export const RemotionTriangle: React.FC<{
 					height: '100%',
 					overflow: 'visible',
 					width: '100%',
-					scale: 0.667,
 				}}
 			>
-				<Faces elements={[triangleElement]} />
-				<Interactive.Rect
-					fill="none"
-					height={outlineBounds.y2 - outlineBounds.y1}
-					stroke="#0d99ff"
-					strokeWidth={6}
-					vectorEffect="non-scaling-stroke"
-					width={outlineBounds.x2 - outlineBounds.x1}
-					x={outlineBounds.x1}
-					y={outlineBounds.y1}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={40}
-					stroke="#0d99ff"
-					strokeWidth={6}
-					vectorEffect="non-scaling-stroke"
-					width={40}
-					x={outlineBounds.x1 - 20}
-					y={outlineBounds.y1 - 20}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={40}
-					stroke="#0d99ff"
-					strokeWidth={6}
-					vectorEffect="non-scaling-stroke"
-					width={40}
-					x={outlineBounds.x2 - 20}
-					y={outlineBounds.y1 - 20}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={40}
-					stroke="#0d99ff"
-					strokeWidth={6}
-					vectorEffect="non-scaling-stroke"
-					width={40}
-					x={outlineBounds.x1 - 20}
-					y={outlineBounds.y2 - 20}
-				/>
-				<Interactive.Rect
-					fill="white"
-					height={40}
-					stroke="#0d99ff"
-					strokeWidth={6}
-					vectorEffect="non-scaling-stroke"
-					width={40}
-					x={outlineBounds.x2 - 20}
-					y={outlineBounds.y2 - 20}
-				/>
+				<g
+					transform={`scale(${selectionScale})`}
+					visibility={scale === 0 ? 'hidden' : 'visible'}
+				>
+					<Faces elements={[triangleElement]} />
+				</g>
 			</Interactive.Svg>
+			<SelectionOutline
+				canvasSize={{width: 1080, height: 1080}}
+				bounds={{
+					left: 540 + outlineBounds.x1 * selectionScale,
+					top: 540 + outlineBounds.y1 * selectionScale,
+					width: (outlineBounds.x2 - outlineBounds.x1) * selectionScale,
+					height: (outlineBounds.y2 - outlineBounds.y1) * selectionScale,
+				}}
+				handleSize={outlineHandleSize ?? 40 * selectionScale}
+				strokeWidth={outlineStrokeWidth ?? 6 * 0.667}
+			/>
 		</AbsoluteFill>
 	);
 };
@@ -141,6 +112,11 @@ export const RemotionTriangleComposition: React.FC = () => {
 		<Composition
 			id="RemotionTriangle"
 			component={RemotionTriangle}
+			defaultProps={{
+				scale: null,
+				outlineStrokeWidth: null,
+				outlineHandleSize: null,
+			}}
 			durationInFrames={90}
 			fps={30}
 			width={1080}

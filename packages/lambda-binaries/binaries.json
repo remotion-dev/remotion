@@ -1,0 +1,27 @@
+{
+	"version": 24,
+	"sourceCommit": "3bf7dedd3a626f9ba4438741dac8c0391de76b07",
+	"baseUrl": "https://remotion.media/lambda-binaries/v24",
+	"layers": {
+		"chromium": {
+			"sha256": "d43811d07d6e2eebf4ecec3a489ce788e87dea6f0ae758029ad0d825a5e2f9e1",
+			"size": 83550596
+		},
+		"fonts": {
+			"sha256": "d24b0106cc7d1c64852dc5ad07fedd0cc7b7d8f67aacef7fd1f214a5e6ebc090",
+			"size": 1047028
+		},
+		"emoji-apple": {
+			"sha256": "98e1437375e0c69108fcdc59b63b007006f350526bd49fecd6afc292dc0dc2fe",
+			"size": 6596214
+		},
+		"emoji-google": {
+			"sha256": "1f5cd31cc28c58f2ff4ea0acc0c229e21ef083c20f1b570cf9d6432f4f69a3f2",
+			"size": 2825475
+		},
+		"cjk": {
+			"sha256": "7799cd53c7aa844d3059929ea73b7ece60c4d5f5dea4bd18bd0dd3e34138d2d6",
+			"size": 11071922
+		}
+	}
+}

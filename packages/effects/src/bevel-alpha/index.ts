@@ -12,10 +12,20 @@ import {
 	assertOptionalColor,
 } from '../validate-effect-param.js';
 import {
+	applyWebGpuMultipass,
+	cleanupWebGpuMultipass,
+	setupWebGpuMultipass,
+	type WebGpuMultipassState,
+} from '../webgpu-multipass-runtime.js';
+import {
 	BEVEL_ALPHA_VERTEX_SHADER,
 	BEVEL_ALPHA_SHADE_SHADER,
 	buildBevelAlphaBlurShader,
 } from './shaders.js';
+import {
+	BEVEL_ALPHA_BLUR_WEBGPU_SHADER,
+	BEVEL_ALPHA_SHADE_WEBGPU_SHADER,
+} from './webgpu-shaders.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 const DEFAULT_EDGE_THICKNESS = 2 as const;
@@ -248,146 +258,238 @@ const setupBevelAlpha = (target: HTMLCanvasElement): BevelAlphaState => {
 	};
 };
 
-export const bevelAlpha = createEffect<BevelAlphaParams, BevelAlphaState>({
+export const bevelAlpha = createEffect<BevelAlphaParams>({
 	type: 'remotion/bevel-alpha',
 	label: 'bevelAlpha()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/bevel-alpha',
-	backend: 'webgl2',
 	calculateKey: (params) => `bevel-alpha-${JSON.stringify(resolve(params))}`,
-	setup: setupBevelAlpha,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {
-			gl,
-			texture,
-			intermediate,
-			heightTexture,
-			program,
-			vao,
-			framebuffer,
-		} = state;
-		if (state.cachedColor !== r.lightColor) {
-			state.cachedColor = r.lightColor;
-			state.cachedColorRgba = parseColorRgba(state.colorCtx, r.lightColor);
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			BevelAlphaParams,
+			WebGpuMultipassState & {
+				readonly colorCtx: CanvasRenderingContext2D;
+				cachedColor: string | null;
+				cachedRgba: ReturnType<typeof parseColorRgba>;
+			}
+		>({
+			setup: (target) => {
+				const canvas = document.createElement('canvas');
+				canvas.width = 1;
+				canvas.height = 1;
+				const colorCtx = canvas.getContext('2d', {willReadFrequently: true});
+				if (!colorCtx) throw new Error('Could not create color parser');
+				return {
+					...setupWebGpuMultipass(target, 'bevel-alpha'),
+					colorCtx,
+					cachedColor: null,
+					cachedRgba: [0, 0, 0, 0],
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+				if (state.cachedColor !== r.lightColor) {
+					state.cachedColor = r.lightColor;
+					state.cachedRgba = parseColorRgba(state.colorCtx, r.lightColor);
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
-		if (state.width !== width || state.height !== height) {
-			for (const output of [intermediate, heightTexture]) {
-				gl.bindTexture(gl.TEXTURE_2D, output);
+				const color = state.cachedRgba.map((channel) => channel / 255);
+				const angle = ((r.lightAngle % 360) * Math.PI) / 180;
+				applyWebGpuMultipass({
+					auxiliarySource: null,
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					passes: [
+						{
+							shader: BEVEL_ALPHA_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								r.edgeThickness * 1.5,
+								0,
+							]),
+							source: -1,
+							secondary: -1,
+						},
+						{
+							shader: BEVEL_ALPHA_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								r.edgeThickness * 1.5,
+								1,
+							]),
+							source: 0,
+							secondary: -1,
+						},
+						{
+							shader: BEVEL_ALPHA_SHADE_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								r.edgeThickness,
+								r.lightIntensity,
+								Math.sin(angle) * Math.SQRT1_2,
+								-Math.cos(angle) * Math.SQRT1_2,
+								Math.SQRT1_2,
+								0,
+								color[0] * color[3],
+								color[1] * color[3],
+								color[2] * color[3],
+								0,
+							]),
+							source: -1,
+							secondary: 1,
+						},
+					],
+				});
+			},
+			cleanup: cleanupWebGpuMultipass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			BevelAlphaParams,
+			BevelAlphaState
+		>({
+			setup: setupBevelAlpha,
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {
+					gl,
+					texture,
+					intermediate,
+					heightTexture,
+					program,
+					vao,
+					framebuffer,
+				} = state;
+				if (state.cachedColor !== r.lightColor) {
+					state.cachedColor = r.lightColor;
+					state.cachedColorRgba = parseColorRgba(state.colorCtx, r.lightColor);
+				}
+
+				gl.viewport(0, 0, width, height);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
 					gl.RGBA,
-					width,
-					height,
-					0,
 					gl.RGBA,
 					gl.UNSIGNED_BYTE,
-					null,
+					source as TexImageSource,
 				);
-			}
+				if (state.width !== width || state.height !== height) {
+					for (const output of [intermediate, heightTexture]) {
+						gl.bindTexture(gl.TEXTURE_2D, output);
+						gl.texImage2D(
+							gl.TEXTURE_2D,
+							0,
+							gl.RGBA,
+							width,
+							height,
+							0,
+							gl.RGBA,
+							gl.UNSIGNED_BYTE,
+							null,
+						);
+					}
 
-			state.width = width;
-			state.height = height;
-		}
-
-		gl.bindVertexArray(vao);
-		if (r.edgeThickness > 0 && r.lightIntensity > 0) {
-			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-			// Dithering would corrupt packed heights. Preserve the pooled context's
-			// incoming setting for the final shading pass and subsequent effects.
-			const ditherEnabled = gl.isEnabled(gl.DITHER);
-			gl.disable(gl.DITHER);
-			try {
-				for (const [pass, input, output] of [
-					[state.horizontal, texture, intermediate],
-					[state.vertical, intermediate, heightTexture],
-				] as const) {
-					gl.framebufferTexture2D(
-						gl.FRAMEBUFFER,
-						gl.COLOR_ATTACHMENT0,
-						gl.TEXTURE_2D,
-						output,
-						0,
-					);
-					if (
-						gl.checkFramebufferStatus(gl.FRAMEBUFFER) !==
-						gl.FRAMEBUFFER_COMPLETE
-					)
-						throw new Error('Bevel alpha framebuffer is incomplete');
-					gl.bindTexture(gl.TEXTURE_2D, input);
-					gl.useProgram(pass.program);
-					gl.uniform1i(pass.uSource, 0);
-					gl.uniform2f(pass.uResolution, width, height);
-					// Gaussian shader radius covers three standard deviations; sigma=t/2.
-					gl.uniform1f(pass.uRadius, r.edgeThickness * 1.5);
-					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					state.width = width;
+					state.height = height;
 				}
-			} finally {
-				if (ditherEnabled) gl.enable(gl.DITHER);
-			}
-		}
 
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.activeTexture(gl.TEXTURE1);
-		gl.bindTexture(gl.TEXTURE_2D, heightTexture);
-		gl.useProgram(program);
-		gl.uniform1i(state.uSource, 0);
-		gl.uniform1i(state.uHeight, 1);
-		gl.uniform2f(state.uResolution, width, height);
-		gl.uniform1f(state.uEdgeThickness, r.edgeThickness);
-		const angle = ((r.lightAngle % 360) * Math.PI) / 180;
-		gl.uniform3f(
-			state.uLightDirection,
-			Math.sin(angle) * Math.SQRT1_2,
-			-Math.cos(angle) * Math.SQRT1_2,
-			Math.SQRT1_2,
-		);
-		const [red, green, blue, alpha] = state.cachedColorRgba;
-		gl.uniform3f(
-			state.uLightColor,
-			((red / 255) * alpha) / 255,
-			((green / 255) * alpha) / 255,
-			((blue / 255) * alpha) / 255,
-		);
-		gl.uniform1f(state.uLightIntensity, r.lightIntensity);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: (state) => {
-		const {gl} = state;
-		for (const texture of [
-			state.texture,
-			state.intermediate,
-			state.heightTexture,
-		])
-			gl.deleteTexture(texture);
-		for (const program of [
-			state.horizontal.program,
-			state.vertical.program,
-			state.program,
-		])
-			gl.deleteProgram(program);
-		gl.deleteFramebuffer(state.framebuffer);
-		gl.deleteBuffer(state.vbo);
-		gl.deleteVertexArray(state.vao);
+				gl.bindVertexArray(vao);
+				if (r.edgeThickness > 0 && r.lightIntensity > 0) {
+					gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+					// Dithering would corrupt packed heights. Preserve the pooled context's
+					// incoming setting for the final shading pass and subsequent effects.
+					const ditherEnabled = gl.isEnabled(gl.DITHER);
+					gl.disable(gl.DITHER);
+					try {
+						for (const [pass, input, output] of [
+							[state.horizontal, texture, intermediate],
+							[state.vertical, intermediate, heightTexture],
+						] as const) {
+							gl.framebufferTexture2D(
+								gl.FRAMEBUFFER,
+								gl.COLOR_ATTACHMENT0,
+								gl.TEXTURE_2D,
+								output,
+								0,
+							);
+							if (
+								gl.checkFramebufferStatus(gl.FRAMEBUFFER) !==
+								gl.FRAMEBUFFER_COMPLETE
+							)
+								throw new Error('Bevel alpha framebuffer is incomplete');
+							gl.bindTexture(gl.TEXTURE_2D, input);
+							gl.useProgram(pass.program);
+							gl.uniform1i(pass.uSource, 0);
+							gl.uniform2f(pass.uResolution, width, height);
+							// Gaussian shader radius covers three standard deviations; sigma=t/2.
+							gl.uniform1f(pass.uRadius, r.edgeThickness * 1.5);
+							gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+						}
+					} finally {
+						if (ditherEnabled) gl.enable(gl.DITHER);
+					}
+				}
+
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, heightTexture);
+				gl.useProgram(program);
+				gl.uniform1i(state.uSource, 0);
+				gl.uniform1i(state.uHeight, 1);
+				gl.uniform2f(state.uResolution, width, height);
+				gl.uniform1f(state.uEdgeThickness, r.edgeThickness);
+				const angle = ((r.lightAngle % 360) * Math.PI) / 180;
+				gl.uniform3f(
+					state.uLightDirection,
+					Math.sin(angle) * Math.SQRT1_2,
+					-Math.cos(angle) * Math.SQRT1_2,
+					Math.SQRT1_2,
+				);
+				const [red, green, blue, alpha] = state.cachedColorRgba;
+				gl.uniform3f(
+					state.uLightColor,
+					((red / 255) * alpha) / 255,
+					((green / 255) * alpha) / 255,
+					((blue / 255) * alpha) / 255,
+				);
+				gl.uniform1f(state.uLightIntensity, r.lightIntensity);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: (state) => {
+				const {gl} = state;
+				for (const texture of [
+					state.texture,
+					state.intermediate,
+					state.heightTexture,
+				])
+					gl.deleteTexture(texture);
+				for (const program of [
+					state.horizontal.program,
+					state.vertical.program,
+					state.program,
+				])
+					gl.deleteProgram(program);
+				gl.deleteFramebuffer(state.framebuffer);
+				gl.deleteBuffer(state.vbo);
+				gl.deleteVertexArray(state.vao);
+			},
+		}),
 	},
 	schema: bevelAlphaSchema,
 	validateParams: validateBevelAlphaParams,

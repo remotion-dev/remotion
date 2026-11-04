@@ -1,12 +1,18 @@
-import {afterEach, expect, test} from 'bun:test';
+import {afterEach, expect, spyOn, test} from 'bun:test';
 import {cleanup, render} from '@testing-library/react';
 import type {ReactNode} from 'react';
+import type {TSequence} from '../CompositionManager.js';
 import {Freeze} from '../freeze.js';
 import {Internals} from '../internals.js';
+import * as crop from '../sequence-crop.js';
 import {Sequence} from '../Sequence.js';
+import {SequenceRegistrationContext} from '../SequenceManager.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useVideoConfig} from '../use-video-config.js';
-import {WrapSequenceContext} from './wrap-sequence-context.js';
+import {
+	ObserveSequenceRegistrations,
+	WrapSequenceContext,
+} from './wrap-sequence-context.js';
 
 afterEach(cleanup);
 
@@ -158,4 +164,97 @@ test('playbackRate rejects invalid values and animation while allowing a paused 
 	view.rerender(content(6, 2));
 	expect(view.getByText('Frame 12, duration 20')).toBeTruthy();
 	expect(() => view.rerender(content(7, 3))).toThrow(/must be constant/);
+});
+
+// Sequence boundary stability: frame updates must reach children and registration
+// getters without repeating the stable Sequence content work between crossings.
+test('keeps sequence content stable while clocks advance and timing windows are crossed in both directions', () => {
+	const resolveCrop = spyOn(crop, 'resolveSequenceCrop');
+	const registrations = new Map<string, TSequence>();
+	const register = (sequence: TSequence) => {
+		registrations.set(sequence.displayName, sequence);
+	};
+
+	const tree = (
+		<SequenceRegistrationContext.Provider value>
+			<ObserveSequenceRegistrations onRegisterSequence={register} />
+			<Sequence
+				name="active"
+				from={100}
+				durationInFrames={30}
+				playbackRate={0.5}
+				trimBefore={4}
+			>
+				<Clock />
+			</Sequence>
+			<Sequence name="distant" from={10000} durationInFrames={30}>
+				<Clock />
+			</Sequence>
+		</SequenceRegistrationContext.Provider>
+	);
+	const content = (frame: number) => (
+		<WrapSequenceContext currentFrame={frame}>{tree}</WrapSequenceContext>
+	);
+	const view = render(content(0));
+	const initialWork = resolveCrop.mock.calls.length;
+	try {
+		for (const frame of [1, 10, 60, 99, 60, 10, 0]) {
+			view.rerender(content(frame));
+			expect(view.container.textContent).toBe('');
+			expect(registrations.get('active')!.getCurrentFrame!()).toBe(
+				(frame - 92) * 0.5,
+			);
+			expect(registrations.get('distant')!.getCurrentFrame!()).toBe(
+				frame - 10000,
+			);
+		}
+
+		expect(resolveCrop.mock.calls.length).toBe(initialWork);
+		view.rerender(content(100));
+		expect(view.getByText('Frame 4, duration 34')).toBeTruthy();
+		const enteredWork = resolveCrop.mock.calls.length;
+		for (const frame of [101, 110, 129, 159, 129, 110, 101, 100]) {
+			view.rerender(content(frame));
+			expect(
+				view.getByText(`Frame ${(frame - 100) * 0.5 + 4}, duration 34`),
+			).toBeTruthy();
+			expect(registrations.get('active')!.getCurrentFrame!()).toBe(
+				(frame - 92) * 0.5,
+			);
+		}
+
+		expect(resolveCrop.mock.calls.length).toBe(enteredWork);
+		view.rerender(content(160));
+		expect(view.container.textContent).toBe('');
+		view.rerender(content(159));
+		expect(view.getByText('Frame 33.5, duration 34')).toBeTruthy();
+		view.rerender(content(99));
+		expect(view.container.textContent).toBe('');
+	} finally {
+		resolveCrop.mockRestore();
+	}
+});
+
+test('publishes the current registration frame synchronously with a paused timing edit', () => {
+	const frames: number[] = [];
+	const register = (sequence: TSequence) => {
+		frames.push(sequence.getCurrentFrame!());
+	};
+
+	const content = (from: number) => (
+		<WrapSequenceContext currentFrame={20}>
+			<SequenceRegistrationContext.Provider value>
+				<ObserveSequenceRegistrations onRegisterSequence={register} />
+				<Sequence from={from} durationInFrames={50}>
+					<Clock />
+				</Sequence>
+			</SequenceRegistrationContext.Provider>
+		</WrapSequenceContext>
+	);
+	const view = render(content(10));
+	expect(frames.at(-1)).toBe(10);
+	view.rerender(content(15));
+	expect(frames.at(-1)).toBe(5);
+	view.rerender(content(5));
+	expect(frames.at(-1)).toBe(15);
 });

@@ -739,6 +739,7 @@ test('trims synchronously while affected source loads and refreshes cached const
 	const sourceChanged = () =>
 		emit({
 			type: 'sequence-props-updated',
+			sourceVersion: null,
 			fileName: './content.tsx',
 			nodePath: fixture.mappings.child,
 			result:

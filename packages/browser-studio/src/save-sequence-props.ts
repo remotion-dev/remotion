@@ -2,6 +2,7 @@ import {
 	CodemodsInternals,
 	applyCodemodChanges,
 	getNodeProps,
+	type CodemodNodeResult,
 	updateMultipleNodeProps,
 } from '@remotion/codemods';
 import type {
@@ -43,10 +44,7 @@ export const saveSequencePropsInProject = ({
 }: {
 	project: VirtualProject;
 	request: SaveSequencePropsRequest;
-}): {
-	project: VirtualProject;
-	response: SaveSequencePropsResponse;
-} => {
+}) => {
 	if (
 		request.edits.length === 0 &&
 		(request.captionPatches?.length ?? 0) === 0
@@ -89,64 +87,78 @@ export const saveSequencePropsInProject = ({
 	const nextFiles = {
 		...applyCodemodChanges(project, updateResult?.changes ?? []).files,
 	};
-	const updatedNodePaths = new Map<string, SequenceNodePath>();
-	for (const [index, node] of (updateResult?.updatedNodes ?? []).entries()) {
-		updatedNodePaths.set(
-			`${node.filePath}:${JSON.stringify(request.edits[index].nodePath.nodePath)}`,
-			node.nodePath,
-		);
-	}
-
+	const nodePathRemappings: CodemodNodeResult['nodePathRemappings'] = [
+		...(updateResult?.nodePathRemappings ?? []),
+	];
 	for (const captionPatch of request.captionPatches ?? []) {
 		const absolutePath = findProjectFile({
 			filePath: captionPatch.fileName,
 			project,
 		});
+		const oldNodePath = captionPatch.nodePath.nodePath;
+		const remapping = nodePathRemappings.find(
+			(entry) =>
+				entry.filePath === absolutePath &&
+				JSON.stringify(entry.oldNodePath) === JSON.stringify(oldNodePath),
+		);
+		if (remapping?.newNodePath === null)
+			throw new Error('The caption node was removed');
 		nextFiles[absolutePath] = updateInlineCaptionPatches({
 			input: nextFiles[absolutePath],
-			nodePath: captionPatch.nodePath.nodePath,
+			nodePath: remapping?.newNodePath ?? oldNodePath,
 			patches: captionPatch.patches,
 		}).output;
-	}
-
-	const nextProject = {...project, files: nextFiles};
-	const statusTargets = getStatusTargets(request);
-	const results: SaveSequencePropsResult[] = statusTargets.map((target) => {
-		const absolutePath = findProjectFile({
-			filePath: target.fileName,
-			project: nextProject,
-		});
-		const status = getNodeProps({
-			project: nextProject,
-			keys: getAllSchemaKeys(target.schema),
-			assetKeys: getAssetSchemaKeys(target.schema),
-			node: {
+		if (!remapping)
+			nodePathRemappings.push({
 				filePath: absolutePath,
-				nodePath:
-					updatedNodePaths.get(
-						`${absolutePath}:${JSON.stringify(target.nodePath.nodePath)}`,
-					) ?? target.nodePath.nodePath,
-			},
-			componentIdentity: null,
-			effectKeys: [],
-		});
-
-		return {
-			fileName: target.fileName,
-			nodePath: target.nodePath,
-			props: status.props,
-		};
-	});
-	const firstResult = results[0];
-	if (!firstResult) {
-		throw new Error('Could not compute sequence prop edit status');
+				oldNodePath,
+				newNodePath: oldNodePath,
+			});
 	}
 
+	const changedFiles = [
+		...new Set([
+			...(updateResult?.changes ?? []).map(({filePath}) => filePath),
+			...nodePathRemappings.map(({filePath}) => filePath),
+		]),
+	];
 	return {
-		project: nextProject,
-		response: {
-			canUpdate: true,
-			results,
+		changes: changedFiles.map((filePath) => ({
+			filePath,
+			previousContents: project.files[filePath],
+			nextContents: nextFiles[filePath],
+		})),
+		nodePathRemappings,
+		getResponse: (
+			finalProject: VirtualProject,
+			currentPath: (
+				filePath: string,
+				original: SequenceNodePath,
+			) => SequenceNodePath,
+		): SaveSequencePropsResponse => {
+			const results: SaveSequencePropsResult[] = getStatusTargets(request).map(
+				(target) => {
+					const absolutePath = findProjectFile({
+						filePath: target.fileName,
+						project: finalProject,
+					});
+					const nodePath = currentPath(absolutePath, target.nodePath.nodePath);
+					const status = getNodeProps({
+						project: finalProject,
+						keys: getAllSchemaKeys(target.schema),
+						assetKeys: getAssetSchemaKeys(target.schema),
+						node: {filePath: absolutePath, nodePath},
+						componentIdentity: null,
+						effectKeys: [],
+					});
+					return {
+						fileName: target.fileName,
+						nodePath: {...target.nodePath, absolutePath, nodePath},
+						props: status.props,
+					};
+				},
+			);
+			return {canUpdate: true, results};
 		},
 	};
 };

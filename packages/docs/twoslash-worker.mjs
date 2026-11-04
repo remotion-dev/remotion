@@ -1,14 +1,21 @@
-import {existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync} from 'fs';
+import {execFileSync} from 'child_process';
+import {
+	existsSync,
+	mkdirSync,
+	readFileSync,
+	renameSync,
+	unlinkSync,
+	writeFileSync,
+} from 'fs';
 import {dirname} from 'path';
 import {createInterface} from 'readline';
 import {
 	rendererClassic,
-	transformerTwoslash,
-} from '@remotion/typescript-tools/shiki-twoslash';
-import {createTwoslasher} from '@remotion/typescript-tools/twoslash';
+	createTransformerFactory,
+} from '@shikijs/twoslash/core';
 import {createHighlighter} from 'shiki';
+import {createDocsTwoslasher} from '../docusaurus-plugin/src/docs-twoslasher.ts';
 import {
-	getTwoslashCompilerOptions,
 	TWOSLASH_EXPLICIT_TRIGGER,
 	TWOSLASH_THEME,
 } from '../docusaurus-plugin/src/twoslash-cache.ts';
@@ -25,14 +32,18 @@ const MEMORY_RECYCLE_LIMIT_BYTES =
 
 const LANGS = ['tsx', 'ts', 'jsx', 'javascript'];
 
-// Create Language Service ONCE per worker — reused across all units
-const twoslasher = createTwoslasher({
-	compilerOptions: getTwoslashCompilerOptions(),
+// Reuse the compiler across work units, and close the native child on exit.
+const compiler = createDocsTwoslasher({
+	rootDirectory: process.cwd(),
 });
+process.once('exit', compiler.dispose);
+process.once('SIGTERM', () => process.exit(143));
+process.once('SIGINT', () => process.exit(130));
 
-const transformer = transformerTwoslash({
-	twoslasher,
-	renderer: rendererClassic(),
+const transformer = createTransformerFactory(
+	compiler.twoslasher,
+	rendererClassic(),
+)({
 	explicitTrigger: TWOSLASH_EXPLICIT_TRIGGER,
 });
 
@@ -99,7 +110,44 @@ rl.on('line', (line) => {
 
 	if (message.type === 'unit') {
 		const results = message.items.map(processItem);
-		const rss = process.memoryUsage.rss();
+		let rss = process.memoryUsage.rss();
+		// The TypeScript API runs its compiler in a separate process. Include it
+		// in the worker recycling budget along with the Node.js process.
+		if (process.platform === 'linux') {
+			const children = readFileSync(
+				`/proc/${process.pid}/task/${process.pid}/children`,
+				'utf8',
+			).trim();
+			for (const pid of children.split(/\s+/).filter(Boolean)) {
+				try {
+					const status = readFileSync(`/proc/${pid}/status`, 'utf8');
+					const childRss = /^VmRSS:\s+(\d+)\s+kB$/m.exec(status);
+					rss += Number(childRss?.[1] ?? 0) * 1024;
+				} catch (error) {
+					if (error.code !== 'ENOENT') throw error;
+				}
+			}
+		} else if (process.platform === 'win32') {
+			rss += Number(
+				execFileSync(
+					'powershell.exe',
+					[
+						'-NoProfile',
+						'-NonInteractive',
+						'-Command',
+						`(Get-CimInstance Win32_Process -Filter "ParentProcessId = ${process.pid}" | ForEach-Object { (Get-Process -Id $_.ProcessId -ErrorAction SilentlyContinue).WorkingSet64 } | Measure-Object -Sum).Sum`,
+					],
+					{encoding: 'utf8'},
+				).trim(),
+			);
+		} else {
+			for (const line of execFileSync('ps', ['-axo', 'ppid=,rss='], {
+				encoding: 'utf8',
+			}).split('\n')) {
+				const [parent, childRss] = line.trim().split(/\s+/).map(Number);
+				if (parent === process.pid) rss += childRss * 1024;
+			}
+		}
 		const recycling = rss > MEMORY_RECYCLE_LIMIT_BYTES;
 		send({type: 'unit-done', results, rss, recycling});
 

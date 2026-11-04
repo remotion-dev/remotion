@@ -64,7 +64,7 @@ export const webpackConfig = async ({
 	let lastProgress = 0;
 
 	const baseConfig: WebpackConfiguration = {
-		...getBaseConfig(environment, poll),
+		...getBaseConfig(environment, poll, 'webpack'),
 		ignoreWarnings: [transformersImportMetaWarning],
 		entry: getStudioEntryPoints({
 			fastRefreshRuntime:
@@ -149,6 +149,7 @@ export const webpackConfig = async ({
 	const conf = await webpackOverride(sharedConfig as WebpackConfiguration);
 
 	return computeHashAndFinalConfig(conf, {
+		bundler: 'webpack',
 		enableCaching,
 		environment,
 		outDir,

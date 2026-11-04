@@ -45,6 +45,15 @@ import {
 	WHITE_ALPHA_10,
 	WHITE_ALPHA_80,
 } from '../../helpers/colors';
+import {
+	invalidateDuplicatedElementSelection,
+	setDuplicationSelectionComposition,
+} from '../../helpers/duplicated-element-selection';
+import {
+	isEffectDeletionPending,
+	usePendingEffectDeletions,
+} from '../../helpers/effect-deletion-state';
+import {invalidateEffectDeletionSelection} from '../../helpers/effect-deletion-state';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
@@ -74,6 +83,10 @@ import {
 	ExpandedTracksSetterContext,
 	type GetIsExpanded,
 } from '../ExpandedTracksProvider';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
 import {
 	getNodeCanEditEasing,
@@ -791,6 +804,9 @@ const getSelectableTimelineItemsForTrack = ({
 	}
 
 	const tree = buildTimelineTree({
+		pendingEffectDeletion: Internals.OptimisticEffectDeletion.get(
+			nodePathInfo.sequenceSubscriptionKey,
+		),
 		sequence: track.sequence,
 		nodePathInfo,
 		getDragOverrides,
@@ -798,6 +814,7 @@ const getSelectableTimelineItemsForTrack = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const filteredTree = filterTimelineExpandedTree({
@@ -1035,6 +1052,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 	readonly children: React.ReactNode;
 	readonly timeline: readonly TimelineTrackData[];
 }> = ({children, timeline}) => {
+	const pendingDeletions = usePendingEffectDeletions();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
@@ -1042,6 +1060,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 	);
 	const {selectedItems} = useTimelineSelection();
 	const previousSelectionRef = useRef<{
+		readonly pendingDeletions: typeof pendingDeletions;
 		readonly timeline: readonly TimelineTrackData[];
 		readonly propStatuses: PropStatuses;
 		readonly selectedItems: readonly TimelineSelection[];
@@ -1057,6 +1076,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 		if (
 			previous !== null &&
 			previous.timeline === timeline &&
+			previous.pendingDeletions === pendingDeletions &&
 			previous.propStatuses === propStatuses &&
 			previous.selectedItems === selectedItems &&
 			previous.getIsExpanded === getIsExpanded &&
@@ -1083,6 +1103,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 
 		const invalidateAll =
 			previous === null ||
+			previous.pendingDeletions !== pendingDeletions ||
 			previous.propStatuses !== propStatuses ||
 			previous.selectedItems !== selectedItems ||
 			previous.getIsExpanded !== getIsExpanded ||
@@ -1152,6 +1173,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 		}
 
 		return {
+			pendingDeletions,
 			timeline,
 			propStatuses,
 			selectedItems,
@@ -1162,6 +1184,7 @@ export const TimelineSelectableItemsProvider: React.FC<{
 			items: changed ? items : previous!.items,
 		};
 	}, [
+		pendingDeletions,
 		getDragOverrides,
 		getEffectDragOverrides,
 		getIsExpanded,
@@ -1188,6 +1211,14 @@ export const TimelineSelectionProvider: React.FC<{
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const timelineSelectionScope =
 		canvasContent?.type === 'composition' ? canvasContent.compositionId : null;
+	useLayoutEffect(() => {
+		setDuplicationSelectionComposition(timelineSelectionScope);
+		invalidateEffectDeletionSelection();
+		return () => {
+			setDuplicationSelectionComposition(null);
+			invalidateEffectDeletionSelection();
+		};
+	}, [timelineSelectionScope]);
 	const {expandParentTracks} = useContext(ExpandedTracksSetterContext);
 	const {setRightSidebarTemporaryExpansion, sidebarCollapsedStateRight} =
 		useContext(SidebarContext);
@@ -1231,6 +1262,11 @@ export const TimelineSelectionProvider: React.FC<{
 	const canSelectItem = useCallback(
 		(item: TimelineSelection) =>
 			canSelect &&
+			!(
+				'nodePathInfo' in item &&
+				item.nodePathInfo.auxiliaryKeys[0] === 'effects' &&
+				isEffectDeletionPending(item.nodePathInfo.sequenceSubscriptionKey)
+			) &&
 			(!window.remotion_isReadOnlyStudio ||
 				keyframeOperationsAvailable ||
 				(effectOperationsAvailable && item.type === 'sequence-effect') ||
@@ -1362,6 +1398,9 @@ export const TimelineSelectionProvider: React.FC<{
 				return;
 			}
 
+			invalidateDuplicatedElementSelection();
+			invalidateEffectDeletionSelection();
+
 			selectOptionsSidebarInspectorPanel();
 			expandParentsForSelectionItem(item);
 			if (options.reveal) {
@@ -1401,6 +1440,9 @@ export const TimelineSelectionProvider: React.FC<{
 			if (!items.every(canSelectItem)) {
 				return;
 			}
+
+			invalidateDuplicatedElementSelection();
+			invalidateEffectDeletionSelection();
 
 			if (items.length > 0) {
 				selectOptionsSidebarInspectorPanel();
@@ -1467,6 +1509,8 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [canSelectItem]);
 
 	const clearSelection = useCallback(() => {
+		invalidateDuplicatedElementSelection();
+		invalidateEffectDeletionSelection();
 		selectionScope.current = null;
 		setInspectorRevealRequest(null);
 		setRevealRequest(null);
@@ -1744,6 +1788,7 @@ export const useTimelineMarqueeSelection = () => {
 			const previousWebkitUserSelect = document.body.style.webkitUserSelect;
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
+			forceSpecificCursor('default');
 
 			let hasDragged = false;
 			let lockedSelectionKind: TimelineMarqueeSelectionKind | null = null;
@@ -1882,6 +1927,7 @@ export const useTimelineMarqueeSelection = () => {
 
 			const cleanup = () => {
 				autoScroll.stop();
+				stopForcingSpecificCursor();
 				document.body.style.userSelect = previousUserSelect;
 				document.body.style.webkitUserSelect = previousWebkitUserSelect;
 				setMarqueeRect(null);

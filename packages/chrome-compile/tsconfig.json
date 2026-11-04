@@ -1,0 +1,11 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"emitDeclarationOnly": true,
+		"outDir": "dist",
+		"module": "es2022",
+		"moduleResolution": "bundler",
+		"target": "ES2022"
+	},
+	"include": ["src", "artifacts.json"]
+}

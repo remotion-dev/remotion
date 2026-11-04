@@ -25,3 +25,20 @@ test('reset path should have 0 bounding box', () => {
 	expect(y1).toBe(7.105427357601002e-15);
 	expect(y2).toBeWithin(49.9999999999, 50.0000000001);
 });
+
+test('getBoundingBox() includes the end of a curve that starts with a flat tangent', () => {
+	const quadratic = getBoundingBox('M 0 0 Q 0 10 10 10');
+	expect(quadratic.x1).toBe(0);
+	expect(quadratic.x2).toBeCloseTo(10);
+	expect(quadratic.y1).toBe(0);
+	expect(quadratic.y2).toBeCloseTo(10);
+
+	const cubic = getBoundingBox('M 0 0 C 0 0 5 5 15 15');
+	expect(cubic.x2).toBeCloseTo(15);
+	expect(cubic.y2).toBeCloseTo(15);
+
+	// `T` after a line has its control point on the current point
+	const smoothQuadratic = getBoundingBox('M 0 0 L 10 0 T 20 10');
+	expect(smoothQuadratic.x2).toBeCloseTo(20);
+	expect(smoothQuadratic.y2).toBeCloseTo(10);
+});

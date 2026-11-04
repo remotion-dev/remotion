@@ -10,12 +10,17 @@ import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
+import {
+	getOutputRoute,
+	getRenderJobOutputPath,
+} from '../../helpers/output-path';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
 import type {ClientRenderJob} from './client-side-render-types';
 import {isRestoredClientJob} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
+import {renderQueueItemSubtitleStyle} from './item-style';
 import {RENDER_QUEUE_ITEM_SELECTED_CLASSNAME} from './item-style';
 import {RenderQueueCancelledMessage} from './RenderQueueCancelledMessage';
 import {
@@ -32,6 +37,7 @@ import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
 import {RenderQueueRepeatItem} from './RenderQueueRepeat';
 import {RenderQueueSavingMessage} from './RenderQueueSavingMessage';
+import {useIsRenderJobCancelling} from './use-is-render-job-cancelling';
 import {useRenderOutputFileDrag} from './use-render-output-file-drag';
 
 const container: React.CSSProperties = {
@@ -69,11 +75,13 @@ export const RenderQueueItem: React.FC<{
 	readonly job: AnyRenderJob;
 	readonly selected: boolean;
 }> = ({job, selected}) => {
+	const cancelling = useIsRenderJobCancelling(job.id);
 	const [hovered, setHovered] = useState(false);
 
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
+	const outputPath = getRenderJobOutputPath(job);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {canDrag, isDragging, onDragEnd, onDragStart} =
 		useRenderOutputFileDrag(job);
@@ -108,12 +116,12 @@ export const RenderQueueItem: React.FC<{
 	}, []);
 
 	const clientBlobInfo = useMemo(() => {
-		if (!isClientJob || job.status !== 'done' || !job.getBlob) {
+		if (!isClientJob || job.status !== 'done' || !job.localOutput) {
 			return null;
 		}
 
 		return {
-			getBlob: job.getBlob,
+			getBlob: job.localOutput.getBlob,
 			width: job.metadata.width,
 			height: job.metadata.height,
 			sizeInBytes: job.metadata.sizeInBytes,
@@ -132,11 +140,11 @@ export const RenderQueueItem: React.FC<{
 
 		if (clientBlobInfo) {
 			setCanvasContent((c: CanvasContent | null): CanvasContent => {
-				const isAlreadySelected =
-					c && c.type === 'output-blob' && c.displayName === job.outName;
-
-				if (isAlreadySelected && !selected) {
-					scrollCurrentIntoView();
+				if (
+					c?.type === 'output-blob' &&
+					c.getBlob === clientBlobInfo.getBlob &&
+					c.displayName === job.outName
+				) {
 					return c;
 				}
 
@@ -154,18 +162,19 @@ export const RenderQueueItem: React.FC<{
 
 		setCanvasContent((c: CanvasContent | null): CanvasContent => {
 			const isAlreadySelected =
-				c && c.type === 'output' && c.path === `/${job.outName}`;
+				c && c.type === 'output' && c.path === outputPath;
 
 			if (isAlreadySelected && !selected) {
 				scrollCurrentIntoView();
 				return c;
 			}
 
-			return {type: 'output', path: `/${job.outName}`};
+			return {type: 'output', path: outputPath};
 		});
-		pushUrl(`/outputs/${job.outName}`);
+		pushUrl(getOutputRoute(outputPath));
 	}, [
 		job,
+		outputPath,
 		isClientJob,
 		clientBlobInfo,
 		scrollCurrentIntoView,
@@ -208,7 +217,11 @@ export const RenderQueueItem: React.FC<{
 			<div style={right}>
 				<div style={title}>{job.compositionId}</div>
 				<div style={subtitle}>
-					{job.status === 'done' ? (
+					{cancelling ? (
+						<span role="status" style={renderQueueItemSubtitleStyle}>
+							Cancelling…
+						</span>
+					) : job.status === 'done' ? (
 						<RenderQueueOutputName job={job} />
 					) : job.status === 'failed' ? (
 						<RenderQueueError job={job} />
@@ -228,7 +241,7 @@ export const RenderQueueItem: React.FC<{
 						<RenderQueueCopyToClipboard job={job as RenderJob} />
 					) : null}
 					{canRepeat ? <RenderQueueRepeatItem job={job} /> : null}
-					{job.status === 'running' ? (
+					{job.status === 'running' || job.status === 'idle' ? (
 						<RenderQueueCancelButton job={job} />
 					) : isBrowserStudio ? null : (
 						<RenderQueueRemoveItem job={job} />

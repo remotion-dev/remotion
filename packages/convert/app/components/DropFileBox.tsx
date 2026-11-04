@@ -21,7 +21,7 @@ export const DropFileBox: React.FC<{
 	);
 
 	return (
-		<div className="w-full max-w-[600px] lg:w-[400px] m-auto flex justify-center items-center">
+		<div className="flex justify-end items-center">
 			<input
 				ref={ref}
 				type="file"
@@ -31,7 +31,7 @@ export const DropFileBox: React.FC<{
 			/>
 			<Button
 				onClick={() => ref.current?.click()}
-				className="bg-brand text-white rounded-full px-10"
+				className="bg-brand text-white rounded-full px-12 h-16 min-w-[240px] text-xl"
 			>
 				Choose file
 			</Button>

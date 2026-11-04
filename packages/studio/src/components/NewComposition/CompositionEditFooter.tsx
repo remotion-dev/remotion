@@ -24,7 +24,7 @@ type ApplyCompositionEditAction = (options: {
 	symbolicatedStack: SymbolicatedStackFrame | null;
 }) => Promise<CompositionEditResponse>;
 
-const CompositionEditFooterPresentation: React.FC<{
+export const CompositionEditFooterPresentation: React.FC<{
 	readonly disabled: boolean;
 	readonly genericSubmitLabel: string;
 	readonly relativeFilePath: string | null;

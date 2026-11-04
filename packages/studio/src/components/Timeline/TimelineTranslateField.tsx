@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -17,6 +18,7 @@ import {
 } from './timeline-translate-utils';
 import {UnsupportedStatus} from './TimelineSchemaField';
 import {Transform3DModeContext} from './Transform3DModeContext';
+import {useTimelineFieldEdit} from './use-timeline-field-edit';
 
 const leftDraggerStyle: React.CSSProperties = {
 	paddingLeft: 0,
@@ -39,7 +41,7 @@ export const TimelineTranslateField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	propStatus,
@@ -48,6 +50,7 @@ export const TimelineTranslateField: React.FC<{
 	onDragValueChange,
 	onDragEnd,
 }) => {
+	const {markEdit, finishEdit} = useTimelineFieldEdit();
 	const [dragX, setDragX] = useState<number | null>(null);
 	const [dragY, setDragY] = useState<number | null>(null);
 	const [dragZ, setDragZ] = useState<number | null>(null);
@@ -100,30 +103,49 @@ export const TimelineTranslateField: React.FC<{
 	);
 
 	// --- X callbacks ---
+	const onValueChangeCancel = useCallback(() => {
+		markEdit();
+		setDragX(null);
+		setDragY(null);
+		setDragZ(null);
+		onDragEnd('cancel');
+	}, [markEdit, onDragEnd]);
+
 	const onXChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragX(newVal);
 			const currentY = dragY ?? codeY;
 			onDragValueChange(serialize(newVal, currentY));
 		},
-		[codeY, dragY, onDragValueChange, serialize],
+		[codeY, dragY, onDragValueChange, serialize, markEdit],
 	);
 
 	const onXChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const currentY = dragY ?? codeY;
 			const newStr = serialize(newVal, currentY);
 			if (newStr !== propStatus.codeValue) {
-				onSave(newStr).finally(() => {
+				finishEdit(onSave(newStr), () => {
 					setDragX(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragX(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[codeY, dragY, onDragEnd, onSave, propStatus, serialize],
+		[
+			codeY,
+			dragY,
+			onDragEnd,
+			onSave,
+			propStatus,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onXTextChange = useCallback(
@@ -133,41 +155,53 @@ export const TimelineTranslateField: React.FC<{
 				const currentY = dragY ?? codeY;
 				const newStr = serialize(parsed, currentY);
 				if (newStr !== propStatus.codeValue) {
+					markEdit();
 					setDragX(parsed);
-					onSave(newStr).finally(() => {
+					finishEdit(onSave(newStr), () => {
 						setDragX(null);
 					});
 				}
 			}
 		},
-		[codeY, dragY, onSave, propStatus, serialize],
+		[codeY, dragY, onSave, propStatus, serialize, markEdit, finishEdit],
 	);
 
 	// --- Y callbacks ---
 	const onYChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragY(newVal);
 			const currentX = dragX ?? codeX;
 			onDragValueChange(serialize(currentX, newVal));
 		},
-		[codeX, dragX, onDragValueChange, serialize],
+		[codeX, dragX, onDragValueChange, serialize, markEdit],
 	);
 
 	const onYChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const currentX = dragX ?? codeX;
 			const newStr = serialize(currentX, newVal);
 			if (newStr !== propStatus.codeValue) {
-				onSave(newStr).finally(() => {
+				finishEdit(onSave(newStr), () => {
 					setDragY(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragY(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[codeX, dragX, onDragEnd, onSave, propStatus, serialize],
+		[
+			codeX,
+			dragX,
+			onDragEnd,
+			onSave,
+			propStatus,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onYTextChange = useCallback(
@@ -177,38 +211,52 @@ export const TimelineTranslateField: React.FC<{
 				const currentX = dragX ?? codeX;
 				const newStr = serialize(currentX, parsed);
 				if (newStr !== propStatus.codeValue) {
+					markEdit();
 					setDragY(parsed);
-					onSave(newStr).finally(() => {
+					finishEdit(onSave(newStr), () => {
 						setDragY(null);
 					});
 				}
 			}
 		},
-		[codeX, dragX, onSave, propStatus, serialize],
+		[codeX, dragX, onSave, propStatus, serialize, markEdit, finishEdit],
 	);
 
 	const onZChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragZ(newVal);
 			onDragValueChange(serialize(dragX ?? codeX, dragY ?? codeY, newVal));
 		},
-		[codeX, codeY, dragX, dragY, onDragValueChange, serialize],
+		[codeX, codeY, dragX, dragY, onDragValueChange, serialize, markEdit],
 	);
 
 	const onZChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const newStr = serialize(dragX ?? codeX, dragY ?? codeY, newVal);
 			if (newStr !== propStatus.codeValue) {
-				onSave(newStr).finally(() => {
+				finishEdit(onSave(newStr), () => {
 					setDragZ(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragZ(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[codeX, codeY, dragX, dragY, onDragEnd, onSave, propStatus, serialize],
+		[
+			codeX,
+			codeY,
+			dragX,
+			dragY,
+			onDragEnd,
+			onSave,
+			propStatus,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	const onZTextChange = useCallback(
@@ -217,12 +265,23 @@ export const TimelineTranslateField: React.FC<{
 			if (!Number.isNaN(parsed)) {
 				const newStr = serialize(dragX ?? codeX, dragY ?? codeY, parsed);
 				if (newStr !== propStatus.codeValue) {
+					markEdit();
 					setDragZ(parsed);
-					onSave(newStr).finally(() => setDragZ(null));
+					finishEdit(onSave(newStr), () => setDragZ(null));
 				}
 			}
 		},
-		[codeX, codeY, dragX, dragY, onSave, propStatus, serialize],
+		[
+			codeX,
+			codeY,
+			dragX,
+			dragY,
+			onSave,
+			propStatus,
+			serialize,
+			markEdit,
+			finishEdit,
+		],
 	);
 
 	if (parsedTranslate === null) {
@@ -234,6 +293,7 @@ export const TimelineTranslateField: React.FC<{
 	return (
 		<span style={containerStyle}>
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragX ?? codeX}
 				buttonStyle={leftDraggerStyle}
@@ -255,6 +315,7 @@ export const TimelineTranslateField: React.FC<{
 			/>
 			<div style={{marginLeft: -6, marginRight: -6}} />
 			<InputDragger
+				onValueChangeCancel={onValueChangeCancel}
 				type="number"
 				value={dragY ?? codeY}
 				buttonStyle={rightDraggerStyle}
@@ -278,6 +339,7 @@ export const TimelineTranslateField: React.FC<{
 				<>
 					<div style={{marginLeft: -6, marginRight: -6}} />
 					<InputDragger
+						onValueChangeCancel={onValueChangeCancel}
 						type="number"
 						value={dragZ ?? codeZ ?? 0}
 						buttonStyle={rightDraggerStyle}

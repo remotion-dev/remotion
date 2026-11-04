@@ -4,6 +4,7 @@ import {
 	type SaveMultipleEffectPropsEdit,
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
 import {
 	saveEffectProps as saveEffectPropsApi,
 	saveMultipleEffectProps as saveMultipleEffectPropsApi,
@@ -56,6 +57,13 @@ export const saveMultipleEffectProps = ({
 	undoLabel,
 	redoLabel,
 }: SaveMultipleEffectPropsOptions): Promise<void> => {
+	try {
+		for (const nodePath of changes.map((change) => change.nodePath))
+			assertEffectChainEditable(nodePath);
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	if (changes.length === 0) {
 		return Promise.resolve();
 	}
@@ -117,6 +125,12 @@ export const saveMultipleEffectProps = ({
 };
 
 export const saveEffectProp = (input: SaveEffectPropInput): Promise<void> => {
+	try {
+		assertEffectChainEditable(input.nodePath);
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	const {
 		fileName,
 		nodePath,

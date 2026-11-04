@@ -2,12 +2,14 @@ import React, {useCallback, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {formatTimelineFieldValueForDisplay} from './timeline-field-display-utils';
 import {draggerStyle, leftAlignedDraggerStyle} from './timeline-field-utils';
+import {useTimelineFieldEdit} from './use-timeline-field-edit';
 
 export const TimelineNumberField: React.FC<{
 	readonly field: SchemaFieldInfo;
@@ -15,7 +17,7 @@ export const TimelineNumberField: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	effectiveValue,
@@ -24,42 +26,52 @@ export const TimelineNumberField: React.FC<{
 	onDragEnd,
 	propStatus,
 }) => {
+	const {markEdit, finishEdit} = useTimelineFieldEdit();
 	const [dragValue, setDragValue] = useState<number | null>(null);
+
+	const onValueChangeCancel = useCallback(() => {
+		markEdit();
+		setDragValue(null);
+		onDragEnd('cancel');
+	}, [markEdit, onDragEnd]);
 
 	const onValueChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragValue(newVal);
 			onDragValueChange(newVal);
 		},
-		[onDragValueChange],
+		[onDragValueChange, markEdit],
 	);
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			if (newVal !== propStatus.codeValue) {
-				onSave(newVal).finally(() => {
+				finishEdit(onSave(newVal), () => {
 					setDragValue(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragValue(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[onSave, propStatus, onDragEnd],
+		[onSave, propStatus, onDragEnd, markEdit, finishEdit],
 	);
 
 	const onTextChange = useCallback(
 		(newVal: string) => {
 			const parsed = Number(newVal);
 			if (!Number.isNaN(parsed) && parsed !== propStatus.codeValue) {
+				markEdit();
 				setDragValue(parsed);
-				onSave(parsed).finally(() => {
+				finishEdit(onSave(parsed), () => {
 					setDragValue(null);
 				});
 			}
 		},
-		[onSave, propStatus],
+		[onSave, propStatus, markEdit, finishEdit],
 	);
 
 	const configuredStep =
@@ -90,6 +102,7 @@ export const TimelineNumberField: React.FC<{
 
 	return (
 		<InputDragger
+			onValueChangeCancel={onValueChangeCancel}
 			type="number"
 			value={currentValue}
 			buttonStyle={leftAlignedDraggerStyle}

@@ -259,7 +259,8 @@ const calculateTimelineState = (
 		if (
 			sequence.loopDisplay ||
 			sequence.type === 'audio' ||
-			sequence.type === 'video'
+			sequence.type === 'video' ||
+			(sequence.type === 'image' && sequence.animated !== null)
 		) {
 			const owner = timing.loopOwner;
 			if (owner?.loopDisplay) {

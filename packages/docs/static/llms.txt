@@ -13,9 +13,9 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 ## Creating videos
 
 - [Animating properties](https://www.remotion.dev/docs/animating-properties.md)
-- [Embedding videos into Remotion](https://www.remotion.dev/docs/videos/index.md)
+- [Video and Audio](https://www.remotion.dev/docs/video-and-audio.md)
+- [Adding video and audio](https://www.remotion.dev/docs/videos/index.md)
 - [@remotion/media](https://www.remotion.dev/docs/media/index.md)
-- [Using audio](https://www.remotion.dev/docs/using-audio.md)
 - [Using fonts](https://www.remotion.dev/docs/fonts.md)
 - [@remotion/transitions](https://www.remotion.dev/docs/transitions/index.md)
 - [Captions](https://www.remotion.dev/docs/captions/index.md)

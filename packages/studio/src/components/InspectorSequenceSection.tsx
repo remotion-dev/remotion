@@ -11,6 +11,7 @@ import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {useIsEffectDeletionPending} from '../helpers/effect-deletion-state';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
@@ -37,10 +38,12 @@ import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSection} from './InspectorPanel/common';
+import {CurvesEditor} from './InspectorPanel/CurvesEditor';
 import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
+import {LevelsEditor} from './InspectorPanel/LevelsEditor';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -327,6 +330,7 @@ export const InspectorSequenceSection: React.FC<{
 		nodePathInfo,
 		includeTextContent: true,
 		includeSourceControls: true,
+		includeInspectorOnlyFields: true,
 	});
 	const {
 		consumeInspectorRevealRequest,
@@ -818,18 +822,25 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const captionStatus = sequencePropStatuses?.captions;
 	const runtimeCaptions = useRuntimeValue(
-		hasCaptionsSchema ? sequence.controls : null,
+		hasCaptionsSchema && captionStatus?.status !== 'static'
+			? sequence.controls
+			: null,
 		'captions',
 	);
+	const captionValue =
+		captionStatus?.status === 'static'
+			? captionStatus.codeValue
+			: runtimeCaptions;
 	const inlineCaptions = useMemo(
 		() =>
 			hasCaptionsSchema
-				? Array.isArray(runtimeCaptions)
-					? (runtimeCaptions as Caption[])
+				? Array.isArray(captionValue)
+					? (captionValue as Caption[])
 					: []
 				: null,
-		[hasCaptionsSchema, runtimeCaptions],
+		[hasCaptionsSchema, captionValue],
 	);
 	const {
 		getCurrentFrame: getCommittedSequenceFrame,
@@ -917,8 +928,12 @@ export const InspectorSequenceSection: React.FC<{
 		revealPendingCaption();
 	}, [inlineCaptions, revealPendingCaption]);
 
+	const effectDeletionPending = useIsEffectDeletionPending(
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
 	const canAddEffect =
+		!effectDeletionPending &&
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
 		isStudioInteractivityEnabled() &&
@@ -1182,7 +1197,50 @@ export const InspectorSequenceSection: React.FC<{
 											key={getInspectorExpansionKey(row.node.nodePathInfo)}
 											ref={selected ? selectedEffectRowRef : null}
 										>
-											{renderRow(row)}
+											{row.node.kind === 'field' &&
+											row.node.field?.kind === 'effect-field' &&
+											row.node.field.key === 'points' &&
+											sequence.effects[row.node.field.effectIndex]?.type ===
+												'remotion/curves' ? (
+												<CurvesEditor
+													multipleInstances={
+														nodePathInfo.numberOfSequencesWithThisNodePath > 1
+													}
+													nodePath={nodePathInfo.sequenceSubscriptionKey}
+													effectIndex={row.node.field.effectIndex}
+													schema={row.node.field.effectSchema}
+													validatedLocation={validatedLocation}
+													runtimeValueStore={
+														sequence.effectRuntimeValues?.[
+															row.node.field.effectIndex
+														] ?? null
+													}
+												/>
+											) : (
+												renderRow(row)
+											)}
+											{row.node.kind === 'field' &&
+											row.node.field?.kind === 'effect-field' &&
+											row.node.field.key === 'channel' &&
+											sequence.effects[row.node.field.effectIndex]?.type ===
+												'remotion/levels' ? (
+												<LevelsEditor
+													multipleInstances={
+														nodePathInfo.numberOfSequencesWithThisNodePath > 1
+													}
+													nodePath={nodePathInfo.sequenceSubscriptionKey}
+													effectIndex={row.node.field.effectIndex}
+													schema={row.node.field.effectSchema}
+													validatedLocation={validatedLocation}
+													runtimeValueStore={
+														sequence.effectRuntimeValues?.[
+															row.node.field.effectIndex
+														] ?? null
+													}
+													keyframeDisplayOffset={keyframeDisplayOffset}
+													keyframePlaybackRate={keyframePlaybackRate}
+												/>
+											) : null}
 										</div>
 									);
 								})}

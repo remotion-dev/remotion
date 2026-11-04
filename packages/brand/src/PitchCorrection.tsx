@@ -1,24 +1,27 @@
-import {linearProgressiveBlur} from '@remotion/effects/linear-progressive-blur';
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
 	Composition,
 	Easing,
-	HtmlInCanvas,
+	Interactive,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
 import {CloseUpFrame} from './CloseUpFrame';
 
 const PitchCorr = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	// Keep the cursor and the captured video on their original 60 fps clock.
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<>
 			<Video
 				src="https://remotion.media/studio-close-ups/pitch-correction-2026-09-23-13-36.mp4"
-				durationInFrames={1052}
+				durationInFrames={(1052 / 60) * fps}
+				muted
 				style={{
 					position: 'absolute',
 				}}
@@ -703,43 +706,56 @@ const PitchCorr = () => {
 };
 
 const PitchCorrectionContent = () => {
+	const {fps} = useVideoConfig();
 	return (
-		<HtmlInCanvas
-			width={1920}
-			height={1080}
-			effects={[
-				linearProgressiveBlur({
-					endBlur: 12,
-					start: [0.19, 0.942],
-					end: [0.953, 0.063],
-				}),
-			]}
+		<AbsoluteFill
+			name="Canvas Capture"
+			style={{
+				width: 1976,
+				height: 1440,
+				left: '50%',
+				top: '50%',
+				translate: '-1100px -860px',
+				transformOrigin: '1100px 860px',
+				rotate: '-0.747627 0.633442 -0.19951 27.805983deg',
+				scale: 1.2,
+			}}
+			playbackRate={2.3}
+			from={(-81 / 60) * fps}
 		>
-			<AbsoluteFill
-				name="Canvas Capture"
-				style={{
-					width: 1976,
-					height: 1440,
-					translate: '315.7px -632.3px',
-					rotate: '-0.747627 0.633442 -0.19951 27.805983deg',
-					scale: 1.337,
-				}}
-				playbackRate={2.3}
-				from={-81}
-			>
-				<PitchCorr />
-			</AbsoluteFill>
-		</HtmlInCanvas>
+			<PitchCorr />
+		</AbsoluteFill>
 	);
 };
 
-export const PitchCorrectionPreview = () => {
+const PitchCorrectionPreviewContent = () => {
+	const {width, height} = useVideoConfig();
+
 	return (
 		<CloseUpFrame>
-			<PitchCorrectionContent />
+			<div
+				style={{
+					position: 'absolute',
+					width: 1920,
+					height: (height * 1920) / width,
+					left: '50%',
+					top: '50%',
+					translate: '-50% -50%',
+					scale: Math.min(width / 1920, height / 1080),
+					overflow: 'visible',
+				}}
+			>
+				<PitchCorrectionContent />
+			</div>
 		</CloseUpFrame>
 	);
 };
+
+export const PitchCorrectionPreview = Interactive.create({
+	Component: PitchCorrectionPreviewContent,
+	layout: 'absolute-fill',
+	schema: {},
+});
 
 export const PitchCorrection = () => {
 	return (

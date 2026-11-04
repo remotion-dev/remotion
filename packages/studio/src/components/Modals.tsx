@@ -32,6 +32,7 @@ import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
 import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
+import {PrecomposeNameModal} from './PrecomposeNameModal';
 import {PrecomposeRefactorModal} from './PrecomposeRefactorModal';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
@@ -331,12 +332,25 @@ export const Modals: React.FC<{
 				/>
 			) : null}
 			{modalContextType && modalContextType.type === 'web-render' && (
-				<WebRenderModalWithLoader {...modalContextType} />
+				<WebRenderModalWithLoader
+					key={
+						modalContextType.retryJobId === null
+							? `composition:${modalContextType.compositionId}`
+							: `job:${modalContextType.retryJobId}`
+					}
+					{...modalContextType}
+				/>
 			)}
 			{modalContextType &&
 			modalContextType.type === 'server-render' &&
 			(canRender || modalContextType.readOnlyStudio) ? (
 				<RenderModalWithLoader
+					key={
+						modalContextType.retrySettings === null
+							? `composition:${modalContextType.compositionId}`
+							: `job:${modalContextType.retrySettings.jobId}`
+					}
+					retrySettings={modalContextType.retrySettings}
 					readOnlyStudio={modalContextType.readOnlyStudio ?? false}
 					initialFrame={modalContextType.initialFrame}
 					initialDarkMode={modalContextType.initialDarkMode}
@@ -350,6 +364,9 @@ export const Modals: React.FC<{
 					}
 					initialOffthreadVideoThreads={
 						modalContextType.initialOffthreadVideoThreads
+					}
+					initialPreferredEffectBackend={
+						modalContextType.initialPreferredEffectBackend
 					}
 					initialMediaCacheSizeInBytes={
 						modalContextType.initialMediaCacheSizeInBytes
@@ -426,6 +443,9 @@ export const Modals: React.FC<{
 
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
+			)}
+			{modalContextType && modalContextType.type === 'precompose-name' && (
+				<PrecomposeNameModal state={modalContextType} />
 			)}
 			{modalContextType && modalContextType.type === 'precompose-refactor' && (
 				<PrecomposeRefactorModal state={modalContextType} />

@@ -30,6 +30,9 @@ export const useTimelineSequenceHasExpandableContent = ({
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly selectedItems: readonly TimelineSelection[];
 }) => {
+	const pendingDeletion = Internals.useOptimisticEffectDeletion(
+		nodePathInfo?.sequenceSubscriptionKey ?? null,
+	);
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
 	);
@@ -93,6 +96,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 			}
 
 			const tree = buildTimelineTree({
+				pendingEffectDeletion: pendingDeletion,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -100,6 +104,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				includeInspectorOnlyFields: false,
 				runtimeValues,
 			});
 
@@ -122,6 +127,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 			);
 		},
 		[
+			pendingDeletion,
 			canHaveExpandableContent,
 			getDragOverrides,
 			getEffectDragOverrides,
@@ -146,14 +152,19 @@ export const useTimelineExpandedTree = ({
 	nodePathInfo,
 	includeTextContent,
 	includeSourceControls,
+	includeInspectorOnlyFields,
 }: {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly includeTextContent: boolean;
 	readonly includeSourceControls: boolean;
+	readonly includeInspectorOnlyFields: boolean;
 }) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
+	const pendingDeletion = Internals.useOptimisticEffectDeletion(
+		nodePathInfo?.sequenceSubscriptionKey ?? null,
+	);
 	const {propStatuses: visualModePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
 	);
@@ -209,6 +220,7 @@ export const useTimelineExpandedTree = ({
 	const tree = useMemo(
 		() =>
 			buildTimelineTree({
+				pendingEffectDeletion: pendingDeletion,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -216,9 +228,11 @@ export const useTimelineExpandedTree = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent,
 				includeSourceControls,
+				includeInspectorOnlyFields,
 				runtimeValues,
 			}),
 		[
+			pendingDeletion,
 			sequence,
 			nodePathInfo,
 			getDragOverrides,
@@ -226,6 +240,7 @@ export const useTimelineExpandedTree = ({
 			visualModePropStatuses,
 			includeTextContent,
 			includeSourceControls,
+			includeInspectorOnlyFields,
 			runtimeValues,
 		],
 	);

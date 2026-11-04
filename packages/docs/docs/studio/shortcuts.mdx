@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-studio-shortcuts.png
+image: https://remotion.media/docs/generated/articles-docs-studio-shortcuts.png
 title: Keyboard shortcuts
 crumb: 'Remotion Studio'
 ---
@@ -20,6 +20,8 @@ You can also press <kbd>?</kbd> to open this tab.
 | `reversePlayback`               | `J`                                        | Play in reverse                                                                        |
 | `pausePlayback`                 | `K`                                        | Pause playback                                                                         |
 | `playForward`                   | `L`                                        | Play forward; press repeatedly to increase speed                                       |
+| `decreasePlaybackRate`          | `<`                                        | Decrease the playback rate by 0.1                                                      |
+| `increasePlaybackRate`          | `>`                                        | Increase the playback rate by 0.1                                                      |
 | `goToFrame`                     | `G`                                        | Open the frame input                                                                   |
 | `pauseAndReturnToPlaybackStart` | `Enter`                                    | Pause and return to where playback started                                             |
 | `toggleLeftSidebar`             | `Cmd/Ctrl+B`                               | Toggle the left sidebar                                                                |
@@ -73,6 +75,14 @@ Some shortcuts are context-sensitive interactions or browser events and cannot b
 ## Keyboard navigation
 
 Press <kbd>Tab</kbd> to navigate between controls and <kbd>Enter</kbd> to activate the focused control.
+
+## Rendered-output previews<AvailableFrom v="4.0.540" />
+
+Ready audio and video output previews, including local browser renders, support <kbd>Space</kbd>, <kbd>K</kbd> and <kbd>L</kbd> for playback; arrow keys, <kbd>A</kbd> and <kbd>E</kbd> for seeking; <kbd>&lt;</kbd> and <kbd>&gt;</kbd> for speed; <kbd>M</kbd> for mute; and <kbd>Shift+L</kbd> for looping. The corresponding customized shortcuts also apply.
+
+<kbd>Shift</kbd> with an arrow seeks one second, and <kbd>Alt</kbd> with an arrow seeks to the beginning or end. While playing, <kbd>Enter</kbd> pauses and returns to where playback started. Rendered outputs do not support reverse playback with <kbd>J</kbd>.
+
+These shortcuts yield to focused native media controls, editable fields and other controls, and to open dialogs. Native audio and video controls keep their browser keyboard behavior.
 
 ## Disabling keyboard shortcuts
 

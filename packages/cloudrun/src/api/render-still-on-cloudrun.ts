@@ -47,6 +47,7 @@ type OptionalParameters = {
 	forceFps: number | null;
 	forceDurationInFrames: number | null;
 	indent: boolean;
+	isProduction: boolean | null;
 	downloadBehavior: DownloadBehavior;
 	renderIdOverride: z.infer<typeof CloudRunPayload>['renderIdOverride'];
 	renderStatusWebhook: z.infer<typeof CloudRunPayload>['renderStatusWebhook'];
@@ -109,6 +110,9 @@ const internalRenderStillOnCloudRun = async ({
 	renderIdOverride,
 	renderStatusWebhook,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
+	licenseKey,
+	isProduction,
 }: OptionalParameters & MandatoryParameters): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -156,6 +160,9 @@ const internalRenderStillOnCloudRun = async ({
 		renderIdOverride,
 		renderStatusWebhook,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
+		licenseKey,
+		isProduction,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
@@ -267,5 +274,8 @@ export const renderStillOnCloudrun = (options: RenderStillOnCloudrunInput) => {
 		renderIdOverride: options.renderIdOverride ?? undefined,
 		renderStatusWebhook: options.renderStatusWebhook ?? undefined,
 		mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
+		licenseKey: options.licenseKey ?? null,
+		isProduction: options.isProduction ?? null,
 	});
 };

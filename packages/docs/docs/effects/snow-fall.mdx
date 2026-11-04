@@ -1,0 +1,171 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-snow-fall.png
+slug: /effects/snow-fall
+title: snowFall()
+sidebar_label: snowFall()
+crumb: '@remotion/effects'
+---
+
+# snowFall()<AvailableFrom v="4.0.540" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Adds drifting snow to a canvas-based component, with wind, depth, and individual variations in size and motion. Animate `time` to move the snow.
+
+## Preview
+
+<EffectsDemo type="effects-snow-fall" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {snowFall} from '@remotion/effects/snow-fall';
+import {Video} from '@remotion/media';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        snowFall({
+          time: frame / fps,
+          flakes: 1500,
+          size: 8,
+          wind: 25,
+          wiggleAmount: 2,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `snowFall()` without arguments.
+
+### `time?`
+
+Elapsed time in seconds. Must be non-negative. Defaults to `0`.
+
+Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) divided by the frame rate from [`useVideoConfig()`](/docs/use-video-config). The effect does not advance automatically.
+
+The same parameters and `time` produce the same result when seeking or rendering frames out of order.
+
+### `flakes?`
+
+Number of snowflakes. Must be an integer from `0` to `200000`. Defaults to `10000`.
+
+### `size?`
+
+Base diameter of the flakes in pixels, before depth and size variation are applied. Must be between `0` and `50`. Defaults to `3`.
+
+### `sizeVariation?`
+
+Random variation in flake size, from `0` to `1`. Defaults to `0.5`.
+
+At `0`, flakes at the same depth have equal size. Higher values produce a wider range of sizes.
+
+### `sceneDepth?`
+
+Depth of the snow field, from `0` to `20000`. Defaults to `5000`.
+
+Higher values make distant flakes smaller, slower, and more transparent. At `0`, all flakes have the same depth.
+
+### `speed?`
+
+Downward speed of the snow, from `0` to `5000`. Defaults to `100`.
+
+Use `0` to stop downward movement. Wind and wiggle can still move the flakes horizontally.
+
+### `speedVariation?`
+
+Random variation in falling speed between flakes, from `0` to `1`. Defaults to `0.5`.
+
+### `wind?`
+
+Horizontal wind strength, from `-5000` to `5000`. Positive values blow right and negative values blow left. Defaults to `25`.
+
+### `windVariation?`
+
+Random variation in wind strength between flakes, from `0` to `1`. Defaults to `0.5`.
+
+### `spread?`
+
+Additional random horizontal motion, from `0` to `1000`. Defaults to `0`.
+
+Unlike `windVariation`, this also spreads flakes when `wind` is `0`.
+
+### `wiggleAmount?`
+
+Amount of side-to-side drifting, from `0` to `100`. Defaults to `2`.
+
+Use `0` to disable wiggle.
+
+### `wiggleAmountVariation?`
+
+Random variation in the wiggle amount between flakes, from `0` to `1`. Defaults to `0.5`.
+
+### `wiggleFrequency?`
+
+Number of side-to-side wiggle cycles per second, from `0` to `20`. Defaults to `1`.
+
+### `wiggleFrequencyVariation?`
+
+Random variation in wiggle frequency between flakes, from `0` to `1`. Defaults to `0.5`.
+
+### `color?`
+
+CSS color of the flakes. Defaults to `"#ffffff"`.
+
+The color's alpha is multiplied by `opacity`.
+
+### `opacity?`
+
+Opacity of the snow, from `0` to `1`. Defaults to `1`.
+
+### `transferMode?`
+
+How the snow blends with the source. One of `"composite"` or `"lighten"`. Defaults to `"composite"`.
+
+`"composite"` places the snow over the source. `"lighten"` keeps the lighter result in each color channel. Only applies when `compositeWithOriginal` is `true`.
+
+### `compositeWithOriginal?`
+
+Whether to include the source behind the snow. Defaults to `true`.
+
+Set to `false` to output only the snow on a transparent background.
+
+### `offset?`
+
+Position of the snow pattern as a normalized `[x, y]` tuple. Defaults to `[0.5, 0.5]`, which leaves the pattern centered.
+
+Increasing `x` shifts the pattern right; increasing `y` shifts it down. A change of `1` moves it by the source width or height. Values outside `[0, 1]` are allowed, and flakes wrap around the edges.
+
+### `seed?`
+
+Random seed for the flakes' positions and motion. Must be an integer from `0` to `4294967295`. Defaults to `0`.
+
+Keep the seed fixed while animating `time` so the flakes follow continuous paths.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU<AvailableFrom v="4.0.540" inline />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`rainFall()`](/docs/effects/rain-fall)
+- [`shatter()`](/docs/effects/shatter)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/snow-fall.ts)

@@ -18,7 +18,8 @@ For every confirmed or likely flake:
 1. Identify the PR, workflow run, job, failed step, and concise failure signature.
 2. Update issue #8375:
    - If the signature already exists, increment its `Count`.
-   - If it is new, append a row with count `1`, workflow/job, first-seen date, and evidence URL.
+   - If it is new, insert a row with count `1`, workflow/job, first-seen date, and evidence URL.
+   - Sort all rows by numeric `Count` in descending order after every addition or increment, preserving the existing order for equal counts.
 3. Rerun the flaky job or failed jobs.
 
 ## Find The Failure
@@ -85,31 +86,47 @@ Read the issue body:
 gh issue view 8375 --repo remotion-dev/remotion --json body --jq .body
 ```
 
-Edit the full issue body, preserving the table. Always write the replacement Markdown to a temporary file and use `--body-file`; do not pass multiline Markdown inline.
+Edit the full issue body, preserving the introduction, all existing entries, and the `Workflow` section. Keep every flake row in one uninterrupted table under `## Flakes`, before `## Workflow`. Blank lines terminate Markdown tables: never put blank lines between the header, separator, or data rows, and never append rows below the `Workflow` section or at the end of the issue.
+
+Write the replacement Markdown with real newline characters, not literal `\n` text. When using `gh`, always save it to a temporary file and use `--body-file`; do not pass multiline Markdown inline.
 
 Table format:
 
 ```md
-| Count | Signature | Workflow / job | First seen | Evidence |
-| ---: | --- | --- | --- | --- |
-| 1 | `signature` | `Workflow` / `Job` | YYYY-MM-DD | https://github.com/remotion-dev/remotion/actions/runs/... |
+| Count | Signature            | Workflow / job     | First seen | Evidence                                                  |
+| ----: | -------------------- | ------------------ | ---------- | --------------------------------------------------------- |
+|     2 | `repeated signature` | `Workflow` / `Job` | YYYY-MM-DD | https://github.com/remotion-dev/remotion/actions/runs/... |
+|     1 | `signature`          | `Workflow` / `Job` | YYYY-MM-DD | https://github.com/remotion-dev/remotion/actions/runs/... |
 ```
+
+Keep exactly five cells per row. Escape literal pipes as `\|`, including inside inline code, and use `<br>` for line breaks within cells instead of real newlines.
 
 When incrementing an existing row:
 
-- Change only `Count` unless the evidence link is dead or less useful than the new one.
+- Change only `Count` unless the evidence link is dead or less useful than the new one, then move the row to its new sorted position.
 - Keep `First seen` as the earliest known date.
 
-When appending a row:
+When inserting a row:
 
 - Use the GitHub Actions job URL when possible.
 - Use the current date from the log timestamp, not the local machine date, if they differ.
+- Insert it into the existing table in descending numeric `Count` order, after existing rows with the same count.
+
+Before publishing, check that all existing entries are retained, each row has five cells, counts are sorted numerically from highest to lowest, and no blank lines or non-table content interrupt the table. Preserve all counts, first-seen dates, and evidence except for the intended updates.
+
+Publish the prepared file:
+
+```bash
+gh issue edit 8375 --repo remotion-dev/remotion --body-file /path/to/tracker.md
+```
 
 Verify after editing:
 
 ```bash
 gh issue view 8375 --repo remotion-dev/remotion --json body --jq .body
 ```
+
+Confirm the saved body matches the prepared Markdown and still has one complete, uninterrupted table with descending counts. Inspect the rendered issue (or GitHub-rendered HTML) to ensure every entry appears inside the five-column table; a successful API response alone does not verify the layout.
 
 ## Rerun
 

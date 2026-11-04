@@ -27,6 +27,7 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_16,
 	WHITE,
 } from '../../helpers/colors';
+import {startEscapeCancelableDeferredPointerSession} from '../../helpers/escape-cancelable-pointer-session';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -37,10 +38,7 @@ import {
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {
-	isPointerSessionRelease,
-	startDeferredCapturedPointerSession,
-} from '../../helpers/pointer-session';
+import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
@@ -78,6 +76,7 @@ import {
 } from '../selected-outline-types';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
+import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {
@@ -88,8 +87,12 @@ import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getSequenceUnwrapMenuItem} from './get-sequence-unwrap-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getCurrentFrame} from './imperative-state';
+import {isSequenceSplitPending} from './pending-sequence-splits';
 import {saveSequenceProps} from './save-sequence-prop';
-import {splitSelectedTimelineItems} from './split-selected-timeline-item';
+import {
+	canSplitTimelineSequences,
+	splitSelectedTimelineItems,
+} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
@@ -379,6 +382,7 @@ const TimelineSequenceItemInner: React.FC<{
 }) => {
 	const isPackedTrack = sequence.timelineTrack?.role === 'track';
 	const nodePath = nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const pendingEffectDeletion = Internals.useOptimisticEffectDeletion(nodePath);
 	const calculateTimeline = useTimelineCalculator();
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const overrideIdToNodePathMappingsRef = useContext(
@@ -436,7 +440,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
 	const sequenceReorderWrapperRef = useRef<HTMLDivElement>(null);
-	const stopSequencePointerSession = useRef<(() => void) | null>(null);
+	const stopPointerSession = useRef<(() => void) | null>(null);
 	const suppressNextClick = useRef(false);
 	const {
 		canConfigureApps,
@@ -448,7 +452,7 @@ const TimelineSequenceItemInner: React.FC<{
 		openInEditor,
 		openSource,
 		originalLocation,
-	} = useOpenSequenceInApps(sequence);
+	} = useOpenSequenceInApps(sequence, nodePath);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -532,7 +536,10 @@ const TimelineSequenceItemInner: React.FC<{
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 	const onSplitSelectedSequences = useCallback(() => {
-		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+		if (
+			!canSplitTimelineSequences() ||
+			selectedSequenceNodePathInfos === null
+		) {
 			return;
 		}
 
@@ -548,7 +555,6 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [
 		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
-		previewInteractive,
 		propStatusesRef,
 		selectedItems,
 		selectedSequenceNodePathInfos,
@@ -638,7 +644,10 @@ const TimelineSequenceItemInner: React.FC<{
 
 			if (
 				dragData.parentId !== parentId ||
-				dragData.fileName !== validatedLocation.source
+				dragData.fileName !== validatedLocation.source ||
+				dragData.sourceNodePaths.some(
+					(source) => !areSequenceNodesJsxSiblings(source, nodePath),
+				)
 			) {
 				return {
 					type: 'invalid',
@@ -744,7 +753,7 @@ const TimelineSequenceItemInner: React.FC<{
 	]);
 
 	useEffect(() => {
-		return () => stopSequencePointerSession.current?.();
+		return () => stopPointerSession.current?.();
 	}, []);
 
 	const onSequencePointerDown = useCallback(
@@ -771,7 +780,7 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			stopSequencePointerSession.current?.();
+			stopPointerSession.current?.();
 
 			const selectedNodePathInfos = getCanvasSequenceReorderSelection({
 				draggedItem: {type: 'sequence', nodePathInfo},
@@ -867,7 +876,7 @@ const TimelineSequenceItemInner: React.FC<{
 				},
 			});
 
-			stopSequencePointerSession.current = startDeferredCapturedPointerSession({
+			stopPointerSession.current = startEscapeCancelableDeferredPointerSession({
 				captureTarget: sourceElement,
 				event: e.nativeEvent,
 				onMove: (pointerEvent, capturePointer) => {
@@ -984,7 +993,7 @@ const TimelineSequenceItemInner: React.FC<{
 					autoScroll.stop();
 					activeDropTarget?.setDropIndicator(null);
 					dragPreview?.remove();
-					stopSequencePointerSession.current = null;
+					stopPointerSession.current = null;
 
 					if (!didDrag) {
 						return;
@@ -1301,6 +1310,7 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [canRenameThisSequence]);
 
 	const canAddEffect =
+		pendingEffectDeletion === null &&
 		nodePathInfo?.supportsEffects === true &&
 		canMutateEffects &&
 		Boolean(validatedLocation?.source);
@@ -1423,7 +1433,10 @@ const TimelineSequenceItemInner: React.FC<{
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive || isPackedTrack,
+					splitDisabled:
+						!canSplitTimelineSequences() ||
+						isPackedTrack ||
+						selectedSequenceNodePathInfos.some(isSequenceSplitPending),
 					onDeleteSelectedSequences,
 					onDuplicateSelectedSequences,
 					onSplitSelectedSequences,
@@ -1451,7 +1464,8 @@ const TimelineSequenceItemInner: React.FC<{
 				splitFrame: getCurrentFrame(),
 				keyframeDisplayOffset,
 				keyframePlaybackRate,
-				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				canEditSource:
+					canSplitTimelineSequences() && Boolean(validatedLocation?.source),
 				hasMultipleSelection: selected && selectedItems.length > 1,
 			});
 

@@ -221,6 +221,7 @@ const innerLaunchHandler = async ({
 		},
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+		preferredEffectBackend: params.preferredEffectBackend,
 	});
 	overallProgress.setCompositionValidated(Date.now());
 	RenderInternals.Log.info(
@@ -477,6 +478,7 @@ const innerLaunchHandler = async ({
 			metadata: params.metadata,
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			preferredEffectBackend: params.preferredEffectBackend,
 			sampleRate: params.sampleRate,
 		};
 		return payload;
@@ -889,7 +891,6 @@ const innerLaunchHandler = async ({
 		});
 		postRenderData = createPostRenderData({
 			region: getCurrentRegionInFunction(),
-			memorySizeInMb: getCurrentMemorySizeInMb(),
 			renderMetadata,
 			errorExplanations: LambdaClientInternals.inspectErrors({
 				errors: progress.errors,
@@ -1268,7 +1269,7 @@ export const launchHandler = async ({
 		});
 		clearTimeout(webhookDueToTimeout);
 
-		sendTelemetryEvent({
+		await sendTelemetryEvent({
 			licenseKey: params.licenseKey ?? null,
 			logLevel: params.logLevel,
 			isStill: false,

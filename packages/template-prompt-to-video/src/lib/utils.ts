@@ -63,7 +63,7 @@ export const getTimelinePath = (proj: string) =>
   `content/${proj}/timeline.json`;
 
 export const getImagePath = (proj: string, uid: string) =>
-  `content/${proj}/images/${uid}.png`;
+  /^https?:\/\//.test(uid) ? uid : staticFile(`content/${proj}/images/${uid}.png`);
 
 export const getAudioPath = (proj: string, uid: string) =>
-  `content/${proj}/audio/${uid}.mp3`;
+  /^https?:\/\//.test(uid) ? uid : staticFile(`content/${proj}/audio/${uid}.mp3`);

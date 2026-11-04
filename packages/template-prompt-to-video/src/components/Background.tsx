@@ -1,7 +1,6 @@
 import {
   AbsoluteFill,
   Img,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
@@ -52,7 +51,7 @@ export const Background: React.FC<{
   return (
     <AbsoluteFill>
       <Img
-        src={staticFile(getImagePath(project, item.imageUrl))}
+        src={getImagePath(project, item.imageUrl)}
         style={{
           width: imgWidth * imgScale,
           height: imgHeight * imgScale,

@@ -1,8 +1,23 @@
 import path from 'node:path';
 import {playwright} from '@vitest/browser-playwright';
 import {defineConfig} from 'vitest/config';
+import {cachedExampleMediaPaths} from '../example-videos/src/cached-example-media';
 
 export default defineConfig({
+	plugins: [
+		{
+			name: 'cached-example-media',
+			configureServer: (server) => {
+				server.middlewares.use((request, _response, next) => {
+					if (request.url?.split('?')[0] === '/bigbuckbunny.mp4') {
+						request.url = `/@fs/${cachedExampleMediaPaths.bigBuckBunny.split(path.sep).join('/')}`;
+					}
+
+					next();
+				});
+			},
+		},
+	],
 	resolve: {dedupe: ['react', 'react-dom', 'remotion']},
 	// Avoid discovering another React runtime midway through browser tests.
 	optimizeDeps: {

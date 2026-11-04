@@ -9,7 +9,6 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {LintConsoleReporter, runLint} from '@microsoft/vally';
 
 const packageRoot = path.resolve(import.meta.dir, '..');
 const generatedSkillsRoot = path.join(packageRoot, 'skills');
@@ -39,6 +38,20 @@ test('portable Agent Plugins manifest describes the built package', () => {
 	expect(manifest.name).toBe('remotion');
 	expect(manifest.version).toBe(packageJson.version);
 	expect(codexManifest.version).toBe(packageJson.version);
+	for (const pluginManifest of [manifest, codexManifest]) {
+		expect(pluginManifest).toMatchObject({
+			name: 'remotion',
+			author: {name: 'Remotion'},
+			license: 'MIT',
+		});
+		expect(typeof pluginManifest.description).toBe('string');
+		expect((pluginManifest.description as string).trim()).not.toBe('');
+		expect(Array.isArray(pluginManifest.keywords)).toBe(true);
+		expect(pluginManifest.keywords).toContain('remotion');
+		for (const field of ['homepage', 'repository']) {
+			expect(new URL(pluginManifest[field] as string).protocol).toBe('https:');
+		}
+	}
 	expect(Object.keys(manifest).sort()).toEqual(
 		[
 			'$schema',
@@ -73,21 +86,37 @@ const getMarkdownFiles = (directory: string): string[] => {
 	});
 };
 
-const expectVallyLintToPass = async (
-	rootPath: string,
-	expectedSkillsRoot: string,
-) => {
-	const result = await runLint({rootPath});
-	await new LintConsoleReporter({verbose: true}).report(result);
-
-	expect(result.skillResults.map(({skill}) => skill.name).sort()).toEqual(
-		getDirectories(expectedSkillsRoot),
+const expectValidSkills = (skillsRoot: string) => {
+	const skillNames = getDirectories(skillsRoot);
+	expect(skillNames).toEqual(
+		getDirectories(path.join(packageRoot, '..', 'skills', 'skills')),
 	);
-	expect(result.passed).toBe(true);
+	expect(skillNames.length).toBeGreaterThan(0);
+	for (const skillName of skillNames) {
+		const skillFile = path.join(skillsRoot, skillName, 'SKILL.md');
+		const contents = readFileSync(skillFile, 'utf-8');
+		const sections = contents.match(
+			/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/,
+		);
+		if (!sections) {
+			throw new Error(`${skillFile} must start with YAML frontmatter`);
+		}
+
+		const frontmatter = Bun.YAML.parse(sections[1]) as Record<string, unknown>;
+		expect(frontmatter.name).toBe(skillName);
+		expect(typeof frontmatter.description).toBe('string');
+		expect(skillName).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+		expect(skillName.length).toBeLessThanOrEqual(64);
+		const description = frontmatter.description as string;
+		expect(description.trim()).not.toBe('');
+		expect(description.length).toBeLessThanOrEqual(1024);
+		expect(sections[2].trim()).not.toBe('');
+		expect(contents.split(/\r?\n/).length).toBeLessThanOrEqual(500);
+	}
 };
 
-test('generated Agent Plugin passes Vally lint', async () => {
-	await expectVallyLintToPass(packageRoot, generatedSkillsRoot);
+test('generated Agent Plugin skills have valid metadata and content', () => {
+	expectValidSkills(generatedSkillsRoot);
 });
 
 test('only top-level skills use the discovery filename', () => {
@@ -197,7 +226,7 @@ test('Codex troubleshooting does not open the system browser', () => {
 	expect(remotionSkill).not.toMatch(/^npx remotion studio$/m);
 });
 
-test('portable build passes Vally lint and omits Codex troubleshooting', async () => {
+test('portable build has valid skills and omits Codex troubleshooting', () => {
 	const cursorSkillsRoot = mkdtempSync(
 		path.join(tmpdir(), 'remotion-cursor-plugin-skills-'),
 	);
@@ -229,7 +258,7 @@ test('portable build passes Vally lint and omits Codex troubleshooting', async (
 		expect(previewSkill).not.toContain('Codex in-app browser');
 		expect(remotionSkill).not.toContain('## Codex troubleshooting');
 		expect(remotionSkill).not.toContain('## Agent client troubleshooting');
-		await expectVallyLintToPass(cursorSkillsRoot, cursorSkillsRoot);
+		expectValidSkills(cursorSkillsRoot);
 	} finally {
 		rmSync(cursorSkillsRoot, {recursive: true});
 	}

@@ -201,6 +201,7 @@ function rotateZ(angle: unknown, unit: AngleUnit = 'deg'): string {
 
 function scale(x: number, y: number = x): string {
 	checkNumber({num: x, param: 'x', api: 'scale'});
+	checkNumber({num: y, param: 'y', api: 'scale'});
 	return `scale(${x}, ${y})`;
 }
 
@@ -290,9 +291,9 @@ function skew(...args: unknown[]): string {
 		// Case E
 		if (
 			typeof arg1 === 'number' &&
-			isUnitWithString(arg2, angleUnits) &&
+			angleUnits.includes(arg2 as AngleUnit) &&
 			typeof arg3 === 'number' &&
-			isUnitWithString(arg4, angleUnits)
+			angleUnits.includes(arg4 as AngleUnit)
 		) {
 			checkNumber({num: arg1, param: 'angle', api: 'skew'});
 			checkNumber({num: arg3, param: 'angle', api: 'skew'});

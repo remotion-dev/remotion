@@ -468,6 +468,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		() => ({
 			type: 'image' as const,
 			src,
+			animated: null,
 		}),
 		[src],
 	);
