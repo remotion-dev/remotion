@@ -5,6 +5,7 @@ import {
 	Interactive,
 	interpolate,
 	Sequence,
+	type SequenceControls,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
@@ -194,9 +195,8 @@ const GroupObject: React.FC<TransformProps> = ({
 };
 
 const GroupWithSequence: React.FC<
-	TransformProps & {
-		readonly name?: string;
-		readonly controls: React.ComponentProps<typeof Sequence>['controls'];
+	TransformProps & {readonly name?: string} & {
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({name, controls, ...props}) => {
 	return (
