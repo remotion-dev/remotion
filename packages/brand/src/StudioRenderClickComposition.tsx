@@ -8,6 +8,7 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {renderButtonPress} from './render-button-press';
 
 const StudioRenderClickCapture = () => {
 	const {fps} = useVideoConfig();
@@ -25,6 +26,21 @@ const StudioRenderClickCapture = () => {
 			<Video
 				src="https://remotion.media/studio-close-ups/render-click-b2eb37ead3a2.mp4"
 				muted
+				effects={[
+					renderButtonPress({
+						scale: interpolate(
+							frame,
+							[375, 378, 381, 383],
+							[1, 0.92, 0.92, 1],
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: Easing.inOut(Easing.quad),
+							},
+						),
+						disabled: frame < 375 || frame >= 383,
+					}),
+				]}
 				durationInFrames={16 * fps}
 				style={{
 					position: 'absolute',
