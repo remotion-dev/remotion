@@ -140,6 +140,15 @@ describe('RGB', () => {
 			interpolateColors(0.5, [0, 1], ['rgb(-1,0,0)', 'rgb(256,255,255)']),
 		).toBe('rgba(128, 128, 128, 1)');
 	});
+
+	test('rgb rounds fractional channels', () => {
+		expect(
+			interpolateColors(1, [0, 1], ['black', 'rgb(127.6, 0.5, 254.5)']),
+		).toBe('rgba(128, 1, 255, 1)');
+		expect(
+			interpolateColors(1, [0, 1], ['black', 'rgba(127.4, 0, 0, 1)']),
+		).toBe('rgba(127, 0, 0, 1)');
+	});
 });
 
 describe('oklch', () => {

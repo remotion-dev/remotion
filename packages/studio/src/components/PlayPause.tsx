@@ -1,7 +1,8 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
+import {isKeyboardEventOwnedByControl} from '../helpers/is-keyboard-event-owned-by-control';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {
 	useKeyboardShortcutAriaKeyShortcuts,
@@ -15,7 +16,7 @@ import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
-import {getCurrentDuration} from './Timeline/imperative-state';
+import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const backStyle = {
@@ -71,6 +72,9 @@ const PlayPauseInner: React.FC<{
 	hideNavigationControls,
 }) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
@@ -102,19 +106,34 @@ const PlayPauseInner: React.FC<{
 
 	const onSpace = useCallback(
 		(e: KeyboardEvent) => {
+			if (
+				e.defaultPrevented ||
+				e.isComposing ||
+				isKeyboardEventOwnedByControl(e)
+			)
+				return;
+
+			e.preventDefault();
+			if (e.repeat) return;
+
 			if (playing) {
 				pause();
 			} else {
 				play();
 			}
-
-			e.preventDefault();
 		},
 		[pause, play, playing],
 	);
 
 	const onEnter = useCallback(
 		(e: KeyboardEvent) => {
+			if (
+				e.defaultPrevented ||
+				e.isComposing ||
+				isKeyboardEventOwnedByControl(e)
+			)
+				return;
+
 			if (playing) {
 				// Don't prevent keyboard navigation
 				e.preventDefault();
@@ -152,7 +171,45 @@ const PlayPauseInner: React.FC<{
 
 	const keybindings = useKeybinding();
 
+	const onAssetArrowKey = useCallback(
+		(event: KeyboardEvent) => {
+			// Compositions handle arrow seeking and layer nudging in their outline.
+			if (compositionManagerRef.current.canvasContent?.type !== 'asset') {
+				return;
+			}
+
+			event.preventDefault();
+			const backwards = event.key === 'ArrowLeft';
+			const durationInFrames = getCurrentDuration();
+			if (event.altKey) {
+				seek(backwards ? 0 : durationInFrames - 1);
+			} else if (backwards) {
+				frameBack(event.shiftKey ? getCurrentFps() : 1);
+			} else {
+				frameForward(event.shiftKey ? getCurrentFps() : 1);
+			}
+
+			ensureFrameIsInViewport({
+				direction: backwards ? 'fit-left' : 'fit-right',
+				durationInFrames,
+				frame: getCurrentFrame(),
+			});
+		},
+		[compositionManagerRef, frameBack, frameForward, getCurrentFrame, seek],
+	);
+
 	useEffect(() => {
+		const assetArrowBindings = ['ArrowLeft', 'ArrowRight'].map((key) =>
+			keybindings.registerKeybinding({
+				event: 'keydown',
+				key,
+				callback: onAssetArrowKey,
+				commandCtrlKey: false,
+				preventDefault: false,
+				triggerIfInputFieldFocused: false,
+				keepRegisteredWhenNotHighestContext: false,
+			}),
+		);
 		const commandArrowLeft = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowLeft',
@@ -175,7 +232,7 @@ const PlayPauseInner: React.FC<{
 			event: 'keydown',
 			action: 'playPause',
 			callback: onSpace,
-			preventDefault: true,
+			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
@@ -205,6 +262,10 @@ const PlayPauseInner: React.FC<{
 		});
 
 		return () => {
+			for (const binding of assetArrowBindings) {
+				binding.unregister();
+			}
+
 			commandArrowLeft.unregister();
 			commandArrowRight.unregister();
 			space.unregister();
@@ -216,6 +277,7 @@ const PlayPauseInner: React.FC<{
 		jumpToEnd,
 		jumpToStart,
 		keybindings,
+		onAssetArrowKey,
 		onEnter,
 		onSpace,
 		oneFrameBack,

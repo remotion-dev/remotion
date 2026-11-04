@@ -36,7 +36,7 @@ export type OverallProgressHelper = {
 		uploaded: number;
 		sizeInBytes: number;
 	}) => void;
-	setLambdaInvoked: (chunk: number) => void;
+	setLambdaInvoked: (chunk: number, memorySizeInMb: number) => void;
 	addChunkCompleted: (
 		chunkIndex: number,
 		start: number,
@@ -72,6 +72,7 @@ export const makeInitialOverallRenderProgress = (
 		timeToCombine: null,
 		timeToEncode: null,
 		lambdasInvoked: 0,
+		rendererMemorySizeInMb: null,
 		retries: [],
 		postRenderData: null,
 		separateAudio: null,
@@ -313,12 +314,13 @@ export const makeOverallRenderProgress = ({
 			renderProgress.timeToCombine = timeToCombine;
 			upload(`setTimeToCombine(${timeToCombine})`);
 		},
-		setLambdaInvoked(chunk) {
+		setLambdaInvoked(chunk, memorySizeInMb) {
 			if (lambdasInvoked.length === 0) {
 				throw new Error('Expected chunks to be set before lambdas are set');
 			}
 
 			lambdasInvoked[chunk] = true;
+			renderProgress.rendererMemorySizeInMb = memorySizeInMb;
 			renderProgress.lambdasInvoked = lambdasInvoked.reduce(
 				(a, b) => a + Number(b),
 				0,

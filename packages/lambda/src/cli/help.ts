@@ -383,6 +383,7 @@ export const lambdaCommandHelp = [
 		documentation: 'https://www.remotion.dev/docs/lambda/cli/functions/deploy',
 		options: options([
 			'region',
+			'function-name',
 			'memory',
 			'disk',
 			'function-timeout',

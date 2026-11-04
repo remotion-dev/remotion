@@ -33,6 +33,7 @@
  * SOFTWARE.
  */
 
+import {createHash} from 'node:crypto';
 import type {LoaderDefinition} from 'webpack';
 
 declare global {
@@ -229,7 +230,12 @@ const ReactRefreshLoader: LoaderDefinition = function (source, inputSourceMap) {
 		.replace(/_a/g, '_remotion_globalVariableA')
 		.replace(/_b/g, '_remotion_globalVariableB');
 
-	this.callback(null, `${source}\n;${renamedSymbols}`, inputSourceMap);
+	const sourceHash = createHash('sha256').update(source).digest('hex');
+	this.callback(
+		null,
+		`${source}\n;${renamedSymbols}\n/* remotion-source-sha256:${sourceHash} */`,
+		inputSourceMap,
+	);
 };
 
 export default ReactRefreshLoader;

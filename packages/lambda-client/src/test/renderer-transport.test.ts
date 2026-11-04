@@ -12,6 +12,7 @@ const completedStatus: S3RendererStatus = {
 	chunk: 2,
 	attempt: 3,
 	lambdaInvoked: true,
+	memorySizeInMb: 4096,
 	renderedFrames: 20,
 	encodedFrames: 20,
 	uploadedFrames: 0,

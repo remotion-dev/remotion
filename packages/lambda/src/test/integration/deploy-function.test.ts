@@ -4,7 +4,10 @@ import {
 	speculateFunctionName,
 } from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
-import {internalDeployFunction} from '../../api/deploy-function';
+import {
+	deployFunction,
+	internalDeployFunction,
+} from '../../api/deploy-function';
 import {lambdaInsightsExtensions} from '../../shared/lambda-insights-extensions';
 import {fakeAws, useFakeAws} from '../mocks/fake-aws';
 import {
@@ -25,30 +28,44 @@ const chromiumLayer =
 const fontsLayer = 'arn:aws:lambda:us-east-1:123456789012:layer:custom-fonts:3';
 
 test('Should be able to deploy function', async () => {
-	const {functionName} = await internalDeployFunction({
+	cleanFnStore();
+	fakeAws().getFunctions.mockClear();
+	const input = {
 		memorySizeInMb: 2048,
-		region: 'us-east-1',
+		region: 'us-east-1' as const,
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
-		customRoleArn: undefined,
-		customLayerArns: null,
-		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
-		enableLambdaInsights: true,
-		indent: false,
-		logLevel: 'info',
-		runtimePreference: 'default',
-		vpcSecurityGroupIds: undefined,
-		vpcSubnetIds: undefined,
-		cloudWatchLogRetentionPeriodInDays: undefined,
-		requestHandler: null,
+	};
+	const first = await deployFunction({
+		...input,
+		functionName: 'custom-render-function',
 	});
-	expect(functionName).toBe(
-		speculateFunctionName({
-			memorySizeInMb: 2048,
-			timeoutInSeconds: 120,
-			diskSizeInMb: LambdaClientInternals.DEFAULT_EPHEMERAL_STORAGE_IN_MB,
+	const second = await deployFunction({
+		...input,
+		functionName: 'another-render-function',
+	});
+	const reused = await deployFunction({
+		...input,
+		functionName: first.functionName,
+	});
+
+	expect(first).toEqual({
+		functionName: 'custom-render-function',
+		alreadyExisted: false,
+	});
+	expect(second).toEqual({
+		functionName: 'another-render-function',
+		alreadyExisted: false,
+	});
+	expect(reused).toEqual({...first, alreadyExisted: true});
+	await expect(
+		deployFunction({
+			...input,
+			functionName: first.functionName,
+			memorySizeInMb: 4096,
 		}),
-	);
+	).rejects.toThrow('already exists with a different Remotion version');
+	expect(fakeAws().getFunctions).not.toHaveBeenCalled();
 });
 
 test('Should be able to get the function afterwards', async () => {
@@ -59,6 +76,7 @@ test('Should be able to get the function afterwards', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		functionName: null,
 		customRoleArn: undefined,
 		customLayerArns: null,
 		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -110,6 +128,7 @@ test('Should be able to delete the function', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		functionName: null,
 		customRoleArn: undefined,
 		customLayerArns: null,
 		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -153,6 +172,7 @@ test('Should apply custom Layers when creating and reusing a function', async ()
 		region: 'us-east-1' as const,
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		functionName: null,
 		customRoleArn: undefined,
 		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		enableLambdaInsights: false,
@@ -217,6 +237,7 @@ test('Should validate custom Layers before calling the Provider', async () => {
 				region: 'us-east-1',
 				timeoutInSeconds: 120,
 				createCloudWatchLogGroup: true,
+				functionName: null,
 				customRoleArn: undefined,
 				customLayerArns: invalidInput.customLayerArns,
 				diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -247,6 +268,7 @@ test('AWS China requires partition-matching custom Layers before Provider calls'
 			region,
 			timeoutInSeconds: 120,
 			createCloudWatchLogGroup: true,
+			functionName: null,
 			customRoleArn: undefined,
 			diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 			enableLambdaInsights: true,
@@ -299,6 +321,7 @@ test('Should pass null to the hosted Layer path by default', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		functionName: null,
 		customRoleArn: undefined,
 		customLayerArns: null,
 		diskSizeInMb: DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -323,6 +346,7 @@ test('Should be able to get the function afterwards', async () => {
 		region: 'us-east-1',
 		timeoutInSeconds: 120,
 		createCloudWatchLogGroup: true,
+		functionName: null,
 		customRoleArn: undefined,
 		customLayerArns: null,
 		diskSizeInMb: 10240,

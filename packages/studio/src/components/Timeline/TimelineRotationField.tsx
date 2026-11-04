@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -20,6 +21,7 @@ import {
 	serializeCssRotationFromEuler,
 } from './timeline-rotation-utils';
 import {Transform3DModeContext} from './Transform3DModeContext';
+import {useTimelineFieldEdit} from './use-timeline-field-edit';
 
 const containerStyle: React.CSSProperties = {
 	alignItems: 'center',
@@ -40,7 +42,7 @@ export const TimelineRotationField: React.FC<{
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	effectiveValue,
@@ -49,6 +51,7 @@ export const TimelineRotationField: React.FC<{
 	onDragValueChange,
 	onDragEnd,
 }) => {
+	const {markEdit, finishEdit} = useTimelineFieldEdit();
 	const [dragValue, setDragValue] = useState<number | null>(null);
 	const [dragRotation, setDragRotation] = useState<CssRotationEuler | null>(
 		null,
@@ -112,28 +115,37 @@ export const TimelineRotationField: React.FC<{
 		[decimalPlaces],
 	);
 
+	const onValueChangeCancel = useCallback(() => {
+		markEdit();
+		setDragValue(null);
+		setDragRotation(null);
+		onDragEnd('cancel');
+	}, [markEdit, onDragEnd]);
+
 	const onValueChange = useCallback(
 		(newVal: number) => {
+			markEdit();
 			setDragValue(newVal);
 			onDragValueChange(serializeValue(newVal));
 		},
-		[onDragValueChange, serializeValue],
+		[onDragValueChange, serializeValue, markEdit],
 	);
 
 	const onValueChangeEnd = useCallback(
 		(newVal: number) => {
+			markEdit();
 			const newValue = serializeValue(newVal);
 			if (newValue !== propStatus.codeValue) {
-				onSave(newValue).finally(() => {
+				finishEdit(onSave(newValue), () => {
 					setDragValue(null);
-					onDragEnd();
+					onDragEnd('commit');
 				});
 			} else {
 				setDragValue(null);
-				onDragEnd();
+				onDragEnd('cancel');
 			}
 		},
-		[propStatus, onSave, onDragEnd, serializeValue],
+		[propStatus, onSave, onDragEnd, serializeValue, markEdit, finishEdit],
 	);
 
 	const onTextChange = useCallback(
@@ -142,14 +154,15 @@ export const TimelineRotationField: React.FC<{
 			if (!Number.isNaN(parsed)) {
 				const newValue = serializeValue(parsed);
 				if (newValue !== propStatus.codeValue) {
+					markEdit();
 					setDragValue(parsed);
-					onSave(newValue).finally(() => {
+					finishEdit(onSave(newValue), () => {
 						setDragValue(null);
 					});
 				}
 			}
 		},
-		[propStatus, onSave, serializeValue],
+		[propStatus, onSave, serializeValue, markEdit, finishEdit],
 	);
 
 	const formatter = useCallback(
@@ -165,6 +178,7 @@ export const TimelineRotationField: React.FC<{
 
 	const onRotationValueChange = useCallback(
 		(rotationIndex: number, newValue: number) => {
+			markEdit();
 			const nextRotation = [...(dragRotation ?? cssRotation)] as [
 				number,
 				number,
@@ -174,11 +188,12 @@ export const TimelineRotationField: React.FC<{
 			setDragRotation(nextRotation);
 			onDragValueChange(serializeRotation(nextRotation));
 		},
-		[cssRotation, dragRotation, onDragValueChange, serializeRotation],
+		[cssRotation, dragRotation, onDragValueChange, serializeRotation, markEdit],
 	);
 
 	const onRotationValueChangeEnd = useCallback(
 		(rotationIndex: number, newValue: number) => {
+			markEdit();
 			const nextRotation = [...(dragRotation ?? cssRotation)] as [
 				number,
 				number,
@@ -186,15 +201,15 @@ export const TimelineRotationField: React.FC<{
 			];
 			nextRotation[rotationIndex] = newValue;
 			const newRotation = serializeRotation(nextRotation);
-			const clearDragState = () => {
+			const clearDragState: TimelineFieldOnDragEnd = (reason) => {
 				setDragRotation(null);
-				onDragEnd();
+				onDragEnd(reason);
 			};
 
 			if (newRotation !== propStatus.codeValue) {
-				onSave(newRotation).finally(clearDragState);
+				finishEdit(onSave(newRotation), () => clearDragState('commit'));
 			} else {
-				clearDragState();
+				clearDragState('cancel');
 			}
 		},
 		[
@@ -204,6 +219,8 @@ export const TimelineRotationField: React.FC<{
 			onSave,
 			propStatus.codeValue,
 			serializeRotation,
+			markEdit,
+			finishEdit,
 		],
 	);
 
@@ -222,8 +239,9 @@ export const TimelineRotationField: React.FC<{
 			nextRotation[rotationIndex] = parsed;
 			const newRotation = serializeRotation(nextRotation);
 			if (newRotation !== propStatus.codeValue) {
+				markEdit();
 				setDragRotation(nextRotation);
-				onSave(newRotation).finally(() => setDragRotation(null));
+				finishEdit(onSave(newRotation), () => setDragRotation(null));
 			}
 		},
 		[
@@ -232,11 +250,14 @@ export const TimelineRotationField: React.FC<{
 			onSave,
 			propStatus.codeValue,
 			serializeRotation,
+			markEdit,
+			finishEdit,
 		],
 	);
 
 	const angleDragger = (
 		<InputDragger
+			onValueChangeCancel={onValueChangeCancel}
 			type="number"
 			value={dragValue ?? degrees}
 			buttonStyle={leftAlignedDraggerStyle}
@@ -262,6 +283,7 @@ export const TimelineRotationField: React.FC<{
 				{ROTATION_LABELS.map((rotationLabel, rotationIndex) => (
 					<InputDragger
 						key={rotationLabel}
+						onValueChangeCancel={onValueChangeCancel}
 						type="number"
 						value={(dragRotation ?? cssRotation)[rotationIndex]}
 						buttonStyle={compactDraggerStyle}

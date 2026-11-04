@@ -1,7 +1,7 @@
 import type {DefaultCodingAgent} from '@remotion/renderer';
 import type {EditorPickerId} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo} from 'react';
-import type {TSequence} from 'remotion';
+import type {SequencePropsSubscriptionKey, TSequence} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
 	getDefaultOpenInTarget,
@@ -16,14 +16,17 @@ import {
 	useDefaultCodingAgentInfo,
 	useEditorOpening,
 } from '../use-default-editor-info';
-import {useResolveStackAndReactToChange} from './use-resolved-stack-react-to-change';
+import {useSequenceSourceLocation} from './use-sequence-source-location';
 
-export const useOpenSequenceInApps = (sequence: TSequence) => {
+export const useOpenSequenceInApps = (
+	sequence: TSequence,
+	nodePath: SequencePropsSubscriptionKey | null,
+) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const previewConnected = previewServerState.type === 'connected';
-	const {resolvedLocation: originalLocation} = useResolveStackAndReactToChange(
-		sequence.getStack,
-		sequence.controls?.overrideId ?? sequence.id,
+	const {location: originalLocation} = useSequenceSourceLocation(
+		sequence,
+		nodePath,
 	);
 	const {
 		canConfigureApps,

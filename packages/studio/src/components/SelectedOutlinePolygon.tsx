@@ -8,10 +8,12 @@ import {
 	TRANSPARENT,
 } from '../helpers/colors';
 import {createDragAwareDoubleClickTracker} from '../helpers/drag-aware-double-click';
+import {startEscapeCancelableSession} from '../helpers/escape-cancelable-pointer-session';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {isMac} from '../helpers/is-mac';
 import {EditorShowGuidesContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
+import {createCanvasDragPreview} from './canvas-drag-preview';
 import {
 	addEffectFromDrop,
 	hasEffectDragType,
@@ -24,7 +26,6 @@ import {
 } from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineDragOverrides,
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
@@ -40,7 +41,7 @@ import type {
 } from './selected-outline-types';
 import {commitPendingInspectorFields} from './Timeline/focus-inspector-field';
 import {getCurrentFrame} from './Timeline/imperative-state';
-import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {saveSequencePropsWithResult} from './Timeline/save-sequence-prop';
 import {PREVENT_CLEAR_SELECTION_ON_POINTER_DOWN_ATTR} from './Timeline/should-clear-selection-on-pointer-down';
 import type {
 	TimelineSelection,
@@ -122,12 +123,22 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	const dragOverridesRef = useContext(
 		Internals.VisualModeDragOverridesRefContext,
 	);
-	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, updateDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const {editorShowGuides, guidesList} = useContext(EditorShowGuidesContext);
 	const polygonRef = useRef<SVGPolygonElement>(null);
+	const stopPointerSessionRef = useRef<(() => void) | null>(null);
+	useEffect(() => {
+		return () => {
+			stopPointerSessionRef.current?.();
+			stopPointerSessionRef.current = null;
+		};
+	}, []);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [effectDropHovered, setEffectDropHovered] = useState(false);
 	useEffect(() => {
@@ -227,100 +238,133 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			}
 
 			const [{clientId}] = dragTargets;
-			startCanvasOutlineTranslateDrag({
-				event,
-				captureTarget: event.currentTarget,
-				dragStates: getCanvasOutlineTranslateDragStates({
-					dragTargets,
-					getDragOverrides: dragOverridesRef.current.getDragOverrides,
-					timelinePosition: getCurrentFrame(),
-				}),
-				scale,
-				snapping: editorSnapping
-					? {
-							outlines: dragExistingSelection
-								? getAllDragOutlines()
-								: [outline],
-							getTargets: () =>
-								getSelectedOutlineSnapTargets({
-									compositionHeight,
-									compositionWidth,
-									guides:
-										editorShowGuides && canvasContent?.type === 'composition'
-											? guidesList.filter(
-													(guide) =>
-														guide.compositionId === canvasContent.compositionId,
-												)
-											: [],
-								}),
-							onSnapPointsChange,
-							// Command already means "translate" in rotation mode.
-							modifierDisablesSnapping: !temporaryTranslate,
-						}
-					: null,
-				setDragOverrides,
-				clearDragOverrides,
-				onDragStart: () => {
-					onDraggingChange(true);
-					forceSpecificCursor('default');
-				},
-				onDragEnd: ({changes, dragged, released, session}) => {
-					dragAwareDoubleClick.endPointerGesture(dragged);
-					if (dragged) {
-						stopForcingSpecificCursor();
-						onDraggingChange(false);
-					}
-
-					if (changes.length === 0) {
-						if (deferSelection && !dragged && released) {
-							onSelect(target.selection, interaction);
-						}
-
-						return;
-					}
-
-					const staticChanges = changes.filter(
-						(change): change is SelectedOutlineStaticDragChange =>
-							change.type === 'static',
-					);
-					const keyframedChanges = changes.filter(
-						(change): change is SelectedOutlineKeyframedDragChange =>
-							change.type === 'keyframed',
-					);
-
-					saveSequenceProps({
-						changes: staticChanges,
-						addedKeyframes: keyframedChanges,
-						movedKeyframes: null,
-						setPropStatuses,
-						clientId,
-						undoLabel:
-							changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
-						redoLabel:
-							changes.length > 1
-								? 'Move selected sequences back'
-								: 'Move sequence back',
-					})
-						.catch((err) => {
-							showNotification(
-								`Could not save sequence props: ${
-									err instanceof Error ? err.message : String(err)
-								}`,
-								4000,
-							);
-						})
-						.finally(() => {
-							clearSelectedOutlineDragOverrides({
-								clearDragOverrides,
-								dragStates: session.dragStates,
-							});
-						});
-				},
+			stopPointerSessionRef.current?.();
+			const preview = createCanvasDragPreview({
+				updateDragOverrides,
+				setPropStatuses,
+				setPropStatusesBatch: null,
+				getPropStatuses: (nodePath) =>
+					propStatusesRef.current[
+						Internals.makeSequencePropsSubscriptionKey(nodePath)
+					],
 			});
+			stopPointerSessionRef.current = startEscapeCancelableSession((onEnd) =>
+				startCanvasOutlineTranslateDrag({
+					event,
+					captureTarget: event.currentTarget,
+					dragStates: getCanvasOutlineTranslateDragStates({
+						dragTargets,
+						getDragOverrides: dragOverridesRef.current.getDragOverrides,
+						timelinePosition: getCurrentFrame(),
+					}),
+					scale,
+					snapping: editorSnapping
+						? {
+								outlines: dragExistingSelection
+									? getAllDragOutlines()
+									: [outline],
+								getTargets: () =>
+									getSelectedOutlineSnapTargets({
+										compositionHeight,
+										compositionWidth,
+										guides:
+											editorShowGuides && canvasContent?.type === 'composition'
+												? guidesList.filter(
+														(guide) =>
+															guide.compositionId ===
+															canvasContent.compositionId,
+													)
+												: [],
+									}),
+								onSnapPointsChange,
+								// Command already means "translate" in rotation mode.
+								modifierDisablesSnapping: !temporaryTranslate,
+							}
+						: null,
+					setDragOverrides: preview.setDragOverrides,
+					clearDragOverrides: preview.cancel,
+					onDragStart: () => {
+						onDraggingChange(true);
+						forceSpecificCursor('default');
+					},
+					onDragEnd: ({changes, dragged, released}) => {
+						onEnd();
+						stopPointerSessionRef.current = null;
+						dragAwareDoubleClick.endPointerGesture(dragged);
+						if (dragged) {
+							stopForcingSpecificCursor();
+							onDraggingChange(false);
+						}
+
+						if (!released) {
+							preview.cancel();
+							return;
+						}
+
+						if (changes.length === 0) {
+							preview.cancel();
+							if (deferSelection && !dragged && released) {
+								onSelect(target.selection, interaction);
+							}
+
+							return;
+						}
+
+						const currentChanges = changes.flatMap((change) => {
+							const nodePath = preview.getNodePath(change.nodePath);
+							return nodePath === null ? [] : [{...change, nodePath}];
+						});
+						if (currentChanges.length !== changes.length) {
+							preview.cancel();
+							return;
+						}
+
+						const staticChanges = currentChanges.filter(
+							(change): change is SelectedOutlineStaticDragChange =>
+								change.type === 'static',
+						);
+						const keyframedChanges = currentChanges.filter(
+							(change): change is SelectedOutlineKeyframedDragChange =>
+								change.type === 'keyframed',
+						);
+
+						saveSequencePropsWithResult({
+							changes: staticChanges,
+							addedKeyframes: keyframedChanges,
+							movedKeyframes: null,
+							setPropStatuses: preview.setPropStatuses,
+							clientId,
+							undoLabel:
+								changes.length > 1
+									? 'Move selected sequences'
+									: 'Move sequence',
+							redoLabel:
+								changes.length > 1
+									? 'Move selected sequences back'
+									: 'Move sequence back',
+						})
+							.then((response) => {
+								if (response && !response.canUpdate)
+									throw new Error(
+										'The layer could not be updated. Try the edit again.',
+									);
+								preview.acknowledge(response);
+							})
+							.catch((err) => {
+								preview.fail();
+								showNotification(
+									`Could not save sequence props: ${
+										err instanceof Error ? err.message : String(err)
+									}`,
+									4000,
+								);
+							});
+					},
+				}),
+			);
 		},
 		[
 			canvasContent,
-			clearDragOverrides,
 			compositionHeight,
 			compositionWidth,
 			containsSelection,
@@ -338,7 +382,8 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			outline,
 			scale,
 			setPropStatuses,
-			setDragOverrides,
+			updateDragOverrides,
+			propStatusesRef,
 			translateWithCommandKey,
 		],
 	);

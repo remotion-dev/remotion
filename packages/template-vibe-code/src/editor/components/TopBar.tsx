@@ -75,28 +75,32 @@ export const ToolbarButton: React.FC<{
 
 const CompileStatus: React.FC = () => {
   const { state } = useEditor();
-  const { compile, runtimeError, warnings } = state;
+  const { compile, runtimeError, warnings, pendingSourceMutations } = state;
   const label =
-    runtimeError !== null && compile.type === "ready"
-      ? "Runtime error"
-      : compile.type === "booting"
-        ? compile.message
-        : compile.type === "compiling"
-          ? "Compiling…"
-          : compile.type === "ready"
-            ? warnings.length > 0
-              ? `Ready · ${warnings.length} warning${warnings.length === 1 ? "" : "s"}`
-              : "Ready"
-            : "Compilation failed";
+    pendingSourceMutations > 0
+      ? "Applying edits…"
+      : runtimeError !== null && compile.type === "ready"
+        ? "Runtime error"
+        : compile.type === "booting"
+          ? compile.message
+          : compile.type === "compiling"
+            ? "Compiling…"
+            : compile.type === "ready"
+              ? warnings.length > 0
+                ? `Ready · ${warnings.length} warning${warnings.length === 1 ? "" : "s"}`
+                : "Ready"
+              : "Compilation failed";
   const tone =
-    compile.type === "error" ||
-    (runtimeError !== null && compile.type === "ready")
-      ? "error"
-      : compile.type === "ready"
-        ? warnings.length > 0
-          ? "warning"
-          : "ok"
-        : "busy";
+    pendingSourceMutations > 0
+      ? "busy"
+      : compile.type === "error" ||
+          (runtimeError !== null && compile.type === "ready")
+        ? "error"
+        : compile.type === "ready"
+          ? warnings.length > 0
+            ? "warning"
+            : "ok"
+          : "busy";
 
   return (
     <div
@@ -129,6 +133,7 @@ export const TopBar: React.FC = () => {
   const { state, actions, compositions, activeComposition, canSave } =
     useEditor();
   const unsaved = hasUnsavedChanges(state);
+  const pending = state.pendingSourceMutations > 0;
 
   return (
     <header className="bg-background-elevated border-border flex h-11 shrink-0 items-center gap-2 border-b px-3">
@@ -169,7 +174,7 @@ export const TopBar: React.FC = () => {
           label="Undo"
           shortcut="⌘Z"
           onClick={actions.undo}
-          disabled={state.past.length === 0}
+          disabled={state.past.length === 0 && !pending}
         >
           <Undo2Icon />
         </ToolbarButton>
@@ -184,18 +189,20 @@ export const TopBar: React.FC = () => {
         <ToolbarButton
           label={
             canSave
-              ? unsaved
-                ? "Save to src/remotion"
-                : "All changes saved"
+              ? pending
+                ? "Save after edits finish"
+                : unsaved
+                  ? "Save to src/remotion"
+                  : "All changes saved"
               : "Saving is only available in development"
           }
           shortcut="⌘S"
           onClick={() => void actions.save()}
-          disabled={!canSave || !unsaved}
+          disabled={!canSave || (!unsaved && !pending)}
           className="relative"
         >
           <SaveIcon />
-          {unsaved ? (
+          {unsaved || pending ? (
             <span className="bg-warning absolute top-1 right-1 size-1.5 rounded-full" />
           ) : null}
         </ToolbarButton>
@@ -246,7 +253,7 @@ export const TopBar: React.FC = () => {
       <Button
         size="sm"
         onClick={() => actions.openDialog("render")}
-        disabled={!activeComposition}
+        disabled={!activeComposition || pending}
       >
         Render
       </Button>

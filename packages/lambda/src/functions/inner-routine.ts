@@ -245,7 +245,6 @@ export const innerHandler = async ({
 			params,
 			options: {
 				expectedBucketOwner: context.expectedBucketOwner,
-				timeoutInMilliseconds,
 				retriesRemaining: 2,
 			},
 		});

@@ -15,7 +15,6 @@ import {getOverallProgressFromStorage} from './get-overall-progress-from-storage
 import {inspectErrors} from './inspect-error';
 import {makeTimeoutError} from './make-timeout-error';
 import type {OverallRenderProgress} from './overall-render-progress';
-import {parseFunctionName} from './parse-function-name';
 import type {AwsRegion} from './regions';
 import type {CleanupInfo, GenericRenderProgress} from './render-progress';
 import type {CustomCredentials} from './shared-constants';
@@ -28,8 +27,6 @@ type GetProgressInput = {
 	renderId: string;
 	expectedBucketOwner: string | null;
 	region: AwsRegion;
-	memorySizeInMb: number;
-	timeoutInMilliseconds: number;
 	customCredentials: CustomCredentials | null;
 	forcePathStyle: boolean;
 	functionName: string;
@@ -38,13 +35,7 @@ type GetProgressInput = {
 
 type NormalizeProgressInput = Pick<
 	GetProgressInput,
-	| 'bucketName'
-	| 'renderId'
-	| 'region'
-	| 'memorySizeInMb'
-	| 'timeoutInMilliseconds'
-	| 'customCredentials'
-	| 'functionName'
+	'bucketName' | 'renderId' | 'region' | 'customCredentials' | 'functionName'
 > & {
 	overallProgress: OverallRenderProgress;
 	recoveredOutput: OutputFileMetadata | null;
@@ -54,8 +45,6 @@ export const normalizeRenderProgress = ({
 	bucketName,
 	renderId,
 	region,
-	memorySizeInMb,
-	timeoutInMilliseconds,
 	customCredentials,
 	functionName,
 	overallProgress,
@@ -250,8 +239,7 @@ export const normalizeRenderProgress = ({
 	const priceFromBucket = estimatePriceFromMetadata({
 		renderMetadata,
 		memorySizeInMb:
-			parseFunctionName(renderMetadata.rendererFunctionName)?.memorySizeInMb ??
-			memorySizeInMb,
+			overallProgress.rendererMemorySizeInMb ?? renderMetadata.memorySizeInMb,
 		functionsInvoked: overallProgress.lambdasInvoked ?? 0,
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 		timings: overallProgress.timings ?? [],
@@ -280,17 +268,20 @@ export const normalizeRenderProgress = ({
 			);
 		});
 	const allChunks = missingChunks.length === 0;
+	const timeoutInMilliseconds =
+		overallProgress.timeoutTimestamp - overallProgress.functionLaunched;
 	// We add a 20 second buffer for it, since AWS timeshifts can be quite a lot. Once it's 20sec over the limit, we consider it timed out
 
 	// 1. If we have missing chunks, we consider it timed out
 	const isBeyondTimeoutAndMissingChunks =
-		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds + 20000 &&
+		Date.now() > overallProgress.timeoutTimestamp + 20000 &&
 		missingChunks &&
 		missingChunks.length > 0;
 
 	// 2. If we have no missing chunks, but the encoding is not done, even after the additional `merge` function has been spawned, we consider it timed out
 	const isBeyondTimeoutAndHasStitchTimeout =
-		Date.now() > renderMetadata.startedDate + timeoutInMilliseconds * 2 + 20000;
+		Date.now() >
+		overallProgress.timeoutTimestamp + timeoutInMilliseconds + 20000;
 
 	if (recoveredOutput) {
 		const outputFile = recoveredOutput;
@@ -493,7 +484,10 @@ export const getProgress = async (
 	if (
 		!(
 			Date.now() >
-				renderMetadata.startedDate + input.timeoutInMilliseconds * 2 + 20000 ||
+				overallProgress.timeoutTimestamp +
+					(overallProgress.timeoutTimestamp -
+						overallProgress.functionLaunched) +
+					20000 ||
 			(overallProgress.combinedFrames >= frameCount &&
 				overallProgress.timeToCombine !== null)
 		)

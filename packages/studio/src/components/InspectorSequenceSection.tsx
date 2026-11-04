@@ -11,6 +11,7 @@ import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
+import {useIsEffectDeletionPending} from '../helpers/effect-deletion-state';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
@@ -821,18 +822,25 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const captionStatus = sequencePropStatuses?.captions;
 	const runtimeCaptions = useRuntimeValue(
-		hasCaptionsSchema ? sequence.controls : null,
+		hasCaptionsSchema && captionStatus?.status !== 'static'
+			? sequence.controls
+			: null,
 		'captions',
 	);
+	const captionValue =
+		captionStatus?.status === 'static'
+			? captionStatus.codeValue
+			: runtimeCaptions;
 	const inlineCaptions = useMemo(
 		() =>
 			hasCaptionsSchema
-				? Array.isArray(runtimeCaptions)
-					? (runtimeCaptions as Caption[])
+				? Array.isArray(captionValue)
+					? (captionValue as Caption[])
 					: []
 				: null,
-		[hasCaptionsSchema, runtimeCaptions],
+		[hasCaptionsSchema, captionValue],
 	);
 	const {
 		getCurrentFrame: getCommittedSequenceFrame,
@@ -920,8 +928,12 @@ export const InspectorSequenceSection: React.FC<{
 		revealPendingCaption();
 	}, [inlineCaptions, revealPendingCaption]);
 
+	const effectDeletionPending = useIsEffectDeletionPending(
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
 	const canAddEffect =
+		!effectDeletionPending &&
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
 		isStudioInteractivityEnabled() &&

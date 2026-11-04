@@ -88,7 +88,10 @@ export type PreviewRenderResult = {
 
 export type PreviewHost = {
   readonly controller: CanvasController;
-  applyBundle: (bundle: BrowserBundle) => Promise<void>;
+  applyBundle: (
+    bundle: BrowserBundle,
+    applySourceTransition: () => void,
+  ) => Promise<void>;
   selectComposition: (
     selection: PreviewCompositionSelection,
   ) => Promise<BrowserComposition>;

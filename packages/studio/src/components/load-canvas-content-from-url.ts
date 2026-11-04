@@ -21,6 +21,10 @@ export const deriveCanvasContentFromRoute = (
 	}
 
 	if (substrings[0] === 'outputs') {
+		if (!lastPart || substrings.length === 1) {
+			return null;
+		}
+
 		return {
 			type: 'output',
 			path: decodeURIComponent(route.substring('/outputs/'.length)),

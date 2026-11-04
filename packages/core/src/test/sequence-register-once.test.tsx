@@ -178,11 +178,17 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	const visualSetters = useMemo(
 		() => ({
 			setDragOverrides: () => undefined,
+			updateDragOverrides: () => undefined,
+			updateDragOverridesBatch: () => undefined,
+			remapDragOverrideFields: () => undefined,
+			updateEffectDragOverridesBatch: () => undefined,
+			remapEffectDragOverrideFields: () => undefined,
 			clearDragOverrides: () => undefined,
 			setEffectDragOverrides: () => undefined,
 			clearEffectDragOverrides: () => undefined,
 			remapPropStatuses: () => undefined,
 			setPropStatuses: () => undefined,
+			setPropStatusesBatch: () => undefined,
 		}),
 		[],
 	);

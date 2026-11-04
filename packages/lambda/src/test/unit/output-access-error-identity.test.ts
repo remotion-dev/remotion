@@ -304,6 +304,7 @@ const completedProgress = (): OverallRenderProgress => {
 		timeToCombine: 100,
 		timeToEncode: 100,
 		lambdasInvoked: 1,
+		rendererMemorySizeInMb: 2048,
 		retries: [],
 		postRenderData: null,
 		separateAudio: null,
@@ -320,10 +321,7 @@ const completedProgress = (): OverallRenderProgress => {
 	};
 };
 
-const invokeProgress = (
-	_fixture: ReturnType<typeof makeFixture>,
-	timeoutInMilliseconds = 120000,
-) =>
+const invokeProgress = (_fixture: ReturnType<typeof makeFixture>) =>
 	progressHandler({
 		params: {
 			type: ServerlessRoutines.status,
@@ -336,7 +334,6 @@ const invokeProgress = (
 		},
 		options: {
 			expectedBucketOwner: null,
-			timeoutInMilliseconds,
 			retriesRemaining: 0,
 		},
 	});
@@ -485,9 +482,11 @@ test.each(['normalized', 'constructed'] as const)(
 				? await getBundledHeadError(403)
 				: new OutputFileAccessDeniedError('Denied'),
 		);
-		fixture.setProgress(completedProgress());
 		for (const timeout of [120000, 1000]) {
-			const result = await invokeProgress(fixture, timeout);
+			const progress = completedProgress();
+			progress.timeoutTimestamp = progress.functionLaunched + timeout;
+			fixture.setProgress(progress);
+			const result = await invokeProgress(fixture);
 			expect(result.done).toBe(false);
 			expect(result.outputFile).toBeNull();
 			expect(result.framesRendered).toBe(20);

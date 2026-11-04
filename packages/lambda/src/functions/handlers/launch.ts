@@ -892,7 +892,6 @@ const innerLaunchHandler = async ({
 		});
 		postRenderData = createPostRenderData({
 			region: getCurrentRegionInFunction(),
-			memorySizeInMb: getCurrentMemorySizeInMb(),
 			renderMetadata,
 			errorExplanations: LambdaClientInternals.inspectErrors({
 				errors: progress.errors,
@@ -1303,10 +1302,6 @@ export const launchHandler = async ({
 					bucketName: params.bucketName,
 					renderId: params.renderId,
 					region: getCurrentRegionInFunction(),
-					memorySizeInMb: getCurrentMemorySizeInMb(),
-					timeoutInMilliseconds:
-						overallProgress.get().timeoutTimestamp -
-						overallProgress.get().functionLaunched,
 					customCredentials: null,
 					functionName: getCurrentFunctionName(),
 				}),

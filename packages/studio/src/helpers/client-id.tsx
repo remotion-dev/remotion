@@ -145,6 +145,13 @@ export const PreviewServerConnection: React.FC<{
 				showNotification(`Rendering "${newEvent.compositionId}" failed`, 2000);
 			}
 
+			if (newEvent.type === 'prerender-replace-failed') {
+				showNotification(
+					`Rendered "${newEvent.compositionId}", but could not replace the scene: ${newEvent.message}`,
+					4000,
+				);
+			}
+
 			if (newEvent.type === 'new-public-folder') {
 				const payload: WatchRemotionStaticFilesPayload = {
 					files: newEvent.files,

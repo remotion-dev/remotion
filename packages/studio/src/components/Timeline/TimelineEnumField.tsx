@@ -2,6 +2,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {CanUpdateSequencePropStatusStatic} from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -14,7 +15,7 @@ export const TimelineEnumField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	propStatus,
@@ -39,7 +40,7 @@ export const TimelineEnumField: React.FC<{
 
 			onDragValueChange(newValue);
 			onSave(newValue).finally(() => {
-				onDragEnd();
+				onDragEnd('commit');
 			});
 		},
 		[propStatus, onSave, onDragValueChange, onDragEnd],

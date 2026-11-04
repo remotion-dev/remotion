@@ -81,7 +81,6 @@ export const CompositionToolbarMenuItem: React.FC<ToolbarMenuItemProps> =
 				items: [
 					...getRenderMenuItems({
 						closeMenu,
-						previewServerState: connectionStatus,
 						readOnlyStudio,
 						renderShortcut,
 						compositionSelected: currentComposition !== null,

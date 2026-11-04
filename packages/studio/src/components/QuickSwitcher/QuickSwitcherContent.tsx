@@ -299,22 +299,35 @@ export const QuickSwitcherContent: React.FC<{
 					}),
 			);
 
+			if (assetSearch.query !== '') {
+				const lowercaseQuery = assetSearch.query.toLowerCase();
+				const exactMatch =
+					assetResults.find((result) => result.title === assetSearch.query) ??
+					assetResults.find(
+						(result) => result.title.toLowerCase() === lowercaseQuery,
+					);
+				if (exactMatch && exactMatch !== assetResults[0]) {
+					assetResults.splice(assetResults.indexOf(exactMatch), 1);
+					assetResults.unshift(exactMatch);
+				}
+			}
+
 			if (assetSelection === null) {
 				return assetResults;
 			}
 
-			return [
-				{
-					id: 'select-file',
-					title: assetSelection.fileTypes?.importLabel ?? 'Import file...',
-					type: 'select-file',
-					onSelected: () => {
-						assetSelection.onSelectFile();
-						setSelectedModal(null);
-					},
+			const importFile: TQuickSwitcherResult = {
+				id: 'select-file',
+				title: assetSelection.fileTypes?.importLabel ?? 'Import file...',
+				type: 'select-file',
+				onSelected: () => {
+					assetSelection.onSelectFile();
+					setSelectedModal(null);
 				},
-				...assetResults,
-			];
+			};
+			return actualQuery === ''
+				? [importFile, ...assetResults]
+				: [...assetResults, importFile];
 		}
 
 		const tree = createFolderTree(
