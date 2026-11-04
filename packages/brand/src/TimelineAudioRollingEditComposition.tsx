@@ -708,7 +708,7 @@ const TimelineAudioRollingEditContent = ({
 
 const AudioRollingCursorMotionBlur = () => {
 	const motionFrame = useCurrentFrame();
-	const {fps, width, height} = useVideoConfig();
+	const {fps, width, height, durationInFrames} = useVideoConfig();
 	const sourceFrame = 100 + (motionFrame * 60 * (70 / 51)) / fps;
 	const rotating = sourceFrame < 166;
 
@@ -716,7 +716,8 @@ const AudioRollingCursorMotionBlur = () => {
 	if (!rotating) {
 		const settledFrame = (66 * fps) / (60 * (70 / 51));
 		const pauseEndFrame = Math.ceil(settledFrame) + Math.round(0.2 * fps);
-		const lastFrame = (51 / 30) * fps - 1;
+		const lastFrame = durationInFrames - 1;
+		const dragEndFrame = settledFrame + ((51 / 30) * fps - 1 - settledFrame) * 1.5;
 
 		return (
 			<AbsoluteFill
@@ -725,7 +726,7 @@ const AudioRollingCursorMotionBlur = () => {
 					scale: interpolate(
 						motionFrame,
 						[settledFrame, lastFrame],
-						[1, 0.94],
+						[1, width < height ? 0.76 : 0.94],
 						{
 							extrapolateLeft: 'clamp',
 							extrapolateRight: 'clamp',
@@ -737,7 +738,7 @@ const AudioRollingCursorMotionBlur = () => {
 					frame={interpolate(
 						motionFrame,
 						[pauseEndFrame - 1, lastFrame],
-						[settledFrame, settledFrame + (lastFrame - settledFrame) * 1.2],
+						[settledFrame, dragEndFrame],
 						{extrapolateLeft: 'clamp'},
 					)}
 				>
