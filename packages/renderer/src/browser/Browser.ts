@@ -81,7 +81,6 @@ export class HeadlessBrowser extends EventEmitter {
 	#defaultContext: BrowserContext;
 	#contexts: Map<string, BrowserContext>;
 	#targets: Map<string, Target>;
-	#closePromise: Promise<void> | null = null;
 	id: string;
 
 	runner: BrowserRunner;
@@ -306,25 +305,16 @@ export class HeadlessBrowser extends EventEmitter {
 		}, []);
 	}
 
-	close({silent}: {silent: boolean}): Promise<void> {
-		if (this.#closePromise) {
-			return this.#closePromise;
-		}
-
-		this.#closePromise = (async () => {
-			await this.runner.closeProcess();
-			(await this.pages()).forEach((page) => {
-				page.emit(PageEmittedEvents.Disposed);
-				page.closed = true;
-			});
-			this.disconnect();
-			this.emit(
-				silent
-					? BrowserEmittedEvents.ClosedSilent
-					: BrowserEmittedEvents.Closed,
-			);
-		})();
-		return this.#closePromise;
+	async close({silent}: {silent: boolean}): Promise<void> {
+		await this.runner.closeProcess();
+		(await this.pages()).forEach((page) => {
+			page.emit(PageEmittedEvents.Disposed);
+			page.closed = true;
+		});
+		this.disconnect();
+		this.emit(
+			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed,
+		);
 	}
 
 	disconnect(): void {

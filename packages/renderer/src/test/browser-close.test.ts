@@ -8,7 +8,6 @@ import {
 } from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {HeadlessBrowser} from '../browser/Browser';
 import type {BrowserRunner} from '../browser/BrowserRunner';
 import {makeBrowserRunner} from '../browser/BrowserRunner';
 
@@ -156,33 +155,3 @@ test('force-kills the browser from the Node process exit handler', async () => {
 	expect(pidExists(pid)).toBe(false);
 	await runner.closeProcess();
 });
-
-for (const silent of [false, true]) {
-	test(`concurrent and repeated browser.close() calls finish only once (silent: ${silent})`, async () => {
-		const {runner, directory, profile, pid} = await startBrowser('graceful');
-		const browser = new HeadlessBrowser({
-			connection: runner.connection,
-			runner,
-			defaultViewport: {width: 100, height: 100, deviceScaleFactor: 1},
-		});
-		let closed = 0;
-		let closedSilent = 0;
-		browser.on('closed', () => closed++);
-		browser.on('closed-silent', () => closedSilent++);
-		await Promise.all([
-			browser.close({silent}),
-			browser.close({silent}),
-			browser.close({silent}),
-		]);
-		await browser.close({silent});
-
-		expect(closed).toBe(silent ? 0 : 1);
-		expect(closedSilent).toBe(silent ? 1 : 0);
-		expect(readFileSync(join(directory, 'requests'), 'utf8')).toBe(
-			'Browser.close\n',
-		);
-		expect(pidExists(pid)).toBe(false);
-		expect(existsSync(profile)).toBe(false);
-		expect(runner.listeners).toHaveLength(0);
-	});
-}
