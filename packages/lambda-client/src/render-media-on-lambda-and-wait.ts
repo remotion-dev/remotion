@@ -1,9 +1,6 @@
-import {
-	InvokeWithResponseStreamCommand,
-	type InvokeWithResponseStreamResponseEvent,
-} from '@aws-sdk/client-lambda';
+import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
 import {makeStreamer} from '@remotion/streaming';
-import {getLambdaClient} from './aws-clients';
+import {invokeWithResponseStreamImplementation} from './call-lambda-streaming';
 import type {RenderProgress} from './constants';
 import {getRenderProgress} from './get-render-progress';
 import {
@@ -187,18 +184,14 @@ export const internalRenderMediaOnLambdaAndWait = async (
 
 		try {
 			const response = await nextOrTimeout(
-				getLambdaClient(
-					input.region,
-					functionTimeout,
-					input.requestHandler,
-				).send(
-					new InvokeWithResponseStreamCommand({
-						FunctionName: input.functionName,
-						InvocationType: 'RequestResponse',
-						Payload: JSON.stringify({...payload, streamProgress: true}),
-					}),
-					{abortSignal: controller.signal},
-				),
+				invokeWithResponseStreamImplementation({
+					region: input.region,
+					functionName: input.functionName,
+					payload: {...payload, streamProgress: true},
+					timeoutInMilliseconds: functionTimeout,
+					requestHandler: input.requestHandler,
+					abortSignal: controller.signal,
+				}),
 			);
 			if (!response.EventStream) {
 				throw new Error('Lambda returned no progress stream');
