@@ -51,6 +51,7 @@ export const StaticFilePreview: React.FC<{
 
 	return (
 		<FilePreview
+			outputPlayback={null}
 			currentAsset={currentAsset}
 			fileType={fileType}
 			src={addAssetCacheBust({

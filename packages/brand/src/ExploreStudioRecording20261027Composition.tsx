@@ -1,14 +1,22 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+import {removeStudioLogoFocusRing} from './effects/remove-studio-logo-focus-ring';
 
 export const ExploreStudioRecording20261027Composition = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={417}
+			durationInFrames={(417 / 60) * fps}
 			style={{
 				width: 2330,
 				height: 1440,
@@ -16,7 +24,9 @@ export const ExploreStudioRecording20261027Composition = () => {
 		>
 			<Video
 				src="https://remotion.media/explore-remotion/studio-source-2026-10-27-30dd4bd589df.mp4"
-				durationInFrames={417}
+				durationInFrames={(417 / 60) * fps}
+				muted
+				effects={[removeStudioLogoFocusRing({})]}
 				style={{
 					position: 'absolute',
 				}}

@@ -7,6 +7,19 @@ import {useRemotionEnvironment} from './use-remotion-environment';
 
 const ArtifactThumbnail = Symbol('Thumbnail');
 
+const encodeBinaryArtifact = (bytes: Uint8Array): string => {
+	if ('toBase64' in bytes && typeof bytes.toBase64 === 'function') {
+		return bytes.toBase64() as string;
+	}
+
+	let binary = '';
+	for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+		binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+	}
+
+	return btoa(binary);
+};
+
 export const Artifact: React.FC<{
 	readonly filename: string;
 	readonly content: string | Uint8Array | typeof ArtifactThumbnail;
@@ -34,7 +47,7 @@ export const Artifact: React.FC<{
 			registerRenderAsset({
 				type: 'artifact',
 				id,
-				content: btoa(new TextDecoder('utf8').decode(content)),
+				content: encodeBinaryArtifact(content),
 				filename,
 				frame,
 				contentType: 'binary',

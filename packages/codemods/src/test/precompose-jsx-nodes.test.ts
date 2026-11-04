@@ -83,6 +83,7 @@ test('precomposes the roller-skis presenter and captions without changing their 
 		compositionId: 'RollerSkiRoughCut',
 		metadata: {...metadata, durationInFrames: 12377},
 		existingCompositionIds: ['RollerSkiRoughCut'],
+		name: null,
 	};
 	expect(canPrecomposeJsxNodes(request)).toEqual({
 		canPrecompose: true,
@@ -240,6 +241,7 @@ export const Video = () => {
 			compositionId: 'Main',
 			metadata,
 			existingCompositionIds: ['Main'],
+			name: null,
 		};
 		expect(canPrecomposeJsxNodes(request)).toEqual({
 			canPrecompose: true,
@@ -302,8 +304,104 @@ export const Video = () => {const frame = useCurrentFrame(); return <Series><Ser
 				compositionId: 'Main',
 				metadata,
 				existingCompositionIds: ['Main'],
+				name: null,
 			}),
 		).toEqual({canPrecompose: false, reason});
 		expect(project.files[filePath]).toBe(source);
+	}
+});
+
+const namedSequenceSource = `import {Sequence} from 'remotion';
+const Title = () => <div>Title</div>;
+export const Video = () => (
+  <>
+    <Title />
+    <Sequence name="Chart title" durationInFrames={60}><div>Chart</div></Sequence>
+  </>
+);
+`;
+
+const makeNamedSequenceRequest = () => {
+	const project = makeProject(namedSequenceSource);
+	return {
+		project,
+		nodes: getNodes({project, filePath}).filter(
+			(node) => node.tagName === 'Sequence',
+		),
+		compositionFile,
+		compositionId: 'Main',
+		metadata,
+		existingCompositionIds: ['Main'],
+	};
+};
+
+test('pre-composes with a requested composition ID and a separate component name', () => {
+	const request = makeNamedSequenceRequest();
+	const result = precomposeJsxNodes({
+		...request,
+		name: {compositionId: 'chart-title', componentName: 'ChartTitle'},
+	});
+	expect(result.newCompositionId).toBe('chart-title');
+
+	const after = applyCodemodChanges(request.project, result.changes);
+	expect(after.files[filePath]).toContain(
+		'export const ChartTitle = Interactive.withSchema({',
+	);
+	expect(after.files[filePath]).toContain(
+		'<ChartTitle name={"Chart title"} />',
+	);
+	expect(after.files[compositionFile]).toContain(
+		"import {Video, ChartTitle} from './Video';",
+	);
+	expect(after.files[compositionFile]).toContain('id="chart-title"');
+	expect(after.files[compositionFile]).toContain('component={ChartTitle}');
+});
+
+test('rejects requested names that conflict or are invalid', () => {
+	for (const {name, existingCompositionIds, message} of [
+		{
+			name: {compositionId: 'Main', componentName: 'Main'},
+			existingCompositionIds: ['Main'],
+			message: 'A composition with the ID "Main" already exists',
+		},
+		{
+			name: {compositionId: 'Main', componentName: 'Main'},
+			existingCompositionIds: [],
+			message: 'Composition "Main" already exists in "src/Root.tsx"',
+		},
+		{
+			name: {compositionId: 'chart/title', componentName: 'ChartTitle'},
+			existingCompositionIds: ['Main'],
+			message: 'Composition ID must match',
+		},
+		{
+			name: {compositionId: 'title', componentName: 'Title'},
+			existingCompositionIds: ['Main'],
+			message: 'The component name "Title" is already used in this file',
+		},
+		{
+			name: {compositionId: 'root', componentName: 'Root'},
+			existingCompositionIds: ['Main'],
+			message: 'The component name "Root" is already used in this file',
+		},
+		{
+			name: {compositionId: 'chartTitle', componentName: 'chartTitle'},
+			existingCompositionIds: ['Main'],
+			message: '"chartTitle" is not a valid component name',
+		},
+	]) {
+		let error: Error | null = null;
+		try {
+			precomposeJsxNodes({
+				...makeNamedSequenceRequest(),
+				existingCompositionIds,
+				name,
+			});
+		} catch (err) {
+			error = err as Error;
+		}
+
+		expect(error?.name).toBe('PrecomposeNameError');
+		expect(error?.message).toContain(message);
 	}
 });

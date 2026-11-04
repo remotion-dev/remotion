@@ -63,6 +63,7 @@ export const NumberSetting: React.FC<{
 			<div style={rightRow}>
 				<RightAlignInput>
 					<InputDragger
+						onValueChangeCancel={null}
 						value={value}
 						name={name.toLowerCase()}
 						aria-label={`${name}: ${formatter ? formatter(value) : value}`}

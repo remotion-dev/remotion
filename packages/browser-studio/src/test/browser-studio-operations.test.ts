@@ -8,7 +8,7 @@ import {
 } from '@remotion/codemods';
 import {createElementPayload} from '@remotion/studio-protocol';
 import type {EventSourceEvent} from '@remotion/studio-shared';
-import type {InteractivitySchema} from 'remotion';
+import type {InteractivitySchema, SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {createBrowserStudioOperations} from '../browser-studio-operations';
 import {createBlankTemplateProject} from '../templates/blank';
@@ -794,6 +794,10 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		fileName: 'src/Composition.tsx',
 		line: 2,
 		column: 31,
+		sourceVersion: {
+			sessionId: expect.any(String),
+			revision: expect.any(Number),
+		},
 	});
 
 	await operations.unsubscribeFromSequenceProps({
@@ -894,6 +898,31 @@ registerRoot(Root);`,
 	if (!splitResult.success) {
 		throw new Error(splitResult.reason);
 	}
+
+	expect(splitResult.splitNodes).toEqual([
+		{
+			absolutePath: fileName,
+			nodePath: getNodes({project: currentProject, filePath: fileName}).filter(
+				(node) => node.tagName === 'Sequence',
+			)[1].nodePath,
+		},
+	]);
+	const sourceVersionSessionId = events.find(
+		(event) => event.type === 'init',
+	)?.sourceVersionSessionId;
+	if (sourceVersionSessionId === null || sourceVersionSessionId === undefined) {
+		throw new Error('Expected a source version session');
+	}
+
+	expect(splitResult.sourceVersions).toEqual([
+		{
+			absolutePath: fileName,
+			sourceVersion: {
+				sessionId: sourceVersionSessionId,
+				revision: expect.any(Number),
+			},
+		},
+	]);
 
 	expect(currentProject.files[fileName]).toContain('<Track name="Sequence">');
 	expect(currentProject.files[fileName]).toContain(
@@ -1076,6 +1105,98 @@ registerRoot(Root);`,
 	expect(getProject().files[fileName]).toContain('name="first-copy"');
 });
 
+test('pre-composes with a suggested or requested name in the virtual project', async () => {
+	const fileName = '/project/src/Composition.tsx';
+	const initialContents = `import {Composition, Sequence} from 'remotion';
+
+const Title = () => <div>Title</div>;
+const trim = () => 3;
+
+export const Component = () => (
+	<>
+		<Title />
+		<Sequence name="Chart title" durationInFrames={60}>
+			<div>Chart</div>
+		</Sequence>
+		<Sequence name="Dynamic" durationInFrames={trim()}>
+			<div>Dynamic</div>
+		</Sequence>
+	</>
+);
+export const Root = () => <Composition id="MyComp" component={Component} durationInFrames={60} fps={30} width={1280} height={720} />;`;
+	const project: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: '/project/src/index.tsx',
+		files: {
+			'/project/src/index.tsx': `import {registerRoot} from 'remotion';
+import {Root} from './Composition';
+registerRoot(Root);`,
+			[fileName]: initialContents,
+		},
+	};
+	const [chartTitle, dynamic] = getNodes({project, filePath: fileName}).filter(
+		(node) => node.tagName === 'Sequence',
+	);
+	const {operations, getProject} = makeOperationsForProject(project);
+	const precompose = (
+		nodePath: SequenceNodePath,
+		name: {compositionId: string; componentName: string} | null,
+		dryRun: boolean,
+	) =>
+		operations.precomposeJsxNodes({
+			nodes: [{fileName: 'src/Composition.tsx', nodePath}],
+			compositionFile: 'src/Composition.tsx',
+			compositionId: 'MyComp',
+			existingCompositionIds: ['MyComp'],
+			metadata: {width: 1280, height: 720, fps: 30, durationInFrames: 60},
+			name,
+			dryRun,
+		});
+
+	expect(await precompose(dynamic.nodePath, null, true)).toMatchObject({
+		success: true,
+		canPrecompose: false,
+		invalidName: false,
+	});
+	expect(await precompose(chartTitle.nodePath, null, true)).toMatchObject({
+		success: true,
+		canPrecompose: true,
+		invalidName: false,
+		newCompositionId: 'ChartTitle',
+	});
+	expect(
+		await precompose(
+			chartTitle.nodePath,
+			{compositionId: 'title', componentName: 'Title'},
+			false,
+		),
+	).toMatchObject({
+		success: true,
+		canPrecompose: false,
+		invalidName: true,
+		reason:
+			'The component name "Title" is already used in this file. Choose a different ID.',
+	});
+	expect(getProject().files[fileName]).toBe(initialContents);
+
+	expect(
+		await precompose(
+			chartTitle.nodePath,
+			{compositionId: 'chart-title', componentName: 'ChartTitle'},
+			false,
+		),
+	).toMatchObject({
+		success: true,
+		canPrecompose: true,
+		invalidName: false,
+		newCompositionId: 'chart-title',
+	});
+	const output = getProject().files[fileName];
+	expect(output).toContain('<ChartTitle name={"Chart title"} />');
+	expect(output).toContain('id="chart-title"');
+	expect(output).toContain('component={ChartTitle}');
+});
+
 test('edits sequence and effect keyframes in the virtual project', async () => {
 	const fileName = '/project/src/Comp.tsx';
 	const initialContents = `import {tint} from '@remotion/effects/tint';
@@ -1186,7 +1307,7 @@ export const Comp = () => {
 		'amount: interpolate(frame, [0, 10, 20], [0.2, 0.5, 0.8])',
 	);
 
-	await operations.keyframes.moveKeyframes({
+	const moved = await operations.keyframes.moveKeyframes({
 		sequenceKeyframes: [
 			{
 				fileName: 'src/Comp.tsx',
@@ -1210,6 +1331,24 @@ export const Comp = () => {
 		],
 		clientId: 'browser-studio',
 	});
+	expect(
+		moved.results.map((result) => ({
+			effectIndex: result.effectIndex,
+			keys: Object.keys(result.props),
+		})),
+	).toEqual([
+		{effectIndex: null, keys: ['style.opacity']},
+		{effectIndex: 0, keys: ['amount']},
+	]);
+	expect(moved.results[0].props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 6}, {frame: 20}],
+	});
+	expect(moved.results[1].props.amount).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 12}, {frame: 20}],
+	});
+
 	expect(getProject().files[fileName]).toContain('[0, 6, 20], [0, 0.25, 1]');
 	expect(getProject().files[fileName]).toContain(
 		'[0, 12, 20], [0.2, 0.5, 0.8]',
@@ -1253,7 +1392,7 @@ export const Comp = () => {
 	);
 
 	const beforeDelete = getProject().files[fileName];
-	await operations.keyframes.deleteKeyframes({
+	const deleted = await operations.keyframes.deleteKeyframes({
 		sequenceKeyframes: [
 			{
 				fileName: 'src/Comp.tsx',
@@ -1275,6 +1414,15 @@ export const Comp = () => {
 		],
 		clientId: 'browser-studio',
 	});
+	expect(deleted.results[0].props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 20}],
+	});
+	expect(deleted.results[1].props.amount).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 20}],
+	});
+
 	expect(getProject().files[fileName]).not.toContain('[0, 6, 20]');
 	expect(getProject().files[fileName]).not.toContain('[0, 12, 20]');
 	expect(await operations.undo()).toMatchObject({success: true});

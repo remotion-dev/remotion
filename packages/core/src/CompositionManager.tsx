@@ -153,6 +153,7 @@ export type TSequence = {
 	isInsideSeries: boolean;
 	frozenFrame: number | null;
 	singleChildComponent?: unknown;
+	getSingleChildProps?: (() => Record<string, unknown> | null) | null;
 } & EnhancedTSequenceData;
 
 export type AudioOrVideoAsset = {

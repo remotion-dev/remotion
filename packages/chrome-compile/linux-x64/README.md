@@ -1,8 +1,8 @@
-# Chromium 157 headless_shell — Linux x86_64
+# Chromium 158 headless_shell — Linux x86_64
 
 For EC2 launches, set `SSH_CIDR` to the public IPv4 range allowed to connect (normally your address with `/32`). `203.0.113.10/32` in the examples is a placeholder.
 
-Builds Chromium **157.0.8080.0** `headless_shell` for generic Debian/Ubuntu
+Builds Chromium **158.0.8127.2** `headless_shell` for generic Debian/Ubuntu
 x86_64 (glibc ≥ 2.35), with proprietary codecs and PDF support.
 
 ## Overview
@@ -16,9 +16,15 @@ x86_64 (glibc ≥ 2.35), with proprietary codecs and PDF support.
 - **Build time**: ~1 h 20 min on `c6i.8xlarge` (32 Intel vCPUs)
 - **Build environment**: `ubuntu:22.04` in Docker
 
-## Chromium 157 notes
+## Chromium 157/158 notes
 
-The Chromium 157 build script handles:
+The build script handles:
+
+- `args.gn` sets `angle_enable_gl = true` after the `headless.gn` import so
+  `--gl=angle-egl` can use a native EGL driver (Chromium 158 build).
+- The vpython store directory is `cpython-<hash>` with the depot_tools used by
+  Chromium 158 (it was `cpython+<hash>`), so Step 5.5 locates Python 3.11 with
+  `find` instead of a fixed glob.
 
 - `enable_background_mode`, `enable_captive_portal_detection`,
   `enable_chrome_notifications`, `enable_platform_apps` and
@@ -68,7 +74,7 @@ unzip chromium-headless-shell-linux64.zip
 
 ## Version
 
-- **Chromium**: 157.0.8080.0
+- **Chromium**: 158.0.8127.2
 - **Node.js**: v24.12.0
-- **Rust**: Chromium's bundled toolchain (`1edd55dcfcd573872c727fa3e086369a71661ee0`)
-- **LLVM**: `llvmorg-24-init-7747-g62397f8b-53` (via `update.py`)
+- **Rust**: Chromium's bundled toolchain (`8a9dd7abdf013ec10cfeaaa3685feba18ef1c90c`)
+- **LLVM**: `llvmorg-24-init-14453-ge063be79-1` (via `update.py`)

@@ -42,6 +42,8 @@ export const defaultKeyboardShortcuts: Record<
 	reversePlayback: [{key: 'j'}],
 	pausePlayback: [{key: 'k'}],
 	playForward: [{key: 'l', shift: false}],
+	decreasePlaybackRate: [{key: '<'}],
+	increasePlaybackRate: [{key: '>'}],
 	goToFrame: [{key: 'g'}],
 	pauseAndReturnToPlaybackStart: [{key: 'Enter'}],
 	toggleLeftSidebar: [{key: 'b', commandOrControl: true}],
@@ -117,6 +119,8 @@ export const keyboardShortcutGroups: readonly KeyboardShortcutGroup[] = [
 			shortcut('Reverse playback', 'reversePlayback'),
 			shortcut('Pause', 'pausePlayback'),
 			shortcut('Play / Speed up', 'playForward'),
+			shortcut('Decrease playback rate', 'decreasePlaybackRate'),
+			shortcut('Increase playback rate', 'increasePlaybackRate'),
 			shortcut('Go to frame', 'goToFrame'),
 			shortcut(
 				'Pause & return to playback start',

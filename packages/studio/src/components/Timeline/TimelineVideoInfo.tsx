@@ -46,7 +46,6 @@ const filmstripContainerStyle: React.CSSProperties = {
 	backgroundColor: BLACK_ALPHA_30,
 	display: 'flex',
 	overflow: 'hidden',
-	borderTopLeftRadius: 2,
 	fontSize: 10,
 	fontFamily: 'Arial, Helvetica',
 };

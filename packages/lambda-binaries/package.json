@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda-binaries",
-	"version": "4.0.539",
+	"version": "4.0.540",
 	"private": true,
 	"type": "module",
 	"description": "Build and publish Remotion Lambda layers with binaries downloaded on demand.",

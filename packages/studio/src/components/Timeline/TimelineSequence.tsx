@@ -84,7 +84,11 @@ import {getTimelineTrimHandleLayout} from './get-timeline-trim-handle-layout';
 import {getTimelineVolume} from './get-timeline-volume';
 import {getCurrentFrame} from './imperative-state';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
-import {splitSelectedTimelineItems} from './split-selected-timeline-item';
+import {isSequenceSplitPending} from './pending-sequence-splits';
+import {
+	canSplitTimelineSequences,
+	splitSelectedTimelineItems,
+} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineLeftEdgeCursor} from './timeline-left-edge-cursor';
 import {timelineLayerLayoutsRef} from './timeline-refs';
@@ -118,7 +122,10 @@ import {
 	useTimelineRowContainsSelection,
 	useTimelineRowSelection,
 } from './TimelineSelection';
-import {TimelineSequenceCaptions} from './TimelineSequenceCaptions';
+import {
+	type TimelineCaptionSource,
+	TimelineSequenceCaptions,
+} from './TimelineSequenceCaptions';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
 import {TimelineSequenceMountIndicator} from './TimelineSequenceMountIndicator';
 import {
@@ -352,10 +359,10 @@ const TimelineSequenceBar: React.FC<{
 		readonly width: number;
 	} | null;
 	readonly captionRange: {
+		readonly source: TimelineCaptionSource;
 		readonly startMs: number;
 		readonly endMs: number;
 	} | null;
-	readonly hasCaptionsSchema: boolean;
 	readonly connectedComposition: _InternalTypes['AnyComposition'] | null;
 	readonly activeTrimEdge: 'left' | 'right' | null;
 	readonly isAtTrimLimit: boolean;
@@ -400,7 +407,6 @@ const TimelineSequenceBar: React.FC<{
 	labelOffset,
 	captionLabelBounds,
 	captionRange,
-	hasCaptionsSchema,
 	connectedComposition,
 	activeTrimEdge,
 	isAtTrimLimit,
@@ -804,7 +810,7 @@ const TimelineSequenceBar: React.FC<{
 
 			{children}
 
-			{(s.timelineTrack || hasCaptionsSchema) &&
+			{(s.timelineTrack || captionRange) &&
 			!isTransition &&
 			labelTextWidth >= MIN_TIMELINE_LABEL_WIDTH ? (
 				<div
@@ -844,6 +850,7 @@ const TimelineSequenceBar: React.FC<{
 					{captionRange ? (
 						<TimelineSequenceCaptions
 							s={s}
+							source={captionRange.source}
 							startMs={captionRange.startMs}
 							endMs={captionRange.endMs}
 						/>
@@ -874,7 +881,7 @@ const TimelineSequenceBar: React.FC<{
 			) : null}
 
 			{showLayerFrameNumbers &&
-			!hasCaptionsSchema &&
+			!captionRange &&
 			!s.timelineTrack &&
 			s.type !== 'audio' &&
 			s.type !== 'video' &&
@@ -1360,7 +1367,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		openInEditor,
 		openSource,
 		originalLocation,
-	} = useOpenSequenceInApps(s);
+	} = useOpenSequenceInApps(s, nodePath);
 	const validatedLocation = useMemo(() => {
 		if (
 			!originalLocation ||
@@ -1560,7 +1567,10 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 	const onSplitSelectedSequences = useCallback(() => {
-		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+		if (
+			!canSplitTimelineSequences() ||
+			selectedSequenceNodePathInfos === null
+		) {
 			return;
 		}
 
@@ -1576,7 +1586,6 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 	}, [
 		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
-		previewInteractive,
 		propStatuses,
 		selectedItems,
 		selectedSequenceNodePathInfos,
@@ -1663,7 +1672,9 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive,
+					splitDisabled:
+						!canSplitTimelineSequences() ||
+						selectedSequenceNodePathInfos.some(isSequenceSplitPending),
 					onDeleteSelectedSequences,
 					onDuplicateSelectedSequences,
 					onSplitSelectedSequences,
@@ -1691,7 +1702,8 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 				splitFrame: getCurrentFrame(),
 				keyframeDisplayOffset,
 				keyframePlaybackRate,
-				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				canEditSource:
+					canSplitTimelineSequences() && Boolean(validatedLocation?.source),
 				hasMultipleSelection: selected && selectedItems.length > 1,
 			});
 
@@ -1924,9 +1936,34 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		transitionNeighbors?.next ?? s,
 	);
 	const nextRollingEnabled = canRoll(s, nextTouchingSequence);
-	const hasCaptionsSchema = Object.values(s.controls?.schema ?? {}).some(
-		(field) => field.type === 'remotion-captions',
-	);
+	const captionSource = useMemo((): TimelineCaptionSource | null => {
+		const key = Object.entries(s.controls?.schema ?? {}).find(
+			([, field]) => field.type === 'remotion-captions',
+		)?.[0];
+		if (key === undefined) {
+			return null;
+		}
+
+		const status = propStatusesForOverride?.[key];
+		const override = dragOverrides[key];
+		if (status?.status === 'static') {
+			return {
+				type: 'static',
+				value: Internals.getEffectiveVisualModeValue({
+					propStatus: status,
+					dragOverrideValue: override,
+					defaultValue: undefined,
+					shouldResortToDefaultValueIfUndefined: false,
+				}),
+			};
+		}
+
+		if (status?.status !== 'computed' && override?.type === 'static') {
+			return override;
+		}
+
+		return {type: 'runtime', key};
+	}, [dragOverrides, propStatusesForOverride, s.controls?.schema]);
 	return {
 		props,
 		video,
@@ -1964,7 +2001,7 @@ const useTimelineSequenceState = (props: TimelineSequenceProps) => {
 		waveformVolume,
 		displayDurationInFrames,
 		mediaDurationDragLimits,
-		hasCaptionsSchema,
+		captionSource,
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
 		leftTrimBlockedReason,
@@ -2046,13 +2083,14 @@ const TimelineSequenceLayoutInner: React.FC<{
 		waveformVolume,
 		displayDurationInFrames,
 		mediaDurationDragLimits,
-		hasCaptionsSchema,
+		captionSource,
 		showRightEdgeDragHandle,
 		showLeftEdgeDragHandle,
 		leftTrimBlockedReason,
 		sourceTrimBlockedReason,
 		onPointerEnter,
 	} = state;
+	const hasCaptionsSchema = captionSource !== null;
 	const isZooming = useContext(TimelineZoomActiveContext);
 	const sceneRange = useContext(TimelineSceneRangeContext);
 	const inheritedSceneRange = useContext(TimelineInheritedSceneRangeContext);
@@ -2529,10 +2567,10 @@ const TimelineSequenceLayoutInner: React.FC<{
 	const sequence = (
 		<TimelineSequenceBar
 			s={s}
-			hasCaptionsSchema={hasCaptionsSchema}
 			captionRange={
-				hasCaptionsSchema
+				captionSource
 					? {
+							source: captionSource,
 							// The source offset already includes this layer's trim and
 							// clipping by ancestors, independent of viewport scrolling.
 							startMs: (sequenceFrameOffset / video.fps) * 1000,

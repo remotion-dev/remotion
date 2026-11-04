@@ -1,7 +1,7 @@
 # pylint: disable=too-many-arguments, too-many-positional-arguments
 """Awaitable client for rendering with Remotion Lambda."""
 import asyncio
-from typing import Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from boto3.session import Session
 from botocore.config import Config
@@ -14,6 +14,7 @@ from .models import (
     RenderStillParams,
     RenderStillResponse,
     RenderType,
+    VideoConfig,
 )
 from .remotionclient import RemotionClient
 
@@ -69,6 +70,60 @@ class AsyncRemotionClient:
             bucket_name,
             log_level,
             s3_output_provider,
+        )
+
+    async def construct_get_compositions_request(
+        self,
+        input_props: Optional[Dict[str, Any]] = None,
+        env_variables: Optional[Dict[str, str]] = None,
+        chromium_options: Optional[Dict[str, Any]] = None,
+        log_level: str = "info",
+        force_bucket_name: Optional[str] = None,
+        timeout_in_milliseconds: int = 30000,
+        offthread_video_cache_size_in_bytes: Optional[int] = None,
+        media_cache_size_in_bytes: Optional[int] = None,
+        preferred_effect_backend: Optional[str] = None,
+    ) -> str:
+        """Construct a compositions request, including any required S3 uploads."""
+        return await asyncio.get_running_loop().run_in_executor(
+            None,
+            self._client.construct_get_compositions_request,
+            input_props,
+            env_variables,
+            chromium_options,
+            log_level,
+            force_bucket_name,
+            timeout_in_milliseconds,
+            offthread_video_cache_size_in_bytes,
+            media_cache_size_in_bytes,
+            preferred_effect_backend,
+        )
+
+    async def get_compositions_on_lambda(
+        self,
+        input_props: Optional[Dict[str, Any]] = None,
+        env_variables: Optional[Dict[str, str]] = None,
+        chromium_options: Optional[Dict[str, Any]] = None,
+        log_level: str = "info",
+        force_bucket_name: Optional[str] = None,
+        timeout_in_milliseconds: int = 30000,
+        offthread_video_cache_size_in_bytes: Optional[int] = None,
+        media_cache_size_in_bytes: Optional[int] = None,
+        preferred_effect_backend: Optional[str] = None,
+    ) -> Optional[List[VideoConfig]]:
+        """Get the compositions in the deployed project without blocking the event loop."""
+        return await asyncio.get_running_loop().run_in_executor(
+            None,
+            self._client.get_compositions_on_lambda,
+            input_props,
+            env_variables,
+            chromium_options,
+            log_level,
+            force_bucket_name,
+            timeout_in_milliseconds,
+            offthread_video_cache_size_in_bytes,
+            media_cache_size_in_bytes,
+            preferred_effect_backend,
         )
 
     async def render_media_on_lambda(

@@ -1,82 +1,116 @@
 import type {EventSourceEvent} from '@remotion/studio-shared';
-import {useContext, useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {
 	subscribeToFileExistenceWatcher,
 	unsubscribeFromFileExistenceWatcher,
 } from '../components/RenderQueue/actions';
 import {StudioServerConnectionCtx} from './client-id';
 
-export const useFileExistence = (outName: string) => {
-	const [exists, setExists] = useState(false);
+const requestsByClient = new Map<
+	string,
+	{pending: Promise<void>; activeEffects: number}
+>();
 
+export const useFileExistence = (outName: string) => {
 	const {previewServerState: state, subscribeToEvent} = useContext(
 		StudioServerConnectionCtx,
 	);
-	const clientId = state.type === 'connected' ? state.clientId : undefined;
-
-	const currentOutName = useRef('');
-	currentOutName.current = outName;
-
+	const clientId = state.type === 'connected' ? state.clientId : null;
+	const [result, setResult] = useState<{
+		outName: string;
+		clientId: string | null;
+		exists: boolean;
+		checkFailed: boolean;
+	}>({outName, clientId, exists: false, checkFailed: false});
 	useEffect(() => {
-		if (!clientId) {
+		setResult({outName, clientId, exists: false, checkFailed: false});
+		if (clientId === null) {
 			return;
 		}
 
-		subscribeToFileExistenceWatcher({
-			file: outName,
-			clientId,
-		}).then((_exists) => {
-			if (currentOutName.current === outName) {
-				setExists(_exists);
+		const requests = requestsByClient.get(clientId) ?? {
+			pending: Promise.resolve(),
+			activeEffects: 0,
+		};
+		requestsByClient.set(clientId, requests);
+		requests.activeEffects++;
+
+		let active = true;
+		let subscribed = false;
+		let receivedFileEvent = false;
+		const listener = (event: EventSourceEvent) => {
+			if (
+				!active ||
+				(event.type !== 'watched-file-deleted' &&
+					event.type !== 'watched-file-undeleted') ||
+				event.file !== outName
+			) {
+				return;
+			}
+
+			receivedFileEvent = true;
+			setResult({
+				outName,
+				clientId,
+				exists: event.type === 'watched-file-undeleted',
+				checkFailed: false,
+			});
+		};
+
+		const unsubscribeDeleted = subscribeToEvent(
+			'watched-file-deleted',
+			listener,
+		);
+		const unsubscribeCreated = subscribeToEvent(
+			'watched-file-undeleted',
+			listener,
+		);
+		requests.pending = requests.pending.then(async () => {
+			if (!active) {
+				return;
+			}
+
+			try {
+				const exists = await subscribeToFileExistenceWatcher({
+					file: outName,
+					clientId,
+				});
+				subscribed = true;
+				if (active && !receivedFileEvent) {
+					setResult({outName, clientId, exists, checkFailed: false});
+				}
+			} catch {
+				if (active) {
+					setResult({outName, clientId, exists: false, checkFailed: true});
+				}
 			}
 		});
 
 		return () => {
-			unsubscribeFromFileExistenceWatcher({file: outName, clientId});
+			active = false;
+			requests.activeEffects--;
+			unsubscribeDeleted();
+			unsubscribeCreated();
+			const cleanup = requests.pending.then(async () => {
+				if (!subscribed) {
+					return;
+				}
+
+				await unsubscribeFromFileExistenceWatcher({
+					file: outName,
+					clientId,
+				}).catch(() => undefined);
+			});
+			requests.pending = cleanup;
+			cleanup.then(() => {
+				if (requests.activeEffects === 0 && requests.pending === cleanup) {
+					requestsByClient.delete(clientId);
+				}
+			});
 		};
-	}, [clientId, outName]);
+	}, [clientId, outName, subscribeToEvent]);
 
-	useEffect(() => {
-		const listener = (event: EventSourceEvent) => {
-			if (event.type !== 'watched-file-deleted') {
-				return;
-			}
-
-			if (event.file !== currentOutName.current) {
-				return;
-			}
-
-			if (currentOutName.current === outName) {
-				setExists(false);
-			}
-		};
-
-		const unsub = subscribeToEvent('watched-file-deleted', listener);
-		return () => {
-			unsub();
-		};
-	}, [outName, subscribeToEvent]);
-
-	useEffect(() => {
-		const listener = (event: EventSourceEvent) => {
-			if (event.type !== 'watched-file-undeleted') {
-				return;
-			}
-
-			if (event.file !== outName) {
-				return;
-			}
-
-			if (currentOutName.current === outName) {
-				setExists(true);
-			}
-		};
-
-		const unsub = subscribeToEvent('watched-file-undeleted', listener);
-		return () => {
-			unsub();
-		};
-	}, [outName, subscribeToEvent]);
-
-	return exists;
+	return result.outName === outName && result.clientId === clientId
+		? {exists: result.exists, checkFailed: result.checkFailed}
+		: {exists: false, checkFailed: false};
 };
