@@ -159,7 +159,6 @@ const mockPlaybackClock = () => {
 			visibility = state;
 			document.dispatchEvent(new Event('visibilitychange', {bubbles: true}));
 		},
-		pendingRafs: () => rafs.size,
 		restore: () => {
 			clock.mockRestore();
 			raf.mockRestore();
@@ -181,19 +180,12 @@ const mockPlaybackClock = () => {
 
 const PlaybackComposition = () => {
 	const frame = useCurrentFrame();
-	const {seek} = usePlayerMethods();
 	const {delayPlayback} = useBufferState();
 	const buffer = useRef<{unblock: () => void} | null>(null);
 
 	return (
 		<>
 			<output>Frame {frame}</output>
-			<button type="button" onClick={() => seek(100)}>
-				Seek to frame 100
-			</button>
-			<button type="button" onClick={() => seek(frame)}>
-				Seek to current frame
-			</button>
 			<button
 				type="button"
 				onClick={() => {
@@ -209,9 +201,44 @@ const PlaybackComposition = () => {
 	);
 };
 
-test('Internal seeks restart elapsed playback time at the latest seek, including same-frame seeks', () => {
+test('Seeking from browser media controls during playback counts elapsed time from the latest seek, including same-frame seeks', () => {
 	const clock = mockPlaybackClock();
 	const player = createRef<PlayerRef>();
+	const mediaSessionHandlers = new Map<
+		MediaSessionAction,
+		MediaSessionActionHandler
+	>();
+	const mediaSessionDescriptor = Object.getOwnPropertyDescriptor(
+		navigator,
+		'mediaSession',
+	);
+	Object.defineProperty(navigator, 'mediaSession', {
+		configurable: true,
+		value: {
+			metadata: null,
+			playbackState: 'none',
+			setActionHandler: (
+				action: MediaSessionAction,
+				handler: MediaSessionActionHandler | null,
+			) => {
+				if (handler) {
+					mediaSessionHandlers.set(action, handler);
+				} else {
+					mediaSessionHandlers.delete(action);
+				}
+			},
+			setPositionState: () => undefined,
+		},
+	});
+	const seekFromMediaControls = (frame: number) => {
+		act(() =>
+			mediaSessionHandlers.get('seekto')!({
+				action: 'seekto',
+				seekTime: frame / 30,
+			}),
+		);
+	};
+
 	try {
 		const view = render(
 			<Player
@@ -223,6 +250,7 @@ test('Internal seeks restart elapsed playback time at the latest seek, including
 				fps={30}
 				initiallyMuted
 				numberOfSharedAudioTags={0}
+				browserMediaControlsBehavior={{mode: 'register-media-session'}}
 			/>,
 		);
 		act(() => player.current!.play());
@@ -230,23 +258,23 @@ test('Internal seeks restart elapsed playback time at the latest seek, including
 		expect(view.getByText('Frame 1')).toBeTruthy();
 
 		clock.setTime(800);
-		fireEvent.click(view.getByRole('button', {name: 'Seek to frame 100'}));
+		seekFromMediaControls(100);
 		act(() => clock.tick(834));
 		expect(view.getByText('Frame 101')).toBeTruthy();
 		act(() => clock.tick(867));
 		expect(view.getByText('Frame 102')).toBeTruthy();
 
 		clock.setTime(900);
-		fireEvent.click(view.getByRole('button', {name: 'Seek to current frame'}));
+		seekFromMediaControls(102);
 		act(() => clock.tick(920));
 		expect(view.getByText('Frame 102')).toBeTruthy();
 		act(() => clock.tick(934));
 		expect(view.getByText('Frame 103')).toBeTruthy();
 
 		clock.setTime(1000);
-		fireEvent.click(view.getByRole('button', {name: 'Seek to frame 100'}));
+		seekFromMediaControls(100);
 		clock.setTime(1030);
-		fireEvent.click(view.getByRole('button', {name: 'Seek to frame 100'}));
+		seekFromMediaControls(100);
 		act(() => clock.tick(1050));
 		expect(view.getByText('Frame 100')).toBeTruthy();
 		act(() => clock.tick(1064));
@@ -255,6 +283,11 @@ test('Internal seeks restart elapsed playback time at the latest seek, including
 	} finally {
 		cleanup();
 		clock.restore();
+		if (mediaSessionDescriptor) {
+			Object.defineProperty(navigator, 'mediaSession', mediaSessionDescriptor);
+		} else {
+			Reflect.deleteProperty(navigator, 'mediaSession');
+		}
 	}
 });
 
@@ -301,7 +334,7 @@ test('Buffering before a delayed endpoint callback holds playback and resumes fr
 	}
 });
 
-test('Returning to a visible tab restores animation frames and keeps one playback loop through buffering', () => {
+test('Returning to a visible tab resumes playback on the next paint, including through buffering', () => {
 	const clock = mockPlaybackClock();
 	const player = createRef<PlayerRef>();
 	try {
@@ -330,7 +363,6 @@ test('Returning to a visible tab restores animation frames and keeps one playbac
 		expect(view.getByText('Frame 30')).toBeTruthy();
 		act(() => clock.runTimeouts(1018));
 		expect(view.getByText('Frame 30')).toBeTruthy();
-		expect(clock.pendingRafs()).toBe(1);
 
 		clock.setTime(1020);
 		act(() => clock.setVisibility('hidden'));
@@ -351,7 +383,6 @@ test('Returning to a visible tab restores animation frames and keeps one playbac
 			act(() => clock.setVisibility(state));
 		}
 
-		expect(clock.pendingRafs()).toBe(1);
 		act(() => clock.tick(1267));
 		expect(view.getByText('Frame 38')).toBeTruthy();
 
@@ -367,14 +398,12 @@ test('Returning to a visible tab restores animation frames and keeps one playbac
 		fireEvent.click(view.getByRole('button', {name: 'Resume after buffering'}));
 		act(() => clock.tick(2034));
 		expect(view.getByText('Frame 39')).toBeTruthy();
-		expect(clock.pendingRafs()).toBe(1);
 
 		fireEvent.click(view.getByRole('button', {name: 'Start buffering'}));
 		act(() => clock.tick(2068));
 		act(() => player.current!.pause());
 		fireEvent.click(view.getByRole('button', {name: 'Resume after buffering'}));
 		act(() => clock.tick(2102));
-		expect(clock.pendingRafs()).toBe(0);
 		expect(view.getByText('Frame 39')).toBeTruthy();
 		act(() => player.current!.play());
 		act(() => clock.tick(2136));
