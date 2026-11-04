@@ -1,5 +1,5 @@
-import {getVideoMetadata} from '@remotion/renderer';
+import {getSilentParts} from '@remotion/renderer';
 
-getVideoMetadata(process.argv[2]).then((metadata) => {
-	console.log(metadata.codec);
+getSilentParts({src: process.argv[2]}).then((result) => {
+	console.log(result.durationInSeconds);
 });

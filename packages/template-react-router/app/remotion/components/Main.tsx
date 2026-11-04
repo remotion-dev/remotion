@@ -17,6 +17,7 @@ const weight = "600" as const;
 
 loadFont("normal", {
   weights: ["400", weight],
+  subsets: ["latin"],
 });
 
 const container: React.CSSProperties = {

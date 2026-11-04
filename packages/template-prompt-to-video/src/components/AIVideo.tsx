@@ -12,7 +12,10 @@ export const aiVideoSchema = z.object({
   timeline: TimelineSchema.nullable(),
 });
 
-const { fontFamily } = loadFont();
+const { fontFamily } = loadFont("normal", {
+  weights: ["400"],
+  subsets: ["latin"],
+});
 
 export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
   timeline,
