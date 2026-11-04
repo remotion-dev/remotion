@@ -1266,13 +1266,6 @@ const TimelineClipboardKeybindingsUnmemoized: React.FC = () => {
 								sequencePropTarget.targets.length > 1
 									? 'Reapply property paste onto selected sequences'
 									: 'Reapply property paste',
-						}).then(() => {
-							if (sequencePropTarget.targets.length > 1) {
-								showNotification(
-									'Pasted property onto selected sequences',
-									2000,
-								);
-							}
 						});
 					}
 
