@@ -61,7 +61,9 @@ import {
 	lockFilePaths,
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
+import {replaceWithPrerenderedVideo} from './preview-server/prerendered-scene';
 import {getEditorName} from './preview-server/routes/open-in-editor';
+import {subscribeToSequenceNodePathMutations} from './preview-server/sequence-node-path-mutation';
 import {getRemotionVersion} from './preview-server/update-available';
 import {remotionSkillNames} from './remotion-skill-names';
 import {startStudio} from './start-studio';
@@ -107,4 +109,6 @@ export const StudioServerInternals = {
 	parseRemotionSkillVersion,
 	remotionSkillNames,
 	getEditorName,
+	replaceWithPrerenderedVideo,
+	subscribeToSequenceNodePathMutations,
 };

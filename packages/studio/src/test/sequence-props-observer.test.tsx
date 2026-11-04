@@ -171,7 +171,7 @@ test('refreshes prop statuses for inserted and in-place updated nodes', () => {
 					} as never,
 				}}
 			>
-				<SequencePropsObserver />
+				<SequencePropsObserver remapCollapsedLayers={() => undefined} />
 			</ObserverTestProviders>,
 		);
 
@@ -270,7 +270,7 @@ test('moves an override when a different JSX component takes over its old path',
 					} as never,
 				}}
 			>
-				<SequencePropsObserver />
+				<SequencePropsObserver remapCollapsedLayers={() => undefined} />
 			</ObserverTestProviders>,
 		);
 
@@ -331,7 +331,7 @@ test('remaps selection and refreshes the subscription after a JSX node path chan
 			<KeybindingContextProvider>
 				<TimelineSelectionProvider>
 					<CaptureSelection />
-					<SequencePropsObserver />
+					<SequencePropsObserver remapCollapsedLayers={() => undefined} />
 				</TimelineSelectionProvider>
 			</KeybindingContextProvider>
 		</ObserverTestProviders>

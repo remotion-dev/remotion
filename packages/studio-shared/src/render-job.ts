@@ -11,7 +11,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
-import type {PreferredEffectBackend} from 'remotion';
+import type {PreferredEffectBackend, SequenceNodePath} from 'remotion';
 
 type BaseRenderProgress = {
 	message: string;
@@ -104,6 +104,9 @@ type RenderJobDynamicStatus =
 			status: 'idle';
 	  }
 	| {
+			status: 'cancelled';
+	  }
+	| {
 			status: 'failed';
 			error: {
 				message: string;
@@ -172,6 +175,15 @@ type RenderJobDynamicFields =
 			hardwareAcceleration: HardwareAccelerationOption;
 			sampleRate: number;
 			licenseKey: string | null;
+			prerender: {
+				fileName: string;
+				nodePath: SequenceNodePath | null;
+				src: string;
+				width: number;
+				height: number;
+				fps: number;
+				durationInFrames: number;
+			} | null;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';

@@ -6,7 +6,7 @@ crumb: '@remotion/codemods'
 
 # duplicateNodes()<AvailableFrom v="4.0.530" />
 
-Duplicates one or more nodes beside their originals.
+Duplicates one or more source nodes.
 
 :::warning
 
@@ -29,6 +29,8 @@ console.log(result);
 ```
 
 Copies the node's source, including props and children. Imported component implementations remain shared. Overlapping ancestor/descendant selections are unsupported.
+
+Since <AvailableFrom v="4.0.540" inline />, a clip directly inside a [`<Track>`](/docs/track), optionally grouped with anonymous fragments (`<>...</>`), is copied into a new sibling `<Track>` with its timing preserved. Multiple selected clips from one track share one new track. The new track preserves the original track's props except its explicit React `key` and adds `-copy` to a static `name`.
 
 ## Options
 
@@ -54,11 +56,17 @@ An array of `{filePath, oldNodePath, newNodePath}` mappings. A `null` old path i
 
 ### insertedNodes
 
-References to the roots of the new copies, in source order within each file. Descendant references are included in `nodePathRemappings`.
+References to the inserted roots, in source order within each file. When duplicating clips from a `<Track>`, these references identify the new track wrappers. Descendant references are included in `nodePathRemappings`.
+
+### duplicatedNodes<AvailableFrom v="4.0.540" />
+
+References to the copies of the requested nodes. For clips copied into a new `<Track>`, these identify the copied clips rather than the track wrapper. Use these references to edit the copies afterward.
 
 ## Errors
 
 Throws or rejects when the target cannot be resolved, the requested edit is unsupported, or an option is invalid. Failed edits leave the input project unchanged.
+
+Clips inside an intervening element or expression within a `<Track>`, including named React fragments, cannot be copied into a separate track. Duplicate the enclosing track instead, or make the clip a direct child of the track.
 
 ## Compatibility
 

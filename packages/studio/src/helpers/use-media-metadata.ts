@@ -8,7 +8,7 @@ import type {
 	InputAudioTrack,
 	InputVideoTrack,
 } from 'mediabunny';
-import {ALL_FORMATS, Input, UrlSource} from 'mediabunny';
+import {ALL_FORMATS, Input, MATROSKA, UrlSource, WEBM} from 'mediabunny';
 import {useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {getDurationOrCompute} from './get-duration-or-compute';
@@ -17,6 +17,12 @@ import {getDurationOrCompute} from './get-duration-or-compute';
 // SCHEMA_VERSION when changing this type.
 export type MediaMetadata = {
 	duration: number;
+	videoTiming: {
+		durationInFrames: number | null;
+		startTime: number;
+		timeResolution: number;
+		frameRateIsConstant: boolean;
+	} | null;
 	format: string | null;
 	width: number | null;
 	height: number | null;
@@ -31,6 +37,20 @@ export type MediaMetadata = {
 
 const cache = new Map<string, MediaMetadata>();
 const pendingRequests = new Map<string, Promise<MediaMetadata | null>>();
+const frameRateProbeSize = 256;
+
+export const getMediaDurationInFrames = (duration: number, fps: number) => {
+	const frames = duration * fps;
+	return Math.max(1, Math.ceil(frames - Number.EPSILON * frames));
+};
+
+export const getMediaPreviewClock = (metadata: MediaMetadata | null) => {
+	const fps = metadata?.fps;
+	return {
+		fps: fps && Number.isFinite(fps) && fps > 0 ? fps : 30,
+		videoTiming: metadata?.videoTiming ?? null,
+	};
+};
 
 export const getFrameRateFromMetrics = (
 	metrics: Pick<
@@ -38,7 +58,12 @@ export const getFrameRateFromMetrics = (
 		'bestGuessFrameRate' | 'probedPacketCount'
 	> | null,
 ) => {
-	if (metrics === null || metrics.probedPacketCount < 2) {
+	if (
+		metrics === null ||
+		metrics.probedPacketCount < 2 ||
+		!Number.isFinite(metrics.bestGuessFrameRate) ||
+		metrics.bestGuessFrameRate <= 0
+	) {
 		return null;
 	}
 
@@ -57,42 +82,56 @@ const safeCall = async <T>(fn: () => Promise<T>): Promise<T | null> => {
 	}
 };
 
+const getVideoFrameCount = (
+	duration: number | null,
+	fps: number,
+	frameRateIsConstant: boolean,
+) => {
+	if (duration === null || !Number.isFinite(duration) || duration <= 0)
+		return null;
+	return frameRateIsConstant
+		? Math.max(1, Math.round(duration * fps))
+		: getMediaDurationInFrames(duration, fps);
+};
+
+const acquireMetadataInput = (src: string) => {
+	try {
+		return Internals.globalMediaResourceManager.acquire<Input>({
+			key: Internals.getMediabunnyInputResourceKey({
+				src,
+				credentials: null,
+				requestInitFingerprint: null,
+				revision: null,
+			}),
+			create: () => {
+				const createdInput = new Input({
+					formats: ALL_FORMATS,
+					source: new UrlSource(src, {
+						handleUnhandledError: (error) => {
+							Internals.Log.warn(
+								{logLevel: 'info', tag: '@remotion/studio'},
+								`A speculative fetch for "${src}" failed:`,
+								error,
+							);
+						},
+					}),
+				});
+
+				return {
+					resource: createdInput,
+					dispose: () => createdInput.dispose(),
+				};
+			},
+		});
+	} catch {
+		return null;
+	}
+};
+
 const getMediabunnyMetadata = async (
 	src: string,
 ): Promise<MediaMetadata | null> => {
-	const lease = (() => {
-		try {
-			return Internals.globalMediaResourceManager.acquire<Input>({
-				key: Internals.getMediabunnyInputResourceKey({
-					src,
-					credentials: null,
-					requestInitFingerprint: null,
-					revision: null,
-				}),
-				create: () => {
-					const createdInput = new Input({
-						formats: ALL_FORMATS,
-						source: new UrlSource(src, {
-							handleUnhandledError: (error) => {
-								Internals.Log.warn(
-									{logLevel: 'info', tag: '@remotion/studio'},
-									`A speculative fetch for "${src}" failed:`,
-									error,
-								);
-							},
-						}),
-					});
-
-					return {
-						resource: createdInput,
-						dispose: () => createdInput.dispose(),
-					};
-				},
-			});
-		} catch {
-			return null;
-		}
-	})();
+	const lease = acquireMetadataInput(src);
 
 	if (lease === null) {
 		return null;
@@ -128,20 +167,66 @@ const getMediabunnyMetadata = async (
 			videoTrack ? safeCall(() => videoTrack.getDisplayWidth()) : null,
 			videoTrack ? safeCall(() => videoTrack.getDisplayHeight()) : null,
 			videoTrack ? safeCall(() => videoTrack.getCodec()) : null,
-			videoTrack ? safeCall(() => videoTrack.computeFrameRateMetrics()) : null,
+			videoTrack
+				? safeCall(() =>
+						videoTrack.computeFrameRateMetrics({
+							targetPacketCount: frameRateProbeSize,
+						}),
+					)
+				: null,
 			videoTrack ? safeCall(() => videoTrack.hasHighDynamicRange()) : null,
 			audioTrack ? safeCall(() => audioTrack.getCodec()) : null,
 			audioTrack ? safeCall(() => audioTrack.getSampleRate()) : null,
 		]);
 
+		const fps = getFrameRateFromMetrics(frameRateMetrics);
+		let videoTiming: MediaMetadata['videoTiming'] = null;
+		if (
+			videoTrack &&
+			frameRateMetrics &&
+			frameRateMetrics.probedPacketCount > 0
+		) {
+			const {frameRateIsConstant, probedPacketCount} = frameRateMetrics;
+			const [end, timeResolution, firstTimestamp] = await Promise.all([
+				// Matroska can store the same segment duration for every track.
+				probedPacketCount < frameRateProbeSize
+					? safeCall(() => videoTrack.computeDuration({skipLiveWait: true}))
+					: format === MATROSKA || format === WEBM
+						? null
+						: safeCall(() =>
+								videoTrack.getDurationFromMetadata({skipLiveWait: true}),
+							),
+				safeCall(() => videoTrack.getTimeResolution()),
+				safeCall(() => videoTrack.getFirstTimestamp()),
+			]);
+			if (
+				timeResolution !== null &&
+				Number.isFinite(timeResolution) &&
+				timeResolution > 0
+			) {
+				const startTime = Math.max(0, firstTimestamp ?? 0);
+				videoTiming = {
+					durationInFrames: getVideoFrameCount(
+						end === null ? null : end - startTime,
+						fps ?? 30,
+						frameRateIsConstant,
+					),
+					startTime,
+					timeResolution,
+					frameRateIsConstant,
+				};
+			}
+		}
+
 		return {
 			duration,
+			videoTiming,
 			format: format?.name ?? null,
 			width,
 			height,
 			videoCodec,
 			audioCodec,
-			fps: getFrameRateFromMetrics(frameRateMetrics),
+			fps,
 			isHdr,
 			sampleRate,
 			hasVideoTrack: Boolean(videoTrack),
@@ -160,6 +245,7 @@ const getFallbackVideoMetadata = async (
 
 		return {
 			duration: metadata.durationInSeconds,
+			videoTiming: null,
 			format: null,
 			width: metadata.width,
 			height: metadata.height,
@@ -222,6 +308,47 @@ export const getMediaMetadata = (
 	pendingRequests.set(src, request);
 
 	return request;
+};
+
+export const getRenderOutputVideoClock = async (
+	src: string,
+	signal: AbortSignal,
+) => {
+	const metadata = await getMediaMetadata(src);
+	const clock = getMediaPreviewClock(metadata);
+	const timing = clock.videoTiming;
+	if (
+		!metadata ||
+		!timing ||
+		timing.durationInFrames !== null ||
+		signal.aborted
+	)
+		return clock;
+
+	const lease = acquireMetadataInput(src);
+	if (!lease) return clock;
+	signal.addEventListener('abort', lease.release, {once: true});
+	try {
+		const end = await safeCall(() =>
+			lease.getOrCreateValue('studio-output-video-end', async () => {
+				const track = await lease.resource.getPrimaryVideoTrack();
+				return track ? track.computeDuration({skipLiveWait: true}) : null;
+			}),
+		);
+		const durationInFrames = getVideoFrameCount(
+			end === null ? null : end - timing.startTime,
+			clock.fps,
+			timing.frameRateIsConstant,
+		);
+		if (durationInFrames === null || signal.aborted) return clock;
+		const updated = {...metadata, videoTiming: {...timing, durationInFrames}};
+		cache.set(src, updated);
+		writeMediaMetadataToPersistentCache({src, mediaMetadata: updated});
+		return getMediaPreviewClock(updated);
+	} finally {
+		signal.removeEventListener('abort', lease.release);
+		lease.release();
+	}
 };
 
 export const useMediaMetadata = (src: string | null): MediaMetadata | null => {

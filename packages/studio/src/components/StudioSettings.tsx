@@ -115,6 +115,7 @@ const ConfigNumber = ({
 			</div>
 			<div style={{...rightRow, gap: 6}}>
 				<InputDragger
+					onValueChangeCancel={() => onChange(value)}
 					aria-label={name}
 					buttonStyle={{textAlign: 'right', width: 140}}
 					formatter={() =>

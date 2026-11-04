@@ -1,4 +1,7 @@
 import("//build/args/headless.gn")
+# headless.gn disables ANGLE's OpenGL backend (no X11/Wayland); re-enable it so
+# --gl=angle-egl can use a native EGL driver such as the NVIDIA one.
+angle_enable_gl = true
 dcheck_always_on = false
 is_official_build = true
 symbol_level = 0

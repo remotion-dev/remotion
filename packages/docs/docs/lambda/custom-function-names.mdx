@@ -1,0 +1,152 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-lambda-custom-function-names.png
+title: Custom Lambda function names
+sidebar_label: Custom function names
+slug: /lambda/custom-function-names
+crumb: '@remotion/lambda'
+---
+
+# Custom Lambda function names<AvailableFrom v="4.0.540" />
+
+While we recommend the [default Lambda function names](/docs/lambda/naming-convention), the organization you work for might have naming conventions that you need to follow.
+
+You can override the default function name to meet organizational naming requirements or deploy separate functions with the same configuration.
+
+If you do so, there are a couple of extra steps you need to take.
+
+## Configure IAM permissions
+
+The [user and role policies](/docs/lambda/permissions) are scoped to the `remotion-render-` prefix by default.  
+Change them first so they apply to your function names.
+
+## Deploy with a custom name
+
+Pass [`functionName`](/docs/lambda/deployfunction#functionname) to [`deployFunction()`](/docs/lambda/deployfunction):
+
+```ts twoslash title="deploy.ts"
+import {deployFunction} from '@remotion/lambda';
+
+const {functionName} = await deployFunction({
+  region: 'us-east-1',
+  functionName: 'acme-render-production-4-0-540',
+  memorySizeInMb: 2048,
+  diskSizeInMb: 2048,
+  timeoutInSeconds: 120,
+  createCloudWatchLogGroup: true,
+});
+
+console.log(functionName);
+```
+
+Or pass [`--function-name`](/docs/lambda/cli/functions/deploy#--function-name) to the CLI:
+
+```bash title="Terminal"
+npx remotion lambda functions deploy --region=us-east-1 --function-name=acme-render-production-4-0-540
+```
+
+Names must contain 1–64 letters, digits, hyphens or underscores.
+
+Deploying again with the same name, Remotion version, memory size, disk size and timeout reuses the existing function.
+
+If those values differ, choose another name or [delete the existing function](/docs/lambda/deletefunction) before deploying.
+
+Including the Remotion [version](/docs/version) in your custom name lets you deploy upgrades alongside functions still serving renders.
+
+## Select the function explicitly
+
+[`getFunctions()`](/docs/lambda/getfunctions) and [`remotion lambda functions ls`](/docs/lambda/cli/functions/ls) only discover names starting with `remotion-render-`.
+
+When invoking, pass your function name directly to rendering and progress APIs instead of selecting it from `getFunctions()`:
+
+```ts twoslash title="render.ts"
+import {downloadMedia} from '@remotion/lambda';
+import {getRenderProgress, renderMediaOnLambda} from '@remotion/lambda/client';
+
+const functionName = 'acme-render-production-4-0-540';
+
+const {renderId, bucketName} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName,
+  serveUrl: 'https://example.com/my-remotion-site',
+  composition: 'MyComposition',
+  codec: 'h264',
+  privacy: 'private',
+});
+
+while (true) {
+  const progress = await getRenderProgress({
+    region: 'us-east-1',
+    functionName,
+    renderId,
+    bucketName,
+    skipLambdaInvocation: true,
+  });
+
+  if (progress.fatalErrorEncountered) {
+    throw new Error(JSON.stringify(progress.errors));
+  }
+
+  if (progress.done) {
+    break;
+  }
+
+  console.log(progress.overallProgress);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+}
+
+const {outputPath} = await downloadMedia({
+  region: 'us-east-1',
+  renderId,
+  bucketName,
+  outPath: 'out.mp4',
+});
+
+console.log(outputPath);
+```
+
+For CLI renders, use [`--function-name`](/docs/lambda/cli/render#--function-name) to pass the name explicitly:
+
+```bash title="Terminal"
+npx remotion lambda render https://example.com/my-remotion-site MyComposition --region=us-east-1 --function-name=acme-render-production-4-0-540
+```
+
+## Use a separate renderer function
+
+You can give the main function and renderer workers different names and memory sizes. Deploy a second function with the same Remotion version in the same account and region:
+
+```ts twoslash title="deploy-renderer.ts"
+import {deployFunction} from '@remotion/lambda';
+
+const {functionName: rendererFunctionName} = await deployFunction({
+  region: 'us-east-1',
+  functionName: 'acme-render-worker-4-0-540',
+  memorySizeInMb: 1536,
+  diskSizeInMb: 2048,
+  timeoutInSeconds: 120,
+  createCloudWatchLogGroup: true,
+});
+
+console.log(rendererFunctionName);
+```
+
+Pass this name as [`rendererFunctionName`](/docs/lambda/rendermediaonlambda#rendererfunctionname) when starting the render. Continue passing the main function's name to `getRenderProgress()`:
+
+```ts twoslash title="render-with-workers.ts"
+import {renderMediaOnLambda} from '@remotion/lambda/client';
+
+const {renderId, bucketName} = await renderMediaOnLambda({
+  region: 'us-east-1',
+  functionName: 'acme-render-production-4-0-540',
+  rendererFunctionName: 'acme-render-worker-4-0-540',
+  serveUrl: 'https://example.com/my-remotion-site',
+  composition: 'MyComposition',
+  codec: 'h264',
+  privacy: 'private',
+});
+```
+
+## See also
+
+- [Function naming convention](/docs/lambda/naming-convention)
+- [Permissions](/docs/lambda/permissions)
+- [Separating production and testing environments](/docs/lambda/separate-environments)

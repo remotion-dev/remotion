@@ -55,56 +55,64 @@ test('a long frame duration can satisfy requests beyond the jump threshold', asy
 	samples[1].close();
 });
 
-test('releases old frames before requesting more decoder output', async () => {
-	let openFrames = 0;
-	const sink: VideoSampleSink = {
-		getSample() {
-			return Promise.reject(new Error('Not implemented'));
-		},
-		async *samples() {
-			for (let i = 0; i < 20; i++) {
-				if (openFrames >= 8) {
-					throw new Error('Decoder ran out of output surfaces');
-				}
-
-				openFrames++;
-				const sample = makeSample({timestamp: i / 30, duration: 1 / 30});
-				const originalClose = sample.close.bind(sample);
-				let closed = false;
-				sample.close = () => {
-					if (!closed) {
-						closed = true;
-						openFrames--;
+test.each([30, 60, 120, 240])(
+	'keeps at most two decoded frames open for a %i fps source',
+	async (sourceFps) => {
+		let openFrames = 0;
+		const sink: VideoSampleSink = {
+			getSample() {
+				return Promise.reject(new Error('Not implemented'));
+			},
+			async *samples() {
+				for (let i = 0; i < sourceFps; i++) {
+					// Real hardware decoders stall instead of throwing.
+					if (openFrames >= 8) {
+						throw new Error('Decoder ran out of output surfaces');
 					}
 
-					originalClose();
-				};
+					openFrames++;
+					const sample = makeSample({
+						timestamp: i / sourceFps,
+						duration: 1 / sourceFps,
+					});
+					const originalClose = sample.close.bind(sample);
+					let closed = false;
+					sample.close = () => {
+						if (!closed) {
+							closed = true;
+							openFrames--;
+						}
 
-				yield sample;
-			}
-		},
-		async *samplesAtTimestamps() {
-			yield* [];
-		},
-	};
+						originalClose();
+					};
 
-	const bank = await makeKeyframeBank({
-		logLevel: 'error',
-		src: 'limited-decoder-surfaces.mp4',
-		videoSampleSink: sink,
-		timeResolution: 1000,
-		initialTimestampRequest: 0,
-	});
+					yield sample;
+				}
+			},
+			async *samplesAtTimestamps() {
+				yield* [];
+			},
+		};
 
-	for (let i = 0; i < 12; i++) {
-		expect((await bank.getFrameFromTimestamp(i / 30, 30))?.timestamp).toBe(
-			i / 30,
-		);
-	}
+		const bank = await makeKeyframeBank({
+			logLevel: 'error',
+			src: 'limited-decoder-surfaces.mp4',
+			videoSampleSink: sink,
+			timeResolution: 1000,
+			initialTimestampRequest: 0,
+		});
 
-	bank.prepareForDeletion('error', 'test');
-	expect(openFrames).toBe(0);
-});
+		for (let i = 0; i < 12; i++) {
+			expect((await bank.getFrameFromTimestamp(i / 30, 30))?.timestamp).toBe(
+				i / 30,
+			);
+			expect(openFrames).toBeLessThanOrEqual(2);
+		}
+
+		bank.prepareForDeletion('error', 'test');
+		expect(openFrames).toBe(0);
+	},
+);
 
 test('uses next sample timestamp instead of reported duration while rendering', async () => {
 	const samples = [

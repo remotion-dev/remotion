@@ -39,6 +39,8 @@ import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 
 export type WebRenderModalState = {
 	type: 'web-render';
+	retryJobId: string | null;
+	initialRenderType: 'still' | 'video' | null;
 	initialFrame: number;
 	compositionId: string;
 	defaultProps: Record<string, unknown>;
@@ -64,8 +66,18 @@ export type WebRenderModalState = {
 	initialPageResponsiveness: WebRendererPageResponsiveness;
 };
 
+export type ServerRenderRetrySettings = {
+	jobId: string;
+	outName: string;
+	crf: number | null;
+	separateAudioTo: string | null;
+	disallowParallelEncoding: boolean;
+	sequenceImageFormat: VideoImageFormat | null;
+};
+
 export type RenderModalState = {
 	type: 'server-render';
+	retrySettings: ServerRenderRetrySettings | null;
 	readOnlyStudio: boolean;
 	compositionId: string;
 	initialFrame: number;

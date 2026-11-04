@@ -3,7 +3,7 @@ import {loadFonts} from './base';
 export const getInfo = () => ({
 	fontFamily: 'Noto Music',
 	importName: 'NotoMusic',
-	version: 'v21',
+	version: 'v22',
 	url: 'https://fonts.googleapis.com/css2?family=Noto+Music:ital,wght@0,400',
 	unicodeRanges: {
 		music: 'U+25CC, U+2669-266F, U+1D000-1D0F5, U+1D100-1D245',
@@ -16,11 +16,11 @@ export const getInfo = () => ({
 		normal: {
 			'400': {
 				music:
-					'https://fonts.gstatic.com/s/notomusic/v21/pe0rMIiSN5pO63htf1sxEkW7I9tScg.woff2',
+					'https://fonts.gstatic.com/s/notomusic/v22/pe0rMIiSN5pO63htf1sxEkW7I9tScg.woff2',
 				'latin-ext':
-					'https://fonts.gstatic.com/s/notomusic/v21/pe0rMIiSN5pO63htf1sxEt6aBuZr.woff2',
+					'https://fonts.gstatic.com/s/notomusic/v22/pe0rMIiSN5pO63htf1sxEt6aBuZr.woff2',
 				latin:
-					'https://fonts.gstatic.com/s/notomusic/v21/pe0rMIiSN5pO63htf1sxEtCaBg.woff2',
+					'https://fonts.gstatic.com/s/notomusic/v22/pe0rMIiSN5pO63htf1sxEtCaBg.woff2',
 			},
 		},
 	},

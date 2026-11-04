@@ -331,6 +331,7 @@ export const NewCompositionFields: React.FC<{
 				<div style={rightRow}>
 					<InputAndValidationContainer>
 						<InputDragger
+							onValueChangeCancel={null}
 							aria-label="Width"
 							type="number"
 							value={values.size.width}
@@ -364,6 +365,7 @@ export const NewCompositionFields: React.FC<{
 				<div style={rightRow}>
 					<InputAndValidationContainer>
 						<InputDragger
+							onValueChangeCancel={null}
 							aria-label="Height"
 							type="number"
 							value={values.size.height}
@@ -400,6 +402,7 @@ export const NewCompositionFields: React.FC<{
 				<div style={label}>FPS</div>
 				<div style={rightRow}>
 					<InputDragger
+						onValueChangeCancel={null}
 						aria-label="FPS"
 						type="number"
 						value={values.fps}

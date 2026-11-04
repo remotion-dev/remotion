@@ -4,6 +4,7 @@ import {
 	getHtmlInCanvasUnsupportedMessage,
 	HtmlInCanvas,
 	Internals,
+	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
 	type EffectsProp,
@@ -121,6 +122,10 @@ const HtmlInCanvasPresentationWithSupport = <
 
 	const chainState = Internals.useEffectChainState(effectsOutputSize);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
+	const {isRendering} = useRemotionEnvironment();
+	const frame = useCurrentFrame();
+	// Like <HtmlInCanvas>, wait for a paint on every frame only while rendering.
+	const renderFrame = isRendering ? frame : null;
 
 	const draw: DrawFunction = useCallback(
 		async (prevImage, nextImage, progress) => {
@@ -261,8 +266,29 @@ const HtmlInCanvasPresentationWithSupport = <
 			throw new Error('Canvas not found');
 		}
 
+		// Block capture before the paint event begins, so a frame is not taken
+		// from the previous scene image. draw() holds its own handle through async work.
+		const handle = delayRender('waiting for transition paint');
+		const onPainted = () => {
+			continueRender(handle);
+		};
+
+		canvas.addEventListener('paint', onPainted, {once: true});
 		canvas.requestPaint?.();
-	}, [presentationProgress, passThrough, memoizedEffects, chainState]);
+
+		return () => {
+			canvas.removeEventListener('paint', onPainted);
+			onPainted();
+		};
+	}, [
+		presentationProgress,
+		passThrough,
+		memoizedEffects,
+		chainState,
+		renderFrame,
+		continueRender,
+		delayRender,
+	]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {

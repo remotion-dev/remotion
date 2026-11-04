@@ -29,10 +29,11 @@ const progress = await getRenderProgress({
 
 ## Requirements
 
-- The function name must follow the [Remotion function naming convention](/docs/lambda/naming-convention). Functions deployed using [`deployFunction()`](/docs/lambda/deployfunction) follow this convention.
 - The AWS credentials calling [`getRenderProgress()`](/docs/lambda/getrenderprogress) must have `s3:GetObject` permission for the Remotion bucket. The policy returned by [`getUserPolicy()`](/docs/lambda/getuserpolicy) includes this permission.
 
-If either requirement is not fulfilled, leave `skipLambdaInvocation` unset.
+If this permission is not available, leave `skipLambdaInvocation` unset.
+
+From <AvailableFrom v="4.0.540" inline />, the function name does not need to follow the [Remotion naming convention](/docs/lambda/naming-convention) for fast progress polling. Earlier versions require it. The client and deployed function must use the same Remotion version.
 
 ## See also
 

@@ -10,6 +10,10 @@ import React, {
 import type {SequenceControls} from '../CompositionManager.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
+import {
+	getCanvasPropsFromSequenceProps,
+	type CanvasDomProps,
+} from '../get-canvas-props-from-sequence-props.js';
 import type {
 	InteractiveBaseProps,
 	InteractivePremountProps,
@@ -80,7 +84,8 @@ type InnerSolidProps = MandatoryProps &
 	};
 export type SolidProps = MandatoryProps &
 	Partial<OptionalProps> &
-	InteractiveCropProps;
+	InteractiveCropProps &
+	CanvasDomProps;
 
 export const solidSchema = {
 	...baseSchema,
@@ -126,6 +131,7 @@ const SolidInner: React.FC<
 	InnerSolidProps & {
 		readonly overrideId: string | null;
 		readonly runtimeValues: RuntimeValueStore | null;
+		readonly canvasProps: CanvasDomProps;
 		readonly reference: React.Ref<HTMLCanvasElement>;
 		readonly videoConfigValues: VideoConfigValues | null;
 	}
@@ -142,6 +148,7 @@ const SolidInner: React.FC<
 	runtimeValues,
 	videoConfigValues,
 	reference,
+	canvasProps,
 }) => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
@@ -258,6 +265,7 @@ const SolidInner: React.FC<
 
 	return (
 		<canvas
+			{...canvasProps}
 			ref={canvasRef}
 			width={canvasWidth}
 			height={canvasHeight}
@@ -306,8 +314,6 @@ const SolidOuter = forwardRef<
 		},
 		ref,
 	) => {
-		props satisfies Record<string, never>;
-
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
@@ -373,6 +379,7 @@ const SolidOuter = forwardRef<
 				>
 					<SequenceContent>
 						<SolidInner
+							canvasProps={getCanvasPropsFromSequenceProps(props)}
 							reference={actualRef}
 							videoConfigValues={controls?.videoConfigValues ?? null}
 							overrideId={controls?.overrideId ?? null}

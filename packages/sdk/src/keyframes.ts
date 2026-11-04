@@ -27,6 +27,7 @@ import {
 	getCanvasKeyframeValueAtSourceFrame,
 	getCanvasKeyframeValueToAdd,
 	isCanvasKeyframablePropStatus,
+	normalizeFontWeightForKeyframe,
 } from './keyframe-value';
 
 /** The timing of a track that places its keyframes on the composition timeline. */
@@ -164,6 +165,82 @@ export const getSchemaField = (
 	key: string,
 ): InteractivitySchemaField | undefined =>
 	Internals.getFlatSchemaWithAllKeys(schema)[key];
+
+/**
+ * Replaces the stored value of an existing keyframe at a composition frame.
+ * Returns `null` when the keyframe is missing or the value cannot be interpolated.
+ */
+export const getCanvasKeyframeValueChange = ({
+	nodePathInfo,
+	track,
+	schema,
+	key,
+	propStatus,
+	frame,
+	value,
+}: {
+	readonly nodePathInfo: SequenceNodePathInfo;
+	readonly track: CanvasKeyframeTrack;
+	readonly schema: InteractivitySchema;
+	readonly key: string;
+	readonly propStatus: CanUpdateSequencePropStatus | null;
+	readonly frame: number;
+	readonly value: unknown;
+}): CanvasKeyframeChange<
+	Extract<CanvasKeyframeOperation, {readonly type: 'add'}>
+> | null => {
+	if (
+		propStatus?.status !== 'keyframed' ||
+		value === undefined ||
+		value === null ||
+		!isCanvasKeyframablePropStatus({propStatus, schema, key})
+	) {
+		return null;
+	}
+
+	const sourceFrame = getCanvasKeyframeSourceFrame({track, propStatus, frame});
+	if (
+		!propStatus.keyframes.some((keyframe) => keyframe.frame === sourceFrame)
+	) {
+		return null;
+	}
+
+	const normalizedValue =
+		getSchemaField(schema, key)?.type === 'font-weight'
+			? normalizeFontWeightForKeyframe(value)
+			: value;
+	if (normalizedValue === null) {
+		return null;
+	}
+
+	if (propStatus.interpolationFunction === 'interpolatePaths') {
+		if (typeof normalizedValue !== 'string') {
+			return null;
+		}
+	} else if (
+		Internals.interpolateKeyframedStatus({
+			frame: sourceFrame,
+			forceSpringAllowTail: null,
+			status: {
+				...propStatus,
+				keyframes: propStatus.keyframes.map((keyframe) =>
+					keyframe.frame === sourceFrame
+						? {...keyframe, value: normalizedValue}
+						: keyframe,
+				),
+			},
+		}) === null
+	) {
+		return null;
+	}
+
+	return {
+		nodePathInfo,
+		key,
+		schema,
+		operation: {type: 'add', frame: sourceFrame, value: normalizedValue},
+	};
+};
 
 const getSchemaFieldDefault = (
 	schema: InteractivitySchema,

@@ -13,6 +13,16 @@ test('Should get length of T after a T that follows a non-quadratic command', ()
 	);
 });
 
+test('Should get length of an arc whose radii are too small', () => {
+	// The radii get scaled up, so this is a half circle with a diameter of sqrt(3² + 19²)
+	const halfCircle = (Math.PI * Math.sqrt(3 ** 2 + 19 ** 2)) / 2;
+	expect(getLength('M 0 0 A 5 5 0 0 1 3 19')).toBeCloseTo(halfCircle, 2);
+	expect(getLength('M 0 0 A 10 10 0 0 1 5 27')).toBeCloseTo(
+		(Math.PI * Math.sqrt(5 ** 2 + 27 ** 2)) / 2,
+		2,
+	);
+});
+
 test('Should throw error if path is invalid', () => {
 	expect(() => getLength('remotion')).toThrow(/Malformed path data/);
 });

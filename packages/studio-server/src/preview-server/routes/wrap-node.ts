@@ -100,7 +100,7 @@ export const wrapNodeHandler: ApiHandler<WrapNodeRequest, WrapNodeResponse> = ({
 					{
 						filePath: absolutePath,
 						oldContents: fileContents,
-						newContents: null,
+						newContents: output,
 						logLine: line,
 						nodePathRemappings: remappings,
 					},
