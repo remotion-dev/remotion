@@ -33,6 +33,40 @@ Since Remotion is distributed via NPM, reports of scans of our dependencies can 
 
 Make sure to also check other Remotion packages you plan to use by searching for them on Socket or similar security scanning platforms.
 
+### ONNX, Transformers.js, and Cloud Run dependencies<AvailableFrom v="4.0.541" />
+
+For the dependency advisories reported in [#12897](https://github.com/remotion-dev/remotion/issues/12897), upgrade all Remotion packages together and install `@huggingface/transformers@4.3.2` when using `@remotion/video-matting` or `@remotion/whisper-webgpu`:
+
+```sh title="Upgrade Remotion and Transformers.js"
+npx remotion upgrade
+npx remotion add @huggingface/transformers
+```
+
+These packages now use ONNX Runtime 1.30.0. Cloud Run uses `@google-cloud/storage@7.21.0`. Their dependency ranges permit the patched versions of `adm-zip` (0.6.1), `sharp` (0.35.5), and `fast-xml-parser` (5.7.0). Refresh your lockfile if it still contains older versions, then rerun your production dependency audit.
+
+`adm-zip` is used by the native ONNX Runtime installer, and Sharp is used by Transformers.js for image processing in Node.js. Browser inference does not execute these native Node.js dependencies. The upgraded Transformers.js dependency requires Node.js 20.9 or later.
+
+Cloud Run's Google SDK dependencies still require UUID 8 and 9. The remaining [UUID advisory](https://github.com/advisories/GHSA-w5hq-g745-h8pq) concerns `v3()`, `v5()`, and `v6()` calls with an output buffer. An audit finding identifies an installed dependency; it does not establish that an application calls the affected API.
+
+For applications running Node.js 16 or later, a temporary mitigation is to override UUID 8 and 9 to 11.1.1, which retains CommonJS support. For npm, merge this into your application's root `package.json`:
+
+```json title="package.json"
+{
+  "overrides": {
+    "uuid@>=8.0.0 <10.0.0": "11.1.1"
+  }
+}
+```
+
+For pnpm, merge this into `pnpm-workspace.yaml`:
+
+```yaml title="pnpm-workspace.yaml"
+overrides:
+  'uuid@>=8.0.0 <10.0.0': 11.1.1
+```
+
+Reinstall dependencies, check the resolved versions in your lockfile, and test your application's Cloud Run operations. With pnpm, run `pnpm install` without `--ignore-workspace` so that the workspace overrides are applied. This override also changes other dependencies using UUID 8 or 9. It applies to your local application dependency tree; it does not change the dependencies inside a deployed Cloud Run service image.
+
 ## Security Certifications
 
 Remotion does not have security certifications such as ISO27001 or SOC2. This is uncommon for JavaScript packages distributed via NPM. You may find comfort in the fact that there is no data processing done by Remotion's servers. After you obtain a license, you simply run Remotion on your own infrastructure, with no connection to our servers.

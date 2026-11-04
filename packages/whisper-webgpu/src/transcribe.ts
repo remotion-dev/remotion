@@ -145,7 +145,7 @@ export const transcribe = async ({
 			if (signal) {
 				const {LogitsProcessor, LogitsProcessorList} =
 					await import('@huggingface/transformers');
-				// Whisper in Transformers.js 4.2.0 does not forward stopping_criteria.
+				// Whisper in Transformers.js does not forward stopping_criteria.
 				// Its logits processors run for each token, including across audio chunks.
 				class AbortLogitsProcessor extends LogitsProcessor {
 					_call(_inputIds: bigint[][], logits: Tensor) {

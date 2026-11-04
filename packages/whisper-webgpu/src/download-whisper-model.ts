@@ -88,7 +88,7 @@ export const downloadWhisperModel = async ({
 			}
 
 			const url = `${env.remoteHost}${env.remotePathTemplate.replace('{model}', hostedModelId)}${file}`;
-			// Transformers.js 4.2.0 keys browser caches by URL and its FileCache by model/file.
+			// Transformers.js keys browser caches by URL and its FileCache by model/file.
 			const cacheKey = cache === null ? `${hostedModelId}/${file}` : url;
 			const response = await env.fetch(url, {signal});
 			if (!response.ok || response.body === null) {

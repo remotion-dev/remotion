@@ -17,7 +17,7 @@
 		"@google-cloud/artifact-registry": "3.5.1",
 		"@google-cloud/functions-framework": "3.4.6",
 		"@google-cloud/run": "1.5.1",
-		"@google-cloud/storage": "7.15.2",
+		"@google-cloud/storage": "7.21.0",
 		"@google-cloud/resource-manager": "5.3.1",
 		"@google-cloud/logging": "11.2.0",
 		"@remotion/bundler": "workspace:*",

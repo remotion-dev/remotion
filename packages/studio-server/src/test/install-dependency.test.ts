@@ -66,7 +66,7 @@ test('uses the supported version for unversioned catalogued packages', () => {
 			name: '@huggingface/transformers',
 			version: null,
 		}),
-	).toBe('@huggingface/transformers@4.2.0');
+	).toBe('@huggingface/transformers@4.3.2');
 });
 
 test('lets the package manager resolve other unversioned packages', () => {
