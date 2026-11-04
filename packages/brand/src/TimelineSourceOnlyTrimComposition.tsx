@@ -1,14 +1,24 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	Interactive,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
+import {CloseUpFrame} from './CloseUpFrame';
 
-export const TimelineSourceOnlyTrimComposition = () => {
-	const frame = useCurrentFrame();
+const TimelineSourceOnlyTrimContent = () => {
+	const {fps} = useVideoConfig();
+	// Cursor and camera keyframes were captured at 60 fps.
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={420}
+			durationInFrames={(420 / 60) * fps}
 			style={{
 				width: 2440,
 				height: 1440,
@@ -33,7 +43,8 @@ export const TimelineSourceOnlyTrimComposition = () => {
 		>
 			<Video
 				src="https://remotion.media/studio-close-ups/timeline-source-only-trim-dd01a0a88786.mp4"
-				durationInFrames={420}
+				durationInFrames={(420 / 60) * fps}
+				muted
 				style={{
 					position: 'absolute',
 				}}
@@ -360,3 +371,32 @@ export const TimelineSourceOnlyTrimComposition = () => {
 		</AbsoluteFill>
 	);
 };
+
+const TimelineSourceOnlyTrimCompositionContent = () => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<CloseUpFrame>
+			<div
+				style={{
+					position: 'absolute',
+					width: 2440,
+					height: 1440,
+					left: '50%',
+					top: '50%',
+					translate: '-50% -50%',
+					scale: Math.min(width / 2440, height / 1440),
+					overflow: 'hidden',
+				}}
+			>
+				<TimelineSourceOnlyTrimContent />
+			</div>
+		</CloseUpFrame>
+	);
+};
+
+export const TimelineSourceOnlyTrimComposition = Interactive.create({
+	Component: TimelineSourceOnlyTrimCompositionContent,
+	layout: 'absolute-fill',
+	schema: {},
+});

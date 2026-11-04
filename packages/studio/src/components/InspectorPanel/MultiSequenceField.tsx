@@ -38,7 +38,8 @@ export const MultiSequenceField: React.FC<{
 }> = ({field, targets, readOnlyStudio}) => {
 	const defaultPremountInSeconds = useContext(Internals.DefaultPremountContext);
 	const video = Internals.useVideo();
-	const {clampTimingValue, clearTimingLimits} = useClampSequenceTimingValue();
+	const {clampTimingValue, clearTimingLimits, getLoopToggleError} =
+		useClampSequenceTimingValue();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses, updateDragOverridesBatch} = useContext(
 		Internals.VisualModeSettersContext,
@@ -138,6 +139,20 @@ export const MultiSequenceField: React.FC<{
 				return Promise.resolve();
 			}
 
+			for (const [index, target] of currentTargets.entries()) {
+				const loopToggleError = getLoopToggleError(
+					target.nodePath,
+					field.key,
+					nextValues[index],
+				);
+				if (loopToggleError !== null) {
+					owner.cancel();
+					clearTimingLimits();
+					showNotification(loopToggleError, 4000);
+					return Promise.resolve();
+				}
+			}
+
 			const clamped = currentTargets.map((target, index) =>
 				clampTimingValue(target.nodePath, field.key, nextValues[index]),
 			);
@@ -205,6 +220,7 @@ export const MultiSequenceField: React.FC<{
 			targets,
 			clampTimingValue,
 			clearTimingLimits,
+			getLoopToggleError,
 			field,
 			updateDragOverridesBatch,
 			finishEdit,

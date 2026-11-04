@@ -17,10 +17,10 @@ import {Audio, Video} from '@remotion/media';
 import {AbsoluteFill, staticFile} from 'remotion';
 
 export const MyComposition = () => (
-  <AbsoluteFill>
+  <>
     <Video src={staticFile('video.mp4')} />
     <Audio src={staticFile('music.mp3')} volume={0.2} loop />
-  </AbsoluteFill>
+  </>
 );
 ```
 

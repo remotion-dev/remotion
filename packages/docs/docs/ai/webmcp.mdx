@@ -720,6 +720,8 @@ Selects and reveals a sequence using a `sequenceId` returned by `get_sequences`.
 
 Returns metadata and the current frame for the open composition. All fields are `null` when the canvas is showing an asset or other non-composition content.
 
+While `calculateMetadata` is pending, `currentFrame` is `null` and metadata fields use the registered values where available. Once it resolves, the fields report the calculated values.
+
 ```ts title="Input"
 {
 }
@@ -741,6 +743,8 @@ Returns metadata and the current frame for the open composition. All fields are 
 
 Returns the rendered composition HTML at the current frame without the surrounding Studio interface. The returned HTML is capped at 100,000 characters. Canvas and WebGL pixels are not represented.
 
+While composition metadata is loading, `currentFrame` and `html` are `null`.
+
 ```ts title="Input"
 {
 }
@@ -759,6 +763,8 @@ Returns the rendered composition HTML at the current frame without the surroundi
 ### `get_outlines`
 
 Returns the measurable selectable component outlines active at the current frame. Coordinates use composition pixels and do not change with the Studio canvas zoom.
+
+While composition metadata is loading, `currentFrame` is `null` and `outlines` is empty.
 
 ```ts title="Input"
 {
@@ -794,6 +800,8 @@ Returns the measurable selectable component outlines active at the current frame
 
 Returns the current playhead, playback, audio, looping and timeline zoom state. Timeline zoom is normalized between `0` (fully zoomed out) and `1` (maximum zoom). Playback fields are `null` for unsupported or unready content. Audio/video assets and rendered outputs are supported from <AvailableFrom v="4.0.540" inline />.
 
+One-frame compositions report frame `0`, duration `1`, their configured `fps`, and `playing: false`. Seeking in a one-frame composition returns frame `0`.
+
 ```ts title="Input"
 {
 }
@@ -821,7 +829,7 @@ The preview's frame rate, used to interpret `currentFrame` and `seek_to_frame`. 
 
 #### `durationInFrames`<AvailableFrom v="4.0.540" />
 
-The current preview's duration in its frame clock, or `null` when unavailable. Rendered outputs derive it from their native media duration and preview frame rate.
+The current preview's duration in its frame clock, or `null` when unavailable. A rendered video uses the length of its video track when available, with frame `0` at the first picture. While trailing audio finishes, the playhead stays on the last picture. Audio outputs and videos without track timing use the native media duration. An asset preview includes the full soundtrack, even when the audio extends past the video.
 
 #### `playbackStartFrame`<AvailableFrom v="4.0.540" />
 
@@ -838,6 +846,8 @@ To pause an output and return to this frame, call `pause`, then `seek_to_frame` 
 Identifies the open canvas content. Server outputs report their path; local browser outputs report their display name, dimensions and size. Blob data and blob retrieval functions are not exposed.
 
 ### `get_selection`
+
+`currentFrame` follows the selected composition's playhead. Media assets and rendered outputs report their own preview frame from <AvailableFrom v="4.0.541" inline />. A still image or a preview that is still loading returns `0`.
 
 Returns source-code context when exactly one supported timeline item is selected. `currentSelection` is `null` when there is no selection, multiple items are selected, a guide is selected or the source location cannot be resolved. `selectedSequence` identifies the owning sequence when a property, effect or keyframe is selected.
 
@@ -1122,7 +1132,7 @@ Sets the playback multiplier. Negative values play backwards in compositions and
 
 ### `seek_to_frame`
 
-Seeks to a zero-based frame. Values beyond the duration are clamped to the final frame. Read `fps` and `durationInFrames` from `get_playback_state` to interpret rendered-output frames; a seek updates the same native media element used by the preview controls.
+Seeks to a zero-based frame. Values beyond the duration are clamped to the final frame. Read `fps` and `durationInFrames` from `get_playback_state` to interpret rendered-output frames. A seek updates the native media element used by the preview controls.
 
 ```ts title="Input"
 {

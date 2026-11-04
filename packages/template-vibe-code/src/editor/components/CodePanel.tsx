@@ -8,10 +8,7 @@ import {
   XIcon,
 } from "lucide-react";
 import type { editor } from "monaco-editor";
-import {
-  MonacoJsxSyntaxHighlight,
-  getWorker,
-} from "monaco-jsx-syntax-highlight";
+import { getWorker } from "monaco-jsx-syntax-highlight";
 import dynamic from "next/dynamic";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -34,6 +31,16 @@ type Problem = {
   kind: "error" | "warning" | "runtime";
   message: string;
   location: { filePath: string; line: number; column: number } | null;
+};
+
+type JsxHighlightResult = {
+  filePath: string;
+  version: number;
+  classifications: {
+    start: { row: number; column: number };
+    end: { row: number; column: number };
+    tokens: string[];
+  }[];
 };
 
 const useProblems = (): Problem[] => {
@@ -168,13 +175,88 @@ export const CodePanel: React.FC = () => {
       void saveRef.current();
     });
 
-    const jsxHighlight = new MonacoJsxSyntaxHighlight(getWorker(), monaco);
-    const { highlighter } = jsxHighlight.highlighterBuilder({
-      editor: instance,
+    const workerUrl = URL.createObjectURL(
+      new Blob([getWorker().worker], { type: "application/javascript" }),
+    );
+    const worker = new Worker(workerUrl);
+    URL.revokeObjectURL(workerUrl);
+    const decorations = instance.createDecorationsCollection();
+    let highlightFrame: number | null = null;
+    let requestId = 0;
+    let request: {
+      id: number;
+      model: editor.ITextModel;
+      modelVersion: number;
+    } | null = null;
+
+    const highlight = () => {
+      request = null;
+      if (highlightFrame !== null) {
+        window.cancelAnimationFrame(highlightFrame);
+        highlightFrame = null;
+      }
+
+      const model = instance.getModel();
+      if (!model) return;
+      highlightFrame = window.requestAnimationFrame(() => {
+        highlightFrame = null;
+        if (model.isDisposed() || instance.getModel() !== model) return;
+        request = {
+          id: ++requestId,
+          model,
+          modelVersion: model.getVersionId(),
+        };
+        worker.postMessage({
+          code: model.getValue(),
+          filePath: model.uri.toString(),
+          version: request.id,
+        });
+      });
+    };
+
+    const receiveHighlight = (event: MessageEvent<JsxHighlightResult>) => {
+      const pending = request;
+      if (
+        !pending ||
+        event.data.version !== pending.id ||
+        pending.model.isDisposed() ||
+        instance.getModel() !== pending.model ||
+        pending.model.getVersionId() !== pending.modelVersion ||
+        event.data.filePath !== pending.model.uri.toString()
+      ) {
+        return;
+      }
+
+      request = null;
+      decorations.set(
+        event.data.classifications.map(({ start, end, tokens }) => ({
+          range: new monaco.Range(
+            start.row,
+            start.column,
+            end.row,
+            end.column + 1,
+          ),
+          options: { inlineClassName: tokens.join(" ") },
+        })),
+      );
+    };
+    worker.addEventListener("message", receiveHighlight);
+    const contentListener = instance.onDidChangeModelContent(highlight);
+    const modelListener = instance.onDidChangeModel(highlight);
+    const disposeListener = instance.onDidDispose(() => {
+      request = null;
+      if (highlightFrame !== null) {
+        window.cancelAnimationFrame(highlightFrame);
+      }
+
+      contentListener.dispose();
+      modelListener.dispose();
+      disposeListener.dispose();
+      worker.removeEventListener("message", receiveHighlight);
+      worker.terminate();
+      if (editorRef.current === instance) editorRef.current = null;
     });
-    highlighter();
-    instance.onDidChangeModelContent(() => highlighter());
-    instance.onDidChangeModel(() => highlighter());
+    highlight();
   };
 
   return (

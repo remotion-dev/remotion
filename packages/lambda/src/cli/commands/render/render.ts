@@ -648,16 +648,13 @@ export const renderCommand = async ({
 		);
 	}
 
-	const adheresToFunctionNameConvention =
-		LambdaClientInternals.parseFunctionName(functionName);
-
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
 		logLevel,
-		skipLambdaInvocation: Boolean(adheresToFunctionNameConvention),
+		skipLambdaInvocation: true,
 		s3OutputProvider: s3OutputProvider ?? undefined,
 	});
 	progressBar.update(

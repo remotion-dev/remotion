@@ -10,7 +10,10 @@ import type {CanvasContent} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {getBackgroundFromHoverState} from '../../helpers/colors';
-import {getOutputRoute, normalizeOutputPath} from '../../helpers/output-path';
+import {
+	getOutputRoute,
+	getRenderJobOutputPath,
+} from '../../helpers/output-path';
 import {pushUrl} from '../../helpers/url-state';
 import {Row, Spacing} from '../layout';
 import type {ClientRenderJob} from './client-side-render-types';
@@ -78,6 +81,7 @@ export const RenderQueueItem: React.FC<{
 	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const isClientJob = isClientRenderJob(job);
+	const outputPath = getRenderJobOutputPath(job);
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
 	const {canDrag, isDragging, onDragEnd, onDragStart} =
 		useRenderOutputFileDrag(job);
@@ -112,12 +116,12 @@ export const RenderQueueItem: React.FC<{
 	}, []);
 
 	const clientBlobInfo = useMemo(() => {
-		if (!isClientJob || job.status !== 'done' || !job.getBlob) {
+		if (!isClientJob || job.status !== 'done' || !job.localOutput) {
 			return null;
 		}
 
 		return {
-			getBlob: job.getBlob,
+			getBlob: job.localOutput.getBlob,
 			width: job.metadata.width,
 			height: job.metadata.height,
 			sizeInBytes: job.metadata.sizeInBytes,
@@ -136,11 +140,11 @@ export const RenderQueueItem: React.FC<{
 
 		if (clientBlobInfo) {
 			setCanvasContent((c: CanvasContent | null): CanvasContent => {
-				const isAlreadySelected =
-					c && c.type === 'output-blob' && c.displayName === job.outName;
-
-				if (isAlreadySelected && !selected) {
-					scrollCurrentIntoView();
+				if (
+					c?.type === 'output-blob' &&
+					c.getBlob === clientBlobInfo.getBlob &&
+					c.displayName === job.outName
+				) {
 					return c;
 				}
 
@@ -158,20 +162,19 @@ export const RenderQueueItem: React.FC<{
 
 		setCanvasContent((c: CanvasContent | null): CanvasContent => {
 			const isAlreadySelected =
-				c &&
-				c.type === 'output' &&
-				normalizeOutputPath(c.path) === normalizeOutputPath(job.outName);
+				c && c.type === 'output' && c.path === outputPath;
 
 			if (isAlreadySelected && !selected) {
 				scrollCurrentIntoView();
 				return c;
 			}
 
-			return {type: 'output', path: normalizeOutputPath(job.outName)};
+			return {type: 'output', path: outputPath};
 		});
-		pushUrl(getOutputRoute(job.outName));
+		pushUrl(getOutputRoute(outputPath));
 	}, [
 		job,
+		outputPath,
 		isClientJob,
 		clientBlobInfo,
 		scrollCurrentIntoView,

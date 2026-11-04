@@ -8,6 +8,7 @@ const BasicsPlaybackRateSceneInner = () => {
 	return (
 		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#111518'}}>
 			<BasicsPlaybackRatePreview
+				blurEdges={null}
 				trimBefore={0.9 * fps}
 				durationInFrames={4.5 * fps}
 				playbackRate={1.5}

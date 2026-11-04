@@ -247,6 +247,7 @@ export type CanUpdateEffectPropsResponse<Numeric = SourceNumericValue> =
 
 export type CanUpdateSequencePropsResponseTrue<Numeric = SourceNumericValue> = {
 	canUpdate: true;
+	sourceLocation?: {line: number; column: number} | null;
 	props: Record<string, CanUpdateSequencePropStatus<Numeric>>;
 	effects: CanUpdateEffectPropsResponse<Numeric>[];
 	/** Source ranges also include interpolations outside the editable schema. */

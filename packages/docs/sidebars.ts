@@ -1527,6 +1527,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/s3-public-access',
 				'lambda/bucket-security',
 				'lambda/naming-convention',
+				'lambda/custom-function-names',
 			],
 		},
 		{
@@ -2156,6 +2157,7 @@ const sidebars: SidebarsConfig = {
 				'sdk/get-canvas-sequence-reorder-insertion-index',
 				'sdk/get-canvas-keyframes',
 				'sdk/get-canvas-keyframe-toggle',
+				'sdk/get-canvas-keyframe-value-change',
 				'sdk/start-canvas-keyframe-drag',
 				'sdk/get-canvas-keyframe-easing-segments',
 				'sdk/get-canvas-keyframe-easing-change',
