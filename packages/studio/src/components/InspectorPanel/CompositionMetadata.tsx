@@ -297,6 +297,7 @@ const CompositionMetadataValue: React.FC<{
 			</span>
 		) : (
 			<InputDraggerWithTextEditing
+				onValueChangeCancel={() => setDragValue(null)}
 				aria-label={fieldLabels[field]}
 				buttonStyle={metadataDraggerStyles[field]}
 				type="number"

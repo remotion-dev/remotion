@@ -1,6 +1,7 @@
 import {useContext, useLayoutEffect, useMemo, useRef} from 'react';
 import {Internals, type PropStatuses} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {usePendingEffectDeletions} from '../../helpers/effect-deletion-state';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	buildTimelineTree,
@@ -37,6 +38,7 @@ export const useTimelineTrackHeights = ({
 }: {
 	timeline: readonly TimelineTrackData[];
 }): readonly number[] => {
+	const pendingDeletions = usePendingEffectDeletions();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -79,6 +81,7 @@ export const useTimelineTrackHeights = ({
 	);
 
 	const previousHeightsRef = useRef<{
+		readonly pendingDeletions: typeof pendingDeletions;
 		readonly timeline: readonly TimelineTrackData[];
 		readonly entries: readonly HeightTrackCache[];
 		readonly expandedEntries: readonly HeightTrackCache[];
@@ -94,6 +97,7 @@ export const useTimelineTrackHeights = ({
 		if (
 			previous !== null &&
 			previous.timeline === timeline &&
+			previous.pendingDeletions === pendingDeletions &&
 			previous.propStatuses === propStatuses &&
 			previous.selectedRowKeys === selectedRowKeys &&
 			previous.getIsExpanded === getIsExpanded &&
@@ -121,6 +125,7 @@ export const useTimelineTrackHeights = ({
 
 		const invalidateExpanded =
 			previous === null ||
+			previous.pendingDeletions !== pendingDeletions ||
 			previous.propStatuses !== propStatuses ||
 			previous.selectedRowKeys !== selectedRowKeys ||
 			previous.getIsExpanded !== getIsExpanded;
@@ -173,6 +178,9 @@ export const useTimelineTrackHeights = ({
 
 				const {nodePathInfo} = track;
 				const tree = buildTimelineTree({
+					pendingEffectDeletion: Internals.OptimisticEffectDeletion.get(
+						nodePathInfo.sequenceSubscriptionKey,
+					),
 					sequence: track.sequence,
 					nodePathInfo,
 					getDragOverrides,
@@ -232,6 +240,7 @@ export const useTimelineTrackHeights = ({
 				? previous.heights
 				: heights;
 		return {
+			pendingDeletions,
 			timeline,
 			entries,
 			expandedEntries,
@@ -243,6 +252,7 @@ export const useTimelineTrackHeights = ({
 			runtimeValuesByStore,
 		};
 	}, [
+		pendingDeletions,
 		timeline,
 		previewServerConnected,
 		getIsExpanded,

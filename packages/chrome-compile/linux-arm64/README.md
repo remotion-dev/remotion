@@ -1,8 +1,8 @@
-# Chromium 157 headless_shell — Linux ARM64
+# Chromium 158 headless_shell — Linux ARM64
 
 For EC2 launches, set `SSH_CIDR` to the public IPv4 range allowed to connect (normally your address with `/32`). `203.0.113.10/32` in the examples is a placeholder.
 
-Builds Chromium **157.0.8080.0** `headless_shell` for generic Debian/Ubuntu
+Builds Chromium **158.0.8127.2** `headless_shell` for generic Debian/Ubuntu
 ARM64 (glibc ≥ 2.35), with proprietary codecs and PDF support.
 
 ## Overview
@@ -18,9 +18,15 @@ ARM64 (glibc ≥ 2.35), with proprietary codecs and PDF support.
 
 The ARM64 build bootstraps LLVM from source, supplies the missing ARM64 `gperf` dependency, and installs Rust tools matching Chromium’s toolchain commit.
 
-## Chromium 157 notes
+## Chromium 157/158 notes
 
-The Chromium 157 build script handles:
+The build script handles:
+
+- `args.gn` sets `angle_enable_gl = true` after the `headless.gn` import so
+  `--gl=angle-egl` can use a native EGL driver (Chromium 158 build).
+- The vpython store directory is `cpython-<hash>` with the depot_tools used by
+  Chromium 158 (it was `cpython+<hash>`), so Step 5.5 locates Python 3.11 with
+  `find` instead of a fixed glob.
 
 - `enable_background_mode`, `enable_captive_portal_detection`,
   `enable_chrome_notifications`, `enable_platform_apps` and

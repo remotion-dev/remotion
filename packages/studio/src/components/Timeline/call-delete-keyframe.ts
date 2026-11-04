@@ -1,15 +1,18 @@
 import {
-	optimisticDeleteEffectKeyframe,
 	optimisticDeleteEffectKeyframes,
-	optimisticDeleteSequenceKeyframe,
 	optimisticDeleteSequenceKeyframes,
 	type DeleteKeyframesRequest,
 } from '@remotion/studio-shared';
+import type {ContextType} from 'react';
+import {useCallback, useContext} from 'react';
+import {unstable_batchedUpdates} from 'react-dom';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
 import {callApi} from '../call-api';
-import {enqueueSavePropChange} from './save-prop-queue';
-import type {SetPropStatuses} from './save-sequence-prop';
+import {createCanvasDragPreview} from '../canvas-drag-preview';
+import {showNotification} from '../Notifications/NotificationCenter';
 
 export type DeleteSequenceKeyframeChange = {
 	fileName: string;
@@ -35,168 +38,163 @@ const deleteKeyframes = (request: DeleteKeyframesRequest) => {
 		: Promise.reject(new Error('Keyframe editing is unavailable'));
 };
 
-const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
-	keyframes: T[],
-): T[][] => {
-	const groups = new Map<string, T[]>();
-	for (const keyframe of keyframes) {
-		const key = JSON.stringify(keyframe.nodePath);
-		const group = groups.get(key) ?? [];
-		group.push(keyframe);
-		groups.set(key, group);
-	}
-
-	return [...groups.values()];
-};
-
-export const callDeleteSequenceKeyframe = ({
-	fileName,
-	nodePath,
-	fieldKey,
-	sourceFrame,
-	schema,
-	setPropStatuses,
-	clientId,
-}: {
-	fileName: string;
-	nodePath: SequencePropsSubscriptionKey;
-	fieldKey: string;
-	sourceFrame: number;
-	schema: InteractivitySchema;
-	setPropStatuses: SetPropStatuses;
+type DeleteKeyframesAction = {
+	sequenceKeyframes: DeleteSequenceKeyframeChange[];
+	effectKeyframes: DeleteEffectKeyframeChange[];
 	clientId: string;
-}): Promise<void> => {
-	return enqueueSavePropChange({
-		nodePath,
-		setPropStatuses,
-		applyOptimistic: (prev) =>
-			optimisticDeleteSequenceKeyframe({
-				videoConfigValues: nodePath.videoConfigValues,
-				previous: prev,
-				fieldKey,
-				frame: sourceFrame,
-			}),
-		apiCall: () =>
-			deleteKeyframes({
-				sequenceKeyframes: [
-					{
-						fileName,
-						nodePath,
-						key: fieldKey,
-						frame: sourceFrame,
-						schema,
-					},
-				],
-				effectKeyframes: [],
-				clientId,
-			}),
-		errorLabel: 'Could not delete keyframe',
-	});
 };
 
-export const callDeleteEffectKeyframe = ({
-	fileName,
-	nodePath,
-	effectIndex,
-	fieldKey,
-	sourceFrame,
-	schema,
-	setPropStatuses,
-	clientId,
-}: {
-	fileName: string;
-	nodePath: SequencePropsSubscriptionKey;
-	effectIndex: number;
-	fieldKey: string;
-	sourceFrame: number;
-	schema: InteractivitySchema;
-	setPropStatuses: SetPropStatuses;
-	clientId: string;
-}): Promise<void> => {
-	return enqueueSavePropChange({
-		nodePath,
-		setPropStatuses,
-		applyOptimistic: (prev) =>
-			optimisticDeleteEffectKeyframe({
-				videoConfigValues: nodePath.videoConfigValues,
-				previous: prev,
-				effectIndex,
-				fieldKey,
-				frame: sourceFrame,
-			}),
-		apiCall: () =>
-			deleteKeyframes({
-				sequenceKeyframes: [],
-				effectKeyframes: [
-					{
-						fileName,
-						sequenceNodePath: nodePath,
-						effectIndex,
-						key: fieldKey,
-						frame: sourceFrame,
-						schema,
-					},
-				],
-				clientId,
-			}),
-		errorLabel: 'Could not delete keyframe',
-	});
-};
+type DeletionSetters = Pick<
+	ContextType<typeof Internals.VisualModeSettersContext>,
+	| 'setPropStatuses'
+	| 'setPropStatusesBatch'
+	| 'updateDragOverrides'
+	| 'updateDragOverridesBatch'
+	| 'updateEffectDragOverridesBatch'
+>;
+
+const isEffectChange = (
+	change: DeleteSequenceKeyframeChange | DeleteEffectKeyframeChange,
+): change is DeleteEffectKeyframeChange => 'effectIndex' in change;
 
 export const callDeleteKeyframes = ({
 	sequenceKeyframes,
 	effectKeyframes,
-	setPropStatuses,
 	clientId,
-}: {
-	sequenceKeyframes: DeleteSequenceKeyframeChange[];
-	effectKeyframes: DeleteEffectKeyframeChange[];
-	setPropStatuses: SetPropStatuses;
-	clientId: string;
+	setters,
+	getSnapshot,
+}: DeleteKeyframesAction & {
+	setters: DeletionSetters;
+	getSnapshot: ContextType<
+		typeof Internals.VisualModePropStatusesSubscriptionContext
+	>['getSnapshot'];
 }): Promise<void> => {
-	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
+	try {
+		for (const nodePath of effectKeyframes.map((change) => change.nodePath))
+			assertEffectChainEditable(nodePath);
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
+	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0)
 		return Promise.resolve();
-	}
-
-	for (const keyframes of groupByNodePath(sequenceKeyframes)) {
-		const [firstKeyframe] = keyframes;
-		if (!firstKeyframe) {
-			continue;
+	const preview = createCanvasDragPreview({
+		updateDragOverrides: setters.updateDragOverrides,
+		setPropStatuses: setters.setPropStatuses,
+		setPropStatusesBatch: setters.setPropStatusesBatch,
+		getPropStatuses: (nodePath) =>
+			getSnapshot(Internals.makeSequencePropsSubscriptionKey(nodePath)) ??
+			undefined,
+	});
+	const updates: Parameters<typeof setters.setPropStatusesBatch>[0][number][] =
+		[];
+	const sequenceOverrides: Parameters<
+		typeof preview.setDragOverridesBatch
+	>[0][number][] = [];
+	const effectOverrides: Parameters<
+		typeof preview.setEffectDragOverridesBatch
+	>[0][number][] = [];
+	const groups = new Map<
+		string,
+		{
+			nodePath: SequencePropsSubscriptionKey;
+			sequence: DeleteSequenceKeyframeChange[];
+			effects: DeleteEffectKeyframeChange[];
+		}
+	>();
+	for (const change of [...sequenceKeyframes, ...effectKeyframes]) {
+		const key = Internals.makeSequencePropsSubscriptionKey(change.nodePath);
+		let group = groups.get(key);
+		if (!group) {
+			group = {nodePath: change.nodePath, sequence: [], effects: []};
+			groups.set(key, group);
 		}
 
-		setPropStatuses(firstKeyframe.nodePath, (prev) =>
-			optimisticDeleteSequenceKeyframes({
-				videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
-				previous: prev,
-				keyframes: keyframes.map((keyframe) => ({
-					fieldKey: keyframe.fieldKey,
-					frame: keyframe.sourceFrame,
-					valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
-				})),
-			}),
-		);
+		if (isEffectChange(change)) group.effects.push(change);
+		else group.sequence.push(change);
 	}
 
-	for (const keyframes of groupByNodePath(effectKeyframes)) {
-		const [firstKeyframe] = keyframes;
-		if (!firstKeyframe) {
-			continue;
-		}
-
-		setPropStatuses(firstKeyframe.nodePath, (prev) =>
+	for (const [nodeKey, group] of groups) {
+		const previous = getSnapshot(nodeKey);
+		if (!previous?.canUpdate) continue;
+		const update: Parameters<typeof setters.setPropStatuses>[1] = (status) =>
 			optimisticDeleteEffectKeyframes({
-				videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
-				previous: prev,
-				keyframes: keyframes.map((keyframe) => ({
-					effectIndex: keyframe.effectIndex,
-					fieldKey: keyframe.fieldKey,
-					frame: keyframe.sourceFrame,
-					valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
+				previous: optimisticDeleteSequenceKeyframes({
+					previous: status,
+					videoConfigValues: group.nodePath.videoConfigValues,
+					keyframes: group.sequence.map((change) => ({
+						fieldKey: change.fieldKey,
+						frame: change.sourceFrame,
+						valueWhenLastKeyframeDeleted: change.valueWhenLastKeyframeDeleted,
+					})),
+				}),
+				videoConfigValues: group.nodePath.videoConfigValues,
+				keyframes: group.effects.map((change) => ({
+					effectIndex: change.effectIndex,
+					fieldKey: change.fieldKey,
+					frame: change.sourceFrame,
+					valueWhenLastKeyframeDeleted: change.valueWhenLastKeyframeDeleted,
 				})),
-			}),
-		);
+			});
+		const next = update(previous);
+		if (!next.canUpdate) continue;
+		const fields = new Map<string, {key: string; effectIndex: number | null}>();
+		for (const change of [...group.sequence, ...group.effects]) {
+			const effectIndex = isEffectChange(change) ? change.effectIndex : null;
+			fields.set(JSON.stringify([effectIndex, change.fieldKey]), {
+				key: change.fieldKey,
+				effectIndex,
+			});
+		}
+
+		for (const {key, effectIndex} of fields.values()) {
+			const effect =
+				effectIndex === null
+					? null
+					: next.effects.find((item) => item.effectIndex === effectIndex);
+			const source =
+				effectIndex === null
+					? next.props[key]
+					: effect?.canUpdate
+						? effect.props[key]
+						: null;
+			if (!source) continue;
+			const status = Internals.evaluateSourcePropStatuses(
+				{value: source},
+				group.nodePath.videoConfigValues,
+			).value;
+			const value =
+				status.status === 'keyframed'
+					? {type: 'keyframed' as const, status}
+					: status.status === 'static'
+						? Internals.makeStaticDragOverride(status.codeValue)
+						: null;
+			if (value === null) continue;
+			if (effectIndex === null)
+				sequenceOverrides.push({nodePath: group.nodePath, key, value});
+			else
+				effectOverrides.push({
+					nodePath: group.nodePath,
+					effectIndex,
+					key,
+					value,
+				});
+		}
+
+		updates.push({nodePath: group.nodePath, update});
 	}
 
+	unstable_batchedUpdates(() => {
+		preview.setDragOverridesBatch(
+			sequenceOverrides,
+			setters.updateDragOverridesBatch,
+		);
+		preview.setEffectDragOverridesBatch(
+			effectOverrides,
+			setters.updateEffectDragOverridesBatch,
+		);
+		preview.setPropStatusesBatch(updates);
+	});
 	return deleteKeyframes({
 		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
 			fileName: keyframe.fileName,
@@ -216,5 +214,33 @@ export const callDeleteKeyframes = ({
 			valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
 		})),
 		clientId,
-	}).then(() => undefined);
+	})
+		.then((response) => preview.acknowledgeKeyframes(response.results))
+		.catch((error) => {
+			preview.fail();
+			throw error;
+		});
+};
+
+export const useDeleteKeyframes = ({
+	notifyOnError,
+}: {
+	notifyOnError: boolean;
+}) => {
+	const setters = useContext(Internals.VisualModeSettersContext);
+	const {getSnapshot} = useContext(
+		Internals.VisualModePropStatusesSubscriptionContext,
+	);
+	return useCallback(
+		(action: DeleteKeyframesAction) =>
+			callDeleteKeyframes({...action, setters, getSnapshot}).catch((error) => {
+				if (notifyOnError)
+					showNotification(
+						`Could not delete keyframe: ${error instanceof Error ? error.message : String(error)}`,
+						4000,
+					);
+				throw error;
+			}),
+		[getSnapshot, notifyOnError, setters],
+	);
 };

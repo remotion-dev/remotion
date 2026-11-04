@@ -78,6 +78,7 @@ export const ZodTextareaEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<RemTextarea
+					indentWithTab={false}
 					onChange={onChange}
 					onFocus={onFocus}
 					onBlur={onBlur}

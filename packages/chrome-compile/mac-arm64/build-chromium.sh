@@ -4,9 +4,9 @@ export PATH="/opt/homebrew/bin:$PATH"
 
 # Run on an EC2 M4 Mac with macOS 26 and Command Line Tools 26.6.
 # The capture patch, GN args, and CLT support helper are required local inputs.
-CHROMIUM_VERSION=157.0.8080.0
-CHROMIUM_COMMIT=ab28d45abdcf95062bcb97d82e8a01b662d7cbdf
-DEPOT_TOOLS_COMMIT=9b264039190fa270f3fc44779b4e26b43008ba41
+CHROMIUM_VERSION=158.0.8127.2
+CHROMIUM_COMMIT=681cd621e82e606d7536eae8ea2576afb3c7d65c
+DEPOT_TOOLS_COMMIT=3218cfc968b246bf2498fd13f707851a0b1cd408
 source_dir="${CODEBUILD_SRC_DIR:-$(cd "$(dirname "$0")" && pwd)}"
 build_root="${REMOTION_BUILD_ROOT:-$source_dir/.build}"
 artifact_dir="$source_dir/artifacts"
@@ -307,6 +307,7 @@ manifest = {
     'proprietary_codecs': True,
     'ffmpeg_branding': 'Chrome',
     'is_official_build': False,
+    'dcheck_always_on': False,
     'angle_internal_shaders': 'runtime-source-compilation',
     'encoding_transport': 'CPU shared-memory capture patch; no forced VideoToolbox',
     'mach_o_files': mach_o,

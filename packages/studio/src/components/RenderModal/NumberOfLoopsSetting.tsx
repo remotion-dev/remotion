@@ -37,6 +37,7 @@ export const NumberOfLoopsSetting: React.FC<{
 			<div style={rightRow}>
 				<RightAlignInput>
 					<InputDragger
+						onValueChangeCancel={null}
 						value={numberOfGifLoops}
 						onTextChange={onNumberOfGifLoopsChanged}
 						placeholder={`${min}-`}

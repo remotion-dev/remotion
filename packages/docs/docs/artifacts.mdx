@@ -71,7 +71,9 @@ export const MyComp: React.FC = () => {
 
 ### In the CLI or Studio
 
-Artifacts get saved to `out/[composition-id]/[filename]` when rendering a video.
+The CLI and Studio save artifacts to `out/[composition-id]/[filename]`. This also applies when rendering in the browser with a connected Studio server.
+
+When Studio downloads a browser render that contains artifacts, it downloads one ZIP file. The video, audio file or still is at the top level. The `artifacts/` folder contains the emitted files with their original names and subdirectories. You can download the ZIP again from the Jobs panel.
 
 ### Using `renderMedia()`, `renderStill()` or `renderFrames()`
 

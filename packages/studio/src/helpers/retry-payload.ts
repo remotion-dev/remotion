@@ -23,6 +23,14 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	if (job.type === 'still') {
 		return {
 			type: 'server-render',
+			retrySettings: {
+				jobId: job.id,
+				outName: job.outName,
+				crf: null,
+				separateAudioTo: null,
+				disallowParallelEncoding: false,
+				sequenceImageFormat: null,
+			},
 			compositionId: job.compositionId,
 			initialFrame: job.frame,
 			initialStillImageFormat: job.imageFormat,
@@ -83,13 +91,21 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	if (job.type === 'sequence') {
 		return {
 			type: 'server-render',
+			retrySettings: {
+				jobId: job.id,
+				outName: job.outName,
+				crf: null,
+				separateAudioTo: null,
+				disallowParallelEncoding: false,
+				sequenceImageFormat: job.imageFormat,
+			},
 			initialFrame: 0,
 			compositionId: job.compositionId,
 			initialVideoImageFormat: null,
 			initialJpegQuality: job.jpegQuality ?? defaults.jpegQuality,
 			initialScale: job.scale,
 			initialLogLevel: job.logLevel,
-			initialConcurrency: defaults.concurrency,
+			initialConcurrency: job.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: defaults.muted,
@@ -143,6 +159,14 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	if (job.type === 'video') {
 		return {
 			type: 'server-render',
+			retrySettings: {
+				jobId: job.id,
+				outName: job.outName,
+				crf: job.crf,
+				separateAudioTo: job.separateAudioTo,
+				disallowParallelEncoding: job.disallowParallelEncoding,
+				sequenceImageFormat: null,
+			},
 			compositionId: job.compositionId,
 			initialStillImageFormat: defaults.stillImageFormat,
 			initialVideoImageFormat: job.imageFormat,
@@ -208,6 +232,8 @@ export const makeClientRetryPayload = (
 ): WebRenderModalState => {
 	return {
 		type: 'web-render',
+		retryJobId: job.id,
+		initialRenderType: job.type === 'client-still' ? 'still' : 'video',
 		compositionId: job.compositionId,
 		initialFrame: job.type === 'client-still' ? job.frame : 0,
 		initialLogLevel: job.logLevel,

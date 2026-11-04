@@ -8,6 +8,7 @@ import {
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
 import {callApi} from '../call-api';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
@@ -111,6 +112,12 @@ export const callUpdateEffectKeyframeSettings = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
+	try {
+		assertEffectChainEditable(nodePath);
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	return enqueueSavePropChange({
 		nodePath,
 		setPropStatuses,
@@ -160,6 +167,13 @@ export const callBatchUpdateKeyframeSettings = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
+	try {
+		for (const nodePath of effectKeyframes.map((change) => change.nodePath))
+			assertEffectChainEditable(nodePath);
+	} catch (error) {
+		return Promise.reject(error);
+	}
+
 	for (const update of sequenceKeyframes) {
 		setPropStatuses(update.nodePath, (prev) =>
 			optimisticUpdateSequenceKeyframeSettings({

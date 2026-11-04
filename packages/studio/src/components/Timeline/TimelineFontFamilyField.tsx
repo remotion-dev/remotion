@@ -19,6 +19,7 @@ import {
 import {loadGoogleFontForPreview} from '../../helpers/load-google-font-for-preview';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -294,7 +295,7 @@ export const TimelineFontFamilyField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 }> = ({
 	field,
 	propStatus,
@@ -448,7 +449,7 @@ export const TimelineFontFamilyField: React.FC<{
 				return;
 			}
 
-			activePreview.current = onDragEnd;
+			activePreview.current = () => onDragEnd('cancel');
 			try {
 				onDragValueChange(option.value);
 			} catch (err) {

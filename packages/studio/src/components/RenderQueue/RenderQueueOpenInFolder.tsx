@@ -1,7 +1,8 @@
 import React, {useCallback, useMemo} from 'react';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
 import {CURRENT_COLOR} from '../../helpers/colors';
-import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
+import {getRenderOutputSrc} from '../../helpers/get-asset-metadata';
+import {getRenderJobOutputPath} from '../../helpers/output-path';
 import {ExpandedFolderIconSolid} from '../../icons/folder';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
@@ -11,7 +12,8 @@ import {openInFileExplorer} from './actions';
 import type {AnyRenderJob} from './context';
 
 export const openRenderOutputInFileExplorer = (job: AnyRenderJob) => {
-	return openInFileExplorer({directory: job.outName}).catch(() => {
+	const outputPath = getRenderJobOutputPath(job);
+	return openInFileExplorer({directory: outputPath}).catch(() => {
 		if (job.type === 'sequence') {
 			showNotification('Could not open folder on the Studio server.', 3000);
 			return;
@@ -22,7 +24,7 @@ export const openRenderOutputInFileExplorer = (job: AnyRenderJob) => {
 			3000,
 		);
 		const a = document.createElement('a');
-		a.href = `${remotion_outputsBase}/${job.outName}`;
+		a.href = getRenderOutputSrc(outputPath);
 		a.download = job.outName.split(/[/\\]/).at(-1) ?? job.outName;
 		a.click();
 	});

@@ -794,6 +794,10 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		fileName: 'src/Composition.tsx',
 		line: 2,
 		column: 31,
+		sourceVersion: {
+			sessionId: expect.any(String),
+			revision: expect.any(Number),
+		},
 	});
 
 	await operations.unsubscribeFromSequenceProps({
@@ -894,6 +898,31 @@ registerRoot(Root);`,
 	if (!splitResult.success) {
 		throw new Error(splitResult.reason);
 	}
+
+	expect(splitResult.splitNodes).toEqual([
+		{
+			absolutePath: fileName,
+			nodePath: getNodes({project: currentProject, filePath: fileName}).filter(
+				(node) => node.tagName === 'Sequence',
+			)[1].nodePath,
+		},
+	]);
+	const sourceVersionSessionId = events.find(
+		(event) => event.type === 'init',
+	)?.sourceVersionSessionId;
+	if (sourceVersionSessionId === null || sourceVersionSessionId === undefined) {
+		throw new Error('Expected a source version session');
+	}
+
+	expect(splitResult.sourceVersions).toEqual([
+		{
+			absolutePath: fileName,
+			sourceVersion: {
+				sessionId: sourceVersionSessionId,
+				revision: expect.any(Number),
+			},
+		},
+	]);
 
 	expect(currentProject.files[fileName]).toContain('<Track name="Sequence">');
 	expect(currentProject.files[fileName]).toContain(
@@ -1278,7 +1307,7 @@ export const Comp = () => {
 		'amount: interpolate(frame, [0, 10, 20], [0.2, 0.5, 0.8])',
 	);
 
-	await operations.keyframes.moveKeyframes({
+	const moved = await operations.keyframes.moveKeyframes({
 		sequenceKeyframes: [
 			{
 				fileName: 'src/Comp.tsx',
@@ -1302,6 +1331,24 @@ export const Comp = () => {
 		],
 		clientId: 'browser-studio',
 	});
+	expect(
+		moved.results.map((result) => ({
+			effectIndex: result.effectIndex,
+			keys: Object.keys(result.props),
+		})),
+	).toEqual([
+		{effectIndex: null, keys: ['style.opacity']},
+		{effectIndex: 0, keys: ['amount']},
+	]);
+	expect(moved.results[0].props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 6}, {frame: 20}],
+	});
+	expect(moved.results[1].props.amount).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 12}, {frame: 20}],
+	});
+
 	expect(getProject().files[fileName]).toContain('[0, 6, 20], [0, 0.25, 1]');
 	expect(getProject().files[fileName]).toContain(
 		'[0, 12, 20], [0.2, 0.5, 0.8]',
@@ -1345,7 +1392,7 @@ export const Comp = () => {
 	);
 
 	const beforeDelete = getProject().files[fileName];
-	await operations.keyframes.deleteKeyframes({
+	const deleted = await operations.keyframes.deleteKeyframes({
 		sequenceKeyframes: [
 			{
 				fileName: 'src/Comp.tsx',
@@ -1367,6 +1414,15 @@ export const Comp = () => {
 		],
 		clientId: 'browser-studio',
 	});
+	expect(deleted.results[0].props['style.opacity']).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 20}],
+	});
+	expect(deleted.results[1].props.amount).toMatchObject({
+		status: 'keyframed',
+		keyframes: [{frame: 0}, {frame: 20}],
+	});
+
 	expect(getProject().files[fileName]).not.toContain('[0, 6, 20]');
 	expect(getProject().files[fileName]).not.toContain('[0, 12, 20]');
 	expect(await operations.undo()).toMatchObject({success: true});

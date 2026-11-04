@@ -22,6 +22,13 @@ const getNumberOfSamples = ({
 	currentFrame: number;
 }) => {
 	const maxOffset = shutterFraction * samples;
+
+	// A shutter angle of 0 means no blur at all, which makes maxOffset 0 and
+	// the division below produce NaN. Render a single sample instead.
+	if (maxOffset === 0) {
+		return 1;
+	}
+
 	const maxTimeReverse = currentFrame - maxOffset;
 	const factor = Math.min(1, Math.max(0, maxTimeReverse / maxOffset + 1));
 	return Math.max(1, Math.round(Math.min(factor * samples, samples)));

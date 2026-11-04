@@ -6,6 +6,7 @@ import type {
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -45,7 +46,7 @@ export const TimelineTextContentField: React.FC<{
 	readonly effectiveValue: unknown;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly nodePath: SequencePropsSubscriptionKey | null;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
 	readonly onSave: TimelineFieldOnSave;
 }> = ({
@@ -89,7 +90,7 @@ export const TimelineTextContentField: React.FC<{
 
 		const value = inputRef.current?.value ?? draftRef.current.value;
 		if (field.typeName === 'svg-path' && !isValidPathData(value)) {
-			latestRef.current.onDragEnd();
+			latestRef.current.onDragEnd('cancel');
 			return false;
 		}
 
@@ -100,7 +101,7 @@ export const TimelineTextContentField: React.FC<{
 		};
 
 		if (value === savedValue) {
-			latestRef.current.onDragEnd();
+			latestRef.current.onDragEnd('cancel');
 			return false;
 		}
 
@@ -108,7 +109,7 @@ export const TimelineTextContentField: React.FC<{
 			.onSave(value)
 			.finally(() => {
 				if (!draftRef.current.dirty && draftRef.current.value === value) {
-					latestRef.current.onDragEnd();
+					latestRef.current.onDragEnd('commit');
 				}
 			})
 			.catch(() => undefined);
@@ -163,7 +164,7 @@ export const TimelineTextContentField: React.FC<{
 				};
 				event.currentTarget.value = savedValue;
 				setValid(true);
-				latestRef.current.onDragEnd();
+				latestRef.current.onDragEnd('cancel');
 				event.currentTarget.blur();
 			}
 		},
@@ -174,6 +175,7 @@ export const TimelineTextContentField: React.FC<{
 		<RemTextarea
 			key={String(propStatus.codeValue ?? '')}
 			ref={setInputRef}
+			indentWithTab={false}
 			status={valid ? 'ok' : 'error'}
 			aria-invalid={!valid}
 			small

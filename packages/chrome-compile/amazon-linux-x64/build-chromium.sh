@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =============================================================================
-# build-chromium.sh — Build Chromium 157.0.8080.0 headless_shell (x86_64)
+# build-chromium.sh — Build Chromium 158.0.8127.2 headless_shell (x86_64)
 #
 # Runs INSIDE the Docker container (Amazon Linux 2023).
 # Targets Amazon Linux x64 — system libs bundled for self-contained deployment.
@@ -10,7 +10,7 @@ set -euo pipefail
 # SIMPLIFIED vs ARM64: No LLVM bootstrap needed — uses pre-built toolchain.
 # =============================================================================
 
-CHROME_VERSION="157.0.8080.0"
+CHROME_VERSION="158.0.8127.2"
 
 echo "========================================="
 echo "Building Chromium $CHROME_VERSION headless_shell (Amazon Linux x86_64)"

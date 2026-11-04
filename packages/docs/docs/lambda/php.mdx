@@ -87,6 +87,34 @@ while (!$renderProgressResponse->done) {
 print_r("Render is done!\n");
 ```
 
+## Getting compositions<AvailableFrom v="4.0.540" />
+
+Use `getCompositionsOnLambda()` to list the compositions in the project configured by the client's serve URL, function name, and region:
+
+```php title="get-compositions.php"
+$compositions = $client->getCompositionsOnLambda(
+  inputProps: ['title' => 'Hello'],
+);
+
+foreach ($compositions as $composition) {
+  echo $composition['id'] . ': ' . $composition['width'] . 'x' . $composition['height'] . PHP_EOL;
+}
+```
+
+The return value is an array of associative arrays, each with `id`, `width`, `height`, `fps`, `durationInFrames`, `props`, `defaultProps`, and default output settings. The call throws an exception if Lambda reports an error.
+
+### inputProps?
+
+Props passed to each composition's [`calculateMetadata()`](/docs/calculate-metadata) function. Defaults to an empty object; no composition ID is required.
+
+### forceBucketName?
+
+Choose the S3 bucket used by the request, including uploads of large input props. If omitted, the SDK finds or creates a Remotion bucket.
+
+### Other arguments
+
+`logLevel`, `timeoutInMilliseconds`, `envVariables`, `chromiumOptions`, `offthreadVideoCacheSizeInBytes`, `mediaCacheSizeInBytes`, and `preferredEffectBackend` correspond to the options of [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda). The timeout defaults to `30000` milliseconds, the log level to `info`, and the effect backend to `auto`. Set `forcePathStyle` on the client constructor if needed.
+
 ## Rendering an image sequence<AvailableFrom v="4.0.535" />
 
 Use `renderFramesOnLambda()` with `RenderFramesParams`. Images default to PNG; the options follow [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
@@ -172,6 +200,7 @@ Read the body first and verify before decoding it. The signature covers the exac
 
 ## Changelog
 
+- `v4.0.540`: Added `getCompositionsOnLambda()` and fixed uploads of large input props to honor the selected bucket.
 - `v4.0.15`: The fields are now typed. `->setInputProps()` now works as intended, serializing the input props to JSON for you.
 - `v4.0.6`: The response payload structure has changed. See the history of this page to see the previous structure.
 
