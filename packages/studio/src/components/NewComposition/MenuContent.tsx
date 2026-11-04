@@ -41,8 +41,8 @@ const container: React.CSSProperties = {
 	overflowY: 'auto',
 	overflowX: 'hidden',
 	scrollbarGutter: 'auto',
-	minWidth: 200,
-	maxWidth: MAX_MENU_WIDTH,
+	minWidth: 'min(200px, calc(100vw - 8px))',
+	maxWidth: `min(${MAX_MENU_WIDTH}px, calc(100vw - 8px))`,
 };
 
 export const MenuContent: React.FC<{
@@ -263,7 +263,7 @@ export const MenuContent: React.FC<{
 		}
 
 		if (isMobileLayout) {
-			containerStyles.maxWidth = MAX_MOBILE_MENU_WIDTH;
+			containerStyles.maxWidth = `min(${MAX_MOBILE_MENU_WIDTH}px, calc(100vw - 8px))`;
 		}
 
 		return containerStyles;

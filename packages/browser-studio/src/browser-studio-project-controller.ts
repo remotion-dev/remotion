@@ -44,6 +44,21 @@ type ProjectMutation = {
 
 const MAX_HISTORY_ENTRIES = 100;
 
+const onlySourceLocationsChanged = (files: ProjectNodePathMutationFiles) => {
+	return (
+		files.length > 0 &&
+		files.every(
+			({remappings}) =>
+				remappings.length > 0 &&
+				remappings.every(
+					({oldNodePath, newNodePath, sourceLocations}) =>
+						sourceLocations &&
+						JSON.stringify(oldNodePath) === JSON.stringify(newNodePath),
+				),
+		)
+	);
+};
+
 const isStoredPublicFile = (
 	contents: VirtualProjectPublicFile,
 ): contents is BrowserStudioStoredPublicFile =>
@@ -379,12 +394,17 @@ export const createBrowserStudioProjectController = ({
 	getStaticFiles,
 	getProject,
 	onProjectChange,
+	sourceVersionSessionId,
 }: {
 	getStaticFiles: BrowserStudioStaticFilesGetter | null;
 	getProject: () => VirtualProject;
+	sourceVersionSessionId: string | null;
 	onProjectChange: (
 		project: VirtualProject,
-		metadata: {skipSequencePropsUpdate: boolean},
+		metadata: {
+			skipSequencePropsUpdate: boolean;
+			sourceMutationId: string | null;
+		},
 	) => void;
 }): BrowserStudioProjectController => {
 	const resolvedGetStaticFiles: BrowserStudioStaticFilesGetter =
@@ -400,7 +420,7 @@ export const createBrowserStudioProjectController = ({
 	const redoStack: HistoryEntry[] = [];
 	const listeners = new Set<(event: EventSourceEvent) => void>();
 	const lastModifiedByPath = new Map<string, number>();
-	let latestHmrEvent: Extract<EventSourceEvent, {type: 'hmr'}> | null = null;
+	const pendingHmrEvents: Extract<EventSourceEvent, {type: 'hmr'}>[] = [];
 	let publicFileRevision = 0;
 	const nodePathMutationSessionId = `${Date.now()}:${Math.random()}`;
 	let nodePathMutationCounter = 0;
@@ -475,7 +495,7 @@ export const createBrowserStudioProjectController = ({
 
 	const emit = (event: EventSourceEvent) => {
 		if (event.type === 'hmr' && listeners.size === 0) {
-			latestHmrEvent = event;
+			pendingHmrEvents.push(event);
 		}
 
 		for (const listener of listeners) {
@@ -526,7 +546,10 @@ export const createBrowserStudioProjectController = ({
 		}
 
 		onProjectChange(nextProject, {
-			skipSequencePropsUpdate: nodePathMutationFiles !== null,
+			sourceMutationId: nodePathMutation?.mutationId ?? null,
+			skipSequencePropsUpdate:
+				nodePathMutationFiles !== null &&
+				!onlySourceLocationsChanged(nodePathMutationFiles),
 		});
 		if (publicFilesChanged) {
 			getPublicFilesEvent().then(emit).catch(reportAsyncError);
@@ -623,6 +646,14 @@ export const createBrowserStudioProjectController = ({
 				(remapping): SequenceNodePathRemapping => ({
 					oldNodePath: remapping.newNodePath,
 					newNodePath: remapping.oldNodePath,
+					...(remapping.sourceLocations
+						? {
+								sourceLocations: {
+									before: remapping.sourceLocations.after,
+									after: remapping.sourceLocations.before,
+								},
+							}
+						: {}),
 					...(remapping.newJsxName === undefined
 						? {}
 						: {oldJsxName: remapping.newJsxName}),
@@ -697,7 +728,7 @@ export const createBrowserStudioProjectController = ({
 			}
 		},
 		clearPendingHmrEvent: () => {
-			latestHmrEvent = null;
+			pendingHmrEvents.length = 0;
 		},
 		emitEvent: emit,
 		findInFile: (request) => {
@@ -766,6 +797,7 @@ export const createBrowserStudioProjectController = ({
 			listener({
 				type: 'init',
 				clientId: 'browser-studio',
+				sourceVersionSessionId,
 				undoFile: undoStack.at(-1)?.fileName ?? null,
 				redoFile: redoStack.at(-1)?.fileName ?? null,
 			});
@@ -776,9 +808,8 @@ export const createBrowserStudioProjectController = ({
 					}
 				})
 				.catch(reportAsyncError);
-			if (latestHmrEvent) {
-				listener(latestHmrEvent);
-				latestHmrEvent = null;
+			for (const event of pendingHmrEvents.splice(0)) {
+				listener(event);
 			}
 
 			return () => {

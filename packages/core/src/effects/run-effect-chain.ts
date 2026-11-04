@@ -484,12 +484,31 @@ const runEffectChainWithResize = async (
 	const activeImplementations = new Set(
 		resolved.map((effect) => effect.implementation),
 	);
-	const entries = state.cleanupRegistry.filter(
+	let entries = state.cleanupRegistry.filter(
 		(entry) => deviceChanged || !activeImplementations.has(entry.definition),
 	);
 	if (entries.length > 0) {
+		// WebGPU cleanups can unconfigure their target's shared canvas context.
+		// Another effect may have cached a setup on that same ping-pong target
+		// before a reorder or undo. Retire it too, so it configures the context
+		// again instead of reusing resources backed by an unconfigured canvas.
+		const retiredWebGpuTargets = new Set(
+			entries
+				.filter((entry) => entry.backend === 'webgpu')
+				.map((entry) => entry.target),
+		);
+		if (retiredWebGpuTargets.size > 0) {
+			entries = state.cleanupRegistry.filter(
+				(entry) =>
+					deviceChanged ||
+					!activeImplementations.has(entry.definition) ||
+					retiredWebGpuTargets.has(entry.target),
+			);
+		}
+
+		const retiredEntries = new Set(entries);
 		state.cleanupRegistry = state.cleanupRegistry.filter(
-			(entry) => !deviceChanged && activeImplementations.has(entry.definition),
+			(entry) => !retiredEntries.has(entry),
 		);
 		for (const entry of entries) {
 			state.setupCache.get(entry.definition)?.delete(entry.target);

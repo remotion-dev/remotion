@@ -317,6 +317,8 @@ def test_construct_render_request_client_error_from_serialize_input_props(
 
     mock_render_params = Mock()
     mock_render_params.input_props = {"dummy": "data"}
+    mock_render_params.force_bucket_name = None
+    mock_render_params.bucket_name = None
     mock_render_params.serialize_params.return_value = {"serialized": "params"}
 
     with pytest.raises(RemotionInvalidArgumentException) as excinfo:
@@ -327,7 +329,8 @@ def test_construct_render_request_client_error_from_serialize_input_props(
     assert "AccessDenied" in str(excinfo.value) # Ensure the original ClientError info is present
     mock_serialize_input_props.assert_called_once_with(
         input_props=mock_render_params.input_props,
-        render_type="still"
+        render_type="still",
+        user_specified_bucket_name=None,
     )
 
 

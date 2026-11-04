@@ -235,6 +235,68 @@ class RenderProgressParams:
 
 
 @dataclass
+class GetCompositionsParams:
+    """
+    Parameters for getting the compositions defined in a Remotion project.
+    """
+
+    serve_url: str
+    input_props: Dict
+    env_variables: Optional[Dict] = None
+    chromium_options: Optional[Dict] = None
+    log_level: str = 'info'
+    force_bucket_name: Optional[str] = None
+    force_path_style: bool = False
+    timeout_in_milliseconds: int = 30000
+    offthread_video_cache_size_in_bytes: Optional[int] = None
+    media_cache_size_in_bytes: Optional[int] = None
+    preferred_effect_backend: Optional[str] = None
+    serialized_input_props: Optional[Dict] = None
+
+    def serialize_params(self) -> Dict:
+        """
+        Convert instance attributes to a dictionary for serialization.
+        """
+        parameters: Dict[str, Any] = {
+            'type': 'compositions',
+            'version': VERSION,
+            'chromiumOptions': self.chromium_options or {},
+            'logLevel': self.log_level,
+            'inputProps': self.serialized_input_props or {},
+            'envVariables': self.env_variables or {},
+            'timeoutInMilliseconds': self.timeout_in_milliseconds,
+            'serveUrl': self.serve_url,
+            'bucketName': self.force_bucket_name,
+            'offthreadVideoCacheSizeInBytes': self.offthread_video_cache_size_in_bytes,
+            'mediaCacheSizeInBytes': self.media_cache_size_in_bytes,
+            'preferredEffectBackend': self.preferred_effect_backend or 'auto',
+            'forcePathStyle': self.force_path_style,
+        }
+        return parameters
+
+
+@dataclass
+class VideoConfig:
+    """
+    A single composition as returned by a compositions Lambda function.
+    """
+
+    width: int = 0
+    height: int = 0
+    fps: float = 0.0
+    durationInFrames: int = 0
+    id: str = ""
+    defaultProps: Dict = field(default_factory=dict)
+    props: Dict = field(default_factory=dict)
+    defaultCodec: Optional[str] = None
+    defaultOutName: Optional[str] = None
+    defaultVideoImageFormat: Optional[str] = None
+    defaultPixelFormat: Optional[str] = None
+    defaultProResProfile: Optional[str] = None
+    defaultSampleRate: Optional[int] = None
+
+
+@dataclass
 class CostsInfo:
     """
     Represents the cost-related information for a specific service or product.

@@ -363,13 +363,15 @@ _string_
 
 _function_ <TsType type="BrowserLog" source="@remotion/renderer" href="/docs/renderer/types#browserlog" />
 
-Catch a console message being printed. Example:
+Called for `console` messages and browser diagnostics, including CORS errors and failed network requests. Uncaught exceptions and unhandled promise rejections are also forwarded since <AvailableFrom v="4.0.540" inline />. See [`renderFrames()`](/docs/renderer/render-frames#onbrowserlog) for the log format.
+
+Example:
 
 ```tsx twoslash
 import type {BrowserLog} from '@remotion/renderer';
 
 const onBrowserLog = (log: BrowserLog) => {
-  // `type` is the console.* method: `log`, `warn`, `error`, etc.
+  // `type` is the console method or diagnostic severity: `log`, `warning`, `error`, etc.
   console.log(`[${log.type}]`);
   console.log(log.text);
   console.log(`at ${log.stackTrace}`);

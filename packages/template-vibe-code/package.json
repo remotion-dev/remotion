@@ -1,6 +1,6 @@
 {
 	"name": "template-vibe-code",
-	"version": "4.0.539",
+	"version": "4.0.540",
 	"description": "Browser-based motion graphics editor: code, preview and edit Remotion compositions live in the browser",
 	"private": true,
 	"repository": {
@@ -29,6 +29,7 @@
 		"@remotion/sdk": "workspace:*",
 		"@remotion/cli": "workspace:*",
 		"@remotion/codemods": "workspace:*",
+		"@remotion/media": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/web-renderer": "workspace:*",
 		"class-variance-authority": "0.7.1",

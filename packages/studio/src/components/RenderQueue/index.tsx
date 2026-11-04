@@ -1,11 +1,12 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
+import {getRenderJobOutputPath} from '../../helpers/output-path';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {isCaptionJob} from './caption-job-types';
 import {CaptionQueueItem} from './CaptionQueueItem';
-import {RenderQueueContext} from './context';
+import {isClientRenderJob, RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
 import {isVideoMattingJob} from './video-matting-job-types';
 import {VideoMattingQueueItem} from './VideoMattingQueueItem';
@@ -73,17 +74,32 @@ export const RenderQueue: React.FC = () => {
 			return -1;
 		}
 
-		if (canvasContent.type === 'output') {
-			for (let i = 0; i < allJobs.length; i++) {
-				const job = allJobs[i];
-				if (isCaptionJob(job) || isVideoMattingJob(job)) {
-					continue;
+		if (
+			canvasContent.type === 'output' ||
+			canvasContent.type === 'output-blob'
+		) {
+			return allJobs.findIndex((job) => {
+				if (
+					isCaptionJob(job) ||
+					isVideoMattingJob(job) ||
+					job.status !== 'done'
+				) {
+					return false;
 				}
 
-				if (job.status === 'done' && canvasContent.path === `/${job.outName}`) {
-					return i;
+				if (isClientRenderJob(job) && job.localOutput) {
+					return (
+						canvasContent.type === 'output-blob' &&
+						canvasContent.getBlob === job.localOutput.getBlob &&
+						canvasContent.displayName === job.outName
+					);
 				}
-			}
+
+				return (
+					canvasContent.type === 'output' &&
+					canvasContent.path === getRenderJobOutputPath(job)
+				);
+			});
 		}
 
 		if (canvasContent.type === 'asset') {

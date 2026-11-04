@@ -6,7 +6,6 @@ import type {EventSourceEvent} from '@remotion/studio-shared';
 import type {InteractivitySchema} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {captureJsxNodePaths} from '../codemods/get-node-path-remappings';
-import {parseAst} from '../codemods/parse-ast';
 import {
 	createFileWatcherRegistry,
 	setFileWatcherRegistry,
@@ -269,12 +268,16 @@ export const Target = () => (
 			mutation,
 		});
 		const afterFirst = readFileSync(filePath, 'utf-8');
-		const colorCardNode = captureJsxNodePaths(parseAst(afterFirst)).at(-1);
+		const colorCardNode = captureJsxNodePaths(afterFirst).at(-1);
 		if (!colorCardNode) {
 			throw new Error('ColorCard invocation missing after first keyframe');
 		}
 
 		expect(remapping.newNodePath).toEqual(colorCardNode.nodePath);
+		expect(remapping.sourceLocations).toEqual({
+			before: {line: 13, column: 2},
+			after: colorCardNode.location,
+		});
 		const second = await addKeyframesHandler({
 			...handlerContext,
 			input: {

@@ -1,6 +1,7 @@
 import type {CanUpdateSequencePropStatus, TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {isSequenceSplitPending} from './pending-sequence-splits';
 import {
 	getSequenceSourceSplitFrame,
 	getTimelineSequenceSplitEligibility,
@@ -43,13 +44,17 @@ export const getSequenceSplitMenuItem = ({
 				canSplit: false as const,
 				reason: 'Sequence has no editable source node',
 			};
-	const disabledReason = !canEditSource
-		? 'Sequence source is unavailable'
-		: propStatuses === undefined
-			? 'Waiting for sequence prop status'
-			: eligibility.canSplit
-				? null
-				: eligibility.reason;
+	const isSplitting =
+		nodePathInfo !== null && isSequenceSplitPending(nodePathInfo);
+	const disabledReason = isSplitting
+		? 'Splitting…'
+		: !canEditSource
+			? 'Sequence source is unavailable'
+			: propStatuses === undefined
+				? 'Waiting for sequence prop status'
+				: eligibility.canSplit
+					? null
+					: eligibility.reason;
 
 	return {
 		type: 'item',
@@ -65,7 +70,7 @@ export const getSequenceSplitMenuItem = ({
 				}}
 				aria-label={disabledReason ?? 'Split at the playhead'}
 			>
-				Split
+				{isSplitting ? 'Splitting…' : 'Split'}
 			</span>
 		),
 		value: 'split-sequence',
@@ -75,13 +80,18 @@ export const getSequenceSplitMenuItem = ({
 		subMenu: null,
 		disabled: disabledReason !== null,
 		onClick: () => {
-			if (disabledReason !== null || !eligibility.canSplit) {
+			if (
+				disabledReason !== null ||
+				!eligibility.canSplit ||
+				isSequenceSplitPending(eligibility.nodePathInfo)
+			) {
 				return;
 			}
 
 			// Keep the frame used to enable the menu item, even during playback.
 			splitTimelineSequenceFromSource({
 				nodePathInfo: eligibility.nodePathInfo,
+				expectedDuration: splitFrame - sequence.from,
 				splitFrame: getSequenceSourceSplitFrame({
 					timelineFrame: splitFrame,
 					keyframeDisplayOffset,

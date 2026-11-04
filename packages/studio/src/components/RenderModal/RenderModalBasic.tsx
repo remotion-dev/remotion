@@ -20,6 +20,7 @@ import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainerBubble} from './OptionExplainerBubble';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalOutputName} from './RenderModalOutputName';
+import type {RenderFrameInput} from './use-render-frame-input';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -35,14 +36,11 @@ export const RenderModalBasic: React.FC<{
 	readonly setProResProfile: React.Dispatch<
 		React.SetStateAction<_InternalTypes['ProResProfile']>
 	>;
-	readonly frame: number;
-	readonly setFrame: React.Dispatch<React.SetStateAction<number>>;
+	readonly frame: RenderFrameInput;
 	readonly resolvedComposition: VideoConfig;
 	readonly setOutName: (value: React.SetStateAction<string>) => void;
-	readonly setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	readonly startFrame: number;
-	readonly endFrame: number;
-	readonly setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	readonly startFrame: RenderFrameInput;
+	readonly endFrame: RenderFrameInput;
 	readonly validationMessage: string | null;
 	readonly setVerboseLogging: React.Dispatch<React.SetStateAction<LogLevel>>;
 	readonly logLevel: LogLevel;
@@ -56,19 +54,17 @@ export const RenderModalBasic: React.FC<{
 	proResProfile,
 	setProResProfile,
 	frame,
-	setFrame,
 	resolvedComposition,
 	setOutName,
-	setEndFrame,
 	endFrame,
-	setStartFrame,
 	startFrame,
 	validationMessage,
 	setVerboseLogging,
 	logLevel,
 	showOutputName,
 }) => {
-	const existence = useFileExistence(outName);
+	const {exists: existence, checkFailed: existenceCheckFailed} =
+		useFileExistence(outName);
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validCodecs
 			.filter((c) => {
@@ -107,27 +103,6 @@ export const RenderModalBasic: React.FC<{
 			};
 		});
 	}, [proResProfile, setProResProfile]);
-
-	const onFrameSetDirectly = useCallback(
-		(newFrame: number) => {
-			setFrame(newFrame);
-		},
-		[setFrame],
-	);
-
-	const onFrameChanged = useCallback(
-		(e: string) => {
-			setFrame((q) => {
-				const newFrame = parseFloat(e);
-				if (Number.isNaN(newFrame)) {
-					return q;
-				}
-
-				return newFrame;
-			});
-		},
-		[setFrame],
-	);
 
 	const onValueChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -186,12 +161,9 @@ export const RenderModalBasic: React.FC<{
 					<div style={rightRow}>
 						<RightAlignInput>
 							<InputDragger
-								value={frame}
-								onTextChange={onFrameChanged}
+								{...frame}
 								placeholder={`0-${resolvedComposition.durationInFrames - 1}`}
-								onValueChange={onFrameSetDirectly}
 								name="frame"
-								step={1}
 								min={0}
 								status="ok"
 								max={resolvedComposition.durationInFrames - 1}
@@ -217,8 +189,6 @@ export const RenderModalBasic: React.FC<{
 				<FrameRangeSetting
 					durationInFrames={resolvedComposition.durationInFrames}
 					endFrame={endFrame}
-					setEndFrame={setEndFrame}
-					setStartFrame={setStartFrame}
 					startFrame={startFrame}
 				/>
 			)}
@@ -227,6 +197,7 @@ export const RenderModalBasic: React.FC<{
 					ariaLabel={null}
 					existingOutputPath={null}
 					existence={existence}
+					existenceCheckFailed={existenceCheckFailed}
 					inputStyle={input}
 					outName={outName}
 					onValueChange={onValueChange}

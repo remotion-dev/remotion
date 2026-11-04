@@ -332,12 +332,25 @@ export const Modals: React.FC<{
 				/>
 			) : null}
 			{modalContextType && modalContextType.type === 'web-render' && (
-				<WebRenderModalWithLoader {...modalContextType} />
+				<WebRenderModalWithLoader
+					key={
+						modalContextType.retryJobId === null
+							? `composition:${modalContextType.compositionId}`
+							: `job:${modalContextType.retryJobId}`
+					}
+					{...modalContextType}
+				/>
 			)}
 			{modalContextType &&
 			modalContextType.type === 'server-render' &&
 			(canRender || modalContextType.readOnlyStudio) ? (
 				<RenderModalWithLoader
+					key={
+						modalContextType.retrySettings === null
+							? `composition:${modalContextType.compositionId}`
+							: `job:${modalContextType.retrySettings.jobId}`
+					}
+					retrySettings={modalContextType.retrySettings}
 					readOnlyStudio={modalContextType.readOnlyStudio ?? false}
 					initialFrame={modalContextType.initialFrame}
 					initialDarkMode={modalContextType.initialDarkMode}

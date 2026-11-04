@@ -1,5 +1,4 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {Internals} from 'remotion';
 import {unregisterClientRender} from '../../api/save-render-output';
 import {CURRENT_COLOR} from '../../helpers/colors';
 import {ActionTooltip} from '../ActionTooltip';
@@ -15,26 +14,12 @@ export const RenderQueueRemoveItem: React.FC<{
 }> = ({job}) => {
 	const isClientJob = isClientRenderJob(job);
 	const {removeClientJob} = useContext(RenderQueueContext);
-	const compositionManagerRef = useContext(
-		Internals.CompositionManagerRefContext,
-	);
-	const {setCanvasContent} = useContext(Internals.CompositionSetters);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
 
 			if (isClientJob) {
-				const {canvasContent} = compositionManagerRef.current;
-				if (
-					canvasContent &&
-					canvasContent.type === 'output' &&
-					job.status === 'done' &&
-					canvasContent.path === `/${job.outName}`
-				) {
-					setCanvasContent(null);
-				}
-
 				removeClientJob(job.id);
 				unregisterClientRender(job.id).catch(() => {});
 				return;
@@ -44,13 +29,7 @@ export const RenderQueueRemoveItem: React.FC<{
 				showNotification(`Could not remove item: ${err.message}`, 2000);
 			});
 		},
-		[
-			job,
-			isClientJob,
-			removeClientJob,
-			compositionManagerRef,
-			setCanvasContent,
-		],
+		[job, isClientJob, removeClientJob],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {

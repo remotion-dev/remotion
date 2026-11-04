@@ -48,7 +48,15 @@ export const TimelineMediaInfo: React.FC<{
 	readonly src: string;
 	readonly isImage: boolean;
 }> = ({src, isImage}) => {
-	const fileName = useMemo(() => Internals.getAssetDisplayName(src), [src]);
+	const fileName = useMemo(
+		() =>
+			Internals.getAssetDisplayName(
+				src.startsWith('data:') || src.startsWith('blob:')
+					? src
+					: src.split(/[?#]/, 1)[0],
+			),
+		[src],
+	);
 
 	const {linkInfo, fileNameStyle} = useAssetLink(src);
 	// Share the asset inspector's caches, but only load metadata after hovering.

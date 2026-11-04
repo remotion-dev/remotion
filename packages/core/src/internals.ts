@@ -162,6 +162,10 @@ import {
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
 import {
+	OptimisticEffectDeletion,
+	useOptimisticEffectDeletion,
+} from './optimistic-effect-deletion.js';
+import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 } from './optimistic-sequence-deletion.js';
@@ -368,6 +372,8 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	HtmlInCanvasFallback,
 	useHtmlInCanvasUnsupportedMessage,
+	OptimisticEffectDeletion,
+	useOptimisticEffectDeletion,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,

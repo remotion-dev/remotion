@@ -7242,6 +7242,41 @@ export const getAvailableFonts = () => [
 		load: () => import('./RedactedScript') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Redaction',
+		importName: 'Redaction',
+		load: () => import('./Redaction') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Redaction 10',
+		importName: 'Redaction10',
+		load: () => import('./Redaction10') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Redaction 100',
+		importName: 'Redaction100',
+		load: () => import('./Redaction100') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Redaction 20',
+		importName: 'Redaction20',
+		load: () => import('./Redaction20') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Redaction 35',
+		importName: 'Redaction35',
+		load: () => import('./Redaction35') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Redaction 50',
+		importName: 'Redaction50',
+		load: () => import('./Redaction50') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Redaction 70',
+		importName: 'Redaction70',
+		load: () => import('./Redaction70') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Reddit Mono',
 		importName: 'RedditMono',
 		load: () => import('./RedditMono') as Promise<GoogleFont>,
@@ -8557,6 +8592,11 @@ export const getAvailableFonts = () => [
 		load: () => import('./Tiny5') as Promise<GoogleFont>,
 	},
 	{
+		fontFamily: 'Tiny5 Duo',
+		importName: 'Tiny5Duo',
+		load: () => import('./Tiny5Duo') as Promise<GoogleFont>,
+	},
+	{
 		fontFamily: 'Tiro Bangla',
 		importName: 'TiroBangla',
 		load: () => import('./TiroBangla') as Promise<GoogleFont>,
@@ -9010,6 +9050,11 @@ export const getAvailableFonts = () => [
 		fontFamily: 'Xanh Mono',
 		importName: 'XanhMono',
 		load: () => import('./XanhMono') as Promise<GoogleFont>,
+	},
+	{
+		fontFamily: 'Xmind',
+		importName: 'Xmind',
+		load: () => import('./Xmind') as Promise<GoogleFont>,
 	},
 	{
 		fontFamily: 'Yaldevi',

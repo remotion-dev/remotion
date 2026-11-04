@@ -17,7 +17,7 @@ const invisibleStyle: React.CSSProperties = {
 	appearance: 'none',
 	border: 'none',
 	padding: 0,
-	cursor: 'pointer',
+	cursor: 'default',
 	display: 'flex',
 };
 
@@ -118,7 +118,7 @@ export const RenderQueueItemStatus: React.FC<{
 		return (
 			<svg style={iconStyle} viewBox="0 0 512 512">
 				<path
-					fill={FAIL_COLOR}
+					fill={LIGHT_TEXT}
 					d="M0 160V352L160 512H352L512 352V160L352 0H160L0 160zm353.9 32l-17 17-47 47 47 47 17 17L320 353.9l-17-17-47-47-47 47-17 17L158.1 320l17-17 47-47-47-47-17-17L192 158.1l17 17 47 47 47-47 17-17L353.9 192z"
 				/>
 			</svg>

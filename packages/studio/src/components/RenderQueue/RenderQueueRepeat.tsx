@@ -1,27 +1,23 @@
-import type {RenderJob} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {CURRENT_COLOR} from '../../helpers/colors';
-import {
-	makeClientRetryPayload,
-	makeRetryPayload,
-} from '../../helpers/retry-payload';
 import {SetSelectedModalContext} from '../../state/modals';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import type {CaptionJob} from './caption-job-types';
-import type {
-	ClientStillRenderJob,
-	ClientVideoRenderJob,
-} from './client-side-render-types';
 import type {AnyRenderJob} from './context';
-import {isClientRenderJob} from './context';
+import {useRenderJobRetry} from './render-retry';
 import type {VideoMattingJob} from './video-matting-job-types';
 
 export const RenderQueueRepeatItem: React.FC<{
 	readonly job: AnyRenderJob | CaptionJob | VideoMattingJob;
 }> = ({job}) => {
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const {getRetryState, openRenderJobSettings} = useRenderJobRetry();
+	const retryState =
+		job.type === 'caption' || job.type === 'video-matting'
+			? {canRetry: true, reason: null}
+			: getRetryState(job.id);
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
@@ -44,17 +40,11 @@ export const RenderQueueRepeatItem: React.FC<{
 					displayName: job.displayName,
 					target: job.target,
 				});
-			} else if (isClientRenderJob(job)) {
-				const retryPayload = makeClientRetryPayload(
-					job as ClientStillRenderJob | ClientVideoRenderJob,
-				);
-				setSelectedModal(retryPayload);
 			} else {
-				const retryPayload = makeRetryPayload(job as RenderJob);
-				setSelectedModal(retryPayload);
+				openRenderJobSettings(job.id);
 			}
 		},
-		[job, setSelectedModal],
+		[job, openRenderJobSettings, setSelectedModal],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {
@@ -79,9 +69,15 @@ export const RenderQueueRepeatItem: React.FC<{
 	);
 
 	return (
-		<ActionTooltip label="Retry" shortcut={null} delay={800} dismissOnClick>
+		<ActionTooltip
+			label={retryState.reason ?? 'Retry'}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
 			<InlineAction
 				aria-label="Retry"
+				disabled={!retryState.canRetry}
 				onClick={onClick}
 				renderAction={renderAction}
 				variant={null}

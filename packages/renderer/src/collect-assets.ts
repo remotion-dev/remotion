@@ -35,7 +35,7 @@ export const collectAssets = async ({
 
 			const stringOrUintArray =
 				asset.contentType === 'binary'
-					? new TextEncoder().encode(atob(asset.content as string))
+					? new Uint8Array(Buffer.from(asset.content, 'base64'))
 					: asset.content;
 			return {
 				...asset,

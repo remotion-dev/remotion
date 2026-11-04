@@ -69,6 +69,7 @@ const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
 			/>
 			<div style={customRateValueStyle}>
 				<InputDragger
+					onValueChangeCancel={null}
 					aria-label="Custom playback rate"
 					allowStepMismatch
 					buttonStyle={{textAlign: 'center'}}
