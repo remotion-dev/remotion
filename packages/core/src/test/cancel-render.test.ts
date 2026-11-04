@@ -50,6 +50,7 @@ test('a scope owner failure is not swallowed', () => {
 	owner.remotion_onCancelRender = () => {
 		throw ownerFailure;
 	};
+
 	expect(() => cancelRenderInternal(owner, new Error('effect failed'))).toThrow(
 		ownerFailure,
 	);

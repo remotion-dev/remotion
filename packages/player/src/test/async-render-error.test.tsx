@@ -1,6 +1,7 @@
 import {afterEach, expect, test} from 'bun:test';
 import {Activity, useLayoutEffect} from 'react';
 import {useDelayRender} from 'remotion';
+import {ErrorBoundary} from '../error-boundary.js';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
 import {Thumbnail} from '../Thumbnail.js';
@@ -175,4 +176,61 @@ test('a revealed Activity activates cancellation before descendant layout effect
 	failOnReveal = true;
 	view.rerender(<Activity mode="visible">{player}</Activity>);
 	expect(view.getByRole('alert').textContent).toBe('reveal failed');
+});
+
+// PR #12934: replacing the scope owner must expire callbacks without remounting
+// a child whose React component identity is unchanged (including Fast Refresh).
+test('owner replacement preserves mounted content while expiring old cancellation callbacks', async () => {
+	let controls!: Controls;
+	let mounts = 0;
+	let unmounts = 0;
+	const Content = () => {
+		controls = useDelayRender();
+		useLayoutEffect(() => {
+			mounts++;
+			return () => {
+				unmounts++;
+			};
+		}, []);
+		return <div>retained composition</div>;
+	};
+	const reported: Error[] = [];
+	const onError = (error: Error) => reported.push(error);
+	const view = render(
+		<ErrorBoundary
+			renderingOwner={{}}
+			onError={onError}
+			errorFallback={fallback}
+		>
+			<Content />
+		</ErrorBoundary>,
+	);
+	const old = controls;
+	const element = view.getByText('retained composition');
+	view.rerender(
+		<ErrorBoundary
+			renderingOwner={{}}
+			onError={onError}
+			errorFallback={fallback}
+		>
+			<Content />
+		</ErrorBoundary>,
+	);
+	expect(mounts).toBe(1);
+	expect(unmounts).toBe(0);
+	expect(view.getByText('retained composition')).toBe(element);
+	expect(controls.cancelRender).not.toBe(old.cancelRender);
+	await act(async () => {
+		await expect(
+			reject(old, new Error('stale owner')),
+		).resolves.toBeUndefined();
+	});
+	expect(reported).toEqual([]);
+	const failure = new Error('current owner');
+
+	await act(async () => {
+		await expect(reject(controls, failure)).resolves.toBeUndefined();
+	});
+	expect(reported).toEqual([failure]);
+	expect(unmounts).toBe(1);
 });

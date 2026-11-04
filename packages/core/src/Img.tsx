@@ -204,8 +204,8 @@ const handleImageError = (
 				truncateSrcForLabel(imageRef.current?.src as string),
 		);
 	} catch {
-		// cancelRender() intentionally throws after storing the error in scope.
-		// In async image callbacks, we rely on the stored error for renderer propagation.
+		// Without a cancellation owner, cancelRender() stores the renderer error and
+		// throws. With a Player/Thumbnail owner, it reports the error and returns.
 	}
 };
 
