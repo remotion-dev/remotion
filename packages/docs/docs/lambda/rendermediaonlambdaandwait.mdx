@@ -45,14 +45,14 @@ Save this identity to observe the render later with [`getRenderProgress()`](/doc
 
 ### `onProgress?`
 
-Called with the same [progress object as `getRenderProgress()`](/docs/lambda/getrenderprogress#return-value). Defaults to no callback.
+Called with the same [progress object as `getRenderProgress()`](/docs/lambda/getrenderprogress#response). Defaults to no callback.
 Updates are coalesced; the callback does not run for every frame.
 
 Both callbacks may return a promise and are awaited in order. Throwing or rejecting stops observation and rejects `renderMediaOnLambdaAndWait()`. It does not cancel the render.
 
 ## Return value
 
-Resolves with the final [progress object](/docs/lambda/getrenderprogress#return-value). `done` is `true`, and `outputFile`, `outBucket`, and `outKey` identify the finished media. The result also includes costs, artifacts, and separate audio output when requested.
+Resolves with the final [progress object](/docs/lambda/getrenderprogress#response). `done` is `true`, and `outputFile`, `outBucket`, and `outKey` identify the finished media. The result also includes costs, artifacts, and separate audio output when requested.
 
 The promise rejects on a fatal render error, timeout, callback failure, or observation failure. A `RenderMediaOnLambdaAndWaitError` retains these diagnostic properties:
 
