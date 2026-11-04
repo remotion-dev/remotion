@@ -29,9 +29,15 @@ class TrackedAudioContext {
 		return undefined;
 	}
 
+	close() {
+		this.state = 'closed';
+		return Promise.resolve();
+	}
+
 	createGain() {
 		return {
 			connect: () => undefined,
+			disconnect: () => undefined,
 			gain: {
 				cancelScheduledValues: () => undefined,
 				linearRampToValueAtTime: (value: number) => {
@@ -268,6 +274,7 @@ const renderClockedPlayer = () => {
 		compositionHeight: 180,
 		fps: 30,
 		playbackRate: 1,
+		preferredEffectBackend: 'auto' as const,
 		audioLatencyHint: 'playback' as AudioContextLatencyCategory,
 		logLevel: 'info' as LogLevel,
 		numberOfSharedAudioTags: 0,

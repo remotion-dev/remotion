@@ -1262,6 +1262,7 @@ test('replays an HMR event emitted before the Studio subscribes', () => {
 			action: 'built',
 			errors: [],
 			hash: 'new-hash',
+			sourceMutationId: null,
 			modules: {'/project/src/Composition.tsx': 'Composition.tsx'},
 			name: '',
 			time: 12,

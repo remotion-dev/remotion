@@ -1,0 +1,38 @@
+[
+	{
+		"role": "Headline font",
+		"url": "https://remotion.media/agentically-programmatically/gt-planar-black-fe8aa1491f7a.woff2",
+		"sha256": "fe8aa1491f7a369aefbe71f284d68f993759c672402259b1c40bec68ab8ba8cd",
+		"bytes": 57580
+	},
+	{
+		"role": "Remotion logo",
+		"url": "https://remotion.media/agentically-programmatically/remotion-logo-on-light-96f0dc86e90d.svg",
+		"sha256": "96f0dc86e90d48dc3c72805f8c2e182fbb3b2a67f995965d5ea23bc6af24b3b3",
+		"bytes": 3657
+	},
+	{
+		"role": "Timeline trim B-roll",
+		"url": "https://remotion.media/studio-close-ups/timeline-right-trim-005918e43672.mp4",
+		"sha256": "005918e43672a70fed2b03e9384d1c9acf6ba2944cc2af206870f0023987db9c",
+		"bytes": 927454
+	},
+	{
+		"role": "Caption editing B-roll",
+		"url": "https://remotion.media/studio-close-ups/caption-position-and-playhead-scrub-988a0436c211.mp4",
+		"sha256": "988a0436c2113d81f73d86fef2e8aa2b1a0d3367881a513bd3b11b5a9e6d7f90",
+		"bytes": 1328376
+	},
+	{
+		"role": "Homepage hero filmstrip",
+		"url": "https://remotion.media/homepage/whats-new-timeline-capture-693f4bc1679c.png",
+		"sha256": "693f4bc1679c359d196bc4a154fa90f0aa36ab62e1a0173beee5b6dfcda54285",
+		"bytes": 408500
+	},
+	{
+		"role": "Homepage hero endcard",
+		"url": "https://remotion.media/homepage/studio-endcard-25914e3e08ad.jpg",
+		"sha256": "25914e3e08ad63f53e57397af4d75ec5b32df9e14f79a00db718336164f66b7b",
+		"bytes": 226107
+	}
+]

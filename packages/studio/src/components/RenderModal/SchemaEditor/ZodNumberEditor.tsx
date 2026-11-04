@@ -89,6 +89,10 @@ export const ZodNumberEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<InputDragger
+					onValueChangeCancel={() => {
+						hasUnsavedChanges.current = false;
+						setValue(() => valueOnFocus.current, {shouldSave: false});
+					}}
 					type={'number'}
 					value={value}
 					style={fullWidth}

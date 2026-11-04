@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-studio-open-in-editor.png
+image: https://remotion.media/docs/generated/articles-docs-studio-open-in-editor.png
 title: Setting the default code editor
 sidebar_label: Opening in code editor
 crumb: 'Remotion Studio'
@@ -34,6 +34,7 @@ Config.setDefaultEditor('cursor');
 ```
 
 The supported editor IDs are:
+
 - `vscode` (also recognizes Insiders)
 - `cursor`
 - `windsurf`
@@ -92,7 +93,6 @@ At least one item must include `%TARGET_PATH%`. Remotion replaces these placehol
 | `%TARGET_PATH%`   | Absolute source file or project directory path. Windows editors launched through WSL receive a relative path. |
 | `%LINE_NUMBER%`   | One-based source line.                                                                                        |
 | `%COLUMN_NUMBER%` | One-based source column.                                                                                      |
-
 
 ## See also
 

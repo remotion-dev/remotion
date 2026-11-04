@@ -117,7 +117,24 @@ export const OptionsPanel: React.FC<{
 		return null;
 	}, [canvasContent, compositions]);
 
-	const {selectedItems} = useTimelineSelection();
+	const {selectedItems: timelineSelectedItems} = useTimelineSelection();
+	const pendingDeletions = Internals.usePendingSequenceDeletions();
+	const selectedItems = useMemo(() => {
+		if (pendingDeletions.size === 0) {
+			return timelineSelectedItems;
+		}
+
+		// Keep the underlying selection for rollback and undo, but stop inspecting
+		// sequences as soon as their optimistic deletion removes them from the tree.
+		return timelineSelectedItems.filter(
+			(item) =>
+				item.type === 'guide' ||
+				!Internals.OptimisticSequenceDeletion.isDeleted(
+					item.nodePathInfo.sequenceSubscriptionKey,
+					pendingDeletions,
+				),
+		);
+	}, [pendingDeletions, timelineSelectedItems]);
 	const inspectorTitle = useMemo(() => {
 		if (selectedItems.length === 0) {
 			if (canvasContent?.type === 'asset') {
@@ -323,6 +340,7 @@ export const OptionsPanel: React.FC<{
 					composition={composition}
 					currentDefaultProps={currentDefaultProps}
 					readOnlyStudio={readOnlyStudio}
+					selectedItems={selectedItems}
 					setDefaultProps={setDefaultProps}
 				/>
 			) : (

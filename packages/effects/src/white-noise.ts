@@ -5,6 +5,13 @@ import {
 	validateUnitInterval,
 } from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
+import {WHITE_NOISE_WEBGPU_SHADER} from './white-noise-webgpu-shader.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -195,67 +202,98 @@ const createWhiteNoiseState = (
 	};
 };
 
-export const whiteNoise = createEffect<WhiteNoiseParams, WhiteNoiseState>({
+export const whiteNoise = createEffect<WhiteNoiseParams>({
 	type: 'dev.remotion.effects.whiteNoise',
 	label: 'whiteNoise()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/white-noise',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const resolved = resolve(params);
 		return `white-noise-${resolved.amount}-${resolved.seed}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('white noise effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			WhiteNoiseParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'white-noise'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the white-noise effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([width, height, r.amount, r.seed]);
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: WHITE_NOISE_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			WhiteNoiseParams,
+			WhiteNoiseState
+		>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('white noise effect');
+				}
 
-		return createWhiteNoiseState(gl, VERTEX_SHADER, FRAGMENT_SHADER);
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const resolved = resolve(params);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		state.gl.viewport(0, 0, width, height);
-		state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
-		state.gl.activeTexture(state.gl.TEXTURE0);
-		state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
-		state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		state.gl.texImage2D(
-			state.gl.TEXTURE_2D,
-			0,
-			state.gl.RGBA,
-			state.gl.RGBA,
-			state.gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				return createWhiteNoiseState(gl, VERTEX_SHADER, FRAGMENT_SHADER);
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const resolved = resolve(params);
 
-		state.gl.useProgram(state.program);
-		if (state.uSource) {
-			state.gl.uniform1i(state.uSource, 0);
-		}
+				state.gl.viewport(0, 0, width, height);
+				state.gl.bindFramebuffer(state.gl.FRAMEBUFFER, null);
+				state.gl.activeTexture(state.gl.TEXTURE0);
+				state.gl.bindTexture(state.gl.TEXTURE_2D, state.texture);
+				state.gl.pixelStorei(state.gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				state.gl.texImage2D(
+					state.gl.TEXTURE_2D,
+					0,
+					state.gl.RGBA,
+					state.gl.RGBA,
+					state.gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		if (state.uAmount) {
-			state.gl.uniform1f(state.uAmount, resolved.amount);
-		}
+				state.gl.useProgram(state.program);
+				if (state.uSource) {
+					state.gl.uniform1i(state.uSource, 0);
+				}
 
-		if (state.uSeed) {
-			state.gl.uniform1f(state.uSeed, resolved.seed);
-		}
+				if (state.uAmount) {
+					state.gl.uniform1f(state.uAmount, resolved.amount);
+				}
 
-		state.gl.bindVertexArray(state.vao);
-		state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				if (state.uSeed) {
+					state.gl.uniform1f(state.uSeed, resolved.seed);
+				}
+
+				state.gl.bindVertexArray(state.vao);
+				state.gl.drawArrays(state.gl.TRIANGLE_STRIP, 0, 4);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: whiteNoiseSchema,
 	validateParams: validateWhiteNoiseParams,

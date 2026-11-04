@@ -2,12 +2,6 @@ import path from 'node:path';
 import {cachedExampleMediaPaths} from './cached-example-media';
 
 const examplePackage = path.join(__dirname, '..', '..', 'example');
-const musicVisualizationPackage = path.join(
-	__dirname,
-	'..',
-	'..',
-	'template-music-visualization',
-);
 const docsPackage = path.join(__dirname, '..', '..', 'docs');
 const lambdaPackage = path.join(__dirname, '..', '..', 'lambda');
 
@@ -112,11 +106,7 @@ export const exampleVideos = {
 		'local-playlist',
 		'output.m3u8',
 	),
-	mp3nomagicword: path.join(
-		musicVisualizationPackage,
-		'public',
-		'demo-track.mp3',
-	),
+	mp3nomagicword: cachedExampleMediaPaths.mp3nomagicword,
 	empty: path.join(__dirname, '..', 'videos', 'empty.mp4'),
 	subsequentMdat: path.join(__dirname, '..', 'videos', 'subsequent-mdats.mp4'),
 	garbageAtEnd: path.join(__dirname, '..', 'videos', 'garbage-at-end.mp4'),

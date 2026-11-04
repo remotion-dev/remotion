@@ -30,6 +30,8 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 	} = useContext(Internals.SetTimelineContext);
 	const audioContext = useContext(Internals.SharedAudioContext);
 	const audioTagsContext = useContext(Internals.SharedAudioTagsContext);
+	const {playerMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	const muted = playerMuted || mediaVolume === 0;
 	const environment = useRemotionEnvironment();
 	const video = Internals.useVideo();
 	const videoId = video?.id ?? null;
@@ -109,17 +111,19 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 				seek(0);
 			}
 
-			if (isAutoPlayAttempt) {
-				audioContext?.resumeAsAutoPlay();
-			} else {
-				audioContext?.resume();
-			}
+			if (!muted) {
+				if (isAutoPlayAttempt) {
+					audioContext?.resumeAsAutoPlay();
+				} else {
+					audioContext?.resume();
+				}
 
-			/**
-			 * Play silent audio tags to warm them up for autoplay
-			 */
-			if (audioTagsContext && audioTagsContext.numberOfAudioTags > 0 && e) {
-				audioTagsContext.playAllAudios();
+				/**
+				 * Play silent audio tags to warm them up for autoplay
+				 */
+				if (audioTagsContext && audioTagsContext.numberOfAudioTags > 0 && e) {
+					audioTagsContext.playAllAudios();
+				}
 			}
 
 			/**
@@ -141,6 +145,7 @@ export const usePlayerMethods = (): UsePlayerMethods => {
 			config?.durationInFrames,
 			emitter,
 			getCurrentFrame,
+			muted,
 			readIsPlaying,
 			seek,
 			setPlaying,

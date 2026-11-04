@@ -32,7 +32,7 @@ export default () => {
 		return null;
 	}
 
-	const imgSrc = `/generated/template-${template.cliId}.png`;
+	const imgSrc = `https://remotion.media/docs/generated/template-${template.cliId}.png`;
 
 	return (
 		<div style={{width: '100%', backgroundColor: 'var(--background)'}}>

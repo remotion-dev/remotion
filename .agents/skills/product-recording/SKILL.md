@@ -84,6 +84,10 @@ Remotion workflow; keep this skill in `.agents/skills`.
 4. Review the generated component, registration, copied public asset, and any
    dependency changes. Run the relevant brand validation before offloading.
 
+For exports, follow [remotion-render](../remotion-render/SKILL.md) and use
+Remotion's bundled browser. The Chrome instance used for recording does not
+need to be passed to the renderer.
+
 ## Offload the recording
 
 Finish with [offload-r2](../offload-r2/SKILL.md): upload the imported recording

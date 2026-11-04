@@ -2,6 +2,7 @@
 
 import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {useCallback, useMemo, useRef, useState} from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import type {
 	CompositionManagerContext,
 	LoggingContextValue,
@@ -30,6 +31,7 @@ export const SharedPlayerContexts: React.FC<{
 	readonly numberOfSharedAudioTags: number;
 	readonly initiallyMuted: boolean;
 	readonly logLevel: LogLevel;
+	readonly preferredEffectBackend: PreferredEffectBackend;
 	readonly audioLatencyHint: AudioContextLatencyCategory;
 	readonly sampleRate: number;
 	readonly volumePersistenceKey?: string;
@@ -51,6 +53,7 @@ export const SharedPlayerContexts: React.FC<{
 	initiallyMuted,
 	logLevel,
 	audioLatencyHint,
+	preferredEffectBackend,
 	sampleRate,
 	volumePersistenceKey,
 	initialVolume,
@@ -192,7 +195,13 @@ export const SharedPlayerContexts: React.FC<{
 																	<Internals.SharedAudioTagsContextProvider
 																		numberOfAudioTags={numberOfSharedAudioTags}
 																	>
-																		{children}
+																		<Internals.PreferredEffectBackendContext.Provider
+																			value={Internals.validatePreferredEffectBackend(
+																				preferredEffectBackend,
+																			)}
+																		>
+																			{children}
+																		</Internals.PreferredEffectBackendContext.Provider>
 																	</Internals.SharedAudioTagsContextProvider>
 																</Internals.SharedAudioContextProvider>
 															</Internals.BufferingProvider>

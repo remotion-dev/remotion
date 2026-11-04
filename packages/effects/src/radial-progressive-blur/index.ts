@@ -5,7 +5,14 @@ import {
 	validateNonNegative,
 	validateUnitInterval,
 } from '../color-utils.js';
+import {GAUSSIAN_BLUR_WEBGPU_SHADER} from '../gaussian-blur-webgpu-shader.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
+import {
+	applyWebGpuMultipass,
+	cleanupWebGpuMultipass,
+	setupWebGpuMultipass,
+	type WebGpuMultipassState,
+} from '../webgpu-multipass-runtime.js';
 import {
 	applyRadialProgressiveBlur,
 	cleanupRadialProgressiveBlur,
@@ -180,32 +187,103 @@ const validateRadialProgressiveBlurParams = (
 	assertOptionalFiniteNumber(params.endBlur, 'endBlur');
 };
 
-export const radialProgressiveBlur = createEffect<
-	RadialProgressiveBlurParams,
-	RadialProgressiveBlurState
->({
+export const radialProgressiveBlur = createEffect<RadialProgressiveBlurParams>({
 	type: 'dev.remotion.effects.radialProgressiveBlur',
 	label: 'radialProgressiveBlur()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/radial-progressive-blur',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolveRadialProgressiveBlurParams(params);
 		return `radial-progressive-blur-${r.center.join(':')}-${r.width}-${r.height}-${r.rotation}-${r.start}-${r.startBlur}-${r.endBlur}`;
 	},
-	setup: (target) => setupRadialProgressiveBlur(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolveRadialProgressiveBlurParams(params);
-		applyRadialProgressiveBlur({
-			state,
-			source,
-			width,
-			height,
-			params: r,
-			flipSourceY,
-		});
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			RadialProgressiveBlurParams,
+			WebGpuMultipassState
+		>({
+			setup: (target) =>
+				setupWebGpuMultipass(target, 'radial-progressive-blur'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolveRadialProgressiveBlurParams(params);
+
+				applyWebGpuMultipass({
+					auxiliarySource: null,
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					passes: [
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								1,
+								0,
+								0,
+								2,
+								r.startBlur,
+								r.endBlur,
+								...r.center,
+								r.width,
+								r.height,
+								r.rotation,
+								r.start,
+								0,
+								0,
+							]),
+							source: -1,
+							secondary: -1,
+						},
+						{
+							shader: GAUSSIAN_BLUR_WEBGPU_SHADER,
+							uniforms: new Float32Array([
+								width,
+								height,
+								0,
+								1,
+								0,
+								2,
+								r.startBlur,
+								r.endBlur,
+								...r.center,
+								r.width,
+								r.height,
+								r.rotation,
+								r.start,
+								0,
+								0,
+							]),
+							source: 0,
+							secondary: -1,
+						},
+					],
+				});
+			},
+			cleanup: cleanupWebGpuMultipass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			RadialProgressiveBlurParams,
+			RadialProgressiveBlurState
+		>({
+			setup: (target) => setupRadialProgressiveBlur(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolveRadialProgressiveBlurParams(params);
+				applyRadialProgressiveBlur({
+					state,
+					source,
+					width,
+					height,
+					params: r,
+					flipSourceY,
+				});
+			},
+			cleanup: (state) => cleanupRadialProgressiveBlur(state),
+		}),
 	},
-	cleanup: (state) => cleanupRadialProgressiveBlur(state),
 	schema: radialProgressiveBlurSchema,
 	validateParams: validateRadialProgressiveBlurParams,
 });

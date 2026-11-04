@@ -19,6 +19,7 @@ import {
 	MENU_VERTICAL_PADDING,
 	SUBMENU_LEFT_INSET,
 	menuContainerTowardsBottom,
+	menuItemLeftSpace,
 } from './styles';
 import {SubMenuComponent} from './SubMenu';
 
@@ -42,14 +43,6 @@ const keyHintCss: React.CSSProperties = {
 	flexDirection: 'row',
 	color: LIGHT_TEXT,
 	fontSize: 13,
-};
-
-const leftSpace: React.CSSProperties = {
-	width: 20,
-	marginLeft: -2,
-	display: 'inline-flex',
-	justifyContent: 'center',
-	alignItems: 'center',
 };
 
 export type SubMenuActivated = false | 'with-mouse' | 'without-mouse';
@@ -105,7 +98,7 @@ export const MenuSubItem: React.FC<{
 			...container,
 			backgroundColor: selected && !disabled ? WHITE_ALPHA_06 : TRANSPARENT,
 			opacity: disabled ? 0.5 : 1,
-			cursor: disabled ? 'not-allowed' : 'default',
+			cursor: 'default',
 		};
 	}, [selected, disabled]);
 
@@ -227,7 +220,7 @@ export const MenuSubItem: React.FC<{
 			<Row align="center">
 				{leaveLeftSpace ? (
 					<>
-						<div style={leftSpace}>{leftItem}</div>
+						<div style={menuItemLeftSpace}>{leftItem}</div>
 						<Spacing x={1} />
 					</>
 				) : null}

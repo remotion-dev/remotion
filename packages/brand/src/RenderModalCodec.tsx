@@ -6,10 +6,13 @@ import {
 	Easing,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
+import {EXPLORE_CAMERA_ANGLE} from './HomepageAssets/ExploreRemotion/camera-angle';
 
 export const RenderModalCodecPreview = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
@@ -18,14 +21,15 @@ export const RenderModalCodecPreview = () => {
 				width: 3084,
 				height: 3588,
 				translate: '-946.8px -905.4px',
-				rotate: '0.904608 0.351506 -0.241096 27.995464deg',
+				rotate: EXPLORE_CAMERA_ANGLE,
 				transformOrigin: '27.8% 28.65%',
 				scale: 0.933,
 			}}
-			from={-585}
+			trimBefore={(585 / 60) * fps}
 		>
 			<Video
 				src="https://remotion.media/canvas-capture/render-modal-codec-2026-09-21.webm"
+				muted
 				style={{
 					position: 'absolute',
 				}}

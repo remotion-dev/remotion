@@ -43,6 +43,7 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
+import {watchRenderOutput} from '../helpers/watch-render-output';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesRefContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
@@ -64,7 +65,10 @@ import {
 	isEffectDragOverTarget,
 	isLutEffectDrop,
 } from './effect-drag-and-drop';
-import {getElementDragData, hasElementDragType} from './element-drag-and-drop';
+import {
+	getElementDragData,
+	mayHaveElementDragData,
+} from './element-drag-and-drop';
 import {handleDrop} from './handle-drop';
 import {
 	hasSvgFile,
@@ -715,18 +719,14 @@ export const Canvas: React.FC<{
 		};
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
-	const fetchMetadata = useCallback(async () => {
+	const loadMetadata = useCallback(async () => {
 		const request = ++metadataRequestRef.current;
-		setAssetResolution(null);
 		if (canvasContent.type === 'composition') {
 			setCurrentAssetMetadata(null);
 			return;
 		}
 
-		const metadata = await getAssetMetadata(
-			canvasContent,
-			canvasContent.type === 'asset',
-		);
+		const metadata = await getAssetMetadata(canvasContent, true);
 		if (request !== metadataRequestRef.current) {
 			return;
 		}
@@ -735,7 +735,16 @@ export const Canvas: React.FC<{
 		setCurrentAssetMetadata(getAssetPreviewMetadata({canvasContent, metadata}));
 	}, [canvasContent, setCurrentAssetMetadata]);
 
+	const fetchMetadata = useCallback(() => {
+		setAssetResolution(null);
+		return loadMetadata();
+	}, [loadMetadata]);
+
 	useEffect(() => {
+		if (canvasContent.type === 'output') {
+			return watchRenderOutput(canvasContent.path, loadMetadata);
+		}
+
 		if (canvasContent.type !== 'asset') {
 			return;
 		}
@@ -746,7 +755,7 @@ export const Canvas: React.FC<{
 		return () => {
 			file.cancel();
 		};
-	}, [canvasContent, fetchMetadata]);
+	}, [canvasContent, fetchMetadata, loadMetadata]);
 
 	useEffect(() => {
 		fetchMetadata();
@@ -775,7 +784,7 @@ export const Canvas: React.FC<{
 				cannotAddSequence &&
 				canReceiveElementInstallRequest &&
 				!isAddingAsset &&
-				hasElementDragType(event.dataTransfer);
+				mayHaveElementDragData(event.dataTransfer);
 
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);

@@ -4,10 +4,17 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {NOISE_DISPLACEMENT_WEBGPU_SHADER} from './noise-displacement-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertRequiredFiniteNumber,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -526,67 +533,114 @@ const setupNoiseDisplacement = (
 	};
 };
 
-export const noiseDisplacement = createEffect<
-	NoiseDisplacementParams,
-	NoiseDisplacementState
->({
+export const noiseDisplacement = createEffect<NoiseDisplacementParams>({
 	type: 'dev.remotion.effects.noiseDisplacement',
 	label: 'noiseDisplacement()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/noise-displacement',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `noise-displacement-${r.center.join(':')}-${r.radius}-${r.strength}-${r.seed}-${r.grainSize}-${r.passes}-${r.blur}-${r.feather}-${r.biasDirection}-${r.biasAmount}`;
 	},
-	setup: (target) => setupNoiseDisplacement(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, texture, vao, uniforms} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			NoiseDisplacementParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'noise-displacement'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the noise-displacement effect',
+					);
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.center[0],
+					r.center[1],
+					r.radius,
+					r.strength,
+					r.seed,
+					r.grainSize,
+					r.passes,
+					r.blur,
+					r.feather,
+					r.biasDirection,
+					r.biasAmount,
+					0,
+					0,
+					0,
+				]);
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: NOISE_DISPLACEMENT_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			NoiseDisplacementParams,
+			NoiseDisplacementState
+		>({
+			setup: (target) => setupNoiseDisplacement(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, texture, vao, uniforms} = state;
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uResolution) gl.uniform2f(uniforms.uResolution, width, height);
-		if (uniforms.uCenter)
-			gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
-		if (uniforms.uRadius) gl.uniform1f(uniforms.uRadius, r.radius);
-		if (uniforms.uStrength) gl.uniform1f(uniforms.uStrength, r.strength);
-		if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
-		if (uniforms.uGrainSize) gl.uniform1f(uniforms.uGrainSize, r.grainSize);
-		if (uniforms.uPasses) gl.uniform1i(uniforms.uPasses, r.passes);
-		if (uniforms.uBlur) gl.uniform1f(uniforms.uBlur, r.blur);
-		if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
-		if (uniforms.uBiasDirection)
-			gl.uniform1f(uniforms.uBiasDirection, r.biasDirection);
-		if (uniforms.uBiasAmount) gl.uniform1f(uniforms.uBiasAmount, r.biasAmount);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uCenter)
+					gl.uniform2f(uniforms.uCenter, r.center[0], r.center[1]);
+				if (uniforms.uRadius) gl.uniform1f(uniforms.uRadius, r.radius);
+				if (uniforms.uStrength) gl.uniform1f(uniforms.uStrength, r.strength);
+				if (uniforms.uSeed) gl.uniform1f(uniforms.uSeed, r.seed);
+				if (uniforms.uGrainSize) gl.uniform1f(uniforms.uGrainSize, r.grainSize);
+				if (uniforms.uPasses) gl.uniform1i(uniforms.uPasses, r.passes);
+				if (uniforms.uBlur) gl.uniform1f(uniforms.uBlur, r.blur);
+				if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
+				if (uniforms.uBiasDirection)
+					gl.uniform1f(uniforms.uBiasDirection, r.biasDirection);
+				if (uniforms.uBiasAmount)
+					gl.uniform1f(uniforms.uBiasAmount, r.biasAmount);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: noiseDisplacementSchema,
 	validateParams: validateNoiseDisplacementParams,

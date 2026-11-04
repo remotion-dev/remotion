@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-codemods-add-canvas-capture-composition.png
+image: https://remotion.media/docs/generated/articles-docs-codemods-add-canvas-capture-composition.png
 title: 'addCanvasCaptureComposition()'
 crumb: '@remotion/codemods'
 ---
@@ -105,7 +105,7 @@ The frame rate used to convert recording timestamps into cursor keyframes.
 
 #### data
 
-Capture data containing `captureMetadata.density`, `mouseMovements`, and `pointerClicks`. Mouse movements have `timeInSeconds`, `canvasX`, `canvasY`, and `cursor`. Clicks have `timeInSeconds` and `type: 'pointer-down' | 'pointer-up'`. At least one movement must have non-null canvas coordinates.
+The capture data described in [Recording metadata](/docs/canvas-capture/metadata#importing). At least one movement must have non-null canvas coordinates.
 
 The generated component uses `@remotion/media` and `@remotion/mac-cursors`. These packages must be installed in the project.
 

@@ -6,10 +6,17 @@ import {
 	type ParsedColorRgba,
 	validateUnitInterval,
 } from './color-utils.js';
+import {LINEAR_GRADIENT_TINT_WEBGPU_SHADER} from './linear-gradient-tint-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -347,7 +354,14 @@ const normalizedRgba = (
 };
 
 const getParsedColors = (
-	state: LinearGradientTintState,
+	state: Pick<
+		LinearGradientTintState,
+		| 'colorCtx'
+		| 'cachedStartColor'
+		| 'cachedStartColorRgba'
+		| 'cachedEndColor'
+		| 'cachedEndColorRgba'
+	>,
 	resolved: LinearGradientTintResolved,
 ): {
 	start: ParsedColorRgba;
@@ -375,69 +389,135 @@ const getParsedColors = (
 	};
 };
 
-export const linearGradientTint = createEffect<
-	LinearGradientTintParams,
-	LinearGradientTintState
->({
+export const linearGradientTint = createEffect<LinearGradientTintParams>({
 	type: 'dev.remotion.effects.linearGradientTint',
 	label: 'linearGradientTint()',
 	documentationLink:
 		'https://www.remotion.dev/docs/effects/linear-gradient-tint',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `linear-gradient-tint-${r.start.join(':')}-${r.end.join(':')}-${r.startColor}-${r.endColor}-${r.amount}`;
 	},
-	setup: (target) => setupLinearGradientTint(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {start, end} = getParsedColors(state, r);
-		const [sr, sg, sb, sa] = normalizedRgba(start);
-		const [er, eg, eb, ea] = normalizedRgba(end);
-		const {gl, program, textureSource, uniforms, vao} = state;
+	implementations: {
+		webgl2: Internals.createEffectImplementation<
+			LinearGradientTintParams,
+			LinearGradientTintState
+		>({
+			setup: (target) => setupLinearGradientTint(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {start, end} = getParsedColors(state, r);
+				const [sr, sg, sb, sa] = normalizedRgba(start);
+				const [er, eg, eb, ea] = normalizedRgba(end);
+				const {gl, program, textureSource, uniforms, vao} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, textureSource);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uStart) gl.uniform2f(uniforms.uStart, r.start[0], r.start[1]);
-		if (uniforms.uEnd) gl.uniform2f(uniforms.uEnd, r.end[0], r.end[1]);
-		if (uniforms.uStartColor) {
-			gl.uniform4f(uniforms.uStartColor, sr, sg, sb, sa);
-		}
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uStart)
+					gl.uniform2f(uniforms.uStart, r.start[0], r.start[1]);
+				if (uniforms.uEnd) gl.uniform2f(uniforms.uEnd, r.end[0], r.end[1]);
+				if (uniforms.uStartColor) {
+					gl.uniform4f(uniforms.uStartColor, sr, sg, sb, sa);
+				}
 
-		if (uniforms.uEndColor) {
-			gl.uniform4f(uniforms.uEndColor, er, eg, eb, ea);
-		}
+				if (uniforms.uEndColor) {
+					gl.uniform4f(uniforms.uEndColor, er, eg, eb, ea);
+				}
 
-		if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
+				if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, textureSource}) => {
+				gl.deleteTexture(textureSource);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
+		webgpu: Internals.createEffectImplementation<
+			LinearGradientTintParams,
+			WebGpuSinglePassState &
+				Pick<
+					LinearGradientTintState,
+					| 'colorCtx'
+					| 'cachedStartColor'
+					| 'cachedStartColorRgba'
+					| 'cachedEndColor'
+					| 'cachedEndColorRgba'
+				>
+		>({
+			setup: (target) => {
+				const colorCanvas = document.createElement('canvas');
+				colorCanvas.width = 1;
+				colorCanvas.height = 1;
+				const colorCtx = colorCanvas.getContext('2d', {
+					willReadFrequently: true,
+				});
+				if (!colorCtx) {
+					throw new Error('Failed to acquire 2D context for color parsing');
+				}
+
+				return {
+					...setupWebGpuSinglePass(target, 'linear-gradient-tint'),
+					colorCtx,
+					cachedStartColor: '',
+					cachedStartColorRgba: [0, 0, 0, 255] as ParsedColorRgba,
+					cachedEndColor: '',
+					cachedEndColorRgba: [255, 255, 255, 255] as ParsedColorRgba,
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the linear-gradient-tint effect',
+					);
+				}
+
+				const r = resolve(params);
+				const {start, end} = getParsedColors(state, r);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: LINEAR_GRADIENT_TINT_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						...r.start,
+						...r.end,
+						...normalizedRgba(start),
+						...normalizedRgba(end),
+						r.amount,
+						0,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
 	},
 	schema: linearGradientTintSchema,
 	validateParams: validateLinearGradientTintParams,

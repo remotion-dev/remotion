@@ -11,6 +11,8 @@ import {
 export const Background: React.FC<{ accent: string }> = ({ accent }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
+  const glowFilterId = React.useId();
+  const gridPatternId = React.useId();
 
   return (
     <AbsoluteFill
@@ -27,10 +29,7 @@ export const Background: React.FC<{ accent: string }> = ({ accent }) => {
           height: 640,
           left: 760,
           top: -160,
-          borderRadius: "50%",
-          backgroundColor: accent,
           opacity: 0.35,
-          filter: "blur(80px)",
           translate: interpolate(
             frame,
             [0, durationInFrames],
@@ -42,18 +41,59 @@ export const Background: React.FC<{ accent: string }> = ({ accent }) => {
             },
           ),
         }}
-      />
+      >
+        <svg
+          width="calc(100% + 480px)"
+          height="calc(100% + 480px)"
+          preserveAspectRatio="none"
+          style={{ position: "absolute", left: -240, top: -240 }}
+        >
+          <defs>
+            <filter
+              id={glowFilterId}
+              filterUnits="userSpaceOnUse"
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              colorInterpolationFilters="sRGB"
+            >
+              <feGaussianBlur stdDeviation="80" />
+            </filter>
+          </defs>
+          <ellipse
+            cx="50%"
+            cy="50%"
+            rx="calc(50% - 240px)"
+            ry="calc(50% - 240px)"
+            fill={accent}
+            filter={`url(#${glowFilterId})`}
+          />
+        </svg>
+      </Interactive.Div>
       <Interactive.Div
         name="Grid"
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
-          backgroundSize: "80px 80px",
           opacity: 0.6,
         }}
-      />
+      >
+        <svg width="100%" height="100%" preserveAspectRatio="none">
+          <defs>
+            <pattern
+              id={gridPatternId}
+              width="80"
+              height="80"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect width="80" height="1" fill="rgba(255,255,255,0.06)" />
+              <rect width="1" height="80" fill="rgba(255,255,255,0.06)" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill={`url(#${gridPatternId})`} />
+        </svg>
+      </Interactive.Div>
     </AbsoluteFill>
   );
 };

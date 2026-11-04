@@ -8,7 +8,7 @@ import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
 import {
 	canMoveCanvasKeyframes,
 	getBoundedKeyframeDragDelta,
-	getCanvasKeyframeMove,
+	getCanvasKeyframeMoves,
 	getMovedCanvasKeyframeOverride,
 	type CanvasKeyframeMoveTarget,
 } from './keyframe-move';
@@ -211,9 +211,7 @@ export const startCanvasKeyframeDrag = ({
 						schema: group.schema,
 						operation: {
 							type: 'move',
-							moves: group.targets.map((target) =>
-								getCanvasKeyframeMove(target, lastDelta),
-							),
+							moves: getCanvasKeyframeMoves(group.targets, lastDelta),
 						},
 					}),
 				),

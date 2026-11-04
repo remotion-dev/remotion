@@ -3,6 +3,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {UiOpenGlOptions} from '@remotion/studio-shared';
 import type {ChangeEvent} from 'react';
 import React, {useCallback, useMemo} from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import {Spacing} from '../layout';
@@ -23,6 +24,10 @@ const container: React.CSSProperties = {
 };
 
 export const RenderModalAdvanced: React.FC<{
+	readonly preferredEffectBackend: PreferredEffectBackend;
+	readonly setPreferredEffectBackend: React.Dispatch<
+		React.SetStateAction<PreferredEffectBackend>
+	>;
 	readonly renderMode: RenderType;
 	readonly minConcurrency: number;
 	readonly maxConcurrency: number;
@@ -72,6 +77,8 @@ export const RenderModalAdvanced: React.FC<{
 	readonly setRepro: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	renderMode,
+	preferredEffectBackend,
+	setPreferredEffectBackend,
 	maxConcurrency,
 	minConcurrency,
 	setConcurrency,
@@ -231,6 +238,22 @@ export const RenderModalAdvanced: React.FC<{
 		});
 	}, [extendedOpenGlOptions, openGlOption, setOpenGlOption]);
 
+	const effectBackendOptions = useMemo(
+		(): ComboboxValue[] =>
+			(['auto', 'webgpu', 'webgl2', '2d'] as const).map((backend) => ({
+				label: backend,
+				onClick: () => setPreferredEffectBackend(backend),
+				key: backend,
+				leftItem: preferredEffectBackend === backend ? <Checkmark /> : null,
+				id: backend,
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: backend,
+			})),
+		[preferredEffectBackend, setPreferredEffectBackend],
+	);
 	const chromeModeOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validChromeModeOptions.map((option) => {
 			return {
@@ -466,6 +489,19 @@ export const RenderModalAdvanced: React.FC<{
 						values={openGlOptions}
 						selectedId={openGlOption}
 						aria-label="OpenGl option"
+					/>
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>
+					Preferred effect backend <Spacing x={0.5} />
+					<OptionExplainerBubble id="preferredEffectBackendOption" />
+				</div>
+				<div style={rightRow}>
+					<Combobox
+						values={effectBackendOptions}
+						selectedId={preferredEffectBackend}
+						aria-label="Preferred effect backend"
 					/>
 				</div>
 			</div>

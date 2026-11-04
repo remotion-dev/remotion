@@ -75,6 +75,7 @@ test(
 					metadata: {Author: 'Lunar'},
 					licenseKey: null,
 					storageClass: null,
+					preferredEffectBackend: 'auto',
 					mediaCacheSizeInBytes: null,
 					isProduction: true,
 					sampleRate: 48000,

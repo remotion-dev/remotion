@@ -13,12 +13,10 @@ const ErrorBox: React.FC<{
 	const combined = [`${error.name}: ${message}`, ...deduplicated];
 
 	return (
-		<div className="bg-red-200/25 rounded px-3 py-2 border border-red-600 whitespace-pre overflow-x-auto">
+		<div className="bg-card text-warn rounded px-3 py-2 border border-border whitespace-pre overflow-x-auto">
 			<div>
 				{cause ? (
-					<div className="text-sm text-red-600 font-bold font-brand">
-						Caused by:
-					</div>
+					<div className="text-sm font-bold font-brand">Caused by:</div>
 				) : null}
 			</div>
 			<div>
@@ -26,7 +24,7 @@ const ErrorBox: React.FC<{
 					<div
 						// eslint-disable-next-line react/no-array-index-key
 						key={index}
-						className="text-red-600 first:font-medium first:font-brand"
+						className="first:font-medium first:font-brand"
 					>
 						{line}
 					</div>

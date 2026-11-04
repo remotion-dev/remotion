@@ -6,8 +6,8 @@ import {createBlankTemplateProject} from '../templates/blank';
 import type {VirtualProject} from '../types';
 
 const dependencyVersions = {
-	react: '19.2.3',
-	'react-dom': '19.2.3',
+	react: '19.3.1',
+	'react-dom': '19.3.1',
 	remotion: '4.0.500',
 };
 
@@ -69,8 +69,8 @@ test('downloads the current Browser Studio project as a runnable archive', async
 		},
 		dependencies: {
 			'@remotion/cli': '4.0.500',
-			react: '19.2.3',
-			'react-dom': '19.2.3',
+			react: '19.3.1',
+			'react-dom': '19.3.1',
 			remotion: '4.0.500',
 		},
 		devDependencies: {

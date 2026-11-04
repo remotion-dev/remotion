@@ -1,3 +1,4 @@
+import type {PreferredEffectBackend} from 'remotion';
 export const COMMAND_NOT_FOUND = 'Command not found';
 
 import type {StorageClass} from '@aws-sdk/client-s3';
@@ -177,6 +178,7 @@ export type ServerlessStartPayload = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	deleteAfter: DeleteAfter | null;
 	colorSpace: ColorSpace | null;
 	preferLossless: boolean;
@@ -245,6 +247,7 @@ export type ServerlessPayloads = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
 		mediaCacheSizeInBytes: number | null;
+		preferredEffectBackend: PreferredEffectBackend;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace | null;
 		preferLossless: boolean;
@@ -304,6 +307,7 @@ export type ServerlessPayloads = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
 		mediaCacheSizeInBytes: number | null;
+		preferredEffectBackend: PreferredEffectBackend;
 		deleteAfter: DeleteAfter | null;
 		colorSpace: ColorSpace | null;
 		compositionStart: number;
@@ -340,6 +344,7 @@ export type ServerlessPayloads = {
 		offthreadVideoCacheSizeInBytes: number | null;
 		offthreadVideoThreads: number | null;
 		mediaCacheSizeInBytes: number | null;
+		preferredEffectBackend: PreferredEffectBackend;
 		deleteAfter: DeleteAfter | null;
 		streamed: boolean;
 		forcePathStyle: boolean;
@@ -359,6 +364,7 @@ export type ServerlessPayloads = {
 		bucketName: string | null;
 		offthreadVideoCacheSizeInBytes: number | null;
 		mediaCacheSizeInBytes: number | null;
+		preferredEffectBackend: PreferredEffectBackend;
 		forcePathStyle: boolean;
 	};
 };

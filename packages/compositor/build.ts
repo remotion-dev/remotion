@@ -14,6 +14,7 @@ import {
 } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {downloadAssets} from './ffmpeg/download.mjs';
 import {toolchains} from './toolchains';
 
 const isWin = os.platform() === 'win32';
@@ -162,7 +163,17 @@ for (const toolchain of toolchains) {
 	}
 }
 
-const stdout = execSync('cargo metadata --format-version=1');
+const archs = all
+	? targets
+	: lambda
+		? ['aarch64-unknown-linux-gnu']
+		: cloudrun
+			? ['x86_64-unknown-linux-gnu']
+			: [nativeArch];
+
+await downloadAssets('archives', archs);
+
+const stdout = execSync('cargo metadata --format-version=1 --locked');
 const {packages} = JSON.parse(stdout as unknown as string);
 
 const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
@@ -176,13 +187,6 @@ if (!rustFfmpegSys) {
 
 const manifest = rustFfmpegSys.manifest_path;
 const binariesDirectory = path.join(path.dirname(manifest), 'zips');
-const archs = all
-	? targets
-	: lambda
-		? ['aarch64-unknown-linux-gnu']
-		: cloudrun
-			? ['x86_64-unknown-linux-gnu']
-			: [nativeArch];
 
 for (const arch of archs) {
 	const ffmpegFolder = path.join(copyDestinations[arch].dir, 'ffmpeg');
@@ -288,7 +292,7 @@ for (const arch of archs) {
 		}
 	}
 
-	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
+	const command = `cargo build --locked ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 
 	// debuginfo will keep symbols, which are used for backtrace.

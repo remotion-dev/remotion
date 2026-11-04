@@ -114,7 +114,7 @@ export const ConvertProgress: React.FC<{
 									/>
 								) : null}
 							</div>
-							<div className="border-b-2 border-black" />
+							<div className="border-b-2 border-outline" />
 						</>
 					) : null}
 				</>
@@ -123,7 +123,7 @@ export const ConvertProgress: React.FC<{
 					<AudioWaveformContainer>
 						<AudioWaveForm bars={bars} progress={progress} />
 					</AudioWaveformContainer>
-					<div className="border-b-2 border-black" />
+					<div className="border-b-2 border-outline" />
 				</>
 			) : null}
 			<div className="group/output-details p-2">
@@ -163,7 +163,7 @@ export const ConvertProgress: React.FC<{
 								>
 									<PenIcon
 										aria-hidden="true"
-										color="#000000"
+										color="currentColor"
 										className="size-[18px]"
 									/>
 								</button>

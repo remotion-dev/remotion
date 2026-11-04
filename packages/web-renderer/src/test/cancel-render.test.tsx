@@ -2,6 +2,10 @@ import {useEffect, useState} from 'react';
 import {useDelayRender} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
+import {
+	onlyOneMediaRenderAtATimeQueue,
+	onlyOneStillRenderAtATimeQueue,
+} from '../render-operations-queue';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 
@@ -52,6 +56,8 @@ test('preserves the original cancellation error and its causes', async () => {
 		}),
 	).rejects.toBe(error);
 
+	await expect(onlyOneStillRenderAtATimeQueue.ref).resolves.toBeUndefined();
+
 	await expect(
 		renderMediaOnWeb({
 			licenseKey: 'free-license',
@@ -60,4 +66,6 @@ test('preserves the original cancellation error and its causes', async () => {
 			container: 'webm',
 		}),
 	).rejects.toBe(error);
+
+	await expect(onlyOneMediaRenderAtATimeQueue.ref).resolves.toBeUndefined();
 });

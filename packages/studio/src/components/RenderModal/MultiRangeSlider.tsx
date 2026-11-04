@@ -43,7 +43,8 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 	onRightThumbDrag,
 }) => {
 	const getPercent = useCallback(
-		(value: number) => Math.round(((value - min) / (max - min)) * 100),
+		(value: number) =>
+			max === min ? 0 : Math.round(((value - min) / (max - min)) * 100),
 		[min, max],
 	);
 
@@ -60,7 +61,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 
 	const onChangeLeft = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
-			const value = Math.min(Number(event.target.value), end - 1);
+			const value = Math.min(Number(event.target.value), end);
 			onLeftThumbDrag(value);
 		},
 		[end, onLeftThumbDrag],
@@ -68,7 +69,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 
 	const onChangeRight = useCallback(
 		(event: ChangeEvent<HTMLInputElement>) => {
-			const value = Math.max(Number(event.target.value), start + 1);
+			const value = Math.max(Number(event.target.value), start);
 			onRightThumbDrag(value);
 		},
 		[onRightThumbDrag, start],

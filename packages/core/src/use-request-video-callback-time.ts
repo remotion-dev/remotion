@@ -14,7 +14,6 @@ export const useRequestVideoCallbackTime = ({
 }) => {
 	const currentTime = useRef<{
 		time: number;
-		lastUpdate: number;
 	} | null>(null);
 
 	useEffect(() => {
@@ -22,7 +21,6 @@ export const useRequestVideoCallbackTime = ({
 		if (current) {
 			currentTime.current = {
 				time: current.currentTime,
-				lastUpdate: performance.now(),
 			};
 		} else {
 			currentTime.current = null;
@@ -72,7 +70,6 @@ export const useRequestVideoCallbackTime = ({
 
 				currentTime.current = {
 					time: info.mediaTime,
-					lastUpdate: performance.now(),
 				};
 				request();
 			});
