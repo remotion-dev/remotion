@@ -1,11 +1,9 @@
 import {expect, test} from 'bun:test';
 import {existsSync, readFileSync} from 'fs';
 import path from 'path';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {openBrowser} from '@remotion/renderer';
-import {
-	getRemotionVersionFromIndexHtml,
-	VERSION,
-} from '@remotion/serverless-client';
+import {VERSION} from 'remotion/version';
 
 test(
 	'Bundle studio',
@@ -45,7 +43,8 @@ test(
 			path.join(folder, 'index.html'),
 			'utf-8',
 		);
-		const version = getRemotionVersionFromIndexHtml(indexHtmlContent);
+		const version =
+			LambdaClientInternals.getRemotionVersionFromIndexHtml(indexHtmlContent);
 		expect(version).toBe(VERSION);
 
 		const server = Bun.serve({

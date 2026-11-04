@@ -75,6 +75,7 @@ export const Fallback = () => <><Sequence name="First" /><Sequence name="Fallbac
 			const location = getSourceLocation(input, search);
 
 			return computeSequencePropsStatusFromFilenameByLocation({
+				fileContentsCache: null,
 				fileName,
 				line: location.line,
 				column: location.column + columnOffset,
@@ -174,6 +175,7 @@ test('computeSequencePropsStatus should ignore source locations outside the proj
 	try {
 		expect(
 			computeSequencePropsStatusFromFilenameByLocation({
+				fileContentsCache: null,
 				fileName: '../studio/RefreshCompositionOverlay.js',
 				line: 1,
 				column: 1,
@@ -896,6 +898,7 @@ export const Example = () => {
 test('canUpdateSequenceProps should flag computed props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'light-leak-computed.tsx');
 	const result = computeSequencePropsStatus({
+		fileContentsCache: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		componentIdentity: null,
@@ -1570,6 +1573,7 @@ test('computeSequencePropsStatus should explain why outside-project file reads w
 
 	expect(() =>
 		computeSequencePropsStatus({
+			fileContentsCache: null,
 			fileName,
 			nodePath: [],
 			componentIdentity: null,
@@ -1585,6 +1589,7 @@ test('computeSequencePropsStatus should explain why outside-project file reads w
 test('computeSequencePropsStatus should detect static nested props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		fileContentsCache: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
 		componentIdentity: null,
@@ -1611,6 +1616,7 @@ test('computeSequencePropsStatus should detect static nested props', () => {
 test('computeSequencePropsStatus should flag computed nested props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		fileContentsCache: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		componentIdentity: null,
@@ -1671,6 +1677,7 @@ export const Example = () => {
 test('computeSequencePropsStatus should flag computed when parent is not an object', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		fileContentsCache: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 9),
 		componentIdentity: null,
@@ -1691,6 +1698,7 @@ test('computeSequencePropsStatus should flag computed when parent is not an obje
 test('computeSequencePropsStatus should report unset nested props as undefined', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		fileContentsCache: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 7),
 		componentIdentity: null,
@@ -1712,6 +1720,7 @@ test('computeSequencePropsStatus should report unset nested props as undefined',
 test('computeSequencePropsStatus should report unset when parent attribute missing', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'nested-props.tsx');
 	const result = computeSequencePropsStatus({
+		fileContentsCache: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 10),
 		componentIdentity: null,
@@ -1733,6 +1742,7 @@ test('computeSequencePropsStatus should report unset when parent attribute missi
 test('computeSequencePropsStatus should return keyframes for interpolated style props', () => {
 	const filePath = path.join(__dirname, 'snapshots', 'keyframed-props.tsx');
 	const result = computeSequencePropsStatus({
+		fileContentsCache: null,
 		fileName: filePath,
 		nodePath: getNodePath(filePath, 8),
 		componentIdentity: null,

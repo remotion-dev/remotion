@@ -25,6 +25,14 @@ const arrowSpacer: React.CSSProperties = {
 	...arrowButton,
 };
 
+const stopPropagation = (
+	e:
+		| React.MouseEvent<HTMLButtonElement>
+		| React.PointerEvent<HTMLButtonElement>,
+) => {
+	e.stopPropagation();
+};
+
 export const TimelineExpandArrowButton: React.FC<{
 	readonly isExpanded: boolean;
 	readonly onClick: () => void;
@@ -37,17 +45,6 @@ export const TimelineExpandArrowButton: React.FC<{
 			onClick();
 		},
 		[onClick],
-	);
-
-	const stopPropagation = React.useCallback(
-		(
-			e:
-				| React.MouseEvent<HTMLButtonElement>
-				| React.PointerEvent<HTMLButtonElement>,
-		) => {
-			e.stopPropagation();
-		},
-		[],
 	);
 
 	const style: React.CSSProperties = useMemo(() => {

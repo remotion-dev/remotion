@@ -1,10 +1,10 @@
 import {GetObjectCommand, HeadObjectCommand} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
-import {validateBucketName} from '@remotion/serverless-client';
 import {REMOTION_BUCKET_PREFIX} from './constants';
 import {getS3Client} from './get-s3-client';
 import type {AwsRegion} from './regions';
 import type {RequestHandler} from './types';
+import {validateBucketName} from './validate-bucket-name';
 import {validatePresignExpiration} from './validate-presign-expiration';
 
 type MandatoryParameters = {

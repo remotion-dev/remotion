@@ -17,6 +17,7 @@ export type EasingSpringConfig = Partial<
 // there so we return endpoints instead of NaN or unintended extrapolation.
 const clampUnit = (t: number): number => Math.min(1, Math.max(0, t));
 const springEasingDurationInFrames = 30;
+let easeBezier: ((t: number) => number) | null = null;
 
 /**
  * @description The Easing module implements common easing functions. You can use it with the interpolate() API.
@@ -36,7 +37,8 @@ export class Easing {
 	}
 
 	static ease(t: number): number {
-		return Easing.bezier(0.42, 0, 1, 1)(t);
+		easeBezier ??= Easing.bezier(0.42, 0, 1, 1);
+		return easeBezier(t);
 	}
 
 	static quad(t: number): number {

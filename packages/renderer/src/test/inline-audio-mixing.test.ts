@@ -204,3 +204,58 @@ test(
 	},
 	{timeout: 120_000},
 );
+
+// Pitch preservation at 0.25x produces an internal toneFrequency of 4.
+test('server inline audio preserves pitch below half speed', async () => {
+	const dir = mkdtempSync(path.join(os.tmpdir(), 'inline-audio-slow-pitch-'));
+	const mixing = makeInlineAudioMixing(dir, SAMPLE_RATE);
+	try {
+		for (let frame = 0; frame < FPS; frame++) {
+			const audio = new Int16Array(SAMPLES_PER_FRAME * 2);
+			for (let sample = 0; sample < SAMPLES_PER_FRAME; sample++) {
+				const value = Math.round(
+					Math.sin(
+						((frame * SAMPLES_PER_FRAME + sample) * 110 * 2 * Math.PI) /
+							SAMPLE_RATE,
+					) * 16000,
+				);
+				audio[sample * 2] = value;
+				audio[sample * 2 + 1] = value;
+			}
+
+			mixing.addAsset({
+				asset: {
+					...makeAsset({id: 'slow', frame, startInVideo: 0}),
+					audio,
+					toneFrequency: 4,
+				},
+				fps: FPS,
+				totalNumberOfFrames: FPS,
+				firstFrame: 0,
+				trimLeftOffset: 0,
+				trimRightOffset: 0,
+			});
+		}
+
+		await finish(mixing);
+		const [track] = mixing.getListOfAssets();
+		const wav = readFileSync(track.outName);
+		const dataOffset = wav.indexOf('data') + 8;
+		const from = Math.round(SAMPLE_RATE * 0.2);
+		const to = Math.round(SAMPLE_RATE * 0.7);
+		expect(wav.length).toBeGreaterThan(dataOffset + to * 4);
+		let crossings = 0;
+		for (let sample = from + 1; sample < to; sample++) {
+			if (
+				wav.readInt16LE(dataOffset + (sample - 1) * 4) <= 0 &&
+				wav.readInt16LE(dataOffset + sample * 4) > 0
+			)
+				crossings++;
+		}
+
+		expect((crossings * SAMPLE_RATE) / (to - from)).toBeCloseTo(440, -1);
+	} finally {
+		mixing.cleanup();
+		rmSync(dir, {recursive: true, force: true});
+	}
+});

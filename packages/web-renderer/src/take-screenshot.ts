@@ -67,10 +67,15 @@ export const createLayer = async ({
 					element,
 					scaledWidth,
 					scaledHeight,
+					signal: internalState.maskImageLoaderState.signal,
 				});
 				onHtmlInCanvasLayerOutcome({native: true});
 				return offCtx;
 			} catch (err) {
+				if (internalState.maskImageLoaderState.signal?.aborted) {
+					throw err;
+				}
+
 				const detail = err instanceof Error ? err.message : JSON.stringify(err);
 				onHtmlInCanvasLayerOutcome({
 					native: false,

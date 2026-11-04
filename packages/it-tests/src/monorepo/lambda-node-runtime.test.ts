@@ -2,7 +2,7 @@ import {expect, test} from 'bun:test';
 import {readFileSync} from 'node:fs';
 import path from 'node:path';
 
-test('Lambda create-function runtime should be matched by aws-provider regex', () => {
+test('Lambda create-function runtime should be matched by set-lambda-env regex', () => {
 	const createFunctionPath = path.resolve(
 		__dirname,
 		'..',
@@ -13,18 +13,20 @@ test('Lambda create-function runtime should be matched by aws-provider regex', (
 		'api',
 		'create-function.ts',
 	);
-	const awsProviderPath = path.resolve(
+	const setLambdaEnvPath = path.resolve(
 		__dirname,
 		'..',
 		'..',
 		'..',
-		'lambda-client',
+		'lambda',
 		'src',
-		'aws-provider.ts',
+		'functions',
+		'helpers',
+		'set-lambda-env.ts',
 	);
 
 	const createFunctionSource = readFileSync(createFunctionPath, 'utf-8');
-	const awsProviderSource = readFileSync(awsProviderPath, 'utf-8');
+	const setLambdaEnvSource = readFileSync(setLambdaEnvPath, 'utf-8');
 
 	const runtimeMatch = createFunctionSource.match(
 		/Runtime:\s*'(nodejs\d+\.x)'/,
@@ -35,10 +37,12 @@ test('Lambda create-function runtime should be matched by aws-provider regex', (
 
 	const runtime = runtimeMatch[1];
 
-	const regexMatch = awsProviderSource.match(/AWS_Lambda_nodejs\(\?:([^)]+)\)/);
+	const regexMatch = setLambdaEnvSource.match(
+		/AWS_Lambda_nodejs\(\?:([^)]+)\)/,
+	);
 	if (!regexMatch) {
 		throw new Error(
-			'Could not find AWS_EXECUTION_ENV regex in aws-provider.ts',
+			'Could not find AWS_EXECUTION_ENV regex in set-lambda-env.ts',
 		);
 	}
 

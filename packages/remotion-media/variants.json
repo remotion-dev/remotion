@@ -791,6 +791,14 @@
 		"category": "edge-cases"
 	},
 	{
+		"videoCodec": "h264",
+		"audioCodec": "alac (default) / aac",
+		"container": "mov",
+		"fileNames": ["media-tests/unsupported-primary-alac-aac-v1.mov"],
+		"size": 30234,
+		"category": "edge-cases"
+	},
+	{
 		"videoCodec": "none",
 		"audioCodec": "pcm",
 		"container": "wav",

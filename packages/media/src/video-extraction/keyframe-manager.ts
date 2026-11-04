@@ -252,11 +252,13 @@ export const makeKeyframeManager = ({
 	const getKeyframeBankOrRefetch = async ({
 		timestamp,
 		videoSampleSink,
+		timeResolution,
 		src,
 		logLevel,
 	}: {
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
+		timeResolution: number;
 		src: string;
 		logLevel: LogLevel;
 	}): Promise<KeyframeBank | null> => {
@@ -276,6 +278,7 @@ export const makeKeyframeManager = ({
 			);
 			const newKeyframeBank = await makeKeyframeBank({
 				videoSampleSink,
+				timeResolution,
 				logLevel,
 				src,
 				initialTimestampRequest: timestamp,
@@ -310,6 +313,7 @@ export const makeKeyframeManager = ({
 		// Then refetch
 		const replacementKeybank = await makeKeyframeBank({
 			videoSampleSink,
+			timeResolution,
 			initialTimestampRequest: timestamp,
 			logLevel,
 			src,
@@ -325,6 +329,7 @@ export const makeKeyframeManager = ({
 	const requestKeyframeBank = async ({
 		timestamp,
 		videoSampleSink,
+		timeResolution,
 		src,
 		logLevel,
 		maxCacheSize,
@@ -332,6 +337,7 @@ export const makeKeyframeManager = ({
 	}: {
 		timestamp: number;
 		videoSampleSink: VideoSampleSink;
+		timeResolution: number;
 		src: string;
 		logLevel: LogLevel;
 		maxCacheSize: number;
@@ -355,6 +361,7 @@ export const makeKeyframeManager = ({
 		const keyframeBank = await getKeyframeBankOrRefetch({
 			timestamp,
 			videoSampleSink,
+			timeResolution,
 			src,
 			logLevel,
 		});
@@ -397,6 +404,7 @@ export const makeKeyframeManager = ({
 		requestKeyframeBank: ({
 			timestamp,
 			videoSampleSink,
+			timeResolution,
 			src,
 			logLevel,
 			maxCacheSize,
@@ -404,6 +412,7 @@ export const makeKeyframeManager = ({
 		}: {
 			timestamp: number;
 			videoSampleSink: VideoSampleSink;
+			timeResolution: number;
 			src: string;
 			logLevel: LogLevel;
 			maxCacheSize: number;
@@ -413,6 +422,7 @@ export const makeKeyframeManager = ({
 				requestKeyframeBank({
 					timestamp,
 					videoSampleSink,
+					timeResolution,
 					src,
 					logLevel,
 					maxCacheSize,

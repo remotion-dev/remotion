@@ -161,7 +161,13 @@ const SequenceTestWrapper: React.FC<{
 			clearEffectDragOverrides: () => undefined,
 			remapPropStatuses: () => undefined,
 			setPropStatuses: () => undefined,
+			setPropStatusesBatch: () => undefined,
 			setDragOverrides: () => undefined,
+			updateDragOverrides: () => undefined,
+			updateDragOverridesBatch: () => undefined,
+			remapDragOverrideFields: () => undefined,
+			updateEffectDragOverridesBatch: () => undefined,
+			remapEffectDragOverrideFields: () => undefined,
 			setEffectDragOverrides: () => undefined,
 		}),
 		[],
@@ -296,10 +302,10 @@ test('<HtmlInCanvas> exposes crop controls', () => {
 	expect(htmlInCanvasSchema.cropBottom.keyframable).toBe(true);
 });
 
-test('<HtmlInCanvas> throws when nested', () => {
+test('<HtmlInCanvas> throws when nested during rendering', () => {
 	expect(() =>
 		render(
-			<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<SequenceTestWrapper isRendering onRegisterSequence={() => undefined}>
 				<HtmlInCanvas width={120} height={80}>
 					<HtmlInCanvas width={60} height={40}>
 						<div>Nested</div>

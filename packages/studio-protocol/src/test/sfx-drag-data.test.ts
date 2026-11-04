@@ -6,11 +6,13 @@ const sfxMimeType = StudioProtocolInternals.makeDragData({
 	name: 'Test',
 	url: 'https://remotion.media/test.wav',
 }).mimeType;
+
 const parseSfxDragData = (payload: string) => {
 	const parsed = StudioProtocolInternals.parseDragData({
 		mimeType: sfxMimeType,
 		payload,
 	});
+
 	return parsed?.type === 'sfx' ? parsed.data : null;
 };
 
@@ -37,6 +39,7 @@ test('accepts any URL in SFX drag data', () => {
 			url: 'https://example.com/whip.wav',
 		},
 	};
+
 	expect(parseSfxDragData(JSON.stringify(nonRemotionUrlDragData))).toEqual(
 		nonRemotionUrlDragData,
 	);

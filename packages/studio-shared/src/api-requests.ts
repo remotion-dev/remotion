@@ -12,6 +12,7 @@ import type {
 	X264Preset,
 } from '@remotion/renderer';
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
+import type {PreferredEffectBackend} from 'remotion';
 import type {
 	_InternalTypes,
 	CannotUpdateSequenceReason,
@@ -46,6 +47,7 @@ import type {
 	RequiredChromiumOptions,
 } from './render-job';
 import type {SequenceNodePathMutation} from './sequence-node-path-mutation';
+import type {SourceFileVersion} from './source-file-version';
 import type {SymbolicatedStackFrame} from './stack-types';
 import type {EnumPath} from './stringify-default-props';
 import type {TerminalId} from './terminal';
@@ -221,6 +223,7 @@ type AddRenderRequestDynamicFields =
 			disallowParallelEncoding: boolean;
 			repro: boolean;
 			chromeMode: ChromeMode;
+			licenseKey: string | null;
 	  }
 	| {
 			type: 'video';
@@ -255,6 +258,14 @@ type AddRenderRequestDynamicFields =
 			chromeMode: ChromeMode;
 			sampleRate: number;
 			licenseKey: string | null;
+			prerenderTarget: {
+				fileName: string;
+				nodePath: SequenceNodePath;
+				width: number;
+				height: number;
+				fps: number;
+				durationInFrames: number;
+			} | null;
 	  };
 
 export type CancelRenderRequest = {
@@ -272,6 +283,7 @@ export type AddRenderRequest = {
 	offthreadVideoCacheSizeInBytes: number | null;
 	offthreadVideoThreads: number | null;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	multiProcessOnLinux: boolean;
 	beepOnFinish: boolean;
 	metadata: Record<string, string> | null;
@@ -299,6 +311,7 @@ export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
 	enumPaths: EnumPath[];
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type ApplyVisualControlRequest = {
@@ -439,6 +452,7 @@ export type CanUpdateDefaultPropsResponse =
 export type SubscribeToDefaultPropsRequest = {
 	compositionId: string;
 	clientId: string;
+	symbolicatedStack: SymbolicatedStackFrame | null;
 };
 
 export type SubscribeToDefaultPropsResponse = CanUpdateDefaultPropsResponse;
@@ -478,6 +492,7 @@ export type SubscribeToSequencePropsResponse =
 	  };
 
 export type SubscribeToSequencePropsBatchRequest = {
+	compiledSourceHashes: (string | null)[] | null;
 	requests: SubscribeToSequencePropsRequest[];
 };
 
@@ -780,8 +795,16 @@ export type DeleteKeyframesRequest = {
 	clientId: string;
 };
 
+export type KeyframeMutationResult = {
+	nodePath: SequencePropsSubscriptionKey;
+	effectIndex: number | null;
+	props: Record<string, CanUpdateSequencePropSource>;
+	sourceVersion: SourceFileVersion | null;
+};
+
 export type DeleteKeyframesResponse = {
 	success: true;
+	results: KeyframeMutationResult[];
 };
 
 export type MoveKeyframesRequest = {
@@ -792,6 +815,7 @@ export type MoveKeyframesRequest = {
 
 export type MoveKeyframesResponse = {
 	success: true;
+	results: KeyframeMutationResult[];
 };
 
 export type AddEffectKeyframeRequest = {
@@ -959,6 +983,7 @@ export type DuplicateNodesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
+			duplicatedNodes: {absolutePath: string; nodePath: SequenceNodePath}[];
 	  }
 	| {
 			success: false;
@@ -1026,6 +1051,7 @@ export type PrecomposeJsxNodesRequest = {
 		fps: number;
 		durationInFrames: number;
 	};
+	name: {compositionId: string; componentName: string} | null;
 	dryRun: boolean;
 };
 
@@ -1034,6 +1060,7 @@ export type PrecomposeJsxNodesResponse =
 			success: true;
 			canPrecompose: boolean;
 			reason: string | null;
+			invalidName: boolean;
 			nodePathMutation: SequenceNodePathMutation | null;
 			newCompositionId: string | null;
 	  }
@@ -1055,6 +1082,11 @@ export type SplitSequencesResponse =
 	| {
 			success: true;
 			nodePathMutation: SequenceNodePathMutation;
+			splitNodes: {absolutePath: string; nodePath: SequenceNodePath}[];
+			sourceVersions: {
+				absolutePath: string;
+				sourceVersion: SourceFileVersion | null;
+			}[];
 	  }
 	| {
 			success: false;
@@ -1103,6 +1135,28 @@ export type ReplaceVideoSourceRequest = {
 };
 
 export type ReplaceVideoSourceResponse =
+	| {success: true; nodePathMutation: SequenceNodePathMutation}
+	| {success: false; reason: string; stack: string};
+
+export type PrerenderedSceneInfoRequest = {
+	src: string;
+};
+
+export type PrerenderedSceneInfoResponse =
+	| {type: 'not-prerendered'}
+	| {
+			type: 'prerendered';
+			compositionId: string;
+			stale: boolean | null;
+	  };
+
+export type RestorePrerenderedSceneRequest = {
+	fileName: string;
+	nodePath: SequenceNodePath;
+	src: string;
+};
+
+export type RestorePrerenderedSceneResponse =
 	| {success: true; nodePathMutation: SequenceNodePathMutation}
 	| {success: false; reason: string; stack: string};
 
@@ -1721,6 +1775,14 @@ export const studioOperations = {
 	'/api/replace-video-source': new StudioOperation<
 		ReplaceVideoSourceRequest,
 		ReplaceVideoSourceResponse
+	>({mutatesSource: true}),
+	'/api/prerendered-scene-info': new StudioOperation<
+		PrerenderedSceneInfoRequest,
+		PrerenderedSceneInfoResponse
+	>({mutatesSource: false}),
+	'/api/restore-prerendered-scene': new StudioOperation<
+		RestorePrerenderedSceneRequest,
+		RestorePrerenderedSceneResponse
 	>({mutatesSource: true}),
 	'/api/insert-composition-element': new StudioOperation<
 		InsertCompositionElementRequest,

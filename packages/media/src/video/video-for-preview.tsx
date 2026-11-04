@@ -19,8 +19,10 @@ import {
 	Internals,
 	useBufferState,
 	useCurrentFrame,
+	useRemotionEnvironment,
 	useVideoConfig,
 } from 'remotion';
+import {getSharedInputCacheKey} from '../get-shared-input';
 import {getTimeInSeconds} from '../get-time-in-seconds';
 import {frameForVolumeProp} from '../looped-frame';
 import {MediaPlayer} from '../media-player';
@@ -57,6 +59,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly src: string;
 	readonly style: React.CSSProperties | undefined;
 	readonly playbackRate: number;
+	readonly preservePitch: boolean | null;
 	readonly toneFrequency: number;
 	readonly logLevel: LogLevel;
 	readonly className: string | undefined;
@@ -71,7 +74,7 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly _remotionInternalStack: string | null;
 	readonly disallowFallbackToOffthreadVideo: boolean;
 	readonly fallbackOffthreadVideoProps: FallbackOffthreadVideoProps;
-	readonly audioStreamIndex: number;
+	readonly audioStreamIndex: number | null;
 	readonly debugOverlay: boolean;
 	readonly headless: boolean;
 	readonly onError: MediaOnError | undefined;
@@ -85,15 +88,24 @@ type VideoForPreviewProps = NativeVideoProps & {
 	readonly effectsOutputSize: EffectsOutputSize | null;
 };
 
-type VideoForPreviewAssertedShowingProps = VideoForPreviewProps;
+type VideoForPreviewAssertedShowingProps = VideoForPreviewProps & {
+	readonly mediaTime: number;
+};
+
+const studioVideoCanvases = new Map<
+	HTMLCanvasElement,
+	{sourceKey: string; getPlainFrameTime: () => number | null}
+>();
 
 const VideoForPreviewAssertedShowing: React.FC<
 	VideoForPreviewAssertedShowingProps
 > = ({
 	src: unpreloadedSrc,
+	mediaTime,
 	style,
 	playbackRate,
 	toneFrequency,
+	preservePitch,
 	logLevel,
 	className,
 	muted,
@@ -124,6 +136,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const src = usePreload(unpreloadedSrc);
 
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const {isStudio} = useRemotionEnvironment();
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
@@ -140,6 +153,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const playing = usePlaying();
 	const {playbackRate: globalPlaybackRate} = Internals.usePlaybackRate();
+	const preservePitchOnPlayback = useContext(Internals.PlaybackPitchContext);
 	const sharedAudioContext = useContext(SharedAudioContext);
 	const buffer = useBufferState();
 
@@ -198,6 +212,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 	const sequencePlaybackRate = parentSequence?.playbackRate ?? 1;
 	const effectivePlaybackRate = playbackRate * sequencePlaybackRate;
+	const effectiveToneFrequency =
+		(toneFrequency ?? 1) /
+		(preservePitch ? effectivePlaybackRate : 1) /
+		(preservePitchOnPlayback && globalPlaybackRate > 0
+			? globalPlaybackRate
+			: 1);
 	const sequenceDurationInFrames =
 		videoConfig.durationInFrames / sequencePlaybackRate;
 	const currentTime = frame / sequencePlaybackRate / videoConfig.fps;
@@ -223,7 +243,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const initialIsPostmounting = useRef(isPostmounting);
 	const initialGlobalPlaybackRate = useRef(globalPlaybackRate);
 	const initialPlaybackRate = useRef(effectivePlaybackRate);
-	const initialToneFrequency = useRef(toneFrequency);
+	const initialToneFrequency = useRef(effectiveToneFrequency);
 	const initialMuted = useRef(mediaPlayerMuted);
 	const initialVolume = useRef(userPreferredVolume);
 	const initialSequenceDuration = useRef(sequenceDurationInFrames);
@@ -231,6 +251,89 @@ const VideoForPreviewAssertedShowing: React.FC<
 	const hasDrawnRealFrameRef = useRef(false);
 	const isPremountingRef = useRef(isPremounting);
 	isPremountingRef.current = isPremounting;
+
+	const maxWidth = maxCanvasSinkFrameSize?.width;
+	const maxHeight = maxCanvasSinkFrameSize?.height;
+	const studioSourceKey = useMemo(
+		() =>
+			isStudio
+				? JSON.stringify([
+						getSharedInputCacheKey({
+							src: preloadedSrc,
+							credentials,
+							requestInit: initialRequestInit,
+						}),
+						maxWidth,
+						maxHeight,
+					])
+				: null,
+		[
+			credentials,
+			initialRequestInit,
+			isStudio,
+			maxHeight,
+			maxWidth,
+			preloadedSrc,
+		],
+	);
+	const copiedFrameRef = useRef<{
+		canvas: HTMLCanvasElement;
+		sourceKey: string;
+		mediaTime: number;
+		width: number;
+		height: number;
+	} | null>(null);
+	const canSharePausedFrame =
+		!shouldFallbackToNativeVideo &&
+		terminalError === null &&
+		!playing &&
+		!loop &&
+		!debugOverlay &&
+		!onVideoFrame &&
+		effects.length === 0 &&
+		!_experimentalInitiallyDrawCachedFrame;
+	const canSharePausedFrameRef = useRef(canSharePausedFrame);
+	canSharePausedFrameRef.current = canSharePausedFrame;
+	const mediaTimeRef = useRef(mediaTime);
+	mediaTimeRef.current = mediaTime;
+	const canReceivePausedFrame =
+		canSharePausedFrame && !isPremounting && !isPostmounting && !headless;
+	useLayoutEffect(() => {
+		const canvas = canvasRef.current;
+		if (
+			!canvas ||
+			!studioSourceKey ||
+			!canReceivePausedFrame ||
+			mediaPlayerRef.current
+		) {
+			return;
+		}
+
+		for (const [source, previous] of studioVideoCanvases) {
+			if (
+				source !== canvas &&
+				previous.sourceKey === studioSourceKey &&
+				previous.getPlainFrameTime() === mediaTimeRef.current
+			) {
+				const context = canvas.getContext('2d');
+				if (!context) {
+					return;
+				}
+
+				canvas.width = source.width;
+				canvas.height = source.height;
+				context.drawImage(source, 0, 0);
+				copiedFrameRef.current = {
+					canvas,
+					sourceKey: studioSourceKey,
+					mediaTime: mediaTimeRef.current,
+					width: canvas.width,
+					height: canvas.height,
+				};
+				break;
+			}
+		}
+	}, [canReceivePausedFrame, studioSourceKey]);
 
 	useLayoutEffect(() => {
 		if (!_experimentalInitiallyDrawCachedFrame) {
@@ -281,6 +384,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
+		// The context is created after commit. Avoid initializing a silent player
+		// that would immediately be replaced when its audio context becomes ready.
+		if (sharedAudioContext?.audioContextPending) {
+			return;
+		}
+
 		const sharedAudioContextForMediaPlayer =
 			sharedAudioContext?.audioContext && sharedAudioContext.gainNode
 				? {
@@ -292,9 +401,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				: null;
 
+		const canvas = canvasRef.current;
 		try {
 			const player = new MediaPlayer({
-				canvas: canvasRef.current,
+				canvas,
 				src: preloadedSrc,
 				logLevel,
 				sharedAudioContext: sharedAudioContextForMediaPlayer,
@@ -336,6 +446,31 @@ const VideoForPreviewAssertedShowing: React.FC<
 					}
 				},
 			});
+
+			if (canvas && studioSourceKey) {
+				const copied = copiedFrameRef.current;
+				copiedFrameRef.current = null;
+				studioVideoCanvases.set(canvas, {
+					sourceKey: studioSourceKey,
+					getPlainFrameTime: () => {
+						if (!canSharePausedFrameRef.current) {
+							return null;
+						}
+
+						const copiedTime =
+							copied?.canvas === canvas &&
+							copied.sourceKey === studioSourceKey &&
+							copied.mediaTime === mediaTimeRef.current &&
+							copied.width === canvas.width &&
+							copied.height === canvas.height
+								? copied.mediaTime
+								: null;
+						return player.videoIteratorManager
+							? player.videoIteratorManager.getPlainFrameTime(copiedTime)
+							: copiedTime;
+					},
+				});
+			}
 
 			mediaPlayerRef.current = player;
 			player
@@ -379,7 +514,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 					if (result.type === 'cannot-decode') {
 						handleError(
-							new Error(`Cannot decode ${preloadedSrc}.`),
+							result.error,
 							`Cannot decode ${preloadedSrc}, falling back to <OffthreadVideo>`,
 						);
 						return;
@@ -456,6 +591,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 		}
 
 		return () => {
+			if (canvas && studioSourceKey) {
+				studioVideoCanvases.delete(canvas);
+			}
+
 			if (mediaPlayerRef.current) {
 				Internals.Log.trace(
 					{logLevel, tag: '@remotion/media'},
@@ -482,6 +621,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		credentials,
 		initialRequestInit,
 		setMediaDurationInSeconds,
+		studioSourceKey,
 		// Compare the numbers, so that a new object with the same size does not
 		// recreate the player.
 		maxCanvasSinkFrameSize?.width,
@@ -508,7 +648,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		effectiveMuted: mediaPlayerMuted,
 		userPreferredVolume,
 		playbackRate: effectivePlaybackRate,
-		toneFrequency,
+		toneFrequency: effectiveToneFrequency,
 		globalPlaybackRate,
 		fps: videoConfig.fps,
 		sequenceOffset,
@@ -539,9 +679,12 @@ const VideoForPreviewAssertedShowing: React.FC<
 		mediaPlayer.setVideoFrameCallback(onVideoFrame ?? null);
 	}, [onVideoFrame, mediaPlayerReady]);
 
+	const lastEffectsTime = useRef(currentTime);
 	useLayoutEffect(() => {
+		const timeChanged = lastEffectsTime.current !== currentTime;
+		lastEffectsTime.current = currentTime;
 		const mediaPlayer = mediaPlayerRef.current;
-		if (!mediaPlayer || !mediaPlayerReady) {
+		if (!mediaPlayer || !mediaPlayerReady || timeChanged) {
 			return;
 		}
 
@@ -549,6 +692,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 			// Player may have been disposed between layout and the async redraw.
 		});
 	}, [
+		currentTime,
 		effects,
 		effectsOutputSize?.width,
 		effectsOutputSize?.height,
@@ -589,6 +733,9 @@ const VideoForPreviewAssertedShowing: React.FC<
 				showInTimeline={showInTimeline}
 				_remotionInternalStack={_remotionInternalStack ?? undefined}
 				{...fallbackOffthreadVideoProps}
+				preservePitch={
+					fallbackOffthreadVideoProps?.preservePitch ?? preservePitch ?? true
+				}
 			/>
 		);
 	}
@@ -619,8 +766,8 @@ export const VideoForPreview: React.FC<
 	const videoConfig = useVideoConfig();
 	const currentTime = frame / videoConfig.fps;
 
-	const showShow = useMemo(() => {
-		return (
+	const mediaTime = useMemo(
+		() =>
 			getTimeInSeconds({
 				unloopedTimeInSeconds: currentTime,
 				playbackRate: props.playbackRate,
@@ -631,21 +778,21 @@ export const VideoForPreview: React.FC<
 				fps: videoConfig.fps,
 				ifNoMediaDuration: 'infinity',
 				src: props.src,
-			}) !== null
-		);
-	}, [
-		currentTime,
-		props.loop,
-		props.playbackRate,
-		props.src,
-		videoConfig.fps,
-		props.trimBefore,
-		props.trimAfter,
-	]);
+			}),
+		[
+			currentTime,
+			props.loop,
+			props.playbackRate,
+			props.src,
+			videoConfig.fps,
+			props.trimBefore,
+			props.trimAfter,
+		],
+	);
 
-	if (!showShow) {
+	if (mediaTime === null) {
 		return null;
 	}
 
-	return <VideoForPreviewAssertedShowing {...props} />;
+	return <VideoForPreviewAssertedShowing {...props} mediaTime={mediaTime} />;
 };

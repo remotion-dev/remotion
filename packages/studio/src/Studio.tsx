@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {Editor} from './components/Editor';
 import {EditorContexts} from './components/EditorContexts';
 import {ServerDisconnected} from './components/Notifications/ServerDisconnected';
+import {PlaybackPitchSettingsProvider} from './components/PlaybackPitchSettingsProvider';
 import {SequenceActivitySettingsProvider} from './components/SequenceActivitySettingsProvider';
 import {StaticFilesProvider} from './components/use-static-files';
 import {FastRefreshProvider} from './FastRefreshProvider';
@@ -47,21 +48,25 @@ const StudioInner: React.FC<{
 					window.remotion_experimentalKeepAudioContextAlive ?? false
 				}
 			>
-				<StaticFilesProvider>
-					<ResolveCompositionConfigInStudio>
-						<EditorContexts>
-							<CompositionListProvider>
-								<Editor readOnlyStudio={readOnly} Root={rootComponent} />
-							</CompositionListProvider>
-							{readOnly
-								? null
-								: createPortal(
-										<ServerDisconnected />,
-										getServerDisconnectedDomElement() as HTMLElement,
-									)}
-						</EditorContexts>
-					</ResolveCompositionConfigInStudio>
-				</StaticFilesProvider>
+				<Internals.PreferredEffectBackendContext.Provider
+					value={window.remotion_studioConfig?.preferredEffectBackend ?? 'auto'}
+				>
+					<StaticFilesProvider>
+						<ResolveCompositionConfigInStudio>
+							<EditorContexts>
+								<CompositionListProvider>
+									<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+								</CompositionListProvider>
+								{readOnly
+									? null
+									: createPortal(
+											<ServerDisconnected />,
+											getServerDisconnectedDomElement() as HTMLElement,
+										)}
+							</EditorContexts>
+						</ResolveCompositionConfigInStudio>
+					</StaticFilesProvider>
+				</Internals.PreferredEffectBackendContext.Provider>
 			</Internals.RemotionRootContexts>
 		</Internals.CompositionManagerProvider>
 	);
@@ -79,7 +84,9 @@ export const Studio: React.FC<{
 	return (
 		<FastRefreshProvider>
 			<SequenceActivitySettingsProvider>
-				<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+				<PlaybackPitchSettingsProvider>
+					<StudioInner rootComponent={rootComponent} readOnly={readOnly} />
+				</PlaybackPitchSettingsProvider>
 			</SequenceActivitySettingsProvider>
 		</FastRefreshProvider>
 	);

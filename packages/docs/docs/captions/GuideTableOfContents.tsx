@@ -7,8 +7,8 @@ export const GuideTableOfContents: React.FC = () => {
 		<div>
 			<Grid>
 				<TOCItem link="/docs/captions/importing">
-					<strong>{'Importing from .srt'}</strong>
-					<div>Import existing .srt subtitle files</div>
+					<strong>{'Importing from .srt or .vtt'}</strong>
+					<div>Import existing .srt or .vtt subtitle files</div>
 				</TOCItem>
 				<TOCItem link="/docs/captions/transcribing">
 					<strong>{'Transcribing audio'}</strong>

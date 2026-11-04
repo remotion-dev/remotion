@@ -14,6 +14,6 @@ export const {
 	canvasOutlineSnapThresholdPx: selectedOutlineSnapThresholdPx,
 	findCanvasOutlineSnap: findSelectedOutlineSnap,
 	getCanvasOutlineSnapTargets: getSelectedOutlineSnapTargets,
-} = CanvasInternals;
+}: typeof CanvasInternals = CanvasInternals;
 
 export const selectedOutlineSnapIndicatorColor = SELECTED_OUTLINE_SNAP_COLOR;

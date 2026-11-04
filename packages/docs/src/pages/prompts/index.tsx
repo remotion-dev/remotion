@@ -25,7 +25,7 @@ export default () => {
 					'See what the community has built with Remotion Skills and AI coding agents.',
 				)}
 				{Seo.renderImage(
-					'/generated/articles-prompts-gallery.png',
+					'https://remotion.media/docs/generated/articles-prompts-gallery.png',
 					context.siteConfig.url,
 				)}
 			</Head>

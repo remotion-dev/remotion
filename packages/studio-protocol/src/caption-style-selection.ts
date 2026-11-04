@@ -44,5 +44,6 @@ export const isStudioProtocolCaptionStyleSubscription = (
 
 export const parseStudioProtocolCaptionStyleSelection = (value: unknown) => {
 	const parsed = z.safeParse(captionStyleSelectionMessageSchema, value);
+
 	return parsed.success ? parsed.data : null;
 };

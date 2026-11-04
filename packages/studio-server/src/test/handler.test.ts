@@ -244,40 +244,43 @@ test('allows HEAD API requests without an Origin header', async () => {
 	});
 });
 
-test('rejects requests with a mismatched Origin scheme before calling the handler', async () => {
+test('allows HTTPS same-origin API requests through a TLS-terminating proxy', async () => {
 	const response = makeResponse();
-	let didCallHandler = false;
 
-	await expect(
-		handleRequest({
-			binariesDirectory: null,
-			configFile: null,
-			entryPoint: '',
-			handler: () => {
-				didCallHandler = true;
-				return Promise.resolve({});
-			},
-			getDefaultCodingAgent: () => null,
-			getDefaultEditor: () => null,
-			logLevel: 'info',
-			methods: {
-				addJob: () => undefined,
-				cancelJob: () => undefined,
-				removeJob: () => undefined,
-			},
-			publicDir: '',
-			remotionRoot: '',
-			request: makeRequest({
-				body: {relativePath: 'logo.png'},
-				host: 'localhost:3000',
-				origin: 'https://localhost:3000',
-			}),
-			response,
+	await handleRequest({
+		binariesDirectory: null,
+		configFile: null,
+		entryPoint: '',
+		handler: ({input}) => {
+			return Promise.resolve({input});
+		},
+		getDefaultCodingAgent: () => null,
+		getDefaultEditor: () => null,
+		logLevel: 'info',
+		methods: {
+			addJob: () => undefined,
+			cancelJob: () => undefined,
+			removeJob: () => undefined,
+		},
+		publicDir: '',
+		remotionRoot: '',
+		request: makeRequest({
+			body: {relativePath: 'logo.png'},
+			host: 'machine.tailnet.ts.net:12443',
+			origin: 'https://machine.tailnet.ts.net:12443',
 		}),
-	).rejects.toThrow('Request from different origin not allowed');
+		response,
+	});
 
-	expect(didCallHandler).toBe(false);
-	expect(response.statusCode).toBe(0);
+	expect(response.statusCode).toBe(200);
+	expect(JSON.parse(response.body)).toEqual({
+		data: {
+			input: {
+				relativePath: 'logo.png',
+			},
+		},
+		success: true,
+	});
 });
 
 test('allows same-origin API requests', async () => {

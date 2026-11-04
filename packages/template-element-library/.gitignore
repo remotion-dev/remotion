@@ -1,0 +1,9 @@
+node_modules/
+.react-router/
+build/
+out/
+.env
+.env.*
+!.env.example
+public/previews/
+.DS_Store

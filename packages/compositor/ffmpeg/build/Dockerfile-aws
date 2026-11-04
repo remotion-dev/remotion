@@ -1,0 +1,28 @@
+FROM public.ecr.aws/lambda/nodejs:18.2023.04.17.20
+
+RUN mkdir -p app
+COPY Cargo.toml app/Cargo.toml
+COPY Cargo.lock app/Cargo.lock
+COPY *.mjs app/
+COPY test-remotion-shm.py app/test-remotion-shm.py
+COPY *.rs app/
+COPY libmp3lame.zip app/libmp3lame.zip
+COPY vpx.gz app/vpx.gz
+COPY opus.gz app/opus.gz
+COPY sample-5s.webm app/sample-5s.webm
+COPY sample.mp4 app/sample.mp4
+COPY sample-av1.webm app/sample-av1.webm
+COPY *.patch app/
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN source "$HOME/.cargo/env"
+RUN yum install amazon-linux-extras -y
+RUN amazon-linux-extras list
+RUN amazon-linux-extras install epel python3.8 -y
+RUN python3.8 -m pip install meson
+RUN python3.8 -m pip install ninja
+RUN yum install yasm nasm unzip curl gcc gcc-c++ tar git make ca-certificates pkgconfig bash make cmake3 build-base llvm-static llvm-dev clang-static clang-dev perl zlib zlib-devel clang-libs clang ninja autoconf automake libtool patchelf -y
+RUN cd app && CFLAGS="$CFLAGS -static-libgcc" CXXFLAGS="$CXXFLAGS -static-libgcc -static-libstdc++" LDFLAGS="$LDFLAGS -static-libgcc -static-libstdc++" node compile-ffmpeg.mjs old-cmake
+RUN source "$HOME/.cargo/env" && cd app && node generate-bindings.mjs
+RUN source "$HOME/.cargo/env" && cd app && node zip.mjs
+RUN source "$HOME/.cargo/env" && cd app && EXPECT_AV1_ENCODER=0 node test-ffmpeg.mjs

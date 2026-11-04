@@ -1,9 +1,9 @@
-import type {AwsProvider, AwsRegion} from '@remotion/lambda-client';
 import type {
+	AwsRegion,
 	DeleteFunction,
 	FunctionInfo,
 	GetFunctions,
-} from '@remotion/serverless';
+} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
 
 export let mockFunctionsStore: (FunctionInfo & {
@@ -19,10 +19,7 @@ export const addFunction = (fn: FunctionInfo, region: AwsRegion) => {
 	});
 };
 
-export const deleteMockFunction: DeleteFunction<AwsProvider> = ({
-	functionName,
-	region,
-}) => {
+export const deleteMockFunction: DeleteFunction = ({functionName, region}) => {
 	mockFunctionsStore = mockFunctionsStore.filter(
 		(fn) => fn.functionName !== functionName && fn.region !== region,
 	);
@@ -35,10 +32,7 @@ export const findFunction = (name: string, region: string) => {
 	);
 };
 
-export const getAllMockFunctions: GetFunctions<AwsProvider> = ({
-	compatibleOnly,
-	region,
-}) => {
+export const getAllMockFunctions: GetFunctions = ({compatibleOnly, region}) => {
 	return Promise.resolve(
 		mockFunctionsStore
 			.filter(

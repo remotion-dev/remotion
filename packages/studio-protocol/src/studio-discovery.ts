@@ -61,6 +61,7 @@ export type StudioProtocolDiscoveryDependencies = {
 export const studioProtocolProbePorts = [
 	3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008, 3009,
 ];
+
 const requestTimeout = 2_000;
 
 const targetSchema = z.looseObject({
@@ -68,31 +69,37 @@ const targetSchema = z.looseObject({
 	expiresAt: z.number(),
 	lastFocusedAt: z.number(),
 });
+
 const installTargetSchema = z.looseObject({
 	id: z.string().check(z.minLength(1)),
 	expiresAt: z.number(),
 	lastFocusedAt: z.nullable(z.number()),
 	compositionId: z.nullable(z.string().check(z.minLength(1))),
 });
+
 const installCapabilitySchema = z.looseObject({
 	type: z.literal('install-element'),
 	payloadType: z.literal('remotion-element'),
 	payloadVersions: z.array(z.number()),
 	target: z.nullable(installTargetSchema),
 });
+
 const setLicenseKeyCapabilitySchema = z.looseObject({
 	type: z.literal('set-license-key'),
 	target: z.nullable(targetSchema),
 });
+
 const addElementLibraryCapabilitySchema = z.looseObject({
 	type: z.literal('add-element-library'),
 	target: z.nullable(targetSchema),
 });
+
 const capabilitySchema = z.union([
 	installCapabilitySchema,
 	setLicenseKeyCapabilitySchema,
 	addElementLibraryCapabilitySchema,
 ]);
+
 const descriptorEnvelopeSchema = z.looseObject({
 	protocol: z.literal('remotion-studio-protocol'),
 	protocolVersion: z.literal(1),
@@ -100,6 +107,7 @@ const descriptorEnvelopeSchema = z.looseObject({
 	projectName: z.nullable(z.string()),
 	capabilities: z.array(z.unknown()),
 });
+
 const descriptorSchema = z
 	.looseObject({
 		protocol: z.literal('remotion-studio-protocol'),
@@ -113,16 +121,20 @@ const descriptorSchema = z
 			const capabilityTypes = descriptor.capabilities.map(
 				(capability) => capability.type,
 			);
+
 			return new Set(capabilityTypes).size === capabilityTypes.length;
 		}),
 	);
+
 const protocolEnvelopeSchema = z.looseObject({
 	protocol: z.literal('remotion-studio-protocol'),
 });
+
 const protocolVersionEnvelopeSchema = z.looseObject({
 	protocol: z.literal('remotion-studio-protocol'),
 	protocolVersion: z.unknown(),
 });
+
 export const fetchWithTimeout = async ({
 	fetchFn,
 	options,
@@ -134,6 +146,7 @@ export const fetchWithTimeout = async ({
 }) => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), requestTimeout);
+
 	try {
 		return await fetchFn(url, {
 			...(options ?? {}),
@@ -153,13 +166,16 @@ export const parseStudioProtocolDescriptor = (
 	value: unknown,
 ): StudioProtocolDescriptor | null => {
 	const envelope = z.safeParse(descriptorEnvelopeSchema, value);
+
 	if (!envelope.success) {
 		return null;
 	}
 
 	const capabilities: StudioProtocolCapability[] = [];
+
 	for (const capability of envelope.data.capabilities) {
 		const parsedCapability = z.safeParse(capabilitySchema, capability);
+
 		if (parsedCapability.success) {
 			capabilities.push(parsedCapability.data);
 		}
@@ -169,6 +185,7 @@ export const parseStudioProtocolDescriptor = (
 		...envelope.data,
 		capabilities,
 	});
+
 	return descriptor.success ? descriptor.data : null;
 };
 
@@ -212,10 +229,12 @@ export const discoverStudios = async (
 	let foundUnsupportedProtocol = false;
 	let foundInvalidResponse = false;
 	const {fetchFn} = dependencies;
+
 	const studios = await Promise.all(
 		dependencies.ports.map(async (port): Promise<DiscoveredStudio | null> => {
 			const origin = `http://localhost:${port}`;
 			let response: Response;
+
 			try {
 				response = await fetchFn(`${origin}/api/studio-protocol`, {
 					cache: 'no-store',
@@ -229,6 +248,7 @@ export const discoverStudios = async (
 			}
 
 			let value: unknown;
+
 			try {
 				value = await response.json();
 			} catch {
@@ -236,6 +256,7 @@ export const discoverStudios = async (
 			}
 
 			const protocolEnvelope = z.safeParse(protocolEnvelopeSchema, value);
+
 			if (!protocolEnvelope.success) {
 				return null;
 			}
@@ -244,19 +265,24 @@ export const discoverStudios = async (
 				protocolVersionEnvelopeSchema,
 				value,
 			);
+
 			if (!protocolVersionEnvelope.success) {
 				foundInvalidResponse = true;
+
 				return null;
 			}
 
 			if (protocolVersionEnvelope.data.protocolVersion !== 1) {
 				foundUnsupportedProtocol = true;
+
 				return null;
 			}
 
 			const descriptor = parseStudioProtocolDescriptor(value);
+
 			if (descriptor === null) {
 				foundInvalidResponse = true;
+
 				return null;
 			}
 
@@ -277,5 +303,5 @@ export const discoverStudios = async (
 	};
 };
 
-export const isAbortError = (error: unknown): boolean =>
-	error instanceof Error && error.name === 'AbortError';
+export const isAbortError = (cause: unknown): boolean =>
+	cause instanceof Error && cause.name === 'AbortError';

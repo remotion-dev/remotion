@@ -8,7 +8,7 @@ Check whether a PR already exists for the current branch with `gh pr status` or 
 
 Keep new agent-authored tests, including new test cases in existing files, out of the PR unless the user explicitly requested them. Updates to existing tests, fixtures, and snapshots are allowed when needed for the change. Review the diff and preserve pre-existing user changes.
 
-If the changes add a Remotion Element, read the [Element contribution guide](../../../packages/docs/elements/contributing.mdx) before continuing.
+If the changes add a Remotion Element, read the [Element contribution guide](../../../packages/docs/docs/contributing/elements.mdx) before continuing.
 
 Run Oxfmt on the files or package directories affected by the current change. Pass their actual paths; do not assume that the repository root has a `src` directory. Include relevant root-level files, and do not format unrelated packages or the whole repository.
 

@@ -1,13 +1,5 @@
-import type {
-	AwsProvider,
-	AwsRegion,
-	RuntimePreference,
-} from '@remotion/lambda-client';
+import type {AwsRegion, RuntimePreference} from '@remotion/lambda-client';
 import type {LogLevel} from '@remotion/renderer';
-import type {
-	FullClientSpecifics,
-	ProviderSpecifics,
-} from '@remotion/serverless';
 import type {
 	DeploySiteOutput,
 	InternalDeploySiteInput,
@@ -22,8 +14,6 @@ export const LambdaInternals: {
 		args: string[],
 		remotionRoot: string,
 		logLevel: LogLevel,
-		providerSpecifics: ProviderSpecifics<AwsProvider> | null,
-		fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
 	) => Promise<void>;
 	internalDeploySite: (input: InternalDeploySiteInput) => DeploySiteOutput;
 	getLayers: (options: {
@@ -36,4 +26,4 @@ export const LambdaInternals: {
 	getLayers,
 };
 
-export type {OverallRenderProgress as _InternalOverallRenderProgress} from '@remotion/serverless';
+export type {OverallRenderProgress as _InternalOverallRenderProgress} from '@remotion/lambda-client';

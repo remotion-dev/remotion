@@ -1,7 +1,7 @@
 import type {MediaParserLogLevel} from '@remotion/media-parser';
 import {MediaParserInternals} from '@remotion/media-parser';
 
-const {Log} = MediaParserInternals;
+const {Log}: typeof MediaParserInternals = MediaParserInternals;
 
 export {Log};
 

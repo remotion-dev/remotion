@@ -5,7 +5,7 @@ export const setStudioDragData = ({
 	dataTransfer,
 	payload,
 }: {
-	readonly dataTransfer: DataTransfer;
+	readonly dataTransfer: Pick<DataTransfer, 'effectAllowed' | 'setData'>;
 	readonly payload: StudioElementPayload;
 }): void => {
 	const dragData = makeDragData({

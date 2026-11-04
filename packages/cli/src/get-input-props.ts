@@ -20,12 +20,20 @@ export const getInputProps = (
 	const jsonFile = path.resolve(process.cwd(), props);
 	try {
 		if (fs.existsSync(jsonFile)) {
-			const rawJsonData = fs.readFileSync(jsonFile, 'utf-8');
+			// Windows PowerShell 5.1 and some editors save UTF-8 with a BOM,
+			// which JSON.parse() rejects.
+			const rawJsonData = fs
+				.readFileSync(jsonFile, 'utf-8')
+				.replace(/^\uFEFF/, '');
 
 			if (onUpdate) {
 				fs.watchFile(jsonFile, {interval: 100}, () => {
 					try {
-						onUpdate(JSON.parse(fs.readFileSync(jsonFile, 'utf-8')));
+						onUpdate(
+							JSON.parse(
+								fs.readFileSync(jsonFile, 'utf-8').replace(/^\uFEFF/, ''),
+							),
+						);
 						Log.info(
 							{indent: false, logLevel},
 							`Updated input props from ${jsonFile}.`,

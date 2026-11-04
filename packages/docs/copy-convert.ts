@@ -79,9 +79,9 @@ const contents = path.join(dir, 'index.html');
 // Replace the text in <title>
 const getContentWithTitle = (title: string, description: string) => {
 	const c = readFileSync(contents, 'utf-8');
-	const matcher = '<title>Remotion Convert</title>';
+	const matcher = /<title>[^<]*<\/title>/;
 
-	if (!c.includes(matcher)) {
+	if (!matcher.test(c)) {
 		throw new Error('Could not find title');
 	}
 

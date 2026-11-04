@@ -2,14 +2,14 @@ import {afterEach, expect, spyOn, test} from 'bun:test';
 import fs, {existsSync, mkdtempSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type {BundleOptions} from '@remotion/bundler';
+import type {bundle, BundleOptions} from '@remotion/bundler';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {mockFullClientSpecifics} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {fakeAws, useFakeAws} from '../mocks/fake-aws';
 import {getDirFiles} from '../mocks/upload-dir';
+
+useFakeAws();
 
 const temporaryDirectories: string[] = [];
 
@@ -24,9 +24,8 @@ const makeGeneratedBundle = () => {
 };
 
 const makeBucket = async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
@@ -46,23 +45,19 @@ const makeBundleSite = ({
 	directory: string;
 	getBundle: () => Promise<string>;
 	onStarted?: () => void;
-}): typeof mockFullClientSpecifics.bundleSite => {
-	return ((options: BundleOptions) => {
+}) => {
+	fakeAws().bundleSite.mockImplementation(((options: BundleOptions) => {
 		options.onDirectoryCreated?.(directory);
 		onStarted();
 		return getBundle();
-	}) as typeof mockFullClientSpecifics.bundleSite;
+	}) as typeof bundle);
 };
 
 const deployGeneratedBundle = ({
 	bucketName,
-	fullClientSpecifics,
-	providerSpecifics = mockImplementation,
 	siteName,
 }: {
 	bucketName: string;
-	fullClientSpecifics: typeof mockFullClientSpecifics;
-	providerSpecifics?: typeof mockImplementation;
 	siteName: string;
 }) => {
 	return internalDeploySite({
@@ -71,14 +66,12 @@ const deployGeneratedBundle = ({
 		region: 'ap-northeast-1',
 		siteName,
 		gitSource: null,
-		providerSpecifics,
 		indent: false,
 		logLevel: 'error',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics,
 		requestHandler: null,
 	});
 };
@@ -105,15 +98,13 @@ test('Should throw on wrong prefix', async () => {
 			entryPoint: 'first',
 			region: 'us-east-1',
 			gitSource: null,
-			providerSpecifics: mockImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
-			siteName: mockImplementation.randomHash(),
+			siteName: LambdaClientInternals.randomHashImplementation(),
 			throwIfSiteExists: true,
 			forcePathStyle: false,
-			fullClientSpecifics: mockFullClientSpecifics,
 			requestHandler: null,
 		}),
 	).rejects.toThrow(/The bucketName parameter must start /);
@@ -128,14 +119,12 @@ test('Should throw if invalid region was passed', () => {
 			region: 'ap-northeast-9',
 			siteName: 'testing',
 			gitSource: null,
-			providerSpecifics: LambdaClientInternals.awsImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
 			throwIfSiteExists: true,
 			forcePathStyle: false,
-			fullClientSpecifics: mockFullClientSpecifics,
 		}),
 	).rejects.toThrow(/ap-northeast-9 is not a supported AWS region/);
 });
@@ -148,14 +137,12 @@ test("Should throw if bucket doesn't exist", () => {
 			region: 'ap-northeast-1',
 			siteName: 'testing',
 			gitSource: null,
-			providerSpecifics: mockImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
 			throwIfSiteExists: true,
 			forcePathStyle: false,
-			fullClientSpecifics: mockFullClientSpecifics,
 			requestHandler: null,
 		}),
 	).rejects.toThrow(
@@ -164,9 +151,8 @@ test("Should throw if bucket doesn't exist", () => {
 });
 
 test('Should apply name if given', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
@@ -186,9 +172,7 @@ test('Should apply name if given', async () => {
 			options: {},
 			privacy: 'public',
 			throwIfSiteExists: true,
-			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
-			fullClientSpecifics: mockFullClientSpecifics,
 			requestHandler: null,
 		}),
 	).toEqual({
@@ -204,9 +188,8 @@ test('Should apply name if given', async () => {
 });
 
 test('Should overwrite site if given siteName is already taken', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
@@ -222,14 +205,12 @@ test('Should overwrite site if given siteName is already taken', async () => {
 			region: 'ap-northeast-1',
 			siteName: 'testing',
 			gitSource: null,
-			providerSpecifics: mockImplementation,
 			indent: false,
 			logLevel: 'info',
 			options: {},
 			privacy: 'public',
 			throwIfSiteExists: false,
 			forcePathStyle: false,
-			fullClientSpecifics: mockFullClientSpecifics,
 			requestHandler: null,
 		}),
 	).toEqual({
@@ -245,9 +226,8 @@ test('Should overwrite site if given siteName is already taken', async () => {
 });
 
 test('Should delete the previous site if deploying the new one', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
@@ -262,14 +242,12 @@ test('Should delete the previous site if deploying the new one', async () => {
 		region: 'ap-northeast-1',
 		siteName: 'testing',
 		gitSource: null,
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 	await internalDeploySite({
@@ -278,18 +256,16 @@ test('Should delete the previous site if deploying the new one', async () => {
 		region: 'ap-northeast-1',
 		siteName: 'testing',
 		gitSource: null,
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 
-	const files = await mockImplementation.listObjects({
+	const files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/testing',
@@ -314,9 +290,8 @@ test('Should delete the previous site if deploying the new one', async () => {
 });
 
 test('Should keep the previous site if deploying the new one with different ID', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
@@ -331,14 +306,12 @@ test('Should keep the previous site if deploying the new one with different ID',
 		region: 'ap-northeast-1',
 		siteName: 'testing',
 		gitSource: null,
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 	await internalDeploySite({
@@ -347,18 +320,16 @@ test('Should keep the previous site if deploying the new one with different ID',
 		region: 'ap-northeast-1',
 		siteName: 'testing-2',
 		gitSource: null,
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 
-	const files = await mockImplementation.listObjects({
+	const files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/',
@@ -389,7 +360,6 @@ test('Should keep the previous site if deploying the new one with different ID',
 		bucketName,
 		region: 'ap-northeast-1',
 		siteName: 'testing',
-		providerSpecifics: mockImplementation,
 		forcePathStyle: false,
 		onAfterItemDeleted: null,
 		requestHandler: null,
@@ -398,7 +368,6 @@ test('Should keep the previous site if deploying the new one with different ID',
 		bucketName,
 		region: 'ap-northeast-1',
 		siteName: 'testing-2',
-		providerSpecifics: mockImplementation,
 		forcePathStyle: false,
 		onAfterItemDeleted: null,
 		requestHandler: null,
@@ -406,9 +375,8 @@ test('Should keep the previous site if deploying the new one with different ID',
 });
 
 test('Should not delete site with same prefix', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'ap-northeast-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: false,
 		forcePathStyle: false,
@@ -423,14 +391,12 @@ test('Should not delete site with same prefix', async () => {
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'my-site',
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 	await internalDeploySite({
@@ -439,14 +405,12 @@ test('Should not delete site with same prefix', async () => {
 		entryPoint: 'second',
 		region: 'ap-northeast-1',
 		siteName: 'my-site-staging',
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 	await internalDeploySite({
@@ -455,18 +419,16 @@ test('Should not delete site with same prefix', async () => {
 		entryPoint: 'first',
 		region: 'ap-northeast-1',
 		siteName: 'my-site',
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 
-	const files = await mockImplementation.listObjects({
+	const files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName,
 		expectedBucketOwner: null,
 		prefix: 'sites/',
@@ -498,18 +460,14 @@ test('Should remove a generated bundle after bundling fails', async () => {
 	const directory = makeGeneratedBundle();
 	const bucketName = await makeBucket();
 	const bundlingError = new Error('Bundling failed');
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: makeBundleSite({
-			directory,
-			getBundle: () => Promise.reject(bundlingError),
-		}),
-	};
+	makeBundleSite({
+		directory,
+		getBundle: () => Promise.reject(bundlingError),
+	});
 
 	const error = await getRejection(
 		deployGeneratedBundle({
 			bucketName,
-			fullClientSpecifics,
 			siteName: 'bundling-failure',
 		}),
 	);
@@ -530,24 +488,16 @@ test('Should wait for bundling to finish after listing fails', async () => {
 	const bundleStarted = new Promise<void>((resolve) => {
 		markBundleStarted = resolve;
 	});
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: makeBundleSite({
-			directory,
-			getBundle: () => bundlePromise,
-			onStarted: markBundleStarted,
-		}),
-	};
-	const providerSpecifics: typeof mockImplementation = {
-		...mockImplementation,
-		listObjects: () => Promise.reject(listingError),
-	};
+	makeBundleSite({
+		directory,
+		getBundle: () => bundlePromise,
+		onStarted: markBundleStarted,
+	});
+	fakeAws().listObjects.mockImplementation(() => Promise.reject(listingError));
 
 	let settled = false;
 	const observedDeployment = deployGeneratedBundle({
 		bucketName,
-		fullClientSpecifics,
-		providerSpecifics,
 		siteName: 'listing-failure',
 	}).then(
 		() => {
@@ -575,19 +525,15 @@ test('Should remove a generated bundle after uploading fails', async () => {
 	const directory = makeGeneratedBundle();
 	const bucketName = await makeBucket();
 	const uploadError = new Error('Uploading failed');
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: makeBundleSite({
-			directory,
-			getBundle: () => Promise.resolve(directory),
-		}),
-		uploadDir: () => Promise.reject(uploadError),
-	};
+	makeBundleSite({
+		directory,
+		getBundle: () => Promise.resolve(directory),
+	});
+	fakeAws().uploadDir.mockImplementation(() => Promise.reject(uploadError));
 
 	const error = await getRejection(
 		deployGeneratedBundle({
 			bucketName,
-			fullClientSpecifics,
 			siteName: 'upload-failure',
 		}),
 	);
@@ -602,48 +548,40 @@ test('Should finish stale file deletions before removing the generated bundle', 
 	const deletionError = new Error('Deleting failed');
 	let deleteCount = 0;
 	let bundleWasRemovedDuringDeletion = false;
-	const providerSpecifics: typeof mockImplementation = {
-		...mockImplementation,
-		listObjects: () => {
-			return Promise.resolve(
-				Array.from({length: 12}, (_, index) => ({
-					Key: `sites/deletion-failure/stale-${index}.js`,
-					ETag: 'stale-etag',
-					LastModified: new Date(0),
-					Size: 0,
-				})),
-			);
-		},
-		deleteFile: async () => {
-			deleteCount++;
-			if (!existsSync(directory)) {
-				bundleWasRemovedDuringDeletion = true;
-			}
+	fakeAws().listObjects.mockImplementation(() => {
+		return Promise.resolve(
+			Array.from({length: 12}, (_, index) => ({
+				Key: `sites/deletion-failure/stale-${index}.js`,
+				ETag: 'stale-etag',
+				LastModified: new Date(0),
+				Size: 0,
+			})),
+		);
+	});
+	fakeAws().deleteFile.mockImplementation(async () => {
+		deleteCount++;
+		if (!existsSync(directory)) {
+			bundleWasRemovedDuringDeletion = true;
+		}
 
-			if (deleteCount === 1) {
-				throw deletionError;
-			}
+		if (deleteCount === 1) {
+			throw deletionError;
+		}
 
-			await new Promise((resolve) => setTimeout(resolve, 1));
-			if (!existsSync(directory)) {
-				bundleWasRemovedDuringDeletion = true;
-			}
-		},
-	};
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: makeBundleSite({
-			directory,
-			getBundle: () => Promise.resolve(directory),
-		}),
-		uploadDir: () => Promise.resolve(),
-	};
+		await new Promise((resolve) => setTimeout(resolve, 1));
+		if (!existsSync(directory)) {
+			bundleWasRemovedDuringDeletion = true;
+		}
+	});
+	makeBundleSite({
+		directory,
+		getBundle: () => Promise.resolve(directory),
+	});
+	fakeAws().uploadDir.mockImplementation(() => Promise.resolve());
 
 	const error = await getRejection(
 		deployGeneratedBundle({
 			bucketName,
-			fullClientSpecifics,
-			providerSpecifics,
 			siteName: 'deletion-failure',
 		}),
 	);
@@ -657,17 +595,13 @@ test('Should finish stale file deletions before removing the generated bundle', 
 test('Should remove a generated bundle after a successful deployment', async () => {
 	const directory = makeGeneratedBundle();
 	const bucketName = await makeBucket();
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: makeBundleSite({
-			directory,
-			getBundle: () => Promise.resolve(directory),
-		}),
-	};
+	makeBundleSite({
+		directory,
+		getBundle: () => Promise.resolve(directory),
+	});
 
 	const result = await deployGeneratedBundle({
 		bucketName,
-		fullClientSpecifics,
 		siteName: 'successful-cleanup',
 	});
 
@@ -679,13 +613,10 @@ test('Should report a cleanup failure after a successful deployment', async () =
 	const directory = makeGeneratedBundle();
 	const bucketName = await makeBucket();
 	const cleanupError = new Error('Cleanup failed');
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: makeBundleSite({
-			directory,
-			getBundle: () => Promise.resolve(directory),
-		}),
-	};
+	makeBundleSite({
+		directory,
+		getBundle: () => Promise.resolve(directory),
+	});
 	const cleanupSpy = spyOn(fs, 'rmSync').mockImplementation(() => {
 		throw cleanupError;
 	});
@@ -695,7 +626,6 @@ test('Should report a cleanup failure after a successful deployment', async () =
 		error = await getRejection(
 			deployGeneratedBundle({
 				bucketName,
-				fullClientSpecifics,
 				siteName: 'cleanup-failure',
 			}),
 		);
@@ -712,14 +642,11 @@ test('Should retain deployment and cleanup errors if both fail', async () => {
 	const bucketName = await makeBucket();
 	const deploymentError = new Error('Deployment failed');
 	const cleanupError = new Error('Cleanup failed');
-	const fullClientSpecifics: typeof mockFullClientSpecifics = {
-		...mockFullClientSpecifics,
-		bundleSite: makeBundleSite({
-			directory,
-			getBundle: () => Promise.resolve(directory),
-		}),
-		uploadDir: () => Promise.reject(deploymentError),
-	};
+	makeBundleSite({
+		directory,
+		getBundle: () => Promise.resolve(directory),
+	});
+	fakeAws().uploadDir.mockImplementation(() => Promise.reject(deploymentError));
 	const cleanupSpy = spyOn(fs, 'rmSync').mockImplementation(() => {
 		throw cleanupError;
 	});
@@ -729,7 +656,6 @@ test('Should retain deployment and cleanup errors if both fail', async () => {
 		error = await getRejection(
 			deployGeneratedBundle({
 				bucketName,
-				fullClientSpecifics,
 				siteName: 'deployment-and-cleanup-failure',
 			}),
 		);

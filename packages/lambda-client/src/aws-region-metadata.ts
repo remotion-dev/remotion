@@ -59,3 +59,9 @@ export const getAwsPartitionMetadata = (
 
 export const getAwsRegionMetadata = (region: AwsRegion): AwsRegionMetadata =>
 	getAwsPartitionMetadata(regionPartitions[region]);
+
+export const getBillingCurrency = (region: AwsRegion): AwsBillingCurrency =>
+	getAwsRegionMetadata(region).billingCurrency;
+
+export const getServiceDnsSuffix = (region: AwsRegion): string =>
+	getAwsRegionMetadata(region).dnsSuffix;

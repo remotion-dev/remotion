@@ -1,0 +1,18 @@
+{
+  "animated-title": {
+    "posterUrl": "https://remotion.media/templates/element-library/animated-title/67dc134e-2db2-4be7-8b71-52099e95182a/preview.png",
+    "videoUrl": "https://remotion.media/templates/element-library/animated-title/67dc134e-2db2-4be7-8b71-52099e95182a/preview.mp4"
+  },
+  "lower-third": {
+    "posterUrl": "https://remotion.media/templates/element-library/lower-third/67dc134e-2db2-4be7-8b71-52099e95182a/preview.png",
+    "videoUrl": "https://remotion.media/templates/element-library/lower-third/67dc134e-2db2-4be7-8b71-52099e95182a/preview.mp4"
+  },
+  "animated-background": {
+    "posterUrl": "https://remotion.media/templates/element-library/animated-background/67dc134e-2db2-4be7-8b71-52099e95182a/preview.png",
+    "videoUrl": "https://remotion.media/templates/element-library/animated-background/67dc134e-2db2-4be7-8b71-52099e95182a/preview.mp4"
+  },
+  "accent-captions": {
+    "posterUrl": "https://remotion.media/templates/element-library/accent-captions/67dc134e-2db2-4be7-8b71-52099e95182a/preview.png",
+    "videoUrl": "https://remotion.media/templates/element-library/accent-captions/67dc134e-2db2-4be7-8b71-52099e95182a/preview.webm"
+  }
+}

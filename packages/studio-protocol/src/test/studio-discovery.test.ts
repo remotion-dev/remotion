@@ -26,6 +26,7 @@ const descriptor = {
 test('filters future capabilities, preserves extensions, and rejects duplicates', () => {
 	const parsed =
 		StudioProtocolInternals.parseStudioProtocolDescriptor(descriptor);
+
 	expect(parsed).toEqual({
 		...descriptor,
 		capabilities: [installCapability],

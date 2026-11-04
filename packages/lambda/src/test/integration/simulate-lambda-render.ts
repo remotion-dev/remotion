@@ -1,11 +1,10 @@
 import path from 'path';
 import {
 	LambdaClientInternals,
+	ServerlessRoutines,
 	type RenderMediaOnLambdaInput,
 } from '@remotion/lambda-client';
 import {RenderInternals} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless';
-import {mockImplementation} from '../mocks/mock-implementation';
 import {waitUntilDone} from './wait-until-done';
 
 const functionName = 'remotion-dev-render';
@@ -38,18 +37,20 @@ export const simulateLambdaRender = async (
 	);
 
 	const res =
-		await mockImplementation.callFunctionSync<ServerlessRoutines.start>({
-			type: ServerlessRoutines.start,
-			payload,
-			functionName: 'remotion-dev-lambda',
-			region: 'eu-central-1',
-			timeoutInTest: 120000,
-			requestHandler: null,
-		});
+		await LambdaClientInternals.callFunctionSyncImplementation<ServerlessRoutines.start>(
+			{
+				type: ServerlessRoutines.start,
+				payload,
+				functionName: 'remotion-dev-lambda',
+				region: 'eu-central-1',
+				timeoutInTest: 120000,
+				requestHandler: null,
+			},
+		);
 
 	const progress = await waitUntilDone(res.bucketName, res.renderId);
 
-	const file = await mockImplementation.readFile({
+	const file = await LambdaClientInternals.lambdaReadFileImplementation({
 		bucketName: progress.outBucket as string,
 		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',

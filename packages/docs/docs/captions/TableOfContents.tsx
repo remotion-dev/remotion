@@ -16,6 +16,12 @@ export const TableOfContents: React.FC = () => {
 						Parse a .srt file into a <code>Caption</code> array
 					</div>
 				</TOCItem>
+				<TOCItem link="/docs/captions/parse-vtt">
+					<strong>{'parseVtt()'}</strong>
+					<div>
+						Parse a .vtt file into a <code>Caption</code> array
+					</div>
+				</TOCItem>
 				<TOCItem link="/docs/captions/serialize-srt">
 					<strong>{'serializeSrt()'}</strong>
 					<div>

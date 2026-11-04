@@ -2,11 +2,17 @@ import {getRemotionEnvironment} from 'remotion';
 import type {ZodTypesType} from '../components/get-zod-if-possible';
 import {extractEnumJsonPaths} from '../components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {callUpdateDefaultPropsApi} from '../components/RenderQueue/actions';
+import {getOriginalLocationFromStack} from '../components/Timeline/TimelineStack/get-stack';
+import {
+	getCachedResolvedStack,
+	hasResolvedStack,
+} from '../components/Timeline/use-resolved-stack';
+import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import type {UpdateDefaultPropsFunction} from './helpers/calc-new-props';
 import {calcNewProps} from './helpers/calc-new-props';
 
 /*
- * @description Saves the defaultProps for a composition back to the root file.
+ * @description Saves the defaultProps for a composition back to the file that registers it.
  * @see [Documentation](https://www.remotion.dev/docs/studio/save-default-props)
  */
 export const saveDefaultProps = async ({
@@ -43,6 +49,20 @@ export const saveDefaultProps = async ({
 		defaultProps,
 	);
 
+	const registrationLocation =
+		composition.stack === null || hasResolvedStack(composition.stack)
+			? getCachedResolvedStack(composition.stack)
+			: await getOriginalLocationFromStack(composition.stack, 'sequence').catch(
+					(error) => {
+						// eslint-disable-next-line no-console
+						console.warn(
+							`saveDefaultProps(): Could not determine which file registers "${compositionId}", falling back to the root file`,
+							error,
+						);
+						return null;
+					},
+				);
+
 	const res = await callUpdateDefaultPropsApi(
 		compositionId,
 		generatedDefaultProps,
@@ -54,6 +74,7 @@ export const saveDefaultProps = async ({
 					zodTypes,
 				})
 			: [],
+		resolvedStackToSymbolicated(registrationLocation),
 	);
 
 	if (res.success) {

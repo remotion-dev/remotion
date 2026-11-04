@@ -68,6 +68,7 @@ export const parseStudioProtocolSetLicenseKeyRequest = (
 	value: unknown,
 ): StudioProtocolSetLicenseKeyRequest | null => {
 	const parsed = z.safeParse(studioProtocolSetLicenseKeyRequestSchema, value);
+
 	return parsed.success ? parsed.data : null;
 };
 
@@ -84,6 +85,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	const discovery = await discoverStudios(dependencies);
+
 	if (discovery.studios.length === 0) {
 		if (discovery.foundUnsupportedProtocol) {
 			return {
@@ -112,8 +114,10 @@ export const setLicenseKeyInStudioWithDependencies = async (
 
 	const supportedStudios = discovery.studios.flatMap((studio) => {
 		const capability = getSetLicenseKeyCapability(studio.descriptor);
+
 		return capability === null ? [] : [{...studio, capability}];
 	});
+
 	if (supportedStudios.length === 0) {
 		return {
 			success: false,
@@ -124,21 +128,28 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	const now = dependencies.now();
+
 	const configurable = supportedStudios
-		.filter(({capability}) => {
-			const {target} = capability;
-			return target !== null && target.expiresAt > now;
+		.flatMap((studio) => {
+			const {target} = studio.capability;
+
+			if (target === null || target.expiresAt <= now) {
+				return [];
+			}
+
+			return [{...studio, target}];
 		})
 		.sort((a, b) => {
-			const focusDifference =
-				b.capability.target!.lastFocusedAt - a.capability.target!.lastFocusedAt;
+			const focusDifference = b.target.lastFocusedAt - a.target.lastFocusedAt;
+
 			return focusDifference === 0
 				? b.discoveredAt - a.discoveredAt
 				: focusDifference;
 		});
+
 	const selected = configurable[0];
-	const selectedTarget = selected?.capability.target;
-	if (!selected || selectedTarget === null || selectedTarget === undefined) {
+
+	if (!selected) {
 		return {
 			success: false,
 			code: 'no-configurable-target',
@@ -147,14 +158,16 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	let response: Response;
+
 	try {
 		const requestBody = {
 			operation: 'set-license-key',
 			protocol: 'remotion-studio-protocol',
 			protocolVersion: 1,
-			targetId: selectedTarget.id,
+			targetId: selected.target.id,
 			licenseKey,
 		} satisfies StudioProtocolSetLicenseKeyRequest;
+
 		response = await fetchWithTimeout({
 			fetchFn: dependencies.fetchFn,
 			url: `${selected.origin}/api/studio-protocol/license-key`,
@@ -166,6 +179,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 		});
 	} catch (error) {
 		const timedOut = isAbortError(error);
+
 		return {
 			success: false,
 			code: timedOut ? 'request-timed-out' : 'network-error',
@@ -176,6 +190,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	let result: unknown;
+
 	try {
 		result = await response.json();
 	} catch {
@@ -199,6 +214,7 @@ export const setLicenseKeyInStudioWithDependencies = async (
 	}
 
 	const protocolError = parseStudioProtocolError(result);
+
 	if (protocolError !== null) {
 		return {
 			success: false,

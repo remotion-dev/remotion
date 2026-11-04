@@ -22,6 +22,7 @@ import {rememberActualMatroskaTimestamps} from './remember-actual-matroska-times
 
 type VideoSinks = {
 	sampleSink: VideoSampleSink;
+	timeResolution: number;
 };
 
 type AudioSinks = {
@@ -137,6 +138,7 @@ export const makeSinks = (
 
 			return {
 				sampleSink,
+				timeResolution: await videoTrack.getTimeResolution(),
 			};
 		};
 

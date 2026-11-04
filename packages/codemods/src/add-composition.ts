@@ -28,6 +28,8 @@ export type AddCompositionOptions<Project extends CodemodProject> =
 		folder?: FolderReference;
 	};
 
+export const componentNameRegex = /^[A-Z_$][\w$]*$/;
+
 export const addComposition = <Project extends CodemodProject>({
 	project,
 	compositionFile,
@@ -38,7 +40,7 @@ export const addComposition = <Project extends CodemodProject>({
 }: AddCompositionOptions<Project>): CodemodInsertionResult => {
 	assertNewCompositionId({project, compositionFile, compositionId});
 	validateMetadata(metadata);
-	if (!/^[A-Z_$][\w$]*$/.test(component.importName)) {
+	if (!componentNameRegex.test(component.importName)) {
 		throw new Error(
 			'component.importName must be a named component export beginning with an uppercase letter, _ or $',
 		);

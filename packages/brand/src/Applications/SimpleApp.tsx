@@ -120,7 +120,7 @@ export function ApplicationSimpleApp({
 									alignItems: 'center',
 									color: kineticTypeColor,
 									fontSize: 64,
-									fontWeight: 700,
+									fontWeight: 900,
 									gap: 8,
 									justifyContent: 'center',
 									letterSpacing: 1,
@@ -131,8 +131,8 @@ export function ApplicationSimpleApp({
 						<div
 							style={{
 								alignItems: 'center',
-								backgroundColor: '#f8fafc',
-								border: '2px solid #d9dee7',
+								backgroundColor: 'transparent',
+								border: '2px solid #000000',
 								borderRadius: 12,
 								color: '#15171a',
 								display: 'flex',

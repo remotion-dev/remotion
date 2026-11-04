@@ -1,17 +1,4 @@
-import './fonts';
 import {Composition, Folder, Still} from 'remotion';
-import {AgentsScene} from './scenes/Agents';
-import {BundlingScene} from './scenes/Bundling';
-import {ClientSideScene} from './scenes/ClientSide';
-import {IntroScene} from './scenes/Intro';
-import {LightLeaksScene} from './scenes/LightLeaks';
-import {OutroScene} from './scenes/Outro';
-import {SkillsScene} from './scenes/Skills';
-import {SneakPeekScene} from './scenes/SneakPeek';
-import {SoundEffectsScene} from './scenes/SoundEffects';
-import {VercelScene} from './scenes/Vercel';
-import {Thumbnail} from './Thumbnail';
-import {WhatsNew} from './WhatsNew';
 
 export const WhatsNewRoot: React.FC = () => {
 	return (
@@ -25,7 +12,10 @@ export const WhatsNewRoot: React.FC = () => {
 					},
 				}}
 				id="WhatsNew"
-				component={WhatsNew}
+				lazyComponent={async () => {
+					const {WhatsNew} = await import('./WhatsNew');
+					return {default: WhatsNew};
+				}}
 				durationInFrames={7328}
 				fps={30}
 				width={1920}
@@ -40,7 +30,10 @@ export const WhatsNewRoot: React.FC = () => {
 					},
 				}}
 				id="WhatsNew-Thumbnail"
-				component={Thumbnail}
+				lazyComponent={async () => {
+					const {Thumbnail} = await import('./Thumbnail');
+					return {default: Thumbnail};
+				}}
 				width={1280}
 				height={720}
 			/>
@@ -48,7 +41,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Intro"
-					component={IntroScene}
+					lazyComponent={async () => {
+						const {IntroScene} = await import('./scenes/Intro');
+						return {default: IntroScene};
+					}}
 					durationInFrames={208}
 					fps={30}
 					width={1920}
@@ -57,7 +53,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-LightLeaks"
-					component={LightLeaksScene}
+					lazyComponent={async () => {
+						const {LightLeaksScene} = await import('./scenes/LightLeaks');
+						return {default: LightLeaksScene};
+					}}
 					durationInFrames={720}
 					fps={30}
 					width={1920}
@@ -66,7 +65,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-SoundEffects"
-					component={SoundEffectsScene}
+					lazyComponent={async () => {
+						const {SoundEffectsScene} = await import('./scenes/SoundEffects');
+						return {default: SoundEffectsScene};
+					}}
 					durationInFrames={1152}
 					fps={30}
 					width={1920}
@@ -75,7 +77,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Vercel"
-					component={VercelScene}
+					lazyComponent={async () => {
+						const {VercelScene} = await import('./scenes/Vercel');
+						return {default: VercelScene};
+					}}
 					durationInFrames={1040}
 					fps={30}
 					width={1920}
@@ -84,7 +89,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Skills"
-					component={SkillsScene}
+					lazyComponent={async () => {
+						const {SkillsScene} = await import('./scenes/Skills');
+						return {default: SkillsScene};
+					}}
 					durationInFrames={608}
 					fps={30}
 					width={1920}
@@ -93,7 +101,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-ClientSide"
-					component={ClientSideScene}
+					lazyComponent={async () => {
+						const {ClientSideScene} = await import('./scenes/ClientSide');
+						return {default: ClientSideScene};
+					}}
 					durationInFrames={832}
 					fps={30}
 					width={1920}
@@ -102,7 +113,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Agents"
-					component={AgentsScene}
+					lazyComponent={async () => {
+						const {AgentsScene} = await import('./scenes/Agents');
+						return {default: AgentsScene};
+					}}
 					durationInFrames={976}
 					fps={30}
 					width={1920}
@@ -111,7 +125,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-Bundling"
-					component={BundlingScene}
+					lazyComponent={async () => {
+						const {BundlingScene} = await import('./scenes/Bundling');
+						return {default: BundlingScene};
+					}}
 					durationInFrames={720}
 					fps={30}
 					width={1920}
@@ -120,7 +137,10 @@ export const WhatsNewRoot: React.FC = () => {
 				<Composition
 					defaultProps={{style: {overflow: 'visible', flexDirection: 'column'}}}
 					id="WhatsNew-SneakPeek"
-					component={SneakPeekScene}
+					lazyComponent={async () => {
+						const {SneakPeekScene} = await import('./scenes/SneakPeek');
+						return {default: SneakPeekScene};
+					}}
 					durationInFrames={912}
 					fps={30}
 					width={1920}
@@ -135,7 +155,10 @@ export const WhatsNewRoot: React.FC = () => {
 						},
 					}}
 					id="WhatsNew-Outro"
-					component={OutroScene}
+					lazyComponent={async () => {
+						const {OutroScene} = await import('./scenes/Outro');
+						return {default: OutroScene};
+					}}
 					durationInFrames={160}
 					fps={30}
 					width={1920}

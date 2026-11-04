@@ -1,8 +1,11 @@
 import {expect, test} from 'bun:test';
 import path from 'path';
 import {$} from 'bun';
+import {useFakeAws} from '../../mocks/fake-aws';
 import {streamToUint8Array} from '../../mocks/mock-store';
 import {simulateLambdaRender} from '../simulate-lambda-render';
+
+useFakeAws();
 
 test(
 	'Should be able to render to another bucket, and silent audio should be added',

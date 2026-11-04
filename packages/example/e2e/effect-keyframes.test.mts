@@ -293,12 +293,9 @@ test.describe('effect keyframes', () => {
 			).toBeVisible({timeout: 1_000});
 		}).toPass({timeout: 15_000});
 
-		const timelineExpansionLabel = page
-			.getByText('Timeline expansion', {exact: true})
-			.last();
-		const timelineExpansionRow = timelineExpansionLabel
-			.locator('..')
-			.locator('..');
+		const timelineExpansionRow = page
+			.locator('[data-remotion-sequence-reorder-row]')
+			.filter({has: page.getByText('Timeline expansion', {exact: true})});
 		const opacityRow = page.getByText('Opacity', {exact: true});
 		await expect(async () => {
 			await page

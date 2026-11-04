@@ -41,6 +41,8 @@ export const useResolveStackAndReactToChange = (
 		lastResolvedLocation.current = resolvedLocationFromStack;
 	}
 
+	// Keep the inspector mounted while resolving the refreshed stack. Source
+	// subscriptions must wait for stackIsResolved before using this location.
 	const resolvedLocation = stackIsResolved
 		? resolvedLocationFromStack
 		: stackState.preferMappedNodePath
@@ -140,6 +142,7 @@ export const useResolveStackAndReactToChange = (
 	return {
 		preferMappedNodePath: stackState.preferMappedNodePath,
 		resolvedLocation,
+		stackIsResolved,
 		stack: stackState.stack,
 	};
 };

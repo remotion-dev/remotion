@@ -1,0 +1,14 @@
+---
+title: Cylinder Text
+description: Editable text spinning around a tilted cylinder using WebGPU.
+image: https://remotion.media/elements/text-cylinder-text-preview-97956be8-ce8a-4d79-a9aa-f631bbe6dba9.png
+---
+
+import {getElementDefinition} from '@site/src/components/Elements/element-utils';
+import {ElementPage} from '@site/src/components/Elements/ElementPage';
+
+# Cylinder Text
+
+<ElementPage definition={getElementDefinition('text/cylinder-text')} sourceFile="./cylinder-text.tsx" />
+
+Requires WebGPU and [HTML-in-canvas](/docs/html-in-canvas). Change the text, color, rotation speed, and tilt in the Inspector. Negative speed reverses the rotation.

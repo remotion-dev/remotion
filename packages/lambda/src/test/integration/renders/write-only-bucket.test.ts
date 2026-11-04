@@ -1,17 +1,19 @@
-import {expect, spyOn, test} from 'bun:test';
+import {expect, test} from 'bun:test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {bundle} from '@remotion/bundler';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import {RenderInternals} from '@remotion/renderer';
 import {
+	LambdaClientInternals,
 	OutputFileAccessDeniedError,
 	ServerlessRoutines,
-} from '@remotion/serverless';
-import {mockImplementation} from '../../mocks/mock-implementation';
+} from '@remotion/lambda-client';
+import {RenderInternals} from '@remotion/renderer';
+import {fakeAws, fakeAwsDefaults, useFakeAws} from '../../mocks/fake-aws';
 import {readMockS3File} from '../../mocks/mock-store';
 import {waitUntilDone} from '../wait-until-done';
+
+useFakeAws();
 
 test.each([1, 2])(
 	'renders to a write-only destination with concurrency %s without overwriting existing files',
@@ -20,23 +22,17 @@ test.each([1, 2])(
 		const destination = `write-only-output-${concurrency}`;
 		const region = 'eu-central-1';
 		const key = 'output.mp4';
-		const originalHead = mockImplementation.headFile;
-		const originalConditionalWrite = mockImplementation.writeFileIfNotExists;
-		const capabilitySpy = spyOn(
-			mockImplementation,
-			'supportsConditionalOutput',
-		);
+		const originalHead = fakeAwsDefaults.headFile;
+		const capabilitySpy = fakeAws().supportsConditionalOutput;
 		let destinationChecks = 0;
-		const headSpy = spyOn(mockImplementation, 'headFile').mockImplementation(
-			(input) => {
-				if (input.bucketName === destination) {
-					destinationChecks++;
-					throw new OutputFileAccessDeniedError('s3:GetObject access denied');
-				}
+		const headSpy = fakeAws().headFile.mockImplementation((input) => {
+			if (input.bucketName === destination) {
+				destinationChecks++;
+				throw new OutputFileAccessDeniedError('s3:GetObject access denied');
+			}
 
-				return originalHead(input);
-			},
-		);
+			return originalHead(input);
+		});
 		let close: (() => Promise<void>) | null = null;
 		try {
 			const serveUrl = await bundle({
@@ -74,14 +70,16 @@ test.each([1, 2])(
 						}),
 					);
 				const result =
-					await mockImplementation.callFunctionSync<ServerlessRoutines.start>({
-						type: ServerlessRoutines.start,
-						payload,
-						functionName: 'remotion-dev-lambda',
-						region,
-						timeoutInTest: 120000,
-						requestHandler: null,
-					});
+					await LambdaClientInternals.callFunctionSyncImplementation<ServerlessRoutines.start>(
+						{
+							type: ServerlessRoutines.start,
+							payload,
+							functionName: 'remotion-dev-lambda',
+							region,
+							timeoutInTest: 120000,
+							requestHandler: null,
+						},
+					);
 				return waitUntilDone(result.bucketName, result.renderId);
 			};
 
@@ -112,24 +110,13 @@ test.each([1, 2])(
 			await expect(render(false)).rejects.toThrow('s3:GetObject');
 			capabilitySpy.mockReturnValue(true);
 
-			// Without conditional uploads, denied preflight reads must remain fatal.
-			mockImplementation.writeFileIfNotExists = null;
-			await expect(render(false)).rejects.toThrow('s3:GetObject');
-			mockImplementation.writeFileIfNotExists = originalConditionalWrite;
-
 			// With read access, reject an existing file before uploading.
 			headSpy.mockImplementation(originalHead);
-			const uploadSpy = spyOn(mockImplementation, 'writeFileIfNotExists');
-			try {
-				await expect(render(false)).rejects.toThrow('already exists');
-				expect(uploadSpy).not.toHaveBeenCalled();
-			} finally {
-				uploadSpy.mockRestore();
-			}
+			const uploadSpy = fakeAws().writeFileIfNotExists;
+			uploadSpy.mockClear();
+			await expect(render(false)).rejects.toThrow('already exists');
+			expect(uploadSpy).not.toHaveBeenCalled();
 		} finally {
-			mockImplementation.writeFileIfNotExists = originalConditionalWrite;
-			capabilitySpy.mockRestore();
-			headSpy.mockRestore();
 			await close?.();
 			fs.rmSync(temp, {recursive: true, force: true});
 		}

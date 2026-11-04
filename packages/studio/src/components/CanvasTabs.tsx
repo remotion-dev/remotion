@@ -23,12 +23,14 @@ import {
 } from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {noop} from '../helpers/noop';
+import {getOutputRoute} from '../helpers/output-path';
 import {
 	closedAllCanvasTabsStorageKey,
 	getRoute,
 	pushUrl,
 	replaceUrl,
 } from '../helpers/url-state';
+import {watchRenderOutput} from '../helpers/watch-render-output';
 import {CompositionListContext} from '../state/composition-list';
 import {SetSelectedModalContext} from '../state/modals';
 import {ActionTooltip} from './ActionTooltip';
@@ -58,6 +60,8 @@ import {useSelectAsset} from './use-select-asset';
 
 const storageKey = 'remotion.canvasTabs';
 const canvasTabDragMimeType = 'application/vnd.remotion.canvas-tab';
+const blobTabIds = new WeakMap<() => Promise<Blob>, number>();
+let nextBlobTabId = 0;
 
 const getTabKey = (content: CanvasContent): string => {
 	switch (content.type) {
@@ -67,8 +71,16 @@ const getTabKey = (content: CanvasContent): string => {
 			return `asset:${content.asset}`;
 		case 'output':
 			return `output:${content.path}`;
-		case 'output-blob':
-			return `output-blob:${content.displayName}`;
+		case 'output-blob': {
+			let id = blobTabIds.get(content.getBlob);
+			if (id === undefined) {
+				id = nextBlobTabId++;
+				blobTabIds.set(content.getBlob, id);
+			}
+
+			return `output-blob:${id}:${content.displayName}`;
+		}
+
 		default:
 			throw new Error('Unknown canvas content type');
 	}
@@ -81,7 +93,7 @@ const getTabLabel = (content: CanvasContent): string => {
 		case 'asset':
 			return content.asset.split('/').at(-1) ?? content.asset;
 		case 'output':
-			return content.path.split('/').at(-1) ?? content.path;
+			return content.path.split(/[/\\]/).at(-1) ?? content.path;
 		case 'output-blob':
 			return content.displayName;
 		default:
@@ -96,7 +108,7 @@ const getTabRoute = (content: CanvasContent): string | null => {
 		case 'asset':
 			return `/assets/${content.asset}`;
 		case 'output':
-			return `/outputs/${content.path}`;
+			return getOutputRoute(content.path);
 		case 'output-blob':
 			return null;
 		default:
@@ -128,7 +140,18 @@ const loadTabs = (): CanvasContent[] => {
 			} else if (item.type === 'asset' && typeof item.asset === 'string') {
 				content = {type: 'asset', asset: item.asset};
 			} else if (item.type === 'output' && typeof item.path === 'string') {
-				content = {type: 'output', path: item.path};
+				content = {
+					type: 'output',
+					path:
+						item.outputPathVersion === 1
+							? item.path
+							: item.path.replace(
+									window.remotion_fileSystemPlatform === 'win32'
+										? /^[\\/]+/
+										: /^\/+/,
+									'',
+								),
+				};
 			}
 
 			if (
@@ -172,8 +195,8 @@ const dropIndicatorStyle: React.CSSProperties = {
 };
 
 const tabStyle: React.CSSProperties = {
-	gap: 6,
 	minWidth: 0,
+	position: 'relative',
 	width: '100%',
 	boxSizing: 'border-box',
 };
@@ -191,6 +214,7 @@ const labelStyle: React.CSSProperties = {
 const tooltipTriggerStyle: React.CSSProperties = {
 	flex: 1,
 	minWidth: 0,
+	marginRight: 'var(--remotion-canvas-tab-close-space, 26px)',
 };
 
 const tooltipContentStyle: React.CSSProperties = {
@@ -204,21 +228,30 @@ const tooltipTitleStyle: React.CSSProperties = {
 };
 
 const closeStyle: React.CSSProperties = {
-	flexShrink: 0,
 	height: 20,
+	position: 'absolute',
+	right: 3,
+	top: '50%',
+	transform: 'translateY(-50%)',
 	width: 20,
+	// Let the tab's CSS control visibility instead of InlineAction's defaults.
+	opacity: undefined,
+	pointerEvents: undefined,
 };
 
 const CanvasTab: React.FC<{
 	readonly tab: CanvasContent;
 	readonly selected: boolean;
-	readonly onSelect: () => void;
-	readonly onDragFocus: () => void;
-	readonly onClose: () => void;
-	readonly onCloseOthers: () => void;
+	readonly onSelect: (content: CanvasContent, replace: boolean) => void;
+	readonly onDragFocus: (content: CanvasContent) => void;
+	readonly onClose: (content: CanvasContent) => void;
+	readonly onCloseOthers: (content: CanvasContent) => void;
 	readonly canCloseOthers: boolean;
 	readonly dropIndicator: 'before' | 'after' | null;
-	readonly onDragStart: React.DragEventHandler<HTMLDivElement>;
+	readonly onDragStart: (
+		content: CanvasContent,
+		event: React.DragEvent<HTMLDivElement>,
+	) => void;
 	readonly onDragEnd: React.DragEventHandler<HTMLDivElement>;
 }> = ({
 	tab,
@@ -239,12 +272,51 @@ const CanvasTab: React.FC<{
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {connectionStatus, openInApps} = useOpenInMenuApps();
 	const [tooltipHovered, setTooltipHovered] = useState(false);
-	const [assetMetadata, setAssetMetadata] = useState<AssetMetadata | null>(
-		null,
-	);
-	const assetMetadataRequested = useRef(false);
+	const [metadataVersion, setMetadataVersion] = useState(0);
+	const [loadedMetadata, setLoadedMetadata] = useState<{
+		version: number;
+		value: AssetMetadata;
+	} | null>(null);
+	const assetMetadata =
+		loadedMetadata?.version === metadataVersion ? loadedMetadata.value : null;
+	const [metadataTab, setMetadataTab] = useState<Extract<
+		CanvasContent,
+		{type: 'asset' | 'output'}
+	> | null>(null);
+	useEffect(() => {
+		if (metadataTab?.type !== 'output') {
+			return;
+		}
+
+		return watchRenderOutput(metadataTab.path, () =>
+			setMetadataVersion((version) => version + 1),
+		);
+	}, [metadataTab]);
+
+	useEffect(() => {
+		if (!tooltipHovered || !metadataTab || assetMetadata) {
+			return;
+		}
+
+		let cancelled = false;
+		getAssetMetadata(metadataTab, metadataTab.type === 'output').then(
+			(value) => {
+				if (!cancelled) {
+					setLoadedMetadata({version: metadataVersion, value});
+				}
+			},
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, [assetMetadata, metadataTab, metadataVersion, tooltipHovered]);
 	const compositionMetadataRequested = useRef(false);
 	const dragFocusTimer = useRef<number | null>(null);
+	const onCloseTab = useCallback(() => onClose(tab), [onClose, tab]);
+	const onCloseOtherTabs = useCallback(
+		() => onCloseOthers(tab),
+		[onCloseOthers, tab],
+	);
 	const cancelDragFocus = useCallback(() => {
 		if (dragFocusTimer.current !== null) {
 			window.clearTimeout(dragFocusTimer.current);
@@ -272,10 +344,10 @@ const CanvasTab: React.FC<{
 
 			dragFocusTimer.current = window.setTimeout(() => {
 				dragFocusTimer.current = null;
-				onDragFocus();
+				onDragFocus(tab);
 			}, 500);
 		},
-		[onDragFocus, selected, tab.type],
+		[onDragFocus, selected, tab],
 	);
 	const onDragLeave = useCallback(
 		(event: React.DragEvent<HTMLDivElement>) => {
@@ -330,7 +402,7 @@ const CanvasTab: React.FC<{
 				label: 'Close',
 				keyHint: null,
 				leftItem: null,
-				onClick: onClose,
+				onClick: onCloseTab,
 				quickSwitcherLabel: null,
 				subMenu: null,
 			},
@@ -341,7 +413,7 @@ const CanvasTab: React.FC<{
 				label: 'Close Others',
 				keyHint: null,
 				leftItem: null,
-				onClick: onCloseOthers,
+				onClick: onCloseOtherTabs,
 				quickSwitcherLabel: null,
 				subMenu: null,
 				disabled: !canCloseOthers,
@@ -352,8 +424,8 @@ const CanvasTab: React.FC<{
 		composition,
 		connectionStatus,
 		getAssetContextMenuItems,
-		onClose,
-		onCloseOthers,
+		onCloseTab,
+		onCloseOtherTabs,
 		openInApps,
 		resolvedLocation,
 		setSelectedModal,
@@ -409,7 +481,7 @@ const CanvasTab: React.FC<{
 	const tabElement = (
 		<Tab
 			selected={selected}
-			onClick={selected ? noop : onSelect}
+			onClick={selected ? noop : () => onSelect(tab, false)}
 			onDragEnter={onDragEnter}
 			onDragLeave={onDragLeave}
 			style={tabStyle}
@@ -435,9 +507,8 @@ const CanvasTab: React.FC<{
 					onPointerEnter={() => {
 						setTooltipHovered(true);
 						if (tab.type === 'asset' || tab.type === 'output') {
-							if (!assetMetadataRequested.current) {
-								assetMetadataRequested.current = true;
-								getAssetMetadata(tab, false).then(setAssetMetadata);
+							if (!metadataTab) {
+								setMetadataTab(tab);
 							}
 						} else if (
 							tab.type === 'composition' &&
@@ -461,9 +532,10 @@ const CanvasTab: React.FC<{
 			</ActionTooltip>
 			<InlineAction
 				aria-label={`Close ${label} tab`}
+				className="__remotion-canvas-tab-close"
 				onClick={(event) => {
 					event.stopPropagation();
-					onClose();
+					onCloseTab();
 				}}
 				renderAction={() => <CancelIcon height={16} width={16} />}
 				style={closeStyle}
@@ -474,9 +546,11 @@ const CanvasTab: React.FC<{
 
 	return (
 		<div
+			className="__remotion-canvas-tab"
+			data-selected={selected}
 			style={tabWrapperStyle}
 			draggable
-			onDragStart={onDragStart}
+			onDragStart={(event) => onDragStart(tab, event)}
 			onDragEnd={onDragEnd}
 			onDrop={cancelDragFocus}
 		>
@@ -493,7 +567,9 @@ const CanvasTab: React.FC<{
 	);
 };
 
-export const CanvasTabs: React.FC = () => {
+const MemoizedCanvasTab = React.memo(CanvasTab);
+
+export const CanvasTabs: React.FC = React.memo(() => {
 	const {studioRuntimeConfig} = useSettings();
 	const canvasTabsEnabled = studioRuntimeConfig?.canvasTabsEnabled ?? true;
 	const {canvasContent, compositions} = useContext(
@@ -615,7 +691,13 @@ export const CanvasTabs: React.FC = () => {
 		try {
 			sessionStorage.setItem(
 				storageKey,
-				JSON.stringify(tabs.filter((tab) => tab.type !== 'output-blob')),
+				JSON.stringify(
+					tabs
+						.filter((tab) => tab.type !== 'output-blob')
+						.map((tab) =>
+							tab.type === 'output' ? {...tab, outputPathVersion: 1} : tab,
+						),
+				),
 			);
 		} catch {
 			// Session storage may be unavailable in an embedded Studio.
@@ -710,6 +792,28 @@ export const CanvasTabs: React.FC = () => {
 
 		return children.length;
 	}, []);
+
+	const onTabDragStart = useCallback(
+		(content: CanvasContent, event: React.DragEvent<HTMLDivElement>) => {
+			const key = getTabKey(content);
+			draggedTabKey.current = key;
+			event.dataTransfer.setData(canvasTabDragMimeType, key);
+			event.dataTransfer.effectAllowed = 'move';
+		},
+		[],
+	);
+
+	const onTabDragFocus = useCallback(
+		(content: CanvasContent) => {
+			const route = getTabRoute(content);
+			if (route !== null && route !== getRoute()) {
+				replaceUrl(route);
+			}
+
+			setCanvasContent(content);
+		},
+		[setCanvasContent],
+	);
 
 	const onTabDragEnd = useCallback(() => {
 		draggedTabKey.current = null;
@@ -897,23 +1001,16 @@ export const CanvasTabs: React.FC = () => {
 				{tabs.map((tab, index) => {
 					const key = getTabKey(tab);
 					return (
-						<CanvasTab
+						<MemoizedCanvasTab
 							key={key}
 							tab={tab}
 							selected={
 								canvasContent !== null && getTabKey(canvasContent) === key
 							}
-							onSelect={() => selectTab(tab, false)}
-							onDragFocus={() => {
-								const route = getTabRoute(tab);
-								if (route !== null && route !== getRoute()) {
-									replaceUrl(route);
-								}
-
-								setCanvasContent(tab);
-							}}
-							onClose={() => closeTab(tab)}
-							onCloseOthers={() => closeOtherTabs(tab)}
+							onSelect={selectTab}
+							onDragFocus={onTabDragFocus}
+							onClose={closeTab}
+							onCloseOthers={closeOtherTabs}
 							canCloseOthers={tabs.length > 1}
 							dropIndicator={
 								dropIndex === index
@@ -922,16 +1019,26 @@ export const CanvasTabs: React.FC = () => {
 										? 'after'
 										: null
 							}
-							onDragStart={(event) => {
-								draggedTabKey.current = key;
-								event.dataTransfer.setData(canvasTabDragMimeType, key);
-								event.dataTransfer.effectAllowed = 'move';
-							}}
+							onDragStart={onTabDragStart}
 							onDragEnd={onTabDragEnd}
 						/>
 					);
 				})}
 			</Tabs>
+			<style>{`
+				@media (hover: hover) {
+					.__remotion-canvas-tab:not([data-selected="true"]):not(:hover):not(:focus-within) {
+						--remotion-canvas-tab-close-space: 0px;
+					}
+
+					.__remotion-canvas-tab:not([data-selected="true"]):not(:hover):not(:focus-within) .__remotion-canvas-tab-close {
+						opacity: 0;
+						pointer-events: none;
+					}
+				}
+			`}</style>
 		</div>
 	);
-};
+});
+
+CanvasTabs.displayName = 'CanvasTabs';

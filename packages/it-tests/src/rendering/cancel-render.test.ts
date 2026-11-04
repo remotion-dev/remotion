@@ -28,6 +28,8 @@ test(
 				'./build',
 				'cancel-render',
 				'--frames=2-10',
+				// One page is enough to exercise cancellation and symbolication.
+				'--concurrency=1',
 				outputPath,
 			],
 			{
@@ -36,10 +38,15 @@ test(
 			},
 		);
 
-		expect(task.exitCode).toBe(1);
-		if (!task.stderr.includes('CancelledError')) {
-			console.log(task.stderr);
+		if (task.exitCode !== 1 || !task.stderr.includes('CancelledError')) {
+			console.log({
+				exitCode: task.exitCode,
+				signal: task.signal,
+				stdout: task.stdout,
+				stderr: task.stderr,
+			});
 		}
+		expect(task.exitCode).toBe(1);
 		expect(task.stderr).toContain('CancelledError');
 		expect(task.stderr).toContain('This should be the error message');
 
@@ -54,5 +61,7 @@ test(
 			"cancelRender(new Error('This should be the error message'));",
 		);
 	},
-	{timeout: 15000, retry: 3},
+	// Allow browser startup and the renderer's own 30s timeout to finish before
+	// Bun kills the subprocess. Retrying a killed CLI can overlap its cleanup.
+	{timeout: 60000},
 );

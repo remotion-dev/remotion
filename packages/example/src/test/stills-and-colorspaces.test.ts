@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {
 	RenderInternals,
+	openBrowser,
 	renderMedia,
 	renderStill,
 	selectComposition,
@@ -24,156 +25,150 @@ beforeAll(async () => {
 });
 
 test(
-	'Can render a still png using Node.JS APIs',
+	'Can render stills and colorspaces using Node.JS APIs',
 	async () => {
-		const composition = await selectComposition({
-			serveUrl: path.join(exampleDir, 'build'),
-			id: 'react-svg',
-			inputProps: {},
-		});
+		const browser = await openBrowser('chrome');
 
-		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
-		const testOut = path.join(folder, 'still.png');
-
-		const fileOSRoot = path.parse(__dirname).root;
-
-		await expect(
-			renderStill({
-				composition,
-				output: testOut,
+		try {
+			const pngComposition = await selectComposition({
 				serveUrl: path.join(exampleDir, 'build'),
-				frame: 500,
-			}),
-		).rejects.toThrow(
-			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/,
-		);
+				id: 'react-svg',
+				inputProps: {},
+				puppeteerInstance: browser,
+			});
 
-		await expect(
-			renderStill({
-				composition,
-				output: process.platform === 'win32' ? fileOSRoot : '/var',
+			const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
+			const pngOutput = path.join(folder, 'still.png');
+			const fileOSRoot = path.parse(__dirname).root;
+
+			await expect(
+				renderStill({
+					composition: pngComposition,
+					output: pngOutput,
+					serveUrl: path.join(exampleDir, 'build'),
+					frame: 500,
+					puppeteerInstance: browser,
+				}),
+			).rejects.toThrow(
+				/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/,
+			);
+
+			await expect(
+				renderStill({
+					composition: pngComposition,
+					output: process.platform === 'win32' ? fileOSRoot : '/var',
+					serveUrl: path.join(exampleDir, 'build'),
+					puppeteerInstance: browser,
+				}),
+			).rejects.toThrow(/already exists, but is not a file/);
+
+			await expect(
+				renderStill({
+					composition: pngComposition,
+					output: 'src/index.ts',
+					serveUrl: path.join(exampleDir, 'build'),
+					overwrite: false,
+					puppeteerInstance: browser,
+				}),
+			).rejects.toThrow(
+				/Cannot render still - "overwrite" option was set to false, but the output/,
+			);
+
+			await renderStill({
+				composition: pngComposition,
+				output: pngOutput,
 				serveUrl: path.join(exampleDir, 'build'),
-			}),
-		).rejects.toThrow(/already exists, but is not a file/);
+				frame: 100,
+				puppeteerInstance: browser,
+			});
 
-		await expect(
-			renderStill({
-				composition,
-				output: 'src/index.ts',
+			expect(existsSync(pngOutput)).toBe(true);
+			unlinkSync(pngOutput);
+			RenderInternals.deleteDirectory(folder);
+
+			if (process.platform !== 'linux') {
+				const imageFormat: StillImageFormat = 'pdf';
+				const pdfComposition = await selectComposition({
+					serveUrl: path.join(exampleDir, 'build'),
+					id: 'tiles',
+					inputProps: {},
+					puppeteerInstance: browser,
+				});
+				const pdfOutput = path.join(folder, `edgecase.${imageFormat}`);
+
+				await renderStill({
+					composition: pdfComposition,
+					output: pdfOutput,
+					serveUrl: path.join(exampleDir, 'build'),
+					frame: 15,
+					imageFormat,
+					puppeteerInstance: browser,
+				});
+
+				expect(existsSync(pdfOutput)).toBe(true);
+				unlinkSync(pdfOutput);
+				RenderInternals.deleteDirectory(folder);
+			}
+
+			const colorComposition = await selectComposition({
 				serveUrl: path.join(exampleDir, 'build'),
-				overwrite: false,
-			}),
-		).rejects.toThrow(
-			/Cannot render still - "overwrite" option was set to false, but the output/,
-		);
+				id: 'green',
+				inputProps: {},
+				puppeteerInstance: browser,
+			});
+			const still = await renderStill({
+				composition: colorComposition,
+				serveUrl: path.join(exampleDir, 'build'),
+				puppeteerInstance: browser,
+			});
+			const img = await sharp(still.buffer as Buffer)
+				.raw()
+				.toBuffer();
+			const actualColor = {
+				red: img.readUInt8(0),
+				green: img.readUInt8(1),
+				blue: img.readUInt8(2),
+			};
 
-		await renderStill({
-			composition,
-			output: testOut,
-			serveUrl: path.join(exampleDir, 'build'),
-			frame: 100,
-		});
+			expect(actualColor.blue).toBe(0);
+			expect(actualColor.green).toBe(128);
+			expect(actualColor.blue).toBe(0);
 
-		expect(existsSync(testOut)).toBe(true);
-		unlinkSync(testOut);
-		RenderInternals.deleteDirectory(folder);
-	},
-	{
-		retry: 3,
-		timeout: 90000,
-	},
-);
+			const {buffer} = await renderMedia({
+				codec: 'h264',
+				composition: colorComposition,
+				imageFormat: 'png',
+				serveUrl: path.join(exampleDir, 'build'),
+				muted: true,
+				puppeteerInstance: browser,
+			});
 
-test(
-	'Can render a still pdf using Node.JS APIs',
-	async () => {
-		if (process.platform === 'linux') {
-			// https://github.com/remotion-dev/remotion/issues/6452
-			return;
+			writeFileSync('out.mp4', new Uint8Array(buffer as Buffer));
+			execSync('bunx remotion ffmpeg -i - -frames:v 1 -c:v png out%02d.png', {
+				input: new Uint8Array(buffer as Buffer),
+				stdio: ['pipe', 'ignore', 'ignore'],
+			});
+
+			const pngBuffer = readFileSync('out01.png');
+			const frameImg = await sharp(pngBuffer).raw().toBuffer();
+			const actualColorFrame = {
+				red: frameImg.readUInt8(0),
+				green: frameImg.readUInt8(1),
+				blue: frameImg.readUInt8(2),
+			};
+			expect(actualColorFrame.blue).toBe(0);
+			expect(actualColorFrame.green).toBeGreaterThanOrEqual(126);
+			expect(actualColorFrame.green).toBeLessThanOrEqual(128);
+			expect(actualColorFrame.blue).toBe(0);
+
+			unlinkSync('out01.png');
+			unlinkSync('out.mp4');
+		} finally {
+			await browser.close({silent: false});
 		}
-		const imageFormat: StillImageFormat = 'pdf';
-		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
-
-		const composition = await selectComposition({
-			serveUrl: path.join(exampleDir, 'build'),
-			id: 'tiles',
-			inputProps: {},
-		});
-
-		const testOut = path.join(folder, `edgecase.${imageFormat}`);
-
-		await renderStill({
-			composition,
-			output: testOut,
-			serveUrl: path.join(exampleDir, 'build'),
-			frame: 15,
-			imageFormat,
-		});
-
-		expect(existsSync(testOut)).toBe(true);
-		unlinkSync(testOut);
-
-		RenderInternals.deleteDirectory(folder);
 	},
 	{
 		retry: 3,
 		timeout: 90000,
 	},
 );
-
-test('Bt709 encoding should work', async () => {
-	const composition = await selectComposition({
-		serveUrl: path.join(exampleDir, 'build'),
-		id: 'green',
-		inputProps: {},
-	});
-
-	const still = await renderStill({
-		composition,
-		serveUrl: path.join(exampleDir, 'build'),
-	});
-
-	const img = await sharp(still.buffer as Buffer)
-		.raw()
-		.toBuffer();
-	const actualColor = {
-		red: img.readUInt8(0),
-		green: img.readUInt8(1),
-		blue: img.readUInt8(2),
-	};
-
-	expect(actualColor.blue).toBe(0);
-	expect(actualColor.green).toBe(128);
-	expect(actualColor.blue).toBe(0);
-
-	const {buffer} = await renderMedia({
-		codec: 'h264',
-		composition,
-		imageFormat: 'png',
-		serveUrl: path.join(exampleDir, 'build'),
-		muted: true,
-	});
-
-	writeFileSync('out.mp4', new Uint8Array(buffer as Buffer));
-
-	execSync('bunx remotion ffmpeg -i - -frames:v 1 -c:v png out%02d.png', {
-		input: new Uint8Array(buffer as Buffer),
-		stdio: ['pipe', 'ignore', 'ignore'],
-	});
-
-	const pngBuffer = readFileSync('out01.png');
-
-	const frameImg = await sharp(pngBuffer).raw().toBuffer();
-	const actualColorFrame = {
-		red: frameImg.readUInt8(0),
-		green: frameImg.readUInt8(1),
-		blue: frameImg.readUInt8(2),
-	};
-	expect(actualColorFrame.blue).toBe(0);
-	expect(actualColorFrame.green).toBeGreaterThanOrEqual(126);
-	expect(actualColorFrame.green).toBeLessThanOrEqual(128);
-	expect(actualColorFrame.blue).toBe(0);
-
-	unlinkSync('out01.png');
-	unlinkSync('out.mp4');
-});

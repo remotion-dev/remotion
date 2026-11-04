@@ -101,7 +101,7 @@ export const getSelectedOutlineActiveSchema = ({
 export const {
 	isCanvasOutlineDragPastThreshold: isSelectedOutlineDragPastThreshold,
 	clearCanvasOutlineDragOverrides: clearSelectedOutlineDragOverrides,
-} = CanvasInternals;
+}: typeof CanvasInternals = CanvasInternals;
 
 export type SelectedOutlineStaticDragChange = CanvasOutlineStaticDragChange;
 export type SelectedOutlineKeyframedDragChange =

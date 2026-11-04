@@ -1,12 +1,13 @@
 import {expect, spyOn, test} from 'bun:test';
-import {awsImplementation} from '../aws-provider';
 import {makeLambdaRenderMediaPayload} from '../make-lambda-payload';
 import {renderMediaOnLambdaOptionalToRequired} from '../render-media-on-lambda';
+import * as writeFileModule from '../write-file';
 
 const makePayload = async (inputProps: Record<string, unknown>) => {
-	const writeFile = spyOn(awsImplementation, 'writeFile').mockImplementation(
-		() => Promise.resolve(),
-	);
+	const writeFile = spyOn(
+		writeFileModule,
+		'lambdaWriteFileImplementation',
+	).mockImplementation(() => Promise.resolve());
 	try {
 		const payload = await makeLambdaRenderMediaPayload(
 			renderMediaOnLambdaOptionalToRequired({

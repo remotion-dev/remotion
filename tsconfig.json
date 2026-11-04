@@ -37,6 +37,9 @@
 			"path": "./packages/cloudrun"
 		},
 		{
+			"path": "./packages/chrome-compile"
+		},
+		{
 			"path": "./packages/cli"
 		},
 		{
@@ -73,9 +76,6 @@
 			"path": "./packages/openai-whisper"
 		},
 		{
-			"path": "./packages/mcp"
-		},
-		{
 			"path": "./packages/it-tests"
 		},
 		{
@@ -86,6 +86,9 @@
 		},
 		{
 			"path": "./packages/lambda"
+		},
+		{
+			"path": "./packages/lambda-binaries"
 		},
 		{
 			"path": "./packages/lottie"
@@ -172,6 +175,9 @@
 			"path": "./packages/template-react-router"
 		},
 		{
+			"path": "./packages/template-element-library"
+		},
+		{
 			"path": "./packages/template-tiktok"
 		},
 		{
@@ -230,12 +236,6 @@
 		},
 		{
 			"path": "./packages/streaming"
-		},
-		{
-			"path": "./packages/serverless"
-		},
-		{
-			"path": "./packages/serverless-client"
 		},
 		{
 			"path": "./packages/docusaurus-plugin"

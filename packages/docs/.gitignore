@@ -5,6 +5,8 @@
 /build
 
 # Generated files
+/static/generated/
+/static/img/effects-*-preview.png
 /src/remotion/element-playground/*.element.tsx
 .docusaurus
 .cache-loader

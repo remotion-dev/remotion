@@ -1,3 +1,4 @@
 import {CanvasInternals} from '@remotion/sdk';
-export const {orderCanvasOutlinesForRendering: orderOutlinesForRendering} =
-	CanvasInternals;
+export const {
+	orderCanvasOutlinesForRendering: orderOutlinesForRendering,
+}: typeof CanvasInternals = CanvasInternals;

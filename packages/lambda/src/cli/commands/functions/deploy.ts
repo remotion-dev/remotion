@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {
 	DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
@@ -7,7 +7,6 @@ import {
 	DEFAULT_TIMEOUT,
 } from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import {FullClientSpecifics, ProviderSpecifics} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
 import {internalDeployFunction} from '../../../api/deploy-function';
 import {validateCustomRoleArn} from '../../../shared/validate-custom-role-arn';
@@ -22,12 +21,8 @@ export const FUNCTIONS_DEPLOY_SUBCOMMAND = 'deploy';
 
 export const functionsDeploySubcommand = async ({
 	logLevel,
-	providerSpecifics,
-	fullClientSpecifics,
 }: {
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 }) => {
 	const region = getAwsRegion();
 	const timeoutInSeconds = parsedLambdaCli.timeout ?? DEFAULT_TIMEOUT;
@@ -102,6 +97,7 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 	});
 	output.update('Deploying Lambda...', false);
 	const {functionName, alreadyExisted} = await internalDeployFunction({
+		functionName: parsedLambdaCli['function-name'] ?? null,
 		createCloudWatchLogGroup,
 		region,
 		timeoutInSeconds,
@@ -116,8 +112,6 @@ VPC Security Group IDs = ${vpcSecurityGroupIds}
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference,
-		providerSpecifics,
-		fullClientSpecifics,
 		requestHandler: null,
 	});
 	if (CliInternals.quietFlagProvided()) {

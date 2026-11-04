@@ -22,7 +22,7 @@ export type ExtractFrameViaBroadcastChannelResult =
 			audio: PcmS16AudioData | null;
 			durationInSeconds: number | null;
 	  }
-	| {type: 'cannot-decode'; durationInSeconds: number | null}
+	| {type: 'cannot-decode'; durationInSeconds: number | null; error: Error}
 	| {type: 'cannot-decode-prores'; durationInSeconds: number | null}
 	| {type: 'cannot-decode-alpha'; durationInSeconds: number | null}
 	| {type: 'network-error'; error: Error | null}
@@ -69,6 +69,9 @@ export const extractFrameViaBroadcastChannel = async ({
 	requestInit?: MediaRequestInit;
 	mediaCache: MediaCache;
 }): Promise<ExtractFrameViaBroadcastChannelResult> => {
+	// Client-side renders, including Firefox and Safari, extract media in this
+	// realm. They never clone errors through BroadcastChannel, preserving causes.
+	// Only secondary tabs in the server's Chromium renderer use the channel below.
 	if (isClientSideRendering || window.remotion_isMainTab) {
 		return extractFrameAndAudio({
 			sampleRate,
@@ -158,6 +161,7 @@ export const extractFrameViaBroadcastChannel = async ({
 				if (data.type === 'response-cannot-decode') {
 					resolve({
 						type: 'cannot-decode',
+						error: data.error,
 						durationInSeconds: data.durationInSeconds,
 					});
 					return;

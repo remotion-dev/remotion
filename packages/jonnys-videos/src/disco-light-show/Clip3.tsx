@@ -9,6 +9,7 @@ const Clip3Inner: React.FC = () => {
 	return (
 		<>
 			<Video
+				name="Party dance floor"
 				src={asset('clip3-source.mp4')}
 				style={{
 					position: 'absolute',
@@ -17,7 +18,7 @@ const Clip3Inner: React.FC = () => {
 					height: 1080,
 					scale: 1.805,
 				}}
-				durationInFrames={68}
+				durationInFrames={99}
 				playbackRate={1.5}
 				effects={[
 					linearProgressiveBlur({

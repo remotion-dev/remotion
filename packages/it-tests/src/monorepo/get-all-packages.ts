@@ -7,7 +7,10 @@ import {packagesRemovedInV5} from '../../../studio-shared/src/release-package-po
 
 const workspaceOnlyPackages = [
 	'canvas-capture-extension',
+	'chrome-compile',
 	'jonnys-videos',
+	'lambda-binaries',
+	'typescript-tools',
 	// Not published through create-video yet
 	'template-vibe-code',
 ];

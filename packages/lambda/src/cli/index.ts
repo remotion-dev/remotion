@@ -1,15 +1,9 @@
 import {CliInternals} from '@remotion/cli';
-import {AwsProvider, LambdaClientInternals} from '@remotion/lambda-client';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {BINARY_NAME} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import {
-	DOCS_URL,
-	FullClientSpecifics,
-	type ProviderSpecifics,
-} from '@remotion/serverless';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
-import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {parsedLambdaCli} from './args';
 import {
 	COMPOSITIONS_COMMAND,
@@ -50,14 +44,10 @@ const matchCommand = ({
 	args,
 	remotionRoot,
 	logLevel,
-	providerSpecifics,
-	fullClientSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-	fullClientSpecifics: FullClientSpecifics<AwsProvider>;
 }) => {
 	if (parsedLambdaCli.help || args.length === 0) {
 		printHelp(args, logLevel);
@@ -65,7 +55,7 @@ const matchCommand = ({
 	}
 
 	if (requiresCredentials(args)) {
-		providerSpecifics.checkCredentials();
+		LambdaClientInternals.checkCredentials();
 	}
 
 	if (args[0] === RENDER_COMMAND) {
@@ -73,7 +63,6 @@ const matchCommand = ({
 			args: args.slice(1),
 			remotionRoot,
 			logLevel,
-			providerSpecifics,
 		});
 	}
 
@@ -82,7 +71,6 @@ const matchCommand = ({
 			args: args.slice(1),
 			remotionRoot,
 			logLevel,
-			providerSpecifics: providerSpecifics,
 		});
 	}
 
@@ -90,7 +78,6 @@ const matchCommand = ({
 		return compositionsCommand({
 			args: args.slice(1),
 			logLevel,
-			providerSpecifics,
 		});
 	}
 
@@ -98,8 +85,6 @@ const matchCommand = ({
 		return functionsCommand({
 			args: args.slice(1),
 			logLevel,
-			fullClientSpecifics,
-			providerSpecifics,
 		});
 	}
 
@@ -116,12 +101,7 @@ const matchCommand = ({
 	}
 
 	if (args[0] === SITES_COMMAND) {
-		return sitesCommand(
-			args.slice(1),
-			remotionRoot,
-			logLevel,
-			providerSpecifics,
-		);
+		return sitesCommand(args.slice(1), remotionRoot, logLevel);
 	}
 
 	if (args[0] === 'upload') {
@@ -177,18 +157,12 @@ export const executeCommand = async (
 	args: string[],
 	remotionRoot: string,
 	logLevel: LogLevel,
-	_providerSpecifics: ProviderSpecifics<AwsProvider> | null,
-	fullClientSpecifics: FullClientSpecifics<AwsProvider> | null,
 ) => {
 	try {
-		const providerSpecifics =
-			_providerSpecifics ?? LambdaClientInternals.awsImplementation;
 		await matchCommand({
 			args,
 			remotionRoot,
 			logLevel,
-			providerSpecifics: providerSpecifics,
-			fullClientSpecifics: fullClientSpecifics ?? awsFullClientSpecifics,
 		});
 	} catch (err) {
 		const error = err as Error;
@@ -205,7 +179,7 @@ export const executeCommand = async (
 	- Remove the "--custom-role-arn" parameter and set up Remotion Lambda according to the setup guide
 	- Make sure the role has the same policy assigned as the one returned by "npx ${BINARY_NAME} ${POLICIES_COMMAND} ${ROLE_SUBCOMMAND}"
 	
-	Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+	Revisit ${LambdaClientInternals.DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 	`.trim(),
 				);
 			}
@@ -217,7 +191,7 @@ The role "${ROLE_NAME}" does not exist in your AWS account or has the wrong poli
 - The name of the role is not "${ROLE_NAME}"
 - The policy is not exactly as specified in the setup guide
 
-Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+Revisit ${LambdaClientInternals.DOCS_URL}/docs/lambda/setup and make sure you set up the role and role policy correctly. Also see the troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 `.trim(),
 			);
 		}
@@ -226,7 +200,7 @@ Revisit ${DOCS_URL}/docs/lambda/setup and make sure you set up the role and role
 			Log.error(
 				{indent: false, logLevel},
 				`
-AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
+AWS returned an "AccessDenied" error message meaning a permission is missing. Read the permissions troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/permissions. The original error message is:
 `.trim(),
 			);
 		}
@@ -235,7 +209,7 @@ AWS returned an "AccessDenied" error message meaning a permission is missing. Re
 			Log.error(
 				{indent: false, logLevel},
 				`
-AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
+AWS returned an "TooManyRequestsException" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
 `.trim(),
 			);
 		}
@@ -244,7 +218,7 @@ AWS returned an "TooManyRequestsException" error message which could mean you re
 			Log.error(
 				{indent: false, logLevel},
 				`
-AWS returned an "ConcurrentInvocationLimitExceeded" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
+AWS returned an "ConcurrentInvocationLimitExceeded" error message which could mean you reached the concurrency limit of AWS Lambda. You can increase the limit - read this troubleshooting page: ${LambdaClientInternals.DOCS_URL}/docs/lambda/troubleshooting/rate-limit. The original error message is:
 `.trim(),
 			);
 		}
@@ -307,11 +281,5 @@ export const cli = async (logLevel: LogLevel) => {
 	const remotionRoot = RenderInternals.findRemotionRoot();
 	await CliInternals.initializeCli(remotionRoot);
 
-	await executeCommand(
-		parsedLambdaCli._,
-		remotionRoot,
-		logLevel,
-		LambdaClientInternals.awsImplementation,
-		awsFullClientSpecifics,
-	);
+	await executeCommand(parsedLambdaCli._, remotionRoot, logLevel);
 };

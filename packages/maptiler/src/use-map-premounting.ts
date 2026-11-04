@@ -14,7 +14,7 @@ export const useMapPremounting = (getLayerIds: () => string[]) => {
 	layerIdsRef.current = getLayerIds;
 
 	const applyPremountVisibility = useCallback(() => {
-		if (!map) {
+		if (!map || !map.style) {
 			return;
 		}
 

@@ -179,7 +179,11 @@ export const getUpgradeCommand = (manager: PackageManager) => {
 };
 
 export const getDevCommand = (manager: PackageManager, template: Template) => {
-	if (template.cliId === 'react-router' || template.cliId === 'next') {
+	if (
+		template.cliId === 'react-router' ||
+		template.cliId === 'element-library' ||
+		template.cliId === 'next'
+	) {
 		return `${getRunCommand(manager)} dev`;
 	}
 

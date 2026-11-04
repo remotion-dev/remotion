@@ -1,6 +1,6 @@
-import type {GenericRenderProgress, Privacy} from '@remotion/serverless-client';
-import type {AwsProvider} from './aws-provider';
 import type {AwsRegion} from './regions';
+import type {GenericRenderProgress} from './render-progress';
+import type {Privacy} from './shared-constants';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
@@ -31,7 +31,7 @@ export const LAMBDA_INSIGHTS_PREFIX = '/aws/lambda-insights';
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 
-export type RenderProgress = GenericRenderProgress<AwsProvider>;
+export type RenderProgress = GenericRenderProgress;
 
 export const LAMBDA_CONCURRENCY_LIMIT_QUOTA = 'L-B99A9384';
 

@@ -1,12 +1,13 @@
 import {GetFunctionCommand} from '@aws-sdk/client-lambda';
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
 import {
-	getFunctionVersion,
 	LambdaClientInternals,
+	getFunctionVersion,
+	type AwsRegion,
+	type FunctionInfo,
+	type RequestHandler,
 } from '@remotion/lambda-client';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
-import type {FunctionInfo} from '@remotion/serverless';
 
 export type GetFunctionInfoInput = {
 	region: AwsRegion;

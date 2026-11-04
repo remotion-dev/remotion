@@ -23,6 +23,7 @@ import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import type {StudioKeyboardShortcuts} from '@remotion/studio-shared';
+import type {PreferredEffectBackend} from 'remotion';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -142,6 +143,7 @@ const {
 	defaultEditorOption,
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
+	preservePitchOnPlaybackOption,
 	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
@@ -759,6 +761,17 @@ type FlatConfig = RemotionConfigObject &
 		 */
 		setPreviewSampleRate: (sampleRate: number | null) => void;
 		/**
+		 * Preferred implementation for [effects](https://www.remotion.dev/docs/effects)
+		 * in Studio and renders. Default: auto.
+		 */
+		setPreferredEffectBackend: (backend: PreferredEffectBackend) => void;
+		/**
+		 * Preserve @remotion/media audio pitch when changing the Studio playback speed.
+		 * Does not affect clip-level speed changes or rendered output.
+		 * @default true
+		 */
+		setPreservePitchOnPlayback: (enabled: boolean) => void;
+		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
 		Bundling: void;
@@ -820,6 +833,7 @@ export const Config: FlatConfig = {
 	setKeyboardShortcutsEnabled: keyboardShortcutsOption.setConfig,
 	setKeyboardShortcuts,
 	setInteractivityEnabled: interactivityOption.setConfig,
+	setPreservePitchOnPlayback: preservePitchOnPlaybackOption.setConfig,
 	setCanvasTabsEnabled: canvasTabsOption.setConfig,
 	setSequenceActivityLimit: sequenceActivityLimitOption.setConfig,
 	setAllowHtmlInCanvasEnabled: allowHtmlInCanvasOption.setConfig,
@@ -927,6 +941,8 @@ export const Config: FlatConfig = {
 	setBenchmarkRuns: runsOption.setConfig,
 	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 	setSampleRate: sampleRateOption.setConfig,
+	setPreferredEffectBackend:
+		BrowserSafeApis.options.preferredEffectBackendOption.setConfig,
 	setPreviewSampleRate: previewSampleRateOption.setConfig,
 };
 

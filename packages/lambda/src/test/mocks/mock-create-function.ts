@@ -1,6 +1,5 @@
-import type {AwsProvider} from '@remotion/lambda-client';
-import type {CreateFunction} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
+import type {CreateFunction} from '../../functions/types';
 import {addFunction} from './mock-functions';
 
 type MockCreateFunctionCall = {
@@ -16,7 +15,7 @@ export const clearMockCreateFunctionCalls = () => {
 	calls.length = 0;
 };
 
-export const mockCreateFunction: CreateFunction<AwsProvider> = (input) => {
+export const mockCreateFunction: CreateFunction = (input) => {
 	calls.push({
 		alreadyCreated: input.alreadyCreated,
 		customLayerArns: input.customLayerArns,

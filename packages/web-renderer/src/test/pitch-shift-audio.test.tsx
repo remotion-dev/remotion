@@ -3,7 +3,7 @@ import {Player} from '@remotion/player';
 import {ALL_FORMATS, AudioBufferSink, BlobSource, Input} from 'mediabunny';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
-import {useCurrentFrame} from 'remotion';
+import {Sequence, useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {makeToneWav, pitchShiftAudio} from './fixtures/pitch-shift-audio';
@@ -98,8 +98,8 @@ test.each([48000, 44100])(
 		for (let channel = 0; channel < 2; channel++) {
 			const sourceFrequency = channel === 0 ? 440 : 660;
 			const lower = sourceFrequency * 0.75;
-			// The rendering playbackRate resampler also scales pitch.
-			const higher = sourceFrequency * 1.5 * 1.25;
+			// Authored speed is compensated before the deliberate pitch multiplier.
+			const higher = sourceFrequency * 1.5;
 			const audio = channels[channel];
 			expect(amplitudeAt(audio, sampleRate, [0.2, 0.4], lower)).toBeGreaterThan(
 				0.2,
@@ -215,7 +215,7 @@ test('renders a partial frame range with video and pitch shifts Video audio', as
 			amplitudeAt(audio, 48000, [0.2, 0.4], 440 * 0.75 * 0.8),
 		).toBeGreaterThan(0.1);
 		expect(
-			amplitudeAt(audio, 48000, [0.65, 0.85], 440 * 1.25 * 1.5 * 0.8),
+			amplitudeAt(audio, 48000, [0.65, 0.85], 440 * 1.5 * 0.8),
 		).toBeGreaterThan(0.1);
 	} finally {
 		URL.revokeObjectURL(src);
@@ -276,5 +276,61 @@ test.each([0.01, 2])(
 		expect(
 			audio.subarray(gapEnd).some((sample) => Math.abs(sample) > 0.1),
 		).toBe(true);
+	},
+);
+
+// KINO-7177: measure the encoded result, including inherited speed and opt-out.
+test.each([true, undefined])(
+	'exports clip speed with preservePitch=%s',
+	async (preservePitch) => {
+		const src = makeToneWav();
+		for (const Tag of [Audio, Video]) {
+			const Component: React.FC = () => (
+				<Sequence playbackRate={1.5}>
+					<Tag
+						src={src}
+						playbackRate={1.4}
+						preservePitch={preservePitch}
+						toneFrequency={0.8}
+					/>
+				</Sequence>
+			);
+			const result = await renderMediaOnWeb({
+				licenseKey: 'free-license',
+				composition: {
+					...pitchShiftAudio,
+					component: Component,
+					durationInFrames: 12,
+					calculateMetadata: null,
+				},
+				container: 'wav',
+				outputTarget: 'arraybuffer',
+			});
+			using input = new Input({
+				formats: ALL_FORMATS,
+				source: new BlobSource(await result.getBlob()),
+			});
+			const track = await input.getPrimaryAudioTrack();
+			const samples = new Float32Array(19200);
+			let offset = 0;
+			for await (const {buffer} of new AudioBufferSink(track!).buffers()) {
+				samples.set(buffer.getChannelData(0), offset);
+				offset += buffer.length;
+			}
+
+			expect(offset).toBe(samples.length);
+			const expected = 440 * 0.8 * (preservePitch ? 1 : 1.4 * 1.5);
+			expect(amplitudeAt(samples, 48000, [0.1, 0.3], expected)).toBeGreaterThan(
+				0.15,
+			);
+			expect(
+				amplitudeAt(
+					samples,
+					48000,
+					[0.1, 0.3],
+					preservePitch ? expected * 2.1 : expected / 2.1,
+				),
+			).toBeLessThan(0.03);
+		}
 	},
 );

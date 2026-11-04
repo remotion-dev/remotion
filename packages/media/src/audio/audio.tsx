@@ -50,6 +50,12 @@ export const audioSchema: InteractivitySchema = {
 		hiddenFromList: false,
 		keyframable: false,
 	},
+	preservePitch: {
+		type: 'boolean',
+		default: false,
+		description: 'Preserve pitch',
+		keyframable: false,
+	},
 	toneFrequency: {
 		type: 'number',
 		min: 0.01,
@@ -178,7 +184,11 @@ const AudioInner: React.FC<
 	}
 
 	validateMediaProps(
-		{playbackRate: props.playbackRate, volume: props.volume},
+		{
+			playbackRate: props.playbackRate,
+			preservePitch: props.preservePitch,
+			volume: props.volume,
+		},
 		'Audio',
 	);
 	validateToneFrequency({
@@ -224,6 +234,7 @@ const AudioInner: React.FC<
 						<AudioForPreview
 							name={name}
 							{...otherProps}
+							preservePitch={props.preservePitch ?? null}
 							trimAfter={effectiveTrimAfter}
 							style={premountingStyle}
 							_remotionInternalStack={sourceStack}

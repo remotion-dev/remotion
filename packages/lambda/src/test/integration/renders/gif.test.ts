@@ -3,7 +3,10 @@ import {createWriteStream, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {RenderInternals} from '@remotion/renderer';
+import {useFakeAws} from '../../mocks/fake-aws';
 import {simulateLambdaRender} from '../simulate-lambda-render';
+
+useFakeAws();
 
 test('Should make a distributed GIF', async () => {
 	const {file, close} = await simulateLambdaRender({

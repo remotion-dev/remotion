@@ -1,9 +1,8 @@
+import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
 import type {
-	ImageSequenceOutputPrefix,
 	ImageSequenceFormat,
-} from '@remotion/serverless-client';
-import {wrapWithErrorHandling} from '@remotion/serverless-client';
-import type {AwsProvider} from './aws-provider';
+	ImageSequenceOutputPrefix,
+} from './image-sequence';
 import {
 	internalRenderMediaOnLambdaRaw,
 	renderMediaOnLambdaOptionalToRequired,
@@ -52,7 +51,7 @@ export type RenderFramesOnLambdaInput = Pick<
 	| 'enableCancellation'
 > & {
 	imageFormat?: ImageSequenceFormat;
-	outputPrefix?: ImageSequenceOutputPrefix<AwsProvider>;
+	outputPrefix?: ImageSequenceOutputPrefix;
 	imageSequencePattern?: string;
 };
 

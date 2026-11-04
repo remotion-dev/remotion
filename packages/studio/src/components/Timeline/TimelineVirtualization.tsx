@@ -16,6 +16,7 @@ import React, {
 } from 'react';
 import type {TSequence} from 'remotion';
 import {TIMELINE_ITEM_BORDER_BOTTOM} from '../../helpers/timeline-layout';
+import {TimelineZoomActiveContext} from '../../state/timeline-zoom';
 import {MAX_TIMELINE_TRACKS_NOTICE_HEIGHT} from './MaxTimelineTracks';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
@@ -36,6 +37,8 @@ import {
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 import {useCompactSeries} from './use-compact-series';
 import {useTimelineTrackHeights} from './use-timeline-height';
+
+const ZOOM_VERTICAL_OVERSCAN = 32;
 
 export type TimelineVirtualRow = TimelineDisplayRow & {
 	readonly auxiliaryRowOffsets: readonly number[];
@@ -76,6 +79,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		readonly sequences: readonly TSequence[];
 	};
 }> = ({children, hasBeenCut, isStill, timeline, layoutSnapshot}) => {
+	const isZooming = useContext(TimelineZoomActiveContext);
 	const compactSeries = useCompactSeries();
 	const representativeTracks = useMemo(
 		() => timeline.map((row) => row.track),
@@ -198,10 +202,6 @@ export const TimelineVirtualizationProvider: React.FC<{
 
 	const selectedTrackIndexes = useMemo(() => {
 		const indexes = new Set<number>();
-		if (selectedItems.length !== 1) {
-			return indexes;
-		}
-
 		for (const selectedItem of selectedItems) {
 			const key = getSelectionTrackKey(selectedItem);
 			const index = key === null ? undefined : layout.rootTrackIndexes.get(key);
@@ -233,8 +233,12 @@ export const TimelineVirtualizationProvider: React.FC<{
 			// tall Series. Maintain a buffered row window inside it as well.
 			const height = element.clientHeight;
 			const section = Math.floor((element.scrollTop + height / 2) / height);
-			const top = Math.max(0, (section - 1) * height);
-			const bottom = top + height * 3;
+			const top = isZooming
+				? Math.max(0, element.scrollTop - ZOOM_VERTICAL_OVERSCAN)
+				: Math.max(0, (section - 1) * height);
+			const bottom = isZooming
+				? element.scrollTop + height + ZOOM_VERTICAL_OVERSCAN
+				: top + height * 3;
 			setVerticalRenderWindow((previous) =>
 				previous?.top === top && previous.bottom === bottom
 					? previous
@@ -258,7 +262,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 			resizeObserver?.disconnect();
 			element?.removeEventListener('scroll', update);
 		};
-	}, [hasSharedRows]);
+	}, [hasSharedRows, isZooming]);
 	const groupsRef = useRef(layout.groups);
 	groupsRef.current = layout.groups;
 	const timelineRef = useRef(timeline);
@@ -299,7 +303,7 @@ export const TimelineVirtualizationProvider: React.FC<{
 		estimateSize,
 		getItemKey,
 		getScrollElement,
-		overscan: 20,
+		overscan: isZooming ? 1 : 20,
 		paddingEnd,
 		paddingStart,
 		rangeExtractor,
@@ -442,46 +446,61 @@ export const TimelineVirtualizationProvider: React.FC<{
 	}, [consumeRevealRequest, revealRequest]);
 
 	const virtualGroups = virtualizer.getVirtualItems();
-	const virtualItems = useMemo(
-		() =>
-			virtualGroups.flatMap((group) =>
-				layout.groups[group.index].rows
-					.filter((index) => {
-						if (
-							layout.groups[group.index].rows.length === 1 ||
-							selectedTrackIndexes.has(index)
-						) {
-							return true;
-						}
+	const virtualItems = useMemo(() => {
+		// Apply the smaller window in the first zoom commit, before the scroll
+		// listener's next update. Keep selected rows mounted for ongoing edits.
+		const element = timelineVerticalScroll.current;
+		const zoomTop = (element?.scrollTop ?? 0) - ZOOM_VERTICAL_OVERSCAN;
+		const zoomBottom =
+			(element?.scrollTop ?? 0) +
+			(element?.clientHeight ?? 0) +
+			ZOOM_VERTICAL_OVERSCAN;
+		return virtualGroups.flatMap((group) =>
+			layout.groups[group.index].rows
+				.filter((index) => {
+					if (selectedTrackIndexes.has(index)) {
+						return true;
+					}
 
+					if (isZooming && element !== null) {
 						return (
-							verticalRenderWindow !== null &&
-							layout.offsets[index] < verticalRenderWindow.bottom &&
-							layout.offsets[index] + layout.rowHeights[index] >
-								verticalRenderWindow.top
+							layout.offsets[index] < zoomBottom &&
+							layout.offsets[index] + layout.rowHeights[index] > zoomTop
 						);
-					})
-					.map(
-						(index): VirtualItem => ({
-							index,
-							key: layoutSnapshot.timeline[index].track.sequence.id,
-							start: layout.offsets[index],
-							end: layout.offsets[index] + layout.rowHeights[index],
-							size: layout.rowHeights[index],
-							lane: 0,
-						}),
-					),
-			),
-		[
-			layout.groups,
-			layout.offsets,
-			layout.rowHeights,
-			selectedTrackIndexes,
-			layoutSnapshot,
-			verticalRenderWindow,
-			virtualGroups,
-		],
-	);
+					}
+
+					if (layout.groups[group.index].rows.length === 1) {
+						return true;
+					}
+
+					return (
+						verticalRenderWindow !== null &&
+						layout.offsets[index] < verticalRenderWindow.bottom &&
+						layout.offsets[index] + layout.rowHeights[index] >
+							verticalRenderWindow.top
+					);
+				})
+				.map(
+					(index): VirtualItem => ({
+						index,
+						key: layoutSnapshot.timeline[index].track.sequence.id,
+						start: layout.offsets[index],
+						end: layout.offsets[index] + layout.rowHeights[index],
+						size: layout.rowHeights[index],
+						lane: 0,
+					}),
+				),
+		);
+	}, [
+		isZooming,
+		layout.groups,
+		layout.offsets,
+		layout.rowHeights,
+		selectedTrackIndexes,
+		layoutSnapshot,
+		verticalRenderWindow,
+		virtualGroups,
+	]);
 	const value = useMemo(
 		(): TimelineVirtualizationContextValue => ({
 			rows: layout.rows,

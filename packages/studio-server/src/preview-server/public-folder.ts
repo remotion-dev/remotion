@@ -69,9 +69,19 @@ const watchPublicFolder = ({
 
 	// Known bug: If whole public folder is deleted, this will not be called on macOS.
 	// This is not severe, so a wontfix for now.
+	let updateTimeout: ReturnType<typeof setTimeout> | null = null;
 	watch(publicDir, {recursive: envSupportsFsRecursive()}, () => {
-		fetchFolder({publicDir, staticHash});
-		onUpdate();
+		if (updateTimeout !== null) {
+			return;
+		}
+
+		// Imports can emit many events, each of which would scan and broadcast the
+		// entire asset list. Keep the deadline fixed so ongoing writes still update.
+		updateTimeout = setTimeout(() => {
+			updateTimeout = null;
+			fetchFolder({publicDir, staticHash});
+			onUpdate();
+		}, 100);
 	});
 };
 

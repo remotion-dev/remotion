@@ -75,6 +75,10 @@ export const getVideoConfigIdentifiers = ({
 		},
 	});
 
+	if (candidates.size === 0) {
+		return candidates;
+	}
+
 	// Resolve each reference to its declaration. Components may independently
 	// declare the same name, while parameters and other shadowing stay computed.
 	const bindings = new Map<Identifier, VideoConfigNumericBinding>();
@@ -96,6 +100,23 @@ export const getVideoConfigIdentifiers = ({
 	return bindings;
 };
 
+export const resolveVideoConfigIdentifierValues = ({
+	identifiers,
+	videoConfigValues,
+}: {
+	identifiers: ReadonlyMap<Identifier, VideoConfigNumericBinding>;
+	videoConfigValues: VideoConfigValues | null;
+}): VideoConfigIdentifierValues =>
+	new Map(
+		[...identifiers].flatMap(([identifier, binding]) => {
+			if (binding.type === 'constant') return [[identifier, binding]];
+			const value = videoConfigValues?.[binding.field];
+			return value === undefined || !Number.isFinite(value)
+				? []
+				: [[identifier, {type: 'constant', value}]];
+		}),
+	);
+
 // Editing uses the current instance's configuration supplied with the mutation.
 export const getVideoConfigIdentifierValues = ({
 	ast,
@@ -104,12 +125,7 @@ export const getVideoConfigIdentifierValues = ({
 	ast: File;
 	videoConfigValues: VideoConfigValues | null;
 }): VideoConfigIdentifierValues =>
-	new Map(
-		[...getVideoConfigIdentifiers({ast})].flatMap(([identifier, binding]) => {
-			if (binding.type === 'constant') return [[identifier, binding]];
-			const value = videoConfigValues?.[binding.field];
-			return value === undefined || !Number.isFinite(value)
-				? []
-				: [[identifier, {type: 'constant', value}]];
-		}),
-	);
+	resolveVideoConfigIdentifierValues({
+		identifiers: getVideoConfigIdentifiers({ast}),
+		videoConfigValues,
+	});

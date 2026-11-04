@@ -51,7 +51,7 @@ let visibleTooltipCount = 0;
 let lastTooltipHiddenAt: number | null = null;
 const TOOLTIP_SKIP_DELAY_WINDOW = 300;
 
-export const ActionTooltip: React.FC<{
+type ActionTooltipProps = {
 	readonly label: React.ReactNode;
 	readonly shortcut: string | null;
 	/** Hover delay in milliseconds. Pass null to show immediately. */
@@ -60,7 +60,13 @@ export const ActionTooltip: React.FC<{
 	readonly side?: 'top' | 'right';
 	readonly triggerStyle?: React.CSSProperties;
 	readonly children: React.ReactNode;
-}> = ({
+};
+
+const Tooltip: React.FC<
+	ActionTooltipProps & {
+		readonly overflowTarget: React.RefObject<HTMLElement | null> | null;
+	}
+> = ({
 	label,
 	shortcut,
 	delay,
@@ -68,6 +74,7 @@ export const ActionTooltip: React.FC<{
 	side = 'top',
 	triggerStyle,
 	children,
+	overflowTarget,
 }) => {
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
@@ -110,15 +117,33 @@ export const ActionTooltip: React.FC<{
 		setPosition(null);
 	}, []);
 
+	const canShow = useCallback(() => {
+		if (overflowTarget === null) {
+			return true;
+		}
+
+		const element = overflowTarget.current;
+		return (
+			element !== null &&
+			(element.scrollWidth > element.clientWidth ||
+				element.scrollHeight > element.clientHeight)
+		);
+	}, [overflowTarget]);
+
 	const show = useCallback(() => {
 		if (timer.current !== null) {
 			clearTimeout(timer.current);
 			timer.current = null;
 		}
 
+		if (!canShow()) {
+			hide();
+			return;
+		}
+
 		setActive(true);
 		setVisible(true);
-	}, []);
+	}, [canShow, hide]);
 
 	useLayoutEffect(() => {
 		const trigger = triggerRef.current;
@@ -134,7 +159,7 @@ export const ActionTooltip: React.FC<{
 					return;
 				}
 
-				if (!hovered) {
+				if (!hovered || !canShow()) {
 					hide();
 					return;
 				}
@@ -171,7 +196,22 @@ export const ActionTooltip: React.FC<{
 				timer.current = null;
 			}
 		};
-	}, [hide, show]);
+	}, [canShow, hide, show]);
+
+	useEffect(() => {
+		const element = overflowTarget?.current;
+		if (!active || !element) {
+			return;
+		}
+
+		const observer = new ResizeObserver(() => {
+			if (!canShow()) {
+				hide();
+			}
+		});
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, [active, canShow, hide, overflowTarget]);
 
 	useEffect(() => {
 		if (!active) {
@@ -221,6 +261,11 @@ export const ActionTooltip: React.FC<{
 			return;
 		}
 
+		if (!canShow()) {
+			hide();
+			return;
+		}
+
 		const trigger = triggerRef.current.getBoundingClientRect();
 		const tooltip = tooltipRef.current.getBoundingClientRect();
 		if (side === 'right') {
@@ -258,7 +303,7 @@ export const ActionTooltip: React.FC<{
 				),
 			),
 		});
-	}, [label, shortcut, side, visible]);
+	}, [canShow, hide, label, shortcut, side, visible]);
 
 	return (
 		<>
@@ -309,4 +354,16 @@ export const ActionTooltip: React.FC<{
 				: null}
 		</>
 	);
+};
+
+export const ActionTooltip: React.FC<ActionTooltipProps> = (props) => {
+	return <Tooltip {...props} overflowTarget={null} />;
+};
+
+export const ClippedTextTooltip: React.FC<
+	ActionTooltipProps & {
+		readonly overflowTarget: React.RefObject<HTMLElement | null>;
+	}
+> = (props) => {
+	return <Tooltip {...props} />;
 };

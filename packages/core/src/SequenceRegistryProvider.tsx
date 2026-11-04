@@ -9,6 +9,8 @@ import {
 	type CommittedSequenceSnapshot,
 } from './committed-metadata.js';
 import type {TSequence} from './CompositionManager.js';
+import {useLogLevel} from './log-level-context.js';
+import {Log} from './log.js';
 import {
 	areRegistryEntriesEqual,
 	createRegistryStore,
@@ -35,6 +37,7 @@ export const SequenceRegistryProvider: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => {
 	const {isStudio} = useRemotionEnvironment();
+	const logLevel = useLogLevel();
 	const sequenceRegistrationEnabled = useContext(SequenceRegistrationContext);
 	const shouldObserveCommits = isStudio || sequenceRegistrationEnabled;
 	const [sequenceManagerId] = useState(() => String(Math.random()));
@@ -136,6 +139,18 @@ export const SequenceRegistryProvider: React.FC<{
 				committedOrderIdsRef.current = ids;
 				committedOrderRef.current = order;
 				committedRegistrationIdsRef.current = nextIds;
+				if (isStudio && logLevel === 'trace') {
+					for (const sequence of sequences) {
+						if (!previousIds.has(sequence.id)) {
+							Log.trace(
+								{logLevel, tag: null},
+								`[Sequence registration] Registered "${sequence.displayName}" (${sequence.id}) after commit`,
+								sequence,
+							);
+						}
+					}
+				}
+
 				setSequences((current) =>
 					reconcileRegistryEntries({
 						current,
@@ -150,7 +165,7 @@ export const SequenceRegistryProvider: React.FC<{
 				);
 			});
 		},
-		[sequenceManagerId, setSequences],
+		[isStudio, logLevel, sequenceManagerId, setSequences],
 	);
 	const onCommitRootSequences = useCallback(
 		(sequences: readonly TSequence[], sequenceIds: readonly string[]) => {
@@ -297,6 +312,14 @@ export const SequenceRegistryProvider: React.FC<{
 
 	const registerSequence = useCallback(
 		(seq: TSequence) => {
+			if (isStudio) {
+				Log.trace(
+					{logLevel, tag: null},
+					`[Sequence registration] Registered "${seq.displayName}" (${seq.id}) after commit`,
+					seq,
+				);
+			}
+
 			setSequences((seqs) => {
 				return [
 					...seqs,
@@ -307,7 +330,7 @@ export const SequenceRegistryProvider: React.FC<{
 				];
 			});
 		},
-		[setSequences],
+		[isStudio, logLevel, setSequences],
 	);
 	const updateSequence = useCallback(
 		(seq: TSequence) => {

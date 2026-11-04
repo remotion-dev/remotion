@@ -1,6 +1,6 @@
 import {expect, test} from 'bun:test';
-import {ServerlessRoutines} from '@remotion/serverless-client';
 import {makeLambdaRenderMediaPayload} from '../make-lambda-payload';
+import {ServerlessRoutines} from '../shared-constants';
 
 test('Should include concurrency field in payload', async () => {
 	const payload = await makeLambdaRenderMediaPayload({
@@ -57,6 +57,7 @@ test('Should include concurrency field in payload', async () => {
 		metadata: null,
 		licenseKey: null,
 		offthreadVideoCacheSizeInBytes: null,
+		preferredEffectBackend: 'auto',
 		mediaCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
 		storageClass: null,
@@ -125,6 +126,7 @@ test('Should handle null concurrency', async () => {
 		metadata: null,
 		licenseKey: null,
 		offthreadVideoCacheSizeInBytes: null,
+		preferredEffectBackend: 'auto',
 		mediaCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
 		storageClass: null,

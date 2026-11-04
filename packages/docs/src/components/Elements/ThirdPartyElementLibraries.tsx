@@ -74,23 +74,11 @@ const ThirdPartyElementLibraryItem: React.FC<{
 
 	return (
 		<li className={styles.card}>
-			{library.bannerUrl === null ? null : (
-				<div className={styles.preview}>
+			<div className={styles.preview}>
+				{library.bannerUrl === null ? null : (
 					<img alt="" className={styles.previewImage} src={library.bannerUrl} />
-				</div>
-			)}
-			<div className={styles.content}>
-				<div className={styles.libraryRow}>
-					<h3 className={styles.libraryTitle}>
-						<a
-							className={styles.libraryLink}
-							href={library.browseUrl}
-							rel="noreferrer"
-							target={isEmbeddedInStudio ? '_self' : '_blank'}
-						>
-							{library.displayName}
-						</a>
-					</h3>
+				)}
+				<div className={styles.addAction}>
 					<BlueButton
 						ref={addButtonRef}
 						aria-busy={isLoading}
@@ -102,7 +90,6 @@ const ThirdPartyElementLibraryItem: React.FC<{
 									? `Sent ${library.displayName} to Studio`
 									: `Add ${library.displayName} to Studio`
 						}
-						className={styles.addAction}
 						fullWidth={false}
 						loading={isLoading}
 						onClick={addToStudio}
@@ -119,6 +106,18 @@ const ThirdPartyElementLibraryItem: React.FC<{
 						{isSent ? 'Sent to Studio' : 'Add to Studio'}
 					</BlueButton>
 				</div>
+			</div>
+			<div className={styles.content}>
+				<h3 className={styles.libraryTitle}>
+					<a
+						className={styles.libraryLink}
+						href={library.browseUrl}
+						rel="noreferrer"
+						target={isEmbeddedInStudio ? '_self' : '_blank'}
+					>
+						{library.displayName}
+					</a>
+				</h3>
 			</div>
 			{isFallbackOpen ? (
 				<ElementLibraryInstallFallbackModal

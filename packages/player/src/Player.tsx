@@ -9,6 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {PreferredEffectBackend} from 'remotion';
 import type {
 	AnyZodObject,
 	CompProps,
@@ -69,6 +70,11 @@ export type PlayerProps<
 	readonly spaceKeyToPlayOrPause?: boolean;
 	readonly numberOfSharedAudioTags?: number;
 	readonly playbackRate?: number;
+	/**
+	 * Preserve @remotion/media audio pitch when changing the Player playback rate.
+	 * @default false
+	 */
+	readonly preservePitch?: boolean;
 	readonly renderLoading?: RenderLoading;
 	readonly moveToBeginningWhenEnded?: boolean;
 	readonly className?: string;
@@ -101,6 +107,7 @@ export type PlayerProps<
 	readonly logLevel?: LogLevel;
 	readonly noSuspense?: boolean;
 	readonly acknowledgeRemotionLicense?: boolean;
+	readonly preferredEffectBackend?: PreferredEffectBackend;
 	readonly audioLatencyHint?: AudioContextLatencyCategory;
 	readonly sampleRate?: number;
 	readonly volumePersistenceKey?: string;
@@ -168,6 +175,7 @@ const PlayerFn = <
 			: 5,
 		errorFallback = () => '⚠️',
 		playbackRate = 1,
+		preservePitch = false,
 		renderLoading,
 		className,
 		showPosterWhenUnplayed,
@@ -199,6 +207,7 @@ const PlayerFn = <
 		noSuspense,
 		acknowledgeRemotionLicense,
 		audioLatencyHint = 'playback',
+		preferredEffectBackend = 'auto',
 		sampleRate = 48000,
 		volumePersistenceKey,
 		initialVolume,
@@ -320,6 +329,12 @@ const PlayerFn = <
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
 			`'controls' must be a boolean or undefined but got '${typeof controls}' instead`,
+		);
+	}
+
+	if (typeof preservePitch !== 'boolean') {
+		throw new TypeError(
+			`'preservePitch' must be a boolean but got '${typeof preservePitch}' instead`,
 		);
 	}
 
@@ -520,6 +535,7 @@ const PlayerFn = <
 				<SharedPlayerContexts
 					timelineContext={timelineContextValue}
 					playbackRateContext={playbackRateContextValue}
+					preservePitch={preservePitch}
 					component={component}
 					compositionHeight={compositionHeight}
 					compositionWidth={compositionWidth}
@@ -529,6 +545,7 @@ const PlayerFn = <
 					initiallyMuted={initiallyMuted}
 					logLevel={logLevel}
 					audioLatencyHint={audioLatencyHint}
+					preferredEffectBackend={preferredEffectBackend}
 					sampleRate={sampleRate}
 					_experimentalKeepAudioContextAlive={
 						_experimentalKeepAudioContextAlive

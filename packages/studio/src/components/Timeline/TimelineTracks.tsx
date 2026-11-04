@@ -68,9 +68,7 @@ const TimelineTrackRow: React.FC<{
 	readonly row: TimelineVirtualRow;
 	readonly start: number;
 	readonly height: number;
-	readonly windowWidth: number | null;
-	readonly durationInFrames: number | null;
-}> = React.memo(({row, start, height, windowWidth, durationInFrames}) => {
+}> = React.memo(({row, start, height}) => {
 	const {sceneRange, track, items, auxiliaryRows, auxiliaryRowOffsets} = row;
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
@@ -95,6 +93,49 @@ const TimelineTrackRow: React.FC<{
 			/>
 		);
 
+	return (
+		<TimelineTrackRowLayout
+			sceneRange={sceneRange}
+			start={start}
+			height={height}
+			clippedHeight={clippedHeight}
+			keyframes={
+				showExpandedKeyframes && track.nodePathInfo ? (
+					<TimelineExpandedTrackKeyframes
+						sequence={track.sequence}
+						nodePathInfo={track.nodePathInfo}
+						keyframeDisplayOffset={track.keyframeDisplayOffset}
+						keyframePlaybackRate={track.keyframePlaybackRate}
+					/>
+				) : null
+			}
+		>
+			{sceneRange === null ? (
+				trackContent
+			) : (
+				<TimelineSceneTrackContent
+					sceneRange={sceneRange}
+					height={clippedHeight}
+				>
+					{trackContent}
+				</TimelineSceneTrackContent>
+			)}
+		</TimelineTrackRowLayout>
+	);
+});
+
+// Only horizontal geometry subscribes to width; track contents stay stable.
+const TimelineTrackRowLayout: React.FC<{
+	readonly sceneRange: TimelineSceneRange | null;
+	readonly start: number;
+	readonly height: number;
+	readonly clippedHeight: number;
+	readonly children: React.ReactNode;
+	readonly keyframes: React.ReactNode;
+}> = ({sceneRange, start, height, clippedHeight, children, keyframes}) => {
+	const windowWidth = useContext(TimelineWidthContext);
+	const video = Internals.useUnsafeVideoConfig();
+	const durationInFrames = video?.durationInFrames ?? null;
 	return (
 		<div
 			style={{
@@ -130,35 +171,17 @@ const TimelineTrackRow: React.FC<{
 						: null
 				}
 			>
-				{sceneRange === null ? (
-					trackContent
-				) : (
-					<TimelineSceneTrackContent
-						sceneRange={sceneRange}
-						height={clippedHeight}
-					>
-						{trackContent}
-					</TimelineSceneTrackContent>
-				)}
+				{children}
 			</TimelineTrimOutlineContainer>
-			{/* Keyframes own the full row, including positions outside the scene. */}
-			{showExpandedKeyframes && track.nodePathInfo ? (
-				<TimelineExpandedTrackKeyframes
-					sequence={track.sequence}
-					nodePathInfo={track.nodePathInfo}
-					keyframeDisplayOffset={track.keyframeDisplayOffset}
-					keyframePlaybackRate={track.keyframePlaybackRate}
-				/>
-			) : null}
+			{keyframes}
 		</div>
 	);
-});
+};
 
 const TimelineTracksInner: React.FC<{
 	readonly hasBeenCut: boolean;
 }> = ({hasBeenCut}) => {
 	const {rows, tracksEnd, virtualItems} = useTimelineVirtualization();
-	const video = Internals.useUnsafeVideoConfig();
 	const windowWidth = useContext(TimelineWidthContext);
 	const renderWindow = useContext(TimelineViewportContext);
 	useImperativeHandle(timelineDurationRef, () => ({
@@ -218,8 +241,6 @@ const TimelineTracksInner: React.FC<{
 						row={rows[virtualItem.index]}
 						start={virtualItem.start}
 						height={virtualItem.size}
-						windowWidth={windowWidth}
-						durationInFrames={video?.durationInFrames ?? null}
 					/>
 				))}
 			</div>

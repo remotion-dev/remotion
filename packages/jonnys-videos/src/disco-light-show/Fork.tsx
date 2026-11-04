@@ -14,6 +14,7 @@ const ForkInner: React.FC = () => {
 	return (
 		<>
 			<Video
+				name="Fork impact"
 				src={asset('Blood Spurt v7.mov')}
 				style={{
 					position: 'absolute',
@@ -23,6 +24,7 @@ const ForkInner: React.FC = () => {
 				from={62}
 			/>
 			<CanvasImage
+				name="Falling fork"
 				pauseWhenLoading={false}
 				src={asset('elegant-silver-fork-free-png.webp')}
 				style={{
@@ -51,13 +53,15 @@ const ForkInner: React.FC = () => {
 				trimBefore={7}
 			/>
 			<CanvasImage
+				name="Open source project"
 				src={asset('Screenshot 2026-07-19 at 14.35.33.png')}
 				style={{
 					position: 'absolute',
-					translate: '-174px 617.9px',
+					translate: '0px 680.8px',
+					transformOrigin: '0% 0%',
 					width: 1428,
 					height: 786,
-					scale: 0.786,
+					scale: 0.84,
 				}}
 			/>
 		</>

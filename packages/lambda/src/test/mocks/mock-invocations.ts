@@ -1,4 +1,4 @@
-import type {ServerlessRoutines} from '@remotion/serverless';
+import type {ServerlessRoutines} from '@remotion/lambda-client';
 
 const invocationTypesByRender = new Map<string, ServerlessRoutines[]>();
 

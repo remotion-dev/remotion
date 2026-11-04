@@ -82,5 +82,6 @@ export const useRuntimeValueSelector = <T>({
 	);
 };
 
-export const {useCanvasRuntimeValueSnapshots: useRuntimeValueSnapshots} =
-	CanvasInternals;
+export const {
+	useCanvasRuntimeValueSnapshots: useRuntimeValueSnapshots,
+}: typeof CanvasInternals = CanvasInternals;

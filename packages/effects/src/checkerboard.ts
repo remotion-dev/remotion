@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {CHECKERBOARD_WEBGPU_SHADER} from './checkerboard-webgpu-shader.js';
 import {
 	assertOptionalFiniteNumber,
 	parseColorRgba,
@@ -10,6 +11,15 @@ import {
 	assertOptionalBoolean,
 	assertRequiredColor,
 } from './validate-effect-param.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -222,7 +232,7 @@ void main() {
 	vec4 texColor = texture(uSource, vUv);
 	float cellSize = max(uCellSize, 0.001);
 	float spacing = max(uSpacing, 0.001);
-	vec2 centered = vUv * uResolution - uResolution * 0.5;
+	vec2 centered = gl_FragCoord.xy - uResolution * 0.5;
 	float s = sin(uAngle);
 	float c = cos(uAngle);
 	vec2 rotated = vec2(
@@ -445,90 +455,147 @@ const updatePalette = (
 	return true;
 };
 
-export const checkerboard = createEffect<CheckerboardParams, CheckerboardState>(
-	{
-		type: 'remotion/checkerboard',
-		label: 'checkerboard()',
-		documentationLink: 'https://www.remotion.dev/docs/effects/checkerboard',
-		backend: 'webgl2',
-		calculateKey: (params) => {
-			const r = resolve(params);
-			const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
-			return `checkerboard-${r.colors.join('|')}-${r.cellSize}-${r.spacing}-${r.angle}-${r.offsetX}-${r.offsetY}${maskSuffix}`;
-		},
-		setup: (target) => setupCheckerboard(target),
-		apply: ({source, width, height, params, state, flipSourceY}) => {
-			const r = resolve(params);
-			const paletteDirty = updatePalette(state, r.colors);
-			const {gl, program, sourceTexture, paletteTexture, uniforms, vao} = state;
+export const checkerboard = createEffect<CheckerboardParams>({
+	type: 'remotion/checkerboard',
+	label: 'checkerboard()',
+	documentationLink: 'https://www.remotion.dev/docs/effects/checkerboard',
+	calculateKey: (params) => {
+		const r = resolve(params);
+		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+		return `checkerboard-${r.colors.join('|')}-${r.cellSize}-${r.spacing}-${r.angle}-${r.offsetX}-${r.offsetY}${maskSuffix}`;
+	},
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			CheckerboardParams,
+			WebGpuColorState
+		>({
+			setup: (target) => setupWebGpuColors(target, 'checkerboard'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error(
+						'A WebGPU device is required for the checkerboard effect',
+					);
+				const r = resolve(params);
+				const colors = getWebGpuColors(state, r.colors);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.colors.length,
+					r.cellSize,
+					r.spacing,
+					(r.angle * Math.PI) / 180,
+					r.offsetX,
+					r.offsetY,
+					r.maskToSourceAlpha ? 1 : 0,
+					0,
+					0,
+					0,
+				]);
+				applyWebGpuSinglePass(
+					{
+						state,
+						source,
+						width,
+						height,
+						device: gpuDevice as GPUDevice,
+						shader: CHECKERBOARD_WEBGPU_SHADER,
+						uniformData,
+					},
+					{
+						sourceFilter: null,
+						auxiliaryTexture: {
+							data: colors,
+							width: r.colors.length,
+							height: 1,
+							format: 'rgba8unorm',
+						},
+					},
+				);
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			CheckerboardParams,
+			CheckerboardState
+		>({
+			setup: (target) => setupCheckerboard(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const paletteDirty = updatePalette(state, r.colors);
+				const {gl, program, sourceTexture, paletteTexture, uniforms, vao} =
+					state;
 
-			gl.viewport(0, 0, width, height);
-			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-			gl.clearColor(0, 0, 0, 0);
-			gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-			gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-			gl.texImage2D(
-				gl.TEXTURE_2D,
-				0,
-				gl.RGBA,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				source as TexImageSource,
-			);
-
-			gl.activeTexture(gl.TEXTURE1);
-			gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
-			if (paletteDirty) {
-				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
 				gl.texImage2D(
 					gl.TEXTURE_2D,
 					0,
 					gl.RGBA,
-					r.colors.length,
-					1,
-					0,
 					gl.RGBA,
 					gl.UNSIGNED_BYTE,
-					state.palettePixelData,
+					source as TexImageSource,
 				);
-				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-			}
 
-			gl.useProgram(program);
-			if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-			if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
-			if (uniforms.uResolution)
-				gl.uniform2f(uniforms.uResolution, width, height);
-			if (uniforms.uNumColors)
-				gl.uniform1f(uniforms.uNumColors, r.colors.length);
-			if (uniforms.uCellSize) gl.uniform1f(uniforms.uCellSize, r.cellSize);
-			if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
-			if (uniforms.uAngle)
-				gl.uniform1f(uniforms.uAngle, (r.angle * Math.PI) / 180);
-			if (uniforms.uOffset)
-				gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
-			if (uniforms.uMaskToSourceAlpha)
-				gl.uniform1i(uniforms.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
+				gl.activeTexture(gl.TEXTURE1);
+				gl.bindTexture(gl.TEXTURE_2D, paletteTexture);
+				if (paletteDirty) {
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+					gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						r.colors.length,
+						1,
+						0,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						state.palettePixelData,
+					);
+					gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				}
 
-			gl.bindVertexArray(vao);
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-			gl.bindVertexArray(null);
-			gl.bindTexture(gl.TEXTURE_2D, null);
-			gl.useProgram(null);
-		},
-		cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
-			gl.deleteTexture(sourceTexture);
-			gl.deleteTexture(paletteTexture);
-			gl.deleteBuffer(vbo);
-			gl.deleteProgram(program);
-			gl.deleteVertexArray(vao);
-		},
-		schema: checkerboardSchema,
-		validateParams: validateCheckerboardParams,
+				gl.useProgram(program);
+				if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+				if (uniforms.uPalette) gl.uniform1i(uniforms.uPalette, 1);
+				if (uniforms.uResolution)
+					gl.uniform2f(uniforms.uResolution, width, height);
+				if (uniforms.uNumColors)
+					gl.uniform1f(uniforms.uNumColors, r.colors.length);
+				if (uniforms.uCellSize) gl.uniform1f(uniforms.uCellSize, r.cellSize);
+				if (uniforms.uSpacing) gl.uniform1f(uniforms.uSpacing, r.spacing);
+				if (uniforms.uAngle)
+					gl.uniform1f(uniforms.uAngle, (r.angle * Math.PI) / 180);
+				if (uniforms.uOffset)
+					gl.uniform2f(uniforms.uOffset, r.offsetX, r.offsetY);
+				if (uniforms.uMaskToSourceAlpha)
+					gl.uniform1i(
+						uniforms.uMaskToSourceAlpha,
+						r.maskToSourceAlpha ? 1 : 0,
+					);
+
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, sourceTexture, paletteTexture}) => {
+				gl.deleteTexture(sourceTexture);
+				gl.deleteTexture(paletteTexture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
-);
+	schema: checkerboardSchema,
+	validateParams: validateCheckerboardParams,
+});

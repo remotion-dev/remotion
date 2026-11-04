@@ -1,6 +1,7 @@
 import {getPointAtLength, getTangentAtLength} from '@remotion/paths';
 import React from 'react';
 import {useVideoConfig} from 'remotion';
+import {NoReactInternals} from 'remotion/no-react';
 import {COLOR_1, COLOR_2} from './config';
 
 const rx = 170;
@@ -54,8 +55,10 @@ export const Arc: React.FC<{
 		return null;
 	}
 
+	// Arc tangents point backwards in v4 and forwards in v5
+	const direction = NoReactInternals.ENABLE_V5_BREAKING_CHANGES ? -1 : 1;
 	const move = (orig: number, x: number, y: number): number =>
-		orig + x * tangent.x + y * tangent.y;
+		orig + direction * (x * tangent.x + y * tangent.y);
 
 	const leftPointArrow = [
 		move(pointAtLength.x, 0, electronRadius),

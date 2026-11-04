@@ -1,0 +1,100 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-iris-wipe.png
+slug: /effects/iris-wipe
+title: irisWipe()
+sidebar_label: irisWipe()
+crumb: '@remotion/effects'
+---
+
+# irisWipe()<AvailableFrom v="4.0.540" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Erases the inside of a polygon or star from a canvas-based component. Animate the radius to expand or close the transparent opening.
+
+## Preview
+
+<EffectsDemo type="effects-iris-wipe" />
+
+## Example
+
+```tsx twoslash title="MyComp.tsx"
+import {irisWipe} from '@remotion/effects/iris-wipe';
+import {Video} from '@remotion/media';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {width, height} = useVideoConfig();
+  const outerRadius = interpolate(
+    frame,
+    [0, 60],
+    [0, Math.hypot(width, height)],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+  );
+
+  return (
+    <Video
+      src="https://remotion.media/video.mp4"
+      effects={[
+        irisWipe({
+          center: [0.5, 0.5],
+          points: 6,
+          outerRadius,
+          feather: 12,
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+Pass an object with the following properties. You can also call `irisWipe()` without arguments.
+
+### `center?`
+
+Center of the opening as `[x, y]`, with both values between `0` and `1`. `[0, 0]` is the top-left corner and `[1, 1]` is the bottom-right corner. Defaults to `[0.5, 0.5]`.
+
+### `points?`
+
+Number of polygon vertices, or outer points when `useInnerRadius` is `true`. Must be an integer from `3` to `64`. Defaults to `6`.
+
+### `outerRadius?`
+
+Distance from the center to each outer vertex in pixels. Must be at least `0`. Defaults to `0`, leaving the source unchanged.
+
+### `useInnerRadius?`
+
+When `true`, adds vertices at `innerRadius` between the outer vertices to create a star. Defaults to `false`, creating a regular polygon.
+
+### `innerRadius?`
+
+Distance from the center to each inner vertex in pixels. Used when `useInnerRadius` is `true`. Must be at least `0`. Defaults to `0`.
+
+### `rotation?`
+
+Rotation of the shape in degrees, clockwise from up. At `0`, the first outer vertex points upward. Defaults to `0`.
+
+### `feather?`
+
+Width of the soft edge in pixels. Must be at least `0`. Defaults to `0`, creating a sharp edge.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`evolve()`](/docs/effects/evolve)
+- [`radialWipe()`](/docs/effects/radial-wipe)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/iris-wipe.ts)

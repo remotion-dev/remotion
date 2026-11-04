@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import React, {forwardRef, useCallback, useContext} from 'react';
+import React, {forwardRef, useCallback, useContext, useMemo} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	calculateMediaDuration,
@@ -19,7 +19,7 @@ import {
 	validateMediaTrimProps,
 } from '../validate-start-from-props.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
-import {DurationsContext} from '../video/duration-state.js';
+import {DurationsContext, onMediaDuration} from '../video/duration-state.js';
 import {AudioForPreview} from './AudioForPreview.js';
 import {AudioForRendering} from './AudioForRendering.js';
 import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
@@ -105,10 +105,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		[loop, onRemotionError, preloadedSrc],
 	);
 
-	const onDuration = useCallback(
-		(src: string, durationInSeconds: number) => {
-			setDurations({type: 'got-duration', durationInSeconds, src});
-		},
+	const onDuration = useMemo(
+		() => onMediaDuration.bind(null, setDurations),
 		[setDurations],
 	);
 

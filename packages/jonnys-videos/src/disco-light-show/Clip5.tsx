@@ -7,6 +7,7 @@ const Clip5Inner: React.FC = () => {
 	return (
 		<>
 			<Video
+				name="Party footage"
 				src={asset('clip5-source.mp4')}
 				style={{
 					position: 'absolute',

@@ -1,4 +1,4 @@
-import {useContext} from 'react';
+import {createContext, useContext} from 'react';
 import {
 	SequenceActivityAbsoluteTimeContext,
 	SequenceActivityDormantContext,
@@ -21,6 +21,12 @@ export type PlayableMediaTag = {
 };
 
 type CurrentTimePerComposition = Record<string, number>;
+
+// Reading TimelineContext and ignoring its value would still schedule frame
+// updates. Inactive subscribers must read a separate, never-changing context.
+const UnsubscribedTimelineContext = createContext<TimelineContextValue | null>(
+	null,
+);
 
 const makeKey = () => {
 	return `remotion.time-all`;
@@ -59,11 +65,15 @@ export const clampFrameToCompositionRange = (
 };
 
 const useTimelinePositionFromContext = (
-	state: TimelineContextValue,
+	state: TimelineContextValue | null,
 ): number => {
 	const videoConfig = useVideo();
 	const env = useRemotionEnvironment();
 	const dormant = useContext(SequenceActivityDormantContext);
+
+	if (state === null) {
+		return 0;
+	}
 
 	if (!videoConfig) {
 		return typeof window === 'undefined'
@@ -110,6 +120,27 @@ export const usePlaybackRate = (): PlaybackRateContextValue => {
 export const useTimelinePosition = (): number => {
 	const state = useTimelineContext();
 	return useTimelinePositionFromContext(state);
+};
+
+export const useTimelinePositionWithOptionalSubscription = (
+	subscribe: boolean,
+): number => {
+	const dormant = useContext(SequenceActivityDormantContext);
+	const state = useContext(
+		subscribe
+			? dormant
+				? SequenceActivityTimelineContext
+				: TimelineContext
+			: UnsubscribedTimelineContext,
+	);
+	const frame = useTimelinePositionFromContext(state);
+	if (subscribe && state === null) {
+		throw new Error(
+			'TimelineContext is not available. This hook must be used inside a <Player> or the Remotion Studio.',
+		);
+	}
+
+	return frame;
 };
 
 export const useIsInsideFreeze = (): boolean => {

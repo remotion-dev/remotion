@@ -7,8 +7,6 @@ import type {
 	OpenGlRenderer,
 	X264Preset,
 } from '@remotion/renderer';
-import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
-import type {RenderStillOnWebImageFormat} from '@remotion/web-renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import type {_InternalTypes} from 'remotion';
@@ -22,11 +20,33 @@ import {CaretDown} from '../icons/caret';
 import {ThinRenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {SetSelectedModalContext} from '../state/modals';
-import {callApi} from './call-api';
+import {useConfirmationDialog} from './ConfirmationDialog';
 import {Row, Spacing} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
-import {showNotification} from './Notifications/NotificationCenter';
+import {
+	canRenderOnServer,
+	openClientRenderModalForComposition,
+} from './RenderModal/open-client-render-modal';
 import {SegmentedButton, type SegmentedButtonSegment} from './SegmentedButton';
+import {useDownloadProject} from './use-download-project';
+
+const serverRenderInstructions: React.CSSProperties = {
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+};
+
+const serverRenderCommands: React.CSSProperties = {
+	fontFamily: 'monospace',
+	fontSize: 14,
+	lineHeight: 1.5,
+	margin: '0 0 16px',
+	padding: 12,
+	backgroundColor: 'rgba(255, 255, 255, 0.05)',
+	borderRadius: 4,
+	userSelect: 'text',
+};
 
 const segmentedButtonStyle: React.CSSProperties = {
 	height: 28,
@@ -117,7 +137,39 @@ const RenderButtonInner: React.FC<{
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 	const isBrowserStudio = getBrowserStudioOperations() !== null;
-	const canServerRender = connectionStatus === 'connected' && !isBrowserStudio;
+	const canServerRender = canRenderOnServer(readOnlyStudio, connectionStatus);
+	const confirm = useConfirmationDialog();
+	const downloadProject = useDownloadProject();
+	const openServerRenderHandoff = useCallback(async () => {
+		if (downloadProject === null) {
+			return;
+		}
+
+		const confirmed = await confirm({
+			title: 'Server-side render',
+			message: (
+				<>
+					<p style={serverRenderInstructions}>
+						Render on your computer for full Remotion compatibility and more
+						export formats, including ProRes.
+					</p>
+					<p style={serverRenderInstructions}>
+						Download and unzip, then run in the project folder (Node.js
+						required):
+					</p>
+					<pre style={serverRenderCommands}>{'npm install\nnpm run dev'}</pre>
+					<p style={{...serverRenderInstructions, marginBottom: 0}}>
+						In the Studio that opens, select your composition and click Render.
+					</p>
+				</>
+			),
+			confirmLabel: 'Download project',
+			cancelLabel: 'Cancel',
+		});
+		if (confirmed) {
+			await downloadProject();
+		}
+	}, [confirm, downloadProject]);
 
 	const renderType: RenderType = useMemo(() => {
 		if (readOnlyStudio) {
@@ -126,12 +178,12 @@ const RenderButtonInner: React.FC<{
 				: 'client-render';
 		}
 
-		if (connectionStatus === 'disconnected' || isBrowserStudio) {
+		if (!canServerRender) {
 			return 'client-render';
 		}
 
 		return preferredRenderType;
-	}, [connectionStatus, isBrowserStudio, preferredRenderType, readOnlyStudio]);
+	}, [canServerRender, preferredRenderType, readOnlyStudio]);
 
 	const renderShortcut = useKeyboardShortcutLabel('render');
 	const shortcut =
@@ -175,6 +227,7 @@ const RenderButtonInner: React.FC<{
 
 			setSelectedModal({
 				type: 'server-render',
+				retrySettings: null,
 				readOnlyStudio: copyCommandOnly,
 				compositionId: video.id,
 				initialFrame: getCurrentFrame(),
@@ -228,85 +281,30 @@ const RenderButtonInner: React.FC<{
 				initialSampleRate: defaults.sampleRate,
 				initialChromeMode: defaults.chromeMode,
 				initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
+				initialPreferredEffectBackend: defaults.preferredEffectBackend,
 				renderDefaults: defaults,
 			});
 		},
 		[video, setSelectedModal, props, inFrame, outFrame, getCurrentFrame],
 	);
 
-	const openClientRenderModal = useCallback(async () => {
+	const openClientRenderModal = useCallback(() => {
 		if (!video) {
-			return null;
+			return;
 		}
 
-		const defaults = window.remotion_renderDefaults;
-
-		if (!defaults) {
-			throw new TypeError('Expected defaults');
-		}
-
-		if (!readOnlyStudio && !isBrowserStudio) {
-			let onReconciliation: (() => void) | null = null;
-			const nextReconciliation = new Promise<void>((resolve) => {
-				onReconciliation = resolve;
-				window.addEventListener(
-					REACT_REFRESH_FINISHED_EVENT,
-					onReconciliation,
-					{once: true},
-				);
-			});
-
-			try {
-				const {didInvalidate} = await callApi('/api/invalidate-bundle', {});
-				if (didInvalidate) {
-					await nextReconciliation;
-				}
-			} catch (error) {
-				showNotification(
-					`Could not prepare client-side render: ${(error as Error).message}`,
-					4000,
-				);
-				return null;
-			} finally {
-				if (onReconciliation) {
-					window.removeEventListener(
-						REACT_REFRESH_FINISHED_EVENT,
-						onReconciliation,
-					);
-				}
-			}
-		}
-
-		setSelectedModal({
-			type: 'web-render',
+		return openClientRenderModalForComposition({
 			compositionId: video.id,
-			initialFrame: getCurrentFrame(),
 			defaultProps: props[video.id] ?? video.defaultProps,
+			getInitialFrame: getCurrentFrame,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,
-			initialLogLevel: defaults.logLevel as LogLevel,
-			initialStillImageFormat:
-				defaults.stillImageFormat as RenderStillOnWebImageFormat,
-			initialScale: defaults.scale,
-			initialDelayRenderTimeout: defaults.delayRenderTimeout,
-			initialDefaultOutName: null,
-			initialContainer: null,
-			initialVideoCodec: null,
-			initialAudioCodec: null,
-			initialAudioBitrate: null,
-			initialVideoBitrate: null,
-			initialHardwareAcceleration: null,
-			initialKeyframeIntervalInSeconds: null,
-			initialTransparent: null,
-			initialMuted: null,
-			initialMediaCacheSizeInBytes: defaults.mediaCacheSizeInBytes,
-			initialAllowHtmlInCanvas: defaults.allowHtmlInCanvas,
-			initialPageResponsiveness: 'medium',
+			prepareServerBundle: canServerRender,
+			setSelectedModal,
 		});
 	}, [
 		video,
-		readOnlyStudio,
-		isBrowserStudio,
+		canServerRender,
 		setSelectedModal,
 		props,
 		inFrame,
@@ -347,7 +345,7 @@ const RenderButtonInner: React.FC<{
 		[openClientRenderModal, openServerRenderModal],
 	);
 	const dropdownValues: ComboboxValue[] = useMemo(() => {
-		if (readOnlyStudio) {
+		if (readOnlyStudio && !isBrowserStudio) {
 			return [
 				{
 					type: 'item' as const,
@@ -375,14 +373,18 @@ const RenderButtonInner: React.FC<{
 		}
 
 		return [
-			...(canServerRender
+			...(canServerRender || isBrowserStudio
 				? [
 						{
 							type: 'item' as const,
 							id: 'server-render',
-							label: 'Server-side render',
+							label: isBrowserStudio
+								? 'Server-side render...'
+								: 'Server-side render',
 							value: 'server-render',
-							onClick: () => handleRenderTypeChange('server-render'),
+							onClick: isBrowserStudio
+								? openServerRenderHandoff
+								: () => handleRenderTypeChange('server-render'),
 							keyHint: null,
 							leftItem: null,
 							subMenu: null,
@@ -402,7 +404,13 @@ const RenderButtonInner: React.FC<{
 				quickSwitcherLabel: null,
 			},
 		];
-	}, [canServerRender, handleRenderTypeChange, readOnlyStudio]);
+	}, [
+		canServerRender,
+		handleRenderTypeChange,
+		isBrowserStudio,
+		openServerRenderHandoff,
+		readOnlyStudio,
+	]);
 
 	const renderLabel =
 		renderType === 'server-render'
@@ -412,7 +420,7 @@ const RenderButtonInner: React.FC<{
 				: 'Render in browser';
 	const showRenderLabel = !narrow || renderType !== 'server-render';
 	const segments = useMemo((): SegmentedButtonSegment[] => {
-		return [
+		const buttonSegments: SegmentedButtonSegment[] = [
 			{
 				ariaLabel: showRenderLabel ? tooltip : renderLabel,
 				buttonId: 'render-modal-button',
@@ -448,7 +456,10 @@ const RenderButtonInner: React.FC<{
 				tooltipLabel: showRenderLabel ? null : renderLabel,
 				type: 'action',
 			},
-			{
+		];
+
+		if (dropdownValues.length > 1) {
+			buttonSegments.push({
 				ariaLabel: 'Select render type',
 				buttonId: null,
 				disabled: false,
@@ -465,8 +476,10 @@ const RenderButtonInner: React.FC<{
 				tooltipLabel: null,
 				type: 'menu',
 				values: dropdownValues,
-			},
-		];
+			});
+		}
+
+		return buttonSegments;
 	}, [
 		controlSize,
 		dropdownValues,
@@ -484,13 +497,6 @@ const RenderButtonInner: React.FC<{
 
 	return (
 		<>
-			<button
-				style={{display: 'none'}}
-				id="render-modal-button-server"
-				disabled={!canServerRender}
-				onClick={() => openServerRenderModal(false)}
-				type="button"
-			/>{' '}
 			<button
 				style={{display: 'none'}}
 				id="render-modal-button-client"

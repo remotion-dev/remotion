@@ -27,10 +27,8 @@ import {
 	WHITE_ALPHA_35,
 	WHITE_ALPHA_72,
 } from '../../helpers/colors';
-import {
-	isPointerSessionRelease,
-	startCapturedPointerSession,
-} from '../../helpers/pointer-session';
+import {startEscapeCancelableCapturedPointerSession} from '../../helpers/escape-cancelable-pointer-session';
+import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {Checkbox} from '../Checkbox';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -729,12 +727,13 @@ export type EasingEditorState = {
 	selections: TimelineSelection[];
 };
 
-export const EasingEditor: React.FC<{
+const EasingEditorUnmemoized: React.FC<{
 	readonly state: EasingEditorState;
+	readonly easingUpdate: SelectedEasingUpdate;
 	readonly renderHeader?: (
 		modeItems: SegmentedControlItem[],
 	) => React.ReactNode;
-}> = ({state, renderHeader}) => {
+}> = ({state, easingUpdate, renderHeader}) => {
 	const calculateTimeline = useTimelineCalculator();
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
@@ -763,6 +762,7 @@ export const EasingEditor: React.FC<{
 	const springRef = useRef(spring);
 	const liveOverrideVersionRef = useRef(0);
 	const pendingOverrideTargetsRef = useRef<SelectedEasingUpdate[]>([]);
+	const stopPointerSession = useRef<(() => void) | null>(null);
 
 	useEffect(() => {
 		const nextBezier = easingToBezier(state.initialEasing);
@@ -1107,15 +1107,17 @@ export const EasingEditor: React.FC<{
 
 			event.preventDefault();
 			event.stopPropagation();
+			stopPointerSession.current?.();
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			updateHandleFromPointer(handle, event);
-			startCapturedPointerSession({
+			stopPointerSession.current = startEscapeCancelableCapturedPointerSession({
 				event,
 				captureTarget: event.currentTarget,
 				onMove: (moveEvent) => {
 					updateHandleFromPointer(handle, moveEvent);
 				},
 				onEnd: (reason, endEvent) => {
+					stopPointerSession.current = null;
 					if (isPointerSessionRelease(reason, endEvent)) {
 						commitEasing(
 							serializeBezier(bezierRef.current),
@@ -1140,7 +1142,9 @@ export const EasingEditor: React.FC<{
 
 	useEffect(() => {
 		return () => {
+			stopPointerSession.current?.();
 			clearEasingDragOverrides(pendingOverrideTargetsRef.current);
+			pendingOverrideTargetsRef.current = [];
 		};
 	}, [clearEasingDragOverrides]);
 
@@ -1178,7 +1182,7 @@ export const EasingEditor: React.FC<{
 	);
 
 	const disabled = previewServerState.type !== 'connected';
-	const graphLabels = getEasingGraphLabels(getCurrentEasingUpdates());
+	const graphLabels = getEasingGraphLabels([easingUpdate]);
 	const currentEasing = useMemo(() => {
 		if (mode === 'spring') {
 			return serializeSpring(spring);
@@ -1301,6 +1305,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>X1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[0]}
 									status="ok"
@@ -1324,6 +1329,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Y1</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[1]}
 									status="ok"
@@ -1347,6 +1353,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>X2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[2]}
 									status="ok"
@@ -1370,6 +1377,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Y2</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={bezier[3]}
 									status="ok"
@@ -1411,6 +1419,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Damping</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={spring.damping}
 									status="ok"
@@ -1437,6 +1446,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Mass</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={spring.mass}
 									status="ok"
@@ -1463,6 +1473,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Stiffness</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={spring.stiffness}
 									status="ok"
@@ -1489,6 +1500,7 @@ export const EasingEditor: React.FC<{
 							<div style={coordinateLabel}>Rest threshold</div>
 							<div style={coordinateInputWrapper}>
 								<InputDragger
+									onValueChangeCancel={null}
 									type="number"
 									value={
 										spring.durationRestThreshold ??
@@ -1562,3 +1574,5 @@ export const EasingEditor: React.FC<{
 		</div>
 	);
 };
+
+export const EasingEditor = React.memo(EasingEditorUnmemoized);

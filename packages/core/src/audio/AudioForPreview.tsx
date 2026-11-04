@@ -3,10 +3,8 @@ import type {AudioHTMLAttributes} from 'react';
 import React, {
 	forwardRef,
 	useContext,
-	useEffect,
 	useImperativeHandle,
 	useMemo,
-	useRef,
 	useState,
 } from 'react';
 import {
@@ -20,6 +18,10 @@ import {random} from '../random.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
+import {
+	scheduleMediaSourceCleanup,
+	useMediaDuration,
+} from '../use-media-duration.js';
 import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
@@ -209,41 +211,14 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 	// But useInsertionEffect will fire before other effects, meaning the
 	// nodes might still be used. Using rAF to ensure it's after other effects.
 	effectToUse(() => {
-		return () => {
-			requestAnimationFrame(() => {
-				cleanupOnMediaTagUnmount();
-			});
-		};
+		return scheduleMediaSourceCleanup.bind(null, cleanupOnMediaTagUnmount);
 	}, [cleanupOnMediaTagUnmount]);
 
 	useImperativeHandle(ref, () => {
 		return audioRef.current as HTMLAudioElement;
 	}, [audioRef]);
 
-	const currentOnDurationCallback =
-		useRef<AudioForPreviewProps['onDuration']>(onDuration);
-	currentOnDurationCallback.current = onDuration;
-
-	useEffect(() => {
-		const {current} = audioRef;
-		if (!current) {
-			return;
-		}
-
-		if (current.duration) {
-			currentOnDurationCallback.current?.(current.src, current.duration);
-			return;
-		}
-
-		const onLoadedMetadata = () => {
-			currentOnDurationCallback.current?.(current.src, current.duration);
-		};
-
-		current.addEventListener('loadedmetadata', onLoadedMetadata);
-		return () => {
-			current.removeEventListener('loadedmetadata', onLoadedMetadata);
-		};
-	}, [audioRef, src]);
+	useMediaDuration(audioRef, onDuration, src, true);
 
 	if (initialShouldPreMountAudioElements) {
 		return null;

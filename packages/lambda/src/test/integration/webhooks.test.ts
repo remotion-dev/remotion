@@ -1,18 +1,39 @@
-import {beforeAll, expect, test} from 'bun:test';
+import {afterAll, beforeAll, expect, test} from 'bun:test';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'path';
+import {bundle} from '@remotion/bundler';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {RenderInternals, ensureBrowser} from '@remotion/renderer';
-import {ServerlessRoutines} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {getWebhookCalls, resetWebhookCalls} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {
+	getWebhookCalls,
+	resetWebhookCalls,
+	useFakeAws,
+} from '../mocks/fake-aws';
 import {waitUntilDone} from './wait-until-done';
+
+useFakeAws();
+
+const webhookBundle = fs.mkdtempSync(path.join(os.tmpdir(), 'webhook-render-'));
 
 beforeAll(async () => {
 	await ensureBrowser();
+	await bundle({
+		entryPoint: path.join(__dirname, 'webhooks.tsx'),
+		outDir: webhookBundle,
+		publicDir: null,
+	});
+}, 60000);
+
+afterAll(() => {
+	fs.rmSync(webhookBundle, {recursive: true, force: true});
 });
 
 const TEST_URL = 'http://localhost:8000';
-const exampleBuild = path.join(process.cwd(), '..', 'example', 'build');
 
 test(
 	'Should call webhook upon completion',
@@ -22,7 +43,7 @@ test(
 
 		resetWebhookCalls();
 
-		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
+		const {port, close} = await RenderInternals.serveStatic(webhookBundle, {
 			binariesDirectory: null,
 			offthreadVideoThreads: 1,
 			downloadMap: RenderInternals.makeDownloadMap(48000),
@@ -30,11 +51,11 @@ test(
 			logLevel: 'error',
 			offthreadVideoCacheSizeInBytes: null,
 			port: null,
-			remotionRoot: path.dirname(exampleBuild),
+			remotionRoot: process.cwd(),
 			forceIPv4: false,
 		});
 
-		const res = await mockImplementation.callFunctionSync({
+		const res = await LambdaClientInternals.callFunctionSyncImplementation({
 			type: ServerlessRoutines.start,
 			payload: {
 				enableCancellation: false,
@@ -43,10 +64,10 @@ test(
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
-				composition: 'react-svg',
+				composition: 'webhook-success',
 				crf: 9,
 				envVariables: {},
-				frameRange: [0, 2],
+				frameRange: [0, 0],
 				framesPerLambda: 8,
 				concurrency: null,
 				imageFormat: 'png',
@@ -103,6 +124,7 @@ test(
 				metadata: {Author: 'Lunar'},
 				licenseKey: null,
 				storageClass: null,
+				preferredEffectBackend: 'auto',
 				mediaCacheSizeInBytes: null,
 				isProduction: null,
 				sampleRate: 48000,
@@ -151,8 +173,7 @@ test(
 test(
 	'Should call webhook upon timeout',
 	async () => {
-		// Maybe this can use simulateLambdaRender instead
-		const {port, close} = await RenderInternals.serveStatic(exampleBuild, {
+		const {port, close} = await RenderInternals.serveStatic(webhookBundle, {
 			binariesDirectory: null,
 			offthreadVideoThreads: 1,
 			downloadMap: RenderInternals.makeDownloadMap(48000),
@@ -160,13 +181,13 @@ test(
 			logLevel: 'error',
 			offthreadVideoCacheSizeInBytes: null,
 			port: null,
-			remotionRoot: path.dirname(exampleBuild),
+			remotionRoot: process.cwd(),
 			forceIPv4: false,
 		});
 
 		resetWebhookCalls();
 
-		await mockImplementation.callFunctionSync({
+		await LambdaClientInternals.callFunctionSyncImplementation({
 			functionName: 'remotion-dev-lambda',
 			region: 'us-east-1',
 			type: ServerlessRoutines.launch,
@@ -174,16 +195,17 @@ test(
 				enableCancellation: false,
 				type: ServerlessRoutines.launch,
 				output: {type: 'media'},
+				preferredEffectBackend: 'auto',
 				mediaCacheSizeInBytes: null,
 				offthreadVideoCacheSizeInBytes: null,
 				offthreadVideoThreads: null,
 				serveUrl: `http://localhost:${port}`,
 				chromiumOptions: {},
 				codec: 'h264',
-				composition: 'react-svg',
+				composition: 'webhook-timeout',
 				crf: 9,
 				envVariables: {},
-				frameRange: [0, 10],
+				frameRange: [0, 0],
 				framesPerFunction: 8,
 				concurrency: null,
 				imageFormat: 'png',
@@ -203,7 +225,7 @@ test(
 				disableSharedMemoryCapture: false,
 				jpegQuality: undefined,
 				scale: 1,
-				timeoutInMilliseconds: 3000,
+				timeoutInMilliseconds: 10000,
 				numberOfGifLoops: null,
 				everyNthFrame: 1,
 				concurrencyPerFunction: 1,
@@ -241,10 +263,6 @@ test(
 			},
 			timeoutInTest: 1000,
 			requestHandler: null,
-		});
-
-		await new Promise((resolve) => {
-			setTimeout(resolve, 2000);
 		});
 
 		const webhookCalls = getWebhookCalls();

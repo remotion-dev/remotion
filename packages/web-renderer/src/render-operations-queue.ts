@@ -1,7 +1,7 @@
 export const onlyOneMediaRenderAtATimeQueue = {
-	ref: Promise.resolve() as Promise<unknown>,
+	ref: Promise.resolve(),
 };
 
 export const onlyOneStillRenderAtATimeQueue = {
-	ref: Promise.resolve() as Promise<unknown>,
+	ref: Promise.resolve(),
 };

@@ -65,6 +65,9 @@ export function cancelRenderInternal(
 	}
 
 	if (scope) {
+		// Server rendering reads the stack across Puppeteer. Browser rendering can
+		// keep the original Error in this realm, including its cause chain.
+		scope.remotion_cancelledErrorObject = error;
 		scope.remotion_cancelledError = getErrorStackWithMessage(error);
 	}
 

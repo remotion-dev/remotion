@@ -1,18 +1,10 @@
+import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import {transform as defaultEsbuildTransform} from 'esbuild';
 import type webpack from 'webpack';
 import type {LoaderOptions} from './interfaces';
 
 const isTsExtensionPtrn = /\.ts$/i;
-
-const isTypescriptInstalled = () => {
-	try {
-		require.resolve('typescript');
-		return true;
-	} catch {
-		return false;
-	}
-};
 
 async function ESBuildLoader(
 	this: webpack.LoaderContext<LoaderOptions>,
@@ -43,18 +35,6 @@ async function ESBuildLoader(
 		sourcefile: this.resourcePath,
 	};
 
-	if (!('tsconfigRaw' in transformOptions) && isTypescriptInstalled()) {
-		// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-		const typescript = require('typescript') as typeof import('typescript');
-		// TypeScript 7 (@typescript/native-preview) does not expose `sys` on the CommonJS export
-		const sys = typescript.sys as typeof typescript.sys | undefined;
-		if (sys) {
-			const tsConfig = typescript.readConfigFile(tsConfigPath, sys.readFile);
-
-			transformOptions.tsconfigRaw = tsConfig.config;
-		}
-	}
-
 	// https://github.com/privatenumber/esbuild-loader/pull/107
 	if (
 		transformOptions.loader === 'tsx' &&
@@ -64,6 +44,16 @@ async function ESBuildLoader(
 	}
 
 	try {
+		if (!('tsconfigRaw' in transformOptions)) {
+			try {
+				transformOptions.tsconfigRaw = readFileSync(tsConfigPath, 'utf8');
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+					throw error;
+				}
+			}
+		}
+
 		const {code, map} = await transform(source, transformOptions);
 		done(null, code, map && JSON.parse(map));
 	} catch (error: unknown) {

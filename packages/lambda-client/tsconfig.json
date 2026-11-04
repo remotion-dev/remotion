@@ -6,5 +6,9 @@
 		"emitDeclarationOnly": true
 	},
 	"include": ["src"],
-	"references": [{"path": "../serverless-client"}, {"path": "../renderer"}]
+	"references": [
+		{"path": "../core"},
+		{"path": "../renderer"},
+		{"path": "../streaming"}
+	]
 }

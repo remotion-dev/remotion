@@ -12,7 +12,14 @@ import {filteredFonts} from './scripts/filtered-fonts';
 import {removeWhitespace} from './scripts/utils';
 
 const output = await build({
-	entrypoints: filteredFonts.map((p) => `src/${removeWhitespace(p.family)}.ts`),
+	entrypoints: [
+		...filteredFonts.map((p) => `src/${removeWhitespace(p.family)}.ts`),
+		'src/from-info.ts',
+	],
+	// Share the loader and its font-face cache across families and from-info.
+	splitting: true,
+	// Consumer bundlers handle preloading. Keep these chunks usable over HTTP.
+	modulePreload: false,
 	external: [
 		'remotion',
 		'remotion/no-react',
@@ -20,7 +27,7 @@ const output = await build({
 		'react/jsx-runtime',
 		'react/jsx-dev-runtime',
 	],
-	naming: '[name].mjs',
+	naming: {entry: '[name].mjs', chunk: '[name]-[hash].mjs'},
 });
 
 for (const file of output.outputs) {
@@ -95,7 +102,8 @@ await buildPackage({
 		},
 	],
 	formats: {
-		esm: 'build',
+		// Already built together with the font families above.
+		esm: 'do-nothing',
 		cjs: 'use-tsc',
 	},
 	external: 'dependencies',

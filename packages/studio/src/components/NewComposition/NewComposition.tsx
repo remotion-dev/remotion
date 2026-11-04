@@ -34,13 +34,12 @@ import {label, optionRow, rightRow} from '../RenderModal/layout';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
 import {CompositionEditFooter} from './CompositionEditFooter';
+import {CompositionIdField} from './CompositionIdField';
 import {DismissableModal} from './DismissableModal';
 import {getNewCompositionDefaults} from './get-new-composition-defaults';
 import {InputAndValidationContainer} from './InputAndValidationContainer';
 import {InputDragger} from './InputDragger';
 import {NewCompDuration} from './NewCompDuration';
-import {RemotionInput} from './RemInput';
-import {SlugPreview} from './SlugPreview';
 import {ValidationMessage} from './ValidationMessage';
 
 const {sortItemsByCommitOrder} = CanvasInternals;
@@ -320,44 +319,19 @@ export const NewCompositionFields: React.FC<{
 					/>
 				</div>
 			</div>
-			<div style={optionRow}>
-				<div style={label}>ID</div>
-				<div style={rightRow}>
-					<InputAndValidationContainer>
-						<RemotionInput
-							ref={inputRef}
-							value={values.id}
-							onChange={onNameChange}
-							type="text"
-							autoFocus
-							placeholder="Composition ID"
-							status="ok"
-							rightAlign
-						/>
-						<SlugPreview
-							action="create"
-							currentName={null}
-							input={values.id}
-							slug={compositionId}
-						/>
-						{nameValidationMessage ? (
-							<>
-								<Spacing y={1} block />
-								<ValidationMessage
-									align="flex-start"
-									message={nameValidationMessage}
-									type="error"
-								/>
-							</>
-						) : null}
-					</InputAndValidationContainer>
-				</div>
-			</div>
+			<CompositionIdField
+				compositionId={compositionId}
+				inputRef={inputRef}
+				onChange={onNameChange}
+				validationMessage={nameValidationMessage}
+				value={values.id}
+			/>
 			<div style={optionRow}>
 				<div style={label}>Width</div>
 				<div style={rightRow}>
 					<InputAndValidationContainer>
 						<InputDragger
+							onValueChangeCancel={null}
 							aria-label="Width"
 							type="number"
 							value={values.size.width}
@@ -391,6 +365,7 @@ export const NewCompositionFields: React.FC<{
 				<div style={rightRow}>
 					<InputAndValidationContainer>
 						<InputDragger
+							onValueChangeCancel={null}
 							aria-label="Height"
 							type="number"
 							value={values.size.height}
@@ -427,6 +402,7 @@ export const NewCompositionFields: React.FC<{
 				<div style={label}>FPS</div>
 				<div style={rightRow}>
 					<InputDragger
+						onValueChangeCancel={null}
 						aria-label="FPS"
 						type="number"
 						value={values.fps}

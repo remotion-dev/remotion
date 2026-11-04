@@ -13,10 +13,20 @@ import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const emptyConnectedCompositions = [] as const;
 
+const TimelineTrackHighlight: React.FC<{readonly background: string}> = ({
+	background,
+}) => {
+	const timelineWidth = useContext(TimelineWidthContext);
+	return timelineWidth === null ? null : (
+		<div
+			style={getTimelineSelectedTrackHighlightStyle(timelineWidth, background)}
+		/>
+	);
+};
+
 const TimelineTrackUnmemoized: React.FC<{
 	readonly track: TimelineTrackData;
 }> = ({track}) => {
-	const timelineWidth = useContext(TimelineWidthContext);
 	const {hovered, onPointerEnter, onPointerLeave} = useTimelineSequenceHover(
 		track.nodePathInfo,
 	);
@@ -40,13 +50,8 @@ const TimelineTrackUnmemoized: React.FC<{
 	return (
 		<div onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
 			<div style={layerStyle}>
-				{rowHighlightBackground && timelineWidth !== null ? (
-					<div
-						style={getTimelineSelectedTrackHighlightStyle(
-							timelineWidth,
-							rowHighlightBackground,
-						)}
-					/>
+				{rowHighlightBackground ? (
+					<TimelineTrackHighlight background={rowHighlightBackground} />
 				) : null}
 				<TimelineSequence
 					s={track.sequence}

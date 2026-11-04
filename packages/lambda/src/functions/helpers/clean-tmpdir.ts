@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import {join} from 'node:path';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 
 const deleteAllFilesInAFolderRecursively = (path: string) => {
 	const files = fs.readdirSync(path);
@@ -22,6 +23,11 @@ const deleteAllFilesInAFolderRecursively = (path: string) => {
 	}
 };
 
+// Lambda's /tmp is per-function scratch space. Never wipe a developer's /tmp.
 export const deleteTmpDir = () => {
+	if (!LambdaClientInternals.isInsideLambda()) {
+		return;
+	}
+
 	deleteAllFilesInAFolderRecursively('/tmp');
 };

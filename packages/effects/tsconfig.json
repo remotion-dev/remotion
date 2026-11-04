@@ -2,6 +2,7 @@
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
 		"rootDir": "src",
+		"types": ["bun", "@webgpu/types"],
 		"outDir": "dist",
 		"skipLibCheck": true,
 		"target": "ES2022",

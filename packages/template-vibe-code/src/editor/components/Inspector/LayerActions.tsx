@@ -61,7 +61,7 @@ export const useLayerCommands = (layer: Layer) => {
     },
     remove: () => node && void actions.deleteNodes([node]),
     duplicate: () => node && void actions.duplicateNodes([node]),
-    split: () => node && void actions.splitNodesAtPlayhead([node]),
+    split: () => node && void actions.splitLayersAtPlayhead([layer]),
     wrapInSequence: () => node && void actions.wrapNode(node, "Sequence"),
     wrapInAbsoluteFill: () =>
       node && void actions.wrapNode(node, "AbsoluteFill"),

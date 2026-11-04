@@ -1,4 +1,8 @@
 import type {InputAudioTrack} from 'mediabunny';
+import {
+	readWaveformFromPersistentCache,
+	writeWaveformToPersistentCache,
+} from '../persistent-cache/persistent-cache';
 import type {
 	AudioWaveformWorkerLoadMessage,
 	AudioWaveformWorkerOutgoingMessage,
@@ -72,6 +76,16 @@ const emitError = (load: InFlightLoad, error: Error) => {
 	}
 };
 
+const persistWaveform = (load: InFlightLoad, result: WaveformResult) => {
+	if (typeof load.src === 'string') {
+		writeWaveformToPersistentCache({
+			src: load.src,
+			waveformSampleRate: load.waveformSampleRate,
+			result,
+		});
+	}
+};
+
 const startMainThreadLoad = (load: InFlightLoad) => {
 	load.requestId = null;
 
@@ -101,6 +115,7 @@ const startMainThreadLoad = (load: InFlightLoad) => {
 	})
 		.then((result) => {
 			emitPeaks(load, result, true);
+			persistWaveform(load, result);
 		})
 		.catch((error) => {
 			emitError(
@@ -155,6 +170,9 @@ const getOrCreateWorker = (): Worker | null => {
 			}
 
 			emitPeaks(load, message, message.final);
+			if (message.final) {
+				persistWaveform(load, message);
+			}
 		},
 	);
 	worker.addEventListener('error', (event) => {
@@ -211,18 +229,33 @@ export const subscribeToWaveformPeaks = ({
 	};
 	inFlightByCacheKey.set(cacheKey, load);
 
-	const workerInstance = typeof src === 'string' ? getOrCreateWorker() : null;
-	if (workerInstance && typeof src === 'string') {
-		const requestId = nextRequestId++;
-		load.requestId = requestId;
-		inFlightByRequestId.set(requestId, load);
-		const message: AudioWaveformWorkerLoadMessage = {
-			type: 'load',
-			requestId,
-			src,
-			waveformSampleRate,
-		};
-		workerInstance.postMessage(message);
+	if (typeof src === 'string') {
+		// Peaks persisted by a previous page load skip fetching and decoding.
+		readWaveformFromPersistentCache({src, waveformSampleRate}).then(
+			(persisted) => {
+				if (persisted) {
+					emitPeaks(load, persisted, true);
+					return;
+				}
+
+				const workerInstance = getOrCreateWorker();
+				if (!workerInstance) {
+					startMainThreadLoad(load);
+					return;
+				}
+
+				const requestId = nextRequestId++;
+				load.requestId = requestId;
+				inFlightByRequestId.set(requestId, load);
+				const message: AudioWaveformWorkerLoadMessage = {
+					type: 'load',
+					requestId,
+					src,
+					waveformSampleRate,
+				};
+				workerInstance.postMessage(message);
+			},
+		);
 	} else {
 		startMainThreadLoad(load);
 	}

@@ -102,8 +102,8 @@ const ContextMenuPortal: React.FC<{
 
 		const spaceToBottom = size.windowSize.height - opened.top;
 		const spaceToTop = opened.top;
-		const spaceToRight = size.windowSize.width - size.left;
-		const spaceToLeft = size.left + size.width;
+		const spaceToRight = size.windowSize.width - opened.left;
+		const spaceToLeft = opened.left;
 
 		const minSpaceRequired = isMobileLayout
 			? MAX_MOBILE_MENU_WIDTH

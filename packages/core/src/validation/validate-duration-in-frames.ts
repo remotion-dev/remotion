@@ -22,15 +22,15 @@ export function validateDurationInFrames(
 		);
 	}
 
-	if (!allowFloats && durationInFrames % 1 !== 0) {
-		throw new TypeError(
-			`The "durationInFrames" prop ${component} must be an integer, but got ${durationInFrames}.`,
-		);
-	}
-
 	if (!Number.isFinite(durationInFrames)) {
 		throw new TypeError(
 			`The "durationInFrames" prop ${component} must be finite, but got ${durationInFrames}.`,
+		);
+	}
+
+	if (!allowFloats && durationInFrames % 1 !== 0) {
+		throw new TypeError(
+			`The "durationInFrames" prop ${component} must be an integer, but got ${durationInFrames}.`,
 		);
 	}
 }

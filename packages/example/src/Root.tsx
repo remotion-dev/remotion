@@ -115,6 +115,7 @@ import {
 	ZoomInOutTransitionDoc,
 	ZoomInOutTransitionDocThumb,
 } from './HtmlInCanvas';
+import {HtmlInCanvasFallbackExample} from './HtmlInCanvas/fallback';
 import {HugeImage} from './HugeImage';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {IntrinsicDurationLoopTestbed} from './IntrinsicDurationLoopTestbed';
@@ -257,12 +258,19 @@ import {
 	canvasCapturePreviewDefaultProps,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CurvesEffect} from './EffectsTestbed/Curves';
 import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
+import {LevelsEffect} from './EffectsTestbed/Levels';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
+import {
+	ColorCorrectionStudioDemo,
+	CurvesStudioDemo,
+	LevelsStudioDemo,
+} from './EffectsTestbed/StudioDemos';
 import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
@@ -279,6 +287,7 @@ import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
+import {MixBlendMode} from './MixBlendMode/MixBlendMode';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
@@ -839,6 +848,14 @@ export const Index: React.FC = () => {
 					durationInFrames={30}
 				/>
 				<Composition
+					id="mix-blend-mode"
+					component={MixBlendMode}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={60}
+				/>
+				<Composition
 					id="simple-img"
 					component={SimpleImg}
 					width={1080}
@@ -1273,6 +1290,14 @@ export const Index: React.FC = () => {
 					durationInFrames={100}
 				/>
 				<Folder name="html-in-canvas">
+					<Composition
+						id="html-in-canvas-fallback"
+						component={HtmlInCanvasFallbackExample}
+						fps={30}
+						height={720}
+						width={1280}
+						durationInFrames={180}
+					/>
 					<Composition
 						id="html-in-canvas-nested"
 						component={HtmlInCanvasNested}
@@ -2351,6 +2376,48 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="Effects">
+				<Folder name="Studio-demos">
+					<Composition
+						id="ColorCorrectionStudioDemo"
+						component={ColorCorrectionStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="LevelsStudioDemo"
+						component={LevelsStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="CurvesStudioDemo"
+						component={CurvesStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+				</Folder>
+				<Composition
+					id="curves-effect"
+					component={CurvesEffect}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="levels-effect"
+					component={LevelsEffect}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
 				<Composition
 					id="tear-test"
 					component={TearTest}
@@ -2790,7 +2857,7 @@ export const Index: React.FC = () => {
 			<Composition
 				id="empty"
 				component={Empty}
-				width={1080}
+				width={1920}
 				height={1080}
 				fps={30}
 				durationInFrames={900}

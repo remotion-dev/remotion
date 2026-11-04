@@ -2,10 +2,11 @@ import {expect, test} from 'bun:test';
 import {createWriteStream, unlinkSync} from 'fs';
 import path from 'path';
 import {LambdaClientInternals} from '@remotion/lambda-client';
-import {rendersPrefix} from '@remotion/serverless';
-import {mockImplementation} from '../../mocks/mock-implementation';
+import {useFakeAws} from '../../mocks/fake-aws';
 import {Wavedraw} from '../draw-wav';
 import {simulateLambdaRender} from '../simulate-lambda-render';
+
+useFakeAws();
 
 test(
 	'Should make regular (non-seamless) audio',
@@ -54,11 +55,11 @@ test(
 
 		wd.drawWave(options); // outputs wave drawing to example1.png
 
-		const files = await mockImplementation.listObjects({
+		const files = await LambdaClientInternals.lambdaLsImplementation({
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});
@@ -69,15 +70,14 @@ test(
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			renderId,
-			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 		});
 
-		const expectFiles = await mockImplementation.listObjects({
+		const expectFiles = await LambdaClientInternals.lambdaLsImplementation({
 			bucketName: progress.outBucket as string,
 			region: 'eu-central-1',
 			expectedBucketOwner: 'abc',
-			prefix: rendersPrefix(renderId),
+			prefix: LambdaClientInternals.rendersPrefix(renderId),
 			forcePathStyle: false,
 			requestHandler: null,
 		});

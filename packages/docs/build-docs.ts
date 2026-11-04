@@ -1,4 +1,5 @@
 import {spawn} from 'child_process';
+import {defaultDocsBuildConcurrency} from './build-concurrency';
 
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 const lowMemoryBuild =
@@ -47,7 +48,18 @@ const run = (
 		const start = performance.now();
 		console.log(`[docs build] Starting ${label}...`);
 		const child = spawn(command, args, {
-			env: {...process.env, ...env},
+			env: {
+				...process.env,
+				// Rspack, SWC and Lightning CSS use Rayon for native parallel work.
+				...(!isVercel
+					? {
+							RAYON_NUM_THREADS:
+								process.env.RAYON_NUM_THREADS ??
+								String(defaultDocsBuildConcurrency),
+						}
+					: null),
+				...env,
+			},
 			shell: false,
 			stdio: 'inherit',
 		});
@@ -99,10 +111,11 @@ const docusaurusEnv = {
 	DOCUSAURUS_PERF_LOGGER:
 		process.env.DOCUSAURUS_PERF_LOGGER ?? (isVercel ? 'true' : undefined),
 	NODE_OPTIONS: appendNodeOption(`--max-old-space-size=${nodeOldSpaceSize}`),
+	DOCUSAURUS_SSG_WORKER_THREAD_COUNT:
+		process.env.DOCUSAURUS_SSG_WORKER_THREAD_COUNT ??
+		String(lowMemoryBuild ? 1 : defaultDocsBuildConcurrency),
 	...(lowMemoryBuild
 		? {
-				DOCUSAURUS_SSG_WORKER_THREAD_COUNT:
-					process.env.DOCUSAURUS_SSG_WORKER_THREAD_COUNT ?? '1',
 				DOCUSAURUS_SSG_WORKER_THREAD_RECYCLER_MAX_MEMORY:
 					process.env.DOCUSAURUS_SSG_WORKER_THREAD_RECYCLER_MAX_MEMORY ??
 					String(512 * 1024 * 1024),

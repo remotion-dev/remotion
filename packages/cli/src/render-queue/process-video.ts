@@ -61,6 +61,7 @@ export const processVideoJob = async ({
 		commandLine: parsedCli,
 	}).value;
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
+	const prerender = job.type === 'video' ? job.prerender : null;
 
 	await renderVideoFlow({
 		remotionRoot,
@@ -70,10 +71,10 @@ export const processVideoJob = async ({
 		chromiumOptions: job.chromiumOptions,
 		entryPointReason: 'same as Studio',
 		envVariables: job.envVariables,
-		height: null,
-		width: null,
-		fps: null,
-		durationInFrames: null,
+		height: prerender?.height ?? null,
+		width: prerender?.width ?? null,
+		fps: prerender?.fps ?? null,
+		durationInFrames: prerender?.durationInFrames ?? null,
 		fullEntryPoint,
 		serializedInputPropsWithCustomSchema:
 			job.serializedInputPropsWithCustomSchema,
@@ -100,8 +101,26 @@ export const processVideoJob = async ({
 		uiImageFormat: job.imageFormat,
 		cancelSignal: job.cancelToken.cancelSignal,
 		crf: job.type === 'video' ? job.crf : null,
+		crfIsFromConfigFile: false,
 		gopSize: job.type === 'video' ? job.gopSize : null,
-		ffmpegOverride,
+		ffmpegOverride:
+			prerender === null
+				? ffmpegOverride
+				: (info) => {
+						// libvpx defaults to its slowest settings, which take ~10x longer
+						// for a similar quality
+						const args = ffmpegOverride(info);
+						return args.includes('libvpx')
+							? [
+									...args.slice(0, -1),
+									'-deadline',
+									'good',
+									'-cpu-used',
+									'3',
+									...args.slice(-1),
+								]
+							: args;
+					},
 		audioBitrate: job.type === 'video' ? job.audioBitrate : null,
 		muted: job.type === 'video' ? job.muted : true,
 		enforceAudioTrack: job.type === 'video' ? job.enforceAudioTrack : false,
@@ -131,6 +150,7 @@ export const processVideoJob = async ({
 		chromeMode: job.chromeMode,
 		offthreadVideoThreads: job.offthreadVideoThreads,
 		mediaCacheSizeInBytes: job.mediaCacheSizeInBytes,
+		preferredEffectBackend: job.preferredEffectBackend,
 		audioLatencyHint: null,
 		imageSequencePattern: null,
 		askAIEnabled,
@@ -140,6 +160,7 @@ export const processVideoJob = async ({
 		bundlerOverride: fixedConfig.bundlerOverride,
 		rspackOverride: fixedConfig.rspackOverride,
 		webpackOverride: fixedConfig.webpackOverride,
-		licenseKey: job.type === 'video' ? job.licenseKey : null,
+		licenseKey: job.licenseKey,
+		isProduction: null,
 	});
 };

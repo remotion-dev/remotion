@@ -166,7 +166,7 @@ const VideoThumbnailRefForward: React.ForwardRefRenderFunction<
 		<div
 			className={clsx(
 				isNarrow && smallThumbOnMobile ? 'border-r-2' : 'border-b-2',
-				'border-black overflow-hidden bg-slate-100',
+				'border-outline overflow-hidden bg-muted',
 				canDrag && 'cursor-grab active:cursor-grabbing',
 			)}
 			draggable={canDrag || undefined}

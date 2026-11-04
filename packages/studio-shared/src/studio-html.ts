@@ -178,7 +178,7 @@ export const studioHtml = ({
 		<script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
 		<script>window.remotion_audioLatencyHint = "${audioLatencyHint}";</script>
 		<script>window.remotion_experimentalKeepAudioContextAlive = ${experimentalKeepAudioContextAlive};</script>
-		<script>window.remotion_sampleRate = ${sampleRate};</script>
+		<script>window.remotion_sampleRate = window.remotion_sampleRate ?? ${sampleRate};</script>
 		<script>window.remotion_previewSampleRate = ${sampleRate};</script>
 		${mode === 'dev' ? `<script>window.remotion_logLevel = "${logLevel}";</script>` : ''}
 		<script>window.remotion_staticBase = ${staticBaseValue};</script>

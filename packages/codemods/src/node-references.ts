@@ -1,3 +1,4 @@
+import type {File} from '@babel/types';
 import type {SequenceNodePathRemapping} from '@remotion/studio-shared';
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
@@ -8,6 +9,7 @@ import {
 	type CapturedJsxNodePath,
 } from './get-node-path-remappings';
 import {findProjectFile} from './internals';
+import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 
 export type NodeReference = {
@@ -82,6 +84,16 @@ const isUnchangedNode = (
 	JSON.stringify(node.nodePath) === JSON.stringify(next.nodePath) &&
 	node.signature === next.signature;
 
+const nodesByAst = new WeakMap<File, ReturnType<typeof getJsxNodesWithPaths>>();
+const getSourceNodes = (source: string) => {
+	const {ast} = getReadOnlySourceSnapshot(source);
+	const cached = nodesByAst.get(ast);
+	if (cached) return cached;
+	const nodes = getJsxNodesWithPaths(ast);
+	nodesByAst.set(ast, nodes);
+	return nodes;
+};
+
 // Props, effects, and keyframe edits preserve JSX traversal order. Hooks and
 // statements they insert can still change the paths of every node in a function.
 export const getUnchangedStructureRemappings = ({
@@ -91,8 +103,8 @@ export const getUnchangedStructureRemappings = ({
 	input: string;
 	output: string;
 }): NodeSourceEdit['nodePathRemappings'] => {
-	const before = getJsxNodesWithPaths(getReadOnlySourceSnapshot(input).ast);
-	const after = getJsxNodesWithPaths(getReadOnlySourceSnapshot(output).ast);
+	const before = getSourceNodes(input);
+	const after = getSourceNodes(output);
 	if (before.length !== after.length) {
 		throw new Error('The edit unexpectedly changed the JSX structure');
 	}
@@ -104,8 +116,66 @@ export const getUnchangedStructureRemappings = ({
 			recast.prettyPrint(node.node).code === recast.prettyPrint(next.node).code;
 		return unchanged
 			? []
-			: [{oldNodePath: node.nodePath, newNodePath: next.nodePath}];
+			: [
+					{
+						oldNodePath: node.nodePath.slice(),
+						newNodePath: next.nodePath.slice(),
+					},
+				];
 	});
+};
+
+export const getKeyframeSourceLocationRemappings = ({
+	input,
+	output,
+	remappings,
+}: {
+	input: string;
+	output: string;
+	remappings: SequenceNodePathRemapping[];
+}): SequenceNodePathRemapping[] => {
+	const result = remappings.slice();
+	const oldPathIndices = new Map(
+		remappings.map((m, i) => [JSON.stringify(m.oldNodePath), i]),
+	);
+	const destinations = new Set(
+		remappings.map((m) => JSON.stringify(m.newNodePath)),
+	);
+	const finalOpenings = new Map(
+		getSourceNodes(output).map(({nodePath, node}) => [
+			JSON.stringify(nodePath),
+			node,
+		]),
+	);
+	for (const {nodePath, node} of getSourceNodes(input)) {
+		const oldKey = JSON.stringify(nodePath);
+		const index = oldPathIndices.get(oldKey);
+		const remapping = index === undefined ? null : remappings[index];
+		if (!remapping && destinations.has(oldKey)) continue;
+		const newKey = remapping ? JSON.stringify(remapping.newNodePath) : oldKey;
+		const final = finalOpenings.get(newKey);
+		if (!node.loc || !final?.loc) continue;
+		const before = getJsxSourceLocation(input, node.loc.start);
+		const after = getJsxSourceLocation(output, final.loc.start);
+		if (
+			oldKey === newKey &&
+			before.line === after.line &&
+			before.column === after.column
+		)
+			continue;
+		const sourceLocations = {before, after};
+		if (index !== undefined) {
+			result[index] = {...remappings[index], sourceLocations};
+		} else {
+			result.push({
+				oldNodePath: nodePath.slice(),
+				newNodePath: nodePath.slice(),
+				sourceLocations,
+			});
+		}
+	}
+
+	return result;
 };
 
 // Registration edits insert, remove, or move whole JSX subtrees while the
@@ -192,6 +262,51 @@ export const getUpdatedNodeReference = ({
 	return {filePath, nodePath: remapping?.newNodePath ?? node.nodePath};
 };
 
+export const getUpdatedNodeReferences = ({
+	project,
+	nodes,
+	nodePathRemappings,
+}: {
+	project: CodemodProject;
+	nodes: readonly NodeReference[];
+	nodePathRemappings: NodePathRemapping[];
+}): NodeReference[] => {
+	if (nodes.length === 1) {
+		return [
+			getUpdatedNodeReference({project, node: nodes[0], nodePathRemappings}),
+		];
+	}
+
+	const pathsByFile = new Map<string, Map<string, SequenceNodePath | null>>();
+	for (const {filePath, oldNodePath, newNodePath} of nodePathRemappings) {
+		if (oldNodePath === null) {
+			continue;
+		}
+
+		const paths =
+			pathsByFile.get(filePath) ?? new Map<string, SequenceNodePath | null>();
+		const key = JSON.stringify(oldNodePath);
+		// Match the first remapping, as the single-node lookup does.
+		if (!paths.has(key)) {
+			paths.set(key, newNodePath);
+		}
+
+		pathsByFile.set(filePath, paths);
+	}
+
+	return nodes.map((node) => {
+		const filePath = findProjectFile({project, filePath: node.filePath});
+		const nodePath = pathsByFile
+			.get(filePath)
+			?.get(JSON.stringify(node.nodePath));
+		if (nodePath === null) {
+			throw new Error('The JSX node was removed');
+		}
+
+		return {filePath, nodePath: nodePath ?? node.nodePath};
+	});
+};
+
 export const groupNodeReferencesByFile = ({
 	project,
 	nodes,
@@ -204,18 +319,19 @@ export const groupNodeReferencesByFile = ({
 	}
 
 	const groups = new Map<string, SequenceNodePath[]>();
+	const seenPathsByFile = new Map<string, Set<string>>();
 	for (const node of nodes) {
 		const filePath = findProjectFile({project, filePath: node.filePath});
 		const paths = groups.get(filePath) ?? [];
-		if (
-			!paths.some(
-				(path) => JSON.stringify(path) === JSON.stringify(node.nodePath),
-			)
-		) {
+		const seenPaths = seenPathsByFile.get(filePath) ?? new Set<string>();
+		const key = JSON.stringify(node.nodePath);
+		if (!seenPaths.has(key)) {
 			paths.push(node.nodePath);
+			seenPaths.add(key);
 		}
 
 		groups.set(filePath, paths);
+		seenPathsByFile.set(filePath, seenPaths);
 	}
 
 	return groups;

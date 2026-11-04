@@ -1,24 +1,23 @@
 import {Readable} from 'stream';
-import type {AwsProvider, AwsRegion} from '@remotion/lambda-client';
 import type {
+	AwsRegion,
 	BucketWithLocation,
-	CloudProvider,
 	Privacy,
-} from '@remotion/serverless';
+} from '@remotion/lambda-client';
 
-export const mockBucketStore: BucketWithLocation<AwsProvider>[] = [];
+export const mockBucketStore: BucketWithLocation[] = [];
 
-type S3MockFile<Provider extends CloudProvider> = {
+type S3MockFile = {
 	bucketName: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	acl: 'public-read' | 'private' | 'none';
 	key: string;
 	content: Uint8Array;
 };
 
-let mockS3Store: S3MockFile<AwsProvider>[] = [];
+let mockS3Store: S3MockFile[] = [];
 
-export const addMockBucket = (bucket: BucketWithLocation<AwsProvider>) => {
+export const addMockBucket = (bucket: BucketWithLocation) => {
 	mockBucketStore.push(bucket);
 };
 
@@ -125,13 +124,13 @@ export const readMockS3File = ({
 	);
 };
 
-export const mockDeleteS3File = <Provider extends CloudProvider>({
+export const mockDeleteS3File = ({
 	key,
 	region,
 	bucketName,
 }: {
 	key: string;
-	region: Provider['region'];
+	region: AwsRegion;
 	bucketName: string;
 }) => {
 	mockS3Store = mockS3Store.filter(

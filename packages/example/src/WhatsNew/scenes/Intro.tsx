@@ -5,11 +5,10 @@ import {
 	Interactive,
 	Easing,
 	interpolate,
-	Sequence,
 	Series,
 	useCurrentFrame,
 } from 'remotion';
-import {easeInOut, pop, rise} from '../anim';
+import {pop, rise} from '../anim';
 import {Backdrop} from '../components/Background';
 import {PunchyCaptions} from '../components/Captions';
 import {
@@ -22,7 +21,6 @@ import {
 	SpeakerIcon,
 	TriangleIcon,
 } from '../components/icons';
-import {RemotionLogo} from '../components/Logo';
 import {
 	getCaptionPlacement,
 	Punch,
@@ -33,67 +31,6 @@ import {display} from '../fonts';
 import {accents, colors} from '../theme';
 
 const layout: LayoutKeyframe[] = [{at: 0, layout: 'full'}];
-
-const TitleCard: React.FC = () => {
-	const frame = useCurrentFrame();
-	const p = pop(frame, 0, 11);
-	const logoSpin = interpolate(frame, [72, 92], [0, 360], {
-		extrapolateLeft: 'clamp',
-		extrapolateRight: 'clamp',
-		easing: easeInOut,
-	});
-	const sub = rise(frame, 60, 16);
-	return (
-		<div
-			style={{
-				position: 'absolute',
-				left: 70,
-				top: 300,
-				transformOrigin: '0% 50%',
-				opacity: Math.min(1, p * 2),
-				scale: 0.45 + 0.55 * p,
-				rotate: `${-3 - 7 * (1 - p)}deg`,
-				display: 'flex',
-				alignItems: 'center',
-				gap: 28,
-				padding: '28px 46px 32px 30px',
-				backgroundColor: colors.paper,
-				borderRadius: 40,
-				boxShadow: '0 30px 80px rgba(10,16,32,0.35)',
-			}}
-		>
-			<RemotionLogo size={112} style={{rotate: `${logoSpin}deg`}} />
-			<div>
-				<div
-					style={{
-						fontFamily: display,
-						fontWeight: 700,
-						fontSize: 88,
-						lineHeight: 0.95,
-						letterSpacing: '-0.035em',
-						color: colors.ink,
-					}}
-				>
-					What&apos;s new
-				</div>
-				<div
-					style={{
-						fontFamily: display,
-						fontWeight: 700,
-						fontSize: 52,
-						letterSpacing: '-0.02em',
-						color: colors.blue,
-						marginTop: 8,
-						opacity: sub,
-						translate: `${(1 - sub) * -24}px 0px`,
-					}}
-				>
-					in Remotion
-				</div>
-			</div>
-		</div>
-	);
-};
 
 type Topic = {
 	readonly title: string;
@@ -281,11 +218,12 @@ const IntroSceneInner: React.FC = () => {
 			<Stage
 				style={{overflow: 'visible', flexDirection: 'column'}}
 				keyframes={layout}
+				showInTimeline={false}
 			>
 				<Series>
 					<Series.Sequence
 						name="Opening line"
-						durationInFrames={112}
+						durationInFrames={208}
 						premountFor={30}
 					>
 						<Punch zoom={1.1}>
@@ -300,15 +238,11 @@ const IntroSceneInner: React.FC = () => {
 				</Series>
 			</Stage>
 
-			<Sequence name="Title card" from={2} durationInFrames={110}>
-				<TitleCard />
-			</Sequence>
-
 			<PunchyCaptions
 				width={captions.width}
 				fontSize={captions.fontSize}
 				style={captions.style}
-				durationInFrames={112}
+				durationInFrames={208}
 				keywords={['improved', 'remotion']}
 				captions={[
 					// @captions whats1

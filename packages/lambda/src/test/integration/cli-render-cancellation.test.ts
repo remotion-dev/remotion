@@ -2,15 +2,14 @@ import {afterEach, beforeEach, expect, test} from 'bun:test';
 import {Readable} from 'node:stream';
 // eslint-disable-next-line no-restricted-imports
 import {CliInternals} from '@remotion/cli';
-import {LambdaClientInternals} from '@remotion/lambda-client';
 import {parsedLambdaCli} from '../../cli/args';
 import {renderCommand} from '../../cli/commands/render/render';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {fakeAws, useFakeAws, type FakeAwsDefaults} from '../mocks/fake-aws';
 import {doAfter, doBefore, getProcessWriteOutput} from './console-hooks';
 
+useFakeAws();
+
 const enableCancellationOption = CliInternals.parsedCli['enable-cancellation'];
-const originalCallFunctionSync =
-	LambdaClientInternals.awsImplementation.callFunctionSync;
 const originalFunctionName = parsedLambdaCli['function-name'];
 const originalRegion = parsedLambdaCli.region;
 
@@ -22,8 +21,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	LambdaClientInternals.awsImplementation.callFunctionSync =
-		originalCallFunctionSync;
 	CliInternals.parsedCli['enable-cancellation'] = enableCancellationOption;
 	parsedLambdaCli['function-name'] = originalFunctionName;
 	parsedLambdaCli.region = originalRegion;
@@ -31,14 +28,14 @@ afterEach(() => {
 });
 
 test('Ctrl+C cancels an opted-in Lambda CLI render', async () => {
-	let resolveStatusRequested: () => void = () => undefined;
-	const statusRequested = new Promise<void>((resolve) => {
-		resolveStatusRequested = resolve;
+	let resolveProgressRequested: () => void = () => undefined;
+	const progressRequested = new Promise<void>((resolve) => {
+		resolveProgressRequested = resolve;
 	});
-	const pendingStatus = new Promise<never>(() => undefined);
+	const pendingProgressRead = new Promise<never>(() => undefined);
 	const enableCancellationInPayloads: boolean[] = [];
 
-	LambdaClientInternals.awsImplementation.callFunctionSync = ((input) => {
+	fakeAws().callFunctionSync.mockImplementation(((input) => {
 		if (input.type === 'start') {
 			enableCancellationInPayloads.push(
 				(input.payload as {enableCancellation: boolean}).enableCancellation,
@@ -46,33 +43,30 @@ test('Ctrl+C cancels an opted-in Lambda CLI render', async () => {
 			return Promise.resolve({bucketName: 'bucket', renderId: 'render-id'});
 		}
 
-		if (input.type === 'status') {
-			resolveStatusRequested();
-			return pendingStatus;
-		}
-
 		return Promise.reject(
 			new Error(`Unexpected Lambda routine: ${input.type}`),
 		);
-	}) as typeof originalCallFunctionSync;
+	}) as FakeAwsDefaults['callFunctionSync']);
 
 	let cancellationWrites = 0;
-	const providerSpecifics = {
-		...mockImplementation,
-		readFile: ({key}: {key: string}) => {
-			expect(key).toBe('renders/render-id/progress.json');
-			return Promise.resolve(
-				Readable.from([
-					Buffer.from(JSON.stringify({cancellationEnabled: true})),
-				]),
-			);
-		},
-		writeFile: (input: {key: string}) => {
-			expect(input.key).toBe('renders/render-id/cancel.json');
-			cancellationWrites++;
-			return Promise.resolve();
-		},
-	} as typeof mockImplementation;
+	let progressReads = 0;
+	fakeAws().readFile.mockImplementation(({key}) => {
+		expect(key).toBe('renders/render-id/progress.json');
+		progressReads++;
+		if (progressReads === 1) {
+			resolveProgressRequested();
+			return pendingProgressRead;
+		}
+
+		return Promise.resolve(
+			Readable.from([Buffer.from(JSON.stringify({cancellationEnabled: true}))]),
+		);
+	});
+	fakeAws().writeFile.mockImplementation((input) => {
+		expect(input.key).toBe('renders/render-id/cancel.json');
+		cancellationWrites++;
+		return Promise.resolve();
+	});
 
 	let resolveExit: (exitCode: number) => void = () => undefined;
 	const exitCode = new Promise<number>((resolve) => {
@@ -88,11 +82,10 @@ test('Ctrl+C cancels an opted-in Lambda CLI render', async () => {
 		args: ['https://example.com', 'composition-id'],
 		remotionRoot: process.cwd(),
 		logLevel: 'info',
-		providerSpecifics,
 	}).catch(() => undefined);
 
 	try {
-		await statusRequested;
+		await progressRequested;
 		process.emit('SIGINT', 'SIGINT');
 
 		expect(await exitCode).toBe(130);
@@ -107,14 +100,14 @@ test('Ctrl+C cancels an opted-in Lambda CLI render', async () => {
 
 test('Ctrl+C leaves a Lambda CLI render running without the flag', async () => {
 	CliInternals.parsedCli['enable-cancellation'] = false;
-	let resolveStatusRequested: () => void = () => undefined;
-	const statusRequested = new Promise<void>((resolve) => {
-		resolveStatusRequested = resolve;
+	let resolveProgressRequested: () => void = () => undefined;
+	const progressRequested = new Promise<void>((resolve) => {
+		resolveProgressRequested = resolve;
 	});
-	const pendingStatus = new Promise<never>(() => undefined);
+	const pendingProgressRead = new Promise<never>(() => undefined);
 	const enableCancellationInPayloads: boolean[] = [];
 
-	LambdaClientInternals.awsImplementation.callFunctionSync = ((input) => {
+	fakeAws().callFunctionSync.mockImplementation(((input) => {
 		if (input.type === 'start') {
 			enableCancellationInPayloads.push(
 				(input.payload as {enableCancellation: boolean}).enableCancellation,
@@ -122,24 +115,21 @@ test('Ctrl+C leaves a Lambda CLI render running without the flag', async () => {
 			return Promise.resolve({bucketName: 'bucket', renderId: 'render-id'});
 		}
 
-		if (input.type === 'status') {
-			resolveStatusRequested();
-			return pendingStatus;
-		}
-
 		return Promise.reject(
 			new Error(`Unexpected Lambda routine: ${input.type}`),
 		);
-	}) as typeof originalCallFunctionSync;
+	}) as FakeAwsDefaults['callFunctionSync']);
+
+	fakeAws().readFile.mockImplementation(() => {
+		resolveProgressRequested();
+		return pendingProgressRead;
+	});
 
 	let cancellationWrites = 0;
-	const providerSpecifics = {
-		...mockImplementation,
-		writeFile: () => {
-			cancellationWrites++;
-			return Promise.resolve();
-		},
-	} as typeof mockImplementation;
+	fakeAws().writeFile.mockImplementation(() => {
+		cancellationWrites++;
+		return Promise.resolve();
+	});
 
 	let resolveExit: (exitCode: number) => void = () => undefined;
 	const exitCode = new Promise<number>((resolve) => {
@@ -155,11 +145,10 @@ test('Ctrl+C leaves a Lambda CLI render running without the flag', async () => {
 		args: ['https://example.com', 'composition-id'],
 		remotionRoot: process.cwd(),
 		logLevel: 'info',
-		providerSpecifics,
 	}).catch(() => undefined);
 
 	try {
-		await statusRequested;
+		await progressRequested;
 		process.emit('SIGINT', 'SIGINT');
 
 		expect(await exitCode).toBe(130);

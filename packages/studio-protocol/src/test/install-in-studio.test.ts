@@ -56,15 +56,18 @@ const dependencies = {
 
 test('delivers the payload when a newer Studio advertises an unknown capability', async () => {
 	const requests: Array<{url: string; options?: RequestInit}> = [];
+
 	const newestStudio = descriptor({
 		compositionId: null,
 		lastFocusedAt: 400_000,
 		projectName: 'Newest project',
 		targetId: 'newest-target',
 	});
+
 	const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
 		const url = String(input);
 		requests.push({url, options});
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
@@ -141,6 +144,7 @@ test('requires a Studio that supports asset payloads', async () => {
 		sourceCode: 'export const AssetElement = () => null;',
 		assets: [{path: 'asset.bin', type: 'base64', data: 'AA=='}],
 	});
+
 	const result = await installInStudioWithDependencies(payload, {
 		...dependencies,
 		fetchFn: () =>
@@ -155,6 +159,7 @@ test('requires a Studio that supports asset payloads', async () => {
 				),
 			),
 	});
+
 	expect(result).toMatchObject({
 		success: false,
 		code: 'studio-upgrade-required',
@@ -171,6 +176,7 @@ test('sends remote URLs to a focused v1 Studio and local asset references to a f
 		sourceCode: 'export const AudioElement = () => null;',
 		initialProps: {audioSrc: 'https://remotion.media/audio.mp3'},
 	});
+
 	const assetPayload = createElementPayload({
 		dependencies: [],
 		dimensions: null,
@@ -183,12 +189,16 @@ test('sends remote URLs to a focused v1 Studio and local asset references to a f
 		],
 		initialProps: {audioSrc: {__remotion_element_asset: 'audio.mp3'}},
 	});
+
 	for (const supportsAssets of [false, true]) {
 		const requests: unknown[] = [];
+
 		const fetchFn = (input: string | URL | Request, options?: RequestInit) => {
 			const url = String(input);
+
 			if (url.endsWith('/api/studio-protocol/install')) {
 				requests.push(JSON.parse(String(options?.body)));
+
 				return Promise.resolve(
 					jsonResponse({
 						protocol: 'remotion-studio-protocol',
@@ -245,6 +255,7 @@ test('sends remote URLs to a focused v1 Studio and local asset references to a f
 test('distinguishes a compatible Studio without an installable target', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse({
@@ -286,10 +297,12 @@ test('distinguishes a compatible Studio without an installable target', async ()
 
 test('returns an actionable result when no Studio is running', async () => {
 	const requests: string[] = [];
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: (input) => {
 			requests.push(String(input));
+
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
 	});
@@ -326,14 +339,17 @@ test('ignores a non-Studio development server on a probed port', async () => {
 
 test('reports when loopback network access is explicitly denied after discovery', async () => {
 	const events: string[] = [];
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: (input) => {
 			events.push(String(input));
+
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
 		permissionQueryFn: ({name}) => {
 			events.push(`permission:${name}`);
+
 			return Promise.resolve({state: 'denied'});
 		},
 	});
@@ -353,11 +369,13 @@ test('reports when loopback network access is explicitly denied after discovery'
 
 test('uses the legacy local network permission alias when necessary', async () => {
 	const queriedPermissions: string[] = [];
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: () => Promise.resolve(new Response(null, {status: 404})),
 		permissionQueryFn: ({name}) => {
 			queriedPermissions.push(name);
+
 			if (name === 'loopback-network') {
 				return Promise.reject(new TypeError('Unsupported permission name'));
 			}
@@ -405,6 +423,7 @@ test('waits for Studio discovery while local network permission is pending', asy
 	) {
 		expect(this).toBeUndefined();
 		const url = String(input);
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return new Promise<Response>((resolve, reject) => {
 				const timeout = setTimeout(() => {
@@ -419,6 +438,7 @@ test('waits for Studio discovery while local network permission is pending', asy
 						),
 					);
 				}, 2100);
+
 				options?.signal?.addEventListener(
 					'abort',
 					() => {
@@ -491,6 +511,7 @@ test('reports malformed Studio Protocol data as an invalid response', async () =
 test('returns a structured error when the selected target expired', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
+
 		if (url.endsWith('/api/studio-protocol')) {
 			return Promise.resolve(
 				jsonResponse(
@@ -533,6 +554,7 @@ test('returns a structured error when the selected target expired', async () => 
 test('reports a truncated install response as invalid', async () => {
 	const fetchFn = (input: string | URL | Request) => {
 		const url = String(input);
+
 		if (url === 'http://localhost:3000/api/studio-protocol') {
 			return Promise.resolve(
 				jsonResponse(
@@ -572,10 +594,12 @@ test('reports a truncated install response as invalid', async () => {
 
 test('does not probe Studio from a non-loopback HTTP origin', async () => {
 	let requests = 0;
+
 	const result = await installInStudioWithDependencies(elementPayload, {
 		...dependencies,
 		fetchFn: () => {
 			requests++;
+
 			return Promise.resolve(new Response(null, {status: 404}));
 		},
 		pageOrigin: 'http://example.com',

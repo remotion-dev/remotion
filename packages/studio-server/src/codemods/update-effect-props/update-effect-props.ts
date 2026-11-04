@@ -15,7 +15,8 @@ export type {
 	UpdateEffectPropsResult,
 };
 
-export const {enumerateEffectArrayElements} = CodemodsInternals;
+export const {enumerateEffectArrayElements}: typeof CodemodsInternals =
+	CodemodsInternals;
 
 export const updateEffectProps = async ({
 	input,

@@ -1,0 +1,320 @@
+import {expect, test} from 'bun:test';
+import {getExpectedOutName} from '../expected-out-name';
+import type {RenderMetadata} from '../render-metadata';
+
+const bucketName = 'remotionlambda-98fsduf';
+
+const testRenderMetadata: RenderMetadata = {
+	separateAudioTo: null,
+	separateAudioOutputFileIsConditional: null,
+	outputFileIsConditional: null,
+	compositionId: 'react-svg',
+	estimatedRenderLambdaInvokations: 100,
+	estimatedTotalLambdaInvokations: 100,
+	framesPerLambda: 20,
+	imageFormat: 'png',
+	type: 'video',
+	inputProps: {
+		type: 'payload',
+		payload: '{}',
+	},
+	lambdaVersion: '2022-02-14',
+	memorySizeInMb: 2048,
+	functionName: 'remotion-render-4-0-187-mem3000mb-disk10000mb-120sec',
+	rendererFunctionName: 'remotion-render-4-0-187-mem3000mb-disk10000mb-120sec',
+	outName: undefined,
+	region: 'eu-central-1',
+	renderId: '9n8dsfafs',
+	siteId: 'my-site',
+	startedDate: Date.now(),
+	totalChunks: 20,
+	privacy: 'public',
+	everyNthFrame: 1,
+	frameRange: [0, 199],
+	audioCodec: null,
+	deleteAfter: null,
+	numberOfGifLoops: null,
+	downloadBehavior: {type: 'play-in-browser'},
+	audioBitrate: null,
+	muted: false,
+	metadata: null,
+	codec: 'h264',
+	dimensions: {
+		width: 1920,
+		height: 1080,
+	},
+	scale: 1,
+};
+
+test('Should get a custom outname', () => {
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: testRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: null,
+		renderBucketName: 'remotionlambda-98fsduf',
+		key: 'renders/9n8dsfafs/out.mp4',
+	});
+});
+
+test('Should save to a different outname', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		outName: {
+			bucketName: 'my-bucket',
+			key: 'my-key',
+		},
+	};
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: null,
+		renderBucketName: 'my-bucket',
+		key: 'my-key',
+	});
+});
+
+test('Should preserve custom provider regions outside the built-in AWS list', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		outName: {
+			bucketName: 'my-bucket',
+			key: 'my-key',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'private',
+	};
+
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: false,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: false,
+		},
+		renderBucketName: 'my-bucket',
+		key: 'my-key',
+	});
+});
+
+test('Should default key when outName specifies custom s3OutputProvider without key for video', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		audioCodec: 'pcm-16',
+		outName: {
+			bucketName: 'renders-dev.mykaraoke.video',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'private',
+	};
+
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: false,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: false,
+		},
+		renderBucketName: 'renders-dev.mykaraoke.video',
+		key: 'renders/9n8dsfafs/out.mkv',
+	});
+});
+
+test('Should default key when outName specifies custom s3OutputProvider without key for still', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		type: 'still',
+		codec: null,
+		imageFormat: 'png',
+		outName: {
+			bucketName: 'renders-dev.mykaraoke.video',
+			s3OutputProvider: {
+				endpoint: 'https://fly.storage.tigris.dev',
+			},
+		},
+		privacy: 'no-acl',
+	};
+
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: {
+				endpoint: 'https://fly.storage.tigris.dev',
+				accessKeyId: 'access-key',
+				secretAccessKey: 'secret-key',
+				region: 'auto',
+				forcePathStyle: true,
+			},
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: {
+			endpoint: 'https://fly.storage.tigris.dev',
+			accessKeyId: 'access-key',
+			secretAccessKey: 'secret-key',
+			region: 'auto',
+			forcePathStyle: true,
+		},
+		renderBucketName: 'renders-dev.mykaraoke.video',
+		key: 'renders/9n8dsfafs/out.png',
+	});
+});
+
+test('For stills', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		codec: null,
+		type: 'still',
+		imageFormat: 'png',
+	};
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: null,
+		renderBucketName: 'remotionlambda-98fsduf',
+		key: 'renders/9n8dsfafs/out.png',
+	});
+});
+
+test('Just a custom name', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		type: 'still',
+		imageFormat: 'jpeg',
+		codec: null,
+		outName: 'justaname.jpeg',
+	};
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: null,
+		renderBucketName: 'remotionlambda-98fsduf',
+		key: 'renders/9n8dsfafs/justaname.jpeg',
+	});
+});
+
+test('Should throw on invalid names', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		type: 'still',
+		imageFormat: 'png',
+		codec: null,
+		outName: '👺.jpeg',
+	};
+	expect(() => {
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		});
+	}).toThrow(/The S3 Key must match the RegExp/);
+});
+
+test('Should allow outName an outname with a slash', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		codec: null,
+		audioCodec: null,
+		type: 'still',
+		imageFormat: 'jpeg',
+		outName: 'justa/name.jpeg',
+	};
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: null,
+		key: 'renders/9n8dsfafs/justa/name.jpeg',
+		renderBucketName: 'remotionlambda-98fsduf',
+	});
+});
+
+test('Should allow outName an outname with colon', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		codec: null,
+		audioCodec: null,
+		type: 'still' as const,
+		imageFormat: 'jpeg',
+		outName: 'ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
+	};
+	expect(
+		getExpectedOutName({
+			output: 'main',
+			renderMetadata: newRenderMetadata,
+			bucketName,
+			customCredentials: null,
+			bucketNamePrefix: 'remotionlambda-',
+		}),
+	).toEqual({
+		customCredentials: null,
+		key: 'renders/9n8dsfafs/ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
+		renderBucketName: 'remotionlambda-98fsduf',
+	});
+});

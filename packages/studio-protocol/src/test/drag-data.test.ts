@@ -1,10 +1,5 @@
 import {expect, test} from 'bun:test';
-import {
-	StudioProtocolInternals,
-	type MakeDragDataInput,
-	type MakeElementDragDataInput,
-	type MakeAssetDragDataInput,
-} from '../index';
+import {StudioProtocolInternals, type MakeDragDataInput} from '../index';
 
 const inputs: MakeDragDataInput[] = [
 	{
@@ -109,10 +104,11 @@ test('requires asset metadata and accepts explicit null values', () => {
 		type: 'asset',
 	});
 	expect(() =>
+		// @ts-expect-error JavaScript callers can omit required asset metadata.
 		StudioProtocolInternals.makeDragData({
 			type: 'asset',
 			assetPath: 'missing-metadata.png',
-		} as MakeAssetDragDataInput),
+		}),
 	).toThrow('must be set to a value or null');
 	expect(() =>
 		StudioProtocolInternals.makeDragData({
@@ -144,6 +140,7 @@ test('requires a duration for element drags', () => {
 		}),
 	).toBe(null);
 	expect(() =>
+		// @ts-expect-error JavaScript callers can omit the required duration.
 		StudioProtocolInternals.makeDragData({
 			type: 'element',
 			dependencies: [],
@@ -151,7 +148,7 @@ test('requires a duration for element drags', () => {
 			displayName: 'Lower Third',
 			sourceCode: 'export const LowerThird = () => null;',
 			dimensions: null,
-		} as unknown as MakeElementDragDataInput),
+		}),
 	).toThrow('durationInFrames must be an integer');
 });
 
@@ -177,6 +174,7 @@ test('rejects malformed and mismatched drag data', () => {
 		outputPath: 'out/video.mp4',
 		fileName: 'video.mp4',
 	});
+
 	expect(
 		StudioProtocolInternals.parseDragData({
 			mimeType: renderOutput.mimeType,

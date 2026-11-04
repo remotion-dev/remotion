@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	Freeze,
 	Internals,
@@ -85,6 +85,20 @@ const GifInner = ({
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
+	const isMedia = useMemo(
+		() => ({
+			type: 'image' as const,
+			src: resolveGifSource(src),
+			animated: {
+				loopBehavior:
+					loopBehavior === 'unmount-after-finish'
+						? ('clear-after-finish' as const)
+						: (loopBehavior ?? 'loop'),
+				requestInit: requestInit ?? null,
+			},
+		}),
+		[src, loopBehavior, requestInit],
+	);
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -162,6 +176,7 @@ const GifInner = ({
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
+				_remotionInternalIsMedia={isMedia}
 				{...sequenceProps}
 			>
 				{inner}

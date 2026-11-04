@@ -8,16 +8,17 @@ import {Output, VideoSampleSource} from 'mediabunny';
 
 export const makeOutputWithCleanup = <T extends OutputFormat, U extends Target>(
 	options: OutputOptions<T, U>,
-): {output: Output<T, U>; [Symbol.dispose]: () => void} => {
+): {output: Output<T, U>; [Symbol.asyncDispose]: () => Promise<void>} => {
 	const output = new Output(options);
 	return {
 		output,
-		[Symbol.dispose]: () => {
-			if (output.state === 'finalized' || output.state === 'canceled') {
+		[Symbol.asyncDispose]: async () => {
+			if (output.state === 'finalized') {
 				return;
 			}
 
-			output.cancel();
+			// Cleanup failures must not replace the original render error.
+			await output.cancel().catch(() => {});
 		},
 	};
 };

@@ -3,9 +3,11 @@ import type {
 	DefaultCodingAgent,
 	LogLevel,
 } from '@remotion/renderer';
+import type {PreferredEffectBackend} from 'remotion';
 import type {StudioKeyboardShortcuts} from './keyboard-shortcuts';
 
 export type ConfigFileStudioSettings = {
+	readonly preservePitchOnPlayback: boolean | null;
 	readonly showLayerFrameNumbers: boolean | null;
 	readonly showPremounting: boolean | null;
 	readonly defaultPremountInSeconds: number | null;
@@ -30,6 +32,8 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
+	readonly preferredEffectBackend: PreferredEffectBackend | null;
+	readonly preservePitchOnPlayback: boolean;
 	readonly showLayerFrameNumbers: boolean;
 	readonly showPremounting: boolean | null;
 	readonly defaultPremountInSeconds: number | null;

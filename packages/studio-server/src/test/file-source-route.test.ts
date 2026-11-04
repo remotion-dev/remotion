@@ -84,6 +84,8 @@ test('serves file source from an origin-less GET request', async () => {
 			getNumberOfAudioTags: () => 0,
 			getPreviewSampleRate: () => null,
 			getStudioRuntimeConfig: () => ({
+				preferredEffectBackend: null,
+				preservePitchOnPlayback: true,
 				showLayerFrameNumbers: false,
 				showPremounting: null,
 				defaultPremountInSeconds: null,

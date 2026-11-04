@@ -13,10 +13,10 @@ import {
 	TagResourceCommand,
 	UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
-import type {RequestHandler} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	type AwsRegion,
+	type RequestHandler,
 	type RuntimePreference,
 } from '@remotion/lambda-client';
 import {LOG_GROUP_PREFIX} from '@remotion/lambda-client/constants';

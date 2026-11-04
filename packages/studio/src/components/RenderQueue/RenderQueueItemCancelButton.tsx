@@ -1,38 +1,43 @@
 import React, {useCallback, useContext, useMemo} from 'react';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {CURRENT_COLOR} from '../../helpers/colors';
 import {ActionTooltip} from '../ActionTooltip';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
-import {showNotification} from '../Notifications/NotificationCenter';
-import {cancelRenderJob} from './actions';
 import type {CaptionJob} from './caption-job-types';
 import type {AnyRenderJob} from './context';
-import {isClientRenderJob, RenderQueueContext} from './context';
+import {RenderQueueActionsContext, RenderQueueContext} from './context';
+import {useIsRenderJobCancelling} from './use-is-render-job-cancelling';
 import type {VideoMattingJob} from './video-matting-job-types';
 
 export const RenderQueueCancelButton: React.FC<{
 	readonly job: AnyRenderJob | CaptionJob | VideoMattingJob;
 }> = ({job}) => {
 	const {cancelClientJob} = useContext(RenderQueueContext);
+	const {cancelJob, canCancelJob} = useContext(RenderQueueActionsContext);
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const cancelling = useIsRenderJobCancelling(job.id);
+	const isRender = job.type !== 'caption' && job.type !== 'video-matting';
+	const isServerRender =
+		isRender && job.type !== 'client-still' && job.type !== 'client-video';
+	const disabled =
+		isRender &&
+		(cancelling ||
+			!canCancelJob(job.id) ||
+			(isServerRender && previewServerState.type !== 'connected'));
 
 	const onClick: React.MouseEventHandler = useCallback(
 		(e) => {
 			e.stopPropagation();
 
-			if (
-				job.type === 'caption' ||
-				job.type === 'video-matting' ||
-				isClientRenderJob(job)
-			) {
+			if (job.type === 'caption' || job.type === 'video-matting') {
 				cancelClientJob(job.id);
 				return;
 			}
 
-			cancelRenderJob(job).catch((err) => {
-				showNotification(`Could not cancel job: ${err.message}`, 2000);
-			});
+			cancelJob(job.id);
 		},
-		[job, cancelClientJob],
+		[job, cancelClientJob, cancelJob],
 	);
 
 	const icon: React.CSSProperties = useMemo(() => {
@@ -61,16 +66,24 @@ export const RenderQueueCancelButton: React.FC<{
 	);
 
 	return (
-		<ActionTooltip label="Cancel" shortcut={null} delay={800} dismissOnClick>
+		<ActionTooltip
+			label={cancelling ? 'Cancelling…' : 'Cancel'}
+			shortcut={null}
+			delay={800}
+			dismissOnClick
+		>
 			<InlineAction
+				disabled={disabled}
 				aria-label={
-					job.type === 'caption'
-						? 'Cancel transcription'
-						: job.type === 'video-matting'
-							? 'outName' in job
-								? 'Cancel background removal'
-								: 'Cancel video matting'
-							: 'Cancel render'
+					cancelling
+						? 'Cancelling render'
+						: job.type === 'caption'
+							? 'Cancel transcription'
+							: job.type === 'video-matting'
+								? 'outName' in job
+									? 'Cancel background removal'
+									: 'Cancel video matting'
+								: 'Cancel render'
 				}
 				renderAction={renderAction}
 				onClick={onClick}

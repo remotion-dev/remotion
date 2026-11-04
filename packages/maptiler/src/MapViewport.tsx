@@ -1,4 +1,9 @@
-import {MapStyle, Map as MapTilerMap, type MapOptions} from '@maptiler/sdk';
+import {
+	config as maptilerConfig,
+	MapStyle,
+	Map as MapTilerMap,
+	type MapOptions,
+} from '@maptiler/sdk';
 import '@maptiler/sdk/style.css';
 import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
 import {useLayoutEffect, useMemo, useRef, useState} from 'react';
@@ -280,7 +285,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		map: MapTilerMap;
 		handle: number;
 	} | null>(null);
-	const map = loadedMap?.map ?? null;
+	const map = loadedMap?.map.style ? loadedMap.map : null;
 	const [cameraRevision, setCameraRevision] = useState(0);
 	const [styleRevision, setStyleRevision] = useState(0);
 	const contextValue = useMemo(
@@ -301,6 +306,12 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		let cancelled = false;
 		const initialCamera = initialCameraRef.current;
 		const initialOptions = initialMapOptionsRef.current;
+		lastMapStyleRef.current = initialOptions.mapStyle;
+		lastLayerVisibilityRef.current = {
+			administrativeBorders: initialOptions.administrativeBorders,
+			showLabels: initialOptions.showLabels,
+		};
+		maptilerConfig.telemetry = false;
 		// Keep MapTiler's logo and attribution visible:
 		// https://docs.maptiler.com/guides/map-design/attribution/remove-attribution/
 		const mapInstance = new MapTilerMap({
@@ -337,6 +348,10 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		mapRef.current = mapInstance;
 
 		mapInstance.on('load', () => {
+			if (cancelled) {
+				return;
+			}
+
 			stripStyleLayers({
 				administrativeBorders: initialOptions.administrativeBorders,
 				map: mapInstance,
@@ -356,6 +371,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 
 		return () => {
 			cancelled = true;
+			setLoadedMap(null);
 			mapInstance.remove();
 			mapRef.current = null;
 			continueRender(loadingHandle);
@@ -369,7 +385,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	}, [continueRender, loadedMap]);
 
 	useLayoutEffect(() => {
-		if (!map) {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -441,6 +457,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	useLayoutEffect(() => {
 		if (
 			!map ||
+			!map.style ||
 			(lastMapStyleRef.current === mapStyle &&
 				lastLayerVisibilityRef.current.showLabels === showLabels &&
 				lastLayerVisibilityRef.current.administrativeBorders ===
@@ -491,14 +508,14 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	]);
 
 	useLayoutEffect(() => {
-		if (map && language) {
+		if (map?.style && language) {
 			map.setLanguage(language);
 			map.triggerRepaint();
 		}
 	}, [language, map]);
 
 	useLayoutEffect(() => {
-		if (!map) {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -512,7 +529,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	}, [map, terrain, terrainExaggeration]);
 
 	useLayoutEffect(() => {
-		if (map && projection) {
+		if (map?.style && projection) {
 			map.setProjection(projection, {persist: true});
 			map.triggerRepaint();
 		}

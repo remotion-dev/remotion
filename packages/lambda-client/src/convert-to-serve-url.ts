@@ -1,5 +1,5 @@
-import {DOCS_URL} from '@remotion/serverless-client';
 import {getAwsRegionMetadata} from './aws-region-metadata';
+import {DOCS_URL} from './docs-url';
 import type {AwsRegion} from './regions';
 
 export const convertToServeUrlImplementation = ({

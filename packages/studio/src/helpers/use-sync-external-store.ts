@@ -6,6 +6,10 @@ type UseSyncExternalStore = <TSnapshot>(
 	getServerSnapshot?: () => TSnapshot,
 ) => TSnapshot;
 
-export const {useSyncExternalStore} = Internals as typeof Internals & {
+export const {
+	useSyncExternalStore,
+}: typeof Internals & {
+	useSyncExternalStore: UseSyncExternalStore;
+} = Internals as typeof Internals & {
 	useSyncExternalStore: UseSyncExternalStore;
 };

@@ -51,6 +51,7 @@ export const TimelineExpandedSection: React.FC<{
 		nodePathInfo,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 	});
 
 	const flat = useMemo(

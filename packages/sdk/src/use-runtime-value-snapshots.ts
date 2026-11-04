@@ -29,8 +29,29 @@ export const useCanvasRuntimeValueSnapshots = (
 		return {
 			getSnapshot,
 			subscribe: (listener: () => void) => {
-				const unsubscribers = stores.map((store) => store.subscribe(listener));
+				let active = true;
+				let scheduled = false;
+				const onStoreChange = () => {
+					if (scheduled) {
+						return;
+					}
+
+					// Runtime values publish together in layout effects. Notify after the
+					// commit so each layer does not make React reread every other layer.
+					scheduled = true;
+					queueMicrotask(() => {
+						scheduled = false;
+						if (active) {
+							listener();
+						}
+					});
+				};
+
+				const unsubscribers = stores.map((store) =>
+					store.subscribe(onStoreChange),
+				);
 				return () => {
+					active = false;
 					for (const unsubscribe of unsubscribers) {
 						unsubscribe();
 					}

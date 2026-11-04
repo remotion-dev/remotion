@@ -27,6 +27,8 @@ export type AudioProps = {
 	volume?: VolumeProp;
 	loopVolumeCurveBehavior?: LoopVolumeCurveBehavior;
 	playbackRate?: number;
+	/** Keep the original pitch when changing playback speed. Default: false. */
+	preservePitch?: boolean;
 	muted?: boolean;
 	style?: React.CSSProperties;
 	logLevel?: LogLevel;

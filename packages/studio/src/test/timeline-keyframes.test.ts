@@ -127,7 +127,6 @@ const makeSequenceFieldNode = (key: string): TimelineTreeNode => ({
 		fieldSchema: numberFieldSchema,
 		group: getSchemaFieldGroup(key),
 	},
-	runtimeValue: null,
 	runtimeValueStore: null,
 });
 
@@ -157,7 +156,6 @@ const makeEffectFieldNode = (
 		},
 		group: getSchemaFieldGroup(key),
 	},
-	runtimeValue: null,
 	runtimeValueStore: null,
 });
 

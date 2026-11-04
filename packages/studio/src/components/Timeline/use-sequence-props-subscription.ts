@@ -2,21 +2,35 @@ import {
 	getAllSchemaKeys,
 	stringifySequenceSubscriptionKey,
 } from '@remotion/studio-shared';
-import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {
+	type RefObject,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {
 	JsxComponentIdentity,
+	SequenceNodePath,
 	SequencePropsSubscriptionKey,
 	InteractivitySchema,
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {copySourcePathProvenance} from '../../helpers/rebase-source-request';
+import {hasSourceOnlyRemappings} from '../../helpers/sequence-node-path-mutations';
+import {reconcileCanvasDragPreviewStatuses} from '../canvas-drag-preview';
 import {ExpandedTracksSetterContext} from '../ExpandedTracksProvider';
+import {deepEqual} from '../RenderModal/SchemaEditor/deep-equal';
+import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {
 	acquireSequencePropsSubscription,
 	subscribeToSequencePropsRefresh,
 } from './sequence-props-subscription-store';
 import {shouldSubscribeToSourceFile} from './should-subscribe-to-source-file';
+import {compiledSourceFrame} from './TimelineStack/get-stack';
 
 export const useSequencePropsSubscription = ({
 	originalLocation,
@@ -26,6 +40,7 @@ export const useSequencePropsSubscription = ({
 	effects,
 	preferMappedNodePath,
 	stack,
+	getStackRef,
 }: {
 	overrideId: string;
 	componentIdentity: JsxComponentIdentity | null;
@@ -34,13 +49,16 @@ export const useSequencePropsSubscription = ({
 	originalLocation: OriginalPosition | null;
 	preferMappedNodePath: boolean;
 	stack: string | null;
+	getStackRef: RefObject<() => string | null>;
 }) => {
-	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const {setPropStatuses, updateDragOverrides} = useContext(
+		Internals.VisualModeSettersContext,
+	);
 	const {setOverrideIdToNodePath} = useContext(
 		Internals.OverrideIdsToNodePathsSettersContext,
 	);
-	const {overrideIdToNodePathMappings} = useContext(
-		Internals.OverrideIdsToNodePathsGettersContext,
+	const overrideIdToNodePathMappingsRef = useContext(
+		OverrideIdToNodePathMappingsRefContext,
 	);
 	const {migrateExpandedTracksForSubscriptionKey} = useContext(
 		ExpandedTracksSetterContext,
@@ -49,9 +67,11 @@ export const useSequencePropsSubscription = ({
 	const {previewServerState: state} = useContext(StudioServerConnectionCtx);
 	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const [refreshToken, setRefreshToken] = useState(0);
+	const remappedSource = useRef<{
+		nodePath: SequenceNodePath;
+		stack: string | null;
+	} | null>(null);
 	const previousNodePathRef = useRef<SequencePropsSubscriptionKey | null>(null);
-	const overrideIdToNodePathMappingsRef = useRef(overrideIdToNodePathMappings);
-	overrideIdToNodePathMappingsRef.current = overrideIdToNodePathMappings;
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 	const effectsSignature = useMemo(
 		() =>
@@ -80,10 +100,11 @@ export const useSequencePropsSubscription = ({
 	const locationColumn = validatedLocation?.column ?? null;
 
 	useEffect(() => {
-		return subscribeToSequencePropsRefresh(overrideId, () => {
+		return subscribeToSequencePropsRefresh(overrideId, (nodePath) => {
+			remappedSource.current = nodePath ? {nodePath, stack} : null;
 			setRefreshToken((token) => token + 1);
 		});
-	}, [overrideId]);
+	}, [overrideId, stack]);
 
 	useEffect(() => {
 		// Optimistic deletion can remount siblings with stacks from the old source.
@@ -102,7 +123,15 @@ export const useSequencePropsSubscription = ({
 
 		const nodePathAtResubscribe =
 			overrideIdToNodePathMappingsRef.current[overrideId] ?? null;
+		const requestedNodePath =
+			remappedSource.current?.stack === stack
+				? remappedSource.current.nodePath
+				: null;
+		remappedSource.current = null;
 
+		const liveStack = hasSourceOnlyRemappings(locationSource)
+			? getStackRef.current()
+			: null;
 		const {release} = acquireSequencePropsSubscription({
 			fileName: locationSource,
 			line: locationLine,
@@ -110,18 +139,31 @@ export const useSequencePropsSubscription = ({
 			schema,
 			componentIdentity,
 			effects,
-			nodePath: preferMappedNodePath
-				? (nodePathAtResubscribe?.nodePath ?? null)
-				: null,
+			nodePath:
+				requestedNodePath ??
+				(preferMappedNodePath
+					? (nodePathAtResubscribe?.nodePath ?? null)
+					: null),
 			clientId,
-			stack,
+			stack:
+				stack !== null && liveStack?.startsWith(stack + compiledSourceFrame)
+					? liveStack
+					: stack,
 
 			applyOnce: (result) => {
 				if (!result.success) {
 					return;
 				}
 
-				setPropStatuses(result.nodePath, () => result.status);
+				// Edits that shift source lines resubscribe every following node.
+				const status = reconcileCanvasDragPreviewStatuses(
+					updateDragOverrides,
+					result.nodePath,
+					result.status,
+				);
+				setPropStatuses(result.nodePath, (prev) =>
+					deepEqual(prev, status) ? prev : status,
+				);
 			},
 			applyEach: (result) => {
 				if (!result.success) {
@@ -137,6 +179,20 @@ export const useSequencePropsSubscription = ({
 					: null;
 
 				if (previousNodePathKey === newNodePathKey) {
+					if (previousNodePath) {
+						copySourcePathProvenance(
+							newNodePath.nodePath,
+							previousNodePath.nodePath,
+						);
+					}
+
+					if (nodePathAtResubscribe) {
+						copySourcePathProvenance(
+							newNodePath.nodePath,
+							nodePathAtResubscribe.nodePath,
+						);
+					}
+
 					return;
 				}
 
@@ -165,12 +221,15 @@ export const useSequencePropsSubscription = ({
 		locationSource,
 		migrateExpandedTracksForSubscriptionKey,
 		overrideId,
+		overrideIdToNodePathMappingsRef,
 		preferMappedNodePath,
 		pendingDeletions,
 		refreshToken,
 		schema,
 		setPropStatuses,
+		updateDragOverrides,
 		setOverrideIdToNodePath,
 		stack,
+		getStackRef,
 	]);
 };

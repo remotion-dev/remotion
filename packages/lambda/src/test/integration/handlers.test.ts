@@ -1,11 +1,16 @@
 import {expect, test} from 'bun:test';
-import {ServerlessRoutines} from '@remotion/serverless';
+import {
+	LambdaClientInternals,
+	ServerlessRoutines,
+} from '@remotion/lambda-client';
 import {VERSION} from 'remotion/version';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {useFakeAws} from '../mocks/fake-aws';
+
+useFakeAws();
 
 test('Call function locally', async () => {
 	expect(
-		await mockImplementation.callFunctionSync({
+		await LambdaClientInternals.callFunctionSyncImplementation({
 			payload: {
 				type: ServerlessRoutines.info,
 				logLevel: 'info',

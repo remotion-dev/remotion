@@ -6,6 +6,7 @@ import {getRendererPortFromConfigFileAndCliFlag} from './config/preview-server';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
+import {getLicenseKey} from './get-license-key';
 import {Log} from './log';
 import {parsedCli} from './parsed-cli';
 import {renderStillFlow} from './render-flows/still';
@@ -26,6 +27,7 @@ const {
 	offthreadVideoThreadsOption,
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	askAIOption,
 	keyboardShortcutsOption,
@@ -40,7 +42,7 @@ const {
 	overrideDurationOption,
 	bundleCacheOption,
 	framesOption,
-	publicLicenseKeyOption,
+	isProductionOption,
 } = BrowserSafeApis.options;
 
 export const still = async (
@@ -48,6 +50,7 @@ export const still = async (
 	args: string[],
 	logLevel: LogLevel,
 ) => {
+	const licenseKey = getLicenseKey();
 	const {
 		file,
 		remainingArgs,
@@ -120,6 +123,9 @@ export const still = async (
 			commandLine: parsedCli,
 		}).value;
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
+		commandLine: parsedCli,
+	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
 		commandLine: parsedCli,
 	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
@@ -215,6 +221,7 @@ export const still = async (
 		chromeMode,
 		audioLatencyHint,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		askAIEnabled,
 		keyboardShortcutsEnabled,
 		rspack,
@@ -222,6 +229,7 @@ export const still = async (
 		bundlerOverride: null,
 		rspackOverride: null,
 		webpackOverride: null,
-		licenseKey: publicLicenseKeyOption.getValue({commandLine: parsedCli}).value,
+		licenseKey,
+		isProduction: isProductionOption.getValue({commandLine: parsedCli}).value,
 	});
 };

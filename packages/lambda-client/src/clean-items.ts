@@ -1,30 +1,29 @@
-import type {
-	CloudProvider,
-	ProviderSpecifics,
-} from '@remotion/serverless-client';
+import {lambdaDeleteFileImplementation} from './delete-file';
 import {pLimit} from './p-limit';
+import type {AwsRegion} from './regions';
+import type {RequestHandler} from './types';
 
 const limit = pLimit(10);
 
-export const cleanItems = <Provider extends CloudProvider>({
+type CleanItemsInput = {
+	bucket: string;
+	region: AwsRegion;
+	list: string[];
+	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
+	forcePathStyle: boolean;
+	requestHandler: RequestHandler | null;
+};
+
+export const cleanItems = ({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
 	region,
 	list,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
-}: {
-	bucket: string;
-	region: Provider['region'];
-	list: string[];
-	onBeforeItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	onAfterItemDeleted: (data: {bucketName: string; itemName: string}) => void;
-	providerSpecifics: ProviderSpecifics<Provider>;
-	forcePathStyle: boolean;
-	requestHandler: Provider['requestHandler'] | null;
-}) => {
+}: CleanItemsInput) => {
 	return Promise.all(
 		list.map((object) =>
 			limit(async () => {
@@ -32,7 +31,7 @@ export const cleanItems = <Provider extends CloudProvider>({
 					bucketName: bucket,
 					itemName: object,
 				});
-				await providerSpecifics.deleteFile({
+				await lambdaDeleteFileImplementation({
 					bucketName: bucket,
 					key: object,
 					region,

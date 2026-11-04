@@ -1,11 +1,11 @@
 import {expect, spyOn, test} from 'bun:test';
-import {awsImplementation} from '../aws-provider';
+import * as callLambdaSync from '../call-lambda-sync';
 import {getCompositionsOnLambda} from '../get-compositions-on-lambda';
 
 test('defaults envVariables to {} when they are omitted', async () => {
 	const callFunctionSync = spyOn(
-		awsImplementation,
-		'callFunctionSync',
+		callLambdaSync,
+		'callFunctionSyncImplementation',
 	).mockResolvedValue({type: 'success', compositions: []} as never);
 	try {
 		await getCompositionsOnLambda({

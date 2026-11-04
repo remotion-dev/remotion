@@ -1,8 +1,9 @@
 ---
-image: /generated/articles-docs-sdk-index.png
+image: https://remotion.media/docs/generated/articles-docs-sdk-index.png
 sidebar_label: Overview
 title: '@remotion/sdk'
 crumb: '@remotion/sdk'
+slug: /sdk/api
 ---
 
 # @remotion/sdk<AvailableFrom v="4.0.527" />
@@ -141,6 +142,8 @@ Pass [`onSequencePropsChange`](/docs/sdk/canvas#onsequencepropschange) to `<Canv
 Props animated with `interpolate()` are reported as `keyframed` by [`getNodeProps()`](/docs/codemods/get-node-props). The package converts between the frame clock of the interpolation and the composition timeline, so a timeline can show and edit those keyframes like the Remotion Studio does.
 
 [`getCanvasKeyframes()`](/docs/sdk/get-canvas-keyframes) places the keyframes of a prop on the timeline. [`getCanvasKeyframeToggle()`](/docs/sdk/get-canvas-keyframe-toggle) describes a keyframe button at the playhead and returns the change that adds or removes a keyframe there, while [`getCanvasPropValueAtFrame()`](/docs/sdk/get-canvas-prop-value-at-frame) reads the animated value for an inspector. [`startCanvasKeyframeDrag()`](/docs/sdk/start-canvas-keyframe-drag) moves keyframes with the pointer, previewing the result through `controller.overrides`. Every edit is a `CanvasKeyframeChange` whose `operation` you pass to [`updateNodeKeyframes()`](/docs/codemods/update-node-keyframes).
+
+[`getCanvasKeyframeValueChange()`](/docs/sdk/get-canvas-keyframe-value-change) changes the value of a selected keyframe at its composition frame, independently of the playhead.
 
 Between two keyframes, [`getCanvasKeyframeEasingSegments()`](/docs/sdk/get-canvas-keyframe-easing-segments) describes the segments a timeline can draw and select, and [`getCanvasKeyframeEasingChange()`](/docs/sdk/get-canvas-keyframe-easing-change) sets the easing of one, with `canvasKeyframeEasingPresets` for a picker. [`getCanvasKeyframeSettings()`](/docs/sdk/get-canvas-keyframe-settings) and [`getCanvasKeyframeSettingsChange()`](/docs/sdk/get-canvas-keyframe-settings-change) read and write the extrapolation, `output` mode and `posterize` of the interpolation. [`getCanvasKeyframeChangeOverride()`](/docs/sdk/get-canvas-keyframe-change-override) turns any change into an override, so the canvas shows it before the source is updated.
 

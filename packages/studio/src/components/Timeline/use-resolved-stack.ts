@@ -13,6 +13,12 @@ export const hasResolvedStack = (stack: string | null): boolean => {
 	return resolvedCache.has(stack);
 };
 
+export const getCachedResolvedStack = (
+	stack: string | null,
+): ResolvedStackLocation | null => {
+	return stack ? (resolvedCache.get(stack) ?? null) : null;
+};
+
 const inFlight = new Set<string>();
 const subscribers = new Map<
 	string,
@@ -26,13 +32,15 @@ export const useResolvedStack = (
 		Internals.SequenceStackTracesUpdateContext,
 	);
 
-	const [value, setValue] = useState<ResolvedStackLocation | null>(() => {
-		if (!stack) {
-			return null;
-		}
-
-		return resolvedCache.get(stack) ?? null;
-	});
+	// Holds a new object on every resolution, so that a stack resolving to null
+	// still re-renders consumers that read hasResolvedStack().
+	const [state, setState] = useState<{
+		stack: string | null;
+		value: ResolvedStackLocation | null;
+	}>(() => ({
+		stack,
+		value: stack ? (resolvedCache.get(stack) ?? null) : null,
+	}));
 
 	useEffect(() => {
 		if (!stack) {
@@ -40,7 +48,12 @@ export const useResolvedStack = (
 		}
 
 		if (resolvedCache.has(stack)) {
-			setValue(resolvedCache.get(stack)!);
+			const cached = resolvedCache.get(stack)!;
+			setState((prev) =>
+				prev.stack === stack && prev.value === cached
+					? prev
+					: {stack, value: cached},
+			);
 			return;
 		}
 
@@ -49,7 +62,11 @@ export const useResolvedStack = (
 		}
 
 		const subs = subscribers.get(stack)!;
-		subs.add(setValue);
+		const onResolved = (value: ResolvedStackLocation | null) => {
+			setState({stack, value});
+		};
+
+		subs.add(onResolved);
 
 		if (!inFlight.has(stack)) {
 			inFlight.add(stack);
@@ -72,9 +89,15 @@ export const useResolvedStack = (
 		}
 
 		return () => {
-			subs.delete(setValue);
+			subs.delete(onResolved);
 		};
 	}, [stack, updateResolvedStackTrace]);
 
-	return value;
+	// Effects run after rendering, so state may still belong to the previous
+	// stack. Only expose a location resolved for the current stack.
+	return state.stack === stack
+		? state.value
+		: stack
+			? (resolvedCache.get(stack) ?? null)
+			: null;
 };

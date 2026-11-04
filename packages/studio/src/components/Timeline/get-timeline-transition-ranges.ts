@@ -6,6 +6,21 @@ export type TimelineTransitionRange = {
 	readonly end: number;
 };
 
+export const getTimelineTransitionRangesByStart = (
+	ranges: readonly TimelineTransitionRange[],
+): ReadonlyMap<number, TimelineTransitionRange> => {
+	const byStart = new Map<number, TimelineTransitionRange>();
+	for (const range of ranges) {
+		// Keep the first matching transition, as with an array lookup. NaN must
+		// not match itself, even though Map treats NaN keys as equal.
+		if (!Number.isNaN(range.from) && !byStart.has(range.from)) {
+			byStart.set(range.from, range);
+		}
+	}
+
+	return byStart;
+};
+
 export const getTimelineTransitionRanges = (
 	items: readonly TSequence[],
 ): TimelineTransitionRange[] => {

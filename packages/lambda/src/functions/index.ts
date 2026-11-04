@@ -1,18 +1,15 @@
-import type {AwsProvider} from '@remotion/lambda-client';
-import {LambdaClientInternals} from '@remotion/lambda-client';
-import type {
-	OrError,
-	ResponseStream,
-	ServerlessPayload,
-} from '@remotion/serverless';
+// Must run before any other module is evaluated.
+import './helpers/set-lambda-env';
 import {
-	innerHandler,
 	ServerlessRoutines,
-	streamWriter,
-} from '@remotion/serverless';
-import {serverAwsImplementation} from './aws-server-implementation';
+	type OrError,
+	type ServerlessPayload,
+} from '@remotion/lambda-client';
 import {setCurrentRequestId, stopLeakDetection} from './helpers/leak-detection';
 import {streamifyResponse} from './helpers/streamify-response';
+import {innerHandler} from './inner-routine';
+import type {ResponseStream} from './streaming/response-stream';
+import {streamWriter} from './streaming/stream-writer';
 
 type LambdaRequestContext = {
 	invokedFunctionArn: string;
@@ -21,7 +18,7 @@ type LambdaRequestContext = {
 };
 
 export const routine = async (
-	params: ServerlessPayload<AwsProvider>,
+	params: ServerlessPayload,
 	responseStream: ResponseStream,
 	context: LambdaRequestContext,
 ): Promise<void> => {
@@ -55,8 +52,6 @@ export const routine = async (
 				expectedBucketOwner,
 				getRemainingTimeInMillis: () => context.getRemainingTimeInMillis(),
 			},
-			providerSpecifics: LambdaClientInternals.awsImplementation,
-			insideFunctionSpecifics: serverAwsImplementation,
 		});
 	} catch (err) {
 		if (!buffered) {

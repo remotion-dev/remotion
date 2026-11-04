@@ -75,11 +75,23 @@ export const getVideoConfigIdentifiers = ({
 		},
 	});
 
+	if (candidates.size === 0) {
+		return candidates;
+	}
+
+	const candidateNames = new Set(
+		[...candidates.keys()].map((identifier) => identifier.name),
+	);
+
 	// Resolve each reference to its declaration. Components may independently
 	// declare the same name, while parameters and other shadowing stay computed.
 	const bindings = new Map<Identifier, VideoConfigNumericBinding>();
 	recast.types.visit(ast, {
 		visitIdentifier(path) {
+			if (!candidateNames.has(path.node.name)) {
+				return this.traverse(path);
+			}
+
 			const declarations =
 				path.scope.lookup(path.node.name)?.getBindings()[path.node.name] ?? [];
 			if (declarations.length === 1) {

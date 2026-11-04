@@ -188,7 +188,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		[player],
 	);
 
-	const {playerMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	const [playerMuted, setPlayerMuted] = Internals.usePlayerMutedState();
+	const [mediaVolume, setMediaVolume] = Internals.useMediaVolumeState();
 	const canvasOverlay = useContext(CanvasOverlayContext);
 	const canvasContentRef = useRef<HTMLDivElement>(null);
 
@@ -355,9 +356,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		player.emitter.dispatchScaleChange(scale);
 	}, [player.emitter, scale]);
 
-	const {setMediaVolume, setPlayerMuted} = useContext(
-		Internals.SetMediaVolumeContext,
-	);
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
 	useEffect(() => {

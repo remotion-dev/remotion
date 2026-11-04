@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import * as z from 'zod/mini';
 import {StudioProtocolInternals, type ElementDragData} from '../index';
 
 type ElementInput = Omit<ElementDragData['element'], 'durationInFrames'>;
@@ -12,23 +13,30 @@ const validElement = {
 	sourceCode: 'export const LowerThird = () => null;',
 	dimensions: {width: 900, height: 260},
 } satisfies ElementInput;
+
 const makeElementDragData = (element: ElementInput) =>
 	StudioProtocolInternals.makeDragData({
 		type: 'element',
 		...element,
 		durationInFrames: 120,
 	}).data;
+
+const dimensionsSchema = z.object({
+	width: z.number().check(z.positive()),
+	height: z.number().check(z.positive()),
+});
+
 const parseElementDragData = (payload: string) => {
 	let dimensions: (typeof validElement)['dimensions'] | null = null;
+
 	try {
-		const candidate = JSON.parse(payload)?.element?.dimensions;
-		if (
-			typeof candidate?.width === 'number' &&
-			candidate.width > 0 &&
-			typeof candidate?.height === 'number' &&
-			candidate.height > 0
-		) {
-			dimensions = candidate;
+		const parsedDimensions = z.safeParse(
+			dimensionsSchema,
+			JSON.parse(payload)?.element?.dimensions,
+		);
+
+		if (parsedDimensions.success) {
+			dimensions = parsedDimensions.data;
 		}
 	} catch {
 		// The unified parser handles the malformed payload below.
@@ -40,7 +48,9 @@ const parseElementDragData = (payload: string) => {
 		dimensions,
 		durationInFrames: 120,
 	});
+
 	const parsed = StudioProtocolInternals.parseDragData({mimeType, payload});
+
 	return parsed?.type === 'element' ? parsed.data : null;
 };
 
@@ -74,6 +84,7 @@ test('normalizes legacy drag data without initial props', () => {
 test('rejects element drag data without dependencies', () => {
 	const {dependencies: _dependencies, ...elementWithoutDependencies} =
 		validElement;
+
 	expect(
 		parseElementDragData(
 			JSON.stringify({
@@ -90,6 +101,7 @@ test('preserves component-owned-sequence Element drag data', () => {
 		...validElement,
 		installationMode: 'component-owned-sequence' as const,
 	};
+
 	expect(
 		parseElementDragData(
 			JSON.stringify(makeElementDragData(componentOwnedSequenceElement)),
@@ -206,6 +218,7 @@ test('rejects invalid element drag data', () => {
 			}),
 		),
 	).toBe(null);
+
 	for (const initialProps of [
 		{'invalid-name': true},
 		{from: 10},

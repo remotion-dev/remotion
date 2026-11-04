@@ -23,7 +23,7 @@ const encodeBySplitting = (p: string): string => {
 	return merged;
 };
 
-export const readRecursively = ({
+const collectFiles = ({
 	folder,
 	output = [],
 	startPath,
@@ -59,7 +59,7 @@ export const readRecursively = ({
 		}
 
 		if (stat.isDirectory()) {
-			readRecursively({
+			collectFiles({
 				startPath,
 				folder: path.join(folder, file),
 				output,
@@ -91,5 +91,13 @@ export const readRecursively = ({
 		}
 	}
 
-	return output.sort((a, b) => a.name.localeCompare(b.name));
+	return output;
+};
+
+export const readRecursively = (
+	options: Parameters<typeof collectFiles>[0],
+): StaticFile[] => {
+	// Every directory shares the same output array. Sort it only after the
+	// traversal finishes, rather than re-sorting all previously collected files.
+	return collectFiles(options).sort((a, b) => a.name.localeCompare(b.name));
 };

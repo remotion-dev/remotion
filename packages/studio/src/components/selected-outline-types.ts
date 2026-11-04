@@ -223,7 +223,9 @@ export type SelectedOutlineRotationDragState = {
 
 export type SequenceWithSelectedOutline = CanvasSelectableOutline;
 
-export const {canvasTranslateFieldKey: translateFieldKey} = CanvasInternals;
+export const {
+	canvasTranslateFieldKey: translateFieldKey,
+}: typeof CanvasInternals = CanvasInternals;
 export const scaleFieldKey = 'style.scale';
 export const rotateFieldKey = 'style.rotate';
 export const transformOriginFieldKey = 'style.transformOrigin';

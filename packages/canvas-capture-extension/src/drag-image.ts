@@ -315,6 +315,7 @@ export const captureDragImages = ({
 			page: {
 				readonly canvas: HTMLCanvasElement;
 				readonly content: HTMLElement;
+				readonly rect: DOMRect;
 				readonly backgroundColors: readonly string[];
 			},
 		) => {
@@ -353,13 +354,20 @@ export const captureDragImages = ({
 					(style.zIndex !== 'auto' &&
 						(style.position !== 'static' || /(flex|grid)/.test(parentDisplay)));
 
-				if (isolatesSource || !page.content.contains(element)) {
+				if (
+					isolatesSource ||
+					!page.content.contains(element) ||
+					sourceRect.left < page.rect.left ||
+					sourceRect.top < page.rect.top ||
+					sourceRect.right > page.rect.right ||
+					sourceRect.bottom > page.rect.bottom
+				) {
 					// Isolated elements and images can have intentional transparency.
 					capturePreview({element, x, y, useIntrinsicImageSize: false});
 				} else if (sourceRect.width > 0 && sourceRect.height > 0) {
 					// Chrome includes content behind non-isolated drag sources. Copy
 					// the freshly painted page so translucent fills retain that backdrop.
-					const pageRect = page.content.getBoundingClientRect();
+					const pageRect = page.rect;
 					const size = getSnapshotSize(sourceRect.width, sourceRect.height);
 					const snapshot = new OffscreenCanvas(size.width, size.height);
 					const snapshotContext = snapshot.getContext('2d');

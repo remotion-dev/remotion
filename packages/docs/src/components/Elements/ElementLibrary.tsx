@@ -1,4 +1,5 @@
 import Link from '@docusaurus/Link';
+import useBrokenLinks from '@docusaurus/useBrokenLinks';
 import {
 	isInsideStudio,
 	setStudioDragData,
@@ -13,6 +14,7 @@ import {
 	setElementDragImage,
 } from './element-drag-data';
 import {
+	getElementCategoryHeadingId,
 	getElementDocumentationUrl,
 	getElementLibrarySections,
 	type ElementCategory,
@@ -277,6 +279,7 @@ export const ElementLibrary: React.FC<{
 	readonly category: ElementCategory | null;
 	readonly sourceCodeBySlug: Readonly<Record<string, string>>;
 }> = ({category, sourceCodeBySlug}) => {
+	const brokenLinks = useBrokenLinks();
 	const prefersReducedMotion = usePrefersReducedMotion();
 	const [isStudioEmbed, setIsStudioEmbed] = useState(false);
 	const [isCaptionPicker, setIsCaptionPicker] = useState(false);
@@ -401,7 +404,8 @@ export const ElementLibrary: React.FC<{
 					);
 				}
 
-				const categoryHeadingId = `element-category-${section.category}`;
+				const categoryHeadingId = getElementCategoryHeadingId(section.category);
+				brokenLinks.collectAnchor(categoryHeadingId);
 
 				return (
 					<section
@@ -409,7 +413,10 @@ export const ElementLibrary: React.FC<{
 						aria-labelledby={categoryHeadingId}
 						className={styles.section}
 					>
-						<h2 className={styles.categoryTitle} id={categoryHeadingId}>
+						<h2
+							className={`anchor ${styles.categoryTitle}`}
+							id={categoryHeadingId}
+						>
 							{section.label}
 						</h2>
 						<ElementGrid

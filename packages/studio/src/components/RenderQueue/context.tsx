@@ -2,12 +2,16 @@ import type {CompletedClientRender, RenderJob} from '@remotion/studio-shared';
 import React, {
 	createRef,
 	useCallback,
+	useContext,
+	useLayoutEffect,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
+import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {
 	AddCaptionJobParams,
 	CaptionJob,
@@ -30,9 +34,10 @@ import type {
 	ClientRenderJobProgress,
 	ClientStillRenderJob,
 	ClientVideoRenderJob,
-	GetBlobCallback,
+	LocalRenderOutput,
 	RestoredClientRenderJob,
 } from './client-side-render-types';
+import {createRenderCancellationStore} from './render-cancellation';
 import type {
 	AddVideoMattingJobParams,
 	VideoMattingJob,
@@ -49,7 +54,7 @@ declare global {
 const restorePersistedClientRenders = (): RestoredClientRenderJob[] => {
 	const persisted = window.remotion_initialClientRenders ?? [];
 	return persisted.map(
-		(r): RestoredClientRenderJob => ({...r, status: 'done'}),
+		(r): RestoredClientRenderJob => ({...r, status: 'done', localOutput: null}),
 	);
 };
 
@@ -83,7 +88,7 @@ type RenderQueueContextType = {
 	markClientJobDone: (
 		jobId: string,
 		metadata: CompletedClientRender['metadata'],
-		getBlob?: GetBlobCallback,
+		localOutput: LocalRenderOutput | null,
 	) => void;
 	markClientJobFailed: (jobId: string, error: Error) => void;
 	markClientJobCancelled: (jobId: string) => void;
@@ -159,6 +164,23 @@ export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	setProcessVideoMattingJobCallback: noop,
 	getAbortController: () => new AbortController(),
 	getCompositionForJob: () => undefined,
+});
+
+export const RenderQueueActionsContext = React.createContext<
+	Pick<
+		ReturnType<typeof createRenderCancellationStore>,
+		| 'getJobs'
+		| 'cancelJob'
+		| 'canCancelJob'
+		| 'isCancelling'
+		| 'subscribeToCancellation'
+	>
+>({
+	getJobs: () => [],
+	cancelJob: () => Promise.resolve({status: 'not-found'}),
+	canCancelJob: () => false,
+	isCancelling: () => false,
+	subscribeToCancellation: () => () => undefined,
 });
 
 export const renderJobsRef = createRef<{
@@ -401,14 +423,16 @@ export const RenderQueueContextProvider: React.FC<{
 		(
 			jobId: string,
 			metadata: CompletedClientRender['metadata'],
-			getBlob?: GetBlobCallback,
+			localOutput: LocalRenderOutput | null,
 		): void => {
 			deleteAbortController(jobId);
 			cleanupCompositionForJob(jobId);
 
 			setClientJobs((prev) =>
 				prev.map((job) =>
-					job.id === jobId ? {...job, status: 'done', metadata, getBlob} : job,
+					job.id === jobId && job.status !== 'done'
+						? {...job, status: 'done', metadata, localOutput}
+						: job,
 				),
 			);
 			setCurrentlyProcessing((current) => (current === jobId ? null : current));
@@ -693,10 +717,61 @@ export const RenderQueueContextProvider: React.FC<{
 		[],
 	);
 
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const connectionRef = useRef(previewServerState);
+	connectionRef.current = previewServerState;
+	const jobsSnapshot = useRef<{
+		serverJobs: RenderJob[];
+		clientJobs: ClientRenderJob[];
+		jobs: AnyRenderJob[];
+	} | null>(null);
+	const readJobs = useCallback(
+		(server: RenderJob[], client: ClientRenderJob[]) => {
+			const snapshot = jobsSnapshot.current;
+			if (snapshot?.serverJobs === server && snapshot.clientJobs === client)
+				return snapshot.jobs;
+			const mergedJobs = [...server, ...client].sort(
+				(a, b) => a.startedAt - b.startedAt,
+			);
+			jobsSnapshot.current = {
+				serverJobs: server,
+				clientJobs: client,
+				jobs: mergedJobs,
+			};
+			return mergedJobs;
+		},
+		[],
+	);
+	const jobs = readJobs(serverJobs, clientJobs);
+	const cancellation = useMemo(
+		() =>
+			createRenderCancellationStore({
+				getJobs: () => jobsSnapshot.current?.jobs ?? [],
+				cancelClientJob: (jobId) => {
+					const job = jobsSnapshot.current?.jobs.find(
+						(item) => item.id === jobId,
+					);
+					cancelClientJob(jobId);
+					if (job?.status === 'idle') markClientJobCancelled(jobId);
+				},
+				canCancelServerJobs: () =>
+					connectionRef.current.type === 'connected' &&
+					!window.remotion_isReadOnlyStudio &&
+					getBrowserStudioOperations() === null,
+			}),
+		[cancelClientJob, markClientJobCancelled],
+	);
+	useLayoutEffect(() => {
+		cancellation.reconcile();
+	}, [cancellation, jobs]);
+	useEffect(() => () => cancellation.clear(), [cancellation]);
+
 	useImperativeHandle(
 		renderJobsRef,
 		() => ({
 			updateRenderJobs: (newJobs) => {
+				readJobs(newJobs, jobsSnapshot.current?.clientJobs ?? []);
+				cancellation.reconcile();
 				setServerJobs(newJobs);
 			},
 			updateClientRenders: (renders: CompletedClientRender[]) => {
@@ -717,20 +792,24 @@ export const RenderQueueContextProvider: React.FC<{
 
 					const newJobs = renders
 						.filter((r) => !existingIds.has(r.id))
-						.map((r): RestoredClientRenderJob => ({...r, status: 'done'}));
+						.map(
+							(r): RestoredClientRenderJob => ({
+								...r,
+								status: 'done',
+								localOutput: null,
+							}),
+						);
 
 					return [...updatedPrev, ...newJobs];
 				});
 			},
 		}),
-		[],
+		[cancellation, readJobs],
 	);
 
 	const value: RenderQueueContextType = useMemo(() => {
 		return {
-			jobs: [...serverJobs, ...clientJobs].sort(
-				(a, b) => a.startedAt - b.startedAt,
-			),
+			jobs,
 			serverJobs,
 			clientJobs,
 			captionJobs,
@@ -765,6 +844,7 @@ export const RenderQueueContextProvider: React.FC<{
 			getCompositionForJob,
 		};
 	}, [
+		jobs,
 		serverJobs,
 		clientJobs,
 		captionJobs,
@@ -798,8 +878,10 @@ export const RenderQueueContextProvider: React.FC<{
 	]);
 
 	return (
-		<RenderQueueContext.Provider value={value}>
-			{children}
-		</RenderQueueContext.Provider>
+		<RenderQueueActionsContext.Provider value={cancellation}>
+			<RenderQueueContext.Provider value={value}>
+				{children}
+			</RenderQueueContext.Provider>
+		</RenderQueueActionsContext.Provider>
 	);
 };

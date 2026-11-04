@@ -36,7 +36,7 @@ const MapLayerContent = ({beforeId, layer: passedLayer}: MapLayerProps) => {
 	const {continueRender, delayRender} = useDelayRender();
 
 	useEffect(() => {
-		if (!map) {
+		if (!map || !map.style) {
 			return;
 		}
 
@@ -133,6 +133,10 @@ const MapLayerContent = ({beforeId, layer: passedLayer}: MapLayerProps) => {
 		}
 
 		return () => {
+			if (!map.style) {
+				return;
+			}
+
 			if (map.getLayer(layer.id)) {
 				map.removeLayer(layer.id);
 				map.triggerRepaint();

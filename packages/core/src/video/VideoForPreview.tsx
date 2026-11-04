@@ -24,6 +24,10 @@ import {usePreload} from '../prefetch.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useVolume} from '../use-amplification.js';
+import {
+	scheduleMediaSourceCleanup,
+	useMediaDuration,
+} from '../use-media-duration.js';
 import {useMediaInTimelineRegistration} from '../use-media-in-timeline.js';
 import {useMediaPlayback} from '../use-media-playback.js';
 import {useMediaTag} from '../use-media-tag.js';
@@ -93,11 +97,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	// But useInsertionEffect will fire before other effects, meaning the
 	// nodes might still be used. Using rAF to ensure it's after other effects.
 	effectToUse(() => {
-		return () => {
-			requestAnimationFrame(() => {
-				sharedSource?.cleanup();
-			});
-		};
+		return scheduleMediaSourceCleanup.bind(null, sharedSource?.cleanup ?? null);
 	}, [sharedSource]);
 
 	const {
@@ -264,32 +264,9 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		};
 	}, [onError, src]);
 
-	const currentOnDurationCallback =
-		useRef<VideoForPreviewProps['onDuration']>(onDuration);
-	currentOnDurationCallback.current = onDuration;
-
 	useEmitVideoFrame({ref: videoRef, onVideoFrame});
 
-	useEffect(() => {
-		const {current} = videoRef;
-		if (!current) {
-			return;
-		}
-
-		if (current.duration) {
-			currentOnDurationCallback.current?.(src as string, current.duration);
-			return;
-		}
-
-		const onLoadedMetadata = () => {
-			currentOnDurationCallback.current?.(src as string, current.duration);
-		};
-
-		current.addEventListener('loadedmetadata', onLoadedMetadata);
-		return () => {
-			current.removeEventListener('loadedmetadata', onLoadedMetadata);
-		};
-	}, [src]);
+	useMediaDuration(videoRef, onDuration, src as string, false);
 
 	useEffect(() => {
 		const {current} = videoRef;

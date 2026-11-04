@@ -1,10 +1,7 @@
-import type {LogLevel} from '@remotion/serverless-client';
-import {
-	COMMAND_NOT_FOUND,
-	ServerlessRoutines,
-} from '@remotion/serverless-client';
-import {awsImplementation} from './aws-provider';
+import type {LogLevel} from '@remotion/renderer';
+import {callFunctionSyncImplementation} from './call-lambda-sync';
 import type {AwsRegion} from './regions';
+import {COMMAND_NOT_FOUND, ServerlessRoutines} from './shared-constants';
 import type {RequestHandler} from './types';
 
 export async function getFunctionVersion({
@@ -19,9 +16,7 @@ export async function getFunctionVersion({
 	requestHandler: RequestHandler | null | undefined;
 }): Promise<string> {
 	try {
-		// For now, we'll pass requestHandler to the awsImplementation if needed
-		// This might require deeper changes in the serverless-client framework
-		const result = await awsImplementation.callFunctionSync({
+		const result = await callFunctionSyncImplementation({
 			functionName,
 			payload: {
 				logLevel,

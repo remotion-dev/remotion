@@ -1,7 +1,9 @@
-import type {AwsRegion, RequestHandler} from '@remotion/lambda-client';
-import {LambdaClientInternals, type AwsProvider} from '@remotion/lambda-client';
+import {
+	LambdaClientInternals,
+	type AwsRegion,
+	type RequestHandler,
+} from '@remotion/lambda-client';
 import {getSitesKey} from '@remotion/lambda-client/constants';
-import type {ProviderSpecifics} from '@remotion/serverless';
 
 type MandatoryParameters = {
 	bucketName: string;
@@ -30,15 +32,14 @@ export const internalDeleteSite = async ({
 	siteName,
 	region,
 	onAfterItemDeleted,
-	providerSpecifics,
 	forcePathStyle,
 	requestHandler,
-}: DeleteSiteInput & {
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
-}): Promise<DeleteSiteOutput> => {
-	const accountId = await providerSpecifics.getAccountId({region});
+}: DeleteSiteInput & {}): Promise<DeleteSiteOutput> => {
+	const accountId = await LambdaClientInternals.getAccountIdImplementation({
+		region,
+	});
 
-	let files = await providerSpecifics.listObjects({
+	let files = await LambdaClientInternals.lambdaLsImplementation({
 		bucketName,
 		// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 		prefix: `${getSitesKey(siteName)}/`,
@@ -60,11 +61,10 @@ export const internalDeleteSite = async ({
 			onAfterItemDeleted: onAfterItemDeleted ?? (() => undefined),
 			onBeforeItemDeleted: () => undefined,
 			region,
-			providerSpecifics,
 			forcePathStyle,
 			requestHandler,
 		});
-		files = await providerSpecifics.listObjects({
+		files = await LambdaClientInternals.lambdaLsImplementation({
 			bucketName,
 			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
 			prefix: `${getSitesKey(siteName)}/`,
@@ -91,7 +91,6 @@ export const deleteSite = (
 		...props,
 		onAfterItemDeleted: props.onAfterItemDeleted ?? null,
 		forcePathStyle: props.forcePathStyle ?? false,
-		providerSpecifics: LambdaClientInternals.awsImplementation,
 		requestHandler: props.requestHandler ?? null,
 	});
 };

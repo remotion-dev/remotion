@@ -1,10 +1,15 @@
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
-import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import type {
+	SequencePropsSubscriptionKey,
+	InteractivitySchema,
+	EffectDefinition,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_BLUE, WHITE_ALPHA_80} from '../../helpers/colors';
+import {useIsEffectDeletionPending} from '../../helpers/effect-deletion-state';
 import {
 	formatContextForAgents,
 	formatFileLocation,
@@ -15,12 +20,13 @@ import {
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {ContextMenu} from '../ContextMenu';
-import {deleteEffects, reorderEffect} from '../effect-operations-api';
+import {reorderEffect} from '../effect-operations-api';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSettings} from '../SettingsContext';
+import {useDeleteEffects} from './delete-effects-from-source';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {saveEffectProp} from './save-effect-prop';
 import {
@@ -126,6 +132,7 @@ export const TimelineEffectItem: React.FC<{
 	readonly label: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
+	readonly effects: readonly EffectDefinition<unknown>[];
 	readonly effectSchema: InteractivitySchema;
 	readonly documentationLink: string | null;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -140,6 +147,7 @@ export const TimelineEffectItem: React.FC<{
 	nodePathInfo,
 	effectIndex,
 	effectSchema,
+	effects,
 	documentationLink,
 	nodePath,
 	validatedLocation,
@@ -159,7 +167,9 @@ export const TimelineEffectItem: React.FC<{
 		markupSkill?.installedInProject || markupSkill?.installedGlobally,
 	);
 	const previewConnected = previewServerState.type === 'connected';
-	const canMutateEffects = canUseEffectOperations();
+	const deleting = useIsEffectDeletionPending(nodePath);
+	const deleteEffectsFromSource = useDeleteEffects();
+	const canMutateEffects = canUseEffectOperations() && !deleting;
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
@@ -216,22 +226,10 @@ export const TimelineEffectItem: React.FC<{
 			return;
 		}
 
-		try {
-			const result = await deleteEffects([
-				{
-					type: 'single-effect',
-					fileName: validatedLocation.source,
-					sequenceNodePath: nodePath,
-					effectIndex,
-				},
-			]);
-			if (!result.success) {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
-		}
-	}, [deleteDisabled, effectIndex, nodePath, validatedLocation.source]);
+		await deleteEffectsFromSource([
+			{nodePath, effectIndices: [effectIndex], effects},
+		]);
+	}, [deleteDisabled, deleteEffectsFromSource, effectIndex, effects, nodePath]);
 
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (selection.selectable) {

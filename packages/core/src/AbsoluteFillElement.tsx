@@ -47,7 +47,7 @@ const AbsoluteFillElementRefForwarding: React.ForwardRefRenderFunction<
 > = (props, ref) => {
 	const {style, ...other} = props;
 
-	const actualStyle = useMemo((): React.CSSProperties => {
+	const defaultStyle = useMemo((): React.CSSProperties => {
 		// Make TailwindCSS classes get accepted
 		return {
 			position: 'absolute',
@@ -124,11 +124,19 @@ const AbsoluteFillElementRefForwarding: React.ForwardRefRenderFunction<
 			})
 				? undefined
 				: 'column',
+		};
+	}, [other.className]);
+
+	const actualStyle = useMemo((): React.CSSProperties => {
+		return {
+			...defaultStyle,
 			...style,
 		};
-	}, [other.className, style]);
+	}, [defaultStyle, style]);
 
 	return <div ref={ref} style={actualStyle} {...other} />;
 };
 
-export const AbsoluteFillElement = forwardRef(AbsoluteFillElementRefForwarding);
+export const AbsoluteFillElement = React.memo(
+	forwardRef(AbsoluteFillElementRefForwarding),
+);

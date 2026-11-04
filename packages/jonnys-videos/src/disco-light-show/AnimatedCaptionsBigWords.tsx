@@ -11,12 +11,10 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {createSentenceAwareCaptionPages} from '../components/paginate-captions';
-import {asset} from './assets';
+import {VOICEOVER_CAPTIONS_SRC, VOICEOVER_SRC} from './voiceover';
 
-export const BIG_WORD_CAPTIONS_DURATION_IN_FRAMES = 1816;
+export const BIG_WORD_CAPTIONS_DURATION_IN_FRAMES = 1608;
 
-const VOICEOVER_FILE = 'text-behind-video-2.wav';
-const CAPTIONS_FILE = 'voiceover-captions.json';
 const FONT_FAMILY = 'Arial Black, Arial, sans-serif';
 const SWITCH_CAPTIONS_EVERY_MS = 1100;
 const HIGHLIGHT_COLOR = '#ff3b1f';
@@ -42,8 +40,7 @@ const BigWordPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 				pointerEvents: 'none',
 			}}
 		>
-			<Interactive.Div
-				name={`Caption page: ${page.text.trim()}`}
+			<div
 				style={{
 					alignItems: 'center',
 					display: 'flex',
@@ -107,7 +104,7 @@ const BigWordPageInner: React.FC<{page: TikTokPage}> = ({page}) => {
 						</div>
 					);
 				})}
-			</Interactive.Div>
+			</div>
 		</AbsoluteFill>
 	);
 };
@@ -125,7 +122,7 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 
 	const loadCaptions = useCallback(async () => {
 		try {
-			const response = await fetch(asset(CAPTIONS_FILE));
+			const response = await fetch(VOICEOVER_CAPTIONS_SRC);
 			if (!response.ok) {
 				throw new Error(`Could not load captions (${response.status})`);
 			}
@@ -159,7 +156,7 @@ const AnimatedCaptionsBigWordsInner: React.FC = () => {
 
 	return (
 		<>
-			<Audio src={asset(VOICEOVER_FILE)} hidden showInTimeline={false} />
+			<Audio src={VOICEOVER_SRC} hidden showInTimeline={false} />
 			{pages.map((page, index) => {
 				const nextPage = pages[index + 1];
 				const startFrame = Math.round((page.startMs / 1000) * fps);

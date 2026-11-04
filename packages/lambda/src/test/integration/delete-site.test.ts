@@ -1,14 +1,14 @@
 import {expect, test} from 'bun:test';
-import {internalGetOrCreateBucket} from '@remotion/serverless';
+import {LambdaClientInternals} from '@remotion/lambda-client';
 import {internalDeleteSite} from '../../api/delete-site';
 import {internalDeploySite} from '../../api/deploy-site';
-import {mockFullClientSpecifics} from '../mock-implementation';
-import {mockImplementation} from '../mocks/mock-implementation';
+import {useFakeAws} from '../mocks/fake-aws';
+
+useFakeAws();
 
 test('Return 0 total size if site did not exist', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'eu-west-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
@@ -21,7 +21,6 @@ test('Return 0 total size if site did not exist', async () => {
 			bucketName,
 			region: 'eu-west-1',
 			siteName: 'non existent',
-			providerSpecifics: mockImplementation,
 			forcePathStyle: false,
 			onAfterItemDeleted: null,
 			requestHandler: null,
@@ -29,9 +28,8 @@ test('Return 0 total size if site did not exist', async () => {
 	).toEqual({totalSizeInBytes: 0});
 });
 test('Return more than 0 total size if site did not exist', async () => {
-	const {bucketName} = await internalGetOrCreateBucket({
+	const {bucketName} = await LambdaClientInternals.internalGetOrCreateBucket({
 		region: 'eu-west-1',
-		providerSpecifics: mockImplementation,
 		customCredentials: null,
 		enableFolderExpiry: null,
 		forcePathStyle: false,
@@ -44,15 +42,13 @@ test('Return more than 0 total size if site did not exist', async () => {
 		entryPoint: 'first',
 		region: 'eu-west-1',
 		gitSource: null,
-		providerSpecifics: mockImplementation,
 		indent: false,
 		logLevel: 'info',
 		options: {},
 		privacy: 'public',
 		throwIfSiteExists: false,
-		siteName: mockImplementation.randomHash(),
+		siteName: LambdaClientInternals.randomHashImplementation(),
 		forcePathStyle: false,
-		fullClientSpecifics: mockFullClientSpecifics,
 		requestHandler: null,
 	});
 	expect(
@@ -61,7 +57,6 @@ test('Return more than 0 total size if site did not exist', async () => {
 				bucketName,
 				region: 'eu-west-1',
 				siteName,
-				providerSpecifics: mockImplementation,
 				forcePathStyle: false,
 				onAfterItemDeleted: null,
 				requestHandler: null,

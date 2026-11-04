@@ -1,5 +1,5 @@
 import {expect, test} from 'bun:test';
-import {ENABLE_V5_BREAKING_CHANGES} from '@remotion/serverless-client';
+import {NoReactInternals} from 'remotion/no-react';
 import {makeLambdaRenderMediaPayload} from '../make-lambda-payload';
 import {renderMediaOnLambdaOptionalToRequired} from '../render-media-on-lambda';
 
@@ -42,5 +42,5 @@ test('resolves an omitted overwrite value using the v5 flag', async () => {
 	const options = renderMediaOnLambdaOptionalToRequired(getOptions());
 	const payload = await makeLambdaRenderMediaPayload(options);
 
-	expect(payload.overwrite).toBe(ENABLE_V5_BREAKING_CHANGES);
+	expect(payload.overwrite).toBe(NoReactInternals.ENABLE_V5_BREAKING_CHANGES);
 });

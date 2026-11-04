@@ -2,9 +2,10 @@ import path from 'path';
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {
-	AwsProvider,
-	getRenderProgress,
 	LambdaClientInternals,
+	getRenderProgress,
+	type EnhancedErrorInfo,
+	type ServerlessCodec,
 } from '@remotion/lambda-client';
 import {
 	BINARY_NAME,
@@ -18,8 +19,6 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import type {EnhancedErrorInfo, ProviderSpecifics} from '@remotion/serverless';
-import {validatePrivacy, type ServerlessCodec} from '@remotion/serverless';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
 import {sleep} from '../../../shared/sleep';
@@ -65,6 +64,7 @@ const {
 	preferLosslessOption,
 	metadataOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	pixelFormatOption,
 	browserExecutableOption,
@@ -88,12 +88,10 @@ export const renderCommand = async ({
 	args,
 	remotionRoot,
 	logLevel,
-	providerSpecifics,
 }: {
 	args: string[];
 	remotionRoot: string;
 	logLevel: LogLevel;
-	providerSpecifics: ProviderSpecifics<AwsProvider>;
 }) => {
 	const serveUrl = args[0];
 	if (!serveUrl) {
@@ -182,15 +180,18 @@ export const renderCommand = async ({
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const offthreadVideoThreads = offthreadVideoThreadsOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
 	const scale = scaleOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
-	const crf = crfOption.getValue({
+	const crfSetting = crfOption.getValue({
 		commandLine: CliInternals.parsedCli,
-	}).value;
+	});
 	const disableSharedMemoryCapture = disableSharedMemoryCaptureOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -336,6 +337,7 @@ export const renderCommand = async ({
 				}),
 				chromeMode: 'headless-shell',
 				mediaCacheSizeInBytes: mediaCacheSizeInBytes,
+				preferredEffectBackend: preferredEffectBackend,
 			});
 		composition = compositionId;
 	}
@@ -374,6 +376,17 @@ export const renderCommand = async ({
 				},
 			);
 
+	const crf =
+		codec === null
+			? crfSetting.value
+			: CliInternals.getCrfForCodec({
+					crf: crfSetting.value,
+					crfIsFromConfigFile: crfSetting.source === 'config',
+					codec,
+					indent: false,
+					logLevel,
+				});
+
 	const imageFormat = BrowserSafeApis.options.videoImageFormatOption.getValue(
 		{
 			commandLine: CliInternals.parsedCli,
@@ -388,13 +401,13 @@ export const renderCommand = async ({
 		throw new Error('Expected image format to be resolved');
 	}
 
-	const functionName = await findFunctionName({logLevel, providerSpecifics});
+	const functionName = await findFunctionName({logLevel});
 
 	const maxRetries = parsedLambdaCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
 	validateMaxRetries(maxRetries);
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
-	validatePrivacy(privacy, true);
+	LambdaClientInternals.validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
@@ -475,6 +488,7 @@ export const renderCommand = async ({
 		downloadBehavior: {type: 'play-in-browser'},
 		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		x264Preset: x264Preset ?? null,
 		preferLossless,
@@ -512,7 +526,6 @@ export const renderCommand = async ({
 				renderId: res.renderId,
 				forcePathStyle: parsedLambdaCli['force-path-style'] ?? false,
 				requestHandler: null,
-				providerSpecifics,
 			});
 		} catch (err) {
 			Log.error(
@@ -635,16 +648,13 @@ export const renderCommand = async ({
 		);
 	}
 
-	const adheresToFunctionNameConvention =
-		LambdaClientInternals.parseFunctionName(functionName);
-
 	const status = await getRenderProgress({
 		functionName,
 		bucketName: res.bucketName,
 		renderId: res.renderId,
 		region: getAwsRegion(),
 		logLevel,
-		skipLambdaInvocation: Boolean(adheresToFunctionNameConvention),
+		skipLambdaInvocation: true,
 		s3OutputProvider: s3OutputProvider ?? undefined,
 	});
 	progressBar.update(
@@ -700,7 +710,6 @@ export const renderCommand = async ({
 							false,
 						);
 					},
-					providerSpecifics: providerSpecifics,
 					forcePathStyle: parsedLambdaCli['force-path-style'],
 					signal: new AbortController().signal,
 					customCredentials: s3OutputProvider,

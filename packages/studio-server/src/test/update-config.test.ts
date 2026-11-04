@@ -13,6 +13,8 @@ import {
 } from '../preview-server/routes/update-config';
 
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
+	preferredEffectBackend: null,
+	preservePitchOnPlayback: true,
 	showLayerFrameNumbers: false,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
@@ -346,6 +348,10 @@ test('persists Studio keyboard shortcuts through the config route', async () => 
 			originatorClientId: 'settings-client',
 			type: 'changed',
 			skipSequencePropsUpdate: false,
+			sourceVersion: {
+				sessionId: expect.any(String),
+				revision: expect.any(Number),
+			},
 		});
 	} finally {
 		unwatch();

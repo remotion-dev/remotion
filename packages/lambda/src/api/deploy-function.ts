@@ -1,25 +1,22 @@
-import type {RequestHandler, RuntimePreference} from '@remotion/lambda-client';
 import {
 	LambdaClientInternals,
 	speculateFunctionName,
 	type AwsRegion,
+	type RequestHandler,
+	type RuntimePreference,
 } from '@remotion/lambda-client';
 import {DEFAULT_EPHEMERAL_STORAGE_IN_MB} from '@remotion/lambda-client/constants';
 import type {LogLevel} from '@remotion/renderer';
 import {wrapWithErrorHandling} from '@remotion/renderer/error-handling';
-import type {
-	CloudProvider,
-	FullClientSpecifics,
-	ProviderSpecifics,
-} from '@remotion/serverless';
 import {VERSION} from 'remotion/version';
-import {awsFullClientSpecifics} from '../functions/full-client-implementation';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {validateRuntimePreference} from '../shared/get-layers';
 import {validateCustomLayerArns} from '../shared/validate-custom-layer-arns';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateCloudWatchRetentionPeriod} from '../shared/validate-retention-period';
 import {validateTimeout} from '../shared/validate-timeout';
+import {createFunction} from './create-function';
+import {getFunctionInfo} from './get-function-info';
 
 type MandatoryParameters = {
 	createCloudWatchLogGroup: boolean;
@@ -30,6 +27,7 @@ type MandatoryParameters = {
 };
 
 type OptionalParameters = {
+	functionName: string | null;
 	diskSizeInMb: number;
 	customRoleArn: string | undefined;
 	enableLambdaInsights: boolean;
@@ -51,14 +49,24 @@ export type DeployFunctionOutput = {
 	alreadyExisted: boolean;
 };
 
-export const internalDeployFunction = async <Provider extends CloudProvider>(
+export const internalDeployFunction = async (
 	params: MandatoryParameters &
 		OptionalParameters & {
 			customLayerArns: string[] | null;
-			providerSpecifics: ProviderSpecifics<Provider>;
-			fullClientSpecifics: FullClientSpecifics<Provider>;
 		},
 ): Promise<DeployFunctionOutput> => {
+	if (
+		params.functionName !== null &&
+		(typeof params.functionName !== 'string' ||
+			params.functionName.length < 1 ||
+			params.functionName.length > 64 ||
+			/[^a-zA-Z0-9_-]/.test(params.functionName))
+	) {
+		throw new TypeError(
+			'functionName must be between 1 and 64 characters long and contain only letters, numbers, hyphens and underscores.',
+		);
+	}
+
 	LambdaClientInternals.validateMemorySize(params.memorySizeInMb);
 	validateTimeout(params.timeoutInSeconds);
 	LambdaClientInternals.validateAwsRegion(params.region);
@@ -73,29 +81,53 @@ export const internalDeployFunction = async <Provider extends CloudProvider>(
 		runtimePreference: params.runtimePreference,
 	});
 
-	const functionName = speculateFunctionName({
-		diskSizeInMb: params.diskSizeInMb,
-		memorySizeInMb: params.memorySizeInMb,
-		timeoutInSeconds: params.timeoutInSeconds,
-	});
-	const accountId = await params.providerSpecifics.getAccountId({
+	const functionName =
+		params.functionName ??
+		speculateFunctionName({
+			diskSizeInMb: params.diskSizeInMb,
+			memorySizeInMb: params.memorySizeInMb,
+			timeoutInSeconds: params.timeoutInSeconds,
+		});
+	const accountId = await LambdaClientInternals.getAccountIdImplementation({
 		region: params.region,
 	});
 
-	const fns = await params.providerSpecifics.getFunctions({
-		compatibleOnly: true,
-		region: params.region,
-	});
+	const fns =
+		params.functionName === null
+			? await LambdaClientInternals.getFunctions({
+					compatibleOnly: true,
+					region: params.region,
+				})
+			: await getFunctionInfo({
+					functionName,
+					region: params.region,
+					logLevel: params.logLevel,
+					requestHandler: params.requestHandler ?? undefined,
+				})
+					.then((fn) => [fn])
+					.catch((err) => {
+						if ((err as Error).name === 'ResourceNotFoundException') {
+							return [];
+						}
+
+						throw err;
+					});
 
 	const alreadyDeployed = fns.find(
 		(f) =>
+			f.functionName === functionName &&
 			f.version === VERSION &&
 			f.memorySizeInMb === params.memorySizeInMb &&
 			f.timeoutInSeconds === params.timeoutInSeconds &&
 			f.diskSizeInMb === params.diskSizeInMb,
 	);
+	if (params.functionName !== null && fns.length > 0 && !alreadyDeployed) {
+		throw new Error(
+			`A function named "${functionName}" already exists with a different Remotion version, memory size, disk size or timeout. Choose a different functionName or delete the existing function before deploying.`,
+		);
+	}
 
-	const created = await params.fullClientSpecifics.createFunction({
+	const created = await createFunction({
 		createCloudWatchLogGroup: params.createCloudWatchLogGroup,
 		region: params.region,
 		zipFile: FUNCTION_ZIP_ARM64,
@@ -135,6 +167,7 @@ const errorHandled = wrapWithErrorHandling(internalDeployFunction);
  * @see [Documentation](https://remotion.dev/docs/lambda/deployfunction)
  */
 export const deployFunction = ({
+	functionName,
 	createCloudWatchLogGroup,
 	memorySizeInMb,
 	region,
@@ -162,6 +195,7 @@ export const deployFunction = ({
 	}
 
 	return errorHandled({
+		functionName: functionName ?? null,
 		indent: indent ?? false,
 		logLevel: logLevel ?? 'info',
 		createCloudWatchLogGroup,
@@ -176,8 +210,6 @@ export const deployFunction = ({
 		vpcSubnetIds,
 		vpcSecurityGroupIds,
 		runtimePreference: runtimePreference ?? 'default',
-		providerSpecifics: LambdaClientInternals.awsImplementation,
-		fullClientSpecifics: awsFullClientSpecifics,
 		requestHandler,
 	});
 };

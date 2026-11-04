@@ -6,6 +6,8 @@ import type {InputAudioTrack, InputVideoTrack} from 'mediabunny';
 //   track (preserves multi-track behavior introduced in #7094).
 // - When unset and the file is audio-only, fall back to the first audio track
 //   so that audio-only files (e.g. .m4a) keep working (regression fix for #7210).
+// - If the automatic choice cannot decode, try a decodable alternative. Keep
+//   the original choice when none can decode so callers still report the error.
 export const resolveAudioTrack = async ({
 	videoTrack,
 	audioTracks,
@@ -20,7 +22,22 @@ export const resolveAudioTrack = async ({
 	}
 
 	if (videoTrack) {
-		return (await videoTrack.getPrimaryPairableAudioTrack()) ?? null;
+		const primary = await videoTrack.getPrimaryPairableAudioTrack();
+		if (!primary || (await primary.canDecode())) {
+			return primary;
+		}
+
+		return (
+			(await videoTrack.getPrimaryPairableAudioTrack({
+				filter: (track) => track.canDecode(),
+			})) ?? primary
+		);
+	}
+
+	for (const track of audioTracks) {
+		if (await track.canDecode()) {
+			return track;
+		}
 	}
 
 	return audioTracks[0] ?? null;

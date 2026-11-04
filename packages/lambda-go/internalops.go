@@ -117,6 +117,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 	internalParams.SampleRate = sampleRate
 
+	internalParams.PreferredEffectBackend = options.PreferredEffectBackend
+	if internalParams.PreferredEffectBackend == "" {
+		internalParams.PreferredEffectBackend = "auto"
+	}
+
 	if options.ConcurrencyPerLambda == 0 {
 		internalParams.ConcurrencyPerLambda = 1
 	} else {
@@ -186,6 +191,72 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 		LogLevel:   logLevel,
 		Type:       "status",
 		Version:    VERSION,
+	}
+
+	return &internalParams, nil
+}
+
+func constructGetCompositionsInternals(options *GetCompositionsOptions) (*getCompositionsInternalConfig, error) {
+
+	validate := validator.New()
+	validationErrors := validate.Struct(options)
+	if validationErrors != nil {
+
+		return nil, validationErrors
+	}
+
+	// Serialize (and, if too large, upload) inputProps only after validation so
+	// that an invalid request does not trigger S3 side effects.
+	inputProps, serializeError := serializeInputProps(options.InputProps, options.Region, "video-or-audio", options.ForceBucketName, options.ForcePathStyle)
+
+	if serializeError != nil {
+		return nil, serializeError
+	}
+
+	logLevel := "info"
+	if options.LogLevel != "" {
+		logLevel = options.LogLevel
+	}
+
+	timeoutInMilliseconds := 30000
+	if options.TimeoutInMilliseconds != 0 {
+		timeoutInMilliseconds = options.TimeoutInMilliseconds
+	}
+
+	preferredEffectBackend := "auto"
+	if options.PreferredEffectBackend != "" {
+		preferredEffectBackend = options.PreferredEffectBackend
+	}
+
+	envVariables := options.EnvVariables
+	if envVariables == nil {
+		envVariables = map[string]string{}
+	}
+
+	chromiumOptions := options.ChromiumOptions
+	if chromiumOptions == nil {
+		chromiumOptions = map[string]interface{}{}
+	}
+
+	var bucketName *string
+	if options.ForceBucketName != "" {
+		bucketName = &options.ForceBucketName
+	}
+
+	internalParams := getCompositionsInternalConfig{
+		Type:                           "compositions",
+		Version:                        VERSION,
+		ChromiumOptions:                chromiumOptions,
+		LogLevel:                       logLevel,
+		InputProps:                     inputProps,
+		EnvVariables:                   envVariables,
+		TimeoutInMilliseconds:          timeoutInMilliseconds,
+		ServeUrl:                       options.ServeUrl,
+		BucketName:                     bucketName,
+		OffthreadVideoCacheSizeInBytes: options.OffthreadVideoCacheSizeInBytes,
+		MediaCacheSizeInBytes:          options.MediaCacheSizeInBytes,
+		PreferredEffectBackend:         preferredEffectBackend,
+		ForcePathStyle:                 options.ForcePathStyle,
 	}
 
 	return &internalParams, nil

@@ -2,17 +2,20 @@ import {grayscale} from '@remotion/effects/grayscale';
 import React from 'react';
 import {
 	AnimatedImage,
+	Easing,
 	Interactive,
 	interpolate,
 	useCurrentFrame,
 } from 'remotion';
 import {asset} from './assets';
+import {Text} from './Text';
 
 const OneShotInner: React.FC = () => {
 	const frame = useCurrentFrame();
 	return (
 		<>
 			<AnimatedImage
+				name="One-shot reaction"
 				src={asset('Eu0CBaxXpj8DK85e61.webp')}
 				style={{
 					position: 'absolute',
@@ -24,7 +27,7 @@ const OneShotInner: React.FC = () => {
 				effects={[grayscale({})]}
 				playbackRate={0.5}
 			/>
-			<Interactive.Div
+			<Text
 				name="One-Shot title"
 				style={{
 					position: 'absolute',
@@ -39,19 +42,21 @@ const OneShotInner: React.FC = () => {
 					WebkitTextStroke: '4px black',
 					fontSize: 164,
 					fontWeight: 900,
-					scale: interpolate(frame, [0, 56, 59], [0, 0.7857142857142857, 1], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-						output: 'perceptual-scale',
-					}),
-					opacity: interpolate(frame, [56, 59], [1, 0], {
-						extrapolateLeft: 'clamp',
-						extrapolateRight: 'clamp',
-					}),
+					scale: 0.7857142857142857,
+					translate: interpolate(
+						frame,
+						[0, 8, 56, 60],
+						['1400px 0px', '0px 0px', '0px 0px', '-1400px 0px'],
+						{
+							extrapolateLeft: 'clamp',
+							extrapolateRight: 'clamp',
+							easing: Easing.inOut(Easing.cubic),
+						},
+					),
 				}}
 			>
 				One-Shot
-			</Interactive.Div>
+			</Text>
 		</>
 	);
 };

@@ -323,6 +323,10 @@ export const renderFrameWithOptionToReject = async ({
 				);
 			}
 
+			assetIndex.firstArtifactFrameByFilename.set(
+				artifact.filename,
+				artifact.frame,
+			);
 			onArtifact?.(artifact);
 		}
 
@@ -351,15 +355,6 @@ export const renderFrameWithOptionToReject = async ({
 				!assetIndex.firstAssetBySrc.has(asset.src)
 			) {
 				assetIndex.firstAssetBySrc.set(asset.src, asset);
-			}
-		}
-
-		for (const artifact of artifactAssets) {
-			if (!assetIndex.firstArtifactFrameByFilename.has(artifact.filename)) {
-				assetIndex.firstArtifactFrameByFilename.set(
-					artifact.filename,
-					artifact.frame,
-				);
 			}
 		}
 

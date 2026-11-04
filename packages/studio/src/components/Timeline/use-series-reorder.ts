@@ -3,17 +3,17 @@ import type {ReorderSequencePosition} from '@remotion/studio-shared';
 import {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {startEscapeCancelableDeferredPointerSession} from '../../helpers/escape-cancelable-pointer-session';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {
-	isPointerSessionRelease,
-	startDeferredCapturedPointerSession,
-} from '../../helpers/pointer-session';
+import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {reorderSequence} from '../reorder-sequence-api';
+import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
 import type {TimelineTrackWithDisplayGroup} from './timeline-display-groups';
 import {scrollableRef} from './timeline-refs';
 import {
+	getTimelineContentWidth,
 	SCROLL_INCREMENT,
 	startTimelineEdgeAutoScroll,
 } from './timeline-scroll-logic';
@@ -21,7 +21,6 @@ import {
 	isTimelineSelectionModifierEvent,
 	useCurrentTimelineSelectionStateAsRef,
 } from './TimelineSelection';
-import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const SERIES_REORDER_SEAM_SNAP_DISTANCE = 12;
 
@@ -29,7 +28,6 @@ export const useSeriesReorder = (
 	items: readonly TimelineTrackWithDisplayGroup[],
 ) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const timelineWidth = useContext(TimelineWidthContext);
 	const video = Internals.useVideo();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const [dropIndicatorLeft, setDropIndicatorLeft] = useState<number | null>(
@@ -44,13 +42,14 @@ export const useSeriesReorder = (
 
 	const onPointerDownCapture = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
+			const timelineWidth = getTimelineContentWidth();
 			if (
 				e.button !== 0 ||
 				!e.isPrimary ||
 				isTimelineSelectionModifierEvent(e) ||
 				!isStudioInteractivityEnabled() ||
 				previewServerState.type !== 'connected' ||
-				timelineWidth === null ||
+				timelineWidth <= TIMELINE_PADDING * 2 ||
 				video === null ||
 				!(e.target instanceof Element) ||
 				e.target.closest('button, input, textarea, select, [role="separator"]')
@@ -198,13 +197,18 @@ export const useSeriesReorder = (
 				);
 				const next = candidates[insertionIndex];
 				const candidate = next ?? candidates.at(-1);
+				const candidateNodePathInfo = candidate?.item.nodePathInfo;
 				if (
 					changesOrder &&
-					(!candidate ||
-						candidate.item.nodePathInfo?.numberOfSequencesWithThisNodePath !==
-							1 ||
-						candidate.item.nodePathInfo.sequenceSubscriptionKey.absolutePath !==
-							fileName)
+					(!candidateNodePathInfo ||
+						candidateNodePathInfo.numberOfSequencesWithThisNodePath !== 1 ||
+						sourceInfos.some(
+							(info) =>
+								!areSequenceNodesJsxSiblings(
+									info.sequenceSubscriptionKey,
+									candidateNodePathInfo.sequenceSubscriptionKey,
+								),
+						))
 				) {
 					setDropIndicatorLeft(null);
 					return;
@@ -232,7 +236,7 @@ export const useSeriesReorder = (
 					updateDropTarget();
 				},
 			});
-			stopPointerSession.current = startDeferredCapturedPointerSession({
+			stopPointerSession.current = startEscapeCancelableDeferredPointerSession({
 				// The row stays mounted when horizontal scrolling crops the source clip.
 				captureTarget: trackElement,
 				event: e.nativeEvent,
@@ -329,7 +333,7 @@ export const useSeriesReorder = (
 				},
 			});
 		},
-		[currentSelection, items, previewServerState, timelineWidth, video],
+		[currentSelection, items, previewServerState, video],
 	);
 	const onClickCapture = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
 		if (suppressNextClick.current) {

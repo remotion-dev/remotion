@@ -138,7 +138,13 @@ const getInstallationMarkdown = (pkg: string) => {
 };
 
 const studioApiPath = path.join('docs', 'studio', 'api.mdx');
-const thirdPartyElementsPath = path.join('elements', 'libraries.mdx');
+const thirdPartyElementsPath = path.resolve(
+	__dirname,
+	'..',
+	'..',
+	'elements',
+	'libraries.mdx',
+);
 
 const renderElementLibraryMarkdown = (attributes: string) => {
 	const categoryAttribute = getStringAttribute({
@@ -186,7 +192,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 		{
 			componentName: 'ThirdPartyElementLibraries',
 			appliesTo: (sourcePath) =>
-				path.normalize(sourcePath).endsWith(thirdPartyElementsPath),
+				path.resolve(sourcePath) === thirdPartyElementsPath,
 			render: () =>
 				thirdPartyElementLibraries
 					.map(

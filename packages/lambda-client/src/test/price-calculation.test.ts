@@ -1,7 +1,6 @@
 import {expect, test} from 'bun:test';
-import {estimatePriceFromMetadata} from '@remotion/serverless-client';
-import {awsImplementation} from '../aws-provider';
 import {estimatePrice} from '../estimate-price';
+import {estimatePriceFromMetadata} from '../estimate-price-from-bucket';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
@@ -60,7 +59,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			},
 		],
 		region: 'eu-central-1',
-		providerSpecifics: awsImplementation,
 		fatalErrorTimestamp: null,
 	});
 	expect(price?.accruedSoFar).toBeGreaterThanOrEqual(0);

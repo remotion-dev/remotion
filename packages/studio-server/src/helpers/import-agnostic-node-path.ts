@@ -230,8 +230,17 @@ const transformNodePathIndices = ({
 			continue;
 		}
 
-		const mappedIndex =
-			direction === 'to-agnostic'
+		// Only statement lists can contain imports, frame hooks, or font loaders.
+		// JSX children and other arrays keep their original indices.
+		const canContainIgnoredNodes =
+			arrayContext.property === 'body' &&
+			(arrayContext.parent.type === 'Program' ||
+				arrayContext.parent.type === 'BlockStatement');
+		const mappedIndex = !canContainIgnoredNodes
+			? Number.isInteger(segment) && segment >= 0 && segment < current.length
+				? segment + 0 // Match the scanned index when the input is -0.
+				: null
+			: direction === 'to-agnostic'
 				? getAgnosticIndex({
 						items: current as Node[],
 						actualIndex: segment,

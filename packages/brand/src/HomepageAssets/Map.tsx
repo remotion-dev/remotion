@@ -37,7 +37,7 @@ const coastalDots = [
 	{x: 1299, y: 455},
 ] as const;
 
-const FrontFace: React.FC<{
+export const MapCanvas: React.FC<{
 	readonly lineStartFrame: number;
 }> = ({lineStartFrame}) => {
 	const frame = useCurrentFrame();
@@ -53,6 +53,70 @@ const FrontFace: React.FC<{
 	const flightPath = `M${from.x} ${from.y}Q935 250 ${to.x} ${to.y}`;
 
 	return (
+		<svg viewBox="0 0 1920 1080" width="100%" height="100%">
+			<rect x={0} y={0} width={1920} height={1080} fill={BLUE} />
+			<g transform="translate(960 540) scale(1.45) translate(-960 -520)">
+				{landPaths.map((d, index) => {
+					return (
+						<path
+							key={index}
+							d={d}
+							fill={GREEN}
+							stroke="black"
+							strokeWidth={5}
+						/>
+					);
+				})}
+				<path
+					d={flightPath}
+					fill="none"
+					pathLength={1}
+					stroke={playheadRed}
+					strokeLinecap="round"
+					strokeDasharray={1}
+					strokeDashoffset={1 - easedLineProgress}
+					strokeWidth={12}
+				/>
+				{coastalDots.map(({x, y}, index) => {
+					const dotScale = spring({
+						fps,
+						frame:
+							frame -
+							Math.max(0, lineStartFrame - 28) -
+							index * dotPopGapInFrames,
+						config: {
+							damping: 10,
+							mass: 0.55,
+							stiffness: 220,
+						},
+						durationInFrames: dotPopDurationInFrames,
+					});
+
+					return (
+						<g
+							key={index}
+							transform={`translate(${x} ${y}) scale(${dotScale}) translate(${-x} ${-y})`}
+						>
+							<circle
+								cx={x}
+								cy={y}
+								r={18}
+								fill={playheadRed}
+								stroke="black"
+								strokeWidth={5}
+							/>
+						</g>
+					);
+				})}
+			</g>
+		</svg>
+	);
+};
+
+const FrontFace: React.FC<{
+	readonly lineStartFrame: number;
+}> = ({lineStartFrame}) => {
+	return (
 		<div
 			style={{
 				width: '100%',
@@ -64,63 +128,7 @@ const FrontFace: React.FC<{
 				overflow: 'hidden',
 			}}
 		>
-			<svg viewBox="0 0 1920 1080" width="100%" height="100%">
-				<rect x={0} y={0} width={1920} height={1080} fill={BLUE} />
-				<g transform="translate(960 540) scale(1.45) translate(-960 -520)">
-					{landPaths.map((d, index) => {
-						return (
-							<path
-								key={index}
-								d={d}
-								fill={GREEN}
-								stroke="black"
-								strokeWidth={5}
-							/>
-						);
-					})}
-					<path
-						d={flightPath}
-						fill="none"
-						pathLength={1}
-						stroke={playheadRed}
-						strokeLinecap="round"
-						strokeDasharray={1}
-						strokeDashoffset={1 - easedLineProgress}
-						strokeWidth={12}
-					/>
-					{coastalDots.map(({x, y}, index) => {
-						const dotScale = spring({
-							fps,
-							frame:
-								frame -
-								Math.max(0, lineStartFrame - 28) -
-								index * dotPopGapInFrames,
-							config: {
-								damping: 10,
-								mass: 0.55,
-								stiffness: 220,
-							},
-							durationInFrames: dotPopDurationInFrames,
-						});
-
-						return (
-							<g
-								key={index}
-								transform={`translate(${x} ${y}) scale(${dotScale}) translate(${-x} ${-y})`}
-							>
-								<circle
-									cx={x}
-									cy={y}
-									r={18}
-									fill={playheadRed}
-									stroke="black"
-									strokeWidth={5}
-								/>
-							</g>
-						);
-					})}
-				</g>
-			</svg>
+			<MapCanvas lineStartFrame={lineStartFrame} />
 		</div>
 	);
 };

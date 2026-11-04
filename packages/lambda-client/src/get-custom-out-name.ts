@@ -1,0 +1,52 @@
+import type {
+	CustomCredentials,
+	OutNameInput,
+	OutNameInputWithoutCredentials,
+	Privacy,
+} from './shared-constants';
+
+export const getCustomOutName = ({
+	outName,
+	privacy,
+	customCredentials,
+}: {
+	outName: OutNameInputWithoutCredentials | null;
+	privacy: Privacy;
+	customCredentials: CustomCredentials | null;
+}): OutNameInput | null => {
+	if (outName === null) {
+		return null;
+	}
+
+	if (typeof outName === 'string') {
+		return outName;
+	}
+
+	if (outName.s3OutputProvider) {
+		if (!customCredentials && privacy === 'private') {
+			throw new TypeError(
+				`The file was rendered with a custom S3 implementation and is not public, but no custom credentials were passed to downloadMedia().`,
+			);
+		}
+
+		return {
+			bucketName: outName.bucketName,
+			key: outName.key,
+			s3OutputProvider: {
+				endpoint: outName.s3OutputProvider.endpoint,
+				accessKeyId: customCredentials?.accessKeyId ?? null,
+				secretAccessKey: customCredentials?.secretAccessKey ?? null,
+				region: customCredentials?.region,
+				forcePathStyle:
+					outName.s3OutputProvider.forcePathStyle ??
+					customCredentials?.forcePathStyle ??
+					false,
+			},
+		};
+	}
+
+	return {
+		bucketName: outName.bucketName,
+		key: outName.key,
+	};
+};
