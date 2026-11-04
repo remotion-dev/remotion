@@ -66,7 +66,10 @@ describe('GSAP renderer parity', () => {
 
 		browser = await openBrowser('chrome', {
 			logLevel: 'warn',
-			chromiumOptions: {gl: 'swangle'},
+			// GPU (ANGLE/SwiftShader) rasterization of blurs and gradients varies
+			// by ±1 per channel between tabs. Use Chrome's default backend (the v4
+			// default) so this test only measures GSAP timeline determinism.
+			chromiumOptions: {gl: null},
 		});
 		composition = await selectComposition({
 			inputProps: {},
