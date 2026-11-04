@@ -20,6 +20,7 @@ type Session = {
   revision: number;
   hasBundle: boolean;
   appliedSelection: PreviewCompositionSelection | null;
+  appliedFiles: ProjectFiles | null;
   disposed: boolean;
 };
 
@@ -47,19 +48,29 @@ const sameSelection = (
 export const useCompiler = ({
   host,
   files,
+  sourceRevision,
   entryPoint,
   selection,
   dispatch,
+  getSourceTransition,
 }: {
   host: PreviewHost | null;
   files: ProjectFiles;
+  sourceRevision: number;
   entryPoint: string;
   selection: PreviewCompositionSelection | null;
   dispatch: React.Dispatch<EditorAction>;
+  getSourceTransition: (
+    previousFiles: ProjectFiles | null,
+    nextFiles: ProjectFiles,
+    sourceRevision: number,
+  ) => () => void;
 }) => {
   const sessionRef = useRef<Session | null>(null);
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
+  const transitionRef = useRef(getSourceTransition);
+  transitionRef.current = getSourceTransition;
 
   useEffect(() => {
     if (!host) {
@@ -105,6 +116,7 @@ export const useCompiler = ({
       revision: 0,
       hasBundle: false,
       appliedSelection: null,
+      appliedFiles: null,
       disposed: false,
     };
     sessionRef.current = session;
@@ -117,7 +129,7 @@ export const useCompiler = ({
   }, [dispatch, host]);
 
   const compile = useCallback(
-    (nextFiles: ProjectFiles) => {
+    (nextFiles: ProjectFiles, nextSourceRevision: number) => {
       const session = sessionRef.current;
       if (!host || !session || session.disposed) {
         return;
@@ -146,7 +158,15 @@ export const useCompiler = ({
           dispatch({ type: "set-runtime-error", message: null });
           // Newer edits may be queued, but every compiled bundle must be
           // applied because the next Fast Refresh update builds on it.
-          await host.applyBundle(bundle);
+          await host.applyBundle(
+            bundle,
+            transitionRef.current(
+              session.appliedFiles,
+              nextFiles,
+              nextSourceRevision,
+            ),
+          );
+          session.appliedFiles = nextFiles;
           session.hasBundle = true;
           dispatch({ type: "set-applied-files", files: nextFiles });
           const desired = selectionRef.current;
@@ -184,9 +204,12 @@ export const useCompiler = ({
       return;
     }
 
-    const timeout = window.setTimeout(() => compile(files), 150);
+    const timeout = window.setTimeout(
+      () => compile(files, sourceRevision),
+      150,
+    );
     return () => window.clearTimeout(timeout);
-  }, [compile, files, host]);
+  }, [compile, files, host, sourceRevision]);
 
   useEffect(() => {
     const session = sessionRef.current;
