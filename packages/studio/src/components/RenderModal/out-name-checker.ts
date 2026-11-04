@@ -4,6 +4,21 @@ import type {RenderType} from './RenderModalAdvanced';
 
 const invalidCharacters = ['?', '*', '+', ':', '%'];
 
+export const hasInvalidOutputDotSegment = (outName: string): boolean => {
+	let filename = '';
+	for (const segment of outName.split('/')) {
+		if (segment === '.' || segment === '..') {
+			return true;
+		}
+
+		if (segment !== '') {
+			filename = segment;
+		}
+	}
+
+	return filename.startsWith('.');
+};
+
 const isValidStillExtension = (
 	extension: string,
 	stillImageFormat: StillImageFormat,
@@ -77,17 +92,6 @@ const isValidOutName = ({
 		);
 	}
 
-	const hasDotAfterSlash = () => {
-		const substrings = prefix.split('/');
-		for (const str of substrings) {
-			if (str[0] === '.') {
-				return true;
-			}
-		}
-
-		return false;
-	};
-
 	const hasInvalidChar = () => {
 		return prefix.split('').some((char) => invalidCharacters.includes(char));
 	};
@@ -106,7 +110,7 @@ const isValidOutName = ({
 		throw new Error('The prefix must be at least 1 character long');
 	}
 
-	if (prefix[0] === '.' || hasDotAfterSlash()) {
+	if (hasInvalidOutputDotSegment(outName)) {
 		throw new Error('The output name must not start with a dot');
 	}
 
@@ -149,17 +153,6 @@ export const isValidSeparateAudioName = ({
 		throw new Error(`Expected extension: .${expectedExtension}`);
 	}
 
-	const hasDotAfterSlash = () => {
-		const substrings = prefix.split('/');
-		for (const str of substrings) {
-			if (str[0] === '.') {
-				return true;
-			}
-		}
-
-		return false;
-	};
-
 	const hasInvalidChar = () => {
 		return prefix.split('').some((char) => invalidCharacters.includes(char));
 	};
@@ -168,7 +161,7 @@ export const isValidSeparateAudioName = ({
 		throw new Error('The prefix must be at least 1 character long');
 	}
 
-	if (prefix[0] === '.' || hasDotAfterSlash()) {
+	if (hasInvalidOutputDotSegment(separateAudioTo)) {
 		throw new Error('The output name must not start with a dot');
 	}
 

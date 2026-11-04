@@ -33,7 +33,7 @@ let unsubscribeFromBrowserStudio: (() => void) | null = null;
 let browserStudioReadyListenerInstalled = false;
 let connectionState: PreviewServerConnectionState = {type: 'init'};
 let lastInitEvent: Extract<EventSourceEvent, {type: 'init'}> | null = null;
-let pendingHmrEvent: Extract<EventSourceEvent, {type: 'hmr'}> | null = null;
+const pendingHmrEvents: Extract<EventSourceEvent, {type: 'hmr'}>[] = [];
 const messageListeners = new Set<MessageListener>();
 const connectionStateListeners = new Set<ConnectionStateListener>();
 
@@ -70,7 +70,7 @@ const dispatch = (event: EventSourceEvent) => {
 	}
 
 	if (event.type === 'hmr' && messageListeners.size === 0) {
-		pendingHmrEvent = event;
+		pendingHmrEvents.push(event);
 	}
 
 	for (const listener of messageListeners) {
@@ -174,9 +174,8 @@ export const subscribeToPreviewServerEvents = (
 		listener(lastInitEvent);
 	}
 
-	if (pendingHmrEvent) {
-		listener(pendingHmrEvent);
-		pendingHmrEvent = null;
+	for (const event of pendingHmrEvents.splice(0)) {
+		listener(event);
 	}
 
 	return () => {

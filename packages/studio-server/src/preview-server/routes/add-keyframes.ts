@@ -10,7 +10,6 @@ import type {
 	SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import {captureJsxNodePaths} from '../../codemods/get-node-path-remappings';
-import {parseAst} from '../../codemods/parse-ast';
 import {
 	updateEffectKeyframes,
 	updateSequenceKeyframes,
@@ -171,7 +170,7 @@ export const addKeyframes = async ({
 		const fileContents = readFileSync(absolutePath, 'utf-8');
 		let output = fileContents;
 		let firstLogLine = Number.POSITIVE_INFINITY;
-		const originalNodes = captureJsxNodePaths(parseAst(fileContents));
+		const originalNodes = captureJsxNodePaths(fileContents);
 
 		// Keyframe codemods may wrap a concise arrow in a return statement.
 		// JSX nodes remain in order, but their node paths can all change.
@@ -186,7 +185,7 @@ export const addKeyframes = async ({
 				throw new Error('Could not find the original JSX node for keyframing');
 			}
 
-			const currentNodes = captureJsxNodePaths(parseAst(output));
+			const currentNodes = captureJsxNodePaths(output);
 			if (currentNodes.length !== originalNodes.length) {
 				throw new Error('Could not remap JSX nodes after keyframing');
 			}
@@ -277,7 +276,7 @@ export const addKeyframes = async ({
 			}
 		}
 
-		const finalNodes = captureJsxNodePaths(parseAst(output));
+		const finalNodes = captureJsxNodePaths(output);
 		if (finalNodes.length !== originalNodes.length) {
 			throw new Error('Could not remap JSX nodes after keyframing');
 		}
@@ -287,12 +286,22 @@ export const addKeyframes = async ({
 			oldContents: fileContents,
 			newContents: output,
 			logLine: Number.isFinite(firstLogLine) ? firstLogLine : 1,
-			nodePathRemappings: originalNodes.flatMap(({nodePath}, index) => {
-				const newNodePath = finalNodes[index].nodePath;
-				return JSON.stringify(nodePath) === JSON.stringify(newNodePath)
-					? []
-					: [{oldNodePath: nodePath, newNodePath}];
-			}),
+			nodePathRemappings: originalNodes.flatMap(
+				({location, nodePath}, index) => {
+					const next = finalNodes[index];
+					return location?.line === next.location?.line &&
+						location?.column === next.location?.column &&
+						JSON.stringify(nodePath) === JSON.stringify(next.nodePath)
+						? []
+						: [
+								{
+									oldNodePath: nodePath,
+									newNodePath: next.nodePath,
+									sourceLocations: {before: location, after: next.location},
+								},
+							];
+				},
+			),
 		});
 	}
 
@@ -347,7 +356,7 @@ export const addKeyframes = async ({
 	}
 
 	const nodePathMutation = filesWithRemappings.length
-		? broadcastSequenceNodePathMutation(filesWithRemappings, null)
+		? broadcastSequenceNodePathMutation(filesWithRemappings, null, true)
 		: null;
 
 	for (const log of sequenceLogs) {

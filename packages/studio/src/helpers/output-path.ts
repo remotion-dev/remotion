@@ -1,11 +1,18 @@
-// This is a Studio navigation path, not a filesystem path. Keep the filename
-// raw, including backslashes and percent signs, until constructing a URL.
-export const normalizeOutputPath = (path: string): string => {
-	return `/${path.replace(/^\/+/, '')}`;
+import type {AnyRenderJob} from '../components/RenderQueue/context';
+
+export const getRenderJobOutputPath = (job: AnyRenderJob): string => {
+	if (job.type !== 'client-video' && job.type !== 'client-still') {
+		return job.outName;
+	}
+
+	return job.outName.replace(
+		window.remotion_fileSystemPlatform === 'win32' ? /^[\\/]+/ : /^\/+/,
+		'',
+	);
 };
 
 export const getEncodedOutputPath = (path: string): string => {
-	return normalizeOutputPath(path).split('/').map(encodeURIComponent).join('/');
+	return `/${encodeURIComponent(path)}`;
 };
 
 export const getOutputRoute = (path: string): string => {
