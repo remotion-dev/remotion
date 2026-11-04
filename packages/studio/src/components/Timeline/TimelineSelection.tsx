@@ -83,6 +83,10 @@ import {
 	ExpandedTracksSetterContext,
 	type GetIsExpanded,
 } from '../ExpandedTracksProvider';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {selectOptionsSidebarInspectorPanel} from '../options-sidebar-tabs';
 import {
 	getNodeCanEditEasing,
@@ -1784,6 +1788,7 @@ export const useTimelineMarqueeSelection = () => {
 			const previousWebkitUserSelect = document.body.style.webkitUserSelect;
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
+			forceSpecificCursor('default');
 
 			let hasDragged = false;
 			let lockedSelectionKind: TimelineMarqueeSelectionKind | null = null;
@@ -1922,6 +1927,7 @@ export const useTimelineMarqueeSelection = () => {
 
 			const cleanup = () => {
 				autoScroll.stop();
+				stopForcingSpecificCursor();
 				document.body.style.userSelect = previousUserSelect;
 				document.body.style.webkitUserSelect = previousWebkitUserSelect;
 				setMarqueeRect(null);
