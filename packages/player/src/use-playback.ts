@@ -324,7 +324,7 @@ export const usePlayback = ({
 						: actualFirstFrame
 					: nextFrame;
 
-			if (frameToDisplay !== currentFrame && !isBuffering()) {
+			if (frameToDisplay !== currentFrame) {
 				playbackFrame = frameToDisplay;
 				setFrameFromPlayback((c) => ({...c, [compositionId]: frameToDisplay}));
 			}
@@ -416,19 +416,17 @@ export const usePlayback = ({
 		const unsubscribeSeek = seek?.subscribe(() => {
 			// Seek notifications precede the frame update. Anchor the clock now,
 			// then read the new frame on the next callback via the seek revision.
-			startedTime = performance.now();
-			framesAdvanced = 0;
+			clock.startedTime = performance.now();
+			clock.framesAdvanced = 0;
 		});
 
 		queueNextFrame();
 
 		const onVisibilityChange = () => {
-			// Buffering and audio resume already own the next callback while waiting.
 			if (reqAnimFrameCall === null) {
 				return;
 			}
 
-			// Switch between rAF and background timers immediately in both directions.
 			cancelQueuedFrame();
 			callback();
 		};
