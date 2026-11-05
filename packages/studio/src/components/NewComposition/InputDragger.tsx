@@ -584,17 +584,26 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			textEditing?.format(value as number | string) ?? String(value ?? '');
 		editingPaddingRightRef.current = null;
 		const display = displayRef.current;
+		const numericPrefix =
+			textEditing === null
+				? editingDisplayValueRef.current.match(
+						/^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i,
+					)?.[0]
+				: undefined;
+		const suffixStart = editingDisplayValueRef.current.startsWith(text)
+			? text.length
+			: (numericPrefix?.length ?? null);
 		if (
 			rightAlign &&
 			display?.firstChild &&
 			display.parentElement &&
-			editingDisplayValueRef.current.startsWith(text) &&
-			editingDisplayValueRef.current !== text
+			suffixStart !== null &&
+			suffixStart < editingDisplayValueRef.current.length
 		) {
 			// Keep numbers in place when their display-only unit (such as fps) disappears.
 			const suffix = document.createRange();
 			suffix.selectNodeContents(display);
-			suffix.setStart(display.firstChild, text.length);
+			suffix.setStart(display.firstChild, suffixStart);
 			const {paddingRight} = window.getComputedStyle(display.parentElement);
 			editingPaddingRightRef.current = `calc(${paddingRight} + ${suffix.getBoundingClientRect().width}px)`;
 		}

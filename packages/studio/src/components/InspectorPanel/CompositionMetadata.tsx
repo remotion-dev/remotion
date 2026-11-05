@@ -295,7 +295,7 @@ const CompositionMetadataValue: React.FC<{
 		(newValue: number | string) => {
 			const numberValue = Number(newValue);
 			if (field === 'fps') {
-				return `${numberValue}fps`;
+				return `${Number(numberValue.toFixed(3))}fps`;
 			}
 
 			const roundedValue = Math.round(numberValue);
