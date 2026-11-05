@@ -371,9 +371,9 @@ export const EffectPicker: React.FC<{
 					? 2
 					: event.key === 'ArrowUp'
 						? -2
-						: !isSearch && event.key === 'ArrowRight'
+						: event.key === 'ArrowRight'
 							? 1
-							: !isSearch && event.key === 'ArrowLeft'
+							: event.key === 'ArrowLeft'
 								? -1
 								: null;
 			if (offset === null) {
