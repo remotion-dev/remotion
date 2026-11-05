@@ -20,17 +20,13 @@ Use it for wipes, reveals, and intro/outro animations on [`<Video>`](/docs/media
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {evolve} from '@remotion/effects/evolve';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 30], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <>
@@ -38,7 +34,10 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           evolve({
-            progress,
+            progress: interpolate(frame, [0, 30], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            }),
             direction: 'left',
             feather: 0.18,
           }),
@@ -95,24 +94,23 @@ When `true`, the effect is skipped. Defaults to `false`.
 
 ## Angled wipe<AvailableFrom v="4.0.540" />
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {evolve} from '@remotion/effects/evolve';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 30], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <Video
       src="https://remotion.media/video.mp4"
       effects={[
         evolve({
-          progress,
+          progress: interpolate(frame, [0, 30], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          }),
           direction: 'angle',
           angle: 60,
           featherUnit: 'pixels',

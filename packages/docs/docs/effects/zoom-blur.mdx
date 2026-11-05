@@ -18,16 +18,13 @@ A radial zoom blur that smears pixels away from a configurable center point. It 
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {zoomBlur} from '@remotion/effects/zoom-blur';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const amount = interpolate(frame, [0, 20], [80, 0], {
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <>
@@ -35,7 +32,9 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           zoomBlur({
-            amount,
+            amount: interpolate(frame, [0, 20], [80, 0], {
+              extrapolateRight: 'clamp',
+            }),
             center: [0.25, 0.5],
           }),
         ]}
