@@ -3,6 +3,7 @@ import {
 	getEffectDocumentationLink,
 	type EffectCatalogItem,
 } from '@remotion/studio-shared';
+import {defaultRangeExtractor, useVirtualizer} from '@tanstack/react-virtual';
 import React, {
 	useCallback,
 	useContext,
@@ -46,7 +47,6 @@ import {showNotification} from './Notifications/NotificationCenter';
 import {
 	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 	loopIndex,
-	useScrollIntoViewOnSelected,
 } from './QuickSwitcher/shared';
 import {
 	useTimelineSelection,
@@ -66,12 +66,8 @@ const inputStyle: React.CSSProperties = {
 const resultList: React.CSSProperties = {
 	flex: 1,
 	minHeight: 0,
-	display: 'grid',
-	gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-	alignContent: 'start',
-	gap: 4,
 	overflowY: 'auto',
-	padding: '0 7px 10px',
+	padding: '0 7px',
 };
 
 const noResults: React.CSSProperties = {
@@ -115,13 +111,11 @@ const EffectPickerResult: React.FC<{
 	readonly snapshot: HTMLCanvasElement | null;
 	readonly selected: boolean;
 	readonly onSelected: (item: EffectCatalogItem) => void;
-	readonly onPreview: (id: string | null) => void;
+	readonly onPreview: (id: string, previewing: boolean) => void;
 	readonly onFocus: (item: EffectCatalogItem) => void;
 }> = React.memo(
 	({item, snapshot, selected, onSelected, onPreview, onFocus}) => {
 		const ref = useRef<HTMLButtonElement>(null);
-
-		useScrollIntoViewOnSelected(ref, selected);
 
 		useEffect(() => {
 			const element = ref.current;
@@ -129,10 +123,14 @@ const EffectPickerResult: React.FC<{
 				return;
 			}
 
-			return observeHover({
+			const unobserve = observeHover({
 				element,
-				onHoverChange: (hovered) => onPreview(hovered ? item.id : null),
+				onHoverChange: (hovered) => onPreview(item.id, hovered),
 			});
+			return () => {
+				unobserve();
+				onPreview(item.id, false);
+			};
 		}, [item.id, onPreview]);
 
 		const style = useMemo((): React.CSSProperties => {
@@ -184,7 +182,7 @@ const EffectPickerResult: React.FC<{
 					tabIndex={selected ? 0 : -1}
 					onClick={onClick}
 					onFocus={() => onFocus(item)}
-					onBlur={() => onPreview(null)}
+					onBlur={() => onPreview(item.id, false)}
 				>
 					<EffectThumbnail item={item} snapshot={snapshot} />
 					<span style={label}>{item.label}</span>
@@ -205,6 +203,7 @@ export const EffectPicker: React.FC<{
 	const [previewId, setPreviewId] = useState<string | null>(null);
 	const [previewFailed, setPreviewFailed] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
+	const pendingFocus = useRef<string | null>(null);
 	const {isHighestContext} = useZIndex();
 	const previewStore = useContext(Internals.EffectPreviewContext);
 	const {setPreview} = previewStore;
@@ -316,6 +315,61 @@ export const EffectPicker: React.FC<{
 
 	const selectedIndexRounded =
 		results.length === 0 ? -1 : loopIndex(selectedIndex, results.length);
+	const getScrollElement = useCallback(() => listRef.current, []);
+	const getRowKey = useCallback(
+		(index: number) => results[index * 2].id,
+		[results],
+	);
+	const estimateRowHeight = useCallback(() => {
+		const width = listRef.current?.clientWidth || 320;
+		const aspectRatio = snapshot
+			? Math.max(3 / 2, snapshot.width / snapshot.height)
+			: 3 / 2;
+		return (width - 18) / 2 / aspectRatio + 22;
+	}, [snapshot]);
+	const rangeExtractor = useCallback(
+		(range: Parameters<typeof defaultRangeExtractor>[0]) => {
+			const indexes = defaultRangeExtractor(range);
+			const selectedRow = Math.floor(selectedIndexRounded / 2);
+			if (selectedRow >= 0 && !indexes.includes(selectedRow)) {
+				indexes.push(selectedRow);
+				indexes.sort((a, b) => a - b);
+			}
+
+			return indexes;
+		},
+		[selectedIndexRounded],
+	);
+	const rowVirtualizer = useVirtualizer({
+		count: Math.ceil(results.length / 2),
+		getScrollElement,
+		getItemKey: getRowKey,
+		estimateSize: estimateRowHeight,
+		rangeExtractor,
+		gap: 4,
+		overscan: 2,
+		paddingEnd: 10,
+	});
+	const virtualRows = rowVirtualizer.getVirtualItems();
+	const listWidth = rowVirtualizer.scrollRect?.width;
+
+	useLayoutEffect(() => {
+		rowVirtualizer.measure();
+	}, [listWidth, rowVirtualizer, snapshot]);
+
+	useLayoutEffect(() => {
+		if (pendingFocus.current === null) {
+			return;
+		}
+
+		const button = listRef.current?.querySelector<HTMLButtonElement>(
+			`[data-effect-id="${pendingFocus.current}"]`,
+		);
+		if (button) {
+			pendingFocus.current = null;
+			button.focus({preventScroll: true});
+		}
+	}, [selectedIndexRounded, virtualRows]);
 
 	const selectItem = useCallback(
 		(item: EffectCatalogItem) => {
@@ -349,6 +403,11 @@ export const EffectPicker: React.FC<{
 		},
 		[results],
 	);
+	const onResultPreview = useCallback((id: string, previewing: boolean) => {
+		setPreviewId((current) =>
+			previewing ? id : current === id ? null : current,
+		);
+	}, []);
 
 	const onKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -418,12 +477,19 @@ export const EffectPicker: React.FC<{
 			setSelectedIndex(nextIndex);
 			setPreviewId(results[nextIndex].id);
 			if (isResult) {
-				listRef.current
-					?.querySelectorAll<HTMLButtonElement>('[data-effect-id]')
-					[nextIndex]?.focus();
+				pendingFocus.current = results[nextIndex].id;
 			}
+
+			rowVirtualizer.scrollToIndex(Math.floor(nextIndex / 2), {align: 'auto'});
 		},
-		[isHighestContext, onBack, results, selectItem, selectedIndexRounded],
+		[
+			isHighestContext,
+			onBack,
+			results,
+			rowVirtualizer,
+			selectItem,
+			selectedIndexRounded,
+		],
 	);
 
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -431,8 +497,10 @@ export const EffectPicker: React.FC<{
 			setQuery(e.target.value);
 			setSelectedIndex(0);
 			setPreviewId(null);
+			pendingFocus.current = null;
+			rowVirtualizer.scrollToOffset(0);
 		},
-		[],
+		[rowVirtualizer],
 	);
 
 	if (!track) {
@@ -473,19 +541,46 @@ export const EffectPicker: React.FC<{
 				{results.length === 0 ? (
 					<div style={noResults}>No effects found</div>
 				) : (
-					results.map((item, i) => {
-						return (
-							<EffectPickerResult
-								key={item.id}
-								item={item}
-								snapshot={snapshot}
-								selected={selectedIndexRounded === i}
-								onPreview={setPreviewId}
-								onFocus={onResultFocus}
-								onSelected={selectItem}
-							/>
-						);
-					})
+					<div
+						style={{
+							height: rowVirtualizer.getTotalSize(),
+							position: 'relative',
+							width: '100%',
+						}}
+					>
+						{virtualRows.map((row) => (
+							<div
+								key={row.key}
+								ref={rowVirtualizer.measureElement}
+								data-index={row.index}
+								style={{
+									position: 'absolute',
+									top: 0,
+									left: 0,
+									width: '100%',
+									transform: `translateY(${row.start}px)`,
+									display: 'grid',
+									gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+									alignItems: 'start',
+									gap: 4,
+								}}
+							>
+								{results
+									.slice(row.index * 2, row.index * 2 + 2)
+									.map((item, i) => (
+										<EffectPickerResult
+											key={item.id}
+											item={item}
+											snapshot={snapshot}
+											selected={selectedIndexRounded === row.index * 2 + i}
+											onPreview={onResultPreview}
+											onFocus={onResultFocus}
+											onSelected={selectItem}
+										/>
+									))}
+							</div>
+						))}
+					</div>
 				)}
 			</div>
 		</div>
