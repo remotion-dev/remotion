@@ -63,6 +63,19 @@ export const getTimelineAssetSrcFromSchema = (
 };
 
 export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
+	if (src.startsWith('blob:') && typeof window !== 'undefined') {
+		const staticFile = window.remotion_staticFiles?.find(
+			(file) => file.src === src,
+		);
+		if (staticFile) {
+			return {
+				kind: 'local',
+				assetPath: staticFile.name,
+				title: staticFile.name,
+			};
+		}
+	}
+
 	if (src.startsWith(NoReactInternals.FILE_TOKEN)) {
 		const encodedAssetPath = src.slice(NoReactInternals.FILE_TOKEN.length);
 		let assetPath = encodedAssetPath;
@@ -82,7 +95,11 @@ export const getTimelineAssetLinkInfo = (src: string): LinkInfo => {
 	const staticBase =
 		typeof window === 'undefined' ? null : window.remotion_staticBase;
 
-	if (staticBase && src.startsWith(staticBase + '/')) {
+	if (
+		typeof staticBase === 'string' &&
+		src.startsWith(staticBase + '/') &&
+		!src.startsWith('//')
+	) {
 		const assetPath = src.slice(staticBase.length + 1).split(/[?#]/, 1)[0];
 		return {
 			kind: 'local',

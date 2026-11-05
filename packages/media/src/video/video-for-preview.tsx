@@ -169,16 +169,18 @@ const VideoForPreviewAssertedShowing: React.FC<
 
 		let fileName = knownStaticFile?.name ?? null;
 		if (fileName === null) {
-			if (!window.remotion_staticBase) {
+			const staticBase = window.remotion_staticBase;
+			if (
+				typeof staticBase !== 'string' ||
+				(staticBase === '' &&
+					(!unpreloadedSrc.startsWith('/') || unpreloadedSrc.startsWith('//')))
+			) {
 				return unchanged;
 			}
 
 			try {
 				const source = new URL(unpreloadedSrc, window.location.href);
-				const base = new URL(
-					`${window.remotion_staticBase}/`,
-					window.location.href,
-				);
+				const base = new URL(`${staticBase}/`, window.location.href);
 				if (
 					source.origin !== base.origin ||
 					!source.pathname.startsWith(base.pathname)
