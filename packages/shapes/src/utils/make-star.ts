@@ -75,6 +75,10 @@ export const makeStar = ({
 	cornerRadius = 0,
 	edgeRoundness = null,
 }: MakeStarProps): ShapeInfo => {
+	if (points < 3) {
+		throw new Error(`"points" should be minimum 3, got ${points}`);
+	}
+
 	const width = outerRadius * 2;
 	const height = outerRadius * 2;
 
