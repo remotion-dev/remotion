@@ -62,7 +62,10 @@ import {
 	findEffectsAttr,
 } from './sequence-props/can-update-effect-props';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
-import {ensureNamedImport} from './sequence-props/imports';
+import {
+	ensureNamedImport,
+	ensureOfficialNamedImport,
+} from './sequence-props/imports';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {parseAst} from './sequence-props/parse-ast';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
@@ -136,24 +139,16 @@ const getKeyframeFunctionSourceEdits = ({
 	functionSnapshots,
 	input,
 	jsxPath,
-	needsFrameHook,
 	openingElement,
 }: {
 	formattingConfig: SourceFormattingConfig;
 	functionSnapshots: FunctionSourceSnapshot[];
 	input: string;
 	jsxPath: recast.types.NodePath;
-	needsFrameHook: boolean;
 	openingElement: JSXOpeningElement;
 }) => {
 	const reprintBlockBodies = new Set<BlockStatement>();
 	const fnPath = findEnclosingFunctionPath(jsxPath);
-	if (needsFrameHook && !fnPath) {
-		throw new Error(
-			'Cannot add keyframes outside a component function because useCurrentFrame() needs a function scope',
-		);
-	}
-
 	if (fnPath) {
 		const functionNode = fnPath.value as FunctionNode;
 		const snapshot = functionSnapshots.find(
@@ -166,10 +161,6 @@ const getKeyframeFunctionSourceEdits = ({
 			snapshot.body.loc.start.line === openingElement.loc.start.line
 		) {
 			reprintBlockBodies.add(snapshot.body);
-		}
-
-		if (needsFrameHook) {
-			ensureUseCurrentFrameHook(fnPath);
 		}
 	}
 
@@ -2095,6 +2086,45 @@ const getEffectPropsObjectExpression = (
 	return call.arguments[0] as ObjectExpression;
 };
 
+const prepareIntroducedKeyframeIdentifiers = ({
+	ast,
+	expression,
+	introduced,
+	jsxPath,
+}: {
+	ast: File;
+	expression: ExpressionKind;
+	introduced: IntroducedKeyframeIdentifiers;
+	jsxPath: recast.types.NodePath;
+}) => {
+	if (expression.type === 'CallExpression') {
+		if (introduced.calleeName && introduced.calleeName !== 'interpolatePaths') {
+			expression.callee = b.identifier(
+				ensureOfficialNamedImport({
+					ast,
+					importedName: introduced.calleeName,
+					sourcePath: 'remotion',
+					preferredLocalName: introduced.calleeName,
+				}),
+			);
+		}
+
+		if (introduced.needsFrameHook) {
+			expression.arguments[0] = b.identifier(
+				ensureUseCurrentFrameHook({
+					referencePath: jsxPath,
+					hookName: ensureOfficialNamedImport({
+						ast,
+						importedName: 'useCurrentFrame',
+						sourcePath: 'remotion',
+						preferredLocalName: 'useCurrentFrame',
+					}),
+				}),
+			);
+		}
+	}
+};
+
 export const updateSequenceKeyframesAst = ({
 	input,
 	nodePath,
@@ -2142,7 +2172,6 @@ export const updateSequenceKeyframesAst = ({
 	const originalAttributeSources = captureJsxAttributeSources(node);
 
 	const requiredImports = new Set<string>();
-	let needsFrameHook = false;
 
 	const oldValueStrings: string[] = [];
 	const newValueStrings: string[] = [];
@@ -2170,6 +2199,13 @@ export const updateSequenceKeyframesAst = ({
 			schema: schema ?? null,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
+		prepareIntroducedKeyframeIdentifiers({
+			ast,
+			expression: nextExpression,
+			introduced,
+			jsxPath,
+		});
+
 		newValueStrings.push(recast.print(nextExpression).code);
 		if (
 			shouldRemovePropAfterKeyframeOperation({
@@ -2186,15 +2222,6 @@ export const updateSequenceKeyframesAst = ({
 			prop.setExpression(nextExpression);
 		}
 
-		if (introduced.calleeName && introduced.calleeName !== 'interpolatePaths') {
-			requiredImports.add(introduced.calleeName);
-		}
-
-		if (introduced.needsFrameHook) {
-			requiredImports.add('useCurrentFrame');
-			needsFrameHook = true;
-		}
-
 		if (introduced.needsEasingImport) {
 			requiredImports.add('Easing');
 		}
@@ -2208,7 +2235,6 @@ export const updateSequenceKeyframesAst = ({
 		functionSnapshots,
 		input,
 		jsxPath,
-		needsFrameHook,
 		openingElement: node,
 	});
 
@@ -2351,7 +2377,6 @@ export const updateEffectKeyframesAst = ({
 	const oldValueStrings: string[] = [];
 	const newValueStrings: string[] = [];
 	const requiredImports = new Set<string>();
-	let needsFrameHook = false;
 	for (const update of updates) {
 		const prop = getEffectWritableProp({
 			objExpr,
@@ -2376,6 +2401,13 @@ export const updateEffectKeyframesAst = ({
 			schema: schema ?? null,
 			videoConfigValues: videoConfigIdentifierValues,
 		});
+		prepareIntroducedKeyframeIdentifiers({
+			ast,
+			expression: nextExpression,
+			introduced,
+			jsxPath,
+		});
+
 		newValueStrings.push(recast.print(nextExpression).code);
 		if (
 			shouldRemovePropAfterKeyframeOperation({
@@ -2392,15 +2424,6 @@ export const updateEffectKeyframesAst = ({
 			prop.setExpression(nextExpression);
 		}
 
-		if (introduced.calleeName && introduced.calleeName !== 'interpolatePaths') {
-			requiredImports.add(introduced.calleeName);
-		}
-
-		if (introduced.needsFrameHook) {
-			requiredImports.add('useCurrentFrame');
-			needsFrameHook = true;
-		}
-
 		if (introduced.needsEasingImport) {
 			requiredImports.add('Easing');
 		}
@@ -2414,7 +2437,6 @@ export const updateEffectKeyframesAst = ({
 		functionSnapshots,
 		input,
 		jsxPath,
-		needsFrameHook,
 		openingElement: jsx,
 	});
 

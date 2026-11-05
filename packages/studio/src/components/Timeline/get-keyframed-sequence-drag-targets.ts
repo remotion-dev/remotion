@@ -25,6 +25,20 @@ export type TimelineSequenceEffectKeyframeDragTarget =
 		readonly effectIndex: number;
 	};
 
+export const isKeyframeInSequenceSource = (
+	root: SequencePropsSubscriptionKey,
+	descendant: SequencePropsSubscriptionKey,
+): boolean => {
+	if (root.absolutePath !== descendant.absolutePath) {
+		return false;
+	}
+
+	const elementPath = root.nodePath.slice(0, -1);
+	return elementPath.every(
+		(segment, index) => descendant.nodePath[index] === segment,
+	);
+};
+
 export const getKeyframedSequenceDragTargets = ({
 	nodePath: sourceNodePath,
 	sequence,

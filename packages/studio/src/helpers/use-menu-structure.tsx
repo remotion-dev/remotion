@@ -224,6 +224,7 @@ export const getFileMenu = ({
 	return {
 		id: 'file' as const,
 		label: 'File',
+		ariaLabel: null,
 		leaveLeftPadding: false,
 		items,
 		quickSwitcherLabel: null,
@@ -232,13 +233,11 @@ export const getFileMenu = ({
 
 export const getRenderMenuItems = ({
 	closeMenu,
-	previewServerState,
 	readOnlyStudio,
 	renderShortcut,
 	compositionSelected,
 }: {
 	closeMenu: () => void;
-	previewServerState: 'connected' | 'init' | 'disconnected';
 	readOnlyStudio: boolean;
 	renderShortcut: string;
 	compositionSelected: boolean;
@@ -252,16 +251,7 @@ export const getRenderMenuItems = ({
 					label: 'Render...',
 					onClick: () => {
 						closeMenu();
-						if (previewServerState !== 'connected') {
-							showNotification('Restart the studio to render', 2000);
-							return;
-						}
-
-						const renderButton = document.getElementById(
-							'render-modal-button-server',
-						) as HTMLButtonElement;
-
-						renderButton.click();
+						document.getElementById('render-modal-button')?.click();
 					},
 					type: 'item' as const,
 					keyHint: areKeyboardShortcutsDisabled()
@@ -415,6 +405,7 @@ const useMenuStructureBase = ({
 		let struct: Structure = [
 			{
 				id: 'remotion' as const,
+				ariaLabel: 'Remotion',
 				label: (
 					<Row align="center" justify="center" style={inheritColor}>
 						<svg
@@ -536,6 +527,7 @@ const useMenuStructureBase = ({
 			{
 				id: 'view' as const,
 				label: 'View',
+				ariaLabel: null,
 				leaveLeftPadding: true,
 				items: [
 					{
@@ -846,13 +838,13 @@ const useMenuStructureBase = ({
 			{
 				id: 'composition' as const,
 				label: 'Composition',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					...(buildCompositionMenu
 						? [
 								...getRenderMenuItems({
 									closeMenu,
-									previewServerState: type,
 									readOnlyStudio,
 									renderShortcut,
 									compositionSelected: currentComposition !== null,
@@ -875,6 +867,7 @@ const useMenuStructureBase = ({
 			{
 				id: 'tools' as const,
 				label: 'Tools',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					studioAskAIEnabled
@@ -943,6 +936,7 @@ const useMenuStructureBase = ({
 			{
 				id: 'help' as const,
 				label: 'Help',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					{

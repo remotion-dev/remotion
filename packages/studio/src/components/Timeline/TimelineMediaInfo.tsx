@@ -1,11 +1,15 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
-import {WHITE_ALPHA_30} from '../../helpers/colors';
+import {FAIL_COLOR, WHITE_ALPHA_30} from '../../helpers/colors';
 import {formatMediaDuration} from '../../helpers/format-media-duration';
 import {useImageMetadata} from '../../helpers/use-image-metadata';
 import {useMediaMetadata} from '../../helpers/use-media-metadata';
 import {ActionTooltip} from '../ActionTooltip';
-import {getTimelineAssetLinkInfo} from './timeline-asset-link';
+import {useStaticFiles} from '../use-static-files';
+import {
+	getTimelineAssetLinkInfo,
+	isTimelineAssetMissing,
+} from './timeline-asset-link';
 
 const lineStyle: React.CSSProperties = {
 	whiteSpace: 'nowrap',
@@ -23,11 +27,16 @@ const lineStyle: React.CSSProperties = {
 
 const useAssetLink = (src: string) => {
 	const linkInfo = useMemo(() => getTimelineAssetLinkInfo(src), [src]);
+	const staticFiles = useStaticFiles();
+	const isMissingLocalAsset = useMemo(
+		() => isTimelineAssetMissing({linkInfo, staticFiles}),
+		[linkInfo, staticFiles],
+	);
 
 	const fileNameStyle: React.CSSProperties = useMemo(
 		() => ({
 			...lineStyle,
-			color: WHITE_ALPHA_30,
+			color: isMissingLocalAsset ? FAIL_COLOR : WHITE_ALPHA_30,
 			textDecoration: 'none',
 			display: 'inline-block',
 			overflow: 'hidden',
@@ -35,7 +44,7 @@ const useAssetLink = (src: string) => {
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
 		}),
-		[],
+		[isMissingLocalAsset],
 	);
 
 	return {

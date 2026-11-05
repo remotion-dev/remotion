@@ -264,6 +264,7 @@ export const renderFrameAndRetryTargetClose = async ({
 			{indent, logLevel},
 			`The browser crashed while rendering frame ${frame}, retrying ${retriesLeft} more times. Learn more about this error under https://www.remotion.dev/docs/target-closed`,
 		);
+		nextFrameToRender.returnFrame(frame);
 		// Replace the entire browser
 		await remotionSharedMemory?.forgetAllPages();
 		await browserReplacer.replaceBrowser(makeBrowser, async () => {
@@ -272,12 +273,11 @@ export const renderFrameAndRetryTargetClose = async ({
 				.map((_, i) => makeNewPage(frame, i));
 			const puppeteerPages = await Promise.all(pages);
 			const pool = await poolPromise;
+			pool.resources = pool.resources.filter((p) => !p.closed);
 			for (const newPage of puppeteerPages) {
 				pool.release(newPage);
 			}
 		});
-
-		nextFrameToRender.returnFrame(frame);
 
 		await renderFrameAndRetryTargetClose({
 			retriesLeft: retriesLeft - 1,

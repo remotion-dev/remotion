@@ -1,9 +1,16 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 const NewRecordingCursor = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 	return (
 		<MacOSCursor
 			cursor={interpolate(
@@ -387,16 +394,17 @@ const NewRecordingCursor = () => {
 };
 
 export const ExploreNewRecording20261028Composition = () => {
+	const {fps} = useVideoConfig();
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={420}
+			durationInFrames={(420 / 60) * fps}
 			style={{width: 2418, height: 1440}}
 		>
 			<Video
 				src="https://remotion.media/explore-remotion/new-source-2026-10-28-b2cc74a3b591.mp4"
 				muted
-				durationInFrames={420}
+				durationInFrames={(420 / 60) * fps}
 				style={{position: 'absolute'}}
 			/>
 			<NewRecordingCursor />

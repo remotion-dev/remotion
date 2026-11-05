@@ -8,12 +8,14 @@ export const isIosSafari = () => {
 		return false;
 	}
 
-	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(window.navigator.userAgent);
-	const isSafari = Boolean(
-		navigator.userAgent.match(/Version\/[\d.]+.*Safari/),
+	const {userAgent, platform, maxTouchPoints} = window.navigator;
+	const isIpadIPodIPhone = /iP(ad|od|hone)/i.test(userAgent);
+	const isIpadOsDesktopMode = platform === 'MacIntel' && maxTouchPoints > 1;
+	return (
+		(isIpadIPodIPhone || isIpadOsDesktopMode) &&
+		/AppleWebKit/.test(userAgent) &&
+		!/Chrome\/|Chromium\/|Android/.test(userAgent)
 	);
-	const isChrome = Boolean(navigator.userAgent.match(/CriOS\//));
-	return isIpadIPodIPhone && (isSafari || isChrome);
 };
 
 export const preloadAsset = (

@@ -18,6 +18,7 @@ test('nested actions with the same item ID have unique search result keys', () =
 	const menu: Menu = {
 		id: 'composition',
 		label: 'Composition',
+		ariaLabel: null,
 		leaveLeftPadding: false,
 		items: ['Open composition in...', 'Open component in...'].map(
 			(label, index): ComboboxValue => ({

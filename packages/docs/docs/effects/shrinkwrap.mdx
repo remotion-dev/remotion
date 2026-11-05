@@ -20,10 +20,10 @@ The effect generates wrinkles, glossy highlights and small displacements from th
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {shrinkwrap} from '@remotion/effects/shrinkwrap';
 import React from 'react';
-import {AbsoluteFill, HtmlInCanvas, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, HtmlInCanvas, interpolate, useCurrentFrame} from 'remotion';
 
 const label: React.CSSProperties = {
   alignItems: 'center',
@@ -42,7 +42,7 @@ const label: React.CSSProperties = {
   width: 900,
 };
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -57,7 +57,7 @@ export const MyComp: React.FC = () => {
             highlightIntensity: 0.85,
             wrinkleDensity: 0.48,
             edgeTension: 0.58,
-            phase: frame * 0.05,
+            phase: interpolate(frame, [0, 60], [0, 3]),
             seed: 8,
           }),
         ]}

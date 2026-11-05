@@ -114,7 +114,7 @@ export const getCanvasKeyframeValueToAdd = ({
 		return null;
 	}
 
-	return schema[key]?.type === 'font-weight'
+	return Internals.getFlatSchemaWithAllKeys(schema)[key]?.type === 'font-weight'
 		? normalizeFontWeightForKeyframe(value)
 		: value;
 };

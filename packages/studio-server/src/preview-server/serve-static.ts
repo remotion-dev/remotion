@@ -132,6 +132,10 @@ export const serveStatic = async function ({
 			RenderInternals.mimeLookup(path) || 'application/octet-stream',
 		);
 		res.setHeader('content-length', lstat.size);
+		if (req.method === 'HEAD') {
+			res.setHeader('x-remotion-file-mtime', lstat.mtimeMs);
+		}
+
 		res.writeHead(200);
 		if (req.method === 'HEAD') {
 			res.end();

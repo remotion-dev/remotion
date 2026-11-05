@@ -13,8 +13,8 @@ import React, {
 } from 'react';
 import {interpolate} from 'remotion';
 import {
-	BLUE,
 	BLUE_HOVERED,
+	INTERACTIVE_TEXT,
 	TRANSPARENT,
 	WHITE_ALPHA_10,
 } from '../../helpers/colors';
@@ -529,7 +529,12 @@ export const deriveInputDraggerValueDiff = ({
 
 const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
-	Props & {readonly textEditing: TextEditing | null}
+	Props & {
+		readonly textEditing: TextEditing | null;
+		readonly valueFromSteps:
+			| ((startValue: number, steps: number) => number)
+			| null;
+	}
 > = (
 	{
 		onValueChange,
@@ -556,6 +561,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 		dragSensitivity = 1,
 		type: _type,
 		textEditing,
+		valueFromSteps,
 		...props
 	},
 	ref,
@@ -578,17 +584,26 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			textEditing?.format(value as number | string) ?? String(value ?? '');
 		editingPaddingRightRef.current = null;
 		const display = displayRef.current;
+		const numericPrefix =
+			textEditing === null
+				? editingDisplayValueRef.current.match(
+						/^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i,
+					)?.[0]
+				: undefined;
+		const suffixStart = editingDisplayValueRef.current.startsWith(text)
+			? text.length
+			: (numericPrefix?.length ?? null);
 		if (
 			rightAlign &&
 			display?.firstChild &&
 			display.parentElement &&
-			editingDisplayValueRef.current.startsWith(text) &&
-			editingDisplayValueRef.current !== text
+			suffixStart !== null &&
+			suffixStart < editingDisplayValueRef.current.length
 		) {
 			// Keep numbers in place when their display-only unit (such as fps) disappears.
 			const suffix = document.createRange();
 			suffix.selectNodeContents(display);
-			suffix.setStart(display.firstChild, text.length);
+			suffix.setStart(display.firstChild, suffixStart);
 			const {paddingRight} = window.getComputedStyle(display.parentElement);
 			editingPaddingRightRef.current = `calc(${paddingRight} + ${suffix.getBoundingClientRect().width}px)`;
 		}
@@ -626,7 +641,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
-			color: dragging ? BLUE_HOVERED : BLUE,
+			color: dragging ? BLUE_HOVERED : INTERACTIVE_TEXT,
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			WebkitUserSelect: 'none',
@@ -673,6 +688,27 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const onKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
+			if (
+				valueFromSteps !== null &&
+				(e.key === 'ArrowUp' || e.key === 'ArrowDown')
+			) {
+				e.preventDefault();
+				e.stopPropagation();
+				const currentValue = deriveInputDraggerDragStartValue({
+					min: _min,
+					value,
+				});
+				const nextValue = valueFromSteps(
+					currentValue,
+					e.key === 'ArrowUp' ? 1 : -1,
+				);
+				if (nextValue !== currentValue) {
+					onValueChangeEnd?.(nextValue, 'input');
+				}
+
+				return;
+			}
+
 			if (e.key !== 'Enter') {
 				return;
 			}
@@ -681,7 +717,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			e.stopPropagation();
 			startEditing();
 		},
-		[startEditing],
+		[_min, onValueChangeEnd, startEditing, value, valueFromSteps],
 	);
 
 	const onEscape = useCallback(() => {
@@ -762,6 +798,8 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				}
 
 				if (e.key === 'Enter') {
+					e.preventDefault();
+					e.stopPropagation();
 					fallbackRef.current?.blur();
 					return;
 				}
@@ -778,13 +816,17 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 						min: _min,
 						value,
 					});
-				const steppedValue = deriveInputDraggerArrowValue({
-					direction: e.key === 'ArrowUp' ? 1 : -1,
-					max: _max,
-					min: _min,
-					step: deriveStep,
-					value: currentValue,
-				});
+				const direction = e.key === 'ArrowUp' ? 1 : -1;
+				const steppedValue =
+					valueFromSteps === null
+						? deriveInputDraggerArrowValue({
+								direction,
+								max: _max,
+								min: _min,
+								step: deriveStep,
+								value: currentValue,
+							})
+						: valueFromSteps(currentValue, direction);
 				const nextValue = integerOnly ? Math.round(steppedValue) : steppedValue;
 				if (
 					integerOnly &&
@@ -811,6 +853,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 				parseText,
 				textEditing,
 				value,
+				valueFromSteps,
 			],
 		);
 
@@ -855,15 +898,21 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 				const diff = deriveInputDraggerValueDiff({
 					dragSensitivity,
-					step,
+					step: valueFromSteps === null ? step : 1,
 					xDistance,
 				});
 				const newValue = Math.min(max, Math.max(min, dragStartValue + diff));
-				const steppedValue = snapToStep
-					? roundToStep(newValue, step)
-					: dragDecimalPlaces === undefined
-						? newValue
-						: roundToDecimalPlaces(newValue, dragDecimalPlaces);
+				const steppedValue =
+					valueFromSteps !== null
+						? valueFromSteps(
+								dragStartValue,
+								Math.sign(diff) * Math.round(Math.abs(diff)),
+							)
+						: snapToStep
+							? roundToStep(newValue, step)
+							: dragDecimalPlaces === undefined
+								? newValue
+								: roundToDecimalPlaces(newValue, dragDecimalPlaces);
 				const nextValue = integerOnly ? Math.round(steppedValue) : steppedValue;
 				if (
 					integerOnly &&
@@ -920,6 +969,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			snapToStep,
 			dragDecimalPlaces,
 			dragSensitivity,
+			valueFromSteps,
 		],
 	);
 
@@ -1078,7 +1128,12 @@ const InputDraggerWithoutTextEditing: React.ForwardRefRenderFunction<
 	HTMLButtonElement,
 	Props
 > = (props, ref) => (
-	<InputDraggerWithTextEditing {...props} ref={ref} textEditing={null} />
+	<InputDraggerWithTextEditing
+		{...props}
+		ref={ref}
+		textEditing={null}
+		valueFromSteps={null}
+	/>
 );
 
 export const InputDragger = React.forwardRef(InputDraggerWithoutTextEditing);

@@ -133,6 +133,7 @@ const studioOptions = options(
 		'ipv4',
 		'number-of-shared-audio-tags',
 		'default-premount-in-seconds',
+		'high-contrast',
 		'show-premounting',
 		'show-layer-frame-numbers',
 		'experimental-keep-audio-context-alive',

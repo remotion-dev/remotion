@@ -2,10 +2,11 @@ import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
+	CanvasImage,
 	Easing,
-	Img,
 	interpolate,
 	useCurrentFrame,
+	useVideoConfig,
 } from 'remotion';
 
 export const ExploreElementsRecording20261027Composition = ({
@@ -15,7 +16,8 @@ export const ExploreElementsRecording20261027Composition = ({
 	readonly cursorFrame: number | null;
 	readonly showDragPreview: boolean;
 }) => {
-	const currentFrame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const currentFrame = (useCurrentFrame() * 60) / fps;
 	const frame = cursorFrame ?? currentFrame;
 	const cursorTranslate = interpolate(
 		frame,
@@ -226,7 +228,7 @@ export const ExploreElementsRecording20261027Composition = ({
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={562}
+			durationInFrames={(562 / 60) * fps}
 			style={{
 				width: 2402,
 				height: 1600,
@@ -234,7 +236,7 @@ export const ExploreElementsRecording20261027Composition = ({
 		>
 			<Video
 				src="https://remotion.media/explore-remotion/elements-source-2026-10-27-ad41f4dc2cf1.mp4"
-				durationInFrames={562}
+				durationInFrames={(562 / 60) * fps}
 				style={{
 					position: 'absolute',
 					left: 0,
@@ -244,8 +246,10 @@ export const ExploreElementsRecording20261027Composition = ({
 				}}
 			/>
 			{showDragPreview && currentFrame >= 119 && currentFrame < 179 ? (
-				<Img
+				<CanvasImage
 					src="https://remotion.media/elements/backgrounds-rotating-starburst-preview.png"
+					width={132 * 3.2}
+					height={74.25 * 3.2}
 					style={{
 						position: 'absolute',
 						// Match the 132 × 74.25 CSS-pixel drag image and its centered

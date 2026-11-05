@@ -1,5 +1,6 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
+import {resolveSize} from './background-image-rect';
 import type {MaskImageInfo} from './mask-image';
 import {getMaskImage} from './mask-image-loader';
 import {createCanvasGradient} from './parse-linear-gradient';
@@ -56,12 +57,104 @@ export const handleMask = async ({
 		src: maskImageInfo.src,
 		state: internalState.maskImageLoaderState,
 	});
+	const {maskSize, maskRepeat} = maskImageInfo;
+	let width: number;
+	let height: number;
+	if (maskSize === 'contain' || maskSize === 'cover') {
+		const factor = (maskSize === 'contain' ? Math.min : Math.max)(
+			maskRect.width / image.width,
+			maskRect.height / image.height,
+		);
+		width = image.width * factor;
+		height = image.height * factor;
+	} else {
+		const [x, y = 'auto'] = maskSize.split(' ');
+		if (x === 'auto' && y === 'auto') {
+			width = image.width;
+			height = image.height;
+		} else if (x === 'auto') {
+			height = resolveSize({containerSize: maskRect.height, value: y});
+			width = (height * image.width) / image.height;
+		} else {
+			width = resolveSize({containerSize: maskRect.width, value: x});
+			height =
+				y === 'auto'
+					? (width * image.height) / image.width
+					: resolveSize({containerSize: maskRect.height, value: y});
+		}
+	}
+
 	tempContext.globalCompositeOperation = 'destination-in';
-	tempContext.drawImage(
-		image,
+	if (width === 0 || height === 0) {
+		tempContext.clearRect(
+			0,
+			0,
+			tempContext.canvas.width,
+			tempContext.canvas.height,
+		);
+		return;
+	}
+
+	const repetition =
+		{
+			'repeat repeat': 'repeat',
+			'no-repeat no-repeat': 'no-repeat',
+			'repeat no-repeat': 'repeat-x',
+			'no-repeat repeat': 'repeat-y',
+		}[maskRepeat] ?? maskRepeat;
+	const imageWidth = width * scale;
+	const imageHeight = height * scale;
+	if (repetition === 'no-repeat') {
+		// Preserve drawImage's filtering for a single tile, including the
+		// previously supported full-size mask case.
+		tempContext.drawImage(
+			image,
+			rectToFill.left,
+			rectToFill.top,
+			imageWidth,
+			imageHeight,
+		);
+	} else {
+		const pattern = tempContext.createPattern(image, repetition);
+		if (!pattern) {
+			throw new Error('Could not create URL mask pattern');
+		}
+
+		pattern.setTransform(
+			new DOMMatrix()
+				.translate(rectToFill.left, rectToFill.top)
+				.scale(imageWidth / image.width, imageHeight / image.height),
+		);
+		tempContext.fillStyle = pattern;
+		tempContext.fillRect(
+			0,
+			0,
+			tempContext.canvas.width,
+			tempContext.canvas.height,
+		);
+	}
+
+	// Filter precomposition can extend beyond the border box. Preserve mask-clip
+	// even when the pattern repeats into that expanded region.
+	tempContext.save();
+	tempContext.beginPath();
+	tempContext.rect(0, 0, tempContext.canvas.width, tempContext.canvas.height);
+	tempContext.rect(
 		rectToFill.left,
 		rectToFill.top,
-		rectToFill.width,
-		rectToFill.height,
+		repetition === 'no-repeat'
+			? Math.min(rectToFill.width, imageWidth)
+			: rectToFill.width,
+		repetition === 'no-repeat'
+			? Math.min(rectToFill.height, imageHeight)
+			: rectToFill.height,
 	);
+	tempContext.clip('evenodd');
+	tempContext.clearRect(
+		0,
+		0,
+		tempContext.canvas.width,
+		tempContext.canvas.height,
+	);
+	tempContext.restore();
 };

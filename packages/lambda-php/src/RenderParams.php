@@ -193,6 +193,7 @@ class RenderParams
     public function serializeParams()
     {
         $parameters = [
+            'streamProgress' => false,
             'enableCancellation' => $this->getEnableCancellation(),
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
