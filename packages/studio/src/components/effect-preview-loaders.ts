@@ -14,6 +14,7 @@ export const effectPreviewLoaders: Record<
 	'@remotion/effects/color-correction': () =>
 		import('@remotion/effects/color-correction'),
 	'@remotion/effects/color-key': () => import('@remotion/effects/color-key'),
+	'@remotion/effects/curves': () => import('@remotion/effects/curves'),
 	'@remotion/effects/duotone': () => import('@remotion/effects/duotone'),
 	'@remotion/effects/exposure': () => import('@remotion/effects/exposure'),
 	'@remotion/effects/grayscale': () => import('@remotion/effects/grayscale'),
@@ -35,6 +36,7 @@ export const effectPreviewLoaders: Record<
 	'@remotion/effects/thermal-vision': () =>
 		import('@remotion/effects/thermal-vision'),
 	'@remotion/effects/blur': () => import('@remotion/effects/blur'),
+	'@remotion/effects/lens-blur': () => import('@remotion/effects/lens-blur'),
 	'@remotion/effects/linear-progressive-blur': () =>
 		import('@remotion/effects/linear-progressive-blur'),
 	'@remotion/effects/radial-progressive-blur': () =>
@@ -44,12 +46,18 @@ export const effectPreviewLoaders: Record<
 	'@remotion/effects/zoom-blur': () => import('@remotion/effects/zoom-blur'),
 	'@remotion/effects/drop-shadow': () =>
 		import('@remotion/effects/drop-shadow'),
+	'@remotion/effects/long-shadows': () =>
+		import('@remotion/effects/long-shadows'),
 	'@remotion/effects/glow': () => import('@remotion/effects/glow'),
 	'@remotion/effects/outline': () => import('@remotion/effects/outline'),
 	'@remotion/effects/light-trail': () =>
 		import('@remotion/effects/light-trail'),
 	'@remotion/effects/evolve': () => import('@remotion/effects/evolve'),
 	'@remotion/effects/tear': () => import('@remotion/effects/tear'),
+	'@remotion/effects/film-burn': () => import('@remotion/effects/film-burn'),
+	'@remotion/effects/radial-wipe': () =>
+		import('@remotion/effects/radial-wipe'),
+	'@remotion/effects/iris-wipe': () => import('@remotion/effects/iris-wipe'),
 	'@remotion/effects/venetian-blinds': () =>
 		import('@remotion/effects/venetian-blinds'),
 	'@remotion/effects/mirror': () => import('@remotion/effects/mirror'),
@@ -62,9 +70,16 @@ export const effectPreviewLoaders: Record<
 		import('@remotion/effects/chromatic-aberration'),
 	'@remotion/effects/fisheye': () => import('@remotion/effects/fisheye'),
 	'@remotion/effects/corner-pin': () => import('@remotion/effects/corner-pin'),
+	'@remotion/effects/page-turn': () => import('@remotion/effects/page-turn'),
+	'@remotion/effects/sphere': () => import('@remotion/effects/sphere'),
+	'@remotion/effects/cylinder': () => import('@remotion/effects/cylinder'),
 	'@remotion/effects/wave': () => import('@remotion/effects/wave'),
 	'@remotion/effects/skew': () => import('@remotion/effects/skew'),
+	'@remotion/effects/turbulent-displace': () =>
+		import('@remotion/effects/turbulent-displace'),
 	'@remotion/effects/burlap': () => import('@remotion/effects/burlap'),
+	'@remotion/effects/bevel-alpha': () =>
+		import('@remotion/effects/bevel-alpha'),
 	'@remotion/effects/emboss': () => import('@remotion/effects/emboss'),
 	'@remotion/effects/dot-grid': () => import('@remotion/effects/dot-grid'),
 	'@remotion/effects/halftone': () => import('@remotion/effects/halftone'),
@@ -84,9 +99,14 @@ export const effectPreviewLoaders: Record<
 		import('@remotion/effects/radial-progressive-pixelate'),
 	'@remotion/effects/scanlines': () => import('@remotion/effects/scanlines'),
 	'@remotion/effects/speckle': () => import('@remotion/effects/speckle'),
+	'@remotion/effects/shatter': () => import('@remotion/effects/shatter'),
 	'@remotion/effects/shine': () => import('@remotion/effects/shine'),
 	'@remotion/effects/shrinkwrap': () => import('@remotion/effects/shrinkwrap'),
 	'@remotion/effects/vignette': () => import('@remotion/effects/vignette'),
+	'@remotion/effects/rain-fall': () => import('@remotion/effects/rain-fall'),
+	'@remotion/effects/snow-fall': () => import('@remotion/effects/snow-fall'),
+	'@remotion/effects/fractal-noise': () =>
+		import('@remotion/effects/fractal-noise'),
 	'@remotion/effects/contour-lines': () =>
 		import('@remotion/effects/contour-lines'),
 	'@remotion/effects/liquid-contours': () =>
