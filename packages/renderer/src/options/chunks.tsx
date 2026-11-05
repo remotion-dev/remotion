@@ -4,7 +4,7 @@ const cliFlag = 'chunks' as const;
 
 export const chunksOption = {
 	name: 'Chunks',
-	addedIn: '4.0.540',
+	addedIn: '4.0.542',
 	cliFlag,
 	description: (type) => (
 		<>

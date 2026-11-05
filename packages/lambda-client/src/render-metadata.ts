@@ -55,7 +55,7 @@ export type RenderMetadata = Discriminated & {
 	audioCodec: AudioCodec | null;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
-	// The frame ranges passed as `chunks` to renderMediaOnLambda(), null if Lambda planned them.
+	// The frame ranges passed as `chunks` to a Lambda render, null if Lambda planned them.
 	chunks: [number, number][] | null;
 	memorySizeInMb: number;
 	functionName: string;

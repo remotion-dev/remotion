@@ -18,6 +18,8 @@ const startAndGetLaunchPayload = async (payload: ServerlessStartPayload) => {
 	});
 
 	await startHandler({
+		context: null,
+		publish: null,
 		params: payload,
 		options: {
 			expectedBucketOwner: '123456789012',
