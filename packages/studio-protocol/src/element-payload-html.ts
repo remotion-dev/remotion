@@ -14,16 +14,12 @@ export type ElementPayloadScriptProps = {
 };
 
 export type ParsedElementPayloadsFromHtml = {
-	// Valid payloads from <script type="application/vnd.remotion.element+json"> blocks, in document order.
 	readonly payloads: StudioElementPayload[];
-	// Number of embedded blocks that were not valid JSON or not a valid Element payload.
 	readonly invalidPayloadCount: number;
-	// Unresolved href values of <link rel="alternate" type="application/vnd.remotion.element+json"> tags.
 	readonly alternateHrefs: string[];
 };
 
 // JSON.stringify() output can contain `</script>`, `<!--` or line separators.
-// Escaping them as JSON unicode escapes keeps the string identical after JSON.parse().
 const escapeJsonForHtml = (json: string): string => {
 	return json
 		.replace(/</g, '\\u003c')
@@ -109,8 +105,6 @@ export const parseElementPayloadsFromHtml = (
 	const alternateHrefs: string[] = [];
 	let invalidPayloadCount = 0;
 
-	// Comments, scripts and links are matched in document order, so a comment
-	// inside a script does not hide content and a commented-out tag is skipped.
 	const tokenRegex =
 		/<!--[\s\S]*?(?:-->|$)|<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<link\b([^>]*)>/gi;
 
