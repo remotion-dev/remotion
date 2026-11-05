@@ -22,6 +22,7 @@ import {
 	type AssetMetadata,
 } from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {noop} from '../helpers/noop';
 import {getOutputRoute} from '../helpers/output-path';
 import {
@@ -479,60 +480,60 @@ const CanvasTab: React.FC<{
 	}
 
 	const tabElement = (
-		<Tab
-			selected={selected}
-			onClick={selected ? noop : () => onSelect(tab, false)}
-			onDragEnter={onDragEnter}
-			onDragLeave={onDragLeave}
-			style={tabStyle}
-		>
-			<ActionTooltip
-				label={
-					<span style={tooltipContentStyle}>
-						<strong style={tooltipTitleStyle}>{label}</strong>
-						{dimensions === null ? null : `\n${dimensions}`}
-						{duration === null ? null : `\n${duration}`}
-					</span>
-				}
-				shortcut={null}
-				delay={800}
-				dismissOnClick
-				triggerStyle={tooltipTriggerStyle}
+		<>
+			<Tab
+				selected={selected}
+				onClick={selected ? noop : () => onSelect(tab, false)}
+				style={tabStyle}
 			>
-				<span
-					data-annotation-composition-id={
-						tab.type === 'composition' ? tab.compositionId : undefined
+				<ActionTooltip
+					label={
+						<span style={tooltipContentStyle}>
+							<strong style={tooltipTitleStyle}>{label}</strong>
+							{dimensions === null ? null : `\n${dimensions}`}
+							{duration === null ? null : `\n${duration}`}
+						</span>
 					}
-					style={{...labelStyle, color: selected ? WHITE : LIGHT_TEXT}}
-					onPointerEnter={() => {
-						setTooltipHovered(true);
-						if (tab.type === 'asset' || tab.type === 'output') {
-							if (!metadataTab) {
-								setMetadataTab(tab);
-							}
-						} else if (
-							tab.type === 'composition' &&
-							composition?.calculateMetadata &&
-							!selected &&
-							resolvedConfigs?.[tab.compositionId]?.type !== 'success' &&
-							resolvedConfigs?.[tab.compositionId]?.type !==
-								'success-and-refreshing' &&
-							!compositionMetadataRequested.current
-						) {
-							compositionMetadataRequested.current = true;
-							Internals.resolveCompositionsRef.current
-								?.resolveComposition(tab.compositionId)
-								.catch(() => undefined);
-						}
-					}}
-					onPointerLeave={() => setTooltipHovered(false)}
+					shortcut={null}
+					delay={800}
+					dismissOnClick
+					triggerStyle={tooltipTriggerStyle}
 				>
-					{label}
-				</span>
-			</ActionTooltip>
+					<span
+						data-annotation-composition-id={
+							tab.type === 'composition' ? tab.compositionId : undefined
+						}
+						style={{...labelStyle, color: selected ? WHITE : LIGHT_TEXT}}
+						onPointerEnter={() => {
+							setTooltipHovered(true);
+							if (tab.type === 'asset' || tab.type === 'output') {
+								if (!metadataTab) {
+									setMetadataTab(tab);
+								}
+							} else if (
+								tab.type === 'composition' &&
+								composition?.calculateMetadata &&
+								!selected &&
+								resolvedConfigs?.[tab.compositionId]?.type !== 'success' &&
+								resolvedConfigs?.[tab.compositionId]?.type !==
+									'success-and-refreshing' &&
+								!compositionMetadataRequested.current
+							) {
+								compositionMetadataRequested.current = true;
+								Internals.resolveCompositionsRef.current
+									?.resolveComposition(tab.compositionId)
+									.catch(() => undefined);
+							}
+						}}
+						onPointerLeave={() => setTooltipHovered(false)}
+					>
+						{label}
+					</span>
+				</ActionTooltip>
+			</Tab>
 			<InlineAction
 				aria-label={`Close ${label} tab`}
-				className="__remotion-canvas-tab-close"
+				className={`__remotion-canvas-tab-close ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
 				onClick={(event) => {
 					event.stopPropagation();
 					onCloseTab();
@@ -541,7 +542,7 @@ const CanvasTab: React.FC<{
 				style={closeStyle}
 				variant={null}
 			/>
-		</Tab>
+		</>
 	);
 
 	return (
@@ -550,6 +551,8 @@ const CanvasTab: React.FC<{
 			data-selected={selected}
 			style={tabWrapperStyle}
 			draggable
+			onDragEnter={onDragEnter}
+			onDragLeave={onDragLeave}
 			onDragStart={(event) => onDragStart(tab, event)}
 			onDragEnd={onDragEnd}
 			onDrop={cancelDragFocus}

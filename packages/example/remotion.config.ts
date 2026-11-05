@@ -25,3 +25,4 @@ Config.addElementLibrary({
 	displayName: 'Local Elements',
 	captionStylesUrl: 'http://localhost:3002/elements/captions',
 });
+Config.setHighContrast(false);
