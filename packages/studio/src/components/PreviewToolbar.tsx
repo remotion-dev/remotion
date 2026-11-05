@@ -41,6 +41,7 @@ const TOOLBAR_HEIGHT = 40;
 const container: React.CSSProperties = {
 	display: 'flex',
 	position: 'relative',
+	isolation: 'isolate',
 	justifyContent: 'center',
 	boxShadow: `inset 0 1px var(--remotion-preview-toolbar-line-color, ${BLACK_ALPHA_50})`,
 	alignItems: 'center',
