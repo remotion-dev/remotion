@@ -33,6 +33,7 @@ import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -509,6 +510,11 @@ const AnimatedImageComponent = (
 		readonly ref?: React.Ref<HTMLCanvasElement>;
 	},
 ) => {
+	const videoEnabled = useVideoEnabled();
+	if (videoEnabled === false) {
+		return null;
+	}
+
 	if (props.loop && props.durationInFrames === undefined) {
 		const resolvedSrc = resolveAnimatedImageSource(props.src);
 		const requestInitKey = serializeRequestInit(props.requestInit);

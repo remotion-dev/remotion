@@ -7,7 +7,7 @@ import {
 	Input,
 	type InputAudioTrack,
 } from 'mediabunny';
-import {Img, Sequence, staticFile} from 'remotion';
+import {AnimatedImage, CanvasImage, Img, Sequence, staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
@@ -275,22 +275,49 @@ test('should render audio at default 48000 Hz when sampleRate is not set', async
 	expect(track.sampleRate).toBe(48000);
 });
 
-test.each([false, true])(
-	'audio-only rendering ignores an unavailable image (effects: %s)',
-	async (withEffects) => {
+test.each([
+	'Img',
+	'Img with effects',
+	'CanvasImage',
+	'AnimatedImage',
+	'looping AnimatedImage',
+	'muted Video',
+] as const)(
+	'audio-only rendering ignores unavailable visual media (%s)',
+	async (kind) => {
 		const src = makeToneWav();
+		const missingSrc = staticFile('missing-audio-only-image.png');
+		const visual = {
+			Img: <Img src={missingSrc} maxRetries={0} />,
+			'Img with effects': (
+				<Img
+					src={missingSrc}
+					width={100}
+					height={100}
+					effects={[blur({radius: 1})]}
+					maxRetries={0}
+				/>
+			),
+			CanvasImage: (
+				<CanvasImage src={missingSrc} width={100} height={100} maxRetries={0} />
+			),
+			AnimatedImage: (
+				<AnimatedImage
+					src={missingSrc}
+					width={100}
+					height={100}
+					durationInFrames={2}
+				/>
+			),
+			'looping AnimatedImage': <AnimatedImage src={missingSrc} loop />,
+			'muted Video': (
+				<Video src={missingSrc} muted disallowFallbackToOffthreadVideo />
+			),
+		}[kind];
 		const Component: React.FC = () => (
 			<>
 				<Audio src={src} />
-				<Sequence from={1}>
-					<Img
-						src={staticFile('missing-audio-only-image.png')}
-						width={100}
-						height={100}
-						effects={withEffects ? [blur({radius: 1})] : []}
-						maxRetries={0}
-					/>
-				</Sequence>
+				<Sequence from={1}>{visual}</Sequence>
 			</>
 		);
 
