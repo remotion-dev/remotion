@@ -6,11 +6,10 @@ import {
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {renderEffectThumbnail} from './render-effect-thumbnail';
 
-const PREVIEW_ASPECT_RATIO = 3 / 2;
+const MIN_PREVIEW_ASPECT_RATIO = 3 / 2;
 
 const frame: React.CSSProperties = {
 	width: '100%',
-	aspectRatio: PREVIEW_ASPECT_RATIO,
 	position: 'relative',
 	borderRadius: 3,
 	overflow: 'hidden',
@@ -63,8 +62,9 @@ export const EffectThumbnail: React.FC<{
 	}, [item, snapshot, visible]);
 
 	const image = currentPreview?.image ?? snapshot;
-	const widerThanFrame =
-		image !== null && image.width / image.height >= PREVIEW_ASPECT_RATIO;
+	const imageAspectRatio =
+		image === null ? MIN_PREVIEW_ASPECT_RATIO : image.width / image.height;
+	const widerThanFrame = imageAspectRatio >= MIN_PREVIEW_ASPECT_RATIO;
 	useLayoutEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas || !image || !visible || !showCapturedElement) {
@@ -80,7 +80,15 @@ export const EffectThumbnail: React.FC<{
 	}, [image, showCapturedElement, visible]);
 
 	return (
-		<div ref={frameRef} style={frame}>
+		<div
+			ref={frameRef}
+			style={{
+				...frame,
+				aspectRatio: showCapturedElement
+					? Math.max(MIN_PREVIEW_ASPECT_RATIO, imageAspectRatio)
+					: MIN_PREVIEW_ASPECT_RATIO,
+			}}
+		>
 			{showCapturedElement ? (
 				<canvas
 					ref={canvasRef}
