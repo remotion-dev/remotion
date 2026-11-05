@@ -43,6 +43,7 @@ import {glOption} from './gl';
 import {gopSizeOption} from './gop-size';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
+import {highContrastOption} from './high-contrast';
 import {ignoreCertificateErrorsOption} from './ignore-certificate-errors';
 import {imageSequenceOption} from './image-sequence';
 import {imageSequencePatternOption} from './image-sequence-pattern';
@@ -108,6 +109,7 @@ import {x264Option} from './x264-preset';
 export const allOptions = {
 	preservePitchOnPlaybackOption,
 	showLayerFrameNumbersOption,
+	highContrastOption,
 	showPremountingOption,
 	allowHtmlInCanvasOption,
 	audioCodecOption,

@@ -45,13 +45,18 @@ export const createElementSourceProxy = <
 						typeof source.lineNumber === 'number' &&
 						typeof source.columnNumber === 'number'
 					) {
-						stack = makeOriginalSourceStack({
-							fileName: getSourceFileName(source.fileName),
-							lineNumber: source.lineNumber,
-							// JSX development locations are one-based, like stack traces.
-							// Resolved source locations and AST lookups use zero-based columns.
-							columnNumber: source.columnNumber - 1,
-						});
+						stack = makeOriginalSourceStack(
+							{
+								fileName: getSourceFileName(source.fileName),
+								lineNumber: source.lineNumber,
+								// JSX development locations are one-based, like stack traces.
+								// Resolved source locations and AST lookups use zero-based columns.
+								columnNumber: source.columnNumber - 1,
+							},
+							typeof source.__remotionCompiledSourceHash === 'string'
+								? source.__remotionCompiledSourceHash
+								: null,
+						);
 					} else {
 						// Avoid collecting the full Studio error stack just to discard it.
 						// Restore the limit before formatting, which can invoke user code.

@@ -68,7 +68,7 @@ test('Should reject callers waiting for an asset whose download failed', async (
 	await new Promise((resolve) => {
 		server.once('listening', resolve);
 	});
-	const src = `http://127.0.0.1:${(server.address() as AddressInfo).port}/a.mp3`;
+	const src = `http://127.0.0.1:${(server.address() as AddressInfo).port}/a-503.mp3`;
 	const downloadMap = makeDownloadMap(48000);
 
 	const download = () =>

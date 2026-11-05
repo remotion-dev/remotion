@@ -18,12 +18,12 @@ Adds drifting snow to a canvas-based component, with wind, depth, and individual
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {snowFall} from '@remotion/effects/snow-fall';
 import {Video} from '@remotion/media';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
@@ -32,7 +32,7 @@ export const MyComp: React.FC = () => {
       src="https://remotion.media/video.mp4"
       effects={[
         snowFall({
-          time: frame / fps,
+          time: interpolate(frame, [0, fps], [0, 1]),
           flakes: 1500,
           size: 8,
           wind: 25,
@@ -52,7 +52,7 @@ Pass an object with the following properties. You can also call `snowFall()` wit
 
 Elapsed time in seconds. Must be non-negative. Defaults to `0`.
 
-Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) divided by the frame rate from [`useVideoConfig()`](/docs/use-video-config). The effect does not advance automatically.
+Animate this value with an inline [`interpolate()`](/docs/interpolate) call, using `fps` from [`useVideoConfig()`](/docs/use-video-config) to map frames to seconds. The effect does not advance automatically.
 
 The same parameters and `time` produce the same result when seeking or rendering frames out of order.
 

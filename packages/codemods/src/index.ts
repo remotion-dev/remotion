@@ -21,15 +21,21 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
+import {getKeyframeSourceLocationRemappings} from './node-references';
+import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
 import {resolveNodePathsFromLocations} from './resolve-node-paths-from-locations';
-import {computeSequencePropsSubscriptionFromContent} from './sequence-props';
+import {
+	computeSequencePropsStatusFromContent,
+	computeSequencePropsSubscriptionFromContent,
+} from './sequence-props';
 import {computeEffectPropsStatusesFromContent} from './sequence-props/can-update-effect-props';
 import {getDurationDependentKeyframesFromContent} from './sequence-props/duration-dependent-keyframes';
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
+import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
 
 export {
@@ -182,6 +188,7 @@ export const CodemodsInternals = {
 	JsxElementNotFoundAtLocationError,
 	basicCaptionsElementSource,
 	computeCanUpdateDefaultPropsFromContent,
+	computeSequencePropsStatusFromContent,
 	computeSequencePropsSubscriptionFromContent,
 	createElementFromInsertable,
 	enumerateEffectArrayElements,
@@ -192,8 +199,11 @@ export const CodemodsInternals = {
 	getCompositionComponentInfo,
 	getCompositionFile,
 	getFolderFile,
+	getJsxSourceLocation,
+	getKeyframeSourceLocationRemappings,
 	getKeyframeInterpolationFunctionForCallee,
 	getRootFileForProject,
+	getStaticNumericValue,
 	insertBasicCaptions,
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,

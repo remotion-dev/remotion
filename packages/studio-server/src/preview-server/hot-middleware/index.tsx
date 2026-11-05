@@ -10,6 +10,7 @@ import {RenderInternals} from '@remotion/renderer';
 import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {logHmrTiming} from '../hmr-timing';
 import type {LiveEventsServer} from '../live-events';
+import {trackSequenceNodePathMutationBuilds} from '../sequence-node-path-mutation-build';
 
 declare global {
 	const __webpack_hash__: unknown;
@@ -123,7 +124,11 @@ export const setupWebpackHmr = (
 	logLevel: LogLevel,
 	liveEventsServer: LiveEventsServer,
 ) => {
-	let latestStats: webpack.Stats | null = null;
+	let latestBuild: {
+		stats: webpack.Stats;
+		sourceMutationId: string | null;
+	} | null = null;
+	const getSourceMutationId = trackSequenceNodePathMutationBuilds(compiler);
 
 	const publishHmr = (hmrEvent: HotMiddlewareMessage) => {
 		liveEventsServer.sendEventToClient({type: 'hmr', hmrEvent});
@@ -141,7 +146,7 @@ export const setupWebpackHmr = (
 			logLevel,
 			stage: 'compiler-invalid',
 		});
-		latestStats = null;
+		latestBuild = null;
 		RenderInternals.Log.info({indent: false, logLevel}, 'Building...');
 		publishHmr({
 			action: 'building',
@@ -154,22 +159,29 @@ export const setupWebpackHmr = (
 			logLevel,
 			stage: 'compiler-done',
 		});
+		const sourceMutationId = getSourceMutationId(statsResult);
 		// Keep hold of latest stats so they can be propagated to new clients
-		latestStats = statsResult;
-		publishStats('built', latestStats, publishHmr);
+		latestBuild = {stats: statsResult, sourceMutationId};
+		publishStats('built', statsResult, sourceMutationId, publishHmr);
 		logHmrTiming({detail: null, logLevel, stage: 'hmr-stats-published'});
 	}
 
 	liveEventsServer.addNewClientListener(() => {
-		if (latestStats) {
-			publishStats('sync', latestStats, publishHmr);
+		if (latestBuild) {
+			publishStats(
+				'sync',
+				latestBuild.stats,
+				latestBuild.sourceMutationId,
+				publishHmr,
+			);
 		}
 	});
 };
 
 function publishStats(
-	action: HotMiddlewareMessage['action'],
+	action: 'built' | 'sync',
 	statsResult: webpack.Stats,
+	sourceMutationId: string | null,
 	publishHmr: (hmrEvent: HotMiddlewareMessage) => void,
 ) {
 	// Studio uses a single compiler. Child compilations must not replace the
@@ -179,6 +191,7 @@ function publishStats(
 		action,
 		time: statsResult.endTime - statsResult.startTime,
 		hash: statsResult.hash,
+		sourceMutationId,
 		// Build diagnostics are printed by the dev middleware.
 		warnings: [],
 		errors: [],

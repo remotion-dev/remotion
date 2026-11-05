@@ -38,13 +38,10 @@ Here is an example of a fade-in using [`interpolate()`](/docs/interpolate):
 
 ```tsx twoslash title="✅ Do this"
 // ---cut---
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Interactive, interpolate, useCurrentFrame } from "remotion";
 
 export const FadeIn = () => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, 30], [0, 1], {
-    extrapolateRight: "clamp",
-  });
 
   return (
     <AbsoluteFill
@@ -55,7 +52,16 @@ export const FadeIn = () => {
         fontSize: 80,
       }}
     >
-      <div style={{ opacity }}>Hello World!</div>
+      <Interactive.Div
+        name="Greeting"
+        style={{
+          opacity: interpolate(frame, [0, 30], [0, 1], {
+            extrapolateRight: "clamp",
+          }),
+        }}
+      >
+        Hello World!
+      </Interactive.Div>
     </AbsoluteFill>
   );
 };

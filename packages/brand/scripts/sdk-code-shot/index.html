@@ -15,12 +15,12 @@
 				width: 100%;
 				height: 100%;
 				overflow: hidden;
-				background: #0d1017;
+				background: #131414;
 			}
 			.tab-bar {
 				height: 64px;
-				border-bottom: 1px solid #252a36;
-				background: #11151e;
+				border-bottom: 1px solid #2b2b2b;
+				background: #181919;
 				display: flex;
 				align-items: center;
 				padding: 0 30px;
@@ -28,10 +28,10 @@
 				font:
 					22px system-ui,
 					sans-serif;
-				color: #c5cbd5;
+				color: #d4d4d4;
 			}
 			.typescript {
-				color: #69a6ff;
+				color: #569cd6;
 				font-size: 19px;
 				font-weight: 600;
 			}
@@ -47,35 +47,23 @@
 		</div>
 		<div id="editor"></div>
 		<script src="/monaco/vs/loader.js"></script>
+		<script src="/dark-plus-monaco.js"></script>
 		<script>
 			require.config({paths: {vs: '/monaco/vs'}});
 			require(['vs/editor/editor.main'], async () => {
-				const value = await (await fetch('/snippet.ts')).text();
-				monaco.editor.defineTheme('vibe-dark', {
-					base: 'vs-dark',
-					inherit: true,
-					rules: [],
-					colors: {
-						'editor.background': '#0d1017',
-						'editorGutter.background': '#0d1017',
-						'editorLineNumber.foreground': '#414b5f',
-						'editorLineNumber.activeForeground': '#414b5f',
-						'editor.selectionBackground': '#264f78',
-					},
-				});
-				monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-					noSemanticValidation: true,
-					noSyntaxValidation: false,
-				});
+				const {code: value, tokens} = await (
+					await fetch('/snippet.json')
+				).json();
+				window.installDarkPlus(monaco, tokens);
 				window.sdkEditor = monaco.editor.create(
 					document.getElementById('editor'),
 					{
 						value,
-						language: 'typescript',
-						theme: 'vibe-dark',
+						language: 'remotion-dark-plus',
+						theme: 'remotion-dark-plus',
 						automaticLayout: true,
 						minimap: {enabled: false},
-						fontFamily: 'SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+						fontFamily: 'Menlo, Monaco, Consolas, monospace',
 						fontSize: 50,
 						lineHeight: 76,
 						fontLigatures: false,
@@ -100,11 +88,12 @@
 						ariaLabel: 'Remotion SDK and code-mod imports',
 					},
 				);
-				await monaco.editor.colorize(value, 'typescript', {});
+				await monaco.editor.colorize(value, 'remotion-dark-plus', {});
 				await document.fonts.ready;
 				requestAnimationFrame(() =>
 					requestAnimationFrame(() => {
 						window.sdkEditorReady = true;
+						document.body.dataset.captureReady = 'true';
 					}),
 				);
 			});

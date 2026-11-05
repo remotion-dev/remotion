@@ -483,13 +483,27 @@ export function popUndo(): UndoResponse {
 						...(remapping.oldJsxName === undefined
 							? {}
 							: {newJsxName: remapping.oldJsxName}),
+						...(remapping.sourceLocations
+							? {
+									sourceLocations: {
+										before: remapping.sourceLocations.after,
+										after: remapping.sourceLocations.before,
+									},
+								}
+							: {}),
 					}),
 				),
 			},
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
+		files.length === 0
+			? null
+			: broadcastSequenceNodePathMutation(
+					files,
+					null,
+					entry.suppressHmrOnFileRestore,
+				);
 
 	for (const snapshot of entry.snapshots) {
 		suppressUndoStackInvalidation(snapshot.filePath);
@@ -589,7 +603,13 @@ export function popRedo(): RedoResponse {
 		];
 	});
 	const nodePathMutation =
-		files.length === 0 ? null : broadcastSequenceNodePathMutation(files, null);
+		files.length === 0
+			? null
+			: broadcastSequenceNodePathMutation(
+					files,
+					null,
+					entry.suppressHmrOnFileRestore,
+				);
 
 	for (const snapshot of snapshotsWithNewContents) {
 		suppressUndoStackInvalidation(snapshot.filePath);

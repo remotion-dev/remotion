@@ -19,6 +19,7 @@ import {PreloadContext} from './prefetch-state.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
 import {RenderAssetManager} from './RenderAssetManager.js';
 import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
+import {SequenceActivityContext} from './sequence-activity-context.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	DisableSequenceRegistrationContext,
@@ -292,7 +293,12 @@ export const RemotionContextProvider = (
 																				<VideoContext.Provider
 																					value={contexts.videoContext}
 																				>
-																					{children}
+																					{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
+																					<SequenceActivityContext.Provider
+																						value={false}
+																					>
+																						{children}
+																					</SequenceActivityContext.Provider>
 																				</VideoContext.Provider>
 																			</DefaultPremountContext.Provider>
 																		</TimelineTrackContext.Provider>

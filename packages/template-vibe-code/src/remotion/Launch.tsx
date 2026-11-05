@@ -89,12 +89,12 @@ export const Launch: React.FC<{
             fontSize: 20,
             fontWeight: 600,
             backgroundColor: "rgba(255,255,255,0.08)",
-            rotate: interpolate(frame, [0, 30], ["-12deg", "0deg"], {
+            rotate: interpolate(frame, [100, 130], ["-12deg", "0deg"], {
               easing: Easing.out(Easing.back(1.5)),
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             }),
-            scale: interpolate(frame, [0, 30], [0, 1], {
+            scale: interpolate(frame, [100, 130], [0, 1], {
               easing: Easing.out(Easing.back(1.5)),
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",

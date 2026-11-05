@@ -24,7 +24,7 @@ const TimelineLeftDragContent = () => {
 				height: 1134,
 				rotate: '0.948186 0.15788 -0.275711 26.23743deg',
 				scale: 1.378,
-				translate: '320px 80px',
+				translate: '420px 80px',
 			}}
 			trimBefore={(1190 / 60) * fps}
 		>

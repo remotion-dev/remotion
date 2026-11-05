@@ -55,7 +55,7 @@ export const TimelinePlayCursorSyncer: React.FC = () => {
 	 * While playing (forwards or backwards), jump one viewport width to the left or right when the cursor goes out of the viewport.
 	 */
 	useEffect(() => {
-		if (!video) {
+		if (!video || !scrollableRef.current) {
 			return;
 		}
 

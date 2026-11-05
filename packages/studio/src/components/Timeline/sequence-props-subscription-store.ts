@@ -52,11 +52,12 @@ type Entry = {
 };
 
 const entries = new Map<Key, Entry>();
-const refreshListeners = new Map<string, Set<() => void>>();
+type RefreshListener = (nodePath: SequenceNodePath | null) => void;
+const refreshListeners = new Map<string, Set<RefreshListener>>();
 
 export const subscribeToSequencePropsRefresh = (
 	overrideId: string,
-	listener: () => void,
+	listener: RefreshListener,
 ): (() => void) => {
 	const listeners = refreshListeners.get(overrideId) ?? new Set();
 	listeners.add(listener);
@@ -70,9 +71,12 @@ export const subscribeToSequencePropsRefresh = (
 	};
 };
 
-export const refreshSequencePropsSubscription = (overrideId: string): void => {
+export const refreshSequencePropsSubscription = (
+	overrideId: string,
+	nodePath: SequenceNodePath | null,
+): void => {
 	for (const listener of refreshListeners.get(overrideId) ?? []) {
-		listener();
+		listener(nodePath);
 	}
 };
 
@@ -121,17 +125,20 @@ export const acquireSequencePropsSubscription = ({
 	let entry = entries.get(key);
 
 	if (!entry) {
-		const promise = subscribeToSequenceProps({
-			fileName,
-			line,
-			column,
-			nodePath,
-			componentIdentity,
-			keys: getAllSchemaKeys(schema),
-			assetKeys,
-			effects: effectKeys,
-			clientId,
-		});
+		const promise = subscribeToSequenceProps(
+			{
+				fileName,
+				line,
+				column,
+				nodePath,
+				componentIdentity,
+				keys: sequenceKeys,
+				assetKeys,
+				effects: effectKeys,
+				clientId,
+			},
+			stack,
+		);
 		const created: Entry = {
 			refCount: 0,
 			promise,

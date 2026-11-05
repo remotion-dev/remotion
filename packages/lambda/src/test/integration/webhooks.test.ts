@@ -58,6 +58,7 @@ test(
 		const res = await LambdaClientInternals.callFunctionSyncImplementation({
 			type: ServerlessRoutines.start,
 			payload: {
+				streamProgress: false,
 				enableCancellation: false,
 				type: ServerlessRoutines.start,
 				output: {type: 'media'},

@@ -323,6 +323,10 @@ Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
 
+From <AvailableFrom v="4.0.542" inline />, the default is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), during preview and rendering. Remote videos must allow CORS to appear in the captured canvas. An explicit `crossOrigin` value takes precedence.
+
+Anonymous CORS omits cross-origin credentials. For videos that require cookies or HTTP authentication, use `crossOrigin="use-credentials"`. The server must return `Access-Control-Allow-Credentials: true` and an `Access-Control-Allow-Origin` header matching the requesting origin, rather than `*`.
+
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 
 Enables the Web Audio API for the video tag, allowing volume values above `1` and volume control on iOS Safari. Set `crossOrigin="anonymous"` and ensure the video source supports CORS. On Safari, this cannot be combined with [`playbackRate`](#playbackrate); otherwise, volume changes are ignored.

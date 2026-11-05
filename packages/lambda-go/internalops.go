@@ -26,6 +26,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams := renderInternalOptions{
+		StreamProgress:                 false,
 		EnableCancellation:             options.EnableCancellation,
 		ServeUrl:                       options.ServeUrl,
 		InputProps:                     inputProps,

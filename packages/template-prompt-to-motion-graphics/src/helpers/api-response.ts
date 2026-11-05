@@ -21,6 +21,9 @@ export const executeApi =
       const payload = await req.json();
       const parsed = schema.parse(payload);
       const data = await handler(req, parsed);
+      if (data instanceof Response) {
+        return data;
+      }
       return NextResponse.json({
         type: "success",
         data: data,

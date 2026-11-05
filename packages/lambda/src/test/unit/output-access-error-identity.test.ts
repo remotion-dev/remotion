@@ -244,6 +244,7 @@ const invokeLaunch = (
 	overwrite = false,
 ) =>
 	launchHandler({
+		onProgress: null,
 		params: {...params, overwrite},
 		options: {
 			expectedBucketOwner: null,
@@ -534,6 +535,7 @@ test('launch cleans up the serialized props when it is about to time out', async
 	).mockImplementation(() => new Promise(() => undefined) as never);
 	try {
 		launchHandler({
+			onProgress: null,
 			params: {...params, overwrite: true},
 			options: {
 				expectedBucketOwner: null,

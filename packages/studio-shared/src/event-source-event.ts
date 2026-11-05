@@ -51,6 +51,10 @@ export type EventSourceEvent =
 			queue: RenderJob[];
 	  }
 	| {
+			type: 'render-output-written';
+			path: string;
+	  }
+	| {
 			type: 'render-job-failed';
 			compositionId: string;
 			error: Error;

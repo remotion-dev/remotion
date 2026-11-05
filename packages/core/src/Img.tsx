@@ -17,6 +17,7 @@ import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
+import {HtmlInCanvasAncestorContext} from './HtmlInCanvasAncestorContext.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -334,7 +335,15 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
 	const sequenceContext = useContext(SequenceContext);
+	const htmlInCanvasContext = useContext(HtmlInCanvasAncestorContext);
 	const [isLoading, setIsLoading] = useState(false);
+	const {isClientSideRendering, isRendering} = useRemotionEnvironment();
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin:
+			crossOrigin ?? (htmlInCanvasContext === null ? undefined : 'anonymous'),
+		requestsVideoFrame: false,
+		isClientSideRendering,
+	});
 
 	const _propsValid: IsExact<typeof props, Omit<Expected, 'decoding'>> = true;
 
@@ -403,6 +412,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			}),
 			[
 				actualSrc,
+				crossOriginValue,
 				delayRenderRetries,
 				delayRenderTimeoutInMilliseconds,
 				onImageFrame,
@@ -411,14 +421,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			],
 		);
 	}
-
-	const {isClientSideRendering, isRendering} = useRemotionEnvironment();
-
-	const crossOriginValue = getCrossOriginValue({
-		crossOrigin,
-		requestsVideoFrame: false,
-		isClientSideRendering,
-	});
 
 	// `src` is assigned imperatively to this element in the layout effect above.
 	// The element may paint while `decode()` is pending; `delayRender()` only

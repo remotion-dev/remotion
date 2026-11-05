@@ -6,6 +6,7 @@ import {
 	BLUE,
 	BLUE_HOVERED,
 	FOCUS_BOX_SHADOW,
+	SPLITTER_COLOR,
 	TRANSPARENT,
 	WHITE,
 } from './colors';
@@ -52,33 +53,37 @@ const makeDefaultGlobalCSS = () => {
     to { opacity: 1; transform: translateX(0); }
   }
 
-  .remotion-splitter {
+  .remotion-splitter,
+  html[data-remotion-high-contrast] .remotion-splitter {
     user-select: none;
     -webkit-user-select: none;
+    background-image: linear-gradient(
+      var(--remotion-splitter-direction),
+      ${TRANSPARENT} ${50 - fromMiddle}%,
+      ${SPLITTER_COLOR} ${50 - fromMiddle}%,
+      ${SPLITTER_COLOR} ${50 + fromMiddle}%,
+      ${TRANSPARENT} ${50 + fromMiddle}%
+    );
+  }
+
+  .remotion-preview-toolbar-splitter {
+    opacity: 0;
+  }
+
+  html[data-remotion-high-contrast] .remotion-preview-toolbar {
+    --remotion-preview-toolbar-line-color: ${SPLITTER_COLOR};
   }
 
   .remotion-splitter-horizontal {
+    --remotion-splitter-direction: to bottom;
     cursor: row-resize;
     transform: scaleY(${dragAreaFactor});
-    background: linear-gradient(
-      to bottom,
-      ${TRANSPARENT} ${50 - fromMiddle}%,
-      ${BLACK} ${50 - fromMiddle}%,
-      ${BLACK} ${50 + fromMiddle}%,
-      ${TRANSPARENT} ${50 + fromMiddle}%
-    );
   }
 
   .remotion-splitter-vertical {
+    --remotion-splitter-direction: to right;
     cursor: col-resize;
     transform: scaleX(${dragAreaFactor});
-    background: linear-gradient(
-      to right,
-      ${TRANSPARENT} ${50 - fromMiddle}%,
-      ${BLACK} ${50 - fromMiddle}%,
-      ${BLACK} ${50 + fromMiddle}%,
-      ${TRANSPARENT} ${50 + fromMiddle}%
-    );
   }
 
   input::-webkit-outer-spin-button,

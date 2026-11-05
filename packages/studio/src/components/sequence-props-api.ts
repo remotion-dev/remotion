@@ -7,10 +7,13 @@ import type {
 	UnsubscribeFromSequencePropsRequest,
 } from '@remotion/studio-shared';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
+import {hasSourceOnlyRemappings} from '../helpers/sequence-node-path-mutations';
 import {callApi} from './call-api';
+import {getCompiledSourceHash} from './Timeline/TimelineStack/get-stack';
 
 type PendingSequencePropsSubscription = {
 	request: SubscribeToSequencePropsRequest;
+	stack: string | null;
 	resolve: (response: SubscribeToSequencePropsResponse) => void;
 	reject: (error: unknown) => void;
 };
@@ -33,8 +36,14 @@ const flushSequencePropsSubscriptions = () => {
 	const pending = pendingSequencePropsSubscriptions;
 	pendingSequencePropsSubscriptions = [];
 
+	const hashes = pending.map(({request, stack}) =>
+		request.nodePath === null && hasSourceOnlyRemappings(request.fileName)
+			? getCompiledSourceHash(stack, request.fileName)
+			: null,
+	);
 	callApi('/api/subscribe-to-sequence-props', {
 		requests: pending.map(({request}) => request),
+		compiledSourceHashes: hashes.some((hash) => hash !== null) ? hashes : null,
 	}).then(
 		(response: SubscribeToSequencePropsBatchResponse) => {
 			if (response.results.length !== pending.length) {
@@ -71,6 +80,7 @@ export const saveSequenceProps = (
 
 export const subscribeToSequenceProps = (
 	request: SubscribeToSequencePropsRequest,
+	stack: string | null,
 ): Promise<SubscribeToSequencePropsResponse> => {
 	const browserStudioOperations = getBrowserStudioOperations();
 	if (browserStudioOperations) {
@@ -78,7 +88,7 @@ export const subscribeToSequenceProps = (
 	}
 
 	return new Promise((resolve, reject) => {
-		pendingSequencePropsSubscriptions.push({request, resolve, reject});
+		pendingSequencePropsSubscriptions.push({request, stack, resolve, reject});
 		if (sequencePropsSubscriptionTimer === null) {
 			sequencePropsSubscriptionTimer = setTimeout(
 				flushSequencePropsSubscriptions,

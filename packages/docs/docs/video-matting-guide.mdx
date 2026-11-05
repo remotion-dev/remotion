@@ -1,0 +1,175 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-video-matting-guide.png
+title: Video matting
+crumb: 'Designing visuals'
+---
+
+# Video matting<AvailableFrom v="4.0.523" />
+
+<video
+  src="https://remotion.media/explore-remotion/building-background-removal-2026-10-28-2e506bf93665.mp4"
+  autoPlay
+  loop
+  muted
+  playsInline
+  aria-label="Background removal in Remotion Studio"
+  style={{width: '100%', borderRadius: 'var(--ifm-global-radius)', marginBottom: 0, aspectRatio: '3 / 1', objectFit: 'cover', objectPosition: 'center 30%'}}
+/>
+
+Remotion has native support for separating a video into foreground and background.  
+It is achieved using Transformers.js, WebGPU and open-source models.
+
+## In Remotion Studio
+
+Select a video and choose `Remove background`.  
+A modal will open which will allow you to configure how you want your layers to be set up and will apply the markup change right away.
+
+<img src="/img/video-matting-modal.png" alt="Remotion Studio's Remove background dialog with output, model, audio, and video quality options." width={824} height={514} style={{width: '100%', height: 'auto'}} />
+
+This functionality is also [exposed in WebMCP](/docs/ai/webmcp#remove_video_background), making it available to agents.
+
+## Programmatically
+
+Use [`@remotion/video-matting`](/docs/video-matting) to separate layers programmatically.
+
+## Using agents
+
+Use the <Skill>/remotion-markup</Skill> skill when wanting to do a video matting task.
+
+## Use Cases
+
+### Text behind a subject
+
+Use 3 [layers](/docs/layers) with background, text and foreground.
+
+<SuggestedPrompt prompt={"/remotion-markup Put animated text reading 'BEHIND THE SCENES' behind the subject in public/original.mp4 using video matting.\nKeep the original background and audio, and make the text editable in Studio."} />
+
+```tsx twoslash title="TextBehindVideo.tsx"
+import {Video} from '@remotion/media';
+import {Interactive, staticFile} from 'remotion';
+
+export const TextBehindVideo = () => {
+  return (
+    <>
+      <Video src={staticFile('original.mp4')} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
+      <Interactive.Div
+        name="Text behind subject"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'white',
+          fontSize: 120,
+          fontWeight: 800,
+        }}
+      >
+        BEHIND THE SCENES
+      </Interactive.Div>
+      <Video
+        src={staticFile('foreground.webm')}
+        muted
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    </>
+  );
+};
+```
+
+### Background blur
+
+Apply a [`blur()`](/docs/effects/blur) effect to the original video, then place the sharp foreground on top.  
+This keeps the subject in focus while softening the surrounding scene.
+
+<SuggestedPrompt prompt="/remotion-markup Blur the background of public/original.mp4 using video matting, while keeping the subject sharp and the original audio." />
+
+```tsx twoslash title="BackgroundBlur.tsx"
+import {blur} from '@remotion/effects/blur';
+import {Video} from '@remotion/media';
+import {staticFile} from 'remotion';
+
+export const BackgroundBlur = () => {
+  return (
+    <>
+      <Video src={staticFile('original.mp4')} effects={[blur({radius: 16})]} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
+      <Video
+        src={staticFile('foreground.webm')}
+        muted
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    </>
+  );
+};
+```
+
+Because the blurred original still contains the subject, a strong blur can produce a halo around its edges. Reduce the blur radius if this becomes distracting.
+
+You can also [color-correct](/docs/color-correction) or darken the base while leaving the foreground unchanged.
+
+### Background replacement
+
+Omit the original video and place the foreground over a new background.  
+Use an [`<CanvasImage>`](/docs/canvasimage), another [`<Video>`](/docs/media/video), or HTML elements to create the replacement.
+
+<SuggestedPrompt prompt="/remotion-markup Remove the background from public/original.mp4 using video matting and place the subject over a dark blue background. Keep the original audio." />
+
+```tsx twoslash title="BackgroundReplacement.tsx"
+import {Video} from '@remotion/media';
+import {staticFile, Interactive} from 'remotion';
+
+export const BackgroundReplacement = () => {
+  return (
+    <>
+      <Interactive.Div
+        name="Background"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundColor: '#0b1533',
+        }}
+      />
+      <Video src={staticFile('foreground.webm')} muted style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain'}} />
+    </>
+  );
+};
+```
+
+This example is silent. Keep audio in the foreground when generating it, or add an [`<Audio>`](/docs/media/audio) layer for the original speech or a soundtrack.
+
+### Foreground effects
+
+Apply [effects](/docs/effects) to the foreground video to change only the subject.  
+For example:
+
+- Use a [`glow()` effect](/docs/effects/glow) to highlight a person or product,
+- a [`dropShadow()` effect](/docs/effects/drop-shadow) to separate a cutout from a replacement background
+- use [color correction](/docs/color-correction) to match the subject to a new scene.
+
+<SuggestedPrompt prompt="/remotion-markup Add a soft glow to only the subject in public/original.mp4 using video matting. Keep the original background and audio." />
+
+<SuggestedPrompt prompt="/remotion-markup Use video matting to cut out the subject in public/original.mp4, place it over a light gray background, and add a subtle drop shadow. Keep the original audio." />
+
+<SuggestedPrompt prompt="/remotion-markup Use video matting to warm up the colors of only the subject in public/original.mp4. Leave the original background and audio unchanged." />
+
+## See also
+
+- [`@remotion/video-matting`](/docs/video-matting)
+- [`separateVideoLayers()`](/docs/video-matting/separate-video-layers)
+- [Layers](/docs/layers)
+- [Effects](/docs/effects)
+- [Greenscreen](/docs/greenscreen)
+- [Rendering transparent videos](/docs/transparent-videos)

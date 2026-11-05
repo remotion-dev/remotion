@@ -12,6 +12,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
+import {validateOutputPath} from '../../shared/validate-output-path';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
@@ -83,6 +84,11 @@ export const stillCommand = async ({
 			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`,
 		);
 		quit(1);
+	}
+
+	const downloadName = args[2] ?? null;
+	if (downloadName) {
+		validateOutputPath({outputPath: downloadName, type: 'file'});
 	}
 
 	const {envVariables, inputProps, stillFrame} = getCliOptions({
@@ -222,7 +228,6 @@ export const stillCommand = async ({
 		composition = compositionId;
 	}
 
-	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 	const s3OutputProvider = getS3OutputProviderFromCli({
 		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
