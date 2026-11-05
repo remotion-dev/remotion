@@ -21,6 +21,8 @@ export const TAB_HOVER_BACKGROUND =
 export const LIGHT_COLOR = 'var(--remotion-studio-light-color)';
 export const SELECTED_BACKGROUND = 'var(--remotion-studio-white-alpha-15)';
 export const LIGHT_TEXT = 'var(--remotion-studio-light-text)';
+export const COMPUTED_VALUE_COLOR =
+	'var(--remotion-studio-computed-value-color)';
 export const RULER_COLOR = 'var(--remotion-studio-ruler-color)';
 export const WHITE_ALPHA_05 = 'var(--remotion-studio-white-alpha-05)';
 export const WHITE_ALPHA_06 = 'var(--remotion-studio-white-alpha-06)';
@@ -53,6 +55,7 @@ const SELECTED_HOVER_BACKGROUND = 'var(--remotion-studio-white-alpha-25)';
 export const FAIL_COLOR = 'var(--remotion-studio-fail-color)';
 export const WARNING_COLOR = 'var(--remotion-studio-warning-color)';
 export const BLUE = 'var(--remotion-studio-blue)';
+export const INTERACTIVE_TEXT = 'var(--remotion-studio-interactive-text)';
 export const BLUE_HOVERED = 'var(--remotion-studio-blue-hovered)';
 export const BLUE_DISABLED = 'var(--remotion-studio-blue-disabled)';
 export const UNSELECTED_GUIDE = 'var(--remotion-studio-unselected-guide)';
