@@ -5,7 +5,9 @@ type LengthPercentage = {
 
 const firstLayer = (value: string) => value.split(',')[0].trim();
 
-const parseLengthPercentage = (value: string): LengthPercentage | null => {
+export const parseLengthPercentage = (
+	value: string,
+): LengthPercentage | null => {
 	const match = value.match(/^(-?(?:\d+\.?\d*|\.\d+))(%|px)$/);
 	if (match) {
 		return {
@@ -21,7 +23,7 @@ const parseLengthPercentage = (value: string): LengthPercentage | null => {
 	return null;
 };
 
-const resolveSize = ({
+export const resolveSize = ({
 	containerSize,
 	value,
 }: {

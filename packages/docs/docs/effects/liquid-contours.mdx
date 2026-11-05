@@ -20,11 +20,11 @@ The effect replaces the source pixels. Use [`contourLines()`](/docs/effects/cont
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {liquidContours} from '@remotion/effects/liquid-contours';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
           smoothness: 1,
           seed: 4,
           offsetX: 13.4,
-          phase: 3.23 + frame / 90,
+          phase: interpolate(frame, [0, 90], [3.23, 4.23]),
         }),
       ]}
     />

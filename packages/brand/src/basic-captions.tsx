@@ -1,7 +1,7 @@
 import type {Caption} from '@remotion/captions';
 import {createTikTokStyleCaptions} from '@remotion/captions';
 import {loadFont} from '@remotion/google-fonts/FiraCode';
-import React, {useMemo} from 'react';
+import React, {createContext, useContext, useMemo} from 'react';
 import {
 	Interactive,
 	useCurrentFrame,
@@ -19,6 +19,8 @@ type BasicCaptionsProps = InteractiveTransformProps &
 
 const defaultCombineTokensWithinMilliseconds = 3000;
 const defaultWidth = 900;
+const captionsVisibilityContext = createContext(true);
+export const BasicCaptionsVisibility = captionsVisibilityContext.Provider;
 const {fontFamily: firaCode} = loadFont('normal', {
 	weights: ['400'],
 	subsets: ['latin'],
@@ -51,6 +53,7 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 	width = defaultWidth,
 }) => {
 	const frame = useCurrentFrame();
+	const visible = useContext(captionsVisibilityContext);
 	const {fps} = useVideoConfig();
 	const pages = useMemo(
 		() =>
@@ -63,6 +66,7 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 		[captions, combineTokensWithinMilliseconds],
 	);
 	const currentTimeMs = (frame / fps) * 1000;
+	if (!visible) return null;
 	const page = pages.find(
 		(candidate) =>
 			currentTimeMs >= candidate.startMs &&

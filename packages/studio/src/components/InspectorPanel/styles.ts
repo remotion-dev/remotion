@@ -1,7 +1,7 @@
 import type React from 'react';
 import {
 	BACKGROUND,
-	BLUE,
+	INTERACTIVE_TEXT,
 	LIGHT_TEXT,
 	LINE_COLOR,
 	WHITE,
@@ -108,7 +108,7 @@ export const defaultPropsWarningMessages: React.CSSProperties = {
 };
 
 export const resolveLinkStyle: React.CSSProperties = {
-	color: BLUE,
+	color: INTERACTIVE_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	textDecoration: 'underline',

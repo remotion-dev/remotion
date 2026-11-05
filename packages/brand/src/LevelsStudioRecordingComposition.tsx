@@ -1,14 +1,21 @@
 import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
-import {AbsoluteFill, Easing, interpolate, useCurrentFrame} from 'remotion';
+import {
+	AbsoluteFill,
+	Easing,
+	interpolate,
+	useCurrentFrame,
+	useVideoConfig,
+} from 'remotion';
 
 export const LevelsStudioRecordingComposition = () => {
-	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const frame = (useCurrentFrame() * 60) / fps;
 
 	return (
 		<AbsoluteFill
 			name="Canvas Capture"
-			durationInFrames={658}
+			durationInFrames={(658 / 60) * fps}
 			style={{
 				width: 2558,
 				height: 1440,
@@ -16,7 +23,8 @@ export const LevelsStudioRecordingComposition = () => {
 		>
 			<Video
 				src="https://remotion.media/studio/effects/levels-capture-20261023-110003.mp4"
-				durationInFrames={658}
+				durationInFrames={(658 / 60) * fps}
+				muted
 				style={{
 					position: 'absolute',
 				}}

@@ -177,7 +177,8 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 			targetsRef.current.flatMap((target) => {
 				if (
 					(!target.selected && !target.containsSelection) ||
-					(getLatestOutlineTargetByKey(target.key)?.drag ?? null) === null
+					getLatestOutlineTargetByKey(target.key)?.translation.type !==
+						'editable'
 				) {
 					return [];
 				}

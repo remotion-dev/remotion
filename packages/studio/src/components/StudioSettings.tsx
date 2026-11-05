@@ -4,10 +4,17 @@ import type {
 	ConfigFileStudioSettings,
 	ConfigUpdate,
 } from '@remotion/studio-shared';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {BLUE, LIGHT_TEXT} from '../helpers/colors';
+import {applyStudioHighContrast} from '../helpers/studio-css-variables';
 import {UndoIcon} from '../icons/undo';
 import {Button} from './Button';
 import {Checkbox} from './Checkbox';
@@ -51,6 +58,7 @@ const resetIcon: React.CSSProperties = {
 };
 
 const initialSettings: ConfigFileStudioSettings = {
+	highContrast: null,
 	preservePitchOnPlayback: null,
 	showLayerFrameNumbers: null,
 	showPremounting: null,
@@ -245,6 +253,7 @@ export const StudioSettings: React.FC = () => {
 				: {setter, type: 'set', value};
 
 		const updatesForEditedSetters = [
+			update('setHighContrast', settings.highContrast),
 			update('setPreservePitchOnPlayback', settings.preservePitchOnPlayback),
 			update('setShowLayerFrameNumbers', settings.showLayerFrameNumbers),
 			update('setShowPremounting', settings.showPremounting),
@@ -291,6 +300,23 @@ export const StudioSettings: React.FC = () => {
 		updates,
 	});
 
+	const editingHighContrast =
+		ready && editedSetters.has('setHighContrast') && error === null;
+	const highContrast = editingHighContrast
+		? settings.highContrast === true
+		: (studioRuntimeConfig?.highContrast?.value ?? false);
+	useLayoutEffect(() => {
+		if (!editingHighContrast) {
+			return;
+		}
+
+		applyStudioHighContrast(highContrast);
+		return () =>
+			applyStudioHighContrast(
+				window.remotion_studioConfig?.highContrast?.value ?? false,
+			);
+	}, [editingHighContrast, highContrast]);
+
 	if (studioRuntimeConfig === null) {
 		return null;
 	}
@@ -298,6 +324,31 @@ export const StudioSettings: React.FC = () => {
 	return (
 		<div style={container}>
 			<p style={dividerLabel}>Interface</p>
+			<div style={optionRow}>
+				<label htmlFor="remotion-high-contrast" style={label}>
+					High contrast
+				</label>
+				<div style={{...rightRow, gap: 8}}>
+					{studioRuntimeConfig.highContrast?.source === 'cli' ? (
+						<span style={{color: LIGHT_TEXT, fontSize: 12}}>
+							Set by --high-contrast
+						</span>
+					) : null}
+					<Checkbox
+						inputId="remotion-high-contrast"
+						name="High contrast"
+						checked={highContrast}
+						disabled={studioRuntimeConfig.highContrast?.source === 'cli'}
+						onChange={(event) =>
+							changeSetting(
+								'highContrast',
+								'setHighContrast',
+								event.target.checked,
+							)
+						}
+					/>
+				</div>
+			</div>
 			<div style={optionRow}>
 				<div style={label}>
 					Interactivity enabled

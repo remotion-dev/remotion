@@ -74,6 +74,7 @@ export const useAutoSaveConfig = ({
 					mounted.current &&
 					lastQueuedUpdates.current === serializedUpdates
 				) {
+					lastQueuedUpdates.current = null;
 					onError(response.reason);
 				}
 			} catch (err) {
@@ -81,6 +82,7 @@ export const useAutoSaveConfig = ({
 					mounted.current &&
 					lastQueuedUpdates.current === serializedUpdates
 				) {
+					lastQueuedUpdates.current = null;
 					onError((err as Error).message);
 				}
 			}

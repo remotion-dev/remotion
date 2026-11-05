@@ -59,7 +59,7 @@ export const CloseUpsSeries = () => {
 				<CloseUp6Preview />
 			</Series.Sequence>
 			<Series.Sequence name="Add effect" durationInFrames={90} premountFor={30}>
-				<CloseUp7Preview />
+				<CloseUp7Preview blur />
 			</Series.Sequence>
 		</Series>
 	);

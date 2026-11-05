@@ -13,8 +13,8 @@ import React, {
 } from 'react';
 import {interpolate} from 'remotion';
 import {
-	BLUE,
 	BLUE_HOVERED,
+	INTERACTIVE_TEXT,
 	TRANSPARENT,
 	WHITE_ALPHA_10,
 } from '../../helpers/colors';
@@ -626,7 +626,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
-			color: dragging ? BLUE_HOVERED : BLUE,
+			color: dragging ? BLUE_HOVERED : INTERACTIVE_TEXT,
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			WebkitUserSelect: 'none',

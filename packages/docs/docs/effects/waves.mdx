@@ -20,11 +20,11 @@ Colors are composited over the source.
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {waves} from '@remotion/effects/waves';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -39,10 +39,10 @@ export const MyComp: React.FC = () => {
             thickness: 40,
             gap: 0,
             angle: 0,
-            offset: frame * 2,
+            offset: interpolate(frame, [0, 60], [0, 120]),
             amplitude: 24,
             wavelength: 160,
-            phase: frame * 2,
+            phase: interpolate(frame, [0, 60], [0, 120]),
           }),
         ]}
       />
