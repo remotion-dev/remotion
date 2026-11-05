@@ -39,7 +39,6 @@ import {
 } from './effect-preview-loaders';
 import type {EffectPickerState} from './EffectPickerProvider';
 import {EffectThumbnail} from './EffectThumbnail';
-import {InspectorBackAction} from './InspectorPanel/common';
 import {container} from './InspectorPanel/styles';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
@@ -454,13 +453,6 @@ export const EffectPicker: React.FC<{
 
 	return (
 		<div style={container} onKeyDown={onKeyDown}>
-			<InspectorBackAction
-				disabled={false}
-				onClick={onBack}
-				aria-label="Back to inspector"
-			>
-				Back
-			</InspectorBackAction>
 			<div style={content}>
 				<div style={aboutEffectsRow}>
 					<a
