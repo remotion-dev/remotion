@@ -17,6 +17,7 @@ import type {
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequencePropsWithResult} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
+import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
 
 const {
 	applyCanvasOutlineTranslateDelta,
@@ -45,6 +46,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 	const {frameBack, frameForward, getCurrentFrame, seek} =
 		PlayerInternals.usePlayerMethods();
 	const keybindings = useKeybinding();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const keyboardNudgeSessionRef =
 		useRef<SelectedOutlineKeyboardNudgeSession | null>(null);
 	const saveKeyboardNudgeSessionRef = useRef<() => void>(() => undefined);
@@ -205,19 +207,17 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				return;
 			}
 
-			const allDragTargets = getAllDragTargets();
-
-			if (allDragTargets.length === 0) {
-				seekWithArrowKey(event, direction);
-				return;
-			}
-
-			if (event.altKey) {
+			if (event.altKey || currentSelection.current.selectedItems.length === 0) {
 				seekWithArrowKey(event, direction);
 				return;
 			}
 
 			event.preventDefault();
+
+			const allDragTargets = getAllDragTargets();
+			if (allDragTargets.length === 0) {
+				return;
+			}
 
 			const activeSession =
 				keyboardNudgeSessionRef.current ??
@@ -254,6 +254,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 			});
 		},
 		[
+			currentSelection,
 			getAllDragTargets,
 			getCurrentFrame,
 			dragOverridesRef,
