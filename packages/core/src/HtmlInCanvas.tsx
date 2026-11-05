@@ -1124,6 +1124,10 @@ const HtmlInCanvasInner = forwardRef<
 	) => {
 		const {isRendering} = useRemotionEnvironment();
 		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
+		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
+		const isNestedUnsupported = Boolean(
+			ancestorPaintState && !isHtmlInCanvasNestingSupported(),
+		);
 		assertHtmlInCanvasDimensions(width, height);
 		resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const Content = isRendering
@@ -1196,6 +1200,11 @@ const HtmlInCanvasInner = forwardRef<
 					{!isRendering && unsupportedMessage !== null ? (
 						<HtmlInCanvasFallback
 							style={{width, height, ...croppedStyle}}
+							title={
+								isNestedUnsupported
+									? 'Nested HTML-in-canvas is unavailable'
+									: 'HTML-in-canvas is not available'
+							}
 							label={_remotionInternalFallbackLabel}
 						>
 							<DefaultPremountContext.Provider value={0}>
