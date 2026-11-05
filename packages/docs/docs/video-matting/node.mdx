@@ -47,8 +47,6 @@ env.cacheDir = resolve('.cache/video-matting');
 
 ## Requirements
 
-Node.js 20.9 or later is required.
-
 A compatible GPU is required. Transformers.js uses ONNX Runtime's native WebGPU provider in Node.js. [`canUseVideoMatting()`](/docs/video-matting/can-use-video-matting) runs a tiny inference to check support, including fp16 computation for `ben2-base`.
 
 The native ONNX Runtime dependency does not support Linux arm64. GPU availability also depends on the host and its drivers; a typical serverless environment does not provide a GPU.
