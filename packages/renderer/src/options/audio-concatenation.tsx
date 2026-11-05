@@ -8,7 +8,7 @@ const cliFlag = 'audio-concatenation' as const;
 
 export const audioConcatenationOption = {
 	name: 'Audio concatenation',
-	addedIn: '4.0.540',
+	addedIn: '4.0.542',
 	cliFlag,
 	description: () => (
 		<>
