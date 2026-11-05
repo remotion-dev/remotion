@@ -17,7 +17,7 @@ export const useSelectEffects = () => {
 				!currentSelection.current.canSelect ||
 				!canUseEffectOperations()
 			) {
-				return;
+				return false;
 			}
 
 			currentSelection.current.selectItems(
@@ -40,6 +40,8 @@ export const useSelectEffects = () => {
 			) {
 				sidebarRef.current.setRightSidebarTemporaryExpansion(true);
 			}
+
+			return true;
 		},
 		[currentSelection],
 	);

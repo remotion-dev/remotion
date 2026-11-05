@@ -22,6 +22,7 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {
 	useRuntimeValue,
 	useRuntimeValueSelector,
@@ -384,6 +385,7 @@ export const InspectorSequenceSection: React.FC<{
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selectEffects = useSelectEffects();
+	const selectEffectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const selectAsset = useSelectAsset();
 	const selectMediaSrc = useCallback(
 		(values: Readonly<Record<string, unknown>>) =>
@@ -1044,7 +1046,7 @@ export const InspectorSequenceSection: React.FC<{
 			action={
 				<ActionTooltip
 					label="Add effect"
-					shortcut={null}
+					shortcut={selectEffectsShortcut}
 					delay={800}
 					dismissOnClick
 				>
