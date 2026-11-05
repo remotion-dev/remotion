@@ -109,3 +109,61 @@ Upgrade Remotion, related packages, compatible Mediabunny packages, and installe
 Guidance for browser-based multimedia handling with Mediabunny.
 
 Use this for advice on how to get video and audio metadata.
+
+## Skill structure
+
+The skills are maintained in [`packages/skills`](https://github.com/remotion-dev/remotion/tree/main/packages/skills) in the Remotion monorepo and published to [`remotion-dev/skills`](https://github.com/remotion-dev/skills).
+
+Each skill is a folder in `skills/`:
+
+```
+skills/remotion-create/
+├── SKILL.md                  # Entry point that the agent loads
+├── agents/openai.yaml        # Display name, icon and default prompt for Codex
+├── assets/remotion-icon.svg
+├── tailwind.md               # Supporting files, linked from SKILL.md
+└── video-layout.md
+```
+
+### Frontmatter
+
+Every `SKILL.md` starts with YAML frontmatter:
+
+```md
+---
+name: remotion-create
+description: Create a new Remotion video
+version: 4.0.541
+---
+```
+
+- `name` is the folder name of the skill.
+- `description` is one short line that tells the agent what the skill is for.
+- `version` matches the Remotion version that the skills were released with.
+
+### The router
+
+`/remotion-best-practices` is a router. Its `SKILL.md` has a short section per task, and each section says which skill to load:
+
+```md
+## Captions
+
+When working with Captions, load [Remotion Captions](./remotion-captions/REFERENCE.md).
+```
+
+All other skills are embedded in the `remotion-best-practices` folder, so installing this one skill gives the agent all of them. In the embedded copies, each `SKILL.md` is renamed to `REFERENCE.md`. `/remotion-markup` embeds `/remotion-maps` the same way.
+
+The router also holds rules for every task, for example to preserve changes the user made, and to open the Studio preview instead of rendering unless the user explicitly asks for a render.
+
+### Authoring conventions
+
+- Start with one sentence that says what the skill does, and link back to the router for other tasks:
+
+  ```md
+  These are instructions for making a new Remotion project and composition.
+  If this is not the next task, see [Remotion Best Practices](../remotion-best-practices/SKILL.md)
+  ```
+
+- Link to another skill with a relative path to its `SKILL.md`, such as `../remotion-studio/SKILL.md`. When the skills are published, embedded copies link to `REFERENCE.md` instead, and standalone skills keep only the link text, because a skill may only reference files inside its own folder.
+- Put detailed topics into separate Markdown files next to `SKILL.md` and link them with a relative path, such as `[Video Layout Rules](video-layout.md)`.
+- Give the agent the exact commands to run in code blocks.
