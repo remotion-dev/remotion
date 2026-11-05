@@ -58,7 +58,7 @@ const ellipsisSvgProps: React.SVGProps<SVGSVGElement> = {
 
 const shortcutLabel: React.CSSProperties = {
 	fontSize: 11,
-	opacity: 0.6,
+	color: 'inherit',
 };
 
 export const ExplorerQuickSwitcherTrigger: React.FC<{

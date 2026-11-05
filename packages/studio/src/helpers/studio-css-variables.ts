@@ -100,4 +100,22 @@ export const studioCssVariables = `
   --remotion-studio-prism-line-highlight-background: #f7ebc6;
   --remotion-studio-prism-line-highlight-border-color: #f7d87c;
 }
+
+html[data-remotion-high-contrast] {
+  --remotion-studio-background: #101214;
+  --remotion-studio-background-transparent: rgba(16, 18, 20, 0);
+  --remotion-studio-light-text: #eee;
+  --remotion-studio-ruler-color: #ccc;
+  --remotion-studio-line-color: #85898d;
+  --remotion-studio-timeline-track-separator: #85898d;
+  --remotion-studio-focus-color: #ffe066;
+  --remotion-studio-info-blue: #a6d8ff;
+}
 `;
+
+export const applyStudioHighContrast = (enabled: boolean) => {
+	document.documentElement.toggleAttribute(
+		'data-remotion-high-contrast',
+		enabled,
+	);
+};
