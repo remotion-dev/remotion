@@ -20,11 +20,11 @@ It uses the same band controls as [`lines()`](/docs/effects/lines), and the same
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {zigzag} from '@remotion/effects/zigzag';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -39,7 +39,7 @@ export const MyComp: React.FC = () => {
             thickness: 40,
             gap: 0,
             angle: 0,
-            offset: frame * 2,
+            offset: interpolate(frame, [0, 60], [0, 120]),
             amplitude: 40,
             wavelength: 160,
           }),

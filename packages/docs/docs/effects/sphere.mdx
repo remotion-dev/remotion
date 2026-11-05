@@ -22,12 +22,12 @@ Wraps canvas content around a sphere using an orthographic projection. Rotate it
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import React from 'react';
-import {CanvasImage, useCurrentFrame} from 'remotion';
+import {CanvasImage, interpolate, useCurrentFrame} from 'remotion';
 import {sphere} from '@remotion/effects/sphere';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -39,7 +39,7 @@ export const MyComp: React.FC = () => {
       effects={[
         sphere({
           radius: 300,
-          rotationY: frame * 1.5,
+          rotationY: interpolate(frame, [0, 60], [0, 90]),
         }),
       ]}
     />
