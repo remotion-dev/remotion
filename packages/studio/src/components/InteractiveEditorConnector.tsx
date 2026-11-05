@@ -85,11 +85,17 @@ export const InteractiveEditorConnector: React.FC<{
 		setHoveredSequence,
 	};
 
-	const connectedSlots = useRef(new Set<InteractiveEditorSlot>());
+	const connectedSlots = useRef(
+		new Map<InteractiveEditorSlot, {key: string; cancel: () => void}>(),
+	);
 	useEffect(() => {
 		const slots = connectedSlots.current;
 		return () => {
-			for (const slot of slots) slot.setConnection(null);
+			for (const [slot, connected] of slots) {
+				connected.cancel();
+				slot.setConnection(null);
+			}
+
 			slots.clear();
 		};
 	}, []);
@@ -105,16 +111,23 @@ export const InteractiveEditorConnector: React.FC<{
 			}
 
 			present.add(slot);
-			if (connectedSlots.current.has(slot)) {
+			const existing = connectedSlots.current.get(slot);
+			if (existing !== undefined) {
+				existing.key = key;
 				continue;
 			}
 
+			const connected: {key: string; cancel: () => void} = {
+				key,
+				cancel: () => undefined,
+			};
 			const controls = sequence.controls!;
 			let session: {
 				readonly target: SelectedOutlineTarget;
 				readonly clientId: string;
 				readonly preview: ReturnType<typeof createCanvasDragPreview>;
 				readonly fields: Map<string, FieldState>;
+				readonly rejectedFields: Set<string>;
 			} | null = null;
 
 			const start = () => {
@@ -123,7 +136,9 @@ export const InteractiveEditorConnector: React.FC<{
 					return;
 				}
 
-				const target = latest.current.getLatestOutlineTargetByKey(key);
+				const target = latest.current.getLatestOutlineTargetByKey(
+					connected.key,
+				);
 				const clientId = latest.current.connectedClientId;
 				if (
 					target === undefined ||
@@ -138,6 +153,7 @@ export const InteractiveEditorConnector: React.FC<{
 					target,
 					clientId,
 					fields: new Map(),
+					rejectedFields: new Set(),
 					preview: createCanvasDragPreview({
 						updateDragOverrides,
 						setPropStatuses,
@@ -156,11 +172,15 @@ export const InteractiveEditorConnector: React.FC<{
 					return;
 				}
 
-				const {target, fields} = session;
+				const {target, fields, rejectedFields} = session;
 				const nodePath = target.nodePathInfo.sequenceSubscriptionKey;
 				for (const [fieldKey, value] of Object.entries(values)) {
 					let field = fields.get(fieldKey);
 					if (field === undefined) {
+						if (rejectedFields.has(fieldKey)) {
+							continue;
+						}
+
 						const propStatus = Internals.getPropStatusesCtx(
 							propStatusesRef.current,
 							nodePath,
@@ -174,6 +194,7 @@ export const InteractiveEditorConnector: React.FC<{
 									propStatus.interpolationFunction === 'interpolate')
 							)
 						) {
+							rejectedFields.add(fieldKey);
 							showNotification(
 								`Cannot edit "${fieldKey}": it must be a schema prop that is static or keyframed with interpolate().`,
 								3000,
@@ -233,6 +254,8 @@ export const InteractiveEditorConnector: React.FC<{
 				session?.preview.cancel();
 				session = null;
 			};
+
+			connected.cancel = cancel;
 
 			const commit = (values: Readonly<Record<string, unknown>> | null) => {
 				if (values !== null) {
@@ -322,17 +345,24 @@ export const InteractiveEditorConnector: React.FC<{
 			slot.setConnection({
 				select: () => {
 					claimSelectionPointerDown();
-					const target = latest.current.getLatestOutlineTargetByKey(key);
+					const target = latest.current.getLatestOutlineTargetByKey(
+						connected.key,
+					);
 					if (target !== undefined) {
 						latest.current.onSelect(target.selection);
 					}
 				},
 				setHovered: (hovered) => {
-					const target = latest.current.getLatestOutlineTargetByKey(key);
+					const {key: currentKey} = connected;
+					const target = latest.current.getLatestOutlineTargetByKey(currentKey);
 					latest.current.setHoveredSequence((current) =>
 						hovered && target !== undefined
-							? {key, nodePathKey: target.nodePathKey, source: 'canvas'}
-							: current?.key === key
+							? {
+									key: currentKey,
+									nodePathKey: target.nodePathKey,
+									source: 'canvas',
+								}
+							: current?.key === currentKey
 								? null
 								: current,
 					);
@@ -342,11 +372,12 @@ export const InteractiveEditorConnector: React.FC<{
 				commit,
 				cancel,
 			});
-			connectedSlots.current.add(slot);
+			connectedSlots.current.set(slot, connected);
 		}
 
-		for (const slot of connectedSlots.current) {
+		for (const [slot, {cancel}] of connectedSlots.current) {
 			if (!present.has(slot)) {
+				cancel();
 				slot.setConnection(null);
 				connectedSlots.current.delete(slot);
 			}
