@@ -63,7 +63,7 @@ const GroupObject: React.FC<TransformProps> = ({
 	scale = 1,
 	children,
 }) => {
-	const editor = Interactive.useEditor<typeof schema>();
+	const editor = Interactive.experimental_useEditor<typeof schema>();
 	const groupRef = useRef<Group>(null);
 	const [mode, setMode] = useState<(typeof MODES)[number]>('translate');
 

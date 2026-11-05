@@ -7,6 +7,7 @@ import type {PreferredEffectBackend} from 'remotion';
 import type {StudioKeyboardShortcuts} from './keyboard-shortcuts';
 
 export type ConfigFileStudioSettings = {
+	readonly highContrast: boolean | null;
 	readonly preservePitchOnPlayback: boolean | null;
 	readonly showLayerFrameNumbers: boolean | null;
 	readonly showPremounting: boolean | null;
@@ -32,6 +33,10 @@ export type StudioElementLibrary = {
 };
 
 export type StudioRuntimeConfig = {
+	readonly highContrast: {
+		readonly value: boolean;
+		readonly source: 'cli' | 'config';
+	} | null;
 	readonly preferredEffectBackend: PreferredEffectBackend | null;
 	readonly preservePitchOnPlayback: boolean;
 	readonly showLayerFrameNumbers: boolean;
@@ -39,12 +44,12 @@ export type StudioRuntimeConfig = {
 	readonly defaultPremountInSeconds: number | null;
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
-	readonly elementLibraries?: readonly StudioElementLibrary[];
+	readonly elementLibraries: readonly StudioElementLibrary[];
 	/** null represents the unlimited (Infinity) default across JSON transport. */
 	readonly sequenceActivityLimit: number | null;
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
-	readonly keyboardShortcuts?: StudioKeyboardShortcuts | null;
+	readonly keyboardShortcuts: StudioKeyboardShortcuts | null;
 	readonly bufferStateDelayInMilliseconds: number | null;
 	readonly defaultCodingAgent: DefaultCodingAgent | null;
 	readonly defaultEditor: BuiltInEditor | 'custom' | null;

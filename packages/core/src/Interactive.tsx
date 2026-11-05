@@ -734,9 +734,9 @@ export const Interactive = {
 	 */
 	create,
 	/**
-	 * @description Connects the nearest interactive element to Remotion Studio's selection and editing, for content that draws its own outline and gizmos (e.g. React Three Fiber). Outside the Studio, `selected` and `hovered` are always false and all functions do nothing.
+	 * @description Experimental, may change or be removed in a patch release. Connects the nearest interactive element to Remotion Studio's selection and editing, for content that draws its own outline and gizmos (e.g. React Three Fiber). Outside the Studio, `selected` and `hovered` are always false and all functions do nothing.
 	 */
-	useEditor: useInteractiveEditor,
+	experimental_useEditor: useInteractiveEditor,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveTextElement('a', '<Interactive.A>'),
 	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),

@@ -20,17 +20,13 @@ Use it for slatted wipes, intro animations, and outro animations on [`<Video>`](
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {venetianBlinds} from '@remotion/effects/venetian-blinds';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 45], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <>
@@ -38,7 +34,10 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           venetianBlinds({
-            progress,
+            progress: interpolate(frame, [0, 45], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            }),
             direction: 'vertical',
             slats: 14,
           }),

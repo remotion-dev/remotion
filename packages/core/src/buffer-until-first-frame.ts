@@ -2,13 +2,7 @@ import {useCallback, useMemo, useRef} from 'react';
 import type {LogLevel} from './log';
 import {playbackLogging} from './playback-logging';
 import {useBufferState} from './use-buffer-state';
-
-const isSafariWebkit = () => {
-	const isSafari = /^((?!chrome|android).)*safari/i.test(
-		window.navigator.userAgent,
-	);
-	return isSafari;
-};
+import {isSafari} from './video/video-fragment';
 
 export const useBufferUntilFirstFrame = ({
 	mediaRef,
@@ -44,7 +38,7 @@ export const useBufferUntilFirstFrame = ({
 				return;
 			}
 
-			if (current.readyState >= current.HAVE_FUTURE_DATA && !isSafariWebkit()) {
+			if (current.readyState >= current.HAVE_FUTURE_DATA && !isSafari()) {
 				playbackLogging({
 					logLevel,
 					message: `Not using buffer until first frame, because readyState is ${current.readyState} and is not Safari or Desktop Chrome`,

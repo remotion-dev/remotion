@@ -24,12 +24,12 @@ Transparent areas reveal the back of the cylinder when `render` is `'both'`.
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import React from 'react';
-import {CanvasImage, useCurrentFrame} from 'remotion';
+import {CanvasImage, interpolate, useCurrentFrame} from 'remotion';
 import {cylinder} from '@remotion/effects/cylinder';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
       effects={[
         cylinder({
           radius: 300,
-          rotation: frame * 2,
+          rotation: interpolate(frame, [0, 60], [0, 120]),
           rotationX: 30,
           rotationZ: -15,
         }),

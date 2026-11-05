@@ -2,14 +2,20 @@ import {MacOSCursor} from '@remotion/mac-cursors';
 import {Video} from '@remotion/media';
 import {
 	AbsoluteFill,
+	CanvasImage,
 	Easing,
 	interpolate,
 	Interactive,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
+import {renderButtonPress} from './render-button-press';
 
-const StudioRenderClickCapture = () => {
+export const StudioRenderClickCapture = ({
+	pressIn,
+}: {
+	readonly pressIn: boolean;
+}) => {
 	const {fps} = useVideoConfig();
 	const frame = (useCurrentFrame() * 30) / fps;
 
@@ -25,11 +31,59 @@ const StudioRenderClickCapture = () => {
 			<Video
 				src="https://remotion.media/studio-close-ups/render-click-b2eb37ead3a2.mp4"
 				muted
+				freeze={pressIn ? 12 * fps : undefined}
+				effects={[
+					renderButtonPress({
+						scale: interpolate(
+							frame,
+							[375, 378, 381, 383],
+							[1, 0.92, 0.92, 1],
+							{
+								extrapolateLeft: 'clamp',
+								extrapolateRight: 'clamp',
+								easing: Easing.inOut(Easing.quad),
+							},
+						),
+						disabled: pressIn || frame < 375 || frame >= 383,
+					}),
+				]}
 				durationInFrames={16 * fps}
 				style={{
 					position: 'absolute',
 				}}
 			/>
+			{pressIn ? (
+				<Interactive.Div
+					name="Render button press"
+					style={{
+						position: 'absolute',
+						left: 1385,
+						top: 985,
+						width: 665,
+						height: 245,
+						backgroundColor: '#1f2427',
+					}}
+				>
+					<CanvasImage
+						src="https://remotion.media/agentically-programmatically/studio-render-button-ce2e4fe391ad.png"
+						width={665}
+						height={245}
+						style={{
+							width: '100%',
+							height: '100%',
+							scale: interpolate(
+								frame,
+								[373, 377, 380, 385],
+								[1, 0.95, 0.95, 1],
+								{
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+								},
+							),
+						}}
+					/>
+				</Interactive.Div>
+			) : null}
 			<MacOSCursor
 				cursor={interpolate(
 					frame,
@@ -261,7 +315,7 @@ const StudioRenderClickContent = () => {
 					scale: 2.4 * Math.min(width / 2560, height / 1600),
 				}}
 			>
-				<StudioRenderClickCapture />
+				<StudioRenderClickCapture pressIn={false} />
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);

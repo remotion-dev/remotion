@@ -1,5 +1,4 @@
 import React, {
-	createContext,
 	forwardRef,
 	useCallback,
 	useContext,
@@ -18,6 +17,10 @@ import {
 } from './effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
+import {
+	HtmlInCanvasAncestorContext,
+	type HtmlInCanvasPaintState,
+} from './HtmlInCanvasAncestorContext.js';
 import {HtmlInCanvasFallback} from './HtmlInCanvasFallback.js';
 import type {
 	InteractiveBaseProps,
@@ -462,16 +465,6 @@ export type HtmlInCanvasProps = Omit<InteractiveBaseProps, 'children'> &
 		readonly _remotionInternalFallbackLabel?: string;
 	};
 /* eslint-enable react/require-default-props */
-
-type HtmlInCanvasPaintState = {
-	pendingChildren: number;
-	generation: number;
-	release: (() => void) | null;
-	blockPaint: () => () => void;
-};
-
-const HtmlInCanvasAncestorContext =
-	createContext<HtmlInCanvasPaintState | null>(null);
 
 export const useHtmlInCanvasUnsupportedMessage = (): string | null => {
 	const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);

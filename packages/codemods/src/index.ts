@@ -35,6 +35,7 @@ import {getDurationDependentKeyframesFromContent} from './sequence-props/duratio
 import {JsxElementIdentityMismatchError} from './sequence-props/jsx-component-identity';
 import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-not-found-at-location-error';
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
+import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {updateInlineCaptionPatches} from './update-inline-caption-patches';
 
 export {
@@ -202,6 +203,7 @@ export const CodemodsInternals = {
 	getKeyframeSourceLocationRemappings,
 	getKeyframeInterpolationFunctionForCallee,
 	getRootFileForProject,
+	getStaticNumericValue,
 	insertBasicCaptions,
 	insertJsxElementIntoComposition,
 	insertJsxElementIntoProjectWithNodePathRemappings,

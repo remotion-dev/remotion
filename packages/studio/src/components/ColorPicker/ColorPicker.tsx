@@ -126,7 +126,7 @@ export const ColorPicker: React.FC<Props> = ({
 			width,
 			height,
 			borderRadius,
-			cursor: disabled ? 'not-allowed' : 'pointer',
+			cursor: 'default',
 			opacity: disabled ? 0.5 : 1,
 			...(customStyle ?? {}),
 		};
@@ -143,7 +143,7 @@ export const ColorPicker: React.FC<Props> = ({
 			...eyedropperButtonBaseStyle,
 			width: eyedropperButtonSize,
 			height: eyedropperButtonSize,
-			cursor: disabled ? 'not-allowed' : 'pointer',
+			cursor: 'default',
 			opacity: disabled ? 0.5 : 1,
 		};
 	}, [disabled, eyedropperButtonSize]);
