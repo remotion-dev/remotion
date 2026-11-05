@@ -4,14 +4,12 @@ import {
 	type EffectCatalogItem,
 } from '@remotion/studio-shared';
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {WHITE_ALPHA_06} from '../helpers/colors';
 import {renderEffectThumbnail} from './render-effect-thumbnail';
 
 const frame: React.CSSProperties = {
 	width: '100%',
 	aspectRatio: '3 / 2',
 	position: 'relative',
-	backgroundColor: WHITE_ALPHA_06,
 	borderRadius: 3,
 	overflow: 'hidden',
 	pointerEvents: 'none',
