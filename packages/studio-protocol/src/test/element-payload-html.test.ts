@@ -1,11 +1,13 @@
 import {expect, test} from 'bun:test';
 import {staticFileRef} from '../element-drag-data';
-import {createElementPayload} from '../element-payload';
+import {
+	createElementPayload,
+	type StudioElementPayload,
+} from '../element-payload';
 import {
 	ELEMENT_PAYLOAD_MIME_TYPE,
-	getElementPayloadScriptProps,
 	parseElementPayloadsFromHtml,
-	type ElementPayloadScriptProps,
+	serializeElementPayloadForHtml,
 } from '../element-payload-html';
 
 const hostileSourceCode = [
@@ -41,18 +43,15 @@ const assetPayload = createElementPayload({
 	initialProps: {audioUrl: staticFileRef('podcast-intro/music.mp3')},
 });
 
-// Mirrors how React renders <script {...props} /> on the server.
-const renderScript = (props: ElementPayloadScriptProps) =>
-	`<script type="${props.type}">${props.dangerouslySetInnerHTML.__html}</script>`;
+const renderScript = (payload: StudioElementPayload) =>
+	`<script type="${ELEMENT_PAYLOAD_MIME_TYPE}">${serializeElementPayloadForHtml(payload)}</script>`;
 
 const wrapInPage = (body: string) =>
 	`<!doctype html><html><head><title>Library</title></head><body>${body}</body></html>`;
 
 test('escapes characters that could end the script block or break JavaScript', () => {
-	const props = getElementPayloadScriptProps(hostilePayload);
-	const html = props.dangerouslySetInnerHTML.__html;
+	const html = serializeElementPayloadForHtml(hostilePayload);
 
-	expect(props.type).toBe(ELEMENT_PAYLOAD_MIME_TYPE);
 	expect(html).not.toContain('<');
 	expect(html).not.toContain('>');
 	expect(html).not.toContain('&');
@@ -63,9 +62,7 @@ test('escapes characters that could end the script block or break JavaScript', (
 });
 
 test('round trips a payload through HTML', () => {
-	const html = wrapInPage(
-		renderScript(getElementPayloadScriptProps(hostilePayload)),
-	);
+	const html = wrapInPage(renderScript(hostilePayload));
 
 	expect(parseElementPayloadsFromHtml(html)).toEqual({
 		payloads: [hostilePayload],
@@ -78,9 +75,9 @@ test('reads every payload on a page in document order', () => {
 	const html = wrapInPage(
 		[
 			'<script>window.x = "<!--";</script>',
-			renderScript(getElementPayloadScriptProps(assetPayload)),
+			renderScript(assetPayload),
 			'<script type="application/ld+json">{"@type":"Thing"}</script>',
-			renderScript(getElementPayloadScriptProps(hostilePayload)),
+			renderScript(hostilePayload),
 		].join('\n'),
 	);
 
@@ -91,12 +88,11 @@ test('reads every payload on a page in document order', () => {
 });
 
 test('accepts attribute variations that browsers accept', () => {
-	const {__html} =
-		getElementPayloadScriptProps(assetPayload).dangerouslySetInnerHTML;
+	const json = serializeElementPayloadForHtml(assetPayload);
 	const html = wrapInPage(
 		[
-			`<SCRIPT TYPE='Application/Vnd.Remotion.Element+JSON' nonce="abc">${__html}</SCRIPT >`,
-			`<script id=payload type=application/vnd.remotion.element+json>\n  ${__html}\n</script>`,
+			`<SCRIPT TYPE='Application/Vnd.Remotion.Element+JSON' nonce="abc">${json}</SCRIPT >`,
+			`<script id=payload type=application/vnd.remotion.element+json>\n  ${json}\n</script>`,
 		].join(''),
 	);
 
@@ -107,9 +103,7 @@ test('accepts attribute variations that browsers accept', () => {
 });
 
 test('ignores commented-out payloads', () => {
-	const html = wrapInPage(
-		`<!-- ${renderScript(getElementPayloadScriptProps(assetPayload))} -->`,
-	);
+	const html = wrapInPage(`<!-- ${renderScript(assetPayload)} -->`);
 
 	expect(parseElementPayloadsFromHtml(html)).toEqual({
 		payloads: [],
@@ -123,7 +117,7 @@ test('counts invalid embedded payloads', () => {
 		[
 			`<script type="${ELEMENT_PAYLOAD_MIME_TYPE}">not json</script>`,
 			`<script type="${ELEMENT_PAYLOAD_MIME_TYPE}">{"type":"remotion-element","version":3}</script>`,
-			renderScript(getElementPayloadScriptProps(assetPayload)),
+			renderScript(assetPayload),
 		].join(''),
 	);
 
@@ -157,7 +151,7 @@ test('collects alternate links for pages rendered in the browser', () => {
 
 test('rejects payloads that were not created with createElementPayload()', () => {
 	expect(() =>
-		getElementPayloadScriptProps(
+		serializeElementPayloadForHtml(
 			// @ts-expect-error Exercise runtime validation of invalid JavaScript inputs.
 			{type: 'remotion-element', version: 1},
 		),

@@ -862,7 +862,7 @@ const sidebars: SidebarsConfig = {
 				'studio-protocol/build-open-in-remotion-new-url',
 				'studio-protocol/set-studio-drag-data',
 				'studio-protocol/install-in-studio',
-				'studio-protocol/get-element-payload-script-props',
+				'studio-protocol/serialize-element-payload-for-html',
 				'studio-protocol/add-element-library-to-studio',
 				'studio-protocol/subscribe-to-caption-style-selection',
 				'studio-protocol/is-inside-studio',

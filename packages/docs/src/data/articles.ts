@@ -8922,15 +8922,6 @@ export const articles = [
 		slug: 'studio-protocol/create-element-payload',
 	},
 	{
-		id: 'studio-protocol/get-element-payload-script-props',
-		title: 'getElementPayloadScriptProps()',
-		relativePath: 'docs/studio-protocol/get-element-payload-script-props.mdx',
-		compId: 'articles-docs-studio-protocol-get-element-payload-script-props',
-		crumb: '@remotion/studio-protocol',
-		noAi: false,
-		slug: 'studio-protocol/get-element-payload-script-props',
-	},
-	{
 		id: 'studio-protocol/index',
 		title: 'Remotion Studio Protocol',
 		relativePath: 'docs/studio-protocol/index.mdx',
@@ -8965,6 +8956,15 @@ export const articles = [
 		crumb: '@remotion/studio-protocol',
 		noAi: false,
 		slug: 'studio-protocol/security',
+	},
+	{
+		id: 'studio-protocol/serialize-element-payload-for-html',
+		title: 'serializeElementPayloadForHtml()',
+		relativePath: 'docs/studio-protocol/serialize-element-payload-for-html.mdx',
+		compId: 'articles-docs-studio-protocol-serialize-element-payload-for-html',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/serialize-element-payload-for-html',
 	},
 	{
 		id: 'studio-protocol/set-studio-drag-data',

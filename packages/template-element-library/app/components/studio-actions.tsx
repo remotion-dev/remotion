@@ -1,7 +1,8 @@
 import {
   addElementLibraryToStudio,
-  getElementPayloadScriptProps,
+  ELEMENT_PAYLOAD_MIME_TYPE,
   installInStudio,
+  serializeElementPayloadForHtml,
   setStudioDragData,
 } from "@remotion/studio-protocol";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/16/solid";
@@ -82,7 +83,14 @@ export const StudioActions = (
 
   return (
     <div className="min-w-0">
-      {entry && <script {...getElementPayloadScriptProps(entry.payload)} />}
+      {entry && (
+        <script
+          type={ELEMENT_PAYLOAD_MIME_TYPE}
+          dangerouslySetInnerHTML={{
+            __html: serializeElementPayloadForHtml(entry.payload),
+          }}
+        />
+      )}
       {props.variant === "caption" ? (
         <CaptionStyleButton
           entry={props.entry}

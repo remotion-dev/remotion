@@ -137,16 +137,21 @@ Also offer a way around the failure:
 
 ## 4. Embed the payload<AvailableFrom v="4.0.542" />
 
-Render the same payload into your page's HTML with [`getElementPayloadScriptProps()`](/docs/studio-protocol/get-element-payload-script-props), next to the install button. Command-line tools and agents can then install the Element from your page's URL.
+Put the same payload in a `<script>` tag in your page's HTML, next to the install button. Command-line tools and agents can then install the Element from your page's URL. Use [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html) to create the script's content:
 
 ```tsx title="InstallActions.tsx"
 const payload = createElementPayload({...});
 
-<script {...getElementPayloadScriptProps(payload)} />
+<script
+  type={ELEMENT_PAYLOAD_MIME_TYPE}
+  dangerouslySetInnerHTML={{__html: serializeElementPayloadForHtml(payload)}}
+/>
 <InstallButton payload={payload} />
 ```
 
-The script must be in the HTML that your server sends, so the page must be server-rendered or prerendered at build time. If your page is rendered only in the browser, [link to a JSON payload](/docs/studio-protocol/get-element-payload-script-props#pages-rendered-in-the-browser) instead.
+See [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html#example) for Astro and other frameworks.
+
+The script must be in the HTML that your server sends, so the page must be server-rendered or prerendered at build time. If your page is rendered only in the browser, [link to a JSON payload](/docs/studio-protocol/serialize-element-payload-for-html#pages-rendered-in-the-browser) instead.
 
 ## 5. Test the integration
 
@@ -164,6 +169,6 @@ In production, serve your website over HTTPS. HTTP works only on `localhost` and
 - [`staticFileRef()`](/docs/studio-protocol/static-file-ref)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)
-- [`getElementPayloadScriptProps()`](/docs/studio-protocol/get-element-payload-script-props)
+- [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html)
 - [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio)
 - [Studio Protocol security](/docs/studio-protocol/security)

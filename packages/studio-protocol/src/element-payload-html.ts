@@ -6,44 +6,28 @@ import {
 export const ELEMENT_PAYLOAD_MIME_TYPE =
 	'application/vnd.remotion.element+json';
 
-export type ElementPayloadScriptProps = {
-	readonly type: typeof ELEMENT_PAYLOAD_MIME_TYPE;
-	readonly dangerouslySetInnerHTML: {
-		readonly __html: string;
-	};
-};
-
 export type ParsedElementPayloadsFromHtml = {
 	readonly payloads: StudioElementPayload[];
 	readonly invalidPayloadCount: number;
 	readonly alternateHrefs: string[];
 };
 
-// JSON.stringify() output can contain `</script>`, `<!--` or line separators.
-const escapeJsonForHtml = (json: string): string => {
-	return json
+export const serializeElementPayloadForHtml = (
+	payload: StudioElementPayload,
+): string => {
+	if (parseStudioElementPayload(payload) === null) {
+		throw new TypeError(
+			'serializeElementPayloadForHtml() must receive a payload returned by createElementPayload()',
+		);
+	}
+
+	// JSON.stringify() output can contain `</script>`, `<!--` or line separators.
+	return JSON.stringify(payload)
 		.replace(/</g, '\\u003c')
 		.replace(/>/g, '\\u003e')
 		.replace(/&/g, '\\u0026')
 		.replace(/\u2028/g, '\\u2028')
 		.replace(/\u2029/g, '\\u2029');
-};
-
-export const getElementPayloadScriptProps = (
-	payload: StudioElementPayload,
-): ElementPayloadScriptProps => {
-	if (parseStudioElementPayload(payload) === null) {
-		throw new TypeError(
-			'getElementPayloadScriptProps() must receive a payload returned by createElementPayload()',
-		);
-	}
-
-	return {
-		type: ELEMENT_PAYLOAD_MIME_TYPE,
-		dangerouslySetInnerHTML: {
-			__html: escapeJsonForHtml(JSON.stringify(payload)),
-		},
-	};
 };
 
 const decodeHtmlAttributeValue = (value: string): string => {
