@@ -20,11 +20,11 @@ The effect renders static procedural linework. Animate its parameters, such as `
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {contourLines} from '@remotion/effects/contour-lines';
-import {CanvasImage, staticFile, useCurrentFrame} from 'remotion';
+import {CanvasImage, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -43,8 +43,8 @@ export const MyComp: React.FC = () => {
             complexity: 0.7,
             smoothness: 0.75,
             seed: 2,
-            offsetX: frame * 0.4,
-            offsetY: frame * 0.2,
+            offsetX: interpolate(frame, [0, 60], [0, 24]),
+            offsetY: interpolate(frame, [0, 60], [0, 12]),
           }),
         ]}
       />

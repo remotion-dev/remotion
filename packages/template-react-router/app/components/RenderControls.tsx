@@ -8,7 +8,6 @@ import { Input } from "./Input";
 import { ProgressBar } from "./ProgressBar";
 import { Spacing } from "./Spacing";
 import { useRendering } from "../lib/use-rendering";
-import { COMPOSITION_ID } from "~/remotion/constants.mjs";
 import { CompositionProps } from "~/remotion/schemata";
 
 export const RenderControls: React.FC<{
@@ -16,7 +15,7 @@ export const RenderControls: React.FC<{
   setText: React.Dispatch<React.SetStateAction<string>>;
   inputProps: z.infer<typeof CompositionProps>;
 }> = ({ text, setText, inputProps }) => {
-  const { renderMedia, state, undo } = useRendering(COMPOSITION_ID, inputProps);
+  const { renderMedia, state, undo } = useRendering(inputProps);
 
   return (
     <InputContainer>

@@ -25,11 +25,11 @@ Server-side rendering only sends telemetry when a license key is set, and only f
 
 - Rendering from the CLI: [`npx remotion render`](/docs/cli/render#--license-key) and [`npx remotion still`](/docs/cli/still#--license-key)
 - [`@remotion/renderer`](/docs/renderer): [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey)
-- [`@remotion/lambda`](/docs/lambda): [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey)
+- [`@remotion/lambda`](/docs/lambda): [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey), [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#licensekey), [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream), and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey)
 - [`@remotion/vercel`](/docs/vercel/api): [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey)
 - [`@remotion/cloudrun`](/docs/cloudrun): [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#licensekey) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#licensekey), from <AvailableFrom v="4.0.540" inline />
 
-Image-sequence renders from the CLI also send one event per render. [`remotion benchmark`](/docs/cli/benchmark) does not send telemetry.
+Image-sequence renders from the CLI and the Lambda APIs send one event per render. [`remotion benchmark`](/docs/cli/benchmark) does not send telemetry.
 
 ## Telemetry in client-side rendering
 

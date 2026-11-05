@@ -39,6 +39,7 @@ if (progress.done && progress.outputSequence) {
 ```
 
 Poll [`getRenderProgress()`](/docs/lambda/getrenderprogress) until `done` is `true`, or `fatalErrorEncountered` is `true`.
+To stream progress and wait for the render to finish, use [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream).
 
 ## Arguments
 
@@ -258,6 +259,7 @@ Use [`downloadMedia()`](/docs/lambda/downloadmedia) to download the sequence and
 
 ## See also
 
+- [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream)
 - [`renderFrames()`](/docs/renderer/render-frames)
 - [`getRenderProgress()`](/docs/lambda/getrenderprogress)
 - [Lambda CLI image sequences](/docs/lambda/cli/render#--sequence)

@@ -5599,6 +5599,15 @@ export const articles = [
 		slug: 'lambda/renderframesonlambda',
 	},
 	{
+		id: 'renderframesonlambdaandstream',
+		title: 'renderFramesOnLambdaAndStream()',
+		relativePath: 'docs/lambda/renderframesonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-renderframesonlambdaandstream',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/renderframesonlambdaandstream',
+	},
+	{
 		id: 'rendermediaonlambda',
 		title: 'renderMediaOnLambda()',
 		relativePath: 'docs/lambda/rendermediaonlambda.mdx',
@@ -5606,6 +5615,15 @@ export const articles = [
 		crumb: 'Lambda API',
 		noAi: false,
 		slug: 'lambda/rendermediaonlambda',
+	},
+	{
+		id: 'rendermediaonlambdaandstream',
+		title: 'renderMediaOnLambdaAndStream()',
+		relativePath: 'docs/lambda/rendermediaonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-rendermediaonlambdaandstream',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/rendermediaonlambdaandstream',
 	},
 	{
 		id: 'renderstillonlambda',
@@ -10372,6 +10390,15 @@ export const articles = [
 		crumb: null,
 		noAi: false,
 		slug: 'video-and-audio',
+	},
+	{
+		id: 'video-matting-guide',
+		title: 'Video matting',
+		relativePath: 'docs/video-matting-guide.mdx',
+		compId: 'articles-docs-video-matting-guide',
+		crumb: 'Designing visuals',
+		noAi: false,
+		slug: 'video-matting-guide',
 	},
 	{
 		id: 'video-matting/can-use-video-matting',

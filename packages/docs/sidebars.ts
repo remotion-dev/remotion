@@ -480,7 +480,9 @@ const sidebars: SidebarsConfig = {
 				'lambda/getrenderprogress',
 				'lambda/presignurl',
 				'lambda/renderframesonlambda',
+				'lambda/renderframesonlambdaandstream',
 				'lambda/rendermediaonlambda',
+				'lambda/rendermediaonlambdaandstream',
 				'lambda/cancelrenderonlambda',
 				'lambda/renderstillonlambda',
 				'lambda/simulatepermissions',
@@ -1334,6 +1336,7 @@ const sidebars: SidebarsConfig = {
 			label: 'Designing visuals',
 			items: [
 				'layers',
+				'video-matting-guide',
 				'transforms',
 				'assets',
 				'fonts',

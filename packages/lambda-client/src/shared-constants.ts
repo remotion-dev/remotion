@@ -129,6 +129,7 @@ export type ServerlessStatusPayload = {
 };
 
 export type ServerlessStartPayload = {
+	streamProgress: boolean;
 	enableCancellation: boolean | null;
 	rendererFunctionName: string | null;
 	type: ServerlessRoutines.start;

@@ -20,11 +20,11 @@ Each line color is composited over the source.
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {lines} from '@remotion/effects/lines';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -39,7 +39,7 @@ export const MyComp: React.FC = () => {
             thickness: 40,
             gap: 24,
             angle: 20,
-            offset: frame * 2,
+            offset: interpolate(frame, [0, 60], [0, 120]),
           }),
         ]}
       />

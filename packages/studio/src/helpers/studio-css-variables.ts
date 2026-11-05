@@ -13,6 +13,8 @@ export const studioCssVariables = `
   --remotion-studio-tab-hover-background: #232629;
   --remotion-studio-light-color: #ddd;
   --remotion-studio-light-text: #A6A7A9;
+  --remotion-studio-computed-value-color: var(--remotion-studio-white-alpha-40);
+  --remotion-studio-explorer-shortcut-opacity: 0.6;
   --remotion-studio-ruler-color: #808080;
   --remotion-studio-white-alpha-05: rgba(255, 255, 255, 0.05);
   --remotion-studio-white-alpha-06: rgba(255, 255, 255, 0.06);
@@ -43,6 +45,7 @@ export const studioCssVariables = `
   --remotion-studio-fail-color: #ff3232;
   --remotion-studio-warning-color: #f1c40f;
   --remotion-studio-blue: #0b84f3;
+  --remotion-studio-interactive-text: var(--remotion-studio-blue);
   --remotion-studio-blue-hovered: #4da3f7;
   --remotion-studio-blue-disabled: #284f73;
   --remotion-studio-unselected-guide: #7e1219;
@@ -106,6 +109,9 @@ html[data-remotion-high-contrast] {
   --remotion-studio-background: #101214;
   --remotion-studio-background-transparent: rgba(16, 18, 20, 0);
   --remotion-studio-light-text: #eee;
+  --remotion-studio-computed-value-color: var(--remotion-studio-light-text);
+  --remotion-studio-explorer-shortcut-opacity: 1;
+  --remotion-studio-interactive-text: var(--remotion-studio-info-blue);
   --remotion-studio-ruler-color: #ccc;
   --remotion-studio-line-color: #85898d;
   --remotion-studio-splitter-color: var(--remotion-studio-line-color);

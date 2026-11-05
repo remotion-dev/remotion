@@ -1,0 +1,103 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-lambda-rendermediaonlambdaandstream.png
+id: rendermediaonlambdaandstream
+title: renderMediaOnLambdaAndStream()
+crumb: '@remotion/lambda-client'
+---
+
+# renderMediaOnLambdaAndStream()<AvailableFrom v="4.0.542" />
+
+Starts a media render on AWS Lambda, streams progress, and waits for the render to finish.
+Requires a [deployed function](/docs/lambda/deployfunction) and [site or Serve URL](/docs/lambda/deploysite) using the same Remotion version as the client.
+
+```ts twoslash title="render.ts"
+import {renderMediaOnLambdaAndStream} from '@remotion/lambda-client';
+
+const result = await renderMediaOnLambdaAndStream({
+  region: 'eu-central-1',
+  functionName: 'remotion-render-4-0-542-mem2048mb-disk2048mb-120sec',
+  serveUrl: 'https://example.com/remotion/index.html',
+  composition: 'MyComposition',
+  codec: 'h264',
+  onInit: ({renderId, bucketName}) => {
+    console.log({renderId, bucketName});
+  },
+  onProgress: ({overallProgress}) => {
+    console.log(`${Math.round(overallProgress * 100)}%`);
+  },
+});
+
+console.log(result.outputFile);
+```
+
+Also exported from `@remotion/lambda`.
+To start a render without waiting, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
+For image sequences, use [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream).
+
+## Arguments
+
+Accepts the same [render options as `renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#arguments), plus the callbacks below.
+
+### `onInit?`
+
+Called once with the [startup metadata](/docs/lambda/rendermediaonlambda#return-value), including `renderId`, `bucketName`, and diagnostic links. Defaults to no callback.
+Save this identity to observe the render later with [`getRenderProgress()`](/docs/lambda/getrenderprogress).
+
+### `onProgress?`
+
+Called with the same [progress object as `getRenderProgress()`](/docs/lambda/getrenderprogress#response). Defaults to no callback.
+Updates are coalesced; the callback does not run for every frame.
+
+Both callbacks may return a promise and are awaited in order. Throwing or rejecting stops observation and rejects `renderMediaOnLambdaAndStream()`. It does not cancel the render.
+
+## Return value
+
+Resolves with the final [progress object](/docs/lambda/getrenderprogress#response). `done` is `true`, and `outputFile`, `outBucket`, and `outKey` identify the finished media. The result also includes costs, artifacts, and separate audio output when requested.
+
+The promise rejects if the render fails to start, or on a fatal render error, timeout, callback failure, or observation failure. A `RenderMediaOnLambdaAndStreamError` retains these diagnostic properties:
+
+### `renderId`
+
+The render ID, or `null` if startup metadata was not received.
+
+### `bucketName`
+
+The render bucket, or `null` if startup metadata was not received.
+
+### `render`
+
+The startup metadata, or `null` before initialization.
+
+### `progress`
+
+The last observed progress object, or `null` before progress was received. Its `errors` array includes render diagnostics.
+
+### `cause`
+
+The original observation or callback error, or the remote error stack when available.
+
+## Streaming and recovery
+
+Progress streams directly in standard AWS regions. In `cn-north-1` and `cn-northwest-1`, the API starts asynchronously and polls for progress.
+If a stream breaks, stalls for 30 seconds, or ends before the render finishes, observation falls back to polling the same render. An ended stream alone does not indicate success.
+
+If the connection closes before a render ID is received, the promise rejects. The render may still be running. The API never retries the start request automatically.
+
+Progress continues to be saved in S3 during rendering, so [`getRenderProgress()`](/docs/lambda/getrenderprogress) remains available to independent observers. This API streams progress; it does not stream video bytes. Use [`downloadMedia()`](/docs/lambda/downloadmedia) to download the output.
+
+## Disconnection and cancellation
+
+Closing the client or stopping observation leaves the render running. To cancel it, start with `enableCancellation: true` and call [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
+
+The [Lambda render CLI](/docs/lambda/cli/render) uses this lifecycle for media and image sequence renders. Ctrl+C stops waiting by default. With `--enable-cancellation`, Ctrl+C explicitly cancels the render.
+
+## Compatibility
+
+<CompatibilityTable nodejs bun serverlessFunctions chrome={false} firefox={false} safari={false} clientSideRendering={false} serverSideRendering player={false} studio={false} />
+
+## See also
+
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
+- [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream)
+- [`getRenderProgress()`](/docs/lambda/getrenderprogress)
+- [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda)

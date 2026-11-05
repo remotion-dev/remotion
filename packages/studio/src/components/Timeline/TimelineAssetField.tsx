@@ -3,6 +3,7 @@ import {staticFile, type CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {writeStaticFile} from '../../api/write-static-file';
 import {
+	FAIL_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -31,7 +32,10 @@ import {
 } from '../InspectorPanel/common';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useStaticFiles} from '../use-static-files';
-import {getTimelineAssetLinkInfo} from './timeline-asset-link';
+import {
+	getTimelineAssetLinkInfo,
+	isTimelineAssetMissing,
+} from './timeline-asset-link';
 
 const penIcon: React.CSSProperties = {
 	display: 'block',
@@ -53,6 +57,11 @@ const standaloneSourceActionStyle: React.CSSProperties = {
 	margin: 0,
 	minWidth: 0,
 	width: 'auto',
+};
+
+const missingAssetName: React.CSSProperties = {
+	color: FAIL_COLOR,
+	font: 'inherit',
 };
 
 const assetTypeToAccept = {
@@ -190,6 +199,10 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	const imageLinkInfo = assetType === 'image' ? assetLinkInfo : null;
 	const localAssetPath =
 		assetLinkInfo?.kind === 'local' ? assetLinkInfo.assetPath : null;
+	const isMissingLocalAsset = useMemo(
+		() => isTimelineAssetMissing({linkInfo: assetLinkInfo, staticFiles}),
+		[assetLinkInfo, staticFiles],
+	);
 	const {getContextMenuItems: getLocalAssetContextMenuItems} =
 		useAssetContextMenuItems({
 			relativePath: localAssetPath,
@@ -387,7 +400,15 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 					<img alt="" draggable={false} src={previewSrc} style={thumbnail} />
 				</span>
 				<span style={imageAssetInfo}>
-					<span style={imageAssetName}>{name}</span>
+					<span
+						style={
+							isMissingLocalAsset
+								? {...imageAssetName, color: FAIL_COLOR}
+								: imageAssetName
+						}
+					>
+						{name}
+					</span>
 					{source === null ? null : (
 						<span style={imageAssetSource}>{source}</span>
 					)}
@@ -421,7 +442,13 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 			{...inlineSourceAction}
 			size="compact"
 			style={standaloneSourceActionStyle}
-		/>
+		>
+			{isMissingLocalAsset ? (
+				<span style={missingAssetName}>{inlineSourceAction.children}</span>
+			) : (
+				inlineSourceAction.children
+			)}
+		</InspectorQuickAction>
 	);
 
 	return (

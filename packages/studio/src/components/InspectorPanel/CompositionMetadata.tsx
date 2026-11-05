@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {COMPUTED_VALUE_COLOR} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {CaretDown} from '../../icons/caret';
@@ -59,7 +59,7 @@ const computedContainerStyle: React.CSSProperties = {
 };
 
 const computedValueStyle: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	color: COMPUTED_VALUE_COLOR,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontStyle: 'italic',

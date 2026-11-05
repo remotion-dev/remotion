@@ -10,9 +10,10 @@ import {
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
-import type {
-	SelectedOutlineDragTarget,
-	SelectedOutlineKeyboardNudgeSession,
+import {
+	getEditableOutlineDragTargets,
+	type SelectedOutlineKeyboardNudgeSession,
+	type SelectedOutlineSelection,
 } from './selected-outline-types';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {saveSequencePropsWithResult} from './Timeline/save-sequence-prop';
@@ -28,8 +29,8 @@ const {
 } = CanvasInternals;
 
 export const SelectedOutlineKeyboardControls: React.FC<{
-	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
-}> = ({getAllDragTargets}) => {
+	readonly getSelection: () => SelectedOutlineSelection;
+}> = ({getSelection}) => {
 	const dragOverridesRef = useContext(
 		Internals.VisualModeDragOverridesRefContext,
 	);
@@ -205,15 +206,58 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				return;
 			}
 
-			const allDragTargets = getAllDragTargets();
-
-			if (allDragTargets.length === 0) {
+			if (event.altKey) {
 				seekWithArrowKey(event, direction);
 				return;
 			}
 
-			if (event.altKey) {
-				seekWithArrowKey(event, direction);
+			const selection = getSelection();
+			switch (selection.type) {
+				case 'empty':
+				case 'guides-only':
+				case 'non-visual':
+				case 'fullscreen':
+				case 'selection-disabled':
+				case 'preview-unavailable':
+				case 'outlines-hidden':
+					seekWithArrowKey(event, direction);
+					return;
+				case 'visual':
+					break;
+				default:
+					throw new Error(
+						`Unexpected outline selection: ${selection satisfies never}`,
+					);
+			}
+
+			let hasComputedPosition = false;
+			for (const {translation} of selection.targets) {
+				switch (translation.type) {
+					case 'computed':
+						hasComputedPosition = true;
+						break;
+					case 'editable':
+					case 'not-connected':
+					case 'interactivity-disabled':
+					case 'no-translate-control':
+					case 'loading':
+					case 'unsupported-keyframes':
+						break;
+					default:
+						throw new Error(
+							`Unexpected translation state: ${translation satisfies never}`,
+						);
+				}
+			}
+
+			const allDragTargets = getEditableOutlineDragTargets(selection.targets);
+			if (allDragTargets.length === 0) {
+				if (hasComputedPosition) {
+					event.preventDefault();
+				} else {
+					seekWithArrowKey(event, direction);
+				}
+
 				return;
 			}
 
@@ -254,7 +298,7 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 			});
 		},
 		[
-			getAllDragTargets,
+			getSelection,
 			getCurrentFrame,
 			dragOverridesRef,
 			seekWithArrowKey,

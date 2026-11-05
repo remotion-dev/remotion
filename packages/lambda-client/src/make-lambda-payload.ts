@@ -197,6 +197,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		logLevel,
 	});
 	return {
+		streamProgress: false,
 		enableCancellation,
 		rendererFunctionName,
 		framesPerLambda,
