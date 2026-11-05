@@ -127,7 +127,7 @@ export const ExploreSection: React.FC = () => {
 					},
 					{
 						title: 'Background removal',
-						href: '/docs/video-matting',
+						href: '/docs/video-matting-guide',
 						description: 'Separate layers locally using WebGPU',
 					},
 					{

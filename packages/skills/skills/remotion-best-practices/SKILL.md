@@ -30,6 +30,9 @@ For static maps, animated routes and markers, geographic explainers, Mapbox, Map
 
 For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Remotion Multimedia](./remotion-multimedia/SKILL.md)
 
+For video matting, background removal, or placing content behind a subject,
+load [Remotion Markup](./remotion-markup/SKILL.md).
+
 ## Improving Interactivity
 
 By structuring the Remotion markup well, we can allow users to interactively change things in the Studio and write back to code. If relevant: [Interactivity Best Practices](./remotion-interactivity/SKILL.md)
