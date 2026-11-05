@@ -6,9 +6,11 @@ import {
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {renderEffectThumbnail} from './render-effect-thumbnail';
 
+const PREVIEW_ASPECT_RATIO = 3 / 2;
+
 const frame: React.CSSProperties = {
 	width: '100%',
-	aspectRatio: '3 / 2',
+	aspectRatio: PREVIEW_ASPECT_RATIO,
 	position: 'relative',
 	borderRadius: 3,
 	overflow: 'hidden',
@@ -61,6 +63,8 @@ export const EffectThumbnail: React.FC<{
 	}, [item, snapshot, visible]);
 
 	const image = currentPreview?.image ?? snapshot;
+	const widerThanFrame =
+		image !== null && image.width / image.height >= PREVIEW_ASPECT_RATIO;
 	useLayoutEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas || !image || !visible || !showCapturedElement) {
@@ -84,11 +88,12 @@ export const EffectThumbnail: React.FC<{
 					aria-label={`${item.label} on the selected element`}
 					style={{
 						position: 'absolute',
-						inset: 0,
-						width: '100%',
-						height: '100%',
-						objectFit: 'contain',
-						objectPosition: 'top',
+						top: 0,
+						left: '50%',
+						transform: 'translateX(-50%)',
+						width: widerThanFrame ? '100%' : 'auto',
+						height: widerThanFrame ? 'auto' : '100%',
+						borderRadius: 3,
 					}}
 				/>
 			) : (
@@ -101,6 +106,7 @@ export const EffectThumbnail: React.FC<{
 						width: '100%',
 						height: '100%',
 						objectFit: 'cover',
+						borderRadius: 3,
 						visibility: loaded ? 'visible' : 'hidden',
 					}}
 					loading="lazy"
