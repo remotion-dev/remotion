@@ -61,7 +61,6 @@ import {
 	isLutEffectDrop,
 	LUT_EFFECT_DROP_TARGET_ATTR,
 } from '../effect-drag-and-drop';
-import {EffectPickerSetterContext} from '../EffectPickerProvider';
 import {
 	ExpandedTracksGetterContext,
 	ExpandedTracksSetterContext,
@@ -77,6 +76,7 @@ import {
 } from '../selected-outline-types';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
+import {useSelectEffects} from '../use-select-effects';
 import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -407,7 +407,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const timelineRowsRef = useTimelineRowsRef();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {openEffectPicker} = useContext(EffectPickerSetterContext);
+	const selectEffects = useSelectEffects();
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const getAssetContextMenu = useAssetTimelineContextMenu();
@@ -1352,16 +1352,12 @@ const TimelineSequenceItemInner: React.FC<{
 			return;
 		}
 
-		openEffectPicker({
-			clientId: previewServerState.clientId,
-			fileName: validatedLocation.source,
-			nodePathInfo,
-		});
+		selectEffects(nodePathInfo);
 	}, [
 		canAddEffect,
 		nodePathInfo,
 		previewServerState,
-		openEffectPicker,
+		selectEffects,
 		validatedLocation?.source,
 	]);
 

@@ -33,7 +33,6 @@ import {Plus} from '../icons/plus';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
-import {EffectPickerSetterContext} from './EffectPickerProvider';
 import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
@@ -79,6 +78,7 @@ import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectEffects} from './use-select-effects';
 
 const container: React.CSSProperties = {
 	color: WHITE,
@@ -383,7 +383,7 @@ export const InspectorSequenceSection: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {openEffectPicker} = useContext(EffectPickerSetterContext);
+	const selectEffects = useSelectEffects();
 	const selectAsset = useSelectAsset();
 	const selectMediaSrc = useCallback(
 		(values: Readonly<Record<string, unknown>>) =>
@@ -936,25 +936,12 @@ export const InspectorSequenceSection: React.FC<{
 		Boolean(validatedLocation.source);
 
 	const onAddEffect = useCallback(() => {
-		if (!canAddEffect || previewServerState.type !== 'connected') {
+		if (!canAddEffect) {
 			return;
 		}
 
-		setAdditionalSectionExpanded('effects', true);
-
-		openEffectPicker({
-			clientId: previewServerState.clientId,
-			fileName: validatedLocation.source,
-			nodePathInfo,
-		});
-	}, [
-		canAddEffect,
-		nodePathInfo,
-		previewServerState,
-		setAdditionalSectionExpanded,
-		openEffectPicker,
-		validatedLocation.source,
-	]);
+		selectEffects(nodePathInfo);
+	}, [canAddEffect, nodePathInfo, selectEffects]);
 
 	const onConvertBorderRadius = useCallback(() => {
 		if (

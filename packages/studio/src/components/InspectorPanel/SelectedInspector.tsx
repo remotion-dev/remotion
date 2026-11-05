@@ -1,4 +1,5 @@
 import React from 'react';
+import {EffectPicker} from '../EffectPicker';
 import type {TimelineSelection} from '../Timeline/TimelineSelection';
 import {InspectorMessage} from './common';
 import {EasingInspector} from './EasingInspector';
@@ -12,6 +13,10 @@ const SelectedInspectorContent: React.FC<{
 	readonly selection: TimelineSelection;
 	readonly readOnlyStudio: boolean;
 }> = ({selection, readOnlyStudio}) => {
+	if (selection.type === 'sequence-all-effects') {
+		return <EffectPicker selection={selection} />;
+	}
+
 	if (isSequenceSectionSelection(selection)) {
 		return (
 			<SequenceSelectionInspector

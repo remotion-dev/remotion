@@ -1269,7 +1269,9 @@ export const TimelineSelectionProvider: React.FC<{
 			) &&
 			(!window.remotion_isReadOnlyStudio ||
 				keyframeOperationsAvailable ||
-				(effectOperationsAvailable && item.type === 'sequence-effect') ||
+				(effectOperationsAvailable &&
+					(item.type === 'sequence-effect' ||
+						item.type === 'sequence-all-effects')) ||
 				item.type === 'sequence'),
 		[canSelect, effectOperationsAvailable, keyframeOperationsAvailable],
 	);

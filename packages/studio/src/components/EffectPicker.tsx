@@ -13,6 +13,8 @@ import React, {
 	useState,
 } from 'react';
 import {Internals, type RuntimeValueStore} from 'remotion';
+import {canUseEffectOperations} from '../helpers/browser-studio-operations';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {
 	LIGHT_TEXT,
 	TRANSPARENT,
@@ -25,6 +27,7 @@ import {
 	HOVERABLE_CLASS_NAME,
 	hoverableStyle,
 } from '../helpers/hoverable';
+import {isStudioSelectionEnabled} from '../helpers/interactivity-enabled';
 import {observeHover} from '../helpers/observe-hover';
 import {useZIndex} from '../state/z-index';
 import {ContextMenu} from './ContextMenu';
@@ -35,8 +38,8 @@ import {
 	effectPreviewLoaders,
 	type EffectPreviewFactory,
 } from './effect-preview-loaders';
-import type {EffectPickerState} from './EffectPickerProvider';
 import {EffectThumbnail} from './EffectThumbnail';
+import {InspectorMessage} from './InspectorPanel/common';
 import {container} from './InspectorPanel/styles';
 import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
@@ -48,6 +51,10 @@ import {
 	loopIndex,
 	useScrollIntoViewOnSelected,
 } from './QuickSwitcher/shared';
+import {
+	useTimelineSelection,
+	type TimelineSelection,
+} from './Timeline/TimelineSelection';
 
 const content: React.CSSProperties = {
 	padding: '4px 8px',
@@ -191,9 +198,11 @@ const EffectPickerResult: React.FC<{
 );
 
 export const EffectPicker: React.FC<{
-	readonly state: EffectPickerState;
-	readonly onBack: () => void;
-}> = ({state, onBack}) => {
+	readonly selection: Extract<
+		TimelineSelection,
+		{type: 'sequence-all-effects'}
+	>;
+}> = ({selection}) => {
 	const [query, setQuery] = useState('');
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [previewId, setPreviewId] = useState<string | null>(null);
@@ -202,12 +211,25 @@ export const EffectPicker: React.FC<{
 	const {isHighestContext} = useZIndex();
 	const previewStore = useContext(Internals.EffectPreviewContext);
 	const {setPreview} = previewStore;
-	const selection = useMemo(
-		() => ({type: 'sequence' as const, nodePathInfo: state.nodePathInfo}),
-		[state.nodePathInfo],
+	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {selectItems} = useTimelineSelection();
+	const nodePathInfo = useMemo(
+		() => ({...selection.nodePathInfo, auxiliaryKeys: []}),
+		[selection.nodePathInfo],
+	);
+	const onBack = useCallback(
+		() => selectItems([{type: 'sequence', nodePathInfo}]),
+		[nodePathInfo, selectItems],
 	);
 	const track = useTrackForSelection(selection);
-	const runtimeValues = track?.sequence.controls?.runtimeValues ?? null;
+	const canAddEffects =
+		previewServerState.type === 'connected' &&
+		isStudioSelectionEnabled() &&
+		canUseEffectOperations() &&
+		nodePathInfo.supportsEffects;
+	const runtimeValues = canAddEffects
+		? (track?.sequence.controls?.runtimeValues ?? null)
+		: null;
 	const outlineRef = track?.sequence.refForOutline ?? null;
 	const [capture, setCapture] = useState<{
 		readonly runtimeValues: RuntimeValueStore;
@@ -298,8 +320,12 @@ export const EffectPicker: React.FC<{
 
 	const selectItem = useCallback(
 		(item: EffectCatalogItem) => {
+			if (!canAddEffects || previewServerState.type !== 'connected') {
+				return;
+			}
+
 			try {
-				assertEffectChainEditable(state.nodePathInfo.sequenceSubscriptionKey);
+				assertEffectChainEditable(nodePathInfo.sequenceSubscriptionKey);
 			} catch (error) {
 				showNotification((error as Error).message, 4000);
 				return;
@@ -307,20 +333,14 @@ export const EffectPicker: React.FC<{
 
 			onBack();
 			addEffectToSequence({
-				clientId: state.clientId,
+				clientId: previewServerState.clientId,
 				effect: {...item.effect, config: getEffectPickerConfig(item)},
-				fileName: state.fileName,
-				nodePathInfo: state.nodePathInfo,
-				selectItems: state.selectItems,
+				fileName: nodePathInfo.sequenceSubscriptionKey.absolutePath,
+				nodePathInfo,
+				selectItems,
 			});
 		},
-		[
-			onBack,
-			state.clientId,
-			state.fileName,
-			state.nodePathInfo,
-			state.selectItems,
-		],
+		[canAddEffects, nodePathInfo, onBack, previewServerState, selectItems],
 	);
 
 	const onResultFocus = useCallback(
@@ -415,6 +435,14 @@ export const EffectPicker: React.FC<{
 		},
 		[],
 	);
+
+	if (!track) {
+		return <InspectorMessage>Sequence inspector unavailable</InspectorMessage>;
+	}
+
+	if (!canAddEffects) {
+		return <InspectorMessage>Adding effects is unavailable</InspectorMessage>;
+	}
 
 	return (
 		<div style={container} onKeyDown={onKeyDown}>

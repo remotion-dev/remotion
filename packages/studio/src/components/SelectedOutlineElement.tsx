@@ -19,7 +19,6 @@ import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {useConfirmationDialog} from './ConfirmationDialog';
-import {EffectPickerSetterContext} from './EffectPickerProvider';
 import {useSelectComposition} from './InitialCompositionLoader';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
@@ -55,6 +54,7 @@ import {
 	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectEffects} from './use-select-effects';
 import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
 type SelectedOutlineElementProps = {
 	readonly compositionHeight: number;
@@ -136,7 +136,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		Internals.CompositionManagerRefContext,
 	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
-	const {openEffectPicker} = useContext(EffectPickerSetterContext);
+	const selectEffects = useSelectEffects();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
@@ -521,11 +521,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 													return;
 												}
 
-												openEffectPicker({
-													clientId: previewServerState.clientId,
-													fileName: nodePath.absolutePath,
-													nodePathInfo: contextMenuTarget.nodePathInfo,
-												});
+												selectEffects(contextMenuTarget.nodePathInfo);
 											},
 											quickSwitcherLabel: null,
 											subMenu: null,
@@ -546,7 +542,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		deleteTimelineItems,
 		editorInfo,
 		getTarget,
-		openEffectPicker,
+		selectEffects,
 		onSelect,
 		defaultEditorId,
 		editorAvailable,

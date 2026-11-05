@@ -12,10 +12,6 @@ import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
 import {ActionTooltip} from './ActionTooltip';
-import {
-	EffectPickerSetterContext,
-	EffectPickerStateContext,
-} from './EffectPickerProvider';
 import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
 import {InlineAction} from './InlineAction';
 import {InspectorPanel} from './InspectorPanel';
@@ -84,8 +80,6 @@ export const OptionsPanel: React.FC<{
 	readonly readOnlyStudio: boolean;
 }> = ({readOnlyStudio}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
-	const effectPicker = useContext(EffectPickerStateContext);
-	const {closeEffectPicker} = useContext(EffectPickerSetterContext);
 
 	const isMobileLayout = useMobileLayout();
 
@@ -143,7 +137,8 @@ export const OptionsPanel: React.FC<{
 		return null;
 	}, [canvasContent, compositions]);
 
-	const {selectedItems: timelineSelectedItems} = useTimelineSelection();
+	const {selectedItems: timelineSelectedItems, selectItems} =
+		useTimelineSelection();
 	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const selectedItems = useMemo(() => {
 		if (pendingDeletions.size === 0) {
@@ -161,8 +156,25 @@ export const OptionsPanel: React.FC<{
 				),
 		);
 	}, [pendingDeletions, timelineSelectedItems]);
+	const effectsSelection =
+		selectedItems.length === 1 &&
+		selectedItems[0].type === 'sequence-all-effects'
+			? selectedItems[0]
+			: null;
+	const onEffectsBack = useCallback(() => {
+		if (effectsSelection === null) {
+			return;
+		}
+
+		selectItems([
+			{
+				type: 'sequence',
+				nodePathInfo: {...effectsSelection.nodePathInfo, auxiliaryKeys: []},
+			},
+		]);
+	}, [effectsSelection, selectItems]);
 	const inspectorTitle = useMemo(() => {
-		if (effectPicker !== null) {
+		if (effectsSelection !== null) {
 			return 'Add effect';
 		}
 
@@ -200,7 +212,7 @@ export const OptionsPanel: React.FC<{
 					`Unexpected inspector selection: ${selection satisfies never}`,
 				);
 		}
-	}, [canvasContent, composition, effectPicker, selectedItems]);
+	}, [canvasContent, composition, effectsSelection, selectedItems]);
 
 	// Re-renders once the stack is resolved. Read from the cache so the location
 	// always belongs to the current composition, not the previously selected one.
@@ -355,7 +367,7 @@ export const OptionsPanel: React.FC<{
 						style={{justifyContent: 'space-between'}}
 					>
 						<span style={inspectorTitleStyle}>
-							{effectPicker === null ? null : (
+							{effectsSelection === null ? null : (
 								<ActionTooltip
 									label="Back to inspector"
 									shortcut={null}
@@ -365,7 +377,7 @@ export const OptionsPanel: React.FC<{
 									<InlineAction
 										aria-label="Back to inspector"
 										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
-										onClick={closeEffectPicker}
+										onClick={onEffectsBack}
 										style={inspectorBackStyle}
 										variant="compact"
 										renderAction={(color) => (
