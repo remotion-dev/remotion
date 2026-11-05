@@ -50,6 +50,7 @@ import {
 } from './helpers/get-local-package-override';
 import {getInstallCommand} from './helpers/install-command';
 import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
+import {installElement} from './install-element';
 import {
 	getConfiguredMaxTimelineTracks,
 	getMaxTimelineTracks,
@@ -72,6 +73,7 @@ export type {
 	RemotionSkillsScope,
 	RemotionSkillsStatus,
 } from './detect-outdated-remotion-skills';
+export type {InstallElementOptions} from './install-element';
 export type {RemotionSkillName} from './remotion-skill-names';
 export {
 	detectOutdatedRemotionSkills,
@@ -111,4 +113,5 @@ export const StudioServerInternals = {
 	getEditorName,
 	replaceWithPrerenderedVideo,
 	subscribeToSequenceNodePathMutations,
+	installElement,
 };
