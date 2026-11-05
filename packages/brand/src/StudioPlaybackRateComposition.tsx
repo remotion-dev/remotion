@@ -21,7 +21,7 @@ const StudioPlaybackRateCapture = () => {
 				width: 2560,
 				height: 1278,
 				scale: 0.889,
-				translate: '-58.6px -50.2px'
+				translate: '-58.6px -50.2px',
 			}}
 		>
 			<Video

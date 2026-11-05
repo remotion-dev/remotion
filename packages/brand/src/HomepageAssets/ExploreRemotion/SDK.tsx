@@ -3,7 +3,7 @@ import {EXPLORE_CAMERA_ANGLE} from './camera-angle';
 
 export const ExploreRemotionSDK = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#0d1017'}}>
+		<AbsoluteFill style={{backgroundColor: '#131414'}}>
 			<div
 				style={{
 					position: 'absolute',
@@ -12,7 +12,7 @@ export const ExploreRemotionSDK = () => {
 				}}
 			>
 				<Img
-					src="https://remotion.media/explore-remotion/sdk-monaco-source-2026-10-28-4e6cb62c4375.png"
+					src="https://remotion.media/explore-remotion/sdk-monaco-dark-plus-2026-11-04-e3832adf0497.png"
 					style={{
 						position: 'absolute',
 						left: 115,

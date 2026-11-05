@@ -15,9 +15,18 @@ loadFont({
 	weight: '900',
 });
 
-export const MottoPresenter = ({children}: {readonly children: ReactNode}) => {
+export const MottoPresenter = ({
+	children,
+	startWithPanelVisible,
+}: {
+	readonly children: ReactNode;
+	readonly startWithPanelVisible: boolean;
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+	const layoutFrame = startWithPanelVisible
+		? Math.max(frame, 2.9 * fps)
+		: frame;
 
 	return (
 		<Interactive.Div
@@ -26,9 +35,9 @@ export const MottoPresenter = ({children}: {readonly children: ReactNode}) => {
 				position: 'absolute',
 				inset: 0,
 				translate: interpolate(
-					frame,
+					layoutFrame,
 					[2.3 * fps, 2.9 * fps, 13.34 * fps, 13.94 * fps],
-					['0px 0px', '-420px 0px', '-420px 0px', '0px 0px'],
+					['0px 0px', '-460px 0px', '-460px 0px', '0px 0px'],
 					{
 						easing: Easing.bezier(0.42, 0, 0.58, 1),
 						extrapolateLeft: 'clamp',
@@ -42,9 +51,18 @@ export const MottoPresenter = ({children}: {readonly children: ReactNode}) => {
 	);
 };
 
-export const MottoCaptions = ({children}: {readonly children: ReactNode}) => {
+export const MottoCaptions = ({
+	children,
+	startWithPanelVisible,
+}: {
+	readonly children: ReactNode;
+	readonly startWithPanelVisible: boolean;
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+	const layoutFrame = startWithPanelVisible
+		? Math.max(frame, 2.9 * fps)
+		: frame;
 
 	return (
 		<Interactive.Div
@@ -55,7 +73,7 @@ export const MottoCaptions = ({children}: {readonly children: ReactNode}) => {
 				zIndex: 2,
 				transformOrigin: '960px 1000px',
 				scale: interpolate(
-					frame,
+					layoutFrame,
 					[2.3 * fps, 2.9 * fps, 13.34 * fps, 13.94 * fps],
 					[1, 0.82, 0.82, 1],
 					{
@@ -66,7 +84,7 @@ export const MottoCaptions = ({children}: {readonly children: ReactNode}) => {
 					},
 				),
 				translate: interpolate(
-					frame,
+					layoutFrame,
 					[2.3 * fps, 2.9 * fps, 13.34 * fps, 13.94 * fps],
 					['0px 0px', '-420px 0px', '-420px 0px', '0px 0px'],
 					{
@@ -82,9 +100,16 @@ export const MottoCaptions = ({children}: {readonly children: ReactNode}) => {
 	);
 };
 
-const MottoSidebarContent = () => {
+const MottoSidebarContent = ({
+	startWithPanelVisible,
+}: {
+	readonly startWithPanelVisible: boolean;
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
+	const layoutFrame = startWithPanelVisible
+		? Math.max(frame, 2.9 * fps)
+		: frame;
 
 	return (
 		<Interactive.Div
@@ -100,7 +125,7 @@ const MottoSidebarContent = () => {
 				color: '#18191a',
 				zIndex: 1,
 				translate: interpolate(
-					frame,
+					layoutFrame,
 					[2.3 * fps, 2.9 * fps, 13.34 * fps, 13.94 * fps],
 					['840px 0px', '0px 0px', '0px 0px', '840px 0px'],
 					{
@@ -146,7 +171,7 @@ const MottoSidebarContent = () => {
 					translate: interpolate(
 						frame,
 						[4.733333333333333 * fps, 5.133333333333334 * fps],
-						['260px -63.65853658536582px', '0px -148.390243902439px'],
+						['260px -63.65853658536582px', '-6px -148.390243902439px'],
 						{
 							easing: [
 								Easing.spring({
@@ -275,5 +300,11 @@ const MottoSidebarContent = () => {
 export const MottoSidebar = Interactive.create({
 	Component: MottoSidebarContent,
 	layout: 'absolute-fill',
-	schema: {},
+	schema: {
+		startWithPanelVisible: {
+			type: 'boolean',
+			default: false,
+			description: 'Show the panel from the start',
+		},
+	},
 });
