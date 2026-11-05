@@ -4,6 +4,8 @@
 
 This is an import implementation for the supported subset below. It is not an OTIO round-trip serializer or a replacement for OTIO's native format adapters.
 
+Published documentation: [generateOpenTimelineComposition()](https://www.remotion.dev/docs/codemods/generate-open-timeline-composition) and [addOpenTimelineComposition()](https://www.remotion.dev/docs/codemods/add-open-timeline-composition).
+
 ## Generate a component
 
 ```ts
@@ -28,16 +30,16 @@ if (result.source === null) {
 
 The result includes:
 
-| Field | Meaning |
-| --- | --- |
-| `source` | Generated TSX, or `null` when any error diagnostic prevents an accurate import. |
-| `metadata` | Remotion composition dimensions, frame rate, and duration; nullable when generation fails. |
-| `diagnostics` | Ordered `{code, severity, path, message}` records. Severity is `error`, `warning`, or `info`; paths identify the affected OTIO input. |
-| `assets` | Resolved `{src, source, kind, path}` records. `source` is `url` or `public`; `kind` is `video`, `audio`, `image`, or `image-sequence`. `path` identifies the source clip. |
-| `annotations` | Retained metadata and markers with their source paths. They do not become visible video overlays. |
-| `globalStartTime` | Original timeline start timecode, when present. It does not insert a leading gap. |
+| Field             | Meaning                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source`          | Generated TSX, or `null` when any error diagnostic prevents an accurate import.                                                                                           |
+| `metadata`        | Remotion composition dimensions, frame rate, and duration; nullable when generation fails.                                                                                |
+| `diagnostics`     | Ordered `{code, severity, path, message}` records. Severity is `error`, `warning`, or `info`; paths identify the affected OTIO input.                                     |
+| `assets`          | Resolved `{src, source, kind, path}` records. `source` is `url` or `public`; `kind` is `video`, `audio`, `image`, or `image-sequence`. `path` identifies the source clip. |
+| `annotations`     | Retained metadata and markers with their source paths. They do not become visible video overlays.                                                                         |
+| `globalStartTime` | Original timeline start timecode, when present. It does not insert a leading gap.                                                                                         |
 
-There is no best-effort mode. An unsupported active feature that changes the result is reported as an error and blocks source output. Non-rendering annotations are retained separately. Unknown duration, invalid timing, unsupported schema versions, and unresolved media must be resolved before importing.
+Unsupported active effects are ignored with warnings that include their names when available. Non-rendering annotations are retained separately. Unknown duration, invalid timing, unsupported item schema versions, and unresolved media must be resolved before importing.
 
 ## Add a composition to a project
 
@@ -68,45 +70,45 @@ It returns immutable file changes, following the other codemod APIs; it does not
 
 “Supported” means the stated mapping is implemented within the limits in this table. “Retained” means data is available in the import result but has no rendered behavior. “Unsupported” means the importer reports the limitation rather than guessing an audiovisual result.
 
-| OTIO feature | Status | Mapping or limit |
-| --- | --- | --- |
-| `Timeline.1` | Supported | Its `tracks` stack becomes the component timeline. |
-| `Stack.1` | Supported | Children start together; later children composite above earlier children. Duration follows the longest child unless trimmed. |
-| `Track.1`, legacy `Sequence.1` | Supported | Children are placed consecutively. `Video` tracks emit visuals with embedded audio muted; `Audio` tracks emit audio, including audio sourced from video files. |
-| Nested tracks and stacks | Supported | Nested composition timing, source ranges, and layer order are preserved. |
-| `Clip.1` | Supported | Uses `media_reference`. |
-| `Clip.2` | Supported | Uses the selected entry in `media_references` through `active_media_reference_key`; inactive alternate references are not rendered. |
-| `Gap.1`, legacy `Filler.1` | Supported | Transparent, silent time that preserves later clip positions. Gaps reveal lower layers. |
-| `RationalTime.1`, `TimeRange.1` | Supported | Convert `value / rate` to seconds, including mixed source rates, preserving fractional clip timing at the selected output rate. Ranges have exclusive ends. |
-| Clip `source_range` | Supported | Trims selected media. Without it, the active media reference's `available_range` supplies the range. At least one must establish a duration. |
-| Media `available_range.start_time` | Supported | Source timecode is subtracted when calculating offsets into the actual media file. |
-| Track/stack `source_range` | Supported | Trims and offsets the nested child timeline. Negative starts delay the child timeline within the selected range. |
-| Item `enabled` | Supported | Disabled content remains part of the timing but is hidden or muted. |
-| Positive `LinearTimeWarp.1` on clips | Supported | Media playback speed changes while the OTIO item's timeline duration stays fixed. |
-| `FreezeFrame.1` on clips | Supported | Holds the first selected source frame for the item's duration. A supplied `time_scalar` must be zero. |
-| Composition time effects | Unsupported | Retiming a nested track or stack is not implemented. |
-| Negative time scalar, reverse playback, nonlinear time effects | Unsupported | No forward-playback approximation is generated. |
-| Generic/custom effects | Unsupported | OTIO does not standardize their rendered behavior. Disabled effects have no rendered effect. |
-| Internal `Transition.1` with `SMPTE_Dissolve` | Supported | Dissolves between clips and gaps extend the neighboring source handles and generate frame-driven visual/audio fades. They do not shorten the track. |
-| Transition to/from an explicit gap | Supported | Fades against transparency/silence, revealing lower tracks. |
-| Zero-duration transition | Supported | Represented as a hard cut, with an informational diagnostic. |
-| Leading/trailing transition without an explicit neighboring item | Unsupported | Boundary transition timing is not implemented. Use an explicit gap where appropriate. |
-| Transition adjacent to a nested track or stack | Unsupported | Only neighboring clips/gaps are supported. |
-| Custom transitions, overlapping transition handles, adjacent transitions | Unsupported | No guessed transition or timing is generated. |
-| `ExternalReference.1` | Supported | Remote browser URLs and public-relative asset paths map to media components. See asset handling below. |
-| `ImageSequenceReference.1` | Supported with limits | Numbered browser-decodable images use `CanvasImage`, with source rate, frame step, signed frame numbers, zero padding, and empty or nonempty base paths. The available range must contain a positive whole number of frame-step intervals. |
-| Image sequence `missing_frame_policy: "error"` | Supported | A missing image fails rather than substituting another frame. |
-| Image sequence missing-frame policies `hold` or `black` | Unsupported | Missing files are not discovered or substituted during import. |
-| `MissingReference.1` or absent media | Resolver required | Supply a concrete asset through `resolveMedia`; otherwise import reports missing media. |
-| `GeneratorReference.1` | Resolver required | Generator kinds and parameters have application-specific meanings; provide a concrete asset through `resolveMedia`. |
-| Names | Supported | Preserved as names on editable timeline items. |
-| Metadata and markers | Retained | Available in `annotations`; no application-specific metadata is interpreted as effects, transforms, captions, or generator instructions. |
-| `global_start_time` | Retained | Original timecode is available separately; composition playback starts at frame zero. |
-| UI colors and available image bounds | Not rendered | Reported with informational diagnostics; they are not instructions to tint, crop, or resize pixels. |
-| Unknown/custom schemas and future schema versions | Unsupported | Explicit diagnostics prevent treating unknown structures as current schemas. |
-| `SerializableCollection` root | Unsupported | Import one `Timeline.1` at a time; a collection has no implied timing relationship. |
-| Other top-level objects | Unsupported | Standalone clips, tracks, and time objects are not composition roots for this API. |
-| `.otioz`, `.otiod`, AAF, EDL, FCPXML, and other adapter formats | Unsupported | Decode or convert them to OTIO JSON before calling this API. |
+| OTIO feature                                                             | Status                | Mapping or limit                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Timeline.1`                                                             | Supported             | Its `tracks` stack becomes the component timeline.                                                                                                                                                                                         |
+| `Stack.1`                                                                | Supported             | Children start together; later children composite above earlier children. Duration follows the longest child unless trimmed.                                                                                                               |
+| `Track.1`, legacy `Sequence.1`                                           | Supported             | Children are placed consecutively. `Video` tracks emit visuals with embedded audio muted; `Audio` tracks emit audio, including audio sourced from video files.                                                                             |
+| Nested tracks and stacks                                                 | Supported             | Nested composition timing, source ranges, and layer order are preserved.                                                                                                                                                                   |
+| `Clip.1`                                                                 | Supported             | Uses `media_reference`.                                                                                                                                                                                                                    |
+| `Clip.2`                                                                 | Supported             | Uses the selected entry in `media_references` through `active_media_reference_key`; inactive alternate references are not rendered.                                                                                                        |
+| `Gap.1`, legacy `Filler.1`                                               | Supported             | Transparent, silent time that preserves later clip positions. Gaps reveal lower layers.                                                                                                                                                    |
+| `RationalTime.1`, `TimeRange.1`                                          | Supported             | Convert `value / rate` to seconds, including mixed source rates, preserving fractional clip timing at the selected output rate. Ranges have exclusive ends.                                                                                |
+| Clip `source_range`                                                      | Supported             | Trims selected media. Without it, the active media reference's `available_range` supplies the range. At least one must establish a duration.                                                                                               |
+| Media `available_range.start_time`                                       | Supported             | Source timecode is subtracted when calculating offsets into the actual media file.                                                                                                                                                         |
+| Track/stack `source_range`                                               | Supported             | Trims and offsets the nested child timeline. Negative starts delay the child timeline within the selected range.                                                                                                                           |
+| Item `enabled`                                                           | Supported             | Disabled content remains part of the timing but is hidden or muted.                                                                                                                                                                        |
+| Positive `LinearTimeWarp.1` on clips                                     | Supported             | Media playback speed changes while the OTIO item's timeline duration stays fixed.                                                                                                                                                          |
+| `FreezeFrame.1` on clips                                                 | Supported             | Holds the first selected source frame for the item's duration. A supplied `time_scalar` must be zero.                                                                                                                                      |
+| Composition time effects                                                 | Unsupported           | Retiming a nested track or stack is not implemented.                                                                                                                                                                                       |
+| Negative time scalar, reverse playback                                   | Unsupported           | No forward-playback approximation is generated.                                                                                                                                                                                            |
+| Generic/custom effects                                                   | Ignored with warning  | OTIO does not standardize their rendered behavior. Disabled effects have no rendered effect.                                                                                                                                               |
+| Internal `Transition.1` with `SMPTE_Dissolve`                            | Supported             | Dissolves between clips and gaps extend the neighboring source handles and generate frame-driven visual/audio fades. They do not shorten the track.                                                                                        |
+| Transition to/from an explicit gap                                       | Supported             | Fades against transparency/silence, revealing lower tracks.                                                                                                                                                                                |
+| Zero-duration transition                                                 | Supported             | Represented as a hard cut, with an informational diagnostic.                                                                                                                                                                               |
+| Leading/trailing transition without an explicit neighboring item         | Unsupported           | Boundary transition timing is not implemented. Use an explicit gap where appropriate.                                                                                                                                                      |
+| Transition adjacent to a nested track or stack                           | Unsupported           | Only neighboring clips/gaps are supported.                                                                                                                                                                                                 |
+| Custom transitions, overlapping transition handles, adjacent transitions | Unsupported           | No guessed transition or timing is generated.                                                                                                                                                                                              |
+| `ExternalReference.1`                                                    | Supported             | Remote browser URLs and public-relative asset paths map to media components. See asset handling below.                                                                                                                                     |
+| `ImageSequenceReference.1`                                               | Supported with limits | Numbered browser-decodable images use `CanvasImage`, with source rate, frame step, signed frame numbers, zero padding, and empty or nonempty base paths. The available range must contain a positive whole number of frame-step intervals. |
+| Image sequence `missing_frame_policy: "error"`                           | Supported             | A missing image fails rather than substituting another frame.                                                                                                                                                                              |
+| Image sequence missing-frame policies `hold` or `black`                  | Unsupported           | Missing files are not discovered or substituted during import.                                                                                                                                                                             |
+| `MissingReference.1` or absent media                                     | Resolver required     | Supply a concrete asset through `resolveMedia`; otherwise import reports missing media.                                                                                                                                                    |
+| `GeneratorReference.1`                                                   | Resolver required     | Generator kinds and parameters have application-specific meanings; provide a concrete asset through `resolveMedia`.                                                                                                                        |
+| Names                                                                    | Supported             | Preserved as names on editable timeline items.                                                                                                                                                                                             |
+| Metadata and markers                                                     | Retained              | Available in `annotations`; no application-specific metadata is interpreted as effects, transforms, captions, or generator instructions.                                                                                                   |
+| `global_start_time`                                                      | Retained              | Original timecode is available separately; composition playback starts at frame zero.                                                                                                                                                      |
+| UI colors and available image bounds                                     | Not rendered          | Reported with informational diagnostics; they are not instructions to tint, crop, or resize pixels.                                                                                                                                        |
+| Unknown/custom schemas and future schema versions                        | Unsupported           | Explicit diagnostics prevent treating unknown structures as current schemas.                                                                                                                                                               |
+| `SerializableCollection` root                                            | Unsupported           | Import one `Timeline.1` at a time; a collection has no implied timing relationship.                                                                                                                                                        |
+| Other top-level objects                                                  | Unsupported           | Standalone clips, tracks, and time objects are not composition roots for this API.                                                                                                                                                         |
+| `.otioz`, `.otiod`, AAF, EDL, FCPXML, and other adapter formats          | Unsupported           | Decode or convert them to OTIO JSON before calling this API.                                                                                                                                                                               |
 
 ## Asset handling
 
@@ -158,13 +160,13 @@ No media probing occurs, so the importer cannot verify URL availability, codec s
 
 ## Generated Remotion source
 
-Each editable clip has its own authored JSX node with inline timing and names. The output does not create the timeline by mapping a runtime data array. Video and audio use `@remotion/media`; image sequences use `CanvasImage`. Timing components receive one second of premounting through `useVideoConfig().fps`.
+Each editable clip has its own authored JSX node with inline timing and names. The output does not create the timeline by mapping a runtime data array. Video and audio use `@remotion/media`; image sequences use `CanvasImage`. Tracks use `<Track>`, and automatic premounting does not require explicit `premountFor` props.
 
 Nested timing is expressed through Remotion timeline components. Dissolve animations use frame-driven interpolation, not CSS animation or transition rules. The generator preserves the fixed OTIO item duration when converting clip playback speed. Local public assets use `staticFile()`, and generated strings are serialized as data rather than executable source.
 
 Visual dissolves weight both outgoing and incoming opacity and combine them with `mixBlendMode: 'plus-lighter'` inside a transparent track group with `isolation: 'isolate'`. This preserves the linear blend of alpha-bearing sources without blending into other tracks. Audio dissolves apply the corresponding volume fades. Negative nested source starts use a delayed inner `Sequence` while retaining the enclosing item's duration.
 
-Individual clip boundaries retain fractional frame values, avoiding cumulative drift from rounding each edit separately. The registered duration is the ceiling of the final timeline duration in output frames. Numeric serialization normalizes floating-point arithmetic noise to 15 significant digits.
+Individual clip boundaries retain fractional frame values, avoiding cumulative drift from rounding each edit separately. The registered duration is the ceiling of the final timeline duration in output frames. Timing calculations use exact rational arithmetic until numeric JSX props are emitted.
 
 Install the generated source's imported packages at the same version as `remotion`. The source targets the Remotion timing APIs shipped with this version of `@remotion/codemods`.
 

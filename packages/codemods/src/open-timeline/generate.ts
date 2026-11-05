@@ -1,7 +1,12 @@
 import * as recast from 'recast';
 import type {CompositionMetadata} from '../composition-editing';
+import {printInsertedJsx} from '../print-jsx';
+import {recastLocToOffset} from '../recast-loc-to-offset';
 import {parseAst} from '../sequence-props/parse-ast';
+import {applySourceEdits, type SourceEdit} from '../source-edits';
+import {indentContinuationLinesAtOffset} from '../source-style';
 import {normalizeOpenTimeline} from './normalize';
+import {OpenTimelineTime, ZERO_TIME} from './time';
 import type {
 	OpenTimelineAnnotation,
 	OpenTimelineDiagnostic,
@@ -51,13 +56,13 @@ const literal = (value: string) =>
 	JSON.stringify(value)
 		.replace(/\u2028/g, '\\u2028')
 		.replace(/\u2029/g, '\\u2029');
-// Remove floating point arithmetic noise without quantizing individual edits.
-const number = (value: number) => String(Number(value.toPrecision(15)));
+const number = (value: number | OpenTimelineTime) =>
+	String(value instanceof OpenTimelineTime ? value.toNumber() : value);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value);
 
-type Fade = {start: number; end: number};
+type Fade = {start: OpenTimelineTime; end: OpenTimelineTime};
 
 /** Pure, synchronous compilation. No filesystem access, media probing or downloads. */
 export const generateOpenTimelineComposition = ({
@@ -71,9 +76,10 @@ export const generateOpenTimelineComposition = ({
 	const normalized = normalizeOpenTimeline(timeline);
 	const {diagnostics, annotations, globalStartTime} = normalized;
 	const assets: OpenTimelineAsset[] = [];
-	const remotionImports = new Set(['AbsoluteFill', 'useVideoConfig']);
+	const remotionImports = new Set<string>();
 	const mediaImports = new Set<string>();
 	let usesFrame = false;
+	let usesFps = false;
 	let usesImageSequence = false;
 	const localName = (name: string) =>
 		name === componentName ? `OpenTimeline${name}` : name;
@@ -118,7 +124,7 @@ export const generateOpenTimelineComposition = ({
 	const fadeExpression = (frame: string, fade: Fade, incoming: boolean) => {
 		usesFrame = true;
 		remotionImports.add('interpolate');
-		return `interpolate(${frame}, [${number(fade.start * fps)}, ${number(fade.end * fps)}], ${incoming ? '[0, 1]' : '[1, 0]'}, {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})`;
+		return `interpolate(${frame}, [${number(fade.start.multiply(fps))}, ${number(fade.end.multiply(fps))}], ${incoming ? '[0, 1]' : '[1, 0]'}, {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})`;
 	};
 
 	const renderClip = ({
@@ -131,9 +137,9 @@ export const generateOpenTimelineComposition = ({
 		frame,
 	}: {
 		node: OpenTimelineNode;
-		start: number;
-		head: number;
-		tail: number;
+		start: OpenTimelineTime;
+		head: OpenTimelineTime;
+		tail: OpenTimelineTime;
 		fadeIn: Fade | null;
 		fadeOut: Fade | null;
 		frame: string;
@@ -268,22 +274,28 @@ export const generateOpenTimelineComposition = ({
 			: null;
 		const availableStart =
 			available && isRecord(available.start_time)
-				? Number(available.start_time.value) / Number(available.start_time.rate)
-				: 0;
+				? OpenTimelineTime.fromNumber(
+						Number(available.start_time.value),
+					).divide(Number(available.start_time.rate))
+				: ZERO_TIME;
 		const availableDuration =
 			available && isRecord(available.duration)
-				? Number(available.duration.value) / Number(available.duration.rate)
+				? OpenTimelineTime.fromNumber(Number(available.duration.value)).divide(
+						Number(available.duration.rate),
+					)
 				: null;
 		const speed = node.freeze ? 1 : node.playbackRate;
-		const duration = node.duration + head + tail;
-		const offset =
-			node.sourceStart - availableStart - (node.freeze ? 0 : head * speed);
+		const duration = node.duration.add(head).add(tail);
+		const offset = node.sourceStart
+			.subtract(availableStart)
+			.subtract(node.freeze ? ZERO_TIME : head.multiply(speed));
 		if (
-			offset < -1e-8 ||
+			offset.compare(ZERO_TIME) < 0 ||
 			(availableDuration !== null &&
 				(node.freeze
-					? offset >= availableDuration
-					: offset + duration * speed > availableDuration + 1e-8))
+					? offset.compare(availableDuration) >= 0
+					: offset.add(duration.multiply(speed)).compare(availableDuration) >
+						0))
 		) {
 			error(
 				node.path,
@@ -293,11 +305,12 @@ export const generateOpenTimelineComposition = ({
 			return '';
 		}
 
-		const trim = Math.max(0, offset);
+		const trim = offset;
 		if (
-			[start * fps, trim * fps, duration * fps * speed].some(
+			[start, trim, duration.multiply(speed)].some(
 				(value) =>
-					!Number.isFinite(value) || Math.abs(value) > Number.MAX_SAFE_INTEGER,
+					!Number.isFinite(value.multiply(fps).toNumber()) ||
+					Math.abs(value.multiply(fps).toNumber()) > Number.MAX_SAFE_INTEGER,
 			)
 		) {
 			error(
@@ -335,7 +348,7 @@ export const generateOpenTimelineComposition = ({
 				typeof reference.name_prefix !== 'string' ||
 				typeof reference.name_suffix !== 'string' ||
 				availableDuration === null ||
-				availableDuration <= 0
+				availableDuration.compare(ZERO_TIME) <= 0
 			) {
 				error(
 					node.path,
@@ -357,7 +370,10 @@ export const generateOpenTimelineComposition = ({
 				return '';
 			}
 
-			const imageIntervals = (availableDuration * rate) / step;
+			const imageIntervals = availableDuration
+				.multiply(rate)
+				.divide(step)
+				.toNumber();
 			const imageCount = Math.round(imageIntervals);
 			if (
 				!Number.isSafeInteger(imageCount) ||
@@ -383,10 +399,14 @@ export const generateOpenTimelineComposition = ({
 			}
 
 			usesImageSequence = true;
-			usesFrame = true;
+			if (!node.freeze) {
+				usesFrame = true;
+				usesFps = true;
+			}
+
 			const elapsed = node.freeze
 				? number(trim)
-				: `(${number(trim)} + ((${frame}) - ${number(start * fps)}) / fps * ${number(speed)})`;
+				: `(${number(trim)} + ((${frame}) - ${number(start.multiply(fps))}) / fps * ${number(speed)})`;
 			const index = `Math.max(0, Math.min(${number(imageCount - 1)}, Math.floor(${elapsed} * ${number(rate)} / ${number(step)} + 1e-8)))`;
 			const base =
 				!media.src || media.src.endsWith('/') ? media.src : `${media.src}/`;
@@ -411,12 +431,16 @@ export const generateOpenTimelineComposition = ({
 		const props = [
 			`name={${literal(node.name)}}`,
 			`src={${src}}`,
-			`from={${number(start * fps)}}`,
-			`durationInFrames={${number(duration * fps * (tag === 'CanvasImage' ? 1 : speed))}}`,
-			'premountFor={fps}',
+			...(start.compare(ZERO_TIME) === 0
+				? []
+				: [`from={${number(start.multiply(fps))}}`]),
+			`durationInFrames={${number(duration.multiply(fps).multiply(tag === 'CanvasImage' ? 1 : speed))}}`,
 		];
 		if (tag !== 'CanvasImage') {
-			props.push(`trimBefore={${number(trim * fps)}}`);
+			if (trim.compare(ZERO_TIME) !== 0) {
+				props.push(`trimBefore={${number(trim.multiply(fps))}}`);
+			}
+
 			if (speed !== 1) {
 				props.push(`playbackRate={${number(speed)}}`);
 			}
@@ -433,7 +457,7 @@ export const generateOpenTimelineComposition = ({
 		}
 
 		if (tag === 'Video') {
-			props.push('muted', 'objectFit="contain"');
+			props.push('muted');
 		}
 
 		if (tag === 'CanvasImage') {
@@ -457,12 +481,12 @@ export const generateOpenTimelineComposition = ({
 
 	const render = (
 		node: OpenTimelineNode,
-		start: number,
+		start: OpenTimelineTime,
 		frame: string,
 	): string => {
 		if (
 			!node.enabled ||
-			node.duration === 0 ||
+			node.duration.compare(ZERO_TIME) === 0 ||
 			node.type === 'gap' ||
 			node.type === 'transition'
 		) {
@@ -470,9 +494,10 @@ export const generateOpenTimelineComposition = ({
 		}
 
 		if (
-			[start * fps, node.sourceStart * fps, node.duration * fps].some(
+			[start, node.sourceStart, node.duration].some(
 				(value) =>
-					!Number.isFinite(value) || Math.abs(value) > Number.MAX_SAFE_INTEGER,
+					!Number.isFinite(value.multiply(fps).toNumber()) ||
+					Math.abs(value.multiply(fps).toNumber()) > Number.MAX_SAFE_INTEGER,
 			)
 		) {
 			error(
@@ -487,21 +512,38 @@ export const generateOpenTimelineComposition = ({
 			return renderClip({
 				node,
 				start,
-				head: 0,
-				tail: 0,
+				head: ZERO_TIME,
+				tail: ZERO_TIME,
 				fadeIn: null,
 				fadeOut: null,
 				frame,
 			});
 		}
 
-		remotionImports.add('Sequence');
-		const childFrame = `(${frame} - ${number(start * fps)} + ${number(node.sourceStart * fps)})`;
-		let cursor = 0;
+		if (
+			node === normalized.root &&
+			node.sourceStart.compare(ZERO_TIME) === 0 &&
+			node.children.every((child) => child.duration.compare(node.duration) <= 0)
+		) {
+			return node.children
+				.map((child) => render(child, ZERO_TIME, frame))
+				.filter(Boolean)
+				.join('\n');
+		}
+
+		const tag = node.type === 'track' ? 'Track' : 'Sequence';
+		remotionImports.add(tag);
+		const childFrame = `(${frame} - ${number(start.multiply(fps))} + ${number(node.sourceStart.multiply(fps))})`;
+		let cursor = ZERO_TIME;
+		let transitionGroup: {
+			start: OpenTimelineTime;
+			name: string;
+			children: string[];
+		} | null = null;
 		const children = node.children
 			.map((child, index) => {
 				if (node.type === 'stack') {
-					return render(child, 0, childFrame);
+					return render(child, ZERO_TIME, childFrame);
 				}
 
 				if (child.type === 'transition') {
@@ -509,7 +551,7 @@ export const generateOpenTimelineComposition = ({
 				}
 
 				const position = cursor;
-				cursor += child.duration;
+				cursor = cursor.add(child.duration);
 				const before = node.children[index - 1];
 				const after = node.children[index + 1];
 				const incoming = before?.enabled ? before.transition : null;
@@ -518,6 +560,13 @@ export const generateOpenTimelineComposition = ({
 					return render(child, position, childFrame);
 				}
 
+				transitionGroup ??= {
+					start: position,
+					name: after?.name ?? 'Dissolve',
+					children: [],
+				};
+				const groupPosition = position.subtract(transitionGroup.start);
+				const groupEnd = cursor.subtract(transitionGroup.start);
 				if (child.type !== 'clip' && child.type !== 'gap') {
 					error(
 						child.path,
@@ -527,72 +576,110 @@ export const generateOpenTimelineComposition = ({
 					return '';
 				}
 
-				if (!child.enabled || child.type === 'gap') {
+				if (child.enabled && child.type === 'clip') {
+					transitionGroup.children.push(
+						renderClip({
+							node: child,
+							start: groupPosition.subtract(incoming?.inOffset ?? ZERO_TIME),
+							head: incoming?.inOffset ?? ZERO_TIME,
+							tail: outgoing?.outOffset ?? ZERO_TIME,
+							fadeIn: incoming
+								? {
+										start: groupPosition.subtract(incoming.inOffset),
+										end: groupPosition.add(incoming.outOffset),
+									}
+								: null,
+							fadeOut: outgoing
+								? {
+										start: groupEnd.subtract(outgoing.inOffset),
+										end: groupEnd.add(outgoing.outOffset),
+									}
+								: null,
+							frame: `(${childFrame} - ${number(transitionGroup.start.multiply(fps))})`,
+						}),
+					);
+				}
+
+				if (outgoing) {
 					return '';
 				}
 
-				return renderClip({
-					node: child,
-					start: position - (incoming?.inOffset ?? 0),
-					head: incoming?.inOffset ?? 0,
-					tail: outgoing?.outOffset ?? 0,
-					fadeIn: incoming
-						? {
-								start: position - incoming.inOffset,
-								end: position + incoming.outOffset,
-							}
-						: null,
-					fadeOut: outgoing
-						? {
-								start: cursor - outgoing.inOffset,
-								end: cursor + outgoing.outOffset,
-							}
-						: null,
-					frame: childFrame,
-				});
+				const group = transitionGroup;
+				transitionGroup = null;
+				remotionImports.add('Sequence');
+				const groupFrom =
+					group.start.compare(ZERO_TIME) === 0
+						? ''
+						: ` from={${number(group.start.multiply(fps))}}`;
+				return `<${localName('Sequence')} name={${literal(group.name)}}${groupFrom} durationInFrames={${number(groupEnd.multiply(fps))}}>${group.children.join('\n')}</${localName('Sequence')}>`;
 			})
 			.filter(Boolean)
 			.join('\n');
 		// Negative composition source time selects empty time before its children.
 		// Sequence trims are nonnegative, so delay the child timeline in this case.
-		const content =
-			node.sourceStart < 0
-				? `<${localName('Sequence')} from={${number(-node.sourceStart * fps)}} premountFor={fps}>${children}</${localName('Sequence')}>`
+		let content =
+			node.sourceStart.compare(ZERO_TIME) < 0
+				? `<${localName('Sequence')} from={${number(node.sourceStart.multiply(-fps))}}>${children}</${localName('Sequence')}>`
 				: children;
+		if (node.sourceStart.compare(ZERO_TIME) < 0) {
+			remotionImports.add('Sequence');
+		}
+
 		// Additive blending of the two weighted clips preserves alpha during a
 		// dissolve. Isolate each track so its fades cannot add to lower tracks.
-		const isolation =
-			node.type === 'track' ? ` style={{isolation: 'isolate'}}` : '';
-		return `<${localName('Sequence')} name={${literal(node.name)}} from={${number(start * fps)}} trimBefore={${number(Math.max(0, node.sourceStart) * fps)}} durationInFrames={${number(node.duration * fps)}} premountFor={fps}${isolation}>${content}</${localName('Sequence')}>`;
+		if (
+			node.type === 'track' &&
+			node.kind === 'Video' &&
+			node.children.some((child) => child.enabled && child.transition)
+		) {
+			remotionImports.add('AbsoluteFill');
+			content = `<${localName('AbsoluteFill')} style={{isolation: 'isolate'}}>${content}</${localName('AbsoluteFill')}>`;
+		}
+
+		const from =
+			start.compare(ZERO_TIME) === 0
+				? ''
+				: ` from={${number(start.multiply(fps))}}`;
+		const trimBefore =
+			node.sourceStart.compare(ZERO_TIME) <= 0
+				? ''
+				: ` trimBefore={${number(node.sourceStart.multiply(fps))}}`;
+		return `<${localName(tag)} name={${literal(node.name)}}${from}${trimBefore} durationInFrames={${number(node.duration.multiply(fps))}}>${content}</${localName(tag)}>`;
 	};
 
 	let body = '';
 	let durationInFrames = 0;
+	let metadata: CompositionMetadata | null = null;
 	if (normalized.root && Number.isFinite(fps) && fps > 0) {
-		durationInFrames = Math.ceil(
-			Number((normalized.root.duration * fps).toPrecision(15)),
-		);
+		durationInFrames = normalized.root.duration.multiply(fps).ceil();
 		if (!Number.isSafeInteger(durationInFrames) || durationInFrames <= 0) {
 			error(
 				'$.tracks',
 				'invalid-duration',
 				'The timeline must have a positive, finite duration within the safe frame range.',
 			);
-		} else {
-			body = render(normalized.root, 0, 'frame');
+		} else if (
+			!diagnostics.some((diagnostic) => diagnostic.severity === 'error')
+		) {
+			metadata = {width, height, fps, durationInFrames};
+			body = render(normalized.root, ZERO_TIME, 'frame');
 		}
 	}
 
-	const result = {diagnostics, assets, annotations, globalStartTime};
+	const result = {diagnostics, assets, annotations, globalStartTime, metadata};
 	if (
 		!normalized.root ||
 		diagnostics.some((diagnostic) => diagnostic.severity === 'error')
 	) {
-		return {...result, source: null, metadata: null};
+		return {...result, source: null};
 	}
 
 	if (usesFrame) {
 		remotionImports.add('useCurrentFrame');
+	}
+
+	if (usesFps) {
+		remotionImports.add('useVideoConfig');
 	}
 
 	// Alias imports that would otherwise collide with a caller's component name.
@@ -608,20 +695,71 @@ export const generateOpenTimelineComposition = ({
 		);
 
 	const helper = usesImageSequence
-		? `const formatOpenTimelineFrame = (value: number, padding: number) => (value < 0 ? '-' : '') + String(Math.abs(value)).padStart(padding, '0');`
+		? `const formatOpenTimelineFrame = (value: number, padding: number) =>
+\t(value < 0 ? '-' : '') + String(Math.abs(value)).padStart(padding, '0');
+
+`
 		: '';
-	const source = `import {${imports.join(', ')}} from 'remotion';
-${mediaImports.size ? `import {${mediaImportNames.join(', ')}} from '@remotion/media';` : ''}
-${helper}
-export const ${componentName} = () => {
-const {fps} = useVideoConfig();
-${usesFrame ? 'const frame = useCurrentFrame();' : ''}
-return <${localName('AbsoluteFill')} premountFor={fps} style={{backgroundColor: 'black'}}>${body}</${localName('AbsoluteFill')}>;
-};`;
+	const importDeclarations = [
+		{names: imports, module: 'remotion'},
+		...(mediaImports.size
+			? [{names: mediaImportNames, module: '@remotion/media'}]
+			: []),
+	]
+		.filter(({names}) => names.length > 0)
+		.map(({names, module}) => {
+			const inline = `import {${names.join(', ')}} from '${module}';`;
+			return inline.length <= 80
+				? inline
+				: `import {\n${names.map((name) => `\t${name},`).join('\n')}\n} from '${module}';`;
+		})
+		.join('\n');
+	const source = `${importDeclarations}
+
+${helper}export const ${componentName} = () => {
+${usesFps ? '\tconst {fps} = useVideoConfig();\n' : ''}${usesFrame ? '\tconst frame = useCurrentFrame();\n' : ''}${usesFps || usesFrame ? '\n' : ''}\treturn (
+\t\t<>${body}</>
+\t);
+};
+`;
 	// The parser is also a final check that untrusted strings remain data in TSX.
+	const ast = parseAst(source);
+	const edits: SourceEdit[] = [];
+	recast.types.visit(ast, {
+		visitJSXFragment(path) {
+			const {node} = path;
+			if (!node.loc) throw new Error('Generated JSX is missing its location.');
+			const start = recastLocToOffset(source, node.loc.start);
+			const children = (node.children ?? []).filter(
+				(child) => child.type !== 'JSXText' || child.value.trim() !== '',
+			);
+			edits.push({
+				start,
+				end: recastLocToOffset(source, node.loc.end),
+				replacement: indentContinuationLinesAtOffset({
+					input: source,
+					offset: start,
+					printed: printInsertedJsx({
+						compactLiteralProps: true,
+						element:
+							children.length === 1 && children[0].type === 'JSXElement'
+								? children[0]
+								: node,
+						input: source,
+						prettierConfigOverride: {
+							useTabs: true,
+							singleQuote: true,
+							bracketSpacing: false,
+							trailingComma: 'all',
+						},
+					}),
+				}),
+			});
+			return false;
+		},
+	});
 	return {
 		...result,
-		metadata: {width, height, fps, durationInFrames},
-		source: `${recast.prettyPrint(parseAst(source), {quote: 'single', useTabs: true, tabWidth: 2}).code}\n`,
+		source: applySourceEdits({input: source, edits}),
 	};
 };

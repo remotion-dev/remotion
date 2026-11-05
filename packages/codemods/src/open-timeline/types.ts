@@ -1,3 +1,5 @@
+import type {OpenTimelineTime} from './time';
+
 export type OpenTimelineDiagnostic = {
 	code: string;
 	severity: 'error' | 'warning' | 'info';
@@ -16,9 +18,9 @@ export type OpenTimelineNode = {
 	path: string;
 	name: string;
 	/** Seconds in the parent timeline, unaffected by OTIO time effects. */
-	duration: number;
+	duration: OpenTimelineTime;
 	/** Source timecode for clips; the child-timeline trim for compositions. */
-	sourceStart: number;
+	sourceStart: OpenTimelineTime;
 	enabled: boolean;
 	kind: 'Video' | 'Audio';
 	children: OpenTimelineNode[];
@@ -26,8 +28,8 @@ export type OpenTimelineNode = {
 	playbackRate: number;
 	freeze: boolean;
 	transition: {
-		inOffset: number;
-		outOffset: number;
+		inOffset: OpenTimelineTime;
+		outOffset: OpenTimelineTime;
 		type: string;
 	} | null;
 };

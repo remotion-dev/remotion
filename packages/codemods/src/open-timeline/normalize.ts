@@ -1,3 +1,4 @@
+import {OpenTimelineTime, ZERO_TIME} from './time';
 import type {NormalizedOpenTimeline, OpenTimelineNode} from './types';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -17,7 +18,7 @@ export const normalizeOpenTimeline = (
 		result.diagnostics.push({code, severity: 'error', path, message});
 	};
 
-	const time = (value: unknown, path: string): number | null => {
+	const time = (value: unknown, path: string): OpenTimelineTime | null => {
 		if (!isRecord(value) || value.OTIO_SCHEMA !== 'RationalTime.1') {
 			error('invalid-time', path, 'Expected a RationalTime.1 object.');
 			return null;
@@ -39,13 +40,13 @@ export const normalizeOpenTimeline = (
 			return null;
 		}
 
-		return value.value / value.rate;
+		return OpenTimelineTime.fromNumber(value.value).divide(value.rate);
 	};
 
 	const range = (
 		value: unknown,
 		path: string,
-	): {start: number; duration: number} | null => {
+	): {start: OpenTimelineTime; duration: OpenTimelineTime} | null => {
 		if (!isRecord(value) || value.OTIO_SCHEMA !== 'TimeRange.1') {
 			error('invalid-range', path, 'Expected a TimeRange.1 object.');
 			return null;
@@ -53,7 +54,7 @@ export const normalizeOpenTimeline = (
 
 		const start = time(value.start_time, `${path}.start_time`);
 		const duration = time(value.duration, `${path}.duration`);
-		if (duration !== null && duration < 0) {
+		if (duration !== null && duration.compare(ZERO_TIME) < 0) {
 			error(
 				'invalid-range',
 				`${path}.duration`,
@@ -65,7 +66,7 @@ export const normalizeOpenTimeline = (
 		if (
 			start !== null &&
 			duration !== null &&
-			!Number.isFinite(start + duration)
+			!Number.isFinite(start.add(duration).toNumber())
 		) {
 			error(
 				'invalid-range',
@@ -243,8 +244,8 @@ export const normalizeOpenTimeline = (
 			type,
 			path,
 			name: typeof value.name === 'string' ? value.name : '',
-			duration: 0,
-			sourceStart: 0,
+			duration: ZERO_TIME,
+			sourceStart: ZERO_TIME,
 			enabled: context.enabled && value.enabled !== false,
 			kind: context.kind,
 			children: [],
@@ -280,7 +281,7 @@ export const normalizeOpenTimeline = (
 				return null;
 			}
 
-			if (inOffset < 0 || outOffset < 0) {
+			if (inOffset.compare(ZERO_TIME) < 0 || outOffset.compare(ZERO_TIME) < 0) {
 				error(
 					'invalid-transition',
 					path,
@@ -289,8 +290,8 @@ export const normalizeOpenTimeline = (
 				return null;
 			}
 
-			node.duration = inOffset + outOffset;
-			if (!Number.isFinite(node.duration)) {
+			node.duration = inOffset.add(outOffset);
+			if (!Number.isFinite(node.duration.toNumber())) {
 				error(
 					'invalid-transition',
 					path,
@@ -312,7 +313,7 @@ export const normalizeOpenTimeline = (
 				);
 			}
 
-			if (node.enabled && node.duration === 0) {
+			if (node.enabled && node.duration.compare(ZERO_TIME) === 0) {
 				node.enabled = false;
 				result.diagnostics.push({
 					code: 'zero-duration-transition',
@@ -355,11 +356,15 @@ export const normalizeOpenTimeline = (
 				effect.OTIO_SCHEMA !== 'LinearTimeWarp.1' &&
 				effect.OTIO_SCHEMA !== 'FreezeFrame.1'
 			) {
-				error(
-					'unsupported-effect',
-					effectPath,
-					`Unsupported effect: ${String(effect.OTIO_SCHEMA)} (${String(effect.effect_name ?? '')}).`,
+				const effectName = [effect.name, effect.effect_name].find(
+					(name) => typeof name === 'string' && name.trim() !== '',
 				);
+				result.diagnostics.push({
+					code: 'unsupported-effect',
+					severity: 'warning',
+					path: effectPath,
+					message: `Unsupported effect${effectName === undefined ? '' : ` ${JSON.stringify(effectName)}`} (${String(effect.OTIO_SCHEMA)}) will be ignored.`,
+				});
 				continue;
 			}
 
@@ -497,9 +502,9 @@ export const normalizeOpenTimeline = (
 				return null;
 			}
 
-			node.sourceStart = sourceRange?.start ?? 0;
-			node.duration = sourceRange?.duration ?? legacyDuration ?? 0;
-			if (node.duration < 0) {
+			node.sourceStart = sourceRange?.start ?? ZERO_TIME;
+			node.duration = sourceRange?.duration ?? legacyDuration ?? ZERO_TIME;
+			if (node.duration.compare(ZERO_TIME) < 0) {
 				error('invalid-range', path, 'A gap duration cannot be negative.');
 			}
 
@@ -538,12 +543,14 @@ export const normalizeOpenTimeline = (
 					);
 				}
 
-				node.duration = Math.max(node.duration, child.duration);
+				if (child.duration.compare(node.duration) > 0) {
+					node.duration = child.duration;
+				}
 			}
 		} else {
 			for (const [index, child] of node.children.entries()) {
 				if (child.transition === null) {
-					node.duration += child.duration;
+					node.duration = node.duration.add(child.duration);
 					continue;
 				}
 
@@ -551,11 +558,11 @@ export const normalizeOpenTimeline = (
 				const next = node.children[index + 1];
 				const {inOffset, outOffset} = child.transition;
 				if (!previous) {
-					node.duration += inOffset;
+					node.duration = node.duration.add(inOffset);
 				}
 
 				if (!next) {
-					node.duration += outOffset;
+					node.duration = node.duration.add(outOffset);
 				}
 
 				if (!child.enabled) {
@@ -580,7 +587,10 @@ export const normalizeOpenTimeline = (
 					continue;
 				}
 
-				if (inOffset > previous.duration || outOffset > next.duration) {
+				if (
+					inOffset.compare(previous.duration) > 0 ||
+					outOffset.compare(next.duration) > 0
+				) {
 					error(
 						'invalid-transition',
 						child.path,
@@ -603,7 +613,9 @@ export const normalizeOpenTimeline = (
 				if (
 					beforePrevious?.transition &&
 					beforePrevious.enabled &&
-					beforePrevious.transition.outOffset + inOffset > previous.duration
+					beforePrevious.transition.outOffset
+						.add(inOffset)
+						.compare(previous.duration) > 0
 				) {
 					error(
 						'overlapping-transitions',
@@ -619,7 +631,7 @@ export const normalizeOpenTimeline = (
 			node.duration = sourceRange.duration;
 		}
 
-		if (!Number.isFinite(node.duration)) {
+		if (!Number.isFinite(node.duration.toNumber())) {
 			error(
 				'invalid-range',
 				path,

@@ -3,6 +3,7 @@ import {
 	applyCodemodChanges,
 	addComposition as addCompositionCodemod,
 	addCanvasCaptureComposition,
+	addOpenTimelineComposition,
 	addEffect as addEffectCodemod,
 	addElement,
 	addFolder as addFolderCodemod,
@@ -428,6 +429,16 @@ const getAddCompositionResult = ({
 				? undefined
 				: {name: options.folderName, parentName: options.parentName},
 	};
+	if (options.openTimeline) {
+		return addOpenTimelineComposition({
+			...composition,
+			timeline: options.openTimeline.contents,
+			fps: options.newFps,
+			width: options.newWidth,
+			height: options.newHeight,
+		});
+	}
+
 	if (options.canvasCapture !== null) {
 		return addCanvasCaptureComposition({
 			...composition,
@@ -2790,6 +2801,7 @@ export const createBrowserStudioOperations = ({
 		};
 
 	return {
+		supportsOpenTimelineImport: true,
 		addComposition,
 		addFolder: addFolderOperation,
 		consumeInitialElement: () => {

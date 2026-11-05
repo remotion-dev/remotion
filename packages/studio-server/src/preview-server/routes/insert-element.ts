@@ -88,6 +88,7 @@ export const insertElementHandler: ApiHandler<
 	remotionRoot,
 	logLevel,
 	publicDir,
+	binariesDirectory,
 }) => {
 	let resolvedAssets: Array<{contents: Uint8Array; path: string}>;
 	try {
@@ -229,6 +230,8 @@ export const insertElementHandler: ApiHandler<
 					filePath: registrationFilePath,
 					options: newComposition.options,
 					remotionRoot,
+					publicDir,
+					binariesDirectory,
 				});
 				const registrationFileNewContents =
 					codemodResult.changes.find(

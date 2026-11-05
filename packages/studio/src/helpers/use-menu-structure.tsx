@@ -5,7 +5,9 @@ import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {restartStudio} from '../api/restart-studio';
 import {askAiModalRef} from '../components/AskAiModal';
+import {callApi} from '../components/call-api';
 import {getCompositionMenuItems} from '../components/composition-menu-items';
+import {pickFilesToImport} from '../components/import-assets';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {
@@ -40,6 +42,7 @@ import {StudioServerConnectionCtx} from './client-id';
 import {CURRENT_COLOR} from './colors';
 import {getFileManagerName} from './get-file-manager-name';
 import {getGitMenuItem} from './get-git-menu-item';
+import {getNativeFilePickerPosition} from './get-native-file-picker-position';
 import {useMobileLayout} from './mobile-layout';
 import {openInEditor, preloadCompositionComponentInfo} from './open-in-editor';
 import {pickColor} from './pick-color';
@@ -95,6 +98,7 @@ export const getFileMenu = ({
 							parentName: null,
 							stack: null,
 							canvasCapture: null,
+							openTimeline: null,
 						});
 					},
 					type: 'item' as const,
@@ -123,6 +127,74 @@ export const getFileMenu = ({
 					leftItem: null,
 					subMenu: null,
 					quickSwitcherLabel: 'New folder...',
+					disabled: previewServerState !== 'connected',
+				},
+	].filter(NoReactInternals.truthy);
+	const importItems: ComboboxValue[] = [
+		(
+			browserStudioOperations !== null
+				? !browserStudioOperations.supportsOpenTimelineImport
+				: readOnlyStudio
+		)
+			? null
+			: {
+					id: 'import-timeline',
+					value: 'import-timeline',
+					label: 'Import OpenTimeline...',
+					onClick: async () => {
+						if (previewServerState !== 'connected') {
+							return;
+						}
+
+						closeMenu();
+						try {
+							let openTimeline: NonNullable<
+								Extract<ModalState, {type: 'new-comp'}>['openTimeline']
+							>;
+							if (
+								browserStudioOperations === null &&
+								window.remotion_supportsNativeFilePicker
+							) {
+								const selected = await callApi('/api/pick-open-timeline', {
+									type: 'timeline',
+									initialDirectory: null,
+									position: getNativeFilePickerPosition(),
+								});
+								if (selected?.type !== 'timeline') return;
+								openTimeline = selected;
+							} else {
+								const [file] = await pickFilesToImport({
+									multiple: false,
+									accept: '.otio',
+								});
+								if (!file) return;
+								openTimeline = {
+									name: file.name,
+									contents: await file.text(),
+									mediaDirectory: null,
+								};
+							}
+
+							setSelectedModal({
+								type: 'new-comp',
+								folderName: null,
+								parentName: null,
+								stack: null,
+								canvasCapture: null,
+								openTimeline,
+							});
+						} catch (err) {
+							showNotification(
+								`Could not import timeline: ${(err as Error).message}`,
+								5000,
+							);
+						}
+					},
+					type: 'item' as const,
+					keyHint: null,
+					leftItem: null,
+					subMenu: null,
+					quickSwitcherLabel: 'Import OpenTimeline...',
 					disabled: previewServerState !== 'connected',
 				},
 	].filter(NoReactInternals.truthy);
@@ -209,7 +281,12 @@ export const getFileMenu = ({
 	].filter(NoReactInternals.truthy);
 	const items: ComboboxValue[] = [
 		...newProjectItems,
-		newProjectItems.length > 0 && projectItems.length > 0
+		newProjectItems.length > 0 && importItems.length > 0
+			? {type: 'divider' as const, id: 'import-timeline-divider'}
+			: null,
+		...importItems,
+		(newProjectItems.length > 0 || importItems.length > 0) &&
+		projectItems.length > 0
 			? {
 					type: 'divider' as const,
 					id: 'new-project-item-divider',

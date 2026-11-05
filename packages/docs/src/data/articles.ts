@@ -2611,6 +2611,15 @@ export const articles = [
 		slug: 'codemods/add-folder',
 	},
 	{
+		id: 'codemods/add-open-timeline-composition',
+		title: 'addOpenTimelineComposition()',
+		relativePath: 'docs/codemods/add-open-timeline-composition.mdx',
+		compId: 'articles-docs-codemods-add-open-timeline-composition',
+		crumb: '@remotion/codemods',
+		noAi: false,
+		slug: 'codemods/add-open-timeline-composition',
+	},
+	{
 		id: 'codemods/apply-codemod-changes',
 		title: 'applyCodemodChanges()',
 		relativePath: 'docs/codemods/apply-codemod-changes.mdx',
@@ -2690,6 +2699,15 @@ export const articles = [
 		crumb: '@remotion/codemods',
 		noAi: false,
 		slug: 'codemods/duplicate-nodes',
+	},
+	{
+		id: 'codemods/generate-open-timeline-composition',
+		title: 'generateOpenTimelineComposition()',
+		relativePath: 'docs/codemods/generate-open-timeline-composition.mdx',
+		compId: 'articles-docs-codemods-generate-open-timeline-composition',
+		crumb: '@remotion/codemods',
+		noAi: false,
+		slug: 'codemods/generate-open-timeline-composition',
 	},
 	{
 		id: 'codemods/get-node-props',

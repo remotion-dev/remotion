@@ -33,6 +33,7 @@ export type StudioHtmlOptions = {
 	publicFiles: StaticFile[];
 	publicFolderExists: string | null;
 	fileSystemPlatform: string | null;
+	supportsNativeFilePicker: boolean;
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
@@ -67,6 +68,7 @@ export const studioHtml = ({
 	renderDefaults,
 	publicFolderExists,
 	fileSystemPlatform,
+	supportsNativeFilePicker,
 	gitSource,
 	projectName,
 	installedDependencies,
@@ -200,6 +202,7 @@ export const studioHtml = ({
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
 		<script>window.remotion_fileSystemPlatform = ${JSON.stringify(fileSystemPlatform)};</script>
+		<script>window.remotion_supportsNativeFilePicker = ${JSON.stringify(supportsNativeFilePicker)};</script>
 		<script>window.remotion_studioServerCommand = ${
 			studioServerCommand ? JSON.stringify(studioServerCommand) : 'null'
 		};</script>

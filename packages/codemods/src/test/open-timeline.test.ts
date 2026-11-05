@@ -1,6 +1,7 @@
 import {expect, test} from 'bun:test';
 import {runInNewContext} from 'node:vm';
 import type {Expression, JSXOpeningElement} from '@babel/types';
+import {format} from 'prettier';
 import * as recast from 'recast';
 import {interpolate} from 'remotion';
 import {
@@ -62,6 +63,87 @@ const generate = (input: unknown, fps = 24) =>
 		width: 1920,
 		height: 1080,
 	});
+
+test.each([
+	[
+		'nested video and audio tracks',
+		timeline([
+			track([clip('First', 0, 24), clip('Second', 24, 24)]),
+			track([clip('Sound', 0, 48)], 'Audio'),
+		]),
+		'<>',
+	],
+	[
+		'long imported media paths',
+		timeline([
+			track([
+				{
+					...clip('Imported media', 0, 24),
+					media_reference: {
+						OTIO_SCHEMA: 'ExternalReference.1',
+						target_url:
+							'opentimeline/5281480c-d019-498e-963d-991f3a2bb221/1-SolLevante_Animatics_ver1_H264.mov',
+					},
+				},
+			]),
+		]),
+		'<Track',
+	],
+])('formats %s like Prettier', async (_name, input, rootElement) => {
+	const {source} = generate(input);
+	expect(source).not.toBeNull();
+	expect(source).not.toContain('premountFor');
+	expect(source).not.toContain('objectFit=');
+	expect(source).not.toContain('AbsoluteFill');
+	expect(source).not.toContain('backgroundColor');
+	expect(source).toContain(`return (\n\t\t${rootElement}`);
+	expect(source).not.toMatch(/\b(?:from|trimBefore)=\{0\}/);
+	expect(source).not.toContain('<Sequence');
+	expect(source).toBe(
+		await format(source!, {
+			parser: 'typescript',
+			useTabs: true,
+			singleQuote: true,
+			bracketSpacing: false,
+		}),
+	);
+});
+
+test('lays out advanced timeline JSX on separate, indented lines', () => {
+	const {source} = generate(
+		timeline([
+			track([
+				clip('Outgoing', 240, 48),
+				dissolve(12, 6),
+				clip('Incoming', 240, 48),
+			]),
+			track([
+				{
+					OTIO_SCHEMA: 'Clip.1',
+					name: 'Frames',
+					source_range: range(0, 24),
+					media_reference: {
+						OTIO_SCHEMA: 'ImageSequenceReference.1',
+						target_url_base: 'frames',
+						name_prefix: 'shot.',
+						name_suffix: '.png',
+						start_frame: 1,
+						frame_step: 1,
+						rate: 24,
+						frame_zero_padding: 4,
+						available_range: range(0, 48),
+					},
+				},
+			]),
+		]),
+	);
+	expect(source).not.toBeNull();
+	expect(source).toContain('\n\t\t\t\t<CanvasImage\n');
+	expect(source).toContain('\n\t\t\t</Track>\n');
+	expect(source).not.toMatch(/>[ \t]*<\/?[A-Za-z]/);
+	expect(source).not.toContain('premountFor');
+	expect(source).not.toMatch(/\b(?:from|trimBefore)=\{0\}/);
+});
 
 const elements = (source: string | null, tag: string) => {
 	expect(source).not.toBeNull();
@@ -157,11 +239,89 @@ test('OTIO source timecode is converted to a file-relative media trim', () => {
 	const video = elements(result.source, 'Video')[0];
 	expect(numeric(prop(video, 'trimBefore'), 30)).toBe(120);
 	expect(numeric(prop(video, 'durationInFrames'), 30)).toBe(60);
-	expect(prop(video, 'premountFor')).toMatchObject({
-		type: 'Identifier',
-		name: 'fps',
-	});
+	expect(result.source).not.toContain('premountFor');
+	expect(result.source).not.toContain('useVideoConfig');
 	expect(prop(video, 'muted')).not.toBeUndefined();
+});
+
+test.each([
+	{
+		name: 'fractional FPS timecodes',
+		sourceStart: 87120,
+		mediaStart: 86160,
+		sourceRate: 24000 / 1001,
+		mediaRate: 24000 / 1001,
+		fps: 24000 / 1001,
+		duration: 48,
+		expectedTrim: 960,
+		expectedDuration: 48,
+	},
+	{
+		name: 'large source timecodes',
+		sourceStart: 1_000_000_000_960,
+		mediaStart: 1_000_000_000_000,
+		sourceRate: 24,
+		mediaRate: 24,
+		fps: 24,
+		duration: 48,
+		expectedTrim: 960,
+		expectedDuration: 48,
+	},
+	{
+		name: 'fractional frames at a different output FPS',
+		sourceStart: 1_000_000_001_001,
+		mediaStart: 1_000_000_000_000,
+		sourceRate: 25,
+		mediaRate: 25,
+		fps: 24,
+		duration: 25,
+		expectedTrim: 960.96,
+		expectedDuration: 24,
+	},
+	{
+		name: 'source and media timecodes at different rates',
+		sourceStart: 800_000_000_008,
+		mediaStart: 1_000_000_000_000,
+		sourceRate: 24,
+		mediaRate: 30,
+		fps: 30,
+		duration: 24,
+		expectedTrim: 10,
+		expectedDuration: 30,
+	},
+	{
+		name: 'intentional fractions close to whole frames',
+		sourceStart: 960.0000000001,
+		mediaStart: 0,
+		sourceRate: 24,
+		mediaRate: 24,
+		fps: 24,
+		duration: 1.0000000000000002,
+		expectedTrim: 960.0000000001,
+		expectedDuration: 1.0000000000000002,
+	},
+])('preserves exact frame timing for $name', (fixture) => {
+	const input = clip(
+		'Timecode',
+		fixture.sourceStart,
+		fixture.duration,
+		fixture.sourceRate,
+	);
+	input.media_reference.available_range = range(
+		fixture.mediaStart,
+		10000,
+		fixture.mediaRate,
+	);
+	const result = generate(timeline([track([input])]), fixture.fps);
+	expect(result.diagnostics).toEqual([]);
+	const [video] = elements(result.source, 'Video');
+	expect(numeric(prop(video, 'trimBefore'))).toBe(fixture.expectedTrim);
+	expect(numeric(prop(video, 'durationInFrames'))).toBe(
+		fixture.expectedDuration,
+	);
+	expect(result.metadata?.durationInFrames).toBe(
+		Math.ceil(fixture.expectedDuration),
+	);
 });
 
 test('mixed rational rates and gaps preserve sequential placement without rounding each clip', () => {
@@ -171,6 +331,10 @@ test('mixed rational rates and gaps preserve sequential placement without roundi
 	const result = generate(input, 30);
 	expect(result.metadata?.durationInFrames).toBe(75);
 	const videos = elements(result.source, 'Video');
+	const [videoTrack] = elements(result.source, 'Track');
+	expect(prop(videoTrack, 'name')).toMatchObject({value: 'Video track'});
+	expect(numeric(prop(videoTrack, 'durationInFrames'), 30)).toBe(75);
+	expect(prop(videoTrack, 'style')).toBeUndefined();
 	expect(videos).toHaveLength(2);
 	expect(numeric(prop(videos[1], 'from'), 30)).toBe(45);
 	expect(numeric(prop(videos[1], 'durationInFrames'), 30)).toBe(30);
@@ -184,6 +348,23 @@ test('mixed rational rates and gaps preserve sequential placement without roundi
 	expect(
 		numeric(prop(elements(fractional.source, 'Video')[0], 'durationInFrames')),
 	).toBeCloseTo(0.96);
+
+	const manyCuts = generate(
+		timeline([
+			track([
+				...Array.from({length: 600}, (_, index) => ({
+					...gap(1),
+					source_range: range(0, 1, index % 2 === 0 ? 24 : 25),
+				})),
+				clip('Last', 0, 1, 30),
+			]),
+		]),
+		30,
+	);
+	expect(manyCuts.metadata?.durationInFrames).toBe(736);
+	expect(numeric(prop(elements(manyCuts.source, 'Video')[0], 'from'))).toBe(
+		735,
+	);
 });
 
 test('nested tracks and stacks preserve trim and simultaneous layer order', () => {
@@ -199,12 +380,13 @@ test('nested tracks and stacks preserve trim and simultaneous layer order', () =
 	const input = timeline([track([gap(24), nested, clip('End', 0, 24)])]);
 	const normalized = normalizeOpenTimeline(input);
 	expect(normalized.diagnostics).toEqual([]);
-	expect(normalized.root?.duration).toBe(3);
-	expect(normalized.root?.children[0].children[1]).toMatchObject({
+	expect(normalized.root?.duration.toNumber()).toBe(3);
+	const sceneNode = normalized.root?.children[0].children[1];
+	expect(sceneNode).toMatchObject({
 		type: 'stack',
-		sourceStart: 0.5,
-		duration: 1,
 	});
+	expect(sceneNode?.sourceStart.toNumber()).toBe(0.5);
+	expect(sceneNode?.duration.toNumber()).toBe(1);
 	const result = generate(input);
 	expect(result.metadata?.durationInFrames).toBe(72);
 	const videos = elements(result.source, 'Video');
@@ -221,6 +403,32 @@ test('nested tracks and stacks preserve trim and simultaneous layer order', () =
 	expect(numeric(prop(scene!, 'trimBefore'))).toBe(12);
 	expect(numeric(prop(scene!, 'durationInFrames'))).toBe(24);
 });
+
+test.each([0, 12])(
+	'retains a root stack that trims its children, starting at %s',
+	(start) => {
+		const input = timeline([track([clip('Long clip', 0, 72)])]);
+		const result = generate({
+			...input,
+			tracks: {...input.tracks, source_range: range(start, 24)},
+		});
+		expect(result.diagnostics).toEqual([]);
+		expect(result.metadata?.durationInFrames).toBe(24);
+		const [stack] = elements(result.source, 'Sequence');
+		expect(stack).toBeDefined();
+		expect(numeric(prop(stack, 'durationInFrames'))).toBe(24);
+		if (start === 0) {
+			expect(prop(stack, 'trimBefore')).toBeUndefined();
+		} else {
+			expect(numeric(prop(stack, 'trimBefore'))).toBe(start);
+		}
+
+		expect(prop(stack, 'from')).toBeUndefined();
+		expect(
+			numeric(prop(elements(result.source, 'Video')[0], 'durationInFrames')),
+		).toBe(72);
+	},
+);
 
 test('Clip.2 selects its active media reference and derives absent source_range', () => {
 	const input = timeline([
@@ -246,7 +454,7 @@ test('Clip.2 selects its active media reference and derives absent source_range'
 	expect(prop(video, 'src')).toMatchObject({
 		value: 'https://example.com/proxy.mp4',
 	});
-	expect(numeric(prop(video, 'trimBefore'))).toBe(0);
+	expect(prop(video, 'trimBefore')).toBeUndefined();
 });
 
 test('positive linear retiming preserves the OTIO edit duration', () => {
@@ -425,12 +633,12 @@ test.each([
 		]),
 	],
 	[
-		'custom effect',
+		'invalid time effect',
 		timeline([
 			track([
 				{
 					...clip('Effect', 0, 24),
-					effects: [{OTIO_SCHEMA: 'Effect.1', effect_name: 'Glow'}],
+					effects: [{OTIO_SCHEMA: 'LinearTimeWarp.1', time_scalar: 'fast'}],
 				},
 			]),
 		]),
@@ -477,10 +685,14 @@ test.each([
 	],
 ])(
 	'OTIO refuses %s with a diagnostic instead of silently changing the edit',
-	(_name, input) => {
+	(name, input) => {
 		const result = generate(input);
 		expect(result.source).toBeNull();
-		expect(result.metadata).toBeNull();
+		expect(result.metadata).toEqual(
+			name === 'missing media' || name === 'unresolved file URL'
+				? {width: 1920, height: 1080, fps: 24, durationInFrames: 24}
+				: null,
+		);
 		expect(result.diagnostics.some((entry) => entry.severity === 'error')).toBe(
 			true,
 		);
@@ -521,7 +733,7 @@ export const Root = () => <Composition id="Existing" component={Existing} durati
 	},
 });
 
-test('addOpenTimelineComposition creates source and registration atomically in a virtual project', () => {
+test('addOpenTimelineComposition creates source and registration with warnings for ignored effects', () => {
 	const original = project();
 	const result = addOpenTimelineComposition({
 		project: original,
@@ -532,7 +744,18 @@ test('addOpenTimelineComposition creates source and registration atomically in a
 			importName: 'ImportedTimeline',
 			importPath: './Imported',
 		},
-		timeline: timeline([track([clip('Import', 0, 48)])]),
+		timeline: timeline([
+			track([
+				{
+					...clip('Import', 0, 48),
+					effects: [
+						{OTIO_SCHEMA: 'Effect.1', name: 'Audio Pan', effect_name: ''},
+						{OTIO_SCHEMA: 'Effect.1', name: ' ', effect_name: 'Glow'},
+						{OTIO_SCHEMA: 'Effect.1', effect_name: ''},
+					],
+				},
+			]),
+		]),
 		fps: 24,
 		width: 1920,
 		height: 1080,
@@ -541,6 +764,22 @@ test('addOpenTimelineComposition creates source and registration atomically in a
 	expect(original.files['src/Root.tsx']).not.toContain('ImportedTimeline');
 	const updated = applyCodemodChanges(original, result.changes);
 	expect(updated.files['src/Imported.tsx']).toContain('ImportedTimeline');
+	expect(updated.files['src/Imported.tsx']).toBe(
+		generate(timeline([track([clip('Import', 0, 48)])])).source!,
+	);
+	expect(elements(updated.files['src/Imported.tsx'], 'Video')).toHaveLength(1);
+	expect(result.diagnostics).toEqual(
+		[
+			'Unsupported effect "Audio Pan" (Effect.1) will be ignored.',
+			'Unsupported effect "Glow" (Effect.1) will be ignored.',
+			'Unsupported effect (Effect.1) will be ignored.',
+		].map((message, index) => ({
+			code: 'unsupported-effect',
+			severity: 'warning',
+			path: `$.tracks.children[0].children[0].effects[${index}]`,
+			message,
+		})),
+	);
 	const registration = elements(
 		updated.files['src/Root.tsx'],
 		'Composition',
@@ -588,7 +827,7 @@ test('failed OTIO imports expose structured diagnostics and leave project files 
 				track([
 					{
 						...clip('Unsupported', 0, 24),
-						effects: [{OTIO_SCHEMA: 'Effect.1', effect_name: 'Lens flare'}],
+						effects: [{OTIO_SCHEMA: 'FreezeFrame.1', time_scalar: 1}],
 					},
 				]),
 			]),
@@ -603,7 +842,7 @@ test('failed OTIO imports expose structured diagnostics and leave project files 
 	expect(error).toBeInstanceOf(OpenTimelineImportError);
 	expect((error as OpenTimelineImportError).diagnostics).toEqual(
 		expect.arrayContaining([
-			expect.objectContaining({severity: 'error', code: 'unsupported-effect'}),
+			expect.objectContaining({severity: 'error', code: 'invalid-time-scalar'}),
 		]),
 	);
 	expect(JSON.stringify(original)).toBe(snapshot);
@@ -743,6 +982,12 @@ test('media resolver exceptions become actionable diagnostics', () => {
 		},
 	});
 	expect(result.source).toBeNull();
+	expect(result.metadata).toEqual({
+		width: 1920,
+		height: 1080,
+		fps: 24,
+		durationInFrames: 24,
+	});
 	expect(result.diagnostics).toContainEqual(
 		expect.objectContaining({
 			code: 'media-resolver-failed',
@@ -752,15 +997,17 @@ test('media resolver exceptions become actionable diagnostics', () => {
 	);
 });
 
-test.each(['Video', 'Sequence', 'AbsoluteFill'])(
+test.each(['Video', 'Sequence', 'Track', 'AbsoluteFill'])(
 	'component name %s cannot shadow generated imports or rewrite input strings',
 	(componentName) => {
 		const input = {
 			...clip('Named', 0, 24),
-			name: '<Video /> <Sequence /> <AbsoluteFill />',
+			name: '<Video /> <Sequence /> <Track /> <AbsoluteFill />',
 		};
 		const result = generateOpenTimelineComposition({
-			timeline: timeline([track([input])]),
+			timeline: timeline([
+				track([input, dissolve(6, 6), clip('Next', 24, 24)]),
+			]),
 			componentName,
 			fps: 24,
 			width: 1920,
@@ -915,12 +1162,13 @@ test('negative nested source trims delay child media and preserve transition clo
 	);
 	expect(result.metadata?.durationInFrames).toBe(144);
 	const sequences = elements(result.source, 'Sequence');
-	const trimmed = sequences.find((element) => {
+	const tracks = elements(result.source, 'Track');
+	const trimmed = tracks.find((element) => {
 		const name = prop(element, 'name');
 		return name?.type === 'StringLiteral' && name.value === 'Negative trim';
 	});
 	expect(trimmed).toBeDefined();
-	expect(numeric(prop(trimmed!, 'trimBefore'))).toBe(0);
+	expect(prop(trimmed!, 'trimBefore')).toBeUndefined();
 	expect(numeric(prop(trimmed!, 'from'))).toBe(24);
 	expect(numeric(prop(trimmed!, 'durationInFrames'))).toBe(120);
 	expect(
@@ -929,7 +1177,7 @@ test('negative nested source trims delay child media and preserve transition clo
 			return from !== undefined && numeric(from) === 12;
 		}),
 	).toBe(true);
-	for (const element of sequences) {
+	for (const element of [...sequences, ...tracks]) {
 		const trim = prop(element, 'trimBefore');
 		if (trim !== undefined) expect(numeric(trim)).toBeGreaterThanOrEqual(0);
 	}
@@ -970,7 +1218,12 @@ test('media source trims outside safe frame precision fail before emitting code'
 		]),
 	);
 	expect(result.source).toBeNull();
-	expect(result.metadata).toBeNull();
+	expect(result.metadata).toEqual({
+		width: 1920,
+		height: 1080,
+		fps: 24,
+		durationInFrames: 24,
+	});
 	expect(result.diagnostics).toContainEqual(
 		expect.objectContaining({
 			severity: 'error',
@@ -1029,6 +1282,8 @@ test('visual dissolves blend both weighted alpha layers within an isolated track
 	);
 	const images = elements(result.source, 'CanvasImage');
 	expect(images).toHaveLength(2);
+	expect(prop(images[0], 'fit')).toMatchObject({value: 'contain'});
+	expect(prop(images[1], 'fit')).toMatchObject({value: 'contain'});
 	const outgoingStyle = prop(images[0], 'style')!;
 	const incomingStyle = prop(images[1], 'style')!;
 	expect(evaluateProp(result.source!, outgoingStyle, 36, 24)).toMatchObject({
@@ -1051,12 +1306,73 @@ test('visual dissolves blend both weighted alpha layers within an isolated track
 	expect(evaluateProp(result.source!, incomingStyle, 54, 24)).toMatchObject({
 		opacity: 1,
 	});
-	const trackElement = elements(result.source, 'Sequence').find((element) => {
+	const trackElement = elements(result.source, 'Track').find((element) => {
 		const name = prop(element, 'name');
 		return name?.type === 'StringLiteral' && name.value === 'Video track';
 	});
 	expect(trackElement).toBeDefined();
+	expect(prop(trackElement!, 'style')).toBeUndefined();
+	const isolation = elements(result.source, 'AbsoluteFill').find((element) => {
+		const style = prop(element, 'style');
+		return (
+			style &&
+			evaluateProp(result.source!, style, 45, 24).isolation === 'isolate'
+		);
+	});
+	expect(isolation).toBeDefined();
+	const [group] = elements(result.source, 'Sequence').filter((element) => {
+		const name = prop(element, 'name');
+		return name?.type === 'StringLiteral' && name.value === 'Dissolve';
+	});
+	expect(prop(group, 'from')).toBeUndefined();
+	expect(numeric(prop(group, 'durationInFrames'))).toBe(96);
+});
+
+test('tracks group connected dissolves without overlapping adjacent track items', () => {
+	const result = generate(
+		timeline([
+			track([
+				clip('Intro', 0, 24),
+				gap(12),
+				clip('First', 240, 48),
+				dissolve(12, 6),
+				clip('Second', 240, 48),
+				dissolve(6, 12),
+				clip('Third', 240, 48),
+				clip('Outro', 0, 24),
+			]),
+			track([clip('Soundtrack', 0, 204)], 'Audio'),
+		]),
+	);
+	expect(result.diagnostics).toEqual([]);
+	expect(result.metadata?.durationInFrames).toBe(204);
+	expect(elements(result.source, 'Track')).toHaveLength(2);
+	const [group] = elements(result.source, 'Sequence').filter((element) => {
+		const name = prop(element, 'name');
+		return name?.type === 'StringLiteral' && name.value === 'Dissolve';
+	});
+	expect(numeric(prop(group, 'from'))).toBe(36);
+	expect(numeric(prop(group, 'durationInFrames'))).toBe(144);
+	const videos = elements(result.source, 'Video');
 	expect(
-		evaluateProp(result.source!, prop(trackElement!, 'style')!, 45, 24),
-	).toMatchObject({isolation: 'isolate'});
+		videos.map((element) => {
+			const from = prop(element, 'from');
+			return from === undefined ? 0 : numeric(from);
+		}),
+	).toEqual([0, 0, 36, 90, 180]);
+	expect(
+		videos.map((element) => numeric(prop(element, 'durationInFrames'))),
+	).toEqual([24, 54, 72, 54, 24]);
+	expect(
+		evaluateProp(result.source!, prop(videos[1], 'style')!, 81, 24).opacity,
+	).toBeCloseTo(0.5);
+	expect(
+		evaluateProp(result.source!, prop(videos[2], 'style')!, 81, 24).opacity,
+	).toBeCloseTo(0.5);
+	expect(
+		evaluateProp(result.source!, prop(videos[2], 'style')!, 135, 24).opacity,
+	).toBeCloseTo(0.5);
+	expect(
+		evaluateProp(result.source!, prop(videos[3], 'style')!, 135, 24).opacity,
+	).toBeCloseTo(0.5);
 });

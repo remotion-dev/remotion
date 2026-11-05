@@ -80,6 +80,7 @@ test('generated OTIO markup typechecks against the workspace Remotion components
 		for (const componentName of [
 			'Video',
 			'Sequence',
+			'Track',
 			'CanvasImage',
 			'AbsoluteFill',
 		]) {
