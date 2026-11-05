@@ -58,6 +58,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>add</strong>
 					<div>Add Remotion packages with matching version</div>
 				</TOCItem>
+				<TOCItem link="/docs/cli/use-element">
+					<strong>use-element</strong>
+					<div>Install an Element from an Element Library page</div>
+				</TOCItem>
 				<TOCItem link="/docs/cli/gpu">
 					<strong>gpu</strong>
 					<div>Print information about {"Chrome's"} usage of the GPU</div>

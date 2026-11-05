@@ -44,6 +44,7 @@ import {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 } from './helpers/get-installed-dependencies';
+import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	getLocalPackageOverride,
 	localPackageRootKey,
@@ -63,6 +64,7 @@ import {
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
 import {replaceWithPrerenderedVideo} from './preview-server/prerendered-scene';
+import {getElementInstallPlan} from './preview-server/routes/element-install-plan';
 import {getEditorName} from './preview-server/routes/open-in-editor';
 import {subscribeToSequenceNodePathMutations} from './preview-server/sequence-node-path-mutation';
 import {getRemotionVersion} from './preview-server/update-available';
@@ -114,4 +116,6 @@ export const StudioServerInternals = {
 	replaceWithPrerenderedVideo,
 	subscribeToSequenceNodePathMutations,
 	installElement,
+	getElementInstallPlan,
+	getInstalledInstallablePackages,
 };

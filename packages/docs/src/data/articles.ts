@@ -2107,6 +2107,15 @@ export const articles = [
 		slug: 'cli/upgrade',
 	},
 	{
+		id: 'cli/use-element',
+		title: 'npx remotion use-element',
+		relativePath: 'docs/cli/use-element.mdx',
+		compId: 'articles-docs-cli-use-element',
+		crumb: 'CLI Reference',
+		noAi: false,
+		slug: 'cli/use-element',
+	},
+	{
 		id: 'cli/versions',
 		title: 'npx remotion versions',
 		relativePath: 'docs/cli/versions.mdx',

@@ -54,6 +54,7 @@ import {skillsCommand} from './skills';
 import {still} from './still';
 import {studioCommand} from './studio';
 import {upgradeCommand} from './upgrade';
+import {runUseElementCommand, USE_ELEMENT_COMMAND} from './use-element';
 import {
 	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
@@ -196,6 +197,12 @@ export const cli = async () => {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
 			await browserCommand(args, logLevel);
+		} else if (command === USE_ELEMENT_COMMAND) {
+			await runUseElementCommand({
+				remotionRoot,
+				argv: process.argv.slice(2),
+				logLevel,
+			});
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else {

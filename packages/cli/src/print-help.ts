@@ -9,6 +9,7 @@ import {
 } from './command-help';
 import {GPU_COMMAND} from './gpu';
 import {Log} from './log';
+import {USE_ELEMENT_COMMAND} from './use-element';
 import {VERSIONS_COMMAND} from './versions';
 
 const packagejson = require('../package.json');
@@ -493,6 +494,36 @@ export const cliCommandHelp = [
 		description: 'Add Remotion packages with the correct version.',
 		documentation: 'https://www.remotion.dev/docs/cli/add',
 		options: options(['package-manager', 'log']),
+	},
+	{
+		path: [USE_ELEMENT_COMMAND],
+		args: ' <url>',
+		description: 'Install an Element from an Element library page.',
+		documentation: 'https://www.remotion.dev/docs/cli/use-element',
+		options: [
+			{
+				flag: '--element <slug>',
+				optionIds: [],
+				description: 'Element to install if the page contains several.',
+			},
+			{
+				flag: '--composition <id>',
+				optionIds: [],
+				description: 'Composition to add the Element to.',
+			},
+			{
+				flag: '--overwrite',
+				optionIds: [],
+				description:
+					'Replace an existing Element file with different contents.',
+			},
+			{
+				flag: '--yes, -y',
+				description: 'Install without asking for confirmation.',
+				optionIds: [],
+			},
+			...options(['public-dir', 'log']),
+		],
 	},
 	{
 		path: [GPU_COMMAND],

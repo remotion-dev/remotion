@@ -118,6 +118,7 @@ const sidebars: SidebarsConfig = {
 				'cli/versions',
 				'cli/upgrade',
 				'cli/add',
+				'cli/use-element',
 				'cli/skills',
 				'cli/ffmpeg',
 				'cli/ffprobe',
