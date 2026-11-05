@@ -137,7 +137,15 @@ export const GlobalKeybindings: React.FC = () => {
 			}
 
 			const [selection] = selectedItems;
-			if (selection.type !== 'sequence' && selection.type !== 'sequence-prop') {
+			if (selection.type === 'guide') {
+				return false;
+			}
+
+			if (
+				fieldKey !== rotateFieldKey &&
+				selection.type !== 'sequence' &&
+				selection.type !== 'sequence-prop'
+			) {
 				return false;
 			}
 

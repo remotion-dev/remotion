@@ -184,8 +184,7 @@ const PlayPauseInner: React.FC<{
 				const selection = selectedItems.length === 1 ? selectedItems[0] : null;
 				if (
 					selection !== null &&
-					(selection.type === 'sequence' ||
-						selection.type === 'sequence-prop') &&
+					selection.type !== 'guide' &&
 					selectEffects(selection.nodePathInfo)
 				) {
 					event.preventDefault();
