@@ -50,12 +50,13 @@ import {
 } from './QuickSwitcher/shared';
 
 const content: React.CSSProperties = {
-	padding: '4px 10px 10px',
+	padding: '4px 8px',
 };
 
 const inputStyle: React.CSSProperties = {
 	width: '100%',
 	borderRadius: 4,
+	padding: '4px 10px 4px 12px',
 };
 
 const resultList: React.CSSProperties = {
@@ -414,6 +415,7 @@ export const EffectPicker: React.FC<{
 				<RemotionInput
 					type="text"
 					style={inputStyle}
+					small
 					autoFocus
 					status="ok"
 					value={query}
