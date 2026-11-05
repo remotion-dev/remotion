@@ -2,12 +2,16 @@ import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 	type ServerlessPayload,
+	type StreamingPayload,
 } from '@remotion/lambda-client';
 import {DEFAULT_X264_PRESET} from '../helpers/default-x264-preset';
 import {getCurrentFunctionName} from '../helpers/get-current-function-name';
 import {getCurrentRegionInFunction} from '../helpers/get-current-region';
 import {makeInitialOverallRenderProgress} from '../overall-render-progress';
+import {printLoggingGrepHelper} from '../print-logging-grep-helper';
 import {checkVersionMismatch} from './check-version-mismatch';
+import {launchHandler} from './launch';
+import type {RequestContext} from './renderer';
 
 type Options = {
 	expectedBucketOwner: string | null;
@@ -18,9 +22,13 @@ type Options = {
 export const startHandler = async ({
 	params,
 	options,
+	context,
+	publish,
 }: {
 	params: ServerlessPayload;
 	options: Options;
+	context: RequestContext | null;
+	publish: ((message: StreamingPayload) => void) | null;
 }) => {
 	if (params.type !== ServerlessRoutines.start) {
 		throw new TypeError('Expected type start');
@@ -138,6 +146,60 @@ export const startHandler = async ({
 		isProduction: params.isProduction ?? true,
 		sampleRate: params.sampleRate ?? 48000,
 	};
+
+	if (params.streamProgress) {
+		await initialFile;
+		if (!context || !publish) {
+			throw new Error('Missing streaming start context');
+		}
+
+		publish({
+			type: 'render-started',
+			payload: LambdaClientInternals.makeRenderMediaOnLambdaOutput({
+				renderId: options.renderId,
+				bucketName,
+				functionName: getCurrentFunctionName(),
+				region,
+				rendererFunctionName: params.rendererFunctionName,
+			}),
+		});
+		if (LambdaClientInternals.isInsideLambda()) {
+			printLoggingGrepHelper(
+				ServerlessRoutines.launch,
+				{renderId: options.renderId},
+				params.logLevel,
+			);
+		}
+
+		await launchHandler({
+			params: payload,
+			options: {
+				expectedBucketOwner: options.expectedBucketOwner,
+				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
+				requestContext: context,
+			},
+			onProgress: (progress) => {
+				publish(
+					progress.fatalErrorEncountered
+						? {
+								type: 'render-failed',
+								payload: {
+									message:
+										progress.errors.find((e) => e.isFatal && !e.willRetry)
+											?.message ?? 'Lambda render failed',
+									stack: null,
+									progress,
+								},
+							}
+						: {
+								type: progress.done ? 'render-complete' : 'render-progress',
+								payload: progress,
+							},
+				);
+			},
+		});
+		return {type: 'success' as const, bucketName, renderId: options.renderId};
+	}
 
 	await LambdaClientInternals.callFunctionAsyncImplementation({
 		functionName: getCurrentFunctionName(),

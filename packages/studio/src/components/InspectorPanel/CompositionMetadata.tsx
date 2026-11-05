@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
+import {COMPUTED_VALUE_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {
 	HOVER_GROUP_CLASS_NAME,
 	HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME,
@@ -63,7 +63,7 @@ const computedContainerStyle: React.CSSProperties = {
 };
 
 const computedValueStyle: React.CSSProperties = {
-	color: WHITE_ALPHA_40,
+	color: COMPUTED_VALUE_COLOR,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontStyle: 'italic',

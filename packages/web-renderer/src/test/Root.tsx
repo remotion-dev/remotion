@@ -61,6 +61,7 @@ import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
+import {maskImageUrlSizing} from './fixtures/mask-image-url-sizing';
 import {
 	mixBlendModeAllModes,
 	mixBlendModeGroups,
@@ -182,6 +183,7 @@ export const Root: React.FC = () => {
 				<Composition {...mixBlendModeAllModes} />
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
+				<Composition {...maskImageUrlSizing} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />

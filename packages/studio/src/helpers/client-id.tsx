@@ -13,6 +13,7 @@ import {
 	subscribeToPreviewServerEvents,
 	type PreviewServerConnectionState,
 } from './preview-server-events';
+import {applyStudioHighContrast} from './studio-css-variables';
 import {getStudioDefaultPremountInSeconds} from './studio-runtime-config';
 import {reloadUrl} from './url-state';
 
@@ -89,6 +90,9 @@ export const PreviewServerConnection: React.FC<{
 			if (newEvent.type === 'config-file-changed') {
 				window.remotion_renderDefaults = newEvent.renderDefaults;
 				window.remotion_studioConfig = newEvent.studioRuntimeConfig;
+				applyStudioHighContrast(
+					newEvent.studioRuntimeConfig.highContrast?.value ?? false,
+				);
 				window.remotion_editorName = newEvent.editorName;
 				setConfigFileChangeRevision((revision) => revision + 1);
 				const isOwnConfigChange =

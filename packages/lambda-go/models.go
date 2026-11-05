@@ -113,6 +113,7 @@ type ImageSequenceOutputPrefix struct {
 }
 
 type renderInternalOptions struct {
+	StreamProgress                 bool                   `json:"streamProgress"`
 	EnableCancellation             bool                   `json:"enableCancellation"`
 	RendererFunctionName           *string                `json:"rendererFunctionName"`
 	FramesPerLambda                *int                   `json:"framesPerLambda"`

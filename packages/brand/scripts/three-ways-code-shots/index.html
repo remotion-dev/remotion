@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Three ways — Monaco code shots</title>
+		<link rel="stylesheet" href="/monaco/vs/editor/editor.main.css" />
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: #131414;
+			}
+			.tab-bar {
+				height: 64px;
+				border-bottom: 1px solid #2b2b2b;
+				background: #181919;
+				display: flex;
+				align-items: center;
+				padding: 0 30px;
+				gap: 14px;
+				font:
+					22px system-ui,
+					sans-serif;
+				color: #d4d4d4;
+			}
+			.typescript {
+				color: #569cd6;
+				font-size: 19px;
+				font-weight: 600;
+			}
+			#editor {
+				margin-left: 32px;
+				width: calc(100% - 32px);
+				height: calc(100% - 64px);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="tab-bar">
+			<span class="typescript">TS</span><span id="filename"></span>
+		</div>
+		<div id="editor"></div>
+		<script src="/monaco/vs/loader.js"></script>
+		<script src="/dark-plus-monaco.js"></script>
+		<script>
+			require.config({paths: {vs: '/monaco/vs'}});
+			require(['vs/editor/editor.main'], async () => {
+				const shot =
+					new URLSearchParams(location.search).get('shot') || 'content';
+				const {
+					code: value,
+					tokens,
+					fileName,
+					startLine,
+				} = await (await fetch('/snippet?shot=' + shot)).json();
+				document.getElementById('filename').textContent = fileName;
+				window.installDarkPlus(monaco, tokens);
+				window.sdkEditor = monaco.editor.create(
+					document.getElementById('editor'),
+					{
+						model: monaco.editor.createModel(
+							value,
+							'remotion-dark-plus',
+							monaco.Uri.parse('file:///' + fileName),
+						),
+						wordWrap: 'off',
+						wrappingIndent: 'indent',
+						tabSize: 2,
+						readOnly: true,
+						theme: 'remotion-dark-plus',
+						automaticLayout: true,
+						minimap: {enabled: false},
+						fontFamily: 'Menlo, Monaco, Consolas, monospace',
+						fontSize: 19,
+						lineHeight: 29,
+						fontLigatures: false,
+						lineNumbers: (line) => String(line + startLine - 1),
+						lineNumbersMinChars: 3,
+						lineDecorationsWidth: 16,
+						glyphMargin: false,
+						folding: false,
+						renderLineHighlight: 'none',
+						renderWhitespace: 'none',
+						guides: {indentation: false, bracketPairs: false},
+						bracketPairColorization: {enabled: false},
+						matchBrackets: 'never',
+						occurrencesHighlight: 'off',
+						selectionHighlight: false,
+						scrollBeyondLastLine: false,
+						scrollbar: {vertical: 'hidden', horizontal: 'hidden'},
+						padding: {top: 30, bottom: 100},
+						contextmenu: false,
+						quickSuggestions: false,
+						hover: {enabled: false},
+						ariaLabel: 'Project code in Monaco',
+					},
+				);
+				await monaco.editor.colorize(value, 'remotion-dark-plus', {});
+				await document.fonts.ready;
+				requestAnimationFrame(() =>
+					requestAnimationFrame(() => {
+						window.sdkEditorReady = true;
+						document.body.dataset.captureReady = 'true';
+					}),
+				);
+			});
+		</script>
+	</body>
+</html>

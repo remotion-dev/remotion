@@ -20,11 +20,11 @@ It uses the same color, gap, angle and alpha masking controls as [`lines()`](/do
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {checkerboard} from '@remotion/effects/checkerboard';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -38,8 +38,8 @@ export const MyComp: React.FC = () => {
             cellSize: 80,
             gap: 0,
             angle: 15,
-            offsetX: frame * 2,
-            offsetY: frame,
+            offsetX: interpolate(frame, [0, 60], [0, 120]),
+            offsetY: interpolate(frame, [0, 60], [0, 60]),
           }),
         ]}
       />

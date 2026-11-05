@@ -20,17 +20,13 @@ Use it for stickers, badges, titles, and surfaces that should look reflective.
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {shine} from '@remotion/effects/shine';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [15, 45], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <>
@@ -38,7 +34,10 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           shine({
-            progress,
+            progress: interpolate(frame, [15, 45], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            }),
             angle: 30,
             haloSigma: 200,
             coreSigma: 65,

@@ -71,6 +71,7 @@ if api_key != nil
 end
 
 payload = {
+    streamProgress: false,
     audioBitrate: audio_bitrate,
     audioCodec: audio_codec,
     storageClass: storage_class,

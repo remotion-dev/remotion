@@ -1099,6 +1099,15 @@ export const articles = [
 		slug: 'options/height',
 	},
 	{
+		id: 'options/high-contrast',
+		title: 'High contrast in Remotion Studio',
+		relativePath: 'docs/options/high-contrast.mdx',
+		compId: 'articles-docs-options-high-contrast',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/high-contrast',
+	},
+	{
 		id: 'options/ignore-certificate-errors',
 		title: 'Ignore certificate errors',
 		relativePath: 'docs/options/ignore-certificate-errors.mdx',
@@ -5572,6 +5581,15 @@ export const articles = [
 		slug: 'lambda/renderframesonlambda',
 	},
 	{
+		id: 'renderframesonlambdaandstream',
+		title: 'renderFramesOnLambdaAndStream()',
+		relativePath: 'docs/lambda/renderframesonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-renderframesonlambdaandstream',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/renderframesonlambdaandstream',
+	},
+	{
 		id: 'rendermediaonlambda',
 		title: 'renderMediaOnLambda()',
 		relativePath: 'docs/lambda/rendermediaonlambda.mdx',
@@ -5579,6 +5597,15 @@ export const articles = [
 		crumb: 'Lambda API',
 		noAi: false,
 		slug: 'lambda/rendermediaonlambda',
+	},
+	{
+		id: 'rendermediaonlambdaandstream',
+		title: 'renderMediaOnLambdaAndStream()',
+		relativePath: 'docs/lambda/rendermediaonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-rendermediaonlambdaandstream',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/rendermediaonlambdaandstream',
 	},
 	{
 		id: 'renderstillonlambda',

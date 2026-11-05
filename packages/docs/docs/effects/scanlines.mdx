@@ -20,12 +20,12 @@ The effect is additive and preserves the source alpha mask. Transparent regions 
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {scanlines} from '@remotion/effects/scanlines';
 import {Video} from '@remotion/media';
-import {useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -37,7 +37,7 @@ export const MyComp: React.FC = () => {
             amount: 0.25,
             spacing: 4,
             thickness: 1,
-            offset: frame * 0.5,
+            offset: interpolate(frame, [0, 60], [0, 30]),
           }),
         ]}
       />

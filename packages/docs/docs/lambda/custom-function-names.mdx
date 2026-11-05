@@ -28,7 +28,7 @@ import {deployFunction} from '@remotion/lambda';
 
 const {functionName} = await deployFunction({
   region: 'us-east-1',
-  functionName: 'acme-render-production-4-0-540',
+  functionName: 'acme-render-production-4-0-542',
   memorySizeInMb: 2048,
   diskSizeInMb: 2048,
   timeoutInSeconds: 120,
@@ -41,7 +41,7 @@ console.log(functionName);
 Or pass [`--function-name`](/docs/lambda/cli/functions/deploy#--function-name) to the CLI:
 
 ```bash title="Terminal"
-npx remotion lambda functions deploy --region=us-east-1 --function-name=acme-render-production-4-0-540
+npx remotion lambda functions deploy --region=us-east-1 --function-name=acme-render-production-4-0-542
 ```
 
 Names must contain 1–64 letters, digits, hyphens or underscores.
@@ -56,48 +56,30 @@ Including the Remotion [version](/docs/version) in your custom name lets you dep
 
 [`getFunctions()`](/docs/lambda/getfunctions) and [`remotion lambda functions ls`](/docs/lambda/cli/functions/ls) only discover names starting with `remotion-render-`.
 
-When invoking, pass your function name directly to rendering and progress APIs instead of selecting it from `getFunctions()`:
+Pass your function name directly to [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream) to stream progress and wait for the render to finish:
 
 ```ts twoslash title="render.ts"
 import {downloadMedia} from '@remotion/lambda';
-import {getRenderProgress, renderMediaOnLambda} from '@remotion/lambda/client';
+import {renderMediaOnLambdaAndStream} from '@remotion/lambda/client';
 
-const functionName = 'acme-render-production-4-0-540';
+const functionName = 'acme-render-production-4-0-542';
 
-const {renderId, bucketName} = await renderMediaOnLambda({
+const result = await renderMediaOnLambdaAndStream({
   region: 'us-east-1',
   functionName,
   serveUrl: 'https://example.com/my-remotion-site',
   composition: 'MyComposition',
   codec: 'h264',
   privacy: 'private',
+  onProgress: ({overallProgress}) => {
+    console.log(overallProgress);
+  },
 });
-
-while (true) {
-  const progress = await getRenderProgress({
-    region: 'us-east-1',
-    functionName,
-    renderId,
-    bucketName,
-    skipLambdaInvocation: true,
-  });
-
-  if (progress.fatalErrorEncountered) {
-    throw new Error(JSON.stringify(progress.errors));
-  }
-
-  if (progress.done) {
-    break;
-  }
-
-  console.log(progress.overallProgress);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-}
 
 const {outputPath} = await downloadMedia({
   region: 'us-east-1',
-  renderId,
-  bucketName,
+  renderId: result.renderId,
+  bucketName: result.bucket,
   outPath: 'out.mp4',
 });
 
@@ -107,7 +89,7 @@ console.log(outputPath);
 For CLI renders, use [`--function-name`](/docs/lambda/cli/render#--function-name) to pass the name explicitly:
 
 ```bash title="Terminal"
-npx remotion lambda render https://example.com/my-remotion-site MyComposition --region=us-east-1 --function-name=acme-render-production-4-0-540
+npx remotion lambda render https://example.com/my-remotion-site MyComposition --region=us-east-1 --function-name=acme-render-production-4-0-542
 ```
 
 ## Use a separate renderer function
@@ -119,7 +101,7 @@ import {deployFunction} from '@remotion/lambda';
 
 const {functionName: rendererFunctionName} = await deployFunction({
   region: 'us-east-1',
-  functionName: 'acme-render-worker-4-0-540',
+  functionName: 'acme-render-worker-4-0-542',
   memorySizeInMb: 1536,
   diskSizeInMb: 2048,
   timeoutInSeconds: 120,
@@ -129,20 +111,25 @@ const {functionName: rendererFunctionName} = await deployFunction({
 console.log(rendererFunctionName);
 ```
 
-Pass this name as [`rendererFunctionName`](/docs/lambda/rendermediaonlambda#rendererfunctionname) when starting the render. Continue passing the main function's name to `getRenderProgress()`:
+Pass this name as [`rendererFunctionName`](/docs/lambda/rendermediaonlambda#rendererfunctionname), and keep the main function's name in `functionName`:
 
 ```ts twoslash title="render-with-workers.ts"
-import {renderMediaOnLambda} from '@remotion/lambda/client';
+import {renderMediaOnLambdaAndStream} from '@remotion/lambda/client';
 
-const {renderId, bucketName} = await renderMediaOnLambda({
+const result = await renderMediaOnLambdaAndStream({
   region: 'us-east-1',
-  functionName: 'acme-render-production-4-0-540',
-  rendererFunctionName: 'acme-render-worker-4-0-540',
+  functionName: 'acme-render-production-4-0-542',
+  rendererFunctionName: 'acme-render-worker-4-0-542',
   serveUrl: 'https://example.com/my-remotion-site',
   composition: 'MyComposition',
   codec: 'h264',
   privacy: 'private',
+  onProgress: ({overallProgress}) => {
+    console.log(overallProgress);
+  },
 });
+
+console.log(result.outputFile);
 ```
 
 ## See also
