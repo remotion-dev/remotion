@@ -1,4 +1,4 @@
-import {generateOpenTimelineComposition} from '@remotion/codemods';
+import type * as Codemods from '@remotion/codemods';
 import {CanvasInternals} from '@remotion/sdk';
 import type {
 	PrepareOpenTimelineImportRequest,
@@ -58,6 +58,8 @@ import {RemotionInput} from './RemInput';
 import {ValidationMessage} from './ValidationMessage';
 
 const {sortItemsByCommitOrder} = CanvasInternals;
+
+type ClientTimelineGenerator = typeof Codemods.generateOpenTimelineComposition;
 
 const content: React.CSSProperties = {
 	padding: 12,
@@ -554,9 +556,41 @@ const NewCompositionLoaded: React.FC<{
 	}));
 	const frameRate = importedFrameRate ?? values.fps;
 	const inputRef = useRef<HTMLInputElement>(null);
+	const [generateClientTimeline, setGenerateClientTimeline] =
+		useState<ClientTimelineGenerator | null>(null);
+	const [clientImportError, setClientImportError] = useState<string | null>(
+		null,
+	);
+	const shouldLoadClientTimeline = isBrowserStudio && openTimeline !== null;
+	useEffect(() => {
+		if (!shouldLoadClientTimeline) return;
+		let active = true;
+		setClientImportError(null);
+		import('@remotion/codemods')
+			.then(({generateOpenTimelineComposition}) => {
+				if (active) {
+					setGenerateClientTimeline(() => generateOpenTimelineComposition);
+				}
+			})
+			.catch((error: unknown) => {
+				if (active) {
+					setClientImportError(
+						error instanceof Error ? error.message : String(error),
+					);
+				}
+			});
+		return () => {
+			active = false;
+		};
+	}, [shouldLoadClientTimeline]);
 	const clientTimelineResult = useMemo(() => {
-		if (openTimeline === null || !isBrowserStudio) return null;
-		return generateOpenTimelineComposition({
+		if (
+			openTimeline === null ||
+			!isBrowserStudio ||
+			generateClientTimeline === null
+		)
+			return null;
+		return generateClientTimeline({
 			timeline: openTimeline.contents,
 			componentName: getNewCompositionNaming(values.id, compositions)
 				.componentName,
@@ -566,6 +600,7 @@ const NewCompositionLoaded: React.FC<{
 		});
 	}, [
 		compositions,
+		generateClientTimeline,
 		isBrowserStudio,
 		openTimeline,
 		frameRate,
@@ -798,6 +833,21 @@ const NewCompositionLoaded: React.FC<{
 								) : null}
 							</div>
 						</>
+					) : null}
+					{shouldLoadClientTimeline && generateClientTimeline === null ? (
+						<div style={importDetailsStyle}>
+							{clientImportError === null ? (
+								<p style={{fontSize: 13, color: LIGHT_TEXT}}>
+									Loading timeline importer...
+								</p>
+							) : (
+								<ValidationMessage
+									align="flex-start"
+									type="error"
+									message={clientImportError}
+								/>
+							)}
+						</div>
 					) : null}
 					{timelineResult !== null ? (
 						<div style={importDetailsStyle}>

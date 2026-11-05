@@ -40,9 +40,10 @@ export const getOpenTimelineFrameRate = (contents: string): number | null => {
 			const reference =
 				value.OTIO_SCHEMA === 'Clip.2' &&
 				isRecord(value.media_references) &&
-				typeof (value.active_media_reference_key ?? 'OTIO_REF') === 'string'
+				typeof (value.active_media_reference_key ?? 'DEFAULT_MEDIA') ===
+					'string'
 					? value.media_references[
-							(value.active_media_reference_key ?? 'OTIO_REF') as string
+							(value.active_media_reference_key ?? 'DEFAULT_MEDIA') as string
 						]
 					: value.media_reference;
 			range = isRecord(reference) ? reference.available_range : null;

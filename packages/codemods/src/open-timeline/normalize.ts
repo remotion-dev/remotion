@@ -433,7 +433,7 @@ export const normalizeOpenTimeline = (
 			let reference: unknown;
 			let referencePath = `${path}.media_reference`;
 			if (schema === 'Clip.2') {
-				const key = value.active_media_reference_key ?? 'OTIO_REF';
+				const key = value.active_media_reference_key ?? 'DEFAULT_MEDIA';
 				if (
 					!isRecord(value.media_references) ||
 					typeof key !== 'string' ||

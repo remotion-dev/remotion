@@ -455,6 +455,24 @@ test('Clip.2 selects its active media reference and derives absent source_range'
 		value: 'https://example.com/proxy.mp4',
 	});
 	expect(prop(video, 'trimBefore')).toBeUndefined();
+	const defaultReferenceResult = generate(
+		timeline([
+			track([
+				{
+					OTIO_SCHEMA: 'Clip.2',
+					name: 'Selected',
+					media_references: {
+						DEFAULT_MEDIA: {
+							OTIO_SCHEMA: 'ExternalReference.1',
+							target_url: 'https://example.com/proxy.mp4',
+							available_range: range(240, 48),
+						},
+					},
+				},
+			]),
+		]),
+	);
+	expect(defaultReferenceResult).toEqual(result);
 });
 
 test('positive linear retiming preserves the OTIO edit duration', () => {
