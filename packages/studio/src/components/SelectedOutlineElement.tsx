@@ -15,6 +15,7 @@ import {
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
 import {getFieldsToShow} from '../helpers/timeline-layout';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
@@ -137,6 +138,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const selectEffects = useSelectEffects();
+	const rotateShortcut = useKeyboardShortcutLabel('selectRotateProp');
+	const effectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
@@ -472,7 +475,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							{
 								type: 'item' as const,
 								id: 'rotate',
-								keyHint: null,
+								keyHint: rotateShortcut,
 								label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
 								leftItem: null,
 								disabled: !canRotate,
@@ -508,7 +511,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 										{
 											type: 'item' as const,
 											id: 'add-effect',
-											keyHint: null,
+											keyHint: effectsShortcut,
 											label: 'Add effect',
 											leftItem: null,
 											disabled: !canAddEffect,
@@ -542,6 +545,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		deleteTimelineItems,
 		editorInfo,
 		getTarget,
+		effectsShortcut,
 		selectEffects,
 		onSelect,
 		defaultEditorId,
@@ -549,6 +553,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		previewServerState,
 		pendingEffectDeletion,
 		resolveOriginalLocation,
+		rotateShortcut,
 		setManuallyEnabled,
 		selectAsset,
 		setSelectedModal,
