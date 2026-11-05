@@ -48,6 +48,10 @@ export const getCreateVideoHelp = () => {
 			description: 'Create the project in a temporary directory.',
 		}),
 		formatOption({
+			flag: '--skills',
+			description: 'Install all Remotion agent skills without prompting.',
+		}),
+		formatOption({
 			flag: '--help, -h',
 			description: 'Show this help.',
 		}),
