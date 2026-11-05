@@ -15,7 +15,7 @@ import {renderMediaOnLambdaAndStream} from '@remotion/lambda-client';
 
 const result = await renderMediaOnLambdaAndStream({
   region: 'eu-central-1',
-  functionName: 'remotion-render-4-0-540-mem2048mb-disk2048mb-120sec',
+  functionName: 'remotion-render-4-0-542-mem2048mb-disk2048mb-120sec',
   serveUrl: 'https://example.com/remotion/index.html',
   composition: 'MyComposition',
   codec: 'h264',
@@ -32,7 +32,7 @@ console.log(result.outputFile);
 
 Also exported from `@remotion/lambda`.
 To start a render without waiting, use [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda).
-For image sequences, use [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda).
+For image sequences, use [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream).
 
 ## Arguments
 
@@ -91,7 +91,7 @@ Progress continues to be saved in S3 during rendering, so [`getRenderProgress()`
 
 Closing the client or stopping observation leaves the render running. To cancel it, start with `enableCancellation: true` and call [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda).
 
-The [Lambda render CLI](/docs/lambda/cli/render) uses this lifecycle for media renders. Ctrl+C stops waiting by default. With `--enable-cancellation`, Ctrl+C explicitly cancels the render.
+The [Lambda render CLI](/docs/lambda/cli/render) uses this lifecycle for media and image sequence renders. Ctrl+C stops waiting by default. With `--enable-cancellation`, Ctrl+C explicitly cancels the render.
 
 ## Compatibility
 
@@ -100,5 +100,6 @@ The [Lambda render CLI](/docs/lambda/cli/render) uses this lifecycle for media r
 ## See also
 
 - [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda)
+- [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream)
 - [`getRenderProgress()`](/docs/lambda/getrenderprogress)
 - [`cancelRenderOnLambda()`](/docs/lambda/cancelrenderonlambda)

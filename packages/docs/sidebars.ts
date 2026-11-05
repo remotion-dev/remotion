@@ -480,6 +480,7 @@ const sidebars: SidebarsConfig = {
 				'lambda/getrenderprogress',
 				'lambda/presignurl',
 				'lambda/renderframesonlambda',
+				'lambda/renderframesonlambdaandstream',
 				'lambda/rendermediaonlambda',
 				'lambda/rendermediaonlambdaandstream',
 				'lambda/cancelrenderonlambda',

@@ -185,7 +185,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 	options: Omit<RenderMediaOnLambdaInput, 'codec'> & {
 		codec: ServerlessCodec | null;
 	},
-): InnerRenderMediaOnLambdaInput => {
+): InnerRenderMediaOnLambdaInput & {output: {type: 'media'}} => {
 	return {
 		enableCancellation: options.enableCancellation ?? false,
 		offthreadVideoThreads: options.offthreadVideoThreads ?? null,

@@ -3,8 +3,8 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {
 	LambdaClientInternals,
-	getRenderProgress,
 	RenderMediaOnLambdaAndStreamError,
+	RenderFramesOnLambdaAndStreamError,
 	type RenderMediaOnLambdaOutput,
 	type RenderProgress,
 	type EnhancedErrorInfo,
@@ -24,7 +24,6 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
-import {sleep} from '../../../shared/sleep';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -658,221 +657,204 @@ export const renderCommand = async ({
 			);
 		}
 	};
-	let finalStatus: RenderProgress | null = null;
-	if (shouldOutputImageSequence) {
-		onInit(
-			await LambdaClientInternals.internalRenderMediaOnLambdaRaw(renderInput),
+	let newStatus: RenderProgress;
+	try {
+		newStatus = await LambdaClientInternals.internalRenderOnLambdaAndStream(
+			renderInput,
+			{
+				onInit,
+				onProgress: (overall) => {
+					progressBar.update(
+						makeProgressString({downloadInfo: null, overall}),
+						false,
+					);
+				},
+			},
 		);
-	} else {
-		try {
-			finalStatus =
-				await LambdaClientInternals.internalRenderMediaOnLambdaAndStream(
-					renderInput,
-					{
-						onInit,
-						onProgress: (overall) => {
-							progressBar.update(
-								makeProgressString({downloadInfo: null, overall}),
-								false,
-							);
-						},
-					},
-				);
-		} catch (err) {
-			if (
-				!(err instanceof RenderMediaOnLambdaAndStreamError) ||
-				!err.progress?.fatalErrorEncountered
-			)
-				throw err;
-			finalStatus = err.progress;
-		} finally {
-			unregisterCtrlCHandler();
+	} catch (err) {
+		if (
+			!(
+				err instanceof RenderMediaOnLambdaAndStreamError ||
+				err instanceof RenderFramesOnLambdaAndStreamError
+			) ||
+			!err.progress?.fatalErrorEncountered
+		) {
+			throw err;
 		}
+		newStatus = err.progress;
+	} finally {
+		unregisterCtrlCHandler();
 	}
 	const res = identity.value;
 	if (!res) throw new Error('No Lambda render identity received');
 
-	// eslint-disable-next-line no-constant-condition
-	while (true) {
-		if (!finalStatus) await sleep(500);
-		const newStatus =
-			finalStatus ??
-			(await getRenderProgress({
-				functionName,
+	progressBar.update(
+		makeProgressString({
+			downloadInfo: null,
+			overall: newStatus,
+		}),
+		false,
+	);
+
+	if (newStatus.done) {
+		unregisterCtrlCHandler();
+		let downloadOrNothing;
+
+		if (downloadName) {
+			const downloadStart = Date.now();
+			const download = await internalDownloadMedia({
+				output: 'main',
 				bucketName: res.bucketName,
-				renderId: res.renderId,
+				outPath: downloadName,
 				region: getAwsRegion(),
+				renderId: res.renderId,
 				logLevel,
-				s3OutputProvider: s3OutputProvider ?? undefined,
-			}));
-		progressBar.update(
-			makeProgressString({
-				downloadInfo: null,
-				overall: newStatus,
-			}),
-			false,
-		);
-
-		if (newStatus.done) {
-			unregisterCtrlCHandler();
-			let downloadOrNothing;
-
-			if (downloadName) {
-				const downloadStart = Date.now();
-				const download = await internalDownloadMedia({
-					output: 'main',
-					bucketName: res.bucketName,
-					outPath: downloadName,
-					region: getAwsRegion(),
-					renderId: res.renderId,
-					logLevel,
-					onProgress: ({downloaded, totalSize}) => {
-						progressBar.update(
-							makeProgressString({
-								downloadInfo: {
-									doneIn: null,
-									downloaded,
-									totalSize,
-								},
-								overall: newStatus,
-							}),
-							false,
-						);
-					},
-					forcePathStyle: parsedLambdaCli['force-path-style'],
-					signal: new AbortController().signal,
-					customCredentials: s3OutputProvider,
-					requestHandler: null,
-				});
-				downloadOrNothing = download;
-				progressBar.update(
-					makeProgressString({
-						downloadInfo: {
-							doneIn: Date.now() - downloadStart,
-							downloaded: download.sizeInBytes,
-							totalSize: download.sizeInBytes,
-						},
-						overall: newStatus,
-					}),
-					false,
-				);
-			}
-
-			const outputUrl = newStatus.outputSequence
-				? `${LambdaClientInternals.getS3BucketUrl({
-						region: getAwsRegion(),
-						bucketName: newStatus.outputSequence.bucketName,
-					})}&prefix=${encodeURIComponent(newStatus.outputSequence.keyPrefix)}`
-				: (newStatus.outputFile as string);
-
-			Log.info({indent: false, logLevel});
-			const separateAudio = newStatus.separateAudio ?? null;
-			for (const output of [
-				...(separateAudio === null ? [] : [separateAudio]),
-				{
-					url: outputUrl,
-					key:
-						newStatus.outputSequence?.keyPrefix ?? (newStatus.outKey as string),
-					sizeInBytes: newStatus.outputSizeInBytes as number,
-				},
-			]) {
-				Log.info(
-					{indent: false, logLevel},
-					CliInternals.chalk.blue(
-						`${(separateAudio === null ? '+ S3' : '+').padEnd(CliInternals.LABEL_WIDTH)} ${CliInternals.makeHyperlink({fallback: output.url, text: output.key, url: output.url})}`,
-					),
-					CliInternals.chalk.gray(CliInternals.formatBytes(output.sizeInBytes)),
-				);
-			}
-
-			if (downloadOrNothing) {
-				const relativeOutputPath = path.relative(
-					process.cwd(),
-					downloadOrNothing.outputPath,
-				);
-				Log.info(
-					{indent: false, logLevel},
-					CliInternals.chalk.blue('↓'.padEnd(CliInternals.LABEL_WIDTH)),
-					CliInternals.chalk.blue(
-						CliInternals.makeHyperlink({
-							url: `file://${downloadOrNothing.outputPath}`,
-							text: relativeOutputPath,
-							fallback: downloadOrNothing.outputPath,
+				onProgress: ({downloaded, totalSize}) => {
+					progressBar.update(
+						makeProgressString({
+							downloadInfo: {
+								doneIn: null,
+								downloaded,
+								totalSize,
+							},
+							overall: newStatus,
 						}),
-					),
-					CliInternals.chalk.gray(
-						CliInternals.formatBytes(downloadOrNothing.sizeInBytes),
-					),
-				);
-			}
+						false,
+					);
+				},
+				forcePathStyle: parsedLambdaCli['force-path-style'],
+				signal: new AbortController().signal,
+				customCredentials: s3OutputProvider,
+				requestHandler: null,
+			});
+			downloadOrNothing = download;
+			progressBar.update(
+				makeProgressString({
+					downloadInfo: {
+						doneIn: Date.now() - downloadStart,
+						downloaded: download.sizeInBytes,
+						totalSize: download.sizeInBytes,
+					},
+					overall: newStatus,
+				}),
+				false,
+			);
+		}
 
-			Log.info({indent: false, logLevel});
+		const outputUrl = newStatus.outputSequence
+			? `${LambdaClientInternals.getS3BucketUrl({
+					region: getAwsRegion(),
+					bucketName: newStatus.outputSequence.bucketName,
+				})}&prefix=${encodeURIComponent(newStatus.outputSequence.keyPrefix)}`
+			: (newStatus.outputFile as string);
+
+		Log.info({indent: false, logLevel});
+		const separateAudio = newStatus.separateAudio ?? null;
+		for (const output of [
+			...(separateAudio === null ? [] : [separateAudio]),
+			{
+				url: outputUrl,
+				key:
+					newStatus.outputSequence?.keyPrefix ?? (newStatus.outKey as string),
+				sizeInBytes: newStatus.outputSizeInBytes as number,
+			},
+		]) {
 			Log.info(
 				{indent: false, logLevel},
-				[
-					newStatus.renderMetadata
-						? `${newStatus.renderMetadata.estimatedTotalLambdaInvokations} λ's used`
-						: null,
-					newStatus.timeToFinish
-						? `${(newStatus.timeToFinish / 1000).toFixed(2)}sec`
-						: null,
-					`Estimated cost ${newStatus.costs.displayCost}`,
-				]
-					.filter(Boolean)
+				CliInternals.chalk.blue(
+					`${(separateAudio === null ? '+ S3' : '+').padEnd(CliInternals.LABEL_WIDTH)} ${CliInternals.makeHyperlink({fallback: output.url, text: output.key, url: output.url})}`,
+				),
+				CliInternals.chalk.gray(CliInternals.formatBytes(output.sizeInBytes)),
+			);
+		}
+
+		if (downloadOrNothing) {
+			const relativeOutputPath = path.relative(
+				process.cwd(),
+				downloadOrNothing.outputPath,
+			);
+			Log.info(
+				{indent: false, logLevel},
+				CliInternals.chalk.blue('↓'.padEnd(CliInternals.LABEL_WIDTH)),
+				CliInternals.chalk.blue(
+					CliInternals.makeHyperlink({
+						url: `file://${downloadOrNothing.outputPath}`,
+						text: relativeOutputPath,
+						fallback: downloadOrNothing.outputPath,
+					}),
+				),
+				CliInternals.chalk.gray(
+					CliInternals.formatBytes(downloadOrNothing.sizeInBytes),
+				),
+			);
+		}
+
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			[
+				newStatus.renderMetadata
+					? `${newStatus.renderMetadata.estimatedTotalLambdaInvokations} λ's used`
+					: null,
+				newStatus.timeToFinish
+					? `${(newStatus.timeToFinish / 1000).toFixed(2)}sec`
+					: null,
+				`Estimated cost ${newStatus.costs.displayCost}`,
+			]
+				.filter(Boolean)
+				.join(', '),
+		);
+		if (newStatus.mostExpensiveFrameRanges) {
+			Log.verbose({indent: false, logLevel}, 'Most expensive frame ranges:');
+			Log.verbose(
+				{indent: false, logLevel},
+				newStatus.mostExpensiveFrameRanges
+					.map((f) => {
+						return `${f.frameRange[0]}-${f.frameRange[1]} (Chunk ${f.chunk}, ${f.timeInMilliseconds}ms)`;
+					})
 					.join(', '),
 			);
-			if (newStatus.mostExpensiveFrameRanges) {
-				Log.verbose({indent: false, logLevel}, 'Most expensive frame ranges:');
-				Log.verbose(
-					{indent: false, logLevel},
-					newStatus.mostExpensiveFrameRanges
-						.map((f) => {
-							return `${f.frameRange[0]}-${f.frameRange[1]} (Chunk ${f.chunk}, ${f.timeInMilliseconds}ms)`;
-						})
-						.join(', '),
-				);
-			}
-
-			quit(0);
 		}
 
-		if (newStatus.fatalErrorEncountered) {
-			unregisterCtrlCHandler();
-			Log.error({indent: false, logLevel}, '\n');
-			const uniqueErrors: EnhancedErrorInfo[] = [];
-			for (const err of newStatus.errors) {
-				if (uniqueErrors.find((e) => e.stack === err.stack)) {
-					continue;
-				}
+		quit(0);
+	}
 
-				uniqueErrors.push(err);
-				if (err.explanation) {
-					Log.error({indent: false, logLevel}, err.explanation);
-				}
-
-				const frames = RenderInternals.parseStack(err.stack.split('\n'));
-
-				const errorWithStackFrame = new RenderInternals.SymbolicateableError({
-					message: err.message,
-					frame: err.frame,
-					name: err.name,
-					stack: err.stack,
-					stackFrame: frames,
-					chunk: err.chunk,
-				});
-				await CliInternals.printError(errorWithStackFrame, logLevel);
+	if (newStatus.fatalErrorEncountered) {
+		unregisterCtrlCHandler();
+		Log.error({indent: false, logLevel}, '\n');
+		const uniqueErrors: EnhancedErrorInfo[] = [];
+		for (const err of newStatus.errors) {
+			if (uniqueErrors.find((e) => e.stack === err.stack)) {
+				continue;
 			}
 
-			Log.info({indent: false, logLevel});
-			Log.info(
-				{indent: false, logLevel},
-				`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`,
-			);
-			Log.info(
-				{indent: false, logLevel},
-				'This is an estimate and continuing Lambda functions may incur additional costs.',
-			);
-			quit(1);
+			uniqueErrors.push(err);
+			if (err.explanation) {
+				Log.error({indent: false, logLevel}, err.explanation);
+			}
+
+			const frames = RenderInternals.parseStack(err.stack.split('\n'));
+
+			const errorWithStackFrame = new RenderInternals.SymbolicateableError({
+				message: err.message,
+				frame: err.frame,
+				name: err.name,
+				stack: err.stack,
+				stackFrame: frames,
+				chunk: err.chunk,
+			});
+			await CliInternals.printError(errorWithStackFrame, logLevel);
 		}
+
+		Log.info({indent: false, logLevel});
+		Log.info(
+			{indent: false, logLevel},
+			`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`,
+		);
+		Log.info(
+			{indent: false, logLevel},
+			'This is an estimate and continuing Lambda functions may incur additional costs.',
+		);
+		quit(1);
 	}
 };

@@ -212,3 +212,10 @@ export {
 	type RenderMediaOnLambdaAndStreamInput,
 	type RenderMediaOnLambdaAndStreamOutput,
 } from '@remotion/lambda-client';
+
+export {
+	renderFramesOnLambdaAndStream,
+	RenderFramesOnLambdaAndStreamError,
+	type RenderFramesOnLambdaAndStreamInput,
+	type RenderFramesOnLambdaAndStreamOutput,
+} from '@remotion/lambda-client';

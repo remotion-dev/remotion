@@ -5572,6 +5572,15 @@ export const articles = [
 		slug: 'lambda/renderframesonlambda',
 	},
 	{
+		id: 'renderframesonlambdaandstream',
+		title: 'renderFramesOnLambdaAndStream()',
+		relativePath: 'docs/lambda/renderframesonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-renderframesonlambdaandstream',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/renderframesonlambdaandstream',
+	},
+	{
 		id: 'rendermediaonlambda',
 		title: 'renderMediaOnLambda()',
 		relativePath: 'docs/lambda/rendermediaonlambda.mdx',
