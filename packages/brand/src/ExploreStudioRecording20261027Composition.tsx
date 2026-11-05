@@ -24,7 +24,6 @@ export const ExploreStudioRecording20261027Composition = () => {
 		>
 			<Video
 				src="https://remotion.media/explore-remotion/studio-source-2026-10-27-30dd4bd589df.mp4"
-				effects={[removeStudioLogoFocusRing({})]}
 				durationInFrames={(417 / 60) * fps}
 				muted
 				effects={[removeStudioLogoFocusRing({})]}
