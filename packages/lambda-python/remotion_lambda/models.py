@@ -420,6 +420,7 @@ class RenderMediaParams:
         Convert instance attributes to a dictionary for serialization.
         """
         parameters = {
+            'streamProgress': False,
             'enableCancellation': self.enable_cancellation,
             'rendererFunctionName': self.renderer_function_name,
             'framesPerLambda': self.frames_per_lambda,

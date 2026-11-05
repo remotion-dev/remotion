@@ -17,6 +17,7 @@ const makeStartPayload = ({
 	x264Preset,
 }: Pick<ServerlessStartPayload, 'codec' | 'x264Preset'>) => {
 	return {
+		streamProgress: false,
 		type: ServerlessRoutines.start,
 		output: {type: 'media'},
 		rendererFunctionName: null,

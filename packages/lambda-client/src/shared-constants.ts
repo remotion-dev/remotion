@@ -129,8 +129,7 @@ export type ServerlessStatusPayload = {
 };
 
 export type ServerlessStartPayload = {
-	// Absent in payloads sent by older clients.
-	streamProgress?: boolean;
+	streamProgress: boolean;
 	enableCancellation: boolean | null;
 	rendererFunctionName: string | null;
 	type: ServerlessRoutines.start;
