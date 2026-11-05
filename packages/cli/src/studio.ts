@@ -64,6 +64,7 @@ const {
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
+	highContrastOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	beepOnFinishOption,
@@ -226,6 +227,7 @@ export const studioCommand = async (
 			defaultPremountInSeconds: defaultPremountInSecondsOption.getValue({
 				commandLine: parsedCli,
 			}).value,
+			highContrast: highContrastOption.getValue({commandLine: parsedCli}),
 			showPremounting: showPremountingOption.getValue({
 				commandLine: parsedCli,
 			}).value,
@@ -262,6 +264,7 @@ export const studioCommand = async (
 				commandLine: parsedCli,
 			}).value,
 			configFileStudioSettings: {
+				highContrast: highContrastOption.getConfigValue(),
 				preservePitchOnPlayback: preservePitchOnPlaybackOption.getConfigValue(),
 				showLayerFrameNumbers: showLayerFrameNumbersOption.getConfigValue(),
 				showPremounting: showPremountingOption.getConfigValue(),
@@ -304,7 +307,7 @@ export const studioCommand = async (
 		defaultEditorOption.getValue({commandLine: parsedCli}).value;
 
 	const startupConfigCode = getLoadedConfigFileCode();
-	if (configFile && startupConfigCode) {
+	if (configFile && startupConfigCode !== null) {
 		let isReloadingConfig = false;
 		let startupConfigFingerprints: ConfigFileFingerprints | null = null;
 		const sendConfigFileReloadError = (errorMessage: string) => {

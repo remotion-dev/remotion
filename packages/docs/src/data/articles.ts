@@ -1099,6 +1099,15 @@ export const articles = [
 		slug: 'options/height',
 	},
 	{
+		id: 'options/high-contrast',
+		title: 'High contrast in Remotion Studio',
+		relativePath: 'docs/options/high-contrast.mdx',
+		compId: 'articles-docs-options-high-contrast',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/high-contrast',
+	},
+	{
 		id: 'options/ignore-certificate-errors',
 		title: 'Ignore certificate errors',
 		relativePath: 'docs/options/ignore-certificate-errors.mdx',

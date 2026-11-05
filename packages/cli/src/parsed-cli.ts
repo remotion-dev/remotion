@@ -38,6 +38,7 @@ const {
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
+	highContrastOption,
 	showPremountingOption,
 	publicLicenseKeyOption,
 	licenseKeyOption,
@@ -131,6 +132,7 @@ export type CommandLineOptions = {
 	[showLayerFrameNumbersOption.cliFlag]: TypeOfOption<
 		typeof showLayerFrameNumbersOption
 	> | null;
+	[highContrastOption.cliFlag]: TypeOfOption<typeof highContrastOption> | null;
 	[showPremountingOption.cliFlag]: TypeOfOption<
 		typeof showPremountingOption
 	> | null;
@@ -270,6 +272,7 @@ export type CommandLineOptions = {
 export const BooleanFlags = [
 	preservePitchOnPlaybackOption.cliFlag,
 	showLayerFrameNumbersOption.cliFlag,
+	highContrastOption.cliFlag,
 	showPremountingOption.cliFlag,
 	allowHtmlInCanvasOption.cliFlag,
 	overwriteOption.cliFlag,
@@ -314,6 +317,7 @@ export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	default: {
 		[preservePitchOnPlaybackOption.cliFlag]: null,
 		[showLayerFrameNumbersOption.cliFlag]: null,
+		[highContrastOption.cliFlag]: null,
 		[showPremountingOption.cliFlag]: null,
 		[allowHtmlInCanvasOption.cliFlag]: null,
 		[overwriteOption.cliFlag]: null,

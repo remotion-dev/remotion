@@ -207,6 +207,18 @@ export const SettingsProvider: React.FC<{
 		});
 	}, [subscribeToEvent]);
 
+	useEffect(() => {
+		return subscribeToEvent('config-file-reload-failed', (event) => {
+			if (event.type === 'config-file-reload-failed') {
+				setSettings((current) => ({
+					...current,
+					error: event.errorMessage,
+					revision: current.revision + 1,
+				}));
+			}
+		});
+	}, [subscribeToEvent]);
+
 	const setPublicLicenseKey = useCallback((publicLicenseKey: string | null) => {
 		setSettings((currentSettings) => {
 			if (currentSettings.publicLicenseKey === publicLicenseKey) {
