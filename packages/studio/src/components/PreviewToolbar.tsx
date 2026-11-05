@@ -47,6 +47,7 @@ const container: React.CSSProperties = {
 	flexDirection: 'row',
 	background: BACKGROUND,
 	height: TOOLBAR_HEIGHT,
+	zIndex: 0,
 };
 
 const splitter: React.CSSProperties = {
