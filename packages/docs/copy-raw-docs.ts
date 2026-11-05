@@ -146,7 +146,6 @@ const getElementPageMarkdown = ({
 	sourcePath: string;
 }) => {
 	const [elementPageTag, slug, sourceFile] = elementPage;
-	// Prose around <ElementPage>, without frontmatter, imports and the title
 	const notes = expandRawMarkdownComponents({
 		raw: contents
 			.replace(/^---\n[\s\S]*?\n---\n/, '')

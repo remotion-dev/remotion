@@ -6,8 +6,6 @@ import {
 	type ElementCategory,
 } from '../components/Elements/element-library-data';
 
-// Keep in sync with packages/template-element-library/lib/markdown.ts
-
 const navigation =
 	'[All Elements](/elements/index.md) | [Caption styles](/elements/captions.md)';
 
