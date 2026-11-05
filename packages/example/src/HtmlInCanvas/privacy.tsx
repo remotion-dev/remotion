@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, HtmlInCanvas, IFrame, Img} from 'remotion';
+import {AbsoluteFill, HtmlInCanvas, IFrame} from 'remotion';
 
 // Demonstrates the "Privacy-preserving painting" rules from
 // https://github.com/WICG/html-in-canvas#privacy-preserving-painting
@@ -63,7 +63,9 @@ const SensitiveContent: React.FC = () => (
 		</Section>
 
 		<Section title="Cross-origin <img> without CORS (should paint blank)">
-			<Img
+			{/* <Img> enables CORS inside HtmlInCanvas; this demonstrates a no-CORS request. */}
+			{/* eslint-disable-next-line @remotion/warn-native-media-tag */}
+			<img
 				src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/280px-PNG_transparency_demonstration_1.png"
 				alt="cross-origin"
 				width={200}
