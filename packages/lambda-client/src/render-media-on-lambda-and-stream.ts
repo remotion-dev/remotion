@@ -21,7 +21,7 @@ export type RenderMediaOnLambdaAndStreamInput = RenderMediaOnLambdaInput & {
 };
 
 /**
- * Starts a media render and waits for completion, streaming progress when available.
+ * Starts a media render on AWS Lambda, streams progress, and waits for the render to finish.
  * Callback failures stop observation without cancelling the server-side render.
  * @see https://www.remotion.dev/docs/lambda/rendermediaonlambdaandstream
  */

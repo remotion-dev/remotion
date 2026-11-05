@@ -20,7 +20,7 @@ export type RenderFramesOnLambdaAndStreamInput = RenderFramesOnLambdaInput & {
 };
 
 /**
- * Starts an image sequence render and waits for completion, streaming progress when available.
+ * Starts an image sequence render on AWS Lambda, streams progress, and waits for the render to finish.
  * Callback failures stop observation without cancelling the server-side render.
  * @see https://www.remotion.dev/docs/lambda/renderframesonlambdaandstream
  */

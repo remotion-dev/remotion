@@ -7,7 +7,7 @@ crumb: '@remotion/lambda-client'
 
 # renderFramesOnLambdaAndStream()<AvailableFrom v="4.0.542" />
 
-Starts an image sequence render on AWS Lambda, reports progress, and waits for all images and the manifest to finish uploading.
+Starts an image sequence render on AWS Lambda, streams progress, and waits for the render to finish.
 Requires a [deployed function](/docs/lambda/deployfunction) and [site or Serve URL](/docs/lambda/deploysite) using the same Remotion version as the client.
 
 ```ts twoslash title="render-sequence.ts"
@@ -87,7 +87,7 @@ The original observation or callback error, or the remote error stack when avail
 ## Streaming and recovery
 
 Progress streams directly in standard AWS regions. In `cn-north-1` and `cn-northwest-1`, the API starts asynchronously and polls for progress.
-If a stream breaks, stalls for 30 seconds, or ends before completion, observation falls back to polling the same render. An ended stream alone does not indicate success.
+If a stream breaks, stalls for 30 seconds, or ends before the render finishes, observation falls back to polling the same render. An ended stream alone does not indicate success.
 
 Progress continues to be saved in S3 during rendering, so [`getRenderProgress()`](/docs/lambda/getrenderprogress) remains available to independent observers. This API streams progress; it does not stream image bytes. Use [`downloadMedia()`](/docs/lambda/downloadmedia) to download the output.
 
