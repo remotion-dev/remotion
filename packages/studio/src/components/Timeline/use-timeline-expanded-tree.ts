@@ -50,43 +50,23 @@ export const useTimelineSequenceHasExpandableContent = ({
 
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
 		const sourceKey = stringifySequenceExpandedRowKey(nodePath);
-		if (selectedSourceKeys.has(sourceKey)) {
+		if (sequence.effects.length > 0 || selectedSourceKeys.has(sourceKey)) {
 			return true;
 		}
 
-		if (
+		return (
 			Object.values(
 				Internals.getPropStatusesCtx(visualModePropStatuses, nodePath) ?? {},
 			).some((status) => status.status === 'keyframed') ||
 			Object.values(getDragOverrides(nodePath)).some(
 				(override) => override.type === 'keyframed',
 			)
-		) {
-			return true;
-		}
-
-		return sequence.effects.some((_, effectIndex) => {
-			const status = Internals.getEffectPropStatusesCtx({
-				propStatuses: visualModePropStatuses,
-				nodePath,
-				effectIndex,
-			});
-			return (
-				(status.type === 'can-update-effect' &&
-					Object.values(status.props).some(
-						(prop) => prop.status === 'keyframed',
-					)) ||
-				Object.values(getEffectDragOverrides(nodePath, effectIndex)).some(
-					(override) => override.type === 'keyframed',
-				)
-			);
-		});
+		);
 	}, [
 		getDragOverrides,
-		getEffectDragOverrides,
 		nodePathInfo,
 		selectedSourceKeys,
-		sequence.effects,
+		sequence.effects.length,
 		visualModePropStatuses,
 	]);
 	const selectHasExpandableContent = useCallback(
