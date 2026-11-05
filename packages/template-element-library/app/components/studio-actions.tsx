@@ -1,5 +1,6 @@
 import {
   addElementLibraryToStudio,
+  getElementPayloadScriptProps,
   installInStudio,
   setStudioDragData,
 } from "@remotion/studio-protocol";
@@ -81,6 +82,7 @@ export const StudioActions = (
 
   return (
     <div className="min-w-0">
+      {entry && <script {...getElementPayloadScriptProps(entry.payload)} />}
       {props.variant === "caption" ? (
         <CaptionStyleButton
           entry={props.entry}

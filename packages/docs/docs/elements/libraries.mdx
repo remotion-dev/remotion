@@ -146,7 +146,7 @@ const payload = createElementPayload({...});
 <InstallButton payload={payload} />
 ```
 
-The script must be in the server-rendered HTML. If your page is rendered only in the browser, [link to a JSON payload](/docs/studio-protocol/get-element-payload-script-props#pages-rendered-in-the-browser) instead.
+The script must be in the HTML that your server responds with, so the page must be server-rendered or prerendered at build time. If your page is rendered only in the browser, [link to a JSON payload](/docs/studio-protocol/get-element-payload-script-props#pages-rendered-in-the-browser) instead.
 
 ## 5. Test the integration
 

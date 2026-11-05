@@ -42,7 +42,9 @@ The rendered HTML contains a data block:
 </script>
 ```
 
-The script is not executed. Render it on the server, for example with Next.js or another framework that server-renders React. A page may contain several payloads.
+The script is not executed. A page may contain several payloads.
+
+The script must be in the HTML that your server responds with, so render it in a page that is server-rendered or prerendered at build time. In Next.js, this works in both Server and Client Components, and inside `<Suspense>`. Use a plain `<script>` tag, not `next/script`.
 
 ## Arguments
 
@@ -66,7 +68,7 @@ An invalid payload throws a `TypeError`.
 
 ## Pages rendered in the browser
 
-If your page is rendered only in the browser, the server HTML does not contain the payload. Serve the payload as a JSON file instead, for example by writing `JSON.stringify(payload)` to a file at build time, and link to it from the page's `<head>`:
+If your page is rendered only in the browser, for example a single-page app route that is not prerendered, the HTML from the server does not contain the payload. Serve the payload as a JSON file instead, for example by writing `JSON.stringify(payload)` to a file at build time, and link to it from the page's `<head>`:
 
 ```html title="index.html"
 <link
