@@ -7,6 +7,10 @@ export const fillTextBox = ({
 	maxBoxWidth: number;
 	maxLines: number;
 }) => {
+	if (!Number.isInteger(maxLines) || maxLines < 1) {
+		throw new Error(`"maxLines" must be a positive integer, got ${maxLines}`);
+	}
+
 	const lines: Word[][] = new Array(maxLines).fill(0).map(() => [] as Word[]);
 
 	return {
