@@ -154,3 +154,17 @@ export type {
 } from './write-error-to-storage';
 
 export * as LambdaClientInternals from './internals';
+
+export {
+	renderMediaOnLambdaAndStream,
+	RenderMediaOnLambdaAndStreamError,
+	type RenderMediaOnLambdaAndStreamInput,
+	type RenderMediaOnLambdaAndStreamOutput,
+} from './render-media-on-lambda-and-stream';
+
+export {
+	renderFramesOnLambdaAndStream,
+	RenderFramesOnLambdaAndStreamError,
+	type RenderFramesOnLambdaAndStreamInput,
+	type RenderFramesOnLambdaAndStreamOutput,
+} from './render-frames-on-lambda-and-stream';

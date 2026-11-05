@@ -5581,6 +5581,15 @@ export const articles = [
 		slug: 'lambda/renderframesonlambda',
 	},
 	{
+		id: 'renderframesonlambdaandstream',
+		title: 'renderFramesOnLambdaAndStream()',
+		relativePath: 'docs/lambda/renderframesonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-renderframesonlambdaandstream',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/renderframesonlambdaandstream',
+	},
+	{
 		id: 'rendermediaonlambda',
 		title: 'renderMediaOnLambda()',
 		relativePath: 'docs/lambda/rendermediaonlambda.mdx',
@@ -5588,6 +5597,15 @@ export const articles = [
 		crumb: 'Lambda API',
 		noAi: false,
 		slug: 'lambda/rendermediaonlambda',
+	},
+	{
+		id: 'rendermediaonlambdaandstream',
+		title: 'renderMediaOnLambdaAndStream()',
+		relativePath: 'docs/lambda/rendermediaonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-rendermediaonlambdaandstream',
+		crumb: '@remotion/lambda-client',
+		noAi: false,
+		slug: 'lambda/rendermediaonlambdaandstream',
 	},
 	{
 		id: 'renderstillonlambda',

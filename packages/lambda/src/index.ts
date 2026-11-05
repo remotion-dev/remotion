@@ -205,3 +205,17 @@ export type {
 
 export type {GetPolicyOptions} from './api/iam-validation/suggested-policy';
 export {_InternalOverallRenderProgress};
+
+export {
+	renderMediaOnLambdaAndStream,
+	RenderMediaOnLambdaAndStreamError,
+	type RenderMediaOnLambdaAndStreamInput,
+	type RenderMediaOnLambdaAndStreamOutput,
+} from '@remotion/lambda-client';
+
+export {
+	renderFramesOnLambdaAndStream,
+	RenderFramesOnLambdaAndStreamError,
+	type RenderFramesOnLambdaAndStreamInput,
+	type RenderFramesOnLambdaAndStreamOutput,
+} from '@remotion/lambda-client';
