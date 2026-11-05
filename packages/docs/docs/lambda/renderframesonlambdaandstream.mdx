@@ -58,7 +58,7 @@ Resolves with the final [progress object](/docs/lambda/getrenderprogress#respons
 
 `outKey` is `null` because the output contains multiple files.
 
-The promise rejects on a fatal render error, timeout, callback failure, or observation failure. A `RenderFramesOnLambdaAndStreamError` retains these diagnostic properties:
+The promise rejects if the render fails to start, or on a fatal render error, timeout, callback failure, or observation failure. A `RenderFramesOnLambdaAndStreamError` retains these diagnostic properties:
 
 ### `renderId`
 
@@ -80,14 +80,12 @@ The last observed progress object, or `null` before progress was received. Its `
 
 The original observation or callback error, or the remote error stack when available.
 
-### `startupOutcome`
-
-`'started'` when the render identity is known, `'failed'` when the function reports a startup failure, or `'indeterminate'` when the connection fails before an identity is received. An indeterminate outcome may still have started a render. The API never automatically retries that start request.
-
 ## Streaming and recovery
 
 Progress streams directly in standard AWS regions. In `cn-north-1` and `cn-northwest-1`, the API starts asynchronously and polls for progress.
 If a stream breaks, stalls for 30 seconds, or ends before the render finishes, observation falls back to polling the same render. An ended stream alone does not indicate success.
+
+If the connection closes before a render ID is received, the promise rejects. The render may still be running. The API never retries the start request automatically.
 
 Progress continues to be saved in S3 during rendering, so [`getRenderProgress()`](/docs/lambda/getrenderprogress) remains available to independent observers. This API streams progress; it does not stream image bytes. Use [`downloadMedia()`](/docs/lambda/downloadmedia) to download the output.
 

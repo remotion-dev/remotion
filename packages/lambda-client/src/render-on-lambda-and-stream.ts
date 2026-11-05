@@ -45,20 +45,17 @@ class RenderOnLambdaAndStreamError extends Error {
 	readonly render: RenderMediaOnLambdaOutput | null;
 	readonly progress: RenderProgress | null;
 	readonly cause: unknown;
-	readonly startupOutcome: 'indeterminate' | 'started' | 'failed';
 
 	constructor({
 		message,
 		render,
 		progress,
 		cause,
-		startupOutcome,
 	}: {
 		message: string;
 		render: RenderMediaOnLambdaOutput | null;
 		progress: RenderProgress | null;
 		cause: unknown;
-		startupOutcome: 'indeterminate' | 'started' | 'failed';
 	}) {
 		super(message);
 		this.render = render;
@@ -66,7 +63,6 @@ class RenderOnLambdaAndStreamError extends Error {
 		this.bucketName = render?.bucketName ?? null;
 		this.progress = progress;
 		this.cause = cause;
-		this.startupOutcome = startupOutcome;
 	}
 }
 
@@ -95,11 +91,7 @@ export const internalRenderOnLambdaAndStream = async <
 		(parseFunctionName(input.functionName)?.timeoutInSeconds ?? 900) * 1000;
 	let deadline = Date.now() + functionTimeout * 2 + 20000;
 
-	const failure = (
-		message: string,
-		cause: unknown,
-		startupOutcome: 'indeterminate' | 'started' | 'failed',
-	) => {
+	const failure = (message: string, cause: unknown) => {
 		const RenderError =
 			input.output.type === 'sequence'
 				? RenderFramesOnLambdaAndStreamError
@@ -110,13 +102,12 @@ export const internalRenderOnLambdaAndStream = async <
 			render,
 			progress,
 			cause,
-			startupOutcome,
 		});
 	};
 
 	const initialized = async (value: RenderMediaOnLambdaOutput) => {
 		if (render) {
-			throw failure('Received duplicate startup metadata', null, 'started');
+			throw failure('Received duplicate startup metadata', null);
 		}
 
 		render = value;
@@ -126,7 +117,6 @@ export const internalRenderOnLambdaAndStream = async <
 			throw failure(
 				`onInit callback failed: ${err instanceof Error ? err.message : String(err)}`,
 				err,
-				'started',
 			);
 		}
 	};
@@ -141,7 +131,6 @@ export const internalRenderOnLambdaAndStream = async <
 			throw failure(
 				`onProgress callback failed: ${err instanceof Error ? err.message : String(err)}`,
 				err,
-				'started',
 			);
 		}
 
@@ -150,7 +139,6 @@ export const internalRenderOnLambdaAndStream = async <
 				value.errors.find((e) => e.isFatal && !e.willRetry)?.message ??
 					'Lambda render failed',
 				null,
-				'started',
 			);
 		}
 
@@ -161,11 +149,7 @@ export const internalRenderOnLambdaAndStream = async <
 					? !value.outputSequence
 					: !value.outputFile || !value.outKey)
 			) {
-				throw failure(
-					'Render finished without output metadata',
-					null,
-					'started',
-				);
+				throw failure('Render finished without output metadata', null);
 			}
 
 			return value as RenderOnLambdaAndStreamOutput<Output>;
@@ -242,11 +226,7 @@ export const internalRenderOnLambdaAndStream = async <
 								await updated(message.payload.progress);
 							}
 
-							throw failure(
-								message.payload.message,
-								message.payload.stack,
-								render ? 'started' : 'failed',
-							);
+							throw failure(message.payload.message, message.payload.stack);
 						} else if (
 							message.type === 'render-progress' ||
 							message.type === 'render-complete'
@@ -278,17 +258,12 @@ export const internalRenderOnLambdaAndStream = async <
 				const statusCode = (err as {$metadata?: {httpStatusCode?: number}})
 					?.$metadata?.httpStatusCode;
 				if (statusCode && statusCode >= 400 && statusCode < 500) {
-					throw failure(
-						err instanceof Error ? err.message : String(err),
-						err,
-						'failed',
-					);
+					throw failure(err instanceof Error ? err.message : String(err), err);
 				}
 
 				throw failure(
-					`Lambda startup outcome is indeterminate; no render identity was received. The render may still be running. Start was not retried. ${err instanceof Error ? err.message : String(err)}`,
+					`The connection failed before a render ID was received. The render may still be running. The start request was not retried. ${err instanceof Error ? err.message : String(err)}`,
 					err,
-					'indeterminate',
 				);
 			}
 			// Once identity is known, every transport failure recovers the same render.
@@ -318,9 +293,8 @@ export const internalRenderOnLambdaAndStream = async <
 
 	if (!render) {
 		throw failure(
-			'Lambda startup outcome is indeterminate; the stream ended before render identity was received. Start was not retried.',
+			'The connection closed before a render ID was received. The render may still be running. The start request was not retried.',
 			null,
-			'indeterminate',
 		);
 	}
 
@@ -334,7 +308,6 @@ export const internalRenderOnLambdaAndStream = async <
 			throw failure(
 				'Timed out waiting for the Lambda render. Observation has stopped; the render was not cancelled.',
 				null,
-				'started',
 			);
 		}
 
@@ -357,7 +330,6 @@ export const internalRenderOnLambdaAndStream = async <
 			throw failure(
 				`Could not observe Lambda render: ${err instanceof Error ? err.message : String(err)}`,
 				err,
-				'started',
 			);
 		}
 
