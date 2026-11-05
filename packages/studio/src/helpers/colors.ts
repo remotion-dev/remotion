@@ -58,6 +58,7 @@ export const BLUE_DISABLED = 'var(--remotion-studio-blue-disabled)';
 export const UNSELECTED_GUIDE = 'var(--remotion-studio-unselected-guide)';
 export const SELECTED_GUIDE = 'var(--remotion-studio-selected-guide)';
 export const LINE_COLOR = 'var(--remotion-studio-line-color)';
+export const SPLITTER_COLOR = 'var(--remotion-studio-splitter-color)';
 export const TIMELINE_TRACK_SEPARATOR =
 	'var(--remotion-studio-timeline-track-separator)';
 

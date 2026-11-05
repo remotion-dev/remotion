@@ -48,6 +48,7 @@ export const studioCssVariables = `
   --remotion-studio-unselected-guide: #7e1219;
   --remotion-studio-selected-guide: #d22d3a;
   --remotion-studio-line-color: #363A3E;
+  --remotion-studio-splitter-color: var(--remotion-studio-black);
   --remotion-studio-timeline-track-separator: #13161B;
   --remotion-studio-light-gray: #ccc;
   --remotion-studio-keyboard-shortcut-key-color: #eee;
@@ -107,6 +108,7 @@ html[data-remotion-high-contrast] {
   --remotion-studio-light-text: #eee;
   --remotion-studio-ruler-color: #ccc;
   --remotion-studio-line-color: #85898d;
+  --remotion-studio-splitter-color: var(--remotion-studio-line-color);
   --remotion-studio-timeline-track-separator: #85898d;
   --remotion-studio-focus-color: #ffe066;
   --remotion-studio-info-blue: #a6d8ff;
