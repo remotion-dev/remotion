@@ -92,11 +92,11 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
-`mask-image` with a single raster `url()` is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.501" inline /> for same-origin, `data:`, and `blob:` URLs when using `mask-position: 0% 0%` and the border box as the mask origin and clip. The mask uses its alpha channel.
+`mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with `0% 0%` positioning and `border-box` origin/clip.
 
-`mask-size` supports pixel and percentage lengths, `auto`, `contain`, and `cover`. `mask-repeat` supports `repeat`, `no-repeat`, `repeat-x`, `repeat-y`, and the equivalent two-axis `repeat` / `no-repeat` values.
+`mask-size` accepts `px`, `%`, `auto`, `contain`, and `cover`. `mask-repeat` accepts `repeat`, `no-repeat`, `repeat-x`, `repeat-y`, and two-axis `repeat` / `no-repeat` combinations.
 
-Cross-origin URLs, SVG masks, multiple mask layers, luminance masks, other mask positions, `space` / `round` repetition, and `calc()` mask sizes are <a style={{color: 'red'}}>not supported</a>.
+Cross-origin URLs, SVG, multiple layers, luminance, other positions, `space` / `round` repeats, and `calc()` sizes are <a style={{color: 'red'}}>not supported</a>.
 
 ## Filters
 
