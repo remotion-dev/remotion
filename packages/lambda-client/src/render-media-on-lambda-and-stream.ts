@@ -22,19 +22,19 @@ import {
 	type StreamingPayload,
 } from './streaming/streaming';
 
-export type RenderMediaOnLambdaAndWaitInput = RenderMediaOnLambdaInput & {
+export type RenderMediaOnLambdaAndStreamInput = RenderMediaOnLambdaInput & {
 	onInit?: (render: RenderMediaOnLambdaOutput) => void | Promise<void>;
 	onProgress?: (progress: RenderProgress) => void | Promise<void>;
 };
 
-export type RenderMediaOnLambdaAndWaitOutput = RenderProgress & {
+export type RenderMediaOnLambdaAndStreamOutput = RenderProgress & {
 	done: true;
 	outputFile: string;
 	outKey: string;
 	outBucket: string;
 };
 
-export class RenderMediaOnLambdaAndWaitError extends Error {
+export class RenderMediaOnLambdaAndStreamError extends Error {
 	readonly renderId: string | null;
 	readonly bucketName: string | null;
 	readonly render: RenderMediaOnLambdaOutput | null;
@@ -56,7 +56,7 @@ export class RenderMediaOnLambdaAndWaitError extends Error {
 		startupOutcome: 'indeterminate' | 'started' | 'failed';
 	}) {
 		super(message);
-		this.name = 'RenderMediaOnLambdaAndWaitError';
+		this.name = 'RenderMediaOnLambdaAndStreamError';
 		this.render = render;
 		this.renderId = render?.renderId ?? null;
 		this.bucketName = render?.bucketName ?? null;
@@ -66,15 +66,15 @@ export class RenderMediaOnLambdaAndWaitError extends Error {
 	}
 }
 
-export const internalRenderMediaOnLambdaAndWait = async (
+export const internalRenderMediaOnLambdaAndStream = async (
 	input: InnerRenderMediaOnLambdaInput,
 	callbacks: {
-		onInit: NonNullable<RenderMediaOnLambdaAndWaitInput['onInit']> | null;
+		onInit: NonNullable<RenderMediaOnLambdaAndStreamInput['onInit']> | null;
 		onProgress: NonNullable<
-			RenderMediaOnLambdaAndWaitInput['onProgress']
+			RenderMediaOnLambdaAndStreamInput['onProgress']
 		> | null;
 	},
-): Promise<RenderMediaOnLambdaAndWaitOutput> => {
+): Promise<RenderMediaOnLambdaAndStreamOutput> => {
 	let render: RenderMediaOnLambdaOutput | null = null;
 	let progress: RenderProgress | null = null;
 	const functionTimeout =
@@ -86,7 +86,7 @@ export const internalRenderMediaOnLambdaAndWait = async (
 		cause: unknown,
 		startupOutcome: 'indeterminate' | 'started' | 'failed',
 	) =>
-		new RenderMediaOnLambdaAndWaitError({
+		new RenderMediaOnLambdaAndStreamError({
 			message,
 			render,
 			progress,
@@ -142,7 +142,7 @@ export const internalRenderMediaOnLambdaAndWait = async (
 				);
 			}
 
-			return value as RenderMediaOnLambdaAndWaitOutput;
+			return value as RenderMediaOnLambdaAndStreamOutput;
 		}
 
 		return null;
@@ -244,7 +244,7 @@ export const internalRenderMediaOnLambdaAndWait = async (
 				}
 			}
 		} catch (err) {
-			if (err instanceof RenderMediaOnLambdaAndWaitError) {
+			if (err instanceof RenderMediaOnLambdaAndStreamError) {
 				throw err;
 			}
 
@@ -343,13 +343,13 @@ export const internalRenderMediaOnLambdaAndWait = async (
 /**
  * Starts a media render and waits for completion, streaming progress when available.
  * Callback failures stop observation without cancelling the server-side render.
- * @see https://www.remotion.dev/docs/lambda/rendermediaonlambdaandwait
+ * @see https://www.remotion.dev/docs/lambda/rendermediaonlambdaandstream
  */
-export const renderMediaOnLambdaAndWait = async (
-	options: RenderMediaOnLambdaAndWaitInput,
-): Promise<RenderMediaOnLambdaAndWaitOutput> => {
+export const renderMediaOnLambdaAndStream = async (
+	options: RenderMediaOnLambdaAndStreamInput,
+): Promise<RenderMediaOnLambdaAndStreamOutput> => {
 	validateRenderMediaOnLambdaInput(options);
-	return internalRenderMediaOnLambdaAndWait(
+	return internalRenderMediaOnLambdaAndStream(
 		renderMediaOnLambdaOptionalToRequired(options),
 		{onInit: options.onInit ?? null, onProgress: options.onProgress ?? null},
 	);

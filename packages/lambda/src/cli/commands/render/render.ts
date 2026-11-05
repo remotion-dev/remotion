@@ -4,7 +4,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import {
 	LambdaClientInternals,
 	getRenderProgress,
-	RenderMediaOnLambdaAndWaitError,
+	RenderMediaOnLambdaAndStreamError,
 	type RenderMediaOnLambdaOutput,
 	type RenderProgress,
 	type EnhancedErrorInfo,
@@ -666,7 +666,7 @@ export const renderCommand = async ({
 	} else {
 		try {
 			finalStatus =
-				await LambdaClientInternals.internalRenderMediaOnLambdaAndWait(
+				await LambdaClientInternals.internalRenderMediaOnLambdaAndStream(
 					renderInput,
 					{
 						onInit,
@@ -680,7 +680,7 @@ export const renderCommand = async ({
 				);
 		} catch (err) {
 			if (
-				!(err instanceof RenderMediaOnLambdaAndWaitError) ||
+				!(err instanceof RenderMediaOnLambdaAndStreamError) ||
 				!err.progress?.fatalErrorEncountered
 			)
 				throw err;

@@ -207,8 +207,8 @@ export type {GetPolicyOptions} from './api/iam-validation/suggested-policy';
 export {_InternalOverallRenderProgress};
 
 export {
-	renderMediaOnLambdaAndWait,
-	RenderMediaOnLambdaAndWaitError,
-	type RenderMediaOnLambdaAndWaitInput,
-	type RenderMediaOnLambdaAndWaitOutput,
+	renderMediaOnLambdaAndStream,
+	RenderMediaOnLambdaAndStreamError,
+	type RenderMediaOnLambdaAndStreamInput,
+	type RenderMediaOnLambdaAndStreamOutput,
 } from '@remotion/lambda-client';

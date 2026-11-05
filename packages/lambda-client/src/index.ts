@@ -156,8 +156,8 @@ export type {
 export * as LambdaClientInternals from './internals';
 
 export {
-	renderMediaOnLambdaAndWait,
-	RenderMediaOnLambdaAndWaitError,
-	type RenderMediaOnLambdaAndWaitInput,
-	type RenderMediaOnLambdaAndWaitOutput,
-} from './render-media-on-lambda-and-wait';
+	renderMediaOnLambdaAndStream,
+	RenderMediaOnLambdaAndStreamError,
+	type RenderMediaOnLambdaAndStreamInput,
+	type RenderMediaOnLambdaAndStreamOutput,
+} from './render-media-on-lambda-and-stream';

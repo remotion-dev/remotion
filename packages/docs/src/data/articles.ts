@@ -5581,13 +5581,13 @@ export const articles = [
 		slug: 'lambda/rendermediaonlambda',
 	},
 	{
-		id: 'rendermediaonlambdaandwait',
-		title: 'renderMediaOnLambdaAndWait()',
-		relativePath: 'docs/lambda/rendermediaonlambdaandwait.mdx',
-		compId: 'articles-docs-lambda-rendermediaonlambdaandwait',
+		id: 'rendermediaonlambdaandstream',
+		title: 'renderMediaOnLambdaAndStream()',
+		relativePath: 'docs/lambda/rendermediaonlambdaandstream.mdx',
+		compId: 'articles-docs-lambda-rendermediaonlambdaandstream',
 		crumb: '@remotion/lambda-client',
 		noAi: false,
-		slug: 'lambda/rendermediaonlambdaandwait',
+		slug: 'lambda/rendermediaonlambdaandstream',
 	},
 	{
 		id: 'renderstillonlambda',

@@ -1,19 +1,19 @@
 ---
-image: https://remotion.media/docs/generated/articles-docs-lambda-rendermediaonlambdaandwait.png
-id: rendermediaonlambdaandwait
-title: renderMediaOnLambdaAndWait()
+image: https://remotion.media/docs/generated/articles-docs-lambda-rendermediaonlambdaandstream.png
+id: rendermediaonlambdaandstream
+title: renderMediaOnLambdaAndStream()
 crumb: '@remotion/lambda-client'
 ---
 
-# renderMediaOnLambdaAndWait()<AvailableFrom v="4.0.540" />
+# renderMediaOnLambdaAndStream()<AvailableFrom v="4.0.540" />
 
 Starts a media render on AWS Lambda, reports progress, and waits for the finished output.
 Requires a [deployed function](/docs/lambda/deployfunction) and [site or Serve URL](/docs/lambda/deploysite) using the same Remotion version as the client.
 
 ```ts twoslash title="render.ts"
-import {renderMediaOnLambdaAndWait} from '@remotion/lambda-client';
+import {renderMediaOnLambdaAndStream} from '@remotion/lambda-client';
 
-const result = await renderMediaOnLambdaAndWait({
+const result = await renderMediaOnLambdaAndStream({
   region: 'eu-central-1',
   functionName: 'remotion-render-4-0-540-mem2048mb-disk2048mb-120sec',
   serveUrl: 'https://example.com/remotion/index.html',
@@ -48,13 +48,13 @@ Save this identity to observe the render later with [`getRenderProgress()`](/doc
 Called with the same [progress object as `getRenderProgress()`](/docs/lambda/getrenderprogress#response). Defaults to no callback.
 Updates are coalesced; the callback does not run for every frame.
 
-Both callbacks may return a promise and are awaited in order. Throwing or rejecting stops observation and rejects `renderMediaOnLambdaAndWait()`. It does not cancel the render.
+Both callbacks may return a promise and are awaited in order. Throwing or rejecting stops observation and rejects `renderMediaOnLambdaAndStream()`. It does not cancel the render.
 
 ## Return value
 
 Resolves with the final [progress object](/docs/lambda/getrenderprogress#response). `done` is `true`, and `outputFile`, `outBucket`, and `outKey` identify the finished media. The result also includes costs, artifacts, and separate audio output when requested.
 
-The promise rejects on a fatal render error, timeout, callback failure, or observation failure. A `RenderMediaOnLambdaAndWaitError` retains these diagnostic properties:
+The promise rejects on a fatal render error, timeout, callback failure, or observation failure. A `RenderMediaOnLambdaAndStreamError` retains these diagnostic properties:
 
 ### `renderId`
 

@@ -167,4 +167,4 @@ export {
 	supportsConditionalOutput,
 } from './write-file';
 
-export {internalRenderMediaOnLambdaAndWait} from './render-media-on-lambda-and-wait';
+export {internalRenderMediaOnLambdaAndStream} from './render-media-on-lambda-and-stream';
