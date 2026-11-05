@@ -11,12 +11,14 @@ const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: false,
+	elementLibraries: [],
 	sequenceActivityLimit: null,
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,
+	keyboardShortcuts: null,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
 	canvasTabsEnabled: true,
@@ -44,7 +46,7 @@ export const getStudioKeyboardShortcutsEnabled = () => {
 };
 
 export const getStudioKeyboardShortcuts = () => {
-	return getStudioRuntimeConfig().keyboardShortcuts ?? null;
+	return getStudioRuntimeConfig().keyboardShortcuts;
 };
 
 export const getStudioMaxTimelineTracks = () => {

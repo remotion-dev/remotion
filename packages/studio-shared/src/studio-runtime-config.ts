@@ -44,12 +44,12 @@ export type StudioRuntimeConfig = {
 	readonly defaultPremountInSeconds: number | null;
 	readonly maxTimelineTracks: number | null;
 	readonly askAIEnabled: boolean;
-	readonly elementLibraries?: readonly StudioElementLibrary[];
+	readonly elementLibraries: readonly StudioElementLibrary[];
 	/** null represents the unlimited (Infinity) default across JSON transport. */
 	readonly sequenceActivityLimit: number | null;
 	readonly interactivityEnabled: boolean;
 	readonly keyboardShortcutsEnabled: boolean;
-	readonly keyboardShortcuts?: StudioKeyboardShortcuts | null;
+	readonly keyboardShortcuts: StudioKeyboardShortcuts | null;
 	readonly bufferStateDelayInMilliseconds: number | null;
 	readonly defaultCodingAgent: DefaultCodingAgent | null;
 	readonly defaultEditor: BuiltInEditor | 'custom' | null;

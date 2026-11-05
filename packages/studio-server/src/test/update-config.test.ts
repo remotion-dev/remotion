@@ -33,6 +33,7 @@ const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
 	})),
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,
+	keyboardShortcuts: null,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
 });
