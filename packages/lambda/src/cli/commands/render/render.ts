@@ -24,6 +24,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../../api/download-media';
+import {validateOutputPath} from '../../../shared/validate-output-path';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
@@ -130,6 +131,14 @@ export const renderCommand = async ({
 	const shouldOutputImageSequence =
 		Boolean(CliInternals.parsedCli.sequence) ||
 		ConfigInternals.getShouldOutputImageSequence(null);
+	const downloadName = args[2] ?? null;
+	if (downloadName) {
+		validateOutputPath({
+			outputPath: downloadName,
+			type: shouldOutputImageSequence ? 'directory' : 'file',
+		});
+	}
+
 	const singleFrameRange = frameRange as SingleFrameRange | null;
 	const enableCancellation = enableCancellationOption.getValue({
 		commandLine: CliInternals.parsedCli,
@@ -358,7 +367,6 @@ export const renderCommand = async ({
 		key: outName,
 		s3OutputProvider,
 	});
-	const downloadName = args[2] ?? null;
 	const separateAudioTo = separateAudioOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
