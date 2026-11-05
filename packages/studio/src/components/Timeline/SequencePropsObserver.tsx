@@ -251,6 +251,7 @@ export const SequencePropsObserver = ({
 
 				return {
 					absolutePath: file.absolutePath,
+					applyWithoutFastRefresh: mutation.applyWithoutFastRefresh ?? false,
 					byOldPath,
 					byNewPath,
 					insertedPaths,
@@ -275,6 +276,7 @@ export const SequencePropsObserver = ({
 			let wasDeleted = false;
 			let runtimeNodePathExists = true;
 			let runtimeNodePathNeedsRefresh = false;
+			let invalidateStatus = false;
 			const previousNodePathString = JSON.stringify(previousNodePath.nodePath);
 
 			for (const files of indexedMutations) {
@@ -315,6 +317,14 @@ export const SequencePropsObserver = ({
 						runtimeNodePathExists = true;
 						runtimeNodePathNeedsRefresh =
 							runtimeNodePathWasInserted || runtimeNodePathWasUpdated;
+					}
+
+					if (
+						!file.applyWithoutFastRefresh &&
+						runtimeNodePathExists &&
+						(runtimeNodePathWasInserted || runtimeNodePathWasUpdated)
+					) {
+						invalidateStatus = true;
 					}
 
 					if (wasDeleted) {
@@ -359,7 +369,7 @@ export const SequencePropsObserver = ({
 			statusRemappings.push({
 				previousNodePath,
 				nodePath: nextNodePath,
-				result,
+				result: invalidateStatus ? null : result,
 			});
 
 			overrideUpdates.push({

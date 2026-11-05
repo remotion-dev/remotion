@@ -12,6 +12,10 @@ import {
 	startCapturedPointerSession,
 } from '../helpers/pointer-session';
 import {createCanvasDragPreview} from './canvas-drag-preview';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from './ForceSpecificCursor';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {SelectedOutline} from './selected-outline-geometry';
 import type {SelectedOutlinePathDragTarget} from './selected-outline-types';
@@ -335,6 +339,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 			);
 		};
 
+		forceSpecificCursor('default');
 		startCapturedPointerSession({
 			event,
 			captureTarget: svg,
@@ -482,6 +487,7 @@ export const SelectedOutlinePathPoints: React.FC<{
 				updatePathOverride(nextD);
 			},
 			onEnd: (reason, endEvent) => {
+				stopForcingSpecificCursor();
 				onDraggingChange(false);
 				if (!isPointerSessionRelease(reason, endEvent) || lastD === originalD) {
 					preview.cancel();

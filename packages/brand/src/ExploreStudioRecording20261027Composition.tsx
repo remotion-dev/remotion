@@ -27,6 +27,7 @@ export const ExploreStudioRecording20261027Composition = () => {
 				effects={[removeStudioLogoFocusRing({})]}
 				durationInFrames={(417 / 60) * fps}
 				muted
+				effects={[removeStudioLogoFocusRing({})]}
 				style={{
 					position: 'absolute',
 				}}

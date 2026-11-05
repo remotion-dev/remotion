@@ -72,7 +72,7 @@ import {useCrfState} from './CrfSetting';
 import {DataEditor} from './DataEditor';
 import {getDefaultCodecs} from './get-default-codecs';
 import {getStringBeforeSuffix} from './get-string-before-suffix';
-import {validateOutnameGui} from './out-name-checker';
+import {isValidSeparateAudioName, validateOutnameGui} from './out-name-checker';
 import {
 	buttonStyle,
 	container,
@@ -899,6 +899,27 @@ const RenderModal: React.FC<
 	}, [codec, everyNthFrameSetting]);
 
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
+	const effectiveSeparateAudioTo =
+		renderMode === 'video' &&
+		!muted &&
+		BrowserSafeApis.supportedAudioCodecs[codec].length > 0
+			? separateAudioTo
+			: null;
+	const separateAudioValidationMessage = useMemo(() => {
+		if (effectiveSeparateAudioTo === null) {
+			return null;
+		}
+
+		try {
+			isValidSeparateAudioName({
+				audioCodec,
+				separateAudioTo: effectiveSeparateAudioTo,
+			});
+			return null;
+		} catch (error) {
+			return (error as Error).message;
+		}
+	}, [audioCodec, effectiveSeparateAudioTo]);
 
 	const availablePixelFormats = useMemo(() => {
 		return BrowserSafeApis.validPixelFormatsForCodec(codec);
@@ -960,7 +981,7 @@ const RenderModal: React.FC<
 			beepOnFinish,
 			repro,
 			forSeamlessAacConcatenation,
-			separateAudioTo,
+			separateAudioTo: effectiveSeparateAudioTo,
 			metadata,
 			hardwareAcceleration,
 			chromeMode,
@@ -1017,7 +1038,7 @@ const RenderModal: React.FC<
 		repro,
 		forSeamlessAacConcatenation,
 		gopSize,
-		separateAudioTo,
+		effectiveSeparateAudioTo,
 		setSelectedModal,
 		metadata,
 		hardwareAcceleration,
@@ -1271,7 +1292,7 @@ const RenderModal: React.FC<
 		audioCodec,
 		renderMode,
 		stillImageFormat,
-		separateAudioTo,
+		separateAudioTo: effectiveSeparateAudioTo,
 	});
 
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
@@ -1328,7 +1349,7 @@ const RenderModal: React.FC<
 			encodingBufferSize,
 			encodingMaxRate,
 			forSeamlessAacConcatenation,
-			separateAudioTo,
+			separateAudioTo: effectiveSeparateAudioTo,
 			colorSpace,
 			scale,
 			logLevel,
@@ -1402,7 +1423,7 @@ const RenderModal: React.FC<
 		resolvedComposition.id,
 		scale,
 		sampleRate,
-		separateAudioTo,
+		effectiveSeparateAudioTo,
 		sequenceImageFormat,
 		startFrame,
 		stillImageFormat,
@@ -1412,11 +1433,15 @@ const RenderModal: React.FC<
 		x264Preset,
 	]);
 	const [commandCopiedAt, setCommandCopiedAt] = useState<number | null>(null);
-	const renderDisabled = readOnlyStudio
-		? false
-		: !outnameValidation.valid || state.type === 'load';
+	const renderDisabled =
+		separateAudioValidationMessage !== null ||
+		(!readOnlyStudio && (!outnameValidation.valid || state.type === 'load'));
 
 	const trigger = useCallback(() => {
+		if (renderDisabled) {
+			return;
+		}
+
 		if (readOnlyStudio) {
 			if (!readOnlyRenderCommand) {
 				return;
@@ -1445,6 +1470,7 @@ const RenderModal: React.FC<
 		onClickVideo,
 		readOnlyRenderCommand,
 		readOnlyStudio,
+		renderDisabled,
 		renderMode,
 	]);
 
@@ -1510,7 +1536,10 @@ const RenderModal: React.FC<
 					disabled={renderDisabled}
 					style={{
 						...buttonStyle,
-						backgroundColor: outnameValidation.valid ? BLUE : BLUE_DISABLED,
+						backgroundColor:
+							outnameValidation.valid && separateAudioValidationMessage === null
+								? BLUE
+								: BLUE_DISABLED,
 					}}
 				>
 					{readOnlyStudio

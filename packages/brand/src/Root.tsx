@@ -1,3 +1,5 @@
+import {StudioPlaybackRateComposition} from './StudioPlaybackRateComposition';
+import {StudioLevelsComposition} from './StudioLevelsComposition';
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
 import {AiPromptRecordingComposition} from './AiPromptRecordingComposition';
@@ -199,6 +201,7 @@ import {
 } from './HomepageAssets/ExploreRemotion/Transitions';
 import {ExploreRemotionVideoPlayback} from './HomepageAssets/ExploreRemotion/VideoPlayback';
 import {FolderTreeComposition} from './HomepageAssets/FolderTree';
+import {AgenticallyProgrammaticallyCompositions} from './AgenticallyProgrammatically/AgenticallyProgrammaticallyCompositions';
 import {LicenseQuestionsGraphic} from './HomepageAssets/LicenseQuestionsGraphic';
 import {Map} from './HomepageAssets/Map';
 import {
@@ -329,6 +332,7 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<AgenticallyProgrammaticallyCompositions />
 			<Folder name="VideoElements">
 				<Composition
 					id="CodexUI"
@@ -1681,7 +1685,7 @@ export const RemotionRoot: React.FC = () => {
 				id="StudioUpdate"
 				component={StudioUpdate}
 				schema={studioUpdateSchema}
-				defaultProps={{mode: 'instagram-reel' as const}}
+				defaultProps={{mode: 'widescreen' as const}}
 				calculateMetadata={({props}) =>
 					props.mode === 'instagram-reel'
 						? {width: 1080, height: 1920}
@@ -2169,6 +2173,22 @@ export const RemotionRoot: React.FC = () => {
 				fps={30}
 				width={2560}
 				height={1600}
+			/>
+			<Composition
+				id="StudioLevels"
+				component={StudioLevelsComposition}
+				durationInFrames={157}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="StudioPlaybackRate"
+				component={StudioPlaybackRateComposition}
+				durationInFrames={639}
+				fps={30}
+				width={1920}
+				height={1080}
 			/>
 		</>
 	);

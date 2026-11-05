@@ -52,6 +52,8 @@ export type LayoutSettings = {
 
 export type EditorState = {
   files: ProjectFiles;
+  sourceRevision: number;
+  pendingSourceMutations: number;
   // The files of the last bundle that was applied to the preview. The
   // mounted sequences report source locations from these files.
   appliedFiles: ProjectFiles | null;
@@ -84,13 +86,15 @@ export type EditorAction =
   | {
       type: "set-files";
       files: ProjectFiles;
+      at: number;
       // Consecutive edits with the same key within a short time are merged
       // into a single undo step (e.g. typing).
       coalesceKey: string | null;
     }
   | { type: "undo" }
   | { type: "redo" }
-  | { type: "mark-saved" }
+  | { type: "set-pending-source-mutations"; count: number }
+  | { type: "mark-saved"; files: ProjectFiles }
   | { type: "open-file"; filePath: string }
   | { type: "close-file"; filePath: string }
   | { type: "select-composition"; compositionId: string | null }
@@ -126,6 +130,8 @@ export const createInitialState = ({
   activeFile: string | null;
 }): EditorState => ({
   files,
+  sourceRevision: 0,
+  pendingSourceMutations: 0,
   appliedFiles: null,
   savedFiles: files,
   past: [],
@@ -176,11 +182,10 @@ export const editorReducer = (
         return state;
       }
 
-      const now = Date.now();
       const coalesce =
         action.coalesceKey !== null &&
         action.coalesceKey === state.lastEditKey &&
-        now - state.lastEditAt < COALESCE_WINDOW_MS;
+        action.at - state.lastEditAt < COALESCE_WINDOW_MS;
       const past = coalesce
         ? state.past
         : [...state.past, state.files].slice(-MAX_HISTORY);
@@ -188,10 +193,11 @@ export const editorReducer = (
       return {
         ...state,
         files: action.files,
+        sourceRevision: state.sourceRevision + 1,
         past,
         future: [],
         lastEditKey: action.coalesceKey,
-        lastEditAt: now,
+        lastEditAt: action.at,
         openFiles,
         activeFile:
           state.activeFile && state.activeFile in action.files
@@ -209,6 +215,7 @@ export const editorReducer = (
       return {
         ...state,
         files: previous,
+        sourceRevision: state.sourceRevision + 1,
         past: state.past.slice(0, -1),
         future: [state.files, ...state.future],
         lastEditKey: null,
@@ -224,14 +231,20 @@ export const editorReducer = (
       return {
         ...state,
         files: next,
+        sourceRevision: state.sourceRevision + 1,
         past: [...state.past, state.files],
         future,
         lastEditKey: null,
       };
     }
 
+    case "set-pending-source-mutations":
+      return state.pendingSourceMutations === action.count
+        ? state
+        : { ...state, pendingSourceMutations: action.count };
+
     case "mark-saved":
-      return { ...state, savedFiles: state.files };
+      return { ...state, savedFiles: action.files };
 
     case "open-file":
       return {
@@ -345,4 +358,5 @@ export const editorReducer = (
 };
 
 export const hasUnsavedChanges = (state: EditorState) =>
+  state.pendingSourceMutations > 0 ||
   !filesAreEqual(state.files, state.savedFiles);
