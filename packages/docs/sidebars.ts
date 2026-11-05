@@ -328,6 +328,7 @@ const sidebars: SidebarsConfig = {
 				'effects/liquid-contours',
 				'effects/long-shadows',
 				'effects/lut',
+				'effects/magnify',
 				'effects/mirror',
 				'effects/noise',
 				'effects/noise-displacement',

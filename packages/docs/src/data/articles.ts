@@ -3853,6 +3853,15 @@ export const articles = [
 		slug: 'effects/lut',
 	},
 	{
+		id: 'effects/magnify',
+		title: 'magnify()',
+		relativePath: 'docs/effects/magnify.mdx',
+		compId: 'articles-docs-effects-magnify',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/magnify',
+	},
+	{
 		id: 'effects/mirror',
 		title: 'mirror()',
 		relativePath: 'docs/effects/mirror.mdx',

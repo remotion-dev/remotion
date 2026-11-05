@@ -75,6 +75,7 @@ import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
 } from '../../components/effects/effects-lut-preview';
+import {EffectsMagnifyPreview} from '../../components/effects/effects-magnify-preview';
 import {EffectsMirrorPreview} from '../../components/effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -879,6 +880,13 @@ export const RemotionRoot: React.FC = () => {
 					width={1280}
 					height={720}
 					defaultProps={{amount: 0.28}}
+				/>
+				<Still
+					id="effects-magnify-preview"
+					component={EffectsMagnifyPreview}
+					width={1280}
+					height={720}
+					defaultProps={{size: 180, magnification: 200, scaling: 'soft'}}
 				/>
 				<Still
 					id="effects-fisheye-preview"

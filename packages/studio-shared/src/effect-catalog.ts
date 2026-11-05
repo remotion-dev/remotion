@@ -598,6 +598,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-magnify',
+		category: 'Distort',
+		label: 'magnify()',
+		description: 'Magnify a circular or square area',
+		effect: {
+			name: 'magnify',
+			importPath: '@remotion/effects/magnify',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-fisheye',
 		category: 'Distort',
 		label: 'fisheye()',
