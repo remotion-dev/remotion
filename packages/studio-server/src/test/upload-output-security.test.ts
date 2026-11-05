@@ -88,6 +88,7 @@ const requestWriteRoute = async ({
 		getRenderDefaults: () => ({}) as RenderDefaults,
 		getRenderQueue: () => [],
 		getStudioRuntimeConfig: () => ({
+			highContrast: null,
 			preferredEffectBackend: null,
 			preservePitchOnPlayback: true,
 			showLayerFrameNumbers: false,

@@ -13,6 +13,7 @@ import {
 } from '../preview-server/routes/update-config';
 
 const studioRuntimeConfig = (elementLibraryUrls: readonly string[]) => ({
+	highContrast: null,
 	preferredEffectBackend: null,
 	preservePitchOnPlayback: true,
 	showLayerFrameNumbers: false,

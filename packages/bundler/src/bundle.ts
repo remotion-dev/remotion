@@ -453,6 +453,7 @@ export const internalBundle = async (
 		experimentalKeepAudioContextAlive: false,
 		sampleRate: actualArgs.renderDefaults?.sampleRate ?? 48000,
 		studioRuntimeConfig: {
+			highContrast: null,
 			preferredEffectBackend: null,
 			preservePitchOnPlayback: true,
 			showLayerFrameNumbers: false,
