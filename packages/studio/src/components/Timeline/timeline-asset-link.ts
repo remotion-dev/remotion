@@ -1,5 +1,5 @@
 import {getAssetSchemaKeys} from '@remotion/studio-shared';
-import type {SequenceRegistrationControls} from 'remotion';
+import type {SequenceRegistrationControls, StaticFile} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {pushUrl} from '../../helpers/url-state';
 
@@ -17,6 +17,19 @@ type LinkInfo =
 	| null;
 
 export type TimelineAssetLinkInfo = Exclude<LinkInfo, null>;
+
+export const isTimelineAssetMissing = ({
+	linkInfo,
+	staticFiles,
+}: {
+	linkInfo: TimelineAssetLinkInfo | null;
+	staticFiles: StaticFile[];
+}): boolean => {
+	return (
+		linkInfo?.kind === 'local' &&
+		!staticFiles.some((file) => file.name === linkInfo.assetPath)
+	);
+};
 
 export const splitRemoteSourceForMiddleEllipsis = (src: string) => {
 	const protocolEnd = src.indexOf('://');
