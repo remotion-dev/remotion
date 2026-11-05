@@ -136,37 +136,6 @@ const findElementMdxFiles = (dir: string): string[] => {
 	return files;
 };
 
-const getElementPageMarkdown = ({
-	contents,
-	elementPage,
-	sourcePath,
-}: {
-	contents: string;
-	elementPage: RegExpMatchArray;
-	sourcePath: string;
-}) => {
-	const [elementPageTag, slug, sourceFile] = elementPage;
-	const notes = expandRawMarkdownComponents({
-		raw: contents
-			.replace(/^---\n[\s\S]*?\n---\n/, '')
-			.replace(/^import\s.*;\s*$/gm, '')
-			.replace(/^# .*$/m, '')
-			.replace(elementPageTag, '')
-			.trim(),
-		sourcePath,
-	});
-
-	return getElementMarkdown({
-		definition: getElementDefinition(slug),
-		sourceCode: getRemotionElementSource({
-			file: sourceFile,
-			sourceFilePath: sourcePath,
-		}),
-		sourceFileName: path.basename(sourceFile),
-		notes: notes === '' ? null : notes,
-	});
-};
-
 function copyRawElements() {
 	console.log('🧩 Copying raw Elements docs to static/_raw/elements/...');
 
@@ -199,12 +168,14 @@ function copyRawElements() {
 
 		const markdown =
 			relativePath === 'index.mdx'
-				? getElementCatalogMarkdown(null)
+				? getElementCatalogMarkdown()
 				: elementPage
-					? getElementPageMarkdown({
-							contents,
-							elementPage,
-							sourcePath,
+					? getElementMarkdown({
+							definition: getElementDefinition(elementPage[1]),
+							sourceCode: getRemotionElementSource({
+								file: elementPage[2],
+								sourceFilePath: sourcePath,
+							}),
 						})
 					: null;
 		const destPaths = [

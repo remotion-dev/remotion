@@ -35,7 +35,7 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 
 ## Elements
 
-- [Remotion Elements](https://www.remotion.dev/elements/index.md): Editable video building blocks. Each Element's Markdown includes its install commands, dependencies, assets, initial props, and source code.
+- [Remotion Elements](https://www.remotion.dev/elements/index.md): Editable video building blocks. Each Element's Markdown links to its page and includes its source code.
 - [Element Libraries](https://www.remotion.dev/docs/elements/libraries.md)
 
 ## Building applications
