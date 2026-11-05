@@ -66,6 +66,14 @@ const makeDefaultGlobalCSS = () => {
     );
   }
 
+  .remotion-preview-toolbar-splitter {
+    opacity: 0;
+  }
+
+  html[data-remotion-high-contrast] .remotion-preview-toolbar {
+    --remotion-preview-toolbar-line-color: ${SPLITTER_COLOR};
+  }
+
   .remotion-splitter-horizontal {
     --remotion-splitter-direction: to bottom;
     cursor: row-resize;
