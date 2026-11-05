@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {getLength} from '../get-length';
 import {reversePath} from '../reverse-path';
 
 test('Should be able to reverse a path', () => {
@@ -32,4 +33,11 @@ test('Should be able to reverse a path with Z', () => {
   M 0 0 L 200 100 Z
 	`);
 	expect(reversedPath).toEqual('M 100 0 L 0 0 M 200 100 L 0 0Z');
+});
+
+test('Should reverse commands after Z from the start of the closed subpath', () => {
+	const path = 'M 0 0 L 10 0 L 10 10 Z L 0 20';
+	const reversedPath = reversePath(path);
+	expect(reversedPath).toEqual('M 10 10 L 10 0 L 0 0Z M 0 20 L 0 0');
+	expect(getLength(reversedPath)).toBeCloseTo(getLength(path), 5);
 });

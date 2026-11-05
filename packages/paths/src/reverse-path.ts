@@ -12,7 +12,25 @@ import {parsePath} from './parse-path';
 import {reduceInstructions} from './reduce-instructions';
 import {serializeInstructions} from './serialize-instructions';
 
-function reverseNormalizedPath(instructions: Instruction[]) {
+function reverseNormalizedPath(instructions: Instruction[]): string {
+	// Commands after `Z` start from the beginning of the closed subpath,
+	// so reverse them as their own subpath
+	const closeIndex = instructions.findIndex((term) => term.type === 'Z');
+	const start = instructions[0];
+	if (
+		closeIndex !== -1 &&
+		closeIndex < instructions.length - 1 &&
+		start.type === 'M'
+	) {
+		return [
+			reverseNormalizedPath(instructions.slice(0, closeIndex + 1)),
+			reverseNormalizedPath([
+				{type: 'M', x: start.x, y: start.y},
+				...instructions.slice(closeIndex + 1),
+			]),
+		].join(' ');
+	}
+
 	const reversed: Instruction[] = [];
 
 	let nextX = 0;
