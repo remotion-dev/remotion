@@ -1,10 +1,7 @@
 import type {EffectCatalogItem} from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import {getEffectPickerConfig} from './effect-picker-config';
-import {
-	effectPreviewLoaders,
-	type EffectPreviewFactory,
-} from './effect-preview-loaders';
+import type {EffectPreviewFactory} from './effect-preview-loaders';
 
 const thumbnails = new WeakMap<
 	HTMLCanvasElement,
@@ -31,6 +28,7 @@ export const renderEffectThumbnail = ({
 			return cached;
 		}
 
+		const {effectPreviewLoaders} = await import('./effect-preview-loaders');
 		const load = effectPreviewLoaders[item.effect.importPath];
 		if (!load) {
 			return null;

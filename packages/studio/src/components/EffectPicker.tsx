@@ -34,10 +34,7 @@ import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
 import {getEffectPickerConfig} from './effect-picker-config';
 import {filterEffectCatalog} from './effect-picker-search';
-import {
-	effectPreviewLoaders,
-	type EffectPreviewFactory,
-} from './effect-preview-loaders';
+import type {EffectPreviewFactory} from './effect-preview-loaders';
 import {EffectThumbnail} from './EffectThumbnail';
 import {InspectorMessage} from './InspectorPanel/common';
 import {container} from './InspectorPanel/styles';
@@ -264,13 +261,15 @@ export const EffectPicker: React.FC<{
 		}
 
 		let cancelled = false;
-		const loader = effectPreviewLoaders[item.effect.importPath];
-		if (!loader) {
-			setPreviewFailed(true);
-			return;
-		}
+		import('./effect-preview-loaders')
+			.then(({effectPreviewLoaders}) => {
+				const loader = effectPreviewLoaders[item.effect.importPath];
+				if (!loader) {
+					throw new Error(`No preview loader for ${item.label}`);
+				}
 
-		loader()
+				return loader();
+			})
 			.then((module) => {
 				if (cancelled) {
 					return;
