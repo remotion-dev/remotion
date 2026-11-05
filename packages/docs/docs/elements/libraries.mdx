@@ -137,9 +137,9 @@ Also offer a way around the failure:
 
 ## 4. Embed the payload<AvailableFrom v="4.0.542" />
 
-Put the same payload in a `<script>` tag in your page's HTML, next to the install button. Command-line tools and agents can then install the Element from your page's URL. Use [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html) to create the script's content:
+Give each Element its own page, and put its payload in a `<script>` tag in that page's HTML. Command-line tools and agents can then install the Element from the page's URL. Use [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html) to create the script's content:
 
-```tsx title="InstallActions.tsx"
+```tsx title="ElementPage.tsx"
 const payload = createElementPayload({...});
 
 <script
@@ -148,6 +148,8 @@ const payload = createElementPayload({...});
 />
 <InstallButton payload={payload} />
 ```
+
+Do not embed payloads on gallery or list pages, because each payload contains the Element's full source code. Link gallery entries to the Element's page instead.
 
 See [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html#example) for Astro and other frameworks.
 

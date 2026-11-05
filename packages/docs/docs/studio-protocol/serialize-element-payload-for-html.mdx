@@ -94,7 +94,13 @@ const html = `<script type="${ELEMENT_PAYLOAD_MIME_TYPE}">${serializeElementPayl
 </script>
 ```
 
-Browsers do not run the script. A page may contain several payloads.
+Browsers do not run the script.
+
+## One payload per Element page
+
+Embed the payload only on the Element's own page, and link to that page from galleries and lists. Do not embed payloads on gallery or list pages. Each payload contains the Element's full source code, so a page with many payloads is large. In Next.js, a Server Component also sends the payload a second time in the page data used for hydration.
+
+Tools can still read several payloads from one page.
 
 The script must be in the HTML that your server sends. Render it in a page that is server-rendered or prerendered at build time.
 
