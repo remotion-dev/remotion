@@ -186,6 +186,11 @@ Remotion inherits the props of the regular `<img>` tag, like for example `style`
 
 Don't use the `<Img>` tag for GIFs, use [`@remotion/gif`](/docs/gif) instead.
 
+## Audio-only rendering
+
+During audio-only rendering, `<Img>` skips loading its image and does not delay the render.
+This also applies when `effects` are passed.
+
 ## Error behavior
 
 From v4.0.0: If the image fails to load and no retries are left, then [`cancelRender`](/docs/cancel-render) will be called to throw an error, unless you handle the error using `onError()`.
