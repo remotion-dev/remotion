@@ -1,0 +1,89 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-studio-protocol-get-element-payload-script-props.png
+title: 'getElementPayloadScriptProps()'
+crumb: '@remotion/studio-protocol'
+---
+
+# getElementPayloadScriptProps()<AvailableFrom v="4.0.542" />
+
+Returns props for a `<script>` tag that embeds an Element payload in your page's HTML.
+
+Tools that only fetch your page's HTML, such as command-line tools and agents, can then read the same payload that [`installInStudio()`](/docs/studio-protocol/install-in-studio) and [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) use.
+
+## Example
+
+```tsx twoslash title="ElementPage.tsx"
+import React from 'react';
+import {
+  createElementPayload,
+  getElementPayloadScriptProps,
+} from '@remotion/studio-protocol';
+const sourceCode = 'export const LowerThird = () => null;';
+// ---cut---
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode,
+  dependencies: [],
+  dimensions: {width: 1920, height: 1080},
+  durationInFrames: 90,
+});
+
+export const ElementPage = () => {
+  return <script {...getElementPayloadScriptProps(payload)} />;
+};
+```
+
+The rendered HTML contains a data block:
+
+```html title="Rendered HTML"
+<script type="application/vnd.remotion.element+json">
+  {"type":"remotion-element","version":1,...}
+</script>
+```
+
+The script is not executed. Render it on the server, for example with Next.js or another framework that server-renders React. A page may contain several payloads.
+
+## Arguments
+
+### payload
+
+A payload returned by [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+
+## Return value
+
+An object with the following properties. Spread it onto a `<script>` element.
+
+### type
+
+Always `'application/vnd.remotion.element+json'`.
+
+### dangerouslySetInnerHTML
+
+An object with an `__html` property that contains the payload as JSON. The characters `<`, `>`, `&`, U+2028, and U+2029 are written as JSON unicode escapes, so Element source code containing `</script>` or `<!--` cannot end the block. The JSON parses to the same payload.
+
+An invalid payload throws a `TypeError`.
+
+## Pages rendered in the browser
+
+If your page is rendered only in the browser, the server HTML does not contain the payload. Serve the payload as a JSON file instead, for example by writing `JSON.stringify(payload)` to a file at build time, and link to it from the page's `<head>`:
+
+```html title="index.html"
+<link
+  rel="alternate"
+  type="application/vnd.remotion.element+json"
+  href="/elements/lower-third.json"
+/>
+```
+
+A relative `href` is resolved against the page URL. Add one `<link>` per Element.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering={false} serverSideRendering={false} player={false} studio={false} />
+
+## See also
+
+- [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)
+- [Building Element Libraries](/docs/elements/libraries)

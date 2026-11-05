@@ -28,6 +28,10 @@ import {
 } from './element-drag-data';
 import {parseStudioElementPayload} from './element-payload';
 import {
+	ELEMENT_PAYLOAD_MIME_TYPE,
+	parseElementPayloadsFromHtml,
+} from './element-payload-html';
+import {
 	installInStudioWithDependencies,
 	isAllowedStudioProtocolPageOrigin,
 	parseStudioProtocolIframeInstallRequest,
@@ -113,6 +117,11 @@ export {
 } from './element-payload';
 
 export {
+	getElementPayloadScriptProps,
+	type ElementPayloadScriptProps,
+} from './element-payload-html';
+
+export {
 	installInStudio,
 	type InstallInStudioErrorCode,
 	type InstallInStudioResult,
@@ -136,6 +145,7 @@ export const StudioProtocolInternals = {
 	areComponentProps,
 	assertElementAssetReferences,
 	assertElementAssets,
+	ELEMENT_PAYLOAD_MIME_TYPE,
 	isStaticFileRef,
 	getDragPreviewMetadata,
 	getElementComponentNameFromSourceCode,
@@ -151,6 +161,7 @@ export const StudioProtocolInternals = {
 	openInBrowserStudio,
 	parseBrowserStudioHash,
 	parseDragData,
+	parseElementPayloadsFromHtml,
 	parseStudioElementPayload,
 	parseStudioProtocolAddElementLibraryRequest,
 	parseStudioProtocolIframeAddElementLibraryRequest,

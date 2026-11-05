@@ -8922,6 +8922,15 @@ export const articles = [
 		slug: 'studio-protocol/create-element-payload',
 	},
 	{
+		id: 'studio-protocol/get-element-payload-script-props',
+		title: 'getElementPayloadScriptProps()',
+		relativePath: 'docs/studio-protocol/get-element-payload-script-props.mdx',
+		compId: 'articles-docs-studio-protocol-get-element-payload-script-props',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/get-element-payload-script-props',
+	},
+	{
 		id: 'studio-protocol/index',
 		title: 'Remotion Studio Protocol',
 		relativePath: 'docs/studio-protocol/index.mdx',
