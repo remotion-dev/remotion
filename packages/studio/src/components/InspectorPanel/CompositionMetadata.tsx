@@ -8,12 +8,15 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {LIGHT_TEXT, WHITE_ALPHA_40} from '../../helpers/colors';
+import {
+	HOVER_GROUP_CLASS_NAME,
+	HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME,
+} from '../../helpers/hoverable';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
 import {CaretDown} from '../../icons/caret';
 import {Checkmark} from '../../icons/Checkmark';
 import {renderFrame} from '../../state/render-frame';
-import {ActionTooltip} from '../ActionTooltip';
 import {ContextMenu} from '../ContextMenu';
 import {InlineDropdown} from '../InlineDropdown';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -37,7 +40,7 @@ import {
 	reconcilePendingCompositionMetadata,
 } from './optimistic-composition-metadata';
 import {parseCompositionDuration} from './parse-composition-duration';
-import {detailsContainer} from './styles';
+import {detailLabel, detailRow, detailsContainer, detailValue} from './styles';
 
 const compositionMetadataContainer: React.CSSProperties = {
 	...detailsContainer,
@@ -80,22 +83,23 @@ const dimensionFormatterStyle: React.CSSProperties = {
 	display: 'block',
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
 };
 
 const dimensionControlStyle: React.CSSProperties = {
-	position: 'relative',
+	alignItems: 'center',
+	display: 'flex',
+	flex: '1 1 72px',
+	gap: 5,
+	maxWidth: 72,
+	minWidth: 'min-content',
 };
 
 const dimensionLabelStyle: React.CSSProperties = {
-	position: 'absolute',
-	left: 2,
-	top: 0,
-	bottom: 0,
-	display: 'flex',
-	alignItems: 'center',
+	flexShrink: 0,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
-	fontSize: 11,
+	fontSize: 13,
 	lineHeight: '20px',
 	pointerEvents: 'none',
 	userSelect: 'none',
@@ -120,15 +124,15 @@ const metadataDraggerStyles: Record<
 	},
 	height: {
 		fontSize: 13,
-		padding: '2px 0 2px 13px',
+		padding: '2px 0',
 		textAlign: 'right',
-		width: 52,
+		width: '100%',
 	},
 	width: {
 		fontSize: 13,
-		padding: '2px 0 2px 13px',
+		padding: '2px 0',
 		textAlign: 'right',
-		width: 52,
+		width: '100%',
 	},
 };
 
@@ -141,7 +145,17 @@ const dimensionsControls: React.CSSProperties = {
 	gap: 16,
 	justifyContent: 'flex-end',
 	lineHeight: '20px',
+	marginLeft: 'auto',
+	maxWidth: 160,
 	minWidth: 0,
+	width: '100%',
+};
+
+const dimensionsRow: React.CSSProperties = {
+	...detailRow,
+	columnGap: 2,
+	display: 'grid',
+	gridTemplateColumns: 'max-content minmax(0, 1fr)',
 };
 
 const presetButtonIcon: React.CSSProperties = {
@@ -197,11 +211,28 @@ const dimensionPresets = [
 
 const frameRatePresets = [23.976, 24, 25, 29.97, 30, 50, 60] as const;
 
+const frameRateFromDragSteps = (startValue: number, steps: number) => {
+	if (steps === 0) {
+		return startValue;
+	}
+
+	const candidates = frameRatePresets.filter((preset) =>
+		steps > 0 ? preset > startValue : preset < startValue,
+	);
+	if (steps < 0) {
+		candidates.reverse();
+	}
+
+	return (
+		candidates[Math.min(Math.abs(steps), candidates.length) - 1] ?? startValue
+	);
+};
+
 const PresetDropdown: React.FC<{
 	readonly disabled: boolean;
 	readonly 'aria-label': string;
 	readonly values: ComboboxValue[] | (() => ComboboxValue[]);
-	readonly visible: boolean;
+	readonly visible: boolean | null;
 }> = ({disabled, 'aria-label': ariaLabel, values, visible}) => {
 	const renderAction = useCallback((color: string) => {
 		return (
@@ -213,9 +244,14 @@ const PresetDropdown: React.FC<{
 
 	return (
 		<div
+			className={
+				visible === null ? HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME : undefined
+			}
 			style={{
 				...presetDropdownContainer,
-				visibility: visible ? 'visible' : 'hidden',
+				...(visible === null
+					? null
+					: {visibility: visible ? 'visible' : 'hidden'}),
 			}}
 		>
 			<InlineDropdown
@@ -271,7 +307,7 @@ const CompositionMetadataValue: React.FC<{
 				return `${roundedValue} ${roundedValue === 1 ? 'frame' : 'frames'}`;
 			}
 
-			return String(roundedValue);
+			return `${roundedValue}px`;
 		},
 		[field, fps, showFrames],
 	);
@@ -345,6 +381,7 @@ const CompositionMetadataValue: React.FC<{
 				buttonStyle={metadataDraggerStyles[field]}
 				type="number"
 				textEditing={textEditing}
+				valueFromSteps={isFps ? frameRateFromDragSteps : null}
 				value={dragValue ?? pendingValue?.value ?? value}
 				disabled={pendingValue !== null}
 				status="ok"
@@ -353,6 +390,8 @@ const CompositionMetadataValue: React.FC<{
 				onTextChange={() => undefined}
 				min={isFps ? 0.01 : 1}
 				step={isFps ? 0.01 : 1}
+				allowStepMismatch={isFps}
+				dragSensitivity={isFps ? 0.1 : 1}
 				dragDecimalPlaces={isFps ? 2 : 0}
 				formatter={formatValue}
 				formatterStyle={
@@ -365,18 +404,12 @@ const CompositionMetadataValue: React.FC<{
 
 	if (isDimension) {
 		return (
-			<ActionTooltip
-				label={`${fieldLabels[field]} (px)`}
-				shortcut={null}
-				delay={800}
-				dismissOnClick
-				triggerStyle={dimensionControlStyle}
-			>
-				{content}
+			<span style={dimensionControlStyle}>
 				<span style={dimensionLabelStyle} aria-hidden>
 					{field === 'width' ? 'W' : 'H'}
 				</span>
-			</ActionTooltip>
+				{content}
+			</span>
 		);
 	}
 
@@ -616,8 +649,8 @@ export const CompositionMetadata: React.FC<{
 
 	return (
 		<div style={compositionMetadataContainer}>
-			<InspectorDetailRow
-				label={(hovered) => (
+			<div style={dimensionsRow} className={HOVER_GROUP_CLASS_NAME}>
+				<div style={detailLabel}>
 					<div style={metadataLabelControls}>
 						<span style={metadataLabelText}>Dimensions</span>
 						{disabled || widthIsComputed || heightIsComputed ? null : (
@@ -628,31 +661,32 @@ export const CompositionMetadata: React.FC<{
 								}
 								aria-label="Choose dimension preset"
 								values={dimensionPresetValues}
-								visible={hovered}
+								visible={null}
 							/>
 						)}
 					</div>
-				)}
-			>
-				<div style={dimensionsControls}>
-					<CompositionMetadataValue
-						computed={widthIsComputed}
-						disabled={disabled}
-						field="width"
-						onSave={saveMetadata}
-						pendingValue={pendingValues.width ?? null}
-						value={video.width}
-					/>
-					<CompositionMetadataValue
-						computed={heightIsComputed}
-						disabled={disabled}
-						field="height"
-						onSave={saveMetadata}
-						pendingValue={pendingValues.height ?? null}
-						value={video.height}
-					/>
 				</div>
-			</InspectorDetailRow>
+				<div style={detailValue}>
+					<div style={dimensionsControls}>
+						<CompositionMetadataValue
+							computed={widthIsComputed}
+							disabled={disabled}
+							field="width"
+							onSave={saveMetadata}
+							pendingValue={pendingValues.width ?? null}
+							value={video.width}
+						/>
+						<CompositionMetadataValue
+							computed={heightIsComputed}
+							disabled={disabled}
+							field="height"
+							onSave={saveMetadata}
+							pendingValue={pendingValues.height ?? null}
+							value={video.height}
+						/>
+					</div>
+				</div>
+			</div>
 			{isStill ? null : (
 				<>
 					<InspectorDetailRow
