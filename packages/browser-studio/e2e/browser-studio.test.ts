@@ -1616,12 +1616,17 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 
 	await assetItem.click();
 	await studio.getByRole('button', {name: 'Compositions', exact: true}).click();
-	const compositionItem = studio.locator('[data-compname="MyComp"]');
+	const compositionLink = studio.locator('[data-compname="MyComp"]');
+	const compositionItem = studio
+		.locator('.__remotion-hover-group')
+		.filter({has: compositionLink});
 	await compositionItem.hover();
 	await expect
 		.poll(() => getBackgroundColor(compositionItem))
 		.toBe('rgba(255, 255, 255, 0.06)');
-	const compositionActions = compositionItem.locator('button').first();
+	const compositionActions = compositionItem.getByRole('button', {
+		name: 'More actions',
+	});
 	await compositionActions.hover();
 	await expect
 		.poll(() => getColor(compositionActions))
@@ -1658,7 +1663,7 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await expect
 		.poll(() => getBackgroundColor(compositionItem))
 		.toBe('rgba(0, 0, 0, 0)');
-	await compositionItem.click();
+	await compositionLink.click();
 	await expect(addSolid).toBeVisible();
 
 	await neutralArea.hover();
