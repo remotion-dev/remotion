@@ -96,7 +96,14 @@ const label: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	lineHeight: '18px',
 	fontSize: QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE - 2,
-	overflowWrap: 'anywhere',
+	maskImage: 'linear-gradient(to right, black calc(100% - 10px), transparent)',
+	minWidth: 0,
+	overflow: 'hidden',
+	paddingRight: 10,
+	whiteSpace: 'nowrap',
+	WebkitMaskImage:
+		'linear-gradient(to right, black calc(100% - 10px), transparent)',
+	width: '100%',
 };
 
 const EffectPickerResult: React.FC<{
