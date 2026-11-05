@@ -5,24 +5,62 @@ import {
 	Interactive,
 	interpolate,
 	Sequence,
+	type SequenceControls,
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
 import type {Group} from 'three';
 
 const schema = {
-	positionX: {type: 'number', default: 0, step: 0.1, description: 'Position X'},
-	positionY: {type: 'number', default: 0, step: 0.1, description: 'Position Y'},
-	positionZ: {type: 'number', default: 0, step: 0.1, description: 'Position Z'},
-	rotationX: {type: 'number', default: 0, step: 1, description: 'Rotation X'},
-	rotationY: {type: 'number', default: 0, step: 1, description: 'Rotation Y'},
-	rotationZ: {type: 'number', default: 0, step: 1, description: 'Rotation Z'},
+	positionX: {
+		type: 'number',
+		default: 0,
+		step: 0.1,
+		description: 'Position X',
+		hiddenFromList: false,
+	},
+	positionY: {
+		type: 'number',
+		default: 0,
+		step: 0.1,
+		description: 'Position Y',
+		hiddenFromList: false,
+	},
+	positionZ: {
+		type: 'number',
+		default: 0,
+		step: 0.1,
+		description: 'Position Z',
+		hiddenFromList: false,
+	},
+	rotationX: {
+		type: 'number',
+		default: 0,
+		step: 1,
+		description: 'Rotation X',
+		hiddenFromList: false,
+	},
+	rotationY: {
+		type: 'number',
+		default: 0,
+		step: 1,
+		description: 'Rotation Y',
+		hiddenFromList: false,
+	},
+	rotationZ: {
+		type: 'number',
+		default: 0,
+		step: 1,
+		description: 'Rotation Z',
+		hiddenFromList: false,
+	},
 	scale: {
 		type: 'number',
 		default: 1,
 		min: 0.05,
 		step: 0.01,
 		description: 'Scale',
+		hiddenFromList: false,
 	},
 } as const;
 
@@ -157,9 +195,8 @@ const GroupObject: React.FC<TransformProps> = ({
 };
 
 const GroupWithSequence: React.FC<
-	TransformProps & {
-		readonly name?: string;
-		readonly controls: React.ComponentProps<typeof Sequence>['controls'];
+	TransformProps & {readonly name?: string} & {
+		readonly controls: SequenceControls | undefined;
 	}
 > = ({name, controls, ...props}) => {
 	return (
