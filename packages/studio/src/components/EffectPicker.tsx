@@ -14,7 +14,6 @@ import React, {
 } from 'react';
 import {Internals, type RuntimeValueStore} from 'remotion';
 import {
-	CURRENT_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -27,7 +26,6 @@ import {
 	hoverableStyle,
 } from '../helpers/hoverable';
 import {observeHover} from '../helpers/observe-hover';
-import {ExternalLinkIcon} from '../icons/external-link';
 import {useZIndex} from '../state/z-index';
 import {ContextMenu} from './ContextMenu';
 import {addEffectToSequence} from './effect-drag-and-drop';
@@ -58,47 +56,6 @@ const content: React.CSSProperties = {
 const inputStyle: React.CSSProperties = {
 	width: '100%',
 	borderRadius: 4,
-};
-
-const aboutEffectsRow: React.CSSProperties = {
-	display: 'flex',
-	justifyContent: 'flex-end',
-	marginBottom: 8,
-};
-
-const aboutEffectsLink: React.CSSProperties = {
-	alignItems: 'center',
-	cursor: 'default',
-	display: 'inline-flex',
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	gap: 4,
-	lineHeight: '14px',
-	minWidth: 0,
-	textDecoration: 'none',
-	...hoverableStyle({
-		idleBackground: TRANSPARENT,
-		hoverBackground: TRANSPARENT,
-		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
-	}),
-};
-
-const aboutEffectsLabel: React.CSSProperties = {
-	color: 'inherit',
-	fontFamily: 'sans-serif',
-	fontSize: 12,
-	lineHeight: '14px',
-	minWidth: 0,
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
-	whiteSpace: 'nowrap',
-};
-
-const aboutEffectsIcon: React.CSSProperties = {
-	flexShrink: 0,
-	height: 12,
-	width: 12,
 };
 
 const resultList: React.CSSProperties = {
@@ -454,22 +411,6 @@ export const EffectPicker: React.FC<{
 	return (
 		<div style={container} onKeyDown={onKeyDown}>
 			<div style={content}>
-				<div style={aboutEffectsRow}>
-					<a
-						href="https://remotion.dev/effects"
-						target="_blank"
-						rel="noopener noreferrer"
-						style={aboutEffectsLink}
-						className={HOVERABLE_CLASS_NAME}
-					>
-						<span style={aboutEffectsLabel}>About effects</span>
-						<ExternalLinkIcon
-							aria-hidden="true"
-							color={CURRENT_COLOR}
-							style={aboutEffectsIcon}
-						/>
-					</a>
-				</div>
 				<RemotionInput
 					type="text"
 					style={inputStyle}
