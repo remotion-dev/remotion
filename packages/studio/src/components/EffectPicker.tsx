@@ -86,7 +86,7 @@ const resultContainer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	gap: 1,
-	padding: '0 3px 1px',
+	padding: '0 0 1px',
 	minWidth: 0,
 	borderRadius: 4,
 };
