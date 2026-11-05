@@ -170,7 +170,7 @@ export const buildTimelineTree = ({
 				numberOfSequencesWithThisNodePath: 0,
 				supportsEffects,
 			},
-			label: pendingDeletion ? 'Effects (deleting…)' : 'Effects',
+			label: 'Effects',
 			effectInfo: null,
 			children: sequence.effects.flatMap((effect, i): TimelineTreeNode[] => {
 				if (hiddenEffects?.has(i)) return [];
