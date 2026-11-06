@@ -43,6 +43,7 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
+		"@remotion/studio-protocol": "workspace:*",
 		"@remotion/studio-shared": "workspace:*",
 		"@remotion/studio-server": "workspace:*",
 		"@remotion/studio": "workspace:*",

@@ -118,6 +118,15 @@ const sidebars: SidebarsConfig = {
 				'cli/versions',
 				'cli/upgrade',
 				'cli/add',
+				{
+					type: 'category',
+					label: 'elements',
+					link: {
+						type: 'doc',
+						id: 'cli/elements/index',
+					},
+					items: ['cli/elements/use'],
+				},
 				'cli/skills',
 				'cli/ffmpeg',
 				'cli/ffprobe',

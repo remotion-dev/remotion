@@ -1278,9 +1278,8 @@ const getProgramStatementSourceEdits = ({
 
 		const previousOriginal = ast.program.body
 			.slice(0, index - inserted.length + 1)
-			.findLast(
-				(candidate) => originalStatements.has(candidate) && candidate.loc,
-			);
+			.reverse()
+			.find((candidate) => originalStatements.has(candidate) && candidate.loc);
 		const offset = previousOriginal?.loc
 			? recastLocToOffset(input, previousOriginal.loc.end)
 			: input.length;
