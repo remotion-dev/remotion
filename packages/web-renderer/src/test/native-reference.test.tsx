@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest';
+import {commands} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {nativeReferenceControl} from './fixtures/native-reference-control';
@@ -47,8 +48,20 @@ test.for([0, 1])(
 		const result = await compareNativePixels(reference, changed);
 		expect(result.mismatchedPixels).toBe(1);
 		expect(result.maxChannelDelta).toBe(frame === 0 ? 1 : 127);
-		await savePixelEvidence(actual, 'native-reference-control-actual');
-		await savePixelEvidence(changed, 'native-reference-control-changed');
-		await savePixelEvidence(result.diff, 'native-reference-control-diff');
+		const saved = await savePixelEvidence(
+			actual,
+			`native-reference-control-${frame}-actual`,
+		);
+		const encoded = await commands.readFile(saved, 'base64');
+		const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
+		expect(bytes).toEqual(new Uint8Array(await actual.arrayBuffer()));
+		await savePixelEvidence(
+			changed,
+			`native-reference-control-${frame}-changed`,
+		);
+		await savePixelEvidence(
+			result.diff,
+			`native-reference-control-${frame}-diff`,
+		);
 	},
 );
