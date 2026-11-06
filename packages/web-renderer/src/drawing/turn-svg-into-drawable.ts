@@ -1,5 +1,34 @@
 import {getEmbeddedFontStyleForSvg} from './embed-registered-fonts-in-svg';
 
+const textFontProperties = [
+	'font-family',
+	'font-size',
+	'font-style',
+	'font-weight',
+	'font-stretch',
+] as const;
+
+const getReferencedTemplates = (svg: SVGSVGElement) => {
+	const documentUrl = new URL(svg.ownerDocument.URL);
+	documentUrl.hash = '';
+	const templates = new Set<Element>();
+	for (const use of svg.querySelectorAll('use')) {
+		try {
+			const url = new URL(use.href.baseVal, use.baseURI);
+			const id = decodeURIComponent(url.hash.slice(1));
+			url.hash = '';
+			if (url.href !== documentUrl.href) continue;
+			const template = svg.getElementById(id);
+			if (template) templates.add(template);
+		} catch {
+			// Invalid authored references do not instantiate a template.
+			continue;
+		}
+	}
+
+	return templates;
+};
+
 const drawableBySvg = new WeakMap<
 	SVGSVGElement,
 	{
@@ -11,6 +40,26 @@ const drawableBySvg = new WeakMap<
 
 export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	const {fill, color, width, height} = getComputedStyle(svg);
+	const textElements = Array.from(
+		svg.querySelectorAll('text, tspan, textPath'),
+	);
+	const referencedTemplates = textElements.length
+		? getReferencedTemplates(svg)
+		: new Set<Element>();
+	const textStyles = textElements.map((element) => {
+		// Templates inherit font selection from each <use> instance.
+		if (element.closest('defs, symbol')) return null;
+		let ancestor: Element = element;
+		while (ancestor !== svg) {
+			if (referencedTemplates.has(ancestor)) return null;
+			ancestor = ancestor.parentElement!;
+		}
+
+		const style = getComputedStyle(element);
+		return textFontProperties.map((property) =>
+			style.getPropertyValue(property),
+		);
+	});
 
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
@@ -43,8 +92,25 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginBottom = '0';
 	svg.style.fill = fill;
 	svg.style.color = color;
+	// External stylesheet rules disappear when the SVG becomes an image.
+	// Preserve resolved font selection without mutating mounted text elements.
+	const svgForSerialization =
+		textStyles.length === 0 ? svg : (svg.cloneNode(true) as SVGSVGElement);
+	svgForSerialization
+		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
+		.forEach((element, index) => {
+			const fontStyle = textStyles[index];
+			if (fontStyle === null) return;
+			textFontProperties.forEach((property, propertyIndex) => {
+				element.style.setProperty(
+					property,
+					fontStyle[propertyIndex],
+					'important',
+				);
+			});
+		});
 	const serializedSvg = new XMLSerializer()
-		.serializeToString(svg)
+		.serializeToString(svgForSerialization)
 		// eslint-disable-next-line no-control-regex
 		.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 

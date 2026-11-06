@@ -1,7 +1,18 @@
 import {NoReactInternals} from 'remotion/no-react';
+import '../symbol-dispose';
 import {expect, test} from 'vitest';
 import {getEmbeddedFontStyleForSvg} from '../drawing/embed-registered-fonts-in-svg';
 import {turnSvgIntoDrawable} from '../drawing/turn-svg-into-drawable';
+import {renderStillOnWeb} from '../render-still-on-web';
+import {
+	svgExternalFontReady,
+	svgExternalFontSelection,
+} from './fixtures/svg-external-font-selection';
+import {
+	captureNativeReference,
+	compareNativePixels,
+	savePixelEvidence,
+} from './native-reference';
 
 test('embeds only the font faces needed by SVG text', () => {
 	const family = 'Registered SVG font selection test';
@@ -97,3 +108,35 @@ test('reuses the drawable while an SVG is unchanged', async () => {
 		svg.remove();
 	}
 });
+
+// KINO-7769: external CSS font selection is absent from serialized SVG images.
+test.for([0, 1])(
+	'external SVG font selection matches native frame %i (KINO-7769)',
+	async (frame, t) => {
+		// WebKit native/image text differences remain unqualified; Firefox lacks alpha screenshots.
+		if (t.task.file.projectName !== 'chromium') {
+			t.skip();
+			return;
+		}
+
+		await svgExternalFontReady;
+		const reference = await captureNativeReference(
+			svgExternalFontSelection,
+			frame,
+		);
+		const actual = await (
+			await renderStillOnWeb({
+				composition: svgExternalFontSelection,
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+		const result = await compareNativePixels(reference, actual);
+		await savePixelEvidence(reference, `svg-external-font-${frame}-reference`);
+		await savePixelEvidence(actual, `svg-external-font-${frame}-actual`);
+		await savePixelEvidence(result.diff, `svg-external-font-${frame}-diff`);
+		expect(result.mismatchedPixels).toBe(0);
+	},
+);
