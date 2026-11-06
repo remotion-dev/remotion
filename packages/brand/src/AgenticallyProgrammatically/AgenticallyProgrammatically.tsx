@@ -1819,6 +1819,7 @@ const AgenticallyProgrammaticallyContent = ({
 				/>
 				<CodexDropSidebar
 					name="08 - Drop camera footage into Codex"
+					fadeIn
 					from={237}
 					durationInFrames={126}
 				/>

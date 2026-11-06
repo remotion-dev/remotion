@@ -1,19 +1,26 @@
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {AbsoluteFill, Track} from 'remotion';
+import {Sequence, Track} from 'remotion';
 import {BasicCaptions} from '../basic-captions';
+import {TimelineAudioRollingEditComposition} from '../TimelineAudioRollingEditComposition';
+import {ChatGPTPluginBroll} from './ChatGPTPluginBroll';
 import {CodexDropSidebar} from './CodexDropSidebar';
-import {CopyContextBroll} from './CopyContextBroll';
-import {InteractiveTimelinePan} from './InteractiveTimelinePan';
-import {InvokeAgentBroll} from './InvokeAgentBroll';
-import {MottoSidebar} from './MottoSidebar';
 import {
-	ShortAgentPlugins,
+	GitHubHeaderBroll,
+	GitHubStarsBroll,
+	NpmDownloadsBroll,
+} from './CommunityStatsBroll';
+import {EditingCapabilitiesBroll} from './EditingCapabilitiesBroll';
+import {
 	ShortBeatMatchPrompt,
+	ShortMotionGraphicsTitle,
 	ShortPlaceholderTimeline,
+	ShortPluginPrompt,
 	ShortPrompt,
+	ShortSoundtrackDemo,
 	ShortSoundtrackMusic,
 	ShortSoundtrackPlayback,
+	ShortSoundtrackPresenterPush,
 } from './ShortFormBroll';
 
 // 1080x1920 short-form cut of AgenticallyProgrammatically.
@@ -22,10 +29,10 @@ import {
 // B-roll `from` values are source-take frames, like in the long-form video.
 export const AgenticallyProgrammaticallyShort = () => {
 	return (
-		<AbsoluteFill style={{backgroundColor: '#000000'}}>
+		<>
 			<TransitionSeries name="AgenticallyProgrammatically - short-form cut">
 				<TransitionSeries.Sequence
-					name="1 - Interactive timeline in sync with your agent"
+					name="1 - Edit clips, keyframes, and audio"
 					trimBefore={84}
 					durationInFrames={212}
 				>
@@ -62,41 +69,54 @@ export const AgenticallyProgrammaticallyShort = () => {
 						}}
 					>
 						<Track name="1 - Cutaways">
-							<InteractiveTimelinePan
-								name="1 - Pan across the interactive timeline"
+							<EditingCapabilitiesBroll
+								name="1 - Trim clips and move keyframes"
 								from={84}
-								durationInFrames={154}
-								playbackRate={154 / 137}
+								durationInFrames={136 * (124 / 142)}
+								playbackRate={124 / 142}
 								width={1920}
 								height={1080}
 								style={{
 									left: -420,
 									top: -60,
 									scale: 0.889,
-									backgroundColor: '#16181b',
+									backgroundColor: '#1c1e23',
 									overflow: 'hidden',
 								}}
 							/>
-							<CopyContextBroll
-								name="1 - Copy context for agents"
-								from={221}
-								durationInFrames={75}
-								width={1920}
-								height={1080}
-								style={{left: -420, top: -60, scale: 0.889}}
+							<TimelineAudioRollingEditComposition
+								name="1 - Audio rolling edit - hover cursors"
+								cursorSpin
+								plainAngle
+								from={220}
+								durationInFrames={76 * (57 / 70)}
+								playbackRate={57 / 70}
+								width={1080}
+								height={960}
+								style={{
+									scale: 1.35,
+									backgroundColor: '#15161b',
+									overflow: 'hidden',
+								}}
 							/>
 						</Track>
 					</div>
 					<BasicCaptions
 						name="1 - Captions"
-						width={980}
+						width={1040}
 						combineTokensWithinMilliseconds={10000}
 						style={{
 							position: 'absolute',
-							left: 50,
+							left: 20,
 							top: 860,
 							height: 200,
 							fontSize: 80,
+							backgroundColor: '#ffffff',
+							color: '#000000',
+							fontFamily: 'Here GT Planar',
+							fontWeight: 500,
+							paddingInline: 40,
+							whiteSpace: 'nowrap',
 						}}
 						captions={[
 							{
@@ -279,36 +299,18 @@ export const AgenticallyProgrammaticallyShort = () => {
 						}}
 					>
 						<Track name="2 - Cutaways">
-							<InvokeAgentBroll
-								name="2 - Invoke ChatGPT from the context menu"
+							<ShortPluginPrompt
+								name="2 - Invoke the Remotion plugin in ChatGPT"
 								from={234}
-								durationInFrames={135}
-								playbackRate={135 / 84}
-								width={1920}
-								height={1080}
-								style={{left: -420, top: -60, scale: 0.889}}
-							/>
-							<InvokeAgentBroll
-								name="2 - ChatGPT receives the Studio context"
-								from={318}
-								trimBefore={135}
-								durationInFrames={57}
-								playbackRate={57 / 38}
-								width={1920}
-								height={1080}
-								style={{
-									left: -420,
-									top: -60,
-									scale: 0.889,
-									translate: '224px 0px',
-								}}
+								durationInFrames={122}
 							/>
 						</Track>
 						<CodexDropSidebar
 							name="2 - Drop camera footage into the agent"
-							from={338}
+							fadeIn={false}
+							from={356}
 							durationInFrames={126}
-							playbackRate={126 / 156}
+							playbackRate={126 / 138}
 							width={1920}
 							height={1080}
 							style={{
@@ -321,14 +323,20 @@ export const AgenticallyProgrammaticallyShort = () => {
 					</div>
 					<BasicCaptions
 						name="2 - Captions"
-						width={980}
+						width={1040}
 						combineTokensWithinMilliseconds={10000}
 						style={{
 							position: 'absolute',
-							left: 50,
+							left: 20,
 							top: 860,
 							height: 200,
 							fontSize: 80,
+							backgroundColor: '#ffffff',
+							color: '#000000',
+							fontFamily: 'Here GT Planar',
+							fontWeight: 500,
+							paddingInline: 40,
+							whiteSpace: 'nowrap',
 						}}
 						captions={[
 							{
@@ -554,29 +562,58 @@ export const AgenticallyProgrammaticallyShort = () => {
 							overflow: 'hidden',
 						}}
 					>
-						<ShortPrompt
-							name="3 - Timeline, captions, and motion graphics prompt"
-							from={97}
-							durationInFrames={130}
-							theme="light"
-							pluginName="Remotion"
-							isInitialPrompt={false}
-							prompt="Put these videos on the timeline with captions and motion graphics as well."
-							typingStartFrame={6}
-							typingDurationInFrames={112}
-							cameraDurationInFrames={130}
-						/>
+						<Track name="3 - Cutaways">
+							<ShortPrompt
+								name="3 - Ask for motion graphics"
+								from={97}
+								durationInFrames={54}
+								theme="light"
+								pluginName="Remotion"
+								isInitialPrompt={false}
+								prompt="Put these videos on the timeline with captions and motion graphics as well."
+								typingStartFrame={6}
+								typingDurationInFrames={42}
+								cameraDurationInFrames={54}
+							/>
+							<ShortMotionGraphicsTitle
+								name="3 - Added Roller Ski Commute title"
+								from={151}
+								durationInFrames={29}
+							/>
+							<EditingCapabilitiesBroll
+								name="3 - Drag captions on the canvas"
+								from={180}
+								trimBefore={124}
+								durationInFrames={61}
+								playbackRate={61 / 47}
+								width={1920}
+								height={1080}
+								style={{
+									left: -420,
+									top: -60,
+									scale: 0.889,
+									backgroundColor: '#1c1e23',
+									overflow: 'hidden',
+								}}
+							/>
+						</Track>
 					</div>
 					<BasicCaptions
 						name="3 - Captions"
-						width={980}
+						width={1040}
 						combineTokensWithinMilliseconds={10000}
 						style={{
 							position: 'absolute',
-							left: 50,
+							left: 20,
 							top: 860,
 							height: 200,
 							fontSize: 80,
+							backgroundColor: '#ffffff',
+							color: '#000000',
+							fontFamily: 'Here GT Planar',
+							fontWeight: 500,
+							paddingInline: 40,
+							whiteSpace: 'nowrap',
 						}}
 						captions={[
 							{
@@ -743,14 +780,20 @@ export const AgenticallyProgrammaticallyShort = () => {
 					</div>
 					<BasicCaptions
 						name="4 - Captions"
-						width={980}
+						width={1040}
 						combineTokensWithinMilliseconds={10000}
 						style={{
 							position: 'absolute',
-							left: 50,
+							left: 20,
 							top: 860,
 							height: 200,
 							fontSize: 80,
+							backgroundColor: '#ffffff',
+							color: '#000000',
+							fontFamily: 'Here GT Planar',
+							fontWeight: 500,
+							paddingInline: 40,
+							whiteSpace: 'nowrap',
 						}}
 						captions={[
 							{
@@ -939,35 +982,72 @@ export const AgenticallyProgrammaticallyShort = () => {
 						]}
 					/>
 				</TransitionSeries.Sequence>
-				<TransitionSeries.Overlay durationInFrames={434} offset={172}>
-					<ShortSoundtrackMusic />
-				</TransitionSeries.Overlay>
+				<TransitionSeries.Sequence
+					name="4b - Hear the beat-matched timeline"
+					durationInFrames={169}
+				>
+					<ShortSoundtrackPresenterPush direction="down">
+						<Video
+							name="Hold presenter while the timeline expands"
+							src="https://remotion.media/agent-2026-11-06/agent4-32bf758bf890.mov"
+							muted
+							freeze={370}
+							cropLeft={0.276268116}
+							cropRight={0.234601449}
+							cropTop={0.141706924}
+							cropBottom={0.085346216}
+							style={{
+								position: 'absolute',
+								left: 0,
+								top: 0,
+								width: 2208,
+								height: 1242,
+								objectFit: 'cover',
+								translate: '-610px 784px',
+							}}
+						/>
+					</ShortSoundtrackPresenterPush>
+					<ShortSoundtrackDemo
+						name="Timeline expands into the music-only demo"
+						durationInFrames={169}
+					/>
+				</TransitionSeries.Sequence>
 				<TransitionSeries.Sequence
 					name="5 - Try the ChatGPT or Claude plugin"
 					trimBefore={60}
-					durationInFrames={390}
+					durationInFrames={371}
 				>
-					<Video
-						name="agent5.mov"
-						src="https://remotion.media/agent-2026-11-06/agent5-88d40087caaf.mov"
-						muted
-						cropLeft={0.291666667}
-						cropRight={0.219202899}
-						cropTop={0.141706924}
-						cropBottom={0.085346216}
-						style={{
-							position: 'absolute',
-							left: 0,
-							top: 0,
-							width: 2208,
-							height: 1242,
-							objectFit: 'cover',
-							translate: '-644px 784px',
-						}}
-					/>
+					<ShortSoundtrackPresenterPush direction="up">
+						<Video
+							name="agent5.mov"
+							src="https://remotion.media/agent-2026-11-06/agent5-88d40087caaf.mov"
+							muted
+							cropLeft={0.291666667}
+							cropRight={0.219202899}
+							cropTop={0.141706924}
+							cropBottom={0.085346216}
+							style={{
+								position: 'absolute',
+								left: 0,
+								top: 0,
+								width: 2208,
+								height: 1242,
+								objectFit: 'cover',
+								translate: '-644px 784px',
+							}}
+						/>
+					</ShortSoundtrackPresenterPush>
 					<Audio
 						name="agent5 - cleaned dialogue"
 						src="https://remotion.media/agent-2026-11-06/audio/agent5-auphonic-c470a60da493.flac"
+					/>
+					<ShortSoundtrackPlayback
+						name="5 - Timeline keeps playing as narration resumes"
+						from={60}
+						trimBefore={169}
+						durationInFrames={60}
+						width={1080}
+						height={1920}
 					/>
 					<div
 						style={{
@@ -980,298 +1060,312 @@ export const AgenticallyProgrammaticallyShort = () => {
 						}}
 					>
 						<Track name="5 - Cutaways">
-							<ShortAgentPlugins
-								name="5 - ChatGPT and Claude plugins"
-								from={179}
-								durationInFrames={113}
-								style={{backgroundColor: '#f8fafc'}}
+							<ChatGPTPluginBroll
+								name="5 - Pan across the ChatGPT plugin"
+								from={120}
+								durationInFrames={121}
+								playbackRate={121 / 172}
 							/>
-							<MottoSidebar
-								name="5 - Remotion motto"
+							<GitHubHeaderBroll
+								name="5 - remotion-dev/remotion header"
 								from={292}
-								trimBefore={130}
-								durationInFrames={237}
-								playbackRate={1.5}
-								startWithPanelVisible
-								width={1920}
-								height={1080}
-								style={{
-									left: -420,
-									top: -60,
-									scale: 1.2857,
-									translate: '-694px 39px',
-								}}
+								durationInFrames={46}
+								style={{backgroundColor: '#010409', overflow: 'hidden'}}
+							/>
+							<GitHubStarsBroll
+								name="5 - People like it - GitHub stars"
+								from={338}
+								durationInFrames={45}
+								style={{backgroundColor: '#0d1117'}}
+							/>
+							<NpmDownloadsBroll
+								name="5 - People like it - npm downloads"
+								from={383}
+								durationInFrames={48}
+								style={{backgroundColor: '#0d1117'}}
 							/>
 						</Track>
 					</div>
-					<ShortSoundtrackPlayback
-						name="5 - Full screen: the timeline flows with the music"
-						from={60}
-						durationInFrames={119}
-					/>
-					<BasicCaptions
-						name="5 - Captions"
-						width={980}
-						combineTokensWithinMilliseconds={10000}
-						style={{
-							position: 'absolute',
-							left: 50,
-							top: 860,
-							height: 200,
-							fontSize: 80,
-						}}
-						captions={[
-							{
-								text: 'Now',
-								startMs: 2140,
-								endMs: 2200,
-								timestampMs: 2170,
-								confidence: null,
-							},
-							{
-								text: ' the',
-								startMs: 2200,
-								endMs: 2420,
-								timestampMs: 2310,
-								confidence: null,
-							},
-							{
-								text: ' video',
-								startMs: 2420,
-								endMs: 2760,
-								timestampMs: 2590,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: " you'll",
-								startMs: 2760,
-								endMs: 3160,
-								timestampMs: 2960,
-								confidence: null,
-							},
-							{
-								text: ' be',
-								startMs: 3160,
-								endMs: 3320,
-								timestampMs: 3240,
-								confidence: null,
-							},
-							{
-								text: ' working',
-								startMs: 3320,
-								endMs: 3800,
-								timestampMs: 3560,
-								confidence: null,
-							},
-							{
-								text: ' on',
-								startMs: 3800,
-								endMs: 4000,
-								timestampMs: 3900,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' will',
-								startMs: 4000,
-								endMs: 4200,
-								timestampMs: 4100,
-								confidence: null,
-							},
-							{
-								text: ' flow',
-								startMs: 4200,
-								endMs: 4480,
-								timestampMs: 4340,
-								confidence: null,
-							},
-							{
-								text: ' with',
-								startMs: 4480,
-								endMs: 4760,
-								timestampMs: 4620,
-								confidence: null,
-							},
-							{
-								text: ' the',
-								startMs: 4760,
-								endMs: 4940,
-								timestampMs: 4850,
-								confidence: null,
-							},
-							{
-								text: ' music.',
-								startMs: 4940,
-								endMs: 5960,
-								timestampMs: 5450,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' Try',
-								startMs: 5960,
-								endMs: 6020,
-								timestampMs: 5990,
-								confidence: null,
-							},
-							{
-								text: ' it',
-								startMs: 6020,
-								endMs: 6240,
-								timestampMs: 6130,
-								confidence: null,
-							},
-							{
-								text: ' yourself',
-								startMs: 6240,
-								endMs: 6860,
-								timestampMs: 6550,
-								confidence: null,
-							},
-							{
-								text: ' today',
-								startMs: 6860,
-								endMs: 7240,
-								timestampMs: 7050,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' using',
-								startMs: 7240,
-								endMs: 7640,
-								timestampMs: 7440,
-								confidence: null,
-							},
-							{
-								text: ' the',
-								startMs: 7640,
-								endMs: 7840,
-								timestampMs: 7740,
-								confidence: null,
-							},
-							{
-								text: ' ChatGPT',
-								startMs: 7840,
-								endMs: 8400,
-								timestampMs: 8120,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' or',
-								startMs: 8400,
-								endMs: 8540,
-								timestampMs: 8470,
-								confidence: null,
-							},
-							{
-								text: ' Claude',
-								startMs: 8540,
-								endMs: 9080,
-								timestampMs: 8810,
-								confidence: null,
-							},
-							{
-								text: ' plugin',
-								startMs: 9080,
-								endMs: 9740,
-								timestampMs: 9410,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' and',
-								startMs: 9740,
-								endMs: 9940,
-								timestampMs: 9840,
-								confidence: null,
-							},
-							{
-								text: ' experience',
-								startMs: 9940,
-								endMs: 10480,
-								timestampMs: 10210,
-								confidence: null,
-							},
-							{
-								text: ' it',
-								startMs: 10480,
-								endMs: 10620,
-								timestampMs: 10550,
-								confidence: null,
-							},
-							{
-								text: ' yourself',
-								startMs: 10620,
-								endMs: 11160,
-								timestampMs: 10890,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' why',
-								startMs: 11160,
-								endMs: 11280,
-								timestampMs: 11220,
-								confidence: null,
-							},
-							{
-								text: ' people',
-								startMs: 11280,
-								endMs: 11680,
-								timestampMs: 11480,
-								confidence: null,
-							},
-							{
-								text: ' like',
-								startMs: 11680,
-								endMs: 12000,
-								timestampMs: 11840,
-								confidence: null,
-							},
-							{
-								text: ' editing',
-								startMs: 12000,
-								endMs: 12440,
-								timestampMs: 12220,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-							{
-								text: ' with',
-								startMs: 12440,
-								endMs: 12740,
-								timestampMs: 12590,
-								confidence: null,
-							},
-							{
-								text: ' Remotion',
-								startMs: 12740,
-								endMs: 13640,
-								timestampMs: 13190,
-								confidence: null,
-							},
-							{
-								text: ' a',
-								startMs: 13640,
-								endMs: 13760,
-								timestampMs: 13700,
-								confidence: null,
-							},
-							{
-								text: ' lot.',
-								startMs: 13760,
-								endMs: 14280,
-								timestampMs: 14020,
-								confidence: null,
-								pageBreakAfter: true,
-							},
-						]}
-					/>
+					<ShortSoundtrackPresenterPush direction="up">
+						<BasicCaptions
+							name="5 - Captions"
+							width={1040}
+							combineTokensWithinMilliseconds={10000}
+							style={{
+								position: 'absolute',
+								left: 20,
+								top: 860,
+								height: 200,
+								fontSize: 80,
+								backgroundColor: '#ffffff',
+								color: '#000000',
+								fontFamily: 'Here GT Planar',
+								fontWeight: 500,
+								paddingInline: 40,
+								whiteSpace: 'nowrap',
+							}}
+							captions={[
+								{
+									text: 'Now',
+									startMs: 2140,
+									endMs: 2200,
+									timestampMs: 2170,
+									confidence: null,
+								},
+								{
+									text: ' the',
+									startMs: 2200,
+									endMs: 2420,
+									timestampMs: 2310,
+									confidence: null,
+								},
+								{
+									text: ' video',
+									startMs: 2420,
+									endMs: 2760,
+									timestampMs: 2590,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: " you'll",
+									startMs: 2760,
+									endMs: 3160,
+									timestampMs: 2960,
+									confidence: null,
+								},
+								{
+									text: ' be',
+									startMs: 3160,
+									endMs: 3320,
+									timestampMs: 3240,
+									confidence: null,
+								},
+								{
+									text: ' working',
+									startMs: 3320,
+									endMs: 3800,
+									timestampMs: 3560,
+									confidence: null,
+								},
+								{
+									text: ' on',
+									startMs: 3800,
+									endMs: 4000,
+									timestampMs: 3900,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' will',
+									startMs: 4000,
+									endMs: 4200,
+									timestampMs: 4100,
+									confidence: null,
+								},
+								{
+									text: ' flow',
+									startMs: 4200,
+									endMs: 4480,
+									timestampMs: 4340,
+									confidence: null,
+								},
+								{
+									text: ' with',
+									startMs: 4480,
+									endMs: 4760,
+									timestampMs: 4620,
+									confidence: null,
+								},
+								{
+									text: ' the',
+									startMs: 4760,
+									endMs: 4940,
+									timestampMs: 4850,
+									confidence: null,
+								},
+								{
+									text: ' music.',
+									startMs: 4940,
+									endMs: 5960,
+									timestampMs: 5450,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' Try',
+									startMs: 5960,
+									endMs: 6020,
+									timestampMs: 5990,
+									confidence: null,
+								},
+								{
+									text: ' it',
+									startMs: 6020,
+									endMs: 6240,
+									timestampMs: 6130,
+									confidence: null,
+								},
+								{
+									text: ' yourself',
+									startMs: 6240,
+									endMs: 6860,
+									timestampMs: 6550,
+									confidence: null,
+								},
+								{
+									text: ' today',
+									startMs: 6860,
+									endMs: 7240,
+									timestampMs: 7050,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' using',
+									startMs: 7240,
+									endMs: 7640,
+									timestampMs: 7440,
+									confidence: null,
+								},
+								{
+									text: ' the',
+									startMs: 7640,
+									endMs: 7840,
+									timestampMs: 7740,
+									confidence: null,
+								},
+								{
+									text: ' ChatGPT',
+									startMs: 7840,
+									endMs: 8400,
+									timestampMs: 8120,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' or',
+									startMs: 8400,
+									endMs: 8540,
+									timestampMs: 8470,
+									confidence: null,
+								},
+								{
+									text: ' Claude',
+									startMs: 8540,
+									endMs: 9080,
+									timestampMs: 8810,
+									confidence: null,
+								},
+								{
+									text: ' plugin',
+									startMs: 9080,
+									endMs: 9740,
+									timestampMs: 9410,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' and',
+									startMs: 9740,
+									endMs: 9940,
+									timestampMs: 9840,
+									confidence: null,
+								},
+								{
+									text: ' experience',
+									startMs: 9940,
+									endMs: 10480,
+									timestampMs: 10210,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' it',
+									startMs: 10480,
+									endMs: 10620,
+									timestampMs: 10550,
+									confidence: null,
+								},
+								{
+									text: ' yourself',
+									startMs: 10620,
+									endMs: 11160,
+									timestampMs: 10890,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' why',
+									startMs: 11160,
+									endMs: 11280,
+									timestampMs: 11220,
+									confidence: null,
+								},
+								{
+									text: ' people',
+									startMs: 11280,
+									endMs: 11680,
+									timestampMs: 11480,
+									confidence: null,
+								},
+								{
+									text: ' like',
+									startMs: 11680,
+									endMs: 12000,
+									timestampMs: 11840,
+									confidence: null,
+								},
+								{
+									text: ' editing',
+									startMs: 12000,
+									endMs: 12440,
+									timestampMs: 12220,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+								{
+									text: ' with',
+									startMs: 12440,
+									endMs: 12740,
+									timestampMs: 12590,
+									confidence: null,
+								},
+								{
+									text: ' Remotion',
+									startMs: 12740,
+									endMs: 13640,
+									timestampMs: 13190,
+									confidence: null,
+								},
+								{
+									text: ' a',
+									startMs: 13640,
+									endMs: 13760,
+									timestampMs: 13700,
+									confidence: null,
+								},
+								{
+									text: ' lot.',
+									startMs: 13760,
+									endMs: 14280,
+									timestampMs: 14020,
+									confidence: null,
+									pageBreakAfter: true,
+								},
+							]}
+						/>
+					</ShortSoundtrackPresenterPush>
 				</TransitionSeries.Sequence>
 			</TransitionSeries>
-		</AbsoluteFill>
+			<Sequence
+				name="Music lead-in, timeline demo, and narration bed"
+				from={861}
+				durationInFrames={584}
+				layout="none"
+			>
+				<ShortSoundtrackMusic />
+			</Sequence>
+		</>
 	);
 };
