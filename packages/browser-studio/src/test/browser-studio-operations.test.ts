@@ -228,9 +228,12 @@ registerRoot(Root);
 	const {nodePathRemappings} = result;
 	const output = updated.files['/project/src/index.tsx'];
 
-	expect(output).toContain(
-		"import {AbsoluteFill, Composition, registerRoot, Solid as Solid2} from 'remotion';",
-	);
+	expect(output).toContain(`import {
+  AbsoluteFill,
+  Composition,
+  registerRoot,
+  Solid as Solid2,
+} from 'remotion';`);
 	expect(output).not.toContain('<Sequence');
 	expect(output).toContain('<AbsoluteFill />');
 	expect(output).toMatch(/<Solid2\s+width=\{1280\}/);
