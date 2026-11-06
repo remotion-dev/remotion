@@ -1,6 +1,7 @@
 import {Video} from '@remotion/media';
-import {Composition, Folder} from 'remotion';
+import {Composition, Folder, Still} from 'remotion';
 import {z} from 'zod';
+import {IterateFastThumbnail} from '../IterateFastThumbnail';
 import {
 	AgenticallyProgrammatically,
 	agenticallyProgrammaticallySchema,
@@ -60,6 +61,12 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 	return (
 		<>
 			<Folder name="AgenticallyProgrammatically">
+				<Still
+					id="IterateFastThumbnail"
+					component={IterateFastThumbnail}
+					width={1920}
+					height={1080}
+				/>
 				<Composition
 					id="AgenticallyProgrammaticallyWithStudioUpdate"
 					component={AgenticallyProgrammaticallyWithStudioUpdate}
