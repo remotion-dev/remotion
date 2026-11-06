@@ -26,6 +26,10 @@ EffectCraft's weather simulations (`crates/effects/src/sim.rs` and
 `crates/raster/src/lib.rs`), revision
 `eb5108786b90bf994a6abe4e6c0b2614c6aeaa29`, also under the MIT license.
 
+The Magnify shaders are adapted from EffectCraft's Magnify effect and bicubic
+sampler (`crates/effects/src/distort2.rs` and `crates/raster/src/lib.rs`), revision
+`1786c24523a5d5a67c01ff41213b66018a69bb04`, also under the MIT license.
+
 MIT License
 
 Copyright (c) 2026 ArtCraft Team and the EffectCraft contributors

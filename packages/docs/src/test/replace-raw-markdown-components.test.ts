@@ -3,10 +3,8 @@ import {readFileSync} from 'fs';
 import path from 'path';
 import {getRemotionElementSourceMap} from '../../plugins/element-source-utils';
 import {elementDefinitions} from '../components/Elements/element-definitions';
-import {
-	getElementDocumentationUrl,
-	getElementLibrarySections,
-} from '../components/Elements/element-library-data';
+import {getElementLibrarySections} from '../components/Elements/element-library-data';
+import {getElementMarkdownUrl} from '../raw-markdown/element-markdown';
 import {
 	expandRawMarkdownComponents,
 	getStringAttribute,
@@ -48,7 +46,7 @@ test('expands the actual Element overview into categorized Markdown', () => {
 
 	for (const definition of elementDefinitions) {
 		expect(output).toContain(
-			`[${definition.displayName}](${getElementDocumentationUrl(definition)})`,
+			`[${definition.displayName}](${getElementMarkdownUrl(definition)})`,
 		);
 		expect(output).toContain(definition.description);
 	}
@@ -73,7 +71,7 @@ test('expands the actual Element category indexes without unrelated entries', ()
 
 		expect(output).not.toContain('ElementLibrary');
 		for (const definition of elementDefinitions) {
-			const elementLink = `[${definition.displayName}](${getElementDocumentationUrl(definition)})`;
+			const elementLink = `[${definition.displayName}](${getElementMarkdownUrl(definition)})`;
 			if (definition.category === section.category) {
 				expect(output).toContain(elementLink);
 			} else {

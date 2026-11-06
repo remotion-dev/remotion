@@ -2,12 +2,12 @@ import path from 'path';
 import {VERSION} from 'remotion';
 import {studioTableOfContents} from '../../docs/studio/table-of-contents-data';
 import {
-	getElementDocumentationUrl,
 	getElementLibrarySections,
 	isElementCategory,
 	type ElementCategory,
 } from '../components/Elements/element-library-data';
 import {thirdPartyElementLibraries} from '../components/Elements/third-party-element-library-data';
+import {getElementMarkdownUrl} from './element-markdown';
 
 export type RawMarkdownComponentReplacement = {
 	readonly componentName: string;
@@ -172,7 +172,7 @@ const renderElementLibraryMarkdown = (attributes: string) => {
 			const list = section.definitions
 				.map(
 					(definition) =>
-						`- [${definition.displayName}](${getElementDocumentationUrl(definition)}) — ${definition.description}`,
+						`- [${definition.displayName}](${getElementMarkdownUrl(definition)}) — ${definition.description}`,
 				)
 				.join('\n');
 

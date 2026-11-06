@@ -1,6 +1,7 @@
 import {Video} from '@remotion/media';
-import {Composition, Folder} from 'remotion';
+import {Composition, Folder, Still} from 'remotion';
 import {z} from 'zod';
+import {IterateFastThumbnail} from '../IterateFastThumbnail';
 import {
 	AgenticallyProgrammatically,
 	agenticallyProgrammaticallySchema,
@@ -60,6 +61,12 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 	return (
 		<>
 			<Folder name="AgenticallyProgrammatically">
+				<Still
+					id="IterateFastThumbnail"
+					component={IterateFastThumbnail}
+					width={1920}
+					height={1080}
+				/>
 				<Composition
 					id="AgenticallyProgrammaticallyWithStudioUpdate"
 					component={AgenticallyProgrammaticallyWithStudioUpdate}
@@ -80,7 +87,11 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 						durationInFrames: props.platform === 'youtube' ? 9445 : 9145,
 					})}
 					schema={agenticallyProgrammaticallySchema}
-					defaultProps={{startWithPanelVisible: false, platform: 'linkedin'}}
+					defaultProps={{
+						startWithPanelVisible: false,
+						softenOpeningVoice: false,
+						platform: 'linkedin',
+					}}
 					durationInFrames={9145}
 					fps={30}
 					width={1920}

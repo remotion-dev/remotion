@@ -195,7 +195,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			if (
 				button === 0 &&
 				!sequenceWasDragged &&
-				connectedCompositions.length !== 1 &&
+				connectedCompositions.length === 0 &&
 				previewServerState.type === 'connected' &&
 				isStudioInteractivityEnabled() &&
 				currentSelection.current.canSelect &&

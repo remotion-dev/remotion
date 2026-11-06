@@ -124,9 +124,10 @@ export const getRegistrationInsertionResult = ({
 	let element: JSXElement;
 	if (inserted.type === 'last-child') {
 		const root = findRegistrationRoot({ast: nextAst, folder: inserted.folder});
-		const last = root.children.findLast(
-			(child): child is JSXElement => child.type === 'JSXElement',
-		);
+		const last = root.children
+			.slice()
+			.reverse()
+			.find((child): child is JSXElement => child.type === 'JSXElement');
 		if (!last) {
 			throw new Error('Could not locate the inserted registration');
 		}

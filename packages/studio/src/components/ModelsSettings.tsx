@@ -1,8 +1,8 @@
+import {TRANSFORMERS_PACKAGE} from '@remotion/studio-shared';
 import React, {Suspense, useCallback, useContext, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WARNING_COLOR, WHITE} from '../helpers/colors';
-import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
 import {canInstallPackagesInStudio} from '../helpers/settings-tab-availability';
 import {Button} from './Button';
 import {sectionHeader} from './InspectorPanel/styles';

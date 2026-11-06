@@ -18,6 +18,7 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
@@ -198,6 +199,7 @@ export const CodemodsInternals = {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getJsxSourceLocation,
 	getKeyframeSourceLocationRemappings,

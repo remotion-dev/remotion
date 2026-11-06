@@ -296,6 +296,7 @@
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/studio": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-server": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "dotenv": "17.3.1",
