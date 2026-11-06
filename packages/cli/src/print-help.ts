@@ -7,9 +7,10 @@ import {
 	getCommandHelp,
 	makeCommandHelpOption,
 } from './command-help';
+import {ELEMENTS_COMMAND} from './elements';
+import {USE_COMMAND} from './elements/use';
 import {GPU_COMMAND} from './gpu';
 import {Log} from './log';
-import {USE_ELEMENT_COMMAND} from './use-element';
 import {VERSIONS_COMMAND} from './versions';
 
 const packagejson = require('../package.json');
@@ -496,10 +497,17 @@ export const cliCommandHelp = [
 		options: options(['package-manager', 'log']),
 	},
 	{
-		path: [USE_ELEMENT_COMMAND],
+		path: [ELEMENTS_COMMAND],
+		args: ' <command>',
+		description: 'Install Elements from Element Libraries.',
+		documentation: 'https://www.remotion.dev/docs/cli/elements',
+		options: [],
+	},
+	{
+		path: [ELEMENTS_COMMAND, USE_COMMAND],
 		args: ' <url>',
-		description: 'Install an Element from an Element library page.',
-		documentation: 'https://www.remotion.dev/docs/cli/use-element',
+		description: 'Install an Element from an Element Library page.',
+		documentation: 'https://www.remotion.dev/docs/cli/elements/use',
 		options: [
 			{
 				flag: '--element <slug>',

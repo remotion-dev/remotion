@@ -126,7 +126,7 @@ Also offer a way around the failure:
 
 ## 4. Embed the payload<AvailableFrom v="4.0.542" />
 
-Give each Element its own page, and put its payload in a `<script>` tag in that page's HTML. Users and agents can then install the Element from the page's URL with [`npx remotion use-element`](/docs/cli/use-element). Use [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html) to create the script's content:
+Give each Element its own page, and put its payload in a `<script>` tag in that page's HTML. Users and agents can then install the Element from the page's URL with [`npx remotion elements use`](/docs/cli/elements/use). Use [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html) to create the script's content:
 
 ```tsx title="ElementPage.tsx"
 const payload = createElementPayload({...});
@@ -150,7 +150,7 @@ The script must be in the HTML that your server sends, so the page must be serve
 <br />
 <Step>2</Step> Check that the Element's assets and dependencies are in the project.
 <br />
-<Step>3</Step> Run [`npx remotion use-element`](/docs/cli/use-element) with the URL of an Element page.
+<Step>3</Step> Run [`npx remotion elements use`](/docs/cli/elements/use) with the URL of an Element page.
 
 In production, serve your website over HTTPS. HTTP works only on `localhost` and `127.0.0.1`.
 
@@ -164,6 +164,6 @@ In production, serve your website over HTTPS. HTTP works only on `localhost` and
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)
 - [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html)
-- [`npx remotion use-element`](/docs/cli/use-element)
+- [`npx remotion elements use`](/docs/cli/elements/use)
 - [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio)
 - [Studio Protocol security](/docs/studio-protocol/security)

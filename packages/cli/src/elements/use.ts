@@ -15,20 +15,21 @@ import {
 	type InstallableElement,
 } from '@remotion/studio-shared';
 import minimist from 'minimist';
-import {chalk} from './chalk';
-import {selectAsync} from './composition-prompts';
-import {findEntryPoint} from './entry-point';
-import {Log} from './log';
-import {parsedCli} from './parsed-cli';
-import {yesOrNo} from './yes-or-no';
+import {chalk} from '../chalk';
+import {selectAsync} from '../composition-prompts';
+import {findEntryPoint} from '../entry-point';
+import {Log} from '../log';
+import {parsedCli} from '../parsed-cli';
+import {yesOrNo} from '../yes-or-no';
 
-export const USE_ELEMENT_COMMAND = 'use-element';
+export const USE_COMMAND = 'use';
 
 const PAYLOAD_DOCS_URL =
 	'https://www.remotion.dev/docs/studio-protocol/serialize-element-payload-for-html';
 const FETCH_TIMEOUT_IN_MILLISECONDS = 30_000;
+const MAX_PAGE_SIZE_IN_BYTES = 20 * 1024 * 1024;
 
-export const runUseElementCommand = async ({
+export const elementsUseCommand = async ({
 	remotionRoot,
 	argv,
 	logLevel,
@@ -47,10 +48,11 @@ export const runUseElementCommand = async ({
 		boolean: ['yes', 'overwrite'],
 		alias: {y: 'yes'},
 	});
-	const [, pageUrl, ...extraArgs] = commandLine._;
+	// The first two positional arguments are `elements use`.
+	const [, , pageUrl, ...extraArgs] = commandLine._;
 	if (pageUrl === undefined || extraArgs.length > 0) {
 		return fail(
-			`Usage: npx remotion ${USE_ELEMENT_COMMAND} <url> [--element <slug>] [--composition <id>] [--yes]`,
+			`Usage: npx remotion elements ${USE_COMMAND} <url> [--element <slug>] [--composition <id>] [--yes]`,
 		);
 	}
 
@@ -66,30 +68,42 @@ export const runUseElementCommand = async ({
 	}
 
 	const fetchText = async (url: URL) => {
-		let response: Response;
+		const controller = new AbortController();
+		const timeout = setTimeout(
+			() => controller.abort(),
+			FETCH_TIMEOUT_IN_MILLISECONDS,
+		);
+		let response: Awaited<ReturnType<typeof StudioServerInternals.httpGet>>;
 		try {
-			response = await fetch(url, {
+			response = await StudioServerInternals.httpGet({
+				url,
 				headers: {
 					accept: `text/html, ${ELEMENT_PAYLOAD_MIME_TYPE}, application/json;q=0.9, */*;q=0.8`,
 				},
-				signal: AbortSignal.timeout(FETCH_TIMEOUT_IN_MILLISECONDS),
+				signal: controller.signal,
+				maxSize: MAX_PAGE_SIZE_IN_BYTES,
+				tooLargeMessage: `The response is larger than ${MAX_PAGE_SIZE_IN_BYTES / 1024 / 1024}MB.`,
+				maxRedirects: 10,
+				validateUrl: null,
 			});
 		} catch (err) {
 			return fail(
-				`Could not fetch ${url.href}: ${(err as Error).cause instanceof Error ? ((err as Error).cause as Error).message : (err as Error).message}`,
+				`Could not fetch ${url.href}: ${controller.signal.aborted ? `Timed out after ${FETCH_TIMEOUT_IN_MILLISECONDS / 1000} seconds.` : (err as Error).message}`,
 			);
+		} finally {
+			clearTimeout(timeout);
 		}
 
-		if (!response.ok) {
+		if (response.statusCode < 200 || response.statusCode >= 300) {
 			return fail(
-				`Could not fetch ${url.href}: The server responded with HTTP ${response.status}.`,
+				`Could not fetch ${url.href}: The server responded with HTTP ${response.statusCode}.`,
 			);
 		}
 
 		return {
-			text: await response.text(),
-			url: new URL(response.url || url.href),
-			isJson: /json/i.test(response.headers.get('content-type') ?? ''),
+			text: new TextDecoder().decode(response.body),
+			url: response.url,
+			isJson: /json/i.test(response.headers['content-type'] ?? ''),
 		};
 	};
 

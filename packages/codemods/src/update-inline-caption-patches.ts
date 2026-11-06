@@ -178,10 +178,13 @@ const getObjectSourceRange = ({
 		(property): property is ObjectProperty =>
 			property.type === 'ObjectProperty',
 	);
-	const lastProperty = caption.properties.findLast(
-		(property): property is ObjectProperty =>
-			property.type === 'ObjectProperty',
-	);
+	const lastProperty = caption.properties
+		.slice()
+		.reverse()
+		.find(
+			(property): property is ObjectProperty =>
+				property.type === 'ObjectProperty',
+		);
 	if (!firstProperty || !lastProperty) {
 		throw new Error('Captions must have static object properties to be edited');
 	}

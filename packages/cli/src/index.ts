@@ -19,6 +19,7 @@ import {getCommandHelp, makeCommandHelpOption} from './command-help';
 import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
+import {ELEMENTS_COMMAND, elementsCommand} from './elements';
 import {findEntryPoint} from './entry-point';
 import {
 	experimentalCodemodCommand,
@@ -54,7 +55,6 @@ import {skillsCommand} from './skills';
 import {still} from './still';
 import {studioCommand} from './studio';
 import {upgradeCommand} from './upgrade';
-import {runUseElementCommand, USE_ELEMENT_COMMAND} from './use-element';
 import {
 	VERSIONS_COMMAND,
 	validateVersionsBeforeCommand,
@@ -197,9 +197,10 @@ export const cli = async () => {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
 			await browserCommand(args, logLevel);
-		} else if (command === USE_ELEMENT_COMMAND) {
-			await runUseElementCommand({
+		} else if (command === ELEMENTS_COMMAND) {
+			await elementsCommand({
 				remotionRoot,
+				args,
 				argv: process.argv.slice(2),
 				logLevel,
 			});

@@ -57,7 +57,7 @@ const titleCard = createElementPayload({
 
 const makeProject = () => {
 	const remotionRoot = mkdtempSync(
-		path.join(tmpdir(), 'remotion-use-element-'),
+		path.join(tmpdir(), 'remotion-elements-use-'),
 	);
 	mkdirSync(path.join(remotionRoot, 'src'));
 	writeFileSync(
@@ -123,7 +123,7 @@ export const ${name}: React.FC = () => {
 	chmodSync(path.join(binDir, 'bun'), 0o755);
 
 	const run = async (args: string[]) => {
-		const child = Bun.spawn(['node', cliEntry, 'use-element', ...args], {
+		const child = Bun.spawn(['node', cliEntry, 'elements', 'use', ...args], {
 			cwd: remotionRoot,
 			env: {
 				...process.env,
@@ -175,6 +175,13 @@ const serveLibrary = () => {
 				);
 			if (pathname === '/elements/lower-third') {
 				return html(`<title>Lower Third</title>${scriptTag(lowerThird)}`);
+			}
+
+			if (pathname === '/elements/old-spa') {
+				return new Response(null, {
+					status: 301,
+					headers: {location: '/elements/spa'},
+				});
 			}
 
 			if (pathname === '/elements/spa') {
@@ -305,7 +312,7 @@ test('follows linked payloads and asks to choose between several Elements', asyn
 	const library = serveLibrary();
 	try {
 		const linked = await project.run([
-			`${library.origin}/elements/spa`,
+			`${library.origin}/elements/old-spa`,
 			'--composition',
 			'Intro',
 			'--yes',

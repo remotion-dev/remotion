@@ -49,6 +49,7 @@ import {
 	getLocalPackageOverride,
 	localPackageRootKey,
 } from './helpers/get-local-package-override';
+import {httpGet} from './helpers/http-get';
 import {getInstallCommand} from './helpers/install-command';
 import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
 import {installElement} from './install-element';
@@ -118,4 +119,5 @@ export const StudioServerInternals = {
 	installElement,
 	getElementInstallPlan,
 	getInstalledInstallablePackages,
+	httpGet,
 };

@@ -173,11 +173,13 @@ const getLeadingFileHeaderEnd = ({
 		)
 		.sort((left, right) => left.start - right.start)[0]?.statement;
 	const leadingComments = firstOriginalStatement?.leadingComments ?? [];
-	const lastHeaderCommentIndex = leadingComments.findLastIndex((comment) =>
-		/(?:@ts-(?:no)?check\b|@flow\b|@jsx\b|@license\b|@generated\b|copyright\b|eslint-disable(?!-(?:next-)?line\b)\b|\/\s*<(?:reference|amd-module|amd-dependency)\b)/i.test(
-			comment.value,
-		),
-	);
+	const lastHeaderCommentIndex = leadingComments
+		.map((comment) =>
+			/(?:@ts-(?:no)?check\b|@flow\b|@jsx\b|@license\b|@generated\b|copyright\b|eslint-disable(?!-(?:next-)?line\b)\b|\/\s*<(?:reference|amd-module|amd-dependency)\b)/i.test(
+				comment.value,
+			),
+		)
+		.lastIndexOf(true);
 	if (lastHeaderCommentIndex === -1) {
 		return null;
 	}
@@ -394,9 +396,10 @@ export const getInsertImportSourceEdits = ({
 		}
 
 		const rendered = addedSpecifiers.map(renderImportSpecifier).join(', ');
-		const lastNamedSpecifier = snapshot.specifiers.findLast(
-			(specifier) => specifier.type === 'ImportSpecifier',
-		);
+		const lastNamedSpecifier = snapshot.specifiers
+			.slice()
+			.reverse()
+			.find((specifier) => specifier.type === 'ImportSpecifier');
 		if (lastNamedSpecifier?.loc) {
 			const offset = recastLocToOffset(input, lastNamedSpecifier.loc.end);
 			edits.push({

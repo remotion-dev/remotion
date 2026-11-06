@@ -1,22 +1,22 @@
 ---
-image: https://remotion.media/docs/generated/articles-docs-cli-use-element.png
-title: npx remotion use-element
-sidebar_label: use-element
+image: https://remotion.media/docs/generated/articles-docs-cli-elements-use.png
+title: npx remotion elements use
+sidebar_label: use
 crumb: CLI Reference
 ---
 
-# npx remotion use-element<AvailableFrom v="4.0.542" />
+# npx remotion elements use<AvailableFrom v="4.0.542" />
 
 Installs an [Element](/docs/elements) from the page of an [Element Library](/docs/elements/libraries) into a composition of your project.
 
 ```
-npx remotion use-element <url>
+npx remotion elements use <url>
 ```
 
 ## Example
 
 ```bash
-npx remotion use-element https://example.com/elements/lower-third --composition MyVideo
+npx remotion elements use https://example.com/elements/lower-third --composition MyVideo
 ```
 
 The URL is the Element's page. The command:
@@ -68,7 +68,8 @@ If the existing file has the same contents, it is reused.
 
 ## See also
 
-- [Source code of this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/use-element.ts)
+- [Source code of this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/elements/use.ts)
 - [Building Element Libraries](/docs/elements/libraries)
 - [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html)
+- [npx remotion elements](/docs/cli/elements)
 - [npx remotion add](/docs/cli/add)
