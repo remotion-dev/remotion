@@ -91,7 +91,7 @@ export const getElementMarkdown = ({
       "sh",
       `npx remotion elements use ${pageUrl ?? "<url>"} --composition <composition-id> --yes`,
     ),
-    `${pageUrl === null ? `Replace \`<url>\` with the absolute URL of this document without the \`.md\` extension (the page at \`/elements/${definition.slug}\`). ` : ""}Replace \`<composition-id>\` with the ID of the composition to add the Element to. The command installs the dependencies, downloads the assets, writes the source file and adds the Element to the composition. See [\`npx remotion elements use\`](https://www.remotion.dev/docs/cli/elements/use.md).`,
+    `${pageUrl === null ? `Replace \`<url>\` with the absolute URL of the page at \`/elements/${definition.slug}\`, which is the URL of this document without \`.md\`. ` : ""}Replace \`<composition-id>\` with the ID of the composition to add the Element to. The command installs the dependencies, downloads the assets, writes the source file and adds the Element to the composition. See [\`npx remotion elements use\`](https://www.remotion.dev/docs/cli/elements/use.md).`,
     "## Manual installation",
     `To install the Element manually instead, save the source below as \`${definition.slug}.element.tsx\` in your Remotion project and import its exported component.`,
     installationCommands.length === 0

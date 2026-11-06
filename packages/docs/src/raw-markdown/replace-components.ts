@@ -196,7 +196,7 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 			render: () =>
 				[
 					'For the Elements made by Remotion, see the [Remotion Elements index](https://www.remotion.dev/elements/index.md).',
-					'Element pages that embed an Element payload can be installed with [`npx remotion elements use <url> --composition <composition-id> --yes`](https://www.remotion.dev/docs/cli/elements/use.md).',
+					'To install an Element from a page that embeds its payload, run [`npx remotion elements use <url> --composition <composition-id> --yes`](https://www.remotion.dev/docs/cli/elements/use.md).',
 					thirdPartyElementLibraries
 						.map((library) =>
 							[
