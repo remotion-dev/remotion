@@ -67,6 +67,8 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 			base64: true,
 			omitBackground: true,
 			scale: 'css',
+			style:
+				'html, body, iframe[data-vitest] { background: transparent !important; }',
 		});
 		return new Blob(
 			[Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))],
@@ -145,9 +147,12 @@ export const savePixelEvidence = async (blob: Blob, testId: string) => {
 	document.body.appendChild(image);
 	try {
 		await image.decode();
-		return await page
-			.getByTestId(testId)
-			.screenshot({omitBackground: true, scale: 'css'});
+		return await page.getByTestId(testId).screenshot({
+			omitBackground: true,
+			scale: 'css',
+			style:
+				'html, body, iframe[data-vitest] { background: transparent !important; }',
+		});
 	} finally {
 		image.remove();
 		URL.revokeObjectURL(url);
