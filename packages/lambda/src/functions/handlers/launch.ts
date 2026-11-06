@@ -1289,11 +1289,19 @@ export const launchHandler = async ({
 		forcePathStyle: params.forcePathStyle,
 	});
 
+	let progressTimeout: ReturnType<typeof setTimeout> | null = null;
+	let lastProgressUpdate = 0;
 	const publishProgress = () => {
+		if (progressTimeout !== null) {
+			clearTimeout(progressTimeout);
+			progressTimeout = null;
+		}
+
 		if (!onProgress) {
 			return;
 		}
 
+		lastProgressUpdate = Date.now();
 		try {
 			onProgress(
 				LambdaClientInternals.normalizeRenderProgress({
@@ -1315,17 +1323,26 @@ export const launchHandler = async ({
 		}
 	};
 
-	// Read the same in-memory state used by S3 writes. Never poll storage here.
-	const progressInterval = onProgress
-		? setInterval(() => {
-				const state = overallProgress.get();
-				if (
-					!state.postRenderData &&
-					!state.errors.some((e) => e.isFatal && !e.willRetry)
-				) {
-					publishProgress();
+	const unsubscribeProgress = onProgress
+		? overallProgress.subscribe(() => {
+				if (progressTimeout !== null) {
+					return;
 				}
-			}, 250)
+
+				progressTimeout = setTimeout(
+					() => {
+						progressTimeout = null;
+						const state = overallProgress.get();
+						if (
+							!state.postRenderData &&
+							!state.errors.some((e) => e.isFatal && !e.willRetry)
+						) {
+							publishProgress();
+						}
+					},
+					Math.max(0, 100 - (Date.now() - lastProgressUpdate)),
+				);
+			})
 		: null;
 	publishProgress();
 
@@ -1510,8 +1527,9 @@ export const launchHandler = async ({
 		}
 	} finally {
 		clearTimeout(webhookDueToTimeout);
-		if (progressInterval) {
-			clearInterval(progressInterval);
+		unsubscribeProgress?.();
+		if (progressTimeout !== null) {
+			clearTimeout(progressTimeout);
 		}
 
 		await overallProgress.upload('finish');

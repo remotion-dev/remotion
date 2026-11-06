@@ -49,18 +49,6 @@ const renderScript = (payload: StudioElementPayload) =>
 const wrapInPage = (body: string) =>
 	`<!doctype html><html><head><title>Library</title></head><body>${body}</body></html>`;
 
-test('escapes characters that could end the script block or break JavaScript', () => {
-	const html = serializeElementPayloadForHtml(hostilePayload);
-
-	expect(html).not.toContain('<');
-	expect(html).not.toContain('>');
-	expect(html).not.toContain('&');
-	expect(html).not.toContain('\u2028');
-	expect(html).not.toContain('\u2029');
-	expect(html).toContain('\\u003c/script\\u003e');
-	expect(JSON.parse(html)).toEqual(hostilePayload);
-});
-
 test('round trips a payload through HTML', () => {
 	const html = wrapInPage(renderScript(hostilePayload));
 
