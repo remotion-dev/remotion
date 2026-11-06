@@ -53,6 +53,7 @@ test('infers formatting choices from source', () => {
 		semi: false,
 		singleQuote: true,
 		tabWidth: 2,
+		trailingComma: true,
 		useTabs: true,
 	});
 });
