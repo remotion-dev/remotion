@@ -26,6 +26,7 @@ import {EarlyRemotionDemoBroll} from './EarlyRemotionDemoBroll';
 import {EditingCapabilitiesBroll} from './EditingCapabilitiesBroll';
 import {EndCardSidebar, publicationPlatformSchema} from './EndCardSidebar';
 import {HigherLevelTaskPrompt} from './HigherLevelTaskPrompt';
+import {HomepageHeroZoom} from './HomepageHeroZoom';
 import {InteractiveTimelinePan} from './InteractiveTimelinePan';
 import {InvokeAgentBroll} from './InvokeAgentBroll';
 import {InvokeAgentCaptureComposition} from './InvokeAgentCaptureComposition';
@@ -277,6 +278,14 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 					width={1920}
 					height={1080}
 					defaultProps={{style: {scale: 1.18, transformOrigin: '50% 100%'}}}
+				/>
+				<Composition
+					id="HomepageHeroZoom"
+					component={HomepageHeroZoom}
+					durationInFrames={570}
+					fps={30}
+					width={1080}
+					height={880}
 				/>
 				<Composition
 					id="ThreeWaysSplitView"
