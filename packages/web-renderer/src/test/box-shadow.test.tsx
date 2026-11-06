@@ -2,7 +2,10 @@ import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {boxShadow} from './fixtures/box-shadow';
-import {boxShadowSpreadInset} from './fixtures/box-shadow-spread-inset';
+import {
+	boxShadowSpreadInset,
+	boxShadowSpreadInsetAlpha,
+} from './fixtures/box-shadow-spread-inset';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 import {testImage} from './utils';
 
@@ -20,25 +23,27 @@ test('should render box-shadow', async () => {
 });
 
 // KINO-7770: spread was ignored and inset shadows were skipped entirely.
-for (const frame of [0, 1]) {
-	test(`spread and inset shadows match native painting at frame ${frame}`, async (t) => {
-		if (t.task.file.projectName === 'firefox') {
-			// Firefox cannot capture this native element with transparent screenshot options.
-			t.skip();
-			return;
-		}
+for (const fixture of [boxShadowSpreadInset, boxShadowSpreadInsetAlpha]) {
+	for (const frame of [0, 1]) {
+		test(`${fixture.id} matches native painting at frame ${frame}`, async (t) => {
+			if (t.task.file.projectName === 'firefox') {
+				// Firefox cannot capture this native element with transparent screenshot options.
+				t.skip();
+				return;
+			}
 
-		const reference = await captureNativeReference(boxShadowSpreadInset, frame);
-		const actual = await (
-			await renderStillOnWeb({
-				licenseKey: 'free-license',
-				composition: boxShadowSpreadInset,
-				frame,
-				inputProps: {},
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const result = await compareNativePixels(reference, actual);
-		expect(result.mismatchedPixels).toBe(0);
-	});
+			const reference = await captureNativeReference(fixture, frame);
+			const actual = await (
+				await renderStillOnWeb({
+					licenseKey: 'free-license',
+					composition: fixture,
+					frame,
+					inputProps: {},
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'});
+			const result = await compareNativePixels(reference, actual);
+			expect(result.mismatchedPixels).toBe(0);
+		});
+	}
 }
