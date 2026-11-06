@@ -1,4 +1,11 @@
-import {useCallback, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {
+	useCallback,
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	AbsoluteFill,
 	getHtmlInCanvasUnsupportedMessage,
@@ -70,6 +77,8 @@ const HtmlInCanvasPresentationWithSupport = <
 
 	const passedPropsRef = useRef(passedProps);
 	passedPropsRef.current = passedProps;
+	const onUnmountRef = useRef(onUnmount);
+	onUnmountRef.current = onUnmount;
 
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
@@ -81,6 +90,8 @@ const HtmlInCanvasPresentationWithSupport = <
 	effectsRef.current = memoizedEffects;
 
 	const instanceRef = useRef<ReturnType<typeof shader> | null>(null);
+	const sequence = useContext(Internals.SequenceContext);
+	const inactive = Boolean(sequence?.premounting || sequence?.postmounting);
 	const passThrough =
 		bothEnteringAndExiting && presentationDirection === 'exiting';
 
@@ -245,7 +256,9 @@ const HtmlInCanvasPresentationWithSupport = <
 				elementImage.close();
 			}
 
-			onElementImage(captureCanvas, draw);
+			if (!inactive) {
+				onElementImage(captureCanvas, draw);
+			}
 		};
 
 		canvas.addEventListener('paint', onPaint);
@@ -253,7 +266,7 @@ const HtmlInCanvasPresentationWithSupport = <
 		return () => {
 			canvas.removeEventListener('paint', onPaint);
 		};
-	}, [onElementImage, presentationDirection, draw, passThrough]);
+	}, [onElementImage, presentationDirection, draw, passThrough, inactive]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -281,6 +294,8 @@ const HtmlInCanvasPresentationWithSupport = <
 		};
 	}, [
 		presentationProgress,
+		onElementImage,
+		inactive,
 		passThrough,
 		memoizedEffects,
 		chainState,
@@ -290,14 +305,14 @@ const HtmlInCanvasPresentationWithSupport = <
 	]);
 
 	useLayoutEffect(() => {
-		if (passThrough) {
+		if (passThrough || inactive) {
 			return;
 		}
 
 		return () => {
-			onUnmount();
+			onUnmountRef.current();
 		};
-	}, [onUnmount, passThrough]);
+	}, [passThrough, inactive]);
 
 	useLayoutEffect(() => {
 		if (passThrough) {
@@ -338,9 +353,14 @@ const HtmlInCanvasPresentationWithSupport = <
 
 	return (
 		<AbsoluteFill showInTimeline={false}>
-			<canvas ref={canvasRef} style={canvasSubtreeStyle}>
+			<canvas
+				ref={canvasRef}
+				style={{...canvasSubtreeStyle, visibility: 'hidden'}}
+			>
 				{/* Keep the drawable element mounted while async children load. */}
-				<div style={canvasSubtreeStyle}>{children}</div>
+				<div style={{...canvasSubtreeStyle, visibility: 'visible'}}>
+					{children}
+				</div>
 			</canvas>
 			<canvas ref={outputCanvasRef} style={outputCanvasStyle} />
 		</AbsoluteFill>

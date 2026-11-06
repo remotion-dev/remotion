@@ -838,18 +838,30 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 												{fps},
 											)}
 											onElementImage={(elementImage, draw) => {
+												// Both transitions share an output canvas. Draw the active one last.
+												if (prevProgress === 1) {
+													onNextElementImage(
+														elementImage,
+														prevProgress,
+														draw,
+														i - 1,
+													);
+												}
+
 												onPrevElementImage(
 													elementImage,
 													nextProgress,
 													draw,
 													i + 1,
 												);
-												onNextElementImage(
-													elementImage,
-													prevProgress,
-													draw,
-													i - 1,
-												);
+												if (prevProgress !== 1) {
+													onNextElementImage(
+														elementImage,
+														prevProgress,
+														draw,
+														i - 1,
+													);
+												}
 											}}
 											onUnmount={() => {
 												onPrevElementImage(null, null, null, i + 1);

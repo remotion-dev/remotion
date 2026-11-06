@@ -1,16 +1,14 @@
-import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
 import {StudioInternals} from '@remotion/studio';
 import {TransitionSeries, linearTiming} from '@remotion/transitions';
-import {slide} from '@remotion/transitions/slide';
 import type {ReactNode} from 'react';
 import {
 	CanvasImage,
-	Easing,
+	HtmlInCanvas,
 	Img,
 	Interactive,
+	Internals,
 	Sequence,
 	Track,
-	useCurrentFrame,
 	useRemotionEnvironment,
 } from 'remotion';
 import {CodexPrompt} from '../CodexPrompt';
@@ -19,40 +17,33 @@ import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-ang
 import {StudioRenderClickCapture} from '../StudioRenderClickComposition';
 import {TimelineCaptionReorderAndScrubComposition} from '../TimelineCaptionReorderAndScrubComposition';
 import {TimelineRightTrimCapture} from '../TimelineRightTrimComposition';
+import {paneSlide} from './pane-slide';
 import {StudioSettingsCaptureComposition} from './StudioSettingsCaptureComposition';
 
-const PaneMotionBlur = ({children}: {readonly children: ReactNode}) => {
-	const frame = useCurrentFrame();
+const PaneContent = ({children}: {readonly children: ReactNode}) => {
 	const {isRendering} = useRemotionEnvironment();
 	return (
-		<HtmlInCanvasMotionBlur
-			name="Motion blur during vertical pane transitions"
-			width={640}
-			height={1080}
-			shutterAngle={isRendering ? 180 : 90}
-			samples={isRendering ? 32 : 4}
-			disabled={
-				![
-					[80, 92],
-					[119, 131],
-					[208, 220],
-					[235, 247],
-				].some(([start, end]) => frame >= start && frame <= end)
-			}
+		<div
+			style={{
+				position: 'absolute',
+				inset: 0,
+				width: 640,
+				height: 1080,
+				overflow: 'hidden',
+				clipPath: 'inset(0)',
+			}}
 		>
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					width: 640,
-					height: 1080,
-					overflow: 'hidden',
-					clipPath: 'inset(0)',
-				}}
-			>
-				{children}
-			</div>
-		</HtmlInCanvasMotionBlur>
+			{!isRendering && !HtmlInCanvas.isSupported() ? (
+				<Internals.HtmlInCanvasFallback
+					style={{position: 'absolute', inset: 0}}
+					label="Motion blur is not visible"
+				>
+					{children}
+				</Internals.HtmlInCanvasFallback>
+			) : (
+				children
+			)}
+		</div>
 	);
 };
 
@@ -125,7 +116,7 @@ const ThreeWaysSplitViewContent = () => {
 					contain: 'paint',
 				}}
 			>
-				<PaneMotionBlur>
+				<PaneContent>
 					<TransitionSeries name="Agent instructions">
 						<TransitionSeries.Sequence
 							width={640}
@@ -151,10 +142,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -181,10 +171,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -211,10 +200,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -241,10 +229,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -271,7 +258,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 					</TransitionSeries>
-				</PaneMotionBlur>
+				</PaneContent>
 			</Interactive.Div>
 			<Interactive.Div
 				name="Middle pane — interactively"
@@ -287,7 +274,7 @@ const ThreeWaysSplitViewContent = () => {
 					contain: 'paint',
 				}}
 			>
-				<PaneMotionBlur>
+				<PaneContent>
 					<TransitionSeries name="Studio demonstrations">
 						<TransitionSeries.Sequence
 							width={640}
@@ -339,10 +326,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-top'})}
+							presentation={paneSlide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -370,10 +356,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-top'})}
+							presentation={paneSlide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -399,10 +384,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-top'})}
+							presentation={paneSlide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -430,10 +414,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-top'})}
+							presentation={paneSlide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -465,7 +448,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 					</TransitionSeries>
-				</PaneMotionBlur>
+				</PaneContent>
 			</Interactive.Div>
 			<Interactive.Div
 				name="Right pane — code"
@@ -481,7 +464,7 @@ const ThreeWaysSplitViewContent = () => {
 					contain: 'paint',
 				}}
 			>
-				<PaneMotionBlur>
+				<PaneContent>
 					<TransitionSeries name="Monaco code screenshots">
 						<TransitionSeries.Sequence
 							width={640}
@@ -501,10 +484,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -525,10 +507,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -549,10 +530,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -573,10 +553,9 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={slide({direction: 'from-bottom'})}
+							presentation={paneSlide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
-								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -597,7 +576,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 					</TransitionSeries>
-				</PaneMotionBlur>
+				</PaneContent>
 			</Interactive.Div>
 			<Interactive.Div
 				name="ChatGPT pane icon"
