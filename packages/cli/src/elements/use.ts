@@ -344,7 +344,7 @@ export const elementsUseCommand = async ({
 			.join('/'),
 	);
 	const compositionComponentFile = path
-		.relative(remotionRoot, plan.safePaths.compositionFileName)
+		.relative(plan.safePaths.remotionRoot, plan.safePaths.compositionFileName)
 		.split(path.sep)
 		.join('/');
 

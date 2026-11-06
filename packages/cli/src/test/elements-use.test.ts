@@ -19,6 +19,8 @@ import {
 import {VERSION} from 'remotion/version';
 
 const cliEntry = path.join(__dirname, '..', '..', 'remotion-cli.js');
+// Each test starts the CLI several times, which is slow on Windows.
+const timeout = 60_000;
 
 const lowerThird = createElementPayload({
 	displayName: 'Lower Third',
@@ -211,160 +213,168 @@ const serveLibrary = () => {
 	};
 };
 
-test('installs an Element embedded in a page into the chosen composition', async () => {
-	const project = makeProject();
-	const library = serveLibrary();
-	try {
-		const pageUrl = `${library.origin}/elements/lower-third`;
+test(
+	'installs an Element embedded in a page into the chosen composition',
+	async () => {
+		const project = makeProject();
+		const library = serveLibrary();
+		try {
+			const pageUrl = `${library.origin}/elements/lower-third`;
 
-		const withoutComposition = await project.run([pageUrl, '--yes']);
-		expect(withoutComposition.exitCode).toBe(1);
-		expect(withoutComposition.output).toContain(
-			'Pass the composition to add the Element to with --composition <id>. Available compositions:\n  Intro\n  Outro',
-		);
+			const withoutComposition = await project.run([pageUrl, '--yes']);
+			expect(withoutComposition.exitCode).toBe(1);
+			expect(withoutComposition.output).toContain(
+				'Pass the composition to add the Element to with --composition <id>. Available compositions:\n  Intro\n  Outro',
+			);
 
-		const withoutConfirmation = await project.run([
-			pageUrl,
-			'--composition',
-			'Outro',
-		]);
-		expect(withoutConfirmation.exitCode).toBe(1);
-		expect(withoutConfirmation.output).toContain(`Source      ${pageUrl}`);
-		expect(withoutConfirmation.output).toContain(
-			'Element     Lower Third (lower-third)',
-		);
-		expect(withoutConfirmation.output).toContain(
-			'Creates     src/lower-third.element.tsx',
-		);
-		expect(withoutConfirmation.output).toContain(
-			'Changes     src/Outro.tsx (composition "Outro")',
-		);
-		expect(withoutConfirmation.output).toContain(
-			'Installs    @remotion/noise, lodash@4.17.21',
-		);
-		expect(withoutConfirmation.output).toContain(
-			'Assets      public/elements/logo.png',
-		);
-		expect(withoutConfirmation.output).toContain('Pass --yes');
-		expect(
-			existsSync(
+			const withoutConfirmation = await project.run([
+				pageUrl,
+				'--composition',
+				'Outro',
+			]);
+			expect(withoutConfirmation.exitCode).toBe(1);
+			expect(withoutConfirmation.output).toContain(`Source      ${pageUrl}`);
+			expect(withoutConfirmation.output).toContain(
+				'Element     Lower Third (lower-third)',
+			);
+			expect(withoutConfirmation.output).toContain(
+				'Creates     src/lower-third.element.tsx',
+			);
+			expect(withoutConfirmation.output).toContain(
+				'Changes     src/Outro.tsx (composition "Outro")',
+			);
+			expect(withoutConfirmation.output).toContain(
+				'Installs    @remotion/noise, lodash@4.17.21',
+			);
+			expect(withoutConfirmation.output).toContain(
+				'Assets      public/elements/logo.png',
+			);
+			expect(withoutConfirmation.output).toContain('Pass --yes');
+			expect(
+				existsSync(
+					path.join(project.remotionRoot, 'src', 'lower-third.element.tsx'),
+				),
+			).toBe(false);
+			expect(project.packageManagerCalls()).toEqual([]);
+
+			const installed = await project.run([
+				pageUrl,
+				'--composition',
+				'Outro',
+				'--yes',
+			]);
+			expect(installed.output).toContain(
+				'Installed Lower Third into the composition "Outro".',
+			);
+			expect(installed.exitCode).toBe(0);
+			expect(project.readSource('lower-third.element.tsx')).toBe(
+				lowerThird.element.sourceCode,
+			);
+			const outro = project.readSource('Outro.tsx');
+			expect(outro).toContain(
+				"import {LowerThird} from './lower-third.element';",
+			);
+			expect(outro).toContain('name="Lower Third"');
+			expect(outro).toContain('durationInFrames={72}');
+			expect(outro).toContain("translate: '510px 410px'");
+			expect(outro).toContain(
+				`<LowerThird logoSrc={staticFile('elements/logo.png')} title="Hello world" />`,
+			);
+			expect(project.readSource('Intro.tsx')).not.toContain('LowerThird');
+			expect(
+				readFileSync(
+					path.join(project.remotionRoot, 'public', 'elements', 'logo.png'),
+				),
+			).toEqual(Buffer.from('iVBORw==', 'base64'));
+			expect(project.packageManagerCalls()).toEqual([
+				'i --ignore-scripts @remotion/noise@' + VERSION + ' lodash@4.17.21',
+			]);
+
+			writeFileSync(
 				path.join(project.remotionRoot, 'src', 'lower-third.element.tsx'),
-			),
-		).toBe(false);
-		expect(project.packageManagerCalls()).toEqual([]);
+				'export const LowerThird = () => null;\n',
+			);
+			const conflict = await project.run([
+				pageUrl,
+				'--composition',
+				'Intro',
+				'--yes',
+			]);
+			expect(conflict.exitCode).toBe(1);
+			expect(conflict.output).toContain(
+				'src/lower-third.element.tsx already exists with different contents. Pass --overwrite to replace it.',
+			);
+			expect(project.readSource('Intro.tsx')).not.toContain('LowerThird');
+		} finally {
+			library.stop();
+			project.cleanup();
+		}
+	},
+	timeout,
+);
 
-		const installed = await project.run([
-			pageUrl,
-			'--composition',
-			'Outro',
-			'--yes',
-		]);
-		expect(installed.output).toContain(
-			'Installed Lower Third into the composition "Outro".',
-		);
-		expect(installed.exitCode).toBe(0);
-		expect(project.readSource('lower-third.element.tsx')).toBe(
-			lowerThird.element.sourceCode,
-		);
-		const outro = project.readSource('Outro.tsx');
-		expect(outro).toContain(
-			"import {LowerThird} from './lower-third.element';",
-		);
-		expect(outro).toContain('name="Lower Third"');
-		expect(outro).toContain('durationInFrames={72}');
-		expect(outro).toContain("translate: '510px 410px'");
-		expect(outro).toContain(
-			`<LowerThird logoSrc={staticFile('elements/logo.png')} title="Hello world" />`,
-		);
-		expect(project.readSource('Intro.tsx')).not.toContain('LowerThird');
-		expect(
-			readFileSync(
-				path.join(project.remotionRoot, 'public', 'elements', 'logo.png'),
-			),
-		).toEqual(Buffer.from('iVBORw==', 'base64'));
-		expect(project.packageManagerCalls()).toEqual([
-			'i --ignore-scripts @remotion/noise@' + VERSION + ' lodash@4.17.21',
-		]);
+test(
+	'follows linked payloads and asks to choose between several Elements',
+	async () => {
+		const project = makeProject();
+		const library = serveLibrary();
+		try {
+			const linked = await project.run([
+				`${library.origin}/elements/old-spa`,
+				'--composition',
+				'Intro',
+				'--yes',
+			]);
+			expect(linked.output).toContain(
+				'Installed Title Card into the composition "Intro".',
+			);
+			expect(linked.exitCode).toBe(0);
+			expect(project.readSource('title-card.element.tsx')).toBe(
+				titleCard.element.sourceCode,
+			);
+			expect(project.readSource('Intro.tsx')).toContain('<TitleCard />');
 
-		writeFileSync(
-			path.join(project.remotionRoot, 'src', 'lower-third.element.tsx'),
-			'export const LowerThird = () => null;\n',
-		);
-		const conflict = await project.run([
-			pageUrl,
-			'--composition',
-			'Intro',
-			'--yes',
-		]);
-		expect(conflict.exitCode).toBe(1);
-		expect(conflict.output).toContain(
-			'src/lower-third.element.tsx already exists with different contents. Pass --overwrite to replace it.',
-		);
-		expect(project.readSource('Intro.tsx')).not.toContain('LowerThird');
-	} finally {
-		library.stop();
-		project.cleanup();
-	}
-});
+			const gallery = await project.run([`${library.origin}/gallery`, '--yes']);
+			expect(gallery.exitCode).toBe(1);
+			expect(gallery.output).toContain(
+				'contains 2 Elements. Choose one with --element <slug>:\n  lower-third\n  title-card',
+			);
 
-test('follows linked payloads and asks to choose between several Elements', async () => {
-	const project = makeProject();
-	const library = serveLibrary();
-	try {
-		const linked = await project.run([
-			`${library.origin}/elements/old-spa`,
-			'--composition',
-			'Intro',
-			'--yes',
-		]);
-		expect(linked.output).toContain(
-			'Installed Title Card into the composition "Intro".',
-		);
-		expect(linked.exitCode).toBe(0);
-		expect(project.readSource('title-card.element.tsx')).toBe(
-			titleCard.element.sourceCode,
-		);
-		expect(project.readSource('Intro.tsx')).toContain('<TitleCard />');
+			const unknownSlug = await project.run([
+				`${library.origin}/gallery`,
+				'--element',
+				'nope',
+			]);
+			expect(unknownSlug.exitCode).toBe(1);
+			expect(unknownSlug.output).toContain(
+				'does not contain an Element with the slug "nope". Available Elements:\n  lower-third\n  title-card',
+			);
 
-		const gallery = await project.run([`${library.origin}/gallery`, '--yes']);
-		expect(gallery.exitCode).toBe(1);
-		expect(gallery.output).toContain(
-			'contains 2 Elements. Choose one with --element <slug>:\n  lower-third\n  title-card',
-		);
+			const noPayload = await project.run([`${library.origin}/about`]);
+			expect(noPayload.exitCode).toBe(1);
+			expect(noPayload.output).toContain(
+				`No Element found on ${library.origin}/about. The Element library must embed the Element payload in the page's HTML: https://www.remotion.dev/docs/studio-protocol/serialize-element-payload-for-html`,
+			);
 
-		const unknownSlug = await project.run([
-			`${library.origin}/gallery`,
-			'--element',
-			'nope',
-		]);
-		expect(unknownSlug.exitCode).toBe(1);
-		expect(unknownSlug.output).toContain(
-			'does not contain an Element with the slug "nope". Available Elements:\n  lower-third\n  title-card',
-		);
+			const notFound = await project.run([`${library.origin}/missing`]);
+			expect(notFound.exitCode).toBe(1);
+			expect(notFound.output).toContain(
+				`Could not fetch ${library.origin}/missing: The server responded with HTTP 404.`,
+			);
 
-		const noPayload = await project.run([`${library.origin}/about`]);
-		expect(noPayload.exitCode).toBe(1);
-		expect(noPayload.output).toContain(
-			`No Element found on ${library.origin}/about. The Element library must embed the Element payload in the page's HTML: https://www.remotion.dev/docs/studio-protocol/serialize-element-payload-for-html`,
-		);
-
-		const notFound = await project.run([`${library.origin}/missing`]);
-		expect(notFound.exitCode).toBe(1);
-		expect(notFound.output).toContain(
-			`Could not fetch ${library.origin}/missing: The server responded with HTTP 404.`,
-		);
-
-		const unknownComposition = await project.run([
-			`${library.origin}/elements/spa`,
-			'--composition',
-			'Nope',
-		]);
-		expect(unknownComposition.exitCode).toBe(1);
-		expect(unknownComposition.output).toContain(
-			'Could not find a composition with the ID "Nope". Available compositions:\n  Intro\n  Outro',
-		);
-	} finally {
-		library.stop();
-		project.cleanup();
-	}
-});
+			const unknownComposition = await project.run([
+				`${library.origin}/elements/spa`,
+				'--composition',
+				'Nope',
+			]);
+			expect(unknownComposition.exitCode).toBe(1);
+			expect(unknownComposition.output).toContain(
+				'Could not find a composition with the ID "Nope". Available compositions:\n  Intro\n  Outro',
+			);
+		} finally {
+			library.stop();
+			project.cleanup();
+		}
+	},
+	timeout,
+);
