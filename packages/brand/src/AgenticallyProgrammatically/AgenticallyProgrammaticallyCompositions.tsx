@@ -6,6 +6,7 @@ import {
 	AgenticallyProgrammatically,
 	agenticallyProgrammaticallySchema,
 } from './AgenticallyProgrammatically';
+import {AgenticallyProgrammaticallyShort} from './AgenticallyProgrammaticallyShort';
 import {AgenticallyProgrammaticallyWithStudioUpdate} from './AgenticallyProgrammaticallyWithStudioUpdate';
 import {AnnotateChatGPTBroll} from './AnnotateChatGPTBroll';
 import {AvailableAgentsSidebar} from './AvailableAgentsSidebar';
@@ -40,6 +41,13 @@ import {RemotionOriginExchange} from './RemotionOriginExchange';
 import {RestructureAgentBroll} from './RestructureAgentBroll';
 import {RestructureAgentCaptureComposition} from './RestructureAgentCaptureComposition';
 import {RoughCutPrompt} from './RoughCutPrompt';
+import {
+	ShortAgentPlugins,
+	ShortBeatMatchPrompt,
+	ShortPlaceholderTimeline,
+	ShortPrompt,
+	ShortSoundtrackPlayback,
+} from './ShortFormBroll';
 import {SoundtrackTimelineCaptureComposition} from './SoundtrackTimelineCaptureComposition';
 import {SoundtrackTimelinePlayback} from './SoundtrackTimelinePlayback';
 import {StudioSettingsCaptureComposition} from './StudioSettingsCaptureComposition';
@@ -97,6 +105,67 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 					width={1920}
 					height={1080}
 				/>
+				<Folder name="Short-form">
+					<Composition
+						id="AgenticallyProgrammaticallyShort"
+						component={AgenticallyProgrammaticallyShort}
+						durationInFrames={1296}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="ShortPrompt"
+						component={ShortPrompt}
+						durationInFrames={130}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{
+							theme: 'light',
+							pluginName: 'Remotion',
+							isInitialPrompt: false,
+							prompt:
+								'Put these videos on the timeline with captions and motion graphics as well.',
+							typingStartFrame: 6,
+							typingDurationInFrames: 112,
+							cameraDurationInFrames: 130,
+						}}
+					/>
+					<Composition
+						id="ShortBeatMatchPrompt"
+						component={ShortBeatMatchPrompt}
+						durationInFrames={223}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ShortPlaceholderTimeline"
+						component={ShortPlaceholderTimeline}
+						durationInFrames={81}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ShortSoundtrackPlayback"
+						component={ShortSoundtrackPlayback}
+						durationInFrames={119}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="ShortAgentPlugins"
+						component={ShortAgentPlugins}
+						durationInFrames={113}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{style: {backgroundColor: '#f8fafc'}}}
+					/>
+				</Folder>
 				<Composition
 					id="WebMcpAgentsSidebar"
 					component={WebMcpAgentsSidebar}

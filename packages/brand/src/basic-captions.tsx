@@ -19,6 +19,7 @@ type BasicCaptionsProps = InteractiveTransformProps &
 
 const defaultCombineTokensWithinMilliseconds = 3000;
 const defaultWidth = 900;
+const defaultFontSize = 64;
 const captionsVisibilityContext = createContext(true);
 export const BasicCaptionsVisibility = captionsVisibilityContext.Provider;
 const {fontFamily: firaCode} = loadFont('normal', {
@@ -42,6 +43,14 @@ const basicCaptionsSchema = {
 		step: 50,
 		default: defaultCombineTokensWithinMilliseconds,
 		description: 'Time between caption pages',
+		hiddenFromList: false,
+	},
+	'style.fontSize': {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: defaultFontSize,
+		description: 'Font size',
 		hiddenFromList: false,
 	},
 } as const satisfies InteractivitySchema;
@@ -89,10 +98,11 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 						backgroundColor: 'rgba(64, 64, 64, 0.75)',
 						color: '#ffffff',
 						fontFamily: 'Arial, Helvetica, sans-serif',
-						fontSize: 64,
+						fontSize: style?.fontSize ?? defaultFontSize,
 						fontWeight: 400,
 						lineHeight: 1.2,
-						padding: '14px 22px',
+						// 14px 22px at the default 64px size, scaled with the font size
+						padding: '0.21875em 0.34375em',
 						textAlign: 'center',
 						textWrap: 'balance',
 						whiteSpace: 'pre-wrap',
