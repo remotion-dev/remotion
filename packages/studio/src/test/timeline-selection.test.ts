@@ -4144,7 +4144,7 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 	).toEqual({shiftKey: false, toggleKey: true});
 });
 
-test('Sequence double-click opens one connected composition before its source', () => {
+test('Sequence double-click opens the first connected composition before its source', () => {
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
@@ -4176,7 +4176,7 @@ test('Sequence double-click opens one connected composition before its source', 
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
-	).toBe('open-source');
+	).toBe('open-connected-composition');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
@@ -4184,7 +4184,7 @@ test('Sequence double-click opens one connected composition before its source', 
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
-	).toBeNull();
+	).toBe('open-connected-composition');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 2,
