@@ -37,9 +37,7 @@ export const getCatalogMarkdown = (category: string | null) => {
   ].join("\n\n");
 };
 
-// Prerendering requests every page from localhost, so the public origin of a
-// static build must come from SITE_URL. With SSR and in development, the
-// request origin is correct.
+// React Router prerenders every page with a request to localhost.
 export const getElementPageUrl = ({
   slug,
   requestUrl,
