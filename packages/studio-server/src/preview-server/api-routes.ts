@@ -43,8 +43,10 @@ import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {openInGitClientHandler} from './routes/open-in-git-client';
 import {openInTerminalHandler} from './routes/open-in-terminal';
 import {pasteEffectsHandler} from './routes/paste-effects';
+import {pickOpenTimelineHandler} from './routes/pick-open-timeline';
 import {precomposeJsxNodesHandler} from './routes/precompose-jsx-nodes';
 import {prepareElementInstallHandler} from './routes/prepare-element-install';
+import {prepareOpenTimelineImportHandler} from './routes/prepare-open-timeline-import';
 import {prerenderedSceneInfoHandler} from './routes/prerendered-scene-info';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
@@ -121,6 +123,8 @@ export const allApiRoutes: {
 	'/api/update-default-props': updateDefaultPropsHandler,
 	'/api/apply-visual-control-change': applyVisualControlHandler,
 	'/api/add-composition': addCompositionHandler,
+	'/api/prepare-open-timeline-import': prepareOpenTimelineImportHandler,
+	'/api/pick-open-timeline': pickOpenTimelineHandler,
 	'/api/duplicate-composition': duplicateCompositionHandler,
 	'/api/rename-composition': renameCompositionHandler,
 	'/api/update-composition-metadata': updateCompositionMetadataHandler,

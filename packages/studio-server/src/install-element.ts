@@ -75,6 +75,7 @@ export type InstallElementOptions = InsertElementRequest & {
 	readonly remotionRoot: string;
 	readonly entryPoint: string;
 	readonly publicDir: string;
+	readonly binariesDirectory: string | null;
 	readonly logLevel: LogLevel;
 	/**
 	 * Install the Element's missing npm dependencies with the project's package
@@ -112,6 +113,7 @@ export const installElement = async ({
 	remotionRoot,
 	logLevel,
 	publicDir,
+	binariesDirectory,
 	installDependencies,
 	studio,
 }: InstallElementOptions): Promise<InsertElementResponse> => {
@@ -291,6 +293,8 @@ export const installElement = async ({
 					filePath: registrationFilePath,
 					options: newComposition.options,
 					remotionRoot,
+					publicDir,
+					binariesDirectory,
 				});
 				const registrationFileNewContents =
 					codemodResult.changes.find(

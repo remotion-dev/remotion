@@ -38,6 +38,7 @@ export type CompositionDestination =
 	  };
 
 export type NewCompositionOptions = {
+	openTimeline: {contents: string; mediaDirectory: string | null} | null;
 	asset: NewCompositionAsset | null;
 	newId: string;
 	componentName: string;

@@ -250,9 +250,9 @@ test('loads Browser Studio, opens external links, and can add, delete, and dupli
 			await expect(
 				fileMenu.getByText('New folder...', {exact: true}),
 			).toBeVisible();
-			await expect(fileMenu.getByRole('separator')).toHaveCount(0, {
-				timeout: 1000,
-			});
+			await expect(
+				fileMenu.getByText('Import OpenTimeline...', {exact: true}),
+			).toBeVisible();
 			await expect(
 				studio.getByRole('button', {
 					name: 'Open in File Manager',

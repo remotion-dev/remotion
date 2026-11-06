@@ -443,6 +443,7 @@ export const elementsUseCommand = async ({
 		entryPoint,
 		remotionRoot,
 		publicDir,
+		binariesDirectory: null,
 		logLevel,
 		installDependencies: true,
 		studio: false,

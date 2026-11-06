@@ -491,6 +491,7 @@ test('invalidates a new-composition install after an external component edit', a
 					newFps: 30,
 					newDurationInFrames: 90,
 					canvasCapture: null,
+					openTimeline: null,
 				},
 				symbolicatedStack: {
 					originalFunctionName: null,

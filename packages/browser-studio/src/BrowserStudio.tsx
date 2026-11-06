@@ -684,6 +684,7 @@ export const BrowserStudio: React.FC<BrowserStudioProps> = ({
 				publicFiles,
 				publicFolderExists: null,
 				fileSystemPlatform: null,
+				supportsNativeFilePicker: false,
 				publicPath: '',
 				readOnlyStudio: readOnly,
 				remotionRoot: currentProject.rootDir,
