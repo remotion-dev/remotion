@@ -125,19 +125,23 @@ export const ${name}: React.FC = () => {
 		`#!/bin/sh\necho "$@" >> "${packageManagerLog}"\n`,
 	);
 	chmodSync(path.join(binDir, 'bun'), 0o755);
+	// On Windows, the package manager runs through cmd.exe, which looks in the
+	// working directory before PATH.
 	writeFileSync(
-		path.join(binDir, 'bun.cmd'),
+		path.join(remotionRoot, 'bun.cmd'),
 		['@echo off', `echo %*>> "${packageManagerLog}"`].join('\r\n'),
 	);
+	// Windows names the variable `Path`. Replace it instead of adding a second one.
+	const env: Record<string, string | undefined> = Object.fromEntries(
+		Object.entries(process.env).filter(([key]) => key.toUpperCase() !== 'PATH'),
+	);
+	env.PATH = `${binDir}${path.delimiter}${process.env.PATH}`;
+	env.CI = 'true';
 
 	const run = async (args: string[]) => {
 		const child = Bun.spawn(['node', cliEntry, 'elements', 'use', ...args], {
 			cwd: remotionRoot,
-			env: {
-				...process.env,
-				PATH: `${binDir}${path.delimiter}${process.env.PATH}`,
-				CI: 'true',
-			},
+			env,
 			stdin: 'ignore',
 			stdout: 'pipe',
 			stderr: 'pipe',
