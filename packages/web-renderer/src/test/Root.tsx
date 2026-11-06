@@ -93,7 +93,12 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
-import {svgFilterReference} from './fixtures/svg-filter-reference';
+import {
+	svgFilterReference,
+	svgFilterExpandedReference,
+	svgFilterBoundingBoxReference,
+	svgFilterFractionalReference,
+} from './fixtures/svg-filter-reference';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
@@ -196,6 +201,9 @@ export const Root: React.FC = () => {
 			<Folder name="Filter">
 				<Composition {...filter} />
 				<Composition {...svgFilterReference} />
+				<Composition {...svgFilterExpandedReference} />
+				<Composition {...svgFilterBoundingBoxReference} />
+				<Composition {...svgFilterFractionalReference} />
 				<Composition {...filterImage} />
 			</Folder>
 			<Folder name="border">

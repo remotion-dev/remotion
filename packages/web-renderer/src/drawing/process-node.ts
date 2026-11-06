@@ -24,6 +24,7 @@ import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
+import {getSvgFilterGeometry} from './svg-filter-geometry';
 import {setTransform} from './transform';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
@@ -225,14 +226,21 @@ export const processNode = async ({
 			}
 		}
 
-		// SVG filter coordinates here are element-local CSS pixels. Scaled and
-		// projected surfaces need separate filter-region mapping.
+		// Only graphs with qualified coordinate mapping can run at raster scales
+		// other than 1. Projected surfaces still need separate region mapping.
 		using svgFilteredLayer =
 			!is3DPrecomposition &&
-			layerScale === 1 &&
-			precompositing.needsFilterPrecompositing?.includes('url(')
+			precompositing.needsFilterPrecompositing?.includes('url(') &&
+			(layerScale === 1 ||
+				getSvgFilterGeometry({
+					filter: precompositing.needsFilterPrecompositing,
+					ownerDocument: element.ownerDocument,
+					width: dimensions.width,
+					height: dimensions.height,
+				}))
 				? applySvgFilterToPrecomposedCanvas({
 						source: drawable,
+						scale: layerScale,
 						sourceRect: new DOMRect(
 							(dimensions.left - layerRect.left) * layerScale,
 							(dimensions.top - layerRect.top) * layerScale,
