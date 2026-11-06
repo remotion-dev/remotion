@@ -126,10 +126,15 @@ export const TimelineSequenceName: React.FC<{
 			return;
 		}
 
-		// With the fade padding applied, a clipped name stays clipped until there
-		// is room for the padding too, so toggling it cannot oscillate.
+		// Compare the text itself with the box, so that the fade padding does not
+		// affect the result: a clipped name fills the space it has, a name that
+		// fits is as wide as its text. Toggling the padding cannot oscillate.
+		const range = document.createRange();
+		range.selectNodeContents(element);
 		const update = () => {
-			setNameClipped(element.scrollWidth > element.clientWidth);
+			const textWidth = range.getBoundingClientRect().width;
+			const boxWidth = element.getBoundingClientRect().width;
+			setNameClipped(textWidth - boxWidth > 0.5);
 		};
 
 		update();
