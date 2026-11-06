@@ -36,3 +36,15 @@ test('uses the positioning area for auto sizes', () => {
 
 	expect(rect).toEqual(new DOMRect(10, 20, 100, 50));
 });
+
+// PR #13036: contain's dependent tile dimension is snapped before repetition.
+test('snaps the dependent contain dimension for a raster tile', () => {
+	const rect = getBackgroundImageRect({
+		backgroundSize: 'contain',
+		backgroundPosition: '0% 0%',
+		positioningArea: new DOMRect(0, 0, 101, 128),
+		intrinsicSize: {width: 16, height: 8},
+	});
+	expect(rect.width).toBe(101);
+	expect(rect.height).toBe(51);
+});

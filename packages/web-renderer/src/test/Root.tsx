@@ -5,6 +5,7 @@ import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundColor} from './fixtures/background-color';
 import {backgroundImageUrl} from './fixtures/background-image-url';
+import {backgroundImageContain} from './fixtures/background-image-url-contain';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {borderRadius} from './fixtures/border-radius';
@@ -161,6 +162,7 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
 			<Composition {...backgroundImageUrl} />
+			<Composition {...backgroundImageContain} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />

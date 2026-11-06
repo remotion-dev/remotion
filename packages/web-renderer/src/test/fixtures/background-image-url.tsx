@@ -1,4 +1,4 @@
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Img, useCurrentFrame} from 'remotion';
 import {rasterMask} from './mask-image-url-sizing';
 
 const cases: React.CSSProperties[] = [
@@ -36,6 +36,7 @@ const Component: React.FC = () => {
 				gridTemplateRows: 'repeat(3, 64px)',
 			}}
 		>
+			<Img src={rasterMask} style={{display: 'none'}} />
 			{cases.map((style) => (
 				<div
 					key={JSON.stringify(style)}

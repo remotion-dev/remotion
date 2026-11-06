@@ -125,6 +125,13 @@ export const getBackgroundImageRect = ({
 		);
 		width = intrinsicSize.width * factor;
 		height = intrinsicSize.height * factor;
+		// CSS contain snaps only the dimension derived from the aspect ratio.
+		if (backgroundSize === 'contain') {
+			if (width !== positioningArea.width)
+				width = Math.max(1, Math.round(width));
+			if (height !== positioningArea.height)
+				height = Math.max(1, Math.round(height));
+		}
 	} else if (intrinsicSize && x === 'auto' && y === 'auto') {
 		({width, height} = intrinsicSize);
 	} else if (intrinsicSize && x === 'auto') {
