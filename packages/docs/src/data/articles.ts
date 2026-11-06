@@ -8958,6 +8958,15 @@ export const articles = [
 		slug: 'studio-protocol/security',
 	},
 	{
+		id: 'studio-protocol/serialize-element-payload-for-html',
+		title: 'serializeElementPayloadForHtml()',
+		relativePath: 'docs/studio-protocol/serialize-element-payload-for-html.mdx',
+		compId: 'articles-docs-studio-protocol-serialize-element-payload-for-html',
+		crumb: '@remotion/studio-protocol',
+		noAi: false,
+		slug: 'studio-protocol/serialize-element-payload-for-html',
+	},
+	{
 		id: 'studio-protocol/set-studio-drag-data',
 		title: 'setStudioDragData()',
 		relativePath: 'docs/studio-protocol/set-studio-drag-data.mdx',
