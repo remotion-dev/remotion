@@ -5,7 +5,7 @@ import '../symbol-dispose';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {captureNativeReference, compareNativePixels} from './native-reference';
 
-// KINO-7774: compare real browser painting, including alpha.
+// KINO-7774: compare real browser painting, including alpha, without tolerance.
 test.skipIf(!navigator.userAgent.includes('Chrome'))(
 	'blends backgrounds without blending descendants or the element backdrop',
 	async () => {
@@ -26,12 +26,7 @@ test.skipIf(!navigator.userAgent.includes('Chrome'))(
 				reference,
 				await still.blob({format: 'png'}),
 			);
-			// Linux Chromium's native and canvas blend paths can round differently.
-			if (navigator.userAgent.includes('Linux')) {
-				expect(result.maxChannelDelta).toBeLessThanOrEqual(1);
-			} else {
-				expect(result.mismatchedPixels).toBe(0);
-			}
+			expect(result.mismatchedPixels).toBe(0);
 		}
 	},
 );

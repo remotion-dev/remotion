@@ -97,7 +97,11 @@ export const drawBackground = async ({
 	const blendMode = getBlendMode(computedStyle.backgroundBlendMode);
 	if (
 		backgroundImage !== 'none' &&
-		(blendMode || !isColorTransparent(backgroundColor))
+		(blendMode ||
+			(!isColorTransparent(backgroundColor) &&
+				(context.globalAlpha !== 1 ||
+					context.filter !== 'none' ||
+					contextToDraw !== context)))
 	) {
 		// CSS backgrounds blend in their own isolated group, not with the
 		// element's siblings, children or other content already on the canvas.
@@ -155,6 +159,21 @@ export const drawBackground = async ({
 	}
 
 	const originalFillStyle = contextToDraw.fillStyle;
+	if (
+		backgroundImage !== 'none' &&
+		backgroundFill !== backgroundColor &&
+		!backgroundClip.includes('text') &&
+		!isColorTransparent(backgroundColor)
+	) {
+		contextToDraw.fillStyle = backgroundColor;
+		contextToDraw.fillRect(
+			boundingRect.left - offsetLeft,
+			boundingRect.top - offsetTop,
+			boundingRect.width,
+			boundingRect.height,
+		);
+	}
+
 	contextToDraw.fillStyle = backgroundFill;
 	contextToDraw.fillRect(
 		boundingRect.left - offsetLeft,
