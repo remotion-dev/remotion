@@ -137,6 +137,10 @@ under a new timing boundary can change the frame returned by `useCurrentFrame()`
 preserve the source clock or adjust local offsets deliberately.
 
 Verify the full composition and any connected views, rather than judging the
-result only from a standalone scene. Check visual output and audio around cuts,
-overlay boundaries, and sound tails. Grouping the timeline should preserve the
-existing edit while making its controls easier to use.
+result only from a standalone scene. Render stills around cuts and overlay
+boundaries to check the visual output. Audio cannot be checked by listening:
+confirm in code that each sound's `from`, `trimBefore`, `trimAfter`,
+`durationInFrames`, and volume envelope still line up with the cuts and leave
+room for sound tails, then tell the user which moments to listen to. Grouping
+the timeline should preserve the existing edit while making its controls easier
+to use.
