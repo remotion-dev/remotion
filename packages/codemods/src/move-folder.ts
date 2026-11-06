@@ -16,4 +16,5 @@ export const moveFolder = <Project extends CodemodProject>({
 		compositionFile,
 		source: {type: 'folder', ...folder},
 		destination,
+		destinationFile: null,
 	});

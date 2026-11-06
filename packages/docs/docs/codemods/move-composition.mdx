@@ -29,7 +29,9 @@ const result = moveComposition({
 console.log(result);
 ```
 
-The composition and destination must be in the same registration file. Their source must allow a direct child move. The component implementation and composition ID stay unchanged.
+The composition and destination may be in different registration files supplied in `project.files`. The component implementation and composition ID stay unchanged. The composition must be a direct JSX child; a destination folder may also be the root element returned by a registration component.
+
+For cross-file moves, imported dependencies are copied to the destination, relative imports are rebased, and conflicting import names are aliased. Imports still used in the source file are retained. Inline callbacks may use their own parameters and local variables, but dependencies on values declared outside the moved JSX are rejected unless they are imported. Unsupported dependencies fail without changing either file.
 
 ## Options
 
@@ -47,7 +49,11 @@ The static ID of the composition to edit.
 
 ### destination
 
-Where to move the item within the same file. Use `{type: 'root'}`, `{type: 'folder', folder: {name, parentName}}`, or `{type: 'before' | 'after', target}`. A target is `{type: 'composition', compositionId}` or `{type: 'folder', name, parentName}`. Moving an item into its current parent is a no-op.
+Where to move the item. Use `{type: 'root'}`, `{type: 'folder', folder: {name, parentName}}`, or `{type: 'before' | 'after', target}`. A target is `{type: 'composition', compositionId}` or `{type: 'folder', name, parentName}`. Moving an item into its current parent in the same file is a no-op. Root moves stay in `compositionFile`.
+
+### destinationFile
+
+Optional project file containing the destination folder or registration. If omitted, a non-root destination must resolve uniquely among the project's JavaScript and TypeScript files. Supply this option to disambiguate identical folder names in different files. Folder ancestry is resolved from the JSX in the destination file; ancestry introduced by another component's caller is not inferred.
 
 ## Return value
 

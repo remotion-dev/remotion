@@ -9,6 +9,7 @@ import {
 	requireCapturedNodePath,
 } from './get-node-path-remappings';
 import {findProjectFile} from './internals';
+import {moveCompositionAcrossFiles} from './move-composition-across-files';
 import {
 	getNodeEditResult,
 	getSubtreeEditRemappings,
@@ -164,11 +165,13 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	compositionFile,
 	source,
 	destination,
+	destinationFile,
 }: {
 	project: Project;
 	compositionFile: string;
 	source: CompositionTreeItem;
 	destination: CompositionDestination;
+	destinationFile: string | null;
 }): CodemodNodeResult & {updatedNode: NodeReference} => {
 	const filePath = findProjectFile({project, filePath: compositionFile});
 	const input = project.files[filePath];
@@ -176,15 +179,75 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	const entries = getTreeEntries({ast});
 	const entry = requireTreeItem(entries, source);
 	const before = captureJsxNodePaths(ast);
-	const target =
-		destination.type === 'root'
-			? null
-			: requireTreeItem(
-					entries,
-					destination.type === 'folder'
-						? {type: 'folder', ...destination.folder}
-						: destination.target,
-				);
+	let target: TreeEntry | null = null;
+	let targetFilePath = filePath;
+	let targetAst = ast;
+	if (destination.type !== 'root') {
+		const targetItem: CompositionTreeItem =
+			destination.type === 'folder'
+				? {type: 'folder', ...destination.folder}
+				: destination.target;
+		const candidates =
+			destinationFile === null
+				? source.type === 'folder'
+					? [filePath]
+					: Object.keys(project.files).filter((candidate) =>
+							/\.[jt]sx?$/.test(candidate),
+						)
+				: [findProjectFile({project, filePath: destinationFile})];
+		const located = candidates.flatMap((candidate) => {
+			const candidateAst =
+				candidate === filePath ? ast : parseAst(project.files[candidate]);
+			const candidateEntries =
+				candidate === filePath ? entries : getTreeEntries({ast: candidateAst});
+			return candidateEntries.map((candidateEntry) => ({
+				entry: candidateEntry,
+				filePath: candidate,
+				ast: candidateAst,
+			}));
+		});
+		target = requireTreeItem(
+			located.map((candidate) => candidate.entry),
+			targetItem,
+		);
+		const owner = located.find((candidate) => candidate.entry === target)!;
+		targetFilePath = owner.filePath;
+		targetAst = owner.ast;
+	}
+
+	if (targetFilePath !== filePath) {
+		if (source.type === 'folder')
+			throw new Error('Moving folders across source files is not supported');
+		const targetParent = target?.path.parentPath?.node;
+		const targetIsRootFolder =
+			destination.type === 'folder' &&
+			target !== null &&
+			((targetParent?.type === 'ArrowFunctionExpression' &&
+				targetParent.body === target.node) ||
+				(targetParent?.type === 'ReturnStatement' &&
+					targetParent.argument === target.node));
+		if (
+			!entry.directJsxChild ||
+			!target ||
+			(!target.directJsxChild && !targetIsRootFolder)
+		)
+			throw new Error(
+				'Could not locate the cross-file registration and destination as direct JSX children or a root folder',
+			);
+		if (destination.type === 'root')
+			throw new Error('Root moves must remain in the registration source file');
+		return moveCompositionAcrossFiles({
+			project,
+			sourceFile: filePath,
+			sourceAst: ast,
+			source: entry,
+			targetFile: targetFilePath,
+			targetAst,
+			target,
+			position: destination.type,
+		});
+	}
+
 	const destinationParentName =
 		destination.type === 'folder'
 			? [destination.folder.parentName, destination.folder.name]

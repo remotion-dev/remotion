@@ -420,6 +420,7 @@ export type DeleteCompositionRequest = CompositionEditRequest & {
 export type MoveCompositionRequest = CompositionEditRequest & {
 	compositionId: string;
 	destination: CompositionDestination;
+	destinationFile: string | null;
 };
 
 export type AddFolderRequest = CompositionEditRequest & {

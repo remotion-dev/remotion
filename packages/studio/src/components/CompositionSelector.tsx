@@ -373,7 +373,11 @@ export const CompositionSelector: React.FC<{
 				};
 				const result = await (source.type === 'composition'
 					? moveComposition(
-							{...common, compositionId: source.compositionId},
+							{
+								...common,
+								compositionId: source.compositionId,
+								destinationFile: null,
+							},
 							controller.signal,
 						)
 					: moveFolder(

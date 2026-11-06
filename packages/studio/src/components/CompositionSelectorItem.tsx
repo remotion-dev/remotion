@@ -661,7 +661,11 @@ export const CompositionSelectorItem: React.FC<{
 				};
 				const result = await (source.type === 'composition'
 					? moveComposition(
-							{...common, compositionId: source.compositionId},
+							{
+								...common,
+								compositionId: source.compositionId,
+								destinationFile: resolvedLocation?.source ?? null,
+							},
 							signal,
 						)
 					: moveFolder(
@@ -692,7 +696,7 @@ export const CompositionSelectorItem: React.FC<{
 				);
 			}
 		},
-		[item, toggleFolder],
+		[item, resolvedLocation?.source, toggleFolder],
 	);
 
 	const onRowDrop = useCallback(

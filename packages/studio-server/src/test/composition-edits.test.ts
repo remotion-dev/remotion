@@ -445,6 +445,7 @@ test('moveCompositionHandler pushes composition moves to undo and redo stacks', 
 			getHandlerOptions({
 				input: {
 					compositionId: 'NestedA',
+					destinationFile: null,
 					destination: {
 						type: 'folder',
 						folderName: 'Shared',
@@ -513,6 +514,7 @@ test('moveCompositionHandler pushes composition moves to root to undo and redo s
 			getHandlerOptions({
 				input: {
 					compositionId: 'NestedA',
+					destinationFile: null,
 					destination: {type: 'root'},
 					undoRedoNavigation: null,
 					symbolicatedStack: {
@@ -554,6 +556,170 @@ test('moveCompositionHandler pushes composition moves to root to undo and redo s
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
 });
+
+test.each([
+	['../Outside.tsx', 'outside the project'],
+	['Destination.js', 'not using TypeScript'],
+])(
+	'moveCompositionHandler rejects destination %s before writing',
+	async (destinationFile, reason) => {
+		const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+		const entryPoint = path.join(remotionRoot, 'Root.tsx');
+		try {
+			clearUndoRedoStacks();
+			writeFileSync(entryPoint, folderRootContents);
+			const result = await moveCompositionHandler(
+				getHandlerOptions({
+					input: {
+						compositionId: 'NestedA',
+						destination: {
+							type: 'folder',
+							folderName: 'Shared',
+							parentName: 'Other',
+						},
+						destinationFile,
+						undoRedoNavigation: null,
+						symbolicatedStack: {
+							originalFunctionName: null,
+							originalFileName: 'Root.tsx',
+							originalLineNumber: 9,
+							originalColumnNumber: 4,
+							originalScriptCode: null,
+						},
+					},
+					entryPoint,
+					remotionRoot,
+				}),
+			);
+			expect(result.success).toBe(false);
+			if (result.success) {
+				throw new Error('Expected destination admission to fail');
+			}
+
+			expect(result.reason).toContain(reason);
+			expect(readFileSync(entryPoint, 'utf-8')).toBe(folderRootContents);
+			expect(getUndoStack()).toHaveLength(0);
+		} finally {
+			clearUndoRedoStacks();
+			rmSync(remotionRoot, {recursive: true, force: true});
+		}
+	},
+);
+
+test.each(['Composition', 'Still'])(
+	'moveCompositionHandler moves a %s between files with exact undo and redo',
+	async (tag) => {
+		const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
+		const cleanupFileWatcher = setFileWatcherRegistry(
+			createFileWatcherRegistry(),
+		);
+		const cleanupLiveEvents = setLiveEventsListener({
+			sendEventToClient: () => undefined,
+			sendEventToClientId: () => true,
+			router: () => Promise.resolve(),
+			closeConnections: () => Promise.resolve(),
+			addNewClientListener: () => () => undefined,
+		});
+		const sourceContents = `import {${tag}} from 'remotion';
+import {Video} from './Video';
+import {Registrations} from './folders/Registrations';
+export const Root = () => <>
+  <Registrations />
+  <${tag} id="MoveMe" component={Video} ${tag === 'Composition' ? 'durationInFrames={60} fps={30} ' : ''}width={1280} height={720} />
+</>;
+`;
+		const destinationContents = `import {Folder} from 'remotion';
+export const Registrations = () => <>
+  <Folder name="Parent"><Folder name="Target" /></Folder>
+</>;
+`;
+		try {
+			clearUndoRedoStacks();
+			const sourceFile = path.join(remotionRoot, 'Root.tsx');
+			const destinationFile = path.join(
+				remotionRoot,
+				'folders',
+				'Registrations.tsx',
+			);
+			mkdirSync(path.dirname(destinationFile), {recursive: true});
+			writeFileSync(sourceFile, sourceContents);
+			writeFileSync(destinationFile, destinationContents);
+			writeFileSync(
+				path.join(remotionRoot, 'Video.tsx'),
+				'export const Video = () => null;\n',
+			);
+
+			const result = await moveCompositionHandler(
+				getHandlerOptions({
+					input: {
+						compositionId: 'MoveMe',
+						destination: {
+							type: 'folder',
+							folderName: 'Target',
+							parentName: 'Parent',
+						},
+						destinationFile: 'folders/Registrations.tsx',
+						undoRedoNavigation: null,
+						symbolicatedStack: {
+							originalFunctionName: null,
+							originalFileName: 'Root.tsx',
+							originalLineNumber: 6,
+							originalColumnNumber: 3,
+							originalScriptCode: null,
+						},
+					},
+					entryPoint: sourceFile,
+					remotionRoot,
+				}),
+			);
+			if (!result.success) {
+				throw new Error(result.reason);
+			}
+
+			const movedSource = readFileSync(sourceFile, 'utf-8');
+			const movedDestination = readFileSync(destinationFile, 'utf-8');
+			expect(movedSource).not.toContain('id="MoveMe"');
+			expect(movedDestination).toContain('id="MoveMe"');
+			expect(movedDestination).toContain('component={Video}');
+			expect(movedDestination).toMatch(/from ['"]\.\.\/Video['"]/);
+			expect(
+				result.nodePathMutation?.files.map((file) => file.absolutePath),
+			).toEqual(expect.arrayContaining([sourceFile, destinationFile]));
+			expect(getUndoStack()).toHaveLength(1);
+			expect(
+				(
+					await undoHandler(
+						getHandlerOptions({
+							input: {},
+							entryPoint: sourceFile,
+							remotionRoot,
+						}),
+					)
+				).success,
+			).toBe(true);
+			expect(readFileSync(sourceFile, 'utf-8')).toBe(sourceContents);
+			expect(readFileSync(destinationFile, 'utf-8')).toBe(destinationContents);
+			expect(
+				(
+					await redoHandler(
+						getHandlerOptions({
+							input: {},
+							entryPoint: sourceFile,
+							remotionRoot,
+						}),
+					)
+				).success,
+			).toBe(true);
+			expect(readFileSync(sourceFile, 'utf-8')).toBe(movedSource);
+			expect(readFileSync(destinationFile, 'utf-8')).toBe(movedDestination);
+		} finally {
+			clearUndoRedoStacks();
+			cleanupLiveEvents();
+			cleanupFileWatcher();
+			rmSync(remotionRoot, {recursive: true, force: true});
+		}
+	},
+);
 
 test('addCompositionHandler creates compositions and timecoded imports with undo and redo', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));

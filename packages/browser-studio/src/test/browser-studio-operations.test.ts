@@ -1702,6 +1702,7 @@ export const Root = () => {
 
 	const result = await operations.moveComposition({
 		compositionId: 'MyComp',
+		destinationFile: null,
 		destination: {
 			type: 'folder',
 			folderName: 'target-folder',
@@ -1726,6 +1727,66 @@ export const Root = () => {
 	expect(rootFile.indexOf('<Composition')).toBeGreaterThan(
 		rootFile.indexOf('<Folder'),
 	);
+});
+
+test('moves a composition between registration files with undo and redo', async () => {
+	const sourceFile = '/project/src/Root.tsx';
+	const destinationFile = '/project/src/folders/Registrations.tsx';
+	const initialProject: VirtualProject = {
+		rootDir: '/project',
+		entryPoint: '/project/src/index.ts',
+		files: {
+			'/project/src/index.ts': `import {registerRoot} from 'remotion';
+import {Root} from './Root';
+registerRoot(Root);
+`,
+			[sourceFile]: `import {Composition} from 'remotion';
+import {Video} from './Video';
+import {Registrations} from './folders/Registrations';
+export const Root = () => <>
+  <Registrations />
+  <Composition id="MoveMe" component={Video} durationInFrames={60} fps={30} width={1280} height={720} />
+</>;
+`,
+			[destinationFile]: `import {Folder} from 'remotion';
+export const Registrations = () => <>
+  <Folder name="Parent"><Folder name="Target" /></Folder>
+</>;
+`,
+			'/project/src/Video.tsx': 'export const Video = () => null;\n',
+		},
+	};
+	const {operations, getProject} = makeOperationsForProject(initialProject);
+
+	const result = await operations.moveComposition({
+		compositionId: 'MoveMe',
+		destination: {type: 'folder', folderName: 'Target', parentName: 'Parent'},
+		destinationFile: 'src/folders/Registrations.tsx',
+		symbolicatedStack: {
+			originalFileName: 'src/Root.tsx',
+			originalFunctionName: null,
+			originalLineNumber: 6,
+			originalColumnNumber: 3,
+			originalScriptCode: null,
+		},
+		undoRedoNavigation: null,
+	});
+	if (!result.success) {
+		throw new Error(result.reason);
+	}
+
+	const movedFiles = {...getProject().files};
+	expect(movedFiles[sourceFile]).not.toContain('id="MoveMe"');
+	expect(movedFiles[destinationFile]).toContain('id="MoveMe"');
+	expect(movedFiles[destinationFile]).toContain('component={Video}');
+	expect(movedFiles[destinationFile]).toMatch(/from ['"]\.\.\/Video['"]/);
+	expect(
+		result.nodePathMutation?.files.map((file) => file.absolutePath),
+	).toEqual(expect.arrayContaining([sourceFile, destinationFile]));
+	expect((await operations.undo()).success).toBe(true);
+	expect(getProject().files).toEqual(initialProject.files);
+	expect((await operations.redo()).success).toBe(true);
+	expect(getProject().files).toEqual(movedFiles);
 });
 
 test('reorders JSX sequences as an undoable project mutation', async () => {

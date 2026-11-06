@@ -94,7 +94,7 @@ const parseSource = (source: string): AstNode => {
 	}) as unknown as AstNode;
 };
 
-const normalizePath = (input: string) => {
+export const normalizePath = (input: string) => {
 	const hasLeadingSlash = input.startsWith('/');
 	const parts: string[] = [];
 
@@ -114,7 +114,7 @@ const normalizePath = (input: string) => {
 	return `${hasLeadingSlash ? '/' : ''}${parts.join('/')}`;
 };
 
-const dirname = (filePath: string) => {
+export const dirname = (filePath: string) => {
 	const normalized = normalizePath(filePath);
 	const lastSlash = normalized.lastIndexOf('/');
 	return lastSlash === -1 ? '' : normalized.slice(0, lastSlash);

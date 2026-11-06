@@ -2100,6 +2100,7 @@ export const createBrowserStudioOperations = ({
 				compositionFile: absolutePath,
 				compositionId: request.compositionId,
 				destination: toCodemodCompositionDestination(request.destination),
+				destinationFile: request.destinationFile ?? undefined,
 			});
 			return {
 				success: true as const,

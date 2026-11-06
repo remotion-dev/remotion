@@ -316,7 +316,7 @@ export const renderImportDeclaration = ({
 					]
 				: []),
 		];
-		return `import ${parts.join(', ')} from ${source}${semicolon}`;
+		return `import ${declaration.importKind === 'type' ? 'type ' : ''}${parts.join(', ')} from ${source}${semicolon}`;
 	};
 
 	const singleLine = render(false);
