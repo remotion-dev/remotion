@@ -287,7 +287,11 @@ const getReferencedRectangle = (
 	if (children.length !== 1 || !(children[0] instanceof SVGRectElement))
 		return null;
 	const child = children[0];
-	if (child.rx.baseVal.value > 0 || child.ry.baseVal.value > 0) return null;
+	if (
+		child.rx.baseVal.valueInSpecifiedUnits > 0 ||
+		child.ry.baseVal.valueInSpecifiedUnits > 0
+	)
+		return null;
 	const objectBoundingBox =
 		resource.clipPathUnits.baseVal ===
 		SVGUnitTypes.SVG_UNIT_TYPE_OBJECTBOUNDINGBOX;

@@ -7,7 +7,11 @@ import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathReference} from './fixtures/clip-path-reference';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {
+	captureNativeReference,
+	compareNativePixels,
+	savePixelEvidence,
+} from './native-reference';
 import {testImage} from './utils';
 
 test('Should render clip-path: polygon()', async () => {
@@ -110,6 +114,11 @@ for (const frame of [0, 1]) {
 			})
 		).blob({format: 'png'});
 		const diff = await compareNativePixels(reference, actual);
+		await Promise.all([
+			savePixelEvidence(reference, `clip-reference-${frame}-native`),
+			savePixelEvidence(actual, `clip-reference-${frame}-actual`),
+			savePixelEvidence(diff.diff, `clip-reference-${frame}-diff`),
+		]);
 		expect(diff.mismatchedPixels).toBe(0);
 	});
 }
