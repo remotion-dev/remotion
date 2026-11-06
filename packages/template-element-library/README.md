@@ -110,6 +110,8 @@ Each page with Markdown has a `<link rel="alternate" type="text/markdown">` tag.
 
 Agents can follow `/index.md` from the homepage to find every Element. They do not need to guess URLs or run JavaScript.
 
+Each Element's Markdown starts its installation steps with [`npx remotion elements use`](https://www.remotion.dev/docs/cli/elements/use) and the absolute URL of the Element page. The prerendered Markdown cannot detect your domain, so set `SITE_URL` when you build, for example `SITE_URL=https://elements.example.com npm run build`. Without it, the static Markdown tells agents to use the URL of the Element page. With SSR, the Markdown uses the request URL.
+
 `app/routes.ts` registers the Markdown resource routes. HTML-only pages do not need a Markdown route.
 
 HTML and Markdown use the same Element registry, installation payloads, and source files. When you add an Element, it appears in both formats.
