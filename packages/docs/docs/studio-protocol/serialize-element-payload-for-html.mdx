@@ -8,7 +8,7 @@ crumb: '@remotion/studio-protocol'
 
 Serializes an Element payload to JSON that is safe to put inside a `<script>` tag in your page's HTML.
 
-Tools that only fetch your page's HTML, such as command-line tools and agents, can then read the same payload that [`installInStudio()`](/docs/studio-protocol/install-in-studio) and [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) use.
+Tools that only fetch your page's HTML, such as command-line tools and agents, can then read the payload. It is the same payload that [`installInStudio()`](/docs/studio-protocol/install-in-studio) and [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) use.
 
 ## Example
 
@@ -96,13 +96,13 @@ const html = `<script type="${ELEMENT_PAYLOAD_MIME_TYPE}">${serializeElementPayl
 
 Browsers do not run the script.
 
+The script must be in the HTML that your server sends. Render the page on the server or prerender it at build time.
+
 ## One payload per Element page
 
-Embed the payload only on the Element's own page, and link to that page from galleries and lists. Do not embed payloads on gallery or list pages. Each payload contains the Element's full source code, so a page with many payloads is large. In Next.js, a Server Component also sends the payload a second time in the page data used for hydration.
+Embed each payload only on its Element's own page, and link to that page from galleries and lists. Each payload contains the Element's full source code, so a gallery page with every payload would be large. In Next.js, a Server Component also sends the payload a second time, in the page data for hydration.
 
 Tools can still read several payloads from one page.
-
-The script must be in the HTML that your server sends. Render it in a page that is server-rendered or prerendered at build time.
 
 ## Arguments
 
@@ -118,11 +118,11 @@ If the payload is invalid, the function throws a `TypeError`.
 
 ## `ELEMENT_PAYLOAD_MIME_TYPE`
 
-The constant `'application/vnd.remotion.element+json'`, exported from `@remotion/studio-protocol`. Use it as the `type` of the `<script>` tag and of the [`<link>` fallback](#pages-rendered-in-the-browser).
+`ELEMENT_PAYLOAD_MIME_TYPE` is `'application/vnd.remotion.element+json'`. Use it as the `type` of the `<script>` tag and of the [`<link>` fallback](#pages-rendered-in-the-browser).
 
 ## Pages rendered in the browser
 
-If your page is rendered only in the browser, such as a single-page app route that is not prerendered, the HTML from the server does not contain the payload.
+If your page renders only in the browser, such as a single-page app route without prerendering, the HTML that your server sends does not contain the payload.
 
 Instead, serve the payload as a JSON file, for example by writing `JSON.stringify(payload)` to a file at build time. Link to it from the page's `<head>`:
 
