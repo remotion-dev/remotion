@@ -458,6 +458,13 @@ export const getInsertImportSourceEdits = ({
 
 		const statementStart = recastLocToOffset(input, statement.loc.start);
 		const statementEnd = recastLocToOffset(input, statement.loc.end);
+		// Prettier counts trailing block comments on the same line towards the
+		// width, but not a trailing line comment.
+		const trailingWidth = input
+			.slice(statementEnd)
+			.match(/^[^\r\n]*/)![0]
+			.replace(/^((?:\s*\/\*.*?\*\/)*)\s*\/\/.*$/, '$1')
+			.trimEnd().length;
 		const addedSources = addedSpecifiers.map(renderImportSpecifier);
 		const existingNamedSpecifiers = snapshot.specifiers.filter(
 			(specifier) => specifier.type === 'ImportSpecifier',
@@ -517,7 +524,8 @@ export const getInsertImportSourceEdits = ({
 				statementStart +
 				renderBraces(false).length +
 				statementEnd -
-				(closeBrace + 1);
+				(closeBrace + 1) +
+				trailingWidth;
 			if (
 				onlySeparators &&
 				(input.slice(openBrace, closeBrace).includes('\n') ||
@@ -553,7 +561,10 @@ export const getInsertImportSourceEdits = ({
 					specifiers: addedSources,
 				})}`;
 			const singleLineLength =
-				statementEnd - statementStart + renderBraces(false).length;
+				statementEnd -
+				statementStart +
+				renderBraces(false).length +
+				trailingWidth;
 			edits.push({
 				end: offset,
 				replacement: renderBraces(singleLineLength > formatting.printWidth),

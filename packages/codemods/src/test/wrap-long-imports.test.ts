@@ -171,3 +171,44 @@ export const RemotionRoot: React.FC = () => {
 };
 `);
 });
+
+test('counts a trailing block comment towards printWidth like Prettier', () => {
+	const output = insertIntoComposition({
+		element: createElement({
+			component: 'Sequence',
+			importPath: 'remotion',
+			props: {from: 30},
+		}),
+		prettierConfigOverride: {},
+		input: `import { AbsoluteFill, Composition } from "remotion"; /* layout components */
+
+export const MyComposition = () => {
+  return (
+    <AbsoluteFill>
+      <h1>Hello</h1>
+    </AbsoluteFill>
+  );
+};
+export const Root = () => <Composition id="MyComp" component={MyComposition} />;
+`,
+	});
+
+	expect(output).toBe(`import {
+  AbsoluteFill,
+  Composition,
+  Sequence,
+} from "remotion"; /* layout components */
+
+export const MyComposition = () => {
+  return (
+    <>
+      <AbsoluteFill>
+        <h1>Hello</h1>
+      </AbsoluteFill>
+      <Sequence from={30} />
+    </>
+  );
+};
+export const Root = () => <Composition id="MyComp" component={MyComposition} />;
+`);
+});
