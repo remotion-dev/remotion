@@ -1,5 +1,6 @@
 import React, {useLayoutEffect, useRef} from 'react';
 import {AbsoluteFill, Img, useCurrentFrame} from 'remotion';
+import type {ObjectFit} from '../../drawing/calculate-object-fit';
 
 const svg =
 	'data:image/svg+xml,' +
@@ -31,7 +32,9 @@ const Canvas: React.FC<{readonly style: React.CSSProperties}> = ({style}) => {
 	return <canvas ref={ref} width={80} height={40} style={style} />;
 };
 
-const Component: React.FC = () => {
+const Component: React.FC<{
+	readonly positionCases: readonly (readonly [ObjectFit, string])[];
+}> = ({positionCases}) => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill
@@ -43,7 +46,7 @@ const Component: React.FC = () => {
 			}}
 		>
 			{['svg', 'png', 'canvas'].flatMap((kind) =>
-				cases.map(([objectFit, position]) => {
+				positionCases.map(([objectFit, position]) => {
 					const style: React.CSSProperties = {
 						display: 'block',
 						width: 60,
@@ -69,10 +72,26 @@ const Component: React.FC = () => {
 };
 
 export const objectPosition = {
-	component: Component,
+	component: () => <Component positionCases={cases} />,
 	id: 'object-position',
 	width: 480,
 	height: 240,
 	fps: 25,
 	durationInFrames: 2,
+} as const;
+
+const mathCases = [
+	['contain', '50% calc(50% + min(10px, 10%))'],
+	['contain', '50% clamp(5px, 50%, 40px)'],
+	['cover', 'calc(50% + min(10px, 10%)) 50%'],
+	['cover', 'calc(50% - max(2px, 10%)) 50%'],
+	['none', 'min(10px, 10%) max(2px, 10%)'],
+	['scale-down', 'calc(100% - 0.000001px) calc(100% - 0.000001px)'],
+	['contain', 'calc(100% - 1e-6px) 50%'],
+	['none', '1e+6px 1e-6px'],
+] as const;
+export const objectPositionMath = {
+	...objectPosition,
+	id: 'object-position-math',
+	component: () => <Component positionCases={mathCases} />,
 } as const;
