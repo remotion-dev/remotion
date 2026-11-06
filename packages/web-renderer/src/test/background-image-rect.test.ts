@@ -5,6 +5,7 @@ test('positions an oversized percentage background image', () => {
 	const rect = getBackgroundImageRect({
 		backgroundPosition: '25% 0%',
 		backgroundSize: '220% 100%',
+		intrinsicSize: null,
 		positioningArea: new DOMRect(10, 20, 100, 50),
 	});
 
@@ -18,6 +19,7 @@ test('supports pixel sizes and positions', () => {
 	const rect = getBackgroundImageRect({
 		backgroundPosition: '12px 8px',
 		backgroundSize: '40px 30px',
+		intrinsicSize: null,
 		positioningArea: new DOMRect(10, 20, 100, 50),
 	});
 
@@ -28,6 +30,7 @@ test('uses the positioning area for auto sizes', () => {
 	const rect = getBackgroundImageRect({
 		backgroundPosition: 'center',
 		backgroundSize: 'auto',
+		intrinsicSize: null,
 		positioningArea: new DOMRect(10, 20, 100, 50),
 	});
 

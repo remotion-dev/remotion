@@ -1,7 +1,7 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {createLayer} from '../take-screenshot';
-import {getBackgroundFill} from './get-background-fill';
+import {getBackgroundFill, isColorTransparent} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
 
 export const drawBackground = async ({
@@ -89,11 +89,29 @@ export const drawBackground = async ({
 		contextToDraw.globalCompositeOperation = 'source-in';
 	}
 
-	const backgroundFill = getBackgroundFill({
+	if (backgroundColor && !isColorTransparent(backgroundColor)) {
+		const previousColor = contextToDraw.fillStyle;
+		contextToDraw.fillStyle = backgroundColor;
+		contextToDraw.fillRect(
+			boundingRect.left - offsetLeft,
+			boundingRect.top - offsetTop,
+			boundingRect.width,
+			boundingRect.height,
+		);
+		contextToDraw.fillStyle = previousColor;
+	}
+
+	const backgroundFill = await getBackgroundFill({
 		backgroundImage,
+		backgroundRepeat: computedStyle.backgroundRepeat,
+		internalState,
+		positioningArea: getBoxBasedOnBackgroundClip(
+			rect,
+			computedStyle,
+			computedStyle.backgroundOrigin,
+		),
 		backgroundPosition: computedStyle.backgroundPosition,
 		backgroundSize: computedStyle.backgroundSize,
-		backgroundColor,
 		contextToDraw,
 		boundingRect,
 		offsetLeft,
@@ -101,6 +119,33 @@ export const drawBackground = async ({
 	});
 
 	if (!backgroundFill) {
+		return;
+	}
+
+	if ('image' in backgroundFill) {
+		contextToDraw.save();
+		contextToDraw.beginPath();
+		contextToDraw.rect(
+			boundingRect.left - offsetLeft,
+			boundingRect.top - offsetTop,
+			boundingRect.width,
+			boundingRect.height,
+		);
+		contextToDraw.clip();
+		// Browser background painting snaps the destination edges before applying
+		// the element transform, including a half-pixel percentage position.
+		const left = Math.round(backgroundFill.rect.left - offsetLeft);
+		const top = Math.round(backgroundFill.rect.top - offsetTop);
+		const right = Math.round(backgroundFill.rect.right - offsetLeft);
+		const bottom = Math.round(backgroundFill.rect.bottom - offsetTop);
+		contextToDraw.drawImage(
+			backgroundFill.image,
+			left,
+			top,
+			right - left,
+			bottom - top,
+		);
+		contextToDraw.restore();
 		return;
 	}
 
