@@ -89,7 +89,7 @@ export const ZodNumberEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<InputDragger
-					aria-label={jsonPath.join('.')}
+					name={jsonPath.join('.')}
 					onValueChangeCancel={() => {
 						hasUnsavedChanges.current = false;
 						setValue(() => valueOnFocus.current, {shouldSave: false});

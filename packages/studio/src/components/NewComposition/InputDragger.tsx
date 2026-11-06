@@ -1040,7 +1040,12 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			<button
 				ref={ref}
 				type="button"
-				aria-label={props['aria-label'] ?? props.name}
+				aria-label={
+					props['aria-label'] ??
+					(props.name
+						? `${props.name}: ${formatter(value as string | number)}`
+						: undefined)
+				}
 				aria-hidden={inputFallback}
 				tabIndex={inputFallback ? -1 : undefined}
 				className={'__remotion_input_dragger'}
