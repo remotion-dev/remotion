@@ -1,5 +1,6 @@
 import {
 	cloneNode,
+	isFunction,
 	isReferenced,
 	stringLiteral,
 	type File,
@@ -154,12 +155,31 @@ export const moveCompositionAcrossFiles = ({
 	const subtreeNodes = new Set<unknown>();
 	const subtreeNames = new Set<string>();
 	const occupiedNames = new Set<string>();
+	const targetTypeNames = new Set<string>();
+	const sourceTypeDeclarations = new Set<string>();
+	// ast-types does not register classes, enums or namespaces as type bindings.
+	// Refuse ambiguous type dependencies rather than falling back to an import.
+	recast.visit(sourceAst, {
+		visitNode(path) {
+			const node = path.node as Node;
+			if (
+				(node.type === 'ClassDeclaration' ||
+					node.type === 'ClassExpression' ||
+					node.type === 'TSEnumDeclaration' ||
+					node.type === 'TSModuleDeclaration') &&
+				node.id?.type === 'Identifier'
+			)
+				sourceTypeDeclarations.add(node.id.name);
+			return this.traverse(path);
+		},
+	});
 	recast.visit(source.node, {
 		visitNode(path) {
 			subtreeNodes.add(path.node);
 			const node = path.node as Node;
 			if (node.type === 'Identifier' || node.type === 'JSXIdentifier')
 				subtreeNames.add(node.name);
+			if (node.type === 'TSTypeParameter') subtreeNames.add(node.name);
 			return this.traverse(path);
 		},
 	});
@@ -168,6 +188,21 @@ export const moveCompositionAcrossFiles = ({
 			const node = path.node as Node;
 			if (node.type === 'Identifier' || node.type === 'JSXIdentifier')
 				occupiedNames.add(node.name);
+			if (node.type === 'TSTypeParameter') {
+				occupiedNames.add(node.name);
+				targetTypeNames.add(node.name);
+			}
+
+			if (
+				(node.type === 'ClassDeclaration' ||
+					node.type === 'ClassExpression' ||
+					node.type === 'TSEnumDeclaration' ||
+					node.type === 'TSModuleDeclaration' ||
+					node.type === 'TSTypeAliasDeclaration' ||
+					node.type === 'TSInterfaceDeclaration') &&
+				node.id?.type === 'Identifier'
+			)
+				targetTypeNames.add(node.id.name);
 			return this.traverse(path);
 		},
 	});
@@ -180,7 +215,38 @@ export const moveCompositionAcrossFiles = ({
 	const readReference = (path: recast.types.NodePath) => {
 		const node = path.node as Identifier | JSXIdentifier;
 		const parent = path.parent.node as Node;
-		if (!isReferenced(node, parent)) return;
+		// Babel's read-reference predicate omits assignment targets. Follow only
+		// pattern positions, not static member/property names, to include writes.
+		let write = false;
+		for (
+			let current: recast.types.NodePath | null = path;
+			current?.parent;
+			current = current.parent
+		) {
+			const owner = current.parent.node as Node;
+			const child = current.node as Node;
+			if (
+				(owner.type === 'AssignmentExpression' && owner.left === child) ||
+				((owner.type === 'ForInStatement' || owner.type === 'ForOfStatement') &&
+					owner.left === child) ||
+				(owner.type === 'UpdateExpression' && owner.argument === child)
+			) {
+				write = true;
+				break;
+			}
+
+			if (
+				(owner.type === 'ObjectProperty' && owner.value === child) ||
+				owner.type === 'ObjectPattern' ||
+				owner.type === 'ArrayPattern' ||
+				(owner.type === 'RestElement' && owner.argument === child) ||
+				(owner.type === 'AssignmentPattern' && owner.left === child)
+			)
+				continue;
+			break;
+		}
+
+		if (!write && !isReferenced(node, parent)) return;
 		if (
 			(parent.type === 'TSQualifiedName' && parent.right === node) ||
 			((parent.type === 'TSPropertySignature' ||
@@ -197,26 +263,111 @@ export const moveCompositionAcrossFiles = ({
 				parent.type === 'JSXClosingElement')
 		)
 			return;
-		const bindingScope = path.scope.lookup(node.name);
-		const bindings = (bindingScope?.getBindings()[node.name] ??
+		let typePath = path;
+		while (typePath.parent?.node.type === 'TSQualifiedName')
+			typePath = typePath.parent;
+		const typeReference =
+			typePath.parent?.node.type === 'TSTypeReference' ||
+			typePath.parent?.node.type === 'TSExpressionWithTypeArguments';
+		// Imports live in ast-types' value bindings even for `import type`.
+		// A same-named value parameter does not shadow a type reference.
+		const bindingScope = typeReference
+			? path.scope.lookupType(node.name)
+			: path.scope.lookup(node.name);
+		const bindings = ((typeReference
+			? bindingScope?.getTypes()[node.name]
+			: bindingScope?.getBindings()[node.name]) ??
 			[]) as recast.types.NodePath[];
 		if (
 			bindings.length > 0 &&
 			bindings.every((binding) => subtreeNodes.has(binding.node))
-		)
-			return;
+		) {
+			// ast-types merges block declarations into function scopes. An
+			// apparent local must actually be visible at this reference; otherwise
+			// reject rather than accidentally dropping an imported fallback.
+			const visible = bindings.every((binding) => {
+				let functionScoped = false;
+				for (let owner = binding.parent; owner; owner = owner.parent) {
+					const candidate = owner.node as Node;
+					if (candidate.type === 'VariableDeclaration')
+						functionScoped = candidate.kind === 'var';
+					if (
+						candidate.type !== 'Program' &&
+						!(
+							isFunction(candidate) &&
+							!(
+								candidate.type === 'FunctionDeclaration' &&
+								candidate.id === binding.node
+							)
+						) &&
+						!(
+							!functionScoped &&
+							(candidate.type === 'BlockStatement' ||
+								candidate.type === 'SwitchStatement' ||
+								candidate.type === 'ForStatement' ||
+								candidate.type === 'ForInStatement' ||
+								candidate.type === 'ForOfStatement' ||
+								candidate.type === 'CatchClause')
+						)
+					)
+						continue;
+					for (
+						let reference: recast.types.NodePath | null = path;
+						reference;
+						reference = reference.parent
+					) {
+						if (
+							candidate.type === 'SwitchStatement' &&
+							reference.node === candidate.discriminant
+						)
+							return false;
+						// Body `var` declarations are not visible in default parameters.
+						if (
+							isFunction(candidate) &&
+							functionScoped &&
+							reference.node === candidate.body
+						)
+							return true;
+						if (reference.node === candidate)
+							return !isFunction(candidate) || !functionScoped;
+					}
+
+					return false;
+				}
+
+				return false;
+			});
+			if (visible) return;
+			throw new Error(
+				`Cannot move registration: dependency "${node.name}" has an ambiguous block scope.`,
+			);
+		}
+
+		if (write)
+			throw new Error(
+				`Cannot move registration: dependency "${node.name}" writes to an external binding.`,
+			);
 		const declaration = imports.find((candidate) =>
 			candidate.specifiers.some((importSpecifier) =>
-				bindings.some((binding) => binding.node === importSpecifier.local),
+				typeReference
+					? bindings.length === 0 &&
+						!sourceTypeDeclarations.has(node.name) &&
+						importSpecifier.local.name === node.name
+					: bindings.some((binding) => binding.node === importSpecifier.local),
 			),
 		);
 		const specifier = declaration?.specifiers.find((candidate) =>
-			bindings.some((binding) => binding.node === candidate.local),
+			typeReference
+				? candidate.local.name === node.name
+				: bindings.some((binding) => binding.node === candidate.local),
 		);
 		if (!declaration || !specifier) {
 			if (
 				bindings.length === 0 &&
 				portableGlobals.has(node.name) &&
+				(!typeReference ||
+					(!sourceTypeDeclarations.has(node.name) &&
+						!targetTypeNames.has(node.name))) &&
 				!target.path.scope.lookup(node.name)
 			)
 				return;
@@ -262,6 +413,9 @@ export const moveCompositionAcrossFiles = ({
 					)
 						return false;
 					const candidateName = candidate.local.name;
+					// Type declarations are not all represented by value-scope lookup.
+					// Conservatively avoid reusing aliases that could be type-shadowed.
+					if (targetTypeNames.has(candidateName)) return false;
 					if (candidateName !== node.name && subtreeNames.has(candidateName))
 						return false;
 					const destinationBindings = (target.path.scope

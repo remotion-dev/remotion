@@ -279,6 +279,232 @@ test('uses an explicit destination file to disambiguate project folders', () => 
 	expect(result.updatedNode.filePath).toBe('Target.tsx');
 });
 
+for (const [label, imports, declaration, callback] of [
+	[
+		'block-local fallback',
+		"import {width} from './settings';",
+		'',
+		'() => { if (false) { const width = 10; } return {width}; }',
+	],
+	[
+		'loop-local fallback',
+		"import {width} from './settings';",
+		'',
+		'() => { for (let width = 0; width < 1; width++) {} return {width}; }',
+	],
+	[
+		'switch discriminant fallback',
+		"import {width} from './settings';",
+		'',
+		'() => { switch (width) { case 0: let width = 10; return {width}; } return {width: 1}; }',
+	],
+	[
+		'default parameter block fallback',
+		"import {width} from './settings';",
+		'',
+		'(n = width) => { let width = 10; return {width: n}; }',
+	],
+	[
+		'default parameter var fallback',
+		"import {width} from './settings';",
+		'',
+		'(n = width) => { var width = 10; return {width: n}; }',
+	],
+	[
+		'outer compound assignment',
+		'',
+		'let width = 0;',
+		'() => { width += 100; return {width: 10}; }',
+	],
+	[
+		'outer nested assignment',
+		'',
+		'let width = 0;',
+		'() => { ({a: [width = 1]} = {a: [100]}); return {width: 10}; }',
+	],
+	[
+		'outer rest assignment',
+		'',
+		'let width = 0;',
+		'() => { [...width] = [100]; return {width: 10}; }',
+	],
+	[
+		'outer member assignment',
+		'',
+		'const width = {value: 0};',
+		'() => { width.value = 100; return {width: 10}; }',
+	],
+	[
+		'outer assignment',
+		'',
+		'let width = 0;',
+		'() => { width = 100; return {width: 10}; }',
+	],
+	[
+		'outer destructuring assignment',
+		'',
+		'let width = 0;',
+		'() => { ({width} = {width: 100}); return {width: 10}; }',
+	],
+	[
+		'outer array assignment',
+		'',
+		'let width = 0;',
+		'() => { [width] = [100]; return {width: 10}; }',
+	],
+	[
+		'outer for-of assignment',
+		'',
+		'let width = 0;',
+		'() => { for (width of [100]) {} return {width: 10}; }',
+	],
+	[
+		'outer update',
+		'',
+		'let width = 0;',
+		'() => { width++; return {width: 10}; }',
+	],
+] as const) {
+	test(`refuses ${label} dependencies atomically`, () => {
+		const project = {
+			rootDir: '/',
+			files: {
+				'Root.tsx': `import {Still} from 'remotion'; import {Scene} from './Scene'; ${imports} ${declaration} export const Root = () => <><Still id="Move" component={Scene} calculateMetadata={${callback}} /></>;`,
+				'Target.tsx': `import {Folder} from 'remotion'; let width = 7; export const Target = () => <Folder name="Target" />;`,
+			},
+		};
+		const before = JSON.stringify(project);
+		expect(() =>
+			moveComposition({
+				project,
+				compositionFile: 'Root.tsx',
+				compositionId: 'Move',
+				destination,
+			}),
+		).toThrow(/dependency "width"/);
+		expect(JSON.stringify(project)).toBe(before);
+	});
+}
+
+test('retains callback-local assignments and nested-block bindings', () => {
+	const project = {
+		rootDir: '/',
+		files: {
+			'Root.tsx': `import {Still} from 'remotion'; import {Scene} from './Scene'; export const Root = () => <><Still id="Move" component={Scene} calculateMetadata={() => { let width = 0; ({width} = {width: 100}); for (width of [100]) { const height = width; width += height; } return {width}; }} /></>;`,
+			'Target.tsx': `import {Folder} from 'remotion'; export const Target = () => <Folder name="Target" />;`,
+		},
+	};
+	const result = moveComposition({
+		project,
+		compositionFile: 'Root.tsx',
+		compositionId: 'Move',
+		destination,
+	});
+	const output = applyCodemodChanges(project, result.changes).files[
+		'Target.tsx'
+	];
+	expect(output).toContain('({width} = {width: 100})');
+	expect(output).toContain('const height = width');
+});
+
+for (const sameNamedValue of [false, true]) {
+	test(`preserves a type import across destination type-parameter shadowing (same-named value: ${sameNamedValue})`, () => {
+		const callback = sameNamedValue
+			? '(Props: {props: Props}) => ({props: Props.props})'
+			: '({props}: {props: Props}) => ({props})';
+		const project = {
+			rootDir: '/',
+			files: {
+				'Root.tsx': `import {Still} from 'remotion'; import {Scene} from './Scene'; import type {Props} from './types'; export const Root = () => <><Still id="Move" component={Scene} calculateMetadata={${callback}} /></>;`,
+				'Target.tsx': `import {Folder} from 'remotion'; import type {Props as Metadata} from './types'; export const Target = <Metadata, Props2,>() => <Folder name="Target" />;`,
+			},
+		};
+		const result = moveComposition({
+			project,
+			compositionFile: 'Root.tsx',
+			compositionId: 'Move',
+			destination,
+		});
+		const output = applyCodemodChanges(project, result.changes).files[
+			'Target.tsx'
+		];
+		expect(output).toContain("import type {Props as Props3} from './types'");
+		expect(output).toContain('props: Props3');
+		expect(output).not.toContain('props: Metadata');
+		if (sameNamedValue) expect(output).toContain('({props: Props.props})');
+	});
+}
+
+test('avoids fresh import aliases shadowed by destination type parameters', () => {
+	const project = {
+		rootDir: '/',
+		files: {
+			'Root.tsx': `import {Still} from 'remotion'; import {Scene} from './Scene'; import type {Props} from './types'; export const Root = () => <><Still id="Move" component={Scene} calculateMetadata={({props}: {props: Props}) => ({props})} /></>;`,
+			'Target.tsx': `import {Folder} from 'remotion'; const Props = 'occupied'; export const Target = <Props2,>() => <Folder name="Target" />;`,
+		},
+	};
+	const result = moveComposition({
+		project,
+		compositionFile: 'Root.tsx',
+		compositionId: 'Move',
+		destination,
+	});
+	const output = applyCodemodChanges(project, result.changes).files[
+		'Target.tsx'
+	];
+	expect(output).toContain('Props as Props3');
+	expect(output).toContain('props: Props3');
+});
+
+test('resolves typeof annotations in the value namespace and permits local member writes', () => {
+	const project = {
+		rootDir: '/',
+		files: {
+			'Root.tsx': `import {Still} from 'remotion'; import {Scene} from './Scene'; import type {Props} from './types'; export const Root = () => <><Still id="Move" component={Scene} calculateMetadata={(Props: {width: number}) => { const copy: typeof Props = Props; copy.width = 100; var height = copy.width; return {width: height}; }} /></>;`,
+			'Target.tsx': `import {Folder} from 'remotion'; const width = 7; export const Target = () => <Folder name="Target" />;`,
+		},
+	};
+	const result = moveComposition({
+		project,
+		compositionFile: 'Root.tsx',
+		compositionId: 'Move',
+		destination,
+	});
+	const output = applyCodemodChanges(project, result.changes).files[
+		'Target.tsx'
+	];
+	expect(output).toContain('const copy: typeof Props = Props');
+	expect(output).toContain('copy.width = 100');
+	expect(output).not.toContain("from './types'");
+});
+
+for (const declaration of [
+	'type Props = {width: number};',
+	'class Props {}',
+	'enum Props {width}',
+	'namespace Props {export type Item = number;}',
+]) {
+	test(`refuses an external type declaration atomically (${declaration})`, () => {
+		const project = {
+			rootDir: '/',
+			files: {
+				'Root.tsx': `import {Still} from 'remotion'; import {Scene} from './Scene'; ${declaration} export const Root = () => <><Still id="Move" component={Scene} calculateMetadata={({props}: {props: Props}) => ({props})} /></>;`,
+				'Target.tsx': `import {Folder} from 'remotion'; export const Target = () => <Folder name="Target" />;`,
+			},
+		};
+		const before = JSON.stringify(project);
+		expect(() =>
+			moveComposition({
+				project,
+				compositionFile: 'Root.tsx',
+				compositionId: 'Move',
+				destination,
+			}),
+		).toThrow(/dependency "Props"/);
+		expect(JSON.stringify(project)).toBe(before);
+	});
+}
+
 for (const [label, imports, declaration, props, diagnostic] of [
 	[
 		'module local value',

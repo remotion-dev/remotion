@@ -31,7 +31,7 @@ console.log(result);
 
 The composition and destination may be in different registration files supplied in `project.files`. The component implementation and composition ID stay unchanged. The composition must be a direct JSX child; a destination folder may also be the root element returned by a registration component.
 
-For cross-file moves, imported dependencies are copied to the destination, relative imports are rebased, and conflicting import names are aliased. Imports still used in the source file are retained. Inline callbacks may use their own parameters and local variables, but dependencies on values declared outside the moved JSX are rejected unless they are imported. Unsupported dependencies fail without changing either file.
+For cross-file moves, imported dependencies are copied to the destination, relative imports are rebased, and conflicting import names are aliased. Imports still used in the source file are retained. Inline callbacks may use their own parameters and local variables when their scope can be established. Imported types are resolved separately from values. Ambiguous block-scoped bindings, assignments to external variables, and non-imported dependencies outside the moved JSX are rejected. Unsupported dependencies fail without changing either file.
 
 ## Options
 
