@@ -1530,7 +1530,7 @@ const EasingEditorUnmemoized: React.FC<{
 						</div>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Clamp overshoot</div>
-							<div style={checkboxWrapper}>
+							<label style={checkboxWrapper} aria-label="Clamp overshoot">
 								<Checkbox
 									checked={spring.overshootClamping}
 									onChange={setOvershootClamping}
@@ -1538,11 +1538,11 @@ const EasingEditorUnmemoized: React.FC<{
 									disabled={disabled}
 									variant="small"
 								/>
-							</div>
+							</label>
 						</div>
 						<div style={coordinateRow}>
 							<div style={coordinateLabel}>Allow tail</div>
-							<div style={checkboxWrapper}>
+							<label style={checkboxWrapper} aria-label="Allow tail">
 								<Checkbox
 									checked={spring.allowTail ?? false}
 									onChange={setAllowTail}
@@ -1550,7 +1550,7 @@ const EasingEditorUnmemoized: React.FC<{
 									disabled={disabled}
 									variant="small"
 								/>
-							</div>
+							</label>
 						</div>
 					</div>
 				</>

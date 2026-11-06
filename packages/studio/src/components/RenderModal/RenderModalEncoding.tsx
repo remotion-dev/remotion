@@ -271,6 +271,7 @@ export const RenderModalEncoding: React.FC<{
 					<div style={rightRow}>
 						<div>
 							<RemotionInput
+								aria-label="Target video bitrate"
 								style={input}
 								value={customTargetVideoBitrate}
 								onChange={onTargetVideoBitrateChanged}
@@ -285,7 +286,12 @@ export const RenderModalEncoding: React.FC<{
 				<>
 					<div style={optionRow}>
 						<div style={label}>
-							Custom FFmpeg -bufsize
+							<label
+								htmlFor="remotion-render-encoding-buffer-size"
+								style={label}
+							>
+								Custom FFmpeg -bufsize
+							</label>
 							<Spacing x={0.5} />
 							<OptionExplainerBubble id="encodingBufferSizeOption" />
 						</div>
@@ -294,6 +300,7 @@ export const RenderModalEncoding: React.FC<{
 								checked={encodingBufferSize !== null}
 								onChange={onEncodingBufferSizeToggled}
 								name="encoding-buffer-size"
+								inputId="remotion-render-encoding-buffer-size"
 							/>
 						</div>
 					</div>
@@ -303,6 +310,7 @@ export const RenderModalEncoding: React.FC<{
 							<div style={rightRow}>
 								<div>
 									<RemotionInput
+										aria-label="-bufsize value"
 										style={input}
 										value={encodingBufferSize}
 										onChange={onEncodingBufferSizeChanged}
@@ -319,13 +327,13 @@ export const RenderModalEncoding: React.FC<{
 							<Spacing x={0.5} />
 							<OptionExplainerBubble id="encodingMaxRateOption" />
 						</div>
-						<div style={rightRow}>
+						<label style={rightRow} aria-label="Custom FFmpeg -maxrate">
 							<Checkbox
 								checked={encodingMaxRate !== null}
 								onChange={onEncodingMaxRateToggled}
 								name="encoding-max-rate"
 							/>
-						</div>
+						</label>
 					</div>
 					{encodingMaxRate === null ? null : (
 						<div style={optionRow}>
@@ -333,6 +341,7 @@ export const RenderModalEncoding: React.FC<{
 							<div style={rightRow}>
 								<div>
 									<RemotionInput
+										aria-label="-maxrate value"
 										style={input}
 										value={encodingMaxRate}
 										onChange={onEncodingMaxRateChanged}
@@ -392,13 +401,13 @@ export const RenderModalEncoding: React.FC<{
 								<Spacing x={0.5} />
 								<OptionExplainerBubble id="gopSizeOption" />
 							</div>
-							<div style={rightRow}>
+							<label style={rightRow} aria-label="Custom GOP size">
 								<Checkbox
 									checked={gopSize !== null}
 									onChange={toggleCustomGopSize}
 									name="custom-gop-size"
 								/>
-							</div>
+							</label>
 						</div>
 					) : null}
 					{codec !== 'gif' && gopSize !== null ? (
@@ -433,13 +442,13 @@ export const RenderModalEncoding: React.FC<{
 					{renderMode === 'video' ? <RenderModalHr /> : null}
 					<div style={optionRow}>
 						<div style={label}>No parallel encoding</div>
-						<div style={rightRow}>
+						<label style={rightRow} aria-label="No parallel encoding">
 							<Checkbox
 								checked={disallowParallelEncoding}
 								onChange={onDisallowParallelEncodingChanged}
 								name="disallow-parallel-encoding"
 							/>
-						</div>
+						</label>
 					</div>
 				</>
 			)}

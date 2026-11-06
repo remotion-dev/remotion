@@ -1040,7 +1040,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 			<button
 				ref={ref}
 				type="button"
-				aria-label={props['aria-label']}
+				aria-label={props['aria-label'] ?? props.name}
 				aria-hidden={inputFallback}
 				tabIndex={inputFallback ? -1 : undefined}
 				className={'__remotion_input_dragger'}
@@ -1085,6 +1085,7 @@ const InputDraggerForwardRefFn: React.ForwardRefRenderFunction<
 						rightAlign={rightAlign}
 						small={small}
 						{...props}
+						aria-label={props['aria-label'] ?? props.name}
 						className={`__remotion_input_dragger_input ${props.className ?? ''}`}
 						style={{
 							...inputDraggerStyle,

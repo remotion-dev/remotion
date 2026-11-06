@@ -81,14 +81,14 @@ export const SeparateAudioOption: React.FC<{
 					<Spacing x={0.5} />
 					<OptionExplainerBubble id="separateAudioOption" />
 				</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Separate audio">
 					<Checkbox
 						disabled={false}
 						checked={separateAudioTo !== null}
 						onChange={onSeparateAudioChange}
 						name="separate-audio-to"
 					/>
-				</div>
+				</label>
 			</div>
 
 			{separateAudioTo === null ? null : (
