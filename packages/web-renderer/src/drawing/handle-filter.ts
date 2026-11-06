@@ -107,3 +107,44 @@ export const applyFilterToDrawOperation = ({
 	drawFn();
 	context.filter = previousFilter;
 };
+
+// OffscreenCanvas cannot resolve DOM SVG filter references. Use a document-backed
+// surface only for this filter stage, then feed it into the existing group draw.
+export const applySvgFilterToPrecomposedCanvas = ({
+	source,
+	sourceRect,
+	filter,
+	ownerDocument,
+}: {
+	source: OffscreenCanvas;
+	sourceRect: DOMRect;
+	filter: string;
+	ownerDocument: Document;
+}) => {
+	// This element-sized surface fixes the SVG reference box at the element origin.
+	// Filter regions extending outside it still need expanded-region mapping.
+	const canvas = ownerDocument.createElement('canvas');
+	canvas.width = Math.ceil(sourceRect.width);
+	canvas.height = Math.ceil(sourceRect.height);
+	const dispose = () => {
+		canvas.width = 0;
+		canvas.height = 0;
+	};
+
+	try {
+		const context = canvas.getContext('2d');
+		if (!context) throw new Error('Could not get SVG filter context');
+		context.filter = filter;
+		context.drawImage(source, -sourceRect.left, -sourceRect.top);
+	} catch (error) {
+		dispose();
+		throw error;
+	}
+
+	return {
+		canvas,
+		sourceX: -sourceRect.left,
+		sourceY: -sourceRect.top,
+		[Symbol.dispose]: dispose,
+	};
+};

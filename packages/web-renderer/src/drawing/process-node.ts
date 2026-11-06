@@ -17,6 +17,7 @@ import {
 } from './handle-3d-transform';
 import {
 	applyFilterToDrawOperation,
+	applySvgFilterToPrecomposedCanvas,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
@@ -127,7 +128,9 @@ export const processNode = async ({
 		}
 
 		const needsGroup =
-			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+			precompositing.needsBlendMode !== null ||
+			precompositing.needsIsolation ||
+			precompositing.needsFilterPrecompositing?.includes('url(') === true;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
@@ -222,6 +225,25 @@ export const processNode = async ({
 			}
 		}
 
+		// SVG filter coordinates here are element-local CSS pixels. Scaled and
+		// projected surfaces need separate filter-region mapping.
+		using svgFilteredLayer =
+			!is3DPrecomposition &&
+			layerScale === 1 &&
+			precompositing.needsFilterPrecompositing?.includes('url(')
+				? applySvgFilterToPrecomposedCanvas({
+						source: drawable,
+						sourceRect: new DOMRect(
+							(dimensions.left - layerRect.left) * layerScale,
+							(dimensions.top - layerRect.top) * layerScale,
+							dimensions.width * layerScale,
+							dimensions.height * layerScale,
+						),
+						filter: precompositing.needsFilterPrecompositing,
+						ownerDocument: element.ownerDocument,
+					})
+				: null;
+
 		const previousTransform = context.getTransform();
 
 		if (is3DPrecomposition) {
@@ -244,9 +266,9 @@ export const processNode = async ({
 
 		const drawPrecomposedCanvas = () => {
 			context.drawImage(
-				drawable,
-				0,
-				0,
+				svgFilteredLayer?.canvas ?? drawable,
+				svgFilteredLayer?.sourceX ?? 0,
+				svgFilteredLayer?.sourceY ?? 0,
 				layerPixelWidth ?? drawable.width,
 				layerPixelHeight ?? drawable.height,
 				destinationRect.left - parentRect.x * parentOffsetScale,
@@ -266,7 +288,7 @@ export const processNode = async ({
 			: () => {};
 
 		// Apply filter when drawing the precomposed canvas if needed
-		if (precompositing.needsFilterPrecompositing) {
+		if (precompositing.needsFilterPrecompositing && !svgFilteredLayer) {
 			applyFilterToDrawOperation({
 				context,
 				filter: precompositing.needsFilterPrecompositing,
