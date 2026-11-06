@@ -53,13 +53,13 @@ export const RenderModalGif: React.FC<{
 					Limit GIF loops <Spacing x={0.5} />
 					<OptionExplainerBubble id="numberOfGifLoopsOption" />
 				</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Limit GIF loops">
 					<Checkbox
 						checked={limitNumberOfGifLoops}
 						onChange={onShouldLimitNumberOfGifLoops}
 						name="limitNumberOfGifLoops"
 					/>
-				</div>
+				</label>
 			</div>
 			{limitNumberOfGifLoops ? (
 				<NumberOfLoopsSetting

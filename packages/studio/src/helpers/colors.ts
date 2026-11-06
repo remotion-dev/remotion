@@ -55,6 +55,8 @@ const SELECTED_HOVER_BACKGROUND = 'var(--remotion-studio-white-alpha-25)';
 export const FAIL_COLOR = 'var(--remotion-studio-fail-color)';
 export const WARNING_COLOR = 'var(--remotion-studio-warning-color)';
 export const BLUE = 'var(--remotion-studio-blue)';
+export const PRIMARY_BUTTON_BACKGROUND =
+	'var(--remotion-studio-primary-button-background)';
 export const INTERACTIVE_TEXT = 'var(--remotion-studio-interactive-text)';
 export const BLUE_HOVERED = 'var(--remotion-studio-blue-hovered)';
 export const BLUE_DISABLED = 'var(--remotion-studio-blue-disabled)';
