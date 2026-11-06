@@ -451,6 +451,7 @@ export const makeHtmlInCanvasPresentation = <
 		return {
 			component: CompWithShader,
 			props,
+			canvas: shader,
 		};
 	};
 };

@@ -1,12 +1,12 @@
 import {StudioInternals} from '@remotion/studio';
 import {TransitionSeries, linearTiming} from '@remotion/transitions';
+import {slide} from '@remotion/transitions/slide';
 import type {ReactNode} from 'react';
 import {
 	CanvasImage,
-	HtmlInCanvas,
+	Easing,
 	Img,
 	Interactive,
-	Internals,
 	Sequence,
 	Track,
 	useRemotionEnvironment,
@@ -17,11 +17,9 @@ import {EXPLORE_CAMERA_ANGLE} from '../HomepageAssets/ExploreRemotion/camera-ang
 import {StudioRenderClickCapture} from '../StudioRenderClickComposition';
 import {TimelineCaptionReorderAndScrubComposition} from '../TimelineCaptionReorderAndScrubComposition';
 import {TimelineRightTrimCapture} from '../TimelineRightTrimComposition';
-import {paneSlide} from './pane-slide';
 import {StudioSettingsCaptureComposition} from './StudioSettingsCaptureComposition';
 
 const PaneContent = ({children}: {readonly children: ReactNode}) => {
-	const {isRendering} = useRemotionEnvironment();
 	return (
 		<div
 			style={{
@@ -33,16 +31,7 @@ const PaneContent = ({children}: {readonly children: ReactNode}) => {
 				clipPath: 'inset(0)',
 			}}
 		>
-			{!isRendering && !HtmlInCanvas.isSupported() ? (
-				<Internals.HtmlInCanvasFallback
-					style={{position: 'absolute', inset: 0}}
-					label="Motion blur is not visible"
-				>
-					{children}
-				</Internals.HtmlInCanvasFallback>
-			) : (
-				children
-			)}
+			{children}
 		</div>
 	);
 };
@@ -100,6 +89,11 @@ const AngledPaneContent = ({
 };
 
 const ThreeWaysSplitViewContent = () => {
+	const {isRendering} = useRemotionEnvironment();
+	const motionBlur = {
+		shutterAngle: isRendering ? 180 : 90,
+		samples: isRendering ? 32 : 16,
+	};
 	return (
 		<>
 			<Interactive.Div
@@ -142,9 +136,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -171,9 +167,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -200,9 +198,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -229,9 +229,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -326,9 +328,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-top'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -356,9 +360,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-top'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -384,9 +390,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-top'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -414,9 +422,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-top'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -484,9 +494,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -507,9 +519,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -530,9 +544,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence
@@ -553,9 +569,11 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
-							presentation={paneSlide({direction: 'from-bottom'})}
+							motionBlur={motionBlur}
+							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
+								easing: Easing.bezier(0.4, 0, 0.2, 1),
 							})}
 						/>
 						<TransitionSeries.Sequence

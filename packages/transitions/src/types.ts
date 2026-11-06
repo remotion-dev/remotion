@@ -1,6 +1,7 @@
 import type React from 'react';
 import type {ComponentType} from 'react';
 import type {AbsoluteFillLayout, SequencePropsWithoutDuration} from 'remotion';
+import type {HtmlInCanvasShader} from './html-in-canvas-presentation';
 import type {DrawFunction} from './TransitionSeries';
 
 export type PresentationDirection = 'entering' | 'exiting';
@@ -15,6 +16,15 @@ export type TransitionSeriesTransitionProps<
 > = {
 	timing: TransitionTiming;
 	presentation?: TransitionPresentation<PresentationProps>;
+	/** Blurs the presentation's movement while sampling scene contents once per frame. */
+	motionBlur?: TransitionMotionBlur;
+};
+
+export type TransitionMotionBlur = {
+	/** Defaults to 180. */
+	shutterAngle?: number;
+	/** Defaults to 16. */
+	samples?: number;
 };
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
@@ -26,6 +36,8 @@ export type TransitionPresentation<
 		TransitionPresentationComponentProps<PresentationProps>
 	>;
 	props: PresentationProps;
+	/** Optional renderer for motion blur using captured scenes. */
+	canvas?: HtmlInCanvasShader<PresentationProps>;
 };
 
 export type TransitionPresentationComponentProps<

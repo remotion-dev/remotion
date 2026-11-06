@@ -8,6 +8,7 @@ export type {
 	TransitionPresentationComponentProps,
 	TransitionSeriesOverlayProps,
 	TransitionTiming,
+	TransitionMotionBlur,
 } from './types.js';
 // Hooks
 export {useTransitionProgress} from './use-transition-progress.js';

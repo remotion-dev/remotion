@@ -25,6 +25,7 @@ import {
 	type TransitionSeriesChildKind,
 } from './find-dangling-connectors.js';
 import {flattenChildren} from './flatten-children.js';
+import {resolveMotionBlurPresentation} from './motion-blur.js';
 import {slide} from './presentations/slide.js';
 import type {
 	TransitionSeriesOverlayProps,
@@ -587,6 +588,18 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 
 				return React.cloneElement(castedTransition, {
 					_remotionInternalRender: (transitionProps) => {
+						if (
+							transitionProps.motionBlur &&
+							(typeof hasPrev !== 'object' ||
+								hasPrev.type !== SeriesSequence ||
+								typeof nextPrev !== 'object' ||
+								nextPrev.type !== SeriesSequence)
+						) {
+							throw new TypeError(
+								'motionBlur requires a TransitionSeries.Sequence on both sides of the transition.',
+							);
+						}
+
 						const transitionDuration =
 							transitionProps.timing.getDurationInFrames({fps});
 						const transitionFrom =
@@ -796,11 +809,43 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					}
 
 					if (next && prev && nextProgress !== null && prevProgress !== null) {
-						const nextPresentation = next.props.presentation ?? slide();
-						const prevPresentation = prev.props.presentation ?? slide();
+						if (
+							(prev.props.motionBlur || next.props.motionBlur) &&
+							prev.props.timing.getDurationInFrames({fps}) +
+								next.props.timing.getDurationInFrames({fps}) >
+								timelineDurationInFrames
+						) {
+							throw new TypeError(
+								'motionBlur does not support overlapping transitions. Increase the middle sequence duration or shorten its transitions.',
+							);
+						}
+
+						const nextPresentation = resolveMotionBlurPresentation({
+							presentation: next.props.presentation ?? slide(),
+							motionBlur: next.props.motionBlur ?? null,
+							timing: next.props.timing,
+							frame:
+								frame -
+								actualStartFrame -
+								timelineDurationInFrames +
+								next.props.timing.getDurationInFrames({fps}),
+							fps,
+						});
+						const prevPresentation = resolveMotionBlurPresentation({
+							presentation: prev.props.presentation ?? slide(),
+							motionBlur: prev.props.motionBlur ?? null,
+							timing: prev.props.timing,
+							frame: frame - actualStartFrame,
+							fps,
+						});
 
 						const UppercaseNextPresentation = nextPresentation.component;
 						const UppercasePrevPresentation = prevPresentation.component;
+						const separateCanvases =
+							Boolean(prev.props.motionBlur) !== Boolean(next.props.motionBlur);
+						const previousTransitionFinished =
+							frame - actualStartFrame >=
+							prev.props.timing.getDurationInFrames({fps});
 
 						return renderSequenceAndRest(
 							<SequenceWithoutSchema
@@ -819,13 +864,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 									presentationDurationInFrames={next.props.timing.getDurationInFrames(
 										{fps},
 									)}
-									onElementImage={() => {
-										throw new Error('Should not call when exiting');
+									onElementImage={(elementImage, draw) => {
+										onPrevElementImage(elementImage, nextProgress, draw, i + 1);
 									}}
 									onUnmount={() => {
-										throw new Error('Should not call when exiting');
+										onPrevElementImage(null, null, null, i + 1);
 									}}
-									bothEnteringAndExiting
+									bothEnteringAndExiting={!separateCanvases}
 								>
 									<WrapInExitingProgressContext
 										presentationProgress={nextProgress}
@@ -838,8 +883,18 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 												{fps},
 											)}
 											onElementImage={(elementImage, draw) => {
+												if (separateCanvases) {
+													onNextElementImage(
+														elementImage,
+														prevProgress,
+														draw,
+														i - 1,
+													);
+													return;
+												}
+
 												// Both transitions share an output canvas. Draw the active one last.
-												if (prevProgress === 1) {
+												if (previousTransitionFinished) {
 													onNextElementImage(
 														elementImage,
 														prevProgress,
@@ -854,7 +909,7 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 													draw,
 													i + 1,
 												);
-												if (prevProgress !== 1) {
+												if (!previousTransitionFinished) {
 													onNextElementImage(
 														elementImage,
 														prevProgress,
@@ -864,10 +919,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 												}
 											}}
 											onUnmount={() => {
-												onPrevElementImage(null, null, null, i + 1);
+												if (!separateCanvases) {
+													onPrevElementImage(null, null, null, i + 1);
+												}
+
 												onNextElementImage(null, null, null, i - 1);
 											}}
-											bothEnteringAndExiting
+											bothEnteringAndExiting={!separateCanvases}
 										>
 											<WrapInEnteringProgressContext
 												presentationProgress={prevProgress}
@@ -882,7 +940,13 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					}
 
 					if (prevProgress !== null && prev) {
-						const prevPresentation = prev.props.presentation ?? slide();
+						const prevPresentation = resolveMotionBlurPresentation({
+							presentation: prev.props.presentation ?? slide(),
+							motionBlur: prev.props.motionBlur ?? null,
+							timing: prev.props.timing,
+							frame: frame - actualStartFrame,
+							fps,
+						});
 
 						const UppercasePrevPresentation = prevPresentation.component;
 
@@ -922,7 +986,17 @@ const TransitionSeriesChildren: FC<{readonly children: React.ReactNode}> = ({
 					}
 
 					if (nextProgress !== null && next) {
-						const nextPresentation = next.props.presentation ?? slide();
+						const nextPresentation = resolveMotionBlurPresentation({
+							presentation: next.props.presentation ?? slide(),
+							motionBlur: next.props.motionBlur ?? null,
+							timing: next.props.timing,
+							frame:
+								frame -
+								actualStartFrame -
+								timelineDurationInFrames +
+								next.props.timing.getDurationInFrames({fps}),
+							fps,
+						});
 
 						const UppercaseNextPresentation = nextPresentation.component;
 
