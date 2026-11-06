@@ -44,6 +44,48 @@ const BackgroundBlendMode: React.FC = () => {
 					))}
 				</div>
 			))}
+			<div style={{position: 'absolute', top: 240, display: 'flex'}}>
+				{[1, 0.5].map((alpha) => (
+					<div
+						key={alpha}
+						style={{
+							width: 80,
+							height: 80,
+							backgroundColor: 'blue',
+							backgroundImage: `linear-gradient(rgba(255, 0, 0, ${alpha}), rgba(255, 0, 0, ${alpha}))`,
+							opacity: 0.5,
+						}}
+					/>
+				))}
+				{[
+					[0, 0],
+					[0, 20],
+					[20, 0],
+				].map(([width, height]) => (
+					<div
+						key={`${width}-${height}`}
+						style={{
+							position: 'relative',
+							boxSizing: 'content-box',
+							width,
+							height,
+							padding: 20,
+							backgroundClip: 'content-box',
+							backgroundColor: 'blue',
+							backgroundImage: 'linear-gradient(red, red)',
+							backgroundBlendMode: 'multiply',
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								inset: 5,
+								backgroundColor: '#00cc44',
+							}}
+						/>
+					</div>
+				))}
+			</div>
 		</AbsoluteFill>
 	);
 };
@@ -52,7 +94,7 @@ export const backgroundBlendMode = {
 	component: BackgroundBlendMode,
 	id: 'background-blend-mode',
 	width: 640,
-	height: 240,
+	height: 320,
 	fps: 30,
 	durationInFrames: 2,
 } as const;

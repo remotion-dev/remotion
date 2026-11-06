@@ -61,6 +61,10 @@ export const drawBackground = async ({
 		backgroundClip,
 	);
 
+	if (boundingRect.width <= 0 || boundingRect.height <= 0) {
+		return;
+	}
+
 	if (backgroundClip.includes('text')) {
 		offsetLeft = boundingRect.left;
 		offsetTop = boundingRect.top;
@@ -91,7 +95,10 @@ export const drawBackground = async ({
 	}
 
 	const blendMode = getBlendMode(computedStyle.backgroundBlendMode);
-	if (blendMode && backgroundImage !== 'none') {
+	if (
+		backgroundImage !== 'none' &&
+		(blendMode || !isColorTransparent(backgroundColor))
+	) {
 		// CSS backgrounds blend in their own isolated group, not with the
 		// element's siblings, children or other content already on the canvas.
 		const backgroundCanvas = new OffscreenCanvas(
@@ -117,7 +124,7 @@ export const drawBackground = async ({
 			offsetTop: boundingRect.top,
 		});
 		if (fill) {
-			backgroundContext.globalCompositeOperation = blendMode;
+			backgroundContext.globalCompositeOperation = blendMode ?? 'source-over';
 			backgroundContext.fillStyle = fill;
 			backgroundContext.fillRect(0, 0, boundingRect.width, boundingRect.height);
 		}
@@ -148,21 +155,6 @@ export const drawBackground = async ({
 	}
 
 	const originalFillStyle = contextToDraw.fillStyle;
-	if (
-		backgroundImage !== 'none' &&
-		backgroundFill !== backgroundColor &&
-		!backgroundClip.includes('text') &&
-		!isColorTransparent(backgroundColor)
-	) {
-		contextToDraw.fillStyle = backgroundColor;
-		contextToDraw.fillRect(
-			boundingRect.left - offsetLeft,
-			boundingRect.top - offsetTop,
-			boundingRect.width,
-			boundingRect.height,
-		);
-	}
-
 	contextToDraw.fillStyle = backgroundFill;
 	contextToDraw.fillRect(
 		boundingRect.left - offsetLeft,
