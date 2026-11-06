@@ -13,16 +13,6 @@ Users may make edits in the code outside of the conversation.
 
 If you detect a surprising change made in the meanwhile, don't overwrite it, assume it was intentional or ask for confirmation.
 
-## Elements
-
-Elements are editable building blocks such as titles, overlays, backgrounds and caption styles. Before building one from scratch, check the [Remotion Elements index](https://www.remotion.dev/elements/index.md) and the third-party libraries listed at https://www.remotion.dev/elements/libraries.md.
-
-Install an Element from its page URL into a composition:
-
-```bash
-npx remotion elements use <url> --composition <composition-id> --yes
-```
-
 ## General rules
 
 Keep `useCurrentFrame()` in the smallest component that needs it. Extract
