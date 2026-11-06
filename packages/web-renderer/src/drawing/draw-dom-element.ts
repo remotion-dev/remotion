@@ -83,7 +83,8 @@ const drawReplacedElement = ({
 	if (
 		drawable instanceof HTMLImageElement &&
 		(drawable.currentSrc.startsWith('data:image/svg+xml') ||
-			new URL(drawable.currentSrc).pathname.toLowerCase().endsWith('.svg'))
+			(drawable.currentSrc !== '' &&
+				new URL(drawable.currentSrc).pathname.toLowerCase().endsWith('.svg')))
 	) {
 		// Chromium and Firefox rasterize SVG image sources at the element's
 		// concrete size, so intrinsic source cropping cuts off most of the image.
@@ -128,17 +129,52 @@ const drawReplacedElement = ({
 			destY = dimensions.top + (dimensions.height - destHeight) / 2;
 		}
 
-		contextToDraw.save();
-		contextToDraw.beginPath();
-		contextToDraw.rect(
+		const overflowsBox =
+			destX < dimensions.left ||
+			destY < dimensions.top ||
+			destX + destWidth > dimensions.left + dimensions.width ||
+			destY + destHeight > dimensions.top + dimensions.height;
+
+		if (!overflowsBox) {
+			contextToDraw.drawImage(drawable, destX, destY, destWidth, destHeight);
+			return;
+		}
+
+		// Crop on a separate canvas instead of clipping this context, so that a
+		// CSS filter set on this context (e.g. blur) can still extend past the box.
+		const {a, b, c, d} = contextToDraw.getTransform();
+		const cropWidth = Math.max(
+			1,
+			Math.ceil(dimensions.width * Math.hypot(a, b)),
+		);
+		const cropHeight = Math.max(
+			1,
+			Math.ceil(dimensions.height * Math.hypot(c, d)),
+		);
+		const crop = new OffscreenCanvas(cropWidth, cropHeight);
+		const cropContext = crop.getContext('2d');
+		if (!cropContext) {
+			throw new Error('Could not get 2D context to crop SVG image');
+		}
+
+		cropContext.scale(
+			cropWidth / dimensions.width,
+			cropHeight / dimensions.height,
+		);
+		cropContext.drawImage(
+			drawable,
+			destX - dimensions.left,
+			destY - dimensions.top,
+			destWidth,
+			destHeight,
+		);
+		contextToDraw.drawImage(
+			crop,
 			dimensions.left,
 			dimensions.top,
 			dimensions.width,
 			dimensions.height,
 		);
-		contextToDraw.clip();
-		contextToDraw.drawImage(drawable, destX, destY, destWidth, destHeight);
-		contextToDraw.restore();
 		return;
 	}
 

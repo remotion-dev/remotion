@@ -27,3 +27,49 @@ export const svgUrlNonzeroViewbox = {
 	fps: 25,
 	durationInFrames: 1,
 } as const;
+
+// Same SVG with `object-fit: cover` and a blur: the blur must extend past the
+// image box while the cover crop stays inside it.
+const BlurredCover: React.FC = () => {
+	return (
+		<AbsoluteFill
+			style={{
+				alignItems: 'center',
+				backgroundColor: 'white',
+				justifyContent: 'center',
+			}}
+		>
+			<Img
+				src={staticFile('nonzero-viewbox.svg')}
+				style={{width: 50, height: 30, objectFit: 'cover', filter: 'blur(4px)'}}
+			/>
+		</AbsoluteFill>
+	);
+};
+
+export const svgUrlBlurredCover = {
+	component: BlurredCover,
+	id: 'svg-url-blurred-cover',
+	width: 80,
+	height: 80,
+	fps: 25,
+	durationInFrames: 1,
+} as const;
+
+// An <img> without a source has an empty `currentSrc`.
+const NoSource: React.FC = () => {
+	return (
+		<AbsoluteFill style={{backgroundColor: 'white'}}>
+			<img style={{width: 40, height: 40}} />
+		</AbsoluteFill>
+	);
+};
+
+export const imgWithoutSource = {
+	component: NoSource,
+	id: 'img-without-source',
+	width: 80,
+	height: 80,
+	fps: 25,
+	durationInFrames: 1,
+} as const;
