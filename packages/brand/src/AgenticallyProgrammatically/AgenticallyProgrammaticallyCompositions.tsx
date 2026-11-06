@@ -80,7 +80,11 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 						durationInFrames: props.platform === 'youtube' ? 9445 : 9145,
 					})}
 					schema={agenticallyProgrammaticallySchema}
-					defaultProps={{startWithPanelVisible: false, platform: 'linkedin'}}
+					defaultProps={{
+						startWithPanelVisible: false,
+						softenOpeningVoice: false,
+						platform: 'linkedin',
+					}}
 					durationInFrames={9145}
 					fps={30}
 					width={1920}
