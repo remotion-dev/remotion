@@ -1,4 +1,11 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {BLACK, TRANSPARENT, WHITE_ALPHA_72} from '../../helpers/colors';
 import {ClippedTextTooltip} from '../ActionTooltip';
 import {
@@ -20,12 +27,18 @@ const nameTextStyle: React.CSSProperties = {
 	lineHeight: 'normal',
 	color: 'inherit',
 	minWidth: 0,
+	overflow: 'hidden',
+	whiteSpace: 'nowrap',
+};
+
+// Room for the fade-out, only added once the name is cut off so that names
+// which fit keep the same padding on both sides.
+const clippedNameTextStyle: React.CSSProperties = {
+	...nameTextStyle,
 	paddingRight: 10,
 	maskImage: 'linear-gradient(to right, black calc(100% - 10px), transparent)',
 	WebkitMaskImage:
 		'linear-gradient(to right, black calc(100% - 10px), transparent)',
-	overflow: 'hidden',
-	whiteSpace: 'nowrap',
 };
 
 const getTruncatedDisplayName = (displayName: string): string => {
@@ -58,6 +71,7 @@ export const TimelineSequenceName: React.FC<{
 	const inputRef = useRef<HTMLInputElement>(null);
 	const nameTextRef = useRef<HTMLSpanElement>(null);
 	const [draftName, setDraftName] = useState(displayName);
+	const [nameClipped, setNameClipped] = useState(false);
 	const cancelNextBlurRef = useRef(false);
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -105,6 +119,24 @@ export const TimelineSequenceName: React.FC<{
 
 	const editableDisplayName = displayName || fallbackDisplayName;
 	const text = getTruncatedDisplayName(editableDisplayName);
+
+	useLayoutEffect(() => {
+		const element = nameTextRef.current;
+		if (!element) {
+			return;
+		}
+
+		// With the fade padding applied, a clipped name stays clipped until there
+		// is room for the padding too, so toggling it cannot oscillate.
+		const update = () => {
+			setNameClipped(element.scrollWidth > element.clientWidth);
+		};
+
+		update();
+		const observer = new ResizeObserver(update);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, [text, editing, chevronSlot]);
 
 	useEffect(() => {
 		if (!editing) {
@@ -214,7 +246,10 @@ export const TimelineSequenceName: React.FC<{
 						width: 'max-content',
 					}}
 				>
-					<span ref={nameTextRef} style={nameTextStyle}>
+					<span
+						ref={nameTextRef}
+						style={nameClipped ? clippedNameTextStyle : nameTextStyle}
+					>
 						{text}
 					</span>
 				</ClippedTextTooltip>
@@ -235,7 +270,7 @@ export const TimelineSequenceName: React.FC<{
 				ref={nameTextRef}
 				role="group"
 				aria-label={text}
-				style={nameTextStyle}
+				style={nameClipped ? clippedNameTextStyle : nameTextStyle}
 			>
 				{text}
 			</span>
