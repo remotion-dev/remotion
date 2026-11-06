@@ -38,6 +38,7 @@ export const LowerThird = ({logoSrc, title}: {logoSrc: string; title: string}) =
 	dependencies: [
 		{name: '@remotion/noise', version: null},
 		{name: 'lodash', version: '4.17.21'},
+		{name: '@remotion/shapes', version: null},
 	],
 	dimensions: {width: 900, height: 260},
 	durationInFrames: 72,
@@ -69,6 +70,7 @@ const makeProject = () => {
 			private: true,
 			dependencies: {
 				'@remotion/cli': VERSION,
+				'@remotion/shapes': VERSION,
 				react: '19.0.0',
 				'react-dom': '19.0.0',
 				remotion: VERSION,
@@ -251,7 +253,7 @@ test(
 				'Changes     src/Outro.tsx (composition "Outro")',
 			);
 			expect(withoutConfirmation.output).toContain(
-				'Installs    @remotion/noise, lodash@4.17.21',
+				'Installs    @remotion/noise, lodash@4.17.21, @remotion/shapes (already installed)',
 			);
 			expect(withoutConfirmation.output).toContain(
 				'Assets      public/elements/logo.png',
@@ -335,6 +337,7 @@ test(
 			expect(linked.output).toContain(
 				'Installed Title Card into the composition "Intro".',
 			);
+			expect(linked.output).toContain('Installs    No packages');
 			expect(linked.exitCode).toBe(0);
 			expect(project.readSource('title-card.element.tsx')).toBe(
 				titleCard.element.sourceCode,

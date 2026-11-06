@@ -369,9 +369,23 @@ export const elementsUseCommand = async ({
 		['Changes', `${compositionComponentFile} (composition "${compositionId}")`],
 		[
 			'Installs',
-			missingDependencies.length === 0
+			element.dependencies.length === 0
 				? 'No packages'
-				: missingDependencies.map(formatDependency).join(', '),
+				: [
+						...missingDependencies.map(formatDependency),
+						...[
+							...new Set(
+								element.dependencies
+									.filter(
+										(dependency) =>
+											!missingDependencies.some(
+												(missing) => missing.name === dependency.name,
+											),
+									)
+									.map((dependency) => dependency.name),
+							),
+						].map((name) => `${name} (already installed)`),
+					].join(', '),
 		],
 		['Assets', assetPaths.length === 0 ? 'None' : assetPaths.join(', ')],
 	];
