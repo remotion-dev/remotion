@@ -82,7 +82,8 @@ const drawReplacedElement = ({
 
 	if (
 		drawable instanceof HTMLImageElement &&
-		drawable.currentSrc.startsWith('data:image/svg+xml')
+		(drawable.currentSrc.startsWith('data:image/svg+xml') ||
+			new URL(drawable.currentSrc).pathname.toLowerCase().endsWith('.svg'))
 	) {
 		// Chromium and Firefox rasterize SVG image sources at the element's
 		// concrete size, so intrinsic source cropping cuts off most of the image.
