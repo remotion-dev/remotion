@@ -35,8 +35,9 @@ This is a guide to the main documentation topics. Fetch the linked Markdown page
 
 ## Elements
 
-- [Remotion Elements](https://www.remotion.dev/elements/index.md): Editable video building blocks. Each Element's Markdown links to its page and includes its source code.
-- [Element Libraries](https://www.remotion.dev/docs/elements/libraries.md)
+- [Remotion Elements](https://www.remotion.dev/elements/index.md): Editable video building blocks. Each Element's Markdown includes its install command and source code.
+- [More Elements](https://www.remotion.dev/elements/libraries.md): Third-party Element Libraries and their Markdown indexes. Element pages that embed an Element payload can be installed with `npx remotion elements use <url> --composition <composition-id> --yes`.
+- [Building Element Libraries](https://www.remotion.dev/docs/elements/libraries.md)
 
 ## Building applications
 

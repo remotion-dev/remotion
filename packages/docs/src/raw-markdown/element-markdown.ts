@@ -21,7 +21,7 @@ export const getElementMarkdownUrl = (definition: ElementDefinition) => {
 export const getElementCatalogMarkdown = () => {
 	return [
 		'# Remotion Elements',
-		'Editable video building blocks for Remotion. Each Element document links to its page and includes its source code.',
+		'Editable video building blocks for Remotion. Each Element document includes its install command and source code.',
 		...getElementLibrarySections(null).map((section) =>
 			[
 				`## ${section.label}`,
@@ -50,6 +50,15 @@ export const getElementMarkdown = ({
 		`# ${definition.displayName}`,
 		definition.description,
 		`Element page: [${pageUrl}](${pageUrl})`,
+		'## Installation',
+		'Install this Element into a composition of your Remotion project:',
+		codeBlock(
+			'sh',
+			`npx remotion elements use ${pageUrl} --composition <composition-id> --yes`,
+		),
+		'Replace `<composition-id>` with the ID of the composition to add the Element to. The command installs the dependencies, downloads the assets, writes the source file and adds the Element to the composition. See [`npx remotion elements use`](https://www.remotion.dev/docs/cli/elements/use.md).',
+		'## Manual installation',
+		`To install the Element manually instead, save the source below as \`${definition.slug.split('/').pop()}.element.tsx\` in your Remotion project and import its exported component.`,
 		'## Source',
 		codeBlock('tsx', sourceCode),
 		'',
