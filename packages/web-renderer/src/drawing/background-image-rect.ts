@@ -8,7 +8,7 @@ const firstLayer = (value: string) => value.split(',')[0].trim();
 export const parseLengthPercentage = (
 	value: string,
 ): LengthPercentage | null => {
-	const match = value.match(/^(-?(?:\d+\.?\d*|\.\d+))(%|px)$/);
+	const match = value.match(/^([+-]?(?:\d+\.?\d*|\.\d+))(%|px)$/);
 	if (match) {
 		return {
 			unit: match[2] as LengthPercentage['unit'],
@@ -60,7 +60,7 @@ const positionKeywordToPercentage = (value: string) => {
 	return null;
 };
 
-const resolvePosition = ({
+export const resolvePosition = ({
 	containerSize,
 	imageSize,
 	value,
@@ -68,10 +68,30 @@ const resolvePosition = ({
 	containerSize: number;
 	imageSize: number;
 	value: string;
-}) => {
+}): number => {
 	const keywordPercentage = positionKeywordToPercentage(value);
 	if (keywordPercentage !== null) {
 		return (containerSize - imageSize) * (keywordPercentage / 100);
+	}
+
+	if (value.startsWith('calc(')) {
+		const terms = value
+			.slice(5, -1)
+			.match(/[+-]?\s*(?:\d+\.?\d*|\.\d+)(?:%|px)/g);
+		if (!terms) {
+			throw new Error(`Unsupported position: ${value}`);
+		}
+
+		return terms.reduce(
+			(sum, term) =>
+				sum +
+				resolvePosition({
+					containerSize,
+					imageSize,
+					value: term.replace(/\s/g, ''),
+				}),
+			0,
+		);
 	}
 
 	const parsed = parseLengthPercentage(value);
@@ -84,8 +104,8 @@ const resolvePosition = ({
 		: parsed.value;
 };
 
-const parsePosition = (value: string) => {
-	const parts = firstLayer(value).split(/\s+/);
+export const parsePosition = (value: string) => {
+	const parts = firstLayer(value).match(/calc\([^)]*\)|[^\s]+/g)!;
 	if (parts.length === 1) {
 		if (parts[0] === 'top' || parts[0] === 'bottom') {
 			return {x: 'center', y: parts[0]};
