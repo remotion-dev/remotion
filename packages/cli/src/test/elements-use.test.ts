@@ -123,6 +123,10 @@ export const ${name}: React.FC = () => {
 		`#!/bin/sh\necho "$@" >> "${packageManagerLog}"\n`,
 	);
 	chmodSync(path.join(binDir, 'bun'), 0o755);
+	writeFileSync(
+		path.join(binDir, 'bun.cmd'),
+		['@echo off', `echo %*>> "${packageManagerLog}"`].join('\r\n'),
+	);
 
 	const run = async (args: string[]) => {
 		const child = Bun.spawn(['node', cliEntry, 'elements', 'use', ...args], {
@@ -155,7 +159,10 @@ export const ${name}: React.FC = () => {
 			readFileSync(path.join(remotionRoot, 'src', file), 'utf-8'),
 		packageManagerCalls: () =>
 			existsSync(packageManagerLog)
-				? readFileSync(packageManagerLog, 'utf-8').trim().split('\n')
+				? readFileSync(packageManagerLog, 'utf-8')
+						.trim()
+						.split(/\r?\n/)
+						.map((line) => line.trim())
 				: [],
 		cleanup: () => rmSync(remotionRoot, {recursive: true, force: true}),
 	};
