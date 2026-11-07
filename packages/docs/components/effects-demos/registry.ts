@@ -127,10 +127,7 @@ import {
 	EffectsLightTrailPreview,
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 } from '../effects/effects-light-trail-preview';
-import {
-	EffectsLightningPreview,
-	LIGHTNING_PREVIEW_PARAMS,
-} from '../effects/effects-lightning-preview';
+import {EffectsLightningPreview} from '../effects/effects-lightning-preview';
 import {EffectsLinearGradientPreview} from '../effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../effects/effects-linear-progressive-blur-preview';
@@ -243,7 +240,6 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/lightning',
 		comp: EffectsLightningPreview,
 		schema: lightning().definition.schema,
-		initialValues: LIGHTNING_PREVIEW_PARAMS,
 	},
 	{
 		...defaults,

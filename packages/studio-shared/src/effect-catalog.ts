@@ -954,10 +954,7 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'lightning',
 			importPath: '@remotion/effects/lightning',
-			config: {
-				origin: [0.5, 0],
-				direction: [0.5, 0.9],
-			},
+			config: {},
 		},
 	},
 	{

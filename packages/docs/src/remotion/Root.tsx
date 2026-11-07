@@ -57,10 +57,7 @@ import {
 	LIGHT_TRAIL_PREVIEW_PARAMS,
 	LightTrailTextSource,
 } from '../../components/effects/effects-light-trail-preview';
-import {
-	EffectsLightningPreview,
-	LIGHTNING_PREVIEW_PARAMS,
-} from '../../components/effects/effects-lightning-preview';
+import {EffectsLightningPreview} from '../../components/effects/effects-lightning-preview';
 import {EffectsLinearGradientPreview} from '../../components/effects/effects-linear-gradient-preview';
 import {EffectsLinearGradientTintPreview} from '../../components/effects/effects-linear-gradient-tint-preview';
 import {EffectsLinearProgressiveBlurPreview} from '../../components/effects/effects-linear-progressive-blur-preview';
@@ -890,7 +887,7 @@ export const RemotionRoot: React.FC = () => {
 					component={EffectsLightningPreview}
 					width={1280}
 					height={720}
-					defaultProps={LIGHTNING_PREVIEW_PARAMS}
+					defaultProps={{}}
 				/>
 				<Still
 					id="effects-magnify-preview"
