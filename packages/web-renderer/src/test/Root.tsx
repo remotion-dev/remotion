@@ -3,6 +3,7 @@ import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
+import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
@@ -184,6 +185,7 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
+			<Composition {...backgroundBlendMode} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
 				<Composition {...mixBlendModeAllModes} />

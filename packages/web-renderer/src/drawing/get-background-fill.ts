@@ -4,7 +4,7 @@ import {
 	parseLinearGradient,
 } from './parse-linear-gradient';
 
-const isColorTransparent = (color: string) => {
+export const isColorTransparent = (color: string) => {
 	return (
 		color === 'transparent' ||
 		(color.startsWith('rgba') &&
