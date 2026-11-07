@@ -35,7 +35,12 @@ export async function copyDir({
 		} else if (entry.isSymbolicLink()) {
 			const realpath = await fs.promises.realpath(srcPath);
 			onSymlinkDetected(entry, src);
-			await fs.promises.symlink(realpath, destPath);
+			const type =
+				process.platform === 'win32' &&
+				(await fs.promises.stat(realpath)).isDirectory()
+					? 'junction'
+					: undefined;
+			await fs.promises.symlink(realpath, destPath, type);
 		} else {
 			const [, {size}] = await Promise.all([
 				fs.promises.copyFile(srcPath, destPath),
