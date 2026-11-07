@@ -57,8 +57,6 @@ export const createsStackingContext = (element: Element) => {
 		getMaskImageValue(style) !== null ||
 		style.isolation === 'isolate' ||
 		style.mixBlendMode !== 'normal' ||
-		style.containerType === 'size' ||
-		style.containerType === 'inline-size' ||
 		/\b(paint|layout|strict|content)\b/.test(style.contain) ||
 		style.willChange
 			.split(',')
