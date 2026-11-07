@@ -1,4 +1,3 @@
-import {HtmlInCanvasMotionBlur} from '@remotion/motion-blur';
 import {StudioInternals} from '@remotion/studio';
 import {TransitionSeries, linearTiming} from '@remotion/transitions';
 import {slide} from '@remotion/transitions/slide';
@@ -10,7 +9,6 @@ import {
 	Interactive,
 	Sequence,
 	Track,
-	useCurrentFrame,
 	useRemotionEnvironment,
 } from 'remotion';
 import {CodexPrompt} from '../CodexPrompt';
@@ -21,38 +19,20 @@ import {TimelineCaptionReorderAndScrubComposition} from '../TimelineCaptionReord
 import {TimelineRightTrimCapture} from '../TimelineRightTrimComposition';
 import {StudioSettingsCaptureComposition} from './StudioSettingsCaptureComposition';
 
-const PaneMotionBlur = ({children}: {readonly children: ReactNode}) => {
-	const frame = useCurrentFrame();
-	const {isRendering} = useRemotionEnvironment();
+const PaneContent = ({children}: {readonly children: ReactNode}) => {
 	return (
-		<HtmlInCanvasMotionBlur
-			name="Motion blur during vertical pane transitions"
-			width={640}
-			height={1080}
-			shutterAngle={isRendering ? 180 : 90}
-			samples={isRendering ? 32 : 4}
-			disabled={
-				![
-					[80, 92],
-					[119, 131],
-					[208, 220],
-					[235, 247],
-				].some(([start, end]) => frame >= start && frame <= end)
-			}
+		<div
+			style={{
+				position: 'absolute',
+				inset: 0,
+				width: 640,
+				height: 1080,
+				overflow: 'hidden',
+				clipPath: 'inset(0)',
+			}}
 		>
-			<div
-				style={{
-					position: 'absolute',
-					inset: 0,
-					width: 640,
-					height: 1080,
-					overflow: 'hidden',
-					clipPath: 'inset(0)',
-				}}
-			>
-				{children}
-			</div>
-		</HtmlInCanvasMotionBlur>
+			{children}
+		</div>
 	);
 };
 
@@ -109,6 +89,11 @@ const AngledPaneContent = ({
 };
 
 const ThreeWaysSplitViewContent = () => {
+	const {isRendering} = useRemotionEnvironment();
+	const motionBlur = {
+		shutterAngle: isRendering ? 180 : 90,
+		samples: isRendering ? 32 : 16,
+	};
 	return (
 		<>
 			<Interactive.Div
@@ -125,7 +110,7 @@ const ThreeWaysSplitViewContent = () => {
 					contain: 'paint',
 				}}
 			>
-				<PaneMotionBlur>
+				<PaneContent>
 					<TransitionSeries name="Agent instructions">
 						<TransitionSeries.Sequence
 							width={640}
@@ -151,6 +136,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -181,6 +167,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -211,6 +198,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -241,6 +229,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -271,7 +260,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 					</TransitionSeries>
-				</PaneMotionBlur>
+				</PaneContent>
 			</Interactive.Div>
 			<Interactive.Div
 				name="Middle pane — interactively"
@@ -287,7 +276,7 @@ const ThreeWaysSplitViewContent = () => {
 					contain: 'paint',
 				}}
 			>
-				<PaneMotionBlur>
+				<PaneContent>
 					<TransitionSeries name="Studio demonstrations">
 						<TransitionSeries.Sequence
 							width={640}
@@ -339,6 +328,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -370,6 +360,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -399,6 +390,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -430,6 +422,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-top'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -465,7 +458,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 					</TransitionSeries>
-				</PaneMotionBlur>
+				</PaneContent>
 			</Interactive.Div>
 			<Interactive.Div
 				name="Right pane — code"
@@ -481,7 +474,7 @@ const ThreeWaysSplitViewContent = () => {
 					contain: 'paint',
 				}}
 			>
-				<PaneMotionBlur>
+				<PaneContent>
 					<TransitionSeries name="Monaco code screenshots">
 						<TransitionSeries.Sequence
 							width={640}
@@ -501,6 +494,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -525,6 +519,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -549,6 +544,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -573,6 +569,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 						<TransitionSeries.Transition
+							motionBlur={motionBlur}
 							presentation={slide({direction: 'from-bottom'})}
 							timing={linearTiming({
 								durationInFrames: 12,
@@ -597,7 +594,7 @@ const ThreeWaysSplitViewContent = () => {
 							</AngledPaneContent>
 						</TransitionSeries.Sequence>
 					</TransitionSeries>
-				</PaneMotionBlur>
+				</PaneContent>
 			</Interactive.Div>
 			<Interactive.Div
 				name="ChatGPT pane icon"
