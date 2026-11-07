@@ -55,21 +55,3 @@ export const svgUrlBlurredCover = {
 	fps: 25,
 	durationInFrames: 1,
 } as const;
-
-// An <img> without a source has an empty `currentSrc`.
-const NoSource: React.FC = () => {
-	return (
-		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<img style={{width: 40, height: 40}} />
-		</AbsoluteFill>
-	);
-};
-
-export const imgWithoutSource = {
-	component: NoSource,
-	id: 'img-without-source',
-	width: 80,
-	height: 80,
-	fps: 25,
-	durationInFrames: 1,
-} as const;
