@@ -64,11 +64,11 @@ Selects the path of the main bolt. Defaults to `'strike'`.
 
 ### `origin?`
 
-Starting point as `[x, y]`, with both coordinates between `0` and `1`, measured from the top-left corner. Defaults to `[0.25, 0.2]`.
+Starting point as a UV coordinate `[u, v]`. `[0, 0]` is the top-left corner of the canvas and `[1, 1]` is the bottom-right. Each value must be between `0` and `1`. Defaults to `[0.25, 0.2]`.
 
 ### `direction?`
 
-Second point in the same coordinates as `origin`. Its role depends on `lightningType`. Defaults to `[0.75, 0.8]`.
+Second UV coordinate in the same space as `origin`. Its role depends on `lightningType`. Defaults to `[0.75, 0.8]`.
 
 ### `conductivityState?`
 

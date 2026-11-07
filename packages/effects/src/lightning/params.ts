@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {validateUnitInterval} from '../color-utils.js';
+import type {UvCoordinate} from '../uv-coordinate.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
@@ -20,10 +21,10 @@ export type LightningFractalType = 'linear' | 'semi-linear' | 'spline';
 
 export type LightningParams = {
 	readonly lightningType?: LightningType;
-	/** Normalized starting point measured from the top-left. Defaults to [0.25, 0.2]. */
-	readonly origin?: readonly [number, number];
-	/** Normalized destination or direction point. Defaults to [0.75, 0.8]. */
-	readonly direction?: readonly [number, number];
+	/** Starting UV coordinate measured from the top-left. Defaults to [0.25, 0.2]. */
+	readonly origin?: UvCoordinate;
+	/** Destination or direction in UV coordinates. Defaults to [0.75, 0.8]. */
+	readonly direction?: UvCoordinate;
 	/** Each integer selects a repeatable bolt shape. Defaults to 10. */
 	readonly conductivityState?: number;
 	/** Radius of the bright center in pixels. Defaults to 3. */
@@ -71,10 +72,7 @@ const numberField = (
 		hiddenFromList: false,
 	}) as const;
 
-const pointField = (
-	description: string,
-	defaultValue: readonly [number, number],
-) =>
+const uvCoordinateField = (description: string, defaultValue: UvCoordinate) =>
 	({
 		type: 'uv-coordinate',
 		description,
@@ -100,8 +98,11 @@ export const lightningSchema = {
 		},
 		default: 'strike',
 	},
-	origin: pointField('Origin', [0.25, 0.2]),
-	direction: pointField('Direction', [0.75, 0.8]),
+	origin: {
+		...uvCoordinateField('Origin', [0.25, 0.2]),
+		visual: {type: 'line', to: 'direction'},
+	},
+	direction: uvCoordinateField('Direction', [0.75, 0.8]),
 	conductivityState: numberField('Conductivity state', 10, [0, 100000], 1),
 	coreRadius: numberField('Core radius', 3, [0, 100], 0.1),
 	coreOpacity: numberField('Core opacity', 0.75, [0, 1], 0.01),
