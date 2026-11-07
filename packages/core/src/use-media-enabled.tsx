@@ -1,5 +1,7 @@
 import {createContext, useContext, useMemo} from 'react';
 
+export const AudioPaddingContext = createContext(false);
+
 const MediaEnabledContext = createContext<{
 	videoEnabled: boolean | null;
 	audioEnabled: boolean | null;
@@ -7,11 +9,18 @@ const MediaEnabledContext = createContext<{
 
 export const useVideoEnabled = () => {
 	const context = useContext(MediaEnabledContext);
+	const isAudioPadding = useContext(AudioPaddingContext);
+	if (isAudioPadding) {
+		return false;
+	}
+
 	if (context && context.videoEnabled !== null) {
 		return context.videoEnabled;
 	}
 
-	return typeof window === 'undefined' ? true : window.remotion_videoEnabled;
+	return typeof window === 'undefined'
+		? true
+		: (window.remotion_videoEnabled ?? true);
 };
 
 export const useAudioEnabled = () => {

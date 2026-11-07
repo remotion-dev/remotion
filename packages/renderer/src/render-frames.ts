@@ -328,6 +328,7 @@ const innerRenderFrames = async ({
 		const page = await makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
+			outputFrameRange: forSeamlessAacConcatenation ? realFrameRange : null,
 			browserReplacer,
 			indent,
 			logLevel,

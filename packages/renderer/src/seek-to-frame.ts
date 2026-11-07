@@ -179,6 +179,7 @@ export const waitForReady = ({
 
 export const seekToFrame = async ({
 	frame,
+	videoEnabled,
 	page,
 	composition,
 	timeoutInMilliseconds,
@@ -187,6 +188,7 @@ export const seekToFrame = async ({
 	attempt,
 }: {
 	frame: number;
+	videoEnabled: boolean;
 	composition: string;
 	page: Page;
 	timeoutInMilliseconds: number;
@@ -211,5 +213,7 @@ export const seekToFrame = async ({
 		timeoutInMilliseconds,
 	});
 	await waitForReady({page, timeoutInMilliseconds, frame, indent, logLevel});
-	await page.evaluate('document.fonts.ready.then(() => true)');
+	if (videoEnabled) {
+		await page.evaluate('document.fonts.ready.then(() => true)');
+	}
 };

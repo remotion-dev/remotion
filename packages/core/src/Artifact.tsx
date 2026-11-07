@@ -3,6 +3,7 @@ import {useContext, useLayoutEffect, useState} from 'react';
 import type {DownloadBehavior} from './download-behavior';
 import {RenderAssetManager} from './RenderAssetManager';
 import {useCurrentFrame} from './use-current-frame';
+import {AudioPaddingContext} from './use-media-enabled';
 import {useRemotionEnvironment} from './use-remotion-environment';
 
 const ArtifactThumbnail = Symbol('Thumbnail');
@@ -33,13 +34,14 @@ export const Artifact: React.FC<{
 	const env = useRemotionEnvironment();
 
 	const frame = useCurrentFrame();
+	const isAudioPadding = useContext(AudioPaddingContext);
 
 	const [id] = useState(() => {
 		return String(Math.random());
 	});
 
 	useLayoutEffect(() => {
-		if (!env.isRendering) {
+		if (!env.isRendering || isAudioPadding) {
 			return;
 		}
 
@@ -80,6 +82,7 @@ export const Artifact: React.FC<{
 	}, [
 		content,
 		env.isRendering,
+		isAudioPadding,
 		filename,
 		frame,
 		id,

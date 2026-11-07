@@ -151,6 +151,7 @@ export const renderFrameWithOptionToReject = async ({
 
 		await seekToFrame({
 			frame,
+			videoEnabled: !assetsOnly && imageFormat !== 'none',
 			page,
 			composition: compId,
 			timeoutInMilliseconds,
@@ -207,6 +208,7 @@ export const renderFrameWithOptionToReject = async ({
 				remotionSharedMemory,
 			}),
 			collectAssets({
+				includeArtifacts: !assetsOnly,
 				frame,
 				freePage: page,
 				timeoutInMilliseconds,

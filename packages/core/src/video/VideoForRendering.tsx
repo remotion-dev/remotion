@@ -23,7 +23,7 @@ import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {useAudioEnabled} from '../use-media-enabled.js';
+import {useAudioEnabled, useVideoEnabled} from '../use-media-enabled.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -107,7 +107,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 	warnAboutTooHighVolume(volume);
 	const audioEnabled = useAudioEnabled();
-	const {shouldUseAudio} = useMediaAudioState({
+	const videoEnabled = useVideoEnabled();
+	const {isMutedForTimeline, shouldUseAudio} = useMediaAudioState({
 		muted: props.muted ?? false,
 		volume,
 		audioEnabled,
@@ -160,14 +161,22 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		preservePitch,
 	]);
 
-	useImperativeHandle(ref, () => {
-		return videoRef.current as HTMLVideoElement;
-	}, []);
+	const needsVideoTag =
+		videoEnabled ||
+		(audioEnabled && !isMutedForTimeline && props.loop === true);
+	useImperativeHandle<HTMLVideoElement | null, HTMLVideoElement | null>(
+		ref,
+		() => (needsVideoTag ? videoRef.current : null),
+		[needsVideoTag],
+	);
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame});
+	useEmitVideoFrame({
+		ref: videoRef,
+		onVideoFrame: videoEnabled ? onVideoFrame : null,
+	});
 
 	useEffect(() => {
-		if (!window.remotion_videoEnabled) {
+		if (!videoEnabled) {
 			return;
 		}
 
@@ -260,6 +269,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			continueRender(handle);
 		};
 	}, [
+		videoEnabled,
 		volumePropsFrame,
 		props.src,
 		playbackRate,
@@ -281,7 +291,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	if (environment.isRendering) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
-			if (window.process?.env?.NODE_ENV === 'test') {
+			if (!needsVideoTag || window.process?.env?.NODE_ENV === 'test') {
 				return;
 			}
 
@@ -316,6 +326,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			};
 		}, [
 			src,
+			needsVideoTag,
 			onDuration,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
@@ -324,11 +335,16 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		]);
 	}
 
+	if (!needsVideoTag) {
+		return null;
+	}
+
 	return (
 		<video
 			ref={videoRef}
 			disableRemotePlayback
 			{...props}
+			preload={videoEnabled ? props.preload : 'metadata'}
 			crossOrigin={
 				crossOrigin ?? (htmlInCanvasContext === null ? undefined : 'anonymous')
 			}

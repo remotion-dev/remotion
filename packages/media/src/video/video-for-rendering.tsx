@@ -163,7 +163,11 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	}
 
 	useLayoutEffect(() => {
-		if (!canvasRef.current && !headless) {
+		if (!videoEnabled && !shouldUseAudio) {
+			return;
+		}
+
+		if (!canvasRef.current && !headless && videoEnabled) {
 			return;
 		}
 
@@ -171,7 +175,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 			return;
 		}
 
-		if (!canvasRef.current?.getContext && !headless) {
+		if (!canvasRef.current?.getContext && !headless && videoEnabled) {
 			return setError(
 				new Error(
 					'Canvas does not have .getContext() method available. This could be because <Video> was mounted inside an <svg> tag.',
@@ -492,6 +496,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		};
 	}, [objectFitProp, style]);
 
+	if (!videoEnabled && !shouldUseAudio) {
+		return null;
+	}
+
 	if (replaceWithOffthreadVideo) {
 		const fallback = (
 			<Internals.InnerOffthreadVideo
@@ -570,7 +578,7 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 		return fallback;
 	}
 
-	if (headless) {
+	if (headless || !videoEnabled) {
 		return null;
 	}
 

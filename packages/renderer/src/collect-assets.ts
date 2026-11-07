@@ -5,17 +5,22 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 export const collectAssets = async ({
 	frame,
 	freePage,
+	includeArtifacts,
 	timeoutInMilliseconds,
 }: {
 	frame: number;
 	freePage: Page;
+	includeArtifacts: boolean;
 	timeoutInMilliseconds: number;
 }) => {
 	const {value} = await puppeteerEvaluateWithCatch<TRenderAsset[]>({
-		pageFunction: () => {
-			return window.remotion_collectAssets();
+		pageFunction: (withArtifacts: boolean) => {
+			const assets = window.remotion_collectAssets();
+			return withArtifacts
+				? assets
+				: assets.filter((asset) => asset.type !== 'artifact');
 		},
-		args: [],
+		args: [includeArtifacts],
 		frame,
 		page: freePage,
 		timeoutInMilliseconds,

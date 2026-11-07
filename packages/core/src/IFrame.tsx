@@ -1,5 +1,6 @@
 import React, {forwardRef, useCallback, useLayoutEffect, useRef} from 'react';
 import {useDelayRender} from './use-delay-render.js';
+import {useVideoEnabled} from './use-media-enabled.js';
 
 const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	HTMLIFrameElement,
@@ -21,6 +22,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	ref,
 ) => {
 	const {delayRender, continueRender} = useDelayRender();
+	const videoEnabled = useVideoEnabled();
 	const handle = useRef<number | null>(null);
 	const loadedSource = useRef<{
 		src: string | undefined;
@@ -29,6 +31,11 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	const {src, srcDoc} = props;
 
 	useLayoutEffect(() => {
+		if (!videoEnabled) {
+			loadedSource.current = null;
+			return;
+		}
+
 		if (
 			loadedSource.current?.src === src &&
 			loadedSource.current?.srcDoc === srcDoc &&
@@ -54,6 +61,7 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 		delayRenderTimeoutInMilliseconds,
 		src,
 		srcDoc,
+		videoEnabled,
 	]);
 
 	const didLoad = useCallback(
@@ -90,6 +98,10 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 		},
 		[onError, continueRender, src, srcDoc],
 	);
+
+	if (!videoEnabled) {
+		return null;
+	}
 
 	return (
 		<iframe

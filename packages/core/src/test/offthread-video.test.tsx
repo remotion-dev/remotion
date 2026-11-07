@@ -1,4 +1,4 @@
-import {afterEach, describe, expect, test} from 'bun:test';
+import {afterAll, afterEach, beforeAll, describe, expect, test} from 'bun:test';
 import {cleanup, fireEvent, render} from '@testing-library/react';
 import type React from 'react';
 import {SharedAudioContextProvider} from '../audio/shared-audio-tags.js';
@@ -38,6 +38,14 @@ const WrapPreviewContext: React.FC<{
 };
 
 describe('OffthreadVideo render correctly with props', () => {
+	const previousVideoEnabled = window.remotion_videoEnabled;
+	beforeAll(() => {
+		window.remotion_videoEnabled = false;
+	});
+	afterAll(() => {
+		window.remotion_videoEnabled = previousVideoEnabled;
+	});
+
 	test('It should render OffthreadVideo without startFrom / endAt props', () => {
 		expect(() =>
 			render(

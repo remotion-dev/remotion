@@ -357,6 +357,11 @@ export const HtmlInCanvasPresentation = <
 	},
 ) => {
 	const {isRendering} = useRemotionEnvironment();
+	const videoEnabled = Internals.useVideoEnabled();
+	if (!videoEnabled) {
+		return props.children;
+	}
+
 	if (!HtmlInCanvas.isSupported()) {
 		if (isRendering) {
 			throw new Error(getHtmlInCanvasUnsupportedMessage());

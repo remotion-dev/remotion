@@ -163,7 +163,9 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	}
 
 	// Keep the first sample mounted when blur is disabled so the canvas stays visible.
-	const actualSamples = disabled || shutterAngle === 0 ? 1 : samples;
+	const videoEnabled = Internals.useVideoEnabled();
+	const actualSamples =
+		disabled || shutterAngle === 0 || !videoEnabled ? 1 : samples;
 	const shutterInFrames = (shutterAngle / 360) * (playbackRate ?? 1);
 	const firstFrame = trimBefore ?? 0;
 	const visibleDuration = Math.max(

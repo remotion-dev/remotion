@@ -101,6 +101,24 @@ const DelayedSpinner: React.FC = () => {
 	);
 };
 
+const AudioPaddingProvider: React.FC<{
+	readonly state: BundleCompositionState;
+	readonly children: React.ReactNode;
+}> = ({state, children}) => {
+	const {frame} = Internals.useTimelineContext();
+	const currentFrame =
+		frame[state.compositionName] ?? window.remotion_initialFrame;
+	const range = state.outputFrameRange;
+	const isAudioPadding = range
+		? currentFrame < range[0] || currentFrame > range[1]
+		: false;
+	return (
+		<Internals.AudioPaddingContext.Provider value={isAudioPadding}>
+			{children}
+		</Internals.AudioPaddingContext.Provider>
+	);
+};
+
 const GetVideoComposition: React.FC<{
 	readonly state: BundleCompositionState;
 }> = ({state}) => {
@@ -275,10 +293,12 @@ const renderContent = (Root: React.FC) => {
 					previewSampleRate={window.remotion_sampleRate}
 					_experimentalKeepAudioContextAlive={false}
 				>
-					<Internals.RenderAssetManagerProvider collectAssets={null}>
-						<Root />
-						<GetVideoComposition state={bundleMode} />
-					</Internals.RenderAssetManagerProvider>
+					<AudioPaddingProvider state={bundleMode}>
+						<Internals.RenderAssetManagerProvider collectAssets={null}>
+							<Root />
+							<GetVideoComposition state={bundleMode} />
+						</Internals.RenderAssetManagerProvider>
+					</AudioPaddingProvider>
 				</Internals.RemotionRootContexts>
 			</Internals.CompositionManagerProvider>
 		);

@@ -538,6 +538,11 @@ const RemotionRiveCanvasInnerForwardRefFunction: React.ForwardRefRenderFunction<
 		componentName: '<RemotionRiveCanvas />',
 	});
 
+	const videoEnabled = Internals.useVideoEnabled();
+	if (!videoEnabled) {
+		return null;
+	}
+
 	return (
 		<Freeze frame={freezeFrame} active={isPremountingOrPostmounting}>
 			<Sequence

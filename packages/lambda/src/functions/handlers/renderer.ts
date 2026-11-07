@@ -383,7 +383,8 @@ const renderHandler = async ({
 			colorSpace: params.colorSpace,
 			binariesDirectory: null,
 			separateAudioTo: audioOutputLocation,
-			forSeamlessAacConcatenation: seamlessAudio,
+			forSeamlessAacConcatenation:
+				seamlessAudio && willRenderAudioEval === 'yes',
 			compositionStart: params.compositionStart,
 			onBrowserDownload: () => {
 				throw new Error('Should not download a browser in Lambda');

@@ -365,6 +365,11 @@ const StarburstInner: React.FC<
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
+	const videoEnabled = Internals.useVideoEnabled();
+	if (!videoEnabled) {
+		return null;
+	}
+
 	const resolvedDuration = durationInFrames ?? videoDuration;
 
 	if (typeof rays !== 'number' || !Number.isFinite(rays)) {

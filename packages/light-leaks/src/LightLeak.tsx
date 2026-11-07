@@ -268,6 +268,11 @@ const LightLeakInner: React.FC<
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
+	const videoEnabled = Internals.useVideoEnabled();
+	if (!videoEnabled) {
+		return null;
+	}
+
 	const resolvedDuration = durationInFrames ?? videoDuration;
 	if (typeof seed !== 'number' || !Number.isFinite(seed)) {
 		throw new TypeError(

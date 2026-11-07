@@ -16,6 +16,7 @@ import {setPropsAndEnv} from './set-props-and-env';
 export const makePage = async ({
 	context,
 	initialFrame,
+	outputFrameRange,
 	browserReplacer,
 	logLevel,
 	indent,
@@ -41,6 +42,7 @@ export const makePage = async ({
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
+	outputFrameRange: [number, number] | null;
 	browserReplacer: BrowserReplacer;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -111,6 +113,7 @@ export const makePage = async ({
 			defaultPixelFormat: PixelFormat | null,
 			defaultProResProfile: _InternalTypes['ProResProfile'] | null,
 			defaultSampleRate: number | null,
+			range: [number, number] | null,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -126,6 +129,7 @@ export const makePage = async ({
 				compositionDefaultPixelFormat: defaultPixelFormat,
 				compositionDefaultProResProfile: defaultProResProfile,
 				compositionDefaultSampleRate: defaultSampleRate,
+				outputFrameRange: range,
 			});
 		},
 		args: [
@@ -141,6 +145,7 @@ export const makePage = async ({
 			composition.defaultPixelFormat,
 			composition.defaultProResProfile,
 			composition.defaultSampleRate,
+			outputFrameRange,
 		],
 		frame: null,
 		page,

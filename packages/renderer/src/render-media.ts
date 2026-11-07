@@ -866,7 +866,8 @@ const internalRenderMediaRaw = async ({
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
 					compositionStart,
-					forSeamlessAacConcatenation,
+					forSeamlessAacConcatenation:
+						forSeamlessAacConcatenation && !disableAudio,
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,

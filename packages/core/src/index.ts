@@ -135,6 +135,7 @@ export type BundleCompositionState = {
 	compositionDefaultPixelFormat: PixelFormat | null;
 	compositionDefaultProResProfile: ProResProfile | null;
 	compositionDefaultSampleRate: number | null;
+	outputFrameRange?: [number, number] | null;
 };
 
 export type BundleIndexState = {

@@ -1,11 +1,11 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import type {Video} from 'remotion';
 import {
+	Internals,
 	useCurrentFrame,
 	useDelayRender,
 	useRemotionEnvironment,
 } from 'remotion';
-// eslint-disable-next-line no-restricted-imports
 import type {VideoTexture} from 'three';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
@@ -32,14 +32,7 @@ export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement | null>,
 ): VideoTexture | null => {
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
-	const [loaded] = useState(() => {
-		if (typeof document === 'undefined') {
-			return 0;
-		}
-
-		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
-	});
-
+	const videoEnabled = Internals.useVideoEnabled();
 	const environment = useRemotionEnvironment();
 	const {isClientSideRendering} = environment;
 
@@ -50,52 +43,61 @@ export const useVideoTexture = (
 	}
 
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
-	const [vidText] = useState(
-		() => import('three/src/textures/VideoTexture.js'),
-	);
 	const frame = useCurrentFrame();
 
-	const onReady = useCallback(() => {
-		vidText
-			.then(({VideoTexture}) => {
-				if (!videoRef.current) {
-					throw new Error('Video not ready');
-				}
-
-				const vt = new VideoTexture(videoRef.current);
-
-				videoRef.current.width = videoRef.current.videoWidth;
-				videoRef.current.height = videoRef.current.videoHeight;
-				setVideoTexture(vt);
-				continueRender(loaded);
-			})
-			.catch((err) => {
-				cancelRender(err);
-			});
-	}, [loaded, vidText, videoRef, continueRender, cancelRender]);
-
 	React.useLayoutEffect(() => {
-		if (!videoRef.current) {
+		if (
+			!videoEnabled ||
+			typeof HTMLVideoElement === 'undefined' ||
+			!HTMLVideoElement.prototype.requestVideoFrameCallback
+		) {
+			setVideoTexture(null);
 			return;
 		}
 
-		if (videoRef.current.readyState >= 2) {
-			onReady();
-			return;
-		}
-
-		videoRef.current.addEventListener(
-			'loadeddata',
-			() => {
-				onReady();
-			},
-			{once: true},
+		const element = videoRef.current;
+		const handle = delayRender(
+			'Waiting for texture in useVideoTexture() to be loaded',
 		);
-	}, [loaded, onReady, videoRef]);
+		let cancelled = false;
+		let texture: VideoTexture | null = null;
+		const onReady = () => {
+			import('three/src/textures/VideoTexture.js')
+				.then(({VideoTexture}) => {
+					if (cancelled || !element) {
+						return;
+					}
+
+					texture = new VideoTexture(element);
+					element.width = element.videoWidth;
+					element.height = element.videoHeight;
+					setVideoTexture(texture);
+					continueRender(handle);
+				})
+				.catch((err) => {
+					if (!cancelled) {
+						cancelRender(err);
+					}
+				});
+		};
+
+		if (element && element.readyState >= 2) {
+			onReady();
+		} else {
+			element?.addEventListener('loadeddata', onReady, {once: true});
+		}
+
+		return () => {
+			cancelled = true;
+			element?.removeEventListener('loadeddata', onReady);
+			texture?.dispose();
+			continueRender(handle);
+		};
+	}, [videoEnabled, videoRef, delayRender, continueRender, cancelRender]);
 
 	React.useEffect(() => {
 		const {current} = videoRef;
-		if (!current) {
+		if (!videoEnabled || !current) {
 			return;
 		}
 
@@ -110,23 +112,7 @@ export const useVideoTexture = (
 		};
 
 		current.requestVideoFrameCallback(ready);
-	}, [frame, loaded, videoRef]);
+	}, [frame, videoEnabled, videoRef]);
 
-	useEffect(() => {
-		// Clean up on unmount
-
-		return () => {
-			continueRender(loaded);
-		};
-	}, [loaded, continueRender]);
-
-	if (
-		typeof HTMLVideoElement === 'undefined' ||
-		!HTMLVideoElement.prototype.requestVideoFrameCallback
-	) {
-		continueRender(loaded);
-		return null;
-	}
-
-	return videoTexture;
+	return videoEnabled ? videoTexture : null;
 };

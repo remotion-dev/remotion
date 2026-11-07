@@ -338,6 +338,7 @@ const innerRenderStill = async ({
 				compositionDefaultPixelFormat: defaultPixelFormat,
 				compositionDefaultProResProfile: defaultProResProfile,
 				compositionDefaultSampleRate: defaultSampleRate,
+				outputFrameRange: null,
 			});
 		},
 		args: [
@@ -360,6 +361,7 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({
 		frame: stillFrame,
+		videoEnabled: true,
 		page,
 		composition: composition.id,
 		timeoutInMilliseconds,
@@ -382,6 +384,7 @@ const innerRenderStill = async ({
 			remotionSharedMemory: null,
 		}),
 		collectAssets({
+			includeArtifacts: true,
 			frame,
 			freePage: page,
 			timeoutInMilliseconds,

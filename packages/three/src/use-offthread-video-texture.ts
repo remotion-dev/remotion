@@ -1,4 +1,4 @@
-import {useCallback, useLayoutEffect, useMemo, useState} from 'react';
+import {useLayoutEffect, useMemo, useState} from 'react';
 import {
 	Internals,
 	useCurrentFrame,
@@ -33,6 +33,7 @@ export const useInnerVideoTexture = ({
 	delayRenderRetries?: number;
 	delayRenderTimeoutInMilliseconds?: number;
 }) => {
+	const videoEnabled = Internals.useVideoEnabled();
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = Internals.useMediaStartsAt();
@@ -56,63 +57,57 @@ export const useInnerVideoTexture = ({
 		});
 	}, [toneMapped, currentTime, src, transparent]);
 
-	const [textLoaderPromise] = useState(
-		() => import('three/src/loaders/TextureLoader.js'),
-	);
-
 	const [imageTexture, setImageTexture] = useState<Texture | null>(null);
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
-	const fetchTexture = useCallback(() => {
-		const imageTextureHandle = delayRender('fetch offthread video frame', {
-			retries: delayRenderRetries ?? undefined,
-			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds ?? undefined,
+	useLayoutEffect(() => {
+		if (!videoEnabled) {
+			setImageTexture(null);
+			return;
+		}
+
+		const handle = delayRender('fetch offthread video frame', {
+			retries: delayRenderRetries,
+			timeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 		});
+		let cancelled = false;
+		let texture: Texture | null = null;
+		import('three/src/loaders/TextureLoader.js')
+			.then(async ({TextureLoader}) => {
+				if (cancelled) {
+					return;
+				}
 
-		let textureLoaded: Texture | null = null;
-		let cleanedUp = false;
+				texture = await new TextureLoader().loadAsync(offthreadVideoFrameSrc);
+				if (cancelled) {
+					texture.dispose();
+					return;
+				}
 
-		textLoaderPromise.then((loader) => {
-			new loader.TextureLoader()
-				.loadAsync(offthreadVideoFrameSrc)
-				.then((texture) => {
-					textureLoaded = texture;
-					if (cleanedUp) {
-						return;
-					}
-
-					setImageTexture(texture);
-					continueRender(imageTextureHandle);
-				})
-				.catch((err) => {
+				setImageTexture(texture);
+				continueRender(handle);
+			})
+			.catch((err) => {
+				if (!cancelled) {
 					cancelRender(err);
-				});
-		});
-
+				}
+			});
 		return () => {
-			cleanedUp = true;
-			textureLoaded?.dispose();
-			continueRender(imageTextureHandle);
+			cancelled = true;
+			texture?.dispose();
+			continueRender(handle);
 		};
 	}, [
+		videoEnabled,
 		offthreadVideoFrameSrc,
-		textLoaderPromise,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
-		continueRender,
 		delayRender,
+		continueRender,
 		cancelRender,
 	]);
 
-	useLayoutEffect(() => {
-		const cleanup = fetchTexture();
-
-		return () => {
-			cleanup();
-		};
-	}, [offthreadVideoFrameSrc, fetchTexture]);
-
-	return imageTexture;
+	return videoEnabled ? imageTexture : null;
 };
 
 /*
