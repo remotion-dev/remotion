@@ -113,7 +113,7 @@ export function getChromeDownloadUrl({
 
 	if (chromeMode === 'headless-shell' && version === null) {
 		if (platform === 'mac-arm64') {
-			return `https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}.zip?clear`;
+			return `https://remotion.media/chromium-headless-shell-mac-arm64-${TESTED_VERSION}-v4.zip?clear`;
 		}
 
 		if (platform === 'win64') {
@@ -127,7 +127,7 @@ export function getChromeDownloadUrl({
 			}
 
 			if (canUseRemotionMediaBinaries()) {
-				return `https://remotion.media/chromium-headless-shell-linux-${architecture}-${TESTED_VERSION}.zip?clear`;
+				return `https://remotion.media/chromium-headless-shell-linux-${architecture}-${TESTED_VERSION}-v4.zip?clear`;
 			}
 		}
 	}
