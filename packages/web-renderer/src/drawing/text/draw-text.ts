@@ -107,7 +107,6 @@ export const drawText = ({
 		// Shadow offset/blur ignore the CTM (unlike fillText), so apply it manually.
 		const ctm = contextToDraw.getTransform();
 		const blurScale = Math.hypot(ctm.a, ctm.b);
-		const inverse = ctm.inverse();
 		const shadowOnlyOffset = 100000;
 
 		const {strokeFirst} = parsePaintOrder(paintOrder);
@@ -129,17 +128,21 @@ export const drawText = ({
 				const shadow = textShadows[i];
 				// WebKit can lose globalAlpha across consecutive shadow draws without restoring state.
 				contextToDraw.save();
+				contextToDraw.setTransform(
+					ctm.a,
+					ctm.b,
+					ctm.c,
+					ctm.d,
+					ctm.e - shadowOnlyOffset,
+					ctm.f,
+				);
 				contextToDraw.shadowColor = shadow.color;
 				contextToDraw.shadowBlur = shadow.blurRadius * blurScale;
 				contextToDraw.shadowOffsetX =
 					shadow.offsetX * ctm.a + shadow.offsetY * ctm.c + shadowOnlyOffset;
 				contextToDraw.shadowOffsetY =
 					shadow.offsetX * ctm.b + shadow.offsetY * ctm.d;
-				contextToDraw.fillText(
-					token.text,
-					x - shadowOnlyOffset * inverse.a,
-					y - shadowOnlyOffset * inverse.b,
-				);
+				contextToDraw.fillText(token.text, x, y);
 				contextToDraw.restore();
 			}
 
