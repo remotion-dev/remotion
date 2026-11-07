@@ -85,6 +85,7 @@ declare global {
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_fileSystemPlatform: string | null;
+		remotion_supportsNativeFilePicker: boolean;
 		remotion_studioServerCommand: string;
 		remotion_setFrame: (
 			frame: number,

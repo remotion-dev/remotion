@@ -49,6 +49,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"prettier": "catalog:",
 		"typescript": "catalog:",
 		"eslint": "catalog:"
 	},

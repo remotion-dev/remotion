@@ -296,6 +296,7 @@
         "@remotion/player": "workspace:*",
         "@remotion/renderer": "workspace:*",
         "@remotion/studio": "workspace:*",
+        "@remotion/studio-protocol": "workspace:*",
         "@remotion/studio-server": "workspace:*",
         "@remotion/studio-shared": "workspace:*",
         "dotenv": "17.3.1",
@@ -368,6 +369,7 @@
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "eslint": "catalog:",
+        "prettier": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1233,6 +1235,9 @@
     "packages/layout-utils": {
       "name": "@remotion/layout-utils",
       "version": "4.0.541",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@vitejs/plugin-react": "catalog:",

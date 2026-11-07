@@ -1,6 +1,8 @@
 import Head from '@docusaurus/Head';
 import {
+	ELEMENT_PAYLOAD_MIME_TYPE,
 	isInsideStudio,
+	serializeElementPayloadForHtml,
 	StudioProtocolInternals,
 	type InstallInStudioErrorCode,
 } from '@remotion/studio-protocol';
@@ -213,6 +215,19 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				<div>
 					{sourceCode ? (
 						<>
+							<script
+								// eslint-disable-next-line react/no-danger
+								dangerouslySetInnerHTML={{
+									__html: serializeElementPayloadForHtml(
+										createElementPayloadFromDefinition({
+											definition,
+											sourceCode,
+											installAssets: true,
+										}),
+									),
+								}}
+								type={ELEMENT_PAYLOAD_MIME_TYPE}
+							/>
 							<div className={styles.actionRow}>
 								<ElementStudioAction
 									buttonLabel={

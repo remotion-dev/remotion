@@ -3,7 +3,11 @@ import Negotiator from "negotiator";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { catalog } from "../../lib/element-payload";
-import { getCatalogMarkdown, getElementMarkdown } from "../../lib/markdown";
+import {
+  getCatalogMarkdown,
+  getElementMarkdown,
+  getElementPageUrl,
+} from "../../lib/markdown";
 import { StudioActions } from "../components/studio-actions";
 import type { Route } from "./+types/layout";
 
@@ -34,7 +38,15 @@ export const middleware: Route.MiddlewareFunction[] = [
           const entry = catalog.find(
             ({ definition }) => definition.slug === params.slug,
           );
-          markdown = entry ? getElementMarkdown(entry) : null;
+          markdown = entry
+            ? getElementMarkdown({
+                entry,
+                pageUrl: getElementPageUrl({
+                  slug: entry.definition.slug,
+                  requestUrl: request.url,
+                }),
+              })
+            : null;
           break;
         }
       }

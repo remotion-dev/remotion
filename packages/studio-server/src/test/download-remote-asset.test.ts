@@ -7,6 +7,7 @@ import {
 	downloadRemoteAssetHandler,
 	getRemoteAssetFilename,
 } from '../preview-server/routes/download-remote-asset';
+import {fakeHttps} from './fake-https';
 
 test('sanitizes remote asset filenames and uses detected extensions', () => {
 	expect(
@@ -33,35 +34,21 @@ test('sanitizes remote asset filenames and uses detected extensions', () => {
 
 test('follows validated redirects for remote assets', async () => {
 	const publicDir = mkdtempSync(path.join(tmpdir(), 'remotion-remote-asset-'));
-	const originalFetch = globalThis.fetch;
-	const requestedUrls: string[] = [];
 	const gif = new Uint8Array([
 		0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x20, 0x03, 0x58, 0x02,
 	]);
-
-	globalThis.fetch = Object.assign(
-		async (input: Parameters<typeof fetch>[0]) => {
-			requestedUrls.push(input.toString());
-
-			if (requestedUrls.length === 1) {
-				return new Response(null, {
-					headers: {
-						location: 'https://93.184.216.35/logo.gif',
-					},
-					status: 302,
-				});
-			}
-
-			return new Response(gif, {
-				headers: {
-					'content-length': String(gif.byteLength),
+	const remote = fakeHttps((url) =>
+		url === 'https://93.184.216.34/raw-link'
+			? {
+					statusCode: 302,
+					headers: {location: 'https://93.184.216.35/logo.gif'},
+					body: null,
+				}
+			: {
+					statusCode: 200,
+					headers: {'content-length': String(gif.byteLength)},
+					body: gif,
 				},
-				status: 200,
-			});
-		},
-		{
-			preconnect: originalFetch.preconnect,
-		},
 	);
 
 	try {
@@ -89,7 +76,7 @@ test('follows validated redirects for remote assets', async () => {
 			response: {} as ServerResponse,
 		});
 
-		expect(requestedUrls).toEqual([
+		expect(remote.requestedUrls).toEqual([
 			'https://93.184.216.34/raw-link',
 			'https://93.184.216.35/logo.gif',
 		]);
@@ -111,28 +98,18 @@ test('follows validated redirects for remote assets', async () => {
 			sizeInBytes: gif.byteLength,
 		});
 	} finally {
-		globalThis.fetch = originalFetch;
+		remote.restore();
 		rmSync(publicDir, {force: true, recursive: true});
 	}
 });
 
 test('blocks redirects to private IP addresses', async () => {
 	const publicDir = mkdtempSync(path.join(tmpdir(), 'remotion-remote-asset-'));
-	const originalFetch = globalThis.fetch;
-
-	globalThis.fetch = Object.assign(
-		async (_input: Parameters<typeof fetch>[0]) => {
-			return new Response(null, {
-				headers: {
-					location: 'http://127.0.0.1/logo.gif',
-				},
-				status: 302,
-			});
-		},
-		{
-			preconnect: originalFetch.preconnect,
-		},
-	);
+	const remote = fakeHttps(() => ({
+		statusCode: 302,
+		headers: {location: 'http://127.0.0.1/logo.gif'},
+		body: null,
+	}));
 
 	try {
 		await expect(
@@ -161,7 +138,7 @@ test('blocks redirects to private IP addresses', async () => {
 			}),
 		).rejects.toThrow('Private IP addresses cannot be imported');
 	} finally {
-		globalThis.fetch = originalFetch;
+		remote.restore();
 		rmSync(publicDir, {force: true, recursive: true});
 	}
 });

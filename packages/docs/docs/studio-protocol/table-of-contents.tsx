@@ -21,6 +21,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>installInStudio()</strong>
 				<div>Request installation into the active Studio</div>
 			</TOCItem>
+			<TOCItem link="/docs/studio-protocol/serialize-element-payload-for-html">
+				<strong>serializeElementPayloadForHtml()</strong>
+				<div>Embed an Element payload in page HTML</div>
+			</TOCItem>
 			<TOCItem link="/docs/studio-protocol/add-element-library-to-studio">
 				<strong>addElementLibraryToStudio()</strong>
 				<div>Add an Element Library to a Studio project</div>

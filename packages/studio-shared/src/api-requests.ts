@@ -347,6 +347,49 @@ export type AddCompositionRequest = CompositionEditRequest & {
 	options: NewCompositionOptions;
 };
 
+export type PrepareOpenTimelineImportRequest = {
+	contents: string;
+	mediaDirectory: string | null;
+	componentName: string;
+	fps: number;
+	width: number;
+	height: number;
+};
+
+export type PickOpenTimelineRequest = {
+	type: 'timeline' | 'media-directory';
+	initialDirectory: string | null;
+	position: {x: number; y: number} | null;
+};
+
+export type PickOpenTimelineResponse =
+	| {
+			type: 'timeline';
+			name: string;
+			contents: string;
+			mediaDirectory: string;
+	  }
+	| {type: 'media-directory'; mediaDirectory: string}
+	| null;
+
+export type PrepareOpenTimelineImportResponse = {
+	source: string | null;
+	metadata: {
+		fps: number;
+		width: number;
+		height: number;
+		durationInFrames: number;
+	} | null;
+	diagnostics: {
+		code: string;
+		severity: 'error' | 'warning' | 'info';
+		path: string;
+		message: string;
+	}[];
+	filesToCopy: number;
+	hasRelativeMedia: boolean;
+};
+
 export type DuplicateCompositionRequest = CompositionEditRequest & {
 	idToDuplicate: string;
 	newId: string;
@@ -1840,6 +1883,14 @@ export const studioOperations = {
 		AddCompositionRequest,
 		CompositionEditResponse
 	>({mutatesSource: true}),
+	'/api/prepare-open-timeline-import': new StudioOperation<
+		PrepareOpenTimelineImportRequest,
+		PrepareOpenTimelineImportResponse
+	>({mutatesSource: false}),
+	'/api/pick-open-timeline': new StudioOperation<
+		PickOpenTimelineRequest,
+		PickOpenTimelineResponse
+	>({mutatesSource: false}),
 	'/api/duplicate-composition': new StudioOperation<
 		DuplicateCompositionRequest,
 		CompositionEditResponse

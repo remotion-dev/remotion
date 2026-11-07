@@ -244,6 +244,11 @@ export type ModalState =
 			parentName: string | null;
 			stack: string | null;
 			canvasCapture: CanvasCaptureImport | null;
+			openTimeline: {
+				name: string;
+				contents: string;
+				mediaDirectory: string | null;
+			} | null;
 	  }
 	| {
 			type: 'new-folder';

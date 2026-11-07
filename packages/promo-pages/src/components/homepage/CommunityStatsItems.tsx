@@ -89,7 +89,7 @@ export const Since2021: React.FC = () => (
 
 export const GitHubStars: React.FC = () => (
 	<StatItem
-		value="69K"
+		value="71K"
 		label="stars"
 		icon={
 			<svg

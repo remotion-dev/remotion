@@ -19,6 +19,7 @@ type BasicCaptionsProps = InteractiveTransformProps &
 
 const defaultCombineTokensWithinMilliseconds = 3000;
 const defaultWidth = 900;
+const defaultFontSize = 64;
 const captionsVisibilityContext = createContext(true);
 export const BasicCaptionsVisibility = captionsVisibilityContext.Provider;
 const {fontFamily: firaCode} = loadFont('normal', {
@@ -43,6 +44,47 @@ const basicCaptionsSchema = {
 		default: defaultCombineTokensWithinMilliseconds,
 		description: 'Time between caption pages',
 		hiddenFromList: false,
+	},
+	'style.fontSize': {
+		type: 'number',
+		min: 1,
+		step: 1,
+		default: defaultFontSize,
+		description: 'Font size',
+		hiddenFromList: false,
+	},
+	'style.backgroundColor': {
+		type: 'color',
+		default: 'rgba(64, 64, 64, 0.75)',
+		description: 'Caption background',
+	},
+	'style.color': {
+		type: 'color',
+		default: '#ffffff',
+		description: 'Text color',
+	},
+	'style.fontFamily': {
+		type: 'font-family',
+		default: 'Arial, Helvetica, sans-serif',
+		description: 'Font family',
+	},
+	'style.fontWeight': {
+		type: 'font-weight',
+		default: 400,
+		description: 'Font weight',
+	},
+	'style.paddingInline': {
+		type: 'number',
+		min: 0,
+		step: 1,
+		default: undefined,
+		description: 'Horizontal padding',
+	},
+	'style.whiteSpace': {
+		type: 'enum',
+		default: 'pre-wrap',
+		variants: {'pre-wrap': {}, nowrap: {}},
+		description: 'Line wrapping',
 	},
 } as const satisfies InteractivitySchema;
 
@@ -72,6 +114,15 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 			currentTimeMs >= candidate.startMs &&
 			currentTimeMs < candidate.startMs + candidate.durationMs,
 	);
+	const {
+		backgroundColor,
+		color,
+		fontFamily,
+		fontWeight,
+		paddingInline,
+		whiteSpace,
+		...containerStyle
+	} = style ?? {};
 
 	return (
 		<div
@@ -80,22 +131,24 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 				display: 'flex',
 				justifyContent: 'center',
 				width,
-				...style,
+				...containerStyle,
 			}}
 		>
 			{page ? (
 				<div
 					style={{
-						backgroundColor: 'rgba(64, 64, 64, 0.75)',
-						color: '#ffffff',
-						fontFamily: 'Arial, Helvetica, sans-serif',
-						fontSize: 64,
-						fontWeight: 400,
+						backgroundColor: backgroundColor ?? 'rgba(64, 64, 64, 0.75)',
+						color: color ?? '#ffffff',
+						fontFamily: fontFamily ?? 'Arial, Helvetica, sans-serif',
+						fontSize: style?.fontSize ?? defaultFontSize,
+						fontWeight: fontWeight ?? 400,
 						lineHeight: 1.2,
-						padding: '14px 22px',
+						// 14px 22px at the default 64px size, scaled with the font size
+						padding: '0.21875em 0.34375em',
+						paddingInline,
 						textAlign: 'center',
 						textWrap: 'balance',
-						whiteSpace: 'pre-wrap',
+						whiteSpace: whiteSpace ?? 'pre-wrap',
 					}}
 				>
 					{React.Children.map(

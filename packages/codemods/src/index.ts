@@ -18,6 +18,7 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
@@ -198,6 +199,7 @@ export const CodemodsInternals = {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getJsxSourceLocation,
 	getKeyframeSourceLocationRemappings,
@@ -225,3 +227,19 @@ export {
 	type UpdateVisualControlsOptions,
 	type UpdateVisualControlsResult,
 } from './update-visual-controls';
+export {
+	generateOpenTimelineComposition,
+	type GenerateOpenTimelineCompositionOptions,
+	type GenerateOpenTimelineCompositionResult,
+	type OpenTimelineAnnotation,
+	type OpenTimelineAsset,
+	type OpenTimelineDiagnostic,
+	type OpenTimelineMediaResolver,
+	type OpenTimelineResolvedMedia,
+} from './open-timeline/generate';
+export {
+	addOpenTimelineComposition,
+	OpenTimelineImportError,
+	type AddOpenTimelineCompositionOptions,
+	type AddOpenTimelineCompositionResult,
+} from './add-open-timeline-composition';

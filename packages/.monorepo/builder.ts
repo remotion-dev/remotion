@@ -1,5 +1,5 @@
 import path from 'path';
-import {build} from 'bun';
+import {build, type BuildMetafile} from 'bun';
 import {Exports, validateExports} from './validate-exports';
 
 if (process.env.NODE_ENV !== 'production') {
@@ -99,6 +99,7 @@ export const buildPackage = async ({
 		'./package.json': './package.json',
 	};
 	const versions = {};
+	const metafiles: BuildMetafile[] = [];
 
 	const firstNames = entrypoints.map(({path, target}) => {
 		const splittedBySlash = path.split('/');
@@ -143,7 +144,11 @@ export const buildPackage = async ({
 					// Consumers rebundle these library chunks. Their bundler owns
 					// preloading; Bun's import.meta.url helper breaks HTTP imports in Rspack.
 					modulePreload: false,
+					metafile: action === 'build-shared',
 				});
+				if (output.metafile) {
+					metafiles.push(output.metafile);
+				}
 
 				for (const file of output.outputs) {
 					const text = await file.text();
@@ -218,4 +223,5 @@ export const buildPackage = async ({
 		) + '\n',
 	);
 	console.timeEnd(`Generated.`);
+	return metafiles;
 };

@@ -212,6 +212,7 @@ export const MenuSubItem: React.FC<{
 		<div
 			ref={ref}
 			aria-label={typeof label === 'string' ? label : undefined}
+			aria-disabled={disabled || undefined}
 			style={style}
 			onPointerUp={onPointerUp}
 			role="button"
