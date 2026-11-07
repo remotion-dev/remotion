@@ -748,6 +748,15 @@ export const articles = [
 		slug: 'options/chrome-mode',
 	},
 	{
+		id: 'options/chunks',
+		title: 'Chunks',
+		relativePath: 'docs/options/chunks.mdx',
+		compId: 'articles-docs-options-chunks',
+		crumb: 'Options',
+		noAi: false,
+		slug: 'options/chunks',
+	},
+	{
 		id: 'options/codec',
 		title: 'Codec',
 		relativePath: 'docs/options/codec.mdx',

@@ -67,6 +67,7 @@ class RenderParams
     protected $sampleRate = 48000;
     protected $gopSize = null;
     protected $disableSharedMemoryCapture = false;
+    protected $chunks = null;
 
     public function __construct(
         ?array  $data = null,
@@ -122,7 +123,8 @@ class RenderParams
         ?bool   $enableCancellation = false,
         bool    $disableSharedMemoryCapture = false,
         string|array|null $separateAudioTo = null,
-        string $preferredEffectBackend = 'auto'
+        string $preferredEffectBackend = 'auto',
+        ?array  $chunks = null
     )
     {
         if ($chromiumOptions === null) {
@@ -183,6 +185,7 @@ class RenderParams
         $this->gopSize = $gopSize;
         $this->enableCancellation = $enableCancellation;
         $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
+        $this->chunks = $chunks;
     }
 
     private array $inputProps = array();
@@ -214,6 +217,7 @@ class RenderParams
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
             'concurrency' => $this->getConcurrency(),
+            'chunks' => $this->getChunks(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -706,6 +710,11 @@ class RenderParams
         $this->concurrency = $concurrency;
     }
 
+    public function setChunks(?array $chunks)
+    {
+        $this->chunks = $chunks;
+    }
+
     public function setDownloadBehavior($downloadBehavior)
     {
         $this->downloadBehavior = $downloadBehavior;
@@ -760,6 +769,11 @@ class RenderParams
     public function getConcurrency()
     {
         return $this->concurrency;
+    }
+
+    public function getChunks()
+    {
+        return $this->chunks;
     }
 
     public function getDownloadBehavior()
