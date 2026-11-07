@@ -1,12 +1,12 @@
 import {expect, test} from 'bun:test';
-import {createWriteStream, unlinkSync} from 'node:fs';
+import {createWriteStream, readFileSync, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'path';
 import {
 	LambdaClientInternals,
 	ServerlessRoutines,
 } from '@remotion/lambda-client';
-import {RenderInternals, getVideoMetadata} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {makeProgressString} from '../../../cli/commands/render/progress';
 import {useFakeAws} from '../../mocks/fake-aws';
 import {getMockInvocationTypesForRender} from '../../mocks/mock-invocations';
@@ -34,9 +34,25 @@ test('Should directly render final media with one Lambda', async () => {
 		file.pipe(createWriteStream(tmpfile)).on('close', () => resolve());
 	});
 
-	// Make sure Faststart is supported
-	const {supportsSeeking} = await getVideoMetadata(tmpfile);
-	expect(supportsSeeking).toBe(true);
+	// Make sure Faststart is supported: the moov box must come before mdat
+	const buffer = readFileSync(tmpfile);
+	const topLevelBoxes: string[] = [];
+	for (let offset = 0; offset + 8 <= buffer.length; ) {
+		const size32 = buffer.readUInt32BE(offset);
+		const size =
+			size32 === 1 ? Number(buffer.readBigUInt64BE(offset + 8)) : size32;
+		topLevelBoxes.push(buffer.toString('latin1', offset + 4, offset + 8));
+		if (size === 0) {
+			break;
+		}
+
+		offset += size;
+	}
+
+	expect(topLevelBoxes.indexOf('moov')).toBeGreaterThan(-1);
+	expect(topLevelBoxes.indexOf('moov')).toBeLessThan(
+		topLevelBoxes.indexOf('mdat'),
+	);
 
 	const out = await RenderInternals.callFf({
 		bin: 'ffprobe',

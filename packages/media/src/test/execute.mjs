@@ -7,6 +7,12 @@ if (!((maj === 22 && min >= 12) || maj === 24 || maj >= 26)) {
 	process.exit(0);
 }
 
+// CI installs the Media test browser only on macOS (see .github/workflows/push.yml)
+if (process.env.CI && process.platform !== 'darwin') {
+	console.log('Media browser tests only run on macOS in CI, skipping');
+	process.exit(0);
+}
+
 execSync('bunx vitest src/test --browser --run', {
 	stdio: 'inherit',
 });

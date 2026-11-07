@@ -9,7 +9,10 @@ export const Word: React.FC<{
   text: string;
   stroke: boolean;
 }> = ({ enterProgress, text, stroke }) => {
-  const { fontFamily } = loadFont();
+  const { fontFamily } = loadFont("normal", {
+    weights: ["400"],
+    subsets: ["latin"],
+  });
   const { width } = useVideoConfig();
   const desiredFontSize = 120;
 

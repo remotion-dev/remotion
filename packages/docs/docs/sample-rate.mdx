@@ -33,6 +33,7 @@ const bundled = await bundle({entryPoint: './src/index.ts'});
 const composition = await selectComposition({
   serveUrl: bundled,
   id: 'MyComp',
+  inputProps: {},
 });
 
 await renderMedia({

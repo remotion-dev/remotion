@@ -15,6 +15,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 - From Remotion v2.6.7 until v3.0.7, the default for Remotion Lambda was `swiftshader`, but from v3.0.8 the default is `swangle` (Swiftshader on Angle) since Chrome 101 added support for it.
 - From Remotion v2.4.3 until v2.6.6, the default was `angle`, however it turns out to have a small memory leak that could crash long Remotion renders.
+- From Remotion v5.0, the default is `angle`. If no compatible GPU is available, Chromium automatically falls back to SwiftShader.
 
 </details>
 
@@ -27,7 +28,7 @@ Select the OpenGL renderer backend for Chromium. <br />Accepted values:
 - `"vulkan"` (_from Remotion v4.0.41_)
 - `"angle-egl"` (_from Remotion v4.0.51_)
 
-The default is `null`, letting Chrome decide, except on Lambda where the default is `"swangle"`
+The default is `"angle"`, with automatic fallback to SwiftShader if no compatible GPU is available, except on Lambda where the default is `"swangle"`
 
 ## CLI flag
 

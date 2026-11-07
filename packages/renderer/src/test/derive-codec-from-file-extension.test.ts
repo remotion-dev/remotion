@@ -1,4 +1,5 @@
 import {expect, test} from 'bun:test';
+import {NoReactInternals} from 'remotion/no-react';
 import {makeFileExtensionMap} from '../get-extension-from-codec';
 
 test('Derive codec from file extension', () => {
@@ -8,8 +9,9 @@ test('Derive codec from file extension', () => {
 		'3gp': ['aac'],
 		m4a: ['aac'],
 		m4b: ['aac'],
-		mpg: ['aac'],
-		mpeg: ['aac'],
+		...(NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+			? {}
+			: {mpg: ['aac'], mpeg: ['aac']}),
 		gif: ['gif'],
 		mp4: ['h264', 'h265', 'av1'],
 		hevc: ['h265'],

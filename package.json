@@ -62,7 +62,7 @@
 	},
 	"engines": {
 		"bun": ">=1.4.3",
-		"node": ">=16"
+		"node": ">=22"
 	},
 	"devDependencies": {
 		"@types/babel__standalone": "7.1.9",

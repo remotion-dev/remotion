@@ -21,7 +21,7 @@ export const fillTextBox = ({
 			fontSize,
 			letterSpacing,
 			fontVariantNumeric,
-			validateFontIsLoaded,
+			validateFontIsLoaded = true,
 			textTransform,
 			additionalStyles,
 		}: Word): {

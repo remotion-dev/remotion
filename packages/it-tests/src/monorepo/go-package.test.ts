@@ -67,7 +67,7 @@ test(
 				offthreadVideoThreads: null,
 				outName: null,
 				separateAudioTo: null,
-				overwrite: false,
+				overwrite: undefined,
 				pixelFormat: undefined,
 				privacy: 'public',
 				proResProfile: undefined,

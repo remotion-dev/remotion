@@ -293,6 +293,7 @@ const renderIssue10468Wav = async ({
 		puppeteerInstance,
 	});
 	await renderMedia({
+		licenseKey: null,
 		outputLocation,
 		codec: 'wav',
 		serveUrl: exampleBuild,
@@ -324,6 +325,7 @@ test(
 			});
 			const outPath = path.join(tmpDir, 'out.mp4');
 			await renderMedia({
+				licenseKey: null,
 				outputLocation: outPath,
 				codec: 'h264',
 				serveUrl: exampleBuild,
@@ -396,6 +398,7 @@ test(
 				puppeteerInstance,
 			});
 			await renderMedia({
+				licenseKey: null,
 				outputLocation,
 				codec: 'wav',
 				serveUrl: exampleBuild,
@@ -446,6 +449,7 @@ test(
 				puppeteerInstance,
 			});
 			await renderMedia({
+				licenseKey: null,
 				outputLocation,
 				codec: 'wav',
 				serveUrl: exampleBuild,
@@ -546,6 +550,7 @@ test(
 			const composition = {...selectedComposition, durationInFrames};
 			const singleAac = path.join(tmpDir, 'single.aac');
 			await renderMedia({
+				licenseKey: null,
 				outputLocation: singleAac,
 				codec: 'aac',
 				serveUrl: exampleBuild,
@@ -566,6 +571,7 @@ test(
 				const chunk = path.join(tmpDir, `chunk-${chunkStart}.aac`);
 				audioFiles.push(chunk);
 				await renderMedia({
+					licenseKey: null,
 					outputLocation: chunk,
 					codec: 'aac',
 					serveUrl: exampleBuild,
@@ -648,6 +654,7 @@ test(
 			});
 			const outPath = path.join(tmpDir, 'out.mp4');
 			await renderMedia({
+				licenseKey: null,
 				outputLocation: outPath,
 				codec: 'h264',
 				serveUrl: exampleBuild,
