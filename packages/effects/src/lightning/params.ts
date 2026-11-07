@@ -23,7 +23,7 @@ export type LightningParams = {
 	readonly lightningType?: LightningType;
 	/** Starting UV coordinate measured from the top-left. Defaults to [0.5, 0]. */
 	readonly origin?: UvCoordinate;
-	/** Destination or direction in UV coordinates. Defaults to [0.5, 0.9]. */
+	/** Destination or direction in UV coordinates. Defaults to [0.5, 1]. */
 	readonly direction?: UvCoordinate;
 	/** Each integer selects a repeatable bolt shape. Defaults to 10. */
 	readonly conductivityState?: number;
@@ -102,7 +102,7 @@ export const lightningSchema = {
 		...uvCoordinateField('Origin', [0.5, 0]),
 		visual: {type: 'line', to: 'direction'},
 	},
-	direction: uvCoordinateField('Direction', [0.5, 0.9]),
+	direction: uvCoordinateField('Direction', [0.5, 1]),
 	conductivityState: numberField('Conductivity state', 10, [0, 100000], 1),
 	coreRadius: numberField('Core radius', 3, [0, 100], 0.1),
 	coreOpacity: numberField('Core opacity', 0.75, [0, 1], 0.01),
