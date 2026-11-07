@@ -1,12 +1,12 @@
 ---
 image: https://remotion.media/docs/generated/articles-docs-editor-starter-persistance.png
-title: Persistance in the Editor Starter
-sidebar_label: Persistance
+title: Persistence in the Editor Starter
+sidebar_label: Persistence
 id: persistance
 crumb: Editor Starter
 ---
 
-There are 3 types of persistance in the Editor Starter:
+There are 3 types of persistence in the Editor Starter:
 
 - Saving the editor state
 - Caching the [assets](/docs/editor-starter/tracks-items-assets) (videos, images, audio, etc.) in IndexedDB
@@ -49,7 +49,7 @@ The save functionality is behind the feature flags [`FEATURE_SAVE_BUTTON`](https
 
 Disable the flag or delete the flag and all the code that is behind it to disable the save functionality.
 
-### Persistance key
+### Persistence key
 
 When using the default implementation of the `saveState()` and `loadState()` functions, the state is saved to the browser's local storage under a versioned key, e.g. `const key = 'remotion-editor-starter-state-v1'`.
 

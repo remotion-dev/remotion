@@ -64,7 +64,7 @@ Captioning will download Whisper.cpp and the 1.5GB big `medium.en` model. To con
 
 ### Non-English languages
 
-To support non-English languages, you need to change the `WHISPER_MODEL` variable in `whisper-config.mjs` to a model that does not have a `.en` sufix.
+To support non-English languages, you need to change the `WHISPER_MODEL` variable in `whisper-config.mjs` to a model that does not have a `.en` suffix.
 
 ## Docs
 
