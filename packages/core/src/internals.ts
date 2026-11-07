@@ -122,6 +122,7 @@ import {
 	setInputPropsOverride,
 } from './input-props-override.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
+import {getInteractiveEditorSlot} from './interactive-editor.js';
 import {
 	baseSchema,
 	durationInFramesField,
@@ -428,6 +429,7 @@ export const Internals = {
 	CommittedMetadataInternals,
 	SequenceOutlineInternals,
 	SequenceOutlineContext,
+	getInteractiveEditorSlot,
 	SequenceStackTracesUpdateContext,
 	baseSchema,
 	sequenceSchema,

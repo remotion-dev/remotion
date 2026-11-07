@@ -7,6 +7,7 @@ import type {
 import {CompositionManager} from './CompositionManagerContext.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
+import {useInteractiveEditor} from './interactive-editor.js';
 import {
 	backgroundSchema,
 	baseSchema,
@@ -732,6 +733,10 @@ export const Interactive = {
 	 * @see [Documentation](https://www.remotion.dev/docs/interactive-create)
 	 */
 	create,
+	/**
+	 * @description Experimental, may change or be removed in a patch release. Connects the nearest interactive element to Remotion Studio's selection and editing, for content that draws its own outline and gizmos (e.g. React Three Fiber). Outside the Studio, `selected` and `hovered` are always false and all functions do nothing.
+	 */
+	experimental_useEditor: useInteractiveEditor,
 	_internalMakeRemotionComponentIdentity: makeRemotionComponentIdentity,
 	A: makeInteractiveTextElement('a', '<Interactive.A>'),
 	Article: makeInteractiveTextElement('article', '<Interactive.Article>'),

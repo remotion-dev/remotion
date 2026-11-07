@@ -22,6 +22,11 @@ import {
 	getFlatSchemaWithAllKeys,
 } from './flatten-schema.js';
 import {
+	createInteractiveEditorSlot,
+	InteractiveEditorContext,
+	setInteractiveEditorSlot,
+} from './interactive-editor.js';
+import {
 	extendSchemaWithSequenceName,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
@@ -398,6 +403,8 @@ export const withInteractivitySchema = <
 		}, [currentRuntimeValueDotNotation, runtimeValueStore]);
 
 		// eslint-disable-next-line react-hooks/rules-of-hooks
+		const [editorSlot] = useState(createInteractiveEditorSlot);
+		// eslint-disable-next-line react-hooks/rules-of-hooks
 		const controls = useMemo((): SequenceControls => {
 			const controlsForRender = {
 				schema: schemaWithSequenceName,
@@ -410,9 +417,11 @@ export const withInteractivitySchema = <
 				componentName,
 			};
 			setStackForControls(controlsForRender, internalStack);
+			setInteractiveEditorSlot(controlsForRender, editorSlot);
 			return controlsForRender;
 		}, [
 			currentRuntimeValueDotNotation,
+			editorSlot,
 			internalStack,
 			overrideId,
 			runtimeValueStore.store,
@@ -466,14 +475,18 @@ export const withInteractivitySchema = <
 			return null;
 		}
 
-		return React.createElement(Component, {
-			...mergedProps,
-			controls,
-			ref,
-		} as Props & {
-			controls: SequenceControls | undefined;
-			ref: typeof ref;
-		});
+		return React.createElement(
+			InteractiveEditorContext.Provider,
+			{value: editorSlot},
+			React.createElement(Component, {
+				...mergedProps,
+				controls,
+				ref,
+			} as Props & {
+				controls: SequenceControls | undefined;
+				ref: typeof ref;
+			}),
+		);
 	});
 
 	Wrapped.displayName = `withInteractivitySchema(${Component.displayName || Component.name || 'Component'})`;
