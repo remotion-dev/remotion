@@ -22,6 +22,7 @@ import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
+import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
 import {threeDFlattening} from './fixtures/clipped';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
@@ -271,6 +272,7 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Folder name="clip-path">
 				<Composition {...clipPathPolygon} />
+				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />
 				<Composition {...clipPathCircle} />
 				<Composition {...clipPathInset} />
