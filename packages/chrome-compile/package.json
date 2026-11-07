@@ -9,7 +9,7 @@
 	},
 	"scripts": {
 		"download": "bun src/download.ts",
-		"lint": "eslint src && tsc --noEmit",
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit",
 		"formatting": "oxfmt src package.json tsconfig.json artifacts.json eslint.config.mjs README.md */README.md --check"
 	},
 	"devDependencies": {

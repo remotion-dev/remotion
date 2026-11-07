@@ -37,7 +37,7 @@ const metafiles = await buildPackage({
 	formats: {
 		// Keep visual controls and other singleton state shared across entry points.
 		esm: 'build-shared',
-		cjs: 'use-tsc',
+		cjs: 'use-compiler-output',
 	},
 	external,
 	entrypoints: entrypoints.map((entrypoint) => ({

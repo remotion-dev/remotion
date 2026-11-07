@@ -3,7 +3,7 @@ import {buildPackage} from '../.monorepo/builder';
 await buildPackage({
 	formats: {
 		esm: 'build',
-		cjs: 'use-tsc',
+		cjs: 'use-compiler-output',
 	},
 	external: 'dependencies',
 	entrypoints: [

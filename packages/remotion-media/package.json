@@ -13,7 +13,7 @@
 		"generate": "bun generate.ts",
 		"bundle": "bun run build.ts",
 		"clean": "bun clean.ts",
-		"lint": "eslint src && bun check",
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit",
 		"test": "bun test src/seo-build.test.ts",
 		"formatting": "prettier src --check"
 	},
