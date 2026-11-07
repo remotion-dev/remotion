@@ -176,6 +176,11 @@ const ThumbnailFn = <
 							ref={rootRef}
 							className={className}
 							errorFallback={errorFallback}
+							renderingOwner={
+								('component' in componentProps
+									? componentProps.component
+									: componentProps.lazyComponent) ?? null
+							}
 							inputProps={passedInputProps}
 							renderLoading={renderLoading}
 							style={style}

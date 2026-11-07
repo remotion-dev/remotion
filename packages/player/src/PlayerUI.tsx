@@ -75,6 +75,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		readonly doubleClickToFullscreen: boolean;
 		readonly spaceKeyToPlayOrPause: boolean;
 		readonly errorFallback: ErrorFallback;
+		readonly renderingOwner: object | null;
 		readonly playbackRate: number;
 		readonly renderLoading: RenderLoading | undefined;
 		readonly renderPoster: RenderPoster | undefined;
@@ -116,6 +117,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		doubleClickToFullscreen,
 		spaceKeyToPlayOrPause,
 		errorFallback,
+		renderingOwner,
 		playbackRate,
 		renderLoading,
 		renderPoster,
@@ -669,7 +671,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					className={playerCssClassname(overrideInternalClassName)}
 				>
 					{VideoComponent ? (
-						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
+						<ErrorBoundary
+							onError={onError}
+							errorFallback={errorFallback}
+							renderingOwner={renderingOwner}
+						>
 							<Internals.CurrentScaleContext.Provider value={currentScale}>
 								<CanvasOverlayContext.Provider value={null}>
 									<VideoComponent

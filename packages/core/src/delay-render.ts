@@ -22,6 +22,8 @@ export {
 } from './delay-render-constants.js';
 
 export type DelayRenderScope = {
+	/** Optional owner for cancellation from useDelayRender(). */
+	remotion_onCancelRender?: (error: Error) => void;
 	remotion_renderReady: boolean;
 	remotion_delayRenderTimeouts: {
 		[key: string]: {
