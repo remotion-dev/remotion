@@ -58,9 +58,34 @@ export const getStableEffectSource = (
 	);
 };
 
-const makeStableFramePool = () => {
-	const availableCanvases: OffscreenCanvas[] = [];
+// Shared by every iterator of the page. A new iterator starts at every seek,
+// mount and loop, and a pool per iterator left its canvases to garbage
+// collection, which WebKit does not run for canvas memory. Past the cap, a
+// released canvas is shrunk to 0x0, which frees its backing store at once.
+const MAX_AVAILABLE_CANVASES_PER_SIZE = 6;
+const availableCanvases = new Map<string, OffscreenCanvas[]>();
 
+const takeCanvas = (width: number, height: number) => {
+	return (
+		availableCanvases.get(`${width}x${height}`)?.pop() ??
+		new OffscreenCanvas(width, height)
+	);
+};
+
+const giveBackCanvas = (canvas: OffscreenCanvas) => {
+	const key = `${canvas.width}x${canvas.height}`;
+	const available = availableCanvases.get(key) ?? [];
+	if (available.length >= MAX_AVAILABLE_CANVASES_PER_SIZE) {
+		canvas.width = 0;
+		canvas.height = 0;
+		return;
+	}
+
+	available.push(canvas);
+	availableCanvases.set(key, available);
+};
+
+const makeStableFramePool = () => {
 	const makeStableFrame = (frame: VideoSample): WrappedCanvas => {
 		let sampleCanvas: OffscreenCanvas | null = null;
 		let sampleReleased = false;
@@ -73,13 +98,7 @@ const makeStableFramePool = () => {
 			// playback can draw the retained sample without allocating one.
 			get canvas() {
 				if (!sampleCanvas) {
-					sampleCanvas =
-						availableCanvases.pop() ??
-						new OffscreenCanvas(frame.displayWidth, frame.displayHeight);
-					if (sampleCanvas.width !== frame.displayWidth)
-						sampleCanvas.width = frame.displayWidth;
-					if (sampleCanvas.height !== frame.displayHeight)
-						sampleCanvas.height = frame.displayHeight;
+					sampleCanvas = takeCanvas(frame.displayWidth, frame.displayHeight);
 					const sampleContext = sampleCanvas.getContext('2d');
 					if (!sampleContext)
 						throw new Error('Could not create canvas context');
@@ -102,10 +121,7 @@ const makeStableFramePool = () => {
 			},
 			[effectSource]: ({width, height, allowDirectSource}) => {
 				if (width !== frame.displayWidth || height !== frame.displayHeight) {
-					effectCanvas ??=
-						availableCanvases.pop() ?? new OffscreenCanvas(width, height);
-					if (effectCanvas.width !== width) effectCanvas.width = width;
-					if (effectCanvas.height !== height) effectCanvas.height = height;
+					effectCanvas ??= takeCanvas(width, height);
 					const effectContext = effectCanvas.getContext('2d');
 					if (!effectContext)
 						throw new Error('Could not create canvas context');
@@ -144,8 +160,8 @@ const makeStableFramePool = () => {
 				)
 					retainedSource.close();
 				frame.close();
-				if (sampleCanvas) availableCanvases.push(sampleCanvas);
-				if (effectCanvas) availableCanvases.push(effectCanvas);
+				if (sampleCanvas) giveBackCanvas(sampleCanvas);
+				if (effectCanvas) giveBackCanvas(effectCanvas);
 			},
 		};
 		return sampleFrame;
