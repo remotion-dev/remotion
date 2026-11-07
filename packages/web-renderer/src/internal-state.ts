@@ -1,4 +1,4 @@
-import {makeMaskImageLoaderState} from './drawing/mask-image-loader';
+import {makeRasterImageLoaderState} from './drawing/raster-image-loader';
 
 type HelperCanvas = {
 	canvas: OffscreenCanvas;
@@ -37,7 +37,7 @@ export const makeInternalState = ({
 	const helperCanvasState: HelperCanvasState = {
 		current: null,
 	};
-	const maskImageLoaderState = makeMaskImageLoaderState({
+	const rasterImageLoaderState = makeRasterImageLoaderState({
 		signal,
 		timeoutInMilliseconds: maskImageTimeoutInMilliseconds,
 	});
@@ -56,13 +56,13 @@ export const makeInternalState = ({
 			precomposedTextures++;
 		},
 		helperCanvasState,
-		maskImageLoaderState,
+		rasterImageLoaderState,
 		[Symbol.dispose]: () => {
 			if (helperCanvasState.current) {
 				helperCanvasState.current.cleanup();
 			}
 
-			maskImageLoaderState[Symbol.dispose]();
+			rasterImageLoaderState[Symbol.dispose]();
 		},
 		getWaitForReadyTime: () => waitForReadyTime,
 		addWaitForReadyTime: (time: number) => {
