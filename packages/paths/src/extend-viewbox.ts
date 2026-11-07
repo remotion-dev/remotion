@@ -5,8 +5,7 @@
 export const extendViewBox = (currentViewBox: string, scale: number) => {
 	const relativeScale = scale - 1;
 	const splitted = currentViewBox
-		.split(' ')
-		.map((a) => a.trim())
+		.split(/[\s,]+/)
 		.filter((a) => a !== '')
 		.map(Number);
 
