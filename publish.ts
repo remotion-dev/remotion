@@ -106,7 +106,9 @@ for (const dir of dirs) {
 		dir,
 		name: packageJson.name,
 		hasLicense: packageJson.license?.includes('LICENSE.md') === true,
-		hasNativeTypescriptBuild: /\btsc\b/.test(packageJson.scripts?.make ?? ''),
+		hasNativeTypescriptBuild: /\b(?:tsc|tsrs)\b/.test(
+			packageJson.scripts?.make ?? '',
+		),
 		hasPrepublishOnly: typeof packageJson.scripts?.prepublishOnly === 'string',
 		packagePath,
 	});

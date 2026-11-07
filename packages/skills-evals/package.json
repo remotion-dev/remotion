@@ -12,7 +12,7 @@
 		"export": "bun src/cli.ts export",
 		"format": "oxfmt src scenarios.ts",
 		"formatting": "oxfmt src scenarios.ts --check",
-		"lint": "eslint src && bun check"
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit"
 	},
 	"dependencies": {
 		"@remotion/skills": "workspace:*",

@@ -76,7 +76,7 @@ import {
 	type PositionConverter,
 	type VirtualFile,
 } from './native-twoslash-notations';
-import {getTwoslashCompilerOptions} from './twoslash-cache';
+import {getTsrsPath, getTwoslashCompilerOptions} from './twoslash-cache';
 
 export type NativeTwoslashReturn = Pick<
 	TwoslashGenericResult,
@@ -667,6 +667,7 @@ export function createNativeTwoslasher({
 	rootDirectory: string;
 }): NativeTwoslasher {
 	const cwd = path.resolve(rootDirectory);
+	const tsserverPath = getTsrsPath(require.resolve);
 	const root = `${path.join(cwd, '.twoslash').replaceAll('\\', '/')}/`;
 	/** configs by compiler options in `tsconfig.json` form */
 	const configs = new Map<string, Config>();
@@ -698,7 +699,7 @@ export function createNativeTwoslasher({
 		const compilerOptions = JSON.stringify(notations.compilerOptions);
 		let config = configs.get(compilerOptions);
 		if (!config) {
-			api ??= new API({cwd});
+			api ??= new API({cwd, tsserverPath: tsserverPath ?? undefined});
 			// `files` keeps cwd from being globbed, its emptiness is reported as error 18002
 			const parsed = api.parseJsonConfigFileContent(
 				{compilerOptions: notations.compilerOptions, files: []},
