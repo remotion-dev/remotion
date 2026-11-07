@@ -115,7 +115,10 @@ export const ZodOrNullishEditor: React.FC<{
 					mayPad={false}
 				/>
 			)}
-			<label style={checkBoxWrapper}>
+			<label
+				style={checkBoxWrapper}
+				aria-label={`${jsonPath.join('.')} <${String(nullishValue)}>`}
+			>
 				<Checkbox
 					checked={isChecked}
 					onChange={onCheckBoxChange}

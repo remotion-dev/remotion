@@ -34,6 +34,7 @@ test('creates a Canvas Capture with both files in undo history', async () => {
 			newFps: 30,
 			newHeight: 720,
 			newWidth: 1280,
+			openTimeline: null,
 			canvasCapture: {
 				videoFileName: 'capture.mp4',
 				videoHeight: 1080,
@@ -901,6 +902,7 @@ test('installs an Element into a new composition as one undoable mutation', asyn
 				newFps: 30,
 				newDurationInFrames: 90,
 				canvasCapture: null,
+				openTimeline: null,
 			},
 			symbolicatedStack: null,
 		},

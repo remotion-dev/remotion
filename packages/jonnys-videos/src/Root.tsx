@@ -1,4 +1,10 @@
 import {Composition, Folder} from 'remotion';
+import {
+	AvatarBeforeAfter,
+	AvatarComparison,
+	MatchedAvatar,
+} from './avatar-match/Avatar';
+import {AvatarSwap} from './avatar-match/AvatarSwap';
 import {Composition4People} from './Composition4People';
 import {
 	AnimatedCaptions,
@@ -113,6 +119,41 @@ import {RemotionRoot as RollerSkisRoot} from './roller-skis/Root';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<Folder name="Avatar">
+				<Composition
+					id="AvatarSwap"
+					component={AvatarSwap}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={240}
+				/>
+				<Composition
+					id="AvatarMatched"
+					component={MatchedAvatar}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+					defaultProps={{style: {backgroundColor: 'white'}}}
+				/>
+				<Composition
+					id="AvatarComparison"
+					component={AvatarComparison}
+					width={2160}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="AvatarBeforeAfter"
+					component={AvatarBeforeAfter}
+					width={2160}
+					height={1080}
+					fps={30}
+					durationInFrames={150}
+				/>
+			</Folder>
 			<Folder name="DiscoLightShow">
 				<MyComposition />
 				<Folder name="AnimatingTheLights">

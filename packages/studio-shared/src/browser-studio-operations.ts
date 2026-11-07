@@ -160,6 +160,7 @@ export type BrowserStudioPackageInstallationOperations = {
 };
 
 export type BrowserStudioOperations = {
+	supportsOpenTimelineImport: boolean;
 	consumeInitialElement: () => {
 		element: InstallableElement;
 		sourceOrigin: string | null;

@@ -53,6 +53,7 @@ const effectEntrypoints = [
 	'src/levels.ts',
 	'src/long-shadows.ts',
 	'src/lut.ts',
+	'src/magnify.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/noise-displacement.ts',

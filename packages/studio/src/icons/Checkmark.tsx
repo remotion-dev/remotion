@@ -5,6 +5,7 @@ export const Checkmark: React.FC<{readonly size?: number}> = ({size = 14}) => (
 	<svg
 		focusable="false"
 		role="img"
+		aria-label="Selected"
 		viewBox="0 0 512 512"
 		style={{width: size, height: size}}
 	>

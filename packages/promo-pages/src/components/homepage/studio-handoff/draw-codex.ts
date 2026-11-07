@@ -134,6 +134,7 @@ export const drawCodex = (
 	roundedRect(ctx, 24, previewTop, 320, previewHeight + 2, 7, '#1f1f1f');
 	ctx.clip();
 	if (endcard) {
+		ctx.imageSmoothingQuality = 'high';
 		ctx.drawImage(endcard, 25, previewTop + 1, 318, previewHeight);
 	}
 

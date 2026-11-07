@@ -1,4 +1,5 @@
-import {extraPackages, type PackageInstallSpec} from '@remotion/studio-shared';
+import type {PackageInstallSpec} from './api-requests';
+import {extraPackages} from './package-info';
 
 export const TRANSFORMERS_PACKAGE = '@huggingface/transformers';
 
@@ -31,3 +32,25 @@ export const withRequiredAuxiliaryPackages = (
 		{name: transformers.name, version: transformers.version},
 	];
 };
+
+export const uniquePackageDependencies = (
+	dependencies: readonly PackageInstallSpec[],
+): PackageInstallSpec[] =>
+	Array.from(
+		new Map(
+			dependencies.map((dependency) => [dependency.name, dependency] as const),
+		).values(),
+	);
+
+export const getMissingPackageDependencies = ({
+	dependencies,
+	installedPackages,
+}: {
+	dependencies: readonly PackageInstallSpec[];
+	installedPackages: readonly string[];
+}) =>
+	uniquePackageDependencies(dependencies).filter(
+		(dependency) =>
+			dependency.version !== null ||
+			!installedPackages.includes(dependency.name),
+	);

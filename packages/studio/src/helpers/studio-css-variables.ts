@@ -45,6 +45,7 @@ export const studioCssVariables = `
   --remotion-studio-fail-color: #ff3232;
   --remotion-studio-warning-color: #f1c40f;
   --remotion-studio-blue: #0b84f3;
+  --remotion-studio-primary-button-background: var(--remotion-studio-blue);
   --remotion-studio-interactive-text: var(--remotion-studio-blue);
   --remotion-studio-blue-hovered: #4da3f7;
   --remotion-studio-blue-disabled: #284f73;
@@ -112,6 +113,7 @@ html[data-remotion-high-contrast] {
   --remotion-studio-computed-value-color: var(--remotion-studio-light-text);
   --remotion-studio-explorer-shortcut-opacity: 1;
   --remotion-studio-interactive-text: var(--remotion-studio-info-blue);
+  --remotion-studio-primary-button-background: #0976da;
   --remotion-studio-ruler-color: #ccc;
   --remotion-studio-line-color: #85898d;
   --remotion-studio-splitter-color: var(--remotion-studio-line-color);

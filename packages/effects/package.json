@@ -264,6 +264,11 @@
 			"module": "./dist/esm/dot-grid.mjs",
 			"import": "./dist/esm/dot-grid.mjs"
 		},
+		"./magnify": {
+			"types": "./dist/magnify.d.ts",
+			"module": "./dist/esm/magnify.mjs",
+			"import": "./dist/esm/magnify.mjs"
+		},
 		"./mirror": {
 			"types": "./dist/mirror.d.ts",
 			"module": "./dist/esm/mirror.mjs",
@@ -615,6 +620,9 @@
 			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"
+			],
+			"magnify": [
+				"dist/magnify.d.ts"
 			],
 			"mirror": [
 				"dist/mirror.d.ts"

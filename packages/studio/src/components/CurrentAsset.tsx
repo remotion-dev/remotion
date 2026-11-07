@@ -306,6 +306,7 @@ export const AssetInfo: React.FC<{
 	const {createComposition: makeComposition} = useCreateComposition({
 		asset: assetForComposition,
 		canvasCapture: null,
+		openTimeline: null,
 		compositions,
 		durationInFrames:
 			assetForComposition?.durationInFrames ??

@@ -78,6 +78,7 @@ export const ZodTextareaEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<RemTextarea
+					aria-label={jsonPath.join('.')}
 					indentWithTab={false}
 					onChange={onChange}
 					onFocus={onFocus}

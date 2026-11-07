@@ -1,6 +1,6 @@
 # @remotion/eslint-config-internal
 
-ESLint condig for Remotion's internal packages
+ESLint config for Remotion's internal packages
 
 ## Usage
 

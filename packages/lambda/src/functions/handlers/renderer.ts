@@ -239,6 +239,8 @@ const renderHandler = async ({
 		params.frameRange,
 		params.everyNthFrame,
 	);
+	let lastReportedRenderedFrames = -1;
+	let lastReportedEncodedFrames = -1;
 
 	const onArtifact: OnArtifact = (artifact) => {
 		RenderInternals.Log.info(
@@ -306,7 +308,13 @@ const renderHandler = async ({
 						allFramesEncoded) &&
 					allFramesRendered;
 
-				if (frameReportPoint || encodedFramesReportPoint) {
+				if (
+					(frameReportPoint || encodedFramesReportPoint) &&
+					(renderedFrames !== lastReportedRenderedFrames ||
+						encodedFrames !== lastReportedEncodedFrames)
+				) {
+					lastReportedRenderedFrames = renderedFrames;
+					lastReportedEncodedFrames = encodedFrames;
 					onStream({
 						type: 'frames-rendered',
 						payload: {rendered: renderedFrames, encoded: encodedFrames},
