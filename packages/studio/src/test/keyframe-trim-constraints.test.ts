@@ -56,6 +56,7 @@ const makeSequence = ({
 	premountDisplay: null,
 	postmountDisplay: null,
 	refForOutline: null,
+	customOutlineRef: null,
 	effects: [],
 	effectRuntimeValues: null,
 	isInsideSeries: false,

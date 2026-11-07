@@ -18,6 +18,7 @@ import {
 } from './component-identity.js';
 import type {
 	AnimatedImageInTimeline,
+	CustomSequenceOutline,
 	LoopDisplay,
 	SequenceControls,
 	SequenceRegistrationControls,
@@ -176,6 +177,8 @@ export type SequencePropsWithoutDuration = {
 	 * @deprecated This prop has no effect. Remotion Studio discovers selection outlines automatically.
 	 */
 	readonly outlineRef?: React.RefObject<Element | null> | null;
+	/** @deprecated For internal use only. */
+	readonly _remotionInternalCustomOutlineRef?: React.RefObject<CustomSequenceOutline | null> | null;
 } & LayoutAndStyle;
 
 export type SequenceProps = {
@@ -255,6 +258,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		_remotionInternalPremountDisplay: premountDisplay,
 		_remotionInternalPostmountDisplay: postmountDisplay,
 		_remotionInternalIsMedia: isMedia,
+		_remotionInternalCustomOutlineRef: customOutlineRef,
 		cropLeft,
 		cropRight,
 		cropTop,
@@ -710,6 +714,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 					getStack,
 					getCurrentFrame,
 					refForOutline: refForOutline ?? null,
+					customOutlineRef: customOutlineRef ?? null,
 					isInsideSeries,
 					frozenFrame: registeredFrozenFrame,
 					singleChildComponent: singleChildComponent ?? null,
@@ -744,6 +749,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 				mediaFrameAtSequenceZero,
 				muted: isMedia.data.muted,
 				refForOutline: refForOutline ?? null,
+				customOutlineRef: customOutlineRef ?? null,
 				isInsideSeries,
 				frozenFrame: registeredFrozenFrame,
 				frozenMediaFrame,
@@ -777,6 +783,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 			effects: _remotionInternalEffects ?? EMPTY_EFFECTS,
 			effectRuntimeValues,
 			refForOutline: refForOutline ?? null,
+			customOutlineRef: customOutlineRef ?? null,
 			isInsideSeries,
 			frozenFrame: registeredFrozenFrame,
 			singleChildComponent: singleChildComponent ?? null,
@@ -809,6 +816,7 @@ const RegularSequenceContentRefForwardingFunction: React.ForwardRefRenderFunctio
 		isMedia,
 		resolvedDocumentationLink,
 		refForOutline,
+		customOutlineRef,
 		isInsideSeries,
 		registeredFrozenFrame,
 		startMediaFrom,

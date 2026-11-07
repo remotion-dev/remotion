@@ -67,6 +67,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	readonly compositionWidth: number;
 	readonly containsSelection: boolean;
 	readonly directlySelected: boolean;
+	readonly disableDirectDrag: boolean;
 	readonly dragging: boolean;
 	readonly getAllDragOutlines: () => readonly SelectedOutline[];
 	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
@@ -97,6 +98,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 	compositionWidth,
 	containsSelection,
 	directlySelected,
+	disableDirectDrag,
 	dragging,
 	getAllDragOutlines,
 	getAllDragTargets,
@@ -197,7 +199,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			}
 
 			const drag =
-				target.translation.type === 'editable'
+				!disableDirectDrag && target.translation.type === 'editable'
 					? target.translation.target
 					: null;
 			const {
@@ -371,6 +373,7 @@ const SelectedOutlinePolygonUnmemoized: React.FC<{
 			compositionHeight,
 			compositionWidth,
 			containsSelection,
+			disableDirectDrag,
 			dragAwareDoubleClick,
 			editorShowGuides,
 			editorSnapping,
