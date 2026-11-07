@@ -1,4 +1,6 @@
 import {NoReactInternals} from 'remotion/no-react';
+import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
+import {transformDOMRect} from './transform-rect-with-matrix';
 
 const isValidColor = (color: string): boolean => {
 	try {
@@ -197,7 +199,10 @@ const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
 		return null;
 	}
 
-	// Distribute positions evenly for stops that don't have explicit positions
+	// Anchor omitted endpoint stops before distributing interior runs.
+	if (stops[0].position === -1) stops[0].position = 0;
+	if (stops[stops.length - 1].position === -1)
+		stops[stops.length - 1].position = 1;
 	let lastExplicitIndex = -1;
 	let lastExplicitPosition = 0;
 
@@ -391,4 +396,117 @@ export const createCanvasGradient = ({
 	}
 
 	return gradient;
+};
+
+// Bounded support shared by backgrounds and alpha masks: centered default
+// farthest-corner gradients and explicitly sized percentage ellipses.
+export const parseRadialGradient = (value: string) => {
+	const match = /^radial-gradient\((.*)\)$/.exec(value);
+	if (!match) return null;
+	const parts = match[1].split(/,(?![^(]*\))/);
+	const first = parts[0].trim();
+	const hasShape = parseLinearGradient(`linear-gradient(${first})`) === null;
+	const percentages =
+		/^(?:ellipse\s+)?([\d.]+)%\s+([\d.]+)%(?:\s+at\s+(?:center|50% 50%))?$/.exec(
+			first,
+		);
+	if (
+		hasShape &&
+		!percentages &&
+		!/^(?:(?:ellipse|circle)(?: farthest-corner)?|farthest-corner)?(?:\s*at (?:center|50% 50%))?$/.test(
+			first,
+		)
+	)
+		return null;
+	const stops = parseLinearGradient(
+		`linear-gradient(${parts.slice(hasShape ? 1 : 0).join(',')})`,
+	);
+	if (!stops) return null;
+	return {
+		colorStops: stops.colorStops,
+		circle: hasShape && first.startsWith('circle'),
+		radiusX: percentages ? Number(percentages[1]) / 100 : Math.SQRT1_2,
+		radiusY: percentages ? Number(percentages[2]) / 100 : Math.SQRT1_2,
+	};
+};
+
+export type RadialGradientInfo = NonNullable<
+	ReturnType<typeof parseRadialGradient>
+>;
+export const createRadialGradientFill = ({
+	gradientInfo,
+	contextToDraw,
+	rect,
+	offsetLeft,
+	offsetTop,
+}: {
+	gradientInfo: RadialGradientInfo;
+	contextToDraw: OffscreenCanvasRenderingContext2D;
+	rect: DOMRect;
+	offsetLeft: number;
+	offsetTop: number;
+}) => {
+	const radiusX = gradientInfo.circle
+		? Math.hypot(rect.width / 2, rect.height / 2)
+		: rect.width * gradientInfo.radiusX;
+	const radiusY = gradientInfo.circle
+		? radiusX
+		: rect.height * gradientInfo.radiusY;
+	if (!(radiusX > 0 && radiusY > 0)) return null;
+	const targetTransform = contextToDraw.getTransform();
+	const canvasViewport = transformDOMRect({
+		rect: new DOMRect(
+			0,
+			0,
+			contextToDraw.canvas.width,
+			contextToDraw.canvas.height,
+		),
+		matrix: targetTransform.inverse(),
+	});
+	const positionedRect = new DOMRect(
+		rect.left - offsetLeft,
+		rect.top - offsetTop,
+		rect.width,
+		rect.height,
+	);
+	const crop = getNarrowerRect({
+		firstRect: positionedRect,
+		secondRect: canvasViewport,
+	});
+	if (!(crop.width > 0 && crop.height > 0)) return null;
+	const densityX = Math.hypot(targetTransform.a, targetTransform.b) || 1;
+	const densityY = Math.hypot(targetTransform.c, targetTransform.d) || 1;
+	const width = Math.max(
+		1,
+		Math.min(contextToDraw.canvas.width, Math.ceil(crop.width * densityX)),
+	);
+	const height = Math.max(
+		1,
+		Math.min(contextToDraw.canvas.height, Math.ceil(crop.height * densityY)),
+	);
+	const canvas = new OffscreenCanvas(width, height);
+	const ctx = canvas.getContext('2d');
+	if (!ctx) throw new Error('Could not get radial gradient context');
+	ctx.scale(width / crop.width, height / crop.height);
+	const centerX = positionedRect.left + rect.width / 2;
+	const centerY = positionedRect.top + rect.height / 2;
+	ctx.translate(centerX - crop.left, centerY - crop.top);
+	ctx.scale(radiusX, radiusY);
+	const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+	for (const stop of gradientInfo.colorStops)
+		gradient.addColorStop(stop.position, stop.color);
+	ctx.fillStyle = gradient;
+	ctx.fillRect(
+		(crop.left - centerX) / radiusX,
+		(crop.top - centerY) / radiusY,
+		crop.width / radiusX,
+		crop.height / radiusY,
+	);
+	const pattern = contextToDraw.createPattern(canvas, 'no-repeat');
+	pattern?.setTransform(
+		new DOMMatrix()
+			.translate(crop.left, crop.top)
+			.scale(crop.width / width, crop.height / height),
+	);
+	return pattern;
 };

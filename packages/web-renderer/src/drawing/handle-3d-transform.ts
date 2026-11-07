@@ -1,35 +1,29 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
-import {getNarrowerRect} from './clamp-rect-to-parent-bounds';
-import {getPreTransformRect} from './get-pretransform-rect';
+import {clipSourceRectToViewport, isScaleTooBig} from './get-pretransform-rect';
 import {transformIn3d} from './transform-in-3d';
 
 export const getPrecomposeRectFor3DTransform = ({
 	element,
 	parentRect,
 	matrix,
+	onlyOwnPlane = false,
 }: {
 	element: HTMLElement | SVGElement;
 	parentRect: DOMRect;
 	matrix: DOMMatrix;
+	onlyOwnPlane?: boolean;
 }) => {
-	const unclampedBiggestBoundingClientRect =
-		getBiggestBoundingClientRect(element);
-
-	const biggestPossiblePretransformRect = getPreTransformRect(
-		parentRect,
-		matrix,
+	const unclampedBiggestBoundingClientRect = getBiggestBoundingClientRect(
+		element,
+		onlyOwnPlane,
 	);
-	if (!biggestPossiblePretransformRect) {
-		return null;
-	}
-
-	const preTransformRect = getNarrowerRect({
-		firstRect: unclampedBiggestBoundingClientRect,
-		secondRect: biggestPossiblePretransformRect,
-	});
-
-	return preTransformRect;
+	if (isScaleTooBig(matrix)) return null;
+	return clipSourceRectToViewport(
+		unclampedBiggestBoundingClientRect,
+		matrix,
+		parentRect,
+	);
 };
 
 export const handle3dTransform = ({

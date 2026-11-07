@@ -4,7 +4,7 @@ import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect'
  * Parses drop-shadow values from a CSS filter string to calculate
  * how much the precompose rect needs to be expanded.
  */
-const parseDropShadowExpansion = (
+export const parseDropShadowExpansion = (
 	filter: string,
 ): {left: number; right: number; top: number; bottom: number} => {
 	const expansion = {left: 0, right: 0, top: 0, bottom: 0};
