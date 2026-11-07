@@ -17,6 +17,10 @@ import {borderRadiusPercentage} from './fixtures/border-radius-percentage';
 import {borderRadiusPill} from './fixtures/border-radius-pill';
 import {borderRadiusSimple} from './fixtures/border-radius-simple';
 import {boxShadow} from './fixtures/box-shadow';
+import {
+	boxShadowSpreadInset,
+	boxShadowSpreadInsetAlpha,
+} from './fixtures/box-shadow-spread-inset';
 import {clipPathCircle} from './fixtures/clip-path-circle';
 import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
@@ -198,6 +202,8 @@ export const Root: React.FC = () => {
 			<Composition {...outline} />
 			<Composition {...inlineScaleAfterOutline} />
 			<Composition {...boxShadow} />
+			<Composition {...boxShadowSpreadInset} />
+			<Composition {...boxShadowSpreadInsetAlpha} />
 			<Folder name="Filter">
 				<Composition {...filter} />
 				<Composition {...filterImage} />

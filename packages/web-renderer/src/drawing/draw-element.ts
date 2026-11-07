@@ -73,7 +73,7 @@ export const drawElement = async ({
 		computedStyle,
 		rect,
 		borderRadius,
-		logLevel,
+		inset: false,
 	});
 	const finishBorderRadius = setBorderRadius({
 		ctx: context,
@@ -97,6 +97,14 @@ export const drawElement = async ({
 		offsetLeft: parentRect.left,
 		offsetTop: parentRect.top,
 		scale,
+	});
+
+	drawBorderRadius({
+		ctx: context,
+		computedStyle,
+		rect,
+		borderRadius,
+		inset: true,
 	});
 
 	await draw({dimensions: rect, computedStyle, contextToDraw: context});
