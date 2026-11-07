@@ -22,7 +22,11 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
-	if (item.id === 'effects-evolve' || item.id === 'effects-rain-fall') {
+	if (
+		item.id === 'effects-evolve' ||
+		item.id === 'effects-rain-fall' ||
+		item.id === 'effects-lightning'
+	) {
 		return `https://remotion.media/docs/effects/${item.id}-preview-v2.png`;
 	}
 
@@ -950,7 +954,10 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'lightning',
 			importPath: '@remotion/effects/lightning',
-			config: {},
+			config: {
+				origin: [0.5, 0],
+				direction: [0.5, 0.9],
+			},
 		},
 	},
 	{
