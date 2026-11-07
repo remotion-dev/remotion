@@ -2,7 +2,8 @@ import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import type {DragEventHandler} from 'react';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import type {CanvasContent} from 'remotion';
-import {remotion_outputsBase} from '../../helpers/get-asset-metadata';
+import {getRenderOutputSrc} from '../../helpers/get-asset-metadata';
+import {getRenderJobOutputPath} from '../../helpers/output-path';
 import type {AnyRenderJob} from './context';
 import {isClientRenderJob} from './context';
 
@@ -41,16 +42,12 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 	} | null>(null);
 
 	const clientBlobInfo = useMemo(() => {
-		if (
-			!isClientRenderJob(job) ||
-			job.status !== 'done' ||
-			job.getBlob === undefined
-		) {
+		if (!isClientRenderJob(job) || job.status !== 'done' || !job.localOutput) {
 			return null;
 		}
 
 		return {
-			getBlob: job.getBlob,
+			getBlob: job.localOutput.getBlob,
 			sizeInBytes: job.metadata.sizeInBytes,
 		};
 	}, [job]);
@@ -124,12 +121,10 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 
 			try {
 				const filename = getFilename(job.outName);
+				const outputPath = getRenderJobOutputPath(job);
 				const source = clientFile
 					? clientFile.objectUrl
-					: new URL(
-							`${remotion_outputsBase}/${job.outName}`,
-							window.location.href,
-						).href;
+					: new URL(getRenderOutputSrc(outputPath), window.location.href).href;
 				const mimeType = clientFile?.file.type || 'application/octet-stream';
 
 				event.dataTransfer.clearData();
@@ -143,7 +138,7 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 				} else {
 					const dragData = StudioProtocolInternals.makeDragData({
 						type: 'render-output',
-						outputPath: job.outName,
+						outputPath,
 						fileName: filename,
 					});
 					event.dataTransfer.setData(dragData.mimeType, dragData.payload);
@@ -154,13 +149,13 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 					'DownloadURL',
 					`${mimeType}:${filename}:${source}`,
 				);
-				if (isClientRenderJob(job) && job.getBlob) {
+				if (isClientRenderJob(job) && job.localOutput) {
 					draggedOutput = {
 						jobId: job.id,
 						content: {
 							type: 'output-blob',
 							displayName: job.outName,
-							getBlob: job.getBlob,
+							getBlob: job.localOutput.getBlob,
 							width: job.metadata.width,
 							height: job.metadata.height,
 							sizeInBytes: job.metadata.sizeInBytes,
@@ -169,7 +164,7 @@ export const useRenderOutputFileDrag = (job: AnyRenderJob) => {
 				} else {
 					draggedOutput = {
 						jobId: job.id,
-						content: {type: 'output', path: `/${job.outName}`},
+						content: {type: 'output', path: outputPath},
 					};
 				}
 

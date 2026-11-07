@@ -301,3 +301,7 @@ This component previews a composition in a web app. To export it, pass the compo
     },
   ]}
 />
+
+### `preferredEffectBackend?`<AvailableFrom v="4.0.540" />
+
+Prefer a backend for [effects](/docs/effects): `"auto"`, `"webgpu"`, `"webgl2"`, or `"2d"`. Default: `"auto"`, which tries WebGPU, WebGL2, then 2D. The preference is scoped to this component. If an implementation or backend is unavailable, another implementation is used. See [effect backend selection](/docs/options/preferred-effect-backend).

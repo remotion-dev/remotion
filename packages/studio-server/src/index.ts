@@ -44,12 +44,15 @@ import {
 	getInstalledDependencies,
 	getInstalledDependenciesWithVersions,
 } from './helpers/get-installed-dependencies';
+import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	getLocalPackageOverride,
 	localPackageRootKey,
 } from './helpers/get-local-package-override';
+import {httpGet} from './helpers/http-get';
 import {getInstallCommand} from './helpers/install-command';
 import {getPackageManagerSpawnOptions} from './helpers/package-manager-spawn-options';
+import {installElement} from './install-element';
 import {
 	getConfiguredMaxTimelineTracks,
 	getMaxTimelineTracks,
@@ -61,7 +64,10 @@ import {
 	lockFilePaths,
 } from './preview-server/get-package-manager';
 import {waitForLiveEventsListener} from './preview-server/live-events';
+import {replaceWithPrerenderedVideo} from './preview-server/prerendered-scene';
+import {getElementInstallPlan} from './preview-server/routes/element-install-plan';
 import {getEditorName} from './preview-server/routes/open-in-editor';
+import {subscribeToSequenceNodePathMutations} from './preview-server/sequence-node-path-mutation';
 import {getRemotionVersion} from './preview-server/update-available';
 import {remotionSkillNames} from './remotion-skill-names';
 import {startStudio} from './start-studio';
@@ -70,6 +76,7 @@ export type {
 	RemotionSkillsScope,
 	RemotionSkillsStatus,
 } from './detect-outdated-remotion-skills';
+export type {InstallElementOptions} from './install-element';
 export type {RemotionSkillName} from './remotion-skill-names';
 export {
 	detectOutdatedRemotionSkills,
@@ -107,4 +114,10 @@ export const StudioServerInternals = {
 	parseRemotionSkillVersion,
 	remotionSkillNames,
 	getEditorName,
+	replaceWithPrerenderedVideo,
+	subscribeToSequenceNodePathMutations,
+	installElement,
+	getElementInstallPlan,
+	getInstalledInstallablePackages,
+	httpGet,
 };

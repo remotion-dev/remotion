@@ -7,7 +7,8 @@ import {
 } from '@remotion/lambda-client';
 import {parsedLambdaCli} from '../../cli/args';
 import {renderCommand} from '../../cli/commands/render/render';
-import {fakeAws, useFakeAws, type FakeAwsDefaults} from '../mocks/fake-aws';
+import {mockStartedRenderStream} from '../mocks/aws-clients';
+import {fakeAws, useFakeAws} from '../mocks/fake-aws';
 import {doAfter, doBefore, getProcessWriteOutput} from './console-hooks';
 
 useFakeAws();
@@ -36,27 +37,21 @@ afterEach(() => {
 	doAfter();
 });
 
-test('Only shows the main CloudWatch logs for a direct single-function render', async () => {
-	let resolveStatusRequested: () => void = () => undefined;
-	const statusRequested = new Promise<void>((resolve) => {
-		resolveStatusRequested = resolve;
+test('Uses an explicit function without discovery and only shows its main CloudWatch logs', async () => {
+	fakeAws().getFunctions.mockClear();
+	fakeAws().getFunctions.mockRejectedValue(
+		new Error('AccessDenied: lambda:ListFunctions'),
+	);
+
+	let resolveProgressRequested: () => void = () => undefined;
+	let rejectProgressRequested: (error: unknown) => void = () => undefined;
+	const progressRequested = new Promise<void>((resolve, reject) => {
+		resolveProgressRequested = resolve;
+		rejectProgressRequested = reject;
 	});
-	const pendingStatus = new Promise<never>(() => undefined);
-
-	fakeAws().callFunctionSync.mockImplementation(((input) => {
-		if (input.type === 'start') {
-			return Promise.resolve({bucketName: 'bucket', renderId: 'render-id'});
-		}
-
-		if (input.type === 'status') {
-			resolveStatusRequested();
-			return pendingStatus;
-		}
-
-		return Promise.reject(
-			new Error(`Unexpected Lambda routine: ${input.type}`),
-		);
-	}) as FakeAwsDefaults['callFunctionSync']);
+	fakeAws().invokeWithResponseStream.mockImplementation(
+		mockStartedRenderStream(resolveProgressRequested),
+	);
 
 	let resolveExit: (exitCode: number) => void = () => undefined;
 	const exitCode = new Promise<number>((resolve) => {
@@ -72,10 +67,20 @@ test('Only shows the main CloudWatch logs for a direct single-function render', 
 		args: ['https://example.com', 'composition-id'],
 		remotionRoot: process.cwd(),
 		logLevel: 'verbose',
-	}).catch(() => undefined);
+	}).catch(rejectProgressRequested);
 
 	try {
-		await statusRequested;
+		await progressRequested;
+		expect(fakeAws().getFunctions).not.toHaveBeenCalled();
+		expect(fakeAws().invokeWithResponseStream).toHaveBeenCalledWith(
+			expect.objectContaining({
+				functionName: 'custom-function',
+				payload: expect.objectContaining({
+					type: ServerlessRoutines.start,
+					streamProgress: true,
+				}),
+			}),
+		);
 		const output = getProcessWriteOutput();
 		const mainLogs = LambdaClientInternals.getCloudwatchMethodUrl({
 			region: 'us-east-1',

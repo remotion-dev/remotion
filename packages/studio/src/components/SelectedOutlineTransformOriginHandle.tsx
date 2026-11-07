@@ -2,8 +2,10 @@ import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {BLUE, SELECTED_OUTLINE_DROP_SHADOW} from '../helpers/colors';
-import {startCapturedPointerSession} from '../helpers/pointer-session';
+import {startEscapeCancelableCapturedPointerSession} from '../helpers/escape-cancelable-pointer-session';
+import {isPointerSessionRelease} from '../helpers/pointer-session';
 import {EditorSnappingContext} from '../state/editor-snapping';
+import {createCanvasDragPreview} from './canvas-drag-preview';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
@@ -30,7 +32,7 @@ import {
 	getUvHandlePosition,
 } from './selected-outline-uv';
 import {resolveKeyframeSourceFrame} from './Timeline/get-timeline-keyframes';
-import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {saveSequencePropsWithResult} from './Timeline/save-sequence-prop';
 import {parseCssRotation} from './Timeline/timeline-rotation-utils';
 import {
 	parseTranslate,
@@ -50,8 +52,11 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 	readonly outline: SelectedOutline;
 	readonly onDraggingChange: (dragging: boolean) => void;
 }> = ({getLatestTargetByKey, layoutTarget, outline, onDraggingChange}) => {
-	const {setDragOverrides, clearDragOverrides, setPropStatuses} = useContext(
+	const {updateDragOverrides, setPropStatuses} = useContext(
 		Internals.VisualModeSettersContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
 	);
 	const {editorSnapping} = useContext(EditorSnappingContext);
 	const target =
@@ -139,6 +144,15 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 			);
 			const startTranslate = parseTranslate(transformOriginDrag.translateValue);
 			const svgRect = svg.getBoundingClientRect();
+			const preview = createCanvasDragPreview({
+				updateDragOverrides,
+				setPropStatuses,
+				setPropStatusesBatch: null,
+				getPropStatuses: (nodePath) =>
+					propStatusesRef.current[
+						Internals.makeSequencePropsSubscriptionKey(nodePath)
+					],
+			});
 
 			let last: {
 				readonly uv: readonly [number, number];
@@ -209,7 +223,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				]);
 				last = {uv: nextUv, origin, translate};
 
-				setDragOverrides(
+				preview.setDragOverrides(
 					transformOriginDrag.nodePath,
 					transformOriginFieldKey,
 					transformOriginDrag.originPropStatus.status === 'keyframed'
@@ -223,7 +237,7 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 							})
 						: Internals.makeStaticDragOverride(origin),
 				);
-				setDragOverrides(
+				preview.setDragOverrides(
 					transformOriginDrag.nodePath,
 					translateFieldKey,
 					transformOriginDrag.translatePropStatus.status === 'keyframed'
@@ -290,14 +304,14 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 				updateFromPointerPosition();
 			};
 
-			const onPointerUp = () => {
+			const finishDrag = (commit: boolean) => {
 				window.removeEventListener('keydown', onKeyChange);
 				window.removeEventListener('keyup', onKeyChange);
 				stopForcingSpecificCursor();
 				onDraggingChange(false);
 
-				if (last === null || uvsEqual(last.uv, uv)) {
-					clearDragOverrides(transformOriginDrag.nodePath);
+				if (!commit || last === null || uvsEqual(last.uv, uv)) {
+					preview.cancel();
 					return;
 				}
 
@@ -309,49 +323,67 @@ export const SelectedOutlineTransformOriginHandle: React.FC<{
 						translate: last.translate,
 					});
 				if (staticChanges.length === 0 && keyframedChanges.length === 0) {
-					clearDragOverrides(transformOriginDrag.nodePath);
+					preview.cancel();
 					return;
 				}
 
-				saveSequenceProps({
-					changes: staticChanges,
-					addedKeyframes: keyframedChanges,
+				const nodePath = preview.getNodePath(transformOriginDrag.nodePath);
+				if (nodePath === null) {
+					preview.cancel();
+					return;
+				}
+
+				saveSequencePropsWithResult({
+					changes: staticChanges.map((change) => ({...change, nodePath})),
+					addedKeyframes: keyframedChanges.map((change) => ({
+						...change,
+						nodePath,
+					})),
 					movedKeyframes: null,
-					setPropStatuses,
+					setPropStatuses: preview.setPropStatuses,
 					clientId: transformOriginDrag.clientId,
 					undoLabel: 'Move transform origin',
 					redoLabel: 'Move transform origin back',
 				})
+					.then((response) => {
+						if (response && !response.canUpdate) {
+							throw new Error(
+								'The layer could not be updated. Try the edit again.',
+							);
+						}
+
+						preview.acknowledge(response);
+					})
 					.catch((err) => {
+						preview.fail();
 						showNotification(
 							`Could not save transform origin: ${
 								err instanceof Error ? err.message : String(err)
 							}`,
 							4000,
 						);
-					})
-					.finally(() => {
-						clearDragOverrides(transformOriginDrag.nodePath);
 					});
 			};
 
-			startCapturedPointerSession({
+			startEscapeCancelableCapturedPointerSession({
 				event,
 				captureTarget: event.currentTarget,
 				onMove: onPointerMove,
-				onEnd: onPointerUp,
+				onEnd: (reason, endEvent) => {
+					finishDrag(isPointerSessionRelease(reason, endEvent));
+				},
 			});
 			window.addEventListener('keydown', onKeyChange);
 			window.addEventListener('keyup', onKeyChange);
 		},
 		[
-			clearDragOverrides,
 			crop,
 			editorSnapping,
 			onDraggingChange,
 			outline,
 			parsed,
-			setDragOverrides,
+			updateDragOverrides,
+			propStatusesRef,
 			setPropStatuses,
 			transformOriginDrag,
 			transformOriginPoints,

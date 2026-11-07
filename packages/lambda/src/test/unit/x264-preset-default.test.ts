@@ -17,6 +17,7 @@ const makeStartPayload = ({
 	x264Preset,
 }: Pick<ServerlessStartPayload, 'codec' | 'x264Preset'>) => {
 	return {
+		streamProgress: false,
 		type: ServerlessRoutines.start,
 		output: {type: 'media'},
 		rendererFunctionName: null,
@@ -64,6 +65,7 @@ const makeStartPayload = ({
 		bucketName: 'test-bucket',
 		offthreadVideoCacheSizeInBytes: null,
 		offthreadVideoThreads: null,
+		preferredEffectBackend: 'auto' as const,
 		mediaCacheSizeInBytes: null,
 		deleteAfter: null,
 		colorSpace: null,
@@ -91,6 +93,8 @@ test('resolves the Lambda x264 preset at the runtime boundary', async () => {
 		makeStartPayload({codec: 'vp8', x264Preset: null}),
 	]) {
 		await startHandler({
+			context: null,
+			publish: null,
 			params: payload,
 			options: {
 				expectedBucketOwner: '123456789012',

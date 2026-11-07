@@ -47,6 +47,7 @@ const {
 	audioLatencyHintOption,
 	imageSequencePatternOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	askAIOption,
 	keyboardShortcutsOption,
@@ -260,6 +261,9 @@ export const render = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const shouldCache = bundleCacheOption.getValue({
 		commandLine: parsedCli,
 	}).value;
@@ -324,6 +328,7 @@ export const render = async (
 		disableSharedMemoryCapture,
 		offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		colorSpace,
 		repro,
 		binariesDirectory,

@@ -48,21 +48,25 @@ const StudioInner: React.FC<{
 					window.remotion_experimentalKeepAudioContextAlive ?? false
 				}
 			>
-				<StaticFilesProvider>
-					<ResolveCompositionConfigInStudio>
-						<EditorContexts>
-							<CompositionListProvider>
-								<Editor readOnlyStudio={readOnly} Root={rootComponent} />
-							</CompositionListProvider>
-							{readOnly
-								? null
-								: createPortal(
-										<ServerDisconnected />,
-										getServerDisconnectedDomElement() as HTMLElement,
-									)}
-						</EditorContexts>
-					</ResolveCompositionConfigInStudio>
-				</StaticFilesProvider>
+				<Internals.PreferredEffectBackendContext.Provider
+					value={window.remotion_studioConfig?.preferredEffectBackend ?? 'auto'}
+				>
+					<StaticFilesProvider>
+						<ResolveCompositionConfigInStudio>
+							<EditorContexts>
+								<CompositionListProvider>
+									<Editor readOnlyStudio={readOnly} Root={rootComponent} />
+								</CompositionListProvider>
+								{readOnly
+									? null
+									: createPortal(
+											<ServerDisconnected />,
+											getServerDisconnectedDomElement() as HTMLElement,
+										)}
+							</EditorContexts>
+						</ResolveCompositionConfigInStudio>
+					</StaticFilesProvider>
+				</Internals.PreferredEffectBackendContext.Provider>
 			</Internals.RemotionRootContexts>
 		</Internals.CompositionManagerProvider>
 	);

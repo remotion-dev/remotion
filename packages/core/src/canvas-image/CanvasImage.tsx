@@ -37,6 +37,7 @@ import {truncateSrcForLabel} from '../truncate-src-for-label.js';
 import {useBufferState} from '../use-buffer-state.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
 import type {CanvasImageCanvasProps, CanvasImageProps} from './props.js';
@@ -592,6 +593,7 @@ const CanvasImageInner = forwardRef<
 			() => ({
 				type: 'image' as const,
 				src,
+				animated: null,
 			}),
 			[src],
 		);
@@ -631,6 +633,11 @@ const CanvasImageInner = forwardRef<
 			style: premountingStyle,
 			componentName: _remotionInternalCropComponentName ?? '<CanvasImage />',
 		});
+
+		const videoEnabled = useVideoEnabled();
+		if (videoEnabled === false) {
+			return null;
+		}
 
 		return (
 			<Freeze

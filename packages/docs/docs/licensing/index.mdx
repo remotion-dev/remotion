@@ -12,11 +12,11 @@ Also, it offers an API to programmatically check the usage in order to implement
 
 ### How do I use this package?
 
-Not directly - pass the `licenseKey` option in the renderer package you use.
+Pass the `licenseKey` option to the rendering API you use.
 
 **Supported packages**
 
-- [`@remotion/lambda`](/docs/lambda): Pass `licenseKey` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey) to trigger an event.
+- [`@remotion/lambda`](/docs/lambda): Pass `licenseKey` to [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#licensekey), [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), [`renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#licensekey), [`renderFramesOnLambdaAndStream()`](/docs/lambda/renderframesonlambdaandstream), or [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#licensekey) to trigger an event.
 - [`@remotion/vercel`](/docs/vercel/api): Pass `licenseKey` to [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#licensekey) and [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#licensekey) to trigger an event.
 - [`@remotion/renderer`](/docs/renderer): Pass `licenseKey` to [`renderMedia()`](/docs/renderer/render-media#licensekey) and [`renderStill()`](/docs/renderer/render-still#licensekey) to trigger an event.
 - [`@remotion/web-renderer`](/docs/web-renderer): An event is always sent. Pass a real `licenseKey`, or declare eligibility for the free license with `licenseKey: "free-license"`. See [Telemetry](/docs/telemetry#setting-a-license-key).
@@ -24,10 +24,14 @@ Not directly - pass the `licenseKey` option in the renderer package you use.
 <details>
   <summary>Deprecated packages</summary>
 
-- [`@remotion/cloudrun`](/docs/cloudrun): No telemetry is implemented. Use [`@remotion/licensing`](/docs/licensing) directly to track usage.
+- [`@remotion/cloudrun`](/docs/cloudrun): Pass `licenseKey` to [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun#licensekey) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun#licensekey) from <AvailableFrom v="4.0.540" inline /> to trigger an event.
 - [`@remotion/webcodecs`](/docs/webcodecs): Telemetry was removed in v4.0.399 because this package is no longer monetized.
 
 </details>
+
+For custom workflows using [`renderFrames()`](/docs/renderer/render-frames) or [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video), call [`registerUsageEvent()`](/docs/licensing/register-usage-event) once after the final output is complete. See [Custom rendering workflows](/docs/telemetry#custom-rendering-workflows).
+
+Pass `isProduction: false` to classify development renders as non-billable. See [Production and development renders](/docs/telemetry#production-and-development-renders).
 
 On your Company License dashboard on [remotion.pro](https://remotion.pro), you can find your license keys on the License keys page.
 

@@ -104,9 +104,12 @@ The blur radius is interpolated between `startBlur` and `endBlur` from `start` t
 
 Before `start`, the radius is clamped to `startBlur`. At and beyond the outer ellipse, the radius is clamped to `endBlur`.
 
-## Requirements
+## Implementations
 
-`radialProgressiveBlur()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGL2
+- WebGPU<AvailableFrom v="4.0.540" inline />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

@@ -20,17 +20,13 @@ Use it for slatted wipes, intro animations, and outro animations on [`<Video>`](
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {venetianBlinds} from '@remotion/effects/venetian-blinds';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 45], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <>
@@ -38,7 +34,10 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           venetianBlinds({
-            progress,
+            progress: interpolate(frame, [0, 45], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            }),
             direction: 'vertical',
             slats: 14,
           }),
@@ -71,9 +70,12 @@ Number of blinds across the source. Must be a positive integer. Defaults to `12`
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`venetianBlinds()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

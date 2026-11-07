@@ -1,5 +1,6 @@
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
+import {useAutoplayVideo} from './use-autoplay-video';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
 export const MakeVideosAgentically: React.FC<{
@@ -30,33 +31,11 @@ export const MakeVideosAgentically: React.FC<{
 	videoSrc = '/img/render-progress.webm',
 	fallbackVideoSrc = '/img/render-progress.mp4',
 }) => {
-	const ref = useRef<HTMLDivElement>(null);
-	const videoRef = useRef<HTMLVideoElement>(null);
 	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current) {
-			return;
-		}
-
-		const callback = (data: IntersectionObserverEntry[]) => {
-			if (data[0].isIntersecting) {
-				videoRef.current?.play();
-			}
-		};
-
-		const observer = new IntersectionObserver(callback, {
-			root: null,
-			threshold: 0.5,
-		});
-		observer.observe(current);
-
-		return () => observer.unobserve(current);
-	}, []);
+	const videoRef = useAutoplayVideo(showVideo ? src : null);
 
 	return (
-		<div ref={ref} className={'flex min-w-0 basis-0 flex-col flex-1'}>
+		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
 			{showVideo ? (
 				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{src ? (

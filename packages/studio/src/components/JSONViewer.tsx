@@ -23,6 +23,7 @@ export const JSONViewer: React.FC<{
 
 	return (
 		<RemTextarea
+			indentWithTab
 			value={json ?? undefined}
 			status="ok"
 			onChange={() => {

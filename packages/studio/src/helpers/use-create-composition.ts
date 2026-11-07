@@ -8,6 +8,7 @@ import {useCallback, useMemo} from 'react';
 import type {_InternalTypes} from 'remotion';
 import {useSelectComposition} from '../components/InitialCompositionLoader';
 import {addComposition} from '../components/RenderQueue/actions';
+import {getBrowserStudioOperations} from './browser-studio-operations';
 import {slugifyName} from './slugify-name';
 import {getRoute} from './url-state';
 import {
@@ -51,6 +52,20 @@ export const getUniqueCompositionName = (
 	}
 };
 
+export const getNewCompositionNaming = (
+	input: string,
+	compositions: _InternalTypes['AnyComposition'][],
+) => {
+	const compositionId = slugifyName(input);
+	return {
+		compositionId,
+		componentName: toPascalCase(compositionId),
+		validationMessage: compositionId
+			? validateCompositionName(compositionId, compositions)
+			: 'Enter an ID containing letters or numbers.',
+	};
+};
+
 export const useCreateComposition = ({
 	compositions,
 	durationInFrames,
@@ -60,6 +75,7 @@ export const useCreateComposition = ({
 	selectedFrameRate,
 	size,
 	canvasCapture,
+	openTimeline,
 	asset,
 }: {
 	compositions: _InternalTypes['AnyComposition'][];
@@ -79,19 +95,17 @@ export const useCreateComposition = ({
 		readonly videoWidth: number;
 	} | null;
 	asset: NewCompositionAsset | null;
+	openTimeline: NewCompositionOptions['openTimeline'];
 }) => {
 	const selectComposition = useSelectComposition();
-	const compositionId = slugifyName(newId);
-	const componentName = useMemo(
-		() => toPascalCase(compositionId),
-		[compositionId],
+	const {
+		compositionId,
+		componentName,
+		validationMessage: nameValidationMessage,
+	} = useMemo(
+		() => getNewCompositionNaming(newId, compositions),
+		[compositions, newId],
 	);
-
-	const nameValidationMessage = useMemo(() => {
-		return compositionId
-			? validateCompositionName(compositionId, compositions)
-			: 'Enter an ID containing letters or numbers.';
-	}, [compositionId, compositions]);
 
 	const widthValidationMessage = useMemo(() => {
 		return validateCompositionDimension('Width', size.width);
@@ -104,6 +118,7 @@ export const useCreateComposition = ({
 	const options: NewCompositionOptions = useMemo(() => {
 		return {
 			asset,
+			openTimeline,
 			newDurationInFrames: Number(durationInFrames),
 			newFps: Number(selectedFrameRate),
 			newHeight: Number(size.height),
@@ -126,6 +141,7 @@ export const useCreateComposition = ({
 		};
 	}, [
 		asset,
+		openTimeline,
 		canvasCapture,
 		componentName,
 		compositionId,
@@ -150,6 +166,18 @@ export const useCreateComposition = ({
 			signal: AbortSignal;
 			symbolicatedStack: SymbolicatedStackFrame | null;
 		}) => {
+			if (options.openTimeline !== null) {
+				const browserOperations = getBrowserStudioOperations();
+				if (
+					browserOperations !== null &&
+					!browserOperations.supportsOpenTimelineImport
+				) {
+					throw new Error(
+						'This Browser Studio does not support importing timelines.',
+					);
+				}
+			}
+
 			const result = await addComposition(
 				{
 					options,

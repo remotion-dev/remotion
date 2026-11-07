@@ -17,6 +17,7 @@ import type {EffectsProp, EffectsOutputSize} from './effects/effect-types.js';
 import {addSequenceStackTraces} from './enable-sequence-stack-traces.js';
 import {Freeze} from './freeze.js';
 import {getCrossOriginValue} from './get-cross-origin-value.js';
+import {HtmlInCanvasAncestorContext} from './HtmlInCanvasAncestorContext.js';
 import type {
 	InteractiveBaseProps,
 	InteractiveCropProps,
@@ -41,6 +42,7 @@ import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {resolveV5Default} from './v5-flag.js';
@@ -334,7 +336,15 @@ const ImgContent: React.FC<ImgContentProps> = ({
 	const errors = useRef<Record<string, number>>({});
 	const {delayPlayback} = useBufferState();
 	const sequenceContext = useContext(SequenceContext);
+	const htmlInCanvasContext = useContext(HtmlInCanvasAncestorContext);
 	const [isLoading, setIsLoading] = useState(false);
+	const {isClientSideRendering, isRendering} = useRemotionEnvironment();
+	const crossOriginValue = getCrossOriginValue({
+		crossOrigin:
+			crossOrigin ?? (htmlInCanvasContext === null ? undefined : 'anonymous'),
+		requestsVideoFrame: false,
+		isClientSideRendering,
+	});
 
 	const _propsValid: IsExact<typeof props, Omit<Expected, 'decoding'>> = true;
 
@@ -403,6 +413,7 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			}),
 			[
 				actualSrc,
+				crossOriginValue,
 				delayRenderRetries,
 				delayRenderTimeoutInMilliseconds,
 				onImageFrame,
@@ -411,14 +422,6 @@ const ImgContent: React.FC<ImgContentProps> = ({
 			],
 		);
 	}
-
-	const {isClientSideRendering, isRendering} = useRemotionEnvironment();
-
-	const crossOriginValue = getCrossOriginValue({
-		crossOrigin,
-		requestsVideoFrame: false,
-		isClientSideRendering,
-	});
 
 	// `src` is assigned imperatively to this element in the layout effect above.
 	// The element may paint while `decode()` is pending; `delayRender()` only
@@ -468,6 +471,7 @@ const NativeImgInner: React.FC<NativeImgInnerProps> = ({
 		() => ({
 			type: 'image' as const,
 			src,
+			animated: null,
 		}),
 		[src],
 	);
@@ -669,6 +673,11 @@ const ImgInner: React.FC<
 	onImageError,
 	...props
 }) => {
+	const videoEnabled = useVideoEnabled();
+	if (videoEnabled === false) {
+		return null;
+	}
+
 	const shouldPauseWhenLoading = resolveV5Default(pauseWhenLoading);
 
 	if (effects.length === 0) {

@@ -170,34 +170,37 @@ export const drawShatter = ({
 	// Faces arrive in painter's order. Blending preserves translucent sources
 	// without letting their transparent pixels occlude the fragments behind.
 	gl.enable(gl.BLEND);
-	gl.blendEquation(gl.FUNC_ADD);
-	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-	gl.useProgram(program);
-	gl.bindVertexArray(vao);
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+	try {
+		gl.blendEquation(gl.FUNC_ADD);
+		gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		gl.useProgram(program);
+		gl.bindVertexArray(vao);
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
 
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-	gl.texImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGBA,
-		gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		source as TexImageSource,
-	);
-	gl.uniform1i(uSource, 0);
-	gl.uniform2f(uResolution, width, height);
-	gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 7);
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+		gl.texImage2D(
+			gl.TEXTURE_2D,
+			0,
+			gl.RGBA,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			source as TexImageSource,
+		);
+		gl.uniform1i(uSource, 0);
+		gl.uniform2f(uResolution, width, height);
+		gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 7);
 
-	gl.bindVertexArray(null);
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	gl.bindTexture(gl.TEXTURE_2D, null);
-	gl.useProgram(null);
-	gl.disable(gl.BLEND);
+		gl.bindVertexArray(null);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.useProgram(null);
+	} finally {
+		gl.disable(gl.BLEND);
+	}
 };
 
 export const cleanupShatter = ({

@@ -149,6 +149,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	jpegQuality,
 	offthreadVideoCacheSizeInBytes,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	deleteAfter,
 	colorSpace,
 	preferLossless,
@@ -196,6 +197,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		logLevel,
 	});
 	return {
+		streamProgress: false,
 		enableCancellation,
 		rendererFunctionName,
 		framesPerLambda,
@@ -251,6 +253,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		storageClass: storageClass ?? null,
 		isProduction,
 		sampleRate,
@@ -305,6 +308,7 @@ export const makeLambdaRenderStillPayload = async ({
 	requestHandler,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	isProduction,
 }: RenderStillOnLambdaNonNullInput): Promise<
 	ServerlessPayloads[ServerlessRoutines.still]
@@ -360,6 +364,7 @@ export const makeLambdaRenderStillPayload = async ({
 		licenseKey: licenseKey ?? null,
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		storageClass: storageClass ?? null,
 		isProduction,
 	};

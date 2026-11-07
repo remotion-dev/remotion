@@ -11,6 +11,7 @@ import type {
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
+import type {PreferredEffectBackend, SequenceNodePath} from 'remotion';
 
 type BaseRenderProgress = {
 	message: string;
@@ -103,6 +104,9 @@ type RenderJobDynamicStatus =
 			status: 'idle';
 	  }
 	| {
+			status: 'cancelled';
+	  }
+	| {
 			status: 'failed';
 			error: {
 				message: string;
@@ -119,6 +123,7 @@ type RenderJobDynamicFields =
 			scale: number;
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
+			preferredEffectBackend: PreferredEffectBackend;
 			offthreadVideoThreads: number | null;
 			licenseKey: string | null;
 	  } & RenderJobDynamicStatus)
@@ -132,6 +137,7 @@ type RenderJobDynamicFields =
 			endFrame: number;
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
+			preferredEffectBackend: PreferredEffectBackend;
 			offthreadVideoThreads: number | null;
 			licenseKey: string | null;
 	  } & RenderJobDynamicStatus)
@@ -161,6 +167,7 @@ type RenderJobDynamicFields =
 			disallowParallelEncoding: boolean;
 			offthreadVideoCacheSizeInBytes: number | null;
 			mediaCacheSizeInBytes: number | null;
+			preferredEffectBackend: PreferredEffectBackend;
 			offthreadVideoThreads: number | null;
 			colorSpace: ColorSpace;
 			forSeamlessAacConcatenation: boolean;
@@ -168,6 +175,15 @@ type RenderJobDynamicFields =
 			hardwareAcceleration: HardwareAccelerationOption;
 			sampleRate: number;
 			licenseKey: string | null;
+			prerender: {
+				fileName: string;
+				nodePath: SequenceNodePath | null;
+				src: string;
+				width: number;
+				height: number;
+				fps: number;
+				durationInFrames: number;
+			} | null;
 	  } & RenderJobDynamicStatus);
 
 import type {ChromiumOptions, OpenGlRenderer} from '@remotion/renderer';

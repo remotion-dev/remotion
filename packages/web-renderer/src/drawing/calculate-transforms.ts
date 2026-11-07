@@ -4,7 +4,6 @@ import {
 	getMaskImageValue,
 	type MaskImageInfo,
 	parseMaskImage,
-	validateUrlMaskImageStyle,
 } from './mask-image';
 import {parseTransformOrigin} from './parse-transform-origin';
 
@@ -261,10 +260,9 @@ export const calculateTransforms = ({
 			}
 
 			const maskImageValue = getMaskImageValue(computedStyle);
-			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
-			if (maskImageInfo?.type === 'url') {
-				validateUrlMaskImageStyle(computedStyle);
-			}
+			maskImageInfo = maskImageValue
+				? parseMaskImage(maskImageValue, computedStyle)
+				: null;
 
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,

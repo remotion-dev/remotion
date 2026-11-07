@@ -45,6 +45,7 @@ import {isServeUrl} from './is-serve-url';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {INDENT_TOKEN, Log} from './logger';
+import {isUserCancelledRender} from './make-cancel-signal';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {internalOpenBrowser} from './open-browser';
 import {
@@ -199,6 +200,7 @@ import {
 } from './wait-for-symbolication-error-to-be-done';
 
 export const RenderInternals = {
+	isUserCancelledRender,
 	resolveConcurrency,
 	serveStatic,
 	validateEvenDimensionsWithCodec,

@@ -324,6 +324,10 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 
 <Options id="media-cache-size-in-bytes" />
 
+### `preferredEffectBackend?`<AvailableFrom v="4.0.540" />
+
+<Options id="preferred-effect-backend" />
+
 ### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
@@ -335,6 +339,14 @@ Before v4.0.76, this was "100%" by default. It is now aligned to the other serve
 ### `colorSpace?`<AvailableFrom v="4.0.28"/>
 
 <Options id="color-space" />
+
+### `licenseKey?`<AvailableFrom v="4.0.540"/>
+
+License key for reporting usage on [remotion.pro](https://www.remotion.pro). Pass a private API key starting with `rm_sec_`, or `"free-license"` if you qualify for the [Free License](/docs/license). Defaults to `null`, which disables usage reporting.
+
+### `isProduction?`<AvailableFrom v="4.0.540"/>
+
+<Options id="is-production" />
 
 ## Return value
 

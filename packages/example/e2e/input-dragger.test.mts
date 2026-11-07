@@ -55,11 +55,12 @@ test.describe('Input dragger', () => {
 		await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
 		await page.mouse.down();
 		await page.mouse.move(box.x + box.width / 2 + 40, box.y + box.height / 2);
-		await expect(widthButton).not.toHaveText('1280');
-		const draggedWidth = (await widthButton.textContent())?.trim();
-		if (!draggedWidth) {
-			throw new Error('Expected the width to change while dragging');
-		}
+		await expect(widthButton).not.toHaveText('1280px');
+		const draggedWidth = Number.parseInt(
+			(await widthButton.textContent()) ?? '',
+			10,
+		);
+		expect(draggedWidth).toBeGreaterThan(1280);
 
 		const lostCaptureEvent = await capturedWidthButton.evaluate((element) => {
 			const pointerId = Number((element as HTMLElement).dataset.pointerId);

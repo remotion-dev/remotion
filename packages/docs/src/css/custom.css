@@ -246,6 +246,10 @@ code {
 	text-decoration: underline;
 }
 
+.markdown .suggested-prompt a {
+	text-decoration: none;
+}
+
 .ts-type-link {
 	text-decoration: none !important;
 	text-underline-position: under;
@@ -301,7 +305,7 @@ code {
 	padding-right: 4px;
 	padding-top: 1px;
 	padding-bottom: 1px;
-	margin-left: 6px;
+	margin-left: auto;
 	border-radius: 4px;
 	transform: none !important;
 }
@@ -342,7 +346,7 @@ code {
 	padding-right: 4px;
 	padding-top: 1px;
 	padding-bottom: 1px;
-	margin-left: 6px;
+	margin-left: auto;
 	border-radius: 4px;
 	transform: none !important;
 }

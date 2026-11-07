@@ -18,12 +18,12 @@ A wave effect that can be applied to canvas-based components such as [`<Video>`]
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
-import {useCurrentFrame} from 'remotion';
+```tsx twoslash title="MyScene.tsx"
+import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {wave} from '@remotion/effects/wave';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -32,7 +32,7 @@ export const MyComp: React.FC = () => {
         src="https://remotion.media/video.mp4"
         effects={[
           wave({
-            phase: frame * 0.2,
+            phase: interpolate(frame, [0, 60], [0, 12]),
             amplitude: 22,
             wavelength: 180,
           }),
@@ -72,9 +72,12 @@ Distance in pixels between wave peaks. Defaults to `240`. Must be greater than `
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`wave()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

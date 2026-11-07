@@ -24,12 +24,12 @@ Transparent areas reveal the back of the cylinder when `render` is `'both'`.
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import React from 'react';
-import {CanvasImage, useCurrentFrame} from 'remotion';
+import {CanvasImage, interpolate, useCurrentFrame} from 'remotion';
 import {cylinder} from '@remotion/effects/cylinder';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
       effects={[
         cylinder({
           radius: 300,
-          rotation: frame * 2,
+          rotation: interpolate(frame, [0, 60], [0, 120]),
           rotationX: 30,
           rotationZ: -15,
         }),
@@ -91,9 +91,12 @@ Darkening toward the cylinder's silhouette, from `0` to `1`. Defaults to `0.35`.
 
 When `true`, skips the effect. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`cylinder()` requires WebGPU. See [Using WebGL and WebGPU during renders](/docs/webgl) for rendering configuration.
+- WebGL2 <AvailableFrom v="4.0.540" />
+- WebGPU
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

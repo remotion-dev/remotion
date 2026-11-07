@@ -14,7 +14,7 @@ const TechBrosShotInner: React.FC = () => {
 			<Video
 				name="IMG_0463"
 				src={
-					'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
 				}
 				volume={0.83}
 				objectFit="cover"
@@ -112,7 +112,7 @@ const BestCommuteShotInner: React.FC = () => {
 			<Video
 				name="IMG_0463"
 				src={
-					'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
 				}
 				volume={0.83}
 				objectFit="cover"
@@ -207,7 +207,7 @@ const SceneryShotInner: React.FC = () => {
 			<Video
 				name="IMG_0463"
 				src={
-					'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
 				}
 				volume={0.83}
 				objectFit="cover"
@@ -217,7 +217,7 @@ const SceneryShotInner: React.FC = () => {
 				<Video
 					name="Chickens"
 					src={
-						'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+						'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
 					}
 					from={347}
 					durationInFrames={37}
@@ -229,7 +229,7 @@ const SceneryShotInner: React.FC = () => {
 				<Video
 					name="Cows"
 					src={
-						'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+						'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 					}
 					from={384}
 					durationInFrames={30}
@@ -307,7 +307,7 @@ const RollerSkisShotInner: React.FC = () => {
 			<Video
 				name="IMG_0463"
 				src={
-					'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463.MOV'
+					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
 				}
 				volume={0.83}
 				objectFit="cover"
@@ -316,7 +316,7 @@ const RollerSkisShotInner: React.FC = () => {
 			<Video
 				name="Skis"
 				src={
-					'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0459.MOV'
+					'https://remotion.media/timeline-reveal/footage/IMG_0459-upright-3b0db3a07bf7.mp4'
 				}
 				from={456}
 				trimBefore={609}
@@ -396,7 +396,7 @@ const CommuteWinnerShotInner: React.FC = () => {
 			<Video
 				name="IMG_0463"
 				src={
-					'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0463-rotated-180-v1.mp4'
+					'https://remotion.media/timeline-reveal/footage/IMG_0463-upright-607fd29d5861.mp4'
 				}
 				volume={0.83}
 				objectFit="cover"

@@ -1,0 +1,131 @@
+[package]
+name = "ffmpeg-next"
+version = "7.1.0"
+build = "build.rs"
+
+authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
+license = "WTFPL"
+
+description = "Safe FFmpeg wrapper (FFmpeg 4 compatible fork of the ffmpeg crate)"
+documentation = "https://docs.rs/ffmpeg-next"
+homepage = "https://github.com/remotion-dev/remotion/tree/main/packages/compositor/ffmpeg/wrapper#readme"
+repository = "https://github.com/remotion-dev/remotion/tree/main/packages/compositor/ffmpeg/wrapper"
+readme = "README.md"
+keywords = ["ffmpeg", "multimedia", "video", "audio"]
+categories = ["multimedia"]
+
+[features]
+default = [
+	"codec",
+	"device",
+	"filter",
+	"format",
+	"software-resampling",
+	"software-scaling",
+	"ffmpeg_6_0",
+	"ffmpeg_6_1",
+	"ffmpeg_7_1",
+]
+
+# ffmpeg<xy> are obsolete features kept for backward compatibility purposes and
+# don't do anything anymore (equivalents are automatically specified through
+# compile-time detection in ffmpeg-sys-next). Deprecation plan: all these
+# features will be removed come 5.0.
+ffmpeg43 = []
+ffmpeg42 = []
+ffmpeg41 = []
+ffmpeg4 = []
+ffmpeg_6_0 = []
+ffmpeg_6_1 = []
+ffmpeg_7_1 = []
+
+static = ["ffmpeg-sys-next/static"]
+non-exhaustive-enums = ["ffmpeg-sys-next/non-exhaustive-enums"]
+build = ["static", "ffmpeg-sys-next/build"]
+
+# licensing
+build-license-gpl = ["ffmpeg-sys-next/build-license-gpl"]
+build-license-nonfree = ["ffmpeg-sys-next/build-license-nonfree"]
+build-license-version3 = ["ffmpeg-sys-next/build-license-version3"]
+
+# misc
+build-pic = ["ffmpeg-sys-next/build-pic"]
+build-zlib = ["ffmpeg-sys-next/build-zlib"]
+
+# ssl
+build-lib-gnutls = ["ffmpeg-sys-next/build-lib-gnutls"]
+build-lib-openssl = ["ffmpeg-sys-next/build-lib-openssl"]
+
+# filters
+build-lib-fontconfig = ["ffmpeg-sys-next/build-lib-fontconfig"]
+build-lib-frei0r = ["ffmpeg-sys-next/build-lib-frei0r"]
+build-lib-ladspa = ["ffmpeg-sys-next/build-lib-ladspa"]
+build-lib-ass = ["ffmpeg-sys-next/build-lib-ass"]
+build-lib-freetype = ["ffmpeg-sys-next/build-lib-freetype"]
+build-lib-freebidi = ["ffmpeg-sys-next/build-lib-freebidi"]
+build-lib-opencv = ["ffmpeg-sys-next/build-lib-opencv"]
+build-lib-vmaf = ["ffmpeg-sys-next/build-lib-vmaf"]
+
+# encoders/decoders
+build-lib-aacplus = ["ffmpeg-sys-next/build-lib-aacplus"]
+build-lib-celt = ["ffmpeg-sys-next/build-lib-celt"]
+build-lib-dav1d = ["ffmpeg-sys-next/build-lib-dav1d"]
+build-lib-dcadec = ["ffmpeg-sys-next/build-lib-dcadec"]
+build-lib-faac = ["ffmpeg-sys-next/build-lib-faac"]
+build-lib-fdk-aac = ["ffmpeg-sys-next/build-lib-fdk-aac"]
+build-lib-gsm = ["ffmpeg-sys-next/build-lib-gsm"]
+build-lib-ilbc = ["ffmpeg-sys-next/build-lib-ilbc"]
+build-lib-kvazaar = ["ffmpeg-sys-next/build-lib-kvazaar"]
+build-lib-mp3lame = ["ffmpeg-sys-next/build-lib-mp3lame"]
+build-lib-opencore-amrnb = ["ffmpeg-sys-next/build-lib-opencore-amrnb"]
+build-lib-opencore-amrwb = ["ffmpeg-sys-next/build-lib-opencore-amrwb"]
+build-lib-openh264 = ["ffmpeg-sys-next/build-lib-openh264"]
+build-lib-openjpeg = ["ffmpeg-sys-next/build-lib-openjpeg"]
+build-lib-opus = ["ffmpeg-sys-next/build-lib-opus"]
+build-lib-schroedinger = ["ffmpeg-sys-next/build-lib-schroedinger"]
+build-lib-shine = ["ffmpeg-sys-next/build-lib-shine"]
+build-lib-snappy = ["ffmpeg-sys-next/build-lib-snappy"]
+build-lib-speex = ["ffmpeg-sys-next/build-lib-speex"]
+build-lib-stagefright-h264 = ["ffmpeg-sys-next/build-lib-stagefright-h264"]
+build-lib-theora = ["ffmpeg-sys-next/build-lib-theora"]
+build-lib-twolame = ["ffmpeg-sys-next/build-lib-twolame"]
+build-lib-utvideo = ["ffmpeg-sys-next/build-lib-utvideo"]
+build-lib-vo-aacenc = ["ffmpeg-sys-next/build-lib-vo-aacenc"]
+build-lib-vo-amrwbenc = ["ffmpeg-sys-next/build-lib-vo-amrwbenc"]
+build-lib-vorbis = ["ffmpeg-sys-next/build-lib-vorbis"]
+build-lib-vpx = ["ffmpeg-sys-next/build-lib-vpx"]
+build-lib-wavpack = ["ffmpeg-sys-next/build-lib-wavpack"]
+build-lib-webp = ["ffmpeg-sys-next/build-lib-webp"]
+build-lib-x264 = ["ffmpeg-sys-next/build-lib-x264"]
+build-lib-x265 = ["ffmpeg-sys-next/build-lib-x265"]
+build-lib-avs = ["ffmpeg-sys-next/build-lib-avs"]
+build-lib-xvid = ["ffmpeg-sys-next/build-lib-xvid"]
+
+# protocols
+build-lib-smbclient = ["ffmpeg-sys-next/build-lib-smbclient"]
+build-lib-ssh = ["ffmpeg-sys-next/build-lib-ssh"]
+
+# components
+codec = ["ffmpeg-sys-next/avcodec"]
+device = ["ffmpeg-sys-next/avdevice", "format"]
+filter = ["ffmpeg-sys-next/avfilter"]
+format = ["ffmpeg-sys-next/avformat", "codec"]
+resampling = ["ffmpeg-sys-next/avresample"]
+postprocessing = ["ffmpeg-sys-next/postproc"]
+software-resampling = ["ffmpeg-sys-next/swresample"]
+software-scaling = ["ffmpeg-sys-next/swscale", "codec"]
+
+# platforms
+rpi = []
+
+[dependencies]
+libc = "0.2"
+bitflags = "2.6"
+
+[dependencies.image]
+version = "0.25"
+optional = true
+
+[dependencies.ffmpeg-sys-next]
+default-features = false
+path = "../sys"

@@ -1,4 +1,4 @@
-import {ALL_FORMATS, CanvasSink, Input, UrlSource} from 'mediabunny';
+import {ALL_FORMATS, VideoSampleSink, Input, UrlSource} from 'mediabunny';
 import {assert, expect, test} from 'vitest';
 import {
 	getMaxVideoCacheSize,
@@ -35,7 +35,7 @@ const openPreview = async () => {
 	const track = await input.getPrimaryVideoTrack();
 	assert(track);
 	const cache = makePrewarmedVideoIteratorCache(
-		new CanvasSink(track),
+		new VideoSampleSink(track),
 		await track.getTimeResolution(),
 	);
 

@@ -17,6 +17,7 @@ import {
 } from "@remotion/web-renderer";
 import React, { useCallback, useEffect, useSyncExternalStore } from "react";
 import { createRoot } from "react-dom/client";
+import { Internals } from "remotion";
 import type {
   CreatePreviewHost,
   PreviewCompositionSelection,
@@ -394,20 +395,35 @@ export const createPreviewHost: CreatePreviewHost = ({
 
   return {
     controller,
-    applyBundle: async (bundle) => {
+    applyBundle: async (bundle, applySourceTransition) => {
       if (disposed) {
         throw new Error("The preview was disposed.");
       }
 
-      const registeredRoot = await runtime.applyBundle(bundle);
-      if (disposed) {
-        throw new Error("The preview was disposed.");
-      }
-
-      store.setState({ root: registeredRoot });
-      const { selection } = store.getState();
-      if (selection) {
-        await resolveSelection(selection);
+      let transitionApplied = false;
+      const applyTransition = () => {
+        if (transitionApplied) return;
+        transitionApplied = true;
+        applySourceTransition();
+      };
+      window.addEventListener(
+        Internals.REACT_REFRESH_STARTED_EVENT,
+        applyTransition,
+        { capture: true, once: true },
+      );
+      try {
+        const registeredRoot = await runtime.applyBundle(bundle);
+        if (disposed) throw new Error("The preview was disposed.");
+        applyTransition();
+        store.setState({ root: registeredRoot });
+        const { selection } = store.getState();
+        if (selection) await resolveSelection(selection);
+      } finally {
+        window.removeEventListener(
+          Internals.REACT_REFRESH_STARTED_EVENT,
+          applyTransition,
+          true,
+        );
       }
     },
     selectComposition: (selection) => {

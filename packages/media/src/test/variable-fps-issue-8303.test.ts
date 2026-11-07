@@ -1,4 +1,4 @@
-import {ALL_FORMATS, CanvasSink, Input, UrlSource} from 'mediabunny';
+import {ALL_FORMATS, VideoSampleSink, Input, UrlSource} from 'mediabunny';
 import {expect, test} from 'vitest';
 import {makePrewarmedVideoIteratorCache} from '../prewarm-iterator-for-looping';
 import {createVideoIterator} from '../video/video-preview-iterator';
@@ -22,16 +22,11 @@ const loadVideoTrack = async () => {
 
 test('variable FPS video can be sought forward one frame at a time', async () => {
 	const {input, videoTrack} = await loadVideoTrack();
-	const canvasSink = new CanvasSink(videoTrack, {
-		width: 160,
-		height: 160,
-		fit: 'contain',
-		alpha: true,
-		poolSize: 3,
-	});
+	const canvasSink = new VideoSampleSink(videoTrack);
 	const cache = makePrewarmedVideoIteratorCache(
 		canvasSink,
 		await videoTrack.getTimeResolution(),
+		{width: 160, height: 160, fit: 'contain'},
 	);
 	const iterator = await createVideoIterator(0, cache);
 

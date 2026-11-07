@@ -1,39 +1,8 @@
-import {ExploreZoomBlurRecording20261028Composition} from './ExploreZoomBlurRecording20261028Composition';
-import {ExploreBuildingRecording20261028Composition} from './ExploreBuildingRecording20261028Composition';
-import {ExploreRemotionSDK} from './HomepageAssets/ExploreRemotion/SDK';
-import {
-	ExploreRemotionNew,
-	NewRecordingEdit,
-	NewSquareEdit,
-	newRecordingDuration,
-} from './HomepageAssets/ExploreRemotion/New';
-import {ExploreNewRecording20261028Composition} from './ExploreNewRecording20261028Composition';
-import {ExploreConvertRecording20261028Composition} from './ExploreConvertRecording20261028Composition';
-import {
-	ExploreRemotionMedia,
-	MediaRecordingEdit,
-	MediaSquareEdit,
-	mediaRecordingDuration,
-} from './HomepageAssets/ExploreRemotion/Media';
-import {ExploreMediaRecording20261028Composition} from './ExploreMediaRecording20261028Composition';
-import {ExplorePlayerRecording20261027Composition} from './ExplorePlayerRecording20261027Composition';
-import {
-	ExploreRemotionPlayer,
-	PlayerRecordingEdit,
-	playerRecordingDuration,
-	PlayerSquareEdit,
-} from './HomepageAssets/ExploreRemotion/Player';
-import {ExploreEditorStarterRecording20261027Composition} from './ExploreEditorStarterRecording20261027Composition';
-import {
-	EditorStarterRecordingEdit,
-	editorStarterDuration,
-	ExploreRemotionEditorStarter,
-} from './HomepageAssets/ExploreRemotion/EditorStarter';
-import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
-import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
 import {Composition, Folder} from 'remotion';
 import {ThreeDCheck} from './3DCheck';
+import {AgenticallyProgrammaticallyCompositions} from './AgenticallyProgrammatically/AgenticallyProgrammaticallyCompositions';
 import {AiPromptRecordingComposition} from './AiPromptRecordingComposition';
+import {AirDropFootage20261031} from './AirDropFootage20261031';
 import {AnimatedBanner} from './animated-logo/AnimatedBanner';
 import {AnimatedLogo} from './animated-logo/AnimatedLogo';
 import {AnimatedLogoStringer} from './animated-logo/AnimatedLogoStinger';
@@ -59,6 +28,7 @@ import {
 	AuraTimelineCard,
 	AuraTimelineChapters,
 } from './AuraTimelineSource';
+import {BackgroundRemovalDemo} from './BackgroundRemovalDemo';
 import {BasicsShowcaseCompositions} from './BasicsShowcase';
 import {Banner} from './Brand/Banner';
 import {Comp} from './Brand/Composition';
@@ -70,6 +40,8 @@ import {
 } from './CanvasCaptureBanner';
 import {CanvasCaptureShort} from './CanvasCaptureShort/CanvasCaptureShort';
 import {CaptionsRecordingComposition} from './CaptionsRecordingComposition';
+import {AiPromptRecreation, ChatGPTPrompt} from './ChatGPTPrompt';
+import {ChatGPTPromptHomepage} from './ChatGPTPromptHomepage';
 import {CloseUp1} from './CloseUp1';
 import {CloseUp2} from './CloseUp2';
 import {CloseUp3} from './CloseUp3';
@@ -79,8 +51,8 @@ import {CloseUp6} from './CloseUp6';
 import {CloseUp7} from './CloseUp7';
 import {CloseUp8} from './CloseUp8';
 import {CloseUpsSeries} from './CloseUpsSeries';
+import {CodexPrompt} from './CodexPrompt';
 import {ColorCorrectionDemo} from './ColorCorrectionDemo';
-import {BackgroundRemovalDemo} from './BackgroundRemovalDemo';
 import {ColorCorrectionRecordingComposition} from './ColorCorrectionRecordingComposition';
 import {ColorCorrectionStudioRecordingComposition} from './ColorCorrectionStudioRecordingComposition';
 import {
@@ -91,6 +63,7 @@ import {
 import {ComposeLayers, composeLayersSchema} from './ComposeLayers';
 import {Composition3DRotation} from './Composition3DRotation';
 import {CompositionList} from './CompositionList';
+import {CowColorCorrection} from './CowColorCorrection';
 import {CurvesStudioRecordingComposition} from './CurvesStudioRecordingComposition';
 import {DesignSystems, designSystemsDurationInFrames} from './DesignSystems';
 import {
@@ -139,9 +112,18 @@ import {
 } from './effects/ZigzagLinearBlurShowcase';
 import {EffectsRecordingComposition} from './EffectsRecordingComposition';
 import {EmailSignature} from './EmailSignature';
+import {ExploreBackgroundRemovalRecording20261027Composition} from './ExploreBackgroundRemovalRecording20261027Composition';
+import {ExploreBuildingRecording20261028Composition} from './ExploreBuildingRecording20261028Composition';
+import {ExploreConvertRecording20261028Composition} from './ExploreConvertRecording20261028Composition';
 import {ExploreCurvesRecording20261027Composition} from './ExploreCurvesRecording20261027Composition';
+import {ExploreEditorStarterRecording20261027Composition} from './ExploreEditorStarterRecording20261027Composition';
 import {ExploreElementsRecording20261027Composition} from './ExploreElementsRecording20261027Composition';
 import {ExploreKeyframesRecording20261027Composition} from './ExploreKeyframesRecording20261027Composition';
+import {ExploreMediaRecording20261028Composition} from './ExploreMediaRecording20261028Composition';
+import {ExploreNewRecording20261028Composition} from './ExploreNewRecording20261028Composition';
+import {ExplorePlayerRecording20261027Composition} from './ExplorePlayerRecording20261027Composition';
+import {ExploreStudioRecording20261027Composition} from './ExploreStudioRecording20261027Composition';
+import {ExploreZoomBlurRecording20261028Composition} from './ExploreZoomBlurRecording20261028Composition';
 import {CodingPrompt, codingPromptSchema} from './HomepageAssets/CodingPrompt';
 import {CursorOrbit} from './HomepageAssets/CursorOrbit';
 import {
@@ -156,13 +138,13 @@ import {
 	backgroundRemovalDuration,
 } from './HomepageAssets/ExploreRemotion/BackgroundRemoval';
 import {
-	captionsDuration,
-	ExploreRemotionCaptions,
-} from './HomepageAssets/ExploreRemotion/Captions';
-import {
 	canvasCaptureDuration,
 	ExploreRemotionCanvasCapture,
 } from './HomepageAssets/ExploreRemotion/CanvasCapture';
+import {
+	captionsDuration,
+	ExploreRemotionCaptions,
+} from './HomepageAssets/ExploreRemotion/Captions';
 import {ExploreRemotionColorCorrection} from './HomepageAssets/ExploreRemotion/ColorCorrection';
 import {ExploreRemotion3DRotation} from './HomepageAssets/ExploreRemotion/Composition3DRotation';
 import {ExploreRemotionCompositionList} from './HomepageAssets/ExploreRemotion/CompositionList';
@@ -172,6 +154,11 @@ import {
 	convertRecordingDuration,
 	ExploreRemotionConvert,
 } from './HomepageAssets/ExploreRemotion/Convert';
+import {
+	EditorStarterRecordingEdit,
+	editorStarterDuration,
+	ExploreRemotionEditorStarter,
+} from './HomepageAssets/ExploreRemotion/EditorStarter';
 import {ExploreRemotionEffects} from './HomepageAssets/ExploreRemotion/Effects';
 import {
 	ElementsDropEdit,
@@ -183,9 +170,28 @@ import {
 	KeyframesCloseupEdit,
 	keyframesCloseupDuration,
 } from './HomepageAssets/ExploreRemotion/Keyframes';
+import {
+	ExploreRemotionMedia,
+	MediaRecordingEdit,
+	MediaSquareEdit,
+	mediaRecordingDuration,
+} from './HomepageAssets/ExploreRemotion/Media';
+import {
+	ExploreRemotionNew,
+	NewRecordingEdit,
+	NewSquareEdit,
+	newRecordingDuration,
+} from './HomepageAssets/ExploreRemotion/New';
 import {ExploreRemotionParameterization} from './HomepageAssets/ExploreRemotion/Parameterization';
+import {
+	ExploreRemotionPlayer,
+	PlayerRecordingEdit,
+	playerRecordingDuration,
+	PlayerSquareEdit,
+} from './HomepageAssets/ExploreRemotion/Player';
 import {ExploreRemotionQuickSwitcher} from './HomepageAssets/ExploreRemotion/QuickSwitcher';
 import {ExploreRemotionRenderModalCodec} from './HomepageAssets/ExploreRemotion/RenderModalCodec';
+import {ExploreRemotionSDK} from './HomepageAssets/ExploreRemotion/SDK';
 import {
 	ExploreRemotionStudio,
 	StudioRecordingEdit,
@@ -212,7 +218,6 @@ import {
 } from './HomepageAssets/RenderProgress';
 import {OuterStudio, studioDurationInFrames} from './HomepageAssets/Studio';
 import {TemplateRecorderEndcardComposition} from './HomepageAssets/TemplateRecorderEndcard';
-import './index.css';
 import {KeyframeMove} from './KeyframeMove';
 import {LevelsStudioRecordingComposition} from './LevelsStudioRecordingComposition';
 import {Logo} from './Logo';
@@ -222,8 +227,11 @@ import {ParameterizationRecordingComposition} from './ParameterizationRecordingC
 import {PitchCorrection} from './PitchCorrection';
 import {PreviewToolbarIcons} from './PreviewToolbarIcons';
 import {QuickSwitcher} from './QuickSwitcher';
+import {RemotionPrototype2020} from './RemotionPrototype2020';
 import {RenderModalCodec} from './RenderModalCodec';
-import {RenderOnWeb} from './RenderOnWeb';
+import './index.css';
+import {RenderOnWeb, StudioRenderOnWeb} from './RenderOnWeb';
+import {RenderOnWebCaptureComposition} from './RenderOnWebCaptureComposition';
 import {ProductHuntLogo} from './ScalingLogo';
 import {SfxShowcase, sfxShowcaseDurationInFrames} from './Sfx/SfxShowcase';
 import {ShipCard, shipCardDurationInFrames} from './ShipCard';
@@ -246,13 +254,50 @@ import {Skills2Pick} from './Skills2Pick';
 import {Skills2Router} from './Skills2Router';
 import {Skills2TableBang} from './Skills2TableBang';
 import {Skills2TableBangComp} from './Skills2TableBangComp';
+import {StudioActionsMenuComposition} from './StudioActionsMenuComposition';
+import {StudioAiPrompt} from './StudioAiPrompt';
+import {StudioClosing} from './StudioClosing';
+import {StudioCurvesSplit} from './StudioCurvesSplit';
+import {StudioDeviceOverview} from './StudioDeviceOverview';
+import {
+	StudioHomepageEffects,
+	StudioHomepageElements,
+	StudioHomepageKeyframes,
+	StudioHomepageMenus,
+	StudioHomepageNew,
+	StudioHomepageParameterization,
+	StudioHomepageRender,
+	StudioHomepageTransitions,
+} from './StudioHomepageShots';
+import {StudioLevelsComposition} from './StudioLevelsComposition';
+import {StudioMusicTrackStill} from './StudioMusicTrackStill';
+import {StudioPlaybackRateComposition} from './StudioPlaybackRateComposition';
+import {StudioRenderClickComposition} from './StudioRenderClickComposition';
+import {StudioRenderProgressComposition} from './StudioRenderProgressComposition';
+import {StudioScreenshotRattle} from './StudioScreenshotRattle';
+import {StudioTimelineClip} from './StudioTimelineClip';
+import {StudioUpdate, studioUpdateSchema} from './StudioUpdate';
+import {StudioUpdateBeatTimeline} from './StudioUpdateBeatTimeline';
 import {SvgLogoCompositions} from './SvgLogos';
 import {TimelineAudioRollingEditComposition} from './TimelineAudioRollingEditComposition';
+import {
+	TimelineCaptionPosition,
+	TimelinePlayheadScrub,
+} from './TimelineCaptionPositionAndScrub';
+import {TimelineCaptionReorderAndScrubComposition} from './TimelineCaptionReorderAndScrubComposition';
+import {TimelineClipSelectionComposition} from './TimelineClipSelectionComposition';
+import {TimelineKeyframeShiftComposition} from './TimelineKeyframeShiftComposition';
 import {TimelineLayoutReveal} from './TimelineLayoutReveal';
 import {TimelineLeftDragComposition} from './TimelineLeftDragComposition';
+import {TimelineRevealShot} from './TimelineRevealShot';
+import {TimelineRightTrimComposition} from './TimelineRightTrimComposition';
 import {TimelineSourceOnlyTrimComposition} from './TimelineSourceOnlyTrimComposition';
 import {TimelineSourceOnlyTrimWideComposition} from './TimelineSourceOnlyTrimWideComposition';
-import {TimelineVideoRollingEditComposition} from './TimelineVideoRollingEditComposition';
+import {
+	TimelineVideoRollingEditComposition,
+	TimelineVideoRollingPrelude,
+} from './TimelineVideoRollingEditComposition';
+import {TimelineZoomComposition} from './TimelineZoomComposition';
 import {TransitionsRecordingComposition} from './TransitionsRecordingComposition';
 import {Codex, codexSchema} from './video-elements/Codex';
 import {
@@ -268,13 +313,13 @@ import {
 	numberedChapterSchema,
 } from './video-elements/numbered-chapter';
 import {Prompt, PromptSchema} from './video-elements/Prompt';
+import {ReadmeHero} from './video-elements/ReadmeHero';
 import {StepGuide, stepGuideSchema} from './video-elements/step-guide';
 import {
 	StudioDeviceFrame,
 	StudioReference,
 	studioReferenceSchema,
 } from './video-elements/Studio';
-import {ReadmeHero} from './video-elements/ReadmeHero';
 import {StudioCodeHandoff} from './video-elements/StudioCodeHandoff';
 import {TextEditor, textEditorSchema} from './video-elements/TextEditor';
 import {GithubRepo, githubRepoSchema} from './video-elements/upper-reference';
@@ -291,6 +336,7 @@ import {WebMCPPromo2} from './WebMCPPromo2';
 export const RemotionRoot: React.FC = () => {
 	return (
 		<>
+			<AgenticallyProgrammaticallyCompositions />
 			<Folder name="VideoElements">
 				<Composition
 					id="CodexUI"
@@ -305,6 +351,20 @@ export const RemotionRoot: React.FC = () => {
 						height: props.height,
 						width: props.width,
 					})}
+				/>
+				<Composition
+					id="CodexPrompt"
+					component={CodexPrompt}
+					durationInFrames={90}
+					fps={30}
+					width={640}
+					height={130}
+					defaultProps={{
+						prompt: 'Cut away the silent parts.',
+						typingStartFrame: 0,
+						typingDurationInFrames: 30,
+						style: {},
+					}}
 				/>
 				<Composition
 					id="TextEditorUI"
@@ -403,10 +463,10 @@ export const RemotionRoot: React.FC = () => {
 						id={theme === 'light' ? 'ReadmeHeroLight' : 'ReadmeHeroDark'}
 						component={ReadmeHero}
 						defaultProps={{theme}}
-						durationInFrames={180}
-						fps={15}
+						durationInFrames={360}
+						fps={30}
 						width={1012}
-						height={583}
+						height={599}
 					/>
 				))}
 				<Composition
@@ -1233,6 +1293,10 @@ export const RemotionRoot: React.FC = () => {
 				<Composition
 					id="TimelineAudioRollingEdit"
 					component={TimelineAudioRollingEditComposition}
+					defaultProps={{
+						cursorSpin: false,
+						style: {backgroundColor: '#15161b'},
+					}}
 					durationInFrames={430}
 					fps={60}
 					width={1920}
@@ -1362,6 +1426,14 @@ export const RemotionRoot: React.FC = () => {
 				</Folder>
 			</Folder>
 			<Folder name="SocialMediaAnnouncements">
+				<Composition
+					id="RemotionPrototype2020"
+					component={RemotionPrototype2020}
+					width={1920}
+					height={1080}
+					fps={24}
+					durationInFrames={1395}
+				/>
 				<Folder name="whats-new-in-remotion">
 					<WhatsNewInRemotion />
 				</Folder>
@@ -1628,12 +1700,221 @@ export const RemotionRoot: React.FC = () => {
 				/>
 			</Folder>
 			<Composition
+				id="StudioUpdate"
+				component={StudioUpdate}
+				schema={studioUpdateSchema}
+				defaultProps={{mode: 'widescreen' as const, soundtrackVolume: 1}}
+				calculateMetadata={({props}) =>
+					props.mode === 'instagram-reel'
+						? {width: 1080, height: 1920}
+						: {width: 2560, height: 1600}
+				}
+				fps={30}
+				durationInFrames={1023}
+			/>
+			<Composition
+				id="StudioUpdateBeatTimeline"
+				component={StudioUpdateBeatTimeline}
+				width={1920}
+				height={1080}
+				fps={30}
+				durationInFrames={993}
+			/>
+			<Composition
 				id="TimelineLayoutReveal"
 				component={TimelineLayoutReveal}
 				width={2560}
 				height={1600}
 				fps={60}
 				durationInFrames={720}
+			/>
+			<Composition
+				id="StudioMusicTrackStill"
+				component={StudioMusicTrackStill}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={3}
+				defaultProps={{style: {backgroundColor: '#15161b', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioTimelineClip"
+				component={StudioTimelineClip}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={12}
+				defaultProps={{focusX: 1590, focusY: 2585, zoom: 2.7}}
+			/>
+			<Composition
+				id="TimelineVideoRollingPrelude"
+				component={TimelineVideoRollingPrelude}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={12}
+			/>
+			<Composition
+				id="StudioDeviceOverview"
+				component={StudioDeviceOverview}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={56}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioScreenshotRattle"
+				component={StudioScreenshotRattle}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={24}
+				defaultProps={{
+					style: {backgroundColor: '#151719', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="StudioHomepageElements"
+				component={StudioHomepageElements}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={16}
+				defaultProps={{style: {backgroundColor: '#1e2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageTransitions"
+				component={StudioHomepageTransitions}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={16}
+				defaultProps={{style: {backgroundColor: '#1e2226', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageParameterization"
+				component={StudioHomepageParameterization}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={16}
+				defaultProps={{style: {backgroundColor: '#1f2428', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioRenderOnWeb"
+				component={StudioRenderOnWeb}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={13}
+				defaultProps={{style: {backgroundColor: '#1f2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageNew"
+				component={StudioHomepageNew}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={38}
+				defaultProps={{style: {backgroundColor: '#1f2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageEffects"
+				component={StudioHomepageEffects}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={25}
+				defaultProps={{style: {backgroundColor: '#1f2427', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageMenus"
+				component={StudioHomepageMenus}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={18}
+				defaultProps={{style: {backgroundColor: '#1f2428', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageRender"
+				component={StudioHomepageRender}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={13}
+				defaultProps={{style: {backgroundColor: '#1f2428', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioHomepageKeyframes"
+				component={StudioHomepageKeyframes}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={9}
+				defaultProps={{style: {backgroundColor: '#14171a', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="StudioAiPrompt"
+				component={StudioAiPrompt}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={12}
+				defaultProps={{
+					style: {backgroundColor: '#0d0d0d', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="StudioClosing"
+				component={StudioClosing}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={24}
+				defaultProps={{
+					style: {backgroundColor: '#1c1e23', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="StudioCurvesSplit"
+				component={StudioCurvesSplit}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={67}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="CowColorCorrection"
+				component={CowColorCorrection}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={38}
+				defaultProps={{
+					style: {backgroundColor: '#1c1e23', overflow: 'hidden'},
+				}}
+			/>
+			<Composition
+				id="TimelineRevealShot"
+				component={TimelineRevealShot}
+				width={2560}
+				height={1600}
+				fps={30}
+				durationInFrames={49}
+				defaultProps={{
+					revealOffsetInSeconds: 0,
+					focusX: 562,
+					focusY: 1128,
+					endFocusX: 735.1,
+					endFocusY: 1134,
+					zoom: 5.4,
+					endZoom: 5.55,
+					rotation: '0.2 1 -0.05 7deg',
+					endRotation: '0.2 1 -0.05 5deg',
+				}}
 			/>
 			<Composition
 				id="ColorCorrectionDemo"
@@ -1666,6 +1947,68 @@ export const RemotionRoot: React.FC = () => {
 				fps={60}
 				width={1494}
 				height={1440}
+			/>
+			<Composition
+				id="AiPromptRecreation"
+				component={AiPromptRecreation}
+				durationInFrames={660}
+				fps={60}
+				width={1494}
+				height={1440}
+			/>
+			<Composition
+				id="ChatGPTPrompt"
+				component={ChatGPTPrompt}
+				durationInFrames={360}
+				fps={60}
+				width={2014}
+				height={622}
+				defaultProps={{
+					theme: 'dark',
+					isInitialPrompt: true,
+					prompt: 'please import my footage on a timeline.',
+					pluginName: 'Remotion',
+					heading: 'What should we work on?',
+					typingStartFrame: 30,
+					typingDurationInFrames: 180,
+					showCaret: true,
+					showTools: true,
+					style: {backgroundColor: '#0d0d0d'},
+				}}
+			/>
+			<Composition
+				id="ChatGPTPromptSkills"
+				component={ChatGPTPrompt}
+				durationInFrames={480}
+				fps={60}
+				width={2014}
+				height={622}
+				defaultProps={{
+					theme: 'dark',
+					isInitialPrompt: true,
+					prompt:
+						'$remotion-create Make a short launch video, then use $remotion-captions to add subtitles.',
+					pluginName: '',
+					heading: 'Build with skills',
+					typingStartFrame: 30,
+					typingDurationInFrames: 360,
+					showCaret: true,
+					showTools: true,
+					style: {backgroundColor: '#0d0d0d'},
+				}}
+			/>
+			<Composition
+				id="ChatGPTPromptHomepage"
+				component={ChatGPTPromptHomepage}
+				durationInFrames={222}
+				fps={30}
+				width={1080}
+				height={1080}
+				defaultProps={{
+					prompt: 'please import my footage on a timeline.',
+					typingStartFrame: 0,
+					typingDurationInFrames: 120,
+				}}
 			/>
 			<Composition
 				id="ParameterizationRecording"
@@ -1819,6 +2162,121 @@ export const RemotionRoot: React.FC = () => {
 				fps={60}
 				width={2896}
 				height={1842}
+			/>
+			<Composition
+				id="100gb-video"
+				component={AirDropFootage20261031}
+				durationInFrames={Math.ceil(1185.05 * (30000 / 1001))}
+				fps={30}
+				width={3840}
+				height={2160}
+			/>
+			<Composition
+				id="TimelineZoom"
+				component={TimelineZoomComposition}
+				durationInFrames={495}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="TimelineKeyframeShift"
+				component={TimelineKeyframeShiftComposition}
+				durationInFrames={182}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="TimelineCaptionPosition"
+				component={TimelineCaptionPosition}
+				durationInFrames={24}
+				fps={30}
+				width={2560}
+				height={1600}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="TimelinePlayheadScrub"
+				component={TimelinePlayheadScrub}
+				durationInFrames={38}
+				fps={30}
+				width={2560}
+				height={1600}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="TimelineCaptionReorderAndScrub"
+				component={TimelineCaptionReorderAndScrubComposition}
+				durationInFrames={222}
+				fps={30}
+				width={2084}
+				height={1440}
+			/>
+			<Composition
+				id="TimelineRightTrim"
+				component={TimelineRightTrimComposition}
+				durationInFrames={331}
+				fps={30}
+				width={2560}
+				height={1600}
+				defaultProps={{style: {backgroundColor: '#1c1e23', overflow: 'hidden'}}}
+			/>
+			<Composition
+				id="TimelineClipSelection"
+				component={TimelineClipSelectionComposition}
+				durationInFrames={267}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="RenderOnWebCapture"
+				component={RenderOnWebCaptureComposition}
+				durationInFrames={241}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="StudioRenderClick"
+				component={StudioRenderClickComposition}
+				durationInFrames={480}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="StudioRenderProgress"
+				component={StudioRenderProgressComposition}
+				durationInFrames={812}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="StudioActionsMenu"
+				component={StudioActionsMenuComposition}
+				durationInFrames={172}
+				fps={30}
+				width={2560}
+				height={1600}
+			/>
+			<Composition
+				id="StudioLevels"
+				component={StudioLevelsComposition}
+				durationInFrames={157}
+				fps={30}
+				width={1920}
+				height={1080}
+			/>
+			<Composition
+				id="StudioPlaybackRate"
+				component={StudioPlaybackRateComposition}
+				durationInFrames={639}
+				fps={30}
+				width={1920}
+				height={1080}
 			/>
 		</>
 	);

@@ -61,8 +61,15 @@ import {
 	timeValueRef,
 } from './EditorProps.js';
 import {createCurveSampler} from './effects/create-curve-sampler.js';
-import {createEffect} from './effects/create-effect.js';
+import {
+	createEffect,
+	createEffectImplementation,
+} from './effects/create-effect.js';
 import {subscribeToEffectSource} from './effects/effect-source-observer.js';
+import {
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
+} from './effects/preferred-effect-backend.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -154,6 +161,10 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
+import {
+	OptimisticEffectDeletion,
+	useOptimisticEffectDeletion,
+} from './optimistic-effect-deletion.js';
 import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
@@ -361,6 +372,8 @@ const compositionSelectorRef = createRef<{
 export const Internals = {
 	HtmlInCanvasFallback,
 	useHtmlInCanvasUnsupportedMessage,
+	OptimisticEffectDeletion,
+	useOptimisticEffectDeletion,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,
@@ -550,7 +563,10 @@ export const Internals = {
 	useMemoizedEffects,
 	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
 	createEffect,
+	createEffectImplementation,
 	createCurveSampler,
 	createWebGLContextError,
 	createWebGL2ContextError,

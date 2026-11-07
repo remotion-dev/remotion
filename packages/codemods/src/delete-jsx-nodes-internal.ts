@@ -72,6 +72,172 @@ export const getJsxElementTagLabel = (element: JSXElement): string => {
 	return `<${jsxOpeningNameToString(element.openingElement.name)}>`;
 };
 
+type TransitionSeriesNames = {
+	// Local names that refer to <TransitionSeries>: the default one and any
+	// alias of the named import from @remotion/transitions.
+	seriesNames: ReadonlySet<string>;
+	// Local names of `import * as X from '@remotion/transitions'`.
+	namespaces: ReadonlySet<string>;
+};
+
+const getTransitionSeriesNames = (ast: File): TransitionSeriesNames => {
+	const seriesNames = new Set(['TransitionSeries']);
+	const namespaces = new Set<string>();
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.importKind === 'type' ||
+			statement.source.value !== '@remotion/transitions'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers ?? []) {
+			if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaces.add(specifier.local.name);
+			} else if (
+				specifier.type === 'ImportSpecifier' &&
+				specifier.importKind !== 'type' &&
+				(specifier.imported.type === 'Identifier'
+					? specifier.imported.name
+					: specifier.imported.value) === 'TransitionSeries'
+			) {
+				seriesNames.add(specifier.local.name);
+			}
+		}
+	}
+
+	return {seriesNames, namespaces};
+};
+
+// `Sequence`, `Transition`, `Overlay`, ... for a <TransitionSeries.X>,
+// <TS.X> or <Namespace.TransitionSeries.X> element, null for anything else.
+const getTransitionSeriesMember = (
+	element: JSXElement,
+	names: TransitionSeriesNames,
+): string | null => {
+	const parts = jsxOpeningNameToString(element.openingElement.name).split('.');
+	if (parts.length === 2 && names.seriesNames.has(parts[0])) {
+		return parts[1];
+	}
+
+	if (
+		parts.length === 3 &&
+		names.namespaces.has(parts[0]) &&
+		parts[1] === 'TransitionSeries'
+	) {
+		return parts[2];
+	}
+
+	return null;
+};
+
+export type TransitionSeriesChildKind = 'sequence' | 'connector' | 'other';
+
+// How a child of a <TransitionSeries> counts when the series is checked
+// after a deletion. Whitespace and comments don't count at all (null).
+const getTransitionSeriesChildKind = (
+	child: JSXElement['children'][number],
+	names: TransitionSeriesNames,
+): TransitionSeriesChildKind | null => {
+	if (namedTypes.JSXText.check(child)) {
+		return child.value.trim() === '' ? null : 'other';
+	}
+
+	if (
+		namedTypes.JSXExpressionContainer.check(child) &&
+		namedTypes.JSXEmptyExpression.check(child.expression)
+	) {
+		return null;
+	}
+
+	if (!namedTypes.JSXElement.check(child)) {
+		return 'other';
+	}
+
+	const member = getTransitionSeriesMember(child, names);
+	if (member === 'Sequence') {
+		return 'sequence';
+	}
+
+	if (member === 'Transition' || member === 'Overlay') {
+		return 'connector';
+	}
+
+	return 'other';
+};
+
+// A <TransitionSeries> alternates sequences with transitions and overlays
+// ("connectors"). Given the children of one series and which of them are
+// being deleted, returns the indices of the connectors that no longer sit
+// between two sequences once the deleted children are gone, and so have to go
+// as well: <TransitionSeries> rejects two connectors in a row and an overlay at
+// the start or end of the series. Only connectors next to a deleted child are
+// considered, so a series that was already irregular is left as it is.
+// `TransitionSeriesChildren` in @remotion/transitions applies the same rule to
+// pending deletions in the live preview; keep the two in sync.
+export const findDanglingTransitionSeriesConnectors = ({
+	kinds,
+	deleted,
+}: {
+	kinds: readonly TransitionSeriesChildKind[];
+	deleted: readonly boolean[];
+}): number[] => {
+	const gone = [...deleted];
+	const dangling: number[] = [];
+	let changed = true;
+	while (changed) {
+		changed = false;
+		// Right to left, so that of two connectors left next to each other the
+		// later one goes: a deleted sequence takes the connector that followed it.
+		for (let i = kinds.length - 1; i >= 0; i--) {
+			if (kinds[i] !== 'connector' || gone[i]) {
+				continue;
+			}
+
+			if (!(gone[i - 1] ?? false) && !(gone[i + 1] ?? false)) {
+				continue;
+			}
+
+			let left = i - 1;
+			while (left >= 0 && gone[left]) {
+				left--;
+			}
+
+			let right = i + 1;
+			while (right < kinds.length && gone[right]) {
+				right++;
+			}
+
+			// A connector may stay between two sequences, or at the start or end
+			// of the series if it already was there (an entrance or exit
+			// transition). Of two connectors left next to each other, the one
+			// that still sits at its original edge stays and the other one goes,
+			// unless both do: then the series has no sequence left between them.
+			const atStart = left < 0 && i === 0;
+			const atEnd = right >= kinds.length && i === kinds.length - 1;
+			const leftOk =
+				left < 0
+					? i === 0
+					: kinds[left] !== 'connector' || (atEnd && left !== 0);
+			const rightOk =
+				right >= kinds.length
+					? i === kinds.length - 1
+					: kinds[right] !== 'connector' ||
+						(atStart && right !== kinds.length - 1);
+			if (leftOk && rightOk) {
+				continue;
+			}
+
+			gone[i] = true;
+			dangling.push(i);
+			changed = true;
+		}
+	}
+
+	return dangling;
+};
+
 export const findJsxElementPathForDeletion = (
 	ast: File,
 	nodePath: SequenceNodePath,
@@ -569,6 +735,61 @@ export const deleteNodes = ({
 				1,
 		};
 	});
+
+	// Deleting a <TransitionSeries.Sequence> takes the transitions or overlays
+	// that would be left dangling along, see
+	// findDanglingTransitionSeriesConnectors.
+	const transitionSeriesNames = getTransitionSeriesNames(ast);
+	const seriesChildrenPaths = new Set<recast.types.NodePath>();
+	for (const {jsxPath} of pathsToDelete) {
+		const element = jsxPath.node as JSXElement;
+		if (
+			!namedTypes.JSXElement.check(element) ||
+			getTransitionSeriesMember(element, transitionSeriesNames) !== 'Sequence'
+		) {
+			continue;
+		}
+
+		const childrenPath = jsxPath.parentPath;
+		if (
+			childrenPath &&
+			Array.isArray(childrenPath.value) &&
+			(namedTypes.JSXElement.check(childrenPath.node) ||
+				namedTypes.JSXFragment.check(childrenPath.node))
+		) {
+			seriesChildrenPaths.add(childrenPath);
+		}
+	}
+
+	for (const childrenPath of seriesChildrenPaths) {
+		const children = (childrenPath.value as JSXElement['children'])
+			.map((child, index) => ({
+				child,
+				index,
+				kind: getTransitionSeriesChildKind(child, transitionSeriesNames),
+			}))
+			.filter(
+				(entry): entry is typeof entry & {kind: TransitionSeriesChildKind} =>
+					entry.kind !== null,
+			);
+		const dangling = findDanglingTransitionSeriesConnectors({
+			kinds: children.map(({kind}) => kind),
+			deleted: children.map(({child}) =>
+				pathsToDelete.some((entry) => entry.jsxPath.node === child),
+			),
+		});
+		for (const i of dangling) {
+			const connector = children[i].child as JSXElement;
+			pathsToDelete.push({
+				jsxPath: childrenPath.get(children[i].index),
+				nodeLabel: getJsxElementTagLabel(connector),
+				logLine:
+					connector.openingElement.loc?.start.line ??
+					connector.loc?.start.line ??
+					1,
+			});
+		}
+	}
 
 	const sourceEdits = pathsToDelete.map(({jsxPath}) =>
 		getNodeSourceEdit({input, jsxPath}),

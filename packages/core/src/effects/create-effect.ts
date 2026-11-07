@@ -3,6 +3,9 @@ import type {
 	EffectDefinition,
 	EffectDescriptor,
 	EffectFactory,
+	EffectImplementation,
+	MultiBackendEffectDefinition,
+	Backend,
 } from './effect-types.js';
 
 // Framework-level field that every effect inherits. Mirrors `hidden` for
@@ -15,6 +18,14 @@ export const disabledEffectField: InteractivitySchemaField = {
 	description: 'Disabled',
 };
 
+// Check each implementation's state type before erasing it so implementations
+// with different setup states can be combined in one effect definition.
+export const createEffectImplementation = <P, S>(
+	implementation: EffectImplementation<P, S>,
+): EffectImplementation<P, unknown> => {
+	return implementation as unknown as EffectImplementation<P, unknown>;
+};
+
 // Defines an effect and returns a factory that produces effect descriptors.
 // The returned function is the public API effect authors expose to users:
 //
@@ -25,9 +36,27 @@ export const disabledEffectField: InteractivitySchemaField = {
 // effects can be freely composed inside `EffectsProp` arrays. Without that
 // erasure the descriptor would be contravariant in `P` (via `apply`'s
 // argument) and concrete descriptors could not flow into `unknown` slots.
-export const createEffect = <P, S>(
-	definition: EffectDefinition<P, S>,
+export const createEffect = <P, S = unknown>(
+	input: EffectDefinition<P, S> | MultiBackendEffectDefinition<P>,
 ): EffectFactory<P> => {
+	const backend =
+		'backend' in input
+			? input.backend
+			: (['webgpu', 'webgl2', '2d'] as const).find(
+					(b) => input.implementations[b],
+				);
+	if (!backend)
+		throw new Error(
+			`Effect "${input.type}" must provide at least one implementation`,
+		);
+	const definition =
+		'backend' in input
+			? input
+			: {
+					...input,
+					...input.implementations[backend as Backend]!,
+					backend,
+				};
 	// Wrap `calculateKey` to fold the framework-level `disabled` flag into the
 	// memoization key. Without this, toggling `disabled` via code/drag overrides
 	// would not invalidate the cached `EffectDefinitionAndStack`.

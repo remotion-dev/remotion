@@ -1,5 +1,6 @@
-import React, {useEffect, useRef} from 'react';
+import React from 'react';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
+import {useAutoplayVideo} from './use-autoplay-video';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
 export const MakeVideosInteractively: React.FC<{
@@ -32,34 +33,11 @@ export const MakeVideosInteractively: React.FC<{
 	fallbackVideoSrc = '/img/editing-safari.mp4',
 	videoStyle,
 }) => {
-	const ref = useRef<HTMLDivElement>(null);
-	const videoRef = useRef<HTMLVideoElement>(null);
 	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
-
-	useEffect(() => {
-		const {current} = ref;
-		if (!current || !src || !showVideo) {
-			return;
-		}
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					videoRef.current?.play().catch(() => {
-						// Autoplay may still be blocked by the browser.
-					});
-				}
-			},
-			{root: null, threshold: 0.5},
-		);
-		observer.observe(current);
-
-		return () => observer.disconnect();
-	}, [showVideo, src]);
+	const videoRef = useAutoplayVideo(showVideo ? src : null);
 
 	return (
 		<div
-			ref={ref}
 			className={
 				'flex min-w-0 basis-0 flex-col justify-start items-start min-[900px]:mt-0 flex-1'
 			}

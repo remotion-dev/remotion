@@ -43,7 +43,7 @@ export const config: VercelConfig = {
 	installCommand:
 		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
 	buildCommand:
-		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --no-update-notifier --concurrency=2',
+		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --filter=docs --no-update-notifier --concurrency=2',
 	headers: [
 		...accountMirrorPaths.map((source) =>
 			routes.header(
@@ -171,6 +171,54 @@ export const config: VercelConfig = {
 		})),
 	],
 	redirects: [
+		routes.redirect(
+			'/docs/starburst',
+			'/elements/backgrounds/rotating-starburst',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect(
+			'/docs/starburst.md',
+			'/elements/backgrounds/rotating-starburst.md',
+			{permanent: true},
+		),
+		routes.redirect('/docs/using-audio', '/docs/video-and-audio', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/using-audio.md', '/docs/video-and-audio.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/importing', '/docs/videos', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/importing.md', '/docs/videos.md', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/from-video', '/docs/videos#audio-from-video', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/docs/audio/from-video.md',
+			'/docs/videos.md#audio-from-video',
+			{permanent: true},
+		),
+		routes.redirect('/docs/audio/delaying', '/docs/audio/trimming#delaying', {
+			permanent: true,
+		}),
+		routes.redirect(
+			'/docs/audio/delaying.md',
+			'/docs/audio/trimming.md#delaying',
+			{
+				permanent: true,
+			},
+		),
+		routes.redirect('/docs/audio/muting', '/docs/audio/volume#muting', {
+			permanent: true,
+		}),
+		routes.redirect('/docs/audio/muting.md', '/docs/audio/volume.md#muting', {
+			permanent: true,
+		}),
 		routes.redirect('/docs/studio/creating-elements', '/docs/elements', {
 			permanent: true,
 		}),
@@ -362,6 +410,9 @@ export const config: VercelConfig = {
 		),
 		routes.redirect('/support', '/docs/support', {permanent: true}),
 		routes.redirect('/webcodecs', '/docs/webcodecs', {permanent: true}),
+		routes.redirect('/video-matting', '/docs/video-matting-guide', {
+			permanent: true,
+		}),
 		routes.redirect(
 			'/docs/miscellaneous/parse-media-vs-get-video-metadata',
 			'/docs/mediabunny/metadata',

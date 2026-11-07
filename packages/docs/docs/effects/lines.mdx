@@ -20,11 +20,11 @@ Each line color is composited over the source.
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {lines} from '@remotion/effects/lines';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -39,7 +39,7 @@ export const MyComp: React.FC = () => {
             thickness: 40,
             gap: 24,
             angle: 20,
-            offset: frame * 2,
+            offset: interpolate(frame, [0, 60], [0, 120]),
           }),
         ]}
       />
@@ -101,9 +101,12 @@ Set this to `true` to prevent the line pattern from appearing in fully transpare
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`lines()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGL2
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

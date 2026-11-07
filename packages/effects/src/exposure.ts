@@ -1,8 +1,16 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {COLOR_SPACE_GLSL} from './color-correction-shader-utils.js';
+import {COLOR_SPACE_WGSL} from './color-correction-webgpu-shader-utils.js';
 import {assertOptionalFiniteNumber} from './color-utils.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	WEBGPU_SINGLE_PASS_VERTEX,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -102,6 +110,32 @@ void main() {
 	vec3 corrected = linearToSrgb(exposed);
 
 	fragColor = vec4(corrected * alpha, alpha);
+}
+`;
+
+const WEBGPU_SHADER = /* wgsl */ `
+${WEBGPU_SINGLE_PASS_VERTEX}
+struct Params {
+	stops: f32,
+	padding0: f32,
+	padding1: f32,
+	padding2: f32,
+}
+@group(0) @binding(0) var source: texture_2d<f32>;
+@group(0) @binding(1) var sourceSampler: sampler;
+@group(0) @binding(2) var<uniform> params: Params;
+${COLOR_SPACE_WGSL}
+
+@fragment fn fragment(input: VertexOutput) -> @location(0) vec4f {
+	let sourceColor = textureSampleLevel(source, sourceSampler, input.uv, 0.0);
+	let alpha = sourceColor.a;
+	if (alpha <= 0.0) {
+		return vec4f(0.0);
+	}
+	let linear = srgbToLinear(sourceColor.rgb / alpha);
+	let exposed = linear * exp2(params.stops);
+	let corrected = linearToSrgb(exposed);
+	return vec4f(corrected * alpha, alpha);
 }
 `;
 
@@ -216,51 +250,81 @@ const setupExposure = (target: HTMLCanvasElement): ExposureState => {
 	};
 };
 
-export const exposure = createEffect<ExposureParams, ExposureState>({
+export const exposure = createEffect<ExposureParams>({
 	type: 'remotion/exposure',
 	label: 'exposure()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/exposure',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const {stops} = resolve(params);
 		return `exposure-${stops}`;
 	},
-	setup: setupExposure,
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const {stops} = resolve(params);
-		const {gl, program, textureSource, uniforms, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ExposureParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'exposure'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the exposure effect',
+					);
+				}
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				const r = resolve(params);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: WEBGPU_SHADER,
+					uniformData: new Float32Array([r.stops, 0, 0, 0]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<ExposureParams, ExposureState>(
+			{
+				setup: setupExposure,
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const {stops} = resolve(params);
+					const {gl, program, textureSource, uniforms, vao} = state;
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+					gl.viewport(0, 0, width, height);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uStops) gl.uniform1f(uniforms.uStops, stops);
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, textureSource);
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						source as TexImageSource,
+					);
+
+					gl.useProgram(program);
+					if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+					if (uniforms.uStops) gl.uniform1f(uniforms.uStops, stops);
+					gl.bindVertexArray(vao);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					gl.bindVertexArray(null);
+					gl.bindTexture(gl.TEXTURE_2D, null);
+					gl.useProgram(null);
+				},
+				cleanup: ({gl, program, vao, vbo, textureSource}) => {
+					gl.deleteTexture(textureSource);
+					gl.deleteBuffer(vbo);
+					gl.deleteProgram(program);
+					gl.deleteVertexArray(vao);
+				},
+			},
+		),
 	},
 	schema: exposureSchema,
 	validateParams: validateExposureParams,

@@ -25,6 +25,7 @@ import {
 } from '../import-assets';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSettings} from '../SettingsContext';
+import {getCurrentFrame} from '../Timeline/imperative-state';
 import {getOriginalLocationFromStack} from '../Timeline/TimelineStack/get-stack';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
 
@@ -228,41 +229,44 @@ export const useCompositionActions = () => {
 		videoConfig,
 	]);
 
-	const onFilesSelected = useCallback(async () => {
-		if (
-			!canInsertAsset ||
-			currentCompositionId === null ||
-			compositionFile === null ||
-			videoConfig === null
-		) {
-			return;
-		}
+	const onFilesSelected = useCallback(
+		async (from: number) => {
+			if (
+				!canInsertAsset ||
+				currentCompositionId === null ||
+				compositionFile === null ||
+				videoConfig === null
+			) {
+				return;
+			}
 
-		const files = await pickFilesToImport();
-		if (files.length === 0) {
-			return;
-		}
+			const files = await pickFilesToImport();
+			if (files.length === 0) {
+				return;
+			}
 
-		setIsAddingAsset(true);
-		try {
-			await importAssets({
-				files,
-				fps: videoConfig.fps,
-				compositionFile,
-				compositionId: currentCompositionId,
-				destinationDimensions: null,
-				dropPosition: null,
-				from: null,
-				preferCompositionStart: null,
-				svgImportMode: 'image',
-			});
-		} finally {
-			setIsAddingAsset(false);
-		}
-	}, [canInsertAsset, compositionFile, currentCompositionId, videoConfig]);
+			setIsAddingAsset(true);
+			try {
+				await importAssets({
+					files,
+					fps: videoConfig.fps,
+					compositionFile,
+					compositionId: currentCompositionId,
+					destinationDimensions: null,
+					dropPosition: null,
+					from,
+					preferCompositionStart: true,
+					svgImportMode: 'image',
+				});
+			} finally {
+				setIsAddingAsset(false);
+			}
+		},
+		[canInsertAsset, compositionFile, currentCompositionId, videoConfig],
+	);
 
 	const onAssetSelected = useCallback(
-		async (asset: {readonly name: string}) => {
+		async (asset: {readonly name: string}, from: number) => {
 			if (
 				!canInsertAsset ||
 				currentCompositionId === null ||
@@ -281,8 +285,8 @@ export const useCompositionActions = () => {
 					compositionId: currentCompositionId,
 					destinationDimensions: null,
 					dropPosition: null,
-					from: null,
-					preferCompositionStart: null,
+					from,
+					preferCompositionStart: true,
 				});
 			} finally {
 				setIsAddingAsset(false);
@@ -296,6 +300,7 @@ export const useCompositionActions = () => {
 			return;
 		}
 
+		const from = getCurrentFrame();
 		setSelectedModal({
 			type: 'quick-switcher',
 			mode: 'assets',
@@ -304,10 +309,10 @@ export const useCompositionActions = () => {
 				initialQuery: '',
 				fileTypes: null,
 				onSelectFile: () => {
-					onFilesSelected().catch(() => undefined);
+					onFilesSelected(from).catch(() => undefined);
 				},
 				onSelected: (asset) => {
-					onAssetSelected(asset).catch(() => undefined);
+					onAssetSelected(asset, from).catch(() => undefined);
 				},
 			},
 			compositionSelection: null,

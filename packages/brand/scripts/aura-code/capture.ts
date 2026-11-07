@@ -2,10 +2,10 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import {homedir} from 'node:os';
 import path from 'node:path';
-import {highlight} from 'codehike/code';
+import {highlightCode} from '../dark-plus';
 import {captionsSample} from './captions';
 import {sample} from './sample';
-import type {EditorShot, EditorToken} from './timeline';
+import type {EditorShot} from './timeline';
 
 const brandRoot = path.resolve(import.meta.dir, '../..');
 const packagesRoot = path.resolve(brandRoot, '..');
@@ -123,33 +123,6 @@ const requested =
 if (requested !== null && !shots.some((shot) => shot.id === requested))
 	throw new Error(`Unknown shot: ${requested}`);
 
-const highlightCode = async (code: string): Promise<EditorToken[][]> => {
-	const highlighted = await highlight(
-		{value: code, lang: 'tsx', meta: ''},
-		'dark-plus',
-	);
-	const lines: EditorToken[][] = [[]];
-	let column = 0;
-	for (const token of highlighted.tokens) {
-		const content = typeof token === 'string' ? token : token[0];
-		const color = typeof token === 'string' ? '#D4D4D4' : token[1];
-		const parts = content.split('\n');
-		for (let index = 0; index < parts.length; index++) {
-			if (index > 0) {
-				lines.push([]);
-				column = 0;
-			}
-			if (parts[index].length > 0) {
-				lines.at(-1)!.push({
-					startIndex: column,
-					scopes: `color${color.slice(1).toLowerCase()}`,
-				});
-				column += parts[index].length;
-			}
-		}
-	}
-	return lines;
-};
 for (const shot of shots) {
 	shot.tokens = await highlightCode(shot.code);
 	shot.finalTokens =

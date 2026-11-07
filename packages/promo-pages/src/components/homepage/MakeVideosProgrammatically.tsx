@@ -1,5 +1,6 @@
 import React from 'react';
 import {MakeVideosLinks, type MakeVideosLink} from './MakeVideosLinks';
+import {useAutoplayVideo} from './use-autoplay-video';
 import {useTransparentVideoSource} from './use-transparent-video-source';
 
 export const MakeVideosProgrammatically: React.FC<{
@@ -28,6 +29,7 @@ export const MakeVideosProgrammatically: React.FC<{
 	fallbackVideoSrc = '/img/what-is-remotion.mp4',
 }) => {
 	const src = useTransparentVideoSource({fallbackVideoSrc, videoSrc});
+	const videoRef = useAutoplayVideo(showVideo ? src : null);
 
 	return (
 		<div className={'flex min-w-0 basis-0 flex-col flex-1'}>
@@ -35,6 +37,7 @@ export const MakeVideosProgrammatically: React.FC<{
 				<div className="flex aspect-square w-full max-w-[270px] self-start items-start justify-start">
 					{src ? (
 						<video
+							ref={videoRef}
 							src={src}
 							muted
 							autoPlay

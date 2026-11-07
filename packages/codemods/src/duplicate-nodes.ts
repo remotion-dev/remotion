@@ -15,6 +15,7 @@ export type DuplicateNodesOptions<Project extends CodemodProject> = {
 
 export type DuplicateNodesResult = CodemodNodeResult & {
 	insertedNodes: NodeReference[];
+	duplicatedNodes: NodeReference[];
 	editDetails: {filePath: string; nodeLabels: string[]; logLines: number[]}[];
 };
 
@@ -41,5 +42,8 @@ export const duplicateNodes = async <Project extends CodemodProject>({
 			logLines,
 		})),
 		insertedNodes: getInsertedNodeReferences(result.nodePathRemappings),
+		duplicatedNodes: edits.flatMap(({filePath, duplicatedNodePaths}) =>
+			duplicatedNodePaths.map((nodePath) => ({filePath, nodePath})),
+		),
 	};
 };

@@ -59,6 +59,9 @@
 		"teste2e": {
 			"dependsOn": ["^make"]
 		},
+		"@remotion/example#teste2e": {
+			"dependsOn": ["^make", "template-vibe-code#make"]
+		},
 		"testwebrenderer": {
 			"dependsOn": ["@remotion/web-renderer#make"]
 		},
@@ -88,7 +91,18 @@
 		},
 		"@remotion/example-videos#make": {
 			"dependsOn": ["^make"],
-			"outputs": ["dist", "node_modules/.videos/**"],
+			"outputs": [
+				"dist",
+				"node_modules/.videos/**",
+				"videos/bigbuckbunny.mp4",
+				"videos/music-visualization-demo-track.mp3",
+				"videos/corrupted.mp4",
+				"videos/variablefps.webm",
+				"videos/iphonevideo.mov",
+				"videos/music.mp3",
+				"videos/iphone-hevc.mov",
+				"videos/stretched-vp8.webm"
+			],
 			"outputLogs": "new-only"
 		},
 		"@remotion/example#bundle": {

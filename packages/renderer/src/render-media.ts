@@ -294,6 +294,7 @@ const internalRenderMediaRaw = async ({
 	chromeMode,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	licenseKey,
 	isProduction,
@@ -871,6 +872,7 @@ const internalRenderMediaRaw = async ({
 					chromeMode,
 					imageSequencePattern: null,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					onLog,
 					sampleRate,
 				});
@@ -1142,6 +1144,7 @@ export const renderMedia = ({
 	offthreadVideoThreads,
 	compositionStart,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	isProduction,
 	sampleRate,
 	...apiKeyOrLicenseKey
@@ -1258,6 +1261,7 @@ export const renderMedia = ({
 		hardwareAcceleration: hardwareAcceleration ?? 'disable',
 		chromeMode: chromeMode ?? 'headless-shell',
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		licenseKey: effectiveLicenseKey,
 		onLog: defaultOnLog,
 		isProduction: isProduction ?? null,

@@ -8,8 +8,10 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from 'react';
+import {unstable_batchedUpdates} from 'react-dom';
 import type {
 	CanUpdateSequencePropStatusKeyframed,
 	DragOverrideValue,
@@ -28,11 +30,10 @@ import {
 import {useRuntimeValues} from '../../helpers/use-runtime-values';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {
-	callDeleteEffectKeyframe,
-	callDeleteSequenceKeyframe,
-} from '../Timeline/call-delete-keyframe';
+import {showNotification} from '../Notifications/NotificationCenter';
+import {useDeleteKeyframes} from '../Timeline/call-delete-keyframe';
 import {callMoveKeyframes} from '../Timeline/call-move-keyframe';
+import {finishKeyframePreview} from '../Timeline/finish-keyframe-preview';
 import {
 	getKeyframeDisplayOffset,
 	getKeyframePlaybackRate,
@@ -43,9 +44,11 @@ import {TimelineEffectPropValue} from '../Timeline/TimelineEffectPropItem';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	useTimelineSelection,
+	useCurrentTimelineSelectionStateAsRef,
 	type TimelineSelection,
 } from '../Timeline/TimelineSelection';
 import {TimelineSequenceKeyframedValue} from '../Timeline/TimelineSequencePropItem';
+import {useSequencePropPreview} from '../Timeline/use-sequence-prop-preview';
 import {
 	InspectorBackAction,
 	InspectorDetailRow,
@@ -151,13 +154,16 @@ export const KeyframeInspector: React.FC<{
 	const runtimeValues = useRuntimeValues(track?.sequence.controls ?? null);
 	const videoConfig = useVideoConfig();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
-	const {
-		clearDragOverrides,
-		clearEffectDragOverrides,
-		setDragOverrides,
-		setEffectDragOverrides,
-		setPropStatuses,
-	} = useContext(Internals.VisualModeSettersContext);
+	const {updateEffectDragOverridesBatch} = useContext(
+		Internals.VisualModeSettersContext,
+	);
+	const {getPreview, takePreview, cancelPreview} = useSequencePropPreview();
+	const propStatusesSubscription = useContext(
+		Internals.VisualModePropStatusesSubscriptionContext,
+	);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const frameEditRevision = useRef(0);
+	const deleteKeyframes = useDeleteKeyframes({notifyOnError: true});
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -310,82 +316,102 @@ export const KeyframeInspector: React.FC<{
 		track,
 	]);
 
-	const clearFrameDragOverride = useCallback(
-		(detailsToClear: KeyframeEditorDetails | null) => {
-			if (detailsToClear === null) {
+	const cancelFrameEdit = useCallback(() => {
+		frameEditRevision.current++;
+		unstable_batchedUpdates(() => {
+			setDraftFrame(selection.frame);
+			if (details === null) {
+				cancelPreview();
 				return;
 			}
 
-			if (detailsToClear.type === 'sequence') {
-				clearDragOverrides(detailsToClear.nodePath);
-				return;
-			}
+			finishKeyframePreview({
+				preview: takePreview(),
+				reason: 'cancel',
+				recoverSelection: true,
+				targets: [
+					{
+						nodePathInfo: {
+							...selection.nodePathInfo,
+							sequenceSubscriptionKey: details.nodePath,
+						},
+						displayFrame: selection.frame,
+						sourceFrame: details.sourceFrame,
+					},
+				],
+				previousSelections: [selection],
+				expectedSelections: [selection],
+				currentSelection,
+				getSnapshot: propStatusesSubscription.getSnapshot,
+			});
+		});
+	}, [
+		cancelPreview,
+		currentSelection,
+		details,
+		propStatusesSubscription,
+		selection,
+		takePreview,
+	]);
 
-			clearEffectDragOverrides(
-				detailsToClear.nodePath,
-				detailsToClear.effectIndex,
-			);
+	const applyFramePreview = useCallback(
+		(
+			preview: ReturnType<typeof getPreview>,
+			target: KeyframeEditorDetails,
+			value: DragOverrideValue,
+		) => {
+			if (target.type === 'sequence')
+				preview.setDragOverrides(target.nodePath, target.field.key, value);
+			else
+				preview.setEffectDragOverridesBatch(
+					[
+						{
+							nodePath: target.nodePath,
+							effectIndex: target.effectIndex,
+							key: target.field.key,
+							value,
+						},
+					],
+					updateEffectDragOverridesBatch,
+				);
 		},
-		[clearDragOverrides, clearEffectDragOverrides],
+		[updateEffectDragOverridesBatch],
 	);
 
 	const onFrameChange = useCallback(
 		(value: number) => {
+			frameEditRevision.current++;
 			const displayFrame = clampInspectorKeyframeDisplayFrame({
 				durationInFrames: videoConfig.durationInFrames,
 				frame: value,
 			});
-
 			setDraftFrame(displayFrame);
-
-			if (details === null) {
-				return;
-			}
-
+			if (details === null) return;
 			const toFrame = getKeyframeSourceFrame({
 				displayFrame,
 				keyframeDisplayOffset: details.keyframeDisplayOffset,
 				keyframePlaybackRate: details.keyframePlaybackRate,
 				propStatus: details.propStatus,
 			});
-
 			if (displayFrame === selection.frame || toFrame === details.sourceFrame) {
-				clearFrameDragOverride(details);
+				cancelFrameEdit();
 				return;
 			}
 
-			const dragOverrideValue = makeMovedKeyframedDragOverride({
-				details,
-				toFrame,
-			});
-
-			if (dragOverrideValue === null) {
-				clearFrameDragOverride(details);
+			const override = makeMovedKeyframedDragOverride({details, toFrame});
+			if (override === null) {
+				cancelFrameEdit();
 				return;
 			}
 
-			if (details.type === 'sequence') {
-				setDragOverrides(
-					details.nodePath,
-					details.field.key,
-					dragOverrideValue,
-				);
-				return;
-			}
-
-			setEffectDragOverrides(
-				details.nodePath,
-				details.effectIndex,
-				details.field.key,
-				dragOverrideValue,
-			);
+			applyFramePreview(getPreview(), details, override);
 		},
 		[
-			clearFrameDragOverride,
+			applyFramePreview,
+			cancelFrameEdit,
 			details,
+			getPreview,
 			selection.frame,
-			setDragOverrides,
-			setEffectDragOverrides,
 			videoConfig.durationInFrames,
 		],
 	);
@@ -393,8 +419,7 @@ export const KeyframeInspector: React.FC<{
 	const onFrameChangeEnd = useCallback(
 		(value: number) => {
 			if (details === null || previewServerState.type !== 'connected') {
-				clearFrameDragOverride(details);
-				setDraftFrame(selection.frame);
+				cancelFrameEdit();
 				return;
 			}
 
@@ -408,60 +433,94 @@ export const KeyframeInspector: React.FC<{
 				keyframePlaybackRate: details.keyframePlaybackRate,
 				propStatus: details.propStatus,
 			});
-
-			setDraftFrame(displayFrame);
-			clearFrameDragOverride(details);
-
 			if (displayFrame === selection.frame || toFrame === details.sourceFrame) {
+				cancelFrameEdit();
 				return;
 			}
 
-			if (makeMovedKeyframedDragOverride({details, toFrame}) === null) {
-				setDraftFrame(selection.frame);
+			const override = makeMovedKeyframedDragOverride({details, toFrame});
+			if (override === null) {
+				cancelFrameEdit();
 				return;
 			}
 
-			selectItems(
-				[
-					{
-						...selection,
-						frame: displayFrame,
-					},
-				],
-				{reveal: true},
-			);
+			const savedRevision = ++frameEditRevision.current;
+			const preview = takePreview();
+			applyFramePreview(preview, details, override);
+			const nodePath = preview.getNodePath(details.nodePath);
+			if (nodePath === null) {
+				preview.cancel();
+				cancelFrameEdit();
+				return;
+			}
 
+			const nextSelection: Extract<TimelineSelection, {type: 'keyframe'}> = {
+				...selection,
+				nodePathInfo: {
+					...selection.nodePathInfo,
+					sequenceSubscriptionKey: nodePath,
+				},
+				frame: displayFrame,
+			};
 			const move = {
-				fileName: details.fileName,
-				nodePath: details.nodePath,
+				fileName: nodePath.absolutePath,
+				nodePath,
 				fieldKey: details.field.key,
 				fromFrame: details.sourceFrame,
 				toFrame,
 				schema: details.schema,
 			};
-
-			callMoveKeyframes({
-				sequenceKeyframes: details.type === 'sequence' ? [move] : [],
-				effectKeyframes:
-					details.type === 'effect'
-						? [
-								{
-									...move,
-									effectIndex: details.effectIndex,
+			unstable_batchedUpdates(() => {
+				setDraftFrame(displayFrame);
+				selectItems([nextSelection], {reveal: true});
+				return callMoveKeyframes({
+					sequenceKeyframes: details.type === 'sequence' ? [move] : [],
+					effectKeyframes:
+						details.type === 'effect'
+							? [{...move, effectIndex: details.effectIndex}]
+							: [],
+					setPropStatuses: preview.setPropStatuses,
+					setPropStatusesBatch: preview.setPropStatusesBatch,
+					clientId: previewServerState.clientId,
+				});
+			})
+				.then((response) => preview.acknowledgeKeyframes(response.results))
+				.catch((error) => {
+					finishKeyframePreview({
+						preview,
+						reason: 'failure',
+						recoverSelection: savedRevision === frameEditRevision.current,
+						targets: [
+							{
+								nodePathInfo: {
+									...selection.nodePathInfo,
+									sequenceSubscriptionKey: details.nodePath,
 								},
-							]
-						: [],
-				setPropStatuses,
-				clientId: previewServerState.clientId,
-			}).catch(() => undefined);
+								displayFrame: selection.frame,
+								sourceFrame: details.sourceFrame,
+							},
+						],
+						previousSelections: [selection],
+						expectedSelections: [{...selection, frame: displayFrame}],
+						currentSelection,
+						getSnapshot: propStatusesSubscription.getSnapshot,
+					});
+					showNotification(
+						`Could not move keyframe: ${error instanceof Error ? error.message : String(error)}`,
+						4000,
+					);
+				});
 		},
 		[
-			clearFrameDragOverride,
+			applyFramePreview,
+			cancelFrameEdit,
 			details,
 			previewServerState,
+			currentSelection,
+			propStatusesSubscription,
 			selection,
 			selectItems,
-			setPropStatuses,
+			takePreview,
 			videoConfig.durationInFrames,
 		],
 	);
@@ -494,27 +553,20 @@ export const KeyframeInspector: React.FC<{
 				selectItems([parentSelection], {reveal: true});
 			}
 
-			if (details.type === 'sequence') {
-				callDeleteSequenceKeyframe({
-					fileName: details.fileName,
-					nodePath: details.nodePath,
-					fieldKey: details.field.key,
-					sourceFrame: details.sourceFrame,
-					schema: details.schema,
-					setPropStatuses,
-					clientId: previewServerState.clientId,
-				}).catch(() => undefined);
-				return;
-			}
-
-			callDeleteEffectKeyframe({
+			const change = {
 				fileName: details.fileName,
 				nodePath: details.nodePath,
-				effectIndex: details.effectIndex,
 				fieldKey: details.field.key,
 				sourceFrame: details.sourceFrame,
 				schema: details.schema,
-				setPropStatuses,
+				valueWhenLastKeyframeDeleted: null,
+			};
+			deleteKeyframes({
+				sequenceKeyframes: details.type === 'sequence' ? [change] : [],
+				effectKeyframes:
+					details.type === 'effect'
+						? [{...change, effectIndex: details.effectIndex}]
+						: [],
 				clientId: previewServerState.clientId,
 			}).catch(() => undefined);
 		},
@@ -523,7 +575,7 @@ export const KeyframeInspector: React.FC<{
 			parentSelection,
 			previewServerState,
 			selectItems,
-			setPropStatuses,
+			deleteKeyframes,
 		],
 	);
 
@@ -563,12 +615,15 @@ export const KeyframeInspector: React.FC<{
 				<div style={detailsBeforeInlineAction}>
 					<InspectorDetailRow label="Frame">
 						<InputDragger
+							onValueChangeCancel={cancelFrameEdit}
 							type="number"
 							value={draftFrame}
 							status="ok"
 							onValueChange={onFrameChange}
 							onValueChangeEnd={onFrameChangeEnd}
-							onTextChange={() => undefined}
+							onTextChange={() => {
+								frameEditRevision.current++;
+							}}
 							min={0}
 							max={Math.max(0, videoConfig.durationInFrames - 1)}
 							step={1}

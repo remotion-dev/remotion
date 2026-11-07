@@ -1,5 +1,5 @@
 diff --git a/content/browser/devtools/protocol/page_handler.cc b/content/browser/devtools/protocol/page_handler.cc
-index c750e9a..a05af5c 100644
+index d9a6aaa..ee4329d 100644
 --- a/content/browser/devtools/protocol/page_handler.cc
 +++ b/content/browser/devtools/protocol/page_handler.cc
 @@ -5,6 +5,7 @@
@@ -52,7 +52,7 @@ index c750e9a..a05af5c 100644
  #if BUILDFLAG(IS_ANDROID)
  #include "content/browser/renderer_host/compositor_impl_android.h"
  #endif
-@@ -488,8 +508,94 @@ std::string GetFrameStartedNavigatingNavigationTypeString(
+@@ -508,8 +528,94 @@ std::string GetFrameStartedNavigatingNavigationTypeString(
        NOTREACHED();
    }
  }
@@ -147,7 +147,7 @@ index c750e9a..a05af5c 100644
  struct PageHandler::PendingScreenshotRequest {
    PendingScreenshotRequest(base::ScopedClosureRunner capturer_handle,
                             PageHandler::BitmapEncoder encoder,
-@@ -498,6 +604,18 @@ struct PageHandler::PendingScreenshotRequest {
+@@ -518,6 +624,18 @@ struct PageHandler::PendingScreenshotRequest {
          encoder(std::move(encoder)),
          callback(std::move(callback)) {}
  
@@ -166,7 +166,7 @@ index c750e9a..a05af5c 100644
    base::ScopedClosureRunner capturer_handle;
    PageHandler::BitmapEncoder encoder;
    std::unique_ptr<CaptureScreenshotCallback> callback;
-@@ -1386,6 +1504,178 @@ void PageHandler::CaptureSnapshot(
+@@ -1371,6 +1489,178 @@ void PageHandler::CaptureSnapshot(
        std::move(callback));
  }
  
@@ -345,7 +345,7 @@ index c750e9a..a05af5c 100644
  // Sets a clip with full page dimensions. Calls CaptureScreenshot with updated
  // value to proceed with capturing the full page screenshot.
  // TODO(crbug.com/40238745): at the point this method is called, the page could
-@@ -1394,6 +1684,10 @@ void PageHandler::CaptureFullPageScreenshot(
+@@ -1379,6 +1669,10 @@ void PageHandler::CaptureFullPageScreenshot(
      std::optional<std::string> format,
      std::optional<int> quality,
      std::optional<bool> optimize_for_speed,
@@ -356,7 +356,7 @@ index c750e9a..a05af5c 100644
      std::unique_ptr<CaptureScreenshotCallback> callback,
      const gfx::Size& full_page_size) {
    // check width and height for validity
-@@ -1414,7 +1708,9 @@ void PageHandler::CaptureFullPageScreenshot(
+@@ -1399,7 +1693,9 @@ void PageHandler::CaptureFullPageScreenshot(
                    .Build();
    CaptureScreenshot(std::move(format), std::move(quality), std::move(clip),
                      /*from_surface=*/true, /*capture_beyond_viewport=*/true,
@@ -367,7 +367,7 @@ index c750e9a..a05af5c 100644
  }
  
  void PageHandler::CaptureScreenshot(
-@@ -1424,6 +1720,10 @@ void PageHandler::CaptureScreenshot(
+@@ -1409,6 +1705,10 @@ void PageHandler::CaptureScreenshot(
      std::optional<bool> from_surface,
      std::optional<bool> capture_beyond_viewport,
      std::optional<bool> optimize_for_speed,
@@ -378,7 +378,7 @@ index c750e9a..a05af5c 100644
      std::unique_ptr<CaptureScreenshotCallback> callback) {
    if (!host_ || !host_->GetRenderWidgetHost() ||
        !host_->GetRenderWidgetHost()->GetView()) {
-@@ -1442,6 +1742,8 @@ void PageHandler::CaptureScreenshot(
+@@ -1427,6 +1727,8 @@ void PageHandler::CaptureScreenshot(
      main_frame->GetFullPageSize(base::BindOnce(
          &PageHandler::CaptureFullPageScreenshot, weak_factory_.GetWeakPtr(),
          std::move(format), std::move(quality), std::move(optimize_for_speed),
@@ -387,7 +387,7 @@ index c750e9a..a05af5c 100644
          std::move(callback)));
      return;
    }
-@@ -1481,6 +1783,72 @@ void PageHandler::CaptureScreenshot(
+@@ -1466,6 +1768,72 @@ void PageHandler::CaptureScreenshot(
        std::move(capturer_handle), std::move(std::get<BitmapEncoder>(encoder)),
        std::move(callback));
  
@@ -460,7 +460,7 @@ index c750e9a..a05af5c 100644
    // We don't support clip/emulation when capturing from window, bail out.
    if (!from_surface.value_or(true)) {
      if (!is_trusted_) {
-@@ -2011,27 +2379,78 @@ void PageHandler::ScreenshotCaptured(
+@@ -1999,23 +2367,74 @@ void PageHandler::ScreenshotCaptured(
      return;
    }
  
@@ -542,14 +542,9 @@ index c750e9a..a05af5c 100644
 +        Binary::fromVector(std::move(encoded_bitmap).value()), nullptr);
      return;
    }
-   // TODO(caseq): send failure if we fail to encode?
--  request->callback->sendSuccess(Binary());
-+  request->callback->sendSuccess(Binary(), nullptr);
- }
- 
- Response PageHandler::StopLoading() {
+   request->callback->sendFailure(
 diff --git a/content/browser/devtools/protocol/page_handler.h b/content/browser/devtools/protocol/page_handler.h
-index 26067a3..f1b7bb4 100644
+index 5f35af0..cdb84dc 100644
 --- a/content/browser/devtools/protocol/page_handler.h
 +++ b/content/browser/devtools/protocol/page_handler.h
 @@ -157,7 +157,21 @@ class PageHandler : public DevToolsDomainHandler,
@@ -574,7 +569,7 @@ index 26067a3..f1b7bb4 100644
    void CaptureSnapshot(
        std::optional<std::string> format,
        std::unique_ptr<CaptureSnapshotCallback> callback) override;
-@@ -239,6 +253,10 @@ class PageHandler : public DevToolsDomainHandler,
+@@ -236,6 +250,10 @@ class PageHandler : public DevToolsDomainHandler,
        std::optional<std::string> format,
        std::optional<int> quality,
        std::optional<bool> optimize_for_speed,
@@ -585,7 +580,7 @@ index 26067a3..f1b7bb4 100644
        std::unique_ptr<CaptureScreenshotCallback> callback,
        const gfx::Size& full_page_size);
    bool EnoughScreencastFramesInFlight();
-@@ -282,6 +300,9 @@ class PageHandler : public DevToolsDomainHandler,
+@@ -279,6 +297,9 @@ class PageHandler : public DevToolsDomainHandler,
    bool enabled_;
    bool bypass_csp_ = false;
  
@@ -596,7 +591,7 @@ index 26067a3..f1b7bb4 100644
    int screencast_max_width_ = -1;
    int screencast_max_height_ = -1;
 diff --git a/content/browser/devtools/protocol_config.json b/content/browser/devtools/protocol_config.json
-index d5ffdcf..e6a99c2 100644
+index 5d36338..2107308 100644
 --- a/content/browser/devtools/protocol_config.json
 +++ b/content/browser/devtools/protocol_config.json
 @@ -161,7 +161,7 @@
@@ -606,13 +601,13 @@ index d5ffdcf..e6a99c2 100644
 -                "include": ["enable", "disable", "reload", "navigate", "stopLoading", "getNavigationHistory", "navigateToHistoryEntry", "resetNavigationHistory", "captureScreenshot",
 +                "include": ["enable", "disable", "reload", "navigate", "stopLoading", "getNavigationHistory", "navigateToHistoryEntry", "resetNavigationHistory", "captureScreenshot", "remotionCreateFramePool", "remotionReleaseFrame", "remotionDestroyFramePool",
                      "startScreencast", "stopScreencast", "startScreenRecording", "stopScreenRecording", "screencastFrameAck", "handleJavaScriptDialog", "setColorPickerEnabled",
-                     "bringToFront", "setDownloadBehavior", "getAppManifest", "crash", "close", "setWebLifecycleState", "captureSnapshot", "getInstallabilityErrors", "getManifestIcons", "setBypassCSP", "getAppId", "getSubApps", "getSiblingSubApps", "addCompilationCache", "setPrerenderingAllowed", "getAnnotatedPageContent",
+                     "bringToFront", "setDownloadBehavior", "getAppManifest", "crash", "close", "setWebLifecycleState", "captureSnapshot", "getInstallabilityErrors", "getManifestIcons", "setBypassCSP", "getAppId", "getSubApps", "getSiblingSubApps", "addCompilationCache", "setPrerenderingAllowed",
                      "addScriptToEvaluateOnNewDocument", "removeScriptToEvaluateOnNewDocument", "addScriptToEvaluateOnLoad", "removeScriptToEvaluateOnLoad"],
 diff --git a/content/browser/renderer_host/render_widget_host_impl.cc b/content/browser/renderer_host/render_widget_host_impl.cc
-index a5b440d..d75ba1f 100644
+index 421fa45..573a59b 100644
 --- a/content/browser/renderer_host/render_widget_host_impl.cc
 +++ b/content/browser/renderer_host/render_widget_host_impl.cc
-@@ -2361,12 +2361,20 @@ void RenderWidgetHostImpl::NotifyScreenInfoChanged(bool ignore_ack) {
+@@ -2366,12 +2366,20 @@ void RenderWidgetHostImpl::NotifyScreenInfoChanged(bool ignore_ack) {
  
  void RenderWidgetHostImpl::GetSnapshotFromBrowser(
      GetSnapshotFromBrowserCallback callback,
@@ -636,7 +631,7 @@ index a5b440d..d75ba1f 100644
        blink_widget_->ForceRedraw(base::DoNothing());
        // 2. Force a repaint to ensure that surface is updated.
 diff --git a/content/browser/renderer_host/render_widget_host_impl.h b/content/browser/renderer_host/render_widget_host_impl.h
-index 47e44b2..a856934 100644
+index 02bdef3..77c5d6e 100644
 --- a/content/browser/renderer_host/render_widget_host_impl.h
 +++ b/content/browser/renderer_host/render_widget_host_impl.h
 @@ -453,7 +453,8 @@ class CONTENT_EXPORT RenderWidgetHostImpl
@@ -650,10 +645,10 @@ index 47e44b2..a856934 100644
    // Sets the View of this RenderWidgetHost.  It is called just once when a new
    // RenderWidgetHostView for a RWH is created.  If the corresponding renderer
 diff --git a/third_party/blink/public/devtools_protocol/domains/Page.pdl b/third_party/blink/public/devtools_protocol/domains/Page.pdl
-index 20b5db9..b55b27e 100644
+index 536ffb6..9aa68d1 100644
 --- a/third_party/blink/public/devtools_protocol/domains/Page.pdl
 +++ b/third_party/blink/public/devtools_protocol/domains/Page.pdl
-@@ -583,6 +583,54 @@ domain Page
+@@ -580,6 +580,54 @@ domain Page
    # Brings page to front (activates tab).
    command bringToFront
  
@@ -708,7 +703,7 @@ index 20b5db9..b55b27e 100644
    # Capture page screenshot.
    command captureScreenshot
      parameters
-@@ -601,9 +649,20 @@ domain Page
+@@ -598,9 +646,20 @@ domain Page
        experimental optional boolean captureBeyondViewport
        # Optimize image encoding for speed, not for resulting size (defaults to false)
        experimental optional boolean optimizeForSpeed

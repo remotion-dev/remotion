@@ -56,6 +56,7 @@ const {
 	chromeModeOption,
 	offthreadVideoThreadsOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	askAIOption,
 	keyboardShortcutsOption,
@@ -402,6 +403,9 @@ export const benchmarkCommand = async (
 		mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
 			commandLine: parsedCli,
 		}).value,
+		preferredEffectBackend: preferredEffectBackendOption.getValue({
+			commandLine: parsedCli,
+		}).value,
 		onLog: RenderInternals.defaultOnLog,
 	});
 
@@ -625,6 +629,9 @@ export const benchmarkCommand = async (
 					}).value,
 					chromeMode,
 					mediaCacheSizeInBytes: mediaCacheSizeInBytesOption.getValue({
+						commandLine: parsedCli,
+					}).value,
+					preferredEffectBackend: preferredEffectBackendOption.getValue({
 						commandLine: parsedCli,
 					}).value,
 					onLog: RenderInternals.defaultOnLog,

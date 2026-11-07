@@ -1,5 +1,4 @@
 import type {PropStatuses} from 'remotion';
-import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
@@ -7,10 +6,11 @@ import type {
 import {getSourceMutationRevision} from '../../helpers/source-mutation-queue';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {deleteNodes} from '../delete-nodes-api';
-import {deleteEffects as deleteEffectsApi} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
+import type {useDeleteKeyframes} from './call-delete-keyframe';
+import {deleteEffectsFromSource} from './delete-effects-from-source';
 import {deleteSelectedKeyframes} from './delete-selected-keyframe';
-import type {SetPropStatuses} from './save-sequence-prop';
+import type {useCurrentTimelineSelectionStateAsRef} from './TimelineSelection';
 import {
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
@@ -75,58 +75,6 @@ export const deleteSequencesFromSource = async (
 			}
 
 			return result.success && revision === getSourceMutationRevision();
-		})
-		.catch((err) => {
-			showNotification((err as Error).message, 4000);
-			return false;
-		});
-};
-
-const deleteEffects = (
-	effects: ({
-		nodePathInfo: SequenceNodePathInfo;
-	} & (
-		| {
-				type: 'single-effect';
-				effectIndex: number;
-		  }
-		| {
-				type: 'all-effects';
-		  }
-	))[],
-): Promise<boolean> => {
-	if (effects.length === 0) {
-		return Promise.resolve(false);
-	}
-
-	if (!canUseEffectOperations()) {
-		return Promise.resolve(false);
-	}
-
-	return deleteEffectsApi(
-		effects.map((effect) => {
-			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
-			return effect.type === 'single-effect'
-				? {
-						type: 'single-effect',
-						fileName: nodePath.absolutePath,
-						sequenceNodePath: nodePath,
-						effectIndex: effect.effectIndex,
-					}
-				: {
-						type: 'all-effects',
-						fileName: nodePath.absolutePath,
-						sequenceNodePath: nodePath,
-					};
-		}),
-	)
-		.then((result) => {
-			if (result.success) {
-				return true;
-			}
-
-			showNotification(result.reason, 4000);
-			return false;
 		})
 		.catch((err) => {
 			showNotification((err as Error).message, 4000);
@@ -235,15 +183,19 @@ const containsOnlyKeyframesAndEasings = (
 export const deleteSelectedTimelineItems = ({
 	selections,
 	tracks,
-	setPropStatuses,
+	deleteKeyframes,
 	clientId,
 	confirm,
 	propStatuses,
 	timelinePosition,
+	currentSelection,
 }: {
 	selections: readonly TimelineSelection[];
+	currentSelection: ReturnType<
+		typeof useCurrentTimelineSelectionStateAsRef
+	> | null;
 	readonly tracks: readonly TimelineTrackData[];
-	setPropStatuses: SetPropStatuses;
+	deleteKeyframes: ReturnType<typeof useDeleteKeyframes>;
 	clientId: string;
 	confirm: ConfirmationDialogFunction;
 	propStatuses: PropStatuses;
@@ -266,7 +218,7 @@ export const deleteSelectedTimelineItems = ({
 				frame: selection.frame,
 			})),
 			tracks,
-			setPropStatuses,
+			deleteKeyframes,
 			clientId,
 			propStatuses,
 			timelinePosition,
@@ -291,25 +243,45 @@ export const deleteSelectedTimelineItems = ({
 				confirm,
 			);
 		case 'sequence-effect':
-			return deleteEffects(
-				selections.filter(isSequenceEffectSelection).map((selection) => ({
-					type: 'single-effect',
-					nodePathInfo: selection.nodePathInfo,
-					effectIndex: selection.i,
-				})),
+		case 'sequence-all-effects': {
+			const targets = selections
+				.filter(
+					(item) =>
+						isSequenceEffectSelection(item) ||
+						isSequenceAllEffectsSelection(item),
+				)
+				.flatMap((selection) => {
+					const source = selection.nodePathInfo.sequenceSubscriptionKey;
+					const track = tracks.find(
+						(item) =>
+							item.nodePathInfo?.sequenceSubscriptionKey.absolutePath ===
+								source.absolutePath &&
+							JSON.stringify(
+								item.nodePathInfo.sequenceSubscriptionKey.nodePath,
+							) === JSON.stringify(source.nodePath),
+					);
+					if (!track) return [];
+					return [
+						{
+							nodePath: source,
+							effects: track.sequence.effects,
+							effectIndices:
+								selection.type === 'sequence-effect'
+									? [selection.i]
+									: track.sequence.effects.map((_, index) => index),
+						},
+					];
+				});
+			return deleteEffectsFromSource(targets, currentSelection).then(
+				(result) => result.status === 'success',
 			);
+		}
+
 		case 'keyframe':
 		case 'sequence-prop':
 		case 'sequence-effect-prop':
 		case 'easing':
 			return null;
-		case 'sequence-all-effects':
-			return deleteEffects(
-				selections.filter(isSequenceAllEffectsSelection).map((selection) => ({
-					type: 'all-effects',
-					nodePathInfo: selection.nodePathInfo,
-				})),
-			);
 		default:
 			throw new Error(
 				`Unexpected timeline selection type: ${firstSelection satisfies never}`,

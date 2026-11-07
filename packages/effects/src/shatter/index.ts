@@ -6,6 +6,12 @@ import {
 	validateUnitInterval,
 } from '../color-utils.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
+import {
+	setupWebGpuMesh,
+	applyWebGpuMesh,
+	cleanupWebGpuMesh,
+	type WebGpuMeshState,
+} from '../webgpu-mesh-runtime.js';
 import {createShatterGeometry, type ShatterGeometryParams} from './geometry.js';
 import {
 	cleanupShatter,
@@ -13,6 +19,7 @@ import {
 	setupShatter,
 	type ShatterState,
 } from './runtime.js';
+import {SHATTER_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -230,11 +237,10 @@ type CachedShatterState = ShatterState & {
 	vertices: Float32Array | null;
 };
 
-export const shatter = createEffect<ShatterParams, CachedShatterState>({
+export const shatter = createEffect<ShatterParams>({
 	type: 'remotion/shatter',
 	label: 'shatter()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/shatter',
-	backend: 'webgl2',
 	schema: shatterSchema,
 	validateParams: (params) => {
 		assertEffectParamsObject(params, 'Shatter');
@@ -307,34 +313,80 @@ export const shatter = createEffect<ShatterParams, CachedShatterState>({
 		}
 	},
 	calculateKey: (params) => `shatter-${JSON.stringify(resolve(params))}`,
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('shatter effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ShatterParams,
+			WebGpuMeshState & {
+				geometryKey: string | null;
+				vertices: Float32Array | null;
+			}
+		>({
+			setup: (target) => ({
+				...setupWebGpuMesh(target, 'shatter'),
+				geometryKey: null,
+				vertices: null,
+			}),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for shatter');
+				const r = resolve(params);
+				const geometryKey = `${width}:${height}:${JSON.stringify(r)}`;
+				if (state.geometryKey !== geometryKey || state.vertices === null) {
+					state.vertices = createShatterGeometry(width, height, r);
+					state.geometryKey = geometryKey;
+				}
 
-		return {...setupShatter(gl), geometryKey: null, vertices: null};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const geometryKey = `${width}:${height}:${JSON.stringify(r)}`;
-		if (state.geometryKey !== geometryKey || state.vertices === null) {
-			state.vertices = createShatterGeometry(width, height, r);
-			state.geometryKey = geometryKey;
-		}
+				applyWebGpuMesh({
+					state,
+					source,
+					width,
+					height,
+					vertices: state.vertices,
+					shader: SHATTER_WEBGPU_SHADER,
+					uniformData: new Float32Array([width, height, 0, 0]),
+					topology: 'triangle-list',
+					blend: true,
+					vertexCount: state.vertices.length / 7,
+					instanceCount: 1,
+					device: gpuDevice as GPUDevice,
+				});
+			},
+			cleanup: cleanupWebGpuMesh,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			ShatterParams,
+			CachedShatterState
+		>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('shatter effect');
+				}
 
-		drawShatter({
-			state,
-			source,
-			width,
-			height,
-			flipSourceY,
-			vertices: state.vertices,
-		});
+				return {...setupShatter(gl), geometryKey: null, vertices: null};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const geometryKey = `${width}:${height}:${JSON.stringify(r)}`;
+				if (state.geometryKey !== geometryKey || state.vertices === null) {
+					state.vertices = createShatterGeometry(width, height, r);
+					state.geometryKey = geometryKey;
+				}
+
+				drawShatter({
+					state,
+					source,
+					width,
+					height,
+					flipSourceY,
+					vertices: state.vertices,
+				});
+			},
+			cleanup: cleanupShatter,
+		}),
 	},
-	cleanup: cleanupShatter,
 });

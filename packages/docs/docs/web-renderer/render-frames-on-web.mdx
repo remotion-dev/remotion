@@ -38,6 +38,16 @@ Accepts the same arguments as [`renderStillOnWeb()`](/docs/web-renderer/render-s
 
 An array of frame numbers to render. Behaves like the [`frames`](/docs/renderer/render-frames#frames) option of [`renderFrames()`](/docs/renderer/render-frames).
 
+### `licenseKey?`
+
+A [license key](/docs/licensing) to use for this render. Pass a public license key, or `"free-license"` if you [qualify for the free license](/docs/license). Defaults to no key.
+
+One still-render telemetry event is sent for the entire batch, even if no key is provided. See [Telemetry](/docs/telemetry#telemetry-in-client-side-rendering).
+
+### `isProduction?`
+
+<Options id="is-production" />
+
 ## Return value
 
 A promise resolving to an array of [`RenderStillOnWebResult`](/docs/web-renderer/types#renderstillonwebresult) objects, one per frame, in ascending frame order.

@@ -12,6 +12,7 @@ import type {LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
 import {lambdaDownloadFileWithProgress} from '../functions/helpers/read-with-progress';
+import {validateOutputPath} from '../shared/validate-output-path';
 
 type InternalDownloadMediaInput = {
 	region: AwsRegion;
@@ -70,6 +71,12 @@ export const internalDownloadMedia = async (
 	}
 
 	const outputPath = path.resolve(process.cwd(), input.outPath);
+	validateOutputPath({
+		outputPath,
+		type:
+			overallProgress.renderMetadata.type === 'sequence' ? 'directory' : 'file',
+	});
+
 	if (overallProgress.renderMetadata.type === 'sequence') {
 		const metadata = overallProgress.renderMetadata;
 		if (!overallProgress.postRenderData?.outputSequence) {

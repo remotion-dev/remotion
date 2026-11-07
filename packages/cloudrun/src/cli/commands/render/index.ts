@@ -44,6 +44,7 @@ const {
 	binariesDirectoryOption,
 	metadataOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	pixelFormatOption,
 	browserExecutableOption,
@@ -174,6 +175,9 @@ export const renderCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 	const darkMode = darkModeOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
@@ -253,6 +257,7 @@ export const renderCommand = async (
 				}),
 				chromeMode: 'headless-shell',
 				mediaCacheSizeInBytes,
+				preferredEffectBackend,
 			});
 		composition = compositionId;
 	}
@@ -436,7 +441,14 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			: null,
 		offthreadVideoThreads,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
+		licenseKey: BrowserSafeApis.options.licenseKeyOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		isProduction: BrowserSafeApis.options.isProductionOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
 	});
 
 	if (res.type === 'crash') {

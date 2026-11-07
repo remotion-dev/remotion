@@ -11,6 +11,7 @@ import type {
 	HeadlessBrowser,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {getCurrentMemorySizeInMb} from './helpers/get-current-memory-size';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {onDownloadsHelper} from './on-downloads-helpers';
 
@@ -44,7 +45,13 @@ export const renderImageSequenceChunk = async ({
 
 	const {output} = params;
 	const start = Date.now();
-	await onStream({type: 'lambda-invoked', payload: {attempt: params.attempt}});
+	await onStream({
+		type: 'lambda-invoked',
+		payload: {
+			attempt: params.attempt,
+			memorySizeInMb: getCurrentMemorySizeInMb(),
+		},
+	});
 	const uploadedFrames = new Set<number>();
 	let sizeInBytes = 0;
 	let progressQueue = Promise.resolve();
@@ -157,6 +164,7 @@ export const renderImageSequenceChunk = async ({
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+		preferredEffectBackend: params.preferredEffectBackend,
 		imageSequencePattern: null,
 		sampleRate: params.sampleRate,
 		onLog: RenderInternals.defaultOnLog,

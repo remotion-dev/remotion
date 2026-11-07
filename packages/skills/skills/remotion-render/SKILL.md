@@ -1,7 +1,7 @@
 ---
 name: remotion-render
 description: Export a Remotion video
-version: 4.0.539
+version: 4.0.541
 ---
 
 ## General rendering strategy

@@ -1,0 +1,62 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-create-effect-implementation.png
+title: createEffectImplementation()
+crumb: 'remotion'
+---
+
+# createEffectImplementation()<AvailableFrom v="4.0.540" />
+
+Types the state of one backend implementation for [`createEffect()`](/docs/create-effect). Each implementation can have a different state type.
+
+```ts twoslash title="my-effect.ts"
+import {createEffect, createEffectImplementation} from 'remotion';
+
+type Params = {amount?: number};
+
+const canvas2d = createEffectImplementation<Params, CanvasRenderingContext2D>({
+  setup: (target) => {
+    const context = target.getContext('2d');
+    if (!context) throw new Error('2D canvas is unavailable');
+    return context;
+  },
+  apply: ({source, state, width, height, params}) => {
+    state.clearRect(0, 0, width, height);
+    state.globalAlpha = params.amount ?? 1;
+    state.drawImage(source, 0, 0, width, height);
+  },
+  cleanup: () => {},
+});
+
+export const opacity = createEffect<Params>({
+  type: 'example/opacity',
+  label: 'Opacity',
+  documentationLink: null,
+  schema: {},
+  validateParams: () => {},
+  calculateKey: (params) => String(params.amount ?? 1),
+  implementations: { '2d': canvas2d },
+});
+```
+
+## Arguments
+
+### `setup`
+
+Receives the target canvas and returns the implementation's state.
+
+### `apply`
+
+Transforms the source into the target using the state returned by `setup`. See [apply parameters](/docs/create-effect#apply-params).
+
+### `cleanup`
+
+Releases resources owned by this implementation. Do not destroy the shared WebGPU device.
+
+## Return value
+
+An implementation accepted by the `implementations` field of `createEffect()`.
+
+## See also
+
+- [`createEffect()`](/docs/create-effect)
+- [`preferredEffectBackend`](/docs/options/preferred-effect-backend)

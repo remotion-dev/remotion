@@ -1,0 +1,147 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-studio-protocol-serialize-element-payload-for-html.png
+title: 'serializeElementPayloadForHtml()'
+crumb: '@remotion/studio-protocol'
+---
+
+# serializeElementPayloadForHtml()<AvailableFrom v="4.0.542" />
+
+Serializes an Element payload to JSON that is safe to put inside a `<script>` tag in your page's HTML.
+
+Tools that only fetch your page's HTML, such as command-line tools and agents, can then read the payload. It is the same payload that [`installInStudio()`](/docs/studio-protocol/install-in-studio) and [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data) use.
+
+## Example
+
+Put the JSON in a `<script>` tag whose `type` is `ELEMENT_PAYLOAD_MIME_TYPE`.
+
+### React
+
+```tsx twoslash title="ElementPage.tsx"
+import React from 'react';
+import {
+  createElementPayload,
+  ELEMENT_PAYLOAD_MIME_TYPE,
+  serializeElementPayloadForHtml,
+} from '@remotion/studio-protocol';
+const sourceCode = 'export const LowerThird = () => null;';
+// ---cut---
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode,
+  dependencies: [],
+  dimensions: {width: 1920, height: 1080},
+  durationInFrames: 90,
+});
+
+export const ElementPage = () => {
+  return (
+    <script
+      type={ELEMENT_PAYLOAD_MIME_TYPE}
+      dangerouslySetInnerHTML={{
+        __html: serializeElementPayloadForHtml(payload),
+      }}
+    />
+  );
+};
+```
+
+In Next.js, this works in Server Components, Client Components, and inside `<Suspense>`. Use a plain `<script>` tag, not `next/script`.
+
+### Astro
+
+```astro title="lower-third.astro"
+---
+import {
+  ELEMENT_PAYLOAD_MIME_TYPE,
+  serializeElementPayloadForHtml,
+} from '@remotion/studio-protocol';
+import {payload} from '../elements/lower-third';
+---
+
+<script type={ELEMENT_PAYLOAD_MIME_TYPE} set:html={serializeElementPayloadForHtml(payload)} />
+```
+
+Astro does not bundle a `<script>` tag that has a `type` attribute.
+
+### Other frameworks
+
+Build the tag as a string and insert it as raw HTML, for example with `{@html}` in Svelte or `v-html` in Vue:
+
+```ts twoslash title="element-script.ts"
+import {
+  createElementPayload,
+  ELEMENT_PAYLOAD_MIME_TYPE,
+  serializeElementPayloadForHtml,
+} from '@remotion/studio-protocol';
+const payload = createElementPayload({
+  displayName: 'Lower Third',
+  slug: 'lower-third',
+  sourceCode: 'export const LowerThird = () => null;',
+  dependencies: [],
+  dimensions: null,
+  durationInFrames: 90,
+});
+// ---cut---
+const html = `<script type="${ELEMENT_PAYLOAD_MIME_TYPE}">${serializeElementPayloadForHtml(payload)}</script>`;
+```
+
+## Rendered HTML
+
+```html title="Rendered HTML"
+<script type="application/vnd.remotion.element+json">
+  {"type":"remotion-element","version":1,...}
+</script>
+```
+
+Browsers do not run the script.
+
+The script must be in the HTML that your server sends. Render the page on the server or prerender it at build time.
+
+## One payload per Element page
+
+Embed each payload only on its Element's own page, and link to that page from galleries and lists. Each payload contains the Element's full source code, so a gallery page with every payload would be large. In Next.js, a Server Component also sends the payload a second time, in the page data for hydration.
+
+Tools can still read several payloads from one page.
+
+## Arguments
+
+### payload
+
+A payload returned by [`createElementPayload()`](/docs/studio-protocol/create-element-payload).
+
+## Return value
+
+A JSON string. The function writes the characters `<`, `>`, `&`, U+2028, and U+2029 as JSON unicode escapes. Element source code containing `</script>` or `<!--` therefore cannot end the block. The JSON parses to the same payload.
+
+If the payload is invalid, the function throws a `TypeError`.
+
+## `ELEMENT_PAYLOAD_MIME_TYPE`
+
+`ELEMENT_PAYLOAD_MIME_TYPE` is `'application/vnd.remotion.element+json'`. Use it as the `type` of the `<script>` tag and of the [`<link>` fallback](#pages-rendered-in-the-browser).
+
+## Pages rendered in the browser
+
+If your page renders only in the browser, such as a single-page app route without prerendering, the HTML that your server sends does not contain the payload.
+
+Instead, serve the payload as a JSON file, for example by writing `JSON.stringify(payload)` to a file at build time. Link to it from the page's `<head>`:
+
+```html title="index.html"
+<link
+  rel="alternate"
+  type="application/vnd.remotion.element+json"
+  href="/elements/lower-third.json"
+/>
+```
+
+Tools resolve a relative `href` against the page URL. Add one `<link>` per Element.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering={false} serverSideRendering={false} player={false} studio={false} />
+
+## See also
+
+- [`createElementPayload()`](/docs/studio-protocol/create-element-payload)
+- [`installInStudio()`](/docs/studio-protocol/install-in-studio)
+- [Building Element Libraries](/docs/elements/libraries)

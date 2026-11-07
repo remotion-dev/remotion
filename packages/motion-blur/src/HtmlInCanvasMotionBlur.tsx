@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {
 	Freeze,
 	HtmlInCanvas,
@@ -97,6 +97,11 @@ const MotionBlurSample: React.FC<MotionBlurSampleProps> = ({
 				width,
 				height,
 				isolation: 'isolate',
+				// Copied-mode HtmlInCanvas hides the layout canvas, so each drawable
+				// sample must remain visible to retain its capture paint record.
+				// Issue: https://github.com/remotion-dev/remotion/issues/12656
+				// Test: https://github.com/remotion-dev/remotion/blob/5d2ff05db91c1e5a02fc3d01f359638e98807882/packages/it-tests/src/ssr/render-frames.test.ts#L77
+				visibility: 'visible',
 				pointerEvents: isRepresentativeSample ? 'auto' : 'none',
 			}}
 		>
@@ -138,6 +143,7 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 	controls,
 }) => {
 	const {durationInFrames: compositionDurationInFrames} = useVideoConfig();
+	const accumulationCanvasRef = useRef<OffscreenCanvas | null>(null);
 
 	if (!Number.isInteger(samples) || samples < 1 || samples > 64) {
 		throw new TypeError(
@@ -194,9 +200,33 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 				throw new Error('Motion blur samples are not ready to paint');
 			}
 
-			context.reset();
-			context.globalCompositeOperation = 'lighter';
-			context.globalAlpha = 1 / actualSamples;
+			if (
+				accumulationCanvasRef.current === null ||
+				accumulationCanvasRef.current.width !== canvas.width ||
+				accumulationCanvasRef.current.height !== canvas.height
+			) {
+				accumulationCanvasRef.current = new OffscreenCanvas(
+					canvas.width,
+					canvas.height,
+				);
+			}
+
+			const accumulationCanvas = accumulationCanvasRef.current;
+			const accumulationSettings = {
+				colorSpace: 'srgb',
+				colorType: 'float16',
+			} as const;
+			const accumulationContext = accumulationCanvas.getContext(
+				'2d',
+				accumulationSettings,
+			);
+			if (!accumulationContext) {
+				throw new Error('Failed to acquire 2D context for motion blur samples');
+			}
+
+			accumulationContext.reset();
+			accumulationContext.globalCompositeOperation = 'lighter';
+			accumulationContext.globalAlpha = 1 / actualSamples;
 
 			for (const [index, sampleElement] of captureElements.entries()) {
 				const image =
@@ -204,13 +234,19 @@ const HtmlInCanvasMotionBlurInner: React.FC<
 						? elementImage
 						: layoutCanvas.captureElementImage(sampleElement);
 				try {
+					// ElementImage can only be drawn back to its originating canvas.
+					context.reset();
 					context.drawElementImage(image, 0, 0);
+					accumulationContext.drawImage(canvas, 0, 0);
 				} finally {
 					if (index !== 0) {
 						image.close();
 					}
 				}
 			}
+
+			context.reset();
+			context.drawImage(accumulationCanvas, 0, 0);
 		},
 		[actualSamples],
 	);

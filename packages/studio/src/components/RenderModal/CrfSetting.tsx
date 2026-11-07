@@ -19,8 +19,11 @@ const getDefaultCrfState = () => {
 		}, {} as CrfState);
 };
 
-export const useCrfState = (codec: Codec) => {
-	const [state, setState] = useState(() => getDefaultCrfState());
+export const useCrfState = (codec: Codec, initialCrf: number | null) => {
+	const [state, setState] = useState(() => {
+		const defaults = getDefaultCrfState();
+		return initialCrf === null ? defaults : {...defaults, [codec]: initialCrf};
+	});
 	const range = BrowserSafeApis.getValidCrfRanges(codec);
 
 	const setCrf: React.Dispatch<React.SetStateAction<number>> = (updater) => {

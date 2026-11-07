@@ -1,3 +1,4 @@
+import type {PreferredEffectBackend} from 'remotion';
 import {
 	Internals,
 	type CalculateMetadataFunction,
@@ -42,6 +43,7 @@ type OptionalRenderImagesOnWebOptions<Schema extends $ZodObject> = {
 	logLevel: LogLevel;
 	schema: Schema | undefined;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	signal: AbortSignal | null;
 	onArtifact: WebRendererOnArtifact | null;
 	licenseKey: string | null;
@@ -88,6 +90,7 @@ async function internalRenderImagesOnWeb<
 		inputProps,
 		schema,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		composition,
 		signal,
 		onArtifact,
@@ -155,6 +158,7 @@ async function internalRenderImagesOnWeb<
 		resolvedProps: resolved.props,
 		id: resolved.id,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		audioEnabled: false,
 		Component: composition.component,
 		videoEnabled: true,
@@ -277,12 +281,6 @@ async function internalRenderImagesOnWeb<
 				apiName,
 				isStill: true,
 				isProduction,
-			}).catch((err2) => {
-				Internals.Log.error(
-					{logLevel: 'error', tag: 'web-renderer'},
-					'Failed to send usage event',
-					err2,
-				);
 			});
 		}
 
@@ -297,7 +295,7 @@ const renderImagesOnWeb = <
 	options: RenderFramesOnWebOptions<Schema, Props>,
 	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
 ): Promise<RenderStillOnWebResult[]> => {
-	onlyOneStillRenderAtATimeQueue.ref = onlyOneStillRenderAtATimeQueue.ref
+	const render = onlyOneStillRenderAtATimeQueue.ref
 		.catch(() => Promise.resolve())
 		.then(() =>
 			internalRenderImagesOnWeb<Schema, Props>(
@@ -308,6 +306,7 @@ const renderImagesOnWeb = <
 					logLevel: options.logLevel ?? window.remotion_logLevel ?? 'info',
 					schema: options.schema ?? undefined,
 					mediaCacheSizeInBytes: options.mediaCacheSizeInBytes ?? null,
+					preferredEffectBackend: options.preferredEffectBackend ?? 'auto',
 					signal: options.signal ?? null,
 					onArtifact: options.onArtifact ?? null,
 					// Must allow undefined to print warning
@@ -320,9 +319,13 @@ const renderImagesOnWeb = <
 			),
 		);
 
-	return onlyOneStillRenderAtATimeQueue.ref as Promise<
-		RenderStillOnWebResult[]
-	>;
+	// The queue only owns completion; callers own the result or rejection reason.
+	onlyOneStillRenderAtATimeQueue.ref = render.then(
+		() => {},
+		() => {},
+	);
+
+	return render;
 };
 
 export const renderStillOnWeb = <

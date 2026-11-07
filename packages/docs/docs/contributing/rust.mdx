@@ -39,7 +39,7 @@ To build the Rust binaries for all supported platforms, you need to install thei
 
 ```sh
 cd packages/compositor
-node install-toolchain.ts
+bun install-toolchain.ts
 ```
 
 You can then build all binaries with:
@@ -61,4 +61,5 @@ The resulting artifacts should be checked into Git.
 ### FFmpeg bindings
 
 - Both the Rust binary as well as the FFmpeg binaries use the shared libraries located in the folder of each compositor package.
-- Those shared libraries and FFmpeg binaries come from the [`rust-ffmpeg-splitter`](https://github.com/remotion-dev/rust-ffmpeg-splitter) repository. They are built in CircleCI as well as on a M1 Macbook and pasted into the [`rust-ffmpeg-sys`](https://github.com/remotion-dev/rust-ffmpeg-sys) project. The `rust-ffmpeg-sys` project is a dependency of [`rust-ffmpeg`](https://github.com/remotion-dev/rust-ffmpeg) which is a dependency of the main Remotion project. Refer to those repositories to learn how to build them.
+- The FFmpeg build recipes, generated C bindings and safe Rust wrapper live in [`packages/compositor/ffmpeg`](https://github.com/remotion-dev/remotion/tree/main/packages/compositor/ffmpeg). Cargo uses local path dependencies between these crates.
+- The compositor build downloads the required precompiled FFmpeg archive on demand and verifies its SHA-256 checksum. Regular dependency installation and TypeScript builds do not download these archives. See the [FFmpeg README](https://github.com/remotion-dev/remotion/tree/main/packages/compositor/ffmpeg#readme) for building FFmpeg and updating all supported platforms.

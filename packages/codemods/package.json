@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/codemods",
-	"version": "4.0.539",
+	"version": "4.0.541",
 	"description": "Codemods for Remotion projects",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
@@ -49,6 +49,7 @@
 	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
+		"prettier": "catalog:",
 		"typescript": "catalog:",
 		"eslint": "catalog:"
 	},
