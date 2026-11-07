@@ -27,7 +27,11 @@ import {RenderQueue} from './RenderQueue';
 import {callUpdateDefaultPropsApi} from './RenderQueue/actions';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import {shouldClearSelectionOnPointerDown} from './Timeline/should-clear-selection-on-pointer-down';
+import {
+	useCurrentTimelineSelectionStateAsRef,
+	useTimelineSelection,
+} from './Timeline/TimelineSelection';
 import {
 	getCachedResolvedStack,
 	useResolvedStack,
@@ -62,6 +66,7 @@ export const OptionsPanel: React.FC<{
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
 	const isMobileLayout = useMobileLayout();
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 
 	const container: React.CSSProperties = useMemo(
 		() => ({
@@ -76,10 +81,17 @@ export const OptionsPanel: React.FC<{
 	);
 
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(getSelectedPanel);
-	const onInspectorSelected = useCallback(() => {
-		setPanel('inspector');
-		persistSelectedOptionsSidebarPanel('inspector');
-	}, []);
+	const onInspectorSelected = useCallback(
+		(event: React.MouseEvent<HTMLDivElement>) => {
+			if (panel === 'inspector' && shouldClearSelectionOnPointerDown(event)) {
+				currentSelection.current.stepBackSelection(true);
+			}
+
+			setPanel('inspector');
+			persistSelectedOptionsSidebarPanel('inspector');
+		},
+		[currentSelection, panel],
+	);
 
 	const onRendersSelected = useCallback(() => {
 		setPanel('renders');
@@ -310,10 +322,24 @@ export const OptionsPanel: React.FC<{
 		[compositionId, compositionDefaultProps, saveToFile, updateProps],
 	);
 
-	const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-		// Prevent deselection of currently selected items
-		e.stopPropagation();
-	}, []);
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent<HTMLDivElement>) => {
+			e.stopPropagation();
+			if (
+				panel !== 'inspector' ||
+				!shouldClearSelectionOnPointerDown(e) ||
+				(e.target instanceof Element &&
+					e.target.closest(
+						'button, input, textarea, select, a, [contenteditable="true"], [role="button"], [role="tab"]',
+					))
+			) {
+				return;
+			}
+
+			currentSelection.current.stepBackSelection(true);
+		},
+		[currentSelection, panel],
+	);
 
 	return (
 		<div style={container} className="css-reset" onPointerDown={onPointerDown}>

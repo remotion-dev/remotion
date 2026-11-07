@@ -77,6 +77,7 @@ import {
 	isDuplicatableEffectSelection,
 	isDuplicatableSequenceRowSelection,
 } from '../components/Timeline/duplicate-selected-timeline-item';
+import {getParentTimelineSelection} from '../components/Timeline/get-parent-timeline-selection';
 import {getTimelineSequenceTimingLimits} from '../components/Timeline/get-timeline-sequence-timing-limits';
 import {
 	getKeyframeClipboardDataFromSelections,
@@ -113,7 +114,6 @@ import {
 	getTimelineSelectionAfterInteraction,
 	getTimelineSelectionFromNodePathInfo,
 	getTimelineSelectionKey,
-	getTimelineSequenceSelectionForEscape,
 	getTimelineSequenceSelectionKey,
 	isTimelineSelectionModifierEvent,
 	shouldSelectTimelineRowOnPointerDown,
@@ -6765,7 +6765,7 @@ test('Crop prop and keyframe selections target crop handles', () => {
 	).toBe(null);
 });
 
-test('Escape moves crop and rotation selections to the sequence', () => {
+test('Escape moves nested selections up one meaningful level', () => {
 	const sequenceNodePathInfo = makeNodePathInfo(['body', 0], []);
 	const expectedSelection = {
 		type: 'sequence' as const,
@@ -6773,68 +6773,67 @@ test('Escape moves crop and rotation selections to the sequence', () => {
 	};
 
 	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence-prop',
-				nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropLeft']),
-				key: 'cropLeft',
-			},
-		]),
+		getParentTimelineSelection({
+			type: 'sequence-prop',
+			nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropLeft']),
+			key: 'cropLeft',
+		}),
 	).toEqual(expectedSelection);
 	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence-prop',
-				nodePathInfo: makeNodePathInfo(
-					['body', 0],
-					['controls', 'style', 'rotate'],
-				),
-				key: 'style.rotate',
-			},
-		]),
+		getParentTimelineSelection({
+			type: 'sequence-effect-prop',
+			nodePathInfo: makeNodePathInfo(['body', 0], ['effects', '0', 'amount']),
+			i: 0,
+			key: 'amount',
+		}),
+	).toEqual(expectedSelection);
+	const rotationNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'style', 'rotate'],
+	);
+	expect(
+		getParentTimelineSelection({
+			type: 'keyframe',
+			nodePathInfo: rotationNodePathInfo,
+			frame: 10,
+		}),
+	).toEqual({
+		type: 'sequence-prop',
+		nodePathInfo: rotationNodePathInfo,
+		key: 'style.rotate',
+	});
+	const cropNodePathInfo = makeNodePathInfo(
+		['body', 0],
+		['controls', 'cropBottom'],
+	);
+	expect(
+		getParentTimelineSelection({
+			type: 'easing',
+			nodePathInfo: cropNodePathInfo,
+			fromFrame: 10,
+			toFrame: 20,
+			segmentIndex: 0,
+		}),
+	).toEqual({
+		type: 'sequence-prop',
+		nodePathInfo: cropNodePathInfo,
+		key: 'cropBottom',
+	});
+	expect(
+		getParentTimelineSelection({
+			type: 'sequence-prop',
+			nodePathInfo: makeNodePathInfo(
+				['body', 0],
+				['controls', 'style', 'opacity'],
+			),
+			key: 'style.opacity',
+		}),
 	).toEqual(expectedSelection);
 	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'keyframe',
-				nodePathInfo: makeNodePathInfo(
-					['body', 0],
-					['controls', 'style', 'rotate'],
-				),
-				frame: 10,
-			},
-		]),
-	).toEqual(expectedSelection);
-	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'easing',
-				nodePathInfo: makeNodePathInfo(['body', 0], ['controls', 'cropBottom']),
-				fromFrame: 10,
-				toFrame: 20,
-				segmentIndex: 0,
-			},
-		]),
-	).toEqual(expectedSelection);
-	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence-prop',
-				nodePathInfo: makeNodePathInfo(
-					['body', 0],
-					['controls', 'style', 'opacity'],
-				),
-				key: 'style.opacity',
-			},
-		]),
-	).toBe(null);
-	expect(
-		getTimelineSequenceSelectionForEscape([
-			{
-				type: 'sequence',
-				nodePathInfo: sequenceNodePathInfo,
-			},
-		]),
+		getParentTimelineSelection({
+			type: 'sequence',
+			nodePathInfo: sequenceNodePathInfo,
+		}),
 	).toBe(null);
 });
 
