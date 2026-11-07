@@ -1235,6 +1235,9 @@
     "packages/layout-utils": {
       "name": "@remotion/layout-utils",
       "version": "4.0.541",
+      "dependencies": {
+        "remotion": "workspace:*",
+      },
       "devDependencies": {
         "@remotion/eslint-config-internal": "workspace:*",
         "@vitejs/plugin-react": "catalog:",

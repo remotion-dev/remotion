@@ -5,7 +5,7 @@ import {useContext} from 'react';
 import {flushSync} from 'react-dom';
 import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
-import {commands, page, server} from 'vitest/browser';
+import {page} from 'vitest/browser';
 
 type Fixture = {
 	component: ComponentType;
@@ -139,13 +139,22 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 };
 
 export const savePixelEvidence = async (blob: Blob, testId: string) => {
-	const base64 = await new Promise<string>((resolve, reject) => {
-		const reader = new FileReader();
-		reader.onload = () => resolve((reader.result as string).split(',')[1]);
-		reader.onerror = () => reject(reader.error);
-		reader.readAsDataURL(blob);
-	});
-	const path = `src/test/__screenshots__/pixel-evidence/${server.browser}/${testId}.png`;
-	await commands.writeFile(path, base64, 'base64');
-	return path;
+	const image = document.createElement('img');
+	const url = URL.createObjectURL(blob);
+	image.src = url;
+	image.dataset.testid = testId;
+	image.style.display = 'block';
+	document.body.appendChild(image);
+	try {
+		await image.decode();
+		return await page.getByTestId(testId).screenshot({
+			omitBackground: true,
+			scale: 'css',
+			style:
+				'html, body, iframe[data-vitest] { background: transparent !important; }',
+		});
+	} finally {
+		image.remove();
+		URL.revokeObjectURL(url);
+	}
 };

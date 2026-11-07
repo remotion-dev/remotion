@@ -54,7 +54,14 @@ test.for([0, 1])(
 		);
 		const encoded = await commands.readFile(saved, 'base64');
 		const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
-		expect(bytes).toEqual(new Uint8Array(await actual.arrayBuffer()));
+		expect(
+			(
+				await compareNativePixels(
+					new Blob([bytes], {type: 'image/png'}),
+					actual,
+				)
+			).mismatchedPixels,
+		).toBe(0);
 		await savePixelEvidence(
 			changed,
 			`native-reference-control-${frame}-changed`,
