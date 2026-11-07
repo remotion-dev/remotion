@@ -14,6 +14,7 @@ import {
 	Html5MediaTrimContext,
 } from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
+import {HtmlInCanvasAncestorContext} from '../HtmlInCanvasAncestorContext.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
@@ -57,6 +58,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		audioStreamIndex,
 		onVideoFrame,
 		preservePitch,
+		crossOrigin,
 		...props
 	},
 	ref,
@@ -70,6 +72,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
+	const htmlInCanvasContext = useContext(HtmlInCanvasAncestorContext);
 	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const audioStartFrame = useContext(Html5MediaTrimContext);
 
@@ -321,7 +324,16 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		]);
 	}
 
-	return <video ref={videoRef} disableRemotePlayback {...props} />;
+	return (
+		<video
+			ref={videoRef}
+			disableRemotePlayback
+			{...props}
+			crossOrigin={
+				crossOrigin ?? (htmlInCanvasContext === null ? undefined : 'anonymous')
+			}
+		/>
+	);
 };
 
 export const VideoForRendering = forwardRef(

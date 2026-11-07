@@ -316,6 +316,20 @@ test('<HtmlInCanvas> throws when nested during rendering', () => {
 	).toThrow('Nested <HtmlInCanvas> components require Chrome 157 or newer');
 });
 
+test('<HtmlInCanvas> clarifies that nested HTML-in-canvas is unavailable in preview fallback', () => {
+	const {getByText} = render(
+		<SequenceTestWrapper onRegisterSequence={() => undefined}>
+			<HtmlInCanvas width={120} height={80}>
+				<HtmlInCanvas width={60} height={40}>
+					<div>Nested</div>
+				</HtmlInCanvas>
+			</HtmlInCanvas>
+		</SequenceTestWrapper>,
+	);
+
+	expect(getByText('Nested HTML-in-canvas is unavailable')).toBeTruthy();
+});
+
 test('<HtmlInCanvas> keeps refs current when the canvas remounts', async () => {
 	const registeredSequences: TSequence[] = [];
 	const canvasRef = React.createRef<HTMLCanvasElement>();

@@ -228,9 +228,12 @@ registerRoot(Root);
 	const {nodePathRemappings} = result;
 	const output = updated.files['/project/src/index.tsx'];
 
-	expect(output).toContain(
-		"import {AbsoluteFill, Composition, registerRoot, Solid as Solid2} from 'remotion';",
-	);
+	expect(output).toContain(`import {
+  AbsoluteFill,
+  Composition,
+  registerRoot,
+  Solid as Solid2,
+} from 'remotion';`);
 	expect(output).not.toContain('<Sequence');
 	expect(output).toContain('<AbsoluteFill />');
 	expect(output).toMatch(/<Solid2\s+width=\{1280\}/);
@@ -1515,6 +1518,7 @@ test('creates a composition with a component file in the root file', async () =>
 		newFps: 30,
 		newDurationInFrames: 90,
 		canvasCapture: null,
+		openTimeline: null,
 	};
 	const result = await operations.addComposition({
 		options,
@@ -1568,6 +1572,7 @@ test('imports a Canvas Capture as an interactive composition', async () => {
 			newWidth: 1920,
 			newFps: 60,
 			newDurationInFrames: 180,
+			openTimeline: null,
 			canvasCapture: {
 				videoFileName: 'capture.mp4',
 				videoHeight: 720,

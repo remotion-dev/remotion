@@ -42,6 +42,7 @@ import {lines} from '@remotion/effects/lines';
 import {liquidContours} from '@remotion/effects/liquid-contours';
 import {longShadows} from '@remotion/effects/long-shadows';
 import {lut} from '@remotion/effects/lut';
+import {magnify} from '@remotion/effects/magnify';
 import {mirror} from '@remotion/effects/mirror';
 import {noise} from '@remotion/effects/noise';
 import {noiseDisplacement} from '@remotion/effects/noise-displacement';
@@ -139,6 +140,7 @@ import {
 	EffectsLutPreview,
 	LUT_PREVIEW_CONTENT,
 } from '../effects/effects-lut-preview';
+import {EffectsMagnifyPreview} from '../effects/effects-magnify-preview';
 import {EffectsMirrorPreview} from '../effects/effects-mirror-preview';
 import {
 	EffectsNoiseDisplacementPreview,
@@ -790,6 +792,14 @@ export const effectsDemos: EffectsDemoType[] = [
 		effectImportPath: '@remotion/effects/barrel-distortion',
 		comp: EffectsBarrelDistortionPreview,
 		schema: barrelDistortion().definition.schema,
+	},
+	{
+		...defaults,
+		id: 'effects-magnify',
+		effectName: 'magnify',
+		effectImportPath: '@remotion/effects/magnify',
+		comp: EffectsMagnifyPreview,
+		schema: magnify().definition.schema,
 	},
 	{
 		...defaults,

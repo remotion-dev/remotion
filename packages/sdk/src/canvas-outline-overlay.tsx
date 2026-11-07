@@ -309,6 +309,14 @@ const CanvasOutlineElement = React.memo(
 					getDragOverrides: editing.getDragOverrides,
 					timelinePosition: editing.getCurrentFrame(),
 				});
+				if (dragStates.length === 0) {
+					if (deferSelection) {
+						select();
+					}
+
+					return;
+				}
+
 				startCanvasOutlineTranslateDrag({
 					event,
 					captureTarget: event.currentTarget,
@@ -832,15 +840,14 @@ export const CanvasOutlineOverlay = React.memo(
 					nudgeSessionRef.current ??
 					(() => {
 						const dragTargets = editing.getSelectedTranslateTargets();
-						return dragTargets.length === 0
+						const dragStates = getCanvasOutlineTranslateDragStates({
+							dragTargets,
+							getDragOverrides: editing.getDragOverrides,
+							timelinePosition: editing.getCurrentFrame(),
+						});
+						return dragStates.length === 0
 							? null
-							: createCanvasOutlineTranslateSession(
-									getCanvasOutlineTranslateDragStates({
-										dragTargets,
-										getDragOverrides: editing.getDragOverrides,
-										timelinePosition: editing.getCurrentFrame(),
-									}),
-								);
+							: createCanvasOutlineTranslateSession(dragStates);
 					})();
 				if (session === null) {
 					return;

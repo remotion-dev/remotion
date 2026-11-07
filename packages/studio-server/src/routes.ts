@@ -40,11 +40,16 @@ import {focusBrowserTab} from './better-opn';
 import {getCompletedClientRenders} from './client-render-queue';
 import {getFileSource} from './helpers/get-file-source';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
+import {getNativeFilePickerDirectory} from './helpers/native-file-picker-directory';
 import {
 	assertNoSymlinks,
 	openFileForWritingWithoutSymlinks,
 } from './helpers/open-file-for-writing-without-symlinks';
 import {resolveOutputPath} from './helpers/resolve-output-path';
+import {
+	prewarmNativeFilePicker,
+	supportsNativeFilePicker,
+} from './native-file-picker';
 import {allApiRoutes} from './preview-server/api-routes';
 import type {ApiHandler, QueueMethods} from './preview-server/api-types';
 import {getPackageManager} from './preview-server/get-package-manager';
@@ -156,7 +161,18 @@ const handleFallback = async ({
 	getDefaultEditor: () => DefaultEditor | null;
 }) => {
 	const acceptsHtml = (request.headers.accept ?? '').includes('text/html');
+	const nativeFilePickerSupported = supportsNativeFilePicker(request);
 	if (request.method === 'GET' && acceptsHtml) {
+		if (nativeFilePickerSupported) {
+			prewarmNativeFilePicker(
+				(await getNativeFilePickerDirectory({
+					remotionRoot,
+					type: 'timeline',
+					updateDirectory: null,
+				})) ?? remotionRoot,
+			);
+		}
+
 		await reloadPreviouslySuppressedFiles();
 	}
 
@@ -222,6 +238,7 @@ const handleFallback = async ({
 			renderDefaults: getRenderDefaults(),
 			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 			fileSystemPlatform: process.platform,
+			supportsNativeFilePicker: nativeFilePickerSupported,
 			gitSource,
 			projectName: getProjectName({
 				basename: path.basename,
@@ -734,19 +751,42 @@ export const handleRoutes = ({
 		return static404(response);
 	}
 
-	if (url.pathname.startsWith(outputHash)) {
-		const filename = new URL(
-			request.url as string,
-			'http://localhost',
-		).pathname.replace(new RegExp(`^${outputHash}`), '');
-		const filePath = join(remotionRoot, decodeURIComponent(filename));
+	if (url.pathname.startsWith(`${outputHash}/`)) {
+		let filename: string;
+		try {
+			filename = decodeURIComponent(url.pathname.slice(outputHash.length + 1));
+		} catch {
+			response.writeHead(400);
+			response.end('Invalid output path');
+			return Promise.resolve();
+		}
+
+		const filePath = path.resolve(remotionRoot, filename);
+		const outsideProject = !RenderInternals.isPathInside(
+			filePath,
+			remotionRoot,
+		);
+		const isCompletedOutput =
+			outsideProject &&
+			getRenderQueue().some(
+				(job) =>
+					job.status === 'done' &&
+					(job.type === 'video' || job.type === 'still') &&
+					!job.deletedOutputLocation &&
+					path.resolve(remotionRoot, job.outName) === filePath,
+			);
+		if (outsideProject && !isCompletedOutput) {
+			response.writeHead(404);
+			response.end('Output file not found');
+			return Promise.resolve();
+		}
 
 		return serveStatic({
 			root: remotionRoot,
 			path: filePath,
 			req: request,
 			res: response,
-			allowOutsidePublicFolder: false,
+			allowOutsidePublicFolder: isCompletedOutput,
 			allowRemotionConvertCors: false,
 		});
 	}

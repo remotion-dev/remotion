@@ -77,11 +77,11 @@ export const data = [
 
 ## Sample component
 
-This component will animate a title, subtitle and image using Remotion. Replace the contents of the `src/Composition.tsx` file with the following:
+This component animates a title, subtitle and image using Remotion. Create `src/MyScene.tsx` with the following:
 
-```tsx title="Composition.tsx"
+```tsx twoslash title="MyScene.tsx"
 import React from 'react';
-import {AbsoluteFill, Img, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Easing, Img, Interactive, interpolate, useCurrentFrame} from 'remotion';
 
 type Props = {
   name: string;
@@ -89,31 +89,22 @@ type Props = {
   repo: string;
 };
 
-export const MyComposition: React.FC<Props> = ({name, repo, logo}) => {
+export const MyScene: React.FC<Props> = ({name, repo, logo}) => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-
-  const scale = spring({
-    fps,
-    frame: frame - 10,
-    config: {
-      damping: 100,
-    },
-  });
-
-  const opacity = interpolate(frame, [30, 40], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const moveY = interpolate(frame, [20, 30], [10, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
-    <AbsoluteFill
+    <Interactive.Div
+      name="Repository card"
       style={{
-        scale: String(scale),
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        scale: interpolate(frame, [10, 40], [0, 1], {
+          easing: Easing.spring({damping: 100}),
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        }),
         backgroundColor: 'white',
         fontWeight: 'bold',
         justifyContent: 'center',
@@ -140,29 +131,65 @@ export const MyComposition: React.FC<Props> = ({name, repo, logo}) => {
             flexDirection: 'column',
           }}
         >
-          <div
+          <Interactive.Div
+            name="Repository name"
             style={{
               fontSize: 40,
-              transform: `translateY(${moveY}px)`,
+              translate: interpolate(frame, [20, 30], ['0px 10px', '0px 0px'], {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              }),
               lineHeight: 1,
             }}
           >
             {name}
-          </div>
-          <div
+          </Interactive.Div>
+          <Interactive.Div
+            name="Repository path"
             style={{
               fontSize: 20,
-              opacity,
+              opacity: interpolate(frame, [30, 40], [0, 1], {
+                extrapolateLeft: 'clamp',
+                extrapolateRight: 'clamp',
+              }),
               lineHeight: 1.25,
             }}
           >
             {repo}
-          </div>
+          </Interactive.Div>
         </div>
       </div>
-    </AbsoluteFill>
+    </Interactive.Div>
   );
 };
+```
+
+Register `MyScene` in `src/Root.tsx`:
+
+```tsx twoslash title="Root.tsx"
+// @filename: MyScene.tsx
+import type {FC} from 'react';
+export const MyScene: FC<{name: string; logo: string; repo: string}> = () => null;
+// @filename: Root.tsx
+// ---cut---
+import {Composition} from 'remotion';
+import {MyScene} from './MyScene';
+
+export const RemotionRoot = () => (
+  <Composition
+    id="MyComp"
+    component={MyScene}
+    durationInFrames={60}
+    fps={30}
+    width={1920}
+    height={1080}
+    defaultProps={{
+      name: 'Remotion',
+      repo: 'remotion-dev/remotion',
+      logo: 'https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png',
+    }}
+  />
+);
 ```
 
 <DatasetDemo />

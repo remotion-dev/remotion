@@ -77,6 +77,7 @@ export const CompositionToolbarMenuItem: React.FC<ToolbarMenuItemProps> =
 			(): Menu => ({
 				id: 'composition',
 				label: 'Composition',
+				ariaLabel: null,
 				leaveLeftPadding: false,
 				items: [
 					...getRenderMenuItems({

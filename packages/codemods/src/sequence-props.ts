@@ -11,7 +11,6 @@ import type {
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
-	UnaryExpression,
 } from '@babel/types';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared/keyframe-easing-presets';
@@ -28,6 +27,10 @@ import type {
 	VideoConfigNumericExpression,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
+import {
+	findEnclosingFunctionPath,
+	isComponentFunctionPath,
+} from './ensure-imports-and-frame-hook';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {
 	getReadOnlySourceNodePath,
@@ -46,6 +49,7 @@ import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
+import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {parseVideoConfigNumericExpression} from './sequence-props/video-config-numeric-expression';
 import {
 	getVideoConfigIdentifiers,
@@ -143,11 +147,8 @@ export const isStaticValue = (
 		case 'NullLiteral':
 			return true;
 		case 'UnaryExpression':
-			return (
-				((node as UnaryExpression).operator === '-' ||
-					(node as UnaryExpression).operator === '+') &&
-				(node as UnaryExpression).argument.type === 'NumericLiteral'
-			);
+		case 'BinaryExpression':
+			return getStaticNumericValue(node) !== null;
 		case 'TSAsExpression':
 			return isStaticValue(
 				(node as TSAsExpression).expression as Expression,
@@ -195,16 +196,9 @@ export const extractStaticValue = (
 			return (node as {value: unknown}).value;
 		case 'NullLiteral':
 			return null;
-		case 'UnaryExpression': {
-			const un = node as UnaryExpression;
-			if (un.argument.type === 'NumericLiteral') {
-				const val = (un.argument as {value: number}).value;
-				return un.operator === '-' ? -val : val;
-			}
-
-			return undefined;
-		}
-
+		case 'UnaryExpression':
+		case 'BinaryExpression':
+			return getStaticNumericValue(node) ?? undefined;
 		case 'TSAsExpression':
 			return extractStaticValue(
 				(node as TSAsExpression).expression as Expression,
@@ -245,26 +239,6 @@ export const extractStaticValue = (
 		default:
 			return undefined;
 	}
-};
-
-const getNumericValue = (node: Expression): number | null => {
-	if (node.type === 'NumericLiteral') {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression' &&
-		(node.operator === '-' || node.operator === '+') &&
-		node.argument.type === 'NumericLiteral'
-	) {
-		return node.operator === '-' ? -node.argument.value : node.argument.value;
-	}
-
-	if (node.type === 'TSAsExpression') {
-		return getNumericValue(node.expression as Expression);
-	}
-
-	return null;
 };
 
 const getExtrapolateType = (node: Expression): ExtrapolateType | null => {
@@ -474,7 +448,7 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'posterize') {
-			const parsedPosterize = getNumericValue(value);
+			const parsedPosterize = getStaticNumericValue(value);
 			if (
 				parsedPosterize === null ||
 				!Number.isFinite(parsedPosterize) ||
@@ -846,11 +820,7 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	let playbackRateAdjustment: SourceNumericValue = 1;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
-		if (
-			currentNode.type === 'FunctionDeclaration' ||
-			currentNode.type === 'FunctionExpression' ||
-			currentNode.type === 'ArrowFunctionExpression'
-		) {
+		if (isComponentFunctionPath(current)) {
 			return null;
 		}
 
@@ -935,19 +905,7 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	playbackRateAdjustment: SourceNumericValue;
 	canKeyframe: boolean;
 } | null => {
-	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
-	while (functionPath) {
-		const node = functionPath.value as Node;
-		if (
-			node.type === 'FunctionDeclaration' ||
-			node.type === 'FunctionExpression' ||
-			node.type === 'ArrowFunctionExpression'
-		) {
-			break;
-		}
-
-		functionPath = functionPath.parentPath;
-	}
+	const functionPath = findEnclosingFunctionPath(jsxPath);
 
 	if (!functionPath) {
 		// Module-level JSX still has editable static props. There is no local
@@ -1020,7 +978,7 @@ const resolveCurrentFrameExpression = ({
 		node.type === 'BinaryExpression' &&
 		(node.operator === '+' || node.operator === '-')
 	) {
-		const rightValue = getNumericValue(node.right as Expression);
+		const rightValue = getStaticNumericValue(node.right as Expression);
 		if (rightValue !== null && Number.isFinite(rightValue)) {
 			const resolvedLeft = resolveCurrentFrameExpression({
 				node: node.left as Expression,
@@ -1038,7 +996,7 @@ const resolveCurrentFrameExpression = ({
 		}
 
 		if (node.operator === '+') {
-			const leftValue = getNumericValue(node.left as Expression);
+			const leftValue = getStaticNumericValue(node.left as Expression);
 			if (leftValue !== null && Number.isFinite(leftValue)) {
 				const resolvedRight = resolveCurrentFrameExpression({
 					node: node.right as Expression,
@@ -1834,12 +1792,15 @@ export const lineColumnsToNodePaths = ({
 	);
 };
 
-const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+const TRANSLATE_VALUE_REGEX = /^-?\d+(\.\d+)?(px|%)$/;
 
 const isSupportedTranslateValue = (value: string): boolean => {
 	const parts = value.split(/\s+/);
 	if (parts.length >= 1 && parts.length <= 3) {
-		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+		return parts.every(
+			(part, index) =>
+				TRANSLATE_VALUE_REGEX.test(part) && (index < 2 || part.endsWith('px')),
+		);
 	}
 
 	return false;
@@ -2243,19 +2204,7 @@ const computeSequenceOnlyPropsRecord = ({
 				allowSpecialValues: assetKeys.includes(key),
 				lastSpreadIndex,
 			});
-			filteredProps[key] =
-				key === 'style.translate' &&
-				((status.status === 'static' &&
-					typeof status.codeValue === 'string' &&
-					status.codeValue.includes('%')) ||
-					(status.status === 'keyframed' &&
-						status.keyframes.some(
-							(keyframe) =>
-								typeof keyframe.value === 'string' &&
-								keyframe.value.includes('%'),
-						)))
-					? computedStatus()
-					: status;
+			filteredProps[key] = status;
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else if (lastSpreadIndex !== -1) {

@@ -46,10 +46,12 @@ import * as invokeWebhook from '../../functions/invoke-webhook';
 import type {InvokeWebhookParams} from '../../functions/types';
 import * as bundleSite from '../../shared/bundle-site';
 import * as readDir from '../../shared/read-dir';
+import {waitForPromisesToFinish} from '../../shared/wait-for-promises-to-finish';
 import {
 	getMockCallFunctionAsync,
 	getMockCallFunctionStreaming,
 	getMockCallFunctionSync,
+	getMockInvokeWithResponseStream,
 } from './aws-clients';
 import {mockBundleSite} from './mock-bundle-site';
 import {mockCreateFunction} from './mock-create-function';
@@ -76,6 +78,7 @@ const realRandomHash = randomHash.randomHashImplementation;
 const realGenerateRenderId = lifecycle.generateRandomHashWithLifeCycleRule;
 
 const webhookCalls: InvokeWebhookParams[] = [];
+const pendingBrowserCloses: Promise<void>[] = [];
 
 export const getWebhookCalls = () => webhookCalls;
 export const resetWebhookCalls = () => {
@@ -102,6 +105,7 @@ export type FakeAwsDefaults = {
 	callFunctionAsync: typeof callLambdaAsync.callFunctionAsyncImplementation;
 	callFunctionStreaming: typeof callLambdaStreaming.callFunctionWithStreamingImplementation;
 	callFunctionSync: typeof callLambdaSync.callFunctionSyncImplementation;
+	invokeWithResponseStream: typeof callLambdaStreaming.invokeWithResponseStreamImplementation;
 	getFunctions: typeof getFunctions.getFunctions;
 	getFunctionInfo: typeof getFunctionInfo.getFunctionInfo;
 	deleteFunction: typeof deleteFunction.deleteFunction;
@@ -207,6 +211,7 @@ export const fakeAwsDefaults: FakeAwsDefaults = {
 	callFunctionAsync: getMockCallFunctionAsync,
 	callFunctionStreaming: getMockCallFunctionStreaming,
 	callFunctionSync: getMockCallFunctionSync,
+	invokeWithResponseStream: getMockInvokeWithResponseStream,
 	getFunctions: getAllMockFunctions,
 	getFunctionInfo: ({functionName, region}) => {
 		const fn = findFunction(functionName, region);
@@ -234,7 +239,7 @@ export const fakeAwsDefaults: FakeAwsDefaults = {
 		return {instance, configurationString: 'chrome'};
 	},
 	forgetBrowserEventLoop: ({launchedBrowser}) => {
-		launchedBrowser.instance.close({silent: false});
+		pendingBrowserCloses.push(launchedBrowser.instance.close({silent: false}));
 	},
 	closeBrowserInstance: async ({launchedBrowser}) => {
 		await launchedBrowser.instance.close({silent: true});
@@ -276,6 +281,10 @@ const makeSpies = (): FakeAwsSpies => ({
 		'callFunctionWithStreamingImplementation',
 	),
 	callFunctionSync: spyOn(callLambdaSync, 'callFunctionSyncImplementation'),
+	invokeWithResponseStream: spyOn(
+		callLambdaStreaming,
+		'invokeWithResponseStreamImplementation',
+	),
 	getFunctions: spyOn(getFunctions, 'getFunctions'),
 	getFunctionInfo: spyOn(getFunctionInfo, 'getFunctionInfo'),
 	deleteFunction: spyOn(deleteFunction, 'deleteFunction'),
@@ -341,6 +350,12 @@ export const fakeAws = (): FakeAwsSpies => {
 
 export const useFakeAws = () => {
 	beforeAll(installFakeAws);
-	afterEach(resetFakeAws);
+	afterEach(async () => {
+		try {
+			await waitForPromisesToFinish(pendingBrowserCloses.splice(0));
+		} finally {
+			resetFakeAws();
+		}
+	});
 	afterAll(uninstallFakeAws);
 };

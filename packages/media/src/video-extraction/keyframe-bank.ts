@@ -431,10 +431,10 @@ export const makeKeyframeBank = async ({
 
 		if (roundedTimestamp < firstFrameTimestamp) {
 			const firstFrameIsInitialFrame =
-				firstFrameTimestamp === startTimestampInSeconds;
+				frameTimestamps[0] === startTimestampInSeconds;
 
 			const firstFrameDoesSatisfy =
-				firstFrameIsInitialFrame && roundedTimestamp >= initialTimestampRequest;
+				firstFrameIsInitialFrame && timestamp >= initialTimestampRequest;
 
 			return firstFrameDoesSatisfy;
 		}

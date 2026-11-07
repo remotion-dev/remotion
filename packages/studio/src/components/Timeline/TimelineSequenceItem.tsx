@@ -1242,7 +1242,7 @@ const TimelineSequenceItemInner: React.FC<{
 		],
 	);
 	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenSource;
+		connectedCompositions.length > 0 || canOpenSource;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&

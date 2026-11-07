@@ -20,12 +20,12 @@ The force affects fragments within a sphere around `center` and `depth`. Fragmen
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {shatter} from '@remotion/effects/shatter';
 import {Video} from '@remotion/media';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 
@@ -34,7 +34,7 @@ export const MyComp: React.FC = () => {
       src="https://remotion.media/video.mp4"
       effects={[
         shatter({
-          time: frame / fps,
+          time: interpolate(frame, [0, fps], [0, 1]),
           pattern: 'glass',
           radius: 0.8,
           seed: 12,
@@ -53,7 +53,7 @@ Pass an object with the following properties. You can also call `shatter()` with
 
 Elapsed time in seconds. Must be non-negative. Defaults to `0.5`.
 
-At `0`, the source is unchanged. Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) divided by the frame rate from [`useVideoConfig()`](/docs/use-video-config). The effect does not advance automatically.
+At `0`, the source is unchanged. Animate this value with an inline [`interpolate()`](/docs/interpolate) call, using `fps` from [`useVideoConfig()`](/docs/use-video-config) to map frames to seconds. The effect does not advance automatically.
 
 Each frame is calculated independently. The same parameters and `time` produce the same result when seeking or rendering frames out of order.
 

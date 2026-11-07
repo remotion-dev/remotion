@@ -98,7 +98,7 @@ export const MenuSubItem: React.FC<{
 			...container,
 			backgroundColor: selected && !disabled ? WHITE_ALPHA_06 : TRANSPARENT,
 			opacity: disabled ? 0.5 : 1,
-			cursor: disabled ? 'not-allowed' : 'default',
+			cursor: 'default',
 		};
 	}, [selected, disabled]);
 
@@ -212,6 +212,7 @@ export const MenuSubItem: React.FC<{
 		<div
 			ref={ref}
 			aria-label={typeof label === 'string' ? label : undefined}
+			aria-disabled={disabled || undefined}
 			style={style}
 			onPointerUp={onPointerUp}
 			role="button"

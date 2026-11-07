@@ -18,10 +18,7 @@ import type {ExpressionKind} from 'ast-types/lib/gen/kinds';
 import * as recast from 'recast';
 import type {InteractivitySchema, SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {
-	ensureUseCurrentFrameHook,
-	findEnclosingFunctionPath,
-} from './ensure-imports-and-frame-hook';
+import {ensureUseCurrentFrameHook} from './ensure-imports-and-frame-hook';
 import {
 	captureFunctionSourceSnapshots,
 	getFunctionSourceEditsForPrependedStatements,
@@ -816,13 +813,10 @@ const ensureFrameHook = ({
 		return;
 	}
 
-	const functionPath = findEnclosingFunctionPath(jsxPath);
-	if (functionPath) {
-		ensureUseCurrentFrameHook(
-			functionPath,
-			localNames.useCurrentFrame ?? 'useCurrentFrame',
-		);
-	}
+	localNames.frameName = ensureUseCurrentFrameHook({
+		referencePath: jsxPath,
+		hookName: localNames.useCurrentFrame ?? 'useCurrentFrame',
+	});
 };
 
 export const pasteEffects = ({

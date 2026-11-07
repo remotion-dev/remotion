@@ -18,23 +18,28 @@ Tears a canvas-based component along a zigzag seam in any direction. The two pie
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {interpolate, useCurrentFrame} from 'remotion';
 import {Video} from '@remotion/media';
 import {tear} from '@remotion/effects/tear';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame, [0, 60], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
 
   return (
     <>
       <Video
         src="https://remotion.media/video.mp4"
-        effects={[tear({progress, rotation: 20, jaggedness: 20})]}
+        effects={[
+          tear({
+            progress: interpolate(frame, [0, 60], [0, 1], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            }),
+            rotation: 20,
+            jaggedness: 20,
+          }),
+        ]}
       />
     </>
   );

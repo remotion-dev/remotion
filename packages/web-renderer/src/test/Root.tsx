@@ -62,6 +62,7 @@ import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
+import {maskImageUrlSizing} from './fixtures/mask-image-url-sizing';
 import {
 	mixBlendModeAllModes,
 	mixBlendModeGroups,
@@ -69,6 +70,7 @@ import {
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
+import {objectPosition, objectPositionMath} from './fixtures/object-position';
 import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
@@ -94,6 +96,7 @@ import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
@@ -159,10 +162,13 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
+			<Composition {...objectPosition} />
+			<Composition {...objectPositionMath} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgDataUri} />
+			<Composition {...svgUrlNonzeroViewbox} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
@@ -183,6 +189,7 @@ export const Root: React.FC = () => {
 				<Composition {...mixBlendModeAllModes} />
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
+				<Composition {...maskImageUrlSizing} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />

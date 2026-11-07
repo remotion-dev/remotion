@@ -36,6 +36,10 @@ export const TableOfContents: React.FC = () => {
 				<strong>addFolder()</strong>
 				<div>Adds an empty &lt;Folder&gt; to the registration tree.</div>
 			</TOCItem>
+			<TOCItem link="/docs/codemods/add-open-timeline-composition">
+				<strong>addOpenTimelineComposition()</strong>
+				<div>Imports and registers an editable OpenTimelineIO timeline.</div>
+			</TOCItem>
 			<TOCItem link="/docs/codemods/apply-codemod-changes">
 				<strong>applyCodemodChanges()</strong>
 				<div>Applies file changes to an in-memory project.</div>
@@ -77,6 +81,10 @@ export const TableOfContents: React.FC = () => {
 			<TOCItem link="/docs/codemods/duplicate-nodes">
 				<strong>duplicateNodes()</strong>
 				<div>Duplicates one or more nodes beside their originals.</div>
+			</TOCItem>
+			<TOCItem link="/docs/codemods/generate-open-timeline-composition">
+				<strong>generateOpenTimelineComposition()</strong>
+				<div>Converts an OpenTimelineIO timeline into editable TSX.</div>
 			</TOCItem>
 			<TOCItem link="/docs/codemods/get-node-props">
 				<strong>getNodeProps()</strong>

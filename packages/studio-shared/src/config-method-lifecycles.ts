@@ -60,6 +60,7 @@ export const configMethodLifecycles = {
 	setFrameRange: 'runtime',
 	setGopSize: 'runtime',
 	setHardwareAcceleration: 'runtime',
+	setHighContrast: 'runtime',
 	setIPv4: 'restart',
 	setImageFormat: 'runtime',
 	setImageSequence: 'runtime',

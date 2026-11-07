@@ -20,6 +20,7 @@ const parsed = minimist<Options>(process.argv.slice(2), {
 		'tmp',
 		'yes',
 		'tailwind',
+		'skills',
 		'help',
 	],
 	string: ['_'],
@@ -31,6 +32,8 @@ export const isTmpFlagSelected = () => parsed.tmp;
 export const isYesFlagSelected = () => parsed.yes;
 
 export const isTailwindFlagSelected = () => parsed.tailwind;
+
+export const isSkillsFlagSelected = () => parsed.skills;
 
 export const isHelpFlagSelected = () => parsed.help;
 

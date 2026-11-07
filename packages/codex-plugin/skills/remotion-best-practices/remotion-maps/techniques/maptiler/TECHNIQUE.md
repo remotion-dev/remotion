@@ -59,7 +59,7 @@ Use `turf.lineSliceAlong(line, 0, lineKm*reveal)` to draw rivers.
 
 Use MapTiler vector layers for suitable provider features and custom GeoJSON for story-specific or ordered geometry. If the beat needs country-entry triggers or a progressive line draw, run `scripts/prep-geo.mjs` to bake `country-meta.json`, `borders.geojson`, and the ordered line. Details → `references/map-data-sources.md` and `references/map-geo-prep.md`.
 
-## Keep it minmal
+## Keep it minimal
 
 Strip clutter on `load`: remove `symbol` layers (place labels) and `/other border/i` (admin-1 inner borders); hide the logo via CSS. Keep country + disputed borders.
 

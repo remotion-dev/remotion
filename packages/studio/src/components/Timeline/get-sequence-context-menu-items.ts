@@ -362,7 +362,7 @@ export const getSequenceContextMenuItems = (
 					sequence.refForOutline?.current,
 					contextMenuTarget,
 				]),
-			initialComment: null,
+			initialComment: '$remotion-markup',
 			getMetadata: () =>
 				getSequenceAnnotationMetadata({
 					sequence,

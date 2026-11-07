@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/effects",
-	"version": "4.0.540",
+	"version": "4.0.541",
 	"description": "Effects that can be applied to Remotion-based canvas components",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -263,6 +263,11 @@
 			"types": "./dist/dot-grid.d.ts",
 			"module": "./dist/esm/dot-grid.mjs",
 			"import": "./dist/esm/dot-grid.mjs"
+		},
+		"./magnify": {
+			"types": "./dist/magnify.d.ts",
+			"module": "./dist/esm/magnify.mjs",
+			"import": "./dist/esm/magnify.mjs"
 		},
 		"./mirror": {
 			"types": "./dist/mirror.d.ts",
@@ -615,6 +620,9 @@
 			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"
+			],
+			"magnify": [
+				"dist/magnify.d.ts"
 			],
 			"mirror": [
 				"dist/mirror.d.ts"

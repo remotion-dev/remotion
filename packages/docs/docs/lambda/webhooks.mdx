@@ -80,7 +80,7 @@ The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName
 
 You can use the field `customData` to set a JSON-serializable object, which is useful to pass on custom data to the webhook endpoint. **The `customData` field must be less than 1KB (1024 bytes) when serialized, otherwise an error is thrown**. Store larger data in `inputProps` and retrieve it back by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress) and reading `progress.renderMetadata.inputProps`.
 
-If the render process times out, the reponse body will not contain any other fields.
+If the render process times out, the response body will not contain any other fields.
 
 The `outputUrl`, `outputFile` and `timeToFinish` keys are only returned if the render was successful. Note that a successful render process may still have non-fatal `lambdaErrors`:
 

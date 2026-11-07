@@ -38,7 +38,7 @@ Requires a template flag and a directory argument.
 When used:
 
 - TailwindCSS is added only with [`--tailwind`](#--tailwind) for supported templates
-- Agent skills are not installed
+- [Agent skills](/docs/ai/skills) are not installed unless [`--skills`](#--skills) is passed
 - The editor is not opened
 - If already inside a Git repository, the command fails
 
@@ -70,6 +70,16 @@ Create the project in a temporary directory instead of specifying a directory na
 
 ```bash
 npx create-video --yes --blank --tmp
+```
+
+### `--skills`<AvailableFrom v="4.0.541" />
+
+Install all Remotion [agent skills](/docs/ai/skills) without showing the skills selection prompt. Works with or without `--yes`.
+
+Without `--skills`, interactive setup asks which skills to install, while `--yes` skips skill installation.
+
+```bash title="Create a project with agent skills"
+npx create-video --yes --blank --skills my-video
 ```
 
 ### `--help`<AvailableFrom v="4.0.488" />
@@ -107,7 +117,7 @@ npx create-video --yes --blank my-video
 When using `--yes`:
 
 - TailwindCSS is added only with [`--tailwind`](#--tailwind) for supported templates.
-- [Agent skills](/docs/ai/skills) are not installed. You can add them manually afterwards by running [`npx skills add remotion-dev/skills`](/docs/cli/skills) in the project directory.
+- [Agent skills](/docs/ai/skills) are installed only with [`--skills`](#--skills). You can also add them afterwards by running [`npx skills add remotion-dev/skills`](/docs/cli/skills) in the project directory.
 - The editor is not opened after scaffolding.
 - The command fails if you are already inside a Git repository.
 
@@ -117,6 +127,12 @@ With TailwindCSS:
 
 ```bash title="Create a project with TailwindCSS"
 npx create-video --yes --blank --tailwind my-video
+```
+
+With agent skills:
+
+```bash title="Create a project with agent skills"
+npx create-video --yes --blank --skills my-video
 ```
 
 In a temporary directory:
