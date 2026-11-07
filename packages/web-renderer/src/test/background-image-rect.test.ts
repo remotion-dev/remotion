@@ -1,5 +1,9 @@
 import {expect, test} from 'vitest';
-import {getBackgroundImageRect} from '../drawing/background-image-rect';
+import {
+	getBackgroundImageRect,
+	parsePosition,
+	resolvePosition,
+} from '../drawing/background-image-rect';
 
 test('positions an oversized percentage background image', () => {
 	const rect = getBackgroundImageRect({
@@ -47,4 +51,27 @@ test('snaps the dependent contain dimension for a raster tile', () => {
 	});
 	expect(rect.width).toBe(101);
 	expect(rect.height).toBe(51);
+});
+
+// PR #13031: Chrome preserves nested math and exponent notation in computed style.
+test('resolves nested math without splitting function commas', () => {
+	const position = parsePosition('calc(50% + min(10px, 10%)) 50%');
+	expect(
+		resolvePosition({containerSize: 100, imageSize: 50, value: position.x}),
+	).toBe(30);
+	expect(
+		resolvePosition({containerSize: 100, imageSize: 150, value: position.x}),
+	).toBe(-30);
+});
+test('retains scientific notation magnitude in computed positions', () => {
+	expect(
+		resolvePosition({
+			containerSize: 100,
+			imageSize: 50,
+			value: 'calc(100% - 1e-06px)',
+		}),
+	).toBeCloseTo(49.999999, 8);
+	expect(
+		resolvePosition({containerSize: 100, imageSize: 50, value: '1e+06px'}),
+	).toBe(1e6);
 });

@@ -57,7 +57,7 @@ test('renders raster URL background sizes and repeats', async () => {
 });
 
 // PR #13036: source-in must mask combined backgrounds once, not multiply glyph alpha.
-test('opaque text background ignores the color alpha underneath', async () => {
+test('opaque text background ignores the color alpha underneath', async (t) => {
 	const fixture = (backgroundColor: string) => ({
 		id: 'background-text-mask-alpha',
 		width: 400,
@@ -99,9 +99,11 @@ test('opaque text background ignores the color alpha underneath', async () => {
 	const semi = await render('rgba(255,0,0,0.5)');
 	const opaque = await render('rgb(255,0,0)');
 	const result = await compareNativePixels(opaque, semi);
-	await savePixelEvidence(opaque, 'background-text-mask-opaque');
-	await savePixelEvidence(semi, 'background-text-mask-semi');
-	await savePixelEvidence(result.diff, 'background-text-mask-diff');
+	if (t.task.file.projectName !== 'firefox') {
+		await savePixelEvidence(opaque, 'background-text-mask-opaque');
+		await savePixelEvidence(semi, 'background-text-mask-semi');
+		await savePixelEvidence(result.diff, 'background-text-mask-diff');
+	}
 	expect(result.mismatchedPixels).toBe(0);
 });
 

@@ -97,9 +97,8 @@ export default createRule<Options, MessageIds>({
 							value.startsWith('/etc') ||
 							value.startsWith('/opt') ||
 							value.startsWith('/var') ||
-							value.startsWith('C:') ||
-							value.startsWith('D:') ||
-							value.startsWith('E:')
+							/^[a-zA-Z]:[\\/]/.test(value) ||
+							value.startsWith('\\\\')
 						) {
 							context.report({
 								messageId: 'AbsoluteStaticFile',
