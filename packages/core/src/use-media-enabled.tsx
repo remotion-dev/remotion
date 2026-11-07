@@ -1,19 +1,13 @@
 import {createContext, useContext, useMemo} from 'react';
 
-export const AudioPaddingContext = createContext(false);
-
-const MediaEnabledContext = createContext<{
+export const MediaEnabledContext = createContext<{
 	videoEnabled: boolean | null;
 	audioEnabled: boolean | null;
+	artifactsEnabled: boolean;
 } | null>(null);
 
 export const useVideoEnabled = () => {
 	const context = useContext(MediaEnabledContext);
-	const isAudioPadding = useContext(AudioPaddingContext);
-	if (isAudioPadding) {
-		return false;
-	}
-
 	if (context && context.videoEnabled !== null) {
 		return context.videoEnabled;
 	}
@@ -40,14 +34,16 @@ export const MediaEnabledProvider = ({
 	children,
 	videoEnabled,
 	audioEnabled,
+	artifactsEnabled,
 }: {
 	readonly children: React.ReactNode;
 	readonly videoEnabled: boolean | null;
 	readonly audioEnabled: boolean | null;
+	readonly artifactsEnabled: boolean;
 }) => {
 	const value = useMemo(
-		() => ({videoEnabled, audioEnabled}),
-		[videoEnabled, audioEnabled],
+		() => ({videoEnabled, audioEnabled, artifactsEnabled}),
+		[videoEnabled, audioEnabled, artifactsEnabled],
 	);
 
 	return (

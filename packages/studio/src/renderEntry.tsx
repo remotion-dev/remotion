@@ -101,21 +101,24 @@ const DelayedSpinner: React.FC = () => {
 	);
 };
 
-const AudioPaddingProvider: React.FC<{
-	readonly state: BundleCompositionState;
+const RenderFrameRange: React.FC<{
+	readonly compositionName: string;
+	readonly range: [number, number];
 	readonly children: React.ReactNode;
-}> = ({state, children}) => {
+}> = ({compositionName, range, children}) => {
 	const {frame} = Internals.useTimelineContext();
-	const currentFrame =
-		frame[state.compositionName] ?? window.remotion_initialFrame;
-	const range = state.outputFrameRange;
-	const isAudioPadding = range
-		? currentFrame < range[0] || currentFrame > range[1]
-		: false;
+	const currentFrame = frame[compositionName] ?? window.remotion_initialFrame;
+	const isOutputFrame = currentFrame >= range[0] && currentFrame <= range[1];
+	const videoEnabled = Internals.useVideoEnabled();
+	const audioEnabled = Internals.useAudioEnabled();
 	return (
-		<Internals.AudioPaddingContext.Provider value={isAudioPadding}>
+		<Internals.MediaEnabledProvider
+			videoEnabled={videoEnabled && isOutputFrame}
+			audioEnabled={audioEnabled}
+			artifactsEnabled={isOutputFrame}
+		>
 			{children}
-		</Internals.AudioPaddingContext.Provider>
+		</Internals.MediaEnabledProvider>
 	);
 };
 
@@ -261,6 +264,12 @@ const renderContent = (Root: React.FC) => {
 	const bundleMode = getBundleMode();
 
 	if (bundleMode.type === 'composition') {
+		const content = (
+			<Internals.RenderAssetManagerProvider collectAssets={null}>
+				<Root />
+				<GetVideoComposition state={bundleMode} />
+			</Internals.RenderAssetManagerProvider>
+		);
 		const markup = (
 			<Internals.CompositionManagerProvider
 				initialCanvasContent={null}
@@ -293,12 +302,16 @@ const renderContent = (Root: React.FC) => {
 					previewSampleRate={window.remotion_sampleRate}
 					_experimentalKeepAudioContextAlive={false}
 				>
-					<AudioPaddingProvider state={bundleMode}>
-						<Internals.RenderAssetManagerProvider collectAssets={null}>
-							<Root />
-							<GetVideoComposition state={bundleMode} />
-						</Internals.RenderAssetManagerProvider>
-					</AudioPaddingProvider>
+					{bundleMode.outputFrameRange ? (
+						<RenderFrameRange
+							compositionName={bundleMode.compositionName}
+							range={bundleMode.outputFrameRange}
+						>
+							{content}
+						</RenderFrameRange>
+					) : (
+						content
+					)}
 				</Internals.RemotionRootContexts>
 			</Internals.CompositionManagerProvider>
 		);

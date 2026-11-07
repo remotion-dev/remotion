@@ -141,7 +141,7 @@ test('nested Sequence rates preserve source trims when collecting media for rend
 
 	const composition = (currentFrame: number) => (
 		<RemotionEnvironmentContext.Provider value={environment}>
-			<MediaEnabledProvider audioEnabled videoEnabled={false}>
+			<MediaEnabledProvider artifactsEnabled audioEnabled videoEnabled={false}>
 				<WrapSequenceContext currentFrame={currentFrame}>
 					<RenderAssetManagerProvider collectAssets={collectAssets}>
 						<Sequence

@@ -285,7 +285,7 @@ import {
 import {DelayRenderContextType} from './use-delay-render.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {
-	AudioPaddingContext,
+	MediaEnabledProvider,
 	useAudioEnabled,
 	useVideoEnabled,
 } from './use-media-enabled.js';
@@ -547,7 +547,7 @@ export const Internals = {
 	getInputPropsOverride,
 	setInputPropsOverride,
 	useVideoEnabled,
-	AudioPaddingContext,
+	MediaEnabledProvider,
 	useAudioEnabled,
 	useBuffering,
 	TimelinePosition,

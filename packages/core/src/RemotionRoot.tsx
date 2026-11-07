@@ -44,6 +44,7 @@ export const RemotionRootContexts: React.FC<{
 		<LogLevelContext.Provider value={logging}>
 			<TimelineContextProvider frameState={frameState}>
 				<MediaEnabledProvider
+					artifactsEnabled
 					videoEnabled={videoEnabled}
 					audioEnabled={audioEnabled}
 				>

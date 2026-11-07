@@ -33,11 +33,11 @@ import {
 } from './SequenceManager.js';
 import {TimelineTrackContext} from './timeline-track-context.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
-import {AudioPaddingContext} from './use-media-enabled.js';
+import {MediaEnabledContext} from './use-media-enabled.js';
 import {VideoContext} from './use-video.js';
 
 export function useRemotionContexts() {
-	const isAudioPadding = React.useContext(AudioPaddingContext);
+	const mediaEnabled = React.useContext(MediaEnabledContext);
 	const compositionManagerCtx = React.useContext(CompositionManager);
 	const videoContext = React.useContext(VideoContext);
 	const timelineContext = React.useContext(TimelineContext);
@@ -74,7 +74,7 @@ export function useRemotionContexts() {
 
 	return useMemo(
 		() => ({
-			isAudioPadding,
+			mediaEnabled,
 			compositionManagerCtx,
 			videoContext,
 			timelineContext,
@@ -98,7 +98,7 @@ export function useRemotionContexts() {
 			logLevelContext,
 		}),
 		[
-			isAudioPadding,
+			mediaEnabled,
 			compositionManagerCtx,
 			videoContext,
 			sequenceContext,
@@ -301,11 +301,11 @@ export const RemotionContextProvider = (
 																					<SequenceActivityContext.Provider
 																						value={false}
 																					>
-																						<AudioPaddingContext.Provider
-																							value={contexts.isAudioPadding}
+																						<MediaEnabledContext.Provider
+																							value={contexts.mediaEnabled}
 																						>
 																							{children}
-																						</AudioPaddingContext.Provider>
+																						</MediaEnabledContext.Provider>
 																					</SequenceActivityContext.Provider>
 																				</VideoContext.Provider>
 																			</DefaultPremountContext.Provider>
