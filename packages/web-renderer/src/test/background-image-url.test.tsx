@@ -104,6 +104,7 @@ test('opaque text background ignores the color alpha underneath', async (t) => {
 		await savePixelEvidence(semi, 'background-text-mask-semi');
 		await savePixelEvidence(result.diff, 'background-text-mask-diff');
 	}
+
 	expect(result.mismatchedPixels).toBe(0);
 });
 
