@@ -1,13 +1,16 @@
-import {
-	cloneNode,
-	isFunction,
-	isReferenced,
-	stringLiteral,
-	type File,
-	type Identifier,
-	type ImportDeclaration,
-	type JSXIdentifier,
-	type Node,
+import type {
+	ArrowFunctionExpression,
+	ClassMethod,
+	ClassPrivateMethod,
+	File,
+	FunctionDeclaration,
+	FunctionExpression,
+	Identifier,
+	ImportDeclaration,
+	JSXIdentifier,
+	Node,
+	ObjectMethod,
+	StringLiteral,
 } from '@babel/types';
 import * as recast from 'recast';
 import type {CodemodProject} from './codemod-project';
@@ -24,6 +27,7 @@ import {
 } from './get-node-path-remappings';
 import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {dirname, normalizePath} from './internals';
+import {isReferenced} from './is-referenced';
 import {
 	getNodeEditResult,
 	getSubtreeEditRemappings,
@@ -44,6 +48,26 @@ import {
 	type SourceEdit,
 } from './source-edits';
 import {removeUnusedImports} from './unused-imports';
+
+type FunctionNode =
+	| FunctionDeclaration
+	| FunctionExpression
+	| ArrowFunctionExpression
+	| ObjectMethod
+	| ClassMethod
+	| ClassPrivateMethod;
+
+const functionTypes = new Set<string>([
+	'FunctionDeclaration',
+	'FunctionExpression',
+	'ArrowFunctionExpression',
+	'ObjectMethod',
+	'ClassMethod',
+	'ClassPrivateMethod',
+]);
+
+const isFunction = (node: Node): node is FunctionNode =>
+	functionTypes.has(node.type);
 
 // These references are portable only when they are not lexically shadowed at
 // either location. Unknown globals and module-relative expressions fail closed.
@@ -440,7 +464,7 @@ export const moveCompositionAcrossFiles = ({
 				)
 					localName = `${node.name}${suffix++}`;
 				occupiedNames.add(localName);
-				const copied = cloneNode(specifier);
+				const copied = {...specifier};
 				copied.local = {type: 'Identifier', name: localName};
 				insertImportDeclaration(targetAst, {
 					type: 'ImportDeclaration',
@@ -505,13 +529,14 @@ export const moveCompositionAcrossFiles = ({
 					input[recastLocToOffset(input, argument.loc.start)] === "'"
 						? 'single'
 						: 'double';
+				const rebasedSource: StringLiteral = {
+					type: 'StringLiteral',
+					value: rebaseImport(argument.value, sourceFile, targetFile),
+				};
 				sourceEdits.push({
 					start: recastLocToOffset(input, argument.loc.start),
 					end: recastLocToOffset(input, argument.loc.end),
-					replacement: recast.prettyPrint(
-						stringLiteral(rebaseImport(argument.value, sourceFile, targetFile)),
-						{quote},
-					).code,
+					replacement: recast.prettyPrint(rebasedSource, {quote}).code,
 				});
 			}
 
