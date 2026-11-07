@@ -46,7 +46,13 @@ for (const outcome of [
 		vi.mocked(extractFrame).mockImplementation(async () => {
 			// Ensure an audio rejection can happen before the frame arrives.
 			await new Promise((resolve) => setTimeout(resolve, 10));
-			return {type: 'success', frame, rotation: 0, durationInSeconds: 1};
+			return {
+				type: 'success',
+				frame,
+				rotation: 0,
+				flip: false,
+				durationInSeconds: 1,
+			};
 		});
 		if (outcome === 'rejected-audio') {
 			vi.mocked(extractAudio).mockRejectedValue(failure);
