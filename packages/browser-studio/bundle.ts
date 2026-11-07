@@ -1,6 +1,7 @@
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
+import {effectPreviewPlugin} from './src/dev/effect-preview-plugin';
 import {getBrowserStudioDependencyVersionsForBuild} from './src/dev/get-dependency-versions-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './src/dev/get-setup-environment-for-build';
 import {getBrowserStudioWorkspacePackageExportsForBuild} from './src/dev/get-workspace-package-exports-for-build';
@@ -20,6 +21,7 @@ const workspacePackageExports =
 // mismatched releases, so its shared dependencies must remain external. The
 // vendor entry is the fast path and must bundle the stable dependency graph.
 const vendorOutput = await build({
+	plugins: [effectPreviewPlugin],
 	define: {'process.env.NODE_ENV': JSON.stringify('development')},
 	entrypoints: ['src/browser-studio-vendor-entry.ts'],
 	external: ['@huggingface/transformers'],
@@ -64,6 +66,7 @@ const browserStudioAssetSizes = {
 	vendorBundle: vendorEntryOutput.size,
 };
 const output = await build({
+	plugins: [effectPreviewPlugin],
 	entrypoints: [
 		'src/index.tsx',
 		'src/browser-studio-worker.ts',
