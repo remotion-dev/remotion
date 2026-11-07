@@ -54,6 +54,7 @@ export const drawElement = async ({
 	const finishClipPath = setClipPath({
 		ctx: context,
 		clipPath: computedStyle.clipPath,
+		element,
 		rect,
 	});
 

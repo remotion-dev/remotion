@@ -1,4 +1,5 @@
 type ClipPathNone = {type: 'none'};
+type ClipPathReference = {type: 'url'; source: string};
 type ClipPathPolygon = {
 	type: 'polygon';
 	points: {x: number; y: number}[];
@@ -27,6 +28,7 @@ type ClipPathInset = {
 
 type ParsedClipPath =
 	| ClipPathNone
+	| ClipPathReference
 	| ClipPathPolygon
 	| ClipPathPath
 	| ClipPathCircle
@@ -211,6 +213,16 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 		return {type: 'none'};
 	}
 
+	if (clipPath.startsWith('url(') && clipPath.endsWith(')')) {
+		return {
+			type: 'url',
+			source: clipPath
+				.slice(4, -1)
+				.trim()
+				.replace(/^(["'])(.*)\1$/, '$2'),
+		};
+	}
+
 	const polygonMatch = clipPath.match(/^polygon\((.+)\)$/);
 	if (polygonMatch) {
 		return parsePolygon(polygonMatch[1], rect);
@@ -239,14 +251,79 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 	return {type: 'none'};
 }
 
+// The Canvas clip must be vector geometry so it also applies to descendants.
+// Reuse Path2D rather than rasterizing the SVG resource into a separate mask.
+const getReferencedRectangle = (
+	source: string,
+	element: Element,
+	rect: DOMRect,
+): Path2D | null => {
+	let url: URL;
+	let id: string;
+	try {
+		url = new URL(source, element.ownerDocument.baseURI);
+		id = decodeURIComponent(url.hash.slice(1));
+	} catch {
+		// Malformed resource URLs do not resolve a clip in the browser.
+		return null;
+	}
+
+	const documentUrl = new URL(element.ownerDocument.URL);
+	if (
+		url.origin !== documentUrl.origin ||
+		url.pathname !== documentUrl.pathname ||
+		url.search !== documentUrl.search ||
+		!url.hash
+	)
+		return null;
+	const resource = element.ownerDocument.getElementById(id);
+	if (!(resource instanceof SVGClipPathElement)) return null;
+	const children = Array.from(resource.children).filter(
+		(node) => getComputedStyle(node).display !== 'none',
+	);
+	const path = new Path2D();
+	if (children.length === 0) return path;
+	// Other geometry, rounded rectangles and unions need separate coverage handling.
+	if (children.length !== 1 || !(children[0] instanceof SVGRectElement))
+		return null;
+	const child = children[0];
+	if (
+		child.rx.baseVal.valueInSpecifiedUnits > 0 ||
+		child.ry.baseVal.valueInSpecifiedUnits > 0
+	)
+		return null;
+	const objectBoundingBox =
+		resource.clipPathUnits.baseVal ===
+		SVGUnitTypes.SVG_UNIT_TYPE_OBJECTBOUNDINGBOX;
+	const length = (value: SVGLength) =>
+		objectBoundingBox && value.unitType === SVGLength.SVG_LENGTHTYPE_PERCENTAGE
+			? value.valueInSpecifiedUnits / 100
+			: value.value;
+	const width = length(child.width.baseVal);
+	const height = length(child.height.baseVal);
+	if (width <= 0 || height <= 0) return path;
+	const matrix = new DOMMatrix().translate(rect.left, rect.top);
+	if (objectBoundingBox) matrix.scaleSelf(rect.width, rect.height);
+	for (let i = 0; i < resource.transform.baseVal.numberOfItems; i++)
+		matrix.multiplySelf(resource.transform.baseVal.getItem(i).matrix);
+	for (let i = 0; i < child.transform.baseVal.numberOfItems; i++)
+		matrix.multiplySelf(child.transform.baseVal.getItem(i).matrix);
+	const shape = new Path2D();
+	shape.rect(length(child.x.baseVal), length(child.y.baseVal), width, height);
+	path.addPath(shape, matrix);
+	return path;
+};
+
 export function setClipPath({
 	ctx,
 	clipPath,
 	rect,
+	element,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	clipPath: string;
 	rect: DOMRect;
+	element: Element;
 }): () => void {
 	const parsed = parseClipPath(clipPath, rect);
 
@@ -257,6 +334,12 @@ export function setClipPath({
 	ctx.save();
 
 	switch (parsed.type) {
+		case 'url': {
+			const path = getReferencedRectangle(parsed.source, element, rect);
+			if (path) ctx.clip(path);
+			break;
+		}
+
 		case 'polygon': {
 			ctx.beginPath();
 			for (let i = 0; i < parsed.points.length; i++) {
