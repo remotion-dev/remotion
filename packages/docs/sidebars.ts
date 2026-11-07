@@ -333,6 +333,7 @@ const sidebars: SidebarsConfig = {
 				'effects/linear-progressive-pixelate',
 				'effects/light-leak',
 				'effects/light-trail',
+				'effects/lightning',
 				'effects/lines',
 				'effects/liquid-contours',
 				'effects/long-shadows',

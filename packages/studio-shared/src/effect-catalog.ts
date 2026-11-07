@@ -943,6 +943,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-lightning',
+		category: 'Generate',
+		label: 'lightning()',
+		description: 'Forked lightning bolts with a colored glow',
+		effect: {
+			name: 'lightning',
+			importPath: '@remotion/effects/lightning',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-rain-fall',
 		category: 'Generate',
 		label: 'rainFall()',

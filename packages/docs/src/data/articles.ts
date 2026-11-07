@@ -3799,6 +3799,15 @@ export const articles = [
 		slug: 'effects/light-trail',
 	},
 	{
+		id: 'effects/lightning',
+		title: 'lightning()',
+		relativePath: 'docs/effects/lightning.mdx',
+		compId: 'articles-docs-effects-lightning',
+		crumb: '@remotion/effects',
+		noAi: false,
+		slug: 'effects/lightning',
+	},
+	{
 		id: 'effects/linear-gradient-tint',
 		title: 'linearGradientTint()',
 		relativePath: 'docs/effects/linear-gradient-tint.mdx',
