@@ -60,6 +60,23 @@ test('keyframe navigation skips frames outside the timeline range', () => {
 	);
 });
 
+test('keyframe navigation lands on whole frames for fractional keyframes', () => {
+	// <Sequence playbackRate={2}> maps source keyframes 0, 15, 30 to 0, 7.5, 15
+	const fractionalKeyframes = [{frame: 0}, {frame: 7.5}, {frame: 15}];
+
+	expect(getNextKeyframeDisplayFrame(fractionalKeyframes, 0, 60)).toBe(8);
+	expect(getPreviousKeyframeDisplayFrame(fractionalKeyframes, 15, 60)).toBe(7);
+	expect(getNextKeyframeDisplayFrame(fractionalKeyframes, 7, 60)).toBe(8);
+	expect(getNextKeyframeDisplayFrame(fractionalKeyframes, 8, 60)).toBe(15);
+	expect(getPreviousKeyframeDisplayFrame(fractionalKeyframes, 8, 60)).toBe(7);
+	expect(getPreviousKeyframeDisplayFrame(fractionalKeyframes, 7, 60)).toBe(0);
+});
+
+test('keyframe navigation does not snap past the last frame', () => {
+	expect(getNextKeyframeDisplayFrame([{frame: 59.5}], 58, 60)).toBe(59);
+	expect(getNextKeyframeDisplayFrame([{frame: 59.5}], 59, 60)).toBe(null);
+});
+
 test('hasKeyframeAtSourceFrame checks source frame membership', () => {
 	expect(hasKeyframeAtSourceFrame(keyframes, 10)).toBe(true);
 	expect(hasKeyframeAtSourceFrame(keyframes, 11)).toBe(false);
