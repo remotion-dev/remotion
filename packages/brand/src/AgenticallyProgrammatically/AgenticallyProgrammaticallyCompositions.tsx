@@ -11,7 +11,14 @@ import {AgenticallyProgrammaticallyWithStudioUpdate} from './AgenticallyProgramm
 import {AnnotateChatGPTBroll} from './AnnotateChatGPTBroll';
 import {AvailableAgentsSidebar} from './AvailableAgentsSidebar';
 import {BeatMatchPrompt} from './BeatMatchPrompt';
+import {ChatGPTPluginBroll} from './ChatGPTPluginBroll';
+import {ChatGPTPluginCaptureComposition} from './ChatGPTPluginCaptureComposition';
 import {CodexDropSidebar} from './CodexDropSidebar';
+import {
+	GitHubHeaderBroll,
+	GitHubStarsBroll,
+	NpmDownloadsBroll,
+} from './CommunityStatsBroll';
 import {ComputedPropertiesBroll} from './ComputedPropertiesBroll';
 import {ComputedPropertiesCaptureComposition} from './ComputedPropertiesCaptureComposition';
 import {ComputedValueBroll} from './ComputedValueBroll';
@@ -45,8 +52,11 @@ import {RoughCutPrompt} from './RoughCutPrompt';
 import {
 	ShortAgentPlugins,
 	ShortBeatMatchPrompt,
+	ShortMotionGraphicsTitle,
 	ShortPlaceholderTimeline,
+	ShortPluginPrompt,
 	ShortPrompt,
+	ShortSoundtrackDemo,
 	ShortSoundtrackPlayback,
 } from './ShortFormBroll';
 import {SoundtrackTimelineCaptureComposition} from './SoundtrackTimelineCaptureComposition';
@@ -108,12 +118,57 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 				/>
 				<Folder name="Short-form">
 					<Composition
+						id="GitHubHeaderBroll"
+						component={GitHubHeaderBroll}
+						durationInFrames={46}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{
+							style: {backgroundColor: '#010409', overflow: 'hidden'},
+						}}
+					/>
+					<Composition
+						id="GitHubStarsBroll"
+						component={GitHubStarsBroll}
+						durationInFrames={45}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{style: {backgroundColor: '#0d1117'}}}
+					/>
+					<Composition
+						id="NpmDownloadsBroll"
+						component={NpmDownloadsBroll}
+						durationInFrames={48}
+						fps={30}
+						width={1080}
+						height={960}
+						defaultProps={{style: {backgroundColor: '#0d1117'}}}
+					/>
+					<Composition
 						id="AgenticallyProgrammaticallyShort"
 						component={AgenticallyProgrammaticallyShort}
-						durationInFrames={1296}
+						durationInFrames={1446}
 						fps={30}
 						width={1080}
 						height={1920}
+					/>
+					<Composition
+						id="ShortMotionGraphicsTitle"
+						component={ShortMotionGraphicsTitle}
+						durationInFrames={29}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ShortPluginPrompt"
+						component={ShortPluginPrompt}
+						durationInFrames={122}
+						fps={30}
+						width={1080}
+						height={960}
 					/>
 					<Composition
 						id="ShortPrompt"
@@ -150,12 +205,36 @@ export const AgenticallyProgrammaticallyCompositions = () => {
 						height={960}
 					/>
 					<Composition
-						id="ShortSoundtrackPlayback"
-						component={ShortSoundtrackPlayback}
-						durationInFrames={119}
+						id="ShortSoundtrackDemo"
+						component={ShortSoundtrackDemo}
+						durationInFrames={169}
 						fps={30}
 						width={1080}
 						height={1920}
+					/>
+					<Composition
+						id="ShortSoundtrackPlayback"
+						component={ShortSoundtrackPlayback}
+						durationInFrames={169}
+						fps={30}
+						width={1080}
+						height={1920}
+					/>
+					<Composition
+						id="ChatGPTPluginBroll"
+						component={ChatGPTPluginBroll}
+						durationInFrames={113}
+						fps={30}
+						width={1080}
+						height={960}
+					/>
+					<Composition
+						id="ChatGPTPluginCapture"
+						component={ChatGPTPluginCaptureComposition}
+						durationInFrames={176}
+						fps={30}
+						width={3530}
+						height={1758}
 					/>
 					<Composition
 						id="ShortAgentPlugins"

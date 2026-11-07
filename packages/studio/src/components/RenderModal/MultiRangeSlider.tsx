@@ -79,6 +79,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 		<div style={container}>
 			<input
 				type="range"
+				aria-label="Start frame"
 				min={min}
 				max={max}
 				value={start}
@@ -89,6 +90,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 
 			<input
 				type="range"
+				aria-label="End frame"
 				min={min}
 				max={max}
 				value={end}

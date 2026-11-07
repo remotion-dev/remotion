@@ -194,12 +194,21 @@ const rawMarkdownComponentReplacements: readonly RawMarkdownComponentReplacement
 			appliesTo: (sourcePath) =>
 				path.resolve(sourcePath) === thirdPartyElementsPath,
 			render: () =>
-				thirdPartyElementLibraries
-					.map(
-						(library) =>
-							`- [${library.displayName}](${library.browseUrl})\n  - Element Library: \`${library.libraryUrl}\``,
-					)
-					.join('\n'),
+				[
+					'For the Elements made by Remotion, see the [Remotion Elements index](https://www.remotion.dev/elements/index.md).',
+					'To install an Element from a page that embeds its payload, run [`npx remotion elements use <url> --composition <composition-id> --yes`](https://www.remotion.dev/docs/cli/elements/use.md).',
+					thirdPartyElementLibraries
+						.map((library) =>
+							[
+								`- [${library.displayName}](${library.browseUrl})`,
+								`  - Element Library: \`${library.libraryUrl}\``,
+								...(library.markdownIndexUrl === null
+									? []
+									: [`  - Markdown index: ${library.markdownIndexUrl}`]),
+							].join('\n'),
+						)
+						.join('\n'),
+				].join('\n\n'),
 			removeImport:
 				/^import\s+\{\s*ThirdPartyElementLibraries\s*\}\s+from\s+['"]@site\/src\/components\/Elements\/ThirdPartyElementLibraries['"];?\s*\n/m,
 			required: true,

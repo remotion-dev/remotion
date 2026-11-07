@@ -53,6 +53,39 @@ const basicCaptionsSchema = {
 		description: 'Font size',
 		hiddenFromList: false,
 	},
+	'style.backgroundColor': {
+		type: 'color',
+		default: 'rgba(64, 64, 64, 0.75)',
+		description: 'Caption background',
+	},
+	'style.color': {
+		type: 'color',
+		default: '#ffffff',
+		description: 'Text color',
+	},
+	'style.fontFamily': {
+		type: 'font-family',
+		default: 'Arial, Helvetica, sans-serif',
+		description: 'Font family',
+	},
+	'style.fontWeight': {
+		type: 'font-weight',
+		default: 400,
+		description: 'Font weight',
+	},
+	'style.paddingInline': {
+		type: 'number',
+		min: 0,
+		step: 1,
+		default: undefined,
+		description: 'Horizontal padding',
+	},
+	'style.whiteSpace': {
+		type: 'enum',
+		default: 'pre-wrap',
+		variants: {'pre-wrap': {}, nowrap: {}},
+		description: 'Line wrapping',
+	},
 } as const satisfies InteractivitySchema;
 
 const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
@@ -81,6 +114,15 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 			currentTimeMs >= candidate.startMs &&
 			currentTimeMs < candidate.startMs + candidate.durationMs,
 	);
+	const {
+		backgroundColor,
+		color,
+		fontFamily,
+		fontWeight,
+		paddingInline,
+		whiteSpace,
+		...containerStyle
+	} = style ?? {};
 
 	return (
 		<div
@@ -89,23 +131,24 @@ const BasicCaptionsContent: React.FC<BasicCaptionsProps> = ({
 				display: 'flex',
 				justifyContent: 'center',
 				width,
-				...style,
+				...containerStyle,
 			}}
 		>
 			{page ? (
 				<div
 					style={{
-						backgroundColor: 'rgba(64, 64, 64, 0.75)',
-						color: '#ffffff',
-						fontFamily: 'Arial, Helvetica, sans-serif',
+						backgroundColor: backgroundColor ?? 'rgba(64, 64, 64, 0.75)',
+						color: color ?? '#ffffff',
+						fontFamily: fontFamily ?? 'Arial, Helvetica, sans-serif',
 						fontSize: style?.fontSize ?? defaultFontSize,
-						fontWeight: 400,
+						fontWeight: fontWeight ?? 400,
 						lineHeight: 1.2,
 						// 14px 22px at the default 64px size, scaled with the font size
 						padding: '0.21875em 0.34375em',
+						paddingInline,
 						textAlign: 'center',
 						textWrap: 'balance',
-						whiteSpace: 'pre-wrap',
+						whiteSpace: whiteSpace ?? 'pre-wrap',
 					}}
 				>
 					{React.Children.map(

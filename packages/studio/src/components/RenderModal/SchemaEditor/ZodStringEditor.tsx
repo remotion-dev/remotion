@@ -67,6 +67,7 @@ export const ZodStringEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
+					aria-label={jsonPath.join('.')}
 					value={value}
 					status={zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}

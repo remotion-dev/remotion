@@ -26,6 +26,9 @@
 			"require": "./dist/cjs/index.js"
 		}
 	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
 	"devDependencies": {
 		"@remotion/eslint-config-internal": "workspace:*",
 		"@vitejs/plugin-react": "catalog:",
