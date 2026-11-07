@@ -16,12 +16,7 @@ import React, {
 import {Internals, type RuntimeValueStore} from 'remotion';
 import {canUseEffectOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {
-	LIGHT_TEXT,
-	TRANSPARENT,
-	WHITE,
-	WHITE_ALPHA_06,
-} from '../helpers/colors';
+import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
 import {assertEffectChainEditable} from '../helpers/effect-deletion-state';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
@@ -110,35 +105,53 @@ const EffectPickerResult: React.FC<{
 	readonly item: EffectCatalogItem;
 	readonly snapshot: HTMLCanvasElement | null;
 	readonly selected: boolean;
+	readonly isScrolling: boolean;
 	readonly onSelected: (item: EffectCatalogItem) => void;
 	readonly onPreview: (id: string, previewing: boolean) => void;
 	readonly onFocus: (item: EffectCatalogItem) => void;
 }> = React.memo(
-	({item, snapshot, selected, onSelected, onPreview, onFocus}) => {
+	({item, snapshot, selected, isScrolling, onSelected, onPreview, onFocus}) => {
 		const ref = useRef<HTMLButtonElement>(null);
 
 		useEffect(() => {
 			const element = ref.current;
-			if (!element) {
+			if (!element || isScrolling) {
 				return;
 			}
 
+			let timeout: ReturnType<typeof setTimeout> | null = null;
 			const unobserve = observeHover({
 				element,
-				onHoverChange: (hovered) => onPreview(item.id, hovered),
+				onHoverChange: (hovered) => {
+					if (timeout !== null) {
+						clearTimeout(timeout);
+						timeout = null;
+					}
+
+					if (hovered) {
+						timeout = setTimeout(() => onPreview(item.id, true), 100);
+					} else {
+						onPreview(item.id, false);
+					}
+				},
 			});
 			return () => {
 				unobserve();
+
+				if (timeout !== null) {
+					clearTimeout(timeout);
+				}
+
 				onPreview(item.id, false);
 			};
-		}, [item.id, onPreview]);
+		}, [isScrolling, item.id, onPreview]);
 
 		const style = useMemo((): React.CSSProperties => {
 			return {
 				...resultContainer,
 				...hoverableStyle({
-					idleBackground: selected ? WHITE_ALPHA_06 : TRANSPARENT,
-					hoverBackground: WHITE_ALPHA_06,
+					idleBackground: TRANSPARENT,
+					hoverBackground: TRANSPARENT,
 					idleColor: selected ? WHITE : LIGHT_TEXT,
 					hoverColor: WHITE,
 				}),
@@ -184,7 +197,11 @@ const EffectPickerResult: React.FC<{
 					onFocus={() => onFocus(item)}
 					onBlur={() => onPreview(item.id, false)}
 				>
-					<EffectThumbnail item={item} snapshot={snapshot} />
+					<EffectThumbnail
+						item={item}
+						snapshot={snapshot}
+						isScrolling={isScrolling}
+					/>
 					<span style={label}>{item.label}</span>
 				</button>
 			</ContextMenu>
@@ -253,47 +270,6 @@ export const EffectPicker: React.FC<{
 	}, [capture, outlineRef, previewStore, runtimeValues]);
 
 	useEffect(() => {
-		setPreviewFailed(false);
-		const item = EFFECT_CATALOG.find((entry) => entry.id === previewId);
-		if (!item || !runtimeValues || !isHighestContext) {
-			return;
-		}
-
-		let cancelled = false;
-		import('./effect-preview-loaders')
-			.then(({effectPreviewLoaders}) => {
-				const loader = effectPreviewLoaders[item.effect.importPath];
-				if (!loader) {
-					throw new Error(`No preview loader for ${item.label}`);
-				}
-
-				return loader();
-			})
-			.then((module) => {
-				if (cancelled) {
-					return;
-				}
-
-				const factory = module[item.effect.name] as EffectPreviewFactory;
-
-				setPreview({
-					runtimeValues,
-					effect: factory(getEffectPickerConfig(item)),
-				});
-			})
-			.catch(() => {
-				if (!cancelled) {
-					setPreviewFailed(true);
-				}
-			});
-
-		return () => {
-			cancelled = true;
-			setPreview(null);
-		};
-	}, [isHighestContext, previewId, runtimeValues, setPreview]);
-
-	useEffect(() => {
 		const clearPreview = () => setPreviewId(null);
 		const onVisibilityChange = () => {
 			if (document.hidden) {
@@ -352,6 +328,48 @@ export const EffectPicker: React.FC<{
 	});
 	const virtualRows = rowVirtualizer.getVirtualItems();
 	const listWidth = rowVirtualizer.scrollRect?.width;
+	const {isScrolling} = rowVirtualizer;
+
+	useEffect(() => {
+		setPreviewFailed(false);
+		const item = EFFECT_CATALOG.find((entry) => entry.id === previewId);
+		if (!item || !runtimeValues || !isHighestContext || isScrolling) {
+			return;
+		}
+
+		let cancelled = false;
+		import('./effect-preview-loaders')
+			.then(({effectPreviewLoaders}) => {
+				const loader = effectPreviewLoaders[item.effect.importPath];
+				if (!loader) {
+					throw new Error(`No preview loader for ${item.label}`);
+				}
+
+				return loader();
+			})
+			.then((module) => {
+				if (cancelled) {
+					return;
+				}
+
+				const factory = module[item.effect.name] as EffectPreviewFactory;
+
+				setPreview({
+					runtimeValues,
+					effect: factory(getEffectPickerConfig(item)),
+				});
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setPreviewFailed(true);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+			setPreview(null);
+		};
+	}, [isHighestContext, isScrolling, previewId, runtimeValues, setPreview]);
 
 	useLayoutEffect(() => {
 		rowVirtualizer.measure();
@@ -573,6 +591,7 @@ export const EffectPicker: React.FC<{
 											item={item}
 											snapshot={snapshot}
 											selected={selectedIndexRounded === row.index * 2 + i}
+											isScrolling={rowVirtualizer.isScrolling}
 											onPreview={onResultPreview}
 											onFocus={onResultFocus}
 											onSelected={selectItem}

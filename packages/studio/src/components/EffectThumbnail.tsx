@@ -4,7 +4,11 @@ import {
 	type EffectCatalogItem,
 } from '@remotion/studio-shared';
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {renderEffectThumbnail} from './render-effect-thumbnail';
+import {TRANSPARENT, WHITE_ALPHA_06} from '../helpers/colors';
+import {
+	getCachedEffectThumbnail,
+	renderEffectThumbnail,
+} from './render-effect-thumbnail';
 
 const MIN_PREVIEW_ASPECT_RATIO = 3 / 2;
 
@@ -19,7 +23,8 @@ const frame: React.CSSProperties = {
 export const EffectThumbnail: React.FC<{
 	readonly item: EffectCatalogItem;
 	readonly snapshot: HTMLCanvasElement | null;
-}> = ({item, snapshot}) => {
+	readonly isScrolling: boolean;
+}> = ({item, snapshot, isScrolling}) => {
 	const frameRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [visible, setVisible] = useState(false);
@@ -29,8 +34,11 @@ export const EffectThumbnail: React.FC<{
 	} | null>(null);
 	const [loaded, setLoaded] = useState(false);
 	const currentPreview = preview?.snapshot === snapshot ? preview : null;
-	const showCapturedElement =
-		snapshot !== null && (!currentPreview || currentPreview.image !== null);
+	const image =
+		getCachedEffectThumbnail(snapshot, item.id) ??
+		currentPreview?.image ??
+		null;
+	const showFallback = snapshot === null || currentPreview?.image === null;
 
 	useEffect(() => {
 		if (typeof IntersectionObserver === 'undefined') {
@@ -46,7 +54,13 @@ export const EffectThumbnail: React.FC<{
 	}, []);
 
 	useEffect(() => {
-		if (!snapshot || !visible) {
+		if (
+			!snapshot ||
+			!visible ||
+			isScrolling ||
+			image !== null ||
+			currentPreview
+		) {
 			return;
 		}
 
@@ -59,37 +73,39 @@ export const EffectThumbnail: React.FC<{
 			},
 		);
 		return () => controller.abort();
-	}, [item, snapshot, visible]);
+	}, [currentPreview, image, isScrolling, item, snapshot, visible]);
 
-	const image = currentPreview?.image ?? snapshot;
 	const imageAspectRatio =
-		image === null ? MIN_PREVIEW_ASPECT_RATIO : image.width / image.height;
+		snapshot === null
+			? MIN_PREVIEW_ASPECT_RATIO
+			: snapshot.width / snapshot.height;
 	const widerThanFrame = imageAspectRatio >= MIN_PREVIEW_ASPECT_RATIO;
 	useLayoutEffect(() => {
 		const canvas = canvasRef.current;
-		if (!canvas || !image || !visible || !showCapturedElement) {
+		if (!canvas || !image || !visible) {
 			return;
 		}
 
-		const scale = Math.min(1, 320 / Math.max(image.width, image.height));
-		canvas.width = Math.max(1, Math.round(image.width * scale));
-		canvas.height = Math.max(1, Math.round(image.height * scale));
+		canvas.width = image.width;
+		canvas.height = image.height;
 		canvas
 			.getContext('2d')
 			?.drawImage(image, 0, 0, canvas.width, canvas.height);
-	}, [image, showCapturedElement, visible]);
+	}, [image, visible]);
 
 	return (
 		<div
 			ref={frameRef}
 			style={{
 				...frame,
-				aspectRatio: showCapturedElement
-					? Math.max(MIN_PREVIEW_ASPECT_RATIO, imageAspectRatio)
-					: MIN_PREVIEW_ASPECT_RATIO,
+				aspectRatio: Math.max(MIN_PREVIEW_ASPECT_RATIO, imageAspectRatio),
+				backgroundColor:
+					image === null && (!showFallback || !loaded)
+						? WHITE_ALPHA_06
+						: TRANSPARENT,
 			}}
 		>
-			{showCapturedElement ? (
+			{image !== null ? (
 				<canvas
 					ref={canvasRef}
 					role="img"
@@ -104,7 +120,7 @@ export const EffectThumbnail: React.FC<{
 						borderRadius: 3,
 					}}
 				/>
-			) : (
+			) : showFallback && (!isScrolling || loaded) ? (
 				<img
 					src={getEffectPreviewSource(item)}
 					alt={getEffectPreviewAlt(item)}
@@ -120,7 +136,7 @@ export const EffectThumbnail: React.FC<{
 					loading="lazy"
 					onLoad={() => setLoaded(true)}
 				/>
-			)}
+			) : null}
 		</div>
 	);
 };

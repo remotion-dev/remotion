@@ -5,9 +5,21 @@ import type {EffectPreviewFactory} from './effect-preview-loaders';
 
 const thumbnails = new WeakMap<
 	HTMLCanvasElement,
-	Map<string, HTMLCanvasElement>
+	{
+		source: HTMLCanvasElement;
+		images: Map<string, HTMLCanvasElement>;
+	}
 >();
 let renderQueue = Promise.resolve();
+
+export const getCachedEffectThumbnail = (
+	snapshot: HTMLCanvasElement | null,
+	effectId: string,
+): HTMLCanvasElement | null => {
+	return snapshot === null
+		? null
+		: (thumbnails.get(snapshot)?.images.get(effectId) ?? null);
+};
 
 export const renderEffectThumbnail = ({
 	snapshot,
@@ -18,14 +30,30 @@ export const renderEffectThumbnail = ({
 	readonly item: EffectCatalogItem;
 	readonly signal: AbortSignal;
 }): Promise<HTMLCanvasElement | null> => {
+	if (signal.aborted) {
+		return Promise.resolve(null);
+	}
+
+	const cached = getCachedEffectThumbnail(snapshot, item.id);
+	if (cached) {
+		return Promise.resolve(cached);
+	}
+
 	const render = renderQueue.then(async () => {
 		if (signal.aborted) {
 			return null;
 		}
 
-		const cached = thumbnails.get(snapshot)?.get(item.id);
-		if (cached) {
-			return cached;
+		const queuedCached = getCachedEffectThumbnail(snapshot, item.id);
+		if (queuedCached) {
+			return queuedCached;
+		}
+
+		await new Promise<void>((resolve) => {
+			requestAnimationFrame(() => setTimeout(resolve, 0));
+		});
+		if (signal.aborted) {
+			return null;
 		}
 
 		const {effectPreviewLoaders} = await import('./effect-preview-loaders');
@@ -46,18 +74,36 @@ export const renderEffectThumbnail = ({
 			return null;
 		}
 
+		let cache = thumbnails.get(snapshot);
+		if (!cache) {
+			const source = document.createElement('canvas');
+			const scale = Math.min(
+				1,
+				320 / Math.max(snapshot.width, snapshot.height),
+			);
+			source.width = Math.max(1, Math.round(snapshot.width * scale));
+			source.height = Math.max(1, Math.round(snapshot.height * scale));
+			const context = source.getContext('2d');
+			if (!context) {
+				return null;
+			}
+
+			context.drawImage(snapshot, 0, 0, source.width, source.height);
+			cache = {source, images: new Map()};
+			thumbnails.set(snapshot, cache);
+		}
+
 		const effect = factory(getEffectPickerConfig(item));
-		const {width, height} = snapshot;
+		const {width, height} = cache.source;
 		const state = Internals.createEffectChainState(width, height);
 		const output = document.createElement('canvas');
 		output.width = width;
 		output.height = height;
+		let retained = false;
 		try {
-			// Pixel-based settings must match the canvas preview, so apply the
-			// effect at the captured element's size before making the thumbnail.
 			const completed = await Internals.runEffectChain({
 				state,
-				source: snapshot,
+				source: cache.source,
 				effects: [{...effect, memoized: true}],
 				output,
 				width,
@@ -67,30 +113,15 @@ export const renderEffectThumbnail = ({
 				return null;
 			}
 
-			const thumbnail = document.createElement('canvas');
-			const scale = Math.min(1, 320 / Math.max(width, height));
-			thumbnail.width = Math.max(1, Math.round(width * scale));
-			thumbnail.height = Math.max(1, Math.round(height * scale));
-			const context = thumbnail.getContext('2d');
-			if (!context) {
-				return null;
-			}
-
-			context.drawImage(output, 0, 0, thumbnail.width, thumbnail.height);
-			let cachedThumbnails = thumbnails.get(snapshot);
-			if (!cachedThumbnails) {
-				cachedThumbnails = new Map();
-				thumbnails.set(snapshot, cachedThumbnails);
-			}
-
-			cachedThumbnails.set(item.id, thumbnail);
-			return thumbnail;
+			cache.images.set(item.id, output);
+			retained = true;
+			return output;
 		} finally {
-			// Only the small 2D result is retained. The serial queue keeps card
-			// rendering from exhausting the browser's WebGL context limit.
 			Internals.cleanupEffectChainState(state);
-			output.width = 0;
-			output.height = 0;
+			if (!retained) {
+				output.width = 0;
+				output.height = 0;
+			}
 		}
 	});
 
