@@ -1,4 +1,6 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
+import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
+import {getSvgFilterGeometry, rebaseSvgFilter} from './svg-filter-geometry';
 
 /**
  * Parses drop-shadow values from a CSS filter string to calculate
@@ -81,6 +83,24 @@ export const getPrecomposeRectForFilter = ({
 	// Use getBiggestBoundingClientRect to include all children that may overflow
 	const elementRect = getBiggestBoundingClientRect(element);
 	const expansion = parseDropShadowExpansion(filter);
+	const bounds = element.getBoundingClientRect();
+	const geometry = getSvgFilterGeometry({
+		filter,
+		ownerDocument: element.ownerDocument,
+		width: bounds.width,
+		height: bounds.height,
+	});
+	if (geometry) {
+		return getWiderRectAndExpand({
+			firstRect: elementRect,
+			secondRect: new DOMRect(
+				bounds.left + geometry.rect.left,
+				bounds.top + geometry.rect.top,
+				geometry.rect.width,
+				geometry.rect.height,
+			),
+		});
+	}
 
 	return new DOMRect(
 		elementRect.left - expansion.left,
@@ -106,4 +126,61 @@ export const applyFilterToDrawOperation = ({
 	context.filter = filter;
 	drawFn();
 	context.filter = previousFilter;
+};
+
+// OffscreenCanvas cannot resolve DOM SVG filter references. Use a document-backed
+// surface only for this filter stage, then feed it into the existing group draw.
+export const applySvgFilterToPrecomposedCanvas = ({
+	source,
+	sourceRect,
+	scale,
+	filter,
+	ownerDocument,
+}: {
+	source: OffscreenCanvas;
+	sourceRect: DOMRect;
+	scale: number;
+	filter: string;
+	ownerDocument: Document;
+}) => {
+	// Rebase qualified graphs onto their filter region. Other graphs retain the
+	// element-local reference box used by the original document-backed stage.
+	const geometry = getSvgFilterGeometry({
+		filter,
+		ownerDocument,
+		width: sourceRect.width / scale,
+		height: sourceRect.height / scale,
+	});
+	const rebased = geometry
+		? rebaseSvgFilter({geometry, scale, ownerDocument})
+		: null;
+	const canvas = ownerDocument.createElement('canvas');
+	canvas.width = rebased?.width ?? Math.ceil(sourceRect.width);
+	canvas.height = rebased?.height ?? Math.ceil(sourceRect.height);
+	const dispose = () => {
+		rebased?.[Symbol.dispose]();
+		canvas.width = 0;
+		canvas.height = 0;
+	};
+
+	try {
+		const context = canvas.getContext('2d');
+		if (!context) throw new Error('Could not get SVG filter context');
+		context.filter = rebased?.filter ?? filter;
+		context.drawImage(
+			source,
+			-sourceRect.left - (rebased?.left ?? 0),
+			-sourceRect.top - (rebased?.top ?? 0),
+		);
+	} catch (error) {
+		dispose();
+		throw error;
+	}
+
+	return {
+		canvas,
+		sourceX: -sourceRect.left - (rebased?.left ?? 0),
+		sourceY: -sourceRect.top - (rebased?.top ?? 0),
+		[Symbol.dispose]: dispose,
+	};
 };

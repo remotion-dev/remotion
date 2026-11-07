@@ -17,9 +17,8 @@ const filterRequiresPrecompositing = (filter: string): string | null => {
 		return null;
 	}
 
-	// Check for drop-shadow filter - this requires precompositing
-	// because the shadow should be based on the composite alpha of parent + children
-	if (filter.includes('drop-shadow')) {
+	// Drop shadows and SVG references consume the composite of parent + children.
+	if (filter.includes('drop-shadow') || filter.includes('url(')) {
 		return filter;
 	}
 
@@ -215,7 +214,8 @@ export const calculateTransforms = ({
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,
 			// and its filter and opacity apply to that group as a whole.
-			const needsGroup = blendMode !== null || isolated;
+			const needsGroup =
+				blendMode !== null || isolated || computedStyle.filter.includes('url(');
 
 			filterForPrecompositing =
 				needsGroup && computedStyle.filter !== 'none'

@@ -17,12 +17,14 @@ import {
 } from './handle-3d-transform';
 import {
 	applyFilterToDrawOperation,
+	applySvgFilterToPrecomposedCanvas,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
 import {getPrecomposeRectForMask, handleMask} from './handle-mask';
 import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
+import {getSvgFilterGeometry} from './svg-filter-geometry';
 import {setTransform} from './transform';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
@@ -127,7 +129,9 @@ export const processNode = async ({
 		}
 
 		const needsGroup =
-			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+			precompositing.needsBlendMode !== null ||
+			precompositing.needsIsolation ||
+			precompositing.needsFilterPrecompositing?.includes('url(') === true;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
@@ -222,6 +226,32 @@ export const processNode = async ({
 			}
 		}
 
+		// Only graphs with qualified coordinate mapping can run at raster scales
+		// other than 1. Projected surfaces still need separate region mapping.
+		using svgFilteredLayer =
+			!is3DPrecomposition &&
+			precompositing.needsFilterPrecompositing?.includes('url(') &&
+			(layerScale === 1 ||
+				getSvgFilterGeometry({
+					filter: precompositing.needsFilterPrecompositing,
+					ownerDocument: element.ownerDocument,
+					width: dimensions.width,
+					height: dimensions.height,
+				}))
+				? applySvgFilterToPrecomposedCanvas({
+						source: drawable,
+						scale: layerScale,
+						sourceRect: new DOMRect(
+							(dimensions.left - layerRect.left) * layerScale,
+							(dimensions.top - layerRect.top) * layerScale,
+							dimensions.width * layerScale,
+							dimensions.height * layerScale,
+						),
+						filter: precompositing.needsFilterPrecompositing,
+						ownerDocument: element.ownerDocument,
+					})
+				: null;
+
 		const previousTransform = context.getTransform();
 
 		if (is3DPrecomposition) {
@@ -244,9 +274,9 @@ export const processNode = async ({
 
 		const drawPrecomposedCanvas = () => {
 			context.drawImage(
-				drawable,
-				0,
-				0,
+				svgFilteredLayer?.canvas ?? drawable,
+				svgFilteredLayer?.sourceX ?? 0,
+				svgFilteredLayer?.sourceY ?? 0,
 				layerPixelWidth ?? drawable.width,
 				layerPixelHeight ?? drawable.height,
 				destinationRect.left - parentRect.x * parentOffsetScale,
@@ -266,7 +296,7 @@ export const processNode = async ({
 			: () => {};
 
 		// Apply filter when drawing the precomposed canvas if needed
-		if (precompositing.needsFilterPrecompositing) {
+		if (precompositing.needsFilterPrecompositing && !svgFilteredLayer) {
 			applyFilterToDrawOperation({
 				context,
 				filter: precompositing.needsFilterPrecompositing,
