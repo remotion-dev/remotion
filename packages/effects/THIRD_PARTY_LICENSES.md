@@ -30,6 +30,12 @@ The Magnify shaders are adapted from EffectCraft's Magnify effect and bicubic
 sampler (`crates/effects/src/distort2.rs` and `crates/raster/src/lib.rs`), revision
 `1786c24523a5d5a67c01ff41213b66018a69bb04`, also under the MIT license.
 
+The Lightning geometry, core, and glow are adapted from EffectCraft's Advanced
+Lightning effect and raster utilities (`crates/effects/src/generate2.rs` and
+`crates/effects/src/util.rs`), revision
+[`bb2d2005cee68458a10ae2cc32d609d070b21744`](https://github.com/storytold/effectcraft/blob/bb2d2005cee68458a10ae2cc32d609d070b21744/crates/effects/src/generate2.rs#L656-L911),
+also under the MIT license.
+
 MIT License
 
 Copyright (c) 2026 ArtCraft Team and the EffectCraft contributors

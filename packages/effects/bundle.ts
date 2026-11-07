@@ -49,6 +49,7 @@ const effectEntrypoints = [
 	'src/linear-progressive-pixelate.ts',
 	'src/light-leak.ts',
 	'src/light-trail.ts',
+	'src/lightning.ts',
 	'src/lens-blur.ts',
 	'src/levels.ts',
 	'src/long-shadows.ts',

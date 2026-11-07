@@ -259,6 +259,11 @@
 			"module": "./dist/esm/light-trail.mjs",
 			"import": "./dist/esm/light-trail.mjs"
 		},
+		"./lightning": {
+			"types": "./dist/lightning.d.ts",
+			"module": "./dist/esm/lightning.mjs",
+			"import": "./dist/esm/lightning.mjs"
+		},
 		"./dot-grid": {
 			"types": "./dist/dot-grid.d.ts",
 			"module": "./dist/esm/dot-grid.mjs",
@@ -617,6 +622,9 @@
 			],
 			"light-trail": [
 				"dist/light-trail.d.ts"
+			],
+			"lightning": [
+				"dist/lightning.d.ts"
 			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"
