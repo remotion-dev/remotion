@@ -30,6 +30,7 @@ import {
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
 import {resolveSequenceDuration} from '../resolve-sequence-duration.js';
+import type {RuntimeValueStore} from '../runtime-value-store.js';
 import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
@@ -129,6 +130,7 @@ export const solidSchema = {
 const SolidInner: React.FC<
 	InnerSolidProps & {
 		readonly overrideId: string | null;
+		readonly runtimeValues: RuntimeValueStore | null;
 		readonly canvasProps: CanvasDomProps;
 		readonly reference: React.Ref<HTMLCanvasElement>;
 		readonly videoConfigValues: VideoConfigValues | null;
@@ -143,6 +145,7 @@ const SolidInner: React.FC<
 	style,
 	pixelDensity,
 	overrideId,
+	runtimeValues,
 	videoConfigValues,
 	reference,
 	canvasProps,
@@ -160,6 +163,7 @@ const SolidInner: React.FC<
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: overrideId ?? null,
+		runtimeValues,
 		videoConfigValues,
 	});
 
@@ -379,6 +383,7 @@ const SolidOuter = forwardRef<
 							reference={actualRef}
 							videoConfigValues={controls?.videoConfigValues ?? null}
 							overrideId={controls?.overrideId ?? null}
+							runtimeValues={controls?.runtimeValues ?? null}
 							color={color}
 							height={height}
 							width={width}

@@ -8,9 +8,12 @@ import React, {
 import type {_InternalTypes} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../helpers/hoverable';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {resolvedStackToSymbolicated} from '../helpers/resolved-stack-to-symbolicated';
+import {ActionTooltip} from './ActionTooltip';
 import {useZodIfPossible, useZodTypesIfPossible} from './get-zod-if-possible';
+import {InlineAction} from './InlineAction';
 import {InspectorPanel} from './InspectorPanel';
 import {
 	getSameSequenceInspectorSelection,
@@ -48,6 +51,23 @@ const getSelectedPanel = (): OptionsSidebarPanel => {
 
 const tabsContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
+};
+
+const inspectorTitleStyle: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	fontSize: 13,
+	gap: 4,
+};
+
+const inspectorBackStyle: React.CSSProperties = {
+	cursor: 'default',
+};
+
+const inspectorBackIcon: React.CSSProperties = {
+	display: 'block',
+	height: 12,
+	width: 8,
 };
 
 export const persistSelectedOptionsSidebarPanel = (
@@ -117,7 +137,8 @@ export const OptionsPanel: React.FC<{
 		return null;
 	}, [canvasContent, compositions]);
 
-	const {selectedItems: timelineSelectedItems} = useTimelineSelection();
+	const {selectedItems: timelineSelectedItems, selectItems} =
+		useTimelineSelection();
 	const pendingDeletions = Internals.usePendingSequenceDeletions();
 	const selectedItems = useMemo(() => {
 		if (pendingDeletions.size === 0) {
@@ -135,7 +156,28 @@ export const OptionsPanel: React.FC<{
 				),
 		);
 	}, [pendingDeletions, timelineSelectedItems]);
+	const effectsSelection =
+		selectedItems.length === 1 &&
+		selectedItems[0].type === 'sequence-all-effects'
+			? selectedItems[0]
+			: null;
+	const onEffectsBack = useCallback(() => {
+		if (effectsSelection === null) {
+			return;
+		}
+
+		selectItems([
+			{
+				type: 'sequence',
+				nodePathInfo: {...effectsSelection.nodePathInfo, auxiliaryKeys: []},
+			},
+		]);
+	}, [effectsSelection, selectItems]);
 	const inspectorTitle = useMemo(() => {
+		if (effectsSelection !== null) {
+			return 'Add effect';
+		}
+
 		if (selectedItems.length === 0) {
 			if (canvasContent?.type === 'asset') {
 				return 'Asset';
@@ -170,7 +212,7 @@ export const OptionsPanel: React.FC<{
 					`Unexpected inspector selection: ${selection satisfies never}`,
 				);
 		}
-	}, [canvasContent, composition, selectedItems]);
+	}, [canvasContent, composition, effectsSelection, selectedItems]);
 
 	// Re-renders once the stack is resolved. Read from the cache so the location
 	// always belongs to the current composition, not the previously selected one.
@@ -324,7 +366,41 @@ export const OptionsPanel: React.FC<{
 						onClick={onInspectorSelected}
 						style={{justifyContent: 'space-between'}}
 					>
-						{inspectorTitle}
+						<span style={inspectorTitleStyle}>
+							{effectsSelection === null ? null : (
+								<ActionTooltip
+									label="Back to inspector"
+									shortcut={null}
+									delay={800}
+									dismissOnClick
+								>
+									<InlineAction
+										aria-label="Back to inspector"
+										className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+										onClick={onEffectsBack}
+										style={inspectorBackStyle}
+										variant="compact"
+										renderAction={(color) => (
+											<svg
+												aria-hidden="true"
+												viewBox="0 0 8 12"
+												style={inspectorBackIcon}
+											>
+												<path
+													d="M6 1L2 6L6 11"
+													fill="none"
+													stroke={color}
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth="1.5"
+												/>
+											</svg>
+										)}
+									/>
+								</ActionTooltip>
+							)}
+							{inspectorTitle}
+						</span>
 						{hasLocalModifications ? (
 							<SchemaResetButton onClick={resetToOriginal} />
 						) : null}

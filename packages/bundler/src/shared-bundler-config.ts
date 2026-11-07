@@ -118,6 +118,9 @@ export const getBaseConfig = (
 	return {
 		optimization: {
 			minimize: false,
+			// Shared async chunks can change an entry's generated imports during HMR.
+			// Entry modules cannot accept those updates without reloading the page.
+			...(environment === 'development' ? {splitChunks: false as const} : {}),
 		},
 		...(bundler === 'rspack'
 			? {lazyCompilation}

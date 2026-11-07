@@ -132,6 +132,7 @@ export const CurvesEditor: React.FC<{
 			histogram={
 				<EffectHistogram
 					height="100%"
+					showGrid={false}
 					nodePath={nodePath}
 					effectIndex={effectIndex}
 					channel={channel}

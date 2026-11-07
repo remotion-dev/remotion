@@ -33,6 +33,7 @@ import {
 	type PropStatuses,
 } from '../use-schema.js';
 import type {VideoConfigValues} from '../video-config.js';
+import {useEffectPreview} from './effect-preview.js';
 import {useEffectSourceInspection} from './effect-source-observer.js';
 import type {
 	EffectDefinitionAndStack,
@@ -334,10 +335,12 @@ type PreparedEffect = {
 
 export const useMemoizedEffects = ({
 	effects,
+	runtimeValues,
 	overrideId,
 	videoConfigValues,
 }: {
 	effects: readonly EffectDescriptor<unknown>[];
+	readonly runtimeValues: RuntimeValueStore | null;
 	readonly overrideId: string | null;
 	videoConfigValues: VideoConfigValues | null;
 }): EffectDefinitionAndStack<unknown>[] => {
@@ -345,6 +348,7 @@ export const useMemoizedEffects = ({
 		readonly prepared: PreparedEffect[];
 		readonly effects: EffectDefinitionAndStack<unknown>[];
 	} | null>(null);
+	const preview = useEffectPreview(runtimeValues);
 	const {isStudio, isRendering} = useRemotionEnvironment();
 
 	const {overrideIdToNodePathMappings} = useContext(
@@ -422,72 +426,78 @@ export const useMemoizedEffects = ({
 		animatedEffects.some(Boolean),
 	);
 
-	const prepared = effects.map((descriptor, index): PreparedEffect => {
-		const deleted = matchesPendingDeletion && deletedIndices.has(index);
-		const propStatus = effectPropStatuses[index];
-		const dragOverridesMap = effectDragOverrides[index] ?? emptyDragOverrides;
-		const dragOverrides =
-			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
-		const effectFrame = animatedEffects[index] ? frame : null;
-		const cached = previous?.prepared[index];
-		if (
-			cached &&
-			cached.deleted === deleted &&
-			cached.definition === descriptor.definition &&
-			cached.sourceKey === descriptor.effectKey &&
-			areEffectParamsEqual(cached.params, descriptor.params) &&
-			cached.propStatus === propStatus &&
-			cached.dragOverrides === dragOverrides &&
-			cached.frame === effectFrame
-		) {
-			return cached;
-		}
+	const effectsWithPreview = preview === null ? effects : [...effects, preview];
+	const prepared = effectsWithPreview.map(
+		(descriptor, index): PreparedEffect => {
+			const deleted = matchesPendingDeletion && deletedIndices.has(index);
+			const propStatus = effectPropStatuses[index] ?? null;
+			const dragOverridesMap =
+				index < effects.length
+					? (effectDragOverrides[index] ?? emptyDragOverrides)
+					: emptyDragOverrides;
+			const dragOverrides =
+				Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
+			const effectFrame = animatedEffects[index] ? frame : null;
+			const cached = previous?.prepared[index];
+			if (
+				cached &&
+				cached.deleted === deleted &&
+				cached.definition === descriptor.definition &&
+				cached.sourceKey === descriptor.effectKey &&
+				areEffectParamsEqual(cached.params, descriptor.params) &&
+				cached.propStatus === propStatus &&
+				cached.dragOverrides === dragOverrides &&
+				cached.frame === effectFrame
+			) {
+				return cached;
+			}
 
-		const propStatusOverrides = resolvePropStatusOverrides(
-			propStatus ?? undefined,
-			frame,
-		);
+			const propStatusOverrides = resolvePropStatusOverrides(
+				propStatus ?? undefined,
+				frame,
+			);
 
-		const merged = mergeOverrides({
-			descriptor,
-			propStatusOverrides,
-			dragOverrides,
-			frame,
-		});
-		const params = deleted
-			? {...(merged.params as Record<string, unknown>), disabled: true}
-			: merged.params;
-		const effectKey = deleted
-			? descriptor.definition.calculateKey(params)
-			: merged.effectKey;
+			const merged = mergeOverrides({
+				descriptor,
+				propStatusOverrides,
+				dragOverrides,
+				frame,
+			});
+			const params = deleted
+				? {...(merged.params as Record<string, unknown>), disabled: true}
+				: merged.params;
+			const effectKey = deleted
+				? descriptor.definition.calculateKey(params)
+				: merged.effectKey;
 
-		return {
-			deleted,
-			definition: descriptor.definition,
-			sourceKey: descriptor.effectKey,
-			// Snapshot plain params so shallow comparisons see in-place field edits.
-			params:
-				descriptor.params !== null &&
-				typeof descriptor.params === 'object' &&
-				Object.getPrototypeOf(descriptor.params) === Object.prototype
-					? {...descriptor.params}
-					: descriptor.params,
-			propStatus,
-			dragOverrides,
-			frame: effectFrame,
-			value:
-				cached?.deleted === deleted &&
-				cached.value.definition === descriptor.definition &&
-				cached.value.effectKey === effectKey
-					? cached.value
-					: {
-							definition: descriptor.definition,
-							effectKey,
-							params,
-							memoized: true,
-						},
-		};
-	});
+			return {
+				deleted,
+				definition: descriptor.definition,
+				sourceKey: descriptor.effectKey,
+				// Snapshot plain params so shallow comparisons see in-place field edits.
+				params:
+					descriptor.params !== null &&
+					typeof descriptor.params === 'object' &&
+					Object.getPrototypeOf(descriptor.params) === Object.prototype
+						? {...descriptor.params}
+						: descriptor.params,
+				propStatus,
+				dragOverrides,
+				frame: effectFrame,
+				value:
+					cached?.deleted === deleted &&
+					cached.value.definition === descriptor.definition &&
+					cached.value.effectKey === effectKey
+						? cached.value
+						: {
+								definition: descriptor.definition,
+								effectKey,
+								params,
+								memoized: true,
+							},
+			};
+		},
+	);
 
 	const isSame =
 		previous !== null &&

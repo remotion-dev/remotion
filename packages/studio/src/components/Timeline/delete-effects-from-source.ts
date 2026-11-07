@@ -101,10 +101,32 @@ export const deleteEffectsFromSource = async (
 		const pending = info
 			? Internals.OptimisticEffectDeletion.get(info.sequenceSubscriptionKey)
 			: null;
-		const next: TimelineSelection =
-			pending && info?.auxiliaryKeys[0] === 'effects'
-				? {type: 'sequence', nodePathInfo: {...info, auxiliaryKeys: []}}
-				: item;
+		let next = item;
+		if (pending && info?.auxiliaryKeys[0] === 'effects') {
+			const survivingIndices = pending.definitions
+				.map((_, index) => index)
+				.filter((index) => !pending.effectIndices.includes(index));
+			const selectedIndex = Number(info.auxiliaryKeys[1]);
+			const pivot = Number.isInteger(selectedIndex)
+				? selectedIndex
+				: Math.min(...pending.effectIndices);
+			const effectIndex = survivingIndices.includes(pivot)
+				? pivot
+				: (survivingIndices.findLast((index) => index < pivot) ??
+					survivingIndices[0]);
+			next =
+				effectIndex === undefined
+					? {type: 'sequence', nodePathInfo: {...info, auxiliaryKeys: []}}
+					: {
+							type: 'sequence-effect',
+							i: effectIndex,
+							nodePathInfo: {
+								...info,
+								auxiliaryKeys: ['effects', String(effectIndex)],
+							},
+						};
+		}
+
 		changedSelection ||= next !== item;
 		fallback.set(getTimelineSelectionKey(next), next);
 	}
