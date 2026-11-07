@@ -86,7 +86,6 @@ const giveBackCanvas = (canvas: OffscreenCanvas) => {
 };
 
 const makeStableFramePool = () => {
-
 	const makeStableFrame = (frame: VideoSample): WrappedCanvas => {
 		let sampleCanvas: OffscreenCanvas | null = null;
 		let sampleReleased = false;
