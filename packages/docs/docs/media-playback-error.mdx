@@ -69,7 +69,7 @@ You might be importing a video that is not compatible with Chrome at all, e.g. F
 ## Too many video tags
 
 The error message might contain `error creating media player`, appearing if too many video tags are created.  
-First check that you are not accidentially creating an infite render loop. For example, changing the `key` frequently will re-create the video tag on every frame:
+First check that you are not accidentally creating an infinite render loop. For example, changing the `key` frequently will re-create the video tag on every frame:
 
 ```tsx twoslash
 const uuidv4 = () => '';

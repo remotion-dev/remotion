@@ -60,7 +60,7 @@ Apply this to all configuration calls.
 
 ## Separating `ImageFormat`
 
-Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferrable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
+Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
 
 - `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat()`](/docs/config#setvideoimageformat) and [`Config.setStillImageFormat()`](/docs/config#setstillimageformat).
 
@@ -103,11 +103,11 @@ This change was made since users export ProRes mainly for getting high-quality f
 
 To clarify the meaning of this option, it is now universally called "JPEG Quality". Adjust the following options:
 
-- [`npx remotion render`](/docs/cli/render): Use `--jpeg-quality` insted of `--quality`
-- [`npx remotion still`](/docs/cli/still): Use `--jpeg-quality` insted of `--quality`
-- [`npx remotion benchmark`](/docs/cli/benchmark): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion render`](/docs/cli/render): Use `--jpeg-quality` instead of `--quality`
+- [`npx remotion still`](/docs/cli/still): Use `--jpeg-quality` instead of `--quality`
+- [`npx remotion benchmark`](/docs/cli/benchmark): Use `--jpeg-quality` instead of `--quality`
 - [`npx remotion lambda render`](/docs/lambda/cli/render): Use `--jpeg-quality` insted of `--quality`
-- [`npx remotion lambda still`](/docs/lambda/cli/still): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion lambda still`](/docs/lambda/cli/still): Use `--jpeg-quality` instead of `--quality`
 - [`renderFrames()`](/docs/renderer/render-frames): Use `jpegQuality` instead of `quality`
 - [`renderMedia()`](/docs/renderer/render-media): Use `jpegQuality` instead of `quality`
 - [`renderStill()`](/docs/renderer/render-still): Use `jpegQuality` instead of `quality`
