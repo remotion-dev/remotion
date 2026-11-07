@@ -55,18 +55,17 @@ export type EnqueueSaveOptions<TResponse> = {
 	errorLabel: string;
 };
 
-export const enqueueSavePropChange = <TResponse>({
+export const enqueueSavePropChangeWithResult = <TResponse>({
 	nodePath,
 	setPropStatuses,
 	applyOptimistic,
 	applyServerResponse,
 	apiCall,
-	errorLabel,
-}: EnqueueSaveOptions<TResponse>): Promise<void> => {
+}: EnqueueSaveOptions<TResponse>): Promise<TResponse> => {
 	const q = getQueue(nodePath);
 
 	if (q.cancelled) {
-		return Promise.resolve();
+		return Promise.reject(new Error('This edit was cancelled'));
 	}
 
 	setPropStatuses(nodePath, (prev) => {
@@ -80,7 +79,7 @@ export const enqueueSavePropChange = <TResponse>({
 		try {
 			const response = await request;
 			if (myQueue.cancelled) {
-				return;
+				return response;
 			}
 
 			// If nothing more is queued, reset baseline so the next round starts fresh.
@@ -93,17 +92,31 @@ export const enqueueSavePropChange = <TResponse>({
 
 				dropQueue(nodePath, myQueue);
 			}
+
+			return response;
 		} catch (err) {
 			myQueue.cancelled = true;
 
 			dropQueue(nodePath, myQueue);
-			showNotification(
-				`${errorLabel}: ${err instanceof Error ? err.message : String(err)}`,
-				4000,
-			);
+			throw err;
 		}
 	});
 
 	myQueue.chain = next;
 	return next;
 };
+
+// Existing callers display failures through the queue's notification. Gesture
+// owners additionally need the result to roll back only their own preview.
+export const enqueueSavePropChange = <TResponse>(
+	options: EnqueueSaveOptions<TResponse>,
+): Promise<void> =>
+	enqueueSavePropChangeWithResult(options).then(
+		() => undefined,
+		(err) => {
+			showNotification(
+				`${options.errorLabel}: ${err instanceof Error ? err.message : String(err)}`,
+				4000,
+			);
+		},
+	);

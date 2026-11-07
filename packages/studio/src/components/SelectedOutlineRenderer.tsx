@@ -225,7 +225,8 @@ const SelectedOutlineRendererUnmemoized: React.FC<{
 					(customOutline !== null &&
 						!(customOutline instanceof Element) &&
 						customOutline.positionControls !== null) ||
-					(getLatestOutlineTargetByKey(target.key)?.drag ?? null) === null
+					getLatestOutlineTargetByKey(target.key)?.translation.type !==
+						'editable'
 				) {
 					return [];
 				}

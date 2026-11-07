@@ -11,7 +11,6 @@ import type {
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
-	UnaryExpression,
 } from '@babel/types';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared/keyframe-easing-presets';
@@ -28,7 +27,15 @@ import type {
 	VideoConfigNumericExpression,
 } from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
-import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
+import {
+	findEnclosingFunctionPath,
+	isComponentFunctionPath,
+} from './ensure-imports-and-frame-hook';
+import {getJsxSourceLocation} from './recast-loc-to-offset';
+import {
+	getReadOnlySourceNodePath,
+	getReadOnlySourceSnapshot,
+} from './sequence-props-snapshot';
 import {computeEffectPropStatus} from './sequence-props/can-update-effect-props';
 import {getCssShorthandForLonghand} from './sequence-props/css-shorthand-properties';
 import {getAstNodePath} from './sequence-props/get-ast-node-path';
@@ -42,6 +49,7 @@ import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
+import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {parseVideoConfigNumericExpression} from './sequence-props/video-config-numeric-expression';
 import {
 	getVideoConfigIdentifiers,
@@ -139,11 +147,8 @@ export const isStaticValue = (
 		case 'NullLiteral':
 			return true;
 		case 'UnaryExpression':
-			return (
-				((node as UnaryExpression).operator === '-' ||
-					(node as UnaryExpression).operator === '+') &&
-				(node as UnaryExpression).argument.type === 'NumericLiteral'
-			);
+		case 'BinaryExpression':
+			return getStaticNumericValue(node) !== null;
 		case 'TSAsExpression':
 			return isStaticValue(
 				(node as TSAsExpression).expression as Expression,
@@ -191,16 +196,9 @@ export const extractStaticValue = (
 			return (node as {value: unknown}).value;
 		case 'NullLiteral':
 			return null;
-		case 'UnaryExpression': {
-			const un = node as UnaryExpression;
-			if (un.argument.type === 'NumericLiteral') {
-				const val = (un.argument as {value: number}).value;
-				return un.operator === '-' ? -val : val;
-			}
-
-			return undefined;
-		}
-
+		case 'UnaryExpression':
+		case 'BinaryExpression':
+			return getStaticNumericValue(node) ?? undefined;
 		case 'TSAsExpression':
 			return extractStaticValue(
 				(node as TSAsExpression).expression as Expression,
@@ -241,26 +239,6 @@ export const extractStaticValue = (
 		default:
 			return undefined;
 	}
-};
-
-const getNumericValue = (node: Expression): number | null => {
-	if (node.type === 'NumericLiteral') {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression' &&
-		(node.operator === '-' || node.operator === '+') &&
-		node.argument.type === 'NumericLiteral'
-	) {
-		return node.operator === '-' ? -node.argument.value : node.argument.value;
-	}
-
-	if (node.type === 'TSAsExpression') {
-		return getNumericValue(node.expression as Expression);
-	}
-
-	return null;
 };
 
 const getExtrapolateType = (node: Expression): ExtrapolateType | null => {
@@ -470,7 +448,7 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'posterize') {
-			const parsedPosterize = getNumericValue(value);
+			const parsedPosterize = getStaticNumericValue(value);
 			if (
 				parsedPosterize === null ||
 				!Number.isFinite(parsedPosterize) ||
@@ -583,6 +561,8 @@ const findNodePath = (
 	ast: File,
 	target: Node,
 ): recast.types.NodePath | null => {
+	const cachedPath = getReadOnlySourceNodePath(ast, target);
+	if (cachedPath !== undefined) return cachedPath;
 	let found: recast.types.NodePath | null = null;
 	recast.types.visit(ast, {
 		visitNode(p) {
@@ -840,11 +820,7 @@ const getFrameDisplayOffsetAdjustmentBetweenPaths = ({
 	let playbackRateAdjustment: SourceNumericValue = 1;
 	while (current && current.value !== endPath.value) {
 		const currentNode = current.value as Node;
-		if (
-			currentNode.type === 'FunctionDeclaration' ||
-			currentNode.type === 'FunctionExpression' ||
-			currentNode.type === 'ArrowFunctionExpression'
-		) {
+		if (isComponentFunctionPath(current)) {
 			return null;
 		}
 
@@ -929,19 +905,7 @@ const getDefaultFrameDisplayOffsetAdjustment = ({
 	playbackRateAdjustment: SourceNumericValue;
 	canKeyframe: boolean;
 } | null => {
-	let functionPath: recast.types.NodePath | null = jsxPath.parentPath;
-	while (functionPath) {
-		const node = functionPath.value as Node;
-		if (
-			node.type === 'FunctionDeclaration' ||
-			node.type === 'FunctionExpression' ||
-			node.type === 'ArrowFunctionExpression'
-		) {
-			break;
-		}
-
-		functionPath = functionPath.parentPath;
-	}
+	const functionPath = findEnclosingFunctionPath(jsxPath);
 
 	if (!functionPath) {
 		// Module-level JSX still has editable static props. There is no local
@@ -1014,7 +978,7 @@ const resolveCurrentFrameExpression = ({
 		node.type === 'BinaryExpression' &&
 		(node.operator === '+' || node.operator === '-')
 	) {
-		const rightValue = getNumericValue(node.right as Expression);
+		const rightValue = getStaticNumericValue(node.right as Expression);
 		if (rightValue !== null && Number.isFinite(rightValue)) {
 			const resolvedLeft = resolveCurrentFrameExpression({
 				node: node.left as Expression,
@@ -1032,7 +996,7 @@ const resolveCurrentFrameExpression = ({
 		}
 
 		if (node.operator === '+') {
-			const leftValue = getNumericValue(node.left as Expression);
+			const leftValue = getStaticNumericValue(node.left as Expression);
 			if (leftValue !== null && Number.isFinite(leftValue)) {
 				const resolvedRight = resolveCurrentFrameExpression({
 					node: node.right as Expression,
@@ -1065,30 +1029,26 @@ const resolveCurrentFrameExpression = ({
 	let matchingDeclaration: object | null = null;
 	let initializer: Expression | null = null;
 	let isConstDeclaration = false;
-	recast.types.visit(bindingScope.path, {
-		visitVariableDeclarator(p) {
-			const {id, init} = p.node;
-			if (
-				id.type !== 'Identifier' ||
-				id.name !== node.name ||
-				p.scope.lookup(node.name)?.path.node !== bindingScope.path.node
-			) {
-				return this.traverse(p);
-			}
+	for (const binding of bindingScope.getBindings()[node.name] ?? []) {
+		const declarator = binding.parentPath;
+		if (
+			declarator?.node.type !== 'VariableDeclarator' ||
+			declarator.node.id !== binding.node ||
+			binding.node.type !== 'Identifier'
+		) {
+			continue;
+		}
 
-			matchingDeclarations++;
-			const declaration = p.parentPath.node;
-			if (init) {
-				matchingDeclaration = p.node;
-				initializer = init as Expression;
-				isConstDeclaration =
-					declaration.type === 'VariableDeclaration' &&
-					declaration.kind === 'const';
-			}
-
-			return false;
-		},
-	});
+		matchingDeclarations++;
+		const declaration = declarator.parentPath.node;
+		if (declarator.node.init) {
+			matchingDeclaration = declarator.node;
+			initializer = declarator.node.init as Expression;
+			isConstDeclaration =
+				declaration.type === 'VariableDeclaration' &&
+				declaration.kind === 'const';
+		}
+	}
 
 	if (
 		matchingDeclarations !== 1 ||
@@ -1756,13 +1716,6 @@ export const lineColumnToNodePath = (
 ): SequenceNodePath | null => {
 	const lineMatches: SequenceNodePath[] = [];
 	const exactMatches: SequenceNodePath[] = [];
-	const recastTargetColumn =
-		targetColumn === undefined || fileContents === undefined
-			? targetColumn
-			: sourceColumnToRecastColumn({
-					sourceLine: fileContents.split('\n')[targetLine - 1],
-					column: targetColumn,
-				});
 
 	recast.types.visit(ast, {
 		visitJSXOpeningElement(p) {
@@ -1770,7 +1723,11 @@ export const lineColumnToNodePath = (
 			if (node.loc && node.loc.start.line === targetLine) {
 				const nodePath = getNodePathForRecastPath(p, ast);
 				lineMatches.push(nodePath);
-				if (node.loc.start.column === recastTargetColumn) {
+				const column =
+					fileContents === undefined
+						? node.loc.start.column
+						: getJsxSourceLocation(fileContents, node.loc.start).column;
+				if (column === targetColumn) {
 					exactMatches.push(nodePath);
 				}
 			}
@@ -1835,12 +1792,15 @@ export const lineColumnsToNodePaths = ({
 	);
 };
 
-const PIXEL_VALUE_REGEX = /^-?\d+(\.\d+)?px$/;
+const TRANSLATE_VALUE_REGEX = /^-?\d+(\.\d+)?(px|%)$/;
 
 const isSupportedTranslateValue = (value: string): boolean => {
 	const parts = value.split(/\s+/);
 	if (parts.length >= 1 && parts.length <= 3) {
-		return parts.every((part) => PIXEL_VALUE_REGEX.test(part));
+		return parts.every(
+			(part, index) =>
+				TRANSLATE_VALUE_REGEX.test(part) && (index < 2 || part.endsWith('px')),
+		);
 	}
 
 	return false;
@@ -2244,19 +2204,7 @@ const computeSequenceOnlyPropsRecord = ({
 				allowSpecialValues: assetKeys.includes(key),
 				lastSpreadIndex,
 			});
-			filteredProps[key] =
-				key === 'style.translate' &&
-				((status.status === 'static' &&
-					typeof status.codeValue === 'string' &&
-					status.codeValue.includes('%')) ||
-					(status.status === 'keyframed' &&
-						status.keyframes.some(
-							(keyframe) =>
-								typeof keyframe.value === 'string' &&
-								keyframe.value.includes('%'),
-						)))
-					? computedStatus()
-					: status;
+			filteredProps[key] = status;
 		} else if (key in allProps) {
 			filteredProps[key] = allProps[key];
 		} else if (lastSpreadIndex !== -1) {
@@ -2272,6 +2220,7 @@ const computeSequenceOnlyPropsRecord = ({
 
 const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	ast,
+	sourceForLocation,
 	nodePath,
 	componentIdentity,
 	keys,
@@ -2280,6 +2229,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 	videoConfigIdentifierValues,
 }: {
 	ast: File;
+	sourceForLocation: string | null;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -2361,6 +2311,13 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 
 	return {
 		canUpdate: true as const,
+		...(sourceForLocation === null
+			? {}
+			: {
+					sourceLocation: jsxElement.loc
+						? getJsxSourceLocation(sourceForLocation, jsxElement.loc.start)
+						: null,
+				}),
 		durationDependentKeyframes: null,
 		props: Object.fromEntries(
 			Object.entries(filteredProps).map(([key, status]) => [
@@ -2386,6 +2343,7 @@ const computeSequencePropsStatusFromAstAndIdentifiers = ({
 
 export const computeSequencePropsStatusFromContent = ({
 	fileContents,
+	includeSourceLocation,
 	nodePath,
 	componentIdentity,
 	keys,
@@ -2393,6 +2351,7 @@ export const computeSequencePropsStatusFromContent = ({
 	effects,
 }: {
 	fileContents: string;
+	includeSourceLocation: boolean;
 	nodePath: SequenceNodePath;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -2407,6 +2366,7 @@ export const computeSequencePropsStatusFromContent = ({
 
 	return computeSequencePropsStatusFromAstAndIdentifiers({
 		ast,
+		sourceForLocation: includeSourceLocation ? fileContents : null,
 		nodePath,
 		componentIdentity,
 		keys,
@@ -2420,6 +2380,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 	fileContents,
 	absolutePath,
 	line,
+	column,
 	preferredNodePath,
 	componentIdentity,
 	keys,
@@ -2429,6 +2390,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 	fileContents: string;
 	absolutePath: string;
 	line: number;
+	column: number;
 	preferredNodePath: SequenceNodePath | null;
 	componentIdentity: JsxComponentIdentity | null;
 	keys: string[];
@@ -2441,6 +2403,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 				success: true,
 				status: computeSequencePropsStatusFromContent({
 					fileContents,
+					includeSourceLocation: true,
 					nodePath: preferredNodePath,
 					componentIdentity,
 					keys,
@@ -2472,7 +2435,12 @@ export const computeSequencePropsSubscriptionFromContent = ({
 
 	try {
 		const {ast} = getReadOnlySourceSnapshot(fileContents);
-		const resolvedNodePath = lineColumnToNodePath(ast, line);
+		const resolvedNodePath = lineColumnToNodePath(
+			ast,
+			line,
+			column,
+			fileContents,
+		);
 		if (!resolvedNodePath) {
 			return {
 				success: false,
@@ -2484,6 +2452,7 @@ export const computeSequencePropsSubscriptionFromContent = ({
 			success: true,
 			status: computeSequencePropsStatusFromContent({
 				fileContents,
+				includeSourceLocation: true,
 				nodePath: resolvedNodePath,
 				componentIdentity,
 				keys,

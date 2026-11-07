@@ -42,7 +42,7 @@ const matchers: ColorMatchers = {
 
 const namedColors = new Set(Object.keys(NoReactInternals.colorNames));
 const numberUnitRegex = /^(-?\d+(?:\.\d+)?)([a-zA-Z%]*)$/;
-const functionGlobalRegex = /([a-zA-Z-]+)\(([^)]+)\)/g;
+const functionGlobalRegex = /([a-zA-Z-][a-zA-Z0-9-]*)\(([^)]+)\)/g;
 
 const getColorMatchers = (): ColorMatchers => matchers;
 

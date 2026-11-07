@@ -93,7 +93,7 @@ export default function TranscribeAudio({
 								}}
 							/>
 						</div>
-						<div className="border-b-2 border-black" />
+						<div className="border-b-2 border-outline" />
 						<div className="p-2">
 							<div>
 								<strong className="font-brand ">
@@ -116,7 +116,7 @@ export default function TranscribeAudio({
 						<div className="h-5 overflow-hidden bg-muted">
 							<div className="h-5 w-1/2 animate-pulse bg-brand" />
 						</div>
-						<div className="border-b-2 border-black" />
+						<div className="border-b-2 border-outline" />
 						<div className="p-2">
 							<div>
 								<strong className="font-brand">Transcribing {name}</strong>

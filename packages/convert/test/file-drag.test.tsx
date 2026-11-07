@@ -89,7 +89,9 @@ test('uses the editable output name when dragging the completed thumbnail', asyn
 		).toBe(true);
 		const pen = renameButton.querySelector('svg');
 		expect(pen?.classList.contains('size-[18px]')).toBe(true);
-		expect(pen?.querySelector('path')?.getAttribute('fill')).toBe('#000000');
+		expect(pen?.querySelector('path')?.getAttribute('fill')).toBe(
+			'currentColor',
+		);
 
 		fireEvent.click(renameButton);
 		const nameInput = rendered.getByRole('textbox', {name: 'File name'});

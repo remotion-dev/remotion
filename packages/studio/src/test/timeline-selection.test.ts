@@ -71,6 +71,7 @@ import {
 	type SelectedOutlineScaleDragState,
 } from '../components/SelectedOutlineOverlay';
 import {getSelectedOutlineUvHandleTimelineSelection} from '../components/SelectedOutlineUvControls';
+import {callDeleteKeyframes} from '../components/Timeline/call-delete-keyframe';
 import {
 	deleteSelectedTimelineItems,
 	getTimelineSelectionAfterDeletingItems,
@@ -384,6 +385,24 @@ const makeLeftEdgePropStatuses = (
 
 	return propStatuses;
 };
+
+const deleteKeyframes = (
+	action: Omit<
+		Parameters<typeof callDeleteKeyframes>[0],
+		'setters' | 'getSnapshot'
+	>,
+) =>
+	callDeleteKeyframes({
+		...action,
+		setters: {
+			setPropStatuses: () => undefined,
+			setPropStatusesBatch: () => undefined,
+			updateDragOverrides: () => undefined,
+			updateDragOverridesBatch: () => undefined,
+			updateEffectDragOverridesBatch: () => undefined,
+		},
+		getSnapshot: () => null,
+	});
 
 test('timeline marquee rectangle intersection detects overlapping targets', () => {
 	expect(
@@ -4128,7 +4147,7 @@ test('Canvas outline selection uses conventional modifier keys', () => {
 	).toEqual({shiftKey: false, toggleKey: true});
 });
 
-test('Sequence double-click opens one connected composition before its source', () => {
+test('Sequence double-click opens the first connected composition before its source', () => {
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
@@ -4160,7 +4179,7 @@ test('Sequence double-click opens one connected composition before its source', 
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
-	).toBe('open-source');
+	).toBe('open-connected-composition');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 0,
@@ -4168,7 +4187,7 @@ test('Sequence double-click opens one connected composition before its source', 
 			numberOfConnectedCompositions: 2,
 			sequenceWasDragged: false,
 		}),
-	).toBeNull();
+	).toBe('open-connected-composition');
 	expect(
 		getSequenceDoubleClickAction({
 			button: 2,
@@ -8724,6 +8743,7 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 
 	expect(
 		deleteSelectedTimelineItems({
+			currentSelection: null,
 			selections: [
 				{type: 'sequence', nodePathInfo: sequenceNodePathInfo},
 				{
@@ -8733,7 +8753,7 @@ test('Deleting unsupported mixed timeline selection types returns null', () => {
 				},
 			],
 			tracks: [],
-			setPropStatuses: () => undefined,
+			deleteKeyframes,
 			clientId: 'client',
 			confirm,
 			propStatuses: {},
@@ -8885,12 +8905,14 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 		});
 
 		return Promise.resolve({
-			json: () => Promise.resolve({success: true, data: {}}),
+			json: () =>
+				Promise.resolve({success: true, data: {success: true, results: []}}),
 		} as Response);
 	}) as typeof fetch;
 
 	try {
 		const result = await deleteSelectedTimelineItems({
+			currentSelection: null,
 			selections: [
 				{
 					type: 'keyframe',
@@ -8909,7 +8931,7 @@ test('Deleting selected keyframes ignores selected easings', async () => {
 				sequences: [makeTimelineSequence({schema})],
 				overrideIdsToNodePaths: {override: nodePath},
 			}).tracks,
-			setPropStatuses: () => undefined,
+			deleteKeyframes,
 			clientId: 'client',
 			confirm: () => Promise.resolve(true),
 			propStatuses: {},
@@ -8985,12 +9007,14 @@ test('Deleting all selected keyframes preserves the value at the playhead', asyn
 		});
 
 		return Promise.resolve({
-			json: () => Promise.resolve({success: true, data: {}}),
+			json: () =>
+				Promise.resolve({success: true, data: {success: true, results: []}}),
 		} as Response);
 	}) as typeof fetch;
 
 	try {
 		const result = await deleteSelectedTimelineItems({
+			currentSelection: null,
 			selections: [
 				{
 					type: 'keyframe',
@@ -9007,7 +9031,7 @@ test('Deleting all selected keyframes preserves the value at the playhead', asyn
 				sequences: [makeTimelineSequence({schema})],
 				overrideIdsToNodePaths: {override: nodePath},
 			}).tracks,
-			setPropStatuses: () => undefined,
+			deleteKeyframes,
 			clientId: 'client',
 			confirm: () => Promise.resolve(true),
 			propStatuses,
@@ -9339,6 +9363,7 @@ test('Shift+click can select an inspector effect range', () => {
 					documentationLink: null,
 					effectIndex: Number(nodePathInfo.auxiliaryKeys[1]),
 					effectSchema: {},
+					effects: [],
 				},
 				children: [],
 			},

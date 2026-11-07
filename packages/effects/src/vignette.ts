@@ -11,6 +11,13 @@ import {
 	assertEffectParamsObject,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {VIGNETTE_WEBGPU_SHADER} from './vignette-webgpu-shader.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -401,7 +408,7 @@ const setupVignette = (target: HTMLCanvasElement): VignetteState => {
 };
 
 const getParsedColor = (
-	state: VignetteState,
+	state: Pick<VignetteState, 'colorCtx' | 'cachedColor' | 'cachedColorRgba'>,
 	resolved: VignetteResolved,
 ): ParsedColorRgba => {
 	if (state.cachedColor !== resolved.color) {
@@ -418,64 +425,124 @@ const normalizedRgba = (
 	return [color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255];
 };
 
-export const vignette = createEffect<VignetteParams, VignetteState>({
+export const vignette = createEffect<VignetteParams>({
 	type: 'dev.remotion.effects.vignette',
 	label: 'vignette()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/vignette',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `vignette-${r.amount}-${r.radius}-${r.feather}-${r.roundness}-${r.color}-${r.mode}-${r.center.join(':')}`;
 	},
-	setup: (target) => setupVignette(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const color = getParsedColor(state, r);
-		const [red, green, blue, alpha] = normalizedRgba(color);
-		const {gl, program, textureSource, uniforms, vao} = state;
+	implementations: {
+		webgl2: Internals.createEffectImplementation<VignetteParams, VignetteState>(
+			{
+				setup: (target) => setupVignette(target),
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+					const color = getParsedColor(state, r);
+					const [red, green, blue, alpha] = normalizedRgba(color);
+					const {gl, program, textureSource, uniforms, vao} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+					gl.viewport(0, 0, width, height);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, textureSource);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, textureSource);
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						source as TexImageSource,
+					);
 
-		gl.useProgram(program);
-		if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
-		if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
-		if (uniforms.uRadius) gl.uniform1f(uniforms.uRadius, r.radius);
-		if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
-		if (uniforms.uRoundness) gl.uniform1f(uniforms.uRoundness, r.roundness);
-		if (uniforms.uColor) gl.uniform4f(uniforms.uColor, red, green, blue, alpha);
-		if (uniforms.uMode)
-			gl.uniform1i(uniforms.uMode, r.mode === 'alpha' ? 1 : 0);
-		if (uniforms.uCenter) {
-			const shaderCenter = publicUvToShaderUv(r.center);
-			gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
-		}
+					gl.useProgram(program);
+					if (uniforms.uSource) gl.uniform1i(uniforms.uSource, 0);
+					if (uniforms.uAmount) gl.uniform1f(uniforms.uAmount, r.amount);
+					if (uniforms.uRadius) gl.uniform1f(uniforms.uRadius, r.radius);
+					if (uniforms.uFeather) gl.uniform1f(uniforms.uFeather, r.feather);
+					if (uniforms.uRoundness)
+						gl.uniform1f(uniforms.uRoundness, r.roundness);
+					if (uniforms.uColor)
+						gl.uniform4f(uniforms.uColor, red, green, blue, alpha);
+					if (uniforms.uMode)
+						gl.uniform1i(uniforms.uMode, r.mode === 'alpha' ? 1 : 0);
+					if (uniforms.uCenter) {
+						const shaderCenter = publicUvToShaderUv(r.center);
+						gl.uniform2f(uniforms.uCenter, shaderCenter[0], shaderCenter[1]);
+					}
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, textureSource}) => {
-		gl.deleteTexture(textureSource);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+					gl.bindVertexArray(vao);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					gl.bindVertexArray(null);
+					gl.bindTexture(gl.TEXTURE_2D, null);
+					gl.useProgram(null);
+				},
+				cleanup: ({gl, program, vao, vbo, textureSource}) => {
+					gl.deleteTexture(textureSource);
+					gl.deleteBuffer(vbo);
+					gl.deleteProgram(program);
+					gl.deleteVertexArray(vao);
+				},
+			},
+		),
+		webgpu: Internals.createEffectImplementation<
+			VignetteParams,
+			WebGpuSinglePassState &
+				Pick<VignetteState, 'colorCtx' | 'cachedColor' | 'cachedColorRgba'>
+		>({
+			setup: (target) => {
+				const colorCanvas = document.createElement('canvas');
+				colorCanvas.width = 1;
+				colorCanvas.height = 1;
+				const colorCtx = colorCanvas.getContext('2d', {
+					willReadFrequently: true,
+				});
+				if (!colorCtx) {
+					throw new Error('Failed to acquire 2D context for color parsing');
+				}
+
+				return {
+					...setupWebGpuSinglePass(target, 'vignette'),
+					colorCtx,
+					cachedColor: '',
+					cachedColorRgba: [0, 0, 0, 255] as ParsedColorRgba,
+				};
+			},
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice) {
+					throw new Error(
+						'A WebGPU device is required for the vignette effect',
+					);
+				}
+
+				const r = resolve(params);
+				const color = getParsedColor(state, r);
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: VIGNETTE_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						r.amount,
+						r.radius,
+						r.feather,
+						r.roundness,
+						...normalizedRgba(color),
+						...r.center,
+						r.mode === 'alpha' ? 1 : 0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
 	},
 	schema: vignetteSchema,
 	validateParams: validateVignetteParams,

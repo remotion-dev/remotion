@@ -1,7 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import {expandElementSourceReferences} from './plugins/element-source-utils.js';
+import {
+	expandElementSourceReferences,
+	getRemotionElementSource,
+} from './plugins/element-source-utils.js';
+import {getElementDefinition} from './src/components/Elements/element-utils';
 import {articles} from './src/data/articles';
+import {
+	getElementCatalogMarkdown,
+	getElementMarkdown,
+} from './src/raw-markdown/element-markdown';
 import {expandRawMarkdownComponents} from './src/raw-markdown/replace-components';
 
 const DOCS_DIR = path.join(__dirname, 'docs');
@@ -149,12 +157,42 @@ function copyRawElements() {
 				: path.join(parsed.dir, parsed.name);
 		const destPath = path.join(ELEMENTS_OUTPUT_DIR, `${slug}.md`);
 
-		writeRawMarkdown({destPath, sourcePath});
-		copiedCount++;
+		const elementPage = contents.match(
+			/<ElementPage\s+definition=\{getElementDefinition\('([^']+)'\)\}\s+sourceFile="([^"]+)"\s*\/>/,
+		);
+		if (!elementPage && contents.includes('<ElementPage')) {
+			throw new Error(
+				`Could not parse <ElementPage definition={getElementDefinition('...')} sourceFile="..." /> in ${sourcePath}`,
+			);
+		}
 
-		if (parsed.name === 'index' && parsed.dir) {
-			const indexPath = path.join(ELEMENTS_OUTPUT_DIR, parsed.dir, 'index.md');
-			writeRawMarkdown({destPath: indexPath, sourcePath});
+		const markdown =
+			relativePath === 'index.mdx'
+				? getElementCatalogMarkdown()
+				: elementPage
+					? getElementMarkdown({
+							definition: getElementDefinition(elementPage[1]),
+							sourceCode: getRemotionElementSource({
+								file: elementPage[2],
+								sourceFilePath: sourcePath,
+							}),
+						})
+					: null;
+		const destPaths = [
+			destPath,
+			...(parsed.name === 'index' && parsed.dir
+				? [path.join(ELEMENTS_OUTPUT_DIR, parsed.dir, 'index.md')]
+				: []),
+		];
+
+		for (const currentDestPath of destPaths) {
+			if (markdown === null) {
+				writeRawMarkdown({destPath: currentDestPath, sourcePath});
+			} else {
+				fs.mkdirSync(path.dirname(currentDestPath), {recursive: true});
+				fs.writeFileSync(currentDestPath, markdown);
+			}
+
 			copiedCount++;
 		}
 	}

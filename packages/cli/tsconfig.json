@@ -13,10 +13,12 @@
 		{"path": "../core"},
 		{"path": "../bundler"},
 		{"path": "../codemods"},
+		{"path": "../licensing"},
 		{"path": "../renderer"},
 		{"path": "../player"},
 		{"path": "../media-utils"},
 		{"path": "../studio-server"},
+		{"path": "../studio-protocol"},
 		{"path": "../zod-types"}
 	],
 	"exclude": ["dist"]

@@ -1,0 +1,71 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/compositor/ffmpeg/**'
+      - '.github/workflows/ffmpeg.yml'
+      - '.circleci/config.yml'
+  pull_request:
+    paths:
+      - 'packages/compositor/ffmpeg/**'
+      - '.github/workflows/ffmpeg.yml'
+      - '.circleci/config.yml'
+  workflow_dispatch:
+name: Build FFmpeg
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: packages/compositor/ffmpeg/build
+
+env:
+  FORCE_COLOR: 1
+jobs:
+  build:
+    name: Build on macOS ARM64
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+      - run: node ../download.mjs buildInputs
+      - name: Install deps
+        run: HOMEBREW_INSTALL_FROM_API=1 brew install yasm nasm pkg-config cmake make meson ninja libtool autoconf automake
+      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - run: rm -f /opt/homebrew/opt/libx11/lib/libX11.6.dylib
+      - run: node clean.mjs
+      - run: node compile-ffmpeg.mjs
+      - run: node generate-bindings.mjs
+      - run: node zip.mjs
+      - run: node test-ffmpeg.mjs
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: aarch64-apple-darwin.gz
+          path: packages/compositor/ffmpeg/build/ffmpeg.tar.gz
+  build-macos-x64:
+    name: Build on macOS x64
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+      - run: node ../download.mjs buildInputs
+      - name: Install deps
+        run: HOMEBREW_INSTALL_FROM_API=1 brew install yasm nasm pkg-config cmake make meson ninja libtool autoconf automake
+      - run: curl https://sh.rustup.rs -sSf | sh -s -- -y
+      - run: node clean.mjs
+      - run: node compile-ffmpeg.mjs
+      - run: node generate-bindings.mjs
+      - run: node zip.mjs
+      - run: node test-ffmpeg.mjs
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64-apple-darwin.gz
+          path: packages/compositor/ffmpeg/build/ffmpeg.tar.gz

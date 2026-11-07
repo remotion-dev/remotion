@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-effects-emboss.png
+image: https://remotion.media/docs/generated/articles-docs-effects-emboss.png
 slug: /effects/emboss
 title: emboss()
 sidebar_label: emboss()
@@ -20,12 +20,12 @@ The effect preserves the source colors and alpha mask. Transparent regions stay 
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {emboss} from '@remotion/effects/emboss';
 import {Video} from '@remotion/media';
-import {useCurrentFrame} from 'remotion';
+import {interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -40,7 +40,7 @@ export const MyComp: React.FC = () => {
             depth: 0.85,
             angle: 0,
             lightAngle: 135,
-            offset: frame * 0.6,
+            offset: interpolate(frame, [0, 60], [0, 36]),
           }),
         ]}
       />
@@ -97,9 +97,12 @@ Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to scroll
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`emboss()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGL2
+- WebGPU <AvailableFrom v="4.0.540" />
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

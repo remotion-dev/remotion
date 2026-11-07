@@ -873,7 +873,7 @@ const ConvertUI = ({
 									Crop
 								</ConvertUiSection>
 								{crop ? (
-									<div className="text-gray-700 text-sm mt-2">
+									<div className="text-muted-foreground text-sm mt-2">
 										Use the handles above to crop the video.
 									</div>
 								) : null}
@@ -888,7 +888,7 @@ const ConvertUI = ({
 									Trim
 								</ConvertUiSection>
 								{trim ? (
-									<div className="text-gray-700 text-sm mt-2">
+									<div className="text-muted-foreground text-sm mt-2">
 										Use the handles below the player to choose the start and end
 										of the video.
 									</div>

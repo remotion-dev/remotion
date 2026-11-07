@@ -23,6 +23,7 @@ import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {StudioServerInternals} from '@remotion/studio-server';
 import type {StudioKeyboardShortcuts} from '@remotion/studio-shared';
+import type {PreferredEffectBackend} from 'remotion';
 import {getBrowser} from './browser';
 import {
 	getBufferStateDelayInMilliseconds,
@@ -143,6 +144,7 @@ const {
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
+	highContrastOption,
 	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
@@ -682,6 +684,8 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: 2.
 		 */
 		setDefaultPremountInSeconds: (seconds: number) => void;
+		/** Increase contrast in Remotion Studio. Defaults to false. */
+		setHighContrast: (enabled: boolean) => void;
 		/**
 		 * Show premounting indicators in the Studio timeline.
 		 * @default false
@@ -759,6 +763,11 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: null, which uses 48000 Hz.
 		 */
 		setPreviewSampleRate: (sampleRate: number | null) => void;
+		/**
+		 * Preferred implementation for [effects](https://www.remotion.dev/docs/effects)
+		 * in Studio and renders. Default: auto.
+		 */
+		setPreferredEffectBackend: (backend: PreferredEffectBackend) => void;
 		/**
 		 * Preserve @remotion/media audio pitch when changing the Studio playback speed.
 		 * Does not affect clip-level speed changes or rendered output.
@@ -927,6 +936,7 @@ export const Config: FlatConfig = {
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
 	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
+	setHighContrast: highContrastOption.setConfig,
 	setShowPremounting: showPremountingOption.setConfig,
 	setShowLayerFrameNumbers: showLayerFrameNumbersOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,
@@ -935,6 +945,8 @@ export const Config: FlatConfig = {
 	setBenchmarkRuns: runsOption.setConfig,
 	setBenchmarkConcurrencies: benchmarkConcurrenciesOption.setConfig,
 	setSampleRate: sampleRateOption.setConfig,
+	setPreferredEffectBackend:
+		BrowserSafeApis.options.preferredEffectBackendOption.setConfig,
 	setPreviewSampleRate: previewSampleRateOption.setConfig,
 };
 

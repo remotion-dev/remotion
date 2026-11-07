@@ -16,3 +16,7 @@ public/studio-timeline-editing.mp4
 public/studio-transform-editing.mp4
 public/remotion-capture-localhost-2026-08-17T09-27-35-887Z.mp4
 public/design-systems-responsive/
+
+# Local Aura capture outputs; runtime media is hosted on R2.
+public/aura-code/
+public/score.wav

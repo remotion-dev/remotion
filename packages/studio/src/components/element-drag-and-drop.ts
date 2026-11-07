@@ -3,11 +3,17 @@ import {
 	type ElementDragData,
 } from '@remotion/studio-protocol';
 
-export const hasElementDragType = (dataTransfer: DataTransfer | null) => {
-	return (
-		StudioProtocolInternals.getDragPreviewMetadata(dataTransfer?.types ?? [])
-			?.type === 'element'
-	);
+export const mayHaveElementDragData = (dataTransfer: DataTransfer | null) => {
+	const types = dataTransfer?.types ?? [];
+	const metadata = StudioProtocolInternals.getDragPreviewMetadata(types);
+	if (metadata !== null) {
+		return metadata.type === 'element';
+	}
+
+	// Safari only exposes text/plain for cross-origin Element drags. Its
+	// contents cannot be validated until drop, so allow a tentative dragover.
+	// getElementDragData still validates the payload before installation.
+	return Array.from(types).includes('text/plain');
 };
 
 export const getElementDragData = (

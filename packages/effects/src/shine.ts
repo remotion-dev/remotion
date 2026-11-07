@@ -4,7 +4,14 @@ import {
 	assertOptionalFiniteNumber,
 	validateUnitInterval,
 } from './color-utils.js';
+import {SHINE_WEBGPU_SHADER} from './shine-webgpu-shader.js';
 import {assertEffectParamsObject} from './validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -227,142 +234,185 @@ const linkProgram = (
 	return program;
 };
 
-export const shine = createEffect<ShineParams, ShineState>({
+export const shine = createEffect<ShineParams>({
 	type: 'dev.remotion.effects.shine',
 	label: 'shine()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/shine',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `shine-${r.progress}-${r.angle}-${r.haloSigma}-${r.coreSigma}-${r.haloIntensity}-${r.coreIntensity}`;
 	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('shine effect');
-		}
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			ShineParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'shine'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for this effect');
+				const r = resolve(params);
+				const angle = (r.angle * Math.PI) / 180;
+				const x = Math.cos(angle);
+				const y = -Math.sin(angle);
+				const range =
+					(Math.abs(x) * width + Math.abs(y) * height) / 2 + 3 * r.haloSigma;
+				const bandT = -range + r.progress * range * 2;
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: SHINE_WEBGPU_SHADER,
+					uniformData: new Float32Array([
+						width,
+						height,
+						x,
+						y,
+						bandT,
+						r.haloSigma,
+						r.coreSigma,
+						r.haloIntensity,
+						r.coreIntensity,
+						0,
+						0,
+						0,
+					]),
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<ShineParams, ShineState>({
+			setup: (target) => {
+				const gl = target.getContext('webgl2', {
+					premultipliedAlpha: true,
+					alpha: true,
+					preserveDrawingBuffer: true,
+				});
+				if (!gl) {
+					throw createWebGL2ContextError('shine effect');
+				}
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+				gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		const vs = compileShader(gl, gl.VERTEX_SHADER, SHINE_VS);
-		const fs = compileShader(gl, gl.FRAGMENT_SHADER, SHINE_FS);
-		const program = linkProgram(gl, vs, fs);
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
+				const vs = compileShader(gl, gl.VERTEX_SHADER, SHINE_VS);
+				const fs = compileShader(gl, gl.FRAGMENT_SHADER, SHINE_FS);
+				const program = linkProgram(gl, vs, fs);
+				gl.deleteShader(vs);
+				gl.deleteShader(fs);
 
-		const vao = gl.createVertexArray();
-		if (!vao) {
-			throw new Error('Failed to create WebGL vertex array');
-		}
+				const vao = gl.createVertexArray();
+				if (!vao) {
+					throw new Error('Failed to create WebGL vertex array');
+				}
 
-		gl.bindVertexArray(vao);
+				gl.bindVertexArray(vao);
 
-		const data = new Float32Array([
-			-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
-		]);
+				const data = new Float32Array([
+					-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
+				]);
 
-		const vbo = gl.createBuffer();
-		if (!vbo) {
-			throw new Error('Failed to create WebGL buffer');
-		}
+				const vbo = gl.createBuffer();
+				if (!vbo) {
+					throw new Error('Failed to create WebGL buffer');
+				}
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+				gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+				gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-		const aPos = gl.getAttribLocation(program, 'aPos');
-		const aUv = gl.getAttribLocation(program, 'aUv');
-		gl.enableVertexAttribArray(aPos);
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(aUv);
-		gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+				const aPos = gl.getAttribLocation(program, 'aPos');
+				const aUv = gl.getAttribLocation(program, 'aUv');
+				gl.enableVertexAttribArray(aPos);
+				gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+				gl.enableVertexAttribArray(aUv);
+				gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
 
-		gl.bindVertexArray(null);
+				gl.bindVertexArray(null);
 
-		const texture = gl.createTexture();
-		if (!texture) {
-			throw new Error('Failed to create WebGL texture');
-		}
+				const texture = gl.createTexture();
+				if (!texture) {
+					throw new Error('Failed to create WebGL texture');
+				}
 
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.bindTexture(gl.TEXTURE_2D, null);
 
-		return {
-			gl,
-			program,
-			vao,
-			vbo,
-			texture,
-			uSource: gl.getUniformLocation(program, 'uSource'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
-			uBandNormal: gl.getUniformLocation(program, 'uBandNormal'),
-			uBandT: gl.getUniformLocation(program, 'uBandT'),
-			uHaloSigma: gl.getUniformLocation(program, 'uHaloSigma'),
-			uCoreSigma: gl.getUniformLocation(program, 'uCoreSigma'),
-			uHaloIntensity: gl.getUniformLocation(program, 'uHaloIntensity'),
-			uCoreIntensity: gl.getUniformLocation(program, 'uCoreIntensity'),
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const angleRad = (r.angle * Math.PI) / 180;
-		const bandNormalX = Math.cos(angleRad);
-		const bandNormalY = -Math.sin(angleRad);
-		const bboxProjection =
-			Math.abs(bandNormalX) * width + Math.abs(bandNormalY) * height;
-		const sweepHalfRange = bboxProjection / 2 + 3 * r.haloSigma;
-		const bandT = -sweepHalfRange + r.progress * sweepHalfRange * 2;
-		const {gl, program, vao, texture} = state;
+				return {
+					gl,
+					program,
+					vao,
+					vbo,
+					texture,
+					uSource: gl.getUniformLocation(program, 'uSource'),
+					uResolution: gl.getUniformLocation(program, 'uResolution'),
+					uBandNormal: gl.getUniformLocation(program, 'uBandNormal'),
+					uBandT: gl.getUniformLocation(program, 'uBandT'),
+					uHaloSigma: gl.getUniformLocation(program, 'uHaloSigma'),
+					uCoreSigma: gl.getUniformLocation(program, 'uCoreSigma'),
+					uHaloIntensity: gl.getUniformLocation(program, 'uHaloIntensity'),
+					uCoreIntensity: gl.getUniformLocation(program, 'uCoreIntensity'),
+				};
+			},
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const angleRad = (r.angle * Math.PI) / 180;
+				const bandNormalX = Math.cos(angleRad);
+				const bandNormalY = -Math.sin(angleRad);
+				const bboxProjection =
+					Math.abs(bandNormalX) * width + Math.abs(bandNormalY) * height;
+				const sweepHalfRange = bboxProjection / 2 + 3 * r.haloSigma;
+				const bandT = -sweepHalfRange + r.progress * sweepHalfRange * 2;
+				const {gl, program, vao, texture} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.useProgram(program);
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uBandNormal)
-			gl.uniform2f(state.uBandNormal, bandNormalX, bandNormalY);
-		if (state.uBandT) gl.uniform1f(state.uBandT, bandT);
-		if (state.uHaloSigma) gl.uniform1f(state.uHaloSigma, r.haloSigma);
-		if (state.uCoreSigma) gl.uniform1f(state.uCoreSigma, r.coreSigma);
-		if (state.uHaloIntensity)
-			gl.uniform1f(state.uHaloIntensity, r.haloIntensity);
-		if (state.uCoreIntensity)
-			gl.uniform1f(state.uCoreIntensity, r.coreIntensity);
+				gl.useProgram(program);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uBandNormal)
+					gl.uniform2f(state.uBandNormal, bandNormalX, bandNormalY);
+				if (state.uBandT) gl.uniform1f(state.uBandT, bandT);
+				if (state.uHaloSigma) gl.uniform1f(state.uHaloSigma, r.haloSigma);
+				if (state.uCoreSigma) gl.uniform1f(state.uCoreSigma, r.coreSigma);
+				if (state.uHaloIntensity)
+					gl.uniform1f(state.uHaloIntensity, r.haloIntensity);
+				if (state.uCoreIntensity)
+					gl.uniform1f(state.uCoreIntensity, r.coreIntensity);
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: shineSchema,
 	validateParams: validateShineParams,

@@ -50,14 +50,26 @@ import {issue8650LottieControlChars} from './fixtures/issue-8650-lottie-control-
 import {issue9736BackgroundPosition} from './fixtures/issue-9736-background-position';
 import {issue9901RotatedDropShadow} from './fixtures/issue-9901-rotated-drop-shadow';
 import {issue10676SvgGradientStroke} from './fixtures/issue-10676-svg-gradient-stroke';
+import {
+	issue12604Direct,
+	issue12604DirectFractional,
+	issue12604Precomposed,
+	issue12604PrecomposedFractional,
+} from './fixtures/issue-12604-scaled-precompose-text';
 import {lineHeight} from './fixtures/line-height';
 import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
+import {maskImageUrlSizing} from './fixtures/mask-image-url-sizing';
+import {
+	mixBlendModeAllModes,
+	mixBlendModeGroups,
+} from './fixtures/mix-blend-mode';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
+import {objectPosition, objectPositionMath} from './fixtures/object-position';
 import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
@@ -148,6 +160,8 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
+			<Composition {...objectPosition} />
+			<Composition {...objectPositionMath} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
@@ -169,7 +183,10 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundColor} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
+				<Composition {...mixBlendModeAllModes} />
+				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
+				<Composition {...maskImageUrlSizing} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />
@@ -242,6 +259,10 @@ export const Root: React.FC = () => {
 				<Composition {...issue7199ScaleAndDropShadow} />
 				<Composition {...issue9901RotatedDropShadow} />
 				<Composition {...issue10676SvgGradientStroke} />
+				<Composition {...issue12604Direct} />
+				<Composition {...issue12604Precomposed} />
+				<Composition {...issue12604DirectFractional} />
+				<Composition {...issue12604PrecomposedFractional} />
 				<Composition {...issue7243SvgJapaneseText} />
 				<Composition {...issue7489Minimal} />
 				<Composition {...pr11215SvgFontRepro} />

@@ -14,6 +14,7 @@ export const action: ActionFunction = errorAsJson(
 
     const renderProgress = await getRenderProgress({
       renderId: id,
+      skipLambdaInvocation: true,
       bucketName,
       functionName: speculateFunctionName({
         diskSizeInMb: DISK,

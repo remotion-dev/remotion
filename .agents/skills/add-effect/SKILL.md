@@ -296,10 +296,11 @@ Then render from `packages/docs`:
 bunx remotion still src/remotion/entry.ts effects-my-effect-preview static/img/effects-my-effect-preview.png --overwrite --image-format=png
 ```
 
-Commit both:
-
-- The composition entry in `packages/docs/src/remotion/Root.tsx`
-- The rendered image in `packages/docs/static/img/`
+Use the `offload-r2` skill to upload the rendered PNG to
+`docs/effects/effects-my-effect-preview.png` and verify its public SHA-256.
+The shared effect catalog uses `https://remotion.media/docs/effects/`.
+Commit the composition entry in `packages/docs/src/remotion/Root.tsx`, then
+remove the local PNG. Do not commit the preview image.
 
 ## 8. Generate docs card
 
@@ -310,9 +311,11 @@ cd packages/docs
 bun render-cards.ts
 ```
 
-Commit the generated `packages/docs/static/generated/articles-docs-effects-<effect-name>.png` and the new `image:` frontmatter line.
-
-If `render-cards.ts` opportunistically generates unrelated missing cards, remove those unrelated files unless they belong to the current change.
+`render-cards.ts` uploads cards to `https://remotion.media/docs/generated/` and
+requires R2 credentials from the docs environment or `bun --env-file`.
+Commit the hosted `image:` frontmatter line. Generated PNGs are ignored and
+must stay out of Git. To replace an existing card, pass
+`--overwrite=articles-docs-effects-<effect-name>`.
 
 ## 9. Update the Remotion skill
 

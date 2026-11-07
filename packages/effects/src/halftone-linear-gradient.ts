@@ -5,11 +5,21 @@ import {
 	parseColorRgba,
 	type ParsedColorRgba,
 } from './color-utils.js';
+import {HALFTONE_LINEAR_GRADIENT_WEBGPU_SHADER} from './halftone-linear-gradient-webgpu-shader.js';
 import {
 	assertEffectParamsObject,
 	assertOptionalBoolean,
 	assertOptionalColor,
 } from './validate-effect-param.js';
+import {
+	getWebGpuColors,
+	setupWebGpuColors,
+	type WebGpuColorState,
+} from './webgpu-color-state.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+} from './webgpu-single-pass-runtime.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -310,7 +320,7 @@ vec4 sourceAtop(vec4 backdrop, vec4 overlay) {
 }
 
 void main() {
-	vec2 fragPos = vUv * uResolution;
+	vec2 fragPos = gl_FragCoord.xy;
 	vec2 center = uResolution * 0.5;
 	vec2 gridPos = fragPos - center;
 
@@ -413,189 +423,258 @@ const linkProgram = (
 	return program;
 };
 
-export const halftoneLinearGradient = createEffect<
-	HalftoneLinearGradientParams,
-	HalftoneLinearGradientState
->({
-	type: 'dev.remotion.effects.halftoneLinearGradient',
-	label: 'halftoneLinearGradient()',
-	documentationLink:
-		'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
-	backend: 'webgl2',
-	calculateKey: (params) => {
-		const r = resolve(params);
-		const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
-		return `halftone-linear-gradient-${r.firstStopDotSize}-${r.secondStopDotSize}-${r.firstStopPosition.join(':')}-${r.secondStopPosition.join(':')}-${r.gridSize}-${r.colorMode}-${r.dotColor}${maskSuffix}`;
-	},
-	setup: (target) => {
-		const gl = target.getContext('webgl2', {
-			premultipliedAlpha: true,
-			alpha: true,
-			preserveDrawingBuffer: true,
-		});
-		if (!gl) {
-			throw createWebGL2ContextError('halftone linear gradient effect');
-		}
+export const halftoneLinearGradient =
+	createEffect<HalftoneLinearGradientParams>({
+		type: 'dev.remotion.effects.halftoneLinearGradient',
+		label: 'halftoneLinearGradient()',
+		documentationLink:
+			'https://www.remotion.dev/docs/effects/halftone-linear-gradient',
+		calculateKey: (params) => {
+			const r = resolve(params);
+			const maskSuffix = r.maskToSourceAlpha ? '-mask-to-source-alpha' : '';
+			return `halftone-linear-gradient-${r.firstStopDotSize}-${r.secondStopDotSize}-${r.firstStopPosition.join(':')}-${r.secondStopPosition.join(':')}-${r.gridSize}-${r.colorMode}-${r.dotColor}${maskSuffix}`;
+		},
+		implementations: {
+			webgpu: Internals.createEffectImplementation<
+				HalftoneLinearGradientParams,
+				WebGpuColorState
+			>({
+				setup: (target) =>
+					setupWebGpuColors(target, 'halftone-linear-gradient'),
+				apply: ({source, width, height, params, state, gpuDevice}) => {
+					if (!gpuDevice)
+						throw new Error(
+							'A WebGPU device is required for the halftone-linear-gradient effect',
+						);
+					const r = resolve(params);
+					const colors = getWebGpuColors(state, [r.dotColor]);
+					const uniformData = new Float32Array([
+						width,
+						height,
+						r.firstStopDotSize,
+						r.secondStopDotSize,
+						r.firstStopPosition[0],
+						r.firstStopPosition[1],
+						r.secondStopPosition[0],
+						r.secondStopPosition[1],
+						r.gridSize,
+						r.colorMode === 'source' ? 1 : 0,
+						r.maskToSourceAlpha ? 1 : 0,
+						0,
+						(colors[0] / 255) * (colors[3] / 255),
+						(colors[1] / 255) * (colors[3] / 255),
+						(colors[2] / 255) * (colors[3] / 255),
+						colors[3] / 255,
+					]);
+					applyWebGpuSinglePass({
+						state,
+						source,
+						width,
+						height,
+						device: gpuDevice as GPUDevice,
+						shader: HALFTONE_LINEAR_GRADIENT_WEBGPU_SHADER,
+						uniformData,
+					});
+				},
+				cleanup: cleanupWebGpuSinglePass,
+			}),
+			webgl2: Internals.createEffectImplementation<
+				HalftoneLinearGradientParams,
+				HalftoneLinearGradientState
+			>({
+				setup: (target) => {
+					const gl = target.getContext('webgl2', {
+						premultipliedAlpha: true,
+						alpha: true,
+						preserveDrawingBuffer: true,
+					});
+					if (!gl) {
+						throw createWebGL2ContextError('halftone linear gradient effect');
+					}
 
-		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+					gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
-		const vs = compileShader(gl, gl.VERTEX_SHADER, HALFTONE_LINEAR_GRADIENT_VS);
-		const fs = compileShader(
-			gl,
-			gl.FRAGMENT_SHADER,
-			HALFTONE_LINEAR_GRADIENT_FS,
-		);
-		const program = linkProgram(gl, vs, fs);
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
+					const vs = compileShader(
+						gl,
+						gl.VERTEX_SHADER,
+						HALFTONE_LINEAR_GRADIENT_VS,
+					);
+					const fs = compileShader(
+						gl,
+						gl.FRAGMENT_SHADER,
+						HALFTONE_LINEAR_GRADIENT_FS,
+					);
+					const program = linkProgram(gl, vs, fs);
+					gl.deleteShader(vs);
+					gl.deleteShader(fs);
 
-		const vao = gl.createVertexArray();
-		if (!vao) {
-			throw new Error('Failed to create WebGL vertex array');
-		}
+					const vao = gl.createVertexArray();
+					if (!vao) {
+						throw new Error('Failed to create WebGL vertex array');
+					}
 
-		gl.bindVertexArray(vao);
+					gl.bindVertexArray(vao);
 
-		const data = new Float32Array([
-			-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
-		]);
+					const data = new Float32Array([
+						-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, 1, 1, 1, 1,
+					]);
 
-		const vbo = gl.createBuffer();
-		if (!vbo) {
-			throw new Error('Failed to create WebGL buffer');
-		}
+					const vbo = gl.createBuffer();
+					if (!vbo) {
+						throw new Error('Failed to create WebGL buffer');
+					}
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-		gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+					gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+					gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 
-		const aPos = gl.getAttribLocation(program, 'aPos');
-		const aUv = gl.getAttribLocation(program, 'aUv');
-		gl.enableVertexAttribArray(aPos);
-		gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
-		gl.enableVertexAttribArray(aUv);
-		gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
+					const aPos = gl.getAttribLocation(program, 'aPos');
+					const aUv = gl.getAttribLocation(program, 'aUv');
+					gl.enableVertexAttribArray(aPos);
+					gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 16, 0);
+					gl.enableVertexAttribArray(aUv);
+					gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 16, 8);
 
-		gl.bindVertexArray(null);
+					gl.bindVertexArray(null);
 
-		const texture = gl.createTexture();
-		if (!texture) {
-			throw new Error('Failed to create WebGL texture');
-		}
+					const texture = gl.createTexture();
+					if (!texture) {
+						throw new Error('Failed to create WebGL texture');
+					}
 
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		gl.bindTexture(gl.TEXTURE_2D, null);
+					gl.bindTexture(gl.TEXTURE_2D, texture);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+					gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+					gl.bindTexture(gl.TEXTURE_2D, null);
 
-		const colorCanvas = document.createElement('canvas');
-		colorCanvas.width = 1;
-		colorCanvas.height = 1;
-		const colorCtx = colorCanvas.getContext('2d', {willReadFrequently: true});
-		if (!colorCtx) {
-			throw new Error('Failed to acquire 2D context for color parsing');
-		}
+					const colorCanvas = document.createElement('canvas');
+					colorCanvas.width = 1;
+					colorCanvas.height = 1;
+					const colorCtx = colorCanvas.getContext('2d', {
+						willReadFrequently: true,
+					});
+					if (!colorCtx) {
+						throw new Error('Failed to acquire 2D context for color parsing');
+					}
 
-		return {
-			gl,
-			program,
-			vao,
-			vbo,
-			texture,
-			uSource: gl.getUniformLocation(program, 'uSource'),
-			uResolution: gl.getUniformLocation(program, 'uResolution'),
-			uFirstStopDotSize: gl.getUniformLocation(program, 'uFirstStopDotSize'),
-			uSecondStopDotSize: gl.getUniformLocation(program, 'uSecondStopDotSize'),
-			uFirstStopPosition: gl.getUniformLocation(program, 'uFirstStopPosition'),
-			uSecondStopPosition: gl.getUniformLocation(
-				program,
-				'uSecondStopPosition',
-			),
-			uGridSize: gl.getUniformLocation(program, 'uGridSize'),
-			uColor: gl.getUniformLocation(program, 'uColor'),
-			uUseSourceColor: gl.getUniformLocation(program, 'uUseSourceColor'),
-			uMaskToSourceAlpha: gl.getUniformLocation(program, 'uMaskToSourceAlpha'),
-			colorCtx,
-			cachedColorStr: '',
-			cachedColorRgba: [0, 0, 0, 255],
-		};
-	},
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, vao, texture} = state;
+					return {
+						gl,
+						program,
+						vao,
+						vbo,
+						texture,
+						uSource: gl.getUniformLocation(program, 'uSource'),
+						uResolution: gl.getUniformLocation(program, 'uResolution'),
+						uFirstStopDotSize: gl.getUniformLocation(
+							program,
+							'uFirstStopDotSize',
+						),
+						uSecondStopDotSize: gl.getUniformLocation(
+							program,
+							'uSecondStopDotSize',
+						),
+						uFirstStopPosition: gl.getUniformLocation(
+							program,
+							'uFirstStopPosition',
+						),
+						uSecondStopPosition: gl.getUniformLocation(
+							program,
+							'uSecondStopPosition',
+						),
+						uGridSize: gl.getUniformLocation(program, 'uGridSize'),
+						uColor: gl.getUniformLocation(program, 'uColor'),
+						uUseSourceColor: gl.getUniformLocation(program, 'uUseSourceColor'),
+						uMaskToSourceAlpha: gl.getUniformLocation(
+							program,
+							'uMaskToSourceAlpha',
+						),
+						colorCtx,
+						cachedColorStr: '',
+						cachedColorRgba: [0, 0, 0, 255],
+					};
+				},
+				apply: ({source, width, height, params, state, flipSourceY}) => {
+					const r = resolve(params);
+					const {gl, program, vao, texture} = state;
 
-		if (state.cachedColorStr !== r.dotColor) {
-			state.cachedColorStr = r.dotColor;
-			state.cachedColorRgba = parseColorRgba(state.colorCtx, r.dotColor);
-		}
+					if (state.cachedColorStr !== r.dotColor) {
+						state.cachedColorStr = r.dotColor;
+						state.cachedColorRgba = parseColorRgba(state.colorCtx, r.dotColor);
+					}
 
-		const [cr, cg, cb, ca] = state.cachedColorRgba;
-		const caNormalized = ca / 255;
+					const [cr, cg, cb, ca] = state.cachedColorRgba;
+					const caNormalized = ca / 255;
 
-		gl.viewport(0, 0, width, height);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+					gl.viewport(0, 0, width, height);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+					gl.clearColor(0, 0, 0, 0);
+					gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.useProgram(program);
-		gl.bindVertexArray(vao);
+					gl.useProgram(program);
+					gl.bindVertexArray(vao);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, texture);
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+					gl.texImage2D(
+						gl.TEXTURE_2D,
+						0,
+						gl.RGBA,
+						gl.RGBA,
+						gl.UNSIGNED_BYTE,
+						source as TexImageSource,
+					);
 
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uFirstStopDotSize)
-			gl.uniform1f(state.uFirstStopDotSize, r.firstStopDotSize);
-		if (state.uSecondStopDotSize)
-			gl.uniform1f(state.uSecondStopDotSize, r.secondStopDotSize);
-		if (state.uFirstStopPosition)
-			gl.uniform2f(
-				state.uFirstStopPosition,
-				r.firstStopPosition[0],
-				r.firstStopPosition[1],
-			);
-		if (state.uSecondStopPosition)
-			gl.uniform2f(
-				state.uSecondStopPosition,
-				r.secondStopPosition[0],
-				r.secondStopPosition[1],
-			);
-		if (state.uGridSize) gl.uniform1f(state.uGridSize, r.gridSize);
-		if (state.uColor)
-			gl.uniform4f(
-				state.uColor,
-				(cr / 255) * caNormalized,
-				(cg / 255) * caNormalized,
-				(cb / 255) * caNormalized,
-				caNormalized,
-			);
-		if (state.uUseSourceColor)
-			gl.uniform1i(state.uUseSourceColor, r.colorMode === 'source' ? 1 : 0);
-		if (state.uMaskToSourceAlpha)
-			gl.uniform1i(state.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
+					if (state.uSource) gl.uniform1i(state.uSource, 0);
+					if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+					if (state.uFirstStopDotSize)
+						gl.uniform1f(state.uFirstStopDotSize, r.firstStopDotSize);
+					if (state.uSecondStopDotSize)
+						gl.uniform1f(state.uSecondStopDotSize, r.secondStopDotSize);
+					if (state.uFirstStopPosition)
+						gl.uniform2f(
+							state.uFirstStopPosition,
+							r.firstStopPosition[0],
+							r.firstStopPosition[1],
+						);
+					if (state.uSecondStopPosition)
+						gl.uniform2f(
+							state.uSecondStopPosition,
+							r.secondStopPosition[0],
+							r.secondStopPosition[1],
+						);
+					if (state.uGridSize) gl.uniform1f(state.uGridSize, r.gridSize);
+					if (state.uColor)
+						gl.uniform4f(
+							state.uColor,
+							(cr / 255) * caNormalized,
+							(cg / 255) * caNormalized,
+							(cb / 255) * caNormalized,
+							caNormalized,
+						);
+					if (state.uUseSourceColor)
+						gl.uniform1i(
+							state.uUseSourceColor,
+							r.colorMode === 'source' ? 1 : 0,
+						);
+					if (state.uMaskToSourceAlpha)
+						gl.uniform1i(state.uMaskToSourceAlpha, r.maskToSourceAlpha ? 1 : 0);
 
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
-		gl.deleteTexture(texture);
-	},
-	schema: halftoneLinearGradientSchema,
-	validateParams: validateHalftoneLinearGradientParams,
-});
+					gl.bindVertexArray(null);
+					gl.bindTexture(gl.TEXTURE_2D, null);
+					gl.useProgram(null);
+				},
+				cleanup: ({gl, program, vao, vbo, texture}) => {
+					gl.deleteBuffer(vbo);
+					gl.deleteProgram(program);
+					gl.deleteVertexArray(vao);
+					gl.deleteTexture(texture);
+				},
+			}),
+		},
+		schema: halftoneLinearGradientSchema,
+		validateParams: validateHalftoneLinearGradientParams,
+	});

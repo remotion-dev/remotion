@@ -39,13 +39,13 @@ const external = [
 	'@mediabunny/mp3-encoder',
 ];
 
-// Keep Automate in a separate build. Newer Bun versions deduplicate identical
-// CSS outputs across entrypoints, which otherwise removes Homepage.css.
+// Keep Automate in a separate build so Bun does not deduplicate its stylesheet
+// against CSS from the other entrypoints.
 const results = [
 	await build({
 		entrypoints: [
 			'./src/components/Homepage.tsx',
-			'./src/components/ExploreSection.tsx',
+			'./src/components/GetStartedCta.tsx',
 			'./src/components/homepage/Pricing.tsx',
 			'./src/components/team.tsx',
 			'./src/components/design.tsx',

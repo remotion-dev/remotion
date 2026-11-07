@@ -7,6 +7,7 @@ import type {
 } from 'remotion';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -67,7 +68,7 @@ export const TimelinePrimitiveFieldValue: React.FC<{
 	readonly field: TimelinePrimitiveFieldInfo;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 	readonly propStatus: CanUpdateSequencePropStatusStatic;
 	readonly effectiveValue: unknown;
 	readonly scaleLockNodePath: SequencePropsSubscriptionKey | null;

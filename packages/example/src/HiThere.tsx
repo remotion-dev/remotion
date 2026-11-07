@@ -5,7 +5,6 @@ import {
 	Composition,
 	Easing,
 	interpolate,
-	staticFile,
 	useCurrentFrame,
 	HtmlInCanvas,
 } from 'remotion';
@@ -29,9 +28,7 @@ export const HiTherePreview = () => {
 					from={85}
 				>
 					<Video
-						src={staticFile(
-							'remotion-capture-localhost-2026-09-25T12-21-24-338Z.webm',
-						)}
+						src="https://remotion.media/studio-captures/remotion-capture-localhost-2026-09-25T12-21-24-338Z.webm"
 						durationInFrames={825}
 						style={{
 							position: 'absolute',

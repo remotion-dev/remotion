@@ -86,7 +86,10 @@ const streamRenderer = ({
 		const receivedStreamingPayload: OnMessage = ({message}) => {
 			if (message.type === 'lambda-invoked') {
 				invocation++;
-				overallProgress.setLambdaInvoked(payload.chunk);
+				overallProgress.setLambdaInvoked(
+					payload.chunk,
+					message.payload.memorySizeInMb,
+				);
 				return;
 			}
 
@@ -392,7 +395,7 @@ const s3Renderer = async ({
 
 			if (status.lambdaInvoked && !lambdaInvoked) {
 				lambdaInvoked = true;
-				overallProgress.setLambdaInvoked(payload.chunk);
+				overallProgress.setLambdaInvoked(payload.chunk, status.memorySizeInMb);
 			}
 
 			if (

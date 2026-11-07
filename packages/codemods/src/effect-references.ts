@@ -23,9 +23,9 @@ export const getEffectSource = ({
 	}
 
 	const attr = findEffectsAttr(jsx.attributes);
-	const lastSpread = jsx.attributes.findLastIndex(
-		(attribute) => attribute.type === 'JSXSpreadAttribute',
-	);
+	const lastSpread = jsx.attributes
+		.map((attribute) => attribute.type === 'JSXSpreadAttribute')
+		.lastIndexOf(true);
 	if (
 		lastSpread !== -1 &&
 		attr !== null &&

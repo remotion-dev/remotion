@@ -1,6 +1,7 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {assertOptionalFiniteNumber} from '../color-utils.js';
+import {createRectTransformImplementations} from '../rect-transform-runtime.js';
 import {assertEffectParamsObject} from '../validate-effect-param.js';
 
 const {createEffect} = Internals;
@@ -115,54 +116,74 @@ const applyTranslate = ({
 	ctx.drawImage(source, x, y, width, height);
 };
 
-export const xyTranslate = createEffect<XyTranslateParams, null>({
+export const xyTranslate = createEffect<XyTranslateParams>({
 	type: 'dev.remotion.effects.xyTranslate',
 	label: 'xyTranslate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/xy-translate',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolveXyTranslate(params);
 		return `xy-translate-${r.x}-${r.y}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const r = resolveXyTranslate(params);
-		applyTranslate({
-			source,
-			target,
-			width,
-			height,
-			x: r.x,
-			y: r.y,
-		});
+	implementations: {
+		...createRectTransformImplementations<XyTranslateParams>(
+			'xyTranslate',
+			(params, width, height) => {
+				const r = resolveXyTranslate(params);
+				return {x: r.x, y: r.y, width, height};
+			},
+		),
+		'2d': Internals.createEffectImplementation<XyTranslateParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const r = resolveXyTranslate(params);
+				applyTranslate({
+					source,
+					target,
+					width,
+					height,
+					x: r.x,
+					y: r.y,
+				});
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: xyTranslateSchema,
 	validateParams: validateXyTranslateParams,
 });
 
-export const uvTranslate = createEffect<UvTranslateParams, null>({
+export const uvTranslate = createEffect<UvTranslateParams>({
 	type: 'dev.remotion.effects.uvTranslate',
 	label: 'uvTranslate()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/uv-translate',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolveUvTranslate(params);
 		return `uv-translate-${r.u}-${r.v}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const r = resolveUvTranslate(params);
-		applyTranslate({
-			source,
-			target,
-			width,
-			height,
-			x: r.u * width,
-			y: r.v * height,
-		});
+	implementations: {
+		...createRectTransformImplementations<UvTranslateParams>(
+			'uvTranslate',
+			(params, width, height) => {
+				const r = resolveUvTranslate(params);
+				return {x: r.u * width, y: r.v * height, width, height};
+			},
+		),
+		'2d': Internals.createEffectImplementation<UvTranslateParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const r = resolveUvTranslate(params);
+				applyTranslate({
+					source,
+					target,
+					width,
+					height,
+					x: r.u * width,
+					y: r.v * height,
+				});
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: uvTranslateSchema,
 	validateParams: validateUvTranslateParams,
 });

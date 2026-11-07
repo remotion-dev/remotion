@@ -63,22 +63,17 @@ Regenerate the homepage experts animation whenever the experts shown by
      --replace
    ```
 
-5. Copy both outputs to both homepage consumers.
+5. Use the `offload-r2` skill to upload both outputs under `homepage/` with
+   new versioned keys. Update the URLs in the homepage consumers, including
+   `packages/promo-pages/src/components/homepage/EvaluateRemotion.tsx`.
+   Keep rendered binaries out of both docs and promo-pages.
 
-   ```bash
-   cp /tmp/experts-graphic.webm ../promo-pages/public/img/experts-graphic.webm
-   cp /tmp/experts-graphic.mp4 ../promo-pages/public/img/experts-graphic.mp4
-   cp /tmp/experts-graphic.webm ../docs/static/img/experts-graphic.webm
-   cp /tmp/experts-graphic.mp4 ../docs/static/img/experts-graphic.mp4
-   ```
-
-6. Inspect all four files. Each must be 540x540 and 60 seconds long. The Safari
+6. Inspect both uploaded files. Each must be 540x540 and 60 seconds long. The Safari
    MP4 must report `major_brand: mp42`, `compatible_brands: isommp41mp42`,
    `Video: hevc (Main) (hvc1)`, and `handler_name: Core Media Video`. Confirm the
-   matching docs and promo-pages files have identical checksums.
+   public objects have the same SHA-256 hashes as their local outputs.
 
-Do not commit either ProRes MOV. Only commit the two WebM copies and two MP4
-copies.
+Do not commit rendered media. Commit the hosted URL changes.
 
 ## Expert data
 
@@ -93,5 +88,7 @@ After adding or changing an expert, render their expert card from `packages/docs
 bun render-cards
 ```
 
-Verify the expected `packages/docs/static/generated/experts-<slug>.png` was
-rendered rather than reported as already existing.
+Verify the expected `https://remotion.media/docs/generated/experts-<slug>.png`
+was uploaded and is publicly accessible. The command requires R2 credentials
+from the environment. To replace an existing card, pass
+`--overwrite=experts-<slug>`. Generated local PNGs are ignored.

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-codemods-index.png
+image: https://remotion.media/docs/generated/articles-docs-codemods-index.png
 sidebar_label: Overview
 title: '@remotion/codemods'
 crumb: '@remotion/codemods'
@@ -174,6 +174,10 @@ Registration edits use explicit composition files and static IDs. They support `
 `CodemodValue` represents serializable strings, numbers, booleans, `null`, arrays, and objects. Strings are values, not executable expressions; use [`staticFileValue()`](/docs/codemods/static-file-value) to reference a file in the public folder. [`updateNodeProps()`](/docs/codemods/update-node-props) also accepts `undefined` to remove a property.
 
 Unsupported edits throw or reject without mutating the input project. Batch operations resolve their references against the same input snapshot. Unrelated source formatting and comments are preserved; edited regions use the surrounding source style.
+
+## Importing OpenTimelineIO<AvailableFrom v="4.0.542" />
+
+Convert `.otio` timelines into editable TSX with [`generateOpenTimelineComposition()`](/docs/codemods/generate-open-timeline-composition), or create and register a component with [`addOpenTimelineComposition()`](/docs/codemods/add-open-timeline-composition). You can also [import a timeline in Studio](/docs/codemods/generate-open-timeline-composition#importing-in-studio).
 
 ## APIs
 

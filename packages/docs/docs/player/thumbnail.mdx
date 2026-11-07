@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-player-thumbnail.png
+image: https://remotion.media/docs/generated/articles-docs-player-thumbnail.png
 id: thumbnail
 title: '<Thumbnail>'
 crumb: '@remotion/player'
@@ -10,8 +10,8 @@ crumb: '@remotion/player'
 A component which can be rendered in a regular React App (for example: for example: [Next.JS](https://nextjs.org), [Vite.js](https://vitejs.dev), [Create React App](https://create-react-app.dev/)) to display a single frame of a video.
 
 ```tsx twoslash title="MyApp.tsx"
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo: React.FC<{title: string}> = ({title}) => <>{title}</>;
 
 // @filename: index.tsx
@@ -149,9 +149,9 @@ Disables React Suspense, which is [useful for writing tests](/docs/player/thumbn
 You may attach a ref to the thumbnail and get some layout info.
 
 ```tsx twoslash {15}
+// @filename: MyComposition.tsx
 // @allowUmdGlobalAccess
 
-// @filename: MyComposition.tsx
 export const MyComposition: React.FC = () => null;
 
 // @filename: index.tsx
@@ -301,3 +301,7 @@ This component previews a composition in a web app. To export it, pass the compo
     },
   ]}
 />
+
+### `preferredEffectBackend?`<AvailableFrom v="4.0.540" />
+
+Prefer a backend for [effects](/docs/effects): `"auto"`, `"webgpu"`, `"webgl2"`, or `"2d"`. Default: `"auto"`, which tries WebGPU, WebGL2, then 2D. The preference is scoped to this component. If an implementation or backend is unavailable, another implementation is used. See [effect backend selection](/docs/options/preferred-effect-backend).

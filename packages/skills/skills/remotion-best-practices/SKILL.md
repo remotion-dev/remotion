@@ -1,7 +1,7 @@
 ---
 name: remotion-best-practices
 description: Router for all Remotion skills
-version: 4.0.538
+version: 4.0.541
 ---
 
 ## Preserve user changes
@@ -29,6 +29,9 @@ For static maps, animated routes and markers, geographic explainers, Mapbox, Map
 ## Multimedia
 
 For achieving multimedia tasks in the browser, such as trimming, cropping videos, or getting metadata from them, load [Remotion Multimedia](./remotion-multimedia/SKILL.md)
+
+For video matting, background removal, or placing content behind a subject,
+load [Remotion Markup](./remotion-markup/SKILL.md).
 
 ## Improving Interactivity
 
@@ -103,6 +106,10 @@ Use the [Remotion SaaS skill](./remotion-saas/SKILL.md) for knowledge about Remo
 ## Looking up Remotion APIs and documentation
 
 To find and read current Remotion documentation, load [Remotion Docs](./remotion-docs/SKILL.md).
+
+## Licensing
+
+For Remotion license information, FAQs, terms, or buying a license, load [Remotion License](./remotion-license/SKILL.md).
 
 ## Upgrading
 

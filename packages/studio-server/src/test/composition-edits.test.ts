@@ -1,6 +1,7 @@
 import {expect, spyOn, test} from 'bun:test';
 import {
 	existsSync,
+	mkdirSync,
 	mkdtempSync,
 	readFileSync,
 	rmSync,
@@ -9,6 +10,7 @@ import {
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {renameFolder, updateCompositionMetadata} from '@remotion/codemods';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	CompositionEditResponse,
 	SymbolicatedStackFrame,
@@ -26,6 +28,7 @@ import {applyVisualControlHandler} from '../preview-server/routes/apply-visual-c
 import {deleteCompositionHandler} from '../preview-server/routes/delete-composition';
 import {duplicateCompositionHandler} from '../preview-server/routes/duplicate-composition';
 import {moveCompositionHandler} from '../preview-server/routes/move-composition';
+import {prepareOpenTimelineImportHandler} from '../preview-server/routes/prepare-open-timeline-import';
 import {redoHandler} from '../preview-server/routes/redo';
 import {renameCompositionHandler} from '../preview-server/routes/rename-composition';
 import {undoHandler} from '../preview-server/routes/undo';
@@ -552,7 +555,7 @@ test('moveCompositionHandler pushes composition moves to root to undo and redo s
 	}
 });
 
-test('addCompositionHandler creates new composition files with undo and redo', async () => {
+test('addCompositionHandler creates compositions and timecoded imports with undo and redo', async () => {
 	const remotionRoot = mkdtempSync(path.join(tmpdir(), 'remotion-codemod-'));
 	const cleanupFileWatcher = setFileWatcherRegistry(
 		createFileWatcherRegistry(),
@@ -577,6 +580,7 @@ test('addCompositionHandler creates new composition files with undo and redo', a
 					options: {
 						asset: null,
 						canvasCapture: null,
+						openTimeline: null,
 						newId: 'FreshVideo',
 						componentName: 'FreshVideo',
 						componentImportPath: './FreshVideo',
@@ -626,6 +630,145 @@ test('addCompositionHandler creates new composition files with undo and redo', a
 			'export const FreshVideo',
 		);
 
+		const mediaFile = path.join(remotionRoot, 'timecoded.mov');
+		const publicDir = path.join(remotionRoot, 'public');
+		mkdirSync(publicDir);
+		await RenderInternals.callFf({
+			bin: 'ffmpeg',
+			args: [
+				'-loop',
+				'1',
+				'-framerate',
+				'24',
+				'-i',
+				path.join(__dirname, '../../web/favicon.png'),
+				'-frames:v',
+				'52',
+				'-vf',
+				'scale=16:16',
+				'-pix_fmt',
+				'yuv420p',
+				'-c:v',
+				'libx264',
+				'-timecode',
+				'00:00:41:18',
+				mediaFile,
+			],
+			indent: false,
+			logLevel: 'error',
+			binariesDirectory: null,
+			cancelSignal: undefined,
+		});
+		const timeRange = (start: number, duration: number) => ({
+			OTIO_SCHEMA: 'TimeRange.1',
+			start_time: {OTIO_SCHEMA: 'RationalTime.1', value: start, rate: 24},
+			duration: {OTIO_SCHEMA: 'RationalTime.1', value: duration, rate: 24},
+		});
+		const contents = JSON.stringify({
+			OTIO_SCHEMA: 'Timeline.1',
+			tracks: {
+				OTIO_SCHEMA: 'Stack.1',
+				children: [
+					{
+						OTIO_SCHEMA: 'Track.1',
+						kind: 'Video',
+						children: [
+							{start: 1002, duration: 24, available: null},
+							{start: 1006, duration: 12, available: null},
+							{start: 8, duration: 8, available: timeRange(0, 52)},
+						].map(({start, duration, available}) => ({
+							OTIO_SCHEMA: 'Clip.2',
+							source_range: timeRange(start, duration),
+							active_media_reference_key: 'DEFAULT_MEDIA',
+							media_references: {
+								DEFAULT_MEDIA: {
+									OTIO_SCHEMA: 'ExternalReference.1',
+									target_url: mediaFile,
+									available_range: available,
+								},
+							},
+						})),
+					},
+				],
+			},
+		});
+		const prepared = await prepareOpenTimelineImportHandler({
+			...getHandlerOptions({
+				input: {
+					contents,
+					mediaDirectory: null,
+					componentName: 'Imported',
+					fps: 24,
+					width: 16,
+					height: 16,
+				},
+				entryPoint,
+				remotionRoot,
+			}),
+			publicDir,
+		});
+		expect(prepared.metadata?.durationInFrames).toBe(44);
+		expect(prepared.diagnostics).toEqual([]);
+		expect(prepared.filesToCopy).toBe(1);
+		const imported = await addCompositionHandler({
+			...getHandlerOptions({
+				input: {
+					options: {
+						asset: null,
+						canvasCapture: null,
+						openTimeline: {contents, mediaDirectory: null},
+						newId: 'Imported',
+						componentName: 'Imported',
+						componentImportPath: './Imported',
+						folderName: null,
+						parentName: null,
+						newDurationInFrames: 44,
+						newFps: 24,
+						newWidth: 16,
+						newHeight: 16,
+					},
+					undoRedoNavigation: null,
+					symbolicatedStack: {
+						originalFileName: 'Root.tsx',
+						originalLineNumber: 1,
+						originalColumnNumber: 1,
+						originalFunctionName: null,
+						originalScriptCode: null,
+					},
+				},
+				entryPoint,
+				remotionRoot,
+			}),
+			publicDir,
+		});
+		expect(imported.success).toBe(true);
+		const importedSource = readFileSync(
+			path.join(remotionRoot, 'Imported.tsx'),
+			'utf-8',
+		);
+		const videos = [...importedSource.matchAll(/<Video[\s\S]*?\/>/g)].map(
+			(match) => match[0],
+		);
+		expect(videos).toHaveLength(3);
+		expect(videos[0]).toContain('durationInFrames={24}');
+		expect(videos[0]).not.toContain('trimBefore');
+		expect(videos[1]).toContain('trimBefore={4}');
+		expect(videos[1]).toContain('from={24}');
+		expect(videos[1]).toContain('durationInFrames={12}');
+		expect(videos[2]).toContain('trimBefore={8}');
+		expect(videos[2]).toContain('from={36}');
+		expect(videos[2]).toContain('durationInFrames={8}');
+		const importedAsset = /staticFile\('([^']+)'\)/.exec(videos[0])![1];
+		expect(readFileSync(path.join(publicDir, importedAsset))).toEqual(
+			readFileSync(mediaFile),
+		);
+		const undoImport = await undoHandler(
+			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
+		);
+		expect(undoImport.success).toBe(true);
+		expect(existsSync(path.join(remotionRoot, 'Imported.tsx'))).toBe(false);
+		expect(readFileSync(entryPoint, 'utf-8')).toContain('id="FreshVideo"');
+
 		const undoResponse = await undoHandler(
 			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
 		);
@@ -673,6 +816,7 @@ test('addCompositionHandler creates an interactive Canvas Capture composition', 
 				input: {
 					options: {
 						asset: null,
+						openTimeline: null,
 						canvasCapture: {
 							videoFileName: 'capture.mp4',
 							videoHeight: 1080,

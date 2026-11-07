@@ -27,10 +27,10 @@ export const enableMultiprocessOnLinuxOption = {
 	docLink: 'https://www.remotion.dev/docs/options/enable-multiprocess-on-linux',
 	type: false as boolean,
 	getValue: ({commandLine}) => {
-		if (commandLine[cliFlag] !== undefined) {
+		if (commandLine[cliFlag] !== undefined && commandLine[cliFlag] !== null) {
 			return {
 				source: 'cli',
-				value: commandLine[cliFlag] as boolean,
+				value: Boolean(commandLine[cliFlag]),
 			};
 		}
 

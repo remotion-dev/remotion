@@ -3,6 +3,7 @@ import {staticFile, type CanUpdateSequencePropStatusStatic} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {writeStaticFile} from '../../api/write-static-file';
 import {
+	FAIL_COLOR,
 	LIGHT_TEXT,
 	TRANSPARENT,
 	WHITE,
@@ -15,6 +16,7 @@ import {
 } from '../../helpers/hoverable';
 import type {
 	SchemaFieldInfo,
+	TimelineFieldOnDragEnd,
 	TimelineFieldOnDragValueChange,
 	TimelineFieldOnSave,
 } from '../../helpers/timeline-layout';
@@ -30,7 +32,10 @@ import {
 } from '../InspectorPanel/common';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useStaticFiles} from '../use-static-files';
-import {getTimelineAssetLinkInfo} from './timeline-asset-link';
+import {
+	getTimelineAssetLinkInfo,
+	isTimelineAssetMissing,
+} from './timeline-asset-link';
 
 const penIcon: React.CSSProperties = {
 	display: 'block',
@@ -52,6 +57,11 @@ const standaloneSourceActionStyle: React.CSSProperties = {
 	margin: 0,
 	minWidth: 0,
 	width: 'auto',
+};
+
+const missingAssetName: React.CSSProperties = {
+	color: FAIL_COLOR,
+	font: 'inherit',
 };
 
 const assetTypeToAccept = {
@@ -159,7 +169,7 @@ type TimelineAssetFieldProps = {
 	readonly effectiveValue: unknown;
 	readonly onSave: TimelineFieldOnSave;
 	readonly onDragValueChange: TimelineFieldOnDragValueChange;
-	readonly onDragEnd: () => void;
+	readonly onDragEnd: TimelineFieldOnDragEnd;
 };
 
 export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
@@ -179,12 +189,20 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 	const {getSourceAction, sourceAction} = useContext(AssetSelectionContext);
 	const {assetType} = field.fieldSchema;
 	const initialQuery = assetType ? `type:${assetType} ` : '';
-	const imageLinkInfo =
-		assetType === 'image' && typeof effectiveValue === 'string'
-			? getTimelineAssetLinkInfo(effectiveValue)
-			: null;
+	const assetLinkInfo = useMemo(
+		() =>
+			typeof effectiveValue === 'string'
+				? getTimelineAssetLinkInfo(effectiveValue)
+				: null,
+		[effectiveValue],
+	);
+	const imageLinkInfo = assetType === 'image' ? assetLinkInfo : null;
 	const localAssetPath =
-		imageLinkInfo?.kind === 'local' ? imageLinkInfo.assetPath : null;
+		assetLinkInfo?.kind === 'local' ? assetLinkInfo.assetPath : null;
+	const isMissingLocalAsset = useMemo(
+		() => isTimelineAssetMissing({linkInfo: assetLinkInfo, staticFiles}),
+		[assetLinkInfo, staticFiles],
+	);
 	const {getContextMenuItems: getLocalAssetContextMenuItems} =
 		useAssetContextMenuItems({
 			relativePath: localAssetPath,
@@ -207,7 +225,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 			onDragValueChange(previewValue);
 			onSave(sourceValue).finally(() => {
-				onDragEnd();
+				onDragEnd('commit');
 			});
 		},
 		[propStatus.codeValue, onDragValueChange, onSave, onDragEnd],
@@ -221,7 +239,7 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 
 			onDragValueChange(url);
 			onSave(url).finally(() => {
-				onDragEnd();
+				onDragEnd('commit');
 			});
 		},
 		[propStatus.codeValue, onDragValueChange, onDragEnd, onSave],
@@ -281,14 +299,11 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		};
 
 		if (assetType !== undefined) {
-			const linkInfo =
-				typeof effectiveValue === 'string'
-					? getTimelineAssetLinkInfo(effectiveValue)
-					: null;
 			setSelectedModal({
 				type: 'asset-selection',
 				assetType,
-				initialUrl: linkInfo?.kind === 'remote' ? linkInfo.href : null,
+				initialUrl:
+					assetLinkInfo?.kind === 'remote' ? assetLinkInfo.href : null,
 				invocationTimestamp: Date.now(),
 				assetSelection,
 				onSelectedUrl: onSelectUrl,
@@ -304,8 +319,8 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 			compositionSelection: null,
 		});
 	}, [
+		assetLinkInfo,
 		assetType,
-		effectiveValue,
 		initialQuery,
 		onSelect,
 		onSelectUrl,
@@ -385,7 +400,15 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 					<img alt="" draggable={false} src={previewSrc} style={thumbnail} />
 				</span>
 				<span style={imageAssetInfo}>
-					<span style={imageAssetName}>{name}</span>
+					<span
+						style={
+							isMissingLocalAsset
+								? {...imageAssetName, color: FAIL_COLOR}
+								: imageAssetName
+						}
+					>
+						{name}
+					</span>
 					{source === null ? null : (
 						<span style={imageAssetSource}>{source}</span>
 					)}
@@ -414,23 +437,32 @@ export const TimelineAssetField: React.FC<TimelineAssetFieldProps> = ({
 		return action;
 	}
 
+	const sourceButton = (
+		<InspectorQuickAction
+			{...inlineSourceAction}
+			size="compact"
+			style={standaloneSourceActionStyle}
+		>
+			{isMissingLocalAsset ? (
+				<span style={missingAssetName}>{inlineSourceAction.children}</span>
+			) : (
+				inlineSourceAction.children
+			)}
+		</InspectorQuickAction>
+	);
+
 	return (
 		<div style={sourceActions}>
-			<InspectorQuickAction
-				{...inlineSourceAction}
-				disabled={
-					assetType === undefined
-						? inlineSourceAction.disabled
-						: window.remotion_isReadOnlyStudio
-				}
-				onClick={
-					assetType === undefined
-						? inlineSourceAction.onClick
-						: openAssetSelection
-				}
-				size="compact"
-				style={standaloneSourceActionStyle}
-			/>
+			{localAssetPath === null ? (
+				sourceButton
+			) : (
+				<ContextMenu
+					getItems={getLocalAssetContextMenuItems}
+					style={imageAssetPreviewContainer}
+				>
+					{sourceButton}
+				</ContextMenu>
+			)}
 			{action}
 		</div>
 	);

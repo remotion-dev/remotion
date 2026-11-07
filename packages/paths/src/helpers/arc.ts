@@ -1,5 +1,6 @@
 // Copied from: https://github.com/rveciana/svg-path-properties
 
+import {NoReactInternals} from 'remotion/no-react';
 import type {Point, Properties} from './types';
 
 const mod = (x: number, m: number) => {
@@ -22,7 +23,9 @@ const angleBetween = (v0: Point, v1: Point) => {
 	const p = v0.x * v1.x + v0.y * v1.y;
 	const n = Math.sqrt((v0.x ** 2 + v0.y ** 2) * (v1.x ** 2 + v1.y ** 2));
 	const sign = v0.x * v1.y - v0.y * v1.x < 0 ? -1 : 1;
-	const angle = sign * Math.acos(p / n);
+	// Rounding errors can push the cosine slightly outside of [-1, 1],
+	// e.g. -1.0000000000000002 for opposite vectors, and Math.acos() would return NaN
+	const angle = sign * Math.acos(Math.max(-1, Math.min(1, p / n)));
 
 	return angle;
 };
@@ -58,8 +61,11 @@ const pointOnEllipticalArc = ({
 
 	// If rx = 0 or ry = 0 then this arc is treated as a straight line segment joining the endpoints.
 	if (rx === 0 || ry === 0) {
-		// return this.pointOnLine(p0, p1, t);
-		return {x: 0, y: 0, ellipticalArcAngle: 0}; // Check if angle is correct
+		return {
+			x: p0.x + (p1.x - p0.x) * t,
+			y: p0.y + (p1.y - p0.y) * t,
+			ellipticalArcAngle: 0,
+		};
 	}
 
 	// Following "Conversion from endpoint to center parameterization"
@@ -294,11 +300,14 @@ export const makeArc = ({
 			const yDist = p2.y - p1.y;
 			const dist = Math.sqrt(xDist * xDist + yDist * yDist);
 
-			if (fractionLength < length - point_dist) {
-				return {x: -xDist / dist, y: -yDist / dist};
-			}
+			// In v4, arc tangents point against the direction of travel.
+			// v5 makes them point forward, like lines and Bézier curves.
+			const forward = fractionLength < length - point_dist ? 1 : -1;
+			const sign = NoReactInternals.ENABLE_V5_BREAKING_CHANGES
+				? forward
+				: -forward;
 
-			return {x: xDist / dist, y: yDist / dist};
+			return {x: (sign * xDist) / dist, y: (sign * yDist) / dist};
 		},
 		getTotalLength: () => {
 			return length;

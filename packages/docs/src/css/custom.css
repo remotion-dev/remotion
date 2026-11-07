@@ -246,6 +246,10 @@ code {
 	text-decoration: underline;
 }
 
+.markdown .suggested-prompt a {
+	text-decoration: none;
+}
+
 .ts-type-link {
 	text-decoration: none !important;
 	text-underline-position: under;
@@ -301,7 +305,7 @@ code {
 	padding-right: 4px;
 	padding-top: 1px;
 	padding-bottom: 1px;
-	margin-left: 6px;
+	margin-left: auto;
 	border-radius: 4px;
 	transform: none !important;
 }
@@ -334,7 +338,7 @@ code {
 
 .wip-item > div > a::after,
 .wip-item > a::after {
-	content: 'Coming Soon';
+	content: 'Soon';
 	font-size: 12px;
 	opacity: 0.7;
 	border: 1px solid;
@@ -342,7 +346,7 @@ code {
 	padding-right: 4px;
 	padding-top: 1px;
 	padding-bottom: 1px;
-	margin-left: 6px;
+	margin-left: auto;
 	border-radius: 4px;
 	transform: none !important;
 }
@@ -443,6 +447,10 @@ code {
 
 .remotion-footer__column .footer__items {
 	font-family: 'GTPlanar';
+}
+
+.footer-convert-link {
+	white-space: nowrap;
 }
 
 @media screen and (max-width: 1199px) {

@@ -9,7 +9,7 @@ import {
 } from "@remotion/sdk";
 import { getNodeProps, type SequencePropUpdate } from "@remotion/codemods";
 import { ChevronLeftIcon, ChevronRightIcon, RotateCcwIcon } from "lucide-react";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import type {
   CanUpdateSequencePropStatus,
   InteractivitySchema,
@@ -35,7 +35,6 @@ import {
 import {
   parseNumber,
   parseRotation,
-  parseScale,
   parseTranslate,
   serializeRotation,
   serializeTranslate,
@@ -117,7 +116,7 @@ const KeyframeControls: React.FC<{
         }
         onClick={() => {
           if (toggle.change !== null) {
-            void actions.commitKeyframeChanges([toggle.change]);
+            void actions.commitKeyframeChanges([toggle.change], null);
           }
         }}
       >
@@ -294,44 +293,72 @@ const KeyframedPropEditor: React.FC<{
     frame,
   });
 
+  const [editorRevision, setEditorRevision] = useState(0);
+  const commit = async (next: unknown) => {
+    if (next === undefined || next === value) {
+      onCancelPreview();
+      return;
+    }
+
+    const changed = await actions.commitKeyframeChanges(
+      [
+        {
+          nodePathInfo: layer.nodePathInfo,
+          key: fieldKey,
+          schema,
+          operation: {
+            type: "add",
+            frame: getCanvasKeyframeSourceFrame({
+              track: layer.track,
+              propStatus: status,
+              frame,
+            }),
+            value: next,
+          },
+        },
+      ],
+      null,
+    );
+    if (!changed) setEditorRevision((revision) => revision + 1);
+  };
+
+  if (
+    field.type === "rotation-css" &&
+    typeof value === "string" &&
+    !/^[+-]?(?:\d+\.?\d*|\.\d+)deg$/.test(value)
+  ) {
+    return (
+      <FieldRow
+        label={getFieldLabel(fieldKey, field)}
+        badge={<StatusBadge status="keyframed" />}
+        keyframe={keyframe}
+      >
+        <TextField
+          key={editorRevision}
+          ariaLabel={getFieldLabel(fieldKey, field)}
+          value={value}
+          onCommit={(next) => void commit(next)}
+        />
+      </FieldRow>
+    );
+  }
+
   return (
     <PropFieldEditor
+      key={editorRevision}
       fieldKey={fieldKey}
-      field={field}
       codeValue={value ?? undefined}
+      field={field}
       badge={<StatusBadge status="keyframed" />}
       keyframe={keyframe}
-      onCommit={(next) => {
-        // A scrub that ends where it started only releases the preview.
-        if (next === undefined || next === value) {
-          onCancelPreview();
-          return;
-        }
-
-        void actions.commitKeyframeChanges([
-          {
-            nodePathInfo: layer.nodePathInfo,
-            key: fieldKey,
-            schema,
-            operation: {
-              type: "add",
-              frame: getCanvasKeyframeSourceFrame({
-                track: layer.track,
-                propStatus: status,
-                frame,
-              }),
-              value: next,
-            },
-          },
-        ]);
-      }}
+      onCommit={(next) => void commit(next)}
       onPreview={onPreview}
       onCancelPreview={onCancelPreview}
     />
   );
 };
 
-const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
+export const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
   fieldKey,
   field,
   codeValue,
@@ -386,6 +413,20 @@ const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
       );
 
     case "translate": {
+      const value = codeValue ?? schemaDefault;
+      if (
+        typeof value === "string" &&
+        !/^[+-]?(?:\d+\.?\d*|\.\d+)px(?:\s+[+-]?(?:\d+\.?\d*|\.\d+)px)?$/.test(
+          value,
+        )
+      ) {
+        return (
+          <FieldRow label={label} badge={badge} keyframe={keyframe}>
+            <TextField ariaLabel={ariaLabel} value={value} onCommit={commit} />
+          </FieldRow>
+        );
+      }
+
       const current = parseTranslate(codeValue ?? schemaDefault);
       return (
         <FieldRow label={label} badge={badge} keyframe={keyframe}>
@@ -419,12 +460,31 @@ const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
       );
     }
 
-    case "scale":
+    case "scale": {
+      const current = codeValue ?? schemaDefault;
+      const scalar =
+        typeof current === "number"
+          ? current
+          : typeof current === "string" && current.trim() !== ""
+            ? Number(current)
+            : 1;
+      if (typeof current === "string" && !Number.isFinite(scalar)) {
+        return (
+          <FieldRow label={label} badge={badge} keyframe={keyframe}>
+            <TextField
+              ariaLabel={ariaLabel}
+              value={current}
+              onCommit={(value) => commit(value === "" ? undefined : value)}
+            />
+          </FieldRow>
+        );
+      }
+
       return (
         <FieldRow label={label} badge={badge} keyframe={keyframe}>
           <NumberField
             ariaLabel={ariaLabel}
-            value={parseScale(codeValue ?? schemaDefault)}
+            value={scalar}
             min={field.min}
             max={field.max}
             step={field.step ?? 0.01}
@@ -434,6 +494,7 @@ const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
           />
         </FieldRow>
       );
+    }
 
     case "rotation-css":
       return (
@@ -509,6 +570,10 @@ const PropFieldEditor: React.FC<PropFieldEditorProps> = ({
             value={codeValue === undefined ? defaultOption : String(codeValue)}
             options={[
               { value: defaultOption, label: "Default" },
+              ...(codeValue !== undefined &&
+              !fontWeights.includes(String(codeValue))
+                ? [{ value: String(codeValue), label: String(codeValue) }]
+                : []),
               ...fontWeights.map((weight) => ({
                 value: weight,
                 label: weight,
@@ -585,11 +650,14 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
     const keys = visible.map(({ key }) => key);
     let props: Record<string, CanUpdateSequencePropStatus> | null = null;
     try {
-      props = Internals.evaluateSourcePropStatuses(getNodeProps({
-        project,
-        node,
-        keys,
-      }).props, layer.track.sequence.controls?.videoConfigValues ?? composition ?? null);
+      props = Internals.evaluateSourcePropStatuses(
+        getNodeProps({
+          project,
+          node,
+          keys,
+        }).props,
+        layer.track.sequence.controls?.videoConfigValues ?? composition ?? null,
+      );
     } catch {
       return { fields: visible, statuses: null };
     }
@@ -606,11 +674,16 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
       if (variantFields.length > 0) {
         visible = [...visible, ...variantFields];
         try {
-          const extra = Internals.evaluateSourcePropStatuses(getNodeProps({
-            project,
-            node,
-            keys: variantFields.map((item) => item.key),
-          }).props, layer.track.sequence.controls?.videoConfigValues ?? composition ?? null);
+          const extra = Internals.evaluateSourcePropStatuses(
+            getNodeProps({
+              project,
+              node,
+              keys: variantFields.map((item) => item.key),
+            }).props,
+            layer.track.sequence.controls?.videoConfigValues ??
+              composition ??
+              null,
+          );
           props = { ...props, ...extra };
         } catch {
           // Leave the variant fields without status.
@@ -619,7 +692,13 @@ export const LayerInspector: React.FC<{ readonly layer: Layer }> = ({
     }
 
     return { fields: visible, statuses: props };
-  }, [composition, node, project, schema, layer.track.sequence.controls?.videoConfigValues]);
+  }, [
+    composition,
+    node,
+    project,
+    schema,
+    layer.track.sequence.controls?.videoConfigValues,
+  ]);
 
   const grouped = useMemo(() => {
     const groups = new Map<FieldGroup, VisibleField[]>();

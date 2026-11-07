@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-player-current-time.png
+image: https://remotion.media/docs/generated/articles-docs-player-current-time.png
 id: current-time
 sidebar_label: 'Getting the current time'
 title: 'Displaying the current time'
@@ -58,10 +58,11 @@ export const useCurrentPlayerFrame = (
 Add a ref to a React Player and pass it to another component:
 
 ```tsx twoslash
-// @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
+// @allowUmdGlobalAccess
 export const MyVideo = () => <></>;
 // @filename: ./remotion/TimeDisplay.tsx
+import type {PlayerRef} from '@remotion/player';
 export const TimeDisplay: React.FC<{
   playerRef: React.RefObject<PlayerRef | null>;
 }> = () => <></>;

@@ -9,16 +9,22 @@ import {MultiSequenceInspector} from './InspectorPanel/MultiSequenceInspector';
 import {SelectedInspector} from './InspectorPanel/SelectedInspector';
 import {container} from './InspectorPanel/styles';
 import type {UpdaterFunction} from './RenderModal/SchemaEditor/ZodSwitch';
-import {useTimelineSelection} from './Timeline/TimelineSelection';
+import type {TimelineSelection} from './Timeline/TimelineSelection';
 
 export const InspectorPanel: React.FC<{
 	readonly composition: _InternalTypes['AnyComposition'] | null;
 	readonly currentDefaultProps: Record<string, unknown>;
 	readonly readOnlyStudio: boolean;
+	readonly selectedItems: readonly TimelineSelection[];
 	readonly setDefaultProps: UpdaterFunction<Record<string, unknown>>;
-}> = ({composition, currentDefaultProps, readOnlyStudio, setDefaultProps}) => {
+}> = ({
+	composition,
+	currentDefaultProps,
+	readOnlyStudio,
+	selectedItems,
+	setDefaultProps,
+}) => {
 	const {canvasContent} = useContext(Internals.CompositionManager);
-	const {selectedItems} = useTimelineSelection();
 	const sameSequenceInspectorSelection = useMemo(
 		() => getSameSequenceInspectorSelection(selectedItems),
 		[selectedItems],

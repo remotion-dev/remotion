@@ -30,7 +30,7 @@ const createInvalidPayload = (input: unknown) =>
 	// @ts-expect-error Exercise runtime validation of invalid JavaScript inputs.
 	createElementPayload(input);
 
-test('creates one canonical Element payload for HTTP and drag transports', () => {
+test('creates one canonical Element payload for HTTP and drag transports, including plain-text-only drops', () => {
 	const payload = createElementPayload(validInput);
 	expect(payload).toEqual({
 		type: 'remotion-element',
@@ -84,6 +84,45 @@ test('creates one canonical Element payload for HTTP and drag transports', () =>
 			preview: {width: 800, height: 200, durationInFrames: 90},
 		},
 	);
+
+	// Safari hides the custom MIME type and its data for cross-origin drops.
+	expect(
+		parseDragData({
+			types: ['text/plain'],
+			getData: (type) => (type === 'text/plain' ? (data.get(type) ?? '') : ''),
+		}),
+	).toEqual({
+		type: 'element',
+		data: {
+			type: payload.type,
+			version: payload.version,
+			element: payload.element,
+		},
+		preview: {
+			type: 'element',
+			width: 800,
+			height: 200,
+			durationInFrames: 90,
+		},
+	});
+
+	for (const text of [
+		'Unrelated text',
+		'https://example.com/image.png',
+		'{',
+		JSON.stringify({type: 'remotion-element', version: 1, element: {}}),
+		JSON.stringify({
+			...payload,
+			element: {...payload.element, durationInFrames: undefined},
+		}),
+	]) {
+		expect(
+			parseDragData({
+				types: ['text/plain'],
+				getData: (type) => (type === 'text/plain' ? text : ''),
+			}),
+		).toBe(null);
+	}
 });
 
 test('validates asset payloads and references for both transports', () => {

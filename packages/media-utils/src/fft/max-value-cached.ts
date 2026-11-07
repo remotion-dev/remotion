@@ -7,7 +7,7 @@ import {toInt16} from './to-int-16';
 const getMax = (array: Float32Array) => {
 	let max = 0;
 	for (let i = 0; i < array.length; i++) {
-		const val = array[i];
+		const val = Math.abs(toInt16(array[i]));
 		if (val > max) {
 			max = val;
 		}
@@ -25,7 +25,8 @@ export const getMaxPossibleMagnitude = (metadata: MediaUtilsAudioData) => {
 		return cache[metadata.resultId];
 	}
 
-	const result = toInt16(getMax(metadata.channelWaveforms[0]));
+	// Avoid dividing by zero when the audio is silent.
+	const result = getMax(metadata.channelWaveforms[0]) || 1;
 	cache[metadata.resultId] = result;
 	return result;
 };

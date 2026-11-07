@@ -3,6 +3,7 @@ import {
 	forwardRef,
 	useImperativeHandle,
 	useLayoutEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -14,6 +15,7 @@ import {
 } from '../effects/use-memoized-effects.js';
 import {addSequenceStackTraces} from '../enable-sequence-stack-traces.js';
 import {Freeze} from '../freeze.js';
+import {getCanvasPropsFromSequenceProps} from '../get-canvas-props-from-sequence-props.js';
 import {
 	backgroundSchema,
 	baseSchema,
@@ -31,6 +33,7 @@ import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -40,11 +43,7 @@ import type {RemotionImageDecoder} from './decode-image.js';
 import {decodeImage} from './decode-image.js';
 import {getCurrentTime} from './get-current-time.js';
 import {getAnimatedImageDurationInSeconds} from './get-duration-in-seconds.js';
-import type {
-	AnimatedImageCanvasProps,
-	AnimatedImageProps,
-	RemotionAnimatedImageProps,
-} from './props';
+import type {AnimatedImageProps, RemotionAnimatedImageProps} from './props';
 import {serializeRequestInit} from './request-init';
 import {resolveAnimatedImageSource} from './resolve-image-source';
 
@@ -65,24 +64,6 @@ export const animatedImageSchema = {
 	...borderSchema,
 	...borderRadiusSchema,
 } as const satisfies InteractivitySchema;
-
-const getCanvasPropsFromSequenceProps = (
-	props: Record<string, unknown>,
-): AnimatedImageCanvasProps => {
-	const canvasProps: AnimatedImageCanvasProps = {};
-	const mutableCanvasProps = canvasProps as Record<string, unknown>;
-
-	for (const key in props) {
-		if (
-			Object.prototype.hasOwnProperty.call(props, key) &&
-			(key.startsWith('data-') || key.startsWith('aria-'))
-		) {
-			mutableCanvasProps[key] = props[key];
-		}
-	}
-
-	return canvasProps;
-};
 
 type AnimatedImageContentProps = RemotionAnimatedImageProps & {
 	readonly effects: EffectsProp;
@@ -339,6 +320,17 @@ const AnimatedImageInner = ({
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const actualRef = useRef<HTMLCanvasElement | null>(null);
+	const isMedia = useMemo(
+		() => ({
+			type: 'image' as const,
+			src: resolveAnimatedImageSource(src),
+			animated: {
+				loopBehavior: loopBehavior ?? 'loop',
+				requestInit: requestInit ?? null,
+			},
+		}),
+		[src, loopBehavior, requestInit],
+	);
 
 	const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
@@ -411,6 +403,7 @@ const AnimatedImageInner = ({
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
+				_remotionInternalIsMedia={isMedia}
 				{...sequenceProps}
 			>
 				{/* Hidden Activity cleans up effects but retains state. Unmount the
@@ -517,6 +510,11 @@ const AnimatedImageComponent = (
 		readonly ref?: React.Ref<HTMLCanvasElement>;
 	},
 ) => {
+	const videoEnabled = useVideoEnabled();
+	if (videoEnabled === false) {
+		return null;
+	}
+
 	if (props.loop && props.durationInFrames === undefined) {
 		const resolvedSrc = resolveAnimatedImageSource(props.src);
 		const requestInitKey = serializeRequestInit(props.requestInit);

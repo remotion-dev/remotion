@@ -43,8 +43,11 @@ import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {openInGitClientHandler} from './routes/open-in-git-client';
 import {openInTerminalHandler} from './routes/open-in-terminal';
 import {pasteEffectsHandler} from './routes/paste-effects';
+import {pickOpenTimelineHandler} from './routes/pick-open-timeline';
 import {precomposeJsxNodesHandler} from './routes/precompose-jsx-nodes';
 import {prepareElementInstallHandler} from './routes/prepare-element-install';
+import {prepareOpenTimelineImportHandler} from './routes/prepare-open-timeline-import';
+import {prerenderedSceneInfoHandler} from './routes/prerendered-scene-info';
 import {projectInfoHandler} from './routes/project-info';
 import {redoHandler} from './routes/redo';
 import {registerClientRenderHandler} from './routes/register-client-render';
@@ -61,6 +64,7 @@ import {reorderEffectHandler} from './routes/reorder-effect';
 import {reorderSequenceHandler} from './routes/reorder-sequence';
 import {replaceVideoSourceHandler} from './routes/replace-video-source';
 import {handleRestartStudio} from './routes/restart-studio';
+import {restorePrerenderedSceneHandler} from './routes/restore-prerendered-scene';
 import {saveEffectPropsHandler} from './routes/save-effect-props';
 import {saveMultipleEffectPropsHandler} from './routes/save-multiple-effect-props';
 import {saveSequencePropsHandler} from './routes/save-sequence-props';
@@ -119,6 +123,8 @@ export const allApiRoutes: {
 	'/api/update-default-props': updateDefaultPropsHandler,
 	'/api/apply-visual-control-change': applyVisualControlHandler,
 	'/api/add-composition': addCompositionHandler,
+	'/api/prepare-open-timeline-import': prepareOpenTimelineImportHandler,
+	'/api/pick-open-timeline': pickOpenTimelineHandler,
 	'/api/duplicate-composition': duplicateCompositionHandler,
 	'/api/rename-composition': renameCompositionHandler,
 	'/api/update-composition-metadata': updateCompositionMetadataHandler,
@@ -159,6 +165,8 @@ export const allApiRoutes: {
 	'/api/split-video-from-audio': splitVideoFromAudioHandler,
 	'/api/insert-basic-captions': insertBasicCaptionsHandler,
 	'/api/replace-video-source': replaceVideoSourceHandler,
+	'/api/prerendered-scene-info': prerenderedSceneInfoHandler,
+	'/api/restore-prerendered-scene': restorePrerenderedSceneHandler,
 	'/api/update-available': handleUpdate,
 	'/api/release-notes': getReleaseNotesHandler,
 	'/api/remotion-skills-info': remotionSkillsInfoHandler,

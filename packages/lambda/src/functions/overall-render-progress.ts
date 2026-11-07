@@ -20,7 +20,9 @@ const wait = (duration: number) => {
 };
 
 export type OverallProgressHelper = {
+	subscribe: (listener: () => void) => () => void;
 	upload: (reason: string) => Promise<void>;
+	flush: (reason: string) => Promise<void>;
 	setFrames: ({
 		encoded,
 		rendered,
@@ -35,7 +37,7 @@ export type OverallProgressHelper = {
 		uploaded: number;
 		sizeInBytes: number;
 	}) => void;
-	setLambdaInvoked: (chunk: number) => void;
+	setLambdaInvoked: (chunk: number, memorySizeInMb: number) => void;
 	addChunkCompleted: (
 		chunkIndex: number,
 		start: number,
@@ -71,6 +73,7 @@ export const makeInitialOverallRenderProgress = (
 		timeToCombine: null,
 		timeToEncode: null,
 		lambdasInvoked: 0,
+		rendererMemorySizeInMb: null,
 		retries: [],
 		postRenderData: null,
 		separateAudio: null,
@@ -118,13 +121,19 @@ export const makeOverallRenderProgress = ({
 	let dirty = false;
 	let dirtyReasons: string[] = [];
 	let uploadLoopPromise: Promise<void> | null = null;
+	let uploadError: unknown = null;
 
 	let encodeStartTime: number | null = null;
 	let renderFramesStartTime: number | null = null;
+	let frameCount: number | null = null;
+	const listeners = new Set<() => void>();
 
 	const markDirty = (reason: string) => {
 		dirty = true;
 		dirtyReasons.push(reason);
+		for (const listener of listeners) {
+			listener();
+		}
 	};
 
 	const uploadWithRetries = async (body: string, reasons: string) => {
@@ -148,8 +157,10 @@ export const makeOverallRenderProgress = ({
 					{indent: false, logLevel},
 					`Uploaded progress in ${Date.now() - start}ms`,
 				);
+				uploadError = null;
 				return;
 			} catch (err) {
+				uploadError = err;
 				const willRetry = attempt < progressUploadAttempts;
 				RenderInternals.Log.error(
 					{indent: false, logLevel},
@@ -194,8 +205,24 @@ export const makeOverallRenderProgress = ({
 		await uploadLoopPromise;
 	};
 
+	const flush = async (reason: string) => {
+		await upload(reason);
+		if (uploadError !== null) {
+			throw new Error(
+				`Could not persist render progress: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`,
+			);
+		}
+	};
+
 	return {
+		subscribe: (listener) => {
+			listeners.add(listener);
+			return () => {
+				listeners.delete(listener);
+			};
+		},
 		upload,
+		flush,
 		setFrames: ({
 			encoded,
 			rendered,
@@ -213,11 +240,19 @@ export const makeOverallRenderProgress = ({
 				throw new Error('Expected chunks to be set before frames are set');
 			}
 
+			if (
+				framesRendered[index] === rendered &&
+				framesEncoded[index] === encoded
+			) {
+				return;
+			}
+
+			const totalFramesEncoded =
+				renderProgress.framesEncoded + encoded - framesEncoded[index];
+			const totalFramesRendered =
+				renderProgress.framesRendered + rendered - framesRendered[index];
 			framesRendered[index] = rendered;
 			framesEncoded[index] = encoded;
-
-			const totalFramesEncoded = framesEncoded.reduce((a, b) => a + b, 0);
-			const totalFramesRendered = framesRendered.reduce((a, b) => a + b, 0);
 			if (renderProgress.framesEncoded === 0 && totalFramesEncoded > 0) {
 				encodeStartTime = Date.now();
 			}
@@ -227,14 +262,6 @@ export const makeOverallRenderProgress = ({
 			}
 
 			if (renderProgress.timeToRenderFrames === null) {
-				const frameCount =
-					renderProgress.renderMetadata &&
-					renderProgress.renderMetadata.type !== 'still'
-						? RenderInternals.getFramesToRender(
-								renderProgress.renderMetadata.frameRange,
-								renderProgress.renderMetadata.everyNthFrame,
-							).length
-						: null;
 				if (frameCount === totalFramesRendered) {
 					const timeToRenderFrames =
 						Date.now() - (renderFramesStartTime ?? Date.now());
@@ -257,13 +284,10 @@ export const makeOverallRenderProgress = ({
 				return;
 			}
 
+			renderProgress.framesUploaded += uploaded - framesUploaded[index];
+			renderProgress.uploadedSizeInBytes += sizeInBytes - uploadedSizes[index];
 			framesUploaded[index] = uploaded;
 			uploadedSizes[index] = sizeInBytes;
-			renderProgress.framesUploaded = framesUploaded.reduce((a, b) => a + b, 0);
-			renderProgress.uploadedSizeInBytes = uploadedSizes.reduce(
-				(a, b) => a + b,
-				0,
-			);
 			upload(`setUploadedFrames(chunk=${index})`);
 		},
 		addChunkCompleted: (chunkIndex, start, rendered) => {
@@ -292,6 +316,10 @@ export const makeOverallRenderProgress = ({
 			upload(`addChunkCompleted(chunk=${chunkIndex})`);
 		},
 		setCombinedFrames: (frames: number) => {
+			if (renderProgress.combinedFrames === frames) {
+				return;
+			}
+
 			renderProgress.combinedFrames = frames;
 			upload(`setCombinedFrames(${frames})`);
 		},
@@ -299,21 +327,35 @@ export const makeOverallRenderProgress = ({
 			renderProgress.timeToCombine = timeToCombine;
 			upload(`setTimeToCombine(${timeToCombine})`);
 		},
-		setLambdaInvoked(chunk) {
+		setLambdaInvoked(chunk, memorySizeInMb) {
 			if (lambdasInvoked.length === 0) {
 				throw new Error('Expected chunks to be set before lambdas are set');
 			}
 
+			const alreadyInvoked = lambdasInvoked[chunk];
+			if (
+				alreadyInvoked &&
+				renderProgress.rendererMemorySizeInMb === memorySizeInMb
+			) {
+				return;
+			}
+
 			lambdasInvoked[chunk] = true;
-			renderProgress.lambdasInvoked = lambdasInvoked.reduce(
-				(a, b) => a + Number(b),
-				0,
-			);
+			renderProgress.rendererMemorySizeInMb = memorySizeInMb;
+			if (!alreadyInvoked) {
+				renderProgress.lambdasInvoked++;
+			}
+
 			upload(`setLambdaInvoked(chunk=${chunk})`);
 		},
 		async setPostRenderData(postRenderData) {
 			renderProgress.postRenderData = postRenderData;
-			await upload('setPostRenderData');
+			try {
+				await flush('setPostRenderData');
+			} catch (err) {
+				renderProgress.postRenderData = null;
+				throw err;
+			}
 		},
 		async setSeparateAudio(separateAudio) {
 			renderProgress.separateAudio = separateAudio;
@@ -321,12 +363,23 @@ export const makeOverallRenderProgress = ({
 		},
 		setRenderMetadata: (renderMetadata) => {
 			renderProgress.renderMetadata = renderMetadata;
+			frameCount =
+				renderMetadata.type === 'still'
+					? null
+					: RenderInternals.getFramesToRender(
+							renderMetadata.frameRange,
+							renderMetadata.everyNthFrame,
+						).length;
 			upload('setRenderMetadata');
 		},
 		addErrorWithoutUpload: (errorInfo) => {
 			renderProgress.errors.push(errorInfo);
 			if (errorInfo.isFatal && renderProgress.fatalErrorTimestamp === null) {
 				renderProgress.fatalErrorTimestamp = Date.now();
+			}
+
+			for (const listener of listeners) {
+				listener();
 			}
 		},
 		setExpectedChunks: (expectedChunks) => {

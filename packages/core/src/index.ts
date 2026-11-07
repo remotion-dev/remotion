@@ -17,6 +17,7 @@ import type {
 	TRenderAsset,
 } from './CompositionManager.js';
 import type {DelayRenderScope} from './delay-render.js';
+import type {PreferredEffectBackend} from './effects/effect-types.js';
 import {
 	addSequenceStackTraces,
 	setSequenceComponent,
@@ -87,6 +88,7 @@ declare global {
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_fileSystemPlatform: string | null;
+		remotion_supportsNativeFilePicker: boolean;
 		remotion_studioServerCommand: string;
 		remotion_setFrame: (
 			frame: number,
@@ -104,6 +106,8 @@ declare global {
 		remotion_envVariables: string;
 		remotion_isMainTab: boolean;
 		remotion_mediaCacheSizeInBytes: number | null;
+		remotion_preferredEffectBackend: PreferredEffectBackend;
+		remotion_disableWebGpuEffects: boolean;
 		remotion_sampleRate: number | null;
 		remotion_previewSampleRate: number | null;
 		remotion_initialMemoryAvailable: number | null;
@@ -154,6 +158,10 @@ export * from './AbsoluteFill.js';
 export * from './animated-image/index.js';
 export {
 	createEffect,
+	createEffectImplementation,
+	type PreferredEffectBackend,
+	type EffectImplementation,
+	type MultiBackendEffectDefinition,
 	type Backend,
 	type EffectApplyParams,
 	type EffectDefinition,
@@ -169,7 +177,7 @@ export {
  */
 export type {AnyZodObject} from './any-zod-type.js';
 export {Artifact} from './Artifact.js';
-export {Audio, Html5Audio, RemotionAudioProps} from './audio/index.js';
+export {Audio, Html5Audio, type RemotionAudioProps} from './audio/index.js';
 export type {LoopVolumeCurveBehavior} from './audio/use-audio-frame.js';
 export {cancelRender} from './cancel-render.js';
 export {Solid} from './effects/Solid.js';
@@ -196,23 +204,23 @@ export {CanvasImage} from './canvas-image/index.js';
 export type {CanvasImageProps} from './canvas-image/index.js';
 export type {Codec} from './codec.js';
 export {
-	CalculateMetadataFunction,
+	type CalculateMetadataFunction,
 	Composition,
-	CompositionProps,
-	CompProps,
-	StillProps,
+	type CompositionProps,
+	type CompProps,
+	type StillProps,
 } from './Composition.js';
 export type {CanvasContent} from './CompositionManagerContext.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
-export {DownloadBehavior} from './download-behavior.js';
+export type {DownloadBehavior} from './download-behavior.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
 export {getRemotionEnvironment} from './get-remotion-environment.js';
-export {getStaticFiles, StaticFile} from './get-static-files.js';
+export {getStaticFiles, type StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
-export {Img, ImgProps} from './Img.js';
+export {Img, type ImgProps} from './Img.js';
 export {
 	Interactive,
 	type InteractiveBaseProps,
@@ -226,29 +234,29 @@ export {
 	interpolateColors,
 	type InterpolateColorsOptions,
 } from './interpolate-colors.js';
-export {LogLevel} from './log.js';
+export type {LogLevel} from './log.js';
 export {Loop} from './loop/index.js';
 export {
 	assertValidInterpolateEasingOption,
 	assertValidInterpolatePosterizeOption,
-	EasingFunction,
-	ExtrapolateType,
+	type EasingFunction,
+	type ExtrapolateType,
 	interpolate,
-	InterpolateOptions,
-	InterpolateOutputOption,
-	InterpolateOutputType,
+	type InterpolateOptions,
+	type InterpolateOutputOption,
+	type InterpolateOutputType,
 	random,
-	RandomSeed,
+	type RandomSeed,
 } from './no-react';
-export {prefetch, PrefetchOnProgress} from './prefetch.js';
+export {prefetch, type PrefetchOnProgress} from './prefetch.js';
 export {registerRoot} from './register-root.js';
 export type {PixelFormat, VideoImageFormat} from './render-types.js';
 export {
-	AbsoluteFillLayout,
-	LayoutAndStyle,
+	type AbsoluteFillLayout,
+	type LayoutAndStyle,
 	Sequence,
-	SequenceProps,
-	SequencePropsWithoutDuration,
+	type SequenceProps,
+	type SequencePropsWithoutDuration,
 } from './Sequence.js';
 export {Series} from './series/index.js';
 export * from './spring/index.js';
@@ -259,10 +267,10 @@ export {Track, type TrackProps} from './Track.js';
 export {useBufferState} from './use-buffer-state';
 export {useCurrentFrame} from './use-current-frame.js';
 export {
-	CurrentScaleContextType,
-	PreviewSize,
-	PreviewSizeCtx,
-	Translation,
+	type CurrentScaleContextType,
+	type PreviewSize,
+	type PreviewSizeCtx,
+	type Translation,
 	useCurrentScale,
 } from './use-current-scale';
 export {useDelayRender} from './use-delay-render';
@@ -274,10 +282,10 @@ export * from './video-config.js';
 export {
 	Html5Video,
 	OffthreadVideo,
-	OffthreadVideoProps,
-	RemotionMainVideoProps,
-	RemotionOffthreadVideoProps,
-	RemotionVideoProps,
+	type OffthreadVideoProps,
+	type RemotionMainVideoProps,
+	type RemotionOffthreadVideoProps,
+	type RemotionVideoProps,
 	Video,
 } from './video/index.js';
 export {MediaPlaybackError} from './video/MediaPlaybackError.js';

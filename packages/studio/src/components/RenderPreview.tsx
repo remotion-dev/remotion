@@ -1,9 +1,15 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
+import {addAssetCacheBust} from '../helpers/add-asset-cache-bust';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import type {AssetMetadata} from '../helpers/get-asset-metadata';
-import {remotion_outputsBase} from '../helpers/get-asset-metadata';
+import {getRenderOutputSrc} from '../helpers/get-asset-metadata';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
+import type {RenderOutputPlaybackContent} from '../helpers/render-output-playback';
+import {
+	getRenderOutputVideoClock,
+	getMediaPreviewClock,
+} from '../helpers/use-media-metadata';
 import {FilePreview} from './FilePreview';
 
 const msgStyle: React.CSSProperties = {
@@ -23,25 +29,33 @@ export const RenderPreview: React.FC<{
 	readonly path: string;
 	readonly assetMetadata: AssetMetadata | null;
 	readonly getBlob?: () => Promise<Blob>;
-}> = ({path, assetMetadata, getBlob}) => {
+	readonly outputPlaybackContent: RenderOutputPlaybackContent;
+}> = ({path, assetMetadata, getBlob, outputPlaybackContent}) => {
 	const fileType = getPreviewFileType(path);
 	const connectionStatus = useContext(StudioServerConnectionCtx)
 		.previewServerState.type;
 
-	const [blobUrl, setBlobUrl] = useState<string | null>(null);
-	const [blobError, setBlobError] = useState<Error | null>(null);
+	const blobIdentity = useMemo(() => ({getBlob}), [getBlob]);
+	const [blobSource, setBlobSource] = useState<{
+		identity: typeof blobIdentity;
+		url: string;
+	} | null>(null);
+	const [blobFailure, setBlobFailure] = useState<{
+		identity: typeof blobIdentity;
+		error: Error;
+	} | null>(null);
+	const [resolvedClock, setResolvedClock] = useState<{
+		src: string;
+		clock: ReturnType<typeof getMediaPreviewClock>;
+	} | null>(null);
 
 	useEffect(() => {
 		if (!getBlob) {
-			setBlobUrl(null);
-			setBlobError(null);
 			return;
 		}
 
 		let cancelled = false;
 		let blobUrlToRevoke: string | null = null;
-
-		setBlobError(null);
 
 		getBlob()
 			.then((blob) => {
@@ -52,14 +66,17 @@ export const RenderPreview: React.FC<{
 				}
 
 				blobUrlToRevoke = url;
-				setBlobUrl(url);
+				setBlobSource({identity: blobIdentity, url});
 			})
 			.catch((err) => {
 				if (cancelled) {
 					return;
 				}
 
-				setBlobError(err instanceof Error ? err : new Error(String(err)));
+				setBlobFailure({
+					identity: blobIdentity,
+					error: err instanceof Error ? err : new Error(String(err)),
+				});
 			});
 
 		return () => {
@@ -68,11 +85,43 @@ export const RenderPreview: React.FC<{
 				URL.revokeObjectURL(blobUrlToRevoke);
 			}
 		};
-	}, [getBlob]);
+	}, [blobIdentity, getBlob]);
 
-	const src = blobUrl ?? remotion_outputsBase + path;
+	const blobUrl =
+		blobSource?.identity === blobIdentity ? (blobSource?.url ?? null) : null;
+	const blobError =
+		blobFailure?.identity === blobIdentity
+			? (blobFailure?.error ?? null)
+			: null;
+	const src = getBlob
+		? blobUrl
+		: assetMetadata?.type === 'found'
+			? addAssetCacheBust({
+					src: getRenderOutputSrc(path),
+					fetchedAt: assetMetadata.fetchedAt,
+				})
+			: null;
+	const metadata =
+		assetMetadata?.type === 'found' ? assetMetadata.mediaMetadata : null;
+	const needsVideoClock =
+		fileType === 'video' &&
+		(Boolean(getBlob) || metadata?.videoTiming?.durationInFrames === null);
+	useEffect(() => {
+		if (!needsVideoClock || src === null) return;
+		const controller = new AbortController();
+		getRenderOutputVideoClock(src, controller.signal)
+			.then((videoClock) => {
+				if (!controller.signal.aborted)
+					setResolvedClock({src, clock: videoClock});
+			})
+			.catch(() => {
+				if (!controller.signal.aborted)
+					setResolvedClock({src, clock: getMediaPreviewClock(metadata)});
+			});
+		return () => controller.abort();
+	}, [metadata, needsVideoClock, src]);
 
-	if (connectionStatus === 'disconnected') {
+	if (!getBlob && connectionStatus === 'disconnected') {
 		return <div style={errMsgStyle}>Studio server disconnected</div>;
 	}
 
@@ -82,12 +131,19 @@ export const RenderPreview: React.FC<{
 		);
 	}
 
-	if (getBlob && !blobUrl) {
+	if (src === null) {
 		return <div style={msgStyle}>Loading preview...</div>;
 	}
 
+	const clock = needsVideoClock
+		? resolvedClock?.src === src
+			? resolvedClock.clock
+			: null
+		: getMediaPreviewClock(fileType === 'video' ? metadata : null);
+
 	return (
 		<FilePreview
+			outputPlayback={{content: outputPlaybackContent, clock}}
 			assetMetadata={assetMetadata}
 			currentAsset={path}
 			fileType={fileType}

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-html5-video.png
+image: https://remotion.media/docs/generated/articles-docs-html5-video.png
 title: <Html5Video>
 id: html5-video
 crumb: 'API - remotion'
@@ -322,6 +322,10 @@ These arguments are `undefined` for the first synchronous callback and in browse
 Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
+
+From <AvailableFrom v="4.0.542" inline />, the default is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas), during preview and rendering. Remote videos must allow CORS to appear in the captured canvas. An explicit `crossOrigin` value takes precedence.
+
+Anonymous CORS omits cross-origin credentials. For videos that require cookies or HTTP authentication, use `crossOrigin="use-credentials"`. The server must return `Access-Control-Allow-Credentials: true` and an `Access-Control-Allow-Origin` header matching the requesting origin, rather than `*`.
 
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 

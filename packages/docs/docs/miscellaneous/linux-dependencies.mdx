@@ -1,11 +1,17 @@
 ---
-image: /generated/articles-docs-miscellaneous-linux-dependencies.png
+image: https://remotion.media/docs/generated/articles-docs-miscellaneous-linux-dependencies.png
 sidebar_label: Linux Dependencies
 title: Linux Dependencies
 crumb: 'FAQ'
 ---
 
 If you are on Linux, Chrome Headless Shell requires some shared libraries to be installed.
+
+## GLIBC requirements
+
+Linux rendering requires glibc 2.35 or later. Amazon Linux 2023 on ARM64 is supported with glibc 2.34.
+
+Amazon Linux 2023 on x64 is unsupported because it ships glibc 2.34. Use ARM64 or a distribution with glibc 2.35 or later, such as Ubuntu 22.04 or newer.
 
 ## Ubuntu 24.04
 
@@ -88,6 +94,8 @@ apt install -y \
 ```
 
 ## Amazon Linux 2023
+
+Supported on ARM64 only. This is the exception to the glibc 2.35 requirement.
 
 ```bash
 yum install -y \

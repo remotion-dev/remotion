@@ -152,7 +152,7 @@ const makeConfigFingerprint = ({
 	code: string;
 	ignoredConfigMethods: Set<string>;
 }) => {
-	const ast = parse(code, {sourceType: 'unambiguous'});
+	const ast = parse(code, {sourceType: 'unambiguous', attachComment: false});
 	const omit = Symbol('omit');
 
 	const normalize = (value: unknown): unknown => {

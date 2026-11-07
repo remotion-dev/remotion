@@ -3,6 +3,7 @@ import type {
 	ImageSequenceFormat,
 	ImageSequenceOutputPrefix,
 } from './image-sequence';
+import type {InnerRenderMediaOnLambdaInput} from './make-lambda-payload';
 import {
 	internalRenderMediaOnLambdaRaw,
 	renderMediaOnLambdaOptionalToRequired,
@@ -59,13 +60,11 @@ export type RenderFramesOnLambdaOutput = RenderMediaOnLambdaOutput;
 
 const wrapped = wrapWithErrorHandling(internalRenderMediaOnLambdaRaw);
 
-/*
- * @description Starts a distributed image sequence render. Track progress using getRenderProgress().
- * @see [Documentation](https://remotion.dev/docs/lambda/renderframesonlambda)
- */
-export const renderFramesOnLambda = (
+export const renderFramesOnLambdaOptionalToRequired = (
 	options: RenderFramesOnLambdaInput,
-): Promise<RenderFramesOnLambdaOutput> => {
+): InnerRenderMediaOnLambdaInput & {
+	output: Extract<InnerRenderMediaOnLambdaInput['output'], {type: 'sequence'}>;
+} => {
 	if (
 		Array.isArray(options.frameRange) &&
 		Array.isArray(options.frameRange[0])
@@ -84,7 +83,7 @@ export const renderFramesOnLambda = (
 		);
 	}
 
-	return wrapped({
+	return {
 		...renderMediaOnLambdaOptionalToRequired({
 			...options,
 			codec: null,
@@ -96,5 +95,15 @@ export const renderFramesOnLambda = (
 			outputPrefix: options.outputPrefix ?? null,
 			imageSequencePattern: options.imageSequencePattern ?? null,
 		},
-	});
+	};
+};
+
+/*
+ * @description Starts a distributed image sequence render. Track progress using getRenderProgress().
+ * @see [Documentation](https://remotion.dev/docs/lambda/renderframesonlambda)
+ */
+export const renderFramesOnLambda = (
+	options: RenderFramesOnLambdaInput,
+): Promise<RenderFramesOnLambdaOutput> => {
+	return wrapped(renderFramesOnLambdaOptionalToRequired(options));
 };

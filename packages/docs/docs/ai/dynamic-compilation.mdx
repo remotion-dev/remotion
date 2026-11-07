@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-ai-dynamic-compilation.png
+image: https://remotion.media/docs/generated/articles-docs-ai-dynamic-compilation.png
 crumb: 'AI'
 title: Just-in-time compilation of Remotion code
 sidebar_label: Just-in-time compilation
@@ -113,7 +113,16 @@ In this example, a React component is compiled and rendered by the [`<Player>`](
 <TabItem value="preview" label="Preview.tsx">
 
 ```tsx twoslash title="Preview.tsx"
-// @noErrors
+// @filename: use-compilation.ts
+import type React from 'react';
+
+export declare function useCompilation(code: string): {
+  Component: React.ComponentType | null;
+  error: string | null;
+};
+
+// @filename: Preview.tsx
+// ---cut---
 import {Player} from '@remotion/player';
 import {useCompilation} from './use-compilation';
 

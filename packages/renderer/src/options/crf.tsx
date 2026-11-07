@@ -36,7 +36,7 @@ export const crfOption = {
 			};
 		}
 
-		if (currentCrf !== null) {
+		if (currentCrf !== undefined) {
 			return {
 				source: 'config',
 				value: currentCrf,

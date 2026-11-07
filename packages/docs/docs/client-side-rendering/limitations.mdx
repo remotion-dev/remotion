@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-client-side-rendering-limitations.png
+image: https://remotion.media/docs/generated/articles-docs-client-side-rendering-limitations.png
 crumb: 'Client-side rendering'
 sidebar_label: Limitations
 title: Limitations of client-side rendering
@@ -92,9 +92,11 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
-`mask-image` with a single raster `url()` is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.501" inline /> for same-origin, `data:`, and `blob:` URLs when using `mask-size: 100% 100%`, `mask-position: 0% 0%`, and `mask-repeat: no-repeat`. The mask uses its alpha channel.
+`mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with `0% 0%` positioning and `border-box` origin/clip.
 
-Cross-origin URLs, SVG masks, multiple mask layers, luminance masks, and other mask sizing, positioning, or repetition values are <a style={{color: 'red'}}>not supported</a>.
+`mask-size` accepts `px`, `%`, `auto`, `contain`, and `cover`. `mask-repeat` accepts `repeat`, `no-repeat`, `repeat-x`, `repeat-y`, and two-axis `repeat` / `no-repeat` combinations.
+
+Cross-origin URLs, SVG, multiple layers, luminance, other positions, `space` / `round` repeats, and `calc()` sizes are <a style={{color: 'red'}}>not supported</a>.
 
 ## Filters
 
@@ -116,6 +118,13 @@ The `filter` property is <a style={{color: 'green'}}>supported</a> with the foll
 :::warning
 Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter support.
 :::
+
+## Blending
+
+The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline /> with all blend modes.
+Stacking contexts created by properties such as `opacity`, `transform` or `isolation: isolate` limit what an element blends with, as in the browser.
+
+The `background-blend-mode` property is <a style={{color: 'red'}}>not supported</a>.
 
 ## Supported elements
 
@@ -157,7 +166,6 @@ All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported<
 Here is a selection of unsupported styles:
 
 - `backdrop-filter`
-- `mix-blend-mode`
 - `background-blend-mode`
 - `z-index`
   - See [Z-indexing](#z-indexing) below.

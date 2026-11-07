@@ -7,6 +7,8 @@ import {
 	getCommandHelp,
 	makeCommandHelpOption,
 } from './command-help';
+import {ELEMENTS_COMMAND} from './elements';
+import {USE_COMMAND} from './elements/use';
 import {GPU_COMMAND} from './gpu';
 import {Log} from './log';
 import {VERSIONS_COMMAND} from './versions';
@@ -122,6 +124,7 @@ const studioOptions = options(
 		'gl',
 		'user-agent',
 		'media-cache-size-in-bytes',
+		'preferred-effect-backend',
 		'offthreadvideo-cache-size-in-bytes',
 		'offthreadvideo-video-threads',
 		'enable-multiprocess-on-linux',
@@ -132,6 +135,7 @@ const studioOptions = options(
 		'ipv4',
 		'number-of-shared-audio-tags',
 		'default-premount-in-seconds',
+		'high-contrast',
 		'show-premounting',
 		'show-layer-frame-numbers',
 		'experimental-keep-audio-context-alive',
@@ -219,6 +223,7 @@ export const cliCommandHelp = [
 				'gl',
 				'user-agent',
 				'media-cache-size-in-bytes',
+				'preferred-effect-backend',
 				'offthreadvideo-cache-size-in-bytes',
 				'offthreadvideo-video-threads',
 				'enable-multiprocess-on-linux',
@@ -228,6 +233,8 @@ export const cliCommandHelp = [
 				'disable-ask-ai',
 				'disable-keyboard-shortcuts',
 				'quiet',
+				'license-key',
+				'is-production',
 				'public-license-key',
 				'sample-rate',
 				'for-seamless-aac-concatenation',
@@ -274,6 +281,7 @@ export const cliCommandHelp = [
 				'gl',
 				'user-agent',
 				'media-cache-size-in-bytes',
+				'preferred-effect-backend',
 				'offthreadvideo-cache-size-in-bytes',
 				'offthreadvideo-video-threads',
 				'enable-multiprocess-on-linux',
@@ -282,6 +290,8 @@ export const cliCommandHelp = [
 				'disable-ask-ai',
 				'disable-keyboard-shortcuts',
 				'quiet',
+				'license-key',
+				'is-production',
 				'public-license-key',
 			],
 			{},
@@ -313,6 +323,7 @@ export const cliCommandHelp = [
 			'enable-multiprocess-on-linux',
 			'user-agent',
 			'media-cache-size-in-bytes',
+			'preferred-effect-backend',
 			'offthreadvideo-cache-size-in-bytes',
 			'offthreadvideo-video-threads',
 			'binaries-directory',
@@ -428,6 +439,7 @@ export const cliCommandHelp = [
 				'offthreadvideo-cache-size-in-bytes',
 				'offthreadvideo-video-threads',
 				'media-cache-size-in-bytes',
+				'preferred-effect-backend',
 				'binaries-directory',
 				'rspack',
 				'overwrite',
@@ -483,6 +495,43 @@ export const cliCommandHelp = [
 		description: 'Add Remotion packages with the correct version.',
 		documentation: 'https://www.remotion.dev/docs/cli/add',
 		options: options(['package-manager', 'log']),
+	},
+	{
+		path: [ELEMENTS_COMMAND],
+		args: ' <command>',
+		description: 'Install Elements from Element Libraries.',
+		documentation: 'https://www.remotion.dev/docs/cli/elements',
+		options: [],
+	},
+	{
+		path: [ELEMENTS_COMMAND, USE_COMMAND],
+		args: ' <url>',
+		description: 'Install an Element from an Element Library page.',
+		documentation: 'https://www.remotion.dev/docs/cli/elements/use',
+		options: [
+			{
+				flag: '--element <slug>',
+				optionIds: [],
+				description: 'Element to install if the page contains several.',
+			},
+			{
+				flag: '--composition <id>',
+				optionIds: [],
+				description: 'Composition to add the Element to.',
+			},
+			{
+				flag: '--overwrite',
+				optionIds: [],
+				description:
+					'Replace an existing Element file with different contents.',
+			},
+			{
+				flag: '--yes, -y',
+				description: 'Install without asking for confirmation.',
+				optionIds: [],
+			},
+			...options(['public-dir', 'log']),
+		],
 	},
 	{
 		path: [GPU_COMMAND],

@@ -1,8 +1,14 @@
 import {useColorMode} from '@docusaurus/theme-common';
-import {StudioProtocolInternals} from '@remotion/studio-protocol';
+import type {
+	CurvesChannel,
+	CurvesInterpolation,
+	CurvesPoint,
+} from '@remotion/effects/curves';
 import {Player} from '@remotion/player';
+import {StudioProtocolInternals} from '@remotion/studio-protocol';
 import React, {useCallback, useMemo, useState} from 'react';
 import {AbsoluteFill} from 'remotion';
+import {CurvesPointsControl} from './curves-points-control';
 import {setEffectDragData, setEffectDragImage} from './effect-drag-data';
 import {
 	fillSchemaDefaults,
@@ -134,6 +140,20 @@ export const EffectsDemo: React.FC<{
 			</div>
 			<div className={`${controlStyles.containerrow} ${styles.controls}`}>
 				{activeFields.map(([fieldKey, field]) => {
+					if (demo.id === 'effects-curves' && fieldKey === 'points') {
+						return (
+							<CurvesPointsControl
+								key={fieldKey}
+								points={state.points as readonly CurvesPoint[]}
+								channel={state.channel as CurvesChannel}
+								interpolation={state.interpolation as CurvesInterpolation}
+								setValue={(points) => {
+									setState((previous) => ({...previous, points}));
+								}}
+							/>
+						);
+					}
+
 					return (
 						<SchemaControl
 							key={fieldKey}
