@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -41,20 +41,72 @@ export const InspectorSectionBody: React.FC<{
 	readonly keepMounted: boolean;
 	readonly paddingBottom: number;
 }> = ({children, expanded, keepMounted, paddingBottom}) => {
-	const [rendered, setRendered] = useState(expanded);
+	const [transition, setTransition] = useState({
+		expanded,
+		active: false,
+		fromHidden: false,
+	});
+	const contentRef = useRef<HTMLDivElement>(null);
+	const clipRef = useRef<HTMLDivElement>(null);
 	const lastExpandedChildren = useRef(children);
+	if (transition.expanded !== expanded) {
+		setTransition({
+			expanded,
+			active: true,
+			fromHidden: !transition.expanded && !transition.active,
+		});
+	}
+
 	if (expanded) {
 		lastExpandedChildren.current = children;
 	}
 
-	useEffect(() => {
-		if (
-			expanded ||
-			window.matchMedia('(prefers-reduced-motion: reduce)').matches
-		) {
-			setRendered(expanded);
+	useLayoutEffect(() => {
+		if (!transition.active) {
+			return;
 		}
-	}, [expanded]);
+
+		const content = contentRef.current;
+		const clip = clipRef.current;
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const finishTransition = () => {
+			setTransition({expanded, active: false, fromHidden: false});
+		};
+
+		if (
+			reducedMotion.matches ||
+			!content ||
+			!clip ||
+			lastExpandedChildren.current === null
+		) {
+			finishTransition();
+			return;
+		}
+
+		if (expanded && transition.fromHidden) {
+			content.style.gridTemplateRows = '0fr';
+			content.style.opacity = '0';
+			clip.style.maskSize = '100% 100%';
+			clip.style.webkitMaskSize = '100% 100%';
+			content.getBoundingClientRect();
+			content.style.gridTemplateRows = '1fr';
+			content.style.opacity = '1';
+			clip.style.removeProperty('mask-size');
+			clip.style.removeProperty('-webkit-mask-size');
+		}
+
+		const onReducedMotionChange = () => {
+			if (reducedMotion.matches) {
+				finishTransition();
+			}
+		};
+
+		reducedMotion.addEventListener('change', onReducedMotionChange);
+
+		return () => {
+			reducedMotion.removeEventListener('change', onReducedMotionChange);
+		};
+	}, [expanded, transition.active, transition.fromHidden]);
 
 	if (expanded && children === null) {
 		return null;
@@ -62,20 +114,22 @@ export const InspectorSectionBody: React.FC<{
 
 	return (
 		<div
+			ref={contentRef}
 			className="__remotion-inspector-section-content"
 			data-expanded={expanded}
+			data-animating={transition.active}
 			aria-hidden={!expanded}
 			inert={!expanded}
 			onTransitionEnd={(event) => {
 				if (
 					event.target === event.currentTarget &&
-					event.propertyName === 'grid-template-rows'
+					event.propertyName === 'opacity'
 				) {
-					setRendered(expanded);
+					setTransition({expanded, active: false, fromHidden: false});
 				}
 			}}
 			style={{
-				display: 'grid',
+				display: expanded || transition.active ? 'grid' : 'none',
 				gridTemplateRows: expanded ? '1fr' : '0fr',
 				opacity: expanded ? 1 : 0,
 				visibility: expanded ? 'visible' : 'hidden',
@@ -83,13 +137,14 @@ export const InspectorSectionBody: React.FC<{
 			}}
 		>
 			<div
+				ref={clipRef}
 				className="__remotion-inspector-section-clip"
 				style={{minHeight: 0, overflow: 'hidden'}}
 			>
 				<div style={{...inspectorSectionBody, paddingBottom}}>
 					{expanded || keepMounted
 						? children
-						: rendered
+						: transition.active
 							? lastExpandedChildren.current
 							: null}
 				</div>

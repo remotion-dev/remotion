@@ -66,13 +66,16 @@ const makeDefaultGlobalCSS = () => {
   }
 
   .__remotion-inspector-section-clip {
-    mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
-    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
     mask-repeat: no-repeat;
     -webkit-mask-repeat: no-repeat;
     mask-size: 100% 100%;
     -webkit-mask-size: 100% 100%;
     transition: mask-size ${inspectorSectionTransition};
+  }
+
+  .__remotion-inspector-section-content[data-animating="true"] > .__remotion-inspector-section-clip {
+    mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
   }
 
   .__remotion-inspector-section-content[data-expanded="true"] > .__remotion-inspector-section-clip {
