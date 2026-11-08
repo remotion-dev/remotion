@@ -204,7 +204,6 @@ export const LevelsEditor: React.FC<{
 			histogram={
 				<EffectHistogram
 					height={80}
-					showGrid
 					nodePath={nodePath}
 					effectIndex={effectIndex}
 					channel={channel}

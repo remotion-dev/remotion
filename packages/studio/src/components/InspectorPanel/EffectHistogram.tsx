@@ -9,7 +9,6 @@ export const EffectHistogram: React.FC<{
 	readonly disabled: boolean;
 	readonly multipleInstances: boolean;
 	readonly height: number | string;
-	readonly showGrid: boolean;
 }> = ({
 	nodePath,
 	effectIndex,
@@ -17,7 +16,6 @@ export const EffectHistogram: React.FC<{
 	disabled,
 	multipleInstances,
 	height,
-	showGrid,
 }) => {
 	const sequenceKey = Internals.makeSequencePropsSubscriptionKey(nodePath);
 	const playing = Internals.usePlaying();
@@ -144,9 +142,6 @@ export const EffectHistogram: React.FC<{
 				preserveAspectRatio="none"
 				style={{display: 'block', width: '100%', height: '100%'}}
 			>
-				{showGrid ? (
-					<path d="M64 0V80M128 0V80M192 0V80" stroke="#29292f" />
-				) : null}
 				{!message && histogram ? (
 					<path d={histogram.path} fill={color} />
 				) : null}
