@@ -229,6 +229,7 @@ const TimelineSequenceLabelInner: React.FC<TimelineSequenceLabelProps> = ({
 					<Spacing x={0.5} />
 					{showChevron ? (
 						<TimelineExpandArrowButton
+							iconVariant="timeline"
 							isExpanded={isExpanded}
 							onClick={onToggleExpand}
 							label="track properties"

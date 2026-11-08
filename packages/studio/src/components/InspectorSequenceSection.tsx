@@ -14,6 +14,7 @@ import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {useIsEffectDeletionPending} from '../helpers/effect-deletion-state';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {NO_HOVER_BACKGROUND_STYLE} from '../helpers/hoverable';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
 	flattenVisibleTreeNodes,
@@ -29,7 +30,6 @@ import {
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
-import {Plus} from '../icons/plus';
 import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {ActionTooltip} from './ActionTooltip';
@@ -90,8 +90,8 @@ const container: React.CSSProperties = {
 };
 
 const plusIcon: React.CSSProperties = {
-	width: 15,
-	height: 15,
+	width: 12,
+	height: 12,
 };
 
 const borderRadiusToggleIcon: React.CSSProperties = {
@@ -1082,7 +1082,18 @@ export const InspectorSequenceSection: React.FC<{
 						disabled={!canAddEffect}
 						onClick={onAddEffect}
 						aria-label="Add effect"
-						renderAction={(color) => <Plus color={color} style={plusIcon} />}
+						style={{...NO_HOVER_BACKGROUND_STYLE, marginRight: -6}}
+						renderAction={(color) => (
+							<svg viewBox="0 0 12 12" style={plusIcon}>
+								<path
+									d="M6 1.25v9.5M1.25 6h9.5"
+									fill="none"
+									stroke={color}
+									strokeWidth="1"
+									strokeLinecap="round"
+								/>
+							</svg>
+						)}
 					/>
 				</ActionTooltip>
 			}

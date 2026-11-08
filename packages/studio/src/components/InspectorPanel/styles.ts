@@ -48,7 +48,7 @@ export const sectionHeader: React.CSSProperties = {
 	fontSize: 12,
 	fontWeight: 'bold',
 	lineHeight: '24px',
-	padding: `4px 0 4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	padding: `4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };

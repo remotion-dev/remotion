@@ -107,9 +107,12 @@ export const TimelineRowChrome: React.FC<{
 	onPointerEnter,
 	onPointerLeave,
 }) => {
-	const {basePadding, rowBorderRadius, rowHorizontalMargin} = useContext(
-		TimelineRowLayoutContext,
-	);
+	const {
+		basePadding,
+		highlightContainingSelection,
+		rowBorderRadius,
+		rowHorizontalMargin,
+	} = useContext(TimelineRowLayoutContext);
 	const selectedBackground = useContext(TimelineRowSelectedBackgroundContext);
 	const doubleClickTracker = useMemo(
 		() => createDragAwareDoubleClickTracker(),
@@ -188,7 +191,7 @@ export const TimelineRowChrome: React.FC<{
 	const highlightBackground = getTimelineRowHighlightBackground({
 		showSelectedBackground,
 		selected,
-		containsSelection,
+		containsSelection: containsSelection && highlightContainingSelection,
 		hovered,
 		selectedBackground,
 	});

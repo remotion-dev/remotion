@@ -7,6 +7,7 @@ import {
 	HOVER_GROUP_REVEAL_CLASS_NAME,
 	hoverableStyle,
 } from '../../helpers/hoverable';
+import {DisclosureChevron} from '../../icons/disclosure-chevron';
 import {sectionHeaderRow} from './styles';
 
 const sectionTitle: React.CSSProperties = {
@@ -67,13 +68,6 @@ const sectionChevronContainer: React.CSSProperties = {
 	justifyContent: 'center',
 };
 
-const sectionChevron: React.CSSProperties = {
-	display: 'block',
-	height: 10,
-	transition: 'transform 150ms ease',
-	width: 6,
-};
-
 const stopActivationKeyPropagation = (
 	event: React.KeyboardEvent<HTMLButtonElement>,
 ) => {
@@ -109,22 +103,7 @@ export const CollapsibleInspectorSectionHeader: React.FC<{
 						className={expanded ? HOVER_GROUP_REVEAL_CLASS_NAME : undefined}
 						style={sectionChevronContainer}
 					>
-						<svg
-							viewBox="0 0 6 10"
-							style={{
-								...sectionChevron,
-								transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-							}}
-						>
-							<path
-								d="M1.5 1.5L4.5 5L1.5 8.5"
-								fill="none"
-								stroke="currentColor"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth="1"
-							/>
-						</svg>
+						<DisclosureChevron expanded={expanded} />
 					</span>
 				</button>
 			)}
