@@ -25,7 +25,6 @@ export type MacOSCursorProps = InteractiveBaseProps &
 
 export const macOSCursorSchema: InteractivitySchema = {
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	cursor: {
 		type: 'enum',
 		default: 'default',

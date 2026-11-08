@@ -9,6 +9,7 @@ import type {ComponentType, CSSProperties, FC, ReactNode} from 'react';
 import {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	Interactive,
+	Internals,
 	useDelayRender,
 	type InteractiveBaseProps,
 	type InteractiveCropProps,
@@ -93,7 +94,6 @@ const mapViewportSchema = {
 	// Keep the existing inspector field order. Interactive.withSchema() adds
 	// these fields again without changing their insertion position.
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	centerLongitude: {
 		type: 'number',
 		min: -180,
@@ -251,6 +251,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	zoom = 4,
 }) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
+	const videoEnabled = Internals.useVideoEnabled();
 	const mapRef = useRef<MapTilerMap | null>(null);
 	const initialCameraRef = useRef({
 		bearing,
@@ -285,7 +286,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 		map: MapTilerMap;
 		handle: number;
 	} | null>(null);
-	const map = loadedMap?.map.style ? loadedMap.map : null;
+	const map = videoEnabled && loadedMap?.map.style ? loadedMap.map : null;
 	const [cameraRevision, setCameraRevision] = useState(0);
 	const [styleRevision, setStyleRevision] = useState(0);
 	const contextValue = useMemo(
@@ -294,7 +295,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 	);
 
 	useLayoutEffect(() => {
-		if (!apiKey) {
+		if (!apiKey || !videoEnabled) {
 			return;
 		}
 
@@ -376,7 +377,7 @@ const MapViewportContent: FC<MapViewportContentProps> = ({
 			mapRef.current = null;
 			continueRender(loadingHandle);
 		};
-	}, [apiKey, continueRender, delayRender]);
+	}, [apiKey, continueRender, delayRender, videoEnabled]);
 
 	useLayoutEffect(() => {
 		if (loadedMap) {

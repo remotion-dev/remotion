@@ -2,6 +2,7 @@ require 'aws-sdk-lambda'
 require 'aws-sdk-s3'
 require 'json'
 require 'logger'
+require_relative 'input_props_serializer'
 require_relative 'version'
 
 module RemotionLambda
@@ -32,19 +33,22 @@ module RemotionLambda
     end
 
     def render_media_on_lambda(function_name, payload)
-      body = invoke(function_name, payload)      
+      payload = InputPropsSerializer.upload_oversized_input_props(payload, s3_client, 'video-or-audio', @region)
+      body = invoke(function_name, payload)
       raise "Failed to call renderMediaOnLambda: #{body['message']}" if body["type"] == "error"
       body
     end
 
     def render_frames_on_lambda(function_name, payload)
+      payload = InputPropsSerializer.upload_oversized_input_props(payload, s3_client, 'video-or-audio', @region)
       body = invoke(function_name, payload)
       raise "Failed to call renderFramesOnLambda: #{body['message']}" if body["type"] == "error"
       body
     end
 
     def render_still_on_lambda(function_name, payload)
-      body = invoke(function_name, payload)      
+      payload = InputPropsSerializer.upload_oversized_input_props(payload, s3_client, 'still', @region)
+      body = invoke(function_name, payload)
       raise "Failed to call renderStillOnLambda: #{body['message']}" if body["type"] == "error"
       body
     end

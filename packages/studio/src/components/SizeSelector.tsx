@@ -1,7 +1,7 @@
 import React, {useContext, useMemo} from 'react';
 import type {PreviewSize} from 'remotion';
 import {Internals} from 'remotion';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import type {AssetFileType} from '../helpers/get-preview-file-type';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
@@ -169,7 +169,7 @@ export const SizeSelector: React.FC = () => {
 					<CanvasZoomIcon color={color} />
 				)
 			}
-			unhoveredIconColor={WHITE_ALPHA_80}
+			unhoveredIconColor={LIGHT_TEXT}
 		/>
 	);
 };

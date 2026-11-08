@@ -1,20 +1,9 @@
-import {
-	type CSSProperties,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import type {OriginalPosition} from '../../error-overlay/react-overlay/utils/get-source-map';
-import {StudioServerConnectionCtx} from '../../helpers/client-id';
-import {
-	getDefaultOpenInTarget,
-	openGitSource,
-} from '../../helpers/get-git-menu-item';
+import {formatContextForAgents} from '../../helpers/format-file-location';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {
-	openOriginalPositionInEditor,
 	preloadCompositionComponentInfo,
 	useCachedCompositionComponentInfo,
 } from '../../helpers/open-in-editor';
@@ -23,38 +12,22 @@ import {StillIcon} from '../../icons/still';
 import {FilmIcon} from '../../icons/video';
 import {InlineCompositionName} from '../InlineCompositionName';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
-import {InspectorLocationCopy} from '../InspectorLocationCopy';
-import {InspectorSourceLocation} from '../InspectorSourceLocation';
-import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
-import {showNotification} from '../Notifications/NotificationCenter';
+import {
+	InspectorHeaderActionSlot,
+	InspectorLocationCopy,
+	inspectorHeaderIconStyle,
+} from '../InspectorLocationCopy';
+import {InspectorOpenInEditor} from '../InspectorOpenInEditor';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
-import {useEditorOpening} from '../use-default-editor-info';
 
-const COMPOSITION_INSPECTOR_HEADER_HEIGHT = COMPACT_CONTROL_ROW_HEIGHT * 3;
-
-const sourceLocationIconStyle: CSSProperties = {
-	flexShrink: 0,
-	height: 18,
-	width: 18,
-};
-
-const componentLocationPlaceholder: CSSProperties = {
-	flexShrink: 0,
-	height: COMPACT_CONTROL_ROW_HEIGHT,
-};
-
-const renderReactIcon = (color: string) => {
-	return <ReactIcon color={color} style={sourceLocationIconStyle} />;
-};
+const renderReactIcon = (color: string) => (
+	<ReactIcon color={color} style={{...inspectorHeaderIconStyle, width: 20}} />
+);
 
 export const CompositionInspectorHeader = () => {
+	const [isEditing, setIsEditing] = useState(false);
 	const video = Internals.useVideo();
 	const {compositions} = useContext(Internals.CompositionManager);
-	const {previewServerState} = useContext(StudioServerConnectionCtx);
-	const {canOpenInEditor, defaultEditorId} = useEditorOpening(
-		previewServerState.type === 'connected',
-	);
-	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
 
 	const currentComposition = useMemo(() => {
 		if (!video) {
@@ -102,31 +75,15 @@ export const CompositionInspectorHeader = () => {
 		});
 	}, [compositionFile, compositionId]);
 
-	const openSourceLocation = useCallback(
-		(location: OriginalPosition) => {
-			if (defaultOpenInTarget === 'editor' && defaultEditorId) {
-				openOriginalPositionInEditor(location, defaultEditorId).catch((err) => {
-					showNotification((err as Error).message, 2000);
-				});
-				return;
-			}
-
-			if (defaultOpenInTarget === 'git-source') {
-				openGitSource({folder: false, location});
-			}
-		},
-		[defaultEditorId, defaultOpenInTarget],
+	const contextForAgents = useMemo(
+		() =>
+			formatContextForAgents({
+				location: validatedLocation,
+				name: compositionId,
+				root: window.remotion_cwd,
+			}),
+		[compositionId, validatedLocation],
 	);
-	const openFileLocation = useCallback(() => {
-		if (validatedLocation) {
-			openSourceLocation(validatedLocation);
-		}
-	}, [openSourceLocation, validatedLocation]);
-	const openComponentLocation = useCallback(() => {
-		if (componentLocation) {
-			openSourceLocation(componentLocation);
-		}
-	}, [componentLocation, openSourceLocation]);
 	const renderCompositionIcon = useCallback(
 		(color: string) => {
 			if (!video) {
@@ -134,53 +91,62 @@ export const CompositionInspectorHeader = () => {
 			}
 
 			return isCompositionStill(video) ? (
-				<StillIcon color={color} style={sourceLocationIconStyle} />
+				<StillIcon color={color} style={inspectorHeaderIconStyle} />
 			) : (
-				<FilmIcon color={color} style={sourceLocationIconStyle} />
+				<FilmIcon color={color} style={inspectorHeaderIconStyle} />
 			);
 		},
 		[video],
 	);
 
 	return (
-		<InspectorInfoHeader
-			minHeight={COMPOSITION_INSPECTOR_HEADER_HEIGHT}
-			padding="4px 0"
-		>
+		<InspectorInfoHeader contentSized padding="4px 0 0">
 			{video ? (
 				<InspectorLocationCopy
-					location={validatedLocation}
-					name={video.id}
-					openInEditorLocation={componentLocation}
+					contextForAgents={contextForAgents}
+					isEditing={isEditing}
+					leadingActions={
+						<InspectorHeaderActionSlot>
+							{validatedLocation ? (
+								<InspectorOpenInEditor
+									menuTrigger={{
+										label: 'Composition',
+										renderIcon: renderCompositionIcon,
+									}}
+									annotationName={video.id}
+									contextForAgents={contextForAgents}
+									location={validatedLocation}
+									locationType={null}
+									showTooltips
+								/>
+							) : null}
+						</InspectorHeaderActionSlot>
+					}
+					actions={
+						<InspectorHeaderActionSlot>
+							{componentLocation ? (
+								<InspectorOpenInEditor
+									menuTrigger={{
+										label: 'Component',
+										renderIcon: renderReactIcon,
+									}}
+									annotationName={video.id}
+									contextForAgents={contextForAgents}
+									location={componentLocation}
+									locationType={null}
+									showTooltips
+								/>
+							) : null}
+						</InspectorHeaderActionSlot>
+					}
 				>
 					<InlineCompositionName
 						key={video.id}
 						compositionId={video.id}
 						stack={currentComposition?.stack ?? null}
 						compositions={compositions}
+						onEditingChange={setIsEditing}
 					/>
-					<InspectorSourceLocation
-						location={validatedLocation}
-						canOpen={validatedLocation !== null && defaultOpenInTarget !== null}
-						onOpen={openFileLocation}
-						renderIcon={renderCompositionIcon}
-						size="quick-action"
-					/>
-					{compositionComponentInfo === null &&
-					compositionFile !== null &&
-					compositionId !== null ? (
-						<div aria-hidden style={componentLocationPlaceholder} />
-					) : (
-						<InspectorSourceLocation
-							location={componentLocation}
-							canOpen={
-								componentLocation !== null && defaultOpenInTarget !== null
-							}
-							onOpen={openComponentLocation}
-							renderIcon={renderReactIcon}
-							size="quick-action"
-						/>
-					)}
 				</InspectorLocationCopy>
 			) : null}
 		</InspectorInfoHeader>

@@ -114,6 +114,7 @@ const TimelineExpandedRowInner: React.FC<TimelineExpandedRowProps> = ({
 				eye={<TimelineLayerEyeSpacer />}
 				arrow={
 					<TimelineExpandArrowButton
+						iconVariant="timeline"
 						isExpanded={isExpanded}
 						onClick={() => toggleTrack(node.nodePathInfo)}
 						label={`${node.label} section`}

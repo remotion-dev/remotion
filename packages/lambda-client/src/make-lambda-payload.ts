@@ -64,6 +64,7 @@ export type InnerRenderMediaOnLambdaInput = {
 	maxRetries: number;
 	framesPerLambda: number | null;
 	concurrency: number | null;
+	chunks: [number, number][] | null;
 	logLevel: LogLevel;
 	frameRange: SingleFrameRange | null;
 	outName: OutNameInput | null;
@@ -107,6 +108,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	frameRange,
 	framesPerLambda,
 	concurrency,
+	chunks,
 	forceBucketName: bucketName,
 	codec,
 	output,
@@ -202,6 +204,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		rendererFunctionName,
 		framesPerLambda,
 		concurrency,
+		chunks,
 		composition,
 		serveUrl,
 		inputProps: serialized,

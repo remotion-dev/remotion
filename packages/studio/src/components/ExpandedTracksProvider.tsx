@@ -7,7 +7,7 @@ import {
 	persistBooleanMap,
 	toggleBooleanMapKey,
 } from '../helpers/persist-boolean-map';
-import {timelineNodePathInfoToKey} from '../helpers/timeline-node-path-key';
+import {timelineNodePathInfoToStableKey} from '../helpers/timeline-node-path-key';
 
 const SESSION_STORAGE_KEY = 'remotion.editor.expandedTracks.v2';
 
@@ -62,7 +62,7 @@ export const ExpandedTracksProvider: React.FC<{
 
 			for (let i = 0; i < nodePathInfo.auxiliaryKeys.length; i++) {
 				keysToExpand.push(
-					timelineNodePathInfoToKey({
+					timelineNodePathInfoToStableKey({
 						...nodePathInfo,
 						auxiliaryKeys: nodePathInfo.auxiliaryKeys.slice(0, i),
 					}),
@@ -97,7 +97,7 @@ export const ExpandedTracksProvider: React.FC<{
 
 	const toggleTrack = useCallback((nodePathInfo: SequenceNodePathInfo) => {
 		setExpandedTracks((prev) => {
-			const key = timelineNodePathInfoToKey(nodePathInfo);
+			const key = timelineNodePathInfoToStableKey(nodePathInfo);
 			const next = toggleBooleanMapKey(prev, key);
 			persistBooleanMap(SESSION_STORAGE_KEY, next);
 			return next;
@@ -129,7 +129,7 @@ export const ExpandedTracksProvider: React.FC<{
 	const getterValue = useMemo(
 		(): ExpandedTracksGetterContextValue => ({
 			getIsExpanded: (nodePathInfo) =>
-				expandedTracks[timelineNodePathInfoToKey(nodePathInfo)] ?? false,
+				expandedTracks[timelineNodePathInfoToStableKey(nodePathInfo)] ?? false,
 		}),
 		[expandedTracks],
 	);

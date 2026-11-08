@@ -1,7 +1,6 @@
 import {
 	isSchemaFieldHoldOnly,
 	isSchemaFieldKeyframable,
-	optimisticUpdateForEffectPropStatuses,
 } from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import type {
@@ -15,16 +14,17 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {getPointerSessionCancellationVersion} from '../../helpers/escape-cancelable-pointer-session';
 import {
 	formatContextForAgents,
 	formatFileLocation,
 } from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {openOriginalPositionInEditorAtProperty} from '../../helpers/open-in-editor';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import type {EffectSchemaFieldInfo} from '../../helpers/timeline-layout';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {ContextMenu} from '../ContextMenu';
-import {saveEffectProps} from '../effect-operations-api';
 import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {useSettings} from '../SettingsContext';
@@ -37,7 +37,6 @@ import {
 	getKeyframeSourceFrame,
 } from './get-timeline-keyframes';
 import {saveEffectProp} from './save-effect-prop';
-import {enqueueSavePropChange} from './save-prop-queue';
 import {TimelineExpandArrowSpacer} from './TimelineExpandArrowButton';
 import {TimelineFieldRowContent} from './TimelineFieldRowContent';
 import {
@@ -114,6 +113,7 @@ export const TimelineEffectPropValue: React.FC<{
 	readonly sourceFrame: number;
 	readonly runtimeValueStore: RuntimeValueStore | null;
 }> = ({field, nodePath, validatedLocation, sourceFrame, runtimeValueStore}) => {
+	Internals.useOptimisticEffects(nodePath);
 	const {setEffectDragOverrides, clearEffectDragOverrides, setPropStatuses} =
 		useContext(Internals.VisualModeSettersContext);
 
@@ -131,7 +131,7 @@ export const TimelineEffectPropValue: React.FC<{
 			? previewServerState.clientId
 			: null;
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses: visualModePropStatuses,
 		nodePath,
 		effectIndex: field.effectIndex,
@@ -177,9 +177,16 @@ export const TimelineEffectPropValue: React.FC<{
 		],
 	);
 
+	const cancellationVersion = getPointerSessionCancellationVersion();
 	const onDragEnd = useCallback(() => {
+		if (cancellationVersion !== getPointerSessionCancellationVersion()) return;
 		clearEffectDragOverrides(nodePath, field.effectIndex);
-	}, [clearEffectDragOverrides, nodePath, field.effectIndex]);
+	}, [
+		cancellationVersion,
+		clearEffectDragOverrides,
+		nodePath,
+		field.effectIndex,
+	]);
 
 	const dragOverrideValue = useMemo(() => {
 		const overrides = getEffectDragOverrides(nodePath, field.effectIndex);
@@ -222,30 +229,17 @@ export const TimelineEffectPropValue: React.FC<{
 				return Promise.resolve();
 			}
 
-			return enqueueSavePropChange({
+			return saveEffectProp({
+				type: 'value',
+				fileName: validatedLocation.source,
 				nodePath,
+				effectIndex: field.effectIndex,
+				fieldKey: field.key,
+				value,
+				defaultValue,
+				schema: field.effectSchema,
 				setPropStatuses,
-				applyOptimistic: (prev) =>
-					optimisticUpdateForEffectPropStatuses({
-						previous: prev,
-						effectIndex: field.effectIndex,
-						fieldKey: field.key,
-						value,
-						schema: field.effectSchema,
-					}),
-				apiCall: () =>
-					saveEffectProps({
-						type: 'value',
-						fileName: validatedLocation.source,
-						sequenceNodePath: nodePath,
-						effectIndex: field.effectIndex,
-						key: field.key,
-						value: stringifiedValue,
-						defaultValue,
-						schema: field.effectSchema,
-						clientId,
-					}),
-				errorLabel: 'Could not save effect prop',
+				clientId,
 			});
 		},
 		[
@@ -460,6 +454,7 @@ export const TimelineEffectPropItem: React.FC<{
 	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	Internals.useOptimisticEffects(nodePath);
 	const annotationTarget = useRef<HTMLDivElement>(null);
 	const {remotionSkillsInfo} = useSettings();
 	const markupSkill = remotionSkillsInfo?.skills.find(
@@ -484,15 +479,11 @@ export const TimelineEffectPropItem: React.FC<{
 			: {...fieldRowBase, height: field.rowHeight};
 	}, [field.rowHeight, field.typeName]);
 
-	const effectStatus = useMemo(
-		() =>
-			Internals.getEffectPropStatusesCtx({
-				propStatuses,
-				nodePath,
-				effectIndex: field.effectIndex,
-			}),
-		[propStatuses, nodePath, field.effectIndex],
-	);
+	const effectStatus = getProjectedEffectPropStatuses({
+		propStatuses,
+		nodePath,
+		effectIndex: field.effectIndex,
+	});
 
 	const propStatus =
 		effectStatus.type === 'can-update-effect'
@@ -714,8 +705,10 @@ export const TimelineEffectPropItem: React.FC<{
 	);
 
 	return (
-		<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
-			{row}
-		</ContextMenu>
+		<div>
+			<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
+				{row}
+			</ContextMenu>
+		</div>
 	);
 };

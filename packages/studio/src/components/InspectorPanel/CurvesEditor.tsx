@@ -8,6 +8,7 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {useRuntimeStoreValue} from '../../helpers/use-runtime-values';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {saveEffectProp} from '../Timeline/save-effect-prop';
@@ -45,7 +46,8 @@ export const CurvesEditor: React.FC<{
 		interpolation: useRuntimeStoreValue(runtimeValueStore, 'interpolation'),
 		disabled: useRuntimeStoreValue(runtimeValueStore, 'disabled'),
 	};
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	Internals.useOptimisticEffects(nodePath);
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex,

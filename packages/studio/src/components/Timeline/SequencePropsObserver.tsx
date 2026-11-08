@@ -1,5 +1,6 @@
 import {
 	REACT_REFRESH_STARTED_EVENT,
+	REACT_REFRESH_FINISHED_EVENT,
 	type EventSourceEvent,
 	type SequenceNodePathMutation,
 } from '@remotion/studio-shared';
@@ -14,8 +15,13 @@ import {Internals} from 'remotion';
 import {FastRefreshContext} from '../../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {markDuplicationSelectionMutationsApplied} from '../../helpers/duplicated-element-selection';
-import {remapOptimisticEffectDeletions} from '../../helpers/effect-deletion-state';
+import {clearOptimisticEffectHistoryIfIdle} from '../../helpers/optimistic-effect-mutations';
+import {
+	reconcileOptimisticEffectPropStatuses,
+	clearIdleOptimisticEffectPropStatuses,
+} from '../../helpers/optimistic-effect-props';
 import {subscribeToPreviewServerEvents} from '../../helpers/preview-server-events';
+import {remapOptimisticEffects} from '../../helpers/remap-optimistic-effects';
 import {
 	subscribeToInstalledMutationBuild,
 	subscribeToSequenceNodePathMutations,
@@ -64,6 +70,8 @@ export const SequencePropsObserver = ({
 	const [fastRefreshStarts, setFastRefreshStarts] = useState(0);
 	const [sourceOnlyMutations, setSourceOnlyMutations] = useState(0);
 	const lastRefresh = useRef<{started: number; completed: number} | null>(null);
+	const effectRefreshInProgress = useRef(false);
+	const effectMutationsToSettle = useRef<string[]>([]);
 	useEffect(
 		() =>
 			subscribeToSequenceNodePathMutations((mutation) => {
@@ -111,12 +119,29 @@ export const SequencePropsObserver = ({
 		[setPropStatusesBatch],
 	);
 	useEffect(() => {
+		const finishEffectRefresh = (refreshed: boolean) => {
+			effectRefreshInProgress.current = false;
+			if (refreshed && effectMutationsToSettle.current.length === 0) {
+				clearIdleOptimisticEffectPropStatuses();
+				clearOptimisticEffectHistoryIfIdle();
+			}
+
+			Internals.OptimisticEffects.settle(effectMutationsToSettle.current);
+			effectMutationsToSettle.current = [];
+		};
+
 		const handleReactRefreshStarted = () => {
+			effectRefreshInProgress.current = true;
+			Internals.OptimisticEffects.startRefresh();
 			// Apply source-node remappings immediately before React commits the
 			// refreshed tree. This keeps the old tree paired with the old statuses
 			// and the new tree paired with the remapped statuses in the same task.
 			flushSync(() => {
 				setFastRefreshStarts((starts) => starts + 1);
+			});
+			// An update without refreshed React roots emits no finished event.
+			queueMicrotask(() => {
+				if (effectRefreshInProgress.current) finishEffectRefresh(false);
 			});
 		};
 
@@ -124,11 +149,20 @@ export const SequencePropsObserver = ({
 			REACT_REFRESH_STARTED_EVENT,
 			handleReactRefreshStarted,
 		);
+		const handleReactRefreshFinished = () => finishEffectRefresh(true);
+		window.addEventListener(
+			REACT_REFRESH_FINISHED_EVENT,
+			handleReactRefreshFinished,
+		);
 		const unsubscribe = subscribeToInstalledMutationBuild(() => {
 			setFastRefreshStarts((starts) => starts + 1);
 		});
 		return () => {
 			unsubscribe();
+			window.removeEventListener(
+				REACT_REFRESH_FINISHED_EVENT,
+				handleReactRefreshFinished,
+			);
 			window.removeEventListener(
 				REACT_REFRESH_STARTED_EVENT,
 				handleReactRefreshStarted,
@@ -175,6 +209,7 @@ export const SequencePropsObserver = ({
 			setPropStatuses(event.nodePath, (prev) =>
 				deepEqual(prev, result) ? prev : result,
 			);
+			reconcileOptimisticEffectPropStatuses(event.nodePath, result);
 		};
 
 		const unsubscribe = subscribeToEvent('sequence-props-updated', handleEvent);
@@ -198,6 +233,14 @@ export const SequencePropsObserver = ({
 			return;
 		}
 
+		effectMutationsToSettle.current.push(
+			...settled.map((mutation) => mutation.mutationId),
+		);
+		if (!effectRefreshInProgress.current) {
+			Internals.OptimisticEffects.settle(effectMutationsToSettle.current);
+			effectMutationsToSettle.current = [];
+		}
+
 		markDuplicationSelectionMutationsApplied(settled, fastRefreshes);
 		if (mutations.length === 0) return;
 
@@ -209,7 +252,7 @@ export const SequencePropsObserver = ({
 			},
 			mutations,
 		);
-		for (const mutation of mutations) remapOptimisticEffectDeletions(mutation);
+		for (const mutation of mutations) remapOptimisticEffects(mutation);
 		remapSelectionNodePaths(mutations);
 		remapCollapsedLayers(mutations);
 

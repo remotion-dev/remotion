@@ -420,6 +420,7 @@ export type DeleteCompositionRequest = CompositionEditRequest & {
 export type MoveCompositionRequest = CompositionEditRequest & {
 	compositionId: string;
 	destination: CompositionDestination;
+	destinationFile: string | null;
 };
 
 export type AddFolderRequest = CompositionEditRequest & {
@@ -442,6 +443,7 @@ export type MoveFolderRequest = CompositionEditRequest & {
 	folderName: string;
 	parentName: string | null;
 	destination: CompositionDestination;
+	destinationFile: string | null;
 };
 
 export type CompositionEditResponse =
@@ -712,6 +714,7 @@ export type AddEffectRequest = {
 export type AddEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 			insertedEffect: {
 				effectIndex: number;
 				nodePath: SequencePropsSubscriptionKey['nodePath'];
@@ -734,6 +737,7 @@ export type ReorderEffectRequest = {
 export type ReorderEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -752,6 +756,12 @@ export type DuplicateEffectRequest = DuplicateEffectRequestItem[];
 export type DuplicateEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
+			duplicatedEffects: {
+				absolutePath: string;
+				nodePath: SequenceNodePath;
+				effectIndex: number;
+			}[];
 	  }
 	| {
 			success: false;
@@ -967,6 +977,7 @@ export type DeleteEffectRequest = DeleteEffectRequestItem[];
 export type DeleteEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -986,6 +997,7 @@ export type PasteEffectsRequest = {
 export type PasteEffectsResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;

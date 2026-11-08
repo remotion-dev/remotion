@@ -9,6 +9,7 @@ import type {
 	StringLiteral,
 } from '@babel/types';
 import {getInteractiveComponent} from './get-interactive-component';
+import {getLazyComponentImport} from './get-lazy-component-import';
 
 // Keep this entry browser-safe. The main codemod entry imports Recast, which
 // depends on Node built-ins and cannot be loaded by a static Studio bundle.
@@ -251,32 +252,6 @@ const findComposition = (file: File, compositionId: string) => {
 	});
 
 	return result;
-};
-
-const findLazyImport = (attribute: JSXAttribute | null) => {
-	let importPath: string | null = null;
-	visit(attribute, (node) => {
-		if (
-			node.type === 'ImportExpression' &&
-			node.source.type === 'StringLiteral'
-		) {
-			importPath = node.source.value;
-			return true;
-		}
-
-		if (
-			node.type === 'CallExpression' &&
-			node.callee.type === 'Import' &&
-			node.arguments[0]?.type === 'StringLiteral'
-		) {
-			importPath = node.arguments[0].value;
-			return true;
-		}
-
-		return false;
-	});
-
-	return importPath;
 };
 
 const getDeclaration = (
@@ -602,15 +577,20 @@ const resolveCompositionComponentDeclaration = ({
 		throw new Error(`Could not find composition "${compositionId}"`);
 	}
 
-	const lazyImport = findLazyImport(getAttribute(composition, 'lazyComponent'));
+	const lazyComponent = getAttribute(composition, 'lazyComponent')?.value;
+	const lazyImport =
+		lazyComponent?.type === 'JSXExpressionContainer'
+			? getLazyComponentImport(lazyComponent.expression)
+			: null;
 	let componentFile = registrationFile;
 	let exportName: string | 'default' = 'default';
 	if (lazyImport) {
 		componentFile = resolveImport({
 			fromFile: registrationFile,
-			importPath: lazyImport,
+			importPath: lazyImport.importPath,
 			project,
 		});
+		exportName = lazyImport.exportName;
 	} else {
 		const componentName = getIdentifierAttribute(
 			getAttribute(composition, 'component'),

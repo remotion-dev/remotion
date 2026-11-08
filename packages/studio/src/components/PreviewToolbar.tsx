@@ -21,6 +21,7 @@ import {loadLoopOption, loopSetterRef} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {FullScreenToggle} from './FullscreenToggle';
+import {INSPECTOR_RIGHT_EDGE_INSET} from './InspectorPanelLayout';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
@@ -85,6 +86,11 @@ const padding: React.CSSProperties = {
 const toolbarControl: React.CSSProperties = {
 	display: 'flex',
 	flexShrink: 0,
+};
+
+const renderRightSpacing: React.CSSProperties = {
+	flexShrink: 0,
+	width: INSPECTOR_RIGHT_EDGE_INSET - 5.5,
 };
 
 const PreviewToolbarControl: React.FC<{
@@ -188,20 +194,15 @@ export const PreviewToolbar: React.FC<{
 				) : null}
 				{isMobileLayout ? (
 					<>
-						{isVideoComposition ? (
-							<PreviewToolbarControl>
-								<PlaybackRateSelector
-									setPlaybackRate={setPlaybackRate}
-									playbackRate={playbackRate}
-								/>
-							</PreviewToolbarControl>
-						) : null}
 						<PreviewToolbarControl>
 							<PreviewToolbarOverflowButton
 								showFullscreen={Boolean(canvasContent && isFullscreenSupported)}
+								showPlaybackRate={isVideoComposition}
 								showLoop={isVideoComposition}
 								showCanvasViewControls={showCanvasViewControls}
 								showCompositionControls={showCompositionControls}
+								playbackRate={playbackRate}
+								setPlaybackRate={setPlaybackRate}
 								loop={loop}
 								setLoop={setLoop}
 							/>
@@ -279,7 +280,7 @@ export const PreviewToolbar: React.FC<{
 						narrow={isMobileLayout}
 					/>
 				</PreviewToolbarControl>
-				<Spacing x={1.5} />
+				<div style={renderRightSpacing} />
 			</div>
 			<PlaybackKeyboardShortcutsManager
 				setPlaybackRate={setPlaybackRate}

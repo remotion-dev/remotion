@@ -1,0 +1,14 @@
+{
+	"version": "0.0.1",
+	"configurations": [
+		{
+			"name": "studio",
+			"runtimeExecutable": "bash",
+			"runtimeArgs": [
+				"-c",
+				"cd packages/example && bunx remotion studio --props src/my-props.json --no-open --port 3010"
+			],
+			"port": 3010
+		}
+	]
+}

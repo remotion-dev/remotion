@@ -5,6 +5,7 @@ import {
 	LIGHT_TEXT,
 	LINE_COLOR,
 	WHITE,
+	WHITE_ALPHA_40,
 } from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
@@ -43,12 +44,12 @@ export const sequenceHeaderDivider: React.CSSProperties = {
 };
 
 export const sectionHeader: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	color: WHITE_ALPHA_40,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontWeight: 'bold',
 	lineHeight: '24px',
-	padding: `4px 0 4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
+	padding: `4px ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px`,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 };
@@ -143,7 +144,7 @@ export const detailsWithInlineAction: React.CSSProperties = {
 };
 
 export const inspectorQuickActionsSection: React.CSSProperties = {
-	padding: '4px 0',
+	padding: '0 0 4px',
 };
 
 export const detailsBeforeInlineAction: React.CSSProperties = {

@@ -194,6 +194,63 @@ const GetVideoComposition: React.FC<{
 	);
 };
 
+// The renderer reuses a tab for output frames and for the audio-only frames that
+// pad a seamless AAC chunk. It sets the flags for every frame it evaluates so
+// mounted components can skip visual work while the pixels are discarded.
+const CompositionRootContexts: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => {
+	const [mediaEnabled, setMediaEnabled] = useState(() => ({
+		videoEnabled: window.remotion_videoEnabled,
+		audioEnabled: window.remotion_audioEnabled,
+	}));
+
+	useLayoutEffect(() => {
+		window.remotion_setMediaEnabled = (videoEnabled, audioEnabled) => {
+			window.remotion_videoEnabled = videoEnabled;
+			window.remotion_audioEnabled = audioEnabled;
+			const handle = globalDelayRender(
+				`Setting videoEnabled to ${videoEnabled} and audioEnabled to ${audioEnabled}`,
+			);
+
+			let asyncUpdate = true;
+			setMediaEnabled((previous) => {
+				if (
+					previous.videoEnabled === videoEnabled &&
+					previous.audioEnabled === audioEnabled
+				) {
+					asyncUpdate = false;
+					return previous;
+				}
+
+				return {videoEnabled, audioEnabled};
+			});
+
+			// Like remotion_setFrame(), wait until the update is applied in the next cycle
+			if (asyncUpdate) {
+				requestAnimationFrame(() => globalContinueRender(handle));
+			} else {
+				globalContinueRender(handle);
+			}
+		};
+	}, []);
+
+	return (
+		<Internals.RemotionRootContexts
+			frameState={null}
+			audioEnabled={mediaEnabled.audioEnabled}
+			videoEnabled={mediaEnabled.videoEnabled}
+			logLevel={window.remotion_logLevel ?? 'info'}
+			numberOfAudioTags={0}
+			audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
+			previewSampleRate={window.remotion_sampleRate}
+			_experimentalKeepAudioContextAlive={false}
+		>
+			{children}
+		</Internals.RemotionRootContexts>
+	);
+};
+
 const DEFAULT_ROOT_COMPONENT_TIMEOUT = 10000;
 
 const waitForRootHandle = globalDelayRender(
@@ -265,21 +322,12 @@ const renderContent = (Root: React.FC) => {
 				}}
 				initialCompositions={[]}
 			>
-				<Internals.RemotionRootContexts
-					frameState={null}
-					audioEnabled={window.remotion_audioEnabled}
-					videoEnabled={window.remotion_videoEnabled}
-					logLevel={window.remotion_logLevel ?? 'info'}
-					numberOfAudioTags={0}
-					audioLatencyHint={window.remotion_audioLatencyHint ?? 'playback'}
-					previewSampleRate={window.remotion_sampleRate}
-					_experimentalKeepAudioContextAlive={false}
-				>
+				<CompositionRootContexts>
 					<Internals.RenderAssetManagerProvider collectAssets={null}>
 						<Root />
 						<GetVideoComposition state={bundleMode} />
 					</Internals.RenderAssetManagerProvider>
-				</Internals.RemotionRootContexts>
+				</CompositionRootContexts>
 			</Internals.CompositionManagerProvider>
 		);
 
