@@ -12,6 +12,7 @@ export type UrlMaskImageInfo = {
 	src: string;
 	maskSize: string;
 	maskRepeat: string;
+	maskPosition: string;
 };
 
 export type MaskImageInfo = LinearGradientMaskImageInfo | UrlMaskImageInfo;
@@ -145,9 +146,14 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 	);
 
 	const isSupportedPosition =
-		maskPosition === '0% 0%' ||
-		maskPosition === '0px 0px' ||
-		maskPosition === 'left top';
+		maskPosition.split(' ').length === 2 &&
+		maskPosition
+			.split(' ')
+			.every(
+				(value) =>
+					['left', 'right', 'top', 'bottom', 'center'].includes(value) ||
+					parseLengthPercentage(value) !== null,
+			);
 	const sizeParts = maskSize.split(' ');
 	const isSupportedSize =
 		['contain', 'cover'].includes(maskSize) ||
@@ -180,12 +186,12 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 
 	if (unsupportedProperties.length > 0) {
 		throw new Error(
-			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, mask-position: 0% 0%, the border box as origin and clip, and alpha semantics. ' +
+			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage mask positioning, the border box as origin and clip, and alpha semantics. ' +
 				`Unsupported value${unsupportedProperties.length === 1 ? '' : 's'}: ${unsupportedProperties.join(', ')}`,
 		);
 	}
 
-	return {maskSize, maskRepeat};
+	return {maskSize, maskRepeat, maskPosition};
 };
 
 export const parseMaskImage = (

@@ -2,7 +2,9 @@ import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
+import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
 import {maskImageUrlSizing, rasterMask} from './fixtures/mask-image-url-sizing';
+import {captureNativeReference, compareNativePixels} from './native-reference';
 import {testImage} from './utils';
 
 for (const scale of [1, 2]) {
@@ -261,7 +263,7 @@ test('clips a repeating mask to its border box when children overflow', async ()
 for (const unsupported of [
 	{maskRepeat: 'space'},
 	{maskRepeat: 'round'},
-	{maskPosition: '50% 50%'},
+	{maskPosition: 'calc(50% + 10px) 0px'},
 	{maskOrigin: 'content-box'},
 	{maskClip: 'content-box'},
 	{maskMode: 'luminance'},
@@ -297,5 +299,28 @@ for (const unsupported of [
 				allowHtmlInCanvas: false,
 			}),
 		).rejects.toThrow('Unsupported value');
+	});
+}
+
+// KINO-7771: nonzero mask positions used to be rejected before painting.
+for (const frame of [0, 1]) {
+	test(`raster mask positions match native frame ${frame}`, async (t) => {
+		if (t.task.file.projectName === 'firefox') {
+			t.skip();
+			return;
+		}
+
+		const reference = await captureNativeReference(maskImageUrlPosition, frame);
+		const actual = await (
+			await renderStillOnWeb({
+				composition: maskImageUrlPosition,
+				frame,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+		const result = await compareNativePixels(reference, actual);
+		expect(result.mismatchedPixels).toBe(0);
 	});
 }
