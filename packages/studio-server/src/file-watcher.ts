@@ -1,7 +1,10 @@
 import {randomUUID} from 'node:crypto';
 import fs, {readFileSync, writeFileSync} from 'node:fs';
 import type {SourceFileVersion} from '@remotion/studio-shared';
-import {prepareBundlerForFileWrite} from './preview-server/watch-ignore-next-change';
+import {
+	notifyBundlerOfFileChange,
+	prepareBundlerForFileWrite,
+} from './preview-server/watch-ignore-next-change';
 
 export type FileChangeMetadata = {
 	skipSequencePropsUpdate: boolean;
@@ -210,6 +213,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		writeFileSync(file, content);
 		const sourceVersion = nextSourceVersion();
 		for (const listener of sourceWriteListeners) listener(file, content);
+		notifyBundlerOfFileChange(file, content);
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));
 		if (!shared) {

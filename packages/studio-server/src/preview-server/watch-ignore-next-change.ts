@@ -6,7 +6,7 @@ const pendingSuppressedWrites = new Set<string>();
 let currentPlugin: WatchIgnoreNextChangePlugin | null = null;
 
 export const setWatchIgnoreNextChangePlugin = (
-	plugin: WatchIgnoreNextChangePlugin,
+	plugin: WatchIgnoreNextChangePlugin | null,
 ): void => {
 	currentPlugin = plugin;
 	pendingSuppressedWrites.clear();
@@ -26,6 +26,13 @@ export const prepareBundlerForFileWrite = (absolutePath: string): void => {
 	}
 };
 
+export const notifyBundlerOfFileChange = (
+	absolutePath: string,
+	contents: string | null,
+): void => {
+	currentPlugin?.notifyFileChanged(absolutePath, contents);
+};
+
 export const invalidatePreviouslySuppressedFiles = async (
 	onlyFile: string | null,
 ): Promise<boolean> => {
@@ -39,14 +46,18 @@ export const invalidatePreviouslySuppressedFiles = async (
 		files.map(async (file) => {
 			try {
 				await fs.utimes(file, now, now);
-				return true;
+				return {file, contents: await fs.readFile(file, 'utf8')};
 			} catch {
-				return false;
+				return null;
 			}
 		}),
 	);
+	for (const file of touchedFiles) {
+		if (file !== null)
+			currentPlugin.notifyFileChanged(file.file, file.contents);
+	}
 
-	return touchedFiles.some(Boolean);
+	return touchedFiles.some((file) => file !== null);
 };
 
 // Why do we need this?

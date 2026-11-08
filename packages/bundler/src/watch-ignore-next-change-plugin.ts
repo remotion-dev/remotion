@@ -5,6 +5,7 @@
 // timestamps are restored, the file is removed from changedFiles, and the original
 // callback is skipped (which would trigger _invalidate → compile). The watchpack
 // listeners are re-registered and unpaused so subsequent real changes still work.
+import {readFileSync, statSync} from 'node:fs';
 import path from 'node:path';
 import type {Compiler} from 'webpack';
 
@@ -72,6 +73,21 @@ export class WatchIgnoreNextChangePlugin {
 	private snapshotDirTimestamps = new Map<string, TimeInfoEntry>();
 	private suppressedFilesHistory = new Set<string>();
 	private currentWatcher: Watcher | null = null;
+	private pendingFileChanges = new Map<string, string | null>();
+	private notifiedFiles = new Map<
+		string,
+		{contents: string | null; timestamp: TimeInfoEntry}
+	>();
+
+	private notifiedDirectories = new Set<string>();
+	private notifiedDirectoryContents = new Map<string, number | true | null>();
+
+	private notifyFileChanges:
+		| ((files: Map<string, string | null>) => void)
+		| null = null;
+
+	private pendingFlush: ReturnType<typeof setImmediate> | null = null;
+	private notifying = false;
 	private trace: TraceLogFn;
 
 	constructor(trace: TraceLogFn) {
@@ -121,6 +137,71 @@ export class WatchIgnoreNextChangePlugin {
 		this.filesRequiringRebuild.add(file);
 	}
 
+	notifyFileChanged(file: string, contents: string | null): void {
+		if (!this.filesRequiringRebuild.has(file)) return;
+		this.pendingFileChanges.set(file, contents);
+		this.scheduleNotification();
+	}
+
+	private scheduleNotification(): void {
+		if (
+			this.pendingFlush !== null ||
+			this.notifyFileChanges === null ||
+			this.pendingFileChanges.size === 0
+		) {
+			return;
+		}
+
+		// Finish multi-file edits and their source-mutation receipts before compiling.
+		this.pendingFlush = setImmediate(() => {
+			this.pendingFlush = null;
+			const files = new Map(this.pendingFileChanges);
+			this.pendingFileChanges.clear();
+			if (files.size > 0) this.notifyFileChanges?.(files);
+		});
+	}
+
+	private isAlreadyNotified(file: string): boolean {
+		const notified = this.notifiedFiles.get(file);
+		if (!notified) return false;
+		let contents: string | null;
+		try {
+			contents = readFileSync(file, 'utf8');
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return false;
+			contents = null;
+		}
+
+		if (contents === notified.contents) return true;
+		this.notifiedFiles.delete(file);
+		return false;
+	}
+
+	private isAlreadyNotifiedDirectory(
+		directory: string,
+		timestamps: Map<string, TimeInfoEntry> | null,
+	): boolean {
+		if (!timestamps || !this.notifiedDirectories.has(directory)) return false;
+		const prefix = directory + path.sep;
+		const files = new Set([
+			...this.notifiedDirectoryContents.keys(),
+			...timestamps.keys(),
+		]);
+		for (const file of files) {
+			if (
+				(file !== directory && !file.startsWith(prefix)) ||
+				this.isAlreadyNotified(file)
+			)
+				continue;
+			const expected = this.notifiedDirectoryContents.get(file) ?? null;
+			const entry = timestamps.get(file);
+			const actual = entry ? (entry.timestamp ?? true) : null;
+			if (expected !== actual) return false;
+		}
+
+		return true;
+	}
+
 	unignoreNextChange(file: string): void {
 		this.filesToIgnore.delete(file);
 		const dir = path.dirname(file);
@@ -157,6 +238,15 @@ export class WatchIgnoreNextChangePlugin {
 	}
 
 	apply(compiler: Compiler): void {
+		compiler.hooks.watchClose.tap('WatchIgnoreNextChangePlugin', () => {
+			if (this.pendingFlush !== null) clearImmediate(this.pendingFlush);
+			this.pendingFlush = null;
+			this.notifyFileChanges = null;
+			this.pendingFileChanges.clear();
+			this.notifiedFiles.clear();
+			this.notifiedDirectories.clear();
+			this.notifiedDirectoryContents.clear();
+		});
 		compiler.hooks.afterEnvironment.tap('WatchIgnoreNextChangePlugin', () => {
 			const wfs = compiler.watchFileSystem as unknown as NodeWatchFileSystem;
 			if (!wfs?.watch) {
@@ -191,6 +281,15 @@ export class WatchIgnoreNextChangePlugin {
 					changeTime,
 				) => {
 					if (
+						(!self.notifying &&
+							(self.isAlreadyNotified(fileName) ||
+								(self.notifiedDirectories.has(fileName) &&
+									self.isAlreadyNotifiedDirectory(
+										fileName,
+										self.currentWatcher?.getInfo?.().fileTimeInfoEntries ??
+											self.currentWatcher?.getFileTimeInfoEntries() ??
+											null,
+									)))) ||
 						self.filesToIgnore.has(fileName) ||
 						self.dirsToIgnore.has(fileName) ||
 						isAncestorOfIgnoredFile(fileName)
@@ -212,6 +311,22 @@ export class WatchIgnoreNextChangePlugin {
 					changedFiles,
 					removedFiles,
 				) => {
+					const alreadyNotified: string[] = [];
+					if (!self.notifying) {
+						for (const changes of [changedFiles, removedFiles]) {
+							for (const file of changes ?? []) {
+								self.pendingFileChanges.delete(file);
+								if (
+									self.isAlreadyNotified(file) ||
+									self.isAlreadyNotifiedDirectory(file, fileTimestamps ?? null)
+								) {
+									changes?.delete(file);
+									alreadyNotified.push(file);
+								}
+							}
+						}
+					}
+
 					// A rebuild-required write wins over subsequent suppressed writes in
 					// the same watcher batch. Release it only when the watcher sees it.
 					for (const file of changedFiles ?? []) {
@@ -304,7 +419,7 @@ export class WatchIgnoreNextChangePlugin {
 					const remainingRemovals = removedFiles?.size ?? 0;
 
 					if (
-						hasIgnoredFiles &&
+						(hasIgnoredFiles || alreadyNotified.length > 0) &&
 						remainingChanges === 0 &&
 						remainingRemovals === 0
 					) {
@@ -374,7 +489,7 @@ export class WatchIgnoreNextChangePlugin {
 							// While paused, watchpack's _onChange still adds to
 							// aggregatedChanges. If we don't clear them, unpausing
 							// will cause the same files to re-trigger via _onTimeout.
-							for (const file of suppressedFiles) {
+							for (const file of [...suppressedFiles, ...alreadyNotified]) {
 								watchpack.aggregatedChanges.delete(file);
 								watchpack.aggregatedRemovals.delete(file);
 							}
@@ -438,6 +553,11 @@ export class WatchIgnoreNextChangePlugin {
 					watcher.getFileTimeInfoEntries.bind(watcher);
 				watcher.getFileTimeInfoEntries = () => {
 					const entries = originalGetFileTimeInfoEntries();
+					for (const [file, notified] of self.notifiedFiles) {
+						if (self.isAlreadyNotified(file))
+							entries.set(file, notified.timestamp);
+					}
+
 					for (const file of self.filesToIgnore) {
 						const prev = self.snapshotFileTimestamps.get(file);
 						if (prev !== undefined) {
@@ -466,6 +586,26 @@ export class WatchIgnoreNextChangePlugin {
 					const originalGetInfo = watcher.getInfo.bind(watcher);
 					watcher.getInfo = () => {
 						const info = originalGetInfo();
+						for (const [file, notified] of self.notifiedFiles) {
+							if (self.isAlreadyNotified(file))
+								info.fileTimeInfoEntries.set(file, notified.timestamp);
+						}
+
+						if (!self.notifying) {
+							for (const changes of [info.changes, info.removals]) {
+								for (const file of changes) {
+									if (
+										self.isAlreadyNotified(file) ||
+										self.isAlreadyNotifiedDirectory(
+											file,
+											info.fileTimeInfoEntries,
+										)
+									)
+										changes.delete(file);
+								}
+							}
+						}
+
 						for (const file of self.filesToIgnore) {
 							info.changes.delete(file);
 							const prev = self.snapshotFileTimestamps.get(file);
@@ -503,6 +643,65 @@ export class WatchIgnoreNextChangePlugin {
 					};
 				}
 
+				self.notifyFileChanges = (notifications) => {
+					const info = watcher.getInfo?.() ?? {
+						changes: new Set<string>(),
+						removals: new Set<string>(),
+						fileTimeInfoEntries: watcher.getFileTimeInfoEntries(),
+						contextTimeInfoEntries: watcher.getContextTimeInfoEntries(),
+					};
+					const now = Date.now();
+					for (const [file, contents] of notifications) {
+						const stat = statSync(file, {throwIfNoEntry: false});
+						const timestamp = stat
+							? {timestamp: stat.mtimeMs, safeTime: now}
+							: null;
+						self.notifiedFiles.set(file, {contents, timestamp});
+						info.fileTimeInfoEntries.set(file, timestamp);
+						if (stat) {
+							info.changes.add(file);
+							info.removals.delete(file);
+						} else {
+							info.changes.delete(file);
+							info.removals.add(file);
+						}
+
+						wfs.inputFileSystem.purge?.(file);
+					}
+
+					self.notifiedDirectoryContents = new Map(
+						[...info.fileTimeInfoEntries].map(([file, entry]) => [
+							file,
+							entry ? (entry.timestamp ?? true) : null,
+						]),
+					);
+					for (const file of notifications.keys()) {
+						for (
+							let dir = path.dirname(file);
+							dir !== path.dirname(dir);
+							dir = path.dirname(dir)
+						) {
+							self.notifiedDirectories.add(dir);
+							self.notifiedDirectoryContents.set(dir, true);
+						}
+					}
+
+					self.notifying = true;
+					try {
+						wrappedCallbackUndelayed(notifications.keys().next().value!, now);
+						wrappedCallback(
+							null,
+							info.fileTimeInfoEntries,
+							info.contextTimeInfoEntries,
+							info.changes,
+							info.removals,
+						);
+					} finally {
+						self.notifying = false;
+					}
+				};
+
+				self.scheduleNotification();
 				return watcher;
 			};
 		});

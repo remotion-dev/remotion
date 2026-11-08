@@ -17,6 +17,7 @@ import {formatLogFileLocation} from './format-log-file-location';
 import {waitForLiveEventsListener} from './live-events';
 import {broadcastSequenceNodePathMutation} from './sequence-node-path-mutation';
 import {
+	notifyBundlerOfFileChange,
 	prepareBundlerForFileWrite,
 	suppressBundlerUpdateForFile,
 } from './watch-ignore-next-change';
@@ -514,6 +515,7 @@ export function popUndo(): UndoResponse {
 		if (snapshot.oldContents === null) {
 			prepareBundlerForFileWrite(snapshot.filePath);
 			rmSync(snapshot.filePath, {force: true});
+			notifyBundlerOfFileChange(snapshot.filePath, null);
 		} else {
 			writeFileAndNotifyFileWatchers({
 				file: snapshot.filePath,
