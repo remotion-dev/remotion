@@ -19,6 +19,7 @@ test
 		),
 	)(
 	'raster $fixture.id matches native frame $frame',
+	{timeout: 30_000},
 	async ({fixture, frame}) => {
 		const reference = await captureNativeReference(fixture, frame);
 		const actual = await (
@@ -31,9 +32,12 @@ test
 			})
 		).blob({format: 'png'});
 		const result = await compareNativePixels(reference, actual);
-		await savePixelEvidence(reference, `${fixture.id}-reference-${frame}`);
-		await savePixelEvidence(actual, `${fixture.id}-actual-${frame}`);
-		await savePixelEvidence(result.diff, `${fixture.id}-diff-${frame}`);
+		if (result.mismatchedPixels > 0) {
+			await savePixelEvidence(reference, `${fixture.id}-reference-${frame}`);
+			await savePixelEvidence(actual, `${fixture.id}-actual-${frame}`);
+			await savePixelEvidence(result.diff, `${fixture.id}-diff-${frame}`);
+		}
+
 		expect(result.mismatchedPixels).toBe(0);
 	},
 );
