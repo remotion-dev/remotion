@@ -116,8 +116,15 @@ test(
 				const inspectorSourceLocation = document.querySelector(
 					'[aria-label="Inspector source location"]',
 				);
-				if (inspectorSourceLocation?.textContent?.includes('Root.tsx:')) {
-					return inspectorSourceLocation.textContent;
+				const compositionSourceButton =
+					inspectorSourceLocation?.querySelector<HTMLButtonElement>(
+						'button[aria-label="Composition"]',
+					);
+				compositionSourceButton?.focus();
+				const tooltip = document.querySelector('[role="tooltip"]');
+				if (tooltip?.textContent?.includes('Root.tsx:')) {
+					compositionSourceButton?.blur();
+					return tooltip.textContent;
 				}
 				if (inspectorSourceLocation) {
 					openedInspector = true;
@@ -149,13 +156,20 @@ test(
 				const inspectorSourceLocation = document.querySelector(
 					'[aria-label="Inspector source location"]',
 				);
+				const sequenceSourceButton =
+					inspectorSourceLocation?.querySelector<HTMLButtonElement>(
+						'button[aria-label="Component"]',
+					);
+				if (inspectorSourceLocation?.textContent?.startsWith('<Sequence>')) {
+					sequenceSourceButton?.focus();
+				}
+				const tooltip = document.querySelector('[role="tooltip"]');
 				if (
 					inspectorSourceLocation?.textContent?.startsWith('<Sequence>') &&
-					inspectorSourceLocation.textContent.includes(
-						'WidthHeightSequences.tsx:',
-					)
+					tooltip?.textContent?.includes('WidthHeightSequences.tsx:')
 				) {
-					return inspectorSourceLocation.textContent;
+					sequenceSourceButton?.blur();
+					return tooltip.textContent;
 				}
 
 				await new Promise((resolve) => setTimeout(resolve, 100));
@@ -164,7 +178,7 @@ test(
 			return null;
 		});
 		expect(sequenceSourceLocation.toString()).toMatch(
-			/<Sequence>WidthHeightSequences\.tsx:\d+/,
+			/WidthHeightSequences\.tsx:\d+/,
 		);
 
 		const fontLoaded = await tab.evaluateHandle(() => {

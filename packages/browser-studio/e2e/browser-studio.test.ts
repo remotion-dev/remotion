@@ -1634,10 +1634,12 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 		.poll(() => getBackgroundColor(assetItem))
 		.toBe('rgba(255, 255, 255, 0.06)');
 	const assetActions = assetItem.getByRole('button', {name: 'More actions'});
+	const assetActionsIdleColor = await getColor(assetActions);
+	expect(assetActionsIdleColor).not.toBe('rgb(255, 255, 255)');
 	await assetActions.hover();
 	await expect.poll(() => getColor(assetActions)).toBe('rgb(255, 255, 255)');
 	await assetItem.hover({position: {x: 10, y: 10}});
-	await expect.poll(() => getColor(assetActions)).toBe('rgb(166, 167, 169)');
+	await expect.poll(() => getColor(assetActions)).toBe(assetActionsIdleColor);
 	await neutralArea.hover();
 	await expect
 		.poll(() => getBackgroundColor(assetItem))
@@ -1656,6 +1658,8 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	const compositionActions = compositionItem.getByRole('button', {
 		name: 'More actions',
 	});
+	const compositionActionsIdleColor = await getColor(compositionActions);
+	expect(compositionActionsIdleColor).not.toBe('rgb(255, 255, 255)');
 	await compositionActions.hover();
 	await expect
 		.poll(() => getColor(compositionActions))
@@ -1663,7 +1667,7 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await compositionItem.hover({position: {x: 10, y: 10}});
 	await expect
 		.poll(() => getColor(compositionActions))
-		.toBe('rgb(166, 167, 169)');
+		.toBe(compositionActionsIdleColor);
 	await compositionActions.click();
 	await expect(studio.getByText('Copy ID', {exact: true})).toBeVisible();
 	await expect
