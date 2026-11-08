@@ -1,9 +1,4 @@
-import {
-	isReferenced,
-	type File,
-	type ImportDeclaration,
-	type Node,
-} from '@babel/types';
+import {type File, type ImportDeclaration, type Node} from '@babel/types';
 import * as recast from 'recast';
 import type {TreeEntry} from './folder-editing';
 import {
@@ -11,6 +6,7 @@ import {
 	resolveVirtualPath,
 	virtualDirname,
 } from './insert-jsx-element';
+import {isReferenced} from './is-referenced';
 import {recastLocToOffset} from './recast-loc-to-offset';
 import {
 	applySourceEdits,
@@ -80,6 +76,24 @@ export const transferRegistrationImports = ({
 			imports.set(specifier.local.name, {declaration, specifier});
 	}
 
+	const runtimeBindings = new Map<string, recast.types.NodePath[]>();
+	recast.visit(ast, {
+		visitNode(path) {
+			const node = path.node as Node;
+			if (
+				(node.type === 'TSEnumDeclaration' ||
+					node.type === 'TSModuleDeclaration') &&
+				node.id.type === 'Identifier'
+			) {
+				const declarations = runtimeBindings.get(node.id.name) ?? [];
+				declarations.push(path);
+				runtimeBindings.set(node.id.name, declarations);
+			}
+
+			this.traverse(path);
+		},
+	});
+
 	const names = new Map<string, string>();
 	const edits: SourceEdit[] = [];
 	const editedOffsets = new Set<number>();
@@ -135,7 +149,23 @@ export const transferRegistrationImports = ({
 			)
 				return false;
 			const {name} = p.node;
-			const binding = p.scope.lookup(name) ?? p.scope.lookupType(name);
+			let binding = p.scope.lookup(name) ?? p.scope.lookupType(name);
+			let currentScope: typeof p.scope | null = p.scope;
+			while (!binding && currentScope) {
+				if (
+					runtimeBindings
+						.get(name)
+						?.some(
+							(declaration) =>
+								declaration.scope?.path.node === currentScope?.path.node,
+						)
+				) {
+					binding = currentScope;
+				}
+
+				currentScope = currentScope.parent;
+			}
+
 			if (binding && binding.path.node !== ast.program) {
 				let ancestor: recast.types.NodePath | null = binding.path;
 				while (ancestor && ancestor.node !== entry.node)

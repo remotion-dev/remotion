@@ -2,7 +2,10 @@ import type {File, JSXElement} from '@babel/types';
 import * as recast from 'recast';
 import type {CodemodProject} from './codemod-project';
 import type {FolderReference} from './composition-editing';
-import {getNodeSourceEdit} from './delete-jsx-nodes-internal';
+import {
+	findJsxElementPathForDeletion,
+	getNodeSourceEdit,
+} from './delete-jsx-nodes-internal';
 import {getMoveTreeItemSourceEdits} from './folder-source-edits';
 import {
 	captureJsxNodePaths,
@@ -324,13 +327,18 @@ export const moveTreeItem = <Project extends CodemodProject>({
 			destinationAst,
 			destinationFile: targetFilePath,
 		});
-		const transferredEntry = requireTreeItem(
-			getTreeEntries({ast: parseAst(transferred.input)}),
-			source,
+		const transferredEntry = findJsxElementPathForDeletion(
+			parseAst(transferred.input),
+			requireCapturedNodePath(before, entry.node.openingElement),
 		);
+		if (!transferredEntry)
+			throw new Error(
+				'Could not locate the registration after transferring imports',
+			);
+
 		const insertion = getJsxElementSourceForInsertion({
 			input: transferred.input,
-			element: transferredEntry.node,
+			element: transferredEntry.node as JSXElement,
 		});
 		const destinationRoot =
 			target?.node ?? findRegistrationRoot({ast: destinationAst, folder: null});
