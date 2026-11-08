@@ -1,4 +1,7 @@
-export type {SourceFileVersion} from './source-file-version';
+export type {
+	SourceFileVersion,
+	SourceMutationGuard,
+} from './source-file-version';
 export {getConflictingOutputPaths} from './get-conflicting-output-paths';
 export {
 	getPortableDownloadFilename,

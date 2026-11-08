@@ -106,6 +106,7 @@ export const createPostRenderData = ({
 						framesPerFunction: renderMetadata.framesPerLambda,
 						firstFrame: renderMetadata.frameRange[0],
 						lastFrame: renderMetadata.frameRange[1],
+						chunks: renderMetadata.chunks,
 					}),
 		deleteAfter: renderMetadata.deleteAfter,
 		estimatedBillingDurationInMilliseconds,

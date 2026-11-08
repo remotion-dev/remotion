@@ -17,6 +17,12 @@ import type {StudioRuntimeConfig} from './studio-runtime-config';
 
 export type EventSourceEvent =
 	| {
+			type: 'external-source-changed';
+			resetUndoHistory: boolean;
+			fileName: string;
+			sourceVersion: SourceFileVersion;
+	  }
+	| {
 			type: 'new-input-props';
 			newProps: object;
 	  }

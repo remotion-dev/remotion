@@ -32,6 +32,11 @@ import {SetSelectedModalContext} from '../state/modals';
 import {AssetAudioVolume} from './AssetAudioVolume';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
+import {
+	InspectorHeaderAction,
+	InspectorLocationCopy,
+	inspectorHeaderIconStyle,
+} from './InspectorLocationCopy';
 import {CollapsibleInspectorSection} from './InspectorPanel/CollapsibleInspectorSection';
 import {
 	InspectorDetailRow,
@@ -196,6 +201,7 @@ export const AssetInfo: React.FC<{
 		Internals.CompositionManager,
 	);
 	const [isMakingComposition, setIsMakingComposition] = useState(false);
+	const [isEditingName, setIsEditingName] = useState(false);
 	const volumeMetadata =
 		currentAssetMetadata?.asset === assetName ? currentAssetMetadata : null;
 	const connectionStatus = useContext(StudioServerConnectionCtx)
@@ -227,6 +233,7 @@ export const AssetInfo: React.FC<{
 		(readOnlyStudio || connectionStatus !== 'connected');
 	const fileName = assetName?.split('/').pop() ?? '';
 	const fileType = assetName ? getPreviewFileType(assetName) : null;
+	const assetContext = assetName ? `Asset: public/${assetName}` : null;
 	const defaultComposition = getNewCompositionDefaults(null, null);
 	const compositionFps =
 		fileType === 'video' &&
@@ -461,18 +468,40 @@ export const AssetInfo: React.FC<{
 				padding={
 					contentSized
 						? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px`
-						: '4px 0'
+						: '4px 0 0'
 				}
 			>
-				<InlineEditableTitle
-					value={fileName}
-					canRename={canRename}
-					getInitialSelection={getStaticFileRenameSelection}
-					onClick={onAssetClick}
-					onCommit={onRename}
-					size={contentSized ? 'default' : 'inspector'}
-					aria-label={assetName}
-				/>
+				<InspectorLocationCopy
+					leadingActions={null}
+					contextForAgents={assetContext}
+					isEditing={isEditingName}
+					actions={
+						fileManagerAvailable ? (
+							<InspectorHeaderAction
+								label={`Show in ${fileManagerName}`}
+								disabled={fileManagerDisabled}
+								onClick={onShowInFileManager}
+								renderIcon={(color) => (
+									<ExpandedFolderIcon
+										color={color}
+										style={inspectorHeaderIconStyle}
+									/>
+								)}
+							/>
+						) : null
+					}
+				>
+					<InlineEditableTitle
+						value={fileName}
+						canRename={canRename}
+						getInitialSelection={getStaticFileRenameSelection}
+						onClick={onAssetClick}
+						onCommit={onRename}
+						onEditingChange={setIsEditingName}
+						size={contentSized ? 'default' : 'inspector'}
+						aria-label={assetName}
+					/>
+				</InspectorLocationCopy>
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
 				<CollapsibleInspectorSection
@@ -566,20 +595,6 @@ export const AssetInfo: React.FC<{
 							)}
 						>
 							Make composition
-						</InspectorQuickAction>
-					) : null}
-					{fileManagerAvailable ? (
-						<InspectorQuickAction
-							disabled={fileManagerDisabled}
-							onClick={onShowInFileManager}
-							renderIcon={(color) => (
-								<ExpandedFolderIcon
-									color={color}
-									style={quickActionIconStyle}
-								/>
-							)}
-						>
-							Show in {fileManagerName}
 						</InspectorQuickAction>
 					) : null}
 					{src && mediaMetadata?.hasAudioTrack !== false ? (

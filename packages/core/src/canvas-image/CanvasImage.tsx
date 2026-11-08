@@ -24,7 +24,6 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
-	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -52,7 +51,6 @@ export const canvasImageSchema = {
 	},
 	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
-	...premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',
@@ -280,6 +278,7 @@ const CanvasImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			runtimeValues: controls?.runtimeValues ?? null,
 			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 		const sequenceContext = useContext(SequenceContext);
@@ -441,9 +440,15 @@ const CanvasImageContent = forwardRef<
 			});
 
 			if (!sourceContext) {
-				cancelRender(
-					new Error('Could not get 2D context for <CanvasImage> source canvas'),
+				const error = new Error(
+					'Could not get 2D context for <CanvasImage> source canvas',
 				);
+				if (onError) {
+					onError(error);
+				} else {
+					cancelRender(error);
+				}
+
 				continueRenderOnce();
 				return () => {
 					continueRenderOnce();
@@ -600,9 +605,11 @@ const CanvasImageInner = forwardRef<
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		const videoEnabled = useVideoEnabled();
+		// No canvas is mounted during audio-only frames; it remounts afterwards.
 		useImperativeHandle(ref, () => {
-			return actualRef.current as HTMLCanvasElement;
-		}, []);
+			return (videoEnabled ? actualRef.current : null) as HTMLCanvasElement;
+		}, [videoEnabled]);
 		const {
 			effectivePostmountFor,
 			effectivePremountFor,
@@ -634,7 +641,6 @@ const CanvasImageInner = forwardRef<
 			componentName: _remotionInternalCropComponentName ?? '<CanvasImage />',
 		});
 
-		const videoEnabled = useVideoEnabled();
 		if (videoEnabled === false) {
 			return null;
 		}

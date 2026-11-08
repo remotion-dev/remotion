@@ -4,7 +4,7 @@ import {getElementsNeedingIsolation} from './drawing/isolation';
 import type {InternalState} from './internal-state';
 import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
 import {walkOverNode} from './walk-over-node';
-import {skipToNextNonDescendant} from './walk-tree';
+import {createPaintOrderTraversal} from './walk-tree';
 
 const getFilterFunction = (node: Node) => {
 	if (!(node instanceof Element)) {
@@ -59,6 +59,12 @@ export const compose = async ({
 			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		getFilterFunction,
 	);
+	const {nextNode, skipChildren} = createPaintOrderTraversal({
+		treeWalker,
+		rootElement: element,
+		acceptNode: getFilterFunction,
+		onlyBackgroundClipText,
+	});
 	const transformStyleCache: TransformStyleCache = new WeakMap();
 	const isolatedElements = onlyBackgroundClipText
 		? new WeakSet<Element>()
@@ -95,7 +101,7 @@ export const compose = async ({
 			isolatedElements,
 		});
 		if (val.type === 'skip-children') {
-			if (!skipToNextNonDescendant(treeWalker)) {
+			if (!skipChildren()) {
 				break;
 			}
 		} else {
@@ -103,7 +109,7 @@ export const compose = async ({
 				addCleanup(treeWalker.currentNode, val.cleanupAfterChildren);
 			}
 
-			if (!treeWalker.nextNode()) {
+			if (!nextNode()) {
 				break;
 			}
 		}

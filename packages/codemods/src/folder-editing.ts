@@ -2,12 +2,17 @@ import type {File, JSXElement} from '@babel/types';
 import * as recast from 'recast';
 import type {CodemodProject} from './codemod-project';
 import type {FolderReference} from './composition-editing';
+import {
+	findJsxElementPathForDeletion,
+	getNodeSourceEdit,
+} from './delete-jsx-nodes-internal';
 import {getMoveTreeItemSourceEdits} from './folder-source-edits';
 import {
 	captureJsxNodePaths,
 	collectJsxSubtree,
 	requireCapturedNodePath,
 } from './get-node-path-remappings';
+import {getInsertionRootSourceEdit} from './insert-jsx-element';
 import {findProjectFile} from './internals';
 import {
 	getNodeEditResult,
@@ -23,7 +28,13 @@ import {
 } from './registration-source-edits';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 import {parseAst} from './sequence-props/parse-ast';
-import {applySourceEdits} from './source-edits';
+import {
+	applySourceEdits,
+	getAdjacentJsxInsertionSourceEdit,
+	getJsxElementSourceForInsertion,
+} from './source-edits';
+import {transferRegistrationImports} from './transfer-registration-imports';
+import {removeUnusedImports} from './unused-imports';
 
 export type CompositionTreeItem =
 	| {type: 'composition'; compositionId: string}
@@ -79,17 +90,22 @@ export const getTreeEntries = ({ast}: {ast: File}): TreeEntry[] => {
 	return entries;
 };
 
+const matchesTreeItem = (
+	entry: CompositionTreeItem,
+	item: CompositionTreeItem,
+) =>
+	item.type === 'composition'
+		? entry.type === 'composition' && entry.compositionId === item.compositionId
+		: entry.type === 'folder' &&
+			entry.name === item.name &&
+			entry.parentName === item.parentName;
+
 export const requireTreeItem = (
 	entries: TreeEntry[],
 	item: CompositionTreeItem,
 ) => {
 	const matches = entries.filter(({item: entry}) =>
-		item.type === 'composition'
-			? entry.type === 'composition' &&
-				entry.compositionId === item.compositionId
-			: entry.type === 'folder' &&
-				entry.name === item.name &&
-				entry.parentName === item.parentName,
+		matchesTreeItem(entry, item),
 	);
 	if (matches.length !== 1) {
 		throw new Error(
@@ -164,11 +180,13 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	compositionFile,
 	source,
 	destination,
+	destinationFile,
 }: {
 	project: Project;
 	compositionFile: string;
 	source: CompositionTreeItem;
 	destination: CompositionDestination;
+	destinationFile: string | null;
 }): CodemodNodeResult & {updatedNode: NodeReference} => {
 	const filePath = findProjectFile({project, filePath: compositionFile});
 	const input = project.files[filePath];
@@ -176,15 +194,57 @@ export const moveTreeItem = <Project extends CodemodProject>({
 	const entries = getTreeEntries({ast});
 	const entry = requireTreeItem(entries, source);
 	const before = captureJsxNodePaths(ast);
-	const target =
+	const targetItem =
 		destination.type === 'root'
 			? null
-			: requireTreeItem(
-					entries,
-					destination.type === 'folder'
-						? {type: 'folder', ...destination.folder}
-						: destination.target,
-				);
+			: destination.type === 'folder'
+				? {type: 'folder' as const, ...destination.folder}
+				: destination.target;
+	let targetFilePath =
+		destinationFile === null
+			? filePath
+			: findProjectFile({project, filePath: destinationFile});
+	if (
+		destinationFile === null &&
+		targetItem !== null &&
+		!entries.some(({item}) => matchesTreeItem(item, targetItem))
+	) {
+		const matches = Object.entries(project.files).flatMap(
+			([candidateFile, contents]) => {
+				if (!/\.[cm]?[jt]sx?$/.test(candidateFile)) return [];
+				let candidateEntries: TreeEntry[];
+				try {
+					candidateEntries =
+						candidateFile === filePath
+							? entries
+							: getTreeEntries({ast: parseAst(contents)});
+				} catch {
+					return [];
+				}
+
+				return candidateEntries
+					.filter(({item}) => matchesTreeItem(item, targetItem))
+					.map(() => candidateFile);
+			},
+		);
+		if (matches.length !== 1)
+			throw new Error(
+				`Expected one destination matching ${JSON.stringify(targetItem)}, found ${matches.length}. Specify destinationFile to disambiguate.`,
+			);
+		[targetFilePath] = matches;
+	}
+
+	const destinationInput = project.files[targetFilePath];
+	const destinationAst =
+		targetFilePath === filePath ? ast : parseAst(destinationInput);
+	const destinationEntries =
+		targetFilePath === filePath
+			? entries
+			: getTreeEntries({ast: destinationAst});
+	const target =
+		targetItem === null
+			? null
+			: requireTreeItem(destinationEntries, targetItem);
 	const destinationParentName =
 		destination.type === 'folder'
 			? [destination.folder.parentName, destination.folder.name]
@@ -203,7 +263,7 @@ export const moveTreeItem = <Project extends CodemodProject>({
 		}
 
 		if (
-			entries.some(
+			destinationEntries.some(
 				(candidate) =>
 					candidate !== entry &&
 					candidate.item.type === 'folder' &&
@@ -219,7 +279,8 @@ export const moveTreeItem = <Project extends CodemodProject>({
 
 	if (
 		entry === target ||
-		((destination.type === 'folder' || destination.type === 'root') &&
+		(targetFilePath === filePath &&
+			(destination.type === 'folder' || destination.type === 'root') &&
 			entry.parentName === destinationParentName)
 	) {
 		return {
@@ -232,14 +293,139 @@ export const moveTreeItem = <Project extends CodemodProject>({
 		};
 	}
 
-	if (!entry.directJsxChild)
+	if (
+		!entry.directJsxChild &&
+		!(
+			targetFilePath !== filePath &&
+			(entry.path.parentPath?.node.type === 'ReturnStatement' ||
+				entry.path.parentPath?.node.type === 'ArrowFunctionExpression')
+		)
+	)
 		throw new Error(
 			'Could not locate the JSX element to move as a direct JSX child',
 		);
-	if (target && !target.directJsxChild)
+	if (
+		target &&
+		!target.directJsxChild &&
+		!(
+			destination.type === 'folder' &&
+			(target.path.parentPath?.node.type === 'ReturnStatement' ||
+				target.path.parentPath?.node.type === 'ArrowFunctionExpression')
+		)
+	)
 		throw new Error(
 			'Could not locate the JSX destination as a direct JSX child',
 		);
+	if (targetFilePath !== filePath) {
+		const destinationBefore = captureJsxNodePaths(destinationAst);
+		const transferred = transferRegistrationImports({
+			input,
+			ast,
+			entry,
+			filePath,
+			destinationInput,
+			destinationAst,
+			destinationFile: targetFilePath,
+		});
+		const transferredEntry = findJsxElementPathForDeletion(
+			parseAst(transferred.input),
+			requireCapturedNodePath(before, entry.node.openingElement),
+		);
+		if (!transferredEntry)
+			throw new Error(
+				'Could not locate the registration after transferring imports',
+			);
+
+		const insertion = getJsxElementSourceForInsertion({
+			input: transferred.input,
+			element: transferredEntry.node as JSXElement,
+		});
+		const destinationRoot =
+			target?.node ?? findRegistrationRoot({ast: destinationAst, folder: null});
+		const insertionEdit =
+			destination.type === 'before' || destination.type === 'after'
+				? getAdjacentJsxInsertionSourceEdit({
+						input: destinationInput,
+						insertion,
+						position: destination.type,
+						target: target!.node,
+					})
+				: getInsertionRootSourceEdit({
+						input: destinationInput,
+						insertion,
+						root: destinationRoot as never,
+						nullRoot: null,
+						prettierConfigOverride: null,
+						insertInside:
+							destination.type === 'folder' ||
+							destinationRoot.type === 'JSXFragment',
+					});
+		const output = removeUnusedImports({
+			input: applySourceEdits({
+				input,
+				edits: [getNodeSourceEdit({input, jsxPath: entry.path})],
+			}),
+			localNames: transferred.localNames,
+		});
+		const destinationOutput = applySourceEdits({
+			input: destinationInput,
+			edits: [...transferred.importEdits, insertionEdit],
+		});
+		const destinationNextAst = parseAst(destinationOutput);
+		const destinationMovedEntry = requireTreeItem(
+			getTreeEntries({ast: destinationNextAst}),
+			source.type === 'composition'
+				? source
+				: {...source, parentName: destinationParentName},
+		);
+		const destinationAfter = captureJsxNodePaths(destinationNextAst);
+		return {
+			...getNodeEditResult({
+				project,
+				edits: [
+					{
+						filePath,
+						output,
+						nodePathRemappings: getSubtreeEditRemappings({
+							before,
+							after: captureJsxNodePaths(parseAst(output)),
+							subtrees: [
+								{
+									before: collectJsxSubtree(before, entry.node.openingElement),
+									after: new Set(),
+								},
+							],
+						}),
+					},
+					{
+						filePath: targetFilePath,
+						output: destinationOutput,
+						nodePathRemappings: getSubtreeEditRemappings({
+							before: destinationBefore,
+							after: destinationAfter,
+							subtrees: [
+								{
+									before: new Set(),
+									after: collectJsxSubtree(
+										destinationAfter,
+										destinationMovedEntry.node.openingElement,
+									),
+								},
+							],
+						}),
+					},
+				],
+			}),
+			updatedNode: {
+				filePath: targetFilePath,
+				nodePath: requireCapturedNodePath(
+					destinationAfter,
+					destinationMovedEntry.node.openingElement,
+				),
+			},
+		};
+	}
+
 	const nextContents = applySourceEdits({
 		input,
 		edits: getMoveTreeItemSourceEdits({

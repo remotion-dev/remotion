@@ -22,6 +22,10 @@ import {Internals, useVideoConfig} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {
+	getProjectedEffectPropStatuses,
+	projectEffectPropStatuses,
+} from '../../helpers/optimistic-effect-projection';
+import {
 	getEffectFieldsToShow,
 	getFieldsToShow,
 	type EffectSchemaFieldInfo,
@@ -246,7 +250,10 @@ export const KeyframeInspector: React.FC<{
 			};
 		}
 
-		const effect = track.sequence.effects[keyframeField.effectIndex];
+		const effect = Internals.OptimisticEffects.getItems(
+			nodePath,
+			track.sequence.effects,
+		)[keyframeField.effectIndex]?.definition;
 		if (!effect) {
 			return null;
 		}
@@ -255,14 +262,14 @@ export const KeyframeInspector: React.FC<{
 			effect,
 			effectIndex: keyframeField.effectIndex,
 			nodePath,
-			propStatuses,
+			propStatuses: projectEffectPropStatuses(propStatuses, nodePath),
 			getEffectDragOverrides,
 		});
 		const effectField =
 			effectFields.find(
 				(candidate) => candidate.key === keyframeField.fieldKey,
 			) ?? null;
-		const effectStatus = Internals.getEffectPropStatusesCtx({
+		const effectStatus = getProjectedEffectPropStatuses({
 			propStatuses,
 			nodePath,
 			effectIndex: keyframeField.effectIndex,

@@ -1,5 +1,5 @@
 import React, {useContext, useMemo} from 'react';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {CaretDown} from '../icons/caret';
@@ -111,7 +111,7 @@ export const PreviewViewOptionsDropdown: React.FC<{
 				renderAction={(color) => <CaretDown color={color} />}
 				values={values}
 				aria-label="View options"
-				unhoveredColor={WHITE_ALPHA_80}
+				unhoveredColor={LIGHT_TEXT}
 			/>
 		</ActionTooltip>
 	);

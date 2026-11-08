@@ -20,7 +20,10 @@ import {
 	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import {addCompositionToFile} from './codemods/add-composition-to-file';
-import {writeFileAndNotifyFileWatchers} from './file-watcher';
+import {
+	getFileWatcherRegistry,
+	writeFileAndNotifyFileWatchers,
+} from './file-watcher';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	assertNoSymlinks,
@@ -48,6 +51,10 @@ import {
 	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from './preview-server/undo-stack';
+import {
+	notifyBundlerOfFileChange,
+	prepareBundlerForFileWrite,
+} from './preview-server/watch-ignore-next-change';
 
 const hasExpectedFileState = ({
 	expected,
@@ -746,7 +753,12 @@ export const installElement = async ({
 					}
 
 					if (source.oldContents === null) {
+						if (studio) prepareBundlerForFileWrite(source.filePath, null);
 						unlinkSync(source.filePath);
+						if (studio) {
+							getFileWatcherRegistry().recordSourceWrite(source.filePath, null);
+							notifyBundlerOfFileChange(source.filePath, null);
+						}
 					} else {
 						writeSourceFile({
 							file: source.filePath,

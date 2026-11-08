@@ -1,5 +1,5 @@
 import React from 'react';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
@@ -24,7 +24,7 @@ export const ControlButton = (
 			onClick={onClick}
 			renderAction={renderAction}
 			variant={null}
-			unhoveredColor={WHITE_ALPHA_80}
+			unhoveredColor={LIGHT_TEXT}
 		/>
 	);
 };

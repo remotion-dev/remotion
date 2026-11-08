@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
 import {ContextMenu} from '../ContextMenu';
 import {
 	forceSpecificCursor,
 	stopForcingSpecificCursor,
 } from '../ForceSpecificCursor';
+import {UvCoordinateHandle} from '../UvCoordinateHandle';
 
 export type CurvePoints = readonly (readonly [number, number])[];
 
@@ -267,14 +267,9 @@ export const CurvesControl: React.FC<{
 					}}
 				>
 					<path
-						d="M64 0V256M128 0V256M192 0V256M0 64H256M0 128H256M0 192H256"
-						stroke="#38383e"
-						strokeWidth={0.7}
-					/>
-					<path
 						d="M0 256L256 0"
 						stroke="#64646d"
-						strokeDasharray="3 4"
+						strokeDasharray="8 4"
 						strokeWidth={0.8}
 					/>
 					<path
@@ -321,13 +316,14 @@ export const CurvesControl: React.FC<{
 							disabled={!editable}
 							aria-label={`Curve point ${index + 1}, input ${point[0]}, output ${point[1]}`}
 							aria-pressed={selected === index}
-							className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
 							style={{
 								display: 'block',
 								width: 18,
 								height: 18,
-								padding: 5,
+								padding: 0,
 								border: 'none',
+								outline: 'none',
+								boxShadow: 'none',
 								cursor: 'default',
 								touchAction: 'none',
 							}}
@@ -372,16 +368,20 @@ export const CurvesControl: React.FC<{
 								);
 							}}
 						>
-							<span
-								style={{
-									display: 'block',
-									width: 8,
-									height: 8,
-									backgroundColor: selected === index ? color : '#202024',
-									border: `1px solid ${color}`,
-									boxShadow: '0 0 0 1px #151519',
-								}}
-							/>
+							<svg
+								width={18}
+								height={18}
+								viewBox="0 0 18 18"
+								aria-hidden
+								style={{display: 'block'}}
+							>
+								<UvCoordinateHandle
+									x={9}
+									y={9}
+									selected={selected === index}
+									onPointerDown={null}
+								/>
+							</svg>
 						</button>
 					</ContextMenu>
 				))}
