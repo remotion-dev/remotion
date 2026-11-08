@@ -1564,6 +1564,14 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 		);
 	const getColor = (locator: ReturnType<typeof studio.locator>) =>
 		locator.evaluate((element) => window.getComputedStyle(element).color);
+	const lightText = await studio.locator('body').evaluate((body) => {
+		const probe = document.createElement('span');
+		probe.style.color = 'var(--remotion-studio-light-text)';
+		body.appendChild(probe);
+		const {color} = window.getComputedStyle(probe);
+		probe.remove();
+		return color;
+	});
 
 	await addSolid.hover();
 	await expect
@@ -1637,7 +1645,7 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 	await assetActions.hover();
 	await expect.poll(() => getColor(assetActions)).toBe('rgb(255, 255, 255)');
 	await assetItem.hover({position: {x: 10, y: 10}});
-	await expect.poll(() => getColor(assetActions)).toBe('rgb(166, 167, 169)');
+	await expect.poll(() => getColor(assetActions)).toBe(lightText);
 	await neutralArea.hover();
 	await expect
 		.poll(() => getBackgroundColor(assetItem))
@@ -1661,9 +1669,7 @@ test('clears hover backgrounds even if pointer leave events are lost', async ({
 		.poll(() => getColor(compositionActions))
 		.toBe('rgb(255, 255, 255)');
 	await compositionItem.hover({position: {x: 10, y: 10}});
-	await expect
-		.poll(() => getColor(compositionActions))
-		.toBe('rgb(166, 167, 169)');
+	await expect.poll(() => getColor(compositionActions)).toBe(lightText);
 	await compositionActions.click();
 	await expect(studio.getByText('Copy ID', {exact: true})).toBeVisible();
 	await expect
