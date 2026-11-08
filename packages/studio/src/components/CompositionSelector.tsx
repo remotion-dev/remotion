@@ -17,6 +17,10 @@ import {
 	createFolderTree,
 	sortFolderTreeAlphabetically,
 } from '../helpers/create-folder-tree';
+import {
+	applyOptimisticCompositionOperations,
+	useOptimisticCompositionOperations,
+} from '../helpers/optimistic-composition-operations';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
 import {SetSelectedModalContext} from '../state/modals';
@@ -30,9 +34,9 @@ import {
 import {CompositionSelectorItem} from './CompositionSelectorItem';
 import {ContextMenuForTarget} from './ContextMenu';
 import {useSelectComposition} from './InitialCompositionLoader';
+import {moveCompositionOrFolder} from './move-composition-or-folder';
 import {showNotification} from './Notifications/NotificationCenter';
 import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitcherTrigger';
-import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
 export const useCompositionNavigation = () => {
@@ -154,6 +158,13 @@ export const CompositionSelector: React.FC<{
 	const {compositions, canvasContent, folders} = useContext(
 		Internals.CompositionManager,
 	);
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
+	const optimisticOperations = useOptimisticCompositionOperations({
+		compositions,
+		folders,
+	});
 	const {foldersExpanded} = useContext(ExpandedFoldersContext);
 	const {compositionSortOrder, setCompositionSortOrder} =
 		useContext(FolderContext);
@@ -203,12 +214,22 @@ export const CompositionSelector: React.FC<{
 	);
 
 	const items = useMemo(() => {
-		const tree = createFolderTree(compositions, folders, foldersExpanded);
+		const tree = applyOptimisticCompositionOperations({
+			items: createFolderTree(compositions, folders, foldersExpanded),
+			operations: optimisticOperations,
+			foldersExpanded,
+		});
 
 		return compositionSortOrder === 'alphabetical'
 			? sortFolderTreeAlphabetically(tree)
 			: tree;
-	}, [compositionSortOrder, compositions, folders, foldersExpanded]);
+	}, [
+		compositionSortOrder,
+		compositions,
+		folders,
+		foldersExpanded,
+		optimisticOperations,
+	]);
 
 	const toggleFolder = useCallback(
 		(folderName: string, parentName: string | null) => {
@@ -361,30 +382,18 @@ export const CompositionSelector: React.FC<{
 			event.stopPropagation();
 			stopCompositionListAutoScroll();
 			setRootDragHovered(false);
-			const controller = new AbortController();
+			// The dragged row may remount at its new position before `dragend`.
+			activeDragRef.current = null;
 
 			try {
-				const source = dragData.item;
-				const common = {
-					destination: {type: 'root'} as const,
+				const result = await moveCompositionOrFolder({
+					source: dragData.item,
+					destination: {type: 'root'},
 					destinationFile: null,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
-					undoRedoNavigation: null,
-				};
-				const result = await (source.type === 'composition'
-					? moveComposition(
-							{...common, compositionId: source.compositionId},
-							controller.signal,
-						)
-					: moveFolder(
-							{
-								...common,
-								folderName: source.folderName,
-								parentName: source.parentName,
-							},
-							controller.signal,
-						));
+					getSnapshot: () => compositionManagerRef.current,
+				});
 				if (!result.success) {
 					showNotification(result.reason, 4000);
 				}
@@ -395,7 +404,7 @@ export const CompositionSelector: React.FC<{
 				);
 			}
 		},
-		[stopCompositionListAutoScroll],
+		[compositionManagerRef, stopCompositionListAutoScroll],
 	);
 
 	return (

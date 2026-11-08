@@ -35,6 +35,10 @@ import {
 import type {TimelineTrackData} from '../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
+	applyOptimisticCompositionOperations,
+	getActiveOptimisticCompositionOperations,
+} from '../helpers/optimistic-composition-operations';
+import {
 	getProjectedEffectPropStatuses,
 	projectEffectSequence,
 } from '../helpers/optimistic-effect-projection';
@@ -1054,11 +1058,19 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: true},
 					execute: () => {
-						const tree = createFolderTree(
-							compositionsRef.current,
-							foldersRef.current,
-							{},
-						);
+						const snapshot = {
+							compositions: compositionsRef.current,
+							folders: foldersRef.current,
+						};
+						const tree = applyOptimisticCompositionOperations({
+							items: createFolderTree(
+								snapshot.compositions,
+								snapshot.folders,
+								{},
+							),
+							operations: getActiveOptimisticCompositionOperations(snapshot),
+							foldersExpanded: {},
+						});
 						return Promise.resolve({
 							compositions: serializeCompositionTree(tree),
 						});
