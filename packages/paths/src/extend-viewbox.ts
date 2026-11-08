@@ -30,6 +30,13 @@ export const extendViewBox = (currentViewBox: string, scale: number) => {
 	}
 
 	const [x, y, width, height] = splitted;
+
+	if (width <= 0 || height <= 0) {
+		throw new Error(
+			`currentViewBox must have a positive width and height, but got "${currentViewBox}"`,
+		);
+	}
+
 	return [
 		x - (relativeScale * width) / 2,
 		y - (relativeScale * height) / 2,
