@@ -87,6 +87,7 @@ export const handleMask = async ({
 
 	const image = await getRasterImage({
 		src: maskImageInfo.src,
+		sourceProperty: 'mask-image',
 		state: internalState.rasterImageLoaderState,
 	});
 	const {maskSize, maskRepeat} = maskImageInfo;
