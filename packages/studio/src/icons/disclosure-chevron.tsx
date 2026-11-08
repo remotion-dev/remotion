@@ -3,7 +3,7 @@ import React from 'react';
 const style: React.CSSProperties = {
 	display: 'block',
 	height: 10,
-	transition: 'transform 150ms ease',
+	transition: 'var(--remotion-disclosure-transition, transform 150ms ease)',
 	width: 6,
 };
 

@@ -14,6 +14,9 @@ import {
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME, makeHoverableCSS} from './hoverable';
 import {prismVscDarkPlus} from './prism-vsc-dark-plus';
 
+const inspectorSectionTransitionDuration = 120;
+const inspectorSectionTransition = `${inspectorSectionTransitionDuration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+
 const makeDefaultGlobalCSS = () => {
 	const dragAreaFactor = 2;
 	const fromMiddle = 50 / dragAreaFactor;
@@ -54,8 +57,27 @@ const makeDefaultGlobalCSS = () => {
     to { opacity: 1; transform: translateX(0); }
   }
 
+  .__remotion-inspector-section-title {
+    --remotion-disclosure-transition: transform ${inspectorSectionTransition};
+  }
+
   .__remotion-inspector-section-content {
-    transition: grid-template-rows 120ms ease-out, visibility 0s 120ms;
+    transition: grid-template-rows ${inspectorSectionTransition}, opacity ${inspectorSectionTransition}, visibility 0s ${inspectorSectionTransitionDuration}ms;
+  }
+
+  .__remotion-inspector-section-clip {
+    mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-size: 100% 100%;
+    -webkit-mask-size: 100% 100%;
+    transition: mask-size ${inspectorSectionTransition};
+  }
+
+  .__remotion-inspector-section-content[data-expanded="true"] > .__remotion-inspector-section-clip {
+    mask-size: 100% calc(100% + 40px);
+    -webkit-mask-size: 100% calc(100% + 40px);
   }
 
   .__remotion-inspector-section-content[data-expanded="true"] {
@@ -63,7 +85,12 @@ const makeDefaultGlobalCSS = () => {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .__remotion-inspector-section-content {
+    .__remotion-inspector-section-title {
+      --remotion-disclosure-transition: none;
+    }
+
+    .__remotion-inspector-section-content,
+    .__remotion-inspector-section-clip {
       transition: none;
     }
   }

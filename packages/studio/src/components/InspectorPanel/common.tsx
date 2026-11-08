@@ -56,6 +56,10 @@ export const InspectorSectionBody: React.FC<{
 		}
 	}, [expanded]);
 
+	if (expanded && children === null) {
+		return null;
+	}
+
 	return (
 		<div
 			className="__remotion-inspector-section-content"
@@ -73,11 +77,15 @@ export const InspectorSectionBody: React.FC<{
 			style={{
 				display: 'grid',
 				gridTemplateRows: expanded ? '1fr' : '0fr',
+				opacity: expanded ? 1 : 0,
 				visibility: expanded ? 'visible' : 'hidden',
 				pointerEvents: expanded ? undefined : 'none',
 			}}
 		>
-			<div style={{minHeight: 0, overflow: 'hidden'}}>
+			<div
+				className="__remotion-inspector-section-clip"
+				style={{minHeight: 0, overflow: 'hidden'}}
+			>
 				<div style={{...inspectorSectionBody, paddingBottom}}>
 					{expanded || keepMounted
 						? children

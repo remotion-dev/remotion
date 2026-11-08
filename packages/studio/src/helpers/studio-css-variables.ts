@@ -12,7 +12,7 @@ export const studioCssVariables = `
   --remotion-studio-input-background: #2f363d;
   --remotion-studio-tab-hover-background: #232629;
   --remotion-studio-light-color: #ddd;
-  --remotion-studio-light-text: #A6A7A9;
+  --remotion-studio-light-text: #BCBDBF;
   --remotion-studio-computed-value-color: var(--remotion-studio-white-alpha-40);
   --remotion-studio-explorer-shortcut-opacity: 0.6;
   --remotion-studio-ruler-color: #808080;

@@ -30,7 +30,6 @@ import {
 } from '../helpers/use-runtime-values';
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
-import {FullscreenIcon} from '../icons/fullscreen';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
@@ -90,15 +89,15 @@ const container: React.CSSProperties = {
 	fontSize: 12,
 };
 
-const plusIcon: React.CSSProperties = {
-	width: 12,
-	height: 12,
+const sectionHeaderActionStyle: React.CSSProperties = {
+	...NO_HOVER_BACKGROUND_STYLE,
+	marginRight: -6,
 };
 
-const borderRadiusToggleIcon: React.CSSProperties = {
+const sectionHeaderActionIcon: React.CSSProperties = {
 	flexShrink: 0,
-	height: 15,
-	width: 15,
+	height: 12,
+	width: 12,
 };
 
 const transform3DToggleIcon: React.CSSProperties = {
@@ -110,7 +109,8 @@ const transform3DToggleIcon: React.CSSProperties = {
 const transformControlsRow: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
-	justifyContent: 'space-between',
+	gap: 25,
+	justifyContent: 'flex-start',
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 12px`,
 	transform: 'translateX(-3px)',
 };
@@ -1013,13 +1013,14 @@ export const InspectorSequenceSection: React.FC<{
 				}
 				onClick={onConvertBorderRadius}
 				aria-label={borderRadiusActionLabel}
-				renderAction={(color) =>
-					borderRadiusUsesShorthand ? (
-						<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
-					) : (
-						<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
-					)
-				}
+				style={sectionHeaderActionStyle}
+				renderAction={(color) => (
+					<BorderRadiusIcon
+						color={color}
+						individual={borderRadiusUsesShorthand ?? false}
+						style={sectionHeaderActionIcon}
+					/>
+				)}
 			/>
 		</ActionTooltip>
 	) : null;
@@ -1064,9 +1065,9 @@ export const InspectorSequenceSection: React.FC<{
 						disabled={!canAddEffect}
 						onClick={onAddEffect}
 						aria-label="Add effect"
-						style={{...NO_HOVER_BACKGROUND_STYLE, marginRight: -6}}
+						style={sectionHeaderActionStyle}
 						renderAction={(color) => (
-							<svg viewBox="0 0 12 12" style={plusIcon}>
+							<svg viewBox="0 0 12 12" style={sectionHeaderActionIcon}>
 								<path
 									d="M6 1.25v9.5M1.25 6h9.5"
 									fill="none"

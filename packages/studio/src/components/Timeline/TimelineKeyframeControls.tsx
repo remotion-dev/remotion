@@ -18,6 +18,7 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
 import {
 	buildTimelineTree,
 	type TimelineTreeNode,
@@ -859,6 +860,9 @@ export const TimelineKeyframeControls: React.FC<{
 				<button
 					type="button"
 					style={diamondStyle}
+					className={
+						mode === 'inspector' ? FOCUS_VISIBLE_ONLY_CLASS_NAME : undefined
+					}
 					disabled={!canToggleKeyframe || !clientId}
 					onPointerDown={
 						canToggleKeyframe && clientId ? onToggleKeyframe : undefined

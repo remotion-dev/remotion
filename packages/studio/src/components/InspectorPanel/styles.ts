@@ -5,6 +5,7 @@ import {
 	LIGHT_TEXT,
 	LINE_COLOR,
 	WHITE,
+	WHITE_ALPHA_40,
 } from '../../helpers/colors';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT} from '../layout';
@@ -43,7 +44,7 @@ export const sequenceHeaderDivider: React.CSSProperties = {
 };
 
 export const sectionHeader: React.CSSProperties = {
-	color: LIGHT_TEXT,
+	color: WHITE_ALPHA_40,
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	fontWeight: 'bold',
