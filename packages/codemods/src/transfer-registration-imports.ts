@@ -95,6 +95,7 @@ export const transferRegistrationImports = ({
 					![
 						'Program',
 						'BlockStatement',
+						'StaticBlock',
 						'TSModuleBlock',
 						'SwitchStatement',
 					].includes(scope.node.type)
