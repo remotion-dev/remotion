@@ -13,6 +13,7 @@ import {FilmIcon} from '../../icons/video';
 import {InlineCompositionName} from '../InlineCompositionName';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {
+	InspectorHeaderActionSlot,
 	InspectorLocationCopy,
 	inspectorHeaderIconStyle,
 } from '../InspectorLocationCopy';
@@ -102,11 +103,10 @@ export const CompositionInspectorHeader = () => {
 		<InspectorInfoHeader contentSized padding="4px 0 0">
 			{video ? (
 				<InspectorLocationCopy
-					trailingActions={null}
 					contextForAgents={contextForAgents}
 					isEditing={isEditing}
-					actions={
-						<>
+					leadingActions={
+						<InspectorHeaderActionSlot>
 							{validatedLocation ? (
 								<InspectorOpenInEditor
 									menuTrigger={{
@@ -120,6 +120,10 @@ export const CompositionInspectorHeader = () => {
 									showTooltips
 								/>
 							) : null}
+						</InspectorHeaderActionSlot>
+					}
+					actions={
+						<InspectorHeaderActionSlot>
 							{componentLocation ? (
 								<InspectorOpenInEditor
 									menuTrigger={{
@@ -133,7 +137,7 @@ export const CompositionInspectorHeader = () => {
 									showTooltips
 								/>
 							) : null}
-						</>
+						</InspectorHeaderActionSlot>
 					}
 				>
 					<InlineCompositionName

@@ -225,10 +225,13 @@ const inlineLabelText: React.CSSProperties = {
 
 const INSPECTOR_ACTION_ICON_SIZE = 18;
 
+export const INSPECTOR_HEADER_ACTION_WIDTH = 34;
+
 export const inspectorHeaderActionStyle: React.CSSProperties = {
 	...NO_HOVER_BACKGROUND_STYLE,
 	padding: '0 7px',
-	width: 'auto',
+	width: INSPECTOR_HEADER_ACTION_WIDTH,
+	flexShrink: 0,
 };
 
 export const inspectorActionIconStyle: React.CSSProperties = {

@@ -472,7 +472,7 @@ export const AssetInfo: React.FC<{
 				}
 			>
 				<InspectorLocationCopy
-					trailingActions={null}
+					leadingActions={null}
 					contextForAgents={assetContext}
 					isEditing={isEditingName}
 					actions={

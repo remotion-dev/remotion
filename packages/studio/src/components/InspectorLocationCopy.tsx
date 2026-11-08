@@ -6,6 +6,7 @@ import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {
+	INSPECTOR_HEADER_ACTION_WIDTH,
 	inspectorActionIconStyle,
 	inspectorHeaderActionStyle,
 } from './InspectorPanel/common';
@@ -36,7 +37,7 @@ const action: React.CSSProperties = {
 	flexShrink: 0,
 	height: 24,
 	marginLeft: 0,
-	marginRight: `calc(${INSPECTOR_RIGHT_EDGE_INSET}px - 7px - var(--remotion-inspector-right-offset, 0px))`,
+	marginRight: `calc(${INSPECTOR_RIGHT_EDGE_INSET - (INSPECTOR_HEADER_ACTION_WIDTH - 12) / 2}px - var(--remotion-inspector-right-offset, 0px))`,
 };
 
 export const inspectorHeaderIconStyle: React.CSSProperties = {
@@ -56,6 +57,18 @@ const copyIconContainer: React.CSSProperties = {
 	justifyContent: 'center',
 	width: 12,
 };
+
+const actionSlot: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	flexShrink: 0,
+	height: 24,
+	width: INSPECTOR_HEADER_ACTION_WIDTH,
+};
+
+export const InspectorHeaderActionSlot: React.FC<{
+	readonly children: React.ReactNode;
+}> = ({children}) => <span style={actionSlot}>{children}</span>;
 
 export const InspectorHeaderAction: React.FC<{
 	readonly label: string;
@@ -79,9 +92,9 @@ export const InspectorLocationCopy: React.FC<{
 	readonly children: React.ReactNode;
 	readonly contextForAgents: string | null;
 	readonly actions: React.ReactNode;
-	readonly trailingActions: React.ReactNode;
+	readonly leadingActions: React.ReactNode;
 	readonly isEditing: boolean;
-}> = ({children, contextForAgents, actions, trailingActions, isEditing}) => {
+}> = ({children, contextForAgents, actions, leadingActions, isEditing}) => {
 	const rowRef = useRef<HTMLDivElement>(null);
 	useInspectorRightOffset(rowRef);
 	const {copied, markCopied} = useCopyFeedback();
@@ -132,6 +145,7 @@ export const InspectorLocationCopy: React.FC<{
 			<div style={content}>{children}</div>
 			{isEditing ? null : (
 				<div style={action}>
+					{leadingActions}
 					{actions}
 					{contextForAgents ? (
 						<InspectorHeaderAction
@@ -141,7 +155,6 @@ export const InspectorLocationCopy: React.FC<{
 							renderIcon={renderCopyAction}
 						/>
 					) : null}
-					{trailingActions}
 				</div>
 			)}
 		</div>

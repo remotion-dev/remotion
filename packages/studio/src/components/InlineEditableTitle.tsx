@@ -79,7 +79,7 @@ const titleInput: React.CSSProperties = {
 const inspectorTitleWrapper: React.CSSProperties = {
 	...titleWrapper,
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 15,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	margin: '0 0 0 4px',
 	textOverflow: 'clip',
@@ -90,7 +90,7 @@ const inspectorTitleInner: React.CSSProperties = {
 	...titleInner,
 	alignItems: 'center',
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 15,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	paddingBottom: 0,
 	paddingLeft: INSPECTOR_PANEL_HORIZONTAL_PADDING - 4,
@@ -102,7 +102,7 @@ const inspectorTitleInner: React.CSSProperties = {
 const inspectorTitleGridItem: React.CSSProperties = {
 	...titleGridItem,
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 15,
 	lineHeight: '18px',
 	maskImage:
 		'linear-gradient(to right, black calc(100% - 16px), transparent calc(100% - 6px))',
@@ -114,7 +114,7 @@ const inspectorTitleGridItem: React.CSSProperties = {
 const inspectorTitleInput: React.CSSProperties = {
 	...titleInput,
 	fontFamily: 'sans-serif',
-	fontSize: 13,
+	fontSize: 15,
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	marginLeft: -6,
 	maskImage: 'none',

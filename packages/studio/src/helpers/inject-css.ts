@@ -18,7 +18,7 @@ const inspectorSectionTransitionDuration = 120;
 const inspectorSectionTransition = `${inspectorSectionTransitionDuration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
 
 const makeDefaultGlobalCSS = () => {
-	const dragAreaFactor = 2;
+	const dragAreaFactor = 6;
 	const fromMiddle = 50 / dragAreaFactor;
 
 	return `

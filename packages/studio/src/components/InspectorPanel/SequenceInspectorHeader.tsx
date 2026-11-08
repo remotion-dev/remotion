@@ -9,6 +9,7 @@ import {InlineEditableTitle} from '../InlineEditableTitle';
 import {InspectorInfoHeader} from '../InspectorInfoHeader';
 import {
 	InspectorHeaderAction,
+	InspectorHeaderActionSlot,
 	InspectorLocationCopy,
 	inspectorHeaderIconStyle,
 } from '../InspectorLocationCopy';
@@ -108,26 +109,30 @@ export const SequenceInspectorHeader: React.FC<{
 				contextForAgents={contextForAgents}
 				isEditing={isEditing}
 				actions={
-					sourceLocation.validatedLocation ? (
-						<InspectorOpenInEditor
-							menuTrigger={{label: 'Component', renderIcon: renderReactIcon}}
-							annotationName={componentName ?? null}
-							contextForAgents={contextForAgents}
-							locationType={null}
-							location={sourceLocation.validatedLocation}
-							showTooltips
-						/>
-					) : null
+					<InspectorHeaderActionSlot>
+						{sourceLocation.validatedLocation ? (
+							<InspectorOpenInEditor
+								menuTrigger={{label: 'Component', renderIcon: renderReactIcon}}
+								annotationName={componentName ?? null}
+								contextForAgents={contextForAgents}
+								locationType={null}
+								location={sourceLocation.validatedLocation}
+								showTooltips
+							/>
+						) : null}
+					</InspectorHeaderActionSlot>
 				}
-				trailingActions={
-					documentationLink ? (
-						<InspectorHeaderAction
-							label={`Open docs for ${componentName ?? fallbackDisplayName}`}
-							disabled={false}
-							onClick={openDocumentationLink}
-							renderIcon={renderDocsIcon}
-						/>
-					) : null
+				leadingActions={
+					<InspectorHeaderActionSlot>
+						{documentationLink ? (
+							<InspectorHeaderAction
+								label={`Open docs for ${componentName ?? fallbackDisplayName}`}
+								disabled={false}
+								onClick={openDocumentationLink}
+								renderIcon={renderDocsIcon}
+							/>
+						) : null}
+					</InspectorHeaderActionSlot>
 				}
 			>
 				<InlineEditableTitle
