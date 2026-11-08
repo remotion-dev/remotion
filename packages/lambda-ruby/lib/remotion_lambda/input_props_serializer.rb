@@ -1,5 +1,3 @@
-require 'digest'
-
 module RemotionLambda
   # Uploads oversized input props to S3, mirroring the reference implementations
   # in the JavaScript, Go, Python and PHP SDKs: AWS Lambda rejects synchronous
@@ -29,7 +27,7 @@ module RemotionLambda
       return payload unless needs_upload?(payload_string.bytesize, render_type)
 
       bucket_name = payload[:bucketName] || get_or_create_bucket(s3_client, region)
-      hash = Digest::SHA256.hexdigest(payload_string)
+      hash = random_hash
       s3_client.put_object(
         bucket: bucket_name,
         key: format(INPUT_PROPS_KEY_TEMPLATE, hash),
