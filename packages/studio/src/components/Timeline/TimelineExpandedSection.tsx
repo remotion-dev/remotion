@@ -8,6 +8,7 @@ import {
 	getTreeRowHeight,
 	TIMELINE_ITEM_BORDER_BOTTOM,
 } from '../../helpers/timeline-layout';
+import {timelineNodePathInfoToStableKey} from '../../helpers/timeline-node-path-key';
 import {TimelineExpandedRow} from './TimelineExpandedRow';
 import {TimelineRowSelectedBackgroundContext} from './TimelineRowChrome';
 import {
@@ -88,7 +89,9 @@ export const TimelineExpandedSection: React.FC<{
 			<div style={style}>
 				{flat.map(({node, depth}, i) => {
 					return (
-						<React.Fragment key={JSON.stringify(node.nodePathInfo)}>
+						<React.Fragment
+							key={timelineNodePathInfoToStableKey(node.nodePathInfo)}
+						>
 							{i > 0 ? <div style={separator} /> : null}
 							<TimelineExpandedRow
 								node={node}

@@ -6,6 +6,10 @@ import type {
 } from '@remotion/renderer';
 import type {ApiHandler, QueueMethods} from './api-types';
 import {parseRequestBody} from './parse-body';
+import {
+	parseSourceMutationGuard,
+	withSourceMutationGuard,
+} from './source-mutation-guard';
 import {validateSameOrigin} from './validate-same-origin';
 
 export const handleRequest = async <Req, Res>({
@@ -49,20 +53,26 @@ export const handleRequest = async <Req, Res>({
 	try {
 		const body = (await parseRequestBody(request, {maxBytes: null})) as Req;
 
-		const outputData = await handler({
-			entryPoint,
+		const guard = parseSourceMutationGuard(
+			request.headers['x-remotion-source-revision'],
 			remotionRoot,
-			request,
-			response,
-			input: body,
-			logLevel,
-			methods,
-			binariesDirectory,
-			publicDir,
-			configFile,
-			getDefaultCodingAgent,
-			getDefaultEditor,
-		});
+		);
+		const outputData = await withSourceMutationGuard(guard, () =>
+			handler({
+				entryPoint,
+				remotionRoot,
+				request,
+				response,
+				input: body,
+				logLevel,
+				methods,
+				binariesDirectory,
+				publicDir,
+				configFile,
+				getDefaultCodingAgent,
+				getDefaultEditor,
+			}),
+		);
 
 		response.end(
 			JSON.stringify({

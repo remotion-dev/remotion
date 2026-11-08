@@ -714,6 +714,7 @@ export type AddEffectRequest = {
 export type AddEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
 			insertedEffect: {
 				effectIndex: number;
 				nodePath: SequencePropsSubscriptionKey['nodePath'];
@@ -736,6 +737,7 @@ export type ReorderEffectRequest = {
 export type ReorderEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -754,6 +756,12 @@ export type DuplicateEffectRequest = DuplicateEffectRequestItem[];
 export type DuplicateEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation;
+			duplicatedEffects: {
+				absolutePath: string;
+				nodePath: SequenceNodePath;
+				effectIndex: number;
+			}[];
 	  }
 	| {
 			success: false;
@@ -969,6 +977,7 @@ export type DeleteEffectRequest = DeleteEffectRequestItem[];
 export type DeleteEffectResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;
@@ -988,6 +997,7 @@ export type PasteEffectsRequest = {
 export type PasteEffectsResponse =
 	| {
 			success: true;
+			nodePathMutation: SequenceNodePathMutation | null;
 	  }
 	| {
 			success: false;

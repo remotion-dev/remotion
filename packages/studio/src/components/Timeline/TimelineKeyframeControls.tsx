@@ -19,6 +19,7 @@ import type {
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
 import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
 	buildTimelineTree,
 	type TimelineTreeNode,
@@ -220,7 +221,7 @@ const resolveKeyframeControlTarget = ({
 	}
 
 	const tree = buildTimelineTree({
-		pendingEffectDeletion: Internals.OptimisticEffectDeletion.get(
+		optimisticEffects: Internals.OptimisticEffects.get(
 			nodePathInfo.sequenceSubscriptionKey,
 		),
 		sequence: track.sequence,
@@ -284,11 +285,7 @@ const resolveKeyframeControlTarget = ({
 		};
 	}
 
-	if (Internals.OptimisticEffectDeletion.get(nodePath) !== null) {
-		return null;
-	}
-
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: fieldNode.field.effectIndex,

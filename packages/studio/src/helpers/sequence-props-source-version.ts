@@ -3,6 +3,11 @@ import type {ContextType} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import {clearPendingSequenceSplits} from '../components/Timeline/pending-sequence-splits';
+import {
+	setExternalSourceSession,
+	isCurrentExternalSourceVersion,
+} from './external-source-changes';
+import {clearOptimisticEffectHistory} from './optimistic-effect-mutations';
 
 type Setters = ContextType<typeof Internals.VisualModeSettersContext>;
 const versions = new WeakMap<
@@ -17,8 +22,10 @@ let sourceSessionId: string | null = null;
 
 export const getSequencePropsSourceSession = () => sourceSessionId;
 export const setSequencePropsSourceSession = (sessionId: string | null) => {
+	setExternalSourceSession(sessionId);
 	if (sourceSessionId !== sessionId) {
-		Internals.OptimisticEffectDeletion.clear();
+		Internals.OptimisticEffects.clear();
+		clearOptimisticEffectHistory();
 		clearPendingSequenceSplits();
 	}
 
@@ -34,6 +41,8 @@ export const acceptSequencePropsSourceVersion = (
 ) => {
 	if (version === null) return true;
 	if (version.sessionId !== sourceSessionId) return false;
+	if (!isCurrentExternalSourceVersion(nodePath.absolutePath, version))
+		return false;
 	let state = versions.get(updateDragOverrides);
 	if (!state || state.sessionId !== sourceSessionId) {
 		state = {sessionId: version.sessionId, nodes: new Map()};

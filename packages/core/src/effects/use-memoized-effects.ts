@@ -6,9 +6,9 @@ import {
 } from '../get-effective-visual-mode-value.js';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
 import {
-	OptimisticEffectDeletion,
-	useOptimisticEffectDeletion,
-} from '../optimistic-effect-deletion.js';
+	OptimisticEffects,
+	useOptimisticEffects,
+} from '../optimistic-effects.js';
 import {areRegistryEntriesEqual} from '../registry-store.js';
 import {createRuntimeValueStore} from '../runtime-value-store.js';
 import type {RuntimeValueStore} from '../runtime-value-store.js';
@@ -323,7 +323,6 @@ export const getPropStatusesCtx = (
 export type GetPropStatusesType = typeof getPropStatusesCtx;
 
 type PreparedEffect = {
-	readonly deleted: boolean;
 	readonly definition: EffectDefinition<unknown>;
 	readonly sourceKey: string;
 	readonly params: unknown;
@@ -334,7 +333,7 @@ type PreparedEffect = {
 };
 
 export const useMemoizedEffects = ({
-	effects,
+	effects: sourceEffects,
 	runtimeValues,
 	overrideId,
 	videoConfigValues,
@@ -360,30 +359,30 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
+	const optimisticNodePath = isStudio && !isRendering ? nodePath : null;
+	const optimistic = useOptimisticEffects(optimisticNodePath);
+	const optimisticHistory = useRef(
+		new Map<string, EffectDescriptor<unknown>>(),
+	);
+	const projection = useMemo(
+		() =>
+			OptimisticEffects.projectEffects(
+				optimistic?.nodePath ?? optimisticNodePath,
+				sourceEffects,
+				optimisticHistory.current,
+			),
+		[optimistic, optimisticNodePath, sourceEffects],
+	);
+	const {effects} = projection;
+	useLayoutEffect(() => {
+		if (optimisticNodePath !== null)
+			OptimisticEffects.reconcile(
+				optimisticNodePath,
+				sourceEffects.map((effect) => effect.definition),
+			);
+	}, [optimisticNodePath, optimistic, sourceEffects]);
 	const effectDragOverrides = useEffectDragOverridesForNodePath(nodePath);
 	const sequenceStatus = usePropStatusForNodePath(nodePath);
-	const pendingDeletion = useOptimisticEffectDeletion(
-		isStudio && !isRendering ? nodePath : null,
-	);
-	const definitions = useMemo(
-		() =>
-			pendingDeletion === null
-				? null
-				: effects.map((effect) => effect.definition),
-		[effects, pendingDeletion],
-	);
-	const deletedIndices = useMemo(
-		() => new Set(pendingDeletion?.effectIndices ?? []),
-		[pendingDeletion],
-	);
-	const matchesPendingDeletion =
-		pendingDeletion !== null &&
-		definitions !== null &&
-		OptimisticEffectDeletion.matches(pendingDeletion, definitions);
-	useLayoutEffect(() => {
-		if (pendingDeletion !== null)
-			OptimisticEffectDeletion.reconcile(nodePath, definitions);
-	}, [definitions, nodePath, pendingDeletion]);
 
 	const effectPropStatuses = useMemo(
 		() =>
@@ -392,33 +391,52 @@ export const useMemoizedEffects = ({
 					return null;
 				}
 
-				const status = getEffectStatusForSequenceStatus({
-					status: sequenceStatus,
-					effectIndex,
-					videoConfigValues,
-				});
-				return status.type === 'can-update-effect' ? status.props : null;
+				const sourceIndex =
+					projection.sourceIndices === null
+						? effectIndex
+						: projection.sourceIndices[effectIndex];
+				const status =
+					sourceIndex === null || sourceIndex === undefined
+						? null
+						: getEffectStatusForSequenceStatus({
+								status: sequenceStatus,
+								effectIndex: sourceIndex,
+								videoConfigValues,
+							});
+				const props =
+					status?.type === 'can-update-effect' ? status.props : null;
+				const id = projection.itemIds?.[effectIndex];
+				const overlay = id
+					? OptimisticEffects.getPropStatuses(nodePath, id)
+					: null;
+				return overlay === null
+					? props
+					: {
+							...props,
+							...evaluateSourcePropStatuses(overlay, videoConfigValues),
+						};
 			}),
-		[effects.length, nodePath, sequenceStatus, videoConfigValues],
+		[
+			effects.length,
+			nodePath,
+			sequenceStatus,
+			videoConfigValues,
+			projection.sourceIndices,
+			projection.itemIds,
+		],
 	);
 	const animatedEffects = useMemo(
 		() =>
 			effectPropStatuses.map(
 				(status, index) =>
-					!(matchesPendingDeletion && deletedIndices.has(index)) &&
-					(Object.values(status ?? {}).some(
+					Object.values(status ?? {}).some(
 						(prop) => prop.status === 'keyframed',
 					) ||
-						Object.values(
-							effectDragOverrides[index] ?? emptyDragOverrides,
-						).some((override) => override.type === 'keyframed')),
+					Object.values(effectDragOverrides[index] ?? emptyDragOverrides).some(
+						(override) => override.type === 'keyframed',
+					),
 			),
-		[
-			deletedIndices,
-			effectDragOverrides,
-			effectPropStatuses,
-			matchesPendingDeletion,
-		],
+		[effectDragOverrides, effectPropStatuses],
 	);
 	// Runtime animations arrive through props. Only source/drag keyframes need
 	// their own clock, and an animated effect must not invalidate static siblings.
@@ -429,7 +447,6 @@ export const useMemoizedEffects = ({
 	const effectsWithPreview = preview === null ? effects : [...effects, preview];
 	const prepared = effectsWithPreview.map(
 		(descriptor, index): PreparedEffect => {
-			const deleted = matchesPendingDeletion && deletedIndices.has(index);
 			const propStatus = effectPropStatuses[index] ?? null;
 			const dragOverridesMap =
 				index < effects.length
@@ -441,7 +458,6 @@ export const useMemoizedEffects = ({
 			const cached = previous?.prepared[index];
 			if (
 				cached &&
-				cached.deleted === deleted &&
 				cached.definition === descriptor.definition &&
 				cached.sourceKey === descriptor.effectKey &&
 				areEffectParamsEqual(cached.params, descriptor.params) &&
@@ -463,15 +479,9 @@ export const useMemoizedEffects = ({
 				dragOverrides,
 				frame,
 			});
-			const params = deleted
-				? {...(merged.params as Record<string, unknown>), disabled: true}
-				: merged.params;
-			const effectKey = deleted
-				? descriptor.definition.calculateKey(params)
-				: merged.effectKey;
+			const {params, effectKey} = merged;
 
 			return {
-				deleted,
 				definition: descriptor.definition,
 				sourceKey: descriptor.effectKey,
 				// Snapshot plain params so shallow comparisons see in-place field edits.
@@ -485,7 +495,7 @@ export const useMemoizedEffects = ({
 				dragOverrides,
 				frame: effectFrame,
 				value:
-					cached?.deleted === deleted &&
+					cached &&
 					cached.value.definition === descriptor.definition &&
 					cached.value.effectKey === effectKey
 						? cached.value

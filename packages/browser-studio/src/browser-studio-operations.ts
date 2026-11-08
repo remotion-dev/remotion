@@ -606,12 +606,14 @@ const addDependenciesToProject = ({
 			: {};
 	parsed.dependencies = {...currentDependencies, ...dependencies};
 	const indentation = existing?.match(/\n([ \t]+)"/)?.[1] ?? '  ';
+	const contents = `${JSON.stringify(parsed, null, indentation)}\n`;
+	if (contents === existing) return project;
 
 	return {
 		...project,
 		files: {
 			...project.files,
-			[packageJsonPath]: `${JSON.stringify(parsed, null, indentation)}\n`,
+			[packageJsonPath]: contents,
 		},
 	};
 };
@@ -1323,19 +1325,24 @@ export const createBrowserStudioOperations = ({
 						nodePath: request.sequenceNodePath.nodePath,
 					},
 				});
-				controller.applyMutation({
+				const nodePathMutation = controller.applyMutation({
 					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
-					nodePathMutationFiles: null,
+					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) =>
 						applyCodemodChanges(
 							addDependenciesToProject({dependencies, project: current}),
 							result.changes,
 						),
 				});
+				if (nodePathMutation === null) {
+					throw new Error('Effect insertion did not produce source mappings');
+				}
+
 				return {
 					success: true,
+					nodePathMutation,
 					insertedEffect: {
 						effectIndex: result.insertedEffect.effectIndex,
 						nodePath: result.insertedEffect.nodePath,
@@ -1361,14 +1368,14 @@ export const createBrowserStudioOperations = ({
 							item.type === 'single-effect' ? item.effectIndex : null,
 					})),
 				});
-				controller.applyMutation({
+				const nodePathMutation = controller.applyMutation({
 					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: result.changes.map(({filePath}) => filePath).join(', '),
-					nodePathMutationFiles: null,
+					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) => applyCodemodChanges(current, result.changes),
 				});
-				return {success: true};
+				return {success: true, nodePathMutation};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -1388,14 +1395,28 @@ export const createBrowserStudioOperations = ({
 						effectIndex: item.effectIndex,
 					})),
 				});
-				controller.applyMutation({
+				const nodePathMutation = controller.applyMutation({
 					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: result.changes.map(({filePath}) => filePath).join(', '),
-					nodePathMutationFiles: null,
+					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) => applyCodemodChanges(current, result.changes),
 				});
-				return {success: true};
+				if (nodePathMutation === null) {
+					throw new Error('Effect duplication did not produce source mappings');
+				}
+
+				return {
+					success: true,
+					nodePathMutation,
+					duplicatedEffects: result.insertedEffects.map(
+						({filePath, nodePath, effectIndex}) => ({
+							absolutePath: filePath,
+							nodePath,
+							effectIndex,
+						}),
+					),
+				};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -1428,17 +1449,34 @@ export const createBrowserStudioOperations = ({
 					targetSequenceNodePath: request.targetSequenceNodePath.nodePath,
 					type: request.type,
 				});
-				controller.applyMutation({
+				const nodePathMutation = controller.applyMutation({
 					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
-					nodePathMutationFiles: null,
-					mutate: () => ({
-						...project,
-						files: {...project.files, [absolutePath]: result.output},
-					}),
+					nodePathMutationFiles: [
+						{
+							absolutePath,
+							remappings: CodemodsInternals.getUnchangedStructureRemappings({
+								input: project.files[absolutePath],
+								output: result.output,
+							}),
+						},
+					],
+					mutate: (current) =>
+						applyCodemodChanges(
+							addDependenciesToProject({dependencies, project: current}),
+							result.output === project.files[absolutePath]
+								? []
+								: [
+										{
+											filePath: absolutePath,
+											previousContents: project.files[absolutePath],
+											nextContents: result.output,
+										},
+									],
+						),
 				});
-				return {success: true};
+				return {success: true, nodePathMutation};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -1459,14 +1497,14 @@ export const createBrowserStudioOperations = ({
 					},
 					toIndex: request.toIndex,
 				});
-				controller.applyMutation({
+				const nodePathMutation = controller.applyMutation({
 					undoRedoNavigation: null,
 					timelineSelection: null,
 					fileName: absolutePath,
-					nodePathMutationFiles: null,
+					nodePathMutationFiles: getNodePathMutationFiles(result),
 					mutate: (current) => applyCodemodChanges(current, result.changes),
 				});
-				return {success: true};
+				return {success: true, nodePathMutation};
 			} catch (error) {
 				return getStructuredError(error);
 			}
@@ -3306,7 +3344,28 @@ export const createBrowserStudioOperations = ({
 		},
 		resetHistory: () => {
 			const project = getProject();
+			const changedFiles = new Set([
+				...sourceFileStates.keys(),
+				...Object.keys(project.files),
+			]);
+			for (const file of [...changedFiles]) {
+				if (sourceFileStates.get(file)?.content === project.files[file])
+					changedFiles.delete(file);
+			}
+
 			const sourceVersions = captureSourceVersions(project);
+			for (const fileName of changedFiles) {
+				controller.emitEvent({
+					type: 'external-source-changed',
+					resetUndoHistory: true,
+					fileName,
+					sourceVersion: sourceVersions.get(fileName) ?? {
+						sessionId: sourceVersionSessionId,
+						revision: ++sourceRevision,
+					},
+				});
+			}
+
 			controller.resetHistory();
 			refreshDefaultPropsSubscriptions();
 			refreshSequencePropsSubscriptions(project, sourceVersions, false);
