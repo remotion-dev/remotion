@@ -245,7 +245,7 @@ export const isDuplicatableEffectSelection = (
 	type: 'sequence-effect';
 } => selection.type === 'sequence-effect';
 
-const duplicateEffectsFromSource = (
+export const duplicateEffectsFromSource = (
 	effects: readonly (TimelineSelection & {type: 'sequence-effect'})[],
 ): Promise<void> => {
 	return duplicateEffects(
