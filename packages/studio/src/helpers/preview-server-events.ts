@@ -8,6 +8,7 @@ import {
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
 import {recordExternalSourceChange} from './external-source-changes';
+import {observeCompositionOperationsBuild} from './optimistic-composition-operations';
 import {queueSequenceNodePathMutation} from './sequence-node-path-mutations';
 import {
 	getSequencePropsSourceSession,
@@ -78,8 +79,11 @@ const dispatch = (event: EventSourceEvent) => {
 		notifyConnectionState();
 	}
 
-	if (event.type === 'hmr' && messageListeners.size === 0) {
-		pendingHmrEvents.push(event);
+	if (event.type === 'hmr') {
+		observeCompositionOperationsBuild(event.hmrEvent);
+		if (messageListeners.size === 0) {
+			pendingHmrEvents.push(event);
+		}
 	}
 
 	for (const listener of messageListeners) {

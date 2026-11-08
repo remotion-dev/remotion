@@ -17,7 +17,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {type _InternalTypes} from 'remotion';
+import {Internals, type _InternalTypes} from 'remotion';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {
 	CURRENT_COLOR,
@@ -44,7 +44,6 @@ import {SetSelectedModalContext} from '../state/modals';
 import {makeCompositionDragData} from './composition-drag-data';
 import {getCompositionContextMenuItems} from './composition-menu-items';
 import {
-	compositionSelectorDragDataToSymbolicatedStack,
 	hasCompositionSelectorDragData,
 	makeCompositionSelectorDragData,
 	parseCompositionSelectorDragData,
@@ -56,9 +55,9 @@ import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
 import {COMPACT_CONTROL_ROW_HEIGHT, Row} from './layout';
+import {moveCompositionOrFolder} from './move-composition-or-folder';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
-import {moveComposition, moveFolder} from './RenderQueue/actions';
 import {SidebarRenderButton} from './SidebarRenderButton';
 import {useResolvedStack} from './Timeline/use-resolved-stack';
 import {useOpenInMenuApps} from './use-open-in-menu-apps';
@@ -216,11 +215,19 @@ const canMoveIntoFolder = ({
 	);
 };
 
+// A pending move relocates the registration from one project-relative file to
+// another. Applied in order to the row's resolved source file.
+export type SourceFileRemap = {
+	readonly from: string;
+	readonly to: string;
+};
+
 export type CompositionSelectorItemType =
 	| {
 			key: string;
 			type: 'composition';
 			composition: _InternalTypes['AnyComposition'];
+			sourceFileRemaps: readonly SourceFileRemap[];
 	  }
 	| {
 			key: string;
@@ -230,6 +237,7 @@ export type CompositionSelectorItemType =
 			parentName: string | null;
 			items: CompositionSelectorItemType[];
 			expanded: boolean;
+			sourceFileRemaps: readonly SourceFileRemap[];
 	  };
 
 export const CompositionSelectorItem: React.FC<{
@@ -401,6 +409,14 @@ export const CompositionSelectorItem: React.FC<{
 	const resolvedLocation = useResolvedStack(
 		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
+	const sourceFile = useMemo(
+		() =>
+			item.sourceFileRemaps.reduce<string | null>(
+				(file, remap) => (file === remap.from ? remap.to : file),
+				resolvedLocation?.source ?? null,
+			),
+		[item.sourceFileRemaps, resolvedLocation?.source],
+	);
 
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (item.type === 'composition') {
@@ -444,7 +460,7 @@ export const CompositionSelectorItem: React.FC<{
 			event.dataTransfer.effectAllowed = 'copyMove';
 			const selectorDragData = makeCompositionSelectorDragData({
 				item: itemDescriptor,
-				sourceFile: resolvedLocation?.source ?? null,
+				sourceFile,
 			});
 			event.dataTransfer.setData(
 				selectorDragData.mimeType,
@@ -456,7 +472,7 @@ export const CompositionSelectorItem: React.FC<{
 				const compositionDragData = makeCompositionDragData({
 					compositionFile:
 						browserStudioOperations === null
-							? (resolvedLocation?.source ?? null)
+							? sourceFile
 							: browserStudioOperations.getCompositionFile(item.composition.id),
 					compositionId: item.composition.id,
 					width: item.composition.width ?? null,
@@ -469,7 +485,7 @@ export const CompositionSelectorItem: React.FC<{
 				);
 			}
 		},
-		[activeDragRef, item, parentFolderPath, resolvedLocation?.source],
+		[activeDragRef, item, parentFolderPath, sourceFile],
 	);
 	const onItemDragEnd = useCallback(() => {
 		activeDragRef.current = null;
@@ -637,10 +653,24 @@ export const CompositionSelectorItem: React.FC<{
 		],
 	);
 
-	const onRowDragLeave = useCallback(() => {
-		cancelFolderExpansion();
-		updateDropPosition(null);
-	}, [cancelFolderExpansion, updateDropPosition]);
+	const onRowDragLeave = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (
+				event.relatedTarget instanceof Node &&
+				event.currentTarget.contains(event.relatedTarget)
+			) {
+				return;
+			}
+
+			cancelFolderExpansion();
+			updateDropPosition(null);
+		},
+		[cancelFolderExpansion, updateDropPosition],
+	);
+
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 
 	const moveItem = useCallback(
 		async ({
@@ -650,41 +680,26 @@ export const CompositionSelectorItem: React.FC<{
 			destination: CompositionDestination;
 			dragData: CompositionSelectorDragData;
 		}) => {
+			// The dragged row may remount at its new position before `dragend`.
+			activeDragRef.current = null;
+			if (
+				destination.type === 'folder' &&
+				item.type === 'folder' &&
+				!item.expanded
+			) {
+				toggleFolder(item.folderName, item.parentName);
+			}
+
 			try {
-				const {item: source} = dragData;
-				const {signal} = new AbortController();
-				const common = {
+				const result = await moveCompositionOrFolder({
+					dragData,
 					destination,
-					destinationFile: resolvedLocation?.source ?? null,
-					symbolicatedStack:
-						compositionSelectorDragDataToSymbolicatedStack(dragData),
-					undoRedoNavigation: null,
-				};
-				const result = await (source.type === 'composition'
-					? moveComposition(
-							{...common, compositionId: source.compositionId},
-							signal,
-						)
-					: moveFolder(
-							{
-								...common,
-								folderName: source.folderName,
-								parentName: source.parentName,
-							},
-							signal,
-						));
+					destinationFile: sourceFile,
+					getSnapshot: () => compositionManagerRef.current,
+				});
 
 				if (!result.success) {
 					showNotification(result.reason, 4000);
-					return;
-				}
-
-				if (
-					destination.type === 'folder' &&
-					item.type === 'folder' &&
-					!item.expanded
-				) {
-					toggleFolder(item.folderName, item.parentName);
 				}
 			} catch (error) {
 				showNotification(
@@ -693,7 +708,7 @@ export const CompositionSelectorItem: React.FC<{
 				);
 			}
 		},
-		[item, resolvedLocation?.source, toggleFolder],
+		[activeDragRef, compositionManagerRef, item, sourceFile, toggleFolder],
 	);
 
 	const onRowDrop = useCallback(
@@ -742,7 +757,9 @@ export const CompositionSelectorItem: React.FC<{
 		],
 	);
 
-	const onFolderChildListDragOver = useCallback(
+	// Without reordering (alphabetical sort), the whole folder including its
+	// children is the drop target.
+	const onFolderDragOverCapture = useCallback(
 		(event: DragEvent<HTMLElement>) => {
 			if (
 				item.type !== 'folder' ||
@@ -753,7 +770,6 @@ export const CompositionSelectorItem: React.FC<{
 			}
 
 			if (
-				!canReorder &&
 				event.target instanceof Element &&
 				event.target.closest('[data-composition-folder]') !==
 					event.currentTarget
@@ -779,13 +795,10 @@ export const CompositionSelectorItem: React.FC<{
 			event.dataTransfer.dropEffect = 'move';
 			clearRootDragHover();
 			setFolderDropTarget(getFolderPath(item));
-			if (!canReorder) {
-				scheduleFolderExpansion();
-			}
+			scheduleFolderExpansion();
 		},
 		[
 			activeDragRef,
-			canReorder,
 			clearRootDragHover,
 			item,
 			scheduleFolderExpansion,
@@ -793,14 +806,13 @@ export const CompositionSelectorItem: React.FC<{
 		],
 	);
 
-	const onFolderChildListDrop = useCallback(
+	const onFolderDropCapture = useCallback(
 		async (event: DragEvent<HTMLElement>) => {
 			if (item.type !== 'folder' || window.remotion_isReadOnlyStudio) {
 				return;
 			}
 
 			if (
-				!canReorder &&
 				event.target instanceof Element &&
 				event.target.closest('[data-composition-folder]') !==
 					event.currentTarget
@@ -842,7 +854,6 @@ export const CompositionSelectorItem: React.FC<{
 		[
 			activeDragRef,
 			cancelFolderExpansion,
-			canReorder,
 			clearRootDragHover,
 			item,
 			moveItem,
@@ -856,11 +867,16 @@ export const CompositionSelectorItem: React.FC<{
 				data-composition-folder={folderPath}
 				style={highlightedFolderStyle}
 				onDragLeave={onFolderDragLeave}
-				onDragOverCapture={canReorder ? undefined : onFolderChildListDragOver}
-				onDropCapture={canReorder ? undefined : onFolderChildListDrop}
+				onDragOverCapture={canReorder ? undefined : onFolderDragOverCapture}
+				onDropCapture={canReorder ? undefined : onFolderDropCapture}
 			>
 				<ContextMenu getItems={getContextMenuItems}>
-					<div style={reorderWrapper}>
+					<div
+						style={reorderWrapper}
+						onDragOver={canReorder ? onRowDragOver : undefined}
+						onDragLeave={canReorder ? onRowDragLeave : undefined}
+						onDrop={canReorder ? onRowDrop : undefined}
+					>
 						{reorderLineStyle ? (
 							<div data-composition-reorder-line style={reorderLineStyle} />
 						) : null}
@@ -871,9 +887,6 @@ export const CompositionSelectorItem: React.FC<{
 								draggable={!window.remotion_isReadOnlyStudio}
 								onDragStart={onItemDragStart}
 								onDragEnd={onItemDragEnd}
-								onDragOver={canReorder ? onRowDragOver : undefined}
-								onDragLeave={canReorder ? onRowDragLeave : undefined}
-								onDrop={canReorder ? onRowDrop : undefined}
 							>
 								<div
 									style={controlStyle}
@@ -908,10 +921,7 @@ export const CompositionSelectorItem: React.FC<{
 					</div>
 				</ContextMenu>
 				{item.expanded ? (
-					<div
-						onDragOver={onFolderChildListDragOver}
-						onDrop={onFolderChildListDrop}
-					>
+					<div>
 						{item.items.map((childItem, index) => {
 							return (
 								<CompositionSelectorItem
@@ -945,7 +955,12 @@ export const CompositionSelectorItem: React.FC<{
 
 	return (
 		<ContextMenu getItems={getContextMenuItems}>
-			<div style={reorderWrapper}>
+			<div
+				style={reorderWrapper}
+				onDragOver={canReorder ? onRowDragOver : undefined}
+				onDragLeave={canReorder ? onRowDragLeave : undefined}
+				onDrop={canReorder ? onRowDrop : undefined}
+			>
 				{reorderLineStyle ? (
 					<div data-composition-reorder-line style={reorderLineStyle} />
 				) : null}
@@ -956,9 +971,6 @@ export const CompositionSelectorItem: React.FC<{
 						draggable={!window.remotion_isReadOnlyStudio}
 						onDragStart={onItemDragStart}
 						onDragEnd={onItemDragEnd}
-						onDragOver={canReorder ? onRowDragOver : undefined}
-						onDragLeave={canReorder ? onRowDragLeave : undefined}
-						onDrop={canReorder ? onRowDrop : undefined}
 					>
 						<a
 							ref={compositionRowRef}
