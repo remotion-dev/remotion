@@ -607,9 +607,11 @@ const CanvasImageInner = forwardRef<
 
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		const videoEnabled = useVideoEnabled();
+		// No canvas is mounted during audio-only frames; it remounts afterwards.
 		useImperativeHandle(ref, () => {
-			return actualRef.current as HTMLCanvasElement;
-		}, []);
+			return (videoEnabled ? actualRef.current : null) as HTMLCanvasElement;
+		}, [videoEnabled]);
 		const {
 			effectivePostmountFor,
 			effectivePremountFor,
@@ -641,7 +643,6 @@ const CanvasImageInner = forwardRef<
 			componentName: _remotionInternalCropComponentName ?? '<CanvasImage />',
 		});
 
-		const videoEnabled = useVideoEnabled();
 		if (videoEnabled === false) {
 			return null;
 		}

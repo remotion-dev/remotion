@@ -42,6 +42,7 @@ import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
@@ -525,6 +526,8 @@ const HtmlInCanvasContent = forwardRef<
 		const resolvedPixelDensity = resolveHtmlInCanvasPixelDensity(pixelDensity);
 		const canvasWidth = Math.ceil(width * resolvedPixelDensity);
 		const canvasHeight = Math.ceil(height * resolvedPixelDensity);
+		const canvasSizeKey = `${canvasWidth}x${canvasHeight}@${resolvedPixelDensity}`;
+		const committedCanvasSizeRef = useRef(canvasSizeKey);
 		const {delayRender, continueRender, cancelRender} = useDelayRender();
 		const {isClientSideRendering, isRendering} = useRemotionEnvironment();
 		const canRetryMissingPaintRecord = !isRendering || isClientSideRendering;
@@ -548,7 +551,6 @@ const HtmlInCanvasContent = forwardRef<
 		const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const paintTargetRef = useRef<HtmlInCanvasPaintTarget | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
-		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${paintTargetMode}`;
 		const paintState = useMemo<HtmlInCanvasPaintState>(() => {
 			const state: HtmlInCanvasPaintState = {
 				pendingChildren: 0,
@@ -618,7 +620,7 @@ const HtmlInCanvasContent = forwardRef<
 		onPaintRef.current = onPaint;
 		const onInitRef = useRef(onInit);
 		onInitRef.current = onInit;
-		const initializedRef = useRef(false);
+		const initializedSizeRef = useRef<string | null>(null);
 		const onInitCleanupRef = useRef<HtmlInCanvasOnInitCleanup | null>(null);
 		const unmountedRef = useRef(false);
 		const effectScratchCanvasesRef = useRef<{
@@ -649,7 +651,8 @@ const HtmlInCanvasContent = forwardRef<
 			}
 
 			const inProgress = paintingTargets.current.get(paintTarget);
-			if (isRendering && inProgress) {
+			const serializePaint = isRendering || onInitRef.current !== undefined;
+			if (serializePaint && inProgress) {
 				// In particular, do not run onPaint while an earlier event is still
 				// awaiting onInit (e.g. a WebGPU device).
 				inProgress.repaint = true;
@@ -657,7 +660,7 @@ const HtmlInCanvasContent = forwardRef<
 			}
 
 			const painting = {repaint: false};
-			if (isRendering) {
+			if (serializePaint) {
 				paintingTargets.current.set(paintTarget, painting);
 			}
 
@@ -679,10 +682,13 @@ const HtmlInCanvasContent = forwardRef<
 
 				const outputCanvas = outputCanvasRef.current;
 				const handle = delayRender('onPaint');
-				if (!initializedRef.current) {
+				if (initializedSizeRef.current !== canvasSizeKey) {
+					onInitCleanupRef.current?.();
+					onInitCleanupRef.current = null;
+					initializedSizeRef.current = null;
 					const currentOnInit = onInitRef.current;
 					if (!currentOnInit) {
-						initializedRef.current = true;
+						initializedSizeRef.current = canvasSizeKey;
 					} else {
 						// `onInit` may be async (e.g. WebGPU
 						// `requestAdapter`/`requestDevice`). Do not reuse this capture for
@@ -709,7 +715,7 @@ const HtmlInCanvasContent = forwardRef<
 							throw error;
 						}
 
-						initializedRef.current = true;
+						initializedSizeRef.current = canvasSizeKey;
 						try {
 							if (paintTarget instanceof HTMLCanvasElement) {
 								throw new Error(
@@ -731,9 +737,15 @@ const HtmlInCanvasContent = forwardRef<
 
 							if (
 								unmountedRef.current ||
-								paintTargetRef.current !== paintTarget
+								paintTargetRef.current !== paintTarget ||
+								committedCanvasSizeRef.current !== canvasSizeKey
 							) {
 								cleanup();
+								if (paintTargetRef.current === paintTarget) {
+									initializedSizeRef.current = null;
+								}
+
+								painting.repaint = true;
 								continueRender(handle);
 								return;
 							}
@@ -783,6 +795,12 @@ const HtmlInCanvasContent = forwardRef<
 						});
 						if (paintResult) {
 							await paintResult;
+						}
+
+						if (committedCanvasSizeRef.current !== canvasSizeKey) {
+							painting.repaint = true;
+							continueRender(handle);
+							return;
 						}
 					} else if (
 						paintTarget instanceof HTMLCanvasElement &&
@@ -901,6 +919,7 @@ const HtmlInCanvasContent = forwardRef<
 		}, [
 			canvasHeight,
 			canvasWidth,
+			canvasSizeKey,
 			chainState,
 			continueRender,
 			cancelRender,
@@ -941,26 +960,34 @@ const HtmlInCanvasContent = forwardRef<
 					: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
-			resizePaintTarget({
-				target: paintTarget,
-				width: canvasWidth,
-				height: canvasHeight,
-			});
-
-			initializedRef.current = false;
+			initializedSizeRef.current = null;
 			unmountedRef.current = false;
 
-			placeholder.addEventListener('paint', onPaintCb);
-
 			return () => {
-				placeholder.removeEventListener('paint', onPaintCb);
 				paintTargetRef.current = null;
-				initializedRef.current = false;
+				initializedSizeRef.current = null;
 				unmountedRef.current = true;
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [onPaintCb, cancelRender, canvasWidth, canvasHeight, paintTargetMode]);
+		}, [paintTargetMode]);
+
+		useLayoutEffect(() => {
+			committedCanvasSizeRef.current = canvasSizeKey;
+			resizePaintTarget({
+				target: paintTargetRef.current!,
+				width: canvasWidth,
+				height: canvasHeight,
+			});
+		}, [canvasWidth, canvasHeight, canvasSizeKey, paintTargetMode]);
+
+		useLayoutEffect(() => {
+			const placeholder = canvas2dRef.current!;
+			placeholder.addEventListener('paint', onPaintCb);
+			return () => {
+				placeholder.removeEventListener('paint', onPaintCb);
+			};
+		}, [onPaintCb, paintTargetMode]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
@@ -1006,7 +1033,10 @@ const HtmlInCanvasContent = forwardRef<
 			height,
 			continueRender,
 			delayRender,
+			canvasWidth,
+			canvasHeight,
 			canvasSizeKey,
+			paintTargetMode,
 			renderFrame,
 			isRendering,
 			ancestorPaintState,
@@ -1030,10 +1060,8 @@ const HtmlInCanvasContent = forwardRef<
 		return (
 			<HtmlInCanvasAncestorContext.Provider value={paintState}>
 				<canvas
-					key={canvasSizeKey}
+					key={paintTargetMode}
 					ref={paintTargetMode === 'copied' ? canvas2dRef : setVisibleCanvasRef}
-					width={canvasWidth}
-					height={canvasHeight}
 					style={
 						paintTargetMode === 'copied'
 							? {
@@ -1063,7 +1091,7 @@ const HtmlInCanvasContent = forwardRef<
 				</canvas>
 				{paintTargetMode === 'copied' ? (
 					<canvas
-						key={`output-${canvasSizeKey}`}
+						key="output"
 						ref={setVisibleCanvasRef}
 						width={canvasWidth}
 						height={canvasHeight}
@@ -1124,6 +1152,7 @@ const HtmlInCanvasInner = forwardRef<
 		ref,
 	) => {
 		const {isRendering} = useRemotionEnvironment();
+		const videoEnabled = useVideoEnabled();
 		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const isNestedUnsupported = Boolean(
@@ -1198,7 +1227,13 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					{!isRendering && unsupportedMessage !== null ? (
+					{!videoEnabled ? (
+						// Audio-only frame: keep the children mounted for their audio, but
+						// skip the canvas paint and effect chain.
+						<DefaultPremountContext.Provider value={0}>
+							{children}
+						</DefaultPremountContext.Provider>
+					) : !isRendering && unsupportedMessage !== null ? (
 						<HtmlInCanvasFallback
 							style={{width, height, ...croppedStyle}}
 							title={

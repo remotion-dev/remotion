@@ -14,6 +14,7 @@ import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {useIsEffectDeletionPending} from '../helpers/effect-deletion-state';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {NO_HOVER_BACKGROUND_STYLE} from '../helpers/hoverable';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
 import {
 	flattenVisibleTreeNodes,
@@ -30,7 +31,6 @@ import {
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
-import {Plus} from '../icons/plus';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
@@ -44,6 +44,7 @@ import {
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
 import {LevelsEditor} from './InspectorPanel/LevelsEditor';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -90,8 +91,8 @@ const container: React.CSSProperties = {
 };
 
 const plusIcon: React.CSSProperties = {
-	width: 15,
-	height: 15,
+	width: 12,
+	height: 12,
 };
 
 const borderRadiusToggleIcon: React.CSSProperties = {
@@ -104,6 +105,14 @@ const transform3DToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 14,
 	width: 14,
+};
+
+const transformControlsRow: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	justifyContent: 'space-between',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 12px`,
+	transform: 'translateX(-3px)',
 };
 
 const assetSelectorIcon: React.CSSProperties = {
@@ -1055,7 +1064,18 @@ export const InspectorSequenceSection: React.FC<{
 						disabled={!canAddEffect}
 						onClick={onAddEffect}
 						aria-label="Add effect"
-						renderAction={(color) => <Plus color={color} style={plusIcon} />}
+						style={{...NO_HOVER_BACKGROUND_STYLE, marginRight: -6}}
+						renderAction={(color) => (
+							<svg viewBox="0 0 12 12" style={plusIcon}>
+								<path
+									d="M6 1.25v9.5M1.25 6h9.5"
+									fill="none"
+									stroke={color}
+									strokeWidth="1"
+									strokeLinecap="round"
+								/>
+							</svg>
+						)}
 					/>
 				</ActionTooltip>
 			}
@@ -1094,13 +1114,7 @@ export const InspectorSequenceSection: React.FC<{
 		return (
 			<CollapsibleInspectorSectionHeader
 				action={
-					expanded
-						? group.id === 'border-radius'
-							? borderRadiusAction
-							: group.id === 'transforms'
-								? transform3DAction
-								: null
-						: null
+					expanded && group.id === 'border-radius' ? borderRadiusAction : null
 				}
 				expanded={expanded}
 				label={group.label}
@@ -1148,7 +1162,10 @@ export const InspectorSequenceSection: React.FC<{
 											<Transform3DModeContext.Provider
 												value={show3DTransformControls}
 											>
-												{renderTransformControls()}
+												<div style={transformControlsRow}>
+													{renderTransformControls()}
+													{transform3DAction}
+												</div>
 												{group.rows.map(renderRow)}
 											</Transform3DModeContext.Provider>
 										) : (

@@ -34,9 +34,11 @@ import {
 } from './SequenceManager.js';
 import {TimelineTrackContext} from './timeline-track-context.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
+import {MediaEnabledContext} from './use-media-enabled.js';
 import {VideoContext} from './use-video.js';
 
 export function useRemotionContexts() {
+	const mediaEnabledContext = React.useContext(MediaEnabledContext);
 	const compositionManagerCtx = React.useContext(CompositionManager);
 	const videoContext = React.useContext(VideoContext);
 	const timelineContext = React.useContext(TimelineContext);
@@ -74,6 +76,7 @@ export function useRemotionContexts() {
 
 	return useMemo(
 		() => ({
+			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
 			timelineContext,
@@ -98,6 +101,7 @@ export function useRemotionContexts() {
 			effectPreviewContext,
 		}),
 		[
+			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
 			sequenceContext,
@@ -297,18 +301,22 @@ export const RemotionContextProvider = (
 																				<VideoContext.Provider
 																					value={contexts.videoContext}
 																				>
-																					<EffectPreviewContext.Provider
-																						value={
-																							contexts.effectPreviewContext
-																						}
+																					<MediaEnabledContext.Provider
+																						value={contexts.mediaEnabledContext}
 																					>
-																						{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
-																						<SequenceActivityContext.Provider
-																							value={false}
+																						<EffectPreviewContext.Provider
+																							value={
+																								contexts.effectPreviewContext
+																							}
 																						>
-																							{children}
-																						</SequenceActivityContext.Provider>
-																					</EffectPreviewContext.Provider>
+																							{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
+																							<SequenceActivityContext.Provider
+																								value={false}
+																							>
+																								{children}
+																							</SequenceActivityContext.Provider>
+																						</EffectPreviewContext.Provider>
+																					</MediaEnabledContext.Provider>
 																				</VideoContext.Provider>
 																			</DefaultPremountContext.Provider>
 																		</TimelineTrackContext.Provider>

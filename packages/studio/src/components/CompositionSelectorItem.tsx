@@ -655,6 +655,7 @@ export const CompositionSelectorItem: React.FC<{
 				const {signal} = new AbortController();
 				const common = {
 					destination,
+					destinationFile: resolvedLocation?.source ?? null,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
 					undoRedoNavigation: null,
@@ -692,7 +693,7 @@ export const CompositionSelectorItem: React.FC<{
 				);
 			}
 		},
-		[item, toggleFolder],
+		[item, resolvedLocation?.source, toggleFolder],
 	);
 
 	const onRowDrop = useCallback(

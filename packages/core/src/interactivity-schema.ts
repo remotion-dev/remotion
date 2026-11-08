@@ -262,7 +262,7 @@ export const transformSchema = {
 		type: 'transform-origin',
 		step: 1,
 		default: '50% 50%',
-		description: 'Transform origin',
+		description: 'Origin',
 	},
 	'style.translate': {
 		type: 'translate',

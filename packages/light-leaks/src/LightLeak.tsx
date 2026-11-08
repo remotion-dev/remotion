@@ -268,6 +268,7 @@ const LightLeakInner: React.FC<
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
+	const videoEnabled = Internals.useVideoEnabled();
 	const resolvedDuration = durationInFrames ?? videoDuration;
 	if (typeof seed !== 'number' || !Number.isFinite(seed)) {
 		throw new TypeError(
@@ -285,6 +286,10 @@ const LightLeakInner: React.FC<
 		throw new RangeError(
 			`"hueShift" must be between 0 and 360, but got ${hueShift}`,
 		);
+	}
+
+	if (!videoEnabled) {
+		return null;
 	}
 
 	return (

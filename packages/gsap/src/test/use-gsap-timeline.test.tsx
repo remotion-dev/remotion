@@ -16,6 +16,7 @@ const remotionClock = {frame: 0, fps: 30};
 
 // Bun's mock.module patches already-imported ESM through live bindings.
 mock.module('remotion', () => ({
+	Internals: {useVideoEnabled: () => true},
 	useCurrentFrame: () => remotionClock.frame,
 	useVideoConfig: () => ({fps: remotionClock.fps}),
 }));

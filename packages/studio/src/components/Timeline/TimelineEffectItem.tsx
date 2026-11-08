@@ -547,6 +547,7 @@ export const TimelineEffectItem: React.FC<{
 					{label}
 				</span>
 				<TimelineExpandArrowButton
+					iconVariant={labelNextToToggle ? 'inspector' : 'timeline'}
 					isExpanded={isExpanded}
 					onClick={() => toggleTrack(nodePathInfo)}
 					label={`${label} section`}
