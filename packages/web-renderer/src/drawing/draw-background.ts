@@ -143,10 +143,9 @@ export const drawBackground = async ({
 	if (
 		backgroundImage !== 'none' &&
 		(blendMode ||
+			contextToDraw !== context ||
 			(!isColorTransparent(backgroundColor) &&
-				(context.globalAlpha !== 1 ||
-					context.filter !== 'none' ||
-					contextToDraw !== context)))
+				(context.globalAlpha !== 1 || context.filter !== 'none')))
 	) {
 		// Blend inside the background group before applying element opacity, filters and text masks.
 		const backgroundCanvas = new OffscreenCanvas(
