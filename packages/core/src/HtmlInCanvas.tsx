@@ -548,7 +548,6 @@ const HtmlInCanvasContent = forwardRef<
 		const outputCanvasRef = useRef<HTMLCanvasElement | null>(null);
 		const paintTargetRef = useRef<HtmlInCanvasPaintTarget | null>(null);
 		const divRef = useRef<HTMLDivElement | null>(null);
-		const canvasSizeKey = `${width}x${height}@${resolvedPixelDensity}-${paintTargetMode}`;
 		const paintState = useMemo<HtmlInCanvasPaintState>(() => {
 			const state: HtmlInCanvasPaintState = {
 				pendingChildren: 0,
@@ -940,26 +939,33 @@ const HtmlInCanvasContent = forwardRef<
 					: getTransferredOffscreenCanvas(placeholder);
 
 			paintTargetRef.current = paintTarget;
-			resizePaintTarget({
-				target: paintTarget,
-				width: canvasWidth,
-				height: canvasHeight,
-			});
-
 			initializedRef.current = false;
 			unmountedRef.current = false;
 
-			placeholder.addEventListener('paint', onPaintCb);
-
 			return () => {
-				placeholder.removeEventListener('paint', onPaintCb);
 				paintTargetRef.current = null;
 				initializedRef.current = false;
 				unmountedRef.current = true;
 				onInitCleanupRef.current?.();
 				onInitCleanupRef.current = null;
 			};
-		}, [onPaintCb, cancelRender, canvasWidth, canvasHeight, paintTargetMode]);
+		}, [paintTargetMode]);
+
+		useLayoutEffect(() => {
+			resizePaintTarget({
+				target: paintTargetRef.current!,
+				width: canvasWidth,
+				height: canvasHeight,
+			});
+		}, [canvasWidth, canvasHeight, paintTargetMode]);
+
+		useLayoutEffect(() => {
+			const placeholder = canvas2dRef.current!;
+			placeholder.addEventListener('paint', onPaintCb);
+			return () => {
+				placeholder.removeEventListener('paint', onPaintCb);
+			};
+		}, [onPaintCb, paintTargetMode]);
 
 		const onPaintChangedRef = useRef(false);
 		useLayoutEffect(() => {
@@ -1005,7 +1011,9 @@ const HtmlInCanvasContent = forwardRef<
 			height,
 			continueRender,
 			delayRender,
-			canvasSizeKey,
+			canvasWidth,
+			canvasHeight,
+			paintTargetMode,
 			renderFrame,
 			isRendering,
 			ancestorPaintState,
@@ -1029,10 +1037,8 @@ const HtmlInCanvasContent = forwardRef<
 		return (
 			<HtmlInCanvasAncestorContext.Provider value={paintState}>
 				<canvas
-					key={canvasSizeKey}
+					key={paintTargetMode}
 					ref={paintTargetMode === 'copied' ? canvas2dRef : setVisibleCanvasRef}
-					width={canvasWidth}
-					height={canvasHeight}
 					style={
 						paintTargetMode === 'copied'
 							? {
@@ -1062,7 +1068,7 @@ const HtmlInCanvasContent = forwardRef<
 				</canvas>
 				{paintTargetMode === 'copied' ? (
 					<canvas
-						key={`output-${canvasSizeKey}`}
+						key="output"
 						ref={setVisibleCanvasRef}
 						width={canvasWidth}
 						height={canvasHeight}
