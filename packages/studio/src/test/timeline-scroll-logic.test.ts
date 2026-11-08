@@ -10,6 +10,7 @@ import {
 	getFrameIncrementFromWidth,
 	getScrollLeftToKeepCursorInPlace,
 	getTimelineContentWidth,
+	prepareToPreserveTimelineCursor,
 	startTimelineEdgeAutoScroll,
 } from '../components/Timeline/timeline-scroll-logic';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
@@ -144,6 +145,51 @@ test('does not drift after zooming in and back out', () => {
 	});
 
 	expect(restoredScrollLeft).toBeCloseTo(0, 10);
+});
+
+test('lands on the same frame after zooming out past the scroll range and back in', () => {
+	const viewportWidth = 1000;
+	let contentWidth = 2500;
+	let scrollLeft = 0;
+	scrollableRef.current = {
+		get scrollLeft() {
+			return scrollLeft;
+		},
+		// Like the browser, keep the offset inside the scrollable range.
+		set scrollLeft(value: number) {
+			scrollLeft = Math.min(Math.max(value, 0), contentWidth - viewportWidth);
+		},
+	} as HTMLDivElement;
+	sliderAreaRef.current = {
+		get clientWidth() {
+			return contentWidth;
+		},
+	} as HTMLDivElement;
+
+	const zoomTo = (newContentWidth: number) => {
+		const preserveTimelineCursor = prepareToPreserveTimelineCursor({
+			currentFrame: 0,
+			currentDurationInFrames: 100,
+			anchorFrame: 60,
+			anchorContentX: null,
+			anchorViewportX: 300,
+		});
+		contentWidth = newContentWidth;
+		preserveTimelineCursor();
+	};
+
+	zoomTo(2500);
+	const zoomedScrollLeft = scrollLeft;
+	zoomTo(1200);
+	zoomTo(1000);
+	expect(scrollLeft).toBe(0);
+	zoomTo(1200);
+	zoomTo(2500);
+	scrollableRef.current = null;
+	sliderAreaRef.current = null;
+
+	expect(zoomedScrollLeft).toBeGreaterThan(0);
+	expect(scrollLeft).toBeCloseTo(zoomedScrollLeft, 10);
 });
 
 test('the last frame contributes one frame width to the timeline', () => {
