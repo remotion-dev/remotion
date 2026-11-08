@@ -34,6 +34,7 @@ import {SequenceContent} from '../sequence-activity-context.js';
 import {Sequence} from '../Sequence.js';
 import {useCropStyle} from '../use-crop-style.js';
 import {useDelayRender} from '../use-delay-render.js';
+import {useVideoEnabled} from '../use-media-enabled.js';
 import {usePremounting} from '../use-premounting.js';
 import type {VideoConfigValues} from '../video-config.js';
 import {withInteractivitySchema} from '../with-interactivity-schema.js';
@@ -313,9 +314,11 @@ const SolidOuter = forwardRef<
 		const memoizedEffectDefinitions = useMemoizedEffectDefinitions(effects);
 
 		const actualRef = useRef<HTMLCanvasElement | null>(null);
+		const videoEnabled = useVideoEnabled();
+		// No canvas is mounted during audio-only frames; it remounts afterwards.
 		useImperativeHandle(ref, () => {
-			return actualRef.current as HTMLCanvasElement;
-		}, []);
+			return (videoEnabled ? actualRef.current : null) as HTMLCanvasElement;
+		}, [videoEnabled]);
 		const {
 			effectivePremountFor,
 			effectivePostmountFor,
@@ -346,6 +349,10 @@ const SolidOuter = forwardRef<
 			style: premountingStyle,
 			componentName: '<Solid />',
 		});
+
+		if (!videoEnabled) {
+			return null;
+		}
 
 		return (
 			<Freeze

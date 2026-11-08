@@ -97,6 +97,10 @@ declare global {
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
 		remotion_videoEnabled: boolean;
+		// Set by the rendering bundle. Undefined in bundles created before it existed.
+		remotion_setMediaEnabled:
+			| ((videoEnabled: boolean, audioEnabled: boolean) => void)
+			| undefined;
 		remotion_puppeteerTimeout: number;
 		remotion_broadcastChannel: BroadcastChannel | undefined;
 		remotion_inputProps: string;

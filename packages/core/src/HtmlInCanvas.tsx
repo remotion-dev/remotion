@@ -42,6 +42,7 @@ import type {AbsoluteFillLayout} from './Sequence.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useCurrentFrame} from './use-current-frame.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {withInteractivitySchema} from './with-interactivity-schema.js';
@@ -1123,6 +1124,7 @@ const HtmlInCanvasInner = forwardRef<
 		ref,
 	) => {
 		const {isRendering} = useRemotionEnvironment();
+		const videoEnabled = useVideoEnabled();
 		const unsupportedMessage = useHtmlInCanvasUnsupportedMessage();
 		const ancestorPaintState = useContext(HtmlInCanvasAncestorContext);
 		const isNestedUnsupported = Boolean(
@@ -1197,7 +1199,13 @@ const HtmlInCanvasInner = forwardRef<
 					_remotionInternalIsPremounting={premountingActive}
 					_remotionInternalIsPostmounting={postmountingActive}
 				>
-					{!isRendering && unsupportedMessage !== null ? (
+					{!videoEnabled ? (
+						// Audio-only frame: keep the children mounted for their audio, but
+						// skip the canvas paint and effect chain.
+						<DefaultPremountContext.Provider value={0}>
+							{children}
+						</DefaultPremountContext.Provider>
+					) : !isRendering && unsupportedMessage !== null ? (
 						<HtmlInCanvasFallback
 							style={{width, height, ...croppedStyle}}
 							title={
