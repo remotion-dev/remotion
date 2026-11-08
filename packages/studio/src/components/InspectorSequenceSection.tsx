@@ -11,11 +11,11 @@ import {Internals, type TSequence} from 'remotion';
 import type {CodePosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
-import {useIsEffectDeletionPending} from '../helpers/effect-deletion-state';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 import {NO_HOVER_BACKGROUND_STYLE} from '../helpers/hoverable';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {projectEffectSequence} from '../helpers/optimistic-effect-projection';
 import {
 	flattenVisibleTreeNodes,
 	SCHEMA_FIELD_GROUPS,
@@ -23,6 +23,7 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {timelineNodePathInfoToStableKey} from '../helpers/timeline-node-path-key';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {
 	useRuntimeValue,
@@ -172,7 +173,9 @@ const INSPECTOR_SECTION_EXPANSION_OVERRIDES_SESSION_STORAGE_KEY =
 	'remotion.editor.inspectorSectionExpansionOverrides';
 
 const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
-	return JSON.stringify(nodePathInfo);
+	return nodePathInfo.auxiliaryKeys[0] === 'effects'
+		? timelineNodePathInfoToStableKey(nodePathInfo)
+		: JSON.stringify(nodePathInfo);
 };
 
 const loadInspectorCollapsedKeys = (): ReadonlySet<string> => {
@@ -335,6 +338,11 @@ export const InspectorSequenceSection: React.FC<{
 	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
+	const projectedSequence = projectEffectSequence(
+		sequence,
+		nodePathInfo.sequenceSubscriptionKey,
+		null,
+	);
 	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
@@ -342,6 +350,10 @@ export const InspectorSequenceSection: React.FC<{
 		includeSourceControls: true,
 		includeInspectorOnlyFields: true,
 	});
+	const projectedStatusesContext = useMemo(
+		() => ({propStatuses}),
+		[propStatuses],
+	);
 	const {consumeInspectorRevealRequest, inspectorRevealRequest, selectedItems} =
 		useTimelineSelection();
 	const selectedEffect =
@@ -614,7 +626,8 @@ export const InspectorSequenceSection: React.FC<{
 
 		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
 		scrolledInspectorRevealToken.current = inspectorRevealToken;
-	}, [effectRows, inspectorRevealToken]);
+		consumeInspectorRevealRequest(inspectorRevealToken);
+	}, [consumeInspectorRevealRequest, effectRows, inspectorRevealToken]);
 
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
@@ -935,12 +948,8 @@ export const InspectorSequenceSection: React.FC<{
 		revealPendingCaption();
 	}, [inlineCaptions, revealPendingCaption]);
 
-	const effectDeletionPending = useIsEffectDeletionPending(
-		nodePathInfo.sequenceSubscriptionKey,
-	);
 	const showEffectsSection = nodePathInfo.supportsEffects || hasEffects;
 	const canAddEffect =
-		!effectDeletionPending &&
 		nodePathInfo.supportsEffects &&
 		previewServerState.type === 'connected' &&
 		isStudioInteractivityEnabled() &&
@@ -1089,7 +1098,7 @@ export const InspectorSequenceSection: React.FC<{
 	const renderRow = ({node, depth}: FlatTreeRow) => {
 		return (
 			<TimelineRowLayoutContext.Provider
-				key={JSON.stringify(node.nodePathInfo)}
+				key={timelineNodePathInfoToStableKey(node.nodePathInfo)}
 				value={INSPECTOR_TIMELINE_ROW_LAYOUT}
 			>
 				<TimelineExpandedRow
@@ -1150,121 +1159,134 @@ export const InspectorSequenceSection: React.FC<{
 	}
 
 	return (
-		<AssetSelectionContext.Provider value={assetSelectionContextValue}>
-			<div style={container}>
-				{controlRows.length > 0 ? (
-					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						{controlGroupsWithoutLayout.map((group) => (
-							<React.Fragment key={group.id}>
-								{group.id === 'transforms' ? captionsInspector : null}
-								<InspectorSection
-									expanded={isControlGroupExpanded(group)}
-									header={renderControlGroupHeader(group)}
-								>
-									{isControlGroupExpanded(group) ? (
-										group.id === 'transforms' ? (
-											<Transform3DModeContext.Provider
-												value={show3DTransformControls}
-											>
-												<div style={transformControlsRow}>
-													{renderTransformControls()}
-													{transform3DAction}
-												</div>
-												{group.rows.map(renderRow)}
-											</Transform3DModeContext.Provider>
-										) : (
-											group.rows.map(renderRow)
-										)
-									) : null}
-								</InspectorSection>
-							</React.Fragment>
-						))}
-					</TimelineSelectionOrderProvider>
-				) : null}
-				{controlGroupsWithoutLayout.every((group) => group.id !== 'transforms')
-					? captionsInspector
-					: null}
-				{showEffectsSection ? (
-					<InspectorSection expanded={effectsExpanded} header={effectsHeader}>
-						{effectRows.length > 0 ? (
-							<TimelineSelectionOrderProvider items={effectSelectableItems}>
-								{effectRows.map((row) => {
-									const selection = getTimelineSelectionFromNodePathInfo(
-										row.node.nodePathInfo,
-									);
-									const selected =
-										selection !== null &&
-										getTimelineSelectionKey(selection) === selectedEffectKey;
-									return (
-										<div
-											key={getInspectorExpansionKey(row.node.nodePathInfo)}
-											ref={selected ? selectedEffectRowRef : null}
-											inert={effectDeletionPending && row.node.kind === 'field'}
-										>
-											{row.node.kind === 'field' &&
-											row.node.field?.kind === 'effect-field' &&
-											row.node.field.key === 'points' &&
-											sequence.effects[row.node.field.effectIndex]?.type ===
-												'remotion/curves' ? (
-												<CurvesEditor
-													multipleInstances={
-														nodePathInfo.numberOfSequencesWithThisNodePath > 1
-													}
-													nodePath={nodePathInfo.sequenceSubscriptionKey}
-													effectIndex={row.node.field.effectIndex}
-													schema={row.node.field.effectSchema}
-													validatedLocation={validatedLocation}
-													runtimeValueStore={
-														sequence.effectRuntimeValues?.[
-															row.node.field.effectIndex
-														] ?? null
-													}
-												/>
+		<Internals.VisualModePropStatusesContext.Provider
+			value={projectedStatusesContext}
+		>
+			<AssetSelectionContext.Provider value={assetSelectionContextValue}>
+				<div style={container}>
+					{controlRows.length > 0 ? (
+						<TimelineSelectionOrderProvider items={controlSelectableItems}>
+							{controlGroupsWithoutLayout.map((group) => (
+								<React.Fragment key={group.id}>
+									{group.id === 'transforms' ? captionsInspector : null}
+									<InspectorSection
+										expanded={isControlGroupExpanded(group)}
+										header={renderControlGroupHeader(group)}
+									>
+										{isControlGroupExpanded(group) ? (
+											group.id === 'transforms' ? (
+												<Transform3DModeContext.Provider
+													value={show3DTransformControls}
+												>
+													<div style={transformControlsRow}>
+														{renderTransformControls()}
+														{transform3DAction}
+													</div>
+													{group.rows.map(renderRow)}
+												</Transform3DModeContext.Provider>
 											) : (
-												renderRow(row)
-											)}
-											{row.node.kind === 'field' &&
-											row.node.field?.kind === 'effect-field' &&
-											row.node.field.key === 'channel' &&
-											sequence.effects[row.node.field.effectIndex]?.type ===
-												'remotion/levels' ? (
-												<LevelsEditor
-													multipleInstances={
-														nodePathInfo.numberOfSequencesWithThisNodePath > 1
-													}
-													nodePath={nodePathInfo.sequenceSubscriptionKey}
-													effectIndex={row.node.field.effectIndex}
-													schema={row.node.field.effectSchema}
-													validatedLocation={validatedLocation}
-													runtimeValueStore={
-														sequence.effectRuntimeValues?.[
-															row.node.field.effectIndex
-														] ?? null
-													}
-													keyframeDisplayOffset={keyframeDisplayOffset}
-													keyframePlaybackRate={keyframePlaybackRate}
-												/>
-											) : null}
-										</div>
-									);
-								})}
-							</TimelineSelectionOrderProvider>
-						) : null}
-					</InspectorSection>
-				) : null}
-				{layoutGroup ? (
-					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						<InspectorSection
-							expanded={isControlGroupExpanded(layoutGroup)}
-							header={renderControlGroupHeader(layoutGroup)}
-						>
-							{isControlGroupExpanded(layoutGroup)
-								? layoutGroup.rows.map(renderRow)
-								: null}
-						</InspectorSection>
-					</TimelineSelectionOrderProvider>
-				) : null}
-			</div>
-		</AssetSelectionContext.Provider>
+												group.rows.map(renderRow)
+											)
+										) : null}
+									</InspectorSection>
+								</React.Fragment>
+							))}
+						</TimelineSelectionOrderProvider>
+					) : null}
+					{controlGroupsWithoutLayout.every(
+						(group) => group.id !== 'transforms',
+					)
+						? captionsInspector
+						: null}
+					{showEffectsSection ? (
+						<section aria-label="Effects">
+							<InspectorSection
+								expanded={effectsExpanded}
+								header={effectsHeader}
+							>
+								{effectRows.length > 0 ? (
+									<TimelineSelectionOrderProvider items={effectSelectableItems}>
+										{effectRows.map((row) => {
+											const selection = getTimelineSelectionFromNodePathInfo(
+												row.node.nodePathInfo,
+											);
+											const selected =
+												selection !== null &&
+												getTimelineSelectionKey(selection) ===
+													selectedEffectKey;
+											return (
+												<div
+													key={getInspectorExpansionKey(row.node.nodePathInfo)}
+													ref={selected ? selectedEffectRowRef : null}
+												>
+													{row.node.kind === 'field' &&
+													row.node.field?.kind === 'effect-field' &&
+													row.node.field.key === 'points' &&
+													projectedSequence.effects[row.node.field.effectIndex]
+														?.type === 'remotion/curves' ? (
+														<CurvesEditor
+															multipleInstances={
+																nodePathInfo.numberOfSequencesWithThisNodePath >
+																1
+															}
+															nodePath={nodePathInfo.sequenceSubscriptionKey}
+															effectIndex={row.node.field.effectIndex}
+															schema={row.node.field.effectSchema}
+															validatedLocation={validatedLocation}
+															runtimeValueStore={
+																projectedSequence.effectRuntimeValues?.[
+																	row.node.field.effectIndex
+																] ?? null
+															}
+														/>
+													) : (
+														renderRow(row)
+													)}
+													{row.node.kind === 'field' &&
+													row.node.field?.kind === 'effect-field' &&
+													row.node.field.key === 'channel' &&
+													projectedSequence.effects[row.node.field.effectIndex]
+														?.type === 'remotion/levels' ? (
+														<LevelsEditor
+															multipleInstances={
+																nodePathInfo.numberOfSequencesWithThisNodePath >
+																1
+															}
+															nodePath={nodePathInfo.sequenceSubscriptionKey}
+															effectIndex={row.node.field.effectIndex}
+															schema={row.node.field.effectSchema}
+															validatedLocation={validatedLocation}
+															runtimeValueStore={
+																projectedSequence.effectRuntimeValues?.[
+																	row.node.field.effectIndex
+																] ?? null
+															}
+															keyframeDisplayOffset={keyframeDisplayOffset}
+															keyframePlaybackRate={keyframePlaybackRate}
+														/>
+													) : null}
+												</div>
+											);
+										})}
+									</TimelineSelectionOrderProvider>
+								) : null}
+							</InspectorSection>
+						</section>
+					) : null}
+					{layoutGroup ? (
+						<TimelineSelectionOrderProvider items={controlSelectableItems}>
+							<InspectorSection
+								expanded={isControlGroupExpanded(layoutGroup)}
+								header={renderControlGroupHeader(layoutGroup)}
+							>
+								{isControlGroupExpanded(layoutGroup)
+									? layoutGroup.rows.map(renderRow)
+									: null}
+							</InspectorSection>
+						</TimelineSelectionOrderProvider>
+					) : null}
+				</div>
+			</AssetSelectionContext.Provider>
+		</Internals.VisualModePropStatusesContext.Provider>
 	);
 };

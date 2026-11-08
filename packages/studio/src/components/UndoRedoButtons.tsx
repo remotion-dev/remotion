@@ -3,6 +3,11 @@ import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT} from '../helpers/colors';
+import {
+	getOptimisticEffectHistorySnapshot,
+	subscribeToOptimisticEffectHistory,
+	clearOptimisticEffectHistoryIfIdle,
+} from '../helpers/optimistic-effect-mutations';
 import {getSourceMutationRevision} from '../helpers/source-mutation-queue';
 import {pushUrl} from '../helpers/url-state';
 import {
@@ -13,6 +18,7 @@ import {
 	useKeyboardShortcutAriaKeyShortcuts,
 	useKeyboardShortcutLabel,
 } from '../helpers/use-keyboard-shortcut-label';
+import {useSyncExternalStore} from '../helpers/use-sync-external-store';
 import {RedoIcon} from '../icons/redo';
 import {UndoIcon} from '../icons/undo';
 import {ActionTooltip} from './ActionTooltip';
@@ -41,6 +47,8 @@ export const UndoRedoButtons: React.FC = () => {
 
 				setUndoFile(event.undoFile);
 				setRedoFile(event.redoFile);
+				if (event.undoFile === null && event.redoFile === null)
+					clearOptimisticEffectHistoryIfIdle();
 			},
 		);
 
@@ -134,8 +142,13 @@ export const UndoRedoButtons: React.FC = () => {
 		return <RedoIcon style={iconStyle} color={color} />;
 	}, []);
 
-	const canUndo = undoFile !== null;
-	const canRedo = redoFile !== null;
+	const optimisticHistory = useSyncExternalStore(
+		subscribeToOptimisticEffectHistory,
+		getOptimisticEffectHistorySnapshot,
+		getOptimisticEffectHistorySnapshot,
+	);
+	const canUndo = optimisticHistory.canUndo ?? undoFile !== null;
+	const canRedo = optimisticHistory.canRedo ?? redoFile !== null;
 
 	if (!canUndo && !canRedo) {
 		return null;

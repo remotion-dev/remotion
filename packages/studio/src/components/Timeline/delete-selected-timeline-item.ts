@@ -3,6 +3,7 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {projectEffectSequence} from '../../helpers/optimistic-effect-projection';
 import {getSourceMutationRevision} from '../../helpers/source-mutation-queue';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
 import {deleteNodes} from '../delete-nodes-api';
@@ -261,14 +262,15 @@ export const deleteSelectedTimelineItems = ({
 							) === JSON.stringify(source.nodePath),
 					);
 					if (!track) return [];
+					const sequence = projectEffectSequence(track.sequence, source, null);
 					return [
 						{
 							nodePath: source,
-							effects: track.sequence.effects,
+							effects: sequence.effects,
 							effectIndices:
 								selection.type === 'sequence-effect'
 									? [selection.i]
-									: track.sequence.effects.map((_, index) => index),
+									: sequence.effects.map((_, index) => index),
 						},
 					];
 				});

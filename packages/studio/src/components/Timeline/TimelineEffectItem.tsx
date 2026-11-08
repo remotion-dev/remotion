@@ -11,7 +11,6 @@ import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-sou
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {TIMELINE_BLUE, WHITE_ALPHA_80} from '../../helpers/colors';
-import {useIsEffectDeletionPending} from '../../helpers/effect-deletion-state';
 import {
 	formatContextForAgents,
 	formatFileLocation,
@@ -21,6 +20,7 @@ import {
 	openInCodingAgent as openCodingAgent,
 	openOriginalPositionInEditor,
 } from '../../helpers/open-in-editor';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	TREE_GROUP_ROW_HEIGHT,
@@ -177,9 +177,9 @@ export const TimelineEffectItem: React.FC<{
 		markupSkill?.installedInProject || markupSkill?.installedGlobally,
 	);
 	const previewConnected = previewServerState.type === 'connected';
-	const deleting = useIsEffectDeletionPending(nodePath);
+	Internals.useOptimisticEffects(nodePath);
 	const deleteEffectsFromSource = useDeleteEffects();
-	const canMutateEffects = canUseEffectOperations() && !deleting;
+	const canMutateEffects = canUseEffectOperations();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const selection = useTimelineRowSelection(nodePathInfo, revealInInspector);
@@ -188,15 +188,11 @@ export const TimelineEffectItem: React.FC<{
 		null,
 	);
 
-	const effectStatus = useMemo(
-		() =>
-			Internals.getEffectPropStatusesCtx({
-				propStatuses,
-				nodePath,
-				effectIndex,
-			}),
-		[propStatuses, nodePath, effectIndex],
-	);
+	const effectStatus = getProjectedEffectPropStatuses({
+		propStatuses,
+		nodePath,
+		effectIndex,
+	});
 
 	const disabledStatus =
 		effectStatus.type === 'can-update-effect'
@@ -215,7 +211,7 @@ export const TimelineEffectItem: React.FC<{
 		previewConnected &&
 		canUseEffectOperations() &&
 		disabledStatus?.status === 'static';
-	const canToggle = canShowToggle && !deleting;
+	const canToggle = canShowToggle;
 
 	const deleteDisabled =
 		!previewConnected ||

@@ -17,7 +17,6 @@ import {Internals, type RuntimeValueStore} from 'remotion';
 import {canUseEffectOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../helpers/colors';
-import {assertEffectChainEditable} from '../helpers/effect-deletion-state';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -38,7 +37,6 @@ import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from './Menu/is-menu-item';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {RemotionInput} from './NewComposition/RemInput';
-import {showNotification} from './Notifications/NotificationCenter';
 import {
 	QUICK_SWITCHER_RESULT_LABEL_FONT_SIZE,
 	loopIndex,
@@ -373,13 +371,6 @@ export const EffectPicker: React.FC<{
 	const selectItem = useCallback(
 		(item: EffectCatalogItem) => {
 			if (!canAddEffects || previewServerState.type !== 'connected') {
-				return;
-			}
-
-			try {
-				assertEffectChainEditable(nodePathInfo.sequenceSubscriptionKey);
-			} catch (error) {
-				showNotification((error as Error).message, 4000);
 				return;
 			}
 

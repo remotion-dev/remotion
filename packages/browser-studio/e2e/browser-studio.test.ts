@@ -11,6 +11,7 @@ import {
 	staticFileRef,
 	StudioProtocolInternals,
 } from '@remotion/studio-protocol';
+import type {BrowserStudioOperations} from '@remotion/studio-shared';
 import {strFromU8, unzipSync} from 'fflate';
 
 const localImagePath = fileURLToPath(
@@ -956,7 +957,9 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 	expect(studioApiRequests).toEqual([]);
 });
 
-test('previews and adds an effect to a solid', async ({page}) => {
+test('previews effects and chains edits while browser persistence is delayed', async ({
+	page,
+}) => {
 	await page.goto('/');
 	const studio = page.frameLocator('iframe');
 	await waitForBrowserStudioOperations(studio);
@@ -983,6 +986,86 @@ test('previews and adds an effect to a solid', async ({page}) => {
 	await expect(
 		studio.getByRole('button', {name: 'Collapse brightness() section'}),
 	).toBeVisible();
+	const savedSource = await page.evaluate(
+		() => window.__browserStudioProject.files['/project/src/Composition.tsx'],
+	);
+	await studio.locator('body').evaluate(() => {
+		const studioWindow = window as typeof window & {
+			remotion_browserStudio: BrowserStudioOperations;
+			__releaseEffectPersistence: () => void;
+		};
+		const {effects: effectOperations} = studioWindow.remotion_browserStudio;
+		if (!effectOperations)
+			throw new Error('Browser Studio effect editing is unavailable');
+		const {duplicateEffects: duplicate} = effectOperations;
+		let first = true;
+		const gate = new Promise<void>((resolve) => {
+			studioWindow.__releaseEffectPersistence = resolve;
+		});
+		effectOperations.duplicateEffects = async (params) => {
+			if (first) {
+				first = false;
+				await gate;
+			}
+
+			return duplicate(params);
+		};
+	});
+	const effects = studio.getByRole('region', {name: 'Effects', exact: true});
+	const brightness = effects.getByRole('group', {
+		name: 'brightness()',
+		exact: true,
+	});
+	try {
+		await brightness.click({button: 'right'});
+		await studio
+			.getByRole('button', {name: 'Duplicate', exact: true})
+			.last()
+			.click();
+		await expect(brightness).toHaveCount(2, {timeout: 1_000});
+		await page.keyboard.press('ControlOrMeta+d');
+		await expect(brightness).toHaveCount(3, {timeout: 1_000});
+		await page.keyboard.press('Backspace');
+		await expect(brightness).toHaveCount(2, {timeout: 1_000});
+		await studio.getByRole('button', {name: 'Add effect', exact: true}).click();
+		await studio.getByPlaceholder('Search effects...').fill('wave');
+		await studio
+			.getByRole('button', {name: 'Add wave() effect', exact: true})
+			.click();
+		const wave = effects.getByRole('group', {name: 'wave()', exact: true});
+		await expect(wave).toHaveCount(1, {timeout: 1_000});
+		expect(
+			await page.evaluate(
+				() =>
+					window.__browserStudioProject.files['/project/src/Composition.tsx'],
+			),
+		).toBe(savedSource);
+		await studio.locator('body').evaluate(() => {
+			(
+				window as typeof window & {__releaseEffectPersistence: () => void}
+			).__releaseEffectPersistence();
+		});
+		await expect
+			.poll(() =>
+				page.evaluate(() => {
+					const source =
+						window.__browserStudioProject.files['/project/src/Composition.tsx'];
+					return {
+						brightness: source.match(/brightness\(/g)?.length ?? 0,
+						wave: source.match(/wave\(/g)?.length ?? 0,
+					};
+				}),
+			)
+			.toEqual({brightness: 2, wave: 1});
+		await expect(brightness).toHaveCount(2);
+		await expect(wave).toHaveCount(1);
+	} finally {
+		await studio.locator('body').evaluate(() => {
+			(
+				window as typeof window & {__releaseEffectPersistence: () => void}
+			).__releaseEffectPersistence();
+		});
+	}
 });
 
 test('installs packages without a server API and preserves undo, redo, and HMR', async ({

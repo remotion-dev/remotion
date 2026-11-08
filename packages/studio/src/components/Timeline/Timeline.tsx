@@ -18,7 +18,6 @@ import {
 	getDuplicatedElementSelection,
 	subscribeToDuplicatedElementSelection,
 } from '../../helpers/duplicated-element-selection';
-import {usePendingEffectDeletions} from '../../helpers/effect-deletion-state';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	clearInsertedElementSelection,
@@ -71,6 +70,7 @@ import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
 import {
+	type TimelineSelection,
 	TimelineSelectableItemsProvider,
 	TimelineSelectAllKeybindings,
 	useCurrentTimelineSelectionStateAsRef,
@@ -375,17 +375,15 @@ const TimelineInner: React.FC = () => {
 			structureTimeline,
 		};
 	}, [calculation, structureTimeline, timeline]);
-	const pendingEffectDeletions = usePendingEffectDeletions();
 	useLayoutEffect(() => {
-		if (pendingEffectDeletions.length === 0) return;
 		for (const track of timeline) {
 			if (track.nodePathInfo)
-				Internals.OptimisticEffectDeletion.reconcile(
+				Internals.OptimisticEffects.getItems(
 					track.nodePathInfo.sequenceSubscriptionKey,
 					track.sequence.effects,
 				);
 		}
-	}, [pendingEffectDeletions, timeline]);
+	}, [timeline]);
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const activeFromDragOverrideKeys = Internals.useActiveFromDragOverrideKeys();
@@ -587,25 +585,48 @@ const TimelineInner: React.FC = () => {
 		}
 
 		const targetKeys = new Set(
-			duplicatedSelection.nodes.map((node) =>
-				JSON.stringify([node.absolutePath, node.nodePath]),
+			duplicatedSelection.nodes.map((node, index) =>
+				JSON.stringify([
+					node.absolutePath,
+					node.nodePath,
+					duplicatedSelection.effectIndices?.[index] ?? null,
+				]),
 			),
 		);
 		const foundKeys = new Set<string>();
-		const items = timeline.flatMap((track) => {
+		const items = timeline.flatMap((track): TimelineSelection[] => {
 			if (track.nodePathInfo === null) {
 				return [];
 			}
 
 			const {absolutePath, nodePath} =
 				track.nodePathInfo.sequenceSubscriptionKey;
-			const key = JSON.stringify([absolutePath, nodePath]);
-			if (!targetKeys.has(key)) {
-				return [];
+			if (duplicatedSelection.effectIndices === null) {
+				const key = JSON.stringify([absolutePath, nodePath, null]);
+				if (!targetKeys.has(key)) return [];
+				foundKeys.add(key);
+				return [{type: 'sequence', nodePathInfo: track.nodePathInfo}];
 			}
 
-			foundKeys.add(key);
-			return [{type: 'sequence' as const, nodePathInfo: track.nodePathInfo}];
+			const {nodePathInfo} = track;
+			return [...new Set(duplicatedSelection.effectIndices)].flatMap(
+				(effectIndex): TimelineSelection[] => {
+					const key = JSON.stringify([absolutePath, nodePath, effectIndex]);
+					if (!targetKeys.has(key) || !track.sequence.effects[effectIndex])
+						return [];
+					foundKeys.add(key);
+					return [
+						{
+							type: 'sequence-effect',
+							i: effectIndex,
+							nodePathInfo: {
+								...nodePathInfo,
+								auxiliaryKeys: ['effects', String(effectIndex)],
+							},
+						},
+					];
+				},
+			);
 		});
 		if (foundKeys.size !== targetKeys.size) {
 			return;
@@ -613,7 +634,10 @@ const TimelineInner: React.FC = () => {
 
 		cancelDuplicatedElementSelection(duplicatedSelection.request);
 		if (items.length > 0) {
-			currentSelection.current.selectItems(items, {reveal: true});
+			currentSelection.current.selectItems(items, {
+				reveal: true,
+				revealInInspector: duplicatedSelection.effectIndices !== null,
+			});
 		}
 	}, [
 		canvasContent,

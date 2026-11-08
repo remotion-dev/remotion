@@ -10,9 +10,9 @@ import {
 	supersedePendingSequenceSplits,
 } from '../components/Timeline/pending-sequence-splits';
 import {invalidateDuplicatedElementSelection} from './duplicated-element-selection';
-import {guardPendingEffectDeletion} from './guard-pending-effect-deletion';
 import {installRequiredPackages} from './install-required-package';
 import {loadGoogleFontForPreview} from './load-google-font-for-preview';
+import {captureOptimisticEffectMutation} from './optimistic-effect-mutations';
 import {
 	captureSourceRequest,
 	markSourceRequestPaths,
@@ -31,16 +31,9 @@ export const enqueueStudioSourceMutation = <T>(
 	body: unknown,
 	run: (rebasedBody: unknown) => Promise<T>,
 ): Promise<T> => {
-	try {
-		guardPendingEffectDeletion(endpoint, body);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	if (endpoint === '/api/undo' || endpoint === '/api/redo') {
 		invalidateDuplicatedElementSelection();
 		clearPendingSequenceSplits();
-		Internals.OptimisticEffectDeletion.clear();
 	}
 
 	const nodes =
@@ -57,6 +50,9 @@ export const enqueueStudioSourceMutation = <T>(
 	let capturedBody = body;
 	let rebaseError: unknown = null;
 	let unsubscribeFromMutations = () => {};
+	let effectMutation: ReturnType<
+		typeof captureOptimisticEffectMutation
+	> | null = null;
 
 	return enqueueSourceMutation(
 		async (operation) => {
@@ -64,6 +60,8 @@ export const enqueueStudioSourceMutation = <T>(
 				if (rebaseError !== null) {
 					throw rebaseError;
 				}
+
+				await effectMutation?.prepare();
 
 				// Preparation is part of the queued edit, not a prerequisite for
 				// enqueueing it. Undo and other edits must follow user action order.
@@ -89,7 +87,10 @@ export const enqueueStudioSourceMutation = <T>(
 					throw rebaseError;
 				}
 
-				const result = await run(rebasedBody);
+				Internals.OptimisticEffects.startSourceMutation(operation.revision);
+				const result = await run(
+					effectMutation?.resolve(rebasedBody) ?? rebasedBody,
+				);
 				queueSequenceNodePathMutationFromApiResponse(result);
 				const ownMutation =
 					typeof result === 'object' &&
@@ -104,15 +105,26 @@ export const enqueueStudioSourceMutation = <T>(
 					false,
 				);
 				if (typeof result !== 'object' || result === null) {
+					effectMutation?.acknowledge(ownMutation?.mutationId ?? null);
 					return result;
 				}
 
-				if ('success' in result && result.success === false) {
+				if (
+					('success' in result && result.success === false) ||
+					('canUpdate' in result && result.canUpdate === false)
+				) {
+					effectMutation?.rollback();
 					Internals.OptimisticSequenceDeletion.rollbackRevision(
 						operation.revision,
 					);
 					return result;
 				}
+
+				effectMutation?.acknowledge(ownMutation?.mutationId ?? null);
+				if (ownMutation !== null)
+					Internals.OptimisticEffects.acknowledgeMutation(
+						ownMutation.mutationId,
+					);
 
 				if (
 					(endpoint === '/api/undo' || endpoint === '/api/redo') &&
@@ -159,18 +171,21 @@ export const enqueueStudioSourceMutation = <T>(
 				// optimistic state here could overwrite a newer undo intent.
 				return result;
 			} catch (error) {
+				effectMutation?.rollback();
 				Internals.OptimisticSequenceDeletion.rollbackRevision(
 					operation.revision,
 				);
 				throw error;
 			} finally {
 				unsubscribeFromMutations();
+				Internals.OptimisticEffects.finishSourceMutation(operation.revision);
 			}
 		},
 		(operation) => {
 			try {
 				capturedBody = captureSourceRequest(body, initialMutations);
 				rebasedBody = capturedBody;
+				effectMutation = captureOptimisticEffectMutation(endpoint, body);
 			} catch (error) {
 				rebaseError = error;
 				return;

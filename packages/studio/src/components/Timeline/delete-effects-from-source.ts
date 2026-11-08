@@ -1,23 +1,10 @@
 import {useCallback} from 'react';
 import type {EffectDefinition, SequencePropsSubscriptionKey} from 'remotion';
-import {Internals} from 'remotion';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
-import {
-	getPendingEffectDeletions,
-	getEffectDeletionSelectionRevision,
-	isEffectDeletionPending,
-} from '../../helpers/effect-deletion-state';
-import {authorizeEffectDeletionRequest} from '../../helpers/guard-pending-effect-deletion';
-import {getSequencePropsSourceSession} from '../../helpers/sequence-props-source-version';
 import {deleteEffects} from '../effect-operations-api';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {
-	getTimelineSelectionKey,
-	useCurrentTimelineSelectionStateAsRef,
-	type TimelineSelection,
-} from './TimelineSelection';
+import {useCurrentTimelineSelectionStateAsRef} from './TimelineSelection';
 
-export {getPendingEffectDeletions, isEffectDeletionPending};
 export type EffectDeletionTarget = {
 	readonly nodePath: SequencePropsSubscriptionKey;
 	readonly effectIndices: readonly number[];
@@ -25,7 +12,6 @@ export type EffectDeletionTarget = {
 };
 export type EffectDeletionResult =
 	| {status: 'success'}
-	| {status: 'already-pending'}
 	| {status: 'error'; reason: string};
 
 export const deleteEffectsFromSource = async (
@@ -39,8 +25,6 @@ export const deleteEffectsFromSource = async (
 		(currentSelection !== null && !currentSelection.current.canSelect)
 	)
 		return {status: 'error', reason: 'Effect editing is unavailable'};
-	if (targets.some(({nodePath}) => isEffectDeletionPending(nodePath)))
-		return {status: 'already-pending'};
 	const grouped = new Map<string, EffectDeletionTarget>();
 	for (const target of targets) {
 		if (
@@ -73,68 +57,6 @@ export const deleteEffectsFromSource = async (
 
 	if (grouped.size === 0)
 		return {status: 'error', reason: 'No effects were selected'};
-	const entries = Internals.OptimisticEffectDeletion.batch(() =>
-		[...grouped.values()].map(({nodePath, effectIndices, effects}) =>
-			Internals.OptimisticEffectDeletion.begin({
-				nodePath,
-				effectIndices,
-				definitions: effects,
-			}),
-		),
-	);
-	if (entries.some((entry) => entry === null)) {
-		Internals.OptimisticEffectDeletion.batch(() => {
-			for (const entry of entries)
-				if (entry) Internals.OptimisticEffectDeletion.remove(entry);
-		});
-		return {status: 'already-pending'};
-	}
-
-	const entriesByOriginalPath = new Map(
-		[...grouped.keys()].map((key, index) => [key, entries[index]]),
-	);
-	const previousSelection = currentSelection?.current.selectedItems ?? [];
-	const fallback = new Map<string, TimelineSelection>();
-	let changedSelection = false;
-	for (const item of previousSelection) {
-		const info = 'nodePathInfo' in item ? item.nodePathInfo : null;
-		const pending = info
-			? Internals.OptimisticEffectDeletion.get(info.sequenceSubscriptionKey)
-			: null;
-		let next = item;
-		if (pending && info?.auxiliaryKeys[0] === 'effects') {
-			const survivingIndices = pending.definitions
-				.map((_, index) => index)
-				.filter((index) => !pending.effectIndices.includes(index));
-			const selectedIndex = Number(info.auxiliaryKeys[1]);
-			const pivot = Number.isInteger(selectedIndex)
-				? selectedIndex
-				: Math.min(...pending.effectIndices);
-			const effectIndex = survivingIndices.includes(pivot)
-				? pivot
-				: (survivingIndices.findLast((index) => index < pivot) ??
-					survivingIndices[0]);
-			next =
-				effectIndex === undefined
-					? {type: 'sequence', nodePathInfo: {...info, auxiliaryKeys: []}}
-					: {
-							type: 'sequence-effect',
-							i: effectIndex,
-							nodePathInfo: {
-								...info,
-								auxiliaryKeys: ['effects', String(effectIndex)],
-							},
-						};
-		}
-
-		changedSelection ||= next !== item;
-		fallback.set(getTimelineSelectionKey(next), next);
-	}
-
-	if (changedSelection)
-		currentSelection?.current.selectItems([...fallback.values()]);
-	const expectedRevision = getEffectDeletionSelectionRevision();
-	const sourceSession = getSequencePropsSourceSession();
 	try {
 		const request = [...grouped.values()].flatMap(({nodePath, effectIndices}) =>
 			effectIndices.map((effectIndex) => ({
@@ -144,48 +66,10 @@ export const deleteEffectsFromSource = async (
 				effectIndex,
 			})),
 		);
-		authorizeEffectDeletionRequest(request);
 		const result = await deleteEffects(request);
 		if (!result.success) throw new Error(result.reason);
-		Internals.OptimisticEffectDeletion.batch(() => {
-			for (const entry of entries)
-				if (entry) Internals.OptimisticEffectDeletion.acknowledge(entry);
-		});
 		return {status: 'success'};
 	} catch (error) {
-		const canRestore =
-			changedSelection &&
-			getEffectDeletionSelectionRevision() === expectedRevision &&
-			sourceSession === getSequencePropsSourceSession() &&
-			entries.every(
-				(entry) =>
-					entry &&
-					!entry.sourceChanged &&
-					Internals.OptimisticEffectDeletion.get(entry.nodePath) === entry,
-			);
-		Internals.OptimisticEffectDeletion.batch(() => {
-			for (const entry of entries)
-				if (entry) Internals.OptimisticEffectDeletion.remove(entry);
-		});
-		if (canRestore)
-			currentSelection?.current.selectItems(
-				previousSelection.map((selection) => {
-					if (!('nodePathInfo' in selection)) return selection;
-					const source = selection.nodePathInfo.sequenceSubscriptionKey;
-					const entry = entriesByOriginalPath.get(
-						JSON.stringify([source.absolutePath, source.nodePath]),
-					);
-					return entry
-						? {
-								...selection,
-								nodePathInfo: {
-									...selection.nodePathInfo,
-									sequenceSubscriptionKey: entry.nodePath,
-								},
-							}
-						: selection;
-				}),
-			);
 		const reason = error instanceof Error ? error.message : String(error);
 		showNotification(`Could not delete effect: ${reason}`, 4000);
 		return {status: 'error', reason};

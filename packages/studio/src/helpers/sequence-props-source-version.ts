@@ -3,6 +3,7 @@ import type {ContextType} from 'react';
 import type {SequencePropsSubscriptionKey} from 'remotion';
 import {Internals} from 'remotion';
 import {clearPendingSequenceSplits} from '../components/Timeline/pending-sequence-splits';
+import {clearOptimisticEffectHistory} from './optimistic-effect-mutations';
 
 type Setters = ContextType<typeof Internals.VisualModeSettersContext>;
 const versions = new WeakMap<
@@ -18,7 +19,8 @@ let sourceSessionId: string | null = null;
 export const getSequencePropsSourceSession = () => sourceSessionId;
 export const setSequencePropsSourceSession = (sessionId: string | null) => {
 	if (sourceSessionId !== sessionId) {
-		Internals.OptimisticEffectDeletion.clear();
+		Internals.OptimisticEffects.clear();
+		clearOptimisticEffectHistory();
 		clearPendingSequenceSplits();
 	}
 
