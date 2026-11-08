@@ -171,9 +171,11 @@ export const getBackgroundImageRect = ({
 	backgroundSize,
 	positioningArea,
 	intrinsicSize,
+	backgroundRepeat = 'repeat',
 }: {
 	backgroundPosition: string;
 	backgroundSize: string;
+	backgroundRepeat?: string;
 	positioningArea: DOMRect;
 	intrinsicSize: {width: number; height: number} | null;
 }) => {
@@ -208,6 +210,42 @@ export const getBackgroundImageRect = ({
 			intrinsicSize && y === 'auto'
 				? (width * intrinsicSize.height) / intrinsicSize.width
 				: resolveSize({containerSize: positioningArea.height, value: y});
+	}
+
+	// CSS round fits the nearest positive whole tile count before positioning.
+	const [repeatX, repeatY = repeatX] = backgroundRepeat.split(/\s+/);
+	const originalWidth = width;
+	const originalHeight = height;
+	if (repeatX === 'round' && width > 0) {
+		width =
+			positioningArea.width /
+			Math.max(1, Math.round(positioningArea.width / width));
+	}
+
+	if (repeatY === 'round' && height > 0) {
+		height =
+			positioningArea.height /
+			Math.max(1, Math.round(positioningArea.height / height));
+	}
+
+	if (
+		repeatX === 'round' &&
+		repeatY !== 'round' &&
+		y === 'auto' &&
+		x !== 'contain' &&
+		x !== 'cover' &&
+		originalWidth > 0
+	) {
+		height *= width / originalWidth;
+	}
+
+	if (
+		repeatY === 'round' &&
+		repeatX !== 'round' &&
+		x === 'auto' &&
+		originalHeight > 0
+	) {
+		width *= height / originalHeight;
 	}
 
 	const position = parsePosition(backgroundPosition);
