@@ -253,11 +253,11 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 
 // The Canvas clip must be vector geometry so it also applies to descendants.
 // Reuse Path2D rather than rasterizing the SVG resource into a separate mask.
-const getReferencedRectangle = (
+const getReferencedShape = (
 	source: string,
 	element: Element,
 	rect: DOMRect,
-): Path2D | null => {
+): {path: Path2D; fillRule: CanvasFillRule} | null => {
 	let url: URL;
 	let id: string;
 	try {
@@ -282,14 +282,22 @@ const getReferencedRectangle = (
 		(node) => getComputedStyle(node).display !== 'none',
 	);
 	const path = new Path2D();
-	if (children.length === 0) return path;
-	// Other geometry, rounded rectangles and unions need separate coverage handling.
-	if (children.length !== 1 || !(children[0] instanceof SVGRectElement))
-		return null;
+	if (children.length === 0) return {path, fillRule: 'nonzero'};
+	// Multiple shapes need union coverage rather than a combined winding rule.
+	if (children.length !== 1) return null;
 	const child = children[0];
 	if (
-		child.rx.baseVal.valueInSpecifiedUnits > 0 ||
-		child.ry.baseVal.valueInSpecifiedUnits > 0
+		!(
+			child instanceof SVGRectElement ||
+			child instanceof SVGPolygonElement ||
+			child instanceof SVGPathElement
+		)
+	)
+		return null;
+	if (
+		child instanceof SVGRectElement &&
+		(child.rx.baseVal.valueInSpecifiedUnits > 0 ||
+			child.ry.baseVal.valueInSpecifiedUnits > 0)
 	)
 		return null;
 	const objectBoundingBox =
@@ -299,19 +307,43 @@ const getReferencedRectangle = (
 		objectBoundingBox && value.unitType === SVGLength.SVG_LENGTHTYPE_PERCENTAGE
 			? value.valueInSpecifiedUnits / 100
 			: value.value;
-	const width = length(child.width.baseVal);
-	const height = length(child.height.baseVal);
-	if (width <= 0 || height <= 0) return path;
 	const matrix = new DOMMatrix().translate(rect.left, rect.top);
 	if (objectBoundingBox) matrix.scaleSelf(rect.width, rect.height);
 	for (let i = 0; i < resource.transform.baseVal.numberOfItems; i++)
 		matrix.multiplySelf(resource.transform.baseVal.getItem(i).matrix);
 	for (let i = 0; i < child.transform.baseVal.numberOfItems; i++)
 		matrix.multiplySelf(child.transform.baseVal.getItem(i).matrix);
-	const shape = new Path2D();
-	shape.rect(length(child.x.baseVal), length(child.y.baseVal), width, height);
+	let shape: Path2D;
+	if (child instanceof SVGRectElement) {
+		shape = new Path2D();
+		const width = length(child.width.baseVal);
+		const height = length(child.height.baseVal);
+		if (width > 0 && height > 0)
+			shape.rect(
+				length(child.x.baseVal),
+				length(child.y.baseVal),
+				width,
+				height,
+			);
+	} else if (child instanceof SVGPolygonElement) {
+		shape = new Path2D();
+		for (let i = 0; i < child.points.numberOfItems; i++) {
+			const point = child.points.getItem(i);
+			if (i === 0) shape.moveTo(point.x, point.y);
+			else shape.lineTo(point.x, point.y);
+		}
+
+		shape.closePath();
+	} else {
+		shape = new Path2D(child.getAttribute('d') ?? '');
+	}
+
 	path.addPath(shape, matrix);
-	return path;
+	return {
+		path,
+		fillRule:
+			getComputedStyle(child).clipRule === 'evenodd' ? 'evenodd' : 'nonzero',
+	};
 };
 
 export function setClipPath({
@@ -335,8 +367,8 @@ export function setClipPath({
 
 	switch (parsed.type) {
 		case 'url': {
-			const path = getReferencedRectangle(parsed.source, element, rect);
-			if (path) ctx.clip(path);
+			const shape = getReferencedShape(parsed.source, element, rect);
+			if (shape) ctx.clip(shape.path, shape.fillRule);
 			break;
 		}
 

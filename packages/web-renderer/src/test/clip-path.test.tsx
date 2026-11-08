@@ -7,6 +7,7 @@ import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathReference} from './fixtures/clip-path-reference';
+import {clipPathShapeReference} from './fixtures/clip-path-shape-reference';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -95,19 +96,27 @@ test('Should render clip-path: ellipse()', async () => {
 });
 
 // KINO-7772: referenced SVG clip paths were ignored by the DOM composer.
-for (const frame of [0, 1]) {
-	test(`local SVG rectangles clip all descendants at frame ${frame}`, async (t) => {
+for (const {fixture, frame} of [
+	clipPathReference,
+	clipPathShapeReference,
+].flatMap((selectedFixture) =>
+	[0, 1].map((selectedFrame) => ({
+		fixture: selectedFixture,
+		frame: selectedFrame,
+	})),
+)) {
+	test(`${fixture.id} clips all descendants at frame ${frame}`, async (t) => {
 		if (t.task.file.projectName === 'firefox') {
 			// Native transparent element capture is unsupported in this engine.
 			t.skip();
 			return;
 		}
 
-		const reference = await captureNativeReference(clipPathReference, frame);
+		const reference = await captureNativeReference(fixture, frame);
 		const actual = await (
 			await renderStillOnWeb({
 				licenseKey: 'free-license',
-				composition: clipPathReference,
+				composition: fixture,
 				frame,
 				inputProps: {},
 				allowHtmlInCanvas: false,
@@ -115,9 +124,9 @@ for (const frame of [0, 1]) {
 		).blob({format: 'png'});
 		const diff = await compareNativePixels(reference, actual);
 		await Promise.all([
-			savePixelEvidence(reference, `clip-reference-${frame}-native`),
-			savePixelEvidence(actual, `clip-reference-${frame}-actual`),
-			savePixelEvidence(diff.diff, `clip-reference-${frame}-diff`),
+			savePixelEvidence(reference, `${fixture.id}-${frame}-native`),
+			savePixelEvidence(actual, `${fixture.id}-${frame}-actual`),
+			savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`),
 		]);
 		expect(diff.mismatchedPixels).toBe(0);
 	});
