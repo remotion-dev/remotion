@@ -17,11 +17,11 @@ export const useVideoEnabled = () => {
 export const useAudioEnabled = () => {
 	const context = useContext(MediaEnabledContext);
 	if (!context) {
-		return window.remotion_audioEnabled;
+		return typeof window === 'undefined' ? true : window.remotion_audioEnabled;
 	}
 
 	if (context.audioEnabled === null) {
-		return window.remotion_audioEnabled;
+		return typeof window === 'undefined' ? true : window.remotion_audioEnabled;
 	}
 
 	return context.audioEnabled;

@@ -88,6 +88,14 @@ test.describe('effect keyframes', () => {
 		await page.keyboard.press('Escape');
 		await expect(propertyLabel).toHaveCSS(
 			'background-color',
+			'rgba(255, 255, 255, 0.1)',
+		);
+		await expect(
+			page.getByRole('button', {name: 'Back to property', exact: true}),
+		).toHaveCount(0);
+		await page.keyboard.press('Escape');
+		await expect(propertyLabel).toHaveCSS(
+			'background-color',
 			'rgba(0, 0, 0, 0)',
 		);
 		await page

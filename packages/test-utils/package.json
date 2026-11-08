@@ -7,7 +7,7 @@
 	"main": "dist",
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsc -d"
+		"make": "node ../.monorepo/tsrs.cjs -d"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],

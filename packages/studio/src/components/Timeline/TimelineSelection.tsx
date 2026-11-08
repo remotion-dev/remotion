@@ -93,8 +93,8 @@ import {
 	getNodeHasKeyframes,
 	getNodeKeyframes,
 } from './get-node-keyframes';
+import {getParentTimelineSelection} from './get-parent-timeline-selection';
 import {getCurrentFrame} from './imperative-state';
-import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
 import {
 	filterTimelineExpandedTree,
 	getSelectedTimelineExpandedRowKeys,
@@ -502,6 +502,7 @@ type TimelineSelectionContextValue = {
 		mutations: readonly SequenceNodePathMutation[],
 	) => void;
 	readonly clearSelection: () => void;
+	readonly stepBackSelection: (preserveTopLevel: boolean) => void;
 };
 
 const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
@@ -519,6 +520,7 @@ const defaultTimelineSelectionContextValue: TimelineSelectionContextValue = {
 	containsSelection: () => false,
 	remapSelectionNodePaths: () => undefined,
 	clearSelection: () => undefined,
+	stepBackSelection: () => undefined,
 };
 
 const TimelineSelectionCanSelectContext = createContext(false);
@@ -964,50 +966,6 @@ export const TimelineSelectAllKeybindings: React.FC<{
 	return null;
 };
 
-const fieldsSelectingSequenceOnEscape = new Set([
-	'cropLeft',
-	'cropRight',
-	'cropTop',
-	'cropBottom',
-	'style.rotate',
-]);
-
-export const getTimelineSequenceSelectionForEscape = (
-	selectedItems: readonly TimelineSelection[],
-): Extract<TimelineSelection, {type: 'sequence'}> | null => {
-	if (selectedItems.length !== 1) {
-		return null;
-	}
-
-	const [selectedItem] = selectedItems;
-	let fieldKey: string | null = null;
-	if (selectedItem.type === 'sequence-prop') {
-		fieldKey = selectedItem.key;
-	} else if (
-		selectedItem.type === 'keyframe' ||
-		selectedItem.type === 'easing'
-	) {
-		const field = parseKeyframeFieldFromNodePath(
-			selectedItem.nodePathInfo.auxiliaryKeys,
-		);
-		fieldKey = field?.type === 'sequence' ? field.fieldKey : null;
-	} else {
-		return null;
-	}
-
-	if (!fieldsSelectingSequenceOnEscape.has(fieldKey ?? '')) {
-		return null;
-	}
-
-	return {
-		type: 'sequence',
-		nodePathInfo: {
-			...selectedItem.nodePathInfo,
-			auxiliaryKeys: [],
-		},
-	};
-};
-
 const TimelineEscapeKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
@@ -1017,21 +975,12 @@ const TimelineEscapeKeybindings: React.FC = () => {
 			event: 'keydown',
 			key: 'Escape',
 			callback: (event) => {
-				const {selectedItems, clearSelection, selectItems} =
-					currentSelection.current;
+				const {selectedItems, stepBackSelection} = currentSelection.current;
 				if (selectedItems.length === 0) {
 					return;
 				}
 
-				const sequenceSelection =
-					getTimelineSequenceSelectionForEscape(selectedItems);
-				if (sequenceSelection) {
-					selectItems([sequenceSelection]);
-					event.preventDefault();
-					return;
-				}
-
-				clearSelection();
+				stepBackSelection(false);
 				event.preventDefault();
 			},
 			commandCtrlKey: false,
@@ -1517,6 +1466,49 @@ export const TimelineSelectionProvider: React.FC<{
 		selectionController.clear();
 	}, [selectionController]);
 
+	const stepBackSelection = useCallback(
+		(preserveTopLevel: boolean) => {
+			const {selectedItems} = getAvailableSelectionState();
+			const parents = selectedItems.map((item) => {
+				let parent = getParentTimelineSelection(item);
+				while (parent !== null) {
+					if (
+						canSelectItem(parent) &&
+						(!preserveTopLevel || parent.type === 'sequence')
+					) {
+						break;
+					}
+
+					parent = getParentTimelineSelection(parent);
+				}
+
+				return parent;
+			});
+			if (parents.every((parent) => parent === null)) {
+				if (!preserveTopLevel) {
+					clearSelection();
+				}
+
+				return;
+			}
+
+			const seen = new Set<string>();
+			selectItems(
+				selectedItems.flatMap((item, index) => {
+					const parent = parents[index] ?? item;
+					const key = getTimelineSelectionKey(parent);
+					if (seen.has(key)) {
+						return [];
+					}
+
+					seen.add(key);
+					return [parent];
+				}),
+			);
+		},
+		[canSelectItem, clearSelection, getAvailableSelectionState, selectItems],
+	);
+
 	const containsSelection = useCallback(
 		(nodePathInfo: SequenceNodePathInfo) => {
 			return timelineRowContainsSelection(nodePathInfo, availableSelectedItems);
@@ -1645,6 +1637,7 @@ export const TimelineSelectionProvider: React.FC<{
 			containsSelection,
 			remapSelectionNodePaths,
 			clearSelection,
+			stepBackSelection,
 		}),
 		[
 			canSelect,
@@ -1661,6 +1654,7 @@ export const TimelineSelectionProvider: React.FC<{
 			containsSelection,
 			remapSelectionNodePaths,
 			clearSelection,
+			stepBackSelection,
 		],
 	);
 	const currentSelection = useRef(value);

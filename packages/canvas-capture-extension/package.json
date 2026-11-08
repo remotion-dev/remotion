@@ -7,7 +7,7 @@
 		"dev": "bunx --bun wxt",
 		"formatting": "oxfmt src wxt.config.ts --check",
 		"format": "oxfmt src wxt.config.ts",
-		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && bun check",
+		"lint": "eslint src wxt.config.ts && bunx --bun wxt prepare && node ../.monorepo/tsrs.cjs --noEmit",
 		"build-extension": "bunx --bun wxt build"
 	},
 	"dependencies": {

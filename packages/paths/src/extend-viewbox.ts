@@ -5,10 +5,9 @@
 export const extendViewBox = (currentViewBox: string, scale: number) => {
 	const relativeScale = scale - 1;
 	const splitted = currentViewBox
-		.split(' ')
-		.map((a) => a.trim())
-		.filter((a) => a !== '')
-		.map(Number);
+		.trim()
+		.split(/\s*,\s*|\s+/)
+		.map((a) => (a === '' ? NaN : Number(a)));
 
 	if (splitted.length !== 4) {
 		throw new Error(

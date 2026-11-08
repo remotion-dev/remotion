@@ -94,6 +94,48 @@ export const drawBackground = async ({
 		contextToDraw.globalCompositeOperation = 'source-in';
 	}
 
+	const positioningArea = getBoxBasedOnBackgroundClip(
+		rect,
+		computedStyle,
+		computedStyle.backgroundOrigin,
+	);
+	const paintFill = (
+		target: OffscreenCanvasRenderingContext2D,
+		fill: Awaited<ReturnType<typeof getBackgroundFill>>,
+		originX: number,
+		originY: number,
+	) => {
+		if (!fill) return;
+		if ('image' in fill) {
+			target.save();
+			target.beginPath();
+			target.rect(
+				boundingRect.left - originX,
+				boundingRect.top - originY,
+				boundingRect.width,
+				boundingRect.height,
+			);
+			target.clip();
+			const left = Math.round(fill.rect.left - originX);
+			const top = Math.round(fill.rect.top - originY);
+			const right = Math.round(fill.rect.right - originX);
+			const bottom = Math.round(fill.rect.bottom - originY);
+			target.drawImage(fill.image, left, top, right - left, bottom - top);
+			target.restore();
+			return;
+		}
+
+		const previous = target.fillStyle;
+		target.fillStyle = fill;
+		target.fillRect(
+			boundingRect.left - originX,
+			boundingRect.top - originY,
+			boundingRect.width,
+			boundingRect.height,
+		);
+		target.fillStyle = previous;
+	};
+
 	const blendMode = getBlendMode(computedStyle.backgroundBlendMode);
 	if (
 		backgroundImage !== 'none' &&
@@ -103,36 +145,36 @@ export const drawBackground = async ({
 					context.filter !== 'none' ||
 					contextToDraw !== context)))
 	) {
-		// CSS backgrounds blend in their own isolated group, not with the
-		// element's siblings, children or other content already on the canvas.
+		// Blend inside the background group before applying element opacity, filters and text masks.
 		const backgroundCanvas = new OffscreenCanvas(
 			Math.ceil(boundingRect.width * scale),
 			Math.ceil(boundingRect.height * scale),
 		);
 		const backgroundContext = backgroundCanvas.getContext('2d');
-		if (!backgroundContext) {
-			throw new Error('Could not create background blending context');
-		}
-
+		if (!backgroundContext)
+			throw new Error('Could not create background compositing context');
 		backgroundContext.scale(scale, scale);
 		backgroundContext.fillStyle = backgroundColor;
 		backgroundContext.fillRect(0, 0, boundingRect.width, boundingRect.height);
-		const fill = getBackgroundFill({
+		const groupFill = await getBackgroundFill({
 			backgroundImage,
+			backgroundRepeat: computedStyle.backgroundRepeat,
+			internalState,
+			positioningArea,
 			backgroundPosition: computedStyle.backgroundPosition,
 			backgroundSize: computedStyle.backgroundSize,
-			backgroundColor: 'transparent',
 			contextToDraw: backgroundContext,
 			boundingRect,
 			offsetLeft: boundingRect.left,
 			offsetTop: boundingRect.top,
 		});
-		if (fill) {
-			backgroundContext.globalCompositeOperation = blendMode ?? 'source-over';
-			backgroundContext.fillStyle = fill;
-			backgroundContext.fillRect(0, 0, boundingRect.width, boundingRect.height);
-		}
-
+		backgroundContext.globalCompositeOperation = blendMode ?? 'source-over';
+		paintFill(
+			backgroundContext,
+			groupFill,
+			boundingRect.left,
+			boundingRect.top,
+		);
 		contextToDraw.drawImage(
 			backgroundCanvas,
 			boundingRect.left - offsetLeft,
@@ -143,28 +185,8 @@ export const drawBackground = async ({
 		return;
 	}
 
-	const backgroundFill = getBackgroundFill({
-		backgroundImage,
-		backgroundPosition: computedStyle.backgroundPosition,
-		backgroundSize: computedStyle.backgroundSize,
-		backgroundColor,
-		contextToDraw,
-		boundingRect,
-		offsetLeft,
-		offsetTop,
-	});
-
-	if (!backgroundFill) {
-		return;
-	}
-
-	const originalFillStyle = contextToDraw.fillStyle;
-	if (
-		backgroundImage !== 'none' &&
-		backgroundFill !== backgroundColor &&
-		!backgroundClip.includes('text') &&
-		!isColorTransparent(backgroundColor)
-	) {
+	if (backgroundColor && !isColorTransparent(backgroundColor)) {
+		const previous = contextToDraw.fillStyle;
 		contextToDraw.fillStyle = backgroundColor;
 		contextToDraw.fillRect(
 			boundingRect.left - offsetLeft,
@@ -172,14 +194,20 @@ export const drawBackground = async ({
 			boundingRect.width,
 			boundingRect.height,
 		);
+		contextToDraw.fillStyle = previous;
 	}
 
-	contextToDraw.fillStyle = backgroundFill;
-	contextToDraw.fillRect(
-		boundingRect.left - offsetLeft,
-		boundingRect.top - offsetTop,
-		boundingRect.width,
-		boundingRect.height,
-	);
-	contextToDraw.fillStyle = originalFillStyle;
+	const backgroundFill = await getBackgroundFill({
+		backgroundImage,
+		backgroundRepeat: computedStyle.backgroundRepeat,
+		internalState,
+		positioningArea,
+		backgroundPosition: computedStyle.backgroundPosition,
+		backgroundSize: computedStyle.backgroundSize,
+		contextToDraw,
+		boundingRect,
+		offsetLeft,
+		offsetTop,
+	});
+	paintFill(contextToDraw, backgroundFill, offsetLeft, offsetTop);
 };
