@@ -23,7 +23,6 @@ export const SkiaCanvas = ({
 	...otherProps
 }: RemotionCanvasProps) => {
 	const contexts = Internals.useRemotionContexts();
-	const videoEnabled = Internals.useVideoEnabled();
 
 	const mergedStyles: React.CSSProperties = useMemo(() => {
 		return {
@@ -39,10 +38,6 @@ export const SkiaCanvas = ({
 			...otherProps,
 		};
 	}, [mergedStyles, otherProps]);
-
-	if (!videoEnabled) {
-		return null;
-	}
 
 	return (
 		<Canvas {...props}>

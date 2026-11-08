@@ -88,7 +88,6 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	const {delayRender, continueRender} = useDelayRender();
 	const contexts = Internals.useRemotionContexts();
 	const videoEnabled = Internals.useVideoEnabled();
-	const audioEnabled = Internals.useAudioEnabled();
 	const frame = useCurrentFrame();
 
 	// Taken at commit and released on unmount, so a canvas that unmounts before it is
@@ -96,7 +95,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 	const createdHold = useRef<number | null>(null);
 	const created = useRef(false);
 	useLayoutEffect(() => {
-		if (created.current || (!videoEnabled && !audioEnabled)) {
+		if (created.current) {
 			return;
 		}
 
@@ -109,7 +108,7 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 				createdHold.current = null;
 			}
 		};
-	}, [delayRender, continueRender, videoEnabled, audioEnabled]);
+	}, [delayRender, continueRender]);
 	const frameDelayHandle = useRef<number | null>(null);
 
 	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
@@ -172,12 +171,10 @@ const ThreeCanvasContent = (props: ThreeCanvasInternalsProps) => {
 			>
 				<Scale width={width} height={height} />
 				<Internals.RemotionContextProvider contexts={contexts}>
-					<SuspenseLoader>
-						{isRendering && videoEnabled ? (
-							<FrameRenderer onRendered={handleRendered} />
-						) : null}
-						{children}
-					</SuspenseLoader>
+					{isRendering && videoEnabled ? (
+						<FrameRenderer onRendered={handleRendered} />
+					) : null}
+					{children}
 				</Internals.RemotionContextProvider>
 			</Canvas>
 		</SuspenseLoader>
