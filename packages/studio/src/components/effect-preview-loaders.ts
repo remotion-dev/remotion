@@ -93,6 +93,8 @@ export const effectPreviewLoaders: Record<
 		import('@remotion/effects/barrel-distortion?studio-preview'),
 	'@remotion/effects/chromatic-aberration': () =>
 		import('@remotion/effects/chromatic-aberration?studio-preview'),
+	'@remotion/effects/magnify': () =>
+		import('@remotion/effects/magnify?studio-preview'),
 	'@remotion/effects/fisheye': () =>
 		import('@remotion/effects/fisheye?studio-preview'),
 	'@remotion/effects/corner-pin': () =>
@@ -149,6 +151,8 @@ export const effectPreviewLoaders: Record<
 		import('@remotion/effects/shrinkwrap?studio-preview'),
 	'@remotion/effects/vignette': () =>
 		import('@remotion/effects/vignette?studio-preview'),
+	'@remotion/effects/lightning': () =>
+		import('@remotion/effects/lightning?studio-preview'),
 	'@remotion/effects/rain-fall': () =>
 		import('@remotion/effects/rain-fall?studio-preview'),
 	'@remotion/effects/snow-fall': () =>
