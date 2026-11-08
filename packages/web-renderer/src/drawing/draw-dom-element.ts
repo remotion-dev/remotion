@@ -98,29 +98,65 @@ const drawReplacedElement = ({
 
 	if (
 		drawable instanceof HTMLImageElement &&
-		drawable.currentSrc.startsWith('data:image/svg+xml')
+		(drawable.currentSrc.startsWith('data:image/svg+xml') ||
+			(drawable.currentSrc !== '' &&
+				new URL(drawable.currentSrc).pathname.toLowerCase().endsWith('.svg')))
 	) {
 		// SVG sources are rasterized at their concrete size; crop the destination
 		// rather than indexing the SVG's intrinsic source pixels.
 		const scaleX = result.destWidth / result.sourceWidth;
 		const scaleY = result.destHeight / result.sourceHeight;
-		contextToDraw.save();
-		contextToDraw.beginPath();
-		contextToDraw.rect(
+		const destX = result.destX - result.sourceX * scaleX;
+		const destY = result.destY - result.sourceY * scaleY;
+		const destWidth = intrinsicSize.width * scaleX;
+		const destHeight = intrinsicSize.height * scaleY;
+
+		const overflowsBox =
+			destX < dimensions.left ||
+			destY < dimensions.top ||
+			destX + destWidth > dimensions.left + dimensions.width ||
+			destY + destHeight > dimensions.top + dimensions.height;
+
+		if (!overflowsBox) {
+			contextToDraw.drawImage(drawable, destX, destY, destWidth, destHeight);
+			return;
+		}
+
+		// Crop on a separate canvas instead of clipping this context, so that a
+		// CSS filter set on this context (e.g. blur) can still extend past the box.
+		const {a, b, c, d} = contextToDraw.getTransform();
+		const cropWidth = Math.max(
+			1,
+			Math.ceil(dimensions.width * Math.hypot(a, b)),
+		);
+		const cropHeight = Math.max(
+			1,
+			Math.ceil(dimensions.height * Math.hypot(c, d)),
+		);
+		const crop = new OffscreenCanvas(cropWidth, cropHeight);
+		const cropContext = crop.getContext('2d');
+		if (!cropContext) {
+			throw new Error('Could not get 2D context to crop SVG image');
+		}
+
+		cropContext.scale(
+			cropWidth / dimensions.width,
+			cropHeight / dimensions.height,
+		);
+		cropContext.drawImage(
+			drawable,
+			destX - dimensions.left,
+			destY - dimensions.top,
+			destWidth,
+			destHeight,
+		);
+		contextToDraw.drawImage(
+			crop,
 			dimensions.left,
 			dimensions.top,
 			dimensions.width,
 			dimensions.height,
 		);
-		contextToDraw.clip();
-		contextToDraw.drawImage(
-			drawable,
-			result.destX - result.sourceX * scaleX,
-			result.destY - result.sourceY * scaleY,
-			intrinsicSize.width * scaleX,
-			intrinsicSize.height * scaleY,
-		);
-		contextToDraw.restore();
 		return;
 	}
 

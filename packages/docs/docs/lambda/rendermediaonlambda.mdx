@@ -92,6 +92,28 @@ Minimum value: Depends on video length (must result in `framesPerLambda >= 4`)
 Cannot be used together with `framesPerLambda`. Use only one of them.
 :::
 
+### `chunks?`<AvailableFrom v="4.0.542" />
+
+<Options id="chunks" />
+
+```ts title="Three chunks for a 375-frame video"
+const chunks: [number, number][] = [
+  [0, 59],
+  [60, 89],
+  [90, 374],
+];
+```
+
+The chunks must be sorted and contiguous, start at the first frame and end at the last frame of the [`frameRange`](#framerange) (or of the composition if no `frameRange` is passed). Each chunk, the last one included, must contain at least <MinimumFramesPerLambda /> frames, unless the whole range is shorter than that. A plan from `framesPerLambda` can end in a shorter last chunk, so it cannot always be passed back as `chunks` unchanged.
+
+Maximum number of chunks: 200
+
+The plan is validated in the main function after the composition has been evaluated. If it is invalid, [`getRenderProgress()`](/docs/lambda/getrenderprogress) reports a fatal error.
+
+:::note
+Cannot be used together with `framesPerLambda`, `concurrency` or [`everyNthFrame`](#everynthframe).
+:::
+
 ### `frameRange?`
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to render a subset of a video. Example: `[0, 9]` to select the first 10 frames. By passing `null` (default) all frames of a composition get rendered. Pass `[number, null]` to render from a frame to the end of the composition.<AvailableFrom v="4.0.421" inline /> To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).

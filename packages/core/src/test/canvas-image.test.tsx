@@ -273,7 +273,7 @@ test('<CanvasImage> registers an automatic canvas outline', async () => {
 	).toEqual([]);
 });
 
-test('<CanvasImage> schema exposes src and non-keyframable premounting fields', () => {
+test('<CanvasImage> schema exposes src without premounting fields', () => {
 	expect(canvasImageSchema.src).toEqual({
 		type: 'asset',
 		assetType: 'image',
@@ -281,8 +281,8 @@ test('<CanvasImage> schema exposes src and non-keyframable premounting fields', 
 		description: 'Source',
 		keyframable: false,
 	});
-	expect(canvasImageSchema.premountFor.keyframable).toBe(false);
-	expect(canvasImageSchema.postmountFor.keyframable).toBe(false);
+	expect(canvasImageSchema).not.toHaveProperty('premountFor');
+	expect(canvasImageSchema).not.toHaveProperty('postmountFor');
 });
 
 test('<CanvasImage> applies crop props to the canvas', async () => {

@@ -110,9 +110,10 @@ const generate = async () => {
 	// Generate file for package.json
 	const packageFilename = `package.json`;
 	const read = JSON.parse(await fs.promises.readFile(packageFilename, 'utf-8'));
+	read.typesVersions ??= {};
+	read.typesVersions['>=1.0'] ??= {};
+	read.typesVersions['>=1.0'].base = ['dist/cjs/base.d.ts'];
 	for (const font of filteredFonts) {
-		if (!read.typesVersions) read.typesVersions = {};
-		if (!read.typesVersions['>=1.0']) read.typesVersions['>=1.0'] = {};
 		read.typesVersions['>=1.0'][removeWhitespace(unquote(font.family))] = [
 			`dist/cjs/${removeWhitespace(unquote(font.family))}.d.ts`,
 		];

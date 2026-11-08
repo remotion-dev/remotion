@@ -1,4 +1,5 @@
 import {readFileSync} from 'node:fs';
+import {CodemodsInternals} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
 	PasteEffectsRequest,
@@ -9,6 +10,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -71,6 +73,20 @@ export const pasteEffectsHandler: ApiHandler<
 				insertAtIndices,
 			});
 
+			if (output === fileContents) {
+				return {success: true, nodePathMutation: null};
+			}
+
+			const nodePathRemappings =
+				CodemodsInternals.getUnchangedStructureRemappings({
+					input: fileContents,
+					output,
+				});
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[{absolutePath, remappings: nodePathRemappings}],
+				null,
+			);
+
 			const effectDescription = getPastedEffectDescription(effectLabels);
 
 			pushToUndoStack({
@@ -86,14 +102,14 @@ export const pasteEffectsHandler: ApiHandler<
 				},
 				entryType: 'paste-effects',
 				suppressHmrOnFileRestore: false,
-				nodePathRemappings: null,
+				nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);
 			writeFileAndNotifyFileWatchers({
 				file: absolutePath,
 				content: output,
 				originatorClientId: clientId,
-				metadata: null,
+				metadata: {skipSequencePropsUpdate: true},
 			});
 
 			const locationLabel = formatLogFileLocation({
@@ -118,6 +134,7 @@ export const pasteEffectsHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

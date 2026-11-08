@@ -866,7 +866,9 @@ const internalRenderMediaRaw = async ({
 					parallelEncodingEnabled: parallelEncoding,
 					binariesDirectory,
 					compositionStart,
-					forSeamlessAacConcatenation,
+					// Padding frames only capture audio, so a muted chunk has none to render.
+					forSeamlessAacConcatenation:
+						forSeamlessAacConcatenation && !disableAudio,
 					onBrowserDownload,
 					onArtifact,
 					chromeMode,

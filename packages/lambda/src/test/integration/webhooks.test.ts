@@ -71,6 +71,7 @@ test(
 				frameRange: [0, 0],
 				framesPerLambda: 8,
 				concurrency: null,
+				chunks: null,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',
@@ -209,6 +210,7 @@ test(
 				frameRange: [0, 0],
 				framesPerFunction: 8,
 				concurrency: null,
+				chunks: null,
 				imageFormat: 'png',
 				inputProps: {
 					type: 'payload',

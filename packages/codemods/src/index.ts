@@ -22,7 +22,10 @@ import {
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
-import {getKeyframeSourceLocationRemappings} from './node-references';
+import {
+	getKeyframeSourceLocationRemappings,
+	getUnchangedStructureRemappings,
+} from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
@@ -203,6 +206,7 @@ export const CodemodsInternals = {
 	getFolderFile,
 	getJsxSourceLocation,
 	getKeyframeSourceLocationRemappings,
+	getUnchangedStructureRemappings,
 	getKeyframeInterpolationFunctionForCallee,
 	getRootFileForProject,
 	getStaticNumericValue,

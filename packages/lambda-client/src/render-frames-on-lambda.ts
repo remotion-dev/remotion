@@ -24,6 +24,7 @@ export type RenderFramesOnLambdaInput = Pick<
 	| 'maxRetries'
 	| 'framesPerLambda'
 	| 'concurrency'
+	| 'chunks'
 	| 'frameRange'
 	| 'chromiumOptions'
 	| 'scale'

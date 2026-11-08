@@ -9,7 +9,10 @@ import {unstable_batchedUpdates} from 'react-dom';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
-import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
+import {
+	createOptimisticEffectPropUpdate,
+	attachOptimisticEffectPropHistory,
+} from '../../helpers/optimistic-effect-props';
 import {callApi} from '../call-api';
 import {createCanvasDragPreview} from '../canvas-drag-preview';
 import {showNotification} from '../Notifications/NotificationCenter';
@@ -69,15 +72,39 @@ export const callDeleteKeyframes = ({
 		typeof Internals.VisualModePropStatusesSubscriptionContext
 	>['getSnapshot'];
 }): Promise<void> => {
-	try {
-		for (const nodePath of effectKeyframes.map((change) => change.nodePath))
-			assertEffectChainEditable(nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0)
 		return Promise.resolve();
+	const effectGroups = new Map<string, DeleteEffectKeyframeChange[]>();
+	for (const change of effectKeyframes) {
+		const key = JSON.stringify([change.nodePath, change.effectIndex]);
+		const group = effectGroups.get(key) ?? [];
+		group.push(change);
+		effectGroups.set(key, group);
+	}
+
+	const effectUpdates = [...effectGroups.values()].flatMap((group) => {
+		const first = group[0];
+		const update = createOptimisticEffectPropUpdate({
+			nodePath: first.nodePath,
+			effectIndex: first.effectIndex,
+			fieldKey: first.fieldKey,
+			schema: first.schema,
+			applyOptimistic: (previous) =>
+				optimisticDeleteEffectKeyframes({
+					previous,
+					videoConfigValues: first.nodePath.videoConfigValues,
+					keyframes: group.map((change) => ({
+						effectIndex: change.effectIndex,
+						fieldKey: change.fieldKey,
+						frame: change.sourceFrame,
+						valueWhenLastKeyframeDeleted: change.valueWhenLastKeyframeDeleted,
+					})),
+				}),
+		});
+		if (!update.optimistic) return [];
+		setters.setPropStatuses(first.nodePath, update.applyOptimistic);
+		return [update];
+	});
 	const preview = createCanvasDragPreview({
 		updateDragOverrides: setters.updateDragOverrides,
 		setPropStatuses: setters.setPropStatuses,
@@ -102,7 +129,15 @@ export const callDeleteKeyframes = ({
 			effects: DeleteEffectKeyframeChange[];
 		}
 	>();
-	for (const change of [...sequenceKeyframes, ...effectKeyframes]) {
+	for (const change of [
+		...sequenceKeyframes,
+		...effectKeyframes.filter(
+			(keyframe) =>
+				!Internals.OptimisticEffects.getItems(keyframe.nodePath, null)[
+					keyframe.effectIndex
+				],
+		),
+	]) {
 		const key = Internals.makeSequencePropsSubscriptionKey(change.nodePath);
 		let group = groups.get(key);
 		if (!group) {
@@ -195,28 +230,43 @@ export const callDeleteKeyframes = ({
 		);
 		preview.setPropStatusesBatch(updates);
 	});
-	return deleteKeyframes({
-		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
-			fileName: keyframe.fileName,
-			nodePath: keyframe.nodePath,
-			key: keyframe.fieldKey,
-			frame: keyframe.sourceFrame,
-			schema: keyframe.schema,
-			valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
-		})),
-		effectKeyframes: effectKeyframes.map((keyframe) => ({
-			fileName: keyframe.fileName,
-			sequenceNodePath: keyframe.nodePath,
-			effectIndex: keyframe.effectIndex,
-			key: keyframe.fieldKey,
-			frame: keyframe.sourceFrame,
-			schema: keyframe.schema,
-			valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
-		})),
-		clientId,
-	})
-		.then((response) => preview.acknowledgeKeyframes(response.results))
+	return deleteKeyframes(
+		attachOptimisticEffectPropHistory(
+			{
+				sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					key: keyframe.fieldKey,
+					frame: keyframe.sourceFrame,
+					schema: keyframe.schema,
+					valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
+				})),
+				effectKeyframes: effectKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					sequenceNodePath: keyframe.nodePath,
+					effectIndex: keyframe.effectIndex,
+					key: keyframe.fieldKey,
+					frame: keyframe.sourceFrame,
+					schema: keyframe.schema,
+					valueWhenLastKeyframeDeleted: keyframe.valueWhenLastKeyframeDeleted,
+				})),
+				clientId,
+			},
+			effectUpdates,
+		),
+	)
+		.then((response) => {
+			for (const update of effectUpdates) update.acknowledge();
+			preview.acknowledgeKeyframes(
+				response.results.filter(
+					(result) =>
+						result.effectIndex === null ||
+						Internals.OptimisticEffects.get(result.nodePath) === null,
+				),
+			);
+		})
 		.catch((error) => {
+			for (const update of effectUpdates) update.rollback();
 			preview.fail();
 			throw error;
 		});

@@ -11,6 +11,7 @@ const composition = (
 	return {
 		type: 'composition',
 		key: id,
+		sourceFileRemaps: [],
 		composition: {
 			id,
 			folderName,
@@ -27,6 +28,7 @@ const tree: CompositionSelectorItemType[] = [
 		folderName: 'Marketing',
 		parentName: null,
 		expanded: false,
+		sourceFileRemaps: [],
 		items: [
 			composition('LaunchTrailer', 'Marketing', null),
 			composition('Credits', 'Marketing', null),
@@ -37,6 +39,7 @@ const tree: CompositionSelectorItemType[] = [
 				folderName: 'Social',
 				parentName: 'Marketing',
 				expanded: false,
+				sourceFileRemaps: [],
 				items: [composition('SquareCut', 'Social', 'Marketing')],
 			},
 		],

@@ -20,6 +20,7 @@ const versions = {
 	twoslash: '1.0.0',
 	shiki: '1.0.0',
 	typescript: '1.0.0',
+	tsrs: null,
 	shikiTwoslash: '1.0.0',
 };
 

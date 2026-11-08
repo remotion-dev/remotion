@@ -11,6 +11,7 @@ import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
 import {canvasTabsOption} from './canvas-tabs';
 import {chromeModeOption} from './chrome-mode';
+import {chunksOption} from './chunks';
 import {colorSpaceOption} from './color-space';
 import {concurrencyOption} from './concurrency';
 import {configOption} from './config';
@@ -127,6 +128,7 @@ export const allOptions = {
 	offthreadVideoCacheSizeInBytesOption,
 	offthreadVideoThreadsOption,
 	webhookCustomDataOption,
+	chunksOption,
 	colorSpaceOption,
 	deleteAfterOption,
 	disableWebSecurityOption,

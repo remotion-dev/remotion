@@ -3,7 +3,10 @@ import React from 'react';
 import {Composition, Folder} from 'remotion';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
+import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
+import {backgroundImageUrl} from './fixtures/background-image-url';
+import {backgroundImageContain} from './fixtures/background-image-url-contain';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {borderRadius} from './fixtures/border-radius';
@@ -22,6 +25,7 @@ import {clipPathEllipse} from './fixtures/clip-path-ellipse';
 import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
+import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
 import {threeDFlattening} from './fixtures/clipped';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {deeplyNestedTransform} from './fixtures/deeply-nested-transform';
@@ -93,10 +97,12 @@ import {scalePrecomposeFixture} from './fixtures/scale-precompose';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgExternalFontSelection} from './fixtures/svg-external-font-selection';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
+import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
 import {backgroundClipText3dTransform} from './fixtures/text/background-clip-text-3d-transform';
 import {filterText} from './fixtures/text/filter-text';
@@ -163,6 +169,8 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
+			<Composition {...backgroundImageUrl} />
+			<Composition {...backgroundImageContain} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
 			<Composition {...nestedTranslateScale} />
@@ -170,6 +178,7 @@ export const Root: React.FC = () => {
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
 			<Composition {...svgDataUri} />
+			<Composition {...svgUrlNonzeroViewbox} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />
@@ -185,6 +194,8 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Composition {...threeDTransformOpacity} />
 			<Composition {...backgroundColor} />
+			<Composition {...backgroundBlendMode} />
+			<Composition {...stackingContextSiblings} />
 			<Folder name="linear-gradient">
 				<Composition {...maskImage} />
 				<Composition {...mixBlendModeAllModes} />
@@ -273,6 +284,7 @@ export const Root: React.FC = () => {
 			</Folder>
 			<Folder name="clip-path">
 				<Composition {...clipPathPolygon} />
+				<Composition {...clipPathPolygonFillRules} />
 				<Composition {...clipPathPath} />
 				<Composition {...clipPathCircle} />
 				<Composition {...clipPathInset} />

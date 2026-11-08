@@ -14,6 +14,7 @@ import {
 	type SequencePropsSubscriptionKey,
 } from 'remotion';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {
 	getKeyframePlaybackRate,
@@ -144,8 +145,11 @@ const resolveKeyframeField = ({
 		};
 	}
 
-	const effect = track.sequence.effects[identity.effectIndex];
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effect = Internals.OptimisticEffects.getItems(
+		nodePath,
+		track.sequence.effects,
+	)[identity.effectIndex]?.definition;
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: identity.effectIndex,

@@ -107,6 +107,12 @@ Frames rendered by each worker. Defaults to the [automatic concurrency setting](
 
 Worker count, as an alternative to `framesPerLambda`. Defaults to automatic selection. Setting `1` uses one worker.
 
+### `chunks?`<AvailableFrom v="4.0.542" />
+
+<Options id="chunks" />
+
+Defaults to automatic chunk planning. The ranges must cover `frameRange` (or the whole composition) exactly, in sorted, contiguous order. The same [validation rules as `renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#chunks) apply, including the minimum chunk size and incompatibility with `framesPerLambda`, `concurrency`, and `everyNthFrame` greater than `1`.
+
 ### `concurrencyPerLambda?`
 
 Number of frames rendered and uploaded concurrently in each worker. Defaults to `1`.

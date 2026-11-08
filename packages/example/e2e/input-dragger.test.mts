@@ -19,7 +19,7 @@ test.describe('Input dragger', () => {
 	}) => {
 		await page.goto(`${STUDIO_URL}/AnimatedBarChart`);
 
-		const widthButton = page.getByRole('button', {name: 'Width'});
+		const widthButton = page.getByRole('button', {name: 'Width', exact: true});
 		await expect(widthButton).toBeVisible({timeout: 15_000});
 		await widthButton.click();
 

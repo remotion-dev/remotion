@@ -43,6 +43,7 @@ type MergeChunksAndFinishRenderInput = {
 	audioBitrate: string | null;
 	logLevel: LogLevel;
 	framesPerLambda: number;
+	chunkDurationsInFrames: number[] | null;
 	binariesDirectory: string | null;
 	preferLossless: boolean;
 	compositionStart: number;
@@ -88,6 +89,7 @@ export const mergeChunksAndFinishRender = async (
 		audioBitrate: options.audioBitrate,
 		logLevel: options.logLevel,
 		framesPerLambda: options.framesPerLambda,
+		chunkDurationsInFrames: options.chunkDurationsInFrames,
 		binariesDirectory: options.binariesDirectory,
 		cancelSignal: undefined,
 		preferLossless: options.preferLossless,
