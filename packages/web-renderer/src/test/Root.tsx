@@ -99,6 +99,7 @@ import {
 	svgFilterExpandedReference,
 	svgFilterBoundingBoxReference,
 	svgFilterFractionalReference,
+	svgFilterOffsetReference,
 } from './fixtures/svg-filter-reference';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {backgroundClipText} from './fixtures/text/background-clip-text';
@@ -207,6 +208,7 @@ export const Root: React.FC = () => {
 				<Composition {...svgFilterExpandedReference} />
 				<Composition {...svgFilterBoundingBoxReference} />
 				<Composition {...svgFilterFractionalReference} />
+				<Composition {...svgFilterOffsetReference} />
 				<Composition {...filterImage} />
 			</Folder>
 			<Folder name="border">

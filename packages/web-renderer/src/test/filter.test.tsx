@@ -8,6 +8,7 @@ import {
 	svgFilterExpandedReference,
 	svgFilterBoundingBoxReference,
 	svgFilterFractionalReference,
+	svgFilterOffsetReference,
 } from './fixtures/svg-filter-reference';
 import {
 	captureNativeReference,
@@ -35,6 +36,7 @@ for (const fixture of [
 	svgFilterExpandedReference,
 	svgFilterBoundingBoxReference,
 	svgFilterFractionalReference,
+	svgFilterOffsetReference,
 ]) {
 	for (const frame of [0, 1]) {
 		test(`${fixture.id} matches native painting at frame ${frame}`, async (t) => {

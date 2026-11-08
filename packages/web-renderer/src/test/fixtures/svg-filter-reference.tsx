@@ -130,3 +130,75 @@ export const svgFilterFractionalReference = {
 	component: () => <Component expanded scale={1.5} />,
 	id: 'svg-filter-fractional',
 };
+
+const OffsetComponent = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill>
+			<svg width={0} height={0} style={{position: 'absolute'}}>
+				<defs>
+					<filter
+						id="svg-filter-offset"
+						filterUnits="userSpaceOnUse"
+						x={-30}
+						y={-30}
+						width={160}
+						height={140}
+						colorInterpolationFilters="sRGB"
+					>
+						<feOffset dx={frame === 0 ? -12 : 14} dy={frame === 0 ? 9 : -11} />
+					</filter>
+					<filter
+						id="svg-filter-offset-blur"
+						filterUnits="userSpaceOnUse"
+						x={-30}
+						y={-30}
+						width={160}
+						height={140}
+						colorInterpolationFilters="sRGB"
+					>
+						<feOffset dx={frame === 0 ? 14 : -12} dy={frame === 0 ? -11 : 9} />
+						<feGaussianBlur stdDeviation={2} />
+					</filter>
+				</defs>
+			</svg>
+			{[1, 2].flatMap((scale, row) =>
+				['svg-filter-offset', 'svg-filter-offset-blur'].map((id, column) => (
+					<div
+						key={`${scale}-${id}`}
+						style={{
+							position: 'absolute',
+							left: 50 + column * 290,
+							top: 50 + row * 220,
+							width: 100,
+							height: 80,
+							transform: `scale(${scale})`,
+							transformOrigin: '0 0',
+							filter: `url(#${id})`,
+							background: 'red',
+						}}
+					>
+						<div
+							style={{
+								position: 'absolute',
+								left: 20,
+								top: 10,
+								width: 45,
+								height: 40,
+								backgroundColor: 'rgba(0, 0, 255, .5)',
+							}}
+						/>
+					</div>
+				)),
+			)}
+		</AbsoluteFill>
+	);
+};
+
+export const svgFilterOffsetReference = {
+	...svgFilterReference,
+	component: OffsetComponent,
+	id: 'svg-filter-offset',
+	width: 620,
+	height: 500,
+};

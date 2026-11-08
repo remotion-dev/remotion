@@ -1,4 +1,4 @@
-// Geometry for local matrix/blur graphs. Other SVG primitives need their own
+// Geometry for local matrix/blur/offset graphs. Other SVG primitives need their own
 // coordinate mapping before they can use an expanded or scaled Canvas surface.
 export const getSvgFilterGeometry = ({
 	filter,
@@ -49,7 +49,8 @@ export const getSvgFilterGeometry = ({
 			if (
 				!(
 					p instanceof SVGFEColorMatrixElement ||
-					p instanceof SVGFEGaussianBlurElement
+					p instanceof SVGFEGaussianBlurElement ||
+					p instanceof SVGFEOffsetElement
 				) ||
 				p.children.length > 0
 			)
@@ -110,7 +111,8 @@ export const rebaseSvgFilter = ({
 	for (let i = 0; i < primitives.length; i++) {
 		const primitive = primitives[i] as
 			| SVGFEColorMatrixElement
-			| SVGFEGaussianBlurElement;
+			| SVGFEGaussianBlurElement
+			| SVGFEOffsetElement;
 		const target = clone.children[i];
 		target.setAttribute(
 			'color-interpolation-filters',
@@ -133,6 +135,10 @@ export const rebaseSvgFilter = ({
 				'stdDeviation',
 				`${primitive.stdDeviationX.baseVal * scale} ${primitive.stdDeviationY.baseVal * scale}`,
 			);
+		if (primitive instanceof SVGFEOffsetElement) {
+			target.setAttribute('dx', String(primitive.dx.baseVal * scale));
+			target.setAttribute('dy', String(primitive.dy.baseVal * scale));
+		}
 	}
 
 	const svg = ownerDocument.createElementNS(
