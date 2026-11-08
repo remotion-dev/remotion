@@ -290,6 +290,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 				return;
 			}
 
+			if (!videoEnabled && !shouldUseAudio) {
+				return;
+			}
+
 			const newHandle = delayRender(
 				'Loading <Html5Video> duration with src=' + src,
 				{
@@ -321,6 +325,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			};
 		}, [
 			src,
+			videoEnabled,
+			shouldUseAudio,
 			onDuration,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
