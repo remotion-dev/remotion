@@ -956,6 +956,35 @@ test('drops a local file into the virtual Assets folder', async ({page}) => {
 	expect(studioApiRequests).toEqual([]);
 });
 
+test('previews and adds an effect to a solid', async ({page}) => {
+	await page.goto('/');
+	const studio = page.frameLocator('iframe');
+	await waitForBrowserStudioOperations(studio);
+	await studio.getByRole('button', {name: 'Add Solid', exact: true}).click();
+	await studio.getByRole('button', {name: 'Add effect', exact: true}).click();
+	await studio.getByPlaceholder('Search effects...').fill('brightness');
+	await expect(
+		studio.getByRole('img', {
+			name: 'brightness() on the selected element',
+			exact: true,
+		}),
+	).toBeVisible();
+	await studio
+		.getByRole('button', {name: 'Add brightness() effect', exact: true})
+		.click();
+	await expect
+		.poll(() =>
+			page.evaluate(
+				() =>
+					window.__browserStudioProject.files['/project/src/Composition.tsx'],
+			),
+		)
+		.toMatch(/effects=\{\[\s*brightness\(/);
+	await expect(
+		studio.getByRole('button', {name: 'Collapse brightness() section'}),
+	).toBeVisible();
+});
+
 test('installs packages without a server API and preserves undo, redo, and HMR', async ({
 	page,
 }) => {
