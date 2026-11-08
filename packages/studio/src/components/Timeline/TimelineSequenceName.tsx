@@ -20,10 +20,8 @@ const nameTextStyle: React.CSSProperties = {
 	lineHeight: 'normal',
 	color: 'inherit',
 	minWidth: 0,
-	paddingRight: 10,
-	maskImage: 'linear-gradient(to right, black calc(100% - 10px), transparent)',
-	WebkitMaskImage:
-		'linear-gradient(to right, black calc(100% - 10px), transparent)',
+	// Revisit text-overflow: fade when browsers support it: https://github.com/remotion-dev/remotion/issues/12883
+	textOverflow: 'ellipsis',
 	overflow: 'hidden',
 	whiteSpace: 'nowrap',
 };
