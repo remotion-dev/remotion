@@ -618,3 +618,94 @@ test('external edits cancel only the affected file, including queued undo and la
 		setExternalSourceSession(null);
 	}
 });
+
+test('animated paste and duplication preserve keyframes through settlement', async () => {
+	const {captureOptimisticEffectMutation} =
+		await import('../helpers/optimistic-effect-mutations');
+	Internals.OptimisticEffects.getItems(nodePath, []);
+	const param = {
+		type: 'keyframed' as const,
+		interpolationFunction: 'interpolate' as const,
+		keyframes: [
+			{frame: 0, value: 0},
+			{frame: 30, value: 1},
+		],
+		easing: [{type: 'linear' as const}],
+		clamping: {left: 'clamp' as const, right: 'clamp' as const},
+		output: 'linear' as const,
+		posterize: 2,
+	};
+	const pasted = captureOptimisticEffectMutation('/api/paste-effects', {
+		type: 'effects-additive',
+		targetSequenceNodePath: nodePath,
+		effects: [
+			{
+				callee: 'brightness',
+				importPath: '@remotion/effects/brightness',
+				params: {amount: param},
+			},
+		],
+		insertAtIndices: null,
+	});
+	const copied = captureOptimisticEffectMutation(
+		'/api/duplicate-effect',
+		duplicate(0),
+	);
+	await pasted.prepare();
+	const expected = {
+		status: 'keyframed' as const,
+		interpolationFunction: param.interpolationFunction,
+		keyframes: param.keyframes,
+		easing: param.easing,
+		clamping: param.clamping,
+		output: param.output,
+		posterize: param.posterize,
+		keyframeDisplayOffsetAdjustment: null,
+	};
+	for (const item of Internals.OptimisticEffects.getItems(nodePath, null)) {
+		expect(item.propStatuses?.amount).toEqual(expected);
+	}
+
+	const {reconcileOptimisticEffectPropStatuses} =
+		await import('../helpers/optimistic-effect-props');
+	const {getProjectedEffectPropStatuses} =
+		await import('../helpers/optimistic-effect-projection');
+	let source: CanUpdateSequencePropsResponse = {
+		canUpdate: true,
+		props: {},
+		durationDependentKeyframes: null,
+		effects: [0, 1].map((effectIndex) => ({
+			canUpdate: true,
+			effectIndex,
+			callee: 'brightness',
+			importPath: '@remotion/effects/brightness',
+			props: {amount: expected},
+		})),
+	};
+	const read = (effectIndex: number) =>
+		getProjectedEffectPropStatuses({
+			nodePath,
+			effectIndex,
+			propStatuses: {
+				[Internals.makeSequencePropsSubscriptionKey(nodePath)]: source,
+			},
+		});
+	for (const index of [0, 1])
+		expect(read(index)).toMatchObject({props: {amount: expected}});
+	expect(
+		Internals.interpolateKeyframedStatus({
+			status: expected,
+			frame: 15,
+			forceSpringAllowTail: null,
+		}),
+	).toBeCloseTo(14 / 30);
+	pasted.acknowledge('animated-paste');
+	copied.acknowledge('animated-duplicate');
+	Internals.OptimisticEffects.settle(['animated-paste', 'animated-duplicate']);
+	source = {...source, effects: [...source.effects]};
+	reconcileOptimisticEffectPropStatuses(nodePath, source);
+	for (const index of [0, 1])
+		expect(read(index)).toMatchObject({props: {amount: expected}});
+	for (const item of Internals.OptimisticEffects.getItems(nodePath, null))
+		expect(item.propStatuses?.amount).toBeUndefined();
+});

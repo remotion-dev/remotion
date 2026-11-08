@@ -378,3 +378,56 @@ test('replaces placeholder defaults with loaded parameters before the HMR handof
 		props: {stops: {status: 'static', codeValue: 0.25}},
 	});
 });
+
+test('failed saves retire inherited duplicate values but preserve explicit child edits', () => {
+	const [original] = Internals.OptimisticEffects.getItems(nodePath, [
+		definition,
+	]);
+	const previous = statuses(0.75);
+	reconcileOptimisticEffectPropStatuses(nodePath, previous);
+	const update = createUpdate(0, 0.5);
+	update.applyOptimistic(previous);
+	snapshotOptimisticEffectProps(nodePath, [original.id]);
+	const duplicate = Internals.OptimisticEffects.begin({
+		nodePath,
+		definitions: [],
+		action: {type: 'duplicate', ids: [original.id]},
+	});
+	const grandchild = Internals.OptimisticEffects.begin({
+		nodePath,
+		definitions: [],
+		action: {type: 'duplicate', ids: duplicate.addedIds},
+	});
+	const explicit = createUpdate(2, 0.25);
+	explicit.applyOptimistic(previous);
+	update.rollback();
+	expect(
+		Internals.OptimisticEffects.getPropStatuses(nodePath, duplicate.addedIds[0])
+			?.stops,
+	).toBeUndefined();
+	expect(
+		Internals.OptimisticEffects.getPropStatuses(
+			nodePath,
+			grandchild.addedIds[0],
+		)?.stops,
+	).toMatchObject({codeValue: 0.25});
+	explicit.rollback();
+	expect(
+		Internals.OptimisticEffects.getPropStatuses(
+			nodePath,
+			grandchild.addedIds[0],
+		)?.stops,
+	).toBeUndefined();
+	Internals.OptimisticEffects.acknowledge(duplicate, 'inherited-duplicate');
+	Internals.OptimisticEffects.acknowledge(grandchild, 'inherited-grandchild');
+	Internals.OptimisticEffects.settle([
+		'inherited-duplicate',
+		'inherited-grandchild',
+	]);
+	reconcileOptimisticEffectPropStatuses(nodePath, statuses(0.75, 0.75, 0.75));
+	for (const item of Internals.OptimisticEffects.getItems(nodePath, null)) {
+		expect(
+			Internals.OptimisticEffects.getPropStatuses(nodePath, item.id)?.stops,
+		).toBeUndefined();
+	}
+});

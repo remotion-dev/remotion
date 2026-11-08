@@ -31,6 +31,7 @@ export const getOptimisticEffectPropHistory = (request: object) =>
 
 const fieldRevisions = new Map<string, Map<string, object>>();
 const pendingRevisions = new Set<object>();
+const knownEffectIds = new Set<string>();
 const rejectedRevisions = new WeakSet<object>();
 const revisionBaselines = new WeakMap<
 	object,
@@ -46,6 +47,36 @@ const getPreviousFieldRevision = (revision: object, key: string) => {
 	}
 
 	return {revision: previousRevision, value: baseline?.props?.[key]};
+};
+
+const rollbackRevision = (
+	nodePath: SequencePropsSubscriptionKey,
+	revision: object,
+	changedKeys: ReadonlySet<string>,
+) => {
+	pendingRevisions.delete(revision);
+	rejectedRevisions.add(revision);
+	for (const [id, revisions] of fieldRevisions) {
+		if (![...changedKeys].some((key) => revisions.get(key) === revision))
+			continue;
+		const overrides = {
+			...Internals.OptimisticEffects.getPropStatuses(nodePath, id),
+		};
+		for (const key of changedKeys) {
+			if (revisions.get(key) !== revision) continue;
+			const baseline = getPreviousFieldRevision(revision, key);
+			if (baseline.value) overrides[key] = baseline.value;
+			else delete overrides[key];
+			if (baseline.revision) revisions.set(key, baseline.revision);
+			else revisions.delete(key);
+		}
+
+		Internals.OptimisticEffects.setPropStatuses(
+			nodePath,
+			id,
+			Object.keys(overrides).length === 0 ? null : overrides,
+		);
+	}
 };
 
 const committedProps = new Map<string, Props>();
@@ -222,9 +253,19 @@ Internals.OptimisticEffects.subscribe(() => {
 	if (Internals.OptimisticEffects.getSnapshot().length === 0) {
 		observedStatuses.clear();
 		fieldRevisions.clear();
+		knownEffectIds.clear();
 		pendingRevisions.clear();
 		committedProps.clear();
 		return;
+	}
+
+	for (const entry of Internals.OptimisticEffects.getSnapshot()) {
+		for (const item of entry.items) {
+			if (knownEffectIds.has(item.id)) continue;
+			knownEffectIds.add(item.id);
+			if (item.originId === null || item.originId === item.id) continue;
+			fieldRevisions.set(item.id, new Map(fieldRevisions.get(item.originId)));
+		}
 	}
 
 	for (const {nodePath, status} of observedStatuses.values())
@@ -273,25 +314,7 @@ export const createOptimisticEffectPropUpdate = ({
 	const rollback = () => {
 		if (!item) return;
 		if (fieldRevisions.get(item.id) !== revisions) return;
-		pendingRevisions.delete(revision);
-		rejectedRevisions.add(revision);
-		const overrides = {
-			...Internals.OptimisticEffects.getPropStatuses(nodePath, item.id),
-		};
-		for (const key of changedKeys) {
-			if (revisions?.get(key) !== revision) continue;
-			const baseline = getPreviousFieldRevision(revision, key);
-			if (baseline.value) overrides[key] = baseline.value;
-			else delete overrides[key];
-			if (baseline.revision) revisions.set(key, baseline.revision);
-			else revisions.delete(key);
-		}
-
-		Internals.OptimisticEffects.setPropStatuses(
-			nodePath,
-			item.id,
-			Object.keys(overrides).length === 0 ? null : overrides,
-		);
+		rollbackRevision(nodePath, revision, changedKeys);
 	};
 
 	return {
@@ -341,25 +364,7 @@ export const createOptimisticEffectPropUpdate = ({
 				},
 				rollback: () => {
 					if (fieldRevisions.get(item.id) !== revisions) return;
-					pendingRevisions.delete(restoreRevision);
-					rejectedRevisions.add(restoreRevision);
-					const rollbackProps = {
-						...Internals.OptimisticEffects.getPropStatuses(nodePath, item.id),
-					};
-					for (const key of changedKeys) {
-						if (revisions?.get(key) !== restoreRevision) continue;
-						const baseline = getPreviousFieldRevision(restoreRevision, key);
-						if (baseline.value) rollbackProps[key] = baseline.value;
-						else delete rollbackProps[key];
-						if (baseline.revision) revisions.set(key, baseline.revision);
-						else revisions.delete(key);
-					}
-
-					Internals.OptimisticEffects.setPropStatuses(
-						nodePath,
-						item.id,
-						Object.keys(rollbackProps).length === 0 ? null : rollbackProps,
-					);
+					rollbackRevision(nodePath, restoreRevision, changedKeys);
 				},
 			};
 		},

@@ -5,7 +5,11 @@ import type {
 	ReorderEffectRequest,
 } from '@remotion/studio-shared';
 import {getRequiredPackageForEffectImportPath} from '@remotion/studio-shared';
-import type {EffectDefinition, SequencePropsSubscriptionKey} from 'remotion';
+import type {
+	CanUpdateSequencePropSource,
+	EffectDefinition,
+	SequencePropsSubscriptionKey,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {EffectPreviewFactory} from '../components/effect-preview-loaders';
 import {installRequiredPackages} from './install-required-package';
@@ -481,6 +485,34 @@ export const captureOptimisticEffectMutation = (
 						index: request.insertAtIndices?.[index] ?? null,
 					});
 					pasteOperations[index] = operation;
+					Internals.OptimisticEffects.setPropStatuses(
+						request.targetSequenceNodePath,
+						operation.addedIds[0],
+						Object.fromEntries(
+							Object.entries(effect.params).map(
+								([key, param]): [string, CanUpdateSequencePropSource] => [
+									key,
+									param.type === 'static'
+										? {
+												status: 'static',
+												codeValue: param.value,
+												keyframeDisplayOffsetAdjustment: null,
+											}
+										: {
+												status: 'keyframed',
+												interpolationFunction: param.interpolationFunction,
+												keyframes: param.keyframes,
+												easing: param.easing,
+												clamping: param.clamping,
+												output: param.output,
+												posterize: param.posterize,
+												keyframeDisplayOffsetAdjustment: null,
+											},
+								],
+							),
+						),
+					);
+
 					preparations.push({
 						operation,
 						name: effect.callee,
