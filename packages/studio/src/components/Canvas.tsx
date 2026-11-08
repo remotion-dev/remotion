@@ -107,6 +107,9 @@ const getContainerStyle = (
 	display: 'flex',
 	overflow: 'hidden',
 	position: 'relative',
+	// Keeps canvas overlays such as the drop preview below floating Studio UI,
+	// like the composition browser in narrow layouts.
+	isolation: 'isolate',
 	backgroundColor: BACKGROUND,
 	...(editorZoomGestures ? {touchAction: 'none' as const} : {}),
 });
