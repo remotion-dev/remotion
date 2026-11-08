@@ -1,7 +1,7 @@
 /// <reference types="gsap" />
 import {gsap} from 'gsap';
 import {type DependencyList, useLayoutEffect, useRef, useState} from 'react';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {Internals, useCurrentFrame, useVideoConfig} from 'remotion';
 import {frameToSeconds} from './frame-time';
 
 export type GsapTimelineBuildContext<T extends Element> = {
@@ -435,6 +435,7 @@ export const useGsapTimeline = <T extends Element>(
 	{dependencies = EMPTY_DEPENDENCIES}: UseGsapTimelineOptions = {},
 ): GsapScopeRef<T> => {
 	const frame = useCurrentFrame();
+	const videoEnabled = Internals.useVideoEnabled();
 	const {fps} = useVideoConfig();
 	const scopeRef = useRef<T>(null);
 	const controlsRef = useRef<TimelineControls | null>(null);
@@ -454,7 +455,7 @@ export const useGsapTimeline = <T extends Element>(
 	useLayoutEffect(() => {
 		const scope = scopeRef.current;
 		builtForRef.current = scope;
-		if (!scope) {
+		if (!scope || !videoEnabled) {
 			return;
 		}
 
@@ -608,14 +609,14 @@ export const useGsapTimeline = <T extends Element>(
 		};
 		// The explicit dependency list is the same contract as useEffect dependencies.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [...dependencies, remountNonce]);
+	}, [...dependencies, remountNonce, videoEnabled]);
 
 	useLayoutEffect(() => {
 		const controls = controlsRef.current;
-		if (controls) {
+		if (controls && videoEnabled) {
 			controls.renderAt(frameToSeconds(frame, fps));
 		}
-	}, [fps, frame]);
+	}, [fps, frame, videoEnabled]);
 
 	// Runs every commit: re-arm the build effect if the scope element is not
 	// the one the timeline was built for. Identities match after the rebuild,

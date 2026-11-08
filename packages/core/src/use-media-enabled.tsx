@@ -1,17 +1,20 @@
 import {createContext, useContext, useMemo} from 'react';
 
-const MediaEnabledContext = createContext<{
+export const MediaEnabledContext = createContext<{
 	videoEnabled: boolean | null;
 	audioEnabled: boolean | null;
 } | null>(null);
 
-export const useVideoEnabled = () => {
+export const useVideoEnabled = (): boolean => {
 	const context = useContext(MediaEnabledContext);
 	if (context && context.videoEnabled !== null) {
 		return context.videoEnabled;
 	}
 
-	return typeof window === 'undefined' ? true : window.remotion_videoEnabled;
+	// Only the renderer sets the global; the Player and tests leave it undefined.
+	return typeof window === 'undefined'
+		? true
+		: window.remotion_videoEnabled !== false;
 };
 
 export const useAudioEnabled = () => {

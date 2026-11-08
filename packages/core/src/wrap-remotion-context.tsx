@@ -33,9 +33,11 @@ import {
 } from './SequenceManager.js';
 import {TimelineTrackContext} from './timeline-track-context.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
+import {MediaEnabledContext} from './use-media-enabled.js';
 import {VideoContext} from './use-video.js';
 
 export function useRemotionContexts() {
+	const mediaEnabledContext = React.useContext(MediaEnabledContext);
 	const compositionManagerCtx = React.useContext(CompositionManager);
 	const videoContext = React.useContext(VideoContext);
 	const timelineContext = React.useContext(TimelineContext);
@@ -72,6 +74,7 @@ export function useRemotionContexts() {
 
 	return useMemo(
 		() => ({
+			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
 			timelineContext,
@@ -95,6 +98,7 @@ export function useRemotionContexts() {
 			logLevelContext,
 		}),
 		[
+			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
 			sequenceContext,
@@ -293,12 +297,16 @@ export const RemotionContextProvider = (
 																				<VideoContext.Provider
 																					value={contexts.videoContext}
 																				>
-																					{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
-																					<SequenceActivityContext.Provider
-																						value={false}
+																					<MediaEnabledContext.Provider
+																						value={contexts.mediaEnabledContext}
 																					>
-																						{children}
-																					</SequenceActivityContext.Provider>
+																						{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
+																						<SequenceActivityContext.Provider
+																							value={false}
+																						>
+																							{children}
+																						</SequenceActivityContext.Provider>
+																					</MediaEnabledContext.Provider>
 																				</VideoContext.Provider>
 																			</DefaultPremountContext.Provider>
 																		</TimelineTrackContext.Provider>
