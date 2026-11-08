@@ -96,7 +96,7 @@ class RenderParams
         ?bool   $overwrite = null,
         ?int    $audioBitrate = null,
         ?int    $videoBitrate = null,
-        ?string $webhook = null,
+        ?array  $webhook = null,
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
         ?int    $forceFps = null,
