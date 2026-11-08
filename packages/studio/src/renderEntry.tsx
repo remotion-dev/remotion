@@ -233,10 +233,6 @@ const CompositionRootContexts: React.FC<{
 				globalContinueRender(handle);
 			}
 		};
-
-		return () => {
-			window.remotion_setMediaEnabled = undefined;
-		};
 	}, []);
 
 	return (

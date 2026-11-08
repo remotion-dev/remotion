@@ -207,7 +207,6 @@ export const seekToFrame = async ({
 	});
 	await puppeteerEvaluateWithCatchAndTimeout({
 		// Both updates happen in the same task so React applies them in one render.
-		// Bundles created before the flags became reactive keep their initial values.
 		pageFunction: (
 			f: number,
 			c: string,
@@ -215,9 +214,7 @@ export const seekToFrame = async ({
 			video: boolean,
 			audio: boolean,
 		) => {
-			if (window.remotion_setMediaEnabled) {
-				window.remotion_setMediaEnabled(video, audio);
-			}
+			window.remotion_setMediaEnabled(video, audio);
 
 			window.remotion_setFrame(f, c, a);
 		},

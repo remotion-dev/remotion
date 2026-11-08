@@ -97,10 +97,10 @@ declare global {
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
 		remotion_videoEnabled: boolean;
-		// Set by the rendering bundle. Undefined in bundles created before it existed.
-		remotion_setMediaEnabled:
-			| ((videoEnabled: boolean, audioEnabled: boolean) => void)
-			| undefined;
+		remotion_setMediaEnabled: (
+			videoEnabled: boolean,
+			audioEnabled: boolean,
+		) => void;
 		remotion_puppeteerTimeout: number;
 		remotion_broadcastChannel: BroadcastChannel | undefined;
 		remotion_inputProps: string;
@@ -119,7 +119,7 @@ declare global {
 		remotion_enableSequenceStackTraces: (() => void) | null;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '11';
+		siteVersion: '12';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}

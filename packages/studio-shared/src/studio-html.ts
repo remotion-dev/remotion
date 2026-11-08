@@ -258,7 +258,7 @@ export const studioHtml = ({
 				// and should not be bumped for every generated HTML change.
 				// Keep it synchronized with requiredVersion in
 				// packages/renderer/src/set-props-and-env.ts by incrementing both values.
-				window.siteVersion = '11';
+				window.siteVersion = '12';
 				window.remotion_version = '${VERSION}';
 		</script>
 		
