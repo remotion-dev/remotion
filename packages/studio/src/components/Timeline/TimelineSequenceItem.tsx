@@ -45,6 +45,7 @@ import {
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../../helpers/use-keyboard-shortcut-label';
 import {
 	useRuntimeValue,
 	useRuntimeValueSelector,
@@ -76,6 +77,7 @@ import {
 } from '../selected-outline-types';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
+import {useSelectEffects} from '../use-select-effects';
 import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
@@ -407,6 +409,9 @@ const TimelineSequenceItemInner: React.FC<{
 	const timelineRowsRef = useTimelineRowsRef();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const selectEffects = useSelectEffects();
+	const rotateShortcut = useKeyboardShortcutLabel('selectRotateProp');
+	const effectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const getAssetContextMenu = useAssetTimelineContextMenu();
@@ -1351,19 +1356,12 @@ const TimelineSequenceItemInner: React.FC<{
 			return;
 		}
 
-		setSelectedModal({
-			type: 'add-effect',
-			clientId: previewServerState.clientId,
-			fileName: validatedLocation.source,
-			nodePathInfo,
-			selectItems: currentSelection.current.selectItems,
-		});
+		selectEffects(nodePathInfo);
 	}, [
 		canAddEffect,
 		nodePathInfo,
 		previewServerState,
-		setSelectedModal,
-		currentSelection,
+		selectEffects,
 		validatedLocation?.source,
 	]);
 
@@ -1561,7 +1559,7 @@ const TimelineSequenceItemInner: React.FC<{
 												{
 													type: 'item' as const,
 													id: 'rotate',
-													keyHint: null,
+													keyHint: rotateShortcut,
 													label: isProgrammaticallyDuplicated
 														? 'Rotate all'
 														: 'Rotate',
@@ -1579,8 +1577,8 @@ const TimelineSequenceItemInner: React.FC<{
 												{
 													type: 'item' as const,
 													id: 'add-effect',
-													keyHint: null,
-													label: 'Add effect...',
+													keyHint: effectsShortcut,
+													label: 'Add effect',
 													leftItem: null,
 													disabled: !canAddEffect,
 													onClick: onAddEffect,
@@ -1612,6 +1610,7 @@ const TimelineSequenceItemInner: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
+			effectsShortcut,
 			isProgrammaticallyDuplicated,
 			isPackedTrack,
 			keyframeDisplayOffset,
@@ -1638,6 +1637,7 @@ const TimelineSequenceItemInner: React.FC<{
 			previewInteractive,
 			previewServerState,
 			propStatusesForOverride,
+			rotateShortcut,
 			selectAsset,
 			selectable,
 			selected,

@@ -1,6 +1,7 @@
 import {buildPackage} from '../.monorepo/builder';
 
 const external = [
+	'@remotion/effects/*',
 	'react',
 	'remotion',
 	'@remotion/sdk',

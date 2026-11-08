@@ -484,7 +484,12 @@
 			"module": "./dist/esm/zigzag.mjs",
 			"import": "./dist/esm/zigzag.mjs"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./*/preview": {
+			"types": "./dist/*.d.ts",
+			"module": "./dist/esm/preview/*.mjs",
+			"import": "./dist/esm/preview/*.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
@@ -757,6 +762,9 @@
 			],
 			"zoom-blur": [
 				"dist/zoom-blur.d.ts"
+			],
+			"*/preview": [
+				"dist/*.d.ts"
 			]
 		}
 	},

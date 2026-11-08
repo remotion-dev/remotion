@@ -14,6 +14,7 @@ import {
 import type {TSequence} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
+import {EffectPreviewContext} from './effects/effect-preview.js';
 import {LogLevelContext} from './log-level-context.js';
 import {PreloadContext} from './prefetch-state.js';
 import {RemotionEnvironmentContext} from './remotion-environment-context.js';
@@ -71,6 +72,7 @@ export function useRemotionContexts() {
 	);
 	const bufferManagerContext = React.useContext(BufferingContextReact);
 	const logLevelContext = React.useContext(LogLevelContext);
+	const effectPreviewContext = React.useContext(EffectPreviewContext);
 
 	return useMemo(
 		() => ({
@@ -96,6 +98,7 @@ export function useRemotionContexts() {
 			visualModePropStatusesRefContext,
 			bufferManagerContext,
 			logLevelContext,
+			effectPreviewContext,
 		}),
 		[
 			mediaEnabledContext,
@@ -120,6 +123,7 @@ export function useRemotionContexts() {
 			visualModePropStatusesRefContext,
 			bufferManagerContext,
 			logLevelContext,
+			effectPreviewContext,
 		],
 	);
 }
@@ -300,12 +304,18 @@ export const RemotionContextProvider = (
 																					<MediaEnabledContext.Provider
 																						value={contexts.mediaEnabledContext}
 																					>
-																						{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
-																						<SequenceActivityContext.Provider
-																							value={false}
+																						<EffectPreviewContext.Provider
+																							value={
+																								contexts.effectPreviewContext
+																							}
 																						>
-																							{children}
-																						</SequenceActivityContext.Provider>
+																							{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
+																							<SequenceActivityContext.Provider
+																								value={false}
+																							>
+																								{children}
+																							</SequenceActivityContext.Provider>
+																						</EffectPreviewContext.Provider>
 																					</MediaEnabledContext.Provider>
 																				</VideoContext.Provider>
 																			</DefaultPremountContext.Provider>

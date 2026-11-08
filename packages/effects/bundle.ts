@@ -100,31 +100,33 @@ const effectEntrypoints = [
 ];
 
 console.time('Generated.');
-const output = await build({
-	entrypoints: effectEntrypoints,
-	naming: {entry: '[name].mjs', chunk: '[name]-[hash].mjs'},
-	// Share runtime caches when effects are imported through separate entrypoints.
-	splitting: true,
-	modulePreload: false,
-	external: [
-		'remotion',
-		'remotion/no-react',
-		'react',
-		'react/jsx-runtime',
-		'react/jsx-dev-runtime',
-		'react-dom',
-	],
-});
+for (const outputDirectory of ['dist/esm', 'dist/esm/preview']) {
+	const output = await build({
+		entrypoints: effectEntrypoints,
+		naming: {entry: '[name].mjs', chunk: '[name]-[hash].mjs'},
+		// Share runtime caches within each build while isolating preview modules.
+		splitting: true,
+		modulePreload: false,
+		external: [
+			'remotion',
+			'remotion/no-react',
+			'react',
+			'react/jsx-runtime',
+			'react/jsx-dev-runtime',
+			'react-dom',
+		],
+	});
 
-if (!output.success) {
-	console.log(output.logs.join('\n'));
-	process.exit(1);
-}
+	if (!output.success) {
+		console.log(output.logs.join('\n'));
+		process.exit(1);
+	}
 
-for (const file of output.outputs) {
-	const str = await file.text();
-	const out = path.join('dist', 'esm', file.path);
-	await Bun.write(out, str);
+	for (const file of output.outputs) {
+		const str = await file.text();
+		const out = path.join(outputDirectory, file.path);
+		await Bun.write(out, str);
+	}
 }
 
 console.timeEnd('Generated.');

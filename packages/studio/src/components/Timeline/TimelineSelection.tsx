@@ -49,10 +49,7 @@ import {
 	invalidateDuplicatedElementSelection,
 	setDuplicationSelectionComposition,
 } from '../../helpers/duplicated-element-selection';
-import {
-	isEffectDeletionPending,
-	usePendingEffectDeletions,
-} from '../../helpers/effect-deletion-state';
+import {usePendingEffectDeletions} from '../../helpers/effect-deletion-state';
 import {invalidateEffectDeletionSelection} from '../../helpers/effect-deletion-state';
 import type {
 	SequenceNodePathInfo,
@@ -1180,6 +1177,57 @@ export const TimelineSelectionProvider: React.FC<{
 	const effectOperationsAvailable = canUseEffectOperations();
 	const selectionController = useCanvasSelectionController();
 	const selectionState = useCanvasSelection(selectionController);
+	useEffect(() => {
+		let pending = Internals.OptimisticEffectDeletion.getSnapshot();
+		const remapped = new WeakSet<object>();
+		return Internals.OptimisticEffectDeletion.subscribe(() => {
+			const current = Internals.OptimisticEffectDeletion.getSnapshot();
+			const completed = [...new Set([...pending, ...current])].filter(
+				(entry) => entry.sourceChanged && !remapped.has(entry),
+			);
+			pending = current;
+			if (completed.length === 0) return;
+			for (const entry of completed) remapped.add(entry);
+			const remapItem = (item: TimelineSelection | null) => {
+				if (item?.type !== 'sequence-effect') return item;
+				const nodePath = item.nodePathInfo.sequenceSubscriptionKey;
+				const entry = completed.find(
+					(deletion) =>
+						deletion.nodePath.absolutePath === nodePath.absolutePath &&
+						JSON.stringify(deletion.nodePath.nodePath) ===
+							JSON.stringify(nodePath.nodePath),
+				);
+				if (!entry) return item;
+
+				const index =
+					item.i -
+					entry.effectIndices.filter((deleted) => deleted < item.i).length;
+				if (index === item.i) return item;
+				return {
+					...item,
+					i: index,
+					nodePathInfo: {
+						...item.nodePathInfo,
+						auxiliaryKeys: ['effects', String(index)],
+					},
+				};
+			};
+
+			const snapshot = selectionController.getSnapshot();
+			const selectedItems = snapshot.selectedItems.map(
+				(item) => remapItem(item)!,
+			);
+			const anchor = remapItem(snapshot.anchor);
+			if (
+				anchor !== snapshot.anchor ||
+				selectedItems.some(
+					(item, index) => item !== snapshot.selectedItems[index],
+				)
+			) {
+				selectionController.setSnapshot({selectedItems, anchor});
+			}
+		});
+	}, [selectionController]);
 	const selectionScope = useRef<string | null>(null);
 	const marqueeSelectableItems = useRef(
 		new Map<
@@ -1209,17 +1257,28 @@ export const TimelineSelectionProvider: React.FC<{
 	}, [canSelect, selectionController]);
 
 	const canSelectItem = useCallback(
-		(item: TimelineSelection) =>
-			canSelect &&
-			!(
+		(item: TimelineSelection) => {
+			const pending =
 				'nodePathInfo' in item &&
-				item.nodePathInfo.auxiliaryKeys[0] === 'effects' &&
-				isEffectDeletionPending(item.nodePathInfo.sequenceSubscriptionKey)
-			) &&
-			(!window.remotion_isReadOnlyStudio ||
-				keyframeOperationsAvailable ||
-				(effectOperationsAvailable && item.type === 'sequence-effect') ||
-				item.type === 'sequence'),
+				item.nodePathInfo.auxiliaryKeys[0] === 'effects'
+					? Internals.OptimisticEffectDeletion.get(
+							item.nodePathInfo.sequenceSubscriptionKey,
+						)
+					: null;
+			return (
+				canSelect &&
+				(pending === null ||
+					(item.type === 'sequence-effect' &&
+						(pending.sourceChanged ||
+							!pending.effectIndices.includes(item.i)))) &&
+				(!window.remotion_isReadOnlyStudio ||
+					keyframeOperationsAvailable ||
+					(effectOperationsAvailable &&
+						(item.type === 'sequence-effect' ||
+							item.type === 'sequence-all-effects')) ||
+					item.type === 'sequence')
+			);
+		},
 		[canSelect, effectOperationsAvailable, keyframeOperationsAvailable],
 	);
 

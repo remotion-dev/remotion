@@ -23,6 +23,7 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {
 	useRuntimeValue,
 	useRuntimeValueSelector,
@@ -30,7 +31,6 @@ import {
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
 import {FullscreenIcon} from '../icons/fullscreen';
-import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
@@ -80,6 +80,7 @@ import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectEffects} from './use-select-effects';
 
 const container: React.CSSProperties = {
 	color: WHITE,
@@ -341,12 +342,8 @@ export const InspectorSequenceSection: React.FC<{
 		includeSourceControls: true,
 		includeInspectorOnlyFields: true,
 	});
-	const {
-		consumeInspectorRevealRequest,
-		inspectorRevealRequest,
-		selectedItems,
-		selectItems,
-	} = useTimelineSelection();
+	const {consumeInspectorRevealRequest, inspectorRevealRequest, selectedItems} =
+		useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -396,7 +393,8 @@ export const InspectorSequenceSection: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const selectEffects = useSelectEffects();
+	const selectEffectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const selectAsset = useSelectAsset();
 	const selectMediaSrc = useCallback(
 		(values: Readonly<Record<string, unknown>>) =>
@@ -949,28 +947,12 @@ export const InspectorSequenceSection: React.FC<{
 		Boolean(validatedLocation.source);
 
 	const onAddEffect = useCallback(() => {
-		if (!canAddEffect || previewServerState.type !== 'connected') {
+		if (!canAddEffect) {
 			return;
 		}
 
-		setAdditionalSectionExpanded('effects', true);
-
-		setSelectedModal({
-			type: 'add-effect',
-			clientId: previewServerState.clientId,
-			fileName: validatedLocation.source,
-			nodePathInfo,
-			selectItems,
-		});
-	}, [
-		canAddEffect,
-		nodePathInfo,
-		previewServerState,
-		setAdditionalSectionExpanded,
-		setSelectedModal,
-		selectItems,
-		validatedLocation.source,
-	]);
+		selectEffects(nodePathInfo);
+	}, [canAddEffect, nodePathInfo, selectEffects]);
 
 	const onConvertBorderRadius = useCallback(() => {
 		if (
@@ -1073,7 +1055,7 @@ export const InspectorSequenceSection: React.FC<{
 			action={
 				<ActionTooltip
 					label="Add effect"
-					shortcut={null}
+					shortcut={selectEffectsShortcut}
 					delay={800}
 					dismissOnClick
 				>

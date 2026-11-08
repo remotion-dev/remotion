@@ -17,10 +17,12 @@ import {EditorShowPixelGridContext} from '../state/editor-pixel-grid';
 import {EditorShowRulersContext} from '../state/editor-rulers';
 import {EditorSnappingContext} from '../state/editor-snapping';
 import {SetSelectedModalContext} from '../state/modals';
+import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {askAiModalRef} from './AskAiModal';
 import {useCompositionNavigation} from './CompositionSelector';
 import {explorerSidebarTabs} from './ExplorerPanelRef';
 import {showNotification} from './Notifications/NotificationCenter';
+import {rotateFieldKey} from './selected-outline-types';
 import {OverrideIdToNodePathMappingsRefContext} from './SequencePropsSubscriptionProvider';
 import {
 	getTimelineSequenceSelectionKey,
@@ -29,7 +31,7 @@ import {
 
 const sequencePropShortcuts = [
 	{action: 'selectTranslateProp', fieldKey: 'style.translate'},
-	{action: 'selectRotateProp', fieldKey: 'style.rotate'},
+	{action: 'selectRotateProp', fieldKey: rotateFieldKey},
 	{action: 'selectScaleProp', fieldKey: 'style.scale'},
 	{action: 'selectOpacityProp', fieldKey: 'style.opacity'},
 	{action: 'selectVolumeProp', fieldKey: 'volume'},
@@ -118,6 +120,7 @@ export const GlobalKeybindings: React.FC = () => {
 	]);
 
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const sequencesRef = useContext(Internals.SequenceManagerRefContext);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const overrideIdToNodePathMappingsRef = useContext(
@@ -134,7 +137,15 @@ export const GlobalKeybindings: React.FC = () => {
 			}
 
 			const [selection] = selectedItems;
-			if (selection.type !== 'sequence' && selection.type !== 'sequence-prop') {
+			if (selection.type === 'guide') {
+				return false;
+			}
+
+			if (
+				fieldKey !== rotateFieldKey &&
+				selection.type !== 'sequence' &&
+				selection.type !== 'sequence-prop'
+			) {
 				return false;
 			}
 
@@ -165,6 +176,10 @@ export const GlobalKeybindings: React.FC = () => {
 				return false;
 			}
 
+			if (fieldKey === rotateFieldKey) {
+				setManuallyEnabled(selectedTrackKey, true);
+			}
+
 			selectItems(
 				[
 					{
@@ -185,6 +200,7 @@ export const GlobalKeybindings: React.FC = () => {
 			currentSelection,
 			overrideIdToNodePathMappingsRef,
 			sequencesRef,
+			setManuallyEnabled,
 			videoConfig,
 		],
 	);

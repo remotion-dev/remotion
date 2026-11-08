@@ -442,8 +442,8 @@ test.describe('effect keyframes', () => {
 			page.getByRole('button', {name: '0.005', exact: true}),
 		).toBeVisible();
 
-		await selectScalePrecisionAndWaitFor({page, locator: waveRow});
-		await waveRow.click();
+		await selectScalePrecisionAndWaitFor({page, locator: waveRow.first()});
+		await waveRow.first().click();
 
 		const amplitudeRow = page
 			.getByText('Amplitude', {exact: true})
