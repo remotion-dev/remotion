@@ -9,15 +9,31 @@ This page tracks browser bugs and limitations affecting [HTML-in-canvas](/docs/h
 
 ## Browser reports
 
-| Issue                                                                                                                      | Product | Filed by     | Status                |
-| -------------------------------------------------------------------------------------------------------------------------- | ------- | ------------ | --------------------- |
-| [HTML-in-canvas does crash page on WebGL context loss](https://issues.chromium.org/issues/575053149)                       | Chrome  | @JonnyBurger | Open                  |
-| [A canvas with opacity: 0 can crash HTML-in-canvas](https://issues.chromium.org/issues/575053148)                          | Chrome  | @JonnyBurger | Fixed in 158.0.8118.0 |
-| [HTML-in-canvas does not handle object-fit CSS property well](https://issues.chromium.org/issues/570832069)                | Chrome  | @JonnyBurger | Fixed in 158.0.8121.0 |
-| [Nested HTML-in-canvas renders differently based on window.devicePixelRatio](https://issues.chromium.org/issues/540532973) | Chrome  | @JonnyBurger | Fixed in 157.0.8080.0 |
-| [Relax restriction disallowing nested HTML-in-canvas](https://github.com/WICG/html-in-canvas/issues/120)                   | Chrome  | @JonnyBurger | Fixed in 157.0.8080.0 |
+| Issue                                                                                                                      | Product | Filed by             | Status                |
+| -------------------------------------------------------------------------------------------------------------------------- | ------- | -------------------- | --------------------- |
+| [HTML-in-canvas does crash page on WebGL context loss](https://issues.chromium.org/issues/575053149)                       | Chrome  | @JonnyBurger         | Open                  |
+| [A canvas with opacity: 0 can crash HTML-in-canvas](https://issues.chromium.org/issues/575053148)                          | Chrome  | @JonnyBurger         | Fixed in 158.0.8118.0 |
+| [HTML-in-canvas does not handle object-fit CSS property well](https://issues.chromium.org/issues/570832069)                | Chrome  | @JonnyBurger         | Fixed in 158.0.8121.0 |
+| [Nested HTML-in-canvas renders differently based on window.devicePixelRatio](https://issues.chromium.org/issues/540532973) | Chrome  | @JonnyBurger         | Fixed in 157.0.8080.0 |
+| [Relax restriction disallowing nested HTML-in-canvas](https://github.com/WICG/html-in-canvas/issues/120)                   | Chrome  | @JonnyBurger         | Fixed in 157.0.8080.0 |
+| [Incorrect 3D occlusion](https://issues.chromium.org/issues/522872457)                                                     | Chrome  | Third-party (HeyGen) | Open                  |
 
 Chrome build numbers identify the first build containing the fix and may refer to Canary before it reaches Stable. Where only a Chrome milestone is confirmed, only the major version is listed.
+
+## Unreported issues
+
+Feel welcome to reproduce these and file bugs to Chromium, then send PRs to move them up
+
+| Observed difference                                                                                                   | Reproduction conditions                                                                                                                                                                                                                                                    |
+| --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backfaces remain visible                                                                                              | A plane rotated away from the viewer can remain visible despite `backface-visibility: hidden`.                                                                                                                                                                             |
+| Positioned nested canvas is displaced                                                                                 | A child canvas positioned with `left: 70px; top: 30px` can paint at a different offset from the ordinary DOM version. Test positioning separately from a CSS translation.                                                                                                  |
+| Fractional fitted canvas edges differ                                                                                 | A 640×360 child canvas styled `width: 400px; height: 300px; object-fit: contain` has different edge coverage where the fitted content starts at a fractional coordinate. This is a remaining nested-canvas sampling case, separate from the fixed object-fit report above. |
+| Blend, backdrop and mask effects differ                                                                               | Intersecting 3D planes with `mix-blend-mode: screen` or `backdrop-filter: blur(...)` can produce different colors or blur results. A flat element combining a gradient mask, backdrop blur and blending can also omit content from a following sibling.                    |
+| [OffscreenCanvas updates miss paint notifications](https://chromium-review.googlesource.com/c/chromium/src/+/8714422) | Committing new frames from a main-thread or worker `OffscreenCanvas` inside a drawable element can fail to fire `paint` on its ancestor canvas. The linked fix is under review; no fixed version is confirmed.                                                             |
+| Masks differ under perspective                                                                                        | Compare a small, magnified plane with a linear-gradient mask, or an opacity group with a radial-gradient mask, under `perspective` and `rotateY()`. Masked edges and content can differ from the page.                                                                     |
+| Translucent groups differ at fractional scale                                                                         | A group with `opacity: 0.5`, a box shadow, clipped children and an overflowing child has different edge coverage and colors under an ancestor `scale(0.625)`.                                                                                                              |
+| Very wide translucent groups differ                                                                                   | An `opacity: 0.5` group with `left: -50000px; width: 100000px`, containing visible colored children, differs under an ancestor `scale(0.625)`, including pixels inside the visible content.                                                                                |
 
 ## See also
 

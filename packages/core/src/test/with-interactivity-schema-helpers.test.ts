@@ -23,7 +23,6 @@ import {
 	loopField,
 	premountSchema,
 	sequenceCropSchema,
-	sequencePremountSchema,
 	sequenceSchema,
 	sequenceSchemaWithoutFrom,
 	sequenceStyleSchema,
@@ -40,7 +39,7 @@ import {
 	selectActiveKeys,
 } from '../with-interactivity-schema.js';
 
-test('sequenceStyleSchema contains visual style and premount fields', () => {
+test('sequenceStyleSchema contains visual style fields', () => {
 	expect(Object.keys(sequenceStyleSchema).sort()).toEqual(
 		[
 			...Object.keys(sequenceCropSchema),
@@ -48,7 +47,6 @@ test('sequenceStyleSchema contains visual style and premount fields', () => {
 			...Object.keys(backgroundSchema),
 			...Object.keys(borderSchema),
 			...Object.keys(borderRadiusSchema),
-			...Object.keys(sequencePremountSchema),
 		].sort(),
 	);
 });
@@ -241,8 +239,6 @@ test('getFlatSchema(sequenceSchema) exposes every variant key', () => {
 			'style.borderTopRightRadius',
 			'style.borderBottomRightRadius',
 			'style.borderBottomLeftRadius',
-			'premountFor',
-			'postmountFor',
 			'durationInFrames',
 			'from',
 			'freeze',
@@ -606,8 +602,6 @@ test('selectActiveKeys exposes style.* keys when layout=absolute-fill', () => {
 			'style.borderTopRightRadius',
 			'style.borderBottomRightRadius',
 			'style.borderBottomLeftRadius',
-			'premountFor',
-			'postmountFor',
 		].sort(),
 	);
 

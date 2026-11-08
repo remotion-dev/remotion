@@ -5,7 +5,7 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsc -d",
+		"make": "node ../.monorepo/tsrs.cjs -d",
 		"test": "bun test src"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
@@ -21,6 +21,7 @@
 		"fenceparser": "2.2.0",
 		"@docusaurus/types": "3.6.0",
 		"@types/dom-webcodecs": "catalog:",
+		"tsrs": "catalog:",
 		"typescript": "catalog:",
 		"twoslash-protocol": "0.3.6"
 	},

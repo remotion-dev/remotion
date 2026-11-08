@@ -16,8 +16,11 @@ import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
+import {keyboardEventMatchesAction} from './keyboard-shortcuts';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
+import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
+import {useSelectEffects} from './use-select-effects';
 
 const backStyle = {
 	height: 18,
@@ -168,6 +171,34 @@ const PlayPauseInner: React.FC<{
 	const jumpToEnd = useCallback(() => {
 		seek(outFrame ?? getCurrentDuration() - 1);
 	}, [seek, outFrame]);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const selectEffects = useSelectEffects();
+	const onEffectsOrJumpToEnd = useCallback(
+		(event: KeyboardEvent) => {
+			if (event.defaultPrevented || event.isComposing) {
+				return;
+			}
+
+			if (keyboardEventMatchesAction(event, 'selectEffects')) {
+				const {selectedItems} = currentSelection.current;
+				const selection = selectedItems.length === 1 ? selectedItems[0] : null;
+				if (
+					selection !== null &&
+					selection.type !== 'guide' &&
+					selectEffects(selection.nodePathInfo)
+				) {
+					event.preventDefault();
+					return;
+				}
+			}
+
+			if (keyboardEventMatchesAction(event, 'jumpToEnd')) {
+				event.preventDefault();
+				jumpToEnd();
+			}
+		},
+		[currentSelection, jumpToEnd, selectEffects],
+	);
 
 	const keybindings = useKeybinding();
 
@@ -255,8 +286,16 @@ const PlayPauseInner: React.FC<{
 		const e = keybindings.registerKeybinding({
 			event: 'keydown',
 			action: 'jumpToEnd',
-			callback: jumpToEnd,
-			preventDefault: true,
+			callback: onEffectsOrJumpToEnd,
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const effects = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'selectEffects',
+			callback: onEffectsOrJumpToEnd,
+			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
@@ -272,9 +311,10 @@ const PlayPauseInner: React.FC<{
 			enter.unregister();
 			a.unregister();
 			e.unregister();
+			effects.unregister();
 		};
 	}, [
-		jumpToEnd,
+		onEffectsOrJumpToEnd,
 		jumpToStart,
 		keybindings,
 		onAssetArrowKey,

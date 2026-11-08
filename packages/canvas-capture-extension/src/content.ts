@@ -94,9 +94,22 @@ export const startContent = () => {
 		host.style.zIndex = '2147483647';
 		host.style.pointerEvents = 'none';
 		document.documentElement.appendChild(host);
-		const shadow = host.attachShadow({mode: 'open'});
+		const hostShadow = host.attachShadow({mode: 'open'});
+		const frame = document.createElement('iframe');
+		frame.title = 'Remotion Canvas Capture';
+		frame.style.cssText =
+			'position: fixed; inset: 0; width: 100%; height: 100%; border: 0; color-scheme: light; pointer-events: auto;';
+		hostShadow.appendChild(frame);
+		const uiDocument = frame.contentDocument;
+		const uiWindow = frame.contentWindow as (Window & typeof globalThis) | null;
+		if (!uiDocument || !uiWindow) {
+			throw new Error('Could not create the Canvas Capture controls.');
+		}
 
-		const style = document.createElement('style');
+		uiDocument.body.style.margin = '0';
+		const shadow = uiDocument.body.attachShadow({mode: 'open'});
+
+		const style = uiDocument.createElement('style');
 		style.textContent = `
 		:host { all: initial; }
 		* { box-sizing: border-box; }
@@ -489,41 +502,41 @@ export const startContent = () => {
 		}
 	`;
 
-		const selectionLayer = document.createElement('div');
+		const selectionLayer = uiDocument.createElement('div');
 		selectionLayer.className = 'selection-layer';
-		const selectionBox = document.createElement('div');
+		const selectionBox = uiDocument.createElement('div');
 		selectionBox.className = 'selection-box';
 		selectionLayer.appendChild(selectionBox);
-		const backdrop = document.createElement('div');
+		const backdrop = uiDocument.createElement('div');
 		backdrop.className = 'backdrop';
-		const interactionShield = document.createElement('div');
+		const interactionShield = uiDocument.createElement('div');
 		interactionShield.className = 'interaction-shield';
-		const highlight = document.createElement('div');
+		const highlight = uiDocument.createElement('div');
 		highlight.className = 'highlight';
 		for (const handle of ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']) {
-			const element = document.createElement('div');
+			const element = uiDocument.createElement('div');
 			element.className = 'selection-handle';
 			element.dataset.handle = handle;
 			highlight.appendChild(element);
 		}
 
-		const dimensions = document.createElement('div');
+		const dimensions = uiDocument.createElement('div');
 		dimensions.className = 'capture-dimensions';
-		const dimensionsSource = document.createElement('span');
+		const dimensionsSource = uiDocument.createElement('span');
 		dimensionsSource.className = 'capture-dimensions-source';
-		const dimensionsZoomControl = document.createElement('div');
+		const dimensionsZoomControl = uiDocument.createElement('div');
 		dimensionsZoomControl.className = 'capture-dimensions-zoom-control';
-		const dimensionsZoom = document.createElement('button');
+		const dimensionsZoom = uiDocument.createElement('button');
 		dimensionsZoom.className = 'capture-dimensions-zoom';
 		dimensionsZoom.type = 'button';
 		dimensionsZoom.ariaLabel = 'Adjust output zoom';
 		dimensionsZoom.setAttribute('aria-expanded', 'false');
-		const dimensionsZoomPopover = document.createElement('div');
+		const dimensionsZoomPopover = uiDocument.createElement('div');
 		dimensionsZoomPopover.id = 'remotion-canvas-capture-zoom';
 		dimensionsZoomPopover.className = 'capture-dimensions-zoom-popover';
 		dimensionsZoomPopover.hidden = true;
 		dimensionsZoom.setAttribute('aria-controls', dimensionsZoomPopover.id);
-		const dimensionsZoomSlider = document.createElement('input');
+		const dimensionsZoomSlider = uiDocument.createElement('input');
 		dimensionsZoomSlider.className = 'capture-dimensions-zoom-slider';
 		dimensionsZoomSlider.type = 'range';
 		dimensionsZoomSlider.min = '0.1';
@@ -532,16 +545,16 @@ export const startContent = () => {
 		dimensionsZoomSlider.ariaLabel = 'Output zoom';
 		dimensionsZoomPopover.appendChild(dimensionsZoomSlider);
 		dimensionsZoomControl.append(dimensionsZoom, dimensionsZoomPopover);
-		const dimensionsOutput = document.createElement('span');
+		const dimensionsOutput = uiDocument.createElement('span');
 		dimensionsOutput.className = 'capture-dimensions-output';
-		const dimensionsLine = document.createElementNS(
+		const dimensionsLine = uiDocument.createElementNS(
 			'http://www.w3.org/2000/svg',
 			'svg',
 		);
 		dimensionsLine.setAttribute('viewBox', '0 0 14 8');
 		dimensionsLine.setAttribute('aria-hidden', 'true');
 		dimensionsLine.innerHTML = '<path d="M1 4h12" />';
-		const dimensionsArrow = document.createElementNS(
+		const dimensionsArrow = uiDocument.createElementNS(
 			'http://www.w3.org/2000/svg',
 			'svg',
 		);
@@ -555,16 +568,16 @@ export const startContent = () => {
 			dimensionsArrow,
 			dimensionsOutput,
 		);
-		const controls = document.createElement('div');
+		const controls = uiDocument.createElement('div');
 		controls.className = 'capture-controls';
-		const controlsEncodingError = document.createElement('div');
+		const controlsEncodingError = uiDocument.createElement('div');
 		controlsEncodingError.className = 'capture-controls-encoding-error';
 		controlsEncodingError.setAttribute('role', 'status');
 		controlsEncodingError.ariaLive = 'polite';
-		const controlsErrorTitle = document.createElement('div');
-		const controlsErrorDescription = document.createElement('div');
+		const controlsErrorTitle = uiDocument.createElement('div');
+		const controlsErrorDescription = uiDocument.createElement('div');
 		controlsErrorDescription.className = 'capture-controls-error-description';
-		const controlsOpenSetup = document.createElement('button');
+		const controlsOpenSetup = uiDocument.createElement('button');
 		controlsOpenSetup.className = 'capture-controls-open-setup';
 		controlsOpenSetup.type = 'button';
 		controlsOpenSetup.textContent = 'Open Chrome flags';
@@ -573,26 +586,26 @@ export const startContent = () => {
 			controlsErrorDescription,
 			controlsOpenSetup,
 		);
-		const controlsSecondary = document.createElement('button');
+		const controlsSecondary = uiDocument.createElement('button');
 		controlsSecondary.className = 'capture-controls-select';
 		controlsSecondary.type = 'button';
 		controlsSecondary.ariaLabel = 'Select area';
 		controlsSecondary.dataset.tooltip = 'Select area';
 		controlsSecondary.innerHTML =
 			'<svg viewBox="0 0 640 640" aria-hidden="true"><path d="M192 80C192 71.2 184.8 64 176 64C167.2 64 160 71.2 160 80L160 160L80 160C71.2 160 64 167.2 64 176C64 184.8 71.2 192 80 192L160 192L160 432C160 458.5 181.5 480 208 480L400 480L400 448L208 448C199.2 448 192 440.8 192 432L192 80zM448 560C448 568.8 455.2 576 464 576C472.8 576 480 568.8 480 560L480 480L560 480C568.8 480 576 472.8 576 464C576 455.2 568.8 448 560 448L480 448L480 208C480 181.5 458.5 160 432 160L240 160L240 192L432 192C440.8 192 448 199.2 448 208L448 560z"/></svg>';
-		const controlsWholePage = document.createElement('button');
+		const controlsWholePage = uiDocument.createElement('button');
 		controlsWholePage.className = 'capture-controls-select';
 		controlsWholePage.type = 'button';
 		controlsWholePage.ariaLabel = 'Entire page';
 		controlsWholePage.dataset.tooltip = 'Entire page';
 		controlsWholePage.innerHTML =
 			'<svg viewBox="0 0 640 640" aria-hidden="true"><path d="M224 160L224 224L544 224L544 192C544 174.3 529.7 160 512 160L224 160zM192 160L128 160C110.3 160 96 174.3 96 192L96 224L192 224L192 160zM96 256L96 448C96 465.7 110.3 480 128 480L512 480C529.7 480 544 465.7 544 448L544 256L96 256zM64 192C64 156.7 92.7 128 128 128L512 128C547.3 128 576 156.7 576 192L576 448C576 483.3 547.3 512 512 512L128 512C92.7 512 64 483.3 64 448L64 192z"/></svg>';
-		const controlsDuration = document.createElement('span');
+		const controlsDuration = uiDocument.createElement('span');
 		controlsDuration.className = 'capture-controls-duration';
 		controlsDuration.hidden = true;
 		controlsDuration.textContent = '00:00';
 		controlsDuration.ariaLabel = 'Recording duration 00:00';
-		const controlsPrimary = document.createElement('div');
+		const controlsPrimary = uiDocument.createElement('div');
 		controlsPrimary.className = 'capture-controls-primary';
 		controlsPrimary.hidden = true;
 		const controlsPrimaryRoot = createRoot(controlsPrimary);
@@ -616,7 +629,7 @@ export const startContent = () => {
 		};
 
 		renderControlsPrimary('Record', true);
-		const controlsNew = document.createElement('button');
+		const controlsNew = uiDocument.createElement('button');
 		controlsNew.className = 'capture-controls-select';
 		controlsNew.type = 'button';
 		controlsNew.hidden = true;
@@ -624,7 +637,7 @@ export const startContent = () => {
 		controlsNew.dataset.tooltip = 'Open in remotion.new';
 		controlsNew.innerHTML =
 			'<svg viewBox="-24 -24 560 560" aria-hidden="true"><path d="M80 48C53.5 48 32 69.5 32 96v320c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V176L352 48H80zm304 64.6L415.4 144H384v-31.4zM80 80h272v96h96v240c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96c0-8.8 7.2-16 16-16zm160 144v64h-64v32h64v64h32v-64h64v-32h-64v-64h-32z"/></svg>';
-		const controlsConvert = document.createElement('button');
+		const controlsConvert = uiDocument.createElement('button');
 		controlsConvert.className = 'capture-controls-select';
 		controlsConvert.type = 'button';
 		controlsConvert.hidden = true;
@@ -632,7 +645,7 @@ export const startContent = () => {
 		controlsConvert.dataset.tooltip = 'Open in remotion.dev/convert';
 		controlsConvert.innerHTML =
 			'<svg viewBox="-64 -64 640 640" aria-hidden="true"><path d="M304 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l153.4 0-260.7 260.7c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L480 54.6 480 208c0 8.8 7.2 16 16 16s16-7.2 16-16l0-192c0-8.8-7.2-16-16-16L304 0zM80 96C35.8 96 0 131.8 0 176L0 432c0 44.2 35.8 80 80 80l256 0c44.2 0 80-35.8 80-80l0-96c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 96c0 26.5-21.5 48-48 48L80 480c-26.5 0-48-21.5-48-48l0-256c0-26.5 21.5-48 48-48l96 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L80 96z"/></svg>';
-		const controlsDownload = document.createElement('button');
+		const controlsDownload = uiDocument.createElement('button');
 		controlsDownload.className = 'capture-controls-select';
 		controlsDownload.type = 'button';
 		controlsDownload.hidden = true;
@@ -640,14 +653,14 @@ export const startContent = () => {
 		controlsDownload.dataset.tooltip = 'Download recording';
 		controlsDownload.innerHTML =
 			'<svg viewBox="-128 -64 640 640" aria-hidden="true"><path d="M0 496c0-8.8 7.2-16 16-16l352 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 512c-8.8 0-16-7.2-16-16zM209 377c-9.4 9.4-24.6 9.4-33.9 0L31 233c-6.9-6.9-8.9-17.2-5.2-26.2S38.3 192 48 192l80 0 0-64 0 0 0-80c0-26.5 21.5-48 48-48l32 0c26.5 0 48 21.5 48 48l0 144 80 0c9.7 0 18.5 5.8 22.2 14.8s1.7 19.3-5.2 26.2L209 377zm15-249l0-80c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16l0 80 0 0 0 80c0 8.8-7.2 16-16 16L67.3 224 192 348.7 316.7 224 240 224c-8.8 0-16-7.2-16-16l0-80z"/></svg>';
-		const controlsClose = document.createElement('button');
+		const controlsClose = uiDocument.createElement('button');
 		controlsClose.className = 'capture-controls-close';
 		controlsClose.type = 'button';
 		controlsClose.ariaLabel = 'Close capture controls';
 		controlsClose.dataset.tooltip = 'Close';
 		controlsClose.innerHTML =
 			'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>';
-		const controlsActions = document.createElement('div');
+		const controlsActions = uiDocument.createElement('div');
 		controlsActions.className = 'capture-controls-actions';
 		controlsActions.append(
 			controlsSecondary,
@@ -672,15 +685,9 @@ export const startContent = () => {
 			dimensions,
 			controls,
 		);
-		for (const eventType of [
-			'pointerdown',
-			'pointerup',
-			'mousedown',
-			'mouseup',
-			'click',
-		] as const) {
-			shadow.addEventListener(eventType, (event) => event.stopPropagation());
-		}
+		const pageHighlight = document.createElement('div');
+		pageHighlight.className = 'highlight';
+		hostShadow.prepend(style.cloneNode(true), pageHighlight);
 
 		let selectedTarget: SelectedTarget | null = null;
 		let capture: PageCapture | null = null;
@@ -890,6 +897,82 @@ export const startContent = () => {
 			highlight.style.height = `${rect.height}px`;
 			updateDimensions(rect);
 		};
+
+		const updateFrame = () => {
+			const blocksPage =
+				!controlsDismissed && (selecting || (!capture && !startingRecording));
+			pageHighlight.style.cssText = blocksPage
+				? 'display: none'
+				: highlight.style.cssText;
+			if (blocksPage || controlsDrag) {
+				frame.style.clipPath = 'none';
+				return;
+			}
+
+			const regions = [
+				controls,
+				...controls.querySelectorAll<HTMLElement>('*'),
+				dimensions,
+				dimensionsZoomPopover,
+			]
+				.filter((element) => element.getClientRects().length > 0)
+				.map((element) => {
+					const {left, top, right, bottom} = element.getBoundingClientRect();
+					return `M ${left} ${top} H ${right} V ${bottom} H ${left} Z`;
+				});
+			for (const element of controls.querySelectorAll<HTMLElement>(
+				'[data-tooltip]',
+			)) {
+				const tooltip = uiWindow.getComputedStyle(element, '::after');
+				if (
+					element.getClientRects().length === 0 ||
+					tooltip.visibility !== 'visible'
+				) {
+					continue;
+				}
+
+				const rect = element.getBoundingClientRect();
+				const width =
+					parseFloat(tooltip.width) +
+					parseFloat(tooltip.paddingLeft) +
+					parseFloat(tooltip.paddingRight) +
+					2;
+				const height =
+					parseFloat(tooltip.height) +
+					parseFloat(tooltip.paddingTop) +
+					parseFloat(tooltip.paddingBottom) +
+					2;
+				const left =
+					rect.left + element.clientLeft + parseFloat(tooltip.left) - width / 2;
+				const top =
+					rect.top +
+					element.clientTop +
+					element.clientHeight -
+					parseFloat(tooltip.bottom) -
+					height;
+				regions.push(`M ${left} ${top} h ${width} v ${height} h ${-width} Z`);
+			}
+
+			frame.style.clipPath = `path('${regions.join(' ') || 'M 0 0'}')`;
+		};
+
+		new MutationObserver(updateFrame).observe(shadow, {
+			attributes: true,
+			childList: true,
+			characterData: true,
+			subtree: true,
+		});
+		new ResizeObserver(updateFrame).observe(uiDocument.body);
+		for (const eventType of [
+			'pointerover',
+			'pointerout',
+			'focusin',
+			'focusout',
+		]) {
+			shadow.addEventListener(eventType, updateFrame);
+		}
+
+		updateFrame();
 
 		const getState = (): CaptureControllerState => ({
 			crop: resolveCaptureTarget()?.crop ?? null,
@@ -1349,20 +1432,19 @@ export const startContent = () => {
 			updateControls();
 			supportCheck.then(updateControls).catch(() => undefined);
 		});
-		document.addEventListener(
-			'pointerdown',
-			(event) => {
-				if (
-					!dimensionsZoomPopover.hidden &&
-					!event.composedPath().includes(dimensionsZoomControl)
-				) {
-					dimensionsZoomPopover.hidden = true;
-					dimensionsZoom.setAttribute('aria-expanded', 'false');
-				}
-			},
-			true,
-		);
-		window.addEventListener('keydown', (event) => {
+		const dismissZoomPopover = (event: Event) => {
+			if (
+				!dimensionsZoomPopover.hidden &&
+				!event.composedPath().includes(dimensionsZoomControl)
+			) {
+				dimensionsZoomPopover.hidden = true;
+				dimensionsZoom.setAttribute('aria-expanded', 'false');
+			}
+		};
+
+		document.addEventListener('pointerdown', dismissZoomPopover, true);
+		uiDocument.addEventListener('pointerdown', dismissZoomPopover, true);
+		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape' && !dimensionsZoomPopover.hidden) {
 				dimensionsZoomPopover.hidden = true;
 				dimensionsZoom.setAttribute('aria-expanded', 'false');
@@ -1373,7 +1455,10 @@ export const startContent = () => {
 			if (event.key === 'Escape' && selecting) {
 				cancelSelection();
 			}
-		});
+		};
+
+		window.addEventListener('keydown', onKeyDown);
+		uiWindow.addEventListener('keydown', onKeyDown);
 
 		const setOptions = (nextScale: number) => {
 			if (!Number.isFinite(nextScale) || nextScale <= 0) {
@@ -1738,7 +1823,7 @@ export const startContent = () => {
 			if (
 				event.button !== 0 ||
 				controlsDrag ||
-				!(event.target instanceof Element) ||
+				!(event.target instanceof uiWindow.Element) ||
 				event.target.closest('button') ||
 				controlsEncodingError.contains(event.target)
 			) {
@@ -1752,6 +1837,7 @@ export const startContent = () => {
 				offsetY: event.clientY - rect.top,
 			};
 			controls.setPointerCapture(event.pointerId);
+			updateFrame();
 			event.preventDefault();
 		});
 		controls.addEventListener('pointermove', (event) => {
@@ -1779,6 +1865,7 @@ export const startContent = () => {
 			}
 
 			controlsDrag = null;
+			updateFrame();
 			if (controls.hasPointerCapture(event.pointerId)) {
 				controls.releasePointerCapture(event.pointerId);
 			}

@@ -16,7 +16,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d"
+		"make": "node ../.monorepo/tsrs.cjs -d"
 	},
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"

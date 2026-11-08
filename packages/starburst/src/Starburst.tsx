@@ -344,7 +344,6 @@ export const starburstSchema: InteractivitySchema = {
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,
-	...Internals.premountSchema,
 };
 
 const StarburstInner: React.FC<
@@ -365,6 +364,7 @@ const StarburstInner: React.FC<
 	...sequenceProps
 }) => {
 	const {durationInFrames: videoDuration} = useVideoConfig();
+	const videoEnabled = Internals.useVideoEnabled();
 	const resolvedDuration = durationInFrames ?? videoDuration;
 
 	if (typeof rays !== 'number' || !Number.isFinite(rays)) {
@@ -411,6 +411,10 @@ const StarburstInner: React.FC<
 		throw new RangeError(
 			`"vignette" must be between 0 and 1, but got ${vignette}`,
 		);
+	}
+
+	if (!videoEnabled) {
+		return null;
 	}
 
 	return (

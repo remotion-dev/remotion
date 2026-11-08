@@ -5,7 +5,11 @@ import type {
 } from 'node:http';
 import type {LogLevel} from '@remotion/renderer';
 import type {EventSourceEvent} from '@remotion/studio-shared';
-import {getSourceVersionSessionId} from '../file-watcher';
+import {
+	getSourceVersionSessionId,
+	getFileWatcherRegistry,
+	subscribeToExternalSourceChanges,
+} from '../file-watcher';
 import {printServerReadyComment} from '../server-ready';
 import {unsubscribeClientDefaultPropsWatchers} from './default-props-watchers';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
@@ -92,6 +96,22 @@ export const makeLiveEventsRouter = (
 			id: clientId,
 			response,
 		};
+		const sessionId = getSourceVersionSessionId();
+		if (sessionId !== null) {
+			for (const [fileName, revision] of Object.entries(
+				getFileWatcherRegistry().getExternalSourceRevisions(),
+			)) {
+				response.write(
+					serializeMessage({
+						type: 'external-source-changed',
+						resetUndoHistory: false,
+						fileName,
+						sourceVersion: {sessionId, revision},
+					}),
+				);
+			}
+		}
+
 		clients.push(newClient);
 		newClientListeners.forEach((cb) => cb());
 		clearPrintPortMessageTimeout();
@@ -183,8 +203,19 @@ export const getLiveEventsListener = (): LiveEventsServer | null =>
 
 export const setLiveEventsListener = (listener: LiveEventsServer) => {
 	liveEventsListener = listener;
+	const unsubscribe = subscribeToExternalSourceChanges(
+		(fileName, sourceVersion) => {
+			listener.sendEventToClient({
+				type: 'external-source-changed',
+				resetUndoHistory: false,
+				fileName,
+				sourceVersion,
+			});
+		},
+	);
 	waiters.forEach((w) => w(listener));
 	return () => {
+		unsubscribe();
 		liveEventsListener = null;
 	};
 };

@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react';
-import type {SequenceNodePath} from 'remotion';
+import {Internals, type SequenceNodePath} from 'remotion';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {
 	beginDuplicatedElementSelection,
@@ -7,6 +7,7 @@ import {
 	resolveDuplicatedElementSelection,
 } from '../../helpers/duplicated-element-selection';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {selectOptimisticEffects} from '../../helpers/optimistic-effect-selection';
 import {subscribeToSequenceNodePathMutations} from '../../helpers/sequence-node-path-mutations';
 import {useSyncExternalStore} from '../../helpers/use-sync-external-store';
 import type {ConfirmationDialogFunction} from '../ConfirmationDialog-types';
@@ -211,6 +212,7 @@ export const duplicateSequencesFromSource = async (
 			selectionRequest,
 			result.nodePathMutation.mutationId,
 			result.duplicatedNodes,
+			null,
 		);
 
 		return {status: 'success'};
@@ -245,27 +247,71 @@ export const isDuplicatableEffectSelection = (
 	type: 'sequence-effect';
 } => selection.type === 'sequence-effect';
 
-const duplicateEffectsFromSource = (
+export const duplicateEffectsFromSource = (
 	effects: readonly (TimelineSelection & {type: 'sequence-effect'})[],
 ): Promise<void> => {
-	return duplicateEffects(
+	const chains = new Map(
+		effects.map(({nodePathInfo}) => {
+			const nodePath = nodePathInfo.sequenceSubscriptionKey;
+			return [
+				JSON.stringify([nodePath.absolutePath, nodePath.nodePath]),
+				{
+					nodePathInfo,
+					before: new Set(
+						Internals.OptimisticEffects.getItems(nodePath, null).map(
+							(item) => item.id,
+						),
+					),
+				},
+			];
+		}),
+	);
+	const selectionRequest = beginDuplicatedElementSelection();
+	const promise = duplicateEffects(
 		effects.map((effect) => {
 			const nodePath = effect.nodePathInfo.sequenceSubscriptionKey;
-
 			return {
 				fileName: nodePath.absolutePath,
 				sequenceNodePath: nodePath,
 				effectIndex: effect.i,
 			};
 		}),
-	)
+	);
+	const inserted = [...chains.values()].flatMap(({nodePathInfo, before}) =>
+		Internals.OptimisticEffects.getItems(
+			nodePathInfo.sequenceSubscriptionKey,
+			null,
+		)
+			.filter((item) => !before.has(item.id))
+			.map((item) => ({nodePathInfo, id: item.id})),
+	);
+	if (inserted.length > 0) {
+		cancelDuplicatedElementSelection(selectionRequest);
+		selectOptimisticEffects(inserted, true);
+	}
+
+	return promise
 		.then((result) => {
 			if (!result.success) {
+				cancelDuplicatedElementSelection(selectionRequest);
 				showNotification(result.reason, 4000);
+				return;
 			}
+
+			if (inserted.length === 0)
+				resolveDuplicatedElementSelection(
+					selectionRequest,
+					result.nodePathMutation.mutationId,
+					result.duplicatedEffects,
+					result.duplicatedEffects.map((effect) => effect.effectIndex),
+				);
 		})
-		.catch((err) => {
-			showNotification((err as Error).message, 4000);
+		.catch((error) => {
+			cancelDuplicatedElementSelection(selectionRequest);
+			showNotification(
+				error instanceof Error ? error.message : String(error),
+				4000,
+			);
 		});
 };
 

@@ -10,7 +10,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsc -d"
+		"make": "node ../.monorepo/tsrs.cjs -d"
 	},
 	"files": [
 		"dist"

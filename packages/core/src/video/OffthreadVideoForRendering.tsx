@@ -22,7 +22,7 @@ import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {useAudioEnabled} from '../use-media-enabled.js';
+import {useAudioEnabled, useVideoEnabled} from '../use-media-enabled.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {warnAboutTooHighVolume} from '../volume-safeguard.js';
@@ -96,6 +96,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 
 	warnAboutTooHighVolume(volume);
 	const audioEnabled = useAudioEnabled();
+	const videoEnabled = useVideoEnabled();
 	const {shouldUseAudio} = useMediaAudioState({
 		muted,
 		volume,
@@ -172,13 +173,13 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 	const {delayRender, continueRender, cancelRender} = useDelayRender();
 
 	useLayoutEffect(() => {
-		if (!window.remotion_videoEnabled) {
+		setImageSrc(null);
+		if (!videoEnabled) {
 			return;
 		}
 
 		const cleanup: Function[] = [];
 
-		setImageSrc(null);
 		const controller = new AbortController();
 
 		const newHandle = delayRender(`Fetching ${actualSrc} from server`, {
@@ -266,6 +267,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		};
 	}, [
 		actualSrc,
+		videoEnabled,
 		delayRenderRetries,
 		delayRenderTimeoutInMilliseconds,
 		onError,
@@ -298,7 +300,7 @@ export const OffthreadVideoForRendering: React.FC<AllOffthreadVideoProps> = ({
 		[onVideoFrame],
 	);
 
-	if (!imageSrc || !window.remotion_videoEnabled) {
+	if (!imageSrc || !videoEnabled) {
 		return null;
 	}
 

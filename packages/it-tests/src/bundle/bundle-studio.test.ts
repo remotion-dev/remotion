@@ -111,60 +111,69 @@ test(
 		expect(result.toString()).toBeGreaterThan(1);
 
 		const sourceLocation = await tab.evaluateHandle(async () => {
-			let openedInspector = false;
-			for (let attempt = 0; attempt < 100; attempt++) {
-				const inspectorSourceLocation = document.querySelector(
-					'[aria-label="Inspector source location"]',
-				);
-				if (inspectorSourceLocation?.textContent?.includes('Root.tsx:')) {
-					return inspectorSourceLocation.textContent;
-				}
-				if (inspectorSourceLocation) {
-					openedInspector = true;
-				}
-
-				if (!openedInspector) {
-					const inspectorToggle = document.querySelector<HTMLElement>(
-						'[data-sidebar-toggle="right"]',
+			let copied = '';
+			const originalWriteText = navigator.clipboard.writeText;
+			navigator.clipboard.writeText = async (text) => {
+				copied = text;
+			};
+			try {
+				let openedInspector = false;
+				for (let attempt = 0; attempt < 100; attempt++) {
+					const inspector = document.querySelector(
+						'[aria-label="Inspector source location"]',
 					);
-					if (inspectorToggle) {
-						openedInspector = true;
-						inspectorToggle.click();
+					const copy = inspector?.querySelector<HTMLElement>(
+						'[aria-label="Copy context for agents"]',
+					);
+					copy?.click();
+					if (copied.includes('Root.tsx:')) {
+						return copied;
 					}
+					if (!openedInspector && !inspector) {
+						const toggle = document.querySelector<HTMLElement>(
+							'[data-sidebar-toggle="right"]',
+						);
+						if (toggle) {
+							openedInspector = true;
+							toggle.click();
+						}
+					}
+					await new Promise((resolve) => setTimeout(resolve, 100));
 				}
-
-				await new Promise((resolve) => setTimeout(resolve, 100));
+				return null;
+			} finally {
+				navigator.clipboard.writeText = originalWriteText;
 			}
-
-			return null;
 		});
-		expect(sourceLocation.toString()).toMatch(/Root\.tsx:\d+/);
+		expect(sourceLocation.toString()).toMatch(/WidthHeight in .*Root\.tsx:\d+/);
 		const sequenceSourceLocation = await tab.evaluateHandle(async () => {
-			const label = document.querySelector<HTMLElement>(
-				'[aria-label="<Sequence>"]',
-			);
-			label?.click();
-
-			for (let attempt = 0; attempt < 100; attempt++) {
-				const inspectorSourceLocation = document.querySelector(
-					'[aria-label="Inspector source location"]',
+			let copied = '';
+			const originalWriteText = navigator.clipboard.writeText;
+			navigator.clipboard.writeText = async (text) => {
+				copied = text;
+			};
+			try {
+				const label = document.querySelector<HTMLElement>(
+					'[aria-label="<Sequence>"]',
 				);
-				if (
-					inspectorSourceLocation?.textContent?.startsWith('<Sequence>') &&
-					inspectorSourceLocation.textContent.includes(
-						'WidthHeightSequences.tsx:',
-					)
-				) {
-					return inspectorSourceLocation.textContent;
+				label?.click();
+				for (let attempt = 0; attempt < 100; attempt++) {
+					const copy = document.querySelector<HTMLElement>(
+						'[aria-label="Inspector source location"] [aria-label="Copy context for agents"]',
+					);
+					copy?.click();
+					if (copied.includes('WidthHeightSequences.tsx:')) {
+						return copied;
+					}
+					await new Promise((resolve) => setTimeout(resolve, 100));
 				}
-
-				await new Promise((resolve) => setTimeout(resolve, 100));
+				return null;
+			} finally {
+				navigator.clipboard.writeText = originalWriteText;
 			}
-
-			return null;
 		});
 		expect(sequenceSourceLocation.toString()).toMatch(
-			/<Sequence>WidthHeightSequences\.tsx:\d+/,
+			/<Sequence> in .*WidthHeightSequences\.tsx:\d+/,
 		);
 
 		const fontLoaded = await tab.evaluateHandle(() => {

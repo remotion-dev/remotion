@@ -179,6 +179,8 @@ export const waitForReady = ({
 
 export const seekToFrame = async ({
 	frame,
+	videoEnabled,
+	audioEnabled,
 	page,
 	composition,
 	timeoutInMilliseconds,
@@ -187,6 +189,8 @@ export const seekToFrame = async ({
 	attempt,
 }: {
 	frame: number;
+	videoEnabled: boolean;
+	audioEnabled: boolean;
 	composition: string;
 	page: Page;
 	timeoutInMilliseconds: number;
@@ -202,14 +206,25 @@ export const seekToFrame = async ({
 		logLevel,
 	});
 	await puppeteerEvaluateWithCatchAndTimeout({
-		pageFunction: (f: number, c: string, a: number) => {
+		// Both updates happen in the same task so React applies them in one render.
+		pageFunction: (
+			f: number,
+			c: string,
+			a: number,
+			video: boolean,
+			audio: boolean,
+		) => {
+			window.remotion_setMediaEnabled(video, audio);
+
 			window.remotion_setFrame(f, c, a);
 		},
-		args: [frame, composition, attempt],
+		args: [frame, composition, attempt, videoEnabled, audioEnabled],
 		frame,
 		page,
 		timeoutInMilliseconds,
 	});
 	await waitForReady({page, timeoutInMilliseconds, frame, indent, logLevel});
-	await page.evaluate('document.fonts.ready.then(() => true)');
+	if (videoEnabled) {
+		await page.evaluate('document.fonts.ready.then(() => true)');
+	}
 };

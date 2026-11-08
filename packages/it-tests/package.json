@@ -11,7 +11,7 @@
 		"testmonorepo": "bun test src/monorepo --run --timeout 40000",
 		"testtemplates": "bun test src/templates --timeout 400000",
 		"testlambda": "exit 0",
-		"lint": "tsc --noEmit",
+		"lint": "node ../.monorepo/tsrs.cjs --noEmit",
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src"
 	},

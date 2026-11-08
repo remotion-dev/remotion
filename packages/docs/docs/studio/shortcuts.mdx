@@ -16,7 +16,7 @@ You can also press <kbd>?</kbd> to open this tab.
 | `toggleMute`                    | `M`                                        | Mute or unmute preview audio                                                           |
 | `toggleLoop`                    | `Shift+L`                                  | Enable or disable looping                                                              |
 | `jumpToBeginning`               | `A`                                        | Jump to the beginning                                                                  |
-| `jumpToEnd`                     | `E`                                        | Jump to the end                                                                        |
+| `jumpToEnd`                     | `E`                                        | Jump to the end unless the same key selects Effects                                    |
 | `reversePlayback`               | `J`                                        | Play in reverse                                                                        |
 | `pausePlayback`                 | `K`                                        | Pause playback                                                                         |
 | `playForward`                   | `L`                                        | Play forward; press repeatedly to increase speed                                       |
@@ -51,6 +51,7 @@ You can also press <kbd>?</kbd> to open this tab.
 | `selectRotateProp`              | `R`                                        | Select the `style.rotate` property                                                     |
 | `selectScaleProp`               | `S`                                        | Select the `style.scale` property                                                      |
 | `selectVolumeProp`              | `V`                                        | Select the `volume` property <AvailableFrom v="4.0.530" inline />                      |
+| `selectEffects`                 | `E`                                        | Select Effects on the selected sequence <AvailableFrom v="4.0.542" inline />           |
 | `duplicateSequences`            | `Cmd/Ctrl+D`                               | Duplicate selected sequences                                                           |
 | `splitSequences`                | `Cmd/Ctrl+Shift+D`                         | Split eligible selected sequences at the playhead <AvailableFrom v="4.0.527" inline /> |
 | `copyEffectsAndValues`          | `Cmd/Ctrl+C`                               | Copy selected effects or property values                                               |
@@ -113,3 +114,20 @@ Config.setKeyboardShortcuts({
 Omitted actions keep their default shortcut. Set an action to `null` to disable it, or pass an array to assign multiple shortcuts.
 
 `commandOrControl` uses Command on macOS and Control on other platforms. The `shift` and `alt` modifiers are also supported.
+
+### Shared shortcuts
+
+Some actions intentionally share a key: `selectRotateProp` and `render` use <kbd>R</kbd>, `selectOpacityProp` and `toggleCheckerboard` use <kbd>T</kbd>, and `selectEffects` and `jumpToEnd` use <kbd>E</kbd>. The selection action takes priority when it applies. Otherwise, the other action runs.
+
+Each action can be remapped or disabled independently. For example, moving `selectEffects` to <kbd>Shift+E</kbd> leaves <kbd>E</kbd> available for `jumpToEnd`:
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setKeyboardShortcuts({
+  selectEffects: {key: 'e', shift: true},
+  jumpToEnd: {key: 'e', shift: false},
+});
+```
+
+The Shortcuts settings allow these paired actions to share a custom key, while rejecting other conflicting assignments.

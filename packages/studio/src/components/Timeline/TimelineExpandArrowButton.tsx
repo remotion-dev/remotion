@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {LIGHT_GRAY, TRANSPARENT, WHITE} from '../../helpers/colors';
 import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
 import {CaretDown} from '../../icons/caret';
+import {DisclosureChevron} from '../../icons/disclosure-chevron';
 
 const arrowButton: React.CSSProperties = {
 	background: 'none',
@@ -38,7 +39,8 @@ export const TimelineExpandArrowButton: React.FC<{
 	readonly onClick: () => void;
 	readonly label: string;
 	readonly disabled: boolean;
-}> = ({isExpanded, onClick, label, disabled = false}) => {
+	readonly iconVariant: 'inspector' | 'timeline';
+}> = ({isExpanded, onClick, label, disabled = false, iconVariant}) => {
 	const handleClick = React.useCallback(
 		(e: React.MouseEvent<HTMLButtonElement>) => {
 			e.stopPropagation();
@@ -56,10 +58,15 @@ export const TimelineExpandArrowButton: React.FC<{
 				idleColor: LIGHT_GRAY,
 				hoverColor: disabled ? LIGHT_GRAY : WHITE,
 			}),
-			transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+			transform:
+				iconVariant === 'inspector'
+					? undefined
+					: isExpanded
+						? 'rotate(0deg)'
+						: 'rotate(-90deg)',
 			opacity: disabled ? 0.5 : 1,
 		};
-	}, [isExpanded, disabled]);
+	}, [isExpanded, disabled, iconVariant]);
 
 	return (
 		<button
@@ -73,7 +80,11 @@ export const TimelineExpandArrowButton: React.FC<{
 			aria-expanded={isExpanded}
 			aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${label}`}
 		>
-			<CaretDown />
+			{iconVariant === 'inspector' ? (
+				<DisclosureChevron expanded={isExpanded} />
+			) : (
+				<CaretDown />
+			)}
 		</button>
 	);
 };
