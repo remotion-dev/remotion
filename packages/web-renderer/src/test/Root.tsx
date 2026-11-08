@@ -93,6 +93,7 @@ import {scalePrecomposeFixture} from './fixtures/scale-precompose';
 import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
+import {svgCssDataFont} from './fixtures/svg-css-data-font';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgExternalFontSelection} from './fixtures/svg-external-font-selection';
@@ -169,6 +170,7 @@ export const Root: React.FC = () => {
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
 			<Composition {...svgExternalFontSelection} />
+			<Composition {...svgCssDataFont} />
 			<Composition {...svgDataUri} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />

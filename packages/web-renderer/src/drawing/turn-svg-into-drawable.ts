@@ -29,6 +29,46 @@ const getReferencedTemplates = (svg: SVGSVGElement) => {
 	return templates;
 };
 
+// SVG images cannot load external font resources. Self-contained data fonts from
+// accessible stylesheets can be carried into the serialized SVG without fetching.
+const getCssDataFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
+	const rules: string[] = [];
+	for (const sheet of svg.ownerDocument.styleSheets) {
+		if (
+			sheet.disabled ||
+			(sheet.media.mediaText && !matchMedia(sheet.media.mediaText).matches)
+		)
+			continue;
+		let cssRules: CSSRuleList;
+		try {
+			cssRules = sheet.cssRules;
+		} catch (error) {
+			if (error instanceof DOMException && error.name === 'SecurityError')
+				continue;
+			throw error;
+		}
+
+		for (const rule of cssRules) {
+			if (!(rule instanceof CSSFontFaceRule)) continue;
+			const family = rule.style.fontFamily
+				.replace(/^(['"])(.*)\1$/, '$2')
+				.toLowerCase();
+			if (!fontFamilies.has(family)) continue;
+			const src = rule.style.getPropertyValue('src');
+			// Keep only one self-contained source, without local/network fallbacks.
+			if (
+				!/^url\((?:"data:[^"]*"|'data:[^']*'|data:[^)]*)\)(?:\s+format\([^)]*\))?$/i.test(
+					src,
+				)
+			)
+				continue;
+			rules.push(rule.cssText);
+		}
+	}
+
+	return rules.join('');
+};
+
 const drawableBySvg = new WeakMap<
 	SVGSVGElement,
 	{
@@ -109,6 +149,29 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				);
 			});
 		});
+	const fontFamilies = new Set(
+		textStyles.flatMap(
+			(style) =>
+				style?.[0].split(',').map((family) =>
+					family
+						.trim()
+						.replace(/^(['"])(.*)\1$/, '$2')
+						.toLowerCase(),
+				) ?? [],
+		),
+	);
+	const cssFontRules = textElements.length
+		? getCssDataFontRules(svg, fontFamilies)
+		: '';
+	if (cssFontRules) {
+		const style = svg.ownerDocument.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'style',
+		);
+		style.textContent = cssFontRules;
+		svgForSerialization.prepend(style);
+	}
+
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)
 		// eslint-disable-next-line no-control-regex
