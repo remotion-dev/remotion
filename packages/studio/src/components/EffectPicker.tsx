@@ -218,7 +218,6 @@ export const EffectPicker: React.FC<{
 	const [query, setQuery] = useState('');
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [previewId, setPreviewId] = useState<string | null>(null);
-	const [previewFailed, setPreviewFailed] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 	const pendingFocus = useRef<string | null>(null);
 	const {isHighestContext} = useZIndex();
@@ -331,7 +330,6 @@ export const EffectPicker: React.FC<{
 	const {isScrolling} = rowVirtualizer;
 
 	useEffect(() => {
-		setPreviewFailed(false);
 		const item = EFFECT_CATALOG.find((entry) => entry.id === previewId);
 		if (!item || !runtimeValues || !isHighestContext || isScrolling) {
 			return;
@@ -361,7 +359,7 @@ export const EffectPicker: React.FC<{
 			})
 			.catch(() => {
 				if (!cancelled) {
-					setPreviewFailed(true);
+					setPreview(null);
 				}
 			});
 
@@ -545,11 +543,6 @@ export const EffectPicker: React.FC<{
 					onBlur={() => setPreviewId(null)}
 					rightAlign={false}
 				/>
-				{previewFailed ? (
-					<div role="status" style={noResults}>
-						Could not load effect preview
-					</div>
-				) : null}
 			</div>
 			<div
 				ref={listRef}

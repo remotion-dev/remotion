@@ -187,6 +187,9 @@ export const effectPreviewLoaders: Record<
 
 // Rspack changes these imports when effects move between lazy and initial chunks.
 // Keep those updates inside this stateless module instead of reloading Studio.
-if (typeof __webpack_module__ !== 'undefined' && __webpack_module__.hot) {
+if (
+	typeof __webpack_module__ !== 'undefined' &&
+	typeof __webpack_module__.hot?.accept === 'function'
+) {
 	__webpack_module__.hot.accept();
 }
