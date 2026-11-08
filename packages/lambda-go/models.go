@@ -186,8 +186,12 @@ type RawInvokeResponse struct {
 }
 
 type RemotionRenderResponse struct {
-	BucketName string `json:"bucketName"`
-	RenderId   string `json:"renderId"`
+	BucketName   string `json:"bucketName"`
+	RenderId     string `json:"renderId"`
+	Type         string `json:"type"`
+	Message      string `json:"message,omitempty"`
+	Stack        string `json:"stack,omitempty"`
+	ErrorMessage string `json:"errorMessage,omitempty"`
 }
 
 type RenderConfig struct {
@@ -318,6 +322,14 @@ type RenderProgress struct {
 	LambdasInvoked           int                  `json:"lambdasInvoked"`
 	FramesRendered           *int                 `json:"framesRendered,omitempty"`
 	MostExpensiveFrameRanges []FrameRange         `json:"mostExpensiveFrameRanges,omitempty"`
+	// The error fields are only populated when the Lambda function failed.
+	// A successful progress response does not include a "type" field.
+	Type    string `json:"type,omitempty"`
+	Message string `json:"message,omitempty"`
+	Stack   string `json:"stack,omitempty"`
+	// ErrorMessage is populated from the AWS error document when the invoke
+	// itself failed (FunctionError is set).
+	ErrorMessage string `json:"errorMessage,omitempty"`
 }
 
 type SeparateAudioOutput struct {
