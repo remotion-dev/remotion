@@ -6,7 +6,11 @@ import {
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
-import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {
+	HOVERABLE_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT, COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -179,6 +183,12 @@ const inlineLabelText: React.CSSProperties = {
 };
 
 const INSPECTOR_ACTION_ICON_SIZE = 18;
+
+export const inspectorHeaderActionStyle: React.CSSProperties = {
+	...NO_HOVER_BACKGROUND_STYLE,
+	padding: '0 7px',
+	width: 'auto',
+};
 
 export const inspectorActionIconStyle: React.CSSProperties = {
 	display: 'block',

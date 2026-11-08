@@ -18,7 +18,9 @@ import {InspectorPanel} from './InspectorPanel';
 import {
 	getSameSequenceInspectorSelection,
 	isSequenceSectionSelection,
+	type SequenceSectionSelection,
 } from './InspectorPanel/inspector-selection';
+import {useTrackForSelection} from './InspectorPanel/use-track-for-selection';
 import {showNotification} from './Notifications/NotificationCenter';
 import {optionsSidebarTabs} from './options-sidebar-tabs';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
@@ -72,6 +74,21 @@ const inspectorBackIcon: React.CSSProperties = {
 	display: 'block',
 	height: 12,
 	width: 8,
+};
+
+const inspectorContainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	minHeight: 0,
+	paddingTop: 5,
+};
+
+const SequenceInspectorTitle: React.FC<{
+	readonly selection: SequenceSectionSelection;
+}> = ({selection}) => {
+	const track = useTrackForSelection(selection);
+	return track?.sequence.controls?.componentName ?? '<Sequence>';
 };
 
 export const persistSelectedOptionsSidebarPanel = (
@@ -209,7 +226,7 @@ export const OptionsPanel: React.FC<{
 		}
 
 		if (isSequenceSectionSelection(selection)) {
-			return 'Sequence';
+			return <SequenceInspectorTitle selection={selection} />;
 		}
 
 		switch (selection.type) {
@@ -438,13 +455,15 @@ export const OptionsPanel: React.FC<{
 				</Tabs>
 			</div>
 			{panel === 'inspector' ? (
-				<InspectorPanel
-					composition={composition}
-					currentDefaultProps={currentDefaultProps}
-					readOnlyStudio={readOnlyStudio}
-					selectedItems={selectedItems}
-					setDefaultProps={setDefaultProps}
-				/>
+				<div style={inspectorContainer}>
+					<InspectorPanel
+						composition={composition}
+						currentDefaultProps={currentDefaultProps}
+						readOnlyStudio={readOnlyStudio}
+						selectedItems={selectedItems}
+						setDefaultProps={setDefaultProps}
+					/>
+				</div>
 			) : (
 				<RenderQueue />
 			)}

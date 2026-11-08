@@ -45,7 +45,7 @@ import {detailLabel, detailRow, detailsContainer, detailValue} from './styles';
 const compositionMetadataContainer: React.CSSProperties = {
 	...detailsContainer,
 	paddingBottom: 4,
-	paddingTop: 4,
+	paddingTop: 0,
 };
 
 const fieldLabels: Record<CompositionMetadataField, string> = {

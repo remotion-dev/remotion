@@ -2,6 +2,7 @@ import type {NewCompositionAsset} from '@remotion/studio-shared';
 import {formatBytes} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, staticFile} from 'remotion';
+import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
@@ -30,8 +31,14 @@ import {TrashIcon} from '../icons/trash';
 import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {AssetAudioVolume} from './AssetAudioVolume';
+import {AssetFileIcon} from './AssetFileIcon';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
+import {
+	InspectorLocationCopy,
+	inspectorHeaderIconStyle,
+} from './InspectorLocationCopy';
+import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {CollapsibleInspectorSection} from './InspectorPanel/CollapsibleInspectorSection';
 import {
 	InspectorDetailRow,
@@ -196,6 +203,7 @@ export const AssetInfo: React.FC<{
 		Internals.CompositionManager,
 	);
 	const [isMakingComposition, setIsMakingComposition] = useState(false);
+	const [isEditingName, setIsEditingName] = useState(false);
 	const volumeMetadata =
 		currentAssetMetadata?.asset === assetName ? currentAssetMetadata : null;
 	const connectionStatus = useContext(StudioServerConnectionCtx)
@@ -227,6 +235,32 @@ export const AssetInfo: React.FC<{
 		(readOnlyStudio || connectionStatus !== 'connected');
 	const fileName = assetName?.split('/').pop() ?? '';
 	const fileType = assetName ? getPreviewFileType(assetName) : null;
+	const assetLocation = useMemo((): OriginalPosition | null => {
+		if (!assetName || !window.remotion_publicFolderExists) {
+			return null;
+		}
+
+		return {
+			source: `${window.remotion_publicFolderExists}/${assetName}`,
+			line: null,
+			column: null,
+		};
+	}, [assetName]);
+	const assetContext = assetName ? `Asset: public/${assetName}` : null;
+	const renderAssetIcon = useCallback(
+		(color: string) => (
+			<AssetFileIcon
+				fileType={fileType ?? 'other'}
+				color={color}
+				style={
+					fileType === 'other' || fileType === 'txt' || fileType === null
+						? {...inspectorHeaderIconStyle, height: 16, width: 12}
+						: inspectorHeaderIconStyle
+				}
+			/>
+		),
+		[fileType],
+	);
 	const defaultComposition = getNewCompositionDefaults(null, null);
 	const compositionFps =
 		fileType === 'video' &&
@@ -461,18 +495,37 @@ export const AssetInfo: React.FC<{
 				padding={
 					contentSized
 						? `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 6px`
-						: '4px 0'
+						: '4px 0 0'
 				}
 			>
-				<InlineEditableTitle
-					value={fileName}
-					canRename={canRename}
-					getInitialSelection={getStaticFileRenameSelection}
-					onClick={onAssetClick}
-					onCommit={onRename}
-					size={contentSized ? 'default' : 'inspector'}
-					aria-label={assetName}
-				/>
+				<InspectorLocationCopy
+					trailingActions={null}
+					contextForAgents={assetContext}
+					isEditing={isEditingName}
+					actions={
+						assetLocation ? (
+							<InspectorOpenInEditor
+								menuTrigger={{label: 'Asset', renderIcon: renderAssetIcon}}
+								annotationName={fileName}
+								contextForAgents={assetContext}
+								location={assetLocation}
+								locationType="file"
+								showTooltips
+							/>
+						) : null
+					}
+				>
+					<InlineEditableTitle
+						value={fileName}
+						canRename={canRename}
+						getInitialSelection={getStaticFileRenameSelection}
+						onClick={onAssetClick}
+						onCommit={onRename}
+						onEditingChange={setIsEditingName}
+						size={contentSized ? 'default' : 'inspector'}
+						aria-label={assetName}
+					/>
+				</InspectorLocationCopy>
 			</InspectorInfoHeader>
 			{fileDetails.length > 0 ? (
 				<CollapsibleInspectorSection

@@ -1,23 +1,22 @@
-import React, {useCallback, useMemo} from 'react';
-import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
+import React, {useCallback} from 'react';
 import {copyText} from '../helpers/copy-text';
-import {formatContextForAgents} from '../helpers/format-file-location';
-import {
-	HOVER_GROUP_CLASS_NAME,
-	HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME,
-} from '../helpers/hoverable';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
 import {ActionTooltip} from './ActionTooltip';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {InspectorOpenInEditor} from './InspectorOpenInEditor';
+import {
+	inspectorActionIconStyle,
+	inspectorHeaderActionStyle,
+} from './InspectorPanel/common';
 import {showNotification} from './Notifications/NotificationCenter';
 
 const row: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
 	flexDirection: 'row',
+	marginBottom: 8,
+	maxWidth: 'round(down, 100%, 1px)',
 	minWidth: 0,
 	width: '100%',
 };
@@ -25,7 +24,6 @@ const row: React.CSSProperties = {
 const content: React.CSSProperties = {
 	display: 'flex',
 	flex: 1,
-	flexDirection: 'column',
 	minWidth: 0,
 	overflow: 'hidden',
 };
@@ -36,33 +34,65 @@ const action: React.CSSProperties = {
 	flexShrink: 0,
 	height: 24,
 	marginLeft: 0,
-	marginRight: 4,
+	marginRight: 3,
 };
 
-const icon: React.CSSProperties = {
+export const inspectorHeaderIconStyle: React.CSSProperties = {
+	...inspectorActionIconStyle,
 	flexShrink: 0,
-	height: 12,
+};
+
+const clipboardIconStyle: React.CSSProperties = {
+	...inspectorHeaderIconStyle,
+	height: 16,
+	overflow: 'visible',
 	width: 12,
 };
 
+const copyIconContainer: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'center',
+	width: 12,
+};
+
+export const InspectorHeaderAction: React.FC<{
+	readonly label: string;
+	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
+	readonly renderIcon: RenderInlineAction;
+}> = ({label, onClick, renderIcon}) => (
+	<ActionTooltip label={label} shortcut={null} delay={800} dismissOnClick>
+		<InlineAction
+			variant={null}
+			onClick={onClick}
+			renderAction={renderIcon}
+			aria-label={label}
+			style={inspectorHeaderActionStyle}
+		/>
+	</ActionTooltip>
+);
+
 export const InspectorLocationCopy: React.FC<{
 	readonly children: React.ReactNode;
-	readonly location: OriginalPosition | null;
-	readonly name: string | null;
-	readonly openInEditorLocation: OriginalPosition | null;
-}> = ({children, location, name, openInEditorLocation}) => {
+	readonly contextForAgents: string | null;
+	readonly actions: React.ReactNode;
+	readonly trailingActions: React.ReactNode;
+	readonly isEditing: boolean;
+}> = ({children, contextForAgents, actions, trailingActions, isEditing}) => {
 	const {copied, markCopied} = useCopyFeedback();
-	const contextForAgents = useMemo(() => {
-		return formatContextForAgents({
-			location,
-			name,
-			root: window.remotion_cwd,
-		});
-	}, [location, name]);
 
 	const renderCopyAction: RenderInlineAction = useCallback(
 		(color) => {
-			return <CopyIcon copied={copied} style={icon} color={color} />;
+			return (
+				<span style={copyIconContainer}>
+					<CopyIcon
+						copied={copied}
+						style={clipboardIconStyle}
+						viewBox={copied ? '0 0 512 512' : '0 32 384 480'}
+						preserveAspectRatio={copied ? 'xMidYMid meet' : 'none'}
+						color={color}
+					/>
+				</span>
+			);
 		},
 		[copied],
 	);
@@ -87,42 +117,21 @@ export const InspectorLocationCopy: React.FC<{
 	);
 
 	return (
-		<div
-			aria-label="Inspector source location"
-			role="group"
-			style={row}
-			className={HOVER_GROUP_CLASS_NAME}
-		>
+		<div aria-label="Inspector source location" role="group" style={row}>
 			<div style={content}>{children}</div>
-			{contextForAgents || openInEditorLocation ? (
-				<div
-					style={action}
-					className={HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME}
-				>
-					<InspectorOpenInEditor
-						annotationName={name}
-						locationType={null}
-						contextForAgents={contextForAgents}
-						location={openInEditorLocation}
-						showTooltips
-					/>
+			{isEditing ? null : (
+				<div style={action}>
+					{actions}
 					{contextForAgents ? (
-						<ActionTooltip
+						<InspectorHeaderAction
 							label="Copy context for agents"
-							shortcut={null}
-							delay={800}
-							dismissOnClick
-						>
-							<InlineAction
-								variant={null}
-								onClick={onCopy}
-								renderAction={renderCopyAction}
-								aria-label="Copy context for agents"
-							/>
-						</ActionTooltip>
+							onClick={onCopy}
+							renderIcon={renderCopyAction}
+						/>
 					) : null}
+					{trailingActions}
 				</div>
-			) : null}
+			)}
 		</div>
 	);
 };

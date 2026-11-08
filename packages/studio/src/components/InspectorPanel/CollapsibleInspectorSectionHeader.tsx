@@ -1,5 +1,5 @@
 import React from 'react';
-import {LIGHT_TEXT, TRANSPARENT, WHITE} from '../../helpers/colors';
+import {LIGHT_TEXT, TRANSPARENT} from '../../helpers/colors';
 import {
 	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
@@ -47,7 +47,7 @@ const collapsibleSectionHeaderButton: React.CSSProperties = {
 		idleBackground: TRANSPARENT,
 		hoverBackground: TRANSPARENT,
 		idleColor: LIGHT_TEXT,
-		hoverColor: WHITE,
+		hoverColor: LIGHT_TEXT,
 	}),
 };
 

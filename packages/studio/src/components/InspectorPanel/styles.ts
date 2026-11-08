@@ -143,7 +143,7 @@ export const detailsWithInlineAction: React.CSSProperties = {
 };
 
 export const inspectorQuickActionsSection: React.CSSProperties = {
-	padding: '4px 0',
+	padding: '0 0 4px',
 };
 
 export const detailsBeforeInlineAction: React.CSSProperties = {

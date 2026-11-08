@@ -7,6 +7,7 @@ import {
 	BLUE_HOVERED,
 	FOCUS_BOX_SHADOW,
 	SPLITTER_COLOR,
+	TEXT_SELECTION_BACKGROUND,
 	TRANSPARENT,
 	WHITE,
 } from './colors';
@@ -190,8 +191,15 @@ const makeDefaultGlobalCSS = () => {
     color: ${BLUE_HOVERED} !important;
   }
 
-  .__remotion_input_dragger_input::selection {
-    background-color: #4E4E4E;
+  .css-reset::selection,
+  .css-reset *::selection,
+  pre[class*="language-"]::selection,
+  code[class*="language-"]::selection,
+  pre[class*="language-"] *::selection,
+  code[class*="language-"] *::selection {
+    background-color: ${TEXT_SELECTION_BACKGROUND};
+    color: ${WHITE};
+    text-shadow: none;
   }
 
   .${DEFAULT_PROPS_PATH_ACTIVE_CLASSNAME} span {
