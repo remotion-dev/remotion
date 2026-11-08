@@ -367,6 +367,7 @@ export const CompositionSelector: React.FC<{
 				const source = dragData.item;
 				const common = {
 					destination: {type: 'root'} as const,
+					destinationFile: null,
 					symbolicatedStack:
 						compositionSelectorDragDataToSymbolicatedStack(dragData),
 					undoRedoNavigation: null,
