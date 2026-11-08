@@ -1,0 +1,174 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-effects-lightning.png
+slug: /effects/lightning
+title: lightning()
+sidebar_label: lightning()
+crumb: '@remotion/effects'
+---
+
+# lightning()<AvailableFrom v="4.0.542" />
+
+_Part of the [`@remotion/effects`](/docs/effects/api) package._
+
+Draws a branching lightning bolt with a colored glow on a canvas-based component. Animate `conductivityState` to make the bolt flicker, or set `compositeOnOriginal` to `false` to render the lightning on transparency.
+
+## Preview
+
+<EffectsDemo type="effects-lightning" />
+
+## Example
+
+This bolt strikes downward from the top center and changes shape every third frame.
+
+```tsx twoslash title="MyComp.tsx"
+import {lightning} from '@remotion/effects/lightning';
+import {CanvasImage, useCurrentFrame} from 'remotion';
+
+export const MyComp: React.FC = () => {
+  const frame = useCurrentFrame();
+
+  return (
+    <CanvasImage
+      src="https://remotion.media/landscape.jpg"
+      width={1280}
+      height={720}
+      fit="cover"
+      effects={[
+        lightning({
+          conductivityState: 10 + Math.floor(frame / 3),
+        }),
+      ]}
+    />
+  );
+};
+```
+
+## API
+
+All properties are optional. Call `lightning()` to use the defaults.
+
+### `lightningType?`
+
+Selects the path of the main bolt. Defaults to `'strike'`.
+
+- `'strike'` connects the origin to the direction point.
+- `'direction'` travels three times the distance from the origin toward the direction point.
+- `'breaking'` makes forks more likely as the points move farther apart.
+- `'bouncy'` produces a strike with larger zigzags.
+- `'omni'` sends four bolts out from the origin. Their radius is the distance between the points, with a minimum of one quarter of the shorter canvas dimension.
+- `'anywhere'` sends four bolts out to random distances between 30% and 100% of the omni radius.
+- `'vertical'` connects the origin to the bottom of the canvas at the same x-coordinate.
+- `'two-way-strike'` sends bolts from both points to meet at their midpoint.
+
+### `origin?`
+
+Starting point as a UV coordinate `[u, v]`. `[0, 0]` is the top-left corner of the canvas and `[1, 1]` is the bottom-right. Each value must be between `0` and `1`. Defaults to `[0.5, 0]`.
+
+### `direction?`
+
+Second UV coordinate in the same space as `origin`. Its role depends on `lightningType`. Defaults to `[0.5, 1]`, the bottom center of the canvas.
+
+### `conductivityState?`
+
+Selects a repeatable bolt shape, from `0` to `100000`. The shape changes when the integer part changes. Defaults to `10`.
+
+### `coreRadius?`
+
+Radius of the bright center in pixels, from `0` to `100`. The core has a minimum visible radius of `0.3` pixels. Defaults to `3`.
+
+### `coreOpacity?`
+
+Opacity of the bright center, from `0` to `1`. Defaults to `0.75`. Set to `0` to show the glow alone.
+
+### `coreColor?`
+
+CSS color of the core. Its alpha multiplies `coreOpacity`. Defaults to `'#ffffff'`.
+
+### `glowRadius?`
+
+Radius of the glow in pixels, from `0` to `1000`. Values up to `0.5` turn off the glow. Defaults to `50`.
+
+### `glowOpacity?`
+
+Opacity of the glow, from `0` to `1`. Defaults to `0.5`.
+
+### `glowColor?`
+
+CSS color of the glow. Its alpha multiplies `glowOpacity`. Defaults to `'#4059ff'`.
+
+### `turbulence?`
+
+Amount of sideways displacement, from `0` to `10`. At `0`, the main bolt follows a straight line. Defaults to `1`.
+
+### `forking?`
+
+Probability that a subdivision grows a fork, from `0` to `1`. Set to `0` for an unbranched bolt. Defaults to `0.25`.
+
+### `decay?`
+
+Fraction of intensity lost with each generation of forks, from `0` to `1`. Defaults to `0.3`.
+
+### `decayMainCore?`
+
+Also applies `decay` over distance from the origin. Defaults to `false`.
+
+### `alphaObstacle?`
+
+How strongly the bolt responds to source alpha, from `-10` to `10`. Positive values steer it away from opaque pixels and can stop forks that hit them. Negative values attract the bolt to opaque pixels. Defaults to `0`, which ignores source alpha.
+
+### `compositeOnOriginal?`
+
+Adds the bolt's light to the source when `true`. Set to `false` to render only the bolt and its glow on transparency. Defaults to `true`.
+
+### `complexity?`
+
+Number of times the path can subdivide. Accepts integers from `1` to `12`. Higher values add finer detail. Defaults to `6`.
+
+### `minForkDistance?`
+
+Minimum segment length that can produce a fork, in pixels from `0` to `1000`. Defaults to `0`.
+
+### `terminationThreshold?`
+
+Minimum branch intensity required to grow another fork, from `0` to `1`. Defaults to `0.05`.
+
+### `mainCoreCollisionOnly?`
+
+When `true`, only the main core steers in response to `alphaObstacle`. Forks can still stop when they hit an opaque area. Defaults to `false`.
+
+### `fractalType?`
+
+Selects the shape of the zigzags. `'linear'` gives the largest displacements, `'semi-linear'` reduces them, and `'spline'` reduces them further and adds one subdivision. Defaults to `'linear'`.
+
+### `coreDrain?`
+
+Fades the main core with distance from the origin, from `0` to `1`. Defaults to `0`.
+
+### `forkStrength?`
+
+Brightness of new forks, from `0` to `1`. The default of `0.5` gives each fork its parent's intensity multiplied by `1 - decay`.
+
+### `forkVariation?`
+
+Randomly reduces each fork's brightness by up to this fraction, from `0` to `1`. Defaults to `0`.
+
+### `seed?`
+
+Unsigned 32-bit integer that selects a different family of bolt shapes for the same conductivity states. Defaults to `0`.
+
+### `disabled?`
+
+When `true`, the effect is skipped. Defaults to `false`.
+
+## Implementations
+
+- WebGL2
+- WebGPU
+
+See [Preferred effect backend](/docs/options/preferred-effect-backend).
+
+## See also
+
+- [`@remotion/effects`](/docs/effects/api)
+- [`rainFall()`](/docs/effects/rain-fall)
+- [Source code for this effect](https://github.com/remotion-dev/remotion/blob/main/packages/effects/src/lightning/index.ts)

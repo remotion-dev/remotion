@@ -88,6 +88,7 @@ export const startHandler = async ({
 		type: ServerlessRoutines.launch,
 		framesPerFunction: params.framesPerLambda,
 		concurrency: params.concurrency,
+		chunks: params.chunks ?? null,
 		composition: params.composition,
 		serveUrl: realServeUrl,
 		inputProps: params.inputProps,

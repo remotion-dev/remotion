@@ -1,4 +1,4 @@
-export type MaskImageLoaderState = {
+export type RasterImageLoaderState = {
 	cache: Map<string, Promise<ImageBitmap>>;
 	images: Set<ImageBitmap>;
 	signal: AbortSignal | null;
@@ -6,13 +6,13 @@ export type MaskImageLoaderState = {
 	[Symbol.dispose]: () => void;
 };
 
-export const makeMaskImageLoaderState = ({
+export const makeRasterImageLoaderState = ({
 	signal,
 	timeoutInMilliseconds,
 }: {
 	signal: AbortSignal | null;
 	timeoutInMilliseconds: number;
-}): MaskImageLoaderState => {
+}): RasterImageLoaderState => {
 	const images = new Set<ImageBitmap>();
 
 	return {
@@ -30,7 +30,10 @@ export const makeMaskImageLoaderState = ({
 	};
 };
 
-const validateMaskImageUrl = (src: string) => {
+const validateRasterImageUrl = (
+	src: string,
+	sourceProperty: 'mask-image' | 'background-image',
+) => {
 	const url = new URL(src, document.baseURI);
 	if (url.protocol === 'data:' || url.protocol === 'blob:') {
 		return url.href;
@@ -44,20 +47,24 @@ const validateMaskImageUrl = (src: string) => {
 	}
 
 	throw new Error(
-		`@remotion/web-renderer only supports same-origin, data:, and blob: mask-image URLs. Received: ${url.href}`,
+		`@remotion/web-renderer only supports same-origin, data:, and blob: ${sourceProperty} URLs. Received: ${url.href}`,
 	);
 };
 
-const loadMaskImage = async ({
+const loadRasterImage = async ({
 	src,
 	state,
+	sourceProperty,
 }: {
 	src: string;
-	state: MaskImageLoaderState;
+	sourceProperty: 'mask-image' | 'background-image';
+	state: RasterImageLoaderState;
 }) => {
-	const resolvedSrc = validateMaskImageUrl(src);
+	const resolvedSrc = validateRasterImageUrl(src, sourceProperty);
 	if (state.signal?.aborted) {
-		throw new Error(`Loading mask-image URL was cancelled: ${resolvedSrc}`);
+		throw new Error(
+			`Loading ${sourceProperty} URL was cancelled: ${resolvedSrc}`,
+		);
 	}
 
 	const controller = new AbortController();
@@ -99,7 +106,7 @@ const loadMaskImage = async ({
 	const aborted = new Promise<never>((_, reject) => {
 		controller.signal.addEventListener(
 			'abort',
-			() => reject(new Error('Mask image loading was aborted')),
+			() => reject(new Error(`${sourceProperty} loading was aborted`)),
 			{once: true},
 		);
 	});
@@ -111,35 +118,41 @@ const loadMaskImage = async ({
 	} catch (error) {
 		if (timedOut) {
 			throw new Error(
-				`Timed out loading mask-image URL after ${state.timeoutInMilliseconds}ms: ${resolvedSrc}`,
+				`Timed out loading ${sourceProperty} URL after ${state.timeoutInMilliseconds}ms: ${resolvedSrc}`,
 			);
 		}
 
 		if (state.signal?.aborted) {
-			throw new Error(`Loading mask-image URL was cancelled: ${resolvedSrc}`);
+			throw new Error(
+				`Loading ${sourceProperty} URL was cancelled: ${resolvedSrc}`,
+			);
 		}
 
 		const detail = error instanceof Error ? error.message : String(error);
-		throw new Error(`Could not load mask-image URL ${resolvedSrc}: ${detail}`);
+		throw new Error(
+			`Could not load ${sourceProperty} URL ${resolvedSrc}: ${detail}`,
+		);
 	} finally {
 		window.clearTimeout(timeout);
 		state.signal?.removeEventListener('abort', onAbort);
 	}
 };
 
-export const getMaskImage = ({
+export const getRasterImage = ({
 	src,
 	state,
+	sourceProperty,
 }: {
 	src: string;
-	state: MaskImageLoaderState;
+	sourceProperty: 'mask-image' | 'background-image';
+	state: RasterImageLoaderState;
 }) => {
 	const cached = state.cache.get(src);
 	if (cached) {
 		return cached;
 	}
 
-	const promise = loadMaskImage({src, state});
+	const promise = loadRasterImage({src, state, sourceProperty});
 	state.cache.set(src, promise);
 	promise.catch(() => state.cache.delete(src));
 	return promise;

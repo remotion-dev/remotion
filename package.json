@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "turbo run lint test --no-update-notifier",
 		"typecheck": "bun check",
-		"ts-build": "tsc -b --verbose --watch",
+		"ts-build": "node packages/.monorepo/tsrs.cjs -b --verbose --watch",
 		"stylecheck": "turbo run lint formatting --no-update-notifier && bun run checkskills",
 		"formatting": "turbo run formatting --no-update-notifier",
 		"format": "bun pre-commit.ts",
@@ -78,6 +78,7 @@
 	"dependencies": {
 		"p-limit": "7.2.0",
 		"turbo": "2.11.6",
+		"tsrs": "catalog:",
 		"typescript": "catalog:"
 	},
 	"packageManager": "bun@1.4.3",
@@ -153,6 +154,7 @@
 			"@vitest/browser-playwright": "5.0.3",
 			"playwright": "1.60.0",
 			"vitest": "5.0.3",
+			"tsrs": "0.23.0-ts7.1.0-beta",
 			"typescript": "7.1.0-beta"
 		}
 	},

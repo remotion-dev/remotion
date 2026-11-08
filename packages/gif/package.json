@@ -18,7 +18,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"make": "tsc -d && node build.mjs && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../.monorepo/tsrs.cjs -d && node build.mjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"exports": {
 		"./package.json": "./package.json",

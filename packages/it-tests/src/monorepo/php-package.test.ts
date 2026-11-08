@@ -113,6 +113,7 @@ class Semantic
 				colorSpace: null,
 				concurrencyPerLambda: 1,
 				concurrency: null,
+				chunks: null,
 				crf: undefined,
 				deleteAfter: null,
 				downloadBehavior: {type: 'play-in-browser'},

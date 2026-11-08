@@ -106,7 +106,7 @@ When `style.borderRadius` is a number or contains one to four pixel values, the 
 
 Mounting props: `premountFor` and `postmountFor`.
 
-[`Interactive.create()`](/docs/interactive-create) includes this fragment and uses the props for its [`<Sequence>`](/docs/sequence).
+Spread this fragment into a custom component's schema to expose premounting controls in Studio. [`Interactive.create()`](/docs/interactive-create) accepts these props and uses them for its [`<Sequence>`](/docs/sequence), but does not include this fragment by default.
 
 These schemas are for component props. Effects created with [`createEffect()`](/docs/create-effect) should define only their own effect parameters.
 

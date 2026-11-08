@@ -8,6 +8,10 @@ import type {
 } from 'remotion';
 import {Internals} from 'remotion';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {
+	getProjectedEffectPropStatuses,
+	projectEffectPropStatuses,
+} from '../../helpers/optimistic-effect-projection';
 import {findTrackForNodePathInfo} from './find-track-for-node-path-info';
 import {getSequencePropResetChanges} from './get-sequence-prop-reset-changes';
 import {saveMultipleEffectProps} from './save-effect-prop';
@@ -206,18 +210,21 @@ export const getTimelinePropResetTargets = ({
 			continue;
 		}
 
-		const effect = sequence.effects[selection.i];
+		const effect = Internals.OptimisticEffects.getItems(
+			nodePath,
+			sequence.effects,
+		)[selection.i]?.definition;
 		const field = effect
 			? getEffectFieldsToShow({
 					effect,
 					effectIndex: selection.i,
 					nodePath,
-					propStatuses,
+					propStatuses: projectEffectPropStatuses(propStatuses, nodePath),
 					getEffectDragOverrides: () => ({}),
 				}).find((candidate) => candidate.key === selection.key)
 			: null;
 		const fieldSchema = field?.fieldSchema;
-		const effectStatus = Internals.getEffectPropStatusesCtx({
+		const effectStatus = getProjectedEffectPropStatuses({
 			propStatuses,
 			nodePath,
 			effectIndex: selection.i,
