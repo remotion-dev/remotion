@@ -7,7 +7,10 @@ import {
 	getTreeRowHeight,
 	type TimelineTreeNode,
 } from '../../helpers/timeline-layout';
-import {timelineNodePathInfoToKey} from '../../helpers/timeline-node-path-key';
+import {
+	timelineNodePathInfoToKey,
+	timelineNodePathInfoToStableKey,
+} from '../../helpers/timeline-node-path-key';
 import {ExpandedTracksGetterContext} from '../ExpandedTracksProvider';
 import {
 	getNodeCanEditEasing,
@@ -91,6 +94,9 @@ export const useExpandedTrackKeyframeRows = ({
 	readonly rows: ExpandedTrackKeyframeRow[];
 	readonly expandedHeight: number;
 } => {
+	const optimisticEffects = Internals.useOptimisticEffects(
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
@@ -100,6 +106,7 @@ export const useExpandedTrackKeyframeRows = ({
 	const selectTree = useCallback(
 		(runtimeValues: Readonly<Record<string, unknown>>) =>
 			buildTimelineTree({
+				optimisticEffects,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -107,9 +114,11 @@ export const useExpandedTrackKeyframeRows = ({
 				propStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				includeInspectorOnlyFields: false,
 				runtimeValues,
 			}),
 		[
+			optimisticEffects,
 			sequence,
 			propStatuses,
 			getDragOverrides,
@@ -209,7 +218,7 @@ export const useExpandedTrackKeyframeRows = ({
 						nodePath: nodePathInfo.sequenceSubscriptionKey,
 						propStatuses,
 					}),
-					rowKey,
+					rowKey: timelineNodePathInfoToStableKey(node.nodePathInfo),
 					nodePathInfo: node.nodePathInfo,
 				};
 			}),

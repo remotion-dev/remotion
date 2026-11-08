@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/jonnys-videos"
 	},
 	"name": "@remotion/jonnys-videos",
-	"version": "4.0.538",
+	"version": "4.0.541",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "remotion studio",
 		"bundle": "remotion bundle",
 		"render": "remotion render",
-		"lint": "eslint src && bun check",
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit",
 		"test": "bun test src",
 		"formatting": "oxfmt src remotion.config.ts --check",
 		"format": "oxfmt src remotion.config.ts"

@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda-cli-render.png
+image: https://remotion.media/docs/generated/articles-docs-lambda-cli-render.png
 id: render
 sidebar_label: render
 title: 'npx remotion lambda render'
@@ -151,6 +151,24 @@ Minimum value: 1 if rendering on main function, otherwise value must result in `
 
 :::note
 Cannot be used together with `--frames-per-lambda`. Use only one of them.
+:::
+
+### `--chunks`<AvailableFrom v="4.0.542" />
+
+<Options id="chunks" cli />
+
+```bash
+npx remotion lambda render <serve-url> <composition-id> --chunks="[[0,59],[60,89],[90,374]]"
+```
+
+The chunks must be sorted and contiguous, start at the first frame and end at the last frame of [`--frames`](#--frames) (or of the composition if `--frames` is not passed). Each chunk must contain at least <MinimumFramesPerLambda /> frames, unless the whole range is shorter than that. See [`chunks`](/docs/lambda/rendermediaonlambda#chunks) for details.
+
+Also supported with [`--sequence`](#--sequence).
+
+Maximum number of chunks: 200
+
+:::note
+Cannot be used together with `--frames-per-lambda`, `--concurrency` or [`--every-nth-frame`](#--every-nth-frame).
 :::
 
 ### `--concurrency-per-lambda`<AvailableFrom v="3.0.30" />
@@ -324,7 +342,9 @@ Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> we
 
 ### `--function-name`<AvailableFrom v="3.3.38" />
 
-Specify the name of the function which should be used to invoke and orchestrate the render. You only need to pass it if there are multiple functions with different configurations.
+Specify the name of the function which should be used to invoke and orchestrate the render. Use this if there are multiple functions to choose from or you use a [custom function name](/docs/lambda/custom-function-names).
+
+From <AvailableFrom v="4.0.540" inline />, passing this flag skips automatic function discovery.
 
 ### `--renderer-function-name`<AvailableFrom v="3.3.38" />
 
@@ -359,6 +379,10 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--media-cache-size-in-bytes`<AvailableFrom v="4.0.352"/>
 
 <Options id="media-cache-size-in-bytes" />
+
+### `--preferred-effect-backend`<AvailableFrom v="4.0.540" />
+
+<Options id="preferred-effect-backend" />
 
 ### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 

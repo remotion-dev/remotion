@@ -6,7 +6,14 @@ import {
 	assertOptionalBoolean,
 	assertRequiredFiniteNumber,
 } from '../validate-effect-param.js';
+import {
+	applyWebGpuSinglePass,
+	cleanupWebGpuSinglePass,
+	setupWebGpuSinglePass,
+	type WebGpuSinglePassState,
+} from '../webgpu-single-pass-runtime.js';
 import {TURBULENT_DISPLACE_FRAGMENT_SHADER} from './shader.js';
+import {TURBULENT_DISPLACE_WEBGPU_SHADER} from './webgpu-shader.js';
 
 const {createEffect, createWebGL2ContextError} = Internals;
 
@@ -398,71 +405,115 @@ const setupTurbulentDisplace = (
 	};
 };
 
-export const turbulentDisplace = createEffect<
-	TurbulentDisplaceParams,
-	TurbulentDisplaceState
->({
+export const turbulentDisplace = createEffect<TurbulentDisplaceParams>({
 	type: 'remotion/turbulent-displace',
 	label: 'turbulentDisplace()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/turbulent-displace',
-	backend: 'webgl2',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `turbulent-displace-${JSON.stringify(r)}`;
 	},
-	setup: (target) => setupTurbulentDisplace(target),
-	apply: ({source, width, height, params, state, flipSourceY}) => {
-		const r = resolve(params);
-		const {gl, program, texture, vao} = state;
+	implementations: {
+		webgpu: Internals.createEffectImplementation<
+			TurbulentDisplaceParams,
+			WebGpuSinglePassState
+		>({
+			setup: (target) => setupWebGpuSinglePass(target, 'index'),
+			apply: ({source, width, height, params, state, gpuDevice}) => {
+				if (!gpuDevice)
+					throw new Error('A WebGPU device is required for the index effect');
+				const r = resolve(params);
+				const uniformData = new Float32Array([
+					width,
+					height,
+					r.offset[0],
+					r.offset[1],
+					r.amount,
+					r.size,
+					r.complexity,
+					r.evolution / 360,
+					r.cycle,
+					0,
+					DISPLACEMENT_MODES.indexOf(r.displacement),
+					PINNING_MODES.indexOf(r.pinning),
+					r.cycleEvolution ? 1 : 0,
+					0,
+					0,
+					0,
+				]);
+				new Uint32Array(uniformData.buffer)[9] = r.seed;
+				applyWebGpuSinglePass({
+					state,
+					source,
+					width,
+					height,
+					device: gpuDevice as GPUDevice,
+					shader: TURBULENT_DISPLACE_WEBGPU_SHADER,
+					uniformData,
+				});
+			},
+			cleanup: cleanupWebGpuSinglePass,
+		}),
+		webgl2: Internals.createEffectImplementation<
+			TurbulentDisplaceParams,
+			TurbulentDisplaceState
+		>({
+			setup: (target) => setupTurbulentDisplace(target),
+			apply: ({source, width, height, params, state, flipSourceY}) => {
+				const r = resolve(params);
+				const {gl, program, texture, vao} = state;
 
-		gl.viewport(0, 0, width, height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+				gl.viewport(0, 0, width, height);
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				gl.clearColor(0, 0, 0, 0);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
-		gl.texImage2D(
-			gl.TEXTURE_2D,
-			0,
-			gl.RGBA,
-			gl.RGBA,
-			gl.UNSIGNED_BYTE,
-			source as TexImageSource,
-		);
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipSourceY);
+				gl.texImage2D(
+					gl.TEXTURE_2D,
+					0,
+					gl.RGBA,
+					gl.RGBA,
+					gl.UNSIGNED_BYTE,
+					source as TexImageSource,
+				);
 
-		gl.useProgram(program);
-		if (state.uSource) gl.uniform1i(state.uSource, 0);
-		if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
-		if (state.uDisplacement)
-			gl.uniform1i(
-				state.uDisplacement,
-				DISPLACEMENT_MODES.indexOf(r.displacement),
-			);
-		if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
-		if (state.uSize) gl.uniform1f(state.uSize, r.size);
-		if (state.uOffset) gl.uniform2f(state.uOffset, r.offset[0], r.offset[1]);
-		if (state.uComplexity) gl.uniform1f(state.uComplexity, r.complexity);
-		if (state.uEvolution) gl.uniform1f(state.uEvolution, r.evolution / 360);
-		if (state.uCycleEvolution)
-			gl.uniform1i(state.uCycleEvolution, r.cycleEvolution ? 1 : 0);
-		if (state.uCycle) gl.uniform1f(state.uCycle, r.cycle);
-		if (state.uSeed) gl.uniform1ui(state.uSeed, r.seed);
-		if (state.uPinning)
-			gl.uniform1i(state.uPinning, PINNING_MODES.indexOf(r.pinning));
+				gl.useProgram(program);
+				if (state.uSource) gl.uniform1i(state.uSource, 0);
+				if (state.uResolution) gl.uniform2f(state.uResolution, width, height);
+				if (state.uDisplacement)
+					gl.uniform1i(
+						state.uDisplacement,
+						DISPLACEMENT_MODES.indexOf(r.displacement),
+					);
+				if (state.uAmount) gl.uniform1f(state.uAmount, r.amount);
+				if (state.uSize) gl.uniform1f(state.uSize, r.size);
+				if (state.uOffset)
+					gl.uniform2f(state.uOffset, r.offset[0], r.offset[1]);
+				if (state.uComplexity) gl.uniform1f(state.uComplexity, r.complexity);
+				if (state.uEvolution) gl.uniform1f(state.uEvolution, r.evolution / 360);
+				if (state.uCycleEvolution)
+					gl.uniform1i(state.uCycleEvolution, r.cycleEvolution ? 1 : 0);
+				if (state.uCycle) gl.uniform1f(state.uCycle, r.cycle);
+				if (state.uSeed) gl.uniform1ui(state.uSeed, r.seed);
+				if (state.uPinning)
+					gl.uniform1i(state.uPinning, PINNING_MODES.indexOf(r.pinning));
 
-		gl.bindVertexArray(vao);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		gl.bindVertexArray(null);
-		gl.bindTexture(gl.TEXTURE_2D, null);
-		gl.useProgram(null);
-	},
-	cleanup: ({gl, program, vao, vbo, texture}) => {
-		gl.deleteTexture(texture);
-		gl.deleteBuffer(vbo);
-		gl.deleteProgram(program);
-		gl.deleteVertexArray(vao);
+				gl.bindVertexArray(vao);
+				gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+				gl.bindVertexArray(null);
+				gl.bindTexture(gl.TEXTURE_2D, null);
+				gl.useProgram(null);
+			},
+			cleanup: ({gl, program, vao, vbo, texture}) => {
+				gl.deleteTexture(texture);
+				gl.deleteBuffer(vbo);
+				gl.deleteProgram(program);
+				gl.deleteVertexArray(vao);
+			},
+		}),
 	},
 	schema: turbulentDisplaceSchema,
 	validateParams: validateTurbulentDisplaceParams,

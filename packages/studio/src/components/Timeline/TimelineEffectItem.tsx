@@ -1,5 +1,11 @@
+import type {DefaultCodingAgent} from '@remotion/renderer';
+import type {EditorPickerId} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
-import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
+import type {
+	SequencePropsSubscriptionKey,
+	InteractivitySchema,
+	EffectDefinition,
+} from 'remotion';
 import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
@@ -11,16 +17,25 @@ import {
 } from '../../helpers/format-file-location';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
 import {
+	openInCodingAgent as openCodingAgent,
+	openOriginalPositionInEditor,
+} from '../../helpers/open-in-editor';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
+import {
 	EXPANDED_SECTION_PADDING_RIGHT,
 	TREE_GROUP_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {ContextMenu} from '../ContextMenu';
-import {deleteEffects, reorderEffect} from '../effect-operations-api';
+import {reorderEffect} from '../effect-operations-api';
 import type {GetIsExpanded} from '../ExpandedTracksProvider';
 import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
+import {getSourceContextMenuItems} from '../get-source-context-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
 import {useSettings} from '../SettingsContext';
+import {useOpenInMenuApps} from '../use-open-in-menu-apps';
+import {useDeleteEffects} from './delete-effects-from-source';
+import {duplicateEffectsFromSource} from './duplicate-selected-timeline-item';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import {saveEffectProp} from './save-effect-prop';
 import {
@@ -126,6 +141,7 @@ export const TimelineEffectItem: React.FC<{
 	readonly label: string;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly effectIndex: number;
+	readonly effects: readonly EffectDefinition<unknown>[];
 	readonly effectSchema: InteractivitySchema;
 	readonly documentationLink: string | null;
 	readonly nodePath: SequencePropsSubscriptionKey;
@@ -140,6 +156,7 @@ export const TimelineEffectItem: React.FC<{
 	nodePathInfo,
 	effectIndex,
 	effectSchema,
+	effects,
 	documentationLink,
 	nodePath,
 	validatedLocation,
@@ -150,6 +167,7 @@ export const TimelineEffectItem: React.FC<{
 	toggleTrack,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const {openInApps} = useOpenInMenuApps();
 	const annotationTarget = useRef<HTMLDivElement>(null);
 	const {remotionSkillsInfo} = useSettings();
 	const markupSkill = remotionSkillsInfo?.skills.find(
@@ -159,6 +177,8 @@ export const TimelineEffectItem: React.FC<{
 		markupSkill?.installedInProject || markupSkill?.installedGlobally,
 	);
 	const previewConnected = previewServerState.type === 'connected';
+	Internals.useOptimisticEffects(nodePath);
+	const deleteEffectsFromSource = useDeleteEffects();
 	const canMutateEffects = canUseEffectOperations();
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
@@ -168,15 +188,11 @@ export const TimelineEffectItem: React.FC<{
 		null,
 	);
 
-	const effectStatus = useMemo(
-		() =>
-			Internals.getEffectPropStatusesCtx({
-				propStatuses,
-				nodePath,
-				effectIndex,
-			}),
-		[propStatuses, nodePath, effectIndex],
-	);
+	const effectStatus = getProjectedEffectPropStatuses({
+		propStatuses,
+		nodePath,
+		effectIndex,
+	});
 
 	const disabledStatus =
 		effectStatus.type === 'can-update-effect'
@@ -191,8 +207,11 @@ export const TimelineEffectItem: React.FC<{
 		return false;
 	}, [disabledStatus]);
 
-	const canToggle =
-		previewConnected && canMutateEffects && disabledStatus?.status === 'static';
+	const canShowToggle =
+		previewConnected &&
+		canUseEffectOperations() &&
+		disabledStatus?.status === 'static';
+	const canToggle = canShowToggle;
 
 	const deleteDisabled =
 		!previewConnected ||
@@ -216,22 +235,59 @@ export const TimelineEffectItem: React.FC<{
 			return;
 		}
 
-		try {
-			const result = await deleteEffects([
-				{
-					type: 'single-effect',
-					fileName: validatedLocation.source,
-					sequenceNodePath: nodePath,
-					effectIndex,
-				},
-			]);
-			if (!result.success) {
-				showNotification(result.reason, 4000);
-			}
-		} catch (err) {
-			showNotification((err as Error).message, 4000);
+		await deleteEffectsFromSource([
+			{nodePath, effectIndices: [effectIndex], effects},
+		]);
+	}, [deleteDisabled, deleteEffectsFromSource, effectIndex, effects, nodePath]);
+
+	const onDuplicateEffectFromSource = useCallback(() => {
+		if (deleteDisabled) {
+			return;
 		}
-	}, [deleteDisabled, effectIndex, nodePath, validatedLocation.source]);
+
+		return duplicateEffectsFromSource([
+			{type: 'sequence-effect', nodePathInfo, i: effectIndex},
+		]);
+	}, [deleteDisabled, effectIndex, nodePathInfo]);
+
+	const openInEditor = useCallback(
+		(editorId: EditorPickerId | null) => {
+			const resolvedEditorId = editorId ?? openInApps.defaultEditorId;
+			if (
+				!openInApps.canOpenInEditor ||
+				!resolvedEditorId ||
+				!validatedLocation.source
+			) {
+				return;
+			}
+
+			openOriginalPositionInEditor(validatedLocation, resolvedEditorId).catch(
+				(error) => {
+					showNotification((error as Error).message, 2000);
+				},
+			);
+		},
+		[openInApps.canOpenInEditor, openInApps.defaultEditorId, validatedLocation],
+	);
+
+	const openInCodingAgent = useCallback(
+		(
+			codingAgentId: DefaultCodingAgent,
+			codingAgentName: string,
+			contextForAgents: string | null,
+		) => {
+			openCodingAgent(codingAgentId, contextForAgents)
+				.then((response) => {
+					if (!response.success) {
+						showNotification(`Could not open ${codingAgentName}`, 2000);
+					}
+				})
+				.catch((error) => {
+					showNotification((error as Error).message, 2000);
+				});
+		},
+		[],
+	);
 
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (selection.selectable) {
@@ -239,6 +295,20 @@ export const TimelineEffectItem: React.FC<{
 		}
 
 		const items: ComboboxValue[] = [
+			...getSourceContextMenuItems({
+				canOpenInEditor: openInApps.canOpenInEditor,
+				codingAgentInfo: openInApps.codingAgentInfo,
+				contextForAgents: formatContextForAgents({
+					location: validatedLocation,
+					name: `Effect "${label}"`,
+					root: window.remotion_cwd,
+				}),
+				editorInfo: openInApps.editorInfo,
+				onConfigureApps: openInApps.onConfigureApps,
+				openInCodingAgent,
+				openInEditor,
+				originalLocation: validatedLocation,
+			}),
 			...(previewConnected && documentationLink
 				? [
 						{
@@ -293,6 +363,21 @@ export const TimelineEffectItem: React.FC<{
 
 		items.push({
 			type: 'item',
+			id: 'duplicate-effect',
+			keyHint: null,
+			label: 'Duplicate',
+			leftItem: null,
+			disabled: deleteDisabled,
+			onClick: onDuplicateEffectFromSource,
+			quickSwitcherLabel: null,
+			subMenu: null,
+			value: 'duplicate-effect',
+		});
+
+		items.push({type: 'divider', id: 'effect-delete-divider'});
+
+		items.push({
+			type: 'item',
 			id: 'delete-effect',
 			keyHint: null,
 			label: 'Delete',
@@ -319,6 +404,10 @@ export const TimelineEffectItem: React.FC<{
 		markupSkillAvailable,
 		nodePath,
 		onDeleteEffectFromSource,
+		onDuplicateEffectFromSource,
+		openInApps,
+		openInCodingAgent,
+		openInEditor,
 		previewConnected,
 		selection,
 		validatedLocation,
@@ -524,11 +613,11 @@ export const TimelineEffectItem: React.FC<{
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={
-				canToggle ? (
+				canShowToggle ? (
 					<TimelineLayerEye
 						type="effect"
 						hidden={isDisabled}
-						onInvoked={onToggle}
+						onInvoked={canToggle ? onToggle : null}
 					/>
 				) : (
 					<TimelineLayerEyeSpacer />
@@ -549,6 +638,7 @@ export const TimelineEffectItem: React.FC<{
 					{label}
 				</span>
 				<TimelineExpandArrowButton
+					iconVariant={labelNextToToggle ? 'inspector' : 'timeline'}
 					isExpanded={isExpanded}
 					onClick={() => toggleTrack(nodePathInfo)}
 					label={`${label} section`}

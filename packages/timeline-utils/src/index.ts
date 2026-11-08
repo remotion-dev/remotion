@@ -61,6 +61,8 @@ export {
 	getSlotsToExtract,
 } from './render-frame-strip';
 export {renderFrameStripToCanvas} from './render-frame-strip-to-canvas';
+export {renderAnimatedImageFrameStrip} from './render-animated-image-frame-strip';
+export type {RenderAnimatedImageFrameStripOptions} from './render-animated-image-frame-strip';
 export type {RenderFrameStripToCanvasOptions} from './render-frame-strip-to-canvas';
 export {resizeVideoFrame} from './resize-video-frame';
 

@@ -164,6 +164,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	}
 
 	useLayoutEffect(() => {
+		if (!videoEnabled && !shouldUseAudio) {
+			return;
+		}
+
 		if (!canvasRef.current && !headless) {
 			return;
 		}
@@ -232,17 +236,12 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 					fallbackMessage: string,
 					mediaDurationInSeconds: number | null,
 				) => {
-					if (environment.isClientSideRendering) {
-						cancelRender(clientSideError);
-						return;
-					}
-
 					const [action, errorToUse] = callOnErrorAndResolve({
 						onError,
 						error: err,
 						disallowFallback: disallowFallbackToOffthreadVideo,
 						isClientSideRendering: environment.isClientSideRendering,
-						clientSideError: err,
+						clientSideError,
 					});
 
 					if (action === 'fail') {

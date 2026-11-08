@@ -13,6 +13,17 @@ test('Should return null if the length is longer than the path', () => {
 	expect(getPointAtLength('M 0 0 L 100 0', 101)).toBeNull();
 });
 
+test('Should treat an arc with a zero radius as a straight line', () => {
+	const path = 'M 10 10 A 0 20 0 0 1 50 40';
+
+	expect(getLength(path)).toBeCloseTo(50);
+	const middle = getPointAtLength(path, 25);
+	expect(middle?.x).toBeCloseTo(30);
+	expect(middle?.y).toBeCloseTo(25);
+
+	expect(getLength('M 10 10 a 20 0 0 0 1 40 30')).toBeCloseTo(50);
+});
+
 test('Another more complex point', () => {
 	const path = `M2 129
 		

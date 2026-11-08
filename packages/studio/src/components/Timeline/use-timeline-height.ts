@@ -2,6 +2,7 @@ import {useContext, useLayoutEffect, useMemo, useRef} from 'react';
 import {Internals, type PropStatuses} from 'remotion';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
+import {useOptimisticEffectSnapshot} from '../../helpers/optimistic-effect-projection';
 import {
 	buildTimelineTree,
 	flattenVisibleTreeNodes,
@@ -37,6 +38,7 @@ export const useTimelineTrackHeights = ({
 }: {
 	timeline: readonly TimelineTrackData[];
 }): readonly number[] => {
+	const optimisticEffects = useOptimisticEffectSnapshot();
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
 	const {propStatuses} = useContext(Internals.VisualModePropStatusesContext);
@@ -79,6 +81,7 @@ export const useTimelineTrackHeights = ({
 	);
 
 	const previousHeightsRef = useRef<{
+		readonly optimisticEffects: typeof optimisticEffects;
 		readonly timeline: readonly TimelineTrackData[];
 		readonly entries: readonly HeightTrackCache[];
 		readonly expandedEntries: readonly HeightTrackCache[];
@@ -94,6 +97,7 @@ export const useTimelineTrackHeights = ({
 		if (
 			previous !== null &&
 			previous.timeline === timeline &&
+			previous.optimisticEffects === optimisticEffects &&
 			previous.propStatuses === propStatuses &&
 			previous.selectedRowKeys === selectedRowKeys &&
 			previous.getIsExpanded === getIsExpanded &&
@@ -121,6 +125,7 @@ export const useTimelineTrackHeights = ({
 
 		const invalidateExpanded =
 			previous === null ||
+			previous.optimisticEffects !== optimisticEffects ||
 			previous.propStatuses !== propStatuses ||
 			previous.selectedRowKeys !== selectedRowKeys ||
 			previous.getIsExpanded !== getIsExpanded;
@@ -173,6 +178,9 @@ export const useTimelineTrackHeights = ({
 
 				const {nodePathInfo} = track;
 				const tree = buildTimelineTree({
+					optimisticEffects: Internals.OptimisticEffects.get(
+						nodePathInfo.sequenceSubscriptionKey,
+					),
 					sequence: track.sequence,
 					nodePathInfo,
 					getDragOverrides,
@@ -180,6 +188,7 @@ export const useTimelineTrackHeights = ({
 					propStatuses,
 					includeTextContent: false,
 					includeSourceControls: false,
+					includeInspectorOnlyFields: false,
 					runtimeValues,
 				});
 				const filteredTree = filterTimelineExpandedTree({
@@ -231,6 +240,7 @@ export const useTimelineTrackHeights = ({
 				? previous.heights
 				: heights;
 		return {
+			optimisticEffects,
 			timeline,
 			entries,
 			expandedEntries,
@@ -242,6 +252,7 @@ export const useTimelineTrackHeights = ({
 			runtimeValuesByStore,
 		};
 	}, [
+		optimisticEffects,
 		timeline,
 		previewServerConnected,
 		getIsExpanded,

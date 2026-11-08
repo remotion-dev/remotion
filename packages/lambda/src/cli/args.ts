@@ -48,6 +48,7 @@ type LambdaCommandLineOptions = {
 	webhook: string | undefined;
 	['webhook-secret']: string | undefined;
 	[BrowserSafeApis.options.webhookCustomDataOption.cliFlag]: string | undefined;
+	[BrowserSafeApis.options.chunksOption.cliFlag]: string | undefined;
 	['renderer-function-name']: string | undefined;
 	['function-name']: string | undefined;
 	['force-bucket-name']: string | undefined;
@@ -65,7 +66,7 @@ export const parsedLambdaCli: LambdaCommandLineOptions &
 	ReturnType<typeof CliInternals.minimist> =
 	CliInternals.minimist<LambdaCommandLineOptions>(process.argv.slice(2), {
 		boolean: LambdaBooleanFlags,
-		string: ['_'],
+		string: ['_', 'function-name'],
 	});
 
 export const forceFlagProvided =

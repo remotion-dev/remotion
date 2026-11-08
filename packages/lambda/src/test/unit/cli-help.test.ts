@@ -122,6 +122,7 @@ test('defines help for every Lambda command', () => {
 	expect(renderHelp).toContain('--is-production');
 	expect(renderHelp).toContain('--config <value>');
 	expect(renderHelp).toContain('--port <value>');
+	expect(renderHelp).toContain('--chunks <value>');
 
 	const stillHelp = getLambdaHelp(['still']).join('\n');
 	expect(stillHelp).toContain('--function-name <name>');
@@ -138,6 +139,7 @@ test('defines help for every Lambda command', () => {
 	expect(compositionsHelp).not.toContain('--force-path-style');
 
 	const deployFunctionHelp = getLambdaHelp(['functions', 'deploy']).join('\n');
+	expect(deployFunctionHelp).toContain('--function-name <name>');
 	expect(deployFunctionHelp).toContain('--timeout <seconds>');
 	expect(deployFunctionHelp).toContain(
 		'--runtime-preference <default|apple-emojis|cjk>',

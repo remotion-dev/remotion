@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
 	Freeze,
 	Internals,
@@ -44,7 +44,6 @@ export const gifSchema: InteractivitySchema = {
 		description: 'Loop',
 		keyframable: false,
 	},
-	...Internals.premountSchema,
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
@@ -85,6 +84,20 @@ const GifInner = ({
 	readonly ref?: React.Ref<HTMLCanvasElement>;
 }) => {
 	const env = useRemotionEnvironment();
+	const isMedia = useMemo(
+		() => ({
+			type: 'image' as const,
+			src: resolveGifSource(src),
+			animated: {
+				loopBehavior:
+					loopBehavior === 'unmount-after-finish'
+						? ('clear-after-finish' as const)
+						: (loopBehavior ?? 'loop'),
+				requestInit: requestInit ?? null,
+			},
+		}),
+		[src, loopBehavior, requestInit],
+	);
 	const {
 		effectivePostmountFor,
 		effectivePremountFor,
@@ -120,6 +133,7 @@ const GifInner = ({
 	const memoizedEffects = useMemoizedEffects({
 		effects,
 		overrideId: controls?.overrideId ?? null,
+		runtimeValues: controls?.runtimeValues ?? null,
 		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 
@@ -162,6 +176,7 @@ const GifInner = ({
 				_remotionInternalPostmountDisplay={effectivePostmountFor || null}
 				_remotionInternalIsPremounting={premountingActive}
 				_remotionInternalIsPostmounting={postmountingActive}
+				_remotionInternalIsMedia={isMedia}
 				{...sequenceProps}
 			>
 				{inner}
@@ -255,6 +270,11 @@ const GifComponent = (
 		readonly ref?: React.Ref<HTMLCanvasElement>;
 	},
 ) => {
+	const videoEnabled = Internals.useVideoEnabled();
+	if (!videoEnabled) {
+		return null;
+	}
+
 	if (props.loop && props.durationInFrames === undefined) {
 		const resolvedSrc = resolveGifSource(props.src);
 		const cacheKey = getGifCacheKey({

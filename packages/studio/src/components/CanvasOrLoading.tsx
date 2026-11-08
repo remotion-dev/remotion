@@ -80,6 +80,7 @@ const WelcomeActions: React.FC = () => {
 			parentName: null,
 			stack: null,
 			canvasCapture: null,
+			openTimeline: null,
 		});
 	}, [setSelectedModal]);
 

@@ -3,7 +3,7 @@ import type {StudioElementPayload} from './element-payload';
 import {parseStudioElementPayload} from './element-payload';
 
 const browserStudioHashKey = 'remotion-browser-studio';
-const defaultBrowserStudioEndpoint = 'https://www.remotion.dev/new';
+const defaultBrowserStudioEndpoint = 'https://remotion.new';
 const maxEncodedPayloadLength = 1_100_000;
 
 const browserStudioEnvelopeSchema = z.object({

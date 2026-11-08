@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-offthreadvideo.png
+image: https://remotion.media/docs/generated/articles-docs-offthreadvideo.png
 id: offthreadvideo
 title: '<OffthreadVideo>'
 crumb: 'API'
@@ -319,6 +319,10 @@ These arguments are `undefined` for the first synchronous callback, in browsers 
 Corresponds to the [`crossOrigin`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-crossorigin) attribute of the `<video>` element.  
 One of `"anonymous"`, `"use-credentials"` or `undefined`.  
 Default: `"anonymous"` if `onVideoFrame` is specified, `undefined`, otherwise.
+
+From <AvailableFrom v="4.0.542" inline />, the default during preview is also `"anonymous"` inside [`<HtmlInCanvas>`](/docs/remotion/html-in-canvas). Remote videos must allow CORS to appear in the captured canvas. For authenticated videos, see [`<Html5Video>`'s `crossOrigin` prop](/docs/html5-video#crossorigin).
+
+During server-side rendering, `<OffthreadVideo>` extracts frames through the render server and displays them as local images, so this prop does not apply.
 
 ### `useWebAudioApi?`<AvailableFrom v="4.0.306" />
 

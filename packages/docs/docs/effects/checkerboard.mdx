@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-effects-checkerboard.png
+image: https://remotion.media/docs/generated/articles-docs-effects-checkerboard.png
 slug: /effects/checkerboard
 title: checkerboard()
 sidebar_label: checkerboard()
@@ -20,11 +20,11 @@ It uses the same color, gap, angle and alpha masking controls as [`lines()`](/do
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {checkerboard} from '@remotion/effects/checkerboard';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -38,8 +38,8 @@ export const MyComp: React.FC = () => {
             cellSize: 80,
             gap: 0,
             angle: 15,
-            offsetX: frame * 2,
-            offsetY: frame,
+            offsetX: interpolate(frame, [0, 60], [0, 120]),
+            offsetY: interpolate(frame, [0, 60], [0, 60]),
           }),
         ]}
       />
@@ -95,9 +95,12 @@ Set this to `true` to prevent the checkerboard pattern from appearing in fully t
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`checkerboard()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGL2
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

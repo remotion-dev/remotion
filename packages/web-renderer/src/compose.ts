@@ -1,9 +1,10 @@
 import type {LogLevel} from 'remotion';
 import type {TransformStyleCache} from './drawing/calculate-transforms';
+import {getElementsNeedingIsolation} from './drawing/isolation';
 import type {InternalState} from './internal-state';
 import {createTreeWalkerCleanupAfterChildren} from './tree-walker-cleanup-after-children';
 import {walkOverNode} from './walk-over-node';
-import {skipToNextNonDescendant} from './walk-tree';
+import {createPaintOrderTraversal} from './walk-tree';
 
 const getFilterFunction = (node: Node) => {
 	if (!(node instanceof Element)) {
@@ -58,7 +59,19 @@ export const compose = async ({
 			: NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
 		getFilterFunction,
 	);
+	const {nextNode, skipChildren} = createPaintOrderTraversal({
+		treeWalker,
+		rootElement: element,
+		acceptNode: getFilterFunction,
+		onlyBackgroundClipText,
+	});
 	const transformStyleCache: TransformStyleCache = new WeakMap();
+	const isolatedElements = onlyBackgroundClipText
+		? new WeakSet<Element>()
+		: getElementsNeedingIsolation({
+				rootElement: element,
+				acceptNode: getFilterFunction,
+			});
 
 	// Skip to the first text node
 	if (onlyBackgroundClipText) {
@@ -85,9 +98,10 @@ export const compose = async ({
 			scale,
 			waitForPageResponsiveness,
 			transformStyleCache,
+			isolatedElements,
 		});
 		if (val.type === 'skip-children') {
-			if (!skipToNextNonDescendant(treeWalker)) {
+			if (!skipChildren()) {
 				break;
 			}
 		} else {
@@ -95,7 +109,7 @@ export const compose = async ({
 				addCleanup(treeWalker.currentNode, val.cleanupAfterChildren);
 			}
 
-			if (!treeWalker.nextNode()) {
+			if (!nextNode()) {
 				break;
 			}
 		}

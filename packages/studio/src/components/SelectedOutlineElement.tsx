@@ -14,6 +14,7 @@ import {
 	openOriginalPositionInEditor,
 } from '../helpers/open-in-editor';
 import {getFieldsToShow} from '../helpers/timeline-layout';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {SetSelectedModalContext} from '../state/modals';
 import {SidebarContext} from '../state/sidebar';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
@@ -53,6 +54,7 @@ import {
 	useEditorOpening,
 } from './use-default-editor-info';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectEffects} from './use-select-effects';
 import {useSelectedOutlineControlTarget} from './use-selected-outline-control-target';
 type SelectedOutlineElementProps = {
 	readonly compositionHeight: number;
@@ -131,6 +133,9 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		Internals.CompositionManagerRefContext,
 	);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const selectEffects = useSelectEffects();
+	const rotateShortcut = useKeyboardShortcutLabel('selectRotateProp');
+	const effectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
 	const {setManuallyEnabled} = useContext(Transform3DModeStateContext);
 	const {controlTarget, getLayoutTarget, getTarget, hovered, onHoverChange} =
@@ -191,7 +196,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 			if (
 				button === 0 &&
 				!sequenceWasDragged &&
-				connectedCompositions.length !== 1 &&
+				connectedCompositions.length === 0 &&
 				previewServerState.type === 'connected' &&
 				isStudioInteractivityEnabled() &&
 				currentSelection.current.canSelect &&
@@ -464,7 +469,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 							{
 								type: 'item' as const,
 								id: 'rotate',
-								keyHint: null,
+								keyHint: rotateShortcut,
 								label: isProgrammaticallyDuplicated ? 'Rotate all' : 'Rotate',
 								leftItem: null,
 								disabled: !canRotate,
@@ -500,8 +505,8 @@ const SelectedOutlineElementUnmemoized: React.FC<
 										{
 											type: 'item' as const,
 											id: 'add-effect',
-											keyHint: null,
-											label: 'Add effect...',
+											keyHint: effectsShortcut,
+											label: 'Add effect',
 											leftItem: null,
 											disabled: !canAddEffect,
 											onClick: () => {
@@ -512,13 +517,7 @@ const SelectedOutlineElementUnmemoized: React.FC<
 													return;
 												}
 
-												setSelectedModal({
-													type: 'add-effect',
-													clientId: previewServerState.clientId,
-													fileName: nodePath.absolutePath,
-													nodePathInfo: contextMenuTarget.nodePathInfo,
-													selectItems: currentSelection.current.selectItems,
-												});
+												selectEffects(contextMenuTarget.nodePathInfo);
 											},
 											quickSwitcherLabel: null,
 											subMenu: null,
@@ -539,14 +538,16 @@ const SelectedOutlineElementUnmemoized: React.FC<
 		deleteTimelineItems,
 		editorInfo,
 		getTarget,
+		effectsShortcut,
+		selectEffects,
 		onSelect,
 		defaultEditorId,
 		editorAvailable,
 		previewServerState,
 		resolveOriginalLocation,
+		rotateShortcut,
 		setManuallyEnabled,
 		selectAsset,
-		currentSelection,
 		setSelectedModal,
 		setPropStatuses,
 		outline.path,

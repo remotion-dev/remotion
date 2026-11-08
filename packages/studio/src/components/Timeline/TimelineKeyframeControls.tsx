@@ -18,6 +18,8 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {FOCUS_VISIBLE_ONLY_CLASS_NAME} from '../../helpers/hoverable';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
 	buildTimelineTree,
 	type TimelineTreeNode,
@@ -31,7 +33,7 @@ import {
 	type AddSequenceKeyframeChange,
 } from './call-add-keyframe';
 import {
-	callDeleteKeyframes,
+	useDeleteKeyframes,
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
@@ -86,7 +88,7 @@ const navButtonStyle: React.CSSProperties = {
 	background: 'none',
 	border: 'none',
 	color: WHITE,
-	cursor: 'pointer',
+	cursor: 'default',
 	display: 'flex',
 	flexShrink: 0,
 	height: NAV_BUTTON_SIZE,
@@ -219,6 +221,9 @@ const resolveKeyframeControlTarget = ({
 	}
 
 	const tree = buildTimelineTree({
+		optimisticEffects: Internals.OptimisticEffects.get(
+			nodePathInfo.sequenceSubscriptionKey,
+		),
 		sequence: track.sequence,
 		nodePathInfo: track.nodePathInfo,
 		getDragOverrides,
@@ -226,6 +231,7 @@ const resolveKeyframeControlTarget = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const fieldNode = findFieldNode(
@@ -279,7 +285,7 @@ const resolveKeyframeControlTarget = ({
 		};
 	}
 
-	const effectStatus = Internals.getEffectPropStatusesCtx({
+	const effectStatus = getProjectedEffectPropStatuses({
 		propStatuses,
 		nodePath,
 		effectIndex: fieldNode.field.effectIndex,
@@ -487,6 +493,7 @@ export const TimelineKeyframeControls: React.FC<{
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const seekFrame = Internals.Timeline.useTimelineSeekFrame();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
+	const deleteKeyframes = useDeleteKeyframes({notifyOnError: true});
 	const propStatusesRef = useContext(
 		Internals.VisualModePropStatusesRefContext,
 	);
@@ -698,7 +705,7 @@ export const TimelineKeyframeControls: React.FC<{
 					{reveal: true},
 				);
 				const deleteChanges = deleteTargets.map(({change}) => change);
-				await callDeleteKeyframes({
+				await deleteKeyframes({
 					sequenceKeyframes: deleteChanges.filter(
 						(change): change is DeleteSequenceKeyframeChange =>
 							!hasEffectIndex(change),
@@ -707,9 +714,8 @@ export const TimelineKeyframeControls: React.FC<{
 						(change): change is DeleteEffectKeyframeChange =>
 							hasEffectIndex(change),
 					),
-					setPropStatuses,
 					clientId,
-				});
+				}).catch(() => undefined);
 				return;
 			}
 
@@ -755,6 +761,7 @@ export const TimelineKeyframeControls: React.FC<{
 			}
 		},
 		[
+			deleteKeyframes,
 			canAddKeyframe,
 			clientId,
 			defaultValue,
@@ -787,7 +794,6 @@ export const TimelineKeyframeControls: React.FC<{
 		(): React.CSSProperties => ({
 			...navButtonStyle,
 			...(mode === 'inspector' ? inspectorPreviousNavButtonStyle : null),
-			cursor: previousDisabled ? 'default' : 'pointer',
 			opacity: previousDisabled ? 0.35 : 1,
 			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
@@ -798,7 +804,6 @@ export const TimelineKeyframeControls: React.FC<{
 		(): React.CSSProperties => ({
 			...navButtonStyle,
 			...(mode === 'inspector' ? inspectorNavButtonStyle : null),
-			cursor: nextDisabled ? 'default' : 'pointer',
 			opacity: nextDisabled ? 0.35 : 1,
 			visibility: showNavigationButtons ? 'visible' : 'hidden',
 		}),
@@ -808,7 +813,6 @@ export const TimelineKeyframeControls: React.FC<{
 	const diamondStyle = useMemo(
 		(): React.CSSProperties => ({
 			...diamondButtonStyle,
-			cursor: canToggleKeyframe && clientId ? 'pointer' : 'default',
 			opacity: canToggleKeyframe && clientId ? 1 : 0.35,
 		}),
 		[canToggleKeyframe, clientId],
@@ -857,6 +861,9 @@ export const TimelineKeyframeControls: React.FC<{
 				<button
 					type="button"
 					style={diamondStyle}
+					className={
+						mode === 'inspector' ? FOCUS_VISIBLE_ONLY_CLASS_NAME : undefined
+					}
 					disabled={!canToggleKeyframe || !clientId}
 					onPointerDown={
 						canToggleKeyframe && clientId ? onToggleKeyframe : undefined

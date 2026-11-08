@@ -12,6 +12,7 @@ import {
 	type SequenceControls,
 	type SaveSequencePropSourceEdit,
 } from '@remotion/studio-shared';
+import {Internals} from 'remotion';
 import type {
 	GetDragOverrides,
 	GetEffectDragOverrides,
@@ -21,6 +22,10 @@ import type {
 } from 'remotion';
 import type {GetIsExpanded} from '../components/ExpandedTracksProvider';
 import type {SequenceNodePathInfo} from './get-timeline-sequence-sort-key';
+import {
+	projectEffectSequence,
+	projectEffectPropStatuses,
+} from './optimistic-effect-projection';
 
 export {
 	SCHEMA_FIELD_GROUPS,
@@ -58,11 +63,13 @@ export type TimelineFieldOnSave = (
 		sourceEdit?: SaveSequencePropSourceEdit;
 	},
 ) => Promise<void>;
+export type TimelineFieldOnDragEnd = (reason: 'commit' | 'cancel') => void;
 export type TimelineFieldOnDragValueChange = (value: unknown) => void;
 
 export type TimelineEffectGroupInfo = {
 	readonly effectIndex: number;
 	readonly effectSchema: InteractivitySchemaShape;
+	readonly effects: TSequence['effects'];
 	readonly documentationLink: string | null;
 };
 
@@ -86,15 +93,18 @@ export type TimelineTreeNode =
 	  };
 
 export const buildTimelineTree = ({
-	sequence,
+	optimisticEffects,
+	sequence: sourceSequence,
 	nodePathInfo,
 	getDragOverrides,
 	getEffectDragOverrides,
-	propStatuses,
+	propStatuses: sourcePropStatuses,
 	includeTextContent,
 	includeSourceControls,
+	includeInspectorOnlyFields,
 	runtimeValues,
 }: {
+	optimisticEffects: ReturnType<typeof Internals.OptimisticEffects.get>;
 	sequence: TSequence;
 	nodePathInfo: SequenceNodePathInfo;
 	getDragOverrides: GetDragOverrides;
@@ -102,8 +112,18 @@ export const buildTimelineTree = ({
 	propStatuses: PropStatuses;
 	includeTextContent: boolean;
 	includeSourceControls: boolean;
+	includeInspectorOnlyFields: boolean;
 	runtimeValues: Readonly<Record<string, unknown>> | null;
 }): TimelineTreeNode[] => {
+	const sequence = projectEffectSequence(
+		sourceSequence,
+		nodePathInfo.sequenceSubscriptionKey,
+		optimisticEffects?.items ?? null,
+	);
+	const propStatuses = projectEffectPropStatuses(
+		sourcePropStatuses,
+		nodePathInfo.sequenceSubscriptionKey,
+	);
 	const roots: TimelineTreeNode[] = [];
 	const {sequenceSubscriptionKey, index, auxiliaryKeys, supportsEffects} =
 		nodePathInfo;
@@ -154,50 +174,59 @@ export const buildTimelineTree = ({
 			},
 			label: 'Effects',
 			effectInfo: null,
-			children: sequence.effects.map((effect, i): TimelineTreeNode => {
+			children: sequence.effects.flatMap((effect, i): TimelineTreeNode[] => {
 				const effectFields = getEffectFieldsToShow({
 					effect,
 					effectIndex: i,
 					nodePath: sequenceSubscriptionKey,
 					propStatuses,
 					getEffectDragOverrides,
-				});
-				return {
-					kind: 'group',
-					nodePathInfo: {
-						sequenceSubscriptionKey,
-						auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
-						index,
-						numberOfSequencesWithThisNodePath: 0,
-						supportsEffects,
+				}).filter(
+					// The Curves inspector preserves input order; the generic array editor cannot.
+					(field) =>
+						includeInspectorOnlyFields ||
+						effect.type !== 'remotion/curves' ||
+						field.key !== 'points',
+				);
+				return [
+					{
+						kind: 'group',
+						nodePathInfo: {
+							sequenceSubscriptionKey,
+							auxiliaryKeys: [...auxiliaryKeys, 'effects', i.toString()],
+							index,
+							numberOfSequencesWithThisNodePath: 0,
+							supportsEffects,
+						},
+						label: effect.label,
+						effectInfo: {
+							effectIndex: i,
+							effectSchema: effect.schema,
+							effects: sequence.effects,
+							documentationLink: effect.documentationLink ?? null,
+						},
+						children: effectFields.map(
+							(f): TimelineTreeNode => ({
+								kind: 'field',
+								nodePathInfo: {
+									sequenceSubscriptionKey,
+									auxiliaryKeys: [
+										...auxiliaryKeys,
+										'effects',
+										i.toString(),
+										f.key,
+									],
+									index,
+									numberOfSequencesWithThisNodePath: 0,
+									supportsEffects,
+								},
+								label: f.description ?? f.key,
+								field: f,
+								runtimeValueStore: sequence.effectRuntimeValues?.[i] ?? null,
+							}),
+						),
 					},
-					label: effect.label,
-					effectInfo: {
-						effectIndex: i,
-						effectSchema: effect.schema,
-						documentationLink: effect.documentationLink ?? null,
-					},
-					children: effectFields.map(
-						(f): TimelineTreeNode => ({
-							kind: 'field',
-							nodePathInfo: {
-								sequenceSubscriptionKey,
-								auxiliaryKeys: [
-									...auxiliaryKeys,
-									'effects',
-									i.toString(),
-									f.key,
-								],
-								index,
-								numberOfSequencesWithThisNodePath: 0,
-								supportsEffects,
-							},
-							label: f.description ?? f.key,
-							field: f,
-							runtimeValueStore: sequence.effectRuntimeValues?.[i] ?? null,
-						}),
-					),
-				};
+				];
 			}),
 		});
 	}
@@ -256,6 +285,9 @@ export const getExpandedTrackHeight = ({
 	propStatuses: PropStatuses;
 }): number => {
 	const tree = buildTimelineTree({
+		optimisticEffects: Internals.OptimisticEffects.get(
+			nodePathInfo.sequenceSubscriptionKey,
+		),
 		sequence,
 		nodePathInfo,
 		// We assume that no drag overrides can change the timeline layout
@@ -264,6 +296,7 @@ export const getExpandedTrackHeight = ({
 		propStatuses,
 		includeTextContent: false,
 		includeSourceControls: false,
+		includeInspectorOnlyFields: false,
 		runtimeValues: null,
 	});
 	const flat = flattenVisibleTreeNodes({nodes: tree, getIsExpanded});

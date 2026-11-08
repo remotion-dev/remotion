@@ -16,7 +16,7 @@ export const useStudioCanvasDimensions = ({
 }) => {
 	const {size: previewSize} = useContext(Internals.PreviewSizeContext);
 
-	const {centerX, centerY, scale} = useMemo(() => {
+	const {centerX, centerY, scale, scaleX} = useMemo(() => {
 		if (
 			contentDimensions === 'none' ||
 			contentDimensions === null ||
@@ -29,6 +29,7 @@ export const useStudioCanvasDimensions = ({
 				centerX: previewSize.translation.x,
 				centerY: previewSize.translation.y,
 				scale: 1,
+				scaleX: 1,
 			};
 		}
 
@@ -54,7 +55,7 @@ export const useStudioCanvasDimensions = ({
 			width:
 				contentDimensions === 'none' || !contentDimensions
 					? canvasSize?.width || 0
-					: contentDimensions.width * scale,
+					: contentDimensions.width * scaleX,
 			height:
 				contentDimensions === 'none' || !contentDimensions
 					? canvasSize?.height || 0
@@ -62,6 +63,7 @@ export const useStudioCanvasDimensions = ({
 		};
 	}, [
 		scale,
+		scaleX,
 		centerX,
 		previewSize.translation.x,
 		previewSize.translation.y,

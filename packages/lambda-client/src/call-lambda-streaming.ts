@@ -79,6 +79,31 @@ const invokeStreamOrTimeout = async ({
 	return res;
 };
 
+export const invokeWithResponseStreamImplementation = ({
+	region,
+	functionName,
+	payload,
+	timeoutInMilliseconds,
+	requestHandler,
+	abortSignal,
+}: {
+	region: AwsRegion;
+	functionName: string;
+	payload: Record<string, unknown>;
+	timeoutInMilliseconds: number;
+	requestHandler: RequestHandler | null;
+	abortSignal: AbortSignal;
+}): Promise<InvokeWithResponseStreamCommandOutput> => {
+	return getLambdaClient(region, timeoutInMilliseconds, requestHandler).send(
+		new InvokeWithResponseStreamCommand({
+			FunctionName: functionName,
+			InvocationType: 'RequestResponse',
+			Payload: JSON.stringify(payload),
+		}),
+		{abortSignal},
+	);
+};
+
 const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
 
 const callLambdaWithStreamingWithoutRetry = async <

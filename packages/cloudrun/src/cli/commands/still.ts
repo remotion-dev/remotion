@@ -24,6 +24,7 @@ const {
 	headlessOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	browserExecutableOption,
 	userAgentOption,
@@ -117,6 +118,9 @@ export const stillCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: CliInternals.parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: CliInternals.parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -182,6 +186,7 @@ export const stillCommand = async (
 				chromeMode: 'headless-shell',
 				offthreadVideoThreads: 1,
 				mediaCacheSizeInBytes,
+				preferredEffectBackend,
 			});
 		composition = compositionId;
 	}
@@ -271,6 +276,12 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		outName,
 		logLevel,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
+		licenseKey: BrowserSafeApis.options.licenseKeyOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
+		isProduction: BrowserSafeApis.options.isProductionOption.getValue({
+			commandLine: CliInternals.parsedCli,
+		}).value,
 	});
 	if (res.type === 'crash') {
 		displayCrashLogs(res, logLevel);

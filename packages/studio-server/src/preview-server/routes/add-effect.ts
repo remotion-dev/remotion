@@ -9,6 +9,7 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
 	pushToUndoStack,
@@ -58,6 +59,11 @@ export const addEffectHandler: ApiHandler<
 			const {formatted, effectLabel, nodeLabel, logLine} =
 				result.editDetails[0];
 
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				[{absolutePath, remappings: result.nodePathRemappings}],
+				null,
+			);
+
 			pushToUndoStack({
 				filePath: absolutePath,
 				oldContents: fileContents,
@@ -71,14 +77,14 @@ export const addEffectHandler: ApiHandler<
 				},
 				entryType: 'add-effect',
 				suppressHmrOnFileRestore: false,
-				nodePathRemappings: null,
+				nodePathRemappings: result.nodePathRemappings,
 			});
 			suppressUndoStackInvalidation(absolutePath);
 			writeFileAndNotifyFileWatchers({
 				file: absolutePath,
 				content: output,
 				originatorClientId: clientId,
-				metadata: null,
+				metadata: {skipSequencePropsUpdate: true},
 			});
 
 			const locationLabel = formatLogFileLocation({
@@ -103,6 +109,7 @@ export const addEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 				insertedEffect: {
 					effectIndex: result.insertedEffect.effectIndex,
 					nodePath: result.insertedEffect.nodePath,

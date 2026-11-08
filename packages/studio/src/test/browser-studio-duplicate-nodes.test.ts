@@ -28,6 +28,7 @@ test('routes JSX duplication through Browser Studio', async () => {
 					receivedRequests.push(request);
 					return Promise.resolve({
 						success: true,
+						duplicatedNodes: [],
 						nodePathMutation: {
 							files: [],
 							mutationId: 'test-mutation',

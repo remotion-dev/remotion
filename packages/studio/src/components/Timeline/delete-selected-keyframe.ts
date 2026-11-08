@@ -4,8 +4,9 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {getProjectedEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {
-	callDeleteKeyframes,
+	type useDeleteKeyframes,
 	type DeleteEffectKeyframeChange,
 	type DeleteSequenceKeyframeChange,
 } from './call-delete-keyframe';
@@ -16,7 +17,6 @@ import {
 	getKeyframeSourceFrame,
 } from './get-timeline-keyframes';
 import {parseKeyframeFieldFromNodePath} from './parse-keyframe-field-from-node-path';
-import type {SetPropStatuses} from './save-sequence-prop';
 
 type SelectedKeyframeDeletion =
 	| ({type: 'sequence'} & DeleteSequenceKeyframeChange)
@@ -73,12 +73,15 @@ const getSelectedKeyframeDeletion = ({
 	const fileName = nodePath.absolutePath;
 
 	if (field.type === 'effect') {
-		const effect = sequence.effects[field.effectIndex];
+		const effect = Internals.OptimisticEffects.getItems(
+			nodePath,
+			sequence.effects,
+		)[field.effectIndex]?.definition;
 		if (!effect) {
 			return null;
 		}
 
-		const effectStatus = Internals.getEffectPropStatusesCtx({
+		const effectStatus = getProjectedEffectPropStatuses({
 			propStatuses,
 			nodePath,
 			effectIndex: field.effectIndex,
@@ -161,7 +164,7 @@ const getSelectedKeyframeDeletion = ({
 export const deleteSelectedKeyframes = ({
 	keyframes,
 	tracks,
-	setPropStatuses,
+	deleteKeyframes,
 	clientId,
 	propStatuses,
 	timelinePosition,
@@ -171,7 +174,7 @@ export const deleteSelectedKeyframes = ({
 		frame: number;
 	}[];
 	readonly tracks: readonly TimelineTrackData[];
-	setPropStatuses: SetPropStatuses;
+	deleteKeyframes: ReturnType<typeof useDeleteKeyframes>;
 	clientId: string;
 	propStatuses: PropStatuses;
 	timelinePosition: number;
@@ -194,7 +197,7 @@ export const deleteSelectedKeyframes = ({
 		return null;
 	}
 
-	return callDeleteKeyframes({
+	return deleteKeyframes({
 		sequenceKeyframes: deletions.filter(
 			(
 				deletion,
@@ -209,7 +212,6 @@ export const deleteSelectedKeyframes = ({
 				type: 'effect';
 			} => deletion.type === 'effect',
 		),
-		setPropStatuses,
 		clientId,
 	});
 };

@@ -14,6 +14,10 @@ export const TableOfContents: React.FC = () => {
 					<strong>{'renderStillOnWeb()'}</strong>
 					<div>Render a still image in the browser</div>
 				</TOCItem>
+				<TOCItem link="/docs/web-renderer/render-frames-on-web">
+					<strong>{'renderFramesOnWeb()'}</strong>
+					<div>Capture multiple still frames in the browser</div>
+				</TOCItem>
 				<TOCItem link="/docs/web-renderer/can-render-media-on-web">
 					<strong>{'canRenderMediaOnWeb()'}</strong>
 					<div>Check if a render can be performed</div>

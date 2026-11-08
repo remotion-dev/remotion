@@ -288,7 +288,7 @@ const TheDeclineInner: React.FC = () => {
 					<Video
 						name="IMG_0465"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0465.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0465-upright-a620876d4898.mp4'
 						}
 						volume={0.85}
 						objectFit="cover"
@@ -388,7 +388,7 @@ const TheDeclineInner: React.FC = () => {
 					<Video
 						name="IMG_0465"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0465.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0465-upright-a620876d4898.mp4'
 						}
 						volume={0.85}
 						objectFit="cover"
@@ -446,7 +446,7 @@ const TheDeclineInner: React.FC = () => {
 					<Video
 						name="IMG_0465"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0465.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0465-upright-a620876d4898.mp4'
 						}
 						volume={0.85}
 						objectFit="cover"
@@ -497,7 +497,7 @@ const TheDeclineInner: React.FC = () => {
 					<Video
 						name="IMG_0465"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0465.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0465-upright-a620876d4898.mp4'
 						}
 						volume={0.85}
 						objectFit="cover"
@@ -625,7 +625,7 @@ const TheDeclineInner: React.FC = () => {
 					<Video
 						name="IMG_0465"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0465.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0465-upright-a620876d4898.mp4'
 						}
 						volume={0.85}
 						objectFit="cover"
@@ -662,7 +662,7 @@ const TheDeclineInner: React.FC = () => {
 					<Video
 						name="IMG_0465"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0465.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0465-upright-a620876d4898.mp4'
 						}
 						volume={0.85}
 						objectFit="cover"
@@ -706,7 +706,7 @@ const TheDeclineInner: React.FC = () => {
 					<Video
 						name="IMG_0465"
 						src={
-							'https://remotion.media/jonnys-videos/roller-skis/footage/IMG_0465.MOV'
+							'https://remotion.media/timeline-reveal/footage/IMG_0465-upright-a620876d4898.mp4'
 						}
 						volume={0.85}
 						objectFit="cover"

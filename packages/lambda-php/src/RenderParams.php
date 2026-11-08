@@ -53,6 +53,7 @@ class RenderParams
     protected $licenseKey = null;
     protected $offthreadVideoCacheSizeInBytes = null;
     protected $mediaCacheSizeInBytes = null;
+    protected $preferredEffectBackend = 'auto';
     protected $offthreadVideoThreads = null;
     protected $audioCodec = null;
     protected $rendererFunctionName = null;
@@ -66,6 +67,7 @@ class RenderParams
     protected $sampleRate = 48000;
     protected $gopSize = null;
     protected $disableSharedMemoryCapture = false;
+    protected $chunks = null;
 
     public function __construct(
         ?array  $data = null,
@@ -94,7 +96,7 @@ class RenderParams
         ?bool   $overwrite = null,
         ?int    $audioBitrate = null,
         ?int    $videoBitrate = null,
-        ?string $webhook = null,
+        ?array  $webhook = null,
         ?int    $forceHeight = null,
         ?int    $forceWidth = null,
         ?int    $forceFps = null,
@@ -120,7 +122,9 @@ class RenderParams
         ?int    $gopSize = null,
         ?bool   $enableCancellation = false,
         bool    $disableSharedMemoryCapture = false,
-        string|array|null $separateAudioTo = null
+        string|array|null $separateAudioTo = null,
+        string $preferredEffectBackend = 'auto',
+        ?array  $chunks = null
     )
     {
         if ($chromiumOptions === null) {
@@ -165,6 +169,7 @@ class RenderParams
         $this->licenseKey = $licenseKey;
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->mediaCacheSizeInBytes = $mediaCacheSizeInBytes;
+        $this->preferredEffectBackend = $preferredEffectBackend;
         $this->offthreadVideoThreads = $offthreadVideoThreads;
         $this->audioCodec = $audioCodec;
         $this->storageClass = $storageClass;
@@ -180,6 +185,7 @@ class RenderParams
         $this->gopSize = $gopSize;
         $this->enableCancellation = $enableCancellation;
         $this->disableSharedMemoryCapture = $disableSharedMemoryCapture;
+        $this->chunks = $chunks;
     }
 
     private array $inputProps = array();
@@ -187,6 +193,7 @@ class RenderParams
     public function serializeParams()
     {
         $parameters = [
+            'streamProgress' => false,
             'enableCancellation' => $this->getEnableCancellation(),
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
@@ -210,6 +217,7 @@ class RenderParams
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
             'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
             'concurrency' => $this->getConcurrency(),
+            'chunks' => $this->getChunks(),
             'downloadBehavior' => $this->getDownloadBehavior(),
             'muted' => $this->getMuted(),
             'preferLossless' => $this->getPreferLossless(),
@@ -228,6 +236,7 @@ class RenderParams
             'licenseKey' => $this->getLicenseKey(),
             'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'mediaCacheSizeInBytes' => $this->getMediaCacheSizeInBytes(),
+            'preferredEffectBackend' => $this->getPreferredEffectBackend(),
             'offthreadVideoThreads' => $this->getOffthreadVideoThreads(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
@@ -701,6 +710,11 @@ class RenderParams
         $this->concurrency = $concurrency;
     }
 
+    public function setChunks(?array $chunks)
+    {
+        $this->chunks = $chunks;
+    }
+
     public function setDownloadBehavior($downloadBehavior)
     {
         $this->downloadBehavior = $downloadBehavior;
@@ -755,6 +769,11 @@ class RenderParams
     public function getConcurrency()
     {
         return $this->concurrency;
+    }
+
+    public function getChunks()
+    {
+        return $this->chunks;
     }
 
     public function getDownloadBehavior()
@@ -822,6 +841,16 @@ class RenderParams
     public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
     {
         $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+    }
+
+    public function getPreferredEffectBackend(): string
+    {
+        return $this->preferredEffectBackend;
+    }
+
+    public function setPreferredEffectBackend(string $preferredEffectBackend)
+    {
+        $this->preferredEffectBackend = $preferredEffectBackend;
     }
 
     public function getMediaCacheSizeInBytes()

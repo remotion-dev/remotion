@@ -468,3 +468,29 @@ export const CaretIcon: React.FC<CaretIconProps> = ({
 		</SvgIcon>
 	);
 };
+
+// Font Awesome Pro v7.3.1, Copyright 2026 Fonticons, Inc.
+// https://fontawesome.com/license (Commercial License)
+// Matches the original Studio icon.
+export const DuplicateIcon: React.FC<StudioIconProps> = (props) => {
+	return (
+		<SvgIcon viewBox="0 0 640 640" {...props}>
+			<path
+				fill="currentColor"
+				d="M352 544L128 544C110.3 544 96 529.7 96 512L96 288C96 270.3 110.3 256 128 256L176 256L176 224L128 224C92.7 224 64 252.7 64 288L64 512C64 547.3 92.7 576 128 576L352 576C387.3 576 416 547.3 416 512L416 464L384 464L384 512C384 529.7 369.7 544 352 544zM288 384C270.3 384 256 369.7 256 352L256 128C256 110.3 270.3 96 288 96L512 96C529.7 96 544 110.3 544 128L544 352C544 369.7 529.7 384 512 384L288 384zM224 352C224 387.3 252.7 416 288 416L512 416C547.3 416 576 387.3 576 352L576 128C576 92.7 547.3 64 512 64L288 64C252.7 64 224 92.7 224 128L224 352z"
+			/>
+		</SvgIcon>
+	);
+};
+
+// Matches the original Studio icon.
+export const TrashIcon: React.FC<StudioIconProps> = (props) => {
+	return (
+		<SvgIcon viewBox="0 0 448 512" {...props}>
+			<path
+				fill="currentColor"
+				d="M160.5 27.4C162.5 20.6 168.8 16 175.8 16h96.4c7.1 0 13.3 4.6 15.3 11.4l11 36.6h-149l11-36.6zM116.1 64H16C7.2 64 0 71.2 0 80s7.2 16 16 16h416c8.8 0 16-7.2 16-16s-7.2-16-16-16H331.9l-13.7-45.8C312.1-2.1 293.4-16 272.2-16h-96.4c-21.2 0-39.9 13.9-46 34.2L116.1 64zM28.7 144l22.9 308.7c2.5 33.4 30.3 59.3 63.8 59.3h217.1c33.5 0 61.3-25.9 63.8-59.3L419.2 144h-32.1l-22.7 306.4c-1.2 16.7-15.2 29.6-31.9 29.6H115.4c-16.8 0-30.7-12.9-31.9-29.6L60.8 144H28.7z"
+			/>
+		</SvgIcon>
+	);
+};

@@ -211,8 +211,8 @@ export const FixComputedValueModal: React.FC<{
 					<>
 						<div style={text}>
 							This value requires a code change to become editable. Code editing
-							and agent-assisted refactoring are unavailable in
-							remotion.dev/new. Download the project to continue locally.
+							and agent-assisted refactoring are unavailable in remotion.new.
+							Download the project to continue locally.
 						</div>
 						{downloadProject ? (
 							<div style={{marginTop: 16}}>

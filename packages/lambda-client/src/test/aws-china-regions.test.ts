@@ -72,6 +72,7 @@ test('China still payload uses buffered invocation', async () => {
 		timeoutInMilliseconds: 30000,
 		licenseKey: null,
 		offthreadVideoThreads: null,
+		preferredEffectBackend: 'auto' as const,
 		mediaCacheSizeInBytes: null,
 		deleteAfter: null,
 	} as const;

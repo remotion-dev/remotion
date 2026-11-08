@@ -1,10 +1,13 @@
+import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
+import {parseUrlFunction} from './mask-image';
 import {
 	createCanvasGradient,
 	parseLinearGradient,
 } from './parse-linear-gradient';
+import {getRasterImage} from './raster-image-loader';
 
-const isColorTransparent = (color: string) => {
+export const isColorTransparent = (color: string) => {
 	return (
 		color === 'transparent' ||
 		(color.startsWith('rgba') &&
@@ -12,11 +15,13 @@ const isColorTransparent = (color: string) => {
 	);
 };
 
-export const getBackgroundFill = ({
-	backgroundColor,
+export const getBackgroundFill = async ({
 	backgroundImage,
 	backgroundPosition,
 	backgroundSize,
+	backgroundRepeat,
+	internalState,
+	positioningArea,
 	contextToDraw,
 	boundingRect,
 	offsetLeft,
@@ -25,13 +30,54 @@ export const getBackgroundFill = ({
 	backgroundImage: string;
 	backgroundPosition: string;
 	backgroundSize: string;
-	backgroundColor: string;
+	backgroundRepeat: string;
+	internalState: InternalState;
+	positioningArea: DOMRect;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
 	boundingRect: DOMRect;
 	offsetLeft: number;
 	offsetTop: number;
-}): CanvasGradient | CanvasPattern | string | null => {
+}): Promise<
+	CanvasGradient | CanvasPattern | {image: ImageBitmap; rect: DOMRect} | null
+> => {
 	if (backgroundImage && backgroundImage !== 'none') {
+		const url = parseUrlFunction(backgroundImage);
+		if (url !== null) {
+			const image = await getRasterImage({
+				src: url,
+				state: internalState.rasterImageLoaderState,
+				sourceProperty: 'background-image',
+			});
+			const rect = getBackgroundImageRect({
+				backgroundPosition,
+				backgroundSize,
+				positioningArea,
+				intrinsicSize: image,
+			});
+			if (rect.width === 0 || rect.height === 0) return null;
+			const repetition =
+				(
+					{
+						'repeat repeat': 'repeat',
+						'no-repeat no-repeat': 'no-repeat',
+						'repeat no-repeat': 'repeat-x',
+						'no-repeat repeat': 'repeat-y',
+					} as Record<string, string>
+				)[backgroundRepeat] ?? backgroundRepeat;
+			if (!['repeat', 'repeat-x', 'repeat-y', 'no-repeat'].includes(repetition))
+				throw new Error(`Unsupported background-repeat: ${backgroundRepeat}`);
+			if (repetition === 'no-repeat') return {image, rect};
+			const pattern = contextToDraw.createPattern(image, repetition);
+			if (!pattern)
+				throw new Error('Could not create raster background pattern');
+			pattern.setTransform(
+				new DOMMatrix()
+					.translate(rect.left - offsetLeft, rect.top - offsetTop)
+					.scale(rect.width / image.width, rect.height / image.height),
+			);
+			return pattern;
+		}
+
 		const radialMatch = /^radial-gradient\((.*)\)$/.exec(backgroundImage);
 		if (radialMatch) {
 			const parts = radialMatch[1].split(/,(?![^(]*\))/);
@@ -54,6 +100,7 @@ export const getBackgroundFill = ({
 						backgroundPosition,
 						backgroundSize,
 						positioningArea: boundingRect,
+						intrinsicSize: null,
 					});
 					const circle = hasShape && firstPart.startsWith('circle');
 					const radiusX = circle
@@ -93,6 +140,7 @@ export const getBackgroundFill = ({
 				backgroundPosition,
 				backgroundSize,
 				positioningArea: boundingRect,
+				intrinsicSize: null,
 			});
 			const gradient = createCanvasGradient({
 				ctx: contextToDraw,
@@ -104,14 +152,6 @@ export const getBackgroundFill = ({
 
 			return gradient;
 		}
-	}
-
-	if (
-		backgroundColor &&
-		backgroundColor !== 'transparent' &&
-		!isColorTransparent(backgroundColor)
-	) {
-		return backgroundColor;
 	}
 
 	return null;

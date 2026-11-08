@@ -1,6 +1,8 @@
 import Head from '@docusaurus/Head';
 import {
+	ELEMENT_PAYLOAD_MIME_TYPE,
 	isInsideStudio,
+	serializeElementPayloadForHtml,
 	StudioProtocolInternals,
 	type InstallInStudioErrorCode,
 } from '@remotion/studio-protocol';
@@ -163,6 +165,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 		});
 	}, [definition, sourceCode]);
 
+	const showOpenInBrowserStudio = Boolean(sourceCode) && !isEmbeddedInStudio;
+
 	const PreviewComponent = useMemo(() => {
 		return () => <ElementPreviewComposition definition={definition} />;
 	}, [definition]);
@@ -211,6 +215,19 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 				<div>
 					{sourceCode ? (
 						<>
+							<script
+								// eslint-disable-next-line react/no-danger
+								dangerouslySetInnerHTML={{
+									__html: serializeElementPayloadForHtml(
+										createElementPayloadFromDefinition({
+											definition,
+											sourceCode,
+											installAssets: true,
+										}),
+									),
+								}}
+								type={ELEMENT_PAYLOAD_MIME_TYPE}
+							/>
 							<div className={styles.actionRow}>
 								<ElementStudioAction
 									buttonLabel={
@@ -291,7 +308,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 						</>
 					) : null}
 
-					{children || sourceCode ? (
+					{children || showOpenInBrowserStudio ? (
 						<div className={styles.secondaryActions}>
 							{children ? (
 								<button
@@ -311,7 +328,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									View code
 								</button>
 							) : null}
-							{sourceCode ? (
+							{showOpenInBrowserStudio ? (
 								<button
 									aria-label="Try this Element in Browser Studio in a new tab"
 									className={styles.secondaryAction}
@@ -324,7 +341,7 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 									>
 										<ExternalLinkIcon size={16} />
 									</span>
-									Try in remotion.dev/new
+									Try in remotion.new
 								</button>
 							) : null}
 						</div>
@@ -394,7 +411,8 @@ export const ElementPage: React.FC<ElementPageProps> = ({
 										<img
 											alt=""
 											className={styles.contributorAvatar}
-											src={`https://github.com/${contributor.username}.png`}
+											crossOrigin="anonymous"
+											src={`https://avatars.githubusercontent.com/${contributor.username}`}
 										/>
 										<span className={styles.contributorText}>
 											<strong>@{contributor.username}</strong>

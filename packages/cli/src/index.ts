@@ -19,6 +19,7 @@ import {getCommandHelp, makeCommandHelpOption} from './command-help';
 import {listCompositionsCommand} from './compositions';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
+import {ELEMENTS_COMMAND, elementsCommand} from './elements';
 import {findEntryPoint} from './entry-point';
 import {
 	experimentalCodemodCommand,
@@ -28,6 +29,7 @@ import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {getCliOptions} from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
+import {getCrfForCodec} from './get-crf-for-codec';
 import {getGitSource} from './get-github-repository';
 import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
@@ -195,6 +197,13 @@ export const cli = async () => {
 			await versionsCommand(remotionRoot, logLevel);
 		} else if (command === BROWSER_COMMAND) {
 			await browserCommand(args, logLevel);
+		} else if (command === ELEMENTS_COMMAND) {
+			await elementsCommand({
+				remotionRoot,
+				args,
+				argv: process.argv.slice(2),
+				logLevel,
+			});
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args, logLevel);
 		} else {
@@ -248,4 +257,5 @@ export const CliInternals = {
 	makeCommandHelpOption,
 	handleCtrlC,
 	registerCtrlCHandler,
+	getCrfForCodec,
 };

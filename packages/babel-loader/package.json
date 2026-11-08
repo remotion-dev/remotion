@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/babel-loader"
 	},
 	"name": "@remotion/babel-loader",
-	"version": "4.0.538",
+	"version": "4.0.541",
 	"description": "Babel loader for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsc -d"
+		"make": "node ../.monorepo/tsrs.cjs -d"
 	},
 	"files": [
 		"dist"

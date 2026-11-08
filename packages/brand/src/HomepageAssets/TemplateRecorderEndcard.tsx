@@ -12,21 +12,23 @@ import {
 	useVideoConfig,
 } from 'remotion';
 import {ExtrudeDiv} from '../3DContext/Div3D';
+import {SelectionOutline} from './SelectionOutline';
 
 const cardWidth = 880;
 const cardHeight = 1320;
 const cornerRadius = 52;
 const canvasWidth = 1080;
 const canvasHeight = 1620;
-const outlineGap = 24;
-const outlineHandleSize = 40;
-const outlineStrokeWidth = 6;
-const outlineWidth = cardWidth + outlineGap * 2;
-const outlineHeight = cardHeight + outlineGap * 2;
-const outlineLeft = (canvasWidth - cardWidth) / 2 - outlineGap;
+const outlineHorizontalGap = 36;
+const outlineVerticalGap = 60;
+const outlineHandleSizeDefault = 40;
+const defaultOutlineStrokeWidth = 6;
+const outlineWidth = cardWidth + outlineHorizontalGap * 2;
+const outlineHeight = cardHeight + outlineVerticalGap * 2;
+const outlineLeft = (canvasWidth - cardWidth) / 2 - outlineHorizontalGap;
 const outlineVerticalNudge = 30;
 const outlineTop =
-	(canvasHeight - cardHeight) / 2 - outlineGap + outlineVerticalNudge;
+	(canvasHeight - cardHeight) / 2 - outlineVerticalGap + outlineVerticalNudge;
 const fontFamily = 'GT Planar';
 const followButtonHeight = 140;
 const spaceBetweenImgAndText = 30;
@@ -56,11 +58,6 @@ const iconPaths = {
 		viewBox: '0 0 576 512',
 		path: 'M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z',
 	},
-	link: {
-		height: 60,
-		viewBox: '0 0 640 512',
-		path: 'M580.2 267.3c56.2-56.2 56.2-147.4 0-203.6S432.8 7.4 376.6 63.7L365.3 75l45.3 45.3 11.3-11.3c31.2-31.2 81.9-31.2 113.1 0s31.2 81.9 0 113.1L421.8 335.2c-31.2 31.2-81.9 31.2-113.1 0c-25.6-25.6-30.3-64.3-13.8-94.6c1.8-3.4 3.9-6.7 6.3-9.8l-51.2-38.4c-4.3 5.7-8.1 11.6-11.4 17.8c-29.5 54.6-21.3 124.2 24.9 170.3c56.2 56.2 147.4 56.2 203.6 0L580.2 267.3zM59.8 244.7c-56.2 56.2-56.2 147.4 0 203.6s147.4 56.2 203.6 0L274.7 437l-45.3-45.3-11.3 11.3c-31.2 31.2-81.9 31.2-113.1 0s-31.2-81.9 0-113.1L218.2 176.8c31.2-31.2 81.9-31.2 113.1 0c25.6 25.6 30.3 64.3 13.8 94.6c-1.8 3.4-3.9 6.7-6.3 9.8l51.2 38.4c4.3-5.7 8.1-11.6 11.4-17.8c29.5-54.6 21.3-124.2-24.9-170.3c-56.2-56.2-147.4-56.2-203.6 0L59.8 244.7z',
-	},
 } as const;
 
 type IconType = keyof typeof iconPaths;
@@ -69,10 +66,6 @@ const remotionSocialRows: readonly {type: IconType; label: string}[] = [
 	{type: 'instagram', label: '@remotion'},
 	{type: 'linkedin', label: 'Remotion'},
 	{type: 'youtube', label: '@remotion_dev'},
-];
-
-const remotionLinks: readonly {type: IconType; label: string}[] = [
-	{type: 'link', label: 'remotion.dev'},
 ];
 
 const Icon: React.FC<{
@@ -137,7 +130,7 @@ const TemplateRecorderEndcardFace: React.FC<{
 	const currentFrame = useCurrentFrame();
 	const frame = frameOverride ?? currentFrame;
 	const {fps, width} = useVideoConfig();
-	const totalLinks = remotionSocialRows.length + remotionLinks.length;
+	const totalLinks = remotionSocialRows.length;
 	const slideUp = spring({
 		fps,
 		frame,
@@ -201,7 +194,8 @@ const TemplateRecorderEndcardFace: React.FC<{
 						</div>
 					</div>
 				</div>
-				<div>
+				{/* Keep the social rows above the overlapping composition selector. */}
+				<div style={{paddingBottom: 180}}>
 					<div style={{height: 80}} />
 					{remotionSocialRows.map((row, index) => {
 						const indexFromLast = totalLinks - index;
@@ -226,158 +220,88 @@ const TemplateRecorderEndcardFace: React.FC<{
 							/>
 						);
 					})}
-					<div style={{height: 80}} />
-					{remotionLinks.map((row, index) => {
-						const indexFromLast = remotionLinks.length - index;
-						const opacity = spring({
-							fps,
-							frame,
-							config: {
-								damping: 200,
-							},
-							delay:
-								slideDelay +
-								((indexFromLast - 1) / totalLinks) * (slideDuration - 15),
-							durationInFrames: 15,
-						});
-
-						return (
-							<IconRow
-								key={row.label}
-								label={row.label}
-								opacity={opacity}
-								type={row.type}
-							/>
-						);
-					})}
 				</div>
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);
 };
 
-const FlatSelectionOutline: React.FC = () => {
-	const handleOffset = outlineHandleSize / 2;
-
-	return (
-		<Interactive.Svg
-			viewBox={`0 0 ${outlineWidth} ${outlineHeight}`}
-			style={{
-				height: outlineHeight,
-				left: outlineLeft,
-				overflow: 'visible',
-				position: 'absolute',
-				top: outlineTop,
-				width: outlineWidth,
-			}}
-		>
-			<Interactive.Rect
-				fill="none"
-				height={outlineHeight}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineWidth}
-				x={0}
-				y={0}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={-handleOffset}
-				y={-handleOffset}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={outlineWidth - handleOffset}
-				y={-handleOffset}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={-handleOffset}
-				y={outlineHeight - handleOffset}
-			/>
-			<Interactive.Rect
-				fill="white"
-				height={outlineHandleSize}
-				stroke="#0d99ff"
-				strokeWidth={outlineStrokeWidth}
-				vectorEffect="non-scaling-stroke"
-				width={outlineHandleSize}
-				x={outlineWidth - handleOffset}
-				y={outlineHeight - handleOffset}
-			/>
-		</Interactive.Svg>
-	);
-};
-
 export const TemplateRecorderEndcard: React.FC<{
 	readonly frame?: number;
-}> = ({frame}) => {
+	readonly scale: number | null;
+	readonly outlineStrokeWidth: number | null;
+	readonly outlineHandleSize: number | null;
+}> = ({frame, scale, outlineStrokeWidth, outlineHandleSize}) => {
+	const selectionScale = scale ?? 1;
 	return (
 		<AbsoluteFill className="justify-center items-center">
-			<ExtrudeDiv
-				width={cardWidth}
-				height={cardHeight}
-				depth={54}
-				cornerRadius={cornerRadius}
-				translationX={-20}
-				translationY={8}
-				translationZ={4}
-				rotationX={0.09}
-				rotationY={-0.34}
-				rotationZ={-0.04}
-				backFace={
-					<Interactive.Div
-						style={{
-							backgroundColor: '#d8d8d8',
-							borderRadius: cornerRadius,
-							height: '100%',
-							width: '100%',
-						}}
-					/>
-				}
+			<AbsoluteFill
+				className="justify-center items-center"
+				style={{scale: scale ?? 1}}
 			>
-				<Interactive.Div
-					style={{
-						backgroundColor: '#fafafa',
-						borderRadius: cornerRadius,
-						border: '5px solid black',
-						height: cardHeight,
-						overflow: 'hidden',
-						position: 'relative',
-						width: cardWidth,
-					}}
+				<ExtrudeDiv
+					width={cardWidth}
+					height={cardHeight}
+					depth={54}
+					cornerRadius={cornerRadius}
+					translationX={-20}
+					translationY={8}
+					translationZ={4}
+					rotationX={0.09}
+					rotationY={-0.34}
+					rotationZ={-0.04}
+					backFace={
+						<Interactive.Div
+							style={{
+								backgroundColor: '#d8d8d8',
+								borderRadius: cornerRadius,
+								height: '100%',
+								width: '100%',
+							}}
+						/>
+					}
 				>
 					<Interactive.Div
 						style={{
-							height: 1080,
-							left: 0,
-							position: 'absolute',
-							top: (cardHeight - 1080) / 2,
-							width: 1080,
-							translate: '-36.3px 0px',
+							backgroundColor: '#fafafa',
+							borderRadius: cornerRadius,
+							border: '5px solid black',
+							height: cardHeight,
+							overflow: 'hidden',
+							position: 'relative',
+							width: cardWidth,
 						}}
 					>
-						<TemplateRecorderEndcardFace frame={frame} />
+						<Interactive.Div
+							style={{
+								height: 1080,
+								left: 0,
+								position: 'absolute',
+								top: (cardHeight - 1080) / 2,
+								width: 1080,
+								translate: '-36.3px 0px',
+							}}
+						>
+							<TemplateRecorderEndcardFace frame={frame} />
+						</Interactive.Div>
 					</Interactive.Div>
-				</Interactive.Div>
-			</ExtrudeDiv>
-			<FlatSelectionOutline />
+				</ExtrudeDiv>
+			</AbsoluteFill>
+			<SelectionOutline
+				canvasSize={{width: canvasWidth, height: canvasHeight}}
+				bounds={{
+					left:
+						canvasWidth / 2 + (outlineLeft - canvasWidth / 2) * selectionScale,
+					top:
+						canvasHeight / 2 + (outlineTop - canvasHeight / 2) * selectionScale,
+					width: outlineWidth * selectionScale,
+					height: outlineHeight * selectionScale,
+				}}
+				handleSize={
+					outlineHandleSize ?? outlineHandleSizeDefault * selectionScale
+				}
+				strokeWidth={outlineStrokeWidth ?? defaultOutlineStrokeWidth}
+			/>
 		</AbsoluteFill>
 	);
 };
@@ -387,6 +311,11 @@ export const TemplateRecorderEndcardComposition: React.FC = () => {
 		<Composition
 			id="TemplateRecorderEndcard"
 			component={TemplateRecorderEndcard}
+			defaultProps={{
+				scale: null,
+				outlineStrokeWidth: null,
+				outlineHandleSize: null,
+			}}
 			durationInFrames={200}
 			fps={30}
 			width={canvasWidth}

@@ -1,6 +1,6 @@
 import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
-import {recastLocToOffset} from './recast-loc-to-offset';
+import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {getNodePathForRecastPath} from './sequence-props';
 import {getReadOnlySourceSnapshot} from './sequence-props-snapshot';
 
@@ -25,22 +25,13 @@ export const resolveNodePathsFromLocations = ({
 		}
 	}
 
-	// Recast normalizes whitespace and line endings. Convert its locations back
-	// to source columns without splitting the entire source prefix for each node.
-	const lineStarts = [0];
-	for (const match of fileContents.matchAll(/\r\n|[\r\n\u2028\u2029]/g)) {
-		lineStarts.push(match.index + match[0].length);
-	}
-
 	recast.visit(ast, {
 		visitJSXOpeningElement(p) {
 			const location = p.node.loc?.start;
 			const matches = location ? matchesByLine.get(location.line) : undefined;
 			if (location && matches) {
 				const nodePath = getNodePathForRecastPath(p, ast);
-				const column =
-					recastLocToOffset(fileContents, location) -
-					lineStarts[location.line - 1];
+				const {column} = getJsxSourceLocation(fileContents, location);
 				const previous = matches.byColumn.get(column);
 				matches.lastNodePath = nodePath;
 				matches.byColumn.set(column, {

@@ -13,6 +13,11 @@ import {getBrowserStudioOperations} from '../../helpers/browser-studio-operation
 import {useTimelineCalculator} from '../../helpers/calculate-timeline';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND} from '../../helpers/colors';
+import {
+	cancelDuplicatedElementSelection,
+	getDuplicatedElementSelection,
+	subscribeToDuplicatedElementSelection,
+} from '../../helpers/duplicated-element-selection';
 import type {TimelineTrackData} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	clearInsertedElementSelection,
@@ -34,6 +39,7 @@ import {showNotification} from '../Notifications/NotificationCenter';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
+import {reconcilePendingSequenceSplits} from './pending-sequence-splits';
 import {SequencePropsObserver} from './SequencePropsObserver';
 import {shouldShowTrackInTimeline} from './should-show-track-in-timeline';
 import {shouldSubscribeToSequenceProps} from './should-subscribe-to-sequence-props';
@@ -64,6 +70,7 @@ import {TimelinePinchZoom} from './TimelinePinchZoom';
 import {TimelinePlayCursorSyncer} from './TimelinePlayCursorSyncer';
 import {TimelineScrollable} from './TimelineScrollable';
 import {
+	type TimelineSelection,
 	TimelineSelectableItemsProvider,
 	TimelineSelectAllKeybindings,
 	useCurrentTimelineSelectionStateAsRef,
@@ -368,6 +375,15 @@ const TimelineInner: React.FC = () => {
 			structureTimeline,
 		};
 	}, [calculation, structureTimeline, timeline]);
+	useLayoutEffect(() => {
+		for (const track of timeline) {
+			if (track.nodePathInfo)
+				Internals.OptimisticEffects.getItems(
+					track.nodePathInfo.sequenceSubscriptionKey,
+					track.sequence.effects,
+				);
+		}
+	}, [timeline]);
 	const durationInFrames = videoConfig?.durationInFrames ?? 0;
 
 	const activeFromDragOverrideKeys = Internals.useActiveFromDragOverrideKeys();
@@ -493,6 +509,7 @@ const TimelineInner: React.FC = () => {
 		visibleTracks,
 		visibleLayoutTracks,
 		value: layerChildrenValue,
+		remapCollapsedLayers,
 	} = useTimelineLayerChildren(
 		collapsed,
 		collapsedLayout,
@@ -500,6 +517,15 @@ const TimelineInner: React.FC = () => {
 		compactSeries,
 	);
 	const {fastRefreshes} = useContext(FastRefreshContext);
+	useLayoutEffect(() => {
+		reconcilePendingSequenceSplits({
+			tracks: timeline,
+			compositionId:
+				canvasContent?.type === 'composition'
+					? canvasContent.compositionId
+					: null,
+		});
+	}, [canvasContent, timeline]);
 	const pendingSelectionStart = useRef<{
 		selection: PendingInsertedElementSelection;
 		fastRefreshes: number;
@@ -533,6 +559,94 @@ const TimelineInner: React.FC = () => {
 		getInsertedElementSelection,
 	);
 	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const duplicatedSelection = useSyncExternalStore(
+		subscribeToDuplicatedElementSelection,
+		getDuplicatedElementSelection,
+		getDuplicatedElementSelection,
+	);
+	useLayoutEffect(() => {
+		if (
+			duplicatedSelection === null ||
+			getDuplicatedElementSelection() !== duplicatedSelection
+		) {
+			return;
+		}
+
+		if (
+			canvasContent?.type !== 'composition' ||
+			canvasContent.compositionId !== duplicatedSelection.compositionId
+		) {
+			cancelDuplicatedElementSelection(duplicatedSelection.request);
+			return;
+		}
+
+		if (fastRefreshes <= duplicatedSelection.refreshAfter) {
+			return;
+		}
+
+		const targetKeys = new Set(
+			duplicatedSelection.nodes.map((node, index) =>
+				JSON.stringify([
+					node.absolutePath,
+					node.nodePath,
+					duplicatedSelection.effectIndices?.[index] ?? null,
+				]),
+			),
+		);
+		const foundKeys = new Set<string>();
+		const items = timeline.flatMap((track): TimelineSelection[] => {
+			if (track.nodePathInfo === null) {
+				return [];
+			}
+
+			const {absolutePath, nodePath} =
+				track.nodePathInfo.sequenceSubscriptionKey;
+			if (duplicatedSelection.effectIndices === null) {
+				const key = JSON.stringify([absolutePath, nodePath, null]);
+				if (!targetKeys.has(key)) return [];
+				foundKeys.add(key);
+				return [{type: 'sequence', nodePathInfo: track.nodePathInfo}];
+			}
+
+			const {nodePathInfo} = track;
+			return [...new Set(duplicatedSelection.effectIndices)].flatMap(
+				(effectIndex): TimelineSelection[] => {
+					const key = JSON.stringify([absolutePath, nodePath, effectIndex]);
+					if (!targetKeys.has(key) || !track.sequence.effects[effectIndex])
+						return [];
+					foundKeys.add(key);
+					return [
+						{
+							type: 'sequence-effect',
+							i: effectIndex,
+							nodePathInfo: {
+								...nodePathInfo,
+								auxiliaryKeys: ['effects', String(effectIndex)],
+							},
+						},
+					];
+				},
+			);
+		});
+		if (foundKeys.size !== targetKeys.size) {
+			return;
+		}
+
+		cancelDuplicatedElementSelection(duplicatedSelection.request);
+		if (items.length > 0) {
+			currentSelection.current.selectItems(items, {
+				reveal: true,
+				revealInInspector: duplicatedSelection.effectIndices !== null,
+			});
+		}
+	}, [
+		canvasContent,
+		currentSelection,
+		duplicatedSelection,
+		fastRefreshes,
+		timeline,
+	]);
+
 	useLayoutEffect(() => {
 		if (pendingInsertedElementSelection === null) {
 			pendingSelectionStart.current = null;
@@ -682,7 +796,9 @@ const TimelineInner: React.FC = () => {
 					/>
 				);
 			})}
-			{isStudioInteractivityEnabled() ? <SequencePropsObserver /> : null}
+			{isStudioInteractivityEnabled() ? (
+				<SequencePropsObserver remapCollapsedLayers={remapCollapsedLayers} />
+			) : null}
 			<TimelineLayerChildrenProvider value={layerChildrenValue}>
 				<TimelineKeyframeTracksProvider tracks={filtered}>
 					<TimelineSelectableItemsProvider timeline={shown}>
@@ -696,6 +812,7 @@ const TimelineInner: React.FC = () => {
 								<TimelineSelectAllKeybindings timeline={shown} />
 							) : null}
 							<TimelineHeightContainer>
+								<TimelinePlayCursorSyncer />
 								{isStill ? (
 									<TimelineList />
 								) : (
@@ -734,7 +851,6 @@ const TimelineInner: React.FC = () => {
 											>
 												<TimelineScrollable>
 													<TimelineTracks hasBeenCut={hasBeenCut} />
-													<TimelinePlayCursorSyncer />
 													<TimelineInOutPointer />
 													<TimelineDragHandler />
 													{isStudioInteractivityEnabled() ? (

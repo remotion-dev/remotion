@@ -43,6 +43,7 @@ import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
+import {watchRenderOutput} from '../helpers/watch-render-output';
 import {canvasRef} from '../state/canvas-ref';
 import {EditorShowGuidesRefContext} from '../state/editor-guides';
 import {EditorSnappingContext} from '../state/editor-snapping';
@@ -64,7 +65,10 @@ import {
 	isEffectDragOverTarget,
 	isLutEffectDrop,
 } from './effect-drag-and-drop';
-import {getElementDragData, hasElementDragType} from './element-drag-and-drop';
+import {
+	getElementDragData,
+	mayHaveElementDragData,
+} from './element-drag-and-drop';
 import {handleDrop} from './handle-drop';
 import {
 	hasSvgFile,
@@ -103,6 +107,9 @@ const getContainerStyle = (
 	display: 'flex',
 	overflow: 'hidden',
 	position: 'relative',
+	// Keeps canvas overlays such as the drop preview below floating Studio UI,
+	// like the composition browser in narrow layouts.
+	isolation: 'isolate',
 	backgroundColor: BACKGROUND,
 	...(editorZoomGestures ? {touchAction: 'none' as const} : {}),
 });
@@ -199,6 +206,18 @@ const isDragEventInsideCanvas = (event: DragEvent): boolean => {
 	const targetIsNode = event.target instanceof Node;
 	if (targetIsNode && current.contains(event.target as Node)) {
 		return true;
+	}
+
+	// Floating panels, such as the composition browser in narrow layouts, are
+	// portaled above the canvas. Drags over them do not target the canvas.
+	const targetElement =
+		event.target instanceof Element
+			? event.target
+			: targetIsNode
+				? (event.target as Node).parentElement
+				: null;
+	if (targetElement?.closest('[data-canvas-drop-occluder]')) {
+		return false;
 	}
 
 	const rect = current.getBoundingClientRect();
@@ -715,18 +734,14 @@ export const Canvas: React.FC<{
 		};
 	}, [keybindings, onReset, onZoomIn, onZoomOut]);
 
-	const fetchMetadata = useCallback(async () => {
+	const loadMetadata = useCallback(async () => {
 		const request = ++metadataRequestRef.current;
-		setAssetResolution(null);
 		if (canvasContent.type === 'composition') {
 			setCurrentAssetMetadata(null);
 			return;
 		}
 
-		const metadata = await getAssetMetadata(
-			canvasContent,
-			canvasContent.type === 'asset',
-		);
+		const metadata = await getAssetMetadata(canvasContent, true);
 		if (request !== metadataRequestRef.current) {
 			return;
 		}
@@ -735,7 +750,16 @@ export const Canvas: React.FC<{
 		setCurrentAssetMetadata(getAssetPreviewMetadata({canvasContent, metadata}));
 	}, [canvasContent, setCurrentAssetMetadata]);
 
+	const fetchMetadata = useCallback(() => {
+		setAssetResolution(null);
+		return loadMetadata();
+	}, [loadMetadata]);
+
 	useEffect(() => {
+		if (canvasContent.type === 'output') {
+			return watchRenderOutput(canvasContent.path, loadMetadata);
+		}
+
 		if (canvasContent.type !== 'asset') {
 			return;
 		}
@@ -746,7 +770,7 @@ export const Canvas: React.FC<{
 		return () => {
 			file.cancel();
 		};
-	}, [canvasContent, fetchMetadata]);
+	}, [canvasContent, fetchMetadata, loadMetadata]);
 
 	useEffect(() => {
 		fetchMetadata();
@@ -775,7 +799,7 @@ export const Canvas: React.FC<{
 				cannotAddSequence &&
 				canReceiveElementInstallRequest &&
 				!isAddingAsset &&
-				hasElementDragType(event.dataTransfer);
+				mayHaveElementDragData(event.dataTransfer);
 
 			if (!canDropAssets && !cannotAddSequence && !mayBeCanvasCapture) {
 				setCompositionDropPreview(null);

@@ -13,7 +13,6 @@ import {AssetSelectorModal} from './AssetSelectorModal';
 import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
-import {EffectPickerModal} from './EffectPickerModal';
 import {
 	ElementInstallConfirmation,
 	ElementLibraryAddConfirmation,
@@ -32,6 +31,7 @@ import {RenameFolder} from './NewComposition/RenameFolder';
 import {RenameStaticFileModal} from './NewComposition/RenameStaticFile';
 import {showNotification} from './Notifications/NotificationCenter';
 import {OverrideInputPropsModal} from './OverrideInputProps';
+import {PrecomposeNameModal} from './PrecomposeNameModal';
 import {PrecomposeRefactorModal} from './PrecomposeRefactorModal';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderStatusModal} from './RenderModal/RenderStatusModal';
@@ -282,6 +282,7 @@ export const Modals: React.FC<{
 					parentName={modalContextType.parentName}
 					stack={modalContextType.stack}
 					canvasCapture={modalContextType.canvasCapture}
+					openTimeline={modalContextType.openTimeline}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'new-folder' && (
@@ -331,12 +332,25 @@ export const Modals: React.FC<{
 				/>
 			) : null}
 			{modalContextType && modalContextType.type === 'web-render' && (
-				<WebRenderModalWithLoader {...modalContextType} />
+				<WebRenderModalWithLoader
+					key={
+						modalContextType.retryJobId === null
+							? `composition:${modalContextType.compositionId}`
+							: `job:${modalContextType.retryJobId}`
+					}
+					{...modalContextType}
+				/>
 			)}
 			{modalContextType &&
 			modalContextType.type === 'server-render' &&
 			(canRender || modalContextType.readOnlyStudio) ? (
 				<RenderModalWithLoader
+					key={
+						modalContextType.retrySettings === null
+							? `composition:${modalContextType.compositionId}`
+							: `job:${modalContextType.retrySettings.jobId}`
+					}
+					retrySettings={modalContextType.retrySettings}
 					readOnlyStudio={modalContextType.readOnlyStudio ?? false}
 					initialFrame={modalContextType.initialFrame}
 					initialDarkMode={modalContextType.initialDarkMode}
@@ -350,6 +364,9 @@ export const Modals: React.FC<{
 					}
 					initialOffthreadVideoThreads={
 						modalContextType.initialOffthreadVideoThreads
+					}
+					initialPreferredEffectBackend={
+						modalContextType.initialPreferredEffectBackend
 					}
 					initialMediaCacheSizeInBytes={
 						modalContextType.initialMediaCacheSizeInBytes
@@ -427,6 +444,9 @@ export const Modals: React.FC<{
 			{modalContextType && modalContextType.type === 'fix-computed-value' && (
 				<FixComputedValueModal state={modalContextType} />
 			)}
+			{modalContextType && modalContextType.type === 'precompose-name' && (
+				<PrecomposeNameModal state={modalContextType} />
+			)}
 			{modalContextType && modalContextType.type === 'precompose-refactor' && (
 				<PrecomposeRefactorModal state={modalContextType} />
 			)}
@@ -471,9 +491,6 @@ export const Modals: React.FC<{
 			{modalContextType?.type === 'element-install' && library === null ? (
 				<ElementInstallConfirmation state={modalContextType} />
 			) : null}
-			{modalContextType && modalContextType.type === 'add-effect' && (
-				<EffectPickerModal state={modalContextType} />
-			)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
 			)}

@@ -251,7 +251,10 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 			/>
 			<div style={optionRow}>
 				<div style={label}>
-					Custom @remotion/media cache size <Spacing x={0.5} />
+					<label htmlFor="remotion-render-media-cache-size" style={label}>
+						Custom @remotion/media cache size
+					</label>
+					<Spacing x={0.5} />
 					<WebRendererOptionExplainerBubble
 						apiName="mediaCacheSizeInBytes"
 						id="mediaCacheSizeInBytesOption"
@@ -262,6 +265,7 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 						checked={mediaCacheSizeInBytes !== null}
 						onChange={toggleCustomMediaCacheSizeInBytes}
 						name="media-cache-size"
+						inputId="remotion-render-media-cache-size"
 					/>
 				</div>
 			</div>
@@ -299,13 +303,13 @@ export const WebRenderModalAdvanced: React.FC<WebRenderModalAdvancedProps> = ({
 						id="allowHtmlInCanvasOption"
 					/>
 				</div>
-				<div style={rightRow}>
+				<label style={rightRow} aria-label="Allow HTML-in-canvas">
 					<Checkbox
 						checked={allowHtmlInCanvas}
 						onChange={toggleAllowHtmlInCanvas}
 						name="allow-html-in-canvas"
 					/>
-				</div>
+				</label>
 			</div>
 
 			{renderMode === 'still' ? null : (

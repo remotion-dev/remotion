@@ -25,6 +25,7 @@ const {
 	chromeModeOption,
 	audioLatencyHintOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	askAIOption,
 	keyboardShortcutsOption,
@@ -115,6 +116,9 @@ export const listCompositionsCommand = async (
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 	const askAIEnabled = askAIOption.getValue({commandLine: parsedCli}).value;
 
 	const chromiumOptions: Required<ChromiumOptions> = {
@@ -199,6 +203,7 @@ export const listCompositionsCommand = async (
 		}),
 		chromeMode,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		onLog: RenderInternals.defaultOnLog,
 	});
 

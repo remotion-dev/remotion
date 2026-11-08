@@ -11,6 +11,7 @@ function truthy<T>(value: T): value is Truthy<T> {
 
 export default defineConfig({
 	test: {
+		include: ['src/test/**/*.test.{ts,tsx}'],
 		maxWorkers: process.env.CI ? 1 : 5,
 		browser: {
 			enabled: true,

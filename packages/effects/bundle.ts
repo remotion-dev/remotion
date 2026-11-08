@@ -18,11 +18,13 @@ const effectEntrypoints = [
 	'src/brightness.ts',
 	'src/contrast.ts',
 	'src/contour-lines.ts',
+	'src/curves.ts',
 	'src/drop-shadow.ts',
 	'src/duotone.ts',
 	'src/emboss.ts',
 	'src/evolve.ts',
 	'src/exposure.ts',
+	'src/film-burn.ts',
 	'src/fisheye.ts',
 	'src/flannel.ts',
 	'src/fractal-noise.ts',
@@ -38,6 +40,7 @@ const effectEntrypoints = [
 	'src/pixel-dissolve.ts',
 	'src/pixelate.ts',
 	'src/invert.ts',
+	'src/iris-wipe.ts',
 	'src/lines.ts',
 	'src/liquid-contours.ts',
 	'src/linear-gradient.ts',
@@ -46,10 +49,12 @@ const effectEntrypoints = [
 	'src/linear-progressive-pixelate.ts',
 	'src/light-leak.ts',
 	'src/light-trail.ts',
+	'src/lightning.ts',
 	'src/lens-blur.ts',
 	'src/levels.ts',
 	'src/long-shadows.ts',
 	'src/lut.ts',
+	'src/magnify.ts',
 	'src/mirror.ts',
 	'src/noise.ts',
 	'src/noise-displacement.ts',
@@ -60,16 +65,20 @@ const effectEntrypoints = [
 	'src/pattern.ts',
 	'src/radial-progressive-blur.ts',
 	'src/radial-progressive-pixelate.ts',
+	'src/radial-wipe.ts',
+	'src/rain-fall.ts',
 	'src/region-blur.ts',
 	'src/rings.ts',
 	'src/saturation.ts',
 	'src/scanlines.ts',
 	'src/scale.ts',
 	'src/shadows-highlights.ts',
+	'src/shatter.ts',
 	'src/shine.ts',
 	'src/shrinkwrap.ts',
 	'src/skew.ts',
 	'src/speckle.ts',
+	'src/snow-fall.ts',
 	'src/sphere.ts',
 	'src/starburst.ts',
 	'src/tear.ts',
@@ -91,28 +100,33 @@ const effectEntrypoints = [
 ];
 
 console.time('Generated.');
-const output = await build({
-	entrypoints: effectEntrypoints,
-	naming: '[name].mjs',
-	external: [
-		'remotion',
-		'remotion/no-react',
-		'react',
-		'react/jsx-runtime',
-		'react/jsx-dev-runtime',
-		'react-dom',
-	],
-});
+for (const outputDirectory of ['dist/esm', 'dist/esm/preview']) {
+	const output = await build({
+		entrypoints: effectEntrypoints,
+		naming: {entry: '[name].mjs', chunk: '[name]-[hash].mjs'},
+		// Share runtime caches within each build while isolating preview modules.
+		splitting: true,
+		modulePreload: false,
+		external: [
+			'remotion',
+			'remotion/no-react',
+			'react',
+			'react/jsx-runtime',
+			'react/jsx-dev-runtime',
+			'react-dom',
+		],
+	});
 
-if (!output.success) {
-	console.log(output.logs.join('\n'));
-	process.exit(1);
-}
+	if (!output.success) {
+		console.log(output.logs.join('\n'));
+		process.exit(1);
+	}
 
-for (const file of output.outputs) {
-	const str = await file.text();
-	const out = path.join('dist', 'esm', file.path);
-	await Bun.write(out, str);
+	for (const file of output.outputs) {
+		const str = await file.text();
+		const out = path.join(outputDirectory, file.path);
+		await Bun.write(out, str);
+	}
 }
 
 console.timeEnd('Generated.');

@@ -1,8 +1,10 @@
-import {Player} from '@remotion/player';
+import {Player, type PlayerRef} from '@remotion/player';
 import {ALL_FORMATS, BlobSource, Input} from 'mediabunny';
+import {createRef} from 'react';
 import {createRoot} from 'react-dom/client';
 import {expect, test, vi} from 'vitest';
 import {page} from 'vitest/browser';
+import {MediaPlayer} from '../media-player';
 import {Video} from '../video/video';
 
 // Synthetic equivalent of #12433: genuinely encoded ALAC (unsupported by
@@ -16,17 +18,22 @@ import {Video} from '../video/video';
 const fixture =
 	'https://remotion.media/media-tests/unsupported-primary-alac-aac-v1.mov';
 
-test('Video renders and plays a decodable alternative to an unsupported default audio track', async () => {
+const testVideoAudioSelection = async (initiallyMuted: boolean) => {
 	const response = await fetch(fixture);
 	expect(response.ok).toBe(true);
 	const blob = await response.blob();
-	const input = new Input({source: new BlobSource(blob), formats: ALL_FORMATS});
+	const input = new Input({
+		source: new BlobSource(blob),
+		formats: ALL_FORMATS,
+	});
 	const src = URL.createObjectURL(blob);
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 	const root = createRoot(container);
+	const playerRef = createRef<PlayerRef>();
 	// Observe actual Web Audio playback without replacing the implementation.
 	const starts = vi.spyOn(AudioBufferSourceNode.prototype, 'start');
+	const initializes = vi.spyOn(MediaPlayer.prototype, 'initialize');
 	const Composition = () => (
 		<Video src={src} disallowFallbackToOffthreadVideo />
 	);
@@ -42,6 +49,8 @@ test('Video renders and plays a decodable alternative to an unsupported default 
 
 		root.render(
 			<Player
+				ref={playerRef}
+				initiallyMuted={initiallyMuted}
 				acknowledgeRemotionLicense
 				component={Composition}
 				inputProps={{}}
@@ -61,6 +70,9 @@ test('Video renders and plays a decodable alternative to an unsupported default 
 			expect(pixel[1]).toBeLessThan(50);
 			expect(pixel[2]).toBeLessThan(50);
 		});
+		// #12634: context readiness must not initialize a throwaway silent player.
+		expect(initializes).toHaveBeenCalledTimes(1);
+		if (initiallyMuted) playerRef.current!.unmute();
 		await page.getByRole('button', {name: 'Play video'}).click();
 		await vi.waitFor(() => {
 			const buffers = (starts.mock.contexts as AudioBufferSourceNode[])
@@ -89,7 +101,13 @@ test('Video renders and plays a decodable alternative to an unsupported default 
 		root.unmount();
 		container.remove();
 		starts.mockRestore();
+		initializes.mockRestore();
 		input.dispose();
 		URL.revokeObjectURL(src);
 	}
-});
+};
+
+test.each([false, true])(
+	'Video selects decodable audio (initiallyMuted=%s)',
+	testVideoAudioSelection,
+);

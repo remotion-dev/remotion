@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-effects-liquid-contours.png
+image: https://remotion.media/docs/generated/articles-docs-effects-liquid-contours.png
 slug: /effects/liquid-contours
 title: liquidContours()
 sidebar_label: liquidContours()
@@ -20,11 +20,11 @@ The effect replaces the source pixels. Use [`contourLines()`](/docs/effects/cont
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {liquidContours} from '@remotion/effects/liquid-contours';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -41,7 +41,7 @@ export const MyComp: React.FC = () => {
           smoothness: 1,
           seed: 4,
           offsetX: 13.4,
-          phase: 3.23 + frame / 90,
+          phase: interpolate(frame, [0, 90], [3.23, 4.23]),
         }),
       ]}
     />
@@ -101,9 +101,12 @@ Animate this value with [`useCurrentFrame()`](/docs/use-current-frame) to make t
 
 When `true`, the effect is skipped. Defaults to `false`.
 
-## Requirements
+## Implementations
 
-`liquidContours()` uses a WebGL2 backend. See [Using WebGL and WebGPU during renders](/docs/webgl).
+- WebGPU<AvailableFrom v="4.0.540" inline />
+- WebGL2
+
+See: [Preferred effect backend](/docs/options/preferred-effect-backend).
 
 ## See also
 

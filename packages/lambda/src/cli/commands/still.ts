@@ -12,6 +12,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NoReactInternals} from 'remotion/no-react';
 import {internalDownloadMedia} from '../../api/download-media';
+import {validateOutputPath} from '../../shared/validate-output-path';
 import {validateMaxRetries} from '../../shared/validate-retries';
 import {parsedLambdaCli} from '../args';
 import {getAwsRegion} from '../get-aws-region';
@@ -37,6 +38,7 @@ const {
 	delayRenderTimeoutInMillisecondsOption,
 	binariesDirectoryOption,
 	mediaCacheSizeInBytesOption,
+	preferredEffectBackendOption,
 	darkModeOption,
 	browserExecutableOption,
 	userAgentOption,
@@ -82,6 +84,11 @@ export const stillCommand = async ({
 			`${BINARY_NAME} ${STILL_COMMAND} <serve-url> <composition-id>  [output-location]`,
 		);
 		quit(1);
+	}
+
+	const downloadName = args[2] ?? null;
+	if (downloadName) {
+		validateOutputPath({outputPath: downloadName, type: 'file'});
 	}
 
 	const {envVariables, inputProps, stillFrame} = getCliOptions({
@@ -149,6 +156,9 @@ export const stillCommand = async ({
 	const mediaCacheSizeInBytes = mediaCacheSizeInBytesOption.getValue({
 		commandLine: parsedCli,
 	}).value;
+	const preferredEffectBackend = preferredEffectBackendOption.getValue({
+		commandLine: parsedCli,
+	}).value;
 
 	if (!composition) {
 		Log.info(
@@ -213,11 +223,11 @@ export const stillCommand = async ({
 			}),
 			chromeMode: 'headless-shell',
 			mediaCacheSizeInBytes: mediaCacheSizeInBytes,
+			preferredEffectBackend: preferredEffectBackend,
 		});
 		composition = compositionId;
 	}
 
-	const downloadName = args[2] ?? null;
 	const outName = parsedLambdaCli['out-name'];
 	const s3OutputProvider = getS3OutputProviderFromCli({
 		endpoint: parsedLambdaCli['s3-output-provider-endpoint'],
@@ -325,6 +335,7 @@ export const stillCommand = async ({
 		offthreadVideoThreads: null,
 		requestHandler: null,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		isProduction:
 			parsedLambdaCli[BrowserSafeApis.options.isProductionOption.cliFlag] ??
 			true,

@@ -11,6 +11,10 @@ import type {HotMiddlewareMessage} from '@remotion/studio-shared';
 import {hotMiddlewareOptions, stripAnsi} from '@remotion/studio-shared';
 import {markErrorMessageAsLoggedByServer} from '../error-overlay/error-origin';
 import {subscribeToPreviewServerEvents} from '../helpers/preview-server-events';
+import {
+	recordSequenceNodePathMutationBuild,
+	recordUnchangedSequenceNodePathMutationBuild,
+} from '../helpers/sequence-node-path-mutations';
 import {processUpdate} from './process-update';
 
 declare global {
@@ -34,6 +38,7 @@ function createReporter() {
 	let previousProblems: string | null = null;
 
 	function log(type: 'errors' | 'warnings', obj: HotMiddlewareMessage) {
+		if (obj.action === 'project-unchanged') return;
 		if (obj.action === 'building') {
 			console.log('[Fast Refresh] Building');
 			return;
@@ -86,6 +91,9 @@ function createReporter() {
 
 function processMessage(obj: HotMiddlewareMessage) {
 	switch (obj.action) {
+		case 'project-unchanged':
+			recordUnchangedSequenceNodePathMutationBuild(obj);
+			break;
 		case 'building':
 			window.remotion_isBuilding?.();
 
@@ -113,6 +121,7 @@ function processMessage(obj: HotMiddlewareMessage) {
 			}
 
 			if (applyUpdate) {
+				recordSequenceNodePathMutationBuild(obj.hash, obj.sourceMutationId);
 				window.remotion_finishedBuilding?.();
 				processUpdate(obj.hash, obj.modules, hotMiddlewareOptions);
 			}

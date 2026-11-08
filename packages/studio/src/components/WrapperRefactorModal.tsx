@@ -133,7 +133,7 @@ export const WrapperRefactorModal: React.FC<{readonly state: State}> = ({
 				) : (
 					<div style={text}>
 						{isBrowserStudio
-							? 'Agent-assisted refactoring is unavailable in remotion.dev/new.'
+							? 'Agent-assisted refactoring is unavailable in remotion.new.'
 							: remotionSkillsInfo === null && error === null
 								? 'Checking whether /remotion-markup is available...'
 								: 'The /remotion-markup Agent Skill is unavailable in this Studio.'}

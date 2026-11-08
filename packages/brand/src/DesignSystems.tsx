@@ -10,12 +10,20 @@ import {TemplateRecorderEndcard} from './HomepageAssets/TemplateRecorderEndcard'
 
 const forwardDurationInFrames = 150;
 const pingPongDurationInFrames = forwardDurationInFrames * 2 - 1;
+const endcardHoldReductionInFrames = 9;
 export const designSystemsDurationInFrames =
-	pingPongDurationInFrames - folderTreeSelectionMoveStart;
+	pingPongDurationInFrames -
+	folderTreeSelectionMoveStart -
+	endcardHoldReductionInFrames;
 const endcardSequenceStart = folderTreeSelectionMoveStart - 2;
 const animatedLogoExitEnd = 100;
 const assetScaleOverlap = 1;
 const endcardEnterStart = animatedLogoExitEnd - assetScaleOverlap;
+// Match the visible half of the 30-unit Batch rendering stroke at its 0.408 scale.
+const selectionOutlineStrokeWidth = (30 / 2) * (1920 / 3200) * 0.68;
+const animatedLogoRestScale = 1.3;
+const endcardRestScale = 0.513;
+const selectionOutlineHandleSize = 40 * animatedLogoRestScale * 0.667;
 const scaleSpring = Easing.spring({
 	damping: 200,
 	mass: 1,
@@ -38,25 +46,23 @@ export const DesignSystems: React.FC = () => {
 	const pingPongFrame =
 		frame < forwardDurationInFrames
 			? frame
-			: pingPongDurationInFrames - 1 - frame;
+			: pingPongDurationInFrames - 1 - frame - endcardHoldReductionInFrames;
 	const endcardFrame = Math.max(
 		0,
 		Math.min(frame, forwardDurationInFrames - 1) - endcardSequenceStart,
 	);
 	const animatedLogoFrame =
-		frame < forwardDurationInFrames
-			? pingPongFrame
-			: 0;
+		frame < forwardDurationInFrames ? pingPongFrame * 2 : 0;
 	const animatedLogoScale = interpolate(
 		pingPongFrame,
 		[folderTreeSelectionMoveStart, animatedLogoExitEnd],
-		[1.3, 0],
+		[animatedLogoRestScale, 0],
 		exitTransition,
 	);
 	const endcardScale = interpolate(
 		pingPongFrame,
 		[endcardEnterStart, folderTreeSelectionMoveEnd],
-		[0, 0.513],
+		[0, endcardRestScale],
 		enterTransition,
 	);
 	const endcardOpacity = interpolate(
@@ -74,8 +80,9 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
-					translate: '157px 264.7px',
+					translate: '157px 694.7px',
 					scale: 3.233,
+					zIndex: 1,
 				}}
 			>
 				<FolderTree frame={pingPongFrame} />
@@ -86,15 +93,22 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
-					translate: '189.6px 162px',
+					translate: '189.6px -138px',
 					opacity: interpolate(pingPongFrame, [75], [1], {
 						extrapolateLeft: 'clamp',
 						extrapolateRight: 'clamp',
 					}),
-					scale: animatedLogoScale,
 				}}
 			>
-				<RemotionTriangle frame={animatedLogoFrame} />
+				<RemotionTriangle
+					frame={animatedLogoFrame}
+					scale={animatedLogoScale}
+					outlineStrokeWidth={selectionOutlineStrokeWidth}
+					outlineHandleSize={
+						(selectionOutlineHandleSize * animatedLogoScale) /
+						animatedLogoRestScale
+					}
+				/>
 			</Sequence>
 			<Sequence
 				width={1080}
@@ -102,13 +116,19 @@ export const DesignSystems: React.FC = () => {
 				durationInFrames={designSystemsDurationInFrames}
 				style={{
 					position: 'absolute',
-					translate: '170.7px -145.5px',
+					translate: '170.7px -355.5px',
 					opacity: endcardOpacity,
-					scale: endcardScale,
 				}}
 				from={endcardSequenceStart}
 			>
-				<TemplateRecorderEndcard frame={endcardFrame} />
+				<TemplateRecorderEndcard
+					frame={endcardFrame}
+					scale={endcardScale}
+					outlineStrokeWidth={selectionOutlineStrokeWidth}
+					outlineHandleSize={
+						(selectionOutlineHandleSize * endcardScale) / endcardRestScale
+					}
+				/>
 			</Sequence>
 		</>
 	);

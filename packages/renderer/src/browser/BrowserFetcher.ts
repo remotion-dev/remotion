@@ -142,7 +142,9 @@ export const downloadBrowser = async ({
 }): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const platform = getPlatform();
 	const downloadURL = getChromeDownloadUrl({platform, version, chromeMode});
-	const fileName = downloadURL.split('/').pop();
+	// remotion.media URLs carry a ?clear query string, and "?" is not a valid
+	// file name character on Windows.
+	const fileName = downloadURL.split('/').pop()?.split('?')[0];
 	if (!fileName) {
 		throw new Error(`A malformed download URL was found: ${downloadURL}.`);
 	}
@@ -154,7 +156,10 @@ export const downloadBrowser = async ({
 
 	if (await existsAsync(outputPath)) {
 		const installedVersion = readVersionFile(chromeMode);
-		if (installedVersion === expectedVersion) {
+		if (
+			installedVersion === expectedVersion &&
+			(await existsAsync(getRevisionInfo(chromeMode).executablePath))
+		) {
 			return getRevisionInfo(chromeMode);
 		}
 	}
@@ -184,13 +189,16 @@ export const downloadBrowser = async ({
 	try {
 		if (await existsAsync(outputPath)) {
 			const installedVersion = readVersionFile(chromeMode);
-			if (installedVersion === expectedVersion) {
+			if (
+				installedVersion === expectedVersion &&
+				(await existsAsync(getRevisionInfo(chromeMode).executablePath))
+			) {
 				return getRevisionInfo(chromeMode);
 			}
-
-			// VERSION file missing or mismatched - delete and re-download
-			fs.rmSync(outputPath, {recursive: true, force: true});
 		}
+
+		fs.rmSync(getVersionFilePath(chromeMode), {force: true});
+		fs.rmSync(outputPath, {recursive: true, force: true});
 
 		logDownloadUrl({url: downloadURL, logLevel, indent});
 
@@ -257,10 +265,9 @@ export const downloadBrowser = async ({
 			}
 		}
 
-		writeVersionFile(chromeMode, expectedVersion);
-
 		const revisionInfo = getRevisionInfo(chromeMode);
 		makeFileExecutableIfItIsNot(revisionInfo.executablePath);
+		writeVersionFile(chromeMode, expectedVersion);
 
 		return revisionInfo;
 	} finally {

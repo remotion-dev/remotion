@@ -91,6 +91,7 @@ test('Render Media payload', async () => {
 			colorSpace: null,
 			concurrencyPerLambda: 1,
 			concurrency: null,
+			chunks: null,
 			crf: undefined,
 			deleteAfter: null,
 			downloadBehavior: {
@@ -146,6 +147,7 @@ test('Render Media payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 			sampleRate: 48000,
 		});
@@ -197,6 +199,7 @@ test('Render Still payload', async () => {
 			storageClass: null,
 			requestHandler: null,
 			mediaCacheSizeInBytes: null,
+			preferredEffectBackend: 'auto',
 			isProduction: null,
 		});
 

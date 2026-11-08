@@ -12,13 +12,16 @@ import {
 	getTimelineWidth,
 	getTimelineZoom,
 } from '../../helpers/get-timeline-max-zoom';
-import {isStudioSelectionEnabled} from '../../helpers/interactivity-enabled';
 import {
 	isPointerSessionRelease,
 	startCapturedPointerSession,
 } from '../../helpers/pointer-session';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
+import {
+	forceSpecificCursor,
+	stopForcingSpecificCursor,
+} from '../ForceSpecificCursor';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {setCurrentFrame} from './imperative-state';
 import {
@@ -121,9 +124,7 @@ export const TimelineDragHandler: React.FC = () => {
 			style={containerStyle}
 			{...{[TIMELINE_SCRUBBER_ATTR]: true}}
 		>
-			{video && isStudioSelectionEnabled() ? (
-				<TimelineDragHandlerInnerMemo />
-			) : null}
+			{video ? <TimelineDragHandlerInnerMemo /> : null}
 		</div>
 	);
 };
@@ -175,6 +176,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 
 			document.body.style.userSelect = 'none';
 			document.body.style.webkitUserSelect = 'none';
+			forceSpecificCursor('default');
 
 			const frame = getFrameFromX({
 				clientX: getClientXWithScroll(e.clientX) - left,
@@ -345,6 +347,7 @@ const TimelineDragHandlerInner: React.FC = () => {
 			captureTarget: dragging.target,
 			onMove: onPointerMoveScrubbing,
 			onEnd: (reason, endEvent) => {
+				stopForcingSpecificCursor();
 				if (isPointerSessionRelease(reason, endEvent)) {
 					onPointerUpScrubbing(endEvent);
 				} else {

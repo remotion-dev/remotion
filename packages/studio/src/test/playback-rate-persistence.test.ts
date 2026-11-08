@@ -49,6 +49,16 @@ test('restores a persisted negative playback rate', () => {
 	expect(loadPlaybackRate()).toBe(-2);
 });
 
+test('restores a custom playback rate', () => {
+	persistPlaybackRate(1.25);
+	expect(loadPlaybackRate()).toBe(1.25);
+});
+
+test('restores a custom playback rate below 0.1', () => {
+	persistPlaybackRate(0.05);
+	expect(loadPlaybackRate()).toBe(0.05);
+});
+
 test('falls back to 1 when no playback rate was persisted', () => {
 	const readKeys: string[] = [];
 	Object.defineProperty(globalThis, 'localStorage', {
@@ -65,7 +75,7 @@ test('falls back to 1 when no playback rate was persisted', () => {
 });
 
 test('falls back to 1 when the persisted value is not a supported playback rate', () => {
-	for (const invalid of ['abc', '', '0', 'Infinity', '3']) {
+	for (const invalid of ['abc', '', '0', '-0', 'Infinity', '-4.1', '4.1']) {
 		storage.set('remotion.playbackrate', invalid);
 		expect(loadPlaybackRate()).toBe(1);
 	}

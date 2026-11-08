@@ -178,11 +178,17 @@ const SequenceTestWrapperWithVisualModeOverrides: React.FC<
 	const visualSetters = useMemo(
 		() => ({
 			setDragOverrides: () => undefined,
+			updateDragOverrides: () => undefined,
+			updateDragOverridesBatch: () => undefined,
+			remapDragOverrideFields: () => undefined,
+			updateEffectDragOverridesBatch: () => undefined,
+			remapEffectDragOverrideFields: () => undefined,
 			clearDragOverrides: () => undefined,
 			setEffectDragOverrides: () => undefined,
 			clearEffectDragOverrides: () => undefined,
 			remapPropStatuses: () => undefined,
 			setPropStatuses: () => undefined,
+			setPropStatusesBatch: () => undefined,
 		}),
 		[],
 	);
@@ -871,9 +877,9 @@ test('Named Img components keep the default documentation link', () => {
 	);
 });
 
-test('Img exposes non-keyframable premounting schema fields', () => {
-	expect(imgSchema.premountFor.keyframable).toBe(false);
-	expect(imgSchema.postmountFor.keyframable).toBe(false);
+test('Img does not expose premounting schema fields by default', () => {
+	expect(imgSchema).not.toHaveProperty('premountFor');
+	expect(imgSchema).not.toHaveProperty('postmountFor');
 });
 
 test('Img hides the image while premounted and postmounted', () => {
@@ -1029,9 +1035,9 @@ test('AnimatedImage registers an automatic Studio outline', () => {
 	).toEqual([]);
 });
 
-test('AnimatedImage exposes non-keyframable premounting schema fields', () => {
-	expect(animatedImageSchema.premountFor.keyframable).toBe(false);
-	expect(animatedImageSchema.postmountFor.keyframable).toBe(false);
+test('AnimatedImage does not expose premounting schema fields by default', () => {
+	expect(animatedImageSchema).not.toHaveProperty('premountFor');
+	expect(animatedImageSchema).not.toHaveProperty('postmountFor');
 });
 
 test('AnimatedImage applies crop props to its canvas', () => {

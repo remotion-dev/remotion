@@ -45,6 +45,7 @@ test(
 				colorSpace: null,
 				concurrencyPerLambda: 1,
 				concurrency: null,
+				chunks: null,
 				crf: undefined,
 				deleteAfter: null,
 				downloadBehavior: {type: 'play-in-browser'},
@@ -92,6 +93,7 @@ test(
 				storageClass: null,
 				requestHandler: null,
 				mediaCacheSizeInBytes: null,
+				preferredEffectBackend: 'auto',
 				isProduction: null,
 				sampleRate: 48000,
 			});

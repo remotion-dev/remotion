@@ -6,7 +6,7 @@ const pendingSuppressedWrites = new Set<string>();
 let currentPlugin: WatchIgnoreNextChangePlugin | null = null;
 
 export const setWatchIgnoreNextChangePlugin = (
-	plugin: WatchIgnoreNextChangePlugin,
+	plugin: WatchIgnoreNextChangePlugin | null,
 ): void => {
 	currentPlugin = plugin;
 	pendingSuppressedWrites.clear();
@@ -18,35 +18,50 @@ export const suppressBundlerUpdateForFile = (absolutePath: string): void => {
 
 // Consume the intent for this write, rather than letting an earlier suppressed
 // write swallow a subsequent structural change in the watcher's aggregated event.
-export const prepareBundlerForFileWrite = (absolutePath: string): void => {
+export const prepareBundlerForFileWrite = (
+	absolutePath: string,
+	contents: string | null,
+): void => {
 	if (pendingSuppressedWrites.delete(absolutePath)) {
-		currentPlugin?.ignoreNextChange(absolutePath);
+		currentPlugin?.ignoreNextChange(absolutePath, contents);
 	} else {
 		currentPlugin?.requireRebuild(absolutePath);
 	}
 };
 
-export const invalidatePreviouslySuppressedFiles =
-	async (): Promise<boolean> => {
-		if (!currentPlugin) {
-			return false;
-		}
+export const notifyBundlerOfFileChange = (
+	absolutePath: string,
+	contents: string | null,
+): void => {
+	currentPlugin?.notifyFileChanged(absolutePath, contents);
+};
 
-		const files = currentPlugin.consumeSuppressedFilesForRebuild();
-		const now = new Date();
-		const touchedFiles = await Promise.all(
-			files.map(async (file) => {
-				try {
-					await fs.utimes(file, now, now);
-					return true;
-				} catch {
-					return false;
-				}
-			}),
-		);
+export const invalidatePreviouslySuppressedFiles = async (
+	onlyFile: string | null,
+): Promise<boolean> => {
+	if (!currentPlugin) {
+		return false;
+	}
 
-		return touchedFiles.some(Boolean);
-	};
+	const files = currentPlugin.consumeSuppressedFilesForRebuild(onlyFile);
+	const now = new Date();
+	const touchedFiles = await Promise.all(
+		files.map(async (file) => {
+			try {
+				await fs.utimes(file, now, now);
+				return {file, contents: await fs.readFile(file, 'utf8')};
+			} catch {
+				return null;
+			}
+		}),
+	);
+	for (const file of touchedFiles) {
+		if (file !== null)
+			currentPlugin.notifyFileChanged(file.file, file.contents);
+	}
+
+	return touchedFiles.some((file) => file !== null);
+};
 
 // Why do we need this?
 // Consider we have a <Sequence>.
@@ -59,5 +74,5 @@ export const invalidatePreviouslySuppressedFiles =
 // --> When reloading the Studio, it is a good idea to reset Webpack to a non-hacked state.
 
 export const reloadPreviouslySuppressedFiles = async (): Promise<void> => {
-	await invalidatePreviouslySuppressedFiles();
+	await invalidatePreviouslySuppressedFiles(null);
 };

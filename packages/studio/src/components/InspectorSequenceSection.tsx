@@ -13,7 +13,9 @@ import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {BLUE, LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
+import {NO_HOVER_BACKGROUND_STYLE} from '../helpers/hoverable';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {projectEffectSequence} from '../helpers/optimistic-effect-projection';
 import {
 	flattenVisibleTreeNodes,
 	SCHEMA_FIELD_GROUPS,
@@ -21,15 +23,14 @@ import {
 	type SchemaFieldGroupInfo,
 	type TimelineTreeNode,
 } from '../helpers/timeline-layout';
+import {timelineNodePathInfoToStableKey} from '../helpers/timeline-node-path-key';
+import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {
 	useRuntimeValue,
 	useRuntimeValueSelector,
 } from '../helpers/use-runtime-values';
 import {BorderRadiusIcon} from '../icons/border-radius';
 import {CubeIcon} from '../icons/cube';
-import {FullscreenIcon} from '../icons/fullscreen';
-import {Plus} from '../icons/plus';
-import {SetSelectedModalContext} from '../state/modals';
 import {Transform3DModeStateContext} from '../state/transform-3d-mode';
 import {ActionTooltip} from './ActionTooltip';
 import {AssetFileIcon} from './AssetFileIcon';
@@ -37,10 +38,13 @@ import {InlineAction} from './InlineAction';
 import {InlineCaptionInspector} from './InlineCaptionInspector';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
 import {InspectorSection} from './InspectorPanel/common';
+import {CurvesEditor} from './InspectorPanel/CurvesEditor';
 import {
 	getInspectorSectionActivity,
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
+import {LevelsEditor} from './InspectorPanel/LevelsEditor';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -76,6 +80,7 @@ import {propStatusHas3DTransformValue} from './Timeline/transform-3d-mode';
 import {Transform3DModeContext} from './Timeline/Transform3DModeContext';
 import {useTimelineExpandedTree} from './Timeline/use-timeline-expanded-tree';
 import {useSelectAsset} from './use-select-asset';
+import {useSelectEffects} from './use-select-effects';
 
 const container: React.CSSProperties = {
 	color: WHITE,
@@ -85,21 +90,30 @@ const container: React.CSSProperties = {
 	fontSize: 12,
 };
 
-const plusIcon: React.CSSProperties = {
-	width: 15,
-	height: 15,
+const sectionHeaderActionStyle: React.CSSProperties = {
+	...NO_HOVER_BACKGROUND_STYLE,
+	marginRight: -6,
 };
 
-const borderRadiusToggleIcon: React.CSSProperties = {
+const sectionHeaderActionIcon: React.CSSProperties = {
 	flexShrink: 0,
-	height: 15,
-	width: 15,
+	height: 12,
+	width: 12,
 };
 
 const transform3DToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 14,
 	width: 14,
+};
+
+const transformControlsRow: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	gap: 25,
+	justifyContent: 'flex-start',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 12px`,
+	transform: 'translateX(-3px)',
 };
 
 const assetSelectorIcon: React.CSSProperties = {
@@ -159,7 +173,9 @@ const INSPECTOR_SECTION_EXPANSION_OVERRIDES_SESSION_STORAGE_KEY =
 	'remotion.editor.inspectorSectionExpansionOverrides';
 
 const getInspectorExpansionKey = (nodePathInfo: SequenceNodePathInfo) => {
-	return JSON.stringify(nodePathInfo);
+	return nodePathInfo.auxiliaryKeys[0] === 'effects'
+		? timelineNodePathInfoToStableKey(nodePathInfo)
+		: JSON.stringify(nodePathInfo);
 };
 
 const loadInspectorCollapsedKeys = (): ReadonlySet<string> => {
@@ -322,18 +338,24 @@ export const InspectorSequenceSection: React.FC<{
 	sequenceFrameOffset,
 	renderTransformControls,
 }) => {
+	const projectedSequence = projectEffectSequence(
+		sequence,
+		nodePathInfo.sequenceSubscriptionKey,
+		null,
+	);
 	const {tree, propStatuses} = useTimelineExpandedTree({
 		sequence,
 		nodePathInfo,
 		includeTextContent: true,
 		includeSourceControls: true,
+		includeInspectorOnlyFields: true,
 	});
-	const {
-		consumeInspectorRevealRequest,
-		inspectorRevealRequest,
-		selectedItems,
-		selectItems,
-	} = useTimelineSelection();
+	const projectedStatusesContext = useMemo(
+		() => ({propStatuses}),
+		[propStatuses],
+	);
+	const {consumeInspectorRevealRequest, inspectorRevealRequest, selectedItems} =
+		useTimelineSelection();
 	const selectedEffect =
 		selectedItems.length === 1 &&
 		(selectedItems[0].type === 'sequence-effect' ||
@@ -383,7 +405,8 @@ export const InspectorSequenceSection: React.FC<{
 		Internals.VisualModeDragOverridesContext,
 	);
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
-	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const selectEffects = useSelectEffects();
+	const selectEffectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const selectAsset = useSelectAsset();
 	const selectMediaSrc = useCallback(
 		(values: Readonly<Record<string, unknown>>) =>
@@ -603,7 +626,8 @@ export const InspectorSequenceSection: React.FC<{
 
 		selectedEffectRowRef.current.scrollIntoView({block: 'center'});
 		scrolledInspectorRevealToken.current = inspectorRevealToken;
-	}, [effectRows, inspectorRevealToken]);
+		consumeInspectorRevealRequest(inspectorRevealToken);
+	}, [consumeInspectorRevealRequest, effectRows, inspectorRevealToken]);
 
 	const effectSelectableItems = useMemo(
 		() => getInspectorSelectableItems(effectRows),
@@ -818,18 +842,25 @@ export const InspectorSequenceSection: React.FC<{
 		getDragOverrides(nodePathInfo.sequenceSubscriptionKey),
 	);
 	const hasCaptionsSchema = schema.captions?.type === 'remotion-captions';
+	const captionStatus = sequencePropStatuses?.captions;
 	const runtimeCaptions = useRuntimeValue(
-		hasCaptionsSchema ? sequence.controls : null,
+		hasCaptionsSchema && captionStatus?.status !== 'static'
+			? sequence.controls
+			: null,
 		'captions',
 	);
+	const captionValue =
+		captionStatus?.status === 'static'
+			? captionStatus.codeValue
+			: runtimeCaptions;
 	const inlineCaptions = useMemo(
 		() =>
 			hasCaptionsSchema
-				? Array.isArray(runtimeCaptions)
-					? (runtimeCaptions as Caption[])
+				? Array.isArray(captionValue)
+					? (captionValue as Caption[])
 					: []
 				: null,
-		[hasCaptionsSchema, runtimeCaptions],
+		[hasCaptionsSchema, captionValue],
 	);
 	const {
 		getCurrentFrame: getCommittedSequenceFrame,
@@ -925,28 +956,12 @@ export const InspectorSequenceSection: React.FC<{
 		Boolean(validatedLocation.source);
 
 	const onAddEffect = useCallback(() => {
-		if (!canAddEffect || previewServerState.type !== 'connected') {
+		if (!canAddEffect) {
 			return;
 		}
 
-		setAdditionalSectionExpanded('effects', true);
-
-		setSelectedModal({
-			type: 'add-effect',
-			clientId: previewServerState.clientId,
-			fileName: validatedLocation.source,
-			nodePathInfo,
-			selectItems,
-		});
-	}, [
-		canAddEffect,
-		nodePathInfo,
-		previewServerState,
-		setAdditionalSectionExpanded,
-		setSelectedModal,
-		selectItems,
-		validatedLocation.source,
-	]);
+		selectEffects(nodePathInfo);
+	}, [canAddEffect, nodePathInfo, selectEffects]);
 
 	const onConvertBorderRadius = useCallback(() => {
 		if (
@@ -1007,13 +1022,14 @@ export const InspectorSequenceSection: React.FC<{
 				}
 				onClick={onConvertBorderRadius}
 				aria-label={borderRadiusActionLabel}
-				renderAction={(color) =>
-					borderRadiusUsesShorthand ? (
-						<FullscreenIcon color={color} style={borderRadiusToggleIcon} />
-					) : (
-						<BorderRadiusIcon color={color} style={borderRadiusToggleIcon} />
-					)
-				}
+				style={sectionHeaderActionStyle}
+				renderAction={(color) => (
+					<BorderRadiusIcon
+						color={color}
+						individual={borderRadiusUsesShorthand ?? false}
+						style={sectionHeaderActionIcon}
+					/>
+				)}
 			/>
 		</ActionTooltip>
 	) : null;
@@ -1049,7 +1065,7 @@ export const InspectorSequenceSection: React.FC<{
 			action={
 				<ActionTooltip
 					label="Add effect"
-					shortcut={null}
+					shortcut={selectEffectsShortcut}
 					delay={800}
 					dismissOnClick
 				>
@@ -1058,7 +1074,18 @@ export const InspectorSequenceSection: React.FC<{
 						disabled={!canAddEffect}
 						onClick={onAddEffect}
 						aria-label="Add effect"
-						renderAction={(color) => <Plus color={color} style={plusIcon} />}
+						style={sectionHeaderActionStyle}
+						renderAction={(color) => (
+							<svg viewBox="0 0 12 12" style={sectionHeaderActionIcon}>
+								<path
+									d="M6 1.25v9.5M1.25 6h9.5"
+									fill="none"
+									stroke={color}
+									strokeWidth="1"
+									strokeLinecap="round"
+								/>
+							</svg>
+						)}
 					/>
 				</ActionTooltip>
 			}
@@ -1071,7 +1098,7 @@ export const InspectorSequenceSection: React.FC<{
 	const renderRow = ({node, depth}: FlatTreeRow) => {
 		return (
 			<TimelineRowLayoutContext.Provider
-				key={JSON.stringify(node.nodePathInfo)}
+				key={timelineNodePathInfoToStableKey(node.nodePathInfo)}
 				value={INSPECTOR_TIMELINE_ROW_LAYOUT}
 			>
 				<TimelineExpandedRow
@@ -1097,13 +1124,7 @@ export const InspectorSequenceSection: React.FC<{
 		return (
 			<CollapsibleInspectorSectionHeader
 				action={
-					expanded
-						? group.id === 'border-radius'
-							? borderRadiusAction
-							: group.id === 'transforms'
-								? transform3DAction
-								: null
-						: null
+					expanded && group.id === 'border-radius' ? borderRadiusAction : null
 				}
 				expanded={expanded}
 				label={group.label}
@@ -1138,68 +1159,134 @@ export const InspectorSequenceSection: React.FC<{
 	}
 
 	return (
-		<AssetSelectionContext.Provider value={assetSelectionContextValue}>
-			<div style={container}>
-				{controlRows.length > 0 ? (
-					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						{controlGroupsWithoutLayout.map((group) => (
-							<React.Fragment key={group.id}>
-								{group.id === 'transforms' ? captionsInspector : null}
-								<InspectorSection header={renderControlGroupHeader(group)}>
-									{isControlGroupExpanded(group) ? (
-										group.id === 'transforms' ? (
-											<Transform3DModeContext.Provider
-												value={show3DTransformControls}
-											>
-												{renderTransformControls()}
-												{group.rows.map(renderRow)}
-											</Transform3DModeContext.Provider>
-										) : (
-											group.rows.map(renderRow)
-										)
-									) : null}
-								</InspectorSection>
-							</React.Fragment>
-						))}
-					</TimelineSelectionOrderProvider>
-				) : null}
-				{controlGroupsWithoutLayout.every((group) => group.id !== 'transforms')
-					? captionsInspector
-					: null}
-				{showEffectsSection ? (
-					<InspectorSection header={effectsHeader}>
-						{effectRows.length > 0 ? (
-							<TimelineSelectionOrderProvider items={effectSelectableItems}>
-								{effectRows.map((row) => {
-									const selection = getTimelineSelectionFromNodePathInfo(
-										row.node.nodePathInfo,
-									);
-									const selected =
-										selection !== null &&
-										getTimelineSelectionKey(selection) === selectedEffectKey;
-									return (
-										<div
-											key={getInspectorExpansionKey(row.node.nodePathInfo)}
-											ref={selected ? selectedEffectRowRef : null}
-										>
-											{renderRow(row)}
-										</div>
-									);
-								})}
-							</TimelineSelectionOrderProvider>
-						) : null}
-					</InspectorSection>
-				) : null}
-				{layoutGroup ? (
-					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						<InspectorSection header={renderControlGroupHeader(layoutGroup)}>
-							{isControlGroupExpanded(layoutGroup)
-								? layoutGroup.rows.map(renderRow)
-								: null}
-						</InspectorSection>
-					</TimelineSelectionOrderProvider>
-				) : null}
-			</div>
-		</AssetSelectionContext.Provider>
+		<Internals.VisualModePropStatusesContext.Provider
+			value={projectedStatusesContext}
+		>
+			<AssetSelectionContext.Provider value={assetSelectionContextValue}>
+				<div style={container}>
+					{controlRows.length > 0 ? (
+						<TimelineSelectionOrderProvider items={controlSelectableItems}>
+							{controlGroupsWithoutLayout.map((group) => (
+								<React.Fragment key={group.id}>
+									{group.id === 'transforms' ? captionsInspector : null}
+									<InspectorSection
+										expanded={isControlGroupExpanded(group)}
+										header={renderControlGroupHeader(group)}
+									>
+										{isControlGroupExpanded(group) ? (
+											group.id === 'transforms' ? (
+												<Transform3DModeContext.Provider
+													value={show3DTransformControls}
+												>
+													<div style={transformControlsRow}>
+														{renderTransformControls()}
+														{transform3DAction}
+													</div>
+													{group.rows.map(renderRow)}
+												</Transform3DModeContext.Provider>
+											) : (
+												group.rows.map(renderRow)
+											)
+										) : null}
+									</InspectorSection>
+								</React.Fragment>
+							))}
+						</TimelineSelectionOrderProvider>
+					) : null}
+					{controlGroupsWithoutLayout.every(
+						(group) => group.id !== 'transforms',
+					)
+						? captionsInspector
+						: null}
+					{showEffectsSection ? (
+						<section aria-label="Effects">
+							<InspectorSection
+								expanded={effectsExpanded}
+								header={effectsHeader}
+							>
+								{effectRows.length > 0 ? (
+									<TimelineSelectionOrderProvider items={effectSelectableItems}>
+										{effectRows.map((row) => {
+											const selection = getTimelineSelectionFromNodePathInfo(
+												row.node.nodePathInfo,
+											);
+											const selected =
+												selection !== null &&
+												getTimelineSelectionKey(selection) ===
+													selectedEffectKey;
+											return (
+												<div
+													key={getInspectorExpansionKey(row.node.nodePathInfo)}
+													ref={selected ? selectedEffectRowRef : null}
+												>
+													{row.node.kind === 'field' &&
+													row.node.field?.kind === 'effect-field' &&
+													row.node.field.key === 'points' &&
+													projectedSequence.effects[row.node.field.effectIndex]
+														?.type === 'remotion/curves' ? (
+														<CurvesEditor
+															multipleInstances={
+																nodePathInfo.numberOfSequencesWithThisNodePath >
+																1
+															}
+															nodePath={nodePathInfo.sequenceSubscriptionKey}
+															effectIndex={row.node.field.effectIndex}
+															schema={row.node.field.effectSchema}
+															validatedLocation={validatedLocation}
+															runtimeValueStore={
+																projectedSequence.effectRuntimeValues?.[
+																	row.node.field.effectIndex
+																] ?? null
+															}
+														/>
+													) : (
+														renderRow(row)
+													)}
+													{row.node.kind === 'field' &&
+													row.node.field?.kind === 'effect-field' &&
+													row.node.field.key === 'channel' &&
+													projectedSequence.effects[row.node.field.effectIndex]
+														?.type === 'remotion/levels' ? (
+														<LevelsEditor
+															multipleInstances={
+																nodePathInfo.numberOfSequencesWithThisNodePath >
+																1
+															}
+															nodePath={nodePathInfo.sequenceSubscriptionKey}
+															effectIndex={row.node.field.effectIndex}
+															schema={row.node.field.effectSchema}
+															validatedLocation={validatedLocation}
+															runtimeValueStore={
+																projectedSequence.effectRuntimeValues?.[
+																	row.node.field.effectIndex
+																] ?? null
+															}
+															keyframeDisplayOffset={keyframeDisplayOffset}
+															keyframePlaybackRate={keyframePlaybackRate}
+														/>
+													) : null}
+												</div>
+											);
+										})}
+									</TimelineSelectionOrderProvider>
+								) : null}
+							</InspectorSection>
+						</section>
+					) : null}
+					{layoutGroup ? (
+						<TimelineSelectionOrderProvider items={controlSelectableItems}>
+							<InspectorSection
+								expanded={isControlGroupExpanded(layoutGroup)}
+								header={renderControlGroupHeader(layoutGroup)}
+							>
+								{isControlGroupExpanded(layoutGroup)
+									? layoutGroup.rows.map(renderRow)
+									: null}
+							</InspectorSection>
+						</TimelineSelectionOrderProvider>
+					) : null}
+				</div>
+			</AssetSelectionContext.Provider>
+		</Internals.VisualModePropStatusesContext.Provider>
 	);
 };

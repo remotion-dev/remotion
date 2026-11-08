@@ -5,6 +5,10 @@ import {
 	resolveDragOverrideValue,
 } from '../get-effective-visual-mode-value.js';
 import {interpolateKeyframedStatus} from '../interpolate-keyframed-status.js';
+import {
+	OptimisticEffects,
+	useOptimisticEffects,
+} from '../optimistic-effects.js';
 import {areRegistryEntriesEqual} from '../registry-store.js';
 import {createRuntimeValueStore} from '../runtime-value-store.js';
 import type {RuntimeValueStore} from '../runtime-value-store.js';
@@ -22,12 +26,15 @@ import {
 	type SequencePropsSubscriptionKey,
 } from '../SequenceManager.js';
 import {useCurrentFrameWithOptionalSubscription} from '../use-current-frame.js';
+import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {
 	type CanUpdateSequencePropStatus,
 	type DragOverrideValue,
 	type PropStatuses,
 } from '../use-schema.js';
 import type {VideoConfigValues} from '../video-config.js';
+import {useEffectPreview} from './effect-preview.js';
+import {useEffectSourceInspection} from './effect-source-observer.js';
 import type {
 	EffectDefinitionAndStack,
 	EffectDescriptor,
@@ -326,11 +333,13 @@ type PreparedEffect = {
 };
 
 export const useMemoizedEffects = ({
-	effects,
+	effects: sourceEffects,
+	runtimeValues,
 	overrideId,
 	videoConfigValues,
 }: {
 	effects: readonly EffectDescriptor<unknown>[];
+	readonly runtimeValues: RuntimeValueStore | null;
 	readonly overrideId: string | null;
 	videoConfigValues: VideoConfigValues | null;
 }): EffectDefinitionAndStack<unknown>[] => {
@@ -338,6 +347,8 @@ export const useMemoizedEffects = ({
 		readonly prepared: PreparedEffect[];
 		readonly effects: EffectDefinitionAndStack<unknown>[];
 	} | null>(null);
+	const preview = useEffectPreview(runtimeValues);
+	const {isStudio, isRendering} = useRemotionEnvironment();
 
 	const {overrideIdToNodePathMappings} = useContext(
 		OverrideIdsToNodePathsGettersContext,
@@ -348,6 +359,28 @@ export const useMemoizedEffects = ({
 	const nodePath = overrideId
 		? (overrideIdToNodePathMappings[overrideId] ?? null)
 		: null;
+	const optimisticNodePath = isStudio && !isRendering ? nodePath : null;
+	const optimistic = useOptimisticEffects(optimisticNodePath);
+	const optimisticHistory = useRef(
+		new Map<string, EffectDescriptor<unknown>>(),
+	);
+	const projection = useMemo(
+		() =>
+			OptimisticEffects.projectEffects(
+				optimistic?.nodePath ?? optimisticNodePath,
+				sourceEffects,
+				optimisticHistory.current,
+			),
+		[optimistic, optimisticNodePath, sourceEffects],
+	);
+	const {effects} = projection;
+	useLayoutEffect(() => {
+		if (optimisticNodePath !== null)
+			OptimisticEffects.reconcile(
+				optimisticNodePath,
+				sourceEffects.map((effect) => effect.definition),
+			);
+	}, [optimisticNodePath, optimistic, sourceEffects]);
 	const effectDragOverrides = useEffectDragOverridesForNodePath(nodePath);
 	const sequenceStatus = usePropStatusForNodePath(nodePath);
 
@@ -358,14 +391,39 @@ export const useMemoizedEffects = ({
 					return null;
 				}
 
-				const status = getEffectStatusForSequenceStatus({
-					status: sequenceStatus,
-					effectIndex,
-					videoConfigValues,
-				});
-				return status.type === 'can-update-effect' ? status.props : null;
+				const sourceIndex =
+					projection.sourceIndices === null
+						? effectIndex
+						: projection.sourceIndices[effectIndex];
+				const status =
+					sourceIndex === null || sourceIndex === undefined
+						? null
+						: getEffectStatusForSequenceStatus({
+								status: sequenceStatus,
+								effectIndex: sourceIndex,
+								videoConfigValues,
+							});
+				const props =
+					status?.type === 'can-update-effect' ? status.props : null;
+				const id = projection.itemIds?.[effectIndex];
+				const overlay = id
+					? OptimisticEffects.getPropStatuses(nodePath, id)
+					: null;
+				return overlay === null
+					? props
+					: {
+							...props,
+							...evaluateSourcePropStatuses(overlay, videoConfigValues),
+						};
 			}),
-		[effects.length, nodePath, sequenceStatus, videoConfigValues],
+		[
+			effects.length,
+			nodePath,
+			sequenceStatus,
+			videoConfigValues,
+			projection.sourceIndices,
+			projection.itemIds,
+		],
 	);
 	const animatedEffects = useMemo(
 		() =>
@@ -386,62 +444,70 @@ export const useMemoizedEffects = ({
 		animatedEffects.some(Boolean),
 	);
 
-	const prepared = effects.map((descriptor, index): PreparedEffect => {
-		const propStatus = effectPropStatuses[index];
-		const dragOverridesMap = effectDragOverrides[index] ?? emptyDragOverrides;
-		const dragOverrides =
-			Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
-		const effectFrame = animatedEffects[index] ? frame : null;
-		const cached = previous?.prepared[index];
-		if (
-			cached &&
-			cached.definition === descriptor.definition &&
-			cached.sourceKey === descriptor.effectKey &&
-			areEffectParamsEqual(cached.params, descriptor.params) &&
-			cached.propStatus === propStatus &&
-			cached.dragOverrides === dragOverrides &&
-			cached.frame === effectFrame
-		) {
-			return cached;
-		}
+	const effectsWithPreview = preview === null ? effects : [...effects, preview];
+	const prepared = effectsWithPreview.map(
+		(descriptor, index): PreparedEffect => {
+			const propStatus = effectPropStatuses[index] ?? null;
+			const dragOverridesMap =
+				index < effects.length
+					? (effectDragOverrides[index] ?? emptyDragOverrides)
+					: emptyDragOverrides;
+			const dragOverrides =
+				Object.keys(dragOverridesMap).length === 0 ? null : dragOverridesMap;
+			const effectFrame = animatedEffects[index] ? frame : null;
+			const cached = previous?.prepared[index];
+			if (
+				cached &&
+				cached.definition === descriptor.definition &&
+				cached.sourceKey === descriptor.effectKey &&
+				areEffectParamsEqual(cached.params, descriptor.params) &&
+				cached.propStatus === propStatus &&
+				cached.dragOverrides === dragOverrides &&
+				cached.frame === effectFrame
+			) {
+				return cached;
+			}
 
-		const propStatusOverrides = resolvePropStatusOverrides(
-			propStatus ?? undefined,
-			frame,
-		);
+			const propStatusOverrides = resolvePropStatusOverrides(
+				propStatus ?? undefined,
+				frame,
+			);
 
-		const {params, effectKey} = mergeOverrides({
-			descriptor,
-			propStatusOverrides,
-			dragOverrides,
-			frame,
-		});
+			const merged = mergeOverrides({
+				descriptor,
+				propStatusOverrides,
+				dragOverrides,
+				frame,
+			});
+			const {params, effectKey} = merged;
 
-		return {
-			definition: descriptor.definition,
-			sourceKey: descriptor.effectKey,
-			// Snapshot plain params so shallow comparisons see in-place field edits.
-			params:
-				descriptor.params !== null &&
-				typeof descriptor.params === 'object' &&
-				Object.getPrototypeOf(descriptor.params) === Object.prototype
-					? {...descriptor.params}
-					: descriptor.params,
-			propStatus,
-			dragOverrides,
-			frame: effectFrame,
-			value:
-				cached?.value.definition === descriptor.definition &&
-				cached.value.effectKey === effectKey
-					? cached.value
-					: {
-							definition: descriptor.definition,
-							effectKey,
-							params,
-							memoized: true,
-						},
-		};
-	});
+			return {
+				definition: descriptor.definition,
+				sourceKey: descriptor.effectKey,
+				// Snapshot plain params so shallow comparisons see in-place field edits.
+				params:
+					descriptor.params !== null &&
+					typeof descriptor.params === 'object' &&
+					Object.getPrototypeOf(descriptor.params) === Object.prototype
+						? {...descriptor.params}
+						: descriptor.params,
+				propStatus,
+				dragOverrides,
+				frame: effectFrame,
+				value:
+					cached &&
+					cached.value.definition === descriptor.definition &&
+					cached.value.effectKey === effectKey
+						? cached.value
+						: {
+								definition: descriptor.definition,
+								effectKey,
+								params,
+								memoized: true,
+							},
+			};
+		},
+	);
 
 	const isSame =
 		previous !== null &&
@@ -454,5 +520,12 @@ export const useMemoizedEffects = ({
 	useCacheCommitEffect(() => {
 		previousRef.current = {prepared, effects: next};
 	}, [next, prepared]);
-	return next;
+	const inspectionKey = useMemo(
+		() =>
+			isStudio && nodePath !== null
+				? makeSequencePropsSubscriptionKey(nodePath)
+				: null,
+		[isStudio, nodePath],
+	);
+	return useEffectSourceInspection(next, inspectionKey);
 };

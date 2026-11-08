@@ -31,12 +31,20 @@ export const sendUsageEvent = async ({
 		);
 	}
 
-	await LicensingInternals.internalRegisterUsageEvent({
-		licenseKey: licenseKey === 'free-license' ? null : licenseKey,
-		event: 'web-render',
-		host,
-		succeeded,
-		isStill,
-		isProduction,
-	});
+	try {
+		await LicensingInternals.internalRegisterUsageEvent({
+			licenseKey: licenseKey === 'free-license' ? null : licenseKey,
+			event: 'web-render',
+			host,
+			succeeded,
+			isStill,
+			isProduction,
+		});
+	} catch (err) {
+		Internals.Log.error(
+			{logLevel: 'error', tag: 'web-renderer'},
+			'Failed to send usage event',
+			err,
+		);
+	}
 };

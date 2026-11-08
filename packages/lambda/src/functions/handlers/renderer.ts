@@ -25,6 +25,7 @@ import {
 } from '../get-browser-instance';
 import type {LaunchedBrowser} from '../get-browser-instance';
 import {getChromiumPath} from '../helpers/get-chromium-path';
+import {getCurrentMemorySizeInMb} from '../helpers/get-current-memory-size';
 import {getCurrentRegionInFunction} from '../helpers/get-current-region';
 import {getTmpDirStateIfENoSp} from '../helpers/get-tmp-dir';
 import {startLeakDetection} from '../helpers/leak-detection';
@@ -237,6 +238,8 @@ const renderHandler = async ({
 		params.frameRange,
 		params.everyNthFrame,
 	);
+	let lastReportedRenderedFrames = -1;
+	let lastReportedEncodedFrames = -1;
 
 	const onArtifact: OnArtifact = (artifact) => {
 		RenderInternals.Log.info(
@@ -304,7 +307,13 @@ const renderHandler = async ({
 						allFramesEncoded) &&
 					allFramesRendered;
 
-				if (frameReportPoint || encodedFramesReportPoint) {
+				if (
+					(frameReportPoint || encodedFramesReportPoint) &&
+					(renderedFrames !== lastReportedRenderedFrames ||
+						encodedFrames !== lastReportedEncodedFrames)
+				) {
+					lastReportedRenderedFrames = renderedFrames;
+					lastReportedEncodedFrames = encodedFrames;
 					onStream({
 						type: 'frames-rendered',
 						payload: {rendered: renderedFrames, encoded: encodedFrames},
@@ -326,6 +335,7 @@ const renderHandler = async ({
 					type: 'lambda-invoked',
 					payload: {
 						attempt: params.attempt,
+						memorySizeInMb: getCurrentMemorySizeInMb(),
 					},
 				});
 			},
@@ -384,6 +394,7 @@ const renderHandler = async ({
 			chromeMode: 'headless-shell',
 			offthreadVideoThreads: params.offthreadVideoThreads,
 			mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+			preferredEffectBackend: params.preferredEffectBackend,
 			onLog: RenderInternals.defaultOnLog,
 			// Not doing telemetry for the individual chunks
 			licenseKey: null,
@@ -535,7 +546,6 @@ export const rendererHandler = async ({
 		});
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
-			// eslint-disable-next-line no-console
 			console.log({err});
 			throw err;
 		}

@@ -1,5 +1,6 @@
 import type {InteractivitySchema} from 'remotion';
 import {Internals} from 'remotion';
+import {createColorMatrixImplementations} from './color-matrix-runtime.js';
 import {
 	assertOptionalFiniteNumber,
 	clampColorChannel,
@@ -36,46 +37,75 @@ const validateContrastParams = (params: ContrastParams): void => {
 	validateNonNegative(amount, 'amount');
 };
 
-export const contrast = createEffect<ContrastParams, null>({
+export const contrast = createEffect<ContrastParams>({
 	type: 'dev.remotion.effects.contrast',
 	label: 'contrast()',
 	documentationLink: 'https://www.remotion.dev/docs/effects/contrast',
-	backend: '2d',
 	calculateKey: (params) => {
 		const r = resolve(params);
 		return `contrast-${r.amount}`;
 	},
-	setup: () => null,
-	apply: ({source, target, width, height, params}) => {
-		const ctx = target.getContext('2d');
-		if (!ctx) {
-			throw new Error(
-				'Failed to acquire 2D context for contrast effect. The canvas may have been assigned a different context type.',
-			);
-		}
+	implementations: {
+		...createColorMatrixImplementations<ContrastParams>(
+			'contrast',
+			(params) => {
+				const {amount} = resolve(params);
+				// Beyond this value every byte other than 128 already clips.
+				const factor = Math.min(amount, 256);
+				return new Float32Array([
+					factor,
+					0,
+					0,
+					0,
+					0,
+					factor,
+					0,
+					0,
+					0,
+					0,
+					factor,
+					0,
+					2,
+					0,
+					amount === 1 ? 1 : 0,
+					0,
+				]);
+			},
+		),
+		'2d': Internals.createEffectImplementation<ContrastParams, null>({
+			setup: () => null,
+			apply: ({source, target, width, height, params}) => {
+				const ctx = target.getContext('2d');
+				if (!ctx) {
+					throw new Error(
+						'Failed to acquire 2D context for contrast effect. The canvas may have been assigned a different context type.',
+					);
+				}
 
-		const r = resolve(params);
+				const r = resolve(params);
 
-		ctx.clearRect(0, 0, width, height);
-		ctx.drawImage(source, 0, 0, width, height);
+				ctx.clearRect(0, 0, width, height);
+				ctx.drawImage(source, 0, 0, width, height);
 
-		if (r.amount === 1) {
-			return;
-		}
+				if (r.amount === 1) {
+					return;
+				}
 
-		const imageData = ctx.getImageData(0, 0, width, height);
-		const {data} = imageData;
-		const factor = r.amount;
+				const imageData = ctx.getImageData(0, 0, width, height);
+				const {data} = imageData;
+				const factor = r.amount;
 
-		for (let i = 0; i < data.length; i += 4) {
-			data[i] = clampColorChannel((data[i] - 128) * factor + 128);
-			data[i + 1] = clampColorChannel((data[i + 1] - 128) * factor + 128);
-			data[i + 2] = clampColorChannel((data[i + 2] - 128) * factor + 128);
-		}
+				for (let i = 0; i < data.length; i += 4) {
+					data[i] = clampColorChannel((data[i] - 128) * factor + 128);
+					data[i + 1] = clampColorChannel((data[i + 1] - 128) * factor + 128);
+					data[i + 2] = clampColorChannel((data[i + 2] - 128) * factor + 128);
+				}
 
-		ctx.putImageData(imageData, 0, 0);
+				ctx.putImageData(imageData, 0, 0);
+			},
+			cleanup: () => undefined,
+		}),
 	},
-	cleanup: () => undefined,
 	schema: contrastSchema,
 	validateParams: validateContrastParams,
 });

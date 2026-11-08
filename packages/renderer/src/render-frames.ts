@@ -268,6 +268,7 @@ const innerRenderFrames = async ({
 	binariesDirectory,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	darkMode,
 	sampleRate,
@@ -323,10 +324,24 @@ const innerRenderFrames = async ({
 		resolvedConcurrency,
 	);
 
+	// Render the extra frames at the beginning of the video first,
+	// then the regular frames, then the extra frames at the end of the video.
+	// While the order technically doesn't matter, components such as <Html5Video> are
+	// not always frame perfect and give a flicker.
+	// We reduce the chance of flicker by rendering the frames in order.
+
+	const allFramesAndExtraFrames = [
+		...extraFramesToCaptureAssetsFrontend,
+		...framesToRender,
+		...extraFramesToCaptureAssetsBackend,
+	];
+
 	const makeNewPage = async (frame: number, pageIndex: number) => {
 		const page = await makePage({
 			context: sourceMapGetter,
 			initialFrame: frame,
+			// A replacement tab may first render an audio-only padding frame.
+			videoEnabled: imageFormat !== 'none' && framesToRender.includes(frame),
 			browserReplacer,
 			indent,
 			logLevel,
@@ -335,7 +350,6 @@ const innerRenderFrames = async ({
 			scale,
 			composition,
 			envVariables,
-			imageFormat,
 			muted,
 			proxyPort,
 			serializedInputPropsWithCustomSchema,
@@ -345,6 +359,7 @@ const innerRenderFrames = async ({
 			pageIndex,
 			isMainTab: pageIndex === 0,
 			mediaCacheSizeInBytes,
+			preferredEffectBackend,
 			onLog,
 			darkMode,
 			sampleRate,
@@ -356,8 +371,9 @@ const innerRenderFrames = async ({
 	const getPool = async () => {
 		const pages = new Array(concurrencyOrFramesToRender)
 			.fill(true)
-			// TODO: Change different initial frame
-			.map((_, i) => makeNewPage(framesToRender[i], i));
+			// Tabs start on the frames they are likely to render first, so a tab
+			// that begins with an audio-only padding frame skips the visual work.
+			.map((_, i) => makeNewPage(allFramesAndExtraFrames[i], i));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -400,18 +416,6 @@ const innerRenderFrames = async ({
 
 	const frameDir = outputDir ?? downloadMap.compositingDir;
 
-	// Render the extra frames at the beginning of the video first,
-	// then the regular frames, then the extra frames at the end of the video.
-	// While the order technically doesn't matter, components such as <Html5Video> are
-	// not always frame perfect and give a flicker.
-	// We reduce the chance of flicker by rendering the frames in order.
-
-	const allFramesAndExtraFrames = [
-		...extraFramesToCaptureAssetsFrontend,
-		...framesToRender,
-		...extraFramesToCaptureAssetsBackend,
-	];
-
 	const nextFrameToRender = nextFrameToRenderState({
 		allFramesAndExtraFrames,
 	});
@@ -436,6 +440,7 @@ const innerRenderFrames = async ({
 				frameDir,
 				framesToRender,
 				imageFormat,
+				muted,
 				indent,
 				jpegQuality,
 				logLevel,
@@ -532,6 +537,7 @@ const internalRenderFramesRaw = ({
 	offthreadVideoThreads,
 	imageSequencePattern,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	sampleRate,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
@@ -673,6 +679,7 @@ const internalRenderFramesRaw = ({
 					offthreadVideoThreads,
 					imageSequencePattern,
 					mediaCacheSizeInBytes,
+					preferredEffectBackend,
 					onLog,
 					darkMode: chromiumOptions.darkMode ?? false,
 					sampleRate,
@@ -781,6 +788,7 @@ export const renderFrames = (
 		offthreadVideoThreads,
 		imageSequencePattern,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		sampleRate,
 	} = options;
 
@@ -885,6 +893,7 @@ export const renderFrames = (
 		offthreadVideoThreads: offthreadVideoThreads ?? null,
 		imageSequencePattern: imageSequencePattern ?? null,
 		mediaCacheSizeInBytes: mediaCacheSizeInBytes ?? null,
+		preferredEffectBackend: preferredEffectBackend ?? 'auto',
 		onLog: defaultOnLog,
 		sampleRate: sampleRate ?? composition.defaultSampleRate ?? 48000,
 	});

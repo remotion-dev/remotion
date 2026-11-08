@@ -8,7 +8,10 @@ import {ActionTooltip} from './ActionTooltip';
 import {CaptionTextEditor} from './CaptionTextEditor';
 import {InlineAction} from './InlineAction';
 import {CollapsibleInspectorSectionHeader} from './InspectorPanel/CollapsibleInspectorSectionHeader';
-import {InspectorSectionHeader} from './InspectorPanel/common';
+import {
+	InspectorSectionBody,
+	InspectorSectionHeader,
+} from './InspectorPanel/common';
 import {sectionHeaderEnd} from './InspectorPanel/styles';
 import {showNotification} from './Notifications/NotificationCenter';
 import {parseCaptionFile} from './parse-caption-file';
@@ -189,7 +192,11 @@ export const CaptionInspector: React.FC<{
 					onToggle={captions.length > 0 ? onToggle : null}
 				/>
 			</InspectorSectionHeader>
-			{expanded || captions.length === 0 ? (
+			<InspectorSectionBody
+				expanded={expanded || captions.length === 0}
+				keepMounted={false}
+				paddingBottom={0}
+			>
 				<CaptionTextEditor
 					captions={captions}
 					onChange={onTextChange}
@@ -197,7 +204,7 @@ export const CaptionInspector: React.FC<{
 					onCancel={onTextCancel}
 					readOnly={readOnly}
 				/>
-			) : null}
+			</InspectorSectionBody>
 		</>
 	);
 };

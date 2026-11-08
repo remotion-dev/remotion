@@ -4,18 +4,19 @@ import type React from 'react';
 import {useCallback, useContext, useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {createCanvasDragPreview} from './canvas-drag-preview';
 import {showNotification} from './Notifications/NotificationCenter';
 import {
-	clearSelectedOutlineDragOverrides,
 	type SelectedOutlineKeyframedDragChange,
 	type SelectedOutlineStaticDragChange,
 } from './selected-outline-drag';
-import type {
-	SelectedOutlineDragTarget,
-	SelectedOutlineKeyboardNudgeSession,
+import {
+	getEditableOutlineDragTargets,
+	type SelectedOutlineKeyboardNudgeSession,
+	type SelectedOutlineSelection,
 } from './selected-outline-types';
 import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
-import {saveSequenceProps} from './Timeline/save-sequence-prop';
+import {saveSequencePropsWithResult} from './Timeline/save-sequence-prop';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 
 const {
@@ -28,13 +29,19 @@ const {
 } = CanvasInternals;
 
 export const SelectedOutlineKeyboardControls: React.FC<{
-	readonly getAllDragTargets: () => readonly SelectedOutlineDragTarget[];
-}> = ({getAllDragTargets}) => {
+	readonly getSelection: () => SelectedOutlineSelection;
+}> = ({getSelection}) => {
 	const dragOverridesRef = useContext(
 		Internals.VisualModeDragOverridesRefContext,
 	);
-	const {setPropStatuses, setDragOverrides, clearDragOverrides} = useContext(
+	const {setPropStatuses, updateDragOverrides} = useContext(
 		Internals.VisualModeSettersContext,
+	);
+	const propStatusesRef = useContext(
+		Internals.VisualModePropStatusesRefContext,
+	);
+	const previewRef = useRef<ReturnType<typeof createCanvasDragPreview> | null>(
+		null,
 	);
 	const {frameBack, frameForward, getCurrentFrame, seek} =
 		PlayerInternals.usePlayerMethods();
@@ -50,16 +57,16 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 		}
 
 		keyboardNudgeSessionRef.current = null;
+		const preview = previewRef.current;
+		previewRef.current = null;
+		if (preview === null) return;
 		const changes = getCanvasOutlineTranslateDragChanges({
 			dragStates: session.dragStates,
 			lastValues: session.lastValues,
 		});
 
 		if (changes.length === 0) {
-			clearSelectedOutlineDragOverrides({
-				clearDragOverrides,
-				dragStates: session.dragStates,
-			});
+			preview.cancel();
 			return;
 		}
 
@@ -68,20 +75,29 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				target: {clientId},
 			},
 		] = session.dragStates;
-		const staticChanges = changes.filter(
+		const currentChanges = changes.flatMap((change) => {
+			const nodePath = preview.getNodePath(change.nodePath);
+			return nodePath === null ? [] : [{...change, nodePath}];
+		});
+		if (currentChanges.length !== changes.length) {
+			preview.cancel();
+			return;
+		}
+
+		const staticChanges = currentChanges.filter(
 			(change): change is SelectedOutlineStaticDragChange =>
 				change.type === 'static',
 		);
-		const keyframedChanges = changes.filter(
+		const keyframedChanges = currentChanges.filter(
 			(change): change is SelectedOutlineKeyframedDragChange =>
 				change.type === 'keyframed',
 		);
 
-		saveSequenceProps({
+		saveSequencePropsWithResult({
 			changes: staticChanges,
 			addedKeyframes: keyframedChanges,
 			movedKeyframes: null,
-			setPropStatuses,
+			setPropStatuses: preview.setPropStatuses,
 			clientId,
 			undoLabel:
 				changes.length > 1 ? 'Move selected sequences' : 'Move sequence',
@@ -90,21 +106,23 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 					? 'Move selected sequences back'
 					: 'Move sequence back',
 		})
+			.then((response) => {
+				if (response && !response.canUpdate)
+					throw new Error(
+						'The layer could not be updated. Try the edit again.',
+					);
+				preview.acknowledge(response);
+			})
 			.catch((err) => {
+				preview.fail();
 				showNotification(
 					`Could not save sequence props: ${
 						err instanceof Error ? err.message : String(err)
 					}`,
 					4000,
 				);
-			})
-			.finally(() => {
-				clearSelectedOutlineDragOverrides({
-					clearDragOverrides,
-					dragStates: session.dragStates,
-				});
 			});
-	}, [clearDragOverrides, setPropStatuses]);
+	}, []);
 
 	useEffect(() => {
 		saveKeyboardNudgeSessionRef.current = saveKeyboardNudgeSession;
@@ -188,15 +206,58 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				return;
 			}
 
-			const allDragTargets = getAllDragTargets();
-
-			if (allDragTargets.length === 0) {
+			if (event.altKey) {
 				seekWithArrowKey(event, direction);
 				return;
 			}
 
-			if (event.altKey) {
-				seekWithArrowKey(event, direction);
+			const selection = getSelection();
+			switch (selection.type) {
+				case 'empty':
+				case 'guides-only':
+				case 'non-visual':
+				case 'fullscreen':
+				case 'selection-disabled':
+				case 'preview-unavailable':
+				case 'outlines-hidden':
+					seekWithArrowKey(event, direction);
+					return;
+				case 'visual':
+					break;
+				default:
+					throw new Error(
+						`Unexpected outline selection: ${selection satisfies never}`,
+					);
+			}
+
+			let hasComputedPosition = false;
+			for (const {translation} of selection.targets) {
+				switch (translation.type) {
+					case 'computed':
+						hasComputedPosition = true;
+						break;
+					case 'editable':
+					case 'not-connected':
+					case 'interactivity-disabled':
+					case 'no-translate-control':
+					case 'loading':
+					case 'unsupported-keyframes':
+						break;
+					default:
+						throw new Error(
+							`Unexpected translation state: ${translation satisfies never}`,
+						);
+				}
+			}
+
+			const allDragTargets = getEditableOutlineDragTargets(selection.targets);
+			if (allDragTargets.length === 0) {
+				if (hasComputedPosition) {
+					event.preventDefault();
+				} else {
+					seekWithArrowKey(event, direction);
+				}
+
 				return;
 			}
 
@@ -213,6 +274,18 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 				);
 
 			keyboardNudgeSessionRef.current = activeSession;
+			const preview =
+				previewRef.current ??
+				createCanvasDragPreview({
+					updateDragOverrides,
+					setPropStatuses,
+					setPropStatusesBatch: null,
+					getPropStatuses: (nodePath) =>
+						propStatusesRef.current[
+							Internals.makeSequencePropsSubscriptionKey(nodePath)
+						],
+				});
+			previewRef.current = preview;
 			applyCanvasOutlineTranslateDelta({
 				session: activeSession,
 				...getCanvasOutlineNudgeDeltas({
@@ -221,15 +294,17 @@ export const SelectedOutlineKeyboardControls: React.FC<{
 					direction,
 					shiftKey: event.shiftKey,
 				}),
-				setDragOverrides,
+				setDragOverrides: preview.setDragOverrides,
 			});
 		},
 		[
-			getAllDragTargets,
+			getSelection,
 			getCurrentFrame,
 			dragOverridesRef,
 			seekWithArrowKey,
-			setDragOverrides,
+			updateDragOverrides,
+			setPropStatuses,
+			propStatusesRef,
 		],
 	);
 

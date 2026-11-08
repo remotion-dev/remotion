@@ -8,19 +8,20 @@ import {elementRegistry} from './src/components/Elements/element-registry';
 
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
-const fasterConfig = isVercel
-	? {
-			swcJsLoader: true,
-			swcJsMinimizer: true,
-			swcHtmlMinimizer: true,
-			lightningCssMinimizer: true,
-			mdxCrossCompilerCache: false,
-			rspackBundler: true,
-			rspackPersistentCache: false,
-			ssgWorkerThreads: false,
-			gitEagerVcs: true,
-		}
-	: true;
+// The SWC HTML minifier rewrites server-rendered text: it minifies and trims
+// <style>{css}</style> contents and drops whitespace-only text nodes, so React
+// hydration fails (#12894). The Terser HTML minifier leaves text untouched.
+const fasterConfig = {
+	swcJsLoader: true,
+	swcJsMinimizer: true,
+	swcHtmlMinimizer: false,
+	lightningCssMinimizer: true,
+	mdxCrossCompilerCache: !isVercel,
+	rspackBundler: true,
+	rspackPersistentCache: !isVercel,
+	ssgWorkerThreads: !isVercel,
+	gitEagerVcs: true,
+};
 
 const showGitLastUpdate =
 	process.env.REMOTION_DOCS_DISABLE_GIT_LAST_UPDATE !== '1';
@@ -101,7 +102,6 @@ const config: Config = {
 						{to: '/lambda', label: 'Lambda'},
 						{to: '/docs/editor-starter', label: 'Editor Starter'},
 						{to: '/docs/timeline', label: 'Timeline'},
-						{to: '/docs/recorder', label: 'Recorder'},
 						{to: 'https://remotion.dev/convert', label: 'Convert'},
 					],
 				},
@@ -190,16 +190,13 @@ const config: Config = {
 							to: '/lambda',
 						},
 						{
-							label: 'Convert a video',
-							to: 'https://convert.remotion.dev',
+							label: 'remotion.dev/convert',
+							to: 'https://remotion.dev/convert',
+							className: 'footer-convert-link',
 						},
 						{
-							label: 'Store',
-							href: 'https://remotion.pro/store',
-						},
-						{
-							label: 'GitHub',
-							href: 'https://github.com/remotion-dev/remotion',
+							label: 'Editor Starter',
+							href: 'https://remotion.pro/editor-starter',
 						},
 						{
 							label: 'Changelog',
@@ -215,10 +212,6 @@ const config: Config = {
 					title: 'Community',
 					items: [
 						{
-							label: 'Prompt Showcase',
-							to: 'https://remotion.dev/prompts',
-						},
-						{
 							label: 'Showcase',
 							to: 'showcase',
 						},
@@ -229,6 +222,10 @@ const config: Config = {
 						{
 							label: 'Experts',
 							to: 'experts',
+						},
+						{
+							label: 'GitHub',
+							href: 'https://github.com/remotion-dev/remotion',
 						},
 						{
 							label: 'Discord',
@@ -329,9 +326,6 @@ const config: Config = {
 		[
 			'classic',
 			{
-				sitemap: {
-					ignorePatterns: ['/experimental_home'],
-				},
 				docs: {
 					path: 'docs',
 					sidebarPath: './sidebars.ts',

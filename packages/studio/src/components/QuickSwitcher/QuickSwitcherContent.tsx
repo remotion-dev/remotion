@@ -13,6 +13,7 @@ import {LIGHT_TEXT, WHITE} from '../../helpers/colors';
 import {createFolderTree} from '../../helpers/create-folder-tree';
 import {getPreviewFileType} from '../../helpers/get-preview-file-type';
 import {isCompositionStill} from '../../helpers/is-composition-still';
+import {useCompositionsWithoutPendingDeletions} from '../../helpers/optimistic-composition-operations';
 import {pushUrl} from '../../helpers/url-state';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -192,7 +193,13 @@ export const QuickSwitcherContent: React.FC<{
 	assetSelection,
 	compositionSelection,
 }) => {
-	const {compositions, folders} = useContext(Internals.CompositionManager);
+	const {compositions: registeredCompositions, folders} = useContext(
+		Internals.CompositionManager,
+	);
+	const compositions = useCompositionsWithoutPendingDeletions({
+		compositions: registeredCompositions,
+		folders,
+	});
 	const staticFiles = useStaticFiles();
 	const [state, setState] = useState(() => {
 		return {
@@ -299,22 +306,35 @@ export const QuickSwitcherContent: React.FC<{
 					}),
 			);
 
+			if (assetSearch.query !== '') {
+				const lowercaseQuery = assetSearch.query.toLowerCase();
+				const exactMatch =
+					assetResults.find((result) => result.title === assetSearch.query) ??
+					assetResults.find(
+						(result) => result.title.toLowerCase() === lowercaseQuery,
+					);
+				if (exactMatch && exactMatch !== assetResults[0]) {
+					assetResults.splice(assetResults.indexOf(exactMatch), 1);
+					assetResults.unshift(exactMatch);
+				}
+			}
+
 			if (assetSelection === null) {
 				return assetResults;
 			}
 
-			return [
-				{
-					id: 'select-file',
-					title: assetSelection.fileTypes?.importLabel ?? 'Import file...',
-					type: 'select-file',
-					onSelected: () => {
-						assetSelection.onSelectFile();
-						setSelectedModal(null);
-					},
+			const importFile: TQuickSwitcherResult = {
+				id: 'select-file',
+				title: assetSelection.fileTypes?.importLabel ?? 'Import file...',
+				type: 'select-file',
+				onSelected: () => {
+					assetSelection.onSelectFile();
+					setSelectedModal(null);
 				},
-				...assetResults,
-			];
+			};
+			return actualQuery === ''
+				? [importFile, ...assetResults]
+				: [...assetResults, importFile];
 		}
 
 		const tree = createFolderTree(

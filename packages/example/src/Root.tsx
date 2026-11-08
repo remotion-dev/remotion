@@ -102,7 +102,6 @@ import {
 	HtmlInCanvasMotionBlurExample,
 	HtmlInCanvasNested,
 	HtmlInCanvasPixelDensity,
-	HtmlInCanvasPrivacy,
 	HtmlInCanvasReactSvg,
 	LinearBlurTransitionDoc,
 	LinearBlurTransitionDocThumb,
@@ -125,6 +124,7 @@ import {LongAudio} from './LongAudio';
 import {ManyAudio} from './ManyAudio';
 import {HandleAudioRenderError} from './MediaErrorHandling/HandleAudioRenderError';
 import {InfiniteAudio} from './MediaErrorHandling/InfiniteAudio';
+import {UnavailableVideo} from './MediaErrorHandling/UnavailableVideo';
 import {MissingImg} from './MissingImg';
 import {ClosingScene} from './MultiSceneSample/ClosingScene';
 import {FeatureScene} from './MultiSceneSample/FeatureScene';
@@ -258,12 +258,19 @@ import {
 	canvasCapturePreviewDefaultProps,
 } from './CanvasCapturePreview';
 import {EdgeBlur} from './EdgeBlur/EdgeBlur';
+import {CurvesEffect} from './EffectsTestbed/Curves';
 import {CustomEffectsSample} from './EffectsTestbed/CustomEffectsSample';
 import {EffectsTestbed} from './EffectsTestbed/EffectsTestbed';
 import {HalftoneGradient} from './EffectsTestbed/HalftoneGradient';
+import {LevelsEffect} from './EffectsTestbed/Levels';
 import {NoiseDisplacementText} from './EffectsTestbed/NoiseDisplacementText';
 import {PaletteMapEffect} from './EffectsTestbed/PaletteMapEffect';
 import {RadialProgressiveBlurTest} from './EffectsTestbed/RadialProgressiveBlur';
+import {
+	ColorCorrectionStudioDemo,
+	CurvesStudioDemo,
+	LevelsStudioDemo,
+} from './EffectsTestbed/StudioDemos';
 import {TearTest} from './EffectsTestbed/Tear';
 import {VideoEffectsFastRefresh} from './EffectsTestbed/VideoEffectsFastRefresh';
 import {Empty} from './Empty';
@@ -280,6 +287,7 @@ import {LightLeakAnimatedSize} from './LightLeak/AnimatedSize';
 import {LoopDisplayTestComp} from './LoopDisplayTest';
 import {MacCursorsExample} from './MacCursors';
 import {MediaTimelineTestbed} from './MediaTimelineTestbed';
+import {MixBlendMode} from './MixBlendMode/MixBlendMode';
 import {NewAudioExample} from './NewAudio/NewAudio';
 import {NewVideoComp, PremountSequenceVideoComp} from './NewVideo';
 import {SimultaneousPlaybackComp} from './NewVideo/SimultaneousPlayback';
@@ -838,6 +846,14 @@ export const Index: React.FC = () => {
 					height={100}
 					fps={30}
 					durationInFrames={30}
+				/>
+				<Composition
+					id="mix-blend-mode"
+					component={MixBlendMode}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={60}
 				/>
 				<Composition
 					id="simple-img"
@@ -1552,14 +1568,6 @@ export const Index: React.FC = () => {
 						fps={30}
 						height={720}
 						width={1280}
-						durationInFrames={60}
-					/>
-					<Composition
-						id="html-in-canvas-privacy"
-						component={HtmlInCanvasPrivacy}
-						fps={30}
-						height={900}
-						width={1400}
 						durationInFrames={60}
 					/>
 					<Composition
@@ -2360,6 +2368,48 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="Effects">
+				<Folder name="Studio-demos">
+					<Composition
+						id="ColorCorrectionStudioDemo"
+						component={ColorCorrectionStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="LevelsStudioDemo"
+						component={LevelsStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+					<Composition
+						id="CurvesStudioDemo"
+						component={CurvesStudioDemo}
+						width={1280}
+						height={720}
+						fps={30}
+						durationInFrames={450}
+					/>
+				</Folder>
+				<Composition
+					id="curves-effect"
+					component={CurvesEffect}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
+				<Composition
+					id="levels-effect"
+					component={LevelsEffect}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={150}
+				/>
 				<Composition
 					id="tear-test"
 					component={TearTest}
@@ -2720,6 +2770,14 @@ export const Index: React.FC = () => {
 			</Folder>
 			<Folder name="MediaErrorHandling">
 				<Composition
+					id="UnavailableVideo"
+					component={UnavailableVideo}
+					fps={30}
+					height={1080}
+					width={1920}
+					durationInFrames={150}
+				/>
+				<Composition
 					id="AudioError"
 					component={HandleAudioRenderError}
 					fps={30}
@@ -2799,7 +2857,7 @@ export const Index: React.FC = () => {
 			<Composition
 				id="empty"
 				component={Empty}
-				width={1080}
+				width={1920}
 				height={1080}
 				fps={30}
 				durationInFrames={900}

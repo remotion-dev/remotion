@@ -16,7 +16,9 @@ export const resolveComponentIdentity = (component: unknown): unknown => {
 	return componentIdentityResolver?.(component) ?? component;
 };
 
-export const getSingleChildComponent = (children: React.ReactNode): unknown => {
+const getSingleChildElement = (
+	children: React.ReactNode,
+): React.ReactElement | null => {
 	const mountedChildren = React.Children.toArray(children);
 	if (mountedChildren.length !== 1) {
 		return null;
@@ -29,7 +31,7 @@ export const getSingleChildComponent = (children: React.ReactNode): unknown => {
 
 	// Series inserts this transparent context boundary around its authored children.
 	if (child.type === IsNotInsideSeriesProvider) {
-		return getSingleChildComponent(
+		return getSingleChildElement(
 			(child.props as {children: React.ReactNode}).children,
 		);
 	}
@@ -38,5 +40,18 @@ export const getSingleChildComponent = (children: React.ReactNode): unknown => {
 		return null;
 	}
 
-	return resolveComponentIdentity(child.type);
+	return child;
+};
+
+export const getSingleChildComponent = (children: React.ReactNode): unknown => {
+	const child = getSingleChildElement(children);
+	return child === null ? null : resolveComponentIdentity(child.type);
+};
+
+export const getSingleChildProps = (
+	children: React.ReactNode,
+): Record<string, unknown> | null => {
+	return (
+		(getSingleChildElement(children)?.props as Record<string, unknown>) ?? null
+	);
 };

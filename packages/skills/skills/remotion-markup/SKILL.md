@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.538
+version: 4.0.541
 ---
 
 This is guidance for writing Remotion React Markup.
@@ -172,6 +172,12 @@ See [audio.md](audio.md) for advanced audio features like trimming, volume, spee
 
 See [cropping.md](cropping.md) if needing to crop the visible rectangle of a component.
 
+## Video matting
+
+For background removal, text behind a subject, background blur or replacement,
+and effects applied only to a subject, read [video-matting.md](video-matting.md).
+Generate reusable foreground layers with `@remotion/video-matting` before composing them.
+
 ## Transitions
 
 See [transitions.md](transitions.md) for scene transition patterns.
@@ -214,7 +220,7 @@ built-in effect matches.
 
 Built-in effects from `@remotion/effects`:
 
-- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
+- Color and tone: `brightness()`, `colorCorrection()`, `colorKey()`, `contrast()`, `curves()`, `duotone()`, `exposure()`, `grayscale()`, `hue()`, `invert()`, `levels()`, `linearGradient()`, `linearGradientTint()`, `lut()`, `saturation()`, `shadowsHighlights()`, `thermalVision()`, `tint()`, `vibrance()`, `whiteBalance()`.
 - Blur and trails: `blur()`, `lightTrail()`, `linearProgressiveBlur()`, `radialProgressiveBlur()`, `regionBlur()`, `zoomBlur()`.
 - Lighting: `dropShadow()`, `longShadows()`, `glow()`, `lightLeak()`, `shine()`, `starburst()`, `vignette()`.
 - Distortion and transforms: `barrelDistortion()`, `chromaticAberration()`, `cornerPin()`, `fisheye()`, `mirror()`, `noiseDisplacement()`, `scale()`, `skew()`, `tile()`, `uvTranslate()`, `wave()`, `xyTranslate()`.
@@ -224,7 +230,9 @@ Built-in effects from `@remotion/effects`:
 
 ## Color correction
 
-Read [color-correction.md](color-correction.md) for how to apply color correction, either using the `colorCorrection()` effect or `lut()` to apply a 3D `.cube` color grade.
+Read [color-correction.md](color-correction.md) for primary adjustments with
+`colorCorrection()`, tonal mapping with `levels()` or `curves()`, their Studio
+editors, and 3D `.cube` color grades with `lut()`.
 
 ## 3D content
 

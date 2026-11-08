@@ -3,14 +3,14 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/tailwind-v4"
 	},
 	"name": "@remotion/tailwind-v4",
-	"version": "4.0.538",
+	"version": "4.0.541",
 	"description": "Enable TailwindCSS support in Remotion (TailwindCSS v4)",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
 		"lint": "eslint src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],

@@ -1,11 +1,11 @@
 import {afterEach, expect, test} from 'bun:test';
-import type {
-	BrowserStudioPackageInstallationOperations,
-	PackageInstallSpec,
+import {
+	type BrowserStudioPackageInstallationOperations,
+	type PackageInstallSpec,
+	TRANSFORMERS_PACKAGE,
 } from '@remotion/studio-shared';
 import {installPackages} from '../api/install-package';
 import {canInstallPackages} from '../helpers/browser-studio-operations';
-import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
 import {makeBrowserStudioOperations} from './make-browser-studio-operations';
 
 const originalWindowDescriptor = Object.getOwnPropertyDescriptor(

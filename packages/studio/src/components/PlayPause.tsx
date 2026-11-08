@@ -1,7 +1,8 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
+import {isKeyboardEventOwnedByControl} from '../helpers/is-keyboard-event-owned-by-control';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {
 	useKeyboardShortcutAriaKeyShortcuts,
@@ -15,8 +16,11 @@ import {StepForward} from '../icons/step-forward';
 import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ActionTooltip} from './ActionTooltip';
 import {ControlButton} from './ControlButton';
-import {getCurrentDuration} from './Timeline/imperative-state';
+import {keyboardEventMatchesAction} from './keyboard-shortcuts';
+import {getCurrentDuration, getCurrentFps} from './Timeline/imperative-state';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
+import {useCurrentTimelineSelectionStateAsRef} from './Timeline/TimelineSelection';
+import {useSelectEffects} from './use-select-effects';
 
 const backStyle = {
 	height: 18,
@@ -71,6 +75,9 @@ const PlayPauseInner: React.FC<{
 	hideNavigationControls,
 }) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+	const compositionManagerRef = useContext(
+		Internals.CompositionManagerRefContext,
+	);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 	const [showBufferIndicator, setShowBufferState] = useState<boolean>(false);
 
@@ -102,19 +109,34 @@ const PlayPauseInner: React.FC<{
 
 	const onSpace = useCallback(
 		(e: KeyboardEvent) => {
+			if (
+				e.defaultPrevented ||
+				e.isComposing ||
+				isKeyboardEventOwnedByControl(e)
+			)
+				return;
+
+			e.preventDefault();
+			if (e.repeat) return;
+
 			if (playing) {
 				pause();
 			} else {
 				play();
 			}
-
-			e.preventDefault();
 		},
 		[pause, play, playing],
 	);
 
 	const onEnter = useCallback(
 		(e: KeyboardEvent) => {
+			if (
+				e.defaultPrevented ||
+				e.isComposing ||
+				isKeyboardEventOwnedByControl(e)
+			)
+				return;
+
 			if (playing) {
 				// Don't prevent keyboard navigation
 				e.preventDefault();
@@ -149,10 +171,76 @@ const PlayPauseInner: React.FC<{
 	const jumpToEnd = useCallback(() => {
 		seek(outFrame ?? getCurrentDuration() - 1);
 	}, [seek, outFrame]);
+	const currentSelection = useCurrentTimelineSelectionStateAsRef();
+	const selectEffects = useSelectEffects();
+	const onEffectsOrJumpToEnd = useCallback(
+		(event: KeyboardEvent) => {
+			if (event.defaultPrevented || event.isComposing) {
+				return;
+			}
+
+			if (keyboardEventMatchesAction(event, 'selectEffects')) {
+				const {selectedItems} = currentSelection.current;
+				const selection = selectedItems.length === 1 ? selectedItems[0] : null;
+				if (
+					selection !== null &&
+					selection.type !== 'guide' &&
+					selectEffects(selection.nodePathInfo)
+				) {
+					event.preventDefault();
+					return;
+				}
+			}
+
+			if (keyboardEventMatchesAction(event, 'jumpToEnd')) {
+				event.preventDefault();
+				jumpToEnd();
+			}
+		},
+		[currentSelection, jumpToEnd, selectEffects],
+	);
 
 	const keybindings = useKeybinding();
 
+	const onAssetArrowKey = useCallback(
+		(event: KeyboardEvent) => {
+			// Compositions handle arrow seeking and layer nudging in their outline.
+			if (compositionManagerRef.current.canvasContent?.type !== 'asset') {
+				return;
+			}
+
+			event.preventDefault();
+			const backwards = event.key === 'ArrowLeft';
+			const durationInFrames = getCurrentDuration();
+			if (event.altKey) {
+				seek(backwards ? 0 : durationInFrames - 1);
+			} else if (backwards) {
+				frameBack(event.shiftKey ? getCurrentFps() : 1);
+			} else {
+				frameForward(event.shiftKey ? getCurrentFps() : 1);
+			}
+
+			ensureFrameIsInViewport({
+				direction: backwards ? 'fit-left' : 'fit-right',
+				durationInFrames,
+				frame: getCurrentFrame(),
+			});
+		},
+		[compositionManagerRef, frameBack, frameForward, getCurrentFrame, seek],
+	);
+
 	useEffect(() => {
+		const assetArrowBindings = ['ArrowLeft', 'ArrowRight'].map((key) =>
+			keybindings.registerKeybinding({
+				event: 'keydown',
+				key,
+				callback: onAssetArrowKey,
+				commandCtrlKey: false,
+				preventDefault: false,
+				triggerIfInputFieldFocused: false,
+				keepRegisteredWhenNotHighestContext: false,
+			}),
+		);
 		const commandArrowLeft = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowLeft',
@@ -175,7 +263,7 @@ const PlayPauseInner: React.FC<{
 			event: 'keydown',
 			action: 'playPause',
 			callback: onSpace,
-			preventDefault: true,
+			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
@@ -198,24 +286,38 @@ const PlayPauseInner: React.FC<{
 		const e = keybindings.registerKeybinding({
 			event: 'keydown',
 			action: 'jumpToEnd',
-			callback: jumpToEnd,
-			preventDefault: true,
+			callback: onEffectsOrJumpToEnd,
+			preventDefault: false,
+			triggerIfInputFieldFocused: false,
+			keepRegisteredWhenNotHighestContext: false,
+		});
+		const effects = keybindings.registerKeybinding({
+			event: 'keydown',
+			action: 'selectEffects',
+			callback: onEffectsOrJumpToEnd,
+			preventDefault: false,
 			triggerIfInputFieldFocused: false,
 			keepRegisteredWhenNotHighestContext: false,
 		});
 
 		return () => {
+			for (const binding of assetArrowBindings) {
+				binding.unregister();
+			}
+
 			commandArrowLeft.unregister();
 			commandArrowRight.unregister();
 			space.unregister();
 			enter.unregister();
 			a.unregister();
 			e.unregister();
+			effects.unregister();
 		};
 	}, [
-		jumpToEnd,
+		onEffectsOrJumpToEnd,
 		jumpToStart,
 		keybindings,
+		onAssetArrowKey,
 		onEnter,
 		onSpace,
 		oneFrameBack,

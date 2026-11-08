@@ -169,6 +169,7 @@ const innerStillHandler = async (
 		onServeUrlVisited: () => undefined,
 		offthreadVideoThreads: params.offthreadVideoThreads,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+		preferredEffectBackend: params.preferredEffectBackend,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -187,6 +188,7 @@ const innerStillHandler = async (
 		inputProps: params.inputProps,
 		lambdaVersion: VERSION,
 		framesPerLambda: 1,
+		chunks: null,
 		memorySizeInMb: getCurrentMemorySizeInMb(),
 		region: getCurrentRegionInFunction(),
 		renderId,
@@ -327,6 +329,7 @@ const innerStillHandler = async (
 			}).serializedString,
 		offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		mediaCacheSizeInBytes: params.mediaCacheSizeInBytes,
+		preferredEffectBackend: params.preferredEffectBackend,
 		binariesDirectory: null,
 		onBrowserDownload,
 		onArtifact,

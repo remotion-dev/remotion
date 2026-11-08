@@ -27,6 +27,7 @@ import {
 	TIMELINE_DROP_BLUE_ALPHA_16,
 	WHITE,
 } from '../../helpers/colors';
+import {startEscapeCancelableDeferredPointerSession} from '../../helpers/escape-cancelable-pointer-session';
 import {
 	getConnectedCompositionFrame,
 	getSequenceDoubleClickAction,
@@ -37,16 +38,14 @@ import {
 	isStudioSelectionEnabled,
 } from '../../helpers/interactivity-enabled';
 import {useIsStill} from '../../helpers/is-current-selected-still';
-import {
-	isPointerSessionRelease,
-	startDeferredCapturedPointerSession,
-} from '../../helpers/pointer-session';
+import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {getStudioKeyboardShortcutsEnabled} from '../../helpers/studio-runtime-config';
 import {
 	TIMELINE_ITEM_BORDER_BOTTOM,
 	TIMELINE_LIST_ITEM_ROW_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {useKeyboardShortcutLabel} from '../../helpers/use-keyboard-shortcut-label';
 import {
 	useRuntimeValue,
 	useRuntimeValueSelector,
@@ -78,6 +77,8 @@ import {
 } from '../selected-outline-types';
 import {OverrideIdToNodePathMappingsRefContext} from '../SequencePropsSubscriptionProvider';
 import {useSelectAsset} from '../use-select-asset';
+import {useSelectEffects} from '../use-select-effects';
+import {areSequenceNodesJsxSiblings} from './are-sequence-nodes-jsx-siblings';
 import {disableSequenceInteractivity} from './disable-sequence-interactivity';
 import {duplicateSequencesFromSource} from './duplicate-selected-timeline-item';
 import {
@@ -88,8 +89,12 @@ import {getSequenceSplitMenuItem} from './get-sequence-split-menu-item';
 import {getSequenceUnwrapMenuItem} from './get-sequence-unwrap-menu-item';
 import {getSequencesContextForAgents} from './get-sequences-context-for-agents';
 import {getCurrentFrame} from './imperative-state';
+import {isSequenceSplitPending} from './pending-sequence-splits';
 import {saveSequenceProps} from './save-sequence-prop';
-import {splitSelectedTimelineItems} from './split-selected-timeline-item';
+import {
+	canSplitTimelineSequences,
+	splitSelectedTimelineItems,
+} from './split-selected-timeline-item';
 import {getTimelineAssetLinkInfo} from './timeline-asset-link';
 import {timelineVerticalScroll} from './timeline-refs';
 import {
@@ -226,6 +231,7 @@ const TimelineSequenceLabelInner: React.FC<TimelineSequenceLabelProps> = ({
 					<Spacing x={0.5} />
 					{showChevron ? (
 						<TimelineExpandArrowButton
+							iconVariant="timeline"
 							isExpanded={isExpanded}
 							onClick={onToggleExpand}
 							label="track properties"
@@ -402,6 +408,9 @@ const TimelineSequenceItemInner: React.FC<{
 	const timelineRowsRef = useTimelineRowsRef();
 	const {setPropStatuses} = useContext(Internals.VisualModeSettersContext);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
+	const selectEffects = useSelectEffects();
+	const rotateShortcut = useKeyboardShortcutLabel('selectRotateProp');
+	const effectsShortcut = useKeyboardShortcutLabel('selectEffects');
 	const {isHighestContext} = useKeybinding();
 	const selectAsset = useSelectAsset();
 	const getAssetContextMenu = useAssetTimelineContextMenu();
@@ -436,7 +445,7 @@ const TimelineSequenceItemInner: React.FC<{
 	const [sequenceDropIndicator, setSequenceDropIndicator] =
 		useState<ReorderSequencePosition | null>(null);
 	const sequenceReorderWrapperRef = useRef<HTMLDivElement>(null);
-	const stopSequencePointerSession = useRef<(() => void) | null>(null);
+	const stopPointerSession = useRef<(() => void) | null>(null);
 	const suppressNextClick = useRef(false);
 	const {
 		canConfigureApps,
@@ -448,7 +457,7 @@ const TimelineSequenceItemInner: React.FC<{
 		openInEditor,
 		openSource,
 		originalLocation,
-	} = useOpenSequenceInApps(sequence);
+	} = useOpenSequenceInApps(sequence, nodePath);
 
 	const validatedLocation = useMemo(() => {
 		if (
@@ -532,7 +541,10 @@ const TimelineSequenceItemInner: React.FC<{
 		);
 	}, [confirm, previewInteractive, selectedSequenceNodePathInfos]);
 	const onSplitSelectedSequences = useCallback(() => {
-		if (!previewInteractive || selectedSequenceNodePathInfos === null) {
+		if (
+			!canSplitTimelineSequences() ||
+			selectedSequenceNodePathInfos === null
+		) {
 			return;
 		}
 
@@ -548,7 +560,6 @@ const TimelineSequenceItemInner: React.FC<{
 	}, [
 		calculateTimeline,
 		overrideIdToNodePathMappingsRef,
-		previewInteractive,
 		propStatusesRef,
 		selectedItems,
 		selectedSequenceNodePathInfos,
@@ -638,7 +649,10 @@ const TimelineSequenceItemInner: React.FC<{
 
 			if (
 				dragData.parentId !== parentId ||
-				dragData.fileName !== validatedLocation.source
+				dragData.fileName !== validatedLocation.source ||
+				dragData.sourceNodePaths.some(
+					(source) => !areSequenceNodesJsxSiblings(source, nodePath),
+				)
 			) {
 				return {
 					type: 'invalid',
@@ -744,7 +758,7 @@ const TimelineSequenceItemInner: React.FC<{
 	]);
 
 	useEffect(() => {
-		return () => stopSequencePointerSession.current?.();
+		return () => stopPointerSession.current?.();
 	}, []);
 
 	const onSequencePointerDown = useCallback(
@@ -771,7 +785,7 @@ const TimelineSequenceItemInner: React.FC<{
 				return;
 			}
 
-			stopSequencePointerSession.current?.();
+			stopPointerSession.current?.();
 
 			const selectedNodePathInfos = getCanvasSequenceReorderSelection({
 				draggedItem: {type: 'sequence', nodePathInfo},
@@ -867,7 +881,7 @@ const TimelineSequenceItemInner: React.FC<{
 				},
 			});
 
-			stopSequencePointerSession.current = startDeferredCapturedPointerSession({
+			stopPointerSession.current = startEscapeCancelableDeferredPointerSession({
 				captureTarget: sourceElement,
 				event: e.nativeEvent,
 				onMove: (pointerEvent, capturePointer) => {
@@ -984,7 +998,7 @@ const TimelineSequenceItemInner: React.FC<{
 					autoScroll.stop();
 					activeDropTarget?.setDropIndicator(null);
 					dragPreview?.remove();
-					stopSequencePointerSession.current = null;
+					stopPointerSession.current = null;
 
 					if (!didDrag) {
 						return;
@@ -1233,7 +1247,7 @@ const TimelineSequenceItemInner: React.FC<{
 		],
 	);
 	const canHandleSequenceDoubleClick =
-		connectedCompositions.length === 1 || canOpenSource;
+		connectedCompositions.length > 0 || canOpenSource;
 
 	const canRenameSelectedSequence =
 		canRenameThisSequence &&
@@ -1340,19 +1354,12 @@ const TimelineSequenceItemInner: React.FC<{
 			return;
 		}
 
-		setSelectedModal({
-			type: 'add-effect',
-			clientId: previewServerState.clientId,
-			fileName: validatedLocation.source,
-			nodePathInfo,
-			selectItems: currentSelection.current.selectItems,
-		});
+		selectEffects(nodePathInfo);
 	}, [
 		canAddEffect,
 		nodePathInfo,
 		previewServerState,
-		setSelectedModal,
-		currentSelection,
+		selectEffects,
 		validatedLocation?.source,
 	]);
 
@@ -1423,7 +1430,10 @@ const TimelineSequenceItemInner: React.FC<{
 						}),
 					deleteDisabled: !previewInteractive,
 					duplicateDisabled: !previewInteractive,
-					splitDisabled: !previewInteractive || isPackedTrack,
+					splitDisabled:
+						!canSplitTimelineSequences() ||
+						isPackedTrack ||
+						selectedSequenceNodePathInfos.some(isSequenceSplitPending),
 					onDeleteSelectedSequences,
 					onDuplicateSelectedSequences,
 					onSplitSelectedSequences,
@@ -1451,7 +1461,8 @@ const TimelineSequenceItemInner: React.FC<{
 				splitFrame: getCurrentFrame(),
 				keyframeDisplayOffset,
 				keyframePlaybackRate,
-				canEditSource: previewInteractive && Boolean(validatedLocation?.source),
+				canEditSource:
+					canSplitTimelineSequences() && Boolean(validatedLocation?.source),
 				hasMultipleSelection: selected && selectedItems.length > 1,
 			});
 
@@ -1546,7 +1557,7 @@ const TimelineSequenceItemInner: React.FC<{
 												{
 													type: 'item' as const,
 													id: 'rotate',
-													keyHint: null,
+													keyHint: rotateShortcut,
 													label: isProgrammaticallyDuplicated
 														? 'Rotate all'
 														: 'Rotate',
@@ -1564,8 +1575,8 @@ const TimelineSequenceItemInner: React.FC<{
 												{
 													type: 'item' as const,
 													id: 'add-effect',
-													keyHint: null,
-													label: 'Add effect...',
+													keyHint: effectsShortcut,
+													label: 'Add effect',
 													leftItem: null,
 													disabled: !canAddEffect,
 													onClick: onAddEffect,
@@ -1597,6 +1608,7 @@ const TimelineSequenceItemInner: React.FC<{
 			disableInteractivityDisabled,
 			duplicateDisabled,
 			editorInfo,
+			effectsShortcut,
 			isProgrammaticallyDuplicated,
 			isPackedTrack,
 			keyframeDisplayOffset,
@@ -1623,6 +1635,7 @@ const TimelineSequenceItemInner: React.FC<{
 			previewInteractive,
 			previewServerState,
 			propStatusesForOverride,
+			rotateShortcut,
 			selectAsset,
 			selectable,
 			selected,

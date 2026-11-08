@@ -64,7 +64,18 @@ import {
 	EditorPropsProvider,
 	timeValueRef,
 } from './EditorProps.js';
-import {createEffect} from './effects/create-effect.js';
+import {captureEffectPreviewSnapshot} from './effects/capture-effect-preview-snapshot.js';
+import {createCurveSampler} from './effects/create-curve-sampler.js';
+import {
+	createEffect,
+	createEffectImplementation,
+} from './effects/create-effect.js';
+import {EffectPreviewContext} from './effects/effect-preview.js';
+import {subscribeToEffectSource} from './effects/effect-source-observer.js';
+import {
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
+} from './effects/preferred-effect-backend.js';
 import {
 	cleanupEffectChainState,
 	createEffectChainState,
@@ -156,6 +167,7 @@ import {
 	makeMediaResourceManager,
 	MEDIABUNNY_DURATION_VALUE_KEY,
 } from './media-resource-manager.js';
+import {OptimisticEffects, useOptimisticEffects} from './optimistic-effects.js';
 import {
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
@@ -365,6 +377,8 @@ export const Internals = {
 	suspendDelayRenderTimeout,
 	HtmlInCanvasFallback,
 	useHtmlInCanvasUnsupportedMessage,
+	OptimisticEffects,
+	useOptimisticEffects,
 	OptimisticSequenceDeletion,
 	usePendingSequenceDeletions,
 	createElementSourceProxy,
@@ -552,8 +566,15 @@ export const Internals = {
 	cleanupEffectChainState,
 	runEffectChain,
 	useMemoizedEffects,
+	subscribeToEffectSource,
 	useMemoizedEffectDefinitions,
+	PreferredEffectBackendContext,
+	validatePreferredEffectBackend,
 	createEffect,
+	EffectPreviewContext,
+	captureEffectPreviewSnapshot,
+	createEffectImplementation,
+	createCurveSampler,
 	createWebGLContextError,
 	createWebGL2ContextError,
 	computeEffectiveSchemaValuesDotNotation,

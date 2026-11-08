@@ -8,6 +8,6 @@ export const invalidateBundleHandler: ApiHandler<
 	ApiRoutes['/api/invalidate-bundle']['Response']
 > = () => {
 	return withSourceFileWriteQueue(async () => {
-		return {didInvalidate: await invalidatePreviouslySuppressedFiles()};
+		return {didInvalidate: await invalidatePreviouslySuppressedFiles(null)};
 	});
 };

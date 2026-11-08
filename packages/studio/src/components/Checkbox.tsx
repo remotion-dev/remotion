@@ -80,7 +80,7 @@ export const Checkbox: React.FC<{
 				disabled={disabled}
 				name={name}
 			/>
-			<div style={box}>
+			<div style={box} aria-hidden>
 				{checked ? <Checkmark size={checkmarkSize} /> : null}
 			</div>
 		</div>

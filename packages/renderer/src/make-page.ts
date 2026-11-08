@@ -1,3 +1,4 @@
+import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import type {VideoConfig} from 'remotion/no-react';
 import type {BrowserLog} from './browser-log';
@@ -15,6 +16,7 @@ import {setPropsAndEnv} from './set-props-and-env';
 export const makePage = async ({
 	context,
 	initialFrame,
+	videoEnabled,
 	browserReplacer,
 	logLevel,
 	indent,
@@ -28,17 +30,18 @@ export const makePage = async ({
 	muted,
 	envVariables,
 	serializedInputPropsWithCustomSchema,
-	imageFormat,
 	serializedResolvedPropsWithCustomSchema,
 	pageIndex,
 	isMainTab,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	onLog,
 	darkMode,
 	sampleRate,
 }: {
 	context: SourceMapGetter;
 	initialFrame: number;
+	videoEnabled: boolean;
 	browserReplacer: BrowserReplacer;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -53,10 +56,10 @@ export const makePage = async ({
 	envVariables: Record<string, string>;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
-	imageFormat: VideoImageFormat;
 	pageIndex: number;
 	isMainTab: boolean;
 	mediaCacheSizeInBytes: number | null;
+	preferredEffectBackend: PreferredEffectBackend;
 	onLog: OnLog;
 	darkMode: boolean;
 	sampleRate: number;
@@ -81,12 +84,13 @@ export const makePage = async ({
 		proxyPort,
 		retriesRemaining: 2,
 		audioEnabled: !muted,
-		videoEnabled: imageFormat !== 'none',
+		videoEnabled,
 		indent,
 		logLevel,
 		onServeUrlVisited: () => undefined,
 		isMainTab,
 		mediaCacheSizeInBytes,
+		preferredEffectBackend,
 		initialMemoryAvailable: getAvailableMemory(logLevel),
 		darkMode,
 		sampleRate,

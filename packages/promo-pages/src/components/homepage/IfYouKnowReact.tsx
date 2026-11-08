@@ -5,12 +5,11 @@ export const isWebkit = () => {
 		return false;
 	}
 
-	const isSafariUserAgent = Boolean(
-		navigator.userAgent.match(/Version\/[\d.]+.*Safari/),
+	const {userAgent} = window.navigator;
+	return (
+		/AppleWebKit/.test(userAgent) &&
+		!/Chrome\/|Chromium\/|Android/.test(userAgent)
 	);
-
-	const isChrome = Boolean(navigator.userAgent.match(/CriOS\//));
-	return isSafariUserAgent || isChrome;
 };
 
 const icon: React.CSSProperties = {
@@ -19,11 +18,13 @@ const icon: React.CSSProperties = {
 };
 
 export const IfYouKnowReact: React.FC = () => {
-	const [vid, setVid] = useState('/img/compose.webm');
+	const [vid, setVid] = useState(
+		'https://remotion.media/homepage/compose-5ef82016c892.webm',
+	);
 
 	useEffect(() => {
 		if (isWebkit()) {
-			setVid('/img/compose.mp4');
+			setVid('https://remotion.media/homepage/compose-79d2df7dc1ec.mp4');
 		}
 	}, []);
 

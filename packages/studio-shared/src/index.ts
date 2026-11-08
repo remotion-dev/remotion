@@ -1,3 +1,12 @@
+export type {
+	SourceFileVersion,
+	SourceMutationGuard,
+} from './source-file-version';
+export {getConflictingOutputPaths} from './get-conflicting-output-paths';
+export {
+	getPortableDownloadFilename,
+	validateStudioArtifactFilename,
+} from './validate-studio-artifact-filename';
 export {studioOperations} from './api-requests';
 export {splitAnsi, stripAnsi} from './ansi';
 export type {TerminalId} from './terminal';
@@ -45,6 +54,7 @@ export {
 	DeleteNodesResponse,
 	DeleteKeyframesRequest,
 	DeleteKeyframesResponse,
+	KeyframeMutationResult,
 	DeleteSequenceKeyframe,
 	DeleteStaticFileRequest,
 	DeleteStaticFileResponse,
@@ -93,6 +103,10 @@ export {
 	InsertBasicCaptionsResponse,
 	ReplaceVideoSourceRequest,
 	ReplaceVideoSourceResponse,
+	PrerenderedSceneInfoRequest,
+	PrerenderedSceneInfoResponse,
+	RestorePrerenderedSceneRequest,
+	RestorePrerenderedSceneResponse,
 	InsertElementRequest,
 	InsertElementResponse,
 	InsertCompositionElementRequest,
@@ -124,6 +138,10 @@ export {
 	PasteEffectsResponse,
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
+	PrepareOpenTimelineImportRequest,
+	PrepareOpenTimelineImportResponse,
+	PickOpenTimelineRequest,
+	PickOpenTimelineResponse,
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RedoRequest,
@@ -355,6 +373,12 @@ export {
 	packages,
 	type ExtraPackage,
 } from './package-info';
+export {
+	getMissingPackageDependencies,
+	TRANSFORMERS_PACKAGE,
+	uniquePackageDependencies,
+	withRequiredAuxiliaryPackages,
+} from './package-dependencies';
 export {PackageManager} from './package-manager';
 export {
 	DEFAULT_SPRING_EASING,

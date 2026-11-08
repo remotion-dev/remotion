@@ -2,6 +2,7 @@ import {stringifySequenceExpandedRowKey} from '@remotion/studio-shared';
 import {useCallback, useContext, useMemo} from 'react';
 import {Internals, type InteractivitySchema, type TSequence} from 'remotion';
 import type {SequenceNodePathInfo} from '../../helpers/get-timeline-sequence-sort-key';
+import {projectEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {buildTimelineTree} from '../../helpers/timeline-layout';
 import {useRuntimeValueSelector} from '../../helpers/use-runtime-values';
 import {
@@ -30,9 +31,19 @@ export const useTimelineSequenceHasExpandableContent = ({
 	readonly nodePathInfo: SequenceNodePathInfo | null;
 	readonly selectedItems: readonly TimelineSelection[];
 }) => {
-	const {propStatuses: visualModePropStatuses} = useContext(
+	const optimisticEffects = Internals.useOptimisticEffects(
+		nodePathInfo?.sequenceSubscriptionKey ?? null,
+	);
+	const {propStatuses: sourcePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
 	);
+	const visualModePropStatuses =
+		nodePathInfo === null
+			? sourcePropStatuses
+			: projectEffectPropStatuses(
+					sourcePropStatuses,
+					nodePathInfo.sequenceSubscriptionKey,
+				);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -47,43 +58,27 @@ export const useTimelineSequenceHasExpandableContent = ({
 
 		const nodePath = nodePathInfo.sequenceSubscriptionKey;
 		const sourceKey = stringifySequenceExpandedRowKey(nodePath);
-		if (selectedSourceKeys.has(sourceKey)) {
+		if (
+			(optimisticEffects?.items.length ?? sequence.effects.length) > 0 ||
+			selectedSourceKeys.has(sourceKey)
+		) {
 			return true;
 		}
 
-		if (
+		return (
 			Object.values(
 				Internals.getPropStatusesCtx(visualModePropStatuses, nodePath) ?? {},
 			).some((status) => status.status === 'keyframed') ||
 			Object.values(getDragOverrides(nodePath)).some(
 				(override) => override.type === 'keyframed',
 			)
-		) {
-			return true;
-		}
-
-		return sequence.effects.some((_, effectIndex) => {
-			const status = Internals.getEffectPropStatusesCtx({
-				propStatuses: visualModePropStatuses,
-				nodePath,
-				effectIndex,
-			});
-			return (
-				(status.type === 'can-update-effect' &&
-					Object.values(status.props).some(
-						(prop) => prop.status === 'keyframed',
-					)) ||
-				Object.values(getEffectDragOverrides(nodePath, effectIndex)).some(
-					(override) => override.type === 'keyframed',
-				)
-			);
-		});
+		);
 	}, [
 		getDragOverrides,
-		getEffectDragOverrides,
 		nodePathInfo,
 		selectedSourceKeys,
-		sequence.effects,
+		sequence.effects.length,
+		optimisticEffects,
 		visualModePropStatuses,
 	]);
 	const selectHasExpandableContent = useCallback(
@@ -93,6 +88,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 			}
 
 			const tree = buildTimelineTree({
+				optimisticEffects,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -100,6 +96,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent: false,
 				includeSourceControls: false,
+				includeInspectorOnlyFields: false,
 				runtimeValues,
 			});
 
@@ -122,6 +119,7 @@ export const useTimelineSequenceHasExpandableContent = ({
 			);
 		},
 		[
+			optimisticEffects,
 			canHaveExpandableContent,
 			getDragOverrides,
 			getEffectDragOverrides,
@@ -146,17 +144,29 @@ export const useTimelineExpandedTree = ({
 	nodePathInfo,
 	includeTextContent,
 	includeSourceControls,
+	includeInspectorOnlyFields,
 }: {
 	readonly sequence: TSequence;
 	readonly nodePathInfo: SequenceNodePathInfo;
 	readonly includeTextContent: boolean;
 	readonly includeSourceControls: boolean;
+	readonly includeInspectorOnlyFields: boolean;
 }) => {
 	const {getIsExpanded} = useContext(ExpandedTracksGetterContext);
 	const {toggleTrack} = useContext(ExpandedTracksSetterContext);
-	const {propStatuses: visualModePropStatuses} = useContext(
+	const optimisticEffects = Internals.useOptimisticEffects(
+		nodePathInfo?.sequenceSubscriptionKey ?? null,
+	);
+	const {propStatuses: sourcePropStatuses} = useContext(
 		Internals.VisualModePropStatusesContext,
 	);
+	const visualModePropStatuses =
+		nodePathInfo === null
+			? sourcePropStatuses
+			: projectEffectPropStatuses(
+					sourcePropStatuses,
+					nodePathInfo.sequenceSubscriptionKey,
+				);
 	const {getDragOverrides, getEffectDragOverrides} = useContext(
 		Internals.VisualModeDragOverridesContext,
 	);
@@ -209,6 +219,7 @@ export const useTimelineExpandedTree = ({
 	const tree = useMemo(
 		() =>
 			buildTimelineTree({
+				optimisticEffects,
 				sequence,
 				nodePathInfo,
 				getDragOverrides,
@@ -216,9 +227,11 @@ export const useTimelineExpandedTree = ({
 				propStatuses: visualModePropStatuses,
 				includeTextContent,
 				includeSourceControls,
+				includeInspectorOnlyFields,
 				runtimeValues,
 			}),
 		[
+			optimisticEffects,
 			sequence,
 			nodePathInfo,
 			getDragOverrides,
@@ -226,6 +239,7 @@ export const useTimelineExpandedTree = ({
 			visualModePropStatuses,
 			includeTextContent,
 			includeSourceControls,
+			includeInspectorOnlyFields,
 			runtimeValues,
 		],
 	);

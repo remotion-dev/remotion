@@ -183,6 +183,7 @@ type RenderMediaCommandOptions = Omit<
 			| 'offthreadVideoCacheSizeInBytes'
 			| 'offthreadVideoThreads'
 			| 'mediaCacheSizeInBytes'
+			| 'preferredEffectBackend'
 			| 'audioBitrate'
 			| 'videoBitrate'
 			| 'encodingMaxRate'
@@ -300,6 +301,7 @@ export const makeReadOnlyStudioRenderCommand = ({
 	offthreadVideoCacheSizeInBytes,
 	offthreadVideoThreads,
 	mediaCacheSizeInBytes,
+	preferredEffectBackend,
 	beepOnFinish,
 	repro,
 	metadata,
@@ -343,6 +345,11 @@ export const makeReadOnlyStudioRenderCommand = ({
 			'offthreadVideoThreads',
 			offthreadVideoThreads,
 			renderDefaults.offthreadVideoThreads,
+		),
+		renderMediaValueFlag(
+			'preferredEffectBackend',
+			preferredEffectBackend,
+			renderDefaults.preferredEffectBackend,
 		),
 		renderMediaValueFlag(
 			'mediaCacheSizeInBytes',

@@ -3,7 +3,10 @@ import {LIGHT_TEXT} from '../../helpers/colors';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {CaretDown} from '../../icons/caret';
 import {SetSelectedModalContext} from '../../state/modals';
-import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {
+	INSPECTOR_PANEL_HORIZONTAL_PADDING,
+	INSPECTOR_CONTENT_RIGHT_INSET,
+} from '../InspectorPanelLayout';
 import type {SegmentedButtonSegment} from '../SegmentedButton';
 import {SegmentedButton} from '../SegmentedButton';
 import {useSettings} from '../SettingsContext';
@@ -16,6 +19,7 @@ const noElementLibraries = [] as const;
 
 const elementLibraryDropdownStyle: React.CSSProperties = {
 	borderRadius: 4,
+	display: 'flex',
 	height: 28,
 	margin: '0 4px',
 	width: 'calc(100% - 8px)',
@@ -26,6 +30,7 @@ const elementLibraryDropdownSegmentStyle: React.CSSProperties = {
 	gap: 8,
 	justifyContent: 'flex-start',
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
+	paddingRight: INSPECTOR_CONTENT_RIGHT_INSET - 4 - 2.5,
 	flex: 1,
 };
 
@@ -171,9 +176,11 @@ export const ElementLibraryButton: React.FC = () => {
 	);
 
 	return (
-		<SegmentedButton
-			segments={elementLibraryDropdownSegments}
-			style={elementLibraryDropdownStyle}
-		/>
+		<div>
+			<SegmentedButton
+				segments={elementLibraryDropdownSegments}
+				style={elementLibraryDropdownStyle}
+			/>
+		</div>
 	);
 };

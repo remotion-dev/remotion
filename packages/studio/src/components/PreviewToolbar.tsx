@@ -1,5 +1,12 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext, useMemo, useRef, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {checkFullscreenSupport} from '../helpers/check-fullscreen-support';
 import {BACKGROUND, BLACK_ALPHA_50} from '../helpers/colors';
@@ -10,10 +17,11 @@ import {
 } from '../helpers/is-current-selected-still';
 import {useMobileLayout} from '../helpers/mobile-layout';
 import {TIMELINE_PADDING} from '../helpers/timeline-layout';
-import {loadLoopOption} from '../state/loop';
+import {loadLoopOption, loopSetterRef} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
 import {FullScreenToggle} from './FullscreenToggle';
+import {INSPECTOR_RIGHT_EDGE_INSET} from './InspectorPanelLayout';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
@@ -26,6 +34,7 @@ import {PreviewViewOptionsDropdown} from './PreviewViewOptionsDropdown';
 import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {SnappingToggle} from './SnappingToggle';
+import {SplitterHandle, SPLITTER_HANDLE_SIZE} from './Splitter/SplitterHandle';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
 
 const TOOLBAR_HEIGHT = 40;
@@ -34,12 +43,23 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	position: 'relative',
 	justifyContent: 'center',
-	boxShadow: `inset 0 1px ${BLACK_ALPHA_50}`,
+	boxShadow: `inset 0 1px var(--remotion-preview-toolbar-line-color, ${BLACK_ALPHA_50})`,
 	alignItems: 'center',
 	flexDirection: 'row',
 	background: BACKGROUND,
 	height: TOOLBAR_HEIGHT,
+	zIndex: 0,
 };
+
+const splitter: React.CSSProperties = {
+	position: 'absolute',
+	left: 0,
+	right: 0,
+	top: -SPLITTER_HANDLE_SIZE / 2,
+	zIndex: 1,
+};
+
+const noop = () => undefined;
 
 const centeredPlayButton: React.CSSProperties = {
 	position: 'absolute',
@@ -66,6 +86,11 @@ const padding: React.CSSProperties = {
 const toolbarControl: React.CSSProperties = {
 	display: 'flex',
 	flexShrink: 0,
+};
+
+const renderRightSpacing: React.CSSProperties = {
+	flexShrink: 0,
+	width: INSPECTOR_RIGHT_EDGE_INSET - 5.5,
 };
 
 const PreviewToolbarControl: React.FC<{
@@ -108,8 +133,7 @@ export const PreviewToolbar: React.FC<{
 	}, [size, width]);
 	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 
-	const {playerMuted} = useContext(Internals.MediaVolumeContext);
-	const {setPlayerMuted} = useContext(Internals.SetMediaVolumeContext);
+	const [playerMuted, setPlayerMuted] = Internals.usePlayerMutedState();
 	const {canvasContent} = useContext(Internals.CompositionManager);
 	const isVideoComposition = useIsVideoComposition();
 	const showCompositionControls = canvasContent?.type === 'composition';
@@ -121,6 +145,7 @@ export const PreviewToolbar: React.FC<{
 	const isStill = useIsStill();
 
 	const [loop, setLoop] = useState(loadLoopOption());
+	useImperativeHandle(loopSetterRef, () => setLoop, [setLoop]);
 
 	const isFullscreenSupported = checkFullscreenSupport();
 	const isMobileLayout = useMobileLayout();
@@ -137,7 +162,18 @@ export const PreviewToolbar: React.FC<{
 	);
 
 	return (
-		<div ref={ref} style={containerStyle} className="css-reset">
+		<div
+			ref={ref}
+			style={containerStyle}
+			className="css-reset remotion-preview-toolbar"
+		>
+			<div className="remotion-preview-toolbar-splitter" style={splitter}>
+				<SplitterHandle
+					allowToCollapse="none"
+					onCollapse={noop}
+					onCollapseDuringDrag={null}
+				/>
+			</div>
 			<div style={sideContainer}>
 				<div style={padding} />
 				{isMobileLayout ? null : (
@@ -244,7 +280,7 @@ export const PreviewToolbar: React.FC<{
 						narrow={isMobileLayout}
 					/>
 				</PreviewToolbarControl>
-				<Spacing x={1.5} />
+				<div style={renderRightSpacing} />
 			</div>
 			<PlaybackKeyboardShortcutsManager
 				setPlaybackRate={setPlaybackRate}
