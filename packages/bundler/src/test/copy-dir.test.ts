@@ -43,6 +43,9 @@ test('copies a directory link in public without copying its contents', async () 
 	const destLink = path.join(dest, 'media');
 	const linkStat = await fs.promises.lstat(destLink);
 	expect(linkStat.isSymbolicLink()).toBe(true);
-	const asset = await fs.promises.readFile(path.join(destLink, 'image.txt'), 'utf8');
+	const asset = await fs.promises.readFile(
+		path.join(destLink, 'image.txt'),
+		'utf8',
+	);
 	expect(asset).toBe('image');
 });
