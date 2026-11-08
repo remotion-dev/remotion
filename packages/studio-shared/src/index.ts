@@ -135,6 +135,10 @@ export {
 	PasteEffectsResponse,
 	PrepareElementInstallRequest,
 	PrepareElementInstallResponse,
+	PrepareOpenTimelineImportRequest,
+	PrepareOpenTimelineImportResponse,
+	PickOpenTimelineRequest,
+	PickOpenTimelineResponse,
 	ProjectInfoRequest,
 	ProjectInfoResponse,
 	RedoRequest,
@@ -366,6 +370,12 @@ export {
 	packages,
 	type ExtraPackage,
 } from './package-info';
+export {
+	getMissingPackageDependencies,
+	TRANSFORMERS_PACKAGE,
+	uniquePackageDependencies,
+	withRequiredAuxiliaryPackages,
+} from './package-dependencies';
 export {PackageManager} from './package-manager';
 export {
 	DEFAULT_SPRING_EASING,

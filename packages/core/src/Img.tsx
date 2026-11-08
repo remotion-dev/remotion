@@ -48,6 +48,7 @@ import {truncateSrcForLabel} from './truncate-src-for-label.js';
 import {useBufferState} from './use-buffer-state.js';
 import {useCropStyle} from './use-crop-style.js';
 import {useDelayRender} from './use-delay-render.js';
+import {useVideoEnabled} from './use-media-enabled.js';
 import {usePremounting} from './use-premounting.js';
 import {useRemotionEnvironment} from './use-remotion-environment.js';
 import {resolveV5Default} from './v5-flag.js';
@@ -641,7 +642,7 @@ const getFitFromObjectFit = (
 	return undefined;
 };
 
-const ImgInner: React.FC<
+const ImgWithPreview: React.FC<
 	ImgProps & {
 		readonly controls: SequenceControls | undefined;
 	}
@@ -877,6 +878,19 @@ const ImgInner: React.FC<
 			{...canvasProps}
 		/>
 	);
+};
+
+const ImgInner: React.FC<
+	ImgProps & {
+		readonly controls: SequenceControls | undefined;
+	}
+> = (props) => {
+	const videoEnabled = useVideoEnabled();
+	if (videoEnabled === false) {
+		return null;
+	}
+
+	return <ImgWithPreview {...props} />;
 };
 
 /*

@@ -7,25 +7,21 @@ const MediaEnabledContext = createContext<{
 
 export const useVideoEnabled = () => {
 	const context = useContext(MediaEnabledContext);
-	if (!context) {
-		return window.remotion_videoEnabled;
+	if (context && context.videoEnabled !== null) {
+		return context.videoEnabled;
 	}
 
-	if (context.videoEnabled === null) {
-		return window.remotion_videoEnabled;
-	}
-
-	return context.videoEnabled;
+	return typeof window === 'undefined' ? true : window.remotion_videoEnabled;
 };
 
 export const useAudioEnabled = () => {
 	const context = useContext(MediaEnabledContext);
 	if (!context) {
-		return window.remotion_audioEnabled;
+		return typeof window === 'undefined' ? true : window.remotion_audioEnabled;
 	}
 
 	if (context.audioEnabled === null) {
-		return window.remotion_audioEnabled;
+		return typeof window === 'undefined' ? true : window.remotion_audioEnabled;
 	}
 
 	return context.audioEnabled;

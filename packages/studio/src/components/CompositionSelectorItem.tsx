@@ -29,6 +29,7 @@ import {
 	WHITE_ALPHA_06,
 } from '../helpers/colors';
 import {
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
 	HOVERABLE_CLASS_NAME,
 	HOVER_GROUP_CLASS_NAME,
 	hoverableStyle,
@@ -54,7 +55,7 @@ import {CompositionContextButton} from './CompositionContextButton';
 import {CompositionOrStillIcon} from './CompositionOrStillIcon';
 import {ContextMenu} from './ContextMenu';
 import {getFolderMenuItems} from './folder-menu-items';
-import {COMPACT_CONTROL_ROW_HEIGHT, Row, Spacing} from './layout';
+import {COMPACT_CONTROL_ROW_HEIGHT, Row} from './layout';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {moveComposition, moveFolder} from './RenderQueue/actions';
@@ -64,8 +65,6 @@ import {useOpenInMenuApps} from './use-open-in-menu-apps';
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 2,
-	paddingTop: 5,
-	paddingBottom: 5,
 	fontSize: 13,
 	display: 'flex',
 	textDecoration: 'none',
@@ -82,6 +81,23 @@ const itemStyle: React.CSSProperties = {
 	height: COMPACT_CONTROL_ROW_HEIGHT,
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
+};
+
+const rowControlStyle: React.CSSProperties = {
+	appearance: 'none',
+	border: 'none',
+	borderRadius: 4,
+	display: 'flex',
+	alignItems: 'center',
+	flex: 1,
+	gap: 8,
+	minWidth: 0,
+	height: '100%',
+	paddingTop: 5,
+	paddingBottom: 5,
+	paddingRight: 0,
+	cursor: 'default',
+	textDecoration: 'none',
 };
 
 const labelStyle: React.CSSProperties = {
@@ -337,9 +353,12 @@ export const CompositionSelectorItem: React.FC<{
 				idleColor: selected ? WHITE : LIGHT_TEXT,
 				hoverColor: WHITE,
 			}),
-			paddingLeft: 12 + level * 11,
 		};
-	}, [level, selected]);
+	}, [selected]);
+
+	const controlStyle = useMemo((): React.CSSProperties => {
+		return {...rowControlStyle, paddingLeft: 12 + level * 11};
+	}, [level]);
 
 	const reorderLineStyle = useMemo((): React.CSSProperties | null => {
 		if (
@@ -847,30 +866,37 @@ export const CompositionSelectorItem: React.FC<{
 						<Row align="center">
 							<div
 								style={style}
-								className={`__remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
-								tabIndex={tabIndex}
-								onClick={onClick}
-								onKeyDown={onKeyDown}
+								className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 								draggable={!window.remotion_isReadOnlyStudio}
 								onDragStart={onItemDragStart}
 								onDragEnd={onItemDragEnd}
 								onDragOver={canReorder ? onRowDragOver : undefined}
 								onDragLeave={canReorder ? onRowDragLeave : undefined}
 								onDrop={canReorder ? onRowDrop : undefined}
-								aria-label={item.folderName}
-								role="button"
-								aria-expanded={item.expanded}
 							>
-								{item.expanded ? (
-									<ExpandedFolderIcon style={iconStyle} color={CURRENT_COLOR} />
-								) : (
-									<CollapsedFolderIcon
-										color={CURRENT_COLOR}
-										style={iconStyle}
-									/>
-								)}
-								<Spacing x={1} />
-								<div style={labelStyle}>{item.folderName}</div>
+								<div
+									style={controlStyle}
+									className={`__remotion-composition-selector-item ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+									tabIndex={tabIndex}
+									onClick={onClick}
+									onKeyDown={onKeyDown}
+									aria-label={item.folderName}
+									role="button"
+									aria-expanded={item.expanded}
+								>
+									{item.expanded ? (
+										<ExpandedFolderIcon
+											style={iconStyle}
+											color={CURRENT_COLOR}
+										/>
+									) : (
+										<CollapsedFolderIcon
+											color={CURRENT_COLOR}
+											style={iconStyle}
+										/>
+									)}
+									<span style={labelStyle}>{item.folderName}</span>
+								</div>
 								<CompositionContextButton
 									getItems={getContextMenuItems}
 									visible
@@ -923,31 +949,34 @@ export const CompositionSelectorItem: React.FC<{
 					<div data-composition-reorder-line style={reorderLineStyle} />
 				) : null}
 				<Row align="center">
-					<a
-						ref={compositionRowRef}
+					<div
 						style={style}
-						tabIndex={tabIndex}
-						onClick={onClick}
-						onKeyDown={onKeyDown}
+						className={`${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
 						draggable={!window.remotion_isReadOnlyStudio}
 						onDragStart={onItemDragStart}
 						onDragEnd={onItemDragEnd}
 						onDragOver={canReorder ? onRowDragOver : undefined}
 						onDragLeave={canReorder ? onRowDragLeave : undefined}
 						onDrop={canReorder ? onRowDrop : undefined}
-						type="button"
-						aria-label={item.composition.id}
-						className={`__remotion-composition __remotion-composition-selector-item ${HOVERABLE_CLASS_NAME} ${HOVER_GROUP_CLASS_NAME}`}
-						data-compname={item.composition.id}
-						data-annotation-composition-id={item.composition.id}
 					>
-						<CompositionOrStillIcon
-							composition={item.composition}
-							color={CURRENT_COLOR}
-							style={iconStyle}
-						/>
-						<Spacing x={1} />
-						<div style={labelStyle}>{item.composition.id}</div>
+						<a
+							ref={compositionRowRef}
+							style={controlStyle}
+							tabIndex={tabIndex}
+							onClick={onClick}
+							onKeyDown={onKeyDown}
+							aria-label={item.composition.id}
+							className={`__remotion-composition __remotion-composition-selector-item ${FOCUS_VISIBLE_ONLY_CLASS_NAME}`}
+							data-compname={item.composition.id}
+							data-annotation-composition-id={item.composition.id}
+						>
+							<CompositionOrStillIcon
+								composition={item.composition}
+								color={CURRENT_COLOR}
+								style={iconStyle}
+							/>
+							<span style={labelStyle}>{item.composition.id}</span>
+						</a>
 						<CompositionContextButton
 							getItems={getContextMenuItems}
 							visible={!isDragging}
@@ -958,7 +987,7 @@ export const CompositionSelectorItem: React.FC<{
 							composition={item.composition}
 							readOnlyStudio={window.remotion_isReadOnlyStudio}
 						/>
-					</a>
+					</div>
 				</Row>
 			</div>
 		</ContextMenu>

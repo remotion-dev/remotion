@@ -196,15 +196,18 @@ export const getFunctionSourceEditsForPrependedStatements = ({
 						| null
 						| undefined
 				)?.tokens;
-				const arrowToken = tokens?.findLast((token) => {
-					if (token.type?.label !== '=>' || !token.loc) {
-						return false;
-					}
+				const arrowToken = tokens
+					?.slice()
+					.reverse()
+					.find((token) => {
+						if (token.type?.label !== '=>' || !token.loc) {
+							return false;
+						}
 
-					const start = recastLocToOffset(input, token.loc.start);
-					const end = recastLocToOffset(input, token.loc.end);
-					return start >= functionStart && end <= range.start;
-				});
+						const start = recastLocToOffset(input, token.loc.start);
+						const end = recastLocToOffset(input, token.loc.end);
+						return start >= functionStart && end <= range.start;
+					});
 				const arrowStart = arrowToken?.loc
 					? recastLocToOffset(input, arrowToken.loc.start)
 					: input.lastIndexOf('=>', range.start);

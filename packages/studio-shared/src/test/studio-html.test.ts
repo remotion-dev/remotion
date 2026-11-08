@@ -38,6 +38,7 @@ const makeHtml = ({
 		],
 		publicFolderExists,
 		fileSystemPlatform: null,
+		supportsNativeFilePicker: false,
 		includeFavicon: true,
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,

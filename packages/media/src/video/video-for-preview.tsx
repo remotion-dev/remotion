@@ -12,6 +12,7 @@ import type {
 	LogLevel,
 	LoopVolumeCurveBehavior,
 	SequenceControls,
+	StaticFile,
 	VolumeProp,
 } from 'remotion';
 import {
@@ -133,10 +134,75 @@ const VideoForPreviewAssertedShowing: React.FC<
 	setMediaDurationInSeconds,
 	...props
 }) => {
-	const src = usePreload(unpreloadedSrc);
-
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const {isStudio} = useRemotionEnvironment();
+	const [staticFiles, setStaticFiles] = useState<StaticFile[] | null>(() =>
+		isStudio ? (window.remotion_staticFiles ?? null) : null,
+	);
+	useEffect(() => {
+		if (!isStudio) {
+			return;
+		}
+
+		const update = () => setStaticFiles(window.remotion_staticFiles ?? null);
+		update();
+		window.addEventListener(Internals.WATCH_REMOTION_STATIC_FILES, update);
+		return () => {
+			window.removeEventListener(Internals.WATCH_REMOTION_STATIC_FILES, update);
+		};
+	}, [isStudio]);
+
+	const knownStaticFile = useMemo(
+		() =>
+			isStudio
+				? (window.remotion_staticFiles?.find(
+						(file) => file.src === unpreloadedSrc,
+					) ?? null)
+				: null,
+		[isStudio, unpreloadedSrc],
+	);
+	const {missing: missingStaticFile, src: resolvedSrc} = useMemo(() => {
+		const unchanged = {missing: null, src: unpreloadedSrc};
+		if (!isStudio || !staticFiles) {
+			return unchanged;
+		}
+
+		let fileName = knownStaticFile?.name ?? null;
+		if (fileName === null) {
+			const staticBase = window.remotion_staticBase;
+			if (
+				typeof staticBase !== 'string' ||
+				(staticBase === '' &&
+					(!unpreloadedSrc.startsWith('/') || unpreloadedSrc.startsWith('//')))
+			) {
+				return unchanged;
+			}
+
+			try {
+				const source = new URL(unpreloadedSrc, window.location.href);
+				const base = new URL(`${staticBase}/`, window.location.href);
+				if (
+					source.origin !== base.origin ||
+					!source.pathname.startsWith(base.pathname)
+				) {
+					return unchanged;
+				}
+
+				fileName = decodeURIComponent(
+					source.pathname.slice(base.pathname.length),
+				);
+			} catch {
+				return unchanged;
+			}
+		}
+
+		const file = staticFiles.find((entry) => entry.name === fileName);
+		return {
+			missing: file ? null : fileName,
+			src: file?.src.startsWith('blob:') ? file.src : unpreloadedSrc,
+		};
+	}, [isStudio, knownStaticFile, staticFiles, unpreloadedSrc]);
+	const src = usePreload(resolvedSrc);
 	const videoConfig = useUnsafeVideoConfig();
 	const frame = useCurrentFrame();
 	const mediaPlayerRef = useRef<MediaPlayer | null>(null);
@@ -384,6 +450,10 @@ const VideoForPreviewAssertedShowing: React.FC<
 	}, [_experimentalInitiallyDrawCachedFrame, src]);
 
 	useEffect(() => {
+		if (missingStaticFile !== null) {
+			return;
+		}
+
 		// The context is created after commit. Avoid initializing a silent player
 		// that would immediately be replaced when its audio context becomes ready.
 		if (sharedAudioContext?.audioContextPending) {
@@ -615,6 +685,7 @@ const VideoForPreviewAssertedShowing: React.FC<
 		disallowFallbackToOffthreadVideo,
 		logLevel,
 		loop,
+		missingStaticFile,
 		preloadedSrc,
 		sharedAudioContext,
 		videoConfig.fps,
@@ -707,6 +778,68 @@ const VideoForPreviewAssertedShowing: React.FC<
 			objectFit: objectFitProp,
 		};
 	}, [objectFitProp, style]);
+
+	if (missingStaticFile !== null) {
+		if (headless) {
+			return null;
+		}
+
+		return (
+			<div
+				{...props}
+				className={className}
+				role="img"
+				aria-label={`Media unavailable: ${missingStaticFile}`}
+				style={{
+					width: 300,
+					height: 150,
+					...actualStyle,
+					backgroundColor: '#2a1819',
+				}}
+			>
+				<svg width="100%" height="100%" viewBox="0 0 480 270">
+					<g
+						fill="none"
+						stroke="#d58d90"
+						strokeWidth={2}
+						strokeLinejoin="round"
+					>
+						<path
+							d="M238.680 70.333C237.925 70.054 237.138 69.781 236.267 69.496C233.039 68.442 229.044 67.527 225.665 67.071C225.134 66.999 224.413 66.958 224.036 66.977C222.881 67.040 221.950 67.223 221.011 67.580C220.543 67.757 219.776 68.140 219.354 68.405C217.588 69.513 216.242 71.177 215.540 73.114C215.400 73.498 215.021 74.721 214.777 75.563C213.154 81.191 212.233 87.345 212.035 93.858C212.003 94.896 212.003 97.366 212.035 98.386C212.167 102.705 212.580 106.603 213.328 110.579C213.632 112.188 214.119 114.349 214.401 115.331C214.978 117.326 216.155 119.024 217.829 120.269C218.951 121.104 220.225 121.664 221.636 121.938C222.316 122.071 223.214 122.131 223.875 122.088C224.789 122.028 226.603 121.784 228.077 121.521C231.772 120.863 235.310 119.914 238.680 118.680L235.460 104.720L240.980 93.910L234.540 86.550Z"
+							transform="translate(-6 0) rotate(-8 230 97)"
+						/>
+						<path
+							d="M238.680 118.680C241.370 117.695 243.953 116.529 246.423 115.182C249.948 113.259 252.961 111.177 255.868 108.651C258.765 106.137 261.235 103.433 263.409 100.398C263.913 99.696 264.166 99.286 264.420 98.770C265.071 97.438 265.377 96.114 265.375 94.633C265.375 93.253 265.114 92.027 264.552 90.773C264.282 90.167 264.024 89.733 263.445 88.908C261.312 85.871 258.946 83.225 256.061 80.653C251.588 76.668 246.276 73.399 240.344 70.979C239.793 70.755 239.246 70.542 238.680 70.333L234.540 86.550L240.980 93.910L235.460 104.720Z"
+							transform="translate(7 2) rotate(9 254 97)"
+						/>
+					</g>
+					<text
+						x={240}
+						y={155}
+						textAnchor="middle"
+						fill="#ffe1e1"
+						fontFamily="Arial, sans-serif"
+						fontSize={24}
+					>
+						Media unavailable
+					</text>
+					<foreignObject x={20} y={158} width={440} height={50}>
+						<div
+							style={{
+								color: '#d58d90',
+								fontFamily: 'Arial, sans-serif',
+								fontSize: 14,
+								textAlign: 'center',
+								overflowWrap: 'anywhere',
+							}}
+						>
+							{missingStaticFile}
+						</div>
+					</foreignObject>
+				</svg>
+			</div>
+		);
+	}
 
 	if (terminalError) {
 		throw terminalError;

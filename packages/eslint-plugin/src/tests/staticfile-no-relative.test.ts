@@ -30,6 +30,15 @@ export const LeadingSlash = () => {
   );
 }
           `,
+		`
+import {Img, staticFile} from 'remotion';
+
+export const ColonInFilename = () => {
+  return (
+    <Img src={staticFile("f:logo.png")} />
+  );
+}
+          `,
 	],
 	invalid: [
 		{
@@ -73,6 +82,42 @@ staticFile("public/relative.png")
 import {staticFile} from 'remotion';
 
 staticFile("/Users/jonathanburger/remotion/packages/eslint-plugin")
+      `,
+			errors: [
+				{
+					messageId: 'AbsoluteStaticFile',
+				},
+			],
+		},
+		{
+			code: `
+import {staticFile} from 'remotion';
+
+staticFile("F:/assets/image.png")
+      `,
+			errors: [
+				{
+					messageId: 'AbsoluteStaticFile',
+				},
+			],
+		},
+		{
+			code: `
+import {staticFile} from 'remotion';
+
+staticFile("c:/assets/image.png")
+      `,
+			errors: [
+				{
+					messageId: 'AbsoluteStaticFile',
+				},
+			],
+		},
+		{
+			code: String.raw`
+import {staticFile} from 'remotion';
+
+staticFile("\\\\server\\share\\image.png")
       `,
 			errors: [
 				{

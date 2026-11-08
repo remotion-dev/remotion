@@ -20,7 +20,7 @@
 		"comps": "remotion compositions",
 		"clean": "rm -rf build && rm -rf build-testbed && rm -rf out",
 		"lint": "eslint src",
-		"test": "tsc && bun test src --timeout 60000",
+		"test": "node ../.monorepo/tsrs.cjs && bun test src --timeout 60000",
 		"test:e2e": "playwright test",
 		"teste2e": "playwright test",
 		"render": "remotion render react-svg",

@@ -202,29 +202,39 @@ When using [`npx remotion lambda render`](/docs/lambda/cli/render) or [`npx remo
 They will get logged to the console and you can click them to download them.  
 The `--privacy` option also applies to artifacts.
 
-### Using `renderMediaOnLambda()`
+### Using `renderMediaOnLambdaAndStream()`
 
-When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
+When using [`renderMediaOnLambdaAndStream()`](/docs/lambda/rendermediaonlambdaandstream), artifacts get saved to the S3 bucket under the key `renders/[render-id]/artifacts/[filename]`.
 
-You can obtain a list of currently received assets from [`getRenderProgress()`](/docs/lambda/getrenderprogress#artifacts).
+The `onProgress` callback receives all artifacts uploaded so far. Use a set to process each artifact once:
 
-```tsx twoslash title="progress.ts"
-import {getRenderProgress} from '@remotion/lambda/client';
+```tsx twoslash title="render.ts"
+import {renderMediaOnLambdaAndStream} from '@remotion/lambda/client';
 
-const renderProgress = await getRenderProgress({
-  renderId: 'hi',
-  functionName: 'hi',
-  bucketName: 'hi',
+const received = new Set<string>();
+
+await renderMediaOnLambdaAndStream({
   region: 'eu-central-1',
+  functionName: 'remotion-render-4-0-542-mem2048mb-disk2048mb-120sec',
+  serveUrl: 'https://example.com/my-remotion-site',
+  composition: 'MyComposition',
+  codec: 'h264',
+  onProgress: ({artifacts}) => {
+    for (const artifact of artifacts) {
+      if (received.has(artifact.s3Key)) {
+        continue;
+      }
+      received.add(artifact.s3Key);
+      console.log(artifact.filename);
+      console.log(artifact.sizeInBytes);
+      console.log(artifact.s3Url);
+      console.log(artifact.s3Key);
+    }
+  },
 });
-
-for (const artifact of renderProgress.artifacts) {
-  console.log(artifact.filename); // "hello-world.txt"
-  console.log(artifact.sizeInBytes); // 12
-  console.log(artifact.s3Url); // "https://s3.eu-central-1.amazonaws.com/remotion-lambda-abcdef/renders/abcdef/artifacts/hello-world.txt"
-  console.log(artifact.s3Key); // "renders/abcdef/artifacts/hello-world.txt"
-}
 ```
+
+For a render started separately with [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), use [`getRenderProgress()`](/docs/lambda/getrenderprogress#artifacts) to retrieve its artifacts.
 
 ### Using `renderStillOnLambda()`
 
