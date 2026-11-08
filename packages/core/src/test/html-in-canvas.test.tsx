@@ -485,24 +485,38 @@ test('<HtmlInCanvas> keeps the visible ref when switching paint handlers and res
 	const canvasRef = React.createRef<HTMLCanvasElement>();
 	let initCalls = 0;
 	let cleanupCalls = 0;
+	let initializedSize: number | null = null;
+	let delayNextInitialization = false;
+	let resolveInitialization: (() => void) | null = null;
 	const paintedSizes: number[] = [];
 	const Component: React.FC<{
 		readonly customPaint: boolean;
 		readonly size: number;
-	}> = ({customPaint, size}) => (
+		readonly density: number;
+	}> = ({customPaint, size, density}) => (
 		<React.StrictMode>
 			<SequenceTestWrapper isRendering onRegisterSequence={() => undefined}>
 				<HtmlInCanvas
 					ref={canvasRef}
 					width={size}
 					height={size}
-					pixelDensity={2}
+					pixelDensity={density}
 					onInit={
 						customPaint
-							? () => {
+							? async ({canvas}) => {
 									initCalls++;
+									const initialWidth = canvas.width;
+									if (delayNextInitialization) {
+										delayNextInitialization = false;
+										await new Promise<void>((resolve) => {
+											resolveInitialization = resolve;
+										});
+									}
+
+									initializedSize = initialWidth;
 									return () => {
 										cleanupCalls++;
+										initializedSize = null;
 									};
 								}
 							: undefined
@@ -510,6 +524,7 @@ test('<HtmlInCanvas> keeps the visible ref when switching paint handlers and res
 					onPaint={
 						customPaint
 							? ({canvas}) => {
+									expect(initializedSize).toBe(canvas.width);
 									paintedSizes.push(canvas.width);
 								}
 							: undefined
@@ -521,13 +536,13 @@ test('<HtmlInCanvas> keeps the visible ref when switching paint handlers and res
 		</React.StrictMode>
 	);
 	const {container, rerender} = render(
-		<Component customPaint={false} size={50} />,
+		<Component customPaint={false} size={50} density={2} />,
 	);
 	const preview = canvasRef.current;
 	expect(container.querySelectorAll('canvas')).toHaveLength(1);
 	expect(transferControlToOffscreenCalls).toBe(0);
 
-	rerender(<Component customPaint size={50} />);
+	rerender(<Component customPaint size={50} density={2} />);
 	const output = canvasRef.current;
 	expect(output).not.toBe(preview);
 	expect(container.querySelectorAll('canvas')).toHaveLength(2);
@@ -536,21 +551,36 @@ test('<HtmlInCanvas> keeps the visible ref when switching paint handlers and res
 	container.querySelector('canvas')!.dispatchEvent(new Event('paint'));
 	await waitFor(() => expect(paintedSizes).toEqual([100]));
 
-	rerender(<Component customPaint size={60} />);
+	rerender(<Component customPaint size={60} density={2} />);
 	expect(canvasRef.current).toBe(output);
 	expect(canvasRef.current?.getAttribute('width')).toBe('120');
 	expect(canvasRef.current?.style.width).toBe('60px');
 	expect(transferControlToOffscreenCalls).toBe(1);
 	container.querySelector('canvas')!.dispatchEvent(new Event('paint'));
 	await waitFor(() => expect(paintedSizes).toEqual([100, 120]));
-	expect(initCalls).toBe(1);
-	expect(cleanupCalls).toBe(0);
+	expect(initCalls).toBe(2);
+	expect(cleanupCalls).toBe(1);
 
-	rerender(<Component customPaint={false} size={60} />);
+	delayNextInitialization = true;
+	rerender(<Component customPaint size={60} density={3} />);
+	container.querySelector('canvas')!.dispatchEvent(new Event('paint'));
+	expect(initCalls).toBe(3);
+	rerender(<Component customPaint size={70} density={3} />);
+	container.querySelector('canvas')!.dispatchEvent(new Event('paint'));
+	expect(initCalls).toBe(3);
+	resolveInitialization!();
+	await waitFor(() => expect(cleanupCalls).toBe(3));
+	container.querySelector('canvas')!.dispatchEvent(new Event('paint'));
+	await waitFor(() => expect(paintedSizes).toEqual([100, 120, 210]));
+	expect(initCalls).toBe(4);
+	expect(canvasRef.current).toBe(output);
+	expect(transferControlToOffscreenCalls).toBe(1);
+
+	rerender(<Component customPaint={false} size={70} density={3} />);
 	expect(container.querySelectorAll('canvas')).toHaveLength(1);
 	expect(canvasRef.current).toBe(container.querySelector('canvas'));
 	expect(transferControlToOffscreenCalls).toBe(1);
-	expect(cleanupCalls).toBe(1);
+	expect(cleanupCalls).toBe(4);
 });
 
 test('<HtmlInCanvas> copies custom paint before releasing scoped delayRender handles', async () => {
