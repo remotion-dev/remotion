@@ -1,4 +1,4 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useCallback} from 'react';
 import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
@@ -10,8 +10,7 @@ import {
 	inspectorActionIconStyle,
 	inspectorHeaderActionStyle,
 } from './InspectorPanel/common';
-import {useInspectorRightOffset} from './InspectorPanel/use-inspector-right-offset';
-import {INSPECTOR_RIGHT_EDGE_INSET} from './InspectorPanelLayout';
+import {INSPECTOR_CONTENT_RIGHT_INSET} from './InspectorPanelLayout';
 import {showNotification} from './Notifications/NotificationCenter';
 
 const row: React.CSSProperties = {
@@ -37,7 +36,8 @@ const action: React.CSSProperties = {
 	flexShrink: 0,
 	height: 24,
 	marginLeft: 0,
-	marginRight: `calc(${INSPECTOR_RIGHT_EDGE_INSET - (INSPECTOR_HEADER_ACTION_WIDTH - 12) / 2}px - var(--remotion-inspector-right-offset, 0px))`,
+	marginRight:
+		INSPECTOR_CONTENT_RIGHT_INSET - (INSPECTOR_HEADER_ACTION_WIDTH - 12) / 2,
 };
 
 export const inspectorHeaderIconStyle: React.CSSProperties = {
@@ -95,8 +95,6 @@ export const InspectorLocationCopy: React.FC<{
 	readonly leadingActions: React.ReactNode;
 	readonly isEditing: boolean;
 }> = ({children, contextForAgents, actions, leadingActions, isEditing}) => {
-	const rowRef = useRef<HTMLDivElement>(null);
-	useInspectorRightOffset(rowRef);
 	const {copied, markCopied} = useCopyFeedback();
 
 	const renderCopyAction: RenderInlineAction = useCallback(
@@ -136,12 +134,7 @@ export const InspectorLocationCopy: React.FC<{
 	);
 
 	return (
-		<div
-			ref={rowRef}
-			aria-label="Inspector source location"
-			role="group"
-			style={row}
-		>
+		<div aria-label="Inspector source location" role="group" style={row}>
 			<div style={content}>{children}</div>
 			{isEditing ? null : (
 				<div style={action}>
