@@ -23,6 +23,7 @@ import * as recast from 'recast';
 import type {SequenceNodePath} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {getInteractiveComponent} from './get-interactive-component';
+import {getLazyComponentImport} from './get-lazy-component-import';
 import {
 	captureJsxNodePaths,
 	getNodePathRemappings,
@@ -327,65 +328,13 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
-const findDynamicImportPath = (value: unknown): string | null => {
-	if (!isRecord(value)) {
-		return null;
-	}
-
-	if (
-		value.type === 'CallExpression' &&
-		isRecord(value.callee) &&
-		value.callee.type === 'Import' &&
-		Array.isArray(value.arguments) &&
-		isRecord(value.arguments[0]) &&
-		value.arguments[0].type === 'StringLiteral' &&
-		typeof value.arguments[0].value === 'string'
-	) {
-		return value.arguments[0].value;
-	}
-
-	for (const [key, child] of Object.entries(value)) {
-		if (
-			key === 'loc' ||
-			key === 'start' ||
-			key === 'end' ||
-			key === 'comments' ||
-			key === 'leadingComments' ||
-			key === 'trailingComments' ||
-			key === 'innerComments' ||
-			key === 'extra' ||
-			key === 'original'
-		) {
-			continue;
-		}
-
-		if (Array.isArray(child)) {
-			for (const item of child) {
-				const nestedResult = findDynamicImportPath(item);
-				if (nestedResult) {
-					return nestedResult;
-				}
-			}
-
-			continue;
-		}
-
-		const childResult = findDynamicImportPath(child);
-		if (childResult) {
-			return childResult;
-		}
-	}
-
-	return null;
-};
-
-const getLazyImportPath = (element: JSXElement) => {
+const getLazyImport = (element: JSXElement) => {
 	const attribute = findAttribute(element, 'lazyComponent');
 	if (!attribute?.value || attribute.value.type !== 'JSXExpressionContainer') {
 		return null;
 	}
 
-	return findDynamicImportPath(attribute.value.expression);
+	return getLazyComponentImport(attribute.value.expression);
 };
 
 const findImportTarget = ({
@@ -1952,17 +1901,17 @@ export async function resolveCompositionComponentWithFile({
 		throw new Error(`Could not find composition "${compositionId}"`);
 	}
 
-	const lazyImportPath = getLazyImportPath(compositionElement);
-	if (lazyImportPath) {
+	const lazyImport = getLazyImport(compositionElement);
+	if (lazyImport) {
 		const lazyComponentFile = resolveImportPath({
 			environment,
-			importPath: lazyImportPath,
+			importPath: lazyImport.importPath,
 			fromFile: compositionFileName,
 		});
 		return getComponentLocationRecursively({
 			environment,
 			fileName: lazyComponentFile,
-			exportName: 'default',
+			exportName: lazyImport.exportName,
 			visited: new Set(),
 		});
 	}
@@ -2057,13 +2006,36 @@ const ensureCompositionComponentImport = async ({
 		return sourceLocation.exportName;
 	}
 
-	if (sourceLocation.exportName !== 'default') {
-		const sourceAst = parseAstForReadOnly(
-			await readSourceFile({
-				environment,
-				fileName: sourceLocation.fileName,
-			}),
-		);
+	const sourceAst = parseAstForReadOnly(
+		await readSourceFile({
+			environment,
+			fileName: sourceLocation.fileName,
+		}),
+	);
+	if (sourceLocation.exportName === 'default') {
+		const hasDefaultExport = sourceAst.program.body.some((node) => {
+			if (node.type === 'ExportDefaultDeclaration') {
+				return true;
+			}
+
+			return (
+				node.type === 'ExportNamedDeclaration' &&
+				node.exportKind !== 'type' &&
+				node.specifiers.some(
+					(specifier) =>
+						specifier.type === 'ExportSpecifier' &&
+						specifier.exportKind !== 'type' &&
+						getExportedName(specifier.exported) === 'default',
+				)
+			);
+		});
+
+		if (!hasDefaultExport) {
+			throw new Error(
+				`Cannot add composition "${compositionId}" because ${sourceLocation.source} has no default export. Export the component and try again.`,
+			);
+		}
+	} else {
 		const hasNamedExport = sourceAst.program.body.some((node) => {
 			if (
 				node.type !== 'ExportNamedDeclaration' ||
