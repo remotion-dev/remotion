@@ -70,7 +70,11 @@ const sortObject = (obj: Record<string, string>) => {
 	};
 };
 
-type FormatAction = 'do-nothing' | 'build' | 'build-shared' | 'use-tsc';
+type FormatAction =
+	| 'do-nothing'
+	| 'build'
+	| 'build-shared'
+	| 'use-compiler-output';
 
 type EntryPoint = {
 	target: 'node' | 'browser';
@@ -111,8 +115,8 @@ export const buildPackage = async ({
 		const action = formats[format];
 		if (action === 'do-nothing') {
 			continue;
-		} else if (action === 'use-tsc') {
-		} else if (action === 'build' || action === 'build-shared') {
+		}
+		if (action === 'build' || action === 'build-shared') {
 			if (
 				action === 'build-shared' &&
 				entrypoints.some(({target}) => target !== entrypoints[0].target)
@@ -174,7 +178,7 @@ export const buildPackage = async ({
 				cjsOutDir = './' + cjsOutDir;
 			}
 			const outputName =
-				action === 'use-tsc'
+				action === 'use-compiler-output'
 					? `${cjsOutDir}/${firstName}.js`
 					: `./dist/${format}/${firstName}.${format === 'cjs' ? 'js' : 'mjs'}`;
 			newExports[exportName] = sortObject({

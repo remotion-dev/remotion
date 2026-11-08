@@ -170,20 +170,46 @@ export const getBackgroundImageRect = ({
 	backgroundPosition,
 	backgroundSize,
 	positioningArea,
+	intrinsicSize,
 }: {
 	backgroundPosition: string;
 	backgroundSize: string;
 	positioningArea: DOMRect;
+	intrinsicSize: {width: number; height: number} | null;
 }) => {
-	const sizeParts = firstLayer(backgroundSize).split(/\s+/);
-	const width = resolveSize({
-		containerSize: positioningArea.width,
-		value: sizeParts[0],
-	});
-	const height = resolveSize({
-		containerSize: positioningArea.height,
-		value: sizeParts[1],
-	});
+	const [x, y = 'auto'] = firstLayer(backgroundSize).split(/\s+/);
+	let width: number;
+	let height: number;
+	if (
+		intrinsicSize &&
+		(backgroundSize === 'contain' || backgroundSize === 'cover')
+	) {
+		const factor = (backgroundSize === 'contain' ? Math.min : Math.max)(
+			positioningArea.width / intrinsicSize.width,
+			positioningArea.height / intrinsicSize.height,
+		);
+		width = intrinsicSize.width * factor;
+		height = intrinsicSize.height * factor;
+		// CSS contain snaps only the dimension derived from the aspect ratio.
+		if (backgroundSize === 'contain') {
+			if (width !== positioningArea.width)
+				width = Math.max(1, Math.round(width));
+			if (height !== positioningArea.height)
+				height = Math.max(1, Math.round(height));
+		}
+	} else if (intrinsicSize && x === 'auto' && y === 'auto') {
+		({width, height} = intrinsicSize);
+	} else if (intrinsicSize && x === 'auto') {
+		height = resolveSize({containerSize: positioningArea.height, value: y});
+		width = (height * intrinsicSize.width) / intrinsicSize.height;
+	} else {
+		width = resolveSize({containerSize: positioningArea.width, value: x});
+		height =
+			intrinsicSize && y === 'auto'
+				? (width * intrinsicSize.height) / intrinsicSize.width
+				: resolveSize({containerSize: positioningArea.height, value: y});
+	}
+
 	const position = parsePosition(backgroundPosition);
 
 	return new DOMRect(

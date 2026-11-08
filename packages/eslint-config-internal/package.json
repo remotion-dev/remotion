@@ -7,7 +7,7 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"main": "dist/index.js",
 	"scripts": {
-		"make": "tsc -d"
+		"make": "node ../.monorepo/tsrs.cjs -d"
 	},
 	"exports": {
 		".": {

@@ -42,6 +42,9 @@ export type Word = {
 	additionalStyles?: ModifyableCSSProperties;
 } & CSSPropertiesOnWord;
 
+// Browsers keep this module alive for the whole session (e.g. in Remotion
+// Studio), so the cache must not grow without bound for long editing sessions.
+const WORD_CACHE_MAX_ENTRIES = 1000;
 const wordCache = new Map<string, Dimensions>();
 
 const takeMeasurement = ({
@@ -180,6 +183,14 @@ export const measureText = ({
 	}
 
 	const result = {height: boundingBox.height, width: boundingBox.width};
+	if (wordCache.size >= WORD_CACHE_MAX_ENTRIES) {
+		const oldest = wordCache.keys().next().value;
+		if (oldest !== undefined) {
+			wordCache.delete(oldest);
+		}
+	}
+
 	wordCache.set(key, result);
+
 	return result;
 };

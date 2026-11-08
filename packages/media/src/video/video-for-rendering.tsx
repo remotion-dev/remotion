@@ -163,6 +163,10 @@ export const VideoForRendering: React.FC<InnerVideoProps> = ({
 	}
 
 	useLayoutEffect(() => {
+		if (!videoEnabled && !shouldUseAudio) {
+			return;
+		}
+
 		if (!canvasRef.current && !headless) {
 			return;
 		}

@@ -1,9 +1,9 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
-import {resolveSize} from './background-image-rect';
+import {getBackgroundImageRect} from './background-image-rect';
 import type {MaskImageInfo} from './mask-image';
-import {getMaskImage} from './mask-image-loader';
 import {createCanvasGradient} from './parse-linear-gradient';
+import {getRasterImage} from './raster-image-loader';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = getBiggestBoundingClientRect(element);
@@ -53,36 +53,18 @@ export const handleMask = async ({
 		return;
 	}
 
-	const image = await getMaskImage({
+	const image = await getRasterImage({
 		src: maskImageInfo.src,
-		state: internalState.maskImageLoaderState,
+		sourceProperty: 'mask-image',
+		state: internalState.rasterImageLoaderState,
 	});
 	const {maskSize, maskRepeat} = maskImageInfo;
-	let width: number;
-	let height: number;
-	if (maskSize === 'contain' || maskSize === 'cover') {
-		const factor = (maskSize === 'contain' ? Math.min : Math.max)(
-			maskRect.width / image.width,
-			maskRect.height / image.height,
-		);
-		width = image.width * factor;
-		height = image.height * factor;
-	} else {
-		const [x, y = 'auto'] = maskSize.split(' ');
-		if (x === 'auto' && y === 'auto') {
-			width = image.width;
-			height = image.height;
-		} else if (x === 'auto') {
-			height = resolveSize({containerSize: maskRect.height, value: y});
-			width = (height * image.width) / image.height;
-		} else {
-			width = resolveSize({containerSize: maskRect.width, value: x});
-			height =
-				y === 'auto'
-					? (width * image.height) / image.width
-					: resolveSize({containerSize: maskRect.height, value: y});
-		}
-	}
+	const {width, height} = getBackgroundImageRect({
+		backgroundSize: maskSize,
+		backgroundPosition: '0% 0%',
+		positioningArea: maskRect,
+		intrinsicSize: image,
+	});
 
 	tempContext.globalCompositeOperation = 'destination-in';
 	if (width === 0 || height === 0) {

@@ -12,7 +12,7 @@
 		"zip": "bash make.sh",
 		"size": "bash size.sh",
 		"upload": "bash upload.sh",
-		"lint": "eslint src && tsc --noEmit",
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit",
 		"formatting": "oxfmt src package.json tsconfig.json binaries.json eslint.config.mjs README.md --check"
 	},
 	"devDependencies": {

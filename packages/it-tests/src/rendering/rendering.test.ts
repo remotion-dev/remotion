@@ -427,114 +427,56 @@ test(
 );
 
 test(
-	'Should be able to render a WAV audio file',
+	'Should render WAV, MP3, and AAC audio files',
 	async () => {
-		const out = outputPath.replace('mp4', 'wav');
-		const task = execa(
-			'bun',
-			['x', 'remotion', 'render', 'build', 'audio-testing', out],
-			{
-				cwd: path.join(process.cwd(), '..', 'example'),
-			},
+		await Promise.all(
+			(['wav', 'mp3', 'aac'] as const).map(async (extension) => {
+				const out = outputPath.replace('mp4', extension);
+				try {
+					const task = execa(
+						'bun',
+						['x', 'remotion', 'render', 'build', 'audio-testing', out],
+						{
+							cwd: path.join(process.cwd(), '..', 'example'),
+						},
+					);
+					task.stderr?.pipe(process.stderr);
+					await task;
+					expect(fs.existsSync(out)).toBe(true);
+
+					const info = await RenderInternals.callFf({
+						bin: 'ffprobe',
+						args: [out],
+						indent: false,
+						logLevel: 'info',
+						binariesDirectory: null,
+						cancelSignal: undefined,
+					});
+					const data = info.stderr;
+					expect(data).toContain('Stream #0');
+					expect(data).not.toContain('Stream #1');
+
+					if (extension === 'wav') {
+						expect(data).toContain('pcm_s16le');
+						expect(data).toContain('2 channels');
+						expect(data).toMatch(/bitrate: 15\d\d kb/);
+					} else if (extension === 'mp3') {
+						expect(data).toContain('mp3');
+						expect(data).toContain('stereo');
+						expect(data).toContain('320 kb/s');
+					} else {
+						expect(data).toContain('aac');
+						expect(data).toContain('stereo');
+						expect(data).not.toContain('Kevin MacLeod');
+						expect(data).toMatch(/\d?\d kb\/s/);
+					}
+				} finally {
+					await fs.promises.rm(out, {force: true});
+				}
+			}),
 		);
-		task.stderr?.pipe(process.stderr);
-		await task;
-		const exists = fs.existsSync(out);
-		expect(exists).toBe(true);
-
-		const info = await RenderInternals.callFf({
-			bin: 'ffprobe',
-			args: [out],
-			indent: false,
-			logLevel: 'info',
-			binariesDirectory: null,
-			cancelSignal: undefined,
-		});
-		const data = info.stderr;
-		expect(data).toContain('pcm_s16le');
-		expect(data).toContain('2 channels');
-		expect(data).toMatch(/bitrate: 15\d\d kb/);
-		expect(data).toContain('Stream #0');
-		expect(data).not.toContain('Stream #1');
-		fs.unlinkSync(out);
-	},
-	{
-		timeout: 30000,
-	},
-);
-
-test(
-	'Should be able to render a MP3 audio file',
-	async () => {
-		const out = outputPath.replace('mp4', 'mp3');
-		const task = execa(
-			'bun',
-			['x', 'remotion', 'render', 'build', 'audio-testing', out],
-			{
-				cwd: path.join(process.cwd(), '..', 'example'),
-			},
-		);
-		task.stderr?.pipe(process.stderr);
-		await task;
-		const exists = fs.existsSync(out);
-		expect(exists).toBe(true);
-
-		const info = await RenderInternals.callFf({
-			bin: 'ffprobe',
-			args: [out],
-			indent: false,
-			logLevel: 'info',
-			binariesDirectory: null,
-			cancelSignal: undefined,
-		});
-		const data = info.stderr;
-		expect(data).toContain('mp3');
-		expect(data).toContain('stereo');
-		expect(data).toContain('320 kb/s');
-		expect(data).toContain('Stream #0');
-		expect(data).not.toContain('Stream #1');
-		fs.unlinkSync(out);
 	},
 	{timeout: 30000, retry: 3},
-);
-
-test(
-	'Should be able to render a AAC audio file',
-	async () => {
-		const out = outputPath.replace('mp4', 'aac');
-		const task = execa(
-			'bun',
-			['x', 'remotion', 'render', 'build', 'audio-testing', out],
-			{
-				cwd: path.join(process.cwd(), '..', 'example'),
-			},
-		);
-		task.stderr?.pipe(process.stderr);
-		await task;
-		const exists = fs.existsSync(out);
-		expect(exists).toBe(true);
-
-		const info = await RenderInternals.callFf({
-			bin: 'ffprobe',
-			args: [out],
-			indent: false,
-			logLevel: 'info',
-			binariesDirectory: null,
-			cancelSignal: undefined,
-		});
-		const data = info.stderr;
-		expect(data).toContain('aac');
-		expect(data).toContain('stereo');
-		expect(data).not.toContain('Kevin MacLeod');
-		expect(data).toMatch(/\d?\d kb\/s/);
-		expect(data).toContain('Stream #0');
-		expect(data).not.toContain('Stream #1');
-		fs.unlinkSync(out);
-	},
-	{
-		timeout: 30000,
-		retry: 3,
-	},
 );
 
 test(

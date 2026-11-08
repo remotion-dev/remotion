@@ -34,7 +34,8 @@ export default createRule<Options, MessageIds>({
 				if (node.type !== 'JSXAttribute') {
 					return;
 				}
-				if (node.name.name !== 'src') {
+				const attributeName = node.name.name;
+				if (attributeName !== 'src' && attributeName !== 'srcSet') {
 					return;
 				}
 				const value = node.value;
@@ -81,13 +82,22 @@ export default createRule<Options, MessageIds>({
 					name.name === 'Html5Audio'
 				) {
 					// Network and inline URLs are okay
-					if (stringValue.startsWith('http://')) {
-						return;
-					}
-					if (stringValue.startsWith('https://')) {
-						return;
-					}
 					if (stringValue.startsWith('data:')) {
+						return;
+					}
+					const urls =
+						attributeName === 'srcSet'
+							? stringValue
+									.split(',')
+									.map((candidate) => candidate.trim().split(/\s+/)[0])
+							: [stringValue];
+					const isRemote = urls.every(
+						(url) =>
+							url.startsWith('http://') ||
+							url.startsWith('https://') ||
+							url.startsWith('data:'),
+					);
+					if (isRemote) {
 						return;
 					}
 					context.report({

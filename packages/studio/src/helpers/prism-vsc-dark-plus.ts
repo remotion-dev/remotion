@@ -10,7 +10,6 @@ import {
 	PRISM_LINE_HIGHLIGHT_BORDER_COLOR,
 	PRISM_NUMBER_COLOR,
 	PRISM_REGEX_COLOR,
-	PRISM_SELECTION_BACKGROUND,
 	PRISM_SELECTOR_COLOR,
 	PRISM_STRING_COLOR,
 	PRISM_TEXT_COLOR,
@@ -63,14 +62,6 @@ code[class*="language-"] {
 	-moz-hyphens: none;
 	-ms-hyphens: none;
 	hyphens: none;
-}
-
-pre[class*="language-"]::selection,
-code[class*="language-"]::selection,
-pre[class*="language-"] *::selection,
-code[class*="language-"] *::selection {
-	text-shadow: none;
-	background: ${PRISM_SELECTION_BACKGROUND};
 }
 
 @media print {

@@ -104,7 +104,7 @@ await buildPackage({
 	formats: {
 		// Already built together with the font families above.
 		esm: 'do-nothing',
-		cjs: 'use-tsc',
+		cjs: 'use-compiler-output',
 	},
 	external: 'dependencies',
 });

@@ -15,8 +15,8 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src/test",
-		"watch": "tsc -w",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "node ../.monorepo/tsrs.cjs -w",
+		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"files": [
 		"dist",

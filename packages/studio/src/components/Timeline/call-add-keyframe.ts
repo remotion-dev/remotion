@@ -7,9 +7,11 @@ import {
 } from '@remotion/studio-shared';
 import type {SequencePropsSubscriptionKey, InteractivitySchema} from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
-import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
+import {
+	createOptimisticEffectPropUpdate,
+	attachOptimisticEffectPropHistory,
+} from '../../helpers/optimistic-effect-props';
 import {callApi} from '../call-api';
-import {applyEffectResponseToPropStatuses} from './apply-effect-response-to-prop-statuses';
 import {enqueueSavePropChange} from './save-prop-queue';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -64,7 +66,10 @@ const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
 ): T[][] => {
 	const groups = new Map<string, T[]>();
 	for (const keyframe of keyframes) {
-		const key = JSON.stringify(keyframe.nodePath);
+		const key = JSON.stringify([
+			keyframe.nodePath,
+			'effectIndex' in keyframe ? keyframe.effectIndex : null,
+		]);
 		const group = groups.get(key) ?? [];
 		group.push(keyframe);
 		groups.set(key, group);
@@ -129,13 +134,6 @@ export const callAddKeyframes = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
-	try {
-		for (const nodePath of effectKeyframes.map((change) => change.nodePath))
-			assertEffectChainEditable(nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
 		return Promise.resolve();
 	}
@@ -162,49 +160,70 @@ export const callAddKeyframes = ({
 		);
 	}
 
+	const effectUpdates: ReturnType<typeof createOptimisticEffectPropUpdate>[] =
+		[];
 	for (const keyframes of groupByNodePath(effectKeyframes)) {
 		const [firstKeyframe] = keyframes;
 		if (!firstKeyframe) {
 			continue;
 		}
 
-		setPropStatuses(firstKeyframe.nodePath, (prev) =>
-			keyframes.reduce(
-				(current, keyframe) =>
-					optimisticAddEffectKeyframe({
-						videoConfigValues: keyframe.nodePath.videoConfigValues,
-						previous: current,
-						effectIndex: keyframe.effectIndex,
-						fieldKey: keyframe.fieldKey,
-						frame: keyframe.sourceFrame,
-						value: keyframe.value,
-						schema: keyframe.schema,
-					}),
-				prev,
-			),
-		);
+		const update = createOptimisticEffectPropUpdate({
+			nodePath: firstKeyframe.nodePath,
+			effectIndex: firstKeyframe.effectIndex,
+			fieldKey: firstKeyframe.fieldKey,
+			schema: firstKeyframe.schema,
+			applyOptimistic: (prev) =>
+				keyframes.reduce(
+					(current, keyframe) =>
+						optimisticAddEffectKeyframe({
+							videoConfigValues: keyframe.nodePath.videoConfigValues,
+							previous: current,
+							effectIndex: keyframe.effectIndex,
+							fieldKey: keyframe.fieldKey,
+							frame: keyframe.sourceFrame,
+							value: keyframe.value,
+							schema: keyframe.schema,
+						}),
+					prev,
+				),
+		});
+		setPropStatuses(firstKeyframe.nodePath, update.applyOptimistic);
+		effectUpdates.push(update);
 	}
 
-	return addKeyframes({
-		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
-			fileName: keyframe.fileName,
-			nodePath: keyframe.nodePath,
-			key: keyframe.fieldKey,
-			frame: keyframe.sourceFrame,
-			value: JSON.stringify(keyframe.value),
-			schema: keyframe.schema,
-		})),
-		effectKeyframes: effectKeyframes.map((keyframe) => ({
-			fileName: keyframe.fileName,
-			sequenceNodePath: keyframe.nodePath,
-			effectIndex: keyframe.effectIndex,
-			key: keyframe.fieldKey,
-			frame: keyframe.sourceFrame,
-			value: JSON.stringify(keyframe.value),
-			schema: keyframe.schema,
-		})),
-		clientId,
-	}).then(() => undefined);
+	return addKeyframes(
+		attachOptimisticEffectPropHistory(
+			{
+				sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					key: keyframe.fieldKey,
+					frame: keyframe.sourceFrame,
+					value: JSON.stringify(keyframe.value),
+					schema: keyframe.schema,
+				})),
+				effectKeyframes: effectKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					sequenceNodePath: keyframe.nodePath,
+					effectIndex: keyframe.effectIndex,
+					key: keyframe.fieldKey,
+					frame: keyframe.sourceFrame,
+					value: JSON.stringify(keyframe.value),
+					schema: keyframe.schema,
+				})),
+				clientId,
+			},
+			effectUpdates,
+		),
+	)
+		.then(() => {
+			for (const update of effectUpdates) update.acknowledge();
+		})
+		.catch((error) => {
+			for (const update of effectUpdates) update.rollback();
+			throw error;
+		});
 };
 
 export const callAddEffectKeyframe = ({
@@ -228,15 +247,11 @@ export const callAddEffectKeyframe = ({
 	setPropStatuses: SetPropStatuses;
 	clientId: string;
 }): Promise<void> => {
-	try {
-		assertEffectChainEditable(nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
-	return enqueueSavePropChange({
+	const update = createOptimisticEffectPropUpdate({
 		nodePath,
-		setPropStatuses,
+		effectIndex,
+		fieldKey,
+		schema,
 		applyOptimistic: (prev) =>
 			optimisticAddEffectKeyframe({
 				videoConfigValues: nodePath.videoConfigValues,
@@ -247,19 +262,40 @@ export const callAddEffectKeyframe = ({
 				value,
 				schema,
 			}),
-		applyServerResponse: (prev, response) =>
-			applyEffectResponseToPropStatuses({previous: prev, response}),
+	});
+	return enqueueSavePropChange({
+		nodePath,
+		setPropStatuses,
+		applyOptimistic: update.applyOptimistic,
+		applyServerResponse: (previous, response) =>
+			update.optimistic ? previous : update.applyResponse(previous, response),
 		apiCall: () =>
-			addEffectKeyframe({
-				fileName,
-				sequenceNodePath: nodePath,
-				effectIndex,
-				key: fieldKey,
-				frame: sourceFrame,
-				value: JSON.stringify(value),
-				schema,
-				clientId,
-			}),
+			addEffectKeyframe(
+				attachOptimisticEffectPropHistory(
+					{
+						fileName,
+						sequenceNodePath: nodePath,
+						effectIndex,
+						key: fieldKey,
+						frame: sourceFrame,
+						value: JSON.stringify(value),
+						schema,
+						clientId,
+					},
+					[update],
+				),
+			)
+				.then((response) => {
+					if (update.optimistic)
+						setPropStatuses(nodePath, (previous) =>
+							update.applyResponse(previous, response),
+						);
+					return response;
+				})
+				.catch((error) => {
+					update.rollback();
+					throw error;
+				}),
 		errorLabel: 'Could not add keyframe',
 	});
 };

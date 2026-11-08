@@ -7,6 +7,8 @@ import {
 	BROWSER_STUDIO_OPERATIONS_READY_EVENT,
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
+import {recordExternalSourceChange} from './external-source-changes';
+import {observeCompositionOperationsBuild} from './optimistic-composition-operations';
 import {queueSequenceNodePathMutation} from './sequence-node-path-mutations';
 import {
 	getSequencePropsSourceSession,
@@ -44,6 +46,14 @@ const notifyConnectionState = () => {
 };
 
 const dispatch = (event: EventSourceEvent) => {
+	if (event.type === 'external-source-changed') {
+		recordExternalSourceChange(
+			event.fileName,
+			event.sourceVersion,
+			event.resetUndoHistory,
+		);
+	}
+
 	if (event.type === 'sequence-node-paths-remapped') {
 		queueSequenceNodePathMutation(event.mutation);
 	}
@@ -69,8 +79,11 @@ const dispatch = (event: EventSourceEvent) => {
 		notifyConnectionState();
 	}
 
-	if (event.type === 'hmr' && messageListeners.size === 0) {
-		pendingHmrEvents.push(event);
+	if (event.type === 'hmr') {
+		observeCompositionOperationsBuild(event.hmrEvent);
+		if (messageListeners.size === 0) {
+			pendingHmrEvents.push(event);
+		}
 	}
 
 	for (const listener of messageListeners) {

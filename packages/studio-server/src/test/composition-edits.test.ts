@@ -439,16 +439,38 @@ test('moveCompositionHandler pushes composition moves to undo and redo stacks', 
 	try {
 		clearUndoRedoStacks();
 		const entryPoint = path.join(remotionRoot, 'Root.tsx');
-		writeFileSync(entryPoint, folderRootContents);
+		const sourceContents = folderRootContents
+			.replace('<>', '<><Destination />')
+			.replace(
+				'const Component = () => null;',
+				"import {Component} from './Component';\nimport {Destination} from './nested/Destination';",
+			);
+		writeFileSync(entryPoint, sourceContents);
+		writeFileSync(
+			path.join(remotionRoot, 'Component.tsx'),
+			'export const Component = () => null;',
+		);
+		mkdirSync(path.join(remotionRoot, 'nested'));
+		const destinationFile = path.join(
+			remotionRoot,
+			'nested',
+			'Destination.tsx',
+		);
+		const destinationContents = `import {Folder} from 'remotion';
+const Component = () => null;
+export const Destination = () => <Folder name="Destination"><Component /></Folder>;
+`;
+		writeFileSync(destinationFile, destinationContents);
 
 		const applyResponse = await moveCompositionHandler(
 			getHandlerOptions({
 				input: {
 					compositionId: 'NestedA',
+					destinationFile,
 					destination: {
 						type: 'folder',
-						folderName: 'Shared',
-						parentName: 'Other',
+						folderName: 'Destination',
+						parentName: null,
 					},
 					undoRedoNavigation: null,
 					symbolicatedStack: {
@@ -464,16 +486,20 @@ test('moveCompositionHandler pushes composition moves to undo and redo stacks', 
 			}),
 		);
 
-		expect(applyResponse.success).toBe(true);
 		if (!applyResponse.success) {
 			throw new Error(applyResponse.reason);
 		}
 
 		expect(applyResponse.nodePathMutation).not.toBeNull();
 		const contents = readFileSync(entryPoint, 'utf-8');
-		expect(contents.indexOf('id="NestedB"')).toBeLessThan(
-			contents.indexOf('id="NestedA"'),
+		expect(contents).not.toContain('id="NestedA"');
+		const movedContents = readFileSync(destinationFile, 'utf-8');
+		expect(movedContents).toContain('id="NestedA"');
+		expect(movedContents).toContain(
+			"import {Component as Component2} from '../Component';",
 		);
+		expect(movedContents).toContain('component={Component2}');
+		expect(contents).toContain("import {Component} from './Component';");
 		expect(getUndoStack()[0].description.undoMessage).toBe(
 			'↩️  Move of composition "NestedA"',
 		);
@@ -482,7 +508,14 @@ test('moveCompositionHandler pushes composition moves to undo and redo stacks', 
 			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
 		);
 		expect(undoResponse.success).toBe(true);
-		expect(readFileSync(entryPoint, 'utf-8')).toBe(folderRootContents);
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(sourceContents);
+		expect(readFileSync(destinationFile, 'utf-8')).toBe(destinationContents);
+		const redoResponse = await redoHandler(
+			getHandlerOptions({input: {}, entryPoint, remotionRoot}),
+		);
+		expect(redoResponse.success).toBe(true);
+		expect(readFileSync(entryPoint, 'utf-8')).toBe(contents);
+		expect(readFileSync(destinationFile, 'utf-8')).toBe(movedContents);
 	} finally {
 		clearUndoRedoStacks();
 		cleanupLiveEvents();
@@ -514,6 +547,7 @@ test('moveCompositionHandler pushes composition moves to root to undo and redo s
 				input: {
 					compositionId: 'NestedA',
 					destination: {type: 'root'},
+					destinationFile: null,
 					undoRedoNavigation: null,
 					symbolicatedStack: {
 						originalFunctionName: null,
