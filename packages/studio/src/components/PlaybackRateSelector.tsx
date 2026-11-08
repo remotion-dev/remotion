@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {PREVIEW_TOOLBAR_IDLE_COLOR, WHITE} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {Minus} from '../icons/minus';
@@ -178,7 +178,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 			renderLeftItem={(color) => (
 				<PlaybackRateIcon color={color} playbackRate={playbackRate} />
 			)}
-			unhoveredIconColor={PREVIEW_TOOLBAR_IDLE_COLOR}
+			unhoveredIconColor={LIGHT_TEXT}
 		/>
 	);
 };

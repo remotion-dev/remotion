@@ -1,5 +1,5 @@
 import React from 'react';
-import {PREVIEW_TOOLBAR_IDLE_COLOR} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
@@ -24,7 +24,7 @@ export const ControlButton = (
 			onClick={onClick}
 			renderAction={renderAction}
 			variant={null}
-			unhoveredColor={PREVIEW_TOOLBAR_IDLE_COLOR}
+			unhoveredColor={LIGHT_TEXT}
 		/>
 	);
 };
