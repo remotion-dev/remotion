@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda-binaries",
-	"version": "4.0.540",
+	"version": "4.0.541",
 	"private": true,
 	"type": "module",
 	"description": "Build and publish Remotion Lambda layers with binaries downloaded on demand.",
@@ -12,7 +12,7 @@
 		"zip": "bash make.sh",
 		"size": "bash size.sh",
 		"upload": "bash upload.sh",
-		"lint": "eslint src && tsc --noEmit",
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit",
 		"formatting": "oxfmt src package.json tsconfig.json binaries.json eslint.config.mjs README.md --check"
 	},
 	"devDependencies": {

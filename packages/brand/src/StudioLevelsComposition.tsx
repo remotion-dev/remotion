@@ -181,8 +181,12 @@ const StudioLevelsCapture = () => {
 };
 
 const StudioLevelsContent = () => {
+	const {width, height} = useVideoConfig();
+	const portrait = width < height;
 	return (
-		<AbsoluteFill style={{backgroundColor: '#1f2427', overflow: 'hidden'}}>
+		<AbsoluteFill
+			style={{backgroundColor: '#1f2427', overflow: 'hidden', scale: 1.065}}
+		>
 			<Interactive.Div
 				name="Levels input-black adjustment - close-up"
 				style={{
@@ -190,11 +194,11 @@ const StudioLevelsContent = () => {
 					width: 1248,
 					height: 1440,
 					left: '50%',
-					top: '60%',
-					translate: '-481.1px -398.9px',
+					top: portrait ? '50%' : '70%',
+					translate: '-624px -650px',
 					transformOrigin: '624px 650px',
-					rotate: '-0.087326 0.991103 -0.10044 35.969469deg',
-					scale: 1.439,
+					rotate: '-0.008405 0.98761 -0.156701 18.643359deg',
+					scale: portrait ? width / 1300 : height / 900,
 				}}
 			>
 				<StudioLevelsCapture />

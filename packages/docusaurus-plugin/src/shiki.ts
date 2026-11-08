@@ -79,6 +79,7 @@ const ALL_LANGS: BundledLanguage[] = [
 	'php',
 	'markdown',
 	'ini',
+	'astro',
 ];
 
 /** Creates a highlighter and caches for reuse */

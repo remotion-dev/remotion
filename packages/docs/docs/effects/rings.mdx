@@ -20,11 +20,11 @@ It uses the same band controls as [`lines()`](/docs/effects/lines), but radiates
 
 ## Example
 
-```tsx twoslash title="MyComp.tsx"
+```tsx twoslash title="MyScene.tsx"
 import {rings} from '@remotion/effects/rings';
-import {Solid, useCurrentFrame} from 'remotion';
+import {Solid, interpolate, useCurrentFrame} from 'remotion';
 
-export const MyComp: React.FC = () => {
+export const MyScene: React.FC = () => {
   const frame = useCurrentFrame();
 
   return (
@@ -38,7 +38,7 @@ export const MyComp: React.FC = () => {
             center: [0.5, 0.5],
             thickness: 40,
             gap: 0,
-            offset: frame * 2,
+            offset: interpolate(frame, [0, 60], [0, 120]),
           }),
         ]}
       />

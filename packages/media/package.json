@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media",
-	"version": "4.0.540",
+	"version": "4.0.541",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",
@@ -16,9 +16,9 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsc -w",
+		"watch": "node ../.monorepo/tsrs.cjs -w",
 		"test": "node src/test/execute.mjs",
-		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../.monorepo/tsrs.cjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",

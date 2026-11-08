@@ -88,7 +88,7 @@ export const RenderModalOutputName = ({
 			<div style={rightRow}>
 				<div style={outputNameInputContainer}>
 					<RemotionInput
-						aria-label={ariaLabel ?? undefined}
+						aria-label={ariaLabel ?? labelText}
 						status={
 							validationMessage
 								? 'error'

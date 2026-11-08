@@ -1,11 +1,67 @@
 import {Audio, Video} from '@remotion/media';
 import {TransitionSeries} from '@remotion/transitions';
-import {BasicCaptions} from '../basic-captions';
-import {ThreeWaysHero} from './ThreeWaysHero';
-import {QuickEditsBroll} from './QuickEditsBroll';
+import {Easing, Freeze, interpolate, Sequence} from 'remotion';
+import {z} from 'zod';
+import {BasicCaptions, BasicCaptionsVisibility} from '../basic-captions';
+import {AnnotateChatGPTBroll} from './AnnotateChatGPTBroll';
+import {
+	AvailableAgentsCaptions,
+	AvailableAgentsPresenter,
+	AvailableAgentsSidebar,
+} from './AvailableAgentsSidebar';
+import {BeatMatchPrompt} from './BeatMatchPrompt';
+import {CodexDropSidebar} from './CodexDropSidebar';
+import {ComputedPropertiesBroll} from './ComputedPropertiesBroll';
+import {ComputedValueBroll} from './ComputedValueBroll';
+import {CopyContextBroll} from './CopyContextBroll';
+import {CubeWaveCodeBroll} from './CubeWaveCodeBroll';
+import {DeleteAiSlopBroll} from './DeleteAiSlopBroll';
+import {DoubleClickCodeBroll} from './DoubleClickCodeBroll';
+import {EarlyRemotionDemoBroll} from './EarlyRemotionDemoBroll';
+import {EditingCapabilitiesBroll} from './EditingCapabilitiesBroll';
+import {
+	EndCardCaptions,
+	EndCardPresenter,
+	EndCardSidebar,
+	publicationPlatformSchema,
+} from './EndCardSidebar';
+import {HigherLevelTaskPrompt} from './HigherLevelTaskPrompt';
+import {InteractiveTimelinePan} from './InteractiveTimelinePan';
+import {InvokeAgentBroll} from './InvokeAgentBroll';
+import {MarkupMoveBroll} from './MarkupCutBroll';
 import {MottoCaptions, MottoPresenter, MottoSidebar} from './MottoSidebar';
+import {OpenStudioPrompt} from './OpenStudioPrompt';
+import {QuickEditsBroll} from './QuickEditsBroll';
+import {
+	OriginReturnPresenter,
+	RemotionOriginExchange,
+} from './RemotionOriginExchange';
+import {RestructureAgentBroll} from './RestructureAgentBroll';
+import {RoughCutPrompt} from './RoughCutPrompt';
+import {
+	SoundtrackJCutMusic,
+	SoundtrackTimelinePlayback,
+} from './SoundtrackTimelinePlayback';
+import {StudioWorkflowReveal} from './StudioWorkflowReveal';
+import {ThreeWaysHero} from './ThreeWaysHero';
+import {ThreeWaysSplitView} from './ThreeWaysSplitView';
+import {WebMcpAgentsLayout, WebMcpAgentsSidebar} from './WebMcpAgentsSidebar';
 
-export const AgenticallyProgrammatically = () => {
+export const agenticallyProgrammaticallySchema = z.object({
+	startWithPanelVisible: z.boolean(),
+	softenOpeningVoice: z.boolean(),
+	platform: publicationPlatformSchema,
+});
+
+type AgenticallyProgrammaticallyProps = z.infer<
+	typeof agenticallyProgrammaticallySchema
+>;
+
+const AgenticallyProgrammaticallyContent = ({
+	startWithPanelVisible,
+	softenOpeningVoice,
+	platform,
+}: AgenticallyProgrammaticallyProps) => {
 	return (
 		<TransitionSeries name="AgenticallyProgrammatically - rough cut">
 			<TransitionSeries.Sequence
@@ -13,7 +69,7 @@ export const AgenticallyProgrammatically = () => {
 				trimBefore={69}
 				durationInFrames={451}
 			>
-				<MottoPresenter>
+				<MottoPresenter startWithPanelVisible={startWithPanelVisible}>
 					<Video
 						name="here1.mov"
 						src="https://remotion.media/here-2026-11-03/here1-a093d66bdf14.mov"
@@ -36,9 +92,20 @@ export const AgenticallyProgrammatically = () => {
 				<Audio
 					name="here1 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here1-auphonic-7a767eea0051.flac"
-					volume={0.25}
+					volume={(frame) =>
+						softenOpeningVoice
+							? 0.25 *
+								10 **
+									(interpolate(frame, [0, 60], [-2.5, 0], {
+										easing: Easing.inOut(Easing.cubic),
+										extrapolateLeft: 'clamp',
+										extrapolateRight: 'clamp',
+									}) /
+										20)
+							: 0.25
+					}
 				/>
-				<MottoCaptions>
+				<MottoCaptions startWithPanelVisible={startWithPanelVisible}>
 					<BasicCaptions
 						name="01 - Captions"
 						width={1200}
@@ -271,7 +338,10 @@ export const AgenticallyProgrammatically = () => {
 						]}
 					/>
 				</MottoCaptions>
-				<MottoSidebar name="Homepage motto sidebar" />
+				<MottoSidebar
+					name="Homepage motto sidebar"
+					startWithPanelVisible={startWithPanelVisible}
+				/>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="02 - Three ways to create"
@@ -312,7 +382,7 @@ export const AgenticallyProgrammatically = () => {
 					style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
 					captions={[
 						{
-							text: 'by',
+							text: 'By',
 							startMs: 2020,
 							endMs: 2300,
 							timestampMs: 2160,
@@ -461,7 +531,7 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="03 - Everything in all three ways"
 				trimBefore={126}
-				durationInFrames={412}
+				durationInFrames={405}
 			>
 				<Video
 					name="here3.mov"
@@ -481,11 +551,30 @@ export const AgenticallyProgrammatically = () => {
 						translate: '-393px -259px',
 					}}
 				/>
+				<ThreeWaysSplitView
+					name="03 - Three ways split view"
+					from={126}
+					durationInFrames={366}
+					style={{backgroundColor: '#f4f5f7'}}
+				/>
 				<Audio
 					name="here3 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here3-auphonic-64fe0c400eb6.flac"
 					volume={0.25}
 				/>
+				<Sequence
+					name="Start the next Studio shot over the closing words"
+					from={510}
+					durationInFrames={21}
+					layout="none"
+				>
+					<Freeze frame={8}>
+						<QuickEditsBroll
+							name="Early Studio B-roll"
+							style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
+						/>
+					</Freeze>
+				</Sequence>
 				<BasicCaptions
 					name="03 - Captions"
 					width={1200}
@@ -541,6 +630,7 @@ export const AgenticallyProgrammatically = () => {
 							endMs: 7800,
 							timestampMs: 7440,
 							confidence: null,
+							pageBreakAfter: true,
 						},
 						{
 							text: ' adding',
@@ -562,7 +652,6 @@ export const AgenticallyProgrammatically = () => {
 							endMs: 9160,
 							timestampMs: 9010,
 							confidence: null,
-							pageBreakAfter: true,
 						},
 						{
 							text: ' with',
@@ -577,6 +666,7 @@ export const AgenticallyProgrammatically = () => {
 							endMs: 10540,
 							timestampMs: 10020,
 							confidence: null,
+							pageBreakAfter: true,
 						},
 						{
 							text: ' exporting',
@@ -584,7 +674,6 @@ export const AgenticallyProgrammatically = () => {
 							endMs: 11620,
 							timestampMs: 11470,
 							confidence: null,
-							pageBreakAfter: true,
 						},
 						{
 							text: ' or',
@@ -592,6 +681,7 @@ export const AgenticallyProgrammatically = () => {
 							endMs: 12220,
 							timestampMs: 12040,
 							confidence: null,
+							pageBreakAfter: true,
 						},
 						{
 							text: ' changing',
@@ -699,8 +789,8 @@ export const AgenticallyProgrammatically = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="04 - Use Studio for quick edits"
-				trimBefore={82}
-				durationInFrames={263}
+				trimBefore={81}
+				durationInFrames={261}
 			>
 				<Video
 					name="here4.mov"
@@ -727,8 +817,8 @@ export const AgenticallyProgrammatically = () => {
 				/>
 				<QuickEditsBroll
 					name="04 - Studio B-roll"
-					from={82}
-					durationInFrames={263}
+					from={73}
+					durationInFrames={160}
 					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
 				/>
 				<BasicCaptions
@@ -879,8 +969,8 @@ export const AgenticallyProgrammatically = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="05 - Use agents for higher-level tasks"
-				trimBefore={69}
-				durationInFrames={118}
+				trimBefore={66}
+				durationInFrames={121}
 			>
 				<Video
 					name="here5.mov"
@@ -904,6 +994,19 @@ export const AgenticallyProgrammatically = () => {
 					name="here5 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here5-auphonic-8ed378907c50.flac"
 					volume={0.25}
+				/>
+				<HigherLevelTaskPrompt
+					name="05 - Higher-level task prompt"
+					isInitialPrompt
+					pluginName="Remotion"
+					theme={'light'}
+					blurStrength={6}
+					from={88}
+					durationInFrames={99}
+					prompt="Keep an 'agent' counter. Everytime I say 'agent', increase the counter."
+					typingStartFrame={0}
+					typingDurationInFrames={65}
+					cameraDurationInFrames={99}
 				/>
 				<BasicCaptions
 					name="05 - Captions"
@@ -982,7 +1085,7 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="06 - Why the code still matters"
 				trimBefore={79}
-				durationInFrames={288}
+				durationInFrames={281}
 			>
 				<Video
 					name="here6.mov"
@@ -1220,7 +1323,7 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="07 - A tight editing workflow"
 				trimBefore={55}
-				durationInFrames={307}
+				durationInFrames={301}
 			>
 				<Video
 					name="here7.mov"
@@ -1468,242 +1571,263 @@ export const AgenticallyProgrammatically = () => {
 						},
 					]}
 				/>
+				<StudioWorkflowReveal
+					name="07 - Reveal the Studio workflow"
+					from={185}
+					durationInFrames={171}
+					style={{backgroundColor: '#fff', overflow: 'hidden'}}
+				/>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="08 - Install the Remotion plugin"
 				trimBefore={60}
 				durationInFrames={303}
 			>
-				<Video
-					name="here8.mov"
-					src="https://remotion.media/here-2026-11-03/here8-f9b6d04da2ef.mov"
-					muted
-					cropLeft={0.143429487}
-					cropRight={0.087339744}
-					cropTop={0.184472934}
-					cropBottom={0.046296296}
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: '130%',
-						height: '130%',
-						objectFit: 'cover',
-						translate: '-358px -259px',
-					}}
-				/>
+				<AvailableAgentsPresenter>
+					<Video
+						name="here8.mov"
+						src="https://remotion.media/here-2026-11-03/here8-f9b6d04da2ef.mov"
+						muted
+						cropLeft={0.143429487}
+						cropRight={0.087339744}
+						cropTop={0.184472934}
+						cropBottom={0.046296296}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: '130%',
+							height: '130%',
+							objectFit: 'cover',
+							translate: '-358px -259px',
+						}}
+					/>
+				</AvailableAgentsPresenter>
 				<Audio
 					name="here8 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here8-auphonic-05f66204c627.flac"
 					volume={0.25}
 				/>
-				<BasicCaptions
-					name="08 - Captions"
-					width={1200}
-					combineTokensWithinMilliseconds={10000}
-					style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
-					captions={[
-						{
-							text: 'I',
-							startMs: 2160,
-							endMs: 2300,
-							timestampMs: 2230,
-							confidence: null,
-						},
-						{
-							text: ' would',
-							startMs: 2300,
-							endMs: 2520,
-							timestampMs: 2410,
-							confidence: null,
-						},
-						{
-							text: ' start',
-							startMs: 2520,
-							endMs: 2780,
-							timestampMs: 2650,
-							confidence: null,
-						},
-						{
-							text: ' by',
-							startMs: 2780,
-							endMs: 3000,
-							timestampMs: 2890,
-							confidence: null,
-						},
-						{
-							text: ' installing',
-							startMs: 3000,
-							endMs: 3380,
-							timestampMs: 3190,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-						{
-							text: ' the',
-							startMs: 3380,
-							endMs: 3580,
-							timestampMs: 3480,
-							confidence: null,
-						},
-						{
-							text: ' Remotion',
-							startMs: 3580,
-							endMs: 4040,
-							timestampMs: 3810,
-							confidence: null,
-						},
-						{
-							text: ' plugin',
-							startMs: 4040,
-							endMs: 4620,
-							timestampMs: 4330,
-							confidence: null,
-						},
-						{
-							text: ' available',
-							startMs: 4620,
-							endMs: 5000,
-							timestampMs: 4810,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-						{
-							text: ' for',
-							startMs: 5000,
-							endMs: 5280,
-							timestampMs: 5140,
-							confidence: null,
-						},
-						{
-							text: ' most',
-							startMs: 5280,
-							endMs: 5600,
-							timestampMs: 5440,
-							confidence: null,
-						},
-						{
-							text: ' major',
-							startMs: 5600,
-							endMs: 5960,
-							timestampMs: 5780,
-							confidence: null,
-						},
-						{
-							text: ' coding',
-							startMs: 5960,
-							endMs: 6460,
-							timestampMs: 6210,
-							confidence: null,
-						},
-						{
-							text: ' agents',
-							startMs: 6460,
-							endMs: 7680,
-							timestampMs: 7070,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-						{
-							text: ' and',
-							startMs: 7680,
-							endMs: 7760,
-							timestampMs: 7720,
-							confidence: null,
-						},
-						{
-							text: ' I',
-							startMs: 7840,
-							endMs: 7960,
-							timestampMs: 7900,
-							confidence: null,
-						},
-						{
-							text: ' can',
-							startMs: 7960,
-							endMs: 8140,
-							timestampMs: 8050,
-							confidence: null,
-						},
-						{
-							text: ' just',
-							startMs: 8140,
-							endMs: 8480,
-							timestampMs: 8310,
-							confidence: null,
-						},
-						{
-							text: ' invoke',
-							startMs: 8480,
-							endMs: 8900,
-							timestampMs: 8690,
-							confidence: null,
-						},
-						{
-							text: ' it',
-							startMs: 8900,
-							endMs: 9540,
-							timestampMs: 9220,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-						{
-							text: ' and',
-							startMs: 9540,
-							endMs: 9900,
-							timestampMs: 9720,
-							confidence: null,
-						},
-						{
-							text: ' drop',
-							startMs: 9900,
-							endMs: 10180,
-							timestampMs: 10040,
-							confidence: null,
-						},
-						{
-							text: ' in',
-							startMs: 10180,
-							endMs: 10380,
-							timestampMs: 10280,
-							confidence: null,
-						},
-						{
-							text: ' some',
-							startMs: 10380,
-							endMs: 10640,
-							timestampMs: 10510,
-							confidence: null,
-						},
-						{
-							text: ' raw',
-							startMs: 10640,
-							endMs: 10960,
-							timestampMs: 10800,
-							confidence: null,
-						},
-						{
-							text: ' camera',
-							startMs: 10960,
-							endMs: 11460,
-							timestampMs: 11210,
-							confidence: null,
-						},
-						{
-							text: ' footage.',
-							startMs: 11460,
-							endMs: 11880,
-							timestampMs: 11670,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-					]}
+				<AvailableAgentsCaptions>
+					<BasicCaptions
+						name="08 - Captions"
+						width={1200}
+						combineTokensWithinMilliseconds={10000}
+						style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
+						captions={[
+							{
+								text: 'I',
+								startMs: 2160,
+								endMs: 2300,
+								timestampMs: 2230,
+								confidence: null,
+							},
+							{
+								text: ' would',
+								startMs: 2300,
+								endMs: 2520,
+								timestampMs: 2410,
+								confidence: null,
+							},
+							{
+								text: ' start',
+								startMs: 2520,
+								endMs: 2780,
+								timestampMs: 2650,
+								confidence: null,
+							},
+							{
+								text: ' by',
+								startMs: 2780,
+								endMs: 3000,
+								timestampMs: 2890,
+								confidence: null,
+							},
+							{
+								text: ' installing',
+								startMs: 3000,
+								endMs: 3380,
+								timestampMs: 3190,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+							{
+								text: ' the',
+								startMs: 3380,
+								endMs: 3580,
+								timestampMs: 3480,
+								confidence: null,
+							},
+							{
+								text: ' Remotion',
+								startMs: 3580,
+								endMs: 4040,
+								timestampMs: 3810,
+								confidence: null,
+							},
+							{
+								text: ' Plugin',
+								startMs: 4040,
+								endMs: 4620,
+								timestampMs: 4330,
+								confidence: null,
+							},
+							{
+								text: ' available',
+								startMs: 4620,
+								endMs: 5000,
+								timestampMs: 4810,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+							{
+								text: ' for',
+								startMs: 5000,
+								endMs: 5280,
+								timestampMs: 5140,
+								confidence: null,
+							},
+							{
+								text: ' most',
+								startMs: 5280,
+								endMs: 5600,
+								timestampMs: 5440,
+								confidence: null,
+							},
+							{
+								text: ' major',
+								startMs: 5600,
+								endMs: 5960,
+								timestampMs: 5780,
+								confidence: null,
+							},
+							{
+								text: ' coding',
+								startMs: 5960,
+								endMs: 6460,
+								timestampMs: 6210,
+								confidence: null,
+							},
+							{
+								text: ' agents',
+								startMs: 6460,
+								endMs: 7680,
+								timestampMs: 7070,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+							{
+								text: ' and',
+								startMs: 7680,
+								endMs: 7760,
+								timestampMs: 7720,
+								confidence: null,
+							},
+							{
+								text: ' I',
+								startMs: 7840,
+								endMs: 7960,
+								timestampMs: 7900,
+								confidence: null,
+							},
+							{
+								text: ' can',
+								startMs: 7960,
+								endMs: 8140,
+								timestampMs: 8050,
+								confidence: null,
+							},
+							{
+								text: ' just',
+								startMs: 8140,
+								endMs: 8480,
+								timestampMs: 8310,
+								confidence: null,
+							},
+							{
+								text: ' invoke',
+								startMs: 8480,
+								endMs: 8900,
+								timestampMs: 8690,
+								confidence: null,
+							},
+							{
+								text: ' it',
+								startMs: 8900,
+								endMs: 9540,
+								timestampMs: 9220,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+							{
+								text: ' and',
+								startMs: 9540,
+								endMs: 9900,
+								timestampMs: 9720,
+								confidence: null,
+							},
+							{
+								text: ' drop',
+								startMs: 9900,
+								endMs: 10180,
+								timestampMs: 10040,
+								confidence: null,
+							},
+							{
+								text: ' in',
+								startMs: 10180,
+								endMs: 10380,
+								timestampMs: 10280,
+								confidence: null,
+							},
+							{
+								text: ' some',
+								startMs: 10380,
+								endMs: 10640,
+								timestampMs: 10510,
+								confidence: null,
+							},
+							{
+								text: ' raw',
+								startMs: 10640,
+								endMs: 10960,
+								timestampMs: 10800,
+								confidence: null,
+							},
+							{
+								text: ' camera',
+								startMs: 10960,
+								endMs: 11460,
+								timestampMs: 11210,
+								confidence: null,
+							},
+							{
+								text: ' footage.',
+								startMs: 11460,
+								endMs: 11880,
+								timestampMs: 11670,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+						]}
+					/>
+				</AvailableAgentsCaptions>
+				<AvailableAgentsSidebar
+					name="08 - Available coding agents"
+					from={132}
+					durationInFrames={123}
+				/>
+				<CodexDropSidebar
+					name="08 - Drop camera footage into Codex"
+					fadeIn
+					from={237}
+					durationInFrames={126}
 				/>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="09 - Ask for a rough cut"
 				trimBefore={20}
-				durationInFrames={227}
+				durationInFrames={220}
 			>
 				<Video
 					name="here9.mov"
@@ -1727,6 +1851,12 @@ export const AgenticallyProgrammatically = () => {
 					name="here9 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here9-auphonic-7dc8b2ef5c28.flac"
 					volume={0.25}
+				/>
+				<RoughCutPrompt
+					name="09 - Timeline, captions, and motion graphics prompt"
+					from={20}
+					durationInFrames={227}
+					theme={'light'}
 				/>
 				<BasicCaptions
 					name="09 - Captions"
@@ -1897,8 +2027,8 @@ export const AgenticallyProgrammatically = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="10 - Build around a soundtrack"
-				trimBefore={68}
-				durationInFrames={419}
+				trimBefore={61}
+				durationInFrames={423}
 			>
 				<Video
 					name="here10.mov"
@@ -1922,6 +2052,11 @@ export const AgenticallyProgrammatically = () => {
 					name="here10 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here10-auphonic-c6f51fdf7eaa.flac"
 					volume={0.25}
+				/>
+				<BeatMatchPrompt
+					name="10 - Analyze the beat and place timeline placeholders"
+					from={111}
+					durationInFrames={270}
 				/>
 				<BasicCaptions
 					name="10 - Captions"
@@ -2198,6 +2333,18 @@ export const AgenticallyProgrammatically = () => {
 					]}
 				/>
 			</TransitionSeries.Sequence>
+			<TransitionSeries.Overlay durationInFrames={230} offset={96}>
+				<SoundtrackJCutMusic />
+			</TransitionSeries.Overlay>
+			<TransitionSeries.Sequence
+				name="10b - Hear the beat-matched timeline"
+				durationInFrames={211}
+			>
+				<SoundtrackTimelinePlayback
+					name="Soundtrack timeline playback"
+					withMusic={false}
+				/>
+			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="11 - The interactive timeline"
 				trimBefore={78}
@@ -2225,6 +2372,17 @@ export const AgenticallyProgrammatically = () => {
 					name="here11 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here11-auphonic-dad7394e02be.flac"
 					volume={0.25}
+				/>
+				<OpenStudioPrompt
+					name="11 - Ask the agent to open Studio"
+					from={173}
+					durationInFrames={99}
+				/>
+				<InteractiveTimelinePan
+					name="11 - Pan across the interactive timeline"
+					from={343}
+					durationInFrames={154}
+					style={{backgroundColor: '#16181b', overflow: 'hidden'}}
 				/>
 				<BasicCaptions
 					name="11 - Captions"
@@ -2489,7 +2647,7 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="12 - Edit clips and delete AI slop"
 				trimBefore={79}
-				durationInFrames={555}
+				durationInFrames={546}
 			>
 				<Video
 					name="here_bettertake.mov"
@@ -2513,6 +2671,17 @@ export const AgenticallyProgrammatically = () => {
 					name="here_bettertake - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here_bettertake-auphonic-eab3f61c6b71.flac"
 					volume={0.25}
+				/>
+				<EditingCapabilitiesBroll
+					name="12 - Editing capabilities B-roll"
+					from={106}
+					durationInFrames={378}
+					style={{backgroundColor: '#1c1e23', overflow: 'hidden'}}
+				/>
+				<DeleteAiSlopBroll
+					name="12 - Delete the AI slop"
+					from={484}
+					durationInFrames={114}
 				/>
 				<BasicCaptions
 					name="12 - Captions"
@@ -3019,6 +3188,11 @@ export const AgenticallyProgrammatically = () => {
 					src="https://remotion.media/here-2026-11-03/audio/here14-auphonic-025f2f0b7687.flac"
 					volume={0.25}
 				/>
+				<CopyContextBroll
+					name="14 - Copy context for agents B-roll"
+					from={214}
+					durationInFrames={149}
+				/>
 				<BasicCaptions
 					name="14 - Captions"
 					width={1200}
@@ -3127,7 +3301,7 @@ export const AgenticallyProgrammatically = () => {
 							confidence: null,
 						},
 						{
-							text: ' copy',
+							text: ' "Copy',
 							startMs: 10300,
 							endMs: 10640,
 							timestampMs: 10470,
@@ -3148,7 +3322,7 @@ export const AgenticallyProgrammatically = () => {
 							confidence: null,
 						},
 						{
-							text: ' agents.',
+							text: ' agents".',
 							startMs: 11300,
 							endMs: 11880,
 							timestampMs: 11590,
@@ -3185,6 +3359,19 @@ export const AgenticallyProgrammatically = () => {
 					name="here15 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here15-auphonic-c6fb53701b82.flac"
 					volume={0.25}
+				/>
+				<HigherLevelTaskPrompt
+					name="15 - Paste Studio context into ChatGPT"
+					isInitialPrompt={false}
+					pluginName=""
+					from={93}
+					durationInFrames={124}
+					theme="light"
+					blurStrength={6}
+					prompt="12 - Edit clips and delete AI slop in src/AgenticallyProgrammatically/AgenticallyProgrammatically.tsx:2571"
+					typingStartFrame={12}
+					typingDurationInFrames={1}
+					cameraDurationInFrames={124}
 				/>
 				<BasicCaptions
 					name="15 - Captions"
@@ -3306,160 +3493,169 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="16 - Agents can see your selection"
 				trimBefore={76}
-				durationInFrames={195}
+				durationInFrames={179}
 			>
-				<Video
-					name="here16.mov"
-					src="https://remotion.media/here-2026-11-03/here16-af38f084affa.mov"
-					muted
-					cropLeft={0.158253205}
-					cropRight={0.072516026}
-					cropTop={0.181623932}
-					cropBottom={0.049145299}
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: '130%',
-						height: '130%',
-						objectFit: 'cover',
-						translate: '-395px -255px',
-					}}
-				/>
+				<WebMcpAgentsLayout captions={false}>
+					<Video
+						name="here16.mov"
+						src="https://remotion.media/here-2026-11-03/here16-af38f084affa.mov"
+						muted
+						cropLeft={0.158253205}
+						cropRight={0.072516026}
+						cropTop={0.181623932}
+						cropBottom={0.049145299}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: '130%',
+							height: '130%',
+							objectFit: 'cover',
+							translate: '-395px -255px',
+						}}
+					/>
+				</WebMcpAgentsLayout>
 				<Audio
 					name="here16 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here16-auphonic-96a673a13d4a.flac"
 					volume={0.25}
 				/>
-				<BasicCaptions
-					name="16 - Captions"
-					width={1200}
-					combineTokensWithinMilliseconds={10000}
-					style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
-					captions={[
-						{
-							text: 'Some',
-							startMs: 2680,
-							endMs: 2900,
-							timestampMs: 2790,
-							confidence: null,
-						},
-						{
-							text: ' agents',
-							startMs: 2900,
-							endMs: 3280,
-							timestampMs: 3090,
-							confidence: null,
-						},
-						{
-							text: ' can',
-							startMs: 3280,
-							endMs: 3560,
-							timestampMs: 3420,
-							confidence: null,
-						},
-						{
-							text: ' also',
-							startMs: 3560,
-							endMs: 4000,
-							timestampMs: 3780,
-							confidence: null,
-						},
-						{
-							text: ' directly',
-							startMs: 4000,
-							endMs: 4520,
-							timestampMs: 4260,
-							confidence: null,
-						},
-						{
-							text: ' see',
-							startMs: 4520,
-							endMs: 4740,
-							timestampMs: 4630,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-						{
-							text: ' what',
-							startMs: 4740,
-							endMs: 4880,
-							timestampMs: 4810,
-							confidence: null,
-						},
-						{
-							text: ' you',
-							startMs: 4880,
-							endMs: 5040,
-							timestampMs: 4960,
-							confidence: null,
-						},
-						{
-							text: ' have',
-							startMs: 5040,
-							endMs: 5420,
-							timestampMs: 5230,
-							confidence: null,
-						},
-						{
-							text: ' selected',
-							startMs: 5420,
-							endMs: 6140,
-							timestampMs: 5780,
-							confidence: null,
-						},
-						{
-							text: ' without',
-							startMs: 6140,
-							endMs: 6580,
-							timestampMs: 6360,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-						{
-							text: ' you',
-							startMs: 6580,
-							endMs: 6880,
-							timestampMs: 6730,
-							confidence: null,
-						},
-						{
-							text: ' having',
-							startMs: 6880,
-							endMs: 7100,
-							timestampMs: 6990,
-							confidence: null,
-						},
-						{
-							text: ' to',
-							startMs: 7100,
-							endMs: 7380,
-							timestampMs: 7240,
-							confidence: null,
-						},
-						{
-							text: ' paste',
-							startMs: 7380,
-							endMs: 7720,
-							timestampMs: 7550,
-							confidence: null,
-						},
-						{
-							text: ' that',
-							startMs: 7720,
-							endMs: 8000,
-							timestampMs: 7860,
-							confidence: null,
-						},
-						{
-							text: ' context.',
-							startMs: 8220,
-							endMs: 8800,
-							timestampMs: 8510,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-					]}
+				<WebMcpAgentsLayout captions>
+					<BasicCaptions
+						name="16 - Captions"
+						width={1200}
+						combineTokensWithinMilliseconds={10000}
+						style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
+						captions={[
+							{
+								text: 'Some',
+								startMs: 2680,
+								endMs: 2900,
+								timestampMs: 2790,
+								confidence: null,
+							},
+							{
+								text: ' agents',
+								startMs: 2900,
+								endMs: 3280,
+								timestampMs: 3090,
+								confidence: null,
+							},
+							{
+								text: ' can',
+								startMs: 3280,
+								endMs: 3560,
+								timestampMs: 3420,
+								confidence: null,
+							},
+							{
+								text: ' also',
+								startMs: 3560,
+								endMs: 4000,
+								timestampMs: 3780,
+								confidence: null,
+							},
+							{
+								text: ' directly',
+								startMs: 4000,
+								endMs: 4520,
+								timestampMs: 4260,
+								confidence: null,
+							},
+							{
+								text: ' see',
+								startMs: 4520,
+								endMs: 4740,
+								timestampMs: 4630,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+							{
+								text: ' what',
+								startMs: 4740,
+								endMs: 4880,
+								timestampMs: 4810,
+								confidence: null,
+							},
+							{
+								text: ' you',
+								startMs: 4880,
+								endMs: 5040,
+								timestampMs: 4960,
+								confidence: null,
+							},
+							{
+								text: ' have',
+								startMs: 5040,
+								endMs: 5420,
+								timestampMs: 5230,
+								confidence: null,
+							},
+							{
+								text: ' selected',
+								startMs: 5420,
+								endMs: 6140,
+								timestampMs: 5780,
+								confidence: null,
+							},
+							{
+								text: ' without',
+								startMs: 6140,
+								endMs: 6580,
+								timestampMs: 6360,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+							{
+								text: ' you',
+								startMs: 6580,
+								endMs: 6880,
+								timestampMs: 6730,
+								confidence: null,
+							},
+							{
+								text: ' having',
+								startMs: 6880,
+								endMs: 7100,
+								timestampMs: 6990,
+								confidence: null,
+							},
+							{
+								text: ' to',
+								startMs: 7100,
+								endMs: 7380,
+								timestampMs: 7240,
+								confidence: null,
+							},
+							{
+								text: ' paste',
+								startMs: 7380,
+								endMs: 7720,
+								timestampMs: 7550,
+								confidence: null,
+							},
+							{
+								text: ' that',
+								startMs: 7720,
+								endMs: 8000,
+								timestampMs: 7860,
+								confidence: null,
+							},
+							{
+								text: ' context.',
+								startMs: 8220,
+								endMs: 8800,
+								timestampMs: 8510,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+						]}
+					/>
+				</WebMcpAgentsLayout>
+				<WebMcpAgentsSidebar
+					name="16 - Agents supporting WebMCP"
+					from={76}
+					durationInFrames={195}
 				/>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
@@ -3489,6 +3685,11 @@ export const AgenticallyProgrammatically = () => {
 					name="here17 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here17-auphonic-5dabbfad4e95.flac"
 					volume={0.25}
+				/>
+				<InvokeAgentBroll
+					name="17 - Invoke ChatGPT from the context menu"
+					from={142}
+					durationInFrames={192}
 				/>
 				<BasicCaptions
 					name="17 - Captions"
@@ -3670,6 +3871,11 @@ export const AgenticallyProgrammatically = () => {
 					name="here18 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here18-auphonic-a8d64b672499.flac"
 					volume={0.25}
+				/>
+				<AnnotateChatGPTBroll
+					name="18 - Right-click and annotate with ChatGPT"
+					from={54}
+					durationInFrames={187}
 				/>
 				<BasicCaptions
 					name="18 - Captions"
@@ -3953,6 +4159,11 @@ export const AgenticallyProgrammatically = () => {
 					src="https://remotion.media/here-2026-11-03/audio/here20-auphonic-230f1edf2127.flac"
 					volume={0.25}
 				/>
+				<CubeWaveCodeBroll
+					name="20 - Dynamic CubeWave code in Monaco"
+					from={253}
+					durationInFrames={242}
+				/>
 				<BasicCaptions
 					name="20 - Captions"
 					width={1200}
@@ -4213,6 +4424,11 @@ export const AgenticallyProgrammatically = () => {
 					src="https://remotion.media/here-2026-11-03/audio/here21-auphonic-14de8d93c297.flac"
 					volume={0.25}
 				/>
+				<ComputedPropertiesBroll
+					name="21 - Grayed out computed transform values"
+					from={137}
+					durationInFrames={140}
+				/>
 				<BasicCaptions
 					name="21 - Captions"
 					width={1200}
@@ -4299,7 +4515,7 @@ export const AgenticallyProgrammatically = () => {
 							confidence: null,
 						},
 						{
-							text: ' computed',
+							text: ' "computed"',
 							startMs: 7580,
 							endMs: 8680,
 							timestampMs: 8130,
@@ -4319,7 +4535,7 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="22 - Look at the underlying code"
 				trimBefore={195}
-				durationInFrames={366}
+				durationInFrames={360}
 			>
 				<Video
 					name="here22.mov"
@@ -4577,8 +4793,8 @@ export const AgenticallyProgrammatically = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Sequence
 				name="23a - Restructure with your agent"
-				trimBefore={46}
-				durationInFrames={310}
+				trimBefore={42}
+				durationInFrames={314}
 			>
 				<Video
 					name="here23.mov"
@@ -4602,6 +4818,12 @@ export const AgenticallyProgrammatically = () => {
 					name="here23 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here23-auphonic-40622844a602.flac"
 					volume={0.25}
+				/>
+				<ComputedValueBroll
+					name="23a - Computed expression and suggested agent prompt"
+					from={42}
+					durationInFrames={314}
+					mode="explanation"
 				/>
 				<BasicCaptions
 					name="23a - Captions"
@@ -4813,6 +5035,12 @@ export const AgenticallyProgrammatically = () => {
 					src="https://remotion.media/here-2026-11-03/audio/here23-auphonic-40622844a602.flac"
 					volume={0.25}
 				/>
+				<ComputedValueBroll
+					name="23b - Computed expression and suggested agent prompt"
+					from={372}
+					durationInFrames={58}
+					mode="prompt"
+				/>
 				<BasicCaptions
 					name="23b - Captions"
 					width={1200}
@@ -4878,6 +5106,11 @@ export const AgenticallyProgrammatically = () => {
 					name="here23 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here23-auphonic-40622844a602.flac"
 					volume={0.25}
+				/>
+				<RestructureAgentBroll
+					name="23c - Fix computed value with an agent or code editor"
+					from={446}
+					durationInFrames={205}
 				/>
 				<BasicCaptions
 					name="23c - Captions"
@@ -5058,6 +5291,11 @@ export const AgenticallyProgrammatically = () => {
 					name="here24 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here24-auphonic-207fd1c39e8b.flac"
 					volume={0.25}
+				/>
+				<DoubleClickCodeBroll
+					name="24a - Double-click to open the source in VS Code"
+					from={207}
+					durationInFrames={238}
 				/>
 				<BasicCaptions
 					name="24a - Captions"
@@ -5254,6 +5492,11 @@ export const AgenticallyProgrammatically = () => {
 					src="https://remotion.media/here-2026-11-03/audio/here24-auphonic-207fd1c39e8b.flac"
 					volume={0.25}
 				/>
+				<MarkupMoveBroll
+					name="24b - Cut markup, scroll to another scene, and paste"
+					from={530}
+					durationInFrames={157}
+				/>
 				<BasicCaptions
 					name="24b - Captions"
 					width={1200}
@@ -5423,7 +5666,7 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="25 - Live updates with Fast Refresh"
 				trimBefore={96}
-				durationInFrames={341}
+				durationInFrames={336}
 			>
 				<Video
 					name="here25.mov"
@@ -5605,7 +5848,7 @@ export const AgenticallyProgrammatically = () => {
 							confidence: null,
 						},
 						{
-							text: ' stay',
+							text: ' they',
 							startMs: 11660,
 							endMs: 11960,
 							timestampMs: 11810,
@@ -5877,7 +6120,7 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="26b - Closing thoughts"
 				trimBefore={385}
-				durationInFrames={504}
+				durationInFrames={291}
 			>
 				<Video
 					name="here26.mov"
@@ -5901,6 +6144,13 @@ export const AgenticallyProgrammatically = () => {
 					name="here26 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here26-auphonic-cbe214e1b44a.flac"
 					volume={0.25}
+					durationInFrames={669}
+				/>
+				<EarlyRemotionDemoBroll
+					name="26b - Developing Remotion for six years"
+					from={517}
+					durationInFrames={159}
+					style={{backgroundColor: '#ffffff'}}
 				/>
 				<BasicCaptions
 					name="26b - Captions"
@@ -6087,6 +6337,61 @@ export const AgenticallyProgrammatically = () => {
 							confidence: null,
 							pageBreakAfter: true,
 						},
+					]}
+				/>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Sequence
+				name="26b - The dream of coding animations in 2020"
+				durationInFrames={224}
+			>
+				<RemotionOriginExchange
+					name="William and Jonny's original exchange"
+					style={{backgroundColor: '#ffffff'}}
+				/>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Overlay durationInFrames={14}>
+				<Audio
+					name="Silk return to the present — React Bits Sound Lab"
+					src="https://remotion.media/agentically-programmatically/reactbits-silk-short-f479b343778b.wav"
+					volume={0.35}
+				/>
+			</TransitionSeries.Overlay>
+			<TransitionSeries.Sequence
+				name="26b - Continue closing thoughts"
+				trimBefore={684}
+				durationInFrames={205}
+			>
+				<OriginReturnPresenter from={684}>
+					<Video
+						name="here26.mov"
+						src="https://remotion.media/here-2026-11-03/here26-163623811ceb.mov"
+						muted
+						cropLeft={0.151442308}
+						cropRight={0.079326923}
+						cropTop={0.195868946}
+						cropBottom={0.034900285}
+						style={{
+							position: 'absolute',
+							left: 0,
+							top: 0,
+							width: '130%',
+							height: '130%',
+							objectFit: 'cover',
+							translate: '-378px -275px',
+						}}
+					/>
+				</OriginReturnPresenter>
+				<Audio
+					name="here26 - cleaned dialogue"
+					src="https://remotion.media/here-2026-11-03/audio/here26-auphonic-cbe214e1b44a.flac"
+					volume={0.25}
+				/>
+				<BasicCaptions
+					name="26b - Captions continued"
+					width={1200}
+					combineTokensWithinMilliseconds={10000}
+					style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
+					captions={[
 						{
 							text: ' and',
 							startMs: 22900,
@@ -6208,119 +6513,143 @@ export const AgenticallyProgrammatically = () => {
 			<TransitionSeries.Sequence
 				name="26c - Closing thoughts"
 				trimBefore={906}
-				durationInFrames={141}
+				durationInFrames={platform === 'youtube' ? 435 : 135}
 			>
-				<Video
-					name="here26.mov"
-					src="https://remotion.media/here-2026-11-03/here26-163623811ceb.mov"
-					muted
-					cropLeft={0.151442308}
-					cropRight={0.079326923}
-					cropTop={0.195868946}
-					cropBottom={0.034900285}
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: '130%',
-						height: '130%',
-						objectFit: 'cover',
-						translate: '-378px -275px',
-					}}
-				/>
+				<EndCardPresenter>
+					<Freeze
+						frame={1040}
+						active={(frame) => platform === 'youtube' && frame >= 1041}
+					>
+						<Video
+							name="here26.mov"
+							src="https://remotion.media/here-2026-11-03/here26-163623811ceb.mov"
+							muted
+							cropLeft={0.151442308}
+							cropRight={0.079326923}
+							cropTop={0.195868946}
+							cropBottom={0.034900285}
+							style={{
+								position: 'absolute',
+								left: 0,
+								top: 0,
+								width: '130%',
+								height: '130%',
+								objectFit: 'cover',
+								translate: '-378px -275px',
+							}}
+						/>
+					</Freeze>
+				</EndCardPresenter>
 				<Audio
 					name="here26 - cleaned dialogue"
 					src="https://remotion.media/here-2026-11-03/audio/here26-auphonic-cbe214e1b44a.flac"
 					volume={0.25}
+					durationInFrames={1041}
 				/>
-				<BasicCaptions
-					name="26c - Captions"
-					width={1200}
-					combineTokensWithinMilliseconds={10000}
-					style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
-					captions={[
-						{
-							text: ' I',
-							startMs: 30460,
-							endMs: 30680,
-							timestampMs: 30570,
-							confidence: null,
-						},
-						{
-							text: ' hope',
-							startMs: 30680,
-							endMs: 31260,
-							timestampMs: 30970,
-							confidence: null,
-						},
-						{
-							text: ' that',
-							startMs: 31260,
-							endMs: 31480,
-							timestampMs: 31370,
-							confidence: null,
-						},
-						{
-							text: ' these',
-							startMs: 31480,
-							endMs: 31680,
-							timestampMs: 31580,
-							confidence: null,
-						},
-						{
-							text: ' new',
-							startMs: 31680,
-							endMs: 31980,
-							timestampMs: 31830,
-							confidence: null,
-						},
-						{
-							text: ' features',
-							startMs: 31980,
-							endMs: 33140,
-							timestampMs: 32560,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-						{
-							text: ' also',
-							startMs: 33140,
-							endMs: 33680,
-							timestampMs: 33410,
-							confidence: null,
-						},
-						{
-							text: ' are',
-							startMs: 33680,
-							endMs: 34000,
-							timestampMs: 33840,
-							confidence: null,
-						},
-						{
-							text: ' valuable',
-							startMs: 34000,
-							endMs: 34360,
-							timestampMs: 34180,
-							confidence: null,
-						},
-						{
-							text: ' to',
-							startMs: 34360,
-							endMs: 34540,
-							timestampMs: 34450,
-							confidence: null,
-						},
-						{
-							text: ' you.',
-							startMs: 34540,
-							endMs: 34640,
-							timestampMs: 34590,
-							confidence: null,
-							pageBreakAfter: true,
-						},
-					]}
+				<EndCardSidebar
+					name="26c - Follow Remotion"
+					platform={platform}
+					from={906}
+					durationInFrames={platform === 'youtube' ? 435 : 135}
 				/>
+				<EndCardCaptions>
+					<BasicCaptions
+						name="26c - Captions"
+						width={1200}
+						combineTokensWithinMilliseconds={10000}
+						style={{position: 'absolute', bottom: 80, translate: '360px 0px'}}
+						captions={[
+							{
+								text: ' I',
+								startMs: 30460,
+								endMs: 30680,
+								timestampMs: 30570,
+								confidence: null,
+							},
+							{
+								text: ' hope',
+								startMs: 30680,
+								endMs: 31260,
+								timestampMs: 30970,
+								confidence: null,
+							},
+							{
+								text: ' that',
+								startMs: 31260,
+								endMs: 31480,
+								timestampMs: 31370,
+								confidence: null,
+							},
+							{
+								text: ' these',
+								startMs: 31480,
+								endMs: 31680,
+								timestampMs: 31580,
+								confidence: null,
+							},
+							{
+								text: ' new',
+								startMs: 31680,
+								endMs: 31980,
+								timestampMs: 31830,
+								confidence: null,
+							},
+							{
+								text: ' features',
+								startMs: 31980,
+								endMs: 33140,
+								timestampMs: 32560,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+							{
+								text: ' also',
+								startMs: 33140,
+								endMs: 33680,
+								timestampMs: 33410,
+								confidence: null,
+							},
+							{
+								text: ' are',
+								startMs: 33680,
+								endMs: 34000,
+								timestampMs: 33840,
+								confidence: null,
+							},
+							{
+								text: ' valuable',
+								startMs: 34000,
+								endMs: 34360,
+								timestampMs: 34180,
+								confidence: null,
+							},
+							{
+								text: ' to',
+								startMs: 34360,
+								endMs: 34540,
+								timestampMs: 34450,
+								confidence: null,
+							},
+							{
+								text: ' you.',
+								startMs: 34540,
+								endMs: 34640,
+								timestampMs: 34590,
+								confidence: null,
+								pageBreakAfter: true,
+							},
+						]}
+					/>
+				</EndCardCaptions>
 			</TransitionSeries.Sequence>
 		</TransitionSeries>
 	);
 };
+
+export const AgenticallyProgrammatically = (
+	props: AgenticallyProgrammaticallyProps,
+) => (
+	<BasicCaptionsVisibility value={props.platform !== 'youtube'}>
+		<AgenticallyProgrammaticallyContent {...props} />
+	</BasicCaptionsVisibility>
+);

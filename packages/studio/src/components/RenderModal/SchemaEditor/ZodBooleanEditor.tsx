@@ -8,6 +8,7 @@ import type {UpdaterFunction} from './ZodSwitch';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
+	display: 'block',
 };
 
 export const ZodBooleanEditor: React.FC<{
@@ -35,14 +36,14 @@ export const ZodBooleanEditor: React.FC<{
 				suffix={null}
 				description={getUserFacingDescription(schema)}
 			/>
-			<div style={fullWidth}>
+			<label style={fullWidth} aria-label={jsonPath.join('.')}>
 				<Checkbox
 					name={jsonPath.join('.')}
 					checked={value}
 					onChange={onToggle}
 					disabled={false}
 				/>
-			</div>
+			</label>
 		</Fieldset>
 	);
 };

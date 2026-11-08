@@ -16,3 +16,9 @@ Remove the `^` character from the version number to use the exact version.
 ## Usage
 
 See the [documentation](https://www.remotion.dev/docs/codemods) for more information.
+
+### OpenTimelineIO import
+
+Use `generateOpenTimelineComposition()` to convert supported OTIO JSON into deterministic, editable Remotion TSX, or `addOpenTimelineComposition()` to create and register it through the codemod project API. Import results include diagnostics, asset information, and retained annotations; errors prevent source generation.
+
+See [OpenTimelineIO support](./OPEN_TIMELINE_SUPPORT.md) for API examples, asset resolution, and the supported and unsupported feature matrix.

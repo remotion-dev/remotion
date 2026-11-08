@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from 'react';
 import {Internals} from 'remotion';
-import {WHITE, WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {Checkmark} from '../icons/Checkmark';
 import {Minus} from '../icons/minus';
@@ -43,10 +43,8 @@ type PlaybackRateMenuItemsProps = {
 	readonly setPlaybackRate: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
-	playbackRate,
-	setPlaybackRate,
-}) => {
+const CustomPlaybackRateItem: React.FC = () => {
+	const {playbackRate, setPlaybackRate} = Internals.usePlaybackRate();
 	const setRate = (value: number) => {
 		const rate = Math.round(value * 100) / 100;
 		if (!Number.isFinite(rate) || rate === 0 || Math.abs(rate) > 4) {
@@ -101,7 +99,7 @@ const CustomPlaybackRateItem: React.FC<PlaybackRateMenuItemsProps> = ({
 	);
 };
 
-const usePlaybackRateMenuItems = ({
+export const usePlaybackRateMenuItems = ({
 	playbackRate,
 	setPlaybackRate,
 }: PlaybackRateMenuItemsProps) => {
@@ -143,12 +141,7 @@ const usePlaybackRateMenuItems = ({
 			{
 				id: 'custom-playback-rate',
 				type: 'custom',
-				content: (
-					<CustomPlaybackRateItem
-						playbackRate={playbackRate}
-						setPlaybackRate={setPlaybackRate}
-					/>
-				),
+				content: <CustomPlaybackRateItem />,
 			},
 		];
 	}, [playbackRate, setPlaybackRate]);
@@ -185,7 +178,7 @@ export const PlaybackRateSelector: React.FC<PlaybackRateMenuItemsProps> = ({
 			renderLeftItem={(color) => (
 				<PlaybackRateIcon color={color} playbackRate={playbackRate} />
 			)}
-			unhoveredIconColor={WHITE_ALPHA_80}
+			unhoveredIconColor={LIGHT_TEXT}
 		/>
 	);
 };

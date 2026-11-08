@@ -1,3 +1,4 @@
+import {parseLengthPercentage} from './background-image-rect';
 import type {LinearGradientInfo} from './parse-linear-gradient';
 import {parseLinearGradient} from './parse-linear-gradient';
 
@@ -9,6 +10,8 @@ type LinearGradientMaskImageInfo = {
 export type UrlMaskImageInfo = {
 	type: 'url';
 	src: string;
+	maskSize: string;
+	maskRepeat: string;
 };
 
 export type MaskImageInfo = LinearGradientMaskImageInfo | UrlMaskImageInfo;
@@ -28,7 +31,7 @@ export const getMaskImageValue = (
 	return value;
 };
 
-const parseUrlFunction = (value: string): string | null => {
+export const parseUrlFunction = (value: string): string | null => {
 	const trimmed = value.trim();
 	if (!trimmed.toLowerCase().startsWith('url(')) {
 		return null;
@@ -108,9 +111,7 @@ const getMaskProperty = ({
 const normalizeCssValue = (value: string) =>
 	value.trim().toLowerCase().replace(/\s+/g, ' ');
 
-export const validateUrlMaskImageStyle = (
-	computedStyle: CSSStyleDeclaration,
-) => {
+const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 	const maskSize = normalizeCssValue(
 		getMaskProperty({
 			standard: computedStyle.maskSize,
@@ -147,10 +148,29 @@ export const validateUrlMaskImageStyle = (
 		maskPosition === '0% 0%' ||
 		maskPosition === '0px 0px' ||
 		maskPosition === 'left top';
+	const sizeParts = maskSize.split(' ');
+	const isSupportedSize =
+		['contain', 'cover'].includes(maskSize) ||
+		(sizeParts.length <= 2 &&
+			sizeParts.every(
+				(value) =>
+					value === 'auto' || (parseLengthPercentage(value)?.value ?? -1) >= 0,
+			));
 	const unsupportedProperties = [
-		maskSize !== '100% 100%' ? `mask-size: ${maskSize}` : null,
+		!isSupportedSize ? `mask-size: ${maskSize}` : null,
 		!isSupportedPosition ? `mask-position: ${maskPosition}` : null,
-		maskRepeat !== 'no-repeat' ? `mask-repeat: ${maskRepeat}` : null,
+		![
+			'repeat',
+			'no-repeat',
+			'repeat-x',
+			'repeat-y',
+			'repeat no-repeat',
+			'no-repeat repeat',
+			'repeat repeat',
+			'no-repeat no-repeat',
+		].includes(maskRepeat)
+			? `mask-repeat: ${maskRepeat}`
+			: null,
 		maskMode !== '' && maskMode !== 'alpha' && maskMode !== 'match-source'
 			? `mask-mode: ${maskMode}`
 			: null,
@@ -160,14 +180,17 @@ export const validateUrlMaskImageStyle = (
 
 	if (unsupportedProperties.length > 0) {
 		throw new Error(
-			'@remotion/web-renderer only supports URL masks with mask-size: 100% 100%, mask-position: 0% 0%, mask-repeat: no-repeat, the border box as origin and clip, and alpha semantics. ' +
+			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, mask-position: 0% 0%, the border box as origin and clip, and alpha semantics. ' +
 				`Unsupported value${unsupportedProperties.length === 1 ? '' : 's'}: ${unsupportedProperties.join(', ')}`,
 		);
 	}
+
+	return {maskSize, maskRepeat};
 };
 
 export const parseMaskImage = (
 	maskImageValue: string,
+	computedStyle: CSSStyleDeclaration,
 ): MaskImageInfo | null => {
 	const gradientInfo = parseLinearGradient(maskImageValue);
 	if (gradientInfo) {
@@ -180,7 +203,11 @@ export const parseMaskImage = (
 			throw new Error('mask-image: url() must contain a URL');
 		}
 
-		return {type: 'url', src: new URL(url, document.baseURI).href};
+		return {
+			type: 'url',
+			src: new URL(url, document.baseURI).href,
+			...validateUrlMaskImageStyle(computedStyle),
+		};
 	}
 
 	if (maskImageValue.trim().toLowerCase().startsWith('url(')) {

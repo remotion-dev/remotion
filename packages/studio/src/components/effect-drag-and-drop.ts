@@ -2,16 +2,12 @@ import {
 	StudioProtocolInternals,
 	type EffectDragData,
 } from '@remotion/studio-protocol';
-import {
-	type EffectDefinition,
-	getRequiredPackageForEffectImportPath,
-} from '@remotion/studio-shared';
-import {staticFile} from 'remotion';
-import {getBrowserStudioEffectOperations} from '../helpers/browser-studio-operations';
+import {type EffectDefinition} from '@remotion/studio-shared';
+import {Internals, staticFile} from 'remotion';
 import {parseCubeLut} from '../helpers/cube-lut';
 import {getPreviewFileType} from '../helpers/get-preview-file-type';
 import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
-import {installRequiredPackages} from '../helpers/install-required-package';
+import {selectOptimisticEffects} from '../helpers/optimistic-effect-selection';
 import {addEffect} from './effect-operations-api';
 import {showNotification} from './Notifications/NotificationCenter';
 import type {useTimelineSelection} from './Timeline/TimelineSelection';
@@ -159,16 +155,13 @@ export const addEffectToSequence = async ({
 	readonly selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
 }) => {
 	try {
-		const requiredPackage = getRequiredPackageForEffectImportPath(
-			effect.importPath,
+		const nodePath = nodePathInfo.sequenceSubscriptionKey;
+		const previous = new Set(
+			Internals.OptimisticEffects.getItems(nodePath, null).map(
+				(item) => item.id,
+			),
 		);
-		if (getBrowserStudioEffectOperations() === null) {
-			await installRequiredPackages(
-				requiredPackage ? [{name: requiredPackage, version: null}] : [],
-			);
-		}
-
-		const result = await addEffect({
+		const promise = addEffect({
 			fileName,
 			sequenceNodePath: nodePathInfo.sequenceSubscriptionKey,
 			effectName: effect.name,
@@ -177,11 +170,18 @@ export const addEffectToSequence = async ({
 			clientId,
 		});
 
+		const inserted = Internals.OptimisticEffects.getItems(nodePath, null)
+			.filter((item) => !previous.has(item.id))
+			.map((item) => ({nodePathInfo, id: item.id}));
+		if (inserted.length > 0) selectOptimisticEffects(inserted, true);
+		const result = await promise;
+
 		if (!result.success) {
 			showNotification(result.reason, 4000);
 			return;
 		}
 
+		if (inserted.length > 0) return;
 		selectItems(
 			[
 				{

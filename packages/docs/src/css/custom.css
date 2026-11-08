@@ -246,6 +246,10 @@ code {
 	text-decoration: underline;
 }
 
+.markdown .suggested-prompt a {
+	text-decoration: none;
+}
+
 .ts-type-link {
 	text-decoration: none !important;
 	text-underline-position: under;

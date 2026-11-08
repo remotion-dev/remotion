@@ -11,6 +11,7 @@ import {browserExecutableOption} from './browser-executable';
 import {bundleCacheOption} from './bundle-cache';
 import {canvasTabsOption} from './canvas-tabs';
 import {chromeModeOption} from './chrome-mode';
+import {chunksOption} from './chunks';
 import {colorSpaceOption} from './color-space';
 import {concurrencyOption} from './concurrency';
 import {configOption} from './config';
@@ -42,6 +43,7 @@ import {glOption} from './gl';
 import {gopSizeOption} from './gop-size';
 import {hardwareAccelerationOption} from './hardware-acceleration';
 import {headlessOption} from './headless';
+import {highContrastOption} from './high-contrast';
 import {ignoreCertificateErrorsOption} from './ignore-certificate-errors';
 import {imageSequenceOption} from './image-sequence';
 import {imageSequencePatternOption} from './image-sequence-pattern';
@@ -107,6 +109,7 @@ import {x264Option} from './x264-preset';
 export const allOptions = {
 	preservePitchOnPlaybackOption,
 	showLayerFrameNumbersOption,
+	highContrastOption,
 	showPremountingOption,
 	allowHtmlInCanvasOption,
 	audioCodecOption,
@@ -125,6 +128,7 @@ export const allOptions = {
 	offthreadVideoCacheSizeInBytesOption,
 	offthreadVideoThreadsOption,
 	webhookCustomDataOption,
+	chunksOption,
 	colorSpaceOption,
 	deleteAfterOption,
 	disableWebSecurityOption,

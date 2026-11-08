@@ -124,7 +124,7 @@ test('opens and copies transcription and video matting errors', async () => {
 		'The job failed because of the following error:',
 	);
 	const descriptionStyle = getComputedStyle(description);
-	expect(descriptionStyle.color).toBe('#A6A7A9');
+	expect(descriptionStyle.color).toBe('#BCBDBF');
 	expect(descriptionStyle.fontFamily).toBe('sans-serif');
 	expect(descriptionStyle.fontSize).toBe('14px');
 	expect(descriptionStyle.lineHeight).toBe('1.5');

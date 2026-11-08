@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/skills-evals"
 	},
 	"name": "@remotion/skills-evals",
-	"version": "4.0.540",
+	"version": "4.0.541",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -12,7 +12,7 @@
 		"export": "bun src/cli.ts export",
 		"format": "oxfmt src scenarios.ts",
 		"formatting": "oxfmt src scenarios.ts --check",
-		"lint": "eslint src && bun check"
+		"lint": "eslint src && node ../.monorepo/tsrs.cjs --noEmit"
 	},
 	"dependencies": {
 		"@remotion/skills": "workspace:*",

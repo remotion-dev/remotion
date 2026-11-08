@@ -22,6 +22,10 @@ export const getEffectDocumentationLink = (item: EffectCatalogItem) => {
 };
 
 export const getEffectPreviewSource = (item: EffectCatalogItem) => {
+	if (item.id === 'effects-lightning') {
+		return `https://remotion.media/docs/effects/${item.id}-preview-v3.png`;
+	}
+
 	if (item.id === 'effects-evolve' || item.id === 'effects-rain-fall') {
 		return `https://remotion.media/docs/effects/${item.id}-preview-v2.png`;
 	}
@@ -598,6 +602,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		},
 	},
 	{
+		id: 'effects-magnify',
+		category: 'Distort',
+		label: 'magnify()',
+		description: 'Magnify a circular or square area',
+		effect: {
+			name: 'magnify',
+			importPath: '@remotion/effects/magnify',
+			config: {},
+		},
+	},
+	{
 		id: 'effects-fisheye',
 		category: 'Distort',
 		label: 'fisheye()',
@@ -928,6 +943,17 @@ export const EFFECT_CATALOG: readonly EffectCatalogItem[] = [
 		effect: {
 			name: 'vignette',
 			importPath: '@remotion/effects/vignette',
+			config: {},
+		},
+	},
+	{
+		id: 'effects-lightning',
+		category: 'Generate',
+		label: 'lightning()',
+		description: 'Forked lightning bolts with a colored glow',
+		effect: {
+			name: 'lightning',
+			importPath: '@remotion/effects/lightning',
 			config: {},
 		},
 	},

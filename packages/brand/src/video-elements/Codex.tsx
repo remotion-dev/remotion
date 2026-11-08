@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Img, Interactive} from 'remotion';
 import {z} from 'zod';
+import {PromptText} from '../PromptText';
 import {
 	AlertCircleIcon,
 	BoltIcon,
@@ -235,7 +236,12 @@ const Conversation: React.FC = () => {
 	);
 };
 
-const Composer: React.FC<{readonly top: number}> = ({top}) => {
+export const CodexComposer: React.FC<{
+	readonly top: number;
+	readonly prompt: string | null;
+	readonly typingStartFrame: number;
+	readonly typingDurationInFrames: number;
+}> = ({top, prompt, typingStartFrame, typingDurationInFrames}) => {
 	return (
 		<Interactive.Div
 			name="Composer"
@@ -247,7 +253,7 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 				boxShadow: '0 2px 8px 0 #00000040, 0 4px 80px 8px #00000020',
 				boxSizing: 'border-box',
 				color: '#e4e4e4',
-				height: 90,
+				height: prompt === null ? 90 : 130,
 				left: 24,
 				position: 'absolute',
 				top,
@@ -256,15 +262,27 @@ const Composer: React.FC<{readonly top: number}> = ({top}) => {
 		>
 			<div
 				style={{
-					color: '#8b8b8b',
+					color: prompt === null ? '#8b8b8b' : '#e4e4e4',
 					fontSize: 16,
 					left: 11,
-					lineHeight: '18px',
+					right: 11,
+					lineHeight: prompt === null ? '18px' : '24px',
 					position: 'absolute',
 					top: 13,
 				}}
 			>
-				Do anything
+				{prompt === null ? (
+					'Do anything'
+				) : (
+					<PromptText
+						caretColor={null}
+						skillColor={null}
+						prompt={prompt}
+						typingStartFrame={typingStartFrame}
+						typingDurationInFrames={typingDurationInFrames}
+						showCaret
+					/>
+				)}
 			</div>
 			<PlusIcon
 				size={19}
@@ -432,7 +450,12 @@ export const Codex: React.FC<CodexProps> = ({borderRadius, height, width}) => {
 				>
 					<Header />
 					<Conversation />
-					<Composer top={MINIMUM_HEIGHT - 152} />
+					<CodexComposer
+						top={MINIMUM_HEIGHT - 152}
+						prompt={null}
+						typingStartFrame={0}
+						typingDurationInFrames={0}
+					/>
 				</div>
 			</Interactive.Div>
 		</AbsoluteFill>

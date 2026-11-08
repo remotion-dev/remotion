@@ -4,7 +4,6 @@ import {
 	getMaskImageValue,
 	type MaskImageInfo,
 	parseMaskImage,
-	validateUrlMaskImageStyle,
 } from './mask-image';
 import {parseTransformOrigin} from './parse-transform-origin';
 
@@ -29,7 +28,7 @@ const filterRequiresPrecompositing = (filter: string): string | null => {
 
 // CSS mix-blend-mode keywords share their names with canvas composite
 // operations, except plus-lighter which is called lighter on canvas.
-const getBlendMode = (
+export const getBlendMode = (
 	mixBlendMode: string,
 ): GlobalCompositeOperation | null => {
 	switch (mixBlendMode) {
@@ -209,10 +208,9 @@ export const calculateTransforms = ({
 			elementComputedStyle = computedStyle;
 			opacity = parseFloat(computedStyle.opacity);
 			const maskImageValue = getMaskImageValue(computedStyle);
-			maskImageInfo = maskImageValue ? parseMaskImage(maskImageValue) : null;
-			if (maskImageInfo?.type === 'url') {
-				validateUrlMaskImageStyle(computedStyle);
-			}
+			maskImageInfo = maskImageValue
+				? parseMaskImage(maskImageValue, computedStyle)
+				: null;
 
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,

@@ -4,18 +4,21 @@ import {NoReactInternals} from 'remotion/no-react';
 export const DEFAULT_BUFFER_STATE_DELAY_IN_MILLISECONDS = 300;
 
 const defaultStudioRuntimeConfig: StudioRuntimeConfig = {
+	highContrast: null,
 	preferredEffectBackend: null,
 	preservePitchOnPlayback: true,
 	showLayerFrameNumbers: false,
 	showPremounting: null,
 	defaultPremountInSeconds: null,
 	askAIEnabled: false,
+	elementLibraries: [],
 	sequenceActivityLimit: null,
 	bufferStateDelayInMilliseconds: null,
 	defaultCodingAgent: null,
 	defaultEditor: null,
 	interactivityEnabled: true,
 	keyboardShortcutsEnabled: true,
+	keyboardShortcuts: null,
 	maxTimelineTracks: null,
 	publicLicenseKey: null,
 	canvasTabsEnabled: true,
@@ -43,7 +46,7 @@ export const getStudioKeyboardShortcutsEnabled = () => {
 };
 
 export const getStudioKeyboardShortcuts = () => {
-	return getStudioRuntimeConfig().keyboardShortcuts ?? null;
+	return getStudioRuntimeConfig().keyboardShortcuts;
 };
 
 export const getStudioMaxTimelineTracks = () => {

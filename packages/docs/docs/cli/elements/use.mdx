@@ -1,0 +1,75 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-elements-use.png
+title: npx remotion elements use
+sidebar_label: use
+crumb: CLI Reference
+---
+
+# npx remotion elements use<AvailableFrom v="4.0.542" />
+
+Installs an [Element](/docs/elements) from the page of an [Element Library](/docs/elements/libraries) into a composition of your project.
+
+```
+npx remotion elements use <url>
+```
+
+## Example
+
+```bash
+npx remotion elements use https://example.com/elements/lower-third --composition MyVideo
+```
+
+The URL is the Element's page. The command:
+
+1. Fetches the page and reads the Element payload embedded in it
+2. Prints the files it will create and change, the npm packages it will install and the assets it will download
+3. Asks for confirmation
+4. Installs the missing packages with your package manager, downloads the assets into the `public` folder, writes `<slug>.element.tsx` next to the composition's component and adds the Element to the composition
+
+The result is the same as installing the Element in Remotion Studio.
+
+The Element's source code comes from the website and runs in your project. Install Elements only from websites you trust.
+
+## Supported URLs
+
+The page must embed the Element payload in its HTML, or link to a JSON payload. See [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html).
+
+A URL that returns a JSON payload created with [`createElementPayload()`](/docs/studio-protocol/create-element-payload) also works.
+
+## Flags
+
+### `--composition`
+
+The ID of the composition to add the Element to.
+
+If your project has a single composition, it is used. Otherwise, the command lets you select a composition. In a non-interactive shell, it fails and lists the composition IDs.
+
+The command finds compositions in the source code. It supports [`<Composition>`](/docs/composition) and [`<Still>`](/docs/still) elements with a string `id`.
+
+### `--element`
+
+The slug of the Element to install, if the page contains several Elements.
+
+### `--yes`
+
+Installs without asking for confirmation. Use it in scripts and when an agent runs the command. Also available as `-y`.
+
+In a non-interactive shell, the command fails if `--yes` is not passed.
+
+### `--overwrite`
+
+Replaces the Element's `.element.tsx` file if it already exists with different contents. Without this flag, the command fails and does not change any files.
+
+If the existing file has the same contents, it is reused.
+
+### `--public-dir`
+
+<Options id="public-dir" />
+
+## See also
+
+- [Source code of this command](https://github.com/remotion-dev/remotion/blob/main/packages/cli/src/elements/use.ts)
+- [Building Element Libraries](/docs/elements/libraries)
+- [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html)
+- [npx remotion elements](/docs/cli/elements)
+- [npx remotion add](/docs/cli/add)

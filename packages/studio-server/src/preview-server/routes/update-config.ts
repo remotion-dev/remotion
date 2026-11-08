@@ -398,8 +398,9 @@ export const updateConfigHandler = async ({
 	const configContents = readFileSync(configFile, 'utf8');
 	const updatedConfig = updateConfigFile({
 		configContents,
-		existingElementLibraryUrls:
-			getStudioRuntimeConfig().elementLibraries?.map(({url}) => url) ?? [],
+		existingElementLibraryUrls: getStudioRuntimeConfig().elementLibraries.map(
+			({url}) => url,
+		),
 		updates: input.updates,
 	});
 	if (updatedConfig === configContents) {

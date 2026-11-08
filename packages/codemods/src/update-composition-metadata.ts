@@ -108,9 +108,10 @@ export const updateCompositionMetadata = <Project extends CodemodProject>({
 
 		const openingEnd = recastLocToOffset(input, openingElement.loc.end);
 		const closingStart = openingEnd - (openingElement.selfClosing ? 2 : 1);
-		const lastAttribute = openingElement.attributes.findLast(
-			(candidate) => candidate.loc,
-		);
+		const lastAttribute = openingElement.attributes
+			.slice()
+			.reverse()
+			.find((candidate) => candidate.loc);
 		const anchor = lastAttribute?.loc?.end ?? openingElement.name.loc.end;
 		const anchorOffset = recastLocToOffset(input, anchor);
 		const rendered = missingMetadata.map(

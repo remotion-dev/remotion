@@ -30,25 +30,14 @@ Append [`?raw`](https://vite.dev/guide/assets#importing-asset-as-string) to an i
 ```tsx title="LowerThirdGalleryItem.tsx"
 import {Player} from '@remotion/player';
 import {InstallActions} from './InstallActions';
-import LowerThirdElement, {
-  lowerThirdElementDefinition,
-} from './LowerThirdElement';
+import LowerThirdElement, {lowerThirdElementDefinition} from './LowerThirdElement';
 import lowerThirdSourceCode from './LowerThirdElement.tsx?raw';
 
 export const LowerThirdGalleryItem = () => {
   return (
     <>
-      <Player
-        component={LowerThirdElement}
-        compositionWidth={lowerThirdElementDefinition.dimensions.width}
-        compositionHeight={lowerThirdElementDefinition.dimensions.height}
-        durationInFrames={lowerThirdElementDefinition.durationInFrames}
-        fps={lowerThirdElementDefinition.fps}
-      />
-      <InstallActions
-        definition={lowerThirdElementDefinition}
-        sourceCode={lowerThirdSourceCode}
-      />
+      <Player component={LowerThirdElement} compositionWidth={lowerThirdElementDefinition.dimensions.width} compositionHeight={lowerThirdElementDefinition.dimensions.height} durationInFrames={lowerThirdElementDefinition.durationInFrames} fps={lowerThirdElementDefinition.fps} />
+      <InstallActions definition={lowerThirdElementDefinition} sourceCode={lowerThirdSourceCode} />
     </>
   );
 };
@@ -135,10 +124,33 @@ Also offer a way around the failure:
 - A Try again button that is also draggable into Studio.
 - A Copy source button, so the user can paste the code into a new `.tsx` file.
 
-## 4. Test the integration
+## 4. Embed the payload<AvailableFrom v="4.0.542" />
 
-<Step>1</Step> Run your website in dev mode and install an Element into Studio with both the install button and drag-and-drop.<br />
+Give each Element its own page, and put its payload in a `<script>` tag in that page's HTML. Users and agents can then install the Element from the page's URL with [`npx remotion elements use`](/docs/cli/elements/use). Use [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html) to create the script's content:
+
+```tsx title="ElementPage.tsx"
+const payload = createElementPayload({...});
+
+<script
+  type={ELEMENT_PAYLOAD_MIME_TYPE}
+  dangerouslySetInnerHTML={{__html: serializeElementPayloadForHtml(payload)}}
+/>
+<InstallButton payload={payload} />
+```
+
+Do not embed payloads on gallery or list pages, because each payload contains the Element's full source code. Link gallery entries to the Element's page instead.
+
+See [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html#example) for Astro and other frameworks.
+
+The script must be in the HTML that your server sends. Render the page on the server or prerender it at build time. If your page renders only in the browser, [link to a JSON payload](/docs/studio-protocol/serialize-element-payload-for-html#pages-rendered-in-the-browser) instead.
+
+## 5. Test the integration
+
+<Step>1</Step> Run your website in dev mode and install an Element into Studio with both the install button and drag-and-drop.
+<br />
 <Step>2</Step> Check that the Element's assets and dependencies are in the project.
+<br />
+<Step>3</Step> Run [`npx remotion elements use`](/docs/cli/elements/use) with the URL of an Element page.
 
 In production, serve your website over HTTPS. HTTP works only on `localhost` and `127.0.0.1`.
 
@@ -151,5 +163,7 @@ In production, serve your website over HTTPS. HTTP works only on `localhost` and
 - [`staticFileRef()`](/docs/studio-protocol/static-file-ref)
 - [`setStudioDragData()`](/docs/studio-protocol/set-studio-drag-data)
 - [`installInStudio()`](/docs/studio-protocol/install-in-studio)
+- [`serializeElementPayloadForHtml()`](/docs/studio-protocol/serialize-element-payload-for-html)
+- [`npx remotion elements use`](/docs/cli/elements/use)
 - [`isInsideStudio()`](/docs/studio-protocol/is-inside-studio)
 - [Studio Protocol security](/docs/studio-protocol/security)

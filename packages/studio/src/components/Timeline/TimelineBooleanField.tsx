@@ -22,12 +22,14 @@ export const TimelineBooleanField: React.FC<{
 	}, [propStatus, onSave, checked]);
 
 	return (
-		<Checkbox
-			checked={checked}
-			onChange={onChange}
-			name={field.key}
-			disabled={false}
-			variant="small"
-		/>
+		<label aria-label={field.key}>
+			<Checkbox
+				checked={checked}
+				onChange={onChange}
+				name={field.key}
+				disabled={false}
+				variant="small"
+			/>
+		</label>
 	);
 };

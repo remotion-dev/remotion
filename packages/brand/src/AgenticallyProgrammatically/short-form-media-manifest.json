@@ -1,0 +1,88 @@
+{
+	"auphonicProductionId": "caCxAoCL6Gwoh4Z9YQv7AY",
+	"auphonicProductionUrl": "https://auphonic.com/engine/status/caCxAoCL6Gwoh4Z9YQv7AY",
+	"takes": [
+		{
+			"originalFile": "agent1.mov",
+			"url": "https://remotion.media/agent-2026-11-06/agent1-f0c350b11f3a.mov",
+			"sha256": "f0c350b11f3a7df329425368a0103517c26043e9e11684dc234cc3db57a9a56e",
+			"bytes": 21507395,
+			"durationInSeconds": 11.535
+		},
+		{
+			"originalFile": "agent2.mov",
+			"url": "https://remotion.media/agent-2026-11-06/agent2-5cae6cf51c39.mov",
+			"sha256": "5cae6cf51c39b711ef0921b4bfba84d37d7994eae68d3e06ffbc36803a45a135",
+			"bytes": 34048075,
+			"durationInSeconds": 18.246667
+		},
+		{
+			"originalFile": "agent3.mov",
+			"url": "https://remotion.media/agent-2026-11-06/agent3-3eeffef7db4a.mov",
+			"sha256": "3eeffef7db4a5f3550655fe928bf7e7bd481031808a7c235c20ca1856641f207",
+			"bytes": 17278110,
+			"durationInSeconds": 9.256667
+		},
+		{
+			"originalFile": "agent4.mov",
+			"url": "https://remotion.media/agent-2026-11-06/agent4-32bf758bf890.mov",
+			"sha256": "32bf758bf89028bd6b840f7c0bc764954208310ede3a9a807ec33d212d8350b3",
+			"bytes": 27630872,
+			"durationInSeconds": 14.838333
+		},
+		{
+			"originalFile": "agent5.mov",
+			"url": "https://remotion.media/agent-2026-11-06/agent5-88d40087caaf.mov",
+			"sha256": "88d40087caaf84980f23a6d9b69162a767a65f25efbdb5f1c1b9e13d946a9504",
+			"bytes": 29840430,
+			"durationInSeconds": 16.008333
+		}
+	],
+	"audioFiles": [
+		{
+			"originalFile": "agent1.mov",
+			"url": "https://remotion.media/agent-2026-11-06/audio/agent1-auphonic-6d6e4e6e3a42.flac",
+			"sha256": "6d6e4e6e3a426408238fa722ad6427e8079554c546f609da5b540ed75b217ccd",
+			"bytes": 586085,
+			"samples": 553729,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "agent2.mov",
+			"url": "https://remotion.media/agent-2026-11-06/audio/agent2-auphonic-960fcdde9b62.flac",
+			"sha256": "960fcdde9b6238602a8d56bd49eef68af1d3b0b390fe1cb0c83a53e135e5cd7a",
+			"bytes": 875875,
+			"samples": 875553,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "agent3.mov",
+			"url": "https://remotion.media/agent-2026-11-06/audio/agent3-auphonic-183cc47431a3.flac",
+			"sha256": "183cc47431a3f087cb466f1b56ad67988a3bcb05476ccb2c553363fb93f78f32",
+			"bytes": 451700,
+			"samples": 442815,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "agent4.mov",
+			"url": "https://remotion.media/agent-2026-11-06/audio/agent4-auphonic-105adc7f32bd.flac",
+			"sha256": "105adc7f32bdeb5dc69a4cff8cd996d9b2ab1257dce1de4cf9e66c2455ac4ace",
+			"bytes": 785567,
+			"samples": 710291,
+			"sampleRate": 48000,
+			"channels": 2
+		},
+		{
+			"originalFile": "agent5.mov",
+			"url": "https://remotion.media/agent-2026-11-06/audio/agent5-auphonic-c470a60da493.flac",
+			"sha256": "c470a60da493eeac610b0b0545ca03ed924d561757d4912f42c1393060c88852",
+			"bytes": 871269,
+			"samples": 767768,
+			"sampleRate": 48000,
+			"channels": 2
+		}
+	]
+}

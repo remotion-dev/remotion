@@ -1,10 +1,10 @@
 import {afterEach, expect, spyOn, test} from 'bun:test';
+import {TRANSFORMERS_PACKAGE} from '@remotion/studio-shared';
 import {cleanup, fireEvent, render, waitFor} from '@testing-library/react';
 import {ModelsSettings} from '../components/ModelsSettings';
 import {WHISPER_WEBGPU_PACKAGE} from '../components/Transcription/whisper-webgpu-capability';
 import {VIDEO_MATTING_PACKAGE} from '../components/VideoMatting/video-matting-capability';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {TRANSFORMERS_PACKAGE} from '../helpers/optional-package-dependencies';
 
 const originalInstalledPackages = window.remotion_installedPackages;
 const originalIsStudio = window.remotion_isStudio;

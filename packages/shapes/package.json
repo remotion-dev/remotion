@@ -3,7 +3,7 @@
 		"url": "https://github.com/remotion-dev/remotion/tree/main/packages/shapes"
 	},
 	"name": "@remotion/shapes",
-	"version": "4.0.540",
+	"version": "4.0.541",
 	"description": "Generate SVG shapes",
 	"main": "dist/index.js",
 	"scripts": {
@@ -11,7 +11,7 @@
 		"format": "oxfmt src",
 		"lint": "eslint src",
 		"test": "bun test src",
-		"make": "tsc -d && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../.monorepo/tsrs.cjs -d && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"types": "dist/index.d.ts",
 	"module": "dist/esm/index.mjs",

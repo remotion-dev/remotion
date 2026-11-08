@@ -2,6 +2,7 @@
 	"$schema": "https://turbo.build/schema.json",
 	"agentGuidance": false,
 	"ui": "stream",
+	"globalDependencies": ["packages/.monorepo/tsrs*.cjs"],
 	"globalEnv": ["ENABLE_EXPERIMENTAL_COREPACK"],
 	"tasks": {
 		"formatting": {

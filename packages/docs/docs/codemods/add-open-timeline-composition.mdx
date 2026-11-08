@@ -1,0 +1,141 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-codemods-add-open-timeline-composition.png
+title: 'addOpenTimelineComposition()'
+crumb: '@remotion/codemods'
+---
+
+# addOpenTimelineComposition()<AvailableFrom v="4.0.542" />
+
+Creates an editable Remotion component from an OpenTimelineIO (`.otio`) timeline and registers a composition in your project. The component and registration changes are returned together; files are not written automatically.
+
+:::warning
+
+_Draft API_: This API is experimental and may change.
+
+:::
+
+```ts twoslash title="add-timeline.ts"
+import {addOpenTimelineComposition, applyCodemodChanges, type CodemodProject} from '@remotion/codemods';
+
+declare const project: CodemodProject;
+declare const otioJson: string;
+// ---cut---
+const result = addOpenTimelineComposition({
+  project,
+  compositionFile: 'src/Root.tsx',
+  compositionId: 'ImportedTimeline',
+  component: {
+    filePath: 'src/ImportedTimeline.tsx',
+    importName: 'ImportedTimeline',
+    importPath: './ImportedTimeline',
+  },
+  timeline: otioJson,
+  fps: 30,
+  width: 1920,
+  height: 1080,
+});
+
+const nextProject = applyCodemodChanges(project, result.changes);
+```
+
+For timeline support, media resolution, and limitations, see [`generateOpenTimelineComposition()`](/docs/codemods/generate-open-timeline-composition#supported-timelines).
+
+## Options
+
+### project
+
+An in-memory [`CodemodProject`](/docs/codemods#project-model). The input project is not mutated.
+
+### compositionFile
+
+The existing file containing the registration component. The [registration-root requirements](/docs/codemods/add-composition#compositionfile) of [`addComposition()`](/docs/codemods/add-composition) apply.
+
+### compositionId
+
+The new composition ID. Must contain only ASCII letters, numbers, CJK characters, or hyphens and be unused in the registration file.
+
+### component
+
+The component file and named import to create.
+
+#### filePath
+
+The new project file path. Existing component files cannot be overwritten.
+
+#### importName
+
+The generated component's named export. Must begin with an uppercase ASCII letter and contain only letters, digits, underscores, or dollar signs.
+
+#### importPath
+
+The module specifier used in the registration file, such as `./ImportedTimeline`. It must resolve to `component.filePath`.
+
+### timeline
+
+An OTIO JSON string or parsed object with a `Timeline.1` root.
+
+### fps
+
+A positive finite composition frame rate. The duration is calculated from the timeline and rounded up to a whole frame.
+
+### width
+
+A positive safe integer composition width, in pixels.
+
+### height
+
+A positive safe integer composition height, in pixels.
+
+### folder?
+
+An existing folder reference `{name, parentName}`. By default, inserts at the registration root.
+
+### resolveMedia?
+
+A synchronous media resolver. See [`resolveMedia`](/docs/codemods/generate-open-timeline-composition#resolvemedia). The function does not copy or download media; assets must already be accessible to the generated component.
+
+## Return value
+
+### changes
+
+The updated registration file and the new component file as `{filePath, previousContents, nextContents}` entries. The component's `previousContents` is `null`. Apply or save all changes together.
+
+### nodePathRemappings
+
+Mappings for references from the input project. See [node references](/docs/codemods#node-references).
+
+### insertedNode
+
+The reference of the inserted composition registration in the resulting project.
+
+### diagnostics
+
+Ordered `{code, severity, path, message}` records from the import. Successful results contain warnings and informational diagnostics; errors throw instead.
+
+### assets
+
+Resolved `{src, source, kind, path}` records. See [`assets`](/docs/codemods/generate-open-timeline-composition#assets).
+
+### annotations
+
+Retained metadata and markers with their source paths. See [`annotations`](/docs/codemods/generate-open-timeline-composition#annotations).
+
+### globalStartTime
+
+The original timeline start timecode as `{value, rate}`, or `null`. It does not offset composition playback.
+
+## Errors
+
+Throws `OpenTimelineImportError` when an error prevents importing the timeline. Its `diagnostics` property contains the import diagnostics, including the paths and reasons for unsupported features or unresolved media. Unsupported effects are ignored with warnings and do not prevent importing.
+
+Also throws for an existing component file, an invalid registration target, or invalid composition options. Failures leave the input project unchanged.
+
+## Compatibility
+
+<CompatibilityTable chrome firefox safari nodejs bun serverlessFunctions clientSideRendering serverSideRendering player studio />
+
+## See also
+
+- [`generateOpenTimelineComposition()`](/docs/codemods/generate-open-timeline-composition)
+- [`applyCodemodChanges()`](/docs/codemods/apply-codemod-changes)
+- [Source code](https://github.com/remotion-dev/remotion/blob/main/packages/codemods/src/add-open-timeline-composition.ts)
