@@ -205,6 +205,18 @@ const isDragEventInsideCanvas = (event: DragEvent): boolean => {
 		return true;
 	}
 
+	// Floating panels, such as the composition browser in narrow layouts, are
+	// portaled above the canvas. Drags over them do not target the canvas.
+	const targetElement =
+		event.target instanceof Element
+			? event.target
+			: targetIsNode
+				? (event.target as Node).parentElement
+				: null;
+	if (targetElement?.closest('[data-canvas-drop-occluder]')) {
+		return false;
+	}
+
 	const rect = current.getBoundingClientRect();
 	return (
 		event.clientX >= rect.left &&
