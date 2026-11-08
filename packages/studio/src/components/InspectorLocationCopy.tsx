@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {copyText} from '../helpers/copy-text';
 import {useCopyFeedback} from '../helpers/use-copy-feedback';
 import {CopyIcon} from '../icons/copy';
@@ -9,6 +9,8 @@ import {
 	inspectorActionIconStyle,
 	inspectorHeaderActionStyle,
 } from './InspectorPanel/common';
+import {useInspectorRightOffset} from './InspectorPanel/use-inspector-right-offset';
+import {INSPECTOR_RIGHT_EDGE_INSET} from './InspectorPanelLayout';
 import {showNotification} from './Notifications/NotificationCenter';
 
 const row: React.CSSProperties = {
@@ -34,7 +36,7 @@ const action: React.CSSProperties = {
 	flexShrink: 0,
 	height: 24,
 	marginLeft: 0,
-	marginRight: 3,
+	marginRight: `calc(${INSPECTOR_RIGHT_EDGE_INSET}px - 7px - var(--remotion-inspector-right-offset, 0px))`,
 };
 
 export const inspectorHeaderIconStyle: React.CSSProperties = {
@@ -57,12 +59,14 @@ const copyIconContainer: React.CSSProperties = {
 
 export const InspectorHeaderAction: React.FC<{
 	readonly label: string;
+	readonly disabled: boolean;
 	readonly onClick: React.MouseEventHandler<HTMLButtonElement>;
 	readonly renderIcon: RenderInlineAction;
-}> = ({label, onClick, renderIcon}) => (
+}> = ({label, disabled, onClick, renderIcon}) => (
 	<ActionTooltip label={label} shortcut={null} delay={800} dismissOnClick>
 		<InlineAction
 			variant={null}
+			disabled={disabled}
 			onClick={onClick}
 			renderAction={renderIcon}
 			aria-label={label}
@@ -78,6 +82,8 @@ export const InspectorLocationCopy: React.FC<{
 	readonly trailingActions: React.ReactNode;
 	readonly isEditing: boolean;
 }> = ({children, contextForAgents, actions, trailingActions, isEditing}) => {
+	const rowRef = useRef<HTMLDivElement>(null);
+	useInspectorRightOffset(rowRef);
 	const {copied, markCopied} = useCopyFeedback();
 
 	const renderCopyAction: RenderInlineAction = useCallback(
@@ -117,7 +123,12 @@ export const InspectorLocationCopy: React.FC<{
 	);
 
 	return (
-		<div aria-label="Inspector source location" role="group" style={row}>
+		<div
+			ref={rowRef}
+			aria-label="Inspector source location"
+			role="group"
+			style={row}
+		>
 			<div style={content}>{children}</div>
 			{isEditing ? null : (
 				<div style={action}>
@@ -125,6 +136,7 @@ export const InspectorLocationCopy: React.FC<{
 					{contextForAgents ? (
 						<InspectorHeaderAction
 							label="Copy context for agents"
+							disabled={false}
 							onClick={onCopy}
 							renderIcon={renderCopyAction}
 						/>

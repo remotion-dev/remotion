@@ -1,6 +1,6 @@
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {PREVIEW_TOOLBAR_IDLE_COLOR} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {useKeyboardShortcutLabel} from '../helpers/use-keyboard-shortcut-label';
 import {Checkmark} from '../icons/Checkmark';
@@ -283,7 +283,7 @@ export const PreviewToolbarOverflowButton: React.FC<{
 				renderAction={renderAction}
 				values={values}
 				aria-label="More actions"
-				unhoveredColor={WHITE_ALPHA_80}
+				unhoveredColor={PREVIEW_TOOLBAR_IDLE_COLOR}
 			/>
 		</ActionTooltip>
 	);

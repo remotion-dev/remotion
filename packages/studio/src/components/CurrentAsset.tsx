@@ -2,7 +2,6 @@ import type {NewCompositionAsset} from '@remotion/studio-shared';
 import {formatBytes} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals, staticFile} from 'remotion';
-import type {OriginalPosition} from '../error-overlay/react-overlay/utils/get-source-map';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {CURRENT_COLOR, LIGHT_TEXT} from '../helpers/colors';
@@ -31,14 +30,13 @@ import {TrashIcon} from '../icons/trash';
 import {FilmIcon} from '../icons/video';
 import {SetSelectedModalContext} from '../state/modals';
 import {AssetAudioVolume} from './AssetAudioVolume';
-import {AssetFileIcon} from './AssetFileIcon';
 import {InlineEditableTitle} from './InlineEditableTitle';
 import {InspectorInfoHeader} from './InspectorInfoHeader';
 import {
+	InspectorHeaderAction,
 	InspectorLocationCopy,
 	inspectorHeaderIconStyle,
 } from './InspectorLocationCopy';
-import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {CollapsibleInspectorSection} from './InspectorPanel/CollapsibleInspectorSection';
 import {
 	InspectorDetailRow,
@@ -235,32 +233,7 @@ export const AssetInfo: React.FC<{
 		(readOnlyStudio || connectionStatus !== 'connected');
 	const fileName = assetName?.split('/').pop() ?? '';
 	const fileType = assetName ? getPreviewFileType(assetName) : null;
-	const assetLocation = useMemo((): OriginalPosition | null => {
-		if (!assetName || !window.remotion_publicFolderExists) {
-			return null;
-		}
-
-		return {
-			source: `${window.remotion_publicFolderExists}/${assetName}`,
-			line: null,
-			column: null,
-		};
-	}, [assetName]);
 	const assetContext = assetName ? `Asset: public/${assetName}` : null;
-	const renderAssetIcon = useCallback(
-		(color: string) => (
-			<AssetFileIcon
-				fileType={fileType ?? 'other'}
-				color={color}
-				style={
-					fileType === 'other' || fileType === 'txt' || fileType === null
-						? {...inspectorHeaderIconStyle, height: 16, width: 12}
-						: inspectorHeaderIconStyle
-				}
-			/>
-		),
-		[fileType],
-	);
 	const defaultComposition = getNewCompositionDefaults(null, null);
 	const compositionFps =
 		fileType === 'video' &&
@@ -503,14 +476,17 @@ export const AssetInfo: React.FC<{
 					contextForAgents={assetContext}
 					isEditing={isEditingName}
 					actions={
-						assetLocation ? (
-							<InspectorOpenInEditor
-								menuTrigger={{label: 'Asset', renderIcon: renderAssetIcon}}
-								annotationName={fileName}
-								contextForAgents={assetContext}
-								location={assetLocation}
-								locationType="file"
-								showTooltips
+						fileManagerAvailable ? (
+							<InspectorHeaderAction
+								label={`Show in ${fileManagerName}`}
+								disabled={fileManagerDisabled}
+								onClick={onShowInFileManager}
+								renderIcon={(color) => (
+									<ExpandedFolderIcon
+										color={color}
+										style={inspectorHeaderIconStyle}
+									/>
+								)}
 							/>
 						) : null
 					}
@@ -619,20 +595,6 @@ export const AssetInfo: React.FC<{
 							)}
 						>
 							Make composition
-						</InspectorQuickAction>
-					) : null}
-					{fileManagerAvailable ? (
-						<InspectorQuickAction
-							disabled={fileManagerDisabled}
-							onClick={onShowInFileManager}
-							renderIcon={(color) => (
-								<ExpandedFolderIcon
-									color={color}
-									style={quickActionIconStyle}
-								/>
-							)}
-						>
-							Show in {fileManagerName}
 						</InspectorQuickAction>
 					) : null}
 					{src && mediaMetadata?.hasAudioTrack !== false ? (

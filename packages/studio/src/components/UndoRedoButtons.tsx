@@ -2,7 +2,7 @@ import type {EventSourceEvent} from '@remotion/studio-shared';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {getBrowserStudioOperations} from '../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT} from '../helpers/colors';
 import {getSourceMutationRevision} from '../helpers/source-mutation-queue';
 import {pushUrl} from '../helpers/url-state';
 import {
@@ -158,7 +158,7 @@ export const UndoRedoButtons: React.FC = () => {
 						shortcutsDisabled ? undefined : undoAriaShortcut || undefined
 					}
 					disabled={!canUndo}
-					unhoveredColor={WHITE_ALPHA_80}
+					unhoveredColor={LIGHT_TEXT}
 				/>
 			</ActionTooltip>
 			<ActionTooltip
@@ -176,7 +176,7 @@ export const UndoRedoButtons: React.FC = () => {
 						shortcutsDisabled ? undefined : redoAriaShortcut || undefined
 					}
 					disabled={!canRedo}
-					unhoveredColor={WHITE_ALPHA_80}
+					unhoveredColor={LIGHT_TEXT}
 				/>
 			</ActionTooltip>
 		</>

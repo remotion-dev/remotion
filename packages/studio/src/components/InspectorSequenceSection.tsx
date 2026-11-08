@@ -1156,7 +1156,10 @@ export const InspectorSequenceSection: React.FC<{
 						{controlGroupsWithoutLayout.map((group) => (
 							<React.Fragment key={group.id}>
 								{group.id === 'transforms' ? captionsInspector : null}
-								<InspectorSection header={renderControlGroupHeader(group)}>
+								<InspectorSection
+									expanded={isControlGroupExpanded(group)}
+									header={renderControlGroupHeader(group)}
+								>
 									{isControlGroupExpanded(group) ? (
 										group.id === 'transforms' ? (
 											<Transform3DModeContext.Provider
@@ -1181,7 +1184,7 @@ export const InspectorSequenceSection: React.FC<{
 					? captionsInspector
 					: null}
 				{showEffectsSection ? (
-					<InspectorSection header={effectsHeader}>
+					<InspectorSection expanded={effectsExpanded} header={effectsHeader}>
 						{effectRows.length > 0 ? (
 							<TimelineSelectionOrderProvider items={effectSelectableItems}>
 								{effectRows.map((row) => {
@@ -1249,7 +1252,10 @@ export const InspectorSequenceSection: React.FC<{
 				) : null}
 				{layoutGroup ? (
 					<TimelineSelectionOrderProvider items={controlSelectableItems}>
-						<InspectorSection header={renderControlGroupHeader(layoutGroup)}>
+						<InspectorSection
+							expanded={isControlGroupExpanded(layoutGroup)}
+							header={renderControlGroupHeader(layoutGroup)}
+						>
 							{isControlGroupExpanded(layoutGroup)
 								? layoutGroup.rows.map(renderRow)
 								: null}

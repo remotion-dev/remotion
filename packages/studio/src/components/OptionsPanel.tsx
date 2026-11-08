@@ -62,8 +62,23 @@ const tabsContainer: React.CSSProperties = {
 const inspectorTitleStyle: React.CSSProperties = {
 	alignItems: 'center',
 	display: 'flex',
+	flex: 1,
 	fontSize: 13,
 	gap: 4,
+	minWidth: 0,
+};
+
+const inspectorTitleLabelStyle: React.CSSProperties = {
+	color: 'inherit',
+	flex: 1,
+	fontSize: 13,
+	maskImage:
+		'linear-gradient(to right, black calc(100% - 16px), transparent calc(100% - 6px))',
+	minWidth: 0,
+	overflow: 'hidden',
+	whiteSpace: 'nowrap',
+	WebkitMaskImage:
+		'linear-gradient(to right, black calc(100% - 16px), transparent calc(100% - 6px))',
 };
 
 const inspectorBackStyle: React.CSSProperties = {
@@ -88,7 +103,11 @@ const SequenceInspectorTitle: React.FC<{
 	readonly selection: SequenceSectionSelection;
 }> = ({selection}) => {
 	const track = useTrackForSelection(selection);
-	return track?.sequence.controls?.componentName ?? '<Sequence>';
+	return (
+		<span style={inspectorTitleLabelStyle}>
+			{track?.sequence.controls?.componentName ?? '<Sequence>'}
+		</span>
+	);
 };
 
 export const persistSelectedOptionsSidebarPanel = (
@@ -407,7 +426,7 @@ export const OptionsPanel: React.FC<{
 					<Tab
 						selected={panel === 'inspector'}
 						onClick={onInspectorSelected}
-						style={{justifyContent: 'space-between'}}
+						style={{justifyContent: 'space-between', minWidth: 0}}
 					>
 						<span style={inspectorTitleStyle}>
 							{effectsSelection === null ? null : (

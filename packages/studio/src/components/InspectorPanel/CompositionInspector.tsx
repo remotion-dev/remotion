@@ -297,7 +297,7 @@ const CompositionDefaultPropsSection: React.FC<{
 					onToggle={() => setExpanded(!expanded)}
 				/>
 			</InspectorSectionHeader>
-			<InspectorSectionBody expanded={expanded} paddingBottom={8}>
+			<InspectorSectionBody expanded={expanded} keepMounted paddingBottom={8}>
 				{defaultPropsWarnings.length > 0 && showWarning ? (
 					<div style={defaultPropsWarningContainer}>
 						<InspectorDefaultPropsWarnings warnings={defaultPropsWarnings} />

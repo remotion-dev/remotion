@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -35,41 +35,74 @@ export const InspectorQuickActionsSection: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={inspectorQuickActionsSection}>{children}</div>;
 
-const collapsedSectionBody: React.CSSProperties = {
-	...inspectorSectionBody,
-	display: 'none',
-};
-
 export const InspectorSectionBody: React.FC<{
 	readonly children: React.ReactNode;
 	readonly expanded: boolean;
+	readonly keepMounted: boolean;
 	readonly paddingBottom: number;
-}> = ({children, expanded, paddingBottom}) => {
-	if (children === null) {
-		return null;
+}> = ({children, expanded, keepMounted, paddingBottom}) => {
+	const [rendered, setRendered] = useState(expanded);
+	const lastExpandedChildren = useRef(children);
+	if (expanded) {
+		lastExpandedChildren.current = children;
 	}
+
+	useEffect(() => {
+		if (
+			expanded ||
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches
+		) {
+			setRendered(expanded);
+		}
+	}, [expanded]);
 
 	return (
 		<div
-			hidden={!expanded}
+			className="__remotion-inspector-section-content"
+			data-expanded={expanded}
+			aria-hidden={!expanded}
+			inert={!expanded}
+			onTransitionEnd={(event) => {
+				if (
+					event.target === event.currentTarget &&
+					event.propertyName === 'grid-template-rows'
+				) {
+					setRendered(expanded);
+				}
+			}}
 			style={{
-				...(expanded ? inspectorSectionBody : collapsedSectionBody),
-				paddingBottom,
+				display: 'grid',
+				gridTemplateRows: expanded ? '1fr' : '0fr',
+				visibility: expanded ? 'visible' : 'hidden',
+				pointerEvents: expanded ? undefined : 'none',
 			}}
 		>
-			{children}
+			<div style={{minHeight: 0, overflow: 'hidden'}}>
+				<div style={{...inspectorSectionBody, paddingBottom}}>
+					{expanded || keepMounted
+						? children
+						: rendered
+							? lastExpandedChildren.current
+							: null}
+				</div>
+			</div>
 		</div>
 	);
 };
 
 export const InspectorSection: React.FC<{
 	readonly children: React.ReactNode;
+	readonly expanded: boolean;
 	readonly header: React.ReactNode;
-}> = ({children, header}) => {
+}> = ({children, expanded, header}) => {
 	return (
 		<>
 			<InspectorSectionHeader>{header}</InspectorSectionHeader>
-			<InspectorSectionBody expanded paddingBottom={8}>
+			<InspectorSectionBody
+				expanded={expanded}
+				keepMounted={false}
+				paddingBottom={8}
+			>
 				{children}
 			</InspectorSectionBody>
 		</>

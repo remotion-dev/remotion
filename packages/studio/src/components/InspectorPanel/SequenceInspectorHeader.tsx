@@ -123,6 +123,7 @@ export const SequenceInspectorHeader: React.FC<{
 					documentationLink ? (
 						<InspectorHeaderAction
 							label={`Open docs for ${componentName ?? fallbackDisplayName}`}
+							disabled={false}
 							onClick={openDocumentationLink}
 							renderIcon={renderDocsIcon}
 						/>
@@ -152,6 +153,7 @@ export const SequenceInspectorDuplicationSection: React.FC<{
 
 	return (
 		<InspectorSection
+			expanded
 			header={
 				<span
 					style={{

@@ -1,9 +1,12 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo, useRef} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {CaretDown} from '../../icons/caret';
 import {SetSelectedModalContext} from '../../state/modals';
-import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
+import {
+	INSPECTOR_PANEL_HORIZONTAL_PADDING,
+	INSPECTOR_RIGHT_EDGE_INSET,
+} from '../InspectorPanelLayout';
 import type {SegmentedButtonSegment} from '../SegmentedButton';
 import {SegmentedButton} from '../SegmentedButton';
 import {useSettings} from '../SettingsContext';
@@ -11,6 +14,7 @@ import {
 	largeInspectorActionIconContainerStyle,
 	largeInspectorActionIconStyle,
 } from './common';
+import {useInspectorRightOffset} from './use-inspector-right-offset';
 
 const noElementLibraries = [] as const;
 
@@ -27,6 +31,7 @@ const elementLibraryDropdownSegmentStyle: React.CSSProperties = {
 	gap: 8,
 	justifyContent: 'flex-start',
 	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING - 4}px`,
+	paddingRight: `calc(${INSPECTOR_RIGHT_EDGE_INSET}px - 4px - 2.5px - var(--remotion-inspector-right-offset, 0px))`,
 	flex: 1,
 };
 
@@ -51,6 +56,8 @@ const elementLibraryDropdownCaretStyle: React.CSSProperties = {
 };
 
 export const ElementLibraryButton: React.FC = () => {
+	const containerRef = useRef<HTMLDivElement>(null);
+	useInspectorRightOffset(containerRef);
 	const {setSelectedModal} = useContext(SetSelectedModalContext);
 	const {studioRuntimeConfig} = useSettings();
 	const elementLibraries =
@@ -172,9 +179,11 @@ export const ElementLibraryButton: React.FC = () => {
 	);
 
 	return (
-		<SegmentedButton
-			segments={elementLibraryDropdownSegments}
-			style={elementLibraryDropdownStyle}
-		/>
+		<div ref={containerRef}>
+			<SegmentedButton
+				segments={elementLibraryDropdownSegments}
+				style={elementLibraryDropdownStyle}
+			/>
+		</div>
 	);
 };

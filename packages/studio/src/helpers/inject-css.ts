@@ -54,6 +54,20 @@ const makeDefaultGlobalCSS = () => {
     to { opacity: 1; transform: translateX(0); }
   }
 
+  .__remotion-inspector-section-content {
+    transition: grid-template-rows 120ms ease-out, visibility 0s 120ms;
+  }
+
+  .__remotion-inspector-section-content[data-expanded="true"] {
+    transition-delay: 0s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .__remotion-inspector-section-content {
+      transition: none;
+    }
+  }
+
   .remotion-splitter,
   html[data-remotion-high-contrast] .remotion-splitter {
     user-select: none;
