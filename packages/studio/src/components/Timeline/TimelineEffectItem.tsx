@@ -201,8 +201,11 @@ export const TimelineEffectItem: React.FC<{
 		return false;
 	}, [disabledStatus]);
 
-	const canToggle =
-		previewConnected && canMutateEffects && disabledStatus?.status === 'static';
+	const canShowToggle =
+		previewConnected &&
+		canUseEffectOperations() &&
+		disabledStatus?.status === 'static';
+	const canToggle = canShowToggle && !deleting;
 
 	const deleteDisabled =
 		!previewConnected ||
@@ -522,11 +525,11 @@ export const TimelineEffectItem: React.FC<{
 		<TimelineRowChrome
 			depth={rowDepth}
 			eye={
-				canToggle ? (
+				canShowToggle ? (
 					<TimelineLayerEye
 						type="effect"
 						hidden={isDisabled}
-						onInvoked={onToggle}
+						onInvoked={canToggle ? onToggle : null}
 					/>
 				) : (
 					<TimelineLayerEyeSpacer />

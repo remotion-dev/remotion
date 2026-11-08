@@ -284,6 +284,10 @@ const resolveKeyframeControlTarget = ({
 		};
 	}
 
+	if (Internals.OptimisticEffectDeletion.get(nodePath) !== null) {
+		return null;
+	}
+
 	const effectStatus = Internals.getEffectPropStatusesCtx({
 		propStatuses,
 		nodePath,

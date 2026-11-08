@@ -15,6 +15,7 @@ import {Internals} from 'remotion';
 import type {CodePosition} from '../../error-overlay/react-overlay/utils/get-source-map';
 import {canUseEffectOperations} from '../../helpers/browser-studio-operations';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {useIsEffectDeletionPending} from '../../helpers/effect-deletion-state';
 import {
 	formatContextForAgents,
 	formatFileLocation,
@@ -460,6 +461,7 @@ export const TimelineEffectPropItem: React.FC<{
 	runtimeValueStore,
 }) => {
 	const {previewServerState} = useContext(StudioServerConnectionCtx);
+	const deleting = useIsEffectDeletionPending(nodePath);
 	const annotationTarget = useRef<HTMLDivElement>(null);
 	const {remotionSkillsInfo} = useSettings();
 	const markupSkill = remotionSkillsInfo?.skills.find(
@@ -714,8 +716,10 @@ export const TimelineEffectPropItem: React.FC<{
 	);
 
 	return (
-		<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
-			{row}
-		</ContextMenu>
+		<div inert={deleting}>
+			<ContextMenu ref={annotationTarget} getItems={getContextMenuItems}>
+				{row}
+			</ContextMenu>
+		</div>
 	);
 };

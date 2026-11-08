@@ -1199,6 +1199,7 @@ export const InspectorSequenceSection: React.FC<{
 										<div
 											key={getInspectorExpansionKey(row.node.nodePathInfo)}
 											ref={selected ? selectedEffectRowRef : null}
+											inert={effectDeletionPending && row.node.kind === 'field'}
 										>
 											{row.node.kind === 'field' &&
 											row.node.field?.kind === 'effect-field' &&

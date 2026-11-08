@@ -174,21 +174,19 @@ export const buildTimelineTree = ({
 			effectInfo: null,
 			children: sequence.effects.flatMap((effect, i): TimelineTreeNode[] => {
 				if (hiddenEffects?.has(i)) return [];
-				const effectFields = pendingDeletion
-					? []
-					: getEffectFieldsToShow({
-							effect,
-							effectIndex: i,
-							nodePath: sequenceSubscriptionKey,
-							propStatuses,
-							getEffectDragOverrides,
-						}).filter(
-							// The Curves inspector preserves input order; the generic array editor cannot.
-							(field) =>
-								includeInspectorOnlyFields ||
-								effect.type !== 'remotion/curves' ||
-								field.key !== 'points',
-						);
+				const effectFields = getEffectFieldsToShow({
+					effect,
+					effectIndex: i,
+					nodePath: sequenceSubscriptionKey,
+					propStatuses,
+					getEffectDragOverrides,
+				}).filter(
+					// The Curves inspector preserves input order; the generic array editor cannot.
+					(field) =>
+						includeInspectorOnlyFields ||
+						effect.type !== 'remotion/curves' ||
+						field.key !== 'points',
+				);
 				return [
 					{
 						kind: 'group',
