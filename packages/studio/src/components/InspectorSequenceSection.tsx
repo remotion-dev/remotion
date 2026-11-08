@@ -44,6 +44,7 @@ import {
 	isSmartCollapsibleInspectorGroup,
 } from './InspectorPanel/inspector-section-collapse';
 import {LevelsEditor} from './InspectorPanel/LevelsEditor';
+import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from './InspectorPanelLayout';
 import {
 	BORDER_RADIUS_SHORTHAND_KEY,
 	getBorderRadiusConversion,
@@ -103,6 +104,14 @@ const transform3DToggleIcon: React.CSSProperties = {
 	flexShrink: 0,
 	height: 14,
 	width: 14,
+};
+
+const transformControlsRow: React.CSSProperties = {
+	alignItems: 'center',
+	display: 'flex',
+	justifyContent: 'space-between',
+	padding: `0 ${INSPECTOR_PANEL_HORIZONTAL_PADDING}px 12px`,
+	transform: 'translateX(-3px)',
 };
 
 const assetSelectorIcon: React.CSSProperties = {
@@ -1112,13 +1121,7 @@ export const InspectorSequenceSection: React.FC<{
 		return (
 			<CollapsibleInspectorSectionHeader
 				action={
-					expanded
-						? group.id === 'border-radius'
-							? borderRadiusAction
-							: group.id === 'transforms'
-								? transform3DAction
-								: null
-						: null
+					expanded && group.id === 'border-radius' ? borderRadiusAction : null
 				}
 				expanded={expanded}
 				label={group.label}
@@ -1166,7 +1169,10 @@ export const InspectorSequenceSection: React.FC<{
 											<Transform3DModeContext.Provider
 												value={show3DTransformControls}
 											>
-												{renderTransformControls()}
+												<div style={transformControlsRow}>
+													{renderTransformControls()}
+													{transform3DAction}
+												</div>
 												{group.rows.map(renderRow)}
 											</Transform3DModeContext.Provider>
 										) : (
