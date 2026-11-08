@@ -140,12 +140,17 @@ export const canApplyCssTransforms = ({
 	return isReplacedElement(element);
 };
 
-const makeTransformResetter = (element: HTMLElement | SVGElement) => {
+const makeTransformResetter = (
+	element: HTMLElement | SVGElement,
+	experimental3DRendering: boolean,
+) => {
 	const {transform, scale, rotate} = element.style;
 
 	return (hasApplicableTransformCssValue: boolean) => {
 		if (hasApplicableTransformCssValue) {
-			element.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
+			element.style.transform = experimental3DRendering
+				? 'matrix(1, 0, 0, 1, 0, 0)'
+				: 'none';
 			element.style.scale = 'none';
 			element.style.rotate = 'none';
 		}
@@ -186,11 +191,13 @@ export const calculateTransforms = ({
 	rootElement,
 	transformStyleCache,
 	isolated,
+	experimental3DRendering = false,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
 	transformStyleCache: TransformStyleCache;
 	isolated: boolean;
+	experimental3DRendering?: boolean;
 }) => {
 	// Compute the cumulative transform by traversing parent nodes
 	let parent: HTMLElement | SVGElement | null = element;
@@ -235,9 +242,12 @@ export const calculateTransforms = ({
 			}
 
 			elementComputedStyle = computedStyle;
-			elementPreserves3D = preserves3DChildren(computedStyle);
+			elementPreserves3D =
+				experimental3DRendering && preserves3DChildren(computedStyle);
 			elementHadGroupedPreserve3D =
-				!elementPreserves3D && computedStyle.transformStyle === 'preserve-3d';
+				experimental3DRendering &&
+				!elementPreserves3D &&
+				computedStyle.transformStyle === 'preserve-3d';
 			if (elementHadGroupedPreserve3D) {
 				const originalTransformStyle = parent.style.transformStyle;
 				const groupParent = parent;
@@ -250,7 +260,7 @@ export const calculateTransforms = ({
 			}
 
 			opacity = parseFloat(computedStyle.opacity);
-			if (opacity > 0 && opacity < 1) {
+			if (experimental3DRendering && opacity > 0 && opacity < 1) {
 				const ungroupedOpacity = parent.style.opacity;
 				const groupParent = parent;
 				parent.style.opacity = '1';
@@ -261,7 +271,7 @@ export const calculateTransforms = ({
 
 			const maskImageValue = getMaskImageValue(computedStyle);
 			maskImageInfo = maskImageValue
-				? parseMaskImage(maskImageValue, computedStyle)
+				? parseMaskImage(maskImageValue, computedStyle, experimental3DRendering)
 				: null;
 
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
@@ -310,6 +320,7 @@ export const calculateTransforms = ({
 
 		// The perspective property projects children, not the element's own plane.
 		const hasPerspective =
+			experimental3DRendering &&
 			parent !== element &&
 			canApplyCssTransforms({computedStyle: transformStyle, element: parent}) &&
 			transformStyle.perspective &&
@@ -337,7 +348,10 @@ export const calculateTransforms = ({
 					: undefined;
 			const matrix = makeDOMMatrix(toParse);
 
-			const resetTransforms = makeTransformResetter(parent);
+			const resetTransforms = makeTransformResetter(
+				parent,
+				experimental3DRendering,
+			);
 			const {scale, rotate} = parent.style;
 			const additionalMatrices: DOMMatrix[] = [];
 
@@ -433,7 +447,8 @@ export const calculateTransforms = ({
 		throw new Error('Element computed style not found');
 	}
 
-	const needsOpacityPrecompositing = opacity > 0 && opacity < 1;
+	const needsOpacityPrecompositing =
+		experimental3DRendering && opacity > 0 && opacity < 1;
 	const needs3DTransformViaWebGL = !totalMatrix.is2D;
 	const needsMaskImage = maskImageInfo !== null;
 	const needsFilterPrecompositing = filterForPrecompositing !== null;

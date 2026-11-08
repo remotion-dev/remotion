@@ -21,9 +21,11 @@ export type HelperCanvasState = {
 
 export const makeInternalState = ({
 	signal = null,
+	experimental3DRendering = false,
 	maskImageTimeoutInMilliseconds = 30_000,
 }: {
 	signal?: AbortSignal | null;
+	experimental3DRendering?: boolean;
 	maskImageTimeoutInMilliseconds?: number;
 } = {}) => {
 	let drawnPrecomposedPixels = 0;
@@ -43,6 +45,7 @@ export const makeInternalState = ({
 	});
 
 	return {
+		experimental3DRendering,
 		getDrawn3dPixels: () => drawnPrecomposedPixels,
 		getPrecomposedTiles: () => precomposedTextures,
 		addPrecompose: ({

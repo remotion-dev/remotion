@@ -49,6 +49,7 @@ const getTextOverflowForLineHeight = (
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
 	onlyOwnPlane = false,
+	experimental3DRendering = false,
 ) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -77,7 +78,9 @@ export const getBiggestBoundingClientRect = (
 
 		for (const shadow of shadows) {
 			if (!shadow.inset) {
-				const spread = Math.max(0, shadow.spreadRadius || 0);
+				const spread = experimental3DRendering
+					? Math.max(0, shadow.spreadRadius || 0)
+					: 0;
 				shadowLeft = Math.max(
 					shadowLeft,
 					Math.abs(Math.min(shadow.offsetX, 0)) + shadow.blurRadius + spread,
@@ -124,7 +127,7 @@ export const getBiggestBoundingClientRect = (
 				break;
 			}
 
-			continue;
+			if (experimental3DRendering) continue;
 		}
 
 		if (!treeWalker.nextNode()) {

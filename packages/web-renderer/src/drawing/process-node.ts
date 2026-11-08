@@ -26,7 +26,6 @@ import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
 import {setTransform} from './transform';
-import {getProjectedCaptureScale} from './transform-rect-with-matrix';
 import {transformDOMRect} from './transform-rect-with-matrix';
 
 export type ProcessNodeReturnValue =
@@ -65,6 +64,7 @@ export const processNode = async ({
 		rootElement,
 		transformStyleCache,
 		isolated: isolatedElements.has(element),
+		experimental3DRendering: internalState.experimental3DRendering,
 	});
 
 	const {opacity, computedStyle, totalMatrix, dimensions, precompositing} =
@@ -100,10 +100,16 @@ export const processNode = async ({
 
 		let precomposeRect: DOMRect | null = null;
 		if (
-			precompositing.needsOpacityPrecompositing ||
-			forceSubtreePrecompositing
+			internalState.experimental3DRendering &&
+			(precompositing.needsOpacityPrecompositing || forceSubtreePrecompositing)
 		) {
-			precomposeRect = roundToExpandRect(getBiggestBoundingClientRect(element));
+			precomposeRect = roundToExpandRect(
+				getBiggestBoundingClientRect(
+					element,
+					false,
+					internalState.experimental3DRendering,
+				),
+			);
 		}
 
 		if (precompositing.needsMaskImage) {
@@ -116,6 +122,7 @@ export const processNode = async ({
 				parentRect,
 				matrix: totalMatrix,
 				onlyOwnPlane: transforms.preserves3DChildren,
+				experimental3DRendering: internalState.experimental3DRendering,
 			});
 			if (!tentativePrecomposeRect) {
 				return {type: 'continue', cleanupAfterChildren: null};
@@ -150,7 +157,11 @@ export const processNode = async ({
 			precomposeRect = roundToExpandRect(
 				getWiderRectAndExpand({
 					firstRect: precomposeRect,
-					secondRect: getBiggestBoundingClientRect(element),
+					secondRect: getBiggestBoundingClientRect(
+						element,
+						false,
+						internalState.experimental3DRendering,
+					),
 				}),
 			);
 		}
@@ -159,28 +170,31 @@ export const processNode = async ({
 			throw new Error('Precompose rect not found');
 		}
 
-		// Clip after every bounds union, including opacity and filter groups.
-		// Keep nearby offscreen input that can cast a drop-shadow into the viewport.
-		const outsets = precompositing.needsFilterPrecompositing
-			? parseDropShadowExpansion(precompositing.needsFilterPrecompositing)
-			: {left: 0, right: 0, top: 0, bottom: 0};
-		const captureViewport = new DOMRect(
-			parentRect.left - outsets.right,
-			parentRect.top - outsets.bottom,
-			parentRect.width + outsets.left + outsets.right,
-			parentRect.height + outsets.top + outsets.bottom,
-		);
-		const visibleSourceRect = clipSourceRectToViewport(
-			precomposeRect,
-			totalMatrix,
-			captureViewport,
-		);
-		if (!visibleSourceRect)
-			return {
-				type: transforms.preserves3DChildren ? 'continue' : 'skip-children',
-				cleanupAfterChildren: null,
-			};
-		precomposeRect = roundToExpandRect(visibleSourceRect);
+		if (internalState.experimental3DRendering) {
+			// Clip after every bounds union, including opacity and filter groups.
+			// Keep nearby offscreen input that can cast a drop-shadow into the viewport.
+			const outsets = precompositing.needsFilterPrecompositing
+				? parseDropShadowExpansion(precompositing.needsFilterPrecompositing)
+				: {left: 0, right: 0, top: 0, bottom: 0};
+			const captureViewport = new DOMRect(
+				parentRect.left - outsets.right,
+				parentRect.top - outsets.bottom,
+				parentRect.width + outsets.left + outsets.right,
+				parentRect.height + outsets.top + outsets.bottom,
+			);
+			const visibleSourceRect = clipSourceRectToViewport(
+				precomposeRect,
+				totalMatrix,
+				captureViewport,
+			);
+			if (!visibleSourceRect)
+				return {
+					type: transforms.preserves3DChildren ? 'continue' : 'skip-children',
+					cleanupAfterChildren: null,
+				};
+			precomposeRect = roundToExpandRect(visibleSourceRect);
+		}
+
 		if (precomposeRect.width <= 0 || precomposeRect.height <= 0) {
 			return {type: 'continue', cleanupAfterChildren: null};
 		}
@@ -189,7 +203,8 @@ export const processNode = async ({
 		// projected destination against the viewport when applying a 3D matrix.
 		if (
 			!doRectsIntersect(
-				precompositing.needs3DTransformViaWebGL
+				internalState.experimental3DRendering &&
+					precompositing.needs3DTransformViaWebGL
 					? transformDOMRect({rect: precomposeRect, matrix: totalMatrix})
 					: precomposeRect,
 				parentRect,
@@ -199,19 +214,6 @@ export const processNode = async ({
 		}
 
 		const preserves3D = transforms.preserves3DChildren;
-		const projectedBounds = transformDOMRect({
-			rect: precomposeRect,
-			matrix: totalMatrix,
-		});
-		const captureScale = precompositing.needs3DTransformViaWebGL
-			? getProjectedCaptureScale({
-					scale,
-					sourceWidth: precomposeRect.width,
-					sourceHeight: precomposeRect.height,
-					projectedWidth: projectedBounds.width,
-					projectedHeight: projectedBounds.height,
-				})
-			: scale;
 		const is3DPrecomposition = precompositing.needs3DTransformViaWebGL;
 
 		const {
@@ -223,7 +225,7 @@ export const processNode = async ({
 			precomposeRect,
 			totalMatrix,
 			parentRect,
-			scale: captureScale,
+			scale,
 			is3DPrecomposition,
 		});
 

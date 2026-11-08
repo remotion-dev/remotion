@@ -80,7 +80,10 @@ export const getBackgroundFill = async ({
 			return pattern;
 		}
 
-		const radialGradientInfo = parseRadialGradient(backgroundImage);
+		const radialGradientInfo = parseRadialGradient(
+			backgroundImage,
+			internalState.experimental3DRendering,
+		);
 		if (radialGradientInfo) {
 			const rect = getBackgroundImageRect({
 				backgroundPosition,
@@ -90,6 +93,7 @@ export const getBackgroundFill = async ({
 			});
 			return createRadialGradientFill({
 				gradientInfo: radialGradientInfo,
+				experimental3DRendering: internalState.experimental3DRendering,
 				contextToDraw,
 				rect,
 				offsetLeft,
@@ -97,7 +101,10 @@ export const getBackgroundFill = async ({
 			});
 		}
 
-		const gradientInfo = parseLinearGradient(backgroundImage);
+		const gradientInfo = parseLinearGradient(
+			backgroundImage,
+			internalState.experimental3DRendering,
+		);
 		if (gradientInfo) {
 			const backgroundImageRect = getBackgroundImageRect({
 				backgroundPosition,

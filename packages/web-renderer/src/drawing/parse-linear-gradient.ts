@@ -136,7 +136,10 @@ const resolveTransparentStops = (stops: ColorStop[]): void => {
 	}
 };
 
-const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
+const parseColorStops = (
+	colorStopsStr: string,
+	experimental3DRendering: boolean,
+): ColorStop[] | null => {
 	// Split by comma, but respect parentheses in rgba(), rgb(), hsl(), hsla()
 	const parts = colorStopsStr.split(/,(?![^(]*\))/);
 
@@ -200,9 +203,12 @@ const parseColorStops = (colorStopsStr: string): ColorStop[] | null => {
 	}
 
 	// Anchor omitted endpoint stops before distributing interior runs.
-	if (stops[0].position === -1) stops[0].position = 0;
-	if (stops[stops.length - 1].position === -1)
-		stops[stops.length - 1].position = 1;
+	if (experimental3DRendering) {
+		if (stops[0].position === -1) stops[0].position = 0;
+		if (stops[stops.length - 1].position === -1)
+			stops[stops.length - 1].position = 1;
+	}
+
 	let lastExplicitIndex = -1;
 	let lastExplicitPosition = 0;
 
@@ -295,6 +301,7 @@ const extractGradientContent = (backgroundImage: string): string | null => {
 
 export const parseLinearGradient = (
 	backgroundImage: string,
+	experimental3DRendering = false,
 ): LinearGradientInfo | null => {
 	if (!backgroundImage || backgroundImage === 'none') {
 		return null;
@@ -332,7 +339,7 @@ export const parseLinearGradient = (
 
 	// Parse color stops
 	const colorStopsStr = parts.slice(colorStopsStart).join(',');
-	const colorStops = parseColorStops(colorStopsStr);
+	const colorStops = parseColorStops(colorStopsStr, experimental3DRendering);
 
 	if (!colorStops || colorStops.length === 0) {
 		return null;
@@ -400,7 +407,10 @@ export const createCanvasGradient = ({
 
 // Bounded support shared by backgrounds and alpha masks: centered default
 // farthest-corner gradients and explicitly sized percentage ellipses.
-export const parseRadialGradient = (value: string) => {
+export const parseRadialGradient = (
+	value: string,
+	experimental3DRendering = false,
+) => {
 	const match = /^radial-gradient\((.*)\)$/.exec(value);
 	if (!match) return null;
 	const parts = match[1].split(/,(?![^(]*\))/);
@@ -410,6 +420,7 @@ export const parseRadialGradient = (value: string) => {
 		/^(?:ellipse\s+)?([\d.]+)%\s+([\d.]+)%(?:\s+at\s+(?:center|50% 50%))?$/.exec(
 			first,
 		);
+	if (!experimental3DRendering && percentages) return null;
 	if (
 		hasShape &&
 		!percentages &&
@@ -420,6 +431,7 @@ export const parseRadialGradient = (value: string) => {
 		return null;
 	const stops = parseLinearGradient(
 		`linear-gradient(${parts.slice(hasShape ? 1 : 0).join(',')})`,
+		experimental3DRendering,
 	);
 	if (!stops) return null;
 	return {
@@ -435,12 +447,14 @@ export type RadialGradientInfo = NonNullable<
 >;
 export const createRadialGradientFill = ({
 	gradientInfo,
+	experimental3DRendering,
 	contextToDraw,
 	rect,
 	offsetLeft,
 	offsetTop,
 }: {
 	gradientInfo: RadialGradientInfo;
+	experimental3DRendering: boolean;
 	contextToDraw: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
 	offsetLeft: number;
@@ -469,25 +483,35 @@ export const createRadialGradientFill = ({
 		rect.width,
 		rect.height,
 	);
-	const crop = getNarrowerRect({
-		firstRect: positionedRect,
-		secondRect: canvasViewport,
-	});
+	const crop = experimental3DRendering
+		? getNarrowerRect({
+				firstRect: positionedRect,
+				secondRect: canvasViewport,
+			})
+		: positionedRect;
 	if (!(crop.width > 0 && crop.height > 0)) return null;
 	const densityX = Math.hypot(targetTransform.a, targetTransform.b) || 1;
 	const densityY = Math.hypot(targetTransform.c, targetTransform.d) || 1;
-	const width = Math.max(
-		1,
-		Math.min(contextToDraw.canvas.width, Math.ceil(crop.width * densityX)),
-	);
-	const height = Math.max(
-		1,
-		Math.min(contextToDraw.canvas.height, Math.ceil(crop.height * densityY)),
-	);
+	const width = experimental3DRendering
+		? Math.max(
+				1,
+				Math.min(contextToDraw.canvas.width, Math.ceil(crop.width * densityX)),
+			)
+		: Math.ceil(rect.width);
+	const height = experimental3DRendering
+		? Math.max(
+				1,
+				Math.min(
+					contextToDraw.canvas.height,
+					Math.ceil(crop.height * densityY),
+				),
+			)
+		: Math.ceil(rect.height);
 	const canvas = new OffscreenCanvas(width, height);
 	const ctx = canvas.getContext('2d');
 	if (!ctx) throw new Error('Could not get radial gradient context');
-	ctx.scale(width / crop.width, height / crop.height);
+	if (experimental3DRendering)
+		ctx.scale(width / crop.width, height / crop.height);
 	const centerX = positionedRect.left + rect.width / 2;
 	const centerY = positionedRect.top + rect.height / 2;
 	ctx.translate(centerX - crop.left, centerY - crop.top);
@@ -496,17 +520,19 @@ export const createRadialGradientFill = ({
 	for (const stop of gradientInfo.colorStops)
 		gradient.addColorStop(stop.position, stop.color);
 	ctx.fillStyle = gradient;
-	ctx.fillRect(
-		(crop.left - centerX) / radiusX,
-		(crop.top - centerY) / radiusY,
-		crop.width / radiusX,
-		crop.height / radiusY,
-	);
+	if (experimental3DRendering) {
+		ctx.fillRect(
+			(crop.left - centerX) / radiusX,
+			(crop.top - centerY) / radiusY,
+			crop.width / radiusX,
+			crop.height / radiusY,
+		);
+	} else ctx.fillRect(-1, -1, 2, 2);
+
 	const pattern = contextToDraw.createPattern(canvas, 'no-repeat');
-	pattern?.setTransform(
-		new DOMMatrix()
-			.translate(crop.left, crop.top)
-			.scale(crop.width / width, crop.height / height),
-	);
+	const patternTransform = new DOMMatrix().translate(crop.left, crop.top);
+	if (experimental3DRendering)
+		patternTransform.scaleSelf(crop.width / width, crop.height / height);
+	pattern?.setTransform(patternTransform);
 	return pattern;
 };

@@ -59,6 +59,7 @@ export const handleMask = async ({
 	if (maskImageInfo.type === 'radial-gradient') {
 		const fill = createRadialGradientFill({
 			gradientInfo: maskImageInfo.gradientInfo,
+			experimental3DRendering: internalState.experimental3DRendering,
 			contextToDraw: tempContext,
 			rect: rectToFill,
 			offsetLeft: 0,

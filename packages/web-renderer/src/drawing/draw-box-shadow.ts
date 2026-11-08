@@ -38,6 +38,7 @@ export const drawBorderRadius = ({
 	computedStyle,
 	logLevel,
 	inset = false,
+	experimental3DRendering = false,
 }: {
 	ctx: OffscreenCanvasRenderingContext2D;
 	rect: DOMRect;
@@ -45,16 +46,17 @@ export const drawBorderRadius = ({
 	computedStyle: CSSStyleDeclaration;
 	logLevel: LogLevel;
 	inset?: boolean;
+	experimental3DRendering?: boolean;
 }) => {
 	const shadows = parseBoxShadow(computedStyle.boxShadow);
-	if (shadows.length === 0) {
+	if (shadows.length === 0 || (inset && !experimental3DRendering)) {
 		return;
 	}
 
 	for (let i = shadows.length - 1; i >= 0; i--) {
 		const shadow = shadows[i];
-		if (shadow.inset !== inset) continue;
-		if (shadow.inset) {
+		if (experimental3DRendering && shadow.inset !== inset) continue;
+		if (shadow.inset && experimental3DRendering) {
 			// A blurred outer ring casts into the padding box even with zero spread.
 			if (
 				shadow.blurRadius === 0 &&
@@ -200,7 +202,11 @@ export const drawBorderRadius = ({
 			continue;
 		}
 
-		if (shadow.blurRadius === 0 && shadow.spreadRadius !== 0) {
+		if (
+			experimental3DRendering &&
+			shadow.blurRadius === 0 &&
+			shadow.spreadRadius !== 0
+		) {
 			const spread = shadow.spreadRadius;
 			const shadowRect = new DOMRect(
 				rect.left - spread + shadow.offsetX,

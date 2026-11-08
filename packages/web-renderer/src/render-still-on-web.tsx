@@ -50,6 +50,8 @@ type OptionalRenderImagesOnWebOptions<Schema extends $ZodObject> = {
 	scale: number;
 	isProduction: boolean;
 	allowHtmlInCanvas: boolean;
+	/** Opt into experimental DOM-composer perspective, depth ordering and grouped effects. Defaults to false. */
+	experimental3DRendering: boolean;
 };
 
 type InternalRenderImagesOnWebOptions<
@@ -98,6 +100,7 @@ async function internalRenderImagesOnWeb<
 		scale,
 		isProduction,
 		allowHtmlInCanvas,
+		experimental3DRendering,
 	}: InternalRenderImagesOnWebOptions<Schema, Props>,
 	apiName: 'renderStillOnWeb' | 'renderFramesOnWeb',
 ) {
@@ -145,6 +148,7 @@ async function internalRenderImagesOnWeb<
 	}
 
 	using internalState = makeInternalState({
+		experimental3DRendering,
 		signal,
 		maskImageTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 	});
@@ -314,6 +318,7 @@ const renderImagesOnWeb = <
 					scale: options.scale ?? 1,
 					isProduction: options.isProduction ?? true,
 					allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
+					experimental3DRendering: options.experimental3DRendering ?? false,
 				},
 				apiName,
 			),

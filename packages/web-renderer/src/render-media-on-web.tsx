@@ -149,6 +149,8 @@ type OptionalRenderMediaOnWebOptions<Schema extends $ZodObject> = {
 	scale: number;
 	sampleRate: number;
 	allowHtmlInCanvas: boolean;
+	/** Opt into experimental DOM-composer perspective, depth ordering and grouped effects. Defaults to false. */
+	experimental3DRendering: boolean;
 	metadata: MetadataTags | null;
 };
 
@@ -202,6 +204,7 @@ const internalRenderMediaOnWeb = async <
 	isProduction,
 	sampleRate,
 	allowHtmlInCanvas,
+	experimental3DRendering,
 	metadata,
 }: InternalRenderMediaOnWebOptions<
 	Schema,
@@ -426,6 +429,7 @@ const internalRenderMediaOnWeb = async <
 	}
 
 	using internalState = makeInternalState({
+		experimental3DRendering,
 		signal,
 		maskImageTimeoutInMilliseconds: delayRenderTimeoutInMilliseconds,
 	});
@@ -890,6 +894,7 @@ export const renderMediaOnWeb = <
 				scale: options.scale ?? 1,
 				isProduction: options.isProduction ?? true,
 				allowHtmlInCanvas: options.allowHtmlInCanvas ?? false,
+				experimental3DRendering: options.experimental3DRendering ?? false,
 				sampleRate: options.sampleRate ?? 48000,
 				metadata: options.metadata ?? null,
 			}),

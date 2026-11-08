@@ -12,7 +12,7 @@ Unlike server-side rendering, where a full screenshot it taken, in client-side r
 It is not feasible to support all CSS properties and factors affecting the visual style of a page, so only the most important styling primitives are supported.
 
 :::info
-If the optional [HTML-in-canvas capture](/docs/client-side-rendering/html-in-canvas) mode is active, these CSS limitations do not apply to layers captured natively. Layers with 3D transforms in a `preserve-3d` context use the built-in DOM composer to preserve perspective and plane depth, so the limitations below still apply to those layers.
+If the optional [HTML-in-canvas capture](/docs/client-side-rendering/html-in-canvas) mode is active, these CSS limitations do not apply to layers captured natively. When `experimental3DRendering: true` is set, layers with 3D transforms in a `preserve-3d` context use the built-in DOM composer to preserve perspective and plane depth, so the limitations below still apply to those layers.
 :::
 
 ## Supported CSS styles
@@ -33,14 +33,15 @@ The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.
 The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
 The `opacity` property is <a style={{color: 'green'}}>supported</a>.  
 The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
-The `perspective` and `perspective-origin` properties are <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline />.<br />
-The `transform-style: preserve-3d` property is <a style={{color: 'orange'}}>partially supported</a>: overlapping, nonintersecting planes are drawn from back to front, retaining DOM order at equal depth. Grouping effects such as opacity, masks and filters flatten their subtree. Intersecting planes, ordering cycles, direct text in a preserving element and contexts with more than 256 planes retain traversal order. General polygon splitting and full CSS 3D stacking are not supported.<br />
+The `perspective` and `perspective-origin` properties have <a style={{color: 'orange'}}>experimental support</a> when `experimental3DRendering: true` is passed to the render API. This option defaults to `false`.<br />
+With that option, the `transform-style: preserve-3d` property is <a style={{color: 'orange'}}>partially supported</a>: overlapping, nonintersecting planes are drawn from back to front, retaining DOM order at equal depth. Grouping effects such as opacity, masks and filters flatten their subtree. Intersecting planes, ordering cycles, direct text in a preserving element and contexts with more than 256 planes retain traversal order. General polygon splitting and full CSS 3D stacking are not supported.<br />
+Experimental 3D qualification is bounded to the measured Chromium scenes. Arbitrary edge antialiasing, magnified text and cross-engine perspective remain open; this option does not promise pixel-for-pixel parity.<br />
 The `backface-visibility` property is <a style={{color: 'green'}}>supported</a>.
 
 ### Backgrounds
 
 The `background-color` property is <a style={{color: 'green'}}>supported</a>.  
-`background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>. Centered radial gradients with the default `farthest-corner` extent or explicit percentage ellipse radii are supported from <AvailableFrom v="4.0.540" inline />. Other radial positions and extents are not supported.<br />
+`background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>. Centered radial gradients with the default `farthest-corner` extent are supported. Explicit percentage ellipse radii require `experimental3DRendering: true`. Other radial positions and extents are not supported.<br />
 The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a> for linear gradients with pixel or percentage values.<br />
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
 Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
@@ -86,12 +87,12 @@ Fonts loaded through CSS `@font-face`, a Google Fonts CSS import, or the browser
 ## Shadows
 
 Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.  
-`inset` shadows, including blur and spread, are <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline />. Temporary surfaces are limited to 16384 pixels per axis and 16 Mi pixels; larger inset shadows are omitted with a warning.<br />
-Spread is supported for unblurred outer shadows. Spread on blurred outer shadows is not supported.
+`inset` shadows, including blur and spread, require `experimental3DRendering: true`. Temporary surfaces are limited to 16384 pixels per axis and 16 Mi pixels; larger inset shadows are omitted with a warning.<br />
+Spread for unblurred outer shadows requires `experimental3DRendering: true`. Spread on blurred outer shadows is not supported.
 
 ## Masks
 
-`mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>. Centered radial alpha masks support the same radial geometry as backgrounds from <AvailableFrom v="4.0.540" inline />.
+`mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>. Centered radial alpha masks require `experimental3DRendering: true` and support the same radial geometry as backgrounds.
 
 `mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with `0% 0%` positioning and `border-box` origin/clip.
 

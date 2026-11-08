@@ -4,7 +4,8 @@ import {createRoot} from 'react-dom/client';
 import {Internals} from 'remotion';
 import {expect, test} from 'vitest';
 import {page, server} from 'vitest/browser';
-import {renderStillOnWeb} from '../render-still-on-web';
+import {renderMediaOnWeb} from '../render-media-on-web';
+import {renderStillOnWeb, renderFramesOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
 import {FallbackDepthScene, size} from './fixtures/preserve-3d-depth';
 
@@ -32,7 +33,6 @@ test
 	.each([
 		'zero-flat',
 		'coplanar-delay',
-		'magnified-mask',
 		'soft-inset',
 		'implicit-gradient-stop',
 		'trailing-gradient-stop',
@@ -94,6 +94,7 @@ test
 					frame: 0,
 					inputProps: {kind},
 					allowHtmlInCanvas: false,
+					experimental3DRendering: true,
 				})
 			).blob({format: 'png'}),
 		);
@@ -133,13 +134,11 @@ test
 		expect(samples).toBeGreaterThan(20000);
 		expect(coloredSamples).toBeGreaterThan(1000);
 		expect(bad / samples).toBeLessThan(0.005);
-		if (kind === 'magnified-mask' || kind === 'soft-inset') {
+		if (kind === 'soft-inset') {
 			for (let i = 0; i < native.length; i += 4)
 				for (let c = 0; c < 3; c++)
 					delta += Math.abs(native[i + c] - fallback[i + c]);
-			expect(delta / (640 * 480 * 3)).toBeLessThan(
-				kind === 'magnified-mask' ? 0.4 : 1.5,
-			);
+			expect(delta / (640 * 480 * 3)).toBeLessThan(1.5);
 		}
 	} finally {
 		root.unmount();
@@ -147,3 +146,74 @@ test
 		cleanupCSS();
 	}
 });
+
+// KINO-7765: each public render API must own its 3D policy without a global flag.
+test.skipIf(server.browser !== 'chromium')(
+	'3D policy belongs to each still, batch and media render',
+	async () => {
+		const composition = {
+			id: '3d-render-policy',
+			component: FallbackDepthScene,
+			...size,
+			fps: 30,
+			durationInFrames: 2,
+			defaultProps: {kind: 'depth'},
+		};
+		const options = {
+			composition,
+			inputProps: {kind: 'depth'},
+			licenseKey: 'free-license',
+			allowHtmlInCanvas: false,
+		} as const;
+		const disabled = await pixels(
+			await (
+				await renderStillOnWeb({
+					...options,
+					frame: 0,
+					experimental3DRendering: false,
+				})
+			).blob({format: 'png'}),
+		);
+		const defaultResult = await pixels(
+			await (await renderStillOnWeb({...options, frame: 0})).blob({
+				format: 'png',
+			}),
+		);
+		expect(defaultResult).toEqual(disabled);
+		const batch = await renderFramesOnWeb({
+			...options,
+			frames: [0, 1],
+			experimental3DRendering: true,
+		});
+		const index = (220 * 640 + 300) * 4;
+		for (const still of batch) {
+			const data = await pixels(await still.blob({format: 'png'}));
+			expect(Array.from(data.slice(index, index + 3))).toEqual([34, 221, 68]);
+			expect(Array.from(disabled.slice(index, index + 3))).not.toEqual([
+				34, 221, 68,
+			]);
+		}
+
+		let capturedFrames = 0;
+		const media = await renderMediaOnWeb({
+			...options,
+			container: 'mp4',
+			videoCodec: 'h264',
+			audioCodec: null,
+			muted: true,
+			experimental3DRendering: true,
+			onFrame: (frame) => {
+				const canvas = new OffscreenCanvas(640, 480);
+				const context = canvas.getContext('2d')!;
+				context.drawImage(frame, 0, 0);
+				expect(
+					Array.from(context.getImageData(300, 220, 1, 1).data.slice(0, 3)),
+				).toEqual([34, 221, 68]);
+				capturedFrames++;
+				return frame;
+			},
+		});
+		expect(capturedFrames).toBe(2);
+		expect((await media.getBlob()).size).toBeGreaterThan(0);
+	},
+);

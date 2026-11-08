@@ -200,14 +200,21 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 export const parseMaskImage = (
 	maskImageValue: string,
 	computedStyle: CSSStyleDeclaration,
+	experimental3DRendering = false,
 ): MaskImageInfo | null => {
-	const gradientInfo = parseLinearGradient(maskImageValue);
+	const gradientInfo = parseLinearGradient(
+		maskImageValue,
+		experimental3DRendering,
+	);
 	if (gradientInfo) {
 		return {type: 'linear-gradient', gradientInfo};
 	}
 
-	const radialGradientInfo = parseRadialGradient(maskImageValue);
-	if (radialGradientInfo)
+	const radialGradientInfo = parseRadialGradient(
+		maskImageValue,
+		experimental3DRendering,
+	);
+	if (experimental3DRendering && radialGradientInfo)
 		return {type: 'radial-gradient', gradientInfo: radialGradientInfo};
 	const url = parseUrlFunction(maskImageValue);
 	if (url !== null) {

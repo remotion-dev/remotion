@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 import {parseLinearGradient} from '../drawing/parse-linear-gradient';
 const positions = (stops: string) =>
-	parseLinearGradient(`linear-gradient(${stops})`)?.colorStops.map(
+	parseLinearGradient(`linear-gradient(${stops})`, true)?.colorStops.map(
 		(stop) => stop.position,
 	);
 test('omitted endpoint stops span the full gradient (kino-ai/kino#4950)', () => {

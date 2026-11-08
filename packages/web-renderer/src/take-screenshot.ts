@@ -95,7 +95,10 @@ export const createLayer = async ({
 		htmlInCanvasContext &&
 		onHtmlInCanvasLayerOutcome
 	) {
-		if (containsPreserve3DDepth(element)) {
+		if (
+			internalState.experimental3DRendering &&
+			containsPreserve3DDepth(element)
+		) {
 			onHtmlInCanvasLayerOutcome({
 				native: false,
 				reason:

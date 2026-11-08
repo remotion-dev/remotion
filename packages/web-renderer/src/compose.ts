@@ -196,12 +196,14 @@ const planPreserve3DPlanes = ({
 	parentRect,
 	transformStyleCache,
 	isolatedElements,
+	experimental3DRendering,
 }: {
 	element: HTMLElement | SVGElement;
 	rootElement: HTMLElement | SVGElement;
 	parentRect: DOMRect;
 	transformStyleCache: TransformStyleCache;
 	isolatedElements: WeakSet<Element>;
+	experimental3DRendering: boolean;
 }) => {
 	const planes: Preserve3DPlane[] = [];
 	let supported = true;
@@ -220,6 +222,7 @@ const planPreserve3DPlanes = ({
 			rootElement,
 			transformStyleCache,
 			isolated: isolatedElements.has(node),
+			experimental3DRendering,
 		});
 		try {
 			const preserving = transforms.preserves3DChildren;
@@ -237,7 +240,11 @@ const planPreserve3DPlanes = ({
 
 				const paintRect = transforms.totalMatrix.is2D
 					? clipSourceRectToViewport(
-							getBiggestBoundingClientRect(node, preserving),
+							getBiggestBoundingClientRect(
+								node,
+								preserving,
+								experimental3DRendering,
+							),
 							transforms.totalMatrix,
 							parentRect,
 						)
@@ -246,6 +253,7 @@ const planPreserve3DPlanes = ({
 							parentRect,
 							matrix: transforms.totalMatrix,
 							onlyOwnPlane: preserving,
+							experimental3DRendering,
 						});
 				if (!paintRect) {
 					// An invisible own plane does not invalidate the other context planes.
@@ -358,6 +366,7 @@ export const compose = async ({
 		checkCleanUpAtBeginningOfIteration();
 
 		const plannedPlanes =
+			internalState.experimental3DRendering &&
 			!onlyOwnPlane &&
 			!onlyBackgroundClipText &&
 			(treeWalker.currentNode instanceof HTMLElement ||
@@ -369,6 +378,7 @@ export const compose = async ({
 						parentRect,
 						transformStyleCache,
 						isolatedElements,
+						experimental3DRendering: internalState.experimental3DRendering,
 					})
 				: null;
 		let val;
