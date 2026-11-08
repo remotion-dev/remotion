@@ -119,29 +119,12 @@ const EffectPickerResult: React.FC<{
 				return;
 			}
 
-			let timeout: ReturnType<typeof setTimeout> | null = null;
 			const unobserve = observeHover({
 				element,
-				onHoverChange: (hovered) => {
-					if (timeout !== null) {
-						clearTimeout(timeout);
-						timeout = null;
-					}
-
-					if (hovered) {
-						timeout = setTimeout(() => onPreview(item.id, true), 100);
-					} else {
-						onPreview(item.id, false);
-					}
-				},
+				onHoverChange: (hovered) => onPreview(item.id, hovered),
 			});
 			return () => {
 				unobserve();
-
-				if (timeout !== null) {
-					clearTimeout(timeout);
-				}
-
 				onPreview(item.id, false);
 			};
 		}, [isScrolling, item.id, onPreview]);
