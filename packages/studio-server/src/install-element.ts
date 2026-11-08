@@ -750,7 +750,7 @@ export const installElement = async ({
 					}
 
 					if (source.oldContents === null) {
-						if (studio) prepareBundlerForFileWrite(source.filePath);
+						if (studio) prepareBundlerForFileWrite(source.filePath, null);
 						unlinkSync(source.filePath);
 						if (studio) notifyBundlerOfFileChange(source.filePath, null);
 					} else {

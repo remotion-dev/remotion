@@ -18,9 +18,12 @@ export const suppressBundlerUpdateForFile = (absolutePath: string): void => {
 
 // Consume the intent for this write, rather than letting an earlier suppressed
 // write swallow a subsequent structural change in the watcher's aggregated event.
-export const prepareBundlerForFileWrite = (absolutePath: string): void => {
+export const prepareBundlerForFileWrite = (
+	absolutePath: string,
+	contents: string | null,
+): void => {
 	if (pendingSuppressedWrites.delete(absolutePath)) {
-		currentPlugin?.ignoreNextChange(absolutePath);
+		currentPlugin?.ignoreNextChange(absolutePath, contents);
 	} else {
 		currentPlugin?.requireRebuild(absolutePath);
 	}

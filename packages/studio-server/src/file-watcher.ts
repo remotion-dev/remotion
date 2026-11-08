@@ -209,7 +209,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		originatorClientId,
 		metadata,
 	}: WriteFileAndNotifyFileWatchersOptions) => {
-		prepareBundlerForFileWrite(file);
+		prepareBundlerForFileWrite(file, content);
 		writeFileSync(file, content);
 		const sourceVersion = nextSourceVersion();
 		for (const listener of sourceWriteListeners) listener(file, content);

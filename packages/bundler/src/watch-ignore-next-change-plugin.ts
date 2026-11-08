@@ -66,11 +66,16 @@ type NodeWatchFileSystem = {
 type TraceLogFn = (...args: Parameters<typeof console.log>) => void;
 
 export class WatchIgnoreNextChangePlugin {
-	private filesToIgnore = new Set<string>();
+	private filesToIgnore = new Map<string, string | null>();
 	private filesRequiringRebuild = new Set<string>();
 	private dirsToIgnore = new Set<string>();
 	private snapshotFileTimestamps = new Map<string, TimeInfoEntry>();
 	private snapshotDirTimestamps = new Map<string, TimeInfoEntry>();
+	private snapshotDirectoryContents = new Map<
+		string,
+		Map<string, TimeInfoEntry>
+	>();
+
 	private suppressedFilesHistory = new Set<string>();
 	private currentWatcher: Watcher | null = null;
 	private pendingFileChanges = new Map<string, string | null>();
@@ -94,42 +99,94 @@ export class WatchIgnoreNextChangePlugin {
 		this.trace = trace;
 	}
 
-	ignoreNextChange(file: string): void {
+	ignoreNextChange(file: string, contents: string | null): void {
 		if (this.filesRequiringRebuild.has(file)) {
 			return;
 		}
 
-		this.filesToIgnore.add(file);
-		const dir = path.dirname(file);
-		this.dirsToIgnore.add(dir);
-
 		// Snapshot current timestamps from the watcher BEFORE the file is written
 		if (this.currentWatcher?.getInfo) {
 			const info = this.currentWatcher.getInfo();
+			if (this.filesRequiringRebuild.has(file)) return;
 			const fileTs = info.fileTimeInfoEntries.get(file);
-			if (fileTs !== undefined) {
+			if (fileTs !== undefined && !this.snapshotFileTimestamps.has(file)) {
 				this.snapshotFileTimestamps.set(file, fileTs);
 			}
 
-			const dirTs = info.contextTimeInfoEntries.get(dir);
-			if (dirTs !== undefined) {
-				this.snapshotDirTimestamps.set(dir, dirTs);
-			}
-
-			// Also snapshot ancestor directories — watchpack may report them
-			// as changed alongside the file itself.
-			let ancestor = path.dirname(dir);
-			while (ancestor !== path.dirname(ancestor)) {
-				const ancestorTs = info.contextTimeInfoEntries.get(ancestor);
-				if (ancestorTs !== undefined) {
-					this.snapshotDirTimestamps.set(ancestor, ancestorTs);
+			const snapshot = new Map(info.fileTimeInfoEntries);
+			for (
+				let dir = path.dirname(file);
+				dir !== path.dirname(dir);
+				dir = path.dirname(dir)
+			) {
+				this.dirsToIgnore.add(dir);
+				if (!this.snapshotDirectoryContents.has(dir)) {
+					this.snapshotDirectoryContents.set(dir, snapshot);
 				}
 
-				ancestor = path.dirname(ancestor);
+				const timestamp = info.contextTimeInfoEntries.get(dir);
+				if (timestamp !== undefined && !this.snapshotDirTimestamps.has(dir)) {
+					this.snapshotDirTimestamps.set(dir, timestamp);
+				}
 			}
 		}
 
+		this.filesToIgnore.set(file, contents);
 		this.trace('[WatchIgnoreNextChange] Registered ignore for', file);
+	}
+
+	private releaseChangedSuppressions(): void {
+		for (const [file, expected] of this.filesToIgnore) {
+			let contents: string | null = null;
+			let readable = true;
+			try {
+				contents = readFileSync(file, 'utf8');
+			} catch (error) {
+				readable = (error as NodeJS.ErrnoException).code === 'ENOENT';
+			}
+
+			if (readable && contents === expected) continue;
+			this.requireRebuild(file);
+			this.notifyFileChanged(file, contents);
+		}
+	}
+
+	private isIgnoredDirectory(
+		directory: string,
+		timestamps: Map<string, TimeInfoEntry> | null,
+		changedFiles: Set<string> | null,
+		removedFiles: Set<string> | null,
+	): boolean {
+		const snapshot = this.snapshotDirectoryContents.get(directory);
+		if (!snapshot || !timestamps || removedFiles?.has(directory)) return false;
+		const prefix = directory + path.sep;
+		const files = new Set([
+			...snapshot.keys(),
+			...timestamps.keys(),
+			...(changedFiles ?? []),
+			...(removedFiles ?? []),
+			...this.filesRequiringRebuild,
+		]);
+		for (const file of files) {
+			if (!file.startsWith(prefix) || this.filesToIgnore.has(file)) continue;
+			if (this.isAlreadyNotified(file)) continue;
+			if (this.dirsToIgnore.has(file) && !removedFiles?.has(file)) continue;
+			if (
+				this.filesRequiringRebuild.has(file) ||
+				changedFiles?.has(file) ||
+				removedFiles?.has(file)
+			)
+				return false;
+			const before = snapshot.get(file);
+			const after = timestamps.get(file);
+			if (
+				(before ? (before.timestamp ?? true) : null) !==
+				(after ? (after.timestamp ?? true) : null)
+			)
+				return false;
+		}
+
+		return true;
 	}
 
 	requireRebuild(file: string): void {
@@ -204,10 +261,16 @@ export class WatchIgnoreNextChangePlugin {
 
 	unignoreNextChange(file: string): void {
 		this.filesToIgnore.delete(file);
-		const dir = path.dirname(file);
-		this.dirsToIgnore.delete(dir);
 		this.snapshotFileTimestamps.delete(file);
-		this.snapshotDirTimestamps.delete(dir);
+		for (
+			let dir = path.dirname(file);
+			dir !== path.dirname(dir);
+			dir = path.dirname(dir)
+		) {
+			this.dirsToIgnore.delete(dir);
+			this.snapshotDirTimestamps.delete(dir);
+			this.snapshotDirectoryContents.delete(dir);
+		}
 	}
 
 	// Returns and clears the list of files whose changes were previously
@@ -223,7 +286,10 @@ export class WatchIgnoreNextChangePlugin {
 		// Include writes whose watcher event has not arrived yet.
 		const candidates =
 			onlyFile === null
-				? new Set([...this.suppressedFilesHistory, ...this.filesToIgnore])
+				? new Set([
+						...this.suppressedFilesHistory,
+						...this.filesToIgnore.keys(),
+					])
 				: [onlyFile];
 		const files: string[] = [];
 		for (const file of candidates) {
@@ -246,6 +312,7 @@ export class WatchIgnoreNextChangePlugin {
 			this.notifiedFiles.clear();
 			this.notifiedDirectories.clear();
 			this.notifiedDirectoryContents.clear();
+			this.snapshotDirectoryContents.clear();
 		});
 		compiler.hooks.afterEnvironment.tap('WatchIgnoreNextChangePlugin', () => {
 			const wfs = compiler.watchFileSystem as unknown as NodeWatchFileSystem;
@@ -266,33 +333,34 @@ export class WatchIgnoreNextChangePlugin {
 				callback,
 				callbackUndelayed,
 			) => {
-				const isAncestorOfIgnoredFile = (dir: string): boolean => {
-					for (const file of self.filesToIgnore) {
-						if (file.startsWith(dir + path.sep)) {
-							return true;
-						}
-					}
-
-					return false;
-				};
-
 				const wrappedCallbackUndelayed: CallbackUndelayed = (
 					fileName,
 					changeTime,
 				) => {
+					self.releaseChangedSuppressions();
+					const info =
+						self.dirsToIgnore.has(fileName) ||
+						self.notifiedDirectories.has(fileName)
+							? self.currentWatcher?.getInfo?.()
+							: null;
 					if (
 						(!self.notifying &&
 							(self.isAlreadyNotified(fileName) ||
 								(self.notifiedDirectories.has(fileName) &&
 									self.isAlreadyNotifiedDirectory(
 										fileName,
-										self.currentWatcher?.getInfo?.().fileTimeInfoEntries ??
+										info?.fileTimeInfoEntries ??
 											self.currentWatcher?.getFileTimeInfoEntries() ??
 											null,
 									)))) ||
 						self.filesToIgnore.has(fileName) ||
-						self.dirsToIgnore.has(fileName) ||
-						isAncestorOfIgnoredFile(fileName)
+						(self.dirsToIgnore.has(fileName) &&
+							self.isIgnoredDirectory(
+								fileName,
+								info?.fileTimeInfoEntries ?? null,
+								info?.changes ?? null,
+								info?.removals ?? null,
+							))
 					) {
 						self.trace(
 							'[WatchIgnoreNextChange] Suppressed callbackUndelayed for',
@@ -311,6 +379,15 @@ export class WatchIgnoreNextChangePlugin {
 					changedFiles,
 					removedFiles,
 				) => {
+					self.releaseChangedSuppressions();
+					const ignoredDirs = [...self.dirsToIgnore].filter((dir) =>
+						self.isIgnoredDirectory(
+							dir,
+							fileTimestamps ?? null,
+							changedFiles ?? null,
+							removedFiles ?? null,
+						),
+					);
 					const alreadyNotified: string[] = [];
 					if (!self.notifying) {
 						for (const changes of [changedFiles, removedFiles]) {
@@ -342,10 +419,16 @@ export class WatchIgnoreNextChangePlugin {
 					const suppressedDirs: string[] = [];
 
 					if (fileTimestamps) {
-						for (const file of [...self.filesToIgnore]) {
+						for (const file of [...self.filesToIgnore.keys()]) {
 							const wasInChanged = changedFiles?.has(file) ?? false;
 							if (wasInChanged) {
 								changedFiles!.delete(file);
+								const timestamp = fileTimestamps.get(file);
+								for (const [dir, snapshot] of self.snapshotDirectoryContents) {
+									if (file.startsWith(dir + path.sep)) {
+										snapshot.set(file, timestamp ?? null);
+									}
+								}
 							}
 
 							const prev = self.snapshotFileTimestamps.get(file);
@@ -363,7 +446,7 @@ export class WatchIgnoreNextChangePlugin {
 					}
 
 					if (dirTimestamps) {
-						for (const dir of [...self.dirsToIgnore]) {
+						for (const dir of ignoredDirs) {
 							const wasInChanged = changedFiles?.has(dir) ?? false;
 							if (wasInChanged) {
 								changedFiles!.delete(dir);
@@ -378,40 +461,18 @@ export class WatchIgnoreNextChangePlugin {
 								suppressedDirs.push(dir);
 								self.dirsToIgnore.delete(dir);
 								self.snapshotDirTimestamps.delete(dir);
+								self.snapshotDirectoryContents.delete(dir);
 							}
 						}
 					}
 
 					if (removedFiles) {
-						for (const file of self.filesToIgnore) {
+						for (const file of self.filesToIgnore.keys()) {
 							removedFiles.delete(file);
 						}
 
-						for (const dir of self.dirsToIgnore) {
+						for (const dir of ignoredDirs) {
 							removedFiles.delete(dir);
-						}
-					}
-
-					// Remove ancestor directories of suppressed files from changedFiles.
-					// Watchpack may report parent directories (e.g. /src) as changed
-					// alongside the file itself (e.g. /src/Sub/index.tsx).
-					// dirsToIgnore only has the immediate parent, so ancestors
-					// like /src would remain and trigger a rebuild.
-					if (changedFiles && suppressedFiles.length > 0) {
-						for (const changed of [...changedFiles]) {
-							for (const file of suppressedFiles) {
-								if (file.startsWith(changed + path.sep)) {
-									changedFiles.delete(changed);
-									if (dirTimestamps) {
-										const prev = self.snapshotDirTimestamps.get(changed);
-										if (prev !== undefined) {
-											dirTimestamps.set(changed, prev);
-										}
-									}
-
-									break;
-								}
-							}
 						}
 					}
 
@@ -419,7 +480,9 @@ export class WatchIgnoreNextChangePlugin {
 					const remainingRemovals = removedFiles?.size ?? 0;
 
 					if (
-						(hasIgnoredFiles || alreadyNotified.length > 0) &&
+						(hasIgnoredFiles ||
+							suppressedDirs.length > 0 ||
+							alreadyNotified.length > 0) &&
 						remainingChanges === 0 &&
 						remainingRemovals === 0
 					) {
@@ -498,16 +561,6 @@ export class WatchIgnoreNextChangePlugin {
 								watchpack.aggregatedChanges.delete(dir);
 								watchpack.aggregatedRemovals.delete(dir);
 							}
-
-							// Also clear ancestor directories of suppressed files
-							for (const file of suppressedFiles) {
-								let ancestor = path.dirname(path.dirname(file));
-								while (ancestor !== path.dirname(ancestor)) {
-									watchpack.aggregatedChanges.delete(ancestor);
-									watchpack.aggregatedRemovals.delete(ancestor);
-									ancestor = path.dirname(ancestor);
-								}
-							}
 						} else {
 							callback(
 								err,
@@ -552,13 +605,14 @@ export class WatchIgnoreNextChangePlugin {
 				const originalGetFileTimeInfoEntries =
 					watcher.getFileTimeInfoEntries.bind(watcher);
 				watcher.getFileTimeInfoEntries = () => {
+					self.releaseChangedSuppressions();
 					const entries = originalGetFileTimeInfoEntries();
 					for (const [file, notified] of self.notifiedFiles) {
 						if (self.isAlreadyNotified(file))
 							entries.set(file, notified.timestamp);
 					}
 
-					for (const file of self.filesToIgnore) {
+					for (const file of self.filesToIgnore.keys()) {
 						const prev = self.snapshotFileTimestamps.get(file);
 						if (prev !== undefined) {
 							entries.set(file, prev);
@@ -571,8 +625,12 @@ export class WatchIgnoreNextChangePlugin {
 				const originalGetContextTimeInfoEntries =
 					watcher.getContextTimeInfoEntries.bind(watcher);
 				watcher.getContextTimeInfoEntries = () => {
+					self.releaseChangedSuppressions();
 					const entries = originalGetContextTimeInfoEntries();
+					const fileTimestamps = originalGetFileTimeInfoEntries();
 					for (const dir of self.dirsToIgnore) {
+						if (!self.isIgnoredDirectory(dir, fileTimestamps, null, null))
+							continue;
 						const prev = self.snapshotDirTimestamps.get(dir);
 						if (prev !== undefined) {
 							entries.set(dir, prev);
@@ -585,7 +643,16 @@ export class WatchIgnoreNextChangePlugin {
 				if (watcher.getInfo) {
 					const originalGetInfo = watcher.getInfo.bind(watcher);
 					watcher.getInfo = () => {
+						self.releaseChangedSuppressions();
 						const info = originalGetInfo();
+						const ignoredDirs = [...self.dirsToIgnore].filter((dir) =>
+							self.isIgnoredDirectory(
+								dir,
+								info.fileTimeInfoEntries,
+								info.changes,
+								info.removals,
+							),
+						);
 						for (const [file, notified] of self.notifiedFiles) {
 							if (self.isAlreadyNotified(file))
 								info.fileTimeInfoEntries.set(file, notified.timestamp);
@@ -606,7 +673,7 @@ export class WatchIgnoreNextChangePlugin {
 							}
 						}
 
-						for (const file of self.filesToIgnore) {
+						for (const file of self.filesToIgnore.keys()) {
 							info.changes.delete(file);
 							const prev = self.snapshotFileTimestamps.get(file);
 							if (prev !== undefined) {
@@ -614,7 +681,7 @@ export class WatchIgnoreNextChangePlugin {
 							}
 						}
 
-						for (const dir of self.dirsToIgnore) {
+						for (const dir of ignoredDirs) {
 							info.changes.delete(dir);
 							const prev = self.snapshotDirTimestamps.get(dir);
 							if (prev !== undefined) {
@@ -630,12 +697,17 @@ export class WatchIgnoreNextChangePlugin {
 					const originalGetAggregatedChanges =
 						watcher.getAggregatedChanges.bind(watcher);
 					watcher.getAggregatedChanges = () => {
+						self.releaseChangedSuppressions();
 						const changes = originalGetAggregatedChanges();
-						for (const file of self.filesToIgnore) {
+						const fileTimestamps = originalGetFileTimeInfoEntries();
+						const ignoredDirs = [...self.dirsToIgnore].filter((dir) =>
+							self.isIgnoredDirectory(dir, fileTimestamps, changes, null),
+						);
+						for (const file of self.filesToIgnore.keys()) {
 							changes.delete(file);
 						}
 
-						for (const dir of self.dirsToIgnore) {
+						for (const dir of ignoredDirs) {
 							changes.delete(dir);
 						}
 

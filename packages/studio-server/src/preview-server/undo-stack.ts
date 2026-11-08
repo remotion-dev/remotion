@@ -513,7 +513,7 @@ export function popUndo(): UndoResponse {
 		}
 
 		if (snapshot.oldContents === null) {
-			prepareBundlerForFileWrite(snapshot.filePath);
+			prepareBundlerForFileWrite(snapshot.filePath, null);
 			rmSync(snapshot.filePath, {force: true});
 			notifyBundlerOfFileChange(snapshot.filePath, null);
 		} else {
