@@ -189,6 +189,8 @@ export const measureText = ({
 			wordCache.delete(oldest);
 		}
 	}
+
 	wordCache.set(key, result);
+
 	return result;
 };
