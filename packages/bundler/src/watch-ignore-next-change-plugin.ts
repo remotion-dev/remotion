@@ -259,6 +259,40 @@ export class WatchIgnoreNextChangePlugin {
 		return true;
 	}
 
+	private consumeNotifiedSuppression(
+		file: string,
+		timestamps: Map<string, TimeInfoEntry> | null,
+	): void {
+		for (const suppressed of this.filesToIgnore.keys()) {
+			if (
+				suppressed !== file &&
+				(!suppressed.startsWith(file + path.sep) ||
+					!this.isAlreadyNotified(suppressed))
+			)
+				continue;
+			for (const [dir, snapshot] of this.snapshotDirectoryContents) {
+				if (suppressed.startsWith(dir + path.sep)) {
+					snapshot.set(suppressed, timestamps?.get(suppressed) ?? null);
+				}
+			}
+
+			this.filesToIgnore.delete(suppressed);
+			this.snapshotFileTimestamps.delete(suppressed);
+			this.suppressedFilesHistory.add(suppressed);
+		}
+
+		if (
+			this.dirsToIgnore.has(file) &&
+			![...this.filesToIgnore.keys()].some((pending) =>
+				pending.startsWith(file + path.sep),
+			)
+		) {
+			this.dirsToIgnore.delete(file);
+			this.snapshotDirTimestamps.delete(file);
+			this.snapshotDirectoryContents.delete(file);
+		}
+	}
+
 	unignoreNextChange(file: string): void {
 		this.filesToIgnore.delete(file);
 		this.snapshotFileTimestamps.delete(file);
@@ -333,6 +367,7 @@ export class WatchIgnoreNextChangePlugin {
 				callback,
 				callbackUndelayed,
 			) => {
+				const watchedDirectories = new Set(directories);
 				const wrappedCallbackUndelayed: CallbackUndelayed = (
 					fileName,
 					changeTime,
@@ -397,6 +432,7 @@ export class WatchIgnoreNextChangePlugin {
 									self.isAlreadyNotified(file) ||
 									self.isAlreadyNotifiedDirectory(file, fileTimestamps ?? null)
 								) {
+									self.consumeNotifiedSuppression(file, fileTimestamps ?? null);
 									changes?.delete(file);
 									alreadyNotified.push(file);
 								}
@@ -653,11 +689,6 @@ export class WatchIgnoreNextChangePlugin {
 								info.removals,
 							),
 						);
-						for (const [file, notified] of self.notifiedFiles) {
-							if (self.isAlreadyNotified(file))
-								info.fileTimeInfoEntries.set(file, notified.timestamp);
-						}
-
 						if (!self.notifying) {
 							for (const changes of [info.changes, info.removals]) {
 								for (const file of changes) {
@@ -667,10 +698,20 @@ export class WatchIgnoreNextChangePlugin {
 											file,
 											info.fileTimeInfoEntries,
 										)
-									)
+									) {
+										self.consumeNotifiedSuppression(
+											file,
+											info.fileTimeInfoEntries,
+										);
 										changes.delete(file);
+									}
 								}
 							}
+						}
+
+						for (const [file, notified] of self.notifiedFiles) {
+							if (self.isAlreadyNotified(file))
+								info.fileTimeInfoEntries.set(file, notified.timestamp);
 						}
 
 						for (const file of self.filesToIgnore.keys()) {
@@ -753,6 +794,16 @@ export class WatchIgnoreNextChangePlugin {
 							dir !== path.dirname(dir);
 							dir = path.dirname(dir)
 						) {
+							if (watchedDirectories.has(dir)) {
+								info.changes.add(dir);
+								info.removals.delete(dir);
+								info.contextTimeInfoEntries.set(dir, {
+									timestamp: now,
+									safeTime: now,
+								});
+								wfs.inputFileSystem.purge?.(dir);
+							}
+
 							self.notifiedDirectories.add(dir);
 							self.notifiedDirectoryContents.set(dir, true);
 						}

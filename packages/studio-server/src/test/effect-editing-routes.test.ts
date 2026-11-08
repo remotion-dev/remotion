@@ -23,6 +23,7 @@ import {deleteEffectHandler} from '../preview-server/routes/delete-effect';
 import {duplicateEffectHandler} from '../preview-server/routes/duplicate-effect';
 import {reorderEffectHandler} from '../preview-server/routes/reorder-effect';
 import {saveEffectPropsHandler} from '../preview-server/routes/save-effect-props';
+import {updateDefaultPropsHandler} from '../preview-server/routes/update-default-props';
 import {clearUndoStackForTests, popUndo} from '../preview-server/undo-stack';
 import {setWatchIgnoreNextChangePlugin} from '../preview-server/watch-ignore-next-change';
 import {lineContainingToNodePath} from './test-utils';
@@ -212,7 +213,7 @@ test.each(['direct', 'fallback'] as const)(
 		const expectBundlerUpdates = async (newContents: string | null) => {
 			if (newContents !== null) {
 				expectedBundlerUpdates.push({
-					files: [filePath],
+					files: [filePath, sourceDirectory],
 					removed: [],
 					contents: newContents,
 				});
@@ -249,7 +250,7 @@ test.each(['direct', 'fallback'] as const)(
 			getDefaultCodingAgent: () => null,
 			getDefaultEditor: () => null,
 		};
-		const input = `import {Solid} from 'remotion';
+		const input = `import {Composition, Solid} from 'remotion';
 const untouched  = { value : 'keep' };
 const dimensions = {width: 100, height: 100};
 const presets = [];
@@ -258,6 +259,7 @@ export const Comp = () => <>
 	<Solid name="preset" effects={[...presets]} />
 	<Solid name="overridden" effects={[...presets]} {...dimensions} />
 </>;
+export const Root = () => <Composition id="Comp" component={Comp} width={100} height={100} fps={30} durationInFrames={30} defaultProps={{}} />;
 `;
 
 		try {
@@ -296,6 +298,47 @@ export const Comp = () => <>
 				emitFilesystemChange(sourceEcho, []);
 				await expectBundlerUpdates(null);
 			}
+
+			const beforeUnchangedWrite = readFileSync(filePath, 'utf-8');
+			for (const firstEcho of [[filePath], [sourceDirectory]]) {
+				const unchangedDefaultProps = await updateDefaultPropsHandler({
+					...context,
+					input: {
+						compositionId: 'Comp',
+						defaultProps: '{}',
+						enumPaths: [],
+						symbolicatedStack: {
+							originalFunctionName: null,
+							originalFileName: filePath,
+							originalLineNumber: 1,
+							originalColumnNumber: 1,
+							originalScriptCode: null,
+						},
+					},
+				});
+				expect(unchangedDefaultProps.success).toBe(true);
+				expect(readFileSync(filePath, 'utf-8')).toBe(beforeUnchangedWrite);
+				await expectBundlerUpdates(null);
+				emitFilesystemChange(firstEcho, []);
+				await expectBundlerUpdates(null);
+				expect(plugin.consumeSuppressedFilesHistory()).toEqual([filePath]);
+				emitFilesystemChange(sourceEcho, []);
+				await expectBundlerUpdates(null);
+				expect(plugin.consumeSuppressedFilesHistory()).toEqual([]);
+			}
+
+			const externallyEdited = beforeUnchangedWrite.replace(
+				'width: 100',
+				'width: 120',
+			);
+			writeFileSync(filePath, externallyEdited);
+			emitFilesystemChange([filePath], []);
+			expectedBundlerUpdates.push({
+				files: [filePath],
+				removed: [],
+				contents: externallyEdited,
+			});
+			await expectBundlerUpdates(null);
 
 			const duplicate = await duplicateEffectHandler({
 				...context,
@@ -458,7 +501,12 @@ export const Comp = () => <>
 					);
 					writeFileSync(filePath, edited);
 					emitFilesystemChange([filePath], []);
-					await expectBundlerUpdates(edited);
+					expectedBundlerUpdates.push({
+						files: [filePath],
+						removed: [],
+						contents: edited,
+					});
+					await expectBundlerUpdates(null);
 				} else {
 					rmSync(filePath);
 					emitFilesystemChange([], [filePath]);
