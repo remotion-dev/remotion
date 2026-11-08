@@ -116,11 +116,14 @@ export const drawBackground = async ({
 				boundingRect.height,
 			);
 			target.clip();
-			const left = Math.round(fill.rect.left - originX);
-			const top = Math.round(fill.rect.top - originY);
-			const right = Math.round(fill.rect.right - originX);
-			const bottom = Math.round(fill.rect.bottom - originY);
-			target.drawImage(fill.image, left, top, right - left, bottom - top);
+			for (const tile of fill.rects) {
+				const left = Math.round(tile.left - originX);
+				const top = Math.round(tile.top - originY);
+				const right = Math.round(tile.right - originX);
+				const bottom = Math.round(tile.bottom - originY);
+				target.drawImage(fill.image, left, top, right - left, bottom - top);
+			}
+
 			target.restore();
 			return;
 		}

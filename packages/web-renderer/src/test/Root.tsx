@@ -7,6 +7,7 @@ import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {borderRadius} from './fixtures/border-radius';
@@ -168,6 +169,7 @@ export const Root: React.FC = () => {
 			<Composition {...objectFit} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
+			<Composition {...backgroundImageSpace} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
 			<Composition {...nestedTranslateScale} />
