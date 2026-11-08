@@ -133,6 +133,7 @@ for (const {fixture, frame} of [
 		expect(diff.mismatchedPixels).toBe(0);
 	});
 }
+
 // A fill-rule prefix must not be parsed as a coordinate pair.
 test.each(['evenodd', 'nonzero'] as const)(
 	'Should parse a polygon with the %s fill rule',
