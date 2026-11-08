@@ -208,7 +208,6 @@ const underlinePaddingSchema = {
 
 const sharedSchema = (defaultRoughness: number): InteractivitySchema => ({
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	progress: {
 		type: 'number',
 		min: 0,

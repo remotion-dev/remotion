@@ -24,7 +24,6 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
-	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -52,7 +51,6 @@ export const canvasImageSchema = {
 	},
 	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
-	...premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'fill',

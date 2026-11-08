@@ -23,7 +23,6 @@ import {
 	borderSchema,
 	cropSchema,
 	loopField,
-	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -58,7 +57,6 @@ export const animatedImageSchema = {
 	...baseSchema,
 	loop: loopField,
 	...cropSchema,
-	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,

@@ -44,7 +44,6 @@ export const gifSchema: InteractivitySchema = {
 		description: 'Loop',
 		keyframable: false,
 	},
-	...Internals.premountSchema,
 	...Internals.transformSchema,
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,

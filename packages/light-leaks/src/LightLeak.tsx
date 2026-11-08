@@ -252,7 +252,6 @@ export const lightLeakSchema: InteractivitySchema = {
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,
-	...Internals.premountSchema,
 } as const satisfies InteractivitySchema;
 
 const LightLeakInner: React.FC<

@@ -344,7 +344,6 @@ export const starburstSchema: InteractivitySchema = {
 	...Interactive.backgroundSchema,
 	...Interactive.borderSchema,
 	...Interactive.borderRadiusSchema,
-	...Internals.premountSchema,
 };
 
 const StarburstInner: React.FC<

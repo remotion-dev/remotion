@@ -35,7 +35,6 @@ import {
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
-	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from './interactivity-schema.js';
@@ -561,7 +560,6 @@ export const imgSchema = {
 	},
 	...baseSchemaWithoutPlaybackRate,
 	...cropSchema,
-	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,

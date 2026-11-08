@@ -104,7 +104,6 @@ const riveAlignmentVariants: Record<
 
 export const riveCanvasSchema: InteractivitySchema = {
 	...Internals.baseSchema,
-	...Internals.premountSchema,
 	fit: {
 		type: 'enum',
 		default: 'contain',
