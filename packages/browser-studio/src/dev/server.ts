@@ -2,7 +2,6 @@ import path from 'path';
 import {fileURLToPath} from 'url';
 import {build} from 'bun';
 import {browserStudioPackageJsonArtifactFilename} from '../workspace-package-exports';
-import {effectPreviewPlugin} from './effect-preview-plugin';
 import {getBrowserStudioDependencyVersionsForBuild} from './get-dependency-versions-for-build';
 import {getBrowserStudioSetupEnvironmentForBuild} from './get-setup-environment-for-build';
 import {getBrowserStudioWorkspacePackageExportsForBuild} from './get-workspace-package-exports-for-build';
@@ -79,7 +78,6 @@ const buildDevAssets = async () => {
 	);
 	const rspackBrowserDist = path.dirname(rspackBrowserEntry);
 	const vendorOutput = await build({
-		plugins: [effectPreviewPlugin],
 		define: {'process.env.NODE_ENV': JSON.stringify('development')},
 		entrypoints: ['src/browser-studio-vendor-entry.ts'],
 		external: ['@huggingface/transformers'],
@@ -123,7 +121,6 @@ const buildDevAssets = async () => {
 		vendorBundle: vendorEntryArtifact.size,
 	};
 	const output = await build({
-		plugins: [effectPreviewPlugin],
 		entrypoints: ['src/dev/index.tsx', 'src/browser-studio-worker.ts'],
 		define: {
 			__BROWSER_STUDIO_ASSET_SIZES__: JSON.stringify(browserStudioAssetSizes),
@@ -147,7 +144,6 @@ const buildDevAssets = async () => {
 	}
 
 	const studioPreviewEntryOutput = await build({
-		plugins: [effectPreviewPlugin],
 		entrypoints: ['src/browser-studio-preview-entry.ts'],
 		external: studioRenderEntryExternal,
 		format: 'esm',

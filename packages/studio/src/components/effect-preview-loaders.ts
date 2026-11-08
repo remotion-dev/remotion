@@ -10,183 +10,160 @@ export const effectPreviewLoaders: Record<
 	() => Promise<Record<string, unknown>>
 > = {
 	'@remotion/effects/brightness': () =>
-		import('@remotion/effects/brightness?studio-preview'),
+		import('@remotion/effects/brightness/preview'),
 	'@remotion/effects/contrast': () =>
-		import('@remotion/effects/contrast?studio-preview'),
+		import('@remotion/effects/contrast/preview'),
 	'@remotion/effects/color-correction': () =>
-		import('@remotion/effects/color-correction?studio-preview'),
+		import('@remotion/effects/color-correction/preview'),
 	'@remotion/effects/color-key': () =>
-		import('@remotion/effects/color-key?studio-preview'),
-	'@remotion/effects/curves': () =>
-		import('@remotion/effects/curves?studio-preview'),
+		import('@remotion/effects/color-key/preview'),
+	'@remotion/effects/curves': () => import('@remotion/effects/curves/preview'),
 	'@remotion/effects/duotone': () =>
-		import('@remotion/effects/duotone?studio-preview'),
+		import('@remotion/effects/duotone/preview'),
 	'@remotion/effects/exposure': () =>
-		import('@remotion/effects/exposure?studio-preview'),
+		import('@remotion/effects/exposure/preview'),
 	'@remotion/effects/grayscale': () =>
-		import('@remotion/effects/grayscale?studio-preview'),
-	'@remotion/effects/hue': () => import('@remotion/effects/hue?studio-preview'),
-	'@remotion/effects/invert': () =>
-		import('@remotion/effects/invert?studio-preview'),
-	'@remotion/effects/levels': () =>
-		import('@remotion/effects/levels?studio-preview'),
-	'@remotion/effects/lut': () => import('@remotion/effects/lut?studio-preview'),
+		import('@remotion/effects/grayscale/preview'),
+	'@remotion/effects/hue': () => import('@remotion/effects/hue/preview'),
+	'@remotion/effects/invert': () => import('@remotion/effects/invert/preview'),
+	'@remotion/effects/levels': () => import('@remotion/effects/levels/preview'),
+	'@remotion/effects/lut': () => import('@remotion/effects/lut/preview'),
 	'@remotion/effects/saturation': () =>
-		import('@remotion/effects/saturation?studio-preview'),
+		import('@remotion/effects/saturation/preview'),
 	'@remotion/effects/shadows-highlights': () =>
-		import('@remotion/effects/shadows-highlights?studio-preview'),
-	'@remotion/effects/tint': () =>
-		import('@remotion/effects/tint?studio-preview'),
+		import('@remotion/effects/shadows-highlights/preview'),
+	'@remotion/effects/tint': () => import('@remotion/effects/tint/preview'),
 	'@remotion/effects/white-balance': () =>
-		import('@remotion/effects/white-balance?studio-preview'),
+		import('@remotion/effects/white-balance/preview'),
 	'@remotion/effects/vibrance': () =>
-		import('@remotion/effects/vibrance?studio-preview'),
+		import('@remotion/effects/vibrance/preview'),
 	'@remotion/effects/linear-gradient': () =>
-		import('@remotion/effects/linear-gradient?studio-preview'),
+		import('@remotion/effects/linear-gradient/preview'),
 	'@remotion/effects/linear-gradient-tint': () =>
-		import('@remotion/effects/linear-gradient-tint?studio-preview'),
+		import('@remotion/effects/linear-gradient-tint/preview'),
 	'@remotion/effects/thermal-vision': () =>
-		import('@remotion/effects/thermal-vision?studio-preview'),
-	'@remotion/effects/blur': () =>
-		import('@remotion/effects/blur?studio-preview'),
+		import('@remotion/effects/thermal-vision/preview'),
+	'@remotion/effects/blur': () => import('@remotion/effects/blur/preview'),
 	'@remotion/effects/lens-blur': () =>
-		import('@remotion/effects/lens-blur?studio-preview'),
+		import('@remotion/effects/lens-blur/preview'),
 	'@remotion/effects/linear-progressive-blur': () =>
-		import('@remotion/effects/linear-progressive-blur?studio-preview'),
+		import('@remotion/effects/linear-progressive-blur/preview'),
 	'@remotion/effects/radial-progressive-blur': () =>
-		import('@remotion/effects/radial-progressive-blur?studio-preview'),
+		import('@remotion/effects/radial-progressive-blur/preview'),
 	'@remotion/effects/region-blur': () =>
-		import('@remotion/effects/region-blur?studio-preview'),
+		import('@remotion/effects/region-blur/preview'),
 	'@remotion/effects/zoom-blur': () =>
-		import('@remotion/effects/zoom-blur?studio-preview'),
+		import('@remotion/effects/zoom-blur/preview'),
 	'@remotion/effects/drop-shadow': () =>
-		import('@remotion/effects/drop-shadow?studio-preview'),
+		import('@remotion/effects/drop-shadow/preview'),
 	'@remotion/effects/long-shadows': () =>
-		import('@remotion/effects/long-shadows?studio-preview'),
-	'@remotion/effects/glow': () =>
-		import('@remotion/effects/glow?studio-preview'),
+		import('@remotion/effects/long-shadows/preview'),
+	'@remotion/effects/glow': () => import('@remotion/effects/glow/preview'),
 	'@remotion/effects/outline': () =>
-		import('@remotion/effects/outline?studio-preview'),
+		import('@remotion/effects/outline/preview'),
 	'@remotion/effects/light-trail': () =>
-		import('@remotion/effects/light-trail?studio-preview'),
-	'@remotion/effects/evolve': () =>
-		import('@remotion/effects/evolve?studio-preview'),
-	'@remotion/effects/tear': () =>
-		import('@remotion/effects/tear?studio-preview'),
+		import('@remotion/effects/light-trail/preview'),
+	'@remotion/effects/evolve': () => import('@remotion/effects/evolve/preview'),
+	'@remotion/effects/tear': () => import('@remotion/effects/tear/preview'),
 	'@remotion/effects/film-burn': () =>
-		import('@remotion/effects/film-burn?studio-preview'),
+		import('@remotion/effects/film-burn/preview'),
 	'@remotion/effects/radial-wipe': () =>
-		import('@remotion/effects/radial-wipe?studio-preview'),
+		import('@remotion/effects/radial-wipe/preview'),
 	'@remotion/effects/iris-wipe': () =>
-		import('@remotion/effects/iris-wipe?studio-preview'),
+		import('@remotion/effects/iris-wipe/preview'),
 	'@remotion/effects/venetian-blinds': () =>
-		import('@remotion/effects/venetian-blinds?studio-preview'),
-	'@remotion/effects/mirror': () =>
-		import('@remotion/effects/mirror?studio-preview'),
-	'@remotion/effects/scale': () =>
-		import('@remotion/effects/scale?studio-preview'),
-	'@remotion/effects/tile': () =>
-		import('@remotion/effects/tile?studio-preview'),
+		import('@remotion/effects/venetian-blinds/preview'),
+	'@remotion/effects/mirror': () => import('@remotion/effects/mirror/preview'),
+	'@remotion/effects/scale': () => import('@remotion/effects/scale/preview'),
+	'@remotion/effects/tile': () => import('@remotion/effects/tile/preview'),
 	'@remotion/effects/translate': () =>
-		import('@remotion/effects/translate?studio-preview'),
+		import('@remotion/effects/translate/preview'),
 	'@remotion/effects/barrel-distortion': () =>
-		import('@remotion/effects/barrel-distortion?studio-preview'),
+		import('@remotion/effects/barrel-distortion/preview'),
 	'@remotion/effects/chromatic-aberration': () =>
-		import('@remotion/effects/chromatic-aberration?studio-preview'),
+		import('@remotion/effects/chromatic-aberration/preview'),
 	'@remotion/effects/magnify': () =>
-		import('@remotion/effects/magnify?studio-preview'),
+		import('@remotion/effects/magnify/preview'),
 	'@remotion/effects/fisheye': () =>
-		import('@remotion/effects/fisheye?studio-preview'),
+		import('@remotion/effects/fisheye/preview'),
 	'@remotion/effects/corner-pin': () =>
-		import('@remotion/effects/corner-pin?studio-preview'),
+		import('@remotion/effects/corner-pin/preview'),
 	'@remotion/effects/page-turn': () =>
-		import('@remotion/effects/page-turn?studio-preview'),
-	'@remotion/effects/sphere': () =>
-		import('@remotion/effects/sphere?studio-preview'),
+		import('@remotion/effects/page-turn/preview'),
+	'@remotion/effects/sphere': () => import('@remotion/effects/sphere/preview'),
 	'@remotion/effects/cylinder': () =>
-		import('@remotion/effects/cylinder?studio-preview'),
-	'@remotion/effects/wave': () =>
-		import('@remotion/effects/wave?studio-preview'),
-	'@remotion/effects/skew': () =>
-		import('@remotion/effects/skew?studio-preview'),
+		import('@remotion/effects/cylinder/preview'),
+	'@remotion/effects/wave': () => import('@remotion/effects/wave/preview'),
+	'@remotion/effects/skew': () => import('@remotion/effects/skew/preview'),
 	'@remotion/effects/turbulent-displace': () =>
-		import('@remotion/effects/turbulent-displace?studio-preview'),
-	'@remotion/effects/burlap': () =>
-		import('@remotion/effects/burlap?studio-preview'),
+		import('@remotion/effects/turbulent-displace/preview'),
+	'@remotion/effects/burlap': () => import('@remotion/effects/burlap/preview'),
 	'@remotion/effects/bevel-alpha': () =>
-		import('@remotion/effects/bevel-alpha?studio-preview'),
-	'@remotion/effects/emboss': () =>
-		import('@remotion/effects/emboss?studio-preview'),
+		import('@remotion/effects/bevel-alpha/preview'),
+	'@remotion/effects/emboss': () => import('@remotion/effects/emboss/preview'),
 	'@remotion/effects/dot-grid': () =>
-		import('@remotion/effects/dot-grid?studio-preview'),
+		import('@remotion/effects/dot-grid/preview'),
 	'@remotion/effects/halftone': () =>
-		import('@remotion/effects/halftone?studio-preview'),
-	'@remotion/effects/noise': () =>
-		import('@remotion/effects/noise?studio-preview'),
+		import('@remotion/effects/halftone/preview'),
+	'@remotion/effects/noise': () => import('@remotion/effects/noise/preview'),
 	'@remotion/effects/noise-displacement': () =>
-		import('@remotion/effects/noise-displacement?studio-preview'),
-	'@remotion/effects/paper': () =>
-		import('@remotion/effects/paper?studio-preview'),
+		import('@remotion/effects/noise-displacement/preview'),
+	'@remotion/effects/paper': () => import('@remotion/effects/paper/preview'),
 	'@remotion/effects/roughen-edges': () =>
-		import('@remotion/effects/roughen-edges?studio-preview'),
+		import('@remotion/effects/roughen-edges/preview'),
 	'@remotion/effects/pattern': () =>
-		import('@remotion/effects/pattern?studio-preview'),
+		import('@remotion/effects/pattern/preview'),
 	'@remotion/effects/pixel-dissolve': () =>
-		import('@remotion/effects/pixel-dissolve?studio-preview'),
+		import('@remotion/effects/pixel-dissolve/preview'),
 	'@remotion/effects/pixelate': () =>
-		import('@remotion/effects/pixelate?studio-preview'),
+		import('@remotion/effects/pixelate/preview'),
 	'@remotion/effects/linear-progressive-pixelate': () =>
-		import('@remotion/effects/linear-progressive-pixelate?studio-preview'),
+		import('@remotion/effects/linear-progressive-pixelate/preview'),
 	'@remotion/effects/radial-progressive-pixelate': () =>
-		import('@remotion/effects/radial-progressive-pixelate?studio-preview'),
+		import('@remotion/effects/radial-progressive-pixelate/preview'),
 	'@remotion/effects/scanlines': () =>
-		import('@remotion/effects/scanlines?studio-preview'),
+		import('@remotion/effects/scanlines/preview'),
 	'@remotion/effects/speckle': () =>
-		import('@remotion/effects/speckle?studio-preview'),
+		import('@remotion/effects/speckle/preview'),
 	'@remotion/effects/shatter': () =>
-		import('@remotion/effects/shatter?studio-preview'),
-	'@remotion/effects/shine': () =>
-		import('@remotion/effects/shine?studio-preview'),
+		import('@remotion/effects/shatter/preview'),
+	'@remotion/effects/shine': () => import('@remotion/effects/shine/preview'),
 	'@remotion/effects/shrinkwrap': () =>
-		import('@remotion/effects/shrinkwrap?studio-preview'),
+		import('@remotion/effects/shrinkwrap/preview'),
 	'@remotion/effects/vignette': () =>
-		import('@remotion/effects/vignette?studio-preview'),
+		import('@remotion/effects/vignette/preview'),
 	'@remotion/effects/lightning': () =>
-		import('@remotion/effects/lightning?studio-preview'),
+		import('@remotion/effects/lightning/preview'),
 	'@remotion/effects/rain-fall': () =>
-		import('@remotion/effects/rain-fall?studio-preview'),
+		import('@remotion/effects/rain-fall/preview'),
 	'@remotion/effects/snow-fall': () =>
-		import('@remotion/effects/snow-fall?studio-preview'),
+		import('@remotion/effects/snow-fall/preview'),
 	'@remotion/effects/fractal-noise': () =>
-		import('@remotion/effects/fractal-noise?studio-preview'),
+		import('@remotion/effects/fractal-noise/preview'),
 	'@remotion/effects/contour-lines': () =>
-		import('@remotion/effects/contour-lines?studio-preview'),
+		import('@remotion/effects/contour-lines/preview'),
 	'@remotion/effects/liquid-contours': () =>
-		import('@remotion/effects/liquid-contours?studio-preview'),
+		import('@remotion/effects/liquid-contours/preview'),
 	'@remotion/effects/checkerboard': () =>
-		import('@remotion/effects/checkerboard?studio-preview'),
+		import('@remotion/effects/checkerboard/preview'),
 	'@remotion/effects/flannel': () =>
-		import('@remotion/effects/flannel?studio-preview'),
+		import('@remotion/effects/flannel/preview'),
 	'@remotion/effects/halftone-linear-gradient': () =>
-		import('@remotion/effects/halftone-linear-gradient?studio-preview'),
+		import('@remotion/effects/halftone-linear-gradient/preview'),
 	'@remotion/effects/gridlines': () =>
-		import('@remotion/effects/gridlines?studio-preview'),
+		import('@remotion/effects/gridlines/preview'),
 	'@remotion/effects/white-noise': () =>
-		import('@remotion/effects/white-noise?studio-preview'),
+		import('@remotion/effects/white-noise/preview'),
 	'@remotion/effects/tv-signal-off': () =>
-		import('@remotion/effects/tv-signal-off?studio-preview'),
-	'@remotion/effects/lines': () =>
-		import('@remotion/effects/lines?studio-preview'),
-	'@remotion/effects/rings': () =>
-		import('@remotion/effects/rings?studio-preview'),
-	'@remotion/effects/waves': () =>
-		import('@remotion/effects/waves?studio-preview'),
-	'@remotion/effects/zigzag': () =>
-		import('@remotion/effects/zigzag?studio-preview'),
+		import('@remotion/effects/tv-signal-off/preview'),
+	'@remotion/effects/lines': () => import('@remotion/effects/lines/preview'),
+	'@remotion/effects/rings': () => import('@remotion/effects/rings/preview'),
+	'@remotion/effects/waves': () => import('@remotion/effects/waves/preview'),
+	'@remotion/effects/zigzag': () => import('@remotion/effects/zigzag/preview'),
 	'@remotion/effects/light-leak': () =>
-		import('@remotion/effects/light-leak?studio-preview'),
+		import('@remotion/effects/light-leak/preview'),
 	'@remotion/effects/starburst': () =>
-		import('@remotion/effects/starburst?studio-preview'),
+		import('@remotion/effects/starburst/preview'),
 };
 
 // Rspack changes these imports when effects move between lazy and initial chunks.

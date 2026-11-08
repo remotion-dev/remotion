@@ -15,6 +15,8 @@ test.each(EFFECT_CATALOG.map((item) => [item.label, item] as const))(
 		const module = await loader();
 		const factory = module[item.effect.name] as EffectPreviewFactory;
 		expect(factory).toBeFunction();
+		const original = await import(item.effect.importPath);
+		expect(factory).not.toBe(original[item.effect.name]);
 
 		const effect = factory(getEffectPickerConfig(item));
 		expect(effect.definition.label).toBe(item.label);
