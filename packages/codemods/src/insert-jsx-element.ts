@@ -82,7 +82,7 @@ const normalizeVirtualPath = (input: string) => {
 	return `${hasLeadingSlash ? '/' : ''}${parts.join('/')}`;
 };
 
-const resolveVirtualPath = (...parts: string[]) => {
+export const resolveVirtualPath = (...parts: string[]) => {
 	let resolved = '';
 	for (const part of parts) {
 		if (part.startsWith('/')) {
@@ -95,7 +95,7 @@ const resolveVirtualPath = (...parts: string[]) => {
 	return normalizeVirtualPath(resolved);
 };
 
-const virtualDirname = (fileName: string) => {
+export const virtualDirname = (fileName: string) => {
 	const normalized = normalizeVirtualPath(fileName);
 	const lastSlash = normalized.lastIndexOf('/');
 	return lastSlash <= 0
@@ -105,7 +105,7 @@ const virtualDirname = (fileName: string) => {
 		: normalized.slice(0, lastSlash);
 };
 
-const relativeVirtualPath = (from: string, to: string) => {
+export const relativeVirtualPath = (from: string, to: string) => {
 	const fromParts = normalizeVirtualPath(from).split('/').filter(Boolean);
 	const toParts = normalizeVirtualPath(to).split('/').filter(Boolean);
 	let sharedParts = 0;

@@ -1676,6 +1676,10 @@ test('creates, renames and deletes a folder in Browser Studio', async () => {
 
 test('moves a composition into a folder using a symbolicated stack', async () => {
 	const fileName = '/project/src/Root.tsx';
+	const destinationFile = '/project/src/nested/Registrations.tsx';
+	const destinationContents = `import {Folder} from 'remotion';
+export const Registrations = () => <Folder name="target-folder"/>;
+`;
 	const {operations, getProject} = makeOperationsForProject({
 		rootDir: '/project',
 		entryPoint: '/project/src/index.ts',
@@ -1684,14 +1688,16 @@ test('moves a composition into a folder using a symbolicated stack', async () =>
 import {Root} from './Root';
 registerRoot(Root);
 `,
-			[fileName]: `import {Composition, Folder} from 'remotion';
-
-const MyComponent = () => null;
+			[destinationFile]: destinationContents,
+			'/project/src/Video.tsx': 'export default () => null;',
+			[fileName]: `import {Composition} from 'remotion';
+import MyComponent from './Video';
+import {Registrations} from './nested/Registrations';
 
 export const Root = () => {
 	return (
 		<>
-			<Folder name="target-folder" />
+			<Registrations />
 			<Composition id="MyComp" component={MyComponent} durationInFrames={60} fps={30} width={1280} height={720} />
 		</>
 	);
@@ -1700,8 +1706,10 @@ export const Root = () => {
 		},
 	});
 
+	const initialFiles = {...getProject().files};
 	const result = await operations.moveComposition({
 		compositionId: 'MyComp',
+		destinationFile,
 		destination: {
 			type: 'folder',
 			folderName: 'target-folder',
@@ -1721,11 +1729,17 @@ export const Root = () => {
 	}
 
 	expect(result.nodePathMutation).not.toBeNull();
-	const rootFile = getProject().files[fileName];
-	expect(rootFile).toContain('<Folder name="target-folder">');
-	expect(rootFile.indexOf('<Composition')).toBeGreaterThan(
-		rootFile.indexOf('<Folder'),
+	const files = {...getProject().files};
+	expect(files[fileName]).not.toContain('id="MyComp"');
+	expect(files[fileName]).not.toContain('import MyComponent');
+	expect(files[destinationFile]).toContain('id="MyComp"');
+	expect(files[destinationFile]).toContain(
+		"import MyComponent from '../Video';",
 	);
+	expect((await operations.undo()).success).toBe(true);
+	expect(getProject().files).toEqual(initialFiles);
+	expect((await operations.redo()).success).toBe(true);
+	expect(getProject().files).toEqual(files);
 });
 
 test('reorders JSX sequences as an undoable project mutation', async () => {

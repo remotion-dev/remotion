@@ -1,5 +1,4 @@
 import {existsSync, readFileSync} from 'node:fs';
-import path from 'node:path';
 import {moveFolder} from '@remotion/codemods';
 import {RenderInternals} from '@remotion/renderer';
 import type {
@@ -45,7 +44,15 @@ export const moveFolderHandler: ApiHandler<
 				filePath = rootFile;
 			}
 
+			const destinationFile = request.destinationFile
+				? resolveFileInsideProject({
+						remotionRoot,
+						fileName: request.destinationFile,
+						action: 'move a registration into',
+					}).absolutePath
+				: filePath;
 			checkIfTypeScriptFile(filePath);
+			checkIfTypeScriptFile(destinationFile);
 			const destination =
 				request.destination.type === 'folder'
 					? {
@@ -70,12 +77,16 @@ export const moveFolderHandler: ApiHandler<
 							};
 			const result = moveFolder({
 				project: {
-					files: {[filePath]: readFileSync(filePath, 'utf-8')},
-					rootDir: path.dirname(filePath),
+					files: {
+						[filePath]: readFileSync(filePath, 'utf-8'),
+						[destinationFile]: readFileSync(destinationFile, 'utf-8'),
+					},
+					rootDir: remotionRoot,
 				},
 				compositionFile: filePath,
 				folder: {name: request.folderName, parentName: request.parentName},
 				destination,
+				destinationFile,
 			});
 			for (const change of result.changes) {
 				const currentContents = existsSync(change.filePath)
