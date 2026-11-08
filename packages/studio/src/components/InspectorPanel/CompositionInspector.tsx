@@ -364,7 +364,7 @@ export const CompositionInspector: React.FC<{
 				<CollapsibleInspectorSection
 					bodyPaddingBottom={8}
 					collapsible
-					label="Metadata"
+					label="Config"
 					sectionId="composition-metadata"
 				>
 					<CompositionMetadata
