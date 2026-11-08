@@ -1,4 +1,4 @@
-import type {Node} from '@babel/types';
+import type {Node, ObjectExpression} from '@babel/types';
 
 // Keep this file browser-safe: it is shared with the Recast-free composition
 // component resolver.
@@ -20,7 +20,11 @@ const IGNORED_KEYS = new Set([
 	'original',
 ]);
 
-const visitNodes = (value: unknown, visitor: (node: Node) => void) => {
+// Return `false` from the visitor to skip a node's children.
+const visitNodes = (
+	value: unknown,
+	visitor: (node: Node) => boolean | void,
+) => {
 	if (Array.isArray(value)) {
 		for (const item of value) {
 			visitNodes(item, visitor);
@@ -38,7 +42,10 @@ const visitNodes = (value: unknown, visitor: (node: Node) => void) => {
 		return;
 	}
 
-	visitor(value as Node);
+	if (visitor(value as Node) === false) {
+		return;
+	}
+
 	for (const [key, child] of Object.entries(value)) {
 		if (!IGNORED_KEYS.has(key)) {
 			visitNodes(child, visitor);
@@ -91,7 +98,51 @@ const getStaticKeyName = (key: Node, computed: boolean): string | null => {
 		return key.name;
 	}
 
+	if (key.type === 'NumericLiteral') {
+		return String(key.value);
+	}
+
 	return key.type === 'StringLiteral' ? key.value : null;
+};
+
+type LoaderFunction = Extract<
+	Node,
+	{type: 'ArrowFunctionExpression' | 'FunctionExpression'}
+>;
+
+const isLoaderFunction = (node: Node | null): node is LoaderFunction => {
+	return (
+		node?.type === 'ArrowFunctionExpression' ||
+		node?.type === 'FunctionExpression'
+	);
+};
+
+const NESTED_FUNCTION_TYPES = new Set([
+	'ArrowFunctionExpression',
+	'FunctionExpression',
+	'FunctionDeclaration',
+	'ObjectMethod',
+	'ClassMethod',
+	'ClassPrivateMethod',
+]);
+
+// The value a function returns, if it has exactly one `return` with a value.
+// Returns of nested functions are ignored.
+const getReturnedExpression = (fn: LoaderFunction): Node | null => {
+	if (fn.body.type !== 'BlockStatement') {
+		return unwrapExpression(fn.body);
+	}
+
+	const returned: Array<Node | null> = [];
+	visitNodes(fn.body.body, (node) => {
+		if (node.type === 'ReturnStatement') {
+			returned.push(node.argument ?? null);
+		}
+
+		return !NESTED_FUNCTION_TYPES.has(node.type);
+	});
+
+	return returned.length === 1 ? unwrapExpression(returned[0]) : null;
 };
 
 // `lazyComponent` must resolve to a module whose `default` is the component.
@@ -99,11 +150,12 @@ const getStaticKeyName = (key: Node, computed: boolean): string | null => {
 // - `() => import('./Comp')` -> `default`
 // - `async () => { const {Comp} = await import('./Comp'); return {default: Comp}; }` -> `Comp`
 // - `() => import('./Comp').then((m) => ({default: m.Comp}))` -> `Comp`
-// Unrecognized shapes fall back to `default`.
+// Only the value the loader returns is considered. Shapes that cannot be
+// resolved with confidence fall back to `default`.
 export const getLazyComponentImport = (
 	lazyComponent: Node,
 ): LazyComponentImport | null => {
-	// Assigned inside callbacks, so prevent TypeScript from narrowing to `null`.
+	// Assigned inside a callback, so prevent TypeScript from narrowing to `null`.
 	let importCall = null as Node | null;
 	let importPath = null as string | null;
 	visitNodes(lazyComponent, (node) => {
@@ -114,6 +166,12 @@ export const getLazyComponentImport = (
 	});
 	if (importCall === null || importPath === null) {
 		return null;
+	}
+
+	const fallback: LazyComponentImport = {importPath, exportName: 'default'};
+	const loader = unwrapExpression(lazyComponent);
+	if (!isLoaderFunction(loader)) {
+		return fallback;
 	}
 
 	const moduleBindings = new Set<string>();
@@ -144,43 +202,59 @@ export const getLazyComponentImport = (
 		}
 	};
 
-	let defaultValue = null as Node | null;
-	visitNodes(lazyComponent, (node) => {
+	visitNodes(loader.body, (node) => {
 		if (
 			node.type === 'VariableDeclarator' &&
 			unwrapExpression(node.init) === importCall
 		) {
 			bindModule(node.id);
 		}
-
-		if (
-			node.type === 'CallExpression' &&
-			node.callee.type === 'MemberExpression' &&
-			unwrapExpression(node.callee.object) === importCall &&
-			getStaticKeyName(node.callee.property, node.callee.computed) === 'then'
-		) {
-			const callback = node.arguments[0];
-			if (
-				callback?.type === 'ArrowFunctionExpression' ||
-				callback?.type === 'FunctionExpression'
-			) {
-				bindModule(callback.params[0]);
-			}
-		}
-
-		if (node.type === 'ObjectExpression' && defaultValue === null) {
-			for (const property of node.properties) {
-				if (
-					property.type === 'ObjectProperty' &&
-					getStaticKeyName(property.key, property.computed) === 'default'
-				) {
-					defaultValue = property.value;
-				}
-			}
-		}
 	});
 
-	const value = unwrapExpression(defaultValue);
+	let moduleValue = getReturnedExpression(loader);
+	// `import('./Comp').then((m) => ...)` resolves to what the callback returns.
+	if (
+		moduleValue?.type === 'CallExpression' &&
+		moduleValue.callee.type === 'MemberExpression' &&
+		unwrapExpression(moduleValue.callee.object) === importCall &&
+		getStaticKeyName(
+			moduleValue.callee.property,
+			moduleValue.callee.computed,
+		) === 'then'
+	) {
+		const callback = unwrapExpression(moduleValue.arguments[0]);
+		if (!isLoaderFunction(callback)) {
+			return fallback;
+		}
+
+		bindModule(callback.params[0]);
+		moduleValue = getReturnedExpression(callback);
+	}
+
+	// Returning the imported module itself keeps its `default` export.
+	if (moduleValue?.type !== 'ObjectExpression') {
+		return fallback;
+	}
+
+	// The last property that may define `default` wins. If that is a spread, a
+	// method or a computed key, the component cannot be determined.
+	let lastDefaultCandidate: ObjectExpression['properties'][number] | null =
+		null;
+	for (const property of moduleValue.properties) {
+		const keyName =
+			property.type === 'SpreadElement'
+				? null
+				: getStaticKeyName(property.key, property.computed);
+		if (keyName === null || keyName === 'default') {
+			lastDefaultCandidate = property;
+		}
+	}
+
+	if (lastDefaultCandidate?.type !== 'ObjectProperty') {
+		return fallback;
+	}
+
+	const value = unwrapExpression(lastDefaultCandidate.value);
 	if (
 		value?.type === 'MemberExpression' ||
 		value?.type === 'OptionalMemberExpression'
@@ -203,5 +277,5 @@ export const getLazyComponentImport = (
 		}
 	}
 
-	return {importPath, exportName: 'default'};
+	return fallback;
 };
