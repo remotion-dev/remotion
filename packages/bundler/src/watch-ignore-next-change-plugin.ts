@@ -760,14 +760,30 @@ export class WatchIgnoreNextChangePlugin {
 
 					self.notifying = true;
 					try {
-						wrappedCallbackUndelayed(notifications.keys().next().value!, now);
-						wrappedCallback(
-							null,
-							info.fileTimeInfoEntries,
-							info.contextTimeInfoEntries,
-							info.changes,
-							info.removals,
-						);
+						const {watching} = compiler;
+						if (
+							watching &&
+							'invalidateWithChangesAndRemovals' in watching &&
+							typeof watching.invalidateWithChangesAndRemovals === 'function'
+						) {
+							for (const file of info.changes)
+								self.filesRequiringRebuild.delete(file);
+							for (const file of info.removals)
+								self.filesRequiringRebuild.delete(file);
+							watching.invalidateWithChangesAndRemovals(
+								info.changes,
+								info.removals,
+							);
+						} else {
+							wrappedCallbackUndelayed(notifications.keys().next().value!, now);
+							wrappedCallback(
+								null,
+								info.fileTimeInfoEntries,
+								info.contextTimeInfoEntries,
+								info.changes,
+								info.removals,
+							);
+						}
 					} finally {
 						self.notifying = false;
 					}
