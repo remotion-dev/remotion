@@ -1,5 +1,5 @@
 import React, {useCallback, useContext} from 'react';
-import {Internals} from 'remotion';
+import {Internals, type _InternalTypes} from 'remotion';
 import {
 	applyOptimisticCompositionOperation,
 	getActiveOptimisticCompositionOperations,
@@ -74,32 +74,50 @@ const DeleteCompositionLoaded: React.FC<{
 						onSuccess={null}
 						applyEdit={({signal, symbolicatedStack}) => {
 							const getSnapshot = () => compositionManagerRef.current;
-							const currentRoute = getRoute();
-							const currentCanvasContent = deriveCanvasContentFromUrl();
-							const isSelected =
-								currentCanvasContent?.type === 'composition' &&
-								currentCanvasContent.compositionId === compositionId;
-							const pendingDeletions = new Set(
-								getActiveOptimisticCompositionOperations(getSnapshot()).flatMap(
-									(operation) =>
+							const isShown = () => {
+								const canvasContent = deriveCanvasContentFromUrl();
+								return (
+									canvasContent?.type === 'composition' &&
+									canvasContent.compositionId === compositionId
+								);
+							};
+
+							// Compositions that are being deleted are no navigation targets.
+							const getFallback = () => {
+								const pendingDeletions = new Set(
+									getActiveOptimisticCompositionOperations(
+										getSnapshot(),
+									).flatMap((operation) =>
 										operation.type === 'delete'
 											? [operation.compositionId]
 											: [],
-								),
-							);
-							const fallback = isSelected
-								? (getSnapshot().compositions.find(
+									),
+								);
+								return (
+									getSnapshot().compositions.find(
 										({id}) => id !== compositionId && !pendingDeletions.has(id),
-									) ?? null)
-								: undefined;
+									) ?? null
+								);
+							};
+
+							const navigateTo = (
+								target: _InternalTypes['AnyComposition'] | null,
+							) => {
+								if (target === null) {
+									pushUrl('/');
+									setCanvasContent(null);
+								} else {
+									selectComposition(target, true);
+								}
+							};
+
+							const currentRoute = getRoute();
+							const fallback = isShown() ? getFallback() : undefined;
 
 							// The composition disappears immediately, so leave it now
 							// instead of after the source edit is persisted.
-							if (fallback === null) {
-								pushUrl('/');
-								setCanvasContent(null);
-							} else if (fallback !== undefined) {
-								selectComposition(fallback, true);
+							if (fallback !== undefined) {
+								navigateTo(fallback);
 							}
 
 							// On failure, return to the composition unless the user has
@@ -146,6 +164,10 @@ const DeleteCompositionLoaded: React.FC<{
 								(result) => {
 									if (!result.success) {
 										restoreSelection();
+									} else if (isShown()) {
+										// It was reopened while the deletion was pending, for
+										// example from the browser history.
+										navigateTo(getFallback());
 									}
 
 									return result;

@@ -44,7 +44,6 @@ import {SetSelectedModalContext} from '../state/modals';
 import {makeCompositionDragData} from './composition-drag-data';
 import {getCompositionContextMenuItems} from './composition-menu-items';
 import {
-	compositionSelectorDragDataToSymbolicatedStack,
 	hasCompositionSelectorDragData,
 	makeCompositionSelectorDragData,
 	parseCompositionSelectorDragData,
@@ -216,11 +215,19 @@ const canMoveIntoFolder = ({
 	);
 };
 
+// A pending move relocates the registration from one project-relative file to
+// another. Applied in order to the row's resolved source file.
+export type SourceFileRemap = {
+	readonly from: string;
+	readonly to: string;
+};
+
 export type CompositionSelectorItemType =
 	| {
 			key: string;
 			type: 'composition';
 			composition: _InternalTypes['AnyComposition'];
+			sourceFileRemaps: readonly SourceFileRemap[];
 	  }
 	| {
 			key: string;
@@ -230,6 +237,7 @@ export type CompositionSelectorItemType =
 			parentName: string | null;
 			items: CompositionSelectorItemType[];
 			expanded: boolean;
+			sourceFileRemaps: readonly SourceFileRemap[];
 	  };
 
 export const CompositionSelectorItem: React.FC<{
@@ -401,6 +409,14 @@ export const CompositionSelectorItem: React.FC<{
 	const resolvedLocation = useResolvedStack(
 		item.type === 'composition' ? item.composition.stack : item.folder.stack,
 	);
+	const sourceFile = useMemo(
+		() =>
+			item.sourceFileRemaps.reduce<string | null>(
+				(file, remap) => (file === remap.from ? remap.to : file),
+				resolvedLocation?.source ?? null,
+			),
+		[item.sourceFileRemaps, resolvedLocation?.source],
+	);
 
 	const getContextMenuItems = useCallback((): ComboboxValue[] => {
 		if (item.type === 'composition') {
@@ -444,7 +460,7 @@ export const CompositionSelectorItem: React.FC<{
 			event.dataTransfer.effectAllowed = 'copyMove';
 			const selectorDragData = makeCompositionSelectorDragData({
 				item: itemDescriptor,
-				sourceFile: resolvedLocation?.source ?? null,
+				sourceFile,
 			});
 			event.dataTransfer.setData(
 				selectorDragData.mimeType,
@@ -456,7 +472,7 @@ export const CompositionSelectorItem: React.FC<{
 				const compositionDragData = makeCompositionDragData({
 					compositionFile:
 						browserStudioOperations === null
-							? (resolvedLocation?.source ?? null)
+							? sourceFile
 							: browserStudioOperations.getCompositionFile(item.composition.id),
 					compositionId: item.composition.id,
 					width: item.composition.width ?? null,
@@ -469,7 +485,7 @@ export const CompositionSelectorItem: React.FC<{
 				);
 			}
 		},
-		[activeDragRef, item, parentFolderPath, resolvedLocation?.source],
+		[activeDragRef, item, parentFolderPath, sourceFile],
 	);
 	const onItemDragEnd = useCallback(() => {
 		activeDragRef.current = null;
@@ -676,11 +692,9 @@ export const CompositionSelectorItem: React.FC<{
 
 			try {
 				const result = await moveCompositionOrFolder({
-					source: dragData.item,
+					dragData,
 					destination,
-					destinationFile: resolvedLocation?.source ?? null,
-					symbolicatedStack:
-						compositionSelectorDragDataToSymbolicatedStack(dragData),
+					destinationFile: sourceFile,
 					getSnapshot: () => compositionManagerRef.current,
 				});
 
@@ -694,13 +708,7 @@ export const CompositionSelectorItem: React.FC<{
 				);
 			}
 		},
-		[
-			activeDragRef,
-			compositionManagerRef,
-			item,
-			resolvedLocation?.source,
-			toggleFolder,
-		],
+		[activeDragRef, compositionManagerRef, item, sourceFile, toggleFolder],
 	);
 
 	const onRowDrop = useCallback(

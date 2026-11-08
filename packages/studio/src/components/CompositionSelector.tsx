@@ -19,6 +19,7 @@ import {
 } from '../helpers/create-folder-tree';
 import {
 	applyOptimisticCompositionOperations,
+	useCompositionsWithoutPendingDeletions,
 	useOptimisticCompositionOperations,
 } from '../helpers/optimistic-composition-operations';
 import {ExpandedFoldersContext} from '../helpers/persist-open-folders';
@@ -27,7 +28,6 @@ import {SetSelectedModalContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
 import {
 	type CompositionSelectorActiveDrag,
-	compositionSelectorDragDataToSymbolicatedStack,
 	hasCompositionSelectorDragData,
 	parseCompositionSelectorDragData,
 } from './composition-selector-drag-data';
@@ -40,9 +40,15 @@ import {ExplorerQuickSwitcherTrigger} from './QuickSwitcher/ExplorerQuickSwitche
 import {getRootCompositionMenuItems} from './root-composition-menu-items';
 
 export const useCompositionNavigation = () => {
-	const {compositions, canvasContent} = useContext(
-		Internals.CompositionManager,
-	);
+	const {
+		compositions: registeredCompositions,
+		folders,
+		canvasContent,
+	} = useContext(Internals.CompositionManager);
+	const compositions = useCompositionsWithoutPendingDeletions({
+		compositions: registeredCompositions,
+		folders,
+	});
 	const selectComposition = useSelectComposition();
 
 	const navigateToNextComposition = useCallback(() => {
@@ -387,11 +393,9 @@ export const CompositionSelector: React.FC<{
 
 			try {
 				const result = await moveCompositionOrFolder({
-					source: dragData.item,
+					dragData,
 					destination: {type: 'root'},
 					destinationFile: null,
-					symbolicatedStack:
-						compositionSelectorDragDataToSymbolicatedStack(dragData),
 					getSnapshot: () => compositionManagerRef.current,
 				});
 				if (!result.success) {

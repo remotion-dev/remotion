@@ -1,36 +1,42 @@
-import type {
-	CompositionDestination,
-	CompositionOrFolder,
-	SymbolicatedStackFrame,
-} from '@remotion/studio-shared';
+import type {CompositionDestination} from '@remotion/studio-shared';
 import {
 	applyOptimisticCompositionOperation,
 	type CompositionRegistrySnapshot,
 } from '../helpers/optimistic-composition-operations';
+import {
+	compositionSelectorDragDataToSymbolicatedStack,
+	type CompositionSelectorDragData,
+} from './composition-selector-drag-data';
 import {moveComposition, moveFolder} from './RenderQueue/actions';
 
 export const moveCompositionOrFolder = ({
-	source,
+	dragData,
 	destination,
 	destinationFile,
-	symbolicatedStack,
 	getSnapshot,
 }: {
-	readonly source: CompositionOrFolder;
+	readonly dragData: CompositionSelectorDragData;
 	readonly destination: CompositionDestination;
 	readonly destinationFile: string | null;
-	readonly symbolicatedStack: SymbolicatedStackFrame | null;
 	readonly getSnapshot: () => CompositionRegistrySnapshot;
 }) => {
+	const {item: source, sourceFile} = dragData;
 	return applyOptimisticCompositionOperation({
-		operation: {type: 'move', item: source, destination},
+		operation: {
+			type: 'move',
+			item: source,
+			destination,
+			sourceFile,
+			destinationFile,
+		},
 		getSnapshot,
 		persist: () => {
 			const {signal} = new AbortController();
 			const common = {
 				destination,
 				destinationFile,
-				symbolicatedStack,
+				symbolicatedStack:
+					compositionSelectorDragDataToSymbolicatedStack(dragData),
 				undoRedoNavigation: null,
 			};
 			return source.type === 'composition'
