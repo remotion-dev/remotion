@@ -783,6 +783,9 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		route: null,
 	});
 	expect(currentProject.files[fileName]).not.toContain('style={{rotate:');
+	expect(
+		events.filter((event) => event.type === 'external-source-changed'),
+	).toEqual([]);
 
 	currentProject = {
 		...currentProject,
@@ -795,6 +798,19 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 		},
 	};
 	operations.resetHistory();
+	expect(
+		events.filter((event) => event.type === 'external-source-changed'),
+	).toEqual([
+		{
+			type: 'external-source-changed',
+			resetUndoHistory: true,
+			fileName,
+			sourceVersion: {
+				sessionId: expect.any(String),
+				revision: expect.any(Number),
+			},
+		},
+	]);
 	expect(events.findLast((event) => event.type === 'lost-node-path')).toEqual({
 		type: 'lost-node-path',
 		fileName: 'src/Composition.tsx',
@@ -820,6 +836,9 @@ export const Root = () => <Composition id="MyComp" component={Component} duratio
 			event.type === 'lost-node-path',
 	).length;
 	operations.resetHistory();
+	expect(
+		events.filter((event) => event.type === 'external-source-changed'),
+	).toHaveLength(1);
 	expect(
 		events.filter(
 			(event) =>

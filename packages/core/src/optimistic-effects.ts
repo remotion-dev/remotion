@@ -654,6 +654,25 @@ export const OptimisticEffects = {
 		activeSourceRevision = null;
 		publish(keys);
 	},
+	invalidateFile: (absolutePath: string) => {
+		const keys: string[] = [];
+		for (const [key, entry] of entries) {
+			if (entry.nodePath.absolutePath !== absolutePath) continue;
+			for (const operation of entry.operations) {
+				if (
+					operation.status === 'queued' ||
+					operation.status === 'acknowledged'
+				)
+					operation.status = 'cancelled';
+			}
+
+			entries.delete(key);
+			OptimisticEffectPropStatuses.removeNode(entry.nodePath);
+			keys.push(key);
+		}
+
+		if (keys.length > 0) publish(keys);
+	},
 	reconcile: (nodePath: NodePath, definitions: readonly Definition[]) => {
 		const entry = entries.get(keyForNode(nodePath));
 		if (

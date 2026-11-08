@@ -3344,7 +3344,28 @@ export const createBrowserStudioOperations = ({
 		},
 		resetHistory: () => {
 			const project = getProject();
+			const changedFiles = new Set([
+				...sourceFileStates.keys(),
+				...Object.keys(project.files),
+			]);
+			for (const file of [...changedFiles]) {
+				if (sourceFileStates.get(file)?.content === project.files[file])
+					changedFiles.delete(file);
+			}
+
 			const sourceVersions = captureSourceVersions(project);
+			for (const fileName of changedFiles) {
+				controller.emitEvent({
+					type: 'external-source-changed',
+					resetUndoHistory: true,
+					fileName,
+					sourceVersion: sourceVersions.get(fileName) ?? {
+						sessionId: sourceVersionSessionId,
+						revision: ++sourceRevision,
+					},
+				});
+			}
+
 			controller.resetHistory();
 			refreshDefaultPropsSubscriptions();
 			refreshSequencePropsSubscriptions(project, sourceVersions, false);

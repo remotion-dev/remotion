@@ -7,6 +7,7 @@ import {
 	BROWSER_STUDIO_OPERATIONS_READY_EVENT,
 	getBrowserStudioOperations,
 } from './browser-studio-operations';
+import {recordExternalSourceChange} from './external-source-changes';
 import {queueSequenceNodePathMutation} from './sequence-node-path-mutations';
 import {
 	getSequencePropsSourceSession,
@@ -44,6 +45,14 @@ const notifyConnectionState = () => {
 };
 
 const dispatch = (event: EventSourceEvent) => {
+	if (event.type === 'external-source-changed') {
+		recordExternalSourceChange(
+			event.fileName,
+			event.sourceVersion,
+			event.resetUndoHistory,
+		);
+	}
+
 	if (event.type === 'sequence-node-paths-remapped') {
 		queueSequenceNodePathMutation(event.mutation);
 	}

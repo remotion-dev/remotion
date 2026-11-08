@@ -11,11 +11,14 @@ import {parseAst} from '../codemods/parse-ast';
 import {readVisualControlValues} from '../codemods/read-visual-control-values';
 import {
 	installFileWatcher,
+	getFileWatcherRegistry,
+	subscribeToExternalSourceChanges,
 	writeFileAndNotifyFileWatchers,
 } from '../file-watcher';
 import {formatLogFileLocation} from './format-log-file-location';
 import {waitForLiveEventsListener} from './live-events';
 import {broadcastSequenceNodePathMutation} from './sequence-node-path-mutation';
+import {validateSourceMutation} from './source-mutation-guard';
 import {
 	prepareBundlerForFileWrite,
 	suppressBundlerUpdateForFile,
@@ -209,6 +212,7 @@ export function pushTransactionToUndoStack({
 	suppressHmrOnFileRestore: boolean;
 	undoRedoNavigation: UndoRedoNavigation | null;
 }) {
+	validateSourceMutation();
 	storedLogLevel = logLevel;
 	storedRemotionRoot = remotionRoot;
 
@@ -389,6 +393,8 @@ function invalidateForFile(filePath: string) {
 	}
 }
 
+subscribeToExternalSourceChanges(invalidateForFile);
+
 function cleanupWatchers() {
 	const filesInStacks = new Set([
 		...undoStack.flatMap(getEntryFilePaths),
@@ -436,6 +442,9 @@ function logFileAction(action: string, filePath: string, logLine: number) {
 }
 
 export function popUndo(): UndoResponse {
+	for (const snapshot of undoStack.at(-1)?.snapshots ?? [])
+		getFileWatcherRegistry().getExternalSourceRevision(snapshot.filePath);
+	validateSourceMutation();
 	const entry = undoStack.pop();
 	if (!entry) {
 		return {success: false, reason: 'Nothing to undo'};
@@ -514,6 +523,7 @@ export function popUndo(): UndoResponse {
 		if (snapshot.oldContents === null) {
 			prepareBundlerForFileWrite(snapshot.filePath);
 			rmSync(snapshot.filePath, {force: true});
+			getFileWatcherRegistry().recordSourceWrite(snapshot.filePath, null);
 		} else {
 			writeFileAndNotifyFileWatchers({
 				file: snapshot.filePath,
@@ -556,6 +566,9 @@ export function popUndo(): UndoResponse {
 }
 
 export function popRedo(): RedoResponse {
+	for (const snapshot of redoStack.at(-1)?.snapshots ?? [])
+		getFileWatcherRegistry().getExternalSourceRevision(snapshot.filePath);
+	validateSourceMutation();
 	const entry = redoStack.pop();
 	if (!entry) {
 		return {success: false, reason: 'Nothing to redo'};

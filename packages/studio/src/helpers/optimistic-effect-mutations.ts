@@ -14,6 +14,10 @@ import {
 	snapshotOptimisticEffectProps,
 } from './optimistic-effect-props';
 import {
+	getSourceRequestFiles,
+	normalizeSourceFileName,
+} from './rebase-source-request';
+import {
 	getActiveSourceMutationRevision,
 	getLastDispatchedSourceMutationRevision,
 	getSourceMutationRevision,
@@ -34,6 +38,8 @@ type Change = {
 	after: readonly EffectItem[];
 };
 type HistoryEntry = {
+	files: string[];
+	dispatched: boolean;
 	status: 'pending' | 'saved' | 'failed';
 	changes: Change[];
 	type: 'edit' | 'undo' | 'redo';
@@ -108,6 +114,8 @@ const publishHistory = () => {
 			...[...redo].reverse(),
 			...redo.map(
 				(target): HistoryEntry => ({
+					files: target.files,
+					dispatched: true,
 					status: 'saved',
 					changes: [],
 					type: 'undo',
@@ -138,6 +146,62 @@ export const subscribeToOptimisticEffectHistory = (listener: () => void) => {
 export const clearOptimisticEffectHistory = () => {
 	for (const entry of history) entry.status = 'failed';
 	history = [];
+	publishHistory();
+};
+
+export const invalidateOptimisticEffectHistory = (
+	file: string,
+	resetSavedHistory: boolean,
+) => {
+	const touchesFile = (entry: HistoryEntry) =>
+		entry.files.some((name) => normalizeSourceFileName(name, '') === file);
+	const savedUndo: HistoryEntry[] = [];
+	const savedRedo: HistoryEntry[] = [];
+	for (const entry of history) {
+		if (entry.status !== 'saved') continue;
+		if (entry.type === 'edit') {
+			savedUndo.push(entry);
+			savedRedo.length = 0;
+		} else if (entry.target !== null) {
+			const from = entry.type === 'undo' ? savedUndo : savedRedo;
+			const to = entry.type === 'undo' ? savedRedo : savedUndo;
+			if (from.at(-1) === entry.target) {
+				from.pop();
+				to.push(entry.target);
+			}
+		}
+	}
+
+	// An in-flight write may already be committed. Let the server supply its
+	// remaining history when its acknowledgement has not reached this client.
+	const uncertainHistory = history.some(
+		(entry) =>
+			entry.status === 'pending' && entry.dispatched && touchesFile(entry),
+	);
+	const retained = new Set(
+		uncertainHistory || resetSavedHistory
+			? []
+			: [
+					...savedUndo.slice(savedUndo.findLastIndex(touchesFile) + 1),
+					...savedRedo.slice(savedRedo.findLastIndex(touchesFile) + 1),
+				],
+	);
+	history = history.filter((entry) => {
+		if (entry.status === 'saved') {
+			return retained.has(entry.type === 'edit' ? entry : entry.target!);
+		}
+
+		if (entry.status === 'failed') return false;
+		if (touchesFile(entry)) {
+			entry.status = 'failed';
+			for (const {operation} of entry.changes)
+				Internals.OptimisticEffects.rollback(operation);
+			for (const restore of entry.propRestores) restore.rollback();
+			return false;
+		}
+
+		return true;
+	});
 	publishHistory();
 };
 
@@ -245,6 +309,8 @@ export const captureOptimisticEffectMutation = (
 	};
 
 	const entry: HistoryEntry = {
+		files: getSourceRequestFiles(body),
+		dispatched: false,
 		status: 'pending',
 		changes,
 		type:
@@ -266,6 +332,7 @@ export const captureOptimisticEffectMutation = (
 
 	if (entry.type !== 'edit') {
 		entry.target = (entry.type === 'undo' ? undo : redo).at(-1) ?? null;
+		entry.files = entry.target?.files ?? [];
 		entry.dependency =
 			history.findLast(
 				(item) =>
@@ -473,6 +540,7 @@ export const captureOptimisticEffectMutation = (
 	};
 
 	return {
+		files: entry.files,
 		rollback,
 		prepare: async () => {
 			if (entry.status === 'failed')
@@ -500,6 +568,7 @@ export const captureOptimisticEffectMutation = (
 			)
 				throw new Error('The edit this action depended on could not be saved.');
 			let cursor = 0;
+			entry.dispatched = true;
 			const mapped = mapTargets(endpoint, rebasedBody, (target) => {
 				const binding = bindings[cursor++];
 				if (!binding) return target;

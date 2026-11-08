@@ -104,6 +104,20 @@ export const markSourceRequestPaths = (
 	});
 };
 
+export const getSourceRequestFiles = (body: unknown): string[] => {
+	const files = new Set<string>();
+	const root = typeof window === 'undefined' ? '' : (window.remotion_cwd ?? '');
+	mapSourcePaths(body, (nodePath, fileName) => {
+		if (fileName !== null) {
+			const normalized = normalizeSourceFileName(fileName, root);
+			files.add(/^[a-z]:\//i.test(normalized) ? normalized : `/${normalized}`);
+		}
+
+		return nodePath;
+	});
+	return [...files];
+};
+
 export const copySourcePathProvenance = (
 	from: SequenceNodePath,
 	to: SequenceNodePath,

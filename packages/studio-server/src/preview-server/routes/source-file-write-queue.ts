@@ -1,5 +1,6 @@
 import {AsyncLocalStorage} from 'node:async_hooks';
 import type {LogLevel} from '@remotion/renderer';
+import {validateSourceMutation} from '../source-mutation-guard';
 
 let chain: Promise<unknown> = Promise.resolve();
 const codemodStartTime = new AsyncLocalStorage<number>();
@@ -14,7 +15,11 @@ export const getCodemodTimingPrefix = (logLevel: LogLevel) => {
 export const withSourceFileWriteQueue = <T>(
 	fn: () => Promise<T> | T,
 ): Promise<T> => {
-	const run = () => codemodStartTime.run(Date.now(), fn);
+	const run = () =>
+		codemodStartTime.run(Date.now(), () => {
+			validateSourceMutation();
+			return fn();
+		});
 	const next = chain.then(run, run);
 
 	chain = next.then(

@@ -8,6 +8,7 @@ import {
 } from 'remotion';
 import {deepEqual} from '../components/RenderModal/SchemaEditor/deep-equal';
 import {applyEffectResponseToPropStatuses} from '../components/Timeline/apply-effect-response-to-prop-statuses';
+import {normalizeSourceFileName} from './rebase-source-request';
 
 type Props = Record<string, CanUpdateSequencePropSource>;
 type HistoryUpdate = {
@@ -56,6 +57,33 @@ const observedStatuses = new Map<
 		status: CanUpdateSequencePropsResponse;
 	}
 >();
+
+export const invalidateOptimisticEffectProps = (file: string) => {
+	for (const [key, {nodePath}] of observedStatuses) {
+		if (normalizeSourceFileName(nodePath.absolutePath, '') === file)
+			observedStatuses.delete(key);
+	}
+
+	for (const entry of Internals.OptimisticEffects.getSnapshot()) {
+		if (normalizeSourceFileName(entry.nodePath.absolutePath, '') !== file)
+			continue;
+		const ids = new Set([
+			...[...entry.items, ...entry.compiledItems, ...entry.persistedItems].map(
+				(item) => item.id,
+			),
+			...entry.operations.flatMap((operation) => operation.addedIds),
+		]);
+		for (const id of ids) {
+			for (const revision of fieldRevisions.get(id)?.values() ?? []) {
+				pendingRevisions.delete(revision);
+				rejectedRevisions.add(revision);
+			}
+
+			fieldRevisions.delete(id);
+			committedProps.delete(id);
+		}
+	}
+};
 
 export const snapshotOptimisticEffectProps = (
 	nodePath: SequencePropsSubscriptionKey,
@@ -244,6 +272,7 @@ export const createOptimisticEffectPropUpdate = ({
 
 	const rollback = () => {
 		if (!item) return;
+		if (fieldRevisions.get(item.id) !== revisions) return;
 		pendingRevisions.delete(revision);
 		rejectedRevisions.add(revision);
 		const overrides = {
@@ -276,7 +305,7 @@ export const createOptimisticEffectPropUpdate = ({
 				);
 		},
 		restore: (direction: 'undo' | 'redo') => {
-			if (!item)
+			if (!item || fieldRevisions.get(item.id) !== revisions)
 				return {rollback: () => undefined, acknowledge: () => undefined};
 			const restoreRevision = {};
 			const currentProps = Internals.OptimisticEffects.getPropStatuses(
@@ -311,6 +340,7 @@ export const createOptimisticEffectPropUpdate = ({
 						);
 				},
 				rollback: () => {
+					if (fieldRevisions.get(item.id) !== revisions) return;
 					pendingRevisions.delete(restoreRevision);
 					rejectedRevisions.add(restoreRevision);
 					const rollbackProps = {
@@ -337,6 +367,7 @@ export const createOptimisticEffectPropUpdate = ({
 			previous: CanUpdateSequencePropsResponse,
 		): CanUpdateSequencePropsResponse => {
 			if (!item) return applyOptimistic(previous);
+			if (fieldRevisions.get(item.id) !== revisions) return previous;
 			const source = previous?.canUpdate
 				? previous.effects.find(
 						(effect) => effect.effectIndex === item.sourceIndex,
@@ -408,6 +439,7 @@ export const createOptimisticEffectPropUpdate = ({
 			response: CanUpdateEffectPropsResponse,
 		): CanUpdateSequencePropsResponse => {
 			if (!item) return applyEffectResponseToPropStatuses({previous, response});
+			if (fieldRevisions.get(item.id) !== revisions) return previous;
 			pendingRevisions.delete(revision);
 			if (!response.canUpdate) {
 				rollback();

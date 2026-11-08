@@ -381,3 +381,128 @@ export const Comp = () => <>
 		rmSync(remotionRoot, {recursive: true, force: true});
 	}
 });
+
+test('external changes reject queued and in-flight codemods without overwriting source or undo history', async () => {
+	const {withSourceMutationGuard} =
+		await import('../preview-server/source-mutation-guard');
+	const {withSourceFileWriteQueue} =
+		await import('../preview-server/routes/source-file-write-queue');
+	const remotionRoot = mkdtempSync(join(tmpdir(), 'external-effect-edit-'));
+	const filePath = join(remotionRoot, 'Comp.tsx');
+	const otherFile = join(remotionRoot, 'Other.tsx');
+	const original = `import {Solid} from 'remotion';\nexport const Comp = () => <Solid width={100} height={100} />;\n`;
+	const external = original.replace('width={100}', 'width={200}');
+	writeFileSync(filePath, original);
+	writeFileSync(otherFile, original);
+	const registry = createFileWatcherRegistry();
+	const cleanupRegistry = setFileWatcherRegistry(registry);
+	const events: string[] = [];
+	const cleanupEvents = setLiveEventsListener({
+		sendEventToClient: (event) => {
+			events.push(event.type);
+		},
+		sendEventToClientId: () => true,
+		router: () => Promise.resolve(),
+		closeConnections: () => Promise.resolve(),
+		addNewClientListener: () => () => undefined,
+	});
+	const sequenceNodePath = {
+		absolutePath: filePath,
+		nodePath: lineContainingToNodePath(original, '<Solid'),
+		sequenceKeys: [],
+		effectKeys: [],
+		videoConfigValues: null,
+	};
+	const context = {
+		entryPoint: filePath,
+		remotionRoot,
+		request: {} as never,
+		response: {} as never,
+		logLevel: 'error' as const,
+		methods: {
+			removeJob: () => undefined,
+			cancelJob: () => undefined,
+			addJob: () => undefined,
+		},
+		publicDir: remotionRoot,
+		binariesDirectory: null,
+		configFile: null,
+		getDefaultCodingAgent: () => null,
+		getDefaultEditor: () => null,
+	};
+	const add = (fileName: string) =>
+		addEffectHandler({
+			...context,
+			input: {
+				fileName,
+				sequenceNodePath: {...sequenceNodePath, absolutePath: fileName},
+				effectName: 'brightness',
+				effectImportPath: '@remotion/effects/brightness',
+				effectConfig: {amount: 1.2},
+				clientId: 'external-edit-test',
+			},
+		});
+	const guard = (file: string) => ({
+		sessionId: registry.sourceVersionSessionId,
+		files: {[file]: registry.getExternalSourceRevision(file)},
+	});
+	let release = () => {};
+	try {
+		clearUndoStackForTests();
+		const before = guard(filePath);
+		const other = guard(otherFile);
+		const held = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		const blocking = withSourceFileWriteQueue(() => held);
+		const queued = withSourceMutationGuard(before, () => add(filePath));
+		const rejected = queued.catch((error: Error) => error.message);
+		writeFileSync(filePath, external);
+		release();
+		await blocking;
+		expect(await rejected).toContain('edited outside Studio');
+		expect(readFileSync(filePath, 'utf8')).toBe(external);
+		expect(events).toContain('external-source-changed');
+		expect(events).not.toContain('sequence-node-paths-remapped');
+		expect(popUndo().success).toBe(false);
+
+		const independent = await withSourceMutationGuard(other, () =>
+			add(otherFile),
+		);
+		expect(independent.success).toBe(true);
+		expect(readFileSync(otherFile, 'utf8')).toContain('brightness({');
+		const fresh = guard(filePath);
+		const inFlight = withSourceMutationGuard(fresh, () => add(filePath));
+		await Promise.resolve();
+		const newest = original.replace('width={100}', 'width={300}');
+		writeFileSync(filePath, newest);
+		const result = await inFlight;
+		expect(result.success).toBe(false);
+		if (!result.success)
+			expect(result.reason).toContain('edited outside Studio');
+		expect(readFileSync(filePath, 'utf8')).toBe(newest);
+		expect(popUndo().success).toBe(true);
+		expect(readFileSync(otherFile, 'utf8')).toBe(original);
+		expect(readFileSync(filePath, 'utf8')).toBe(newest);
+
+		const nextGuard = guard(filePath);
+		expect(
+			(await withSourceMutationGuard(nextGuard, () => add(filePath))).success,
+		).toBe(true);
+		expect(
+			(await withSourceMutationGuard(nextGuard, () => add(filePath))).success,
+		).toBe(true);
+		expect(readFileSync(filePath, 'utf8').match(/brightness\(/g)).toHaveLength(
+			2,
+		);
+		writeFileSync(filePath, original);
+		expect(popUndo().success).toBe(false);
+		expect(readFileSync(filePath, 'utf8')).toBe(original);
+	} finally {
+		release();
+		clearUndoStackForTests();
+		cleanupEvents();
+		cleanupRegistry();
+		rmSync(remotionRoot, {recursive: true, force: true});
+	}
+});

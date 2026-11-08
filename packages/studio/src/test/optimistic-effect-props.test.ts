@@ -175,7 +175,7 @@ test('retires an overlay only when source status catches up after its write comp
 	);
 });
 
-test('external refresh clears completed overlays and preserves pending changes', () => {
+test('an unattributed refresh clears completed overlays and preserves pending changes', () => {
 	const items = Internals.OptimisticEffects.getItems(nodePath, [
 		definition,
 		definition,

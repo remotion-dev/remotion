@@ -20,7 +20,10 @@ import {
 	type SequenceNodePathRemapping,
 } from '@remotion/studio-shared';
 import {addCompositionToFile} from './codemods/add-composition-to-file';
-import {writeFileAndNotifyFileWatchers} from './file-watcher';
+import {
+	getFileWatcherRegistry,
+	writeFileAndNotifyFileWatchers,
+} from './file-watcher';
 import {getInstalledInstallablePackages} from './helpers/get-installed-installable-packages';
 import {
 	assertNoSymlinks,
@@ -747,6 +750,9 @@ export const installElement = async ({
 
 					if (source.oldContents === null) {
 						unlinkSync(source.filePath);
+						if (studio) {
+							getFileWatcherRegistry().recordSourceWrite(source.filePath, null);
+						}
 					} else {
 						writeSourceFile({
 							file: source.filePath,

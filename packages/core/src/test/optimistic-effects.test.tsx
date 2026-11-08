@@ -245,14 +245,16 @@ test('moves colliding sibling source paths atomically and updates queued operati
 	);
 });
 
-test('external source changes cannot erase pending intent and reconcile after the queue settles', () => {
+test('external invalidation cancels pending effects before accepting new source', () => {
 	const [first, second] = OptimisticEffects.getItems(nodePath, definitions);
 	const remove = begin({type: 'delete', ids: [first.id]});
-	OptimisticEffects.reconcile(nodePath, []);
-	expect(getIds()).toEqual([second.id]);
-	OptimisticEffects.rollback(remove);
-	OptimisticEffects.reconcile(nodePath, []);
-	expect(getIds()).toEqual([]);
+	OptimisticEffects.invalidateFile(nodePath.absolutePath);
+	expect(remove.status).toBe('cancelled');
+	OptimisticEffects.acknowledge(remove, 'late-delete');
+	OptimisticEffects.settle(['late-delete']);
+	const external = OptimisticEffects.getItems(nodePath, [definitions[1]]);
+	expect(external.map((item) => item.definition)).toEqual([definitions[1]]);
+	expect(external[0].id).not.toBe(second.id);
 });
 
 test('runtime hook immediately follows chained insert, property edit, duplicate and delete', () => {

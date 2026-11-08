@@ -478,3 +478,143 @@ test('undo rebases a reorder without replaying an earlier failed move', async ()
 		),
 	).toEqual(['exposure', 'duotone', 'brightness']);
 });
+
+test('external edits cancel only the affected file, including queued undo and late replies', async () => {
+	const {recordExternalSourceChange, setExternalSourceSession} =
+		await import('../helpers/external-source-changes');
+	setExternalSourceSession('external-edit-test');
+	const otherNode = {...nodePath, absolutePath: '/project/Other.tsx'};
+	Internals.OptimisticEffects.getItems(nodePath, [definition('exposure')]);
+	Internals.OptimisticEffects.getItems(otherNode, [definition('blur')]);
+	let release = () => {};
+	let entered = () => {};
+	const held = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	const dispatched = new Promise<void>((resolve) => {
+		entered = resolve;
+	});
+	const calls: string[] = [];
+	try {
+		const first = enqueueStudioSourceMutation(
+			'/api/duplicate-effect',
+			duplicate(0),
+			async () => {
+				entered();
+				await held;
+				return success('late-external-duplicate');
+			},
+		);
+		const firstResult = first.catch((error: Error) => error.message);
+		await dispatched;
+		const dependent = enqueueStudioSourceMutation(
+			'/api/duplicate-effect',
+			duplicate(1),
+			() => {
+				calls.push('stale');
+				return Promise.resolve(success('must-not-run'));
+			},
+		);
+		const dependentResult = dependent.catch((error: Error) => error.message);
+		const undo = enqueueStudioSourceMutation('/api/undo', {}, () => {
+			calls.push('stale-undo');
+			return Promise.resolve(success('must-not-undo'));
+		});
+		const undoResult = undo.catch((error: Error) => error.message);
+		const independent = enqueueStudioSourceMutation(
+			'/api/duplicate-effect',
+			[
+				{
+					fileName: otherNode.absolutePath,
+					sequenceNodePath: otherNode,
+					effectIndex: 0,
+				},
+			],
+			() => {
+				calls.push('other');
+				return Promise.resolve(success('other-file-duplicate'));
+			},
+		);
+		expect(Internals.OptimisticEffects.getItems(otherNode, null)).toHaveLength(
+			2,
+		);
+		recordExternalSourceChange(
+			nodePath.absolutePath,
+			{
+				sessionId: 'external-edit-test',
+				revision: 1,
+			},
+			false,
+		);
+		const external = Internals.OptimisticEffects.getItems(nodePath, [
+			definition('contrast'),
+		]);
+		expect(external.map((item) => item.definition.label)).toEqual(['contrast']);
+		expect(Internals.OptimisticEffects.getItems(otherNode, null)).toHaveLength(
+			2,
+		);
+		release();
+		for (const result of await Promise.all([
+			firstResult,
+			dependentResult,
+			undoResult,
+		]))
+			expect(result).toContain('edited outside Studio');
+		await independent;
+		expect(calls).toEqual(['other']);
+		expect(
+			Internals.OptimisticEffects.getItems(nodePath, null).map(
+				(item) => item.definition.label,
+			),
+		).toEqual(['contrast']);
+		expect(
+			Internals.OptimisticEffects.get(otherNode)?.persistedItems,
+		).toHaveLength(2);
+		const undone = enqueueStudioSourceMutation('/api/undo', {}, () =>
+			Promise.resolve(success('other-file-undo')),
+		);
+		expect(Internals.OptimisticEffects.getItems(otherNode, null)).toHaveLength(
+			1,
+		);
+		await undone;
+		await enqueueStudioSourceMutation('/api/redo', {}, () =>
+			Promise.resolve(success('other-file-redo')),
+		);
+		await enqueueStudioSourceMutation(
+			'/api/duplicate-effect',
+			duplicate(0),
+			() => Promise.resolve(success('new-primary-duplicate')),
+		);
+		await enqueueStudioSourceMutation('/api/undo', {}, () =>
+			Promise.resolve(success('undo-primary-duplicate')),
+		);
+		await enqueueStudioSourceMutation('/api/undo', {}, () =>
+			Promise.resolve(success('undo-other-duplicate')),
+		);
+		expect(Internals.OptimisticEffects.getItems(otherNode, null)).toHaveLength(
+			1,
+		);
+		recordExternalSourceChange(
+			nodePath.absolutePath,
+			{
+				sessionId: 'external-edit-test',
+				revision: 2,
+			},
+			false,
+		);
+		expect(Internals.OptimisticEffects.getItems(otherNode, null)).toHaveLength(
+			1,
+		);
+		const redoOther = enqueueStudioSourceMutation('/api/redo', {}, () =>
+			Promise.resolve(success('redo-unaffected-file')),
+		);
+		expect(Internals.OptimisticEffects.getItems(otherNode, null)).toHaveLength(
+			2,
+		);
+		await redoOther;
+	} finally {
+		release();
+		await waitForSourceMutationQueue();
+		setExternalSourceSession(null);
+	}
+});

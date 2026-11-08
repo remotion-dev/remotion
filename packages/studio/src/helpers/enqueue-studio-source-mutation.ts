@@ -3,6 +3,7 @@ import type {
 	DeleteNodesRequest,
 	SaveSequencePropsRequest,
 	SequenceNodePathMutation,
+	SourceMutationGuard,
 } from '@remotion/studio-shared';
 import {Internals} from 'remotion';
 import {
@@ -10,12 +11,18 @@ import {
 	supersedePendingSequenceSplits,
 } from '../components/Timeline/pending-sequence-splits';
 import {invalidateDuplicatedElementSelection} from './duplicated-element-selection';
+import {
+	captureExternalSourceRevision,
+	sourceEditCancelledMessage,
+	subscribeToExternalSourceChanges,
+} from './external-source-changes';
 import {installRequiredPackages} from './install-required-package';
 import {loadGoogleFontForPreview} from './load-google-font-for-preview';
 import {captureOptimisticEffectMutation} from './optimistic-effect-mutations';
 import {
 	captureSourceRequest,
 	markSourceRequestPaths,
+	normalizeSourceFileName,
 	rebaseSourceRequest,
 } from './rebase-source-request';
 import {
@@ -29,7 +36,7 @@ import {enqueueSourceMutation} from './source-mutation-queue';
 export const enqueueStudioSourceMutation = <T>(
 	endpoint: keyof ApiRoutes,
 	body: unknown,
-	run: (rebasedBody: unknown) => Promise<T>,
+	run: (rebasedBody: unknown, guard: SourceMutationGuard | null) => Promise<T>,
 ): Promise<T> => {
 	if (endpoint === '/api/undo' || endpoint === '/api/redo') {
 		invalidateDuplicatedElementSelection();
@@ -50,6 +57,8 @@ export const enqueueStudioSourceMutation = <T>(
 	let capturedBody = body;
 	let rebaseError: unknown = null;
 	let unsubscribeFromMutations = () => {};
+	let unsubscribeFromExternalChanges = () => {};
+	let sourceGuard: SourceMutationGuard | null = null;
 	let effectMutation: ReturnType<
 		typeof captureOptimisticEffectMutation
 	> | null = null;
@@ -90,7 +99,9 @@ export const enqueueStudioSourceMutation = <T>(
 				Internals.OptimisticEffects.startSourceMutation(operation.revision);
 				const result = await run(
 					effectMutation?.resolve(rebasedBody) ?? rebasedBody,
+					sourceGuard,
 				);
+				if (rebaseError !== null) throw rebaseError;
 				queueSequenceNodePathMutationFromApiResponse(result);
 				const ownMutation =
 					typeof result === 'object' &&
@@ -177,6 +188,7 @@ export const enqueueStudioSourceMutation = <T>(
 				);
 				throw error;
 			} finally {
+				unsubscribeFromExternalChanges();
 				unsubscribeFromMutations();
 				Internals.OptimisticEffects.finishSourceMutation(operation.revision);
 			}
@@ -186,6 +198,22 @@ export const enqueueStudioSourceMutation = <T>(
 				capturedBody = captureSourceRequest(body, initialMutations);
 				rebasedBody = capturedBody;
 				effectMutation = captureOptimisticEffectMutation(endpoint, body);
+				sourceGuard = captureExternalSourceRevision(effectMutation.files);
+				const files = new Set(
+					effectMutation.files.map((file) =>
+						normalizeSourceFileName(file, root),
+					),
+				);
+				unsubscribeFromExternalChanges = subscribeToExternalSourceChanges(
+					(file) => {
+						if (!files.has(file)) return;
+						rebaseError = new Error(sourceEditCancelledMessage);
+						effectMutation?.rollback();
+						Internals.OptimisticSequenceDeletion.rollbackRevision(
+							operation.revision,
+						);
+					},
+				);
 			} catch (error) {
 				rebaseError = error;
 				return;

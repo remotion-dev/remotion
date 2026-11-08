@@ -1,14 +1,22 @@
 import fs from 'node:fs';
 import {expect, test} from '@playwright/test';
 import {REACT_REFRESH_FINISHED_EVENT} from '@remotion/studio-shared';
-import {
-	EXPANDED_SIDEBAR_STATE,
-	STUDIO_URL,
-	effectKeyframeE2eFile,
-} from './constants.mts';
+import {STUDIO_URL, effectKeyframeE2eFile} from './constants.mts';
 import {startStudio, stopStudio} from './studio-server.mts';
 
-test.use({storageState: EXPANDED_SIDEBAR_STATE});
+test.use({
+	storageState: {
+		cookies: [],
+		origins: [
+			{
+				origin: STUDIO_URL,
+				localStorage: [
+					{name: 'remotion.sidebarRightCollapsing.v2', value: 'expanded'},
+				],
+			},
+		],
+	},
+});
 
 test('chains effect edits before persistence and HMR without losing the latest intent', async ({
 	page,
@@ -582,6 +590,152 @@ test('chains effect edits before persistence and HMR without losing the latest i
 		releasePersistence();
 		releaseHmr();
 		releaseFailure();
+		releaseResponse();
+		await page.unrouteAll({behavior: 'wait'});
+		await stopStudio();
+	}
+});
+
+test('external source edits supersede queued effects and late save responses', async ({
+	page,
+}) => {
+	test.setTimeout(120_000);
+	await startStudio();
+	const original = fs.readFileSync(effectKeyframeE2eFile, 'utf8');
+	let releaseRequest = () => {};
+	let releaseResponse = () => {};
+	const requestGate = new Promise<void>((resolve) => {
+		releaseRequest = resolve;
+	});
+	const responseGate = new Promise<void>((resolve) => {
+		releaseResponse = resolve;
+	});
+	try {
+		await page.goto(`${STUDIO_URL}/effect-keyframe-e2e`);
+		const effects = page.getByRole('region', {name: 'Effects', exact: true});
+		const scales = effects.getByRole('group', {name: 'scale()', exact: true});
+		await expect(async () => {
+			await page
+				.getByRole('group', {name: 'Effect scale precision', exact: true})
+				.first()
+				.click();
+			await expect(
+				effects.getByRole('button', {name: '0.75', exact: true}),
+			).toBeVisible({timeout: 1000});
+		}).toPass({timeout: 30_000});
+		const canvas = page.getByLabel('Effect scale precision canvas', {
+			exact: true,
+		});
+		const opaqueWidth = () =>
+			canvas.evaluate((element: HTMLCanvasElement) => {
+				const context = element.getContext('2d')!;
+				return context
+					.getImageData(0, element.height / 2, element.width, 1)
+					.data.filter((alpha, index) => index % 4 === 3 && alpha >= 128)
+					.length;
+			});
+		await expect.poll(opaqueWidth).toBe(960);
+		let propertyRequests = 0;
+		page.on('request', (request) => {
+			if (request.url().endsWith('/api/save-effect-props')) propertyRequests++;
+		});
+		await page.route('**/api/duplicate-effect', async (route) => {
+			await requestGate;
+			await route.continue();
+		});
+		const sent = page.waitForRequest('**/api/duplicate-effect');
+		await scales.first().click({button: 'right'});
+		await page
+			.getByRole('button', {name: 'Duplicate', exact: true})
+			.last()
+			.click();
+		await sent;
+		await expect(scales).toHaveCount(2);
+		await effects
+			.getByRole('button', {name: '0.75', exact: true})
+			.last()
+			.click();
+		await effects.getByRole('textbox').fill('0.5');
+		await effects.getByRole('textbox').press('Enter');
+		await expect.poll(opaqueWidth).toBe(480);
+		const external = original.replace('scale: 0.75', 'scale: 0.6');
+		fs.writeFileSync(effectKeyframeE2eFile, external);
+		await expect(scales).toHaveCount(1);
+		await expect(
+			effects.getByRole('button', {name: '0.6', exact: true}),
+		).toBeVisible();
+		await expect.poll(opaqueWidth).toBe(768);
+		const rejected = page.waitForResponse('**/api/duplicate-effect');
+		releaseRequest();
+		expect((await (await rejected).json()).success).toBe(false);
+		await expect(scales).toHaveCount(1);
+		expect(fs.readFileSync(effectKeyframeE2eFile, 'utf8')).toBe(external);
+		expect(propertyRequests).toBe(0);
+		await page.unroute('**/api/duplicate-effect');
+
+		let persisted = () => {};
+		const persistedGate = new Promise<void>((resolve) => {
+			persisted = resolve;
+		});
+		await page.route('**/api/duplicate-effect', async (route) => {
+			const response = await route.fetch();
+			persisted();
+			await responseGate;
+			await route.fulfill({response});
+		});
+		await scales.first().click({button: 'right'});
+		await page
+			.getByRole('button', {name: 'Duplicate', exact: true})
+			.last()
+			.click();
+		await persistedGate;
+		await expect(scales).toHaveCount(2);
+		await effects
+			.getByRole('button', {name: '0.6', exact: true})
+			.last()
+			.click();
+		await effects.getByRole('textbox').fill('0.8');
+		await effects.getByRole('textbox').press('Enter');
+		await expect.poll(opaqueWidth).toBeCloseTo(614, -1);
+		const newest = original.replace('scale: 0.75', 'scale: 0.4');
+		fs.writeFileSync(effectKeyframeE2eFile, newest);
+		await expect(scales).toHaveCount(1);
+		await expect(
+			effects.getByRole('button', {name: '0.4', exact: true}),
+		).toBeVisible();
+		await expect.poll(opaqueWidth).toBe(512);
+		const lateResponse = page.waitForResponse('**/api/duplicate-effect');
+		releaseResponse();
+		await lateResponse;
+		await page.unroute('**/api/duplicate-effect');
+		await expect(scales).toHaveCount(1);
+		await expect.poll(opaqueWidth).toBe(512);
+		expect(fs.readFileSync(effectKeyframeE2eFile, 'utf8')).toBe(newest);
+		expect(propertyRequests).toBe(0);
+
+		await effects.getByRole('button', {name: '0.4', exact: true}).click();
+		await effects.getByRole('textbox').fill('0.7');
+		await effects.getByRole('textbox').press('Enter');
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf8'))
+			.toContain('scale: 0.7');
+		await expect.poll(opaqueWidth).toBe(896);
+		await page.keyboard.press('ControlOrMeta+z');
+		await expect
+			.poll(() => fs.readFileSync(effectKeyframeE2eFile, 'utf8'))
+			.toBe(newest);
+		await expect.poll(opaqueWidth).toBe(512);
+		await page.reload();
+		await page
+			.getByRole('group', {name: 'Effect scale precision', exact: true})
+			.first()
+			.click();
+		await expect(scales).toHaveCount(1);
+		await expect(
+			effects.getByRole('button', {name: '0.4', exact: true}),
+		).toBeVisible();
+	} finally {
+		releaseRequest();
 		releaseResponse();
 		await page.unrouteAll({behavior: 'wait'});
 		await stopStudio();
