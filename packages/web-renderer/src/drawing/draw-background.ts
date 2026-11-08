@@ -1,6 +1,7 @@
 import type {LogLevel} from 'remotion';
 import type {InternalState} from '../internal-state';
 import {createLayer} from '../take-screenshot';
+import {getBlendMode} from './calculate-transforms';
 import {getBackgroundFill, isColorTransparent} from './get-background-fill';
 import {getBoxBasedOnBackgroundClip} from './get-padding-box';
 
@@ -135,15 +136,16 @@ export const drawBackground = async ({
 		target.fillStyle = previous;
 	};
 
+	const blendMode = getBlendMode(computedStyle.backgroundBlendMode);
 	if (
 		backgroundImage !== 'none' &&
-		!isColorTransparent(backgroundColor) &&
-		(context.globalAlpha !== 1 ||
-			context.filter !== 'none' ||
-			contextToDraw !== context)
+		(blendMode ||
+			(!isColorTransparent(backgroundColor) &&
+				(context.globalAlpha !== 1 ||
+					context.filter !== 'none' ||
+					contextToDraw !== context)))
 	) {
-		// Apply element opacity, filters and text masks once to the complete
-		// background, rather than once to each color/image paint.
+		// Blend inside the background group before applying element opacity, filters and text masks.
 		const backgroundCanvas = new OffscreenCanvas(
 			Math.ceil(boundingRect.width * scale),
 			Math.ceil(boundingRect.height * scale),
@@ -166,6 +168,7 @@ export const drawBackground = async ({
 			offsetLeft: boundingRect.left,
 			offsetTop: boundingRect.top,
 		});
+		backgroundContext.globalCompositeOperation = blendMode ?? 'source-over';
 		paintFill(
 			backgroundContext,
 			groupFill,

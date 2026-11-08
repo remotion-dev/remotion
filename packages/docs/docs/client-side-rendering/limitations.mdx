@@ -126,7 +126,7 @@ Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter sup
 The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline /> with all blend modes.
 Stacking contexts created by properties such as `opacity`, `transform` or `isolation: isolate` limit what an element blends with, as in the browser.
 
-The `background-blend-mode` property is <a style={{color: 'red'}}>not supported</a>.
+The `background-blend-mode` property is supported for a single linear gradient blended with the element's background color. Multiple background layers are not supported.
 
 ## Supported elements
 
@@ -168,7 +168,6 @@ All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported<
 Here is a selection of unsupported styles:
 
 - `backdrop-filter`
-- `background-blend-mode`
 - Any other property not listed in this document.
 
 Over time, we will support more elements and styles. We'll prioritize the most demanded ones.  
