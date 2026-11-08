@@ -134,9 +134,15 @@ test.for([0, 1])(
 			})
 		).blob({format: 'png'});
 		const result = await compareNativePixels(reference, actual);
-		await savePixelEvidence(reference, `svg-external-font-${frame}-reference`);
-		await savePixelEvidence(actual, `svg-external-font-${frame}-actual`);
-		await savePixelEvidence(result.diff, `svg-external-font-${frame}-diff`);
+		if (result.mismatchedPixels !== 0) {
+			await savePixelEvidence(
+				reference,
+				`svg-external-font-${frame}-reference`,
+			);
+			await savePixelEvidence(actual, `svg-external-font-${frame}-actual`);
+			await savePixelEvidence(result.diff, `svg-external-font-${frame}-diff`);
+		}
+
 		expect(result.mismatchedPixels).toBe(0);
 	},
 );
