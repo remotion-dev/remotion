@@ -7,13 +7,14 @@ import {copyDir} from '../copy-dir';
 const tempDirs: string[] = [];
 
 afterEach(async () => {
-	await Promise.all(
-		tempDirs.splice(0).map((dir) => fs.promises.rm(dir, {recursive: true, force: true})),
-	);
+	for (const dir of tempDirs.splice(0)) {
+		await fs.promises.rm(dir, {recursive: true, force: true});
+	}
 });
 
 test('copies a directory link in public without copying its contents', async () => {
-	const root = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-copy-dir-'));
+	const tempRoot = path.join(os.tmpdir(), 'remotion-copy-dir-');
+	const root = await fs.promises.mkdtemp(tempRoot);
 	tempDirs.push(root);
 	const src = path.join(root, 'public');
 	const target = path.join(root, 'media');
@@ -39,6 +40,9 @@ test('copies a directory link in public without copying its contents', async () 
 
 	expect(detected).toBe(1);
 	expect(copiedBytes).toBe(0);
-	expect((await fs.promises.lstat(path.join(dest, 'media'))).isSymbolicLink()).toBe(true);
-	expect(await fs.promises.readFile(path.join(dest, 'media', 'image.txt'), 'utf8')).toBe('image');
+	const destLink = path.join(dest, 'media');
+	const linkStat = await fs.promises.lstat(destLink);
+	expect(linkStat.isSymbolicLink()).toBe(true);
+	const asset = await fs.promises.readFile(path.join(destLink, 'image.txt'), 'utf8');
+	expect(asset).toBe('image');
 });
