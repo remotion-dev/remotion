@@ -9,7 +9,7 @@ import {
 } from '../ForceSpecificCursor';
 import {getSplitterFlexBounds, SplitterContext} from './SplitterContext';
 
-export const SPLITTER_HANDLE_SIZE = 3;
+export const SPLITTER_HANDLE_SIZE = 1;
 
 const containerRow: React.CSSProperties = {
 	height: SPLITTER_HANDLE_SIZE,

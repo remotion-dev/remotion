@@ -1,7 +1,11 @@
 import {randomUUID} from 'node:crypto';
 import fs, {readFileSync, writeFileSync} from 'node:fs';
 import type {SourceFileVersion} from '@remotion/studio-shared';
-import {prepareBundlerForFileWrite} from './preview-server/watch-ignore-next-change';
+import {validateSourceMutation} from './preview-server/source-mutation-guard';
+import {
+	notifyBundlerOfFileChange,
+	prepareBundlerForFileWrite,
+} from './preview-server/watch-ignore-next-change';
 
 export type FileChangeMetadata = {
 	skipSequencePropsUpdate: boolean;
@@ -35,6 +39,16 @@ type OnChange = (event: FileChangeEvent) => void;
 const sourceWriteListeners = new Set<
 	(file: string, contents: string) => void
 >();
+const externalSourceListeners = new Set<
+	(file: string, version: SourceFileVersion) => void
+>();
+export const subscribeToExternalSourceChanges = (
+	listener: (file: string, version: SourceFileVersion) => void,
+) => {
+	externalSourceListeners.add(listener);
+	return () => externalSourceListeners.delete(listener);
+};
+
 export const subscribeToStudioSourceWrites = (
 	listener: (file: string, contents: string) => void,
 ) => {
@@ -54,6 +68,9 @@ const getRegistryKey = (file: string, existenceOnly: boolean): string =>
 
 export type FileWatcherRegistry = {
 	readonly sourceVersionSessionId: string;
+	getExternalSourceRevision: (file: string) => number;
+	getExternalSourceRevisions: () => Record<string, number>;
+	recordSourceWrite: (file: string, contents: string | null) => void;
 	installFileWatcher: (options: {
 		file: string;
 		onChange: OnChange;
@@ -81,6 +98,41 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		sessionId,
 		revision: ++revision,
 	});
+	const sourceStates = new Map<
+		string,
+		{contents: string | null; externalRevision: number}
+	>();
+	const getExternalSourceRevision = (file: string) => {
+		let contents: string | null;
+		try {
+			contents = readFileSync(file, 'utf8');
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+			contents = null;
+		}
+
+		const previous = sourceStates.get(file);
+		if (!previous) {
+			sourceStates.set(file, {contents, externalRevision: 0});
+			return 0;
+		}
+
+		if (previous.contents !== contents) {
+			const version = nextSourceVersion();
+			sourceStates.set(file, {contents, externalRevision: version.revision});
+			for (const listener of externalSourceListeners) listener(file, version);
+			return version.revision;
+		}
+
+		return previous.externalRevision;
+	};
+
+	const recordSourceWrite = (file: string, contents: string | null) => {
+		sourceStates.set(file, {
+			contents,
+			externalRevision: sourceStates.get(file)?.externalRevision ?? 0,
+		});
+	};
 
 	const _installFileWatcher = ({
 		file,
@@ -92,6 +144,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		existenceOnly: boolean;
 	}): {exists: boolean; unwatch: () => void} => {
 		const registryKey = getRegistryKey(file, existenceOnly);
+		if (!existenceOnly) getExternalSourceRevision(file);
 		const existing = sharedWatchers.get(registryKey);
 
 		if (existing) {
@@ -121,6 +174,7 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		};
 
 		const listener = () => {
+			if (!existenceOnly) getExternalSourceRevision(file);
 			const existsNow = fs.existsSync(file);
 
 			let event: FileChangeEvent | null = null;
@@ -206,10 +260,13 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 		originatorClientId,
 		metadata,
 	}: WriteFileAndNotifyFileWatchersOptions) => {
-		prepareBundlerForFileWrite(file);
+		validateSourceMutation();
+		prepareBundlerForFileWrite(file, content);
 		writeFileSync(file, content);
+		recordSourceWrite(file, content);
 		const sourceVersion = nextSourceVersion();
 		for (const listener of sourceWriteListeners) listener(file, content);
+		notifyBundlerOfFileChange(file, content);
 
 		const shared = sharedWatchers.get(getRegistryKey(file, false));
 		if (!shared) {
@@ -234,6 +291,14 @@ export const createFileWatcherRegistry = (): FileWatcherRegistry => {
 
 	return {
 		sourceVersionSessionId: sessionId,
+		getExternalSourceRevision,
+		getExternalSourceRevisions: () =>
+			Object.fromEntries(
+				[...sourceStates]
+					.filter(([, state]) => state.externalRevision > 0)
+					.map(([file, state]) => [file, state.externalRevision]),
+			),
+		recordSourceWrite,
 		installFileWatcher: _installFileWatcher,
 		writeFileAndNotifyFileWatchers: _writeFileAndNotifyFileWatchers,
 	};

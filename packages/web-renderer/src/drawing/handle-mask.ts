@@ -2,11 +2,11 @@ import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect'
 import type {InternalState} from '../internal-state';
 import {resolveSize} from './background-image-rect';
 import type {MaskImageInfo} from './mask-image';
-import {getMaskImage} from './mask-image-loader';
 import {
 	createCanvasGradient,
 	createRadialGradientFill,
 } from './parse-linear-gradient';
+import {getRasterImage} from './raster-image-loader';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = getBiggestBoundingClientRect(element);
@@ -85,9 +85,9 @@ export const handleMask = async ({
 		return;
 	}
 
-	const image = await getMaskImage({
+	const image = await getRasterImage({
 		src: maskImageInfo.src,
-		state: internalState.maskImageLoaderState,
+		state: internalState.rasterImageLoaderState,
 	});
 	const {maskSize, maskRepeat} = maskImageInfo;
 	let width: number;

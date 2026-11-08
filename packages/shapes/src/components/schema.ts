@@ -86,7 +86,6 @@ export const makeShapeSchema = (
 ): InteractivitySchema => {
 	return {
 		...Internals.baseSchema,
-		...Internals.premountSchema,
 		...shapeFields,
 		fill: colorField({
 			defaultValue: '#0b84ff',

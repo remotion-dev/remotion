@@ -1,7 +1,16 @@
 import {afterEach, expect, test} from 'bun:test';
+import {
+	REACT_REFRESH_FINISHED_EVENT,
+	REACT_REFRESH_STARTED_EVENT,
+} from '@remotion/studio-shared';
 import {act, cleanup, render} from '@testing-library/react';
 import type {ContextType, ReactNode} from 'react';
-import {Internals, type SequencePropsSubscriptionKey} from 'remotion';
+import {
+	createEffect,
+	Internals,
+	type EffectDescriptor,
+	type SequencePropsSubscriptionKey,
+} from 'remotion';
 import {ExpandedTracksSetterContext} from '../components/ExpandedTracksProvider';
 import {subscribeToSequencePropsRefresh} from '../components/Timeline/sequence-props-subscription-store';
 import {SequencePropsObserver} from '../components/Timeline/SequencePropsObserver';
@@ -11,7 +20,11 @@ import {
 } from '../components/Timeline/TimelineSelection';
 import {FastRefreshContext} from '../fast-refresh-context';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
-import {queueSequenceNodePathMutation} from '../helpers/sequence-node-path-mutations';
+import {remapOptimisticEffects} from '../helpers/remap-optimistic-effects';
+import {
+	queueSequenceNodePathMutation,
+	recordSequenceNodePathMutationBuild,
+} from '../helpers/sequence-node-path-mutations';
 import {KeybindingContextProvider} from '../state/keybindings';
 
 afterEach(cleanup);
@@ -376,4 +389,284 @@ test('remaps selection and refreshes the subscription after a JSX node path chan
 	).toEqual(['body', 1]);
 	expect(refreshedOverrideIds).toEqual(['card']);
 	unsubscribeRefresh();
+});
+
+const refreshEffect = createEffect<{amount: number}, null>({
+	type: 'dev.remotion.test.refresh-receipt',
+	label: 'Refresh receipt',
+	documentationLink: null,
+	backend: '2d',
+	calculateKey: ({amount}) => String(amount),
+	setup: () => null,
+	apply: () => undefined,
+	cleanup: () => undefined,
+	schema: {},
+	validateParams: () => undefined,
+});
+
+test('keeps optimistic effects through React refresh and accepts a receipt after its build is installed', () => {
+	const nodePath: SequencePropsSubscriptionKey = {
+		absolutePath: '/project/src/EffectRefresh.tsx',
+		nodePath: ['body', 0],
+		sequenceKeys: [],
+		effectKeys: [['amount']],
+		videoConfigValues: null,
+	};
+	const initialEffects = [
+		refreshEffect({amount: 1}),
+		refreshEffect({amount: 2}),
+	];
+	const definitions = initialEffects.map(({definition}) => definition);
+	const history = new Map<string, EffectDescriptor<unknown>>();
+	const [first] = Internals.OptimisticEffects.getItems(nodePath, definitions);
+	const Projection = ({
+		effects,
+	}: {
+		readonly effects: readonly EffectDescriptor<unknown>[];
+	}) => {
+		Internals.useOptimisticEffects(nodePath);
+		const projected = Internals.OptimisticEffects.projectEffects(
+			nodePath,
+			effects,
+			history,
+		);
+		return (
+			<output aria-label="Effect amounts">
+				{projected.effects
+					.map(({params}) => (params as {amount: number}).amount)
+					.join(',')}
+			</output>
+		);
+	};
+
+	const renderTree = (effects: readonly EffectDescriptor<unknown>[]) => (
+		<ObserverTestProviders
+			values={{
+				fastRefresh: {
+					fastRefreshes: 0,
+					manualRefreshes: 0,
+					increaseManualRefreshes: () => undefined,
+				},
+				expandedTracksSetter: {
+					expandParentTracks: () => undefined,
+					toggleTrack: () => undefined,
+					migrateExpandedTracksForSubscriptionKey: () => undefined,
+				} as never,
+				overrideIdsGetter: {overrideIdToNodePathMappings: {video: nodePath}},
+				overrideIdsSetter: {setOverrideIdToNodePath: () => undefined},
+				propStatusesRef: {current: {}},
+				visualModeSetters: {
+					remapPropStatuses: () => undefined,
+					setPropStatuses: () => undefined,
+				} as never,
+			}}
+		>
+			<SequencePropsObserver remapCollapsedLayers={() => undefined} />
+			<Projection effects={effects} />
+		</ObserverTestProviders>
+	);
+	const previousHash = Object.getOwnPropertyDescriptor(
+		globalThis,
+		'__webpack_hash__',
+	);
+	Object.defineProperty(globalThis, '__webpack_hash__', {
+		configurable: true,
+		writable: true,
+		value: 'before-effects-refresh',
+	});
+	try {
+		const rendered = render(renderTree(initialEffects));
+		let duplicate: ReturnType<typeof Internals.OptimisticEffects.begin>;
+		act(() => {
+			duplicate = Internals.OptimisticEffects.begin({
+				nodePath,
+				definitions,
+				action: {type: 'duplicate', ids: [first.id]},
+			});
+			Internals.OptimisticEffects.acknowledge(duplicate, 'observer-duplicate');
+			recordSequenceNodePathMutationBuild(
+				'effects-refreshed',
+				'observer-duplicate',
+			);
+			queueSequenceNodePathMutation({
+				mutationId: 'observer-duplicate',
+				timelineSelection: null,
+				files: [
+					{
+						absolutePath: nodePath.absolutePath,
+						remappings: [
+							{oldNodePath: nodePath.nodePath, newNodePath: nodePath.nodePath},
+						],
+					},
+				],
+			});
+		});
+		expect(rendered.getByLabelText('Effect amounts').textContent).toBe('1,1,2');
+		act(() => {
+			Object.defineProperty(globalThis, '__webpack_hash__', {
+				configurable: true,
+				writable: true,
+				value: 'effects-refreshed',
+			});
+			window.dispatchEvent(new Event(REACT_REFRESH_STARTED_EVENT));
+		});
+		expect(duplicate!.status).toBe('acknowledged');
+		expect(rendered.getByLabelText('Effect amounts').textContent).toBe('1,1,2');
+		const duplicatedEffects = [
+			initialEffects[0],
+			initialEffects[0],
+			initialEffects[1],
+		];
+		rendered.rerender(renderTree(duplicatedEffects));
+		expect(rendered.getByLabelText('Effect amounts').textContent).toBe('1,1,2');
+		act(() => window.dispatchEvent(new Event(REACT_REFRESH_FINISHED_EVENT)));
+		expect(duplicate!.status).toBe('settled');
+		expect(rendered.getByLabelText('Effect amounts').textContent).toBe('1,1,2');
+
+		const last = Internals.OptimisticEffects.getItems(nodePath, null)[2];
+		let lateDuplicate: ReturnType<typeof Internals.OptimisticEffects.begin>;
+		act(() => {
+			lateDuplicate = Internals.OptimisticEffects.begin({
+				nodePath,
+				definitions: duplicatedEffects.map(({definition}) => definition),
+				action: {type: 'duplicate', ids: [last.id]},
+			});
+			recordSequenceNodePathMutationBuild(
+				'effects-late-receipt',
+				'observer-late-duplicate',
+			);
+			Object.defineProperty(globalThis, '__webpack_hash__', {
+				configurable: true,
+				writable: true,
+				value: 'effects-late-receipt',
+			});
+			window.dispatchEvent(new Event(REACT_REFRESH_STARTED_EVENT));
+		});
+		rendered.rerender(renderTree([...duplicatedEffects, initialEffects[1]]));
+		act(() => window.dispatchEvent(new Event(REACT_REFRESH_FINISHED_EVENT)));
+		expect(lateDuplicate!.status).toBe('queued');
+		expect(rendered.getByLabelText('Effect amounts').textContent).toBe(
+			'1,1,2,2',
+		);
+		act(() => {
+			queueSequenceNodePathMutation({
+				mutationId: 'observer-late-duplicate',
+				timelineSelection: null,
+				files: [
+					{
+						absolutePath: nodePath.absolutePath,
+						remappings: [
+							{oldNodePath: nodePath.nodePath, newNodePath: nodePath.nodePath},
+						],
+					},
+				],
+			});
+			Internals.OptimisticEffects.acknowledge(
+				lateDuplicate!,
+				'observer-late-duplicate',
+			);
+		});
+		expect(lateDuplicate!.status).toBe('settled');
+		expect(rendered.getByLabelText('Effect amounts').textContent).toBe(
+			'1,1,2,2',
+		);
+	} finally {
+		cleanup();
+		Internals.OptimisticEffects.clear();
+		recordSequenceNodePathMutationBuild(undefined, undefined);
+		if (previousHash)
+			Object.defineProperty(globalThis, '__webpack_hash__', previousHash);
+		else Reflect.deleteProperty(globalThis, '__webpack_hash__');
+	}
+});
+
+test('remaps optimistic effects for colliding sibling paths as one batch', () => {
+	const firstPath: SequencePropsSubscriptionKey = {
+		absolutePath: '/project/src/EffectSiblings.tsx',
+		nodePath: ['body', 0],
+		sequenceKeys: [],
+		effectKeys: [['amount']],
+		videoConfigValues: null,
+	};
+	const secondPath = {...firstPath, nodePath: ['body', 1]};
+	const thirdPath = {...firstPath, nodePath: ['body', 2]};
+	const {definition} = refreshEffect({amount: 1});
+	try {
+		const first = Internals.OptimisticEffects.getItems(firstPath, [
+			definition,
+		])[0];
+		const second = Internals.OptimisticEffects.getItems(secondPath, [
+			definition,
+		])[0];
+		const firstDuplicate = Internals.OptimisticEffects.begin({
+			nodePath: firstPath,
+			definitions: [definition],
+			action: {type: 'duplicate', ids: [first.id]},
+		});
+		const secondDuplicate = Internals.OptimisticEffects.begin({
+			nodePath: secondPath,
+			definitions: [definition],
+			action: {type: 'duplicate', ids: [second.id]},
+		});
+		const firstProps = {
+			amount: {
+				status: 'static' as const,
+				codeValue: 10,
+				keyframeDisplayOffsetAdjustment: null,
+			},
+		};
+		const secondProps = {
+			amount: {
+				status: 'static' as const,
+				codeValue: 20,
+				keyframeDisplayOffsetAdjustment: null,
+			},
+		};
+		Internals.OptimisticEffects.setPropStatuses(
+			firstPath,
+			firstDuplicate.addedIds[0],
+			firstProps,
+		);
+		Internals.OptimisticEffects.setPropStatuses(
+			secondPath,
+			secondDuplicate.addedIds[0],
+			secondProps,
+		);
+		remapOptimisticEffects({
+			mutationId: 'observer-shift-sibling-effects',
+			timelineSelection: null,
+			files: [
+				{
+					absolutePath: firstPath.absolutePath,
+					remappings: [
+						{oldNodePath: firstPath.nodePath, newNodePath: secondPath.nodePath},
+						{oldNodePath: secondPath.nodePath, newNodePath: thirdPath.nodePath},
+					],
+				},
+			],
+		});
+		expect(Internals.OptimisticEffects.get(firstPath)).toBeNull();
+		expect(
+			Internals.OptimisticEffects.getItems(secondPath, null).map(({id}) => id),
+		).toEqual([first.id, firstDuplicate.addedIds[0]]);
+		expect(
+			Internals.OptimisticEffects.getItems(thirdPath, null).map(({id}) => id),
+		).toEqual([second.id, secondDuplicate.addedIds[0]]);
+		expect(firstDuplicate.nodePath).toEqual(secondPath);
+		expect(secondDuplicate.nodePath).toEqual(thirdPath);
+		expect(
+			Internals.OptimisticEffects.getPropStatuses(
+				secondPath,
+				firstDuplicate.addedIds[0],
+			),
+		).toEqual(firstProps);
+		expect(
+			Internals.OptimisticEffects.getPropStatuses(
+				thirdPath,
+				secondDuplicate.addedIds[0],
+			),
+		).toEqual(secondProps);
+	} finally {
+		Internals.OptimisticEffects.clear();
+	}
 });

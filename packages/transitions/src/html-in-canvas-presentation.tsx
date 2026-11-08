@@ -74,6 +74,7 @@ const HtmlInCanvasPresentationWithSupport = <
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: null,
+		runtimeValues: null,
 		videoConfigValues: null,
 	});
 
@@ -81,8 +82,11 @@ const HtmlInCanvasPresentationWithSupport = <
 	effectsRef.current = memoizedEffects;
 
 	const instanceRef = useRef<ReturnType<typeof shader> | null>(null);
+	const videoEnabled = Internals.useVideoEnabled();
+	// Audio-only frames keep the scenes mounted without capturing or drawing them.
 	const passThrough =
-		bothEnteringAndExiting && presentationDirection === 'exiting';
+		!videoEnabled ||
+		(bothEnteringAndExiting && presentationDirection === 'exiting');
 
 	useLayoutEffect(() => {
 		if (passThrough) {

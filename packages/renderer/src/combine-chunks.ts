@@ -92,9 +92,12 @@ export const internalCombineChunks = async ({
 	compositionDurationInFrames,
 	sampleRate,
 	separateAudioTo,
+	chunkDurationsInFrames,
 }: AllCombineChunksOptions & {
 	indent: boolean;
 	separateAudioTo: string | null;
+	// The length of each chunk if they differ. Otherwise every chunk has framesPerChunk frames.
+	chunkDurationsInFrames: number[] | null;
 }) => {
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
@@ -145,8 +148,6 @@ export const internalCombineChunks = async ({
 			)
 		: null;
 
-	const chunkDurationInSeconds = framesPerChunk / fps;
-
 	let concatenatedAudio = 0;
 	let concatenatedVideo = 0;
 	let muxing = 0;
@@ -193,7 +194,8 @@ export const internalCombineChunks = async ({
 							output: audioOutput,
 							resolvedAudioCodec,
 							seamless: seamlessAudio,
-							chunkDurationInSeconds,
+							chunkDurationsInFrames:
+								chunkDurationsInFrames ?? audioFiles.map(() => framesPerChunk),
 							addRemotionMetadata: !shouldCreateVideo,
 							binariesDirectory,
 							fps,
@@ -300,5 +302,6 @@ export const combineChunks = (options: CombineChunksOptions) => {
 		compositionDurationInFrames: options.compositionDurationInFrames,
 		sampleRate: options.sampleRate ?? 48000,
 		separateAudioTo: null,
+		chunkDurationsInFrames: null,
 	});
 };

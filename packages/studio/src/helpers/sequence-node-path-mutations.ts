@@ -27,6 +27,23 @@ const unchangedSince = new Map<string, string | null>();
 const installedBuildListeners = new Set<() => void>();
 const filesWithSourceOnlyRemappings = new Set<string>();
 
+export const invalidateSourceFileRemappings = (fileName: string) => {
+	for (let index = pendingMutations.length - 1; index >= 0; index--) {
+		const mutation = pendingMutations[index];
+		const files = mutation.files.filter(
+			(file) => normalizeSourceFileName(file.absolutePath, '') !== fileName,
+		);
+		if (files.length === mutation.files.length) continue;
+		pendingDeletionRemappings.delete(mutation.mutationId);
+		pendingDeletionRetirements.delete(mutation.mutationId);
+		if (files.length === 0) pendingMutations.splice(index, 1);
+		else
+			pendingMutations[index] = {...mutation, files, timelineSelection: null};
+	}
+
+	filesWithSourceOnlyRemappings.delete(fileName);
+};
+
 const notifyInstalledBuild = () => {
 	for (const listener of installedBuildListeners) listener();
 };

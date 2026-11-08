@@ -65,11 +65,18 @@ export default createRule<Options, MessageIds>({
 
 					const firstArg = args[0];
 
+					let value: string | null = null;
 					if (firstArg.type === 'Literal') {
-						const value = firstArg.value;
-						if (typeof value !== 'string') {
-							return;
+						if (typeof firstArg.value === 'string') {
+							value = firstArg.value;
 						}
+					} else if (firstArg.type === 'TemplateLiteral') {
+						// staticFile(`./${name}.png`) – inspect the static prefix, cooked so
+						// that escape sequences are compared the way the runtime sees them
+						value = firstArg.quasis[0]?.value.cooked ?? null;
+					}
+
+					if (value !== null) {
 						if (value.startsWith('./')) {
 							context.report({
 								messageId: 'RelativePathStaticFile',

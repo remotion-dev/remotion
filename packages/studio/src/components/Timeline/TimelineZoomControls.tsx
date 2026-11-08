@@ -1,7 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {BLACK} from '../../helpers/colors';
+import {BLACK, LIGHT_TEXT} from '../../helpers/colors';
 import {
 	getTimelineMinZoom,
 	getTimelineZoom,
@@ -17,7 +17,7 @@ import {
 } from '../../state/timeline-zoom';
 import {useZIndex} from '../../state/z-index';
 import {ActionTooltip} from '../ActionTooltip';
-import {ControlButton} from '../ControlButton';
+import {InlineAction} from '../InlineAction';
 import {Spacing} from '../layout';
 import {scrollableRef} from './timeline-refs';
 
@@ -180,14 +180,15 @@ const TimelineZoomControlsInner: React.FC<{
 				delay={800}
 				dismissOnClick
 			>
-				<ControlButton
+				<InlineAction
 					onClick={onMinusClicked}
 					style={buttonStyle}
 					aria-label="Zoom out timeline"
 					type="button"
-				>
-					{(color) => <CanvasZoomOutIcon color={color} />}
-				</ControlButton>
+					variant={null}
+					unhoveredColor={LIGHT_TEXT}
+					renderAction={(color) => <CanvasZoomOutIcon color={color} />}
+				/>
 			</ActionTooltip>
 			<Spacing x={0.5} />
 			<TimelineZoomSlider
@@ -197,14 +198,15 @@ const TimelineZoomControlsInner: React.FC<{
 			/>
 			<Spacing x={0.5} />
 			<ActionTooltip label="Zoom in" shortcut={null} delay={800} dismissOnClick>
-				<ControlButton
+				<InlineAction
 					onClick={onPlusClicked}
 					style={buttonStyle}
 					aria-label="Zoom in timeline"
 					type="button"
-				>
-					{(color) => <CanvasZoomIcon color={color} />}
-				</ControlButton>
+					variant={null}
+					unhoveredColor={LIGHT_TEXT}
+					renderAction={(color) => <CanvasZoomIcon color={color} />}
+				/>
 			</ActionTooltip>
 		</div>
 	);

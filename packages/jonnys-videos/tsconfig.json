@@ -7,5 +7,5 @@
 		"jsx": "react-jsx",
 		"noEmit": true
 	},
-	"include": ["src"]
+	"include": ["src", "src/**/*.json"]
 }

@@ -9,7 +9,7 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"make": "tsc -d",
+		"make": "node ../.monorepo/tsrs.cjs -d",
 		"testwebrenderer": "vitest src/test --browser --run",
 		"studio": "cd ../example && bunx remotion studio ../react18-tests/src/test/studio.ts"
 	},

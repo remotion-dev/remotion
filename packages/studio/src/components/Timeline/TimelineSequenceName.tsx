@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {BLACK, TRANSPARENT, WHITE_ALPHA_72} from '../../helpers/colors';
+import {TRANSPARENT} from '../../helpers/colors';
 import {ClippedTextTooltip} from '../ActionTooltip';
 import {
 	getTimelineColor,
@@ -20,10 +20,8 @@ const nameTextStyle: React.CSSProperties = {
 	lineHeight: 'normal',
 	color: 'inherit',
 	minWidth: 0,
-	paddingRight: 10,
-	maskImage: 'linear-gradient(to right, black calc(100% - 10px), transparent)',
-	WebkitMaskImage:
-		'linear-gradient(to right, black calc(100% - 10px), transparent)',
+	// Revisit text-overflow: fade when browsers support it: https://github.com/remotion-dev/remotion/issues/12883
+	textOverflow: 'ellipsis',
 	overflow: 'hidden',
 	whiteSpace: 'nowrap',
 };
@@ -154,21 +152,16 @@ export const TimelineSequenceName: React.FC<{
 
 	if (editing) {
 		return (
-			<>
-				<style>
-					{`.${RENAME_INPUT_CLASS_NAME}::selection { background: ${WHITE_ALPHA_72}; color: ${BLACK}; }`}
-				</style>
-				<input
-					ref={inputRef}
-					className={RENAME_INPUT_CLASS_NAME}
-					value={draftName}
-					onChange={(e) => setDraftName(e.target.value)}
-					onBlur={onBlur}
-					onKeyDown={onKeyDown}
-					size={Math.max(1, draftName.length)}
-					style={inputStyle}
-				/>
-			</>
+			<input
+				ref={inputRef}
+				className={RENAME_INPUT_CLASS_NAME}
+				value={draftName}
+				onChange={(e) => setDraftName(e.target.value)}
+				onBlur={onBlur}
+				onKeyDown={onKeyDown}
+				size={Math.max(1, draftName.length)}
+				style={inputStyle}
+			/>
 		);
 	}
 

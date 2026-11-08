@@ -40,7 +40,7 @@ export const getMaskImageValue = (
 	return value;
 };
 
-const parseUrlFunction = (value: string): string | null => {
+export const parseUrlFunction = (value: string): string | null => {
 	const trimmed = value.trim();
 	if (!trimmed.toLowerCase().startsWith('url(')) {
 		return null;

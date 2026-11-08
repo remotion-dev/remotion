@@ -9,9 +9,10 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
-	pushToUndoStack,
+	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {attrName} from './log-updates/formatting';
@@ -76,6 +77,14 @@ export const duplicateEffectHandler: ApiHandler<
 
 					return {
 						absolutePath,
+						nodePathRemappings: result.nodePathRemappings,
+						duplicatedEffects: result.insertedEffects.map(
+							({filePath, nodePath, effectIndex}) => ({
+								absolutePath: filePath,
+								nodePath,
+								effectIndex,
+							}),
+						),
 						fileRelativeToRoot,
 						fileContents,
 						output,
@@ -85,33 +94,47 @@ export const duplicateEffectHandler: ApiHandler<
 					};
 				}),
 			);
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				updates.map((update) => ({
+					absolutePath: update.absolutePath,
+					remappings: update.nodePathRemappings,
+				})),
+				null,
+			);
+
+			const effectDescription = getDuplicatedEffectDescription(
+				updates.flatMap((update) => update.effectLabels),
+			);
+			pushTransactionToUndoStack({
+				snapshots: updates.map((update) => ({
+					filePath: update.absolutePath,
+					oldContents: update.fileContents,
+					newContents: update.output,
+					logLine: update.logLine,
+					nodePathRemappings: update.nodePathRemappings,
+				})),
+				logLevel,
+				remotionRoot,
+				description: {
+					undoMessage: `↩️  Duplication of ${effectDescription}`,
+					redoMessage: `↪️  Duplication of ${effectDescription}`,
+				},
+				entryType: 'duplicate-effect',
+				suppressHmrOnFileRestore: false,
+				undoRedoNavigation: null,
+			});
 
 			for (const update of updates) {
 				const duplicatedEffectDescription = getDuplicatedEffectDescription(
 					update.effectLabels,
 				);
 
-				pushToUndoStack({
-					filePath: update.absolutePath,
-					oldContents: update.fileContents,
-					newContents: null,
-					logLevel,
-					remotionRoot,
-					logLine: update.logLine,
-					description: {
-						undoMessage: `↩️  Duplication of ${duplicatedEffectDescription}`,
-						redoMessage: `↪️  Duplication of ${duplicatedEffectDescription}`,
-					},
-					entryType: 'duplicate-effect',
-					suppressHmrOnFileRestore: false,
-					nodePathRemappings: null,
-				});
 				suppressUndoStackInvalidation(update.absolutePath);
 				writeFileAndNotifyFileWatchers({
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
-					metadata: null,
+					metadata: {skipSequencePropsUpdate: true},
 				});
 
 				const locationLabel = formatLogFileLocation({
@@ -137,6 +160,10 @@ export const duplicateEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
+				duplicatedEffects: updates.flatMap(
+					(update) => update.duplicatedEffects,
+				),
 			};
 		} catch (err) {
 			return {

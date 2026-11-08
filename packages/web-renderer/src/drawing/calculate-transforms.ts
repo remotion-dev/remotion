@@ -28,7 +28,7 @@ const filterRequiresPrecompositing = (filter: string): string | null => {
 
 // CSS mix-blend-mode keywords share their names with canvas composite
 // operations, except plus-lighter which is called lighter on canvas.
-const getBlendMode = (
+export const getBlendMode = (
 	mixBlendMode: string,
 ): GlobalCompositeOperation | null => {
 	switch (mixBlendMode) {

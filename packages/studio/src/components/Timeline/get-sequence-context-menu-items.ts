@@ -8,19 +8,12 @@ import type {ResolvedStackLocation, TSequence} from 'remotion';
 import {NoReactInternals} from 'remotion/no-react';
 import {copyText} from '../../helpers/copy-text';
 import {formatContextForAgents} from '../../helpers/format-file-location';
-import {
-	getDefaultOpenInTarget,
-	getGitSourceName,
-	openGitSource,
-} from '../../helpers/get-git-menu-item';
 import {getVisibleAnnotationTarget} from '../../helpers/request-codex-annotation';
 import {getSequenceAnnotationMetadata} from '../../helpers/sequence-annotation';
 import {getAnnotateWithChatGPTMenuItems} from '../get-annotate-with-chatgpt-menu-item';
-import {getOpenInMenuItems} from '../get-open-in-menu-items';
+import {getSourceContextMenuItems} from '../get-source-context-menu-items';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {showNotification} from '../Notifications/NotificationCenter';
-import {openInFileExplorer} from '../RenderQueue/actions';
-import {getPreferredEditorId} from '../use-default-editor-info';
 import {getCopyContextForAgentsMenuItem} from './get-copy-context-for-agents-menu-item';
 import type {TimelineAssetLinkInfo} from './timeline-asset-link';
 import {openTimelineAssetLink} from './timeline-asset-link';
@@ -248,18 +241,6 @@ export const getSequenceContextMenuItems = (
 ): ComboboxValue[] => {
 	const isInteractiveSvg =
 		sequence.controls?.componentIdentity === interactiveSvgComponentIdentity;
-	const installedEditors = editorInfo?.installedEditors ?? [];
-	const defaultEditorId = getPreferredEditorId(editorInfo);
-	const defaultEditor = installedEditors.find(
-		(editor) => editor.id === defaultEditorId,
-	);
-	const editorName = defaultEditor?.nameWithType ?? null;
-	const defaultOpenInTarget = getDefaultOpenInTarget({canOpenInEditor});
-	const gitSourceName = window.remotion_gitSource
-		? getGitSourceName(window.remotion_gitSource)
-		: null;
-	const defaultOpenInName =
-		defaultOpenInTarget === 'editor' ? editorName : gitSourceName;
 	const copyImageLabel =
 		copyImageElement && sequence.type === 'image' ? 'Copy image' : 'Copy frame';
 	const contextForAgents = formatContextForAgents({
@@ -267,93 +248,17 @@ export const getSequenceContextMenuItems = (
 		name: sequence.displayName || sequence.controls?.componentName || null,
 		root: window.remotion_cwd,
 	});
-	const openInCodingAgentWithContext = (
-		codingAgentId: DefaultCodingAgent,
-		codingAgentName: string,
-	) => {
-		openInCodingAgent(
-			codingAgentId,
-			codingAgentName,
-			codingAgentId === 'copilot' ? null : contextForAgents,
-		);
-	};
-
-	const openInMenuItems = getOpenInMenuItems({
-		canOpenDesktopApps: onConfigureApps !== null,
-		codingAgentInfo,
-		editorDisabled: !canOpenInEditor || !originalLocation?.source,
-		editorInfo,
-		excludeCodingAgentId: null,
-		excludeEditorId: defaultEditorId,
-		excludeGitSource: defaultOpenInTarget === 'git-source',
-		fileManagerDisabled: !originalLocation?.source,
-		folder: false,
-		gitSourceDisabled: !originalLocation?.source,
-		onConfigureApps,
-		onOpenInCodingAgent: openInCodingAgentWithContext,
-		onOpenInEditor: openInEditor,
-		onOpenInFileExplorer: () => {
-			if (!originalLocation?.source) {
-				return;
-			}
-
-			openInFileExplorer({directory: originalLocation.source}).catch((err) => {
-				showNotification(`Could not open file: ${err.message}`, 2000);
-			});
-		},
-		onOpenInGitClient: () => undefined,
-		onOpenInGitSource: () => {
-			openGitSource({folder: false, location: originalLocation});
-		},
-		onOpenInTerminal: null,
-	});
-
 	const items = [
-		defaultOpenInTarget && defaultOpenInName
-			? {
-					type: 'item' as const,
-					id:
-						defaultOpenInTarget === 'editor'
-							? 'open-in-editor'
-							: 'open-in-git-source',
-					keyHint: null,
-					label: `Open in ${defaultOpenInName}`,
-					leftItem: null,
-					disabled: !originalLocation?.source,
-					onClick: () => {
-						if (defaultOpenInTarget === 'editor') {
-							openInEditor(null);
-							return;
-						}
-
-						openGitSource({folder: false, location: originalLocation});
-					},
-					quickSwitcherLabel: null,
-					subMenu: null,
-					value:
-						defaultOpenInTarget === 'editor'
-							? 'open-in-editor'
-							: 'open-in-git-source',
-				}
-			: null,
-		openInMenuItems.length > 0
-			? {
-					type: 'item' as const,
-					id: 'open-in-another-app',
-					keyHint: null,
-					label: 'Open in...',
-					leftItem: null,
-					disabled: !originalLocation?.source,
-					onClick: () => undefined,
-					quickSwitcherLabel: null,
-					subMenu: {
-						items: openInMenuItems,
-						leaveLeftSpace: true,
-						preselectIndex: false as const,
-					},
-					value: 'open-in-another-app',
-				}
-			: null,
+		...getSourceContextMenuItems({
+			canOpenInEditor,
+			codingAgentInfo,
+			contextForAgents,
+			editorInfo,
+			onConfigureApps,
+			openInCodingAgent,
+			openInEditor,
+			originalLocation,
+		}),
 		getCopyContextForAgentsMenuItem({contextForAgents}),
 		...getAnnotateWithChatGPTMenuItems({
 			id: 'annotate-layer',

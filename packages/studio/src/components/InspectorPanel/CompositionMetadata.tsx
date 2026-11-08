@@ -7,14 +7,13 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {COMPUTED_VALUE_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {COMPUTED_VALUE_COLOR} from '../../helpers/colors';
 import {
-	HOVER_GROUP_CLASS_NAME,
-	HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME,
+	FOCUS_VISIBLE_ONLY_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
 } from '../../helpers/hoverable';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {resolvedStackToSymbolicated} from '../../helpers/resolved-stack-to-symbolicated';
-import {CaretDown} from '../../icons/caret';
 import {Checkmark} from '../../icons/Checkmark';
 import {renderFrame} from '../../state/render-frame';
 import {ContextMenu} from '../ContextMenu';
@@ -30,7 +29,6 @@ import {getCurrentFrame} from '../Timeline/imperative-state';
 import {timelineDurationRef} from '../Timeline/timeline-refs';
 import {TimelineTickFormatContext} from '../Timeline/TimelineTickFormatProvider';
 import {useResolvedStack} from '../Timeline/use-resolved-stack';
-import {InspectorDetailRow} from './common';
 import {
 	acceptPendingCompositionMetadataValue,
 	type CompositionMetadataField,
@@ -40,17 +38,20 @@ import {
 	reconcilePendingCompositionMetadata,
 } from './optimistic-composition-metadata';
 import {parseCompositionDuration} from './parse-composition-duration';
-import {detailLabel, detailRow, detailsContainer, detailValue} from './styles';
+import {detailLabel, detailRow, detailsContainer} from './styles';
 
 const compositionMetadataContainer: React.CSSProperties = {
 	...detailsContainer,
+	columnGap: 12,
+	display: 'grid',
+	gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
 	paddingBottom: 4,
-	paddingTop: 4,
+	paddingTop: 0,
 };
 
 const fieldLabels: Record<CompositionMetadataField, string> = {
 	durationInFrames: 'Duration',
-	fps: 'Frame rate',
+	fps: 'Frame Rate',
 	height: 'Height',
 	width: 'Width',
 };
@@ -73,104 +74,45 @@ const computedValueStyle: React.CSSProperties = {
 };
 
 const metadataFormatterStyle: React.CSSProperties = {
+	display: 'block',
 	fontSize: 13,
+	overflow: 'hidden',
+	textOverflow: 'clip',
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
-};
-
-const dimensionFormatterStyle: React.CSSProperties = {
-	...metadataFormatterStyle,
-	display: 'block',
-	overflow: 'hidden',
-	textOverflow: 'ellipsis',
 	whiteSpace: 'nowrap',
 };
 
-const dimensionControlStyle: React.CSSProperties = {
-	alignItems: 'center',
-	display: 'flex',
-	flex: '1 1 72px',
-	gap: 5,
-	maxWidth: 72,
-	minWidth: 'min-content',
-};
-
-const dimensionLabelStyle: React.CSSProperties = {
-	flexShrink: 0,
-	color: LIGHT_TEXT,
-	fontFamily: 'sans-serif',
+const metadataDraggerStyle: React.CSSProperties = {
 	fontSize: 13,
-	lineHeight: '20px',
-	pointerEvents: 'none',
-	userSelect: 'none',
-	WebkitUserSelect: 'none',
-};
-
-const metadataDraggerStyles: Record<
-	CompositionMetadataField,
-	React.CSSProperties
-> = {
-	durationInFrames: {
-		fontSize: 13,
-		padding: '2px 0 2px 6px',
-		textAlign: 'right',
-		width: 104,
-	},
-	fps: {
-		fontSize: 13,
-		padding: '2px 0 2px 6px',
-		textAlign: 'right',
-		width: 72,
-	},
-	height: {
-		fontSize: 13,
-		padding: '2px 0',
-		textAlign: 'right',
-		width: '100%',
-	},
-	width: {
-		fontSize: 13,
-		padding: '2px 0',
-		textAlign: 'right',
-		width: '100%',
-	},
-};
-
-const dimensionsControls: React.CSSProperties = {
-	alignItems: 'center',
-	color: 'inherit',
-	display: 'flex',
-	fontFamily: 'sans-serif',
-	fontSize: 13,
-	gap: 16,
-	justifyContent: 'flex-end',
-	lineHeight: '20px',
-	marginLeft: 'auto',
-	maxWidth: 160,
 	minWidth: 0,
+	padding: '2px 0',
+	textAlign: 'right',
 	width: '100%',
 };
 
-const dimensionsRow: React.CSSProperties = {
+const metadataField: React.CSSProperties = {
 	...detailRow,
-	columnGap: 2,
-	display: 'grid',
-	gridTemplateColumns: 'max-content minmax(0, 1fr)',
+	gap: 4,
+	minWidth: 0,
 };
 
-const presetButtonIcon: React.CSSProperties = {
-	alignItems: 'center',
-	color: 'inherit',
-	display: 'flex',
-	flexShrink: 0,
-	height: 12,
-	justifyContent: 'center',
-	width: 12,
+const metadataValue: React.CSSProperties = {
+	flex: 1,
+	minWidth: 0,
 };
 
-const presetDropdownContainer: React.CSSProperties = {
-	display: 'flex',
-	flexShrink: 0,
+const durationContextMenu: React.CSSProperties = {
+	display: 'block',
+	width: '100%',
+};
+
+const presetLabelStyle: React.CSSProperties = {
+	...NO_HOVER_BACKGROUND_STYLE,
+	cursor: 'default',
+	justifyContent: 'flex-start',
+	minWidth: 0,
+	width: 'auto',
 };
 
 const metadataLabelControls: React.CSSProperties = {
@@ -191,7 +133,7 @@ const metadataLabelText: React.CSSProperties = {
 	lineHeight: '20px',
 	minWidth: 0,
 	overflow: 'hidden',
-	textOverflow: 'ellipsis',
+	textOverflow: 'clip',
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 	whiteSpace: 'nowrap',
@@ -231,38 +173,24 @@ const frameRateFromDragSteps = (startValue: number, steps: number) => {
 const PresetDropdown: React.FC<{
 	readonly disabled: boolean;
 	readonly 'aria-label': string;
+	readonly label: string;
 	readonly values: ComboboxValue[] | (() => ComboboxValue[]);
-	readonly visible: boolean | null;
-}> = ({disabled, 'aria-label': ariaLabel, values, visible}) => {
-	const renderAction = useCallback((color: string) => {
-		return (
-			<span style={presetButtonIcon}>
-				<CaretDown color={color} />
-			</span>
-		);
-	}, []);
+}> = ({disabled, 'aria-label': ariaLabel, label, values}) => {
+	const renderAction = useCallback(() => {
+		return <span style={metadataLabelText}>{label}</span>;
+	}, [label]);
 
 	return (
-		<div
-			className={
-				visible === null ? HOVER_GROUP_REVEAL_KEEP_SPACE_CLASS_NAME : undefined
-			}
-			style={{
-				...presetDropdownContainer,
-				...(visible === null
-					? null
-					: {visibility: visible ? 'visible' : 'hidden'}),
-			}}
-		>
-			<InlineDropdown
-				disabled={disabled}
-				renderAction={renderAction}
-				aria-label={ariaLabel}
-				values={typeof values === 'function' ? undefined : values}
-				getItems={typeof values === 'function' ? values : undefined}
-				variant="compact"
-			/>
-		</div>
+		<InlineDropdown
+			disabled={disabled}
+			renderAction={renderAction}
+			aria-label={ariaLabel}
+			values={typeof values === 'function' ? undefined : values}
+			getItems={typeof values === 'function' ? values : undefined}
+			variant="compact"
+			className={FOCUS_VISIBLE_ONLY_CLASS_NAME}
+			style={presetLabelStyle}
+		/>
 	);
 };
 
@@ -354,23 +282,10 @@ const CompositionMetadataValue: React.FC<{
 		};
 	}, [field, formatValue, fps, showFrames]);
 
-	const isDimension = field === 'width' || field === 'height';
 	const content =
 		computed || disabled ? (
-			<span
-				style={
-					isDimension
-						? {...computedContainerStyle, ...metadataDraggerStyles[field]}
-						: computedContainerStyle
-				}
-			>
-				<span
-					style={
-						isDimension
-							? {...dimensionFormatterStyle, ...computedValueStyle}
-							: computedValueStyle
-					}
-				>
+			<span style={{...computedContainerStyle, ...metadataDraggerStyle}}>
+				<span style={{...metadataFormatterStyle, ...computedValueStyle}}>
 					{formatValue(value)}
 				</span>
 			</span>
@@ -378,7 +293,7 @@ const CompositionMetadataValue: React.FC<{
 			<InputDraggerWithTextEditing
 				onValueChangeCancel={() => setDragValue(null)}
 				aria-label={fieldLabels[field]}
-				buttonStyle={metadataDraggerStyles[field]}
+				buttonStyle={metadataDraggerStyle}
 				type="number"
 				textEditing={textEditing}
 				valueFromSteps={isFps ? frameRateFromDragSteps : null}
@@ -394,30 +309,14 @@ const CompositionMetadataValue: React.FC<{
 				dragSensitivity={isFps ? 0.1 : 1}
 				dragDecimalPlaces={isFps ? 2 : 0}
 				formatter={formatValue}
-				formatterStyle={
-					isDimension ? dimensionFormatterStyle : metadataFormatterStyle
-				}
+				formatterStyle={metadataFormatterStyle}
 				rightAlign
-				style={metadataDraggerStyles[field]}
+				style={metadataDraggerStyle}
 			/>
 		);
 
-	if (isDimension) {
-		return (
-			<span style={dimensionControlStyle}>
-				<span style={dimensionLabelStyle} aria-hidden>
-					{field === 'width' ? 'W' : 'H'}
-				</span>
-				{content}
-			</span>
-		);
-	}
-
 	return field === 'durationInFrames' ? (
-		<ContextMenu
-			getItems={getTimeFormatItems}
-			style={{display: 'inline-block'}}
-		>
+		<ContextMenu getItems={getTimeFormatItems} style={durationContextMenu}>
 			{content}
 		</ContextMenu>
 	) : (
@@ -649,81 +548,76 @@ export const CompositionMetadata: React.FC<{
 
 	return (
 		<div style={compositionMetadataContainer}>
-			<div style={dimensionsRow} className={HOVER_GROUP_CLASS_NAME}>
+			<div style={metadataField}>
 				<div style={detailLabel}>
 					<div style={metadataLabelControls}>
-						<span style={metadataLabelText}>Dimensions</span>
-						{disabled || widthIsComputed || heightIsComputed ? null : (
+						{disabled || widthIsComputed || heightIsComputed ? (
+							<span style={metadataLabelText}>Width</span>
+						) : (
 							<PresetDropdown
+								label="Width"
 								disabled={
 									pendingValues.width !== undefined ||
 									pendingValues.height !== undefined
 								}
-								aria-label="Choose dimension preset"
+								aria-label="Choose width preset"
 								values={dimensionPresetValues}
-								visible={null}
 							/>
 						)}
 					</div>
 				</div>
-				<div style={detailValue}>
-					<div style={dimensionsControls}>
-						<CompositionMetadataValue
-							computed={widthIsComputed}
-							disabled={disabled}
-							field="width"
-							onSave={saveMetadata}
-							pendingValue={pendingValues.width ?? null}
-							value={video.width}
-						/>
-						<CompositionMetadataValue
-							computed={heightIsComputed}
-							disabled={disabled}
-							field="height"
-							onSave={saveMetadata}
-							pendingValue={pendingValues.height ?? null}
-							value={video.height}
-						/>
+				<div style={metadataValue}>
+					<CompositionMetadataValue
+						computed={widthIsComputed}
+						disabled={disabled}
+						field="width"
+						onSave={saveMetadata}
+						pendingValue={pendingValues.width ?? null}
+						value={video.width}
+					/>
+				</div>
+			</div>
+			<div style={metadataField}>
+				<div style={detailLabel}>
+					<div style={metadataLabelControls}>
+						{disabled || widthIsComputed || heightIsComputed ? (
+							<span style={metadataLabelText}>Height</span>
+						) : (
+							<PresetDropdown
+								label="Height"
+								disabled={
+									pendingValues.width !== undefined ||
+									pendingValues.height !== undefined
+								}
+								aria-label="Choose height preset"
+								values={dimensionPresetValues}
+							/>
+						)}
 					</div>
+				</div>
+				<div style={metadataValue}>
+					<CompositionMetadataValue
+						computed={heightIsComputed}
+						disabled={disabled}
+						field="height"
+						onSave={saveMetadata}
+						pendingValue={pendingValues.height ?? null}
+						value={video.height}
+					/>
 				</div>
 			</div>
 			{isStill ? null : (
 				<>
-					<InspectorDetailRow
-						label={(hovered) => (
+					<div style={metadataField}>
+						<div style={detailLabel}>
 							<div style={metadataLabelControls}>
-								<span style={metadataLabelText}>Frame rate</span>
-								{disabled || fpsIsComputed ? null : (
+								{disabled || durationIsComputed ? (
+									<span style={metadataLabelText}>Duration</span>
+								) : (
 									<PresetDropdown
-										disabled={pendingValues.fps !== undefined}
-										aria-label="Choose frame rate preset"
-										values={frameRatePresetValues}
-										visible={hovered}
-									/>
-								)}
-							</div>
-						)}
-					>
-						<div style={dimensionsControls}>
-							<CompositionMetadataValue
-								computed={fpsIsComputed}
-								disabled={disabled}
-								field="fps"
-								onSave={saveMetadata}
-								pendingValue={pendingValues.fps ?? null}
-								value={video.fps}
-							/>
-						</div>
-					</InspectorDetailRow>
-					<InspectorDetailRow
-						label={(hovered) => (
-							<div style={metadataLabelControls}>
-								<span style={metadataLabelText}>Duration</span>
-								{disabled || durationIsComputed ? null : (
-									<PresetDropdown
+										label="Duration"
 										disabled={pendingValues.durationInFrames !== undefined}
 										aria-label="Choose duration preset"
-										visible={hovered}
 										values={() => {
 											const timelineEnd =
 												timelineDurationRef.current?.getDuration(
@@ -770,17 +664,44 @@ export const CompositionMetadata: React.FC<{
 									/>
 								)}
 							</div>
-						)}
-					>
-						<CompositionMetadataValue
-							computed={durationIsComputed}
-							disabled={disabled}
-							field="durationInFrames"
-							onSave={saveMetadata}
-							pendingValue={pendingValues.durationInFrames ?? null}
-							value={video.durationInFrames}
-						/>
-					</InspectorDetailRow>
+						</div>
+						<div style={metadataValue}>
+							<CompositionMetadataValue
+								computed={durationIsComputed}
+								disabled={disabled}
+								field="durationInFrames"
+								onSave={saveMetadata}
+								pendingValue={pendingValues.durationInFrames ?? null}
+								value={video.durationInFrames}
+							/>
+						</div>
+					</div>
+					<div style={metadataField}>
+						<div style={detailLabel}>
+							<div style={metadataLabelControls}>
+								{disabled || fpsIsComputed ? (
+									<span style={metadataLabelText}>Frame Rate</span>
+								) : (
+									<PresetDropdown
+										label="Frame Rate"
+										disabled={pendingValues.fps !== undefined}
+										aria-label="Choose frame rate preset"
+										values={frameRatePresetValues}
+									/>
+								)}
+							</div>
+						</div>
+						<div style={metadataValue}>
+							<CompositionMetadataValue
+								computed={fpsIsComputed}
+								disabled={disabled}
+								field="fps"
+								onSave={saveMetadata}
+								pendingValue={pendingValues.fps ?? null}
+								value={video.fps}
+							/>
+						</div>
+					</div>
 				</>
 			)}
 		</div>
