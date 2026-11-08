@@ -25,7 +25,6 @@ export type HtmlInCanvasMotionBlurProps = InteractiveBaseProps &
 
 const htmlInCanvasMotionBlurSchema = {
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	shutterAngle: {
 		type: 'number',
 		min: 0,

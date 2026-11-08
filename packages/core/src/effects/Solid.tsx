@@ -22,7 +22,6 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
-	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -90,7 +89,6 @@ export type SolidProps = MandatoryProps &
 
 export const solidSchema = {
 	...baseSchema,
-	...premountSchema,
 	color: {
 		type: 'color',
 		default: 'transparent',

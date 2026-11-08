@@ -29,7 +29,6 @@ import type {
 import {
 	backgroundSchema,
 	baseSchema,
-	premountSchema,
 	borderRadiusSchema,
 	borderSchema,
 	cropSchema,
@@ -1275,7 +1274,6 @@ HtmlInCanvasInner.displayName = 'HtmlInCanvas';
 
 export const htmlInCanvasSchema = {
 	...baseSchema,
-	...premountSchema,
 	pixelDensity: {
 		type: 'number',
 		min: 1,

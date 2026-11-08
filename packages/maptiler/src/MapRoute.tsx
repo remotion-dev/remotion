@@ -41,10 +41,6 @@ type MapRouteProps = InteractiveBaseProps &
 
 const mapRouteSchema = {
 	...Interactive.baseSchema,
-	...{
-		premountFor: Interactive.premountSchema.premountFor,
-		postmountFor: Interactive.premountSchema.postmountFor,
-	},
 	glow: {
 		type: 'number',
 		min: 0,

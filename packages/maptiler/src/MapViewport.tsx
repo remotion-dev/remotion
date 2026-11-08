@@ -94,7 +94,6 @@ const mapViewportSchema = {
 	// Keep the existing inspector field order. Interactive.withSchema() adds
 	// these fields again without changing their insertion position.
 	...Interactive.baseSchema,
-	...Interactive.premountSchema,
 	centerLongitude: {
 		type: 'number',
 		min: -180,

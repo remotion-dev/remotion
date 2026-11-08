@@ -577,7 +577,6 @@ export const sequenceStyleSchema = {
 	...backgroundSchema,
 	...borderSchema,
 	...borderRadiusSchema,
-	...sequencePremountSchema,
 } as const satisfies InteractivitySchema;
 
 export const hiddenField: InteractivitySchemaField = {

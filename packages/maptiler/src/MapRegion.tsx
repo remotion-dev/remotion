@@ -43,10 +43,6 @@ type MapRegionProps = InteractiveBaseProps &
 
 const mapRegionSchema = {
 	...Interactive.baseSchema,
-	...{
-		premountFor: Interactive.premountSchema.premountFor,
-		postmountFor: Interactive.premountSchema.postmountFor,
-	},
 	fill: {
 		type: 'number',
 		min: 0,
