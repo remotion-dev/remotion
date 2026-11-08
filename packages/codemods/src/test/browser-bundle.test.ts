@@ -48,6 +48,31 @@ test('loads and edits registrations in a browser without Node globals', async ()
 		);
 		expect(moved.files['nested/Target.tsx']).toContain("from '../Video'");
 		expect(moved.files['Root.tsx']).not.toContain('id="A"');
+		const callbackProject = {
+			...project,
+			files: {
+				...project.files,
+				'Root.tsx': project.files['Root.tsx']
+					.replace('{Video}', '{Video, Timing}')
+					.replace(
+						'durationInFrames={60}',
+						`durationInFrames={60} calculateMetadata={() => {{enum Timing {Duration = 60}; void Timing.Duration;} return {durationInFrames: Timing.Duration};}}`,
+					),
+			},
+		};
+		const callbackResult = codemods.moveComposition({
+			project: callbackProject,
+			compositionFile: 'Root.tsx',
+			compositionId: 'A',
+			destinationFile: 'nested/Target.tsx',
+			destination: {type: 'folder', folder: {name: 'Target', parentName: null}},
+		});
+		const callbackMoved = codemods.applyCodemodChanges(
+			callbackProject,
+			callbackResult.changes,
+		);
+		expect(callbackMoved.files['nested/Target.tsx']).toContain('Video, Timing');
+
 		for (const declaration of [
 			'enum Timing {Duration = 60}',
 			'namespace Timing {export const Duration = 60}',

@@ -76,7 +76,10 @@ export const transferRegistrationImports = ({
 			imports.set(specifier.local.name, {declaration, specifier});
 	}
 
-	const runtimeBindings = new Map<string, recast.types.NodePath[]>();
+	const runtimeBindings = new Map<
+		string,
+		{declaration: recast.types.NodePath; scope: object}[]
+	>();
 	recast.visit(ast, {
 		visitNode(path) {
 			const node = path.node as Node;
@@ -86,7 +89,22 @@ export const transferRegistrationImports = ({
 				node.id.type === 'Identifier'
 			) {
 				const declarations = runtimeBindings.get(node.id.name) ?? [];
-				declarations.push(path);
+				let scope = path.parentPath;
+				while (
+					scope &&
+					![
+						'Program',
+						'BlockStatement',
+						'TSModuleBlock',
+						'SwitchStatement',
+					].includes(scope.node.type)
+				)
+					scope = scope.parentPath;
+				if (!scope)
+					throw new Error(
+						'Could not locate the scope of a TypeScript declaration',
+					);
+				declarations.push({declaration: path, scope: scope.node});
 				runtimeBindings.set(node.id.name, declarations);
 			}
 
@@ -149,28 +167,24 @@ export const transferRegistrationImports = ({
 			)
 				return false;
 			const {name} = p.node;
-			let binding = p.scope.lookup(name) ?? p.scope.lookupType(name);
-			let currentScope: typeof p.scope | null = p.scope;
-			while (currentScope) {
-				if (
-					runtimeBindings
-						.get(name)
-						?.some(
-							(declaration) =>
-								declaration.scope?.path.node === currentScope?.path.node,
-						)
-				) {
-					binding = currentScope;
+			const binding = p.scope.lookup(name) ?? p.scope.lookupType(name);
+			let bindingPath = binding?.path ?? null;
+			let currentPath: recast.types.NodePath | null = p;
+			while (currentPath) {
+				const runtimeBinding = runtimeBindings
+					.get(name)
+					?.find((declaration) => declaration.scope === currentPath?.node);
+				if (runtimeBinding) {
+					bindingPath = runtimeBinding.declaration;
 					break;
 				}
 
-				if (binding?.path.node === currentScope.path.node) break;
-
-				currentScope = currentScope.parent;
+				if (bindingPath?.node === currentPath.node) break;
+				currentPath = currentPath.parentPath;
 			}
 
-			if (binding && binding.path.node !== ast.program) {
-				let ancestor: recast.types.NodePath | null = binding.path;
+			if (bindingPath && bindingPath.node !== ast.program) {
+				let ancestor: recast.types.NodePath | null = bindingPath;
 				while (ancestor && ancestor.node !== entry.node)
 					ancestor = ancestor.parentPath;
 				if (ancestor) return false;
