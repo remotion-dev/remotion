@@ -40,6 +40,12 @@ For video or audio, use [`renderMediaOnLambdaAndStream()`](/docs/lambda/renderme
 
 Accepts the same [render options as `renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#arguments), plus the callbacks below.
 
+### `chunks?`<AvailableFrom v="4.0.542" />
+
+<Options id="chunks" />
+
+Defaults to automatic chunk planning. The same [validation rules as `renderFramesOnLambda()`](/docs/lambda/renderframesonlambda#chunks) apply.
+
 ### `onInit?`
 
 Called once with the [startup metadata](/docs/lambda/rendermediaonlambda#return-value), including `renderId`, `bucketName`, and diagnostic links. Defaults to no callback.

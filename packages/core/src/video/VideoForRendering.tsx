@@ -23,7 +23,7 @@ import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {useAudioEnabled} from '../use-media-enabled.js';
+import {useAudioEnabled, useVideoEnabled} from '../use-media-enabled.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -107,6 +107,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 	warnAboutTooHighVolume(volume);
 	const audioEnabled = useAudioEnabled();
+	const videoEnabled = useVideoEnabled();
 	const {shouldUseAudio} = useMediaAudioState({
 		muted: props.muted ?? false,
 		volume,
@@ -164,10 +165,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		return videoRef.current as HTMLVideoElement;
 	}, []);
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame});
+	useEmitVideoFrame({
+		ref: videoRef,
+		onVideoFrame: videoEnabled ? onVideoFrame : null,
+	});
 
 	useEffect(() => {
-		if (!window.remotion_videoEnabled) {
+		if (!videoEnabled) {
 			return;
 		}
 
@@ -260,6 +264,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			continueRender(handle);
 		};
 	}, [
+		videoEnabled,
 		volumePropsFrame,
 		props.src,
 		playbackRate,
@@ -282,6 +287,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (window.process?.env?.NODE_ENV === 'test') {
+				return;
+			}
+
+			if (!videoEnabled && !shouldUseAudio) {
 				return;
 			}
 
@@ -316,6 +325,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			};
 		}, [
 			src,
+			videoEnabled,
+			shouldUseAudio,
 			onDuration,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
@@ -324,6 +335,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		]);
 	}
 
+	// The tag stays mounted while video is disabled: its metadata provides the
+	// duration that <Html5Video loop> needs to place its audio.
 	return (
 		<video
 			ref={videoRef}

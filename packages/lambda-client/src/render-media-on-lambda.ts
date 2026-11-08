@@ -54,6 +54,7 @@ export type RenderMediaOnLambdaInput = {
 	maxRetries?: number;
 	framesPerLambda?: number;
 	concurrency?: number;
+	chunks?: [number, number][] | null;
 	frameRange?: SingleFrameRange;
 	outName?: OutNameInput;
 	separateAudioTo?: OutNameInputWithKey;
@@ -198,6 +199,7 @@ export const renderMediaOnLambdaOptionalToRequired = (
 		composition: options.composition,
 		concurrencyPerLambda: options.concurrencyPerLambda ?? 1,
 		concurrency: options.concurrency ?? null,
+		chunks: options.chunks ?? null,
 		crf: options.crf,
 		gopSize: options.gopSize ?? null,
 		disableSharedMemoryCapture: options.disableSharedMemoryCapture ?? false,

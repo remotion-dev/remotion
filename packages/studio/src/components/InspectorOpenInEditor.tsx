@@ -22,6 +22,7 @@ import {EditorIcon} from '../icons/editor';
 import {GitHubIcon} from '../icons/github';
 import {getAnnotateWithChatGPTMenuItems} from './get-annotate-with-chatgpt-menu-item';
 import {getOpenInMenuItems} from './get-open-in-menu-items';
+import {inspectorHeaderActionStyle} from './InspectorPanel/common';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {showNotification} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
@@ -48,6 +49,10 @@ const editorButtonIconSize = 18;
 const githubButtonIconSize = 16;
 
 export const InspectorOpenInEditor: React.FC<{
+	readonly menuTrigger: {
+		readonly label: string;
+		readonly renderIcon: (color: string) => React.ReactNode;
+	} | null;
 	readonly annotationName: string | null;
 	readonly contextForAgents?: string | null;
 	readonly location: OriginalPosition | null;
@@ -55,6 +60,7 @@ export const InspectorOpenInEditor: React.FC<{
 	readonly locationType: 'file' | 'folder' | null;
 	readonly showTooltips: boolean;
 }> = ({
+	menuTrigger,
 	annotationName,
 	contextForAgents = null,
 	label,
@@ -148,8 +154,9 @@ export const InspectorOpenInEditor: React.FC<{
 			editorDisabled: !location?.source || !canOpenInEditor,
 			editorInfo,
 			excludeCodingAgentId: null,
-			excludeEditorId: defaultEditorId,
-			excludeGitSource: defaultOpenInTarget === 'git-source',
+			excludeEditorId: menuTrigger === null ? defaultEditorId : null,
+			excludeGitSource:
+				menuTrigger === null && defaultOpenInTarget === 'git-source',
 			fileManagerDisabled:
 				!location?.source || previewServerState.type !== 'connected',
 			folder: locationType === 'folder',
@@ -252,11 +259,36 @@ export const InspectorOpenInEditor: React.FC<{
 		editorInfo,
 		location,
 		locationType,
+		menuTrigger,
 		openWithCodingAgent,
 		openWithEditor,
 		previewServerState.type,
 	]);
 	const segments = useMemo((): SegmentedButtonSegment[] => {
+		if (menuTrigger !== null) {
+			return [
+				{
+					ariaLabel: menuTrigger.label,
+					buttonId: null,
+					disabled: !location?.source,
+					idleColor: LIGHT_TEXT,
+					leaveLeftSpace: true,
+					onOpenChange: null,
+					renderContent: menuTrigger.renderIcon,
+					segmentId: 'source-location',
+					selectedId: null,
+					style: inspectorHeaderActionStyle,
+					tooltipLabel: showTooltips
+						? (formatFileLocation({location, root: window.remotion_cwd}) ??
+							location?.source ??
+							null)
+						: null,
+					type: 'menu',
+					values: menuItems,
+				},
+			];
+		}
+
 		const result: SegmentedButtonSegment[] = [
 			{
 				ariaLabel: `Open in ${defaultAppName}`,
@@ -313,6 +345,7 @@ export const InspectorOpenInEditor: React.FC<{
 		label,
 		location,
 		menuItems,
+		menuTrigger,
 		onOpenDefault,
 		showTooltips,
 	]);

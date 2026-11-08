@@ -10,7 +10,10 @@ import type {
 	SequencePropsSubscriptionKey,
 } from 'remotion';
 import {getBrowserStudioOperations} from '../../helpers/browser-studio-operations';
-import {assertEffectChainEditable} from '../../helpers/effect-deletion-state';
+import {
+	createOptimisticEffectPropUpdate,
+	attachOptimisticEffectPropHistory,
+} from '../../helpers/optimistic-effect-props';
 import {callApi} from '../call-api';
 import type {SetPropStatuses} from './save-sequence-prop';
 
@@ -44,7 +47,10 @@ const groupByNodePath = <T extends {nodePath: SequencePropsSubscriptionKey}>(
 ): T[][] => {
 	const groups = new Map<string, T[]>();
 	for (const keyframe of keyframes) {
-		const key = JSON.stringify(keyframe.nodePath);
+		const key = JSON.stringify([
+			keyframe.nodePath,
+			'effectIndex' in keyframe ? keyframe.effectIndex : null,
+		]);
 		const group = groups.get(key) ?? [];
 		group.push(keyframe);
 		groups.set(key, group);
@@ -107,7 +113,7 @@ export const applyOptimisticKeyframeMoves = ({
 	setPropStatuses: SetPropStatuses;
 }) => {
 	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
-		return;
+		return [];
 	}
 
 	for (const keyframes of groupByNodePath(sequenceKeyframes)) {
@@ -140,47 +146,59 @@ export const applyOptimisticKeyframeMoves = ({
 		});
 	}
 
+	const effectUpdates: ReturnType<typeof createOptimisticEffectPropUpdate>[] =
+		[];
 	for (const keyframes of groupByNodePath(effectKeyframes)) {
 		const [firstKeyframe] = keyframes;
 		if (!firstKeyframe) {
 			continue;
 		}
 
-		setPropStatuses(firstKeyframe.nodePath, (prev) => {
-			const moved = optimisticMoveEffectKeyframes({
-				videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
-				previous: prev,
-				keyframes: keyframes.map((keyframe) => ({
-					effectIndex: keyframe.effectIndex,
-					fieldKey: keyframe.fieldKey,
-					fromFrame: keyframe.fromFrame,
-					toFrame: keyframe.toFrame,
-				})),
-			});
-			if (!moved.canUpdate) {
-				return moved;
-			}
+		const update = createOptimisticEffectPropUpdate({
+			nodePath: firstKeyframe.nodePath,
+			effectIndex: firstKeyframe.effectIndex,
+			fieldKey: firstKeyframe.fieldKey,
+			schema: firstKeyframe.schema,
+			applyOptimistic: (prev) => {
+				const moved = optimisticMoveEffectKeyframes({
+					videoConfigValues: firstKeyframe.nodePath.videoConfigValues,
+					previous: prev,
+					keyframes: keyframes.map((keyframe) => ({
+						effectIndex: keyframe.effectIndex,
+						fieldKey: keyframe.fieldKey,
+						fromFrame: keyframe.fromFrame,
+						toFrame: keyframe.toFrame,
+					})),
+				});
+				if (!moved.canUpdate) {
+					return moved;
+				}
 
-			return {
-				...moved,
-				effects: moved.effects.map((effect) => {
-					if (!effect.canUpdate) {
-						return effect;
-					}
+				return {
+					...moved,
+					effects: moved.effects.map((effect) => {
+						if (!effect.canUpdate) {
+							return effect;
+						}
 
-					return {
-						...effect,
-						props: applyKeyframeDisplayOffsetAdjustmentDeltas({
-							props: effect.props,
-							keyframes: keyframes.filter(
-								(keyframe) => keyframe.effectIndex === effect.effectIndex,
-							),
-						}),
-					};
-				}),
-			};
+						return {
+							...effect,
+							props: applyKeyframeDisplayOffsetAdjustmentDeltas({
+								props: effect.props,
+								keyframes: keyframes.filter(
+									(keyframe) => keyframe.effectIndex === effect.effectIndex,
+								),
+							}),
+						};
+					}),
+				};
+			},
 		});
+		setPropStatuses(firstKeyframe.nodePath, update.applyOptimistic);
+		effectUpdates.push(update);
 	}
+
+	return effectUpdates;
 };
 
 export const callMoveKeyframes = ({
@@ -203,13 +221,6 @@ export const callMoveKeyframes = ({
 		| null;
 	clientId: string;
 }): Promise<MoveKeyframesResponse> => {
-	try {
-		for (const nodePath of effectKeyframes.map((change) => change.nodePath))
-			assertEffectChainEditable(nodePath);
-	} catch (error) {
-		return Promise.reject(error);
-	}
-
 	if (sequenceKeyframes.length === 0 && effectKeyframes.length === 0) {
 		return Promise.resolve({success: true, results: []});
 	}
@@ -218,7 +229,7 @@ export const callMoveKeyframes = ({
 		nodePath: SequencePropsSubscriptionKey;
 		update: Parameters<SetPropStatuses>[1];
 	}[] = [];
-	applyOptimisticKeyframeMoves({
+	const effectUpdates = applyOptimisticKeyframeMoves({
 		sequenceKeyframes,
 		effectKeyframes,
 		setPropStatuses:
@@ -228,24 +239,37 @@ export const callMoveKeyframes = ({
 	});
 	if (setPropStatusesBatch !== null) setPropStatusesBatch(updates);
 
-	return moveKeyframes({
-		sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
-			fileName: keyframe.fileName,
-			nodePath: keyframe.nodePath,
-			key: keyframe.fieldKey,
-			fromFrame: keyframe.fromFrame,
-			toFrame: keyframe.toFrame,
-			schema: keyframe.schema,
-		})),
-		effectKeyframes: effectKeyframes.map((keyframe) => ({
-			fileName: keyframe.fileName,
-			sequenceNodePath: keyframe.nodePath,
-			effectIndex: keyframe.effectIndex,
-			key: keyframe.fieldKey,
-			fromFrame: keyframe.fromFrame,
-			toFrame: keyframe.toFrame,
-			schema: keyframe.schema,
-		})),
-		clientId,
-	});
+	return moveKeyframes(
+		attachOptimisticEffectPropHistory(
+			{
+				sequenceKeyframes: sequenceKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					nodePath: keyframe.nodePath,
+					key: keyframe.fieldKey,
+					fromFrame: keyframe.fromFrame,
+					toFrame: keyframe.toFrame,
+					schema: keyframe.schema,
+				})),
+				effectKeyframes: effectKeyframes.map((keyframe) => ({
+					fileName: keyframe.fileName,
+					sequenceNodePath: keyframe.nodePath,
+					effectIndex: keyframe.effectIndex,
+					key: keyframe.fieldKey,
+					fromFrame: keyframe.fromFrame,
+					toFrame: keyframe.toFrame,
+					schema: keyframe.schema,
+				})),
+				clientId,
+			},
+			effectUpdates,
+		),
+	)
+		.then((response) => {
+			for (const update of effectUpdates) update.acknowledge();
+			return response;
+		})
+		.catch((error) => {
+			for (const update of effectUpdates) update.rollback();
+			throw error;
+		});
 };

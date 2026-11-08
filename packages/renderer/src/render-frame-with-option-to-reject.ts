@@ -41,6 +41,7 @@ export const renderFrameWithOptionToReject = async ({
 	onFrame,
 	remotionSharedMemory,
 	imageFormat,
+	muted,
 	onError,
 	lastFrame,
 	jpegQuality,
@@ -84,6 +85,7 @@ export const renderFrameWithOptionToReject = async ({
 		| ((frame: CapturedFrame, frameNumber: number) => void | Promise<void>);
 	remotionSharedMemory: RemotionSharedMemoryCapture | null;
 	imageFormat: VideoImageFormat;
+	muted: boolean;
 	onError: (err: Error) => void;
 	lastFrame: number;
 	jpegQuality: number;
@@ -117,7 +119,10 @@ export const renderFrameWithOptionToReject = async ({
 	const startTime = performance.now();
 
 	const index = framesToRender.indexOf(frame);
+	// Frames outside the requested range are only evaluated for their audio
+	// so a seamless AAC chunk can be aligned to packet boundaries.
 	const assetsOnly = index === -1;
+	const videoEnabled = !assetsOnly && imageFormat !== 'none';
 
 	if (stoppedSignal.stopped) {
 		return Promise.reject(new Error('Render was stopped'));
@@ -151,6 +156,8 @@ export const renderFrameWithOptionToReject = async ({
 
 		await seekToFrame({
 			frame,
+			videoEnabled,
+			audioEnabled: !muted,
 			page,
 			composition: compId,
 			timeoutInMilliseconds,
@@ -306,10 +313,13 @@ export const renderFrameWithOptionToReject = async ({
 		}
 
 		const audioAndVideoAssets = onlyAudioAndVideoAssets(collectedAssets);
-		const artifactAssets = onlyArtifact({
-			assets: collectedAssets,
-			frameBuffer: frameBufferForArtifacts,
-		});
+		// Artifacts belong to the requested frames, not to the audio padding.
+		const artifactAssets = assetsOnly
+			? []
+			: onlyArtifact({
+					assets: collectedAssets,
+					frameBuffer: frameBufferForArtifacts,
+				});
 
 		for (const artifact of artifactAssets) {
 			const previousFrame = assetIndex.firstArtifactFrameByFilename.get(

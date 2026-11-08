@@ -16,9 +16,9 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsc -w",
+		"watch": "node ../.monorepo/tsrs.cjs -w",
 		"test": "node src/test/execute.mjs",
-		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
+		"make": "node ../.monorepo/tsrs.cjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"dependencies": {
 		"mediabunny": "catalog:",

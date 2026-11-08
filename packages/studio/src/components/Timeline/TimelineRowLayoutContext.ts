@@ -6,6 +6,7 @@ import {
 
 type TimelineRowLayout = {
 	readonly basePadding: number;
+	readonly highlightContainingSelection: boolean;
 	readonly highlightSelectedLabel: boolean;
 	readonly keyframeControlsPadding: number;
 	readonly rowBorderRadius: number;
@@ -14,6 +15,7 @@ type TimelineRowLayout = {
 
 export const INSPECTOR_TIMELINE_ROW_LAYOUT: TimelineRowLayout = {
 	basePadding: INSPECTOR_ROW_BASE_PADDING,
+	highlightContainingSelection: false,
 	highlightSelectedLabel: false,
 	keyframeControlsPadding: 0,
 	rowBorderRadius: 4,
@@ -22,6 +24,7 @@ export const INSPECTOR_TIMELINE_ROW_LAYOUT: TimelineRowLayout = {
 
 export const TimelineRowLayoutContext = createContext<TimelineRowLayout>({
 	basePadding: TIMELINE_ROW_BASE_PADDING,
+	highlightContainingSelection: true,
 	highlightSelectedLabel: true,
 	keyframeControlsPadding: TIMELINE_ROW_BASE_PADDING,
 	rowBorderRadius: 0,

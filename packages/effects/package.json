@@ -16,8 +16,8 @@
 		"formatting": "oxfmt src --check",
 		"format": "oxfmt src",
 		"lint": "eslint src",
-		"watch": "tsc -w",
-		"make": "tsc && bun --env-file=../.env.bundle bundle.ts"
+		"watch": "node ../.monorepo/tsrs.cjs -w",
+		"make": "node ../.monorepo/tsrs.cjs && bun --env-file=../.env.bundle bundle.ts"
 	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -259,6 +259,11 @@
 			"module": "./dist/esm/light-trail.mjs",
 			"import": "./dist/esm/light-trail.mjs"
 		},
+		"./lightning": {
+			"types": "./dist/lightning.d.ts",
+			"module": "./dist/esm/lightning.mjs",
+			"import": "./dist/esm/lightning.mjs"
+		},
 		"./dot-grid": {
 			"types": "./dist/dot-grid.d.ts",
 			"module": "./dist/esm/dot-grid.mjs",
@@ -479,7 +484,12 @@
 			"module": "./dist/esm/zigzag.mjs",
 			"import": "./dist/esm/zigzag.mjs"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./*/preview": {
+			"types": "./dist/*.d.ts",
+			"module": "./dist/esm/preview/*.mjs",
+			"import": "./dist/esm/preview/*.mjs"
+		}
 	},
 	"typesVersions": {
 		">=1.0": {
@@ -618,6 +628,9 @@
 			"light-trail": [
 				"dist/light-trail.d.ts"
 			],
+			"lightning": [
+				"dist/lightning.d.ts"
+			],
 			"dot-grid": [
 				"dist/dot-grid.d.ts"
 			],
@@ -749,6 +762,9 @@
 			],
 			"zoom-blur": [
 				"dist/zoom-blur.d.ts"
+			],
+			"*/preview": [
+				"dist/*.d.ts"
 			]
 		}
 	},

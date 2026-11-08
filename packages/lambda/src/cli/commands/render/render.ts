@@ -29,6 +29,7 @@ import {validateMaxRetries} from '../../../shared/validate-retries';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
+import {parseChunksFlag} from '../../helpers/get-chunks-from-cli';
 import {
 	getS3OutputProviderFromCli,
 	makeOutNameWithCustomCredentials,
@@ -85,6 +86,7 @@ const {
 	sampleRateOption,
 	enableCancellationOption,
 	separateAudioOption,
+	chunksOption,
 } = BrowserSafeApis.options;
 
 export const renderCommand = async ({
@@ -421,6 +423,7 @@ export const renderCommand = async ({
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	const concurrency = parsedLambdaCli['concurrency'] ?? undefined;
 	const concurrencyPerLambda = parsedLambdaCli['concurrency-per-lambda'] ?? 1;
+	const chunks = parseChunksFlag(parsedLambdaCli[chunksOption.cliFlag]);
 	const rendererFunctionName =
 		parsedLambdaCli['renderer-function-name'] ?? null;
 
@@ -464,6 +467,7 @@ export const renderCommand = async ({
 		composition,
 		framesPerLambda: framesPerLambda ?? null,
 		concurrency: concurrency ?? null,
+		chunks,
 		privacy,
 		logLevel,
 		frameRange: singleFrameRange,

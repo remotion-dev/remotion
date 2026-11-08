@@ -38,6 +38,12 @@ For image sequences, use [`renderFramesOnLambdaAndStream()`](/docs/lambda/render
 
 Accepts the same [render options as `renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#arguments), plus the callbacks below.
 
+### `chunks?`<AvailableFrom v="4.0.542" />
+
+<Options id="chunks" />
+
+Defaults to automatic chunk planning. The same [validation rules as `renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#chunks) apply.
+
 ### `onInit?`
 
 Called once with the [startup metadata](/docs/lambda/rendermediaonlambda#return-value), including `renderId`, `bucketName`, and diagnostic links. Defaults to no callback.

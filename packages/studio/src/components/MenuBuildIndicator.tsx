@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {WHITE_ALPHA_80} from '../helpers/colors';
+import {LIGHT_TEXT, WHITE_ALPHA_80} from '../helpers/colors';
 import {InspectorOpenInEditor} from './InspectorOpenInEditor';
 import {Spacing} from './layout';
 import {Spinner} from './Spinner';
@@ -62,11 +62,12 @@ export const MenuBuildIndicator: React.FC<{
 
 	return (
 		<div role="group" style={cwd} aria-label={window.remotion_cwd}>
-			<Spacing x={mobileLayout ? 0.5 : 2} />
+			<Spacing x={mobileLayout ? 1 : 2} />
 			{window.remotion_projectName}
 			<Spacing x={0.5} />
 			<div style={openInEditor}>
 				<InspectorOpenInEditor
+					menuTrigger={null}
 					annotationName={null}
 					location={folderLocation}
 					locationType="folder"
@@ -79,17 +80,13 @@ export const MenuBuildIndicator: React.FC<{
 					<>
 						<Spacing x={0.5} />
 						<div style={spinner}>
-							<Spinner
-								duration={0.5}
-								size={spinnerSize}
-								color={WHITE_ALPHA_80}
-							/>
+							<Spinner duration={0.5} size={spinnerSize} color={LIGHT_TEXT} />
 						</div>
 					</>
 				) : null
 			) : isBuilding ? (
 				<div style={spinner}>
-					<Spinner duration={0.5} size={spinnerSize} color={WHITE_ALPHA_80} />
+					<Spinner duration={0.5} size={spinnerSize} color={LIGHT_TEXT} />
 				</div>
 			) : (
 				<div style={noSpinner} />

@@ -23,7 +23,6 @@ import {
 	borderSchema,
 	cropSchema,
 	loopField,
-	premountSchema,
 	transformSchema,
 	type InteractivitySchema,
 } from '../interactivity-schema.js';
@@ -58,7 +57,6 @@ export const animatedImageSchema = {
 	...baseSchema,
 	loop: loopField,
 	...cropSchema,
-	...premountSchema,
 	...transformSchema,
 	...backgroundSchema,
 	...borderSchema,
@@ -115,6 +113,7 @@ const AnimatedImageContent = forwardRef<
 		const memoizedEffects = useMemoizedEffects({
 			effects,
 			overrideId: controls?.overrideId ?? null,
+			runtimeValues: controls?.runtimeValues ?? null,
 			videoConfigValues: controls?.videoConfigValues ?? null,
 		});
 

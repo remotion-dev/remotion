@@ -2,6 +2,7 @@ type ClipPathNone = {type: 'none'};
 type ClipPathReference = {type: 'url'; source: string};
 type ClipPathPolygon = {
 	type: 'polygon';
+	fillRule: CanvasFillRule;
 	points: {x: number; y: number}[];
 };
 type ClipPathPath = {type: 'path'; d: string; fillRule: CanvasFillRule};
@@ -69,6 +70,12 @@ function parsePosition(
 
 function parsePolygon(args: string, rect: DOMRect): ClipPathPolygon {
 	const pointStrings = args.split(',');
+	const rule = pointStrings[0].trim();
+	const fillRule: CanvasFillRule = rule === 'evenodd' ? 'evenodd' : 'nonzero';
+	if (rule === 'evenodd' || rule === 'nonzero') {
+		pointStrings.shift();
+	}
+
 	const points = pointStrings.map((pointStr) => {
 		const coords = pointStr.trim().split(/\s+/);
 		return {
@@ -77,7 +84,7 @@ function parsePolygon(args: string, rect: DOMRect): ClipPathPolygon {
 		};
 	});
 
-	return {type: 'polygon', points};
+	return {type: 'polygon', points, fillRule};
 }
 
 function parsePath(args: string): ClipPathPath {
@@ -384,7 +391,7 @@ export function setClipPath({
 			}
 
 			ctx.closePath();
-			ctx.clip();
+			ctx.clip(parsed.fillRule);
 			break;
 		}
 

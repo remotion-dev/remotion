@@ -18,6 +18,7 @@ export const renderFrame = ({
 	binariesDirectory,
 	cancelSignal,
 	imageFormat,
+	muted,
 	indent,
 	logLevel,
 	assets,
@@ -52,6 +53,7 @@ export const renderFrame = ({
 	indent: boolean;
 	logLevel: LogLevel;
 	imageFormat: VideoImageFormat;
+	muted: boolean;
 	cancelSignal: CancelSignal | undefined;
 	binariesDirectory: string | null;
 	jpegQuality: number;
@@ -105,6 +107,7 @@ export const renderFrame = ({
 			stoppedSignal,
 			timeoutInMilliseconds,
 			imageFormat,
+			muted,
 			onFrameBuffer,
 			onFrame,
 			remotionSharedMemory,
