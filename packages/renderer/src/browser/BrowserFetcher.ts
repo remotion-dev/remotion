@@ -195,9 +195,10 @@ export const downloadBrowser = async ({
 			) {
 				return getRevisionInfo(chromeMode);
 			}
-
-			fs.rmSync(outputPath, {recursive: true, force: true});
 		}
+
+		fs.rmSync(getVersionFilePath(chromeMode), {force: true});
+		fs.rmSync(outputPath, {recursive: true, force: true});
 
 		logDownloadUrl({url: downloadURL, logLevel, indent});
 
@@ -264,10 +265,9 @@ export const downloadBrowser = async ({
 			}
 		}
 
-		writeVersionFile(chromeMode, expectedVersion);
-
 		const revisionInfo = getRevisionInfo(chromeMode);
 		makeFileExecutableIfItIsNot(revisionInfo.executablePath);
+		writeVersionFile(chromeMode, expectedVersion);
 
 		return revisionInfo;
 	} finally {
