@@ -52,33 +52,41 @@ test('loads and edits registrations in a browser without Node globals', async ()
 			'enum Timing {Duration = 60}',
 			'namespace Timing {export const Duration = 60}',
 		]) {
-			const localProject = {
-				...project,
-				files: {
-					...project.files,
-					'Root.tsx': project.files['Root.tsx']
-						.replace('export const Root', `${declaration}; export const Root`)
-						.replace(
-							'durationInFrames={60}',
-							'durationInFrames={Timing.Duration}',
-						),
-				},
-			};
-			expect(() =>
-				codemods.moveComposition({
-					project: localProject,
-					compositionFile: 'Root.tsx',
-					compositionId: 'A',
-					destinationFile: 'nested/Target.tsx',
-					destination: {
-						type: 'folder',
-						folder: {name: 'Target', parentName: null},
+			for (const shadowImport of [false, true]) {
+				const localProject = {
+					...project,
+					files: {
+						...project.files,
+						'Root.tsx': project.files['Root.tsx']
+							.replace(
+								'export const Root = () =>',
+								shadowImport
+									? `import {Timing} from './Timing'; export const Root = () => {${declaration}; return`
+									: `${declaration}; export const Root = () =>`,
+							)
+							.replace('</>;', shadowImport ? '</>;};' : '</>;')
+							.replace(
+								'durationInFrames={60}',
+								'durationInFrames={Timing.Duration}',
+							),
 					},
-				}),
-			).toThrow('local binding "Timing"');
-			expect(localProject.files['Root.tsx']).toContain(
-				'durationInFrames={Timing.Duration}',
-			);
+				};
+				expect(() =>
+					codemods.moveComposition({
+						project: localProject,
+						compositionFile: 'Root.tsx',
+						compositionId: 'A',
+						destinationFile: 'nested/Target.tsx',
+						destination: {
+							type: 'folder',
+							folder: {name: 'Target', parentName: null},
+						},
+					}),
+				).toThrow('local binding "Timing"');
+				expect(localProject.files['Root.tsx']).toContain(
+					'durationInFrames={Timing.Duration}',
+				);
+			}
 		}
 	} finally {
 		rmSync(directory, {recursive: true, force: true});

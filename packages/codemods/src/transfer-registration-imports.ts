@@ -151,7 +151,7 @@ export const transferRegistrationImports = ({
 			const {name} = p.node;
 			let binding = p.scope.lookup(name) ?? p.scope.lookupType(name);
 			let currentScope: typeof p.scope | null = p.scope;
-			while (!binding && currentScope) {
+			while (currentScope) {
 				if (
 					runtimeBindings
 						.get(name)
@@ -161,7 +161,10 @@ export const transferRegistrationImports = ({
 						)
 				) {
 					binding = currentScope;
+					break;
 				}
+
+				if (binding?.path.node === currentScope.path.node) break;
 
 				currentScope = currentScope.parent;
 			}
