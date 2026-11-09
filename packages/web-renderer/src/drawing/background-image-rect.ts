@@ -6,8 +6,24 @@ type LengthPercentage = {
 export const splitAtTopLevel = (value: string, separator: ',' | ' ') => {
 	const parts: string[] = [];
 	let depth = 0;
+	let quote: string | null = null;
 	let start = 0;
 	for (let i = 0; i < value.length; i++) {
+		if (value[i] === '\\') {
+			i++;
+			continue;
+		}
+
+		if (quote !== null) {
+			if (value[i] === quote) quote = null;
+			continue;
+		}
+
+		if (value[i] === '"' || value[i] === "'") {
+			quote = value[i];
+			continue;
+		}
+
 		if (value[i] === '(') depth++;
 		if (value[i] === ')') depth--;
 		if (
