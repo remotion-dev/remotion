@@ -66,18 +66,66 @@ type Transform = {
 type TransformStyle = Pick<
 	CSSStyleDeclaration,
 	'display' | 'rotate' | 'scale' | 'transform' | 'transformOrigin'
->;
+> & {matrix: DOMMatrixReadOnly | null};
 
 export type TransformStyleCache = WeakMap<Element, TransformStyle>;
 
+const getTypedTransformMatrix = (
+	element: Element,
+): DOMMatrixReadOnly | null => {
+	if (
+		typeof CSSTransformValue === 'undefined' ||
+		!('computedStyleMap' in element)
+	)
+		return null;
+	const value = element.computedStyleMap().get('transform');
+	if (!(value instanceof CSSTransformValue)) return null;
+	try {
+		const matrix = value.toMatrix();
+		// Typed OM retains a 3D operation flag even when its coefficients are 2D.
+		// Classify geometry without serializing away native coefficient precision.
+		if (
+			matrix.m13 === 0 &&
+			matrix.m14 === 0 &&
+			matrix.m23 === 0 &&
+			matrix.m24 === 0 &&
+			matrix.m31 === 0 &&
+			matrix.m32 === 0 &&
+			matrix.m33 === 1 &&
+			matrix.m34 === 0 &&
+			matrix.m43 === 0 &&
+			matrix.m44 === 1
+		) {
+			return new DOMMatrixReadOnly([
+				matrix.a,
+				matrix.b,
+				matrix.c,
+				matrix.d,
+				matrix.e,
+				matrix.f,
+			]);
+		}
+
+		return DOMMatrixReadOnly.fromMatrix(matrix);
+	} catch (error) {
+		// Typed OM cannot convert percentage translations to a pixel matrix.
+		if (error instanceof TypeError) return null;
+		throw error;
+	}
+};
+
 const snapshotTransformStyle = (
 	computedStyle: CSSStyleDeclaration,
+	element: Element,
 ): TransformStyle => {
 	return {
 		display: computedStyle.display,
 		rotate: computedStyle.rotate,
 		scale: computedStyle.scale,
 		transform: computedStyle.transform,
+		matrix: hasTransformCssValue(computedStyle)
+			? getTypedTransformMatrix(element)
+			: null,
 		transformOrigin: computedStyle.transformOrigin,
 	};
 };
@@ -197,7 +245,7 @@ export const calculateTransforms = ({
 		const transformStyle =
 			computedStyle === null
 				? cachedTransformStyle!
-				: snapshotTransformStyle(computedStyle);
+				: snapshotTransformStyle(computedStyle, parent);
 
 		if (computedStyle !== null) {
 			transformStyleCache.set(parent, transformStyle);
@@ -265,7 +313,10 @@ export const calculateTransforms = ({
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
 					? transformStyle.transform
 					: undefined;
-			const matrix = makeDOMMatrix(toParse);
+			const matrix =
+				toParse && transformStyle.matrix
+					? DOMMatrix.fromMatrix(transformStyle.matrix)
+					: makeDOMMatrix(toParse);
 
 			const resetTransforms = makeTransformResetter(parent);
 			const {scale, rotate} = parent.style;

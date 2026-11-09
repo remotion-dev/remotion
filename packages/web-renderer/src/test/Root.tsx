@@ -171,6 +171,10 @@ import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {
+	transformPrecision,
+	transformGeometric2d,
+} from './fixtures/transform-precision';
 import {issue10441TransformShorthands} from './fixtures/transforms/issue-10441-transform-shorthands';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
@@ -198,6 +202,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgDataMimeWhitespace} />
 			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
+			<Composition {...transformPrecision} />
+			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
