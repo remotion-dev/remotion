@@ -187,6 +187,7 @@ export const elementsUseCommand = async ({
 	const {entryPoint, compositions} = getProjectCompositions({
 		remotionRoot,
 		logLevel,
+		fallbackFile: null,
 	});
 
 	const compositionIds = [...new Set(compositions.map((c) => c.id))];

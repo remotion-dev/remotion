@@ -72,50 +72,43 @@ export const importCompositionCommand = async ({
 		);
 	}
 
-	let compositionFile: string;
-	let existingCompositionIds: string[];
-	if (commandLine['composition-file'] !== undefined) {
-		if (!commandLine['composition-file']) {
-			throw new Error(
-				'--composition-file must name an existing registration file.',
-			);
-		}
-
-		compositionFile = await realpath(
-			path.resolve(remotionRoot, commandLine['composition-file']),
+	const explicitCompositionFile = commandLine['composition-file'];
+	if (explicitCompositionFile !== undefined && !explicitCompositionFile) {
+		throw new Error(
+			'--composition-file must name an existing registration file.',
 		);
-		existingCompositionIds = CodemodsInternals.getCompositionsInSource(
-			await readFile(compositionFile, 'utf-8'),
-		).map((composition) => composition.id);
-	} else {
-		const {entryPoint, project, compositions} = getProjectCompositions({
-			remotionRoot,
-			logLevel,
-		});
-		const rootFile = CodemodsInternals.getRootFileForProject({
-			entryPoint,
-			project,
-		});
-		const candidates = [
-			...new Set(compositions.map((composition) => composition.file)),
-		];
-		const target =
-			rootFile ?? (candidates.length === 1 ? candidates[0]! : null);
-		if (target === null) {
-			throw new Error(
-				'Could not determine the composition registration file. Pass --composition-file <file>.',
-			);
-		}
-
-		compositionFile = await realpath(path.resolve(remotionRoot, target));
-		existingCompositionIds = compositions.map((composition) => composition.id);
 	}
 
-	if (existingCompositionIds.includes(compositionId)) {
+	const requestedFile =
+		explicitCompositionFile === undefined
+			? null
+			: await realpath(path.resolve(remotionRoot, explicitCompositionFile));
+	const {entryPoint, project, compositions} = getProjectCompositions({
+		remotionRoot,
+		logLevel,
+		fallbackFile: requestedFile,
+	});
+	if (requestedFile !== null && project.files[requestedFile] === undefined) {
+		const source = await readFile(requestedFile, 'utf-8');
+		project.files[requestedFile] = source;
+		compositions.push(
+			...CodemodsInternals.getCompositionsInSource(source).map(
+				(composition) => ({...composition, file: requestedFile}),
+			),
+		);
+	}
+
+	if (compositions.some((composition) => composition.id === compositionId)) {
 		throw new Error(
 			`Composition "${compositionId}" already exists. Choose another ID with --composition <id>.`,
 		);
 	}
+
+	const compositionFile = CodemodsInternals.resolveCompositionImportFile({
+		entryPoint,
+		project,
+		compositionFile: requestedFile,
+	});
 
 	const {
 		overrideWidthOption,

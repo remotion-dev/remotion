@@ -7,16 +7,19 @@ import {findEntryPoint} from './entry-point';
 export const getProjectCompositions = ({
 	remotionRoot,
 	logLevel,
+	fallbackFile,
 }: {
 	remotionRoot: string;
 	logLevel: LogLevel;
+	fallbackFile: string | null;
 }) => {
-	const {file: entryPoint} = findEntryPoint({
+	const {file} = findEntryPoint({
 		args: [],
 		remotionRoot,
 		logLevel,
 		allowDirectory: false,
 	});
+	const entryPoint = file ?? fallbackFile;
 	if (entryPoint === null) {
 		throw new Error(
 			'Could not find the entry point of your Remotion project. Set it with Config.setEntryPoint(): https://www.remotion.dev/docs/config#setentrypoint',

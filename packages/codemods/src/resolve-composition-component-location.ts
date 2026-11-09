@@ -677,3 +677,76 @@ export const resolveCompositionComponentLocation = ({
 		project,
 	}).location;
 };
+
+export const resolveRootComponentInProject = ({
+	entryPoint,
+	project,
+}: {
+	entryPoint: string;
+	project: SourceMapProject;
+}) => {
+	const filePath = getProjectFile({filePath: entryPoint, project});
+	const ast = parseSource(project.files[filePath]);
+	const registerNames = new Set<string>();
+	const namespaceNames = new Set<string>();
+	for (const statement of ast.program.body) {
+		if (
+			statement.type !== 'ImportDeclaration' ||
+			statement.source.value !== 'remotion'
+		) {
+			continue;
+		}
+
+		for (const specifier of statement.specifiers) {
+			if (
+				specifier.type === 'ImportSpecifier' &&
+				getExportedName(specifier.imported) === 'registerRoot'
+			) {
+				registerNames.add(specifier.local.name);
+			} else if (specifier.type === 'ImportNamespaceSpecifier') {
+				namespaceNames.add(specifier.local.name);
+			}
+		}
+	}
+
+	const componentNames: string[] = [];
+	visit(ast, (node) => {
+		if (node.type !== 'CallExpression') {
+			return false;
+		}
+
+		const {callee} = node;
+		const isRegisterRoot =
+			callee.type === 'Identifier'
+				? registerNames.has(callee.name)
+				: callee.type === 'MemberExpression' &&
+					!callee.computed &&
+					callee.object.type === 'Identifier' &&
+					namespaceNames.has(callee.object.name) &&
+					callee.property.type === 'Identifier' &&
+					callee.property.name === 'registerRoot';
+		if (isRegisterRoot && node.arguments[0]?.type === 'Identifier') {
+			componentNames.push(node.arguments[0].name);
+		}
+
+		return false;
+	});
+	if (componentNames.length !== 1) {
+		throw new Error(
+			'Expected a single registerRoot() call with a component identifier.',
+		);
+	}
+
+	const resolved = resolveDeclaration({
+		filePath,
+		exportName: componentNames[0],
+		project,
+		visited: new Set(),
+	});
+	const root = getReturnedRoot(resolved.declaration);
+	if (root?.type !== 'JSXElement' && root?.type !== 'JSXFragment') {
+		throw new Error('The registered root component must return JSX.');
+	}
+
+	return {...resolved, root};
+};
