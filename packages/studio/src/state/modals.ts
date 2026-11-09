@@ -13,6 +13,8 @@ import type {
 import type {HardwareAccelerationOption} from '@remotion/renderer/client';
 import type {
 	CanvasCaptureData,
+	CompositionDestination,
+	CompositionOrFolder,
 	ElementInstallExpectedFileState,
 	ElementInstallRequest,
 	NodeWrapper,
@@ -30,7 +32,7 @@ import type {
 } from '@remotion/web-renderer';
 import type React from 'react';
 import {createContext} from 'react';
-import type {PreferredEffectBackend} from 'remotion';
+import type {PreferredEffectBackend, ResolvedStackLocation} from 'remotion';
 import type {SequencePropsSubscriptionKey, _InternalTypes} from 'remotion';
 import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
@@ -331,6 +333,14 @@ export type ModalState =
 				source: string;
 				line: number;
 			} | null;
+	  }
+	| {
+			type: 'reorder-composition';
+			item: CompositionOrFolder;
+			destination: CompositionDestination;
+			sourceFile: string | null;
+			destinationFile: string | null;
+			sourceLocations: ResolvedStackLocation[];
 	  }
 	| {
 			type: 'wrap-refactor';

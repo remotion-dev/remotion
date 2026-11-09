@@ -1,5 +1,10 @@
-import {StudioInternals, visualControl} from '@remotion/studio';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {visualControl} from '@remotion/studio';
+import {
+	AbsoluteFill,
+	Composition,
+	interpolate,
+	useCurrentFrame,
+} from 'remotion';
 
 const Comp: React.FC = () => {
 	const frame = useCurrentFrame();
@@ -43,11 +48,15 @@ const Comp: React.FC = () => {
 	);
 };
 
-export const SmoothTextTransition = StudioInternals.createComposition({
-	component: Comp,
-	height: 100,
-	width: 200,
-	id: 'smooth-text',
-	durationInFrames: 200,
-	fps: 3,
-});
+export const SmoothTextTransition = () => {
+	return (
+		<Composition
+			component={Comp}
+			height={100}
+			width={200}
+			id="smooth-text"
+			durationInFrames={200}
+			fps={3}
+		/>
+	);
+};
