@@ -8,6 +8,7 @@ import {
 } from './insert-jsx-element';
 import {isReferenced} from './is-referenced';
 import {recastLocToOffset} from './recast-loc-to-offset';
+import {RegistrationRequiresRefactorError} from './registration-requires-refactor-error';
 import {
 	applySourceEdits,
 	captureImportSnapshots,
@@ -124,7 +125,7 @@ export const transferRegistrationImports = ({
 				node.type === 'Super' ||
 				node.type === 'MetaProperty'
 			) {
-				throw new Error(
+				throw new RegistrationRequiresRefactorError(
 					'Cannot move a registration using this, super, or import.meta to another file',
 				);
 			}
@@ -136,7 +137,7 @@ export const transferRegistrationImports = ({
 			) {
 				const argument = node.arguments[0];
 				if (argument?.type !== 'StringLiteral')
-					throw new Error(
+					throw new RegistrationRequiresRefactorError(
 						'Cannot move a registration with a dynamic module path to another file',
 					);
 				if (argument.value.startsWith('.') && argument.loc) {
@@ -189,7 +190,7 @@ export const transferRegistrationImports = ({
 				while (ancestor && ancestor.node !== entry.node)
 					ancestor = ancestor.parentPath;
 				if (ancestor) return false;
-				throw new Error(
+				throw new RegistrationRequiresRefactorError(
 					`Cannot move a registration that depends on local binding "${name}" to another file. Move that binding to an imported module first.`,
 				);
 			}
@@ -201,7 +202,7 @@ export const transferRegistrationImports = ({
 					boundNames.has(name) ||
 					['arguments', '__dirname', '__filename'].includes(name)
 				)
-					throw new Error(
+					throw new RegistrationRequiresRefactorError(
 						`Cannot move a registration that depends on local binding "${name}" to another file. Move that binding to an imported module first.`,
 					);
 				return false;
