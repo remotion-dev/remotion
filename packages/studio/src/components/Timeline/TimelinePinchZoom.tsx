@@ -103,9 +103,6 @@ export const TimelinePinchZoom: FC = () => {
 
 	const pinchBaseZoomRef = useRef<number | null>(null);
 	const pinchAnchorRef = useRef<ZoomAnchor | null>(null);
-	const wheelAnchorRef = useRef<
-		(ZoomAnchor & {clientX: number; scrollLeft: number}) | null
-	>(null);
 	const suppressWheelFromWebKitPinchRef = useRef(false);
 	const touchPinchRef = useRef<{
 		initialDistance: number;
@@ -113,26 +110,55 @@ export const TimelinePinchZoom: FC = () => {
 		anchor: ZoomAnchor;
 	} | null>(null);
 
-	const onWheel = useCallback(
-		(e: WheelEvent) => {
-			if (!editorZoomGestures || !isVideoComposition) {
-				return;
-			}
+	useEffect(() => {
+		const el = timelineVerticalScroll.current;
+		if (
+			!el ||
+			!editorZoomGestures ||
+			!isVideoComposition ||
+			!videoConfig ||
+			videoConfig.durationInFrames < 2
+		) {
+			return;
+		}
 
+		let wheelAnchor:
+			| (ZoomAnchor & {clientX: number; scrollLeft: number})
+			| null = null;
+
+		const endWheelGesture = () => {
+			wheelAnchor = null;
+			window.removeEventListener('keyup', onKeyUp);
+			window.removeEventListener('pointermove', onPointerMove);
+			window.removeEventListener('blur', endWheelGesture);
+		};
+
+		const onKeyUp = (e: KeyboardEvent) => {
+			if (e.key === 'Meta' || e.key === 'Control') {
+				endWheelGesture();
+			}
+		};
+
+		const onPointerMove = (e: PointerEvent) => {
+			if (
+				wheelAnchor !== null &&
+				Math.abs(e.clientX - wheelAnchor.clientX) > WHEEL_GESTURE_MOVE_TOLERANCE
+			) {
+				endWheelGesture();
+			}
+		};
+
+		const onWheel = (e: WheelEvent) => {
 			const {ctrlKey, metaKey, clientX, deltaY, deltaMode} = e;
 			const wantsToZoom = ctrlKey || metaKey;
 			if (!wantsToZoom) {
 				// Scrolling in between zoom steps ends the gesture.
-				wheelAnchorRef.current = null;
+				endWheelGesture();
 				return;
 			}
 
 			if (suppressWheelFromWebKitPinchRef.current && wantsToZoom) {
 				e.preventDefault();
-				return;
-			}
-
-			if (!videoConfig || videoConfig.durationInFrames < 2) {
 				return;
 			}
 
@@ -146,17 +172,24 @@ export const TimelinePinchZoom: FC = () => {
 			// If something else scrolled the timeline since the last step (playback
 			// paging, the scrollbar), the anchor no longer matches what is on screen.
 			if (
-				wheelAnchorRef.current === null ||
-				wheelAnchorRef.current.scrollLeft !== scrollEl.scrollLeft
+				wheelAnchor !== null &&
+				wheelAnchor.scrollLeft !== scrollEl.scrollLeft
 			) {
-				wheelAnchorRef.current = {
+				endWheelGesture();
+			}
+
+			if (wheelAnchor === null) {
+				wheelAnchor = {
 					...getZoomAnchor(clientX, scrollEl),
 					clientX,
 					scrollLeft: scrollEl.scrollLeft,
 				};
+				window.addEventListener('keyup', onKeyUp);
+				window.addEventListener('pointermove', onPointerMove);
+				window.addEventListener('blur', endWheelGesture);
 			}
 
-			const anchor = wheelAnchorRef.current;
+			const anchor = wheelAnchor;
 
 			let scaledDeltaY = deltaY;
 			if (deltaMode === WheelEvent.DOM_DELTA_LINE) {
@@ -171,58 +204,17 @@ export const TimelinePinchZoom: FC = () => {
 				getAnchoredZoomOptions(anchor, clientX, scrollEl),
 			);
 			anchor.scrollLeft = scrollEl.scrollLeft;
-		},
-		[editorZoomGestures, isVideoComposition, videoConfig, setZoom],
-	);
-
-	// A Cmd/Ctrl + wheel gesture has no end event: it ends when the modifier is
-	// released, the mouse moves, the timeline is scrolled or the window loses focus.
-	useEffect(() => {
-		const endWheelGesture = () => {
-			wheelAnchorRef.current = null;
 		};
-
-		const onKeyUp = (e: KeyboardEvent) => {
-			if (e.key === 'Meta' || e.key === 'Control') {
-				endWheelGesture();
-			}
-		};
-
-		const onPointerMove = (e: PointerEvent) => {
-			const anchor = wheelAnchorRef.current;
-			if (
-				anchor !== null &&
-				Math.abs(e.clientX - anchor.clientX) > WHEEL_GESTURE_MOVE_TOLERANCE
-			) {
-				endWheelGesture();
-			}
-		};
-
-		window.addEventListener('keyup', onKeyUp);
-		window.addEventListener('pointermove', onPointerMove);
-		window.addEventListener('blur', endWheelGesture);
-		return () => {
-			endWheelGesture();
-			window.removeEventListener('keyup', onKeyUp);
-			window.removeEventListener('pointermove', onPointerMove);
-			window.removeEventListener('blur', endWheelGesture);
-		};
-	}, [videoConfig?.id]);
-
-	const supportsWebKitPinch =
-		typeof window !== 'undefined' && 'GestureEvent' in window;
-
-	useEffect(() => {
-		const el = timelineVerticalScroll.current;
-		if (!el) {
-			return;
-		}
 
 		el.addEventListener('wheel', onWheel, {passive: false});
 		return () => {
+			endWheelGesture();
 			el.removeEventListener('wheel', onWheel);
 		};
-	}, [onWheel]);
+	}, [editorZoomGestures, isVideoComposition, videoConfig, setZoom]);
+
+	const supportsWebKitPinch =
+		typeof window !== 'undefined' && 'GestureEvent' in window;
 
 	useEffect(() => {
 		const el = timelineVerticalScroll.current;
