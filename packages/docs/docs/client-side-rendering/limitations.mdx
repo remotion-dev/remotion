@@ -160,7 +160,7 @@ The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
 - `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: inset()` is <a style={{color: 'green'}}>supported</a>.
-- `clip-path: url()` referencing SVG `<clipPath>` elements is <a style={{color: 'red'}}>not supported</a>.
+- `clip-path: url()` can reference a same-document SVG `<clipPath>` containing one non-rounded `<rect>`. `userSpaceOnUse` and `objectBoundingBox` units and SVG transform attributes are supported. External documents, multiple shapes, rounded rectangles, and nested references are not supported.
 
 ## Unsupported styles
 
