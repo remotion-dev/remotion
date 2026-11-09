@@ -8,6 +8,7 @@ import {
 
 const getDefaults = (): RenderDefaults => {
 	return {
+		chromiumOptions: {flags: {}, features: {}, blinkFeatures: {}},
 		jpegQuality: 80,
 		scale: 1,
 		logLevel: 'info',
@@ -69,6 +70,7 @@ const getBaseInput = (): Parameters<
 		outName: 'out/video.mp4',
 		renderMode: 'video',
 		renderDefaults: getDefaults(),
+		chromiumOptions: {flags: {}, features: {}, blinkFeatures: {}},
 		durationInFrames: 120,
 		concurrency: 4,
 		frame: 0,

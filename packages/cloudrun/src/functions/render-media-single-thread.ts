@@ -119,6 +119,9 @@ export const renderMediaSingleThread = async (
 
 		const actualChromiumOptions: Required<ChromiumOptions> = {
 			...body.chromiumOptions,
+			flags: body.chromiumOptions?.flags ?? {},
+			features: body.chromiumOptions?.features ?? {},
+			blinkFeatures: body.chromiumOptions?.blinkFeatures ?? {},
 			ignoreCertificateErrors:
 				body.chromiumOptions?.ignoreCertificateErrors ?? false,
 			disableWebSecurity: body.chromiumOptions?.disableWebSecurity ?? false,

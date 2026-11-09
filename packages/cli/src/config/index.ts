@@ -94,6 +94,9 @@ export type {
 };
 
 const {
+	chromiumFlagsOption,
+	chromiumFeaturesOption,
+	chromiumBlinkFeaturesOption,
 	allowHtmlInCanvasOption,
 	benchmarkConcurrenciesOption,
 	concurrencyOption,
@@ -327,6 +330,13 @@ declare global {
 		 * Default: `30000`
 		 */
 		readonly setTimeoutInMilliseconds: (newPuppeteerTimeout: number) => void;
+		readonly setChromiumFlags: (
+			flags: Record<string, string | boolean>,
+		) => void;
+		readonly setChromiumFeatures: (features: Record<string, boolean>) => void;
+		readonly setChromiumBlinkFeatures: (
+			features: Record<string, boolean>,
+		) => void;
 		/**
 		 * Setting deciding whether to disable CORS and other Chrome security features.
 		 * Default: false
@@ -863,6 +873,9 @@ export const Config: FlatConfig = {
 	setTimeoutInMilliseconds: delayRenderTimeoutInMillisecondsOption.setConfig,
 	setDelayRenderTimeoutInMilliseconds:
 		delayRenderTimeoutInMillisecondsOption.setConfig,
+	setChromiumFlags: chromiumFlagsOption.setConfig,
+	setChromiumFeatures: chromiumFeaturesOption.setConfig,
+	setChromiumBlinkFeatures: chromiumBlinkFeaturesOption.setConfig,
 	setChromiumDisableWebSecurity: disableWebSecurityOption.setConfig,
 	setChromiumIgnoreCertificateErrors: ignoreCertificateErrorsOption.setConfig,
 	setChromiumHeadlessMode: headlessOption.setConfig,
