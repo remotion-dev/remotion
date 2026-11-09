@@ -1164,8 +1164,12 @@ const EasingEditorUnmemoized: React.FC<{
 		};
 	}, [clearEasingDragOverrides]);
 
+	// Handles only exist in Bezier mode. Switching modes (also via keyboard) must not
+	// leave an invisible selection behind that would swallow the next Escape.
+	const activeHandle = mode === 'bezier' ? selectedHandle : null;
+
 	useEffect(() => {
-		if (selectedHandle === null) {
+		if (activeHandle === null) {
 			return;
 		}
 
@@ -1184,11 +1188,11 @@ const EasingEditorUnmemoized: React.FC<{
 		return () => {
 			window.removeEventListener('pointerdown', onPointerDown, true);
 		};
-	}, [selectedHandle]);
+	}, [activeHandle]);
 
 	const onKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLDivElement>) => {
-			if (event.key !== 'Escape' || selectedHandle === null) {
+			if (event.key !== 'Escape' || activeHandle === null) {
 				return;
 			}
 
@@ -1197,7 +1201,7 @@ const EasingEditorUnmemoized: React.FC<{
 			event.stopPropagation();
 			setSelectedHandle(null);
 		},
-		[selectedHandle],
+		[activeHandle],
 	);
 
 	const startPoint = useMemo(() => ({x: xToSvg(0), y: yToSvg(0)}), []);
@@ -1358,7 +1362,7 @@ const EasingEditorUnmemoized: React.FC<{
 									<UvCoordinateHandle
 										x={9}
 										y={9}
-										selected={selectedHandle === handle}
+										selected={activeHandle === handle}
 										onPointerDown={
 											disabled
 												? null

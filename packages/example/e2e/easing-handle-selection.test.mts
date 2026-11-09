@@ -57,4 +57,22 @@ test.describe('easing editor handles', () => {
 		await page.keyboard.press('Escape');
 		await expect(handle).toHaveCount(0);
 	});
+
+	test('switching modes with the keyboard does not leave a hidden handle selected', async ({
+		page,
+	}) => {
+		test.setTimeout(120_000);
+		const handle = await openEasingEditor(page);
+		await handle.click();
+		await expect(handle).toHaveAttribute('r', '6.8');
+
+		// Choose Spring without a pointer, so no outside click clears the handle.
+		await page.getByText('Spring', {exact: true}).first().focus();
+		await page.keyboard.press('Enter');
+		await expect(handle).toHaveCount(0);
+
+		// Escape must step back the timeline selection, not deselect a hidden handle.
+		await page.keyboard.press('Escape');
+		await expect(page.getByText('Spring', {exact: true})).toHaveCount(0);
+	});
 });
