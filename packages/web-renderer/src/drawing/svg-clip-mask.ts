@@ -62,7 +62,10 @@ export const createSvgClipMask = ({
 	defs.appendChild(clip);
 	const ownerViewport = resource.ownerSVGElement;
 	if (ownerViewport) {
-		const resourceViewport = resource.ownerDocument.createElementNS(namespace, 'svg');
+		const resourceViewport = resource.ownerDocument.createElementNS(
+			namespace,
+			'svg',
+		);
 		withScaffoldVisible(resource, () => {
 			const style = getComputedStyle(ownerViewport);
 			resourceViewport.setAttribute('width', style.width);
@@ -124,6 +127,21 @@ export const createSvgClipMask = ({
 		backgroundColor: 'white',
 	});
 	target.appendChild(white);
+	// A fixed paint surface covers filter outsets without contributing layout
+	// overflow to the clipped target’s objectBoundingBox reference.
+	const paint = resource.ownerDocument.createElementNS(
+		htmlNamespace,
+		'div',
+	) as HTMLDivElement;
+	Object.assign(paint.style, {
+		position: 'fixed',
+		left: '0',
+		top: '0',
+		width: `${precomposeRect.width}px`,
+		height: `${precomposeRect.height}px`,
+		backgroundColor: 'white',
+	});
+	target.appendChild(paint);
 	viewport.appendChild(target);
 	foreignObject.appendChild(viewport);
 	svg.appendChild(foreignObject);
