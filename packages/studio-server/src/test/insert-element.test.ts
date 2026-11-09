@@ -29,6 +29,7 @@ import {
 	popUndo,
 	popRedo,
 } from '../preview-server/undo-stack';
+import {fakeHttps} from './fake-https';
 
 const compositionSource = `import React from 'react';
 import {Composition} from 'remotion';
@@ -253,15 +254,11 @@ test.each(['wrapped', 'component-owned-sequence'] as const)(
 	'installs asset props in %s mode and retains assets on undo',
 	async (installationMode) => {
 		const fixture = makeFixture();
-		const originalFetch = globalThis.fetch;
-		let fetches = 0;
-		globalThis.fetch = Object.assign(
-			() => {
-				fetches++;
-				return Promise.resolve(new Response(new Uint8Array([3, 4, 5])));
-			},
-			{preconnect: originalFetch.preconnect},
-		);
+		const remote = fakeHttps(() => ({
+			statusCode: 200,
+			headers: {},
+			body: new Uint8Array([3, 4, 5]),
+		}));
 		try {
 			const assetElement = {
 				...element,
@@ -318,7 +315,7 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 					element: invalidElement,
 				}),
 			).toMatchObject({success: false});
-			expect(fetches).toBe(0);
+			expect(remote.requestedUrls).toEqual([]);
 			expect(existsSync(fixture.publicDir)).toBe(false);
 
 			const preflight = await fixture.prepareInstall(
@@ -375,7 +372,7 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 				readFileSync(path.join(fixture.publicDir, 'elements/embedded.bin')),
 			).toEqual(Buffer.from([0, 1, 2]));
 		} finally {
-			globalThis.fetch = originalFetch;
+			remote.restore();
 			fixture.cleanup();
 		}
 	},
@@ -383,11 +380,11 @@ export const LowerThird = ({logoSrc, ...props}: {logoSrc: string} & SequenceProp
 
 test('rejects oversized mixed Element assets before writing any files, regardless of order', async () => {
 	const fixture = makeFixture();
-	const originalFetch = globalThis.fetch;
-	globalThis.fetch = Object.assign(
-		() => Promise.resolve(new Response(new Uint8Array(50 * 1024 * 1024))),
-		{preconnect: originalFetch.preconnect},
-	);
+	const remote = fakeHttps(() => ({
+		statusCode: 200,
+		headers: {},
+		body: new Uint8Array(50 * 1024 * 1024),
+	}));
 	const assets: InsertElementRequest['element']['assets'] = [
 		{path: 'remote.bin', type: 'url', url: 'https://93.184.216.35/remote.bin'},
 		{path: 'embedded.bin', type: 'base64', data: 'AAEC'},
@@ -417,7 +414,7 @@ test('rejects oversized mixed Element assets before writing any files, regardles
 			expect(getUndoStack()).toHaveLength(0);
 		}
 	} finally {
-		globalThis.fetch = originalFetch;
+		remote.restore();
 		fixture.cleanup();
 	}
 });
@@ -494,6 +491,7 @@ test('invalidates a new-composition install after an external component edit', a
 					newFps: 30,
 					newDurationInFrames: 90,
 					canvasCapture: null,
+					openTimeline: null,
 				},
 				symbolicatedStack: {
 					originalFunctionName: null,

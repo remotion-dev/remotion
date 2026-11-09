@@ -115,6 +115,7 @@ export const makeHoverableCSS = () => `
     }
 
     ${hoverGroup}:hover ${reveal},
+    ${hoverGroup}:focus-within ${reveal},
     ${hoverGroup}:has([aria-expanded="true"]) ${reveal} {
       opacity: 1;
       width: auto;

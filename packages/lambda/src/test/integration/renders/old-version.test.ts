@@ -27,6 +27,7 @@ test(
 					frameRange: [0, 12],
 					framesPerFunction: 8,
 					concurrency: null,
+					chunks: null,
 					imageFormat: 'png',
 					inputProps: {
 						type: 'payload',

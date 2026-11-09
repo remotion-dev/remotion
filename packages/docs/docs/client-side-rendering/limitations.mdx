@@ -25,6 +25,8 @@ The `overflow` property is <a style={{color: 'green'}}>supported</a>.
 The `object-fit` property is <a style={{color: 'green'}}>supported</a>.  
 The `object-position` property is <a style={{color: 'red'}}>not supported</a> and content is always centered within its container.
 
+The `z-index` property and flex/grid `order` are <a style={{color: 'green'}}>partially supported</a> for sibling stacking contexts. See [Z-indexing](#z-indexing).
+
 ### Transformations
 
 The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
@@ -42,7 +44,11 @@ The `background-color` property is <a style={{color: 'green'}}>supported</a>.
 `background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
 The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a> for linear gradients with pixel or percentage values.<br />
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
-Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
+`background-repeat: round` is partially supported for a single same-origin, `data:`, or `blob:` raster URL background. It includes both-axis round repetition, mixed `round repeat` / `repeat round`, and preservation of the source aspect ratio when the other size is `auto`. The opaque test cases match native Chromium; fractional positioning, arbitrary source interpolation and other image types require further pixel-parity qualification.
+
+`image-rendering: pixelated` is partially supported for a single raster URL background, including inherited values. Opaque integer-scale repeats and no-repeat images use nearest-neighbor sampling; tested odd-sized no-repeat tiles also retain the native local paint context for identity and integer-translation transforms. Fractional translation, arbitrary ratios, translucent assets and effected groups may still differ from native painting.
+
+Other background image values and background properties not described above are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
 
@@ -92,11 +98,11 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
-`mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with `0% 0%` positioning and `border-box` origin/clip.
+`mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with pixel, percentage, keyword, and computed `calc()`/`min()`/`max()`/`clamp()` positioning and `border-box` origin/clip. Edge-offset positions are supported when the browser resolves them to two computed coordinates. Fractional raster-mask sampling can still differ from native output; the exact-position coverage uses native-sized tiles with integral resolved positions.
 
 `mask-size` accepts `px`, `%`, `auto`, `contain`, and `cover`. `mask-repeat` accepts `repeat`, `no-repeat`, `repeat-x`, `repeat-y`, and two-axis `repeat` / `no-repeat` combinations.
 
-Cross-origin URLs, SVG, multiple layers, luminance, other positions, `space` / `round` repeats, and `calc()` sizes are <a style={{color: 'red'}}>not supported</a>.
+Cross-origin URLs, SVG, multiple layers, luminance, edge offsets that are not normalized to two computed coordinates, `space` / `round` repeats, and `calc()` sizes are <a style={{color: 'red'}}>not supported</a>.
 
 ## Filters
 
@@ -124,7 +130,7 @@ Filters are not supported in Safari/WebKit. Use Chrome or Firefox for filter sup
 The `mix-blend-mode` property is <a style={{color: 'green'}}>supported</a> from <AvailableFrom v="4.0.540" inline /> with all blend modes.
 Stacking contexts created by properties such as `opacity`, `transform` or `isolation: isolate` limit what an element blends with, as in the browser.
 
-The `background-blend-mode` property is <a style={{color: 'red'}}>not supported</a>.
+The `background-blend-mode` property is supported for a single linear gradient blended with the element's background color. Multiple background layers are not supported.
 
 ## Supported elements
 
@@ -132,7 +138,12 @@ The following Remotion components are supported:
 
 The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
-[`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs.<br />
+[`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs and SVG files.<br />
+
+SVG data URIs recognize case-equivalent `image/svg+xml` media-type tokens and trailing ASCII whitespace before the delimiter without changing the data payload. This preserves source-representation consistency; exact SVG pixels may still differ from native painting, and classification of blob or extensionless SVG sources is not covered by this improvement.
+
+`image-rendering: pixelated` is partially supported for raster images and `<canvas>` elements, including inherited values. Opaque integer-sized `object-fit: fill`, `cover`, and `contain` cases are qualified against native Chromium and WebKit. Raster sampling does not change the SVG vector path. Fractional sampling, arbitrary ratios, transparency, video and transformed/effected groups require further pixel-parity qualification.
+
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
 [`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
 [`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  
@@ -153,7 +164,7 @@ The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: '
 
 The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
 
-- `clip-path: polygon()` is <a style={{color: 'green'}}>supported</a>.
+- `clip-path: polygon()` (including the `evenodd` and `nonzero` fill rules) is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: path()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
@@ -166,9 +177,6 @@ All styles not explicitly mentioned are <a style={{color: 'red'}}>not supported<
 Here is a selection of unsupported styles:
 
 - `backdrop-filter`
-- `background-blend-mode`
-- `z-index`
-  - See [Z-indexing](#z-indexing) below.
 - Any other property not listed in this document.
 
 Over time, we will support more elements and styles. We'll prioritize the most demanded ones.  
@@ -176,8 +184,9 @@ See how you can [contribute](/docs/contributing/web-renderer) to add more suppor
 
 ## Z-indexing
 
-The CSS property `z-index` is not supported.  
-Elements are drawn in DOM order. CSS stacking contexts and the stacking order implied by `position` are not understood.
+The CSS property `z-index` is partially supported when all direct siblings form stacking contexts inside a 2D stacking context. These siblings are painted by their stacking level, with flex/grid `order` breaking ties before DOM order.
+
+Other cases still use DOM order, including mixed normal-flow content and positioned elements, descendants participating in an ancestor's stacking context, and 3D depth ordering.
 
 To control the order of the elements, [order your elements from back to front](/docs/layers).
 

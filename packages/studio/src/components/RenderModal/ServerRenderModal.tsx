@@ -30,7 +30,7 @@ import React, {
 import type {PreferredEffectBackend} from 'remotion';
 import type {_InternalTypes} from 'remotion';
 import {ShortcutHint} from '../../error-overlay/remotion-overlay/ShortcutHint';
-import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
+import {BLUE_DISABLED, PRIMARY_BUTTON_BACKGROUND} from '../../helpers/colors';
 import {
 	envVariablesArrayToObject,
 	envVariablesObjectToArray,
@@ -1538,7 +1538,7 @@ const RenderModal: React.FC<
 						...buttonStyle,
 						backgroundColor:
 							outnameValidation.valid && separateAudioValidationMessage === null
-								? BLUE
+								? PRIMARY_BUTTON_BACKGROUND
 								: BLUE_DISABLED,
 					}}
 				>

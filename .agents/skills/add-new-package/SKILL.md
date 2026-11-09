@@ -51,8 +51,8 @@ For the documentation version, increment the patch version by 1 as it will only 
 
 - Use `"workspace:*"` for internal dependencies
 - Use `"catalog:"` for shared external dependency versions
-- The `make` script is: `tsc && bun --env-file=../.env.bundle bundle.ts`
+- Set `make` to `node ../.monorepo/tsrs.cjs && bun --env-file=../.env.bundle bundle.ts`.
 - Add `"type": "module"` to `package.json`
-- Add `"typescript": "catalog:"` to devDependencies. This installs the native TypeScript compiler used by package builds.
+- Add `"typescript": "catalog:"` to devDependencies. The monorepo launcher uses tsrs where supported and falls back to the pinned TypeScript compiler.
 - Types/main point to `dist/index.d.ts` and `dist/index.js` (not `dist/cjs/`)
 - Packages with React components need `peerDependencies` for `react` and `react-dom`

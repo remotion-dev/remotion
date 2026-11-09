@@ -360,6 +360,8 @@ const innerRenderStill = async ({
 	});
 	await seekToFrame({
 		frame: stillFrame,
+		videoEnabled: true,
+		audioEnabled: false,
 		page,
 		composition: composition.id,
 		timeoutInMilliseconds,

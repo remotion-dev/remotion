@@ -92,6 +92,7 @@ export const SettingsModalFooter: React.FC<{
 							Changes save to
 							<Spacing x={0.5} />
 							<InspectorOpenInEditor
+								menuTrigger={null}
 								annotationName={null}
 								locationType={null}
 								location={configFileLocation}

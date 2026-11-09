@@ -15,6 +15,7 @@ import type {
 	SequenceNodePathInfo,
 	TimelineTrackData,
 } from '../../helpers/get-timeline-sequence-sort-key';
+import {projectEffectPropStatuses} from '../../helpers/optimistic-effect-projection';
 import {isPointerSessionRelease} from '../../helpers/pointer-session';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import type {createCanvasDragPreview} from '../canvas-drag-preview';
@@ -220,7 +221,10 @@ const getCodeValueForTarget = ({
 }: {
 	readonly propStatuses: PropStatuses;
 	readonly nodePath: SequencePropsSubscriptionKey;
-}) => propStatuses[Internals.makeSequencePropsSubscriptionKey(nodePath)];
+}) =>
+	projectEffectPropStatuses(propStatuses, nodePath)[
+		Internals.makeSequencePropsSubscriptionKey(nodePath)
+	];
 
 const getTimelineKeyframeDragTarget = ({
 	propStatuses,
@@ -258,7 +262,10 @@ const getTimelineKeyframeDragTarget = ({
 	}
 
 	if (field.type === 'effect') {
-		const effect = sequence.effects[field.effectIndex];
+		const effect = Internals.OptimisticEffects.getItems(
+			nodePath,
+			sequence.effects,
+		)[field.effectIndex]?.definition;
 		const effectStatus = sequenceStatus.effects.find(
 			(candidate) => candidate.effectIndex === field.effectIndex,
 		);

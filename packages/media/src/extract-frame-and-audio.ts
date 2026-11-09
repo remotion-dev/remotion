@@ -171,6 +171,7 @@ export const extractFrameAndAudio = async ({
 				? await rotateFrame({
 						frame: video.frame,
 						rotation: video.rotation,
+						flip: video.flip,
 					})
 				: null,
 			audio: audio?.data ?? null,

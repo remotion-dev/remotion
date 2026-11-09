@@ -156,7 +156,6 @@ const makeRemotionComponentIdentity = ({
 
 const interactiveElementSchema = {
 	...baseSchema,
-	...premountSchema,
 	...transformSchema,
 	...cropSchema,
 } as const satisfies InteractivitySchema;
@@ -518,7 +517,6 @@ const withSchema: WithSchema = (untypedOptions: unknown) => {
 			...schema,
 			...transformSchema,
 			...baseSchema,
-			...premountSchema,
 			...cropSchema,
 		},
 		supportsEffects: false,

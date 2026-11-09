@@ -28,6 +28,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	assets,
 	assetIndex,
 	imageFormat,
+	muted,
 	binariesDirectory,
 	cancelSignal,
 	composition,
@@ -65,6 +66,7 @@ export const renderFrameAndRetryTargetClose = async ({
 	retriesLeft: number;
 	attempt: number;
 	imageFormat: VideoImageFormat;
+	muted: boolean;
 	cancelSignal: CancelSignal | undefined;
 	binariesDirectory: string | null;
 	poolPromise: Promise<Pool>;
@@ -138,6 +140,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				frameDir,
 				framesToRender,
 				imageFormat,
+				muted,
 				indent,
 				jpegQuality,
 				logLevel,
@@ -224,6 +227,7 @@ export const renderFrameAndRetryTargetClose = async ({
 				assets,
 				assetIndex,
 				imageFormat,
+				muted,
 				binariesDirectory,
 				cancelSignal,
 				composition,
@@ -292,6 +296,7 @@ export const renderFrameAndRetryTargetClose = async ({
 			frameDir,
 			framesToRender,
 			imageFormat,
+			muted,
 			indent,
 			jpegQuality,
 			logLevel,

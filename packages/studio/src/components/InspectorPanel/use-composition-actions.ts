@@ -2,7 +2,9 @@ import type {InsertCompositionElementRequest} from '@remotion/studio-shared';
 import {
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
+	useRef,
 	useState,
 	type MouseEvent,
 } from 'react';
@@ -12,7 +14,10 @@ import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {getRelativeFileLocation} from '../../helpers/format-file-location';
 import {getCodexAnnotation} from '../../helpers/get-codex-annotation';
 import {isStudioInteractivityEnabled} from '../../helpers/interactivity-enabled';
-import {useCachedCompositionComponentInfo} from '../../helpers/open-in-editor';
+import {
+	loadCompositionComponentInfo,
+	useCachedCompositionComponentInfo,
+} from '../../helpers/open-in-editor';
 import {requestCodexAnnotation} from '../../helpers/request-codex-annotation';
 import {SetSelectedModalContext} from '../../state/modals';
 import {callApi} from '../call-api';
@@ -33,7 +38,7 @@ export const useCompositionActions = () => {
 	const {compositions, canvasContent} = useContext(
 		Internals.CompositionManager,
 	);
-	const videoConfig = Internals.useUnsafeVideoConfig();
+	const currentVideoConfig = Internals.useUnsafeVideoConfig();
 	const [isAddingSolid, setIsAddingSolid] = useState(false);
 	const [isAddingText, setIsAddingText] = useState(false);
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
@@ -68,54 +73,106 @@ export const useCompositionActions = () => {
 	const resolvedCompositionLocation = useResolvedStack(
 		currentComposition?.stack ?? null,
 	);
-	const compositionFile =
+	const knownCompositionFile =
 		resolvedCompositionLocation?.source ??
 		(currentCompositionId && browserStudioOperations
 			? browserStudioOperations.getCompositionFile(currentCompositionId)
 			: null);
 	const compositionComponentInfo = useCachedCompositionComponentInfo({
-		compositionFile,
+		compositionFile: knownCompositionFile,
 		compositionId: currentCompositionId,
 	});
+	const insertionTargetRef = useRef({
+		currentCompositionId,
+		videoConfig: currentVideoConfig,
+	});
+	insertionTargetRef.current = {
+		currentCompositionId,
+		videoConfig: currentVideoConfig,
+	};
+	useEffect(() => {
+		return () => {
+			insertionTargetRef.current = {
+				currentCompositionId: null,
+				videoConfig: null,
+			};
+		};
+	}, []);
+	const canAddToComposition =
+		compositionComponentInfo?.canAddSequence !== false &&
+		currentCompositionId !== null;
 
 	const canShowInsertSolid =
 		(previewInteractive || browserStudioCanInsertSolid) &&
-		(!window.remotion_isReadOnlyStudio || browserStudioCanInsertSolid) &&
-		compositionComponentInfo?.canAddSequence === true &&
-		currentCompositionId !== null &&
-		compositionFile !== null &&
-		videoConfig !== null;
-	const canInsertSolid = canShowInsertSolid && !isAddingSolid;
+		(!window.remotion_isReadOnlyStudio || browserStudioCanInsertSolid);
+	const canInsertSolid =
+		canShowInsertSolid && canAddToComposition && !isAddingSolid;
 	const canShowInsertText = canShowInsertSolid;
-	const canInsertText = canShowInsertText && !isAddingText;
+	const canInsertText =
+		canShowInsertText && canAddToComposition && !isAddingText;
 
 	const canShowInsertAsset =
-		previewInteractive &&
-		!window.remotion_isReadOnlyStudio &&
-		compositionComponentInfo?.canAddSequence === true &&
-		currentCompositionId !== null &&
-		compositionFile !== null;
-	const canInsertAsset = canShowInsertAsset && !isAddingAsset;
-	const canShowInsertComposition = canShowInsertAsset && videoConfig !== null;
-	const canInsertComposition = canShowInsertComposition && !isAddingComposition;
+		previewInteractive && !window.remotion_isReadOnlyStudio;
+	const canInsertAsset =
+		canShowInsertAsset && canAddToComposition && !isAddingAsset;
+	const canShowInsertComposition = canShowInsertAsset;
+	const canInsertComposition =
+		canShowInsertComposition && canAddToComposition && !isAddingComposition;
 	const canShowGenerateWithAgent =
 		browserStudioOperations === null &&
 		!window.remotion_isReadOnlyStudio &&
 		(previewInteractive || getCodexAnnotation() !== null) &&
 		currentCompositionId !== null;
 
+	const resolveInsertionTarget = useCallback(async () => {
+		if (currentCompositionId === null) {
+			throw new Error('Select a composition before adding an element.');
+		}
+
+		const resolvedFile =
+			knownCompositionFile ??
+			(currentComposition?.stack
+				? (
+						await getOriginalLocationFromStack(
+							currentComposition.stack,
+							'sequence',
+						)
+					)?.source
+				: null);
+		if (!resolvedFile) {
+			throw new Error('Could not find the source file for this composition.');
+		}
+
+		const info = await loadCompositionComponentInfo({
+			compositionFile: resolvedFile,
+			compositionId: currentCompositionId,
+		});
+		const target = insertionTargetRef.current;
+		if (target.currentCompositionId !== currentCompositionId) {
+			throw new Error('The selected composition changed. Please try again.');
+		}
+
+		if (!info.canAddSequence) {
+			throw new Error(
+				'This composition does not support adding elements in Studio. Edit its source code instead.',
+			);
+		}
+
+		if (target.videoConfig === null) {
+			throw new Error('The composition is still loading. Please try again.');
+		}
+
+		return {compositionFile: resolvedFile, videoConfig: target.videoConfig};
+	}, [knownCompositionFile, currentComposition, currentCompositionId]);
+
 	const insertSolid = useCallback(async () => {
-		if (
-			!canInsertSolid ||
-			currentCompositionId === null ||
-			compositionFile === null ||
-			videoConfig === null
-		) {
+		if (!canInsertSolid || currentCompositionId === null) {
 			return;
 		}
 
 		setIsAddingSolid(true);
 		try {
+			const {compositionFile, videoConfig} = await resolveInsertionTarget();
 			const request: InsertCompositionElementRequest = {
 				compositionFile,
 				compositionId: currentCompositionId,
@@ -144,23 +201,18 @@ export const useCompositionActions = () => {
 	}, [
 		browserStudioOperations,
 		canInsertSolid,
-		compositionFile,
 		currentCompositionId,
-		videoConfig,
+		resolveInsertionTarget,
 	]);
 
 	const insertText = useCallback(async () => {
-		if (
-			!canInsertText ||
-			currentCompositionId === null ||
-			compositionFile === null ||
-			videoConfig === null
-		) {
+		if (!canInsertText || currentCompositionId === null) {
 			return;
 		}
 
 		setIsAddingText(true);
 		try {
+			const {compositionFile, videoConfig} = await resolveInsertionTarget();
 			const fontSize = Math.max(
 				1,
 				Math.round(Math.min(videoConfig.width, videoConfig.height) * 0.075),
@@ -224,29 +276,24 @@ export const useCompositionActions = () => {
 	}, [
 		browserStudioOperations,
 		canInsertText,
-		compositionFile,
 		currentCompositionId,
-		videoConfig,
+		resolveInsertionTarget,
 	]);
 
 	const onFilesSelected = useCallback(
 		async (from: number) => {
-			if (
-				!canInsertAsset ||
-				currentCompositionId === null ||
-				compositionFile === null ||
-				videoConfig === null
-			) {
-				return;
-			}
-
-			const files = await pickFilesToImport();
-			if (files.length === 0) {
+			if (!canInsertAsset || currentCompositionId === null) {
 				return;
 			}
 
 			setIsAddingAsset(true);
 			try {
+				const {compositionFile, videoConfig} = await resolveInsertionTarget();
+				const files = await pickFilesToImport();
+				if (files.length === 0) {
+					return;
+				}
+
 				await importAssets({
 					files,
 					fps: videoConfig.fps,
@@ -258,26 +305,24 @@ export const useCompositionActions = () => {
 					preferCompositionStart: true,
 					svgImportMode: 'image',
 				});
+			} catch (err) {
+				showNotification((err as Error).message, 4000);
 			} finally {
 				setIsAddingAsset(false);
 			}
 		},
-		[canInsertAsset, compositionFile, currentCompositionId, videoConfig],
+		[canInsertAsset, currentCompositionId, resolveInsertionTarget],
 	);
 
 	const onAssetSelected = useCallback(
 		async (asset: {readonly name: string}, from: number) => {
-			if (
-				!canInsertAsset ||
-				currentCompositionId === null ||
-				compositionFile === null ||
-				videoConfig === null
-			) {
+			if (!canInsertAsset || currentCompositionId === null) {
 				return;
 			}
 
 			setIsAddingAsset(true);
 			try {
+				const {compositionFile, videoConfig} = await resolveInsertionTarget();
 				await insertExistingAssets({
 					assetPaths: [asset.name],
 					fps: videoConfig.fps,
@@ -288,50 +333,62 @@ export const useCompositionActions = () => {
 					from,
 					preferCompositionStart: true,
 				});
+			} catch (err) {
+				showNotification((err as Error).message, 4000);
 			} finally {
 				setIsAddingAsset(false);
 			}
 		},
-		[canInsertAsset, compositionFile, currentCompositionId, videoConfig],
+		[canInsertAsset, currentCompositionId, resolveInsertionTarget],
 	);
 
-	const insertAsset = useCallback(() => {
+	const insertAsset = useCallback(async () => {
 		if (!canInsertAsset) {
 			return;
 		}
 
-		const from = getCurrentFrame();
-		setSelectedModal({
-			type: 'quick-switcher',
-			mode: 'assets',
-			invocationTimestamp: Date.now(),
-			assetSelection: {
-				initialQuery: '',
-				fileTypes: null,
-				onSelectFile: () => {
-					onFilesSelected(from).catch(() => undefined);
+		setIsAddingAsset(true);
+		try {
+			await resolveInsertionTarget();
+			const from = getCurrentFrame();
+			setSelectedModal({
+				type: 'quick-switcher',
+				mode: 'assets',
+				invocationTimestamp: Date.now(),
+				assetSelection: {
+					initialQuery: '',
+					fileTypes: null,
+					onSelectFile: () => {
+						onFilesSelected(from).catch(() => undefined);
+					},
+					onSelected: (asset) => {
+						onAssetSelected(asset, from).catch(() => undefined);
+					},
 				},
-				onSelected: (asset) => {
-					onAssetSelected(asset, from).catch(() => undefined);
-				},
-			},
-			compositionSelection: null,
-		});
-	}, [canInsertAsset, onAssetSelected, onFilesSelected, setSelectedModal]);
+				compositionSelection: null,
+			});
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		} finally {
+			setIsAddingAsset(false);
+		}
+	}, [
+		canInsertAsset,
+		onAssetSelected,
+		onFilesSelected,
+		setSelectedModal,
+		resolveInsertionTarget,
+	]);
 
 	const onCompositionSelected = useCallback(
 		async (composition: _InternalTypes['AnyComposition']) => {
-			if (
-				!canInsertComposition ||
-				currentCompositionId === null ||
-				compositionFile === null ||
-				videoConfig === null
-			) {
+			if (!canInsertComposition || currentCompositionId === null) {
 				return;
 			}
 
 			setIsAddingComposition(true);
 			try {
+				const {compositionFile} = await resolveInsertionTarget();
 				const resolvedLocation = composition.stack
 					? await getOriginalLocationFromStack(composition.stack, 'sequence')
 					: null;
@@ -368,32 +425,40 @@ export const useCompositionActions = () => {
 		[
 			browserStudioOperations,
 			canInsertComposition,
-			compositionFile,
 			currentCompositionId,
-			videoConfig,
+			resolveInsertionTarget,
 		],
 	);
 
-	const insertComposition = useCallback(() => {
+	const insertComposition = useCallback(async () => {
 		if (!canInsertComposition) {
 			return;
 		}
 
-		setSelectedModal({
-			type: 'quick-switcher',
-			mode: 'compositions',
-			invocationTimestamp: Date.now(),
-			assetSelection: null,
-			compositionSelection: {
-				excludeCompositionId: currentCompositionId,
-				onSelected: onCompositionSelected,
-			},
-		});
+		setIsAddingComposition(true);
+		try {
+			await resolveInsertionTarget();
+			setSelectedModal({
+				type: 'quick-switcher',
+				mode: 'compositions',
+				invocationTimestamp: Date.now(),
+				assetSelection: null,
+				compositionSelection: {
+					excludeCompositionId: currentCompositionId,
+					onSelected: onCompositionSelected,
+				},
+			});
+		} catch (err) {
+			showNotification((err as Error).message, 4000);
+		} finally {
+			setIsAddingComposition(false);
+		}
 	}, [
 		canInsertComposition,
 		currentCompositionId,
 		onCompositionSelected,
 		setSelectedModal,
+		resolveInsertionTarget,
 	]);
 
 	const generateWithAgent = useCallback(

@@ -18,10 +18,14 @@ import {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getRootFileForProject,
 } from './internals';
-import {getKeyframeSourceLocationRemappings} from './node-references';
+import {
+	getKeyframeSourceLocationRemappings,
+	getUnchangedStructureRemappings,
+} from './node-references';
 import {getJsxSourceLocation} from './recast-loc-to-offset';
 import {replaceJsxElementWithSource} from './replace-jsx-element-with-source';
 import {replaceNodeChild} from './replace-node-child';
@@ -198,9 +202,11 @@ export const CodemodsInternals = {
 	getCanUpdateDefaultPropsForProject,
 	getCompositionComponentInfo,
 	getCompositionFile,
+	getCompositionsInSource,
 	getFolderFile,
 	getJsxSourceLocation,
 	getKeyframeSourceLocationRemappings,
+	getUnchangedStructureRemappings,
 	getKeyframeInterpolationFunctionForCallee,
 	getRootFileForProject,
 	getStaticNumericValue,
@@ -225,3 +231,19 @@ export {
 	type UpdateVisualControlsOptions,
 	type UpdateVisualControlsResult,
 } from './update-visual-controls';
+export {
+	generateOpenTimelineComposition,
+	type GenerateOpenTimelineCompositionOptions,
+	type GenerateOpenTimelineCompositionResult,
+	type OpenTimelineAnnotation,
+	type OpenTimelineAsset,
+	type OpenTimelineDiagnostic,
+	type OpenTimelineMediaResolver,
+	type OpenTimelineResolvedMedia,
+} from './open-timeline/generate';
+export {
+	addOpenTimelineComposition,
+	OpenTimelineImportError,
+	type AddOpenTimelineCompositionOptions,
+	type AddOpenTimelineCompositionResult,
+} from './add-open-timeline-composition';

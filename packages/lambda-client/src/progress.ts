@@ -8,11 +8,13 @@ import {
 	findOutputFileInBucket,
 	OutputFileAccessDeniedError,
 } from './find-output-file-in-bucket';
+import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getOverallProgress} from './get-overall-progress';
 import {getOverallProgressFromStorage} from './get-overall-progress-from-storage';
 import {inspectErrors} from './inspect-error';
 import {makeTimeoutError} from './make-timeout-error';
+import type {OverallRenderProgress} from './overall-render-progress';
 import type {AwsRegion} from './regions';
 import type {CleanupInfo, GenericRenderProgress} from './render-progress';
 import type {CustomCredentials} from './shared-constants';
@@ -31,25 +33,24 @@ type GetProgressInput = {
 	requestHandler: RequestHandler | null;
 };
 
-export const getProgress = async ({
+type NormalizeProgressInput = Pick<
+	GetProgressInput,
+	'bucketName' | 'renderId' | 'region' | 'customCredentials' | 'functionName'
+> & {
+	overallProgress: OverallRenderProgress;
+	recoveredOutput: OutputFileMetadata | null;
+};
+
+export const normalizeRenderProgress = ({
 	bucketName,
 	renderId,
-	expectedBucketOwner,
 	region,
 	customCredentials,
-	forcePathStyle,
 	functionName,
-	requestHandler,
-}: GetProgressInput): Promise<GenericRenderProgress> => {
+	overallProgress,
+	recoveredOutput,
+}: NormalizeProgressInput): GenericRenderProgress => {
 	const billingCurrency = getBillingCurrency(region);
-	const overallProgress = await getOverallProgressFromStorage({
-		renderId,
-		bucketName,
-		expectedBucketOwner,
-		region,
-		forcePathStyle,
-		requestHandler,
-	});
 
 	if (overallProgress.postRenderData) {
 		if (!overallProgress.renderMetadata) {
@@ -146,7 +147,29 @@ export const getProgress = async ({
 	const {renderMetadata} = overallProgress;
 
 	const errorExplanations = inspectErrors({
-		errors: overallProgress.errors,
+		errors: [
+			...overallProgress.errors,
+			...(renderMetadata === null &&
+			Date.now() > overallProgress.timeoutTimestamp + 20000
+				? [
+						{
+							type: 'stitcher' as const,
+							name: 'TimeoutError',
+							message:
+								'The Lambda function timed out before composition metadata was available.',
+							stack:
+								'TimeoutError: The Lambda function timed out before composition metadata was available.',
+							chunk: null,
+							frame: null,
+							tmpDir: null,
+							isFatal: true,
+							willRetry: false,
+							attempt: 1,
+							totalAttempts: 1,
+						},
+					]
+				: []),
+		],
 	});
 
 	const chunkCount = overallProgress.chunks.length ?? 0;
@@ -260,34 +283,8 @@ export const getProgress = async ({
 		Date.now() >
 		overallProgress.timeoutTimestamp + timeoutInMilliseconds + 20000;
 
-	const shouldCheckForCompletedOutput =
-		renderMetadata.type !== 'sequence' &&
-		allChunks &&
-		((renderMetadata.separateAudioTo ?? null) === null ||
-			(overallProgress.separateAudio ?? null) !== null) &&
-		!errorExplanations.some((error) => error.isFatal && !error.willRetry) &&
-		(isBeyondTimeoutAndHasStitchTimeout ||
-			(overallProgress.combinedFrames >= frameCount &&
-				overallProgress.timeToCombine !== null));
-
-	if (shouldCheckForCompletedOutput) {
-		const outputFile = await findOutputFileInBucket({
-			output: 'main',
-			bucketName,
-			customCredentials,
-			renderMetadata,
-			region,
-			currentRegion: region,
-			forcePathStyle,
-			requestHandler,
-		}).catch((err) => {
-			if (OutputFileAccessDeniedError.isInstance(err)) {
-				// Recovery is optional; normal progress remains authoritative.
-				return null;
-			}
-
-			throw err;
-		});
+	if (recoveredOutput) {
+		const outputFile = recoveredOutput;
 
 		// A shared output key can still contain an earlier render while uploading.
 		// Untagged outputs must rely on persisted postRenderData for completion.
@@ -452,4 +449,67 @@ export const getProgress = async ({
 		serveUrlOpened: overallProgress.serveUrlOpened,
 		artifacts: overallProgress.receivedArtifact,
 	};
+};
+
+export const getProgress = async (
+	input: GetProgressInput,
+): Promise<GenericRenderProgress> => {
+	const overallProgress = await getOverallProgressFromStorage(input);
+	const progress = normalizeRenderProgress({
+		...input,
+		overallProgress,
+		recoveredOutput: null,
+	});
+	const {renderMetadata} = overallProgress;
+	// Storage recovery is deliberately separate from progress calculated in the launcher.
+	if (
+		progress.done ||
+		!renderMetadata ||
+		renderMetadata.type === 'still' ||
+		renderMetadata.type === 'sequence' ||
+		Array.from({length: renderMetadata.totalChunks}, (_, index) => index).some(
+			(index) => !overallProgress.chunks.includes(index),
+		) ||
+		((renderMetadata.separateAudioTo ?? null) !== null &&
+			(overallProgress.separateAudio ?? null) === null) ||
+		overallProgress.errors.some((e) => e.isFatal && !e.willRetry)
+	) {
+		return progress;
+	}
+
+	const frameCount = NoReactAPIs.getFramesToRender(
+		renderMetadata.frameRange,
+		renderMetadata.everyNthFrame,
+	).length;
+	if (
+		!(
+			Date.now() >
+				overallProgress.timeoutTimestamp +
+					(overallProgress.timeoutTimestamp -
+						overallProgress.functionLaunched) +
+					20000 ||
+			(overallProgress.combinedFrames >= frameCount &&
+				overallProgress.timeToCombine !== null)
+		)
+	) {
+		return progress;
+	}
+
+	const recoveredOutput = await findOutputFileInBucket({
+		output: 'main',
+		bucketName: input.bucketName,
+		customCredentials: input.customCredentials,
+		renderMetadata,
+		region: input.region,
+		currentRegion: input.region,
+		forcePathStyle: input.forcePathStyle,
+		requestHandler: input.requestHandler,
+	}).catch((err) => {
+		if (OutputFileAccessDeniedError.isInstance(err)) {
+			return null;
+		}
+
+		throw err;
+	});
+	return normalizeRenderProgress({...input, overallProgress, recoveredOutput});
 };

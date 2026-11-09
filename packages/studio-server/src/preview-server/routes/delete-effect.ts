@@ -9,9 +9,10 @@ import {writeFileAndNotifyFileWatchers} from '../../file-watcher';
 import {resolveFileInsideProject} from '../../helpers/resolve-file-inside-project';
 import type {ApiHandler} from '../api-types';
 import {formatLogFileLocation} from '../format-log-file-location';
+import {broadcastSequenceNodePathMutation} from '../sequence-node-path-mutation';
 import {
 	printUndoHint,
-	pushToUndoStack,
+	pushTransactionToUndoStack,
 	suppressUndoStackInvalidation,
 } from '../undo-stack';
 import {strikeThroughOrRemovedPrefix} from './log-updates/formatting';
@@ -51,7 +52,7 @@ export const deleteEffectHandler: ApiHandler<
 				itemsByFileName.set(item.fileName, fileItems);
 			}
 
-			const updates = await Promise.all(
+			const preparedUpdates = await Promise.all(
 				[...itemsByFileName.entries()].map(async ([fileName, fileItems]) => {
 					const {absolutePath, fileRelativeToRoot} = resolveFileInsideProject({
 						remotionRoot,
@@ -77,6 +78,7 @@ export const deleteEffectHandler: ApiHandler<
 
 					return {
 						absolutePath,
+						nodePathRemappings: result.nodePathRemappings,
 						fileRelativeToRoot,
 						fileContents,
 						output,
@@ -87,32 +89,54 @@ export const deleteEffectHandler: ApiHandler<
 				}),
 			);
 
+			const updates = preparedUpdates.filter(
+				(update) => update.output !== update.fileContents,
+			);
+			if (updates.length === 0) {
+				return {success: true, nodePathMutation: null};
+			}
+
+			const nodePathMutation = broadcastSequenceNodePathMutation(
+				updates.map((update) => ({
+					absolutePath: update.absolutePath,
+					remappings: update.nodePathRemappings,
+				})),
+				null,
+			);
+
+			const effectDescription = getDeletedEffectDescription(
+				updates.flatMap((update) => update.effectLabels),
+			);
+			pushTransactionToUndoStack({
+				snapshots: updates.map((update) => ({
+					filePath: update.absolutePath,
+					oldContents: update.fileContents,
+					newContents: update.output,
+					logLine: update.logLine,
+					nodePathRemappings: update.nodePathRemappings,
+				})),
+				logLevel,
+				remotionRoot,
+				description: {
+					undoMessage: `↩️  Deletion of ${effectDescription}`,
+					redoMessage: `↪️  Deletion of ${effectDescription}`,
+				},
+				entryType: 'delete-effect',
+				suppressHmrOnFileRestore: false,
+				undoRedoNavigation: null,
+			});
+
 			for (const update of updates) {
 				const deletedEffectDescription = getDeletedEffectDescription(
 					update.effectLabels,
 				);
 
-				pushToUndoStack({
-					filePath: update.absolutePath,
-					oldContents: update.fileContents,
-					newContents: null,
-					logLevel,
-					remotionRoot,
-					logLine: update.logLine,
-					description: {
-						undoMessage: `↩️  Deletion of ${deletedEffectDescription}`,
-						redoMessage: `↪️  Deletion of ${deletedEffectDescription}`,
-					},
-					entryType: 'delete-effect',
-					suppressHmrOnFileRestore: false,
-					nodePathRemappings: null,
-				});
 				suppressUndoStackInvalidation(update.absolutePath);
 				writeFileAndNotifyFileWatchers({
 					file: update.absolutePath,
 					content: update.output,
 					originatorClientId: undefined,
-					metadata: null,
+					metadata: {skipSequencePropsUpdate: true},
 				});
 
 				const locationLabel = formatLogFileLocation({
@@ -138,6 +162,7 @@ export const deleteEffectHandler: ApiHandler<
 
 			return {
 				success: true,
+				nodePathMutation,
 			};
 		} catch (err) {
 			return {

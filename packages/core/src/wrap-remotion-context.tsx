@@ -14,6 +14,7 @@ import {
 import type {TSequence} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {DefaultPremountContext} from './DefaultPremountContext.js';
+import {EffectPreviewContext} from './effects/effect-preview.js';
 import {InteractiveEditorContext} from './interactive-editor.js';
 import {LogLevelContext} from './log-level-context.js';
 import {PreloadContext} from './prefetch-state.js';
@@ -34,9 +35,11 @@ import {
 } from './SequenceManager.js';
 import {TimelineTrackContext} from './timeline-track-context.js';
 import {SetTimelineContext, TimelineContext} from './TimelineContext.js';
+import {MediaEnabledContext} from './use-media-enabled.js';
 import {VideoContext} from './use-video.js';
 
 export function useRemotionContexts() {
+	const mediaEnabledContext = React.useContext(MediaEnabledContext);
 	const compositionManagerCtx = React.useContext(CompositionManager);
 	const videoContext = React.useContext(VideoContext);
 	const timelineContext = React.useContext(TimelineContext);
@@ -70,10 +73,12 @@ export function useRemotionContexts() {
 	);
 	const bufferManagerContext = React.useContext(BufferingContextReact);
 	const logLevelContext = React.useContext(LogLevelContext);
+	const effectPreviewContext = React.useContext(EffectPreviewContext);
 	const interactiveEditorContext = React.useContext(InteractiveEditorContext);
 
 	return useMemo(
 		() => ({
+			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
 			timelineContext,
@@ -95,9 +100,11 @@ export function useRemotionContexts() {
 			visualModePropStatusesRefContext,
 			bufferManagerContext,
 			logLevelContext,
+			effectPreviewContext,
 			interactiveEditorContext,
 		}),
 		[
+			mediaEnabledContext,
 			compositionManagerCtx,
 			videoContext,
 			sequenceContext,
@@ -119,6 +126,7 @@ export function useRemotionContexts() {
 			visualModePropStatusesRefContext,
 			bufferManagerContext,
 			logLevelContext,
+			effectPreviewContext,
 			interactiveEditorContext,
 		],
 	);
@@ -297,18 +305,28 @@ export const RemotionContextProvider = (
 																				<VideoContext.Provider
 																					value={contexts.videoContext}
 																				>
-																					<InteractiveEditorContext.Provider
-																						value={
-																							contexts.interactiveEditorContext
-																						}
+																					<MediaEnabledContext.Provider
+																						value={contexts.mediaEnabledContext}
 																					>
-																						{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
-																						<SequenceActivityContext.Provider
-																							value={false}
+																						<EffectPreviewContext.Provider
+																							value={
+																								contexts.effectPreviewContext
+																							}
 																						>
-																							{children}
-																						</SequenceActivityContext.Provider>
-																					</InteractiveEditorContext.Provider>
+																							<InteractiveEditorContext.Provider
+																								value={
+																									contexts.interactiveEditorContext
+																								}
+																							>
+																								{/* Bridged trees can mount in other renderers (e.g. React Three Fiber) that cannot render <Activity>. */}
+																								<SequenceActivityContext.Provider
+																									value={false}
+																								>
+																									{children}
+																								</SequenceActivityContext.Provider>
+																							</InteractiveEditorContext.Provider>
+																						</EffectPreviewContext.Provider>
+																					</MediaEnabledContext.Provider>
 																				</VideoContext.Provider>
 																			</DefaultPremountContext.Provider>
 																		</TimelineTrackContext.Provider>

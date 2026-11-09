@@ -107,6 +107,7 @@ export const drawText = ({
 		// Shadow offset/blur ignore the CTM (unlike fillText), so apply it manually.
 		const ctm = contextToDraw.getTransform();
 		const blurScale = Math.hypot(ctm.a, ctm.b);
+		const shadowOnlyOffset = 100000;
 
 		const {strokeFirst} = parsePaintOrder(paintOrder);
 		const measurements = contextToDraw.measureText(originalText);
@@ -125,13 +126,24 @@ export const drawText = ({
 			// Draw text shadows from last to first (so first shadow appears on top)
 			for (let i = textShadows.length - 1; i >= 0; i--) {
 				const shadow = textShadows[i];
+				// WebKit can lose globalAlpha across consecutive shadow draws without restoring state.
+				contextToDraw.save();
+				contextToDraw.setTransform(
+					ctm.a,
+					ctm.b,
+					ctm.c,
+					ctm.d,
+					ctm.e - shadowOnlyOffset,
+					ctm.f,
+				);
 				contextToDraw.shadowColor = shadow.color;
 				contextToDraw.shadowBlur = shadow.blurRadius * blurScale;
 				contextToDraw.shadowOffsetX =
-					shadow.offsetX * ctm.a + shadow.offsetY * ctm.c;
+					shadow.offsetX * ctm.a + shadow.offsetY * ctm.c + shadowOnlyOffset;
 				contextToDraw.shadowOffsetY =
 					shadow.offsetX * ctm.b + shadow.offsetY * ctm.d;
 				contextToDraw.fillText(token.text, x, y);
+				contextToDraw.restore();
 			}
 
 			// Reset shadow and draw the actual text on top

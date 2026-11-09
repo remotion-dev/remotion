@@ -18,6 +18,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			estimatedRenderLambdaInvokations: 10,
 			estimatedTotalLambdaInvokations: 10,
 			framesPerLambda: 10,
+			chunks: null,
 			imageFormat: 'jpeg',
 			inputProps: {
 				type: 'payload',

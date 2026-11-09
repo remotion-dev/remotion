@@ -20,6 +20,8 @@ export const TAB_HOVER_BACKGROUND =
 	'var(--remotion-studio-tab-hover-background)';
 export const LIGHT_COLOR = 'var(--remotion-studio-light-color)';
 export const SELECTED_BACKGROUND = 'var(--remotion-studio-white-alpha-15)';
+export const TEXT_SELECTION_BACKGROUND =
+	'var(--remotion-studio-text-selection-background)';
 export const LIGHT_TEXT = 'var(--remotion-studio-light-text)';
 export const COMPUTED_VALUE_COLOR =
 	'var(--remotion-studio-computed-value-color)';
@@ -55,6 +57,8 @@ const SELECTED_HOVER_BACKGROUND = 'var(--remotion-studio-white-alpha-25)';
 export const FAIL_COLOR = 'var(--remotion-studio-fail-color)';
 export const WARNING_COLOR = 'var(--remotion-studio-warning-color)';
 export const BLUE = 'var(--remotion-studio-blue)';
+export const PRIMARY_BUTTON_BACKGROUND =
+	'var(--remotion-studio-primary-button-background)';
 export const INTERACTIVE_TEXT = 'var(--remotion-studio-interactive-text)';
 export const BLUE_HOVERED = 'var(--remotion-studio-blue-hovered)';
 export const BLUE_DISABLED = 'var(--remotion-studio-blue-disabled)';
@@ -121,8 +125,6 @@ export const FONT_FAMILY_ERROR_COLOR =
 export const SELECTED_OUTLINE_SNAP_COLOR =
 	'var(--remotion-studio-selected-outline-snap-color)';
 export const PRISM_TEXT_COLOR = 'var(--remotion-studio-prism-text-color)';
-export const PRISM_SELECTION_BACKGROUND =
-	'var(--remotion-studio-prism-selection-background)';
 export const PRISM_BACKGROUND = 'var(--remotion-studio-prism-background)';
 export const PRISM_INLINE_COLOR = 'var(--remotion-studio-prism-inline-color)';
 export const PRISM_KEYWORD_COLOR = 'var(--remotion-studio-prism-keyword-color)';

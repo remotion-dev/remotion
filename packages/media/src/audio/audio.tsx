@@ -31,7 +31,6 @@ export const audioSchema: InteractivitySchema = {
 	},
 	...Internals.baseSchema,
 	trimAfter: Internals.trimAfterField,
-	...Internals.premountSchema,
 	volume: {
 		type: 'number',
 		min: 0,

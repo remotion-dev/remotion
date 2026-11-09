@@ -67,12 +67,12 @@ export const createLayer = async ({
 					element,
 					scaledWidth,
 					scaledHeight,
-					signal: internalState.maskImageLoaderState.signal,
+					signal: internalState.rasterImageLoaderState.signal,
 				});
 				onHtmlInCanvasLayerOutcome({native: true});
 				return offCtx;
 			} catch (err) {
-				if (internalState.maskImageLoaderState.signal?.aborted) {
+				if (internalState.rasterImageLoaderState.signal?.aborted) {
 					throw err;
 				}
 

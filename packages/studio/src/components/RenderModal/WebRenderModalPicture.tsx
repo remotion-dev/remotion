@@ -85,13 +85,13 @@ export const WebRenderModalPicture: React.FC<WebRenderModalPictureProps> = ({
 					/>
 					<div style={optionRow}>
 						<div style={label}>Transparent</div>
-						<div style={rightRow}>
+						<label style={rightRow} aria-label="Transparent">
 							<Checkbox
 								checked={transparent}
 								onChange={onTransparentChanged}
 								name="transparent"
 							/>
-						</div>
+						</label>
 					</div>
 				</>
 			)}
