@@ -301,6 +301,44 @@ test('chains effect edits before persistence and HMR without losing the latest i
 			await expect(indicator).toHaveCount(0);
 			await headers.last().dispatchEvent('dragend', {dataTransfer});
 			await dataTransfer.dispose();
+			if (beforeFirst) {
+				const sourceBounds = (await headers.last().boundingBox())!;
+				const firstBounds = (await headers.first().boundingBox())!;
+				const headingBounds = (await beforeFirst.boundingBox())!;
+				const positions: number[] = [];
+				for (
+					let y = headingBounds.y + headingBounds.height - 1;
+					y <= firstBounds.y + 1;
+					y++
+				) {
+					positions.push(y);
+				}
+
+				await page.mouse.move(sourceBounds.x + 60, sourceBounds.y + 10);
+				await page.mouse.down();
+				try {
+					await page.mouse.move(sourceBounds.x + 60, sourceBounds.y - 10, {
+						steps: 3,
+					});
+					for (const x of [
+						firstBounds.x + 2,
+						firstBounds.x + 60,
+						firstBounds.x + firstBounds.width - 2,
+					]) {
+						for (const y of positions) {
+							await page.mouse.move(x, y);
+							await page.mouse.move(x, y);
+							await page.evaluate(() => new Promise(requestAnimationFrame));
+							expect(await indicator.count(), `Top gap at ${x}, ${y}`).toBe(1);
+						}
+						positions.reverse();
+					}
+				} finally {
+					await page.keyboard.press('Escape');
+					await page.mouse.up();
+				}
+				await expect(indicator).toHaveCount(0);
+			}
 		};
 		await checkReorderGaps(
 			effects.locator('[draggable="true"]'),
