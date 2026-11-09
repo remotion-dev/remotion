@@ -273,7 +273,7 @@ Limit playback to only play before a certain frame. The video will end at this f
 
 ### `initiallyShowControls?`<AvailableFrom v="3.2.24" />
 
-If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
+If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true`.
 
 ### `initiallyMuted?`<AvailableFrom v="3.3.81" />
 
@@ -311,9 +311,9 @@ export const App: React.FC = () => {
 };
 ```
 
-Since v4.0.111, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#possible-states) about the playback states a Player can be in.
+Since <AvailableFrom v="4.0.111" inline />, a `isBuffering` parameter is being passed in the callback which is `true` if the Player is in a [buffer state](/docs/player/buffer-state). [Learn more](/docs/player/buffer-state#possible-states) about the playback states a Player can be in.
 
-Since v4.0.111, You can return `null` in the callback to fall back to the default UI.
+Since <AvailableFrom v="4.0.111" inline />, you can return `null` in the callback to fall back to the default UI.
 
 ### `renderFullscreenButton?`<AvailableFrom v="3.2.32" />
 
