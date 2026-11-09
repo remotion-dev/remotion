@@ -102,7 +102,6 @@ export const handleMask = async ({
 	const imageLeft = (tile.left - precomposeRect.left) * scale;
 	const imageTop = (tile.top - precomposeRect.top) * scale;
 
-
 	tempContext.globalCompositeOperation = 'destination-in';
 	if (width === 0 || height === 0) {
 		tempContext.clearRect(

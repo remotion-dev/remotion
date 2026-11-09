@@ -8,7 +8,6 @@ import {
 	parseRadialGradient,
 } from './parse-linear-gradient';
 
-
 type LinearGradientMaskImageInfo = {
 	type: 'linear-gradient';
 	gradientInfo: LinearGradientInfo;

@@ -95,7 +95,7 @@ export const clipSourceRectToViewport = (
 	const polygon = clippedSourcePolygon(rect, matrix, viewport);
 	if (!polygon) return null;
 	const xs = polygon.map((point) => point.x);
-		const ys = polygon.map((point) => point.y);
+	const ys = polygon.map((point) => point.y);
 	return new DOMRect(
 		Math.min(...xs),
 		Math.min(...ys),
@@ -117,7 +117,7 @@ export const projectSourceRectToViewport = (
 		new DOMPoint(point.x, point.y).matrixTransform(matrix),
 	);
 	const xs = projected.map((point) => point.x / point.w);
-		const ys = projected.map((point) => point.y / point.w);
+	const ys = projected.map((point) => point.y / point.w);
 	return new DOMRect(
 		Math.min(...xs),
 		Math.min(...ys),
