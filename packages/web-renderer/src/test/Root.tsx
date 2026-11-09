@@ -94,6 +94,13 @@ import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
+import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
+import {
+	replacedSamplerPixelated,
+	replacedSamplerAuto,
+	svgSamplerPixelated,
+	svgSamplerAuto,
+} from './fixtures/replaced-element-sampler-controls';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
 import {scalePrecomposeFixture} from './fixtures/scale-precompose';
@@ -190,6 +197,11 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundImageRound} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
+			<Composition {...replacedElementPixelated} />
+			<Composition {...replacedSamplerPixelated} />
+			<Composition {...replacedSamplerAuto} />
+			<Composition {...svgSamplerPixelated} />
+			<Composition {...svgSamplerAuto} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />

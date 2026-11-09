@@ -140,6 +140,8 @@ The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: '
 
 SVG data URIs recognize case-equivalent `image/svg+xml` media-type tokens and trailing ASCII whitespace before the delimiter without changing the data payload. This preserves source-representation consistency; exact SVG pixels may still differ from native painting, and classification of blob or extensionless SVG sources is not covered by this improvement.
 
+`image-rendering: pixelated` is partially supported for raster images and `<canvas>` elements, including inherited values. Opaque integer-sized `object-fit: fill`, `cover`, and `contain` cases are qualified against native Chromium and WebKit. Raster sampling does not change the SVG vector path. Fractional sampling, arbitrary ratios, transparency, video and transformed/effected groups require further pixel-parity qualification.
+
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
 [`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
 [`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  
