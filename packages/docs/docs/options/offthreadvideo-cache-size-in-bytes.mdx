@@ -47,6 +47,14 @@ The following APIs accept this option:
 - [`renderMediaOnVercel()`](/docs/vercel/render-media-on-vercel#offthreadvideocachesizeinbytes)
 - [`renderStillOnVercel()`](/docs/vercel/render-still-on-vercel#offthreadvideocachesizeinbytes)
 
+## Config file
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setOffthreadVideoCacheSizeInBytes(512 * 1024 * 1024);
+```
+
 ## See also
 
 - [All options](/docs/options)

@@ -125,6 +125,18 @@ Config.setPublicDir('./custom-public-dir');
 
 The [`--public-dir`](/docs/options/public-dir) flag takes precedence over this option.
 
+## `setPublicPath()`<AvailableFrom v="4.0.127" />
+
+<Options id="public-path" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setPublicPath('/sites/my-site/');
+```
+
+The [`--public-path`](/docs/options/public-path) flag takes precedence over this option.
+
 ## `setBundleOutDir()`<AvailableFrom v="4.0.426" />
 
 <Options id="out-dir" />
@@ -569,6 +581,18 @@ Config.setChromiumOpenGlRenderer('angle');
 
 The [`--gl`](/docs/options/gl) flag takes precedence over this option.
 
+## `setChromiumUserAgent()`<AvailableFrom v="3.3.83" />
+
+<Options id="user-agent" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setChromiumUserAgent('Mozilla/5.0 (Remotion)');
+```
+
+The [`--user-agent`](/docs/options/user-agent) flag takes precedence over this option.
+
 ## `setConcurrency()`
 
 <Options id="concurrency" />
@@ -584,6 +608,18 @@ The [`--concurrency`](/docs/options/concurrency) flag takes precedence over this
 :::tip
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
 :::
+
+## `setOffthreadVideoCacheSizeInBytes()`<AvailableFrom v="4.0.23" />
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setOffthreadVideoCacheSizeInBytes(512 * 1024 * 1024);
+```
+
+The [`--offthreadvideo-cache-size-in-bytes`](/docs/options/offthreadvideo-cache-size-in-bytes) flag takes precedence over this option.
 
 ## `setVideoImageFormat()`<AvailableFrom v="4.0.0" />
 
@@ -827,9 +863,23 @@ import {Config} from '@remotion/cli/config';
 Config.setOverwriteOutput(false);
 ```
 
+The [`--overwrite`](/docs/options/overwrite) flag takes precedence over this option.
+
 :::info
 In version 1.x, the default behavior was inverse - Remotion would not override by default.
 :::
+
+## `setMetadata()`<AvailableFrom v="4.0.216" />
+
+<Options id="metadata" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setMetadata({Author: 'Lunar'});
+```
+
+The [`--metadata`](/docs/options/metadata) flag takes precedence over this option.
 
 ## `setPixelFormat()`
 
@@ -842,6 +892,18 @@ Config.setPixelFormat('yuv420p');
 ```
 
 The [`--pixel-format`](/docs/options/pixel-format) flag takes precedence over this option.
+
+## `setColorSpace()`<AvailableFrom v="4.0.28" />
+
+<Options id="color-space" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setColorSpace('bt709');
+```
+
+The [`--color-space`](/docs/options/color-space) flag takes precedence over this option.
 
 ## `setCodec()`<AvailableFrom v="1.4.0" />
 
@@ -1170,6 +1232,18 @@ Config.setBeepOnFinish(true);
 ```
 
 The [`--beep-on-finish`](/docs/options/beep-on-finish) flag takes precedence over this option.
+
+## `setRepro()`<AvailableFrom v="4.0.88" />
+
+<Options id="repro" />
+
+```ts twoslash title="remotion.config.ts"
+import {Config} from '@remotion/cli/config';
+// ---cut---
+Config.setRepro(true);
+```
+
+The [`--repro`](/docs/options/repro) flag takes precedence over this option.
 
 ## `setEnableCrossSiteIsolation()`<AvailableFrom v="4.0.306" />
 
