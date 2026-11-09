@@ -4,6 +4,7 @@ import {getBackgroundImageRect} from './background-image-rect';
 import type {MaskImageInfo} from './mask-image';
 import {createCanvasGradient} from './parse-linear-gradient';
 import {getRasterImage} from './raster-image-loader';
+import {createSvgClipMask} from './svg-clip-mask';
 
 export const getPrecomposeRectForMask = (element: HTMLElement | SVGElement) => {
 	const boundingRect = getBiggestBoundingClientRect(element);
@@ -150,4 +151,33 @@ export const handleMask = async ({
 		tempContext.canvas.height,
 	);
 	tempContext.restore();
+};
+
+// Use the existing group layer and SVG drawable rather than combining contours
+// whose reflected winding is interpreted differently by native engines.
+export const handleSvgClip = async ({
+	resource,
+	maskRect,
+	precomposeRect,
+	element,
+	tempContext,
+}: {
+	resource: SVGClipPathElement;
+	element: HTMLElement | SVGElement;
+	maskRect: DOMRect;
+	precomposeRect: DOMRect;
+	tempContext: OffscreenCanvasRenderingContext2D;
+}) => {
+	const image = await createSvgClipMask({
+		resource,
+		maskRect,
+		precomposeRect,
+		// Descendant filters contribute to the native HTML clipping reference in
+		// Firefox. The clipped element's own filter and outline padding do not.
+		referenceRect: getBiggestBoundingClientRect(element, false, true),
+		width: tempContext.canvas.width,
+		height: tempContext.canvas.height,
+	});
+	tempContext.globalCompositeOperation = 'destination-in';
+	tempContext.drawImage(image, 0, 0);
 };
