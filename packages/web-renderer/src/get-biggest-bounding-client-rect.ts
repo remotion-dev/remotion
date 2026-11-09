@@ -108,11 +108,9 @@ export const getBiggestBoundingClientRect = (
 		}
 
 		const filterOutsets = {left: 0, right: 0, top: 0, bottom: 0};
-		if (
-			includePaintOutsets &&
-			includeDescendantFilters &&
-			treeWalker.currentNode !== element
-		) {
+		// Clip reference bounds need descendant filters independently of outline,
+		// shadow and text padding. Existing layout-only callers do not opt in.
+		if (includeDescendantFilters && treeWalker.currentNode !== element) {
 			const ancestors: Element[] = [];
 			for (
 				let ancestor = treeWalker.currentNode as Element;

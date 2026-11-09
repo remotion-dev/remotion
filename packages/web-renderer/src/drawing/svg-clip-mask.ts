@@ -112,8 +112,8 @@ export const createSvgClipMask = ({
 		height: `${maskRect.height}px`,
 		clipPath: 'url(#remotion-svg-clip)',
 	});
-	// Layout overflow determines the native reference box in Firefox; capture
-	// padding for outlines, shadows and filters must not enlarge that box.
+	// Descendant layout and filter overflow determine the native reference box
+	// in Firefox; the clipped element's own paint padding must not enlarge it.
 	const white = resource.ownerDocument.createElementNS(
 		htmlNamespace,
 		'div',
@@ -127,8 +127,8 @@ export const createSvgClipMask = ({
 		backgroundColor: 'white',
 	});
 	target.appendChild(white);
-	// A fixed paint surface covers filter outsets without contributing layout
-	// overflow to the clipped target’s objectBoundingBox reference.
+	// Paint capture padding without overlapping the reference rectangle. Two
+	// white surfaces otherwise blend antialiased clip edges twice in Firefox.
 	const paint = resource.ownerDocument.createElementNS(
 		htmlNamespace,
 		'div',
@@ -139,7 +139,13 @@ export const createSvgClipMask = ({
 		top: '0',
 		width: `${precomposeRect.width}px`,
 		height: `${precomposeRect.height}px`,
-		backgroundColor: 'white',
+		boxSizing: 'border-box',
+		borderStyle: 'solid',
+		borderColor: 'white',
+		borderTopWidth: `${Math.max(0, referenceRect.top - precomposeRect.top)}px`,
+		borderRightWidth: `${Math.max(0, precomposeRect.right - referenceRect.right)}px`,
+		borderBottomWidth: `${Math.max(0, precomposeRect.bottom - referenceRect.bottom)}px`,
+		borderLeftWidth: `${Math.max(0, referenceRect.left - precomposeRect.left)}px`,
 	});
 	target.appendChild(paint);
 	viewport.appendChild(target);
