@@ -31,9 +31,12 @@ test.for([0, 1])(
 			})
 		).blob({format: 'png'});
 		const result = await compareNativePixels(reference, actual);
-		await savePixelEvidence(reference, `css-data-font-${frame}-native`);
-		await savePixelEvidence(actual, `css-data-font-${frame}-actual`);
-		await savePixelEvidence(result.diff, `css-data-font-${frame}-diff`);
+		if (result.mismatchedPixels !== 0) {
+			await savePixelEvidence(reference, `css-data-font-${frame}-native`);
+			await savePixelEvidence(actual, `css-data-font-${frame}-actual`);
+			await savePixelEvidence(result.diff, `css-data-font-${frame}-diff`);
+		}
+
 		expect(result.mismatchedPixels).toBe(0);
 	},
 );

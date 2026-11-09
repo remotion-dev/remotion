@@ -3,6 +3,7 @@ import {
 	getBase64,
 	getEmbeddedFontStyleForSvg,
 } from './embed-registered-fonts-in-svg';
+import {parseFontFamilies} from './parse-font-families';
 
 const textFontProperties = [
 	'font-family',
@@ -59,9 +60,7 @@ const getCssFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 
 		for (const rule of cssRules) {
 			if (!(rule instanceof CSSFontFaceRule)) continue;
-			const family = rule.style.fontFamily
-				.replace(/^(['"])(.*)\1$/, '$2')
-				.toLowerCase();
+			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
 			const src = rule.style.getPropertyValue('src');
 			// Multiple sources and CSS-escaped URLs need separate source selection.
@@ -193,15 +192,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			});
 		});
 	const fontFamilies = new Set(
-		textStyles.flatMap(
-			(style) =>
-				style?.[0].split(',').map((family) =>
-					family
-						.trim()
-						.replace(/^(['"])(.*)\1$/, '$2')
-						.toLowerCase(),
-				) ?? [],
-		),
+		textStyles.flatMap((style) => style ? parseFontFamilies(style[0]) : []),
 	);
 	const cssFontRules = textElements.length
 		? getCssFontRules(svg, fontFamilies)

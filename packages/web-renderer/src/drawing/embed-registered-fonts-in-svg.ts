@@ -1,4 +1,5 @@
 import {NoReactInternals} from 'remotion/no-react';
+import {parseFontFamilies} from './parse-font-families';
 
 type RegisteredFontFace = ReturnType<
 	typeof NoReactInternals.getRegisteredFontFaces
@@ -236,11 +237,9 @@ export const getEmbeddedFontStyleForSvg = (
 					parentElement,
 				);
 			computedStyleByElement.set(parentElement, computedStyle);
-			for (const family of computedStyle.fontFamily.split(',')) {
-				const normalizedFamily = family
-					.trim()
-					.replace(/^(['"])(.*)\1$/, '$2')
-					.toLowerCase();
+			for (const normalizedFamily of parseFontFamilies(
+				computedStyle.fontFamily,
+			)) {
 				const familyIndexes = fontIndexesByFamily.get(normalizedFamily) ?? [];
 				const matchingIndexes = familyIndexes.filter((index) =>
 					descriptorsMatch(registeredFonts[index]!, computedStyle),
