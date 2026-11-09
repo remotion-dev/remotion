@@ -15,13 +15,37 @@ const label: React.CSSProperties = {
 	whiteSpace: 'nowrap',
 };
 
-const pushWithMaxSize = (
-	arr: number[],
-	value: number,
-	maxSize: number,
-): number[] => {
-	arr.push(value);
-	return arr.slice(-maxSize);
+type FrameSample = {
+	time: number;
+	frame: number;
+};
+
+const MAX_SAMPLES = 15;
+
+// Playback advances by elapsed time, so above the display refresh rate one
+// update can move several frames. Count frames advanced, not updates.
+export const getFramesAdvancedPerSecond = (
+	samples: FrameSample[],
+	playbackSpeed: number,
+): number | null => {
+	let frames = 0;
+	let time = 0;
+	for (let i = 1; i < samples.length; i++) {
+		const frameDelta = samples[i].frame - samples[i - 1].frame;
+		// The frame jumped against the playback direction: playback looped.
+		if (frameDelta * playbackSpeed < 0) {
+			continue;
+		}
+
+		frames += Math.abs(frameDelta);
+		time += samples[i].time - samples[i - 1].time;
+	}
+
+	if (time === 0) {
+		return null;
+	}
+
+	return (frames / time) * 1000;
 };
 
 export const FpsCounter: React.FC<{
@@ -34,32 +58,33 @@ export const FpsCounter: React.FC<{
 	const [marker, rerender] = useState({});
 	const [fps, setFps] = useState(0);
 
-	const previousUpdates = useRef<number[]>([]);
+	const previousUpdates = useRef<FrameSample[]>([]);
 	const fpsRef = useRef<number>(0);
 	const playingRef = useRef<boolean>(playing);
+	const playbackSpeedRef = useRef<number>(playbackSpeed);
 
 	useLayoutEffect(() => {
 		fpsRef.current = 0;
 		previousUpdates.current = [];
 		playingRef.current = playing;
-	}, [playing]);
+		playbackSpeedRef.current = playbackSpeed;
+	}, [playing, playbackSpeed]);
 
 	useLayoutEffect(() => {
 		if (playingRef.current === false) return;
 
-		previousUpdates.current = pushWithMaxSize(
+		previousUpdates.current = [
+			...previousUpdates.current,
+			{time: performance.now(), frame},
+		].slice(-MAX_SAMPLES);
+
+		const framesPerSecond = getFramesAdvancedPerSecond(
 			previousUpdates.current,
-			performance.now(),
-			15,
+			playbackSpeedRef.current,
 		);
+		if (framesPerSecond === null) return;
 
-		if (previousUpdates.current.length < 2) return;
-
-		const diff =
-			Math.max(...previousUpdates.current) -
-			Math.min(...previousUpdates.current);
-		const averageDistanceBetween = diff / (previousUpdates.current.length - 1);
-		fpsRef.current = 1000 / averageDistanceBetween;
+		fpsRef.current = framesPerSecond;
 
 		if (previousUpdates.current.length === 2) setFps(fpsRef.current);
 		/* This effect should depends only on frame, otherwise it will push extra updates to ref and fps will be wrong */
