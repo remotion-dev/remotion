@@ -23,8 +23,9 @@ export const getPrecomposeRectFor3DTransform = ({
 }) => {
 	const unclampedBiggestBoundingClientRect = getBiggestBoundingClientRect(
 		element,
-		onlyOwnPlane,
+		true,
 		experimental3DRendering,
+		{onlyOwnPlane, experimental3DRendering},
 	);
 	if (!experimental3DRendering) {
 		const sourceBounds = getPreTransformRect(parentRect, matrix);

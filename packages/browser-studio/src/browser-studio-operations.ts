@@ -58,6 +58,7 @@ import {
 	type BrowserStudioOperations,
 	type BrowserStudioPackageInstallationOperations,
 	type CompositionEditResponse,
+	type CompositionMoveResponse,
 	type CompositionDestination as StudioCompositionDestination,
 	type ElementInstallExpectedFileState,
 	type EventSourceEvent,
@@ -214,11 +215,18 @@ const getStructuredError = (error: unknown) => ({
 
 const runBrowserCompositionEdit = (
 	edit: () => CompositionEditResponse,
-): Promise<CompositionEditResponse> => {
+): Promise<CompositionMoveResponse> => {
 	try {
-		return Promise.resolve(edit());
+		const result = edit();
+		return Promise.resolve(
+			result.success ? result : {...result, canRefactor: false},
+		);
 	} catch (error) {
-		return Promise.resolve(getStructuredError(error));
+		return Promise.resolve({
+			...getStructuredError(error),
+			canRefactor:
+				error instanceof CodemodsInternals.RegistrationRequiresRefactorError,
+		});
 	}
 };
 

@@ -1,3 +1,4 @@
+import {getSvgClipForPrecompositing} from './clip-path';
 import {hasAnyTransformCssValue, hasTransformCssValue} from './has-transform';
 import {makeDOMMatrix} from './make-dom-matrix';
 import {
@@ -90,18 +91,66 @@ type TransformStyle = Pick<
 	| 'transformOrigin'
 	| 'perspective'
 	| 'perspectiveOrigin'
->;
+> & {matrix: DOMMatrixReadOnly | null};
 
 export type TransformStyleCache = WeakMap<Element, TransformStyle>;
 
+const getTypedTransformMatrix = (
+	element: Element,
+): DOMMatrixReadOnly | null => {
+	if (
+		typeof CSSTransformValue === 'undefined' ||
+		!('computedStyleMap' in element)
+	)
+		return null;
+	const value = element.computedStyleMap().get('transform');
+	if (!(value instanceof CSSTransformValue)) return null;
+	try {
+		const matrix = value.toMatrix();
+		// Typed OM retains a 3D operation flag even when its coefficients are 2D.
+		// Classify geometry without serializing away native coefficient precision.
+		if (
+			matrix.m13 === 0 &&
+			matrix.m14 === 0 &&
+			matrix.m23 === 0 &&
+			matrix.m24 === 0 &&
+			matrix.m31 === 0 &&
+			matrix.m32 === 0 &&
+			matrix.m33 === 1 &&
+			matrix.m34 === 0 &&
+			matrix.m43 === 0 &&
+			matrix.m44 === 1
+		) {
+			return new DOMMatrixReadOnly([
+				matrix.a,
+				matrix.b,
+				matrix.c,
+				matrix.d,
+				matrix.e,
+				matrix.f,
+			]);
+		}
+
+		return DOMMatrixReadOnly.fromMatrix(matrix);
+	} catch (error) {
+		// Typed OM cannot convert percentage translations to a pixel matrix.
+		if (error instanceof TypeError) return null;
+		throw error;
+	}
+};
+
 const snapshotTransformStyle = (
 	computedStyle: CSSStyleDeclaration,
+	element: Element,
 ): TransformStyle => {
 	return {
 		display: computedStyle.display,
 		rotate: computedStyle.rotate,
 		scale: computedStyle.scale,
 		transform: computedStyle.transform,
+		matrix: hasTransformCssValue(computedStyle)
+			? getTypedTransformMatrix(element)
+			: null,
 		transformOrigin: computedStyle.transformOrigin,
 		perspective: computedStyle.perspective,
 		perspectiveOrigin: computedStyle.perspectiveOrigin,
@@ -210,6 +259,7 @@ export const calculateTransforms = ({
 	let hasCssTransform = false;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: MaskImageInfo | null = null;
+	let svgClip: SVGClipPathElement | null = null;
 	let filterForPrecompositing: string | null = null;
 	let blendMode: GlobalCompositeOperation | null = null;
 	while (parent) {
@@ -231,7 +281,7 @@ export const calculateTransforms = ({
 		const transformStyle =
 			computedStyle === null
 				? cachedTransformStyle!
-				: snapshotTransformStyle(computedStyle);
+				: snapshotTransformStyle(computedStyle, parent);
 
 		if (computedStyle !== null) {
 			transformStyleCache.set(parent, transformStyle);
@@ -267,12 +317,14 @@ export const calculateTransforms = ({
 				? parseMaskImage(maskImageValue, computedStyle, experimental3DRendering)
 				: null;
 
+			svgClip = getSvgClipForPrecompositing(computedStyle.clipPath, parent);
 			blendMode = getBlendMode(computedStyle.mixBlendMode);
 			// In CSS, an element blends together with its descendants as one group,
 			// and its filter and opacity apply to that group as a whole.
 			const needsGroup =
 				blendMode !== null ||
 				isolated ||
+				svgClip !== null ||
 				(experimental3DRendering && opacity > 0 && opacity < 1);
 
 			filterForPrecompositing =
@@ -280,81 +332,60 @@ export const calculateTransforms = ({
 					? computedStyle.filter
 					: filterRequiresPrecompositing(computedStyle.filter);
 
-			const originalMaskImage = parent.style.maskImage;
-			const originalWebkitMaskImage = parent.style.webkitMaskImage;
-			parent.style.maskImage = 'none';
-			parent.style.webkitMaskImage = 'none';
-
-			const originalMixBlendMode = parent.style.mixBlendMode;
-			const originalOpacity = parent.style.opacity;
-			const originalOpacityPriority =
-				parent.style.getPropertyPriority('opacity');
 			const childPaintStyles =
 				experimental3DRendering &&
 				needsGroup &&
 				(opacity !== 1 || filterForPrecompositing !== null)
 					? Array.from(parent.children, (child) => {
-							const style = getComputedStyle(child);
+							const childStyle = getComputedStyle(child);
 							return {
 								child: child as HTMLElement | SVGElement,
-								opacity: style.opacity,
-								filter: filterForPrecompositing ? style.filter : 'none',
+								opacity: childStyle.opacity,
+								filter: filterForPrecompositing ? childStyle.filter : 'none',
 								style: child.getAttribute('style'),
 							};
 						}).filter(
 							(child) => child.opacity !== '1' || child.filter !== 'none',
 						)
 					: [];
+
+			// An authored !important rule must also be neutralized while drawing the
+			// group, then restored with its original inline priority.
+			const overrides: [string, string][] = [
+				['mask-image', 'none'],
+				['-webkit-mask-image', 'none'],
+			];
+			if (svgClip) overrides.push(['clip-path', 'none']);
 			if (needsGroup) {
-				parent.style.mixBlendMode = 'normal';
-				if (experimental3DRendering)
-					parent.style.setProperty('opacity', '1', 'important');
-				else parent.style.opacity = '1';
-				for (const child of childPaintStyles) {
-					if (child.opacity !== '1')
-						child.child.style.setProperty(
-							'opacity',
-							child.opacity,
-							'important',
-						);
-					if (child.filter !== 'none')
-						child.child.style.setProperty('filter', child.filter, 'important');
-				}
+				overrides.push(['mix-blend-mode', 'normal'], ['opacity', '1']);
 			}
 
-			// Neutralize filter if it requires precompositing to prevent double-application
-			const originalFilter = parent.style.filter;
-			const originalFilterPriority = parent.style.getPropertyPriority('filter');
-			if (filterForPrecompositing) {
-				if (experimental3DRendering)
-					parent.style.setProperty('filter', 'none', 'important');
-				else parent.style.filter = 'none';
+			if (filterForPrecompositing) overrides.push(['filter', 'none']);
+			const {style} = parent;
+			const originals = overrides.map(([property]) => ({
+				property,
+				value: style.getPropertyValue(property),
+				priority: style.getPropertyPriority(property),
+			}));
+			for (const [property, value] of overrides) {
+				style.setProperty(property, value, 'important');
 			}
 
-			const parentRef = parent;
+			for (const child of childPaintStyles) {
+				if (child.opacity !== '1')
+					child.child.style.setProperty('opacity', child.opacity, 'important');
+				if (child.filter !== 'none')
+					child.child.style.setProperty('filter', child.filter, 'important');
+			}
 
 			toReset.push(() => {
-				parentRef!.style.maskImage = originalMaskImage;
-				parentRef!.style.webkitMaskImage = originalWebkitMaskImage;
-				if (filterForPrecompositing) {
-					parentRef!.style.setProperty(
-						'filter',
-						originalFilter,
-						originalFilterPriority,
-					);
+				for (const {property, value, priority} of originals) {
+					style.setProperty(property, value, priority);
 				}
 
-				if (needsGroup) {
-					parentRef!.style.mixBlendMode = originalMixBlendMode;
-					parentRef!.style.setProperty(
-						'opacity',
-						originalOpacity,
-						originalOpacityPriority,
-					);
-					for (const child of childPaintStyles) {
-						if (child.style === null) child.child.removeAttribute('style');
-						else child.child.setAttribute('style', child.style);
-					}
+				for (const child of childPaintStyles) {
+					if (child.style === null) child.child.removeAttribute('style');
+					else child.child.setAttribute('style', child.style);
 				}
 			});
 		}
@@ -389,7 +420,10 @@ export const calculateTransforms = ({
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
 					? transformStyle.transform
 					: undefined;
-			const matrix = makeDOMMatrix(toParse);
+			const matrix =
+				toParse && transformStyle.matrix
+					? DOMMatrix.fromMatrix(transformStyle.matrix)
+					: makeDOMMatrix(toParse);
 
 			const resetTransforms = makeTransformResetter(
 				parent,
@@ -514,12 +548,14 @@ export const calculateTransforms = ({
 			needs3DTransformViaWebGL,
 			needsOpacityPrecompositing,
 			needsMaskImage: maskImageInfo,
+			needsSvgClip: svgClip,
 			needsFilterPrecompositing: filterForPrecompositing,
 			needsBlendMode: blendMode,
 			needsIsolation: isolated,
 			needsPrecompositing: Boolean(
 				needs3DTransformViaWebGL ||
 				needsMaskImage ||
+				svgClip !== null ||
 				needsFilterPrecompositing ||
 				needsOpacityPrecompositing ||
 				blendMode !== null ||

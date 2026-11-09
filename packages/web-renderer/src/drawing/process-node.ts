@@ -10,7 +10,7 @@ import {getWiderRectAndExpand} from './clamp-rect-to-parent-bounds';
 import {doRectsIntersect} from './do-rects-intersect';
 import {drawElement} from './draw-element';
 import type {DrawFn} from './drawn-fn';
-import {parseDropShadowExpansion} from './filter-outsets';
+import {parseFilterOutsets} from './filter-outsets';
 import {getPrecomposedLayerGeometry} from './get-precomposed-layer-geometry';
 import {
 	clipSourceRectToViewport,
@@ -22,9 +22,14 @@ import {
 } from './handle-3d-transform';
 import {
 	applyFilterToDrawOperation,
+	scaleFilterLengths,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
-import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {
+	getPrecomposeRectForMask,
+	handleMask,
+	handleSvgClip,
+} from './handle-mask';
 import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
@@ -110,13 +115,14 @@ export const processNode = async ({
 			precomposeRect = roundToExpandRect(
 				getBiggestBoundingClientRect(
 					element,
-					false,
+					true,
 					internalState.experimental3DRendering,
+					{experimental3DRendering: internalState.experimental3DRendering},
 				),
 			);
 		}
 
-		if (precompositing.needsMaskImage) {
+		if (precompositing.needsMaskImage || precompositing.needsSvgClip) {
 			precomposeRect = roundToExpandRect(getPrecomposeRectForMask(element));
 		}
 
@@ -144,7 +150,6 @@ export const processNode = async ({
 			const tentativePrecomposeRect = getPrecomposeRectForFilter({
 				element,
 				filter: precompositing.needsFilterPrecompositing,
-				experimental3DRendering: internalState.experimental3DRendering,
 			});
 
 			precomposeRect = roundToExpandRect(
@@ -156,7 +161,9 @@ export const processNode = async ({
 		}
 
 		const needsGroup =
-			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+			precompositing.needsBlendMode !== null ||
+			precompositing.needsIsolation ||
+			precompositing.needsSvgClip !== null;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
@@ -164,8 +171,10 @@ export const processNode = async ({
 					firstRect: precomposeRect,
 					secondRect: getBiggestBoundingClientRect(
 						element,
-						false,
-						internalState.experimental3DRendering,
+						true,
+						precompositing.needsSvgClip !== null ||
+							internalState.experimental3DRendering,
+						{experimental3DRendering: internalState.experimental3DRendering},
 					),
 				}),
 			);
@@ -179,10 +188,7 @@ export const processNode = async ({
 			// Clip after every bounds union, including opacity and filter groups.
 			// Keep nearby offscreen input that can cast a drop-shadow into the viewport.
 			const outsets = precompositing.needsFilterPrecompositing
-				? parseDropShadowExpansion(
-						precompositing.needsFilterPrecompositing,
-						true,
-					)
+				? parseFilterOutsets(precompositing.needsFilterPrecompositing)
 				: {left: 0, right: 0, top: 0, bottom: 0};
 			const captureViewport = new DOMRect(
 				parentRect.left - outsets.right,
@@ -267,6 +273,32 @@ export const processNode = async ({
 			}),
 		);
 
+		if (precompositing.needsFilterPrecompositing) {
+			tempContext.save();
+			tempContext.resetTransform();
+			tempContext.globalAlpha = 1;
+			tempContext.globalCompositeOperation = 'copy';
+			applyFilterToDrawOperation({
+				context: tempContext,
+				filter: scaleFilterLengths(
+					precompositing.needsFilterPrecompositing,
+					layerScale,
+				),
+				drawFn: () => tempContext.drawImage(tempContext.canvas, 0, 0),
+			});
+			tempContext.restore();
+		}
+
+		if (precompositing.needsSvgClip) {
+			await handleSvgClip({
+				element,
+				resource: precompositing.needsSvgClip,
+				maskRect: dimensions,
+				precomposeRect: layerRect,
+				tempContext,
+			});
+		}
+
 		if (precompositing.needsMaskImage) {
 			await handleMask({
 				maskImageInfo: precompositing.needsMaskImage,
@@ -344,16 +376,7 @@ export const processNode = async ({
 				: () => {};
 
 		try {
-			// Apply filter when drawing the precomposed canvas if needed
-			if (precompositing.needsFilterPrecompositing) {
-				applyFilterToDrawOperation({
-					context,
-					filter: precompositing.needsFilterPrecompositing,
-					drawFn: drawPrecomposedCanvas,
-				});
-			} else {
-				drawPrecomposedCanvas();
-			}
+			drawPrecomposedCanvas();
 		} finally {
 			finishOpacity();
 			context.globalCompositeOperation = previousCompositeOperation;

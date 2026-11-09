@@ -1,8 +1,12 @@
-import {test} from 'vitest';
+import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
+import {
+	calculateTransforms,
+	type TransformStyleCache,
+} from '../drawing/calculate-transforms';
 import {renderStillOnWeb} from '../render-still-on-web';
-import '../symbol-dispose';
 import {accumulatedTransforms} from './fixtures/accumulated-transforms';
+import '../symbol-dispose';
 import {complexNestedSvg} from './fixtures/complex-nested-svg';
 import {flexPositionedScaled} from './fixtures/flex-positioned-scaled';
 import {inside3dTransform} from './fixtures/inside-3d-transform';
@@ -16,10 +20,16 @@ import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {
+	transformPrecisionValues,
+	geometric2dTransforms,
+	transformGeometric2d,
+} from './fixtures/transform-precision';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {withMargin} from './fixtures/transforms/with-margin';
 import {withNegativeMargin} from './fixtures/transforms/with-negative-margin';
 import {unwrapped} from './fixtures/unwrapped';
+import {captureNativeReference, compareNativePixels} from './native-reference';
 import {testImage} from './utils';
 
 test('should be able to deal with a simple transform directly on the element', async () => {
@@ -278,4 +288,99 @@ test('SVG with explicit width/height props should render at specified size (issu
 	).blob({format: 'png'});
 
 	await testImage({blob, testId: 'svg-explicit-dimensions'});
+});
+
+// Rounded computed-style matrices lost native rotation/skew precision.
+test('preserves native transform precision across cached reads', (t) => {
+	if (
+		typeof CSSTransformValue === 'undefined' ||
+		!('computedStyleMap' in Element.prototype)
+	) {
+		t.skip();
+		return;
+	}
+
+	for (const transform of [
+		...transformPrecisionValues,
+		...geometric2dTransforms,
+	]) {
+		const element = document.createElement('div');
+		Object.assign(element.style, {
+			position: 'fixed',
+			left: '0px',
+			top: '0px',
+			width: '100px',
+			height: '80px',
+			transformOrigin: '0 0',
+			transform,
+		});
+		const child = document.createElement('div');
+		Object.assign(child.style, {position: 'absolute', inset: '0'});
+		element.appendChild(child);
+		document.body.appendChild(element);
+		try {
+			const value = element
+				.computedStyleMap()
+				.get('transform') as CSSTransformValue;
+			const reference = transform.includes('%')
+				? new DOMMatrix(getComputedStyle(element).transform)
+				: value.toMatrix();
+			const expectedIs2D = new DOMMatrix(getComputedStyle(element).transform)
+				.is2D;
+			const expected = Array.from(reference.toFloat64Array(), (n) =>
+				n === 0 ? 0 : n,
+			);
+			const cache: TransformStyleCache = new WeakMap();
+			for (let read = 0; read < 2; read++) {
+				using plan = calculateTransforms({
+					element: child,
+					rootElement: element,
+					transformStyleCache: cache,
+					isolated: false,
+				});
+				expect(
+					Array.from(plan.totalMatrix.toFloat64Array(), (n) =>
+						n === 0 ? 0 : n,
+					),
+				).toEqual(expected);
+				expect(plan.totalMatrix.is2D).toBe(expectedIs2D);
+				plan.totalMatrix.a = 42;
+			}
+		} finally {
+			element.remove();
+		}
+	}
+});
+
+test('keeps zero-angle 3D rotations geometrically 2D under strong downscaling', async () => {
+	for (const frame of [0, 1]) {
+		const blob = await (
+			await renderStillOnWeb({
+				licenseKey: 'free-license',
+				composition: transformGeometric2d,
+				frame,
+				inputProps: {},
+			})
+		).blob({format: 'png'});
+		const reference = await captureNativeReference(
+			transformGeometric2d,
+			frame,
+			{omitBackground: false},
+		);
+		expect((await compareNativePixels(reference, blob)).mismatchedPixels).toBe(
+			0,
+		);
+		const bitmap = await createImageBitmap(blob);
+		try {
+			const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+			const context = canvas.getContext('2d')!;
+			context.drawImage(bitmap, 0, 0);
+			for (const x of [25, 85])
+				expect(Array.from(context.getImageData(x, 25, 1, 1).data)).toEqual([
+					255, 0, 0, 255,
+				]);
+		} finally {
+			bitmap.close();
+		}
+	}
 });

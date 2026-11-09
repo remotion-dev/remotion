@@ -4,7 +4,7 @@ import {
 	preserves3DChildren,
 	type TransformStyleCache,
 } from './drawing/calculate-transforms';
-import {parseDropShadowExpansion} from './drawing/filter-outsets';
+import {parseFilterOutsets} from './drawing/filter-outsets';
 import {
 	clipPolygonToHalfPlanes,
 	clipSourceRectToViewport,
@@ -241,9 +241,8 @@ const planPreserve3DPlanes = ({
 
 				const filterOutsets = transforms.precompositing
 					.needsFilterPrecompositing
-					? parseDropShadowExpansion(
+					? parseFilterOutsets(
 							transforms.precompositing.needsFilterPrecompositing,
-							true,
 						)
 					: {left: 0, right: 0, top: 0, bottom: 0};
 				const filterViewport = new DOMRect(
@@ -254,8 +253,9 @@ const planPreserve3DPlanes = ({
 				);
 				const bounds = getBiggestBoundingClientRect(
 					node,
-					preserving,
+					true,
 					experimental3DRendering,
+					{onlyOwnPlane: preserving, experimental3DRendering},
 				);
 				const paintBounds = new DOMRect(
 					bounds.left - filterOutsets.left,

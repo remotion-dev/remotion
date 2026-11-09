@@ -1,6 +1,6 @@
 import {parseBoxShadow} from './drawing/draw-box-shadow';
 import {parseOutlineOffset, parseOutlineWidth} from './drawing/draw-outline';
-import {parseDropShadowExpansion} from './drawing/filter-outsets';
+import {parseFilterOutsets} from './drawing/filter-outsets';
 import {makeDOMMatrix} from './drawing/make-dom-matrix';
 import {skipToNextNonDescendant} from './walk-tree';
 
@@ -50,8 +50,12 @@ const getTextOverflowForLineHeight = (
 
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
-	onlyOwnPlane = false,
-	experimental3DRendering = false,
+	includePaintOutsets = true,
+	includeDescendantFilters = false,
+	{
+		onlyOwnPlane = false,
+		experimental3DRendering = false,
+	}: {onlyOwnPlane?: boolean; experimental3DRendering?: boolean} = {},
 ) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -64,15 +68,23 @@ export const getBiggestBoundingClientRect = (
 
 	while (true) {
 		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
-		const outlineWidth = parseOutlineWidth(computedStyle.outlineWidth);
-		const outlineOffset = parseOutlineOffset(computedStyle.outlineOffset);
+		const outlineWidth = includePaintOutsets
+			? parseOutlineWidth(computedStyle.outlineWidth)
+			: 0;
+		const outlineOffset = includePaintOutsets
+			? parseOutlineOffset(computedStyle.outlineOffset)
+			: 0;
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 
 		// Calculate text overflow for elements with line-height < 1
-		const textOverflow = getTextOverflowForLineHeight(computedStyle);
+		const textOverflow = includePaintOutsets
+			? getTextOverflowForLineHeight(computedStyle)
+			: {top: 0, bottom: 0};
 
 		// Calculate box shadow extensions
-		const shadows = parseBoxShadow(computedStyle.boxShadow);
+		const shadows = includePaintOutsets
+			? parseBoxShadow(computedStyle.boxShadow)
+			: [];
 		let shadowLeft = 0;
 		let shadowRight = 0;
 		let shadowTop = 0;
@@ -103,7 +115,9 @@ export const getBiggestBoundingClientRect = (
 		}
 
 		const filterOutsets = {left: 0, right: 0, top: 0, bottom: 0};
-		if (experimental3DRendering && treeWalker.currentNode !== element) {
+		// Clip reference bounds need descendant filters independently of outline,
+		// shadow and text padding. Existing layout-only callers do not opt in.
+		if (includeDescendantFilters && treeWalker.currentNode !== element) {
 			const ancestors: Element[] = [];
 			for (
 				let ancestor = treeWalker.currentNode as Element;
@@ -122,7 +136,7 @@ export const getBiggestBoundingClientRect = (
 				if (style.rotate !== 'none')
 					local = makeDOMMatrix(`rotate(${style.rotate})`).multiply(local);
 				matrix = matrix.multiply(local);
-				const expansion = parseDropShadowExpansion(style.filter, true);
+				const expansion = parseFilterOutsets(style.filter);
 				const transformed = {left: 0, right: 0, top: 0, bottom: 0};
 				for (const x of [-expansion.left, expansion.right]) {
 					for (const y of [-expansion.top, expansion.bottom]) {

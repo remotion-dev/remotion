@@ -321,18 +321,18 @@ test.skipIf(server.browser !== 'chromium')(
 			licenseKey: 'free-license',
 			allowHtmlInCanvas: false,
 		} as const;
-		const control = await pixels(
-			await (
-				await renderStillOnWeb({...options, experimental3DRendering: false})
-			).blob({format: 'png'}),
+		const native = await pixels(
+			await captureNativeReference(options.composition, 0, {
+				omitBackground: false,
+			}),
 		);
 		const actual = await pixels(
 			await (
 				await renderStillOnWeb({...options, experimental3DRendering: true})
 			).blob({format: 'png'}),
 		);
-		// Full native .5 comparisons remain a separate exact diagnostic; Canvas
-		// compositing still differs by one channel value on an opaque backdrop.
+		// Keep all four halo samples tied to browser painting. The full-frame
+		// native diagnostic remains separately inexact on the opaque backdrop.
 		for (const [x, y] of [
 			[95, 150],
 			[205, 150],
@@ -341,7 +341,7 @@ test.skipIf(server.browser !== 'chromium')(
 		]) {
 			const offset = (y * size.width + x) * 4;
 			expect(Array.from(actual.slice(offset, offset + 4))).toEqual(
-				Array.from(control.slice(offset, offset + 4)),
+				Array.from(native.slice(offset, offset + 4)),
 			);
 		}
 	},

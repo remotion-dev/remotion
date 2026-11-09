@@ -1,5 +1,6 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
-import {parseDropShadowExpansion} from './filter-outsets';
+import {splitAtTopLevel} from './background-image-rect';
+import {parseFilterOutsets} from './filter-outsets';
 
 /**
  * Gets the precompose rect for an element with a filter that requires precompositing.
@@ -8,15 +9,13 @@ import {parseDropShadowExpansion} from './filter-outsets';
 export const getPrecomposeRectForFilter = ({
 	element,
 	filter,
-	experimental3DRendering = false,
 }: {
 	element: HTMLElement | SVGElement;
 	filter: string;
-	experimental3DRendering?: boolean;
 }): DOMRect => {
 	// Use getBiggestBoundingClientRect to include all children that may overflow
 	const elementRect = getBiggestBoundingClientRect(element);
-	const expansion = parseDropShadowExpansion(filter, experimental3DRendering);
+	const expansion = parseFilterOutsets(filter);
 
 	return new DOMRect(
 		elementRect.left - expansion.left,
@@ -42,4 +41,19 @@ export const applyFilterToDrawOperation = ({
 	context.filter = filter;
 	drawFn();
 	context.filter = previousFilter;
+};
+
+// Canvas filter lengths use bitmap pixels independently of the context transform.
+export const scaleFilterLengths = (filter: string, scale: number) => {
+	if (scale === 1) return filter;
+	return splitAtTopLevel(filter, ' ')
+		.map((operation) =>
+			operation.startsWith('url(')
+				? operation
+				: operation.replace(
+						/([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)px/gi,
+						(_, value: string) => `${Number(value) * scale}px`,
+					),
+		)
+		.join(' ');
 };
