@@ -1,7 +1,7 @@
 ---
 name: remotion-markup
 description: Content, animation and effects best practices
-version: 4.0.541
+version: 4.0.542
 ---
 
 This is guidance for writing Remotion React Markup.

@@ -18,9 +18,14 @@ import {
 import {
 	applyFilterToDrawOperation,
 	applySvgFilterToPrecomposedCanvas,
+	scaleFilterLengths,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
-import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {
+	getPrecomposeRectForMask,
+	handleMask,
+	handleSvgClip,
+} from './handle-mask';
 import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
@@ -91,7 +96,7 @@ export const processNode = async ({
 		const start = Date.now();
 
 		let precomposeRect: DOMRect | null = null;
-		if (precompositing.needsMaskImage) {
+		if (precompositing.needsMaskImage || precompositing.needsSvgClip) {
 			precomposeRect = roundToExpandRect(getPrecomposeRectForMask(element));
 		}
 
@@ -130,13 +135,18 @@ export const processNode = async ({
 		const needsGroup =
 			precompositing.needsBlendMode !== null ||
 			precompositing.needsIsolation ||
+			precompositing.needsSvgClip !== null ||
 			precompositing.needsFilterPrecompositing?.includes('url(') === true;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
 				getWiderRectAndExpand({
 					firstRect: precomposeRect,
-					secondRect: getBiggestBoundingClientRect(element),
+					secondRect: getBiggestBoundingClientRect(
+						element,
+						true,
+						precompositing.needsSvgClip !== null,
+					),
 				}),
 			);
 		}
@@ -225,6 +235,32 @@ export const processNode = async ({
 			tempContext.restore();
 		}
 
+		if (precompositing.needsFilterPrecompositing && !svgFilteredLayer) {
+			tempContext.save();
+			tempContext.resetTransform();
+			tempContext.globalAlpha = 1;
+			tempContext.globalCompositeOperation = 'copy';
+			applyFilterToDrawOperation({
+				context: tempContext,
+				filter: scaleFilterLengths(
+					precompositing.needsFilterPrecompositing,
+					layerScale,
+				),
+				drawFn: () => tempContext.drawImage(tempContext.canvas, 0, 0),
+			});
+			tempContext.restore();
+		}
+
+		if (precompositing.needsSvgClip) {
+			await handleSvgClip({
+				element,
+				resource: precompositing.needsSvgClip,
+				maskRect: dimensions,
+				precomposeRect: layerRect,
+				tempContext,
+			});
+		}
+
 		if (precompositing.needsMaskImage) {
 			await handleMask({
 				maskImageInfo: precompositing.needsMaskImage,
@@ -300,16 +336,7 @@ export const processNode = async ({
 			? setOpacity({ctx: context, opacity})
 			: () => {};
 
-		// Apply filter when drawing the precomposed canvas if needed
-		if (precompositing.needsFilterPrecompositing && !svgFilteredLayer) {
-			applyFilterToDrawOperation({
-				context,
-				filter: precompositing.needsFilterPrecompositing,
-				drawFn: drawPrecomposedCanvas,
-			});
-		} else {
-			drawPrecomposedCanvas();
-		}
+		drawPrecomposedCanvas();
 
 		finishOpacity();
 		context.globalCompositeOperation = previousCompositeOperation;
@@ -340,6 +367,7 @@ export const processNode = async ({
 		draw,
 		opacity,
 		totalMatrix,
+		hasCssTransform: transforms.hasCssTransform,
 		parentRect,
 		logLevel,
 		element,
