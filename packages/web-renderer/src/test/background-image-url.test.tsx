@@ -1,9 +1,14 @@
 import {AbsoluteFill} from 'remotion';
 import {expect, test} from 'vitest';
-import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
+import '../symbol-dispose';
+import {createPixelatedBackgroundSamplerLifetime} from './fixtures/background-image-pixelated-sampler-lifetime';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {
+	backgroundImagePixelated,
+	backgroundImagePixelatedContexts,
+} from './fixtures/background-image-url-pixelated';
 import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {
 	captureNativeReference,
@@ -15,9 +20,13 @@ import {testImage} from './utils';
 test
 	.skipIf(!navigator.userAgent.includes('Chrome'))
 	.each(
-		[backgroundImageUrl, backgroundImageContain, backgroundImageRound].flatMap(
-			(fixture) => [0, 1].map((frame) => ({fixture, frame})),
-		),
+		[
+			backgroundImageUrl,
+			backgroundImageContain,
+			backgroundImageRound,
+			backgroundImagePixelated,
+			backgroundImagePixelatedContexts,
+		].flatMap((fixture) => [0, 1].map((frame) => ({fixture, frame}))),
 	)(
 	'raster $fixture.id matches native frame $frame',
 	{timeout: 30_000},
@@ -130,4 +139,28 @@ test('renders native contain tile repeat periods', async () => {
 		threshold: 0,
 		allowedMismatchedPixelRatio: 0,
 	});
+});
+
+// Pixelated patterns must not change the sampler used by later auto backgrounds.
+test('pixelated backgrounds restore smoothing before later siblings', async () => {
+	const render = async (paintPixelated: boolean) =>
+		(
+			await renderStillOnWeb({
+				composition: createPixelatedBackgroundSamplerLifetime(paintPixelated),
+				frame: 0,
+				inputProps: {},
+				licenseKey: 'free-license',
+				allowHtmlInCanvas: false,
+			})
+		).blob({format: 'png'});
+	const control = await render(false);
+	const afterPixelated = await render(true);
+	const result = await compareNativePixels(control, afterPixelated);
+	if (result.mismatchedPixels > 0) {
+		await savePixelEvidence(control, 'pixelated-state-control');
+		await savePixelEvidence(afterPixelated, 'pixelated-state-after');
+		await savePixelEvidence(result.diff, 'pixelated-state-diff');
+	}
+
+	expect(result.mismatchedPixels).toBe(0);
 });
