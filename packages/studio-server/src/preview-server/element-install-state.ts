@@ -20,6 +20,7 @@ export type StudioProtocolTargetPurpose =
 	| 'add-element-library';
 
 const targetsByClientId = new Map<string, ElementInstallTarget>();
+const targetListeners = new Set<(target: ElementInstallTarget) => void>();
 
 type StudioProtocolTarget = {
 	readonly id: string;
@@ -45,25 +46,41 @@ const compareTargets = (a: ElementInstallTarget, b: ElementInstallTarget) => {
 export const updateElementInstallTarget = (
 	newTarget: Omit<ElementInstallTarget, 'updatedAt'>,
 ) => {
-	targetsByClientId.set(newTarget.clientId, {
+	const target = {
 		...newTarget,
 		updatedAt: Date.now(),
-	});
+	};
+	targetsByClientId.set(newTarget.clientId, target);
+	for (const listener of targetListeners) {
+		listener(target);
+	}
+};
+
+export const subscribeToElementInstallTargets = (
+	listener: (target: ElementInstallTarget) => void,
+) => {
+	targetListeners.add(listener);
+	return () => {
+		targetListeners.delete(listener);
+	};
 };
 
 export const getElementInstallTargetByClientId = (clientId: string) => {
 	return targetsByClientId.get(clientId) ?? null;
 };
 
-export const getElementInstallTarget = (requestId: string | null) => {
+export const getElementInstallTarget = (
+	requestId: string | null,
+	targets = targetsByClientId,
+) => {
 	const now = Date.now();
 	let bestTarget: ElementInstallTarget | null = null;
 	let unfocusedTarget: ElementInstallTarget | null = null;
 	let multipleUnfocusedTargets = false;
 
-	for (const [clientId, currentTarget] of targetsByClientId) {
+	for (const [clientId, currentTarget] of targets) {
 		if (now - currentTarget.updatedAt >= ELEMENT_INSTALL_TARGET_MAX_AGE) {
-			targetsByClientId.delete(clientId);
+			targets.delete(clientId);
 			continue;
 		}
 

@@ -59,6 +59,7 @@ test('deleting a JSX node broadcasts node path mutations for all clients', async
 	const events: EventSourceEvent[] = [];
 	const mutationBroadcastFileContents: string[] = [];
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),

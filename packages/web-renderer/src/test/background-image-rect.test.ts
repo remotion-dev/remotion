@@ -75,3 +75,25 @@ test('retains scientific notation magnitude in computed positions', () => {
 		resolvePosition({containerSize: 100, imageSize: 50, value: '1e+06px'}),
 	).toBe(1e6);
 });
+
+// KINO-7766: round fits a whole tile count and restores an auto axis's ratio.
+test.each([
+	{repeat: 'round', size: '35px 35px', width: 32, height: 32},
+	{repeat: 'round repeat', size: '35px auto', width: 32, height: 16},
+	{repeat: 'repeat round', size: 'auto 35px', width: 64, height: 32},
+	{repeat: 'round', size: '200px 200px', width: 96, height: 96},
+	{repeat: 'round repeat', size: '0px auto', width: 0, height: 0},
+])(
+	'sizes round tiles for $repeat and $size',
+	({repeat, size, width, height}) => {
+		const rect = getBackgroundImageRect({
+			backgroundSize: size,
+			backgroundPosition: '0% 0%',
+			backgroundRepeat: repeat,
+			positioningArea: new DOMRect(0, 0, 96, 96),
+			intrinsicSize: {width: 16, height: 8},
+		});
+		expect(rect.width).toBe(width);
+		expect(rect.height).toBe(height);
+	},
+);

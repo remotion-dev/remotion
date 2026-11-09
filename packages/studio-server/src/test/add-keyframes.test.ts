@@ -94,6 +94,7 @@ test('addKeyframes batches sequence and effect adds into one undo entry', async 
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -178,6 +179,7 @@ test('first keyframe in a concise-arrow component remaps its JSX node path for t
 	);
 	const events: EventSourceEvent[] = [];
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
@@ -313,6 +315,7 @@ test('addKeyframes adds a missing effect prop before keyframing it', async () =>
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
