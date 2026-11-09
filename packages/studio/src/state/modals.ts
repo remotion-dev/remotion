@@ -36,8 +36,6 @@ import type {StaticFile} from '../api/get-static-files';
 import type {CompType} from '../components/NewComposition/DuplicateComposition';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
-import type {useTimelineSelection} from '../components/Timeline/TimelineSelection';
-import type {SequenceNodePathInfo} from '../helpers/get-timeline-sequence-sort-key';
 
 export type WebRenderModalState = {
 	type: 'web-render';
@@ -152,14 +150,6 @@ export type SvgImportDialogState = {
 	onDismiss: () => void;
 };
 
-export type AddEffectModalState = {
-	type: 'add-effect';
-	fileName: string;
-	nodePathInfo: SequenceNodePathInfo;
-	clientId: string;
-	selectItems: ReturnType<typeof useTimelineSelection>['selectItems'];
-};
-
 export type AssetSelectionModalState = {
 	readonly type: 'asset-selection';
 	readonly assetType: 'audio' | 'video' | 'image';
@@ -244,6 +234,11 @@ export type ModalState =
 			parentName: string | null;
 			stack: string | null;
 			canvasCapture: CanvasCaptureImport | null;
+			openTimeline: {
+				name: string;
+				contents: string;
+				mediaDirectory: string | null;
+			} | null;
 	  }
 	| {
 			type: 'new-folder';
@@ -382,7 +377,6 @@ export type ModalState =
 	  }
 	| ElementLibraryModalState
 	| ElementInstallModalState
-	| AddEffectModalState
 	| AssetSelectionModalState
 	| TranscriptionModalState
 	| VideoMattingModalState

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { z } from "zod";
 import { CompositionProps } from "../../types/constants";
-import { getProgress, renderVideo } from "../lambda/api";
+import { renderVideo } from "../lambda/api";
 
 export type State =
   | {
@@ -27,14 +27,6 @@ export type State =
       status: "done";
     };
 
-const wait = async (milliSeconds: number) => {
-  await new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, milliSeconds);
-  });
-};
-
 export const useRendering = (
   id: string,
   inputProps: z.infer<typeof CompositionProps>,
@@ -47,57 +39,51 @@ export const useRendering = (
     setState({
       status: "invoking",
     });
+    let renderId: string | null = null;
     try {
-      const { renderId, bucketName } = await renderVideo({ id, inputProps });
-      setState({
-        status: "rendering",
-        progress: 0,
-        renderId: renderId,
-        bucketName: bucketName,
+      await renderVideo({
+        id,
+        inputProps,
+        onEvent: (event) => {
+          switch (event.type) {
+            case "started": {
+              renderId = event.renderId;
+              setState({
+                status: "rendering",
+                renderId: event.renderId,
+                bucketName: event.bucketName,
+                progress: 0,
+              });
+              break;
+            }
+            case "progress": {
+              setState((current) =>
+                current.status === "rendering"
+                  ? { ...current, progress: event.progress }
+                  : current,
+              );
+              break;
+            }
+            case "done": {
+              setState({ status: "done", url: event.url, size: event.size });
+              break;
+            }
+            case "error": {
+              setState({
+                status: "error",
+                renderId,
+                error: new Error(event.message),
+              });
+              break;
+            }
+          }
+        },
       });
-
-      let pending = true;
-
-      while (pending) {
-        const result = await getProgress({
-          id: renderId,
-          bucketName: bucketName,
-        });
-        switch (result.type) {
-          case "error": {
-            setState({
-              status: "error",
-              renderId: renderId,
-              error: new Error(result.message),
-            });
-            pending = false;
-            break;
-          }
-          case "done": {
-            setState({
-              size: result.size,
-              url: result.url,
-              status: "done",
-            });
-            pending = false;
-            break;
-          }
-          case "progress": {
-            setState({
-              status: "rendering",
-              bucketName: bucketName,
-              progress: result.progress,
-              renderId: renderId,
-            });
-            await wait(1000);
-          }
-        }
-      }
     } catch (err) {
       setState({
         status: "error",
-        error: err as Error,
-        renderId: null,
+        renderId,
+        error: err instanceof Error ? err : new Error(String(err)),
       });
     }
   }, [id, inputProps]);

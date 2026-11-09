@@ -1,7 +1,7 @@
 ---
 name: remotion-captions
 description: Transcribing, displaying and animating captions
-version: 4.0.540
+version: 4.0.542
 ---
 
 All captions must be processed in JSON. The captions must use the [`Caption`](https://www.remotion.dev/docs/captions/caption.md) type which is the following:
@@ -39,4 +39,4 @@ To import captions from a .srt file, load the [import-srt-captions.md](import-sr
 
 After you're done, load this skill: [Remotion Best Practices](../remotion-best-practices/SKILL.md)
 
-If not alreay done, open the Remotion Studio, unless instructed otherwise.
+If not already done, open the Remotion Studio, unless instructed otherwise.

@@ -565,18 +565,22 @@ const getAudioRollingCursorTranslate = (frame: number) =>
 
 const TimelineAudioRollingEditContent = ({
 	cursorSpin,
+	plainAngle,
 }: {
 	readonly cursorSpin: boolean;
+	readonly plainAngle: boolean;
 }) => {
 	const {fps} = useVideoConfig();
 	const motionFrame = useCurrentFrame();
 	// Include the lead-in, mouse-down at source frame 167, and the start of the drag.
-	const frame = cursorSpin
-		? 100 + (motionFrame * 60 * (70 / 51)) / fps
-		: (motionFrame * 60) / fps;
+	const frame = plainAngle
+		? -55 + (motionFrame * 60 * (347 / 140)) / fps
+		: cursorSpin
+			? 100 + (motionFrame * 60 * (70 / 51)) / fps
+			: (motionFrame * 60) / fps;
 	// Stop following the pointer before the press so its recorded drag stays visible.
 	const [focusX, focusY] = getAudioRollingCursorTranslate(
-		cursorSpin ? Math.min(frame, 166) : frame,
+		plainAngle ? 166 : cursorSpin ? Math.min(frame, 166) : frame,
 	)
 		.split(' ')
 		.map(Number.parseFloat);
@@ -613,7 +617,7 @@ const TimelineAudioRollingEditContent = ({
 					},
 				)}
 				customCursor={interpolate(
-					cursorSpin ? 119 : frame,
+					cursorSpin && !plainAngle ? 119 : frame,
 					[-47, 16, 79, 119],
 					[
 						'url("data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Cg%20transform%3D%22translate(32%200)%20scale(-1%201)%22%20filter%3D%22url(%23shadow)%22%3E%0A%3Cpath%20d%3D%22M23%204.5H18C16.9%204.5%2016%205.4%2016%206.5V25.5C16%2026.6%2016.9%2027.5%2018%2027.5H23%22%20stroke%3D%22white%22%20stroke-width%3D%225%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M23%204.5H18C16.9%204.5%2016%205.4%2016%206.5V25.5C16%2026.6%2016.9%2027.5%2018%2027.5H23%22%20stroke%3D%22black%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%0A%3C%2Fg%3E%0A%3Cdefs%3E%0A%3Cfilter%20id%3D%22shadow%22%20x%3D%220%22%20y%3D%220%22%20width%3D%2232%22%20height%3D%2232%22%20filterUnits%3D%22userSpaceOnUse%22%3E%0A%3CfeDropShadow%20dx%3D%220%22%20dy%3D%221.5%22%20stdDeviation%3D%221%22%20flood-color%3D%22black%22%20flood-opacity%3D%220.35%22%2F%3E%0A%3C%2Ffilter%3E%0A%3C%2Fdefs%3E%0A%3C%2Fsvg%3E") 12 12, ew-resize',
@@ -654,32 +658,38 @@ const TimelineAudioRollingEditContent = ({
 		<AbsoluteFill showInTimeline={false} style={{backgroundColor: '#15161b'}}>
 			<AbsoluteFill
 				name="Canvas Capture"
-				durationInFrames={((cursorSpin ? 452 : 552) / 60) * fps}
+				durationInFrames={
+					((plainAngle ? 607 : cursorSpin ? 452 : 552) / 60) * fps
+				}
 				style={{
 					width: 2560,
 					height: 1210,
 					left: cursorSpin ? '50%' : 0,
 					top: cursorSpin ? '50%' : 0,
 					transformOrigin: cursorSpin ? `${focusX}px ${focusY}px` : '50% 50%',
-					rotate: cursorSpin
-						? interpolate(frame, [100, 166], ['180deg', '0deg'], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-								easing: Easing.bezier(0.45, 0, 0.55, 1),
-							})
-						: '-0.210862 0.975956 -0.055193 30.026402deg',
-					scale: cursorSpin
-						? interpolate(frame, [100, 166], [3.2, 1.8], {
-								extrapolateLeft: 'clamp',
-								extrapolateRight: 'clamp',
-								easing: Easing.bezier(0.45, 0, 0.55, 1),
-								output: 'perceptual-scale',
-							})
-						: 1.476,
+					rotate: plainAngle
+						? '0.904608 0.351506 -0.241096 27.995464deg'
+						: cursorSpin
+							? interpolate(frame, [100, 166], ['180deg', '0deg'], {
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+									easing: Easing.bezier(0.45, 0, 0.55, 1),
+								})
+							: '-0.210862 0.975956 -0.055193 30.026402deg',
+					scale: plainAngle
+						? 1.8
+						: cursorSpin
+							? interpolate(frame, [100, 166], [3.2, 1.8], {
+									extrapolateLeft: 'clamp',
+									extrapolateRight: 'clamp',
+									easing: Easing.bezier(0.45, 0, 0.55, 1),
+									output: 'perceptual-scale',
+								})
+							: 1.476,
 					translate: cursorSpin ? `${-focusX}px ${-focusY}px` : '-800px -519px',
 				}}
-				trimBefore={((cursorSpin ? 345 : 245) / 60) * fps}
-				playbackRate={cursorSpin ? 70 / 51 : 1}
+				trimBefore={((plainAngle ? 190 : cursorSpin ? 345 : 245) / 60) * fps}
+				playbackRate={plainAngle ? 347 / 140 : cursorSpin ? 70 / 51 : 1}
 			>
 				{!cursorSpin && HtmlInCanvas.isSupported() ? (
 					<HtmlInCanvas
@@ -717,7 +727,8 @@ const AudioRollingCursorMotionBlur = () => {
 		const settledFrame = (66 * fps) / (60 * (70 / 51));
 		const pauseEndFrame = Math.ceil(settledFrame) + Math.round(0.2 * fps);
 		const lastFrame = durationInFrames - 1;
-		const dragEndFrame = settledFrame + ((51 / 30) * fps - 1 - settledFrame) * 1.5;
+		const dragEndFrame =
+			settledFrame + ((51 / 30) * fps - 1 - settledFrame) * 1.5;
 
 		return (
 			<AbsoluteFill
@@ -742,7 +753,7 @@ const AudioRollingCursorMotionBlur = () => {
 						{extrapolateLeft: 'clamp'},
 					)}
 				>
-					<TimelineAudioRollingEditContent cursorSpin />
+					<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
 				</Freeze>
 			</AbsoluteFill>
 		);
@@ -769,7 +780,7 @@ const AudioRollingCursorMotionBlur = () => {
 							overflow: 'visible',
 						}}
 					>
-						<TimelineAudioRollingEditContent cursorSpin />
+						<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
 					</div>
 				</HtmlInCanvasMotionBlur>
 			</div>
@@ -788,10 +799,10 @@ const AudioRollingCursorMotionBlur = () => {
 		>
 			<Freeze frame={Math.max(0, motionFrame + (sample + 0.5) / samples - 0.5)}>
 				{sample === Math.floor(samples / 2) ? (
-					<TimelineAudioRollingEditContent cursorSpin />
+					<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
 				) : (
 					<Internals.DisableSequenceRegistrationProvider>
-						<TimelineAudioRollingEditContent cursorSpin />
+						<TimelineAudioRollingEditContent cursorSpin plainAngle={false} />
 					</Internals.DisableSequenceRegistrationProvider>
 				)}
 			</Freeze>
@@ -801,8 +812,10 @@ const AudioRollingCursorMotionBlur = () => {
 
 const TimelineAudioRollingEditCompositionContent = ({
 	cursorSpin,
+	plainAngle,
 }: {
 	readonly cursorSpin: boolean;
+	readonly plainAngle: boolean;
 }) => {
 	const {width, height} = useVideoConfig();
 
@@ -823,10 +836,13 @@ const TimelineAudioRollingEditCompositionContent = ({
 					overflow: 'visible',
 				}}
 			>
-				{cursorSpin ? (
+				{cursorSpin && !plainAngle ? (
 					<AudioRollingCursorMotionBlur />
 				) : (
-					<TimelineAudioRollingEditContent cursorSpin={false} />
+					<TimelineAudioRollingEditContent
+						cursorSpin={cursorSpin}
+						plainAngle={plainAngle}
+					/>
 				)}
 			</div>
 		</AbsoluteFill>
@@ -838,6 +854,11 @@ export const TimelineAudioRollingEditComposition = Interactive.create({
 	layout: 'absolute-fill',
 	schema: {
 		...Interactive.backgroundSchema,
+		plainAngle: {
+			type: 'boolean',
+			default: false,
+			description: 'Fixed angled view without the half turn or motion blur',
+		},
 		cursorSpin: {
 			type: 'boolean',
 			default: false,

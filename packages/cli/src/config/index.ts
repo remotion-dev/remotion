@@ -144,6 +144,7 @@ const {
 	defaultPremountInSecondsOption,
 	showLayerFrameNumbersOption,
 	preservePitchOnPlaybackOption,
+	highContrastOption,
 	showPremountingOption,
 	askAIOption,
 	publicLicenseKeyOption,
@@ -683,6 +684,8 @@ type FlatConfig = RemotionConfigObject &
 		 * Default: 2.
 		 */
 		setDefaultPremountInSeconds: (seconds: number) => void;
+		/** Increase contrast in Remotion Studio. Defaults to false. */
+		setHighContrast: (enabled: boolean) => void;
 		/**
 		 * Show premounting indicators in the Studio timeline.
 		 * @default false
@@ -933,6 +936,7 @@ export const Config: FlatConfig = {
 	setDefaultCodingAgent: defaultCodingAgentOption.setConfig,
 	setDefaultEditor: defaultEditorOption.setConfig,
 	setDefaultPremountInSeconds: defaultPremountInSecondsOption.setConfig,
+	setHighContrast: highContrastOption.setConfig,
 	setShowPremounting: showPremountingOption.setConfig,
 	setShowLayerFrameNumbers: showLayerFrameNumbersOption.setConfig,
 	setForceNewStudioEnabled: forceNewStudioOption.setConfig,

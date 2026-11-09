@@ -8,6 +8,7 @@ type ExtractFrameResult =
 			type: 'success';
 			frame: VideoFrame | null;
 			rotation: number;
+			flip: boolean;
 			durationInSeconds: number | null;
 	  }
 	| {type: 'cannot-decode'; durationInSeconds: number | null; error: Error}
@@ -114,6 +115,7 @@ const extractFrameInternal = async ({
 			type: 'success',
 			frame: null,
 			rotation: 0,
+			flip: false,
 			durationInSeconds: await sink.getDuration(),
 		};
 	}
@@ -137,17 +139,17 @@ const extractFrameInternal = async ({
 				type: 'success',
 				frame: null,
 				rotation: 0,
+				flip: false,
 				durationInSeconds: await sink.getDuration(),
 			};
 		}
 
 		const frame = await keyframeBank.getFrameFromTimestamp(timeInSeconds, fps);
-		const rotation = frame?.rotation ?? 0;
-
 		return {
 			type: 'success',
 			frame: frame?.toVideoFrame() ?? null,
-			rotation,
+			rotation: frame?.rotation ?? 0,
+			flip: frame?.flip ?? false,
 			durationInSeconds: await sink.getDuration(),
 		};
 	} catch (err) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {
 	CURRENT_COLOR,
 	LIGHT_TEXT,
@@ -6,7 +6,11 @@ import {
 	WHITE,
 	getBackgroundFromHoverState,
 } from '../../helpers/colors';
-import {HOVERABLE_CLASS_NAME, hoverableStyle} from '../../helpers/hoverable';
+import {
+	HOVERABLE_CLASS_NAME,
+	NO_HOVER_BACKGROUND_STYLE,
+	hoverableStyle,
+} from '../../helpers/hoverable';
 import {INSPECTOR_PANEL_HORIZONTAL_PADDING} from '../InspectorPanelLayout';
 import {COMPACT_CONTROL_ROW_HEIGHT, COMPACT_INLINE_ROW_HEIGHT} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -31,41 +35,137 @@ export const InspectorQuickActionsSection: React.FC<{
 	readonly children: React.ReactNode;
 }> = ({children}) => <div style={inspectorQuickActionsSection}>{children}</div>;
 
-const collapsedSectionBody: React.CSSProperties = {
-	...inspectorSectionBody,
-	display: 'none',
-};
-
 export const InspectorSectionBody: React.FC<{
 	readonly children: React.ReactNode;
 	readonly expanded: boolean;
+	readonly keepMounted: boolean;
 	readonly paddingBottom: number;
-}> = ({children, expanded, paddingBottom}) => {
-	if (children === null) {
+}> = ({children, expanded, keepMounted, paddingBottom}) => {
+	const [transition, setTransition] = useState({
+		expanded,
+		active: false,
+		fromHidden: false,
+	});
+	const contentRef = useRef<HTMLDivElement>(null);
+	const clipRef = useRef<HTMLDivElement>(null);
+	const lastExpandedChildren = useRef(children);
+	if (transition.expanded !== expanded) {
+		setTransition({
+			expanded,
+			active: true,
+			fromHidden: !transition.expanded && !transition.active,
+		});
+	}
+
+	if (expanded) {
+		lastExpandedChildren.current = children;
+	}
+
+	useLayoutEffect(() => {
+		if (!transition.active) {
+			return;
+		}
+
+		const content = contentRef.current;
+		const clip = clipRef.current;
+		const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const finishTransition = () => {
+			setTransition({expanded, active: false, fromHidden: false});
+		};
+
+		if (
+			reducedMotion.matches ||
+			!content ||
+			!clip ||
+			lastExpandedChildren.current === null
+		) {
+			finishTransition();
+			return;
+		}
+
+		if (expanded && transition.fromHidden) {
+			content.style.gridTemplateRows = '0fr';
+			content.style.opacity = '0';
+			clip.style.maskSize = '100% 100%';
+			clip.style.webkitMaskSize = '100% 100%';
+			content.getBoundingClientRect();
+			content.style.gridTemplateRows = '1fr';
+			content.style.opacity = '1';
+			clip.style.removeProperty('mask-size');
+			clip.style.removeProperty('-webkit-mask-size');
+		}
+
+		const onReducedMotionChange = () => {
+			if (reducedMotion.matches) {
+				finishTransition();
+			}
+		};
+
+		reducedMotion.addEventListener('change', onReducedMotionChange);
+
+		return () => {
+			reducedMotion.removeEventListener('change', onReducedMotionChange);
+		};
+	}, [expanded, transition.active, transition.fromHidden]);
+
+	if (expanded && children === null) {
 		return null;
 	}
 
 	return (
 		<div
-			hidden={!expanded}
+			ref={contentRef}
+			className="__remotion-inspector-section-content"
+			data-expanded={expanded}
+			data-animating={transition.active}
+			aria-hidden={!expanded}
+			inert={!expanded}
+			onTransitionEnd={(event) => {
+				if (
+					event.target === event.currentTarget &&
+					event.propertyName === 'opacity'
+				) {
+					setTransition({expanded, active: false, fromHidden: false});
+				}
+			}}
 			style={{
-				...(expanded ? inspectorSectionBody : collapsedSectionBody),
-				paddingBottom,
+				display: expanded || transition.active ? 'grid' : 'none',
+				gridTemplateRows: expanded ? '1fr' : '0fr',
+				opacity: expanded ? 1 : 0,
+				visibility: expanded ? 'visible' : 'hidden',
+				pointerEvents: expanded ? undefined : 'none',
 			}}
 		>
-			{children}
+			<div
+				ref={clipRef}
+				className="__remotion-inspector-section-clip"
+				style={{minHeight: 0, overflow: 'hidden'}}
+			>
+				<div style={{...inspectorSectionBody, paddingBottom}}>
+					{expanded || keepMounted
+						? children
+						: transition.active
+							? lastExpandedChildren.current
+							: null}
+				</div>
+			</div>
 		</div>
 	);
 };
 
 export const InspectorSection: React.FC<{
 	readonly children: React.ReactNode;
+	readonly expanded: boolean;
 	readonly header: React.ReactNode;
-}> = ({children, header}) => {
+}> = ({children, expanded, header}) => {
 	return (
 		<>
 			<InspectorSectionHeader>{header}</InspectorSectionHeader>
-			<InspectorSectionBody expanded paddingBottom={8}>
+			<InspectorSectionBody
+				expanded={expanded}
+				keepMounted={false}
+				paddingBottom={8}
+			>
 				{children}
 			</InspectorSectionBody>
 		</>
@@ -179,6 +279,15 @@ const inlineLabelText: React.CSSProperties = {
 };
 
 const INSPECTOR_ACTION_ICON_SIZE = 18;
+
+export const INSPECTOR_HEADER_ACTION_WIDTH = 34;
+
+export const inspectorHeaderActionStyle: React.CSSProperties = {
+	...NO_HOVER_BACKGROUND_STYLE,
+	padding: '0 7px',
+	width: INSPECTOR_HEADER_ACTION_WIDTH,
+	flexShrink: 0,
+};
 
 export const inspectorActionIconStyle: React.CSSProperties = {
 	display: 'block',

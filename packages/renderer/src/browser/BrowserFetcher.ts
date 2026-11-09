@@ -156,7 +156,10 @@ export const downloadBrowser = async ({
 
 	if (await existsAsync(outputPath)) {
 		const installedVersion = readVersionFile(chromeMode);
-		if (installedVersion === expectedVersion) {
+		if (
+			installedVersion === expectedVersion &&
+			(await existsAsync(getRevisionInfo(chromeMode).executablePath))
+		) {
 			return getRevisionInfo(chromeMode);
 		}
 	}
@@ -186,13 +189,16 @@ export const downloadBrowser = async ({
 	try {
 		if (await existsAsync(outputPath)) {
 			const installedVersion = readVersionFile(chromeMode);
-			if (installedVersion === expectedVersion) {
+			if (
+				installedVersion === expectedVersion &&
+				(await existsAsync(getRevisionInfo(chromeMode).executablePath))
+			) {
 				return getRevisionInfo(chromeMode);
 			}
-
-			// VERSION file missing or mismatched - delete and re-download
-			fs.rmSync(outputPath, {recursive: true, force: true});
 		}
+
+		fs.rmSync(getVersionFilePath(chromeMode), {force: true});
+		fs.rmSync(outputPath, {recursive: true, force: true});
 
 		logDownloadUrl({url: downloadURL, logLevel, indent});
 
@@ -259,10 +265,9 @@ export const downloadBrowser = async ({
 			}
 		}
 
-		writeVersionFile(chromeMode, expectedVersion);
-
 		const revisionInfo = getRevisionInfo(chromeMode);
 		makeFileExecutableIfItIsNot(revisionInfo.executablePath);
+		writeVersionFile(chromeMode, expectedVersion);
 
 		return revisionInfo;
 	} finally {

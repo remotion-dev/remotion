@@ -1,5 +1,9 @@
 import type React from 'react';
-import {BLUE, BORDER_BLACK, WHITE} from '../../helpers/colors';
+import {
+	BORDER_BLACK,
+	PRIMARY_BUTTON_BACKGROUND,
+	WHITE,
+} from '../../helpers/colors';
 import {getMaxModalHeight, getMaxModalWidth} from '../ModalContainer';
 
 export const outerModalStyle: React.CSSProperties = {
@@ -72,7 +76,7 @@ export const icon: React.CSSProperties = {
 };
 
 export const buttonStyle: React.CSSProperties = {
-	backgroundColor: BLUE,
+	backgroundColor: PRIMARY_BUTTON_BACKGROUND,
 	color: WHITE,
 };
 

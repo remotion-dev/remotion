@@ -14,6 +14,7 @@ import {
 	Html5MediaTrimContext,
 } from '../audio/use-audio-frame.js';
 import {useMediaAudioState} from '../audio/use-media-audio-state.js';
+import {HtmlInCanvasAncestorContext} from '../HtmlInCanvasAncestorContext.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {useLogLevel, useMountTime} from '../log-level-context.js';
 import {random} from '../random.js';
@@ -22,7 +23,7 @@ import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useDelayRender} from '../use-delay-render.js';
-import {useAudioEnabled} from '../use-media-enabled.js';
+import {useAudioEnabled, useVideoEnabled} from '../use-media-enabled.js';
 import {useRemotionEnvironment} from '../use-remotion-environment.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
@@ -57,6 +58,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		audioStreamIndex,
 		onVideoFrame,
 		preservePitch,
+		crossOrigin,
 		...props
 	},
 	ref,
@@ -70,6 +72,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoConfig = useUnsafeVideoConfig();
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
+	const htmlInCanvasContext = useContext(HtmlInCanvasAncestorContext);
 	const sequencePlaybackRate = sequenceContext?.playbackRate ?? 1;
 	const audioStartFrame = useContext(Html5MediaTrimContext);
 
@@ -104,6 +107,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 
 	warnAboutTooHighVolume(volume);
 	const audioEnabled = useAudioEnabled();
+	const videoEnabled = useVideoEnabled();
 	const {shouldUseAudio} = useMediaAudioState({
 		muted: props.muted ?? false,
 		volume,
@@ -161,10 +165,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		return videoRef.current as HTMLVideoElement;
 	}, []);
 
-	useEmitVideoFrame({ref: videoRef, onVideoFrame});
+	useEmitVideoFrame({
+		ref: videoRef,
+		onVideoFrame: videoEnabled ? onVideoFrame : null,
+	});
 
 	useEffect(() => {
-		if (!window.remotion_videoEnabled) {
+		if (!videoEnabled) {
 			return;
 		}
 
@@ -257,6 +264,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			continueRender(handle);
 		};
 	}, [
+		videoEnabled,
 		volumePropsFrame,
 		props.src,
 		playbackRate,
@@ -279,6 +287,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (window.process?.env?.NODE_ENV === 'test') {
+				return;
+			}
+
+			if (!videoEnabled && !shouldUseAudio) {
 				return;
 			}
 
@@ -313,6 +325,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			};
 		}, [
 			src,
+			videoEnabled,
+			shouldUseAudio,
 			onDuration,
 			delayRenderRetries,
 			delayRenderTimeoutInMilliseconds,
@@ -321,7 +335,18 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		]);
 	}
 
-	return <video ref={videoRef} disableRemotePlayback {...props} />;
+	// The tag stays mounted while video is disabled: its metadata provides the
+	// duration that <Html5Video loop> needs to place its audio.
+	return (
+		<video
+			ref={videoRef}
+			disableRemotePlayback
+			{...props}
+			crossOrigin={
+				crossOrigin ?? (htmlInCanvasContext === null ? undefined : 'anonymous')
+			}
+		/>
+	);
 };
 
 export const VideoForRendering = forwardRef(

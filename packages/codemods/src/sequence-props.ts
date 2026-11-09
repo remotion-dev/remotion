@@ -11,7 +11,6 @@ import type {
 	ObjectExpression,
 	ObjectProperty,
 	TSAsExpression,
-	UnaryExpression,
 } from '@babel/types';
 import type {SubscribeToSequencePropsResponse} from '@remotion/studio-shared';
 import {LINEAR_KEYFRAME_EASING} from '@remotion/studio-shared/keyframe-easing-presets';
@@ -50,6 +49,7 @@ import {JsxElementNotFoundAtLocationError} from './sequence-props/jsx-element-no
 import {getKeyframeInterpolationFunctionForCallee} from './sequence-props/keyframe-interpolation-function';
 import {parseBorderRadiusShorthand} from './sequence-props/parse-border-radius-shorthand';
 import {parseKeyframeEasingExpression} from './sequence-props/parse-keyframe-easing-expression';
+import {getStaticNumericValue} from './sequence-props/static-numeric-value';
 import {parseVideoConfigNumericExpression} from './sequence-props/video-config-numeric-expression';
 import {
 	getVideoConfigIdentifiers,
@@ -147,11 +147,8 @@ export const isStaticValue = (
 		case 'NullLiteral':
 			return true;
 		case 'UnaryExpression':
-			return (
-				((node as UnaryExpression).operator === '-' ||
-					(node as UnaryExpression).operator === '+') &&
-				(node as UnaryExpression).argument.type === 'NumericLiteral'
-			);
+		case 'BinaryExpression':
+			return getStaticNumericValue(node) !== null;
 		case 'TSAsExpression':
 			return isStaticValue(
 				(node as TSAsExpression).expression as Expression,
@@ -199,16 +196,9 @@ export const extractStaticValue = (
 			return (node as {value: unknown}).value;
 		case 'NullLiteral':
 			return null;
-		case 'UnaryExpression': {
-			const un = node as UnaryExpression;
-			if (un.argument.type === 'NumericLiteral') {
-				const val = (un.argument as {value: number}).value;
-				return un.operator === '-' ? -val : val;
-			}
-
-			return undefined;
-		}
-
+		case 'UnaryExpression':
+		case 'BinaryExpression':
+			return getStaticNumericValue(node) ?? undefined;
 		case 'TSAsExpression':
 			return extractStaticValue(
 				(node as TSAsExpression).expression as Expression,
@@ -249,26 +239,6 @@ export const extractStaticValue = (
 		default:
 			return undefined;
 	}
-};
-
-const getNumericValue = (node: Expression): number | null => {
-	if (node.type === 'NumericLiteral') {
-		return node.value;
-	}
-
-	if (
-		node.type === 'UnaryExpression' &&
-		(node.operator === '-' || node.operator === '+') &&
-		node.argument.type === 'NumericLiteral'
-	) {
-		return node.operator === '-' ? -node.argument.value : node.argument.value;
-	}
-
-	if (node.type === 'TSAsExpression') {
-		return getNumericValue(node.expression as Expression);
-	}
-
-	return null;
 };
 
 const getExtrapolateType = (node: Expression): ExtrapolateType | null => {
@@ -478,7 +448,7 @@ const getInterpolationMetadata = (
 		}
 
 		if (key === 'posterize') {
-			const parsedPosterize = getNumericValue(value);
+			const parsedPosterize = getStaticNumericValue(value);
 			if (
 				parsedPosterize === null ||
 				!Number.isFinite(parsedPosterize) ||
@@ -1008,7 +978,7 @@ const resolveCurrentFrameExpression = ({
 		node.type === 'BinaryExpression' &&
 		(node.operator === '+' || node.operator === '-')
 	) {
-		const rightValue = getNumericValue(node.right as Expression);
+		const rightValue = getStaticNumericValue(node.right as Expression);
 		if (rightValue !== null && Number.isFinite(rightValue)) {
 			const resolvedLeft = resolveCurrentFrameExpression({
 				node: node.left as Expression,
@@ -1026,7 +996,7 @@ const resolveCurrentFrameExpression = ({
 		}
 
 		if (node.operator === '+') {
-			const leftValue = getNumericValue(node.left as Expression);
+			const leftValue = getStaticNumericValue(node.left as Expression);
 			if (leftValue !== null && Number.isFinite(leftValue)) {
 				const resolvedRight = resolveCurrentFrameExpression({
 					node: node.right as Expression,

@@ -28,7 +28,7 @@ const videoSources: Record<string, string> = {
 };
 
 const imageSources: Record<string, string> = {
-	SDK: 'https://remotion.media/explore-remotion/sdk-code-centered-2026-10-28-3f656f8f25f7.png',
+	SDK: 'https://remotion.media/explore-remotion/sdk-code-dark-plus-2026-11-04-785159157fed.png',
 };
 
 export const ExploreSection: React.FC = () => {
@@ -127,7 +127,7 @@ export const ExploreSection: React.FC = () => {
 					},
 					{
 						title: 'Background removal',
-						href: '/docs/video-matting',
+						href: '/docs/video-matting-guide',
 						description: 'Separate layers locally using WebGPU',
 					},
 					{

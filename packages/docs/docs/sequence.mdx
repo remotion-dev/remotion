@@ -278,12 +278,13 @@ import {interpolate, Sequence, useCurrentFrame} from 'remotion';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
-  const cropLeft = interpolate(frame, [0, 30], [0, 0.5], {
-    extrapolateRight: 'clamp',
-  });
 
   return (
-    <Sequence cropLeft={cropLeft}>
+    <Sequence
+      cropLeft={interpolate(frame, [0, 30], [0, 0.5], {
+        extrapolateRight: 'clamp',
+      })}
+    >
       <div>Revealed from the left</div>
     </Sequence>
   );

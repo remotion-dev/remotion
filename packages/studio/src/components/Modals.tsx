@@ -13,7 +13,6 @@ import {AssetSelectorModal} from './AssetSelectorModal';
 import {BrowserStudioExperimentingNotice} from './BrowserStudioExperimentingNotice';
 import {callApi} from './call-api';
 import {ConfirmationDialog, useConfirmationDialog} from './ConfirmationDialog';
-import {EffectPickerModal} from './EffectPickerModal';
 import {
 	ElementInstallConfirmation,
 	ElementLibraryAddConfirmation,
@@ -283,6 +282,7 @@ export const Modals: React.FC<{
 					parentName={modalContextType.parentName}
 					stack={modalContextType.stack}
 					canvasCapture={modalContextType.canvasCapture}
+					openTimeline={modalContextType.openTimeline}
 				/>
 			)}
 			{modalContextType && modalContextType.type === 'new-folder' && (
@@ -491,9 +491,6 @@ export const Modals: React.FC<{
 			{modalContextType?.type === 'element-install' && library === null ? (
 				<ElementInstallConfirmation state={modalContextType} />
 			) : null}
-			{modalContextType && modalContextType.type === 'add-effect' && (
-				<EffectPickerModal state={modalContextType} />
-			)}
 			{modalContextType && modalContextType.type === 'confirmation-dialog' && (
 				<ConfirmationDialog state={modalContextType} />
 			)}

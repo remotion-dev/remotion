@@ -37,7 +37,6 @@ export const videoSchema: InteractivitySchema = {
 	},
 	...Internals.baseSchema,
 	trimAfter: Internals.trimAfterField,
-	...Internals.premountSchema,
 	volume: {
 		type: 'number',
 		min: 0,
@@ -367,6 +366,7 @@ const VideoInner: React.FC<
 	const memoizedEffects = Internals.useMemoizedEffects({
 		effects: effects ?? [],
 		overrideId: controls?.overrideId ?? null,
+		runtimeValues: controls?.runtimeValues ?? null,
 		videoConfigValues: controls?.videoConfigValues ?? null,
 	});
 	const memoizedEffectDefinitions = Internals.useMemoizedEffectDefinitions(

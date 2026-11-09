@@ -11,6 +11,7 @@ export const MIN_TIMEOUT = 15;
 export const MAX_TIMEOUT = 900;
 
 export const DEFAULT_FRAMES_PER_LAMBDA = 20;
+export {MINIMUM_FRAMES_PER_FUNCTION} from './shared-constants';
 
 export const BINARY_NAME = 'remotion lambda';
 export const DEFAULT_REGION: AwsRegion = 'us-east-1';

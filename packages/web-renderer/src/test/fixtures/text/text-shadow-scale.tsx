@@ -1,10 +1,6 @@
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 
-// A single glyph with a hard, blur-free horizontal text-shadow offset far
-// enough to the right that the (red) shadow is fully separated from the
-// (black) glyph. Used to assert that the shadow offset scales with the export
-// `scale` option instead of staying at its unscaled pixel size.
 const Component: React.FC = () => {
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
@@ -16,7 +12,9 @@ const Component: React.FC = () => {
 					fontSize: 40,
 					fontWeight: 'bold',
 					color: 'black',
-					textShadow: '60px 0px 0px red',
+					opacity: 0.45,
+					textShadow:
+						'60px 0px 0px red, 65px 0px 0px red, 70px 0px 0px red, 75px 0px 0px red',
 				}}
 			>
 				1

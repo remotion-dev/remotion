@@ -34,6 +34,14 @@ import {
 } from '../helpers/get-timeline-max-zoom';
 import type {TimelineTrackData} from '../helpers/get-timeline-sequence-sort-key';
 import {isStudioInteractivityEnabled} from '../helpers/interactivity-enabled';
+import {
+	applyOptimisticCompositionOperations,
+	getActiveOptimisticCompositionOperations,
+} from '../helpers/optimistic-composition-operations';
+import {
+	getProjectedEffectPropStatuses,
+	projectEffectSequence,
+} from '../helpers/optimistic-effect-projection';
 import {getRenderOutputPlaybackTarget} from '../helpers/render-output-playback';
 import {
 	EditorShowGuidesContext,
@@ -62,11 +70,7 @@ import {
 import {useRenderJobRetry} from './RenderQueue/render-retry';
 import {measureOutlineTargets} from './selected-outline-measurement';
 import {getPendingTimelineTimingEdits} from './Timeline/commit-timeline-timing-edit';
-import {
-	deleteEffectsFromSource,
-	getPendingEffectDeletions,
-	isEffectDeletionPending,
-} from './Timeline/delete-effects-from-source';
+import {deleteEffectsFromSource} from './Timeline/delete-effects-from-source';
 import {
 	duplicateSequencesFromSource,
 	getPendingSequenceDuplications,
@@ -221,7 +225,23 @@ const WebMcpSelectionSync: FC<{
 }> = ({currentSelectionRef, selectedSequenceRef}) => {
 	const {selectedItems} = useTimelineSelection();
 	const selectedItem = selectedItems.length === 1 ? selectedItems[0] : null;
-	const track = useTrackForSelection(selectedItem);
+	const sourceTrack = useTrackForSelection(selectedItem);
+	const nodePath = sourceTrack?.nodePathInfo?.sequenceSubscriptionKey ?? null;
+	const optimisticEffects = Internals.useOptimisticEffects(nodePath);
+	const track = useMemo(
+		() =>
+			sourceTrack === null || nodePath === null
+				? sourceTrack
+				: {
+						...sourceTrack,
+						sequence: projectEffectSequence(
+							sourceTrack.sequence,
+							nodePath,
+							optimisticEffects?.items ?? null,
+						),
+					},
+		[sourceTrack, nodePath, optimisticEffects],
+	);
 	const {location, stack} = useSequenceSourceLocation(
 		track?.sequence ?? null,
 		track?.nodePathInfo?.sequenceSubscriptionKey ?? null,
@@ -453,9 +473,25 @@ export const WebMcp: FC = () => {
 				overrideIdsToNodePaths: overrideIdToNodePathMappingsRef.current,
 				compositions: compositionsRef.current,
 				showConnectedCompositionChildren: compactSeriesRef.current,
-			}).tracks.filter((timelineTrack) =>
-				shouldShowTrackInTimeline(timelineTrack, composition.durationInFrames),
-			);
+			})
+				.tracks.filter((timelineTrack) =>
+					shouldShowTrackInTimeline(
+						timelineTrack,
+						composition.durationInFrames,
+					),
+				)
+				.map((track) =>
+					track.nodePathInfo === null
+						? track
+						: {
+								...track,
+								sequence: projectEffectSequence(
+									track.sequence,
+									track.nodePathInfo.sequenceSubscriptionKey,
+									null,
+								),
+							},
+				);
 		};
 
 		Promise.all([
@@ -1022,11 +1058,19 @@ export const WebMcp: FC = () => {
 					},
 					annotations: {readOnlyHint: true},
 					execute: () => {
-						const tree = createFolderTree(
-							compositionsRef.current,
-							foldersRef.current,
-							{},
-						);
+						const snapshot = {
+							compositions: compositionsRef.current,
+							folders: foldersRef.current,
+						};
+						const tree = applyOptimisticCompositionOperations({
+							items: createFolderTree(
+								snapshot.compositions,
+								snapshot.folders,
+								{},
+							),
+							operations: getActiveOptimisticCompositionOperations(snapshot),
+							foldersExpanded: {},
+						});
 						return Promise.resolve({
 							compositions: serializeCompositionTree(tree),
 						});
@@ -1080,7 +1124,7 @@ export const WebMcp: FC = () => {
 					name: 'get_sequences',
 					title: 'Get Studio sequences',
 					description:
-						'Read the mounted sequences in the current Remotion Studio timeline, including their IDs, hierarchy, timing, effects, source stack, selection availability, and pending timing edits, duplication, splitting, or effect deletion. Pending operations include source nodes that are temporarily unmounted during refresh.',
+						'Read the mounted sequences in the current Remotion Studio timeline, including their IDs, hierarchy, timing, effects, source stack, selection availability, and pending timing edits, duplication, splitting, or effect edits. Pending operations include source nodes that are temporarily unmounted during refresh.',
 					inputSchema: {
 						type: 'object',
 						properties: {},
@@ -1089,16 +1133,52 @@ export const WebMcp: FC = () => {
 					annotations: {readOnlyHint: true},
 					execute: () => {
 						const compositionId = currentCompositionRef.current;
-						const pendingEffectDeletions = getPendingEffectDeletions();
-						const pendingEffectsByNode = new Map(
-							pendingEffectDeletions.map((entry) => [
-								JSON.stringify([
-									entry.nodePath.absolutePath,
-									entry.nodePath.nodePath,
-								]),
-								entry,
-							]),
-						);
+						const pendingEffectEdits =
+							Internals.OptimisticEffects.getSnapshot().flatMap((entry) =>
+								entry.operations
+									.filter(
+										(operation) =>
+											operation.status === 'queued' ||
+											operation.status === 'acknowledged',
+									)
+									.map((operation) => ({
+										absolutePath: entry.nodePath.absolutePath,
+										nodePath: entry.nodePath.nodePath,
+										operationId: operation.id,
+										type: operation.action.type,
+										status: operation.status,
+										effectIds:
+											operation.action.type === 'delete' ||
+											operation.action.type === 'duplicate'
+												? operation.action.ids
+												: operation.action.type === 'reorder'
+													? [operation.action.id]
+													: operation.action.type === 'restore'
+														? operation.action.items.map((item) => item.id)
+														: operation.addedIds,
+									})),
+							);
+						const pendingEffectDeletions =
+							Internals.OptimisticEffects.getSnapshot().flatMap((entry) =>
+								entry.operations.flatMap((operation) =>
+									operation.action.type !== 'delete' ||
+									(operation.status !== 'queued' &&
+										operation.status !== 'acknowledged')
+										? []
+										: [
+												{
+													absolutePath: entry.nodePath.absolutePath,
+													nodePath: entry.nodePath.nodePath,
+													effectIndices: operation.action.ids.flatMap((id) => {
+														const index = entry.compiledItems.findIndex(
+															(item) => item.id === id,
+														);
+														return index === -1 ? [] : [index];
+													}),
+												},
+											],
+								),
+							);
 						const canDeleteEffects =
 							timelineSelectionRef.current.canSelect &&
 							canUseEffectOperations();
@@ -1113,27 +1193,14 @@ export const WebMcp: FC = () => {
 									sourceFrame: splitFrame,
 								}),
 							),
-							pendingEffectDeletions: pendingEffectDeletions.map(
-								({nodePath, effectIndices}) => ({
-									absolutePath: nodePath.absolutePath,
-									nodePath: nodePath.nodePath,
-									effectIndices,
-								}),
-							),
+							pendingEffectEdits,
+							pendingEffectDeletions,
 							sequences:
 								compositionId === null
 									? []
 									: getCurrentTimeline().map((track) => {
 											const nodePath =
 												track.nodePathInfo?.sequenceSubscriptionKey ?? null;
-											const pendingEffects = nodePath
-												? pendingEffectsByNode.get(
-														JSON.stringify([
-															nodePath.absolutePath,
-															nodePath.nodePath,
-														]),
-													)
-												: undefined;
 											return {
 												...serializeSequence(track),
 												splitting:
@@ -1145,7 +1212,7 @@ export const WebMcp: FC = () => {
 												effects: track.sequence.effects.map(
 													(effect, effectIndex) => {
 														const status = nodePath
-															? Internals.getEffectPropStatusesCtx({
+															? getProjectedEffectPropStatuses({
 																	propStatuses: propStatusesRef.current,
 																	nodePath,
 																	effectIndex,
@@ -1153,21 +1220,18 @@ export const WebMcp: FC = () => {
 															: null;
 														return {
 															effectIndex,
+															effectId: nodePath
+																? (Internals.OptimisticEffects.getItems(
+																		nodePath,
+																		null,
+																	)[effectIndex]?.id ?? null)
+																: null,
 															type: effect.type,
 															label: effect.label,
 															canDelete:
 																canDeleteEffects &&
-																pendingEffects === undefined &&
 																status?.type === 'can-update-effect',
-															deleting:
-																pendingEffects !== undefined &&
-																Internals.OptimisticEffectDeletion.matches(
-																	pendingEffects,
-																	track.sequence.effects,
-																) &&
-																pendingEffects.effectIndices.includes(
-																	effectIndex,
-																),
+															deleting: false,
 														};
 													},
 												),
@@ -1250,11 +1314,7 @@ export const WebMcp: FC = () => {
 							);
 						}
 
-						if (isEffectDeletionPending(nodePath)) {
-							return {sequenceId, effectIndex, status: 'already-pending'};
-						}
-
-						const status = Internals.getEffectPropStatusesCtx({
+						const status = getProjectedEffectPropStatuses({
 							propStatuses: propStatusesRef.current,
 							nodePath,
 							effectIndex,
