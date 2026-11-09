@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest';
+import {calculateTransforms} from '../drawing/calculate-transforms';
 import {parseClipPath} from '../drawing/clip-path';
 import {renderStillOnWeb} from '../render-still-on-web';
 import '../symbol-dispose';
@@ -9,6 +10,11 @@ import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
 import {clipPathReference} from './fixtures/clip-path-reference';
+import {
+	clipPathReferenceFilterOutsets,
+	clipPathReferenceReview,
+	clipPathReferenceReviewOpaque,
+} from './fixtures/clip-path-reference-review';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -97,32 +103,59 @@ test('Should render clip-path: ellipse()', async () => {
 });
 
 // KINO-7772: referenced SVG clip paths were ignored by the DOM composer.
-for (const frame of [0, 1]) {
-	test(`local SVG rectangles clip all descendants at frame ${frame}`, async (t) => {
-		if (t.task.file.projectName === 'firefox') {
-			// Native transparent element capture is unsupported in this engine.
-			t.skip();
-			return;
-		}
+for (const fixture of [
+	clipPathReference,
+	clipPathReferenceFilterOutsets,
+	clipPathReferenceReview,
+	clipPathReferenceReviewOpaque,
+]) {
+	for (const frame of [0, 1]) {
+		test(`${fixture.id} clips all descendants at frame ${frame}`, async (t) => {
+			if (
+				t.task.file.projectName === 'firefox' &&
+				fixture !== clipPathReferenceReviewOpaque
+			) {
+				// Native transparent element capture is unsupported in this engine.
+				t.skip();
+				return;
+			}
 
-		const reference = await captureNativeReference(clipPathReference, frame);
-		const actual = await (
-			await renderStillOnWeb({
-				licenseKey: 'free-license',
-				composition: clipPathReference,
-				frame,
-				inputProps: {},
-				allowHtmlInCanvas: false,
-			})
-		).blob({format: 'png'});
-		const diff = await compareNativePixels(reference, actual);
-		await Promise.all([
-			savePixelEvidence(reference, `clip-reference-${frame}-native`),
-			savePixelEvidence(actual, `clip-reference-${frame}-actual`),
-			savePixelEvidence(diff.diff, `clip-reference-${frame}-diff`),
-		]);
-		expect(diff.mismatchedPixels).toBe(0);
-	});
+			if (
+				fixture === clipPathReferenceFilterOutsets &&
+				!('filter' in OffscreenCanvasRenderingContext2D.prototype)
+			) {
+				t.skip();
+				return;
+			}
+
+			const reference = await captureNativeReference(fixture, frame, {
+				omitBackground: fixture !== clipPathReferenceReviewOpaque,
+			});
+			const actual = await (
+				await renderStillOnWeb({
+					licenseKey: 'free-license',
+					composition: fixture,
+					frame,
+					inputProps: {},
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'});
+			const diff = await compareNativePixels(reference, actual);
+
+			await Promise.all([
+				savePixelEvidence(reference, `${fixture.id}-${frame}-native`, {
+					omitBackground: fixture !== clipPathReferenceReviewOpaque,
+				}),
+				savePixelEvidence(actual, `${fixture.id}-${frame}-actual`, {
+					omitBackground: fixture !== clipPathReferenceReviewOpaque,
+				}),
+				savePixelEvidence(diff.diff, `${fixture.id}-${frame}-diff`, {
+					omitBackground: fixture !== clipPathReferenceReviewOpaque,
+				}),
+			]);
+			expect(diff.mismatchedPixels).toBe(0);
+		});
+	}
 }
 
 // A fill-rule prefix must not be parsed as a coordinate pair.
@@ -158,4 +191,56 @@ test('Should render polygon fill rules', async () => {
 	const blob = await still.blob({format: 'png'});
 
 	await testImage({blob, testId: clipPathPolygonFillRules.id});
+});
+
+test('restores inline group properties and important priorities after clipping', () => {
+	const host = document.createElement('div');
+	host.innerHTML =
+		'<style>.priority-group {clip-path: url(#priority-clip) !important; opacity: .5 !important}</style><svg width="0" height="0"><defs><clipPath id="priority-clip"><rect width="20" height="20" /></clipPath></defs></svg><div></div>';
+	const element = host.lastElementChild as HTMLDivElement;
+	element.className = 'priority-group';
+	const properties = [
+		['mix-blend-mode', 'multiply'],
+		['filter', 'opacity(.5)'],
+		['mask-image', 'linear-gradient(black, black)'],
+	] as const;
+	for (const [property, value] of properties) {
+		element.style.setProperty(property, value, 'important');
+	}
+
+	const before = [
+		...properties.map(([property]) => property),
+		'clip-path',
+		'opacity',
+	].map((property) => [
+		property,
+		element.style.getPropertyValue(property),
+		element.style.getPropertyPriority(property),
+	]);
+	document.body.appendChild(host);
+	try {
+		const transforms = calculateTransforms({
+			element,
+			rootElement: element,
+			transformStyleCache: new WeakMap(),
+			isolated: true,
+		});
+		try {
+			const style = getComputedStyle(element);
+			expect(style.clipPath).toBe('none');
+			expect(style.opacity).toBe('1');
+			expect(style.filter).toBe('none');
+			expect(style.mixBlendMode).toBe('normal');
+			expect(style.maskImage).toBe('none');
+		} finally {
+			transforms[Symbol.dispose]();
+		}
+
+		for (const [property, value, priority] of before) {
+			expect(element.style.getPropertyValue(property)).toBe(value);
+			expect(element.style.getPropertyPriority(property)).toBe(priority);
+		}
+	} finally {
+		host.remove();
+	}
 });
