@@ -116,7 +116,15 @@ for (const {fixture, frame} of [
 			return;
 		}
 
+		const stageStart = performance.now();
+		console.info('clip-parity native:start', fixture.id, frame);
 		const reference = await captureNativeReference(fixture, frame);
+		console.info(
+			'clip-parity native:end',
+			fixture.id,
+			frame,
+			performance.now() - stageStart,
+		);
 		const actual = await (
 			await renderStillOnWeb({
 				licenseKey: 'free-license',
@@ -126,7 +134,20 @@ for (const {fixture, frame} of [
 				allowHtmlInCanvas: false,
 			})
 		).blob({format: 'png'});
+		console.info(
+			'clip-parity render:end',
+			fixture.id,
+			frame,
+			performance.now() - stageStart,
+		);
 		const diff = await compareNativePixels(reference, actual);
+		console.info(
+			'clip-parity compare:end',
+			fixture.id,
+			frame,
+			performance.now() - stageStart,
+			diff.mismatchedPixels,
+		);
 		if (diff.mismatchedPixels !== 0) {
 			await Promise.all([
 				savePixelEvidence(reference, `${fixture.id}-${frame}-native`),

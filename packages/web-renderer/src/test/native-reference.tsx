@@ -50,7 +50,9 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 				/>,
 			);
 		});
+		console.info('native-reference fonts:start', fixture.id, frame);
 		await document.fonts.ready;
+		console.info('native-reference fonts:end', fixture.id, frame);
 		await Promise.all(
 			Array.from(host.querySelectorAll('img'), (img) => img.decode()),
 		);
@@ -63,6 +65,7 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 				throw new Error('Native reference remained buffering');
 		} while (readBuffering!());
 
+		console.info('native-reference screenshot:start', fixture.id, frame);
 		const {base64} = await page.getByTestId(host.dataset.testid).screenshot({
 			base64: true,
 			omitBackground: true,
@@ -70,6 +73,7 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 			style:
 				'html, body, iframe[data-vitest] { background: transparent !important; }',
 		});
+		console.info('native-reference screenshot:end', fixture.id, frame);
 		return new Blob(
 			[Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))],
 			{type: 'image/png'},
