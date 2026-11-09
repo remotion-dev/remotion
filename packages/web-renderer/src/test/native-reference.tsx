@@ -18,7 +18,11 @@ type Fixture = {
 
 // Capture browser painting, not another invocation of the DOM composer.
 // Fixtures must be deterministic and finish async work through Player buffering.
-export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
+export const captureNativeReference = async (
+	fixture: Fixture,
+	frame = 0,
+	{omitBackground = true}: {omitBackground?: boolean} = {},
+) => {
 	const host = document.createElement('div');
 	host.dataset.testid = `${fixture.id}-native-${frame}`;
 	Object.assign(host.style, {
@@ -65,7 +69,7 @@ export const captureNativeReference = async (fixture: Fixture, frame = 0) => {
 
 		const {base64} = await page.getByTestId(host.dataset.testid).screenshot({
 			base64: true,
-			omitBackground: true,
+			omitBackground,
 			scale: 'css',
 			style:
 				'html, body, iframe[data-vitest] { background: transparent !important; }',
@@ -138,7 +142,11 @@ export const compareNativePixels = async (reference: Blob, actual: Blob) => {
 	return {mismatchedPixels, maxChannelDelta, diff: diffBlob};
 };
 
-export const savePixelEvidence = async (blob: Blob, testId: string) => {
+export const savePixelEvidence = async (
+	blob: Blob,
+	testId: string,
+	{omitBackground = true}: {omitBackground?: boolean} = {},
+) => {
 	const image = document.createElement('img');
 	const url = URL.createObjectURL(blob);
 	image.src = url;
@@ -148,7 +156,7 @@ export const savePixelEvidence = async (blob: Blob, testId: string) => {
 	try {
 		await image.decode();
 		return await page.getByTestId(testId).screenshot({
-			omitBackground: true,
+			omitBackground,
 			scale: 'css',
 			style:
 				'html, body, iframe[data-vitest] { background: transparent !important; }',
