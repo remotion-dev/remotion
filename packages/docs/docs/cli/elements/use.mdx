@@ -54,7 +54,7 @@ The slug of the Element to install, if the page contains several Elements.
 
 Installs without asking for confirmation. Use it in scripts and when an agent runs the command. Also available as `-y`.
 
-In a non-interactive shell, the command fails if `--yes` is not passed.
+In a non-interactive shell, the command fails if `--yes` is not passed. The command is non-interactive when stdin or stdout is not a TTY, or when the `CI` environment variable is set.
 
 ### `--overwrite`
 
