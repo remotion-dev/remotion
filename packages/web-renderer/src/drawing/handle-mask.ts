@@ -172,7 +172,9 @@ export const handleSvgClip = async ({
 		resource,
 		maskRect,
 		precomposeRect,
-		referenceRect: getBiggestBoundingClientRect(element, false),
+		// Descendant filters contribute to the native HTML clipping reference in
+		// Firefox. The clipped element's own filter and outline padding do not.
+		referenceRect: getBiggestBoundingClientRect(element, false, true),
 		width: tempContext.canvas.width,
 		height: tempContext.canvas.height,
 	});
