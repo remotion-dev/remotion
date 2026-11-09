@@ -139,6 +139,7 @@ import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
 import {
 	FallbackDepthScene,
+	perspectiveFilter,
 	reviewSceneSize,
 } from './fixtures/preserve-3d-depth';
 import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
@@ -282,6 +283,7 @@ export const Root: React.FC = () => {
 				<Composition {...opacityInherited} />
 				<Composition {...opaqueLayerOverFadingLayer} />
 			</Folder>
+			<Composition {...perspectiveFilter} />
 			<Composition {...threeDTransformOpacity} />
 			<Folder name="Experimental3D">
 				{[

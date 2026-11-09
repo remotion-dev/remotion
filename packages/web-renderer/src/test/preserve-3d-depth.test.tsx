@@ -10,11 +10,16 @@ import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderStillOnWeb, renderFramesOnWeb} from '../render-still-on-web';
 import {
 	FallbackDepthScene,
+	perspectiveFilter,
 	size,
 	reviewSceneSize,
 } from './fixtures/preserve-3d-depth';
 import '../symbol-dispose';
-import {captureNativeReference, compareNativePixels} from './native-reference';
+import {
+	captureNativeReference,
+	compareNativePixels,
+	savePixelEvidence,
+} from './native-reference';
 
 const pixels = async (blob: Blob, dimensions = size) => {
 	const image = await createImageBitmap(blob);
@@ -459,3 +464,49 @@ test('restores authored opacity and priority after 3D planning', () => {
 		root.remove();
 	}
 });
+
+// PR #12686: a z=0 plane under perspective must retain its visible filter output.
+for (const frame of [0, 1])
+	test(`retains offscreen filter output with ancestor perspective at frame ${frame}`, async (t) => {
+		if (!('filter' in OffscreenCanvasRenderingContext2D.prototype)) {
+			t.skip();
+
+			return;
+		}
+
+		const native = await captureNativeReference(perspectiveFilter, frame, {
+			omitBackground: false,
+		});
+		for (const experimental3DRendering of [false, true]) {
+			const actual = await (
+				await renderStillOnWeb({
+					composition: perspectiveFilter,
+					frame,
+					inputProps: {},
+					licenseKey: 'free-license',
+					allowHtmlInCanvas: false,
+					experimental3DRendering,
+				})
+			).blob({format: 'png'});
+			const diff = await compareNativePixels(native, actual);
+			if (diff.mismatchedPixels !== 0)
+				await Promise.all([
+					savePixelEvidence(
+						native,
+						`perspective-filter-${frame}-${experimental3DRendering}-native`,
+						{omitBackground: false},
+					),
+					savePixelEvidence(
+						actual,
+						`perspective-filter-${frame}-${experimental3DRendering}-actual`,
+						{omitBackground: false},
+					),
+					savePixelEvidence(
+						diff.diff,
+						`perspective-filter-${frame}-${experimental3DRendering}-diff`,
+						{omitBackground: false},
+					),
+				]);
+			expect(diff.mismatchedPixels).toBe(0);
+		}
+	});

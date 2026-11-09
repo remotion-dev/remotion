@@ -14,19 +14,21 @@ export const getPrecomposeRectFor3DTransform = ({
 	matrix,
 	onlyOwnPlane = false,
 	experimental3DRendering = false,
+	sourceRect,
 }: {
 	element: HTMLElement | SVGElement;
 	parentRect: DOMRect;
 	matrix: DOMMatrix;
 	onlyOwnPlane?: boolean;
 	experimental3DRendering?: boolean;
+	sourceRect: DOMRect | null;
 }) => {
-	const unclampedBiggestBoundingClientRect = getBiggestBoundingClientRect(
-		element,
-		true,
-		experimental3DRendering,
-		{onlyOwnPlane, experimental3DRendering},
-	);
+	const unclampedBiggestBoundingClientRect =
+		sourceRect ??
+		getBiggestBoundingClientRect(element, true, experimental3DRendering, {
+			onlyOwnPlane,
+			experimental3DRendering,
+		});
 	if (!experimental3DRendering) {
 		const sourceBounds = getPreTransformRect(parentRect, matrix);
 		return sourceBounds

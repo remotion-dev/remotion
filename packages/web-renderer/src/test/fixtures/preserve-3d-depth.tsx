@@ -1,4 +1,5 @@
 import React from 'react';
+import {useCurrentFrame} from 'remotion';
 const plane = (
 	style: React.CSSProperties,
 	children?: React.ReactNode,
@@ -14,10 +15,15 @@ export const reviewSceneSize = (kind: string) =>
 		'review-eye-plane',
 		'review-descendant-blur',
 		'review-offscreen-filter',
+		'review-offscreen-filter-perspective',
 	].includes(kind)
 		? {width: 300, height: 300}
 		: size;
 export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
+	const frame = useCurrentFrame();
+	const shadowOffset =
+		kind === 'review-offscreen-filter-perspective' ? 150 + frame * 16 : 150;
+
 	if (kind === 'review-eye-plane')
 		return plane(
 			{...size, background: 'white'},
@@ -46,18 +52,27 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 				}),
 			),
 		);
-	if (kind === 'review-offscreen-filter')
+	if (
+		kind === 'review-offscreen-filter' ||
+		kind === 'review-offscreen-filter-perspective'
+	)
 		return plane(
 			{...size, background: 'white'},
 			plane(
-				{width: 300, height: 300, transformStyle: 'preserve-3d'},
+				{
+					width: 300,
+					height: 300,
+					transformStyle: 'preserve-3d',
+					perspective:
+						kind === 'review-offscreen-filter-perspective' ? 700 : undefined,
+				},
 				plane({
 					left: -100,
 					top: 100,
 					width: 50,
 					height: 50,
 					background: 'red',
-					filter: 'drop-shadow(150px 0 0 blue)',
+					filter: `drop-shadow(${shadowOffset}px 0 0 blue)`,
 				}),
 			),
 		);
@@ -444,3 +459,16 @@ export function FallbackDepthScene({kind}: {kind: string}): React.ReactElement {
 		);
 	return plane({...size, background: '#101820'}, content);
 }
+
+const PerspectiveFilterScene = () => (
+	<FallbackDepthScene kind="review-offscreen-filter-perspective" />
+);
+
+export const perspectiveFilter = {
+	id: 'preserve-3d-perspective-filter',
+	width: 300,
+	height: 300,
+	fps: 30,
+	durationInFrames: 2,
+	component: PerspectiveFilterScene,
+} as const;

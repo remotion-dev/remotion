@@ -105,6 +105,26 @@ export const processNode = async ({
 
 	if (precompositing.needsPrecompositing) {
 		const start = Date.now();
+		const filterBounds = precompositing.needsFilterPrecompositing
+			? getPrecomposeRectForFilter({
+					element,
+					filter: precompositing.needsFilterPrecompositing,
+				})
+			: null;
+		// Include offscreen inputs before the perspective path can reject them.
+		const outsets =
+			internalState.experimental3DRendering &&
+			precompositing.needsFilterPrecompositing
+				? parseFilterOutsets(precompositing.needsFilterPrecompositing)
+				: {left: 0, right: 0, top: 0, bottom: 0};
+		const captureViewport = internalState.experimental3DRendering
+			? new DOMRect(
+					parentRect.left - outsets.right,
+					parentRect.top - outsets.bottom,
+					parentRect.width + outsets.left + outsets.right,
+					parentRect.height + outsets.top + outsets.bottom,
+				)
+			: parentRect;
 
 		let precomposeRect: DOMRect | null = null;
 		let projectedRect: DOMRect | null = null;
@@ -129,10 +149,17 @@ export const processNode = async ({
 		if (precompositing.needs3DTransformViaWebGL) {
 			const tentativePrecomposeRect = getPrecomposeRectFor3DTransform({
 				element,
-				parentRect,
+				parentRect: captureViewport,
 				matrix: totalMatrix,
 				onlyOwnPlane: transforms.preserves3DChildren,
 				experimental3DRendering: internalState.experimental3DRendering,
+				sourceRect:
+					internalState.experimental3DRendering && filterBounds
+						? getWiderRectAndExpand({
+								firstRect: precomposeRect,
+								secondRect: filterBounds,
+							})
+						: null,
 			});
 			if (!tentativePrecomposeRect) {
 				return {type: 'continue', cleanupAfterChildren: null};
@@ -146,16 +173,11 @@ export const processNode = async ({
 			);
 		}
 
-		if (precompositing.needsFilterPrecompositing) {
-			const tentativePrecomposeRect = getPrecomposeRectForFilter({
-				element,
-				filter: precompositing.needsFilterPrecompositing,
-			});
-
+		if (filterBounds) {
 			precomposeRect = roundToExpandRect(
 				getWiderRectAndExpand({
 					firstRect: precomposeRect,
-					secondRect: tentativePrecomposeRect,
+					secondRect: filterBounds,
 				}),
 			);
 		}
@@ -187,15 +209,6 @@ export const processNode = async ({
 		if (internalState.experimental3DRendering) {
 			// Clip after every bounds union, including opacity and filter groups.
 			// Keep nearby offscreen input that can cast a drop-shadow into the viewport.
-			const outsets = precompositing.needsFilterPrecompositing
-				? parseFilterOutsets(precompositing.needsFilterPrecompositing)
-				: {left: 0, right: 0, top: 0, bottom: 0};
-			const captureViewport = new DOMRect(
-				parentRect.left - outsets.right,
-				parentRect.top - outsets.bottom,
-				parentRect.width + outsets.left + outsets.right,
-				parentRect.height + outsets.top + outsets.bottom,
-			);
 			const visibleSourceRect = clipSourceRectToViewport(
 				precomposeRect,
 				totalMatrix,

@@ -275,6 +275,7 @@ const planPreserve3DPlanes = ({
 							matrix: transforms.totalMatrix,
 							onlyOwnPlane: preserving,
 							experimental3DRendering,
+							sourceRect: null,
 						});
 				if (!paintRect) {
 					// An invisible own plane does not invalidate the other context planes.
