@@ -63,7 +63,7 @@ class TrackedAudioContext {
 	}
 
 	getOutputTimestamp() {
-		return {contextTime: 0, performanceTime: 0};
+		return {contextTime: this.currentTime, performanceTime: performance.now()};
 	}
 
 	createMediaElementSource() {
@@ -230,9 +230,10 @@ test('_experimentalKeepAudioContextAlive resumes immediately after buffering', a
 	expect(gainValuesDuringBufferResume).toContain(1);
 });
 
-const renderClockedPlayer = () => {
+const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 	let now = 0;
 	let nextRaf = 0;
+	let delayedCommit: {frame: number; milliseconds: number} | null = null;
 	const rafs = new Map<number, FrameRequestCallback>();
 	const anchors: number[] = [];
 	let audio: ContextType<typeof Internals.SharedAudioContext> = null;
@@ -251,11 +252,26 @@ const renderClockedPlayer = () => {
 	const cancel = spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(
 		(id) => rafs.delete(id),
 	);
+	const setTime = (time: number) => {
+		const context = audio!.audioContext as unknown as TrackedAudioContext;
+		if (context.state === 'running') {
+			context.currentTime += (time - now) / 1000;
+		}
+
+		now = time;
+	};
+
 	const Composition = () => {
 		const shared = useContext(Internals.SharedAudioContext);
 		const frame = useCurrentFrame();
 		buffer = useBufferState().delayPlayback;
 		audio = shared;
+		if (delayedCommit?.frame === frame) {
+			const {milliseconds} = delayedCommit;
+			delayedCommit = null;
+			setTime(now + milliseconds);
+		}
+
 		useEffect(() => {
 			const subscription = shared?.audioSyncAnchorEmitter.subscribe(() => {
 				anchors.push(shared.audioSyncAnchor.value);
@@ -274,26 +290,24 @@ const renderClockedPlayer = () => {
 		compositionHeight: 180,
 		fps: 30,
 		playbackRate: 1,
+		inFrame: null as number | null,
+		outFrame: null as number | null,
 		preferredEffectBackend: 'auto' as const,
 		audioLatencyHint: 'playback' as AudioContextLatencyCategory,
 		logLevel: 'info' as LogLevel,
 		numberOfSharedAudioTags: 0,
-		_experimentalKeepAudioContextAlive: true,
+		_experimentalKeepAudioContextAlive: keepAudioContextAlive,
 	};
 	const view = render(<Player ref={player} {...props} />);
-	const setTime = (time: number) => {
-		// In keep-alive mode the native audio clock advances even while paused.
-		// A replacement context starts its own clock at zero.
-		(audio!.audioContext as unknown as TrackedAudioContext).currentTime +=
-			(time - now) / 1000;
-		now = time;
-	};
 
 	return {
 		player,
 		view,
 		anchors,
 		setTime,
+		delayCommitForFrame: (frame: number, milliseconds: number) => {
+			delayedCommit = {frame, milliseconds};
+		},
 		tick: (time: number) => {
 			setTime(time);
 			const pending = [...rafs.values()];
@@ -318,7 +332,7 @@ const renderClockedPlayer = () => {
 };
 
 test('Keep-alive audio preserves its anchor across duration-only updates', () => {
-	const harness = renderClockedPlayer();
+	const harness = renderClockedPlayer(true);
 	try {
 		act(() => harness.player.current!.play());
 		act(() => harness.tick(50));
@@ -351,7 +365,7 @@ test.each([
 	{audioLatencyHint: 'interactive' as const},
 	{logLevel: 'warn' as const},
 ])('Keep-alive audio re-anchors to a replacement context: %j', (config) => {
-	const harness = renderClockedPlayer();
+	const harness = renderClockedPlayer(true);
 	try {
 		act(() => harness.player.current!.play());
 		act(() => harness.tick(100));
@@ -381,7 +395,7 @@ test.each([
 test.each(['pause', 'mute'] as const)(
 	'Keep-alive audio still re-anchors after a short %s',
 	(interruption) => {
-		const harness = renderClockedPlayer();
+		const harness = renderClockedPlayer(true);
 		try {
 			act(() => harness.player.current!.play());
 			act(() => harness.tick(50));
@@ -415,7 +429,7 @@ test.each([
 	{fps: 60, playbackRate: 1},
 	{fps: 30, playbackRate: 2},
 ])('Keep-alive audio re-anchors when its clock changes: %j', (config) => {
-	const harness = renderClockedPlayer();
+	const harness = renderClockedPlayer(true);
 	try {
 		act(() => harness.player.current!.play());
 		act(() => harness.tick(50));
@@ -433,7 +447,7 @@ test.each([
 });
 
 test('Keep-alive audio still corrects drift after buffering', () => {
-	const harness = renderClockedPlayer();
+	const harness = renderClockedPlayer(true);
 	try {
 		act(() => harness.player.current!.play());
 		act(() => harness.tick(50));
@@ -455,3 +469,88 @@ test('Keep-alive audio still corrects drift after buffering', () => {
 		harness.dispose();
 	}
 });
+
+test.each([false, true])(
+	'Late frame commits preserve the audio clock while playback catches up (keep alive: %j)',
+	async (keepAlive) => {
+		const harness = renderClockedPlayer(keepAlive);
+		try {
+			act(() => harness.changeConfig({fps: 20}));
+			await act(async () => {
+				harness.player.current!.play();
+				harness.tick(1);
+				await Promise.resolve();
+			});
+			const anchor = harness.anchor();
+			harness.anchors.length = 0;
+
+			harness.delayCommitForFrame(2, 500);
+			act(() => harness.tick(101));
+			expect(harness.view.getByText('Frame 2')).toBeTruthy();
+			expect(harness.audioContext()!.currentTime).toBeCloseTo(0.601, 8);
+			expect(harness.anchor()).toBe(anchor);
+			expect(harness.anchors).toEqual([]);
+
+			act(() => harness.tick(651));
+			expect(harness.view.getByText('Frame 13')).toBeTruthy();
+			expect(harness.player.current!.isPlaying()).toBe(true);
+			expect(harness.anchor()).toBe(anchor);
+			expect(harness.anchors).toEqual([]);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test.each([
+	{keepAlive: false, playbackRate: 1},
+	{keepAlive: true, playbackRate: 1},
+	{keepAlive: false, playbackRate: -1},
+	{keepAlive: true, playbackRate: -1},
+])(
+	'Playback range jumps realign audio without looping: %j',
+	async ({keepAlive, playbackRate}) => {
+		const harness = renderClockedPlayer(keepAlive);
+		try {
+			act(() => harness.changeConfig({fps: 20, playbackRate}));
+			await act(async () => {
+				harness.player.current!.seekTo(playbackRate > 0 ? 0 : 40);
+				harness.player.current!.play();
+				harness.tick(1);
+				await Promise.resolve();
+			});
+			act(() => harness.tick(1001));
+			expect(harness.view.getByText('Frame 20')).toBeTruthy();
+			harness.anchors.length = 0;
+
+			act(() =>
+				harness.changeConfig(
+					playbackRate > 0
+						? {inFrame: 2, outFrame: 10}
+						: {inFrame: 30, outFrame: 39},
+				),
+			);
+			const targetFrame = playbackRate > 0 ? 2 : 39;
+			act(() => harness.tick(1051));
+			expect(harness.view.getByText(`Frame ${targetFrame}`)).toBeTruthy();
+			expect(harness.player.current!.isPlaying()).toBe(true);
+			expect(harness.anchors).toHaveLength(1);
+			expect(harness.anchor()).toBeCloseTo(
+				harness.audioContext()!.currentTime - targetFrame / 20 / playbackRate,
+				8,
+			);
+			const anchor = harness.anchor();
+
+			act(() => harness.tick(1101));
+			expect(
+				harness.view.getByText(`Frame ${targetFrame + playbackRate}`),
+			).toBeTruthy();
+			harness.setTime(1102);
+			act(() => harness.changeConfig({inFrame: 0, outFrame: 100}));
+			expect(harness.anchor()).toBe(anchor);
+			expect(harness.anchors).toHaveLength(1);
+		} finally {
+			harness.dispose();
+		}
+	},
+);

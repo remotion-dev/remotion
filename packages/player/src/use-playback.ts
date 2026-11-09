@@ -88,8 +88,8 @@ export const usePlayback = ({
 	const lastTimeUpdateTimestamp = useRef<number>(0);
 	const seekRevisionAtRender = seek?.revision.current ?? null;
 	const anchorSeekRevision = useRef(seekRevisionAtRender);
-	const audioLoopRevision = useRef(0);
-	const loopRevision = audioLoopRevision.current;
+	const playbackJumpRevision = useRef(0);
+	const jumpRevision = playbackJumpRevision.current;
 	const playbackClockRef = useRef<PlaybackClock | null>(null);
 	const previousAudioBoundary = useRef<{
 		audioContext: AudioContext | null;
@@ -99,7 +99,7 @@ export const usePlayback = ({
 		muted: boolean;
 		playing: boolean;
 		seekRevision: number | null;
-		loopRevision: number;
+		jumpRevision: number;
 	} | null>(null);
 
 	useBrowserMediaSession({
@@ -142,7 +142,7 @@ export const usePlayback = ({
 			muted,
 			playing,
 			seekRevision: seekRevisionAtRender,
-			loopRevision,
+			jumpRevision,
 		};
 		const previous = previousAudioBoundary.current;
 		previousAudioBoundary.current = boundary;
@@ -175,7 +175,7 @@ export const usePlayback = ({
 		muted,
 		sharedAudioContext,
 		getCurrentFrame,
-		loopRevision,
+		jumpRevision,
 		playing,
 		seekRevisionAtRender,
 		updateAudioAnchor,
@@ -337,17 +337,17 @@ export const usePlayback = ({
 						: actualFirstFrame
 					: nextFrame;
 
-			const didLoop = loop && nextFrame !== currentFrame + framesToAdvance;
-			if (didLoop) {
-				// Re-anchor after the loop's target frame commits.
-				audioLoopRevision.current++;
+			const didJump = frameToDisplay !== currentFrame + framesToAdvance;
+			if (didJump) {
+				// Re-anchor after the jump's target frame commits.
+				playbackJumpRevision.current++;
 			}
 
 			if (frameToDisplay !== currentFrame) {
 				playbackFrame = frameToDisplay;
 				setFrameFromPlayback((c) => ({...c, [compositionId]: frameToDisplay}));
-			} else if (didLoop) {
-				// A loop can wrap back to the same frame without a React commit.
+			} else if (didJump) {
+				// A jump can land on the same frame without a React commit.
 				updateAudioAnchor(frameToDisplay);
 			}
 
