@@ -5,6 +5,7 @@ import '../symbol-dispose';
 import {createSpaceTextMask} from './fixtures/background-image-space-text-mask';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {
 	captureNativeReference,
@@ -16,9 +17,12 @@ import {testImage} from './utils';
 test
 	.skipIf(!navigator.userAgent.includes('Chrome'))
 	.each(
-		[backgroundImageUrl, backgroundImageContain, backgroundImageSpace].flatMap(
-			(fixture) => [0, 1].map((frame) => ({fixture, frame})),
-		),
+		[
+			backgroundImageUrl,
+			backgroundImageContain,
+			backgroundImageSpace,
+			backgroundImageRound,
+		].flatMap((fixture) => [0, 1].map((frame) => ({fixture, frame}))),
 	)(
 	'raster $fixture.id matches native frame $frame',
 	{timeout: 30_000},
