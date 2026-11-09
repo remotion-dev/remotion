@@ -90,6 +90,10 @@ import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
+import {
+	FallbackDepthScene,
+	size as preserve3DSize,
+} from './fixtures/preserve-3d-depth';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
 import {scalePrecomposeFixture} from './fixtures/scale-precompose';
@@ -189,6 +193,33 @@ export const Root: React.FC = () => {
 				<Composition {...opaqueLayerOverFadingLayer} />
 			</Folder>
 			<Composition {...threeDTransformOpacity} />
+			<Folder name="Experimental3D">
+				{[
+					'zero-flat',
+					'coplanar-delay',
+					'soft-inset',
+					'implicit-gradient-stop',
+					'trailing-gradient-stop',
+					'perspective',
+					'depth',
+					'group',
+					'offscreen',
+					'oversized-opacity',
+					'opacity-paint-bounds',
+					'local-group-depth',
+					'magnified-mask',
+				].map((kind) => (
+					<Composition
+						key={kind}
+						id={`experimental-3d-${kind}`}
+						component={FallbackDepthScene}
+						{...preserve3DSize}
+						fps={30}
+						durationInFrames={1}
+						defaultProps={{kind}}
+					/>
+				))}
+			</Folder>
 			<Composition {...backgroundColor} />
 			<Composition {...backgroundBlendMode} />
 			<Composition {...stackingContextSiblings} />
