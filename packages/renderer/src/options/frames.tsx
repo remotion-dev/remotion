@@ -132,6 +132,11 @@ export const framesOption = {
 			Render a subset of a video. Pass a single number to render a still, or a
 			range (e.g. <code>0-9</code>) to render a subset of frames. Pass{' '}
 			<code>100-</code> to render from frame 100 to the end.
+			<br />
+			Since v4.0.502, you can also pass a comma-separated list of frames and
+			ranges (e.g. <code>0,30-59,90-</code>). A list of individual frames
+			renders them as an image sequence, while multiple ranges get concatenated
+			into one video, omitting the frames in between.
 		</>
 	),
 	ssrName: 'frameRange' as const,

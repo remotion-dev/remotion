@@ -9,7 +9,7 @@ custom_edit_url: https://github.com/remotion-dev/remotion/edit/main/packages/ren
 
 # Audio Bitrate<AvailableFrom v="3.2.32" />
 
-Specify the target bitrate for the generated video. The syntax for FFmpeg's `-b:a` parameter should be used. FFmpeg may encode the video in a way that will not result in the exact audio bitrate specified. Example values: `512K` for 512 kbps, `1M` for 1 Mbps. Default: `320k`
+Specify the target bitrate for the generated audio. For server-side renders, the syntax for FFmpeg's `-b:a` parameter should be used. FFmpeg may encode the audio in a way that will not result in the exact audio bitrate specified. Example values: `512K` for 512 kbps, `1M` for 1 Mbps. Default for server-side renders: `320k`.<br />[`renderMediaOnWeb()`](/docs/web-renderer/render-media-on-web#audiobitrate) instead accepts a number in bits per second or a quality preset.
 
 ## CLI flag
 
