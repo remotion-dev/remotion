@@ -160,6 +160,16 @@ const drawReplacedElement = ({
 		return;
 	}
 
+	const previousSmoothing = contextToDraw.imageSmoothingEnabled;
+	using _restoreImageSmoothing = {
+		[Symbol.dispose]: () => {
+			contextToDraw.imageSmoothingEnabled = previousSmoothing;
+		},
+	};
+	if (computedStyle.imageRendering === 'pixelated') {
+		contextToDraw.imageSmoothingEnabled = false;
+	}
+
 	// Use the 9-argument drawImage to support source cropping (for cover mode)
 	contextToDraw.drawImage(
 		drawable,
