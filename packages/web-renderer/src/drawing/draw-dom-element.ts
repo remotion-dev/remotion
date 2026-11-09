@@ -160,6 +160,16 @@ const drawReplacedElement = ({
 		return;
 	}
 
+	const previousSmoothing = contextToDraw.imageSmoothingEnabled;
+	using _restoreImageSmoothing = {
+		[Symbol.dispose]: () => {
+			contextToDraw.imageSmoothingEnabled = previousSmoothing;
+		},
+	};
+	if (computedStyle.imageRendering === 'pixelated') {
+		contextToDraw.imageSmoothingEnabled = false;
+	}
+
 	// Preserve the concrete destination size when the entire image is visible.
 	if (
 		drawable instanceof HTMLImageElement &&
