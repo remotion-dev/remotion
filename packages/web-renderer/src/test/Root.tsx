@@ -44,6 +44,21 @@ import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
+import {
+	clipPathRectangleDescendantFilter,
+	clipPathRectangleDescendantFilterObjectBox,
+} from './fixtures/clip-path-rectangle-descendant-filter';
+import {
+	clipPathRectangleUnion,
+	clipDescendantFilter,
+	clipTransformedDescendantFilter,
+	clipDescendantBlur,
+	clipNestedDescendantFilter,
+	clipScaledFilter,
+	clipPathRectangleUnionOpaque,
+	clipPathRectangleUnionSvgTarget,
+	clipPathRectangleUnionFilterOutsets,
+} from './fixtures/clip-path-rectangle-union';
 import {clipPathReference} from './fixtures/clip-path-reference';
 import {
 	clipPathReferenceReview,
@@ -112,6 +127,8 @@ import {
 	maskImageLayersUrlTransparent,
 	maskImageLayersBlob,
 	maskImageLayersBlobTransparent,
+	maskImageLayersTokenUrl,
+	maskImageLayersTokenUrlTransparent,
 } from './fixtures/mask-image-layers';
 import {maskImageUrl} from './fixtures/mask-image-url';
 import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
@@ -191,6 +208,10 @@ import {threeDoverflow} from './fixtures/three-d-overflow';
 import {threeDTransformOpacity} from './fixtures/three-d-transform-opacity';
 import {threeDTransformOutOfBounds} from './fixtures/three-d-transform-out-of-bounds';
 import {threeLevelTransformOrigins} from './fixtures/three-level-transform-origins';
+import {
+	transformPrecision,
+	transformGeometric2d,
+} from './fixtures/transform-precision';
 import {issue10441TransformShorthands} from './fixtures/transforms/issue-10441-transform-shorthands';
 import {orthographic} from './fixtures/transforms/orthographic';
 import {transformWithAllShorthands} from './fixtures/transforms/transform-with-all-shorthands';
@@ -218,6 +239,8 @@ export const Root: React.FC = () => {
 			<Composition {...svgDataMimeWhitespace} />
 			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
+			<Composition {...transformPrecision} />
+			<Composition {...transformGeometric2d} />
 			<Composition {...nativeReferenceControl} />
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
@@ -301,6 +324,8 @@ export const Root: React.FC = () => {
 				<Composition {...maskImageLayersUrlTransparent} />
 				<Composition {...maskImageLayersBlob} />
 				<Composition {...maskImageLayersBlobTransparent} />
+				<Composition {...maskImageLayersTokenUrl} />
+				<Composition {...maskImageLayersTokenUrlTransparent} />
 				<Composition {...maskImageUrlPosition} />
 				<Composition {...maskImageUrlCalcPosition} />
 				<Composition {...backfaceVisibilityMask} />
@@ -397,6 +422,17 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathShapeReference} />
 				<Composition {...clipPathShapeReview} />
 				<Composition {...clipPathShapeReviewOpaque} />
+				<Composition {...clipPathRectangleUnion} />
+				<Composition {...clipDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilterObjectBox} />
+				<Composition {...clipTransformedDescendantFilter} />
+				<Composition {...clipDescendantBlur} />
+				<Composition {...clipNestedDescendantFilter} />
+				<Composition {...clipScaledFilter} />
+				<Composition {...clipPathRectangleUnionOpaque} />
+				<Composition {...clipPathRectangleUnionSvgTarget} />
+				<Composition {...clipPathRectangleUnionFilterOutsets} />
 				<Composition {...clipPathInset} />
 				<Composition {...clipPathEllipse} />
 			</Folder>

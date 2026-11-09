@@ -96,11 +96,10 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
-`mask-image` with raster `url()` sources (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a> with alpha semantics.
+`mask-image` with raster `url()` sources (same-origin, `data:` or `blob:`) is <a style={{color: 'green'}}>supported</a> for alpha masks.  
+The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>partially supported</a>: only `border-box` origin/clip and two-value positions are supported. Fractional raster-mask sampling can differ from native output.
 
-The `mask-size`, `mask-position` and `mask-repeat` properties are <a style={{color: 'green'}}>supported</a> with `border-box` origin/clip and two computed position coordinates. Fractional raster-mask sampling can differ from native output.
-
-Multiple raster URL, linear-gradient and `none` layers are <a style={{color: 'green'}}>supported</a> with `mask-composite: add`, `subtract`, `intersect` and `exclude`, including per-layer property lists.
+The `mask-composite` values `add`, `subtract`, `intersect` and `exclude` are <a style={{color: 'green'}}>supported</a> for multiple raster `url()`, `linear-gradient()` and `none` layers.
 
 Cross-origin URLs, SVG masks, luminance masks, `calc()` mask sizes and `space` / `round` mask repetition are <a style={{color: 'red'}}>not supported</a>.
 
@@ -164,7 +163,7 @@ The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
 - `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: inset()` is <a style={{color: 'green'}}>supported</a>.
-- `clip-path: url()` is <a style={{color: 'green'}}>partially supported</a> for same-document SVG `<clipPath>` elements containing one non-rounded `<rect>`, `<polygon>`, or `<path>`. `userSpaceOnUse`, `objectBoundingBox`, SVG transform attributes, and `clip-rule` are supported. External documents, multiple shapes, and nested references are not supported. Diagonal and curved edges may differ from browser rendering.
+- `clip-path: url()` is <a style={{color: 'green'}}>partially supported</a> for same-document SVG `<clipPath>` elements containing one non-rounded `<rect>`, `<polygon>`, or `<path>`, or multiple non-rounded rectangles. `userSpaceOnUse`, `objectBoundingBox`, SVG transform attributes, and `clip-rule` are supported. External documents, mixed multiple shapes, and nested references are not supported. Diagonal and curved edges may differ from browser rendering.
 
 ## Unsupported styles
 

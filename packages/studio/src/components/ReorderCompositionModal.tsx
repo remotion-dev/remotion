@@ -24,12 +24,8 @@ export const ReorderCompositionModal: React.FC<{readonly state: State}> = ({
 	const files = [...new Set([state.sourceFile, state.destinationFile])].filter(
 		(file): file is string => file !== null,
 	);
-	const sources = files.flatMap((file) => {
-		const source = resolvedStackToSymbolicated({
-			source: file,
-			line: 1,
-			column: null,
-		});
+	const sources = state.sourceLocations.flatMap((location) => {
+		const source = resolvedStackToSymbolicated(location);
 		return source ? [source] : [];
 	});
 
@@ -40,7 +36,11 @@ export const ReorderCompositionModal: React.FC<{readonly state: State}> = ({
 			prompt={`Move ${describeItem(state.item)} ${target} in the Remotion composition list. Update the registration order in code, preserving composition definitions and behavior.${files.length > 0 ? ` The involved registrations are in: ${files.join(', ')}.` : ''}`}
 			skillId="remotion-markup"
 			sources={sources}
-			sourceStatus={null}
+			sourceStatus={
+				sources.length === 0
+					? 'Could not resolve the registration source location.'
+					: null
+			}
 		/>
 	);
 };

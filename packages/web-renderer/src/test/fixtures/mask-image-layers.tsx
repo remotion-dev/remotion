@@ -157,3 +157,14 @@ export const maskImageLayersBlobTransparent = createMaskImageLayersFixture(
 	false,
 	null,
 );
+
+export const maskImageLayersTokenUrl = createMaskImageLayersFixture(
+	'token-url',
+	true,
+	null,
+);
+export const maskImageLayersTokenUrlTransparent = createMaskImageLayersFixture(
+	'token-url',
+	false,
+	null,
+);
