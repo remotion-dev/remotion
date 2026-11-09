@@ -82,6 +82,8 @@ The `-webkit-text-stroke`, `-webkit-text-stroke-color`, `-webkit-text-stroke-wid
 
 Fonts loaded through [`@remotion/fonts`](/docs/fonts-api) or [`@remotion/google-fonts`](/docs/google-fonts) are embedded automatically when they are used by `<text>`, `<tspan>`, or `<textPath>` inside an `<svg>` from <AvailableFrom v="4.0.525" inline />.
 
+Script-loaded font families are embedded only while they belong to the SVG's document. Removing the last face restores native fallback; re-adding it restores embedding. Removing or replacing individual faces while another face of the same family remains is not fully supported.
+
 The font selection must be part of the SVG markup, for example through an inline `style`, a `font-family` attribute, or a `<style>` element inside the SVG. A CSS class whose rules are defined outside the SVG is not preserved when the SVG is converted into an image.
 
 Fonts loaded through CSS `@font-face`, a Google Fonts CSS import, or the browser's `FontFace` API are not embedded. Text inside `<foreignObject>` is not detected as SVG text and does not receive embedded fonts.

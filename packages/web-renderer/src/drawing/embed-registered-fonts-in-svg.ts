@@ -33,6 +33,12 @@ const getBase64 = (data: ArrayBuffer): string => {
 	return base64;
 };
 
+const normalizeFamily = (family: string) =>
+	family
+		.trim()
+		.replace(/^(['"])(.*)\1$/, '$2')
+		.toLowerCase();
+
 const normalizeWeight = (value: string): number | null => {
 	if (value === 'normal') {
 		return 400;
@@ -208,6 +214,9 @@ export const getEmbeddedFontStyleForSvg = (
 		return null;
 	}
 
+	const availableFamilies = new Set(
+		Array.from(svg.ownerDocument.fonts, (face) => normalizeFamily(face.family)),
+	);
 	const registeredFonts = NoReactInternals.getRegisteredFontFaces();
 	for (let index = indexedFontCount; index < registeredFonts.length; index++) {
 		const family = registeredFonts[index]!.fontFamily.toLowerCase();
@@ -237,10 +246,8 @@ export const getEmbeddedFontStyleForSvg = (
 				);
 			computedStyleByElement.set(parentElement, computedStyle);
 			for (const family of computedStyle.fontFamily.split(',')) {
-				const normalizedFamily = family
-					.trim()
-					.replace(/^(['"])(.*)\1$/, '$2')
-					.toLowerCase();
+				const normalizedFamily = normalizeFamily(family);
+				if (!availableFamilies.has(normalizedFamily)) continue;
 				const familyIndexes = fontIndexesByFamily.get(normalizedFamily) ?? [];
 				const matchingIndexes = familyIndexes.filter((index) =>
 					descriptorsMatch(registeredFonts[index]!, computedStyle),
