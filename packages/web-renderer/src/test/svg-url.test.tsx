@@ -37,16 +37,24 @@ test('should not clip the blur of a cropped SVG loaded from a URL', async () => 
 
 // KINO-7764: source URL representation must not change an uncropped SVG.
 test.for(
-	(['fill', 'contain'] as const).flatMap((objectFit) =>
-		[0, 1].map((frame) => ({objectFit, frame})),
+	(
+		[
+			{objectFit: 'fill', boxWidth: undefined, label: 'fill'},
+			{objectFit: 'contain', boxWidth: undefined, label: 'contain'},
+			{objectFit: 'contain', boxWidth: 64, label: 'contain64'},
+			{objectFit: 'contain', boxWidth: 61, label: 'contain61'},
+			{objectFit: 'contain', boxWidth: 31.359375, label: 'containFractional'},
+		] as const
+	).flatMap((configuration) =>
+		[0, 1].map((frame) => ({...configuration, frame})),
 	),
 )(
-	'preserves full-source SVG content through blob URLs ($objectFit, frame:$frame)',
-	async ({objectFit, frame}) => {
+	'preserves full-source SVG content through blob URLs ($label, frame:$frame)',
+	async ({objectFit, boxWidth, label, frame}) => {
 		const render = async (source: 'url' | 'blob') =>
 			(
 				await renderStillOnWeb({
-					composition: createSvgFullSourceFixture(source, objectFit),
+					composition: createSvgFullSourceFixture(source, objectFit, boxWidth),
 					frame,
 					inputProps: {},
 					licenseKey: 'free-license',
@@ -57,7 +65,7 @@ test.for(
 		const actual = await render('blob');
 		const result = await compareNativePixels(reference, actual);
 		if (result.mismatchedPixels > 0) {
-			const id = `svg-full-source-${objectFit}-${frame}`;
+			const id = `svg-full-source-${label}-${frame}`;
 			await savePixelEvidence(reference, `${id}-reference`);
 			await savePixelEvidence(actual, `${id}-actual`);
 			await savePixelEvidence(result.diff, `${id}-diff`);

@@ -101,6 +101,12 @@ import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {
 	svgFullSourceUrlFill,
+	svgFullSourceUrlContainFractional,
+	svgFullSourceBlobContainFractional,
+	svgFullSourceUrlContain64,
+	svgFullSourceBlobContain64,
+	svgFullSourceUrlContain61,
+	svgFullSourceBlobContain61,
 	svgFullSourceBlobFill,
 	svgFullSourceUrlContain,
 	svgFullSourceBlobContain,
@@ -185,6 +191,12 @@ export const Root: React.FC = () => {
 			<Composition {...svgFullSourceBlobFill} />
 			<Composition {...svgFullSourceUrlContain} />
 			<Composition {...svgFullSourceBlobContain} />
+			<Composition {...svgFullSourceUrlContain64} />
+			<Composition {...svgFullSourceBlobContain64} />
+			<Composition {...svgFullSourceUrlContain61} />
+			<Composition {...svgFullSourceBlobContain61} />
+			<Composition {...svgFullSourceUrlContainFractional} />
+			<Composition {...svgFullSourceBlobContainFractional} />
 			<Composition {...svgPreserveAspectRatioNone} />
 			<Composition {...flexPositionedScaled} />
 			<Composition {...displayNone} />

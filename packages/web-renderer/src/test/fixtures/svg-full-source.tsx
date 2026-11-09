@@ -14,6 +14,7 @@ const svg =
 export const createSvgFullSourceFixture = (
 	source: 'url' | 'blob',
 	objectFit: 'fill' | 'contain',
+	boxWidth?: number,
 ) => {
 	const Component = () => {
 		const frame = useCurrentFrame();
@@ -53,7 +54,7 @@ export const createSvgFullSourceFixture = (
 							<Img
 								src={src}
 								style={{
-									width: objectFit === 'contain' ? 78 : 65,
+									width: boxWidth ?? (objectFit === 'contain' ? 78 : 65),
 									height: 78,
 									objectFit,
 								}}
@@ -66,7 +67,7 @@ export const createSvgFullSourceFixture = (
 	};
 
 	return {
-		id: `svg-full-source-${source}-${objectFit}`,
+		id: `svg-full-source-${source}-${objectFit}${boxWidth === undefined ? '' : `-${String(boxWidth).replace('.', '-')}`}`,
 		width: 160,
 		height: 160,
 		fps: 25,
@@ -84,4 +85,36 @@ export const svgFullSourceUrlContain = createSvgFullSourceFixture(
 export const svgFullSourceBlobContain = createSvgFullSourceFixture(
 	'blob',
 	'contain',
+);
+
+export const svgFullSourceUrlContain64 = createSvgFullSourceFixture(
+	'url',
+	'contain',
+	64,
+);
+export const svgFullSourceBlobContain64 = createSvgFullSourceFixture(
+	'blob',
+	'contain',
+	64,
+);
+export const svgFullSourceUrlContain61 = createSvgFullSourceFixture(
+	'url',
+	'contain',
+	61,
+);
+export const svgFullSourceBlobContain61 = createSvgFullSourceFixture(
+	'blob',
+	'contain',
+	61,
+);
+
+export const svgFullSourceUrlContainFractional = createSvgFullSourceFixture(
+	'url',
+	'contain',
+	31.359375,
+);
+export const svgFullSourceBlobContainFractional = createSvgFullSourceFixture(
+	'blob',
+	'contain',
+	31.359375,
 );
