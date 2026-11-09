@@ -3,7 +3,7 @@ type LengthPercentage = {
 	value: number;
 };
 
-const splitAtTopLevel = (value: string, separator: ',' | ' ') => {
+export const splitAtTopLevel = (value: string, separator: ',' | ' ') => {
 	const parts: string[] = [];
 	let depth = 0;
 	let start = 0;
