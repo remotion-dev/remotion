@@ -44,6 +44,21 @@ import {clipPathInset} from './fixtures/clip-path-inset';
 import {clipPathPath} from './fixtures/clip-path-path';
 import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
+import {
+	clipPathRectangleDescendantFilter,
+	clipPathRectangleDescendantFilterObjectBox,
+} from './fixtures/clip-path-rectangle-descendant-filter';
+import {
+	clipPathRectangleUnion,
+	clipDescendantFilter,
+	clipTransformedDescendantFilter,
+	clipDescendantBlur,
+	clipNestedDescendantFilter,
+	clipScaledFilter,
+	clipPathRectangleUnionOpaque,
+	clipPathRectangleUnionSvgTarget,
+	clipPathRectangleUnionFilterOutsets,
+} from './fixtures/clip-path-rectangle-union';
 import {clipPathReference} from './fixtures/clip-path-reference';
 import {
 	clipPathReferenceReview,
@@ -367,6 +382,17 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathShapeReference} />
 				<Composition {...clipPathShapeReview} />
 				<Composition {...clipPathShapeReviewOpaque} />
+				<Composition {...clipPathRectangleUnion} />
+				<Composition {...clipDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilter} />
+				<Composition {...clipPathRectangleDescendantFilterObjectBox} />
+				<Composition {...clipTransformedDescendantFilter} />
+				<Composition {...clipDescendantBlur} />
+				<Composition {...clipNestedDescendantFilter} />
+				<Composition {...clipScaledFilter} />
+				<Composition {...clipPathRectangleUnionOpaque} />
+				<Composition {...clipPathRectangleUnionSvgTarget} />
+				<Composition {...clipPathRectangleUnionFilterOutsets} />
 				<Composition {...clipPathInset} />
 				<Composition {...clipPathEllipse} />
 			</Folder>
