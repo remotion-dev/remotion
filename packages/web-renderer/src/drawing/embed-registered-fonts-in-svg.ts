@@ -281,7 +281,11 @@ export const getEmbeddedFontStyleForSvg = (
 
 // Add definitions without changing authored child selectors when a style exists.
 export const insertFontStyleInSvg = (svg: SVGSVGElement, css: string) => {
-	let style = svg.querySelector<SVGStyleElement | HTMLStyleElement>('style');
+	// Keep the ordered face snapshot after every retained local font definition.
+	const styles = svg.querySelectorAll<SVGStyleElement | HTMLStyleElement>(
+		'style',
+	);
+	let style = styles[styles.length - 1];
 	if (!style) {
 		style = svg.ownerDocument.createElementNS(
 			'http://www.w3.org/2000/svg',
