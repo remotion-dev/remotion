@@ -135,6 +135,9 @@ The following Remotion components are supported:
 The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 [`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs and SVG files.<br />
+
+SVG data URIs recognize case-equivalent `image/svg+xml` media-type tokens and trailing ASCII whitespace before the delimiter without changing the data payload. This preserves source-representation consistency; exact SVG pixels may still differ from native painting, and classification of blob or extensionless SVG sources is not covered by this improvement.
+
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
 [`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
 [`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  

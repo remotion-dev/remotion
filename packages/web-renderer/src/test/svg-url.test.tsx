@@ -1,6 +1,7 @@
-import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
+import {staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
+import {createSvgDataMimeFixture} from './fixtures/svg-data-mime-case';
 import '../symbol-dispose';
 import {
 	svgUrlBlurredCover,
@@ -35,80 +36,36 @@ test('should not clip the blur of a cropped SVG loaded from a URL', async () => 
 	await testImage({blob, testId: 'svg-url-blurred-cover'});
 });
 
-// KINO-7764: SVG MIME token casing must not change identical vector content.
+// KINO-7764: Equivalent SVG media-type spellings must not change identical vector content.
 test.for(
-	[false, true].flatMap((cover) => [0, 1].map((frame) => ({cover, frame}))),
+	[
+		{kind: 'uppercase', mediaType: 'IMAGE/SVG+XML;charset=utf-8'},
+		{kind: 'whitespace', mediaType: 'image/svg+xml '},
+	].flatMap(({kind, mediaType}) =>
+		[false, true].flatMap((cover) =>
+			[0, 1].map((frame) => ({kind, mediaType, cover, frame})),
+		),
+	),
 )(
-	'preserves SVG data MIME casing (cover:$cover, frame:$frame)',
-	async ({cover, frame}) => {
+	'preserves SVG data MIME $kind (cover:$cover, frame:$frame)',
+	async ({kind, mediaType, cover, frame}) => {
 		const svg = await (await fetch(staticFile('nonzero-viewbox.svg'))).text();
-		const fixture = (uppercase: boolean) => {
-			const Component = () => {
-				const current = useCurrentFrame();
-				return (
-					<AbsoluteFill style={{backgroundColor: 'white'}}>
-						<div
-							style={{
-								position: 'absolute',
-								left: 8 + current,
-								top: 8 + current,
-								width: 80,
-								height: 80,
-								transform: 'scale(1.5)',
-								transformOrigin: '0 0',
-							}}
-						>
-							<AbsoluteFill
-								style={{
-									backgroundColor: 'white',
-									alignItems: 'center',
-									justifyContent: 'center',
-								}}
-							>
-								<Img
-									src={`data:${uppercase ? 'IMAGE/SVG+XML' : 'image/svg+xml'};charset=utf-8,${encodeURIComponent(svg)}`}
-									style={
-										cover
-											? {
-													width: 50,
-													height: 30,
-													objectFit: 'cover',
-													filter: 'blur(4px)',
-												}
-											: {width: 65, height: 78}
-									}
-								/>
-							</AbsoluteFill>
-						</div>
-					</AbsoluteFill>
-				);
-			};
 
-			return {
-				component: Component,
-				id: 'svg-data-mime-case',
-				width: 160,
-				height: 160,
-				fps: 25,
-				durationInFrames: 2,
-			};
-		};
-
-		const render = async (uppercase: boolean) =>
+		const render = async (type: string) =>
 			(
 				await renderStillOnWeb({
-					composition: fixture(uppercase),
+					composition: createSvgDataMimeFixture(svg, type, cover),
 					frame,
 					inputProps: {},
 					licenseKey: 'free-license',
 					allowHtmlInCanvas: false,
 				})
 			).blob({format: 'png'});
-		const reference = await render(false);
-		const actual = await render(true);
+		const reference = await render('image/svg+xml;charset=utf-8');
+		const actual = await render(mediaType);
 		const result = await compareNativePixels(reference, actual);
 		if (result.mismatchedPixels > 0) {
-			const id = `svg-mime-${cover}-${frame}`;
+			const id = `svg-mime-${kind}-${cover}-${frame}`;
 			await savePixelEvidence(reference, `${id}-reference`);
 			await savePixelEvidence(actual, `${id}-actual`);
 			await savePixelEvidence(result.diff, `${id}-diff`);
