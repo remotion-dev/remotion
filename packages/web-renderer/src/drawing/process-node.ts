@@ -19,7 +19,11 @@ import {
 	applyFilterToDrawOperation,
 	getPrecomposeRectForFilter,
 } from './handle-filter';
-import {getPrecomposeRectForMask, handleMask} from './handle-mask';
+import {
+	getPrecomposeRectForMask,
+	handleMask,
+	handleSvgClip,
+} from './handle-mask';
 import {setOpacity} from './opacity';
 import {roundToExpandRect} from './round-to-expand-rect';
 import {scaleRect} from './scale-rect';
@@ -90,7 +94,7 @@ export const processNode = async ({
 		const start = Date.now();
 
 		let precomposeRect: DOMRect | null = null;
-		if (precompositing.needsMaskImage) {
+		if (precompositing.needsMaskImage || precompositing.needsSvgClip) {
 			precomposeRect = roundToExpandRect(getPrecomposeRectForMask(element));
 		}
 
@@ -116,6 +120,7 @@ export const processNode = async ({
 			const tentativePrecomposeRect = getPrecomposeRectForFilter({
 				element,
 				filter: precompositing.needsFilterPrecompositing,
+				includeBlur: precompositing.needsSvgClip !== null,
 			});
 
 			precomposeRect = roundToExpandRect(
@@ -127,7 +132,9 @@ export const processNode = async ({
 		}
 
 		const needsGroup =
-			precompositing.needsBlendMode !== null || precompositing.needsIsolation;
+			precompositing.needsBlendMode !== null ||
+			precompositing.needsIsolation ||
+			precompositing.needsSvgClip !== null;
 
 		if (needsGroup) {
 			precomposeRect = roundToExpandRect(
@@ -189,6 +196,32 @@ export const processNode = async ({
 				}),
 			}),
 		);
+
+		const filteredBeforeClip = Boolean(
+			precompositing.needsSvgClip && precompositing.needsFilterPrecompositing,
+		);
+		if (filteredBeforeClip) {
+			tempContext.save();
+			tempContext.resetTransform();
+			tempContext.globalAlpha = 1;
+			tempContext.globalCompositeOperation = 'copy';
+			applyFilterToDrawOperation({
+				context: tempContext,
+				filter: precompositing.needsFilterPrecompositing!,
+				drawFn: () => tempContext.drawImage(tempContext.canvas, 0, 0),
+			});
+			tempContext.restore();
+		}
+
+		if (precompositing.needsSvgClip) {
+			await handleSvgClip({
+				element,
+				resource: precompositing.needsSvgClip,
+				maskRect: dimensions,
+				precomposeRect: layerRect,
+				tempContext,
+			});
+		}
 
 		if (precompositing.needsMaskImage) {
 			await handleMask({
@@ -266,7 +299,7 @@ export const processNode = async ({
 			: () => {};
 
 		// Apply filter when drawing the precomposed canvas if needed
-		if (precompositing.needsFilterPrecompositing) {
+		if (precompositing.needsFilterPrecompositing && !filteredBeforeClip) {
 			applyFilterToDrawOperation({
 				context,
 				filter: precompositing.needsFilterPrecompositing,

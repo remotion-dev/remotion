@@ -258,13 +258,11 @@ export function parseClipPath(clipPath: string, rect: DOMRect): ParsedClipPath {
 	return {type: 'none'};
 }
 
-// The Canvas clip must be vector geometry so it also applies to descendants.
-// Reuse Path2D rather than rasterizing the SVG resource into a separate mask.
-const getReferencedShape = (
+// Resolve local resources once for the native HTML mask and SVG vector paths.
+const getReferencedClipPath = (
 	source: string,
 	element: Element,
-	rect: DOMRect,
-): {path: Path2D; fillRule: CanvasFillRule} | null => {
+): SVGClipPathElement | null => {
 	let url: URL;
 	let id: string;
 	try {
@@ -285,6 +283,16 @@ const getReferencedShape = (
 		return null;
 	const resource = element.ownerDocument.getElementById(id);
 	if (!(resource instanceof SVGClipPathElement)) return null;
+	return resource;
+};
+
+const getReferencedShape = (
+	source: string,
+	element: Element,
+	rect: DOMRect,
+): {path: Path2D; fillRule: CanvasFillRule} | null => {
+	const resource = getReferencedClipPath(source, element);
+	if (!resource) return null;
 	const children = Array.from(resource.children).filter(
 		(node) => getComputedStyle(node).display !== 'none',
 	);
@@ -351,6 +359,39 @@ const getReferencedShape = (
 		fillRule:
 			getComputedStyle(child).clipRule === 'evenodd' ? 'evenodd' : 'nonzero',
 	};
+};
+
+export const getSvgClipForPrecompositing = (
+	clipPath: string,
+	element: Element,
+): SVGClipPathElement | null => {
+	if (!(element instanceof HTMLElement)) return null;
+	const parsed = parseClipPath(clipPath, new DOMRect());
+	if (parsed.type !== 'url') return null;
+	const resource = getReferencedClipPath(parsed.source, element);
+	if (!resource) return null;
+	const children = Array.from(resource.children).filter(
+		(node) =>
+			node instanceof SVGGraphicsElement &&
+			getComputedStyle(node).display !== 'none',
+	);
+	if (
+		children.length > 1 ||
+		children.some((node) => {
+			if (node instanceof SVGRectElement) {
+				return (
+					node.rx.baseVal.valueInSpecifiedUnits > 0 ||
+					node.ry.baseVal.valueInSpecifiedUnits > 0
+				);
+			}
+
+			return !(
+				node instanceof SVGPolygonElement || node instanceof SVGPathElement
+			);
+		})
+	)
+		return null;
+	return resource;
 };
 
 export function setClipPath({
