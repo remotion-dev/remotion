@@ -52,7 +52,7 @@ export const elementsUseCommand = async ({
 	const [, , pageUrl, ...extraArgs] = commandLine._;
 	if (pageUrl === undefined || extraArgs.length > 0) {
 		return fail(
-			`Usage: npx remotion elements ${USE_COMMAND} <url> [--element <slug>] [--composition <id>] [--yes]`,
+			`Usage: npx remotion elements ${USE_COMMAND} <url> [--element <slug>] [--composition <id>] [--overwrite] [--public-dir <path>] [--yes]`,
 		);
 	}
 
