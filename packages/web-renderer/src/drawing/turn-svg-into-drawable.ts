@@ -1,4 +1,5 @@
 import {getEmbeddedFontStyleForSvg} from './embed-registered-fonts-in-svg';
+import {parseFontFamilies} from './parse-font-families';
 
 const textFontProperties = [
 	'font-family',
@@ -50,9 +51,7 @@ const getCssDataFontRules = (svg: SVGSVGElement, fontFamilies: Set<string>) => {
 
 		for (const rule of cssRules) {
 			if (!(rule instanceof CSSFontFaceRule)) continue;
-			const family = rule.style.fontFamily
-				.replace(/^(['"])(.*)\1$/, '$2')
-				.toLowerCase();
+			const family = parseFontFamilies(rule.style.fontFamily)[0];
 			if (!fontFamilies.has(family)) continue;
 			const src = rule.style.getPropertyValue('src');
 			// Keep only one self-contained source, without local/network fallbacks.
@@ -150,26 +149,24 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			});
 		});
 	const fontFamilies = new Set(
-		textStyles.flatMap(
-			(style) =>
-				style?.[0].split(',').map((family) =>
-					family
-						.trim()
-						.replace(/^(['"])(.*)\1$/, '$2')
-						.toLowerCase(),
-				) ?? [],
-		),
+		textStyles.flatMap((style) => (style ? parseFontFamilies(style[0]) : [])),
 	);
 	const cssFontRules = textElements.length
 		? getCssDataFontRules(svg, fontFamilies)
 		: '';
 	if (cssFontRules) {
-		const style = svg.ownerDocument.createElementNS(
-			'http://www.w3.org/2000/svg',
-			'style',
-		);
-		style.textContent = cssFontRules;
-		svgForSerialization.prepend(style);
+		const existingStyle = svgForSerialization.querySelector('style');
+		if (existingStyle) {
+			// Adding a sibling would change authored nth-child/last-child selectors.
+			existingStyle.textContent = cssFontRules + existingStyle.textContent;
+		} else {
+			const style = svg.ownerDocument.createElementNS(
+				'http://www.w3.org/2000/svg',
+				'style',
+			);
+			style.textContent = cssFontRules;
+			svgForSerialization.prepend(style);
+		}
 	}
 
 	const serializedSvg = new XMLSerializer()
