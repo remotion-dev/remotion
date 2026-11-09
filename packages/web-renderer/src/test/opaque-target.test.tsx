@@ -1,35 +1,9 @@
-import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {expect, test} from 'vitest';
 import '../symbol-dispose';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import {renderFramesOnWeb, renderStillOnWeb} from '../render-still-on-web';
+import {opaqueTargetText, opaqueTargetGroup} from './fixtures/opaque-target';
 import {captureNativeReference, compareNativePixels} from './native-reference';
-
-const OpaqueText = () => {
-	const frame = useCurrentFrame();
-	return (
-		<AbsoluteFill style={{backgroundColor: 'white'}}>
-			<svg width={400} height={120}>
-				<text
-					x={12}
-					y={48}
-					style={{fontFamily: 'sans-serif', fontSize: 32 + frame * 2}}
-				>
-					Native opaque text
-				</text>
-			</svg>
-		</AbsoluteFill>
-	);
-};
-
-const opaqueText = {
-	component: OpaqueText,
-	id: 'opaque-target-text',
-	width: 400,
-	height: 120,
-	fps: 30,
-	durationInFrames: 2,
-};
 
 // KINO-7777: Linux LCD text differs when an opaque final target retains alpha.
 test.for([0, 1])(
@@ -40,10 +14,10 @@ test.for([0, 1])(
 			return;
 		}
 
-		const reference = await captureNativeReference(opaqueText, frame);
+		const reference = await captureNativeReference(opaqueTargetText, frame);
 		const actual = await (
 			await renderStillOnWeb({
-				composition: opaqueText,
+				composition: opaqueTargetText,
 				frame,
 				licenseKey: 'free-license',
 				inputProps: {},
@@ -57,33 +31,10 @@ test.for([0, 1])(
 	},
 );
 
-const TransparentGroup = () => (
-	<div style={{width: 16, height: 16, opacity: 0.5, mixBlendMode: 'screen'}}>
-		<div style={{width: 16, height: 16, backgroundColor: 'red'}} />
-		<div
-			style={{
-				position: 'absolute',
-				top: 0,
-				width: 8,
-				height: 16,
-				backgroundColor: 'blue',
-			}}
-		/>
-	</div>
-);
-const transparentGroup = {
-	component: TransparentGroup,
-	id: 'opaque-target-group',
-	width: 16,
-	height: 16,
-	fps: 30,
-	durationInFrames: 2,
-};
-
 test('still and batch targets preserve transparent defaults and translucent groups', async () => {
 	for (const transparent of [undefined, true, false]) {
 		const still = await renderStillOnWeb({
-			composition: transparentGroup,
+			composition: opaqueTargetGroup,
 			frame: 0,
 			licenseKey: 'free-license',
 			inputProps: {},
@@ -91,7 +42,7 @@ test('still and batch targets preserve transparent defaults and translucent grou
 			transparent,
 		});
 		const batch = await renderFramesOnWeb({
-			composition: transparentGroup,
+			composition: opaqueTargetGroup,
 			frames: [0, 1],
 			licenseKey: 'free-license',
 			inputProps: {},
@@ -121,7 +72,7 @@ test('media applies its transparent option to the final target', async (t) => {
 	for (const transparent of [false, true]) {
 		let frames = 0;
 		await renderMediaOnWeb({
-			composition: transparentGroup,
+			composition: opaqueTargetGroup,
 			licenseKey: 'free-license',
 			inputProps: {},
 			allowHtmlInCanvas: false,
