@@ -98,6 +98,14 @@ import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
+import {
+	svgDataMimeWhitespace,
+	svgDataMimeCoverWhitespace,
+	svgDataMimeLowercase,
+	svgDataMimeUppercase,
+	svgDataMimeCoverLowercase,
+	svgDataMimeCoverUppercase,
+} from './fixtures/svg-data-mime-case';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
@@ -145,6 +153,12 @@ import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 export const Root: React.FC = () => {
 	return (
 		<>
+			<Composition {...svgDataMimeLowercase} />
+			<Composition {...svgDataMimeUppercase} />
+			<Composition {...svgDataMimeCoverLowercase} />
+			<Composition {...svgDataMimeCoverUppercase} />
+			<Composition {...svgDataMimeWhitespace} />
+			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
 			<Composition {...nativeReferenceControl} />
 			<Composition {...parentRotatedSvg} />
