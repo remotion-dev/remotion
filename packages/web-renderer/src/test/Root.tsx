@@ -6,11 +6,19 @@ import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
 import {
+	pixelatedBackgroundSampler,
+	pixelatedBackgroundSamplerControl,
+} from './fixtures/background-image-pixelated-sampler-lifetime';
+import {
 	spaceTextMaskTransparent,
 	spaceTextMaskWhite,
 } from './fixtures/background-image-space-text-mask';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {
+	backgroundImagePixelated,
+	backgroundImagePixelatedContexts,
+} from './fixtures/background-image-url-pixelated';
 import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {backgroundImageSpace} from './fixtures/background-image-url-space';
 import {border} from './fixtures/border';
@@ -99,6 +107,13 @@ import {pixelDensity} from './fixtures/pixel-density';
 import {pixelTransformOrigin} from './fixtures/pixel-transform-origin';
 import {positionedSvg} from './fixtures/positioned-svg';
 import {pr11215SvgFontRepro} from './fixtures/pr-11215-svg-font-repro';
+import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
+import {
+	replacedSamplerPixelated,
+	replacedSamplerAuto,
+	svgSamplerPixelated,
+	svgSamplerAuto,
+} from './fixtures/replaced-element-sampler-controls';
 import {rotatedCanvas} from './fixtures/rotated-canvas';
 import {scaleFixture} from './fixtures/scale';
 import {scalePrecomposeFixture} from './fixtures/scale-precompose';
@@ -195,9 +210,18 @@ export const Root: React.FC = () => {
 			<Composition {...backgroundImageSpace} />
 			<Composition {...spaceTextMaskTransparent} />
 			<Composition {...spaceTextMaskWhite} />
+			<Composition {...backgroundImagePixelated} />
+			<Composition {...backgroundImagePixelatedContexts} />
+			<Composition {...pixelatedBackgroundSampler} />
+			<Composition {...pixelatedBackgroundSamplerControl} />
 			<Composition {...backgroundImageRound} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
+			<Composition {...replacedElementPixelated} />
+			<Composition {...replacedSamplerPixelated} />
+			<Composition {...replacedSamplerAuto} />
+			<Composition {...svgSamplerPixelated} />
+			<Composition {...svgSamplerAuto} />
 			<Composition {...nestedTranslateScale} />
 			<Composition {...scaledTranslatedSvg} />
 			<Composition {...svgExplicitDimensions} />
