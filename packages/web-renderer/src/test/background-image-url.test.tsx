@@ -4,6 +4,7 @@ import '../symbol-dispose';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -14,8 +15,8 @@ import {testImage} from './utils';
 test
 	.skipIf(!navigator.userAgent.includes('Chrome'))
 	.each(
-		[backgroundImageUrl, backgroundImageContain].flatMap((fixture) =>
-			[0, 1].map((frame) => ({fixture, frame})),
+		[backgroundImageUrl, backgroundImageContain, backgroundImageRound].flatMap(
+			(fixture) => [0, 1].map((frame) => ({fixture, frame})),
 		),
 	)(
 	'raster $fixture.id matches native frame $frame',

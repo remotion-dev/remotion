@@ -7,6 +7,7 @@ import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
 import {borderRadius} from './fixtures/border-radius';
@@ -65,12 +66,15 @@ import {linearGradient} from './fixtures/linear-gradient';
 import {manyLayers} from './fixtures/many-layers';
 import {maskImage} from './fixtures/mask-image';
 import {maskImageUrl} from './fixtures/mask-image-url';
+import {maskImageUrlCalcPosition} from './fixtures/mask-image-url-calc-position';
+import {maskImageUrlPosition} from './fixtures/mask-image-url-position';
 import {maskImageUrlSizing} from './fixtures/mask-image-url-sizing';
 import {
 	mixBlendModeAllModes,
 	mixBlendModeGroups,
 } from './fixtures/mix-blend-mode';
 import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origins';
+import {nativeReferenceControl} from './fixtures/native-reference-control';
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
 import {objectPosition, objectPositionMath} from './fixtures/object-position';
@@ -104,6 +108,14 @@ import {scaledTranslatedSvg} from './fixtures/scaled-translated-svg';
 import {selfTransformOrigin} from './fixtures/self-transform-origin';
 import {simpleRotatedSvg} from './fixtures/simple-rotated-svg';
 import {stackingContextSiblings} from './fixtures/stacking-context-siblings';
+import {
+	svgDataMimeWhitespace,
+	svgDataMimeCoverWhitespace,
+	svgDataMimeLowercase,
+	svgDataMimeUppercase,
+	svgDataMimeCoverLowercase,
+	svgDataMimeCoverUppercase,
+} from './fixtures/svg-data-mime-case';
 import {svgDataUri} from './fixtures/svg-data-uri';
 import {svgExplicitDimensions} from './fixtures/svg-explicit-dimensions';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
@@ -151,7 +163,14 @@ import {whiteSpaceCollapsing2} from './fixtures/whitespace-collapsing-2';
 export const Root: React.FC = () => {
 	return (
 		<>
+			<Composition {...svgDataMimeLowercase} />
+			<Composition {...svgDataMimeUppercase} />
+			<Composition {...svgDataMimeCoverLowercase} />
+			<Composition {...svgDataMimeCoverUppercase} />
+			<Composition {...svgDataMimeWhitespace} />
+			<Composition {...svgDataMimeCoverWhitespace} />
 			<Composition {...simpleRotatedSvg} />
+			<Composition {...nativeReferenceControl} />
 			<Composition {...parentRotatedSvg} />
 			<Composition {...selfTransformOrigin} />
 			<Composition {...parentTransformOrigin} />
@@ -175,6 +194,7 @@ export const Root: React.FC = () => {
 			<Composition {...objectFit} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
+			<Composition {...backgroundImageRound} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
 			<Composition {...replacedElementPixelated} />
@@ -210,6 +230,8 @@ export const Root: React.FC = () => {
 				<Composition {...mixBlendModeGroups} />
 				<Composition {...maskImageUrl} />
 				<Composition {...maskImageUrlSizing} />
+				<Composition {...maskImageUrlPosition} />
+				<Composition {...maskImageUrlCalcPosition} />
 				<Composition {...backfaceVisibilityMask} />
 				<Composition {...linearGradient} />
 				<Composition {...gradientTransparentKeyword} />
