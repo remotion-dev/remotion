@@ -29,6 +29,11 @@ import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
 import {
 	clipPathRectangleUnion,
+	clipDescendantFilter,
+	clipTransformedDescendantFilter,
+	clipDescendantBlur,
+	clipNestedDescendantFilter,
+	clipScaledFilter,
 	clipPathRectangleUnionOpaque,
 	clipPathRectangleUnionSvgTarget,
 	clipPathRectangleUnionFilterOutsets,
@@ -316,6 +321,11 @@ export const Root: React.FC = () => {
 				<Composition {...clipPathReference} />
 				<Composition {...clipPathShapeReference} />
 				<Composition {...clipPathRectangleUnion} />
+				<Composition {...clipDescendantFilter} />
+				<Composition {...clipTransformedDescendantFilter} />
+				<Composition {...clipDescendantBlur} />
+				<Composition {...clipNestedDescendantFilter} />
+				<Composition {...clipScaledFilter} />
 				<Composition {...clipPathRectangleUnionOpaque} />
 				<Composition {...clipPathRectangleUnionSvgTarget} />
 				<Composition {...clipPathRectangleUnionFilterOutsets} />

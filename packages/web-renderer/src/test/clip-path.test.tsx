@@ -11,6 +11,12 @@ import {clipPathPolygon} from './fixtures/clip-path-polygon';
 import {clipPathPolygonFillRules} from './fixtures/clip-path-polygon-fill-rules';
 import {
 	clipPathRectangleUnion,
+	clipDescendantFilter,
+	clipTransformedDescendantFilter,
+	clipDescendantBlur,
+	clipNestedDescendantFilter,
+	clipScaledFilter,
+	clipScaledFilterNative,
 	clipPathRectangleUnionOpaque,
 	clipPathRectangleUnionSvgTarget,
 	clipPathRectangleUnionFilterOutsets,
@@ -254,3 +260,35 @@ test('restores multi-rectangle clip group properties and important priorities (K
 		host.remove();
 	}
 });
+
+for (const [fixture, referenceFixture, scale] of [
+	[clipDescendantFilter, clipDescendantFilter, 1],
+	[clipTransformedDescendantFilter, clipTransformedDescendantFilter, 1],
+	[clipDescendantBlur, clipDescendantBlur, 1],
+	[clipNestedDescendantFilter, clipNestedDescendantFilter, 1],
+	[clipScaledFilter, clipScaledFilterNative, 2],
+] as const) {
+	test(`preserves filter paint for ${fixture.id}`, async (t) => {
+		if (!('filter' in new OffscreenCanvas(1, 1).getContext('2d')!)) {
+			t.skip();
+			return;
+		}
+
+		for (const frame of [0, 1]) {
+			const actual = await (
+				await renderStillOnWeb({
+					licenseKey: 'free-license',
+					composition: fixture,
+					frame,
+					inputProps: {},
+					scale,
+				})
+			).blob({format: 'png'});
+			const reference = await captureNativeReference(referenceFixture, frame, {
+				omitBackground: false,
+			});
+			const comparison = await compareNativePixels(reference, actual);
+			expect(comparison.mismatchedPixels).toBe(0);
+		}
+	});
+}
