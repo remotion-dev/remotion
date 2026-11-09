@@ -72,6 +72,9 @@ export class MediaPlayer {
 	videoIteratorManager: VideoIteratorManager | null = null;
 
 	private playing = false;
+	private isPremounting: boolean;
+	private isPostmounting: boolean;
+	private lastRequestedTime = 0;
 	private lastSeekIntent: MediaSeekIntent = null;
 	private satisfiedSeekRevision: number | null = null;
 	private loop = false;
@@ -188,6 +191,8 @@ export class MediaPlayer {
 		this.nonceManager = makeNonceManager();
 		this.onVideoFrameCallback = onVideoFrameCallback;
 		this.playing = playing;
+		this.isPremounting = isPremounting;
+		this.isPostmounting = isPostmounting;
 		this.sequenceOffset = sequenceOffset;
 		// Reuse a shared, reference-counted Input per (src, credentials,
 		// requestInit) so mounting a new range does not re-parse the container or
@@ -253,6 +258,7 @@ export class MediaPlayer {
 		initialVolume: number,
 	): Promise<MediaPlayerInitResult> {
 		this.muted = initialMuted;
+		this.lastRequestedTime = startTimeUnresolved;
 		const promise = this._initialize(
 			startTimeUnresolved,
 			initialMuted,
@@ -566,6 +572,7 @@ export class MediaPlayer {
 		}
 
 		this.lastSeekIntent = intent;
+		this.lastRequestedTime = time;
 		if (intent === 'discontinuity') {
 			// A mapping change may supersede a queued timeline request.
 			this.satisfiedSeekRevision = null;
@@ -760,11 +767,13 @@ export class MediaPlayer {
 	}
 
 	public setIsPremounting(isPremounting: boolean): void {
+		this.isPremounting = isPremounting;
 		this.premountAwareDelayPlayback.setIsPremounting(isPremounting);
 		processNext();
 	}
 
 	public setIsPostmounting(isPostmounting: boolean): void {
+		this.isPostmounting = isPostmounting;
 		this.premountAwareDelayPlayback.setIsPostmounting(isPostmounting);
 		processNext();
 	}
@@ -844,11 +853,12 @@ export class MediaPlayer {
 			throw new Error('Shared audio context not found');
 		}
 
-		const globalTime =
-			(currentTime - this.sharedAudioContext.audioSyncAnchor.value) *
-			this.globalPlaybackRate;
-
-		const timeInSeconds = globalTime - this.sequenceOffset;
+		const timeInSeconds =
+			this.playing || this.isPremounting || this.isPostmounting
+				? (currentTime - this.sharedAudioContext.audioSyncAnchor.value) *
+						this.globalPlaybackRate -
+					this.sequenceOffset
+				: this.lastRequestedTime;
 
 		// When looping, the audio iterator emits timestamps that continue
 		// monotonically across loop iterations, while the looped media time

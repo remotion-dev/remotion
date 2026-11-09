@@ -247,6 +247,15 @@ export const usePlayback = ({
 
 		const callback = () => {
 			const newState = sharedAudioContext?.getAudioContextState();
+			// Native audio can already be playing while its output timestamp still
+			// lags. Keep the schedule established before this resume started.
+			if (
+				newState === 'running' &&
+				sharedAudioContext?.getIsResumingAudioContext()
+			) {
+				return;
+			}
+
 			if (newState && shouldForceAnchorChange(newState)) {
 				updateAudioAnchor();
 			}
@@ -445,7 +454,6 @@ export const usePlayback = ({
 					// The audio context is being re-established; start a fresh clock.
 					clock.startedTime = performance.now();
 					clock.framesAdvanced = 0;
-					updateAudioAnchor();
 					queueNextFrame();
 				});
 

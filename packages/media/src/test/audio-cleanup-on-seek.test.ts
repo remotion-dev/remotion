@@ -220,8 +220,11 @@ test('re-anchoring keeps a pending read and disposal returns its generator', asy
 	});
 
 	try {
-		iterator.scheduleAudio(makeChunk(context, 0, 0.1));
 		const read = iterator.getNextFn();
+		expect(iterator.rescheduleAudio(-1)).toBe(false);
+		expect(iterator.rescheduleAudio(1)).toBe(false);
+		expect(iterator.rescheduleAudio(0)).toBe(true);
+		iterator.scheduleAudio(makeChunk(context, 0, 0.1));
 		expect(iterator.rescheduleAudio(0)).toBe(true);
 		expect(returned).toBe(0);
 		iterator.destroy();
