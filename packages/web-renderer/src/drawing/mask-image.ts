@@ -1,4 +1,4 @@
-import {parseLengthPercentage} from './background-image-rect';
+import {parseLengthPercentage, splitAtTopLevel} from './background-image-rect';
 import type {
 	LinearGradientInfo,
 	RadialGradientInfo,
@@ -7,6 +7,7 @@ import {
 	parseLinearGradient,
 	parseRadialGradient,
 } from './parse-linear-gradient';
+
 
 type LinearGradientMaskImageInfo = {
 	type: 'linear-gradient';
@@ -18,6 +19,7 @@ export type UrlMaskImageInfo = {
 	src: string;
 	maskSize: string;
 	maskRepeat: string;
+	maskPosition: string;
 };
 
 export type MaskImageInfo =
@@ -153,10 +155,15 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 		}),
 	);
 
+	const positionParts = splitAtTopLevel(maskPosition, ' ');
 	const isSupportedPosition =
-		maskPosition === '0% 0%' ||
-		maskPosition === '0px 0px' ||
-		maskPosition === 'left top';
+		positionParts.length === 2 &&
+		positionParts.every(
+			(value) =>
+				['left', 'right', 'top', 'bottom', 'center'].includes(value) ||
+				parseLengthPercentage(value) !== null ||
+				/^(calc|min|max|clamp)\(/.test(value),
+		);
 	const sizeParts = maskSize.split(' ');
 	const isSupportedSize =
 		['contain', 'cover'].includes(maskSize) ||
@@ -189,12 +196,12 @@ const validateUrlMaskImageStyle = (computedStyle: CSSStyleDeclaration) => {
 
 	if (unsupportedProperties.length > 0) {
 		throw new Error(
-			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, mask-position: 0% 0%, the border box as origin and clip, and alpha semantics. ' +
+			'@remotion/web-renderer only supports URL masks with pixel/percentage/auto/contain/cover sizing, repeat/no-repeat tiling, pixel/percentage/CSS-math mask positioning, the border box as origin and clip, and alpha semantics. ' +
 				`Unsupported value${unsupportedProperties.length === 1 ? '' : 's'}: ${unsupportedProperties.join(', ')}`,
 		);
 	}
 
-	return {maskSize, maskRepeat};
+	return {maskSize, maskRepeat, maskPosition};
 };
 
 export const parseMaskImage = (

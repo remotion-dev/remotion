@@ -53,10 +53,12 @@ export const getBackgroundFill = async ({
 			const rect = getBackgroundImageRect({
 				backgroundPosition,
 				backgroundSize,
+				backgroundRepeat,
 				positioningArea,
 				intrinsicSize: image,
 			});
 			if (rect.width === 0 || rect.height === 0) return null;
+			const repeatStyle = backgroundRepeat.replace(/round/g, 'repeat');
 			const repetition =
 				(
 					{
@@ -65,10 +67,23 @@ export const getBackgroundFill = async ({
 						'repeat no-repeat': 'repeat-x',
 						'no-repeat repeat': 'repeat-y',
 					} as Record<string, string>
-				)[backgroundRepeat] ?? backgroundRepeat;
+				)[repeatStyle] ?? repeatStyle;
 			if (!['repeat', 'repeat-x', 'repeat-y', 'no-repeat'].includes(repetition))
 				throw new Error(`Unsupported background-repeat: ${backgroundRepeat}`);
-			if (repetition === 'no-repeat') return {image, rect};
+			// A single round tile with no overflow uses edge-clamped image sampling.
+			if (
+				repetition === 'no-repeat' ||
+				((backgroundRepeat === 'round' || backgroundRepeat === 'round round') &&
+					rect.width === positioningArea.width &&
+					rect.height === positioningArea.height &&
+					rect.left === positioningArea.left &&
+					rect.top === positioningArea.top &&
+					boundingRect.left === positioningArea.left &&
+					boundingRect.top === positioningArea.top &&
+					boundingRect.width === positioningArea.width &&
+					boundingRect.height === positioningArea.height)
+			)
+				return {image, rect};
 			const pattern = contextToDraw.createPattern(image, repetition);
 			if (!pattern)
 				throw new Error('Could not create raster background pattern');
