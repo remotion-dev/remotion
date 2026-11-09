@@ -5,8 +5,16 @@ import {accumulatedTransforms} from './fixtures/accumulated-transforms';
 import {backfaceVisibilityMask} from './fixtures/backface-visibility-mask';
 import {backgroundBlendMode} from './fixtures/background-blend-mode';
 import {backgroundColor} from './fixtures/background-color';
+import {
+	pixelatedBackgroundSampler,
+	pixelatedBackgroundSamplerControl,
+} from './fixtures/background-image-pixelated-sampler-lifetime';
 import {backgroundImageUrl} from './fixtures/background-image-url';
 import {backgroundImageContain} from './fixtures/background-image-url-contain';
+import {
+	backgroundImagePixelated,
+	backgroundImagePixelatedContexts,
+} from './fixtures/background-image-url-pixelated';
 import {backgroundImageRound} from './fixtures/background-image-url-round';
 import {border} from './fixtures/border';
 import {borderIndividualSides} from './fixtures/border-individual-sides';
@@ -194,6 +202,10 @@ export const Root: React.FC = () => {
 			<Composition {...objectFit} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
+			<Composition {...backgroundImagePixelated} />
+			<Composition {...backgroundImagePixelatedContexts} />
+			<Composition {...pixelatedBackgroundSampler} />
+			<Composition {...pixelatedBackgroundSamplerControl} />
 			<Composition {...backgroundImageRound} />
 			<Composition {...objectPosition} />
 			<Composition {...objectPositionMath} />
