@@ -153,7 +153,6 @@ const AudioLevelsInner: React.FC = () => {
 				overflow: 'hidden',
 			}}
 		>
-			<div style={{...textStyle, fontSize: 11}}>Audio</div>
 			<div style={{display: 'flex', flex: 1, minHeight: 0, gap: 6}}>
 				<div style={{position: 'relative', width: 20, marginBottom: 14}}>
 					{[0, -6, -12, -24, -36, -48, -60].map((db) => (
