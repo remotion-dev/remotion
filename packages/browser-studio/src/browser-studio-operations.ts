@@ -72,6 +72,7 @@ import {
 	type SymbolicatedStackFrame,
 	type UnsubscribeFromSequencePropsRequest,
 	type UndoRedoNavigation,
+	withRequiredAuxiliaryPackages,
 } from '@remotion/studio-shared';
 import type {KeyframeMutationResult} from '@remotion/studio-shared';
 import type {
@@ -3079,7 +3080,7 @@ export const createBrowserStudioOperations = ({
 				}
 
 				const installedDependencies = await resolveElementDependencies(
-					request.element.dependencies,
+					withRequiredAuxiliaryPackages(request.element.dependencies),
 				);
 				const durationInFrames = request.element.durationInFrames ?? null;
 				let insertion: {
