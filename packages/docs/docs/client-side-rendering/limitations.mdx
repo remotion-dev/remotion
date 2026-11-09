@@ -197,6 +197,8 @@ const MyComp = () => (
 
 The limitations from [`@remotion/media`](/docs/media/support) apply.
 
+Exports pause media-fetch timeout accounting while the browser reports being offline and resume after it reports being online. Canceling a render still works while offline.
+
 ## Single concurrency
 
 There is no multithreading for client-side rendering.  

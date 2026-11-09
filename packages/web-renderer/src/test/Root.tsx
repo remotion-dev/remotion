@@ -74,6 +74,7 @@ import {multiLevelTransformOrigins} from './fixtures/multi-level-transform-origi
 import {nestedTranslateScale} from './fixtures/nested-translate-scale';
 import {objectFit} from './fixtures/object-fit';
 import {objectPosition, objectPositionMath} from './fixtures/object-position';
+import {offlineRecovery} from './fixtures/offline-recovery';
 import {opacityInherited} from './fixtures/opacity-inherited';
 import {opacityNested} from './fixtures/opacity-nested';
 import {opacityReset} from './fixtures/opacity-reset';
@@ -166,6 +167,7 @@ export const Root: React.FC = () => {
 			<Composition {...htmlInCanvasFrameMatrix} />
 			<Composition {...htmlInCanvasNestedFrames} />
 			<Composition {...objectFit} />
+			<Composition {...offlineRecovery} />
 			<Composition {...backgroundImageUrl} />
 			<Composition {...backgroundImageContain} />
 			<Composition {...objectPosition} />

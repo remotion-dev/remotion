@@ -1,8 +1,7 @@
-import {Audio, Video} from '@remotion/media';
-import {staticFile} from 'remotion';
 import {expect, test, vi} from 'vitest';
 import {renderMediaOnWeb} from '../render-media-on-web';
 import '../symbol-dispose';
+import {offlineRecovery} from './fixtures/offline-recovery';
 
 // PR #12021: exercise both extraction handles and the outer readiness deadline.
 // Inject the browser's offline signals while keeping the real export pipeline.
@@ -30,29 +29,10 @@ test('resumes the same export after an outage longer than both deadlines', async
 		});
 	// Leave 3 seconds for extraction after reconnecting on a shared CI runner.
 	// The 6.5-second outage still exceeds this and the 5.5-second readiness deadline.
-	const Component: React.FC = () => (
-		<>
-			<Video
-				src={staticFile('video.mp4') + '?offline-recovery'}
-				delayRenderTimeoutInMilliseconds={5000}
-			/>
-			<Audio
-				src={staticFile('dialogue.wav') + '?offline-recovery'}
-				delayRenderTimeoutInMilliseconds={5000}
-			/>
-		</>
-	);
 	const controller = new AbortController();
 	const options = {
 		licenseKey: 'free-license',
-		composition: {
-			component: Component,
-			id: 'offline-recovery',
-			width: 100,
-			height: 100,
-			fps: 30,
-			durationInFrames: 3,
-		},
+		composition: offlineRecovery,
 		container: 'webm' as const,
 		videoCodec: 'vp8' as const,
 		audioCodec: 'opus' as const,
