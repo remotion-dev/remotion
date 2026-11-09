@@ -1,0 +1,69 @@
+---
+image: https://remotion.media/docs/generated/articles-docs-cli-canvas-capture-import.png
+title: npx remotion canvas-capture import
+crumb: CLI Reference
+sidebar_label: import
+---
+
+# npx remotion canvas-capture import<AvailableFrom v="4.0.543" />
+
+Imports a [Canvas Capture](/docs/canvas-capture) recording as a new composition without starting Remotion Studio.
+
+```bash title="Import a composition"
+bunx remotion canvas-capture import recording.webm
+```
+
+The recording must contain the original Canvas Capture metadata. The command creates an editable video and cursor composition, copies the recording to the public directory, and installs `@remotion/media` and `@remotion/mac-cursors` if needed.
+
+The command previews the files and dependencies, then asks for confirmation. Use `--yes` in scripts or `--dry-run` to preview without changing files.
+
+## Flags
+
+### `--composition`
+
+The new composition ID. Defaults to the filename without its extension, with unsupported characters replaced by hyphens. For example, `my capture.webm` becomes `my-capture`. Existing IDs are rejected; pass another ID with `--composition`.
+
+### `--composition-file`
+
+The existing TypeScript file containing the composition registrations, relative to the project root. By default, the command finds the registered root component from the project's entry point. If it cannot determine the file, pass it explicitly.
+
+The generated component is created beside this file. Existing component files and conflicting assets are never overwritten.
+
+### `--dry-run`
+
+Validates the input and previews the composition, source files, assets, and dependencies without installing packages or writing files. Does not ask for confirmation.
+
+### `--yes`
+
+Imports without asking for confirmation. Also available as `-y`. Required in non-interactive shells unless `--dry-run` is passed.
+
+### `--width`
+
+<Options id="width" />
+
+Defaults to `1920`.
+
+### `--height`
+
+<Options id="height" />
+
+Defaults to `1080`.
+
+### `--fps`
+
+<Options id="fps" />
+
+Defaults to `60`. The composition duration is calculated from the recording at this frame rate.
+
+### `--public-dir`
+
+<Options id="public-dir" />
+
+### `--package-manager`
+
+<Options id="package-manager" />
+
+## See also
+
+- [`npx remotion canvas-capture`](/docs/cli/canvas-capture)
+- [`addCanvasCaptureComposition()`](/docs/codemods/add-canvas-capture-composition)

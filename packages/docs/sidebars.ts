@@ -127,6 +127,18 @@ const sidebars: SidebarsConfig = {
 					},
 					items: ['cli/elements/use'],
 				},
+				{
+					type: 'category',
+					label: 'canvas-capture',
+					link: {type: 'doc', id: 'cli/canvas-capture/index'},
+					items: ['cli/canvas-capture/import'],
+				},
+				{
+					type: 'category',
+					label: 'open-timeline',
+					link: {type: 'doc', id: 'cli/open-timeline/index'},
+					items: ['cli/open-timeline/import'],
+				},
 				'cli/skills',
 				'cli/ffmpeg',
 				'cli/ffprobe',

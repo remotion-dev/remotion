@@ -29,6 +29,7 @@ import {
 	getCompletedClientRenders,
 	removeCompletedClientRender,
 } from './client-render-queue';
+import {prepareOpenTimelineImport} from './codemods/prepare-open-timeline-import';
 import {
 	detectOutdatedRemotionSkills,
 	parseRemotionSkillVersion,
@@ -85,6 +86,7 @@ export {
 };
 
 export const StudioServerInternals = {
+	prepareOpenTimelineImport,
 	startStudio,
 	getRemotionVersion,
 	waitForLiveEventsListener,

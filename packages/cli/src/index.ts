@@ -35,6 +35,7 @@ import {gpuCommand} from './gpu';
 import {supportsHyperlink} from './hyperlinks/is-supported';
 import {makeHyperlink} from './hyperlinks/make-link';
 import {importCanvasCapture} from './import-canvas-capture';
+import {importCompositionCommand} from './import-composition-command';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand, tryPrintLambdaHelp} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
@@ -186,6 +187,13 @@ export const cli = async () => {
 			await skillsCommand(args, logLevel, {
 				cwd: process.cwd(),
 				environment: process.env,
+			});
+		} else if (command === 'canvas-capture' || command === 'open-timeline') {
+			await importCompositionCommand({
+				feature: command,
+				remotionRoot,
+				argv: process.argv.slice(2),
+				logLevel,
 			});
 		} else if (command === 'experimental-codemod') {
 			await experimentalCodemodCommand(

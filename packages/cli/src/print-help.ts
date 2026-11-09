@@ -69,6 +69,39 @@ const options = (
 	});
 };
 
+const compositionImportOptions = [
+	{
+		flag: '--composition <id>',
+		optionIds: [],
+		description: 'New composition ID (default: filename without extension).',
+	},
+	{
+		flag: '--composition-file <path>',
+		optionIds: [],
+		description:
+			'Registration file (default: discovered from the project entry point).',
+	},
+	{
+		flag: '--dry-run',
+		optionIds: [],
+		description:
+			'Preview the import without installing packages or writing files.',
+	},
+	{
+		flag: '--yes, -y',
+		optionIds: [],
+		description: 'Import without asking for confirmation.',
+	},
+	...options(
+		['width', 'height', 'fps', 'public-dir', 'package-manager', 'log'],
+		{
+			width: 'Composition width (default: 1920).',
+			height: 'Composition height (default: 1080).',
+			fps: 'Composition FPS (default: 60 for Canvas Capture, 30 for OpenTimeline).',
+		},
+	),
+];
+
 const studioOptions = options(
 	[
 		'props',
@@ -530,7 +563,44 @@ export const cliCommandHelp = [
 				description: 'Install without asking for confirmation.',
 				optionIds: [],
 			},
-			...options(['public-dir', 'log']),
+			{
+				flag: '--dry-run',
+				optionIds: [],
+				description: 'Preview the installation without changing files.',
+			},
+			...options(['public-dir', 'package-manager', 'log']),
+		],
+	},
+	{
+		path: ['canvas-capture'],
+		args: ' <command>',
+		description: 'Import Canvas Capture recordings.',
+		documentation: 'https://www.remotion.dev/docs/cli/canvas-capture',
+		options: [],
+	},
+	{
+		path: ['canvas-capture', 'import'],
+		args: ' <file>',
+		description:
+			'Import a Canvas Capture recording as an editable composition.',
+		documentation: 'https://www.remotion.dev/docs/cli/canvas-capture/import',
+		options: compositionImportOptions,
+	},
+	{
+		path: ['open-timeline'],
+		args: ' <command>',
+		description: 'Import OpenTimelineIO timelines.',
+		documentation: 'https://www.remotion.dev/docs/cli/open-timeline',
+		options: [],
+	},
+	{
+		path: ['open-timeline', 'import'],
+		args: ' <file>',
+		description: 'Import an OpenTimelineIO file as an editable composition.',
+		documentation: 'https://www.remotion.dev/docs/cli/open-timeline/import',
+		options: [
+			...compositionImportOptions,
+			...options(['media-dir', 'binaries-directory']),
 		],
 	},
 	{

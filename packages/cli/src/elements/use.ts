@@ -1,6 +1,5 @@
-import {existsSync, readdirSync, readFileSync} from 'node:fs';
+import {existsSync} from 'node:fs';
 import path from 'node:path';
-import {CodemodsInternals} from '@remotion/codemods';
 import type {LogLevel} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {StudioElementPayload} from '@remotion/studio-protocol';
@@ -17,9 +16,8 @@ import {
 import minimist from 'minimist';
 import {chalk} from '../chalk';
 import {selectAsync} from '../composition-prompts';
-import {findEntryPoint} from '../entry-point';
+import {getProjectCompositions} from '../get-project-compositions';
 import {Log} from '../log';
-import {parsedCli} from '../parsed-cli';
 import {yesOrNo} from '../yes-or-no';
 
 export const USE_COMMAND = 'use';
@@ -44,8 +42,8 @@ export const elementsUseCommand = async ({
 	};
 
 	const commandLine = minimist(argv, {
-		string: ['_', 'element', 'composition'],
-		boolean: ['yes', 'overwrite'],
+		string: ['_', 'element', 'composition', 'public-dir', 'package-manager'],
+		boolean: ['yes', 'overwrite', 'dry-run'],
 		alias: {y: 'yes'},
 	});
 	// The first two positional arguments are `elements use`.
@@ -186,56 +184,10 @@ export const elementsUseCommand = async ({
 		isCaptionStyle: payload.element.isCaptionStyle ?? false,
 	};
 
-	const {file: entryPoint} = findEntryPoint({
-		args: [],
+	const {entryPoint, compositions} = getProjectCompositions({
 		remotionRoot,
 		logLevel,
-		allowDirectory: false,
 	});
-	if (entryPoint === null) {
-		return fail(
-			'Could not find the entry point of your Remotion project. Set it with Config.setEntryPoint(): https://www.remotion.dev/docs/config#setentrypoint',
-		);
-	}
-
-	// Find compositions in the source code, the same place where the Element gets inserted.
-	const compositions: Array<{
-		id: string;
-		width: number | null;
-		height: number | null;
-		file: string;
-	}> = [];
-	const sourceDirectories = [path.dirname(entryPoint)];
-	for (const directory of sourceDirectories) {
-		for (const entry of readdirSync(directory, {withFileTypes: true})) {
-			const fullPath = path.join(directory, entry.name);
-			if (entry.name === 'node_modules' || entry.name.startsWith('.')) {
-				continue;
-			}
-
-			if (entry.isDirectory()) {
-				sourceDirectories.push(fullPath);
-				continue;
-			}
-
-			if (!entry.isFile() || !/\.(tsx|ts|jsx|js|mjs)$/.test(entry.name)) {
-				continue;
-			}
-
-			const source = readFileSync(fullPath, 'utf-8');
-			if (!/<[\w.]*(Composition|Still)\b/.test(source)) {
-				continue;
-			}
-
-			try {
-				for (const found of CodemodsInternals.getCompositionsInSource(source)) {
-					compositions.push({...found, file: fullPath});
-				}
-			} catch {
-				// Skip files that cannot be parsed.
-			}
-		}
-	}
 
 	const compositionIds = [...new Set(compositions.map((c) => c.id))];
 	if (compositionIds.length === 0) {
@@ -332,7 +284,7 @@ export const elementsUseCommand = async ({
 		}),
 	);
 	const relativePublicDir = BrowserSafeApis.options.publicDirOption.getValue({
-		commandLine: parsedCli,
+		commandLine,
 	}).value;
 	const publicDir = relativePublicDir
 		? path.resolve(remotionRoot, relativePublicDir)
@@ -399,6 +351,11 @@ export const elementsUseCommand = async ({
 
 	Log.info({indent: false, logLevel});
 
+	if (commandLine['dry-run']) {
+		Log.info({indent: false, logLevel}, 'Dry run. No files were changed.');
+		return;
+	}
+
 	if (!commandLine.yes) {
 		if (!isInteractive) {
 			return fail(
@@ -446,6 +403,9 @@ export const elementsUseCommand = async ({
 		binariesDirectory: null,
 		logLevel,
 		installDependencies: true,
+		packageManager: BrowserSafeApis.options.packageManagerOption.getValue({
+			commandLine,
+		}).value,
 		studio: false,
 	});
 

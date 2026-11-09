@@ -1,16 +1,5 @@
-import {randomUUID} from 'node:crypto';
-import {constants, existsSync} from 'node:fs';
-import {
-	copyFile,
-	mkdir,
-	open,
-	readFile,
-	realpath,
-	rename,
-	rm,
-	stat,
-	writeFile,
-} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {readFile, realpath} from 'node:fs/promises';
 import path from 'node:path';
 import {addCanvasCaptureComposition} from '@remotion/codemods';
 import type {LogLevel} from '@remotion/renderer';
@@ -18,9 +7,8 @@ import {
 	parseCanvasCaptureData,
 	type CanvasCaptureData,
 } from '@remotion/studio-shared';
-import {addCommand} from './add';
+import {applyCompositionImport} from './apply-composition-import';
 
-// Internal and unstable. Keep the file import separate from the pure codemod.
 export const importCanvasCapture = async ({
 	captureFile,
 	compositionFile,
@@ -172,72 +160,26 @@ export const importCanvasCapture = async ({
 		);
 	}
 
+	const copies =
+		existingVideo === null
+			? [{source: videoSource, destination: videoFile}]
+			: [];
+	const dependencies = ['@remotion/media', '@remotion/mac-cursors'];
 	if (!dryRun) {
-		await addCommand({
+		await applyCompositionImport({
 			remotionRoot: rootDir,
-			packageManager: packageManager ?? undefined,
-			packageNames: ['@remotion/media', '@remotion/mac-cursors'],
+			changes: result.changes,
+			copies,
+			dependencies,
+			packageManager,
 			logLevel,
-			args: [],
 		});
-
-		const temporaryFile = path.join(
-			path.dirname(registrationFile),
-			`.remotion-capture-${randomUUID()}.tmp`,
-		);
-		let createdVideo = false;
-		let createdComponent = false;
-		try {
-			if ((await readFile(registrationFile, 'utf-8')) !== previousContents) {
-				throw new Error(
-					`Source changed before importing the capture: ${registrationFile}`,
-				);
-			}
-
-			if (existingVideo === null) {
-				await mkdir(path.dirname(videoFile), {recursive: true});
-				await copyFile(videoSource, videoFile, constants.COPYFILE_EXCL);
-				createdVideo = true;
-			}
-
-			const componentHandle = await open(componentFile, 'wx');
-			createdComponent = true;
-
-			try {
-				await componentHandle.writeFile(componentContents, 'utf-8');
-			} finally {
-				await componentHandle.close();
-			}
-
-			const {mode} = await stat(registrationFile);
-			await writeFile(temporaryFile, registrationContents, {
-				encoding: 'utf-8',
-				flag: 'wx',
-				mode,
-			});
-			if ((await readFile(registrationFile, 'utf-8')) !== previousContents) {
-				throw new Error(
-					`Source changed before importing the capture: ${registrationFile}`,
-				);
-			}
-
-			await rename(temporaryFile, registrationFile);
-		} catch (error) {
-			await rm(temporaryFile, {force: true});
-			if (createdComponent) {
-				await rm(componentFile, {force: true});
-			}
-
-			if (createdVideo) {
-				await rm(videoFile, {force: true});
-			}
-
-			throw error;
-		}
 	}
 
 	return {
 		compositionId,
+		copies,
+		dependencies,
 		compositionFile: registrationFile,
 		componentFile,
 		videoFile,

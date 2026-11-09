@@ -1,8 +1,6 @@
-import path from 'node:path';
 import type {LogLevel} from '@remotion/renderer';
-import {BrowserSafeApis} from '@remotion/renderer/client';
 import minimist from 'minimist';
-import {importCanvasCapture} from './import-canvas-capture';
+import {importCompositionCommand} from './import-composition-command';
 import {Log} from './log';
 
 export const printExperimentalCodemodHelp = (logLevel: LogLevel) => {
@@ -32,7 +30,7 @@ export const experimentalCodemodCommand = async (
 		string: ['_', 'composition-file', 'id'],
 		boolean: ['dry-run', 'help'],
 	});
-	const [, command, captureFile] = commandLine._;
+	const [, command] = commandLine._;
 	if (commandLine.help || command === undefined) {
 		printExperimentalCodemodHelp(logLevel);
 		return;
@@ -44,55 +42,23 @@ export const experimentalCodemodCommand = async (
 		);
 	}
 
-	const compositionFile = commandLine['composition-file'];
-	const compositionId = commandLine.id;
-	if (
-		commandLine._.length !== 3 ||
-		typeof captureFile !== 'string' ||
-		!captureFile ||
-		typeof compositionFile !== 'string' ||
-		!compositionFile ||
-		typeof compositionId !== 'string' ||
-		!compositionId
-	) {
-		throw new Error(
-			'Usage: bunx remotion experimental-codemod add-canvas-capture <file> --composition-file <Root.tsx> --id <composition-id>',
-		);
-	}
-
 	Log.warn(
 		{indent: false, logLevel},
-		'experimental-codemod is internal and unstable. Arguments and behavior may change without notice.',
+		'Use canvas-capture import instead of experimental-codemod add-canvas-capture.',
 	);
-	const {
-		overrideWidthOption,
-		overrideHeightOption,
-		overrideFpsOption,
-		publicDirOption,
-		packageManagerOption,
-	} = BrowserSafeApis.options;
-	const result = await importCanvasCapture({
-		captureFile: path.resolve(captureFile),
-		compositionFile,
-		compositionId,
+	const forwarded = argv
+		.slice(2)
+		.map((arg) =>
+			arg === '--id'
+				? '--composition'
+				: arg.startsWith('--id=')
+					? `--composition=${arg.slice(5)}`
+					: arg,
+		);
+	await importCompositionCommand({
+		feature: 'canvas-capture',
 		remotionRoot,
-		publicDir: publicDirOption.getValue({commandLine}).value,
-		width: overrideWidthOption.getValue({commandLine}).value,
-		height: overrideHeightOption.getValue({commandLine}).value,
-		fps: overrideFpsOption.getValue({commandLine}).value,
-		packageManager: packageManagerOption.getValue({commandLine}).value,
+		argv: ['canvas-capture', 'import', ...forwarded, '--yes'],
 		logLevel,
-		dryRun: commandLine['dry-run'],
 	});
-	Log.info(
-		{indent: false, logLevel},
-		`${commandLine['dry-run'] ? 'Would import' : 'Imported'} Canvas Capture as "${result.compositionId}" (${result.metadata.width}×${result.metadata.height}, ${result.metadata.fps} fps, ${result.metadata.durationInFrames} frames)`,
-	);
-	for (const file of [
-		result.compositionFile,
-		result.componentFile,
-		result.videoFile,
-	]) {
-		Log.info({indent: false, logLevel}, path.relative(remotionRoot, file));
-	}
 };
