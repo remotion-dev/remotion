@@ -90,10 +90,17 @@ test('media composites default and explicit opaque targets against black', async
 				expect(context.getImageData(4, 4, 1, 1).data[3]).toBe(
 					transparent ? 128 : 255,
 				);
-				if (!transparent)
+				if (!transparent) {
 					expect([...context.getImageData(4, 4, 1, 1).data]).toEqual([
 						0, 0, 128, 255,
 					]);
+
+					const offset = (4 * 16 + 4) * 4;
+					expect([...bytes.slice(offset, offset + 4)]).toEqual([
+						0, 0, 128, 255,
+					]);
+				}
+
 				frames++;
 				return frame;
 			},

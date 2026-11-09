@@ -102,7 +102,7 @@ export const createLayer = async ({
 	}
 
 	// WebKit may retain alpha despite the context option. Initialize the opaque
-	// backdrop explicitly; intermediate layers keep their transparent default.
+	// backdrop explicitly; intermediate layers explicitly retain alpha.
 	if (!transparent) {
 		context.fillRect(0, 0, scaledWidth, scaledHeight);
 	}
