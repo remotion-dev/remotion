@@ -1,5 +1,7 @@
+type RasterImageResource = {image: ImageBitmap; blob: Blob};
+
 export type RasterImageLoaderState = {
-	cache: Map<string, Promise<ImageBitmap>>;
+	cache: Map<string, Promise<RasterImageResource>>;
 	images: Set<ImageBitmap>;
 	signal: AbortSignal | null;
 	timeoutInMilliseconds: number;
@@ -14,18 +16,26 @@ export const makeRasterImageLoaderState = ({
 	timeoutInMilliseconds: number;
 }): RasterImageLoaderState => {
 	const images = new Set<ImageBitmap>();
+	const cache = new Map<string, Promise<RasterImageResource>>();
+	const owner = new AbortController();
+	const abort = () => owner.abort();
+	if (signal?.aborted) abort();
+	else signal?.addEventListener('abort', abort, {once: true});
 
 	return {
-		cache: new Map(),
+		cache,
 		images,
-		signal,
+		signal: owner.signal,
 		timeoutInMilliseconds,
 		[Symbol.dispose]: () => {
+			owner.abort();
+			signal?.removeEventListener('abort', abort);
 			for (const image of images) {
 				image.close();
 			}
 
 			images.clear();
+			cache.clear();
 		},
 	};
 };
@@ -93,12 +103,12 @@ const loadRasterImage = async ({
 			);
 		}
 
-		return createImageBitmap(blob);
+		return {image: await createImageBitmap(blob), blob};
 	})();
 	operation.then(
-		(image) => {
+		(resource) => {
 			if (controller.signal.aborted) {
-				image.close();
+				resource.image.close();
 			}
 		},
 		() => undefined,
@@ -112,9 +122,9 @@ const loadRasterImage = async ({
 	});
 
 	try {
-		const image = await Promise.race([operation, aborted]);
-		state.images.add(image);
-		return image;
+		const resource = await Promise.race([operation, aborted]);
+		state.images.add(resource.image);
+		return resource;
 	} catch (error) {
 		if (timedOut) {
 			throw new Error(
@@ -138,7 +148,7 @@ const loadRasterImage = async ({
 	}
 };
 
-export const getRasterImage = ({
+const getRasterImageResource = ({
 	src,
 	state,
 	sourceProperty,
@@ -156,4 +166,32 @@ export const getRasterImage = ({
 	state.cache.set(src, promise);
 	promise.catch(() => state.cache.delete(src));
 	return promise;
+};
+
+type RasterImageRequest = Parameters<typeof getRasterImageResource>[0];
+
+export const getRasterImage = async (request: RasterImageRequest) => {
+	return (await getRasterImageResource(request)).image;
+};
+
+// SVG image documents cannot fetch the original URL themselves. Embed the
+// bytes already fetched and validated by the incumbent raster resource loader.
+export const getRasterImageDataUrl = async (request: RasterImageRequest) => {
+	const {blob} = await getRasterImageResource(request);
+	const reader = new FileReader();
+	const {signal} = request.state;
+	if (signal?.aborted) throw new Error('Raster image embedding was cancelled');
+	const abort = () => reader.abort();
+	signal?.addEventListener('abort', abort, {once: true});
+	try {
+		return await new Promise<string>((resolve, reject) => {
+			reader.onload = () => resolve(reader.result as string);
+			reader.onerror = () => reject(reader.error);
+			reader.onabort = () =>
+				reject(new Error('Raster image embedding was cancelled'));
+			reader.readAsDataURL(blob);
+		});
+	} finally {
+		signal?.removeEventListener('abort', abort);
+	}
 };
