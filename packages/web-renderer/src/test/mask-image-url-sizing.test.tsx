@@ -2,6 +2,16 @@ import {expect, test} from 'vitest';
 import {page} from 'vitest/browser';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {
+	maskGradientLayers,
+	maskGradientLayersTransparent,
+	maskGradientLayersUrl,
+	maskGradientLayersUrlTransparent,
+	maskGradientPalette,
+	maskGradientPaletteTransparent,
+	maskGradientLayersBlob,
+	maskGradientLayersBlobTransparent,
+} from './fixtures/mask-gradient-layers';
+import {
 	maskImageLayers,
 	maskImageLayersTransparent,
 	maskImageLayersUrl,
@@ -343,6 +353,14 @@ for (const composition of [
 	maskImageLayersUrlTransparent,
 	maskImageLayersBlob,
 	maskImageLayersBlobTransparent,
+	maskGradientLayers,
+	maskGradientLayersTransparent,
+	maskGradientLayersUrl,
+	maskGradientLayersUrlTransparent,
+	maskGradientLayersBlob,
+	maskGradientLayersBlobTransparent,
+	maskGradientPalette,
+	maskGradientPaletteTransparent,
 ]) {
 	for (const frame of [0, 1]) {
 		test(`composes multiple alpha mask layers ${composition.id} frame ${frame}`, async (t) => {

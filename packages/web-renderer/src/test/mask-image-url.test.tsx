@@ -148,3 +148,66 @@ test('closes a late raster decode when another mask layer fails', async () => {
 		(bitmap as ImageBitmap | null)?.close();
 	}
 });
+
+// KINO-7771: release the composed content image while its decode is pending.
+test('releases a native mask content image on abort', async () => {
+	let signalDecoded!: () => void;
+	const decoded = new Promise<void>((resolve) => {
+		signalDecoded = resolve;
+	});
+	let releaseDecode!: () => void;
+	const held = new Promise<void>((resolve) => {
+		releaseDecode = resolve;
+	});
+	const {decode} = HTMLImageElement.prototype;
+	let source: HTMLImageElement | null = null;
+	const spy = vi
+		.spyOn(HTMLImageElement.prototype, 'decode')
+		.mockImplementation(async function (this: HTMLImageElement) {
+			await decode.call(this);
+			source = this;
+			signalDecoded();
+			await held;
+		});
+	const controller = new AbortController();
+	const Component = () => (
+		<AbsoluteFill
+			style={{
+				backgroundColor: 'red',
+				maskImage:
+					'linear-gradient(black, transparent), linear-gradient(black, transparent)',
+			}}
+		/>
+	);
+	const rendering = renderStillOnWeb({
+		composition: {
+			component: Component,
+			id: 'mask-content-abort',
+			width: 100,
+			height: 100,
+			fps: 25,
+			durationInFrames: 1,
+		},
+		frame: 0,
+		inputProps: {},
+		licenseKey: 'free-license',
+		allowHtmlInCanvas: false,
+		signal: controller.signal,
+	});
+	const rejected = expect(rendering).rejects.toThrow();
+	try {
+		await decoded;
+		controller.abort();
+		await new Promise<void>((resolve) =>
+			requestAnimationFrame(() => resolve()),
+		);
+		expect(source!.naturalWidth).toBe(0);
+		releaseDecode();
+		await rejected;
+	} finally {
+		releaseDecode();
+		await rejected.catch(() => undefined);
+		spy.mockRestore();
+		(source as HTMLImageElement | null)?.removeAttribute('src');
+	}
+});

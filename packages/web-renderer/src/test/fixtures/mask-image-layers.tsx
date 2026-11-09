@@ -40,7 +40,10 @@ const partialStyles: React.CSSProperties[] = (
 export const createMaskImageLayersFixture = (
 	source: 'data' | 'url' | 'blob',
 	opaque: boolean,
+	variant: {id: string; styles: readonly React.CSSProperties[]} | null,
 ) => {
+	const cases = variant?.styles ?? [...styles, ...partialStyles];
+	const rows = Math.ceil(cases.length / 4);
 	const Component = () => {
 		const frame = useCurrentFrame();
 		const {delayRender, continueRender} = useDelayRender();
@@ -85,14 +88,14 @@ export const createMaskImageLayersFixture = (
 					backgroundColor: opaque ? '#fff' : 'transparent',
 					display: 'grid',
 					gridTemplateColumns: 'repeat(4, 40px)',
-					gridTemplateRows: 'repeat(4, 24px)',
+					gridTemplateRows: `repeat(${rows}, 24px)`,
 					padding: 8,
 					gap: 8,
 				}}
 			>
 				<Img src={sources[0]} style={{display: 'none'}} />
 				<Img src={sources[1]} style={{display: 'none'}} />
-				{[...styles, ...partialStyles].map((style) => (
+				{cases.map((style) => (
 					<div
 						key={`${style.maskImage}:${style.maskComposite}:${style.maskPosition}`}
 						style={{
@@ -115,26 +118,37 @@ export const createMaskImageLayersFixture = (
 
 	return {
 		component: Component,
-		id: `mask-image-layers-${source}-${opaque ? 'opaque' : 'transparent'}`,
+		id: `${variant?.id ?? 'mask-image-layers'}-${source}-${opaque ? 'opaque' : 'transparent'}`,
 		width: 200,
-		height: 136,
+		height: rows * 32 + 8,
 		fps: 25,
 		durationInFrames: 2,
 	} as const;
 };
 
-export const maskImageLayers = createMaskImageLayersFixture('data', true);
+export const maskImageLayers = createMaskImageLayersFixture('data', true, null);
 export const maskImageLayersTransparent = createMaskImageLayersFixture(
 	'data',
 	false,
+	null,
 );
-export const maskImageLayersUrl = createMaskImageLayersFixture('url', true);
+export const maskImageLayersUrl = createMaskImageLayersFixture(
+	'url',
+	true,
+	null,
+);
 export const maskImageLayersUrlTransparent = createMaskImageLayersFixture(
 	'url',
 	false,
+	null,
 );
-export const maskImageLayersBlob = createMaskImageLayersFixture('blob', true);
+export const maskImageLayersBlob = createMaskImageLayersFixture(
+	'blob',
+	true,
+	null,
+);
 export const maskImageLayersBlobTransparent = createMaskImageLayersFixture(
 	'blob',
 	false,
+	null,
 );
