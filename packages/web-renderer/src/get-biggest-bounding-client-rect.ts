@@ -48,6 +48,7 @@ const getTextOverflowForLineHeight = (
 
 export const getBiggestBoundingClientRect = (
 	element: HTMLElement | SVGElement,
+	includePaintOutsets = true,
 ) => {
 	const treeWalker = document.createTreeWalker(
 		element,
@@ -60,15 +61,23 @@ export const getBiggestBoundingClientRect = (
 
 	while (true) {
 		const computedStyle = getComputedStyle(treeWalker.currentNode as Element);
-		const outlineWidth = parseOutlineWidth(computedStyle.outlineWidth);
-		const outlineOffset = parseOutlineOffset(computedStyle.outlineOffset);
+		const outlineWidth = includePaintOutsets
+			? parseOutlineWidth(computedStyle.outlineWidth)
+			: 0;
+		const outlineOffset = includePaintOutsets
+			? parseOutlineOffset(computedStyle.outlineOffset)
+			: 0;
 		const rect = (treeWalker.currentNode as Element).getBoundingClientRect();
 
 		// Calculate text overflow for elements with line-height < 1
-		const textOverflow = getTextOverflowForLineHeight(computedStyle);
+		const textOverflow = includePaintOutsets
+			? getTextOverflowForLineHeight(computedStyle)
+			: {top: 0, bottom: 0};
 
 		// Calculate box shadow extensions
-		const shadows = parseBoxShadow(computedStyle.boxShadow);
+		const shadows = includePaintOutsets
+			? parseBoxShadow(computedStyle.boxShadow)
+			: [];
 		let shadowLeft = 0;
 		let shadowRight = 0;
 		let shadowTop = 0;
