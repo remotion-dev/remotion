@@ -72,3 +72,35 @@ test.for([0, 1])(
 		);
 	},
 );
+
+// KINO-7777: Firefox can capture authored opaque content without a transparent override.
+test('captures opaque native RGBA and reads back opaque evidence in every engine', async () => {
+	const reference = await captureNativeReference(nativeReferenceControl, 0, {
+		omitBackground: false,
+	});
+	const actual = await (
+		await renderStillOnWeb({
+			licenseKey: 'free-license',
+			composition: nativeReferenceControl,
+			frame: 0,
+			inputProps: {},
+			allowHtmlInCanvas: false,
+		})
+	).blob({format: 'png'});
+	expect((await compareNativePixels(reference, actual)).mismatchedPixels).toBe(
+		0,
+	);
+	const saved = await savePixelEvidence(
+		actual,
+		'native-reference-control-opaque',
+		{
+			omitBackground: false,
+		},
+	);
+	const encoded = await commands.readFile(saved, 'base64');
+	const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
+	expect(
+		(await compareNativePixels(new Blob([bytes], {type: 'image/png'}), actual))
+			.mismatchedPixels,
+	).toBe(0);
+});
