@@ -32,6 +32,7 @@ test('saveMultipleEffectProps batches selected effect resets into one undo entry
 		createFileWatcherRegistry(),
 	);
 	const cleanupLiveEvents = setLiveEventsListener({
+		getClientIds: () => [],
 		addNewClientListener: () => () => undefined,
 		closeConnections: () => Promise.resolve(),
 		router: () => Promise.resolve(),
