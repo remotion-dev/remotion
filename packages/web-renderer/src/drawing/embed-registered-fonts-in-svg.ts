@@ -290,6 +290,14 @@ export const insertFontStyleInSvg = (svg: SVGSVGElement, css: string) => {
 		svg.prepend(style);
 	}
 
+	// Carried fonts must not inherit an unrelated authored media restriction.
+	const media = style.getAttribute('media');
+	if (media && !svg.ownerDocument.defaultView!.matchMedia(media).matches) {
+		style.textContent = '';
+	}
+
+	style.removeAttribute('media');
+
 	// Keep authored @namespace/@import preambles ahead of carried rules.
 	style.textContent = (style.textContent ?? '') + '\n' + css;
 };

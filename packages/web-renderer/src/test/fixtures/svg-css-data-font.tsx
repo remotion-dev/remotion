@@ -45,7 +45,12 @@ const Component = () => {
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<style>{`@font-face {font-family: ${JSON.stringify(family)}; src:url("${url}") format("woff2");}@font-face{font-family:"SVG template-only data face";src:url("${url}") format("woff2")} .svg-data-font {font-family:${JSON.stringify(family)}, serif;font-size:${40 + frame * 2}px;}`}</style>
 			<svg width={600} height={220}>
-				<style>{`@font-face{font-family:"SVG selector font";src:url("${url}") format("woff2")} rect:nth-child(2){fill:red}`}</style>
+				<style media={frame === 0 ? 'print' : 'screen'}>
+					{
+						'@namespace svg url("http://www.w3.org/2000/svg");svg|rect{fill:yellow}'
+					}
+				</style>
+				<style>{`@font-face{font-family:"SVG selector font";src:url("${url}") format("woff2")} rect:nth-child(3){fill:red}`}</style>
 				<rect width={20} height={20} />
 				<defs>
 					<text
