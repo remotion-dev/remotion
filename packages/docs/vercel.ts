@@ -1,15 +1,13 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
 
-// This deployment is independent of the existing remotion.pro production app.
-const accountMirrorOrigin =
-	'https://pro-git-codex-dev-account-mirror-preview-remotion.vercel.app';
-const accountMirrorHosts = [
+const accountOrigin = 'https://www.remotion.pro';
+const accountHosts = [
 	{
 		type: 'host' as const,
 		value: '(?:www\\.)?remotion\\.dev|remotion(?:-[a-z0-9-]+)?\\.vercel\\.app',
 	},
 ];
-const accountMirrorPaths = [
+const accountPaths = [
 	'/login',
 	'/dashboard',
 	'/dashboard/:path*',
@@ -45,12 +43,12 @@ export const config: VercelConfig = {
 	buildCommand:
 		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --filter=docs --no-update-notifier --concurrency=2',
 	headers: [
-		...accountMirrorPaths.map((source) =>
+		...accountPaths.map((source) =>
 			routes.header(
 				source,
 				[{key: 'Cache-Control', value: 'private, no-store'}],
 				{
-					has: accountMirrorHosts,
+					has: accountHosts,
 				},
 			),
 		),
@@ -114,17 +112,8 @@ export const config: VercelConfig = {
 		]),
 	],
 	rewrites: [
-		// These existing endpoints require the production-only GitHub invite
-		// credential. Reuse them without copying it into the mirror deployment.
-		...['/api/github/invite', '/api/store/invite', '/api/store/redeem'].map(
-			(source) => ({
-				source,
-				destination: `https://www.remotion.pro${source}`,
-				has: accountMirrorHosts,
-			}),
-		),
 		...[
-			...accountMirrorPaths,
+			...accountPaths,
 			'/_next/:path*',
 			'/animated-captions-og.png',
 			'/colorsandshapes-ogimage.png',
@@ -164,11 +153,14 @@ export const config: VercelConfig = {
 			'/timelinescreen4.png',
 			'/watercolor-map-og-image.png',
 			'/wordmark.png',
-		].map((source) => ({
-			source,
-			destination: `${accountMirrorOrigin}${source}`,
-			has: accountMirrorHosts,
-		})),
+		].map((source) =>
+			routes.rewrite(source, `${accountOrigin}${source}`, {
+				has: accountHosts,
+				requestHeaders: {
+					'x-remotion-public-origin': 'https://www.remotion.dev',
+				},
+			}),
+		),
 	],
 	redirects: [
 		routes.redirect(
