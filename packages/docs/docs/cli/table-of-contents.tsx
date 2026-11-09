@@ -6,6 +6,10 @@ export const TableOfContents: React.FC = () => {
 	return (
 		<div>
 			<Grid>
+				<TOCItem link="/docs/cli/create-video">
+					<strong>create-video</strong>
+					<div>Scaffold a new Remotion project</div>
+				</TOCItem>
 				<TOCItem link="/docs/cli/studio">
 					<strong>studio</strong>
 					<div>Start the Remotion Studio</div>
@@ -22,17 +26,13 @@ export const TableOfContents: React.FC = () => {
 					<strong>compositions</strong>
 					<div>List available compositions</div>
 				</TOCItem>
-				<TOCItem link="/docs/lambda/cli">
-					<strong>lambda</strong>
-					<div>Control Remotion Lambda</div>
-				</TOCItem>
 				<TOCItem link="/docs/cli/bundle">
 					<strong>bundle</strong>
 					<div>Create a Remotion Bundle</div>
 				</TOCItem>
-				<TOCItem link="/docs/cli/browser">
-					<strong>browser</strong>
-					<div>Ensure Remotion has a browser to use</div>
+				<TOCItem link="/docs/lambda/cli">
+					<strong>lambda</strong>
+					<div>Control Remotion Lambda</div>
 				</TOCItem>
 				<TOCItem link="/docs/cloudrun/cli">
 					<strong>cloudrun</strong>
@@ -42,9 +42,9 @@ export const TableOfContents: React.FC = () => {
 					<strong>benchmark</strong>
 					<div>Measure and optimize render time</div>
 				</TOCItem>
-				<TOCItem link="/docs/cli/skills">
-					<strong>skills</strong>
-					<div>Install or update skills</div>
+				<TOCItem link="/docs/cli/browser">
+					<strong>browser</strong>
+					<div>Ensure Remotion has a browser to use</div>
 				</TOCItem>
 				<TOCItem link="/docs/cli/versions">
 					<strong>versions</strong>
@@ -70,9 +70,9 @@ export const TableOfContents: React.FC = () => {
 					<strong>open-timeline</strong>
 					<div>Import OpenTimelineIO timelines</div>
 				</TOCItem>
-				<TOCItem link="/docs/cli/gpu">
-					<strong>gpu</strong>
-					<div>Print information about {"Chrome's"} usage of the GPU</div>
+				<TOCItem link="/docs/cli/skills">
+					<strong>skills</strong>
+					<div>Install or update skills</div>
 				</TOCItem>
 				<TOCItem link="/docs/cli/ffmpeg">
 					<strong>ffmpeg</strong>
@@ -85,6 +85,10 @@ export const TableOfContents: React.FC = () => {
 					<div>
 						Execute an <code>ffprobe</code> command
 					</div>
+				</TOCItem>
+				<TOCItem link="/docs/cli/gpu">
+					<strong>gpu</strong>
+					<div>Print information about {"Chrome's"} usage of the GPU</div>
 				</TOCItem>
 				<TOCItem link="/docs/cli/help">
 					<strong>help</strong>
