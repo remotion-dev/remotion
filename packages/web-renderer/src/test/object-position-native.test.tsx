@@ -1,13 +1,12 @@
-import {AbsoluteFill, Img} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
-import '../symbol-dispose';
 import {objectPosition, objectPositionMath} from './fixtures/object-position';
+import '../symbol-dispose';
+import {replacedElementPixelated} from './fixtures/replaced-element-pixelated';
 import {
-	replacedElementPixelated,
-	pixelatedReplacedRaster,
-} from './fixtures/replaced-element-pixelated';
-import {svgUrlBlurredCover} from './fixtures/svg-url-nonzero-viewbox';
+	createReplacedSamplerSibling,
+	createSvgSamplerInvariant,
+} from './fixtures/replaced-element-sampler-controls';
 import {
 	captureNativeReference,
 	compareNativePixels,
@@ -56,50 +55,10 @@ test
 
 // KINO-7764: a pixelated replaced element must not change the next sibling sampler.
 test('restores sampling before the next replaced element', async () => {
-	const fixture = (pixelated: boolean) => ({
-		component: () => (
-			<AbsoluteFill style={{backgroundColor: 'white'}}>
-				<Img
-					src={pixelatedReplacedRaster}
-					style={{
-						width: 64,
-						height: 64,
-						imageRendering: pixelated ? 'pixelated' : 'auto',
-					}}
-				/>
-				<div
-					style={{
-						position: 'absolute',
-						left: 0,
-						top: 0,
-						width: 64,
-						height: 64,
-						backgroundColor: 'white',
-					}}
-				/>
-				<Img
-					src={pixelatedReplacedRaster}
-					style={{
-						position: 'absolute',
-						left: 72,
-						top: 0,
-						width: 64,
-						height: 64,
-						imageRendering: 'auto',
-					}}
-				/>
-			</AbsoluteFill>
-		),
-		id: 'replaced-sampler-sibling',
-		width: 144,
-		height: 64,
-		fps: 25,
-		durationInFrames: 1,
-	});
 	const render = async (pixelated: boolean) =>
 		(
 			await renderStillOnWeb({
-				composition: fixture(pixelated),
+				composition: createReplacedSamplerSibling(pixelated),
 				frame: 0,
 				inputProps: {},
 				licenseKey: 'free-license',
@@ -115,33 +74,10 @@ test('restores sampling before the next replaced element', async () => {
 
 // PR #13110: vector sources ignore this raster sampler, including scaled SVG crops.
 test('keeps vector SVG painting independent of the raster sampler', async () => {
-	const fixture = (pixelated: boolean) => ({
-		...svgUrlBlurredCover,
-		width: 160,
-		height: 160,
-		component: () => (
-			<AbsoluteFill style={{backgroundColor: 'white'}}>
-				<div
-					style={{
-						position: 'absolute',
-						left: 8,
-						top: 8,
-						width: 80,
-						height: 80,
-						transform: 'scale(1.5)',
-						transformOrigin: '0 0',
-						imageRendering: pixelated ? 'pixelated' : 'auto',
-					}}
-				>
-					<svgUrlBlurredCover.component />
-				</div>
-			</AbsoluteFill>
-		),
-	});
 	const render = async (pixelated: boolean) =>
 		(
 			await renderStillOnWeb({
-				composition: fixture(pixelated),
+				composition: createSvgSamplerInvariant(pixelated),
 				frame: 0,
 				inputProps: {},
 				licenseKey: 'free-license',
