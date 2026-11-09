@@ -172,6 +172,7 @@ export const calculateTransforms = ({
 	const toReset: (() => void)[] = [];
 
 	let opacity = 1;
+	let hasCssTransform = false;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: MaskImageInfo | null = null;
 	let svgClip: SVGClipPathElement | null = null;
@@ -258,6 +259,7 @@ export const calculateTransforms = ({
 			canApplyCssTransforms({computedStyle: transformStyle, element: parent}) &&
 			hasAnyTransformCssValue(transformStyle);
 
+		hasCssTransform ||= hasApplicableTransformCssValue;
 		if (hasApplicableTransformCssValue || parent === element) {
 			const toParse =
 				hasApplicableTransformCssValue && hasTransformCssValue(transformStyle)
@@ -349,6 +351,7 @@ export const calculateTransforms = ({
 	return {
 		dimensions,
 		totalMatrix,
+		hasCssTransform,
 		[Symbol.dispose]: () => {
 			for (const reset of toReset) {
 				reset();
