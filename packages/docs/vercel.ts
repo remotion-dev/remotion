@@ -18,6 +18,8 @@ const accountMirrorPaths = [
 	'/settings',
 	'/store',
 	'/store/:path*',
+	'/terms-4-0',
+	'/privacy-4-0',
 	'/admin',
 	'/admin/:path*',
 	'/auth-error',
