@@ -15,6 +15,38 @@ export const isColorTransparent = (color: string) => {
 	);
 };
 
+// Space repeats pin the first and last tiles to the positioning area. When
+// fewer than two fit, CSS uses the positioned image once instead.
+const getTilePositions = ({
+	repeat,
+	start,
+	size,
+	areaStart,
+	areaSize,
+	paintStart,
+	paintEnd,
+}: {
+	repeat: string;
+	start: number;
+	size: number;
+	areaStart: number;
+	areaSize: number;
+	paintStart: number;
+	paintEnd: number;
+}) => {
+	const count = Math.floor(areaSize / size);
+	if (repeat === 'no-repeat' || count < 2) return [start];
+	const stride = (areaSize - size) / (count - 1);
+	const origin = areaStart;
+	const positions: number[] = [];
+	let cursor = origin + Math.floor((paintStart - origin) / stride) * stride;
+	for (; cursor < paintEnd; cursor += stride) {
+		if (cursor + size > paintStart) positions.push(cursor);
+	}
+
+	return positions;
+};
+
 export const getBackgroundFill = async ({
 	backgroundImage,
 	backgroundPosition,
@@ -38,7 +70,10 @@ export const getBackgroundFill = async ({
 	offsetLeft: number;
 	offsetTop: number;
 }): Promise<
-	CanvasGradient | CanvasPattern | {image: ImageBitmap; rect: DOMRect} | null
+	| CanvasGradient
+	| CanvasPattern
+	| {image: ImageBitmap; rects: Iterable<DOMRect>}
+	| null
 > => {
 	if (backgroundImage && backgroundImage !== 'none') {
 		const url = parseUrlFunction(backgroundImage);
@@ -51,10 +86,51 @@ export const getBackgroundFill = async ({
 			const rect = getBackgroundImageRect({
 				backgroundPosition,
 				backgroundSize,
+				backgroundRepeat,
 				positioningArea,
 				intrinsicSize: image,
 			});
 			if (rect.width === 0 || rect.height === 0) return null;
+			const [repeatX, repeatY = repeatX] = backgroundRepeat.split(/\s+/);
+			if (repeatX === 'space' || repeatY === 'space') {
+				if (
+					![repeatX, repeatY].every((value) =>
+						['space', 'no-repeat'].includes(value),
+					)
+				) {
+					throw new Error(`Unsupported background-repeat: ${backgroundRepeat}`);
+				}
+
+				const xs = getTilePositions({
+					repeat: repeatX,
+					start: rect.left,
+					size: rect.width,
+					areaStart: positioningArea.left,
+					areaSize: positioningArea.width,
+					paintStart: boundingRect.left,
+					paintEnd: boundingRect.right,
+				});
+				const ys = getTilePositions({
+					repeat: repeatY,
+					start: rect.top,
+					size: rect.height,
+					areaStart: positioningArea.top,
+					areaSize: positioningArea.height,
+					paintStart: boundingRect.top,
+					paintEnd: boundingRect.bottom,
+				});
+				return {
+					image,
+					rects: (function* () {
+						for (const x of xs) {
+							for (const y of ys)
+								yield new DOMRect(x, y, rect.width, rect.height);
+						}
+					})(),
+				};
+			}
+
+			const repeatStyle = backgroundRepeat.replace(/round/g, 'repeat');
 			const repetition =
 				(
 					{
@@ -63,10 +139,23 @@ export const getBackgroundFill = async ({
 						'repeat no-repeat': 'repeat-x',
 						'no-repeat repeat': 'repeat-y',
 					} as Record<string, string>
-				)[backgroundRepeat] ?? backgroundRepeat;
+				)[repeatStyle] ?? repeatStyle;
 			if (!['repeat', 'repeat-x', 'repeat-y', 'no-repeat'].includes(repetition))
 				throw new Error(`Unsupported background-repeat: ${backgroundRepeat}`);
-			if (repetition === 'no-repeat') return {image, rect};
+			// A single round tile with no overflow uses edge-clamped image sampling.
+			if (
+				repetition === 'no-repeat' ||
+				((backgroundRepeat === 'round' || backgroundRepeat === 'round round') &&
+					rect.width === positioningArea.width &&
+					rect.height === positioningArea.height &&
+					rect.left === positioningArea.left &&
+					rect.top === positioningArea.top &&
+					boundingRect.left === positioningArea.left &&
+					boundingRect.top === positioningArea.top &&
+					boundingRect.width === positioningArea.width &&
+					boundingRect.height === positioningArea.height)
+			)
+				return {image, rects: [rect]};
 			const pattern = contextToDraw.createPattern(image, repetition);
 			if (!pattern)
 				throw new Error('Could not create raster background pattern');

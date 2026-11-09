@@ -19,6 +19,7 @@ export const drawElement = async ({
 	draw,
 	opacity,
 	totalMatrix,
+	hasCssTransform,
 	parentRect,
 	logLevel,
 	element,
@@ -30,6 +31,7 @@ export const drawElement = async ({
 	context: OffscreenCanvasRenderingContext2D;
 	opacity: number;
 	totalMatrix: DOMMatrix;
+	hasCssTransform: boolean;
 	draw: DrawFn;
 	parentRect: DOMRect;
 	logLevel: LogLevel;
@@ -85,6 +87,7 @@ export const drawElement = async ({
 	});
 
 	await drawBackground({
+		hasCssTransform,
 		backgroundImage,
 		context,
 		rect,
