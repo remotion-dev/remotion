@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {
 	BACKGROUND,
-	BLACK_ALPHA_50,
+	BLACK_ALPHA_30,
 	SHADOW_BLACK,
 	WHITE,
 } from '../helpers/colors';
@@ -22,7 +22,7 @@ export const getMaxModalHeight = (height: number) => {
 };
 
 const backgroundOverlay: React.CSSProperties = {
-	backgroundColor: BLACK_ALPHA_50,
+	backgroundColor: BLACK_ALPHA_30,
 	position: 'fixed',
 	height: '100%',
 	width: '100%',
