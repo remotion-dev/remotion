@@ -2,6 +2,7 @@ import {NoReactInternals} from 'remotion/no-react';
 import {
 	getBase64,
 	getEmbeddedFontStyleForSvg,
+	insertFontStyleInSvg,
 } from './embed-registered-fonts-in-svg';
 import {parseFontFamilies} from './parse-font-families';
 
@@ -177,6 +178,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		);
 	});
 
+	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
@@ -211,7 +213,9 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	// External stylesheet rules disappear when the SVG becomes an image.
 	// Preserve resolved font selection without mutating mounted text elements.
 	const svgForSerialization =
-		textStyles.length === 0 ? svg : (svg.cloneNode(true) as SVGSVGElement);
+		textStyles.length === 0 && embeddedFontStyle === null
+			? svg
+			: (svg.cloneNode(true) as SVGSVGElement);
 	svgForSerialization
 		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
 		.forEach((element, index) => {
@@ -279,7 +283,6 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 		}
 	}
 
-	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
 	const fontStyleKey = cssFontRules.length
 		? JSON.stringify([
 				embeddedFontStyle?.cacheKey ?? null,
@@ -321,19 +324,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				const fontCss = (embeddedFontStyle?.css ?? '') + css;
 				let markup = serializedSvg;
 				if (fontCss) {
-					let style = svgForSerialization.querySelector<
-						SVGStyleElement | HTMLStyleElement
-					>('style');
-					if (!style) {
-						style = svg.ownerDocument.createElementNS(
-							'http://www.w3.org/2000/svg',
-							'style',
-						);
-						svgForSerialization.prepend(style);
-					}
-
-					// Preserve authored child positions when carrying font definitions.
-					style.textContent = fontCss + (style.textContent ?? '');
+					insertFontStyleInSvg(svgForSerialization, fontCss);
 					markup = serializeSvg(svgForSerialization);
 				}
 

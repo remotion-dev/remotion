@@ -6,7 +6,6 @@ type RegisteredFontFace = ReturnType<
 >[number];
 
 export type EmbeddedFontStyle = {
-	blob: Blob;
 	cacheKey: string;
 	css: string;
 };
@@ -272,12 +271,24 @@ export const getEmbeddedFontStyleForSvg = (
 	const css = sortedIndexes
 		.map((index) => getFontFaceRule(registeredFonts[index]!))
 		.join('');
-	const style = `<style type="text/css"><![CDATA[${css.replace(/]]>/g, ']]]]><![CDATA[>')}]]></style>`;
 	const embeddedStyle = {
-		blob: new Blob([style]),
 		cacheKey,
 		css,
 	};
 	styleByFontFaceSet.set(cacheKey, embeddedStyle);
 	return embeddedStyle;
+};
+
+// Add definitions without changing authored child selectors when a style exists.
+export const insertFontStyleInSvg = (svg: SVGSVGElement, css: string) => {
+	let style = svg.querySelector<SVGStyleElement | HTMLStyleElement>('style');
+	if (!style) {
+		style = svg.ownerDocument.createElementNS(
+			'http://www.w3.org/2000/svg',
+			'style',
+		);
+		svg.prepend(style);
+	}
+
+	style.textContent = css + (style.textContent ?? '');
 };
