@@ -32,7 +32,7 @@ The `z-index` property and flex/grid `order` are <a style={{color: 'green'}}>par
 
 The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
 The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
-The `opacity` property is <a style={{color: 'green'}}>supported</a>.  
+The `opacity` property is <a style={{color: 'green'}}>supported</a>, including root SVG elements.<br />
 The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  
 The `perspective` property is <a style={{color: 'red'}}>not supported</a>.  
 The `perspective-origin` property is <a style={{color: 'red'}}>not supported</a>.  
@@ -162,7 +162,7 @@ The `clip-path` property is <a style={{color: 'green'}}>partially supported</a>:
 - `clip-path: circle()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: ellipse()` is <a style={{color: 'green'}}>supported</a>.
 - `clip-path: inset()` is <a style={{color: 'green'}}>supported</a>.
-- `clip-path: url()` is <a style={{color: 'green'}}>partially supported</a> for same-document SVG `<clipPath>` elements containing one non-rounded `<rect>`, `<polygon>`, or `<path>`. `userSpaceOnUse`, `objectBoundingBox`, SVG transform attributes, and `clip-rule` are supported. External documents, multiple shapes, and nested references are not supported. Diagonal and curved edges may differ from browser rendering.
+- `clip-path: url()` is <a style={{color: 'green'}}>partially supported</a> for same-document SVG `<clipPath>` elements containing one non-rounded `<rect>`, `<polygon>`, or `<path>`, or multiple non-rounded rectangles. `userSpaceOnUse`, `objectBoundingBox`, SVG transform attributes, and `clip-rule` are supported. External documents, mixed multiple shapes, and nested references are not supported. Diagonal and curved edges may differ from browser rendering.
 
 ## Unsupported styles
 
