@@ -1,3 +1,4 @@
+import {createElement} from 'react';
 import {NoReactInternals} from 'remotion/no-react';
 import '../symbol-dispose';
 import {expect, test} from 'vitest';
@@ -146,3 +147,54 @@ test.for([0, 1])(
 		expect(result.mismatchedPixels).toBe(0);
 	},
 );
+
+// KINO-7769: a final text/plain style used to swallow the carried @font-face.
+test('non-CSS style elements retain native and exported font selection', async () => {
+	await svgExternalFontReady;
+	const cssControl = {
+		...svgExternalFontSelection,
+		id: 'svg-external-font-selection-css-control',
+		component: () =>
+			createElement(svgExternalFontSelection.component, {
+				styleType: 'text/css',
+			}),
+	};
+	const references = [
+		await captureNativeReference(svgExternalFontSelection, 1, {
+			omitBackground: false,
+		}),
+		await captureNativeReference(cssControl, 1, {omitBackground: false}),
+	];
+	expect(
+		(await compareNativePixels(references[0], references[1])).mismatchedPixels,
+	).toBe(0);
+	const results = [];
+	for (const composition of [svgExternalFontSelection, cssControl]) {
+		results.push(
+			await (
+				await renderStillOnWeb({
+					composition,
+					frame: 1,
+					inputProps: {},
+					licenseKey: 'free-license',
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'}),
+		);
+	}
+
+	const comparison = await compareNativePixels(results[0], results[1]);
+	if (comparison.mismatchedPixels !== 0) {
+		await savePixelEvidence(results[0], 'non-css-style-actual', {
+			omitBackground: false,
+		});
+		await savePixelEvidence(results[1], 'css-style-control', {
+			omitBackground: false,
+		});
+		await savePixelEvidence(comparison.diff, 'non-css-style-diff', {
+			omitBackground: false,
+		});
+	}
+
+	expect(comparison.mismatchedPixels).toBe(0);
+});
