@@ -1,4 +1,5 @@
 import {routes, type VercelConfig} from '@vercel/config/v1';
+import {getTransformedRoutes} from '@vercel/routing-utils';
 
 const accountOrigin = 'https://www.remotion.pro';
 const accountHosts = [
@@ -35,13 +36,7 @@ const browserStudioAssetHeaders = [
 	...browserStudioIsolationHeaders,
 ];
 
-export const config: VercelConfig = {
-	// Vercel extracts these commands before evaluating this file; keep them literal
-	// and the dashboard Install Command in sync. Avoid its preinstalled Bun.
-	installCommand:
-		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
-	buildCommand:
-		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --filter=docs --no-update-notifier --concurrency=2',
+const siteConfig: VercelConfig = {
 	headers: [
 		...accountPaths.map((source) =>
 			routes.header(
@@ -153,14 +148,11 @@ export const config: VercelConfig = {
 			'/timelinescreen4.png',
 			'/watercolor-map-og-image.png',
 			'/wordmark.png',
-		].map((source) =>
-			routes.rewrite(source, `${accountOrigin}${source}`, {
-				has: accountHosts,
-				requestHeaders: {
-					'x-remotion-public-origin': 'https://www.remotion.dev',
-				},
-			}),
-		),
+		].map((source) => ({
+			source,
+			destination: `${accountOrigin}${source}`,
+			has: accountHosts,
+		})),
 	],
 	redirects: [
 		routes.redirect(
@@ -728,4 +720,35 @@ export const config: VercelConfig = {
 			permanent: false,
 		}),
 	],
+};
+
+const {headers, redirects, rewrites, ...deploymentConfig} = siteConfig;
+const transformed = getTransformedRoutes({headers, redirects, rewrites});
+if (transformed.error) {
+	throw new Error(transformed.error.message);
+}
+
+export const config = {
+	// Vercel extracts these commands before evaluating this file; keep them literal
+	// and the dashboard Install Command in sync. Avoid its preinstalled Bun.
+	installCommand:
+		'bash -eo pipefail -c \'export BUN_INSTALL="$HOME/.bun-remotion-1.4.3"; test -x "$BUN_INSTALL/bin/bun" || curl -fsSL https://bun.com/install | bash -s bun-v1.4.3; ln -sf bun "$BUN_INSTALL/bin/bunx"; export PATH="$BUN_INSTALL/bin:$PATH"; bun install\'',
+	buildCommand:
+		'cd .. && PATH="$HOME/.bun-remotion-1.4.3/bin:$PATH" timeout 20m "$HOME/.bun-remotion-1.4.3/bin/bunx" turbo run build-docs --filter=docs --no-update-notifier --concurrency=2',
+	...deploymentConfig,
+	routes: transformed.routes?.map((route) =>
+		'dest' in route && route.dest?.startsWith(accountOrigin)
+			? {
+					...route,
+					transforms: [
+						{
+							type: 'request.headers',
+							op: 'set',
+							target: {key: 'x-remotion-public-origin'},
+							args: 'https://www.remotion.dev',
+						},
+					],
+				}
+			: route,
+	),
 };
