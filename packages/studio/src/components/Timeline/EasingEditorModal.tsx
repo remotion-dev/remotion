@@ -126,6 +126,7 @@ const SPRING_FALLBACKS: Record<SpringNumberKey, number> = {
 
 const inlineContainer: React.CSSProperties = {
 	minWidth: 0,
+	outline: 'none',
 	paddingBottom: 12,
 	width: '100%',
 };
@@ -760,6 +761,7 @@ const EasingEditorUnmemoized: React.FC<{
 		Internals.OverrideIdsToNodePathsGettersContext,
 	);
 	const svgRef = useRef<SVGSVGElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const [selectedHandle, setSelectedHandle] = useState<HandleIndex | null>(
 		null,
 	);
@@ -1120,6 +1122,7 @@ const EasingEditorUnmemoized: React.FC<{
 			event.preventDefault();
 			event.stopPropagation();
 			setSelectedHandle(handle);
+			containerRef.current?.focus({preventScroll: true});
 			stopPointerSession.current?.();
 			const bezierBeforeDrag = [...bezierRef.current] as CubicBezierTuple;
 			updateHandleFromPointer(handle, event);
@@ -1160,6 +1163,42 @@ const EasingEditorUnmemoized: React.FC<{
 			pendingOverrideTargetsRef.current = [];
 		};
 	}, [clearEasingDragOverrides]);
+
+	useEffect(() => {
+		if (selectedHandle === null) {
+			return;
+		}
+
+		const onPointerDown = (event: PointerEvent) => {
+			if (
+				event.target instanceof Element &&
+				event.target.closest('[data-easing-handle]')
+			) {
+				return;
+			}
+
+			setSelectedHandle(null);
+		};
+
+		window.addEventListener('pointerdown', onPointerDown, true);
+		return () => {
+			window.removeEventListener('pointerdown', onPointerDown, true);
+		};
+	}, [selectedHandle]);
+
+	const onKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			if (event.key !== 'Escape' || selectedHandle === null) {
+				return;
+			}
+
+			// Deselect the handle first; the next Escape steps back the timeline selection.
+			event.preventDefault();
+			event.stopPropagation();
+			setSelectedHandle(null);
+		},
+		[selectedHandle],
+	);
 
 	const startPoint = useMemo(() => ({x: xToSvg(0), y: yToSvg(0)}), []);
 	const endPoint = useMemo(() => ({x: xToSvg(1), y: yToSvg(1)}), []);
@@ -1240,7 +1279,12 @@ const EasingEditorUnmemoized: React.FC<{
 	);
 
 	return (
-		<div style={inlineContainer}>
+		<div
+			ref={containerRef}
+			style={inlineContainer}
+			tabIndex={-1}
+			onKeyDown={onKeyDown}
+		>
 			{renderHeader ? renderHeader(modeItems) : null}
 			<div
 				style={
@@ -1302,6 +1346,7 @@ const EasingEditorUnmemoized: React.FC<{
 									height={18}
 									viewBox="0 0 18 18"
 									aria-label={`Bezier control point ${handle + 1}`}
+									data-easing-handle
 									style={{
 										position: 'absolute',
 										left: `${(point.x / SVG_WIDTH) * 100}%`,
