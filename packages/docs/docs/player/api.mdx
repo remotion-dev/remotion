@@ -368,7 +368,7 @@ export const App: React.FC = () => {
 };
 ```
 
-### `renderVolumeSlider`<AvailableFrom v="4.0.188" />
+### `renderVolumeSlider?`<AvailableFrom v="4.0.188" />
 
 Allows for a custom implementation of the volume slider, must return a valid React element.  
 See the default implementation [here](https://github.com/remotion-dev/remotion/blob/main/packages/player/src/render-volume-slider.tsx).  
@@ -417,7 +417,7 @@ You may pass an array with the available playback rates for selection, however, 
 
 Default `false`.
 
-### `posterFillMode`<AvailableFrom v="4.0.78" />
+### `posterFillMode?`<AvailableFrom v="4.0.78" />
 
 Either `player-size` (default) or `composition-size`:
 
@@ -430,7 +430,7 @@ The default [premount duration](/docs/player/premounting) in seconds for timed c
 Must be a finite, non-negative number. The duration is converted to frames using `fps` and rounded to the nearest frame.
 An explicit [`premountFor`](/docs/sequence#premountfor) prop takes precedence, including `premountFor={0}` to disable premounting for a component.
 
-### `bufferStateDelayInMilliseconds`<AvailableFrom v="4.0.111"/>
+### `bufferStateDelayInMilliseconds?`<AvailableFrom v="4.0.111"/>
 
 After the Player has entered a [buffer state](/docs/player/buffer-state), it will wait for this amount of time before showing the buffering UI.  
 This prevents jank when the Player is only in a buffering state for a short time. Default `300`.
@@ -442,11 +442,11 @@ Note:
 
 This allows you to flexibly implement custom UI for the buffer state.
 
-### `overflowVisible`<AvailableFrom v="4.0.173"/>
+### `overflowVisible?`<AvailableFrom v="4.0.173"/>
 
 Makes the Player render things outside of the canvas. Useful if you have interactive elements in the video such as draggable elements.
 
-### `browserMediaControlsBehavior`<AvailableFrom v="4.0.221" />
+### `browserMediaControlsBehavior?`<AvailableFrom v="4.0.221" />
 
 Controls what happens when the user presses the Play/Pause button on their keyboard or uses other controls such as Chromes built-in controls.  
 See [Media Keys Behavior](/docs/player/media-keys) for more information.
@@ -459,7 +459,7 @@ A HTML class name to be used in place of the default `__remotion-player`.
 
 <Options id="log" />
 
-### `noSuspense`<AvailableFrom v="4.0.271" />
+### `noSuspense?`<AvailableFrom v="4.0.271" />
 
 Disables React Suspense, which is [useful for writing tests](/docs/testing).
 
