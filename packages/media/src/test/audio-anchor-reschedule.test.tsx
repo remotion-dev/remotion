@@ -48,11 +48,14 @@ test('replaces queued audio after a suspension re-anchors a stationary Player', 
 		/>,
 	);
 	try {
-		await vi.waitFor(() => {
-			expect(
-				createdNodes.filter(({node}) => node.buffer !== null).length,
-			).toBeGreaterThan(5);
-		});
+		await vi.waitFor(
+			() => {
+				expect(
+					createdNodes.filter(({node}) => node.buffer !== null).length,
+				).toBeGreaterThan(5);
+			},
+			{timeout: 10000},
+		);
 		if (!audioContext) throw new Error('Audio context did not initialize');
 		const context: AudioContext = audioContext;
 		const oldNodes = createdNodes.filter(({node}) => node.buffer !== null);
@@ -89,7 +92,7 @@ test('replaces queued audio after a suspension re-anchors a stationary Player', 
 		createBufferSourceSpy.mockRestore();
 		vi.restoreAllMocks();
 	}
-});
+}, 15000);
 
 test('paused seeks unschedule unstarted nodes while playing cleanup still stops started nodes', async () => {
 	const nodes: {

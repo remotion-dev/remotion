@@ -4,7 +4,8 @@ import {Html5Audio, Internals, useBufferState, useCurrentFrame} from 'remotion';
 import type {LogLevel} from 'remotion';
 import type {PlayerRef} from '../player-methods.js';
 import {Player} from '../Player.js';
-import {act, cleanup, render} from './test-utils.js';
+import {usePlayerMethods} from '../use-player-methods.js';
+import {act, cleanup, fireEvent, render} from './test-utils.js';
 
 afterEach(() => {
 	cleanup();
@@ -14,20 +15,12 @@ let nativeSuspendCalls = 0;
 let nativeResumeCalls = 0;
 let gainValues: number[] = [];
 
-class TrackedAudioContext {
-	public state = 'suspended' as AudioContextState;
+class TrackedAudioContext extends EventTarget {
+	public state: AudioContextState | 'interrupted' = 'suspended';
 	public baseLatency = 0;
 	public outputLatency = 0;
 	public currentTime = 0;
 	public destination = {};
-
-	addEventListener() {
-		return undefined;
-	}
-
-	removeEventListener() {
-		return undefined;
-	}
 
 	close() {
 		this.state = 'closed';
@@ -264,6 +257,7 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 	const Composition = () => {
 		const shared = useContext(Internals.SharedAudioContext);
 		const frame = useCurrentFrame();
+		const {seek} = usePlayerMethods();
 		buffer = useBufferState().delayPlayback;
 		audio = shared;
 		if (delayedCommit?.frame === frame) {
@@ -279,7 +273,20 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 			return () => subscription?.remove();
 		}, [shared]);
 
-		return <output>Frame {frame}</output>;
+		return (
+			<>
+				<output>Frame {frame}</output>
+				<button type="button" onClick={() => seek(100)}>
+					Seek while playing
+				</button>
+				<button type="button" onClick={() => seek(frame)}>
+					Seek to current frame
+				</button>
+				<button type="button" onClick={() => seek(0)}>
+					Seek to start
+				</button>
+			</>
+		);
 	};
 
 	const player = createRef<PlayerRef>();
@@ -292,6 +299,7 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 		playbackRate: 1,
 		inFrame: null as number | null,
 		outFrame: null as number | null,
+		loop: false,
 		preferredEffectBackend: 'auto' as const,
 		audioLatencyHint: 'playback' as AudioContextLatencyCategory,
 		logLevel: 'info' as LogLevel,
@@ -321,6 +329,16 @@ const renderClockedPlayer = (keepAudioContextAlive: boolean) => {
 		startBuffering: () => buffer!(),
 		anchor: () => audio!.audioSyncAnchor.value,
 		audioContext: () => audio!.audioContext,
+		setAudioContextState: (
+			state: AudioContextState | 'interrupted',
+			dispatch: boolean,
+		) => {
+			const context = audio!.audioContext as unknown as TrackedAudioContext;
+			context.state = state;
+			if (dispatch) {
+				context.dispatchEvent(new Event('statechange'));
+			}
+		},
 		dispose: () => {
 			cleanup();
 			clock.mockRestore();
@@ -549,6 +567,123 @@ test.each([
 			act(() => harness.changeConfig({inFrame: 0, outFrame: 100}));
 			expect(harness.anchor()).toBe(anchor);
 			expect(harness.anchors).toHaveLength(1);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test.each([false, true])(
+	'A late seek commit keeps the audio and visual clocks aligned (keep alive: %j)',
+	async (keepAlive) => {
+		const harness = renderClockedPlayer(keepAlive);
+		try {
+			act(() => harness.changeConfig({fps: 20}));
+			await act(async () => {
+				harness.player.current!.play();
+				harness.tick(1);
+				await Promise.resolve();
+			});
+			act(() => harness.tick(101));
+			harness.setTime(110);
+			harness.delayCommitForFrame(100, 500);
+			fireEvent.click(
+				harness.view.getByRole('button', {name: 'Seek while playing'}),
+			);
+			expect(harness.view.getByText('Frame 100')).toBeTruthy();
+			act(() => harness.tick(710));
+			expect(harness.view.getByText('Frame 112')).toBeTruthy();
+			expect(
+				(harness.audioContext()!.currentTime - harness.anchor()) * 20,
+			).toBeCloseTo(112, 8);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test.each([false, true])(
+	'A delayed native recovery event keeps the audio and visual clocks aligned (keep alive: %j)',
+	async (keepAlive) => {
+		const harness = renderClockedPlayer(keepAlive);
+		try {
+			act(() => harness.changeConfig({fps: 20}));
+			await act(async () => {
+				harness.player.current!.play();
+				harness.tick(1);
+				await Promise.resolve();
+			});
+			act(() => harness.tick(101));
+			harness.setTime(110);
+			harness.setAudioContextState('interrupted', true);
+			harness.setAudioContextState('running', false);
+			harness.setTime(610);
+			harness.setAudioContextState('running', true);
+			act(() => harness.tick(710));
+			expect(harness.view.getByText('Frame 14')).toBeTruthy();
+			expect(
+				(harness.audioContext()!.currentTime - harness.anchor()) * 20,
+			).toBeCloseTo(14, 8);
+		} finally {
+			harness.dispose();
+		}
+	},
+);
+
+test.each([
+	{keepAlive: false, boundary: 'seek'},
+	{keepAlive: true, boundary: 'seek'},
+	{keepAlive: false, boundary: 'loop'},
+	{keepAlive: true, boundary: 'loop'},
+])(
+	'A same-frame boundary is not replayed by the next late commit: %j',
+	async ({keepAlive, boundary}) => {
+		const harness = renderClockedPlayer(keepAlive);
+		try {
+			act(() =>
+				harness.changeConfig({
+					fps: 20,
+					loop: boundary === 'loop',
+					outFrame: boundary === 'loop' ? 99 : null,
+				}),
+			);
+			await act(async () => {
+				harness.player.current!.play();
+				harness.tick(1);
+				await Promise.resolve();
+			});
+			if (boundary === 'seek') {
+				act(() => harness.tick(101));
+				harness.setTime(110);
+				fireEvent.click(
+					harness.view.getByRole('button', {name: 'Seek to current frame'}),
+				);
+				act(() => harness.tick(120));
+			} else {
+				act(() => harness.tick(5001));
+			}
+
+			const anchor = harness.anchor();
+			harness.anchors.length = 0;
+			harness.delayCommitForFrame(boundary === 'seek' ? 3 : 1, 500);
+			act(() => harness.tick(boundary === 'seek' ? 170 : 5051));
+			expect(harness.anchor()).toBe(anchor);
+			expect(harness.anchors).toEqual([]);
+			act(() => harness.tick(boundary === 'seek' ? 720 : 5601));
+			const expectedFrame = boundary === 'seek' ? 14 : 12;
+			expect(harness.view.getByText(`Frame ${expectedFrame}`)).toBeTruthy();
+			expect(
+				(harness.audioContext()!.currentTime - harness.anchor()) * 20,
+			).toBeCloseTo(expectedFrame, 8);
+			fireEvent.click(
+				harness.view.getByRole('button', {name: 'Seek to start'}),
+			);
+			expect(harness.view.getByText('Frame 0')).toBeTruthy();
+			act(() => harness.tick((boundary === 'seek' ? 720 : 5601) + 100));
+			expect(harness.view.getByText('Frame 2')).toBeTruthy();
+			expect(
+				(harness.audioContext()!.currentTime - harness.anchor()) * 20,
+			).toBeCloseTo(2, 8);
 		} finally {
 			harness.dispose();
 		}
