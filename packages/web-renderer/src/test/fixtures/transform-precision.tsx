@@ -44,3 +44,35 @@ export const transformPrecision = {
 	fps: 30,
 	durationInFrames: 1,
 } as const;
+
+export const geometric2dTransforms = [
+	'scale(.005) rotateX(0deg)',
+	'scale(.005) rotateY(0deg)',
+] as const;
+const Geometric2d = () => (
+	<AbsoluteFill style={{backgroundColor: 'black'}}>
+		{geometric2dTransforms.map((transform, index) => (
+			<div
+				key={transform}
+				style={{
+					position: 'absolute',
+					left: index * 60,
+					top: 0,
+					width: 10000,
+					height: 10000,
+					backgroundColor: 'red',
+					transformOrigin: '0 0',
+					transform,
+				}}
+			/>
+		))}
+	</AbsoluteFill>
+);
+export const transformGeometric2d = {
+	component: Geometric2d,
+	id: 'transform-geometric-2d',
+	width: 120,
+	height: 100,
+	fps: 30,
+	durationInFrames: 2,
+} as const;

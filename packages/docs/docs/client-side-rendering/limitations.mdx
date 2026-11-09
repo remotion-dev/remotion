@@ -31,7 +31,7 @@ The `z-index` property and flex/grid `order` are <a style={{color: 'green'}}>par
 
 The CSS `transform` property is <a style={{color: 'green'}}>supported</a>.  
 
-Native matrix precision is retained when CSS Typed OM can resolve the transform to a matrix. Transforms that cannot be resolved by Typed OM, including relative translations, and browsers without Typed OM use the computed CSS matrix string, which may round coefficients.
+Native matrix precision is retained when CSS Typed OM can resolve the transform to a matrix. Geometrically 2D transforms, including zero-angle X/Y rotations, retain the 2D rendering path. Transforms that cannot be resolved by Typed OM, including relative translations, and browsers without Typed OM use the computed CSS matrix string, which may round coefficients.
 The `transform-origin` property is <a style={{color: 'green'}}>supported</a>.  
 The `opacity` property is <a style={{color: 'green'}}>supported</a>.  
 The `scale`, `rotate` and `translate` transformations are <a style={{color: 'green'}}>supported</a>.  

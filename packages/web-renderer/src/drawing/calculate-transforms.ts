@@ -80,7 +80,32 @@ const getTypedTransformMatrix = (
 	const value = element.computedStyleMap().get('transform');
 	if (!(value instanceof CSSTransformValue)) return null;
 	try {
-		return DOMMatrixReadOnly.fromMatrix(value.toMatrix());
+		const matrix = value.toMatrix();
+		// Typed OM retains a 3D operation flag even when its coefficients are 2D.
+		// Classify geometry without serializing away native coefficient precision.
+		if (
+			matrix.m13 === 0 &&
+			matrix.m14 === 0 &&
+			matrix.m23 === 0 &&
+			matrix.m24 === 0 &&
+			matrix.m31 === 0 &&
+			matrix.m32 === 0 &&
+			matrix.m33 === 1 &&
+			matrix.m34 === 0 &&
+			matrix.m43 === 0 &&
+			matrix.m44 === 1
+		) {
+			return new DOMMatrixReadOnly([
+				matrix.a,
+				matrix.b,
+				matrix.c,
+				matrix.d,
+				matrix.e,
+				matrix.f,
+			]);
+		}
+
+		return DOMMatrixReadOnly.fromMatrix(matrix);
 	} catch (error) {
 		// Typed OM cannot convert percentage translations to a pixel matrix.
 		if (error instanceof TypeError) return null;
