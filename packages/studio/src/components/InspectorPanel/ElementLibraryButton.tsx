@@ -1,5 +1,6 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
+import {getElementLibraryLabel} from '../../helpers/get-element-library-label';
 import {BrowseElementsIcon} from '../../icons/browse-elements';
 import {CaretDown} from '../../icons/caret';
 import {SetSelectedModalContext} from '../../state/modals';
@@ -131,9 +132,7 @@ export const ElementLibraryButton: React.FC = () => {
 						value: 'https://www.remotion.dev/elements',
 					},
 					...elementLibraries.map((library, index) => {
-						const parsedUrl = new URL(library.url);
-						const pathname = parsedUrl.pathname.replace(/\/$/, '');
-						const label = library.displayName ?? `${parsedUrl.host}${pathname}`;
+						const label = getElementLibraryLabel(library);
 
 						return {
 							disabled: false,
