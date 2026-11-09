@@ -44,7 +44,9 @@ The `background-color` property is <a style={{color: 'green'}}>supported</a>.
 `background-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.  
 The `background-size` and `background-position` properties are <a style={{color: 'green'}}>supported</a> for linear gradients with pixel or percentage values.<br />
 The `background-clip` property is <a style={{color: 'green'}}>supported</a>.  
-Other `background-image` values and other `background-*` properties are <a style={{color: 'red'}}>not supported</a>.
+`background-repeat: round` is partially supported for a single same-origin, `data:`, or `blob:` raster URL background. It includes both-axis round repetition, mixed `round repeat` / `repeat round`, and preservation of the source aspect ratio when the other size is `auto`. The opaque test cases match native Chromium; fractional positioning, arbitrary source interpolation and other image types require further pixel-parity qualification.
+
+Other background image values and background properties not described above are <a style={{color: 'red'}}>not supported</a>.
 
 ### Borders and border radius
 
@@ -96,11 +98,11 @@ Basic `box-shadow` are <a style={{color: 'green'}}>supported</a>.
 
 `mask-image` with a linear gradient is <a style={{color: 'green'}}>supported</a>.
 
-`mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with `0% 0%` positioning and `border-box` origin/clip.
+`mask-image` <a style={{color: 'green'}}>supports</a> a single raster `url()` alpha mask from same-origin, `data:`, or `blob:` URLs, with pixel, percentage, keyword, and computed `calc()`/`min()`/`max()`/`clamp()` positioning and `border-box` origin/clip. Edge-offset positions are supported when the browser resolves them to two computed coordinates. Fractional raster-mask sampling can still differ from native output; the exact-position coverage uses native-sized tiles with integral resolved positions.
 
 `mask-size` accepts `px`, `%`, `auto`, `contain`, and `cover`. `mask-repeat` accepts `repeat`, `no-repeat`, `repeat-x`, `repeat-y`, and two-axis `repeat` / `no-repeat` combinations.
 
-Cross-origin URLs, SVG, multiple layers, luminance, other positions, `space` / `round` repeats, and `calc()` sizes are <a style={{color: 'red'}}>not supported</a>.
+Cross-origin URLs, SVG, multiple layers, luminance, edge offsets that are not normalized to two computed coordinates, `space` / `round` repeats, and `calc()` sizes are <a style={{color: 'red'}}>not supported</a>.
 
 ## Filters
 
@@ -137,6 +139,9 @@ The following Remotion components are supported:
 The [`<Video>`](/docs/media/video) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 The [`<Audio>`](/docs/media/audio) from `@remotion/media` is <a style={{color: 'green'}}>supported</a>.  
 [`<Img>`](/docs/img) is <a style={{color: 'green'}}>supported</a>, including SVG data URIs and SVG files.<br />
+
+SVG data URIs recognize case-equivalent `image/svg+xml` media-type tokens and trailing ASCII whitespace before the delimiter without changing the data payload. This preserves source-representation consistency; exact SVG pixels may still differ from native painting, and classification of blob or extensionless SVG sources is not covered by this improvement.
+
 [`<Gif>`](/docs/gif) from [`@remotion/gif`](/docs/gif) is <a style={{color: 'green'}}>supported</a>.  
 [`<Rive>`](/docs/rive) from [`@remotion/rive`](/docs/rive) is <a style={{color: 'green'}}>supported</a>.  
 [`<Lottie>`](/docs/lottie) from [`@remotion/lottie`](/docs/lottie) is <a style={{color: 'green'}}>supported</a>.  

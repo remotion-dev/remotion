@@ -58,13 +58,16 @@ export const handleMask = async ({
 		sourceProperty: 'mask-image',
 		state: internalState.rasterImageLoaderState,
 	});
-	const {maskSize, maskRepeat} = maskImageInfo;
-	const {width, height} = getBackgroundImageRect({
+	const {maskSize, maskRepeat, maskPosition} = maskImageInfo;
+	const tile = getBackgroundImageRect({
 		backgroundSize: maskSize,
-		backgroundPosition: '0% 0%',
+		backgroundPosition: maskPosition,
 		positioningArea: maskRect,
 		intrinsicSize: image,
 	});
+	const {width, height} = tile;
+	const imageLeft = (tile.left - precomposeRect.left) * scale;
+	const imageTop = (tile.top - precomposeRect.top) * scale;
 
 	tempContext.globalCompositeOperation = 'destination-in';
 	if (width === 0 || height === 0) {
@@ -89,13 +92,7 @@ export const handleMask = async ({
 	if (repetition === 'no-repeat') {
 		// Preserve drawImage's filtering for a single tile, including the
 		// previously supported full-size mask case.
-		tempContext.drawImage(
-			image,
-			rectToFill.left,
-			rectToFill.top,
-			imageWidth,
-			imageHeight,
-		);
+		tempContext.drawImage(image, imageLeft, imageTop, imageWidth, imageHeight);
 	} else {
 		const pattern = tempContext.createPattern(image, repetition);
 		if (!pattern) {
@@ -104,7 +101,7 @@ export const handleMask = async ({
 
 		pattern.setTransform(
 			new DOMMatrix()
-				.translate(rectToFill.left, rectToFill.top)
+				.translate(imageLeft, imageTop)
 				.scale(imageWidth / image.width, imageHeight / image.height),
 		);
 		tempContext.fillStyle = pattern;
@@ -121,14 +118,28 @@ export const handleMask = async ({
 	tempContext.save();
 	tempContext.beginPath();
 	tempContext.rect(0, 0, tempContext.canvas.width, tempContext.canvas.height);
-	tempContext.rect(
-		rectToFill.left,
-		rectToFill.top,
+	const clipLeft =
 		repetition === 'no-repeat'
-			? Math.min(rectToFill.width, imageWidth)
+			? Math.max(rectToFill.left, imageLeft)
+			: rectToFill.left;
+	const clipTop =
+		repetition === 'no-repeat'
+			? Math.max(rectToFill.top, imageTop)
+			: rectToFill.top;
+	tempContext.rect(
+		clipLeft,
+		clipTop,
+		repetition === 'no-repeat'
+			? Math.max(
+					0,
+					Math.min(rectToFill.right, imageLeft + imageWidth) - clipLeft,
+				)
 			: rectToFill.width,
 		repetition === 'no-repeat'
-			? Math.min(rectToFill.height, imageHeight)
+			? Math.max(
+					0,
+					Math.min(rectToFill.bottom, imageTop + imageHeight) - clipTop,
+				)
 			: rectToFill.height,
 	);
 	tempContext.clip('evenodd');
