@@ -236,12 +236,31 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	svg.style.marginBottom = '0';
 	svg.style.fill = fill;
 	svg.style.color = color;
+	// CSSStyleSheet.disabled is runtime state and is not serialized as markup.
+	// Neutralize rules only in a clone, preserving nodes for structural selectors.
+	const styles = svg.querySelectorAll('style');
+	const hasDisabledStyles = Array.from(styles).some(
+		(style) => style.sheet?.disabled,
+	);
 	// External stylesheet rules disappear when the SVG becomes an image.
 	// Preserve resolved font selection without mutating mounted text elements.
 	const svgForSerialization =
-		textStyles.length === 0 && embeddedFontStyle === null
+		textStyles.length === 0 && embeddedFontStyle === null && !hasDisabledStyles
 			? svg
 			: (svg.cloneNode(true) as SVGSVGElement);
+	if (hasDisabledStyles) {
+		const clonedStyles = svgForSerialization.querySelectorAll('style');
+		for (let i = 0; i < styles.length; i++) {
+			if (styles[i].sheet?.disabled) {
+				const text = styles[i].textContent;
+				// Preserve :empty as well as the element's structural position.
+				clonedStyles[i].textContent = text?.trim()
+					? '/* Disabled stylesheet. */'
+					: text;
+			}
+		}
+	}
+
 	svgForSerialization
 		.querySelectorAll<SVGTextContentElement>('text, tspan, textPath')
 		.forEach((element, index) => {
