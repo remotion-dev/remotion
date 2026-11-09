@@ -59,14 +59,14 @@ export const MyComp: React.FC = () => {
 
 ## When to disable media fragment hints
 
-If your `<Sequence>`'s change value over time, the media fragments will change too.  
+If your [`<Sequence>`](/docs/sequence)'s change value over time, the media fragments will change too.  
 Anytime they change, the browser considers this a new source and re-loads the video.
 
 There are valid scenarios where we recommend disabling the media fragment hints:
 
-- Changing the `from` and `durationInFrames` values of a `<Sequence>` dynamically
-- Changing the `trimBefore` and `trimAfter` values of a `<Html5Video>` or `<OffthreadVideo>` dynamically
-- Changing the `playbackRate` of a `<OffthreadVideo>` or `<Html5Video>` over time.
+- Changing the `from` and `durationInFrames` values of a [`<Sequence>`](/docs/sequence) dynamically
+- Changing the `trimBefore` and `trimAfter` values of a [`<Html5Video>`](/docs/html5-video) or [`<OffthreadVideo>`](/docs/offthreadvideo) dynamically
+- Changing the `playbackRate` of a [`<OffthreadVideo>`](/docs/offthreadvideo) or [`<Html5Video>`](/docs/html5-video) over time.
 
 Normally you would not do this, but there are exceptions, like: [Changing the speed of a video over time](/docs/videos/accelerated-video)
 

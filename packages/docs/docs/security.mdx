@@ -13,15 +13,15 @@ When starting the Remotion Studio or running a render via the command line, envi
 
 ## Credentials on the web
 
-You should not try to call `renderMediaOnLambda()` or other APIs from `@remotion/lambda` from your app frontend. Those APIs can only be called with AWS credentials, meaning that you would have to expose your AWS credentials to the web. This is a security risk and should be avoided.
+You should not try to call [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) or other APIs from [`@remotion/lambda`](/docs/lambda) from your app frontend. Those APIs can only be called with AWS credentials, meaning that you would have to expose your AWS credentials to the web. This is a security risk and should be avoided.
 
 ## `disableWebSecurity` flag
 
-We provide as a workaround for CORS issues the `disableWebSecurity` flag. This flag disables the same-origin policy in the headless browser. If you are using it, you need to be aware of the implications of it and assess whether this can pose a security risk to you.
+As a workaround for CORS issues, Remotion provides the [`disableWebSecurity`](/docs/options/disable-web-security) flag. This flag disables the same-origin policy in the headless browser. If you are using it, you need to be aware of the implications of it and assess whether this can pose a security risk to you.
 
 ## DDoS attacks
 
-APIs such as `renderMedia()` and `renderMediaOnLambda()` may be expensive (computationally or financially) to run. You should ensure that you are not exposing those APIs to the web without authentication or rate limiting. Otherwise, you may be vulnerable to DDoS attacks.
+APIs such as [`renderMedia()`](/docs/renderer/render-media) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) may be expensive (computationally or financially) to run. You should ensure that you are not exposing those APIs to the web without authentication or rate limiting. Otherwise, you may be vulnerable to DDoS attacks.
 
 ## Dependency Security Scanning
 

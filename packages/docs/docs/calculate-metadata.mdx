@@ -116,7 +116,7 @@ The function must return an pure JSON-serializable object, which can contain the
 - `defaultProResProfile`: The default ProRes profile (`'4444-xq'`, `'4444'`, `'hq'`, `'standard'`, `'light'`, or `'proxy'`). Optional. <AvailableFrom v="4.0.367" />
 - `defaultSampleRate`: The default [audio sample rate](/docs/sample-rate) in Hz. Optional. <AvailableFrom v="4.0.448" />
 
-If you return a field, it will take precendence over the props directly passed to the composition. The defaultCodec returned will have a higher priority than the config file, but less priority than explicitly passing the option to renderMedia() i.e. the composition will be rendered with this codec if nothing with higher priority was specified.
+If you return a field, it will take precedence over the props directly passed to the composition. The `defaultCodec` returned will have a higher priority than the config file, but less priority than explicitly passing the option to [`renderMedia()`](/docs/renderer/render-media), i.e. the composition will be rendered with this codec if nothing with higher priority was specified.
 
 The function may be `async`.
 
