@@ -1,10 +1,5 @@
 import {useEffect, useState} from 'react';
-import {
-	AbsoluteFill,
-	continueRender,
-	delayRender,
-	useCurrentFrame,
-} from 'remotion';
+import {AbsoluteFill, useDelayRender, useCurrentFrame} from 'remotion';
 
 const bangers = new URL(
 	'../../../../example/public/bangers.woff2',
@@ -15,6 +10,7 @@ const roboto = new URL(
 	import.meta.url,
 ).pathname;
 const Component = () => {
+	const {delayRender, continueRender} = useDelayRender();
 	const [handle] = useState(() => delayRender('Loading CSS URL fonts'));
 	const frame = useCurrentFrame();
 	useEffect(() => {
@@ -23,7 +19,7 @@ const Component = () => {
 			document.fonts.load('40px "SVG CSS URL TTF"'),
 			document.fonts.load('32px "SVG CSS URL template"'),
 		]).then(() => continueRender(handle));
-	}, [handle]);
+	}, [handle, continueRender]);
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
 			<style>{`@font-face {font-family:"SVG CSS URL, WOFF2";src:url("${bangers}") format("woff2");}@font-face {font-family:"SVG CSS URL TTF";src:url("${roboto}") format("truetype");}@font-face{font-family:"SVG CSS URL template";src:url("${bangers}") format("woff2")}.svg-css-woff2 {font-family:"SVG CSS URL, WOFF2";font-size:${40 + frame * 2}px}.svg-css-ttf {font-family:"SVG CSS URL TTF";font-size:${32 + frame * 2}px}`}</style>
