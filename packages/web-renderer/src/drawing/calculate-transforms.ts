@@ -207,6 +207,7 @@ export const calculateTransforms = ({
 	let opacity = 1;
 	let elementPreserves3D = false;
 	let elementHadGroupedPreserve3D = false;
+	let hasCssTransform = false;
 	let elementComputedStyle: CSSStyleDeclaration | null = null;
 	let maskImageInfo: MaskImageInfo | null = null;
 	let filterForPrecompositing: string | null = null;
@@ -377,6 +378,8 @@ export const calculateTransforms = ({
 		const hasApplicableTransformCssValue =
 			canApplyCssTransforms({computedStyle: transformStyle, element: parent}) &&
 			hasAnyTransformCssValue(transformStyle);
+
+		hasCssTransform ||= hasApplicableTransformCssValue;
 		if (
 			hasApplicableTransformCssValue ||
 			hasPerspective ||
@@ -497,6 +500,7 @@ export const calculateTransforms = ({
 		dimensions,
 		preserves3DChildren: elementPreserves3D,
 		totalMatrix,
+		hasCssTransform,
 		[Symbol.dispose]: () => {
 			for (const reset of toReset) {
 				reset();
