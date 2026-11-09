@@ -101,10 +101,40 @@ export const deleteEffectsFromSource = async (
 		const pending = info
 			? Internals.OptimisticEffectDeletion.get(info.sequenceSubscriptionKey)
 			: null;
-		const next: TimelineSelection =
-			pending && info?.auxiliaryKeys[0] === 'effects'
-				? {type: 'sequence', nodePathInfo: {...info, auxiliaryKeys: []}}
-				: item;
+
+		let next: TimelineSelection = item;
+
+		if (pending) {
+			if (item.type === 'sequence-effect') {
+				// Find how many effects will remain after deletion
+				const seqKey = item.nodePathInfo.sequenceSubscriptionKey;
+				const key = JSON.stringify([seqKey.absolutePath, seqKey.nodePath]);
+				const target = grouped.get(key);
+				const newCount = target
+					? target.effects.length - target.effectIndices.length
+					: 0;
+
+				if (newCount > 0) {
+					// Effects still remain! Select the effect that shifted into this index.
+					// If we deleted the very last one, clamp to the new last index.
+					const newIndex = Math.min(item.i, newCount - 1);
+					next = {
+						...item,
+						i: newIndex,
+					};
+				} else {
+					// No effects left on this track, fallback to selecting the sequence row.
+					next = {
+						type: 'sequence',
+						nodePathInfo: {...item.nodePathInfo, auxiliaryKeys: []},
+					};
+				}
+			} else if (info?.auxiliaryKeys[0] === 'effects') {
+				// Fallback for 'sequence-all-effects' or other bulk effect selections
+				next = {type: 'sequence', nodePathInfo: {...info, auxiliaryKeys: []}};
+			}
+		}
+
 		changedSelection ||= next !== item;
 		fallback.set(getTimelineSelectionKey(next), next);
 	}
