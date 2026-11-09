@@ -283,3 +283,61 @@ export const svgFilterReviewReference = {
 	width: 520,
 	height: 140,
 };
+
+// PR #13037: the filter itself establishes the containing block.
+const ContainingBlockComponent = () => {
+	const frame = useCurrentFrame();
+	return (
+		<AbsoluteFill style={{background: 'white'}}>
+			<svg width={0} height={0} style={{position: 'absolute'}}>
+				<defs>
+					<filter
+						id="svg-filter-containing-block"
+						filterUnits="userSpaceOnUse"
+						x={0}
+						y={0}
+						width={100}
+						height={80}
+					>
+						<feColorMatrix type="saturate" values="1" />
+					</filter>
+				</defs>
+			</svg>
+			{(['absolute', 'fixed'] as const).map((position) => (
+				<div
+					key={position}
+					style={{position: 'relative', width: 400, height: 200}}
+				>
+					<div
+						style={{
+							marginLeft: 100,
+							width: 100,
+							height: 80,
+							filter: 'url(#svg-filter-containing-block)',
+						}}
+					>
+						<div
+							style={{
+								position,
+								left: 10 + frame * 4,
+								top: 10,
+								width: 20,
+								height: 20,
+								background: 'red',
+							}}
+						/>
+					</div>
+				</div>
+			))}
+		</AbsoluteFill>
+	);
+};
+
+export const svgFilterContainingBlockReference = {
+	component: ContainingBlockComponent,
+	id: 'svg-filter-containing-block',
+	width: 400,
+	height: 400,
+	fps: 30,
+	durationInFrames: 2,
+} as const;

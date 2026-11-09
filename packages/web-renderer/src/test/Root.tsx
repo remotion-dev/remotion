@@ -153,6 +153,7 @@ import {
 	svgFilterFractionalReference,
 	svgFilterOffsetReference,
 	svgFilterReviewReference,
+	svgFilterContainingBlockReference,
 } from './fixtures/svg-filter-reference';
 import {svgPreserveAspectRatioNone} from './fixtures/svg-preserve-aspect-ratio-none';
 import {svgUrlNonzeroViewbox} from './fixtures/svg-url-nonzero-viewbox';
@@ -291,6 +292,7 @@ export const Root: React.FC = () => {
 				<Composition {...svgFilterFractionalReference} />
 				<Composition {...svgFilterOffsetReference} />
 				<Composition {...svgFilterReviewReference} />
+				<Composition {...svgFilterContainingBlockReference} />
 				<Composition {...filterImage} />
 			</Folder>
 			<Folder name="border">
