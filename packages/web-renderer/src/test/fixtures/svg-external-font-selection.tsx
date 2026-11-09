@@ -16,7 +16,7 @@ export const svgExternalFontReady = Promise.all([
 	}),
 ]);
 
-const Component: React.FC = () => {
+const Component: React.FC<{styleType?: string}> = ({styleType}) => {
 	const frame = useCurrentFrame();
 	return (
 		<AbsoluteFill style={{backgroundColor: 'white'}}>
@@ -84,6 +84,9 @@ const Component: React.FC = () => {
 					y={0}
 					style={{fontFamily: 'monospace', fontSize: 30}}
 				/>
+				<style type={styleType ?? (frame === 0 ? 'text/css' : 'text/plain')}>
+					{'/* Non-CSS style elements cannot carry font definitions. */'}
+				</style>
 			</svg>
 		</AbsoluteFill>
 	);

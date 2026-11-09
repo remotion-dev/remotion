@@ -179,6 +179,10 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	});
 
 	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
+	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
+	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+		Boolean(style.sheet),
+	).lastIndexOf(true);
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
@@ -325,7 +329,7 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 				const fontCss = css + (embeddedFontStyle?.css ?? '');
 				let markup = serializedSvg;
 				if (fontCss) {
-					insertFontStyleInSvg(svgForSerialization, fontCss);
+					insertFontStyleInSvg(svgForSerialization, fontCss, fontStyleIndex);
 					markup = serializeSvg(svgForSerialization);
 				}
 
