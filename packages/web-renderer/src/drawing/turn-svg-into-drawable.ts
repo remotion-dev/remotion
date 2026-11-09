@@ -65,6 +65,10 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 	});
 
 	const embeddedFontStyle = getEmbeddedFontStyleForSvg(svg);
+	// Non-CSS style elements do not parse carried font rules. Clone sheets are detached.
+	const fontStyleIndex = Array.from(svg.querySelectorAll('style'), (style) =>
+		Boolean(style.sheet),
+	).lastIndexOf(true);
 	const originalStyle = svg.getAttribute('style');
 	const originalWidth = svg.getAttribute('width');
 	const originalHeight = svg.getAttribute('height');
@@ -116,7 +120,11 @@ export const turnSvgIntoDrawable = (svg: SVGSVGElement) => {
 			});
 		});
 	if (embeddedFontStyle)
-		insertFontStyleInSvg(svgForSerialization, embeddedFontStyle.css);
+		insertFontStyleInSvg(
+			svgForSerialization,
+			embeddedFontStyle.css,
+			fontStyleIndex,
+		);
 	const serializedSvg = new XMLSerializer()
 		.serializeToString(svgForSerialization)
 		// eslint-disable-next-line no-control-regex
