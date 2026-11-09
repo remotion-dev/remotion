@@ -232,11 +232,6 @@ const parseSingleMaskImage = (
 	computedStyle: CSSStyleDeclaration,
 	layer: number,
 ): SingleMaskImageInfo | null => {
-	const gradientInfo = parseLinearGradient(maskImageValue);
-	if (gradientInfo) {
-		return {type: 'linear-gradient', gradientInfo, value: maskImageValue};
-	}
-
 	const url = parseUrlFunction(maskImageValue);
 	if (url !== null) {
 		if (!url) {
@@ -248,6 +243,11 @@ const parseSingleMaskImage = (
 			src: new URL(url, document.baseURI).href,
 			...validateUrlMaskImageStyle(computedStyle, layer),
 		};
+	}
+
+	const gradientInfo = parseLinearGradient(maskImageValue);
+	if (gradientInfo) {
+		return {type: 'linear-gradient', gradientInfo, value: maskImageValue};
 	}
 
 	if (maskImageValue.trim().toLowerCase().startsWith('url(')) {

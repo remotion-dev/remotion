@@ -98,3 +98,11 @@ export const maskGradientPaletteTransparent = createMaskImageLayersFixture(
 	false,
 	paletteVariant,
 );
+
+export const maskGradientLayersTokenUrl = createMaskImageLayersFixture(
+	'token-url',
+	true,
+	variant,
+);
+export const maskGradientLayersTokenUrlTransparent =
+	createMaskImageLayersFixture('token-url', false, variant);

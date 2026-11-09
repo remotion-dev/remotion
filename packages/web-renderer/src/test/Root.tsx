@@ -97,6 +97,8 @@ import {
 	maskGradientLayersTransparent,
 	maskGradientLayersUrl,
 	maskGradientLayersUrlTransparent,
+	maskGradientLayersTokenUrl,
+	maskGradientLayersTokenUrlTransparent,
 	maskGradientPalette,
 	maskGradientPaletteTransparent,
 	maskGradientLayersBlob,
@@ -290,6 +292,8 @@ export const Root: React.FC = () => {
 				<Composition {...maskGradientLayersUrlTransparent} />
 				<Composition {...maskGradientLayersBlob} />
 				<Composition {...maskGradientLayersBlobTransparent} />
+				<Composition {...maskGradientLayersTokenUrl} />
+				<Composition {...maskGradientLayersTokenUrlTransparent} />
 				<Composition {...maskGradientPalette} />
 				<Composition {...maskGradientPaletteTransparent} />
 				<Composition {...maskImageLayersTransparent} />

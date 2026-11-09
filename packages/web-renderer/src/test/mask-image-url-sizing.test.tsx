@@ -6,6 +6,8 @@ import {
 	maskGradientLayersTransparent,
 	maskGradientLayersUrl,
 	maskGradientLayersUrlTransparent,
+	maskGradientLayersTokenUrl,
+	maskGradientLayersTokenUrlTransparent,
 	maskGradientPalette,
 	maskGradientPaletteTransparent,
 	maskGradientLayersBlob,
@@ -361,6 +363,8 @@ for (const composition of [
 	maskGradientLayersBlobTransparent,
 	maskGradientPalette,
 	maskGradientPaletteTransparent,
+	maskGradientLayersTokenUrl,
+	maskGradientLayersTokenUrlTransparent,
 ]) {
 	for (const frame of [0, 1]) {
 		test(`composes multiple alpha mask layers ${composition.id} frame ${frame}`, async (t) => {

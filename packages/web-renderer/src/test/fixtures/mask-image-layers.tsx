@@ -38,7 +38,7 @@ const partialStyles: React.CSSProperties[] = (
 }));
 
 export const createMaskImageLayersFixture = (
-	source: 'data' | 'url' | 'blob',
+	source: 'data' | 'url' | 'token-url' | 'blob',
 	opaque: boolean,
 	variant: {id: string; styles: readonly React.CSSProperties[]} | null,
 ) => {
@@ -55,9 +55,14 @@ export const createMaskImageLayersFixture = (
 			const urls =
 				source === 'data'
 					? [rasterMask, halfAlpha]
-					: source === 'url'
+					: source === 'url' || source === 'token-url'
 						? [
-								staticFile('mask-alpha)tile.png'),
+								source === 'token-url'
+									? new URL(
+											'/mask-linear-gradient(red,blue).png',
+											document.baseURI,
+										).href
+									: staticFile('mask-alpha)tile.png'),
 								staticFile('mask-half-alpha.png'),
 							]
 						: [rasterMask, halfAlpha].map((src) =>
