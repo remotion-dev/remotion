@@ -1,6 +1,7 @@
 import {getBiggestBoundingClientRect} from '../get-biggest-bounding-client-rect';
 import type {InternalState} from '../internal-state';
 import {getBackgroundImageRect} from './background-image-rect';
+import {createCssMask} from './css-mask';
 import type {MaskImageInfo} from './mask-image';
 import {
 	createCanvasGradient,
@@ -30,6 +31,34 @@ export const handleMask = async ({
 	scale: number;
 	internalState: InternalState;
 }) => {
+	if (maskImageInfo.type === 'layers') {
+		const groupImage = await createCssMask({
+			maskImageInfo,
+			maskRect,
+			precomposeRect,
+			width: tempContext.canvas.width,
+			height: tempContext.canvas.height,
+			internalState,
+		});
+		const mask = new OffscreenCanvas(
+			tempContext.canvas.width,
+			tempContext.canvas.height,
+		).getContext('2d', {willReadFrequently: true});
+		if (!mask) throw new Error('Could not create mask group context');
+		try {
+			// Rasterize the native mask group before applying it to the content. The
+			// readback context preserves fractional alpha at this SVG drawable seam.
+			mask.drawImage(groupImage, 0, 0);
+			tempContext.globalCompositeOperation = 'destination-in';
+			tempContext.drawImage(mask.canvas, 0, 0);
+		} finally {
+			mask.canvas.width = 0;
+			mask.canvas.height = 0;
+		}
+
+		return;
+	}
+
 	const rectToFill = new DOMRect(
 		(maskRect.left - precomposeRect.left) * scale,
 		(maskRect.top - precomposeRect.top) * scale,

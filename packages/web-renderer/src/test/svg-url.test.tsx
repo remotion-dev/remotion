@@ -2,11 +2,12 @@ import {staticFile} from 'remotion';
 import {expect, test} from 'vitest';
 import {renderStillOnWeb} from '../render-still-on-web';
 import {createSvgDataMimeFixture} from './fixtures/svg-data-mime-case';
-import '../symbol-dispose';
+import {createSvgFullSourceFixture} from './fixtures/svg-full-source';
 import {
 	svgUrlBlurredCover,
 	svgUrlNonzeroViewbox,
 } from './fixtures/svg-url-nonzero-viewbox';
+import '../symbol-dispose';
 import {compareNativePixels, savePixelEvidence} from './native-reference';
 import {testImage} from './utils';
 
@@ -35,6 +36,46 @@ test('should not clip the blur of a cropped SVG loaded from a URL', async () => 
 
 	await testImage({blob, testId: 'svg-url-blurred-cover'});
 });
+
+// KINO-7764: source URL representation must not change an uncropped SVG.
+test.for(
+	(
+		[
+			{objectFit: 'fill', boxWidth: undefined, label: 'fill'},
+			{objectFit: 'contain', boxWidth: undefined, label: 'contain'},
+			{objectFit: 'contain', boxWidth: 64, label: 'contain64'},
+			{objectFit: 'contain', boxWidth: 61, label: 'contain61'},
+			{objectFit: 'contain', boxWidth: 31.359375, label: 'containFractional'},
+		] as const
+	).flatMap((configuration) =>
+		[0, 1].map((frame) => ({...configuration, frame})),
+	),
+)(
+	'preserves full-source SVG content through blob URLs ($label, frame:$frame)',
+	async ({objectFit, boxWidth, label, frame}) => {
+		const render = async (source: 'url' | 'blob') =>
+			(
+				await renderStillOnWeb({
+					composition: createSvgFullSourceFixture(source, objectFit, boxWidth),
+					frame,
+					inputProps: {},
+					licenseKey: 'free-license',
+					allowHtmlInCanvas: false,
+				})
+			).blob({format: 'png'});
+		const reference = await render('url');
+		const actual = await render('blob');
+		const result = await compareNativePixels(reference, actual);
+		if (result.mismatchedPixels > 0) {
+			const id = `svg-full-source-${label}-${frame}`;
+			await savePixelEvidence(reference, `${id}-reference`);
+			await savePixelEvidence(actual, `${id}-actual`);
+			await savePixelEvidence(result.diff, `${id}-diff`);
+		}
+
+		expect(result.mismatchedPixels).toBe(0);
+	},
+);
 
 // KINO-7764: Equivalent SVG media-type spellings must not change identical vector content.
 test.for(

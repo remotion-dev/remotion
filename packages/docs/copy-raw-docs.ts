@@ -113,6 +113,15 @@ function copyRawDocs() {
 		copiedCount++;
 	}
 
+	// These policy documents are deliberately absent from the article catalog.
+	for (const slug of ['privacy-4-0', 'terms-4-0']) {
+		writeRawMarkdown({
+			destPath: path.join(DOCS_OUTPUT_DIR, `${slug}.md`),
+			sourcePath: path.join(DOCS_DIR, `${slug}.mdx`),
+		});
+		copiedCount++;
+	}
+
 	console.log(`✅ Copied ${copiedCount} files to static/_raw/docs/`);
 }
 
